@@ -90,7 +90,7 @@ class TestRFC822(TestCase):
         with StringIO(text) as stream:
             records = load_rfc822_records(stream)
         self.assertEqual(len(records), 1)
-        self.assertEqual(records[0], {'key': '\nlonger\nvalue'})
+        self.assertEqual(records[0], {'key': 'longer\nvalue'})
 
     def test_many_multiline_values(self):
         text = (
@@ -106,7 +106,7 @@ class TestRFC822(TestCase):
             records = load_rfc822_records(stream)
         self.assertEqual(len(records), 2)
         self.assertEqual(records[0], {'key1': 'initial\nlonger\nvalue 1'})
-        self.assertEqual(records[1], {'key2': '\nlonger\nvalue 2'})
+        self.assertEqual(records[1], {'key2': 'longer\nvalue 2'})
 
     def test_irrelevant_whitespace(self):
         text = "key :  value  "
@@ -123,7 +123,7 @@ class TestRFC822(TestCase):
         with StringIO(text) as stream:
             records = load_rfc822_records(stream)
         self.assertEqual(len(records), 1)
-        self.assertEqual(records[0], {'key': '\nvalue'})
+        self.assertEqual(records[0], {'key': 'value'})
 
     def test_bad_multilie(self):
         text = " extra value"

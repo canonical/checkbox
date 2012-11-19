@@ -18,13 +18,16 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.rfc822
-===============
+plainbox.impl.rfc822
+====================
 
 Implementation of rfc822 serializer and deserializer.
 
  * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
 """
+
+
+from inspect import cleandoc
 
 
 class RFC822SyntaxError(SyntaxError):
@@ -96,7 +99,7 @@ def gen_rfc822_records(stream, record_cls=dict):
         """
         nonlocal key
         if key is not None:
-            record[key] = '\n'.join(value_list)
+            record[key] = cleandoc('\n'.join(value_list))
             key = None
     # Start with an empty record
     _new_record()
@@ -121,7 +124,7 @@ def gen_rfc822_records(stream, record_cls=dict):
                 raise _syntax_error("Unexpected multi-line value")
             # Append the current line to the list of values of the most recent
             # key. This prevents quadratic complexity of string concatenation
-            value_list.append(line.strip())
+            value_list.append(line.rstrip())
         # Treat lines with a colon as new key-value pairs
         elif ":" in line:
             # Since we have a new, key-value pair we need to commit any

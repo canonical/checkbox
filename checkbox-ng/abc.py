@@ -40,10 +40,10 @@ easier to understand (by not being mixed with additional source code).
 from abc import ABCMeta, abstractproperty, abstractmethod
 
 
-class ITestDefinition(metaclass=ABCMeta):
+class IJobDefinition(metaclass=ABCMeta):
     """
-    Test definition that contains a mixture of meta-data and executable
-    information that can be consumed by the test runner to produce results.
+    Job definition that contains a mixture of meta-data and executable
+    information that can be consumed by the job runner to produce results.
     """
 
     # XXX: All IO methods to save/load this would be in a helper class/function
@@ -52,57 +52,71 @@ class ITestDefinition(metaclass=ABCMeta):
     @abstractproperty
     def plugin(self):
         """
-        Name of the test data interpreter. Various interpreters are provided by
-        the test runner (in association with the user interface).
+        Name of the job interpreter.
+
+        Various interpreters are provided by the job runner.
         """
 
     @abstractproperty
     def name(self):
         """
-        Name of the test
+        Name of the job
         """
 
     @abstractproperty
     def requires(self):
         """
-        List of expressions that need to be true for this test to be available
+        List of expressions that need to be true for this job to be available
         """
 
     @abstractproperty
     def command(self):
         """
-        The shell command to execute to perform the test.
+        The shell command to execute to perform the job.
 
-        The return code and standard output / standard error streams will be
-        added to the test results automatically.
+        The return code, standard output and standard error streams are
+        automatically recorded and processed, depending on the plugin type.
         """
 
     @abstractproperty
     def description(self):
         """
-        Human-readable description of the test that typically includes the
-        steps necessary to perform it.
+        Human-readable description of the job.
+
+        This field is typically used to include execution and verification
+        steps for manual and human-assisted tests.
+        """
+
+    @abstractproperty
+    def depends(self):
+        """
+        A list of jobs this job depends on
         """
 
 
 class ITestResult(metaclass=ABCMeta):
     """
-    Object representing test results from a single test run.
+    Class for representing test results from a single test job
     """
 
+    OUTCOME_UNSELECTED = 'unselected'
+    OUTCOME_UNSUPPORTED = 'unsupported'
     OUTCOME_PASS = 'pass'
     OUTCOME_FAIL = 'fail'
     OUTCOME_SKIP = 'skip'
     # XXX: we could have OUTCOME_UNKNOWN for manual tests if we wish to present
     # that option to the user.
 
+    # XXX: We could also store stuff like test duration and other meta-data but
+    # I wanted to avoid polluting this proposal with mundane details
+
     @abstractproperty
-    def test_name(self):
+    def job(self):
         """
-        Name of the test that was invoked
+        Definition of the job
+
+        The object implements IJobDefinition
         """
-        # XXX: alternatively we could link to the full test definition which
-        # would also capture everything that was defined there at the time.
 
     @abstractproperty
     def outcome(self):
@@ -127,15 +141,14 @@ class ITestResult(metaclass=ABCMeta):
         delay since the previous message seconds (typically a fractional
         number), stream name is either 'stdout' or 'stderr' and data is the
         bytes object that was obtained from that stream.
-
-        XXX: it could also encode 'stdin' if the user was presented with a
-        console to type in and we sent that to the process.
-
-        XXX: This interface is low-level but captures everything that has
-        occurred and is text-safe. You can call an utility function to convert
-        that to a text string that most closely represents what a user would
-        see, having ran this command in the terminal.
         """
+        # XXX: it could also encode 'stdin' if the user was presented with a
+        # console to type in and we sent that to the process.
+
+        # XXX: This interface is low-level but captures everything that has
+        # occurred and is text-safe. You can call an utility function to
+        # convert that to a text string that most closely represents what a
+        # user would see, having ran this command in the terminal.
 
     @abstractproperty
     def return_code(self):
@@ -143,33 +156,31 @@ class ITestResult(metaclass=ABCMeta):
         Command return code.
 
         This is the return code of the process started to execute the command
-        from the test definition. It can also encode the signal that the
+        from the job definition. It can also encode the signal that the
         process was killed with, if any.
         """
 
-    # XXX: We could also store stuff like test duration and other meta-data
-    # but I wanted to avoid polluting this proposal with mundane details
 
-
-class ITestRunner(metaclass=ABCMeta):
+class IJobRunner(metaclass=ABCMeta):
     """
-    Something that can run a (test) definition and produce results.
+    Something that can run a job definition and produce results.
 
-    You can run many tests with one runner, each time you'll get additional
+    You can run many jobs with one runner, each time you'll get additional
     result object. Typically you will need to connect the runner to a user
     interface but headless mode is also possible.
     """
 
     @abstractmethod
-    def run_test(self, test_definition):
+    def run_job(self, job):
         """
-        Run the specified test definition.
+        Run the specified job.
 
         Calling this method may block for arbitrary amount of time. User
         interfaces should ensure that it runs in a separate thread.
 
-        The return value is a TestResult object that contains all the
-        data that was captured during the execution of the test.
+        The return value is a TestResult object that contains all the data that
+        was captured during the execution of the job. Some jobs may not return
+        a TestResult value.
         """
         # XXX: threads suck, could we make this fully asynchronous? The only
         # thing that we really want is to know when the command has stopped
@@ -177,9 +188,26 @@ class ITestRunner(metaclass=ABCMeta):
         # QT/GTK applications could tie that directly into their event loop.
 
 
-class IUserInterfaceIO:
+class IResourceContext(metaclass=ABCMeta):
     """
-    Base class that allows test runner to interact with the user interface.
+    Class used for storing and evaluating job requirement expressions.
+    """
+
+    @abstractproperty
+    def resources(self):
+        """
+        A namespace of resources.
+
+        The return value is a Namespace object that can be freely manipulated.
+        This object is used as a global environment for evaluating expressions.
+
+        The value of each resource should be a list or Namespace objects.
+        """
+
+
+class IUserInterfaceIO(metaclass=ABCMeta):
+    """
+    Base class that allows job runner to interact with the user interface.
     """
 
     @abstractmethod

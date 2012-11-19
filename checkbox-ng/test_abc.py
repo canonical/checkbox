@@ -24,4 +24,13 @@ plainbox.test_abc
 Test definitions for plainbox.abc module
 """
 
-from plainbox import abc
+from unittest import TestCase
+
+
+class ImportTestCase(TestCase):
+
+    def test_can_import_plainbox_abc(self):
+        try:
+            import plainbox.abc
+        except ImportError:
+            self.fail("Unable to import plainbox.abc")

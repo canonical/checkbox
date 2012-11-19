@@ -39,53 +39,53 @@ understand (by not being mixed with additional source code).
 from plainbox.impl import public
 
 
-@public('plainbox.impl.utils')
-def get_builtin_test_definitions():
+@public('plainbox.impl.box')
+def get_builtin_jobs():
     """
-    Get all the test definitions that are built into checkbox
+    Get all the jobs that are built into checkbox
     """
 
 
-@public('plainbox.impl.utils')
+@public('plainbox.impl.box')
 def save(something, somewhere):
     """
     Save something somewhere
 
     The ultimate high-level serialization interface.
 
-    Something can be a TestDefinition or a TestResult object.
+    Something can be a list of JobDefinition or a TestResult objects.
     Somewhere may be a file-like object or a filename.
     """
 
 
-@public('plainbox.impl.utils')
+@public('plainbox.impl.box')
 def load(somewhere):
     """
     Load some something from somewhere!
 
     The ultimate high-level deserialization interface
 
-    Somewhere may be a file-like object or a filename.
-    The returned something is a TestDefinition or a TestResult.
+    Somewhere may be a file-like object or a filename. The returned something
+    is a list of JobDefinition or a TestResult objects.
     """
     # XXX: should we handle basic collections at this level - as in, many test
     # {definitions,results} in one file. If so can we just return a list.
 
 
-@public('plainbox.impl.utils')
+@public('plainbox.impl.box')
 def run(*args, **kwargs):
     """
-    Run checkbox tests!
+    Run PlainBox tests!
 
     The ultimate high-level execution, er, interface.
 
-    This is the best way to create customized checkbox-based solutions that
-    need to perform custom manipulation beyond the scope of the core checkbox
+    This is the best way to create customized PlainBox-based solutions that
+    need to perform custom manipulation beyond the scope of the core PlainBox
     use cases supported by the canonical hardware certification team.
 
     Positional arguments:
 
-        When no positional arguments are provided checkbox will behave as if
+        When no positional arguments are provided PlainBox will behave as if
         called with get_builtin_test_definitions()
 
         Each positional argument is handled separately depending on the type:
@@ -93,12 +93,12 @@ def run(*args, **kwargs):
             string:
 
                 Each string is converted to a pattern that tries to match the
-                name property of the tests built into checkbox (which are
-                returned by get_builtin_test_definitions).
+                name property of the tests built into CheckBox (which are
+                returned by get_builtin_jobs).
 
-            TestDefinition:
+            JobDefinition:
 
-                Checkbox will run that test directly
+                PlainBox will run that test directly
 
     Keyword arguments:
 
@@ -136,8 +136,8 @@ def run(*args, **kwargs):
     """
 
 
-@public('plainbox.impl.main')
+@public('plainbox.impl.box')
 def main(argv=None):
     """
-    Entry point for the temporary new plainbox
+    Entry point for the temporary new PlainBox executable
     """

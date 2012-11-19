@@ -19,9 +19,18 @@
 
 """
 plainbox.test_public
-======================
+====================
 
 Test definitions for plainbox.public module
 """
 
-from plainbox import public
+from unittest import TestCase
+
+
+class ImportTestCase(TestCase):
+
+    def test_can_import_plainbox_abc(self):
+        try:
+            from plainbox import public
+        except ImportError:
+            self.fail("Unable to import plainbox.public")

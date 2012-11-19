@@ -26,8 +26,14 @@ Auxiliary test loader for plainbox
 
 from unittest.loader import defaultTestLoader
 
-import plainbox
+from plainbox.impl import get_plainbox_dir
 
 
 def test_suite():
-    return defaultTestLoader.discover(plainbox.__path__[0])  # pragma: no cover
+    """
+    Test suite function used by setuptools test loader.
+
+    Uses unittest test discovery system to get a list of test cases defined
+    inside plainbox. See setup.py setup(test_suite=...) for a matching entry
+    """
+    return defaultTestLoader.discover(get_plainbox_dir())

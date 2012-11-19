@@ -25,6 +25,10 @@ plainbox.impl
 """
 
 from functools import wraps
+from inspect import getabsfile
+import os.path
+
+import plainbox
 
 
 def public(import_path, introduced=None, deprecated=None):
@@ -108,3 +112,10 @@ def public(import_path, introduced=None, deprecated=None):
             call_impl.__doc__ += impl.__doc__
         return call_impl
     return decorator
+
+
+def get_plainbox_dir():
+    """
+    Return the root directory of the plainbox package.
+    """
+    return os.path.dirname(getabsfile(plainbox))

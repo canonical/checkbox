@@ -92,6 +92,30 @@ class TestRFC822(TestCase):
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0], {'key': 'longer\nvalue'})
 
+    def test_multiline_value_with_space(self):
+        text = (
+            "key:\n"
+            " longer\n"
+            " .\n"
+            " value\n"
+        )
+        with StringIO(text) as stream:
+            records = load_rfc822_records(stream)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0], {'key': 'longer\n\nvalue'})
+
+    def test_multiline_value_with_period(self):
+        text = (
+            "key:\n"
+            " longer\n"
+            " ..\n"
+            " value\n"
+        )
+        with StringIO(text) as stream:
+            records = load_rfc822_records(stream)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0], {'key': 'longer\n.\nvalue'})
+
     def test_many_multiline_values(self):
         text = (
             "key1:initial\n"
@@ -125,7 +149,7 @@ class TestRFC822(TestCase):
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0], {'key': 'value'})
 
-    def test_bad_multilie(self):
+    def test_bad_multiline(self):
         text = " extra value"
         with StringIO(text) as stream:
             with self.assertRaises(RFC822SyntaxError) as call:
@@ -138,3 +162,22 @@ class TestRFC822(TestCase):
             with self.assertRaises(RFC822SyntaxError) as call:
                 load_rfc822_records(stream)
             self.assertEqual(call.exception.msg, "Unexpected non-empty line")
+
+    def test_syntax_error(self):
+        text = "key1 = value1"
+        with StringIO(text) as stream:
+            with self.assertRaises(RFC822SyntaxError) as call:
+                load_rfc822_records(stream)
+            self.assertEqual(call.exception.msg, "Unexpected non-empty line")
+
+    def test_duplicate_error(self):
+        text = (
+            "key1: value1\n"
+            "key1: value2\n"
+        )
+        with StringIO(text) as stream:
+            with self.assertRaises(RFC822SyntaxError) as call:
+                load_rfc822_records(stream)
+            self.assertEqual(call.exception.msg,
+                "Job has a duplicate key 'key1' with old value 'value1'"
+                " and new value 'value2'")

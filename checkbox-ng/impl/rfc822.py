@@ -43,7 +43,7 @@ class RFC822SyntaxError(SyntaxError):
 
 def load_rfc822_records(stream, record_cls=dict):
     """
-    Load a sequence of rtf822-like records from a text stream.
+    Load a sequence of rfc822-like records from a text stream.
 
     Each record consists of any number of key-value pairs. Subsequent records
     are separated by one blank line. A record key may have a multi-line value
@@ -124,7 +124,12 @@ def gen_rfc822_records(stream, record_cls=dict):
                 raise _syntax_error("Unexpected multi-line value")
             # Append the current line to the list of values of the most recent
             # key. This prevents quadratic complexity of string concatenation
-            value_list.append(line.rstrip())
+            if line == " .\n":
+                value_list.append(" ")
+            elif line == " ..\n":
+                value_list.append(" .")
+            else:
+                value_list.append(line.rstrip())
         # Treat lines with a colon as new key-value pairs
         elif ":" in line:
             # Since we have a new, key-value pair we need to commit any
@@ -136,6 +141,12 @@ def gen_rfc822_records(stream, record_cls=dict):
             key, value = line.split(":", 1)
             key = key.strip()
             value = value.strip()
+            # Check if the key already exist in this message
+            if key in record:
+                raise _syntax_error(
+                    "Job has a duplicate key '%s' "
+                    "with old value '%s' and new value '%s'"
+                    % (key, record[key], value))
             # Construct initial value list out of the (only) value that we have
             # so far. Additional multi-line values will just append to
             # value_list

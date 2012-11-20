@@ -213,7 +213,7 @@ class PlainBox:
             print("[ {} ]".format(job.name).center(80, '-'))
             if job.description:
                 print()
-                print(job.description.center(80))
+                print(job.description)
                 print()
                 print("_" * 80)
             print(" * job attributes set: {}".format(

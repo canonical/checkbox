@@ -144,6 +144,7 @@ class PlainBox:
                           " {}".format(resource_name, job))
                     print("Job {} will not run".format(job))
                     matching_job_list.remove(job)
+                    continue
                 if required_job.plugin != "resource":
                     print("Job {} references resource {!r} but job {} uses"
                           " non-resource plugin {!r}".format(

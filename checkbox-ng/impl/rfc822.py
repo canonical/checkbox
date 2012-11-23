@@ -145,9 +145,15 @@ def gen_rfc822_records(stream, data_cls=dict):
         nonlocal value_list
         nonlocal record
         nonlocal data
+        nonlocal origin
         key = None
         value_list = None
         data = None
+        try:
+            filename = stream.name
+        except AttributeError:
+            filename = None
+        origin = Origin(filename, None, None)
         data = data_cls()
         record = RFC822Record(data, origin)
 
@@ -159,6 +165,20 @@ def gen_rfc822_records(stream, data_cls=dict):
         if key is not None:
             data[key] = cleandoc('\n'.join(value_list))
             key = None
+
+    def _set_start_lineno_if_needed():
+        """
+        Remember the line number of the record start unless already set
+        """
+        if record.origin.line_start is None:
+            record.origin.line_start = lineno
+
+    def _update_end_lineno():
+        """
+        Update the line number of the record tail
+        """
+        record.origin.line_end = lineno
+
     # Start with an empty record
     _new_record()
     # Iterate over subsequent lines of the stream
@@ -188,8 +208,14 @@ def gen_rfc822_records(stream, data_cls=dict):
                 value_list.append(" .")
             else:
                 value_list.append(line.rstrip())
+            # Update the end line location of this record
+            _update_end_lineno()
         # Treat lines with a colon as new key-value pairs
         elif ":" in line:
+            # Since this is actual data let's try to remember where it came
+            # from. This may be a no-operation if there were any preceding
+            # key-value pairs.
+            _set_start_lineno_if_needed()
             # Since we have a new, key-value pair we need to commit any
             # previous key that we may have (regardless of multi-line or
             # single-line values).
@@ -209,6 +235,8 @@ def gen_rfc822_records(stream, data_cls=dict):
             # so far. Additional multi-line values will just append to
             # value_list
             value_list = [value]
+            # Update the end-line location
+            _update_end_lineno()
         # Treat all other lines as syntax errors
         else:
             raise _syntax_error("Unexpected non-empty line")

@@ -74,9 +74,19 @@ class JobDefinition(IJobDefinition):
         except AttributeError:
             return None
 
-    def __init__(self, data):
+    @property
+    def origin(self):
+        """
+        The Origin object associated with this JobDefinition
+
+        May be None
+        """
+        return self._origin
+
+    def __init__(self, data, origin=None):
         self._data = data
         self._resource_program = None
+        self._origin = origin
 
     def __str__(self):
         return self.name

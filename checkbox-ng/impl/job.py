@@ -27,6 +27,7 @@ Internal implementation of plainbox
 """
 
 import logging
+import re
 
 from plainbox.abc import IJobDefinition
 from plainbox.impl.resource import ResourceProgram
@@ -108,6 +109,17 @@ class JobDefinition(IJobDefinition):
             self._resource_program = ResourceProgram(self.requires)
         return self._resource_program
 
+    def get_direct_dependencies(self):
+        """
+        Compute and return a set of direct dependencies
+
+        To combat a simple mistake where the jobs are space-delimited any
+        mixture of spaces and commas are allowed.
+        """
+        if self.depends:
+            return {name for name in re.split('[ ,]+', self.depends)}
+        else:
+            return set()
     @classmethod
     def from_rfc822_record(cls, record):
         """

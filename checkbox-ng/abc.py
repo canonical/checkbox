@@ -67,6 +67,8 @@ class IJobDefinition(metaclass=ABCMeta):
     def requires(self):
         """
         List of expressions that need to be true for this job to be available
+
+        This value can be None
         """
 
     @abstractproperty
@@ -76,6 +78,8 @@ class IJobDefinition(metaclass=ABCMeta):
 
         The return code, standard output and standard error streams are
         automatically recorded and processed, depending on the plugin type.
+
+        This value can be None
         """
 
     @abstractproperty
@@ -85,12 +89,22 @@ class IJobDefinition(metaclass=ABCMeta):
 
         This field is typically used to include execution and verification
         steps for manual and human-assisted tests.
+
+        This value can be None
         """
 
     @abstractproperty
     def depends(self):
         """
-        A list of jobs this job depends on
+        Comma-delimited dependency expression
+
+        This field can be used to express job dependencies. If a job depends on
+        another job it can only start if the other job had ran and succeeded.
+
+        This is the original data as provided when constructed. Use
+        get_direct_dependencies() to obtain the parsed equivalent.
+
+        This value can be None
         """
 
 

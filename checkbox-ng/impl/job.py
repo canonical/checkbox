@@ -135,6 +135,11 @@ class JobDefinition(IJobDefinition):
     def from_rfc822_record(cls, record):
         """
         Create a JobDefinition instance from rfc822 record
+
+        The record must be a dictionary.
+
+        Only the 'name' and 'plugin' keys are required.
+        All other data is stored as is and is entirely optional.
         """
         for key in ['plugin', 'name']:
             if key not in record:

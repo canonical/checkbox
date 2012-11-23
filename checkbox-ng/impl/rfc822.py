@@ -56,6 +56,33 @@ class Origin:
             self.filename, self.line_start, self.line_end)
 
 
+class RFC822Record(dict):
+    """
+    Class for tracking RFC822 records
+
+    This is a simple container for the dictionary of data.
+    Each instance also holds the origin of the data
+    """
+
+    def __init__(self, data, origin):
+        self._data = data
+        self._origin = origin
+
+    @property
+    def origin(self):
+        """
+        The origin of the record.
+        """
+        return self._origin
+
+    @property
+    def data(self):
+        """
+        The data set (dictionary)
+        """
+        return self._data
+
+
 class RFC822SyntaxError(SyntaxError):
     """
     SyntaxError subclass for RFC822 parsing functions

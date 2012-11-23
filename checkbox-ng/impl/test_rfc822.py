@@ -28,6 +28,7 @@ from io import StringIO
 from unittest import TestCase
 
 from plainbox.impl.rfc822 import Origin
+from plainbox.impl.rfc822 import RFC822Record
 from plainbox.impl.rfc822 import RFC822SyntaxError
 from plainbox.impl.rfc822 import load_rfc822_records
 
@@ -51,6 +52,16 @@ class OriginTests(TestCase):
         expected = "file.txt:10-12"
         observed = str(self.origin)
         self.assertEqual(expected, observed)
+
+
+class RFC822RecordTests(TestCase):
+
+    def test_smoke(self):
+        data = {'key': 'value'}
+        origin = Origin('file.txt', 1, 1)
+        record = RFC822Record(data, origin)
+        self.assertEqual(record.data, data)
+        self.assertEqual(record.origin, origin)
 
 
 class TestRFC822(TestCase):

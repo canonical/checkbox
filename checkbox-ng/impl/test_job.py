@@ -27,65 +27,67 @@ Test definitions for plainbox.impl.job module
 from unittest import TestCase
 
 from plainbox.impl.job import JobDefinition
+from plainbox.impl.rfc822 import RFC822Record
+from plainbox.impl.rfc822 import Origin
 
 
 class TestJobDefinition(TestCase):
 
-    _full_data = {
-        'plugin': 'plugin',
-        'name': 'name',
-        'requires': 'requires',
-        'command': 'command',
-        'description': 'description'
-    }
 
-    _full_gettext_data = {
-        '_plugin': 'plugin',
-        '_name': 'name',
-        '_requires': 'requires',
-        '_command': 'command',
-        '_description': 'description'
-    }
+    def setUp(self):
+        self._full_record = RFC822Record({
+            'plugin': 'plugin',
+            'name': 'name',
+            'requires': 'requires',
+            'command': 'command',
+            'description': 'description'
+        }, Origin('file.txt', 1, 5))
+        self._full_gettext_record = RFC822Record({
+            '_plugin': 'plugin',
+            '_name': 'name',
+            '_requires': 'requires',
+            '_command': 'command',
+            '_description': 'description'
+        }, Origin('file.txt.in', 1, 5))
+        self._min_record = RFC822Record({
+            'plugin': 'plugin',
+            'name': 'name',
+        }, Origin('file.txt', 1, 2))
 
-    _min_data = {
-        'plugin': 'plugin',
-        'name': 'name',
-    }
-
-    def test_smoke_full_data(self):
-        job = JobDefinition(self._full_data)
+    def test_smoke_full_record(self):
+        job = JobDefinition(self._full_record.data)
         self.assertEqual(job.plugin, "plugin")
         self.assertEqual(job.name, "name")
         self.assertEqual(job.requires, "requires")
         self.assertEqual(job.command, "command")
         self.assertEqual(job.description, "description")
 
-    def test_smoke_full_gettext_data(self):
-        job = JobDefinition(self._full_gettext_data)
+    def test_smoke_full_gettext_record(self):
+        job = JobDefinition(self._full_gettext_record.data)
         self.assertEqual(job.plugin, "plugin")
         self.assertEqual(job.name, "name")
         self.assertEqual(job.requires, "requires")
         self.assertEqual(job.command, "command")
         self.assertEqual(job.description, "description")
 
-    def test_smoke_min_data(self):
-        job = JobDefinition(self._min_data)
+    def test_smoke_min_record(self):
+        job = JobDefinition(self._min_record.data)
         self.assertEqual(job.plugin, "plugin")
         self.assertEqual(job.name, "name")
         self.assertEqual(job.requires, None)
         self.assertEqual(job.command, None)
         self.assertEqual(job.description, None)
 
-    def test_from_rfc822_record_full_data(self):
-        job = JobDefinition.from_rfc822_record(self._full_data)
+    def test_from_rfc822_record_full_record(self):
+        job = JobDefinition.from_rfc822_record(self._full_record)
         self.assertEqual(job.plugin, "plugin")
         self.assertEqual(job.name, "name")
         self.assertEqual(job.requires, "requires")
         self.assertEqual(job.command, "command")
         self.assertEqual(job.description, "description")
 
-    def test_from_rfc822_record_min_data(self):
-        job = JobDefinition.from_rfc822_record(self._min_data)
+    def test_from_rfc822_record_min_record(self):
+        job = JobDefinition.from_rfc822_record(self._min_record)
         self.assertEqual(job.plugin, "plugin")
         self.assertEqual(job.name, "name")
         self.assertEqual(job.requires, None)
@@ -95,20 +97,22 @@ class TestJobDefinition(TestCase):
     def test_from_rfc822_record_missing_name(self):
         self.assertRaises(ValueError,
                           JobDefinition.from_rfc822_record,
-                          {'plugin': 'plugin'})
+                          RFC822Record({'plugin': 'plugin'}, None))
 
     def test_from_rfc822_record_missing_plugin(self):
         self.assertRaises(ValueError,
                           JobDefinition.from_rfc822_record,
-                          {'name': 'name'})
+                          RFC822Record({'name': 'name'}, None))
 
     def test_str(self):
-        job = JobDefinition(self._min_data)
-        self.assertEqual(str(job), self._min_data['name'])
+        job = JobDefinition(self._min_record.data)
+        self.assertEqual(str(job), "name")
 
     def test_repr(self):
-        job = JobDefinition(self._min_data)
-        self.assertEqual(repr(job), "<JobDefinition name:'name' plugin:'plugin'>")
+        job = JobDefinition(self._min_record.data)
+        expected = "<JobDefinition name:'name' plugin:'plugin'>"
+        observed = repr(job)
+        self.assertEqual(expected, observed)
 
     def test_depedency_parsing_empty(self):
         job = JobDefinition({

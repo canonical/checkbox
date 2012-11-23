@@ -146,13 +146,13 @@ class JobDefinition(IJobDefinition):
         """
         Create a JobDefinition instance from rfc822 record
 
-        The record must be a dictionary.
+        The record must be a RFC822Record instance.
 
         Only the 'name' and 'plugin' keys are required.
         All other data is stored as is and is entirely optional.
         """
         for key in ['plugin', 'name']:
-            if key not in record:
+            if key not in record.data:
                 raise ValueError(
                     "Required record key {!r} was not found".format(key))
-        return cls(record)
+        return cls(record.data, record.origin)

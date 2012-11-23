@@ -43,6 +43,8 @@ from plainbox.impl.resource import ResourceContext
 from plainbox.impl.rfc822 import load_rfc822_records
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.runner import Scratch
+from plainbox.impl.depmgr import DependencyError
+from plainbox.impl.depmgr import DependencySolver
 
 
 logger = getLogger("plainbox.box")
@@ -87,11 +89,24 @@ class PlainBox:
             type=FileType("rt"))
         group.add_argument(
             '-r', '--run-pattern', action="append",
-            metavar='PATTERN', default=[],
+            metavar='PATTERN', default=[], dest='run_pattern_list',
             help="Run jobs matching the given pattern")
         group.add_argument(
-            '--list-jobs', help="List all jobs",
-            action="store_true")
+            '-n', '--dry-run', action='store_true',
+            help="Don't actually run any jobs")
+        group = parser.add_argument_group("special options")
+        group.add_argument(
+            '--list-jobs', help="List jobs instead of running them",
+            action="store_const", const="list-jobs", dest="special")
+        group.add_argument(
+            '--list-expressions', help="List all unique resource expressions",
+            action="store_const", const="list-expr", dest="special")
+        group.add_argument(
+            '--dot', help="Print a graph of jobs instead of running them",
+            action="store_const", const="dep-graph", dest="special")
+        group.add_argument(
+            '--dot-resources', action='store_true',
+            help="Render resource relationships (for --dot)")
         ns = parser.parse_args(argv)
         # Set the desired log level
         if ns.log_level:
@@ -100,81 +115,99 @@ class PlainBox:
         job_list = self.get_builtin_jobs()
         # Load additional job definitions
         job_list.extend(self._load_jobs(ns.load_extra))
-        if ns.list_jobs:
-            print("Available jobs:")
-            for job in job_list:
-                print(" - {}".format(job))
-        else:
-            # And run them
-            with self._scratch:
-                return self.run(
-                    run_pattern_list=ns.run_pattern,
-                    job_list=job_list,
-                    ui=ns.ui)
-
-    def run(self, run_pattern_list, job_list, **kwargs):
-        job_map = {job.name: job for job in job_list}
-        matching_job_list = []
         # Find jobs that matched patterns
-        print("[ Searching for Matching Jobs ]".center(80, '='))
+        matching_job_list = []
         for job in job_list:
-            for pattern in run_pattern_list:
+            for pattern in ns.run_pattern_list:
                 if fnmatch(job.name, pattern):
                     matching_job_list.append(job)
                     break
-        print("Matching jobs: {}".format(
-            ', '.join((job.name for job in matching_job_list))))
-        # Compute required resources
-        print("[ Analyzing Jobs ]".center(80, '='))
-        needed_resource_jobs = set()
-        resource_job_list = []
+        # As a special exception, when ns.special is set and we're either
+        # listing jobs or job dependencies then when no run pattern was
+        # specified just operate on the whole set. The ns.special check
+        # prevents people starting plainbox from accidentally running _all_
+        # jobs without prompting.
+        if ns.special is not None and not ns.run_pattern_list:
+            matching_job_list = job_list
+        # Now either do a special action or run the jobs
+        if ns.special == "list-jobs":
+            self._print_job_list(ns, matching_job_list)
+        elif ns.special == "list-expr":
+            self._print_expression_list(ns, matching_job_list)
+        elif ns.special == "dep-graph":
+            self._print_dot_graph(ns, matching_job_list)
+        else:
+            # And run them
+            with self._scratch:  # TODO: Promote to a persistent session object
+                return self.run(job_list, matching_job_list, ns.dry_run)
+
+    def _print_job_list(self, ns, matching_job_list):
+        for job in matching_job_list:
+            print("{}".format(job))
+
+    def _print_expression_list(self, ns, matching_job_list):
+        expressions = set()
         for job in matching_job_list:
             prog = job.get_resource_program()
-            if prog is None:
-                continue
-            for resource_name in prog.required_resources:
-                if resource_name in needed_resource_jobs:
-                    continue
-                else:
-                    needed_resource_jobs.add(resource_name)
-                try:
-                    required_job = job_map[resource_name]
-                except KeyError:
-                    print("Unable to find resource {!r} required by job"
-                          " {}".format(resource_name, job))
-                    print("Job {} will not run".format(job))
-                    matching_job_list.remove(job)
-                    continue
-                if required_job.plugin != "resource":
-                    print("Job {} references resource {!r} but job {} uses"
-                          " non-resource plugin {!r}".format(
-                              job, resource_name, required_job,
-                              required_job.plugin))
-                    print("Job {} will not run".format(job))
-                    matching_job_list.remove(job)
-                else:
-                    resource_job_list.append(required_job)
-        # Resolve dependencies in resource jobs
-        # XXX: not implemented
-        print("Required resource jobs: {}".format(
-            ', '.join((job.name for job in resource_job_list))))
-        # Run resource jobs
+            if prog is not None:
+                for expression in prog.expression_list:
+                    expressions.add(expression.text)
+        for expression in sorted(expressions):
+            print(expression)
+
+    def _print_dot_graph(self, ns, matching_job_list):
+        print('digraph dependency_graph {')
+        print('\tnode [shape=box];')
+        for job in matching_job_list:
+            if job.plugin == "resource":
+                print('\t"{}" [shape=ellipse,color=blue];'.format(job.name))
+            elif job.plugin == "attachment":
+                print('\t"{}" [color=green];'.format(job.name))
+            elif job.plugin == "local":
+                print('\t"{}" [shape=invtriangle,color=red];'.format(
+                    job.name))
+            elif job.plugin == "shell":
+                print('\t"{}" [];'.format(job.name))
+            elif job.plugin in ("manual", "user-verify", "user-interact"):
+                print('\t"{}" [color=orange];'.format(job.name))
+            for dep_name in job.get_direct_dependencies():
+                print('\t"{}" -> "{}";'.format(job.name, dep_name))
+            prog = job.get_resource_program()
+            if ns.dot_resources and prog is not None:
+                for expression in prog.expression_list:
+                    print('\t"{}" [shape=ellipse,color=blue];'.format(
+                        expression.resource_name))
+                    print('\t"{}" -> "{}" [style=dashed, label="{}"];'.format(
+                        job.name, expression.resource_name,
+                        expression.text.replace('"', "'")))
+        print("}")
+
+    def run(self, job_list, matching_job_list, dry_run):
+        # Compute required resources
+        print("[ Analyzing Jobs ]".center(80, '='))
+        try:
+            sorted_job_list = DependencySolver.resolve_dependencies(
+                job_list, matching_job_list)
+        except DependencyError as exc:
+            print("Problem wit job {}: {}".format(exc.affected_job, exc))
+            return
+        else:
+            resource_job_list = [job for job in sorted_job_list
+                                 if job.plugin == "resource"]
+            other_job_list = [job for job in sorted_job_list
+                              if job.plugin != "resource"]
         print("[ Gathering Resources ]".center(80, '='))
         if not resource_job_list:
             print("No resource jobs required")
         else:
-            self._run_jobs(resource_job_list)
+            self._run_jobs(resource_job_list, dry_run)
         # Run non-resource jobs
         result_list = []
-        other_job_list = [
-            job
-            for job in matching_job_list
-            if job.plugin != "resource"]
         print("[ Testing ]".center(80, '='))
         if not other_job_list:
             print("No jobs selected")
         else:
-            result_list = self._run_jobs(other_job_list)
+            result_list = self._run_jobs(other_job_list, dry_run)
             print("[ Results ]".center(80, '='))
             for result in result_list:
                 print(" * {}: {}".format(
@@ -208,32 +241,47 @@ class PlainBox:
                 "Unsupported type of 'somewhere': {!r}".format(
                     type(somewhere)))
 
-    def _run_jobs(self, job_list):
+    def _run_jobs(self, job_list, dry_run):
         result_list = []
         for job in job_list:
             print("[ {} ]".format(job.name).center(80, '-'))
+            print()
             if job.description:
-                print()
                 print(job.description)
-                print()
-                print("_" * 80)
-            print(" * job attributes set: {}".format(
+            else:
+                print("This job has no description")
+            print()
+            print("This job has the following attributes set: {}".format(
                 ", ".join((attr for attr in job._data))))
-            print(" * job type: {}".format(job.plugin))
+            print("This job uses plugin: {}".format(job.plugin))
             if job.command:
-                print(" * job command: {!r}".format(job.command))
+                print("This job uses the following bash command: {!r}".format(
+                    job.command))
             if job.depends is not None:
-                print(" * job dependencies: {}".format(', '.join(job.depends)))
+                print("This job depends on the following jobs:")
+                for job_name in job.get_direct_dependencies():
+                    print(" - {}".format(job_name))
             prog = job.get_resource_program()
             if prog:
-                met = prog.evaluate(self._context.resources)
-                print(" * job requirements: {}".format(
-                    "met" if met else "not met"))
+                print("This job depends on the following expressions:")
                 for expression in prog.expression_list:
-                    print("   - {}".format(expression.text))
+                    print(" - {}".format(expression.text))
+                if dry_run:
+                    print("Assuming the expressions would match")
+                else:
+                    met = prog.evaluate(self._context.resources)
+                    if met:
+                        print("Job requirements met")
+                    else:
+                        print("Job requirements NOT met")
+                        return
             try:
-                print(" * starting job... ", end="")
-                result = self._runner.run_job(job)
+                print("Starting job... ", end="")
+                if dry_run:
+                    print("(not really running anything) ", end="")
+                    result = None
+                else:
+                    result = self._runner.run_job(job)
             except NotImplementedError:
                 print("error")
                 logger.exception("Something was not implemented fully")
@@ -244,7 +292,8 @@ class PlainBox:
                 elif job.plugin == "resource":
                     pass
                 else:
-                    logger.warning("Job %s did not return a result", job)
+                    if not dry_run:
+                        logger.warning("Job %s did not return a result", job)
         return result_list
 
     def _load_jobs(self, source_list):

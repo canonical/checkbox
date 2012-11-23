@@ -157,7 +157,7 @@ def gen_rfc822_records(stream, data_cls=dict):
         data = data_cls()
         record = RFC822Record(data, origin)
 
-    def _commit_record():
+    def _commit_key_value_if_needed():
         """
         Finalize the most recently seen key: value pair
         """
@@ -187,7 +187,7 @@ def gen_rfc822_records(stream, data_cls=dict):
         if line.strip() == "":
             # Commit the current record so that the multi-line value of the
             # last key, if any, is saved as a string
-            _commit_record()
+            _commit_key_value_if_needed()
             # If data is non-empty, yield the record, this allows us to safely
             # use newlines for formatting
             if data:
@@ -219,7 +219,7 @@ def gen_rfc822_records(stream, data_cls=dict):
             # Since we have a new, key-value pair we need to commit any
             # previous key that we may have (regardless of multi-line or
             # single-line values).
-            _commit_record()
+            _commit_key_value_if_needed()
             # Parse the line by splitting on the colon, get rid of additional
             # whitespace from both key and the value
             key, value = line.split(":", 1)
@@ -241,7 +241,7 @@ def gen_rfc822_records(stream, data_cls=dict):
         else:
             raise _syntax_error("Unexpected non-empty line")
     # Make sure to commit the last key from the record
+    _commit_key_value_if_needed()
     # Once we've seen the whole file return the last record, if any
-    _commit_record()
     if data:
         yield record

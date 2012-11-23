@@ -69,8 +69,7 @@ class JobDefinition(IJobDefinition):
     @property
     def depends(self):
         try:
-            return [name.strip()
-                    for name in self.__getattr__('depends').split(',')]
+            return self.__getattr__('depends')
         except AttributeError:
             return None
 

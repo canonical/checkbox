@@ -114,10 +114,10 @@ class JobDefinition(IJobDefinition):
         Compute and return a set of direct dependencies
 
         To combat a simple mistake where the jobs are space-delimited any
-        mixture of spaces and commas are allowed.
+        mixture of white-space (including newlines) and commas are allowed.
         """
         if self.depends:
-            return {name for name in re.split('[ ,]+', self.depends)}
+            return {name for name in re.split('[\s,]+', self.depends)}
         else:
             return set()
 

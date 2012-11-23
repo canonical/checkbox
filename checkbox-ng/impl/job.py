@@ -120,6 +120,17 @@ class JobDefinition(IJobDefinition):
             return {name for name in re.split('[ ,]+', self.depends)}
         else:
             return set()
+
+    def get_resource_dependencies(self):
+        """
+        Compute and return a set of resource dependencies
+        """
+        program = self.get_resource_program()
+        if program:
+            return program.required_resources
+        else:
+            return set()
+
     @classmethod
     def from_rfc822_record(cls, record):
         """

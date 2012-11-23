@@ -30,6 +30,32 @@ Implementation of rfc822 serializer and deserializer.
 from inspect import cleandoc
 
 
+class Origin:
+    """
+    Simple class for tracking where something came from
+
+    It has three attributes:
+        filename - the name of the file
+        line_start - the number of the line where the record begins
+        line_end - the number of the line where the record ends
+    """
+
+    __slots__ = ['filename', 'line_start', 'line_end']
+
+    def __init__(self, filename, line_start, line_end):
+        self.filename = filename
+        self.line_start = line_start
+        self.line_end = line_end
+
+    def __repr__(self):
+        return "<Origin filename:{!r} line_start:{} line_end:{}>".format(
+            self.filename, self.line_start, self.line_end)
+
+    def __str__(self):
+        return "{}:{}-{}".format(
+            self.filename, self.line_start, self.line_end)
+
+
 class RFC822SyntaxError(SyntaxError):
     """
     SyntaxError subclass for RFC822 parsing functions

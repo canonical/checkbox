@@ -27,8 +27,30 @@ Test definitions for plainbox.impl.rfc822 module
 from io import StringIO
 from unittest import TestCase
 
+from plainbox.impl.rfc822 import Origin
 from plainbox.impl.rfc822 import RFC822SyntaxError
 from plainbox.impl.rfc822 import load_rfc822_records
+
+
+class OriginTests(TestCase):
+
+    def setUp(self):
+        self.origin = Origin("file.txt", 10, 12)
+
+    def test_smoke(self):
+        self.assertEqual(self.origin.filename, "file.txt")
+        self.assertEqual(self.origin.line_start, 10)
+        self.assertEqual(self.origin.line_end, 12)
+
+    def test_repr(self):
+        expected = "<Origin filename:'file.txt' line_start:10 line_end:12>"
+        observed = repr(self.origin)
+        self.assertEqual(expected, observed)
+
+    def test_str(self):
+        expected = "file.txt:10-12"
+        observed = str(self.origin)
+        self.assertEqual(expected, observed)
 
 
 class TestRFC822(TestCase):

@@ -33,7 +33,6 @@ from plainbox.impl.rfc822 import Origin
 
 class TestJobDefinition(TestCase):
 
-
     def setUp(self):
         self._full_record = RFC822Record({
             'plugin': 'plugin',
@@ -119,6 +118,15 @@ class TestJobDefinition(TestCase):
             'name': 'name',
             'plugin': 'plugin'})
         expected = set()
+        observed = job.get_direct_dependencies()
+        self.assertEqual(expected, observed)
+
+    def test_depedency_parsing_single_word(self):
+        job = JobDefinition({
+            'name': 'name',
+            'plugin': 'plugin',
+            'depends': 'word'})
+        expected = set(['word'])
         observed = job.get_direct_dependencies()
         self.assertEqual(expected, observed)
 

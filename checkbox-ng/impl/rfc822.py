@@ -94,7 +94,7 @@ class RFC822SyntaxError(SyntaxError):
         self.msg = msg
 
 
-def load_rfc822_records(stream, record_cls=dict):
+def load_rfc822_records(stream, data_cls=dict):
     """
     Load a sequence of rfc822-like records from a text stream.
 
@@ -102,14 +102,14 @@ def load_rfc822_records(stream, record_cls=dict):
     are separated by one blank line. A record key may have a multi-line value
     if the line starts with whitespace character.
 
-    Returns a list of subsequent values as instances of record_cls. If the
-    optional record_cls argument is collections.OrderedDict then the values
+    Returns a list of subsequent values as instances RFC822Record class.  If
+    the optional data_cls argument is collections.OrderedDict then the values
     retain their original ordering.
     """
-    return list(gen_rfc822_records(stream, record_cls))
+    return list(gen_rfc822_records(stream, data_cls))
 
 
-def gen_rfc822_records(stream, record_cls=dict):
+def gen_rfc822_records(stream, data_cls=dict):
     """
     Load a sequence of rtf822-like records from a text stream.
 
@@ -122,8 +122,10 @@ def gen_rfc822_records(stream, record_cls=dict):
     original ordering.
     """
     record = None
+    data = None
     key = None
     value_list = None
+    origin = None
 
     def _syntax_error(msg):
         """
@@ -142,9 +144,12 @@ def gen_rfc822_records(stream, record_cls=dict):
         nonlocal key
         nonlocal value_list
         nonlocal record
+        nonlocal data
         key = None
         value_list = None
-        record = record_cls()
+        data = None
+        data = data_cls()
+        record = RFC822Record(data, origin)
 
     def _commit_record():
         """
@@ -152,7 +157,7 @@ def gen_rfc822_records(stream, record_cls=dict):
         """
         nonlocal key
         if key is not None:
-            record[key] = cleandoc('\n'.join(value_list))
+            data[key] = cleandoc('\n'.join(value_list))
             key = None
     # Start with an empty record
     _new_record()
@@ -163,9 +168,9 @@ def gen_rfc822_records(stream, record_cls=dict):
             # Commit the current record so that the multi-line value of the
             # last key, if any, is saved as a string
             _commit_record()
-            # If the record is non-empty, yield it, this allows us to safely
+            # If data is non-empty, yield the record, this allows us to safely
             # use newlines for formatting
-            if record:
+            if data:
                 yield record
             # Reset local state so that we can build a new record
             _new_record()
@@ -195,11 +200,11 @@ def gen_rfc822_records(stream, record_cls=dict):
             key = key.strip()
             value = value.strip()
             # Check if the key already exist in this message
-            if key in record:
-                raise _syntax_error(
-                    "Job has a duplicate key '%s' "
-                    "with old value '%s' and new value '%s'"
-                    % (key, record[key], value))
+            if key in record.data:
+                raise _syntax_error((
+                    "Job has a duplicate key {!r} "
+                    "with old value {!r} and new value {!r}").format(
+                        key, record.data[key], value))
             # Construct initial value list out of the (only) value that we have
             # so far. Additional multi-line values will just append to
             # value_list
@@ -207,7 +212,8 @@ def gen_rfc822_records(stream, record_cls=dict):
         # Treat all other lines as syntax errors
         else:
             raise _syntax_error("Unexpected non-empty line")
+    # Make sure to commit the last key from the record
     # Once we've seen the whole file return the last record, if any
     _commit_record()
-    if record:
+    if data:
         yield record

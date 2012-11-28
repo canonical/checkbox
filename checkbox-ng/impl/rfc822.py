@@ -26,8 +26,11 @@ Implementation of rfc822 serializer and deserializer.
  * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
 """
 
+import logging
 
 from inspect import cleandoc
+
+logger = logging.getLogger("plainbox.rfc822")
 
 
 class Origin:
@@ -164,6 +167,7 @@ def gen_rfc822_records(stream, data_cls=dict):
         nonlocal key
         if key is not None:
             data[key] = cleandoc('\n'.join(value_list))
+            logger.debug("Committed key/value %r=%r", key, data[key])
             key = None
 
     def _set_start_lineno_if_needed():
@@ -183,6 +187,7 @@ def gen_rfc822_records(stream, data_cls=dict):
     _new_record()
     # Iterate over subsequent lines of the stream
     for lineno, line in enumerate(stream, start=1):
+        logger.debug("Looking at line %d:%r", lineno, line)
         # Treat empty lines as record separators
         if line.strip() == "":
             # Commit the current record so that the multi-line value of the
@@ -191,6 +196,7 @@ def gen_rfc822_records(stream, data_cls=dict):
             # If data is non-empty, yield the record, this allows us to safely
             # use newlines for formatting
             if data:
+                logger.debug("yielding record: %r", record)
                 yield record
             # Reset local state so that we can build a new record
             _new_record()
@@ -244,4 +250,5 @@ def gen_rfc822_records(stream, data_cls=dict):
     _commit_key_value_if_needed()
     # Once we've seen the whole file return the last record, if any
     if data:
+        logger.debug("yielding record: %r", record)
         yield record

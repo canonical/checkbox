@@ -31,14 +31,7 @@ from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyMissingError
 from plainbox.impl.depmgr import DependencySolver
 from plainbox.impl.job import JobDefinition
-
-
-def make_job(name, plugin="dummy", requires=None, depends=None):
-    return JobDefinition({
-        'name': name,
-        'plugin': plugin,
-        'requires': requires,
-        'depends': depends})
+from plainbox.impl.testing_utils import make_job
 
 
 class DependencyCycleErrorTests(TestCase):

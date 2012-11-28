@@ -64,6 +64,17 @@ class JobResult(IJobResult):
 
     # XXX: how to support attachments?
 
+    def __init__(self, data):
+        self._data = data
+
+    def __str__(self):
+        return "{}: {}".format(
+            self.job.name, self.outcome)
+
+    def __repr__(self):
+        return "<{} job:{!r} outcome:{!r}>".format(
+            self.__class__.__name__, self.job, self.outcome)
+
     @property
     def job(self):
         return self._data['job']
@@ -83,14 +94,3 @@ class JobResult(IJobResult):
     @property
     def return_code(self):
         return self._data.get('return_code')
-
-    def __init__(self, data):
-        self._data = data
-
-    def __str__(self):
-        return "{}: {}".format(
-            self.job.name, self.outcome)
-
-    def __repr__(self):
-        return "<TestResult job:{!r} outcome:{!r}>".format(
-            self.job, self.outcome)

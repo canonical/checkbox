@@ -120,9 +120,9 @@ def gen_rfc822_records(stream, data_cls=dict):
     are separated by one blank line. A record key may have a multi-line value
     if the line starts with whitespace character.
 
-    Generates subsequent values as instances of record_cls. If the optional
-    record_cls argument is collections.OrderedDict then the values retain their
-    original ordering.
+    Returns a list of subsequent values as instances RFC822Record class.  If
+    the optional data_cls argument is collections.OrderedDict then the values
+    retain their original ordering.
     """
     record = None
     data = None

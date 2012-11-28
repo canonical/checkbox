@@ -70,19 +70,19 @@ class JobResult(IJobResult):
 
     @property
     def outcome(self):
-        return self._data['outcome']
+        return self._data.get('outcome', self.OUTCOME_NONE)
 
     @property
     def comments(self):
-        return self._data['comments']
+        return self._data.get('comments')
 
     @property
     def io_log(self):
-        return self._data['io_log']
+        return self._data.get('io_log', ())
 
     @property
     def return_code(self):
-        return self._data['return_code']
+        return self._data.get('return_code')
 
     def __init__(self, data):
         self._data = data

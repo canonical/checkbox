@@ -224,14 +224,14 @@ class DependencySolver:
                 else:
                     # For each dependency that we visit let's reuse the trail
                     # to give proper error messages if a dependency loop exists
-                    logger.debug("Visiting dependency {}", next_job)
+                    logger.debug("Visiting dependency: %r", next_job)
                     # Update the trail as we visit that node
                     trail.append(next_job)
                     self._visit(next_job, trail)
                     trail.pop()
             # We've visited (recursively) all dependencies of this node,
             # let's color it black and append it to the solution list.
-            logger.debug("Appending {} to solution", job)
+            logger.debug("Appending %r to solution", job)
             self._job_color_map[job.name] = self.COLOR_BLACK
             self._solution.append(job)
         elif color == self.COLOR_GRAY:

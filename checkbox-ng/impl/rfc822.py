@@ -71,6 +71,10 @@ class RFC822Record:
         self._data = data
         self._origin = origin
 
+    def __repr__(self):
+        return "<{} data:{!r} origin:{!r}>".format(
+            self.__class__.__name__, self._data, self._origin)
+
     @property
     def origin(self):
         """

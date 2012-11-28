@@ -108,20 +108,12 @@ class IJobDefinition(metaclass=ABCMeta):
         """
 
 
-class ITestResult(metaclass=ABCMeta):
+class IJobResult(metaclass=ABCMeta):
     """
-    Class for representing test results from a single test job
+    Class for representing results from a single job
     """
 
-    OUTCOME_UNSELECTED = 'unselected'
-    OUTCOME_UNSUPPORTED = 'unsupported'
-    OUTCOME_PASS = 'pass'
-    OUTCOME_FAIL = 'fail'
-    OUTCOME_SKIP = 'skip'
-    # XXX: we could have OUTCOME_UNKNOWN for manual tests if we wish to present
-    # that option to the user.
-
-    # XXX: We could also store stuff like test duration and other meta-data but
+    # XXX: We could also store stuff like job duration and other meta-data but
     # I wanted to avoid polluting this proposal with mundane details
 
     @abstractproperty
@@ -135,7 +127,7 @@ class ITestResult(metaclass=ABCMeta):
     @abstractproperty
     def outcome(self):
         """
-        Outcome of the test
+        Outcome of the test.
 
         The result of either automatic or manual verification. Depending on the
         plugin (test type). Available values are defined as class properties
@@ -192,9 +184,9 @@ class IJobRunner(metaclass=ABCMeta):
         Calling this method may block for arbitrary amount of time. User
         interfaces should ensure that it runs in a separate thread.
 
-        The return value is a TestResult object that contains all the data that
+        The return value is a JobResult object that contains all the data that
         was captured during the execution of the job. Some jobs may not return
-        a TestResult value.
+        a JobResult value.
         """
         # XXX: threads suck, could we make this fully asynchronous? The only
         # thing that we really want is to know when the command has stopped

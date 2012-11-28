@@ -53,7 +53,7 @@ def save(something, somewhere):
 
     The ultimate high-level serialization interface.
 
-    Something can be a list of JobDefinition or a TestResult objects.
+    Something can be a list of JobDefinition or a JobResult objects.
     Somewhere may be a file-like object or a filename.
     """
 
@@ -66,7 +66,7 @@ def load(somewhere):
     The ultimate high-level deserialization interface
 
     Somewhere may be a file-like object or a filename. The returned something
-    is a list of JobDefinition or a TestResult objects.
+    is a list of JobDefinition or a JobResult objects.
     """
     # XXX: should we handle basic collections at this level - as in, many test
     # {definitions,results} in one file. If so can we just return a list.

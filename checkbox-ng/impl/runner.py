@@ -34,8 +34,8 @@ import subprocess
 import tempfile
 
 from plainbox.abc import IJobRunner
+from plainbox.impl.result import JobResult
 from plainbox.impl.resource import Resource
-from plainbox.impl.result import TestResult
 from plainbox.impl.rfc822 import RFC822SyntaxError
 from plainbox.impl.rfc822 import load_rfc822_records
 
@@ -89,9 +89,9 @@ class JobRunner(IJobRunner):
         try:
             return runner(job)
         except NotImplementedError:
-            return TestResult({
+            return JobResult({
                 'job': job,
-                'outcome': 'not implemented',
+                'outcome': JobResult.OUTCOME_NOT_IMPLEMENTED,
             })
 
     def _plugin_attachment(self, job):
@@ -137,10 +137,11 @@ class JobRunner(IJobRunner):
         proc = self._run_command(job)
         # Convert the return of the command to the outcome of the job
         if getattr(proc, 'returncode') == 0:
-            outcome = TestResult.OUTCOME_PASS
+            outcome = JobResult.OUTCOME_PASS
         else:
-            outcome = TestResult.OUTCOME_FAIL
-        return TestResult({
+            outcome = JobResult.OUTCOME_FAIL
+        # Create a result object and return it
+        return JobResult({
             'job': job,
             'outcome': outcome,
             'comments': None,

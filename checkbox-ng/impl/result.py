@@ -65,6 +65,15 @@ class JobResult(IJobResult):
     # XXX: how to support attachments?
 
     def __init__(self, data):
+        """
+        Initialize a new result with the specified data
+        """
+        # XXX: consider moving job to a dedicated field as we want to serialize
+        # results without putting the job reference in there (a job name would
+        # be a fine substitute). It would also make the 'job is required'
+        # requirement spelled out below explicit)
+        #
+        # TODO: Do some basic validation, at least 'job' must be set.
         self._data = data
 
     def __str__(self):

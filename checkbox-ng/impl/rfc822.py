@@ -59,7 +59,7 @@ class Origin:
             self.filename, self.line_start, self.line_end)
 
 
-class RFC822Record(dict):
+class RFC822Record:
     """
     Class for tracking RFC822 records
 

@@ -29,7 +29,6 @@ Internal implementation of plainbox
 import ast
 import logging
 
-
 logger = logging.getLogger("plainbox.resource")
 
 
@@ -128,7 +127,6 @@ class Resource:
             != object.__getattribute__(other, '_data'))
 
 
-
 class ResourceProgram:
     """
     Class for storing and executing resource programs.
@@ -166,25 +164,30 @@ class ResourceProgram:
         return set((expression.resource_name
                     for expression in self._expression_list))
 
-    def evaluate(self, resources):
+    def evaluate_or_raise(self, resource_map):
         """
-        Evaluate the program with the given resources.
+        Evaluate the program with the given map of resources.
+
+        Raises a ExpressionFailedError exception if the any of the expressions
+        that make up this program cannot be executed or executes but produces a
+        non-true value.
+
+        Returns True
 
         Resources must be a dictionary of mapping resource name to a list of
-        Resource objects, preferably as managed by ResourceContext.resources.
-
-        Returns True if all expressions returned true.
-        Raises ResourceLookupError if any of the expressions requires a
-        resource that is not present in the provided resources
+        Resource objects.
         """
         # First check if we have all required resources
-        for name in self.required_resources:
-            if name not in resources:
-                raise ResourceLookupError(name)
+        for expression in self._expression_list:
+            if expression.resource_name not in resource_map:
+                raise ExpressionCannotEvaluateError(expression)
         # Then evaluate all expressions
-        return all((
-            expression.evaluate(resources[expression.resource_name])
-            for expression in self._expression_list))
+        for expression in self._expression_list:
+            result = expression.evaluate(
+                resource_map[expression.resource_name])
+            if not result:
+                raise ExpressionFailedError(expression)
+        return True
 
 
 class ResourceProgramError(Exception):

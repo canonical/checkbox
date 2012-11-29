@@ -159,10 +159,6 @@ class CodeNotAllowedTests(TestCase):
         self.assertTrue(issubclass(CodeNotAllowed, ResourceProgramError))
 
 
-
-
-
-
 class ResourceNodeVisitorTests(TestCase):
 
     def test_smoke(self):
@@ -306,27 +302,45 @@ class ResourceProgramTests(TestCase):
         self.assertEqual(self.prog.required_resources,
                          set(('package', 'platform')))
 
-    def test_evaluate(self):
-        resources = {
+    def test_evaluate_failure_not_true(self):
+        resource_map = {
+            'package': [
+                Resource({'name': 'plainbox'}),
+            ],
+            'platform': [
+                Resource({'arch': 'i386'})]
+        }
+        with self.assertRaises(ExpressionFailedError) as call:
+            self.prog.evaluate_or_raise(resource_map)
+        self.assertEqual(call.exception.expression.text,
+                         "package.name == 'fwts'")
+
+    def test_evaluate_without_no_match(self):
+        resource_map = {
+            'package': [],
+            'platform': []
+        }
+        with self.assertRaises(ExpressionFailedError) as call:
+            self.prog.evaluate_or_raise(resource_map)
+        self.assertEqual(call.exception.expression.text,
+                         "package.name == 'fwts'")
+
+    def test_evaluate_failure_no_resource(self):
+        resource_map = {
+            'platform': [
+                Resource({'arch': 'i386'})]
+        }
+        with self.assertRaises(ExpressionCannotEvaluateError) as call:
+            self.prog.evaluate_or_raise(resource_map)
+        self.assertEqual(call.exception.expression.text,
+                         "package.name == 'fwts'")
+
+    def test_evaluate_success(self):
+        resource_map = {
             'package': [
                 Resource({'name': 'plainbox'}),
                 Resource({'name': 'fwts'})],
             'platform': [
                 Resource({'arch': 'i386'})]
         }
-        self.assertIn('package', resources)
-        self.assertIn('platform', resources)
-        for name in self.prog.required_resources:
-            self.assertIn(name, resources)
-        self.assertTrue(self.prog.evaluate(resources))
-
-    def test_evaluate_without_resources(self):
-        with self.assertRaises(ResourceLookupError) as call:
-            self.prog.evaluate({'package': []})
-        self.assertEqual(call.exception.resource_name, 'platform')
-        with self.assertRaises(ResourceLookupError) as call:
-            self.prog.evaluate({'platform': []})
-        self.assertEqual(call.exception.resource_name, 'package')
-
-    def test_evaluate_without_empty_resources(self):
-        self.assertFalse(self.prog.evaluate({'package': [], 'platform': []}))
+        self.assertTrue(self.prog.evaluate_or_raise(resource_map))

@@ -21,7 +21,7 @@
 plainbox.abc
 ============
 
-Abstract base classes used by checkbox
+Abstract base classes used by plainbox
 
 Those classes are actually implemented in the plainbox.impl package. This
 module is here so that the essential API concepts are in a single spot and are

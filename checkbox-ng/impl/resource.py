@@ -29,7 +29,6 @@ Internal implementation of plainbox
 import ast
 import logging
 
-from plainbox.abc import IResourceContext
 
 logger = logging.getLogger("plainbox.resource")
 
@@ -128,36 +127,6 @@ class Resource:
             object.__getattribute__(self, '_data')
             != object.__getattribute__(other, '_data'))
 
-
-class ResourceContext(IResourceContext):
-
-    def __init__(self):
-        """
-        Initialize an empty ResourceContext object
-        """
-        self._resources = {}
-
-    def add_resource(self, name, resource):
-        """
-        Add a new resource
-
-        The name is the name of the Job that produced the data. The resource
-        object is a Resource instance created out of a RFC822 record (many such
-        records may be produced by one resource job)
-        """
-        if name not in self._resources:
-            self._resources[name] = []
-        self._resources[name].append(resource)
-
-    @property
-    def resources(self):
-        """
-        The dictionary of defined resources.
-
-        Each key is obtained from Job().name. Each value is a list of
-        Resource() objects obtained from the execution of the Job.
-        """
-        return self._resources
 
 
 class ResourceProgram:

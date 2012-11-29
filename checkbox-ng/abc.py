@@ -194,23 +194,6 @@ class IJobRunner(metaclass=ABCMeta):
         # QT/GTK applications could tie that directly into their event loop.
 
 
-class IResourceContext(metaclass=ABCMeta):
-    """
-    Class used for storing and evaluating job requirement expressions.
-    """
-
-    @abstractproperty
-    def resources(self):
-        """
-        A namespace of resources.
-
-        The return value is a Namespace object that can be freely manipulated.
-        This object is used as a global environment for evaluating expressions.
-
-        The value of each resource should be a list or Namespace objects.
-        """
-
-
 class IUserInterfaceIO(metaclass=ABCMeta):
     """
     Base class that allows job runner to interact with the user interface.

@@ -33,7 +33,6 @@ from plainbox.impl.resource import ExpressionFailedError
 from plainbox.impl.resource import MultipleResourcesReferenced
 from plainbox.impl.resource import NoResourcesReferenced
 from plainbox.impl.resource import Resource
-from plainbox.impl.resource import ResourceContext
 from plainbox.impl.resource import ResourceExpression
 from plainbox.impl.resource import ResourceNodeVisitor
 from plainbox.impl.resource import ResourceProgram
@@ -132,29 +131,8 @@ class ResourceTests(TestCase):
         return object.__getattribute__(res, '_data')
 
 
-class ResourceContextTests(TestCase):
 
-    def test_smoke(self):
-        rc = ResourceContext()
-        self.assertEqual(rc.resources, {})
 
-    def test_add_resource(self):
-        rc = ResourceContext()
-        rc.add_resource('package', Resource({'name': 'fwts'}))
-        self.assertEqual(rc.resources, {
-            'package': [
-                Resource({'name': 'fwts'})
-            ]
-        })
-        rc = ResourceContext()
-        rc.add_resource('package', Resource({'name': 'checkbox'}))
-        rc.add_resource('package', Resource({'name': 'plainbox'}))
-        self.assertEqual(rc.resources, {
-            'package': [
-                Resource({'name': 'checkbox'}),
-                Resource({'name': 'plainbox'})
-            ]
-        })
 
 
 class ResourceProgramErrorTests(TestCase):

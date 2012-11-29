@@ -27,6 +27,7 @@ Internal implementation of plainbox
 """
 
 
+import sys
 from argparse import ArgumentParser
 from argparse import FileType
 from fnmatch import fnmatch
@@ -39,12 +40,10 @@ from os.path import join
 from plainbox import __version__ as version
 from plainbox.impl.checkbox import CheckBox
 from plainbox.impl.job import JobDefinition
-from plainbox.impl.resource import ResourceContext
+from plainbox.impl.result import JobResult
 from plainbox.impl.rfc822 import load_rfc822_records
 from plainbox.impl.runner import JobRunner
-from plainbox.impl.runner import Scratch
-from plainbox.impl.depmgr import DependencyError
-from plainbox.impl.depmgr import DependencySolver
+from plainbox.impl.session import SessionState
 
 
 logger = getLogger("plainbox.box")
@@ -57,9 +56,6 @@ class PlainBox:
 
     def __init__(self):
         self._checkbox = CheckBox()
-        self._context = ResourceContext()
-        self._scratch = Scratch()
-        self._runner = JobRunner(self._checkbox, self._context, self._scratch)
 
     def main(self, argv=None):
         basicConfig(level="WARNING")
@@ -81,6 +77,9 @@ class PlainBox:
             "-u", "--ui", action="store",
             default=None, choices=('headless', 'text', 'graphics'),
             help="select the UI front-end (defaults to auto)")
+        group.add_argument(
+            '--not-interactive', action='store_true',
+            help="Skip tests that require interactivity")
         group = parser.add_argument_group(title="job definition options")
         group.add_argument(
             "--load-extra", action="append",
@@ -115,6 +114,17 @@ class PlainBox:
         job_list = self.get_builtin_jobs()
         # Load additional job definitions
         job_list.extend(self._load_jobs(ns.load_extra))
+        # Now either do a special action or run the jobs
+        if ns.special == "list-jobs":
+            self._print_job_list(ns, job_list)
+        elif ns.special == "list-expr":
+            self._print_expression_list(ns, job_list)
+        elif ns.special == "dep-graph":
+            self._print_dot_graph(ns, job_list)
+        else:
+            self._run_jobs(ns, job_list)
+
+    def _get_matching_job_list(self, ns, job_list):
         # Find jobs that matched patterns
         matching_job_list = []
         for job in job_list:
@@ -129,23 +139,15 @@ class PlainBox:
         # jobs without prompting.
         if ns.special is not None and not ns.run_pattern_list:
             matching_job_list = job_list
-        # Now either do a special action or run the jobs
-        if ns.special == "list-jobs":
-            self._print_job_list(ns, matching_job_list)
-        elif ns.special == "list-expr":
-            self._print_expression_list(ns, matching_job_list)
-        elif ns.special == "dep-graph":
-            self._print_dot_graph(ns, matching_job_list)
-        else:
-            # And run them
-            with self._scratch:  # TODO: Promote to a persistent session object
-                return self.run(job_list, matching_job_list, ns.dry_run)
+        return matching_job_list
 
-    def _print_job_list(self, ns, matching_job_list):
+    def _print_job_list(self, ns, job_list):
+        matching_job_list = self._get_matching_job_list(ns, job_list)
         for job in matching_job_list:
             print("{}".format(job))
 
-    def _print_expression_list(self, ns, matching_job_list):
+    def _print_expression_list(self, ns, job_list):
+        matching_job_list = self._get_matching_job_list(ns, job_list)
         expressions = set()
         for job in matching_job_list:
             prog = job.get_resource_program()
@@ -155,7 +157,8 @@ class PlainBox:
         for expression in sorted(expressions):
             print(expression)
 
-    def _print_dot_graph(self, ns, matching_job_list):
+    def _print_dot_graph(self, ns, job_list):
+        matching_job_list = self._get_matching_job_list(ns, job_list)
         print('digraph dependency_graph {')
         print('\tnode [shape=box];')
         for job in matching_job_list:
@@ -182,36 +185,110 @@ class PlainBox:
                         expression.text.replace('"', "'")))
         print("}")
 
-    def run(self, job_list, matching_job_list, dry_run):
-        # Compute required resources
+    def _run_jobs(self, ns, job_list):
+        # Compute the run list, this can give us notification about problems in
+        # the selected jobs. Currently we just display each problem
+        matching_job_list = self._get_matching_job_list(ns, job_list)
         print("[ Analyzing Jobs ]".center(80, '='))
-        try:
-            sorted_job_list = DependencySolver.resolve_dependencies(
-                job_list, matching_job_list)
-        except DependencyError as exc:
-            print("Problem wit job {}: {}".format(exc.affected_job, exc))
-            return
+        # Create a session that handles most of the stuff needed to run jobs
+        session = SessionState(job_list)
+        self._update_desired_job_list(session, matching_job_list)
+        with session.open():
+            if (sys.stdin.isatty() and sys.stdout.isatty() and not
+                    ns.not_interactive):
+                outcome_callback = self.ask_for_outcome
+            else:
+                outcome_callback = None
+            runner = JobRunner(self._checkbox, session.session_dir,
+                               outcome_callback=outcome_callback)
+            self._run_jobs_with_session(ns, session, runner)
+        print("[ Results ]".center(80, '='))
+        for job_name in sorted(session.job_state_map):
+            job_state = session.job_state_map[job_name]
+            if job_state.result.outcome != JobResult.OUTCOME_NONE:
+                print("{}: {}".format(job_name, job_state.result.outcome))
+
+    def ask_for_outcome(self, prompt=None, allowed=None):
+        if prompt is None:
+            prompt = "what is the outcome? "
+        if allowed is None:
+            allowed = (JobResult.OUTCOME_PASS,
+                       JobResult.OUTCOME_FAIL,
+                       JobResult.OUTCOME_SKIP)
+        answer = None
+        while answer not in allowed:
+            print("Allowed answers are: {}".format(", ".join(allowed)))
+            answer = input(prompt)
+        return answer
+
+    def _update_desired_job_list(self, session, desired_job_list):
+        problem_list = session.update_desired_job_list(desired_job_list)
+        if problem_list:
+            print("[ Warning ]".center(80, '*'))
+            print("There were some problems with the selected jobs")
+            for problem in problem_list:
+                print(" * {}".format(problem))
+            print("Problematic jobs will not be considered")
+
+    def _run_jobs_with_session(self, ns, session, runner):
+        # TODO: run all resource jobs concurrently with multiprocessing
+        # TODO: make local job discovery nicer, it would be best if
+        # desired_jobs could be managed entirely internally by SesionState. In
+        # such case the list of jobs to run would be changed during iteration
+        # but would be otherwise okay).
+        print("[ Running All Jobs ]".center(80, '='))
+        again = True
+        while again:
+            again = False
+            for job in session.run_list:
+                # Skip jobs that already have result, this is only needed when
+                # we run over the list of jobs again, after discovering new
+                # jobs via the local job output
+                if session.job_state_map[job.name].result.outcome is not None:
+                    continue
+                self._run_single_job_with_session(ns, session, runner, job)
+                if job.plugin == "local":
+                    # After each local job runs rebuild the list of matching
+                    # jobs and run everything again
+                    new_matching_job_list = self._get_matching_job_list(
+                        ns, session.job_list)
+                    self._update_desired_job_list(
+                        session, new_matching_job_list)
+                    again = True
+                    break
+
+    def _run_single_job_with_session(self, ns, session, runner, job):
+        print("[ {} ]".format(job.name).center(80, '-'))
+        job_state = session.job_state_map[job.name]
+        print("Job name: {}".format(job.name))
+        print("Plugin: {}".format(job.plugin))
+        print("Direct dependencies: {}".format(job.get_direct_dependencies()))
+        print("Resource dependencies: {}".format(job.get_resource_dependencies()))
+        print("Resource program: {!r}".format(job.requires))
+        print("Command: {!r}".format(job.command))
+        print("Can start: {}".format(job_state.can_start()))
+        print("Readiness: {}".format(job_state.get_readiness_description()))
+        if job_state.can_start():
+            if ns.dry_run:
+                print("Not really running anything in dry-run mode")
+                job_result = JobResult({
+                    'job': job,
+                    'outcome': 'dry-run',
+                })
+            else:
+                print("Running...")
+                job_result = runner.run_job(job)
+                print("Outcome: {}".format(job_result.outcome))
+                print("Comments: {}".format(job_result.comments))
         else:
-            resource_job_list = [job for job in sorted_job_list
-                                 if job.plugin == "resource"]
-            other_job_list = [job for job in sorted_job_list
-                              if job.plugin != "resource"]
-        print("[ Gathering Resources ]".center(80, '='))
-        if not resource_job_list:
-            print("No resource jobs required")
-        else:
-            self._run_jobs(resource_job_list, dry_run)
-        # Run non-resource jobs
-        result_list = []
-        print("[ Testing ]".center(80, '='))
-        if not other_job_list:
-            print("No jobs selected")
-        else:
-            result_list = self._run_jobs(other_job_list, dry_run)
-            print("[ Results ]".center(80, '='))
-            for result in result_list:
-                print(" * {}: {}".format(
-                    result.job.name, result.outcome))
+            job_result = JobResult({
+                'job': job,
+                'outcome': JobResult.OUTCOME_NOT_SUPPORTED
+            })
+        if job_result is None and not ns.dry_run:
+            logger.warning("Job %s did not return a result", job)
+        if job_result is not None:
+            session.update_job_result(job, job_result)
 
     def get_builtin_jobs(self):
         logger.debug("Loading built-in jobs...")
@@ -241,61 +318,6 @@ class PlainBox:
                 "Unsupported type of 'somewhere': {!r}".format(
                     type(somewhere)))
 
-    def _run_jobs(self, job_list, dry_run):
-        result_list = []
-        for job in job_list:
-            print("[ {} ]".format(job.name).center(80, '-'))
-            print()
-            if job.description:
-                print(job.description)
-            else:
-                print("This job has no description")
-            print()
-            print("This job has the following attributes set: {}".format(
-                ", ".join((attr for attr in job._data))))
-            print("This job uses plugin: {}".format(job.plugin))
-            if job.command:
-                print("This job uses the following bash command: {!r}".format(
-                    job.command))
-            if job.depends is not None:
-                print("This job depends on the following jobs:")
-                for job_name in job.get_direct_dependencies():
-                    print(" - {}".format(job_name))
-            prog = job.get_resource_program()
-            if prog:
-                print("This job depends on the following expressions:")
-                for expression in prog.expression_list:
-                    print(" - {}".format(expression.text))
-                if dry_run:
-                    print("Assuming the expressions would match")
-                else:
-                    met = prog.evaluate(self._context.resources)
-                    if met:
-                        print("Job requirements met")
-                    else:
-                        print("Job requirements NOT met")
-                        return
-            try:
-                print("Starting job... ", end="")
-                if dry_run:
-                    print("(not really running anything) ", end="")
-                    result = None
-                else:
-                    result = self._runner.run_job(job)
-            except NotImplementedError:
-                print("error")
-                logger.exception("Something was not implemented fully")
-            else:
-                print("done")
-                if result is not None:
-                    result_list.append(result)
-                elif job.plugin == "resource":
-                    pass
-                else:
-                    if not dry_run:
-                        logger.warning("Job %s did not return a result", job)
-        return result_list
-
     def _load_jobs(self, source_list):
         """
         Load jobs from the list of sources
@@ -323,5 +345,5 @@ box = PlainBox()
 get_builtin_jobs = box.get_builtin_jobs
 save = box.save
 load = box.load
-run = box.run
+run = None
 main = box.main

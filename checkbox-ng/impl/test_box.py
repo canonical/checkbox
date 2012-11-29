@@ -180,9 +180,9 @@ class TestMain(TestCase):
         self.maxDiff = None
         expected = """
         usage: plainbox [-h] [-v] [-l {DEBUG,INFO,WARNING,ERROR,CRITICAL}]
-                        [-u {headless,text,graphics}] [--load-extra FILE] [-r PATTERN]
-                        [-n] [--list-jobs] [--list-expressions] [--dot]
-                        [--dot-resources]
+                        [-u {headless,text,graphics}] [--not-interactive]
+                        [--load-extra FILE] [-r PATTERN] [-n] [--list-jobs]
+                        [--list-expressions] [--dot] [--dot-resources]
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -193,6 +193,7 @@ class TestMain(TestCase):
         user interface options:
           -u {headless,text,graphics}, --ui {headless,text,graphics}
                                 select the UI front-end (defaults to auto)
+          --not-interactive     Skip tests that require interactivity
 
         job definition options:
           --load-extra FILE     Load extra job definitions from FILE
@@ -213,9 +214,7 @@ class TestMain(TestCase):
             main([])
         expected = """
         ===============================[ Analyzing Jobs ]===============================
-        ============================[ Gathering Resources ]=============================
-        No resource jobs required
-        ==================================[ Testing ]===================================
-        No jobs selected
+        ==============================[ Running All Jobs ]==============================
+        ==================================[ Results ]===================================
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")

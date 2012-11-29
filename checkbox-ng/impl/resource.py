@@ -34,6 +34,29 @@ from plainbox.abc import IResourceContext
 logger = logging.getLogger("plainbox.resource")
 
 
+class ExpressionFailedError(Exception):
+    """
+    Exception raise when a resource expression failed to produce a true value.
+
+    This class is meant to be consumed by the UI layers to provide meaningful
+    error messages to the operator. The expression attribute can be used to
+    obtain the text of the expression that failed as well as the resource name
+    that is used by that expression. The resource name can be used to lookup
+    the (resource) job that produces such values.
+    """
+
+    def __init__(self, expression):
+        self.expression = expression
+
+    def __str__(self):
+        return "expression {!r} evaluated to a non-true result".format(
+            self.expression.text)
+
+    def __repr__(self):
+        return "<{} expression:{!r}>".format(
+            self.__class__.__name__, self.expression)
+
+
 class Resource:
     """
     A simple container for key-value data

@@ -38,7 +38,6 @@ from plainbox.impl.resource import ResourceExpression
 from plainbox.impl.resource import ResourceNodeVisitor
 from plainbox.impl.resource import ResourceProgram
 from plainbox.impl.resource import ResourceProgramError
-from plainbox.impl.resource import ResourceLookupError
 
 
 class ExpressionFailedTests(TestCase):
@@ -182,16 +181,8 @@ class CodeNotAllowedTests(TestCase):
         self.assertTrue(issubclass(CodeNotAllowed, ResourceProgramError))
 
 
-class ResourceLookupErrorTest(TestCase):
 
-    def test_smoke(self):
-        exc = ResourceLookupError("foo")
-        self.assertEqual(exc.resource_name, "foo")
-        self.assertEqual(str(exc), "unknown resource: 'foo'")
-        self.assertEqual(repr(exc), "ResourceLookupError('foo')")
 
-    def test_inheritance(self):
-        self.assertTrue(issubclass(ResourceLookupError, LookupError))
 
 
 class ResourceNodeVisitorTests(TestCase):

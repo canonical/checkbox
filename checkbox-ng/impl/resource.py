@@ -419,22 +419,6 @@ class MultipleResourcesReferenced(ResourceProgramError):
         return "expression referenced multiple resources"
 
 
-class ResourceLookupError(LookupError):
-    """
-    Exception raised by ResourceProgram.evaluate() when unknown resource
-    name is required by one of the expressions.
-    """
-
-    def __init__(self, resource_name):
-        self.resource_name = resource_name
-
-    def __str__(self):
-        return "unknown resource: {!r}".format(self.resource_name)
-
-    def __repr__(self):
-        return "ResourceLookupError({!r})".format(self.resource_name)
-
-
 class ResourceExpression:
     """
     Class representing a single line of an requirement program.

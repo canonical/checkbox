@@ -409,6 +409,12 @@ class ResourceExpression:
         self._lambda = eval("lambda {}: {}".format(
             self._resource_name, self._text))
 
+    def __str__(self):
+        return self._text
+
+    def __repr__(self):
+        return "<ResourceExpression text:{!r}>".format(self._text)
+
     @property
     def text(self):
         """

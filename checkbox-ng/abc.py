@@ -19,7 +19,7 @@
 
 """
 plainbox.abc
-===============
+============
 
 Abstract base classes used by checkbox
 

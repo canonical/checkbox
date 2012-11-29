@@ -19,7 +19,7 @@
 
 """
 plainbox.impl.test_box
-=======================
+======================
 
 Test definitions for plainbox.impl.box module
 """

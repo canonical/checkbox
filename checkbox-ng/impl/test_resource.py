@@ -131,21 +131,17 @@ class ResourceTests(TestCase):
         return object.__getattribute__(res, '_data')
 
 
-
-
-
-
 class ResourceProgramErrorTests(TestCase):
 
     def test_multiple(self):
         exc = MultipleResourcesReferenced()
-        self.assertEqual(str(exc),
-                         "expression referenced multiple resources")
+        self.assertEqual(
+            str(exc), "expression referenced multiple resources")
 
     def test_none(self):
         exc = NoResourcesReferenced()
-        self.assertEqual(str(exc),
-                         "expression did not reference any resources")
+        self.assertEqual(
+            str(exc), "expression did not reference any resources")
 
 
 class CodeNotAllowedTests(TestCase):

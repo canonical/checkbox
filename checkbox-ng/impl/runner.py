@@ -26,58 +26,74 @@ Internal implementation of plainbox
  * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
 """
 
-from io import StringIO
+import collections
+import datetime
 import logging
 import os
-import shutil
-import subprocess
-import tempfile
+
+from plainbox.vendor import extcmd
 
 from plainbox.abc import IJobRunner
 from plainbox.impl.result import JobResult
-from plainbox.impl.resource import Resource
-from plainbox.impl.rfc822 import RFC822SyntaxError
-from plainbox.impl.rfc822 import load_rfc822_records
 
 logger = logging.getLogger("plainbox.runner")
 
 
-class Scratch:
+class _IOLogBuilder(extcmd.DelegateBase):
     """
-    Context manager for having a temporary directory that gets wiped later
-
-    Used to give value to CHECKBOX_DATA.
+    Delegate for extcmd that build a log of all the data that was written by a
+    process in a format expected by IJobResult.io_log. The format is a sequence
+    of tuples (delay, stream_name, data).
     """
 
     def __init__(self):
-        self.pathname = None
+        self.io_log = []
+        self.last_msg = datetime.datetime.utcnow()
 
-    def __enter__(self):
-        self.pathname = tempfile.mkdtemp()
-        return self
+    def on_line(self, stream_name, line):
+        """
+        Internal method of IOLogBuilder
 
-    def __exit__(self, *args):
-        shutil.rmtree(self.pathname)
-        self.pathname = None
+        Appends each line to the io_log. Maintains a timestamp of the last
+        message so that approximate delay between each piece of output can be
+        recorded as well.
+        """
+        now = datetime.datetime.utcnow()
+        delay = now - self.last_msg
+        self.last_msg = now
+        record = (delay.total_seconds(), stream_name, line)
+        self.io_log.append(record)
+        logger.debug("io log captured %r", record)
+
+
+class CommandOutputLogger(extcmd.DelegateBase):
+
+    def __init__(self, prompt):
+        self._prompt = prompt
+        self._lineno = collections.defaultdict(int)
+
+    def on_line(self, stream_name, line):
+        self._lineno[stream_name] += 1
+        print("(job {}, <{}:{:05}>) {}".format(
+            self._prompt, stream_name, self._lineno[stream_name], line.rstrip()))
 
 
 class JobRunner(IJobRunner):
 
-    def __init__(self, checkbox, context, scratch):
+    def __init__(self, checkbox, session_dir, command_io_delegate=None, outcome_callback=None):
         """
         Initialize a new job runner.
 
-        Use the specified CheckBox instance to execute scripts
-        Use the specified ResourceContext to manage resources
-        Use the specified Scratch directory manager
+        Uses the specified CheckBox instance to execute scripts. Uses the
+        specified session_dir as CHECKBOX_DATA environment variable. Uses the
+        specified IO delegate for extcmd.ExternalCommandWithDelegate to track
+        IO done by the called commands (optional, a simple console printer is
+        provided if missing).
         """
-        # XXX: this is somewhat crappy as scratch needs to be managed outside
-        # of this class. It would be better to have it managed internally but
-        # it would itself become a context manager which is undesirable due to
-        # the complexity.
         self._checkbox = checkbox
-        self._context = context
-        self._scratch = scratch
+        self._session_dir = session_dir
+        self._command_io_delegate = command_io_delegate
+        self._outcome_callback = outcome_callback
 
     def run_job(self, job):
         logger.info("Running %r", job)
@@ -85,58 +101,41 @@ class JobRunner(IJobRunner):
         try:
             runner = getattr(self, func_name)
         except AttributeError:
-            raise ValueError("Unsupported job plugin: {}".format(job.plugin))
-        try:
-            return runner(job)
-        except NotImplementedError:
             return JobResult({
                 'job': job,
                 'outcome': JobResult.OUTCOME_NOT_IMPLEMENTED,
+                'comment': 'This plugin is not supported'
             })
-
-    def _plugin_attachment(self, job):
-        raise NotImplementedError("TODO: attachments")
-
-    def _plugin_local(self, job):
-        raise NotImplementedError("TODO: local")
-
-    def _plugin_manual(self, job):
-        raise NotImplementedError("TODO: manual")
-
-    def _plugin_resource(self, job):
-        proc = self._run_command(job)
-        if proc.returncode == 127:
-            logging.warning("Unable to find command: %s", job.command)
-            return
-        line_list = []
-        for byte_line in proc.stdout.splitlines():
-            try:
-                line = byte_line.decode("UTF-8")
-            except UnicodeDecodeError as exc:
-                logger.warning("resource script %s returned invalid UTF-8 data"
-                               " %r: %s", job, byte_line, exc)
-            else:
-                line_list.append(line)
-        with StringIO("\n".join(line_list)) as stream:
-            try:
-                record_list = load_rfc822_records(stream)
-            except RFC822SyntaxError as exc:
-                logger.warning("resource script %s returned invalid RFC822"
-                               " data: %s", job, exc)
-            else:
-                for record in record_list:
-                    logger.info("Storing resource record %s: %s",
-                                job.name, record)
-                    resource = Resource(record)
-                    self._context.add_resource(job.name, resource)
+        else:
+            return runner(job)
 
     def _plugin_shell(self, job):
-        """
-        Implementation of a job runner for the 'shell' plugin
-        """
-        proc = self._run_command(job)
+        return self._just_run_command(job)
+
+    def _plugin_resource(self, job):
+        return self._just_run_command(job)
+
+    def _plugin_local(self, job):
+        return self._just_run_command(job)
+
+    def _plugin_manual(self, job):
+        if self._outcome_callback is None:
+            return JobResult({
+                'job': job,
+                'outcome': JobResult.OUTCOME_SKIP,
+                'comment': "non-interactive test run"
+            })
+        else:
+            result = self._just_run_command(job)
+            # XXX: make outcome writable
+            result._data['outcome'] = self._outcome_callback()
+            return result
+
+    def _just_run_command(self, job):
+        # Run the embedded command
+        return_code, io_log = self._run_command(job)
         # Convert the return of the command to the outcome of the job
-        if getattr(proc, 'returncode') == 0:
+        if return_code == 0:
             outcome = JobResult.OUTCOME_PASS
         else:
             outcome = JobResult.OUTCOME_FAIL
@@ -144,18 +143,11 @@ class JobRunner(IJobRunner):
         return JobResult({
             'job': job,
             'outcome': outcome,
-            'comments': None,
-            'io_log': None,  # TODO: implement this
-            'return_code': getattr(proc, 'returncode', 'Killed by signal')
+            'return_code': return_code,
+            'io_log': io_log
         })
 
-    def _plugin_user_interact(self, job):
-        raise NotImplementedError("TODO: interact")
-
-    def _plugin_user_verify(self, job):
-        raise NotImplementedError("TODO: verify")
-
-    def _get_checkbox_script_env(self):
+    def _get_checkbox_script_env(self, job):
         """
         Create an environment suitable for executing CheckBox scripts.
 
@@ -179,36 +171,41 @@ class JobRunner(IJobRunner):
         # Add CHECKBOX_SHARE that is needed by one script
         env['CHECKBOX_SHARE'] = self._checkbox.CHECKBOX_SHARE
         # Add CHECKBOX_DATA (temporary checkbox data)
-        assert self._scratch.pathname is not None
-        env['CHECKBOX_DATA'] = self._scratch.pathname
+        assert self._session_dir is not None
+        env['CHECKBOX_DATA'] = self._session_dir
         return env
 
     def _run_command(self, job):
         """
         Run the shell command associated with the specified job.
 
-        Returns a subprocess.Popen object. The object is slightly
-        modified so that .stdout and .stderr are the actual output
-        strings.
+        Returns a tuple (return_code, io_log)
         """
-        # TODO: Grab detailed IO log as required by TestResult.io_log. We can
-        # use extcmd from pypi for this, it needs to be ported to python3
-        # Start the process, capturing stdout and stderr
-        proc = subprocess.Popen(
+        ui_io_delegate = self._command_io_delegate
+        # If there is no UI delegate specified create a simple
+        # delegate that logs all output to the console
+        if ui_io_delegate is None:
+            ui_io_delegate = CommandOutputLogger(job.name)
+        # Create a delegate that builds a log of all IO
+        io_log_builder = _IOLogBuilder()
+        # Create a subprocess.Popen() like object that uses the
+        # delegate system to observe all IO as it occurs in real
+        # time.
+        logging_popen = extcmd.ExternalCommandWithDelegate(
+            extcmd.Decode(extcmd.Chain([io_log_builder, ui_io_delegate])))
+        # Start the process and wait for it to finish getting the
+        # result code. This will actually call a number of callbacks
+        # while the process is running. It will also spawn a few
+        # threads although all callbacks will be fired from a single
+        # thread (which is _not_ the main thread)
+        return_code = logging_popen.call(
             # XXX: sadly using /bin/sh results in broken output
             # XXX: maybe run it both ways and raise exceptions on differences?
             ['bash', '-c', job.command],
-            env=self._get_checkbox_script_env(),
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        # Run to completion
-        stdout, stderr = proc.communicate()
-        proc.stdout = stdout
-        proc.stderr = stderr
-        logger.debug("%s command stdout: %r", job.name, proc.stdout)
-        logger.debug("%s command stderr: %r", job.name, proc.stderr)
+            env=self._get_checkbox_script_env(job))
         logger.debug("%s command return code: %r",
-                     job.name, proc.returncode)
+                     job.name, return_code)
         # XXX: Perhaps handle process dying from signals here
         # When the process is killed proc.returncode is not set
         # and another (cannot remember now) attribute is set
-        return proc
+        return return_code, io_log_builder.io_log

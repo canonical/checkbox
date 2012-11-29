@@ -27,6 +27,10 @@ The are actually implemented by the plainbox.impl package. This module is here
 so that the essential API concepts are in a single spot and are easier to
 understand (by not being mixed with additional source code).
 
+.. warning::
+
+    This module is ironically UNSTABLE until the 1.0 release
+
 .. note::
 
     This module has API stability guarantees. We are not going to break or

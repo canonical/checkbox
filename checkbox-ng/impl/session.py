@@ -405,7 +405,8 @@ class SessionState:
             # XXX: Consider forwarding the origin object here.  I guess we
             # should have from_frc822_record as with JobDefinition
             resource = Resource(record.data)
-            logger.info("Storing resource record %r: %s", result.job.name, resource)
+            logger.info("Storing resource record %r: %s",
+                        result.job.name, resource)
             new_resource_list.append(resource)
         # Replace any old resources with the new resource list
         self._resource_map[result.job.name] = new_resource_list

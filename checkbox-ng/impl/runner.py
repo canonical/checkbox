@@ -75,12 +75,14 @@ class CommandOutputLogger(extcmd.DelegateBase):
     def on_line(self, stream_name, line):
         self._lineno[stream_name] += 1
         print("(job {}, <{}:{:05}>) {}".format(
-            self._prompt, stream_name, self._lineno[stream_name], line.rstrip()))
+            self._prompt, stream_name, self._lineno[stream_name],
+            line.rstrip()))
 
 
 class JobRunner(IJobRunner):
 
-    def __init__(self, checkbox, session_dir, command_io_delegate=None, outcome_callback=None):
+    def __init__(self, checkbox, session_dir, command_io_delegate=None,
+                 outcome_callback=None):
         """
         Initialize a new job runner.
 

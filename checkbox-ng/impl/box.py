@@ -263,7 +263,8 @@ class PlainBox:
         print("Job name: {}".format(job.name))
         print("Plugin: {}".format(job.plugin))
         print("Direct dependencies: {}".format(job.get_direct_dependencies()))
-        print("Resource dependencies: {}".format(job.get_resource_dependencies()))
+        print("Resource dependencies: {}".format(
+            job.get_resource_dependencies()))
         print("Resource program: {!r}".format(job.requires))
         print("Command: {!r}".format(job.command))
         print("Can start: {}".format(job_state.can_start()))

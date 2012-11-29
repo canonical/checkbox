@@ -28,6 +28,7 @@ import ast
 from unittest import TestCase
 
 from plainbox.impl.resource import CodeNotAllowed
+from plainbox.impl.resource import ExpressionCannotEvaluateError
 from plainbox.impl.resource import ExpressionFailedError
 from plainbox.impl.resource import MultipleResourcesReferenced
 from plainbox.impl.resource import NoResourcesReferenced
@@ -51,6 +52,20 @@ class ExpressionFailedTests(TestCase):
             " result"))
         self.assertEqual(repr(exc), (
             "<ExpressionFailedError expression:<ResourceExpression"
+            " text:'resource.attr == \"value\"'>>"))
+
+
+class ExpressionCannotEvaluateErrorTests(TestCase):
+
+    def test_smoke(self):
+        expression = ResourceExpression('resource.attr == "value"')
+        exc = ExpressionCannotEvaluateError(expression)
+        self.assertIs(exc.expression, expression)
+        self.assertEqual(str(exc), (
+            "expression 'resource.attr == \"value\"' needs unavailable"
+            " resource 'resource'"))
+        self.assertEqual(repr(exc), (
+            "<ExpressionCannotEvaluateError expression:<ResourceExpression"
             " text:'resource.attr == \"value\"'>>"))
 
 

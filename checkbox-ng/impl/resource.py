@@ -57,6 +57,21 @@ class ExpressionFailedError(Exception):
             self.__class__.__name__, self.expression)
 
 
+class ExpressionCannotEvaluateError(ExpressionFailedError):
+    """
+    Exception raised when a resource could not be evaluated because it requires
+    an unavailable resource.
+
+    Unlike the base class, this exception is raised before even running the
+    expression. As in the base class the exception object is meant to have
+    enough data to provide rich and meaningful error messages to the operator.
+    """
+
+    def __str__(self):
+        return "expression {!r} needs unavailable resource {!r}".format(
+            self.expression.text, self.expression.resource_name)
+
+
 class Resource:
     """
     A simple container for key-value data

@@ -172,8 +172,7 @@ class ResourceProgram:
         Analyze the requirement program and prepare it for execution
 
         The requirement program must be a string (of possibly many lines), each
-        of which must be a valid ResourceExpression. Empty lines are
-        ignored.
+        of which must be a valid ResourceExpression. Empty lines are ignored.
 
         May raise ResourceProgramError (including CodeNotAllowed) or a
         SyntaxError
@@ -221,7 +220,11 @@ class ResourceProgram:
 
 class ResourceProgramError(Exception):
     """
-    Base class for errors in requirement programs
+    Base class for errors in requirement programs.
+
+    This class of errors are based on static analysis, not runtime execution.
+    Typically they encode unsupported or disallowed python code being used by
+    an expression somewhere.
     """
 
 
@@ -434,7 +437,12 @@ class ResourceLookupError(LookupError):
 
 class ResourceExpression:
     """
-    Class representing a single line of an requirement expression
+    Class representing a single line of an requirement program.
+
+    Each valid expression references exactly one resource. In practical terms
+    each resource expression is a valid python expression that has no side
+    effects (calls almost no methods, does not assign anything) that can be
+    evaluated against a single variable which references a Resource object.
     """
 
     def __init__(self, text):

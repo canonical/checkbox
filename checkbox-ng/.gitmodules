@@ -1,0 +1,3 @@
+[submodule "checkbox"]
+	path = checkbox
+	url = git://github.com/zyga/checkbox

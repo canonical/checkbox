@@ -94,7 +94,7 @@ class PlainBox:
         group.add_argument(
             '-W', '--whitelist',
             metavar="WHITELIST",
-            type=FileType("rt", "utf-8"),
+            type=FileType("rt"),
             help="Load whitelist containing run patterns")
         group.add_argument(
             '-n', '--dry-run', action='store_true',

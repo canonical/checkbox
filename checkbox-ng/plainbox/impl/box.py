@@ -134,11 +134,9 @@ class PlainBox:
     def _get_matching_job_list(self, ns, job_list):
         # Find jobs that matched patterns
         matching_job_list = []
-
         if ns.whitelist:
             ns.run_pattern_list.extend([pattern.strip() for pattern in
                                         ns.whitelist.readlines()])
-
         for job in job_list:
             for pattern in ns.run_pattern_list:
                 if fnmatch(job.name, pattern):

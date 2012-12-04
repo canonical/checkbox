@@ -90,6 +90,12 @@ class PlainBox:
             '-r', '--run-pattern', action="append",
             metavar='PATTERN', default=[], dest='run_pattern_list',
             help="Run jobs matching the given pattern")
+        # TODO: Find a way to handle the encoding of the file
+        group.add_argument(
+            '-W', '--whitelist',
+            metavar="WHITELIST",
+            type=FileType("rt", "utf-8"),
+            help="Load whitelist containing run patterns")
         group.add_argument(
             '-n', '--dry-run', action='store_true',
             help="Don't actually run any jobs")
@@ -107,6 +113,7 @@ class PlainBox:
             '--dot-resources', action='store_true',
             help="Render resource relationships (for --dot)")
         ns = parser.parse_args(argv)
+
         # Set the desired log level
         if ns.log_level:
             getLogger("").setLevel(ns.log_level)
@@ -127,6 +134,11 @@ class PlainBox:
     def _get_matching_job_list(self, ns, job_list):
         # Find jobs that matched patterns
         matching_job_list = []
+
+        if ns.whitelist:
+            ns.run_pattern_list.extend([pattern.strip() for pattern in
+                                        ns.whitelist.readlines()])
+
         for job in job_list:
             for pattern in ns.run_pattern_list:
                 if fnmatch(job.name, pattern):

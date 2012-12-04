@@ -181,8 +181,8 @@ class TestMain(TestCase):
         expected = """
         usage: plainbox [-h] [-v] [-l {DEBUG,INFO,WARNING,ERROR,CRITICAL}]
                         [-u {headless,text,graphics}] [--not-interactive]
-                        [--load-extra FILE] [-r PATTERN] [-n] [--list-jobs]
-                        [--list-expressions] [--dot] [--dot-resources]
+                        [--load-extra FILE] [-r PATTERN] [-W WHITELIST] [-n]
+                        [--list-jobs] [--list-expressions] [--dot] [--dot-resources]
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -199,6 +199,8 @@ class TestMain(TestCase):
           --load-extra FILE     Load extra job definitions from FILE
           -r PATTERN, --run-pattern PATTERN
                                 Run jobs matching the given pattern
+          -W WHITELIST, --whitelist WHITELIST
+                                Load whitelist containing run patterns
           -n, --dry-run         Don't actually run any jobs
 
         special options:

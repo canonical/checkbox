@@ -58,12 +58,32 @@ class PlainBox:
         self._checkbox = CheckBox()
 
     def main(self, argv=None):
-        basicConfig(level="WARNING")
         # TODO: setup sane logging system that works just as well for Joe user
         # that runs checkbox from the CD as well as for checkbox developers and
         # custom debugging needs.  It would be perfect^Hdesirable not to create
         # another broken, never-rotated, uncapped logging crap that kills my
         # SSD by writing junk to ~/.cache/
+        basicConfig(level="WARNING")
+        parser = self._construct_parser()
+        ns = parser.parse_args(argv)
+        # Set the desired log level
+        if ns.log_level:
+            getLogger("").setLevel(ns.log_level)
+        # Load built-in job definitions
+        job_list = self.get_builtin_jobs()
+        # Load additional job definitions
+        job_list.extend(self._load_jobs(ns.load_extra))
+        # Now either do a special action or run the jobs
+        if ns.special == "list-jobs":
+            self._print_job_list(ns, job_list)
+        elif ns.special == "list-expr":
+            self._print_expression_list(ns, job_list)
+        elif ns.special == "dep-graph":
+            self._print_dot_graph(ns, job_list)
+        else:
+            self._run_jobs(ns, job_list)
+
+    def _construct_parser(self):
         parser = ArgumentParser(prog="plainbox")
         parser.add_argument(
             "-v", "--version", action="version",
@@ -112,24 +132,7 @@ class PlainBox:
         group.add_argument(
             '--dot-resources', action='store_true',
             help="Render resource relationships (for --dot)")
-        ns = parser.parse_args(argv)
-
-        # Set the desired log level
-        if ns.log_level:
-            getLogger("").setLevel(ns.log_level)
-        # Load built-in job definitions
-        job_list = self.get_builtin_jobs()
-        # Load additional job definitions
-        job_list.extend(self._load_jobs(ns.load_extra))
-        # Now either do a special action or run the jobs
-        if ns.special == "list-jobs":
-            self._print_job_list(ns, job_list)
-        elif ns.special == "list-expr":
-            self._print_expression_list(ns, job_list)
-        elif ns.special == "dep-graph":
-            self._print_dot_graph(ns, job_list)
-        else:
-            self._run_jobs(ns, job_list)
+        return parser
 
     def _get_matching_job_list(self, ns, job_list):
         # Find jobs that matched patterns

@@ -118,7 +118,7 @@ def load_rfc822_records(stream, data_cls=dict):
 
 def gen_rfc822_records(stream, data_cls=dict):
     """
-    Load a sequence of rtf822-like records from a text stream.
+    Load a sequence of rfc822-like records from a text stream.
 
     Each record consists of any number of key-value pairs. Subsequent records
     are separated by one blank line. A record key may have a multi-line value
@@ -256,3 +256,33 @@ def gen_rfc822_records(stream, data_cls=dict):
     if data:
         logger.debug("yielding record: %r", record)
         yield record
+
+
+def dump_rfc822_records(message, stream):
+    """Dump a message to the output stream.
+
+    :param message: Dictionary containing message key/values.
+    :param stream: Output stream.
+    """
+    def _dump_part(stream, key, values):
+        stream.write("%s:\n" % key)
+        for value in values:
+            if not value:
+                stream.write(" .\n")
+            elif value == ".":
+                stream.write(" ..\n")
+            else:
+                stream.write(" %s\n" % value)
+
+    for key, value in message.items():
+        if isinstance(value, (list, tuple)):
+            _dump_part(stream, key, value)
+        elif isinstance(value, str) and "\n" in value:
+            values = value.split("\n")
+            if not values[-1]:
+                values = values[:-1]
+            _dump_part(stream, key, values)
+        else:
+            stream.write("%s: %s\n" % (key, value))
+
+    stream.write("\n")

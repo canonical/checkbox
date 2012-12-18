@@ -48,16 +48,20 @@ class SessionStateExporterBase(metaclass=ABCMeta):
 
     OPTION_WITH_IO_LOG = 'with-io-log'
     OPTION_SQUASH_IO_LOG = 'squash-io-log'
+    OPTION_FLATTEN_IO_LOG = 'flatten-io-log'
     OPTION_WITH_RUN_LIST = 'with-run-list'
     OPTION_WITH_JOB_LIST = 'with-job-list'
     OPTION_WITH_DESIRED_JOB_LIST = 'with-job-list'
     OPTION_WITH_RESOURCE_MAP = 'with-resource-map'
+    OPTION_WITH_JOB_DEFS = 'with-job-defs'
 
     SUPPORTED_OPTION_LIST = (
         OPTION_WITH_IO_LOG,
         OPTION_SQUASH_IO_LOG,
+        OPTION_FLATTEN_IO_LOG,
         OPTION_WITH_RUN_LIST,
         OPTION_WITH_JOB_LIST,
+        OPTION_WITH_RESOURCE_MAP,
         OPTION_WITH_JOB_DEFS,
     )
 
@@ -101,9 +105,22 @@ class SessionStateExporterBase(metaclass=ABCMeta):
         for job_name, job_state in session.job_state_map.items():
             if job_state.result.outcome is None:
                 continue
-            data['result_map'][job_name] = {
-                'outcome': job_state.result.outcome
-            }
+            data['result_map'][job_name] = OrderedDict()
+            data['result_map'][job_name]['outcome'] = job_state.result.outcome
+
+            # Add Job definitions if requested
+            if self.OPTION_WITH_JOB_DEFS in self._option_list:
+                for prop in ('plugin',
+                             'requires',
+                             'depends',
+                             'command',
+                             'description',
+                             ):
+                    if not getattr(job_state.result.job, prop):
+                        continue
+                    data['result_map'][job_name][prop] = \
+                    getattr(job_state.result.job, prop)
+
             # Add IO log if requested
             if self.OPTION_WITH_IO_LOG in self._option_list:
                 # If requested, squash the IO log so that only textual data is
@@ -112,6 +129,9 @@ class SessionStateExporterBase(metaclass=ABCMeta):
                     # TODO: use namedtuple, this is annoying
                     io_log_data = [record[2].rstrip()
                                    for record in job_state.result.io_log]
+                elif self.OPTION_FLATTEN_IO_LOG in self._option_list:
+                    io_log_data = ''.join(
+                    [record[-1] for record in job_state.result.io_log])
                 else:
                     io_log_data = [(record[0], record[1], record[2].rstrip())
                                    for record in job_state.result.io_log]

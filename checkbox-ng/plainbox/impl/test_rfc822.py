@@ -31,6 +31,7 @@ from plainbox.impl.rfc822 import Origin
 from plainbox.impl.rfc822 import RFC822Record
 from plainbox.impl.rfc822 import RFC822SyntaxError
 from plainbox.impl.rfc822 import load_rfc822_records
+from plainbox.impl.rfc822 import dump_rfc822_records
 
 
 class OriginTests(TestCase):
@@ -214,3 +215,55 @@ class RFC822ParserTests(TestCase):
             self.assertEqual(call.exception.msg, (
                 "Job has a duplicate key 'key1' with old value 'value1'"
                 " and new value 'value2'"))
+
+
+class RFC822WriterTests(TestCase):
+
+    def test_single_record(self):
+        with StringIO() as stream:
+            dump_rfc822_records({'key': 'value'}, stream)
+            self.assertEqual(stream.getvalue(), "key: value\n\n")
+
+    def test_multiple_record(self):
+        with StringIO() as stream:
+            dump_rfc822_records({'key1': 'value1', 'key2': 'value2'}, stream)
+            self.assertIn(stream.getvalue(),
+                ("key1: value1\nkey2: value2\n\n",
+                 "key2: value2\nkey1: value1\n\n"))
+
+    def test_multiline_value(self):
+        text = (
+            "key:\n"
+            " longer\n"
+            " value\n\n"
+        )
+        with StringIO() as stream:
+            dump_rfc822_records({'key': 'longer\nvalue'}, stream)
+            self.assertEqual(stream.getvalue(), text)
+
+    def test_multiline_value_with_space(self):
+        text = (
+            "key:\n"
+            " longer\n"
+            " .\n"
+            " value\n\n"
+        )
+        with StringIO() as stream:
+            dump_rfc822_records({'key': 'longer\n\nvalue'}, stream)
+            self.assertEqual(stream.getvalue(), text)
+
+    def test_multiline_value_with_period(self):
+        text = (
+            "key:\n"
+            " longer\n"
+            " ..\n"
+            " value\n\n"
+        )
+        with StringIO() as stream:
+            dump_rfc822_records({'key': 'longer\n.\nvalue'}, stream)
+            self.assertEqual(stream.getvalue(), text)
+
+    def test_type_error(self):
+        with StringIO() as stream:
+            with self.assertRaises(AttributeError):
+                dump_rfc822_records(['key', 'value'], stream)

@@ -182,7 +182,8 @@ class TestMain(TestCase):
         usage: plainbox [-h] [-v] [-l {DEBUG,INFO,WARNING,ERROR,CRITICAL}]
                         [-u {headless,text,graphics}] [--not-interactive]
                         [--load-extra FILE] [-r PATTERN] [-W WHITELIST] [-n]
-                        [--list-jobs] [--list-expressions] [--dot] [--dot-resources]
+                        [-f FORMAT] [-p OPTIONS] [-o FILE] [--list-jobs]
+                        [--list-expressions] [--dot] [--dot-resources]
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -202,6 +203,16 @@ class TestMain(TestCase):
           -W WHITELIST, --whitelist WHITELIST
                                 Load whitelist containing run patterns
           -n, --dry-run         Don't actually run any jobs
+
+        output options:
+          -f FORMAT, --output-format FORMAT
+                                Save test results in the specified FORMAT
+          -p OPTIONS, --output-options OPTIONS
+                                Comma-separated list of options for the export
+                                mechanism
+          -o FILE, --output-file FILE
+                                Save test results to the specified FILE (or to stdout
+                                if FILE is -)
 
         special options:
           --list-jobs           List jobs instead of running them

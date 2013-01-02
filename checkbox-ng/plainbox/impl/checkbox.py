@@ -184,9 +184,11 @@ class CheckBox:
         """
         Return the root directory of the checkbox source checkout
 
-        This only works when plainbox is 'setup.py develop'ed
-        and the checkbox submodule has been loaded.
+        Historically plainbox used a git submodule with checkbox tree
+        (converted to git). This ended with the merge of plainbox into the
+        checkbox tree. Now it's the other way around and the checkbox tree can
+        be located two directories "up" from the plainbox module.
         """
         return os.path.normpath(
             os.path.join(
-                get_plainbox_dir(), "..", "checkbox"))
+                get_plainbox_dir(), "..", ".."))

@@ -93,12 +93,12 @@ class SessionStateExporterBase(metaclass=ABCMeta):
                 raise ValueError("Unsupported option: {}".format(option))
         self._option_list = option_list
 
-    @property
-    def supported_option_list(self):
+    @classproperty
+    def supported_option_list(cls):
         """
         Return the list of supported options
         """
-        return self.SUPPORTED_OPTION_LIST
+        return cls.SUPPORTED_OPTION_LIST
 
     def get_session_data_subset(self, session):
         """

@@ -34,6 +34,26 @@ import pkg_resources
 logger = getLogger("plainbox.exporter")
 
 
+class classproperty:
+    """
+    Class property.
+
+    @property
+    @classmethod
+    def foo(cls):
+        ...
+    """
+    # I wish it was in the standard library or that the composition worked
+
+    def __init__(self, func):
+        self.func = func
+
+    def __get__(self, instance, owner):
+        # If we were being pedantic we could throw a TypeError if instance is
+        # None but this is not really something we care about in the code below
+        return self.func(owner)
+
+
 class SessionStateExporterBase(metaclass=ABCMeta):
     """
     Base class for "exporter" that write out the state of the session after all

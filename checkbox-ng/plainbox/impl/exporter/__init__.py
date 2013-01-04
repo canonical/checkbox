@@ -150,24 +150,33 @@ class SessionStateExporterBase(metaclass=ABCMeta):
                         continue
                     data['result_map'][job_name][prop] = \
                     getattr(job_state.result.job, prop)
-
             # Add IO log if requested
             if self.OPTION_WITH_IO_LOG in self._option_list:
                 # If requested, squash the IO log so that only textual data is
                 # saved, discarding stream name and the relative timestamp.
                 if self.OPTION_SQUASH_IO_LOG in self._option_list:
-                    io_log_data = [record.data.rstrip()
-                                   for record in job_state.result.io_log]
+                    io_log_data = self._squash_io_log(
+                        job_state.result.io_log)
                 elif self.OPTION_FLATTEN_IO_LOG in self._option_list:
-                    io_log_data = ''.join(
-                    [record[-1] for record in job_state.result.io_log])
+                    io_log_data = self._flatten_io_log(
+                        job_state.result.io_log)
                 else:
-                    io_log_data = [
-                        (record.delay, record.stream_name,
-                         record.data.rstrip())
-                        for record in job_state.result.io_log]
+                    io_log_data = self._io_log(job_state.result.io_log)
                 data['result_map'][job_name]['io_log'] = io_log_data
         return data
+
+    @classmethod
+    def _squash_io_log(cls, io_log):
+        return [record.data.rstrip() for record in io_log]
+
+    @classmethod
+    def _flatten_io_log(cls, io_log):
+        return ''.join([record.data for record in io_log])
+
+    @classmethod
+    def _io_log(cls, io_log):
+        return [(record.delay, record.stream_name, record.data.rstrip())
+                for record in io_log]
 
     @abstractmethod
     def dump(self, data, stream):

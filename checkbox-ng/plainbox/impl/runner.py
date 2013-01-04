@@ -34,7 +34,7 @@ import os
 from plainbox.vendor import extcmd
 
 from plainbox.abc import IJobRunner
-from plainbox.impl.result import JobResult
+from plainbox.impl.result import JobResult, IOLogRecord
 
 logger = logging.getLogger("plainbox.runner")
 
@@ -61,7 +61,7 @@ class _IOLogBuilder(extcmd.DelegateBase):
         now = datetime.datetime.utcnow()
         delay = now - self.last_msg
         self.last_msg = now
-        record = (delay.total_seconds(), stream_name, line)
+        record = IOLogRecord(delay.total_seconds(), stream_name, line)
         self.io_log.append(record)
         logger.debug("io log captured %r", record)
 

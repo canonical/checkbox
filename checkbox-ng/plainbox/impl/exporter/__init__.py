@@ -126,15 +126,16 @@ class SessionStateExporterBase(metaclass=ABCMeta):
                 # If requested, squash the IO log so that only textual data is
                 # saved, discarding stream name and the relative timestamp.
                 if self.OPTION_SQUASH_IO_LOG in self._option_list:
-                    # TODO: use namedtuple, this is annoying
-                    io_log_data = [record[2].rstrip()
+                    io_log_data = [record.data.rstrip()
                                    for record in job_state.result.io_log]
                 elif self.OPTION_FLATTEN_IO_LOG in self._option_list:
                     io_log_data = ''.join(
                     [record[-1] for record in job_state.result.io_log])
                 else:
-                    io_log_data = [(record[0], record[1], record[2].rstrip())
-                                   for record in job_state.result.io_log]
+                    io_log_data = [
+                        (record.delay, record.stream_name,
+                         record.data.rstrip())
+                        for record in job_state.result.io_log]
                 data['result_map'][job_name]['io_log'] = io_log_data
         return data
 

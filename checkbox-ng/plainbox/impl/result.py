@@ -26,11 +26,25 @@ Internal implementation of plainbox
  * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
 """
 
+from collections import namedtuple
 import logging
 
 from plainbox.abc import IJobResult
 
 logger = logging.getLogger("plainbox.result")
+
+
+# Tuple representing entries in the JobResult.io_log
+# Each entry has three fields:
+#
+#   delay - time elapsed since the previous record was created (in seconds,
+#   floating point unit represent fractional parts)
+#
+#   stream_name - name of the stream the IO was observed on, currently
+#   'stdout' and 'stderr' are supported.
+#
+#   data - the actual IO seen (bytes)
+IOLogRecord = namedtuple("IOLogRecord", "delay stream_name data".split())
 
 
 class JobResult(IJobResult):

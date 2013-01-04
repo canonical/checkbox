@@ -121,7 +121,17 @@ class SessionStateExporterBase(metaclass=ABCMeta):
         if self.OPTION_WITH_DESIRED_JOB_LIST in self._option_list:
             data['desired_job_list'] = [job.name for job in session.desired_job_list]
         if self.OPTION_WITH_RESOURCE_MAP in self._option_list:
-            data['resource_map'] = [resource for resource in session._resource_map]
+            data['resource_map'] = {
+                # TODO: there is no method to get all data from a Resource
+                # instance and there probably should be. Or just let there be
+                # a way to promote _data to a less hidden-but-non-conflicting
+                # property.
+                resource_name: [
+                    object.__getattribute__(resource, "_data")
+                    for resource in resource_list]
+                # TODO: turn session._resource_map to a public property
+                for resource_name, resource_list in session._resource_map.items()
+            }
         for job_name, job_state in session.job_state_map.items():
             if job_state.result.outcome is None:
                 continue

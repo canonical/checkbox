@@ -85,17 +85,20 @@ class PlainBox:
             if ns.output_format == '?':
                 self._print_output_format_list(ns)
             else:
-                exporter_cls = get_all_exporters()[ns.output_format]
-                if ns.output_options:
-                    option_list = ns.output_options.split(',')
-                else:
-                    option_list = None
-                try:
-                    exporter = exporter_cls(option_list)
-                except ValueError as exc:
-                    raise SystemExit(str(exc))
-                else:
-                    self._run_jobs(ns, job_list, exporter)
+                exporter = self._prepare_exporter(ns)
+                self._run_jobs(ns, job_list, exporter)
+
+    def _prepare_exporter(self, ns):
+        exporter_cls = get_all_exporters()[ns.output_format]
+        if ns.output_options:
+            option_list = ns.output_options.split(',')
+        else:
+            option_list = None
+        try:
+            exporter = exporter_cls(option_list)
+        except ValueError as exc:
+            raise SystemExit(str(exc))
+        return exporter
 
     def _construct_parser(self):
         parser = ArgumentParser(prog="plainbox")

@@ -206,10 +206,11 @@ class TestMain(TestCase):
 
         output options:
           -f FORMAT, --output-format FORMAT
-                                Save test results in the specified FORMAT
+                                Save test results in the specified FORMAT (pass ? for
+                                a list of choices)
           -p OPTIONS, --output-options OPTIONS
                                 Comma-separated list of options for the export
-                                mechanism
+                                mechanism (pass ? for a list of choices)
           -o FILE, --output-file FILE
                                 Save test results to the specified FILE (or to stdout
                                 if FILE is -)

@@ -143,7 +143,8 @@ class PlainBox:
         group.add_argument(
             '-f', '--output-format', default='text',
             metavar='FORMAT', choices=['?',] + list(get_all_exporters().keys()),
-            help='Save test results in the specified FORMAT')
+            help=('Save test results in the specified FORMAT'
+                  ' (pass ? for a list of choices)'))
         group.add_argument(
             '-p', '--output-options', default='',
             metavar='OPTIONS',

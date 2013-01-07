@@ -244,3 +244,142 @@ class TestSpecial(TestCase):
         plainbox special: error: one of the arguments -j/--list-jobs -e/--list-expressions -d/--dot is required
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
+
+    def test_run_list_jobs(self):
+        with TestIO() as io:
+            with self.assertRaises(SystemExit) as call:
+                main(['special', '--list-jobs'])
+            self.assertEqual(call.exception.args, (0,))
+        # This is pretty shoddy, ideally we'd load a special job and test for
+        # that but it's something that keeps the test more valid than
+        # otherwise.
+        self.assertIn("mediacard/mmc-insert", io.stdout.splitlines())
+        self.assertIn("usb3/insert", io.stdout.splitlines())
+        self.assertIn("usb/insert", io.stdout.splitlines())
+
+    def test_run_list_jobs_with_filtering(self):
+        with TestIO() as io:
+            with self.assertRaises(SystemExit) as call:
+                main(['special', '--run-pattern=usb3*', '--list-jobs'])
+            self.assertEqual(call.exception.args, (0,))
+        # Test that usb3 insertion test was listed but the usb (2.0) test was not
+        self.assertIn("usb3/insert", io.stdout.splitlines())
+        self.assertNotIn("usb/insert", io.stdout.splitlines())
+
+    def test_run_list_expressions(self):
+        with TestIO() as io:
+            with self.assertRaises(SystemExit) as call:
+                main(['special', '--list-expressions'])
+            self.assertEqual(call.exception.args, (0,))
+        # See comment in test_run_list_jobs
+        self.assertIn("package.name == 'samba'", io.stdout.splitlines())
+
+    def test_run_dot(self):
+        with TestIO() as io:
+            with self.assertRaises(SystemExit) as call:
+                main(['special', '--dot'])
+            self.assertEqual(call.exception.args, (0,))
+        # See comment in test_run_list_jobs
+        self.assertIn('\t"usb/insert" [color=orange];', io.stdout.splitlines())
+        # Do basic graph checks
+        self._check_digraph_sanity(io)
+
+    def test_run_dot_with_resources(self):
+        with TestIO() as io:
+            with self.assertRaises(SystemExit) as call:
+                main(['special', '--dot', '--dot-resources'])
+            self.assertEqual(call.exception.args, (0,))
+        # See comment in test_run_list_jobs
+        self.assertIn(
+            '\t"usb/insert" [color=orange];', io.stdout.splitlines())
+        self.assertIn(
+            '\t"daemons/smbd" -> "package" [style=dashed, label="package.name == \'samba\'"];',
+            io.stdout.splitlines())
+        # Do basic graph checks
+        self._check_digraph_sanity(io)
+
+    def _check_digraph_sanity(self, io):
+        # Ensure that all lines inside the graph are terminated with a
+        # semicolon
+        for line in io.stdout.splitlines()[1:-2]:
+            self.assertTrue(line.endswith(';'))
+        # Ensure that graph header and footer are there
+        self.assertEqual("digraph dependency_graph {",
+ io.stdout.splitlines()[0])
+        self.assertEqual("}", io.stdout.splitlines()[-1])
+
+
+class TestRun(TestCase):
+
+    def test_help(self):
+        with TestIO(combined=True) as io:
+            with self.assertRaises(SystemExit) as call:
+                main(['run', '--help'])
+            self.assertEqual(call.exception.args, (0,))
+        self.maxDiff = None
+        expected = """
+        usage: plainbox run [-h] [--not-interactive] [-n] [-f FORMAT] [-p OPTIONS]
+                            [-o FILE] [--load-extra FILE] [-r PATTERN] [-W WHITELIST]
+
+        optional arguments:
+          -h, --help            show this help message and exit
+
+        user interface options:
+          --not-interactive     Skip tests that require interactivity
+          -n, --dry-run         Don't actually run any jobs
+
+        output options:
+          -f FORMAT, --output-format FORMAT
+                                Save test results in the specified FORMAT (pass ? for
+                                a list of choices)
+          -p OPTIONS, --output-options OPTIONS
+                                Comma-separated list of options for the export
+                                mechanism (pass ? for a list of choices)
+          -o FILE, --output-file FILE
+                                Save test results to the specified FILE (or to stdout
+                                if FILE is -)
+
+        job definition options:
+          --load-extra FILE     Load extra job definitions from FILE
+          -r PATTERN, --run-pattern PATTERN
+                                Run jobs matching the given pattern
+          -W WHITELIST, --whitelist WHITELIST
+                                Load whitelist containing run patterns
+        """
+        self.assertEqual(io.combined, cleandoc(expected) + "\n")
+
+    def test_run_without_args(self):
+        with TestIO(combined=True) as io:
+            with self.assertRaises(SystemExit) as call:
+                main(['run'])
+            self.assertEqual(call.exception.args, (0,))
+        expected = """
+        ===============================[ Analyzing Jobs ]===============================
+        ==============================[ Running All Jobs ]==============================
+        ==================================[ Results ]===================================
+        """
+        self.assertEqual(io.combined, cleandoc(expected) + "\n")
+
+    def test_output_format_list(self):
+        with TestIO(combined=True) as io:
+            with self.assertRaises(SystemExit) as call:
+                main(['run', '--output-format=?'])
+            self.assertEqual(call.exception.args, (0,))
+        expected = """
+        Available output formats: text, json, rfc822, yaml
+        """
+        self.assertEqual(io.combined, cleandoc(expected) + "\n")
+
+    def test_output_option_list(self):
+        with TestIO(combined=True) as io:
+            with self.assertRaises(SystemExit) as call:
+                main(['run', '--output-option=?'])
+            self.assertEqual(call.exception.args, (0,))
+        expected = """
+        Each format may support a different set of options
+        text: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs
+        json: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs, machine-json
+        rfc822: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs
+        yaml: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs
+        """
+        self.assertEqual(io.combined, cleandoc(expected) + "\n")

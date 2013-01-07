@@ -27,7 +27,7 @@ Internal implementation of plainbox
 """
 
 
-import sys
+from abc import abstractmethod
 from argparse import ArgumentParser
 from argparse import FileType
 from fnmatch import fnmatch
@@ -36,6 +36,8 @@ from logging import basicConfig
 from logging import getLogger
 from os import listdir
 from os.path import join
+import argparse
+import sys
 
 from plainbox import __version__ as version
 from plainbox.impl.checkbox import CheckBox
@@ -50,75 +52,45 @@ from plainbox.impl.session import SessionState
 logger = getLogger("plainbox.box")
 
 
-class PlainBox:
+class PlainBoxCommand:
     """
-    High-level plainbox object
+    Simple interface class for plainbox commands
     """
 
-    def __init__(self):
-        self._checkbox = CheckBox()
+    @abstractmethod
+    def invoked(self, ns):
+        """
+        Implement what should happen when the command gets invoked
 
-    def main(self, argv=None):
-        # TODO: setup sane logging system that works just as well for Joe user
-        # that runs checkbox from the CD as well as for checkbox developers and
-        # custom debugging needs.  It would be perfect^Hdesirable not to create
-        # another broken, never-rotated, uncapped logging crap that kills my
-        # SSD by writing junk to ~/.cache/
-        basicConfig(level="WARNING")
-        parser = self._construct_parser()
-        ns = parser.parse_args(argv)
-        # Set the desired log level
-        if ns.log_level:
-            getLogger("").setLevel(ns.log_level)
-        # Load built-in job definitions
-        job_list = self.get_builtin_jobs()
-        # Load additional job definitions
-        job_list.extend(self._load_jobs(ns.load_extra))
-        # Now either do a special action or run the jobs
-        if ns.special == "list-jobs":
-            self._print_job_list(ns, job_list)
-        elif ns.special == "list-expr":
-            self._print_expression_list(ns, job_list)
-        elif ns.special == "dep-graph":
-            self._print_dot_graph(ns, job_list)
-        else:
-            if ns.output_format == '?':
-                self._print_output_format_list(ns)
-            elif ns.output_options == '?':
-                self._print_output_option_list(ns)
-            else:
-                exporter = self._prepare_exporter(ns)
-                self._run_jobs(ns, job_list, exporter)
+        The ns is the namespace produced by argument parser
+        """
 
-    def _prepare_exporter(self, ns):
-        exporter_cls = get_all_exporters()[ns.output_format]
-        if ns.output_options:
-            option_list = ns.output_options.split(',')
-        else:
-            option_list = None
-        try:
-            exporter = exporter_cls(option_list)
-        except ValueError as exc:
-            raise SystemExit(str(exc))
-        return exporter
+    @abstractmethod
+    def register_parser(self, subparsers):
+        """
+        Implement what should happen to register the additional parser for this
+        command. The subparsers argument is the return value of
+        ArgumentParser.add_subparsers()
+        """
 
-    def _construct_parser(self):
-        parser = ArgumentParser(prog="plainbox")
-        parser.add_argument(
-            "-v", "--version", action="version",
-            version="{}.{}.{}".format(*version[:3]))
-        parser.add_argument(
-            "-l", "--log-level", action="store",
-            choices=('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'),
-            help="Set logging level")
-        group = parser.add_argument_group(title="user interface options")
-        group.add_argument(
-            "-u", "--ui", action="store",
-            default=None, choices=('headless', 'text', 'graphics'),
-            help="select the UI front-end (defaults to auto)")
-        group.add_argument(
-            '--not-interactive', action='store_true',
-            help="Skip tests that require interactivity")
+
+class CheckBoxCommandMixIn:
+    """
+    Mix-in class for plainbox commands that want to discover and load checkbox
+    jobs
+    """
+
+    def __init__(self, checkbox):
+        self._checkbox = checkbox
+
+    @property
+    def checkbox(self):
+        return self._checkbox
+
+    def enhance_parser(self, parser):
+        """
+        Add common options for job selection to an existing parser
+        """
         group = parser.add_argument_group(title="job definition options")
         group.add_argument(
             "--load-extra", action="append",
@@ -135,50 +107,35 @@ class PlainBox:
             metavar="WHITELIST",
             type=FileType("rt"),
             help="Load whitelist containing run patterns")
-        group.add_argument(
-            '-n', '--dry-run', action='store_true',
-            help="Don't actually run any jobs")
-        group = parser.add_argument_group("output options")
-        assert 'text' in get_all_exporters()
-        group.add_argument(
-            '-f', '--output-format', default='text',
-            metavar='FORMAT', choices=['?',] + list(get_all_exporters().keys()),
-            help=('Save test results in the specified FORMAT'
-                  ' (pass ? for a list of choices)'))
-        group.add_argument(
-            '-p', '--output-options', default='',
-            metavar='OPTIONS',
-            help=('Comma-separated list of options for the export mechanism'
-                  ' (pass ? for a list of choices)'))
-        group.add_argument(
-            '-o', '--output-file', default='-',
-            metavar='FILE', type=FileType("wt"),
-            help=('Save test results to the specified FILE'
-                  ' (or to stdout if FILE is -)'))
-        group = parser.add_argument_group("special options")
-        group.add_argument(
-            '--list-jobs', help="List jobs instead of running them",
-            action="store_const", const="list-jobs", dest="special")
-        group.add_argument(
-            '--list-expressions', help="List all unique resource expressions",
-            action="store_const", const="list-expr", dest="special")
-        group.add_argument(
-            '--dot', help="Print a graph of jobs instead of running them",
-            action="store_const", const="dep-graph", dest="special")
-        group.add_argument(
-            '--dot-resources', action='store_true',
-            help="Render resource relationships (for --dot)")
-        return parser
 
-    def _print_output_format_list(self, ns):
-        print("Available output formats: {}".format(
-            ', '.join(get_all_exporters())))
+    def get_job_list(self, ns):
+        # Load built-in job definitions
+        job_list = self.get_builtin_jobs()
+        # Load additional job definitions
+        job_list.extend(self._load_jobs(ns.load_extra))
+        return job_list
 
-    def _print_output_option_list(self, ns):
-        print("Each format may support a different set of options")
-        for name, exporter_cls in get_all_exporters().items():
-            print("{}: {}".format(
-                name, ", ".join(exporter_cls.supported_option_list)))
+    def get_builtin_jobs(self):
+        logger.debug("Loading built-in jobs...")
+        return self._load_builtin_jobs()
+
+    def _load_jobs(self, source_list):
+        """
+        Load jobs from the list of sources
+        """
+        job_list = []
+        for source in source_list:
+            job_list.extend(self.load(source))
+        return job_list
+
+    def _load_builtin_jobs(self):
+        """
+        Load jobs from built into CheckBox
+        """
+        return self._load_jobs([
+            join(self.checkbox.jobs_dir, name)
+            for name in listdir(self.checkbox.jobs_dir)
+            if name.endswith(".txt") or name.endswith(".txt.in")])
 
     def _get_matching_job_list(self, ns, job_list):
         # Find jobs that matched patterns
@@ -191,6 +148,53 @@ class PlainBox:
                 if fnmatch(job.name, pattern):
                     matching_job_list.append(job)
                     break
+        return matching_job_list
+
+    def load(self, something):
+        return load(something)
+
+
+class SpecialCommand(PlainBoxCommand, CheckBoxCommandMixIn):
+
+    def invoked(self, ns):
+        job_list = self.get_job_list(ns)
+        # Now either do a special action or run the jobs
+        if ns.special == "list-jobs":
+            self._print_job_list(ns, job_list)
+        elif ns.special == "list-expr":
+            self._print_expression_list(ns, job_list)
+        elif ns.special == "dep-graph":
+            self._print_dot_graph(ns, job_list)
+        # Always succeed
+        return 0
+
+    def register_parser(self, subparsers):
+        parser = subparsers.add_parser(
+            "special", help="special/internal commands")
+        parser.set_defaults(command=self)
+        group = parser.add_mutually_exclusive_group(required=True)
+        group.add_argument(
+            '-j', '--list-jobs',
+            help="List jobs instead of running them",
+            action="store_const", const="list-jobs", dest="special")
+        group.add_argument(
+            '-e', '--list-expressions',
+            help="List all unique resource expressions",
+            action="store_const", const="list-expr", dest="special")
+        group.add_argument(
+            '-d', '--dot',
+            help="Print a graph of jobs instead of running them",
+            action="store_const", const="dep-graph", dest="special")
+        parser.add_argument(
+            '--dot-resources',
+            help="Render resource relationships (for --dot)",
+            action='store_true')
+        # Call enhance_parser from CheckBoxCommandMixIn
+        self.enhance_parser(parser)
+
+    def _get_matching_job_list(self, ns, job_list):
+        matching_job_list = super(
+            SpecialCommand, self)._get_matching_job_list(ns, job_list)
         # As a special exception, when ns.special is set and we're either
         # listing jobs or job dependencies then when no run pattern was
         # specified just operate on the whole set. The ns.special check
@@ -244,6 +248,72 @@ class PlainBox:
                         expression.text.replace('"', "'")))
         print("}")
 
+
+class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
+
+    def invoked(self, ns):
+        if ns.output_format == '?':
+            self._print_output_format_list(ns)
+        elif ns.output_options == '?':
+            self._print_output_option_list(ns)
+        else:
+            exporter = self._prepare_exporter(ns)
+            job_list = self.get_job_list(ns)
+            return self._run_jobs(ns, job_list, exporter)
+
+    def register_parser(self, subparsers):
+        parser = subparsers.add_parser("run", help="run a test job")
+        parser.set_defaults(command=self)
+        group = parser.add_argument_group(title="user interface options")
+        group.add_argument(
+            '--not-interactive', action='store_true',
+            help="Skip tests that require interactivity")
+        group.add_argument(
+            '-n', '--dry-run', action='store_true',
+            help="Don't actually run any jobs")
+        group = parser.add_argument_group("output options")
+        assert 'text' in get_all_exporters()
+        group.add_argument(
+            '-f', '--output-format', default='text',
+            metavar='FORMAT', choices=['?'] + list(
+                get_all_exporters().keys()),
+            help=('Save test results in the specified FORMAT'
+                  ' (pass ? for a list of choices)'))
+        group.add_argument(
+            '-p', '--output-options', default='',
+            metavar='OPTIONS',
+            help=('Comma-separated list of options for the export mechanism'
+                  ' (pass ? for a list of choices)'))
+        group.add_argument(
+            '-o', '--output-file', default='-',
+            metavar='FILE', type=FileType("wt"),
+            help=('Save test results to the specified FILE'
+                  ' (or to stdout if FILE is -)'))
+        # Call enhance_parser from CheckBoxCommandMixIn
+        self.enhance_parser(parser)
+
+    def _print_output_format_list(self, ns):
+        print("Available output formats: {}".format(
+            ', '.join(get_all_exporters())))
+
+    def _print_output_option_list(self, ns):
+        print("Each format may support a different set of options")
+        for name, exporter_cls in get_all_exporters().items():
+            print("{}: {}".format(
+                name, ", ".join(exporter_cls.supported_option_list)))
+
+    def _prepare_exporter(self, ns):
+        exporter_cls = get_all_exporters()[ns.output_format]
+        if ns.output_options:
+            option_list = ns.output_options.split(',')
+        else:
+            option_list = None
+        try:
+            exporter = exporter_cls(option_list)
+        except ValueError as exc:
+            raise SystemExit(str(exc))
+        return exporter
+
     def _run_jobs(self, ns, job_list, exporter):
         # Compute the run list, this can give us notification about problems in
         # the selected jobs. Currently we just display each problem
@@ -258,7 +328,7 @@ class PlainBox:
                 outcome_callback = self.ask_for_outcome
             else:
                 outcome_callback = None
-            runner = JobRunner(self._checkbox, session.session_dir,
+            runner = JobRunner(self.checkbox, session.session_dir,
                                outcome_callback=outcome_callback)
             self._run_jobs_with_session(ns, session, runner)
             self._save_results(ns, session, exporter)
@@ -355,60 +425,87 @@ class PlainBox:
         if job_result is not None:
             session.update_job_result(job, job_result)
 
-    def get_builtin_jobs(self):
-        logger.debug("Loading built-in jobs...")
-        return self._load_builtin_jobs()
 
-    def save(self, something, somewhere):
-        raise NotImplementedError()
+class PlainBox:
+    """
+    High-level plainbox object
+    """
 
-    def load(self, somewhere):
-        if isinstance(somewhere, str):
-            # Load data from a file with the given name
-            filename = somewhere
-            with open(filename, 'rt', encoding='UTF-8') as stream:
-                return load(stream)
-        if isinstance(somewhere, TextIOWrapper):
-            stream = somewhere
-            logger.debug("Loading jobs definitions from %r...", stream.name)
-            record_list = load_rfc822_records(stream)
-            job_list = []
-            for record in record_list:
-                job = JobDefinition.from_rfc822_record(record)
-                logger.debug("Loaded %r", job)
-                job_list.append(job)
-            return job_list
-        else:
-            raise TypeError(
-                "Unsupported type of 'somewhere': {!r}".format(
-                    type(somewhere)))
+    def __init__(self):
+        self._checkbox = CheckBox()
 
-    def _load_jobs(self, source_list):
-        """
-        Load jobs from the list of sources
-        """
+    def main(self, argv=None):
+        # TODO: setup sane logging system that works just as well for Joe user
+        # that runs checkbox from the CD as well as for checkbox developers and
+        # custom debugging needs.  It would be perfect^Hdesirable not to create
+        # another broken, never-rotated, uncapped logging crap that kills my
+        # SSD by writing junk to ~/.cache/
+        basicConfig(level="WARNING")
+        parser = self._construct_parser()
+        ns = parser.parse_args(argv)
+        # Set the desired log level
+        getLogger("").setLevel(ns.log_level)
+        return ns.command.invoked(ns)
+
+    def _construct_parser(self):
+        parser = ArgumentParser(prog="plainbox")
+        parser.add_argument(
+            "-v", "--version", action="version",
+            version="{}.{}.{}".format(*version[:3]))
+        parser.add_argument(
+            "-l", "--log-level", action="store",
+            choices=('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'),
+            default='WARNING',
+            help=argparse.SUPPRESS)
+        subparsers = parser.add_subparsers()
+        RunCommand(self._checkbox).register_parser(subparsers)
+        SpecialCommand(self._checkbox).register_parser(subparsers)
+        #group = parser.add_argument_group(title="user interface options")
+        #group.add_argument(
+        #    "-u", "--ui", action="store",
+        #    default=None, choices=('headless', 'text', 'graphics'),
+        #    help="select the UI front-end (defaults to auto)")
+        return parser
+
+
+def main(argv=None):
+    # Instantiate a global plainbox instance
+    # XXX: Allow one to control the checkbox= argument via
+    # environment or config.
+    box = PlainBox()
+    retval = box.main(argv)
+    raise SystemExit(retval)
+
+
+def get_builtin_jobs():
+    raise NotImplementedError("get_builtin_jobs() not implemented")
+
+
+def save(something, somewhere):
+    raise NotImplementedError("save() not implemented")
+
+
+def load(somewhere):
+    if isinstance(somewhere, str):
+        # Load data from a file with the given name
+        filename = somewhere
+        with open(filename, 'rt', encoding='UTF-8') as stream:
+            return load(stream)
+    if isinstance(somewhere, TextIOWrapper):
+        stream = somewhere
+        logger.debug("Loading jobs definitions from %r...", stream.name)
+        record_list = load_rfc822_records(stream)
         job_list = []
-        for source in source_list:
-            job_list.extend(self.load(source))
+        for record in record_list:
+            job = JobDefinition.from_rfc822_record(record)
+            logger.debug("Loaded %r", job)
+            job_list.append(job)
         return job_list
-
-    def _load_builtin_jobs(self):
-        """
-        Load jobs from built into CheckBox
-        """
-        return self._load_jobs([
-            join(self._checkbox.jobs_dir, name)
-            for name in listdir(self._checkbox.jobs_dir)
-            if name.endswith(".txt") or name.endswith(".txt.in")])
+    else:
+        raise TypeError(
+            "Unsupported type of 'somewhere': {!r}".format(
+                type(somewhere)))
 
 
-# Instantiate a global plainbox instance
-# XXX: Allow one to control the checkbox= argument via environment or config.
-box = PlainBox()
-
-# Extract the methods from the global instance, needed by the public API
-get_builtin_jobs = box.get_builtin_jobs
-save = box.save
-load = box.load
-run = None
-main = box.main
+def run(*args, **kwargs):
+    raise NotImplementedError("run() not implemented")

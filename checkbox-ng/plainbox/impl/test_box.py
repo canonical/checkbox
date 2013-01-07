@@ -169,7 +169,7 @@ class TestMain(TestCase):
         with TestIO(combined=True) as io:
             with self.assertRaises(SystemExit) as call:
                 main(['--version'])
-        self.assertEqual(call.exception.args, (0,))
+            self.assertEqual(call.exception.args, (0,))
         self.assertEqual(io.combined, "{}.{}.{}\n".format(*version[:3]))
 
     def test_help(self):
@@ -179,22 +179,50 @@ class TestMain(TestCase):
         self.assertEqual(call.exception.args, (0,))
         self.maxDiff = None
         expected = """
-        usage: plainbox [-h] [-v] [-l {DEBUG,INFO,WARNING,ERROR,CRITICAL}]
-                        [-u {headless,text,graphics}] [--not-interactive]
-                        [--load-extra FILE] [-r PATTERN] [-W WHITELIST] [-n]
-                        [-f FORMAT] [-p OPTIONS] [-o FILE] [--list-jobs]
-                        [--list-expressions] [--dot] [--dot-resources]
+        usage: plainbox [-h] [-v] {run,special} ...
+
+        positional arguments:
+          {run,special}
+            run          run a test job
+            special      special/internal commands
+
+        optional arguments:
+          -h, --help     show this help message and exit
+          -v, --version  show program's version number and exit
+        """
+        self.assertEqual(io.combined, cleandoc(expected) + "\n")
+
+    def test_run_without_args(self):
+        with TestIO(combined=True) as io:
+            with self.assertRaises(SystemExit) as call:
+                main([])
+            self.assertEqual(call.exception.args, (2,))
+        expected = """
+        usage: plainbox [-h] [-v] {run,special} ...
+        plainbox: error: too few arguments
+        """
+        self.assertEqual(io.combined, cleandoc(expected) + "\n")
+
+
+class TestSpecial(TestCase):
+
+    def test_help(self):
+        with TestIO(combined=True) as io:
+            with self.assertRaises(SystemExit) as call:
+                main(['special', '--help'])
+            self.assertEqual(call.exception.args, (0,))
+        self.maxDiff = None
+        expected = """
+        usage: plainbox special [-h] (-j | -e | -d) [--dot-resources]
+                                [--load-extra FILE] [-r PATTERN] [-W WHITELIST]
 
         optional arguments:
           -h, --help            show this help message and exit
-          -v, --version         show program's version number and exit
-          -l {DEBUG,INFO,WARNING,ERROR,CRITICAL}, --log-level {DEBUG,INFO,WARNING,ERROR,CRITICAL}
-                                Set logging level
-
-        user interface options:
-          -u {headless,text,graphics}, --ui {headless,text,graphics}
-                                select the UI front-end (defaults to auto)
-          --not-interactive     Skip tests that require interactivity
+          -j, --list-jobs       List jobs instead of running them
+          -e, --list-expressions
+                                List all unique resource expressions
+          -d, --dot             Print a graph of jobs instead of running them
+          --dot-resources       Render resource relationships (for --dot)
 
         job definition options:
           --load-extra FILE     Load extra job definitions from FILE
@@ -202,33 +230,17 @@ class TestMain(TestCase):
                                 Run jobs matching the given pattern
           -W WHITELIST, --whitelist WHITELIST
                                 Load whitelist containing run patterns
-          -n, --dry-run         Don't actually run any jobs
-
-        output options:
-          -f FORMAT, --output-format FORMAT
-                                Save test results in the specified FORMAT (pass ? for
-                                a list of choices)
-          -p OPTIONS, --output-options OPTIONS
-                                Comma-separated list of options for the export
-                                mechanism (pass ? for a list of choices)
-          -o FILE, --output-file FILE
-                                Save test results to the specified FILE (or to stdout
-                                if FILE is -)
-
-        special options:
-          --list-jobs           List jobs instead of running them
-          --list-expressions    List all unique resource expressions
-          --dot                 Print a graph of jobs instead of running them
-          --dot-resources       Render resource relationships (for --dot)
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
 
-    def test_dummy(self):
+    def test_run_without_args(self):
         with TestIO(combined=True) as io:
-            main([])
+            with self.assertRaises(SystemExit) as call:
+                main(['special'])
+            self.assertEqual(call.exception.args, (2,))
         expected = """
-        ===============================[ Analyzing Jobs ]===============================
-        ==============================[ Running All Jobs ]==============================
-        ==================================[ Results ]===================================
+        usage: plainbox special [-h] (-j | -e | -d) [--dot-resources]
+                                [--load-extra FILE] [-r PATTERN] [-W WHITELIST]
+        plainbox special: error: one of the arguments -j/--list-jobs -e/--list-expressions -d/--dot is required
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")

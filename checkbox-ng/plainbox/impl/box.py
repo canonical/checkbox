@@ -254,8 +254,10 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
     def invoked(self, ns):
         if ns.output_format == '?':
             self._print_output_format_list(ns)
+            return 0
         elif ns.output_options == '?':
             self._print_output_option_list(ns)
+            return 0
         else:
             exporter = self._prepare_exporter(ns)
             job_list = self.get_job_list(ns)
@@ -332,6 +334,8 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
                                outcome_callback=outcome_callback)
             self._run_jobs_with_session(ns, session, runner)
             self._save_results(ns, session, exporter)
+        # FIXME: sensible return value
+        return 0
 
     def _save_results(self, ns, session, exporter):
         if ns.output_file is sys.stdout:

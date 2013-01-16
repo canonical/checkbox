@@ -32,11 +32,11 @@ from plainbox.testing_utils.io import TestIO
 class TestIOTest(TestCase):
 
     def test_stdin(self):
-        with TestIO() as io:
+        with TestIO():
             self.assertRaises(EOFError, input)
 
     def test_stdin_text(self):
-        with TestIO(input="text 1\ntext 2\n") as io:
+        with TestIO(input="text 1\ntext 2\n"):
             value1 = input()
             value2 = input()
         self.assertEqual(value1, "text 1")

@@ -175,7 +175,7 @@ class TestSpecial(TestCase):
             self.assertTrue(line.endswith(';'))
         # Ensure that graph header and footer are there
         self.assertEqual("digraph dependency_graph {",
- io.stdout.splitlines()[0])
+                         io.stdout.splitlines()[0])
         self.assertEqual("}", io.stdout.splitlines()[-1])
 
 

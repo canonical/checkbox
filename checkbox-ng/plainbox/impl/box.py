@@ -27,7 +27,6 @@ Internal implementation of plainbox
 """
 
 
-from abc import abstractmethod
 from argparse import ArgumentParser
 from argparse import FileType
 from fnmatch import fnmatch
@@ -41,6 +40,7 @@ import sys
 
 from plainbox import __version__ as version
 from plainbox.impl.checkbox import CheckBox
+from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.result import JobResult
@@ -50,28 +50,6 @@ from plainbox.impl.session import SessionState
 
 
 logger = getLogger("plainbox.box")
-
-
-class PlainBoxCommand:
-    """
-    Simple interface class for plainbox commands
-    """
-
-    @abstractmethod
-    def invoked(self, ns):
-        """
-        Implement what should happen when the command gets invoked
-
-        The ns is the namespace produced by argument parser
-        """
-
-    @abstractmethod
-    def register_parser(self, subparsers):
-        """
-        Implement what should happen to register the additional parser for this
-        command. The subparsers argument is the return value of
-        ArgumentParser.add_subparsers()
-        """
 
 
 class CheckBoxCommandMixIn:

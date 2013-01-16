@@ -26,20 +26,41 @@ Internal implementation of plainbox
  * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
 """
 
+import inspect
+
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.result import JobResult
+from plainbox.impl.rfc822 import Origin
 
 
 def make_job(name, plugin="dummy", requires=None, depends=None):
     """
     Make and return a dummy JobDefinition instance
     """
+    # Jobs are usually loaded from RFC822 records and use the
+    # origin tracking to understand which file they came from.
+    #
+    # Here we can create a Origin instance that pinpoints the
+    # place that called make_job(). This aids in debugging as
+    # the origin field is printed by JobDefinition repr
+    caller_frame, filename, lineno, *rest = inspect.stack(0)[1]
+    try:
+        # XXX: maybe create special origin subclass for such things?
+        origin = Origin(filename, lineno, lineno)
+    finally:
+        # Explicitly delete the frame object, this breaks the
+        # reference cycle and makes this part of the code deterministic
+        # with regards to the CPython garbage collector.
+        #
+        # As recommended by the python documentation:
+        # http://docs.python.org/3/library/inspect.html#the-interpreter-stack
+        del caller_frame
     return JobDefinition({
         'name': name,
         'plugin': plugin,
         'requires': requires,
         'depends': depends
-    })
+    }, origin)
 
 
 def make_job_result(job, outcome="dummy"):

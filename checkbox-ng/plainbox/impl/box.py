@@ -41,6 +41,7 @@ import sys
 from plainbox import __version__ as version
 from plainbox.impl.checkbox import CheckBox
 from plainbox.impl.commands import PlainBoxCommand
+from plainbox.impl.commands.selftest import SelfTestCommand
 from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.result import JobResult
@@ -442,6 +443,7 @@ class PlainBox:
         subparsers = parser.add_subparsers()
         RunCommand(self._checkbox).register_parser(subparsers)
         SpecialCommand(self._checkbox).register_parser(subparsers)
+        SelfTestCommand().register_parser(subparsers)
         #group = parser.add_argument_group(title="user interface options")
         #group.add_argument(
         #    "-u", "--ui", action="store",

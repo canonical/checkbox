@@ -133,6 +133,9 @@ class JobRunner(IJobRunner):
             result._data['outcome'] = self._outcome_callback()
             return result
 
+    _plugin_user_interact = _plugin_manual
+    _plugin_user_verify = _plugin_manual
+
     def _just_run_command(self, job):
         # Run the embedded command
         return_code, io_log = self._run_command(job)

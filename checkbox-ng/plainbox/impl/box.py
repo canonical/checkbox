@@ -47,6 +47,7 @@ from plainbox.impl.job import JobDefinition
 from plainbox.impl.result import JobResult
 from plainbox.impl.rfc822 import load_rfc822_records
 from plainbox.impl.runner import JobRunner
+from plainbox.impl.runner import slugify
 from plainbox.impl.session import SessionState
 
 
@@ -310,6 +311,7 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             else:
                 outcome_callback = None
             runner = JobRunner(self.checkbox, session.session_dir,
+                               session.jobs_io_log_dir,
                                outcome_callback=outcome_callback)
             self._run_jobs_with_session(ns, session, runner)
             self._save_results(ns, session, exporter)
@@ -394,7 +396,8 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
                     'outcome': 'dry-run',
                 })
             else:
-                print("Running...")
+                print("Running... (output in {}.*)".format(
+                    join(session.jobs_io_log_dir, slugify(job.name))))
                 job_result = runner.run_job(job)
                 print("Outcome: {}".format(job_result.outcome))
                 print("Comments: {}".format(job_result.comments))

@@ -30,6 +30,8 @@ import collections
 import datetime
 import logging
 import os
+import string
+import json
 
 from plainbox.vendor import extcmd
 
@@ -37,6 +39,16 @@ from plainbox.abc import IJobRunner
 from plainbox.impl.result import JobResult, IOLogRecord
 
 logger = logging.getLogger("plainbox.runner")
+
+
+def slugify(_string):
+    """
+    Slugify - like Django does for URL - transform a random string to a valid
+    slug that can be later used in filenames
+    """
+    valid_chars = frozenset(
+        "-_.{}{}".format(string.ascii_letters, string.digits))
+    return ''.join(c if c in valid_chars else '_' for c in _string)
 
 
 class _IOLogBuilder(extcmd.DelegateBase):
@@ -81,8 +93,8 @@ class CommandOutputLogger(extcmd.DelegateBase):
 
 class JobRunner(IJobRunner):
 
-    def __init__(self, checkbox, session_dir, command_io_delegate=None,
-                 outcome_callback=None):
+    def __init__(self, checkbox, session_dir, jobs_io_log_dir,
+                 command_io_delegate=None, outcome_callback=None):
         """
         Initialize a new job runner.
 
@@ -94,6 +106,7 @@ class JobRunner(IJobRunner):
         """
         self._checkbox = checkbox
         self._session_dir = session_dir
+        self._jobs_io_log_dir = jobs_io_log_dir
         self._command_io_delegate = command_io_delegate
         self._outcome_callback = outcome_callback
 
@@ -193,11 +206,20 @@ class JobRunner(IJobRunner):
             ui_io_delegate = CommandOutputLogger(job.name)
         # Create a delegate that builds a log of all IO
         io_log_builder = _IOLogBuilder()
+        filename = slugify(job.name)
+        fout = open(os.path.join(self._jobs_io_log_dir,
+                                 "{}.out".format(filename)), "wb")
+        ferr = open(os.path.join(self._jobs_io_log_dir,
+                                 "{}.err".format(filename)), "wb")
         # Create a subprocess.Popen() like object that uses the
         # delegate system to observe all IO as it occurs in real
         # time.
         logging_popen = extcmd.ExternalCommandWithDelegate(
-            extcmd.Decode(extcmd.Chain([io_log_builder, ui_io_delegate])))
+            extcmd.Chain([
+            extcmd.Decode(extcmd.Chain([io_log_builder, ui_io_delegate])),
+            extcmd.Redirect(stdout=fout, stderr=ferr,
+                            close_stdout_on_end=True,
+                            close_stderr_on_end=True)]))
         # Start the process and wait for it to finish getting the
         # result code. This will actually call a number of callbacks
         # while the process is running. It will also spawn a few

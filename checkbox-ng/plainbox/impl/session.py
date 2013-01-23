@@ -26,8 +26,8 @@ Internal implementation of plainbox
  * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
 """
 import logging
-import shutil
 import os
+import shutil
 import tempfile
 
 from plainbox.impl.depmgr import DependencyError
@@ -296,6 +296,8 @@ class SessionState:
         # entirely when session is terminated. Internally this is exposed as
         # $CHECKBOX_DATA to script environment.
         self._session_dir = None
+        # Directory used to store jobs IO logs.
+        self._jobs_io_log_dir = None
 
     def open(self):
         """
@@ -312,6 +314,10 @@ class SessionState:
             if not os.path.isdir(temp_dir):
                 os.makedirs(temp_dir)
             self._session_dir = tempfile.mkdtemp(dir=temp_dir)
+        if self._jobs_io_log_dir is None:
+            self._jobs_io_log_dir = os.path.join(self._session_dir, 'io-logs')
+            if not os.path.isdir(self._jobs_io_log_dir):
+                os.makedirs(self._jobs_io_log_dir)
         return self
 
     def close(self):
@@ -508,6 +514,15 @@ class SessionState:
         This is not None only between calls to open() / close().
         """
         return self._session_dir
+
+    @property
+    def jobs_io_log_dir(self):
+        """
+        pathname of the jobs IO logs directory
+
+        This is not None only between calls to open() / close().
+        """
+        return self._jobs_io_log_dir
 
     def _recompute_job_readiness(self):
         """

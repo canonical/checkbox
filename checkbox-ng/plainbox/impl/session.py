@@ -27,6 +27,7 @@ Internal implementation of plainbox
 """
 import logging
 import shutil
+import os
 import tempfile
 
 from plainbox.impl.depmgr import DependencyError
@@ -300,11 +301,17 @@ class SessionState:
         """
         Open session state for running jobs.
 
-        This function creates a temporary directory where jobs can store their
-        temporary data. This directory will be removed by .close()
+        This function creates the cache directory where jobs can store their
+        data. See:
+        http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
         """
         if self._session_dir is None:
-            self._session_dir = tempfile.mkdtemp()
+            xdg_cache_home = os.environ.get('XDG_CACHE_HOME') or \
+                os.path.join(os.path.expanduser('~'), '.cache')
+            temp_dir = os.path.join(xdg_cache_home, 'plainbox')
+            if not os.path.isdir(temp_dir):
+                os.makedirs(temp_dir)
+            self._session_dir = tempfile.mkdtemp(dir=temp_dir)
         return self
 
     def close(self):

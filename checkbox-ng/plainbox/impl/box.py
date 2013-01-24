@@ -26,9 +26,9 @@ Internal implementation of plainbox
  * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
 """
 
-
 from argparse import ArgumentParser
 from argparse import FileType
+from argparse import _ as argparse_gettext
 from fnmatch import fnmatch
 from io import TextIOWrapper
 from logging import basicConfig
@@ -431,7 +431,22 @@ class PlainBox:
         ns = parser.parse_args(argv)
         # Set the desired log level
         getLogger("").setLevel(ns.log_level)
-        return ns.command.invoked(ns)
+        # Argh the horrror!
+        #
+        # Since CPython revision cab204a79e09 (landed for python3.3)
+        # http://hg.python.org/cpython/diff/cab204a79e09/Lib/argparse.py
+        # the argparse module behaves differently than it did in python3.2
+        #
+        # In practical terms subparsers are now optional in 3.3 so all of the
+        # commands are no longer required parameters.
+        #
+        # To compensate, on python3.3 and beyond, when the user just runs
+        # plainbox without specifying the command, we manually, explicitly do
+        # what python3.2 did: call parser.error(_('too few arguments'))
+        if sys.version_info[:2] >= (3, 3) and getattr(ns, "command", None) is None:
+            parser.error(argparse_gettext("too few arguments"))
+        else:
+            return ns.command.invoked(ns)
 
     def _construct_parser(self):
         parser = ArgumentParser(prog="plainbox")

@@ -203,7 +203,8 @@ def get_all_exporters():
     Returns a map of exporters (mapping from name to exporter class)
     """
     exporter_map = OrderedDict()
-    for entry_point in pkg_resources.iter_entry_points('plainbox.exporter'):
+    iterator = pkg_resources.iter_entry_points('plainbox.exporter')
+    for entry_point in sorted(iterator, key=lambda ep: ep.name):
         try:
             exporter_cls = entry_point.load()
         except ImportError as exc:

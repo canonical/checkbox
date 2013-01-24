@@ -237,7 +237,7 @@ class TestRun(TestCase):
                 main(['run', '--output-format=?'])
             self.assertEqual(call.exception.args, (0,))
         expected = """
-        Available output formats: text, json, rfc822, yaml
+        Available output formats: json, rfc822, text, yaml
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
 
@@ -248,9 +248,9 @@ class TestRun(TestCase):
             self.assertEqual(call.exception.args, (0,))
         expected = """
         Each format may support a different set of options
-        text: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs
         json: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs, machine-json
         rfc822: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs
+        text: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs
         yaml: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")

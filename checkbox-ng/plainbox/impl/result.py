@@ -117,3 +117,13 @@ class JobResult(IJobResult):
     @property
     def return_code(self):
         return self._data.get('return_code')
+
+    def __getstate__(self):
+        state = {}
+        state['data'] = {}
+        state['data']['job'] = self._data['job']
+        state['data']['outcome'] = self._data.get('outcome', None)
+        state['data']['comments'] = self._data.get('comments')
+        state['data']['return_code'] = self._data.get('return_code')
+        # io_log are stored on disk, see session.jobs_io_log_dir
+        return state

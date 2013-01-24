@@ -366,6 +366,7 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
                 if session.job_state_map[job.name].result.outcome is not None:
                     continue
                 self._run_single_job_with_session(ns, session, runner, job)
+                session.persistent_save()
                 if job.plugin == "local":
                     # After each local job runs rebuild the list of matching
                     # jobs and run everything again

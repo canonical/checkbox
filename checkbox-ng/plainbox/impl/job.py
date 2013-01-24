@@ -105,6 +105,13 @@ class JobDefinition(IJobDefinition):
             return value
         raise AttributeError(attr)
 
+    def __getstate__(self):
+        state = {}
+        state['data'] = {}
+        state['data']['plugin'] = self.plugin
+        state['data']['name'] = self.name
+        return state
+
     def get_resource_program(self):
         """
         Return a ResourceProgram based on the 'requires' expression.

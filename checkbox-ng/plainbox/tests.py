@@ -38,6 +38,16 @@ def load_unit_tests():
     return defaultTestLoader.discover(get_plainbox_dir())
 
 
+def load_integration_tests():
+    """
+    Load all integration tests and return a TestSuite object
+    """
+    # Discover all integration tests. By simple convention those are kept in
+    # python modules that start with the word 'integration_' .
+    return defaultTestLoader.discover(
+        get_plainbox_dir(), pattern="integration_*.py")
+
+
 def test_suite():
     """
     Test suite function used by setuptools test loader.

@@ -27,10 +27,9 @@ Internal implementation of plainbox
  * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
 """
 from unittest.runner import TextTestRunner
-from unittest.loader import TestLoader
 
-from plainbox.impl import get_plainbox_dir
 from plainbox.impl.commands import PlainBoxCommand
+from plainbox.tests import load_integration_tests
 
 
 class SelfTestCommand(PlainBoxCommand):
@@ -42,12 +41,10 @@ class SelfTestCommand(PlainBoxCommand):
     """
 
     def invoked(self, ns):
+        tests = load_integration_tests()
         # Use standard unittest runner, it has somewhat annoying way of
         # displaying test progress but is well-known and will do for now.
         runner = TextTestRunner(verbosity=ns.verbosity, failfast=ns.fail_fast)
-        loader = TestLoader()
-        # Discover all integration tests
-        tests = loader.discover(get_plainbox_dir(), pattern="integration_*.py")
         result = runner.run(tests)
         # Forward the successfulness of the test suite as the exit code
         return 0 if result.wasSuccessful() else 1

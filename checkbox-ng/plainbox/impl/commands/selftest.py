@@ -29,7 +29,7 @@ Internal implementation of plainbox
 from unittest.runner import TextTestRunner
 
 from plainbox.impl.commands import PlainBoxCommand
-from plainbox.tests import load_integration_tests
+from plainbox.tests import load_integration_tests, load_unit_tests
 
 
 class SelfTestCommand(PlainBoxCommand):
@@ -41,7 +41,8 @@ class SelfTestCommand(PlainBoxCommand):
     """
 
     def invoked(self, ns):
-        tests = load_integration_tests()
+        # Load tests selected on command line
+        tests = ns.suite_loader()
         # Use standard unittest runner, it has somewhat annoying way of
         # displaying test progress but is well-known and will do for now.
         runner = TextTestRunner(verbosity=ns.verbosity, failfast=ns.fail_fast)
@@ -50,11 +51,25 @@ class SelfTestCommand(PlainBoxCommand):
         return 0 if result.wasSuccessful() else 1
 
     def register_parser(self, subparsers):
-        # Register a number of TextTestRunner options.
-        # More items may be added here as the need arises.
         parser = subparsers.add_parser(
             "self-test", help="run integration tests")
         parser.set_defaults(command=self)
+        # Add an option that selects either integration tests or unit tests
+        group = parser.add_mutually_exclusive_group(required=True)
+        group.add_argument(
+            '-i', '--integration-tests',
+            action='store_const',
+            dest='suite_loader',
+            const=load_integration_tests,
+            help="Run integration test suite (this verifies checkbox jobs)")
+        group.add_argument(
+            '-u', '--unit-tests',
+            action='store_const',
+            dest='suite_loader',
+            const=load_unit_tests,
+            help="Run unit tests (this only verifies plainbox core)")
+        # Register a number of TextTestRunner options.
+        # More items may be added here as the need arises.
         parser.add_argument(
             '--fail-fast', default=False, action="store_true",
             help="abort the test on first failure")

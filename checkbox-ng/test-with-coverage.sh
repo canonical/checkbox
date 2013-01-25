@@ -1,6 +1,6 @@
 #!/bin/sh
 # Requires activated virtualenv with coverage
-coverage run --branch setup.py test && \
-    coverage run --append --branch $(which plainbox) self-test --verbose && \
-    coverage report && \
-    coverage html
+coverage run --branch $(which plainbox) self-test --unit-tests --verbose && \
+coverage run --append --branch $(which plainbox) self-test --integration-tests --verbose && \
+coverage report && \
+coverage html

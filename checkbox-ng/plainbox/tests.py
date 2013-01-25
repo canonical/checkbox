@@ -45,4 +45,4 @@ def test_suite():
     Uses unittest test discovery system to get a list of test cases defined
     inside plainbox. See setup.py setup(test_suite=...) for a matching entry
     """
-    return defaultTestLoader.discover(get_plainbox_dir())
+    return load_unit_tests()

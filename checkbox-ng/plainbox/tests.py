@@ -29,6 +29,15 @@ from unittest.loader import defaultTestLoader
 from plainbox.impl import get_plainbox_dir
 
 
+def load_unit_tests():
+    """
+    Load all unit tests and return a TestSuite object
+    """
+    # Discover all unit tests. By simple convention those are kept in
+    # python modules that start with the word 'test_' .
+    return defaultTestLoader.discover(get_plainbox_dir())
+
+
 def test_suite():
     """
     Test suite function used by setuptools test loader.

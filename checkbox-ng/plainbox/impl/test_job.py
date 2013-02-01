@@ -227,3 +227,22 @@ class TestJobDefinition(TestCase):
             'plugin': 'plugin',
             'requires': "foo.bar == bar"})
         self.assertRaises(Exception, job.get_resource_dependencies)
+
+    def test_encode(self):
+        job = JobDefinition({
+            'name': 'name',
+            'plugin': 'plugin',
+            'requires': "foo.bar == bar"})
+        job_enc = job._get_persistance_subset()
+        self.assertEqual(job_enc['data']['plugin'], job.plugin)
+        self.assertEqual(job_enc['data']['name'], job.name)
+        with self.assertRaises(KeyError):
+            job_enc['requires']
+        with self.assertRaises(KeyError):
+            job_enc['depends']
+        with self.assertRaises(KeyError):
+            job_enc['description']
+        with self.assertRaises(KeyError):
+            job_enc['command']
+        with self.assertRaises(KeyError):
+            job_enc['origin']

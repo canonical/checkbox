@@ -64,3 +64,19 @@ class JobResultTests(TestCase):
         self.assertEqual(result.comments, "it said blah")
         self.assertEqual(result.io_log, ((0, 'stdout', 'blah\n'),))
         self.assertEqual(result.return_code, 0)
+
+    def test_encode(self):
+        result = JobResult({
+            'job': self.job,
+            'outcome': JobResult.OUTCOME_PASS,
+            'comments': "it said blah",
+            'io_log': ((0, 'stdout', 'blah\n'),),
+            'return_code': 0
+        })
+        result_enc = result._get_persistance_subset()
+        self.assertEqual(result_enc['data']['job'], result.job)
+        self.assertEqual(result_enc['data']['outcome'], result.outcome)
+        self.assertEqual(result_enc['data']['comments'], result.comments)
+        self.assertEqual(result_enc['data']['return_code'], result.return_code)
+        with self.assertRaises(KeyError):
+            result_enc['io_log']

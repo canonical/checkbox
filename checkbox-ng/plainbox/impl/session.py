@@ -25,6 +25,7 @@ Internal implementation of plainbox
 
  * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
 """
+import json
 import logging
 import os
 import shutil
@@ -36,6 +37,7 @@ from plainbox.impl.job import JobDefinition
 from plainbox.impl.resource import ExpressionCannotEvaluateError
 from plainbox.impl.resource import ExpressionFailedError
 from plainbox.impl.resource import Resource
+from plainbox.impl.resource import ResourceExpression
 from plainbox.impl.result import JobResult
 from plainbox.impl.rfc822 import RFC822SyntaxError
 from plainbox.impl.rfc822 import gen_rfc822_records
@@ -153,6 +155,8 @@ class JobReadinessInhibitor:
             return "resource expression {!r} evaluates to false".format(
                 self.related_expression.text)
 
+    def _get_persistance_subset(self):
+        return self.__dict__
 
 # A global instance of JobReadinessInhibitor with the UNDESIRED cause.
 # This is used a lot and it makes no sense to instantiate all the time.
@@ -247,6 +251,23 @@ class JobState:
         else:
             return "job can be started"
 
+    def _get_persistance_subset(self):
+        state = {}
+        state['_job'] = self._job
+        # Don't save resource job results, fresh data are required
+        # so we can't reuse the old ones
+        if self._job.plugin == 'resource':
+            state['_readiness_inhibitor_list'] = \
+                [UndesiredJobReadinessInhibitor]
+            state['_result'] = JobResult({
+                'job': self._job,
+                'outcome': JobResult.OUTCOME_NONE
+            })
+        else:
+            state['_readiness_inhibitor_list'] = self._readiness_inhibitor_list
+            state['_result'] = self._result
+        return state
+
 
 class SessionState:
     """
@@ -263,6 +284,8 @@ class SessionState:
     Ready states (one for each job) allow the UI to take simple decisions
     (either can or cannot run)
     """
+
+    session_data_filename = 'session.json'
 
     def __init__(self, job_list):
         # The original list of job that the system knows about.
@@ -298,6 +321,12 @@ class SessionState:
         self._session_dir = None
         # Directory used to store jobs IO logs.
         self._jobs_io_log_dir = None
+
+    def _get_persistance_subset(self):
+        state = {}
+        state['_job_state_map'] = self._job_state_map
+        state['_desired_job_list'] = self._desired_job_list
+        return state
 
     def open(self):
         """
@@ -411,6 +440,42 @@ class SessionState:
             self._process_local_result(job_result)
         # Update all job readiness state
         self._recompute_job_readiness()
+
+    def persistent_save(self):
+        """
+        Save to disk the minimum needed to resume plainbox where it stopped
+        """
+
+        # Ensure an atomic update of the session file:
+        #   - create a new temp file (on the same file system!)
+        #   - write data to the temp file
+        #   - fsync() the temp file
+        #   - rename the temp file to the appropriate name
+        #   - fsync() the containing directory
+        # Calling fsync() does not necessarily ensure that the entry in the
+        # directory containing the file has also reached disk.
+        # For that an explicit fsync() on a file descriptor for the directory
+        # is also needed.
+
+        filename = os.path.join(self._session_dir,
+                                self.session_data_filename)
+
+        with tempfile.NamedTemporaryFile(mode='wt',
+                                         suffix='.tmp',
+                                         prefix='session',
+                                         dir=self._session_dir,
+                                         delete=False) as tmpstream:
+            # Save the session state to disk
+            json.dump(self, tmpstream, cls=SessionStateEncoder,
+                      ensure_ascii=False, indent=None, separators=(',', ':'))
+
+            tmpstream.flush()
+            os.fsync(tmpstream.fileno())
+
+        session_dir_fd = os.open(self._session_dir, os.O_DIRECTORY)
+        os.rename(tmpstream.name, filename)
+        os.fsync(session_dir_fd)
+        os.close(session_dir_fd)
 
     def _process_resource_result(self, result):
         new_resource_list = []
@@ -609,3 +674,19 @@ class SessionState:
 
     def __exit__(self, *args):
         self.close()
+
+
+class SessionStateEncoder(json.JSONEncoder):
+    """
+    JSON Serialize helper to encode SessionState attributes
+    Convert objects to a dictionary of their representation
+    """
+    def default(self, obj):
+        if (isinstance(obj, (JobDefinition, JobReadinessInhibitor, JobResult,
+                             ResourceExpression, JobState, SessionState))):
+            d = {'__class__': obj.__class__.__name__,
+                 '__module__': obj.__module__}
+            d.update(obj._get_persistance_subset())
+            return d
+        else:
+            return json.JSONEncoder.default(self, obj)

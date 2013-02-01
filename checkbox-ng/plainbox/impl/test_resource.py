@@ -276,7 +276,7 @@ class ResourceExpressionTests(TestCase):
     def test_encode(self):
         text = "device.category == 'CAPTURE'"
         expr = ResourceExpression(text)
-        expr_enc = expr.__getstate__()
+        expr_enc = expr._get_persistance_subset()
         self.assertEqual(expr_enc['_text'], text)
 
 

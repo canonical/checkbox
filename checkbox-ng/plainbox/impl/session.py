@@ -155,7 +155,7 @@ class JobReadinessInhibitor:
             return "resource expression {!r} evaluates to false".format(
                 self.related_expression.text)
 
-    def __getstate__(self):
+    def _get_persistance_subset(self):
         return self.__dict__
 
 # A global instance of JobReadinessInhibitor with the UNDESIRED cause.
@@ -251,7 +251,7 @@ class JobState:
         else:
             return "job can be started"
 
-    def __getstate__(self):
+    def _get_persistance_subset(self):
         state = {}
         state['_job'] = self._job
         # Don't save resource job results, fresh data are required
@@ -284,6 +284,8 @@ class SessionState:
     Ready states (one for each job) allow the UI to take simple decisions
     (either can or cannot run)
     """
+
+    session_data_filename = 'session.json'
 
     def __init__(self, job_list):
         # The original list of job that the system knows about.
@@ -319,12 +321,8 @@ class SessionState:
         self._session_dir = None
         # Directory used to store jobs IO logs.
         self._jobs_io_log_dir = None
-        # Directory used to store session data
-        self._session_data_dir = None
-        # Session data filename
-        self._session_data_filename = 'session.json'
 
-    def __getstate__(self):
+    def _get_persistance_subset(self):
         state = {}
         state['_job_state_map'] = self._job_state_map
         state['_desired_job_list'] = self._desired_job_list
@@ -349,13 +347,6 @@ class SessionState:
             self._jobs_io_log_dir = os.path.join(self._session_dir, 'io-logs')
             if not os.path.isdir(self._jobs_io_log_dir):
                 os.makedirs(self._jobs_io_log_dir)
-        # The session data directory will only contain the session state JSON
-        # object in order to fsync the directory faster
-        if self._session_data_dir is None:
-            self._session_data_dir = os.path.join(self._session_dir,
-                                                  '.session')
-            if not os.path.isdir(self._session_data_dir):
-                os.makedirs(self._session_data_dir)
         return self
 
     def close(self):
@@ -454,22 +445,37 @@ class SessionState:
         """
         Save to disk the minimum needed to resume plainbox where it stopped
         """
-        # Save the session state to disk
-        filename = os.path.join(self._session_data_dir,
-                                self._session_data_filename)
-        with open(filename, "wt") as stream:
-            json.dump(self, stream, cls=SessionStateEncoder,
+
+        # Ensure an atomic update of the session file:
+        #   - create a new temp file (on the same file system!)
+        #   - write data to the temp file
+        #   - fsync() the temp file
+        #   - rename the temp file to the appropriate name
+        #   - fsync() the containing directory
+        # Calling fsync() does not necessarily ensure that the entry in the
+        # directory containing the file has also reached disk.
+        # For that an explicit fsync() on a file descriptor for the directory
+        # is also needed.
+
+        filename = os.path.join(self._session_dir,
+                                self.session_data_filename)
+
+        with tempfile.NamedTemporaryFile(mode='wt',
+                                         suffix='.tmp',
+                                         prefix='session',
+                                         dir=self._session_dir,
+                                         delete=False) as tmpstream:
+            # Save the session state to disk
+            json.dump(self, tmpstream, cls=SessionStateEncoder,
                       ensure_ascii=False, indent=None, separators=(',', ':'))
-            stream.flush()
-            os.fdatasync(stream.fileno())
-        # FIXME: * create a new temp file (on the same file system!)
-        #        * write data to the temp file
-        #        * fsync() the temp file
-        #        * rename the temp file to the appropriate name
-        #        * fsync() the containing directory
-        # => You might lose files because fsync on a file doesn't quarantine
-        # that the file is visible in directory.
-        # http://linux.die.net/man/2/fsync
+
+            tmpstream.flush()
+            os.fsync(tmpstream.fileno())
+
+        session_dir_fd = os.open(self._session_dir, os.O_DIRECTORY)
+        os.rename(tmpstream.name, filename)
+        os.fsync(session_dir_fd)
+        os.close(session_dir_fd)
 
     def _process_resource_result(self, result):
         new_resource_list = []
@@ -680,7 +686,7 @@ class SessionStateEncoder(json.JSONEncoder):
                              ResourceExpression, JobState, SessionState))):
             d = {'__class__': obj.__class__.__name__,
                  '__module__': obj.__module__}
-            d.update(obj.__getstate__())
+            d.update(obj._get_persistance_subset())
             return d
         else:
             return json.JSONEncoder.default(self, obj)

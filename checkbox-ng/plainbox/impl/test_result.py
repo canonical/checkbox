@@ -73,7 +73,7 @@ class JobResultTests(TestCase):
             'io_log': ((0, 'stdout', 'blah\n'),),
             'return_code': 0
         })
-        result_enc = result.__getstate__()
+        result_enc = result._get_persistance_subset()
         self.assertEqual(result_enc['data']['job'], result.job)
         self.assertEqual(result_enc['data']['outcome'], result.outcome)
         self.assertEqual(result_enc['data']['comments'], result.comments)

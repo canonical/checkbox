@@ -418,7 +418,7 @@ class ResourceExpression:
     def __repr__(self):
         return "<ResourceExpression text:{!r}>".format(self._text)
 
-    def __getstate__(self):
+    def _get_persistance_subset(self):
         state = {}
         state['_text'] = self._text
         return state

@@ -233,7 +233,7 @@ class TestJobDefinition(TestCase):
             'name': 'name',
             'plugin': 'plugin',
             'requires': "foo.bar == bar"})
-        job_enc = job.__getstate__()
+        job_enc = job._get_persistance_subset()
         self.assertEqual(job_enc['data']['plugin'], job.plugin)
         self.assertEqual(job_enc['data']['name'], job.name)
         with self.assertRaises(KeyError):

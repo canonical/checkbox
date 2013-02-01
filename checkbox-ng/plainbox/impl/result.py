@@ -118,7 +118,7 @@ class JobResult(IJobResult):
     def return_code(self):
         return self._data.get('return_code')
 
-    def __getstate__(self):
+    def _get_persistance_subset(self):
         state = {}
         state['data'] = {}
         state['data']['job'] = self._data['job']

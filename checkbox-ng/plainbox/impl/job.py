@@ -105,7 +105,7 @@ class JobDefinition(IJobDefinition):
             return value
         raise AttributeError(attr)
 
-    def __getstate__(self):
+    def _get_persistance_subset(self):
         state = {}
         state['data'] = {}
         state['data']['plugin'] = self.plugin

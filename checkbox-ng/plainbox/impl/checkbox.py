@@ -27,10 +27,13 @@ Internal implementation of plainbox
 """
 
 import os
+import logging
 
 from plainbox.impl import get_plainbox_dir
 from plainbox.impl.utils import load
 
+
+logger = logging.getLogger("plainbox.checkbox")
 
 
 class CheckBoxNotFound(LookupError):
@@ -83,8 +86,10 @@ class CheckBox:
         """
         if mode is None:
             if self._source_checkout_exists(self._source_dir):
+                logger.info("Using checkbox from source directory")
                 mode = self.MODE_SOURCE
             elif self._deb_installation_exists():
+                logger.info("Using checkbox from system-wide installation")
                 mode = self.MODE_DEB_INSTALLED
             else:
                 raise CheckBoxNotFound()

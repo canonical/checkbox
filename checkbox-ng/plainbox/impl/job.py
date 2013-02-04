@@ -75,6 +75,13 @@ class JobDefinition(IJobDefinition):
             return None
 
     @property
+    def user(self):
+        try:
+            return self.__getattr__('user')
+        except AttributeError:
+            return None
+
+    @property
     def origin(self):
         """
         The Origin object associated with this JobDefinition

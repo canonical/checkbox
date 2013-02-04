@@ -30,7 +30,6 @@ from argparse import ArgumentParser
 from argparse import FileType
 from argparse import _ as argparse_gettext
 from fnmatch import fnmatch
-from io import TextIOWrapper
 from logging import basicConfig
 from logging import getLogger
 from os import listdir
@@ -43,12 +42,11 @@ from plainbox.impl.checkbox import CheckBox
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.selftest import SelfTestCommand
 from plainbox.impl.exporter import get_all_exporters
-from plainbox.impl.job import JobDefinition
 from plainbox.impl.result import JobResult
-from plainbox.impl.rfc822 import load_rfc822_records
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.runner import slugify
 from plainbox.impl.session import SessionState
+from plainbox.impl.utils import load
 
 
 logger = getLogger("plainbox.box")
@@ -486,28 +484,6 @@ def get_builtin_jobs():
 
 def save(something, somewhere):
     raise NotImplementedError("save() not implemented")
-
-
-def load(somewhere):
-    if isinstance(somewhere, str):
-        # Load data from a file with the given name
-        filename = somewhere
-        with open(filename, 'rt', encoding='UTF-8') as stream:
-            return load(stream)
-    if isinstance(somewhere, TextIOWrapper):
-        stream = somewhere
-        logger.debug("Loading jobs definitions from %r...", stream.name)
-        record_list = load_rfc822_records(stream)
-        job_list = []
-        for record in record_list:
-            job = JobDefinition.from_rfc822_record(record)
-            logger.debug("Loaded %r", job)
-            job_list.append(job)
-        return job_list
-    else:
-        raise TypeError(
-            "Unsupported type of 'somewhere': {!r}".format(
-                type(somewhere)))
 
 
 def run(*args, **kwargs):

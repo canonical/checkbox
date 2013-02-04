@@ -29,6 +29,8 @@ Internal implementation of plainbox
 import os
 
 from plainbox.impl import get_plainbox_dir
+from plainbox.impl.utils import load
+
 
 
 class CheckBoxNotFound(LookupError):
@@ -192,3 +194,11 @@ class CheckBox:
         return os.path.normpath(
             os.path.join(
                 get_plainbox_dir(), "..", ".."))
+
+    def get_builtin_jobs(self):
+        logger.debug("Loading built-in jobs...")
+        job_list = []
+        for name in os.listdir(self.jobs_dir):
+            if name.endswith(".txt") or name.endswith(".txt.in"):
+                job_list.extend(load(os.path.join(self.jobs_dir, name)))
+        return job_list

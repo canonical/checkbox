@@ -1,4 +1,6 @@
+# encoding: UTF-8
 # Copyright (c) 2010-2012 Linaro Limited
+# Copyright (c) 2013 Canonical Ltd.
 #
 # Author: Zygmunt Krynicki <zygmunt.krynicki@linaro.org>
 #
@@ -16,11 +18,208 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-A convenience wrapper around subprocess.Popen that allows the caller to
-easily observe all stdout/stderr activity in real time.
+extcmd - subprocess with advanced output processing
+===================================================
+
+Unlike subprocess, which just gives you a lump of output at the end, extcmd
+allows you to get callbacks (via a delegate class) on all IO.
+
+Delegates
+=========
+
+Each delegate has four methods (on_begin, on_line, on_end, on_interrupt) but it
+is possible to simply specify the ones you are interested in and extcmd will do
+the right thing automatically. There is an associated interface
+extcmd.IDelegate, if you subclass that class in your delegates then extcmd will
+trust you do everything properly. If you pass any other object as delegate then
+extcmd will wrap your object in extcmd.SafeDelegate that which provides default
+implementations of all the required methods.
+
+To make some common cases easier to work with, extcmd comes with a number of
+utility callback delegates: decoding and encoding from bytes to Unicode,
+transforming the data, redirecting the output to other streams and even forking
+the output so that you can, for example, log and display data at the same time.
+
+
+Everything is encapsulated in a single module, extcmd::
+
+    >>> from __future__ import with_statement
+    >>> import extcmd
+
+Basic IO
+========
+
+Since IO is oriented around bytes, the first example will actually focus on
+getting the basic IO work-flow right: convert bytes and Unicode at application
+boundaries. Sadly Popen does not support that, let's build one that does::
+
+    >>> unicode_popen = extcmd.ExternalCommandWithDelegate(
+    ...     extcmd.Decode(
+    ...         extcmd.EncodeInPython2(
+    ...             extcmd.Redirect())))
+
+So this may be somewhat hard to read but the basic looks like this:
+
+We instantiate the ExtrnalCommandWithDelegate, this is like subprocess.Popen
+metaclass as the return value is something we can use to actually run call() or
+check_call(). The only argument to that is a single delegate object. We'll use
+three of the delegates provided by extcmd here.
+
+The Decode delegate simply decodes all IO from a specified encoding (uses UTF-8
+by default). The Encode delegate does the reverse (which is a real no-op but
+we'll grow this example in a second and it will be useful to have Unicode
+strings then). Lastly the Redirect delegate sends all of stdout/stderr back to
+real stdout/stderr (it is also flexible so you can redirect to file or any
+other stream but we're using the defaults again).
+
+All those delegates are connected so one delegate gives the output to another
+delegate. In practice it looks like this::
+
+    (real data from the process) -> Decode -> Encode -> Redirect
+
+Let's see how that works now:
+
+    >>> returncode = unicode_popen.call(["echo", "zażółć gęsią jaźń"])
+    zażółć gęsią jaźń
+
+Well that was boring, but the point here is that id did _not_ crash on any
+UnicodeDecodeErrors and I actually used some non-ASCII characters.
+
+One thing worth pointing out is that unlike in subprocess, each call() returns
+the process exit code::
+
+    >>> returncode
+    0
+
+Using Transform delegate
+========================
+
+So now we have the basics. Let's explore further. The Transform delegate
+allows one to call a user specified function on each line of the output.
+
+As before we'll build a list of participating delegate objects, we'll start
+with the Decode delegate, then the Transform delegate, the Encode and lastly,
+Redirect. This will look like this:
+
+    (output from process) -> Decode -> Transform -> Encode -> Redirect
+
+For clarity we'll define the transformation first::
+
+    >>> def transform_fn(stream_name, line):
+    ...     return "{0}: {1}".format(stream_name, line)
+
+Then build the actual stack of delegates::
+
+    >>> delegate = extcmd.Decode(
+    ...     extcmd.Transform(transform_fn,
+    ...         extcmd.EncodeInPython2(
+    ...             extcmd.Redirect())))
+    >>> transform_popen = extcmd.ExternalCommandWithDelegate(delegate)
+    >>> returncode = transform_popen.call(["echo", "hello"])
+    stdout: hello
+
+Simple Unicode-aware sed(1)
+===========================
+
+Let's build a simple in sed(1) like program. We'll use the 're' module to
+actually transform text. Let's import it now::
+
+    >>> import re
+
+Let's define another transformation function:
+
+    >>> def transform_fn(stream_name, line):
+    ...     return re.sub("Hello", "Goodbye", line)
+
+And plug it into the stack we've used before:
+
+    >>> delegate = extcmd.Decode(
+    ...     extcmd.Transform(transform_fn,
+    ...         extcmd.EncodeInPython2(
+    ...             extcmd.Redirect())))
+    >>> sed_popen = extcmd.ExternalCommandWithDelegate(delegate)
+    >>> returncode = sed_popen.call(["echo", "Hello World"])
+    Goodbye World
+
+Simple tee(1)
+=============
+
+Ok, so one more example, this time tee(1)-like program. This pattern can be
+used to build various kinds of programs where many consumers get to see the
+data that was read.
+
+We'll use one more delegate this time, the extcmd.Chain (which is, from
+retrospective, rather unfortunately named, as it's really a "fork" while
+regular delegates build a chain themselves).
+
+So this example will save everything written to stdout to a log file, while
+still displaying it back to the user::
+
+    >>> delegate = extcmd.Chain([
+    ...     extcmd.Decode(
+    ...         extcmd.EncodeInPython2(
+    ...             extcmd.Redirect())),
+    ...     extcmd.Redirect(
+    ...         stdout=open("stdout.log", "wb"),
+    ...         close_stdout_on_end=True)
+    ... ])
+    >>> tee_popen = extcmd.ExternalCommandWithDelegate(delegate)
+    >>> returncode = tee_popen.call(['echo', "Hello Tee!"])
+    Hello Tee!
+
+So this example is actually more interesting, unlike before we don't decode
+_all_ data, only the data that is displayed, the stdout.log file will contain a
+verbatim copy of all the bytes that were produced by the called process::
+
+    >>> import os
+    >>> assert os.path.exists("stdout.log")
+    >>> with open("stdout.log", "rt") as stream:
+    ...     stream.read()
+    'Hello Tee!\\n'
+    >>> os.remove("stdout.log")
+
+Misc stuff
+==========
+
+Apart from ExtrnalCommandWithDelegate there is a base class called
+ExternalCommand that simply helps if you want to subclass and override the
+call() method.
+
+There is also the check_call() method that behaves exactly as in the subprocess
+module, by raising subprocess.CalledProcessError exception on a non-zero return
+code
+
+    >>> extcmd.ExternalCommand().check_call(['false'])
+    ... # doctest: +IGNORE_EXCEPTION_DETAIL
+    Traceback (most recent call last):
+    ...
+    CalledProcessError: Command '['false']' returned non-zero exit status 1
+
+If you don't use check_call You can also look at the return code that is
+returned from each call(). The returncode is also passed to each delegate that
+supports the on_end() method::
+
+
+    >>> import sys
+    >>> class ReturnCode(extcmd.DelegateBase):
+    ...     def on_end(self, returncode):
+    ...         sys.stdout.write("Return code is %s\\n" % returncode)
+    >>> returncode = extcmd.ExternalCommandWithDelegate(ReturnCode()).call(['false'])
+    Return code is 1
+    >>> returncode
+    1
+
+Each started program is also passed to the on_start() method::
+
+    >>> import sys
+    >>> class VerboseStart(extcmd.DelegateBase):
+    ...     def on_begin(self, args, kwargs):
+    ...         sys.stdout.write("Starting %r %r\\n" % (args, kwargs))
+    >>> returncode = extcmd.ExternalCommandWithDelegate(VerboseStart()).call(['true'])
+    Starting (['true'],) {}
 """
 
-__version__ = (1, 0, 0, "beta", 4)
+__version__ = (1, 0, 1, "final", 0)
 
 from queue import Queue
 import abc
@@ -143,6 +342,10 @@ class SafeDelegate(IDelegate):
             raise TypeError(
                 "Using SafeDelegate with IDelegate subclass makes no sense")
         self._delegate = delegate
+
+    def __repr__(self):
+        return "<{0} wrapping {1!r}>".format(
+            self.__class__.__name__, self._delegate)
 
     def on_begin(self, args, kwargs):
         """
@@ -298,6 +501,10 @@ class Chain(IDelegate):
             SafeDelegate.wrap_if_needed(delegate)
             for delegate in delegate_list]
 
+    def __repr__(self):
+        return "<{0} {1!r}>".format(
+            self.__class__.__name__, self.delegate_list)
+
     def on_begin(self, args, kwargs):
         """
         Call the on_begin() method on each delegate in the list
@@ -343,6 +550,11 @@ class Redirect(DelegateBase):
         self._close_stdout_on_end = close_stdout_on_end
         self._close_stderr_on_end = close_stderr_on_end
 
+    def __repr__(self):
+        return "<{0} stdout:{1!r} stderr:{2!r}>".format(
+            self.__class__.__name__,
+            self._stdout, self._stderr)
+
     def on_line(self, stream_name, line):
         """
         Write each line, verbatim, to the desired stream.
@@ -379,6 +591,10 @@ class Transform(DelegateBase):
         self._callback = callback
         self._delegate = SafeDelegate.wrap_if_needed(delegate)
 
+    def __repr__(self):
+        return "<{0} callback:{1!r} delegate:{2!r}>".format(
+            self.__class__.__name__, self._callback, self._delegate)
+
     def on_line(self, stream_name, line):
         """
         Transform each line by calling callback(stream_name, line) and pass it
@@ -386,6 +602,12 @@ class Transform(DelegateBase):
         """
         transformed_line = self._callback(stream_name, line)
         self._delegate.on_line(stream_name, transformed_line)
+
+    def on_begin(self, args, kwargs):
+        self._delegate.on_begin(args, kwargs)
+
+    def on_end(self, returncode):
+        self._delegate.on_end(returncode)
 
 
 class Decode(Transform):
@@ -402,6 +624,10 @@ class Decode(Transform):
         """
         super(Decode, self).__init__(self._decode, delegate)
         self._encoding = encoding
+
+    def __repr__(self):
+        return "<{0} encoding:{1!r} delegate:{2!r}>".format(
+            self.__class__.__name__, self._encoding, self._delegate)
 
     def _decode(self, stream_name, line):
         """
@@ -424,6 +650,10 @@ class Encode(Transform):
         """
         super(Encode, self).__init__(self._encode, delegate)
         self._encoding = encoding
+
+    def __repr__(self):
+        return "<{0} encoding:{1!r} delegate:{2!r}>".format(
+            self.__class__.__name__, self._encoding, self._delegate)
 
     def _encode(self, stream_name, line):
         """

@@ -116,7 +116,7 @@ class SessionStateExporterBaseTests(TestCase):
             'outcome': 'pass',
             'return_code': 0,
             'io_log': (
-                IOLogRecord(0, 'stdout', 'testing\n'),
+                IOLogRecord(0, 'stdout', b'testing\n'),
             )
         })
         result_b = JobResult({
@@ -124,7 +124,7 @@ class SessionStateExporterBaseTests(TestCase):
             'outcome': 'pass',
             'return_code': 0,
             'io_log': (
-                IOLogRecord(0, 'stdout', 'ready: yes\n'),
+                IOLogRecord(0, 'stdout', b'ready: yes\n'),
             )
         })
         session.update_job_result(job_a, result_a)
@@ -157,14 +157,14 @@ class SessionStateExporterBaseTests(TestCase):
                     'outcome': 'pass',
                     'plugin': 'shell',
                     'command': 'echo testing && true',
-                    'io_log': ['testing'],
+                    'io_log': ['dGVzdGluZwo='],
                     'requires': 'job_b.ready == "yes"'
                 },
                 'job_b': {
                     'outcome': 'pass',
                     'plugin': 'resource',
                     'command': 'echo ready: yes',
-                    'io_log': ['ready: yes'],
+                    'io_log': ['cmVhZHk6IHllcwo='],
                 }
             }
         }
@@ -181,16 +181,18 @@ class SessionStateExporterBaseTests(TestCase):
         # the base SessionStateExporter class
         cls = self.TestSessionStateExporter
         io_log = (
-            IOLogRecord(0, 'stdout', 'foo\n'),
-            IOLogRecord(1, 'stderr', 'bar\n'),
-            IOLogRecord(2, 'stdout', 'quxx\n')
+            IOLogRecord(0, 'stdout', b'foo\n'),
+            IOLogRecord(1, 'stderr', b'bar\n'),
+            IOLogRecord(2, 'stdout', b'quxx\n')
         )
         self.assertEqual(
-            cls._squash_io_log(io_log), ['foo', 'bar', 'quxx'])
+            cls._squash_io_log(io_log), [
+                'Zm9vCg==', 'YmFyCg==', 'cXV4eAo='])
         self.assertEqual(
-            cls._flatten_io_log(io_log), 'foo\nbar\nquxx\n')
+            cls._flatten_io_log(io_log),
+            'Zm9vCmJhcgpxdXh4Cg==')
         self.assertEqual(
             cls._io_log(io_log), [
-                (0, 'stdout', 'foo'),
-                (1, 'stderr', 'bar'),
-                (2, 'stdout', 'quxx')])
+                (0, 'stdout', 'Zm9vCg=='),
+                (1, 'stderr', 'YmFyCg=='),
+                (2, 'stdout', 'cXV4eAo=')])

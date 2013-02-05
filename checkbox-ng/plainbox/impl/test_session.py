@@ -324,7 +324,7 @@ class SessionStateReactionToJobResultTests(TestCase):
         # session.
         result_R = JobResult({
             'job': self.job_R,
-            'io_log': ((0, 'stdout', "attr: value\n"),)
+            'io_log': ((0, 'stdout', b"attr: value\n"),)
         })
         self.session.update_job_result(self.job_R, result_R)
         # The most obvious thing that can happen, is that the result is simply
@@ -373,11 +373,11 @@ class SessionStateReactionToJobResultTests(TestCase):
         result_R = JobResult({
             'job': self.job_R,
             'io_log': (
-                (0, 'stdout', "attr: value-1\n"),
-                (1, 'stdout', "\n"),
-                (1, 'stdout', "I-sound-like-a-broken-record\n"),
-                (1, 'stdout', "\n"),
-                (1, 'stdout', "attr: value-2\n"))
+                (0, 'stdout', b"attr: value-1\n"),
+                (1, 'stdout', b"\n"),
+                (1, 'stdout', b"I-sound-like-a-broken-record\n"),
+                (1, 'stdout', b"\n"),
+                (1, 'stdout', b"attr: value-2\n"))
         })
         # Since we cannot control the output of scripts and people indeed make
         # mistakes a warning is issued but no exception is raised to the
@@ -454,7 +454,7 @@ class SessionStateReactionToJobResultTests(TestCase):
         self.session.update_desired_job_list([self.job_A])
         result_R = JobResult({
             'job': self.job_R,
-            'io_log': ((0, 'stdout', 'attr: wrong value\n'),)
+            'io_log': ((0, 'stdout', b'attr: wrong value\n'),)
         })
         self.session.update_job_result(self.job_R, result_R)
         # Now A is inhibited by FAILED_RESOURCE
@@ -471,7 +471,7 @@ class SessionStateReactionToJobResultTests(TestCase):
         # presented to a session that has some resources from that job already.
         result_R_old = JobResult({
             'job': self.job_R,
-            'io_log': ((0, 'stdout', "attr: old value\n"),)
+            'io_log': ((0, 'stdout', b"attr: old value\n"),)
         })
         self.session.update_job_result(self.job_R, result_R_old)
         # So here the old result is stored into a new 'R' resource
@@ -480,7 +480,7 @@ class SessionStateReactionToJobResultTests(TestCase):
         # Now we present the second result for the same job
         result_R_new = JobResult({
             'job': self.job_R,
-            'io_log': ((0, 'stdout', "attr: new value\n"),)
+            'io_log': ((0, 'stdout', b"attr: new value\n"),)
         })
         self.session.update_job_result(self.job_R, result_R_new)
         # What should happen here is that the R resource is entirely replaced

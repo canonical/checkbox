@@ -52,7 +52,7 @@ class JobResultTests(TestCase):
             'job': self.job,
             'outcome': JobResult.OUTCOME_PASS,
             'comments': "it said blah",
-            'io_log': ((0, 'stdout', 'blah\n'),),
+            'io_log': ((0, 'stdout', b'blah\n'),),
             'return_code': 0
         })
         self.assertEqual(str(result), "A: pass")
@@ -62,7 +62,7 @@ class JobResultTests(TestCase):
         self.assertIs(result.job, self.job)
         self.assertEqual(result.outcome, JobResult.OUTCOME_PASS)
         self.assertEqual(result.comments, "it said blah")
-        self.assertEqual(result.io_log, ((0, 'stdout', 'blah\n'),))
+        self.assertEqual(result.io_log, ((0, 'stdout', b'blah\n'),))
         self.assertEqual(result.return_code, 0)
 
     def test_encode(self):

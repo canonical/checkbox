@@ -211,15 +211,27 @@ class JobRunner(IJobRunner):
                                  "{}.out".format(filename)), "wb")
         ferr = open(os.path.join(self._jobs_io_log_dir,
                                  "{}.err".format(filename)), "wb")
-        # Create a subprocess.Popen() like object that uses the
-        # delegate system to observe all IO as it occurs in real
-        # time.
+        # Create a subprocess.Popen() like object that uses the delegate
+        # system to observe all IO as it occurs in real time.
+        #
+        # Split the stream of data into three parts (each part is expressed as
+        # an element of extcmd.Chain()).
+        #
+        # Send the first copy of the data through bytes->text decoder and
+        # then to the UI delegate. This cold be something provided by the
+        # higher level caller or the default CommandOutputLogger.
+        #
+        # Send the second copy of the data to the _IOLogBuilder() instance that
+        # just concatenates subsequent bytes into neat time-stamped records.
+        #
+        # Send the third copy to the redirector that writes everything to disk.
         logging_popen = extcmd.ExternalCommandWithDelegate(
             extcmd.Chain([
-            extcmd.Decode(extcmd.Chain([io_log_builder, ui_io_delegate])),
-            extcmd.Redirect(stdout=fout, stderr=ferr,
-                            close_stdout_on_end=True,
-                            close_stderr_on_end=True)]))
+                extcmd.Decode(ui_io_delegate),
+                io_log_builder,
+                extcmd.Redirect(stdout=fout, stderr=ferr,
+                                close_stdout_on_end=True,
+                                close_stderr_on_end=True)]))
         # Start the process and wait for it to finish getting the
         # result code. This will actually call a number of callbacks
         # while the process is running. It will also spawn a few

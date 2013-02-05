@@ -518,7 +518,8 @@ class SessionState:
     def _gen_rfc822_records_from_io_log(self, result):
         logger.debug("processing output from a job: %r", result.job)
         # Select all stdout lines from the io log
-        line_gen = (record[2] for record in result.io_log
+        line_gen = (record[2].decode('UTF-8', errors='replace')
+                    for record in result.io_log
                     if record[1] == 'stdout')
         try:
             # Parse rfc822 records from the subsequent lines

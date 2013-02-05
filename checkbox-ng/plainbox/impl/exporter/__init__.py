@@ -27,6 +27,7 @@ plainbox.impl.exporter
 from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
 from logging import getLogger
+import base64
 
 import pkg_resources
 
@@ -167,15 +168,25 @@ class SessionStateExporterBase(metaclass=ABCMeta):
 
     @classmethod
     def _squash_io_log(cls, io_log):
-        return [record.data.rstrip() for record in io_log]
+        # Squash the IO log by discarding everything except for the 'data'
+        # portion. The actual data is escaped with base64.
+        return [
+            base64.standard_b64encode(record.data).decode('ASCII')
+            for record in io_log]
 
     @classmethod
     def _flatten_io_log(cls, io_log):
-        return ''.join([record.data for record in io_log])
+        # Similar to squash but also coalesce all records into one big base64
+        # string (there are no arrays / lists anymore)
+        return base64.standard_b64encode(
+            b''.join([record.data for record in io_log])
+        ).decode('ASCII')
 
     @classmethod
     def _io_log(cls, io_log):
-        return [(record.delay, record.stream_name, record.data.rstrip())
+        # Return the raw io log, but escape the data portion with base64
+        return [(record.delay, record.stream_name,
+                 base64.standard_b64encode(record.data).decode('ASCII'))
                 for record in io_log]
 
     @abstractmethod

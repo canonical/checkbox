@@ -28,7 +28,9 @@ Test definitions for plainbox.impl.runner module
 from unittest import TestCase
 
 from plainbox.impl.runner import CommandIOLogBuilder
+from plainbox.impl.runner import FallbackCommandOutputPrinter
 from plainbox.impl.runner import slugify
+from plainbox.testing_utils.io import TestIO
 
 
 class SlugifyTests(TestCase):
@@ -60,3 +62,24 @@ class CommandIOLogBuilderTests(TestCase):
         self.assertEqual(builder.io_log[1].data, b'different text\n')
         self.assertEqual(builder.io_log[2].stream_name, 'stderr')
         self.assertEqual(builder.io_log[2].data, b'error message\n')
+
+
+class FallbackCommandOutputPrinterTests(TestCase):
+
+    def test_smoke(self):
+        with TestIO(combined=False) as io:
+            obj = FallbackCommandOutputPrinter("example")
+            # Whatever gets printed by the job...
+            obj.on_line('stdout', 'line 1\n')
+            obj.on_line('stderr', 'line 1\n')
+            obj.on_line('stdout', 'line 2\n')
+            obj.on_line('stdout', 'line 3\n')
+            obj.on_line('stderr', 'line 2\n')
+        # Gets printed to stdout _only_, stderr is combined with stdout here
+        self.assertEqual(io.stdout, (
+            "(job example, <stdout:00001>) line 1\n"
+            "(job example, <stderr:00001>) line 1\n"
+            "(job example, <stdout:00002>) line 2\n"
+            "(job example, <stdout:00003>) line 3\n"
+            "(job example, <stderr:00002>) line 2\n"
+        ))

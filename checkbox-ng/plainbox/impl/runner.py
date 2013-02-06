@@ -270,13 +270,15 @@ class JobRunner(IJobRunner):
         # delegate that logs all output to the console
         if ui_io_delegate is None:
             ui_io_delegate = FallbackCommandOutputPrinter(job.name)
+        # Create a delegate that writes all IO to disk
+        slug = slugify(job.name)
+        output_writer = CommandOutputWriter(
+            stdout_path=os.path.join(self._jobs_io_log_dir,
+                                     "{}.stdout".format(slug)),
+            stderr_path=os.path.join(self._jobs_io_log_dir,
+                                     "{}.stderr".format(slug)))
         # Create a delegate that builds a log of all IO
         io_log_builder = CommandIOLogBuilder()
-        filename = slugify(job.name)
-        fout = open(os.path.join(self._jobs_io_log_dir,
-                                 "{}.out".format(filename)), "wb")
-        ferr = open(os.path.join(self._jobs_io_log_dir,
-                                 "{}.err".format(filename)), "wb")
         # Create a subprocess.Popen() like object that uses the delegate
         # system to observe all IO as it occurs in real time.
         #
@@ -290,14 +292,13 @@ class JobRunner(IJobRunner):
         # Send the second copy of the data to the _IOLogBuilder() instance that
         # just concatenates subsequent bytes into neat time-stamped records.
         #
-        # Send the third copy to the redirector that writes everything to disk.
+        # Send the third copy to the output writer that writes everything to
+        # disk.
         logging_popen = extcmd.ExternalCommandWithDelegate(
             extcmd.Chain([
                 extcmd.Decode(ui_io_delegate),
                 io_log_builder,
-                extcmd.Redirect(stdout=fout, stderr=ferr,
-                                close_stdout_on_end=True,
-                                close_stderr_on_end=True)]))
+                output_writer]))
         # Start the process and wait for it to finish getting the
         # result code. This will actually call a number of callbacks
         # while the process is running. It will also spawn a few

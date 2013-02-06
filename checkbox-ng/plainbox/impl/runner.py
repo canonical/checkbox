@@ -236,6 +236,9 @@ class JobRunner(IJobRunner):
         fixed LANG so that scripts behave as expected. Lastly it sets
         CHECKBOX_SHARE that is required by some scripts.
         """
+        # TODO: make this a JobDefinition.get_target_environment() method
+        # so that checkbox instance is not needed by the job runner anymore.
+        #
         # Get a proper environment
         env = dict(os.environ)
         # Use non-internationalized environment

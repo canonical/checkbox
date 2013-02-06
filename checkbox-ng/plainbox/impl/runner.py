@@ -57,7 +57,15 @@ class _IOLogBuilder(extcmd.DelegateBase):
     of tuples (delay, stream_name, data).
     """
 
-    def __init__(self):
+    def on_begin(self, args, kwargs):
+        """
+        Internal method of extcmd.DelegateBase
+
+        Called when a command is being invoked.
+        Begins tracking time (relative time entries) and creates the empty
+        io_log list.
+        """
+        logger.debug("io log starting for command: %r", args)
         self.io_log = []
         self.last_msg = datetime.datetime.utcnow()
 

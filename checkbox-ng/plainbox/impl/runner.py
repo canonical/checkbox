@@ -85,7 +85,7 @@ class CommandIOLogBuilder(extcmd.DelegateBase):
         logger.debug("io log captured %r", record)
 
 
-class CommandOutputLogger(extcmd.DelegateBase):
+class FallbackCommandOutputPrinter(extcmd.DelegateBase):
 
     def __init__(self, prompt):
         self._prompt = prompt
@@ -210,7 +210,7 @@ class JobRunner(IJobRunner):
         # If there is no UI delegate specified create a simple
         # delegate that logs all output to the console
         if ui_io_delegate is None:
-            ui_io_delegate = CommandOutputLogger(job.name)
+            ui_io_delegate = FallbackCommandOutputPrinter(job.name)
         # Create a delegate that builds a log of all IO
         io_log_builder = CommandIOLogBuilder()
         filename = slugify(job.name)

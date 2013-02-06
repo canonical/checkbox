@@ -279,8 +279,8 @@ class JobRunner(IJobRunner):
                                      "{}.stderr".format(slug)))
         # Create a delegate that builds a log of all IO
         io_log_builder = CommandIOLogBuilder()
-        # Create a subprocess.Popen() like object that uses the delegate
-        # system to observe all IO as it occurs in real time.
+        # Create the delegate for routing IO
+        #
         #
         # Split the stream of data into three parts (each part is expressed as
         # an element of extcmd.Chain()).
@@ -299,6 +299,9 @@ class JobRunner(IJobRunner):
                 extcmd.Decode(ui_io_delegate),
                 io_log_builder,
                 output_writer]))
+        # Create a subprocess.Popen() like object that uses the delegate
+        # system to observe all IO as it occurs in real time.
+        logging_popen = extcmd.ExternalCommandWithDelegate(delegate)
         # Start the process and wait for it to finish getting the
         # result code. This will actually call a number of callbacks
         # while the process is running. It will also spawn a few

@@ -31,7 +31,6 @@ import datetime
 import logging
 import os
 import string
-import json
 
 from plainbox.vendor import extcmd
 

@@ -25,10 +25,13 @@ plainbox.impl.test_runner
 Test definitions for plainbox.impl.runner module
 """
 
+from tempfile import TemporaryDirectory
 from unittest import TestCase
+import os
 
 from plainbox.impl.runner import CommandIOLogBuilder
 from plainbox.impl.runner import FallbackCommandOutputPrinter
+from plainbox.impl.runner import CommandOutputWriter
 from plainbox.impl.runner import slugify
 from plainbox.testing_utils.io import TestIO
 
@@ -83,3 +86,31 @@ class FallbackCommandOutputPrinterTests(TestCase):
             "(job example, <stdout:00003>) line 3\n"
             "(job example, <stderr:00002>) line 2\n"
         ))
+
+
+class CommandOutputWriterTests(TestCase):
+
+    def assertFileContentsEqual(self, pathname, contents):
+        with open(pathname, 'rb') as stream:
+            self.assertEqual(stream.read(), contents)
+
+    def test_smoke(self):
+        with TemporaryDirectory() as scratch_dir:
+            stdout = os.path.join(scratch_dir,  "stdout")
+            stderr = os.path.join(scratch_dir,  "stderr")
+            writer = CommandOutputWriter(stdout, stderr)
+            # Initially nothing is created
+            self.assertFalse(os.path.exists(stdout))
+            self.assertFalse(os.path.exists(stderr))
+            # Logs are created when the command is first started
+            writer.on_begin(None, None)
+            self.assertTrue(os.path.exists(stdout))
+            self.assertTrue(os.path.exists(stderr))
+            # Each line simply gets saved
+            writer.on_line('stdout', b'text\n')
+            writer.on_line('stderr', b'error\n')
+            # (but it may not be on disk yet because of buffering)
+            # After the command is done the logs are left on disk
+            writer.on_end(None)
+            self.assertFileContentsEqual(stdout, b'text\n')
+            self.assertFileContentsEqual(stderr, b'error\n')

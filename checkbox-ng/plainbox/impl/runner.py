@@ -85,6 +85,54 @@ class CommandIOLogBuilder(extcmd.DelegateBase):
         logger.debug("io log captured %r", record)
 
 
+class CommandOutputWriter(extcmd.DelegateBase):
+    """
+    Delegate for extcmd that writes output to a file on disk.
+
+    The file itself is only opened once on_begin() gets called by extcmd. This
+    makes it safe to instantiate this without worrying about dangling
+    resources.
+    """
+
+    def __init__(self, stdout_path, stderr_path):
+        """
+        Initialize new writer.
+
+        Just records output paths.
+        """
+        self.stdout_path = stdout_path
+        self.stderr_path = stderr_path
+
+    def on_begin(self, args, kwargs):
+        """
+        Internal method of extcmd.DelegateBase
+
+        Called when a command is being invoked
+        """
+        self.stdout = open(self.stdout_path, "wb")
+        self.stderr = open(self.stderr_path, "wb")
+
+    def on_end(self, returncode):
+        """
+        Internal method of extcmd.DelegateBase
+
+        Called when a command finishes running
+        """
+        self.stdout.close()
+        self.stderr.close()
+
+    def on_line(self, stream_name, line):
+        """
+        Internal method of extcmd.DelegateBase
+
+        Called for each line of output.
+        """
+        if stream_name == 'stdout':
+            self.stdout.write(line)
+        elif stream_name == 'stderr':
+            self.stderr.write(line)
+
+
 class FallbackCommandOutputPrinter(extcmd.DelegateBase):
 
     def __init__(self, prompt):

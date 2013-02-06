@@ -299,6 +299,7 @@ class JobRunner(IJobRunner):
                 extcmd.Decode(ui_io_delegate),
                 io_log_builder,
                 output_writer]))
+        logger.debug("job[%s] extcmd delegate: %r", job.name, delegate)
         # Create a subprocess.Popen() like object that uses the delegate
         # system to observe all IO as it occurs in real time.
         logging_popen = extcmd.ExternalCommandWithDelegate(delegate)
@@ -307,12 +308,13 @@ class JobRunner(IJobRunner):
         # while the process is running. It will also spawn a few
         # threads although all callbacks will be fired from a single
         # thread (which is _not_ the main thread)
+        logger.debug("job[%s] starting command: %s", job.name, job.command)
         return_code = logging_popen.call(
             # XXX: sadly using /bin/sh results in broken output
             # XXX: maybe run it both ways and raise exceptions on differences?
             ['bash', '-c', job.command],
             env=self._get_checkbox_script_env(job))
-        logger.debug("%s command return code: %r",
+        logger.debug("job[%s] command return code: %r",
                      job.name, return_code)
         # XXX: Perhaps handle process dying from signals here
         # When the process is killed proc.returncode is not set

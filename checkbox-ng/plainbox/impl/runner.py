@@ -52,9 +52,11 @@ def slugify(_string):
 
 class CommandIOLogBuilder(extcmd.DelegateBase):
     """
-    Delegate for extcmd that build a log of all the data that was written by a
-    process in a format expected by IJobResult.io_log. The format is a sequence
-    of tuples (delay, stream_name, data).
+    Delegate for extcmd that builds io_log entries.
+
+    IO log entries are records kept by JobResult.io_log and correspond to all
+    of the data that was written by called process. The format is a sequence of
+    tuples (delay, stream_name, data).
     """
 
     def on_begin(self, args, kwargs):
@@ -134,6 +136,12 @@ class CommandOutputWriter(extcmd.DelegateBase):
 
 
 class FallbackCommandOutputPrinter(extcmd.DelegateBase):
+    """
+    Delegate for extcmd that prints all output to stdout.
+
+    This delegate is only used as a fallback when no delegate was explicitly
+    provided to a JobRunner instance.
+    """
 
     def __init__(self, prompt):
         self._prompt = prompt

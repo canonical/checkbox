@@ -50,7 +50,7 @@ def slugify(_string):
     return ''.join(c if c in valid_chars else '_' for c in _string)
 
 
-class _IOLogBuilder(extcmd.DelegateBase):
+class CommandIOLogBuilder(extcmd.DelegateBase):
     """
     Delegate for extcmd that build a log of all the data that was written by a
     process in a format expected by IJobResult.io_log. The format is a sequence
@@ -212,7 +212,7 @@ class JobRunner(IJobRunner):
         if ui_io_delegate is None:
             ui_io_delegate = CommandOutputLogger(job.name)
         # Create a delegate that builds a log of all IO
-        io_log_builder = _IOLogBuilder()
+        io_log_builder = CommandIOLogBuilder()
         filename = slugify(job.name)
         fout = open(os.path.join(self._jobs_io_log_dir,
                                  "{}.out".format(filename)), "wb")

@@ -294,11 +294,10 @@ class JobRunner(IJobRunner):
         #
         # Send the third copy to the output writer that writes everything to
         # disk.
-        logging_popen = extcmd.ExternalCommandWithDelegate(
-            extcmd.Chain([
-                extcmd.Decode(ui_io_delegate),
-                io_log_builder,
-                output_writer]))
+        delegate = extcmd.Chain([
+            extcmd.Decode(ui_io_delegate),
+            io_log_builder,
+            output_writer])
         logger.debug("job[%s] extcmd delegate: %r", job.name, delegate)
         # Create a subprocess.Popen() like object that uses the delegate
         # system to observe all IO as it occurs in real time.

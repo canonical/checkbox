@@ -26,6 +26,9 @@ Internal implementation of plainbox
  * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
 """
 
+import collections
+import hashlib
+import json
 import logging
 import re
 
@@ -170,3 +173,28 @@ class JobDefinition(IJobDefinition):
                 raise ValueError(
                     "Required record key {!r} was not found".format(key))
         return cls(record.data, record.origin)
+
+    def get_checksum(self):
+        """
+        Compute a checksum of the job definition.
+
+        This method can be used to compute the checksum of the canonical form
+        of the job definition.  The canonical form is the UTF-8 encoded JSON
+        serialization of the data that makes up the full definition of the job
+        (all keys and values). The JSON serialization uses no indent and
+        minimal separators.
+
+        The checksum is defined as the SHA256 hash of the canonical form.
+        """
+        # Ideally we'd use simplejson.dumps() with sorted keys to get
+        # predictable serialization but that's another dependency. To get
+        # something simple that is equally reliable, just sort all the keys
+        # manually and ask standard json to serialize that..
+        sorted_data = collections.OrderedDict(sorted(self._data.items()))
+        # Compute the canonical form which is arbitrarily defined as sorted
+        # json text with default indent and separator settings.
+        canonical_form = json.dumps(
+            sorted_data, indent=None, separators=(',', ':'))
+        # Compute the sha256 hash of the UTF-8 encoding of the canonical form
+        # and return the hex digest as the checksum that can be displayed.
+        return hashlib.sha256(canonical_form.encode('UTF-8')).hexdigest()

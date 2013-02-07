@@ -246,3 +246,25 @@ class TestJobDefinition(TestCase):
             job_enc['command']
         with self.assertRaises(KeyError):
             job_enc['origin']
+
+    def test_checksum_smoke(self):
+        job1 = JobDefinition({
+            'name': 'name',
+            'plugin': 'plugin'
+        })
+        identical_to_job1 = JobDefinition({
+            'name': 'name',
+            'plugin': 'plugin'
+        })
+        # Two distinct but identical jobs have the same checksum
+        self.assertEqual(job1.get_checksum(), identical_to_job1.get_checksum())
+        job2 = JobDefinition({
+            'name': 'other name',
+            'plugin': 'plugin'
+        })
+        # Two jobs with different definitions have different checksum
+        self.assertNotEqual(job1.get_checksum(), job2.get_checksum())
+        # The checksum is stable and does not change over time
+        self.assertEqual(
+            job1.get_checksum(),
+            "ad137ba3654827cb07a254a55c5e2a8daa4de6af604e84ccdbe9b7f221014362")

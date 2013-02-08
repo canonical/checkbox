@@ -245,6 +245,9 @@ class JobRunner(IJobRunner):
 
         Returns a tuple (return_code, io_log)
         """
+        # Bail early if there is nothing do do
+        if job.command is None:
+            return None, ()
         ui_io_delegate = self._command_io_delegate
         # If there is no UI delegate specified create a simple
         # delegate that logs all output to the console

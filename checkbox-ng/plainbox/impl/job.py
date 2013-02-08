@@ -213,6 +213,18 @@ class JobDefinition(IJobDefinition):
         # Add CHECKBOX_DATA (temporary checkbox data)
         env['CHECKBOX_DATA'] = session_dir
 
+    def create_child_job_from_record(self, record):
+        """
+        Create a new JobDefinition from RFC822 record.
+
+        This method should only be used to create additional jobs from local
+        jobs (plugin local). The intent is to encapsulate the sharing of the
+        embedded checkbox reference.
+        """
+        job = self.from_rfc822_record(record)
+        job._checkbox = self._checkbox
+        return job
+
     def get_checksum(self):
         """
         Compute a checksum of the job definition.

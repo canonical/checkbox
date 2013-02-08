@@ -228,6 +228,7 @@ class CheckBox:
             job_list = []
             for record in record_list:
                 job = JobDefinition.from_rfc822_record(record)
+                job._checkbox = self
                 logger.debug("Loaded %r", job)
                 job_list.append(job)
             return job_list

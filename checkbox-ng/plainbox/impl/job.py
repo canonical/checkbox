@@ -30,6 +30,7 @@ import collections
 import hashlib
 import json
 import logging
+import os
 import re
 
 from plainbox.abc import IJobDefinition
@@ -174,6 +175,43 @@ class JobDefinition(IJobDefinition):
                 raise ValueError(
                     "Required record key {!r} was not found".format(key))
         return cls(record.data, record.origin)
+
+    def modify_execution_environment(self, env, session_dir):
+        """
+        Alter execution environment as required to execute this job.
+
+        The environment is modified in place.
+
+        The session_dir argument can be passed to scripts to know where to
+        create temporary data. This data will persist during the lifetime of
+        the session.
+
+        Computes and modifies the dictionary of additional values that need to
+        be added to the base environment. Note that all changes to the
+        environment (modifications, not replacements) depend on the current
+        environment.  This may be of importance when attempting to setup the
+        test session as another user.
+
+        This environment has additional PATH, PYTHONPATH entries. It also uses
+        fixed LANG so that scripts behave as expected. Lastly it sets
+        CHECKBOX_SHARE that is required by some scripts.
+        """
+        # XXX: this obviously requires a checkbox object to know where stuff is
+        # but during the transition we may not have one available.
+        assert self._checkbox is not None
+        # Use PATH that can lookup checkbox scripts
+        if self._checkbox.extra_PYTHONPATH:
+            env['PYTHONPATH'] = os.pathsep.join(
+                [self._checkbox.extra_PYTHONPATH]
+                + env.get("PYTHONPATH", "").split(os.pathsep))
+        # Update PATH so that scripts can be found
+        env['PATH'] = os.pathsep.join(
+            [self._checkbox.extra_PATH]
+            + env.get("PATH", "").split(os.pathsep))
+        # Add CHECKBOX_SHARE that is needed by one script
+        env['CHECKBOX_SHARE'] = self._checkbox.CHECKBOX_SHARE
+        # Add CHECKBOX_DATA (temporary checkbox data)
+        env['CHECKBOX_DATA'] = session_dir
 
     def get_checksum(self):
         """

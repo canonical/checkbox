@@ -93,10 +93,11 @@ class JobDefinition(IJobDefinition):
         """
         return self._origin
 
-    def __init__(self, data, origin=None):
+    def __init__(self, data, origin=None, checkbox=None):
         self._data = data
         self._resource_program = None
         self._origin = origin
+        self._checkbox = checkbox
 
     def __str__(self):
         return self.name

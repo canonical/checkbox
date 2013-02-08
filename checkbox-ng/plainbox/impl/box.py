@@ -275,7 +275,7 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
                 outcome_callback = self.ask_for_outcome
             else:
                 outcome_callback = None
-            runner = JobRunner(self.checkbox, session.session_dir,
+            runner = JobRunner(session.session_dir,
                                session.jobs_io_log_dir,
                                outcome_callback=outcome_callback)
             self._run_jobs_with_session(ns, session, runner)

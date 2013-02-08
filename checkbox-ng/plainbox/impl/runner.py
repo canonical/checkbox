@@ -156,7 +156,7 @@ class FallbackCommandOutputPrinter(extcmd.DelegateBase):
 
 class JobRunner(IJobRunner):
 
-    def __init__(self, checkbox, session_dir, jobs_io_log_dir,
+    def __init__(self, session_dir, jobs_io_log_dir,
                  command_io_delegate=None, outcome_callback=None):
         """
         Initialize a new job runner.
@@ -167,7 +167,6 @@ class JobRunner(IJobRunner):
         IO done by the called commands (optional, a simple console printer is
         provided if missing).
         """
-        self._checkbox = checkbox
         self._session_dir = session_dir
         self._jobs_io_log_dir = jobs_io_log_dir
         self._command_io_delegate = command_io_delegate

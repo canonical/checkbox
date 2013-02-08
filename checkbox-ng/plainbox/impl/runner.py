@@ -228,35 +228,16 @@ class JobRunner(IJobRunner):
             'io_log': io_log
         })
 
-    def _get_checkbox_script_env(self, job):
+    def _get_script_env(self, job):
         """
-        Create an environment suitable for executing CheckBox scripts.
-
-        This environment has additional PATH, PYTHONPATH entries. It also uses
-        fixed LANG so that scripts behave as expected. Lastly it sets
-        CHECKBOX_SHARE that is required by some scripts.
+        Compute the environment the script will be executed in
         """
-        # TODO: make this a JobDefinition.get_target_environment() method
-        # so that checkbox instance is not needed by the job runner anymore.
-        #
         # Get a proper environment
         env = dict(os.environ)
         # Use non-internationalized environment
         env['LANG'] = 'C.UTF-8'
-        # Use PATH that can lookup checkbox scripts
-        if self._checkbox.extra_PYTHONPATH:
-            env['PYTHONPATH'] = os.pathsep.join(
-                [self._checkbox.extra_PYTHONPATH]
-                + os.getenv("PYTHONPATH", "").split(os.pathsep))
-        # Update PATH so that scripts can be found
-        env['PATH'] = os.pathsep.join(
-            [self._checkbox.extra_PATH]
-            + os.getenv("PATH", "").split(os.pathsep))
-        # Add CHECKBOX_SHARE that is needed by one script
-        env['CHECKBOX_SHARE'] = self._checkbox.CHECKBOX_SHARE
-        # Add CHECKBOX_DATA (temporary checkbox data)
-        assert self._session_dir is not None
-        env['CHECKBOX_DATA'] = self._session_dir
+        # Allow the job to customize anything
+        job.modify_execution_environment(env, self._session_dir)
         return env
 
     def _run_command(self, job):
@@ -312,7 +293,7 @@ class JobRunner(IJobRunner):
             # XXX: sadly using /bin/sh results in broken output
             # XXX: maybe run it both ways and raise exceptions on differences?
             ['bash', '-c', job.command],
-            env=self._get_checkbox_script_env(job))
+            env=self._get_script_env(job))
         logger.debug("job[%s] command return code: %r",
                      job.name, return_code)
         # XXX: Perhaps handle process dying from signals here

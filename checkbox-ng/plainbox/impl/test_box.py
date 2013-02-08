@@ -84,8 +84,8 @@ class TestSpecial(TestCase):
             self.assertEqual(call.exception.args, (0,))
         self.maxDiff = None
         expected = """
-        usage: plainbox special [-h] (-j | -e | -d) [--dot-resources]
-                                [--load-extra FILE] [-r PATTERN] [-W WHITELIST]
+        usage: plainbox special [-h] (-j | -e | -d) [--dot-resources] [-r PATTERN]
+                                [-W WHITELIST]
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -96,7 +96,6 @@ class TestSpecial(TestCase):
           --dot-resources       Render resource relationships (for --dot)
 
         job definition options:
-          --load-extra FILE     Load extra job definitions from FILE
           -r PATTERN, --run-pattern PATTERN
                                 Run jobs matching the given pattern
           -W WHITELIST, --whitelist WHITELIST
@@ -110,8 +109,8 @@ class TestSpecial(TestCase):
                 main(['special'])
             self.assertEqual(call.exception.args, (2,))
         expected = """
-        usage: plainbox special [-h] (-j | -e | -d) [--dot-resources]
-                                [--load-extra FILE] [-r PATTERN] [-W WHITELIST]
+        usage: plainbox special [-h] (-j | -e | -d) [--dot-resources] [-r PATTERN]
+                                [-W WHITELIST]
         plainbox special: error: one of the arguments -j/--list-jobs -e/--list-expressions -d/--dot is required
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
@@ -190,7 +189,7 @@ class TestRun(TestCase):
         self.maxDiff = None
         expected = """
         usage: plainbox run [-h] [--not-interactive] [-n] [-f FORMAT] [-p OPTIONS]
-                            [-o FILE] [--load-extra FILE] [-r PATTERN] [-W WHITELIST]
+                            [-o FILE] [-r PATTERN] [-W WHITELIST]
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -211,7 +210,6 @@ class TestRun(TestCase):
                                 if FILE is -)
 
         job definition options:
-          --load-extra FILE     Load extra job definitions from FILE
           -r PATTERN, --run-pattern PATTERN
                                 Run jobs matching the given pattern
           -W WHITELIST, --whitelist WHITELIST

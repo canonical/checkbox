@@ -71,11 +71,6 @@ class CheckBoxCommandMixIn:
         """
         group = parser.add_argument_group(title="job definition options")
         group.add_argument(
-            "--load-extra", action="append",
-            metavar="FILE", default=[],
-            help="Load extra job definitions from FILE",
-            type=FileType("rt"))
-        group.add_argument(
             '-r', '--run-pattern', action="append",
             metavar='PATTERN', default=[], dest='run_pattern_list',
             help="Run jobs matching the given pattern")
@@ -89,8 +84,6 @@ class CheckBoxCommandMixIn:
     def get_job_list(self, ns):
         # Load built-in job definitions
         job_list = self.get_builtin_jobs()
-        # Load additional job definitions
-        job_list.extend(self._load_jobs(ns.load_extra))
         return job_list
 
     def get_builtin_jobs(self):

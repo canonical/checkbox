@@ -69,8 +69,8 @@ class CheckBoxCommandMixIn:
         """
         group = parser.add_argument_group(title="job definition options")
         group.add_argument(
-            '-r', '--run-pattern', action="append",
-            metavar='PATTERN', default=[], dest='run_pattern_list',
+            '-i', '--include-pattern', action="append",
+            metavar='PATTERN', default=[], dest='include_pattern_list',
             help="Run jobs matching the given pattern")
         # TODO: Find a way to handle the encoding of the file
         group.add_argument(
@@ -89,10 +89,10 @@ class CheckBoxCommandMixIn:
         # Find jobs that matched patterns
         matching_job_list = []
         if ns.whitelist:
-            ns.run_pattern_list.extend([pattern.strip() for pattern in
+            ns.include_pattern_list.extend([pattern.strip() for pattern in
                                         ns.whitelist.readlines()])
         for job in job_list:
-            for pattern in ns.run_pattern_list:
+            for pattern in ns.include_pattern_list:
                 if fnmatch(job.name, pattern):
                     matching_job_list.append(job)
                     break
@@ -145,7 +145,7 @@ class SpecialCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         # specified just operate on the whole set. The ns.special check
         # prevents people starting plainbox from accidentally running _all_
         # jobs without prompting.
-        if ns.special is not None and not ns.run_pattern_list:
+        if ns.special is not None and not ns.include_pattern_list:
             matching_job_list = job_list
         return matching_job_list
 

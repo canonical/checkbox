@@ -79,7 +79,7 @@ class IntegrationTests(TestCaseWithParameters):
             # we can observe the return code as well.
             with TestIO(), TestCwd(scratch_dir),\
                     self.assertRaises(SystemExit) as call:
-                main(['run', '-r', self.parameters.job_name,
+                main(['run', '-i', self.parameters.job_name,
                       '--output-format=json', '-o', actual_results_path])
             # Check the return code for correctness
             self.assertEqual(call.exception.args, (0,))

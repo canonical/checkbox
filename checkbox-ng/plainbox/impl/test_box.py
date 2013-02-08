@@ -84,7 +84,7 @@ class TestSpecial(TestCase):
             self.assertEqual(call.exception.args, (0,))
         self.maxDiff = None
         expected = """
-        usage: plainbox special [-h] (-j | -e | -d) [--dot-resources] [-r PATTERN]
+        usage: plainbox special [-h] (-j | -e | -d) [--dot-resources] [-i PATTERN]
                                 [-W WHITELIST]
 
         optional arguments:
@@ -96,7 +96,7 @@ class TestSpecial(TestCase):
           --dot-resources       Render resource relationships (for --dot)
 
         job definition options:
-          -r PATTERN, --run-pattern PATTERN
+          -i PATTERN, --include-pattern PATTERN
                                 Run jobs matching the given pattern
           -W WHITELIST, --whitelist WHITELIST
                                 Load whitelist containing run patterns
@@ -109,7 +109,7 @@ class TestSpecial(TestCase):
                 main(['special'])
             self.assertEqual(call.exception.args, (2,))
         expected = """
-        usage: plainbox special [-h] (-j | -e | -d) [--dot-resources] [-r PATTERN]
+        usage: plainbox special [-h] (-j | -e | -d) [--dot-resources] [-i PATTERN]
                                 [-W WHITELIST]
         plainbox special: error: one of the arguments -j/--list-jobs -e/--list-expressions -d/--dot is required
         """
@@ -130,7 +130,7 @@ class TestSpecial(TestCase):
     def test_run_list_jobs_with_filtering(self):
         with TestIO() as io:
             with self.assertRaises(SystemExit) as call:
-                main(['special', '--run-pattern=usb3*', '--list-jobs'])
+                main(['special', '--include-pattern=usb3*', '--list-jobs'])
             self.assertEqual(call.exception.args, (0,))
         # Test that usb3 insertion test was listed but the usb (2.0) test was not
         self.assertIn("usb3/insert", io.stdout.splitlines())
@@ -189,7 +189,7 @@ class TestRun(TestCase):
         self.maxDiff = None
         expected = """
         usage: plainbox run [-h] [--not-interactive] [-n] [-f FORMAT] [-p OPTIONS]
-                            [-o FILE] [-r PATTERN] [-W WHITELIST]
+                            [-o FILE] [-i PATTERN] [-W WHITELIST]
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -210,7 +210,7 @@ class TestRun(TestCase):
                                 if FILE is -)
 
         job definition options:
-          -r PATTERN, --run-pattern PATTERN
+          -i PATTERN, --include-pattern PATTERN
                                 Run jobs matching the given pattern
           -W WHITELIST, --whitelist WHITELIST
                                 Load whitelist containing run patterns

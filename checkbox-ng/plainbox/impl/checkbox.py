@@ -26,11 +26,13 @@ Internal implementation of plainbox
  * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
 """
 
-import os
+import io
 import logging
+import os
 
 from plainbox.impl import get_plainbox_dir
-from plainbox.impl.utils import load
+from plainbox.impl.job import JobDefinition
+from plainbox.impl.rfc822 import load_rfc822_records
 
 
 logger = logging.getLogger("plainbox.checkbox")
@@ -205,5 +207,31 @@ class CheckBox:
         job_list = []
         for name in os.listdir(self.jobs_dir):
             if name.endswith(".txt") or name.endswith(".txt.in"):
-                job_list.extend(load(os.path.join(self.jobs_dir, name)))
+                job_list.extend(
+                    self.load_jobs(
+                        os.path.join(self.jobs_dir, name)))
         return job_list
+
+    def load_jobs(self, somewhere):
+        """
+        Load job definitions from somewhere
+        """
+        if isinstance(somewhere, str):
+            # Load data from a file with the given name
+            filename = somewhere
+            with open(filename, 'rt', encoding='UTF-8') as stream:
+                return self.load_jobs(stream)
+        if isinstance(somewhere, io.TextIOWrapper):
+            stream = somewhere
+            logger.debug("Loading jobs definitions from %r...", stream.name)
+            record_list = load_rfc822_records(stream)
+            job_list = []
+            for record in record_list:
+                job = JobDefinition.from_rfc822_record(record)
+                logger.debug("Loaded %r", job)
+                job_list.append(job)
+            return job_list
+        else:
+            raise TypeError(
+                "Unsupported type of 'somewhere': {!r}".format(
+                    type(somewhere)))

@@ -409,7 +409,8 @@ class PlainBox:
         # To compensate, on python3.3 and beyond, when the user just runs
         # plainbox without specifying the command, we manually, explicitly do
         # what python3.2 did: call parser.error(_('too few arguments'))
-        if sys.version_info[:2] >= (3, 3) and getattr(ns, "command", None) is None:
+        if (sys.version_info[:2] >= (3, 3)
+                and getattr(ns, "command", None) is None):
             parser.error(argparse_gettext("too few arguments"))
         else:
             return ns.command.invoked(ns)

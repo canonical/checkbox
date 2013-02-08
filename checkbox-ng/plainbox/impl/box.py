@@ -349,15 +349,15 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             print("^" * len(job.description.splitlines()[-1]))
             print()
         job_state = session.job_state_map[job.name]
-        print("Job name: {}".format(job.name))
-        print("Plugin: {}".format(job.plugin))
-        print("Direct dependencies: {}".format(job.get_direct_dependencies()))
-        print("Resource dependencies: {}".format(
-            job.get_resource_dependencies()))
-        print("Resource program: {!r}".format(job.requires))
-        print("Command: {!r}".format(job.command))
-        print("Can start: {}".format(job_state.can_start()))
-        print("Readiness: {}".format(job_state.get_readiness_description()))
+        logger.debug("Job name: %s", job.name)
+        logger.debug("Plugin: %s", job.plugin)
+        logger.debug("Direct dependencies: %s", job.get_direct_dependencies())
+        logger.debug("Resource dependencies: %s",
+                     job.get_resource_dependencies())
+        logger.debug("Resource program: %r", job.requires)
+        logger.debug("Command: %r", job.command)
+        logger.debug("Can start: %s", job_state.can_start())
+        logger.debug("Readiness: %s", job_state.get_readiness_description())
         if job_state.can_start():
             if ns.dry_run:
                 print("Not really running anything in dry-run mode")

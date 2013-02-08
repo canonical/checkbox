@@ -494,7 +494,7 @@ class SessionState:
         # name, not a new list of jobs)
         new_job_list = []
         for record in self._gen_rfc822_records_from_io_log(result):
-            new_job = JobDefinition.from_rfc822_record(record)
+            new_job = result.job.create_child_job_from_record(record)
             new_job_list.append(new_job)
         # Then for each new job, add it to the job_list, unless it collides
         # with another job with the same name.

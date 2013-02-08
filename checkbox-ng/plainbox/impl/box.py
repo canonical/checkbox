@@ -344,6 +344,10 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
 
     def _run_single_job_with_session(self, ns, session, runner, job):
         print("[ {} ]".format(job.name).center(80, '-'))
+        if job.description is not None:
+            print(job.description)
+            print("^" * len(job.description.splitlines()[-1]))
+            print()
         job_state = session.job_state_map[job.name]
         print("Job name: {}".format(job.name))
         print("Plugin: {}".format(job.plugin))

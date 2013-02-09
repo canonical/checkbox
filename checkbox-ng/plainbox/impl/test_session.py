@@ -24,6 +24,7 @@ plainbox.impl.test_session
 Test definitions for plainbox.impl.session module
 """
 
+import json
 from unittest import TestCase
 
 from plainbox.impl.resource import Resource
@@ -32,6 +33,7 @@ from plainbox.impl.session import JobReadinessInhibitor
 from plainbox.impl.session import JobState
 from plainbox.impl.session import SessionState
 from plainbox.impl.session import UndesiredJobReadinessInhibitor
+from plainbox.impl.session import dict_to_object
 from plainbox.impl.testing_utils import make_job
 from plainbox.impl.testing_utils import make_job_result
 
@@ -127,6 +129,20 @@ class JobReadinessInhibitorTests(TestCase):
         self.assertEqual(UndesiredJobReadinessInhibitor.cause,
                          JobReadinessInhibitor.UNDESIRED)
 
+    def test_decode(self):
+        raw_json = """{
+                    "__class__": "JobReadinessInhibitor",
+                    "__module__": "plainbox.impl.session",
+                    "cause": 0,
+                    "related_expression": null,
+                    "related_job": null
+                }"""
+        jri_dec = json.loads(raw_json, object_hook=dict_to_object)
+        self.assertIsInstance(jri_dec, JobReadinessInhibitor)
+        self.assertEqual(jri_dec.cause, JobReadinessInhibitor.UNDESIRED)
+        self.assertIsNone(jri_dec.related_expression)
+        self.assertIsNone(jri_dec.related_job)
+
 
 class JobStateTests(TestCase):
 
@@ -174,6 +190,74 @@ class JobStateTests(TestCase):
         self.assertTrue(
             self.job_state.get_readiness_description().startswith(
                 "job cannot be started: "))
+
+    def test_encode_resource_job(self):
+        self.job_R = make_job("R", plugin="resource")
+        result_R = JobResult({
+            'job': self.job_R,
+            'outcome': JobResult.OUTCOME_PASS,
+            'io_log': ((0, 'stdout', "attr: value\n"),)
+        })
+        jobstate = JobState(self.job_R)
+        jobstate.result = result_R
+        jobstate_enc = jobstate.__getstate__()
+        self.assertEqual(jobstate_enc['_readiness_inhibitor_list'],
+                         jobstate._readiness_inhibitor_list)
+        # Resource have to be re evealutated on startup, outcome of the job
+        # must be reset to JobResult.OUTCOME_NONE
+        self.assertEqual(jobstate_enc['_result'].outcome,
+                         JobResult.OUTCOME_NONE)
+
+    def test_encode_normal_job(self):
+        result = JobResult({
+            'job': self.job,
+            'outcome': JobResult.OUTCOME_PASS,
+        })
+        self.job_state.result = result
+        jobstate_enc = self.job_state.__getstate__()
+        self.assertEqual(jobstate_enc['_readiness_inhibitor_list'],
+                         self.job_state._readiness_inhibitor_list)
+        # Normal jobs should keep their outcome value
+        self.assertEqual(jobstate_enc['_result'].outcome,
+                         JobResult.OUTCOME_PASS)
+
+    def test_decode(self):
+        raw_json = """{
+            "__class__": "JobState",
+            "__module__": "plainbox.impl.session",
+            "_job": {
+                "__class__": "JobDefinition",
+                "__module__": "plainbox.impl.job",
+                "data": {
+                    "name": "X",
+                    "plugin": "dummy"
+                }
+            },
+            "_readiness_inhibitor_list": [],
+            "_result": {
+                "__class__": "JobResult",
+                "__module__": "plainbox.impl.result",
+                "data": {
+                    "comments": null,
+                    "job": {
+                        "__class__": "JobDefinition",
+                        "__module__": "plainbox.impl.job",
+                        "data": {
+                            "name": "X",
+                            "plugin": "dummy"
+                        }
+                    },
+                    "outcome": "pass",
+                    "return_code": null
+                }
+            }
+        }"""
+        job_dec = json.loads(raw_json, object_hook=dict_to_object)
+        self.assertIsInstance(job_dec, JobState)
+        self.assertEqual(job_dec._readiness_inhibitor_list, [])
+        self.assertEqual(repr(job_dec._result),
+            ("<JobResult job:<JobDefinition name:'X'"
+             " plugin:'dummy'> outcome:'pass'>"))
 
 
 class SessionStateSmokeTests(TestCase):

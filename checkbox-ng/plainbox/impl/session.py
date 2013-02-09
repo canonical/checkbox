@@ -262,19 +262,17 @@ class JobState:
             return "job can be started"
 
     def _get_persistance_subset(self):
-        state = {}
-        state['_job'] = self._job
         # Don't save resource job results, fresh data are required
         # so we can't reuse the old ones
+        # The inhibitor list needs to be recomputed as well, don't save it.
+        state = {}
+        state['_job'] = self._job
         if self._job.plugin == 'resource':
-            state['_readiness_inhibitor_list'] = \
-                [UndesiredJobReadinessInhibitor]
             state['_result'] = JobResult({
                 'job': self._job,
                 'outcome': JobResult.OUTCOME_NONE
             })
         else:
-            state['_readiness_inhibitor_list'] = self._readiness_inhibitor_list
             state['_result'] = self._result
         return state
 
@@ -284,7 +282,7 @@ class JobState:
         Create a JobState instance from JSON record
         """
         obj = cls(record['_job'])
-        obj._readiness_inhibitor_list = record['_readiness_inhibitor_list']
+        obj._readiness_inhibitor_list = [UndesiredJobReadinessInhibitor]
         obj._result = record['_result']
         return obj
 

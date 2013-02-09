@@ -695,32 +695,40 @@ class SessionState:
 
 
 class SessionStateEncoder(json.JSONEncoder):
-    """
-    JSON Serialize helper to encode SessionState attributes
-    Convert objects to a dictionary of their representation
-    """
+
+    _class_indentifiers = {
+        JobDefinition: 'JOB_DEFINITION',
+        JobResult: 'JOB_RESULT',
+        JobState: 'JOB_STATE',
+        SessionState: 'SESSION_STATE',
+    }
+    
     def default(self, obj):
+        """
+        JSON Serialize helper to encode SessionState attributes
+        Convert objects to a dictionary of their representation
+        """
         if (isinstance(obj, (JobDefinition, JobResult, JobState,
                              SessionState))):
-            d = {'__class__': obj.__class__.__name__,
-                 '__module__': obj.__module__}
+            d = {'_class_id': self._class_indentifiers[obj.__class__]}
             d.update(obj._get_persistance_subset())
             return d
         else:
             return json.JSONEncoder.default(self, obj)
 
 
-def dict_to_object(d):
-    """
-    JSON Decoder helper
-    Convert dictionary to python objects
-    """
-    if '__class__' in d:
-        class_name = d.pop('__class__')
-        module_name = d.pop('__module__')
-        module = sys.modules[module_name]
-        cls = getattr(module, class_name)
-        inst = cls.from_json_record(d)
-    else:
-        inst = d
-    return inst
+    def dict_to_object(self, d):
+        """
+        JSON Decoder helper
+        Convert dictionary to python objects
+        """
+        if '_class_id' in d:
+            for c, id in self._class_indentifiers.items():
+                if id == d['_class_id']:
+                    cls = c
+                    inst = cls.from_json_record(d)
+                    break
+        else:
+            inst = d
+        return inst
+    

@@ -31,7 +31,7 @@ from unittest import TestCase
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.rfc822 import RFC822Record
 from plainbox.impl.rfc822 import Origin
-from plainbox.impl.session import dict_to_object
+from plainbox.impl.session import SessionStateEncoder
 
 
 class TestJobDefinition(TestCase):
@@ -274,14 +274,13 @@ class TestJobDefinition(TestCase):
 
     def test_decode(self):
         raw_json = """{
-                "__class__": "JobDefinition",
-                "__module__": "plainbox.impl.job",
+                "_class_id": "JOB_DEFINITION",
                 "data": {
                     "name": "camera/still",
                     "plugin": "user-verify"
                 }
             }"""
-        job_dec = json.loads(raw_json, object_hook=dict_to_object)
+        job_dec = json.loads(raw_json, object_hook=SessionStateEncoder().dict_to_object)
         self.assertIsInstance(job_dec, JobDefinition)
         self.assertEqual(job_dec.name, "camera/still")
         self.assertEqual(job_dec.plugin, "user-verify")

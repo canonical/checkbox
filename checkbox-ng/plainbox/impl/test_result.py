@@ -29,7 +29,7 @@ from unittest import TestCase
 
 from plainbox.impl.result import JobResult
 from plainbox.impl.testing_utils import make_job
-from plainbox.impl.session import dict_to_object
+from plainbox.impl.session import SessionStateEncoder
 
 
 class JobResultTests(TestCase):
@@ -85,13 +85,11 @@ class JobResultTests(TestCase):
 
     def test_decode(self):
         raw_json = """{
-                "__class__": "JobResult",
-                "__module__": "plainbox.impl.result",
+                "_class_id": "JOB_RESULT",
                 "data": {
                     "comments": null,
                     "job": {
-                        "__class__": "JobDefinition",
-                        "__module__": "plainbox.impl.job",
+                        "_class_id": "JOB_DEFINITION",
                         "data": {
                             "name": "__audio__",
                             "plugin": "local"
@@ -101,7 +99,7 @@ class JobResultTests(TestCase):
                     "return_code": 0
                 }
             }"""
-        result_dec = json.loads(raw_json, object_hook=dict_to_object)
+        result_dec = json.loads(raw_json, object_hook=SessionStateEncoder().dict_to_object)
         self.assertIsInstance(result_dec, JobResult)
         self.assertEqual(result_dec.job.name, "__audio__")
         self.assertEqual(result_dec.outcome, JobResult.OUTCOME_PASS)

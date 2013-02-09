@@ -34,7 +34,7 @@ from plainbox.impl.session import JobReadinessInhibitor
 from plainbox.impl.session import JobState
 from plainbox.impl.session import SessionState
 from plainbox.impl.session import UndesiredJobReadinessInhibitor
-from plainbox.impl.session import dict_to_object
+from plainbox.impl.session import SessionStateEncoder
 from plainbox.impl.testing_utils import make_job
 from plainbox.impl.testing_utils import make_job_result
 
@@ -212,24 +212,20 @@ class JobStateTests(TestCase):
 
     def test_decode(self):
         raw_json = """{
-            "__class__": "JobState",
-            "__module__": "plainbox.impl.session",
+            "_class_id": "JOB_STATE",
             "_job": {
-                "__class__": "JobDefinition",
-                "__module__": "plainbox.impl.job",
+                "_class_id": "JOB_DEFINITION",
                 "data": {
                     "name": "X",
                     "plugin": "dummy"
                 }
             },
             "_result": {
-                "__class__": "JobResult",
-                "__module__": "plainbox.impl.result",
+                "_class_id": "JOB_RESULT",
                 "data": {
                     "comments": null,
                     "job": {
-                        "__class__": "JobDefinition",
-                        "__module__": "plainbox.impl.job",
+                        "_class_id": "JOB_DEFINITION",
                         "data": {
                             "name": "X",
                             "plugin": "dummy"
@@ -240,7 +236,7 @@ class JobStateTests(TestCase):
                 }
             }
         }"""
-        job_dec = json.loads(raw_json, object_hook=dict_to_object)
+        job_dec = json.loads(raw_json, object_hook=SessionStateEncoder().dict_to_object)
         self.assertIsInstance(job_dec, JobState)
         self.assertEqual(repr(job_dec._result),
             ("<JobResult job:<JobDefinition name:'X'"

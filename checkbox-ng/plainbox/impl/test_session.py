@@ -259,6 +259,7 @@ class SessionStateReactionToJobResultTests(TestCase):
         self.job_Y = make_job("Y")
         self.job_list = [self.job_A, self.job_R, self.job_X, self.job_Y]
         self.session = SessionState(self.job_list)
+        self.session.update_job_state_map()
 
     def job_state(self, name):
         # A helper function to avoid overly long expressions

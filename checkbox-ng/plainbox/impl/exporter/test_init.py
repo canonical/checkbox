@@ -71,6 +71,7 @@ class SessionStateExporterBaseTests(TestCase):
         job_a = make_job('job_a')
         job_b = make_job('job_b')
         session = SessionState([job_a, job_b])
+        session.update_job_state_map()
         session.update_desired_job_list([job_a, job_b])
         result_a = make_job_result(job_a, 'pass')
         result_b = make_job_result(job_b, 'fail')
@@ -110,6 +111,7 @@ class SessionStateExporterBaseTests(TestCase):
             'command': 'echo ready: yes'
         })
         session = SessionState([job_a, job_b])
+        session.update_job_state_map()
         session.update_desired_job_list([job_a, job_b])
         result_a = JobResult({
             'job': job_a,

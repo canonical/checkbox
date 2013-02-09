@@ -158,6 +158,15 @@ class JobReadinessInhibitor:
     def _get_persistance_subset(self):
         return self.__dict__
 
+    @classmethod
+    def from_json_record(cls, record):
+        """
+        Create a JobReadinessInhibitor instance from JSON record
+        """
+        return cls(record['cause'],
+                   record['related_job'],
+                   record['related_expression'])
+
 # A global instance of JobReadinessInhibitor with the UNDESIRED cause.
 # This is used a lot and it makes no sense to instantiate all the time.
 UndesiredJobReadinessInhibitor = JobReadinessInhibitor(
@@ -268,6 +277,16 @@ class JobState:
             state['_result'] = self._result
         return state
 
+    @classmethod
+    def from_json_record(cls, record):
+        """
+        Create a JobState instance from JSON record
+        """
+        obj = cls(record['_job'])
+        obj._readiness_inhibitor_list = record['_readiness_inhibitor_list']
+        obj._result = record['_result']
+        return obj
+
 
 class SessionState:
     """
@@ -327,6 +346,16 @@ class SessionState:
         state['_job_state_map'] = self._job_state_map
         state['_desired_job_list'] = self._desired_job_list
         return state
+
+    @classmethod
+    def from_json_record(cls, record):
+        """
+        Create a SessionState instance from JSON record
+        """
+        obj = cls()
+        obj._job_state_map = record['_job_state_map']
+        obj._desired_job_list = record['_desired_job_list']
+        return obj
 
     def open(self):
         """

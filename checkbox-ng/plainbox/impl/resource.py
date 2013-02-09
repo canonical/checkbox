@@ -490,3 +490,10 @@ class ResourceExpression:
             return list(visitor.names_seen)[0]
         else:
             raise MultipleResourcesReferenced()
+
+    @classmethod
+    def from_json_record(cls, record):
+        """
+        Create a ResourceExpression instance from JSON record
+        """
+        return cls(record['_text'])

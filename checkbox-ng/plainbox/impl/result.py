@@ -127,3 +127,10 @@ class JobResult(IJobResult):
         state['data']['return_code'] = self._data.get('return_code')
         # io_log are stored on disk, see session.jobs_io_log_dir
         return state
+
+    @classmethod
+    def from_json_record(cls, record):
+        """
+        Create a JobResult instance from JSON record
+        """
+        return cls(record['data'])

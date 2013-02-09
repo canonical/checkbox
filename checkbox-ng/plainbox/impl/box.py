@@ -270,7 +270,6 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         session = SessionState(job_list)
         self._update_desired_job_list(session, matching_job_list)
         with session.open():
-            session.update_job_state_map()
             if (sys.stdin.isatty() and sys.stdout.isatty() and not
                     ns.not_interactive):
                 outcome_callback = self.ask_for_outcome

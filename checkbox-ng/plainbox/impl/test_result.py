@@ -23,14 +23,13 @@ plainbox.impl.test_result
 
 Test definitions for plainbox.impl.result module
 """
+import json
 
 from unittest import TestCase
 
 from plainbox.impl.result import JobResult
 from plainbox.impl.testing_utils import make_job
 from plainbox.impl.session import dict_to_object
-
-import json
 
 
 class JobResultTests(TestCase):

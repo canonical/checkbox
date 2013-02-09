@@ -130,20 +130,6 @@ class JobReadinessInhibitorTests(TestCase):
         self.assertEqual(UndesiredJobReadinessInhibitor.cause,
                          JobReadinessInhibitor.UNDESIRED)
 
-    def test_decode(self):
-        raw_json = """{
-                    "__class__": "JobReadinessInhibitor",
-                    "__module__": "plainbox.impl.session",
-                    "cause": 0,
-                    "related_expression": null,
-                    "related_job": null
-                }"""
-        jri_dec = json.loads(raw_json, object_hook=dict_to_object)
-        self.assertIsInstance(jri_dec, JobReadinessInhibitor)
-        self.assertEqual(jri_dec.cause, JobReadinessInhibitor.UNDESIRED)
-        self.assertIsNone(jri_dec.related_expression)
-        self.assertIsNone(jri_dec.related_job)
-
 
 class JobStateTests(TestCase):
 
@@ -344,7 +330,6 @@ class SessionStateReactionToJobResultTests(TestCase):
         self.job_Y = make_job("Y")
         self.job_list = [self.job_A, self.job_R, self.job_X, self.job_Y]
         self.session = SessionState(self.job_list)
-        self.session.update_job_state_map()
 
     def job_state(self, name):
         # A helper function to avoid overly long expressions

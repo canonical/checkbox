@@ -38,7 +38,6 @@ from plainbox.impl.job import JobDefinition
 from plainbox.impl.resource import ExpressionCannotEvaluateError
 from plainbox.impl.resource import ExpressionFailedError
 from plainbox.impl.resource import Resource
-from plainbox.impl.resource import ResourceExpression
 from plainbox.impl.result import JobResult
 from plainbox.impl.rfc822 import RFC822SyntaxError
 from plainbox.impl.rfc822 import gen_rfc822_records
@@ -156,17 +155,6 @@ class JobReadinessInhibitor:
             return "resource expression {!r} evaluates to false".format(
                 self.related_expression.text)
 
-    def _get_persistance_subset(self):
-        return self.__dict__
-
-    @classmethod
-    def from_json_record(cls, record):
-        """
-        Create a JobReadinessInhibitor instance from JSON record
-        """
-        return cls(record['cause'],
-                   record['related_job'],
-                   record['related_expression'])
 
 # A global instance of JobReadinessInhibitor with the UNDESIRED cause.
 # This is used a lot and it makes no sense to instantiate all the time.
@@ -305,7 +293,7 @@ class SessionState:
 
     session_data_filename = 'session.json'
 
-    def __init__(self, job_list=[]):
+    def __init__(self, job_list):
         # The original list of job that the system knows about.
         # Not all jobs from this list are going to be executed
         # (or selected for execution) by the user.
@@ -319,7 +307,8 @@ class SessionState:
         # XXX: this can loose data job_list has jobs with the same name. It
         # would be better to use job id as the keys here. A separate map could
         # be used for the name->job lookup.
-        self._job_state_map = {}
+        self._job_state_map = {job.name: JobState(job)
+                               for job in self._job_list}
         # A subset of job_list that was selected by the user for execution.
         # Used to compute run_list. Can be changed at will during lifetime
         # of this object
@@ -351,17 +340,10 @@ class SessionState:
         """
         Create a SessionState instance from JSON record
         """
-        obj = cls()
+        obj = cls([])
         obj._job_state_map = record['_job_state_map']
         obj._desired_job_list = record['_desired_job_list']
         return obj
-
-    def update_job_state_map(self):
-        """
-        Update the job state map with jobs that the system knows about.
-        """
-        self._job_state_map = {job.name: JobState(job)
-                               for job in self._job_list}
 
     def open(self):
         """
@@ -718,8 +700,8 @@ class SessionStateEncoder(json.JSONEncoder):
     Convert objects to a dictionary of their representation
     """
     def default(self, obj):
-        if (isinstance(obj, (JobDefinition, JobReadinessInhibitor, JobResult,
-                             ResourceExpression, JobState, SessionState))):
+        if (isinstance(obj, (JobDefinition, JobResult, JobState,
+                             SessionState))):
             d = {'__class__': obj.__class__.__name__,
                  '__module__': obj.__module__}
             d.update(obj._get_persistance_subset())

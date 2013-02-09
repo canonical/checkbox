@@ -25,6 +25,7 @@ Test definitions for plainbox.impl.session module
 """
 
 import json
+
 from unittest import TestCase
 
 from plainbox.impl.resource import Resource
@@ -200,9 +201,10 @@ class JobStateTests(TestCase):
         })
         jobstate = JobState(self.job_R)
         jobstate.result = result_R
-        jobstate_enc = jobstate.__getstate__()
-        self.assertEqual(jobstate_enc['_readiness_inhibitor_list'],
-                         jobstate._readiness_inhibitor_list)
+        jobstate_enc = jobstate._get_persistance_subset()
+        # The inhibitor list is not saved
+        with self.assertRaises(KeyError):
+            jobstate_enc['_readiness_inhibitor_list']
         # Resource have to be re evealutated on startup, outcome of the job
         # must be reset to JobResult.OUTCOME_NONE
         self.assertEqual(jobstate_enc['_result'].outcome,
@@ -214,9 +216,10 @@ class JobStateTests(TestCase):
             'outcome': JobResult.OUTCOME_PASS,
         })
         self.job_state.result = result
-        jobstate_enc = self.job_state.__getstate__()
-        self.assertEqual(jobstate_enc['_readiness_inhibitor_list'],
-                         self.job_state._readiness_inhibitor_list)
+        jobstate_enc = self.job_state._get_persistance_subset()
+        # The inhibitor list is not saved
+        with self.assertRaises(KeyError):
+            jobstate_enc['_readiness_inhibitor_list']
         # Normal jobs should keep their outcome value
         self.assertEqual(jobstate_enc['_result'].outcome,
                          JobResult.OUTCOME_PASS)
@@ -233,7 +236,6 @@ class JobStateTests(TestCase):
                     "plugin": "dummy"
                 }
             },
-            "_readiness_inhibitor_list": [],
             "_result": {
                 "__class__": "JobResult",
                 "__module__": "plainbox.impl.result",
@@ -254,7 +256,6 @@ class JobStateTests(TestCase):
         }"""
         job_dec = json.loads(raw_json, object_hook=dict_to_object)
         self.assertIsInstance(job_dec, JobState)
-        self.assertEqual(job_dec._readiness_inhibitor_list, [])
         self.assertEqual(repr(job_dec._result),
             ("<JobResult job:<JobDefinition name:'X'"
              " plugin:'dummy'> outcome:'pass'>"))
@@ -318,7 +319,7 @@ class SessionStateSpecialTests(TestCase):
     # most of their time adding (changing) jobs in an ever-growing pile that
     # they don't necessarily fully know, comprehend or remember.
 
-    def test_resource_job_affects_resouces(self):
+    def test_resource_job_affects_resources(self):
         pass
 
 

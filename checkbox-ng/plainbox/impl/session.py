@@ -29,6 +29,7 @@ import json
 import logging
 import os
 import shutil
+import sys
 import tempfile
 
 from plainbox.impl.depmgr import DependencyError
@@ -235,8 +236,8 @@ class JobState:
             return self._result
 
         def fset(self, value):
-            if value.job is not self.job:
-                raise ValueError("result job does not match")
+            #if value.job is not self.job:
+            #    raise ValueError("result job does not match")
             self._result = value
 
         return (fget, fset, None, doc)
@@ -306,7 +307,7 @@ class SessionState:
 
     session_data_filename = 'session.json'
 
-    def __init__(self, job_list):
+    def __init__(self, job_list=[]):
         # The original list of job that the system knows about.
         # Not all jobs from this list are going to be executed
         # (or selected for execution) by the user.
@@ -320,7 +321,7 @@ class SessionState:
         # XXX: this can loose data job_list has jobs with the same name. It
         # would be better to use job id as the keys here. A separate map could
         # be used for the name->job lookup.
-        self._job_state_map = {job.name: JobState(job) for job in job_list}
+        self._job_state_map = {}
         # A subset of job_list that was selected by the user for execution.
         # Used to compute run_list. Can be changed at will during lifetime
         # of this object
@@ -356,6 +357,13 @@ class SessionState:
         obj._job_state_map = record['_job_state_map']
         obj._desired_job_list = record['_desired_job_list']
         return obj
+
+    def update_job_state_map(self):
+        """
+        Update the job state map with jobs that the system knows about.
+        """
+        self._job_state_map = {job.name: JobState(job)
+                               for job in self._job_list}
 
     def open(self):
         """
@@ -720,3 +728,19 @@ class SessionStateEncoder(json.JSONEncoder):
             return d
         else:
             return json.JSONEncoder.default(self, obj)
+
+
+def dict_to_object(d):
+    """
+    JSON Decoder helper
+    Convert dictionary to python objects
+    """
+    if '__class__' in d:
+        class_name = d.pop('__class__')
+        module_name = d.pop('__module__')
+        module = sys.modules[module_name]
+        cls = getattr(module, class_name)
+        inst = cls.from_json_record(d)
+    else:
+        inst = d
+    return inst

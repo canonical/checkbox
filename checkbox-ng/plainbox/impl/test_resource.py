@@ -25,7 +25,6 @@ Test definitions for plainbox.impl.resouce module
 """
 
 import ast
-import json
 from unittest import TestCase
 
 from plainbox.impl.resource import CodeNotAllowed
@@ -38,7 +37,6 @@ from plainbox.impl.resource import ResourceExpression
 from plainbox.impl.resource import ResourceNodeVisitor
 from plainbox.impl.resource import ResourceProgram
 from plainbox.impl.resource import ResourceProgramError
-from plainbox.impl.session import dict_to_object
 
 
 class ExpressionFailedTests(TestCase):
@@ -275,21 +273,6 @@ class ResourceExpressionTests(TestCase):
         expr = ResourceExpression("obj.a == 2")
         self.assertRaises(TypeError, expr.evaluate, [{'a': 2}])
 
-    def test_encode(self):
-        text = "device.category == 'CAPTURE'"
-        expr = ResourceExpression(text)
-        expr_enc = expr._get_persistance_subset()
-        self.assertEqual(expr_enc['_text'], text)
-
-    def test_decode(self):
-        raw_json = """{
-                "__class__": "ResourceExpression",
-                "__module__": "plainbox.impl.resource",
-                "_text": "device.category == 'CAPTURE'"
-            }"""
-        expr_dec = json.loads(raw_json, object_hook=dict_to_object)
-        self.assertIsInstance(expr_dec, ResourceExpression)
-        self.assertEqual(expr_dec.text, "device.category == 'CAPTURE'")
 
 class ResourceProgramTests(TestCase):
 

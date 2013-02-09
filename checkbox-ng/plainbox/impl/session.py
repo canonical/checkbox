@@ -29,7 +29,6 @@ import json
 import logging
 import os
 import shutil
-import sys
 import tempfile
 
 from plainbox.impl.depmgr import DependencyError
@@ -702,7 +701,7 @@ class SessionStateEncoder(json.JSONEncoder):
         JobState: 'JOB_STATE',
         SessionState: 'SESSION_STATE',
     }
-    
+
     def default(self, obj):
         """
         JSON Serialize helper to encode SessionState attributes
@@ -715,7 +714,6 @@ class SessionStateEncoder(json.JSONEncoder):
             return d
         else:
             return json.JSONEncoder.default(self, obj)
-
 
     def dict_to_object(self, d):
         """
@@ -731,4 +729,3 @@ class SessionStateEncoder(json.JSONEncoder):
         else:
             inst = d
         return inst
-    

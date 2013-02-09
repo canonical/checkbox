@@ -109,4 +109,3 @@ class JobResultTests(TestCase):
         self.assertIsNone(result_dec.comments)
         self.assertEqual(result_dec.io_log, ())
         self.assertEqual(result_dec.return_code, 0)
->>>>>>> Added encode/decode tests

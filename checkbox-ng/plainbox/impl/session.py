@@ -223,8 +223,8 @@ class JobState:
             return self._result
 
         def fset(self, value):
-            #if value.job is not self.job:
-            #    raise ValueError("result job does not match")
+            if value.job is not self.job:
+                raise ValueError("result job does not match")
             self._result = value
 
         return (fget, fset, None, doc)

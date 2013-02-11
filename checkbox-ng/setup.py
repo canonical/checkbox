@@ -31,9 +31,6 @@ setup(
     author_email="zygmunt.krynicki@canonical.com",
     license="GPLv3+",
     description="Simple replacement for checkbox",
-    install_requires=[
-        'PyYAML >= 3.10',
-    ],
     entry_points={
         'console_scripts': [
             'plainbox=plainbox.public:main',
@@ -42,6 +39,5 @@ setup(
             'text=plainbox.impl.exporter.text:TextSessionStateExporter',
             'json=plainbox.impl.exporter.json:JSONSessionStateExporter',
             'rfc822=plainbox.impl.exporter.rfc822:RFC822SessionStateExporter',
-            'yaml=plainbox.impl.exporter.yaml:YAMLSessionStateExporter',
         ],
     })

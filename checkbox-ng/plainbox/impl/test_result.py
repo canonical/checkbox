@@ -23,11 +23,13 @@ plainbox.impl.test_result
 
 Test definitions for plainbox.impl.result module
 """
+import json
 
 from unittest import TestCase
 
 from plainbox.impl.result import JobResult
 from plainbox.impl.testing_utils import make_job
+from plainbox.impl.session import SessionStateEncoder
 
 
 class JobResultTests(TestCase):
@@ -80,3 +82,27 @@ class JobResultTests(TestCase):
         self.assertEqual(result_enc['data']['return_code'], result.return_code)
         with self.assertRaises(KeyError):
             result_enc['io_log']
+
+    def test_decode(self):
+        raw_json = """{
+                "_class_id": "JOB_RESULT",
+                "data": {
+                    "comments": null,
+                    "job": {
+                        "_class_id": "JOB_DEFINITION",
+                        "data": {
+                            "name": "__audio__",
+                            "plugin": "local"
+                        }
+                    },
+                    "outcome": "pass",
+                    "return_code": 0
+                }
+            }"""
+        result_dec = json.loads(raw_json, object_hook=SessionStateEncoder().dict_to_object)
+        self.assertIsInstance(result_dec, JobResult)
+        self.assertEqual(result_dec.job.name, "__audio__")
+        self.assertEqual(result_dec.outcome, JobResult.OUTCOME_PASS)
+        self.assertIsNone(result_dec.comments)
+        self.assertEqual(result_dec.io_log, ())
+        self.assertEqual(result_dec.return_code, 0)

@@ -24,6 +24,8 @@ plainbox.impl.test_session
 Test definitions for plainbox.impl.session module
 """
 
+import json
+
 from unittest import TestCase
 
 from plainbox.impl.resource import Resource
@@ -32,6 +34,7 @@ from plainbox.impl.session import JobReadinessInhibitor
 from plainbox.impl.session import JobState
 from plainbox.impl.session import SessionState
 from plainbox.impl.session import UndesiredJobReadinessInhibitor
+from plainbox.impl.session import SessionStateEncoder
 from plainbox.impl.testing_utils import make_job
 from plainbox.impl.testing_utils import make_job_result
 
@@ -175,6 +178,70 @@ class JobStateTests(TestCase):
             self.job_state.get_readiness_description().startswith(
                 "job cannot be started: "))
 
+    def test_encode_resource_job(self):
+        self.job_R = make_job("R", plugin="resource")
+        result_R = JobResult({
+            'job': self.job_R,
+            'outcome': JobResult.OUTCOME_PASS,
+            'io_log': ((0, 'stdout', "attr: value\n"),)
+        })
+        jobstate = JobState(self.job_R)
+        jobstate.result = result_R
+        jobstate_enc = jobstate._get_persistance_subset()
+        # The inhibitor list is not saved
+        with self.assertRaises(KeyError):
+            jobstate_enc['_readiness_inhibitor_list']
+        # Resource have to be re evealutated on startup, outcome of the job
+        # must be reset to JobResult.OUTCOME_NONE
+        self.assertEqual(jobstate_enc['_result'].outcome,
+                         JobResult.OUTCOME_NONE)
+
+    def test_encode_normal_job(self):
+        result = JobResult({
+            'job': self.job,
+            'outcome': JobResult.OUTCOME_PASS,
+        })
+        self.job_state.result = result
+        jobstate_enc = self.job_state._get_persistance_subset()
+        # The inhibitor list is not saved
+        with self.assertRaises(KeyError):
+            jobstate_enc['_readiness_inhibitor_list']
+        # Normal jobs should keep their outcome value
+        self.assertEqual(jobstate_enc['_result'].outcome,
+                         JobResult.OUTCOME_PASS)
+
+    def test_decode(self):
+        raw_json = """{
+            "_class_id": "JOB_STATE",
+            "_job": {
+                "_class_id": "JOB_DEFINITION",
+                "data": {
+                    "name": "X",
+                    "plugin": "dummy"
+                }
+            },
+            "_result": {
+                "_class_id": "JOB_RESULT",
+                "data": {
+                    "comments": null,
+                    "job": {
+                        "_class_id": "JOB_DEFINITION",
+                        "data": {
+                            "name": "X",
+                            "plugin": "dummy"
+                        }
+                    },
+                    "outcome": "pass",
+                    "return_code": null
+                }
+            }
+        }"""
+        job_dec = json.loads(raw_json, object_hook=SessionStateEncoder().dict_to_object)
+        self.assertIsInstance(job_dec, JobState)
+        self.assertEqual(repr(job_dec._result),
+            ("<JobResult job:<JobDefinition name:'X'"
+             " plugin:'dummy'> outcome:'pass'>"))
+
 
 class SessionStateSmokeTests(TestCase):
 
@@ -234,7 +301,7 @@ class SessionStateSpecialTests(TestCase):
     # most of their time adding (changing) jobs in an ever-growing pile that
     # they don't necessarily fully know, comprehend or remember.
 
-    def test_resource_job_affects_resouces(self):
+    def test_resource_job_affects_resources(self):
         pass
 
 

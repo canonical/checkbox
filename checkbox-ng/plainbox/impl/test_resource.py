@@ -273,12 +273,6 @@ class ResourceExpressionTests(TestCase):
         expr = ResourceExpression("obj.a == 2")
         self.assertRaises(TypeError, expr.evaluate, [{'a': 2}])
 
-    def test_encode(self):
-        text = "device.category == 'CAPTURE'"
-        expr = ResourceExpression(text)
-        expr_enc = expr._get_persistance_subset()
-        self.assertEqual(expr_enc['_text'], text)
-
 
 class ResourceProgramTests(TestCase):
 

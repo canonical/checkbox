@@ -249,3 +249,10 @@ class JobDefinition(IJobDefinition):
         # Compute the sha256 hash of the UTF-8 encoding of the canonical form
         # and return the hex digest as the checksum that can be displayed.
         return hashlib.sha256(canonical_form.encode('UTF-8')).hexdigest()
+
+    @classmethod
+    def from_json_record(cls, record):
+        """
+        Create a JobDefinition instance from JSON record
+        """
+        return cls(record['data'])

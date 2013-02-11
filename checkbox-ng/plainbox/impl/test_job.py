@@ -24,11 +24,14 @@ plainbox.impl.test_job
 Test definitions for plainbox.impl.job module
 """
 
+import json
+
 from unittest import TestCase
 
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.rfc822 import RFC822Record
 from plainbox.impl.rfc822 import Origin
+from plainbox.impl.session import SessionStateEncoder
 
 
 class TestJobDefinition(TestCase):
@@ -268,3 +271,16 @@ class TestJobDefinition(TestCase):
         self.assertEqual(
             job1.get_checksum(),
             "ad137ba3654827cb07a254a55c5e2a8daa4de6af604e84ccdbe9b7f221014362")
+
+    def test_decode(self):
+        raw_json = """{
+                "_class_id": "JOB_DEFINITION",
+                "data": {
+                    "name": "camera/still",
+                    "plugin": "user-verify"
+                }
+            }"""
+        job_dec = json.loads(raw_json, object_hook=SessionStateEncoder().dict_to_object)
+        self.assertIsInstance(job_dec, JobDefinition)
+        self.assertEqual(job_dec.name, "camera/still")
+        self.assertEqual(job_dec.plugin, "user-verify")

@@ -37,7 +37,6 @@ from plainbox.impl.job import JobDefinition
 from plainbox.impl.resource import ExpressionCannotEvaluateError
 from plainbox.impl.resource import ExpressionFailedError
 from plainbox.impl.resource import Resource
-from plainbox.impl.resource import ResourceExpression
 from plainbox.impl.result import JobResult
 from plainbox.impl.rfc822 import RFC822SyntaxError
 from plainbox.impl.rfc822 import gen_rfc822_records
@@ -155,8 +154,6 @@ class JobReadinessInhibitor:
             return "resource expression {!r} evaluates to false".format(
                 self.related_expression.text)
 
-    def _get_persistance_subset(self):
-        return self.__dict__
 
 # A global instance of JobReadinessInhibitor with the UNDESIRED cause.
 # This is used a lot and it makes no sense to instantiate all the time.
@@ -252,21 +249,29 @@ class JobState:
             return "job can be started"
 
     def _get_persistance_subset(self):
-        state = {}
-        state['_job'] = self._job
         # Don't save resource job results, fresh data are required
         # so we can't reuse the old ones
+        # The inhibitor list needs to be recomputed as well, don't save it.
+        state = {}
+        state['_job'] = self._job
         if self._job.plugin == 'resource':
-            state['_readiness_inhibitor_list'] = \
-                [UndesiredJobReadinessInhibitor]
             state['_result'] = JobResult({
                 'job': self._job,
                 'outcome': JobResult.OUTCOME_NONE
             })
         else:
-            state['_readiness_inhibitor_list'] = self._readiness_inhibitor_list
             state['_result'] = self._result
         return state
+
+    @classmethod
+    def from_json_record(cls, record):
+        """
+        Create a JobState instance from JSON record
+        """
+        obj = cls(record['_job'])
+        obj._readiness_inhibitor_list = [UndesiredJobReadinessInhibitor]
+        obj._result = record['_result']
+        return obj
 
 
 class SessionState:
@@ -301,7 +306,8 @@ class SessionState:
         # XXX: this can loose data job_list has jobs with the same name. It
         # would be better to use job id as the keys here. A separate map could
         # be used for the name->job lookup.
-        self._job_state_map = {job.name: JobState(job) for job in job_list}
+        self._job_state_map = {job.name: JobState(job)
+                               for job in self._job_list}
         # A subset of job_list that was selected by the user for execution.
         # Used to compute run_list. Can be changed at will during lifetime
         # of this object
@@ -327,6 +333,16 @@ class SessionState:
         state['_job_state_map'] = self._job_state_map
         state['_desired_job_list'] = self._desired_job_list
         return state
+
+    @classmethod
+    def from_json_record(cls, record):
+        """
+        Create a SessionState instance from JSON record
+        """
+        obj = cls([])
+        obj._job_state_map = record['_job_state_map']
+        obj._desired_job_list = record['_desired_job_list']
+        return obj
 
     def open(self):
         """
@@ -678,16 +694,38 @@ class SessionState:
 
 
 class SessionStateEncoder(json.JSONEncoder):
-    """
-    JSON Serialize helper to encode SessionState attributes
-    Convert objects to a dictionary of their representation
-    """
+
+    _class_indentifiers = {
+        JobDefinition: 'JOB_DEFINITION',
+        JobResult: 'JOB_RESULT',
+        JobState: 'JOB_STATE',
+        SessionState: 'SESSION_STATE',
+    }
+
     def default(self, obj):
-        if (isinstance(obj, (JobDefinition, JobReadinessInhibitor, JobResult,
-                             ResourceExpression, JobState, SessionState))):
-            d = {'__class__': obj.__class__.__name__,
-                 '__module__': obj.__module__}
+        """
+        JSON Serialize helper to encode SessionState attributes
+        Convert objects to a dictionary of their representation
+        """
+        if (isinstance(obj, (JobDefinition, JobResult, JobState,
+                             SessionState))):
+            d = {'_class_id': self._class_indentifiers[obj.__class__]}
             d.update(obj._get_persistance_subset())
             return d
         else:
             return json.JSONEncoder.default(self, obj)
+
+    def dict_to_object(self, d):
+        """
+        JSON Decoder helper
+        Convert dictionary to python objects
+        """
+        if '_class_id' in d:
+            for c, id in self._class_indentifiers.items():
+                if id == d['_class_id']:
+                    cls = c
+                    inst = cls.from_json_record(d)
+                    break
+        else:
+            inst = d
+        return inst

@@ -298,6 +298,7 @@ class SessionState:
         # Not all jobs from this list are going to be executed
         # (or selected for execution) by the user.
         self._job_list = job_list
+
         # State of each job, see JobState for details but it basically
         # has the test result and the inhibitor of each job. It also serves
         # as a job.name -> job lookup helper.
@@ -309,14 +310,17 @@ class SessionState:
         # be used for the name->job lookup.
         self._job_state_map = {job.name: JobState(job)
                                for job in self._job_list}
+
         # A subset of job_list that was selected by the user for execution.
         # Used to compute run_list. Can be changed at will during lifetime
         # of this object
         self._desired_job_list = []
+
         # Copy of desired_job_list that was topologically sorted by the
         # dependency solver. Jobs must run in this order (although not all jobs
         # may actually run or will actually be successful)
         self._run_list = []
+
         # A collection of known resources. Mapping resource job name to a list
         # of resource objects. Needed to compute task readiness (as it stores
         # resource data needed by resource programs). Currently not exposed
@@ -326,6 +330,7 @@ class SessionState:
         # entirely when session is terminated. Internally this is exposed as
         # $CHECKBOX_DATA to script environment.
         self._session_dir = None
+
         # Directory used to store jobs IO logs.
         self._jobs_io_log_dir = None
 

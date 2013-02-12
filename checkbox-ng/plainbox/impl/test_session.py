@@ -25,6 +25,9 @@ Test definitions for plainbox.impl.session module
 """
 
 import json
+import os
+import tempfile
+import shutil
 
 from unittest import TestCase
 
@@ -35,6 +38,7 @@ from plainbox.impl.session import JobState
 from plainbox.impl.session import SessionState
 from plainbox.impl.session import UndesiredJobReadinessInhibitor
 from plainbox.impl.session import SessionStateEncoder
+from plainbox.impl.session import dict_to_object
 from plainbox.impl.testing_utils import make_job
 from plainbox.impl.testing_utils import make_job_result
 
@@ -129,6 +133,20 @@ class JobReadinessInhibitorTests(TestCase):
     def test_unknown_global(self):
         self.assertEqual(UndesiredJobReadinessInhibitor.cause,
                          JobReadinessInhibitor.UNDESIRED)
+
+    def test_decode(self):
+        raw_json = """{
+                    "__class__": "JobReadinessInhibitor",
+                    "__module__": "plainbox.impl.session",
+                    "cause": 0,
+                    "related_expression": null,
+                    "related_job": null
+                }"""
+        jri_dec = json.loads(raw_json, object_hook=dict_to_object)
+        self.assertIsInstance(jri_dec, JobReadinessInhibitor)
+        self.assertEqual(jri_dec.cause, JobReadinessInhibitor.UNDESIRED)
+        self.assertIsNone(jri_dec.related_expression)
+        self.assertIsNone(jri_dec.related_job)
 
 
 class JobStateTests(TestCase):
@@ -557,3 +575,101 @@ class SessionStateReactionToJobResultTests(TestCase):
         self.assertEqual(self.session._resource_map, expected_after)
 
     # TODO: add tests for local jobs
+
+
+class SessionStateLocalStorageTests(TestCase):
+
+    def setUp(self):
+        # session data are kept in XDG_CACHE_HOME/plainbox/.session
+        # To avoid resuming a real session, we have to select a temporary
+        # location instead
+        self._sandbox = tempfile.mkdtemp()
+        self._env = os.environ
+        os.environ['XDG_CACHE_HOME'] = self._sandbox
+
+    def job_state(self, name):
+        # A helper function to avoid overly long expressions
+        return self.session.job_state_map[name]
+
+    def test_persistent_save(self):
+        self.job_A = make_job("A")
+        self.job_list = [self.job_A]
+        self.session = SessionState(self.job_list)
+        self.session.update_job_state_map()
+        result_A = JobResult({
+            'job': self.job_A,
+            'io_log': ((0, 'stdout', "Success !\n"),)
+        })
+        session_json_text = \
+        """{"_job_state_map":{"A":{"_job":{"__module__":"plainbox.impl.job",\
+"data":{"name":"A","plugin":"dummy"},"__class__":"JobDefinition"},"_readines\
+s_inhibitor_list":[],"__module__":"plainbox.impl.session","_result":{"__modu\
+le__":"plainbox.impl.result","data":{"job":{"__module__":"plainbox.impl.job"\
+,"data":{"name":"A","plugin":"dummy"},"__class__":"JobDefinition"},"outcome"\
+:null,"return_code":null,"comments":null},"__class__":"JobResult"},"__class_\
+_":"JobState"}},"__module__":"plainbox.impl.session","_desired_job_list":[{"\
+__module__":"plainbox.impl.job","data":{"name":"A","plugin":"dummy"},"__clas\
+s__":"JobDefinition"}],"__class__":"SessionState"}"""
+        self.session.open()
+        self.session.update_desired_job_list([self.job_A])
+        self.session.update_job_result(self.job_A, result_A)
+        self.session.persistent_save()
+        self.session.close()
+        session_file = self.session.previous_session_file()
+        self.assertIsNotNone(session_file)
+        with open(session_file) as f:
+            raw_json = f.read()
+            self.assertEqual(raw_json, session_json_text)
+
+    def test_resume_session(self):
+        # All of the tests below are using one session. The session has four
+        # jobs, Job A depends on a resource provided by job R which has no
+        # dependencies at all. Both Job X and Y depend on job A.
+        #
+        # A -(resource dependency)-> R
+        #
+        # X -(direct dependency) -> A
+        #
+        # Y -(direct dependency) -> A
+        self.job_A = make_job("A", requires="R.attr == 'value'")
+        self.job_A_expr = self.job_A.get_resource_program().expression_list[0]
+        self.job_R = make_job("R", plugin="resource")
+        self.job_X = make_job("X", depends='A')
+        self.job_Y = make_job("Y", depends='A')
+        self.job_list = [self.job_A, self.job_R, self.job_X, self.job_Y]
+        # Create a new session (session_dir is empty)
+        self.session = SessionState(self.job_list)
+        self.session.update_job_state_map()
+        result_R = JobResult({
+            'job': self.job_R,
+            'io_log': ((0, 'stdout', "attr: value\n"),)
+        })
+        result_A = JobResult({
+            'job': self.job_A,
+            'outcome': JobResult.OUTCOME_PASS
+        })
+        result_X = JobResult({
+            'job': self.job_X,
+            'outcome': JobResult.OUTCOME_PASS
+        })
+        # Job Y can't start as it requires job A
+        self.assertFalse(self.job_state('Y').can_start())
+        self.session.update_desired_job_list([self.job_X, self.job_Y])
+        self.session.open()
+        self.session.update_job_result(self.job_R, result_R)
+        self.session.update_job_result(self.job_A, result_A)
+        self.session.update_job_result(self.job_X, result_X)
+        self.session.persistent_save()
+        self.session.close()
+        # Create a new session (session_dir should contain session data)
+        self.session = SessionState(self.job_list)
+        self.session.open()
+        # Resume the previous session
+        self.session.resume()
+        # This time job Y can start
+        self.assertTrue(self.job_state('Y').can_start())
+        self.session.close()
+
+    def tearDown(self):
+        shutil.rmtree(self._sandbox)
+        os.environ = self._env

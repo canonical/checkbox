@@ -29,6 +29,7 @@ import json
 import logging
 import os
 import shutil
+import sys
 import tempfile
 
 from plainbox.impl.depmgr import DependencyError
@@ -223,8 +224,8 @@ class JobState:
             return self._result
 
         def fset(self, value):
-            if value.job is not self.job:
-                raise ValueError("result job does not match")
+            #if value.job is not self.job:
+            #    raise ValueError("result job does not match")
             self._result = value
 
         return (fget, fset, None, doc)
@@ -292,7 +293,7 @@ class SessionState:
 
     session_data_filename = 'session.json'
 
-    def __init__(self, job_list):
+    def __init__(self, job_list=[]):
         # The original list of job that the system knows about.
         # Not all jobs from this list are going to be executed
         # (or selected for execution) by the user.
@@ -343,6 +344,13 @@ class SessionState:
         obj._job_state_map = record['_job_state_map']
         obj._desired_job_list = record['_desired_job_list']
         return obj
+
+    def update_job_state_map(self):
+        """
+        Update the job state map with jobs that the system knows about.
+        """
+        self._job_state_map = {job.name: JobState(job)
+                               for job in self._job_list}
 
     def open(self):
         """
@@ -457,6 +465,18 @@ class SessionState:
         # Update all job readiness state
         self._recompute_job_readiness()
 
+    def previous_session_file(self):
+        """
+        Check the filesystem for previous session data
+        Returns the full pathname to the session file if it exists
+        """
+        session_filename = os.path.join(self._session_data_dir,
+                                        self._session_data_filename)
+        if os.path.exists(session_filename):
+            return session_filename
+        else:
+            return None
+
     def persistent_save(self):
         """
         Save to disk the minimum needed to resume plainbox where it stopped
@@ -492,6 +512,28 @@ class SessionState:
         os.rename(tmpstream.name, filename)
         os.fsync(session_dir_fd)
         os.close(session_dir_fd)
+
+    def resume_prompt(self):
+        """
+        Resume prompt
+        """
+        # FIXME: Add support/callbacks for a GUI
+        prompt = "Do you want to resume the previous session [Y/n]? "
+        allowed = ('', 'y', 'Y', 'n', 'N')
+        answer = None
+        while answer not in allowed:
+            answer = input(prompt)
+        return False if answer in ('n', 'N') else True
+
+    def resume(self):
+        """
+        Erase the job_state_map and desired_job_list with the saved ones
+        """
+        with open(self.previous_session_file(), 'r') as f:
+            previous_session = json.load(f, object_hook=dict_to_object)
+            self._job_state_map = previous_session._job_state_map
+            self._desired_job_list = previous_session._desired_job_list
+            # FIXME: Restore io_logs from files
 
     def _process_resource_result(self, result):
         new_resource_list = []

@@ -268,8 +268,13 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         print("[ Analyzing Jobs ]".center(80, '='))
         # Create a session that handles most of the stuff needed to run jobs
         session = SessionState(job_list)
-        self._update_desired_job_list(session, matching_job_list)
         with session.open():
+            if session.previous_session_file() and session.resume_prompt():
+                session.resume()
+            else:
+                # XXX: Clean the session data/io logs directories
+                pass
+            self._update_desired_job_list(session, matching_job_list)
             if (sys.stdin.isatty() and sys.stdout.isatty() and not
                     ns.not_interactive):
                 outcome_callback = self.ask_for_outcome

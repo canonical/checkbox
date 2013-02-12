@@ -298,6 +298,12 @@ class JobRunner(IJobRunner):
             env=self._get_script_env(job))
         logger.debug("job[%s] command return code: %r",
                      job.name, return_code)
+        fjson = os.path.join(self._jobs_io_log_dir, "{}.json".format(filename))
+        with open(fjson, "wt") as stream:
+            json.dump(io_log_builder.io_log, stream, ensure_ascii=False,
+                             indent=None, separators=(',', ':'))
+            stream.flush()
+            os.fdatasync(stream.fileno())
         # XXX: Perhaps handle process dying from signals here
         # When the process is killed proc.returncode is not set
         # and another (cannot remember now) attribute is set

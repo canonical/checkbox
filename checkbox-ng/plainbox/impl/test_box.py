@@ -24,13 +24,12 @@ plainbox.impl.test_box
 Test definitions for plainbox.impl.box module
 """
 
-import tempfile
-import shutil
 import os
+import shutil
+import tempfile
 
 from unittest import TestCase
 from inspect import cleandoc
-
 
 from plainbox import __version__ as version
 from plainbox.impl.box import main

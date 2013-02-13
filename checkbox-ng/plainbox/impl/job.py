@@ -120,9 +120,14 @@ class JobDefinition(IJobDefinition):
     def _get_persistance_subset(self):
         state = {}
         state['data'] = {}
-        state['data']['plugin'] = self.plugin
-        state['data']['name'] = self.name
+        for key, value in self._data.items():
+            state['data'][key] = value
         return state
+
+    def __eq__(self, other):
+        if not isinstance(other, JobDefinition):
+            return False
+        return self.get_checksum() == other.get_checksum()
 
     def get_resource_program(self):
         """

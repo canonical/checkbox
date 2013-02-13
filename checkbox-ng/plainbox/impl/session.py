@@ -29,7 +29,6 @@ import json
 import logging
 import os
 import shutil
-import sys
 import tempfile
 
 from plainbox.impl.depmgr import DependencyError
@@ -224,8 +223,8 @@ class JobState:
             return self._result
 
         def fset(self, value):
-            #if value.job is not self.job:
-            #    raise ValueError("result job does not match")
+            if value.job.get_checksum() != self.job.get_checksum():
+                raise ValueError("result job does not match")
             self._result = value
 
         return (fget, fset, None, doc)
@@ -293,7 +292,7 @@ class SessionState:
 
     session_data_filename = 'session.json'
 
-    def __init__(self, job_list=[]):
+    def __init__(self, job_list):
         # The original list of job that the system knows about.
         # Not all jobs from this list are going to be executed
         # (or selected for execution) by the user.
@@ -350,13 +349,6 @@ class SessionState:
         obj._desired_job_list = record['_desired_job_list']
         return obj
 
-    def update_job_state_map(self):
-        """
-        Update the job state map with jobs that the system knows about.
-        """
-        self._job_state_map = {job.name: JobState(job)
-                               for job in self._job_list}
-
     def open(self):
         """
         Open session state for running jobs.
@@ -368,28 +360,34 @@ class SessionState:
         if self._session_dir is None:
             xdg_cache_home = os.environ.get('XDG_CACHE_HOME') or \
                 os.path.join(os.path.expanduser('~'), '.cache')
-            temp_dir = os.path.join(xdg_cache_home, 'plainbox')
-            if not os.path.isdir(temp_dir):
-                os.makedirs(temp_dir)
-            self._session_dir = tempfile.mkdtemp(dir=temp_dir)
+            self._session_dir = os.path.join(xdg_cache_home, 'plainbox')
+            if not os.path.isdir(self._session_dir):
+                os.makedirs(self._session_dir)
         if self._jobs_io_log_dir is None:
             self._jobs_io_log_dir = os.path.join(self._session_dir, 'io-logs')
             if not os.path.isdir(self._jobs_io_log_dir):
                 os.makedirs(self._jobs_io_log_dir)
         return self
 
-    def close(self):
+    def clean(self):
         """
-        Close the session and remove temporary disk state.
-
-        This function removes the directory created by .open() and all the data
-        that was placed there. It is automatically called by __exit__, the
-        context manager exit function. Care should be taken to ensure that all
-        session data, particularly attachments, were saved before.
+        Clean the session directory.
         """
         if self._session_dir is not None:
             shutil.rmtree(self._session_dir)
             self._session_dir = None
+            self._jobs_io_log_dir = None
+            self.open()
+
+    def close(self):
+        """
+        Close the session.
+
+        It is automatically called by __exit__, the context manager exit
+        function.
+        """
+        self._session_dir = None
+        self._jobs_io_log_dir = None
 
     def update_desired_job_list(self, desired_job_list):
         """
@@ -475,8 +473,8 @@ class SessionState:
         Check the filesystem for previous session data
         Returns the full pathname to the session file if it exists
         """
-        session_filename = os.path.join(self._session_data_dir,
-                                        self._session_data_filename)
+        session_filename = os.path.join(self._session_dir,
+                                self.session_data_filename)
         if os.path.exists(session_filename):
             return session_filename
         else:
@@ -518,27 +516,27 @@ class SessionState:
         os.fsync(session_dir_fd)
         os.close(session_dir_fd)
 
-    def resume_prompt(self):
-        """
-        Resume prompt
-        """
-        # FIXME: Add support/callbacks for a GUI
-        prompt = "Do you want to resume the previous session [Y/n]? "
-        allowed = ('', 'y', 'Y', 'n', 'N')
-        answer = None
-        while answer not in allowed:
-            answer = input(prompt)
-        return False if answer in ('n', 'N') else True
-
     def resume(self):
         """
         Erase the job_state_map and desired_job_list with the saved ones
         """
         with open(self.previous_session_file(), 'r') as f:
-            previous_session = json.load(f, object_hook=dict_to_object)
-            self._job_state_map = previous_session._job_state_map
-            self._desired_job_list = previous_session._desired_job_list
-            # FIXME: Restore io_logs from files
+            previous_session = json.load(f,
+                object_hook=SessionStateEncoder().dict_to_object)
+        self._job_state_map = previous_session._job_state_map
+        desired_job_list = []
+        for job in previous_session._desired_job_list:
+            if job in self._job_list:
+                desired_job_list.extend(
+                    [j for j in self._job_list if j == job])
+            elif (previous_session._job_state_map[job.name].result.outcome !=
+                    JobResult.OUTCOME_NONE):
+                # Keep jobs results from the previous session without a
+                # definition in the current job_list only if they have
+                # a valid result
+                desired_job_list.append(job)
+        self.update_desired_job_list(desired_job_list)
+        # FIXME: Restore io_logs from files
 
     def _process_resource_result(self, result):
         new_resource_list = []
@@ -733,7 +731,6 @@ class SessionState:
                     job_state.readiness_inhibitor_list.append(inhibitor)
 
     def __enter__(self):
-        self.open()
         return self
 
     def __exit__(self, *args):

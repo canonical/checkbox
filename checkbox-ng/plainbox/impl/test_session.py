@@ -38,7 +38,6 @@ from plainbox.impl.session import JobState
 from plainbox.impl.session import SessionState
 from plainbox.impl.session import UndesiredJobReadinessInhibitor
 from plainbox.impl.session import SessionStateEncoder
-from plainbox.impl.session import dict_to_object
 from plainbox.impl.testing_utils import make_job
 from plainbox.impl.testing_utils import make_job_result
 
@@ -133,20 +132,6 @@ class JobReadinessInhibitorTests(TestCase):
     def test_unknown_global(self):
         self.assertEqual(UndesiredJobReadinessInhibitor.cause,
                          JobReadinessInhibitor.UNDESIRED)
-
-    def test_decode(self):
-        raw_json = """{
-                    "__class__": "JobReadinessInhibitor",
-                    "__module__": "plainbox.impl.session",
-                    "cause": 0,
-                    "related_expression": null,
-                    "related_job": null
-                }"""
-        jri_dec = json.loads(raw_json, object_hook=dict_to_object)
-        self.assertIsInstance(jri_dec, JobReadinessInhibitor)
-        self.assertEqual(jri_dec.cause, JobReadinessInhibitor.UNDESIRED)
-        self.assertIsNone(jri_dec.related_expression)
-        self.assertIsNone(jri_dec.related_job)
 
 
 class JobStateTests(TestCase):
@@ -254,7 +239,8 @@ class JobStateTests(TestCase):
                 }
             }
         }"""
-        job_dec = json.loads(raw_json, object_hook=SessionStateEncoder().dict_to_object)
+        job_dec = json.loads(raw_json,
+            object_hook=SessionStateEncoder().dict_to_object)
         self.assertIsInstance(job_dec, JobState)
         self.assertEqual(repr(job_dec._result),
             ("<JobResult job:<JobDefinition name:'X'"
@@ -595,31 +581,65 @@ class SessionStateLocalStorageTests(TestCase):
         self.job_A = make_job("A")
         self.job_list = [self.job_A]
         self.session = SessionState(self.job_list)
-        self.session.update_job_state_map()
         result_A = JobResult({
             'job': self.job_A,
             'io_log': ((0, 'stdout', "Success !\n"),)
         })
-        session_json_text = \
-        """{"_job_state_map":{"A":{"_job":{"__module__":"plainbox.impl.job",\
-"data":{"name":"A","plugin":"dummy"},"__class__":"JobDefinition"},"_readines\
-s_inhibitor_list":[],"__module__":"plainbox.impl.session","_result":{"__modu\
-le__":"plainbox.impl.result","data":{"job":{"__module__":"plainbox.impl.job"\
-,"data":{"name":"A","plugin":"dummy"},"__class__":"JobDefinition"},"outcome"\
-:null,"return_code":null,"comments":null},"__class__":"JobResult"},"__class_\
-_":"JobState"}},"__module__":"plainbox.impl.session","_desired_job_list":[{"\
-__module__":"plainbox.impl.job","data":{"name":"A","plugin":"dummy"},"__clas\
-s__":"JobDefinition"}],"__class__":"SessionState"}"""
+        session_json_text = """{
+            "_job_state_map": {
+                "A": {
+                    "_job": {
+                        "data": {
+                            "name": "A",
+                            "plugin": "dummy",
+                            "requires": null,
+                            "depends": null
+                        },
+                        "_class_id": "JOB_DEFINITION"
+                    },
+                    "_result": {
+                        "data": {
+                            "job": {
+                                "data": {
+                                    "name": "A",
+                                    "plugin": "dummy",
+                                    "requires": null,
+                                    "depends": null
+                                },
+                                "_class_id": "JOB_DEFINITION"
+                            },
+                            "outcome": null,
+                            "return_code": null,
+                            "comments": null
+                        },
+                        "_class_id": "JOB_RESULT"
+                    },
+                    "_class_id": "JOB_STATE"
+                }
+            },
+            "_desired_job_list": [
+                {
+                    "data": {
+                        "name": "A",
+                        "plugin": "dummy",
+                        "requires": null,
+                        "depends": null
+                    },
+                    "_class_id": "JOB_DEFINITION"
+                }
+            ],
+            "_class_id": "SESSION_STATE"
+        }"""
         self.session.open()
         self.session.update_desired_job_list([self.job_A])
         self.session.update_job_result(self.job_A, result_A)
         self.session.persistent_save()
-        self.session.close()
         session_file = self.session.previous_session_file()
+        self.session.close()
         self.assertIsNotNone(session_file)
         with open(session_file) as f:
-            raw_json = f.read()
-            self.assertEqual(raw_json, session_json_text)
+            raw_json = json.load(f)
+            self.assertEqual(raw_json, json.loads(session_json_text))
 
     def test_resume_session(self):
         # All of the tests below are using one session. The session has four
@@ -639,10 +659,9 @@ s__":"JobDefinition"}],"__class__":"SessionState"}"""
         self.job_list = [self.job_A, self.job_R, self.job_X, self.job_Y]
         # Create a new session (session_dir is empty)
         self.session = SessionState(self.job_list)
-        self.session.update_job_state_map()
         result_R = JobResult({
             'job': self.job_R,
-            'io_log': ((0, 'stdout', "attr: value\n"),)
+            'io_log': ((0, 'stdout', b"attr: value\n"),)
         })
         result_A = JobResult({
             'job': self.job_A,

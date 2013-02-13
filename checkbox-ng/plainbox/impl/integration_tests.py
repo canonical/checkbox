@@ -28,6 +28,8 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 import json
 import os
+import shutil
+import tempfile
 
 from pkg_resources import resource_filename, resource_isdir, resource_listdir
 
@@ -40,6 +42,14 @@ from plainbox.testing_utils.testcases import TestCaseWithParameters
 class IntegrationTests(TestCaseWithParameters):
 
     parameter_names = ('job_name',)
+
+    def setUp(self):
+        # session data are kept in XDG_CACHE_HOME/plainbox/.session
+        # To avoid resuming a real session, we have to select a temporary
+        # location instead
+        self._sandbox = tempfile.mkdtemp()
+        self._env = os.environ
+        os.environ['XDG_CACHE_HOME'] = self._sandbox
 
     @classmethod
     def _gen_job_name_values(cls, package='plainbox', root='data/'):
@@ -94,3 +104,7 @@ class IntegrationTests(TestCaseWithParameters):
             expected_result = json.load(stream)
         # Check that results match expected values
         self.assertEqual(actual_result, expected_result)
+
+    def tearDown(self):
+        shutil.rmtree(self._sandbox)
+        os.environ = self._env

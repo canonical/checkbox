@@ -239,8 +239,7 @@ class TestJobDefinition(TestCase):
         job_enc = job._get_persistance_subset()
         self.assertEqual(job_enc['data']['plugin'], job.plugin)
         self.assertEqual(job_enc['data']['name'], job.name)
-        with self.assertRaises(KeyError):
-            job_enc['requires']
+        self.assertEqual(job_enc['data']['requires'], job.requires)
         with self.assertRaises(KeyError):
             job_enc['depends']
         with self.assertRaises(KeyError):
@@ -280,7 +279,8 @@ class TestJobDefinition(TestCase):
                     "plugin": "user-verify"
                 }
             }"""
-        job_dec = json.loads(raw_json, object_hook=SessionStateEncoder().dict_to_object)
+        job_dec = json.loads(raw_json,
+            object_hook=SessionStateEncoder().dict_to_object)
         self.assertIsInstance(job_dec, JobDefinition)
         self.assertEqual(job_dec.name, "camera/still")
         self.assertEqual(job_dec.plugin, "user-verify")

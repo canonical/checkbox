@@ -223,7 +223,7 @@ class JobState:
             return self._result
 
         def fset(self, value):
-            if value.job is not self.job:
+            if value.job.get_checksum() != self.job.get_checksum():
                 raise ValueError("result job does not match")
             self._result = value
 
@@ -297,6 +297,7 @@ class SessionState:
         # Not all jobs from this list are going to be executed
         # (or selected for execution) by the user.
         self._job_list = job_list
+
         # State of each job, see JobState for details but it basically
         # has the test result and the inhibitor of each job. It also serves
         # as a job.name -> job lookup helper.
@@ -308,14 +309,17 @@ class SessionState:
         # be used for the name->job lookup.
         self._job_state_map = {job.name: JobState(job)
                                for job in self._job_list}
+
         # A subset of job_list that was selected by the user for execution.
         # Used to compute run_list. Can be changed at will during lifetime
         # of this object
         self._desired_job_list = []
+
         # Copy of desired_job_list that was topologically sorted by the
         # dependency solver. Jobs must run in this order (although not all jobs
         # may actually run or will actually be successful)
         self._run_list = []
+
         # A collection of known resources. Mapping resource job name to a list
         # of resource objects. Needed to compute task readiness (as it stores
         # resource data needed by resource programs). Currently not exposed
@@ -325,6 +329,7 @@ class SessionState:
         # entirely when session is terminated. Internally this is exposed as
         # $CHECKBOX_DATA to script environment.
         self._session_dir = None
+
         # Directory used to store jobs IO logs.
         self._jobs_io_log_dir = None
 
@@ -355,28 +360,34 @@ class SessionState:
         if self._session_dir is None:
             xdg_cache_home = os.environ.get('XDG_CACHE_HOME') or \
                 os.path.join(os.path.expanduser('~'), '.cache')
-            temp_dir = os.path.join(xdg_cache_home, 'plainbox')
-            if not os.path.isdir(temp_dir):
-                os.makedirs(temp_dir)
-            self._session_dir = tempfile.mkdtemp(dir=temp_dir)
+            self._session_dir = os.path.join(xdg_cache_home, 'plainbox')
+            if not os.path.isdir(self._session_dir):
+                os.makedirs(self._session_dir)
         if self._jobs_io_log_dir is None:
             self._jobs_io_log_dir = os.path.join(self._session_dir, 'io-logs')
             if not os.path.isdir(self._jobs_io_log_dir):
                 os.makedirs(self._jobs_io_log_dir)
         return self
 
-    def close(self):
+    def clean(self):
         """
-        Close the session and remove temporary disk state.
-
-        This function removes the directory created by .open() and all the data
-        that was placed there. It is automatically called by __exit__, the
-        context manager exit function. Care should be taken to ensure that all
-        session data, particularly attachments, were saved before.
+        Clean the session directory.
         """
         if self._session_dir is not None:
             shutil.rmtree(self._session_dir)
             self._session_dir = None
+            self._jobs_io_log_dir = None
+            self.open()
+
+    def close(self):
+        """
+        Close the session.
+
+        It is automatically called by __exit__, the context manager exit
+        function.
+        """
+        self._session_dir = None
+        self._jobs_io_log_dir = None
 
     def update_desired_job_list(self, desired_job_list):
         """
@@ -457,6 +468,18 @@ class SessionState:
         # Update all job readiness state
         self._recompute_job_readiness()
 
+    def previous_session_file(self):
+        """
+        Check the filesystem for previous session data
+        Returns the full pathname to the session file if it exists
+        """
+        session_filename = os.path.join(self._session_dir,
+                                self.session_data_filename)
+        if os.path.exists(session_filename):
+            return session_filename
+        else:
+            return None
+
     def persistent_save(self):
         """
         Save to disk the minimum needed to resume plainbox where it stopped
@@ -492,6 +515,28 @@ class SessionState:
         os.rename(tmpstream.name, filename)
         os.fsync(session_dir_fd)
         os.close(session_dir_fd)
+
+    def resume(self):
+        """
+        Erase the job_state_map and desired_job_list with the saved ones
+        """
+        with open(self.previous_session_file(), 'r') as f:
+            previous_session = json.load(f,
+                object_hook=SessionStateEncoder().dict_to_object)
+        self._job_state_map = previous_session._job_state_map
+        desired_job_list = []
+        for job in previous_session._desired_job_list:
+            if job in self._job_list:
+                desired_job_list.extend(
+                    [j for j in self._job_list if j == job])
+            elif (previous_session._job_state_map[job.name].result.outcome !=
+                    JobResult.OUTCOME_NONE):
+                # Keep jobs results from the previous session without a
+                # definition in the current job_list only if they have
+                # a valid result
+                desired_job_list.append(job)
+        self.update_desired_job_list(desired_job_list)
+        # FIXME: Restore io_logs from files
 
     def _process_resource_result(self, result):
         new_resource_list = []
@@ -686,7 +731,6 @@ class SessionState:
                     job_state.readiness_inhibitor_list.append(inhibitor)
 
     def __enter__(self):
-        self.open()
         return self
 
     def __exit__(self, *args):

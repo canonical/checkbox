@@ -261,6 +261,17 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             raise SystemExit(str(exc))
         return exporter
 
+    def ask_for_resume(self, prompt=None, allowed=None):
+        # FIXME: Add support/callbacks for a GUI
+        if prompt is None:
+            prompt = "Do you want to resume the previous session [Y/n]? "
+        if allowed is None:
+            allowed = ('', 'y', 'Y', 'n', 'N')
+        answer = None
+        while answer not in allowed:
+            answer = input(prompt)
+        return False if answer in ('n', 'N') else True
+
     def _run_jobs(self, ns, job_list, exporter):
         # Compute the run list, this can give us notification about problems in
         # the selected jobs. Currently we just display each problem
@@ -268,8 +279,13 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         print("[ Analyzing Jobs ]".center(80, '='))
         # Create a session that handles most of the stuff needed to run jobs
         session = SessionState(job_list)
-        self._update_desired_job_list(session, matching_job_list)
         with session.open():
+            if session.previous_session_file():
+                if self.ask_for_resume():
+                    session.resume()
+                else:
+                    session.clean()
+            self._update_desired_job_list(session, matching_job_list)
             if (sys.stdin.isatty() and sys.stdout.isatty() and not
                     ns.not_interactive):
                 outcome_callback = self.ask_for_outcome

@@ -24,9 +24,12 @@ plainbox.impl.test_box
 Test definitions for plainbox.impl.box module
 """
 
+import os
+import shutil
+import tempfile
+
 from unittest import TestCase
 from inspect import cleandoc
-
 
 from plainbox import __version__ as version
 from plainbox.impl.box import main
@@ -181,6 +184,14 @@ class TestSpecial(TestCase):
 
 class TestRun(TestCase):
 
+    def setUp(self):
+        # session data are kept in XDG_CACHE_HOME/plainbox/.session
+        # To avoid resuming a real session, we have to select a temporary
+        # location instead
+        self._sandbox = tempfile.mkdtemp()
+        self._env = os.environ
+        os.environ['XDG_CACHE_HOME'] = self._sandbox
+
     def test_help(self):
         with TestIO(combined=True) as io:
             with self.assertRaises(SystemExit) as call:
@@ -251,3 +262,7 @@ class TestRun(TestCase):
         text: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
+
+    def tearDown(self):
+        shutil.rmtree(self._sandbox)
+        os.environ = self._env

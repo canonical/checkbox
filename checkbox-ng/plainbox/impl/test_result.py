@@ -25,10 +25,11 @@ Test definitions for plainbox.impl.result module
 """
 import json
 
+from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 from plainbox.impl.result import JobResult
-from plainbox.impl.testing_utils import make_job
+from plainbox.impl.testing_utils import make_io_log, make_job
 from plainbox.impl.session import SessionStateEncoder
 
 
@@ -50,22 +51,24 @@ class JobResultTests(TestCase):
         self.assertIsNone(result.return_code)
 
     def test_everything(self):
-        result = JobResult({
-            'job': self.job,
-            'outcome': JobResult.OUTCOME_PASS,
-            'comments': "it said blah",
-            'io_log': ((0, 'stdout', b'blah\n'),),
-            'return_code': 0
-        })
-        self.assertEqual(str(result), "A: pass")
-        self.assertEqual(repr(result), (
-            "<JobResult job:<JobDefinition name:'A' plugin:'dummy'>"
-            " outcome:'pass'>"))
-        self.assertIs(result.job, self.job)
-        self.assertEqual(result.outcome, JobResult.OUTCOME_PASS)
-        self.assertEqual(result.comments, "it said blah")
-        self.assertEqual(result.io_log, ((0, 'stdout', b'blah\n'),))
-        self.assertEqual(result.return_code, 0)
+        with TemporaryDirectory() as scratch_dir:
+            result = JobResult({
+                'job': self.job,
+                'outcome': JobResult.OUTCOME_PASS,
+                'comments': "it said blah",
+                'io_log': make_io_log(((0, 'stdout', b'blah\n'),),
+                                      scratch_dir),
+                'return_code': 0
+            })
+            self.assertEqual(str(result), "A: pass")
+            self.assertEqual(repr(result), (
+                "<JobResult job:<JobDefinition name:'A' plugin:'dummy'>"
+                " outcome:'pass'>"))
+            self.assertIs(result.job, self.job)
+            self.assertEqual(result.outcome, JobResult.OUTCOME_PASS)
+            self.assertEqual(result.comments, "it said blah")
+            self.assertEqual(result.io_log, ((0, 'stdout', b'blah\n'),))
+            self.assertEqual(result.return_code, 0)
 
     def test_encode(self):
         result = JobResult({
@@ -99,7 +102,8 @@ class JobResultTests(TestCase):
                     "return_code": 0
                 }
             }"""
-        result_dec = json.loads(raw_json, object_hook=SessionStateEncoder().dict_to_object)
+        result_dec = json.loads(raw_json,
+            object_hook=SessionStateEncoder().dict_to_object)
         self.assertIsInstance(result_dec, JobResult)
         self.assertEqual(result_dec.job.name, "__audio__")
         self.assertEqual(result_dec.outcome, JobResult.OUTCOME_PASS)

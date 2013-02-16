@@ -29,6 +29,7 @@ import os
 import tempfile
 import shutil
 
+from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 from plainbox.impl.resource import Resource
@@ -38,8 +39,7 @@ from plainbox.impl.session import JobState
 from plainbox.impl.session import SessionState
 from plainbox.impl.session import UndesiredJobReadinessInhibitor
 from plainbox.impl.session import SessionStateEncoder
-from plainbox.impl.testing_utils import make_job
-from plainbox.impl.testing_utils import make_job_result
+from plainbox.impl.testing_utils import make_io_log, make_job, make_job_result
 
 
 class JobReadinessInhibitorTests(TestCase):
@@ -330,6 +330,7 @@ class SessionStateReactionToJobResultTests(TestCase):
         self.job_Y = make_job("Y")
         self.job_list = [self.job_A, self.job_R, self.job_X, self.job_Y]
         self.session = SessionState(self.job_list)
+        self.scratch_dir = TemporaryDirectory()
 
     def job_state(self, name):
         # A helper function to avoid overly long expressions
@@ -395,7 +396,8 @@ class SessionStateReactionToJobResultTests(TestCase):
         # session.
         result_R = JobResult({
             'job': self.job_R,
-            'io_log': ((0, 'stdout', b"attr: value\n"),)
+            'io_log': make_io_log(((0, 'stdout', b"attr: value\n"),),
+                                  self.scratch_dir)
         })
         self.session.update_job_result(self.job_R, result_R)
         # The most obvious thing that can happen, is that the result is simply
@@ -443,12 +445,13 @@ class SessionStateReactionToJobResultTests(TestCase):
         # another proper record in that order.
         result_R = JobResult({
             'job': self.job_R,
-            'io_log': (
-                (0, 'stdout', b"attr: value-1\n"),
-                (1, 'stdout', b"\n"),
-                (1, 'stdout', b"I-sound-like-a-broken-record\n"),
-                (1, 'stdout', b"\n"),
-                (1, 'stdout', b"attr: value-2\n"))
+            'io_log': make_io_log((
+                    (0, 'stdout', b"attr: value-1\n"),
+                    (1, 'stdout', b"\n"),
+                    (1, 'stdout', b"I-sound-like-a-broken-record\n"),
+                    (1, 'stdout', b"\n"),
+                    (1, 'stdout', b"attr: value-2\n")),
+                self.scratch_dir)
         })
         # Since we cannot control the output of scripts and people indeed make
         # mistakes a warning is issued but no exception is raised to the
@@ -525,7 +528,8 @@ class SessionStateReactionToJobResultTests(TestCase):
         self.session.update_desired_job_list([self.job_A])
         result_R = JobResult({
             'job': self.job_R,
-            'io_log': ((0, 'stdout', b'attr: wrong value\n'),)
+            'io_log': make_io_log(((0, 'stdout', b'attr: wrong value\n'),),
+                                  self.scratch_dir)
         })
         self.session.update_job_result(self.job_R, result_R)
         # Now A is inhibited by FAILED_RESOURCE
@@ -542,7 +546,8 @@ class SessionStateReactionToJobResultTests(TestCase):
         # presented to a session that has some resources from that job already.
         result_R_old = JobResult({
             'job': self.job_R,
-            'io_log': ((0, 'stdout', b"attr: old value\n"),)
+            'io_log': make_io_log(((0, 'stdout', b"attr: old value\n"),),
+                                  self.scratch_dir)
         })
         self.session.update_job_result(self.job_R, result_R_old)
         # So here the old result is stored into a new 'R' resource
@@ -551,7 +556,8 @@ class SessionStateReactionToJobResultTests(TestCase):
         # Now we present the second result for the same job
         result_R_new = JobResult({
             'job': self.job_R,
-            'io_log': ((0, 'stdout', b"attr: new value\n"),)
+            'io_log': make_io_log(((0, 'stdout', b"attr: new value\n"),),
+                                  self.scratch_dir)
         })
         self.session.update_job_result(self.job_R, result_R_new)
         # What should happen here is that the R resource is entirely replaced
@@ -561,6 +567,9 @@ class SessionStateReactionToJobResultTests(TestCase):
         self.assertEqual(self.session._resource_map, expected_after)
 
     # TODO: add tests for local jobs
+
+    def tearDown(self):
+        self.scratch_dir.cleanup()
 
 
 class SessionStateLocalStorageTests(TestCase):
@@ -583,6 +592,9 @@ class SessionStateLocalStorageTests(TestCase):
         self.session = SessionState(self.job_list)
         result_A = JobResult({
             'job': self.job_A,
+            'outcome': JobResult.OUTCOME_PASS,
+            'comments': 'All good',
+            'return_code': 0,
             'io_log': ((0, 'stdout', "Success !\n"),)
         })
         session_json_text = """{
@@ -608,9 +620,16 @@ class SessionStateLocalStorageTests(TestCase):
                                 },
                                 "_class_id": "JOB_DEFINITION"
                             },
-                            "outcome": null,
-                            "return_code": null,
-                            "comments": null
+                            "outcome": "pass",
+                            "return_code": 0,
+                            "comments": "All good",
+                            "io_log": [
+                                [
+                                    0,
+                                    "stdout",
+                                    "Success !\\n"
+                                ]
+                            ]
                         },
                         "_class_id": "JOB_RESULT"
                     },
@@ -639,6 +658,7 @@ class SessionStateLocalStorageTests(TestCase):
         self.assertIsNotNone(session_file)
         with open(session_file) as f:
             raw_json = json.load(f)
+            self.maxDiff = None
             self.assertEqual(raw_json, json.loads(session_json_text))
 
     def test_resume_session(self):
@@ -661,7 +681,8 @@ class SessionStateLocalStorageTests(TestCase):
         self.session = SessionState(self.job_list)
         result_R = JobResult({
             'job': self.job_R,
-            'io_log': ((0, 'stdout', b"attr: value\n"),)
+            'io_log': make_io_log(((0, 'stdout', b"attr: value\n"),),
+                                  self._sandbox)
         })
         result_A = JobResult({
             'job': self.job_A,

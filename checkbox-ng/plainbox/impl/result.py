@@ -27,7 +27,10 @@ Internal implementation of plainbox
 """
 
 from collections import namedtuple
+import base64
+import json
 import logging
+import os
 
 from plainbox.abc import IJobResult
 
@@ -112,7 +115,11 @@ class JobResult(IJobResult):
 
     @property
     def io_log(self):
-        return self._data.get('io_log', ())
+        if os.path.exists(self._data.get('io_log', '')):
+            with open(self._data.get('io_log')) as f:
+                return json.load(f, cls=IoLogDecoder)
+        else:
+            return ()
 
     @property
     def return_code(self):
@@ -121,11 +128,8 @@ class JobResult(IJobResult):
     def _get_persistance_subset(self):
         state = {}
         state['data'] = {}
-        state['data']['job'] = self._data['job']
-        state['data']['outcome'] = self._data.get('outcome', None)
-        state['data']['comments'] = self._data.get('comments')
-        state['data']['return_code'] = self._data.get('return_code')
-        # io_log are stored on disk, see session.jobs_io_log_dir
+        for key, value in self._data.items():
+            state['data'][key] = value
         return state
 
     @classmethod
@@ -134,3 +138,26 @@ class JobResult(IJobResult):
         Create a JobResult instance from JSON record
         """
         return cls(record['data'])
+
+
+class IoLogEncoder(json.JSONEncoder):
+    """
+    JSON Serialize helper to encode binary io logs
+    """
+
+    def default(self, obj):
+        return base64.standard_b64encode(obj).decode('ASCII')
+
+
+class IoLogDecoder(json.JSONDecoder):
+    """
+    JSON Decoder helper for io logs objects
+    """
+
+    def decode(self, obj):
+        return tuple([IOLogRecord(
+            # io logs namedtuple are recorded as list in json, using _asdict()
+            # would require too much space for little benefit.
+            # IOLogRecord are re created using the list ordering
+            log[0], log[1], base64.standard_b64decode(log[2].encode('ASCII')))
+            for log in super().decode(obj)])

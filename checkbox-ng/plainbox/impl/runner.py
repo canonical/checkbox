@@ -28,6 +28,7 @@ Internal implementation of plainbox
 
 import collections
 import datetime
+import json
 import logging
 import os
 import string
@@ -35,7 +36,7 @@ import string
 from plainbox.vendor import extcmd
 
 from plainbox.abc import IJobRunner
-from plainbox.impl.result import JobResult, IOLogRecord
+from plainbox.impl.result import JobResult, IOLogRecord, IoLogEncoder
 
 logger = logging.getLogger("plainbox.runner")
 
@@ -48,6 +49,14 @@ def slugify(_string):
     valid_chars = frozenset(
         "-_.{}{}".format(string.ascii_letters, string.digits))
     return ''.join(c if c in valid_chars else '_' for c in _string)
+
+
+def io_log_write(log, stream):
+    """
+    JSON call to serialize io_log objects to disk
+    """
+    json.dump(log, stream, ensure_ascii=False, indent=None, cls=IoLogEncoder,
+        separators=(',', ':'))
 
 
 class CommandIOLogBuilder(extcmd.DelegateBase):
@@ -301,4 +310,9 @@ class JobRunner(IJobRunner):
         # XXX: Perhaps handle process dying from signals here
         # When the process is killed proc.returncode is not set
         # and another (cannot remember now) attribute is set
-        return return_code, io_log_builder.io_log
+        fjson = os.path.join(self._jobs_io_log_dir, "{}.json".format(slug))
+        with open(fjson, "wt") as stream:
+            io_log_write(io_log_builder.io_log, stream)
+            stream.flush()
+            os.fsync(stream.fileno())
+        return return_code, fjson

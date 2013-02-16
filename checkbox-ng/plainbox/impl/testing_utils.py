@@ -27,10 +27,22 @@ Internal implementation of plainbox
 """
 
 import inspect
+from tempfile import NamedTemporaryFile
 
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.result import JobResult
 from plainbox.impl.rfc822 import Origin
+from plainbox.impl.runner import io_log_write
+
+
+def make_io_log(io_log, io_log_dir):
+    """
+    Make the io logs serialization to json and return the saved file pathname
+    WARNING: The caller has to remove the file once done with it!
+    """
+    with NamedTemporaryFile(mode='w+t', delete=False) as stream:
+        io_log_write(io_log, stream)
+        return stream.name
 
 
 def make_job(name, plugin="dummy", requires=None, depends=None):

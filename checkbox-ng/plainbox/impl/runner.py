@@ -236,7 +236,7 @@ class JobRunner(IJobRunner):
             'io_log': io_log
         })
 
-    def _get_script_env(self, job):
+    def _get_script_env(self, job, only_changes=True):
         """
         Compute the environment the script will be executed in
         """
@@ -246,7 +246,17 @@ class JobRunner(IJobRunner):
         env['LANG'] = 'C.UTF-8'
         # Allow the job to customize anything
         job.modify_execution_environment(env, self._session_dir)
-        return env
+        # If a differential environment is requested return only the subset
+        # that has been altered.
+        #
+        # XXX: This will effectively give the root user our PATH which _may_ be
+        # good bud _might_ be dangerous. This will need some peer review.
+        if only_changes:
+            return {key: value
+                    for key, value in env.items()
+                    if key not in os.environ or os.environ[key] != value}
+        else:
+            return env
 
     def _run_command(self, job):
         """

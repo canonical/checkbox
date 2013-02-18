@@ -31,6 +31,9 @@ setup(
     author_email="zygmunt.krynicki@canonical.com",
     license="GPLv3+",
     description="Simple replacement for checkbox",
+    tests_require=[
+        'mock',
+    ],
     entry_points={
         'console_scripts': [
             'plainbox=plainbox.public:main',

@@ -28,12 +28,52 @@ import os
 import shutil
 import tempfile
 
-from unittest import TestCase
 from inspect import cleandoc
+from mock import Mock
+from unittest import TestCase
 
 from plainbox import __version__ as version
-from plainbox.impl.box import main
+from plainbox.impl.box import main, CheckBoxCommandMixIn
+from plainbox.impl.mock_job import MockJobDefinition
 from plainbox.testing_utils.io import TestIO
+
+
+class MiscTests(TestCase):
+
+    def setUp(self):
+        self.job_foo = MockJobDefinition(name='foo')
+        self.job_bar = MockJobDefinition(name='bar')
+        self.obj = CheckBoxCommandMixIn(Mock(name="checkbox"))
+
+    def test_matching_job_list(self):
+        # Nothing gets selected automatically
+        ns = Mock()
+        ns.whitelist = None
+        ns.include_pattern_list = []
+        observed = self.obj._get_matching_job_list(ns, [
+            self.job_foo, self.job_bar])
+        self.assertEqual(observed, [])
+
+    def test_matching_job_list_including(self):
+        # Including jobs with glob pattern works
+        ns = Mock()
+        ns.whitelist = None
+        ns.include_pattern_list = ['f*']
+        observed = self.obj._get_matching_job_list(ns, [
+            self.job_foo, self.job_bar])
+        self.assertEqual(observed, [self.job_foo])
+
+    def test_matching_job_list_whitelist(self):
+        # whitelists contain list of include patterns
+        # that are read and interpreted as usual
+        whitelist = Mock()
+        whitelist.readlines.return_value = ['foo']
+        ns = Mock()
+        ns.whitelist = whitelist
+        ns.include_pattern_list = []
+        observed = self.obj._get_matching_job_list(ns, [
+            self.job_foo, self.job_bar])
+        self.assertEqual(observed, [self.job_foo])
 
 
 class TestMain(TestCase):

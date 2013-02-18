@@ -72,6 +72,10 @@ class CheckBoxCommandMixIn:
             '-i', '--include-pattern', action="append",
             metavar='PATTERN', default=[], dest='include_pattern_list',
             help="Run jobs matching the given pattern")
+        group.add_argument(
+            '-x', '--exclude-pattern', action="append",
+            metavar="PATTERN", default=[], dest='exclude_pattern_list',
+            help="Do not run jobs matching the given pattern")
         # TODO: Find a way to handle the encoding of the file
         group.add_argument(
             '-W', '--whitelist',
@@ -88,14 +92,26 @@ class CheckBoxCommandMixIn:
     def _get_matching_job_list(self, ns, job_list):
         # Find jobs that matched patterns
         matching_job_list = []
+        # Pre-seed the include pattern list with data read from
+        # the whitelist file.
         if ns.whitelist:
-            ns.include_pattern_list.extend([pattern.strip() for pattern in
-                                        ns.whitelist.readlines()])
+            ns.include_pattern_list.extend([
+                pattern.strip()
+                for pattern in ns.whitelist.readlines()])
+        # Decide which of the known jobs to include
         for job in job_list:
-            for pattern in ns.include_pattern_list:
+            # Reject all jobs that match any of the exclude
+            # patterns
+            for pattern in ns.exclude_pattern_list:
                 if fnmatch(job.name, pattern):
-                    matching_job_list.append(job)
                     break
+            else:
+                # Then accept (include) all job that matches
+                # any of include patterns
+                for pattern in ns.include_pattern_list:
+                    if fnmatch(job.name, pattern):
+                        matching_job_list.append(job)
+                        break
         return matching_job_list
 
 

@@ -50,6 +50,7 @@ class MiscTests(TestCase):
         ns = Mock()
         ns.whitelist = None
         ns.include_pattern_list = []
+        ns.exclude_pattern_list = []
         observed = self.obj._get_matching_job_list(ns, [
             self.job_foo, self.job_bar])
         self.assertEqual(observed, [])
@@ -59,9 +60,20 @@ class MiscTests(TestCase):
         ns = Mock()
         ns.whitelist = None
         ns.include_pattern_list = ['f*']
+        ns.exclude_pattern_list = []
         observed = self.obj._get_matching_job_list(ns, [
             self.job_foo, self.job_bar])
         self.assertEqual(observed, [self.job_foo])
+
+    def test_matching_job_list_excluding(self):
+        # Excluding jobs with glob pattern works
+        ns = Mock()
+        ns.whitelist = None
+        ns.include_pattern_list = ['*']
+        ns.exclude_pattern_list = ['f*']
+        observed = self.obj._get_matching_job_list(ns, [
+            self.job_foo, self.job_bar])
+        self.assertEqual(observed, [self.job_bar])
 
     def test_matching_job_list_whitelist(self):
         # whitelists contain list of include patterns
@@ -71,6 +83,7 @@ class MiscTests(TestCase):
         ns = Mock()
         ns.whitelist = whitelist
         ns.include_pattern_list = []
+        ns.exclude_pattern_list = []
         observed = self.obj._get_matching_job_list(ns, [
             self.job_foo, self.job_bar])
         self.assertEqual(observed, [self.job_foo])
@@ -128,7 +141,7 @@ class TestSpecial(TestCase):
         self.maxDiff = None
         expected = """
         usage: plainbox special [-h] (-j | -e | -d) [--dot-resources] [-i PATTERN]
-                                [-W WHITELIST]
+                                [-x PATTERN] [-W WHITELIST]
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -141,6 +154,8 @@ class TestSpecial(TestCase):
         job definition options:
           -i PATTERN, --include-pattern PATTERN
                                 Run jobs matching the given pattern
+          -x PATTERN, --exclude-pattern PATTERN
+                                Do not run jobs matching the given pattern
           -W WHITELIST, --whitelist WHITELIST
                                 Load whitelist containing run patterns
         """
@@ -153,7 +168,7 @@ class TestSpecial(TestCase):
             self.assertEqual(call.exception.args, (2,))
         expected = """
         usage: plainbox special [-h] (-j | -e | -d) [--dot-resources] [-i PATTERN]
-                                [-W WHITELIST]
+                                [-x PATTERN] [-W WHITELIST]
         plainbox special: error: one of the arguments -j/--list-jobs -e/--list-expressions -d/--dot is required
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
@@ -240,7 +255,7 @@ class TestRun(TestCase):
         self.maxDiff = None
         expected = """
         usage: plainbox run [-h] [--not-interactive] [-n] [-f FORMAT] [-p OPTIONS]
-                            [-o FILE] [-i PATTERN] [-W WHITELIST]
+                            [-o FILE] [-i PATTERN] [-x PATTERN] [-W WHITELIST]
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -263,6 +278,8 @@ class TestRun(TestCase):
         job definition options:
           -i PATTERN, --include-pattern PATTERN
                                 Run jobs matching the given pattern
+          -x PATTERN, --exclude-pattern PATTERN
+                                Do not run jobs matching the given pattern
           -W WHITELIST, --whitelist WHITELIST
                                 Load whitelist containing run patterns
         """

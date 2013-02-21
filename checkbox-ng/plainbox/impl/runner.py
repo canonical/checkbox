@@ -293,7 +293,7 @@ class JobRunner(IJobRunner):
         # Send the third copy to the output writer that writes everything to
         # disk.
         delegate = extcmd.Chain([
-            extcmd.Decode(ui_io_delegate),
+            ui_io_delegate,
             io_log_builder,
             output_writer])
         logger.debug("job[%s] extcmd delegate: %r", job.name, delegate)

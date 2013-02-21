@@ -204,6 +204,8 @@ class JobRunner(IJobRunner):
     def _plugin_shell(self, job):
         return self._just_run_command(job)
 
+    _plugin_attachment = _plugin_shell
+
     def _plugin_resource(self, job):
         return self._just_run_command(job)
 

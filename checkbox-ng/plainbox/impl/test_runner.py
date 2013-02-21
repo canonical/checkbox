@@ -73,11 +73,11 @@ class FallbackCommandOutputPrinterTests(TestCase):
         with TestIO(combined=False) as io:
             obj = FallbackCommandOutputPrinter("example")
             # Whatever gets printed by the job...
-            obj.on_line('stdout', 'line 1\n')
-            obj.on_line('stderr', 'line 1\n')
-            obj.on_line('stdout', 'line 2\n')
-            obj.on_line('stdout', 'line 3\n')
-            obj.on_line('stderr', 'line 2\n')
+            obj.on_line('stdout', b'line 1\n')
+            obj.on_line('stderr', b'line 1\n')
+            obj.on_line('stdout', b'line 2\n')
+            obj.on_line('stdout', b'line 3\n')
+            obj.on_line('stderr', b'line 2\n')
         # Gets printed to stdout _only_, stderr is combined with stdout here
         self.assertEqual(io.stdout, (
             "(job example, <stdout:00001>) line 1\n"

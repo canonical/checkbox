@@ -75,6 +75,7 @@ class SessionStateExporterBase(metaclass=ABCMeta):
     OPTION_WITH_DESIRED_JOB_LIST = 'with-job-list'
     OPTION_WITH_RESOURCE_MAP = 'with-resource-map'
     OPTION_WITH_JOB_DEFS = 'with-job-defs'
+    OPTION_WITH_ATTACHMENTS = 'with-attachments'
 
     SUPPORTED_OPTION_LIST = (
         OPTION_WITH_IO_LOG,
@@ -84,6 +85,7 @@ class SessionStateExporterBase(metaclass=ABCMeta):
         OPTION_WITH_JOB_LIST,
         OPTION_WITH_RESOURCE_MAP,
         OPTION_WITH_JOB_DEFS,
+        OPTION_WITH_ATTACHMENTS,
     )
 
     def __init__(self, option_list=None):
@@ -133,6 +135,8 @@ class SessionStateExporterBase(metaclass=ABCMeta):
                 # TODO: turn session._resource_map to a public property
                 for resource_name, resource_list in session._resource_map.items()
             }
+        if self.OPTION_WITH_ATTACHMENTS in self._option_list:
+            data['attachment_map'] = {}
         for job_name, job_state in session.job_state_map.items():
             if job_state.result.outcome is None:
                 continue
@@ -151,6 +155,16 @@ class SessionStateExporterBase(metaclass=ABCMeta):
                         continue
                     data['result_map'][job_name][prop] = \
                     getattr(job_state.result.job, prop)
+
+            # Add Attachements if requested
+            if job_state.result.job.plugin == 'attachment':
+                if self.OPTION_WITH_ATTACHMENTS in self._option_list:
+                    raw_bytes = b''.join((record[2] for record in
+                        job_state.result.io_log if record[1] == 'stdout'))
+                    data['attachment_map'][job_name] = \
+                        base64.standard_b64encode(raw_bytes).decode('ASCII')
+                continue # Don't add attachments IO logs to the result_map
+
             # Add IO log if requested
             if self.OPTION_WITH_IO_LOG in self._option_list:
                 # If requested, squash the IO log so that only textual data is

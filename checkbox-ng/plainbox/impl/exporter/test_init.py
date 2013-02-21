@@ -168,6 +168,8 @@ class SessionStateExporterBaseTests(TestCase):
                     'command': 'echo ready: yes',
                     'io_log': ['cmVhZHk6IHllcwo='],
                 }
+            },
+            'attachment_map': {
             }
         }
         # This is just to make debugging easier

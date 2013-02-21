@@ -155,12 +155,18 @@ class FallbackCommandOutputPrinter(extcmd.DelegateBase):
     def __init__(self, prompt):
         self._prompt = prompt
         self._lineno = collections.defaultdict(int)
+        self._abort = False
 
     def on_line(self, stream_name, line):
+        if self._abort:
+            return
         self._lineno[stream_name] += 1
-        print("(job {}, <{}:{:05}>) {}".format(
-            self._prompt, stream_name, self._lineno[stream_name],
-            line.rstrip()))
+        try:
+            print("(job {}, <{}:{:05}>) {}".format(
+                self._prompt, stream_name, self._lineno[stream_name],
+                line.decode('UTF-8').rstrip()))
+        except UnicodeDecodeError:
+            self._abort = True
 
 
 class JobRunner(IJobRunner):

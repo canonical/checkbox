@@ -165,7 +165,7 @@ class JobState:
     """
     Class representing the state of a job in a session.
 
-    Contains two basic properties of each job (either of which can be None):
+    Contains two basic properties of each job:
 
         * the readiness_inhibitor_list that prevent the job form starting
         * the result (outcome) of the run (IJobResult)

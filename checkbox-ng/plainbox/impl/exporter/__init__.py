@@ -40,11 +40,6 @@ logger = getLogger("plainbox.exporter")
 class classproperty:
     """
     Class property.
-
-    @property
-    @classmethod
-    def foo(cls):
-        ...
     """
     # I wish it was in the standard library or that the composition worked
 

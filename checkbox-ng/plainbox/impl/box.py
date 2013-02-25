@@ -29,11 +29,11 @@ Internal implementation of plainbox
 from argparse import ArgumentParser
 from argparse import FileType
 from argparse import _ as argparse_gettext
+from fnmatch import fnmatch
 from logging import basicConfig
 from logging import getLogger
 from os.path import join
 import argparse
-import re
 import sys
 
 from plainbox import __version__ as version
@@ -55,6 +55,7 @@ class CheckBoxCommandMixIn:
     Mix-in class for plainbox commands that want to discover and load checkbox
     jobs
     """
+
     def __init__(self, checkbox):
         self._checkbox = checkbox
 
@@ -102,13 +103,13 @@ class CheckBoxCommandMixIn:
             # Reject all jobs that match any of the exclude
             # patterns
             for pattern in ns.exclude_pattern_list:
-                if re.match(pattern, job.name):
+                if fnmatch(job.name, pattern):
                     break
             else:
                 # Then accept (include) all job that matches
                 # any of include patterns
                 for pattern in ns.include_pattern_list:
-                    if re.match(pattern, job.name):
+                    if fnmatch(job.name, pattern):
                         matching_job_list.append(job)
                         break
         return matching_job_list

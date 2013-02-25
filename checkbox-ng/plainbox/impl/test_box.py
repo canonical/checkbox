@@ -59,7 +59,7 @@ class MiscTests(TestCase):
         # Including jobs with glob pattern works
         ns = Mock()
         ns.whitelist = None
-        ns.include_pattern_list = ['f.+']
+        ns.include_pattern_list = ['f*']
         ns.exclude_pattern_list = []
         observed = self.obj._get_matching_job_list(ns, [
             self.job_foo, self.job_bar])
@@ -69,8 +69,8 @@ class MiscTests(TestCase):
         # Excluding jobs with glob pattern works
         ns = Mock()
         ns.whitelist = None
-        ns.include_pattern_list = ['.+']
-        ns.exclude_pattern_list = ['f.+']
+        ns.include_pattern_list = ['*']
+        ns.exclude_pattern_list = ['f*']
         observed = self.obj._get_matching_job_list(ns, [
             self.job_foo, self.job_bar])
         self.assertEqual(observed, [self.job_bar])
@@ -188,7 +188,7 @@ class TestSpecial(TestCase):
     def test_run_list_jobs_with_filtering(self):
         with TestIO() as io:
             with self.assertRaises(SystemExit) as call:
-                main(['special', '--include-pattern=usb3.+', '--list-jobs'])
+                main(['special', '--include-pattern=usb3*', '--list-jobs'])
             self.assertEqual(call.exception.args, (0,))
         # Test that usb3 insertion test was listed but the usb (2.0) test was not
         self.assertIn("usb3/insert", io.stdout.splitlines())

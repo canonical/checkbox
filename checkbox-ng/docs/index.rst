@@ -12,6 +12,7 @@ Contents:
    :maxdepth: 2
 
    usage.rst
+   dev/index.rst
    glossary.rst
    changelog.rst
 

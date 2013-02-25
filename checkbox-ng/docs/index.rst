@@ -12,6 +12,7 @@ Contents:
    :maxdepth: 2
 
    usage.rst
+   glossary.rst
 
 Indices and tables
 ==================

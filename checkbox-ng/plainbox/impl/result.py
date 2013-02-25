@@ -51,6 +51,9 @@ IOLogRecord = namedtuple("IOLogRecord", "delay stream_name data".split())
 
 
 class JobResult(IJobResult):
+    """
+    Result of running a JobDefinition.
+    """
 
     # The outcome of a job is a one-word classification how how it ran.  There
     # are several values that were not used in the original implementation but

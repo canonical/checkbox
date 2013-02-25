@@ -170,6 +170,9 @@ class FallbackCommandOutputPrinter(extcmd.DelegateBase):
 
 
 class JobRunner(IJobRunner):
+    """
+    Runner for jobs - executes jobs and produces results
+    """
 
     def __init__(self, session_dir, jobs_io_log_dir,
                  command_io_delegate=None, outcome_callback=None):
@@ -188,6 +191,9 @@ class JobRunner(IJobRunner):
         self._outcome_callback = outcome_callback
 
     def run_job(self, job):
+        """
+        Run the specified job an return the result
+        """
         logger.info("Running %r", job)
         func_name = "_plugin_" + job.plugin.replace('-', '_')
         try:

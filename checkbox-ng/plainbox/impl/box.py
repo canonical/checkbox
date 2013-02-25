@@ -116,6 +116,9 @@ class CheckBoxCommandMixIn:
 
 
 class SpecialCommand(PlainBoxCommand, CheckBoxCommandMixIn):
+    """
+    Implementation of ``$ plainbox special``
+    """
 
     def invoked(self, ns):
         job_list = self.get_job_list(ns)

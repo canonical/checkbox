@@ -39,10 +39,11 @@ class Origin:
     """
     Simple class for tracking where something came from
 
-    It has three attributes:
-        filename - the name of the file
-        line_start - the number of the line where the record begins
-        line_end - the number of the line where the record ends
+    :ivar filename: the name of the file
+
+    :ivar line_start: the number of the line where the record begins
+
+    :ivar line_end: the number of the line where the record ends
     """
 
     __slots__ = ['filename', 'line_start', 'line_end']

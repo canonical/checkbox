@@ -41,6 +41,11 @@ logger = logging.getLogger("plainbox.job")
 
 
 class JobDefinition(IJobDefinition):
+    """
+    Job definition class.
+
+    Thin wrapper around the RFC822 record that defines a checkbox job definition
+    """
 
     @property
     def plugin(self):

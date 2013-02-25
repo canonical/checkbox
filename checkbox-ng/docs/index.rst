@@ -13,6 +13,7 @@ Contents:
 
    usage.rst
    glossary.rst
+   changelog.rst
 
 Indices and tables
 ==================

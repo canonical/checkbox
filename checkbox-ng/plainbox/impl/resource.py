@@ -221,7 +221,7 @@ class ResourceNodeVisitor(ast.NodeVisitor):
     """
     A NodeVisitor subclass used to analyze requirement expressions.
 
-    ..warning::
+    .. warning::
 
         Implementation of this class requires understanding of
         some of the lower levels of python. The general idea is

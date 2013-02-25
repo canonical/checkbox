@@ -114,7 +114,7 @@ class TestCaseWithParameters(TestCase):
     parameter values, otherwise this test will behave as if it never existed
     (analogous how multiplication by zero works).
 
-    ..note::
+    .. note::
         Technical note for tinkerers and subclass authors. Python unittest
         framework is pretty annoying to work with or extend. In practice you
         should always keep the source code (of a particular python version)

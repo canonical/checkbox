@@ -55,7 +55,8 @@ def io_log_write(log, stream):
     """
     JSON call to serialize io_log objects to disk
     """
-    json.dump(log, stream, ensure_ascii=False, indent=None, cls=IoLogEncoder,
+    json.dump(
+        log, stream, ensure_ascii=False, indent=None, cls=IoLogEncoder,
         separators=(',', ':'))
 
 

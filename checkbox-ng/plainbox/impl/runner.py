@@ -18,12 +18,12 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.impl.runner
-====================
+:mod:`plainbox.impl.runner` -- job runner
+=========================================
 
-Internal implementation of plainbox
+.. warning::
 
- * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
+    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
 import collections

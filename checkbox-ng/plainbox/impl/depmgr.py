@@ -18,12 +18,12 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.impl.depmgr
-====================
+:mod:`plainbox.impl.depmgr` -- dependency solver
+================================================
 
-Internal implementation of plainbox
+.. warning::
 
- * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
+    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
 from abc import ABCMeta

@@ -18,10 +18,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.tests
-==============
-
-Auxiliary test loader for plainbox
+:mod:`plainbox.tests` -- auxiliary test loaders for plainbox
+============================================================
 """
 
 from unittest.loader import defaultTestLoader

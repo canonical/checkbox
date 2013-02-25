@@ -18,8 +18,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-extcmd - subprocess with advanced output processing
-===================================================
+:mod:`plainbox.vendor.extcmd` - subprocess with advanced output processing
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Unlike subprocess, which just gives you a lump of output at the end, extcmd
 allows you to get callbacks (via a delegate class) on all IO.

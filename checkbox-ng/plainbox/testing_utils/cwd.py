@@ -18,8 +18,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.testing_utils.cwd
-==========================
+:mod:`plainbox.testing_utils.cwd` -- tools for testing in another directory
+===========================================================================
 
 Implementation of context managers for working in another directory
 """

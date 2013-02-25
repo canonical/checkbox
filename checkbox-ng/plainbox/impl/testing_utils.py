@@ -18,12 +18,12 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.impl.testing_utils
-===========================
+:mod:`plainbox.impl.testing_utils` -- plainbox specific test tools
+==================================================================
 
-Internal implementation of plainbox
+.. warning::
 
- * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
+    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
 import inspect

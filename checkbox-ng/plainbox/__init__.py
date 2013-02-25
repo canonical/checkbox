@@ -18,13 +18,13 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox
-========
+:mod:`plainbox` -- main package
+===============================
 
 Simple checkbox redesign, without the complex message passing
 
-All public API is in the 'public' module.
-All abstract base classes are in the 'abc' module.
+All public API is in :mod:`plainbox.public`.
+All abstract base classes are in :mod:`plainbox.abc`.
 """
 
 import sys

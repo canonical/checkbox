@@ -18,12 +18,12 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.impl.job
-=================
+:mod:`plainbox.impl.job` -- job definition 
+==========================================
 
-Internal implementation of plainbox
+.. warning::
 
- * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
+    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
 import collections

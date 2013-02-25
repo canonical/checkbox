@@ -18,12 +18,12 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.impl.resource
-======================
+:mod:`plainbox.impl.resource` -- job resources
+==============================================
 
-Internal implementation of plainbox
+.. warning::
 
- * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
+    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
 import ast

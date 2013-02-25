@@ -18,10 +18,12 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.impl.exporter
-======================
+:mod:`plainbox.impl.exporter` -- shared code for session state exporters
+========================================================================
 
- * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
+.. warning::
+
+    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
 from abc import ABCMeta, abstractmethod

@@ -18,10 +18,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.impl.mock_job
-======================
-
-Mock objects for plainbox.impl.job module
+:mod:`plainbox.impl.mock_job` -- mock jobs
+==========================================
 """
 
 from mock import Mock

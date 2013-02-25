@@ -18,8 +18,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.testing_utils.testcases
-================================
+:mod:`plainbox.testing_utils.testcases` -- additional TestCase classes
+======================================================================
 
 Implementation of additional TestCase classes that aid in testing.
 """

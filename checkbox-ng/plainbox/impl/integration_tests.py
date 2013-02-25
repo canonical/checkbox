@@ -18,10 +18,12 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.impl.integration_tests
-===============================
+:mod:`plainbox.impl.integration_tests` -- integration tests
+===========================================================
 
-Integration tests for checkbox scripts
+.. warning::
+
+    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
 from tempfile import TemporaryDirectory

@@ -18,12 +18,14 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.impl.rfc822
-====================
+:mod:`plainbox.impl.rfc822` -- RFC822 parser
+============================================
 
 Implementation of rfc822 serializer and deserializer.
 
- * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
+.. warning::
+
+    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
 import logging

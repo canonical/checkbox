@@ -18,10 +18,12 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.impl
-=============
+:mod:`plainbox.impl` -- implementation package
+==============================================
 
- * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
+.. warning::
+
+    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
 from functools import wraps

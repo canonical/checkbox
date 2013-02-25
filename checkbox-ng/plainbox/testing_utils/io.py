@@ -18,8 +18,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.testing_utils.io
-=========================
+:mod:`plainbox.testing_utils.io` -- tools for testing IO
+========================================================
 
 Implementation of context managers for observing IO
 """

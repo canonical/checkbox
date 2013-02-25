@@ -18,8 +18,6 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.testing_utils
-======================
-
-Testing utilities for internals of plainbox
+:mod:`plainbox.testing_utils` - generic testing utilities 
+=========================================================
 """

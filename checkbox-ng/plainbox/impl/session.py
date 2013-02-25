@@ -474,7 +474,7 @@ class SessionState:
         Returns the full pathname to the session file if it exists
         """
         session_filename = os.path.join(self._session_dir,
-                                self.session_data_filename)
+                                        self.session_data_filename)
         if os.path.exists(session_filename):
             return session_filename
         else:
@@ -484,7 +484,6 @@ class SessionState:
         """
         Save to disk the minimum needed to resume plainbox where it stopped
         """
-
         # Ensure an atomic update of the session file:
         #   - create a new temp file (on the same file system!)
         #   - write data to the temp file
@@ -495,7 +494,6 @@ class SessionState:
         # directory containing the file has also reached disk.
         # For that an explicit fsync() on a file descriptor for the directory
         # is also needed.
-
         filename = os.path.join(self._session_dir,
                                 self.session_data_filename)
 
@@ -521,8 +519,8 @@ class SessionState:
         Erase the job_state_map and desired_job_list with the saved ones
         """
         with open(self.previous_session_file(), 'r') as f:
-            previous_session = json.load(f,
-                object_hook=SessionStateEncoder().dict_to_object)
+            previous_session = json.load(
+                f, object_hook=SessionStateEncoder().dict_to_object)
         self._job_state_map = previous_session._job_state_map
         desired_job_list = []
         for job in previous_session._desired_job_list:

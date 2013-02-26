@@ -34,6 +34,7 @@ from logging import basicConfig
 from logging import getLogger
 from os.path import join
 import argparse
+import re
 import sys
 
 from plainbox import __version__ as version
@@ -71,11 +72,13 @@ class CheckBoxCommandMixIn:
         group.add_argument(
             '-i', '--include-pattern', action="append",
             metavar='PATTERN', default=[], dest='include_pattern_list',
-            help="Run jobs matching the given pattern")
+            help=("Run jobs matching the given regular expression. Matches "
+                  "from the start to the end of the line."))
         group.add_argument(
             '-x', '--exclude-pattern', action="append",
             metavar="PATTERN", default=[], dest='exclude_pattern_list',
-            help="Do not run jobs matching the given pattern")
+            help=("Do not run jobs matching the given regular expression. "
+                  "Matches from the start to the end of the line."))
         # TODO: Find a way to handle the encoding of the file
         group.add_argument(
             '-W', '--whitelist',
@@ -101,15 +104,18 @@ class CheckBoxCommandMixIn:
         # Decide which of the known jobs to include
         for job in job_list:
             # Reject all jobs that match any of the exclude
-            # patterns
+            # patterns, matching strictly from the start to
+            # the end of the line.
             for pattern in ns.exclude_pattern_list:
-                if fnmatch(job.name, pattern):
+                if re.match(r"^{pattern}$".format(pattern=pattern), job.name):
                     break
             else:
                 # Then accept (include) all job that matches
-                # any of include patterns
+                # any of include patterns, matching strictly
+                # from the start to the end of the line.
                 for pattern in ns.include_pattern_list:
-                    if fnmatch(job.name, pattern):
+                    if re.match(r"^{pattern}$".format(pattern=pattern),
+                               job.name):
                         matching_job_list.append(job)
                         break
         return matching_job_list

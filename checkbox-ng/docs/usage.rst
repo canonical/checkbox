@@ -44,13 +44,13 @@ all of the USB tests you can run the following command:
 Running a white list
 ^^^^^^^^^^^^^^^^^^^^
 
-To run a :term:`white list` pass the ``--whitelist`` or ``-W`` option.
+To run a :term:`white list` pass the ``--whitelist`` or ``-w`` option.
 
 For example, to run the default white list run:
 
 .. code-block:: bash
 
-    $ plainbox run -W default
+    $ plainbox run -w default
 
 Saving test results as XML
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -66,4 +66,4 @@ run this command:
 
 .. code-block:: bash
 
-    $ plainbox run -W default -f xml -o submission.xml
+    $ plainbox run -w default -f xml -o submission.xml

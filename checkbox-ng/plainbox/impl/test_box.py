@@ -161,7 +161,7 @@ class TestSpecial(TestCase):
         self.maxDiff = None
         expected = """
         usage: plainbox special [-h] (-j | -e | -d) [--dot-resources] [-i PATTERN]
-                                [-x PATTERN] [-W WHITELIST]
+                                [-x PATTERN] [-w WHITELIST]
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -178,7 +178,7 @@ class TestSpecial(TestCase):
           -x PATTERN, --exclude-pattern PATTERN
                                 Do not run jobs matching the given regular expression.
                                 Matches from the start to the end of the line.
-          -W WHITELIST, --whitelist WHITELIST
+          -w WHITELIST, --whitelist WHITELIST
                                 Load whitelist containing run patterns
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
@@ -190,7 +190,7 @@ class TestSpecial(TestCase):
             self.assertEqual(call.exception.args, (2,))
         expected = """
         usage: plainbox special [-h] (-j | -e | -d) [--dot-resources] [-i PATTERN]
-                                [-x PATTERN] [-W WHITELIST]
+                                [-x PATTERN] [-w WHITELIST]
         plainbox special: error: one of the arguments -j/--list-jobs -e/--list-expressions -d/--dot is required
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
@@ -277,7 +277,7 @@ class TestRun(TestCase):
         self.maxDiff = None
         expected = """
         usage: plainbox run [-h] [--not-interactive] [-n] [-f FORMAT] [-p OPTIONS]
-                            [-o FILE] [-i PATTERN] [-x PATTERN] [-W WHITELIST]
+                            [-o FILE] [-i PATTERN] [-x PATTERN] [-w WHITELIST]
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -304,7 +304,7 @@ class TestRun(TestCase):
           -x PATTERN, --exclude-pattern PATTERN
                                 Do not run jobs matching the given regular expression.
                                 Matches from the start to the end of the line.
-          -W WHITELIST, --whitelist WHITELIST
+          -w WHITELIST, --whitelist WHITELIST
                                 Load whitelist containing run patterns
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")

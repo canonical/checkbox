@@ -81,7 +81,7 @@ class CheckBoxCommandMixIn:
                   "Matches from the start to the end of the line."))
         # TODO: Find a way to handle the encoding of the file
         group.add_argument(
-            '-W', '--whitelist',
+            '-w', '--whitelist',
             metavar="WHITELIST",
             type=FileType("rt"),
             help="Load whitelist containing run patterns")

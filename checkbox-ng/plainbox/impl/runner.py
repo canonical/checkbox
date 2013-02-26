@@ -251,7 +251,7 @@ class JobRunner(IJobRunner):
             'io_log': io_log
         })
 
-    def _get_script_env(self, job):
+    def _get_script_env(self, job, only_changes=True):
         """
         Compute the environment the script will be executed in
         """
@@ -261,7 +261,17 @@ class JobRunner(IJobRunner):
         env['LANG'] = 'C.UTF-8'
         # Allow the job to customize anything
         job.modify_execution_environment(env, self._session_dir)
-        return env
+        # If a differential environment is requested return only the subset
+        # that has been altered.
+        #
+        # XXX: This will effectively give the root user our PATH which _may_ be
+        # good bud _might_ be dangerous. This will need some peer review.
+        if only_changes:
+            return {key: value
+                    for key, value in env.items()
+                    if key not in os.environ or os.environ[key] != value}
+        else:
+            return env
 
     def _run_command(self, job):
         """
@@ -315,11 +325,29 @@ class JobRunner(IJobRunner):
         # threads although all callbacks will be fired from a single
         # thread (which is _not_ the main thread)
         logger.debug("job[%s] starting command: %s", job.name, job.command)
-        return_code = logging_popen.call(
-            # XXX: sadly using /bin/sh results in broken output
-            # XXX: maybe run it both ways and raise exceptions on differences?
-            ['bash', '-c', job.command],
-            env=self._get_script_env(job))
+        # XXX: sadly using /bin/sh results in broken output
+        # XXX: maybe run it both ways and raise exceptions on differences?
+        cmd = ['bash', '-c', job.command]
+        if job.user is not None:
+            # When the job requires to run as root then elevate our permissions
+            # via pkexec(1). Since pkexec resets environment we need to somehow
+            # pass the extra things we require. To do that we use the env(1)
+            # command and pass it the list of changed environment variables.
+            #
+            # The whole pkexec and env part gets prepended to the command we
+            # were supposed to run.
+            cmd = ['pkexec', '--user', job.user, 'env'] + [
+                "{key}={value}".format(key=key, value=value)
+                for key, value in self._get_script_env(
+                    job, only_changes=True
+                ).items()
+            ] + cmd
+            logging.debug("job[%s] executing %r", job.name, cmd)
+            return_code = logging_popen.call(cmd)
+        else:
+            logging.debug("job[%s] executing %r", job.name, cmd)
+            return_code = logging_popen.call(
+                cmd, env=self._get_script_env(job))
         logger.debug("job[%s] command return code: %r",
                      job.name, return_code)
         # XXX: Perhaps handle process dying from signals here

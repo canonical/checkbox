@@ -158,7 +158,7 @@ class TestSpecial(TestCase):
           -x PATTERN, --exclude-pattern PATTERN
                                 Do not run jobs matching the given regular expression.
                                 Matches from the start to the end of the line.
-          -W WHITELIST, --whitelist WHITELIST
+          -w WHITELIST, --whitelist WHITELIST
                                 Load whitelist containing run patterns
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
@@ -284,7 +284,7 @@ class TestRun(TestCase):
           -x PATTERN, --exclude-pattern PATTERN
                                 Do not run jobs matching the given regular expression.
                                 Matches from the start to the end of the line.
-          -W WHITELIST, --whitelist WHITELIST
+          -w WHITELIST, --whitelist WHITELIST
                                 Load whitelist containing run patterns
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")

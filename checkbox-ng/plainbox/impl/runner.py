@@ -18,12 +18,12 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.impl.runner
-====================
+:mod:`plainbox.impl.runner` -- job runner
+=========================================
 
-Internal implementation of plainbox
+.. warning::
 
- * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
+    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
 import collections
@@ -55,7 +55,8 @@ def io_log_write(log, stream):
     """
     JSON call to serialize io_log objects to disk
     """
-    json.dump(log, stream, ensure_ascii=False, indent=None, cls=IoLogEncoder,
+    json.dump(
+        log, stream, ensure_ascii=False, indent=None, cls=IoLogEncoder,
         separators=(',', ':'))
 
 
@@ -170,6 +171,9 @@ class FallbackCommandOutputPrinter(extcmd.DelegateBase):
 
 
 class JobRunner(IJobRunner):
+    """
+    Runner for jobs - executes jobs and produces results
+    """
 
     def __init__(self, session_dir, jobs_io_log_dir,
                  command_io_delegate=None, outcome_callback=None):
@@ -188,6 +192,9 @@ class JobRunner(IJobRunner):
         self._outcome_callback = outcome_callback
 
     def run_job(self, job):
+        """
+        Run the specified job an return the result
+        """
         logger.info("Running %r", job)
         func_name = "_plugin_" + job.plugin.replace('-', '_')
         try:

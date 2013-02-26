@@ -18,12 +18,12 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.impl.depmgr
-====================
+:mod:`plainbox.impl.depmgr` -- dependency solver
+================================================
 
-Internal implementation of plainbox
+.. warning::
 
- * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
+    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
 from abc import ABCMeta
@@ -148,15 +148,17 @@ class DependencySolver:
     @classmethod
     def resolve_dependencies(cls, job_list, visit_list=None):
         """
-        Solve the dependency graph expressed as a list of job definitions.  The
-        visit_list, if specified, allows to consider only a part of the graph
-        while still having access and knowledge of all jobs.
+        Solve the dependency graph expressed as a list of job definitions.
 
-        Returns the solution (a list of jobs to execute in order)
+        :param list job_list: list of known jobs
+        :param list visit_list: (optional) list of jobs to solve
 
-        raises DependencyCycleError if a cyclic dependency is present.
+        The visit_list, if specified, allows to consider only a part of the
+        graph while still having access and knowledge of all jobs.
 
-        raises DependencyMissingErorr if a required job does not exist.
+        :returns list: the solution (a list of jobs to execute in order)
+        :raises DependencyCycleError: if a cyclic dependency is present.
+        :raises DependencyMissingErorr: if a required job does not exist.
         """
         return cls(job_list)._solve(visit_list)
 

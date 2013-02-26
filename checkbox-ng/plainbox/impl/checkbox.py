@@ -18,12 +18,12 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.impl.checkbox
-======================
+:mod:`plainbox.impl.checkbox` -- CheckBox integration
+=====================================================
 
-Internal implementation of plainbox
+.. warning::
 
- * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
+    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
 import io
@@ -102,7 +102,7 @@ class CheckBox:
         """
         Return the required value of CHECKBOX_SHARE environment variable.
 
-        ..note::
+        .. note::
             This variable is only required by one script.
             It would be nice to remove this later on.
         """
@@ -119,7 +119,7 @@ class CheckBox:
         This entry is required for CheckBox scripts to import the correct
         CheckBox python libraries.
 
-        ..note::
+        .. note::
             The result may be None
         """
         # NOTE: When CheckBox is installed then all the scripts should not use
@@ -159,7 +159,7 @@ class CheckBox:
         """
         Return an absolute path of the scripts directory
 
-        ..note::
+        .. note::
             The scripts may not work without setting PYTHONPATH and
             CHECKBOX_SHARE.
         """

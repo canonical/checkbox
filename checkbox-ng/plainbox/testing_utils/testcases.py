@@ -18,8 +18,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.testing_utils.testcases
-================================
+:mod:`plainbox.testing_utils.testcases` -- additional TestCase classes
+======================================================================
 
 Implementation of additional TestCase classes that aid in testing.
 """
@@ -114,7 +114,7 @@ class TestCaseWithParameters(TestCase):
     parameter values, otherwise this test will behave as if it never existed
     (analogous how multiplication by zero works).
 
-    ..note::
+    .. note::
         Technical note for tinkerers and subclass authors. Python unittest
         framework is pretty annoying to work with or extend. In practice you
         should always keep the source code (of a particular python version)

@@ -19,12 +19,12 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.impl.commands.selftest
-===============================
+:mod:`plainbox.impl.commands.selftest` -- selftest sub-command
+==============================================================
 
-Internal implementation of plainbox
+.. warning::
 
- * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
+    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 from unittest.runner import TextTestRunner
 

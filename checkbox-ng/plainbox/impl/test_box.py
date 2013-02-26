@@ -88,6 +88,26 @@ class MiscTests(TestCase):
             self.job_foo, self.job_bar])
         self.assertEqual(observed, [self.job_foo])
 
+    def test_no_prefix_matching_including(self):
+        # Include patterns should only match whole job name
+        ns = Mock()
+        ns.whitelist = None
+        ns.include_pattern_list = ['fo', 'ba.+']
+        ns.exclude_pattern_list = []
+        observed = self.obj._get_matching_job_list(ns, [self.job_foo,
+                                                        self.job_bar])
+        self.assertEqual(observed, [self.job_bar])
+
+    def test_no_prefix_matching_excluding(self):
+        # Exclude patterns should only match whole job name
+        ns = Mock()
+        ns.whitelist = None
+        ns.include_pattern_list = ['.+']
+        ns.exclude_pattern_list = ['fo', 'ba.+']
+        observed = self.obj._get_matching_job_list(ns, [self.job_foo,
+                                                        self.job_bar])
+        self.assertEqual(observed, [self.job_foo])
+
 
 class TestMain(TestCase):
 

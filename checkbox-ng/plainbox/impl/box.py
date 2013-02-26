@@ -18,12 +18,12 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.impl.box
-=================
+:mod:`plainbox.impl.box` -- command line interface
+==================================================
 
-Internal implementation of plainbox
+.. warning::
 
- * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
+    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
 from argparse import ArgumentParser
@@ -122,6 +122,9 @@ class CheckBoxCommandMixIn:
 
 
 class SpecialCommand(PlainBoxCommand, CheckBoxCommandMixIn):
+    """
+    Implementation of ``$ plainbox special``
+    """
 
     def invoked(self, ns):
         job_list = self.get_job_list(ns)

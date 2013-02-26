@@ -18,12 +18,11 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.impl.exporter.json
-===========================
+:mod:`plainbox.impl.exporter.json` -- JSON exporter
+===================================================
 
-Internal implementation of plainbox
-
- * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
+.. warning::
+    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
 import json

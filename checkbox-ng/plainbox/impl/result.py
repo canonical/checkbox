@@ -18,12 +18,12 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.impl.result
-====================
+:mod:`plainbox.impl.result` -- job result
+=========================================
 
-Internal implementation of plainbox
+.. warning::
 
- * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
+    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
 from collections import namedtuple
@@ -51,6 +51,9 @@ IOLogRecord = namedtuple("IOLogRecord", "delay stream_name data".split())
 
 
 class JobResult(IJobResult):
+    """
+    Result of running a JobDefinition.
+    """
 
     # The outcome of a job is a one-word classification how how it ran.  There
     # are several values that were not used in the original implementation but

@@ -18,12 +18,12 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.impl.session
-=====================
+:mod:`plainbox.impl.session` -- session state handling
+======================================================
 
-Internal implementation of plainbox
+.. warning::
 
- * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
+    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 import json
 import logging
@@ -165,7 +165,7 @@ class JobState:
     """
     Class representing the state of a job in a session.
 
-    Contains two basic properties of each job (either of which can be None):
+    Contains two basic properties of each job:
 
         * the readiness_inhibitor_list that prevent the job form starting
         * the result (outcome) of the run (IJobResult)
@@ -278,52 +278,73 @@ class SessionState:
     """
     Class representing all state needed during a single program session.
 
+    This is the central glue/entry-point for applications. It connects user
+    intents to the rest of the system / plumbing and keeps all of the state in
+    one place.
+
     The set of utility methods and properties allow applications to easily
     handle the lower levels of dependencies, resources and ready states.
 
-    Once instantiated with a list of known jobs it is ready to react to
-    UI-driven changes. It is expected that the user will select / unselect
-    and run jobs. This class can react to both actions by recomputing the
-    dependency graph and updating the read states accordingly.
+    SessionState has the following instance variables, all of which are
+    currently exposed as properties.
 
-    Ready states (one for each job) allow the UI to take simple decisions
-    (either can or cannot run)
+    :ivar list job_list: A list of all known jobs
+
+        Not all the jobs from this list are going to be executed (or selected
+        for execution) by the user.
+
+        It may change at runtime because of local jobs. Note that in upcoming
+        changes this will start out empty and will be changeable dynamically.
+        It can still change due to local jobs but there is no API yes.
+
+    :ivar dict job_state_map: mapping that tracks the state of each job
+
+        Mapping from job name to :class:`JobState`. This basically has the test
+        result and the inhibitor of each job. It also serves as a
+        :attr:`plainbox.impl.job.JobDefinition.name`-> job lookup helper.
+
+        Directly exposed with the intent to fuel part of the UI. This is a way
+        to get at the readiness state, result and readiness inhibitors, if any.
+
+        XXX: this can loose data job_list has jobs with the same name. It would
+        be better to use job id as the keys here. A separate map could be used
+        for the name->job lookup. This will be fixed when session controller
+        branch lands in trunk as then jobs are dynamically added to the system
+        one at a time and proper error conditions can be detected and reported.
+
+    :ivar list desired_job_list: subset of jobs selected for execution
+
+        This is used to compute :attr:`run_list`. It can only be changed by
+        calling :meth:`update_desired_job_list()` which returns meaningful
+        values so this is not a settable property.
+
+    :ivar list run_list: sorted list of jobs to execute
+
+        This is basically a superset of desired_job_list and a subset of
+        job_list that is topologically sorted to allowing all desired jobs to
+        run. This property is updated whenever desired_job_list is changed.
+
+    :ivar dict resource_map: all known resources
+
+        A mapping from resource name to a list of
+        :class:`plainbox.impl.resource.Resource` objects. This encapsulates all
+        "knowledge" about the system plainbox is running on.
+
+        It is needed to compute job readiness (as it stores resource data
+        needed by resource programs). It is also available to exporters.
+
+        This is computed internally from the output of checkbox resource jobs,
+        it can only be changed by calling :meth:`update_job_result()`
     """
 
     session_data_filename = 'session.json'
 
     def __init__(self, job_list):
-        # The original list of job that the system knows about.
-        # Not all jobs from this list are going to be executed
-        # (or selected for execution) by the user.
         self._job_list = job_list
-
-        # State of each job, see JobState for details but it basically
-        # has the test result and the inhibitor of each job. It also serves
-        # as a job.name -> job lookup helper.
-        #
-        # Directly exposed with the intent to fuel part of the UI.
-        #
-        # XXX: this can loose data job_list has jobs with the same name. It
-        # would be better to use job id as the keys here. A separate map could
-        # be used for the name->job lookup.
         self._job_state_map = {job.name: JobState(job)
                                for job in self._job_list}
-
-        # A subset of job_list that was selected by the user for execution.
-        # Used to compute run_list. Can be changed at will during lifetime
-        # of this object
         self._desired_job_list = []
-
-        # Copy of desired_job_list that was topologically sorted by the
-        # dependency solver. Jobs must run in this order (although not all jobs
-        # may actually run or will actually be successful)
         self._run_list = []
-
-        # A collection of known resources. Mapping resource job name to a list
-        # of resource objects. Needed to compute task readiness (as it stores
-        # resource data needed by resource programs). Currently not exposed
-        # outside of this class.
         self._resource_map = {}
         # Temporary directory used as 'scratch space' for running jobs. Removed
         # entirely when session is terminated. Internally this is exposed as
@@ -474,7 +495,7 @@ class SessionState:
         Returns the full pathname to the session file if it exists
         """
         session_filename = os.path.join(self._session_dir,
-                                self.session_data_filename)
+                                        self.session_data_filename)
         if os.path.exists(session_filename):
             return session_filename
         else:
@@ -484,7 +505,6 @@ class SessionState:
         """
         Save to disk the minimum needed to resume plainbox where it stopped
         """
-
         # Ensure an atomic update of the session file:
         #   - create a new temp file (on the same file system!)
         #   - write data to the temp file
@@ -495,7 +515,6 @@ class SessionState:
         # directory containing the file has also reached disk.
         # For that an explicit fsync() on a file descriptor for the directory
         # is also needed.
-
         filename = os.path.join(self._session_dir,
                                 self.session_data_filename)
 
@@ -521,8 +540,8 @@ class SessionState:
         Erase the job_state_map and desired_job_list with the saved ones
         """
         with open(self.previous_session_file(), 'r') as f:
-            previous_session = json.load(f,
-                object_hook=SessionStateEncoder().dict_to_object)
+            previous_session = json.load(
+                f, object_hook=SessionStateEncoder().dict_to_object)
         self._job_state_map = previous_session._job_state_map
         desired_job_list = []
         for job in previous_session._desired_job_list:

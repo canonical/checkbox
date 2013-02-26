@@ -18,8 +18,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.public
-===============
+:mod:`plainbox.public` -- public, stable API
+============================================
 
 Public, high-level API for third party developers.
 

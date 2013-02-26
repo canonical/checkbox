@@ -18,10 +18,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.abc
-============
-
-Abstract base classes used by plainbox
+:mod:`plainbox.abc` -- abstract base classes
+============================================
 
 Those classes are actually implemented in the plainbox.impl package. This
 module is here so that the essential API concepts are in a single spot and are

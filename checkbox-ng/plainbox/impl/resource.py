@@ -18,12 +18,12 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.impl.resource
-======================
+:mod:`plainbox.impl.resource` -- job resources
+==============================================
 
-Internal implementation of plainbox
+.. warning::
 
- * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
+    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
 import ast
@@ -221,7 +221,7 @@ class ResourceNodeVisitor(ast.NodeVisitor):
     """
     A NodeVisitor subclass used to analyze requirement expressions.
 
-    ..warning::
+    .. warning::
 
         Implementation of this class requires understanding of
         some of the lower levels of python. The general idea is

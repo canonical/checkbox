@@ -18,10 +18,12 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.impl.exporter
-======================
+:mod:`plainbox.impl.exporter` -- shared code for session state exporters
+========================================================================
 
- * THIS MODULE DOES NOT HAVE STABLE PUBLIC API *
+.. warning::
+
+    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
 from abc import ABCMeta, abstractmethod
@@ -38,11 +40,6 @@ logger = getLogger("plainbox.exporter")
 class classproperty:
     """
     Class property.
-
-    @property
-    @classmethod
-    def foo(cls):
-        ...
     """
     # I wish it was in the standard library or that the composition worked
 

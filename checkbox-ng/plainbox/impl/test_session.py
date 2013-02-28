@@ -32,13 +32,14 @@ import shutil
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
+from plainbox.impl.depmgr import DependencyMissingError
 from plainbox.impl.resource import Resource
 from plainbox.impl.result import JobResult
 from plainbox.impl.session import JobReadinessInhibitor
 from plainbox.impl.session import JobState
 from plainbox.impl.session import SessionState
-from plainbox.impl.session import UndesiredJobReadinessInhibitor
 from plainbox.impl.session import SessionStateEncoder
+from plainbox.impl.session import UndesiredJobReadinessInhibitor
 from plainbox.impl.testing_utils import make_io_log, make_job, make_job_result
 
 
@@ -273,6 +274,23 @@ class SessionStateSmokeTests(TestCase):
 
     def test_initial_session_dir(self):
         self.assertIsNone(self.session_state.session_dir)
+
+
+class RegressionTests(TestCase):
+    # Tests for bugfixes
+
+    def test_crash_in_update_desired_job_list(self):
+        # This checks if a DependencyError can cause crash
+        # update_desired_job_list() with a ValueError, in certain conditions.
+        A = make_job('A', depends='X')
+        L = make_job('L', plugin='local')
+        session = SessionState([A, L])
+        problems = session.update_desired_job_list([A, L])
+        # We should get exactly one DependencyMissingError related to job A and
+        # the undefined job X (that is presumably defined by the local job L)
+        self.assertEqual(len(problems), 1)
+        self.assertIsInstance(problems[0], DependencyMissingError)
+        self.assertIs(problems[0].affected_job, A)
 
 
 class SessionStateSpecialTests(TestCase):

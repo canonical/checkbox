@@ -437,7 +437,7 @@ class SessionState:
             # resources or runtime complexity.
             try:
                 self._run_list = DependencySolver.resolve_dependencies(
-                    self._job_list, desired_job_list)
+                    self._job_list, self._desired_job_list)
             except DependencyError as exc:
                 # When a dependency error is detected remove the affected job
                 # form _desired_job_list and try again.

@@ -124,6 +124,7 @@ class SessionStateExporterBaseTests(TestCase):
             'job': job_b,
             'outcome': 'pass',
             'return_code': 0,
+            'comments': 'foo',
             'io_log': make_io_log(
                 (IOLogRecord(0, 'stdout', b'ready: yes\n'),),
                 session_dir)
@@ -160,13 +161,15 @@ class SessionStateExporterBaseTests(TestCase):
                     'plugin': 'shell',
                     'command': 'echo testing && true',
                     'io_log': ['dGVzdGluZwo='],
-                    'requires': 'job_b.ready == "yes"'
+                    'requires': 'job_b.ready == "yes"',
+                    'comments': None,
                 },
                 'job_b': {
                     'outcome': 'pass',
                     'plugin': 'resource',
                     'command': 'echo ready: yes',
                     'io_log': ['cmVhZHk6IHllcwo='],
+                    'comments': 'foo',
                 }
             },
             'attachment_map': {

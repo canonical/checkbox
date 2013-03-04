@@ -251,7 +251,7 @@ class JobRunner(IJobRunner):
             'io_log': io_log
         })
 
-    def _get_script_env(self, job, only_changes=True):
+    def _get_script_env(self, job, only_changes=False):
         """
         Compute the environment the script will be executed in
         """

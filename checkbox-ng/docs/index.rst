@@ -15,6 +15,11 @@ scripts and libraries from CheckBox. PlainBox is currently in **alpha** stages,
 having mostly but not entirely complete core and a developer-centric command
 line interface.
 
+.. warning::
+
+    Documentation is under development. Some things are wrong, inaccurate or
+    describe development goals rather than current state.
+
 Installation
 ^^^^^^^^^^^^
 

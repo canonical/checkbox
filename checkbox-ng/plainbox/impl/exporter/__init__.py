@@ -73,6 +73,7 @@ class SessionStateExporterBase(metaclass=ABCMeta):
     OPTION_WITH_RESOURCE_MAP = 'with-resource-map'
     OPTION_WITH_JOB_DEFS = 'with-job-defs'
     OPTION_WITH_ATTACHMENTS = 'with-attachments'
+    OPTION_WITH_COMMENTS = 'with-comments'
 
     SUPPORTED_OPTION_LIST = (
         OPTION_WITH_IO_LOG,
@@ -83,6 +84,7 @@ class SessionStateExporterBase(metaclass=ABCMeta):
         OPTION_WITH_RESOURCE_MAP,
         OPTION_WITH_JOB_DEFS,
         OPTION_WITH_ATTACHMENTS,
+        OPTION_WITH_COMMENTS,
     )
 
     def __init__(self, option_list=None):
@@ -139,6 +141,9 @@ class SessionStateExporterBase(metaclass=ABCMeta):
                 continue
             data['result_map'][job_name] = OrderedDict()
             data['result_map'][job_name]['outcome'] = job_state.result.outcome
+            if self.OPTION_WITH_COMMENTS in self._option_list:
+                data['result_map'][job_name]['comments'] = \
+                    job_state.result.comments
 
             # Add Job definitions if requested
             if self.OPTION_WITH_JOB_DEFS in self._option_list:

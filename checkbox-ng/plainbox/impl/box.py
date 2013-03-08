@@ -415,7 +415,8 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         else:
             job_result = JobResult({
                 'job': job,
-                'outcome': JobResult.OUTCOME_NOT_SUPPORTED
+                'outcome': JobResult.OUTCOME_NOT_SUPPORTED,
+                'comments': job_state.get_readiness_description()
             })
         if job_result is None and not ns.dry_run:
             logger.warning("Job %s did not return a result", job)

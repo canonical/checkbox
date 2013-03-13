@@ -26,6 +26,7 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
+import collections
 import io
 import logging
 import os
@@ -50,6 +51,20 @@ class CheckBoxNotFound(LookupError):
         return "CheckBox cannot be found"
 
 
+def _get_checkbox_dir():
+    """
+    Return the root directory of the checkbox source checkout
+
+    Historically plainbox used a git submodule with checkbox tree (converted to
+    git). This ended with the merge of plainbox into the checkbox tree. Now
+    it's the other way around and the checkbox tree can be located two
+    directories "up" from the plainbox module.
+    """
+    return os.path.normpath(
+        os.path.join(
+            get_plainbox_dir(), "..", ".."))
+
+
 class CheckBox:
     """
     Helper class for interacting with CheckBox
@@ -63,39 +78,69 @@ class CheckBox:
     available from a checkout directory.
     """
 
-    MODE_DEB_INSTALLED, MODE_SOURCE = range(2)
+    # Helper for locating certain directories
+    CheckBoxDirs = collections.namedtuple(
+        "CheckBoxDirs", "SHARE_DIR SCRIPTS_DIR JOBS_DIR DATA_DIR")
 
-    # Relative paths to essential CheckBox directories
-    # as they exist in a source checkout
-    _SRC_SCRIPTS_DIR = "scripts"
-    _SRC_JOBS_DIR = "jobs"
-    _SRC_DATA_DIR = "data"
+    # Temporary helper to compute "src" value below
+    source_dir = _get_checkbox_dir()
 
-    # Absolute paths to essential CheckBox directories
-    # as they exist in an installed Debian package
-    _DEB_SCRIPTS_DIR = "/usr/lib/checkbox/bin"
-    _DEB_JOBS_DIR = "/usr/share/checkbox/jobs"
-    _DEB_DATA_DIR = "/usr/share/checkbox/data"
-    _DEB_SHARE_DIR = "/usr/share/checkbox"
+    _DIRECTORY_MAP = collections.OrderedDict((
+        # Layout for source checkout
+        ("src", CheckBoxDirs(
+            source_dir,
+            os.path.join(source_dir, "scripts"),
+            os.path.join(source_dir, "jobs"),
+            os.path.join(source_dir, "data"))),
+        # Layout for Ubuntu 12.10 and 13.04
+        ("deb2", CheckBoxDirs(
+            "/usr/share/checkbox/",
+            "/usr/lib/checkbox/bin",
+            "/usr/share/checkbox/jobs",
+            "/usr/share/checkbox/data")),
+        # Layout for Ubuntu 12.04
+        ("deb1", CheckBoxDirs(
+            "/usr/share/checkbox/",
+            "/usr/share/checkbox/scripts",
+            "/usr/share/checkbox/jobs",
+            "/usr/share/checkbox/data"))))
+
+    # Remove temporary helper that was needed above
+    del source_dir
 
     def __init__(self, mode=None):
         """
         Initialize checkbox integration.
 
-        Mode, if specified, determines which checkbox to use (either
-        MODE_DEB_INSTALLED or MODE_SOURCE). It defaults to auto-detection that
-        prefers the source method. It may raise CheckBoxNotFound exception.
+        :param mode:
+            If specified it determines which checkbox installation to use.
+            None (default) enables auto-detection. Applicable values are
+            ``src``, ``deb1`` and ``deb2``. The first value selects checkbox as
+            present in the code repository. The last two values are both for
+            intended for a checkbox package that was installed from the Ubuntu
+            repository. They are different as checkbox packaging changed across
+            releases.
+
+        :raises CheckBoxNotFound:
+            if checkbox cannot be located anywhere
+        :raises ValueError:
+            if ``mode`` is not supported
         """
+        # Auto-detect if not explicitly configured
         if mode is None:
-            if self._source_checkout_exists(self._source_dir):
-                logger.info("Using checkbox from source directory")
-                mode = self.MODE_SOURCE
-            elif self._deb_installation_exists():
-                logger.info("Using checkbox from system-wide installation")
-                mode = self.MODE_DEB_INSTALLED
+            for possible_mode, dirs in self._DIRECTORY_MAP.items():
+                if all(os.path.exists(dirname) for dirname in dirs):
+                    logger.info("Using checkbox in mode %s", possible_mode)
+                    mode = possible_mode
+                    break
             else:
                 raise CheckBoxNotFound()
-        self._mode = mode
+        # Ensure mode is known
+        if mode not in self._DIRECTORY_MAP:
+            raise ValueError("Unsupported mode")
+        else:
+            self._mode = mode
+            self._dirs = self._DIRECTORY_MAP[mode]
 
     @property
     def CHECKBOX_SHARE(self):
@@ -106,10 +151,7 @@ class CheckBox:
             This variable is only required by one script.
             It would be nice to remove this later on.
         """
-        if self._mode == self.MODE_DEB_INSTALLED:
-            return self._DEB_SHARE_DIR
-        elif self._mode == self.MODE_SOURCE:
-            return self._source_dir
+        return self._dirs.SHARE_DIR
 
     @property
     def extra_PYTHONPATH(self):
@@ -128,10 +170,10 @@ class CheckBox:
         # using CheckBox from source then the source directory (which contains
         # the 'checkbox' package) should be added to PYTHONPATH for all the
         # imports to work.
-        if self._mode == self.MODE_DEB_INSTALLED:
+        if self._mode == "src":
+            return _get_checkbox_dir()
+        else:
             return None
-        elif self._mode == self.MODE_SOURCE:
-            return self._source_dir
 
     @property
     def extra_PATH(self):
@@ -149,10 +191,7 @@ class CheckBox:
         """
         Return an absolute path of the jobs directory
         """
-        if self._mode == self.MODE_DEB_INSTALLED:
-            return self._DEB_JOBS_DIR
-        else:
-            return os.path.join(self._source_dir, self._SRC_JOBS_DIR)
+        return self._dirs.JOBS_DIR
 
     @property
     def scripts_dir(self):
@@ -163,44 +202,7 @@ class CheckBox:
             The scripts may not work without setting PYTHONPATH and
             CHECKBOX_SHARE.
         """
-        if self._mode == self.MODE_DEB_INSTALLED:
-            return self._DEB_SCRIPTS_DIR
-        else:
-            return os.path.join(self._source_dir, self._SRC_SCRIPTS_DIR)
-
-    @classmethod
-    def _source_checkout_exists(cls, location):
-        """
-        Check if the specified location is a checkbox source directory
-        """
-        return all((
-            os.path.exists(os.path.join(location, dirname))
-            for dirname in (
-                cls._SRC_SCRIPTS_DIR, cls._SRC_JOBS_DIR, cls._SRC_DATA_DIR)))
-
-    @classmethod
-    def _deb_installation_exists(cls):
-        """
-        Check if a Debian package with checkbox has been installed
-        """
-        return all((
-            os.path.exists(dirname)
-            for dirname in (
-                cls._DEB_SCRIPTS_DIR, cls._DEB_JOBS_DIR, cls._DEB_DATA_DIR)))
-
-    @property
-    def _source_dir(self):
-        """
-        Return the root directory of the checkbox source checkout
-
-        Historically plainbox used a git submodule with checkbox tree
-        (converted to git). This ended with the merge of plainbox into the
-        checkbox tree. Now it's the other way around and the checkbox tree can
-        be located two directories "up" from the plainbox module.
-        """
-        return os.path.normpath(
-            os.path.join(
-                get_plainbox_dir(), "..", ".."))
+        return self._dirs.SCRIPTS_DIR
 
     def get_builtin_jobs(self):
         logger.debug("Loading built-in jobs...")

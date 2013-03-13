@@ -1,3 +1,6 @@
 include README.md
 include COPYING
 include mk-interesting-graphs.sh
+recursive-include plainbox/data *.json
+recursive-include docs *.rst
+include docs/conf.py

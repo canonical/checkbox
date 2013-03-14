@@ -38,6 +38,7 @@ from plainbox.impl.checkbox import CheckBox
 from plainbox.impl.commands.selftest import SelfTestCommand
 from plainbox.impl.commands.run import RunCommand
 from plainbox.impl.commands.special import SpecialCommand
+from plainbox.impl.commands.sru import SRUCommand
 
 
 logger = getLogger("plainbox.box")
@@ -94,6 +95,7 @@ class PlainBox:
         RunCommand(self._checkbox).register_parser(subparsers)
         SpecialCommand(self._checkbox).register_parser(subparsers)
         SelfTestCommand().register_parser(subparsers)
+        SRUCommand().register_parser(subparsers)
         #group = parser.add_argument_group(title="user interface options")
         #group.add_argument(
         #    "-u", "--ui", action="store",

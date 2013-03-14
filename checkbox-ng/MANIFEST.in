@@ -4,3 +4,4 @@ include mk-interesting-graphs.sh
 recursive-include plainbox/data *.json
 recursive-include docs *.rst
 include docs/conf.py
+include plainbox/data/report/hardware-1_0.rng

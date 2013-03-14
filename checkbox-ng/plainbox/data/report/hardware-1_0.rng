@@ -1,0 +1,533 @@
+<?xml version="1.0" ?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes"
+         xmlns:a="http://launchpad.net/annotation">
+    <start>
+        <element name="system">
+            <attribute name="version">
+                <value>1.0</value>
+            </attribute>
+          <interleave>
+            <element name="summary">
+                <ref name="summarySection"/>
+            </element>
+            <element name="hardware">
+                <ref name="hardwareSection"/>
+            </element>
+            <element name="software">
+                <ref name="softwareSection"/>
+            </element>
+            <element name="questions">
+                <ref name="questionsSection"/>
+            </element>
+            <optional>
+                <element name="context">
+                    <ref name="contextSection"/>
+                </element>
+            </optional>
+          </interleave>
+        </element>
+    </start>
+
+    <define name="summarySection">
+        <interleave>
+            <element name="live_cd">
+                <attribute name="value">
+                    <ref name="booleanValue"/>
+                </attribute>
+                <empty/>
+            </element>
+            <element name="system_id">
+                <attribute name="value">
+                    <text/>
+                </attribute>
+                <empty/>
+            </element>
+            <element name="distribution">
+                <attribute name="value">
+                    <text/>
+                </attribute>
+                <empty/>
+            </element>
+            <element name="distroseries">
+                <attribute name="value">
+                    <text/>
+                </attribute>
+                <empty/>
+            </element>
+            <element name="architecture">
+                <attribute name="value">
+                    <text/>
+                </attribute>
+                <empty/>
+            </element>
+            <element name="private">
+                <attribute name="value">
+                    <ref name="booleanValue"/>
+                </attribute>
+                <empty/>
+            </element>
+            <element name="contactable">
+                <attribute name="value">
+                    <ref name="booleanValue"/>
+                </attribute>
+                <empty/>
+            </element>
+            <element name="date_created">
+                <attribute name="value">
+                    <data type="dateTime"/>
+                </attribute>
+                <empty/>
+            </element>
+            <element name="client">
+                <attribute name="name">
+                    <text/>
+                </attribute>
+                <attribute name="version">
+                    <text/>
+                </attribute>
+                <empty/>
+                <zeroOrMore>
+                    <element name="plugin">
+                        <attribute name="name">
+                            <text/>
+                        </attribute>
+                        <attribute name="version">
+                            <text/>
+                        </attribute>
+                    </element>
+                </zeroOrMore>
+            </element>
+            <optional>
+                <element name="kernel-release">
+                    <attribute name="value">
+                        <text/>
+                    </attribute>
+                </element>
+            </optional>
+        </interleave>
+    </define>
+
+    <define name="hardwareSection">
+        <interleave>
+            <choice>
+                <element name="hal">
+                    <attribute name="version">
+                        <text/>
+                    </attribute>
+                    <oneOrMore>
+                        <element name="device">
+                            <attribute name="id">
+                                <data type="integer">
+                                    <except>
+                                        <value/>
+                                    </except>
+                                </data>
+                            </attribute>
+                            <attribute name="udi">
+                                <text/>
+                            </attribute>
+                            <optional>
+                                <attribute name="parent">
+                                   <data type="integer"/>
+                                </attribute>
+                            </optional>
+                            <!-- XXX: Abel Deuring 2007-12-07:
+                                 specify a set of required properties? -->
+                            <oneOrMore>
+                                <ref name="property"/>
+                            </oneOrMore>
+                        </element>
+                    </oneOrMore>
+                </element>
+                <group>
+                    <interleave>
+                        <element name="udev">
+                            <text/>
+                        </element>
+                        <element name="dmi">
+                            <text/>
+                        </element>
+                        <element name="sysfs-attributes">
+                            <zeroOrMore>
+                                <text/>
+                            </zeroOrMore>
+                        </element>
+                    </interleave>
+                </group>
+            </choice>
+            <element name="processors">
+                <oneOrMore>
+                    <element name="processor">
+                        <attribute name="id">
+                            <data type="integer">
+                                <except>
+                                    <value/>
+                                </except>
+                            </data>
+                        </attribute>
+                        <attribute name="name">
+                            <text/>
+                        </attribute>
+                         <oneOrMore>
+                             <ref name="property"/>
+                         </oneOrMore>
+                    </element>
+                </oneOrMore>
+            </element>
+            <optional>
+                <element name="aliases">
+                    <zeroOrMore>
+                        <element name="alias">
+                            <attribute name="target">
+                                <text/>
+                            </attribute>
+                            <interleave>
+                                <element name="vendor">
+                                    <text/>
+                                </element>
+                                <element name="model">
+                                    <text/>
+                                </element>
+                            </interleave>
+                        </element>
+                    </zeroOrMore>
+                </element>
+            </optional>
+        </interleave>
+    </define>
+
+    <define name="softwareSection">
+        <interleave>
+            <element name="lsbrelease">
+                <!-- XXX: Abel Deuring 2007-12-07:
+                     specify a more restrictive set of allowed
+                     and/or required properties?
+                -->
+                <oneOrMore>
+                    <ref name="property"/>
+                </oneOrMore>
+            </element>
+            <optional>
+                <element name="packages">
+                    <zeroOrMore>
+                        <element name="package">
+                            <attribute name="name"/>
+                            <attribute name="id">
+                                <data type="integer">
+                                    <except>
+                                        <value/>
+                                    </except>
+                                </data>
+                            </attribute>
+                            <oneOrMore>
+                                <ref name="property"/>
+                            </oneOrMore>
+                        </element>
+                    </zeroOrMore>
+                </element>
+            </optional>
+            <optional>
+                <element name="xorg">
+                    <attribute name="version">
+                        <text/>
+                    </attribute>
+                    <zeroOrMore>
+                        <element name="driver">
+                            <optional>
+                                <attribute name="device">
+                                    <data type="integer"/>
+                                </attribute>
+                            </optional>
+                            <attribute name="name">
+                                <text/>
+                            </attribute>
+                            <optional>
+                                <attribute name="version">
+                                    <text/>
+                                </attribute>
+                            </optional>
+                            <attribute name="class">
+                                <text/>
+                            </attribute>
+                        </element>
+                    </zeroOrMore>
+                </element>
+            </optional>
+        </interleave>
+    </define>
+
+    <define name="questionsSection">
+        <zeroOrMore>
+            <element name="question">
+                <attribute name="name">
+                    <text/>
+                </attribute>
+                <a:comment>
+                    The attribute "plugin" must be set, if the question
+                    is generated by a plugin.
+                </a:comment>
+                <optional>
+                    <attribute name="plugin">
+                        <text/>
+                    </attribute>
+                </optional>
+                <interleave>
+                    <optional>
+                        <element name="command">
+                            <text/>
+                        </element>
+                    </optional>
+                    <choice>
+                        <interleave>
+                            <element name="answer">
+                                <attribute name="type">
+                                    <value>multiple_choice</value>
+                                </attribute>
+                                <optional>
+                                    <attribute name="unit">
+                                        <text/>
+                                    </attribute>
+                                </optional>
+                                <text/>
+                            </element>
+                            <element name="answer_choices">
+                                <oneOrMore>
+                                    <ref name="value"/>
+                                </oneOrMore>
+                            </element>
+                        </interleave>
+                        <element name="answer">
+                            <attribute name="type">
+                                <value>measurement</value>
+                            </attribute>
+                            <optional>
+                                <attribute name="unit">
+                                    <text/>
+                                </attribute>
+                            </optional>
+                            <data type="decimal"/>
+                        </element>
+                    </choice>
+                    <zeroOrMore>
+                        <element name="target">
+                            <attribute name="id">
+                                <text/>
+                            </attribute>
+                            <interleave>
+                                <zeroOrMore>
+                                    <element name="driver">
+                                        <text/>
+                                    </element>
+                                </zeroOrMore>
+                            </interleave>
+                        </element>
+                    </zeroOrMore>
+                    <optional>
+                        <element name="comment">
+                            <text/>
+                        </element>
+                    </optional>
+                </interleave>
+            </element>
+        </zeroOrMore>
+    </define>
+
+    <define name="contextSection">
+        <zeroOrMore>
+            <element name="info">
+                <attribute name="command">
+                    <text/>
+                </attribute>
+                <text/>
+            </element>
+        </zeroOrMore>
+    </define>
+
+    <a:comment>
+        convenience for Python code: 'True'/'False' for boolean values
+        instead of 'true'/'false' as defined by
+        http://www.w3.org/2001/XMLSchema-datatypes .
+    </a:comment>
+    <define name="booleanValue">
+        <choice>
+            <value>True</value>
+            <value>False</value>
+        </choice>
+    </define>
+
+    <define name="propertyAndValueContent">
+        <a:comment>
+            Allowed types and values:
+            The dbus... data types are used for HAL properties; the data 
+            types are specified in 
+            http://dbus.freedesktop.org/doc/dbus-specification.html
+            The other data types are Python data types, defined in
+            http://docs.python.org/lib/types.html
+        </a:comment>
+        <choice>
+            <group>
+                <attribute name="type">
+                    <choice>
+                        <value>dbus.Boolean</value>
+                        <value>bool</value>
+                    </choice>
+                </attribute>
+                <ref name="booleanValue"/>
+            </group>
+            <group>
+                <attribute name="type">
+                    <choice>
+                        <value>dbus.String</value>
+                        <value>dbus.UTF8String</value>
+                        <value>str</value>
+                    </choice>
+                </attribute>
+                <text/>
+            </group>
+            <group>
+                <attribute name="type">
+                    <value>dbus.Byte</value>
+                </attribute>
+                <data type="unsignedByte">
+                    <except>
+                        <value/>
+                    </except>
+                </data>
+            </group>
+            <group>
+                <attribute name="type">
+                    <value>dbus.Int16</value>
+                </attribute>
+                <data type="short">
+                    <except>
+                        <value/>
+                    </except>
+                </data>
+            </group>
+            <group>
+                <attribute name="type">
+                    <value>dbus.Int32</value>
+                </attribute>
+                <data type="int">
+                    <except>
+                        <value/>
+                    </except>
+                </data>
+            </group>
+            <group>
+                <attribute name="type">
+                    <value>dbus.Int64</value>
+                </attribute>
+                <data type="long">
+                    <except>
+                        <value/>
+                    </except>
+                </data>
+            </group>
+            <group>
+                <attribute name="type">
+                    <value>dbus.UInt16</value>
+                </attribute>
+                <data type="unsignedShort">
+                    <except>
+                        <value/>
+                    </except>
+                </data>
+            </group>
+            <group>
+                <attribute name="type">
+                    <value>dbus.UInt32</value>
+                </attribute>
+                <data type="unsignedInt">
+                    <except>
+                        <value/>
+                    </except>
+                </data>
+            </group>
+            <group>
+                <attribute name="type">
+                    <value>dbus.UInt64</value>
+                </attribute>
+                <data type="unsignedLong">
+                    <except>
+                        <value/>
+                    </except>
+                </data>
+            </group>
+            <group>
+                <attribute name="type">
+                    <value>int</value>
+                </attribute>
+                <data type="long">
+                    <except>
+                        <value/>
+                    </except>
+                </data>
+            </group>
+            <group>
+                <attribute name="type">
+                    <value>long</value>
+                </attribute>
+                <data type="integer">
+                    <except>
+                        <value/>
+                    </except>
+                </data>
+            </group>
+            <group>
+                <attribute name="type">
+                    <choice>
+                        <value>dbus.Double</value>
+                        <value>float</value>
+                    </choice>
+                </attribute>
+                <data type="decimal"/>
+            </group>
+            <group>
+                <attribute name="type">
+                    <choice>
+                        <value>dbus.Array</value>
+                        <value>list</value>
+                    </choice>
+                </attribute>
+                <zeroOrMore>
+                    <element name="value">
+                        <ref name="propertyAndValueContent"/>
+                    </element>
+                </zeroOrMore>
+            </group>
+            <group>
+                <attribute name="type">
+                    <choice>
+                        <value>dbus.Dictionary</value>
+                        <value>dict</value>
+                    </choice>
+                </attribute>
+                <zeroOrMore>
+                    <element name="value">
+                        <attribute name="name">
+                            <text/>
+                        </attribute>
+                        <ref name="propertyAndValueContent"/>
+                    </element>
+                </zeroOrMore>
+            </group>
+         </choice>
+     </define>
+
+    <define name="property">
+        <element name="property">
+            <attribute name="name">
+                <text/>
+            </attribute>
+            <ref name="propertyAndValueContent"/>
+       </element>
+    </define>
+
+    <define name="value">
+        <element name="value">
+            <ref name="propertyAndValueContent"/>
+        </element>
+    </define>
+</grammar>

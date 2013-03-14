@@ -33,7 +33,8 @@ from mock import Mock
 from unittest import TestCase
 
 from plainbox import __version__ as version
-from plainbox.impl.box import main, CheckBoxCommandMixIn
+from plainbox.impl.box import main
+from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
 from plainbox.impl.mock_job import MockJobDefinition
 from plainbox.testing_utils.io import TestIO
 

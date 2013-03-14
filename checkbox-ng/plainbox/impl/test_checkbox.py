@@ -38,4 +38,4 @@ class TestCheckBox(TestCaseWithParameters):
             yield (job,)
 
     def test_job_resource_expression(self):
-        resource_program = self.parameters.job.get_resource_program()
+        self.parameters.job.get_resource_program()

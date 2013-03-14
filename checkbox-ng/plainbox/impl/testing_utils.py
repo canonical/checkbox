@@ -55,7 +55,7 @@ def make_job(name, plugin="dummy", requires=None, depends=None):
     # Here we can create a Origin instance that pinpoints the
     # place that called make_job(). This aids in debugging as
     # the origin field is printed by JobDefinition repr
-    caller_frame, filename, lineno, *rest = inspect.stack(0)[1]
+    caller_frame, filename, lineno = inspect.stack(0)[1][:3]
     try:
         # XXX: maybe create special origin subclass for such things?
         origin = Origin(filename, lineno, lineno)

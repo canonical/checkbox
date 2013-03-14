@@ -27,7 +27,7 @@ from mock import Mock
 from plainbox.impl.job import JobDefinition
 
 
-def MockJobDefinition(name,*args, **kwargs):
+def MockJobDefinition(name, *args, **kwargs):
     """
     Mock for JobDefinition class
     """

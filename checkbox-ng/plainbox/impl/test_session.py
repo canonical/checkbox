@@ -240,12 +240,13 @@ class JobStateTests(TestCase):
                 }
             }
         }"""
-        job_dec = json.loads(raw_json,
-            object_hook=SessionStateEncoder().dict_to_object)
+        job_dec = json.loads(
+            raw_json, object_hook=SessionStateEncoder().dict_to_object)
         self.assertIsInstance(job_dec, JobState)
-        self.assertEqual(repr(job_dec._result),
-            ("<JobResult job:<JobDefinition name:'X'"
-             " plugin:'dummy'> outcome:'pass'>"))
+        self.assertEqual(
+            repr(job_dec._result), (
+                "<JobResult job:<JobDefinition name:'X'"
+                " plugin:'dummy'> outcome:'pass'>"))
 
 
 class SessionStateSmokeTests(TestCase):
@@ -464,11 +465,11 @@ class SessionStateReactionToJobResultTests(TestCase):
         result_R = JobResult({
             'job': self.job_R,
             'io_log': make_io_log((
-                    (0, 'stdout', b"attr: value-1\n"),
-                    (1, 'stdout', b"\n"),
-                    (1, 'stdout', b"I-sound-like-a-broken-record\n"),
-                    (1, 'stdout', b"\n"),
-                    (1, 'stdout', b"attr: value-2\n")),
+                (0, 'stdout', b"attr: value-1\n"),
+                (1, 'stdout', b"\n"),
+                (1, 'stdout', b"I-sound-like-a-broken-record\n"),
+                (1, 'stdout', b"\n"),
+                (1, 'stdout', b"attr: value-2\n")),
                 self.scratch_dir)
         })
         # Since we cannot control the output of scripts and people indeed make

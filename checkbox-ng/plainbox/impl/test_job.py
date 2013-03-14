@@ -279,8 +279,8 @@ class TestJobDefinition(TestCase):
                     "plugin": "user-verify"
                 }
             }"""
-        job_dec = json.loads(raw_json,
-            object_hook=SessionStateEncoder().dict_to_object)
+        job_dec = json.loads(
+            raw_json, object_hook=SessionStateEncoder().dict_to_object)
         self.assertIsInstance(job_dec, JobDefinition)
         self.assertEqual(job_dec.name, "camera/still")
         self.assertEqual(job_dec.plugin, "user-verify")

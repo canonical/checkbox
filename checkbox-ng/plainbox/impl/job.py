@@ -18,7 +18,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-:mod:`plainbox.impl.job` -- job definition 
+:mod:`plainbox.impl.job` -- job definition
 ==========================================
 
 .. warning::
@@ -44,7 +44,8 @@ class JobDefinition(IJobDefinition):
     """
     Job definition class.
 
-    Thin wrapper around the RFC822 record that defines a checkbox job definition
+    Thin wrapper around the RFC822 record that defines a checkbox job
+    definition
     """
 
     @property

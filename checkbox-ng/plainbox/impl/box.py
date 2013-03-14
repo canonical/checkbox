@@ -29,7 +29,6 @@
 from argparse import ArgumentParser
 from argparse import FileType
 from argparse import _ as argparse_gettext
-from fnmatch import fnmatch
 from logging import basicConfig
 from logging import getLogger
 from os.path import join
@@ -107,15 +106,16 @@ class CheckBoxCommandMixIn:
             # patterns, matching strictly from the start to
             # the end of the line.
             for pattern in ns.exclude_pattern_list:
-                if re.match(r"^{pattern}$".format(pattern=pattern), job.name):
+                regexp_pattern = r"^{pattern}$".format(pattern=pattern)
+                if re.match(regexp_pattern, job.name):
                     break
             else:
                 # Then accept (include) all job that matches
                 # any of include patterns, matching strictly
                 # from the start to the end of the line.
                 for pattern in ns.include_pattern_list:
-                    if re.match(r"^{pattern}$".format(pattern=pattern),
-                               job.name):
+                    regexp_pattern = r"^{pattern}$".format(pattern=pattern)
+                    if re.match(regexp_pattern, job.name):
                         matching_job_list.append(job)
                         break
         return matching_job_list

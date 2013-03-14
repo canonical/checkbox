@@ -42,7 +42,7 @@ class JSONSessionStateExporterTests(TestCase):
     def test_default_dump(self):
         exporter = self.exporter_cls()
         data = {'foo': 'bar'}
-        stream = StringIO() 
+        stream = StringIO()
         exporter.dump(data, stream)
         self.assertEqual(stream.getvalue(), (
             '{\n'
@@ -50,8 +50,9 @@ class JSONSessionStateExporterTests(TestCase):
             '}'))
 
     def test_machine_dump(self):
-        exporter = self.exporter_cls(option_list=[self.exporter_cls.OPTION_MACHINE_JSON])
+        exporter = self.exporter_cls(option_list=[
+            self.exporter_cls.OPTION_MACHINE_JSON])
         data = {'foo': 'bar'}
-        stream = StringIO() 
+        stream = StringIO()
         exporter.dump(data, stream)
         self.assertEqual(stream.getvalue(), '{"foo":"bar"}')

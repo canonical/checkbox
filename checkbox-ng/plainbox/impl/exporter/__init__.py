@@ -121,7 +121,8 @@ class SessionStateExporterBase(metaclass=ABCMeta):
         if self.OPTION_WITH_RUN_LIST in self._option_list:
             data['run_list'] = [job.name for job in session.run_list]
         if self.OPTION_WITH_DESIRED_JOB_LIST in self._option_list:
-            data['desired_job_list'] = [job.name for job in session.desired_job_list]
+            data['desired_job_list'] = [job.name
+                                        for job in session.desired_job_list]
         if self.OPTION_WITH_RESOURCE_MAP in self._option_list:
             data['resource_map'] = {
                 # TODO: there is no method to get all data from a Resource
@@ -132,7 +133,8 @@ class SessionStateExporterBase(metaclass=ABCMeta):
                     object.__getattribute__(resource, "_data")
                     for resource in resource_list]
                 # TODO: turn session._resource_map to a public property
-                for resource_name, resource_list in session._resource_map.items()
+                for resource_name, resource_list
+                in session._resource_map.items()
             }
         if self.OPTION_WITH_ATTACHMENTS in self._option_list:
             data['attachment_map'] = {}
@@ -155,17 +157,18 @@ class SessionStateExporterBase(metaclass=ABCMeta):
                              ):
                     if not getattr(job_state.result.job, prop):
                         continue
-                    data['result_map'][job_name][prop] = \
-                    getattr(job_state.result.job, prop)
+                    data['result_map'][job_name][prop] = getattr(
+                        job_state.result.job, prop)
 
             # Add Attachements if requested
             if job_state.result.job.plugin == 'attachment':
                 if self.OPTION_WITH_ATTACHMENTS in self._option_list:
-                    raw_bytes = b''.join((record[2] for record in
-                        job_state.result.io_log if record[1] == 'stdout'))
+                    raw_bytes = b''.join(
+                        (record[2] for record in
+                         job_state.result.io_log if record[1] == 'stdout'))
                     data['attachment_map'][job_name] = \
                         base64.standard_b64encode(raw_bytes).decode('ASCII')
-                continue # Don't add attachments IO logs to the result_map
+                continue  # Don't add attachments IO logs to the result_map
 
             # Add IO log if requested
             if self.OPTION_WITH_IO_LOG in self._option_list:

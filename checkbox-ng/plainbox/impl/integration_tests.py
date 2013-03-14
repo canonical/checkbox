@@ -27,7 +27,6 @@
 """
 
 from tempfile import TemporaryDirectory
-from unittest import TestCase
 import json
 import os
 import shutil

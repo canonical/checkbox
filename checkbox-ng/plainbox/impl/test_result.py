@@ -102,8 +102,8 @@ class JobResultTests(TestCase):
                     "return_code": 0
                 }
             }"""
-        result_dec = json.loads(raw_json,
-            object_hook=SessionStateEncoder().dict_to_object)
+        result_dec = json.loads(
+            raw_json, object_hook=SessionStateEncoder().dict_to_object)
         self.assertIsInstance(result_dec, JobResult)
         self.assertEqual(result_dec.job.name, "__audio__")
         self.assertEqual(result_dec.outcome, JobResult.OUTCOME_PASS)

@@ -227,9 +227,10 @@ class RFC822WriterTests(TestCase):
     def test_multiple_record(self):
         with StringIO() as stream:
             dump_rfc822_records({'key1': 'value1', 'key2': 'value2'}, stream)
-            self.assertIn(stream.getvalue(),
-                ("key1: value1\nkey2: value2\n\n",
-                 "key2: value2\nkey1: value1\n\n"))
+            self.assertIn(
+                stream.getvalue(), (
+                    "key1: value1\nkey2: value2\n\n",
+                    "key2: value2\nkey1: value1\n\n"))
 
     def test_multiline_value(self):
         text = (

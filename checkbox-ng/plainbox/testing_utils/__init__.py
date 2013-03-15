@@ -21,3 +21,23 @@
 :mod:`plainbox.testing_utils` - generic testing utilities
 =========================================================
 """
+
+import collections
+import json
+
+from pkg_resources import resource_string
+
+
+def resource_json(package, pathname, exact=False):
+    """
+    Like resource_string, but loaded as JSON.
+
+    :param package: name of the python package
+    :param pathame: pathname of a file inside that package
+    :param exact: if True, uses OrderedDict to preserve ordering
+
+    :returns: deserialized json object
+    """
+    return json.loads(
+        resource_string(package, pathname).decode("UTF-8"),
+        object_pairs_hook=collections.OrderedDict if exact else None)

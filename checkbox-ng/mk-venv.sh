@@ -78,6 +78,8 @@ install_pip=0
 # We need:
 # python3:
 #   because that's what plainbox is written in
+# python3-dev
+#   because we may pip-install stuff as well and we want to build native extensions
 # python3-pkg-resources:
 #   because it is used by plainbox to locate files and extension points
 # python3-setuptools:
@@ -92,7 +94,7 @@ install_pip=0
 #   because that's how we create the virtualenv to work in
 # checkbox:
 #   because plainbox depends on it as a job provider 
-required_pkgs_precise="python3 python3-pkg-resources python3-setuptools python3-lxml python3-mock python3-sphinx python-virtualenv checkbox"
+required_pkgs_precise="python3 python3-dev python3-pkg-resources python3-setuptools python3-lxml python3-mock python3-sphinx python-virtualenv checkbox"
 
 case "$(lsb_release --short --release)" in
     12.04)
@@ -101,14 +103,23 @@ case "$(lsb_release --short --release)" in
         # although some packages are old by 13.04 standards, make sure to be
         # careful with testing against older APIs.
         enable_system_site=1
+        install_distribute=1
+        install_pip=1
+        install_coverage=1
         required_pkgs="$required_pkgs_precise"
         ;;
     12.10)
         enable_system_site=1
+        install_distribute=1
+        install_pip=1
+        install_coverage=1
         required_pkgs="$required_pkgs_precise"
         ;;
     13.04)
         enable_system_site=1
+        install_distribute=1
+        install_pip=1
+        install_coverage=1
         required_pkgs="$required_pkgs_precise"
         ;;
     *)

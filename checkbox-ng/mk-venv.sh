@@ -160,12 +160,12 @@ fi
 
 # Install / upgrade distribute
 if [ $install_distribute -eq 1 ]; then
-    pip install --upgrade https://github.com/checkbox/external-tarballs/blob/master/pypi/distribute-0.6.34.tar.gz?raw=true
+    pip install --upgrade https://github.com/checkbox/external-tarballs/raw/master/pypi/coverage-3.6.tar.gz
 fi
 
 # Install coverage if required
 if [ $install_coverage -eq 1 ]; then
-    pip install --upgrade https://github.com/checkbox/external-tarballs/blob/master/pypi/coverage-3.6.tar.gz?raw=true
+    pip install --upgrade https://github.com/checkbox/external-tarballs/raw/master/pypi/coverage-3.6.tar.gz
 fi
 
 # "develop" plainbox

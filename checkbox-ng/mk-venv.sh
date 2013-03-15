@@ -74,6 +74,7 @@ fi
 enable_system_site=0
 install_coverage=0
 install_distribute=0
+install_pip=0
 # We need:
 # python3:
 #   because that's what plainbox is written in
@@ -161,6 +162,11 @@ fi
 # Install / upgrade distribute
 if [ $install_distribute -eq 1 ]; then
     pip install --upgrade https://github.com/checkbox/external-tarballs/raw/master/pypi/coverage-3.6.tar.gz
+fi
+
+# Install / upgrade pip
+if [ $install_pip -eq 1 ]; then
+    pip install --upgrade https://github.com/checkbox/external-tarballs/raw/master/pypi/pip-1.3.1.tar.gz
 fi
 
 # Install coverage if required

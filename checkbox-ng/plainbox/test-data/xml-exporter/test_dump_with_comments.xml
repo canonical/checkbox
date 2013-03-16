@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<system version="1.0">
+  <context/>
+  <hardware>
+    <dmi/>
+    <sysfs-attributes/>
+    <udev/>
+  </hardware>
+  <questions>
+    <question name="A">
+      <answer type="multiple_choice">pass</answer>
+      <answer_choices>
+        <value type="str">none</value>
+        <value type="str">pass</value>
+        <value type="str">fail</value>
+        <value type="str">skip</value>
+        <value type="str">not-supported</value>
+      </answer_choices>
+      <comment>foo bar 2000</comment>
+    </question>
+  </questions>
+  <software/>
+  <summary>
+    <client name="plainbox" version="1.0"/>
+    <date_created value="2012-12-21T12:00:00"/>
+    <private value="False"/>
+    <contactable value="False"/>
+    <live_cd value="False"/>
+    <system_id value="DEADBEEF"/>
+  </summary>
+</system>

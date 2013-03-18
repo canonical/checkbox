@@ -1,0 +1,12 @@
+{
+  "resource_map": {},
+  "result_map": {
+    "A": {
+      "outcome": "pass",
+      "comments": "foo bar 2000",
+      "plugin": "shell",
+      "description": "foo",
+      "io_log": "YmFy"
+    }
+  }
+}

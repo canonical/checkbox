@@ -34,6 +34,9 @@ setup(
     tests_require=[
         'mock',
     ],
+    install_requires=[
+        'lxml >= 2.3',
+    ],
     entry_points={
         'console_scripts': [
             'plainbox=plainbox.public:main',

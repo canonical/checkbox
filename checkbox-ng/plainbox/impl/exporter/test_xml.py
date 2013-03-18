@@ -31,96 +31,38 @@ from pkg_resources import resource_string
 
 from plainbox.testing_utils import resource_json
 from plainbox.impl.exporter.xml import XMLSessionStateExporter, XMLValidator
+from plainbox.testing_utils.testcases import TestCaseWithParameters
 
 
-class XMLSessionStateExporterTests(TestCase):
+class XMLSessionStateExporterTests(TestCaseWithParameters):
+
+    parameter_names = ('dump_with',)
 
     def setUp(self):
         self.stream = io.StringIO()
 
-    def test_dump_with_io_log(self):
-        exporter = XMLSessionStateExporter(
-            system_id="DEADBEEF",
-            timestamp="2012-12-21T12:00:00",
-            client_version="1.0",
-            client_name="plainbox")
-        data = resource_json(
-            "plainbox", "test-data/xml-exporter/test_dump_with_io_log.json")
-        exporter.dump(data, self.stream)
-        actual = self.stream.getvalue()
-        expected = resource_string(
-            "plainbox", "test-data/xml-exporter/test_dump_with_io_log.xml"
-        ).decode("UTF-8")
-        self.assertEqual(actual, expected)
+    @classmethod
+    def get_parameter_values(cls):
+        for test in ('io_log',
+                     'comments',
+                     'text_attachment',
+                     'binary_attachment',
+                     'hardware_info',):
+            yield (test,)
 
-    def test_dump_with_comments(self):
+    def test_dump(self):
         exporter = XMLSessionStateExporter(
             system_id="DEADBEEF",
             timestamp="2012-12-21T12:00:00",
             client_version="1.0",
             client_name="plainbox")
-        data = resource_json(
-            "plainbox", "test-data/xml-exporter/test_dump_with_comments.json")
-        expected = resource_string(
-            "plainbox", "test-data/xml-exporter/test_dump_with_comments.xml"
-        ).decode("UTF-8")
-        exporter.dump(data, self.stream)
-        actual = self.stream.getvalue()
-        self.assertEqual(actual, expected)
-
-    def test_dump_with_text_attachment(self):
-        # Plain text attachments should be exported as text,
-        # without base64 encoding
-        exporter = XMLSessionStateExporter(
-            system_id="DEADBEEF",
-            timestamp="2012-12-21T12:00:00",
-            client_version="1.0",
-            client_name="plainbox")
+        basename = "test-data/xml-exporter/test_dump_with_"
         data = resource_json(
             "plainbox",
-            "test-data/xml-exporter/test_dump_with_text_attachment.json")
+            "{0}{1}.json".format(basename, self.parameters.dump_with))
         expected = resource_string(
             "plainbox",
-            "test-data/xml-exporter/test_dump_with_text_attachment.xml"
-        ).decode("UTF-8")
-        exporter.dump(data, self.stream)
-        actual = self.stream.getvalue()
-        self.assertEqual(actual, expected)
-
-    def test_dump_with_binary_attachment(self):
-        # Binary attachments should be base64 encoded
-        exporter = XMLSessionStateExporter(
-            system_id="DEADBEEF",
-            timestamp="2012-12-21T12:00:00",
-            client_version="1.0",
-            client_name="plainbox")
-        data = resource_json(
-            "plainbox",
-            "test-data/xml-exporter/test_dump_with_binary_attachment.json")
-        expected = resource_string(
-            "plainbox",
-            "test-data/xml-exporter/test_dump_with_binary_attachment.xml"
-        ).decode("UTF-8")
-        exporter.dump(data, self.stream)
-        actual = self.stream.getvalue()
-        self.assertEqual(actual, expected)
-
-    def test_dump_with_hardware_info(self):
-        # The following attachments are used by the hardware section:
-        # dmi_attachment, sysfs_attachment and udev_attachment.
-        # They should be found in the hardware section only, all other
-        # attachments (text or not) are in the context section
-        exporter = XMLSessionStateExporter(
-            system_id="DEADBEEF",
-            timestamp="2012-12-21T12:00:00",
-            client_version="1.0",
-            client_name="plainbox")
-        data = resource_json(
-            "plainbox",
-            "test-data/xml-exporter/test_dump_with_hardware_info.json")
-        expected = resource_string(
-            "plainbox",
-            "test-data/xml-exporter/test_dump_with_hardware_info.xml"
+            "{0}{1}.xml".format(basename, self.parameters.dump_with)
         ).decode("UTF-8")
         exporter.dump(data, self.stream)
         actual = self.stream.getvalue()
@@ -134,7 +76,8 @@ class XMLExporterTests(TestCase):
             "plainbox", "test-data/xml-exporter/example-data.json",
             exact=True)
         exporter = XMLSessionStateExporter(
-            system_id="TBD", timestamp="2012-12-21T12:00:00",
+            system_id="",
+            timestamp="2012-12-21T12:00:00",
             client_version="1.0")
         stream = io.StringIO('wt')
         exporter.dump(data, stream)

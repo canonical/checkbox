@@ -105,6 +105,27 @@ class XMLSessionStateExporterTests(TestCase):
         actual = self.stream.getvalue()
         self.assertEqual(actual, expected)
 
+    def test_dump_with_hardware_info(self):
+        # The following attachments are used by the hardware section:
+        # dmi_attachment, sysfs_attachment and udev_attachment.
+        # They should be found in the hardware section only, all other
+        # attachments (text or not) are in the context section
+        exporter = XMLSessionStateExporter(
+            system_id="DEADBEEF",
+            timestamp="2012-12-21T12:00:00",
+            client_version="1.0",
+            client_name="plainbox")
+        data = resource_json(
+            "plainbox",
+            "test-data/xml-exporter/test_dump_with_hardware_info.json")
+        expected = resource_string(
+            "plainbox",
+            "test-data/xml-exporter/test_dump_with_hardware_info.xml"
+        ).decode("UTF-8")
+        exporter.dump(data, self.stream)
+        actual = self.stream.getvalue()
+        self.assertEqual(actual, expected)
+
 
 class XMLExporterTests(TestCase):
 

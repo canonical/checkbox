@@ -225,7 +225,7 @@ class XMLSessionStateExporter(SessionStateExporterBase):
         Add the hardware section of the XML report
         """
         def as_text(attachment):
-            standard_b64decode(
+            return standard_b64decode(
                 data["attachment_map"][attachment].encode()).decode(
                     "ASCII", "ignore")
         hardware = ET.SubElement(element, "hardware")

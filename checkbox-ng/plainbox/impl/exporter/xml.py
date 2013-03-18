@@ -139,7 +139,8 @@ class XMLSessionStateExporter(SessionStateExporterBase):
             SessionStateExporterBase.OPTION_WITH_IO_LOG,
             SessionStateExporterBase.OPTION_FLATTEN_IO_LOG,
             SessionStateExporterBase.OPTION_WITH_JOB_DEFS,
-            SessionStateExporterBase.OPTION_WITH_RESOURCE_MAP)
+            SessionStateExporterBase.OPTION_WITH_RESOURCE_MAP,
+            SessionStateExporterBase.OPTION_WITH_ATTACHMENTS)
         # Generate a dummy system hash if needed
         if system_id is None:
             # FIXME: Compute an real system_id for submission to
@@ -194,21 +195,52 @@ class XMLSessionStateExporter(SessionStateExporterBase):
         """
         Add the context section of the XML report
         """
-        ET.SubElement(element, "context")
-        # TODO: Add support for regular attachments
-        #        But filter dmi, sysfs-attributes and udev !!!
+        context = ET.SubElement(element, "context")
+        for name in data["attachment_map"]:
+            # The following attachments are used by the hardware section
+            if name in ['dmi_attachment',
+                        'sysfs_attachment',
+                        'udev_attachment']:
+                continue
+            # The only allowed attribute is the job command
+            # But to be used safely backslash continuation characters have
+            # to be removed.
+            # The new certification website displays the job name instead.
+            # So send what it expects.
+            info = ET.SubElement(context, "info", attrib={"command": name})
+            # Special case of plain text attachments, they are sent without any
+            # base64 encoding, this may change if we add the MIME type to the
+            # list of attributes
+            content = ""
+            try:
+                content = standard_b64decode(
+                    data["attachment_map"][name].encode()).decode("UTF-8")
+            except UnicodeDecodeError:
+                content = data["attachment_map"][name]
+            finally:
+                info.text = content
 
     def _add_hardware(self, element, data):
         """
         Add the hardware section of the XML report
         """
+        def as_text(attachment):
+            standard_b64decode(
+                data["attachment_map"][attachment].encode()).decode(
+                    "ASCII", "ignore")
         hardware = ET.SubElement(element, "hardware")
-        # TODO: Attach the content of "dmi_attachment"
-        ET.SubElement(hardware, "dmi")
-        # TODO: Attach the content of "sysfs_attachment"
-        ET.SubElement(hardware, "sysfs-attributes")
-        # TODO: Attach the content of "udev_attachment"
-        ET.SubElement(hardware, "udev")
+        # Attach the content of "dmi_attachment"
+        dmi = ET.SubElement(hardware, "dmi")
+        if "dmi_attachment" in data["attachment_map"]:
+            dmi.text = as_text("dmi_attachment")
+        # Attach the content of "sysfs_attachment"
+        sysfs_attributes = ET.SubElement(hardware, "sysfs-attributes")
+        if "sysfs_attachment" in data["attachment_map"]:
+            sysfs_attributes.text = as_text("sysfs_attachment")
+        # Attach the content of "udev_attachment"
+        udev = ET.SubElement(hardware, "udev")
+        if "udev_attachment" in data["attachment_map"]:
+            udev.text = as_text("udev_attachment")
         if "cpuinfo" in data["resource_map"]:
             processors = ET.SubElement(hardware, "processors")
             for i in range(int(data["resource_map"]["cpuinfo"][0]["count"])):

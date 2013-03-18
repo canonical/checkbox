@@ -1,5 +1,6 @@
 {
   "resource_map": {},
+  "attachment_map": {},
   "result_map": {
     "A": {
       "outcome": "pass",

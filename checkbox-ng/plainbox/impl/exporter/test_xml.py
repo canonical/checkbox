@@ -68,6 +68,43 @@ class XMLSessionStateExporterTests(TestCase):
         actual = self.stream.getvalue()
         self.assertEqual(actual, expected)
 
+    def test_dump_with_text_attachment(self):
+        # Plain text attachments should be exported as text,
+        # without base64 encoding
+        exporter = XMLSessionStateExporter(
+            system_id="DEADBEEF",
+            timestamp="2012-12-21T12:00:00",
+            client_version="1.0",
+            client_name="plainbox")
+        data = resource_json(
+            "plainbox",
+            "test-data/xml-exporter/test_dump_with_text_attachment.json")
+        expected = resource_string(
+            "plainbox",
+            "test-data/xml-exporter/test_dump_with_text_attachment.xml"
+        ).decode("UTF-8")
+        exporter.dump(data, self.stream)
+        actual = self.stream.getvalue()
+        self.assertEqual(actual, expected)
+
+    def test_dump_with_binary_attachment(self):
+        # Binary attachments should be base64 encoded
+        exporter = XMLSessionStateExporter(
+            system_id="DEADBEEF",
+            timestamp="2012-12-21T12:00:00",
+            client_version="1.0",
+            client_name="plainbox")
+        data = resource_json(
+            "plainbox",
+            "test-data/xml-exporter/test_dump_with_binary_attachment.json")
+        expected = resource_string(
+            "plainbox",
+            "test-data/xml-exporter/test_dump_with_binary_attachment.xml"
+        ).decode("UTF-8")
+        exporter.dump(data, self.stream)
+        actual = self.stream.getvalue()
+        self.assertEqual(actual, expected)
+
 
 class XMLExporterTests(TestCase):
 

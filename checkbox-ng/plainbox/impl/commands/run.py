@@ -33,6 +33,7 @@ import sys
 
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
+from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.result import JobResult
 from plainbox.impl.runner import JobRunner
@@ -127,7 +128,18 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         matching_job_list = self._get_matching_job_list(ns, job_list)
         print("[ Analyzing Jobs ]".center(80, '='))
         # Create a session that handles most of the stuff needed to run jobs
-        session = SessionState(job_list)
+        try:
+            session = SessionState(job_list)
+        except DependencyDuplicateError as exc:
+            # Handle possible DependencyDuplicateError that can happen if
+            # someone is using plainbox for job development.
+            print("The job database you are currently using is broken")
+            print("At least two jobs contend for the name {0}".format(
+                exc.job.name))
+            print("First job defined in: {0}".format(exc.job.origin))
+            print("Second job defined in: {0}".format(
+                exc.duplicate_job.origin))
+            raise SystemExit(exc)
         with session.open():
             if session.previous_session_file():
                 if self.ask_for_resume():

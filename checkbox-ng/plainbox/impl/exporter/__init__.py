@@ -160,7 +160,7 @@ class SessionStateExporterBase(metaclass=ABCMeta):
                     data['result_map'][job_name][prop] = getattr(
                         job_state.result.job, prop)
 
-            # Add Attachements if requested
+            # Add Attachments if requested
             if job_state.result.job.plugin == 'attachment':
                 if self.OPTION_WITH_ATTACHMENTS in self._option_list:
                     raw_bytes = b''.join(

@@ -1,0 +1,10 @@
+{
+  "resource_map": {},
+  "attachment_map": {
+    "dmi_attachment": "RmVhciBpcyB0aGUgbWluZC1raWxsZXI=",
+    "meminfo_attachment": "SSBtdXN0IG5vdCBmZWFy",
+    "sysfs_attachment": "RmVhciBpcyB0aGUgbGl0dGxlLWRlYXRoIHRoYXQgYnJpbmdzIHRvdGFsIG9ibGl0ZXJhdGlvbg==",
+    "udev_attachment": "SSB3aWxsIGZhY2UgbXkgZmVhcgo="
+  },
+  "result_map": {}
+}

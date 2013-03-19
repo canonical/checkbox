@@ -15736,6 +15736,6 @@ ID 1d6b:0001 Linux Foundation 1.1 root hub
     <private value="False"/>
     <contactable value="False"/>
     <live_cd value="False"/>
-    <system_id value="TBD"/>
+    <system_id value=""/>
   </summary>
 </system>

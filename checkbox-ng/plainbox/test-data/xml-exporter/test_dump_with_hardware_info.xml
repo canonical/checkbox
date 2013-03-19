@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<system version="1.0">
+  <context>
+    <info command="meminfo_attachment">I must not fear</info>
+  </context>
+  <hardware>
+    <dmi>Fear is the mind-killer</dmi>
+    <sysfs-attributes>Fear is the little-death that brings total obliteration</sysfs-attributes>
+    <udev>I will face my fear
+</udev>
+  </hardware>
+  <questions/>
+  <software/>
+  <summary>
+    <client name="plainbox" version="1.0"/>
+    <date_created value="2012-12-21T12:00:00"/>
+    <private value="False"/>
+    <contactable value="False"/>
+    <live_cd value="False"/>
+    <system_id value="DEADBEEF"/>
+  </summary>
+</system>

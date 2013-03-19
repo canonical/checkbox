@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<system version="1.0">
+  <context>
+    <info command="A">iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAAxJREFUCNdj+M/AAAADAQEAGN2NsAAAAABJRU5ErkJggg==</info>
+  </context>
+  <hardware>
+    <dmi/>
+    <sysfs-attributes/>
+    <udev/>
+  </hardware>
+  <questions/>
+  <software/>
+  <summary>
+    <client name="plainbox" version="1.0"/>
+    <date_created value="2012-12-21T12:00:00"/>
+    <private value="False"/>
+    <contactable value="False"/>
+    <live_cd value="False"/>
+    <system_id value="DEADBEEF"/>
+  </summary>
+</system>

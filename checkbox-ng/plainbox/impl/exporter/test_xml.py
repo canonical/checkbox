@@ -31,38 +31,34 @@ from pkg_resources import resource_string
 
 from plainbox.testing_utils import resource_json
 from plainbox.impl.exporter.xml import XMLSessionStateExporter, XMLValidator
+from plainbox.testing_utils.testcases import TestCaseWithParameters
 
 
-class XMLSessionStateExporterTests(TestCase):
+class XMLSessionStateExporterTests(TestCaseWithParameters):
+
+    parameter_names = ('dump_with',)
+    parameter_values = (('io_log',),
+                        ('comments',),
+                        ('text_attachment',),
+                        ('binary_attachment',),
+                        ('hardware_info',))
 
     def setUp(self):
         self.stream = io.StringIO()
 
-    def test_dump_with_io_log(self):
+    def test_dump(self):
         exporter = XMLSessionStateExporter(
             system_id="DEADBEEF",
             timestamp="2012-12-21T12:00:00",
             client_version="1.0",
             client_name="plainbox")
+        basename = "test-data/xml-exporter/test_dump_with_"
         data = resource_json(
-            "plainbox", "test-data/xml-exporter/test_dump_with_io_log.json")
-        exporter.dump(data, self.stream)
-        actual = self.stream.getvalue()
+            "plainbox",
+            "{0}{1}.json".format(basename, self.parameters.dump_with))
         expected = resource_string(
-            "plainbox", "test-data/xml-exporter/test_dump_with_io_log.xml"
-        ).decode("UTF-8")
-        self.assertEqual(actual, expected)
-
-    def test_dump_with_comments(self):
-        exporter = XMLSessionStateExporter(
-            system_id="DEADBEEF",
-            timestamp="2012-12-21T12:00:00",
-            client_version="1.0",
-            client_name="plainbox")
-        data = resource_json(
-            "plainbox", "test-data/xml-exporter/test_dump_with_comments.json")
-        expected = resource_string(
-            "plainbox", "test-data/xml-exporter/test_dump_with_comments.xml"
+            "plainbox",
+            "{0}{1}.xml".format(basename, self.parameters.dump_with)
         ).decode("UTF-8")
         exporter.dump(data, self.stream)
         actual = self.stream.getvalue()
@@ -76,7 +72,8 @@ class XMLExporterTests(TestCase):
             "plainbox", "test-data/xml-exporter/example-data.json",
             exact=True)
         exporter = XMLSessionStateExporter(
-            system_id="TBD", timestamp="2012-12-21T12:00:00",
+            system_id="",
+            timestamp="2012-12-21T12:00:00",
             client_version="1.0")
         stream = io.StringIO('wt')
         exporter.dump(data, stream)

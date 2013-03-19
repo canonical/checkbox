@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012 Canonical Ltd.
+# Copyright 2012, 2013 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
@@ -47,6 +47,19 @@ class DependencyError(Exception, metaclass=ABCMeta):
         JobDefinition instance that is affected by the dependency error.
         """
 
+    @abstractproperty
+    def affecting_job(self):
+        """
+        JobDefinition instance that is affecting
+        :attr:`affected_job`
+
+        This may be None in certain cases (eg, when the job does not exist and
+        is merely referred to by name). If this job exists removing it SHOULD
+        fix this problem from occurring.
+
+        This may be the same as :attr:`affected_job`
+        """
+
 
 class DependencyCycleError(DependencyError):
     """
@@ -70,7 +83,18 @@ class DependencyCycleError(DependencyError):
 
     @property
     def affected_job(self):
+        """
+        the job that has a cyclic dependency on itself
+        """
         return self.job_list[0]
+
+    @property
+    def affecting_job(self):
+        """
+        same as :attr:`~DependencyCycleError.affected_job`
+        """
+
+        return self.affected_job
 
     def __str__(self):
         return "dependency cycle detected: {}".format(
@@ -83,7 +107,7 @@ class DependencyCycleError(DependencyError):
 
 class DependencyMissingError(DependencyError):
     """
-    Exception raised when a job has unsatisfied dependency
+    Exception raised when a job has an unsatisfied dependency
     """
 
     DEP_TYPE_RESOURCE = "resource"
@@ -96,7 +120,20 @@ class DependencyMissingError(DependencyError):
 
     @property
     def affected_job(self):
+        """
+        the job that has a missing dependency
+        """
         return self.job
+
+    @property
+    def affecting_job(self):
+        """
+        the job that is affecting :attr:`~DependencyMissingError.affected_job`
+
+        This is always None as we have not seen this job at all and that's
+        what's causing the problem in the first place.
+        """
+        return None
 
     def __str__(self):
         return "missing dependency: {!r} ({})".format(
@@ -120,7 +157,17 @@ class DependencyDuplicateError(DependencyError):
 
     @property
     def affected_job(self):
+        """
+        the job that already known by the system
+        """
         return self.job
+
+    @property
+    def affecting_job(self):
+        """
+        the job that is clashing with the job already in the system
+        """
+        return self.duplicate_job
 
     def __str__(self):
         return "duplicate job name: {!r}".format(self.affected_job.name)

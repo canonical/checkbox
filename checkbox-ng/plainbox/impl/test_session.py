@@ -30,7 +30,7 @@ import tempfile
 import shutil
 
 from tempfile import TemporaryDirectory
-from unittest import TestCase, expectedFailure
+from unittest import TestCase
 
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyMissingError
@@ -294,7 +294,6 @@ class RegressionTests(TestCase):
         self.assertIsInstance(problems[0], DependencyMissingError)
         self.assertIs(problems[0].affected_job, A)
 
-    @expectedFailure
     def test_init_with_identical_jobs(self):
         A = make_job("A")
         second_A = make_job("A")
@@ -305,7 +304,6 @@ class RegressionTests(TestCase):
         # But we don't really store both, just the first one
         self.assertEqual(session.job_list, [A])
 
-    @expectedFailure
     def test_init_with_colliding_jobs(self):
         # This is similar to the test above but the jobs actually differ In
         # this case the _second_ job is rejected but it really signifies a

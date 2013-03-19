@@ -204,14 +204,21 @@ class DependencySolver:
         graph while still having access and knowledge of all jobs.
 
         :returns list: the solution (a list of jobs to execute in order)
-        :raises DependencyCycleError: if a cyclic dependency is present.
-        :raises DependencyMissingErorr: if a required job does not exist.
+        :raises DependencyDuplicateError:
+            if a duplicate job definition is present
+        :raises DependencyCycleError:
+            if a cyclic dependency is present.
+        :raises DependencyMissingErorr:
+            if a required job does not exist.
         """
         return cls(job_list)._solve(visit_list)
 
     def __init__(self, job_list):
         """
         Instantiate a new dependency solver with the specified list of jobs
+
+        :raises DependencyDuplicateError:
+            if the initial job_list has any duplicate jobs
         """
         # Remember the jobs that were passed
         self._job_list = job_list

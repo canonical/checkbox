@@ -237,6 +237,16 @@ class TestDependencySolver(TestCase):
         observed = DependencySolver.resolve_dependencies(job_list)
         self.assertEqual(expected, observed)
 
+    def test_duplicate_error(self):
+        A = make_job('A')
+        another_A = make_job('A')
+        job_list = [A, another_A]
+        with self.assertRaises(DependencyDuplicateError) as call:
+            DependencySolver.resolve_dependencies(job_list)
+        self.assertIs(call.exception.job, A)
+        self.assertIs(call.exception.duplicate_job, another_A)
+
+
     def test_missing_direct_dependency(self):
         # This tests missing dependencies
         # A -> (inexisting B)

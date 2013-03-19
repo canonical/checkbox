@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012 Canonical Ltd.
+# Copyright 2012, 2013 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
@@ -30,8 +30,9 @@ import tempfile
 import shutil
 
 from tempfile import TemporaryDirectory
-from unittest import TestCase
+from unittest import TestCase, expectedFailure
 
+from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyMissingError
 from plainbox.impl.resource import Resource
 from plainbox.impl.result import JobResult
@@ -292,6 +293,30 @@ class RegressionTests(TestCase):
         self.assertEqual(len(problems), 1)
         self.assertIsInstance(problems[0], DependencyMissingError)
         self.assertIs(problems[0].affected_job, A)
+
+    @expectedFailure
+    def test_init_with_identical_jobs(self):
+        A = make_job("A")
+        second_A = make_job("A")
+        third_A = make_job("A")
+        # Identical jobs are folded for backwards compatibility with some local
+        # jobs that re-added existing jobs
+        session = SessionState([A, second_A, third_A])
+        # But we don't really store both, just the first one
+        self.assertEqual(session.job_list, [A])
+
+    @expectedFailure
+    def test_init_with_colliding_jobs(self):
+        # This is similar to the test above but the jobs actually differ In
+        # this case the _second_ job is rejected but it really signifies a
+        # deeper problem that should only occur during development of jobs
+        A = make_job("A")
+        different_A = make_job("A", plugin="resource")
+        with self.assertRaises(DependencyDuplicateError) as call:
+            SessionState([A, different_A])
+            self.assertIs(call.exception.job, A)
+            self.assertIs(call.exception.duplicate_job, different_A)
+            self.assertIs(call.exception.affected_job, different_A)
 
 
 class SessionStateSpecialTests(TestCase):

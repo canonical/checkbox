@@ -1,0 +1,18 @@
+About
+=====
+
+This Vagrantfile can be used to see how packaged version of plainbox from the
+ppa looks like.
+
+The package is built with this recipe:
+https://code.launchpad.net/~checkbox-dev/+recipe/plainbox-daily
+
+Usage instructions
+==================
+
+$TARGET is either precise or quantal
+
+$ vagrant up $TARGET
+$ vagrant ssh $TARGET
+$ plainbox --help
+$ exit

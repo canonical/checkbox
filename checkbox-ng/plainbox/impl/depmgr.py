@@ -83,6 +83,9 @@ class DependencyCycleError(DependencyError):
 
     @property
     def affected_job(self):
+        """
+        the job that has a cyclic dependency on itself
+        """
         return self.job_list[0]
 
     @property
@@ -104,7 +107,7 @@ class DependencyCycleError(DependencyError):
 
 class DependencyMissingError(DependencyError):
     """
-    Exception raised when a job has unsatisfied dependency
+    Exception raised when a job has an unsatisfied dependency
     """
 
     DEP_TYPE_RESOURCE = "resource"
@@ -117,6 +120,9 @@ class DependencyMissingError(DependencyError):
 
     @property
     def affected_job(self):
+        """
+        the job that has a missing dependency
+        """
         return self.job
 
     @property
@@ -151,6 +157,9 @@ class DependencyDuplicateError(DependencyError):
 
     @property
     def affected_job(self):
+        """
+        the job that already known by the system
+        """
         return self.job
 
     @property

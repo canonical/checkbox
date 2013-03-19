@@ -46,6 +46,10 @@ class DependencyCycleErrorTests(TestCase):
     def test_affected_job(self):
         self.assertIs(self.exc.affected_job, self.A)
 
+    def test_affecting_job(self):
+        # This is the same as affected_job as this is a cycle
+        self.assertIs(self.exc.affecting_job, self.A)
+
     def test_str(self):
         expected = "dependency cycle detected: A -> B -> A"
         observed = str(self.exc)
@@ -76,6 +80,10 @@ class DependencyMissingErrorTests(TestCase):
     def test_affected_job(self):
         self.assertIs(self.exc_direct.affected_job, self.A)
         self.assertIs(self.exc_resource.affected_job, self.A)
+
+    def test_affecting_job(self):
+        self.assertIs(self.exc_direct.affecting_job, None)
+        self.assertIs(self.exc_resource.affecting_job, None)
 
     def test_missing_job_name(self):
         self.assertEqual(self.exc_direct.missing_job_name, 'B')
@@ -123,6 +131,9 @@ class DependencyDuplicateErrorTests(TestCase):
 
     def test_affected_job(self):
         self.assertIs(self.exc.affected_job, self.A)
+
+    def test_affecting_job(self):
+        self.assertIs(self.exc.affecting_job, self.another_A)
 
     def test_str(self):
         expected = "duplicate job name: 'A'"

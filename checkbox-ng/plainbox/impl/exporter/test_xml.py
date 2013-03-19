@@ -37,18 +37,14 @@ from plainbox.testing_utils.testcases import TestCaseWithParameters
 class XMLSessionStateExporterTests(TestCaseWithParameters):
 
     parameter_names = ('dump_with',)
+    parameter_values = (('io_log',),
+                        ('comments',),
+                        ('text_attachment',),
+                        ('binary_attachment',),
+                        ('hardware_info',))
 
     def setUp(self):
         self.stream = io.StringIO()
-
-    @classmethod
-    def get_parameter_values(cls):
-        for test in ('io_log',
-                     'comments',
-                     'text_attachment',
-                     'binary_attachment',
-                     'hardware_info',):
-            yield (test,)
 
     def test_dump(self):
         exporter = XMLSessionStateExporter(

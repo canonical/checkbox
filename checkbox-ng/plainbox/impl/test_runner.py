@@ -25,13 +25,16 @@ plainbox.impl.test_runner
 Test definitions for plainbox.impl.runner module
 """
 
+from mock import Mock, patch
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 import os
 
+from plainbox.impl.job import JobDefinition
 from plainbox.impl.runner import CommandIOLogBuilder
 from plainbox.impl.runner import FallbackCommandOutputPrinter
 from plainbox.impl.runner import CommandOutputWriter
+from plainbox.impl.runner import JobRunner
 from plainbox.impl.runner import slugify
 from plainbox.testing_utils.io import TestIO
 
@@ -114,3 +117,62 @@ class CommandOutputWriterTests(TestCase):
             writer.on_end(None)
             self.assertFileContentsEqual(stdout, b'text\n')
             self.assertFileContentsEqual(stderr, b'error\n')
+
+
+class GetScriptEnvTests(TestCase):
+
+    def test_root_env_without_environ_keys(self):
+        with patch.dict('os.environ', {'foo': 'bar'}):
+            job = JobDefinition({
+                'name': 'name',
+                'plugin': 'plugin',
+                'user': 'root',
+            })
+            job._checkbox = Mock()
+            job._checkbox.extra_PYTHONPATH = None
+            job._checkbox.extra_PATH = ""
+            self.assertNotIn(
+                "foo",
+                JobRunner._get_script_env(Mock(), job, only_changes=True))
+
+    def test_root_env_with_environ_keys(self):
+        with patch.dict('os.environ', {'foo': 'bar'}):
+            job = JobDefinition({
+                'name': 'name',
+                'plugin': 'plugin',
+                'user': 'root',
+                'environ': 'foo'
+            })
+            job._checkbox = Mock()
+            job._checkbox.extra_PYTHONPATH = None
+            job._checkbox.extra_PATH = ""
+            self.assertIn(
+                "foo",
+                JobRunner._get_script_env(Mock(), job, only_changes=True))
+
+    def test_user_env_without_environ_keys(self):
+        with patch.dict('os.environ', {'foo': 'bar'}):
+            job = JobDefinition({
+                'name': 'name',
+                'plugin': 'plugin',
+            })
+            job._checkbox = Mock()
+            job._checkbox.extra_PYTHONPATH = None
+            job._checkbox.extra_PATH = ""
+            self.assertIn(
+                "foo",
+                JobRunner._get_script_env(Mock(), job, only_changes=False))
+
+    def test_user_env_with_environ_keys(self):
+        with patch.dict('os.environ', {'foo': 'bar'}):
+            job = JobDefinition({
+                'name': 'name',
+                'plugin': 'plugin',
+                'environ': 'foo'
+            })
+            job._checkbox = Mock()
+            job._checkbox.extra_PYTHONPATH = None
+            job._checkbox.extra_PATH = ""
+            self.assertIn(
+                "foo",
+                JobRunner._get_script_env(Mock(), job, only_changes=False))

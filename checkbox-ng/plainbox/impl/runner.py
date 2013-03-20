@@ -269,7 +269,8 @@ class JobRunner(IJobRunner):
         if only_changes:
             return {key: value
                     for key, value in env.items()
-                    if key not in os.environ or os.environ[key] != value}
+                    if key not in os.environ or os.environ[key] != value
+                    or key in job.get_environ_settings()}
         else:
             return env
 

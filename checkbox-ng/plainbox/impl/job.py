@@ -92,6 +92,13 @@ class JobDefinition(IJobDefinition):
             return None
 
     @property
+    def environ(self):
+        try:
+            return self.__getattr__('environ')
+        except AttributeError:
+            return None
+
+    @property
     def origin(self):
         """
         The Origin object associated with this JobDefinition
@@ -168,6 +175,15 @@ class JobDefinition(IJobDefinition):
         program = self.get_resource_program()
         if program:
             return program.required_resources
+        else:
+            return set()
+
+    def get_environ_settings(self):
+        """
+        Return a set of requested environment variables
+        """
+        if self.environ is not None:
+            return {variable for variable in re.split('[\s,]+', self.environ)}
         else:
             return set()
 

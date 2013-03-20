@@ -32,6 +32,7 @@ from plainbox.impl.job import JobDefinition
 from plainbox.impl.rfc822 import RFC822Record
 from plainbox.impl.rfc822 import Origin
 from plainbox.impl.session import SessionStateEncoder
+from plainbox.testing_utils.testcases import TestCaseWithParameters
 
 
 class TestJobDefinition(TestCase):
@@ -116,7 +117,7 @@ class TestJobDefinition(TestCase):
         observed = repr(job)
         self.assertEqual(expected, observed)
 
-    def test_depedency_parsing_empty(self):
+    def test_dependency_parsing_empty(self):
         job = JobDefinition({
             'name': 'name',
             'plugin': 'plugin'})
@@ -124,7 +125,7 @@ class TestJobDefinition(TestCase):
         observed = job.get_direct_dependencies()
         self.assertEqual(expected, observed)
 
-    def test_depedency_parsing_single_word(self):
+    def test_dependency_parsing_single_word(self):
         job = JobDefinition({
             'name': 'name',
             'plugin': 'plugin',
@@ -133,67 +134,21 @@ class TestJobDefinition(TestCase):
         observed = job.get_direct_dependencies()
         self.assertEqual(expected, observed)
 
-    def test_depedency_parsing_commas(self):
+    def test_environ_parsing_empty(self):
         job = JobDefinition({
             'name': 'name',
-            'plugin': 'plugin',
-            'depends': 'foo,bar,froz'})
-        expected = set({'foo', 'bar', 'froz'})
-        observed = job.get_direct_dependencies()
+            'plugin': 'plugin'})
+        expected = set()
+        observed = job.get_environ_settings()
         self.assertEqual(expected, observed)
 
-    def test_depedency_parsing_spaces(self):
+    def test_environ_parsing_single_word(self):
         job = JobDefinition({
             'name': 'name',
             'plugin': 'plugin',
-            'depends': 'foo bar froz'})
-        expected = set({'foo', 'bar', 'froz'})
-        observed = job.get_direct_dependencies()
-        self.assertEqual(expected, observed)
-
-    def test_depedency_parsing_tabs(self):
-        job = JobDefinition({
-            'name': 'name',
-            'plugin': 'plugin',
-            'depends': 'foo\tbar\tfroz'})
-        expected = set({'foo', 'bar', 'froz'})
-        observed = job.get_direct_dependencies()
-        self.assertEqual(expected, observed)
-
-    def test_depedency_parsing_newlines(self):
-        job = JobDefinition({
-            'name': 'name',
-            'plugin': 'plugin',
-            'depends': 'foo\nbar\nfroz'})
-        expected = set({'foo', 'bar', 'froz'})
-        observed = job.get_direct_dependencies()
-        self.assertEqual(expected, observed)
-
-    def test_depedency_parsing_spaces_and_commas(self):
-        job = JobDefinition({
-            'name': 'name',
-            'plugin': 'plugin',
-            'depends': 'foo, bar, froz'})
-        expected = set({'foo', 'bar', 'froz'})
-        observed = job.get_direct_dependencies()
-        self.assertEqual(expected, observed)
-
-    def test_depedency_parsing_multiple_spaces(self):
-        job = JobDefinition({
-            'name': 'name',
-            'plugin': 'plugin',
-            'depends': 'foo   bar'})
-        expected = set({'foo', 'bar'})
-        observed = job.get_direct_dependencies()
-        self.assertEqual(expected, observed)
-
-    def test_depedency_parsing_multiple_commas(self):
-        job = JobDefinition({
-            'name': 'name',
-            'plugin': 'plugin',
-            'depends': 'foo,,,,bar'})
-        expected = set({'foo', 'bar'})
-        observed = job.get_direct_dependencies()
+            'environ': 'word'})
+        expected = set(['word'])
+        observed = job.get_environ_settings()
         self.assertEqual(expected, observed)
 
     def test_resource_parsing_empty(self):
@@ -284,3 +239,46 @@ class TestJobDefinition(TestCase):
         self.assertIsInstance(job_dec, JobDefinition)
         self.assertEqual(job_dec.name, "camera/still")
         self.assertEqual(job_dec.plugin, "user-verify")
+
+
+class ParsingTests(TestCaseWithParameters):
+
+    parameter_names = ('glue',)
+    parameter_values = (
+        ('commas',),
+        ('spaces',),
+        ('tabs',),
+        ('newlines',),
+        ('spaces_and_commas',),
+        ('multiple_spaces',),
+        ('multiple_commas',)
+    )
+    parameters_keymap = {
+        'commas': ',',
+        'spaces': ' ',
+        'tabs': '\t',
+        'newlines': '\n',
+        'spaces_and_commas': ', ',
+        'multiple_spaces': '   ',
+        'multiple_commas': ',,,,'
+    }
+
+    def test_environ_parsing_with_various_separators(self):
+        job = JobDefinition({
+            'name': 'name',
+            'plugin': 'plugin',
+            'environ': self.parameters_keymap[
+                self.parameters.glue].join(['foo', 'bar', 'froz'])})
+        expected = set({'foo', 'bar', 'froz'})
+        observed = job.get_environ_settings()
+        self.assertEqual(expected, observed)
+
+    def test_dependency_parsing_with_various_separators(self):
+        job = JobDefinition({
+            'name': 'name',
+            'plugin': 'plugin',
+            'depends': self.parameters_keymap[
+                self.parameters.glue].join(['foo', 'bar', 'froz'])})
+        expected = set({'foo', 'bar', 'froz'})
+        observed = job.get_direct_dependencies()
+        self.assertEqual(expected, observed)

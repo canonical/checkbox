@@ -335,3 +335,30 @@ In all of those cases the core removes the offending job and tries to work
 regardless of the problem. This is intended more as a development aid rather
 than a reliability feature as no released versions of either project should
 cause this problem.
+
+JobDefinition.command
+---------------------
+
+The *command* field is used when the job needs to call an external command.
+Typically all shell jobs define a command to run.
+
+"Manual" jobs can also define a command to run as part of the test procedure.
+
+JobDefinition.user
+------------------
+
+The *user* field is used when the job requires to run as a specific user
+(e.g. root).
+
+The job command will be run via pkexec to get the necessary
+permissions.
+
+JobDefinition.environ
+---------------------
+
+The *environ* field is used to pass additional environmental keys from the user
+session to the new environment set up when the job command is run by another
+user (root, most of the time).
+
+The actual syntax is not strictly specified, PlainBox interprets this field as
+a list of tokens delimited by comma or any whitespace (including newlines).

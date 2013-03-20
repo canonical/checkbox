@@ -3,6 +3,8 @@
 
 Vagrant::Config.run do |config|
 
+  config.ssh.timeout = 60
+
   # Define a Ubuntu Server image (cloud) for the 12.04 release (precise)
   config.vm.define :precise do |precise_config|
     precise_config.vm.box = "precise-cloud-i386"

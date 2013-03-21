@@ -280,6 +280,15 @@ class CheckBox:
         """
         return self._dirs.SCRIPTS_DIR
 
+    def get_builtin_whitelists(self):
+        logger.debug("Loading built-in whitelists...")
+        whitelist_list = []
+        for name in os.listdir(self.whitelists_dir):
+            if name.endswith(".whitelist"):
+                whitelist_list.append(
+                    WhiteList.from_file(os.path.join(self.jobs_dir, name)))
+        return whitelist_list
+
     def get_builtin_jobs(self):
         logger.debug("Loading built-in jobs...")
         job_list = []

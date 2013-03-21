@@ -263,6 +263,13 @@ class CheckBox:
         return self._dirs.JOBS_DIR
 
     @property
+    def whitelists_dir(self):
+        """
+        Return an absolute path of the whitelist directory
+        """
+        return os.path.join(self._dirs.DATA_DIR, "whitelists")
+
+    @property
     def scripts_dir(self):
         """
         Return an absolute path of the scripts directory

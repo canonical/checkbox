@@ -628,10 +628,11 @@ class SessionState:
                 # reported back to the UI layer. Perhaps update_job_result()
                 # could simply return a list of problems in a similar manner
                 # how update_desired_job_list() does.
-                logging.warning(
-                    ("Local job %s produced job %r that collides with"
-                     " an existing job %r, the new job was discarded"),
-                    result.job, new_job, existing_job)
+                if new_job != existing_job:
+                    logging.warning(
+                        ("Local job %s produced job %r that collides with"
+                         " an existing job %r, the new job was discarded"),
+                        result.job, new_job, existing_job)
 
     def _gen_rfc822_records_from_io_log(self, result):
         logger.debug("processing output from a job: %r", result.job)

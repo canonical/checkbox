@@ -142,6 +142,11 @@ class JobDefinition(IJobDefinition):
             return False
         return self.get_checksum() == other.get_checksum()
 
+    def __ne__(self, other):
+        if not isinstance(other, JobDefinition):
+            return True
+        return self.get_checksum() != other.get_checksum()
+
     def get_resource_program(self):
         """
         Return a ResourceProgram based on the 'requires' expression.

@@ -618,7 +618,7 @@ class SessionState:
         # with another job with the same name.
         for new_job in new_job_list:
             try:
-                existing_job = self._job_state_map[new_job.name]
+                existing_job = self._job_state_map[new_job.name].job
             except KeyError:
                 logger.info("Storing new job %r", new_job)
                 self._job_state_map[new_job.name] = JobState(new_job)

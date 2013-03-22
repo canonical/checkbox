@@ -11,4 +11,5 @@ Community members.
 
    intro.rst
    architecture.rst
+   resources.rst
    reference.rst

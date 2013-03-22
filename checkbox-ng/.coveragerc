@@ -1,6 +1,15 @@
 [run]
 branch = True
 source = plainbox
+omit =
+    plainbox/tests.py
+    plainbox/vendor/*
+    plainbox/test_*
+    plainbox/impl/test_*
+    plainbox/impl/integration_tests.py
+    plainbox/impl/commands/test_*
+    plainbox/impl/exporter/test_*
+    plainbox/testing_utils/test_*
 
 [report]
 exclude_lines =

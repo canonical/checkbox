@@ -39,7 +39,8 @@ all of the USB tests you can run the following command:
 
 .. code-block:: bash
 
-    $ plainbox run -i 'usb/'
+    $ plainbox run -i 'usb/.*'
+
 
 Running a white list
 ^^^^^^^^^^^^^^^^^^^^

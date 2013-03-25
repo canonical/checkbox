@@ -61,8 +61,8 @@ For example, to run the default white list run:
 Saving test results as XML
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To send test results to the :term:`certification website` you need to pass two
-additional options:
+To generate an XML file that can be sent to the :term:`certification website`
+you need to pass two additional options:
 
 1. ``--output-format=xml``
 2. ``--output-file=NAME`` where *NAME* is a file name

@@ -56,7 +56,7 @@ For example, to run the default white list run:
 
 .. code-block:: bash
 
-    $ plainbox run -w default
+    $ plainbox run -w /usr/share/checkbox/data/whitelists/default.whitelist
 
 Saving test results as XML
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -72,4 +72,5 @@ run this command:
 
 .. code-block:: bash
 
-    $ plainbox run -w default -f xml -o submission.xml
+    $ plainbox run --whitelist=/usr/share/checkbox/data/whitelists/default.whitelist --output-format=xml --output-file=submission.xml
+

@@ -51,6 +51,7 @@ Table of contents
    :maxdepth: 2
 
    usage.rst
+   author/index.rst
    dev/index.rst
    glossary.rst
    changelog.rst

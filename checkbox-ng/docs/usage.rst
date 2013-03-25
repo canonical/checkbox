@@ -74,3 +74,20 @@ run this command:
 
     $ plainbox run --whitelist=/usr/share/checkbox/data/whitelists/default.whitelist --output-format=xml --output-file=submission.xml
 
+Running stable release update tests
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+PlainBox has special support for running stable release updates tests in an
+automated manner. This runs all the jobs from the *sru.whitelist* and sends the
+results to the certification website.
+
+To run SRU tests you will need to know the so-called :term:`Secure ID` of the
+device you are testing. Once you know that all you need to do is run::
+
+.. code-block:: bash
+
+    $ plainbox sru $secure_id submission.xml
+
+The second argument, submission.xml, is a name of the fallback file that is
+only created when sending the data to the certification website fails to work
+for any reason.

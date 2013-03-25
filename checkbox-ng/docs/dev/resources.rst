@@ -7,6 +7,13 @@ This mechanism allows some types of jobs to publish resource objects to an
 abstract namespace and to a way to evaluate a resource program to determine if
 a job can be started.
 
+Resources in PlainBox
+=====================
+
+The following chapters explain how resources actually work in :term:`PlainBox`.
+Currently there *is* a subtle difference between this and the original
+:term:`CheckBox` implementation.
+
 Resource programs
 -----------------
 
@@ -243,3 +250,10 @@ This would allow solving the case where a job can only run, for example, when a
 certain package is **not** installed.  This could be expressed as::
 
     all(package.name != 'ubuntu-desktop')
+
+Resources in CheckBox
+=====================
+
+The following chapters explain how resources originally worked in
+:term:`CheckBox`. Only notable differences from :term:`PlainBox` implementation
+are listed.

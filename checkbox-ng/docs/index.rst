@@ -39,14 +39,10 @@ To test your hardware with the default set of tests run this command.
 
 .. code-block:: bash
 
-    $ plainbox run --whitelist=default --output-format=xml --output-file=submission.xml
+    $ plainbox run --whitelist=/usr/share/checkbox/data/whitelists/default.whitelist --output-format=xml --output-file=submission.xml
 
 The :file:`submission.xml` you get in the end can be submitted to the
 :term:`certification website`. For more details see :ref:`usage`
-
-.. todo::
-    This example is bad because it is fake. We should improve the core so that
-    a whitelist can referred to by name alone (not by a full path).
 
 Table of contents
 =================

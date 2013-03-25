@@ -52,6 +52,7 @@ Table of contents
 
    usage.rst
    author/index.rst
+   appdev/index.rst
    dev/index.rst
    glossary.rst
    changelog.rst

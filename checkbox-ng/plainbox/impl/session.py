@@ -557,6 +557,7 @@ class SessionState:
                                 self.session_data_filename)
 
         with tempfile.NamedTemporaryFile(mode='wt',
+                                         encoding='UTF-8',
                                          suffix='.tmp',
                                          prefix='session',
                                          dir=self._session_dir,

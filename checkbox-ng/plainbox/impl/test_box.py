@@ -329,7 +329,7 @@ class TestRun(TestCase):
                 main(['run', '--output-format=?'])
             self.assertEqual(call.exception.args, (0,))
         expected = """
-        Available output formats: json, rfc822, text
+        Available output formats: json, rfc822, text, xml
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
 
@@ -343,6 +343,7 @@ class TestRun(TestCase):
         json: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs, with-attachments, with-comments, machine-json
         rfc822: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs, with-attachments, with-comments
         text: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs, with-attachments, with-comments
+        xml: 
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
 

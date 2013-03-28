@@ -557,6 +557,7 @@ class SessionState:
                                 self.session_data_filename)
 
         with tempfile.NamedTemporaryFile(mode='wt',
+                                         encoding='UTF-8',
                                          suffix='.tmp',
                                          prefix='session',
                                          dir=self._session_dir,
@@ -577,7 +578,7 @@ class SessionState:
         """
         Erase the job_state_map and desired_job_list with the saved ones
         """
-        with open(self.previous_session_file(), 'r') as f:
+        with open(self.previous_session_file(), 'rt', encoding='UTF-8') as f:
             previous_session = json.load(
                 f, object_hook=SessionStateEncoder().dict_to_object)
         self._job_state_map = previous_session._job_state_map

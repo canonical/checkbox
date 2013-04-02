@@ -27,6 +27,7 @@
 """
 
 from argparse import FileType
+from io import RawIOBase
 from logging import getLogger
 from os.path import join
 import sys
@@ -42,6 +43,37 @@ from plainbox.impl.session import SessionState
 
 
 logger = getLogger("plainbox.commands.run")
+
+
+class ByteStringStreamTranslator(RawIOBase):
+    """
+    This is a sort of "impedance matcher" that bridges the gap between
+    something that expects to write strings to a stream and a stream
+    that expects to receive bytes. Instead of using, for instance, an
+    intermediate in-memory IO object, this decodes on the fly and
+    has the same interface as a writable stream, so it can be initialized
+    with the destination string stream and then passed to something
+    (usually a dump-style function) that writes bytes.
+    """
+
+    def __init__(self, dest_stream, encoding):
+        """ Create a stream that will take bytes, decode them into strings
+            according to the specified encoding, and then write them
+            as bytes into the destination stream.
+            :param dest_stream: the destination string stream.
+            :param encoding: Encoding with which bytes data is encoded.
+                It will be decoded using the same encoding to obtain
+                the string to be written.
+        """
+        self.dest_stream = dest_stream
+        self.encoding = encoding
+
+    def write(self, data):
+        """ Writes to the stream, takes bytes and decodes them per the
+            object's specified encoding prior to writing.
+            :param data: the chunk of data to write.
+        """
+        return self.dest_stream.write(data.decode(self.encoding))
 
 
 class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
@@ -83,7 +115,7 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
                   ' (pass ? for a list of choices)'))
         group.add_argument(
             '-o', '--output-file', default='-',
-            metavar='FILE', type=FileType("wt"),
+            metavar='FILE', type=FileType("wb"),
             help=('Save test results to the specified FILE'
                   ' (or to stdout if FILE is -)'))
         # Call enhance_parser from CheckBoxCommandMixIn
@@ -161,13 +193,18 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         return 0
 
     def _save_results(self, ns, session, exporter):
+        data = exporter.get_session_data_subset(session)
         if ns.output_file is sys.stdout:
             print("[ Results ]".center(80, '='))
+            #This requires a bit more finesse, as exporters output bytes
+            #and stdout needs a string.
+            translating_stream = ByteStringStreamTranslator(ns.output_file,
+                                                                "utf-8")
+            exporter.dump(data, translating_stream)
         else:
             print("Saving results to {}".format(ns.output_file.name))
-        data = exporter.get_session_data_subset(session)
-        with ns.output_file as stream:
-            exporter.dump(data, stream)
+            with ns.output_file as stream:
+                exporter.dump(data, stream)
 
     def ask_for_outcome(self, prompt=None, allowed=None):
         if prompt is None:

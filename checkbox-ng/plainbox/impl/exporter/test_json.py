@@ -25,7 +25,7 @@ Test definitions for plainbox.impl.exporter.json module
 """
 
 from unittest import TestCase
-from io import StringIO
+from io import BytesIO
 
 from plainbox.impl.exporter.json import JSONSessionStateExporter
 
@@ -42,17 +42,17 @@ class JSONSessionStateExporterTests(TestCase):
     def test_default_dump(self):
         exporter = self.exporter_cls()
         data = {'foo': 'bar'}
-        stream = StringIO()
+        stream = BytesIO()
         exporter.dump(data, stream)
         self.assertEqual(stream.getvalue(), (
             '{\n'
             '    "foo": "bar"\n'
-            '}'))
+            '}').encode('utf-8'))
 
     def test_machine_dump(self):
         exporter = self.exporter_cls(option_list=[
             self.exporter_cls.OPTION_MACHINE_JSON])
         data = {'foo': 'bar'}
-        stream = StringIO()
+        stream = BytesIO()
         exporter.dump(data, stream)
-        self.assertEqual(stream.getvalue(), '{"foo":"bar"}')
+        self.assertEqual(stream.getvalue(), '{"foo":"bar"}'.encode('utf-8'))

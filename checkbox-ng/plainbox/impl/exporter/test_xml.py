@@ -44,7 +44,7 @@ class XMLSessionStateExporterTests(TestCaseWithParameters):
                         ('hardware_info',))
 
     def setUp(self):
-        self.stream = io.StringIO()
+        self.stream = io.BytesIO()
 
     def test_dump(self):
         exporter = XMLSessionStateExporter(
@@ -59,7 +59,7 @@ class XMLSessionStateExporterTests(TestCaseWithParameters):
         expected = resource_string(
             "plainbox",
             "{0}{1}.xml".format(basename, self.parameters.dump_with)
-        ).decode("UTF-8")
+        )  # resource_string unintuitively returns bytes
         exporter.dump(data, self.stream)
         actual = self.stream.getvalue()
         self.assertEqual(actual, expected)
@@ -75,15 +75,15 @@ class XMLExporterTests(TestCase):
             system_id="",
             timestamp="2012-12-21T12:00:00",
             client_version="1.0")
-        stream = io.StringIO('wt')
+        stream = io.BytesIO()
         exporter.dump(data, stream)
-        self.actual_result = stream.getvalue()
-        self.assertIsInstance(self.actual_result, str)
+        self.actual_result = stream.getvalue()  # This is bytes
+        self.assertIsInstance(self.actual_result, bytes)
 
     def test_perfect_match(self):
         expected_result = resource_string(
             "plainbox", "test-data/xml-exporter/example-data.xml"
-        ).decode("UTF-8")
+        )  # unintuitively, resource_string returns bytes
         self.assertEqual(self.actual_result, expected_result)
 
     def test_result_is_valid(self):
@@ -93,4 +93,4 @@ class XMLExporterTests(TestCase):
         # there.
         self.assertTrue(
             validator.validate_text(
-                self.actual_result.encode("UTF-8")))
+                self.actual_result))

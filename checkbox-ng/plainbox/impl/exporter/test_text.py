@@ -3,6 +3,7 @@
 # Copyright 2012 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Daniel Manrique  <roadmr@ubuntu.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,24 +19,25 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-:mod:`plainbox.impl.exporter.text` -- plain text exporter
-=========================================================
+plainbox.impl.exporter.test_text
+================================
 
-.. warning::
-
-    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
+Test definitions for plainbox.impl.exporter.text module
 """
 
+from io import BytesIO
+from unittest import TestCase
 
-from plainbox.impl.exporter import SessionStateExporterBase
+from plainbox.impl.exporter.text import TextSessionStateExporter
 
 
-class TextSessionStateExporter(SessionStateExporterBase):
-    """
-    Human-readable session state exporter.
-    """
+class TextSessionStateExporterTests(TestCase):
 
-    def dump(self, data, stream):
-        for job_name, job_data in data['result_map'].items():
-            stream.write("{}: {}".format(
-                         job_name, job_data['outcome']).encode('utf-8'))
+    def test_default_dump(self):
+        exporter = TextSessionStateExporter()
+        # Text exporter expects this data format
+        data = {'result_map': {'job_name': {'outcome': 'fail'}}}
+        stream = BytesIO()
+        exporter.dump(data, stream)
+        expected_bytes = "job_name: fail".encode('utf-8')
+        self.assertEqual(stream.getvalue(), expected_bytes)

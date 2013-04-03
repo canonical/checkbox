@@ -317,6 +317,28 @@ class RegressionTests(TestCase):
             self.assertIs(call.exception.affected_job, different_A)
 
 
+class SessionStateAPITests(TestCase):
+
+    def test_set_resource_list(self):
+        # Define an empty session
+        session = SessionState([])
+        # Define a resource
+        old_res = Resource({'attr': 'old value'})
+        # Set the resource list with the old resource
+        # So here the old result is stored into a new 'R' resource
+        session.set_resource_list('R', [old_res])
+        # Ensure that it worked
+        self.assertEqual(session._resource_map, {'R': [old_res]})
+        # Define another resource
+        new_res = Resource({'attr': 'new value'})
+        # Now we present the second result for the same job
+        session.set_resource_list('R', [new_res])
+        # What should happen here is that the R resource is entirely replaced
+        # by the data from the new result. The data should not be merged or
+        # appended in any way.
+        self.assertEqual(session._resource_map, {'R': [new_res]})
+
+
 class SessionStateSpecialTests(TestCase):
 
     # NOTE: those tests are essential. They allow testing the behavior of

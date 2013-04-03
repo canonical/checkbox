@@ -539,6 +539,14 @@ class SessionState:
         else:
             return None
 
+    def set_resource_list(self, resource_name, resource_list):
+        """
+        Add or change a resource with the given name.
+
+        Resources silently overwrite any old resources with the same name.
+        """
+        self._resource_map[resource_name] = resource_list
+
     def persistent_save(self):
         """
         Save to disk the minimum needed to resume plainbox where it stopped

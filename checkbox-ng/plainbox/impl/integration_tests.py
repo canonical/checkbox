@@ -53,7 +53,8 @@ class IntegrationTests(TestCaseWithParameters):
         os.environ['XDG_CACHE_HOME'] = self._sandbox
 
     @classmethod
-    def _gen_job_name_values(cls, package='plainbox', root='test-data/integration-tests/'):
+    def _gen_job_name_values(cls, package='plainbox',
+                             root='test-data/integration-tests/'):
         """
         Discover job names for jobs that we have reference data for
 
@@ -66,7 +67,8 @@ class IntegrationTests(TestCaseWithParameters):
                 for item in cls._gen_job_name_values(package, resource_name):
                     yield item
             elif resource_name.endswith('.json'):
-                yield resource_name[len('test-data/integration-tests/'):-len('.json')]
+                yield resource_name[
+                    len('test-data/integration-tests/'):-len('.json')]
 
     @classmethod
     def get_parameter_values(cls):
@@ -101,7 +103,8 @@ class IntegrationTests(TestCaseWithParameters):
         # [ At this time TestIO and TemporaryDirectory are gone ]
         # Load the expected results and keep them in memory
         reference_path = resource_filename(
-            "plainbox", "test-data/integration-tests/{}.json".format(self.parameters.job_name))
+            "plainbox", "test-data/integration-tests/{}.json".format(
+                self.parameters.job_name))
         with open(reference_path, encoding='UTF-8') as stream:
             expected_result = json.load(stream)
         # Check that results match expected values

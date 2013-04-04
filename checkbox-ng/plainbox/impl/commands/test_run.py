@@ -25,20 +25,4 @@ plainbox.impl.commands.test_run
 Test definitions for plainbox.impl.run module
 """
 
-from unittest import TestCase
-from io import StringIO, BytesIO
-
-from plainbox.impl.commands.run import ByteStringStreamTranslator
-
-
-class TestRun(TestCase):
-
-    def test_byte_string_translator(self):
-        dest_stream = StringIO()
-        source_stream = BytesIO(b'This is a bytes literal')
-        encoding = 'utf-8'
-
-        translator = ByteStringStreamTranslator(dest_stream, encoding)
-        translator.write(source_stream.getvalue())
-
-        self.assertEqual('This is a bytes literal', dest_stream.getvalue())
+# NOTE: this file is blank after some tests moved to other modules.

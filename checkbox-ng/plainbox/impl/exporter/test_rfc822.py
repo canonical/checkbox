@@ -39,5 +39,9 @@ class RFC822SessionStateExporterTests(TestCase):
         data = {'result_map': {'job_name': {'outcome': 'fail'}}}
         stream = BytesIO()
         exporter.dump(data, stream)
-        expected_bytes = "name: job_name\noutcome: fail\n\n".encode('utf-8')
+        expected_bytes = (
+            "name: job_name\n"
+            "outcome: fail\n"
+            "\n"
+        ).encode('UTF-8')
         self.assertEqual(stream.getvalue(), expected_bytes)

@@ -37,5 +37,5 @@ class TextSessionStateExporter(SessionStateExporterBase):
 
     def dump(self, data, stream):
         for job_name, job_data in data['result_map'].items():
-            stream.write("{}: {}".format(
-                         job_name, job_data['outcome']).encode('utf-8'))
+            stream.write("{}: {}\n".format(
+                job_name, job_data['outcome']).encode('utf-8'))

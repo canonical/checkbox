@@ -199,7 +199,7 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             #This requires a bit more finesse, as exporters output bytes
             #and stdout needs a string.
             translating_stream = ByteStringStreamTranslator(
-                ns.output_file, "utf-8")
+                ns.output_file, "UTF-8")
             exporter.dump(data, translating_stream)
         else:
             print("Saving results to {}".format(ns.output_file.name))

@@ -29,14 +29,15 @@
 from logging import getLogger
 import os
 
+from plainbox.impl.applogic import get_matching_job_list
+from plainbox.impl.checkbox import CheckBox, WhiteList
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.depmgr import DependencyDuplicateError
+from plainbox.impl.exporter import ByteStringStreamTranslator
+from plainbox.impl.exporter.xml import XMLSessionStateExporter
 from plainbox.impl.result import JobResult
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.session import SessionState
-from plainbox.impl.exporter.xml import XMLSessionStateExporter
-from plainbox.impl.checkbox import CheckBox, WhiteList
-from plainbox.impl.applogic import get_matching_job_list
 
 
 logger = getLogger("plainbox.commands.sru")
@@ -101,7 +102,8 @@ class _SRUInvocation:
         print("Saving results to {0}".format(self.ns.fallback_file))
         data = self.exporter.get_session_data_subset(self.session)
         with open(self.ns.fallback_file, "wt", encoding="UTF-8") as stream:
-            self.exporter.dump(data, stream)
+            translating_stream = ByteStringStreamTranslator(stream, "UTF-8")
+            self.exporter.dump(data, translating_stream)
 
     def _run_all_jobs(self):
         again = True

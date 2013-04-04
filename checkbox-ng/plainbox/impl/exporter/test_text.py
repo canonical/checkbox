@@ -39,5 +39,5 @@ class TextSessionStateExporterTests(TestCase):
         data = {'result_map': {'job_name': {'outcome': 'fail'}}}
         stream = BytesIO()
         exporter.dump(data, stream)
-        expected_bytes = "job_name: fail\n".encode('utf-8')
+        expected_bytes = "job_name: fail\n".encode('UTF-8')
         self.assertEqual(stream.getvalue(), expected_bytes)

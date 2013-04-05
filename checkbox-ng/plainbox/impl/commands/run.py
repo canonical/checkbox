@@ -29,6 +29,7 @@
 from argparse import FileType
 from logging import getLogger
 from os.path import join
+import io
 import sys
 
 from plainbox.impl.commands import PlainBoxCommand
@@ -157,13 +158,18 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
                                session.jobs_io_log_dir,
                                outcome_callback=outcome_callback)
             self._run_jobs_with_session(ns, session, runner)
-            self._save_results(ns, session, exporter)
+            #Get a stream with exported session data.
+            exported_stream = io.StringIO()
+            data_subset = exporter.get_session_data_subset(session)
+            exporter.dump(data_subset, exported_stream)
+            exported_stream.seek(0) #  Need to rewind the file, puagh
+            #Write the stream to file if requested
+            self._save_results(ns.output_file, exported_stream)
         # FIXME: sensible return value
         return 0
 
-    def _save_results(self, ns, session, exporter):
-        data = exporter.get_session_data_subset(session)
-        if ns.output_file is sys.stdout:
+    def _save_results(self, output_file, input_stream):
+        if output_file is sys.stdout:
             print("[ Results ]".center(80, '='))
             #This requires a bit more finesse, as exporters output bytes
             #and stdout needs a string.
@@ -171,9 +177,10 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
                 ns.output_file, "UTF-8")
             exporter.dump(data, translating_stream)
         else:
-            print("Saving results to {}".format(ns.output_file.name))
-            with ns.output_file as stream:
-                exporter.dump(data, stream)
+            print("Saving results to {}".format(output_file.name))
+            output_file.write(input_stream.read())
+        if output_file is not sys.stdout:
+            output_file.close
 
     def ask_for_outcome(self, prompt=None, allowed=None):
         if prompt is None:

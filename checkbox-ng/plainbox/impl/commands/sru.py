@@ -27,6 +27,7 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 from logging import getLogger
+from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
 import os
 
 from plainbox.impl.applogic import get_matching_job_list
@@ -38,6 +39,7 @@ from plainbox.impl.exporter.xml import XMLSessionStateExporter
 from plainbox.impl.result import JobResult
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.session import SessionState
+from plainbox.impl.transport.certification import CertificationTransport
 
 
 logger = getLogger("plainbox.commands.sru")
@@ -86,6 +88,7 @@ class _SRUInvocation:
                 outcome_callback=None)  # SRU runs are never interactive
             self._run_all_jobs()
             self._save_results()
+            self._submit_results()
         # FIXME: sensible return value
         return 0
 
@@ -104,6 +107,31 @@ class _SRUInvocation:
         with open(self.ns.fallback_file, "wt", encoding="UTF-8") as stream:
             translating_stream = ByteStringStreamTranslator(stream, "UTF-8")
             self.exporter.dump(data, translating_stream)
+
+    def _submit_results(self):
+        print("Submitting results to {0} for secure_id {1}".format(
+              self.ns.destination, self.ns.secure_id))
+        options_string = "secure_id={0}".format(self.ns.secure_id)
+        try:
+            transport = CertificationTransport(self.ns.destination,
+                                               options_string)
+        except InvalidSecureIDError as exc:
+            print(exc)
+            return False
+        try:
+            with open(self.ns.fallback_file, "rt", encoding="UTF-8") as stream:
+                result = transport.send(stream)
+                print("Successfully sent, server gave me id {0}".format(
+                      result['id']))
+        except IOError as exc:
+            print("Problem reading a file: {0}".format(exc))
+        except InvalidSchema as exc:
+            print("Invalid destination URL: {0}".format(exc))
+        except ConnectionError as exc:
+            print("Unable to connect to destination URL: {0}".format(exc))
+        except HTTPError as exc:
+            print(("Server returned an error when "
+                "receiving or processing: {0}").format(exc))
 
     def _run_all_jobs(self):
         again = True
@@ -159,8 +187,6 @@ class SRUCommand(PlainBoxCommand):
 
     def invoked(self, ns):
         # a list of todos from functionality point of view:
-        # TODO: instantiate the 'c4' transport/stream wrapper
-        # TODO: try sending stuff to c4
         # TODO: if that fails save the result on disk and bail
         # a list of todos from implementation point of view:
         # TODO: refactor box.py so that running tests with simple

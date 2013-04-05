@@ -279,7 +279,9 @@ class TestRun(TestCase):
         self.maxDiff = None
         expected = """
         usage: plainbox run [-h] [--not-interactive] [-n] [-f FORMAT] [-p OPTIONS]
-                            [-o FILE] [-i PATTERN] [-x PATTERN] [-w WHITELIST]
+                            [-o FILE] [-t TRANSPORT] [--transport-where WHERE]
+                            [--transport-options OPTIONS] [-i PATTERN] [-x PATTERN]
+                            [-w WHITELIST]
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -298,6 +300,15 @@ class TestRun(TestCase):
           -o FILE, --output-file FILE
                                 Save test results to the specified FILE (or to stdout
                                 if FILE is -)
+          -t TRANSPORT, --transport TRANSPORT
+                                use TRANSPORT to send results somewhere (pass ? for a
+                                list of choices)
+          --transport-where WHERE
+                                Where to send data using the selected transport. This
+                                is passed as-is and is transport-dependent.
+          --transport-options OPTIONS
+                                Comma-separated list of key-value options (k=v) to be
+                                passed to the transport.
 
         job definition options:
           -i PATTERN, --include-pattern PATTERN

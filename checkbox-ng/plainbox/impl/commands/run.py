@@ -29,14 +29,18 @@
 from argparse import FileType
 from logging import getLogger
 from os.path import join
+from shutil import copyfileobj
 import io
 import sys
+
+from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
 
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter import get_all_exporters
+from plainbox.impl.transport import get_all_transports
 from plainbox.impl.result import JobResult
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.runner import slugify
@@ -55,10 +59,14 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         elif ns.output_options == '?':
             self._print_output_option_list(ns)
             return 0
+        elif ns.transport == '?':
+            self._print_transport_list(ns)
+            return 0
         else:
             exporter = self._prepare_exporter(ns)
+            transport = self._prepare_transport(ns)
             job_list = self.get_job_list(ns)
-            return self._run_jobs(ns, job_list, exporter)
+            return self._run_jobs(ns, job_list, exporter, transport)
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser("run", help="run a test job")
@@ -88,6 +96,23 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             metavar='FILE', type=FileType("wb"),
             help=('Save test results to the specified FILE'
                   ' (or to stdout if FILE is -)'))
+        group.add_argument(
+            '-t', '--transport',
+            metavar='TRANSPORT', choices=['?'] + list(
+                get_all_transports().keys()),
+            help=('use TRANSPORT to send results somewhere'
+                  ' (pass ? for a list of choices)'))
+        group.add_argument(
+            '--transport-where',
+            metavar='WHERE',
+            help=('Where to send data using the selected transport.'
+                  ' This is passed as-is and is transport-dependent.'))
+        group.add_argument(
+            '--transport-options',
+            metavar='OPTIONS',
+            help=('Comma-separated list of key-value options (k=v) to '
+                  ' be passed to the transport.'))
+
         # Call enhance_parser from CheckBoxCommandMixIn
         self.enhance_parser(parser)
 
@@ -101,6 +126,10 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             print("{}: {}".format(
                 name, ", ".join(exporter_cls.supported_option_list)))
 
+    def _print_transport_list(self, ns):
+        print("Available transports: {}".format(
+            ', '.join(get_all_transports())))
+
     def _prepare_exporter(self, ns):
         exporter_cls = get_all_exporters()[ns.output_format]
         if ns.output_options:
@@ -113,6 +142,15 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             raise SystemExit(str(exc))
         return exporter
 
+    def _prepare_transport(self, ns):
+        if ns.transport not in get_all_transports():
+            return None
+        transport_cls = get_all_transports()[ns.transport]
+        try:
+            return transport_cls(ns.transport_where, ns.transport_options)
+        except ValueError as exc:
+            raise SystemExit(str(exc))
+
     def ask_for_resume(self, prompt=None, allowed=None):
         # FIXME: Add support/callbacks for a GUI
         if prompt is None:
@@ -124,7 +162,7 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             answer = input(prompt)
         return False if answer in ('n', 'N') else True
 
-    def _run_jobs(self, ns, job_list, exporter):
+    def _run_jobs(self, ns, job_list, exporter, transport=None):
         # Compute the run list, this can give us notification about problems in
         # the selected jobs. Currently we just display each problem
         matching_job_list = self._get_matching_job_list(ns, job_list)
@@ -158,13 +196,27 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
                                session.jobs_io_log_dir,
                                outcome_callback=outcome_callback)
             self._run_jobs_with_session(ns, session, runner)
-            #Get a stream with exported session data.
-            exported_stream = io.StringIO()
+            # Get a stream with exported session data.
+            exported_stream = io.BytesIO()
             data_subset = exporter.get_session_data_subset(session)
             exporter.dump(data_subset, exported_stream)
-            exported_stream.seek(0) #  Need to rewind the file, puagh
-            #Write the stream to file if requested
+            exported_stream.seek(0)  # Need to rewind the file, puagh
+            # Write the stream to file if requested
             self._save_results(ns.output_file, exported_stream)
+            # Invoke the transport?
+            if transport:
+                exported_stream.seek(0)
+                try:
+                    transport.send(exported_stream.read())
+                except InvalidSchema as exc:
+                    print("Invalid destination URL: {0}".format(exc))
+                except ConnectionError as exc:
+                    print(("Unable to connect "
+                           "to destination URL: {0}").format(exc))
+                except HTTPError as exc:
+                    print(("Server returned an error when "
+                        "receiving or processing: {0}").format(exc))
+
         # FIXME: sensible return value
         return 0
 
@@ -173,14 +225,14 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             print("[ Results ]".center(80, '='))
             #This requires a bit more finesse, as exporters output bytes
             #and stdout needs a string.
-            translating_stream = ByteStringStreamTranslator(
-                ns.output_file, "UTF-8")
-            exporter.dump(data, translating_stream)
+            translating_stream = ByteStringStreamTranslator(output_file,
+                                                                "utf-8")
+            copyfileobj(input_stream, translating_stream)
         else:
             print("Saving results to {}".format(output_file.name))
-            output_file.write(input_stream.read())
+            copyfileobj(input_stream, output_file)
         if output_file is not sys.stdout:
-            output_file.close
+            output_file.close()
 
     def ask_for_outcome(self, prompt=None, allowed=None):
         if prompt is None:

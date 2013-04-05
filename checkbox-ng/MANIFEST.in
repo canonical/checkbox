@@ -1,7 +1,7 @@
 include README.md
 include COPYING
 include mk-interesting-graphs.sh
-recursive-include plainbox/test-data/integration-tests *.json
+recursive-include plainbox/test-data/ *.json *.xml *.txt
 recursive-include docs *.rst
 include docs/conf.py
 include plainbox/data/report/hardware-1_0.rng

@@ -41,8 +41,8 @@ class RFC822SessionStateExporter(SessionStateExporterBase):
     def dump(self, data, stream):
         entry = OrderedDict()
         string_stream = StringIO()
-        for job_name, job_data in data['result_map'].items():
+        for job_name, job_data in sorted(data['result_map'].items()):
             entry['name'] = job_name
             entry.update(job_data)
             dump_rfc822_records(entry, string_stream)
-        stream.write(string_stream.getvalue().encode('utf-8'))
+        stream.write(string_stream.getvalue().encode('UTF-8'))

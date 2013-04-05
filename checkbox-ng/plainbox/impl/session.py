@@ -815,7 +815,7 @@ class SessionState:
                         related_expression=exc.expression)
                     job_state.readiness_inhibitor_list.append(inhibitor)
             # Check if all job dependencies ran successfully
-            for dep_name in job.get_direct_dependencies():
+            for dep_name in sorted(job.get_direct_dependencies()):
                 dep_job_state = self._job_state_map[dep_name]
                 # If the dependency did not have a chance to run yet add the
                 # PENDING_DEP inhibitor.

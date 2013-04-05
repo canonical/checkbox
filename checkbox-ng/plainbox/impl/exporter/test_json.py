@@ -44,10 +44,12 @@ class JSONSessionStateExporterTests(TestCase):
         data = {'foo': 'bar'}
         stream = BytesIO()
         exporter.dump(data, stream)
-        self.assertEqual(stream.getvalue(), (
+        expected_bytes = (
             '{\n'
             '    "foo": "bar"\n'
-            '}').encode('utf-8'))
+            '}'
+        ).encode('UTF-8')
+        self.assertEqual(stream.getvalue(), expected_bytes)
 
     def test_machine_dump(self):
         exporter = self.exporter_cls(option_list=[
@@ -55,4 +57,7 @@ class JSONSessionStateExporterTests(TestCase):
         data = {'foo': 'bar'}
         stream = BytesIO()
         exporter.dump(data, stream)
-        self.assertEqual(stream.getvalue(), '{"foo":"bar"}'.encode('utf-8'))
+        expected_bytes = (
+            '{"foo":"bar"}'
+        ).encode('UTF-8')
+        self.assertEqual(stream.getvalue(), expected_bytes)

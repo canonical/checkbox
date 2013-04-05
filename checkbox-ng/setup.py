@@ -36,6 +36,7 @@ setup(
     ],
     install_requires=[
         'lxml >= 2.3',
+        'requests >= 1.0',
     ],
     entry_points={
         'console_scripts': [
@@ -46,6 +47,9 @@ setup(
             'json=plainbox.impl.exporter.json:JSONSessionStateExporter',
             'rfc822=plainbox.impl.exporter.rfc822:RFC822SessionStateExporter',
             'xml=plainbox.impl.exporter.xml:XMLSessionStateExporter',
+        ],
+        'plainbox.transport': [
+            'certification=plainbox.impl.transport.certification:CertificationTransport',
         ],
     },
     include_package_data=True)

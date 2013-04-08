@@ -1,0 +1,20 @@
+# plainbox sru - Plainbox
+#
+# Run SRU testing with Plainbox 60 seconds after networking
+# has started to wait for DHCP to complete.
+
+description     "Plainbox SRU"
+
+# Make sure we start after networking
+start on (started network-interface
+          or started network-manager
+          or started networking)
+
+stop on runlevel [!023456]
+
+script
+  RUN=0
+  USER=root
+
+  exec plainbox sru
+end script

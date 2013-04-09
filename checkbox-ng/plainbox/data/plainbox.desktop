@@ -3,7 +3,7 @@ Encoding=UTF-8
 Name=Plainbox Command
 Comment=Plainbox can run after login to test a system automatically.
 Icon=checkbox
-Exec=sudo plainbox sru /tmp/submission.xml
+Exec=sudo /usr/bin/plainbox sru --fallback=/tmp/submission.xml
 Terminal=True
 Type=Application
 Categories=

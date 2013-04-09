@@ -268,7 +268,7 @@ class DependencySolver:
             if trail is None:
                 trail = [job]
             # Visit each dependency
-            for dep_type, job_name in self._get_dependency_set(job):
+            for dep_type, job_name in sorted(self._get_dependency_set(job)):
                 logger.debug("Found dependency %s: %s", dep_type, job_name)
                 # Dependency is just a name, we need to resolve it
                 # to a job instance. This can fail (missing dependencies)

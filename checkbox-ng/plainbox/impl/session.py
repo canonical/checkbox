@@ -539,6 +539,52 @@ class SessionState:
         else:
             return None
 
+    def add_job(self, new_job):
+        """
+        Add a new job to the session
+
+        :param new_job: the job being added
+
+        :raises DependencyDuplicateError:
+            if a duplicate, clashing job definition is detected
+
+        The new_job gets added to all the state tracking objects of the
+        session.  The job is initially not selected to run (it is not in the
+        desired_job_list and has the undesired inhibitor).
+
+        The new_job may clash with an existing job with the same name. Unless
+        both jobs are identical this will cause DependencyDuplicateError to be
+        raised. Identical jobs are silently discarded.
+
+        .. note::
+
+            This method recomputes job readiness for all jobs
+        """
+        # See if we have a job with the same name already
+        try:
+            existing_job = self._job_state_map[new_job.name].job
+        except KeyError:
+            logger.info("Storing new job %r", new_job)
+            # Register the new job in our state
+            self._job_state_map[new_job.name] = JobState(new_job)
+            self._job_list.append(new_job)
+        else:
+            # If there is a clash report DependencyDuplicateError only when the
+            # hashes are different. This prevents a common "problem" where
+            # "__foo__" local jobs just load all jobs from the "foo" category.
+            if new_job != existing_job:
+                raise DependencyDuplicateError(existing_job, new_job)
+        # Update all job readiness state
+        self._recompute_job_readiness()
+
+    def set_resource_list(self, resource_name, resource_list):
+        """
+        Add or change a resource with the given name.
+
+        Resources silently overwrite any old resources with the same name.
+        """
+        self._resource_map[resource_name] = resource_list
+
     def persistent_save(self):
         """
         Save to disk the minimum needed to resume plainbox where it stopped
@@ -557,6 +603,7 @@ class SessionState:
                                 self.session_data_filename)
 
         with tempfile.NamedTemporaryFile(mode='wt',
+                                         encoding='UTF-8',
                                          suffix='.tmp',
                                          prefix='session',
                                          dir=self._session_dir,
@@ -577,7 +624,7 @@ class SessionState:
         """
         Erase the job_state_map and desired_job_list with the saved ones
         """
-        with open(self.previous_session_file(), 'r') as f:
+        with open(self.previous_session_file(), 'rt', encoding='UTF-8') as f:
             previous_session = json.load(
                 f, object_hook=SessionStateEncoder().dict_to_object)
         self._job_state_map = previous_session._job_state_map
@@ -768,7 +815,7 @@ class SessionState:
                         related_expression=exc.expression)
                     job_state.readiness_inhibitor_list.append(inhibitor)
             # Check if all job dependencies ran successfully
-            for dep_name in job.get_direct_dependencies():
+            for dep_name in sorted(job.get_direct_dependencies()):
                 dep_job_state = self._job_state_map[dep_name]
                 # If the dependency did not have a chance to run yet add the
                 # PENDING_DEP inhibitor.

@@ -26,6 +26,7 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
+from io import StringIO
 
 from plainbox.impl.rfc822 import dump_rfc822_records
 from plainbox.impl.exporter import SessionStateExporterBase
@@ -39,7 +40,9 @@ class RFC822SessionStateExporter(SessionStateExporterBase):
 
     def dump(self, data, stream):
         entry = OrderedDict()
-        for job_name, job_data in data['result_map'].items():
+        string_stream = StringIO()
+        for job_name, job_data in sorted(data['result_map'].items()):
             entry['name'] = job_name
             entry.update(job_data)
-            dump_rfc822_records(entry, stream)
+            dump_rfc822_records(entry, string_stream)
+        stream.write(string_stream.getvalue().encode('UTF-8'))

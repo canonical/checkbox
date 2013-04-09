@@ -1,8 +1,9 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012 Canonical Ltd.
+# Copyright 2012, 2013 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Daniel Manrique  <roadmr@ubuntu.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,14 +25,16 @@ plainbox.impl.exporter.test_init
 Test definitions for plainbox.impl.exporter module
 """
 
+from io import StringIO, BytesIO
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
+from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter import SessionStateExporterBase
 from plainbox.impl.exporter import classproperty
-from plainbox.impl.session import SessionState
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.result import JobResult, IOLogRecord
+from plainbox.impl.session import SessionState
 from plainbox.impl.testing_utils import make_io_log, make_job, make_job_result
 
 
@@ -203,3 +206,16 @@ class SessionStateExporterBaseTests(TestCase):
                 (0, 'stdout', 'Zm9vCg=='),
                 (1, 'stderr', 'YmFyCg=='),
                 (2, 'stdout', 'cXV4eAo=')])
+
+
+class ByteStringStreamTranslatorTests(TestCase):
+
+    def test_smoke(self):
+        dest_stream = StringIO()
+        source_stream = BytesIO(b'This is a bytes literal')
+        encoding = 'utf-8'
+
+        translator = ByteStringStreamTranslator(dest_stream, encoding)
+        translator.write(source_stream.getvalue())
+
+        self.assertEqual('This is a bytes literal', dest_stream.getvalue())

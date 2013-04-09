@@ -317,6 +317,94 @@ class RegressionTests(TestCase):
             self.assertIs(call.exception.affected_job, different_A)
 
 
+class SessionStateAPITests(TestCase):
+
+    def test_set_resource_list(self):
+        # Define an empty session
+        session = SessionState([])
+        # Define a resource
+        old_res = Resource({'attr': 'old value'})
+        # Set the resource list with the old resource
+        # So here the old result is stored into a new 'R' resource
+        session.set_resource_list('R', [old_res])
+        # Ensure that it worked
+        self.assertEqual(session._resource_map, {'R': [old_res]})
+        # Define another resource
+        new_res = Resource({'attr': 'new value'})
+        # Now we present the second result for the same job
+        session.set_resource_list('R', [new_res])
+        # What should happen here is that the R resource is entirely replaced
+        # by the data from the new result. The data should not be merged or
+        # appended in any way.
+        self.assertEqual(session._resource_map, {'R': [new_res]})
+
+    def test_add_job(self):
+        # Define a job
+        job = make_job("A")
+        # Define an empty session
+        session = SessionState([])
+        # Add the job to the session
+        session.add_job(job)
+        # The job got added to job list
+        self.assertIn(job, session.job_list)
+        # The job got added to job state map
+        self.assertIs(session.job_state_map[job.name].job, job)
+        # The job is not added to the desired job list
+        self.assertNotIn(job, session.desired_job_list)
+        # The job is not in the run list
+        self.assertNotIn(job, session.run_list)
+        # The job is not selected to run
+        self.assertEqual(
+            session.job_state_map[job.name].readiness_inhibitor_list,
+            [UndesiredJobReadinessInhibitor])
+
+    def test_add_job_duplicate_job(self):
+        # Define a job
+        job = make_job("A")
+        # Define an empty session
+        session = SessionState([])
+        # Add the job to the session
+        session.add_job(job)
+        # The job got added to job list
+        self.assertIn(job, session.job_list)
+        # Define a perfectly identical job
+        duplicate_job = make_job("A")
+        self.assertEqual(job, duplicate_job)
+        # Try adding it to the session
+        #
+        # Note that this does not raise any exceptions as the jobs are perfect
+        # duplicates.
+        session.add_job(duplicate_job)
+        # The new job _did not_ get added to the job list
+        self.assertEqual(len(session.job_list), 1)
+        self.assertIsNot(duplicate_job, session.job_list[0])
+
+    def test_add_job_clashing_job(self):
+        # Define a job
+        job = make_job("A")
+        # Define an empty session
+        session = SessionState([])
+        # Add the job to the session
+        session.add_job(job)
+        # The job got added to job list
+        self.assertIn(job, session.job_list)
+        # Define a different job that clashes with the initial job
+        clashing_job = make_job("A", plugin='other')
+        self.assertNotEqual(job, clashing_job)
+        self.assertEqual(job.name, clashing_job.name)
+        # Try adding it to the session
+        #
+        # This raises an exception
+        with self.assertRaises(DependencyDuplicateError) as call:
+            session.add_job(clashing_job)
+        # The exception gets job in the right order
+        self.assertIs(call.exception.affected_job, job)
+        self.assertIs(call.exception.affecting_job, clashing_job)
+        # The new job _did not_ get added to the job list
+        self.assertEqual(len(session.job_list), 1)
+        self.assertIsNot(clashing_job, session.job_list[0])
+
+
 class SessionStateSpecialTests(TestCase):
 
     # NOTE: those tests are essential. They allow testing the behavior of

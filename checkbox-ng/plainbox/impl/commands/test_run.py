@@ -1,8 +1,9 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012 Canonical Ltd.
+# Copyright 2013 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Daniel Manrique  <roadmr@ubuntu.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,24 +19,10 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-:mod:`plainbox.impl.exporter.text` -- plain text exporter
-=========================================================
+plainbox.impl.commands.test_run
+===============================
 
-.. warning::
-
-    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
+Test definitions for plainbox.impl.run module
 """
 
-
-from plainbox.impl.exporter import SessionStateExporterBase
-
-
-class TextSessionStateExporter(SessionStateExporterBase):
-    """
-    Human-readable session state exporter.
-    """
-
-    def dump(self, data, stream):
-        for job_name, job_data in sorted(data['result_map'].items()):
-            stream.write("{}: {}\n".format(
-                job_name, job_data['outcome']).encode('UTF-8'))
+# NOTE: this file is blank after some tests moved to other modules.

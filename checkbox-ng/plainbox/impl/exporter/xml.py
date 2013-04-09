@@ -177,7 +177,7 @@ class XMLSessionStateExporter(SessionStateExporterBase):
             ET.ElementTree(root).write(
                 helper_stream, xml_declaration=True, encoding="UTF-8",
                 pretty_print=True)
-            stream.write(helper_stream.getvalue().decode("UTF-8"))
+            stream.write(helper_stream.getvalue())
 
     def get_root_element(self, data):
         """

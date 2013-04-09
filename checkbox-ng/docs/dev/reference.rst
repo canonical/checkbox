@@ -94,6 +94,16 @@ Code reference
     :undoc-members:
     :show-inheritance:
 
+.. automodule:: plainbox.impl.transport
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: plainbox.impl.transport.certification
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 .. automodule:: plainbox.impl.box
     :members:
     :undoc-members:

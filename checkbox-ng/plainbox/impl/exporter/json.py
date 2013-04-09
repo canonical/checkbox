@@ -37,12 +37,19 @@ class JSONSessionStateExporter(SessionStateExporterBase):
 
     OPTION_MACHINE_JSON = 'machine-json'
 
-    SUPPORTED_OPTION_LIST = (SessionStateExporterBase.SUPPORTED_OPTION_LIST +
-                             (OPTION_MACHINE_JSON,))
+    SUPPORTED_OPTION_LIST = (
+        SessionStateExporterBase.SUPPORTED_OPTION_LIST + (
+            OPTION_MACHINE_JSON,))
 
     def dump(self, data, stream):
         if self.OPTION_MACHINE_JSON in self._option_list:
-            return json.dump(data, stream, ensure_ascii=False,
-                             indent=None, separators=(',', ':'))
+            encoder = json.JSONEncoder(
+                ensure_ascii=False,
+                indent=None,
+                separators=(',', ':'))
         else:
-            return json.dump(data, stream, ensure_ascii=False, indent=4),
+            encoder = json.JSONEncoder(
+                ensure_ascii=False,
+                indent=4)
+        for chunk in encoder.iterencode(data):
+            stream.write(chunk.encode('UTF-8'))

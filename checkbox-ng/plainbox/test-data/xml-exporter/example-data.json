@@ -19015,6 +19015,15 @@
             "description": "Detects and shows USB devices attached to this system.",
             "io_log": "SUQgMWQ2YjowMDAyIExpbnV4IEZvdW5kYXRpb24gMi4wIHJvb3QgaHViCklEIDFkNmI6MDAwMiBMaW51eCBGb3VuZGF0aW9uIDIuMCByb290IGh1YgpJRCAxZDZiOjAwMDEgTGludXggRm91bmRhdGlvbiAxLjEgcm9vdCBodWIKSUQgMWQ2YjowMDAxIExpbnV4IEZvdW5kYXRpb24gMS4xIHJvb3QgaHViCg=="
         },
+        "wireless/wireless_connection_wpa_n": {
+            "outcome": "not-supported",
+            "comments": "job cannot be started: resource expression \"environment.ROUTERS == 'multiple'\" evaluates to false",
+            "plugin": "shell",
+            "requires": "device.category == 'WIRELESS'\nenvironment.ROUTERS == 'multiple'",
+            "command": "trap \"nmcli con delete id $WPA_N_SSID\" EXIT; create_connection $WPA_N_SSID --security=wpa --key=$WPA_N_PSK && internet_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`",
+            "description": "Tests that the systems wireless hardware can connect to a router using WPA\nsecurity and the 802.11n protocol.",
+            "io_log": ""
+        },
         "dpkg": {
             "outcome": "pass",
             "comments": null,

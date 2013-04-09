@@ -14,7 +14,6 @@
         <value type="str">pass</value>
         <value type="str">fail</value>
         <value type="str">skip</value>
-        <value type="str">not-supported</value>
       </answer_choices>
       <comment>bar</comment>
     </question>

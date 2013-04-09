@@ -98,12 +98,21 @@ class XMLSessionStateExporter(SessionStateExporterBase):
 
     SUPPORTED_OPTION_LIST = ()
 
-    _ALL_STATUS = (
-        "none",
-        JobResult.OUTCOME_PASS,
-        JobResult.OUTCOME_FAIL,
-        JobResult.OUTCOME_SKIP,
-        JobResult.OUTCOME_NOT_SUPPORTED)
+    # These are the job statuses allowed by the checkbox parser. 
+    # This is a limitation of the certification website, so we
+    # have to accomodate that here.
+    _ALLOWED_STATUS = ["none",
+                       JobResult.OUTCOME_PASS,
+                       JobResult.OUTCOME_FAIL,
+                       JobResult.OUTCOME_SKIP]
+
+    # This describes mappings from all possible plainbox job statuses
+    # to one of the allowed statuses listed above.
+    _STATUS_MAP = {"none": "none",
+            JobResult.OUTCOME_PASS: JobResult.OUTCOME_PASS,
+            JobResult.OUTCOME_FAIL: JobResult.OUTCOME_FAIL,
+            JobResult.OUTCOME_SKIP: JobResult.OUTCOME_SKIP,
+            JobResult.OUTCOME_NOT_SUPPORTED: JobResult.OUTCOME_SKIP}
 
     def __init__(self, system_id=None, timestamp=None, client_version=None,
                  client_name='plainbox'):
@@ -264,7 +273,7 @@ class XMLSessionStateExporter(SessionStateExporterBase):
         Every question element must have this group of values.
         """
         answer_choices = ET.SubElement(element, "answer_choices")
-        for status in self._ALL_STATUS:
+        for status in self._ALLOWED_STATUS:
             value = ET.SubElement(
                 answer_choices, "value", attrib={"type": "str"})
             value.text = status
@@ -286,7 +295,7 @@ class XMLSessionStateExporter(SessionStateExporterBase):
             answer = ET.SubElement(
                 question, "answer", attrib={"type": "multiple_choice"})
             if job_data["outcome"]:
-                answer.text = job_data["outcome"]
+                answer.text = self._STATUS_MAP[job_data["outcome"]]
             else:
                 answer.text = self._ALL_STATUS[0]
             self._add_answer_choices(question)

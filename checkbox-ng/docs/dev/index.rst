@@ -16,5 +16,4 @@ aka, PlainBox inself.
 
    intro.rst
    architecture.rst
-   resources.rst
    reference.rst

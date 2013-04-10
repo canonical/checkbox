@@ -90,9 +90,21 @@ pygments_style = 'sphinx'
 
 # -- Options for HTML output ---------------------------------------------------
 
+try:
+    import sphinx_bootstrap_theme
+except ImportError:
+    html_theme = 'default'
+    html_theme_options = {}
+else:
+    html_theme = 'bootstrap'
+    html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
+    html_theme_options = {
+        'bootswatch_theme': 'united',
+        'navbar_class': "navbar navbar-inverse",
+    }
+
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'default'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

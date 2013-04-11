@@ -101,6 +101,7 @@ enable_system_site=1
 install_distribute=1
 install_pip=1
 install_coverage=1
+install_requests=0
 required_pkgs="$required_pkgs_base"
 
 case "$(lsb_release --short --release)" in
@@ -175,6 +176,11 @@ fi
 # Install coverage if required
 if [ $install_coverage -eq 1 ]; then
     pip install --upgrade https://github.com/checkbox/external-tarballs/raw/master/pypi/coverage-3.6.tar.gz
+fi
+
+# Install requests if required
+if [ $install_requests -eq 1 ]; then
+    pip install --upgrade https://github.com/checkbox/external-tarballs/raw/master/pypi/requests-1.1.0.tar.gz
 fi
 
 # "develop" plainbox

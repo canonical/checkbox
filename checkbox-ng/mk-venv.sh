@@ -101,7 +101,7 @@ enable_system_site=1
 install_distribute=1
 install_pip=1
 install_coverage=1
-install_requests=0
+install_requests=1
 required_pkgs="$required_pkgs_base"
 
 case "$(lsb_release --short --release)" in
@@ -114,6 +114,9 @@ case "$(lsb_release --short --release)" in
     12.10)
         ;;
     13.04)
+        # On Raring we can use the system package for python3-requests
+        install_requests=0
+        required_pkgs="$required_pkgs_base python3-requests"
         ;;
     *)
         echo "Using this version of Ubuntu for development is not supported"

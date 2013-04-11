@@ -49,7 +49,7 @@ for target in $target_list; do
         echo "[$target] PlainBox development environment (plainbox --help): pass"
     else
         outcome=1
-        echo "[$target] PlainBox development environment (plainbox --help): pass"
+        echo "[$target] PlainBox development environment (plainbox --help): fail"
         echo "[$target] stdout: $(pastebinit vagrant-logs/$target.plainbox.log)"
         echo "[$target] stderr: $(pastebinit vagrant-logs/$target.plainbox.err)"
     fi

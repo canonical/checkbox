@@ -94,7 +94,14 @@ install_pip=0
 #   because that's how we create the virtualenv to work in
 # checkbox:
 #   because plainbox depends on it as a job provider 
-required_pkgs_precise="python3 python3-dev python3-pkg-resources python3-setuptools python3-lxml python3-mock python3-sphinx python-virtualenv checkbox"
+required_pkgs_base="python3 python3-dev python3-pkg-resources python3-setuptools python3-lxml python3-mock python3-sphinx python-virtualenv checkbox"
+
+# The defaults, install everything from pip and all the base packages
+enable_system_site=1
+install_distribute=1
+install_pip=1
+install_coverage=1
+required_pkgs="$required_pkgs_base"
 
 case "$(lsb_release --short --release)" in
     12.04)
@@ -102,25 +109,10 @@ case "$(lsb_release --short --release)" in
         # any difficulties. It has python3.2 and all of our core dependencies
         # although some packages are old by 13.04 standards, make sure to be
         # careful with testing against older APIs.
-        enable_system_site=1
-        install_distribute=1
-        install_pip=1
-        install_coverage=1
-        required_pkgs="$required_pkgs_precise"
         ;;
     12.10)
-        enable_system_site=1
-        install_distribute=1
-        install_pip=1
-        install_coverage=1
-        required_pkgs="$required_pkgs_precise"
         ;;
     13.04)
-        enable_system_site=1
-        install_distribute=1
-        install_pip=1
-        install_coverage=1
-        required_pkgs="$required_pkgs_precise"
         ;;
     *)
         echo "Using this version of Ubuntu for development is not supported"

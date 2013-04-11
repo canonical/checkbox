@@ -187,7 +187,7 @@ if [ $install_requests -eq 1 ]; then
 fi
 
 # "develop" plainbox
-python3 setup.py develop
+http_proxy=http://127.0.0.1:9/ python3 setup.py develop
 
 echo "To activate your virtualenv run:"
 echo "$ . $VENV_PATH/bin/activate"

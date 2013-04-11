@@ -34,6 +34,8 @@ for target in $target_list; do
     fi
     # Display something before the first test output
     echo "[$target] Starting tests..."
+    # Remove any old venv we may have
+    vagrant ssh $target -c 'rm -rf /tmp/venv/'
     # Test that mk-venv.sh works correctly
     if vagrant ssh $target -c 'cd plainbox && ./mk-venv.sh --install-missing' >vagrant-logs/$target.mk-venv.log 2>vagrant-logs/$target.mk-venv.err; then
         echo "[$target] PlainBox development script (mk-venv.sh): pass"

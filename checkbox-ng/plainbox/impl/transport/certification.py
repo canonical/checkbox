@@ -28,15 +28,14 @@
 """
 
 from logging import getLogger
-import json
 import re
 import requests
-import time
 
 from plainbox.impl.transport import TransportBase
 
 
 logger = getLogger("plainbox.transport.certification")
+
 
 class InvalidSecureIDError(ValueError):
     def __init__(self, value):
@@ -44,7 +43,6 @@ class InvalidSecureIDError(ValueError):
 
     def __str__(self):
         return repr(self.value)
-
 
 
 class CertificationTransport(TransportBase):
@@ -73,7 +71,7 @@ class CertificationTransport(TransportBase):
         if not re.match(r"^[a-zA-Z0-9]{15}$|^[a-zA-Z0-9]{18}$",
                         self.options['secure_id']):
             raise InvalidSecureIDError(("secure_id must be 15 or 18-character "
-                              "alphanumeric string"))
+                                        "alphanumeric string"))
 
     def send(self, data):
         """ Sends data to the specified server.
@@ -95,12 +93,12 @@ class CertificationTransport(TransportBase):
         :raises requests.exceptions.ConnectionError:
             If connection failed outright.
 
-        :raises requests.exceptions.HTTPError: if the server returned a 
-            non-success result code
+        :raises requests.exceptions.HTTPError: if the server returned
+            a non-success result code
         """
 
         logger.debug("Sending to %s, hardware id is %s",
-                      self.url, self.options['secure_id'])
+                     self.url, self.options['secure_id'])
         cert_headers = {"X_HARDWARE_ID": self.options['secure_id']}
         form_payload = {"data": data}  # Requests takes care of properly
                                        # handling a file-like object for

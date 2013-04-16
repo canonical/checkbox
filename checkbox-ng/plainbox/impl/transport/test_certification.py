@@ -35,7 +35,7 @@ from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
 import requests
 
 from plainbox.impl.transport.certification import CertificationTransport
-from plainbox.impl.transport.certification import InvalidSecureIDError 
+from plainbox.impl.transport.certification import InvalidSecureIDError
 
 
 class CertificationTransportTests(TestCase):
@@ -57,7 +57,6 @@ class CertificationTransportTests(TestCase):
 
     def test_parameter_parsing(self):
         #Makes sense since I'm overriding the base class's constructor.
-        option_string = "secure_id={}".format(self.valid_secure_id)
         transport = CertificationTransport(self.valid_url,
                                            self.valid_option_string)
         self.assertEqual(self.valid_url, transport.url)
@@ -71,12 +70,16 @@ class CertificationTransportTests(TestCase):
             with self.assertRaises(InvalidSecureIDError):
                 transport = CertificationTransport(self.valid_url,
                                                    option_string)
+                self.assertIsInstance(CertificationTransport,
+                                      transport)
 
     def test_invalid_characters_in_secure_id_are_rejected(self):
         option_string = "secure_id=aA0#"
         with self.assertRaises(InvalidSecureIDError):
                 transport = CertificationTransport(self.valid_url,
-                                               option_string)
+                                                   option_string)
+                self.assertIsInstance(CertificationTransport,
+                                      transport)
 
     def test_invalid_url(self):
         transport = CertificationTransport(self.invalid_url,
@@ -86,10 +89,11 @@ class CertificationTransportTests(TestCase):
 
         with self.assertRaises(InvalidSchema):
             result = transport.send(dummy_data)
+            self.assertIsNotNone(result)
         requests.post.assert_called_with(self.invalid_url,
                                          files={'data': dummy_data},
                                          headers={'X_HARDWARE_ID':
-                                                    self.valid_secure_id})
+                                         self.valid_secure_id})
 
     def test_valid_url_cant_connect(self):
         transport = CertificationTransport(self.unreachable_url,
@@ -99,10 +103,11 @@ class CertificationTransportTests(TestCase):
 
         with self.assertRaises(ConnectionError):
             result = transport.send(dummy_data)
+            self.assertIsNotNone(result)
         requests.post.assert_called_with(self.unreachable_url,
                                          files={'data': dummy_data},
                                          headers={'X_HARDWARE_ID':
-                                                    self.valid_secure_id})
+                                                  self.valid_secure_id})
 
     def test_send_success(self):
         transport = CertificationTransport(self.valid_url,
@@ -125,7 +130,8 @@ class CertificationTransportTests(TestCase):
         #Oops, raise_for_status doesn't get fooled by my mocking,
         #so I have to mock *that* method as well..
         requests.post.return_value.raise_for_status = MagicMock(
-                                          side_effect=HTTPError)
+            side_effect=HTTPError)
 
         with self.assertRaises(HTTPError):
             result = transport.send(self.sample_xml)
+            self.assertIsNotNone(result)

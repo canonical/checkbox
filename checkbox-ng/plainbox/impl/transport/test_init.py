@@ -54,6 +54,7 @@ class TransportBaseTests(TestCase):
         test_opt_string = "Something nonsensical"
         with self.assertRaises(ValueError):
             transport = self.TestTransport("", test_opt_string)
+            self.assertIsInstance(TransportBase, transport)
 
     def test_empty_option_string_behavior(self):
         test_opt_string = ""

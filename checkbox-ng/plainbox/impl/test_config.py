@@ -28,7 +28,7 @@ from unittest import TestCase
 
 from plainbox.impl.config import Config, ConfigMetaData
 from plainbox.impl.config import KindValidator
-from plainbox.impl.config import Variable
+from plainbox.impl.config import Variable, Section, Unset
 
 
 class VariableTests(TestCase):
@@ -66,6 +66,17 @@ class VariableTests(TestCase):
         self.assertEqual(v1.validator_list, [KindValidator])
 
 
+class SectionTests(TestCase):
+
+    def test_name(self):
+        s1 = Section()
+        self.assertIsNone(s1.name)
+        s2 = Section('sec')
+        self.assertEqual(s2.name, 'sec')
+        s3 = Variable(name='sec')
+        self.assertEqual(s3.name, 'sec')
+
+
 class ConfigTests(TestCase):
 
     def test_Meta_present(self):
@@ -93,6 +104,30 @@ class ConfigTests(TestCase):
         self.assertEqual(
             TestConfig.Meta.variable_list,
             [TestConfig.v1, TestConfig.v2])
+
+    def test_variable_smoke(self):
+        class TestConfig(Config):
+            v = Variable()
+        conf = TestConfig()
+        self.assertIs(conf.v, Unset)
+        conf.v = "value"
+        self.assertEqual(conf.v, "value")
+        del conf.v
+        self.assertIs(conf.v, Unset)
+
+    def test_section_smoke(self):
+        class TestConfig(Config):
+            s = Section()
+        conf = TestConfig()
+        self.assertIs(conf.s, Unset)
+        with self.assertRaises(TypeError):
+            conf.s['key'] = "key-value"
+        conf.s = {}
+        self.assertEqual(conf.s, {})
+        conf.s['key'] = "key-value"
+        self.assertEqual(conf.s['key'], "key-value")
+        del conf.s
+        self.assertIs(conf.s, Unset)
 
 
 class ConfigMetaDataTests(TestCase):

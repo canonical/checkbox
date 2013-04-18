@@ -33,7 +33,7 @@ import re
 
 class IJobQualifier(metaclass=ABCMeta):
     """
-    A opaque qualifier for a job definition.
+    An opaque qualifier for a job definition.
 
     This is an abstraction for matching jobs definitions to names, patterns and
     other means of selecting jobs.

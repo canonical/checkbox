@@ -26,7 +26,7 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
-from argparse import ArgumentParser
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from argparse import _ as argparse_gettext
 from logging import basicConfig
 from logging import getLogger
@@ -82,7 +82,8 @@ class PlainBox:
             return ns.command.invoked(ns)
 
     def _construct_parser(self):
-        parser = ArgumentParser(prog="plainbox")
+        parser = ArgumentParser(
+            prog="plainbox", formatter_class=ArgumentDefaultsHelpFormatter)
         parser.add_argument(
             "-v", "--version", action="version",
             version="{}.{}.{}".format(*version[:3]))

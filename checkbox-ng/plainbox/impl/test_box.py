@@ -126,14 +126,15 @@ class TestMain(TestCase):
         self.assertEqual(call.exception.args, (0,))
         self.maxDiff = None
         expected = """
-        usage: plainbox [-h] [-v] {run,special,self-test,sru} ...
+        usage: plainbox [-h] [-v] {run,special,self-test,sru,check-config} ...
 
         positional arguments:
-          {run,special,self-test,sru}
+          {run,special,self-test,sru,check-config}
             run                 run a test job
             special             special/internal commands
             self-test           run integration tests
             sru                 run automated stable release update tests
+            check-config        check and display plainbox configuration
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -147,7 +148,7 @@ class TestMain(TestCase):
                 main([])
             self.assertEqual(call.exception.args, (2,))
         expected = """
-        usage: plainbox [-h] [-v] {run,special,self-test,sru} ...
+        usage: plainbox [-h] [-v] {run,special,self-test,sru,check-config} ...
         plainbox: error: too few arguments
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")

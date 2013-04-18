@@ -133,7 +133,7 @@ class _SRUInvocation:
             print("Unable to connect to destination URL: {0}".format(exc))
         except HTTPError as exc:
             print(("Server returned an error when "
-                "receiving or processing: {0}").format(exc))
+                   "receiving or processing: {0}").format(exc))
 
     def _run_all_jobs(self):
         again = True

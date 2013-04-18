@@ -208,7 +208,7 @@ class JobDefinition(IJobDefinition):
                     "Required record key {!r} was not found".format(key))
         return cls(record.data, record.origin)
 
-    def modify_execution_environment(self, env, session_dir):
+    def modify_execution_environment(self, env, session_dir, config=None):
         """
         Alter execution environment as required to execute this job.
 
@@ -217,6 +217,11 @@ class JobDefinition(IJobDefinition):
         The session_dir argument can be passed to scripts to know where to
         create temporary data. This data will persist during the lifetime of
         the session.
+
+        The config argument (which defaults to None) should be a PlainBoxConfig
+        object. It is used to provide values for missing environment variables
+        that are required by the job (as expressed by the environ key in the
+        job definition file).
 
         Computes and modifies the dictionary of additional values that need to
         be added to the base environment. Note that all changes to the
@@ -244,6 +249,18 @@ class JobDefinition(IJobDefinition):
         env['CHECKBOX_SHARE'] = self._checkbox.CHECKBOX_SHARE
         # Add CHECKBOX_DATA (temporary checkbox data)
         env['CHECKBOX_DATA'] = session_dir
+        # Inject additional variables depending on what the job announces
+        if config is not None:
+            for env_var in self.get_environ_settings():
+                # Don't override anything that is already present in the
+                # current environment. This will allow users to customize
+                # variables without editing any config files.
+                if env_var in env:
+                    continue
+                # If the environment section of the configuration file has a
+                # particular variable then copy it over.
+                if env_var in config.environment:
+                    env[env_var] = config.environment[env_var]
 
     def create_child_job_from_record(self, record):
         """

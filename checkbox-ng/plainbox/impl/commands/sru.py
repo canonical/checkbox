@@ -26,7 +26,7 @@
 
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
-from logging import getLogger
+import logging
 import os
 
 from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
@@ -44,7 +44,7 @@ from plainbox.impl.transport.certification import CertificationTransport
 from plainbox.impl.transport.certification import InvalidSecureIDError
 
 
-logger = getLogger("plainbox.commands.sru")
+logger = logging.getLogger("plainbox.commands.sru")
 
 
 class _SRUInvocation:

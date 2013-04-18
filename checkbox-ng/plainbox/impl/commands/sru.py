@@ -27,8 +27,9 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 from logging import getLogger
-from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
 import os
+
+from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
 
 from plainbox.impl.applogic import get_matching_job_list
 from plainbox.impl.checkbox import CheckBox, WhiteList

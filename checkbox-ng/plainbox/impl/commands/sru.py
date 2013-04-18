@@ -162,8 +162,16 @@ class _SRUInvocation:
     def _run_single_job(self, job):
         print("- {}:".format(job.name), end=' ')
         job_state = self.session.job_state_map[job.name]
-        if job_state.can_start() or False:
-            job_result = self.runner.run_job(job)
+        if job_state.can_start():
+            if (self.ns.dry_run and job.plugin not in (
+                    'local', 'resource', 'attachment')):
+                job_result = JobResult({
+                    'job': job,
+                    'outcome': JobResult.OUTCOME_SKIP,
+                    'comments': "Job skipped in dry-run mode"
+                })
+            else:
+                job_result = self.runner.run_job(job, self.config)
         else:
             job_result = JobResult({
                 'job': job,
@@ -245,3 +253,10 @@ class SRUCommand(PlainBoxCommand):
             action='store',
             help=("POST the test report XML to this URL"
                   " (%(default)s)"))
+        group = parser.add_argument_group(title="execution options")
+        group.add_argument(
+            '-n', '--dry-run',
+            action='store_true',
+            default=False,
+            help=("Skip all usual jobs."
+                  " Only local, resource and attachment jobs are started"))

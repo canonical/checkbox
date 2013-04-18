@@ -54,5 +54,9 @@ class TestSru(TestCase):
                                 (unset)
           --destination URL     POST the test report XML to this URL (https://certific
                                 ation.canonical.com/submissions/submit/)
+
+        execution options:
+          -n, --dry-run         Skip all usual jobs. Only local, resource and
+                                attachment jobs are started
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")

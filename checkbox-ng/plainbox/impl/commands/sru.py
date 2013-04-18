@@ -180,6 +180,10 @@ class _SRUInvocation:
             })
         assert job_result is not None
         print("{0}".format(job_result.outcome))
+        if job_result.comments is not None:
+            print("comments: {0}".format(job_result.comments))
+        if job_state.readiness_inhibitor_list:
+            print("inhibitors:")
         for inhibitor in job_state.readiness_inhibitor_list:
             print("  * {}".format(inhibitor))
         self.session.update_job_result(job, job_result)

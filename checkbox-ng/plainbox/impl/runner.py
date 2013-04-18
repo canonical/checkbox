@@ -191,7 +191,7 @@ class JobRunner(IJobRunner):
         self._command_io_delegate = command_io_delegate
         self._outcome_callback = outcome_callback
 
-    def run_job(self, job):
+    def run_job(self, job, config=None):
         """
         Run the specified job an return the result
         """
@@ -206,20 +206,20 @@ class JobRunner(IJobRunner):
                 'comment': 'This plugin is not supported'
             })
         else:
-            return runner(job)
+            return runner(job, config)
 
-    def _plugin_shell(self, job):
-        return self._just_run_command(job)
+    def _plugin_shell(self, job, config):
+        return self._just_run_command(job, config)
 
     _plugin_attachment = _plugin_shell
 
-    def _plugin_resource(self, job):
-        return self._just_run_command(job)
+    def _plugin_resource(self, job, config):
+        return self._just_run_command(job, config)
 
-    def _plugin_local(self, job):
-        return self._just_run_command(job)
+    def _plugin_local(self, job, config):
+        return self._just_run_command(job, config)
 
-    def _plugin_manual(self, job):
+    def _plugin_manual(self, job, config):
         if self._outcome_callback is None:
             return JobResult({
                 'job': job,
@@ -227,7 +227,7 @@ class JobRunner(IJobRunner):
                 'comment': "non-interactive test run"
             })
         else:
-            result = self._just_run_command(job)
+            result = self._just_run_command(job, config)
             # XXX: make outcome writable
             result._data['outcome'] = self._outcome_callback()
             return result
@@ -235,9 +235,9 @@ class JobRunner(IJobRunner):
     _plugin_user_interact = _plugin_manual
     _plugin_user_verify = _plugin_manual
 
-    def _just_run_command(self, job):
+    def _just_run_command(self, job, config):
         # Run the embedded command
-        return_code, io_log = self._run_command(job)
+        return_code, io_log = self._run_command(job, config)
         # Convert the return of the command to the outcome of the job
         if return_code == 0:
             outcome = JobResult.OUTCOME_PASS
@@ -251,7 +251,7 @@ class JobRunner(IJobRunner):
             'io_log': io_log
         })
 
-    def _get_script_env(self, job, only_changes=False):
+    def _get_script_env(self, job, config=None, only_changes=False):
         """
         Compute the environment the script will be executed in
         """
@@ -260,7 +260,7 @@ class JobRunner(IJobRunner):
         # Use non-internationalized environment
         env['LANG'] = 'C.UTF-8'
         # Allow the job to customize anything
-        job.modify_execution_environment(env, self._session_dir)
+        job.modify_execution_environment(env, self._session_dir, config)
         # If a differential environment is requested return only the subset
         # that has been altered.
         #
@@ -274,7 +274,7 @@ class JobRunner(IJobRunner):
         else:
             return env
 
-    def _run_command(self, job):
+    def _run_command(self, job, config):
         """
         Run the shell command associated with the specified job.
 
@@ -340,7 +340,7 @@ class JobRunner(IJobRunner):
             cmd = ['pkexec', '--user', job.user, 'env'] + [
                 "{key}={value}".format(key=key, value=value)
                 for key, value in self._get_script_env(
-                    job, only_changes=True
+                    job, config, only_changes=True
                 ).items()
             ] + cmd
             logging.debug("job[%s] executing %r", job.name, cmd)
@@ -348,7 +348,7 @@ class JobRunner(IJobRunner):
         else:
             logging.debug("job[%s] executing %r", job.name, cmd)
             return_code = logging_popen.call(
-                cmd, env=self._get_script_env(job))
+                cmd, env=self._get_script_env(job, config))
         logger.debug("job[%s] command return code: %r",
                      job.name, return_code)
         # XXX: Perhaps handle process dying from signals here

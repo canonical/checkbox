@@ -257,7 +257,7 @@ class Section(INameTracking):
         try:
             return instance._get_section(self._name)
         except KeyError:
-            return {}
+            return Unset
 
     def __set__(self, instance, new_value):
         instance._set_section(self.name, new_value)

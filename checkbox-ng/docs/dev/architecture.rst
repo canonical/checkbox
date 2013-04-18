@@ -7,6 +7,7 @@ always up-to-date and accurate to the extent of the scope of this overview.
 .. toctree::
    :maxdepth: 3
 
+   config.rst
    resources.rst
    old.rst
 

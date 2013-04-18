@@ -219,13 +219,6 @@ class SRUCommand(PlainBoxCommand):
         self.config = config
 
     def invoked(self, ns):
-        # a list of todos from functionality point of view:
-        # TODO: if that fails save the result on disk and bail
-        # a list of todos from implementation point of view:
-        # TODO: refactor box.py so that running tests with simple
-        #       gui is a reusable component that can be used both
-        #       for 'sru' and 'run' command.
-        # TODO: update docs on sru command
         # Copy command-line arguments over configuration variables
         try:
             if ns.secure_id:

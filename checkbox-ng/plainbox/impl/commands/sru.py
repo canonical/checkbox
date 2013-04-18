@@ -41,6 +41,7 @@ from plainbox.impl.result import JobResult
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.session import SessionState
 from plainbox.impl.transport.certification import CertificationTransport
+from plainbox.impl.transport.certification import InvalidSecureIDError
 
 
 logger = getLogger("plainbox.commands.sru")

@@ -99,7 +99,7 @@ class PlainBox:
         RunCommand(self._checkbox).register_parser(subparsers)
         SpecialCommand(self._checkbox).register_parser(subparsers)
         SelfTestCommand().register_parser(subparsers)
-        SRUCommand().register_parser(subparsers)
+        SRUCommand(config).register_parser(subparsers)
         CheckConfigCommand(config).register_parser(subparsers)
         #group = parser.add_argument_group(title="user interface options")
         #group.add_argument(

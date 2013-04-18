@@ -34,6 +34,7 @@ from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
 from plainbox.impl.applogic import get_matching_job_list
 from plainbox.impl.checkbox import CheckBox, WhiteList
 from plainbox.impl.commands import PlainBoxCommand
+from plainbox.impl.config import ValidationError, Unset
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter.xml import XMLSessionStateExporter
@@ -54,9 +55,10 @@ class _SRUInvocation:
     time.
     """
 
-    def __init__(self, ns):
+    def __init__(self, ns, config):
         self.ns = ns
         self.checkbox = CheckBox()
+        self.config = config
         self.whitelist = WhiteList.from_file(os.path.join(
             self.checkbox.whitelists_dir, "sru.whitelist"))
         self.job_list = self.checkbox.get_builtin_jobs()
@@ -89,7 +91,8 @@ class _SRUInvocation:
                 command_io_delegate=self,
                 outcome_callback=None)  # SRU runs are never interactive
             self._run_all_jobs()
-            self._save_results()
+            if self.config.fallback_file is not Unset:
+                self._save_results()
             self._submit_results()
         # FIXME: sensible return value
         return 0
@@ -104,24 +107,25 @@ class _SRUInvocation:
             logger.warning("Problematic jobs will not be considered")
 
     def _save_results(self):
-        print("Saving results to {0}".format(self.ns.fallback_file))
+        print("Saving results to {0}".format(self.config.fallback_file))
         data = self.exporter.get_session_data_subset(self.session)
-        with open(self.ns.fallback_file, "wt", encoding="UTF-8") as stream:
+        with open(self.config.fallback_file, "wt", encoding="UTF-8") as stream:
             translating_stream = ByteStringStreamTranslator(stream, "UTF-8")
             self.exporter.dump(data, translating_stream)
 
     def _submit_results(self):
         print("Submitting results to {0} for secure_id {1}".format(
-              self.ns.destination, self.ns.secure_id))
-        options_string = "secure_id={0}".format(self.ns.secure_id)
+              self.config.c3_url, self.config.secure_id))
+        options_string = "secure_id={0}".format(self.config.secure_id)
         try:
-            transport = CertificationTransport(self.ns.destination,
-                                               options_string)
+            transport = CertificationTransport(
+                self.config.c3_url, options_string)
         except InvalidSecureIDError as exc:
             print(exc)
             return False
         try:
-            with open(self.ns.fallback_file, "rt", encoding="UTF-8") as stream:
+            with open(self.config.fallback_file, "rt",
+                      encoding="UTF-8") as stream:
                 result = transport.send(stream)
                 print("Successfully sent, server gave me id {0}".format(
                       result['id']))
@@ -187,6 +191,9 @@ class SRUCommand(PlainBoxCommand):
     plainbox core on realistic workloads.
     """
 
+    def __init__(self, config):
+        self.config = config
+
     def invoked(self, ns):
         # a list of todos from functionality point of view:
         # TODO: if that fails save the result on disk and bail
@@ -195,22 +202,46 @@ class SRUCommand(PlainBoxCommand):
         #       gui is a reusable component that can be used both
         #       for 'sru' and 'run' command.
         # TODO: update docs on sru command
-        return _SRUInvocation(ns).run()
+        # Copy command-line arguments over configuration variables
+        try:
+            if ns.secure_id:
+                self.config.secure_id = ns.secure_id
+            if ns.fallback_file:
+                self.config.fallback_file = ns.fallback_file
+            if ns.c3_url:
+                self.config.c3_url = ns.c3_url
+        except ValidationError as exc:
+            print("Configuration problems prevent running SRU tests")
+            print(exc)
+            return 1
+        return _SRUInvocation(ns, self.config).run()
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(
             "sru", help="run automated stable release update tests")
         parser.set_defaults(command=self)
-        parser.add_argument(
-            'secure_id', metavar="SECURE-ID",
+        group = parser.add_argument_group("sru-specific options")
+        # Set defaults from based on values from the config file
+        group.set_defaults(
+            secure_id=self.config.secure_id,
+            c3_url=self.config.c3_url,
+            fallback_file=self.config.fallback_file)
+        group.add_argument(
+            '--secure-id', metavar="SECURE-ID",
             action='store',
-            help=("Associate submission with a machine using this SECURE-ID"))
-        parser.add_argument(
-            'fallback_file', metavar="FALLBACK-FILE",
+            # NOTE: --secure-id is optional only when set in a config file
+            required=self.config.secure_id is Unset,
+            help=("Associate submission with a machine using this SECURE-ID"
+                  " (%(default)s)"))
+        group.add_argument(
+            '--fallback', metavar="FILE",
+            dest='fallback_file',
             action='store',
-            help=("If submission fails save the test report as FALLBACK-FILE"))
-        parser.add_argument(
+            help=("If submission fails save the test report as FILE"
+                  " (%(default)s)"))
+        group.add_argument(
             '--destination', metavar="URL",
+            dest='c3_url',
             action='store',
-            default="https://certification.canonical.com/submissions/submit/",
-            help=("POST the test report XML to this URL"))
+            help=("POST the test report XML to this URL"
+                  " (%(default)s)"))

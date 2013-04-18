@@ -40,14 +40,19 @@ class TestSru(TestCase):
             self.assertEqual(call.exception.args, (0,))
         self.maxDiff = None
         expected = """
-        usage: plainbox sru [-h] [--destination URL] SECURE-ID FALLBACK-FILE
-
-        positional arguments:
-          SECURE-ID          Associate submission with a machine using this SECURE-ID
-          FALLBACK-FILE      If submission fails save the test report as FALLBACK-FILE
+        usage: plainbox sru [-h] --secure-id SECURE-ID [--fallback FILE]
+                            [--destination URL] [-n]
 
         optional arguments:
-          -h, --help         show this help message and exit
-          --destination URL  POST the test report XML to this URL
+          -h, --help            show this help message and exit
+
+        sru-specific options:
+          --secure-id SECURE-ID
+                                Associate submission with a machine using this SECURE-
+                                ID (unset)
+          --fallback FILE       If submission fails save the test report as FILE
+                                (unset)
+          --destination URL     POST the test report XML to this URL (https://certific
+                                ation.canonical.com/submissions/submit/)
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")

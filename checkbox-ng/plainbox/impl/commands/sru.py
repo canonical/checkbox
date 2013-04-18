@@ -173,9 +173,21 @@ class _SRUInvocation:
             else:
                 job_result = self.runner.run_job(job, self.config)
         else:
+            # Set the outcome of jobs that cannot start to
+            # OUTCOME_NOT_SUPPORTED _except_ if any of the inhibitors point to
+            # a job with an OUTCOME_SKIP outcome, if that is the case mirror
+            # that outcome. This makes 'skip' stronger than 'not-supported'
+            outcome = JobResult.OUTCOME_NOT_SUPPORTED
+            for inhibitor in job_state.readiness_inhibitor_list:
+                if inhibitor.cause != inhibitor.FAILED_DEP:
+                    continue
+                related_job_state = self.session.job_state_map[
+                    inhibitor.related_job.name]
+                if related_job_state.result.outcome == JobResult.OUTCOME_SKIP:
+                    outcome = JobResult.OUTCOME_SKIP
             job_result = JobResult({
                 'job': job,
-                'outcome': JobResult.OUTCOME_NOT_SUPPORTED,
+                'outcome': outcome,
                 'comments': job_state.get_readiness_description()
             })
         assert job_result is not None

@@ -223,7 +223,7 @@ class SRUCommand(PlainBoxCommand):
         try:
             if ns.secure_id:
                 self.config.secure_id = ns.secure_id
-            if ns.fallback_file:
+            if ns.fallback_file and ns.fallback_file is not Unset:
                 self.config.fallback_file = ns.fallback_file
             if ns.c3_url:
                 self.config.c3_url = ns.c3_url
@@ -254,6 +254,7 @@ class SRUCommand(PlainBoxCommand):
             '--fallback', metavar="FILE",
             dest='fallback_file',
             action='store',
+            default=Unset,
             help=("If submission fails save the test report as FILE"
                   " (%(default)s)"))
         group.add_argument(

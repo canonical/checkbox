@@ -23,10 +23,10 @@ plainbox.impl.test_config
 
 Test definitions for plainbox.impl.config module
 """
-
+from io import StringIO
 from unittest import TestCase
 
-from plainbox.impl.config import Config, ConfigMetaData
+from plainbox.impl.config import PlainBoxConfigParser, Config, ConfigMetaData
 from plainbox.impl.config import KindValidator
 from plainbox.impl.config import Variable, Section, Unset
 
@@ -137,3 +137,17 @@ class ConfigMetaDataTests(TestCase):
 
     def test_variable_list(self):
         self.assertEqual(ConfigMetaData.variable_list, [])
+
+
+class PlainBoxConfigParserTest(TestCase):
+
+    def test_parser(self):
+        conf_file = StringIO("[testsection]\nlower = low\nUPPER = up")
+        config = PlainBoxConfigParser()
+        config.read_file(conf_file)
+
+        self.assertEqual(['testsection'], config.sections())
+        all_keys = list(config['testsection'].keys())
+        self.assertTrue('lower' in all_keys)
+        self.assertTrue('UPPER' in all_keys)
+        self.assertFalse('upper' in all_keys)

@@ -315,6 +315,15 @@ class ConfigMeta(type):
         return collections.OrderedDict()
 
 
+class PlainBoxConfigParser(configparser.ConfigParser):
+    """
+    A simple ConfigParser subclass that does not lowercase
+    key names.
+    """
+    def optionxform(self, option):
+        return option
+
+
 class Config(metaclass=ConfigMeta):
     """
     Base class for configuration systems
@@ -378,12 +387,13 @@ class Config(metaclass=ConfigMeta):
         Load and merge settings from many files.
 
         This method tries to open each file from the list of filenames, parse
-        it as an INI file using :class:`configparser.ConfigParser`. The list of
+        it as an INI file using :class:`PlainBoxConfigParser` (a simple
+        ConfigParser subclass that respects the case of key names). The list of
         files actually accessed is saved as available as
         :attr:`Config.filename_list`.
 
         If any problem is detected during parsing (e.g. syntax errors) those
-        are captured and added to the :attr:`Conifg.problem_list`.
+        are captured and added to the :attr:`Config.problem_list`.
 
         After all files are loaded each :class:`Variable` and :class:`Section`
         defined in the :class:`Config` class is assigned with the data from the
@@ -399,7 +409,7 @@ class Config(metaclass=ConfigMeta):
             This method resets :ivar:`_problem_list` and
             :ivar:`_filename_list`.
         """
-        parser = configparser.ConfigParser()
+        parser = PlainBoxConfigParser()
         # Reset filename list and problem list
         self._filename_list = []
         self._problem_list = []

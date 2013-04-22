@@ -249,9 +249,9 @@ class JobDefinition(IJobDefinition):
         env['CHECKBOX_SHARE'] = self._checkbox.CHECKBOX_SHARE
         # Add CHECKBOX_DATA (temporary checkbox data)
         env['CHECKBOX_DATA'] = session_dir
-        # Inject additional variables depending on what the job announces
-        if config is not None:
-            for env_var in self.get_environ_settings():
+        # Inject additional variables that are requested in the config
+        if config is not None and config.environment is not Unset:
+            for env_var in config.environment:
                 # Don't override anything that is already present in the
                 # current environment. This will allow users to customize
                 # variables without editing any config files.

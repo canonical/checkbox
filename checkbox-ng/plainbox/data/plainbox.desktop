@@ -4,7 +4,7 @@ Name=Plainbox Command
 Comment=Plainbox can run after login to test a system automatically.
 Icon=checkbox
 Exec=sudo /usr/bin/plainbox sru --fallback=/tmp/submission.xml
-Terminal=True
+Terminal=false
 Type=Application
 Categories=
 X-Ubuntu-Gettext-Domain=plainbox

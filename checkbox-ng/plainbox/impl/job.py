@@ -34,6 +34,7 @@ import os
 import re
 
 from plainbox.abc import IJobDefinition
+from plainbox.impl.config import Unset
 from plainbox.impl.resource import ResourceProgram
 
 

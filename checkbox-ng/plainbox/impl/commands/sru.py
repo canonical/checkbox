@@ -28,6 +28,7 @@
 """
 import logging
 import os
+import tempfile
 
 from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
 
@@ -117,27 +118,35 @@ class _SRUInvocation:
         print("Submitting results to {0} for secure_id {1}".format(
               self.config.c3_url, self.config.secure_id))
         options_string = "secure_id={0}".format(self.config.secure_id)
+        # Create the transport object
         try:
             transport = CertificationTransport(
                 self.config.c3_url, options_string, self.config)
         except InvalidSecureIDError as exc:
             print(exc)
             return False
-        try:
-            with open(self.config.fallback_file, "rt",
-                      encoding="UTF-8") as stream:
+        # Prepare the data for submission
+        data = self.exporter.get_session_data_subset(self.session)
+        with tempfile.NamedTemporaryFile(mode='w+b') as stream:
+            # Dump the data to the temporary file
+            self.exporter.dump(data, stream)
+            # Flush and rewind
+            stream.flush()
+            stream.seek(0)
+            try:
+                # Send the data, reading from the temporary file
                 result = transport.send(stream)
                 print("Successfully sent, server gave me id {0}".format(
                       result['id']))
-        except IOError as exc:
-            print("Problem reading a file: {0}".format(exc))
-        except InvalidSchema as exc:
-            print("Invalid destination URL: {0}".format(exc))
-        except ConnectionError as exc:
-            print("Unable to connect to destination URL: {0}".format(exc))
-        except HTTPError as exc:
-            print(("Server returned an error when "
-                   "receiving or processing: {0}").format(exc))
+            except InvalidSchema as exc:
+                print("Invalid destination URL: {0}".format(exc))
+            except ConnectionError as exc:
+                print("Unable to connect to destination URL: {0}".format(exc))
+            except HTTPError as exc:
+                print(("Server returned an error when "
+                       "receiving or processing: {0}").format(exc))
+            except IOError as exc:
+                print("Problem reading a file: {0}".format(exc))
 
     def _run_all_jobs(self):
         again = True

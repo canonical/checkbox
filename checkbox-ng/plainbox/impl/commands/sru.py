@@ -119,7 +119,7 @@ class _SRUInvocation:
         options_string = "secure_id={0}".format(self.config.secure_id)
         try:
             transport = CertificationTransport(
-                self.config.c3_url, options_string)
+                self.config.c3_url, options_string, self.config)
         except InvalidSecureIDError as exc:
             print(exc)
             return False

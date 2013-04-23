@@ -320,7 +320,7 @@ class JobEnvTests(TestCase):
         self.assertEqual(env['bar'], 'old-bar-value')
         self.assertNotIn('froz', env)
 
-    def test_with_conifg(self):
+    def test_with_config_and_environ_variables(self):
         env = {
             "PATH": "",
             # foo is not defined in the environment
@@ -342,3 +342,21 @@ class JobEnvTests(TestCase):
         self.assertEqual(env['bar'], 'old-bar-value')
         # froz is still empty
         self.assertNotIn('froz', env)
+
+    def test_with_config_and_variables_not_in_environ(self):
+        env = {
+            'bar': 'old-bar-value'
+        }
+        # Setup a configuration object with values for baz.
+        # Note that baz is *not* declared in the job's environ line.
+        from plainbox.impl.applogic import PlainBoxConfig
+        config = PlainBoxConfig()
+        config.environment = {
+            'baz': 'baz-value'
+        }
+        # Ask the job to modify the environment
+        self.job.modify_execution_environment(env, self.session_dir, config)
+        # bar from the old environment
+        self.assertEqual(env['bar'], 'old-bar-value')
+        # baz from the config environment
+        self.assertEqual(env['baz'], 'baz-value')

@@ -260,8 +260,7 @@ class JobDefinition(IJobDefinition):
                     continue
                 # If the environment section of the configuration file has a
                 # particular variable then copy it over.
-                if env_var in config.environment:
-                    env[env_var] = config.environment[env_var]
+                env[env_var] = config.environment[env_var]
 
     def create_child_job_from_record(self, record):
         """

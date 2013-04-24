@@ -44,6 +44,7 @@ from plainbox.impl.runner import JobRunner
 from plainbox.impl.session import SessionState
 from plainbox.impl.transport.certification import CertificationTransport
 from plainbox.impl.transport.certification import InvalidSecureIDError
+from plainbox.impl.commands.check_config import CheckConfigInvocation
 
 
 logger = logging.getLogger("plainbox.commands.sru")
@@ -240,12 +241,21 @@ class SRUCommand(PlainBoxCommand):
             print("Configuration problems prevent running SRU tests")
             print(exc)
             return 1
+        # Run check-config, if requested
+        if ns.check_config:
+            retval = CheckConfigInvocation(self.config).run()
+            if retval != 0:
+                return retval
         return _SRUInvocation(ns, self.config).run()
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(
             "sru", help="run automated stable release update tests")
         parser.set_defaults(command=self)
+        parser.add_argument(
+            "--check-config",
+            action="store_true",
+            help="Run plainbox check-config before starting")
         group = parser.add_argument_group("sru-specific options")
         # Set defaults from based on values from the config file
         group.set_defaults(

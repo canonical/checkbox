@@ -40,11 +40,12 @@ class TestSru(TestCase):
             self.assertEqual(call.exception.args, (0,))
         self.maxDiff = None
         expected = """
-        usage: plainbox sru [-h] --secure-id SECURE-ID [--fallback FILE]
-                            [--destination URL] [-n]
+        usage: plainbox sru [-h] [--check-config] --secure-id SECURE-ID
+                            [--fallback FILE] [--destination URL] [-n]
 
         optional arguments:
           -h, --help            show this help message and exit
+          --check-config        Run plainbox check-config before starting
 
         sru-specific options:
           --secure-id SECURE-ID

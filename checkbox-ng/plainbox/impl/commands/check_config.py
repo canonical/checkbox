@@ -35,7 +35,7 @@ from plainbox.impl.config import ValidationError
 logger = logging.getLogger("plainbox.commands.check_config")
 
 
-class _CheckConfigInvocation:
+class CheckConfigInvocation:
     """
     Helper class instantiated to perform a particular invocation of the sru
     command. Unlike the SRU command itself, this class is instantiated each
@@ -85,7 +85,7 @@ class CheckConfigCommand(PlainBoxCommand):
         self.config = config
 
     def invoked(self, ns):
-        return _CheckConfigInvocation(ns, self.config).run()
+        return CheckConfigInvocation(ns, self.config).run()
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(

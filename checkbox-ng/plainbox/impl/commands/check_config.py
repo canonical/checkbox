@@ -42,8 +42,7 @@ class CheckConfigInvocation:
     time.
     """
 
-    def __init__(self, ns, config):
-        self.ns = ns
+    def __init__(self, config):
         self.config = config
 
     def run(self):
@@ -85,7 +84,7 @@ class CheckConfigCommand(PlainBoxCommand):
         self.config = config
 
     def invoked(self, ns):
-        return CheckConfigInvocation(ns, self.config).run()
+        return CheckConfigInvocation(self.config).run()
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(

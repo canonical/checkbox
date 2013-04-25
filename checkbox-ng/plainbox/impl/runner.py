@@ -173,23 +173,34 @@ class FallbackCommandOutputPrinter(extcmd.DelegateBase):
 class JobRunner(IJobRunner):
     """
     Runner for jobs - executes jobs and produces results
+
+    The runner is somewhat de-coupled from jobs and session. It still carries
+    all checkbox-specific logic about the various types of plugins.
+
+    The runner consumes jobs and configuration objects and produces job result
+    objects. The runner can operate in dry-run mode, when enabled, most jobs
+    are never started. Only jobs listed in DRY_RUN_PLUGINS are executed.
     """
 
+    # List of plugins that are still executed
+    _DRY_RUN_PLUGINS = ('local', 'resource', 'attachment')
+
     def __init__(self, session_dir, jobs_io_log_dir,
-                 command_io_delegate=None, outcome_callback=None):
+                 command_io_delegate=None, outcome_callback=None,
+                 dry_run=False):
         """
         Initialize a new job runner.
 
-        Uses the specified CheckBox instance to execute scripts. Uses the
-        specified session_dir as CHECKBOX_DATA environment variable. Uses the
-        specified IO delegate for extcmd.ExternalCommandWithDelegate to track
-        IO done by the called commands (optional, a simple console printer is
-        provided if missing).
+        Uses the specified session_dir as CHECKBOX_DATA environment variable.
+        Uses the specified IO delegate for extcmd.ExternalCommandWithDelegate
+        to track IO done by the called commands (optional, a simple console
+        printer is provided if missing).
         """
         self._session_dir = session_dir
         self._jobs_io_log_dir = jobs_io_log_dir
         self._command_io_delegate = command_io_delegate
         self._outcome_callback = outcome_callback
+        self._dry_run = dry_run
 
     def run_job(self, job, config=None):
         """
@@ -206,7 +217,20 @@ class JobRunner(IJobRunner):
                 'comment': 'This plugin is not supported'
             })
         else:
-            return runner(job, config)
+            if self._dry_run and job.plugin not in self._DRY_RUN_PLUGINS:
+                return self._dry_run_result(job)
+            else:
+                return runner(job, config)
+
+    def _dry_run_result(self, job):
+        """
+        Produce the result that is used when running in dry-run mode
+        """
+        return JobResult({
+            'job': job,
+            'outcome': JobResult.OUTCOME_SKIP,
+            'comments': "Job skipped in dry-run mode"
+        })
 
     def _plugin_shell(self, job, config):
         return self._just_run_command(job, config)

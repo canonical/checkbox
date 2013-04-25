@@ -32,6 +32,7 @@ setup(
     author_email="zygmunt.krynicki@canonical.com",
     license="GPLv3+",
     description="Simple replacement for checkbox",
+    long_description=open("README.rst", "rt", encoding="UTF-8").read(),
     tests_require=[
         'mock',
     ],

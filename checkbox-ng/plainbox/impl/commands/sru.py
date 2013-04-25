@@ -91,7 +91,9 @@ class _SRUInvocation:
                 self.session.session_dir,
                 self.session.jobs_io_log_dir,
                 command_io_delegate=self,
-                outcome_callback=None)  # SRU runs are never interactive
+                outcome_callback=None,  # SRU runs are never interactive
+                dry_run=self.ns.dry_run
+            )
             self._run_all_jobs()
             if self.config.fallback_file is not Unset:
                 self._save_results()
@@ -173,15 +175,7 @@ class _SRUInvocation:
         print("- {}:".format(job.name), end=' ')
         job_state = self.session.job_state_map[job.name]
         if job_state.can_start():
-            if (self.ns.dry_run and job.plugin not in (
-                    'local', 'resource', 'attachment')):
-                job_result = JobResult({
-                    'job': job,
-                    'outcome': JobResult.OUTCOME_SKIP,
-                    'comments': "Job skipped in dry-run mode"
-                })
-            else:
-                job_result = self.runner.run_job(job, self.config)
+            job_result = self.runner.run_job(job, self.config)
         else:
             # Set the outcome of jobs that cannot start to
             # OUTCOME_NOT_SUPPORTED _except_ if any of the inhibitors point to

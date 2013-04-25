@@ -25,6 +25,7 @@ from setuptools import setup, find_packages
 setup(
     name="plainbox",
     version="0.2",
+    url="https://launchpad.net/checkbox/",
     packages=find_packages(),
     author="Zygmunt Krynicki",
     test_suite='plainbox.tests.test_suite',

@@ -115,6 +115,8 @@ case "$(lsb_release --short --release)" in
         ;;
     13.04)
         # On Raring we can use the system package for python3-requests
+        install_distribute=0
+        install_pip=0
         install_requests=0
         required_pkgs="$required_pkgs_base python3-requests"
         ;;

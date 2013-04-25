@@ -192,9 +192,12 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
                 outcome_callback = self.ask_for_outcome
             else:
                 outcome_callback = None
-            runner = JobRunner(session.session_dir,
-                               session.jobs_io_log_dir,
-                               outcome_callback=outcome_callback)
+            runner = JobRunner(
+                session.session_dir,
+                session.jobs_io_log_dir,
+                outcome_callback=outcome_callback,
+                dry_run=ns.dry_run
+            )
             self._run_jobs_with_session(ns, session, runner)
             # Get a stream with exported session data.
             exported_stream = io.BytesIO()
@@ -215,7 +218,7 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
                            "to destination URL: {0}").format(exc))
                 except HTTPError as exc:
                     print(("Server returned an error when "
-                        "receiving or processing: {0}").format(exc))
+                           "receiving or processing: {0}").format(exc))
 
         # FIXME: sensible return value
         return 0
@@ -223,10 +226,10 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
     def _save_results(self, output_file, input_stream):
         if output_file is sys.stdout:
             print("[ Results ]".center(80, '='))
-            #This requires a bit more finesse, as exporters output bytes
-            #and stdout needs a string.
-            translating_stream = ByteStringStreamTranslator(output_file,
-                                                                "utf-8")
+            # This requires a bit more finesse, as exporters output bytes
+            # and stdout needs a string.
+            translating_stream = ByteStringStreamTranslator(
+                output_file, "utf-8")
             copyfileobj(input_stream, translating_stream)
         else:
             print("Saving results to {}".format(output_file.name))
@@ -301,25 +304,16 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         logger.debug("Can start: %s", job_state.can_start())
         logger.debug("Readiness: %s", job_state.get_readiness_description())
         if job_state.can_start():
-            if ns.dry_run:
-                print("Not really running anything in dry-run mode")
-                job_result = JobResult({
-                    'job': job,
-                    'outcome': 'dry-run',
-                })
-            else:
-                print("Running... (output in {}.*)".format(
-                    join(session.jobs_io_log_dir, slugify(job.name))))
-                job_result = runner.run_job(job)
-                print("Outcome: {}".format(job_result.outcome))
-                print("Comments: {}".format(job_result.comments))
+            print("Running... (output in {}.*)".format(
+                join(session.jobs_io_log_dir, slugify(job.name))))
+            job_result = runner.run_job(job)
+            print("Outcome: {}".format(job_result.outcome))
+            print("Comments: {}".format(job_result.comments))
         else:
             job_result = JobResult({
                 'job': job,
                 'outcome': JobResult.OUTCOME_NOT_SUPPORTED,
                 'comments': job_state.get_readiness_description()
             })
-        if job_result is None and not ns.dry_run:
-            logger.warning("Job %s did not return a result", job)
         if job_result is not None:
             session.update_job_result(job, job_result)

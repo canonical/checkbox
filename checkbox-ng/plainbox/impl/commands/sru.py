@@ -139,8 +139,13 @@ class _SRUInvocation:
             try:
                 # Send the data, reading from the temporary file
                 result = transport.send(stream)
-                print("Successfully sent, server gave me id {0}".format(
-                      result['id']))
+                if 'url' in result:
+                    print("Successfully sent, submission status at {0}".format(
+                          result['url']))
+                else:
+                    print("Successfully sent, server response: {0}".format(
+                          result))
+
             except InvalidSchema as exc:
                 print("Invalid destination URL: {0}".format(exc))
             except ConnectionError as exc:

@@ -33,18 +33,18 @@ import tempfile
 from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
 
 from plainbox.impl.applogic import get_matching_job_list
+from plainbox.impl.applogic import run_job_if_possible
 from plainbox.impl.checkbox import CheckBox, WhiteList
 from plainbox.impl.commands import PlainBoxCommand
+from plainbox.impl.commands.check_config import CheckConfigInvocation
 from plainbox.impl.config import ValidationError, Unset
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter.xml import XMLSessionStateExporter
-from plainbox.impl.result import JobResult
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.session import SessionState
 from plainbox.impl.transport.certification import CertificationTransport
 from plainbox.impl.transport.certification import InvalidSecureIDError
-from plainbox.impl.commands.check_config import CheckConfigInvocation
 
 
 logger = logging.getLogger("plainbox.commands.sru")
@@ -178,28 +178,8 @@ class _SRUInvocation:
 
     def _run_single_job(self, job):
         print("- {}:".format(job.name), end=' ')
-        job_state = self.session.job_state_map[job.name]
-        if job_state.can_start():
-            job_result = self.runner.run_job(job, self.config)
-        else:
-            # Set the outcome of jobs that cannot start to
-            # OUTCOME_NOT_SUPPORTED _except_ if any of the inhibitors point to
-            # a job with an OUTCOME_SKIP outcome, if that is the case mirror
-            # that outcome. This makes 'skip' stronger than 'not-supported'
-            outcome = JobResult.OUTCOME_NOT_SUPPORTED
-            for inhibitor in job_state.readiness_inhibitor_list:
-                if inhibitor.cause != inhibitor.FAILED_DEP:
-                    continue
-                related_job_state = self.session.job_state_map[
-                    inhibitor.related_job.name]
-                if related_job_state.result.outcome == JobResult.OUTCOME_SKIP:
-                    outcome = JobResult.OUTCOME_SKIP
-            job_result = JobResult({
-                'job': job,
-                'outcome': outcome,
-                'comments': job_state.get_readiness_description()
-            })
-        assert job_result is not None
+        job_state, job_result = run_job_if_possible(
+            self.session, self.runner, self.config, job)
         print("{0}".format(job_result.outcome))
         if job_result.comments is not None:
             print("comments: {0}".format(job_result.comments))

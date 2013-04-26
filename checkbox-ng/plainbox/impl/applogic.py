@@ -31,6 +31,7 @@ import os
 import re
 
 from plainbox.impl import config
+from plainbox.impl.result import JobResult
 
 
 class IJobQualifier(metaclass=ABCMeta):
@@ -104,6 +105,38 @@ def get_matching_job_list(job_list, qualifier):
     but works with any :class:`IJobQualifier` subclass.
     """
     return [job for job in job_list if qualifier.designates(job)]
+
+
+def run_job_if_possible(session, runner, config, job):
+    """
+    Coupling point for session, runner, config and job
+
+    :returns: (job_state, job_result)
+    """
+    job_state = session.job_state_map[job.name]
+    if job_state.can_start():
+        job_result = runner.run_job(job, config)
+    else:
+        # Set the outcome of jobs that cannot start to
+        # OUTCOME_NOT_SUPPORTED _except_ if any of the inhibitors point to
+        # a job with an OUTCOME_SKIP outcome, if that is the case mirror
+        # that outcome. This makes 'skip' stronger than 'not-supported'
+        outcome = JobResult.OUTCOME_NOT_SUPPORTED
+        for inhibitor in job_state.readiness_inhibitor_list:
+            if inhibitor.cause != inhibitor.FAILED_DEP:
+                continue
+            related_job_state = session.job_state_map[
+                inhibitor.related_job.name]
+            if related_job_state.result.outcome == JobResult.OUTCOME_SKIP:
+                outcome = JobResult.OUTCOME_SKIP
+        job_result = JobResult({
+            'job': job,
+            'outcome': outcome,
+            'comments': job_state.get_readiness_description()
+        })
+    assert job_result is not None
+    session.update_job_result(job, job_result)
+    return job_state, job_result
 
 
 class PlainBoxConfig(config.Config):

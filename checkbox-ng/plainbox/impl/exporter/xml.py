@@ -149,6 +149,7 @@ class XMLSessionStateExporter(SessionStateExporterBase):
             SessionStateExporterBase.OPTION_FLATTEN_IO_LOG,
             SessionStateExporterBase.OPTION_WITH_JOB_DEFS,
             SessionStateExporterBase.OPTION_WITH_RESOURCE_MAP,
+            SessionStateExporterBase.OPTION_WITH_COMMENTS,
             SessionStateExporterBase.OPTION_WITH_ATTACHMENTS)
         # Generate a dummy system hash if needed
         if system_id is None:

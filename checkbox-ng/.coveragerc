@@ -9,6 +9,8 @@ omit =
     plainbox/impl/integration_tests.py
     plainbox/impl/commands/test_*
     plainbox/impl/exporter/test_*
+    plainbox/impl/transport/test_*
+    plainbox/impl/secure/test_*
     plainbox/testing_utils/test_*
 
 [report]

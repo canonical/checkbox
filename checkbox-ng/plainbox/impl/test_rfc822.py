@@ -65,16 +65,18 @@ class RFC822RecordTests(TestCase):
         self.assertEqual(record.origin, origin)
 
 
-class RFC822ParserTests(TestCase):
+class RFC822ParserTestsMixIn():
+
+    loader = load_rfc822_records
 
     def test_empty(self):
         with StringIO("") as stream:
-            records = load_rfc822_records(stream)
+            records = type(self).loader(stream)
         self.assertEqual(len(records), 0)
 
     def test_single_record(self):
         with StringIO("key:value") as stream:
-            records = load_rfc822_records(stream)
+            records = type(self).loader(stream)
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0].data, {'key': 'value'})
 
@@ -94,7 +96,7 @@ class RFC822ParserTests(TestCase):
             "\n"
         )
         with StringIO(text) as stream:
-            records = load_rfc822_records(stream)
+            records = type(self).loader(stream)
         self.assertEqual(len(records), 3)
         self.assertEqual(records[0].data, {'key1': 'value1'})
         self.assertEqual(records[1].data, {'key2': 'value2'})
@@ -109,7 +111,7 @@ class RFC822ParserTests(TestCase):
             "key3:value3\n"
         )
         with StringIO(text) as stream:
-            records = load_rfc822_records(stream)
+            records = type(self).loader(stream)
         self.assertEqual(len(records), 3)
         self.assertEqual(records[0].data, {'key1': 'value1'})
         self.assertEqual(records[1].data, {'key2': 'value2'})
@@ -122,7 +124,7 @@ class RFC822ParserTests(TestCase):
             " value\n"
         )
         with StringIO(text) as stream:
-            records = load_rfc822_records(stream)
+            records = type(self).loader(stream)
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0].data, {'key': 'longer\nvalue'})
 
@@ -134,7 +136,7 @@ class RFC822ParserTests(TestCase):
             " value\n"
         )
         with StringIO(text) as stream:
-            records = load_rfc822_records(stream)
+            records = type(self).loader(stream)
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0].data, {'key': 'longer\n\nvalue'})
 
@@ -146,7 +148,7 @@ class RFC822ParserTests(TestCase):
             " value\n"
         )
         with StringIO(text) as stream:
-            records = load_rfc822_records(stream)
+            records = type(self).loader(stream)
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0].data, {'key': 'longer\n.\nvalue'})
 
@@ -161,7 +163,7 @@ class RFC822ParserTests(TestCase):
             " value 2\n"
         )
         with StringIO(text) as stream:
-            records = load_rfc822_records(stream)
+            records = type(self).loader(stream)
         self.assertEqual(len(records), 2)
         self.assertEqual(records[0].data, {'key1': 'initial\nlonger\nvalue 1'})
         self.assertEqual(records[1].data, {'key2': 'longer\nvalue 2'})
@@ -169,7 +171,7 @@ class RFC822ParserTests(TestCase):
     def test_irrelevant_whitespace(self):
         text = "key :  value  "
         with StringIO(text) as stream:
-            records = load_rfc822_records(stream)
+            records = type(self).loader(stream)
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0].data, {'key': 'value'})
 
@@ -179,7 +181,7 @@ class RFC822ParserTests(TestCase):
             " value\n"
         )
         with StringIO(text) as stream:
-            records = load_rfc822_records(stream)
+            records = type(self).loader(stream)
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0].data, {'key': 'value'})
 
@@ -187,21 +189,21 @@ class RFC822ParserTests(TestCase):
         text = " extra value"
         with StringIO(text) as stream:
             with self.assertRaises(RFC822SyntaxError) as call:
-                load_rfc822_records(stream)
+                type(self).loader(stream)
             self.assertEqual(call.exception.msg, "Unexpected multi-line value")
 
     def test_garbage(self):
         text = "garbage"
         with StringIO(text) as stream:
             with self.assertRaises(RFC822SyntaxError) as call:
-                load_rfc822_records(stream)
+                type(self).loader(stream)
             self.assertEqual(call.exception.msg, "Unexpected non-empty line")
 
     def test_syntax_error(self):
         text = "key1 = value1"
         with StringIO(text) as stream:
             with self.assertRaises(RFC822SyntaxError) as call:
-                load_rfc822_records(stream)
+                type(self).loader(stream)
             self.assertEqual(call.exception.msg, "Unexpected non-empty line")
 
     def test_duplicate_error(self):
@@ -211,10 +213,15 @@ class RFC822ParserTests(TestCase):
         )
         with StringIO(text) as stream:
             with self.assertRaises(RFC822SyntaxError) as call:
-                load_rfc822_records(stream)
+                type(self).loader(stream)
             self.assertEqual(call.exception.msg, (
                 "Job has a duplicate key 'key1' with old value 'value1'"
                 " and new value 'value2'"))
+
+
+class RFC822ParserTests(TestCase, RFC822ParserTestsMixIn):
+
+    pass
 
 
 class RFC822WriterTests(TestCase):

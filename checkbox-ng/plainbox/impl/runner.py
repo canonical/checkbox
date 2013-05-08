@@ -298,6 +298,37 @@ class JobRunner(IJobRunner):
         else:
             return env
 
+    def _get_command_trusted(self, job, config=None):
+        # When the job requires to run as root then elevate our permissions
+        # via pkexec(1). Since pkexec resets environment we need to somehow
+        # pass the extra things we require. To do that we pass the list of
+        # changed environment variables in addition to the job hash.
+        cmd = ['checkbox-trusted-launcher', job.get_checksum()] + [
+            "{key}={value}".format(key=key, value=value)
+            for key, value in self._get_script_env(
+                job, config, only_changes=True
+            ).items()
+        ]
+        if job.via is not None:
+            cmd += ['--via', job.via]
+        return cmd
+
+    def _get_command_src(self, job, config=None):
+        # Running PlainBox from source doesn't require the trusted launcher
+        # That's why we use the env(1)' command and pass it the list of
+        # changed environment variables.
+        # The whole pkexec and env part gets prepended to the command
+        # we were supposed to run.
+        cmd = ['env']
+        cmd += [
+            "{key}={value}".format(key=key, value=value)
+            for key, value in self._get_script_env(
+                job, only_changes=True
+            ).items()
+        ]
+        cmd += ['bash', '-c', job.command]
+        return cmd
+
     def _run_command(self, job, config):
         """
         Run the shell command associated with the specified job.
@@ -350,26 +381,18 @@ class JobRunner(IJobRunner):
         # threads although all callbacks will be fired from a single
         # thread (which is _not_ the main thread)
         logger.debug("job[%s] starting command: %s", job.name, job.command)
-        # XXX: sadly using /bin/sh results in broken output
-        # XXX: maybe run it both ways and raise exceptions on differences?
-        cmd = ['bash', '-c', job.command]
         if job.user is not None:
-            # When the job requires to run as root then elevate our permissions
-            # via pkexec(1). Since pkexec resets environment we need to somehow
-            # pass the extra things we require. To do that we use the env(1)
-            # command and pass it the list of changed environment variables.
-            #
-            # The whole pkexec and env part gets prepended to the command we
-            # were supposed to run.
-            cmd = ['pkexec', '--user', job.user, 'env'] + [
-                "{key}={value}".format(key=key, value=value)
-                for key, value in self._get_script_env(
-                    job, config, only_changes=True
-                ).items()
-            ] + cmd
+            if job._checkbox._mode == 'src':
+                cmd = self._get_command_src(job, config)
+            else:
+                cmd = self._get_command_trusted(job, config)
+            cmd = ['pkexec', '--user', job.user] + cmd
             logging.debug("job[%s] executing %r", job.name, cmd)
             return_code = logging_popen.call(cmd)
         else:
+            # XXX: sadly using /bin/sh results in broken output
+            # XXX: maybe run it both ways and raise exceptions on differences?
+            cmd = ['bash', '-c', job.command]
             logging.debug("job[%s] executing %r", job.name, cmd)
             return_code = logging_popen.call(
                 cmd, env=self._get_script_env(job, config))

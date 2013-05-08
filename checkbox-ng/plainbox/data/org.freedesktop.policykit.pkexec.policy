@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC
+ "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+
+  <!--
+    Policy definitions for PlainBox system actions.
+    (C) 2013 Canonical Ltd.
+    Author: Sylvain Pineau <sylvain.pineau@canonical.com>
+  -->
+
+  <vendor>PlainBox</vendor>
+  <vendor_url>https://launchpad.net/checkbox</vendor_url>
+  <icon_name>checkbox</icon_name>
+
+  <action id="org.freedesktop.policykit.pkexec.run-plainbox-job">
+    <description>Run Job command</description>
+    <message>Authentication is required to run a job command as another user</message>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>no</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/bin/checkbox-trusted-launcher</annotate>
+    <annotate key="org.freedesktop.policykit.exec.allow_gui">TRUE</annotate>
+  </action>
+
+</policyconfig>
+

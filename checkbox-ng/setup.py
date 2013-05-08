@@ -40,9 +40,15 @@ setup(
         'lxml >= 2.3',
         'requests >= 1.0',
     ],
+    data_files=[
+        ("share/polkit-1/actions",
+            ["plainbox/data/org.freedesktop.policykit.pkexec.policy"])
+    ],
     entry_points={
         'console_scripts': [
             'plainbox=plainbox.public:main',
+            'checkbox-trusted-launcher='
+            'plainbox.impl.secure.checkbox_trusted_launcher:main',
         ],
         'plainbox.exporter': [
             'text=plainbox.impl.exporter.text:TextSessionStateExporter',
@@ -51,7 +57,8 @@ setup(
             'xml=plainbox.impl.exporter.xml:XMLSessionStateExporter',
         ],
         'plainbox.transport': [
-            'certification=plainbox.impl.transport.certification:CertificationTransport',
+            'certification='
+            'plainbox.impl.transport.certification:CertificationTransport',
         ],
     },
     include_package_data=True)

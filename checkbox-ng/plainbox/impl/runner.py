@@ -303,7 +303,7 @@ class JobRunner(IJobRunner):
         # via pkexec(1). Since pkexec resets environment we need to somehow
         # pass the extra things we require. To do that we pass the list of
         # changed environment variables in addition to the job hash.
-        cmd = ['checkbox-trusted-launcher', job.get_checksum()] + [
+        cmd = ['checkbox-trusted-launcher', '--hash', job.get_checksum()] + [
             "{key}={value}".format(key=key, value=value)
             for key, value in self._get_script_env(
                 job, config, only_changes=True

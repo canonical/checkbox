@@ -316,16 +316,24 @@ class Runner:
 
     def main(self, argv=None):
         parser = argparse.ArgumentParser(prog="checkbox-trusted-launcher")
-        parser.add_argument('HASH', metavar='HASH', help='job hash to match')
-        parser.add_argument(
-            'ENV', metavar='NAME=VALUE', nargs='*',
-            help='Set each NAME to VALUE in the string environment')
+        group = parser.add_mutually_exclusive_group(required=True)
+        group.add_argument('--hash', metavar='HASH', help='job hash to match')
+        group.add_argument(
+            '--warmup',
+            action='store_true',
+            help='Return immediately, only useful when used with pkexec(1)')
         parser.add_argument(
             '--via',
             metavar='LOCAL-JOB-HASH',
             dest='via_hash',
             help='Local job hash to use to match the generated job')
+        parser.add_argument(
+            'ENV', metavar='NAME=VALUE', nargs='*',
+            help='Set each NAME to VALUE in the string environment')
         args = parser.parse_args(argv)
+
+        if args.warmup:
+            return 0
 
         for filename in self.path_expand(self.CHECKBOXES):
             stream = open(filename, "r", encoding="utf-8")
@@ -360,7 +368,7 @@ class Runner:
 
         try:
             target_job = [j for j in lookup_list
-                          if j.get_checksum() == args.HASH][0]
+                          if j.get_checksum() == args.hash][0]
         except IndexError:
             return "Job not found"
         try:

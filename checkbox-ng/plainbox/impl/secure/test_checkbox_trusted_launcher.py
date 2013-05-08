@@ -177,18 +177,28 @@ class TestMain(TestCase):
         self.assertEqual(call.exception.args, (0,))
         self.maxDiff = None
         expected = """
-        usage: checkbox-trusted-launcher [-h] [--via LOCAL-JOB-HASH]
-                                         HASH [NAME=VALUE [NAME=VALUE ...]]
+        usage: checkbox-trusted-launcher [-h] (--hash HASH | --warmup)
+                                         [--via LOCAL-JOB-HASH]
+                                         [NAME=VALUE [NAME=VALUE ...]]
 
         positional arguments:
-          HASH                  job hash to match
           NAME=VALUE            Set each NAME to VALUE in the string environment
 
         optional arguments:
           -h, --help            show this help message and exit
+          --hash HASH           job hash to match
+          --warmup              Return immediately, only useful when used with
+                                pkexec(1)
           --via LOCAL-JOB-HASH  Local job hash to use to match the generated job
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
+
+    def test_warmup(self):
+        with TestIO(combined=True) as io:
+            with self.assertRaises(SystemExit) as call:
+                main(['--warmup'])
+            self.assertEqual(call.exception.args, (0,))
+        self.assertEqual(io.combined, '')
 
     def test_run_without_args(self):
         with TestIO(combined=True) as io:
@@ -196,8 +206,10 @@ class TestMain(TestCase):
                 main([])
             self.assertEqual(call.exception.args, (2,))
         expected = """
-        usage: checkbox-trusted-launcher [-h]
-        checkbox-trusted-launcher: error: too few arguments
+        usage: checkbox-trusted-launcher [-h] (--hash HASH | --warmup)
+                                         [--via LOCAL-JOB-HASH]
+                                         [NAME=VALUE [NAME=VALUE ...]]
+        checkbox-trusted-launcher: error: one of the arguments --hash --warmup is required
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
 
@@ -205,7 +217,7 @@ class TestMain(TestCase):
     def test_run_invalid_hash(self):
         with TestIO(combined=True) as io:
             with self.assertRaises(SystemExit) as call:
-                main(['bar'])
+                main(['--hash=bar'])
             self.assertEqual(call.exception.args, ('Job not found',))
         self.assertEqual(io.combined, '')
 
@@ -215,7 +227,7 @@ class TestMain(TestCase):
                 patch('os.execve'):
             with TestIO(combined=True) as io:
                 with self.assertRaises(SystemExit) as call:
-                    main(['9ab0e98cce8866b9a2fa217e87b4e8bb'
+                    main(['--hash=9ab0e98cce8866b9a2fa217e87b4e8bb'
                           '739e5f74977ba5fa30822cab2a178c48'])
                 self.assertEqual(call.exception.args, ('Fatal error',))
             self.assertEqual(io.combined, '')
@@ -227,7 +239,7 @@ class TestMain(TestCase):
             mock_execve.side_effect = OSError('foo')
             with TestIO(combined=True) as io:
                 with self.assertRaises(SystemExit) as call:
-                    main(['9ab0e98cce8866b9a2fa217e87b4e8bb'
+                    main(['--hash=9ab0e98cce8866b9a2fa217e87b4e8bb'
                           '739e5f74977ba5fa30822cab2a178c48'])
                 self.assertEqual(call.exception.args, ('Fatal error',))
             self.assertEqual(io.combined, '')
@@ -242,7 +254,7 @@ class TestMain(TestCase):
             mock_popen.return_value = mock_iobuffer
             with TestIO(combined=True) as io:
                 with self.assertRaises(SystemExit) as call:
-                    main(['9ab0e98cce8866b9a2fa217e87b4e8bb'
+                    main(['--hash=9ab0e98cce8866b9a2fa217e87b4e8bb'
                           '739e5f74977ba5fa30822cab2a178c48', '--via=maybe'])
                 self.assertEqual(call.exception.args, ('Fatal error',))
             self.assertEqual(io.combined, '')
@@ -257,7 +269,7 @@ class TestMain(TestCase):
             mock_popen.return_value = mock_iobuffer
             with TestIO(combined=True) as io:
                 with self.assertRaises(SystemExit) as call:
-                    main(['9ab0e98cce8866b9a2fa217e87b4e8bb'
+                    main(['--hash=9ab0e98cce8866b9a2fa217e87b4e8bb'
                           '739e5f74977ba5fa30822cab2a178c48',
                           '--via=a0dc4a9673b8f2d80b1ae4775c'
                           '03e8a777eefa061fc7ecf7a3af2f20a33bb177'])

@@ -26,9 +26,6 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
-import collections
-import hashlib
-import json
 import logging
 import os
 import re
@@ -36,22 +33,19 @@ import re
 from plainbox.abc import IJobDefinition
 from plainbox.impl.config import Unset
 from plainbox.impl.resource import ResourceProgram
+from plainbox.impl.secure.checkbox_trusted_launcher import BaseJob
 
 
 logger = logging.getLogger("plainbox.job")
 
 
-class JobDefinition(IJobDefinition):
+class JobDefinition(BaseJob, IJobDefinition):
     """
     Job definition class.
 
     Thin wrapper around the RFC822 record that defines a checkbox job
     definition
     """
-
-    @property
-    def plugin(self):
-        return self.__getattr__('plugin')
 
     @property
     def name(self):
@@ -61,13 +55,6 @@ class JobDefinition(IJobDefinition):
     def requires(self):
         try:
             return self.__getattr__('requires')
-        except AttributeError:
-            return None
-
-    @property
-    def command(self):
-        try:
-            return self.__getattr__('command')
         except AttributeError:
             return None
 
@@ -86,16 +73,13 @@ class JobDefinition(IJobDefinition):
             return None
 
     @property
-    def user(self):
+    def via(self):
+        """
+        The checksum of the "parent" job when the current JobDefinition comes
+        from a job output using the local plugin
+        """
         try:
-            return self.__getattr__('user')
-        except AttributeError:
-            return None
-
-    @property
-    def environ(self):
-        try:
-            return self.__getattr__('environ')
+            return self.__getattr__('via')
         except AttributeError:
             return None
 
@@ -184,15 +168,6 @@ class JobDefinition(IJobDefinition):
         else:
             return set()
 
-    def get_environ_settings(self):
-        """
-        Return a set of requested environment variables
-        """
-        if self.environ is not None:
-            return {variable for variable in re.split('[\s,]+', self.environ)}
-        else:
-            return set()
-
     @classmethod
     def from_rfc822_record(cls, record):
         """
@@ -270,34 +245,10 @@ class JobDefinition(IJobDefinition):
         jobs (plugin local). The intent is to encapsulate the sharing of the
         embedded checkbox reference.
         """
+        record.data['via'] = self.get_checksum()
         job = self.from_rfc822_record(record)
         job._checkbox = self._checkbox
         return job
-
-    def get_checksum(self):
-        """
-        Compute a checksum of the job definition.
-
-        This method can be used to compute the checksum of the canonical form
-        of the job definition.  The canonical form is the UTF-8 encoded JSON
-        serialization of the data that makes up the full definition of the job
-        (all keys and values). The JSON serialization uses no indent and
-        minimal separators.
-
-        The checksum is defined as the SHA256 hash of the canonical form.
-        """
-        # Ideally we'd use simplejson.dumps() with sorted keys to get
-        # predictable serialization but that's another dependency. To get
-        # something simple that is equally reliable, just sort all the keys
-        # manually and ask standard json to serialize that..
-        sorted_data = collections.OrderedDict(sorted(self._data.items()))
-        # Compute the canonical form which is arbitrarily defined as sorted
-        # json text with default indent and separator settings.
-        canonical_form = json.dumps(
-            sorted_data, indent=None, separators=(',', ':'))
-        # Compute the sha256 hash of the UTF-8 encoding of the canonical form
-        # and return the hex digest as the checksum that can be displayed.
-        return hashlib.sha256(canonical_form.encode('UTF-8')).hexdigest()
 
     @classmethod
     def from_json_record(cls, record):

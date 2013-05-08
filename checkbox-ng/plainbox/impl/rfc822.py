@@ -32,6 +32,9 @@ import logging
 
 from inspect import cleandoc
 
+from plainbox.impl.secure.checkbox_trusted_launcher import RFC822SyntaxError
+from plainbox.impl.secure.checkbox_trusted_launcher import BaseRFC822Record
+
 logger = logging.getLogger("plainbox.rfc822")
 
 
@@ -62,7 +65,7 @@ class Origin:
             self.filename, self.line_start, self.line_end)
 
 
-class RFC822Record:
+class RFC822Record(BaseRFC822Record):
     """
     Class for tracking RFC822 records
 
@@ -84,24 +87,6 @@ class RFC822Record:
         The origin of the record.
         """
         return self._origin
-
-    @property
-    def data(self):
-        """
-        The data set (dictionary)
-        """
-        return self._data
-
-
-class RFC822SyntaxError(SyntaxError):
-    """
-    SyntaxError subclass for RFC822 parsing functions
-    """
-
-    def __init__(self, filename, lineno, msg):
-        self.filename = filename
-        self.lineno = lineno
-        self.msg = msg
 
 
 def load_rfc822_records(stream, data_cls=dict):

@@ -60,6 +60,18 @@ def io_log_write(log, stream):
         separators=(',', ':'))
 
 
+def authenticate_warmup():
+    """
+    Call the checkbox trusted launcher in warmup mode.
+
+    This will use the corresponding PolicyKit action and start the
+    authentication agent (depending on the installed policy file)
+    """
+    warmup_popen = extcmd.ExternalCommand()
+    return warmup_popen.call(
+        ['pkexec', 'checkbox-trusted-launcher', '--warmup'])
+
+
 class CommandIOLogBuilder(extcmd.DelegateBase):
     """
     Delegate for extcmd that builds io_log entries.

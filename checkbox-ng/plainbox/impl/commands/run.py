@@ -42,6 +42,7 @@ from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.transport import get_all_transports
 from plainbox.impl.result import JobResult
+from plainbox.impl.runner import authenticate_warmup
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.runner import slugify
 from plainbox.impl.session import SessionState
@@ -163,6 +164,12 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         return False if answer in ('n', 'N') else True
 
     def _run_jobs(self, ns, job_list, exporter, transport=None):
+        # Ask the password before anything else in order to run jobs requiring
+        # privileges
+        print("[ Authentication ]".center(80, '='))
+        return_code = authenticate_warmup()
+        if return_code:
+            raise SystemExit(return_code)
         # Compute the run list, this can give us notification about problems in
         # the selected jobs. Currently we just display each problem
         matching_job_list = self._get_matching_job_list(ns, job_list)

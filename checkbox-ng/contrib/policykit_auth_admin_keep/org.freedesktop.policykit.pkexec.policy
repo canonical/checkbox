@@ -16,7 +16,7 @@
 
   <action id="org.freedesktop.policykit.pkexec.run-plainbox-job">
     <description>Run Job command</description>
-    <message>Authentication is required to run a job command as another user</message>
+    <message>Please enter your password. Some tests require root access to run properly. Your password will never be stored and will never be submitted with test results.</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>

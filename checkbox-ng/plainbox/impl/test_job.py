@@ -241,6 +241,14 @@ class TestJobDefinition(TestCase):
         self.assertEqual(job_dec.name, "camera/still")
         self.assertEqual(job_dec.plugin, "user-verify")
 
+    def test_via_does_not_change_checksum(self):
+        parent = JobDefinition({'name': 'parent', 'plugin': 'local'})
+        child = parent.create_child_job_from_record(
+            RFC822Record({'name': 'test', 'plugin': 'shell'}, None))
+        helper = JobDefinition({'name': 'test', 'plugin': 'shell'})
+        self.assertEqual(child.via, parent.get_checksum())
+        self.assertEqual(child.get_checksum(), helper.get_checksum())
+
 
 class ParsingTests(TestCaseWithParameters):
 

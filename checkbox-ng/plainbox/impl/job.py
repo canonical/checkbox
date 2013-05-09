@@ -78,10 +78,7 @@ class JobDefinition(BaseJob, IJobDefinition):
         The checksum of the "parent" job when the current JobDefinition comes
         from a job output using the local plugin
         """
-        try:
-            return self.__getattr__('via')
-        except AttributeError:
-            return None
+        return self._via
 
     @property
     def origin(self):
@@ -92,11 +89,12 @@ class JobDefinition(BaseJob, IJobDefinition):
         """
         return self._origin
 
-    def __init__(self, data, origin=None, checkbox=None):
+    def __init__(self, data, origin=None, checkbox=None, via=None):
         super(JobDefinition, self).__init__(data)
         self._resource_program = None
         self._origin = origin
         self._checkbox = checkbox
+        self._via = via
 
     def __str__(self):
         return self.name
@@ -120,6 +118,8 @@ class JobDefinition(BaseJob, IJobDefinition):
         state['data'] = {}
         for key, value in self._data.items():
             state['data'][key] = value
+        if self.via is not None:
+            state['via'] = self.via
         return state
 
     def __eq__(self, other):
@@ -242,12 +242,13 @@ class JobDefinition(BaseJob, IJobDefinition):
         Create a new JobDefinition from RFC822 record.
 
         This method should only be used to create additional jobs from local
-        jobs (plugin local). The intent is to encapsulate the sharing of the
-        embedded checkbox reference.
+        jobs (plugin local). The intent is two-fold:
+            1) to encapsulate the sharing of the embedded checkbox reference.
+            2) to set the ``via`` attribute (to aid the trusted launcher)
         """
-        record.data['via'] = self.get_checksum()
         job = self.from_rfc822_record(record)
         job._checkbox = self._checkbox
+        job._via = self.get_checksum()
         return job
 
     @classmethod
@@ -255,4 +256,4 @@ class JobDefinition(BaseJob, IJobDefinition):
         """
         Create a JobDefinition instance from JSON record
         """
-        return cls(record['data'])
+        return cls(record['data'], via=record.get('via'))

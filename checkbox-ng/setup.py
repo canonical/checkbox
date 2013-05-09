@@ -40,10 +40,6 @@ setup(
         'lxml >= 2.3',
         'requests >= 1.0',
     ],
-    data_files=[
-        ("share/polkit-1/actions",
-            ["plainbox/data/org.freedesktop.policykit.pkexec.policy"])
-    ],
     entry_points={
         'console_scripts': [
             'plainbox=plainbox.public:main',

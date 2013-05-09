@@ -93,7 +93,7 @@ class JobDefinition(BaseJob, IJobDefinition):
         return self._origin
 
     def __init__(self, data, origin=None, checkbox=None):
-        self._data = data
+        super(JobDefinition, self).__init__(data)
         self._resource_program = None
         self._origin = origin
         self._checkbox = checkbox

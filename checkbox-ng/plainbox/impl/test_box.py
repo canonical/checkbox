@@ -29,7 +29,7 @@ import shutil
 import tempfile
 
 from inspect import cleandoc
-from mock import Mock
+from mock import Mock, patch
 from unittest import TestCase
 
 from plainbox import __version__ as version
@@ -326,9 +326,12 @@ class TestRun(TestCase):
     def test_run_without_args(self):
         with TestIO(combined=True) as io:
             with self.assertRaises(SystemExit) as call:
-                main(['run'])
+                with patch('plainbox.impl.commands.run.authenticate_warmup') as mock_warmup:
+                    mock_warmup.return_value = 0
+                    main(['run'])
             self.assertEqual(call.exception.args, (0,))
         expected = """
+        ===============================[ Authentication ]===============================
         ===============================[ Analyzing Jobs ]===============================
         ==============================[ Running All Jobs ]==============================
         ==================================[ Results ]===================================

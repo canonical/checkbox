@@ -30,7 +30,7 @@ from unittest import TestCase
 
 from plainbox import __version__ as version
 from plainbox.impl.box import main
-from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
+from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.mock_job import MockJobDefinition
 from plainbox.testing_utils.io import TestIO
 
@@ -40,7 +40,7 @@ class MiscTests(TestCase):
     def setUp(self):
         self.job_foo = MockJobDefinition(name='foo')
         self.job_bar = MockJobDefinition(name='bar')
-        self.obj = CheckBoxCommandMixIn(Mock(name="checkbox"))
+        self.obj = CheckBoxInvocationMixIn(Mock(name="checkbox"))
 
     def test_matching_job_list(self):
         # Nothing gets selected automatically

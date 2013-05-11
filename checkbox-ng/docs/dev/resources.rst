@@ -157,7 +157,7 @@ For example, let's consider this program::
 
     package.name == 'xorg' and package.name == 'procps'
 
-Seemingly the intent was to ensure that both ``xorg`` and ```procps`` are
+Seemingly the intent was to ensure that both ``xorg`` and ``procps`` are
 installed. The reason why this does not work is that at each iteration of the
 the expression evaluator, the name ``package`` refers to exactly one resource
 object. In other words, that expression is equivalent to this one::

@@ -82,7 +82,7 @@ automated manner. This runs all the jobs from the *sru.whitelist* and sends the
 results to the certification website.
 
 To run SRU tests you will need to know the so-called :term:`Secure ID` of the
-device you are testing. Once you know that all you need to do is run::
+device you are testing. Once you know that all you need to do is run:
 
 .. code-block:: bash
 

@@ -30,46 +30,16 @@ import re
 from argparse import FileType
 
 
-class CheckBoxCommandMixIn:
-    """
-    Mix-in class for plainbox commands that want to discover and load checkbox
-    jobs
-    """
+class CheckBoxInvocationMixIn:
 
     def __init__(self, checkbox):
-        self._checkbox = checkbox
-
-    @property
-    def checkbox(self):
-        return self._checkbox
-
-    def enhance_parser(self, parser):
-        """
-        Add common options for job selection to an existing parser
-        """
-        group = parser.add_argument_group(title="job definition options")
-        group.add_argument(
-            '-i', '--include-pattern', action="append",
-            metavar='PATTERN', default=[], dest='include_pattern_list',
-            help=("Run jobs matching the given regular expression. Matches "
-                  "from the start to the end of the line."))
-        group.add_argument(
-            '-x', '--exclude-pattern', action="append",
-            metavar="PATTERN", default=[], dest='exclude_pattern_list',
-            help=("Do not run jobs matching the given regular expression. "
-                  "Matches from the start to the end of the line."))
-        # TODO: Find a way to handle the encoding of the file
-        group.add_argument(
-            '-w', '--whitelist',
-            metavar="WHITELIST",
-            type=FileType("rt"),
-            help="Load whitelist containing run patterns")
+        self.checkbox = checkbox
 
     def get_job_list(self, ns):
         """
         Load and return a list of JobDefinition instances
         """
-        return self._checkbox.get_builtin_jobs()
+        return self.checkbox.get_builtin_jobs()
 
     def _get_matching_job_list(self, ns, job_list):
         # Find jobs that matched patterns
@@ -99,3 +69,32 @@ class CheckBoxCommandMixIn:
                         matching_job_list.append(job)
                         break
         return matching_job_list
+
+
+class CheckBoxCommandMixIn:
+    """
+    Mix-in class for plainbox commands that want to discover and load checkbox
+    jobs
+    """
+
+    def enhance_parser(self, parser):
+        """
+        Add common options for job selection to an existing parser
+        """
+        group = parser.add_argument_group(title="job definition options")
+        group.add_argument(
+            '-i', '--include-pattern', action="append",
+            metavar='PATTERN', default=[], dest='include_pattern_list',
+            help=("Run jobs matching the given regular expression. Matches "
+                  "from the start to the end of the line."))
+        group.add_argument(
+            '-x', '--exclude-pattern', action="append",
+            metavar="PATTERN", default=[], dest='exclude_pattern_list',
+            help=("Do not run jobs matching the given regular expression. "
+                  "Matches from the start to the end of the line."))
+        # TODO: Find a way to handle the encoding of the file
+        group.add_argument(
+            '-w', '--whitelist',
+            metavar="WHITELIST",
+            type=FileType("rt"),
+            help="Load whitelist containing run patterns")

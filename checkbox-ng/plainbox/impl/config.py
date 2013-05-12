@@ -278,8 +278,14 @@ class ConfigMeta(type):
     """
 
     def __new__(mcls, name, bases, namespace, **kwargs):
+        # Keep track of variables and sections from base class
         variable_list = []
         section_list = []
+        if 'Meta' in namespace:
+            if hasattr(namespace['Meta'], 'variable_list'):
+                variable_list = namespace['Meta'].variable_list[:]
+            if hasattr(namespace['Meta'], 'section_list'):
+                section_list = namespace['Meta'].section_list[:]
         # Discover all Variable and Section instances
         # defined in the class namespace
         for name, item in namespace.items():

@@ -37,23 +37,29 @@ from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
 
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
+from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter import get_all_exporters
-from plainbox.impl.transport import get_all_transports
 from plainbox.impl.result import JobResult
-from plainbox.impl.runner import authenticate_warmup
 from plainbox.impl.runner import JobRunner
+from plainbox.impl.runner import authenticate_warmup
 from plainbox.impl.runner import slugify
 from plainbox.impl.session import SessionState
+from plainbox.impl.transport import get_all_transports
 
 
 logger = getLogger("plainbox.commands.run")
 
 
-class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
+class RunInvocation(CheckBoxInvocationMixIn):
 
-    def invoked(self, ns):
+    def __init__(self, checkbox, ns):
+        super(RunInvocation, self).__init__(checkbox)
+        self.ns = ns
+
+    def run(self):
+        ns = self.ns
         if ns.output_format == '?':
             self._print_output_format_list(ns)
             return 0
@@ -68,54 +74,6 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             transport = self._prepare_transport(ns)
             job_list = self.get_job_list(ns)
             return self._run_jobs(ns, job_list, exporter, transport)
-
-    def register_parser(self, subparsers):
-        parser = subparsers.add_parser("run", help="run a test job")
-        parser.set_defaults(command=self)
-        group = parser.add_argument_group(title="user interface options")
-        group.add_argument(
-            '--not-interactive', action='store_true',
-            help="Skip tests that require interactivity")
-        group.add_argument(
-            '-n', '--dry-run', action='store_true',
-            help="Don't actually run any jobs")
-        group = parser.add_argument_group("output options")
-        assert 'text' in get_all_exporters()
-        group.add_argument(
-            '-f', '--output-format', default='text',
-            metavar='FORMAT', choices=['?'] + list(
-                get_all_exporters().keys()),
-            help=('Save test results in the specified FORMAT'
-                  ' (pass ? for a list of choices)'))
-        group.add_argument(
-            '-p', '--output-options', default='',
-            metavar='OPTIONS',
-            help=('Comma-separated list of options for the export mechanism'
-                  ' (pass ? for a list of choices)'))
-        group.add_argument(
-            '-o', '--output-file', default='-',
-            metavar='FILE', type=FileType("wb"),
-            help=('Save test results to the specified FILE'
-                  ' (or to stdout if FILE is -)'))
-        group.add_argument(
-            '-t', '--transport',
-            metavar='TRANSPORT', choices=['?'] + list(
-                get_all_transports().keys()),
-            help=('use TRANSPORT to send results somewhere'
-                  ' (pass ? for a list of choices)'))
-        group.add_argument(
-            '--transport-where',
-            metavar='WHERE',
-            help=('Where to send data using the selected transport.'
-                  ' This is passed as-is and is transport-dependent.'))
-        group.add_argument(
-            '--transport-options',
-            metavar='OPTIONS',
-            help=('Comma-separated list of key-value options (k=v) to '
-                  ' be passed to the transport.'))
-
-        # Call enhance_parser from CheckBoxCommandMixIn
-        self.enhance_parser(parser)
 
     def _print_output_format_list(self, ns):
         print("Available output formats: {}".format(
@@ -324,3 +282,59 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             })
         if job_result is not None:
             session.update_job_result(job, job_result)
+
+
+class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
+
+    def __init__(self, checkbox):
+        self.checkbox = checkbox
+
+    def invoked(self, ns):
+        return RunInvocation(self.checkbox, ns).run()
+
+    def register_parser(self, subparsers):
+        parser = subparsers.add_parser("run", help="run a test job")
+        parser.set_defaults(command=self)
+        group = parser.add_argument_group(title="user interface options")
+        group.add_argument(
+            '--not-interactive', action='store_true',
+            help="Skip tests that require interactivity")
+        group.add_argument(
+            '-n', '--dry-run', action='store_true',
+            help="Don't actually run any jobs")
+        group = parser.add_argument_group("output options")
+        assert 'text' in get_all_exporters()
+        group.add_argument(
+            '-f', '--output-format', default='text',
+            metavar='FORMAT', choices=['?'] + list(
+                get_all_exporters().keys()),
+            help=('Save test results in the specified FORMAT'
+                  ' (pass ? for a list of choices)'))
+        group.add_argument(
+            '-p', '--output-options', default='',
+            metavar='OPTIONS',
+            help=('Comma-separated list of options for the export mechanism'
+                  ' (pass ? for a list of choices)'))
+        group.add_argument(
+            '-o', '--output-file', default='-',
+            metavar='FILE', type=FileType("wb"),
+            help=('Save test results to the specified FILE'
+                  ' (or to stdout if FILE is -)'))
+        group.add_argument(
+            '-t', '--transport',
+            metavar='TRANSPORT', choices=['?'] + list(
+                get_all_transports().keys()),
+            help=('use TRANSPORT to send results somewhere'
+                  ' (pass ? for a list of choices)'))
+        group.add_argument(
+            '--transport-where',
+            metavar='WHERE',
+            help=('Where to send data using the selected transport.'
+                  ' This is passed as-is and is transport-dependent.'))
+        group.add_argument(
+            '--transport-options',
+            metavar='OPTIONS',
+            help=('Comma-separated list of key-value options (k=v) to '
+                  ' be passed to the transport.'))
+        # Call enhance_parser from CheckBoxCommandMixIn
+        self.enhance_parser(parser)

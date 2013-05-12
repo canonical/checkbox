@@ -57,7 +57,7 @@ fi
 # Non Ubuntu systems are not tested as they don't have the required checkbox
 # package. Debian might be supported once we have JobBox and stuff like Fedora
 # would need a whole new approach but patches are welcome [CLA required] 
-if [ "$(lsb_release --short --id)" != "Ubuntu" ]; then
+if [ "$(lsb_release --short --id)" != "Ubuntu" ] && [ $(lsb_release --short --id --upstream) != "Ubuntu" ]; then
     echo "Only Ubuntu is supported by this script."
     echo "If you are interested in using it with your distribution"
     echo "then please join us in #ubuntu-quality on freenode"
@@ -105,7 +105,7 @@ install_requests=1
 required_pkgs="$required_pkgs_base"
 
 case "$(lsb_release --short --release)" in
-    12.04)
+    12.04|0.2)
         # Ubuntu 12.04, this is the LTS release that we have to support despite
         # any difficulties. It has python3.2 and all of our core dependencies
         # although some packages are old by 13.04 standards, make sure to be

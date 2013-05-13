@@ -379,7 +379,7 @@ class Runner:
                     args.ENV,
                     self.packages)
             )
-        # if execv doesn't fail, it never returns...
+        # if execve doesn't fail, it never returns...
         except OSError:
             return "Fatal error"
         finally:

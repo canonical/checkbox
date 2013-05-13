@@ -342,6 +342,8 @@ class Runner:
             stream.close()
         lookup_list = [j for j in self.builtin_jobs if j.user]
 
+        args.ENV = dict(item.split('=') for item in args.ENV)
+
         if args.via_hash is not None:
             local_list = [j for j in self.builtin_jobs if j.plugin == 'local']
             desired_job_list = [j for j in local_list
@@ -359,7 +361,6 @@ class Runner:
                 )
                 try:
                     for message in load_rfc822_records(via_job_result.stdout):
-                        message._data['via'] = args.via_hash
                         lookup_list.append(BaseJob(message.data))
                 finally:
                     # Always call Popen.wait() in order to avoid zombies
@@ -379,7 +380,7 @@ class Runner:
                     args.ENV,
                     self.packages)
             )
-        # if execv doesn't fail, it never returns...
+        # if execve doesn't fail, it never returns...
         except OSError:
             return "Fatal error"
         finally:

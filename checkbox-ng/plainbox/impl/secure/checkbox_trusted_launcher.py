@@ -342,6 +342,8 @@ class Runner:
             stream.close()
         lookup_list = [j for j in self.builtin_jobs if j.user]
 
+        args.ENV = dict(item.split('=') for item in args.ENV)
+
         if args.via_hash is not None:
             local_list = [j for j in self.builtin_jobs if j.plugin == 'local']
             desired_job_list = [j for j in local_list

@@ -359,7 +359,6 @@ class Runner:
                 )
                 try:
                     for message in load_rfc822_records(via_job_result.stdout):
-                        message._data['via'] = args.via_hash
                         lookup_list.append(BaseJob(message.data))
                 finally:
                     # Always call Popen.wait() in order to avoid zombies

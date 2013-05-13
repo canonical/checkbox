@@ -159,12 +159,14 @@ class TestSpecial(TestCase):
             self.assertEqual(call.exception.args, (0,))
         self.maxDiff = None
         expected = """
-        usage: plainbox special [-h] (-j | -e | -d) [--dot-resources] [-i PATTERN]
-                                [-x PATTERN] [-w WHITELIST]
+        usage: plainbox special [-h] (-j | -J | -e | -d) [--dot-resources]
+                                [-i PATTERN] [-x PATTERN] [-w WHITELIST]
 
         optional arguments:
           -h, --help            show this help message and exit
           -j, --list-jobs       List jobs instead of running them
+          -J, --list-job-hashes
+                                List jobs with hashes instead of running them
           -e, --list-expressions
                                 List all unique resource expressions
           -d, --dot             Print a graph of jobs instead of running them
@@ -188,9 +190,9 @@ class TestSpecial(TestCase):
                 main(['special'])
             self.assertEqual(call.exception.args, (2,))
         expected = """
-        usage: plainbox special [-h] (-j | -e | -d) [--dot-resources] [-i PATTERN]
-                                [-x PATTERN] [-w WHITELIST]
-        plainbox special: error: one of the arguments -j/--list-jobs -e/--list-expressions -d/--dot is required
+        usage: plainbox special [-h] (-j | -J | -e | -d) [--dot-resources]
+                                [-i PATTERN] [-x PATTERN] [-w WHITELIST]
+        plainbox special: error: one of the arguments -j/--list-jobs -J/--list-job-hashes -e/--list-expressions -d/--dot is required
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
 

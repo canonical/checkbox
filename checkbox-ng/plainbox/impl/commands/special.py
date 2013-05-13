@@ -48,6 +48,8 @@ class SpecialInvocation(CheckBoxInvocationMixIn):
         # Now either do a special action or run the jobs
         if ns.special == "list-jobs":
             self._print_job_list(ns, job_list)
+        elif ns.special == "list-job-hashes":
+            self._print_job_hash_list(ns, job_list)
         elif ns.special == "list-expr":
             self._print_expression_list(ns, job_list)
         elif ns.special == "dep-graph":
@@ -71,6 +73,11 @@ class SpecialInvocation(CheckBoxInvocationMixIn):
         matching_job_list = self._get_matching_job_list(ns, job_list)
         for job in matching_job_list:
             print("{}".format(job))
+
+    def _print_job_hash_list(self, ns, job_list):
+        matching_job_list = self._get_matching_job_list(ns, job_list)
+        for job in matching_job_list:
+            print("{} {}".format(job.get_checksum(), job))
 
     def _print_expression_list(self, ns, job_list):
         matching_job_list = self._get_matching_job_list(ns, job_list)
@@ -132,6 +139,10 @@ class SpecialCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             '-j', '--list-jobs',
             help="List jobs instead of running them",
             action="store_const", const="list-jobs", dest="special")
+        group.add_argument(
+            '-J', '--list-job-hashes',
+            help="List jobs with hashes instead of running them",
+            action="store_const", const="list-job-hashes", dest="special")
         group.add_argument(
             '-e', '--list-expressions',
             help="List all unique resource expressions",

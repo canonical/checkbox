@@ -211,6 +211,8 @@ plugin == "manual"
 This value is used for fully manual jobs. It has no special handling in the core
 apart from requiring a human-provided outcome (pass/fail classification) 
 
+.. _local:
+
 plugin == "local"
 #################
 
@@ -327,6 +329,8 @@ The *user* field is used when the job requires to run as a specific user
 
 The job command will be run via pkexec to get the necessary
 permissions.
+
+.. _environ:
 
 JobDefinition.environ
 ---------------------

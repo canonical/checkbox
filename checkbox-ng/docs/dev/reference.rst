@@ -94,6 +94,16 @@ Code reference
     :undoc-members:
     :show-inheritance:
 
+.. automodule:: plainbox.impl.secure
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: plainbox.impl.secure.checkbox_trusted_launcher
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 .. automodule:: plainbox.impl.transport
     :members:
     :undoc-members:

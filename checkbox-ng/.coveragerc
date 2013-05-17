@@ -1,0 +1,14 @@
+[run]
+branch = True
+source = checkbox_ng 
+omit =
+    checkbox_ng/tests.py
+    checkbox_ng/test_*.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    @public
+    @abstractmethod
+    @abstractproperty
+    raise NotImplementedError

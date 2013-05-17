@@ -1,0 +1,4 @@
+include README.md
+include COPYING
+recursive-include docs *.rst
+include docs/conf.py

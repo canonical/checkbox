@@ -74,6 +74,22 @@ class RegExpJobQualifier(IJobQualifier):
             self.__class__.__name__, self._pattern_text)
 
 
+class NameJobQualifier(IJobQualifier):
+    """
+    A JobQualifier that designates a single job with a particular name
+    """
+
+    def __init__(self, name):
+        self._name = name
+
+    def designates(self, job):
+        return self._name == job.name
+
+    def __repr__(self):
+        return "<{0} name:{1!r}>".format(
+            self.__class__.__name__, self._name)
+
+
 class CompositeQualifier(IJobQualifier):
     """
     A JobQualifier that has qualifies jobs matching any inclusive qualifiers

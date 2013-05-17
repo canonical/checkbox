@@ -26,7 +26,7 @@ Test definitions for plainbox.impl.applogic module
 
 from unittest import TestCase
 
-from plainbox.impl.applogic import CompositeQualifier
+from plainbox.impl.applogic import CompositeQualifier, NameJobQualifier
 from plainbox.impl.applogic import IJobQualifier, RegExpJobQualifier
 from plainbox.impl.applogic import PlainBoxConfig
 from plainbox.impl.applogic import get_matching_job_list
@@ -82,6 +82,19 @@ class CompositeQualifierTests(TestCase):
                 inclusive_qualifier_list=[RegExpJobQualifier(".*")],
                 exclusive_qualifier_list=[RegExpJobQualifier('foo')]
             ).designates(make_job("bar")))
+
+
+class NameJobQualifierTests(TestCase):
+
+    def test_smoke(self):
+        self.assertTrue(NameJobQualifier('name').designates(make_job('name')))
+        self.assertFalse(NameJobQualifier('nam').designates(make_job('name')))
+        self.assertFalse(NameJobQualifier('.*').designates(make_job('name')))
+        self.assertFalse(NameJobQualifier('*').designates(make_job('name')))
+
+    def test_repr(self):
+        self.assertEqual(
+            repr(NameJobQualifier('name')), "<NameJobQualifier name:'name'>")
 
 
 class FunctionTests(TestCase):

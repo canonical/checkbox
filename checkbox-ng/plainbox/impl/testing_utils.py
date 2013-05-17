@@ -45,7 +45,7 @@ def make_io_log(io_log, io_log_dir):
         return stream.name
 
 
-def make_job(name, plugin="dummy", requires=None, depends=None):
+def make_job(name, plugin="dummy", requires=None, depends=None, **kwargs):
     """
     Make and return a dummy JobDefinition instance
     """
@@ -67,12 +67,14 @@ def make_job(name, plugin="dummy", requires=None, depends=None):
         # As recommended by the python documentation:
         # http://docs.python.org/3/library/inspect.html#the-interpreter-stack
         del caller_frame
-    return JobDefinition({
+    settings = {
         'name': name,
         'plugin': plugin,
         'requires': requires,
         'depends': depends
-    }, origin)
+    }
+    settings.update(kwargs)
+    return JobDefinition(settings, origin)
 
 
 def make_job_result(job, outcome="dummy"):

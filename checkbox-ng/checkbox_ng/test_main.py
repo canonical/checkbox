@@ -49,16 +49,17 @@ class TestMain(TestCase):
         self.assertEqual(call.exception.args, (0,))
         self.maxDiff = None
         expected = """
-        usage: checkbox [-h] [-v] {sru,check-config} ...
+        usage: checkbox [-h] [-v] {sru,check-config,script} ...
 
         positional arguments:
-          {sru,check-config}
-            sru               run automated stable release update tests
-            check-config      check and display plainbox configuration
+          {sru,check-config,script}
+            sru                 run automated stable release update tests
+            check-config        check and display plainbox configuration
+            script              run a command from a job
 
         optional arguments:
-          -h, --help          show this help message and exit
-          -v, --version       show program's version number and exit
+          -h, --help            show this help message and exit
+          -v, --version         show program's version number and exit
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
 
@@ -68,7 +69,7 @@ class TestMain(TestCase):
                 main([])
             self.assertEqual(call.exception.args, (2,))
         expected = """
-        usage: checkbox [-h] [-v] {sru,check-config} ...
+        usage: checkbox [-h] [-v] {sru,check-config,script} ...
         checkbox: error: too few arguments
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")

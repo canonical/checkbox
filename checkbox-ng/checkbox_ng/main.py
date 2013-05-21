@@ -31,6 +31,7 @@ import sys
 from plainbox.impl.checkbox import CheckBox
 from plainbox.impl.commands.check_config import CheckConfigCommand
 from plainbox.impl.commands.sru import SRUCommand
+from plainbox.impl.commands.script import ScriptCommand
 
 from checkbox_ng import __version__ as version
 from checkbox_ng.config import CheckBoxConfig
@@ -64,6 +65,7 @@ def main(argv=None):
     subparsers = parser.add_subparsers()
     SRUCommand(checkbox, config).register_parser(subparsers)
     CheckConfigCommand(config).register_parser(subparsers)
+    ScriptCommand(checkbox, config).register_parser(subparsers)
     # Parse command line arguments
     ns = parser.parse_args(argv)
     # Update the root logger with the log level selected on command line

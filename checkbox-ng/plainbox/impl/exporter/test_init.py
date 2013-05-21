@@ -166,6 +166,9 @@ class SessionStateExporterBaseTests(TestCase):
                     'io_log': ['dGVzdGluZwo='],
                     'requires': 'job_b.ready == "yes"',
                     'comments': None,
+                    'via': None,
+                    'hash': '1dbae753f6cb823af370ef9fcb5916'
+                            'eba82185992e81813316fe77332a60f1e0',
                 },
                 'job_b': {
                     'outcome': 'pass',
@@ -173,6 +176,9 @@ class SessionStateExporterBaseTests(TestCase):
                     'command': 'echo ready: yes',
                     'io_log': ['cmVhZHk6IHllcwo='],
                     'comments': 'foo',
+                    'via': None,
+                    'hash': 'a914c7396e29c2a4669055bf38bd7c'
+                            '7f0eae0bc67f8bc2d90ba7d37f83e52132',
                 }
             },
             'attachment_map': {

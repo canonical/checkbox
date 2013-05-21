@@ -680,6 +680,9 @@ class SessionState:
                         ("Local job %s produced job %r that collides with"
                          " an existing job %r, the new job was discarded"),
                         result.job, new_job, existing_job)
+                else:
+                    if not existing_job.via:
+                        existing_job._via = new_job.via
 
     def _gen_rfc822_records_from_io_log(self, result):
         logger.debug("processing output from a job: %r", result.job)

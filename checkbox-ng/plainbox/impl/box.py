@@ -103,6 +103,12 @@ class PlainBox:
         SelfTestCommand().register_parser(subparsers)
         SRUCommand(self._checkbox, config).register_parser(subparsers)
         CheckConfigCommand(config).register_parser(subparsers)
+        try:
+            import argcomplete
+        except ImportError:
+            pass
+        else:
+            argcomplete.autocomplete(parser)
         #group = parser.add_argument_group(title="user interface options")
         #group.add_argument(
         #    "-u", "--ui", action="store",

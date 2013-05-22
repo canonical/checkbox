@@ -25,9 +25,9 @@ mkdir -p graphs
 # Find some jobs from each main category
 # The grep / discards stuff that does not have category/name pattern
 # The rest just gets the category string
-for pattern in $(plainbox special --list-jobs | grep '/' | cut -d '/' -f 1 | sort | uniq); do
-    plainbox special -i $pattern'.*' --dot | dot -Tsvg -o graphs/$pattern.svg
-    plainbox special -i $pattern'.*' --dot --dot-resources | dot -Tsvg -o graphs/$pattern-with-resources.svg
+for pattern in $(plainbox dev special --list-jobs | grep '/' | cut -d '/' -f 1 | sort | uniq); do
+    plainbox dev special -i $pattern'.*' --dot | dot -Tsvg -o graphs/$pattern.svg
+    plainbox dev special -i $pattern'.*' --dot --dot-resources | dot -Tsvg -o graphs/$pattern-with-resources.svg
 done
-plainbox special --dot | dot -Tsvg -o graphs/everything-at-once.svg
-plainbox special --dot --dot-resources | dot -Tsvg -o graphs/everything-at-once-with-resources.svg
+plainbox dev special --dot | dot -Tsvg -o graphs/everything-at-once.svg
+plainbox dev special --dot --dot-resources | dot -Tsvg -o graphs/everything-at-once-with-resources.svg

@@ -99,8 +99,6 @@ class PlainBox:
             help=argparse.SUPPRESS)
         subparsers = parser.add_subparsers()
         RunCommand(self._checkbox).register_parser(subparsers)
-        ScriptCommand(self._checkbox, config).register_parser(subparsers)
-        SpecialCommand(self._checkbox).register_parser(subparsers)
         SelfTestCommand().register_parser(subparsers)
         SRUCommand(self._checkbox, config).register_parser(subparsers)
         CheckConfigCommand(config).register_parser(subparsers)

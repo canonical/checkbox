@@ -61,14 +61,15 @@ class TestDevCommand(TestCase):
         self.assertEqual(
             io.stdout, cleandoc(
                 """
-                usage: test dev [-h] {script,special} ...
+                usage: test dev [-h] {script,special,analyze} ...
 
                 positional arguments:
-                  {script,special}
-                    script          run a command from a job
-                    special         special/internal commands
+                  {script,special,analyze}
+                    script              run a command from a job
+                    special             special/internal commands
+                    analyze             analyze how selected jobs would be executed
 
                 optional arguments:
-                  -h, --help        show this help message and exit
+                  -h, --help            show this help message and exit
                 """)
             + "\n")

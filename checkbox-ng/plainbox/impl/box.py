@@ -42,6 +42,7 @@ from plainbox.impl.commands.special import SpecialCommand
 from plainbox.impl.commands.sru import SRUCommand
 from plainbox.impl.commands.check_config import CheckConfigCommand
 from plainbox.impl.commands.script import ScriptCommand
+from plainbox.impl.commands.dev import DevCommand
 
 
 logger = getLogger("plainbox.box")
@@ -103,6 +104,7 @@ class PlainBox:
         SelfTestCommand().register_parser(subparsers)
         SRUCommand(self._checkbox, config).register_parser(subparsers)
         CheckConfigCommand(config).register_parser(subparsers)
+        DevCommand(self._checkbox, config).register_parser(subparsers)
         try:
             import argcomplete
         except ImportError:

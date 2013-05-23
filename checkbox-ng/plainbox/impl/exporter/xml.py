@@ -352,6 +352,11 @@ class XMLSessionStateExporter(SessionStateExporterBase):
         # Insert the generation timestamp
         ET.SubElement(
             summary, "date_created", attrib={"value": self._timestamp})
+        # Dump some data from 'dpkg' resource
+        if "dpkg" in data["resource_map"]:
+            ET.SubElement(
+                summary, "architecture", attrib={
+                    "value": data["resource_map"]["dpkg"][0]["architecture"]})
         # Dump some data from 'lsb' resource
         if "lsb" in data["resource_map"]:
             ET.SubElement(
@@ -360,11 +365,6 @@ class XMLSessionStateExporter(SessionStateExporterBase):
             ET.SubElement(
                 summary, "distroseries", attrib={
                     "value": data["resource_map"]["lsb"][0]["release"]})
-        # Dump some data from 'dpkg' resource
-        if "dpkg" in data["resource_map"]:
-            ET.SubElement(
-                summary, "architecture", attrib={
-                    "value": data["resource_map"]["dpkg"][0]["architecture"]})
         # Dump some data from 'uname' resource
         if "uname" in data["resource_map"]:
             ET.SubElement(

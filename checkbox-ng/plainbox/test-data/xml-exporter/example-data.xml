@@ -15737,9 +15737,9 @@ ID 1d6b:0001 Linux Foundation 1.1 root hub
   <summary>
     <client name="plainbox" version="1.0"/>
     <date_created value="2012-12-21T12:00:00"/>
+    <architecture value="amd64"/>
     <distribution value="Ubuntu"/>
     <distroseries value="12.04"/>
-    <architecture value="amd64"/>
     <kernel-release value="3.2.0-36-generic"/>
     <private value="False"/>
     <contactable value="False"/>

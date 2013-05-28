@@ -1,5 +1,0 @@
-lxml
-mock
-requests
-sphinx
-sphinx_bootstrap_theme

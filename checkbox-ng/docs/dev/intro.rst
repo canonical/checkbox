@@ -22,14 +22,34 @@ of the integration we provide.
     then please make sure to create it with the ``--system-site-packages``
     option.
 
-Get the tools
--------------
+Get the source
+--------------
 
-First, you need to install the basic development tools:
+Source code for PlainBox is kept along with several other related projects in
+the `checkbox` project on launchpad. You will need to use bzr to get a local
+copy.
 
 .. code-block:: bash
 
-    $ sudo apt-get install bzr python3-setuptools python3-dev python3-doc python3-sphinx python-virtualenv
+    $ bzr branch lp:checkbox
+
+.. note::
+    If you would rather use ``git`` you can also do that (and in fact, some of
+    us already do). Head to `git-lp homepage <http://zyga.github.com/git-lp/>`_
+    and follow the guide there to use git-lp with this project.
+
+Get the dependencies
+--------------------
+
+You will need some tools to work on CheckBox. Scripted installation of almost
+everything required is available (except for VirtualBox and Vagrant, those are
+still manual).
+
+From the top of the checkbox checkout run `mk-venv`, that script will install
+all the missing dependencies and set you up for work on your machine.
+
+Getting Vagrant
+---------------
 
 While developing PlainBox you will often need to run potentially dangerous
 commands on your system, such as asking it to suspend and wake up
@@ -61,31 +81,17 @@ If you have not installed VirtualBox before, you must add yourself to the
 
     $ sudo usermod -G vboxusers -a $USER 
 
-Get the source
---------------
-
-Now that you have all the tools, you can get the source:
-
-.. code-block:: bash
-
-    $ bzr branch lp:checkbox
-
-.. note::
-    If you would rather use ``git`` you can also do that (and in fact, some of
-    us already do). Head to `git-lp homepage <http://zyga.github.com/git-lp/>`_
-    and follow the guide there to use git-lp with this project.
-
 Initialize virtualenv
 ---------------------
 
 PlainBox will use a few unpackaged and bleeding-edge releases from :term:`pypi`
 those are installed by additional script. By default the script assumes you
-have a /ramdisk directory but you can pass any path as an argument for an
+have a `/ramdisk` directory but you can pass any path as an argument for an
 alternate location.
 
 .. code-block:: bash
 
-    $ ./mk-venv.sh
+    $ ./mk-venv
 
 After everything is set up you can activate the virtualenv environment with the
 dot command. Note that there *is* a space between the dot and the forward
@@ -149,8 +155,8 @@ same code so don't worry.
 
 To test the current code you are working on you can:
 
-- Run the :command:`./test-in-vagrant.sh` from the plainbox directory. This
-  will take the longes but will go over *all* the tests on *all* the supported
+- Run the :command:`./test-in-vagrant.sh` from the top-level directory. This
+  will take the longer but will go over *all* the tests on *all* the supported
   versions of Ubuntu. It will run CheckBox unit-tests, PlainBox unit-tests and
   it will even run integration tests that actually execute jobs. 
 

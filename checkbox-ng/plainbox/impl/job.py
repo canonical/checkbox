@@ -243,8 +243,8 @@ class JobDefinition(BaseJob, IJobDefinition):
 
         This method should only be used to create additional jobs from local
         jobs (plugin local). The intent is two-fold:
-            1) to encapsulate the sharing of the embedded checkbox reference.
-            2) to set the ``via`` attribute (to aid the trusted launcher)
+        1) to encapsulate the sharing of the embedded checkbox reference.
+        2) to set the ``via`` attribute (to aid the trusted launcher)
         """
         job = self.from_rfc822_record(record)
         job._checkbox = self._checkbox

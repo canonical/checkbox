@@ -351,8 +351,7 @@ class Runner:
             if desired_job_list:
                 via_job = desired_job_list.pop()
                 via_job_result = subprocess.Popen(
-                    via_job.command,
-                    shell=True,
+                    ['bash', '-c', via_job.command],
                     universal_newlines=True,
                     stdout=subprocess.PIPE,
                     env=via_job.modify_execution_environment(

@@ -15,8 +15,10 @@ omit =
 
 [report]
 exclude_lines =
-    pragma: no cover
-    @public
+    @abc.abstractmethod
+    @abc.abstractproperty
     @abstractmethod
     @abstractproperty
+    @public
+    pragma: no cover
     raise NotImplementedError

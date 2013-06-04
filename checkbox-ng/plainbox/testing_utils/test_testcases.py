@@ -102,38 +102,25 @@ class TestCaseWithParametersTests(TestCase):
         self.assertEqual(self.parametrized_test_case.countTestCases(), 1)
 
     def test_id(self):
-        self.assertEqual(
-            self.test_case.id(), (
-                "testing_utils.test_testcases.UpperTests."
-                "test_str_upper [<unparameterized>]"))
-        self.assertEqual(
-            self.parametrized_test_case.id(), (
-                "testing_utils.test_testcases.UpperTests."
-                "test_str_upper [original: foo, upper: FOO]"))
+        self.assertIn(
+            "test_str_upper [<unparameterized>]",
+             self.test_case.id())
+        self.assertIn(
+            "test_str_upper [original: foo, upper: FOO]",
+            self.parametrized_test_case.id())
 
     def test_str(self):
-        self.assertEqual(
-            str(self.test_case), (
-                "test_str_upper "
-                "(testing_utils.test_testcases.UpperTests) "
-                "[<unparameterized>]"))
-        self.assertEqual(
-            str(self.parametrized_test_case), (
-                "test_str_upper "
-                "(testing_utils.test_testcases.UpperTests) "
-                "[original: foo, upper: FOO]"))
+        self.assertIn(
+            "[<unparameterized>]",  str(self.test_case))
+        self.assertIn(
+            "[original: foo, upper: FOO]", str(self.parametrized_test_case))
 
     def test_repr(self):
-        self.assertEqual(
-            repr(self.test_case), (
-                "<testing_utils.test_testcases.UpperTests "
-                "testMethod=test_str_upper "
-                "parameters=None>"))
-        self.assertEqual(
-            repr(self.parametrized_test_case), (
-                "<testing_utils.test_testcases.UpperTests "
-                "testMethod=test_str_upper "
-                "parameters=<TestCaseParameters original: foo, upper: FOO>>"))
+        self.assertIn(
+            "parameters=None>", repr(self.test_case))
+        self.assertIn(
+            "parameters=<TestCaseParameters original: foo, upper: FOO>>",
+            repr(self.parametrized_test_case))
 
     def test_eq(self):
         self.assertEqual(self.test_case, self.test_case)

@@ -121,9 +121,18 @@ def main(argv=None):
     # Instantiate a global plainbox instance
     # XXX: Allow one to control the checkbox= argument via
     # environment or config.
-    box = PlainBox()
-    retval = box.main(argv)
-    raise SystemExit(retval)
+    try:
+        box = PlainBox()
+        retval = box.main(argv)
+        raise SystemExit(retval)
+    except KeyboardInterrupt:
+        return 1
+    except IOError as exc:
+        if exc.errno == 32:  # pipe
+            pass
+        else:
+            raise
+
 
 
 def get_builtin_jobs():

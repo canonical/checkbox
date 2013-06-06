@@ -102,13 +102,6 @@ class PlainBox:
         parser = ArgumentParser(add_help=False)
         parser.add_argument(*checkbox_mode_args, **checkbox_mode_kwargs)
 
-        try:
-            import argcomplete
-        except ImportError:
-            pass
-        else:
-            argcomplete.autocomplete(parser)
-
         return parser
 
     def _construct_parser(self, config, checkbox_mode_args,

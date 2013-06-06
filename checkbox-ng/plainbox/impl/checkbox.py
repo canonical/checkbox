@@ -162,14 +162,8 @@ class CheckBox:
             os.path.join(source_dir, "scripts"),
             os.path.join(source_dir, "jobs"),
             os.path.join(source_dir, "data"))),
-        # Layout for Ubuntu 12.10 and 13.04
-        ("deb2", CheckBoxDirs(
-            "/usr/share/checkbox/",
-            "/usr/lib/checkbox/bin",
-            "/usr/share/checkbox/jobs",
-            "/usr/share/checkbox/data")),
-        # Layout for Ubuntu 12.04
-        ("deb1", CheckBoxDirs(
+        # Layout for installed version
+        ("deb", CheckBoxDirs(
             "/usr/share/checkbox/",
             "/usr/share/checkbox/scripts",
             "/usr/share/checkbox/jobs",

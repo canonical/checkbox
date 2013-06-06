@@ -53,9 +53,6 @@ class PlainBox:
     High-level plainbox object
     """
 
-    def __init__(self):
-        pass
-
     def main(self, argv=None):
         # TODO: setup sane logging system that works just as well for Joe user
         # that runs checkbox from the CD as well as for checkbox developers and

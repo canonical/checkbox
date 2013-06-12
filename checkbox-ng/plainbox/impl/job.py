@@ -184,7 +184,8 @@ class JobDefinition(BaseJob, IJobDefinition):
                     "Required record key {!r} was not found".format(key))
         return cls(record.data, record.origin)
 
-    def modify_execution_environment(self, env, session_dir, config=None):
+    def modify_execution_environment(self, env, session_dir,
+                                     checkbox_data_dir, config=None):
         """
         Alter execution environment as required to execute this job.
 
@@ -224,7 +225,7 @@ class JobDefinition(BaseJob, IJobDefinition):
         # Add CHECKBOX_SHARE that is needed by one script
         env['CHECKBOX_SHARE'] = self._checkbox.CHECKBOX_SHARE
         # Add CHECKBOX_DATA (temporary checkbox data)
-        env['CHECKBOX_DATA'] = session_dir
+        env['CHECKBOX_DATA'] = checkbox_data_dir
         # Inject additional variables that are requested in the config
         if config is not None and config.environment is not Unset:
             for env_var in config.environment:

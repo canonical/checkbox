@@ -29,10 +29,10 @@
 from logging import getLogger
 
 from plainbox.impl.commands import PlainBoxCommand
-from plainbox.impl.commands.script import ScriptCommand
-from plainbox.impl.commands.special import SpecialCommand
 from plainbox.impl.commands.analyze import AnalyzeCommand
 from plainbox.impl.commands.parse import ParseCommand
+from plainbox.impl.commands.script import ScriptCommand
+from plainbox.impl.commands.special import SpecialCommand
 
 
 logger = getLogger("plainbox.commands.dev")

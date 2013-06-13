@@ -399,13 +399,13 @@ class JobRunner(IJobRunner):
             else:
                 cmd = self._get_command_trusted(job, config)
             cmd = ['pkexec', '--user', job.user] + cmd
-            logging.debug("job[%s] executing %r", job.name, cmd)
+            logger.debug("job[%s] executing %r", job.name, cmd)
             return_code = logging_popen.call(cmd)
         else:
             # XXX: sadly using /bin/sh results in broken output
             # XXX: maybe run it both ways and raise exceptions on differences?
             cmd = ['bash', '-c', job.command]
-            logging.debug("job[%s] executing %r", job.name, cmd)
+            logger.debug("job[%s] executing %r", job.name, cmd)
             return_code = logging_popen.call(
                 cmd, env=self._get_script_env(job, config))
         logger.debug("job[%s] command return code: %r",

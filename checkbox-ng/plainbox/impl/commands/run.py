@@ -124,10 +124,11 @@ class RunInvocation(CheckBoxInvocationMixIn):
     def _run_jobs(self, ns, job_list, exporter, transport=None):
         # Ask the password before anything else in order to run jobs requiring
         # privileges
-        print("[ Authentication ]".center(80, '='))
-        return_code = authenticate_warmup()
-        if return_code:
-            raise SystemExit(return_code)
+        if self.checkbox._mode == 'deb':
+            print("[ Authentication ]".center(80, '='))
+            return_code = authenticate_warmup()
+            if return_code:
+                raise SystemExit(return_code)
         # Compute the run list, this can give us notification about problems in
         # the selected jobs. Currently we just display each problem
         matching_job_list = self._get_matching_job_list(ns, job_list)

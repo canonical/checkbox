@@ -22,16 +22,13 @@
 =================================================
 """
 
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-from argparse import _ as argparse_gettext
-import argparse
 import logging
-import sys
 
-from plainbox.impl.checkbox import CheckBox
 from plainbox.impl.commands.check_config import CheckConfigCommand
 from plainbox.impl.commands.sru import SRUCommand
 from plainbox.impl.commands.script import ScriptCommand
+from plainbox.impl.commands.dev import DevCommand
+from plainbox.impl.box import PlainBox
 
 from checkbox_ng import __version__ as version
 from checkbox_ng.config import CheckBoxConfig
@@ -40,51 +37,29 @@ from checkbox_ng.config import CheckBoxConfig
 logger = logging.getLogger("checkbox.ng.main")
 
 
+class CheckBoxNG(PlainBox):
+
+    @classmethod
+    def get_exec_name(cls):
+        return "checkbox"
+
+    @classmethod
+    def get_exec_version(cls):
+        return "{}.{}.{}".format(*version[:3])
+
+    @classmethod
+    def get_config_cls(cls):
+        return CheckBoxConfig
+
+    def add_subcommands(self, subparsers):
+        SRUCommand(self._checkbox, self._config).register_parser(subparsers)
+        CheckConfigCommand(self._config).register_parser(subparsers)
+        ScriptCommand(self._checkbox, self._config).register_parser(subparsers)
+        DevCommand(self._checkbox, self._config).register_parser(subparsers)
+
+
 def main(argv=None):
     """
-    checkbox-ng command line utility
+    checkbox command line utility
     """
-    # Initialize basic logging
-    logging.basicConfig(level="WARNING")
-    # Load checkbox-ng configuration
-    config = CheckBoxConfig.get()
-    # Instantiate checkbox helper
-    checkbox = CheckBox()
-    # Create the command line parser
-    parser = ArgumentParser(
-        prog="checkbox", formatter_class=ArgumentDefaultsHelpFormatter)
-    parser.add_argument(
-        "-v", "--version", action="version",
-        version="{}.{}.{}".format(*version[:3]))
-    parser.add_argument(
-        "-l", "--log-level", action="store",
-        choices=('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'),
-        default='WARNING',
-        help=argparse.SUPPRESS)
-    # Add sub-parsers for all sub-commands we may need
-    subparsers = parser.add_subparsers()
-    SRUCommand(checkbox, config).register_parser(subparsers)
-    CheckConfigCommand(config).register_parser(subparsers)
-    ScriptCommand(checkbox, config).register_parser(subparsers)
-    # Parse command line arguments
-    ns = parser.parse_args(argv)
-    # Update the root logger with the log level selected on command line
-    logging.getLogger("").setLevel(ns.log_level)
-    # Argh the horrror!
-    #
-    # Since CPython revision cab204a79e09 (landed for python3.3)
-    # http://hg.python.org/cpython/diff/cab204a79e09/Lib/argparse.py
-    # the argparse module behaves differently than it did in python3.2
-    #
-    # In practical terms subparsers are now optional in 3.3 so all of the
-    # commands are no longer required parameters.
-    #
-    # To compensate, on python3.3 and beyond, when the user just runs
-    # plainbox without specifying the command, we manually, explicitly do
-    # what python3.2 did: call parser.error(_('too few arguments'))
-    if (sys.version_info[:2] >= (3, 3)
-            and getattr(ns, "command", None) is None):
-        parser.error(argparse_gettext("too few arguments"))
-    else:
-        # Run the command, if any
-        return ns.command.invoked(ns)
+    raise SystemExit(CheckBoxNG().main(argv))

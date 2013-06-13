@@ -419,7 +419,8 @@ class SessionState:
         if self._session_dir is None:
             xdg_cache_home = os.environ.get('XDG_CACHE_HOME') or \
                 os.path.join(os.path.expanduser('~'), '.cache')
-            self._session_dir = os.path.join(xdg_cache_home, 'plainbox')
+            self._session_dir = os.path.join(
+                xdg_cache_home, 'plainbox', 'last-session')
             if not os.path.isdir(self._session_dir):
                 os.makedirs(self._session_dir)
         if self._jobs_io_log_dir is None:

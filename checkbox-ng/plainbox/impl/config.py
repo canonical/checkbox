@@ -421,6 +421,7 @@ class Config(metaclass=ConfigMeta):
         self._problem_list = []
         # Try loading all of the config files
         try:
+            logger.info("Loading configuration from %s", filename_list)
             self._filename_list = parser.read(filename_list)
         except configparser.Error as exc:
             self._problem_list.append(exc)

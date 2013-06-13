@@ -105,13 +105,20 @@ class TestRun(TestCase):
                     mock_warmup.return_value = 0
                     main(['run'])
             self.assertEqual(call.exception.args, (0,))
-        expected = """
+        expected1 = """
+        ===============================[ Analyzing Jobs ]===============================
+        ==============================[ Running All Jobs ]==============================
+        ==================================[ Results ]===================================
+        """
+        expected2 = """
         ===============================[ Authentication ]===============================
         ===============================[ Analyzing Jobs ]===============================
         ==============================[ Running All Jobs ]==============================
         ==================================[ Results ]===================================
         """
-        self.assertEqual(io.combined, cleandoc(expected) + "\n")
+        self.assertIn(io.combined, [
+            cleandoc(expected1) + "\n",
+            cleandoc(expected2) + "\n"])
 
     def test_output_format_list(self):
         with TestIO(combined=True) as io:

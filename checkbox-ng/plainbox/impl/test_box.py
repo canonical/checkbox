@@ -122,7 +122,7 @@ class TestMain(TestCase):
         self.assertEqual(call.exception.args, (0,))
         self.maxDiff = None
         expected = """
-        usage: plainbox [-h] [-v] [-c {src,deb,auto}]
+        usage: plainbox [-h] [--version] [-c {src,deb,auto}]
                         {run,self-test,sru,check-config,dev} ...
         
         positional arguments:
@@ -135,9 +135,9 @@ class TestMain(TestCase):
 
         optional arguments:
           -h, --help            show this help message and exit
-          -v, --version         show program's version number and exit
+          --version             show program's version number and exit
           -c {src,deb,auto}, --checkbox {src,deb,auto}
-                                where to find the installation of Checkbox. (default:
+                                where to find the installation of CheckBox. (default:
                                 auto)
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
@@ -148,7 +148,7 @@ class TestMain(TestCase):
                 main([])
             self.assertEqual(call.exception.args, (2,))
         expected = """
-        usage: plainbox [-h] [-v] [-c {src,deb,auto}]
+        usage: plainbox [-h] [--version] [-c {src,deb,auto}]
                         {run,self-test,sru,check-config,dev} ...
         plainbox: error: too few arguments
         """

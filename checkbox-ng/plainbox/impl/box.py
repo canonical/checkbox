@@ -155,9 +155,7 @@ class PlainBox:
         return parser
 
     def construct_parser(self):
-        parser = argparse.ArgumentParser(
-            prog=self.get_exec_name(),
-            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        parser = argparse.ArgumentParser(prog=self.get_exec_name())
         parser.add_argument(
             "--version", action="version", version=self.get_exec_version())
         # Add all the things really parsed by the early parser so that it

@@ -69,6 +69,7 @@ class ScriptInvocation(CheckBoxInvocationMixIn):
             with TestCwd(bait_dir):
                 return_code, fjson = runner._run_command(job, self.config)
             self._display_side_effects(scratch)
+            self._display_script_outcome(job, return_code)
         return return_code
 
     def _display_file(self, pathname, origin):
@@ -84,6 +85,10 @@ class ScriptInvocation(CheckBoxInvocationMixIn):
             for filename in filenames:
                 self._display_file(
                     os.path.join(dirpath, filename), scratch)
+
+    def _display_script_outcome(self, job, return_code):
+        print(job.name, "returned", return_code)
+        print("command:", job.command)
 
     def _get_job(self):
         job_list = get_matching_job_list(

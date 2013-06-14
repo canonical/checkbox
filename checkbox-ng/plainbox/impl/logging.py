@@ -84,7 +84,9 @@ class LoggingHelper:
     def setup_logging(self):
         # Ensure that the logging directory exists. This is important
         # because we're about to open some files there.
-        os.makedirs(self.log_dir, exist_ok=True)
+        if not os.path.exists(self.log_dir):
+            # It seems that exists_ok is flaky
+            os.makedirs(self.log_dir, exist_ok=True)
         # Apply the default configuration. This overrides anything currently
         # defined for all of the logging subsystem in this python runtime
         logging.config.dictConfig(self.DEFAULT_CONFIG)

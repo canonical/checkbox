@@ -122,9 +122,9 @@ class TestMain(TestCase):
         self.assertEqual(call.exception.args, (0,))
         self.maxDiff = None
         expected = """
-        usage: plainbox [-h] [--version] [-c {src,deb,auto}]
+        usage: plainbox [-h] [--version] [-c {src,deb,auto}] [-P]
                         {run,self-test,sru,check-config,dev} ...
-        
+
         positional arguments:
           {run,self-test,sru,check-config,dev}
             run                 run a test job
@@ -139,6 +139,11 @@ class TestMain(TestCase):
           -c {src,deb,auto}, --checkbox {src,deb,auto}
                                 where to find the installation of CheckBox. (default:
                                 auto)
+
+        logging and debugging:
+          -P, --pdb             jump into pdb (python debugger) when a command crashes
+                                (default: False)
+
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
 
@@ -148,7 +153,7 @@ class TestMain(TestCase):
                 main([])
             self.assertEqual(call.exception.args, (2,))
         expected = """
-        usage: plainbox [-h] [--version] [-c {src,deb,auto}]
+        usage: plainbox [-h] [--version] [-c {src,deb,auto}] [-P]
                         {run,self-test,sru,check-config,dev} ...
         plainbox: error: too few arguments
         """

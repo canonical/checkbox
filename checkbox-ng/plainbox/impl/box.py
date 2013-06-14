@@ -28,6 +28,7 @@
 
 import argparse
 import logging
+import pdb
 import sys
 
 from plainbox import __version__ as version
@@ -182,6 +183,14 @@ class PlainBox:
             choices=list(CheckBox._DIRECTORY_MAP.keys()) + ['auto'],
             default='auto',
             help="where to find the installation of CheckBox.")
+        group = parser.add_argument_group(
+            title="logging and debugging")
+        # Add the --pdb flag
+        group.add_argument(
+            "-P", "--pdb",
+            action="store_true",
+            default=False,
+            help="jump into pdb (python debugger) when a command crashes")
 
     def dispatch_command(self, ns):
         # Argh the horrror!
@@ -212,8 +221,26 @@ class PlainBox:
             # We may want to raise SystemExit as it can carry a status code
             # along and we cannot just consume that.
             raise
-        except BaseException:
-            raise
+        except BaseException as exc:
+            logger.debug("caught %r, deciding on what to do next", exc)
+            # For all other exceptions (and I mean all), do a few checks
+            # and perform actions depending on the command line arguments
+            # By default we want to re-raise the exception
+            action = 'raise'
+            # For all other execptions, debug if requested
+            if ns.pdb:
+                action = 'debug'
+            logger.debug("action for exception %r is %s", exc, action)
+            if action == 'raise':
+                logging.getLogger("plainbox.crashes").fatal(
+                    "Executable %r invoked with %r has crashed",
+                    self.get_exec_name(), ns, exc_info=1)
+                raise
+            elif action == 'debug':
+                logger.error("caught runaway exception: %r", exc)
+                logger.error("starting debugger...")
+                pdb.post_mortem()
+                return 1
 
 
 def main(argv=None):

@@ -64,22 +64,17 @@ class TestMain(TestCase):
           -h, --help            show this help message and exit
           --version             show program's version number and exit
           -c {src,deb,auto}, --checkbox {src,deb,auto}
-                                where to find the installation of CheckBox. (default:
-                                auto)
+                                where to find the installation of CheckBox.
 
         logging and debugging:
-          -v, --verbose         be more verbose (same as --log-level=INFO) (default:
-                                None)
-          -D, --debug           enable DEBUG messages on the root logger (default:
-                                None)
+          -v, --verbose         be more verbose (same as --log-level=INFO)
+          -D, --debug           enable DEBUG messages on the root logger
           -T LOGGER, --trace LOGGER
                                 enable DEBUG messages on the specified logger (can be
-                                used multiple times) (default: [])
+                                used multiple times)
           -P, --pdb             jump into pdb (python debugger) when a command crashes
-                                (default: False)
           -I, --debug-interrupt
                                 crash on SIGINT/KeyboardInterrupt, useful with --pdb
-                                (default: False)
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
 

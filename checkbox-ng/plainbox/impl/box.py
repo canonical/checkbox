@@ -129,11 +129,6 @@ class PlainBox:
             pass
         else:
             argcomplete.autocomplete(parser)
-        #group = parser.add_argument_group(title="user interface options")
-        #group.add_argument(
-        #    "-u", "--ui", action="store",
-        #    default=None, choices=('headless', 'text', 'graphics'),
-        #    help="select the UI front-end (defaults to auto)")
         return parser
 
 

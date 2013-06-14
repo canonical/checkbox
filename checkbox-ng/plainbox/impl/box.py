@@ -192,6 +192,12 @@ class PlainBox:
             action="store_true",
             default=False,
             help="jump into pdb (python debugger) when a command crashes")
+        # Add the --debug-interrupt flag
+        group.add_argument(
+            "-I", "--debug-interrupt",
+            action="store_true",
+            default=False,
+            help="crash on SIGINT/KeyboardInterrupt, useful with --pdb")
 
     def dispatch_command(self, ns):
         # Argh the horrror!
@@ -231,6 +237,13 @@ class PlainBox:
             # We want to ignore IOErrors that are really EPIPE
             if isinstance(exc, IOError):
                 if exc.errno == errno.EPIPE:
+                    action = 'ignore'
+            # We want to ignore KeyboardInterrupt unless --debug-interrupt
+            # was passed on command line
+            elif isinstance(exc, KeyboardInterrupt):
+                if ns.debug_interrupt:
+                    action = 'debug'
+                else:
                     action = 'ignore'
             else:
                 # For all other execptions, debug if requested

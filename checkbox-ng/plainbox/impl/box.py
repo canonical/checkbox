@@ -40,6 +40,7 @@ from plainbox.impl.commands.dev import DevCommand
 from plainbox.impl.commands.run import RunCommand
 from plainbox.impl.commands.selftest import SelfTestCommand
 from plainbox.impl.commands.sru import SRUCommand
+from plainbox.impl.logging import setup_logging, adjust_logging
 
 
 logger = logging.getLogger("plainbox.box")
@@ -123,6 +124,7 @@ class PlainBox:
         """
         Initialize with early command line arguments being already parsed
         """
+        adjust_logging(level=early_ns.log_level, trace_list=early_ns.trace)
         # Load plainbox configuration
         self._config = self.get_config_cls().get()
         # Load and initialize checkbox provider
@@ -186,6 +188,35 @@ class PlainBox:
             help="where to find the installation of CheckBox.")
         group = parser.add_argument_group(
             title="logging and debugging")
+        # Add the --log-level argument
+        group.add_argument(
+            "-l", "--log-level",
+            action="store",
+            choices=('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'),
+            default=None,
+            help=argparse.SUPPRESS)
+        # Add the --verbose argument
+        group.add_argument(
+            "-v", "--verbose",
+            dest="log_level",
+            action="store_const",
+            const="INFO",
+            help="be more verbose (same as --log-level=INFO)")
+        # Add the --debug flag
+        group.add_argument(
+            "-D", "--debug",
+            dest="log_level",
+            action="store_const",
+            const="DEBUG",
+            help="enable DEBUG messages on the root logger")
+        # Add the --trace flag
+        group.add_argument(
+            "-T", "--trace",
+            metavar="LOGGER",
+            action="append",
+            default=[],
+            help=("enable DEBUG messages on the specified logger "
+                  "(can be used multiple times)"))
         # Add the --pdb flag
         group.add_argument(
             "-P", "--pdb",
@@ -278,3 +309,10 @@ def save(something, somewhere):
 
 def run(*args, **kwargs):
     raise NotImplementedError("run() not implemented")
+
+
+# Setup logging before anything else starts working.
+# If we do it in main() or some other place then unit tests will see
+# "leaked" log files which are really closed when the runtime shuts
+# down but not when the tests are finishing
+setup_logging()

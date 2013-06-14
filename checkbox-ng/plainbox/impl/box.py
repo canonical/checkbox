@@ -27,6 +27,7 @@
 """
 
 import argparse
+import errno
 import logging
 import pdb
 import sys
@@ -227,11 +228,18 @@ class PlainBox:
             # and perform actions depending on the command line arguments
             # By default we want to re-raise the exception
             action = 'raise'
-            # For all other execptions, debug if requested
-            if ns.pdb:
-                action = 'debug'
+            # We want to ignore IOErrors that are really EPIPE
+            if isinstance(exc, IOError):
+                if exc.errno == errno.EPIPE:
+                    action = 'ignore'
+            else:
+                # For all other execptions, debug if requested
+                if ns.pdb:
+                    action = 'debug'
             logger.debug("action for exception %r is %s", exc, action)
-            if action == 'raise':
+            if action == 'ignore':
+                return 0
+            elif action == 'raise':
                 logging.getLogger("plainbox.crashes").fatal(
                     "Executable %r invoked with %r has crashed",
                     self.get_exec_name(), ns, exc_info=1)

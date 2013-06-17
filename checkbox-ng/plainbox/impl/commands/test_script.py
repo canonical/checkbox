@@ -124,22 +124,27 @@ class ScriptInvocationTests(TestCase):
         self.assertEqual(retval, 125)
 
     def test_job_with_command(self):
+        dummy_name = 'foo'
+        dummy_command = 'echo ok'
         provider = DummyProvider1([
-            make_job('foo', command='echo ok')])
-        script_inv = ScriptInvocation(provider, self.config, 'foo')
+            make_job(dummy_name, command=dummy_command)])
+        script_inv = ScriptInvocation(provider, self.config, dummy_name)
         with TestIO() as io:
             retval = script_inv.run()
         self.assertEqual(
             io.stdout, cleandoc(
                 """
                 (job foo, <stdout:00001>) ok
-                """) + '\n')
+                """) + '\n' + "{} returned 0\n".format(dummy_name) +
+                "command: {}\n".format(dummy_command))
         self.assertEqual(retval, 0)
 
     def test_job_with_command_making_files(self):
+        dummy_name = 'foo'
+        dummy_command = 'echo ok > file'
         provider = DummyProvider1([
-            make_job('foo', command='echo ok > file')])
-        script_inv = ScriptInvocation(provider, self.config, 'foo')
+            make_job(dummy_name, command=dummy_command)])
+        script_inv = ScriptInvocation(provider, self.config, dummy_name)
         with TestIO() as io:
             retval = script_inv.run()
         self.maxDiff = None
@@ -148,5 +153,6 @@ class ScriptInvocationTests(TestCase):
                 """
                 Leftover file detected: 'files-created-in-current-dir/file':
                   files-created-in-current-dir/file:1: ok
-                """) + '\n')
+                """) + '\n' + "{} returned 0\n".format(dummy_name) +
+                "command: {}\n".format(dummy_command))
         self.assertEqual(retval, 0)

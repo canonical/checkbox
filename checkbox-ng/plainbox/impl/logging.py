@@ -145,7 +145,9 @@ class LoggingHelper:
                         "%(levelname)s"
                         "{ansi.s.NORMAL}{ansi.f.RESET}"
                         " "
-                        "{ansi.f.CYAN}%(name)s{ansi.f.RESET}"
+                        "{ansi.f.CYAN}{ansi.s.BRIGHT}"
+                        "%(name)s"
+                        "{ansi.f.RESET}{ansi.s.NORMAL}"
                         ": "
                         "%(message)s"
                     ),

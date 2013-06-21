@@ -58,7 +58,7 @@ class WhiteList(CompositeQualifier):
     and appended (respectively) to the actual pattern specified in the file.
     """
 
-    def __init__(self, pattern_list):
+    def __init__(self, pattern_list, name=None):
         """
         Initialize a whitelist object with the specified list of patterns.
 
@@ -67,6 +67,14 @@ class WhiteList(CompositeQualifier):
         inclusive = [RegExpJobQualifier(pattern) for pattern in pattern_list]
         exclusive = ()
         super(WhiteList, self).__init__(inclusive, exclusive)
+        self._name = name
+
+    @property
+    def name(self):
+        """
+        name of this WhiteList (might be None)
+        """
+        return self._name
 
     @classmethod
     def from_file(cls, pathname):
@@ -77,7 +85,8 @@ class WhiteList(CompositeQualifier):
         :returns: a fresh WhiteList object
         """
         pattern_list = cls._load_patterns(pathname)
-        return cls(pattern_list)
+        name = os.path.splitext(os.path.basename(pathname))[0]
+        return cls(pattern_list, name=name)
 
     @classmethod
     def _load_patterns(self, pathname):

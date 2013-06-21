@@ -1,3 +1,4 @@
+
 # This file is part of Checkbox.
 #
 # Copyright 2013 Canonical Ltd.
@@ -72,6 +73,14 @@ class IProvider1(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractproperty
+    def name(self):
+        """
+        name of this provider
+
+        This name should be dbus-friendly. It should not be localizable.
+        """
+
+    @abc.abstractproperty
     def CHECKBOX_SHARE(self):
         """
         Return the required value of CHECKBOX_SHARE environment variable.
@@ -132,6 +141,10 @@ class DummyProvider1(IProvider1):
         for job in self._job_list:
             if job._checkbox is None:
                 job._checkbox = self
+
+    @property
+    def name(self):
+        return self._extras.get('name', "dummy")
 
     @property
     def CHECKBOX_SHARE(self):

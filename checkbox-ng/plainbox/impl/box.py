@@ -301,7 +301,15 @@ class PlainBox:
 
 
 def main(argv=None):
-    raise SystemExit(PlainBox().main(argv))
+    # Another try/catch block for catching KeyboardInterrupt
+    # This one is really only meant for the early init abort
+    # (when someone runs main but bails out before we really
+    # get to the point when we do something useful and setup
+    # all the exception handlers).
+    try:
+        raise SystemExit(PlainBox().main(argv))
+    except KeyboardInterrupt:
+        pass
 
 
 def get_builtin_jobs():

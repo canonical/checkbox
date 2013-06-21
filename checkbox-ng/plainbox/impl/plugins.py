@@ -37,7 +37,7 @@ a particular namespace and work with them using provided utility methods
 such as :meth:`PlugInCollection.get_by_name()` or
 :meth:`PlugInCollection.get_all_names()`
 
-The set of loaded plugins can be overriden by mock/patching
+The set of loaded plugins can be overridden by mock/patching
 :meth:`PlugInCollection._get_entry_points()`. This is especially useful for
 testing in isolation from whatever entry points may exist in the system.
 """

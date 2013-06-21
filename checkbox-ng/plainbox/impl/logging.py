@@ -99,14 +99,14 @@ class LoggingHelper:
             logging.getLogger(None).setLevel(level)
             logger.debug("Enabled %r on root logger", level)
             logging.getLogger("plainbox").setLevel(level)
-            if level == 'DEBUG' and debug_console:
-                # Enable DEBUG logging to console if explicitly requested
-                logging.config.dictConfig(self.DEBUG_CONSOLE_CONFIG)
         # Enable tracing on specified loggers
         if trace_list is not None:
             for name in trace_list:
                 logging.getLogger(name).setLevel(logging.DEBUG)
                 logger.debug("Enabled debugging on logger %r", name)
+        if debug_console and (level == 'DEBUG' or trace_list):
+            # Enable DEBUG logging to console if explicitly requested
+            logging.config.dictConfig(self.DEBUG_CONSOLE_CONFIG)
 
     @property
     def log_dir(self):

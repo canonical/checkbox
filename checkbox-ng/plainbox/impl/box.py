@@ -124,7 +124,9 @@ class PlainBox:
         """
         Initialize with early command line arguments being already parsed
         """
-        adjust_logging(level=early_ns.log_level, trace_list=early_ns.trace)
+        adjust_logging(
+            level=early_ns.log_level, trace_list=early_ns.trace,
+            debug_console=early_ns.debug_console)
         # Load plainbox configuration
         self._config = self.get_config_cls().get()
         # Load and initialize checkbox provider
@@ -207,6 +209,11 @@ class PlainBox:
             action="store_const",
             const="DEBUG",
             help="enable DEBUG messages on the root logger")
+        # Add the --debug flag
+        group.add_argument(
+            "-C", "--debug-console",
+            action="store_true",
+            help="display DEBUG messages in the console")
         # Add the --trace flag
         group.add_argument(
             "-T", "--trace",

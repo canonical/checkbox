@@ -122,8 +122,8 @@ class TestMain(TestCase):
         self.assertEqual(call.exception.args, (0,))
         self.maxDiff = None
         expected = """
-        usage: plainbox [-h] [--version] [-c {src,deb,auto}] [-v] [-D] [-T LOGGER]
-                        [-P] [-I]
+        usage: plainbox [-h] [--version] [-c {src,deb,auto}] [-v] [-D] [-C]
+                        [-T LOGGER] [-P] [-I]
                         {run,self-test,sru,check-config,dev} ...
 
         positional arguments:
@@ -143,6 +143,7 @@ class TestMain(TestCase):
         logging and debugging:
           -v, --verbose         be more verbose (same as --log-level=INFO)
           -D, --debug           enable DEBUG messages on the root logger
+          -C, --debug-console   display DEBUG messages in the console
           -T LOGGER, --trace LOGGER
                                 enable DEBUG messages on the specified logger (can be
                                 used multiple times)
@@ -159,8 +160,8 @@ class TestMain(TestCase):
                 main([])
             self.assertEqual(call.exception.args, (2,))
         expected = """
-        usage: plainbox [-h] [--version] [-c {src,deb,auto}] [-v] [-D] [-T LOGGER]
-                        [-P] [-I]
+        usage: plainbox [-h] [--version] [-c {src,deb,auto}] [-v] [-D] [-C]
+                        [-T LOGGER] [-P] [-I]
                         {run,self-test,sru,check-config,dev} ...
         plainbox: error: too few arguments
         """

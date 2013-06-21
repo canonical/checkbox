@@ -47,27 +47,29 @@ class CheckBoxInvocationMixIn:
         # Pre-seed the include pattern list with data read from
         # the whitelist file.
         if ns.whitelist:
-            ns.include_pattern_list.extend([
-                pattern.strip()
-                for pattern in ns.whitelist.readlines()])
+            for whitelist in ns.whitelist:
+                ns.include_pattern_list.extend([
+                    pattern.strip()
+                    for pattern in whitelist.readlines()])
         # Decide which of the known jobs to include
-        for job in job_list:
-            # Reject all jobs that match any of the exclude
-            # patterns, matching strictly from the start to
-            # the end of the line.
+        if ns.exclude_pattern_list:
             for pattern in ns.exclude_pattern_list:
+                # Reject all jobs that match any of the exclude
+                # patterns, matching strictly from the start to
+                # the end of the line.
                 regexp_pattern = r"^{pattern}$".format(pattern=pattern)
-                if re.match(regexp_pattern, job.name):
-                    break
-            else:
-                # Then accept (include) all job that matches
+                for job in job_list:
+                    if re.match(regexp_pattern, job.name):
+                        job_list.remove(job)
+        if ns.include_pattern_list:
+            for pattern in ns.include_pattern_list:
+                # Accept (include) all job that matches
                 # any of include patterns, matching strictly
                 # from the start to the end of the line.
-                for pattern in ns.include_pattern_list:
-                    regexp_pattern = r"^{pattern}$".format(pattern=pattern)
+                regexp_pattern = r"^{pattern}$".format(pattern=pattern)
+                for job in job_list:
                     if re.match(regexp_pattern, job.name):
                         matching_job_list.append(job)
-                        break
         return matching_job_list
 
 
@@ -95,6 +97,7 @@ class CheckBoxCommandMixIn:
         # TODO: Find a way to handle the encoding of the file
         group.add_argument(
             '-w', '--whitelist',
+            action="append",
             metavar="WHITELIST",
             type=FileType("rt"),
             help="Load whitelist containing run patterns")

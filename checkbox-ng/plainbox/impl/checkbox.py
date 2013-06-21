@@ -319,3 +319,10 @@ class CheckBox:
             raise TypeError(
                 "Unsupported type of 'somewhere': {!r}".format(
                     type(somewhere)))
+
+    @property
+    def name(self):
+        """
+        name of this provider (always checkbox)
+        """
+        return "checkbox"

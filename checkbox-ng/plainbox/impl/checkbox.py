@@ -135,7 +135,8 @@ def _get_checkbox_dir():
 
     Historically plainbox used a git submodule with checkbox tree (converted to
     git). This ended with the merge of plainbox into the checkbox tree.
-    
+
+
     Now it's the other way around and the checkbox tree can be located two
     directories "up" from the plainbox module, in a checkbox-old directory.
     """

@@ -281,7 +281,8 @@ class CheckBox:
         for name in os.listdir(self.whitelists_dir):
             if name.endswith(".whitelist"):
                 whitelist_list.append(
-                    WhiteList.from_file(os.path.join(self.jobs_dir, name)))
+                    WhiteList.from_file(os.path.join(
+                        self.whitelists_dir, name)))
         return whitelist_list
 
     def get_builtin_jobs(self):

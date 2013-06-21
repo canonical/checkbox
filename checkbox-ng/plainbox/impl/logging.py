@@ -36,6 +36,8 @@ import sys
 from plainbox.impl.color import ansi_on, ansi_off
 
 
+logger = logging.getLogger("plainbox.logging")
+
 # XXX: enable ansi escape sequences if sys.std{out,err} are both TTYs
 #
 # This is a bad place to take this decision (ideally we'd do that per log
@@ -91,15 +93,20 @@ class LoggingHelper:
         # defined for all of the logging subsystem in this python runtime
         logging.config.dictConfig(self.DEFAULT_CONFIG)
 
-    def adjust_logging(self, level=None, trace_list=None):
+    def adjust_logging(self, level=None, trace_list=None, debug_console=False):
         # Bump logging on the root logger if requested
         if level is not None:
             logging.getLogger(None).setLevel(level)
+            logger.debug("Enabled %r on root logger", level)
             logging.getLogger("plainbox").setLevel(level)
+            if level == 'DEBUG' and debug_console:
+                # Enable DEBUG logging to console if explicitly requested
+                logging.config.dictConfig(self.DEBUG_CONSOLE_CONFIG)
         # Enable tracing on specified loggers
         if trace_list is not None:
             for name in trace_list:
                 logging.getLogger(name).setLevel(logging.DEBUG)
+                logger.debug("Enabled debugging on logger %r", name)
 
     @property
     def log_dir(self):
@@ -115,6 +122,22 @@ class LoggingHelper:
         return {
             "version": 1,
             "formatters": {
+                "console_debug": {
+                    "()": "plainbox.impl.logging.ANSIFormatter",
+                    "format": (
+                        "{ansi.f.BLACK}{ansi.s.BRIGHT}"
+                        "%(levelname)s"
+                        "{ansi.s.NORMAL}{ansi.f.RESET}"
+                        " "
+                        "{ansi.f.CYAN}{ansi.s.DIM}"
+                        "%(name)s"
+                        "{ansi.f.RESET}{ansi.s.NORMAL}"
+                        ": "
+                        "{ansi.s.DIM}"
+                        "%(message)s"
+                        "{ansi.s.NORMAL}"
+                    ),
+                },
                 "console_info": {
                     "()": "plainbox.impl.logging.ANSIFormatter",
                     "format": (
@@ -178,6 +201,13 @@ class LoggingHelper:
                 },
             },
             "handlers": {
+                "console_debug": {
+                    "class": "logging.StreamHandler",
+                    "stream": "ext://sys.stdout",
+                    "formatter": "console_debug",
+                    "filters": ["only_debug"],
+                    "level": 150,
+                },
                 "console_info": {
                     "class": "logging.StreamHandler",
                     "stream": "ext://sys.stdout",
@@ -229,6 +259,7 @@ class LoggingHelper:
                 "plainbox": {
                     "level": "WARNING",
                     "handlers": [
+                        "console_debug",
                         "console_info",
                         "console_warning",
                         "console_error",
@@ -246,6 +277,18 @@ class LoggingHelper:
             },
             "incremental": False,
             "disable_existing_loggers": True,
+        }
+
+    @property
+    def DEBUG_CONSOLE_CONFIG(self):
+        return {
+            "version": 1,
+            "handlers": {
+                "console_debug": {
+                    "level": "DEBUG",
+                },
+            },
+            "incremental": True,
         }
 
 

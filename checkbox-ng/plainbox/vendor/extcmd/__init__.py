@@ -494,17 +494,17 @@ class ExternalCommandWithDelegate(ExternalCommand):
                         raise
             # Wait until all worker threads shut down
             _logger.debug("Joining all threads...")
-            if stdout_reader is not None:
-                if do_close:
-                    _logger.debug("Closing child stdout")
-                    proc.stdout.close()
+            if do_close:
+                _logger.debug("Closing child stdout")
+                proc.stdout.close()
+            if stdout_reader is not None and stdout_reader.is_alive():
                 _logger.debug("Joining 1/3 %r...", stdout_reader)
                 stdout_reader.join()
                 _logger.debug("Joined thread: %r", stdout_reader)
-            if stderr_reader is not None:
-                if do_close:
-                    _logger.debug("Closing child stderr")
-                    proc.stderr.close()
+            if do_close:
+                _logger.debug("Closing child stderr")
+                proc.stderr.close()
+            if stderr_reader is not None and stderr_reader.is_alive():
                 _logger.debug("Joining 2/3 %r...", stderr_reader)
                 stderr_reader.join()
                 _logger.debug("Joined thread: %r", stderr_reader)

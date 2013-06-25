@@ -428,20 +428,27 @@ class ExternalCommandWithDelegate(ExternalCommand):
         # Setup stodut/stderr redirection
         kwargs['stdout'] = subprocess.PIPE
         kwargs['stderr'] = subprocess.PIPE
-        # Start the process
-        proc = self._popen(*args, **kwargs)
-        # Setup all worker threads. By now the pipes have been created and
-        # proc.stdout/proc.stderr point to open pipe objects.
-        stdout_reader = threading.Thread(
-            target=self._read_stream, args=(proc.stdout, "stdout"))
-        stderr_reader = threading.Thread(
-            target=self._read_stream, args=(proc.stderr, "stderr"))
-        queue_worker = threading.Thread(target=self._drain_queue)
-        # Start all workers
-        queue_worker.start()
-        stdout_reader.start()
-        stderr_reader.start()
+        proc = None
+        stdout_reader = None
+        stderr_reader = None
+        queue_worker = None
         try:
+            # Start the process
+            proc = self._popen(*args, **kwargs)
+            # Setup all worker threads. By now the pipes have been created and
+            # proc.stdout/proc.stderr point to open pipe objects.
+            stdout_reader = threading.Thread(
+                target=self._read_stream, name='stdout_reader',
+                args=(proc.stdout, "stdout"))
+            stderr_reader = threading.Thread(
+                target=self._read_stream, name='stderr_reader',
+                args=(proc.stderr, "stderr"))
+            queue_worker = threading.Thread(
+                target=self._drain_queue, name='queue_worker')
+            # Start all workers
+            queue_worker.start()
+            stdout_reader.start()
+            stderr_reader.start()
             while True:
                 try:
                     # Wait for the process to finish
@@ -455,11 +462,13 @@ class ExternalCommandWithDelegate(ExternalCommand):
                     self._delegate.on_interrupt()
         finally:
             # Wait until all worker threads shut down
-            stdout_reader.join()
-            stderr_reader.join()
-            # Tell the queue worker to shut down
-            self._queue.put(None)
-            queue_worker.join()
+            if stdout_reader is not None:
+                stdout_reader.join()
+            if stderr_reader is not None:
+                stderr_reader.join()
+            if queue_worker is not None:
+                self._queue.put(None)
+                queue_worker.join()
         # Notify that the process has finished
         self._delegate.on_end(proc.returncode)
         return proc.returncode

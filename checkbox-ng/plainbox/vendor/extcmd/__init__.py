@@ -475,17 +475,36 @@ class ExternalCommandWithDelegate(ExternalCommand):
                     # And send a notification about this
                     self._delegate.on_interrupt()
         finally:
+            # Try to kill the process
+            do_close = False
+            if proc is not None:
+                try:
+                    _logger.debug("Calling terminate() on the process")
+                    proc.terminate()
+                    _logger.debug("Killing the process")
+                    proc.send_signal(9)
+                    _logger.debug("Killing the process again")
+                    proc.send_signal(9)
+                except OSError as exc:
+                    if exc.errno == errno.ESRCH:
+                        _logger.debug("The process is already dead")
+                    else:
+                        _logger.warning("Cannot kill the process: %s", exc)
+                        do_close = True
+                        raise
             # Wait until all worker threads shut down
             _logger.debug("Joining all threads...")
             if stdout_reader is not None:
-                _logger.debug("Closing child stdout")
-                proc.stdout.close()
+                if do_close:
+                    _logger.debug("Closing child stdout")
+                    proc.stdout.close()
                 _logger.debug("Joining 1/3 %r...", stdout_reader)
                 stdout_reader.join()
                 _logger.debug("Joined thread: %r", stdout_reader)
             if stderr_reader is not None:
-                _logger.debug("Closing child stderr")
-                proc.stderr.close()
+                if do_close:
+                    _logger.debug("Closing child stderr")
+                    proc.stderr.close()
                 _logger.debug("Joining 2/3 %r...", stderr_reader)
                 stderr_reader.join()
                 _logger.debug("Joined thread: %r", stderr_reader)

@@ -516,11 +516,19 @@ class ExternalCommandWithDelegate(ExternalCommand):
     def _read_stream(self, stream, stream_name):
         _logger.debug("_read_stream(%r, %r) entering", stream, stream_name)
         while True:
-            line = stream.readline()
-            if len(line) == 0:
+            try:
+                line = stream.readline()
+            except (IOError, ValueError):
+                # Ignore IOError and ValueError that may be raised if
+                # the stream was closed this can happen if the process exits
+                # very quickly without printing anything and the cleanup code
+                # starts to close both of the streams
                 break
-            cmd = (stream_name, line)
-            self._queue.put(cmd)
+            else:
+                if len(line) == 0:
+                    break
+                cmd = (stream_name, line)
+                self._queue.put(cmd)
         _logger.debug("_read_stream(%r, %r) exiting", stream, stream_name)
 
     def _drain_queue(self):

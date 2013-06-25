@@ -464,8 +464,10 @@ class ExternalCommandWithDelegate(ExternalCommand):
         finally:
             # Wait until all worker threads shut down
             if stdout_reader is not None:
+                proc.stdout.close()
                 stdout_reader.join()
             if stderr_reader is not None:
+                proc.stderr.close()
                 stderr_reader.join()
             if queue_worker is not None:
                 self._queue.put(None)

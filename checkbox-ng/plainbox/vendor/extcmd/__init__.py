@@ -223,6 +223,7 @@ __version__ = (1, 0, 1, "final", 0)
 
 from queue import Queue
 import abc
+import errno
 import signal
 import subprocess
 import sys
@@ -474,7 +475,13 @@ class ExternalCommandWithDelegate(ExternalCommand):
         return proc.returncode
 
     def _on_keyboard_interrupt(self, proc):
-        proc.send_signal(self._killsig)
+        try:
+            proc.send_signal(self._killsig)
+        except OSError as exc:
+            if exc.errno == errno.ESRCH:
+                pass
+            else:
+                raise
 
     def _read_stream(self, stream, stream_name):
         while True:

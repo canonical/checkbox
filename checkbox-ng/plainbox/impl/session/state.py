@@ -18,12 +18,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-:mod:`plainbox.impl.session` -- session state handling
-======================================================
-
-.. warning::
-
-    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
+:mod:`plainbox.impl.session.state` -- session state handling
+============================================================
 """
 import json
 import logging

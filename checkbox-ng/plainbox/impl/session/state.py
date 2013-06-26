@@ -42,7 +42,174 @@ from plainbox.impl.session.jobs import (
 logger = logging.getLogger("plainbox.session.state")
 
 
-class SessionState:
+class _LegacySessionState:
+    """
+    Legacy features of SessionState that are being deprecated and replaced
+    """
+
+    session_data_filename = 'session.json'
+
+    def __init__(self):
+        # Temporary directory used as 'scratch space' for running jobs. Removed
+        # entirely when session is terminated. Internally this is exposed as
+        # $CHECKBOX_DATA to script environment.
+        self._session_dir = None
+
+        # Directory used to store jobs IO logs.
+        self._jobs_io_log_dir = None
+
+    @property
+    def session_dir(self):
+        """
+        pathname of a temporary directory for this session
+
+        This is not None only between calls to open() / close().
+        """
+        return self._session_dir
+
+    @property
+    def jobs_io_log_dir(self):
+        """
+        pathname of the jobs IO logs directory
+
+        This is not None only between calls to open() / close().
+        """
+        return self._jobs_io_log_dir
+
+    def open(self):
+        """
+        Open session state for running jobs.
+
+        This function creates the cache directory where jobs can store their
+        data. See:
+        http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
+        """
+        if self._session_dir is None:
+            xdg_cache_home = os.environ.get('XDG_CACHE_HOME') or \
+                os.path.join(os.path.expanduser('~'), '.cache')
+            self._session_dir = os.path.join(
+                xdg_cache_home, 'plainbox', 'last-session')
+            if not os.path.isdir(self._session_dir):
+                os.makedirs(self._session_dir)
+        if self._jobs_io_log_dir is None:
+            self._jobs_io_log_dir = os.path.join(self._session_dir, 'io-logs')
+            if not os.path.isdir(self._jobs_io_log_dir):
+                os.makedirs(self._jobs_io_log_dir)
+        return self
+
+    def clean(self):
+        """
+        Clean the session directory.
+        """
+        if self._session_dir is not None:
+            shutil.rmtree(self._session_dir)
+            self._session_dir = None
+            self._jobs_io_log_dir = None
+            self.open()
+
+    def close(self):
+        """
+        Close the session.
+
+        It is automatically called by __exit__, the context manager exit
+        function.
+        """
+        self._session_dir = None
+        self._jobs_io_log_dir = None
+
+    def previous_session_file(self):
+        """
+        Check the filesystem for previous session data
+        Returns the full pathname to the session file if it exists
+        """
+        session_filename = os.path.join(self._session_dir,
+                                        self.session_data_filename)
+        if os.path.exists(session_filename):
+            return session_filename
+        else:
+            return None
+
+    def persistent_save(self):
+        """
+        Save to disk the minimum needed to resume plainbox where it stopped
+        """
+        # Ensure an atomic update of the session file:
+        #   - create a new temp file (on the same file system!)
+        #   - write data to the temp file
+        #   - fsync() the temp file
+        #   - rename the temp file to the appropriate name
+        #   - fsync() the containing directory
+        # Calling fsync() does not necessarily ensure that the entry in the
+        # directory containing the file has also reached disk.
+        # For that an explicit fsync() on a file descriptor for the directory
+        # is also needed.
+        filename = os.path.join(self._session_dir,
+                                self.session_data_filename)
+
+        with tempfile.NamedTemporaryFile(mode='wt',
+                                         encoding='UTF-8',
+                                         suffix='.tmp',
+                                         prefix='session',
+                                         dir=self._session_dir,
+                                         delete=False) as tmpstream:
+            # Save the session state to disk
+            json.dump(self, tmpstream, cls=SessionStateEncoder,
+                      ensure_ascii=False, indent=None, separators=(',', ':'))
+
+            tmpstream.flush()
+            os.fsync(tmpstream.fileno())
+
+        session_dir_fd = os.open(self._session_dir, os.O_DIRECTORY)
+        os.rename(tmpstream.name, filename)
+        os.fsync(session_dir_fd)
+        os.close(session_dir_fd)
+
+    def resume(self):
+        """
+        Erase the job_state_map and desired_job_list with the saved ones
+        """
+        with open(self.previous_session_file(), 'rt', encoding='UTF-8') as f:
+            previous_session = json.load(
+                f, object_hook=SessionStateEncoder().dict_to_object)
+        self._job_state_map = previous_session._job_state_map
+        desired_job_list = []
+        for job in previous_session._desired_job_list:
+            if job in self._job_list:
+                desired_job_list.extend(
+                    [j for j in self._job_list if j == job])
+            elif (previous_session._job_state_map[job.name].result.outcome !=
+                    JobResult.OUTCOME_NONE):
+                # Keep jobs results from the previous session without a
+                # definition in the current job_list only if they have
+                # a valid result
+                desired_job_list.append(job)
+        self.update_desired_job_list(desired_job_list)
+        # FIXME: Restore io_logs from files
+
+    def _get_persistance_subset(self):
+        state = {}
+        state['_job_state_map'] = self._job_state_map
+        state['_desired_job_list'] = self._desired_job_list
+        return state
+
+    @classmethod
+    def from_json_record(cls, record):
+        """
+        Create a SessionState instance from JSON record
+        """
+        obj = cls([])
+        obj._job_state_map = record['_job_state_map']
+        obj._desired_job_list = record['_desired_job_list']
+        return obj
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
+
+
+class SessionState(_LegacySessionState):
     """
     Class representing all state needed during a single program session.
 
@@ -111,7 +278,6 @@ class SessionState:
         it can only be changed by calling :meth:`update_job_result()`
     """
 
-    session_data_filename = 'session.json'
 
     def __init__(self, job_list):
         # Start by making a copy of job_list as we may modify it below
@@ -152,70 +318,7 @@ class SessionState:
         self._desired_job_list = []
         self._run_list = []
         self._resource_map = {}
-        # Temporary directory used as 'scratch space' for running jobs. Removed
-        # entirely when session is terminated. Internally this is exposed as
-        # $CHECKBOX_DATA to script environment.
-        self._session_dir = None
-
-        # Directory used to store jobs IO logs.
-        self._jobs_io_log_dir = None
-
-    def _get_persistance_subset(self):
-        state = {}
-        state['_job_state_map'] = self._job_state_map
-        state['_desired_job_list'] = self._desired_job_list
-        return state
-
-    @classmethod
-    def from_json_record(cls, record):
-        """
-        Create a SessionState instance from JSON record
-        """
-        obj = cls([])
-        obj._job_state_map = record['_job_state_map']
-        obj._desired_job_list = record['_desired_job_list']
-        return obj
-
-    def open(self):
-        """
-        Open session state for running jobs.
-
-        This function creates the cache directory where jobs can store their
-        data. See:
-        http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
-        """
-        if self._session_dir is None:
-            xdg_cache_home = os.environ.get('XDG_CACHE_HOME') or \
-                os.path.join(os.path.expanduser('~'), '.cache')
-            self._session_dir = os.path.join(
-                xdg_cache_home, 'plainbox', 'last-session')
-            if not os.path.isdir(self._session_dir):
-                os.makedirs(self._session_dir)
-        if self._jobs_io_log_dir is None:
-            self._jobs_io_log_dir = os.path.join(self._session_dir, 'io-logs')
-            if not os.path.isdir(self._jobs_io_log_dir):
-                os.makedirs(self._jobs_io_log_dir)
-        return self
-
-    def clean(self):
-        """
-        Clean the session directory.
-        """
-        if self._session_dir is not None:
-            shutil.rmtree(self._session_dir)
-            self._session_dir = None
-            self._jobs_io_log_dir = None
-            self.open()
-
-    def close(self):
-        """
-        Close the session.
-
-        It is automatically called by __exit__, the context manager exit
-        function.
-        """
-        self._session_dir = None
-        self._jobs_io_log_dir = None
+        super(SessionState, self).__init__()
 
     def update_desired_job_list(self, desired_job_list):
         """
@@ -296,18 +399,6 @@ class SessionState:
         # Update all job readiness state
         self._recompute_job_readiness()
 
-    def previous_session_file(self):
-        """
-        Check the filesystem for previous session data
-        Returns the full pathname to the session file if it exists
-        """
-        session_filename = os.path.join(self._session_dir,
-                                        self.session_data_filename)
-        if os.path.exists(session_filename):
-            return session_filename
-        else:
-            return None
-
     def add_job(self, new_job):
         """
         Add a new job to the session
@@ -353,63 +444,6 @@ class SessionState:
         Resources silently overwrite any old resources with the same name.
         """
         self._resource_map[resource_name] = resource_list
-
-    def persistent_save(self):
-        """
-        Save to disk the minimum needed to resume plainbox where it stopped
-        """
-        # Ensure an atomic update of the session file:
-        #   - create a new temp file (on the same file system!)
-        #   - write data to the temp file
-        #   - fsync() the temp file
-        #   - rename the temp file to the appropriate name
-        #   - fsync() the containing directory
-        # Calling fsync() does not necessarily ensure that the entry in the
-        # directory containing the file has also reached disk.
-        # For that an explicit fsync() on a file descriptor for the directory
-        # is also needed.
-        filename = os.path.join(self._session_dir,
-                                self.session_data_filename)
-
-        with tempfile.NamedTemporaryFile(mode='wt',
-                                         encoding='UTF-8',
-                                         suffix='.tmp',
-                                         prefix='session',
-                                         dir=self._session_dir,
-                                         delete=False) as tmpstream:
-            # Save the session state to disk
-            json.dump(self, tmpstream, cls=SessionStateEncoder,
-                      ensure_ascii=False, indent=None, separators=(',', ':'))
-
-            tmpstream.flush()
-            os.fsync(tmpstream.fileno())
-
-        session_dir_fd = os.open(self._session_dir, os.O_DIRECTORY)
-        os.rename(tmpstream.name, filename)
-        os.fsync(session_dir_fd)
-        os.close(session_dir_fd)
-
-    def resume(self):
-        """
-        Erase the job_state_map and desired_job_list with the saved ones
-        """
-        with open(self.previous_session_file(), 'rt', encoding='UTF-8') as f:
-            previous_session = json.load(
-                f, object_hook=SessionStateEncoder().dict_to_object)
-        self._job_state_map = previous_session._job_state_map
-        desired_job_list = []
-        for job in previous_session._desired_job_list:
-            if job in self._job_list:
-                desired_job_list.extend(
-                    [j for j in self._job_list if j == job])
-            elif (previous_session._job_state_map[job.name].result.outcome !=
-                    JobResult.OUTCOME_NONE):
-                # Keep jobs results from the previous session without a
-                # definition in the current job_list only if they have
-                # a valid result
-                desired_job_list.append(job)
-        self.update_desired_job_list(desired_job_list)
-        # FIXME: Restore io_logs from files
 
     def _process_resource_result(self, result):
         new_resource_list = []
@@ -510,24 +544,6 @@ class SessionState:
         """
         return self._job_state_map
 
-    @property
-    def session_dir(self):
-        """
-        pathname of a temporary directory for this session
-
-        This is not None only between calls to open() / close().
-        """
-        return self._session_dir
-
-    @property
-    def jobs_io_log_dir(self):
-        """
-        pathname of the jobs IO logs directory
-
-        This is not None only between calls to open() / close().
-        """
-        return self._jobs_io_log_dir
-
     def _recompute_job_readiness(self):
         """
         Internal method of SessionState.
@@ -606,12 +622,6 @@ class SessionState:
                         cause=JobReadinessInhibitor.FAILED_DEP,
                         related_job=dep_job_state.job)
                     job_state.readiness_inhibitor_list.append(inhibitor)
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *args):
-        self.close()
 
 
 class SessionStateEncoder(json.JSONEncoder):

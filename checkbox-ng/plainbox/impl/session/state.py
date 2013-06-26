@@ -39,7 +39,7 @@ from plainbox.impl.rfc822 import gen_rfc822_records
 from plainbox.impl.session.jobs import (
     JobState, JobReadinessInhibitor, UndesiredJobReadinessInhibitor)
 
-logger = logging.getLogger("plainbox.session")
+logger = logging.getLogger("plainbox.session.state")
 
 
 class SessionState:

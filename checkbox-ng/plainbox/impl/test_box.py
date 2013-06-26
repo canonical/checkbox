@@ -40,6 +40,7 @@ class MiscTests(TestCase):
     def setUp(self):
         self.job_foo = MockJobDefinition(name='foo')
         self.job_bar = MockJobDefinition(name='bar')
+        self.job_baz = MockJobDefinition(name='baz')
         self.obj = CheckBoxInvocationMixIn(Mock(name="checkbox"))
 
     def test_matching_job_list(self):
@@ -77,13 +78,28 @@ class MiscTests(TestCase):
         # that are read and interpreted as usual
         whitelist = Mock()
         whitelist.readlines.return_value = ['foo']
+        whitelists = [whitelist]
         ns = Mock()
-        ns.whitelist = whitelist
+        ns.whitelist = whitelists
         ns.include_pattern_list = []
         ns.exclude_pattern_list = []
         observed = self.obj._get_matching_job_list(ns, [
             self.job_foo, self.job_bar])
         self.assertEqual(observed, [self.job_foo])
+
+    def test_matching_job_list_multiple_whitelists(self):
+        whitelist_a = Mock()
+        whitelist_a.readlines.return_value = ['foo']
+        whitelist_b = Mock()
+        whitelist_b.readlines.return_value = ['baz']
+        whitelists = [whitelist_a, whitelist_b]
+        ns = Mock()
+        ns.whitelist = whitelists
+        ns.include_pattern_list = []
+        ns.exclude_pattern_list = []
+        observed = self.obj._get_matching_job_list(ns, [
+            self.job_foo, self.job_bar, self.job_baz])
+        self.assertEqual(observed, [self.job_foo, self.job_baz])
 
     def test_no_prefix_matching_including(self):
         # Include patterns should only match whole job name

@@ -220,8 +220,8 @@ class SessionState(_LegacySessionState):
     The set of utility methods and properties allow applications to easily
     handle the lower levels of dependencies, resources and ready states.
 
-    SessionState has the following instance variables, all of which are
-    currently exposed as properties.
+    :class:`SessionState` has the following instance variables, all of which
+    are currently exposed as properties.
 
     :ivar list job_list: A list of all known jobs
 
@@ -233,10 +233,10 @@ class SessionState(_LegacySessionState):
         It can still change due to local jobs but there is no API yes.
 
         This list cannot have any duplicates, if that is the case a
-        DependencyDuplicateError is raised. This has to be handled externally
-        and is a sign that the job database is corrupted or has wrong data. As
-        an exception if duplicates are perfectly identical this error is
-        silently corrected.
+        :class:`DependencyDuplicateError` is raised. This has to be handled
+        externally and is a sign that the job database is corrupted or has
+        wrong data. As an exception if duplicates are perfectly identical this
+        error is silently corrected.
 
     :ivar dict job_state_map: mapping that tracks the state of each job
 
@@ -280,6 +280,11 @@ class SessionState(_LegacySessionState):
 
 
     def __init__(self, job_list):
+        """
+        Initialize a new SessionState with a given list of jobs.
+
+        The jobs are all of the jobs that the session knows about.
+        """
         # Start by making a copy of job_list as we may modify it below
         job_list = job_list[:]
         while True:

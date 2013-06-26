@@ -39,6 +39,7 @@ from plainbox.impl.result import JobResult
 from plainbox.impl.session import JobReadinessInhibitor
 from plainbox.impl.session import SessionState
 from plainbox.impl.session import UndesiredJobReadinessInhibitor
+from plainbox.impl.session.state import SessionMetadata
 from plainbox.impl.testing_utils import make_io_log, make_job
 
 
@@ -635,3 +636,32 @@ class SessionStateLocalStorageTests(TestCase):
     def tearDown(self):
         shutil.rmtree(self._sandbox)
         os.environ = self._env
+
+
+class SessionMetadataTests(TestCase):
+
+    def test_smoke(self):
+        metadata = SessionMetadata()
+        self.assertEqual(metadata.title, None)
+        self.assertEqual(metadata.flags, set())
+        self.assertEqual(metadata.running_job_name, None)
+
+    def test_accessors(self):
+        metadata = SessionMetadata()
+        metadata.title = "title"
+        self.assertEqual(metadata.title, "title")
+        metadata.flags = set(["f1", "f2"])
+        self.assertEqual(metadata.flags, set(["f1", "f2"]))
+        metadata.running_job_name = "name"
+        self.assertEqual(metadata.running_job_name, "name")
+
+    def test_as_json(self):
+        metadata = SessionMetadata()
+        metadata.title = "title"
+        metadata.flags = set(["f1", "f2"])
+        metadata.running_job_name = "name"
+        self.assertEqual(metadata.as_json(), {
+            "title": "title",
+            "flags": ["f1", "f2"],
+            "running_job_name": "name"
+        })

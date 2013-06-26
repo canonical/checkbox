@@ -42,6 +42,94 @@ from plainbox.impl.session.jobs import (
 logger = logging.getLogger("plainbox.session.state")
 
 
+class SessionMetadata:
+    """
+    Class representing non-critical state of the session.
+
+    The data held here allows applications to reason about sessions in general
+    but is not relevant to the runner or the core in general
+    """
+
+    # Flag indicating that the testing session is not complete and additional
+    # testing is expected. Applications are encouraged to add this flag
+    # immediately after creating a new session. Applications are also
+    # encouraged to remove this flag after the expected test plan is complete
+    FLAG_INCOMPLETE = "incomplete"
+
+    # Flag indicating that results of this testing session have been submitted
+    # to some central results repository. Applications are encouraged to
+    # set this flag after successfully sending the result somewhere.
+    FLAG_SUBMITTED = "submitted"
+
+    def __init__(self):
+        self._title = None
+        self._flags = set()
+        self._running_job_name = None
+
+    def as_json(self):
+        """
+        JSON serializable version of the meta-data
+        """
+        return {
+            "title": self._title,
+            "flags": list(sorted(self._flags)),
+            "running_job_name": self._running_job_name
+        }
+
+    @property
+    def title(self):
+        """
+        the session title.
+
+        Title is just an arbitrary string that can be used to distinguish
+        between multiple sessions.
+
+        The value can be changed at any time.
+        """
+        return self._title
+
+    @title.setter
+    def title(self, title):
+        self._title = title
+
+    @property
+    def flags(self):
+        """
+        a set of flags that are associated with this session.
+
+        This set is persisted by persistent_save() and can be used to keep
+        track of how the application wants to interpret this session state.
+
+        Intended usage is to keep track of "testing finished" and
+        "results submitted" flags. Some flags are added as constants to this
+        class.
+        """
+        return self._flags
+
+    @flags.setter
+    def flags(self, flags):
+        self._flags = flags
+
+    @property
+    def running_job_name(self):
+        """
+        name of the running job
+
+        This property should be updated to keep track of the name of the
+        job that is being executed. When either plainbox or the machine it
+        was running on crashes during the execution of a job this value
+        should be preserved and can help the GUI to resume and provide an
+        error message.
+
+        The property MUST be set before starting the job itself.
+        """
+        return self._running_job_name
+
+    @running_job_name.setter
+    def running_job_name(self, running_job_name):
+        self._running_job_name = running_job_name
+
+
 class _LegacySessionState:
     """
     Legacy features of SessionState that are being deprecated and replaced
@@ -276,8 +364,9 @@ class SessionState(_LegacySessionState):
 
         This is computed internally from the output of checkbox resource jobs,
         it can only be changed by calling :meth:`update_job_result()`
-    """
 
+    :ivar dict metadata: instance of :class:`SessionMetadata`
+    """
 
     def __init__(self, job_list):
         """
@@ -323,6 +412,7 @@ class SessionState(_LegacySessionState):
         self._desired_job_list = []
         self._run_list = []
         self._resource_map = {}
+        self._metadata = SessionMetadata()
         super(SessionState, self).__init__()
 
     def update_desired_job_list(self, desired_job_list):
@@ -548,6 +638,13 @@ class SessionState(_LegacySessionState):
         Map from job name to JobState that encodes the state of each job.
         """
         return self._job_state_map
+
+    @property
+    def metadata(self):
+        """
+        metadata object associated with this session state.
+        """
+        return self._metadata
 
     def _recompute_job_readiness(self):
         """

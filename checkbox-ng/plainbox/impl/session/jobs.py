@@ -18,18 +18,20 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-:mod:`plainbox.impl.session` -- session state handling
-======================================================
+:mod:`plainbox.impl.session.jobs` -- jobs state handling
+========================================================
 
-.. warning::
-
-    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
+This module contains a helper class for associating job state within a
+particular session. The :class:`JobState` class holds references to a
+:class:`JobDefinition` and :class:`JobResult` as well as a list of inhibitors
+that prevent the job from being runnable in a particular session.
 """
+
 import logging
 
 from plainbox.impl.result import JobResult
 
-logger = logging.getLogger("plainbox.session")
+logger = logging.getLogger("plainbox.session.jobs")
 
 
 class JobReadinessInhibitor:
@@ -143,7 +145,7 @@ class JobReadinessInhibitor:
                 self.related_expression.text)
 
 
-# A global instance of JobReadinessInhibitor with the UNDESIRED cause.
+# A global instance of :class:`JobReadinessInhibitor` with the UNDESIRED cause.
 # This is used a lot and it makes no sense to instantiate all the time.
 UndesiredJobReadinessInhibitor = JobReadinessInhibitor(
     JobReadinessInhibitor.UNDESIRED)

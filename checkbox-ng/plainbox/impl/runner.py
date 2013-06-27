@@ -296,7 +296,9 @@ class JobRunner(IJobRunner):
         # Use non-internationalized environment
         env['LANG'] = 'C.UTF-8'
         # Allow the job to customize anything
-        job.modify_execution_environment(env, self._session_dir, config)
+        job.modify_execution_environment(env, self._session_dir,
+                                         self._checkbox_data_dir,
+                                         config)
         # If a differential environment is requested return only the subset
         # that has been altered.
         #
@@ -393,6 +395,12 @@ class JobRunner(IJobRunner):
         # threads although all callbacks will be fired from a single
         # thread (which is _not_ the main thread)
         logger.debug("job[%s] starting command: %s", job.name, job.command)
+        # Create an equivalent of the CHECKBOX_DATA directory used by
+        # some jobs to store logs and other files that may later be used
+        # by other jobs.
+        self._checkbox_data_dir = os.path.join(self._session_dir, "CHECKBOX_DATA")
+        if not os.path.isdir(self._checkbox_data_dir):
+            os.makedirs(self._checkbox_data_dir)
         if job.user is not None:
             if job._checkbox._mode == 'src':
                 cmd = self._get_command_src(job, config)

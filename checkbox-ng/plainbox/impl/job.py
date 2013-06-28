@@ -47,30 +47,30 @@ class JobDefinition(BaseJob, IJobDefinition):
     definition
     """
 
+    def get_record_value(self, name, default=None):
+        """
+        Obtain the value of the specified record attribute
+        """
+        try:
+            return self._data["_{}".format(name)]
+        except KeyError:
+            return super(JobDefinition, self).get_record_value(name, default)
+
     @property
     def name(self):
-        return self.__getattr__('name')
+        return self.get_record_value('name')
 
     @property
     def requires(self):
-        try:
-            return self.__getattr__('requires')
-        except AttributeError:
-            return None
+        return self.get_record_value('requires')
 
     @property
     def description(self):
-        try:
-            return self.__getattr__('description')
-        except AttributeError:
-            return None
+        return self.get_record_value('description')
 
     @property
     def depends(self):
-        try:
-            return self.__getattr__('depends')
-        except AttributeError:
-            return None
+        return self.get_record_value('depends')
 
     @property
     def via(self):
@@ -102,16 +102,6 @@ class JobDefinition(BaseJob, IJobDefinition):
     def __repr__(self):
         return "<JobDefinition name:{!r} plugin:{!r}>".format(
             self.name, self.plugin)
-
-    def __getattr__(self, attr):
-        if attr in self._data:
-            return self._data[attr]
-        gettext_attr = "_{}".format(attr)
-        if gettext_attr in self._data:
-            value = self._data[gettext_attr]
-            # TODO: feed through gettext
-            return value
-        raise AttributeError(attr)
 
     def _get_persistance_subset(self):
         state = {}

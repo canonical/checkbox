@@ -42,38 +42,30 @@ class BaseJob:
     Base Job definition class.
     """
 
-    @property
-    def plugin(self):
-        return self.__getattr__('plugin')
-
-    @property
-    def command(self):
-        try:
-            return self.__getattr__('command')
-        except AttributeError:
-            return None
-
-    @property
-    def environ(self):
-        try:
-            return self.__getattr__('environ')
-        except AttributeError:
-            return None
-
-    @property
-    def user(self):
-        try:
-            return self.__getattr__('user')
-        except AttributeError:
-            return None
-
     def __init__(self, data):
         self._data = data
 
-    def __getattr__(self, attr):
-        if attr in self._data:
-            return self._data[attr]
-        raise AttributeError(attr)
+    def get_record_value(self, name, default=None):
+        """
+        Obtain the value of the specified record attribute
+        """
+        return self._data.get(name, default)
+
+    @property
+    def plugin(self):
+        return self.get_record_value('plugin')
+
+    @property
+    def command(self):
+        return self.get_record_value('command')
+
+    @property
+    def environ(self):
+        return self.get_record_value('environ')
+
+    @property
+    def user(self):
+        return self.get_record_value('user')
 
     def get_checksum(self):
         """

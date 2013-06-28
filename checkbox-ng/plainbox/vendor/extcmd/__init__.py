@@ -223,6 +223,8 @@ __version__ = (1, 0, 1, "final", 0)
 
 from queue import Queue
 import abc
+import errno
+import logging
 import signal
 import subprocess
 import sys
@@ -231,6 +233,9 @@ try:
     import posix
 except ImportError:
     posix = None
+
+
+_logger = logging.getLogger("extcmd")
 
 
 class ExternalCommand(object):
@@ -428,59 +433,131 @@ class ExternalCommandWithDelegate(ExternalCommand):
         # Setup stodut/stderr redirection
         kwargs['stdout'] = subprocess.PIPE
         kwargs['stderr'] = subprocess.PIPE
-        # Start the process
-        proc = self._popen(*args, **kwargs)
-        # Setup all worker threads. By now the pipes have been created and
-        # proc.stdout/proc.stderr point to open pipe objects.
-        stdout_reader = threading.Thread(
-            target=self._read_stream, args=(proc.stdout, "stdout"))
-        stderr_reader = threading.Thread(
-            target=self._read_stream, args=(proc.stderr, "stderr"))
-        queue_worker = threading.Thread(target=self._drain_queue)
-        # Start all workers
-        queue_worker.start()
-        stdout_reader.start()
-        stderr_reader.start()
+        proc = None
+        stdout_reader = None
+        stderr_reader = None
+        queue_worker = None
         try:
+            # Start the process
+            _logger.debug("Starting process %r", (args,))
+            proc = self._popen(*args, **kwargs)
+            _logger.debug("Process created: %r (pid: %d)", proc, proc.pid)
+            # Setup all worker threads. By now the pipes have been created and
+            # proc.stdout/proc.stderr point to open pipe objects.
+            stdout_reader = threading.Thread(
+                target=self._read_stream, name='stdout_reader',
+                args=(proc.stdout, "stdout"))
+            stderr_reader = threading.Thread(
+                target=self._read_stream, name='stderr_reader',
+                args=(proc.stderr, "stderr"))
+            queue_worker = threading.Thread(
+                target=self._drain_queue, name='queue_worker')
+            # Start all workers
+            _logger.debug("Starting thread: %r", queue_worker)
+            queue_worker.start()
+            _logger.debug("Starting thread: %r", stdout_reader)
+            stdout_reader.start()
+            _logger.debug("Starting thread: %r", stderr_reader)
+            stderr_reader.start()
             while True:
                 try:
                     # Wait for the process to finish
-                    proc.wait()
+                    _logger.debug("Waiting for process to exit")
+                    return_code = proc.wait()
+                    _logger.debug(
+                        "Process did exit with code %d", return_code)
                     # Break out of the endless loop if it does
                     break
                 except KeyboardInterrupt:
+                    _logger.debug("KeyboardInterrupt in call()")
                     # On interrupt send a signal to the process
                     self._on_keyboard_interrupt(proc)
                     # And send a notification about this
                     self._delegate.on_interrupt()
         finally:
+            # Try to kill the process
+            do_close = False
+            if proc is not None:
+                try:
+                    _logger.debug("Calling terminate() on the process")
+                    proc.terminate()
+                    _logger.debug("Killing the process")
+                    proc.send_signal(9)
+                    _logger.debug("Killing the process again")
+                    proc.send_signal(9)
+                except OSError as exc:
+                    if exc.errno == errno.ESRCH:
+                        _logger.debug("The process is already dead")
+                    else:
+                        _logger.warning("Cannot kill the process: %s", exc)
+                        do_close = True
+                        raise
             # Wait until all worker threads shut down
-            stdout_reader.join()
-            stderr_reader.join()
-            # Tell the queue worker to shut down
-            self._queue.put(None)
-            queue_worker.join()
+            _logger.debug("Joining all threads...")
+            if do_close:
+                _logger.debug("Closing child stdout")
+                proc.stdout.close()
+            if stdout_reader is not None and stdout_reader.is_alive():
+                _logger.debug("Joining 1/3 %r...", stdout_reader)
+                stdout_reader.join()
+                _logger.debug("Joined thread: %r", stdout_reader)
+            if do_close:
+                _logger.debug("Closing child stderr")
+                proc.stderr.close()
+            if stderr_reader is not None and stderr_reader.is_alive():
+                _logger.debug("Joining 2/3 %r...", stderr_reader)
+                stderr_reader.join()
+                _logger.debug("Joined thread: %r", stderr_reader)
+            if queue_worker is not None:
+                # Tell the queue worker to shut down
+                _logger.debug("Telling queue_worker thread to exit")
+                self._queue.put(None)
+                _logger.debug("Joining 3/3 %r...", queue_worker)
+                queue_worker.join()
+                _logger.debug("Joined thread: %r", queue_worker)
         # Notify that the process has finished
         self._delegate.on_end(proc.returncode)
         return proc.returncode
 
     def _on_keyboard_interrupt(self, proc):
-        proc.send_signal(self._killsig)
+        _logger.debug("Sending signal %s to the process", self._killsig)
+        try:
+            proc.send_signal(self._killsig)
+        except OSError as exc:
+            if exc.errno == errno.ESRCH:
+                pass
+                _logger.debug(
+                    "Cannot deliver signal %d, the process gone",
+                    self._killsig)
+            else:
+                raise
 
     def _read_stream(self, stream, stream_name):
+        _logger.debug("_read_stream(%r, %r) entering", stream, stream_name)
         while True:
-            line = stream.readline()
-            if len(line) == 0:
+            try:
+                line = stream.readline()
+            except (IOError, ValueError):
+                # Ignore IOError and ValueError that may be raised if
+                # the stream was closed this can happen if the process exits
+                # very quickly without printing anything and the cleanup code
+                # starts to close both of the streams
                 break
-            cmd = (stream_name, line)
-            self._queue.put(cmd)
+            else:
+                if len(line) == 0:
+                    break
+                cmd = (stream_name, line)
+                self._queue.put(cmd)
+        _logger.debug("_read_stream(%r, %r) exiting", stream, stream_name)
 
     def _drain_queue(self):
+        _logger.debug("_drain_queue() entering")
         while True:
             args = self._queue.get()
             if args is None:
                 break
             self._delegate.on_line(*args)
+        _logger.debug("_drain_queue() exiting")
 
 
 class Chain(IDelegate):

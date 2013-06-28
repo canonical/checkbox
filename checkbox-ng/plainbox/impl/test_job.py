@@ -250,6 +250,14 @@ class TestJobDefinition(TestCase):
         self.assertEqual(child.via, parent.get_checksum())
         self.assertEqual(child.get_checksum(), helper.get_checksum())
 
+    def test_estimated_duration(self):
+        job1 = JobDefinition({})
+        self.assertEqual(job1.estimated_duration, None)
+        job2 = JobDefinition({'estimated_duration': 'foo'})
+        self.assertEqual(job2.estimated_duration, None)
+        job3 = JobDefinition({'estimated_duration': '123.5'})
+        self.assertEqual(job3.estimated_duration, 123.5)
+
 
 class ParsingTests(TestCaseWithParameters):
 

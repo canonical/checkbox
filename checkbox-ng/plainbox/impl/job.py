@@ -73,6 +73,25 @@ class JobDefinition(BaseJob, IJobDefinition):
         return self.get_record_value('depends')
 
     @property
+    def estimated_duration(self):
+        """
+        estimated duration of this job in seconds.
+
+        The value may be None, which indicates that the duration is basically
+        unknown. Fractional numbers are allowed and indicate fractions of a
+        second.
+        """
+        value = self.get_record_value('estimated_duration')
+        if value is None:
+            return
+        try:
+            return float(value)
+        except ValueError:
+            logger.warning((
+                "Incorrect value of 'estimated_duration' in job"
+                "%s read from %s"), self.name, self.origin)
+
+    @property
     def via(self):
         """
         The checksum of the "parent" job when the current JobDefinition comes

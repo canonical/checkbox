@@ -73,43 +73,6 @@ def authenticate_warmup():
         ['pkexec', 'checkbox-trusted-launcher', '--warmup'])
 
 
-class CommandIOLogBuilder(extcmd.DelegateBase):
-    """
-    Delegate for extcmd that builds io_log entries.
-
-    IO log entries are records kept by JobResult.io_log and correspond to all
-    of the data that was written by called process. The format is a sequence of
-    tuples (delay, stream_name, data).
-    """
-
-    def on_begin(self, args, kwargs):
-        """
-        Internal method of extcmd.DelegateBase
-
-        Called when a command is being invoked.
-        Begins tracking time (relative time entries) and creates the empty
-        io_log list.
-        """
-        logger.debug("io log starting for command: %r", args)
-        self.io_log = []
-        self.last_msg = datetime.datetime.utcnow()
-
-    def on_line(self, stream_name, line):
-        """
-        Internal method of CommandIOLogBuilder
-
-        Appends each line to the io_log. Maintains a timestamp of the last
-        message so that approximate delay between each piece of output can be
-        recorded as well.
-        """
-        now = datetime.datetime.utcnow()
-        delay = now - self.last_msg
-        self.last_msg = now
-        record = IOLogRecord(delay.total_seconds(), stream_name, line)
-        self.io_log.append(record)
-        logger.debug("io log captured %r", record)
-
-
 class IOLogRecordGenerator(extcmd.DelegateBase):
     """
     Delegate for extcmd that generates io_log entries.

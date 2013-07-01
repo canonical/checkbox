@@ -31,7 +31,6 @@ from unittest import TestCase
 import os
 
 from plainbox.impl.job import JobDefinition
-from plainbox.impl.runner import CommandIOLogBuilder
 from plainbox.impl.runner import IOLogRecordGenerator
 from plainbox.impl.runner import FallbackCommandOutputPrinter
 from plainbox.impl.runner import CommandOutputWriter
@@ -70,25 +69,6 @@ class IOLogGeneratorTests(TestCase):
         builder.on_line('stderr', b'error message\n')
         self.assertEqual(self.last_record.stream_name, 'stderr')
         self.assertEqual(self.last_record.data, b'error message\n')
-
-
-class CommandIOLogBuilderTests(TestCase):
-
-    def test_smoke(self):
-        builder = CommandIOLogBuilder()
-        # Calling on_begin() resets internal state
-        builder.on_begin(None, None)
-        self.assertEqual(builder.io_log, [])
-        # Calling on_line accumulates records
-        builder.on_line('stdout', b'text\n')
-        builder.on_line('stdout', b'different text\n')
-        builder.on_line('stderr', b'error message\n')
-        self.assertEqual(builder.io_log[0].stream_name, 'stdout')
-        self.assertEqual(builder.io_log[0].data, b'text\n')
-        self.assertEqual(builder.io_log[1].stream_name, 'stdout')
-        self.assertEqual(builder.io_log[1].data, b'different text\n')
-        self.assertEqual(builder.io_log[2].stream_name, 'stderr')
-        self.assertEqual(builder.io_log[2].data, b'error message\n')
 
 
 class FallbackCommandOutputPrinterTests(TestCase):

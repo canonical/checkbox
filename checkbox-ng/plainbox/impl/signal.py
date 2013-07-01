@@ -19,7 +19,6 @@
 ============================================
 """
 
-import logging
 
 __all__ = ['Signal']
 
@@ -78,14 +77,14 @@ class Signal:
         self.fire(args, kwargs)
 
     @classmethod
-    def define(cls, dummy_func):
+    def define(cls, first_responder):
         """
         Helper decorator to define a signal descriptor in a class
 
         The decorated function is never called but is used to get
         documentation.
         """
-        return _SignalDescriptor(dummy_func)
+        return _SignalDescriptor(first_responder)
 
 
 class _SignalDescriptor:
@@ -97,9 +96,10 @@ class _SignalDescriptor:
     signal name on a class or instance.
     """
 
-    def __init__(self, dummy_func):
-        self.signal_name = dummy_func.__name__
-        self.__doc__ = dummy_func.__doc__
+    def __init__(self, first_responder):
+        self.signal_name = first_responder.__name__
+        self.first_responder = first_responder
+        self.__doc__ = first_responder.__doc__
 
     def __repr__(self):
         return "<SignalDecorator for signal:{!r}>".format(self.signal_name)
@@ -110,8 +110,15 @@ class _SignalDescriptor:
         # Ensure that the instance has __signals__ property
         if not hasattr(instance, "__signals__"):
             instance.__signals__ = {}
+        # Ensure that the instance signal is defined
         if self.signal_name not in instance.__signals__:
-            instance.__signals__[self.signal_name] = Signal(self.signal_name)
+            # Or create it if needed
+            signal = Signal(self.signal_name)
+            # Connect the first responder function
+            signal.connect(lambda *args, **kwargs: self.first_responder(
+                instance, *args, **kwargs))
+            # Ensure we don't recreate signals
+            instance.__signals__[self.signal_name] = signal
         return instance.__signals__[self.signal_name]
 
     def __set__(self, instance, value):

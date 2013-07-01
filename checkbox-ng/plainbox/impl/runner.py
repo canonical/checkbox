@@ -224,7 +224,6 @@ class JobRunner(IJobRunner):
             runner = getattr(self, func_name)
         except AttributeError:
             return JobResult({
-                'job': job,
                 'outcome': IJobResult.OUTCOME_NOT_IMPLEMENTED,
                 'comment': 'This plugin is not supported'
             })
@@ -239,7 +238,6 @@ class JobRunner(IJobRunner):
         Produce the result that is used when running in dry-run mode
         """
         return JobResult({
-            'job': job,
             'outcome': IJobResult.OUTCOME_SKIP,
             'comments': "Job skipped in dry-run mode"
         })
@@ -258,7 +256,6 @@ class JobRunner(IJobRunner):
     def _plugin_manual(self, job, config):
         if self._outcome_callback is None:
             return JobResult({
-                'job': job,
                 'outcome': IJobResult.OUTCOME_SKIP,
                 'comment': "non-interactive test run"
             })
@@ -281,7 +278,6 @@ class JobRunner(IJobRunner):
             outcome = IJobResult.OUTCOME_FAIL
         # Create a result object and return it
         return JobResult({
-            'job': job,
             'outcome': outcome,
             'return_code': return_code,
             'io_log': io_log

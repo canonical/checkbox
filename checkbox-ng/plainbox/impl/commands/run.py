@@ -278,7 +278,6 @@ class RunInvocation(CheckBoxInvocationMixIn):
             print("Comments: {}".format(job_result.comments))
         else:
             job_result = JobResult({
-                'job': job,
                 'outcome': IJobResult.OUTCOME_NOT_SUPPORTED,
                 'comments': job_state.get_readiness_description()
             })

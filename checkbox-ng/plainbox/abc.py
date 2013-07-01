@@ -122,6 +122,33 @@ class IJobResult(metaclass=ABCMeta):
         The object implements IJobDefinition
         """
 
+    # The outcome of a job is a one-word classification how how it ran.  There
+    # are several values that were not used in the original implementation but
+    # their existence helps to organize and implement plainbox. They are
+    # discussed below to make their intended meaning more detailed than is
+    # possible from the variable name alone.
+    #
+    # The None outcome - a job that basically did not run at all.
+    OUTCOME_NONE = None
+    # The pass and fail outcomes are the two most essential, and externally
+    # visible, job outcomes. They can be provided by either automated or manual
+    # "classifier" - a script or a person that clicks a "pass" or "fail"
+    # button.
+    OUTCOME_PASS = 'pass'
+    OUTCOME_FAIL = 'fail'
+    # The skip outcome is used when the operator selected a job but then
+    # skipped it. This is typically used for a manual job that is tedious or
+    # was selected by accident.
+    OUTCOME_SKIP = 'skip'
+    # The not supported outcome is used when a job was about to run but a
+    # dependency or resource requirement prevent it from running.  XXX: perhaps
+    # this should be called "not available", not supported has the "unsupported
+    # code" feeling associated with it.
+    OUTCOME_NOT_SUPPORTED = 'not-supported'
+    # A temporary state that should be removed later on, used to indicate that
+    # job runner is not implemented but the job "ran" so to speak.
+    OUTCOME_NOT_IMPLEMENTED = 'not-implemented'
+
     @abstractproperty
     def outcome(self):
         """

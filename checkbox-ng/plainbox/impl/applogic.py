@@ -146,7 +146,6 @@ def run_job_if_possible(session, runner, config, job):
             if related_job_state.result.outcome == JobResult.OUTCOME_SKIP:
                 outcome = JobResult.OUTCOME_SKIP
         job_result = JobResult({
-            'job': job,
             'outcome': outcome,
             'comments': job_state.get_readiness_description()
         })

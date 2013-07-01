@@ -155,12 +155,12 @@ class SessionStateExporterBase(metaclass=ABCMeta):
             # Add Parent hash if requested
             if self.OPTION_WITH_JOB_VIA in self._option_list:
                 data['result_map'][job_name]['via'] = \
-                    job_state.result.job.via
+                    job_state.job.via
 
             # Add Job hash if requested
             if self.OPTION_WITH_JOB_HASH in self._option_list:
                 data['result_map'][job_name]['hash'] = \
-                    job_state.result.job.get_checksum()
+                    job_state.job.get_checksum()
 
             # Add Job definitions if requested
             if self.OPTION_WITH_JOB_DEFS in self._option_list:
@@ -170,13 +170,13 @@ class SessionStateExporterBase(metaclass=ABCMeta):
                              'command',
                              'description',
                              ):
-                    if not getattr(job_state.result.job, prop):
+                    if not getattr(job_state.job, prop):
                         continue
                     data['result_map'][job_name][prop] = getattr(
-                        job_state.result.job, prop)
+                        job_state.job, prop)
 
             # Add Attachments if requested
-            if job_state.result.job.plugin == 'attachment':
+            if job_state.job.plugin == 'attachment':
                 if self.OPTION_WITH_ATTACHMENTS in self._option_list:
                     raw_bytes = b''.join(
                         (record[2] for record in

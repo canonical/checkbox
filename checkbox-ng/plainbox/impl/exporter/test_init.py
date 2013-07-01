@@ -76,8 +76,8 @@ class SessionStateExporterBaseTests(TestCase):
         job_b = make_job('job_b')
         session = SessionState([job_a, job_b])
         session.update_desired_job_list([job_a, job_b])
-        result_a = make_job_result(job_a, 'pass')
-        result_b = make_job_result(job_b, 'fail')
+        result_a = make_job_result('pass')
+        result_b = make_job_result('fail')
         session.update_job_result(job_a, result_a)
         session.update_job_result(job_b, result_b)
         return session
@@ -116,7 +116,6 @@ class SessionStateExporterBaseTests(TestCase):
         session = SessionState([job_a, job_b])
         session.update_desired_job_list([job_a, job_b])
         result_a = JobResult({
-            'job': job_a,
             'outcome': 'pass',
             'return_code': 0,
             'io_log': make_io_log(
@@ -124,7 +123,6 @@ class SessionStateExporterBaseTests(TestCase):
                 session_dir)
         })
         result_b = JobResult({
-            'job': job_b,
             'outcome': 'pass',
             'return_code': 0,
             'comments': 'foo',

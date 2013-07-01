@@ -174,10 +174,7 @@ class JobState:
         """
         self._job = job
         self._readiness_inhibitor_list = [UndesiredJobReadinessInhibitor]
-        self._result = JobResult({
-            'job': job,
-            'outcome': JobResult.OUTCOME_NONE
-        })
+        self._result = JobResult({'outcome': JobResult.OUTCOME_NONE})
 
     def __repr__(self):
         return ("<{} job:{!r} readiness_inhibitor_list:{!r}"
@@ -213,8 +210,6 @@ class JobState:
             return self._result
 
         def fset(self, value):
-            if value.job.get_checksum() != self.job.get_checksum():
-                raise ValueError("result job does not match")
             self._result = value
 
         return (fget, fset, None, doc)
@@ -246,7 +241,6 @@ class JobState:
         state['_job'] = self._job
         if self._job.plugin == 'resource':
             state['_result'] = JobResult({
-                'job': self._job,
                 'outcome': JobResult.OUTCOME_NONE
             })
         else:

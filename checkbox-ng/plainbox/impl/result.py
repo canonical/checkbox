@@ -55,7 +55,6 @@ class JobResult(IJobResult):
     Result of running a JobDefinition.
     """
 
-
     def __init__(self, data):
         """
         Initialize a new result with the specified data
@@ -69,16 +68,11 @@ class JobResult(IJobResult):
         self._data = data
 
     def __str__(self):
-        return "{}: {}".format(
-            self.job.name, self.outcome)
+        return str(self.outcome)
 
     def __repr__(self):
-        return "<{} job:{!r} outcome:{!r}>".format(
-            self.__class__.__name__, self.job, self.outcome)
-
-    @property
-    def job(self):
-        return self._data['job']
+        return "<{} outcome:{!r}>".format(
+            self.__class__.__name__, self.outcome)
 
     @property
     def outcome(self):

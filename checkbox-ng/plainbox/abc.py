@@ -114,14 +114,6 @@ class IJobResult(metaclass=ABCMeta):
     # XXX: We could also store stuff like job duration and other meta-data but
     # I wanted to avoid polluting this proposal with mundane details
 
-    @abstractproperty
-    def job(self):
-        """
-        Definition of the job
-
-        The object implements IJobDefinition
-        """
-
     # The outcome of a job is a one-word classification how how it ran.  There
     # are several values that were not used in the original implementation but
     # their existence helps to organize and implement plainbox. They are

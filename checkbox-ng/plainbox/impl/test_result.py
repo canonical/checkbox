@@ -35,16 +35,10 @@ from plainbox.impl.session import SessionStateEncoder
 
 class JobResultTests(TestCase):
 
-    def setUp(self):
-        self.job = make_job("A")
-
     def test_smoke(self):
-        result = JobResult({'job': self.job})
-        self.assertEqual(str(result), "A: None")
-        self.assertEqual(repr(result), (
-            "<JobResult job:<JobDefinition name:'A' plugin:'dummy'>"
-            " outcome:None>"))
-        self.assertIs(result.job, self.job)
+        result = JobResult({})
+        self.assertEqual(str(result), "None")
+        self.assertEqual(repr(result), "<JobResult outcome:None>")
         self.assertIsNone(result.outcome)
         self.assertIsNone(result.comments)
         self.assertEqual(result.io_log, ())
@@ -53,18 +47,15 @@ class JobResultTests(TestCase):
     def test_everything(self):
         with TemporaryDirectory() as scratch_dir:
             result = JobResult({
-                'job': self.job,
                 'outcome': JobResult.OUTCOME_PASS,
                 'comments': "it said blah",
                 'io_log': make_io_log(((0, 'stdout', b'blah\n'),),
                                       scratch_dir),
                 'return_code': 0
             })
-            self.assertEqual(str(result), "A: pass")
+            self.assertEqual(str(result), "pass")
             self.assertEqual(repr(result), (
-                "<JobResult job:<JobDefinition name:'A' plugin:'dummy'>"
-                " outcome:'pass'>"))
-            self.assertIs(result.job, self.job)
+                "<JobResult outcome:'pass'>"))
             self.assertEqual(result.outcome, JobResult.OUTCOME_PASS)
             self.assertEqual(result.comments, "it said blah")
             self.assertEqual(result.io_log, ((0, 'stdout', b'blah\n'),))
@@ -72,14 +63,12 @@ class JobResultTests(TestCase):
 
     def test_encode(self):
         result = JobResult({
-            'job': self.job,
             'outcome': JobResult.OUTCOME_PASS,
             'comments': "it said blah",
             'io_log': ((0, 'stdout', 'blah\n'),),
             'return_code': 0
         })
         result_enc = result._get_persistance_subset()
-        self.assertEqual(result_enc['data']['job'], result.job)
         self.assertEqual(result_enc['data']['outcome'], result.outcome)
         self.assertEqual(result_enc['data']['comments'], result.comments)
         self.assertEqual(result_enc['data']['return_code'], result.return_code)
@@ -91,13 +80,6 @@ class JobResultTests(TestCase):
                 "_class_id": "JOB_RESULT",
                 "data": {
                     "comments": null,
-                    "job": {
-                        "_class_id": "JOB_DEFINITION",
-                        "data": {
-                            "name": "__audio__",
-                            "plugin": "local"
-                        }
-                    },
                     "outcome": "pass",
                     "return_code": 0
                 }
@@ -105,7 +87,6 @@ class JobResultTests(TestCase):
         result_dec = json.loads(
             raw_json, object_hook=SessionStateEncoder().dict_to_object)
         self.assertIsInstance(result_dec, JobResult)
-        self.assertEqual(result_dec.job.name, "__audio__")
         self.assertEqual(result_dec.outcome, JobResult.OUTCOME_PASS)
         self.assertIsNone(result_dec.comments)
         self.assertEqual(result_dec.io_log, ())

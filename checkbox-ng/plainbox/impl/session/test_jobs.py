@@ -136,7 +136,6 @@ class JobStateTests(TestCase):
 
     def test_smoke(self):
         self.assertIsNotNone(self.job_state.result)
-        self.assertIs(self.job_state.result.job, self.job)
         self.assertIs(self.job_state.result.outcome, JobResult.OUTCOME_NONE)
         self.assertEqual(self.job_state.readiness_inhibitor_list, [
             UndesiredJobReadinessInhibitor])
@@ -149,7 +148,7 @@ class JobStateTests(TestCase):
             self.job_state.job = None
 
     def test_setting_result(self):
-        result = make_job_result(self.job)
+        result = make_job_result()
         self.job_state.result = result
         self.assertIs(self.job_state.result, result)
 
@@ -178,7 +177,6 @@ class JobStateTests(TestCase):
     def test_encode_resource_job(self):
         self.job_R = make_job("R", plugin="resource")
         result_R = JobResult({
-            'job': self.job_R,
             'outcome': JobResult.OUTCOME_PASS,
             'io_log': ((0, 'stdout', "attr: value\n"),)
         })
@@ -195,7 +193,6 @@ class JobStateTests(TestCase):
 
     def test_encode_normal_job(self):
         result = JobResult({
-            'job': self.job,
             'outcome': JobResult.OUTCOME_PASS,
         })
         self.job_state.result = result
@@ -221,13 +218,6 @@ class JobStateTests(TestCase):
                 "_class_id": "JOB_RESULT",
                 "data": {
                     "comments": null,
-                    "job": {
-                        "_class_id": "JOB_DEFINITION",
-                        "data": {
-                            "name": "X",
-                            "plugin": "dummy"
-                        }
-                    },
                     "outcome": "pass",
                     "return_code": null
                 }
@@ -237,6 +227,4 @@ class JobStateTests(TestCase):
             raw_json, object_hook=SessionStateEncoder().dict_to_object)
         self.assertIsInstance(job_dec, JobState)
         self.assertEqual(
-            repr(job_dec._result), (
-                "<JobResult job:<JobDefinition name:'X'"
-                " plugin:'dummy'> outcome:'pass'>"))
+            repr(job_dec._result), "<JobResult outcome:'pass'>")

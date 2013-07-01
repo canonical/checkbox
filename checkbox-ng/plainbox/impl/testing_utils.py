@@ -87,11 +87,10 @@ def make_job(name, plugin="dummy", requires=None, depends=None, **kwargs):
     return JobDefinition(settings, origin)
 
 
-def make_job_result(job, outcome="dummy"):
+def make_job_result(outcome="dummy"):
     """
     Make and return a dummy JobResult instance
     """
     return JobResult({
-        'job': job,
         'outcome': outcome
     })

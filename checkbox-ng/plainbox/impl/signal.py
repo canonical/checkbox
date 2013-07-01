@@ -1,0 +1,121 @@
+# Copyright 2012 Canonical Ltd.
+# Written by:
+#   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+:mod:`plainbox.impl.signal` -- signal system
+============================================
+"""
+
+import logging
+
+__all__ = ['Signal']
+
+
+class Signal:
+    """
+    Basic signal that supports arbitrary listeners.
+
+    While this class can be used directly it is best used with the helper
+    decorator Signal.define on a member function. The function body is ignored,
+    apart from the documentation.
+
+    The function name then becomes a unique (per encapsulating class instance)
+    object (an instance of this Signal class) that is created on demand.
+
+    In practice you just have a documentation and use
+    object.signal_name.connect() and object.signal_name(*args, **kwargs) to
+    fire it.
+    """
+
+    def __init__(self, signal_name):
+        """
+        Construct a signal with the given name
+        """
+        self._listeners = []
+        self._signal_name = signal_name
+
+    def connect(self, listener):
+        """
+        Connect a new listener to this signal
+
+        That listener will be called whenever fire() is invoked on the signal
+        """
+        self._listeners.append(listener)
+
+    def disconnect(self, listener):
+        """
+        Disconnect an existing listener from this signal
+        """
+        self._listeners.remove(listener)
+
+    def fire(self, args, kwargs):
+        """
+        Fire this signal with the specified arguments and keyword arguments.
+
+        Typically this is used by using __call__() on this object which is more
+        natural as it does all the argument packing/unpacking transparently.
+        """
+        for listener in self._listeners:
+            listener(*args, **kwargs)
+
+    def __call__(self, *args, **kwargs):
+        """
+        Call fire() with all arguments forwarded transparently
+        """
+        self.fire(args, kwargs)
+
+    @classmethod
+    def define(cls, dummy_func):
+        """
+        Helper decorator to define a signal descriptor in a class
+
+        The decorated function is never called but is used to get
+        documentation.
+        """
+        return _SignalDescriptor(dummy_func)
+
+
+class _SignalDescriptor:
+    """
+    Descriptor for convenient signal access.
+
+    Typically this class is used indirectly, when accessed from Signal.define
+    method decorator. It is used to do all the magic required when accessing
+    signal name on a class or instance.
+    """
+
+    def __init__(self, dummy_func):
+        self.signal_name = dummy_func.__name__
+        self.__doc__ = dummy_func.__doc__
+
+    def __repr__(self):
+        return "<SignalDecorator for signal:{!r}>".format(self.signal_name)
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        # Ensure that the instance has __signals__ property
+        if not hasattr(instance, "__signals__"):
+            instance.__signals__ = {}
+        if self.signal_name not in instance.__signals__:
+            instance.__signals__[self.signal_name] = Signal(self.signal_name)
+        return instance.__signals__[self.signal_name]
+
+    def __set__(self, instance, value):
+        raise AttributeError("You cannot overwrite signals")
+
+    def __delete__(self, instance):
+        raise AttributeError("You cannot delete signals")

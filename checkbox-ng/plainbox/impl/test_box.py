@@ -31,7 +31,7 @@ from unittest import TestCase
 from plainbox import __version__ as version
 from plainbox.impl.box import main
 from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
-from plainbox.impl.mock_job import MockJobDefinition
+from plainbox.impl.testing_utils import MockJobDefinition
 from plainbox.testing_utils.io import TestIO
 
 

@@ -82,8 +82,6 @@ class JobResult(IJobResult):
     # job runner is not implemented but the job "ran" so to speak.
     OUTCOME_NOT_IMPLEMENTED = 'not-implemented'
 
-    # XXX: how to support attachments?
-
     def __init__(self, data):
         """
         Initialize a new result with the specified data

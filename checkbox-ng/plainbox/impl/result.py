@@ -130,3 +130,67 @@ class IoLogDecoder(json.JSONDecoder):
             # IOLogRecord are re created using the list ordering
             log[0], log[1], base64.standard_b64decode(log[2].encode('ASCII')))
             for log in super().decode(obj)])
+
+
+class IOLogRecordWriter:
+    """
+    Class for writing :class:`IOLogRecord` instances to a text stream
+    """
+
+    def __init__(self, stream):
+        self.stream = stream
+
+    def close(self):
+        self.stream.close()
+
+    def write_record(self, record):
+        """
+        Write an :class:`IOLogRecord` to the stream.
+        """
+        text = json.dumps([
+            record.delay, record.stream_name,
+            base64.standard_b64encode(record.data).decode("ASCII")],
+            check_circular=False, ensure_ascii=True, indent=None,
+            separators=(',', ':'))
+        logger.debug("Encoded %r into string %r", record, text)
+        assert "\n" not in text
+        self.stream.write(text)
+        self.stream.write('\n')
+
+
+class IOLogRecordReader:
+    """
+    Class for streaming :class`IOLogRecord` instances from a text stream
+    """
+
+    def __init__(self, stream):
+        self.stream = stream
+
+    def close(self):
+        self.stream.close()
+
+    def read_record(self):
+        """
+        Read the next record from the stream.
+
+        :returns: None if the stream is empty
+        :returns: next :class:`IOLogRecord` as found in the stream.
+        """
+        text = self.stream.readline()
+        if len(text) == 0:
+            return
+        data = json.loads(text)
+        return IOLogRecord(
+            data[0], data[1],
+            base64.standard_b64decode(data[2].encode("ASCII")))
+
+    def __iter__(self):
+        """
+        Iterate over the entire stream generating subsequent
+        :class:`IOLogRecord` entries.
+        """
+        while True:
+            record = self.read_record()
+            if record is None:
+                break
+            yield record

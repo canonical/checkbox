@@ -23,11 +23,15 @@ plainbox.impl.test_result
 
 Test definitions for plainbox.impl.result module
 """
+import io
 import json
 
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
+from plainbox.impl.result import IOLogRecord
+from plainbox.impl.result import IOLogRecordWriter
+from plainbox.impl.result import IOLogRecordReader
 from plainbox.impl.result import JobResult
 from plainbox.impl.testing_utils import make_io_log, make_job
 from plainbox.impl.session import SessionStateEncoder
@@ -91,3 +95,35 @@ class JobResultTests(TestCase):
         self.assertIsNone(result_dec.comments)
         self.assertEqual(result_dec.io_log, ())
         self.assertEqual(result_dec.return_code, 0)
+
+
+class IOLogRecordWriterTests(TestCase):
+
+    _RECORD = IOLogRecord(0.123, 'stdout', b'some\ndata')
+    _TEXT = '[0.123,"stdout","c29tZQpkYXRh"]\n'
+
+    def test_smoke_write(self):
+        stream = io.StringIO()
+        writer = IOLogRecordWriter(stream)
+        writer.write_record(self._RECORD)
+        self.assertEqual(stream.getvalue(), self._TEXT)
+        writer.close()
+        with self.assertRaises(ValueError):
+            stream.getvalue()
+
+    def test_smoke_read(self):
+        stream = io.StringIO(self._TEXT)
+        reader = IOLogRecordReader(stream)
+        record1 = reader.read_record()
+        self.assertEqual(record1, self._RECORD)
+        record2 = reader.read_record()
+        self.assertEqual(record2, None)
+        reader.close()
+        with self.assertRaises(ValueError):
+            stream.getvalue()
+
+    def test_iter_read(self):
+        stream = io.StringIO(self._TEXT)
+        reader = IOLogRecordReader(stream)
+        record_list = list(reader)
+        self.assertEqual(record_list, [self._RECORD])

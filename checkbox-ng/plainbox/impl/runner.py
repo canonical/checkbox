@@ -379,6 +379,47 @@ class JobRunner(IJobRunner):
         cmd += ['bash', '-c', job.command]
         return cmd
 
+    def _prepare_io_handling(self, job, config):
+        ui_io_delegate = self._command_io_delegate
+        # If there is no UI delegate specified create a simple
+        # delegate that logs all output to the console
+        if ui_io_delegate is None:
+            ui_io_delegate = FallbackCommandOutputPrinter(job.name)
+        # Compute a shared base filename for all logging activity associated
+        # with this job (aka: the slug)
+        slug = slugify(job.name)
+        # Create a delegate that writes all IO to disk
+        output_writer = CommandOutputWriter(
+            stdout_path=os.path.join(
+                self._jobs_io_log_dir, "{}.stdout".format(slug)),
+            stderr_path=os.path.join(
+                self._jobs_io_log_dir, "{}.stderr".format(slug)))
+        # Create a delegate for converting regular IO to IOLogRecords.
+        # It takes no arguments as all the interesting stuff is added as a
+        # signal listener.
+        io_log_gen = IOLogRecordGenerator()
+        # Create the delegate for routing IO
+        #
+        # Split the stream of data into three parts (each part is expressed as
+        # an element of extcmd.Chain()).
+        #
+        # Send the first copy of the data through bytes->text decoder and
+        # then to the UI delegate. This cold be something provided by the
+        # higher level caller or the default FallbackCommandOutputPrinter.
+        #
+        # Send the second copy of the data to the IOLogRecordGenerator instance
+        # that converts raw bytes into neat IOLogRecord objects. This generator
+        # has a on_new_record signal that can be used to do stuff when a new
+        # record is generated.
+        #
+        # Send the third copy to the output writer that writes everything to
+        # disk.
+        delegate = extcmd.Chain([ui_io_delegate, io_log_gen, output_writer])
+        logger.debug("job[%s] extcmd delegate: %r", job.name, delegate)
+        # Attach listeners to io_log_gen (the IOLogRecordGenerator instance)
+        # One listener appends each record to an array
+        return delegate, io_log_gen
+
     def _run_command(self, job, config):
         """
         Run the shell command associated with the specified job.
@@ -388,40 +429,9 @@ class JobRunner(IJobRunner):
         # Bail early if there is nothing do do
         if job.command is None:
             return None, ()
-        ui_io_delegate = self._command_io_delegate
-        # If there is no UI delegate specified create a simple
-        # delegate that logs all output to the console
-        if ui_io_delegate is None:
-            ui_io_delegate = FallbackCommandOutputPrinter(job.name)
-        # Create a delegate that writes all IO to disk
-        slug = slugify(job.name)
-        output_writer = CommandOutputWriter(
-            stdout_path=os.path.join(self._jobs_io_log_dir,
-                                     "{}.stdout".format(slug)),
-            stderr_path=os.path.join(self._jobs_io_log_dir,
-                                     "{}.stderr".format(slug)))
-        # Create a delegate that builds a log of all IO
-        io_log_builder = CommandIOLogBuilder()
-        # Create the delegate for routing IO
-        #
-        #
-        # Split the stream of data into three parts (each part is expressed as
-        # an element of extcmd.Chain()).
-        #
-        # Send the first copy of the data through bytes->text decoder and
-        # then to the UI delegate. This cold be something provided by the
-        # higher level caller or the default CommandOutputLogger.
-        #
-        # Send the second copy of the data to the _IOLogBuilder() instance that
-        # just concatenates subsequent bytes into neat time-stamped records.
-        #
-        # Send the third copy to the output writer that writes everything to
-        # disk.
-        delegate = extcmd.Chain([
-            ui_io_delegate,
-            io_log_builder,
-            output_writer])
-        logger.debug("job[%s] extcmd delegate: %r", job.name, delegate)
+        delegate, io_log_gen = self._prepare_io_handling(job, config)
+        io_log_list = []
+        io_log_gen.on_new_record.connect(io_log_list.append)
         # Create a subprocess.Popen() like object that uses the delegate
         # system to observe all IO as it occurs in real time.
         logging_popen = extcmd.ExternalCommandWithDelegate(delegate)
@@ -457,9 +467,11 @@ class JobRunner(IJobRunner):
         # XXX: Perhaps handle process dying from signals here
         # When the process is killed proc.returncode is not set
         # and another (cannot remember now) attribute is set
-        fjson = os.path.join(self._jobs_io_log_dir, "{}.json".format(slug))
+        fjson = os.path.join(
+            self._jobs_io_log_dir, "{}.json".format(
+                slugify(job.name)))
         with open(fjson, "wt") as stream:
-            io_log_write(io_log_builder.io_log, stream)
+            io_log_write(io_log_list, stream)
             stream.flush()
             os.fsync(stream.fileno())
         return return_code, fjson

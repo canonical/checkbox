@@ -37,6 +37,7 @@ from plainbox.vendor import extcmd
 
 from plainbox.abc import IJobRunner, IJobResult
 from plainbox.impl.result import JobResult, IOLogRecord, IoLogEncoder
+from plainbox.impl.signal import Signal
 
 logger = logging.getLogger("plainbox.runner")
 
@@ -107,6 +108,45 @@ class CommandIOLogBuilder(extcmd.DelegateBase):
         record = IOLogRecord(delay.total_seconds(), stream_name, line)
         self.io_log.append(record)
         logger.debug("io log captured %r", record)
+
+
+class IOLogRecordGenerator(extcmd.DelegateBase):
+    """
+    Delegate for extcmd that generates io_log entries.
+    """
+
+    def on_begin(self, args, kwargs):
+        """
+        Internal method of extcmd.DelegateBase
+
+        Called when a command is being invoked.
+
+        Begins tracking time (relative time entries)
+        """
+        self.last_msg = datetime.datetime.utcnow()
+
+    def on_line(self, stream_name, line):
+        """
+        Internal method of extcmd.DelegateBase
+
+        Appends each line to the io_log. Maintains a timestamp of the last
+        message so that approximate delay between each piece of output can be
+        recorded as well.
+        """
+        now = datetime.datetime.utcnow()
+        delay = now - self.last_msg
+        self.last_msg = now
+        record = IOLogRecord(delay.total_seconds(), stream_name, line)
+        self.on_new_record(record)
+
+    @Signal.define
+    def on_new_record(self, record):
+        """
+        Internal signal method of :class:`IOLogRecordBuilder`
+
+        Called when a new record is generated and needs to be processed.
+        """
+        logger.debug("io log generated %r", record)
 
 
 class CommandOutputWriter(extcmd.DelegateBase):

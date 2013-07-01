@@ -32,6 +32,7 @@ import os
 
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.runner import CommandIOLogBuilder
+from plainbox.impl.runner import IOLogRecordGenerator
 from plainbox.impl.runner import FallbackCommandOutputPrinter
 from plainbox.impl.runner import CommandOutputWriter
 from plainbox.impl.runner import JobRunner
@@ -49,6 +50,26 @@ class SlugifyTests(TestCase):
         self.assertEqual(slugify("\z"), "_z")
         self.assertEqual(slugify("/z"), "_z")
         self.assertEqual(slugify("1k"), "1k")
+
+
+class IOLogGeneratorTests(TestCase):
+
+    def test_smoke(self):
+        builder = IOLogRecordGenerator()
+        # Calling on_begin() resets internal state
+        builder.on_begin(None, None)
+        builder.on_new_record.connect(
+            lambda record: setattr(self, 'last_record', record))
+        # Calling on_line generates records
+        builder.on_line('stdout', b'text\n')
+        self.assertEqual(self.last_record.stream_name, 'stdout')
+        self.assertEqual(self.last_record.data, b'text\n')
+        builder.on_line('stdout', b'different text\n')
+        self.assertEqual(self.last_record.stream_name, 'stdout')
+        self.assertEqual(self.last_record.data, b'different text\n')
+        builder.on_line('stderr', b'error message\n')
+        self.assertEqual(self.last_record.stream_name, 'stderr')
+        self.assertEqual(self.last_record.data, b'error message\n')
 
 
 class CommandIOLogBuilderTests(TestCase):

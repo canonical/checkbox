@@ -38,8 +38,8 @@ from lxml import etree as ET
 from pkg_resources import resource_filename
 
 from plainbox import __version__ as version
+from plainbox.abc import IJobResult
 from plainbox.impl.exporter import SessionStateExporterBase
-from plainbox.impl.result import JobResult
 
 
 logger = logging.getLogger("plainbox.exporter.xml")
@@ -101,18 +101,20 @@ class XMLSessionStateExporter(SessionStateExporterBase):
     # These are the job statuses allowed by the checkbox parser. 
     # This is a limitation of the certification website, so we
     # have to accomodate that here.
-    _ALLOWED_STATUS = ["none",
-                       JobResult.OUTCOME_PASS,
-                       JobResult.OUTCOME_FAIL,
-                       JobResult.OUTCOME_SKIP]
+    _ALLOWED_STATUS = [
+        "none",
+        IJobResult.OUTCOME_PASS,
+        IJobResult.OUTCOME_FAIL,
+        IJobResult.OUTCOME_SKIP]
 
     # This describes mappings from all possible plainbox job statuses
     # to one of the allowed statuses listed above.
-    _STATUS_MAP = {"none": "none",
-            JobResult.OUTCOME_PASS: JobResult.OUTCOME_PASS,
-            JobResult.OUTCOME_FAIL: JobResult.OUTCOME_FAIL,
-            JobResult.OUTCOME_SKIP: JobResult.OUTCOME_SKIP,
-            JobResult.OUTCOME_NOT_SUPPORTED: JobResult.OUTCOME_SKIP}
+    _STATUS_MAP = {
+        "none": "none",
+        IJobResult.OUTCOME_PASS: IJobResult.OUTCOME_PASS,
+        IJobResult.OUTCOME_FAIL: IJobResult.OUTCOME_FAIL,
+        IJobResult.OUTCOME_SKIP: IJobResult.OUTCOME_SKIP,
+        IJobResult.OUTCOME_NOT_SUPPORTED: IJobResult.OUTCOME_SKIP}
 
     def __init__(self, system_id=None, timestamp=None, client_version=None,
                  client_name='plainbox'):

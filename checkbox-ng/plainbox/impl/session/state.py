@@ -27,6 +27,7 @@ import os
 import shutil
 import tempfile
 
+from plainbox.abc import IJobResult
 from plainbox.impl.depmgr import DependencyError, DependencyDuplicateError
 from plainbox.impl.depmgr import DependencySolver
 from plainbox.impl.job import JobDefinition
@@ -266,7 +267,7 @@ class _LegacySessionState:
                 desired_job_list.extend(
                     [j for j in self._job_list if j == job])
             elif (previous_session._job_state_map[job.name].result.outcome !=
-                    JobResult.OUTCOME_NONE):
+                    IJobResult.OUTCOME_NONE):
                 # Keep jobs results from the previous session without a
                 # definition in the current job_list only if they have
                 # a valid result
@@ -707,7 +708,7 @@ class SessionState(_LegacySessionState):
                 dep_job_state = self._job_state_map[dep_name]
                 # If the dependency did not have a chance to run yet add the
                 # PENDING_DEP inhibitor.
-                if dep_job_state.result.outcome == JobResult.OUTCOME_NONE:
+                if dep_job_state.result.outcome == IJobResult.OUTCOME_NONE:
                     inhibitor = JobReadinessInhibitor(
                         cause=JobReadinessInhibitor.PENDING_DEP,
                         related_job=dep_job_state.job)
@@ -717,7 +718,7 @@ class SessionState(_LegacySessionState):
                 # could be discarded but this would loose context and would
                 # prevent the operator from actually understanding why a job
                 # cannot run.
-                elif dep_job_state.result.outcome != JobResult.OUTCOME_PASS:
+                elif dep_job_state.result.outcome != IJobResult.OUTCOME_PASS:
                     inhibitor = JobReadinessInhibitor(
                         cause=JobReadinessInhibitor.FAILED_DEP,
                         related_job=dep_job_state.job)

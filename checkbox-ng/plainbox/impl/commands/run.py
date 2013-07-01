@@ -35,6 +35,7 @@ import sys
 
 from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
 
+from plainbox.abc import IJobResult
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
 from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
@@ -207,9 +208,9 @@ class RunInvocation(CheckBoxInvocationMixIn):
         if prompt is None:
             prompt = "what is the outcome? "
         if allowed is None:
-            allowed = (JobResult.OUTCOME_PASS,
-                       JobResult.OUTCOME_FAIL,
-                       JobResult.OUTCOME_SKIP)
+            allowed = (IJobResult.OUTCOME_PASS,
+                       IJobResult.OUTCOME_FAIL,
+                       IJobResult.OUTCOME_SKIP)
         answer = None
         while answer not in allowed:
             print("Allowed answers are: {}".format(", ".join(allowed)))
@@ -278,7 +279,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
         else:
             job_result = JobResult({
                 'job': job,
-                'outcome': JobResult.OUTCOME_NOT_SUPPORTED,
+                'outcome': IJobResult.OUTCOME_NOT_SUPPORTED,
                 'comments': job_state.get_readiness_description()
             })
         if job_result is not None:

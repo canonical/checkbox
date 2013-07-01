@@ -32,6 +32,7 @@ import shutil
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
+from plainbox.abc import IJobResult
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyMissingError
 from plainbox.impl.resource import Resource
@@ -418,7 +419,9 @@ class SessionStateReactionToJobResultTests(TestCase):
         self.assertEqual(self.job_inhibitor('X', 0).related_job, self.job_Y)
         self.assertFalse(self.job_state('X').can_start())
         # When a failed Y result is presented X should switch to FAILED_DEP
-        result_Y = JobResult({'outcome': JobResult.OUTCOME_FAIL})
+        result_Y = JobResult({
+            'outcome': IJobResult.OUTCOME_FAIL
+        })
         self.session.update_job_result(self.job_Y, result_Y)
         # Now job X should have a FAILED_DEP inhibitor instead of the
         # PENDING_DEP it had before. Everything else should stay as-is.
@@ -432,7 +435,9 @@ class SessionStateReactionToJobResultTests(TestCase):
         # A variant of the test case above, simply Y passes this time, making X
         # runnable
         self.session.update_desired_job_list([self.job_X])
-        result_Y = JobResult({'outcome':JobResult.OUTCOME_PASS})
+        result_Y = JobResult({
+            'outcome': IJobResult.OUTCOME_PASS
+        })
         self.session.update_job_result(self.job_Y, result_Y)
         # Now X is runnable
         self.assertEqual(self.job_state('X').readiness_inhibitor_list, [])
@@ -503,7 +508,7 @@ class SessionStateLocalStorageTests(TestCase):
         self.job_list = [self.job_A]
         self.session = SessionState(self.job_list)
         result_A = JobResult({
-            'outcome': JobResult.OUTCOME_PASS,
+            'outcome': IJobResult.OUTCOME_PASS,
             'comments': 'All good',
             'return_code': 0,
             'io_log': ((0, 'stdout', "Success !\n"),)
@@ -585,8 +590,8 @@ class SessionStateLocalStorageTests(TestCase):
             'io_log': make_io_log(((0, 'stdout', b"attr: value\n"),),
                                   self._sandbox)
         })
-        result_A = JobResult({'outcome': JobResult.OUTCOME_PASS})
-        result_X = JobResult({'outcome': JobResult.OUTCOME_PASS})
+        result_A = JobResult({'outcome': IJobResult.OUTCOME_PASS})
+        result_X = JobResult({'outcome': IJobResult.OUTCOME_PASS})
         # Job Y can't start as it requires job A
         self.assertFalse(self.job_state('Y').can_start())
         self.session.update_desired_job_list([self.job_X, self.job_Y])

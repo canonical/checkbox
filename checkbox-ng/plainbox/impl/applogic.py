@@ -30,6 +30,7 @@ from abc import ABCMeta, abstractmethod
 import os
 import re
 
+from plainbox.abc import IJobResult
 from plainbox.impl import config
 from plainbox.impl.result import JobResult
 
@@ -137,14 +138,14 @@ def run_job_if_possible(session, runner, config, job):
         # OUTCOME_NOT_SUPPORTED _except_ if any of the inhibitors point to
         # a job with an OUTCOME_SKIP outcome, if that is the case mirror
         # that outcome. This makes 'skip' stronger than 'not-supported'
-        outcome = JobResult.OUTCOME_NOT_SUPPORTED
+        outcome = IJobResult.OUTCOME_NOT_SUPPORTED
         for inhibitor in job_state.readiness_inhibitor_list:
             if inhibitor.cause != inhibitor.FAILED_DEP:
                 continue
             related_job_state = session.job_state_map[
                 inhibitor.related_job.name]
-            if related_job_state.result.outcome == JobResult.OUTCOME_SKIP:
-                outcome = JobResult.OUTCOME_SKIP
+            if related_job_state.result.outcome == IJobResult.OUTCOME_SKIP:
+                outcome = IJobResult.OUTCOME_SKIP
         job_result = JobResult({
             'outcome': outcome,
             'comments': job_state.get_readiness_description()

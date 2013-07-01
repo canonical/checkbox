@@ -29,6 +29,7 @@ import json
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
+from plainbox.abc import IJobResult
 from plainbox.impl.result import IOLogRecord
 from plainbox.impl.result import IOLogRecordWriter
 from plainbox.impl.result import IOLogRecordReader
@@ -67,7 +68,7 @@ class JobResultTests(TestCase):
 
     def test_encode(self):
         result = JobResult({
-            'outcome': JobResult.OUTCOME_PASS,
+            'outcome': IJobResult.OUTCOME_PASS,
             'comments': "it said blah",
             'io_log': ((0, 'stdout', 'blah\n'),),
             'return_code': 0
@@ -90,8 +91,8 @@ class JobResultTests(TestCase):
             }"""
         result_dec = json.loads(
             raw_json, object_hook=SessionStateEncoder().dict_to_object)
-        self.assertIsInstance(result_dec, JobResult)
-        self.assertEqual(result_dec.outcome, JobResult.OUTCOME_PASS)
+        self.assertIsInstance(result_dec, IJobResult)
+        self.assertEqual(result_dec.outcome, IJobResult.OUTCOME_PASS)
         self.assertIsNone(result_dec.comments)
         self.assertEqual(result_dec.io_log, ())
         self.assertEqual(result_dec.return_code, 0)

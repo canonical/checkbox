@@ -148,8 +148,8 @@ class IOLogRecordWriter:
         Write an :class:`IOLogRecord` to the stream.
         """
         text = json.dumps([
-            record.delay, record.stream_name,
-            base64.standard_b64encode(record.data).decode("ASCII")],
+            record[0], record[1],
+            base64.standard_b64encode(record[2]).decode("ASCII")],
             check_circular=False, ensure_ascii=True, indent=None,
             separators=(',', ':'))
         logger.debug("Encoded %r into string %r", record, text)

@@ -96,7 +96,7 @@ class CommandIOLogBuilder(extcmd.DelegateBase):
 
     def on_line(self, stream_name, line):
         """
-        Internal method of IOLogBuilder
+        Internal method of CommandIOLogBuilder
 
         Appends each line to the io_log. Maintains a timestamp of the last
         message so that approximate delay between each piece of output can be

@@ -252,7 +252,8 @@ class SessionStateReactionToJobResultTests(TestCase):
         self.job_R = make_job("R", plugin="resource")
         self.job_X = make_job("X", depends='Y')
         self.job_Y = make_job("Y")
-        self.job_list = [self.job_A, self.job_R, self.job_X, self.job_Y]
+        self.job_L = make_job("L", plugin="local")
+        self.job_list = [self.job_A, self.job_R, self.job_X, self.job_Y, self.job_L]
         self.session = SessionState(self.job_list)
         self.scratch_dir = TemporaryDirectory()
 
@@ -483,7 +484,23 @@ class SessionStateReactionToJobResultTests(TestCase):
         expected_after = {'R': [Resource({'attr': 'new value'})]}
         self.assertEqual(self.session._resource_map, expected_after)
 
-    # TODO: add tests for local jobs
+    def test_local_job_creates_jobs(self):
+        # Create a result for the local job L
+        result_L = JobResult({
+            'io_log': make_io_log([
+                (0, 'stdout', b'name: foo\n'),
+                (1, 'stdout', b'plugin: manual\n'),
+            ], self.scratch_dir)
+        })
+        # Show this result to the session
+        self.session.update_job_result(self.job_L, result_L)
+        # A job should be generated
+        self.assertTrue("foo" in self.session.job_state_map)
+        job_foo = self.session.job_state_map['foo'].job
+        self.assertTrue(job_foo.name, "foo")
+        self.assertTrue(job_foo.plugin, "manual")
+        # It should be linked to the job L via the via attribute
+        self.assertTrue(job_foo.via, self.job_L.get_checksum())
 
     def tearDown(self):
         self.scratch_dir.cleanup()

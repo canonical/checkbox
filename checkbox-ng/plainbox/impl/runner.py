@@ -28,6 +28,8 @@
 
 import collections
 import datetime
+import gzip
+import io
 import json
 import logging
 import os
@@ -414,9 +416,11 @@ class JobRunner(IJobRunner):
         io_log_gen.on_new_record.connect(io_log_list.append)
         # Stream all IOLogRecord entries to disk
         record_path = os.path.join(
-            self._jobs_io_log_dir, "{}.record".format(
+            self._jobs_io_log_dir, "{}.record.gz".format(
                 slugify(job.name)))
-        with open(record_path, mode='wt', encoding='UTF-8') as record_stream:
+        with gzip.open(record_path, mode='wb') as gzip_stream, \
+                io.TextIOWrapper(
+                    gzip_stream, encoding='UTF-8') as record_stream:
             writer = IOLogRecordWriter(record_stream)
             io_log_gen.on_new_record.connect(writer.write_record)
             # Start the process and wait for it to finish getting the

@@ -29,7 +29,7 @@ import json
 from unittest import TestCase
 
 from plainbox.abc import IJobResult
-from plainbox.impl.result import JobResult
+from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.session import JobReadinessInhibitor
 from plainbox.impl.session import JobState
 from plainbox.impl.session import SessionStateEncoder
@@ -177,7 +177,7 @@ class JobStateTests(TestCase):
 
     def test_encode_resource_job(self):
         self.job_R = make_job("R", plugin="resource")
-        result_R = JobResult({
+        result_R = MemoryJobResult({
             'outcome': IJobResult.OUTCOME_PASS,
             'io_log': ((0, 'stdout', "attr: value\n"),)
         })
@@ -194,7 +194,7 @@ class JobStateTests(TestCase):
             IJobResult.OUTCOME_NONE)
 
     def test_encode_normal_job(self):
-        result = JobResult({
+        result = MemoryJobResult({
             'outcome': IJobResult.OUTCOME_PASS,
         })
         self.job_state.result = result
@@ -217,7 +217,7 @@ class JobStateTests(TestCase):
                 }
             },
             "_result": {
-                "_class_id": "JOB_RESULT",
+                "_class_id": "JOB_RESULT(m)",
                 "data": {
                     "comments": null,
                     "outcome": "pass",
@@ -229,4 +229,4 @@ class JobStateTests(TestCase):
             raw_json, object_hook=SessionStateEncoder().dict_to_object)
         self.assertIsInstance(job_dec, JobState)
         self.assertEqual(
-            repr(job_dec._result), "<JobResult outcome:'pass'>")
+            repr(job_dec._result), "<MemoryJobResult outcome:'pass'>")

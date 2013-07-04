@@ -42,7 +42,7 @@ from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter import get_all_exporters
-from plainbox.impl.result import JobResult
+from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.runner import authenticate_warmup
 from plainbox.impl.runner import slugify
@@ -277,7 +277,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
             print("Outcome: {}".format(job_result.outcome))
             print("Comments: {}".format(job_result.comments))
         else:
-            job_result = JobResult({
+            job_result = MemoryJobResult({
                 'outcome': IJobResult.OUTCOME_NOT_SUPPORTED,
                 'comments': job_state.get_readiness_description()
             })

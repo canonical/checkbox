@@ -34,9 +34,9 @@ from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter import SessionStateExporterBase
 from plainbox.impl.exporter import classproperty
 from plainbox.impl.job import JobDefinition
-from plainbox.impl.result import JobResult, IOLogRecord
+from plainbox.impl.result import MemoryJobResult, IOLogRecord
 from plainbox.impl.session import SessionState
-from plainbox.impl.testing_utils import make_io_log, make_job, make_job_result
+from plainbox.impl.testing_utils import make_job, make_job_result
 
 
 class ClassPropertyTests(TestCase):
@@ -116,21 +116,16 @@ class SessionStateExporterBaseTests(TestCase):
         })
         session = SessionState([job_a, job_b])
         session.update_desired_job_list([job_a, job_b])
-        result_a = JobResult({
+        result_a = MemoryJobResult({
             'outcome': IJobResult.OUTCOME_PASS,
             'return_code': 0,
-            'io_log': make_io_log(
-                (IOLogRecord(0, 'stdout', b'testing\n'),),
-                session_dir)
+            'io_log': [(0, 'stdout', b'testing\n')],
         })
-        result_b = JobResult({
-            'outcome': 'pass',
+        result_b = MemoryJobResult({
             'outcome': IJobResult.OUTCOME_PASS,
             'return_code': 0,
             'comments': 'foo',
-            'io_log': make_io_log(
-                (IOLogRecord(0, 'stdout', b'ready: yes\n'),),
-                session_dir)
+            'io_log': [(0, 'stdout', b'ready: yes\n')],
         })
         session.update_job_result(job_a, result_a)
         session.update_job_result(job_b, result_b)

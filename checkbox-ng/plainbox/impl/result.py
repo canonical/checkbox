@@ -21,16 +21,16 @@
 :mod:`plainbox.impl.result` -- job result
 =========================================
 
-.. warning::
-
-    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
+This module has two basic implementation of :class:`IJobResult`:
+:class:`MemoryJobResult` and :class:`DiskJobResult`.
 """
 
 from collections import namedtuple
 import base64
+import gzip
+import io
 import json
 import logging
-import os
 
 from plainbox.abc import IJobResult
 
@@ -50,21 +50,21 @@ logger = logging.getLogger("plainbox.result")
 IOLogRecord = namedtuple("IOLogRecord", "delay stream_name data".split())
 
 
-class JobResult(IJobResult):
+class _JobResultBase(IJobResult):
     """
-    Result of running a JobDefinition.
+    Base class for :`IJobResult` implementations.
+
+    This class defines base properties common to all variants of `IJobResult`
     """
 
     def __init__(self, data):
         """
         Initialize a new result with the specified data
+
+        Data is a dictionary that can hold arbitrary values. At least some
+        values are explicitly used, such as 'outcome', 'comments' and
+        'return_code' but all of those are optional.
         """
-        # XXX: consider moving job to a dedicated field as we want to serialize
-        # results without putting the job reference in there (a job name would
-        # be a fine substitute). It would also make the 'job is required'
-        # requirement spelled out below explicit)
-        #
-        # TODO: Do some basic validation, at least 'job' must be set.
         self._data = data
 
     def __str__(self):
@@ -76,39 +76,102 @@ class JobResult(IJobResult):
 
     @property
     def outcome(self):
+        """
+        outcome of running this job.
+
+        The outcome ultimately classifies jobs (tests) as failures or
+        successes.  There are several other types of outcome that all basically
+        mean that the job did not run for some particular reason.
+        """
         return self._data.get('outcome', self.OUTCOME_NONE)
 
     @property
     def comments(self):
+        """
+        comments of the test operator
+        """
         return self._data.get('comments')
 
     @property
-    def io_log(self):
-        if os.path.exists(self._data.get('io_log', '')):
-            with open(self._data.get('io_log')) as f:
-                return json.load(f, cls=IoLogDecoder)
-        else:
-            return ()
-
-    @property
     def return_code(self):
+        """
+        return code of the command associated with the job, if any
+        """
         return self._data.get('return_code')
 
     def _get_persistance_subset(self):
-        state = {}
-        state['data'] = {}
-        for key, value in self._data.items():
-            state['data'][key] = value
-        return state
+        return {
+            "data": dict(self._data)
+        }
 
     @classmethod
     def from_json_record(cls, record):
         """
-        Create a JobResult instance from JSON record
+        Create a specific IJobResult instance from JSON record
         """
         return cls(record['data'])
 
+    @property
+    def io_log(self):
+        return tuple(self.get_io_log())
 
+
+class MemoryJobResult(_JobResultBase):
+    """
+    A :class:`IJobResult` that keeps IO logs in memory.
+
+    This type of JobResult is indented for writing unit tests where the hassle
+    of going through the filesystem would make them needlessly complicated.
+    """
+
+    def get_io_log(self):
+        io_log_data = self._data.get('io_log', ())
+        for entry in io_log_data:
+            if isinstance(entry, IOLogRecord):
+                yield entry
+            elif isinstance(entry, tuple):
+                yield IOLogRecord(*entry)
+            else:
+                raise TypeError(
+                    "each item in io_log must be either a tuple"
+                    " or special the IOLogRecord tuple")
+
+
+class GzipFile(gzip.GzipFile):
+    """
+    Subclass of GzipFile that works around missing read1() on python3.2
+
+    See: http://bugs.python.org/issue10791
+    """
+
+    def read1(self, n):
+        return self.read(n)
+
+
+class DiskJobResult(_JobResultBase):
+    """
+    A :class:`IJobResult` that keeps IO logs on disk.
+
+    This type of JobResult is intended for working with most results. It does
+    not store IO logs in memory so it is scalable to arbitrary IO log sizes.
+    Each instance just knows where the log file is located (using the
+    'io_log_filename' attribute for that) and offers streaming API for
+    accessing particular parts of the log.
+    """
+
+    def get_io_log(self):
+        try:
+            record_path = self._data['io_log_filename']
+        except KeyError:
+            pass
+        else:
+            with GzipFile(record_path, mode='rb') as gzip_stream, \
+                    io.TextIOWrapper(gzip_stream, encoding='UTF-8') as stream:
+                for record in IOLogRecordReader(stream):
+                    yield record
+
+
+# Deprecated
 class IoLogEncoder(json.JSONEncoder):
     """
     JSON Serialize helper to encode binary io logs
@@ -118,6 +181,7 @@ class IoLogEncoder(json.JSONEncoder):
         return base64.standard_b64encode(obj).decode('ASCII')
 
 
+# Deprecated
 class IoLogDecoder(json.JSONDecoder):
     """
     JSON Decoder helper for io logs objects

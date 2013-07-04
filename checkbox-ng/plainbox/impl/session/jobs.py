@@ -30,7 +30,7 @@ that prevent the job from being runnable in a particular session.
 import logging
 
 from plainbox.abc import IJobResult
-from plainbox.impl.result import JobResult
+from plainbox.impl.result import MemoryJobResult
 
 logger = logging.getLogger("plainbox.session.jobs")
 
@@ -175,7 +175,7 @@ class JobState:
         """
         self._job = job
         self._readiness_inhibitor_list = [UndesiredJobReadinessInhibitor]
-        self._result = JobResult({
+        self._result = MemoryJobResult({
             'outcome': IJobResult.OUTCOME_NONE
         })
 
@@ -243,7 +243,7 @@ class JobState:
         state = {}
         state['_job'] = self._job
         if self._job.plugin == 'resource':
-            state['_result'] = JobResult({
+            state['_result'] = MemoryJobResult({
                 'outcome': IJobResult.OUTCOME_NONE
             })
         else:

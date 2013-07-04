@@ -34,7 +34,8 @@ from plainbox.impl.job import JobDefinition
 from plainbox.impl.resource import ExpressionCannotEvaluateError
 from plainbox.impl.resource import ExpressionFailedError
 from plainbox.impl.resource import Resource
-from plainbox.impl.result import JobResult
+from plainbox.impl.result import DiskJobResult
+from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.rfc822 import RFC822SyntaxError
 from plainbox.impl.rfc822 import gen_rfc822_records
 from plainbox.impl.session.jobs import (
@@ -727,37 +728,35 @@ class SessionState(_LegacySessionState):
 
 class SessionStateEncoder(json.JSONEncoder):
 
-    _class_indentifiers = {
+    _CLS_MAP = {
+        DiskJobResult: 'JOB_RESULT(d)',
         JobDefinition: 'JOB_DEFINITION',
-        JobResult: 'JOB_RESULT',
         JobState: 'JOB_STATE',
+        MemoryJobResult: 'JOB_RESULT(m)',
         SessionState: 'SESSION_STATE',
     }
+
+    _CLS_RMAP = {value: key for key, value in _CLS_MAP.items()}
 
     def default(self, obj):
         """
         JSON Serialize helper to encode SessionState attributes
         Convert objects to a dictionary of their representation
         """
-        if (isinstance(obj, (JobDefinition, JobResult, JobState,
-                             SessionState))):
-            d = {'_class_id': self._class_indentifiers[obj.__class__]}
+        if isinstance(obj, tuple(self._CLS_MAP.keys())):
+            d = {'_class_id': self._CLS_MAP[obj.__class__]}
             d.update(obj._get_persistance_subset())
             return d
         else:
             return json.JSONEncoder.default(self, obj)
 
-    def dict_to_object(self, d):
+    def dict_to_object(self, data):
         """
         JSON Decoder helper
         Convert dictionary to python objects
         """
-        if '_class_id' in d:
-            for c, id in self._class_indentifiers.items():
-                if id == d['_class_id']:
-                    cls = c
-                    inst = cls.from_json_record(d)
-                    break
+        if '_class_id' in data:
+            cls = self._CLS_RMAP[data['_class_id']]
+            return cls.from_json_record(data)
         else:
-            inst = d
-        return inst
+            return data

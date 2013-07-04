@@ -32,7 +32,7 @@ import re
 
 from plainbox.abc import IJobResult
 from plainbox.impl import config
-from plainbox.impl.result import JobResult
+from plainbox.impl.result import MemoryJobResult
 
 
 class IJobQualifier(metaclass=ABCMeta):
@@ -146,7 +146,7 @@ def run_job_if_possible(session, runner, config, job):
                 inhibitor.related_job.name]
             if related_job_state.result.outcome == IJobResult.OUTCOME_SKIP:
                 outcome = IJobResult.OUTCOME_SKIP
-        job_result = JobResult({
+        job_result = MemoryJobResult({
             'outcome': outcome,
             'comments': job_state.get_readiness_description()
         })

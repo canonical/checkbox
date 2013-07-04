@@ -31,9 +31,9 @@ from unittest import TestCase
 import os
 
 from plainbox.impl.job import JobDefinition
-from plainbox.impl.runner import IOLogRecordGenerator
-from plainbox.impl.runner import FallbackCommandOutputPrinter
 from plainbox.impl.runner import CommandOutputWriter
+from plainbox.impl.runner import FallbackCommandOutputPrinter
+from plainbox.impl.runner import IOLogRecordGenerator
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.runner import slugify
 from plainbox.testing_utils.io import TestIO

@@ -26,14 +26,16 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
+from gzip import GzipFile
+from io import TextIOWrapper
 from mock import Mock
 from tempfile import NamedTemporaryFile
 import inspect
 
 from plainbox.impl.job import JobDefinition
-from plainbox.impl.result import JobResult
+from plainbox.impl.result import IOLogRecordWriter
+from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.rfc822 import Origin
-from plainbox.impl.runner import io_log_write
 
 
 def MockJobDefinition(name, *args, **kwargs):
@@ -50,9 +52,14 @@ def make_io_log(io_log, io_log_dir):
     Make the io logs serialization to json and return the saved file pathname
     WARNING: The caller has to remove the file once done with it!
     """
-    with NamedTemporaryFile(mode='w+t', delete=False) as stream:
-        io_log_write(io_log, stream)
-        return stream.name
+    with NamedTemporaryFile(
+        delete=False, suffix='.record.gz', dir=io_log_dir) as byte_stream, \
+            GzipFile(fileobj=byte_stream, mode='wb') as gzip_stream, \
+            TextIOWrapper(gzip_stream, encoding='UTF-8') as text_stream:
+        writer = IOLogRecordWriter(text_stream)
+        for record in io_log:
+            writer.write_record(record)
+    return byte_stream.name
 
 
 def make_job(name, plugin="dummy", requires=None, depends=None, **kwargs):
@@ -91,6 +98,6 @@ def make_job_result(outcome="dummy"):
     """
     Make and return a dummy JobResult instance
     """
-    return JobResult({
+    return MemoryJobResult({
         'outcome': outcome
     })

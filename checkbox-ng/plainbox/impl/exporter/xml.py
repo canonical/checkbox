@@ -98,7 +98,7 @@ class XMLSessionStateExporter(SessionStateExporterBase):
 
     SUPPORTED_OPTION_LIST = ()
 
-    # These are the job statuses allowed by the checkbox parser. 
+    # These are the job statuses allowed by the checkbox parser.
     # This is a limitation of the certification website, so we
     # have to accomodate that here.
     _ALLOWED_STATUS = [

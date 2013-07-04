@@ -28,6 +28,7 @@
 """
 import logging
 import os
+import sys
 import tempfile
 
 from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
@@ -178,9 +179,11 @@ class _SRUInvocation:
 
     def _run_single_job(self, job):
         print("- {}:".format(job.name), end=' ')
+        sys.stdout.flush()
         job_state, job_result = run_job_if_possible(
             self.session, self.runner, self.config, job)
         print("{0}".format(job_result.outcome))
+        sys.stdout.flush()
         if job_result.comments is not None:
             print("comments: {0}".format(job_result.comments))
         if job_state.readiness_inhibitor_list:

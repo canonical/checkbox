@@ -148,8 +148,9 @@ class SessionStateExporterBase(metaclass=ABCMeta):
                 continue
             data['result_map'][job_name] = OrderedDict()
             data['result_map'][job_name]['outcome'] = job_state.result.outcome
-            data['result_map'][job_name]['execution_duration'] = \
-                job_state.result.execution_duration
+            if job_state.result.execution_duration:
+                data['result_map'][job_name]['execution_duration'] = \
+                    job_state.result.execution_duration
             if self.OPTION_WITH_COMMENTS in self._option_list:
                 data['result_map'][job_name]['comments'] = \
                     job_state.result.comments

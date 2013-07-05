@@ -40,6 +40,7 @@ from plainbox.impl.commands.dev import DevCommand
 from plainbox.impl.commands.run import RunCommand
 from plainbox.impl.commands.selftest import SelfTestCommand
 from plainbox.impl.commands.sru import SRUCommand
+from plainbox.impl.commands.service import ServiceCommand
 from plainbox.impl.logging import setup_logging, adjust_logging
 
 
@@ -112,6 +113,8 @@ class PlainBox:
         SRUCommand(self._checkbox, self._config).register_parser(subparsers)
         CheckConfigCommand(self._config).register_parser(subparsers)
         DevCommand(self._checkbox, self._config).register_parser(subparsers)
+        ServiceCommand(self._checkbox, self._config).register_parser(
+            subparsers)
 
     def early_init(self):
         """

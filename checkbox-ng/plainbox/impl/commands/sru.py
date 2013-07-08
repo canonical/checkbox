@@ -38,6 +38,8 @@ from plainbox.impl.applogic import run_job_if_possible
 from plainbox.impl.checkbox import WhiteList
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.check_config import CheckConfigInvocation
+from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
+from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.config import ValidationError, Unset
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.exporter import ByteStringStreamTranslator
@@ -51,7 +53,7 @@ from plainbox.impl.transport.certification import InvalidSecureIDError
 logger = logging.getLogger("plainbox.commands.sru")
 
 
-class _SRUInvocation:
+class _SRUInvocation(CheckBoxInvocationMixIn):
     """
     Helper class instantiated to perform a particular invocation of the sru
     command. Unlike the SRU command itself, this class is instantiated each
@@ -62,8 +64,11 @@ class _SRUInvocation:
         self.checkbox = checkbox
         self.config = config
         self.ns = ns
-        self.whitelist = WhiteList.from_file(os.path.join(
-            self.checkbox.whitelists_dir, "sru.whitelist"))
+        if self.ns.whitelist:
+            self.whitelist = WhiteList.from_file(self.ns.whitelist[0].name)
+        else:
+            self.whitelist = WhiteList.from_file(os.path.join(
+                self.checkbox.whitelists_dir, "sru.whitelist"))
         self.job_list = self.checkbox.get_builtin_jobs()
         # XXX: maybe allow specifying system_id from command line?
         self.exporter = XMLSessionStateExporter(system_id=None)
@@ -193,7 +198,7 @@ class _SRUInvocation:
         self.session.update_job_result(job, job_result)
 
 
-class SRUCommand(PlainBoxCommand):
+class SRUCommand(PlainBoxCommand, CheckBoxCommandMixIn):
     """
     Command for running Stable Release Update (SRU) tests.
 
@@ -272,3 +277,6 @@ class SRUCommand(PlainBoxCommand):
             default=False,
             help=("Skip all usual jobs."
                   " Only local, resource and attachment jobs are started"))
+        # Call enhance_parser from CheckBoxCommandMixIn
+        self.enhance_parser(parser)
+

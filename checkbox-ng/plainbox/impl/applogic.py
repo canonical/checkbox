@@ -177,6 +177,10 @@ class PlainBoxConfig(config.Config):
         section="sru",
         help_text="Location of the fallback file")
 
+    whitelist = config.Variable(
+        section="sru",
+        help_text="Optional whitelist with which to run SRU testing")
+
     environment = config.Section(
         help_text="Environment variables for scripts and jobs")
 

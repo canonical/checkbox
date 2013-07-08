@@ -66,9 +66,12 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
         self.ns = ns
         if self.ns.whitelist:
             self.whitelist = WhiteList.from_file(self.ns.whitelist[0].name)
+        elif self.config.whitelist is not Unset:
+            self.whitelist = WhiteList.from_file(self.config.whitelist)
         else:
             self.whitelist = WhiteList.from_file(os.path.join(
                 self.checkbox.whitelists_dir, "sru.whitelist"))
+
         self.job_list = self.checkbox.get_builtin_jobs()
         # XXX: maybe allow specifying system_id from command line?
         self.exporter = XMLSessionStateExporter(system_id=None)

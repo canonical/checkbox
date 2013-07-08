@@ -78,6 +78,15 @@ class IntegrationTests(TestCaseWithParameters):
              key=('job-run-artifacts', self.parameters.scenario_pathname),
              operation=lambda: execute_job(self.scenario_data['job_name']))
 
+    def test_job_result(self):
+        # Check that results match expected values
+        self.assertEqual(self.job_result, self.scenario_data.get("result"))
+
+    def test_job_return_code(self):
+        # Check the return code for correctness
+        self.assertEqual(self.job_return_code,
+                         self.scenario_data.get("return_code", 0))
+
     @classmethod
     def _discover_test_scenarios(cls, package='plainbox',
                                  dirname="/test-data/integration-tests/",
@@ -111,36 +120,6 @@ class IntegrationTests(TestCaseWithParameters):
         """
         for scenario_pathname in cls._discover_test_scenarios():
             yield (scenario_pathname,)
-
-    def test_job_result(self):
-        # Create a scratch directory so that we can save results there. The
-        # shared directory is also used for running tests as some test jobs
-        # leave junk around the current directory.
-        with TemporaryDirectory() as scratch_dir:
-            # Save results to results.json in the scratch directory
-            actual_results_path = os.path.join(scratch_dir, 'results.json')
-            # Redirect all standard IO so that the test is silent.
-            # Run the script, having relocated to the scratch directory
-            # Capture SystemExit that is always raised by main() so that
-            # we can observe the return code as well.
-            with TestIO(), TestCwd(scratch_dir),\
-                    self.assertRaises(SystemExit) as call:
-                main(['run', '-i', self.parameters.job_name,
-                      '--output-format=json', '-o', actual_results_path])
-            # Check the return code for correctness
-            self.assertEqual(call.exception.args, (0,))
-            # Load the actual results and keep them in memory
-            with open(actual_results_path, encoding='UTF-8') as stream:
-                actual_result = json.load(stream)
-        # [ At this time TestIO and TemporaryDirectory are gone ]
-        # Load the expected results and keep them in memory
-        reference_path = resource_filename(
-            "plainbox", "test-data/integration-tests/{}.json".format(
-                self.parameters.job_name))
-        with open(reference_path, encoding='UTF-8') as stream:
-            expected_result = json.load(stream)
-        # Check that results match expected values
-        self.assertEqual(actual_result, expected_result)
 
     def tearDown(self):
         shutil.rmtree(self._sandbox)

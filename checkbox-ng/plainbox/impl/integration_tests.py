@@ -42,7 +42,7 @@ from plainbox.testing_utils.testcases import TestCaseWithParameters
 
 class IntegrationTests(TestCaseWithParameters):
 
-    parameter_names = ('job_name',)
+    parameter_names = ('scenario_pathname',)
 
     def setUp(self):
         # session data are kept in XDG_CACHE_HOME/plainbox/.session
@@ -53,22 +53,28 @@ class IntegrationTests(TestCaseWithParameters):
         os.environ['XDG_CACHE_HOME'] = self._sandbox
 
     @classmethod
-    def _gen_job_name_values(cls, package='plainbox',
-                             root='test-data/integration-tests/'):
+    def _discover_test_scenarios(cls, package='plainbox',
+                                 dirname="/test-data/integration-tests/",
+                                 extension=".json"):
         """
-        Discover job names for jobs that we have reference data for
+        Discover test scenarios.
+
+        Generates special absolute pathnames to scenario files. All those paths
+        are really relative to the plainbox package. Those pathnames are
+        suitable for pkg_resources.resource_ functions.
 
         All reference data should be dropped to
         ``plainbox/test-data/integration-tests/`` as a json file
         """
-        for name in resource_listdir(package, root):
-            resource_name = os.path.join(root, name)
-            if resource_isdir(package, resource_name):
-                for item in cls._gen_job_name_values(package, resource_name):
+        for name in resource_listdir(package, dirname):
+            resource_pathname = os.path.join(dirname, name)
+            if resource_isdir(package, resource_pathname):
+                for item in cls._discover_test_scenarios(package,
+                                                         resource_pathname,
+                                                         extension):
                     yield item
-            elif resource_name.endswith('.json'):
-                yield resource_name[
-                    len('test-data/integration-tests/'):-len('.json')]
+            elif resource_pathname.endswith(extension):
+                yield resource_pathname
 
     @classmethod
     def get_parameter_values(cls):
@@ -77,8 +83,8 @@ class IntegrationTests(TestCaseWithParameters):
 
         Creates subsequent tuples for each job that has reference data
         """
-        for job_name in cls._gen_job_name_values():
-            yield (job_name,)
+        for scenario_pathname in cls._discover_test_scenarios():
+            yield (scenario_pathname,)
 
     def test_job_result(self):
         # Create a scratch directory so that we can save results there. The

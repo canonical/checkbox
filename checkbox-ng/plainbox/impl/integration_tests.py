@@ -87,6 +87,13 @@ class IntegrationTests(TestCaseWithParameters):
         self.assertEqual(self.job_return_code,
                          self.scenario_data.get("return_code", 0))
 
+    def skip_if_incompatible(self):
+        """
+        Skip a job if it is incompatible with the current environment
+        """
+        if self.scenario_data.get('profile') != 'default':
+            self.skipTest("not applicable for current profile")
+
     @classmethod
     def _discover_test_scenarios(cls, package='plainbox',
                                  dirname="/test-data/integration-tests/",

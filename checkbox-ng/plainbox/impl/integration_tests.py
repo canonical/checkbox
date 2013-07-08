@@ -38,9 +38,23 @@ from plainbox.impl.box import main
 from plainbox.testing_utils.cwd import TestCwd
 from plainbox.testing_utils.io import TestIO
 from plainbox.testing_utils.testcases import TestCaseWithParameters
+from plainbox.testing_utils.resource import ResourceCache
 
 
 class IntegrationTests(TestCaseWithParameters):
+    """
+    Test cases for checking execution and outcome of checkbox jobs.
+    Each test case is parametrized by the job name and execution "profile".
+
+    The profile is simply a string that somehow characterizes where this test
+    is applicable.
+    """
+
+    # XXX: we cannot use weak resource cache here because test parameters
+    # iterate over methods first and then over actual scenarios so our cache
+    # would constantly loose data. This might be fixable with a different
+    # implementation of test parameters but that's not a low hanging fruit.
+    cache = ResourceCache(weak=False)
 
     parameter_names = ('scenario_pathname',)
 
@@ -51,6 +65,18 @@ class IntegrationTests(TestCaseWithParameters):
         self._sandbox = tempfile.mkdtemp()
         self._env = os.environ
         os.environ['XDG_CACHE_HOME'] = self._sandbox
+        # Load the expected results and keep them in memory
+        self.scenario_data = self.cache.get(
+            key=('scenario_data', self.parameters.scenario_pathname),
+            operation=lambda: load_scenario_data(
+                self.parameters.scenario_pathname))
+        # Skip tests that are not applicable for the current system
+        self.skip_if_incompatible()
+        # Execute the job and remember the results.
+        (self.job_result, self.job_return_code, self.job_stdout,
+         self.job_stderr) = self.cache.get(
+             key=('job-run-artifacts', self.parameters.scenario_pathname),
+             operation=lambda: execute_job(self.scenario_data['job_name']))
 
     @classmethod
     def _discover_test_scenarios(cls, package='plainbox',

@@ -55,14 +55,17 @@ class ResourceCache:
     different test_ methods then this will save time.
     """
 
-    def __init__(self):
+    def __init__(self, weak=True):
         """
         Initialize a new ResourceCache object
         """
-        # XXX: it would be nice to have something like true cache semantics of
-        # java's SoftReference system. We do the second best thing which is to
-        # use weak references on the values held in the cache.
-        self._cache = weakref.WeakValueDictionary()
+        if weak:
+            # XXX: it would be nice to have something like true cache semantics of
+            # java's SoftReference system. We do the second best thing which is to
+            # use weak references on the values held in the cache.
+            self._cache = weakref.WeakValueDictionary()
+        else:
+            self._cache = {}
 
     def get(self, key, operation):
         """

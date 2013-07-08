@@ -138,7 +138,6 @@ class TestCaseWithParameters(TestCase):
         Additional methods unique to unittest framework were implemented to
         convey the value of the parameter back to the user / developer. Those
         include id() and countTestCases()
-
     """
 
     def __init__(self, methodName="runTest", parameters=None):

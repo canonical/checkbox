@@ -1,0 +1,11 @@
+{
+    "profile": "default",
+    "job_name": "smoke/true",
+    "result": {
+        "result_map": {
+            "smoke/true": {
+                "outcome": "pass"
+            }
+        }
+    }
+}

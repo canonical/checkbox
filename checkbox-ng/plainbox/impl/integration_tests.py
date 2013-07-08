@@ -113,3 +113,51 @@ class IntegrationTests(TestCaseWithParameters):
     def tearDown(self):
         shutil.rmtree(self._sandbox)
         os.environ = self._env
+
+
+def load_scenario_data(scenario_pathname):
+    """
+    Load and return scenario data.
+
+    Data is loaded from a .json file located in the plainbox package
+    directory. Individual files are named after the jobs they describe.
+    """
+    pathname = resource_filename("plainbox", scenario_pathname)
+    with open(pathname, encoding='UTF-8') as stream:
+        return json.load(stream)
+
+
+def execute_job(job_name):
+    """
+    Execute the specified job.
+
+    The job is invoked using a high-level interface from box so the test will
+    actually execute the same way as the UI would execute it. It will
+    create/tear-down appropriate session objects as well.
+
+    Returns (result, return_code) where result is the deserialized JSON saved
+    at the end of the job.
+    """
+    # Create a scratch directory so that we can save results there. The
+    # shared directory is also used for running tests as some test jobs
+    # leave junk around the current directory.
+    with TemporaryDirectory() as scratch_dir:
+        # Save results to results.json in the scratch directory
+        pathname = os.path.join(scratch_dir, 'results.json')
+        # Redirect all standard IO so that the test is silent.
+        # Run the script, having relocated to the scratch directory
+        with TestIO() as io, TestCwd(scratch_dir):
+            try:
+                main(['run', '-i', job_name,
+                      '--output-format=json', '-o', pathname])
+            except SystemExit as exc:
+                # Capture SystemExit that is always raised by main() so that we
+                # can observe the return code as well.
+                job_return_code = exc.args[0]
+            else:
+                job_return_code = None
+        # Load the actual results and keep them in memory
+        with open(pathname, encoding='UTF-8') as stream:
+            job_result = json.load(stream)
+    # [ At this time TestIO and TemporaryDirectory are gone ]
+    return job_result, job_return_code, io.stdout, io.stderr

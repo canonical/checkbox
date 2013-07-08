@@ -1,10 +1,14 @@
 {
-    "result_map": {
-        "cpu/scaling_test": {
-            "outcome": "pass"
-        }, 
-        "package": {
-            "outcome": "pass"
+    "profile": "default",
+    "job_name": "cpu/scaling_test",
+    "result": {
+        "result_map": {
+            "cpu/scaling_test": {
+                "outcome": "pass"
+            }, 
+            "package": {
+                "outcome": "pass"
+            }
         }
     }
 }

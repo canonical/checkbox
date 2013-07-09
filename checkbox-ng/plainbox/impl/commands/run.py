@@ -191,8 +191,16 @@ class RunInvocation(CheckBoxInvocationMixIn):
         return 0
 
     def _auth_warmup_needed(self, session):
-        if self.checkbox._mode == 'deb':
-            return True
+        # Don't use authentication warm-up in modes other than 'deb' as it
+        # makes no sense to do so.
+        if self.checkbox._mode != 'deb':
+            return False
+        # Don't use authentication warm-up if none of the jobs on the run list
+        # requires it.
+        if all(job.user is None for job in session.run_list):
+            return False
+        # Otherwise, do pre-authentication
+        return True
 
     def _save_results(self, output_file, input_stream):
         if output_file is sys.stdout:

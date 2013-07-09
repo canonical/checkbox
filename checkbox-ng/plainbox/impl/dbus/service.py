@@ -31,11 +31,16 @@ import dbus.exceptions
 
 from dbus.service import method, signal
 
-__all__ = ['signal', 'method', 'property', 'Object', 'Interface']
+# This is the good old standard python property decorator
 _property = property
 
+__all__ = ['signal', 'method', 'property', 'Object', 'Interface',
+           'ObjectManager']
 
 logger = logging.getLogger("plainbox.dbus")
+
+
+OBJECT_MANAGER_IFACE = "org.freedesktop.DBus.ObjectManager"
 
 
 class InterfaceType(dbus.service.InterfaceType):
@@ -362,3 +367,83 @@ class Object(Interface, dbus.service.Object):
         same as self.__class__._dbus_class_table[self._dct_key]
         """
         return self.__class__._dbus_class_table[self._dct_key]
+
+
+from plainbox.impl.signal import Signal
+
+
+class ObjectManager(Object):
+
+    def __init__(self, *args, **kwargs):
+        super(ObjectManager, self).__init__(*args, **kwargs)
+        self.__managed = []
+
+    @_property
+    def managed_objects(self):
+        return self.__managed
+
+    def add_managed_object(self, obj):
+        if not isinstance(obj, Object):
+            raise TypeError("obj must be of type {!r}".format(Object))
+        old = self.__managed
+        new = list(old)
+        new.append(obj)
+        self.__managed = new
+        self.on_managed_objects_changed(old, new)
+
+    def remove_managed_object(self, obj):
+        if not isinstance(obj, Object):
+            raise TypeError("obj must be of type {!r}".format(Object))
+        old = self.__managed
+        new = list(old)
+        new.remove(obj)
+        self.__managed = new
+        self.on_managed_objects_changed(old, new)
+
+    @Signal.define
+    def on_managed_objects_changed(self, old_objs, new_objs):
+        logger.debug("%r.on_managed_objects_changed(%r, %r)",
+                     self, old_objs, new_objs)
+        for obj in frozenset(new_objs) - frozenset(old_objs):
+            ifaces_and_props = {}
+            for iface_name in obj._dct_entry.keys():
+                try:
+                    props = obj.GetAll(iface_name)
+                except dbus.exceptions.DBusException as exc:
+                    logger.warning("Caught %r", exc)
+                else:
+                    if len(props):
+                        ifaces_and_props[iface_name] = props
+            self.InterfacesAdded(obj, ifaces_and_props)
+        for obj in frozenset(old_objs) - frozenset(new_objs):
+            ifaces = list(obj._dct_entry.keys())
+            self.InterfacesRemoved(obj, ifaces)
+
+    @dbus.service.method(
+        dbus_interface=OBJECT_MANAGER_IFACE,
+        in_signature="", out_signature="a{oa{sa{sv}}}")
+    def GetManagedObjects(self):
+        logger.debug("%r.GetManagedObjects() -> ...", self)
+        result = {}
+        for obj in self.__managed:
+            logger.debug("Looking for stuff exported by %r", obj)
+            result[obj] = {}
+            for iface_name in obj._dct_entry.keys():
+                props = obj.GetAll(iface_name)
+                if len(props):
+                    result[obj][iface_name] = props
+        logger.debug("%r.GetManagedObjects() -> %r", self, result)
+        return result
+
+    @dbus.service.signal(
+        dbus_interface=OBJECT_MANAGER_IFACE,
+        signature='oa{sa{sv}}')
+    def InterfacesAdded(self, object_path, interfaces_and_properties):
+        logger.debug("%r.InterfacesAdded(%r, %r)",
+                     self, object_path, interfaces_and_properties)
+
+    @dbus.service.signal(
+        dbus_interface=OBJECT_MANAGER_IFACE, signature='oas')
+    def InterfacesRemoved(self, object_path, interfaces):
+        logger.debug("%r.InterfacesRemoved(%r, %r)",
+                     self, object_path, interfaces)

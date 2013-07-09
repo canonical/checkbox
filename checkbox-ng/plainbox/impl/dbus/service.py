@@ -32,6 +32,8 @@ import dbus.exceptions
 from dbus.service import method, signal
 
 __all__ = ['signal', 'method', 'property', 'Object', 'Interface']
+_property = property
+
 
 logger = logging.getLogger("plainbox.dbus")
 
@@ -81,7 +83,7 @@ class property:
         self._setf = None
         self._implicit_setter = setter
 
-    @property
+    @_property
     def dbus_access_flag(self):
         """
         access flag of this DBus property
@@ -99,28 +101,28 @@ class property:
             raise TypeError(
                 "property provides neither readable nor writable")
 
-    @property
+    @_property
     def dbus_interface(self):
         """
         name of the DBus interface of this DBus property
         """
         return self._dbus_interface
 
-    @property
+    @_property
     def dbus_property(self):
         """
         name of this DBus property
         """
         return self._dbus_property
 
-    @property
+    @_property
     def signature(self):
         """
         signature of this DBus property
         """
         return self._signature
 
-    @property
+    @_property
     def setter(self):
         """
         decorator for setter functions
@@ -134,7 +136,7 @@ class property:
             return self
         return decorator
 
-    @property
+    @_property
     def getter(self):
         """
         decorator for getter functions
@@ -211,8 +213,7 @@ class Object(Interface, dbus.service.Object):
         reflection_data = (
             _dbus_bindings.DBUS_INTROSPECT_1_0_XML_DOCTYPE_DECL_NODE)
         reflection_data += '<node name="%s">\n' % object_path
-        interfaces = self._dbus_class_table[
-            self.__class__.__module__ + '.' + self.__class__.__name__]
+        interfaces = self._dct_entry
         for (name, funcs) in interfaces.items():
             reflection_data += '  <interface name="%s">\n' % (name)
             for func in funcs.values():
@@ -238,20 +239,24 @@ class Object(Interface, dbus.service.Object):
         Get the value of a property @property_name on interface
         @interface_name.
         """
-        logger.debug("Get(%r, %r)", interface_name, property_name)
-        property_iface_map = self._get_property_iface_map()
-        if interface_name not in property_iface_map:
+        logger.debug(
+            "%r.Get(%r, %r) -> ...",
+            self, interface_name, property_name)
+        try:
+            props = self._dct_entry[interface_name]
+        except KeyError:
             raise dbus.exceptions.DBusException(
                 dbus.PROPERTIES_IFACE,
                 "No such interface {}".format(interface_name))
-        if property_name not in property_iface_map[interface_name]:
+        try:
+            prop = props[property_name]
+        except KeyError:
             raise dbus.exceptions.DBusException(
                 dbus.PROPERTIES_IFACE,
                 "No such property {}:{}".format(
                     interface_name, property_name))
-        name = property_iface_map[interface_name][property_name]
         try:
-            return getattr(self, name)
+            value = prop.__get__(self, self.__class__)
         except dbus.exceptions.DBusException:
             raise
         except Exception as exc:
@@ -262,51 +267,78 @@ class Object(Interface, dbus.service.Object):
                 dbus.PROPERTIES_IFACE,
                 "Unable to get property interface/property {}:{}: {!r}".format(
                     interface_name, property_name, exc))
+        else:
+            logger.debug(
+                "%r.Get(%r, %r) -> %r",
+                self, interface_name, property_name, value)
 
     @dbus.service.method(
         dbus_interface=dbus.PROPERTIES_IFACE,
         in_signature="ssv", out_signature="")
     def Set(self, interface_name, property_name, value):
-        logger.debug("Set(%r, %r, %r)", interface_name, property_name, value)
-        property_iface_map = self._get_property_iface_map()
-        if interface_name not in property_iface_map:
+        logger.debug(
+            "%r.Set(%r, %r, %r) -> ...",
+            self, interface_name, property_name, value)
+        try:
+            props = self._dct_entry[interface_name]
+        except KeyError:
             raise dbus.exceptions.DBusException(
                 dbus.PROPERTIES_IFACE,
                 "No such interface {}".format(interface_name))
-        if property_name not in property_iface_map[interface_name]:
+        try:
+            # Map the real property name
+            prop = {
+                prop.dbus_property: prop
+                for prop in props.values()
+                if isinstance(prop, property)
+            }[property_name]
+            if not isinstance(prop, property):
+                raise KeyError(property_name)
+        except KeyError:
             raise dbus.exceptions.DBusException(
                 dbus.PROPERTIES_IFACE,
                 "No such property {}:{}".format(
                     interface_name, property_name))
-        name = property_iface_map[interface_name][property_name]
         try:
-            setattr(self, name, value)
+            prop.__set__(self, value)
         except dbus.exceptions.DBusException:
             raise
         except Exception as exc:
             logger.exception(
-                "runaway exception from Set(%r, %r, %r)",
-                interface_name, property_name, value)
+                "runaway exception from %r.Set(%r, %r, %r)",
+                self, interface_name, property_name, value)
             raise dbus.exceptions.DBusException(
                 dbus.PROPERTIES_IFACE,
                 "Unable to set property {}:{}: {!r}".format(
                     interface_name, property_name, exc))
+        logger.debug(
+            "%r.Set(%r, %r, %r) -> None",
+            self, interface_name, property_name, value)
 
     @dbus.service.method(
         dbus_interface=dbus.PROPERTIES_IFACE,
         in_signature="s", out_signature="a{sv}")
     def GetAll(self, interface_name):
-        logger.debug("GetAll(%r)", interface_name)
-        property_iface_map = self._get_property_iface_map()
-        if interface_name not in property_iface_map:
+        logger.debug("%r.GetAll(%r)", self, interface_name)
+        try:
+            props = self._dct_entry[interface_name]
+        except KeyError:
             raise dbus.exceptions.DBusException(
                 dbus.PROPERTIES_IFACE,
                 "No such interface {}".format(interface_name))
-        else:
-            return {
-                property_name: self.Get(interface_name, property_name)
-                for property_name in property_iface_map[interface_name]
-            }
+        result = {}
+        for prop in props.values():
+            if not isinstance(prop, property):
+                continue
+            prop_name = prop.dbus_property
+            try:
+                prop_value = prop.__get__(self, self.__class__)
+            except:
+                logger.exception(
+                    "Unable to read property %r from %r", prop, self)
+            else:
+                result[prop_name] = prop_value
+        return result
 
     @dbus.service.signal(
         dbus_interface=dbus.PROPERTIES_IFACE,
@@ -317,35 +349,16 @@ class Object(Interface, dbus.service.Object):
             "PropertiesChanged(%r, %r, %r)",
             interface_name, changed_properties, invalidated_properties)
 
-    # None helper that is overriden per-class in _get_property_iface_map()
-    _property_iface_map = None
+    @_property
+    def _dct_key(self):
+        """
+        the key indexing this Object in Object.__class__._dbus_class_table
+        """
+        return self.__class__.__module__ + '.' + self.__class__.__name__
 
-    @classmethod
-    def _get_property_iface_map(cls):
+    @_property
+    def _dct_entry(self):
         """
-        Get or construct (once) property-interface map out of methods
-        decorated with @dbus_property decorator.
+        same as self.__class__._dbus_class_table[self._dct_key]
         """
-        if cls._property_iface_map is None:
-            property_iface_map = cls._build_property_iface_map()
-            logger.debug("built property_iface_map: %r", property_iface_map)
-            cls._property_iface_map = property_iface_map
-        return cls._property_iface_map
-
-    @classmethod
-    def _build_property_iface_map(cls):
-        """
-        Construct property-interface map out of methods
-        decorated with @dbus_property decorator.
-        """
-        pif = {}  # property_iface_map
-        logger.debug("Looking for dbus_property instances in %r", cls)
-        for name in dir(cls):
-            obj = cls.__dict__.get(name)
-            if not isinstance(obj, property):
-                continue
-            logger.debug("Found DBus property %r", obj)
-            if obj._dbus_interface not in pif:
-                pif[obj._dbus_interface] = {}
-            pif[obj._dbus_interface][obj._dbus_property] = name
-        return pif
+        return self.__class__._dbus_class_table[self._dct_key]

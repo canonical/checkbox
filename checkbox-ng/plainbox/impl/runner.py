@@ -33,6 +33,7 @@ import io
 import logging
 import os
 import string
+import time
 
 from plainbox.vendor import extcmd
 
@@ -268,7 +269,9 @@ class JobRunner(IJobRunner):
 
     def _just_run_command(self, job, config):
         # Run the embedded command
+        start_time = time.time()
         return_code, record_path = self._run_command(job, config)
+        execution_duration = time.time() - start_time
         # Convert the return of the command to the outcome of the job
         if return_code == 0:
             outcome = IJobResult.OUTCOME_PASS
@@ -279,6 +282,7 @@ class JobRunner(IJobRunner):
             'outcome': outcome,
             'return_code': return_code,
             'io_log_filename': record_path,
+            'execution_duration': execution_duration
         })
 
     def _get_script_env(self, job, config=None, only_changes=False):

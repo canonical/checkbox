@@ -86,6 +86,14 @@ class _JobResultBase(IJobResult):
         return self._data.get('outcome', self.OUTCOME_NONE)
 
     @property
+    def execution_duration(self):
+        """
+        The amount of time in seconds it took to run this
+        jobs command.
+        """
+        return self._data.get('execution_duration', None)
+
+    @property
     def comments(self):
         """
         comments of the test operator

@@ -73,14 +73,17 @@ class IntegrationTests(TestCaseWithParameters):
         # Skip tests that are not applicable for the current system
         self.skip_if_incompatible()
         # Execute the job and remember the results.
-        (self.job_result, self.job_return_code, self.job_stdout,
+        (self.job_name, self.job_outcome, self.job_execution_duration,
+         self.job_return_code, self.job_stdout,
          self.job_stderr) = self.cache.get(
              key=('job-run-artifacts', self.parameters.scenario_pathname),
              operation=lambda: execute_job(self.scenario_data['job_name']))
 
-    def test_job_result(self):
+    def test_job_outcome(self):
         # Check that results match expected values
-        self.assertEqual(self.job_result, self.scenario_data.get("result"))
+        self.assertEqual(self.job_outcome,
+                         self.scenario_data['result']['result_map'] \
+                                           [self.job_name]['outcome'])
 
     def test_job_return_code(self):
         # Check the return code for correctness
@@ -177,5 +180,9 @@ def execute_job(job_name):
         # Load the actual results and keep them in memory
         with open(pathname, encoding='UTF-8') as stream:
             job_result = json.load(stream)
+            job_outcome = job_result['result_map'][job_name]['outcome']
+            job_execution_duration = job_result['result_map'][job_name] \
+                                               ['execution_duration']
     # [ At this time TestIO and TemporaryDirectory are gone ]
-    return job_result, job_return_code, io.stdout, io.stderr
+    return (job_name, job_outcome, job_execution_duration,
+           job_return_code, io.stdout, io.stderr)

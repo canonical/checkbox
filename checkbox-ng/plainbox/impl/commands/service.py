@@ -24,8 +24,9 @@
 """
 
 import logging
+import os
 
-from dbus import SessionBus
+from dbus import StarterBus, SessionBus
 from dbus.mainloop.glib import DBusGMainLoop
 from dbus.service import BusName
 from gi.repository import GObject
@@ -55,7 +56,10 @@ def connect_to_session_bus():
     loop = GObject.MainLoop()
     # Let's get the system bus object.
     logger.debug("Connecting to DBus session bus")
-    session_bus = SessionBus(mainloop=DBusGMainLoop())
+    if os.getenv("DBUS_STARTER_ADDRESS"):
+        session_bus = StarterBus(mainloop=DBusGMainLoop())
+    else:
+        session_bus = SessionBus(mainloop=DBusGMainLoop())
     return session_bus, loop
 
 

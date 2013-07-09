@@ -123,13 +123,6 @@ class RunInvocation(CheckBoxInvocationMixIn):
         return False if answer in ('n', 'N') else True
 
     def _run_jobs(self, ns, job_list, exporter, transport=None):
-        # Ask the password before anything else in order to run jobs requiring
-        # privileges
-        if self.checkbox._mode == 'deb':
-            print("[ Authentication ]".center(80, '='))
-            return_code = authenticate_warmup()
-            if return_code:
-                raise SystemExit(return_code)
         # Compute the run list, this can give us notification about problems in
         # the selected jobs. Currently we just display each problem
         matching_job_list = self._get_matching_job_list(ns, job_list)
@@ -154,6 +147,13 @@ class RunInvocation(CheckBoxInvocationMixIn):
                 else:
                     session.clean()
             self._update_desired_job_list(session, matching_job_list)
+            # Ask the password before anything else in order to run jobs
+            # requiring privileges
+            if self._auth_warmup_needed(session):
+                print("[ Authentication ]".center(80, '='))
+                return_code = authenticate_warmup()
+                if return_code:
+                    raise SystemExit(return_code)
             if (sys.stdin.isatty() and sys.stdout.isatty() and not
                     ns.not_interactive):
                 outcome_callback = self.ask_for_outcome
@@ -189,6 +189,18 @@ class RunInvocation(CheckBoxInvocationMixIn):
 
         # FIXME: sensible return value
         return 0
+
+    def _auth_warmup_needed(self, session):
+        # Don't use authentication warm-up in modes other than 'deb' as it
+        # makes no sense to do so.
+        if self.checkbox._mode != 'deb':
+            return False
+        # Don't use authentication warm-up if none of the jobs on the run list
+        # requires it.
+        if all(job.user is None for job in session.run_list):
+            return False
+        # Otherwise, do pre-authentication
+        return True
 
     def _save_results(self, output_file, input_stream):
         if output_file is sys.stdout:

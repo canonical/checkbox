@@ -123,13 +123,6 @@ class RunInvocation(CheckBoxInvocationMixIn):
         return False if answer in ('n', 'N') else True
 
     def _run_jobs(self, ns, job_list, exporter, transport=None):
-        # Ask the password before anything else in order to run jobs requiring
-        # privileges
-        if self.checkbox._mode == 'deb':
-            print("[ Authentication ]".center(80, '='))
-            return_code = authenticate_warmup()
-            if return_code:
-                raise SystemExit(return_code)
         # Compute the run list, this can give us notification about problems in
         # the selected jobs. Currently we just display each problem
         matching_job_list = self._get_matching_job_list(ns, job_list)
@@ -154,6 +147,13 @@ class RunInvocation(CheckBoxInvocationMixIn):
                 else:
                     session.clean()
             self._update_desired_job_list(session, matching_job_list)
+            # Ask the password before anything else in order to run jobs
+            # requiring privileges
+            if self.checkbox._mode == 'deb':
+                print("[ Authentication ]".center(80, '='))
+                return_code = authenticate_warmup()
+                if return_code:
+                    raise SystemExit(return_code)
             if (sys.stdin.isatty() and sys.stdout.isatty() and not
                     ns.not_interactive):
                 outcome_callback = self.ask_for_outcome

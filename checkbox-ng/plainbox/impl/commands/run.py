@@ -149,7 +149,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
             self._update_desired_job_list(session, matching_job_list)
             # Ask the password before anything else in order to run jobs
             # requiring privileges
-            if self.checkbox._mode == 'deb':
+            if self._auth_warmup_needed(session):
                 print("[ Authentication ]".center(80, '='))
                 return_code = authenticate_warmup()
                 if return_code:
@@ -189,6 +189,10 @@ class RunInvocation(CheckBoxInvocationMixIn):
 
         # FIXME: sensible return value
         return 0
+
+    def _auth_warmup_needed(self, session):
+        if self.checkbox._mode == 'deb':
+            return True
 
     def _save_results(self, output_file, input_stream):
         if output_file is sys.stdout:

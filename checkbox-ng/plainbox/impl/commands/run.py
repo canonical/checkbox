@@ -225,6 +225,11 @@ class RunInvocation(CheckBoxInvocationMixIn):
             for problem in problem_list:
                 print(" * {}".format(problem))
             print("Problematic jobs will not be considered")
+        (estimated_duration_auto,
+         estimated_duration_manual) = session.get_estimated_duration()
+        print("Estimated duration is {:.2f} for automated jobs "
+              "and {:.2f} for manual jobs".format(estimated_duration_auto,
+                                         estimated_duration_manual))
 
     def _run_jobs_with_session(self, ns, session, runner):
         # TODO: run all resource jobs concurrently with multiprocessing

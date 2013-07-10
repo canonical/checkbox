@@ -92,6 +92,15 @@ class JobDefinition(BaseJob, IJobDefinition):
                 "%s read from %s"), self.name, self.origin)
 
     @property
+    def automated(self):
+        """
+        Whether the job is fully automated and runs without any
+        intervention from the user
+        """
+        return self.plugin in ['shell', 'resource',
+                               'attachment', 'local']
+
+    @property
     def via(self):
         """
         The checksum of the "parent" job when the current JobDefinition comes

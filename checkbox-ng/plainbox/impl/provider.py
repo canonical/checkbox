@@ -65,6 +65,46 @@ class ProviderNotFound(LookupError):
     """
 
 
+class IProviderBackend1(metaclass=abc.ABCMeta):
+    """
+    Provider for the current type of tests.
+
+    This class provides the APIs required by the internal implementation
+    that are not considered normal public APIs. The only consumer of the
+    those methods and properties are internal to plainbox.
+    """
+
+    @abc.abstractproperty
+    def CHECKBOX_SHARE(self):
+        """
+        Return the required value of CHECKBOX_SHARE environment variable.
+
+        .. note::
+            This variable is only required by one script.
+            It would be nice to remove this later on.
+        """
+
+    @abc.abstractproperty
+    def extra_PYTHONPATH(self):
+        """
+        Return additional entry for PYTHONPATH, if needed.
+
+        This entry is required for CheckBox scripts to import the correct
+        CheckBox python libraries.
+
+        .. note::
+            The result may be None
+        """
+
+    @abc.abstractproperty
+    def extra_PATH(self):
+        """
+        Return additional entry for PATH
+
+        This entry is required to lookup CheckBox scripts.
+        """
+
+
 class IProvider1(metaclass=abc.ABCMeta):
     """
     Provider for the current type of tests

@@ -234,6 +234,18 @@ class SessionStateAPITests(TestCase):
         self.assertEquals(session.get_estimated_duration(),
                           (None, 0.0))
 
+    def test_get_estimated_duration_manual_unknown(self):
+        four_seconds = make_job("four_seconds", plugin="shell",
+                                command="fibble",
+                                estimated_duration=4.0)
+        no_estimated_duration = make_job("no_estimated_duration",
+                                         plugin="user-verify",
+                                         command="bibble")
+        session = SessionState([four_seconds, no_estimated_duration])
+        session.update_desired_job_list([four_seconds, no_estimated_duration])
+        self.assertEquals(session.get_estimated_duration(),
+                          (4.0, None))
+
 class SessionStateSpecialTests(TestCase):
 
     # NOTE: those tests are essential. They allow testing the behavior of

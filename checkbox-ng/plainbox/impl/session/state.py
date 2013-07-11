@@ -479,7 +479,7 @@ class SessionState(_LegacySessionState):
         estimate_manual = 0.0
         for job in self._run_list:
             if job.automated and estimate_automated is not None:
-                if job.estimated_duration:
+                if job.estimated_duration is not None:
                     estimate_automated += job.estimated_duration
                 elif job.plugin != 'local':
                     estimate_automated = None
@@ -488,7 +488,7 @@ class SessionState(_LegacySessionState):
             	# account for extra time taken in reading the description
             	# and performing any necessary steps
                 estimate_manual += manual_overhead
-                if job.estimated_duration:
+                if job.estimated_duration is not None:
                      estimate_manual += job.estimated_duration
                 elif job.command:
                     estimate_manual = None

@@ -54,6 +54,12 @@ this is also described by :class:`IProvider1`::
 
 import abc
 import logging
+import os
+import io
+
+from plainbox.impl.applogic import WhiteList
+from plainbox.impl.job import JobDefinition
+from plainbox.impl.rfc822 import load_rfc822_records
 
 
 logger = logging.getLogger("plainbox.provider")
@@ -121,6 +127,73 @@ class IProvider1(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractproperty
+    def get_builtin_jobs(self):
+        """
+        Load all the built-in jobs and return them
+        """
+
+    @abc.abstractmethod
+    def get_builtin_whitelists(self):
+        """
+        Load all the built-in whitelists and return them
+        """
+
+
+class Provider1(IProvider1, IProviderBackend1):
+    """
+    A v1 provider implementation.
+
+    This base class implements a checkbox-like provider object. Subclasses are
+    only required to implement a single method that designates the base
+    location for all other data.
+    """
+
+    def __init__(self, base_dir, name, description):
+        """
+        Initialize the provider with the associated base directory.
+
+        All of the typical v1 provider data is relative to this directory. It
+        can be customized by subclassing and overriding the particular methods
+        of the IProviderBackend1 class but that should not be necessary in
+        normal operation.
+        """
+        self._base_dir = base_dir
+        self._name = name
+        self._description = description
+
+    @property
+    def name(self):
+        """
+        name of this provider
+        """
+        return self._name
+
+    @property
+    def jobs_dir(self):
+        """
+        Return an absolute path of the jobs directory
+        """
+        return os.path.join(self._base_dir, "jobs")
+
+    @property
+    def scripts_dir(self):
+        """
+        Return an absolute path of the scripts directory
+
+        .. note::
+            The scripts may not work without setting PYTHONPATH and
+            CHECKBOX_SHARE.
+        """
+        return os.path.join(self._base_dir, "scripts")
+
+    @property
+    def whitelists_dir(self):
+        """
+        Return an absolute path of the whitelist directory
+        """
+        return os.path.join(self._base_dir, "data", "whitelists")
+
+    @property
     def CHECKBOX_SHARE(self):
         """
         Return the required value of CHECKBOX_SHARE environment variable.
@@ -129,8 +202,9 @@ class IProvider1(metaclass=abc.ABCMeta):
             This variable is only required by one script.
             It would be nice to remove this later on.
         """
+        return self.jobs_dir
 
-    @abc.abstractproperty
+    @property
     def extra_PYTHONPATH(self):
         """
         Return additional entry for PYTHONPATH, if needed.
@@ -141,26 +215,63 @@ class IProvider1(metaclass=abc.ABCMeta):
         .. note::
             The result may be None
         """
+        return None
 
-    @abc.abstractproperty
+    @property
     def extra_PATH(self):
         """
         Return additional entry for PATH
 
         This entry is required to lookup CheckBox scripts.
         """
+        # NOTE: This is always the script directory. The actual logic for
+        # locating it is implemented in the property accessors.
+        return self.scripts_dir
 
-    @abc.abstractmethod
     def get_builtin_whitelists(self):
-        """
-        Load all the built-in whitelists and return them
-        """
+        logger.debug("Loading built-in whitelists...")
+        whitelist_list = []
+        for name in os.listdir(self.whitelists_dir):
+            if name.endswith(".whitelist"):
+                whitelist_list.append(
+                    WhiteList.from_file(os.path.join(
+                        self.whitelists_dir, name)))
+        return whitelist_list
 
-    @abc.abstractmethod
     def get_builtin_jobs(self):
+        logger.debug("Loading built-in jobs...")
+        job_list = []
+        for name in os.listdir(self.jobs_dir):
+            if name.endswith(".txt") or name.endswith(".txt.in"):
+                job_list.extend(
+                    self.load_jobs(
+                        os.path.join(self.jobs_dir, name)))
+        return job_list
+
+    def load_jobs(self, somewhere):
         """
-        Load all the built-in jobs and return them
+        Load job definitions from somewhere
         """
+        if isinstance(somewhere, str):
+            # Load data from a file with the given name
+            filename = somewhere
+            with open(filename, 'rt', encoding='UTF-8') as stream:
+                return self.load_jobs(stream)
+        if isinstance(somewhere, io.TextIOWrapper):
+            stream = somewhere
+            logger.debug("Loading jobs definitions from %r...", stream.name)
+            record_list = load_rfc822_records(stream)
+            job_list = []
+            for record in record_list:
+                job = JobDefinition.from_rfc822_record(record)
+                job._checkbox = self
+                logger.debug("Loaded %r", job)
+                job_list.append(job)
+            return job_list
+        else:
+            raise TypeError(
+                "Unsupported type of 'somewhere': {!r}".format(
+                    type(somewhere)))
 
 
 class DummyProvider1(IProvider1):

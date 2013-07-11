@@ -24,11 +24,16 @@ plainbox.impl.test_applogic
 Test definitions for plainbox.impl.applogic module
 """
 
+from contextlib import contextmanager
+from io import TextIOWrapper
 from unittest import TestCase
+
+import mock
 
 from plainbox.impl.applogic import CompositeQualifier, NameJobQualifier
 from plainbox.impl.applogic import IJobQualifier, RegExpJobQualifier
 from plainbox.impl.applogic import PlainBoxConfig
+from plainbox.impl.applogic import WhiteList
 from plainbox.impl.applogic import get_matching_job_list
 from plainbox.impl.config import Unset
 from plainbox.impl.testing_utils import make_job
@@ -82,6 +87,42 @@ class CompositeQualifierTests(TestCase):
                 inclusive_qualifier_list=[RegExpJobQualifier(".*")],
                 exclusive_qualifier_list=[RegExpJobQualifier('foo')]
             ).designates(make_job("bar")))
+
+
+class WhiteListTests(TestCase):
+
+    _name = 'whitelist.txt'
+
+    _content = [
+        "# this is a comment",
+        "foo # this is another comment",
+        "bar",
+        ""
+    ]
+
+    @contextmanager
+    def mocked_file(self, name, content):
+        m_open = mock.MagicMock(name='open', spec=open)
+        m_stream = mock.MagicMock(spec=TextIOWrapper)
+        m_stream.__enter__.return_value = m_stream
+        m_stream.__iter__.side_effect = lambda: iter(content)
+        m_open.return_value = m_stream
+        with mock.patch('plainbox.impl.applogic.open', m_open, create=True):
+            yield
+        m_open.assert_called_once_with(name, "rt", encoding="UTF-8")
+
+    def test_load_patterns(self):
+        with self.mocked_file(self._name, self._content):
+            pattern_list = WhiteList._load_patterns(self._name)
+        self.assertEqual(pattern_list, ['^foo$', '^bar$'])
+
+    def test_smoke(self):
+        with self.mocked_file(self._name, self._content):
+            whitelist = WhiteList.from_file(self._name)
+        self.assertEqual(
+            repr(whitelist.inclusive_qualifier_list[0]),
+            "<RegExpJobQualifier pattern:'^foo$'>")
+        self.assertTrue(whitelist.designates(make_job('foo')))
 
 
 class NameJobQualifierTests(TestCase):

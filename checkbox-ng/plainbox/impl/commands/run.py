@@ -36,6 +36,7 @@ import sys
 from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
 
 from plainbox.abc import IJobResult
+from plainbox.impl.checkbox import CheckBoxDebProvider
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
 from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
@@ -193,7 +194,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
     def _auth_warmup_needed(self, session):
         # Don't use authentication warm-up in modes other than 'deb' as it
         # makes no sense to do so.
-        if self.checkbox._mode != 'deb':
+        if not isinstance(self.checkbox, CheckBoxDebProvider):
             return False
         # Don't use authentication warm-up if none of the jobs on the run list
         # requires it.

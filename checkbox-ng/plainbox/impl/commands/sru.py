@@ -33,9 +33,9 @@ import tempfile
 
 from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
 
+from plainbox.impl.applogic import WhiteList
 from plainbox.impl.applogic import get_matching_job_list
 from plainbox.impl.applogic import run_job_if_possible
-from plainbox.impl.checkbox import WhiteList
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.check_config import CheckConfigInvocation
 from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn

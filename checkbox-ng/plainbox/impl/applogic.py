@@ -114,6 +114,83 @@ class CompositeQualifier(IJobQualifier):
         return False
 
 
+# NOTE: using CompositeQualifier seems strange but it's a tested proven
+# component so all we have to ensure is that we read the whitelist files
+# correctly.
+class WhiteList(CompositeQualifier):
+    """
+    A qualifier that understands checkbox whitelist files.
+
+    A whitelist file is a plain text, line oriented file. Each line represents
+    a regular expression pattern that can be matched against the name of a job.
+
+    The file can contain simple shell-style comments that begin with the pound
+    or hash key (#). Those are ignored. Comments can span both a fraction of a
+    line as well as the whole line.
+
+    For historical reasons each pattern has an implicit '^' and '$' prepended
+    and appended (respectively) to the actual pattern specified in the file.
+    """
+
+    def __init__(self, pattern_list, name=None):
+        """
+        Initialize a whitelist object with the specified list of patterns.
+
+        The patterns must be already mangled with '^' and '$'.
+        """
+        inclusive = [RegExpJobQualifier(pattern) for pattern in pattern_list]
+        exclusive = ()
+        super(WhiteList, self).__init__(inclusive, exclusive)
+        self._name = name
+
+    @property
+    def name(self):
+        """
+        name of this WhiteList (might be None)
+        """
+        return self._name
+
+    @classmethod
+    def from_file(cls, pathname):
+        """
+        Load and initialize the WhiteList object from the specified file.
+
+        :param pathname: file to load
+        :returns: a fresh WhiteList object
+        """
+        pattern_list = cls._load_patterns(pathname)
+        name = os.path.splitext(os.path.basename(pathname))[0]
+        return cls(pattern_list, name=name)
+
+    @classmethod
+    def _load_patterns(self, pathname):
+        """
+        Load whitelist patterns from the specified file
+        """
+        pattern_list = []
+        # Load the file
+        with open(pathname, "rt", encoding="UTF-8") as stream:
+            for line in stream:
+                # Strip shell-style comments if there are any
+                try:
+                    index = line.index("#")
+                except ValueError:
+                    pass
+                else:
+                    line = line[:index]
+                # Strip whitespace
+                line = line.strip()
+                # Skip empty lines (especially after stripping comments)
+                if line == "":
+                    continue
+                # Surround the pattern with ^ and $
+                # so that it wont just match a part of the job name.
+                regexp_pattern = r"^{pattern}$".format(pattern=line)
+                # Accumulate patterns into the list
+                pattern_list.append(regexp_pattern)
+        return pattern_list
+
+
 def get_matching_job_list(job_list, qualifier):
     """
     Get a list of jobs that are designated by the specified qualifier.

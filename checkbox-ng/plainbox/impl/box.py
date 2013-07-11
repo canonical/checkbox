@@ -34,14 +34,14 @@ import sys
 
 from plainbox import __version__ as version
 from plainbox.impl.applogic import PlainBoxConfig
-from plainbox.impl.checkbox import CheckBox
 from plainbox.impl.commands.check_config import CheckConfigCommand
 from plainbox.impl.commands.dev import DevCommand
 from plainbox.impl.commands.run import RunCommand
 from plainbox.impl.commands.selftest import SelfTestCommand
-from plainbox.impl.commands.sru import SRUCommand
 from plainbox.impl.commands.service import ServiceCommand
+from plainbox.impl.commands.sru import SRUCommand
 from plainbox.impl.logging import setup_logging, adjust_logging
+from plainbox.impl.provider import all_providers
 
 
 logger = logging.getLogger("plainbox.box")
@@ -134,8 +134,16 @@ class PlainBox:
         self._config = self.get_config_cls().get()
         # Load and initialize checkbox provider
         # TODO: rename to provider, switch to plugins
-        self._checkbox = CheckBox(
-            mode=None if early_ns.checkbox == 'auto' else early_ns.checkbox)
+        all_providers.load()
+        assert early_ns.checkbox in ('auto', 'src', 'deb')
+        if early_ns.checkbox == 'auto':
+            provider_name = 'checkbox-auto'
+        elif early_ns.checkbox == 'src':
+            provider_name = 'checkbox-src'
+        elif early_ns.checkbox == 'deb':
+            provider_name = 'checkbox-deb'
+        self._checkbox = all_providers.get_by_name(
+            provider_name).plugin_object()
         # Construct the full command line argument parser
         self._parser = self.construct_parser()
 
@@ -186,7 +194,7 @@ class PlainBox:
             '-c', '--checkbox',
             action='store',
             # TODO: have some public API for this, pretty please
-            choices=list(CheckBox._DIRECTORY_MAP.keys()) + ['auto'],
+            choices=['src', 'deb', 'auto'],
             default='auto',
             help="where to find the installation of CheckBox.")
         group = parser.add_argument_group(

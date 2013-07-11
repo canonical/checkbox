@@ -468,9 +468,12 @@ class SessionState(_LegacySessionState):
         Manual jobs have an arbitrary figure added to their runtime to allow
         for execution of the test steps and verification of the result.
 
-        Returns a tuple of which the first element is the estimated duration
-        for automated jobs only and the second element is the estimated
-        duration for manual jobs only - these can be easily combined.
+        :returns: (estimate_automated, estimate_manual) where the first 
+        element is the estimated duration for automated jobs only and the 
+        second element is the estimated duration for manual jobs only - 
+        these can be easily combined. Either value can be None if the value
+        could not be calculated due to any job lacking the required
+        estimated_duration field.
         """
         estimate_automated = 0.0
         estimate_manual = 0.0
@@ -481,10 +484,10 @@ class SessionState(_LegacySessionState):
                 else:
                     estimate_automated = None
             elif not job.automated and estimate_manual is not None:
-            # We add 30 seconds to the run time for manual jobs to
-            # account for extra time taken in reading the description
-            # and performing any necessary steps
-                estimate_manual += 30.0
+                # We add 30 seconds to the run time for manual jobs to
+            	# account for extra time taken in reading the description
+            	# and performing any necessary steps
+                estimate_manual += manual_overhead
                 if job.estimated_duration:
                      estimate_manual += job.estimated_duration
                 elif job.command:

@@ -481,7 +481,7 @@ class SessionState(_LegacySessionState):
             if job.automated and estimate_automated is not None:
                 if job.estimated_duration:
                     estimate_automated += job.estimated_duration
-                else:
+                elif job.plugin != 'local':
                     estimate_automated = None
             elif not job.automated and estimate_manual is not None:
                 # We add 30 seconds to the run time for manual jobs to

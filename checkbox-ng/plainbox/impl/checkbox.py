@@ -26,15 +26,11 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
-import collections
-import io
 import logging
 import os
 
 from plainbox.impl import get_plainbox_dir
-from plainbox.impl.applogic import WhiteList
-from plainbox.impl.job import JobDefinition
-from plainbox.impl.rfc822 import load_rfc822_records
+from plainbox.impl.provider import Provider1
 
 
 logger = logging.getLogger("plainbox.checkbox")
@@ -59,7 +55,6 @@ def _get_checkbox_dir():
     Historically plainbox used a git submodule with checkbox tree (converted to
     git). This ended with the merge of plainbox into the checkbox tree.
 
-
     Now it's the other way around and the checkbox tree can be located two
     directories "up" from the plainbox module, in a checkbox-old directory.
     """
@@ -68,98 +63,28 @@ def _get_checkbox_dir():
             get_plainbox_dir(), "..", "..", "checkbox-old"))
 
 
-class CheckBox:
+class CheckBoxSrcProvider(Provider1):
     """
-    Helper class for interacting with CheckBox
+    A provider for checkbox jobs when used in development mode.
 
-    PlainBox relies on CheckBox for actual jobs, scripts and library features
-    required by the scripts. This class allows one to interact with CheckBox
-    without having to bother with knowing how to set up the environment.
-
-    This class also abstracts away the differences between dealing with
-    CheckBox that is installed from system packages and CheckBox that is
-    available from a checkout directory.
+    This provider is only likely to be used when developing checkbox inside a
+    virtualenv environment. It assumes the particular layout of code and data
+    (relative to the code directory) directories.
     """
 
-    # Helper for locating certain directories
-    CheckBoxDirs = collections.namedtuple(
-        "CheckBoxDirs", "SHARE_DIR SCRIPTS_DIR JOBS_DIR DATA_DIR")
-
-    # Temporary helper to compute "src" value below
-    source_dir = _get_checkbox_dir()
-
-    _DIRECTORY_MAP = collections.OrderedDict((
-        # Layout for source checkout
-        ("src", CheckBoxDirs(
-            source_dir,
-            os.path.join(source_dir, "scripts"),
-            os.path.join(source_dir, "jobs"),
-            os.path.join(source_dir, "data"))),
-        # Layout for installed version
-        ("deb", CheckBoxDirs(
-            "/usr/share/checkbox/",
-            "/usr/share/checkbox/scripts",
-            "/usr/share/checkbox/jobs",
-            "/usr/share/checkbox/data"))))
-
-    # Remove temporary helper that was needed above
-    del source_dir
-
-    def __init__(self, mode=None):
-        """
-        Initialize checkbox integration.
-
-        :param mode:
-            If specified it determines which checkbox installation to use.
-            None (default) enables auto-detection. Applicable values are
-            ``src``, ``deb1`` and ``deb2``. The first value selects checkbox as
-            present in the code repository. The last two values are both for
-            intended for a checkbox package that was installed from the Ubuntu
-            repository. They are different as checkbox packaging changed across
-            releases.
-
-        :raises CheckBoxNotFound:
-            if checkbox cannot be located anywhere
-        :raises ValueError:
-            if ``mode`` is not supported
-        """
-        # Auto-detect if not explicitly configured
-        if mode is None:
-            for possible_mode, dirs in self._DIRECTORY_MAP.items():
-                if all(os.path.exists(dirname) for dirname in dirs):
-                    logger.info("Using checkbox in mode %s", possible_mode)
-                    mode = possible_mode
-                    break
-            else:
-                raise CheckBoxNotFound()
-        # Ensure mode is known
-        if mode not in self._DIRECTORY_MAP:
-            raise ValueError("Unsupported mode")
-        else:
-            self._mode = mode
-            self._dirs = self._DIRECTORY_MAP[mode]
-
-    @property
-    def CHECKBOX_SHARE(self):
-        """
-        Return the required value of CHECKBOX_SHARE environment variable.
-
-        .. note::
-            This variable is only required by one script.
-            It would be nice to remove this later on.
-        """
-        return self._dirs.SHARE_DIR
+    def __init__(self):
+        super(CheckBoxSrcProvider, self).__init__(
+            _get_checkbox_dir(), "checkbox", "CheckBox (live source)")
+        if not os.path.exists(self._base_dir):
+            raise CheckBoxNotFound()
 
     @property
     def extra_PYTHONPATH(self):
         """
-        Return additional entry for PYTHONPATH, if needed.
+        Return additional entry for PYTHONPATH
 
         This entry is required for CheckBox scripts to import the correct
         CheckBox python libraries.
-
-        .. note::
-            The result may be None
         """
         # NOTE: When CheckBox is installed then all the scripts should not use
         # 'env' to locate the python interpreter (otherwise they might use
@@ -167,95 +92,26 @@ class CheckBox:
         # using CheckBox from source then the source directory (which contains
         # the 'checkbox' package) should be added to PYTHONPATH for all the
         # imports to work.
-        if self._mode == "src":
-            return _get_checkbox_dir()
-        else:
-            return None
+        return _get_checkbox_dir()
 
-    @property
-    def extra_PATH(self):
-        """
-        Return additional entry for PATH
 
-        This entry is required to lookup CheckBox scripts.
-        """
-        # NOTE: This is always the script directory. The actual logic for
-        # locating it is implemented in the property accessors.
-        return self.scripts_dir
+class CheckBoxDebProvider(Provider1):
+    """
+    A provider for checkbox jobs
 
-    @property
-    def jobs_dir(self):
-        """
-        Return an absolute path of the jobs directory
-        """
-        return self._dirs.JOBS_DIR
+    This provider exposes jobs and whitelists of the system-wide installed copy
+    of checkbox.
+    """
 
-    @property
-    def whitelists_dir(self):
-        """
-        Return an absolute path of the whitelist directory
-        """
-        return os.path.join(self._dirs.DATA_DIR, "whitelists")
+    def __init__(self):
+        super(CheckBoxDebProvider, self).__init__(
+            "/usr/share/checkbox/", "checkbox", "CheckBox")
+        if not os.path.exists(self._base_dir):
+            raise CheckBoxNotFound()
 
-    @property
-    def scripts_dir(self):
-        """
-        Return an absolute path of the scripts directory
 
-        .. note::
-            The scripts may not work without setting PYTHONPATH and
-            CHECKBOX_SHARE.
-        """
-        return self._dirs.SCRIPTS_DIR
-
-    def get_builtin_whitelists(self):
-        logger.debug("Loading built-in whitelists...")
-        whitelist_list = []
-        for name in os.listdir(self.whitelists_dir):
-            if name.endswith(".whitelist"):
-                whitelist_list.append(
-                    WhiteList.from_file(os.path.join(
-                        self.whitelists_dir, name)))
-        return whitelist_list
-
-    def get_builtin_jobs(self):
-        logger.debug("Loading built-in jobs...")
-        job_list = []
-        for name in os.listdir(self.jobs_dir):
-            if name.endswith(".txt") or name.endswith(".txt.in"):
-                job_list.extend(
-                    self.load_jobs(
-                        os.path.join(self.jobs_dir, name)))
-        return job_list
-
-    def load_jobs(self, somewhere):
-        """
-        Load job definitions from somewhere
-        """
-        if isinstance(somewhere, str):
-            # Load data from a file with the given name
-            filename = somewhere
-            with open(filename, 'rt', encoding='UTF-8') as stream:
-                return self.load_jobs(stream)
-        if isinstance(somewhere, io.TextIOWrapper):
-            stream = somewhere
-            logger.debug("Loading jobs definitions from %r...", stream.name)
-            record_list = load_rfc822_records(stream)
-            job_list = []
-            for record in record_list:
-                job = JobDefinition.from_rfc822_record(record)
-                job._checkbox = self
-                logger.debug("Loaded %r", job)
-                job_list.append(job)
-            return job_list
-        else:
-            raise TypeError(
-                "Unsupported type of 'somewhere': {!r}".format(
-                    type(somewhere)))
-
-    @property
-    def name(self):
-        """
-        name of this provider (always checkbox)
-        """
-        return "checkbox"
+def CheckBoxAutoProvider():
+    try:
+        return CheckBoxSrcProvider()
+    except LookupError:
+        return CheckBoxDebProvider()

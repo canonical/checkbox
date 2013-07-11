@@ -24,7 +24,7 @@ plainbox.impl.test_checkbox
 Test definitions for plainbox.impl.checkbox module
 """
 
-from plainbox.impl.checkbox import CheckBox
+from plainbox.impl.checkbox import CheckBoxAutoProvider
 from plainbox.testing_utils.testcases import TestCaseWithParameters
 
 
@@ -33,7 +33,7 @@ class TestCheckBox(TestCaseWithParameters):
 
     @classmethod
     def get_parameter_values(cls):
-        for job in CheckBox().get_builtin_jobs():
+        for job in CheckBoxAutoProvider().get_builtin_jobs():
             yield (job,)
 
     def test_job_resource_expression(self):

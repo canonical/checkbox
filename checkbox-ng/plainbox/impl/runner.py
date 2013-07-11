@@ -38,6 +38,7 @@ import time
 from plainbox.vendor import extcmd
 
 from plainbox.abc import IJobRunner, IJobResult
+from plainbox.impl.checkbox import CheckBoxSrcProvider
 from plainbox.impl.result import DiskJobResult
 from plainbox.impl.result import IOLogRecord
 from plainbox.impl.result import IOLogRecordWriter
@@ -433,7 +434,7 @@ class JobRunner(IJobRunner):
             # Use regular pkexec in src mode (when the provider is in the
             # source tree), or basically when working from trunk. Use the
             # trusted launcher otherwise (to get all the pkexec policy applied)
-            if job._checkbox._mode == 'src':
+            if isinstance(job._checkbox, CheckBoxSrcProvider):
                 cmd = self._get_command_src(job, config)
             else:
                 cmd = self._get_command_trusted(job, config)

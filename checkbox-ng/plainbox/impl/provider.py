@@ -289,7 +289,7 @@ class Provider1(IProvider1, IProviderBackend1):
                     type(somewhere)))
 
 
-class DummyProvider1(IProvider1):
+class DummyProvider1(IProvider1, IProviderBackend1):
     """
     Dummy provider useful for creating isolated test cases
     """

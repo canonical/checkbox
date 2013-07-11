@@ -273,6 +273,12 @@ class SRUCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             action='store',
             help=("POST the test report XML to this URL"
                   " (%(default)s)"))
+        group.add_argument(
+            '--staging',
+            dest='c3_url',
+            action='store_const',
+            const='https://certification.staging.canonical.com/',
+            help='Override --destination to use the staging certification website')
         group = parser.add_argument_group(title="execution options")
         group.add_argument(
             '-n', '--dry-run',

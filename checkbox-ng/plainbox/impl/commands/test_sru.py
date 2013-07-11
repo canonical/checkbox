@@ -41,8 +41,8 @@ class TestSru(TestCase):
         self.maxDiff = None
         expected = """
         usage: plainbox sru [-h] [--check-config] --secure-id SECURE-ID
-                            [--fallback FILE] [--destination URL] [-n] [-i PATTERN]
-                            [-x PATTERN] [-w WHITELIST]
+                            [--fallback FILE] [--destination URL] [--staging] [-n]
+                            [-i PATTERN] [-x PATTERN] [-w WHITELIST]
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -56,6 +56,8 @@ class TestSru(TestCase):
                                 (unset)
           --destination URL     POST the test report XML to this URL (https://certific
                                 ation.canonical.com/submissions/submit/)
+          --staging             Override --destination to use the staging
+                                certification website
 
         execution options:
           -n, --dry-run         Skip all usual jobs. Only local, resource and

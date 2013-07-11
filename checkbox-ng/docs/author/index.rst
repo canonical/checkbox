@@ -11,6 +11,9 @@ core.
     is a guiding point for subsequent editions that will expand and provide
     real value.
 
+.. toctree::
+   checkbox-job-format.rst 
+
 Personas and stories
 --------------------
 

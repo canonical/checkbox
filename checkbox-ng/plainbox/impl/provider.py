@@ -59,6 +59,7 @@ import io
 
 from plainbox.impl.applogic import WhiteList
 from plainbox.impl.job import JobDefinition
+from plainbox.impl.plugins import PlugInCollection
 from plainbox.impl.rfc822 import load_rfc822_records
 
 
@@ -334,3 +335,7 @@ class DummyProvider1(IProvider1, IProviderBackend1):
 
     def get_builtin_jobs(self):
         return self._job_list
+
+
+# Collection of all providers
+all_providers = PlugInCollection('plainbox.provider.v1')

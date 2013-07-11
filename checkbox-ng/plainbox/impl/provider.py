@@ -127,6 +127,14 @@ class IProvider1(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractproperty
+    def description(self):
+        """
+        description of this providr
+
+        This name should be dbus-friendly. It should not be localizable.
+        """
+
+    @abc.abstractmethod
     def get_builtin_jobs(self):
         """
         Load all the built-in jobs and return them
@@ -167,6 +175,13 @@ class Provider1(IProvider1, IProviderBackend1):
         name of this provider
         """
         return self._name
+
+    @property
+    def description(self):
+        """
+        description of this provider
+        """
+        return self._description
 
     @property
     def jobs_dir(self):
@@ -296,6 +311,11 @@ class DummyProvider1(IProvider1):
     @property
     def name(self):
         return self._extras.get('name', "dummy")
+
+    @property
+    def description(self):
+        return self._extras.get(
+            'description', "A dummy provider useful for testing")
 
     @property
     def CHECKBOX_SHARE(self):

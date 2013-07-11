@@ -475,15 +475,20 @@ class SessionState(_LegacySessionState):
         estimate_automated = 0.0
         estimate_manual = 0.0
         for job in self._run_list:
-            command_duration = job.estimated_duration if \
-                               job.estimated_duration else 0.0
+            if job.automated and estimate_automated is not None:
+                if job.estimated_duration:
+                    estimate_automated += job.estimated_duration
+                else:
+                    estimate_automated = None
+            elif not job.automated and estimate_manual is not None:
             # We add 30 seconds to the run time for manual jobs to
             # account for extra time taken in reading the description
             # and performing any necessary steps
-            if job.automated:
-                estimate_manual += command_duration
-            else:
-                estimate_automated += manual_overhead + command_duration
+                estimate_manual += 30.0
+                if job.estimated_duration:
+                     estimate_manual += job.estimated_duration
+                elif job.command:
+                    estimate_manual = None
 
         return (estimate_automated, estimate_manual)
 

@@ -221,7 +221,18 @@ class SessionStateAPITests(TestCase):
         session.update_desired_job_list([two_seconds, shell_job])
         self.assertEquals(session.get_estimated_duration(),
                           (0.6, 32.0))
-        
+       
+    def test_get_estimated_duration_automated_unknown(self):
+        three_seconds = make_job("three_seconds", plugin="shell",
+                                 command="frob",
+                                 estimated_duration=3.0)
+        no_estimated_duration = make_job("no_estimated_duration",
+                                         plugin="shell",
+                                         command="borf")
+        session = SessionState([three_seconds, no_estimated_duration])
+        session.update_desired_job_list([three_seconds, no_estimated_duration])
+        self.assertEquals(session.get_estimated_duration(),
+                          (None, 0.0))
 
 class SessionStateSpecialTests(TestCase):
 

@@ -48,8 +48,8 @@ class ScriptInvocation(CheckBoxInvocationMixIn):
     the command is to be invoked.
     """
 
-    def __init__(self, checkbox, config, job_name):
-        self.checkbox = checkbox
+    def __init__(self, provider, config, job_name):
+        self.provider = provider
         self.config = config
         self.job_name = job_name
 
@@ -92,7 +92,7 @@ class ScriptInvocation(CheckBoxInvocationMixIn):
 
     def _get_job(self):
         job_list = get_matching_job_list(
-            self.checkbox.get_builtin_jobs(),
+            self.provider.get_builtin_jobs(),
             NameJobQualifier(self.job_name))
         if len(job_list) == 0:
             return None
@@ -106,12 +106,12 @@ class ScriptCommand(PlainBoxCommand):
     unconditionally.
     """
 
-    def __init__(self, checkbox, config):
-        self.checkbox = checkbox
+    def __init__(self, provider, config):
+        self.provider = provider
         self.config = config
 
     def invoked(self, ns):
-        return ScriptInvocation(self.checkbox, self.config, ns.job_name).run()
+        return ScriptInvocation(self.provider, self.config, ns.job_name).run()
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(

@@ -39,17 +39,17 @@ class TestDevCommand(TestCase):
     def setUp(self):
         self.parser = argparse.ArgumentParser(prog='test')
         self.subparsers = self.parser.add_subparsers()
-        self.checkbox = mock.Mock()
+        self.provider = mock.Mock()
         self.config = mock.Mock()
         self.ns = mock.Mock()
 
     def test_init(self):
-        dev_cmd = DevCommand(self.checkbox, self.config)
-        self.assertIs(dev_cmd.checkbox, self.checkbox)
+        dev_cmd = DevCommand(self.provider, self.config)
+        self.assertIs(dev_cmd.provider, self.provider)
         self.assertIs(dev_cmd.config, self.config)
 
     def test_register_parser(self):
-        DevCommand(self.checkbox, self.config).register_parser(
+        DevCommand(self.provider, self.config).register_parser(
             self.subparsers)
         with TestIO() as io:
             self.parser.print_help()

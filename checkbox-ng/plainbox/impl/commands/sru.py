@@ -60,8 +60,8 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
     time.
     """
 
-    def __init__(self, checkbox, config, ns):
-        self.checkbox = checkbox
+    def __init__(self, provider, config, ns):
+        self.provider = provider
         self.config = config
         self.ns = ns
         if self.ns.whitelist:
@@ -70,9 +70,9 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
             self.whitelist = WhiteList.from_file(self.config.whitelist)
         else:
             self.whitelist = WhiteList.from_file(os.path.join(
-                self.checkbox.whitelists_dir, "sru.whitelist"))
+                self.provider.whitelists_dir, "sru.whitelist"))
 
-        self.job_list = self.checkbox.get_builtin_jobs()
+        self.job_list = self.provider.get_builtin_jobs()
         # XXX: maybe allow specifying system_id from command line?
         self.exporter = XMLSessionStateExporter(system_id=None)
         self.session = None
@@ -215,8 +215,8 @@ class SRUCommand(PlainBoxCommand, CheckBoxCommandMixIn):
     plainbox core on realistic workloads.
     """
 
-    def __init__(self, checkbox, config):
-        self.checkbox = checkbox
+    def __init__(self, provider, config):
+        self.provider = provider
         self.config = config
 
     def invoked(self, ns):
@@ -237,7 +237,7 @@ class SRUCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             retval = CheckConfigInvocation(self.config).run()
             if retval != 0:
                 return retval
-        return _SRUInvocation(self.checkbox, self.config, ns).run()
+        return _SRUInvocation(self.provider, self.config, ns).run()
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(

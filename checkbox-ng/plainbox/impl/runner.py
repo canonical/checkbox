@@ -434,7 +434,7 @@ class JobRunner(IJobRunner):
             # Use regular pkexec in src mode (when the provider is in the
             # source tree), or basically when working from trunk. Use the
             # trusted launcher otherwise (to get all the pkexec policy applied)
-            if isinstance(job._checkbox, CheckBoxSrcProvider):
+            if isinstance(job._provider, CheckBoxSrcProvider):
                 cmd = self._get_command_src(job, config)
             else:
                 cmd = self._get_command_trusted(job, config)

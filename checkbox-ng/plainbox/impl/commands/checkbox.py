@@ -32,14 +32,14 @@ from argparse import FileType
 
 class CheckBoxInvocationMixIn:
 
-    def __init__(self, checkbox):
-        self.checkbox = checkbox
+    def __init__(self, provider):
+        self.provider = provider
 
     def get_job_list(self, ns):
         """
         Load and return a list of JobDefinition instances
         """
-        return self.checkbox.get_builtin_jobs()
+        return self.provider.get_builtin_jobs()
 
     def _get_matching_job_list(self, ns, job_list):
         # Find jobs that matched patterns

@@ -42,17 +42,17 @@ class TestScriptCommand(TestCase):
     def setUp(self):
         self.parser = argparse.ArgumentParser(prog='test')
         self.subparsers = self.parser.add_subparsers()
-        self.checkbox = mock.Mock()
+        self.provider = mock.Mock()
         self.config = mock.Mock()
         self.ns = mock.Mock()
 
     def test_init(self):
-        script_cmd = ScriptCommand(self.checkbox, self.config)
-        self.assertIs(script_cmd.checkbox, self.checkbox)
+        script_cmd = ScriptCommand(self.provider, self.config)
+        self.assertIs(script_cmd.provider, self.provider)
         self.assertIs(script_cmd.config, self.config)
 
     def test_register_parser(self):
-        ScriptCommand(self.checkbox, self.config).register_parser(
+        ScriptCommand(self.provider, self.config).register_parser(
             self.subparsers)
         with TestIO() as io:
             self.parser.print_help()
@@ -75,26 +75,26 @@ class TestScriptCommand(TestCase):
 
     @mock.patch("plainbox.impl.commands.script.ScriptInvocation")
     def test_invoked(self, patched_ScriptInvocation):
-        retval = ScriptCommand(self.checkbox, self.config).invoked(self.ns)
+        retval = ScriptCommand(self.provider, self.config).invoked(self.ns)
         patched_ScriptInvocation.assert_called_once_with(
-            self.checkbox, self.config, self.ns.job_name)
+            self.provider, self.config, self.ns.job_name)
         self.assertEqual(
             retval, patched_ScriptInvocation(
-                self.checkbox, self.config,
+                self.provider, self.config,
                 self.ns.job_name).run.return_value)
 
 
 class ScriptInvocationTests(TestCase):
 
     def setUp(self):
-        self.checkbox = mock.Mock()
+        self.provider = mock.Mock()
         self.config = PlainBoxConfig()
         self.job_name = mock.Mock()
 
     def test_init(self):
         script_inv = ScriptInvocation(
-            self.checkbox, self.config, self.job_name)
-        self.assertIs(script_inv.checkbox, self.checkbox)
+            self.provider, self.config, self.job_name)
+        self.assertIs(script_inv.provider, self.provider)
         self.assertIs(script_inv.config, self.config)
         self.assertIs(script_inv.job_name, self.job_name)
 

@@ -117,11 +117,11 @@ class JobDefinition(BaseJob, IJobDefinition):
         """
         return self._origin
 
-    def __init__(self, data, origin=None, checkbox=None, via=None):
+    def __init__(self, data, origin=None, provider=None, via=None):
         super(JobDefinition, self).__init__(data)
         self._resource_program = None
         self._origin = origin
-        self._checkbox = checkbox
+        self._provider = provider
         self._via = via
 
     def __str__(self):
@@ -230,18 +230,18 @@ class JobDefinition(BaseJob, IJobDefinition):
         """
         # XXX: this obviously requires a checkbox object to know where stuff is
         # but during the transition we may not have one available.
-        assert self._checkbox is not None
+        assert self._provider is not None
         # Use PATH that can lookup checkbox scripts
-        if self._checkbox.extra_PYTHONPATH:
+        if self._provider.extra_PYTHONPATH:
             env['PYTHONPATH'] = os.pathsep.join(
-                [self._checkbox.extra_PYTHONPATH]
+                [self._provider.extra_PYTHONPATH]
                 + env.get("PYTHONPATH", "").split(os.pathsep))
         # Update PATH so that scripts can be found
         env['PATH'] = os.pathsep.join(
-            [self._checkbox.extra_PATH]
+            [self._provider.extra_PATH]
             + env.get("PATH", "").split(os.pathsep))
         # Add CHECKBOX_SHARE that is needed by one script
-        env['CHECKBOX_SHARE'] = self._checkbox.CHECKBOX_SHARE
+        env['CHECKBOX_SHARE'] = self._provider.CHECKBOX_SHARE
         # Add CHECKBOX_DATA (temporary checkbox data)
         env['CHECKBOX_DATA'] = checkbox_data_dir
         # Inject additional variables that are requested in the config
@@ -266,7 +266,7 @@ class JobDefinition(BaseJob, IJobDefinition):
         2) to set the ``via`` attribute (to aid the trusted launcher)
         """
         job = self.from_rfc822_record(record)
-        job._checkbox = self._checkbox
+        job._provider = self._provider
         job._via = self.get_checksum()
         return job
 

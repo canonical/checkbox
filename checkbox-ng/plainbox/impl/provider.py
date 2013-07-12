@@ -280,7 +280,7 @@ class Provider1(IProvider1, IProviderBackend1):
             job_list = []
             for record in record_list:
                 job = JobDefinition.from_rfc822_record(record)
-                job._checkbox = self
+                job._provider = self
                 logger.debug("Loaded %r", job)
                 job_list.append(job)
             return job_list
@@ -302,12 +302,12 @@ class DummyProvider1(IProvider1, IProviderBackend1):
         self._patch_provider_field()
 
     def _patch_provider_field(self):
-        # NOTE: each v1 job needs a _checkbox attribute that points to the
+        # NOTE: each v1 job needs a _provider attribute that points to the
         # provider. Since many tests use make_job() which does not set it for
         # obvious reasons it needs to be patched-in.
         for job in self._job_list:
-            if job._checkbox is None:
-                job._checkbox = self
+            if job._provider is None:
+                job._provider = self
 
     @property
     def name(self):

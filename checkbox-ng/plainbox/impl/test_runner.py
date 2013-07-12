@@ -129,9 +129,9 @@ class GetScriptEnvTests(TestCase):
                 'plugin': 'plugin',
                 'user': 'root',
             })
-            job._checkbox = Mock()
-            job._checkbox.extra_PYTHONPATH = None
-            job._checkbox.extra_PATH = ""
+            job._provider = Mock()
+            job._provider.extra_PYTHONPATH = None
+            job._provider.extra_PATH = ""
             self.assertNotIn(
                 "foo",
                 JobRunner._get_script_env(Mock(), job, only_changes=True))
@@ -144,9 +144,9 @@ class GetScriptEnvTests(TestCase):
                 'user': 'root',
                 'environ': 'foo'
             })
-            job._checkbox = Mock()
-            job._checkbox.extra_PYTHONPATH = None
-            job._checkbox.extra_PATH = ""
+            job._provider = Mock()
+            job._provider.extra_PYTHONPATH = None
+            job._provider.extra_PATH = ""
             self.assertIn(
                 "foo",
                 JobRunner._get_script_env(Mock(), job, only_changes=True))
@@ -157,9 +157,9 @@ class GetScriptEnvTests(TestCase):
                 'name': 'name',
                 'plugin': 'plugin',
             })
-            job._checkbox = Mock()
-            job._checkbox.extra_PYTHONPATH = None
-            job._checkbox.extra_PATH = ""
+            job._provider = Mock()
+            job._provider.extra_PYTHONPATH = None
+            job._provider.extra_PATH = ""
             self.assertIn(
                 "foo",
                 JobRunner._get_script_env(Mock(), job, only_changes=False))
@@ -171,9 +171,9 @@ class GetScriptEnvTests(TestCase):
                 'plugin': 'plugin',
                 'environ': 'foo'
             })
-            job._checkbox = Mock()
-            job._checkbox.extra_PYTHONPATH = None
-            job._checkbox.extra_PATH = ""
+            job._provider = Mock()
+            job._provider.extra_PYTHONPATH = None
+            job._provider.extra_PATH = ""
             self.assertIn(
                 "foo",
                 JobRunner._get_script_env(Mock(), job, only_changes=False))

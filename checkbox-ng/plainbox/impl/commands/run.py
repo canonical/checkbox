@@ -56,8 +56,8 @@ logger = getLogger("plainbox.commands.run")
 
 class RunInvocation(CheckBoxInvocationMixIn):
 
-    def __init__(self, checkbox, ns):
-        super(RunInvocation, self).__init__(checkbox)
+    def __init__(self, provider, ns):
+        super(RunInvocation, self).__init__(provider)
         self.ns = ns
 
     def run(self):
@@ -194,7 +194,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
     def _auth_warmup_needed(self, session):
         # Don't use authentication warm-up in modes other than 'deb' as it
         # makes no sense to do so.
-        if not isinstance(self.checkbox, CheckBoxDebProvider):
+        if not isinstance(self.provider, CheckBoxDebProvider):
             return False
         # Don't use authentication warm-up if none of the jobs on the run list
         # requires it.
@@ -312,11 +312,11 @@ class RunInvocation(CheckBoxInvocationMixIn):
 
 class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
 
-    def __init__(self, checkbox):
-        self.checkbox = checkbox
+    def __init__(self, provider):
+        self.provider = provider
 
     def invoked(self, ns):
-        return RunInvocation(self.checkbox, ns).run()
+        return RunInvocation(self.provider, ns).run()
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser("run", help="run a test job")

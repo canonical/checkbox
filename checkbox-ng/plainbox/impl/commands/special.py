@@ -38,8 +38,8 @@ logger = getLogger("plainbox.commands.special")
 
 class SpecialInvocation(CheckBoxInvocationMixIn):
 
-    def __init__(self, checkbox, ns):
-        super(SpecialInvocation, self).__init__(checkbox)
+    def __init__(self, provider, ns):
+        super(SpecialInvocation, self).__init__(provider)
         self.ns = ns
 
     def run(self):
@@ -124,11 +124,11 @@ class SpecialCommand(PlainBoxCommand, CheckBoxCommandMixIn):
     Implementation of ``$ plainbox special``
     """
 
-    def __init__(self, checkbox):
-        self.checkbox = checkbox
+    def __init__(self, provider):
+        self.provider = provider
 
     def invoked(self, ns):
-        return SpecialInvocation(self.checkbox, ns).run()
+        return SpecialInvocation(self.provider, ns).run()
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(

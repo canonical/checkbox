@@ -309,14 +309,14 @@ class JobEnvTests(TestCase):
             'name': 'name',
             'environ': 'foo bar froz'
         })
-        self.job._checkbox = Mock()
-        self.job._checkbox.extra_PYTHONPATH = None
-        self.job._checkbox.extra_PATH = "value-of-extra-path"
-        self.job._checkbox.CHECKBOX_SHARE = "checkbox-share-value"
+        self.job._provider = Mock()
+        self.job._provider.extra_PYTHONPATH = None
+        self.job._provider.extra_PATH = "value-of-extra-path"
+        self.job._provider.CHECKBOX_SHARE = "checkbox-share-value"
         self.session_dir = "session-dir-value"
         self.checkbox_data_dir = os.path.join(self.session_dir, "CHECKBOX_DATA")
 
-    def test_checkbox_env(self):
+    def test_provider_env(self):
         env = {
             "PATH": ""
         }

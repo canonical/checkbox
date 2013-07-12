@@ -58,7 +58,7 @@ class PlainBox:
         """
         self._early_parser = None  # set in _early_init()
         self._config = None  # set in _late_init()
-        self._checkbox = None  # set in _late_init()
+        self._provider = None  # set in _late_init()
         self._parser = None  # set in _late_init()
 
     def main(self, argv=None):
@@ -108,12 +108,12 @@ class PlainBox:
         top-level subcommands.
         """
         # TODO: switch to plainbox plugins
-        RunCommand(self._checkbox).register_parser(subparsers)
+        RunCommand(self._provider).register_parser(subparsers)
         SelfTestCommand().register_parser(subparsers)
-        SRUCommand(self._checkbox, self._config).register_parser(subparsers)
+        SRUCommand(self._provider, self._config).register_parser(subparsers)
         CheckConfigCommand(self._config).register_parser(subparsers)
-        DevCommand(self._checkbox, self._config).register_parser(subparsers)
-        ServiceCommand(self._checkbox, self._config).register_parser(
+        DevCommand(self._provider, self._config).register_parser(subparsers)
+        ServiceCommand(self._provider, self._config).register_parser(
             subparsers)
 
     def early_init(self):
@@ -142,7 +142,7 @@ class PlainBox:
             provider_name = 'checkbox-src'
         elif early_ns.checkbox == 'deb':
             provider_name = 'checkbox-deb'
-        self._checkbox = all_providers.get_by_name(
+        self._provider = all_providers.get_by_name(
             provider_name).plugin_object()
         # Construct the full command line argument parser
         self._parser = self.construct_parser()

@@ -65,8 +65,8 @@ def connect_to_session_bus():
 
 class ServiceInvocation:
 
-    def __init__(self, checkbox, config, ns):
-        self.checkbox = checkbox
+    def __init__(self, provider, config, ns):
+        self.provider = provider
         self.config = config
         self.ns = ns
 
@@ -106,13 +106,13 @@ class ServiceCommand(PlainBoxCommand):
     DBus service for PlainBox
     """
 
-    # XXX: Maybe drop checkbox / config and handle them differently
-    def __init__(self, checkbox, config):
-        self.checkbox = checkbox
+    # XXX: Maybe drop provider / config and handle them differently
+    def __init__(self, provider, config):
+        self.provider = provider
         self.config = config
 
     def invoked(self, ns):
-        return ServiceInvocation(self.checkbox, self.config, ns).run()
+        return ServiceInvocation(self.provider, self.config, ns).run()
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser("service", help="spawn dbus service")

@@ -135,13 +135,15 @@ class PlainBox:
         # Load and initialize checkbox provider
         # TODO: rename to provider, switch to plugins
         all_providers.load()
-        assert early_ns.checkbox in ('auto', 'src', 'deb')
+        assert early_ns.checkbox in ('auto', 'src', 'deb', 'stub')
         if early_ns.checkbox == 'auto':
             provider_name = 'checkbox-auto'
         elif early_ns.checkbox == 'src':
             provider_name = 'checkbox-src'
         elif early_ns.checkbox == 'deb':
             provider_name = 'checkbox-deb'
+        elif early_ns.checkbox == 'stub':
+            provider_name = 'stubbox'
         self._provider = all_providers.get_by_name(
             provider_name).plugin_object()
         # Construct the full command line argument parser
@@ -194,7 +196,7 @@ class PlainBox:
             '-c', '--checkbox',
             action='store',
             # TODO: have some public API for this, pretty please
-            choices=['src', 'deb', 'auto'],
+            choices=['src', 'deb', 'auto', 'stub'],
             default='auto',
             help="where to find the installation of CheckBox.")
         group = parser.add_argument_group(

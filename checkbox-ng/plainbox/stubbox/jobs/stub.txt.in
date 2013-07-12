@@ -1,0 +1,54 @@
+plugin: shell
+name: stub/true
+command: true
+_description:
+ Check success result from shell test case
+
+plugin: shell
+name: stub/false
+command: false
+_description:
+ Check failed result from shell test case
+
+plugin: shell
+name: stub/dependency/good
+depends: stub/true
+command: true
+_description:
+ Check job is executed when dependency succeeds
+
+plugin: shell
+name: stub/dependency/bad
+depends: stub/false
+command: true
+_description:
+ Check job result is set to uninitiated when dependency fails
+
+plugin: resource
+name: stub_package
+command: stub_package_list
+
+plugin: shell
+name: stub/requirement/good
+requires: stub_package.name == "checkbox"
+command: true
+_description:
+ Check job is executed when requirements are met
+
+plugin: shell
+name: stub/requirement/bad
+requires: stub_package.name == "unknown-package"
+command: true
+_description:
+ Check job result is set to "not required on this system" when requirements are not met
+
+plugin: manual
+name: stub/manual
+_description:
+ PURPOSE:
+     This test checks that the manual plugin works fine
+ STEPS:
+     1. Add a comment
+     2. Set the result as passed
+ VERIFICATION:
+     Check that in the report the result is passed and the comment is displayed

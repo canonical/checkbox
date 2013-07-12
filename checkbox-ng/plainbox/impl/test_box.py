@@ -138,7 +138,7 @@ class TestMain(TestCase):
         self.assertEqual(call.exception.args, (0,))
         self.maxDiff = None
         expected = """
-        usage: plainbox [-h] [--version] [-c {src,deb,auto}] [-v] [-D] [-C]
+        usage: plainbox [-h] [--version] [-c {src,deb,auto,stub}] [-v] [-D] [-C]
                         [-T LOGGER] [-P] [-I]
                         {run,self-test,sru,check-config,dev,service} ...
 
@@ -154,7 +154,7 @@ class TestMain(TestCase):
         optional arguments:
           -h, --help            show this help message and exit
           --version             show program's version number and exit
-          -c {src,deb,auto}, --checkbox {src,deb,auto}
+          -c {src,deb,auto,stub}, --checkbox {src,deb,auto,stub}
                                 where to find the installation of CheckBox.
 
         logging and debugging:
@@ -177,7 +177,7 @@ class TestMain(TestCase):
                 main([])
             self.assertEqual(call.exception.args, (2,))
         expected = """
-        usage: plainbox [-h] [--version] [-c {src,deb,auto}] [-v] [-D] [-C]
+        usage: plainbox [-h] [--version] [-c {src,deb,auto,stub}] [-v] [-D] [-C]
                         [-T LOGGER] [-P] [-I]
                         {run,self-test,sru,check-config,dev,service} ...
         plainbox: error: too few arguments

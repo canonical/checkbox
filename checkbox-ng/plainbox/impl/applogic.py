@@ -67,6 +67,13 @@ class RegExpJobQualifier(IJobQualifier):
         self._pattern = re.compile(pattern)
         self._pattern_text = pattern
 
+    @property
+    def pattern_text(self):
+        """
+        text of the regular expression embedded in this qualifier
+        """
+        return self._pattern_text
+
     def designates(self, job):
         return self._pattern.match(job.name)
 

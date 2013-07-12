@@ -276,6 +276,7 @@ class Object(Interface, dbus.service.Object):
             logger.debug(
                 "%r.Get(%r, %r) -> %r",
                 self, interface_name, property_name, value)
+            return value
 
     @dbus.service.method(
         dbus_interface=dbus.PROPERTIES_IFACE,

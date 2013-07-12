@@ -122,6 +122,10 @@ class JobReadinessInhibitor:
         self.related_job = related_job
         self.related_expression = related_expression
 
+    @property
+    def cause_name(self):
+        return self._cause_display[self.cause]
+
     def __repr__(self):
         return "<{} cause:{} related_job:{!r} related_expression:{!r}>".format(
             self.__class__.__name__, self._cause_display[self.cause],

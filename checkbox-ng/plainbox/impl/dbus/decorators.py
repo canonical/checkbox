@@ -160,9 +160,9 @@ def method(dbus_interface, in_signature=None, out_signature=None,
         #
         # This allows us to see past the generic *args, **kwargs seen on most decorators.
         if hasattr(func, '__wrapped__'):
-            args = inspect.getargspec(func.__wrapped__)[0]
+            args = inspect.getfullargspec(func.__wrapped__)[0]
         else:
-            args = inspect.getargspec(func)[0]
+            args = inspect.getfullargspec(func)[0]
         args.pop(0)
         if async_callbacks:
             if type(async_callbacks) != tuple:

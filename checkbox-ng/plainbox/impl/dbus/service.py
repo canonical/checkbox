@@ -432,10 +432,10 @@ class ObjectManager(Object):
                 else:
                     if len(props):
                         ifaces_and_props[iface_name] = props
-            self.InterfacesAdded(obj, ifaces_and_props)
+            self.InterfacesAdded(obj.__dbus_object_path__, ifaces_and_props)
         for obj in frozenset(old_objs) - frozenset(new_objs):
             ifaces = list(obj._dct_entry.keys())
-            self.InterfacesRemoved(obj, ifaces)
+            self.InterfacesRemoved(obj.__dbus_object_path__, ifaces)
 
     @dbus.service.method(
         dbus_interface=OBJECT_MANAGER_IFACE,

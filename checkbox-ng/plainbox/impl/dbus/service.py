@@ -619,3 +619,44 @@ class Object(Interface, dbus.service.Object):
         for obj in frozenset(old_objs) - frozenset(new_objs):
             ifaces = list(obj._dct_entry.keys())
             self.InterfacesRemoved(obj.__dbus_object_path__, ifaces)
+
+
+class ObjectWrapper(Object):
+    """
+    Wrapper for a single python object which makes it easier to expose over
+    DBus as a service. The object should be injected into something that
+    extends dbus.service.Object class.
+
+    The class maintains an association between each wrapper and native object
+    and offers methods for converting between the two.
+    """
+
+    # Lock protecting access to _native_id_to_wrapper_map
+    _native_id_map_lock = threading.Lock()
+
+    # Man of id(wrapper.native) -> wrapper
+    _native_id_to_wrapper_map = weakref.WeakValueDictionary()
+
+    def __init__(self, native, conn=None, object_path=None, bus_name=None):
+        """
+        Create a new wrapper for the specified native object
+        """
+        super(ObjectWrapper, self).__init__(conn, object_path, bus_name)
+        with self._native_id_map_lock:
+            self._native_id_to_wrapper_map[id(native)] = self
+        self._native = native
+
+    @_property
+    def native(self):
+        """
+        native python object being wrapped by this wrapper
+        """
+        return self._native
+
+    @classmethod
+    def find_wrapper_by_native(cls, native):
+        """
+        Find the wrapper associated with the specified native object
+        """
+        with cls._native_id_map_lock:
+            return cls._native_id_to_wrapper_map[id(native)]

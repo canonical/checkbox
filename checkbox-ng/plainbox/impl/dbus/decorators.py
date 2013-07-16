@@ -155,9 +155,15 @@ def method(dbus_interface, in_signature=None, out_signature=None,
     validate_interface_name(dbus_interface)
 
     def decorator(func):
-        args = inspect.getargspec(func)[0]
+        # If the function is decorated and uses @functools.wrapper then use the
+        # __wrapped__ attribute to look at the original function signature.
+        #
+        # This allows us to see past the generic *args, **kwargs seen on most decorators.
+        if hasattr(func, '__wrapped__'):
+            args = inspect.getargspec(func.__wrapped__)[0]
+        else:
+            args = inspect.getargspec(func)[0]
         args.pop(0)
-
         if async_callbacks:
             if type(async_callbacks) != tuple:
                 raise TypeError('async_callbacks must be a tuple of (keyword for return callback, keyword for error callback)')

@@ -31,6 +31,10 @@ import dbus
 import dbus.service
 import dbus.exceptions
 
+from plainbox.impl.signal import Signal
+from plainbox.impl.dbus import INTROSPECTABLE_IFACE
+from plainbox.impl.dbus import OBJECT_MANAGER_IFACE
+from plainbox.impl.dbus import PROPERTIES_IFACE
 # Note: use our own version of the decorators because
 # vanilla versions choke on annotations
 from plainbox.impl.dbus.decorators import method, signal
@@ -39,13 +43,15 @@ from plainbox.impl.dbus.decorators import method, signal
 # This is the good old standard python property decorator
 _property = property
 
-__all__ = ['signal', 'method', 'property', 'Object', 'Interface',
-           'ObjectManager']
+__all__ = [
+    'Interface',
+    'Object',
+    'method',
+    'property',
+    'signal',
+]
 
 logger = logging.getLogger("plainbox.dbus")
-
-
-OBJECT_MANAGER_IFACE = "org.freedesktop.DBus.ObjectManager"
 
 
 class InterfaceType(dbus.service.InterfaceType):
@@ -203,18 +209,34 @@ class property:
 
 class Object(Interface, dbus.service.Object):
     """
-    dbus.service.Object subclass that provides DBus properties interface.
+    dbus.service.Object subclass that providers additional features.
 
-    Implements Get(), Set() and GetAll(). Every actual property needs to
-    be implemented with the @dbus_property decorator.
+    This class providers the following additional features:
 
-    This class also overrides Introspect() from the
-    org.freedesktop.DBus.Introspectable interface so that all of the
-    properties are properly accounted for.
+    * Implementation of the PROPERTIES_IFACE. This includes the methods
+      Get(), Set(), GetAll() and the signal PropertiesChanged()
+
+    * Implementation of the OBJECT_MANAGER_IFACE. This includes the method
+      GetManagedObjects() and signals InterfacesAdded() and
+      InterfacesRemoved().
+
+    * Tracking of object-path-to-object association using the new
+      :meth:`find_object_by_path()` method
+
+    * Selective activation of any of the above interfaces using
+      :meth:`should_expose_interface()` method.
+
+    * Improved version of the INTROSPECTABLE_IFACE that understands properties
     """
 
+    def __init__(self, conn=None, object_path=None, bus_name=None):
+        dbus.service.Object.__init__(self, conn, object_path, bus_name)
+        self._managed_object_list = []
+
+    # [ Public DBus methods of the INTROSPECTABLE_IFACE interface ]
+
     @method(
-        dbus_interface=dbus.INTROSPECTABLE_IFACE,
+        dbus_interface=INTROSPECTABLE_IFACE,
         in_signature='', out_signature='s',
         path_keyword='object_path', connection_keyword='connection')
     def Introspect(self, object_path, connection):
@@ -228,6 +250,12 @@ class Object(Interface, dbus.service.Object):
         reflection_data += '<node name="%s">\n' % object_path
         interfaces = self._dct_entry
         for (name, funcs) in interfaces.items():
+            # Allow classes to ignore certain interfaces This is useful because
+            # this class implements all kinds of methods internally (for
+            # simplicity) but does not really advertise them all directly
+            # unless asked to.
+            if not self.should_expose_interface(name):
+                continue
             reflection_data += '  <interface name="%s">\n' % (name)
             for func in funcs.values():
                 if getattr(func, '_dbus_is_method', False):
@@ -243,6 +271,8 @@ class Object(Interface, dbus.service.Object):
         reflection_data += '</node>\n'
         logger.debug("Introspect() returns: %s", reflection_data)
         return reflection_data
+
+    # [ Public DBus methods of the PROPERTIES_IFACE interface ]
 
     @dbus.service.method(
         dbus_interface=dbus.PROPERTIES_IFACE,
@@ -363,44 +393,38 @@ class Object(Interface, dbus.service.Object):
             "PropertiesChanged(%r, %r, %r)",
             interface_name, changed_properties, invalidated_properties)
 
-    @_property
-    def _dct_key(self):
-        """
-        the key indexing this Object in Object.__class__._dbus_class_table
-        """
-        return self.__class__.__module__ + '.' + self.__class__.__name__
+    # [ Public DBus methods of the OBJECT_MANAGER_IFACE interface ]
 
-    @_property
-    def _dct_entry(self):
-        """
-        same as self.__class__._dbus_class_table[self._dct_key]
-        """
-        return self.__class__._dbus_class_table[self._dct_key]
+    @dbus.service.method(
+        dbus_interface=OBJECT_MANAGER_IFACE,
+        in_signature="", out_signature="a{oa{sa{sv}}}")
+    def GetManagedObjects(self):
+        logger.debug("%r.GetManagedObjects() -> ...", self)
+        result = {}
+        for obj in self._managed_object_list:
+            logger.debug("Looking for stuff exported by %r", obj)
+            result[obj] = {}
+            for iface_name in obj._dct_entry.keys():
+                props = obj.GetAll(iface_name)
+                if len(props):
+                    result[obj][iface_name] = props
+        logger.debug("%r.GetManagedObjects() -> %r", self, result)
+        return result
 
-    # Lock protecting access to _object_path_to_object_map.
+    @dbus.service.signal(
+        dbus_interface=OBJECT_MANAGER_IFACE,
+        signature='oa{sa{sv}}')
+    def InterfacesAdded(self, object_path, interfaces_and_properties):
+        logger.debug("%r.InterfacesAdded(%r, %r)",
+                     self, object_path, interfaces_and_properties)
 
-    # XXX: ideally this would be a per-connection attribute
-    _object_path_map_lock = threading.Lock()
+    @dbus.service.signal(
+        dbus_interface=OBJECT_MANAGER_IFACE, signature='oas')
+    def InterfacesRemoved(self, object_path, interfaces):
+        logger.debug("%r.InterfacesRemoved(%r, %r)",
+                     self, object_path, interfaces)
 
-    # Map of object_path -> dbus.service.Object instances
-    # XXX: ideally this would be a per-connection attribute
-    _object_path_to_object_map = weakref.WeakValueDictionary()
-
-    @classmethod
-    def find_object_by_path(cls, object_path):
-        """
-        Find and return the object that is exposed as object_path on any
-        connection. Using multiple connections is not supported at this time.
-
-        .. note::
-            This obviously only works for objects exposed from the same
-            application. The main use case is to have a way to lookup object
-            paths that may be passed as arguments and also originate in the
-            same application.
-        """
-        # XXX: ideally this would be per-connection method.
-        with cls._object_path_map_lock:
-            return cls._object_path_to_object_map[object_path]
+    # [ Overridden methods of dbus.service.Object ]
 
     def add_to_connection(self, connection, path):
         """
@@ -460,19 +484,54 @@ class Object(Interface, dbus.service.Object):
                 # association from the specified path.
                 del self._object_path_to_object_map[path]
 
+    # [ Custom Extension Methods ]
 
-from plainbox.impl.signal import Signal
+    def should_expose_interface(self, iface_name):
+        """
+        Check if the specified interface should be exposed.
 
+        This method controls which of the interfaces are visible as implemented
+        by this Object. By default objects don't implement any interface expect
+        for PEER_IFACE. There are two more interfaces that are implemented
+        internally but need to be explicitly exposed: the PROPERTIES_IFACE and
+        OBJECT_MANAGER_IFACE.
 
-class ObjectManager(Object):
+        Typically subclasses should NOT override this method, instead
+        subclasses should define class-scope HIDDEN_INTERFACES as a
+        frozenset() of classes to hide and remove one of the entries found in
+        _STD_INTERFACES from it to effectively enable that interface.
+        """
+        return iface_name not in self.HIDDEN_INTERFACES
 
-    def __init__(self, *args, **kwargs):
-        super(ObjectManager, self).__init__(*args, **kwargs)
-        self.__managed = []
+    @classmethod
+    def find_object_by_path(cls, object_path):
+        """
+        Find and return the object that is exposed as object_path on any
+        connection. Using multiple connections is not supported at this time.
+
+        .. note::
+            This obviously only works for objects exposed from the same
+            application. The main use case is to have a way to lookup object
+            paths that may be passed as arguments and also originate in the
+            same application.
+        """
+        # XXX: ideally this would be per-connection method.
+        with cls._object_path_map_lock:
+            return cls._object_path_to_object_map[object_path]
 
     @_property
     def managed_objects(self):
-        return self.__managed
+        """
+        list of of managed objects.
+
+        This collection is a part of the OBJECT_MANAGER_IFACE. While it can be
+        manipulated directly (technically) it should only be manipulated using
+        :meth:`add_managed_object()`, :meth:`add_manage_object_list()`,
+        :meth:`remove_managed_object()` and
+        :meth:`remove_managed_object_list()` as they send appropriate DBus
+        signals.
+        """
+        return self._managed_object_list
 
     def add_managed_object(self, obj):
         self.add_managed_object_list([obj])
@@ -485,27 +544,66 @@ class ObjectManager(Object):
         for obj in obj_list:
             if not isinstance(obj, Object):
                 raise TypeError("obj must be of type {!r}".format(Object))
-        old = self.__managed
+        old = self._managed_object_list
         new = list(old)
         new.extend(obj_list)
-        self.__managed = new
-        self.on_managed_objects_changed(old, new)
+        self._managed_object_list = new
+        self._on_managed_objects_changed(old, new)
 
     def remove_managed_object_list(self, obj_list):
         logger.debug("Removing managed objects: %s", obj_list)
         for obj in obj_list:
             if not isinstance(obj, Object):
                 raise TypeError("obj must be of type {!r}".format(Object))
-        old = self.__managed
+        old = self._managed_object_list
         new = list(old)
         for obj in obj_list:
             new.remove(obj)
-        self.__managed = new
-        self.on_managed_objects_changed(old, new)
+        self._managed_object_list = new
+        self._on_managed_objects_changed(old, new)
+
+    # [ Custom Private Implementation Data ]
+
+    _STD_INTERFACES = frozenset([
+        INTROSPECTABLE_IFACE,
+        OBJECT_MANAGER_IFACE,
+        # TODO: peer interface is not implemented in this class
+        # PEER_IFACE,
+        PROPERTIES_IFACE
+    ])
+
+    HIDDEN_INTERFACES = frozenset([
+        OBJECT_MANAGER_IFACE,
+        PROPERTIES_IFACE
+    ])
+
+    # Lock protecting access to _object_path_to_object_map.
+    # XXX: ideally this would be a per-connection attribute
+    _object_path_map_lock = threading.Lock()
+
+    # Map of object_path -> dbus.service.Object instances
+    # XXX: ideally this would be a per-connection attribute
+    _object_path_to_object_map = weakref.WeakValueDictionary()
+
+    # [ Custom Private Implementation Methods ]
+
+    @_property
+    def _dct_key(self):
+        """
+        the key indexing this Object in Object.__class__._dbus_class_table
+        """
+        return self.__class__.__module__ + '.' + self.__class__.__name__
+
+    @_property
+    def _dct_entry(self):
+        """
+        same as self.__class__._dbus_class_table[self._dct_key]
+        """
+        return self.__class__._dbus_class_table[self._dct_key]
 
     @Signal.define
-    def on_managed_objects_changed(self, old_objs, new_objs):
-        logger.debug("%r.on_managed_objects_changed(%r, %r)",
+    def _on_managed_objects_changed(self, old_objs, new_objs):
+        logger.debug("%r._on_managed_objects_changed(%r, %r)",
                      self, old_objs, new_objs)
         for obj in frozenset(new_objs) - frozenset(old_objs):
             ifaces_and_props = {}
@@ -521,32 +619,3 @@ class ObjectManager(Object):
         for obj in frozenset(old_objs) - frozenset(new_objs):
             ifaces = list(obj._dct_entry.keys())
             self.InterfacesRemoved(obj.__dbus_object_path__, ifaces)
-
-    @dbus.service.method(
-        dbus_interface=OBJECT_MANAGER_IFACE,
-        in_signature="", out_signature="a{oa{sa{sv}}}")
-    def GetManagedObjects(self):
-        logger.debug("%r.GetManagedObjects() -> ...", self)
-        result = {}
-        for obj in self.__managed:
-            logger.debug("Looking for stuff exported by %r", obj)
-            result[obj] = {}
-            for iface_name in obj._dct_entry.keys():
-                props = obj.GetAll(iface_name)
-                if len(props):
-                    result[obj][iface_name] = props
-        logger.debug("%r.GetManagedObjects() -> %r", self, result)
-        return result
-
-    @dbus.service.signal(
-        dbus_interface=OBJECT_MANAGER_IFACE,
-        signature='oa{sa{sv}}')
-    def InterfacesAdded(self, object_path, interfaces_and_properties):
-        logger.debug("%r.InterfacesAdded(%r, %r)",
-                     self, object_path, interfaces_and_properties)
-
-    @dbus.service.signal(
-        dbus_interface=OBJECT_MANAGER_IFACE, signature='oas')
-    def InterfacesRemoved(self, object_path, interfaces):
-        logger.debug("%r.InterfacesRemoved(%r, %r)",
-                     self, object_path, interfaces)

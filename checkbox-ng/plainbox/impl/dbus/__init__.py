@@ -22,11 +22,26 @@
 ===========================================================
 """
 
-__all__ = ['service', 'exceptions', 'Signature', 'Struct', 'types']
+__all__ = [
+    'service',
+    'exceptions',
+    'Signature',
+    'Struct',
+    'types',
+    'INTROSPECTABLE_IFACE',
+    'PEER_IFACE',
+    'PROPERTIES_IFACE',
+    'OBJECT_MANAGER_IFACE',
+]
 
+from dbus import INTROSPECTABLE_IFACE
+from dbus import PEER_IFACE
+from dbus import PROPERTIES_IFACE
 from dbus import Signature
 from dbus import Struct
 from dbus import exceptions
 from dbus import types
+
+OBJECT_MANAGER_IFACE = "org.freedesktop.DBus.ObjectManager"
 
 from plainbox.impl.dbus import service

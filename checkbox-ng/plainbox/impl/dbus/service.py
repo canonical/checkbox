@@ -23,6 +23,8 @@
 """
 
 import logging
+import threading
+import weakref
 
 import _dbus_bindings
 import dbus
@@ -374,6 +376,89 @@ class Object(Interface, dbus.service.Object):
         same as self.__class__._dbus_class_table[self._dct_key]
         """
         return self.__class__._dbus_class_table[self._dct_key]
+
+    # Lock protecting access to _object_path_to_object_map.
+
+    # XXX: ideally this would be a per-connection attribute
+    _object_path_map_lock = threading.Lock()
+
+    # Map of object_path -> dbus.service.Object instances
+    # XXX: ideally this would be a per-connection attribute
+    _object_path_to_object_map = weakref.WeakValueDictionary()
+
+    @classmethod
+    def find_object_by_path(cls, object_path):
+        """
+        Find and return the object that is exposed as object_path on any
+        connection. Using multiple connections is not supported at this time.
+
+        .. note::
+            This obviously only works for objects exposed from the same
+            application. The main use case is to have a way to lookup object
+            paths that may be passed as arguments and also originate in the
+            same application.
+        """
+        # XXX: ideally this would be per-connection method.
+        with cls._object_path_map_lock:
+            return cls._object_path_to_object_map[object_path]
+
+    def add_to_connection(self, connection, path):
+        """
+        Version of dbus.service.Object.add_to_connection() that keeps track of
+        all object paths.
+        """
+        with self._object_path_map_lock:
+            # Super-call add_to_connection(). This can fail which is
+            # okay as we haven't really modified anything yet.
+            super(Object, self).add_to_connection(connection, path)
+            # Touch self.connection, this will fail if the call above failed
+            # and self._connection (mind the leading underscore) is still None.
+            # It will also fail if the object is being exposed on multiple
+            # connections (so self._connection is _MANY). We are interested in
+            # the second check as _MANY connections are not supported here.
+            self.connection
+            # If everything is okay, just add the specified path to the
+            # _object_path_to_object_map.
+            self._object_path_to_object_map[path] = self
+
+    def remove_from_connection(self, connection=None, path=None):
+        with self._object_path_map_lock:
+            # Touch self.connection, this triggers a number of interesting
+            # checks, in particular checks for self._connection (mind the
+            # leading underscore) being _MANY or being None. Both of those
+            # throw an AttributeError that we can simply propagate at this
+            # point.
+            self.connection
+            # Create a copy of locations. This is required because locations
+            # are modified by remove_from_connection() which can also fail.  If
+            # we were to use self.locations here directly we would have to undo
+            # any changes if remove_from_connection() raises an exception.
+            # Instead it is easier to first super-call remove_from_connection()
+            # and then do what we need to at this layer, after
+            # remove_from_connection() finishes successfully.
+            locations_copy = list(self.locations)
+            # Super-call remove_from_connection()
+            super(Object, self).remove_from_connection(connection, path)
+            # If either path or connection are none then treat them like
+            # match-any wild-cards. The same logic is implemented in the
+            # superclass version of this method.
+            if path is None or connection is None:
+                # Location is a tuple of at least two elements, connection and
+                # path. There may be other elements added later so let's not
+                # assume this is a simple pair.
+                for location in locations_copy:
+                    location_conn = location[0]
+                    location_path = location[1]
+                    # If (connection matches or is None)
+                    # and (path matches or is None)
+                    # then remove that association
+                    if ((location_conn == connection or connection is None)
+                            and (path == location_path or path is None)):
+                        del self._object_path_to_object_map[location_path]
+            else:
+                # If connection and path were specified, just remove the
+                # association from the specified path.
+                del self._object_path_to_object_map[path]
 
 
 from plainbox.impl.signal import Signal

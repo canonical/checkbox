@@ -91,6 +91,9 @@ class property:
         self._setf = None
         self._implicit_setter = setter
 
+    def __repr__(self):
+        return "<dbus.service.property {!r}>".format(self.__name__)
+
     @_property
     def dbus_access_flag(self):
         """

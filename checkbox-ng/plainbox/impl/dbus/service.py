@@ -387,20 +387,29 @@ class ObjectManager(Object):
         return self.__managed
 
     def add_managed_object(self, obj):
-        if not isinstance(obj, Object):
-            raise TypeError("obj must be of type {!r}".format(Object))
+        self.add_managed_object_list([obj])
+
+    def remove_managed_object(self, obj):
+        self.remove_managed_object_list([obj])
+
+    def add_managed_object_list(self, obj_list):
+        for obj in obj_list:
+            if not isinstance(obj, Object):
+                raise TypeError("obj must be of type {!r}".format(Object))
         old = self.__managed
         new = list(old)
-        new.append(obj)
+        new.extend(obj_list)
         self.__managed = new
         self.on_managed_objects_changed(old, new)
 
-    def remove_managed_object(self, obj):
-        if not isinstance(obj, Object):
-            raise TypeError("obj must be of type {!r}".format(Object))
+    def remove_managed_object_list(self, obj_list):
+        for obj in obj_list:
+            if not isinstance(obj, Object):
+                raise TypeError("obj must be of type {!r}".format(Object))
         old = self.__managed
         new = list(old)
-        new.remove(obj)
+        for obj in obj_list:
+            new.remove(obj)
         self.__managed = new
         self.on_managed_objects_changed(old, new)
 

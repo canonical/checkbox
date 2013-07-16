@@ -396,6 +396,7 @@ class ObjectManager(Object):
         self.remove_managed_object_list([obj])
 
     def add_managed_object_list(self, obj_list):
+        logger.debug("Adding managed objects: %s", obj_list)
         for obj in obj_list:
             if not isinstance(obj, Object):
                 raise TypeError("obj must be of type {!r}".format(Object))
@@ -406,6 +407,7 @@ class ObjectManager(Object):
         self.on_managed_objects_changed(old, new)
 
     def remove_managed_object_list(self, obj_list):
+        logger.debug("Removing managed objects: %s", obj_list)
         for obj in obj_list:
             if not isinstance(obj, Object):
                 raise TypeError("obj must be of type {!r}".format(Object))

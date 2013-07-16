@@ -22,10 +22,11 @@
 ===========================================================
 """
 
-__all__ = ['service', 'exceptions', 'Signature', 'Struct']
+__all__ = ['service', 'exceptions', 'Signature', 'Struct', 'types']
 
 from dbus import Signature
 from dbus import Struct
 from dbus import exceptions
+from dbus import types
 
 from plainbox.impl.dbus import service

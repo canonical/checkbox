@@ -29,7 +29,10 @@ import dbus
 import dbus.service
 import dbus.exceptions
 
-from dbus.service import method, signal
+# Note: use our own version of the decorators because
+# vanilla versions choke on annotations
+from plainbox.impl.dbus.decorators import method, signal
+
 
 # This is the good old standard python property decorator
 _property = property

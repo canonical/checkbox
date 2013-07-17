@@ -32,7 +32,8 @@ from dbus.service import BusName
 from gi.repository import GObject
 
 from plainbox.impl.commands import PlainBoxCommand
-from plainbox.impl.service import Service
+from plainbox.impl.highlevel import Service
+from plainbox.impl.service import ServiceWrapper
 
 
 logger = logging.getLogger("plainbox.commands.service")
@@ -73,11 +74,16 @@ class ServiceInvocation:
     def run(self):
         bus, loop = connect_to_session_bus()
         logger.info("Setting up DBus objects...")
-        provider_list = []  # TODO: load providers
+        provider_list = [self.provider]
         session_list = []  # TODO: load sessions
-        service_obj = Service(
-            provider_list, session_list,
-            on_exit=lambda: loop.quit(), conn=bus)
+        logger.debug("Constructing Service object")
+        service_obj = Service(provider_list, session_list)
+        logger.debug("Constructing ServiceWrapper")
+        service_wrp = ServiceWrapper(service_obj, on_exit=lambda: loop.quit())
+        logger.info("Publishing all objects on DBus")
+        service_wrp.publish_objects(bus)
+        logger.info("Publishing all children (events should fire there)")
+        service_wrp.publish_children()
         logger.debug("Attempting to claim bus name: %s", self.ns.bus_name)
         bus_name = BusName(self.ns.bus_name, bus)
         logger.info(
@@ -95,7 +101,7 @@ class ServiceInvocation:
             # XXX: ugly but that's how one can reliably release a bus name
             del bus_name
             # Remove objects from the bus
-            service_obj.remove_from_connection()
+            service_wrp.remove_from_connection()
             logger.debug("Closing %s", bus)
             bus.close()
             logger.debug("Main loop terminated, exiting...")

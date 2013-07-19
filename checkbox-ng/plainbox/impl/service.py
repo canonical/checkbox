@@ -30,7 +30,7 @@ try:
     from inspect import Signature
 except ImportError:
     try:
-        from funcsigs import Signature
+        from plainbox.vendor.funcsigs import Signature
     except ImportError:
         raise SystemExit("DBus parts require 'funcsigs' from pypi.")
 

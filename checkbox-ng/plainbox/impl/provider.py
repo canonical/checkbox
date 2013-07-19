@@ -218,7 +218,7 @@ class Provider1(IProvider1, IProviderBackend1):
             This variable is only required by one script.
             It would be nice to remove this later on.
         """
-        return self.jobs_dir
+        return self._base_dir
 
     @property
     def extra_PYTHONPATH(self):

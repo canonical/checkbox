@@ -193,6 +193,9 @@ class PlainBoxObjectWrapper(dbus.service.ObjectWrapper):
                     object_path_list = bound.arguments[param.name]
                     bound.arguments[param.name] = translate_ao(
                         object_path_list)
+                elif param.annotation in ('s', 'as'):
+                    strings = bound.arguments[param.name]
+                    bound.arguments[param.name] = strings
                 else:
                     raise ValueError(
                         "unsupported translation {!r}".format(
@@ -719,6 +722,22 @@ class ServiceWrapper(PlainBoxObjectWrapper):
         """
         # TODO: raise exception when job is in progress
         self._on_exit()
+
+    @dbus.service.method(
+        dbus_interface=SERVICE_IFACE, in_signature='', out_signature='a{sas}')
+    def GetAllExporters(self):
+        """
+        Get all exporters names and their respective options
+        """
+        return self.native.get_all_exporters()
+
+    @dbus.service.method(
+        dbus_interface=SERVICE_IFACE, in_signature='osass', out_signature='')
+    @PlainBoxObjectWrapper.translate
+    def ExportSession(self, session: 'o', output_format: 's',
+                      option_list: 'as', output_file: 's'):
+        return self.native.export_session(session, output_format, option_list,
+                                          output_file)
 
     @dbus.service.method(
         dbus_interface=SERVICE_IFACE, in_signature='ao', out_signature='o')

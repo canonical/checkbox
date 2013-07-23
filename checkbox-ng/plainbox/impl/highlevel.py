@@ -26,6 +26,7 @@ import logging
 
 from plainbox import __version__ as plainbox_version
 from plainbox.impl.exporter import get_all_exporters
+from plainbox.impl.runner import JobRunner
 from plainbox.impl.session.state import SessionState
 
 
@@ -70,5 +71,8 @@ class Service:
             exporter.dump(data_subset, f)
 
     def run_job(self, session, job):
-        # TODO: run the job for real
-        raise NotImplementedError()
+        with session.open():
+            runner = JobRunner(session.session_dir, session.jobs_io_log_dir)
+            job_result = runner.run_job(job)
+            if job_result is not None:
+                session.update_job_result(job, job_result)

@@ -755,3 +755,9 @@ class ServiceWrapper(PlainBoxObjectWrapper):
         session_wrp.publish_children()
         # Return the session wrapper back
         return session_wrp
+
+    @dbus.service.method(
+        dbus_interface=SERVICE_IFACE, in_signature='oo', out_signature='')
+    @PlainBoxObjectWrapper.translate
+    def RunJob(self, session: 'o', job: 'o'):
+        self.native.run_job(session, job)

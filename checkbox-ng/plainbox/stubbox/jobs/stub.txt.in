@@ -52,3 +52,10 @@ _description:
      2. Set the result as passed
  VERIFICATION:
      Check that in the report the result is passed and the comment is displayed
+
+plugin: local
+name: __local__
+_description: stub local tests
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/local.txt?(.in)

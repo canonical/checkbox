@@ -6,3 +6,5 @@ stub/dependency/bad
 stub/requirement/good
 stub/requirement/bad
 stub/manual
+__local__
+stub/local/true

@@ -440,6 +440,10 @@ class JobStateWrapper(PlainBoxObjectWrapper):
 
     def __shared_initialize__(self, **kwargs):
         self._result_wrapper = JobResultWrapper(self.native.result)
+        self.native.on_result_changed.connect(self.on_result_changed)
+
+    def __del__(self):
+        self.native.on_result_changed.disconnect(self.on_result_changed)
 
     def publish_objects(self, connection):
         super(JobStateWrapper, self).publish_objects(connection)
@@ -479,7 +483,13 @@ class JobStateWrapper(PlainBoxObjectWrapper):
         """
         return self.native.result
 
-    # TODO: signal<result>
+    @Signal.define
+    def on_result_changed(self):
+        result_wrapper = JobResultWrapper(self.native.result)
+        result_wrapper.publish_objects(self.connection)
+        self.PropertiesChanged(JOB_STATE_IFACE, {
+            self.__class__.result._dbus_property: result_wrapper
+        }, [])
 
     @dbus.service.property(dbus_interface=JOB_STATE_IFACE, signature='a(isss)')
     def readiness_inhibitor_list(self):

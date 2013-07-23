@@ -31,6 +31,7 @@ import logging
 
 from plainbox.abc import IJobResult
 from plainbox.impl.result import MemoryJobResult
+from plainbox.impl.signal import Signal
 
 logger = logging.getLogger("plainbox.session.jobs")
 
@@ -218,10 +219,15 @@ class JobState:
 
         def fset(self, value):
             self._result = value
+            self.on_result_changed()
 
         return (fget, fset, None, doc)
 
     result = property(*_result())
+
+    @Signal.define
+    def on_result_changed(self):
+        pass
 
     def can_start(self):
         """

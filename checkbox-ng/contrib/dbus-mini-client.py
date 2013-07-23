@@ -101,6 +101,6 @@ for k, job_state_path in job_state_map.items():
 
 output_file = service.ExportSession(session_object_path,
                                     "json",
-                                    ['with-io-log', 'with-job-via '],
+                                    ['with-io-log', 'with-job-via'],
                                     "/tmp/report.json",
                                     dbus_interface='com.canonical.certification.PlainBox.Service1')

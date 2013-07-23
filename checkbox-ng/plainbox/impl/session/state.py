@@ -38,6 +38,7 @@ from plainbox.impl.result import DiskJobResult
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.rfc822 import RFC822SyntaxError
 from plainbox.impl.rfc822 import gen_rfc822_records
+from plainbox.impl.signal import Signal
 from plainbox.impl.session.jobs import (
     JobState, JobReadinessInhibitor, UndesiredJobReadinessInhibitor)
 
@@ -522,6 +523,7 @@ class SessionState(_LegacySessionState):
         assert job in self._job_list
         # Store the result in job_state_map
         self._job_state_map[job.name].result = result
+        self.on_job_state_map_changed()
         # Treat some jobs specially and interpret their output
         if job.plugin == "resource":
             self._process_resource_result(job, result)
@@ -673,6 +675,10 @@ class SessionState(_LegacySessionState):
         Map from job name to JobState that encodes the state of each job.
         """
         return self._job_state_map
+
+    @Signal.define
+    def on_job_state_map_changed(self):
+        pass
 
     @property
     def metadata(self):

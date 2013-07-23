@@ -537,6 +537,10 @@ class SessionWrapper(PlainBoxObjectWrapper):
             job_name: JobStateWrapper(job_state)
             for job_name, job_state in self.native.job_state_map.items()
         }
+        self.native.on_job_state_map_changed.connect(self.on_job_state_map_changed)
+
+    def __del__(self):
+        self.native.on_job_state_map_changed.disconnect(self.on_job_state_map_changed)
 
     def publish_objects(self, connection):
         self.publish_self(connection)
@@ -610,7 +614,11 @@ class SessionWrapper(PlainBoxObjectWrapper):
     def job_state_map(self) -> 'a{so}':
         return self.native.job_state_map
 
-    # TODO: signal<job_state_map>
+    @Signal.define
+    def on_job_state_map_changed(self):
+        self.PropertiesChanged(SESSION_IFACE, {
+            self.__class__.job_state_map._dbus_property: self.job_state_map
+        }, [])
 
     @dbus.service.property(dbus_interface=SESSION_IFACE, signature='a{sv}')
     def metadata(self):

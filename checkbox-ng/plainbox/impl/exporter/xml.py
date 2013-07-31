@@ -116,8 +116,8 @@ class XMLSessionStateExporter(SessionStateExporterBase):
         IJobResult.OUTCOME_SKIP: IJobResult.OUTCOME_SKIP,
         IJobResult.OUTCOME_NOT_SUPPORTED: IJobResult.OUTCOME_SKIP}
 
-    def __init__(self, system_id=None, timestamp=None, client_version=None,
-                 client_name='plainbox'):
+    def __init__(self, option_list=None, system_id=None, timestamp=None,
+                 client_version=None, client_name='plainbox'):
         """
         Initialize a new XMLSessionStateExporter with given arguments.
 

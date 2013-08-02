@@ -23,9 +23,12 @@
 """
 
 import logging
+from threading import Thread
 
 from plainbox import __version__ as plainbox_version
+from plainbox.abc import IJobResult
 from plainbox.impl.exporter import get_all_exporters
+from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.session.state import SessionState
 
@@ -57,7 +60,9 @@ class Service:
         # TODO: construct state
         # TODO: construct manager, binding storage and state
         # TODO: if something fails destroy storage
-        return SessionState(job_list)
+        session = SessionState(job_list)
+        session.open()
+        return session
 
     def get_all_exporters(self):
         return {name: exporter_cls.supported_option_list for
@@ -71,9 +76,29 @@ class Service:
             exporter.dump(data_subset, f)
         return output_file
 
-    def run_job(self, session, job):
-        with session.open():
-            runner = JobRunner(session.session_dir, session.jobs_io_log_dir)
+    def _run(self, session, job, running_job_wrapper):
+        """
+        Start a JobRunner in a separate thread
+        """
+        runner = JobRunner(
+            session.session_dir,
+            session.jobs_io_log_dir,
+            command_io_delegate=running_job_wrapper.ui_io_delegate,
+            outcome_callback=running_job_wrapper.emitAskForOutcomeSignal
+        )
+        job_state = session.job_state_map[job.name]
+        if job_state.can_start():
             job_result = runner.run_job(job)
-            if job_result is not None:
-                session.update_job_result(job, job_result)
+        else:
+            job_result = MemoryJobResult({
+                'outcome': IJobResult.OUTCOME_NOT_SUPPORTED,
+                'comments': job_state.get_readiness_description()
+            })
+        if job_result is not None:
+            session.update_job_result(job, job_result)
+
+    def run_job(self, session, job, running_job_wrapper):
+        runner = Thread(target=self._run,
+                        args=(session, job, running_job_wrapper))
+        runner.start()
+        return job

@@ -22,9 +22,12 @@
 =========================================================
 """
 
+from threading import Thread
+import collections
 import functools
 import itertools
 import logging
+import random
 
 try:
     from inspect import Signature
@@ -33,9 +36,12 @@ except ImportError:
         from plainbox.vendor.funcsigs import Signature
     except ImportError:
         raise SystemExit("DBus parts require 'funcsigs' from pypi.")
+from plainbox.vendor import extcmd
 
 from plainbox.impl import dbus
 from plainbox.impl.dbus import OBJECT_MANAGER_IFACE
+from plainbox.impl.result import DiskJobResult
+from plainbox.impl.runner import JobRunner
 from plainbox.impl.signal import Signal
 
 
@@ -51,6 +57,7 @@ JOB_RESULT_IFACE = _BASE_IFACE + "PlainBox.Result1"
 JOB_STATE_IFACE = _BASE_IFACE + "PlainBox.JobState1"
 WHITELIST_IFACE = _BASE_IFACE + "PlainBox.WhiteList1"
 CHECKBOX_JOB_IFACE = _BASE_IFACE + "CheckBox.JobDefinition1"
+RUNNING_JOB_IFACE = _BASE_IFACE + "PlainBox.RunningJob1"
 
 
 class PlainBoxObjectWrapper(dbus.service.ObjectWrapper):
@@ -805,7 +812,99 @@ class ServiceWrapper(PlainBoxObjectWrapper):
         return session_wrp
 
     @dbus.service.method(
-        dbus_interface=SERVICE_IFACE, in_signature='oo', out_signature='')
+        dbus_interface=SERVICE_IFACE, in_signature='oo', out_signature='o')
     @PlainBoxObjectWrapper.translate
     def RunJob(self, session: 'o', job: 'o'):
-        self.native.run_job(session, job)
+        running_job_wrp = RunningJob(job, session, conn=self.connection)
+        self.native.run_job(session, job, running_job_wrp)
+        return running_job_wrp
+
+
+class UIOutputPrinter(extcmd.DelegateBase):
+    """
+    Delegate for extcmd that redirect all output to the UI.
+    """
+
+    def __init__(self, runner):
+        self._lineno = collections.defaultdict(int)
+        self._runner = runner
+
+    def on_line(self, stream_name, line):
+        self._lineno[stream_name] += 1
+        self._runner.IOLogGenerated(self._lineno[stream_name],
+                                    stream_name, line)
+
+
+class RunningJob(dbus.service.Object):
+    """
+    DBus representation of a running job.
+    """
+
+    def __init__(self, job, session, conn=None, object_path=None,
+                 bus_name=None):
+        self.path = object_path
+        if object_path is None:
+            id = str(random.uniform(1, 10)).replace('.', '')
+            self.path = "/plainbox/jobrunner/{}".format(id)
+        dbus.service.Object.__init__(self, conn, self.path, bus_name)
+        self.job = job
+        self.session = session
+        self.result = {}
+        self.ui_io_delegate = UIOutputPrinter(self)
+
+    @dbus.service.method(
+        dbus_interface=RUNNING_JOB_IFACE, in_signature='', out_signature='')
+    def Kill(self):
+        pass
+
+    @dbus.service.method(
+        dbus_interface=RUNNING_JOB_IFACE, in_signature='', out_signature='')
+    def Pause(self):
+        pass
+
+    @dbus.service.method(
+        dbus_interface=RUNNING_JOB_IFACE, in_signature='s', out_signature='')
+    def SetOutcome(self, outcome):
+        self.result['outcome'] = outcome
+        job_result = DiskJobResult(self.result)
+        self.session.update_job_result(self.job, job_result)
+
+    @dbus.service.method(
+        dbus_interface=RUNNING_JOB_IFACE, in_signature='s', out_signature='')
+    def SetComments(self, comments):
+        pass
+
+    def _command_callback(self, return_code, record_path):
+        self.result['return_code'] = return_code
+        self.result['io_log_filename'] = record_path
+        self.emitAskForOutcomeSignal()
+
+    def _run_command(self, session, job, parent):
+        """
+        Run a Job command in a separate thread
+        """
+        ui_io_delegate = UIOutputPrinter(self)
+        runner = JobRunner(session.session_dir, session.jobs_io_log_dir,
+                           command_io_delegate=ui_io_delegate)
+        return_code, record_path = runner._run_command(job, None)
+        parent._command_callback(return_code, record_path)
+
+    @dbus.service.method(
+        dbus_interface=RUNNING_JOB_IFACE, in_signature='', out_signature='')
+    def RunCommand(self):
+        runner = Thread(target=self._run_command,
+                        args=(self.session, self.job, self))
+        runner.start()
+
+    @dbus.service.signal(
+        dbus_interface=SERVICE_IFACE, signature='dsay')
+    def IOLogGenerated(self, offset, name, data):
+        pass
+
+    @dbus.service.signal(
+        dbus_interface=SERVICE_IFACE, signature='o')
+    def AskForOutcome(self, runner):
+        pass
+
+    def emitAskForOutcomeSignal(self):
+        self.AskForOutcome(self.path)

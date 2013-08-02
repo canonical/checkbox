@@ -30,18 +30,23 @@ from plainbox.abc import IJobResult
 
 bus = dbus.SessionBus(mainloop=DBusGMainLoop())
 
+# TODO: Create a class to remove all global var.
 current_job_path = None
 service = None
 session_object_path = None
+session_object = None
 run_list = None
 desired_job_list = None
+whitelist = None
 
 
 def main():
     global service
     global session_object_path
+    global session_object
     global run_list
     global desired_job_list
+    global whitelist
 
     whitelist = bus.get_object(
         'com.canonical.certification.PlainBox',
@@ -88,9 +93,16 @@ def main():
             object,
             dbus_interface='com.canonical.certification.PlainBox.WhiteList1')]
 
+    desired_local_job_list = sorted([
+        object for object in desired_job_list if
+        bus.get_object('com.canonical.certification.PlainBox', object).Get(
+            'com.canonical.certification.CheckBox.JobDefinition1',
+            'plugin') == 'local'
+    ])
+
     #Now I update the desired job list.
     session_object.UpdateDesiredJobList(
-        desired_job_list,
+        desired_local_job_list,
         dbus_interface='com.canonical.certification.PlainBox.Session1'
     )
 
@@ -100,9 +112,15 @@ def main():
         'run_list'
     )
 
+    # Add some signal receivers
+    bus.add_signal_receiver(
+        catchall_local_job_result_available_signals_handler,
+        dbus_interface="com.canonical.certification.PlainBox.Service1",
+        signal_name="JobResultAvailable")
+
     # Start running jobs
-    print("[ Running All Jobs ]".center(80, '='))
-    run_jobs()
+    print("[ Running All Local Jobs ]".center(80, '='))
+    run_local_jobs()
 
 
 def ask_for_outcome(prompt=None, allowed=None):
@@ -181,25 +199,21 @@ def catchall_io_log_generated_signals_handler(offset, name, data):
         pass
 
 
+def catchall_local_job_result_available_signals_handler(job, result):
+    # XXX: check if the job path actually matches the current_job_path
+     # Update the session job state map and run new jobs
+    global session_object
+    session_object.UpdateJobResult(
+        job, result,
+        reply_handler=run_local_jobs,
+        error_handler=handle_error,
+        dbus_interface='com.canonical.certification.PlainBox.Session1')
+
+
 def catchall_job_result_available_signals_handler(job, result):
     # XXX: check if the job path actually matches the current_job_path
-    global session_object_path
-    global desired_job_list
-    session_object = bus.get_object(
-        'com.canonical.certification.PlainBox',
-        session_object_path
-    )
-    # After running each job, re-update the desired job list.
-    # This is needed so that we scan for newly created jobs in the
-    # native session object, and ensure their JobDefinition and JobState
-    # wrappers are created and published.
-    # XXX: this is a blocking call, needs to create proper reply handlers to
-    # get asynchronous behavior.
-    session_object.UpdateDesiredJobList(
-        desired_job_list,
-        dbus_interface='com.canonical.certification.PlainBox.Session1'
-    )
-    # Update the session job state map and run new jobs
+     # Update the session job state map and run new jobs
+    global session_object
     session_object.UpdateJobResult(
         job, result,
         reply_handler=run_jobs,
@@ -208,10 +222,12 @@ def catchall_job_result_available_signals_handler(job, result):
 
 
 def run_jobs():
+    global run_list
     #Now the actual run, job by job.
     if run_list:
         job_path = run_list.pop(0)
         global current_job_path
+        global session_object_path
         current_job_path = job_path
         job_def_object = bus.get_object(
             'com.canonical.certification.PlainBox', current_job_path)
@@ -228,6 +244,85 @@ def run_jobs():
         service.RunJob(session_object_path, job_path)
     else:
         show_results()
+
+
+def run_local_jobs():
+    global run_list
+    global desired_job_list
+    global whitelist
+    if run_list:
+        job_path = run_list.pop(0)
+        global current_job_path
+        global session_object_path
+        current_job_path = job_path
+        job_def_object = bus.get_object(
+            'com.canonical.certification.PlainBox', current_job_path)
+        job_name = job_def_object.Get(
+            'com.canonical.certification.PlainBox.JobDefinition1', 'name')
+        job_desc = job_def_object.Get(
+            'com.canonical.certification.PlainBox.JobDefinition1',
+            'description')
+        print("[ {} ]".format(job_name).center(80, '-'))
+        if job_desc:
+            print(job_desc)
+        service.RunJob(session_object_path, job_path)
+    else:
+        #Now I update the desired job list to get jobs created from local jobs.
+        session_object.UpdateDesiredJobList(
+            desired_job_list,
+            dbus_interface='com.canonical.certification.PlainBox.Session1'
+        )
+        bus.add_signal_receiver(
+            catchall_ask_for_outcome_signals_handler,
+            dbus_interface="com.canonical.certification.PlainBox.Service1",
+            signal_name="AskForOutcome")
+
+        bus.add_signal_receiver(
+            catchall_io_log_generated_signals_handler,
+            dbus_interface="com.canonical.certification.PlainBox.Service1",
+            signal_name="IOLogGenerated",
+            byte_arrays=True)  # To easily convert the byte arrays to strings
+
+        # Replace the job result handler we created for local jobs for by the
+        # one dedicated to regular job types
+        bus.remove_signal_receiver(
+            catchall_local_job_result_available_signals_handler,
+            dbus_interface="com.canonical.certification.PlainBox.Service1",
+            signal_name="JobResultAvailable")
+
+        bus.add_signal_receiver(
+            catchall_job_result_available_signals_handler,
+            dbus_interface="com.canonical.certification.PlainBox.Service1",
+            signal_name="JobResultAvailable")
+
+        job_list = session_object.Get(
+            'com.canonical.certification.PlainBox.Session1',
+            'job_list'
+        )
+
+        #to get only the *jobs* that are designated by the whitelist.
+        desired_job_list = [
+            object for object in job_list if whitelist.Designates(
+                object,
+                dbus_interface=
+                'com.canonical.certification.PlainBox.WhiteList1')]
+
+        #Now I update the desired job list.
+        # XXX: Remove previous local jobs from this list to avoid evaluating
+        # them twice
+        session_object.UpdateDesiredJobList(
+            desired_job_list,
+            dbus_interface='com.canonical.certification.PlainBox.Session1'
+        )
+
+        #Now, the run_list contains the list of jobs I actually need to run \o/
+        run_list = session_object.Get(
+            'com.canonical.certification.PlainBox.Session1',
+            'run_list'
+        )
+
+        print("[ Running All Jobs ]".center(80, '='))
+        run_jobs()
 
 
 def show_results():
@@ -282,23 +377,6 @@ def export_session():
         reply_handler=handle_export_reply,
         error_handler=handle_error
     )
-
-# Add some signal receivers
-bus.add_signal_receiver(
-    catchall_ask_for_outcome_signals_handler,
-    dbus_interface="com.canonical.certification.PlainBox.Service1",
-    signal_name="AskForOutcome")
-
-bus.add_signal_receiver(
-    catchall_io_log_generated_signals_handler,
-    dbus_interface="com.canonical.certification.PlainBox.Service1",
-    signal_name="IOLogGenerated",
-    byte_arrays=True)  # To easily convert the byte arrays to strings
-
-bus.add_signal_receiver(
-    catchall_job_result_available_signals_handler,
-    dbus_interface="com.canonical.certification.PlainBox.Service1",
-    signal_name="JobResultAvailable")
 
 # Start the first call after a short delay
 GObject.timeout_add(5, main)

@@ -1,6 +1,6 @@
 plugin: shell
 name: stub/true
-command: true
+command: true; echo oops
 _description:
  Check success result from shell test case
 
@@ -44,6 +44,7 @@ _description:
 
 plugin: manual
 name: stub/manual
+command: echo Bonjour PlainBox
 _description:
  PURPOSE:
      This test checks that the manual plugin works fine

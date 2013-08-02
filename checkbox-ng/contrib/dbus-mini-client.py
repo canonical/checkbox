@@ -75,6 +75,14 @@ run_list = session_object.Get(
 #Now the actual run, job by job.
 for job_path in run_list:
     service.RunJob(session_object_path, job_path)
+    #After running each job, re-update the desired job list.
+    #This is needed so that we scan for newly created jobs in the
+    #native session object, and ensure their JobDefinition and JobState
+    #wrappers are created and published.
+    session_object.UpdateDesiredJobList(
+        desired_job_list,
+        dbus_interface='com.canonical.certification.PlainBox.Session1'
+    )
 
 job_state_map = session_object.Get('com.canonical.certification.PlainBox.Session1', 'job_state_map')
 

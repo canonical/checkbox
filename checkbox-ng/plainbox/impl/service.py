@@ -486,10 +486,18 @@ class JobStateWrapper(PlainBoxObjectWrapper):
     @Signal.define
     def on_result_changed(self):
         result_wrapper = JobResultWrapper(self.native.result)
-        result_wrapper.publish_objects(self.connection)
-        self.PropertiesChanged(JOB_STATE_IFACE, {
-            self.__class__.result._dbus_property: result_wrapper
-        }, [])
+        try:
+            result_wrapper.publish_objects(self.connection)
+        except KeyError:
+            logger.warning("Result already exists for: %r", result_wrapper)
+            self.PropertiesChanged(JOB_STATE_IFACE, {
+                self.__class__.result._dbus_property:
+                result_wrapper._get_preferred_object_path()
+            }, [])
+        else:
+            self.PropertiesChanged(JOB_STATE_IFACE, {
+                self.__class__.result._dbus_property: result_wrapper
+            }, [])
 
     @dbus.service.property(dbus_interface=JOB_STATE_IFACE, signature='a(isss)')
     def readiness_inhibitor_list(self):

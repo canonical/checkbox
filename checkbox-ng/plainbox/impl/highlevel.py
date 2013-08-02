@@ -71,8 +71,8 @@ class Service:
             exporter.dump(data_subset, f)
 
     def run_job(self, session, job):
-        with session.open():
-            runner = JobRunner(session.session_dir, session.jobs_io_log_dir)
-            job_result = runner.run_job(job)
-            if job_result is not None:
-                session.update_job_result(job, job_result)
+        import pdb; pdb.set_trace()
+        runner = JobRunner(session.session_dir, session.jobs_io_log_dir)
+        job_result = runner.run_job(job)
+        if job_result is not None:
+            session.update_job_result(job, job_result)

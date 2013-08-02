@@ -598,6 +598,30 @@ class SessionWrapper(PlainBoxObjectWrapper):
             automated = -1
         return automated, manual
 
+    @dbus.service.method(
+        dbus_interface=SESSION_IFACE, in_signature='', out_signature='s')
+    def PreviousSessionFile(self):
+        previous_session_file = self.native.previous_session_file()
+        if previous_session_file:
+            return previous_session_file
+        else:
+            return ''
+
+    @dbus.service.method(
+        dbus_interface=SESSION_IFACE, in_signature='', out_signature='')
+    def Resume(self):
+        self.native.resume()
+    
+    @dbus.service.method(
+        dbus_interface=SESSION_IFACE, in_signature='', out_signature='')
+    def Clean(self):
+        self.native.clean()
+
+    @dbus.service.method(
+        dbus_interface=SESSION_IFACE, in_signature='', out_signature='')
+    def PersistentSave(self):
+        self.native.persistent_save()
+
     @dbus.service.property(dbus_interface=SESSION_IFACE, signature='ao')
     @PlainBoxObjectWrapper.translate
     def job_list(self) -> 'ao':

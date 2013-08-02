@@ -156,7 +156,7 @@ class PlainBoxObjectWrapper(dbus.service.ObjectWrapper):
                 return cls.find_wrapper_by_native(obj)
             except KeyError:
                 raise dbus.exceptions.DBusException(
-                    "internal error, unable to lookup object wrapper")
+                    "(o) internal error, unable to lookup object wrapper")
 
         def translate_return_ao(object_list):
             try:
@@ -166,7 +166,7 @@ class PlainBoxObjectWrapper(dbus.service.ObjectWrapper):
                 ], signature='o')
             except KeyError:
                 raise dbus.exceptions.DBusException(
-                    "internal error, unable to lookup object wrapper")
+                    "(ao) internal error, unable to lookup object wrapper")
 
         def translate_return_a_brace_so_brace(mapping):
             try:
@@ -176,7 +176,7 @@ class PlainBoxObjectWrapper(dbus.service.ObjectWrapper):
                 }, signature='so')
             except KeyError:
                 raise dbus.exceptions.DBusException(
-                    "internal error, unable to lookup object wrapper")
+                    "(a{so}) internal error, unable to lookup object wrapper")
 
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
@@ -571,6 +571,24 @@ class SessionWrapper(PlainBoxObjectWrapper):
             [self.find_wrapper_by_native(job_state_wrapper.native.result)
              for job_state_wrapper in self._job_state_map_wrapper.values()])
 
+    def check_and_wrap_new_jobs(self):
+        # Since new jobs may have been added, we need to create and publish
+        # new JobDefinitionWrappers for them.
+        for job in self.native.job_list:
+            key = id(job)
+            if not key in self._native_id_to_wrapper_map:
+                logger.debug("Creating a new JobDefinitionWrapper for %s",
+                             job.name)
+                wrapper = JobDefinitionWrapper(job)
+                wrapper.publish_objects(self.connection)
+                #Newly created jobs also need a JobState.
+                #Note that publishing the JobState also should automatically
+                #publish the MemoryJobResult.
+                self._job_state_map_wrapper[job.name] = JobStateWrapper(
+                        self.native.job_state_map[job.name])
+                self._job_state_map_wrapper[job.name].publish_objects(
+                        self.connection)
+
     # Value added
 
     @dbus.service.method(
@@ -578,6 +596,8 @@ class SessionWrapper(PlainBoxObjectWrapper):
     @PlainBoxObjectWrapper.translate
     def UpdateDesiredJobList(self, desired_job_list: 'ao'):
         problem_list = self.native.update_desired_job_list(desired_job_list)
+        # Do the necessary housekeeping for any new jobs
+        self.check_and_wrap_new_jobs()
         # TODO: map each problem into a structure (check which fields should be
         # presented). Document this in the docstring.
         return [str(problem) for problem in problem_list]

@@ -95,7 +95,7 @@ class Service:
                 'comments': job_state.get_readiness_description()
             })
         if job_result is not None:
-            session.update_job_result(job, job_result)
+            running_job_wrapper.update_job_result_callback(job, job_result)
 
     def run_job(self, session, job, running_job_wrapper):
         runner = Thread(target=self._run,

@@ -447,10 +447,6 @@ class JobStateWrapper(PlainBoxObjectWrapper):
 
     def __shared_initialize__(self, **kwargs):
         self._result_wrapper = JobResultWrapper(self.native.result)
-        self.native.on_result_changed.connect(self.on_result_changed)
-
-    def __del__(self):
-        self.native.on_result_changed.disconnect(self.on_result_changed)
 
     def publish_objects(self, connection):
         super(JobStateWrapper, self).publish_objects(connection)
@@ -562,12 +558,6 @@ class SessionWrapper(PlainBoxObjectWrapper):
             job_name: JobStateWrapper(job_state)
             for job_name, job_state in self.native.job_state_map.items()
         }
-        self.native.on_job_state_map_changed.connect(
-            self.on_job_state_map_changed)
-
-    def __del__(self):
-        self.native.on_job_state_map_changed.disconnect(
-            self.on_job_state_map_changed)
 
     def publish_objects(self, connection):
         self.publish_self(connection)
@@ -812,12 +802,11 @@ class ServiceWrapper(PlainBoxObjectWrapper):
         return session_wrp
 
     @dbus.service.method(
-        dbus_interface=SERVICE_IFACE, in_signature='oo', out_signature='o')
+        dbus_interface=SERVICE_IFACE, in_signature='oo', out_signature='')
     @PlainBoxObjectWrapper.translate
     def RunJob(self, session: 'o', job: 'o'):
         running_job_wrp = RunningJob(job, session, conn=self.connection)
         self.native.run_job(session, job, running_job_wrp)
-        return running_job_wrp
 
 
 class UIOutputPrinter(extcmd.DelegateBase):
@@ -863,11 +852,12 @@ class RunningJob(dbus.service.Object):
         pass
 
     @dbus.service.method(
-        dbus_interface=RUNNING_JOB_IFACE, in_signature='s', out_signature='')
-    def SetOutcome(self, outcome):
+        dbus_interface=RUNNING_JOB_IFACE, in_signature='ss', out_signature='')
+    def SetOutcome(self, outcome, comments=None):
         self.result['outcome'] = outcome
+        self.result['comments'] = comments
         job_result = DiskJobResult(self.result)
-        self.session.update_job_result(self.job, job_result)
+        self.emitJobResultAvailable(self.job, job_result)
 
     @dbus.service.method(
         dbus_interface=RUNNING_JOB_IFACE, in_signature='s', out_signature='')
@@ -901,6 +891,13 @@ class RunningJob(dbus.service.Object):
     def IOLogGenerated(self, offset, name, data):
         pass
 
+    # XXX: Try to use PlainBoxObjectWrapper.translate here instead of calling
+    # emitJobResultAvailable to do the translation
+    @dbus.service.signal(
+        dbus_interface=SERVICE_IFACE, signature='oo')
+    def JobResultAvailable(self, job, result):
+        pass
+
     @dbus.service.signal(
         dbus_interface=SERVICE_IFACE, signature='o')
     def AskForOutcome(self, runner):
@@ -908,3 +905,13 @@ class RunningJob(dbus.service.Object):
 
     def emitAskForOutcomeSignal(self):
         self.AskForOutcome(self.path)
+
+    def emitJobResultAvailable(self, job, result):
+        result_wrapper = JobResultWrapper(result)
+        result_wrapper.publish_objects(self.connection)
+        job_path = PlainBoxObjectWrapper.find_wrapper_by_native(job)
+        result_path = PlainBoxObjectWrapper.find_wrapper_by_native(result)
+        self.JobResultAvailable(job_path, result_path)
+
+    def update_job_result_callback(self, job, result):
+        self.emitJobResultAvailable(job, result)

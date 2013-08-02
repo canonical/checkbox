@@ -20,87 +20,305 @@
 # 3- Run each job in the run_list, this implicitly updates the session's
 #    results and state map.
 # 4- Print the job names and outcomes and some other data
-# 5- Export the session's data (job results) to json in /tmp.
+# 5- Export the session's data (job results) to xml in /tmp.
 #####
 
 import dbus
+from gi.repository import GObject
+from dbus.mainloop.glib import DBusGMainLoop
+from plainbox.abc import IJobResult
 
-bus = dbus.SessionBus()
+bus = dbus.SessionBus(mainloop=DBusGMainLoop())
 
-whitelist = bus.get_object(
-    'com.canonical.certification.PlainBox',
-    '/plainbox/whitelist/stub'
-)
+current_job_path = None
+service = None
+session_object_path = None
+run_list = None
+desired_job_list = None
 
-provider = bus.get_object(
-    'com.canonical.certification.PlainBox',
-    '/plainbox/provider/stubbox'
-)
 
-#A provider manages objects other than jobs.
-provider_objects = provider.GetManagedObjects(dbus_interface='org.freedesktop.DBus.ObjectManager')
+def main():
+    global service
+    global session_object_path
+    global run_list
+    global desired_job_list
 
-#Create a session and "seed" it with my job list:
-
-job_list = [k for k, v in provider_objects.items() if not 'whitelist' in k]
-
-service = bus.get_object(
-    'com.canonical.certification.PlainBox',
-    '/plainbox/service1'
-)
-session_object_path = service.CreateSession(
-    job_list,
-    dbus_interface='com.canonical.certification.PlainBox.Service1'
-)
-session_object = bus.get_object(
-    'com.canonical.certification.PlainBox',
-    session_object_path
-)
-
-#to get only the *jobs* that are designated by the whitelist.
-desired_job_list = [object for object in provider_objects if whitelist.Designates(object, dbus_interface='com.canonical.certification.PlainBox.WhiteList1')]
-
-#Now I update the desired job list.
-session_object.UpdateDesiredJobList(
-    desired_job_list,
-    dbus_interface='com.canonical.certification.PlainBox.Session1'
-)
-
-#Now, the run_list contains the list of jobs I actually need to run \o/
-run_list = session_object.Get(
-    'com.canonical.certification.PlainBox.Session1',
-    'run_list'
-)
-
-#Now the actual run, job by job.
-for job_path in run_list:
-    service.RunJob(session_object_path, job_path)
-
-job_state_map = session_object.Get('com.canonical.certification.PlainBox.Session1', 'job_state_map')
-
-for k, job_state_path in job_state_map.items():
-    job_state_object = bus.get_object(
+    whitelist = bus.get_object(
         'com.canonical.certification.PlainBox',
-        job_state_path
+        '/plainbox/whitelist/stub'
     )
-    # Get the job definition object and some properties
-    job_def_path = job_state_object.Get('com.canonical.certification.PlainBox.JobState1', 'job')
-    job_def_object = bus.get_object('com.canonical.certification.PlainBox', job_def_path)
-    job_name = job_def_object.Get('com.canonical.certification.PlainBox.JobDefinition1', 'name')
-    # Ask the via value (e.g. to comptute job categories) if a job is a child of a local job
-    job_via = job_def_object.Get('com.canonical.certification.CheckBox.JobDefinition1', 'via')
 
-    # Get the current job result object and the outcome property
-    job_result_path = job_state_object.Get('com.canonical.certification.PlainBox.JobState1', 'result')
-    job_result_object = bus.get_object('com.canonical.certification.PlainBox', job_result_path)
-    outcome = job_result_object.Get('com.canonical.certification.PlainBox.Result1', 'outcome')
+    provider = bus.get_object(
+        'com.canonical.certification.PlainBox',
+        '/plainbox/provider/stubbox'
+    )
 
-    print(job_name, "via {}".format(job_via) if job_via else '', outcome)
+    #whitelist = bus.get_object(
+    #    'com.canonical.certification.PlainBox',
+    #    '/plainbox/whitelist/default'
+    #)
 
-#Now let's export the session's result.
+    #provider = bus.get_object(
+    #    'com.canonical.certification.PlainBox',
+    #    '/plainbox/provider/checkbox'
+    #)
 
-output_file = service.ExportSession(session_object_path,
-                                    "json",
-                                    ['with-io-log', 'with-job-via'],
-                                    "/tmp/report.json",
-                                    dbus_interface='com.canonical.certification.PlainBox.Service1')
+    #A provider manages objects other than jobs.
+    provider_objects = provider.GetManagedObjects(
+        dbus_interface='org.freedesktop.DBus.ObjectManager')
+
+    #Create a session and "seed" it with my job list:
+    job_list = [k for k, v in provider_objects.items() if not 'whitelist' in k]
+    service = bus.get_object(
+        'com.canonical.certification.PlainBox',
+        '/plainbox/service1'
+    )
+    session_object_path = service.CreateSession(
+        job_list,
+        dbus_interface='com.canonical.certification.PlainBox.Service1'
+    )
+    session_object = bus.get_object(
+        'com.canonical.certification.PlainBox',
+        session_object_path
+    )
+
+    if session_object.PreviousSessionFile():
+        if ask_for_resume():
+            session_object.Resume()
+        else:
+            session_object.Clean()
+
+    #to get only the *jobs* that are designated by the whitelist.
+    desired_job_list = [
+        object for object in provider_objects if whitelist.Designates(
+            object,
+            dbus_interface='com.canonical.certification.PlainBox.WhiteList1')]
+
+    #Now I update the desired job list.
+    session_object.UpdateDesiredJobList(
+        desired_job_list,
+        dbus_interface='com.canonical.certification.PlainBox.Session1'
+    )
+
+    #Now, the run_list contains the list of jobs I actually need to run \o/
+    run_list = session_object.Get(
+        'com.canonical.certification.PlainBox.Session1',
+        'run_list'
+    )
+
+    # Start running jobs
+    print("[ Running All Jobs ]".center(80, '='))
+    run_jobs()
+    session_object.PersistentSave()
+
+
+def ask_for_outcome(prompt=None, allowed=None):
+    if prompt is None:
+        prompt = "what is the outcome? "
+    if allowed is None:
+        allowed = (IJobResult.OUTCOME_PASS, "p",
+                   IJobResult.OUTCOME_FAIL, "f",
+                   IJobResult.OUTCOME_SKIP, "s")
+    answer = None
+    while answer not in allowed:
+        print("Allowed answers are: {}".format(", ".join(allowed)))
+        answer = input(prompt)
+        # Useful shortcuts for testing
+        if answer == "f":
+            answer = IJobResult.OUTCOME_FAIL
+        if answer == "p":
+            answer = IJobResult.OUTCOME_PASS
+        if answer == "s":
+            answer = IJobResult.OUTCOME_SKIP
+    return answer
+
+
+def ask_for_test(prompt=None, allowed=None):
+    if prompt is None:
+        prompt = "Run the test command? "
+    if allowed is None:
+        allowed = ("y",
+                   "n",
+                   )
+    answer = None
+    while answer not in allowed:
+        print("Allowed answers are: {}".format(", ".join(allowed)))
+        answer = input(prompt)
+    return answer
+
+def ask_for_resume():
+    prompt = "Do you want to resume the previous session [Y/n]? "
+    allowed = ('', 'y', 'Y', 'n', 'N')
+    answer = None
+    while answer not in allowed:
+        answer = input(prompt)
+    return False if answer in ('n', 'N') else True
+
+
+# Asynchronous calls need reply handlers
+def handle_export_reply(s):
+    print("Export completed to {}".format(s))
+    loop.quit()
+
+
+def handle_error(e):
+    print(str(e))
+    loop.quit()
+
+
+def catchall_ask_for_outcome_signals_handler(current_runner_path):
+    global current_job_path
+    job_def_object = bus.get_object(
+        'com.canonical.certification.PlainBox', current_job_path)
+    job_cmd = job_def_object.Get(
+        'com.canonical.certification.CheckBox.JobDefinition1',
+        'command')
+    job_runner_object = bus.get_object(
+        'com.canonical.certification.PlainBox', current_runner_path)
+    if job_cmd:
+        run_test = ask_for_test()
+        if run_test == 'y':
+            job_runner_object.RunCommand()
+            return
+    outcome = ask_for_outcome()
+    comments = 'Test plainbox comments'
+    job_runner_object.SetOutcome(
+        outcome,
+        comments,
+        dbus_interface='com.canonical.certification.PlainBox.RunningJob1')
+
+
+def catchall_io_log_generated_signals_handler(offset, name, data):
+    try:
+        print("(<{}:{:05}>) {}".format(
+            name, int(offset), data.decode('UTF-8').rstrip()))
+    except UnicodeDecodeError:
+        pass
+
+
+def catchall_job_result_available_signals_handler(job, result):
+    # XXX: check if the job path actually matches the current_job_path
+    global session_object_path
+    global desired_job_list
+    session_object = bus.get_object(
+        'com.canonical.certification.PlainBox',
+        session_object_path
+    )
+    # After running each job, re-update the desired job list.
+    # This is needed so that we scan for newly created jobs in the
+    # native session object, and ensure their JobDefinition and JobState
+    # wrappers are created and published.
+    # XXX: this is a blocking call, needs to create proper reply handlers to
+    # get asynchronous behavior.
+    session_object.UpdateDesiredJobList(
+        desired_job_list,
+        dbus_interface='com.canonical.certification.PlainBox.Session1'
+    )
+    # Update the session job state map and run new jobs
+    session_object.UpdateJobResult(
+        job, result,
+        reply_handler=run_jobs,
+        error_handler=handle_error,
+        dbus_interface='com.canonical.certification.PlainBox.Session1')
+
+
+def run_jobs():
+    #Now the actual run, job by job.
+    if run_list:
+        job_path = run_list.pop(0)
+        global current_job_path
+        current_job_path = job_path
+        job_def_object = bus.get_object(
+            'com.canonical.certification.PlainBox', current_job_path)
+        job_name = job_def_object.Get(
+            'com.canonical.certification.PlainBox.JobDefinition1', 'name')
+        job_desc = job_def_object.Get(
+            'com.canonical.certification.PlainBox.JobDefinition1',
+            'description')
+        print("[ {} ]".format(job_name).center(80, '-'))
+        if job_desc:
+            print(job_desc)
+            print("^" * len(job_desc.splitlines()[-1]))
+            print()
+        service.RunJob(session_object_path, job_path)
+    else:
+        show_results()
+
+
+def show_results():
+    global session_object_path
+    session_object = bus.get_object(
+        'com.canonical.certification.PlainBox',
+        session_object_path
+    )
+    job_state_map = session_object.Get(
+        'com.canonical.certification.PlainBox.Session1', 'job_state_map')
+    print("[ Results ]".center(80, '='))
+    for k, job_state_path in job_state_map.items():
+        job_state_object = bus.get_object(
+            'com.canonical.certification.PlainBox',
+            job_state_path
+        )
+        # Get the job definition object and some properties
+        job_def_path = job_state_object.Get(
+            'com.canonical.certification.PlainBox.JobState1', 'job')
+        job_def_object = bus.get_object(
+            'com.canonical.certification.PlainBox', job_def_path)
+        job_name = job_def_object.Get(
+            'com.canonical.certification.PlainBox.JobDefinition1', 'name')
+        # Ask the via value (e.g. to comptute job categories)
+        # if a job is a child of a local job
+        job_via = job_def_object.Get(
+            'com.canonical.certification.CheckBox.JobDefinition1', 'via')
+
+        # Get the current job result object and the outcome property
+        job_result_path = job_state_object.Get(
+            'com.canonical.certification.PlainBox.JobState1', 'result')
+        job_result_object = bus.get_object(
+            'com.canonical.certification.PlainBox', job_result_path)
+        outcome = job_result_object.Get(
+            'com.canonical.certification.PlainBox.Result1', 'outcome')
+        comments = job_result_object.Get(
+            'com.canonical.certification.PlainBox.Result1', 'comments')
+        io_log = job_result_object.Get(
+            'com.canonical.certification.PlainBox.Result1',
+            'io_log', byte_arrays=True)
+
+        print("{:55s} {:15s} {}".format(job_name, outcome, comments))
+    export_session()
+
+
+def export_session():
+    service.ExportSession(
+        session_object_path,
+        "xml",
+        [''],
+        "/tmp/report.xml",
+        reply_handler=handle_export_reply,
+        error_handler=handle_error
+    )
+
+# Add some signal receivers
+bus.add_signal_receiver(
+    catchall_ask_for_outcome_signals_handler,
+    dbus_interface="com.canonical.certification.PlainBox.Service1",
+    signal_name="AskForOutcome")
+
+bus.add_signal_receiver(
+    catchall_io_log_generated_signals_handler,
+    dbus_interface="com.canonical.certification.PlainBox.Service1",
+    signal_name="IOLogGenerated",
+    byte_arrays=True)  # To easily convert the byte arrays to strings
+
+bus.add_signal_receiver(
+    catchall_job_result_available_signals_handler,
+    dbus_interface="com.canonical.certification.PlainBox.Service1",
+    signal_name="JobResultAvailable")
+
+# Start the first call after a short delay
+GObject.timeout_add(5, main)
+loop = GObject.MainLoop()
+loop.run()
+
+# Stop the Plainbox dbus service
+service.Exit()

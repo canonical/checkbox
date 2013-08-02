@@ -67,7 +67,8 @@ class ScriptInvocation(CheckBoxInvocationMixIn):
             bait_dir = os.path.join(scratch, 'files-created-in-current-dir')
             os.mkdir(bait_dir)
             with TestCwd(bait_dir):
-                return_code, fjson = runner._run_command(job, self.config)
+                return_code, record_path = runner._run_command(
+                    job, self.config)
             self._display_side_effects(scratch)
             self._display_script_outcome(job, return_code)
         return return_code

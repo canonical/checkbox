@@ -1,12 +1,7 @@
-stub/true
 stub/false
 stub/dependency/good
 stub/dependency/bad
 # stub_package
-stub/requirement/good
-stub/requirement/bad
 stub/manual
 __local__
 stub/local/true
-stub/multilevel
-stub/multilevel.*

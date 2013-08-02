@@ -69,6 +69,7 @@ class Service:
         data_subset = exporter.get_session_data_subset(session)
         with open(output_file, 'wb') as f:
             exporter.dump(data_subset, f)
+        return output_file
 
     def run_job(self, session, job):
         with session.open():

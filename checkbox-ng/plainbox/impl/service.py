@@ -772,7 +772,7 @@ class ServiceWrapper(PlainBoxObjectWrapper):
         return self.native.get_all_exporters()
 
     @dbus.service.method(
-        dbus_interface=SERVICE_IFACE, in_signature='osass', out_signature='')
+        dbus_interface=SERVICE_IFACE, in_signature='osass', out_signature='s')
     @PlainBoxObjectWrapper.translate
     def ExportSession(self, session: 'o', output_format: 's',
                       option_list: 'as', output_file: 's'):

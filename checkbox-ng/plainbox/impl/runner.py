@@ -260,10 +260,12 @@ class JobRunner(IJobRunner):
                 'comment': "non-interactive test run"
             })
         else:
-            result = self._just_run_command(job, config)
+            # FIXME: Restore the "plainbox run" mode
+            #result = self._just_run_command(job, config)
             # XXX: make outcome writable
-            result._data['outcome'] = self._outcome_callback()
-            return result
+            #result._data['outcome'] = self._outcome_callback()
+            #return result
+            self._outcome_callback()
 
     _plugin_user_interact = _plugin_manual
     _plugin_user_verify = _plugin_manual

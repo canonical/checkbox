@@ -55,6 +55,7 @@ def connect_to_session_bus():
     # connecting to the bus.
     logger.debug("Setting up glib-based event loop")
     loop = GObject.MainLoop()
+    GObject.threads_init()
     # Let's get the system bus object.
     logger.debug("Connecting to DBus session bus")
     if os.getenv("DBUS_STARTER_ADDRESS"):

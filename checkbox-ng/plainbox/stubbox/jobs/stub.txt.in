@@ -59,3 +59,10 @@ _description: stub local tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/local.txt?(.in)
+
+plugin: local
+name: __multilevel__
+_description: stub multilevel tests
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/multilevel.txt?(.in)

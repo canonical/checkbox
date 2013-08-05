@@ -638,7 +638,26 @@ class SessionWrapper(PlainBoxObjectWrapper):
         dbus_interface=SESSION_IFACE, in_signature='', out_signature='')
     def Resume(self):
         self.native.resume()
-    
+        #After the native resume completes, we need to "synchronize"
+        #the new job_list and job_state_map over DBus. This is very similar
+        # to what we do
+        #when adding jobs from a local job, with the exception that here,
+        #*all* the jobs need a JobStateWrapper because since they weren't
+        #known when the session was created, they don't have one yet.
+        # Also, we need to take the jobs as contained in the job_state_map,
+        #rather than job_list, otherwise they won't point to the correct
+        #dbus JobDefinition.
+        for job_state in self.native.job_state_map.values():
+            job = job_state.job
+            key = id(job)
+            #By here, either job definitions already exist, or they
+            #have been created. Create and publish the corresponding
+            #JobStateWrapper.
+            self._job_state_map_wrapper[job.name] = JobStateWrapper(
+                    self.native.job_state_map[job.name])
+            self._job_state_map_wrapper[job.name].publish_objects(
+                    self.connection)
+
     @dbus.service.method(
         dbus_interface=SESSION_IFACE, in_signature='', out_signature='')
     def Clean(self):

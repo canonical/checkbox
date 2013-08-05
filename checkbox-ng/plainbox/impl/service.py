@@ -637,6 +637,17 @@ class SessionWrapper(PlainBoxObjectWrapper):
     @dbus.service.method(
         dbus_interface=SESSION_IFACE, in_signature='', out_signature='')
     def Resume(self):
+        #FIXME TODO XXX KLUDGE ALERT
+        #The way we replace restored job definitions with the ones from the
+        #freshly-initialized session is extremely kludgy. This implementation
+        #needs to be revisited at some point and made cleaner. It was done this
+        #way to unblock usage of this API under time pressure.
+        #
+        #First, we take a snapshot of job definitions from the "pristine"
+        #session. These already have JobStateWrappers over DBus pointing to
+        #the ones created when the provider was exposed.
+        old_jobs = [state.job for state in self.native.job_state_map.values()]
+        #Now, native resume. This is the only non-kludgy line in this method.
         self.native.resume()
         #After the native resume completes, we need to "synchronize"
         #the new job_list and job_state_map over DBus. This is very similar
@@ -647,12 +658,44 @@ class SessionWrapper(PlainBoxObjectWrapper):
         # Also, we need to take the jobs as contained in the job_state_map,
         #rather than job_list, otherwise they won't point to the correct
         #dbus JobDefinition.
+        #Finally, the KLUDGE is that we look at the job definitions for each
+        #JobState. These were reconstructed from restored session information,
+        #and unfortunately they don't map to the exposed-over-dbus JobDefs.
+        #However, we can't just create the JobDefinition because since they're
+        #exposed over DBus using their unique checksum, trying to expose an
+        #identical JobDefinition will create a clash and a crash.
+        #The solution, then, is to replace each JobState's "job" attribute
+        #with the equivalent job from the old_jobs map. Those *should* be
+        #identical value-wise but point to the correct, already-exposed
+        #JobDefinition and their wrapper.
         for job_state in self.native.job_state_map.values():
             job = job_state.job
-            key = id(job)
+            #Find old equivalent of this job
+            if job in old_jobs:
+                 index = old_jobs.index(job)
+                 #Next three statements are for debugging only, they further
+                 #underline the kludgy nature of this section of code.
+                 old_id = id(job)
+                 new_id = id(old_jobs[index])
+                 logger.debug("Replacing object %s with %s for job %s" %
+                              (old_id, new_id, job.name))
+                 job_state.job = old_jobs[index]
+            else:
+                #Here we just create new JobDefinitionWrappers, like we
+                #do in check_and_wrap_new_jobs, in case the session contained
+                #a job whose definition we don't have (i.e. one created by
+                #local jobs). I haven't seen this happen yet.
+                if not id(job) in self._native_id_to_wrapper_map:
+                    logger.debug("Creating a new JobDefinitionWrapper for %s",
+                                 job.name)
+                    wrapper = JobDefinitionWrapper(job)
+                    wrapper.publish_objects(self.connection)
+
             #By here, either job definitions already exist, or they
             #have been created. Create and publish the corresponding
-            #JobStateWrapper.
+            #JobStateWrapper. Note that the JobStates already  had their
+            #'job' attribute pointed to an existing, mapped JobDefinition
+            #object.
             self._job_state_map_wrapper[job.name] = JobStateWrapper(
                     self.native.job_state_map[job.name])
             self._job_state_map_wrapper[job.name].publish_objects(

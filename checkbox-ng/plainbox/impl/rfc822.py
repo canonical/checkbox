@@ -148,7 +148,8 @@ def gen_rfc822_records(stream, data_cls=dict):
             filename = stream.name
         except AttributeError:
             filename = None
-        origin = Origin(filename, None, None)
+        if filename:
+            origin = Origin(filename, None, None)
         data = data_cls()
         record = RFC822Record(data, origin)
 
@@ -166,14 +167,15 @@ def gen_rfc822_records(stream, data_cls=dict):
         """
         Remember the line number of the record start unless already set
         """
-        if record.origin.line_start is None:
+        if origin and record.origin.line_start is None:
             record.origin.line_start = lineno
 
     def _update_end_lineno():
         """
         Update the line number of the record tail
         """
-        record.origin.line_end = lineno
+        if origin:
+            record.origin.line_end = lineno
 
     # Start with an empty record
     _new_record()
@@ -214,7 +216,6 @@ def gen_rfc822_records(stream, data_cls=dict):
             # from. This may be a no-operation if there were any preceding
             # key-value pairs.
             _set_start_lineno_if_needed()
-            # Since we have a new, key-value pair we need to commit any
             # previous key that we may have (regardless of multi-line or
             # single-line values).
             _commit_key_value_if_needed()

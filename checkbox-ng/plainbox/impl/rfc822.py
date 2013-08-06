@@ -216,6 +216,7 @@ def gen_rfc822_records(stream, data_cls=dict):
             # from. This may be a no-operation if there were any preceding
             # key-value pairs.
             _set_start_lineno_if_needed()
+            # Since we have a new, key-value pair we need to commit any
             # previous key that we may have (regardless of multi-line or
             # single-line values).
             _commit_key_value_if_needed()

@@ -537,7 +537,7 @@ class JobStateWrapper(PlainBoxObjectWrapper):
              inhibitor.cause_name,
              (inhibitor.related_job.name
               if inhibitor.related_job is not None else ""),
-             (inhibitor.related_expression
+             (inhibitor.related_expression.text
               if inhibitor.related_expression is not None else ""))
             for inhibitor in self.native.readiness_inhibitor_list
         ], signature="(isss)")

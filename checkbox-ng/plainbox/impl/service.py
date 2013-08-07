@@ -620,9 +620,9 @@ class SessionWrapper(PlainBoxObjectWrapper):
     def GetEstimatedDuration(self):
         automated, manual = self.native.get_estimated_duration()
         if automated is None:
-            automated = -1
+            automated = -1.0
         if manual is None:
-            automated = -1
+            automated = -1.0
         return automated, manual
 
     @dbus.service.method(

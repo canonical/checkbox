@@ -264,7 +264,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         if "package" in data["resource_map"]:
             self.worksheet1.write(19, 1, 'Packages Installed', self.format03)
             self.worksheet1.write_row(
-                21, 1, ['Name', 'Version', 'Description'], self.format07
+                21, 1, ['Name', 'Version'], self.format07
             )
             for i in range(20, 22):
                 self.worksheet1.set_row(
@@ -273,7 +273,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             for i, pkg in enumerate(data["resource_map"]["package"]):
                 self.worksheet1.write_row(
                     22 + i, 1,
-                    [pkg['name'], pkg['version'], pkg['description']],
+                    [pkg['name'], pkg['version']],
                     self.format08 if i % 2 else self.format09
                 )
                 self.worksheet1.set_row(

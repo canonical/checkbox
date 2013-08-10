@@ -31,7 +31,7 @@ from unittest import TestCase
 from plainbox import __version__ as version
 from plainbox.impl.box import main
 from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
-from plainbox.impl.testing_utils import MockJobDefinition
+from plainbox.impl.testing_utils import MockJobDefinition, suppress_warnings
 from plainbox.testing_utils.io import TestIO
 
 
@@ -131,6 +131,10 @@ class TestMain(TestCase):
             self.assertEqual(call.exception.args, (0,))
         self.assertEqual(io.combined, "{}.{}.{}\n".format(*version[:3]))
 
+    @suppress_warnings
+    # Temporarily supress warnings (i.e. ResourceWarning) to work around
+    # Issue #341 in distribute (< 0.6.33).
+    # See: https://bitbucket.org/tarek/distribute/issue/341
     def test_help(self):
         with TestIO(combined=True) as io:
             with self.assertRaises(SystemExit) as call:

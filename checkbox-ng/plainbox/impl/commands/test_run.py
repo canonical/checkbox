@@ -29,11 +29,16 @@ import os
 import shutil
 import tempfile
 
+from collections import OrderedDict
 from inspect import cleandoc
 from mock import patch
 from unittest import TestCase
 
 from plainbox.impl.box import main
+from plainbox.impl.exporter.json import JSONSessionStateExporter
+from plainbox.impl.exporter.rfc822 import RFC822SessionStateExporter
+from plainbox.impl.exporter.text import TextSessionStateExporter
+from plainbox.impl.exporter.xml import XMLSessionStateExporter
 from plainbox.testing_utils.io import TestIO
 
 
@@ -46,6 +51,12 @@ class TestRun(TestCase):
         self._sandbox = tempfile.mkdtemp()
         self._env = os.environ
         os.environ['XDG_CACHE_HOME'] = self._sandbox
+        self._exporters = OrderedDict([
+            ('json', JSONSessionStateExporter),
+            ('rfc822', RFC822SessionStateExporter),
+            ('text', TextSessionStateExporter),
+            ('xml', XMLSessionStateExporter),
+        ])
 
     def test_help(self):
         with TestIO(combined=True) as io:
@@ -127,7 +138,9 @@ class TestRun(TestCase):
     def test_output_format_list(self):
         with TestIO(combined=True) as io:
             with self.assertRaises(SystemExit) as call:
-                main(['run', '--output-format=?'])
+                with patch('plainbox.impl.commands.run.get_all_exporters') as mock_get_all_exporters:
+                    mock_get_all_exporters.return_value = self._exporters
+                    main(['run', '--output-format=?'])
             self.assertEqual(call.exception.args, (0,))
         expected = """
         Available output formats: json, rfc822, text, xml
@@ -137,7 +150,9 @@ class TestRun(TestCase):
     def test_output_option_list(self):
         with TestIO(combined=True) as io:
             with self.assertRaises(SystemExit) as call:
-                main(['run', '--output-option=?'])
+                with patch('plainbox.impl.commands.run.get_all_exporters') as mock_get_all_exporters:
+                    mock_get_all_exporters.return_value = self._exporters
+                    main(['run', '--output-option=?'])
             self.assertEqual(call.exception.args, (0,))
         expected = """
         Each format may support a different set of options

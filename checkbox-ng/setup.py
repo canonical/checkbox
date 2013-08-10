@@ -40,6 +40,9 @@ setup(
         'lxml >= 2.3',
         'requests >= 1.0',
     ],
+    extras_require={
+        'XLSX': 'XlsxWriter >= 0.3',
+    },
     entry_points={
         'console_scripts': [
             'plainbox=plainbox.public:main',
@@ -50,6 +53,7 @@ setup(
             'text=plainbox.impl.exporter.text:TextSessionStateExporter',
             'json=plainbox.impl.exporter.json:JSONSessionStateExporter',
             'rfc822=plainbox.impl.exporter.rfc822:RFC822SessionStateExporter',
+            'xlsx=plainbox.impl.exporter.xlsx:XLSXSessionStateExporter [XLSX]',
             'xml=plainbox.impl.exporter.xml:XMLSessionStateExporter',
         ],
         'plainbox.transport': [

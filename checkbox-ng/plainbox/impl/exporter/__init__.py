@@ -291,6 +291,8 @@ def get_all_exporters():
     for entry_point in sorted(iterator, key=lambda ep: ep.name):
         try:
             exporter_cls = entry_point.load()
+        except pkg_resources.DistributionNotFound as exc:
+            logger.info("Unable to load {}: {}", entry_point, exc)
         except ImportError as exc:
             logger.exception("Unable to import {}: {}", entry_point, exc)
         else:

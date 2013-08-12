@@ -26,6 +26,7 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
+from functools import wraps
 from gzip import GzipFile
 from io import TextIOWrapper
 from mock import Mock
@@ -108,8 +109,9 @@ def suppress_warnings(func):
     """
     Suppress all warnings from the decorated function
     """
-    def _inner(*args, **kwargs):
+    @wraps(func)
+    def decorator(*args, **kwargs):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             return func(*args, **kwargs)
-    return _inner
+    return decorator

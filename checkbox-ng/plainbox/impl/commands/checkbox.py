@@ -28,6 +28,10 @@
 
 import re
 from argparse import FileType
+from logging import getLogger
+
+
+logger = getLogger("plainbox.commands.checkbox")
 
 
 class CheckBoxInvocationMixIn:
@@ -57,18 +61,28 @@ class CheckBoxInvocationMixIn:
                 # Reject all jobs that match any of the exclude
                 # patterns, matching strictly from the start to
                 # the end of the line.
-                regexp_pattern = r"^{pattern}$".format(pattern=pattern)
+                try:
+                    regexp_pattern = re.compile(
+                        r"^{pattern}$".format(pattern=pattern))
+                except re.error:
+                    logger.warning("Invalid exclude pattern: %s", pattern)
+                    continue
                 for job in job_list:
-                    if re.match(regexp_pattern, job.name):
+                    if regexp_pattern.match(job.name):
                         job_list.remove(job)
         if ns.include_pattern_list:
             for pattern in ns.include_pattern_list:
                 # Accept (include) all job that matches
                 # any of include patterns, matching strictly
                 # from the start to the end of the line.
-                regexp_pattern = r"^{pattern}$".format(pattern=pattern)
+                try:
+                    regexp_pattern = re.compile(
+                        r"^{pattern}$".format(pattern=pattern))
+                except re.error:
+                    logger.warning("Invalid include pattern: %s", pattern)
+                    continue
                 for job in job_list:
-                    if re.match(regexp_pattern, job.name):
+                    if regexp_pattern.match(job.name):
                         matching_job_list.append(job)
         return matching_job_list
 

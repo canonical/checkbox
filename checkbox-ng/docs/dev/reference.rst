@@ -144,11 +144,6 @@ Code reference
     :undoc-members:
     :show-inheritance:
 
-.. automodule:: plainbox.impl.mock_job
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 .. automodule:: plainbox.impl.resource
     :members:
     :undoc-members:

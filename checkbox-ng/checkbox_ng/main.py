@@ -24,11 +24,11 @@
 
 import logging
 
+from plainbox.impl.commands import PlainBoxToolBase
 from plainbox.impl.commands.check_config import CheckConfigCommand
-from plainbox.impl.commands.sru import SRUCommand
-from plainbox.impl.commands.script import ScriptCommand
 from plainbox.impl.commands.dev import DevCommand
-from plainbox.impl.box import PlainBox
+from plainbox.impl.commands.script import ScriptCommand
+from plainbox.impl.commands.sru import SRUCommand
 
 from checkbox_ng import __version__ as version
 from checkbox_ng.config import CheckBoxConfig
@@ -37,7 +37,7 @@ from checkbox_ng.config import CheckBoxConfig
 logger = logging.getLogger("checkbox.ng.main")
 
 
-class CheckBoxNG(PlainBox):
+class CheckBoxNGTool(PlainBoxToolBase):
 
     @classmethod
     def get_exec_name(cls):
@@ -62,4 +62,4 @@ def main(argv=None):
     """
     checkbox command line utility
     """
-    raise SystemExit(CheckBoxNG().main(argv))
+    raise SystemExit(CheckBoxNGTool().main(argv))

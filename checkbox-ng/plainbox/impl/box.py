@@ -325,18 +325,6 @@ def main(argv=None):
         pass
 
 
-def get_builtin_jobs():
-    raise NotImplementedError("get_builtin_jobs() not implemented")
-
-
-def save(something, somewhere):
-    raise NotImplementedError("save() not implemented")
-
-
-def run(*args, **kwargs):
-    raise NotImplementedError("run() not implemented")
-
-
 # Setup logging before anything else starts working.
 # If we do it in main() or some other place then unit tests will see
 # "leaked" log files which are really closed when the runtime shuts

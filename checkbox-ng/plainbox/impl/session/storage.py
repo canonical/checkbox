@@ -99,14 +99,15 @@ class SessionStorageRepository:
         returned.
 
         :returns:
-            list of :class:`SessionStorage`: representing discovered sessions
+            list of :class:`SessionStorage` representing discovered sessions
         """
         logger.debug("Enumerating sessions in %s", self._location)
         try:
             # Try to enumerate the directory
             item_list = os.listdir(self._location)
         except OSError as exc:
-            # If the directory does not exist, silently return empty collection
+            # If the directory does not exist,
+            # silently return empty collection
             if exc.errno == errno.ENOENT:
                 return []
             # Don't silence any other errors

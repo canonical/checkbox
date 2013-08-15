@@ -933,11 +933,6 @@ class RunningJob(dbus.service.Object):
         pass
 
     @dbus.service.method(
-        dbus_interface=RUNNING_JOB_IFACE, in_signature='', out_signature='')
-    def Pause(self):
-        pass
-
-    @dbus.service.method(
         dbus_interface=RUNNING_JOB_IFACE, in_signature='ss', out_signature='')
     def SetOutcome(self, outcome, comments=None):
         self.result['outcome'] = outcome

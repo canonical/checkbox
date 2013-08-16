@@ -181,6 +181,13 @@ class DiskJobResult(_JobResultBase):
     accessing particular parts of the log.
     """
 
+    @property
+    def io_log_filename(self):
+        """
+        pathname of the file containing serialized IO log records
+        """
+        return self._data.get("io_log_filename")
+
     def get_io_log(self):
         try:
             record_path = self._data['io_log_filename']

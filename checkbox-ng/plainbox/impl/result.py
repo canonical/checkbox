@@ -110,7 +110,9 @@ class _JobResultBase(IJobResult):
 
     @Signal.define
     def on_comments_changed(self, old, new):
-        pass
+        """
+        Signal sent when ``comments`` property value is changed
+        """
 
     @property
     def return_code(self):

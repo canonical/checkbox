@@ -252,7 +252,7 @@ class Provider1(IProvider1, IProviderBackend1):
                 whitelist_list.append(
                     WhiteList.from_file(os.path.join(
                         self.whitelists_dir, name)))
-        return whitelist_list
+        return sorted(whitelist_list, key=lambda whitelist: whitelist.name)
 
     def get_builtin_jobs(self):
         logger.debug("Loading built-in jobs...")
@@ -262,7 +262,7 @@ class Provider1(IProvider1, IProviderBackend1):
                 job_list.extend(
                     self.load_jobs(
                         os.path.join(self.jobs_dir, name)))
-        return job_list
+        return sorted(job_list, key=lambda job: job.name)
 
     def load_jobs(self, somewhere):
         """

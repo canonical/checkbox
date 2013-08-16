@@ -93,8 +93,8 @@ class LoggingHelper:
             try:
                 os.makedirs(self.log_dir, exist_ok=True)
             except OSError as error:
-                logger.warning("Unable to create log directory: %s",
-                               self.log_dir)
+                logger.warning(
+                    "Unable to create log directory: %s", self.log_dir)
                 logger.warning(("Reason: %s. All logs will go to "
                                 "console instead."), error)
                 config_dict = self.DEFAULT_CONSOLE_ONLY_CONFIG

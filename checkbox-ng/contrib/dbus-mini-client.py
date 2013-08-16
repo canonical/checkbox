@@ -388,7 +388,7 @@ def show_results():
 
 
 def export_session():
-    service.ExportSession(
+    service.ExportSessionToFile(
         session_object_path,
         "xml",
         [''],

@@ -68,7 +68,7 @@ class Service:
         return {name: exporter_cls.supported_option_list for
                 name, exporter_cls in get_all_exporters().items()}
 
-    def export_session(self, session, output_format, option_list, output_file):
+    def export_session_to_file(self, session, output_format, option_list, output_file):
         exporter_cls = get_all_exporters()[output_format]
         exporter = exporter_cls(option_list)
         data_subset = exporter.get_session_data_subset(session)

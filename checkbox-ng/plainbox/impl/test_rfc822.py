@@ -236,9 +236,44 @@ class RFC822ParserTestsMixIn():
                 " and new value 'value2'"))
 
 
+class NamedStringIO(StringIO):
+    """
+     Subclass of StringIO with a name attribute.
+     Use only for testing purposes, it's not guaranteed to be 100%
+     compatible with StringIO.
+    """
+    def __init__(self, string, fake_filename=None):
+        super(NamedStringIO, self).__init__(string)
+        self._fake_filename = fake_filename
+
+    @property
+    def name(self):
+        return(self._fake_filename)
+
+
 class RFC822ParserTests(TestCase, RFC822ParserTestsMixIn):
 
-    pass
+    def test_origin_from_stream_is_null(self):
+        # If the test's origin has no filename, it should be None,
+        # rather than an Origin object with "filename": None
+        with StringIO("key:value") as stream:
+            records = type(self).loader(stream)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0].data, {'key': 'value'})
+        self.assertEqual(records[0].origin, None)
+
+    def test_origin_from_filename_is_filename(self):
+        # If the test's origin has a filename, we need a valid origin
+        # with proper data.
+        # We're faking the name by using a StringIO subclass with a
+        # name property, which is how rfc822 gets that data.
+        expected_origin = Origin("file.txt", 1, 1)
+        with NamedStringIO("key:value",
+                           fake_filename="file.txt") as stream:
+            records = type(self).loader(stream)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0].data, {'key': 'value'})
+        self.assertEqual(records[0].origin, expected_origin)
 
 
 class RFC822WriterTests(TestCase):

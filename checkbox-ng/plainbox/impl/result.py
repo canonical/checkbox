@@ -92,7 +92,7 @@ class _JobResultBase(IJobResult):
         The amount of time in seconds it took to run this
         jobs command.
         """
-        return self._data.get('execution_duration', None)
+        return self._data.get('execution_duration')
 
     @property
     def comments(self):

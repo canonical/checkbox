@@ -131,93 +131,93 @@ class LoggingHelper:
         """
         Reusable dictionary with the formatter configuration plainbox uses
         """
-        return({
-               "console_debug": {
-               "()": "plainbox.impl.logging.ANSIFormatter",
-                     "format": (
-                         "{ansi.f.BLACK}{ansi.s.BRIGHT}"
-                         "%(levelname)s"
-                         "{ansi.s.NORMAL}{ansi.f.RESET}"
-                         " "
-                         "{ansi.f.CYAN}{ansi.s.DIM}"
-                         "%(name)s"
-                         "{ansi.f.RESET}{ansi.s.NORMAL}"
-                         ": "
-                         "{ansi.s.DIM}"
-                         "%(message)s"
-                         "{ansi.s.NORMAL}"
-                     ),
-               },
-               "console_info": {
-               "()": "plainbox.impl.logging.ANSIFormatter",
-                     "format": (
-                         "{ansi.f.WHITE}{ansi.s.BRIGHT}"
-                         "%(levelname)s"
-                         "{ansi.s.NORMAL}{ansi.f.RESET}"
-                         " "
-                         "{ansi.f.CYAN}{ansi.s.BRIGHT}"
-                         "%(name)s"
-                         "{ansi.f.RESET}{ansi.s.NORMAL}"
-                         ": "
-                         "%(message)s"
-                     ),
-               },
-               "console_warning": {
-               "()": "plainbox.impl.logging.ANSIFormatter",
-                     "format": (
-                         "{ansi.f.YELLOW}{ansi.s.BRIGHT}"
-                         "%(levelname)s"
-                         "{ansi.f.RESET}{ansi.s.NORMAL}"
-                         " "
-                         "{ansi.f.CYAN}%(name)s{ansi.f.RESET}"
-                         ": "
-                         "{ansi.f.WHITE}%(message)s{ansi.f.RESET}"
-                     ),
-               },
-               "console_error": {
-               "()": "plainbox.impl.logging.ANSIFormatter",
-                     "format": (
-                         "{ansi.f.RED}{ansi.s.BRIGHT}"
-                         "%(levelname)s"
-                         "{ansi.f.RESET}{ansi.s.NORMAL}"
-                         " "
-                         "{ansi.f.CYAN}%(name)s{ansi.f.RESET}"
-                         ": "
-                         "{ansi.f.WHITE}%(message)s{ansi.f.RESET}"
-                     ),
-               },
-               "log_precise": {
-                   "format": (
-                       "%(asctime)s "
-                       "[pid:%(process)s, thread:%(threadName)s, "
-                       "reltime:%(relativeCreated)dms] "
-                       "%(levelname)s %(name)s: %(message)s"
-                   ),
-                   "datefmt": "%Y-%m-%d %H:%M:%S",
-               },
-               })
+        return {
+            "console_debug": {
+                "()": "plainbox.impl.logging.ANSIFormatter",
+                "format": (
+                    "{ansi.f.BLACK}{ansi.s.BRIGHT}"
+                    "%(levelname)s"
+                    "{ansi.s.NORMAL}{ansi.f.RESET}"
+                    " "
+                    "{ansi.f.CYAN}{ansi.s.DIM}"
+                    "%(name)s"
+                    "{ansi.f.RESET}{ansi.s.NORMAL}"
+                    ": "
+                    "{ansi.s.DIM}"
+                    "%(message)s"
+                    "{ansi.s.NORMAL}"
+                ),
+            },
+            "console_info": {
+                "()": "plainbox.impl.logging.ANSIFormatter",
+                "format": (
+                    "{ansi.f.WHITE}{ansi.s.BRIGHT}"
+                    "%(levelname)s"
+                    "{ansi.s.NORMAL}{ansi.f.RESET}"
+                    " "
+                    "{ansi.f.CYAN}{ansi.s.BRIGHT}"
+                    "%(name)s"
+                    "{ansi.f.RESET}{ansi.s.NORMAL}"
+                    ": "
+                    "%(message)s"
+                ),
+            },
+            "console_warning": {
+                "()": "plainbox.impl.logging.ANSIFormatter",
+                "format": (
+                    "{ansi.f.YELLOW}{ansi.s.BRIGHT}"
+                    "%(levelname)s"
+                    "{ansi.f.RESET}{ansi.s.NORMAL}"
+                    " "
+                    "{ansi.f.CYAN}%(name)s{ansi.f.RESET}"
+                    ": "
+                    "{ansi.f.WHITE}%(message)s{ansi.f.RESET}"
+                ),
+            },
+            "console_error": {
+                "()": "plainbox.impl.logging.ANSIFormatter",
+                "format": (
+                    "{ansi.f.RED}{ansi.s.BRIGHT}"
+                    "%(levelname)s"
+                    "{ansi.f.RESET}{ansi.s.NORMAL}"
+                    " "
+                    "{ansi.f.CYAN}%(name)s{ansi.f.RESET}"
+                    ": "
+                    "{ansi.f.WHITE}%(message)s{ansi.f.RESET}"
+                ),
+            },
+            "log_precise": {
+                "format": (
+                    "%(asctime)s "
+                    "[pid:%(process)s, thread:%(threadName)s, "
+                    "reltime:%(relativeCreated)dms] "
+                    "%(levelname)s %(name)s: %(message)s"
+                ),
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
+        }
 
     @property
     def DEFAULT_FILTERS(self):
         """
         Reusable dictionary with the filter configuration plainbox uses
         """
-        return({
-               "only_debug": {
-                   "()": "plainbox.impl.logging.LevelFilter",
-                   "max_level": "DEBUG",
-               },
-               "only_info": {
-                   "()": "plainbox.impl.logging.LevelFilter",
-                   "min_level": "INFO",
-                   "max_level": "INFO",
-               },
-               "only_warnings": {
-                   "()": "plainbox.impl.logging.LevelFilter",
-                   "min_level": "WARNING",
-                   "max_level": "WARNING",
-               },
-               })
+        return {
+            "only_debug": {
+                "()": "plainbox.impl.logging.LevelFilter",
+                "max_level": "DEBUG",
+            },
+            "only_info": {
+                "()": "plainbox.impl.logging.LevelFilter",
+                "min_level": "INFO",
+                "max_level": "INFO",
+            },
+            "only_warnings": {
+                "()": "plainbox.impl.logging.LevelFilter",
+                "min_level": "WARNING",
+                "max_level": "WARNING",
+            },
+        }
 
     @property
     def DEFAULT_HANDLERS(self):
@@ -226,61 +226,61 @@ class LoggingHelper:
         This configuration assumes the log file locations exist and are
         writable.
         """
-        return({
-               "console_debug": {
-                   "class": "logging.StreamHandler",
-                   "stream": "ext://sys.stdout",
-                   "formatter": "console_debug",
-                   "filters": ["only_debug"],
-                   "level": 150,
-               },
-               "console_info": {
-                   "class": "logging.StreamHandler",
-                   "stream": "ext://sys.stdout",
-                   "formatter": "console_info",
-                   "filters": ["only_info"],
-               },
-               "console_warning": {
-                   "class": "logging.StreamHandler",
-                   "stream": "ext://sys.stderr",
-                   "formatter": "console_warning",
-                   "filters": ["only_warnings"],
-               },
-               "console_error": {
-                   "class": "logging.StreamHandler",
-                   "stream": "ext://sys.stderr",
-                   "formatter": "console_error",
-                   "level": "ERROR",
-               },
-               "logfile_debug": {
-                   "class": "logging.handlers.RotatingFileHandler",
-                   "filename": os.path.join(self.log_dir, "debug.log"),
-                   "maxBytes": 32 << 20,
-                   "backupCount": 3,
-                   "mode": "a",
-                   "formatter": "log_precise",
-                   "delay": True,
-                   "filters": ["only_debug"],
-               },
-               "logfile_error": {
-                   "class": "logging.handlers.RotatingFileHandler",
-                   "filename": os.path.join(self.log_dir, "error.log"),
-                   "backupCount": 3,
-                   "level": "ERROR",
-                   "mode": "a",
-                   "formatter": "log_precise",
-                   "delay": True,
-               },
-               "logfile_crash": {
-                   "class": "logging.handlers.RotatingFileHandler",
-                   "filename": os.path.join(self.log_dir, "crash.log"),
-                   "backupCount": 3,
-                   "level": "ERROR",
-                   "mode": "a",
-                   "formatter": "log_precise",
-                   "delay": True,
-               },
-               })
+        return {
+            "console_debug": {
+                "class": "logging.StreamHandler",
+                "stream": "ext://sys.stdout",
+                "formatter": "console_debug",
+                "filters": ["only_debug"],
+                "level": 150,
+            },
+            "console_info": {
+                "class": "logging.StreamHandler",
+                "stream": "ext://sys.stdout",
+                "formatter": "console_info",
+                "filters": ["only_info"],
+            },
+            "console_warning": {
+                "class": "logging.StreamHandler",
+                "stream": "ext://sys.stderr",
+                "formatter": "console_warning",
+                "filters": ["only_warnings"],
+            },
+            "console_error": {
+                "class": "logging.StreamHandler",
+                "stream": "ext://sys.stderr",
+                "formatter": "console_error",
+                "level": "ERROR",
+            },
+            "logfile_debug": {
+                "class": "logging.handlers.RotatingFileHandler",
+                "filename": os.path.join(self.log_dir, "debug.log"),
+                "maxBytes": 32 << 20,
+                "backupCount": 3,
+                "mode": "a",
+                "formatter": "log_precise",
+                "delay": True,
+                "filters": ["only_debug"],
+            },
+            "logfile_error": {
+                "class": "logging.handlers.RotatingFileHandler",
+                "filename": os.path.join(self.log_dir, "error.log"),
+                "backupCount": 3,
+                "level": "ERROR",
+                "mode": "a",
+                "formatter": "log_precise",
+                "delay": True,
+            },
+            "logfile_crash": {
+                "class": "logging.handlers.RotatingFileHandler",
+                "filename": os.path.join(self.log_dir, "crash.log"),
+                "backupCount": 3,
+                "level": "ERROR",
+                "mode": "a",
+                "formatter": "log_precise",
+                "delay": True,
+            },
+        }
 
     @property
     def DEFAULT_CONSOLE_ONLY_HANDLERS(self):
@@ -288,33 +288,33 @@ class LoggingHelper:
         Reusable dictionary with a handler configuration using only the
         console for output.
         """
-        return({
-               "console_debug": {
-                   "class": "logging.StreamHandler",
-                   "stream": "ext://sys.stdout",
-                   "formatter": "console_debug",
-                   "filters": ["only_debug"],
-                   "level": 150,
-               },
-               "console_info": {
-                   "class": "logging.StreamHandler",
-                   "stream": "ext://sys.stdout",
-                   "formatter": "console_info",
-                   "filters": ["only_info"],
-               },
-               "console_warning": {
-                   "class": "logging.StreamHandler",
-                   "stream": "ext://sys.stderr",
-                   "formatter": "console_warning",
-                   "filters": ["only_warnings"],
-               },
-               "console_error": {
-                   "class": "logging.StreamHandler",
-                   "stream": "ext://sys.stderr",
-                   "formatter": "console_error",
-                   "level": "ERROR",
-               },
-               })
+        return {
+            "console_debug": {
+                "class": "logging.StreamHandler",
+                "stream": "ext://sys.stdout",
+                "formatter": "console_debug",
+                "filters": ["only_debug"],
+                "level": 150,
+            },
+            "console_info": {
+                "class": "logging.StreamHandler",
+                "stream": "ext://sys.stdout",
+                "formatter": "console_info",
+                "filters": ["only_info"],
+            },
+            "console_warning": {
+                "class": "logging.StreamHandler",
+                "stream": "ext://sys.stderr",
+                "formatter": "console_warning",
+                "filters": ["only_warnings"],
+            },
+            "console_error": {
+                "class": "logging.StreamHandler",
+                "stream": "ext://sys.stderr",
+                "formatter": "console_error",
+                "level": "ERROR",
+            },
+        }
 
     @property
     def DEFAULT_LOGGERS(self):
@@ -323,23 +323,23 @@ class LoggingHelper:
         This configuration assumes the log file locations exist and are
         writable.
         """
-        return({
-               "plainbox": {
-                   "level": "WARNING",
-                   "handlers": [
-                       "console_debug",
-                       "console_info",
-                       "console_warning",
-                       "console_error",
-                       "logfile_error",
-                       "logfile_debug"
-                   ],
-               },
-               "plainbox.crashes": {
-                   "level": "ERROR",
-                   "handlers": ["logfile_crash"],
-               },
-               })
+        return {
+            "plainbox": {
+                "level": "WARNING",
+                "handlers": [
+                    "console_debug",
+                    "console_info",
+                    "console_warning",
+                    "console_error",
+                    "logfile_error",
+                    "logfile_debug",
+                ],
+            },
+            "plainbox.crashes": {
+                "level": "ERROR",
+                "handlers": ["logfile_crash"],
+            },
+        }
 
     @property
     def DEFAULT_CONSOLE_ONLY_LOGGERS(self):
@@ -347,21 +347,21 @@ class LoggingHelper:
         Reusable dictionary with a logger configuration using only the
         console for output.
         """
-        return({
-               "plainbox": {
-                   "level": "WARNING",
-                   "handlers": [
-                       "console_debug",
-                       "console_info",
-                       "console_warning",
-                       "console_error",
-                   ],
-               },
-               "plainbox.crashes": {
-                   "level": "ERROR",
-                   "handlers": ["console_error"],
-               },
-               })
+        return {
+            "plainbox": {
+                "level": "WARNING",
+                "handlers": [
+                    "console_debug",
+                    "console_info",
+                    "console_warning",
+                    "console_error",
+                ],
+            },
+            "plainbox.crashes": {
+                "level": "ERROR",
+                "handlers": ["console_error"],
+            },
+        }
 
     @property
     def DEFAULT_CONFIG(self):

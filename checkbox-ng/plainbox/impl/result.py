@@ -189,11 +189,8 @@ class DiskJobResult(_JobResultBase):
         return self._data.get("io_log_filename")
 
     def get_io_log(self):
-        try:
-            record_path = self._data['io_log_filename']
-        except KeyError:
-            pass
-        else:
+        record_path = self.io_log_filename
+        if record_path:
             with GzipFile(record_path, mode='rb') as gzip_stream, \
                     io.TextIOWrapper(gzip_stream, encoding='UTF-8') as stream:
                 for record in IOLogRecordReader(stream):

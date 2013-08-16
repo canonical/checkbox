@@ -54,6 +54,23 @@ class OriginTests(TestCase):
         observed = str(self.origin)
         self.assertEqual(expected, observed)
 
+    def test_equal_operator(self):
+        equal_origin = Origin("file.txt", 10, 12)
+        self.assertEqual(self.origin, equal_origin)
+
+    def test_comparison_operators_different_lines(self):
+        unequal_origin_1 = Origin("file.txt", 10, 13)
+        unequal_origin_2 = Origin("file.txt", 11, 12)
+        unequal_origin_3 = Origin("file.txt", 10, 11)
+        self.assertNotEqual(self.origin, unequal_origin_1)
+        self.assertNotEqual(self.origin, unequal_origin_2)
+        self.assertTrue(self.origin < unequal_origin_1)
+        self.assertTrue(self.origin > unequal_origin_3)
+
+    def test_comparison_operators_different_files(self):
+        unequal_origin = Origin("ghostfile.txt", 10, 12)
+        self.assertNotEqual(self.origin, unequal_origin)
+
 
 class RFC822RecordTests(TestCase):
 

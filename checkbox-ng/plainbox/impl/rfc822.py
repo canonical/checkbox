@@ -30,6 +30,7 @@ Implementation of rfc822 serializer and deserializer.
 
 import logging
 
+from functools import total_ordering
 from inspect import cleandoc
 
 from plainbox.impl.secure.checkbox_trusted_launcher import RFC822SyntaxError
@@ -37,7 +38,7 @@ from plainbox.impl.secure.checkbox_trusted_launcher import BaseRFC822Record
 
 logger = logging.getLogger("plainbox.rfc822")
 
-
+@total_ordering
 class Origin:
     """
     Simple class for tracking where something came from
@@ -63,6 +64,14 @@ class Origin:
     def __str__(self):
         return "{}:{}-{}".format(
             self.filename, self.line_start, self.line_end)
+
+    def __eq__(self, other):
+        return (self.filename, self.line_start, self.line_end) == \
+               (other.filename, other.line_start, other.line_end)
+
+    def __gt__(self, other):
+        return (self.filename, self.line_start, self.line_end) > \
+               (other.filename, other.line_start, other.line_end)
 
 
 class RFC822Record(BaseRFC822Record):

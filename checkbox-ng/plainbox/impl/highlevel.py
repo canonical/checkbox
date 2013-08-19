@@ -24,6 +24,7 @@
 
 import logging
 from threading import Thread
+from io import BytesIO
 
 from plainbox import __version__ as plainbox_version
 from plainbox.abc import IJobResult
@@ -68,13 +69,23 @@ class Service:
         return {name: exporter_cls.supported_option_list for
                 name, exporter_cls in get_all_exporters().items()}
 
-    def export_session(self, session, output_format, option_list, output_file):
+    def export_session(self, session, output_format, option_list):
+        temp_stream = BytesIO()
+        self._export_session_to_stream(session, output_format,
+                                       option_list, temp_stream)
+        return temp_stream.getvalue()
+
+    def export_session_to_file(self, session, output_format, option_list, output_file):
+        with open(output_file, 'wb') as f:
+            self._export_session_to_stream(session, output_format,
+                                       option_list, f)
+        return output_file
+
+    def _export_session_to_stream(self, session, output_format, option_list, stream):
         exporter_cls = get_all_exporters()[output_format]
         exporter = exporter_cls(option_list)
         data_subset = exporter.get_session_data_subset(session)
-        with open(output_file, 'wb') as f:
-            exporter.dump(data_subset, f)
-        return output_file
+        exporter.dump(data_subset, stream)
 
     def _run(self, session, job, running_job_wrapper):
         """

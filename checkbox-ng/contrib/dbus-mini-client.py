@@ -38,7 +38,7 @@ session_object = None
 run_list = None
 desired_job_list = None
 whitelist = None
-
+exports_count = 0
 
 def main():
     global service
@@ -179,9 +179,20 @@ def ask_for_resume():
 
 # Asynchronous calls need reply handlers
 def handle_export_reply(s):
-    print("Export completed to {}".format(s))
-    loop.quit()
+    print("Export to buffer: I got {} bytes of export data".format(len(s)))
+    maybe_quit_after_export()
 
+def handle_export_to_file_reply(s):
+    print("Export to file: completed to {}".format(s))
+    maybe_quit_after_export()
+
+def maybe_quit_after_export():
+    # Two asynchronous callbacks calling this may result in a race
+    # condition. Don't do this at home, use a semaphore or lock.
+    global exports_count
+    exports_count += 1
+    if exports_count >= 2:
+        loop.quit()
 
 def handle_error(e):
     print(str(e))
@@ -386,13 +397,21 @@ def show_results():
         print("{:55s} {:15s} {}".format(job_name, outcome, comments))
     export_session()
 
-
 def export_session():
-    service.ExportSession(
+    service.ExportSessionToFile(
         session_object_path,
         "xml",
         [''],
         "/tmp/report.xml",
+        reply_handler=handle_export_to_file_reply,
+        error_handler=handle_error
+    )
+    # The exports will apparently run in parallel. The callbacks
+    # are responsible for ensuring exiting after this.
+    service.ExportSession(
+        session_object_path,
+        "xml",
+        [''],
         reply_handler=handle_export_reply,
         error_handler=handle_error
     )

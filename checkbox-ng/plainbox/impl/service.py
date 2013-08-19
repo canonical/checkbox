@@ -618,7 +618,6 @@ class SessionWrapper(PlainBoxObjectWrapper):
     @dbus.service.method(
         dbus_interface=SESSION_IFACE, in_signature='', out_signature='(dd)')
     def GetEstimatedDuration(self):
-        import pdb; pdb.set_trace()
         automated, manual = self.native.get_estimated_duration()
         if automated is None:
             automated = -1

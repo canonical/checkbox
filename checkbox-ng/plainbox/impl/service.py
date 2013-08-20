@@ -939,6 +939,16 @@ class RunningJob(dbus.service.Object):
     def Kill(self):
         pass
 
+    @dbus.service.property(dbus_interface=RUNNING_JOB_IFACE, signature="s")
+    def outcome_from_command(self):
+        if self.result.get('return_code') is not None:
+            if self.result.get('return_code') == 0:
+                return "pass"
+            else:
+                return "fail"
+        else:
+            return ""
+
     @dbus.service.method(
         dbus_interface=RUNNING_JOB_IFACE, in_signature='ss', out_signature='')
     def SetOutcome(self, outcome, comments=None):

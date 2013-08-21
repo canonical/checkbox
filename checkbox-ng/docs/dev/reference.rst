@@ -183,6 +183,12 @@ Code reference
     :undoc-members:
     :show-inheritance:
 
+.. automodule:: plainbox.impl.session.suspend
+    :members:
+    :undoc-members:
+    :private-members:
+    :show-inheritance:
+
 .. automodule:: plainbox.impl.testing_utils
     :members:
     :undoc-members:

@@ -388,6 +388,17 @@ class SessionState(_LegacySessionState):
         and can be easily looked at by the application.
         """
 
+    @Signal.define
+    def on_job_result_changed(self, job, result):
+        """
+        Signal fired after a job get changed (set)
+
+        This signal is fired each time a result is presented to the session.
+
+        This signal is fired **after** :meth:`on_job_state_map_changed()`
+        """
+        logger.info("Job %s result changed to %r", job, result)
+
     def __init__(self, job_list):
         """
         Initialize a new SessionState with a given list of jobs.

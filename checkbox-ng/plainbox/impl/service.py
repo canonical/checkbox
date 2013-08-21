@@ -603,6 +603,7 @@ class SessionWrapper(PlainBoxObjectWrapper):
         dbus_interface=SESSION_IFACE, in_signature='ao', out_signature='as')
     @PlainBoxObjectWrapper.translate
     def UpdateDesiredJobList(self, desired_job_list: 'ao'):
+        logger.info("UpdateDesiredJobList(%r)", desired_job_list)
         problem_list = self.native.update_desired_job_list(desired_job_list)
         # Do the necessary housekeeping for any new jobs
         self.check_and_wrap_new_jobs()

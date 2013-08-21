@@ -45,7 +45,7 @@ from plainbox.impl.session.jobs import (
 logger = logging.getLogger("plainbox.session.state")
 
 
-class SessionMetadata:
+class SessionMetaData:
     """
     Class representing non-critical state of the session.
 
@@ -368,7 +368,7 @@ class SessionState(_LegacySessionState):
         This is computed internally from the output of checkbox resource jobs,
         it can only be changed by calling :meth:`update_job_result()`
 
-    :ivar dict metadata: instance of :class:`SessionMetadata`
+    :ivar dict metadata: instance of :class:`SessionMetaData`
     """
 
     def __init__(self, job_list):
@@ -415,7 +415,7 @@ class SessionState(_LegacySessionState):
         self._desired_job_list = []
         self._run_list = []
         self._resource_map = {}
-        self._metadata = SessionMetadata()
+        self._metadata = SessionMetaData()
         super(SessionState, self).__init__()
 
     def update_desired_job_list(self, desired_job_list):

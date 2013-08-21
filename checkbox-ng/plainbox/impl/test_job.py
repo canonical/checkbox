@@ -309,7 +309,8 @@ class JobEnvTests(TestCase):
         self.job._provider.extra_PATH = "value-of-extra-path"
         self.job._provider.CHECKBOX_SHARE = "checkbox-share-value"
         self.session_dir = "session-dir-value"
-        self.checkbox_data_dir = os.path.join(self.session_dir, "CHECKBOX_DATA")
+        self.checkbox_data_dir = os.path.join(
+            self.session_dir, "CHECKBOX_DATA")
 
     def test_provider_env(self):
         env = {
@@ -373,7 +374,7 @@ class JobEnvTests(TestCase):
             'baz': 'baz-value'
         }
         # Ask the job to modify the environment
-        self.job.modify_execution_environment(env, self.session_dir, 
+        self.job.modify_execution_environment(env, self.session_dir,
                                               self.checkbox_data_dir,
                                               config)
         # bar from the old environment

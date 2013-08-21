@@ -104,11 +104,6 @@ class TestJobDefinition(TestCase):
                           JobDefinition.from_rfc822_record,
                           RFC822Record({'plugin': 'plugin'}, None))
 
-    def test_from_rfc822_record_missing_plugin(self):
-        self.assertRaises(ValueError,
-                          JobDefinition.from_rfc822_record,
-                          RFC822Record({'name': 'name'}, None))
-
     def test_str(self):
         job = JobDefinition(self._min_record.data)
         self.assertEqual(str(job), "name")

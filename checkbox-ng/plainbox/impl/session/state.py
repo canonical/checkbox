@@ -64,10 +64,12 @@ class SessionMetaData:
     # set this flag after successfully sending the result somewhere.
     FLAG_SUBMITTED = "submitted"
 
-    def __init__(self):
-        self._title = None
-        self._flags = set()
-        self._running_job_name = None
+    def __init__(self, title=None, flags=None, running_job_name=None):
+        if flags is None:
+            flags = []
+        self._title = title
+        self._flags = set(flags)
+        self._running_job_name = running_job_name
 
     def as_json(self):
         """

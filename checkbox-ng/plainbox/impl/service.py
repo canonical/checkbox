@@ -392,15 +392,16 @@ class JobResultWrapper(PlainBoxObjectWrapper):
         # XXX: it would be nice if we could not do this remapping.
         return self.native.outcome or "none"
 
-    @dbus.service.property(dbus_interface=JOB_RESULT_IFACE, signature="i")
+    @dbus.service.property(dbus_interface=JOB_RESULT_IFACE, signature="v")
     def return_code(self):
         """
         return code of the called program
         """
         value = self.native.return_code
         if value is None:
-            raise dbus.exceptions.DBusException("There is no return code yet")
-        return value
+            return ""
+        else:
+            return value
 
     # comments are settable, useful thing that
 
@@ -938,6 +939,16 @@ class RunningJob(dbus.service.Object):
         dbus_interface=RUNNING_JOB_IFACE, in_signature='', out_signature='')
     def Kill(self):
         pass
+
+    @dbus.service.property(dbus_interface=RUNNING_JOB_IFACE, signature="s")
+    def outcome_from_command(self):
+        if self.result.get('return_code') is not None:
+            if self.result.get('return_code') == 0:
+                return "pass"
+            else:
+                return "fail"
+        else:
+            return ""
 
     @dbus.service.method(
         dbus_interface=RUNNING_JOB_IFACE, in_signature='ss', out_signature='')

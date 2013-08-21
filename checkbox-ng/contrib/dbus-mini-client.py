@@ -213,6 +213,11 @@ def catchall_ask_for_outcome_signals_handler(current_runner_path):
         if run_test == 'y':
             job_runner_object.RunCommand()
             return
+    outcome_from_command = job_runner_object.Get(
+            'com.canonical.certification.PlainBox.RunningJob1',
+            'outcome_from_command')
+    print("Return code from the command indicates: {} ".format(
+          outcome_from_command))
     outcome = ask_for_outcome()
     comments = 'Test plainbox comments'
     job_runner_object.SetOutcome(

@@ -39,7 +39,7 @@ from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.session import JobReadinessInhibitor
 from plainbox.impl.session import SessionState
 from plainbox.impl.session import UndesiredJobReadinessInhibitor
-from plainbox.impl.session.state import SessionMetadata
+from plainbox.impl.session.state import SessionMetaData
 from plainbox.impl.testing_utils import make_job
 
 
@@ -207,8 +207,7 @@ class SessionStateAPITests(TestCase):
                                estimated_duration=0.5)
         session = SessionState([one_second, half_second])
         session.update_desired_job_list([one_second, half_second])
-        self.assertEquals(session.get_estimated_duration(),
-                          (1.5, 0.0))
+        self.assertEqual(session.get_estimated_duration(), (1.5, 0.0))
 
     def test_get_estimated_duration_manual(self):
         two_seconds = make_job("two_seconds", plugin="manual",
@@ -219,9 +218,8 @@ class SessionStateAPITests(TestCase):
                              estimated_duration=0.6)
         session = SessionState([two_seconds, shell_job])
         session.update_desired_job_list([two_seconds, shell_job])
-        self.assertEquals(session.get_estimated_duration(),
-                          (0.6, 32.0))
-       
+        self.assertEqual(session.get_estimated_duration(), (0.6, 32.0))
+
     def test_get_estimated_duration_automated_unknown(self):
         three_seconds = make_job("three_seconds", plugin="shell",
                                  command="frob",
@@ -231,8 +229,7 @@ class SessionStateAPITests(TestCase):
                                          command="borf")
         session = SessionState([three_seconds, no_estimated_duration])
         session.update_desired_job_list([three_seconds, no_estimated_duration])
-        self.assertEquals(session.get_estimated_duration(),
-                          (None, 0.0))
+        self.assertEqual(session.get_estimated_duration(), (None, 0.0))
 
     def test_get_estimated_duration_manual_unknown(self):
         four_seconds = make_job("four_seconds", plugin="shell",
@@ -243,8 +240,8 @@ class SessionStateAPITests(TestCase):
                                          command="bibble")
         session = SessionState([four_seconds, no_estimated_duration])
         session.update_desired_job_list([four_seconds, no_estimated_duration])
-        self.assertEquals(session.get_estimated_duration(),
-                          (4.0, None))
+        self.assertEqual(session.get_estimated_duration(), (4.0, None))
+
 
 class SessionStateSpecialTests(TestCase):
 
@@ -300,7 +297,8 @@ class SessionStateReactionToJobResultTests(TestCase):
         self.job_X = make_job("X", depends='Y')
         self.job_Y = make_job("Y")
         self.job_L = make_job("L", plugin="local")
-        self.job_list = [self.job_A, self.job_R, self.job_X, self.job_Y, self.job_L]
+        self.job_list = [
+            self.job_A, self.job_R, self.job_X, self.job_Y, self.job_L]
         self.session = SessionState(self.job_list)
 
     def job_state(self, name):
@@ -668,13 +666,20 @@ class SessionStateLocalStorageTests(TestCase):
 class SessionMetadataTests(TestCase):
 
     def test_smoke(self):
-        metadata = SessionMetadata()
+        metadata = SessionMetaData()
         self.assertEqual(metadata.title, None)
         self.assertEqual(metadata.flags, set())
         self.assertEqual(metadata.running_job_name, None)
 
+    def test_initializer(self):
+        metadata = SessionMetaData(
+            title="title", flags=['f1', 'f2'], running_job_name='name')
+        self.assertEqual(metadata.title, "title")
+        self.assertEqual(metadata.flags, set(["f1", "f2"]))
+        self.assertEqual(metadata.running_job_name, "name")
+
     def test_accessors(self):
-        metadata = SessionMetadata()
+        metadata = SessionMetaData()
         metadata.title = "title"
         self.assertEqual(metadata.title, "title")
         metadata.flags = set(["f1", "f2"])
@@ -683,7 +688,7 @@ class SessionMetadataTests(TestCase):
         self.assertEqual(metadata.running_job_name, "name")
 
     def test_as_json(self):
-        metadata = SessionMetadata()
+        metadata = SessionMetaData()
         metadata.title = "title"
         metadata.flags = set(["f1", "f2"])
         metadata.running_job_name = "name"

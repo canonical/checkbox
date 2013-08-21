@@ -619,6 +619,10 @@ class SessionState(_LegacySessionState):
         self._resource_map[resource_name] = resource_list
 
     def _process_resource_result(self, job, result):
+        """
+        Analyze a result of a CheckBox "resource" job and generate
+        or replace resource records.
+        """
         new_resource_list = []
         for record in self._gen_rfc822_records_from_io_log(job, result):
             # XXX: Consider forwarding the origin object here.  I guess we
@@ -630,6 +634,13 @@ class SessionState(_LegacySessionState):
         self._resource_map[job.name] = new_resource_list
 
     def _process_local_result(self, job, result):
+        """
+        Analyze a result of a CheckBox "local" job and generate
+        additional job definitions
+        """
+        # TODO: refactor using add_job() but make sure we compute
+        # job state map at most once
+
         # First parse all records and create a list of new jobs (confusing
         # name, not a new list of jobs)
         new_job_list = []
@@ -661,6 +672,9 @@ class SessionState(_LegacySessionState):
                         existing_job._via = new_job.via
 
     def _gen_rfc822_records_from_io_log(self, job, result):
+        """
+        Convert io_log from a job result to a sequence of rfc822 records
+        """
         logger.debug("processing output from a job: %r", job)
         # Select all stdout lines from the io log
         line_gen = (record[2].decode('UTF-8', errors='replace')

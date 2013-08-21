@@ -373,6 +373,21 @@ class SessionState(_LegacySessionState):
     :ivar dict metadata: instance of :class:`SessionMetaData`
     """
 
+    @Signal.define
+    def on_job_state_map_changed(self):
+        """
+        Signal fired after job_state_map is changed in any way.
+
+        This signal is always fired before any more specialized signals
+        such as :meth:`on_job_result_changed()` and :meth:`on_job_added()`.
+
+        This signal is fired pretty often, each time a job result is
+        presented to the session and each time a job is added. When
+        both of those events happen at the same time only one notification
+        is sent. The actual state is not sent as it is quite extensive
+        and can be easily looked at by the application.
+        """
+
     def __init__(self, job_list):
         """
         Initialize a new SessionState with a given list of jobs.
@@ -678,10 +693,6 @@ class SessionState(_LegacySessionState):
         Map from job name to JobState that encodes the state of each job.
         """
         return self._job_state_map
-
-    @Signal.define
-    def on_job_state_map_changed(self):
-        pass
 
     @property
     def metadata(self):

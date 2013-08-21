@@ -437,6 +437,8 @@ class SessionState(_LegacySessionState):
         # Remember a copy of original desired job list. We may modify this list
         # so let's not mess up data passed by the caller.
         self._desired_job_list = list(desired_job_list)
+        # Reset run list just in case desired_job_list is empty
+        self._run_list = []
         # Try to solve the dependency graph. This is done in a loop as may need
         # to remove a problematic job and re-try. The loop provides a stop
         # condition as we will eventually run out of jobs.

@@ -18,18 +18,67 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-:mod:`plainbox.impl.session` -- session state handling
-======================================================
+:mod:`plainbox.impl.session` -- session handling
+================================================
 
-.. warning::
+Sessions are central state holders and one of the most important classes in
+PlainBox. Since they are all named alike it's a bit hard to find what the
+actual responsibilities are. Here's a small shortcut, do read the description
+of each module and class for additional details though.
 
-    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
+
+:class:`SessionState`
+
+    This a class that holds all of the state and program logic. It
+    :class:`SessionManager` is a class that couples :class:`SessionState` and
+    :class:`SessionStorage`. It has the methods required to alter the state by
+    introducing additional jobs or results. It's main responsibility is to keep
+    track of all of the jobs, their results, if they are runnable or not
+    (technically what is preventing them from being runnable) and to compute
+    the order of execution that can satisfy all of the dependencies.
+
+    It holds a number of references to other pieces of PlainBox (jobs,
+    resources and other things) but one thing stands out. This class holds
+    references to a number of :class:`JobState` objects that couple a
+    :class:`JobResult` and :class:`JobDefinition` together.
+
+:class:`JobState`
+
+    A coupling class between :class:`JobDefinition` and :class:`JobResult`.
+    This class also knows why a job cannot be started in a particular session,
+    by maintaining a set of "inhibitors" that prevent it from being runnable.
+    The actual inhibitors are managed by :class:`SessionState`.
+
+:class:`SessionStorage`
+
+    This class knows how properly to save and load bytes and manages a
+    directory for all the filesystem entries associated with a particular
+    session.  It holds no references to a session though. Typically the class
+    is not instantiated directly but instead comes from helper methods of
+    :class:`SessionStorageRepository`.
+
+:class:`SessionStorageRepository`
+
+    This class knows how to enumerate possible instances of
+    :class:`SessionStorage` from a given location in the filesystem. It also
+    knows how to obtain a default location using XDG standards.
 """
 
-__all__ = ['JobState', 'JobReadinessInhibitor',
-           'UndesiredJobReadinessInhibitor', 'SessionState',
-           'SessionStateEncoder']
+__all__ = [
+    'JobReadinessInhibitor',
+    'JobState',
+    'SessionState',
+    'SessionStateEncoder',
+    'SessionStorage',
+    'SessionStorageRepository',
+    'UndesiredJobReadinessInhibitor',
+]
 
-from plainbox.impl.session.jobs import JobState, JobReadinessInhibitor
+from plainbox.impl.session.jobs import JobReadinessInhibitor
+from plainbox.impl.session.jobs import JobState
 from plainbox.impl.session.jobs import UndesiredJobReadinessInhibitor
-from plainbox.impl.session.state import SessionState, SessionStateEncoder
+from plainbox.impl.session.state import JobState
+from plainbox.impl.session.state import SessionState
+from plainbox.impl.session.state import SessionStateEncoder
+from plainbox.impl.session.storage import SessionStorage
+from plainbox.impl.session.storage import SessionStorageRepository

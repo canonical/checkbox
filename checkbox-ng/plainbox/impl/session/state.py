@@ -513,7 +513,8 @@ class SessionState(_LegacySessionState):
         where estimate_automated is the value for automated jobs only and
         estimate_manual is the value for manual jobs only. These can be
         easily combined. Either value can be None if the  value could not be
-        calculated due to any job lacking the required estimated_duration field.
+        calculated due to any job lacking the required estimated_duration
+        field.
         """
         estimate_automated = 0.0
         estimate_manual = 0.0

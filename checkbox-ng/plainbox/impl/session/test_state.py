@@ -207,8 +207,7 @@ class SessionStateAPITests(TestCase):
                                estimated_duration=0.5)
         session = SessionState([one_second, half_second])
         session.update_desired_job_list([one_second, half_second])
-        self.assertEquals(session.get_estimated_duration(),
-                          (1.5, 0.0))
+        self.assertEqual(session.get_estimated_duration(), (1.5, 0.0))
 
     def test_get_estimated_duration_manual(self):
         two_seconds = make_job("two_seconds", plugin="manual",
@@ -219,8 +218,7 @@ class SessionStateAPITests(TestCase):
                              estimated_duration=0.6)
         session = SessionState([two_seconds, shell_job])
         session.update_desired_job_list([two_seconds, shell_job])
-        self.assertEquals(session.get_estimated_duration(),
-                          (0.6, 32.0))
+        self.assertEqual(session.get_estimated_duration(), (0.6, 32.0))
 
     def test_get_estimated_duration_automated_unknown(self):
         three_seconds = make_job("three_seconds", plugin="shell",
@@ -231,8 +229,7 @@ class SessionStateAPITests(TestCase):
                                          command="borf")
         session = SessionState([three_seconds, no_estimated_duration])
         session.update_desired_job_list([three_seconds, no_estimated_duration])
-        self.assertEquals(session.get_estimated_duration(),
-                          (None, 0.0))
+        self.assertEqual(session.get_estimated_duration(), (None, 0.0))
 
     def test_get_estimated_duration_manual_unknown(self):
         four_seconds = make_job("four_seconds", plugin="shell",
@@ -243,8 +240,7 @@ class SessionStateAPITests(TestCase):
                                          command="bibble")
         session = SessionState([four_seconds, no_estimated_duration])
         session.update_desired_job_list([four_seconds, no_estimated_duration])
-        self.assertEquals(session.get_estimated_duration(),
-                          (4.0, None))
+        self.assertEqual(session.get_estimated_duration(), (4.0, None))
 
 class SessionStateSpecialTests(TestCase):
 

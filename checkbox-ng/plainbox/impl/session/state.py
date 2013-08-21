@@ -399,6 +399,15 @@ class SessionState(_LegacySessionState):
         """
         logger.info("Job %s result changed to %r", job, result)
 
+    @Signal.define
+    def on_job_added(self, job):
+        """
+        Signal sent whenever a job is added to the session.
+
+        This signal is fired **after** :meth:`on_job_state_map_changed()`
+        """
+        logger.info("New job defined: %r", job)
+
     def __init__(self, job_list):
         """
         Initialize a new SessionState with a given list of jobs.

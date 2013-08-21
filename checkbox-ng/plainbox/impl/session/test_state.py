@@ -242,6 +242,7 @@ class SessionStateAPITests(TestCase):
         session.update_desired_job_list([four_seconds, no_estimated_duration])
         self.assertEqual(session.get_estimated_duration(), (4.0, None))
 
+
 class SessionStateSpecialTests(TestCase):
 
     # NOTE: those tests are essential. They allow testing the behavior of
@@ -296,7 +297,8 @@ class SessionStateReactionToJobResultTests(TestCase):
         self.job_X = make_job("X", depends='Y')
         self.job_Y = make_job("Y")
         self.job_L = make_job("L", plugin="local")
-        self.job_list = [self.job_A, self.job_R, self.job_X, self.job_Y, self.job_L]
+        self.job_list = [
+            self.job_A, self.job_R, self.job_X, self.job_Y, self.job_L]
         self.session = SessionState(self.job_list)
 
     def job_state(self, name):

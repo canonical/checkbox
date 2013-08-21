@@ -489,15 +489,14 @@ class SessionState(_LegacySessionState):
                 elif job.plugin != 'local':
                     estimate_automated = None
             elif not job.automated and estimate_manual is not None:
-                # We add 30 seconds to the run time for manual jobs to
-            	# account for extra time taken in reading the description
-            	# and performing any necessary steps
+                # We add a fixed extra amount of seconds to the run time
+                # for manual jobs to account for the time taken in reading
+                # the description and performing any necessary steps
                 estimate_manual += manual_overhead
                 if job.estimated_duration is not None:
-                     estimate_manual += job.estimated_duration
+                    estimate_manual += job.estimated_duration
                 elif job.command:
                     estimate_manual = None
-
         return (estimate_automated, estimate_manual)
 
     def update_job_result(self, job, result):

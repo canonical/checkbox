@@ -141,6 +141,16 @@ class IJobResult(metaclass=ABCMeta):
     # job runner is not implemented but the job "ran" so to speak.
     OUTCOME_NOT_IMPLEMENTED = 'not-implemented'
 
+    # List of all valid values of OUTCOME_xxx
+    ALL_OUTCOME_LIST = [
+        OUTCOME_NONE,
+        OUTCOME_PASS,
+        OUTCOME_FAIL,
+        OUTCOME_SKIP,
+        OUTCOME_NOT_SUPPORTED,
+        OUTCOME_NOT_IMPLEMENTED,
+    ]
+
     @abstractproperty
     def outcome(self):
         """

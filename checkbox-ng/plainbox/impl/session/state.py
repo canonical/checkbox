@@ -562,6 +562,7 @@ class SessionState(_LegacySessionState):
         # Store the result in job_state_map
         self._job_state_map[job.name].result = result
         self.on_job_state_map_changed()
+        self.on_job_result_changed(job, result)
         # Treat some jobs specially and interpret their output
         if job.plugin == "resource":
             self._process_resource_result(job, result)
@@ -595,10 +596,11 @@ class SessionState(_LegacySessionState):
         try:
             existing_job = self._job_state_map[new_job.name].job
         except KeyError:
-            logger.info("Storing new job %r", new_job)
             # Register the new job in our state
             self._job_state_map[new_job.name] = JobState(new_job)
             self._job_list.append(new_job)
+            self.on_job_state_map_changed()
+            self.on_job_added(new_job)
         else:
             # If there is a clash report DependencyDuplicateError only when the
             # hashes are different. This prevents a common "problem" where
@@ -640,9 +642,10 @@ class SessionState(_LegacySessionState):
             try:
                 existing_job = self._job_state_map[new_job.name].job
             except KeyError:
-                logger.info("Storing new job %r", new_job)
                 self._job_state_map[new_job.name] = JobState(new_job)
                 self._job_list.append(new_job)
+                self.on_job_state_map_changed()
+                self.on_job_added(new_job)
             else:
                 # XXX: there should be a channel where such errors could be
                 # reported back to the UI layer. Perhaps update_job_result()

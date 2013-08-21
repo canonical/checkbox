@@ -221,7 +221,7 @@ class SessionStateAPITests(TestCase):
         session.update_desired_job_list([two_seconds, shell_job])
         self.assertEquals(session.get_estimated_duration(),
                           (0.6, 32.0))
-       
+
     def test_get_estimated_duration_automated_unknown(self):
         three_seconds = make_job("three_seconds", plugin="shell",
                                  command="frob",

@@ -31,6 +31,7 @@ import gzip
 import io
 import json
 import logging
+import inspect
 
 from plainbox.abc import IJobResult
 from plainbox.impl.signal import Signal
@@ -121,11 +122,13 @@ class _JobResultBase(IJobResult):
         """
         return self._data.get('return_code')
 
+    # deprecated
     def _get_persistance_subset(self):
         return {
             "data": dict(self._data)
         }
 
+    # deprecated
     @classmethod
     def from_json_record(cls, record):
         """
@@ -195,6 +198,14 @@ class DiskJobResult(_JobResultBase):
                     io.TextIOWrapper(gzip_stream, encoding='UTF-8') as stream:
                 for record in IOLogRecordReader(stream):
                     yield record
+
+    @property
+    def io_log(self):
+        caller_frame, filename, lineno = inspect.stack(0)[1][:3]
+        logger.warning(
+            "Expensive DiskJobResult.io_log property access from %r %s:%d",
+            caller_frame, filename, lineno)
+        return super(DiskJobResult, self).io_log
 
 
 # Deprecated

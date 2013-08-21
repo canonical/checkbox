@@ -196,10 +196,8 @@ class JobDefinition(BaseJob, IJobDefinition):
         Only the 'name' and 'plugin' keys are required.
         All other data is stored as is and is entirely optional.
         """
-        for key in ['plugin', 'name']:
-            if key not in record.data:
-                raise ValueError(
-                    "Required record key {!r} was not found".format(key))
+        if 'name' not in record.data:
+            raise ValueError("Cannot create job without a name")
         return cls(record.data, record.origin)
 
     def modify_execution_environment(self, env, session_dir,

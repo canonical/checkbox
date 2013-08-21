@@ -121,11 +121,13 @@ class _JobResultBase(IJobResult):
         """
         return self._data.get('return_code')
 
+    # deprecated
     def _get_persistance_subset(self):
         return {
             "data": dict(self._data)
         }
 
+    # deprecated
     @classmethod
     def from_json_record(cls, record):
         """

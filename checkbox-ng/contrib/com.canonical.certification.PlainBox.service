@@ -1,0 +1,3 @@
+[D-Bus Service]
+Name=com.canonical.certification.PlainBox
+Exec=/usr/bin/plainbox service

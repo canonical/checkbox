@@ -189,6 +189,12 @@ Code reference
     :private-members:
     :show-inheritance:
 
+.. automodule:: plainbox.impl.session.resume
+    :members:
+    :undoc-members:
+    :private-members:
+    :show-inheritance:
+
 .. automodule:: plainbox.impl.testing_utils
     :members:
     :undoc-members:

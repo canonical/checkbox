@@ -364,6 +364,7 @@ class SessionState(_LegacySessionState):
         :class:`plainbox.impl.resource.Resource` objects. This encapsulates all
         "knowledge" about the system plainbox is running on.
 
+
         It is needed to compute job readiness (as it stores resource data
         needed by resource programs). It is also available to exporters.
 
@@ -731,6 +732,13 @@ class SessionState(_LegacySessionState):
         Map from job name to JobState that encodes the state of each job.
         """
         return self._job_state_map
+
+    @property
+    def resource_map(self):
+        """
+        Map from resource name to a list of resource records
+        """
+        return self._resource_map
 
     @property
     def metadata(self):

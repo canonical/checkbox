@@ -569,9 +569,7 @@ class SessionStateLocalStorageTests(TestCase):
                     "_job": {
                         "data": {
                             "name": "A",
-                            "plugin": "dummy",
-                            "requires": null,
-                            "depends": null
+                            "plugin": "dummy"
                         },
                         "_class_id": "JOB_DEFINITION"
                     },
@@ -597,9 +595,7 @@ class SessionStateLocalStorageTests(TestCase):
                 {
                     "data": {
                         "name": "A",
-                        "plugin": "dummy",
-                        "requires": null,
-                        "depends": null
+                        "plugin": "dummy"
                     },
                     "_class_id": "JOB_DEFINITION"
                 }

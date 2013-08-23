@@ -49,22 +49,22 @@ def main():
     global whitelist
 
     whitelist = bus.get_object(
-        'com.canonical.certification.PlainBox',
+        'com.canonical.certification.PlainBox1',
         '/plainbox/whitelist/stub'
     )
 
     provider = bus.get_object(
-        'com.canonical.certification.PlainBox',
+        'com.canonical.certification.PlainBox1',
         '/plainbox/provider/stubbox'
     )
 
     #whitelist = bus.get_object(
-    #    'com.canonical.certification.PlainBox',
+    #    'com.canonical.certification.PlainBox1',
     #    '/plainbox/whitelist/default'
     #)
 
     #provider = bus.get_object(
-    #    'com.canonical.certification.PlainBox',
+    #    'com.canonical.certification.PlainBox1',
     #    '/plainbox/provider/checkbox'
     #)
 
@@ -75,7 +75,7 @@ def main():
     #Create a session and "seed" it with my job list:
     job_list = [k for k, v in provider_objects.items() if not 'whitelist' in k]
     service = bus.get_object(
-        'com.canonical.certification.PlainBox',
+        'com.canonical.certification.PlainBox1',
         '/plainbox/service1'
     )
     session_object_path = service.CreateSession(
@@ -83,7 +83,7 @@ def main():
         dbus_interface='com.canonical.certification.PlainBox.Service1'
     )
     session_object = bus.get_object(
-        'com.canonical.certification.PlainBox',
+        'com.canonical.certification.PlainBox1',
         session_object_path
     )
 
@@ -101,7 +101,7 @@ def main():
 
     desired_local_job_list = sorted([
         object for object in desired_job_list if
-        bus.get_object('com.canonical.certification.PlainBox', object).Get(
+        bus.get_object('com.canonical.certification.PlainBox1', object).Get(
             'com.canonical.certification.CheckBox.JobDefinition1',
             'plugin') == 'local'
     ])
@@ -202,12 +202,12 @@ def handle_error(e):
 def catchall_ask_for_outcome_signals_handler(current_runner_path):
     global current_job_path
     job_def_object = bus.get_object(
-        'com.canonical.certification.PlainBox', current_job_path)
+        'com.canonical.certification.PlainBox1', current_job_path)
     job_cmd = job_def_object.Get(
         'com.canonical.certification.CheckBox.JobDefinition1',
         'command')
     job_runner_object = bus.get_object(
-        'com.canonical.certification.PlainBox', current_runner_path)
+        'com.canonical.certification.PlainBox1', current_runner_path)
     if job_cmd:
         run_test = ask_for_test()
         if run_test == 'y':
@@ -286,7 +286,7 @@ def run_local_jobs():
         global session_object_path
         current_job_path = job_path
         job_def_object = bus.get_object(
-            'com.canonical.certification.PlainBox', current_job_path)
+            'com.canonical.certification.PlainBox1', current_job_path)
         job_name = job_def_object.Get(
             'com.canonical.certification.PlainBox.JobDefinition1', 'name')
         job_desc = job_def_object.Get(
@@ -358,7 +358,7 @@ def run_local_jobs():
 def show_results():
     global session_object_path
     session_object = bus.get_object(
-        'com.canonical.certification.PlainBox',
+        'com.canonical.certification.PlainBox1',
         session_object_path
     )
     job_state_map = session_object.Get(
@@ -366,14 +366,14 @@ def show_results():
     print("[ Results ]".center(80, '='))
     for k, job_state_path in job_state_map.items():
         job_state_object = bus.get_object(
-            'com.canonical.certification.PlainBox',
+            'com.canonical.certification.PlainBox1',
             job_state_path
         )
         # Get the job definition object and some properties
         job_def_path = job_state_object.Get(
             'com.canonical.certification.PlainBox.JobState1', 'job')
         job_def_object = bus.get_object(
-            'com.canonical.certification.PlainBox', job_def_path)
+            'com.canonical.certification.PlainBox1', job_def_path)
         job_name = job_def_object.Get(
             'com.canonical.certification.PlainBox.JobDefinition1', 'name')
         # Ask the via value (e.g. to comptute job categories)
@@ -385,7 +385,7 @@ def show_results():
         job_result_path = job_state_object.Get(
             'com.canonical.certification.PlainBox.JobState1', 'result')
         job_result_object = bus.get_object(
-            'com.canonical.certification.PlainBox', job_result_path)
+            'com.canonical.certification.PlainBox1', job_result_path)
         outcome = job_result_object.Get(
             'com.canonical.certification.PlainBox.Result1', 'outcome')
         comments = job_result_object.Get(

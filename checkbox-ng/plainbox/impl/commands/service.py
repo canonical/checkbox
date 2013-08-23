@@ -125,6 +125,6 @@ class ServiceCommand(PlainBoxCommand):
         parser = subparsers.add_parser("service", help="spawn dbus service")
         parser.add_argument(
             '--bus-name', action="store",
-            default="com.canonical.certification.PlainBox",
+            default="com.canonical.certification.PlainBox1",
             help="Use the specified DBus bus name")
         parser.set_defaults(command=self)

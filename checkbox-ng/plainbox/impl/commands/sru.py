@@ -277,7 +277,7 @@ class SRUCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             '--staging',
             dest='c3_url',
             action='store_const',
-            const='https://certification.staging.canonical.com/',
+            const='https://certification.staging.canonical.com/submissions/submit/',
             help='Override --destination to use the staging certification website')
         group = parser.add_argument_group(title="execution options")
         group.add_argument(

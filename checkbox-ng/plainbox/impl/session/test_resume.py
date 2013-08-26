@@ -1100,7 +1100,7 @@ class SessionJobsAndResultsResumeTests(TestCase):
         # Resources don't have anything (no resource jobs)
         self.assertEqual(session.resource_map, {})
 
-    def test_session_with_generated_jobs(self):
+    def test_session_with_generated_jobs2(self):
         """
         verify that _restore_SessionState_jobs_and_results() works when
         faced with a representation of a non-trivial session where one

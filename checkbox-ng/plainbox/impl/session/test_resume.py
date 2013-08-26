@@ -27,7 +27,6 @@ Test definitions for :mod:`plainbox.impl.session.resume` module
 from unittest import TestCase
 import base64
 import binascii
-import collections
 import copy
 import gzip
 

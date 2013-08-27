@@ -434,7 +434,7 @@ class JobResultWrapper(PlainBoxObjectWrapper):
 
         The format is: array<struct<double, string, array<bytes>>>
         """
-        return dbus.types.Array(self.native.io_log, signature="(dsay)")
+        return dbus.types.Array(self.native.get_io_log(), signature="(dsay)")
 
 
 class JobStateWrapper(PlainBoxObjectWrapper):

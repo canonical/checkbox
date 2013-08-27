@@ -45,7 +45,7 @@ from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter.xml import XMLSessionStateExporter
 from plainbox.impl.runner import JobRunner
-from plainbox.impl.session import SessionState
+from plainbox.impl.session import SessionStateLegacyAPI as SessionState
 from plainbox.impl.transport.certification import CertificationTransport
 from plainbox.impl.transport.certification import InvalidSecureIDError
 

@@ -203,8 +203,8 @@ class DiskJobResult(_JobResultBase):
     def io_log(self):
         caller_frame, filename, lineno = inspect.stack(0)[1][:3]
         logger.warning(
-            "Expensive DiskJobResult.io_log property access from %r %s:%d",
-            caller_frame, filename, lineno)
+            "Expensive DiskJobResult.io_log property access from %s:%d",
+            filename, lineno)
         return super(DiskJobResult, self).io_log
 
 

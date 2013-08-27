@@ -183,7 +183,7 @@ class SessionStateExporterBase(metaclass=ABCMeta):
                 if self.OPTION_WITH_ATTACHMENTS in self._option_list:
                     raw_bytes = b''.join(
                         (record[2] for record in
-                         job_state.result.io_log if record[1] == 'stdout'))
+                         job_state.result.get_io_log() if record[1] == 'stdout'))
                     data['attachment_map'][job_name] = \
                         base64.standard_b64encode(raw_bytes).decode('ASCII')
                 continue  # Don't add attachments IO logs to the result_map
@@ -194,12 +194,12 @@ class SessionStateExporterBase(metaclass=ABCMeta):
                 # saved, discarding stream name and the relative timestamp.
                 if self.OPTION_SQUASH_IO_LOG in self._option_list:
                     io_log_data = self._squash_io_log(
-                        job_state.result.io_log)
+                        job_state.result.get_io_log())
                 elif self.OPTION_FLATTEN_IO_LOG in self._option_list:
                     io_log_data = self._flatten_io_log(
-                        job_state.result.io_log)
+                        job_state.result.get_io_log())
                 else:
-                    io_log_data = self._io_log(job_state.result.io_log)
+                    io_log_data = self._io_log(job_state.result.get_io_log())
                 data['result_map'][job_name]['io_log'] = io_log_data
         return data
 

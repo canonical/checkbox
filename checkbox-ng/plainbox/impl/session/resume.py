@@ -161,6 +161,8 @@ class SessionResumeHelper:
         and parsing is done. The only error conditions that can happen
         are related to semantic incompatibilities or corrupted internal state.
         """
+        logger.debug("Resuming from json... (see below)")
+        logger.debug(json.dumps(json_repr, indent=4))
         _validate(json_repr, value_type=dict)
         _validate(json_repr, key="version", choice=[1])
         session_repr = _validate(json_repr, key='session', value_type=dict)

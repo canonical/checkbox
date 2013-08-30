@@ -87,6 +87,12 @@ class _JobResultBase(IJobResult):
         """
         return self._data.get('outcome', self.OUTCOME_NONE)
 
+    @outcome.setter
+    def outcome(self, new):
+        old = self.outcome
+        if old != new:
+            self._data['outcome'] = new
+
     @property
     def execution_duration(self):
         """

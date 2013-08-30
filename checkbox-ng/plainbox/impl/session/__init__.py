@@ -77,6 +77,7 @@ of each module and class for additional details though.
 __all__ = [
     'JobReadinessInhibitor',
     'JobState',
+    'SessionManager',
     'SessionState',
     'SessionStateEncoder',
     'SessionStateLegacyAPI',
@@ -90,6 +91,7 @@ from plainbox.impl.session.jobs import JobState
 from plainbox.impl.session.jobs import UndesiredJobReadinessInhibitor
 from plainbox.impl.session.legacy import SessionStateEncoder
 from plainbox.impl.session.legacy import SessionStateLegacyAPI
+from plainbox.impl.session.manager import SessionManager
 from plainbox.impl.session.state import SessionState
 from plainbox.impl.session.storage import SessionStorage
 from plainbox.impl.session.storage import SessionStorageRepository

@@ -376,9 +376,11 @@ class JobResultWrapper(PlainBoxObjectWrapper):
 
     def __shared_initialize__(self, **kwargs):
         self.native.on_comments_changed.connect(self.on_comments_changed)
+        self.native.on_outcome_changed.connect(self.on_outcome_changed)
 
     def __del__(self):
         self.native.on_comments_changed.disconnect(self.on_comments_changed)
+        self.native.on_outcome_changed.disconnect(self.on_outcome_changed)
 
     # Value added
 
@@ -401,6 +403,13 @@ class JobResultWrapper(PlainBoxObjectWrapper):
         if new_value == "none":
             new_value = None
         self.native.outcome = new_value
+
+    @Signal.define
+    def on_outcome_changed(self, old, new):
+        logger.debug("on_outcome_changed(%r, %r)", old, new)
+        self.PropertiesChanged(JOB_RESULT_IFACE, {
+            self.__class__.outcome._dbus_property: new
+        }, [])
 
     @dbus.service.property(dbus_interface=JOB_RESULT_IFACE, signature="v")
     def return_code(self):

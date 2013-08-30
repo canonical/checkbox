@@ -25,6 +25,11 @@ _description:
  Check job result is set to uninitiated when dependency fails
 
 plugin: shell
+name: stub/sleep-60
+command: sleep 60
+_description: Sleep for sixty seconds
+
+plugin: shell
 depends: stub/multilevel
 name: stub/kill-ppid-if-KILLER-set
 command: if [ "$KILLER" == "yes" ]; then kill -9 $PPID; fi

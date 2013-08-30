@@ -295,15 +295,15 @@ class SessionResumeHelper:
         metadata_repr = _validate(
             session_repr, key='metadata', value_type=dict)
         # Set each bit back to the session
-        session.title = _validate(
+        session.metadata.title = _validate(
             metadata_repr, key='title', value_type=str, value_none=True)
-        session.flags = set([
+        session.metadata.flags = set([
             _validate(
                 flag, value_type=str,
                 value_type_msg="Each flag must be a string")
             for flag in _validate(
                 metadata_repr, key='flags', value_type=list)])
-        session.running_job_name = _validate(
+        session.metadata.running_job_name = _validate(
             metadata_repr, key='running_job_name', value_type=str,
             value_none=True)
 

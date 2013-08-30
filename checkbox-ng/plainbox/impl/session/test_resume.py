@@ -656,7 +656,7 @@ class SessionMetaDataResumeTests(TestCase):
         obj_repr = copy.copy(self.good_repr)
         obj_repr['metadata']['title'] = None
         self.resume_fn(self.session, obj_repr)
-        self.assertEqual(self.session.title, None)
+        self.assertEqual(self.session.metadata.title, None)
 
     def test_restore_SessionState_metadata_restores_title(self):
         """
@@ -665,7 +665,7 @@ class SessionMetaDataResumeTests(TestCase):
         obj_repr = copy.copy(self.good_repr)
         obj_repr['metadata']['title'] = "a title"
         self.resume_fn(self.session, obj_repr)
-        self.assertEqual(self.session.title, "a title")
+        self.assertEqual(self.session.metadata.title, "a title")
 
     def test_restore_SessionState_metadata_checks_flags_type(self):
         """
@@ -713,7 +713,7 @@ class SessionMetaDataResumeTests(TestCase):
         obj_repr = copy.copy(self.good_repr)
         obj_repr['metadata']['flags'] = ["flag1", "flag2"]
         self.resume_fn(self.session, obj_repr)
-        self.assertEqual(self.session.flags, set(['flag1', 'flag2']))
+        self.assertEqual(self.session.metadata.flags, set(['flag1', 'flag2']))
 
     def test_restore_SessionState_metadata_checks_running_job_name_type(self):
         """
@@ -736,7 +736,7 @@ class SessionMetaDataResumeTests(TestCase):
         obj_repr = copy.copy(self.good_repr)
         obj_repr['metadata']['running_job_name'] = None
         self.resume_fn(self.session, obj_repr)
-        self.assertEqual(self.session.running_job_name, None)
+        self.assertEqual(self.session.metadata.running_job_name, None)
 
     def test_restore_SessionState_metadata_restores_running_job_name(self):
         """
@@ -746,7 +746,7 @@ class SessionMetaDataResumeTests(TestCase):
         obj_repr = copy.copy(self.good_repr)
         obj_repr['metadata']['running_job_name'] = "a job"
         self.resume_fn(self.session, obj_repr)
-        self.assertEqual(self.session.running_job_name, "a job")
+        self.assertEqual(self.session.metadata.running_job_name, "a job")
 
 
 class ProcessJobTests(TestCase):

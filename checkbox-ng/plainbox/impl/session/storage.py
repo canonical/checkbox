@@ -272,7 +272,8 @@ class SessionStorage:
             try:
                 os.symlink(self.location, symlink_pathname)
             except OSError as exc:
-                logger.error("Cannot link %r as %r: %r",
+                logger.error(
+                    "Cannot link %r as %r: %r",
                     self.location, symlink_pathname, exc)
 
     def remove(self):

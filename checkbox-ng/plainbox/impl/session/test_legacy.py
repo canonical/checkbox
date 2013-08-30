@@ -33,7 +33,7 @@ from unittest import TestCase
 
 from plainbox.abc import IJobResult
 from plainbox.impl.result import MemoryJobResult
-from plainbox.impl.session.legacy import SessionStateLegacyAPIOriginalImpl
+from plainbox.impl.session.legacy import SessionStateLegacyAPICompatImpl
 from plainbox.impl.testing_utils import make_job
 
 
@@ -44,7 +44,7 @@ class SessionStateSmokeTests(TestCase):
         B = make_job('B', depends='C')
         C = make_job('C')
         self.job_list = [A, B, C]
-        self.session_state = SessionStateLegacyAPIOriginalImpl(self.job_list)
+        self.session_state = SessionStateLegacyAPICompatImpl(self.job_list)
 
     def test_initial_job_list(self):
         expected = self.job_list

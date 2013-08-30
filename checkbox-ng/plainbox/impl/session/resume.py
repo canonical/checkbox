@@ -163,7 +163,7 @@ class SessionResumeHelper:
         """
         _validate(json_repr, value_type=dict)
         _validate(json_repr, key="version", choice=[1])
-        session_repr = _validate(json_repr, 'session', value_type=dict)
+        session_repr = _validate(json_repr, key='session', value_type=dict)
         return self._build_SessionState(session_repr)
 
     def _build_SessionState(self, session_repr):

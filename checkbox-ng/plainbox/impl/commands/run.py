@@ -298,7 +298,11 @@ class RunInvocation(CheckBoxInvocationMixIn):
         if job_state.can_start():
             print("Running... (output in {}.*)".format(
                 join(session.jobs_io_log_dir, slugify(job.name))))
+            session.metadata.running_job_name = job.name
+            session.persistent_save()
             job_result = runner.run_job(job)
+            session.metadata.running_job_name = None
+            session.persistent_save()
             print("Outcome: {}".format(job_result.outcome))
             print("Comments: {}".format(job_result.comments))
         else:

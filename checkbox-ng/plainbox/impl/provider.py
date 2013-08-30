@@ -1,4 +1,3 @@
-
 # This file is part of Checkbox.
 #
 # Copyright 2013 Canonical Ltd.

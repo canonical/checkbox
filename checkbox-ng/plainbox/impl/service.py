@@ -392,6 +392,16 @@ class JobResultWrapper(PlainBoxObjectWrapper):
         # XXX: it would be nice if we could not do this remapping.
         return self.native.outcome or "none"
 
+    @outcome.setter
+    def outcome(self, new_value):
+        """
+        set outcome of the job to a new value
+        """
+        # XXX: it would be nice if we could not do this remapping.
+        if new_value == "none":
+            new_value = None
+        self.native.outcome = new_value
+
     @dbus.service.property(dbus_interface=JOB_RESULT_IFACE, signature="v")
     def return_code(self):
         """

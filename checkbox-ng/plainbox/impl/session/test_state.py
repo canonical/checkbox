@@ -554,14 +554,3 @@ class SessionMetadataTests(TestCase):
         self.assertEqual(metadata.flags, set(["f1", "f2"]))
         metadata.running_job_name = "name"
         self.assertEqual(metadata.running_job_name, "name")
-
-    def test_as_json(self):
-        metadata = SessionMetaData()
-        metadata.title = "title"
-        metadata.flags = set(["f1", "f2"])
-        metadata.running_job_name = "name"
-        self.assertEqual(metadata.as_json(), {
-            "title": "title",
-            "flags": ["f1", "f2"],
-            "running_job_name": "name"
-        })

@@ -135,20 +135,6 @@ class _JobResultBase(IJobResult):
         """
         return self._data.get('return_code')
 
-    # deprecated
-    def _get_persistance_subset(self):
-        return {
-            "data": dict(self._data)
-        }
-
-    # deprecated
-    @classmethod
-    def from_json_record(cls, record):
-        """
-        Create a specific IJobResult instance from JSON record
-        """
-        return cls(record['data'])
-
     @property
     def io_log(self):
         return tuple(self.get_io_log())
@@ -219,31 +205,6 @@ class DiskJobResult(_JobResultBase):
             "Expensive DiskJobResult.io_log property access from %s:%d",
             filename, lineno)
         return super(DiskJobResult, self).io_log
-
-
-# Deprecated
-class IoLogEncoder(json.JSONEncoder):
-    """
-    JSON Serialize helper to encode binary io logs
-    """
-
-    def default(self, obj):
-        return base64.standard_b64encode(obj).decode('ASCII')
-
-
-# Deprecated
-class IoLogDecoder(json.JSONDecoder):
-    """
-    JSON Decoder helper for io logs objects
-    """
-
-    def decode(self, obj):
-        return tuple([IOLogRecord(
-            # io logs namedtuple are recorded as list in json, using _asdict()
-            # would require too much space for little benefit.
-            # IOLogRecord are re created using the list ordering
-            log[0], log[1], base64.standard_b64decode(log[2].encode('ASCII')))
-            for log in super().decode(obj)])
 
 
 class IOLogRecordWriter:

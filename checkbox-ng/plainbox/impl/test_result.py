@@ -26,7 +26,6 @@ Test definitions for plainbox.impl.result module
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 import io
-import json
 
 from plainbox.abc import IJobResult
 from plainbox.impl.result import DiskJobResult
@@ -34,7 +33,6 @@ from plainbox.impl.result import IOLogRecord
 from plainbox.impl.result import IOLogRecordReader
 from plainbox.impl.result import IOLogRecordWriter
 from plainbox.impl.result import MemoryJobResult
-from plainbox.impl.session import SessionStateEncoder
 from plainbox.impl.testing_utils import make_io_log
 
 
@@ -71,39 +69,6 @@ class DiskJobResultTests(TestCase):
         self.assertEqual(result.io_log, ((0, 'stdout', b'blah\n'),))
         self.assertEqual(result.return_code, 0)
 
-    def test_encode(self):
-        result = MemoryJobResult({
-            'outcome': IJobResult.OUTCOME_PASS,
-            'comments': "it said blah",
-            'io_log_filename': make_io_log([
-                (0, 'stdout', b'blah\n')
-            ], self.scratch_dir.name),
-            'return_code': 0
-        })
-        result_enc = result._get_persistance_subset()
-        self.assertEqual(result_enc['data']['outcome'], result.outcome)
-        self.assertEqual(result_enc['data']['comments'], result.comments)
-        self.assertEqual(result_enc['data']['return_code'], result.return_code)
-        self.assertEqual(result_enc['data']['io_log_filename'],
-                         result._data['io_log_filename'])
-
-    def test_decode(self):
-        raw_json = """{
-                "_class_id": "JOB_RESULT(d)",
-                "data": {
-                    "comments": null,
-                    "outcome": "pass",
-                    "return_code": 0
-                }
-            }"""
-        result_dec = json.loads(
-            raw_json, object_hook=SessionStateEncoder().dict_to_object)
-        self.assertIsInstance(result_dec, IJobResult)
-        self.assertEqual(result_dec.outcome, IJobResult.OUTCOME_PASS)
-        self.assertIsNone(result_dec.comments)
-        self.assertEqual(result_dec.io_log, ())
-        self.assertEqual(result_dec.return_code, 0)
-
 
 class MemoryJobResultTests(TestCase):
 
@@ -129,37 +94,6 @@ class MemoryJobResultTests(TestCase):
         self.assertEqual(result.comments, "it said blah")
         self.assertEqual(result.io_log, ((0, 'stdout', b'blah\n'),))
         self.assertEqual(result.return_code, 0)
-
-    def test_encode(self):
-        result = MemoryJobResult({
-            'outcome': IJobResult.OUTCOME_PASS,
-            'comments': "it said blah",
-            'io_log': ((0, 'stdout', b'blah\n'),),
-            'return_code': 0
-        })
-        result_enc = result._get_persistance_subset()
-        self.assertEqual(result_enc['data']['outcome'], result.outcome)
-        self.assertEqual(result_enc['data']['comments'], result.comments)
-        self.assertEqual(result_enc['data']['return_code'], result.return_code)
-        self.assertEqual(result_enc['data']['io_log'],
-                         ((0, 'stdout', b'blah\n'),))
-
-    def test_decode(self):
-        raw_json = """{
-                "_class_id": "JOB_RESULT(m)",
-                "data": {
-                    "comments": null,
-                    "outcome": "pass",
-                    "return_code": 0
-                }
-            }"""
-        result_dec = json.loads(
-            raw_json, object_hook=SessionStateEncoder().dict_to_object)
-        self.assertIsInstance(result_dec, IJobResult)
-        self.assertEqual(result_dec.outcome, IJobResult.OUTCOME_PASS)
-        self.assertIsNone(result_dec.comments)
-        self.assertEqual(result_dec.io_log, ())
-        self.assertEqual(result_dec.return_code, 0)
 
 
 class IOLogRecordWriterTests(TestCase):

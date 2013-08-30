@@ -331,6 +331,21 @@ class SessionStorage:
         else:
             return self._save_checkpoint_unix_py32(data)
 
+    def break_lock(self):
+        """
+        Forcibly unlock the storage by removing a file created during
+        atomic filesystem operations of save_checkpoint().
+
+        This method might be useful if save_checkpoint()
+        raises LockedStorageError. It removes the "next" file that is used
+        for atomic rename.
+        """
+        _next_session_pathname = os.path.join(
+            self._location, self._SESSION_FILE_NEXT)
+        logger.debug(
+            "Forcibly unlinking 'next' file %r:", _next_session_pathname)
+        os.unlink(_next_session_pathname)
+
     def _load_checkpoint_unix_py32(self):
         _session_pathname = os.path.join(self._location, self._SESSION_FILE)
         # Open the location directory

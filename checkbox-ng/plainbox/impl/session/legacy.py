@@ -36,7 +36,7 @@ from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.session.jobs import JobState
 from plainbox.impl.session.state import SessionState
 
-logger = logging.getLogger("plainbox.session.state")
+logger = logging.getLogger("plainbox.session.legacy")
 
 
 class ISessionStateLegacyAPI(metaclass=abc.ABCMeta):

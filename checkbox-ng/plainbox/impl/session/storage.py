@@ -174,7 +174,6 @@ class SessionStorage:
         call :meth:`create()` instead.
         """
         self._location = location
-        logger.debug("Created session storage in %r", self._location)
 
     def __repr__(self):
         return "<{} location:{!r}>".format(

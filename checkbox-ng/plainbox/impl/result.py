@@ -106,7 +106,7 @@ class _JobResultBase(IJobResult):
     def comments(self, new):
         old = self.comments
         if old != new:
-            self.data['comments'] = new
+            self._data['comments'] = new
             self.on_comments_changed(old, new)
 
     @Signal.define

@@ -450,4 +450,4 @@ class SessionStateLegacyAPICompatImpl(SessionState, ISessionStateLegacyAPI):
         self.close()
 
 
-SessionStateLegacyAPI = SessionStateLegacyAPIOriginalImpl
+SessionStateLegacyAPI = SessionStateLegacyAPICompatImpl

@@ -3,14 +3,14 @@ name: stub/multilevel
 _description:
  Multilevel tests
 command:
- cat <<'EOF' 
+ cat <<'EOF'
  plugin: shell
  name: stub/multilevel_1
  command: echo 1
  description: This is just a sample multilevel test. Test 1.
  EOF
  echo ""
- cat <<'EOF' 
+ cat <<'EOF'
  plugin: shell
  name: stub/multilevel_2
  command: echo 2

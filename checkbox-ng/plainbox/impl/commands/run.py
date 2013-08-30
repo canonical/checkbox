@@ -47,7 +47,7 @@ from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.runner import authenticate_warmup
 from plainbox.impl.runner import slugify
-from plainbox.impl.session import SessionState
+from plainbox.impl.session import SessionStateLegacyAPI as SessionState
 from plainbox.impl.transport import get_all_transports
 
 
@@ -112,16 +112,44 @@ class RunInvocation(CheckBoxInvocationMixIn):
         except ValueError as exc:
             raise SystemExit(str(exc))
 
-    def ask_for_resume(self, prompt=None, allowed=None):
-        # FIXME: Add support/callbacks for a GUI
-        if prompt is None:
-            prompt = "Do you want to resume the previous session [Y/n]? "
-        if allowed is None:
-            allowed = ('', 'y', 'Y', 'n', 'N')
+    def ask_for_resume(self):
+        return self.ask_user(
+            "Do you want to resume the previous session?", ('y', 'n')
+        ).lower() == "y"
+
+    def ask_for_resume_action(self):
+        return self.ask_user(
+            "What do you want to do with that job?", ('skip', 'fail', 'run'))
+
+    def ask_user(self, prompt, allowed):
         answer = None
         while answer not in allowed:
-            answer = input(prompt)
-        return False if answer in ('n', 'N') else True
+            answer = input("{} [{}] ".format(prompt, ", ".join(allowed)))
+        return answer
+
+    def _maybe_skip_last_job_after_resume(self, session):
+        last_job = session.metadata.running_job_name
+        if last_job is None:
+            return
+        print("We have previously tried to execute {}".format(last_job))
+        action = self.ask_for_resume_action()
+        if action == 'skip':
+            result = MemoryJobResult({
+                'outcome': 'skip',
+                'comment': "Skipped after resuming execution"
+            })
+        elif action == 'fail':
+            result = MemoryJobResult({
+                'outcome': 'fail',
+                'comment': "Failed after resuming execution"
+            })
+        elif action == 'run':
+            result = None
+        if result:
+            session.update_job_result(
+                session.job_state_map[last_job].job, result)
+            session.metadata.running_job_name = None
+            session.persistent_save()
 
     def _run_jobs(self, ns, job_list, exporter, transport=None):
         # Compute the run list, this can give us notification about problems in
@@ -145,8 +173,11 @@ class RunInvocation(CheckBoxInvocationMixIn):
             if session.previous_session_file():
                 if self.ask_for_resume():
                     session.resume()
+                    self._maybe_skip_last_job_after_resume(session)
                 else:
                     session.clean()
+            session.metadata.title = " ".join(sys.argv)
+            session.persistent_save()
             self._update_desired_job_list(session, matching_job_list)
             # Ask the password before anything else in order to run jobs
             # requiring privileges
@@ -298,7 +329,11 @@ class RunInvocation(CheckBoxInvocationMixIn):
         if job_state.can_start():
             print("Running... (output in {}.*)".format(
                 join(session.jobs_io_log_dir, slugify(job.name))))
+            session.metadata.running_job_name = job.name
+            session.persistent_save()
             job_result = runner.run_job(job)
+            session.metadata.running_job_name = None
+            session.persistent_save()
             print("Outcome: {}".format(job_result.outcome))
             print("Comments: {}".format(job_result.comments))
         else:

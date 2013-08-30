@@ -24,11 +24,6 @@ plainbox.impl.test_session
 Test definitions for plainbox.impl.session module
 """
 
-import json
-import os
-import tempfile
-import shutil
-
 from unittest import TestCase
 
 from plainbox.abc import IJobResult
@@ -66,9 +61,6 @@ class SessionStateSmokeTests(TestCase):
         expected = []
         observed = self.session_state.run_list
         self.assertEqual(expected, observed)
-
-    def test_initial_session_dir(self):
-        self.assertIsNone(self.session_state.session_dir)
 
 
 class RegressionTests(TestCase):
@@ -537,126 +529,6 @@ class SessionStateReactionToJobResultTests(TestCase):
         self.assertTrue(job_foo.plugin, "manual")
         # It should be linked to the job L via the via attribute
         self.assertTrue(job_foo.via, self.job_L.get_checksum())
-
-
-class SessionStateLocalStorageTests(TestCase):
-
-    def setUp(self):
-        # session data are kept in XDG_CACHE_HOME/plainbox/.session
-        # To avoid resuming a real session, we have to select a temporary
-        # location instead
-        self._sandbox = tempfile.mkdtemp()
-        self._env = os.environ
-        os.environ['XDG_CACHE_HOME'] = self._sandbox
-
-    def job_state(self, name):
-        # A helper function to avoid overly long expressions
-        return self.session.job_state_map[name]
-
-    def test_persistent_save(self):
-        self.job_A = make_job("A")
-        self.job_list = [self.job_A]
-        self.session = SessionState(self.job_list)
-        result_A = MemoryJobResult({
-            'outcome': IJobResult.OUTCOME_PASS,
-            'comments': 'All good',
-            'return_code': 0,
-            'io_log': ((0, 'stdout', "Success !\n"),)
-        })
-        session_json_text = """{
-            "_job_state_map": {
-                "A": {
-                    "_job": {
-                        "data": {
-                            "name": "A",
-                            "plugin": "dummy"
-                        },
-                        "_class_id": "JOB_DEFINITION"
-                    },
-                    "_result": {
-                        "data": {
-                            "outcome": "pass",
-                            "return_code": 0,
-                            "comments": "All good",
-                            "io_log": [
-                                [
-                                    0,
-                                    "stdout",
-                                    "Success !\\n"
-                                ]
-                            ]
-                        },
-                        "_class_id": "JOB_RESULT(m)"
-                    },
-                    "_class_id": "JOB_STATE"
-                }
-            },
-            "_desired_job_list": [
-                {
-                    "data": {
-                        "name": "A",
-                        "plugin": "dummy"
-                    },
-                    "_class_id": "JOB_DEFINITION"
-                }
-            ],
-            "_class_id": "SESSION_STATE"
-        }"""
-        self.session.open()
-        self.session.update_desired_job_list([self.job_A])
-        self.session.update_job_result(self.job_A, result_A)
-        self.session.persistent_save()
-        session_file = self.session.previous_session_file()
-        self.session.close()
-        self.assertIsNotNone(session_file)
-        with open(session_file) as f:
-            raw_json = json.load(f)
-            self.maxDiff = None
-            self.assertEqual(raw_json, json.loads(session_json_text))
-
-    def test_resume_session(self):
-        # All of the tests below are using one session. The session has four
-        # jobs, Job A depends on a resource provided by job R which has no
-        # dependencies at all. Both Job X and Y depend on job A.
-        #
-        # A -(resource dependency)-> R
-        #
-        # X -(direct dependency) -> A
-        #
-        # Y -(direct dependency) -> A
-        self.job_A = make_job("A", requires="R.attr == 'value'")
-        self.job_A_expr = self.job_A.get_resource_program().expression_list[0]
-        self.job_R = make_job("R", plugin="resource")
-        self.job_X = make_job("X", depends='A')
-        self.job_Y = make_job("Y", depends='A')
-        self.job_list = [self.job_A, self.job_R, self.job_X, self.job_Y]
-        # Create a new session (session_dir is empty)
-        self.session = SessionState(self.job_list)
-        result_R = MemoryJobResult({
-            'io_log': [(0, 'stdout', b"attr: value\n")]})
-        result_A = MemoryJobResult({'outcome': IJobResult.OUTCOME_PASS})
-        result_X = MemoryJobResult({'outcome': IJobResult.OUTCOME_PASS})
-        # Job Y can't start as it requires job A
-        self.assertFalse(self.job_state('Y').can_start())
-        self.session.update_desired_job_list([self.job_X, self.job_Y])
-        self.session.open()
-        self.session.update_job_result(self.job_R, result_R)
-        self.session.update_job_result(self.job_A, result_A)
-        self.session.update_job_result(self.job_X, result_X)
-        self.session.persistent_save()
-        self.session.close()
-        # Create a new session (session_dir should contain session data)
-        self.session = SessionState(self.job_list)
-        self.session.open()
-        # Resume the previous session
-        self.session.resume()
-        # This time job Y can start
-        self.assertTrue(self.job_state('Y').can_start())
-        self.session.close()
-
-    def tearDown(self):
-        shutil.rmtree(self._sandbox)
-        os.environ = self._env
 
 
 class SessionMetadataTests(TestCase):

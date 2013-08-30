@@ -148,6 +148,14 @@ class SessionStorageRepository:
         return os.path.join(xdg_cache_home, 'plainbox', 'sessions')
 
 
+class LockedStorageError(IOError):
+    """
+    Exception raised when SessionStorage.save_checkpoint() finds an existing
+    'next' file from a (presumably) previous call to save_checkpoint() that
+    got interrupted
+    """
+
+
 class SessionStorage:
     """
     Abstraction for storage area that is used by :class:`SessionState` to
@@ -174,7 +182,10 @@ class SessionStorage:
         call :meth:`create()` instead.
         """
         self._location = location
-        logger.debug("Created session storage in %r", self._location)
+
+    def __repr__(self):
+        return "<{} location:{!r}>".format(
+            self.__class__.__name__, self.location)
 
     @property
     def location(self):
@@ -184,33 +195,86 @@ class SessionStorage:
         return self._location
 
     @classmethod
-    def create(cls, base_dir):
+    def create(cls, base_dir, legacy_mode=True):
         """
         Create a new :class:`SessionStorage` in a random subdirectory
         of the specified base directory. The base directory is also
         created if necessary.
 
-        Typically the base directory should be obtained from
-        :meth:`SessionStorageRepository.get_default_location()`
+        :param base_dir:
+            Directory in which a random session directory will be created.
+            Typically the base directory should be obtained from
+            :meth:`SessionStorageRepository.get_default_location()`
+
+        :param legacy_mode:
+            If False (defaults to True) then the caller is expected to
+            handle multiple sessions by itself.
+
+        .. note::
+            Legacy mode is where applications using PlainBox API can only
+            handle one session. Creating another session replaces whatever was
+            stored before. In non-legacy mode applications can enumerate
+            sessions, create arbitrary number of sessions at the same time
+            and remove sessions once they are no longer necessary.
+
+            Legacy mode is implemented with a symbolic link called
+            'last-session' that keeps track of the last session created using
+            ``legacy_mode=True``. When a new legacy-mode session is created
+            the target of that symlink is read and recursively removed.
         """
-        logger.debug("Creating new session storage in %r", base_dir)
         if not os.path.exists(base_dir):
             os.makedirs(base_dir)
-        self = cls(tempfile.mkdtemp(
-            prefix='pbox-', suffix='.session', dir=base_dir))
-        # Create the last-session symlink
+        location = tempfile.mkdtemp(
+            prefix='pbox-', suffix='.session', dir=base_dir)
+        logger.debug("Created new storage in %r", location)
+        self = cls(location)
+        if legacy_mode:
+            self._replace_legacy_session(base_dir)
+        return self
+
+    def _replace_legacy_session(self, base_dir):
+        """
+        Remove the previous legacy session and update the 'last-session'
+        symlink so that it points to this session storage directory.
+        """
         symlink_pathname = os.path.join(
             base_dir, SessionStorageRepository._LAST_SESSION_SYMLINK)
+        # Try to read and remove the storage referenced to by last-session
+        # symlink. This can fail if the link file is gone (which is harmless)
+        # or when it is not an actual symlink (which means that the
+        # repository is corrupted).
         try:
-            symlink_stat = os.lstat(symlink_pathname)
-        except OSError:
-            pass
+            symlink_target = os.readlink(symlink_pathname)
+        except OSError as exc:
+            if exc.errno == errno.ENOENT:
+                pass
+            elif exc.errno == errno.EINVAL:
+                logger.warning(
+                    "%r is not a symlink, repository %r must be corrupted",
+                    symlink_pathname, base_dir)
+            else:
+                logger.warning(
+                    "Unable to read symlink target from %r: %r",
+                    symlink_pathname, exc)
         else:
-            if stat.S_ISLNK(symlink_stat.st_mode):
-                os.unlink(symlink_pathname)
+            logger.debug(
+                "Removing storage associated with last session %r",
+                symlink_target)
+            shutil.rmtree(symlink_target)
+            # Remove the last-session symlink itself
+            logger.debug(
+                "Removing symlink associated with last session: %r",
+                symlink_pathname)
+            os.unlink(symlink_pathname)
         finally:
-            os.symlink(self.location, symlink_pathname)
-        return self
+            # Finally put the last-session synlink that points to this storage
+            logger.debug("Linking storage %r to last session", self.location)
+            try:
+                os.symlink(self.location, symlink_pathname)
+            except OSError as exc:
+                logger.error(
+                    "Cannot link %r as %r: %r",
+                    self.location, symlink_pathname, exc)
 
     def remove(self):
         """
@@ -249,6 +313,12 @@ class SessionStorage:
         :raises TypeError:
             if data is not a bytes object.
 
+        :raises LockedStorageError:
+            if leftovers from previous save_checkpoint() have been detected.
+            Normally those should never be here but in certain cases that is
+            possible. Callers might want to call :meth:`break_lock()`
+            to resolve the problem and try again.
+
         :raises IOError, OSError:
             on various problems related to accessing the filesystem.
             Typically permission errors may be reported here.
@@ -261,6 +331,21 @@ class SessionStorage:
             return self._save_checkpoint_unix_py33(data)
         else:
             return self._save_checkpoint_unix_py32(data)
+
+    def break_lock(self):
+        """
+        Forcibly unlock the storage by removing a file created during
+        atomic filesystem operations of save_checkpoint().
+
+        This method might be useful if save_checkpoint()
+        raises LockedStorageError. It removes the "next" file that is used
+        for atomic rename.
+        """
+        _next_session_pathname = os.path.join(
+            self._location, self._SESSION_FILE_NEXT)
+        logger.debug(
+            "Forcibly unlinking 'next' file %r:", _next_session_pathname)
+        os.unlink(_next_session_pathname)
 
     def _load_checkpoint_unix_py32(self):
         _session_pathname = os.path.join(self._location, self._SESSION_FILE)
@@ -351,9 +436,19 @@ class SessionStorage:
             #
             # This will never return -1, it throws IOError when anything is
             # wrong. The caller has to catch this.
-            next_session_fd = os.open(
-                _next_session_pathname,
-                os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
+            #
+            # As a special exception, this code handles EEXISTS and converts
+            # that to LockedStorageError that can be especially handled by
+            # some layer above.
+            try:
+                next_session_fd = os.open(
+                    _next_session_pathname,
+                    os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
+            except IOError as exc:
+                if exc.errno == errno.EEXISTS:
+                    raise LockedStorageError()
+                else:
+                    raise
             logger.debug(
                 "Opened next session file %s as descriptor %d",
                 _next_session_pathname, next_session_fd)
@@ -430,10 +525,17 @@ class SessionStorage:
             #
             # This will never return -1, it throws IOError when anything is
             # wrong. The caller has to catch this.
-            next_session_fd = os.open(
-                self._SESSION_FILE_NEXT,
-                os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644,
-                dir_fd=location_fd)
+            #
+            # As a special exception, this code handles EEXISTS
+            # (FIleExistsError) and converts that to LockedStorageError
+            # that can be especially handled by some layer above.
+            try:
+                next_session_fd = os.open(
+                    self._SESSION_FILE_NEXT,
+                    os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644,
+                    dir_fd=location_fd)
+            except FileExistsError:
+                raise LockedStorageError()
             logger.debug(
                 "Opened next session file %s as descriptor %d",
                 self._SESSION_FILE_NEXT, next_session_fd)

@@ -161,9 +161,11 @@ class SessionResumeHelper:
         and parsing is done. The only error conditions that can happen
         are related to semantic incompatibilities or corrupted internal state.
         """
+        logger.debug("Resuming from json... (see below)")
+        logger.debug(json.dumps(json_repr, indent=4))
         _validate(json_repr, value_type=dict)
         _validate(json_repr, key="version", choice=[1])
-        session_repr = _validate(json_repr, 'session', value_type=dict)
+        session_repr = _validate(json_repr, key='session', value_type=dict)
         return self._build_SessionState(session_repr)
 
     def _build_SessionState(self, session_repr):
@@ -295,15 +297,15 @@ class SessionResumeHelper:
         metadata_repr = _validate(
             session_repr, key='metadata', value_type=dict)
         # Set each bit back to the session
-        session.title = _validate(
+        session.metadata.title = _validate(
             metadata_repr, key='title', value_type=str, value_none=True)
-        session.flags = set([
+        session.metadata.flags = set([
             _validate(
                 flag, value_type=str,
                 value_type_msg="Each flag must be a string")
             for flag in _validate(
                 metadata_repr, key='flags', value_type=list)])
-        session.running_job_name = _validate(
+        session.metadata.running_job_name = _validate(
             metadata_repr, key='running_job_name', value_type=str,
             value_none=True)
 

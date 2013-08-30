@@ -254,18 +254,16 @@ class JobRunner(IJobRunner):
         return self._just_run_command(job, config)
 
     def _plugin_manual(self, job, config):
-        if self._outcome_callback is None:
-            return MemoryJobResult({
-                'outcome': IJobResult.OUTCOME_SKIP,
-                'comment': "non-interactive test run"
-            })
+        # Run the shell command, we may be called
+        # for user-interact and user-verify plugin types.
+        result = self._just_run_command(job, config)
+        # Get the outcome from the callback, if available,
+        # or put the special OUTCOME_UNDECIDED value.
+        if self._outcome_callback is not None:
+            result.outcome = self._outcome_callback()
         else:
-            # FIXME: Restore the "plainbox run" mode
-            #result = self._just_run_command(job, config)
-            # XXX: make outcome writable
-            #result._data['outcome'] = self._outcome_callback()
-            #return result
-            self._outcome_callback()
+            result.outcome = IJobResult.OUTCOME_UNDECIDED
+        return result
 
     _plugin_user_interact = _plugin_manual
     _plugin_user_verify = _plugin_manual

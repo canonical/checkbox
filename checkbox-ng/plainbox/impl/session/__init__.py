@@ -42,6 +42,16 @@ of each module and class for additional details though.
     references to a number of :class:`JobState` objects that couple a
     :class:`JobResult` and :class:`JobDefinition` together.
 
+:class:`SessionStateLegacyAPI`
+
+    This class is a subclass of SessionState with additional methods for
+    suspend and resume. It should not be used in new applications and it will
+    be removed eventually, once the new manager-based API settles in. There are
+    two classes that actually implement this API, one based on the original
+    implementation and another one based on the new implementation. The data
+    they create is not compatible with each other. Currently the original
+    implementation is used. This will change very soon.
+
 :class:`JobState`
 
     A coupling class between :class:`JobDefinition` and :class:`JobResult`.
@@ -67,8 +77,10 @@ of each module and class for additional details though.
 __all__ = [
     'JobReadinessInhibitor',
     'JobState',
+    'SessionManager',
     'SessionState',
     'SessionStateEncoder',
+    'SessionStateLegacyAPI',
     'SessionStorage',
     'SessionStorageRepository',
     'UndesiredJobReadinessInhibitor',
@@ -77,8 +89,9 @@ __all__ = [
 from plainbox.impl.session.jobs import JobReadinessInhibitor
 from plainbox.impl.session.jobs import JobState
 from plainbox.impl.session.jobs import UndesiredJobReadinessInhibitor
-from plainbox.impl.session.state import JobState
+from plainbox.impl.session.legacy import SessionStateEncoder
+from plainbox.impl.session.legacy import SessionStateLegacyAPI
+from plainbox.impl.session.manager import SessionManager
 from plainbox.impl.session.state import SessionState
-from plainbox.impl.session.state import SessionStateEncoder
 from plainbox.impl.session.storage import SessionStorage
 from plainbox.impl.session.storage import SessionStorageRepository

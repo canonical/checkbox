@@ -31,7 +31,7 @@ from plainbox.abc import IJobResult
 from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.runner import JobRunner
-from plainbox.impl.session.state import SessionState
+from plainbox.impl.session.legacy import SessionStateLegacyAPI as SessionState
 
 
 logger = logging.getLogger("plainbox.highlevel")

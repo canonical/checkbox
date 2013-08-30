@@ -140,6 +140,9 @@ class IJobResult(metaclass=ABCMeta):
     # A temporary state that should be removed later on, used to indicate that
     # job runner is not implemented but the job "ran" so to speak.
     OUTCOME_NOT_IMPLEMENTED = 'not-implemented'
+    # A temporary state before the user decides on the outcome of a manual
+    # job or any other job that requires manual verification
+    OUTCOME_UNDECIDED = 'undecided'
 
     # List of all valid values of OUTCOME_xxx
     ALL_OUTCOME_LIST = [
@@ -149,6 +152,7 @@ class IJobResult(metaclass=ABCMeta):
         OUTCOME_SKIP,
         OUTCOME_NOT_SUPPORTED,
         OUTCOME_NOT_IMPLEMENTED,
+        OUTCOME_UNDECIDED,
     ]
 
     @abstractproperty

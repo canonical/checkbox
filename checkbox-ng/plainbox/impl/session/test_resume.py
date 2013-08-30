@@ -27,7 +27,6 @@ Test definitions for :mod:`plainbox.impl.session.resume` module
 from unittest import TestCase
 import base64
 import binascii
-import collections
 import copy
 import gzip
 
@@ -238,7 +237,8 @@ class JobResultResumeMixIn:
         self.assertEqual(
             str(boom.exception), (
                 "Value for key 'outcome' not in allowed set [None, 'pass', "
-                "'fail', 'skip', 'not-supported', 'not-implemented']"))
+                "'fail', 'skip', 'not-supported', 'not-implemented', "
+                "'undecided']"))
 
     def test_build_JobResult_allows_none_outcome(self):
         """
@@ -657,7 +657,7 @@ class SessionMetaDataResumeTests(TestCase):
         obj_repr = copy.copy(self.good_repr)
         obj_repr['metadata']['title'] = None
         self.resume_fn(self.session, obj_repr)
-        self.assertEqual(self.session.title, None)
+        self.assertEqual(self.session.metadata.title, None)
 
     def test_restore_SessionState_metadata_restores_title(self):
         """
@@ -666,7 +666,7 @@ class SessionMetaDataResumeTests(TestCase):
         obj_repr = copy.copy(self.good_repr)
         obj_repr['metadata']['title'] = "a title"
         self.resume_fn(self.session, obj_repr)
-        self.assertEqual(self.session.title, "a title")
+        self.assertEqual(self.session.metadata.title, "a title")
 
     def test_restore_SessionState_metadata_checks_flags_type(self):
         """
@@ -714,7 +714,7 @@ class SessionMetaDataResumeTests(TestCase):
         obj_repr = copy.copy(self.good_repr)
         obj_repr['metadata']['flags'] = ["flag1", "flag2"]
         self.resume_fn(self.session, obj_repr)
-        self.assertEqual(self.session.flags, set(['flag1', 'flag2']))
+        self.assertEqual(self.session.metadata.flags, set(['flag1', 'flag2']))
 
     def test_restore_SessionState_metadata_checks_running_job_name_type(self):
         """
@@ -737,7 +737,7 @@ class SessionMetaDataResumeTests(TestCase):
         obj_repr = copy.copy(self.good_repr)
         obj_repr['metadata']['running_job_name'] = None
         self.resume_fn(self.session, obj_repr)
-        self.assertEqual(self.session.running_job_name, None)
+        self.assertEqual(self.session.metadata.running_job_name, None)
 
     def test_restore_SessionState_metadata_restores_running_job_name(self):
         """
@@ -747,7 +747,7 @@ class SessionMetaDataResumeTests(TestCase):
         obj_repr = copy.copy(self.good_repr)
         obj_repr['metadata']['running_job_name'] = "a job"
         self.resume_fn(self.session, obj_repr)
-        self.assertEqual(self.session.running_job_name, "a job")
+        self.assertEqual(self.session.metadata.running_job_name, "a job")
 
 
 class ProcessJobTests(TestCase):
@@ -1100,7 +1100,7 @@ class SessionJobsAndResultsResumeTests(TestCase):
         # Resources don't have anything (no resource jobs)
         self.assertEqual(session.resource_map, {})
 
-    def test_session_with_generated_jobs(self):
+    def test_session_with_generated_jobs2(self):
         """
         verify that _restore_SessionState_jobs_and_results() works when
         faced with a representation of a non-trivial session where one

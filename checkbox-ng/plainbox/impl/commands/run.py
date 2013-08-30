@@ -147,6 +147,8 @@ class RunInvocation(CheckBoxInvocationMixIn):
                     session.resume()
                 else:
                     session.clean()
+            session.metadata.title = " ".join(sys.argv)
+            session.persistent_save()
             self._update_desired_job_list(session, matching_job_list)
             # Ask the password before anything else in order to run jobs
             # requiring privileges

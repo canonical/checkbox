@@ -414,7 +414,12 @@ class SessionStateLegacyAPICompatImpl(SessionState, ISessionStateLegacyAPI):
 
         This is not None only between calls to open() / close().
         """
-        return self.manager.storage.location
+        if self._commit_hint is not None:
+            sef._commit_manager()
+        if self._manager is None:
+            return None
+        else:
+            return self.manager.storage.location
 
     @property
     def jobs_io_log_dir(self):

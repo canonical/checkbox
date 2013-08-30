@@ -76,6 +76,12 @@ class _JobResultBase(IJobResult):
         return "<{} outcome:{!r}>".format(
             self.__class__.__name__, self.outcome)
 
+    @Signal.define
+    def on_outcome_changed(self, old, new):
+        """
+        Signal sent when ``outcome`` property value is changed
+        """
+
     @property
     def outcome(self):
         """
@@ -86,6 +92,13 @@ class _JobResultBase(IJobResult):
         mean that the job did not run for some particular reason.
         """
         return self._data.get('outcome', self.OUTCOME_NONE)
+
+    @outcome.setter
+    def outcome(self, new):
+        old = self.outcome
+        if old != new:
+            self._data['outcome'] = new
+            self.on_outcome_changed(old, new)
 
     @property
     def execution_duration(self):

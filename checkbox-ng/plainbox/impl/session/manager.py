@@ -33,10 +33,11 @@ and :class:`~plainbox.impl.session.suspend.SessionResumeHelper`.
 import os
 import logging
 
+from plainbox.impl.session.resume import SessionResumeHelper
 from plainbox.impl.session.state import SessionState
+from plainbox.impl.session.storage import LockedStorageError
 from plainbox.impl.session.storage import SessionStorage
 from plainbox.impl.session.storage import SessionStorageRepository
-from plainbox.impl.session.resume import SessionResumeHelper
 from plainbox.impl.session.suspend import SessionSuspendHelper
 
 logger = logging.getLogger("plainbox.session.manager")
@@ -209,14 +210,18 @@ class SessionManager:
         Create a checkpoint of the session.
 
         After calling this method you can later reopen the same session with
-        :meth:`SessionManager.open_session()`
+        :meth:`SessionManager.open_session()`.
         """
         logger.debug("SessionManager.checkpoint()")
         data = SessionSuspendHelper().suspend(self.state)
         logger.debug(
             "Saving %d bytes of checkpoint data to %r",
             len(data), self.storage.location)
-        self.storage.save_checkpoint(data)
+        try:
+            self.storage.save_checkpoint(data)
+        except LockedStorageError:
+            self.storage.break_lock()
+            self.storage.save_checkpoint(data)
 
     def destroy(self):
         """

@@ -25,11 +25,81 @@ plainbox.impl.exporter.test_html
 
 Test definitions for plainbox.impl.exporter.html module
 """
+from io import StringIO
+from string import Template
 from unittest import TestCase
 import io
 
+from lxml import etree as ET
+from pkg_resources import resource_filename
+from pkg_resources import resource_string
+
 from plainbox.testing_utils import resource_json
+from plainbox.impl.exporter.html import HTMLResourceInliner
 from plainbox.impl.exporter.html import HTMLSessionStateExporter
+
+
+class HTMLInlinerTests(TestCase):
+    def setUp(self):
+        template_substitutions = {
+            'PLAINBOX_ASSETS': resource_filename("plainbox", "data/")}
+        test_file_location = "test-data/html-exporter/html-inliner.html"
+        test_file = resource_filename("plainbox",
+                                      test_file_location)
+        with open(test_file) as html_file:
+            html_template = Template(html_file.read())
+        html_content = html_template.substitute(template_substitutions)
+        self.tree = ET.parse(StringIO(html_content), ET.HTMLParser())
+        # Now self.tree contains a tree with adequately-substituted
+        # paths and resources
+        inliner = HTMLResourceInliner()
+        self.inlined_tree = inliner.inline_resources(self.tree)
+
+    def test_script_inlining(self):
+        """Test that a <script> resource gets inlined."""
+        for node in self.inlined_tree.xpath('//script'):
+            self.assertTrue(node.text)
+
+    def test_img_inlining(self):
+        """
+        Test that a <img> gets inlined.
+        It should be replaced by a base64 representation of the
+        referenced image's data as per RFC2397.
+        """
+        for node in self.inlined_tree.xpath('//img'):
+            # Skip image that purposefully points to a remote
+            # resource
+            if node.attrib.get('class') != "remote_resource":
+                self.assertTrue("base64" in node.attrib['src'])
+
+    def test_css_inlining(self):
+        """Test that a <style> resource gets inlined."""
+        for node in self.inlined_tree.xpath('//style'):
+            # Skip a fake remote_resource node that's purposefully
+            # not inlined
+            if not 'nonexistent_resource' in node.attrib['type']:
+                self.assertTrue("body" in node.text)
+
+    def test_remote_resource_inlining(self):
+        """
+        Test that a resource with a non-local (i.e. not file://
+        url) does NOT get inlined (rather it's replaced by an
+        empty string). We use <style> in this test.
+        """
+        for node in self.inlined_tree.xpath('//style'):
+            # The not-inlined remote_resource
+            if 'nonexistent_resource' in node.attrib['type']:
+                self.assertTrue(node.text == "")
+
+    def test_unfindable_file_inlining(self):
+        """
+        Test that a resource whose file does not exist does NOT
+        get inlined, and is instead replaced by empty string.
+        We use <img> in this test.
+        """
+        for node in self.inlined_tree.xpath('//img'):
+            if node.attrib.get('class') == "remote_resource":
+                self.assertEqual("", node.attrib['src'])
 
 
 class HTMLExporterTests(TestCase):
@@ -48,6 +118,10 @@ class HTMLExporterTests(TestCase):
         self.assertIsInstance(self.actual_result, bytes)
 
     def test_html_output(self):
+        """
+        Test that output from the exporter is HTML (or at least,
+        appears to be).
+        """
         # A pretty simplistic test since we just validate the output
         # appears to be HTML. Looking at the exporter's code, it's mostly
         # boilerplate use of lxml and etree, so let's not fall into testing
@@ -56,3 +130,13 @@ class HTMLExporterTests(TestCase):
                       self.actual_result)
         self.assertIn(b"<title>System Testing Report</title>",
                       self.actual_result)
+
+    def test_perfect_match(self):
+        """
+        Test that output from the exporter exactly matches known
+        good HTML output, inlining and everything included.
+        """
+        expected_result = resource_string(
+            "plainbox", "test-data/html-exporter/example-data.html"
+        )  # unintuitively, resource_string returns bytes
+        self.assertEqual(self.actual_result, expected_result)

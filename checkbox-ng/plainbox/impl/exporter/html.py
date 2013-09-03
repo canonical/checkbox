@@ -37,7 +37,7 @@ import mimetypes
 from lxml import etree as ET
 from pkg_resources import resource_filename
 
-from plainbox.impl.exporter.xml import  XMLSessionStateExporter
+from plainbox.impl.exporter.xml import XMLSessionStateExporter
 
 
 logger = logging.getLogger("plainbox.exporter.html")
@@ -134,7 +134,7 @@ class HTMLSessionStateExporter(XMLSessionStateExporter):
         self.xslt_filename = resource_filename(
             "plainbox", "data/report/checkbox.xsl")
         template_substitutions = {
-                'PLAINBOX_ASSETS': resource_filename("plainbox", "data/")}
+            'PLAINBOX_ASSETS': resource_filename("plainbox", "data/")}
         with open(self.xslt_filename, encoding="UTF-8") as xslt_file:
             xslt_template = Template(xslt_file.read())
         xslt_data = xslt_template.substitute(template_substitutions)

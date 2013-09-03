@@ -1,0 +1,258 @@
+body {
+    font-family: "Ubuntu Beta", "Bitstream Vera Sans", DejaVu Sans, Tahoma, sans-serif;
+    color: #333;
+    background: white url(report/images/body_bg.png);
+    font-size: 12px;
+    line-height: 14px;
+    margin: 0px;
+    padding: 0px;
+}
+#container {
+    background: #f7f6f5;
+    margin: 0px auto 20px;
+    padding: 0px;
+    width: 976px;
+}
+#container-inner {
+    background-color: #dfdcd9;
+}
+#header, #container-inner {
+    -moz-border-radius: 0px 0px 5px 5px;
+    -webkit-border-bottom-left-radius: 5px;
+    -webkit-border-bottom-right-radius: 5px;
+    -moz-box-shadow: #bbb 0px 0px 5px;
+    -webkit-box-shadow: #bbb 0px 0px 5px;
+}
+#header {
+    background: #dd4814 url(report/images/header_bg.png) top left repeat-x;
+    height: 64px;
+    margin: 0px;
+    padding: 0px;
+    position: relative;
+}
+
+#menu-search {
+    height: 40px;
+    margin: 0 16px;
+}
+
+#title {
+    padding: 28px 24px;
+}
+
+#content {
+    /*padding: 32px 80px 32px 80px;*/
+    padding: 32px 240px 32px 160px;
+    margin: 0 16px 16px;
+    width: 544px;
+    background-color: #fff;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+}
+#end-content {
+    clear: both;
+}
+
+#content-panel {
+    width: 446px;
+    margin: 0px 0px 0px 0px;
+    padding: 8px 8px 32px 8px;
+    background-color: #fff;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+}
+
+#copyright {
+    background-position: 803px 40px;
+    background-repeat: no-repeat;
+    text-align: center;
+    margin: 0 16px;
+    padding: 40px 0 0 0;
+    height: 32px;
+}
+#copyright p {
+    color: #aea79f;
+    font-size: 10px;
+    line-height: 14px;
+    margin: 2px 0;
+}
+
+#footer {
+    padding-top: 16px;
+}
+#footer * {
+    font-size: 10px;
+    line-height: 14px;
+}
+#footer p {
+    margin: 0;
+    padding-bottom: 3px;
+    border-bottom: 1px dotted #aea79f;
+}
+#footer p.footer-title {
+    font-weight: bold;
+}
+#footer .footer-div {
+    width: 144px;
+    float: left;
+    margin-left: 16px;
+}
+#footer .last-div {
+    margin-right: 16px;
+}
+#footer ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+#footer li {
+    margin: 0;
+    padding: 3px 0;
+    border-bottom: 1px dotted #aea79f;
+}
+
+h1, h2, h3, h4, h5 {
+    padding: 0;
+    margin: 0;
+    font-weight: normal;
+}
+h1 {
+    font-size: 36px;
+    line-height: 40px;
+    color: #dd4814;
+}
+h2 {
+    font-size: 24px;
+    line-height: 28px;
+    margin-bottom: 8px;
+}
+h3 {
+    font-size: 16px;
+    line-height: 20px;
+    margin-bottom: 8px;
+}
+h3.link-other {
+    color: #333;
+}
+h3.link-services {
+    color: #fff;
+}
+h4 {
+    font-size: 12px;
+    line-height: 14px;
+}
+h4.partners {
+    color: #333;
+    font-size: 16px;
+    line-height: 20px;
+}
+h5 {
+    color: #333;
+    font-size: 10px;
+    line-height: 14px;
+}
+h1 span.grey, h2 span.grey, h1 span, h2 span{
+    color: #aea79f;
+}
+p {
+    font-size: 12px;
+    line-height: 14px;
+    margin-bottom: 8px;
+}
+strong {
+    font-weight: bold;
+}
+
+a {
+    color: #333;
+    text-decoration: none;
+}
+a:hover {
+    color: #dd4814;
+    text-decoration: underline;
+}
+div.footer-div:hover a, div#content:hover a {
+    color: #dd4814;
+    text-decoration: none;
+}
+div.footer-div:hover a:hover, div#content:hover a:hover {
+    color: #dd4814;
+    text-decoration: underline;
+}
+
+ul {
+    margin-bottom: 16px;
+    list-style-image: url(report/images/bullet.png);
+}
+ul li {
+    margin-bottom: 8px;
+    line-height: 14px;
+}
+ul li:last-child {
+    margin-bottom: 0px;
+}
+
+p.call-to-action {
+    color: #333;
+}
+p.case-study {
+    color: #333;
+}
+p.highlight {
+    font-size: 16px;
+    line-height: 20px;
+}
+p.introduction {
+    color: #333;
+    font-size: 16px;
+    line-height: 20px;
+}
+p.services {
+    color: #fff;
+}
+p.small-text {
+    color: #333;
+    font-size: 10px;
+}
+
+/* Clearing floats without extra markup
+Based on How To Clear Floats Without Structural Markup by PiE
+[http://www.positioniseverything.net/easyclearing.html] */
+.clearfix:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+.clearfix {
+    -moz-border-radius: 5px 5px 5px 5px;
+    -webkit-border-bottom-top-radius: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+    -webkit-border-bottom-bottom-radius: 5px;
+    -webkit-border-bottom-right-radius: 5px;
+    -moz-box-shadow: #bbb 0px 0px 5px;
+    -webkit-box-shadow: #bbb 0px 0px 5px;
+    display: inline-block;
+}  /* for IE/Mac */
+td
+{
+    margin: 0;
+    padding-bottom: 3px;
+    border-bottom: 1px dotted #aea79f;
+    font-size: 10px;
+    line-height: 14px;
+}
+.resultimg
+{
+    height: 12px;
+}
+.disclosureimg
+{
+	height:		.75em;
+	vertical-align:	middle;
+}
+.data
+{
+	display:	none;
+}

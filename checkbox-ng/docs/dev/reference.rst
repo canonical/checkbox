@@ -94,6 +94,11 @@ Code reference
     :undoc-members:
     :show-inheritance:
 
+.. automodule:: plainbox.impl.exporter.html
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 .. automodule:: plainbox.impl.secure
     :members:
     :undoc-members:

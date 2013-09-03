@@ -29,8 +29,10 @@ HTML exporter for human consumption
     THIS MODULE DOES NOT HAVE A STABLE PUBLIC API
 """
 
-import logging
 from string import Template
+import base64
+import logging
+import mimetypes
 
 from lxml import etree as ET
 from pkg_resources import resource_filename
@@ -41,11 +43,87 @@ from plainbox.impl.exporter.xml import  XMLSessionStateExporter
 logger = logging.getLogger("plainbox.exporter.html")
 
 
+class HTMLResourceInliner(object):
+    """ A helper class to inline resources referenced in an lxml tree.
+    """
+    def _resource_content(self, url):
+        try:
+            with open(url, 'rb') as f:
+                file_contents = f.read()
+        except (IOError, OSError):
+            logger.warning("Unable to load resource %s, not inlining",
+                           url)
+            return ""
+        type, encoding = mimetypes.guess_type(url)
+        if not encoding:
+            encoding = "utf-8"
+        if type in("text/css", "application/javascript"):
+            return file_contents.decode(encoding)
+        elif type in("image/png", "image/jpg"):
+            b64_data = base64.b64encode(file_contents)
+            b64_data = b64_data.decode("ascii")
+            return_string = "data:{};base64,{}".format(type, b64_data)
+            return return_string
+        else:
+            logger.warning("Resource of type %s unknown", type)
+            #Strip it out, better not to have it.
+            return ""
+
+    def inline_resources(self, document_tree):
+        """
+        Replace references to external resources by an in-place (inlined)
+        representation of each resource.
+
+        Currently images, stylesheets and scripts are inlined.
+
+        Only local (i.e. file) resources/locations are supported. If a
+        non-local resource is requested for inlining, it will be removed
+        (replaced by a blank string), with the goal that the resulting
+        lxml tree will not reference any unreachable resources.
+
+        :param document_tree:
+            lxml tree to process.
+
+        :returns:
+            lxml tree with some elements replaced by their inlined
+            representation.
+        """
+        # Try inlining using result_tree here.
+        for node in document_tree.xpath('//script'):
+            # These have  src attribute, need to remove the
+            # attribute and add the content of the src file
+            # as the node's text
+            src = node.attrib.pop('src')
+            node.text = self._resource_content(src)
+
+        for node in document_tree.xpath('//link[@rel="stylesheet"]'):
+            # These have a href attribute and need to be completely replaced
+            # by a new <style> node with contents of the href file
+            # as its text.
+            src = node.attrib.pop('href')
+            type = node.attrib.pop('type')
+            style_elem = ET.Element("style")
+            style_elem.attrib['type'] = type
+            style_elem.text = self._resource_content(src)
+            node.getparent().append(style_elem)
+            # Now zorch the existing node
+            node.getparent().remove(node)
+
+        for node in document_tree.xpath('//img'):
+            # src attribute points to a file and needs to
+            # contain the base64 encoded version of that file.
+            src = node.attrib.pop('src')
+            node.attrib['src'] = self._resource_content(src)
+        return document_tree
+
+
 class HTMLSessionStateExporter(XMLSessionStateExporter):
     """
     Session state exporter creating HTML documents.
 
-    It basically applies an xslt to the XMLSessionStateExporter output.
+    It basically applies an xslt to the XMLSessionStateExporter output,
+    and then inlines some resources to produce a monolithic report in a
+    single file.
     """
 
     def dump(self, data, stream):
@@ -63,4 +141,5 @@ class HTMLSessionStateExporter(XMLSessionStateExporter):
         xslt_root = ET.XML(xslt_data)
         transformer = ET.XSLT(xslt_root)
         r_tree = transformer(root)
-        stream.write(ET.tostring(r_tree, pretty_print=True))
+        inlined_result_tree = HTMLResourceInliner().inline_resources(r_tree)
+        stream.write(ET.tostring(inlined_result_tree, pretty_print=True))

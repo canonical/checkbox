@@ -1022,7 +1022,7 @@ class RunningJob(dbus.service.Object):
     def AskForOutcome(self, runner):
         pass
 
-    def emitAskForOutcomeSignal(self):
+    def emitAskForOutcomeSignal(self, *args):
         self.AskForOutcome(self.path)
 
     def emitJobResultAvailable(self, job, result):

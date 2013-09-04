@@ -198,7 +198,7 @@ class JobRunner(IJobRunner):
     _DRY_RUN_PLUGINS = ('local', 'resource', 'attachment')
 
     def __init__(self, session_dir, jobs_io_log_dir,
-                 command_io_delegate=None, outcome_callback=None,
+                 command_io_delegate=None, interaction_callback=None,
                  dry_run=False):
         """
         Initialize a new job runner.
@@ -211,7 +211,7 @@ class JobRunner(IJobRunner):
         self._session_dir = session_dir
         self._jobs_io_log_dir = jobs_io_log_dir
         self._command_io_delegate = command_io_delegate
-        self._outcome_callback = outcome_callback
+        self._interaction_callback = interaction_callback
         self._dry_run = dry_run
 
     def run_job(self, job, config=None):
@@ -254,16 +254,12 @@ class JobRunner(IJobRunner):
         return self._just_run_command(job, config)
 
     def _plugin_manual(self, job, config):
-        # Run the shell command, we may be called
-        # for user-interact and user-verify plugin types.
-        result = self._just_run_command(job, config)
         # Get the outcome from the callback, if available,
         # or put the special OUTCOME_UNDECIDED value.
-        if self._outcome_callback is not None:
-            result.outcome = self._outcome_callback()
+        if self._interaction_callback is not None:
+            return self._interaction_callback(self, job, config)
         else:
-            result.outcome = IJobResult.OUTCOME_UNDECIDED
-        return result
+            return DiskJobResult({'outcome': IJobResult.OUTCOME_UNDECIDED})
 
     _plugin_user_interact = _plugin_manual
     _plugin_user_verify = _plugin_manual

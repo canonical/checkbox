@@ -32,7 +32,6 @@ from plainbox.abc import IJobResult
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.session import JobReadinessInhibitor
 from plainbox.impl.session import JobState
-from plainbox.impl.session import SessionStateEncoder
 from plainbox.impl.session import UndesiredJobReadinessInhibitor
 from plainbox.impl.testing_utils import make_job, make_job_result
 
@@ -217,59 +216,3 @@ class JobStateTests(TestCase):
         self.assertTrue(
             self.job_state.get_readiness_description().startswith(
                 "job cannot be started: "))
-
-    def test_encode_resource_job(self):
-        self.job_R = make_job("R", plugin="resource")
-        result_R = MemoryJobResult({
-            'outcome': IJobResult.OUTCOME_PASS,
-            'io_log': ((0, 'stdout', "attr: value\n"),)
-        })
-        jobstate = JobState(self.job_R)
-        jobstate.result = result_R
-        jobstate_enc = jobstate._get_persistance_subset()
-        # The inhibitor list is not saved
-        with self.assertRaises(KeyError):
-            jobstate_enc['_readiness_inhibitor_list']
-        # Resource have to be re evealutated on startup, outcome of the job
-        # must be reset to IJobResult.OUTCOME_NONE
-        self.assertEqual(
-            jobstate_enc['_result'].outcome,
-            IJobResult.OUTCOME_NONE)
-
-    def test_encode_normal_job(self):
-        result = MemoryJobResult({
-            'outcome': IJobResult.OUTCOME_PASS,
-        })
-        self.job_state.result = result
-        jobstate_enc = self.job_state._get_persistance_subset()
-        # The inhibitor list is not saved
-        with self.assertRaises(KeyError):
-            jobstate_enc['_readiness_inhibitor_list']
-        # Normal jobs should keep their outcome value
-        self.assertEqual(jobstate_enc['_result'].outcome,
-                         IJobResult.OUTCOME_PASS)
-
-    def test_decode(self):
-        raw_json = """{
-            "_class_id": "JOB_STATE",
-            "_job": {
-                "_class_id": "JOB_DEFINITION",
-                "data": {
-                    "name": "X",
-                    "plugin": "dummy"
-                }
-            },
-            "_result": {
-                "_class_id": "JOB_RESULT(m)",
-                "data": {
-                    "comments": null,
-                    "outcome": "pass",
-                    "return_code": null
-                }
-            }
-        }"""
-        job_dec = json.loads(
-            raw_json, object_hook=SessionStateEncoder().dict_to_object)
-        self.assertIsInstance(job_dec, JobState)
-        self.assertEqual(
-            repr(job_dec._result), "<MemoryJobResult outcome:'pass'>")

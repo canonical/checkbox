@@ -23,7 +23,6 @@
 """
 
 import abc
-import json
 import logging
 import os
 import shutil
@@ -106,177 +105,6 @@ class ISessionStateLegacyAPI(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __exit__(self, *args):
         self.close()
-
-
-class SessionStateLegacyAPIOriginalImpl(SessionState, ISessionStateLegacyAPI):
-    """
-    Original implementation of the legacy suspend/resume API
-
-    This subclass of SessionState implements the ISessionStateLegacyAPI
-    interface thus allowing applications to keep using suspend/resume as they
-    did before, without adjusting their code.
-    """
-
-    session_data_filename = 'session.json'
-
-    def __init__(self, job_list):
-        super(SessionStateLegacyAPIOriginalImpl, self).__init__(job_list)
-        # Temporary directory used as 'scratch space' for running jobs. Removed
-        # entirely when session is terminated. Internally this is exposed as
-        # $CHECKBOX_DATA to script environment.
-        self._session_dir = None
-        # Directory used to store jobs IO logs.
-        self._jobs_io_log_dir = None
-
-    @property
-    def session_dir(self):
-        return self._session_dir
-
-    @property
-    def jobs_io_log_dir(self):
-        return self._jobs_io_log_dir
-
-    def open(self):
-        if self._session_dir is None:
-            xdg_cache_home = os.environ.get('XDG_CACHE_HOME') or \
-                os.path.join(os.path.expanduser('~'), '.cache')
-            self._session_dir = os.path.join(
-                xdg_cache_home, 'plainbox', 'last-session')
-            if not os.path.isdir(self._session_dir):
-                os.makedirs(self._session_dir)
-        if self._jobs_io_log_dir is None:
-            self._jobs_io_log_dir = os.path.join(self._session_dir, 'io-logs')
-            if not os.path.isdir(self._jobs_io_log_dir):
-                os.makedirs(self._jobs_io_log_dir)
-        return self
-
-    def clean(self):
-        if self._session_dir is not None:
-            shutil.rmtree(self._session_dir)
-            self._session_dir = None
-            self._jobs_io_log_dir = None
-            self.open()
-
-    def close(self):
-        self._session_dir = None
-        self._jobs_io_log_dir = None
-
-    def previous_session_file(self):
-        session_filename = os.path.join(self._session_dir,
-                                        self.session_data_filename)
-        if os.path.exists(session_filename):
-            return session_filename
-        else:
-            return None
-
-    def persistent_save(self):
-        # Ensure an atomic update of the session file:
-        #   - create a new temp file (on the same file system!)
-        #   - write data to the temp file
-        #   - fsync() the temp file
-        #   - rename the temp file to the appropriate name
-        #   - fsync() the containing directory
-        # Calling fsync() does not necessarily ensure that the entry in the
-        # directory containing the file has also reached disk.
-        # For that an explicit fsync() on a file descriptor for the directory
-        # is also needed.
-        filename = os.path.join(self._session_dir,
-                                self.session_data_filename)
-
-        with tempfile.NamedTemporaryFile(mode='wt',
-                                         encoding='UTF-8',
-                                         suffix='.tmp',
-                                         prefix='session',
-                                         dir=self._session_dir,
-                                         delete=False) as tmpstream:
-            # Save the session state to disk
-            json.dump(self, tmpstream, cls=SessionStateEncoder,
-                      ensure_ascii=False, indent=None, separators=(',', ':'))
-
-            tmpstream.flush()
-            os.fsync(tmpstream.fileno())
-
-        session_dir_fd = os.open(self._session_dir, os.O_DIRECTORY)
-        os.rename(tmpstream.name, filename)
-        os.fsync(session_dir_fd)
-        os.close(session_dir_fd)
-
-    def resume(self):
-        with open(self.previous_session_file(), 'rt', encoding='UTF-8') as f:
-            previous_session = json.load(
-                f, object_hook=SessionStateEncoder().dict_to_object)
-        self._job_state_map = previous_session._job_state_map
-        desired_job_list = []
-        for job in previous_session._desired_job_list:
-            if job in self._job_list:
-                desired_job_list.extend(
-                    [j for j in self._job_list if j == job])
-            elif (previous_session._job_state_map[job.name].result.outcome !=
-                    IJobResult.OUTCOME_NONE):
-                # Keep jobs results from the previous session without a
-                # definition in the current job_list only if they have
-                # a valid result
-                desired_job_list.append(job)
-        self.update_desired_job_list(desired_job_list)
-        # FIXME: Restore io_logs from files
-
-    def _get_persistance_subset(self):
-        state = {}
-        state['_job_state_map'] = self._job_state_map
-        state['_desired_job_list'] = self._desired_job_list
-        return state
-
-    @classmethod
-    def from_json_record(cls, record):
-        """
-        Create a SessionState instance from JSON record
-        """
-        obj = cls([])
-        obj._job_state_map = record['_job_state_map']
-        obj._desired_job_list = record['_desired_job_list']
-        return obj
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *args):
-        self.close()
-
-
-class SessionStateEncoder(json.JSONEncoder):
-
-    _CLS_MAP = {
-        DiskJobResult: 'JOB_RESULT(d)',
-        JobDefinition: 'JOB_DEFINITION',
-        JobState: 'JOB_STATE',
-        MemoryJobResult: 'JOB_RESULT(m)',
-        SessionStateLegacyAPIOriginalImpl: 'SESSION_STATE',
-    }
-
-    _CLS_RMAP = {value: key for key, value in _CLS_MAP.items()}
-
-    def default(self, obj):
-        """
-        JSON Serialize helper to encode SessionState attributes
-        Convert objects to a dictionary of their representation
-        """
-        if isinstance(obj, tuple(self._CLS_MAP.keys())):
-            d = {'_class_id': self._CLS_MAP[obj.__class__]}
-            d.update(obj._get_persistance_subset())
-            return d
-        else:
-            return json.JSONEncoder.default(self, obj)
-
-    def dict_to_object(self, data):
-        """
-        JSON Decoder helper
-        Convert dictionary to python objects
-        """
-        if '_class_id' in data:
-            cls = self._CLS_RMAP[data['_class_id']]
-            return cls.from_json_record(data)
-        else:
-            return data
 
 
 class SessionStateLegacyAPICompatImpl(SessionState, ISessionStateLegacyAPI):
@@ -414,7 +242,12 @@ class SessionStateLegacyAPICompatImpl(SessionState, ISessionStateLegacyAPI):
 
         This is not None only between calls to open() / close().
         """
-        return self.manager.storage.location
+        if self._commit_hint is not None:
+            sef._commit_manager()
+        if self._manager is None:
+            return None
+        else:
+            return self.manager.storage.location
 
     @property
     def jobs_io_log_dir(self):

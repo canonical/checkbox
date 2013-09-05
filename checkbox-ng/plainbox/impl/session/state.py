@@ -67,16 +67,6 @@ class SessionMetaData:
         self._flags = set(flags)
         self._running_job_name = running_job_name
 
-    def as_json(self):
-        """
-        JSON serializable version of the meta-data
-        """
-        return {
-            "title": self._title,
-            "flags": list(sorted(self._flags)),
-            "running_job_name": self._running_job_name
-        }
-
     @property
     def title(self):
         """

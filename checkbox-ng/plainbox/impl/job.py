@@ -131,15 +131,6 @@ class JobDefinition(BaseJob, IJobDefinition):
         return "<JobDefinition name:{!r} plugin:{!r}>".format(
             self.name, self.plugin)
 
-    def _get_persistance_subset(self):
-        state = {}
-        state['data'] = {}
-        for key, value in self._data.items():
-            state['data'][key] = value
-        if self.via is not None:
-            state['via'] = self.via
-        return state
-
     def __eq__(self, other):
         if not isinstance(other, JobDefinition):
             return False
@@ -267,10 +258,3 @@ class JobDefinition(BaseJob, IJobDefinition):
         job._provider = self._provider
         job._via = self.get_checksum()
         return job
-
-    @classmethod
-    def from_json_record(cls, record):
-        """
-        Create a JobDefinition instance from JSON record
-        """
-        return cls(record['data'], via=record.get('via'))

@@ -79,7 +79,6 @@ __all__ = [
     'JobState',
     'SessionManager',
     'SessionState',
-    'SessionStateEncoder',
     'SessionStateLegacyAPI',
     'SessionStorage',
     'SessionStorageRepository',
@@ -89,7 +88,6 @@ __all__ = [
 from plainbox.impl.session.jobs import JobReadinessInhibitor
 from plainbox.impl.session.jobs import JobState
 from plainbox.impl.session.jobs import UndesiredJobReadinessInhibitor
-from plainbox.impl.session.legacy import SessionStateEncoder
 from plainbox.impl.session.legacy import SessionStateLegacyAPI
 from plainbox.impl.session.manager import SessionManager
 from plainbox.impl.session.state import SessionState

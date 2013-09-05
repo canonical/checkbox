@@ -229,17 +229,24 @@ class JobState:
         def fget(self):
             return self._result
 
-        def fset(self, value):
-            self._result = value
-            self.on_result_changed()
+        def fset(self, new):
+            old = self._result
+            if old != new:
+                self._result = new
+                self.on_result_changed(old, new)
 
         return (fget, fset, None, doc)
 
     result = property(*_result())
 
     @Signal.define
-    def on_result_changed(self):
-        pass
+    def on_result_changed(self, old, new):
+        """
+        Event fired when the result associated with this job state changes
+        """
+        logger.info(
+            "Result fob %s changed from %r to %r",
+            self.job.name, old, new)
 
     def can_start(self):
         """

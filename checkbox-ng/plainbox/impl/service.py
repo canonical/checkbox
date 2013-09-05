@@ -945,10 +945,9 @@ class RunningJob(dbus.service.Object):
 
     def __init__(self, job, session, conn=None, object_path=None,
                  bus_name=None):
-        self.path = object_path
         if object_path is None:
-            id = str(random.uniform(1, 10)).replace('.', '')
-            self.path = "/plainbox/jobrunner/{}".format(id)
+            object_path = "/plainbox/jobrunner/{}".format(id(self))
+        self.path = object_path
         dbus.service.Object.__init__(self, conn, self.path, bus_name)
         self.job = job
         self.session = session

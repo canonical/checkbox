@@ -65,7 +65,7 @@ setup(
             'checkbox-auto=plainbox.impl.providers.checkbox:CheckBoxAutoProvider',
             'checkbox-src=plainbox.impl.providers.checkbox:CheckBoxSrcProvider',
             'checkbox-deb=plainbox.impl.providers.checkbox:CheckBoxDebProvider',
-            'stubbox=plainbox.stubbox:StubBoxProvider',
+            'stubbox=plainbox.impl.providers.stubbox:StubBoxProvider',
         ],
     },
     include_package_data=True)

@@ -27,7 +27,7 @@ from io import StringIO
 from unittest import TestCase
 
 from plainbox.impl.config import PlainBoxConfigParser, Config, ConfigMetaData
-from plainbox.impl.config import KindValidator
+from plainbox.impl.config import KindValidator, ChoiceValidator
 from plainbox.impl.config import Variable, Section, Unset
 
 
@@ -151,3 +151,14 @@ class PlainBoxConfigParserTest(TestCase):
         self.assertTrue('lower' in all_keys)
         self.assertTrue('UPPER' in all_keys)
         self.assertFalse('upper' in all_keys)
+
+
+class ChoiceValidatorTests(TestCase):
+
+    def test_smoke(self):
+        """
+        verify that ChoiceValidator works as intended
+        """
+        validator = ChoiceValidator(["foo", "bar"])
+        self.assertEqual(validator(None, "foo"), None)
+        self.assertEqual(validator(None, "omg"), "must be one of foo, bar")

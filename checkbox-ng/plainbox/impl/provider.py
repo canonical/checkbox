@@ -57,6 +57,7 @@ import logging
 import os
 import io
 
+from plainbox.impl.abc import IProvider1, IProviderBackend1
 from plainbox.impl.applogic import WhiteList
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.plugins import PlugInCollection
@@ -70,82 +71,6 @@ class ProviderNotFound(LookupError):
     """
     Exception used to report that a provider cannot be located
     """
-
-
-class IProviderBackend1(metaclass=abc.ABCMeta):
-    """
-    Provider for the current type of tests.
-
-    This class provides the APIs required by the internal implementation
-    that are not considered normal public APIs. The only consumer of the
-    those methods and properties are internal to plainbox.
-    """
-
-    @abc.abstractproperty
-    def CHECKBOX_SHARE(self):
-        """
-        Return the required value of CHECKBOX_SHARE environment variable.
-
-        .. note::
-            This variable is only required by one script.
-            It would be nice to remove this later on.
-        """
-
-    @abc.abstractproperty
-    def extra_PYTHONPATH(self):
-        """
-        Return additional entry for PYTHONPATH, if needed.
-
-        This entry is required for CheckBox scripts to import the correct
-        CheckBox python libraries.
-
-        .. note::
-            The result may be None
-        """
-
-    @abc.abstractproperty
-    def extra_PATH(self):
-        """
-        Return additional entry for PATH
-
-        This entry is required to lookup CheckBox scripts.
-        """
-
-
-class IProvider1(metaclass=abc.ABCMeta):
-    """
-    Provider for the current type of tests
-
-    Also known as the 'checkbox-like' provider.
-    """
-
-    @abc.abstractproperty
-    def name(self):
-        """
-        name of this provider
-
-        This name should be dbus-friendly. It should not be localizable.
-        """
-
-    @abc.abstractproperty
-    def description(self):
-        """
-        description of this providr
-
-        This name should be dbus-friendly. It should not be localizable.
-        """
-
-    @abc.abstractmethod
-    def get_builtin_jobs(self):
-        """
-        Load all the built-in jobs and return them
-        """
-
-    @abc.abstractmethod
-    def get_builtin_whitelists(self):
-        """
-        Load all the built-in whitelists and return them
-        """
 
 
 class Provider1(IProvider1, IProviderBackend1):

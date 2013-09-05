@@ -773,8 +773,13 @@ class SessionWrapper(PlainBoxObjectWrapper):
             'running_job_name': self.native.metadata.running_job_name or ""
         }, signature="sv")
 
+    @metadata.setter
+    def metadata(self, value):
+        self.native.metadata.title = value['title']
+        self.native.metadata.running_job_name = value['running_job_name']
+        self.native.metadata.flags = value['flags']
+
     # TODO: signal<metadata>
-    # TODO: setter<metadata>
 
 
 class ProviderWrapper(PlainBoxObjectWrapper):

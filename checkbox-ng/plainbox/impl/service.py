@@ -938,6 +938,8 @@ class UIOutputPrinter(extcmd.DelegateBase):
         self._runner = runner
 
     def on_line(self, stream_name, line):
+        # FIXME: this is not a line number,
+        # TODO: tie this into existing code in runner.py (the module)
         self._lineno[stream_name] += 1
         self._runner.IOLogGenerated(self._lineno[stream_name],
                                     stream_name, line)
@@ -1000,6 +1002,7 @@ class RunningJob(dbus.service.Object):
     @dbus.service.method(
         dbus_interface=RUNNING_JOB_IFACE, in_signature='', out_signature='')
     def RunCommand(self):
+        # FIXME: this thread object leaks, it needs to be .join()ed
         runner = Thread(target=self._run_command,
                         args=(self.session, self.job, self))
         runner.start()

@@ -108,8 +108,10 @@ class Service:
         if job_result is not None:
             running_job_wrapper.update_job_result_callback(job, job_result)
 
+    # FIXME: broken layering, running_job_wrapper is from the dbus layer
     def run_job(self, session, job, running_job_wrapper):
         runner = Thread(target=self._run,
                         args=(session, job, running_job_wrapper))
         runner.start()
+        # FIXME: we need to keep track of this thread
         return job

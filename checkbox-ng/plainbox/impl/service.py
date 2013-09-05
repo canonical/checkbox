@@ -982,11 +982,6 @@ class RunningJob(dbus.service.Object):
         job_result = DiskJobResult(self.result)
         self.emitJobResultAvailable(self.job, job_result)
 
-    @dbus.service.method(
-        dbus_interface=RUNNING_JOB_IFACE, in_signature='s', out_signature='')
-    def SetComments(self, comments):
-        pass
-
     def _command_callback(self, return_code, record_path):
         self.result['return_code'] = return_code
         self.result['io_log_filename'] = record_path

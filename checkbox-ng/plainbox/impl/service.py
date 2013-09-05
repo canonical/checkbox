@@ -411,6 +411,21 @@ class JobResultWrapper(PlainBoxObjectWrapper):
             self.__class__.outcome._dbus_property: new
         }, [])
 
+    @dbus.service.property(dbus_interface=JOB_RESULT_IFACE, signature="d")
+    def execution_duration(self):
+        """
+        The amount of time in seconds it took to run this jobs command.
+
+        :returns:
+            The value of execution_duration or -1.0 if the command was not
+            executed yet.
+        """
+        execution_duration = self.native.execution_duration
+        if execution_duration is None:
+            return -1.0
+        else:
+            return execution_duration
+
     @dbus.service.property(dbus_interface=JOB_RESULT_IFACE, signature="v")
     def return_code(self):
         """

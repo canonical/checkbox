@@ -95,7 +95,7 @@ class Service:
             session.session_dir,
             session.jobs_io_log_dir,
             command_io_delegate=running_job_wrapper.ui_io_delegate,
-            outcome_callback=running_job_wrapper.emitAskForOutcomeSignal
+            interaction_callback=running_job_wrapper.emitAskForOutcomeSignal
         )
         job_state = session.job_state_map[job.name]
         if job_state.can_start():

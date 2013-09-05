@@ -43,7 +43,7 @@ from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter import get_all_exporters
-from plainbox.impl.result import MemoryJobResult
+from plainbox.impl.result import DiskJobResult, MemoryJobResult
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.runner import authenticate_warmup
 from plainbox.impl.runner import slugify
@@ -188,13 +188,13 @@ class RunInvocation(CheckBoxInvocationMixIn):
                     raise SystemExit(return_code)
             if (sys.stdin.isatty() and sys.stdout.isatty() and not
                     ns.not_interactive):
-                outcome_callback = self.ask_for_outcome
+                interaction_callback = self._interaction_callback
             else:
-                outcome_callback = None
+                interaction_callback = None
             runner = JobRunner(
                 session.session_dir,
                 session.jobs_io_log_dir,
-                outcome_callback=outcome_callback,
+                interaction_callback=interaction_callback,
                 dry_run=ns.dry_run
             )
             self._run_jobs_with_session(ns, session, runner)
@@ -248,18 +248,32 @@ class RunInvocation(CheckBoxInvocationMixIn):
         if output_file is not sys.stdout:
             output_file.close()
 
-    def ask_for_outcome(self, prompt=None, allowed=None):
+    def _interaction_callback(self, runner, job, config, prompt=None,
+                             allowed_outcome=None):
+        result = {}
         if prompt is None:
-            prompt = "what is the outcome? "
-        if allowed is None:
-            allowed = (IJobResult.OUTCOME_PASS,
-                       IJobResult.OUTCOME_FAIL,
-                       IJobResult.OUTCOME_SKIP)
-        answer = None
-        while answer not in allowed:
-            print("Allowed answers are: {}".format(", ".join(allowed)))
-            answer = input(prompt)
-        return answer
+            prompt = "Select an outcome or an action: "
+        if allowed_outcome is None:
+            allowed_outcome = [IJobResult.OUTCOME_PASS,
+                               IJobResult.OUTCOME_FAIL,
+                               IJobResult.OUTCOME_SKIP]
+        allowed_actions = ['comments']
+        if job.command:
+            allowed_actions.append('test')
+        result['outcome'] = IJobResult.OUTCOME_UNDECIDED
+        while result['outcome'] not in allowed_outcome:
+            print("Allowed answers are: {}".format(", ".join(allowed_outcome +
+                                                             allowed_actions)))
+            choice = input(prompt)
+            if choice in allowed_outcome:
+                result['outcome'] = choice
+                break
+            elif choice == 'test':
+                (result['return_code'],
+                 result['io_log_filename']) = runner._run_command(job, config)
+            elif choice == 'comments':
+                result['comments'] = input('Please enter your comments:\n')
+        return DiskJobResult(result)
 
     def _update_desired_job_list(self, session, desired_job_list):
         problem_list = session.update_desired_job_list(desired_job_list)

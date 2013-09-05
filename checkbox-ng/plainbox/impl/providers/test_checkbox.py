@@ -24,7 +24,7 @@ plainbox.impl.test_checkbox
 Test definitions for plainbox.impl.checkbox module
 """
 
-from plainbox.impl.checkbox import CheckBoxAutoProvider
+from plainbox.impl.providers.checkbox import CheckBoxAutoProvider
 from plainbox.testing_utils.testcases import TestCaseWithParameters
 
 

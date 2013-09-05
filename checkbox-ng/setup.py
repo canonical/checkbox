@@ -62,9 +62,9 @@ setup(
             'plainbox.impl.transport.certification:CertificationTransport',
         ],
         'plainbox.provider.v1': [
-            'checkbox-auto=plainbox.impl.checkbox:CheckBoxAutoProvider',
-            'checkbox-src=plainbox.impl.checkbox:CheckBoxSrcProvider',
-            'checkbox-deb=plainbox.impl.checkbox:CheckBoxDebProvider',
+            'checkbox-auto=plainbox.impl.providers.checkbox:CheckBoxAutoProvider',
+            'checkbox-src=plainbox.impl.providers.checkbox:CheckBoxSrcProvider',
+            'checkbox-deb=plainbox.impl.providers.checkbox:CheckBoxDebProvider',
             'stubbox=plainbox.stubbox:StubBoxProvider',
         ],
     },

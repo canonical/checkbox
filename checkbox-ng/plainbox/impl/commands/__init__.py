@@ -34,7 +34,7 @@ import pdb
 import sys
 
 from plainbox.impl.logging import adjust_logging
-from plainbox.impl.provider import all_providers
+from plainbox.impl.providers.v1 import all_providers
 
 
 logger = logging.getLogger("plainbox.commands")

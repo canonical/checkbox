@@ -124,6 +124,14 @@ class WhiteListTests(TestCase):
             "<RegExpJobQualifier pattern:'^foo$'>")
         self.assertTrue(whitelist.designates(make_job('foo')))
 
+    def test_repr(self):
+        """
+        verify that custom repr works
+        """
+        whitelist = WhiteList([], name="test")
+        self.assertEqual(repr(whitelist), "<WhiteList name:'test'>")
+
+
 
 class NameJobQualifierTests(TestCase):
 

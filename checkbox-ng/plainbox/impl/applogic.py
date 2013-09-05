@@ -271,6 +271,13 @@ class PlainBoxConfig(config.Config):
     environment = config.Section(
         help_text="Environment variables for scripts and jobs")
 
+    default_provider = config.Variable(
+        section="common",
+        help_text="Name of the default provider to use",
+        validator_list=[
+            config.ChoiceValidator(['auto', 'src', 'deb', 'stub'])],
+        default="auto")
+
     class Meta:
 
         # TODO: properly depend on xdg and use real code that also handles

@@ -43,13 +43,13 @@ class BaseJob:
     """
 
     def __init__(self, data):
-        self._data = data
+        self.__data = data
 
     def get_record_value(self, name, default=None):
         """
         Obtain the value of the specified record attribute
         """
-        return self._data.get(name, default)
+        return self.__data.get(name, default)
 
     @property
     def plugin(self):
@@ -83,7 +83,7 @@ class BaseJob:
         # predictable serialization but that's another dependency. To get
         # something simple that is equally reliable, just sort all the keys
         # manually and ask standard json to serialize that..
-        sorted_data = collections.OrderedDict(sorted(self._data.items()))
+        sorted_data = collections.OrderedDict(sorted(self.__data.items()))
         # Compute the canonical form which is arbitrarily defined as sorted
         # json text with default indent and separator settings.
         canonical_form = json.dumps(

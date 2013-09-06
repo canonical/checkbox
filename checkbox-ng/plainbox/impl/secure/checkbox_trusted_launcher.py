@@ -46,6 +46,10 @@ class BaseJob:
         self.__data = data
         self._checksum = None
 
+    @property
+    def _data(self):
+        raise AttributeError("Hey, poking at _data is forbidden!")
+
     def get_record_value(self, name, default=None):
         """
         Obtain the value of the specified record attribute

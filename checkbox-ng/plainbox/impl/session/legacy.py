@@ -25,14 +25,7 @@
 import abc
 import logging
 import os
-import shutil
-import tempfile
 
-from plainbox.abc import IJobResult
-from plainbox.impl.job import JobDefinition
-from plainbox.impl.result import DiskJobResult
-from plainbox.impl.result import MemoryJobResult
-from plainbox.impl.session.jobs import JobState
 from plainbox.impl.session.state import SessionState
 from plainbox.impl.session.manager import SessionManager
 from plainbox.impl.session.storage import SessionStorageRepository

@@ -275,7 +275,7 @@ class PlainBoxConfig(config.Config):
         section="common",
         help_text="Name of the default provider to use",
         validator_list=[
-            config.ChoiceValidator(['auto', 'src', 'deb', 'stub'])],
+            config.ChoiceValidator(['auto', 'src', 'deb', 'stub', 'ihv'])],
         default="auto")
 
     class Meta:

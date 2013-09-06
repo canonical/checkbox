@@ -51,10 +51,10 @@ class JobDefinition(BaseJob, IJobDefinition):
         """
         Obtain the value of the specified record attribute
         """
-        try:
-            return self._data["_{}".format(name)]
-        except KeyError:
-            return super(JobDefinition, self).get_record_value(name, default)
+        value = super(JobDefinition, self).get_record_value("_{}".format(name))
+        if value is None:
+            value = super(JobDefinition, self).get_record_value(name, default)
+        return value
 
     @property
     def name(self):

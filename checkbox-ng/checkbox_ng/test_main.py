@@ -49,7 +49,7 @@ class TestMain(TestCase):
         self.assertEqual(call.exception.args, (0,))
         self.maxDiff = None
         expected = """
-        usage: checkbox [-h] [--version] [-c {src,deb,auto,stub}] [-v] [-D] [-C]
+        usage: checkbox [-h] [--version] [-c {src,deb,auto,stub,ihv}] [-v] [-D] [-C]
                         [-T LOGGER] [-P] [-I]
                         {sru,check-config,script,dev} ...
 
@@ -63,7 +63,7 @@ class TestMain(TestCase):
         optional arguments:
           -h, --help            show this help message and exit
           --version             show program's version number and exit
-          -c {src,deb,auto,stub}, --checkbox {src,deb,auto,stub}
+          -c {src,deb,auto,stub,ihv}, --checkbox {src,deb,auto,stub,ihv}
                                 where to find the installation of CheckBox.
 
         logging and debugging:
@@ -85,7 +85,7 @@ class TestMain(TestCase):
                 main([])
             self.assertEqual(call.exception.args, (2,))
         expected = """
-        usage: checkbox [-h] [--version] [-c {src,deb,auto,stub}] [-v] [-D] [-C]
+        usage: checkbox [-h] [--version] [-c {src,deb,auto,stub,ihv}] [-v] [-D] [-C]
                         [-T LOGGER] [-P] [-I]
                         {sru,check-config,script,dev} ...
         checkbox: error: too few arguments

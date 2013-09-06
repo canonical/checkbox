@@ -66,6 +66,7 @@ setup(
             'checkbox-src=plainbox.impl.providers.checkbox:CheckBoxSrcProvider',
             'checkbox-deb=plainbox.impl.providers.checkbox:CheckBoxDebProvider',
             'stubbox=plainbox.impl.providers.stubbox:StubBoxProvider',
+            'ihv=plainbox.impl.providers.special:IHVProvider',
         ],
     },
     include_package_data=True)

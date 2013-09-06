@@ -191,7 +191,7 @@ class PlainBoxToolBase(metaclass=ABCMeta):
         # object (default for that is 'auto').
         if early_ns.checkbox is None:
             early_ns.checkbox = self._config.default_provider
-        assert early_ns.checkbox in ('auto', 'src', 'deb', 'stub')
+        assert early_ns.checkbox in ('auto', 'src', 'deb', 'stub', 'ihv')
         if early_ns.checkbox == 'auto':
             provider_name = 'checkbox-auto'
         elif early_ns.checkbox == 'src':
@@ -200,6 +200,8 @@ class PlainBoxToolBase(metaclass=ABCMeta):
             provider_name = 'checkbox-deb'
         elif early_ns.checkbox == 'stub':
             provider_name = 'stubbox'
+        elif early_ns.checkbox == 'ihv':
+            provider_name = 'ihv'
         self._provider = all_providers.get_by_name(
             provider_name).plugin_object()
         # Construct the full command line argument parser
@@ -252,7 +254,7 @@ class PlainBoxToolBase(metaclass=ABCMeta):
             '-c', '--checkbox',
             action='store',
             # TODO: have some public API for this, pretty please
-            choices=['src', 'deb', 'auto', 'stub'],
+            choices=['src', 'deb', 'auto', 'stub', 'ihv'],
             # None is a special value that means 'use whatever configured'
             default=None,
             help="where to find the installation of CheckBox.")

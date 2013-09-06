@@ -543,3 +543,16 @@ class PatternValidator(IValidator):
     def __call__(self, variable, new_value):
         if not self.pattern.match(new_value):
             return "does not match pattern: {!r}".format(self.pattern_text)
+
+
+class ChoiceValidator(IValidator):
+    """
+    A validator ensuring that values are in a given set
+    """
+
+    def __init__(self, choice_list):
+        self.choice_list = choice_list
+
+    def __call__(self, variable, new_value):
+        if new_value not in self.choice_list:
+            return "must be one of {}".format(", ".join(self.choice_list))

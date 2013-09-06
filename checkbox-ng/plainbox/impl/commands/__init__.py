@@ -186,6 +186,11 @@ class PlainBoxToolBase(metaclass=ABCMeta):
         # Load and initialize checkbox provider
         # TODO: rename to provider, switch to plugins
         all_providers.load()
+        # If the default value of 'None' was set for the checkbox (provider)
+        # argument then load the actual provider name from the configuration
+        # object (default for that is 'auto').
+        if early_ns.checkbox is None:
+            early_ns.checkbox = self._config.default_provider
         assert early_ns.checkbox in ('auto', 'src', 'deb', 'stub')
         if early_ns.checkbox == 'auto':
             provider_name = 'checkbox-auto'
@@ -248,7 +253,8 @@ class PlainBoxToolBase(metaclass=ABCMeta):
             action='store',
             # TODO: have some public API for this, pretty please
             choices=['src', 'deb', 'auto', 'stub'],
-            default='auto',
+            # None is a special value that means 'use whatever configured'
+            default=None,
             help="where to find the installation of CheckBox.")
         group = parser.add_argument_group(
             title="logging and debugging")

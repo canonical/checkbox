@@ -243,7 +243,7 @@ class SessionStateLegacyAPICompatImpl(SessionState, ISessionStateLegacyAPI):
         This is not None only between calls to open() / close().
         """
         if self._commit_hint is not None:
-            sef._commit_manager()
+            self._commit_manager()
         if self._manager is None:
             return None
         else:

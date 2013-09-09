@@ -1,9 +1,10 @@
 include README.md
 include COPYING
 include mk-interesting-graphs.sh
-recursive-include plainbox/test-data/ *.json *.xml *.txt
+recursive-include plainbox/test-data *.json *.xml *.txt
 recursive-include docs *.rst
 include docs/conf.py
-include plainbox/data/report/hardware-1_0.rng
+recursive-include plainbox/data/report *.rng *.css *.xsl *.js
+recursive-include plainbox/data/report/images *.png
 include contrib/policykit_yes/org.freedesktop.policykit.pkexec.policy
 include contrib/policykit_auth_admin_keep/org.freedesktop.policykit.pkexec.policy

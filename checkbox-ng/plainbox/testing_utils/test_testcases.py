@@ -134,3 +134,14 @@ class TestCaseWithParametersTests(TestCase):
         case1_param = case1._parametrize(
             TestCaseParameters(('name', ), ('value', )))
         self.assertNotEqual(case1, case1_param)
+
+    def test_run_spots_common_mistake(self):
+        with self.assertRaises(RuntimeError) as boom:
+            class UpperTests(TestCaseWithParameters):
+                parameter_names = ('param1',)
+                parameter_values = (('value1', 'value2'),)
+            UpperTests().run()
+        self.assertEqual(
+            str(boom.exception),
+            ("incorrect get_parameter_values() or parameter_values for"
+             " iteration 0. Expected to see 1 item but saw 2 instead"))

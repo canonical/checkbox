@@ -27,7 +27,7 @@ import logging
 import os
 
 from dbus import StarterBus, SessionBus
-from dbus.mainloop.glib import DBusGMainLoop
+from dbus.mainloop.glib import DBusGMainLoop, threads_init
 from dbus.service import BusName
 from gi.repository import GObject
 
@@ -54,8 +54,10 @@ def connect_to_session_bus():
     # NOTE: DBus tutorial suggests that we should create the loop _before_
     # connecting to the bus.
     logger.debug("Setting up glib-based event loop")
-    loop = GObject.MainLoop()
+    # Make sure gobject threads don't crash
     GObject.threads_init()
+    threads_init()
+    loop = GObject.MainLoop()
     # Let's get the system bus object.
     logger.debug("Connecting to DBus session bus")
     if os.getenv("DBUS_STARTER_ADDRESS"):

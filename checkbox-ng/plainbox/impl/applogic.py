@@ -150,6 +150,9 @@ class WhiteList(CompositeQualifier):
         super(WhiteList, self).__init__(inclusive, exclusive)
         self._name = name
 
+    def __repr__(self):
+        return "<{} name:{!r}>".format(self.__class__.__name__, self.name)
+
     @property
     def name(self):
         """
@@ -267,6 +270,13 @@ class PlainBoxConfig(config.Config):
 
     environment = config.Section(
         help_text="Environment variables for scripts and jobs")
+
+    default_provider = config.Variable(
+        section="common",
+        help_text="Name of the default provider to use",
+        validator_list=[
+            config.ChoiceValidator(['auto', 'src', 'deb', 'stub', 'ihv'])],
+        default="auto")
 
     class Meta:
 

@@ -51,10 +51,10 @@ class JobDefinition(BaseJob, IJobDefinition):
         """
         Obtain the value of the specified record attribute
         """
-        try:
-            return self._data["_{}".format(name)]
-        except KeyError:
-            return super(JobDefinition, self).get_record_value(name, default)
+        value = super(JobDefinition, self).get_record_value("_{}".format(name))
+        if value is None:
+            value = super(JobDefinition, self).get_record_value(name, default)
+        return value
 
     @property
     def name(self):
@@ -130,15 +130,6 @@ class JobDefinition(BaseJob, IJobDefinition):
     def __repr__(self):
         return "<JobDefinition name:{!r} plugin:{!r}>".format(
             self.name, self.plugin)
-
-    def _get_persistance_subset(self):
-        state = {}
-        state['data'] = {}
-        for key, value in self._data.items():
-            state['data'][key] = value
-        if self.via is not None:
-            state['via'] = self.via
-        return state
 
     def __eq__(self, other):
         if not isinstance(other, JobDefinition):
@@ -267,10 +258,3 @@ class JobDefinition(BaseJob, IJobDefinition):
         job._provider = self._provider
         job._via = self.get_checksum()
         return job
-
-    @classmethod
-    def from_json_record(cls, record):
-        """
-        Create a JobDefinition instance from JSON record
-        """
-        return cls(record['data'], via=record.get('via'))

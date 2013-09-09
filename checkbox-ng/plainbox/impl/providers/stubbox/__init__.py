@@ -18,14 +18,18 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-:mod:`plainbox.stubbox` -- stub job provider
-============================================
+:mod:`plainbox.impl.providers.stubbox` -- stub job provider
+===========================================================
+
+The stubbox provider is useful for various kinds of testing where you don't
+want to pull in a volume of data, just a bit of each kind of jobs that we need
+to support.
 """
 
 import os
 
 from plainbox.impl import get_plainbox_dir
-from plainbox.impl.provider import Provider1
+from plainbox.impl.providers.v1 import Provider1
 
 
 class StubBoxProvider(Provider1):
@@ -35,5 +39,5 @@ class StubBoxProvider(Provider1):
 
     def __init__(self):
         super(StubBoxProvider, self).__init__(
-            os.path.join(get_plainbox_dir(), "stubbox"),
+            os.path.join(get_plainbox_dir(), "impl/providers/stubbox"),
             "stubbox", "StubBox (dummy data for development)")

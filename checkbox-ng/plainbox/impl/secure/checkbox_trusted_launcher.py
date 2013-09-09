@@ -43,13 +43,18 @@ class BaseJob:
     """
 
     def __init__(self, data):
-        self._data = data
+        self.__data = data
+        self._checksum = None
+
+    @property
+    def _data(self):
+        raise AttributeError("Hey, poking at _data is forbidden!")
 
     def get_record_value(self, name, default=None):
         """
         Obtain the value of the specified record attribute
         """
-        return self._data.get(name, default)
+        return self.__data.get(name, default)
 
     @property
     def plugin(self):
@@ -71,19 +76,35 @@ class BaseJob:
         """
         Compute a checksum of the job definition.
 
-        This method can be used to compute the checksum of the canonical form
-        of the job definition.  The canonical form is the UTF-8 encoded JSON
+        """
+        return self.checksum
+
+    @property
+    def checksum(self):
+        """
+        Checksum of the job definition.
+
+        This property can be used to compute the checksum of the canonical form
+        of the job definition. The canonical form is the UTF-8 encoded JSON
         serialization of the data that makes up the full definition of the job
         (all keys and values). The JSON serialization uses no indent and
         minimal separators.
 
         The checksum is defined as the SHA256 hash of the canonical form.
         """
+        if self._checksum is None:
+            self._checksum = self._compute_checksum()
+        return self._checksum
+
+    def _compute_checksum(self):
+        """
+        Compute the value for :meth:`get_checksum()` and :attr:`checksum`.
+        """
         # Ideally we'd use simplejson.dumps() with sorted keys to get
         # predictable serialization but that's another dependency. To get
         # something simple that is equally reliable, just sort all the keys
         # manually and ask standard json to serialize that..
-        sorted_data = collections.OrderedDict(sorted(self._data.items()))
+        sorted_data = collections.OrderedDict(sorted(self.__data.items()))
         # Compute the canonical form which is arbitrarily defined as sorted
         # json text with default indent and separator settings.
         canonical_form = json.dumps(

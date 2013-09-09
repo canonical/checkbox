@@ -82,9 +82,9 @@ class ServiceInvocation:
         logger.debug("Constructing ServiceWrapper")
         service_wrp = ServiceWrapper(service_obj, on_exit=lambda: loop.quit())
         logger.info("Publishing all objects on DBus")
-        service_wrp.publish_objects(bus)
-        logger.info("Publishing all children (events should fire there)")
-        service_wrp.publish_children()
+        service_wrp.publish_related_objects(bus)
+        logger.info("Publishing all managed objects (events should fire there)")
+        service_wrp.publish_managed_objects()
         logger.debug("Attempting to claim bus name: %s", self.ns.bus_name)
         bus_name = BusName(self.ns.bus_name, bus)
         logger.info(

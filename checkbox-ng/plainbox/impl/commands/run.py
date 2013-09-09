@@ -36,7 +36,7 @@ import sys
 from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
 
 from plainbox.abc import IJobResult
-from plainbox.impl.checkbox import CheckBoxDebProvider
+from plainbox.impl.providers.checkbox import CheckBoxDebProvider
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
 from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn

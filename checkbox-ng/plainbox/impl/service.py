@@ -104,20 +104,20 @@ class PlainBoxObjectWrapper(dbus.service.ObjectWrapper):
         logger.debug("Published DBus wrapper for %r as %s",
                      self.native, object_path)
 
-    def publish_objects(self, connection):
+    def publish_related_objects(self, connection):
         """
         Publish this and any other objects to the connection
 
-        Do not send any events, just register the objects on the bus. By
-        default only the object itself is published but collection managers are
-        expected to publish all of the children here.
+        Do not send ObjectManager events, just register any additional objects
+        on the bus. By default only the object itself is published but
+        collection managers are expected to publish all of the children here.
         """
         self.publish_self(connection)
 
-    def publish_children(self):
+    def publish_managed_objects(self):
         """
         This method is specific to ObjectManager, it basically adds children
-        and sends the right events.  This is a separate stage so that the whole
+        and sends the right events. This is a separate stage so that the whole
         hierarchy can first put all of the objects on the bus and then tell the
         world about it in one big signal message.
         """
@@ -411,6 +411,21 @@ class JobResultWrapper(PlainBoxObjectWrapper):
             self.__class__.outcome._dbus_property: new
         }, [])
 
+    @dbus.service.property(dbus_interface=JOB_RESULT_IFACE, signature="d")
+    def execution_duration(self):
+        """
+        The amount of time in seconds it took to run this jobs command.
+
+        :returns:
+            The value of execution_duration or -1.0 if the command was not
+            executed yet.
+        """
+        execution_duration = self.native.execution_duration
+        if execution_duration is None:
+            return -1.0
+        else:
+            return execution_duration
+
     @dbus.service.property(dbus_interface=JOB_RESULT_IFACE, signature="v")
     def return_code(self):
         """
@@ -468,9 +483,9 @@ class JobStateWrapper(PlainBoxObjectWrapper):
     def __shared_initialize__(self, **kwargs):
         self._result_wrapper = JobResultWrapper(self.native.result)
 
-    def publish_objects(self, connection):
-        super(JobStateWrapper, self).publish_objects(connection)
-        self._result_wrapper.publish_objects(connection)
+    def publish_related_objects(self, connection):
+        super(JobStateWrapper, self).publish_related_objects(connection)
+        self._result_wrapper.publish_related_objects(connection)
 
     # Value added
 
@@ -510,7 +525,7 @@ class JobStateWrapper(PlainBoxObjectWrapper):
     def on_result_changed(self):
         result_wrapper = JobResultWrapper(self.native.result)
         try:
-            result_wrapper.publish_objects(self.connection)
+            result_wrapper.publish_related_objects(self.connection)
         except KeyError:
             logger.warning("Result already exists for: %r", result_wrapper)
             self.PropertiesChanged(JOB_STATE_IFACE, {
@@ -579,16 +594,16 @@ class SessionWrapper(PlainBoxObjectWrapper):
             for job_name, job_state in self.native.job_state_map.items()
         }
 
-    def publish_objects(self, connection):
+    def publish_related_objects(self, connection):
         self.publish_self(connection)
         for job_state in self._job_state_map_wrapper.values():
-            job_state.publish_objects(connection)
+            job_state.publish_related_objects(connection)
 
-    def publish_children(self):
+    def publish_managed_objects(self):
         wrapper_list = list(self._iter_wrappers())
         self.add_managed_object_list(wrapper_list)
         for wrapper in wrapper_list:
-            wrapper.publish_children()
+            wrapper.publish_managed_objects()
 
     def _iter_wrappers(self):
         return itertools.chain(
@@ -607,13 +622,13 @@ class SessionWrapper(PlainBoxObjectWrapper):
                 logger.debug("Creating a new JobDefinitionWrapper for %s",
                              job.name)
                 wrapper = JobDefinitionWrapper(job)
-                wrapper.publish_objects(self.connection)
+                wrapper.publish_related_objects(self.connection)
                 #Newly created jobs also need a JobState.
                 #Note that publishing the JobState also should automatically
                 #publish the MemoryJobResult.
                 self._job_state_map_wrapper[job.name] = JobStateWrapper(
                         self.native.job_state_map[job.name])
-                self._job_state_map_wrapper[job.name].publish_objects(
+                self._job_state_map_wrapper[job.name].publish_related_objects(
                         self.connection)
 
     # Value added
@@ -710,7 +725,7 @@ class SessionWrapper(PlainBoxObjectWrapper):
                     logger.debug("Creating a new JobDefinitionWrapper for %s",
                                  job.name)
                     wrapper = JobDefinitionWrapper(job)
-                    wrapper.publish_objects(self.connection)
+                    wrapper.publish_related_objects(self.connection)
 
             #By here, either job definitions already exist, or they
             #have been created. Create and publish the corresponding
@@ -719,7 +734,7 @@ class SessionWrapper(PlainBoxObjectWrapper):
             #object.
             self._job_state_map_wrapper[job.name] = JobStateWrapper(
                     self.native.job_state_map[job.name])
-            self._job_state_map_wrapper[job.name].publish_objects(
+            self._job_state_map_wrapper[job.name].publish_related_objects(
                     self.connection)
 
     @dbus.service.method(
@@ -773,8 +788,13 @@ class SessionWrapper(PlainBoxObjectWrapper):
             'running_job_name': self.native.metadata.running_job_name or ""
         }, signature="sv")
 
+    @metadata.setter
+    def metadata(self, value):
+        self.native.metadata.title = value['title']
+        self.native.metadata.running_job_name = value['running_job_name']
+        self.native.metadata.flags = value['flags']
+
     # TODO: signal<metadata>
-    # TODO: setter<metadata>
 
 
 class ProviderWrapper(PlainBoxObjectWrapper):
@@ -795,13 +815,13 @@ class ProviderWrapper(PlainBoxObjectWrapper):
     def _get_preferred_object_path(self):
         return "/plainbox/provider/{}".format(self.native.name)
 
-    def publish_objects(self, connection):
-        super(ProviderWrapper, self).publish_objects(connection)
+    def publish_related_objects(self, connection):
+        super(ProviderWrapper, self).publish_related_objects(connection)
         wrapper_list = list(self._iter_wrappers())
         for wrapper in wrapper_list:
-            wrapper.publish_objects(connection)
+            wrapper.publish_related_objects(connection)
 
-    def publish_children(self):
+    def publish_managed_objects(self):
         wrapper_list = list(self._iter_wrappers())
         self.add_managed_object_list(wrapper_list)
 
@@ -845,17 +865,17 @@ class ServiceWrapper(PlainBoxObjectWrapper):
     def _get_preferred_object_path(self):
         return "/plainbox/service1"
 
-    def publish_objects(self, connection):
-        super(ServiceWrapper, self).publish_objects(connection)
+    def publish_related_objects(self, connection):
+        super(ServiceWrapper, self).publish_related_objects(connection)
         for wrapper in self._provider_wrapper_list:
-            wrapper.publish_objects(connection)
+            wrapper.publish_related_objects(connection)
 
-    def publish_children(self):
+    def publish_managed_objects(self):
         # First publish all of our providers
         self.add_managed_object_list(self._provider_wrapper_list)
         # Then ask the providers to publish their own objects
         for wrapper in self._provider_wrapper_list:
-            wrapper.publish_children()
+            wrapper.publish_managed_objects()
 
     # Value added
 
@@ -907,11 +927,11 @@ class ServiceWrapper(PlainBoxObjectWrapper):
         # Wrap it
         session_wrp = SessionWrapper(session_obj)
         # Publish all objects
-        session_wrp.publish_objects(self.connection)
+        session_wrp.publish_related_objects(self.connection)
         # Announce the session is there
         self.add_managed_object(session_wrp)
         # Announce any session children
-        session_wrp.publish_children()
+        session_wrp.publish_managed_objects()
         # Return the session wrapper back
         return session_wrp
 
@@ -933,6 +953,8 @@ class UIOutputPrinter(extcmd.DelegateBase):
         self._runner = runner
 
     def on_line(self, stream_name, line):
+        # FIXME: this is not a line number,
+        # TODO: tie this into existing code in runner.py (the module)
         self._lineno[stream_name] += 1
         self._runner.IOLogGenerated(self._lineno[stream_name],
                                     stream_name, line)
@@ -945,10 +967,9 @@ class RunningJob(dbus.service.Object):
 
     def __init__(self, job, session, conn=None, object_path=None,
                  bus_name=None):
-        self.path = object_path
         if object_path is None:
-            id = str(random.uniform(1, 10)).replace('.', '')
-            self.path = "/plainbox/jobrunner/{}".format(id)
+            object_path = "/plainbox/jobrunner/{}".format(id(self))
+        self.path = object_path
         dbus.service.Object.__init__(self, conn, self.path, bus_name)
         self.job = job
         self.session = session
@@ -978,11 +999,6 @@ class RunningJob(dbus.service.Object):
         job_result = DiskJobResult(self.result)
         self.emitJobResultAvailable(self.job, job_result)
 
-    @dbus.service.method(
-        dbus_interface=RUNNING_JOB_IFACE, in_signature='s', out_signature='')
-    def SetComments(self, comments):
-        pass
-
     def _command_callback(self, return_code, record_path):
         self.result['return_code'] = return_code
         self.result['io_log_filename'] = record_path
@@ -1001,6 +1017,7 @@ class RunningJob(dbus.service.Object):
     @dbus.service.method(
         dbus_interface=RUNNING_JOB_IFACE, in_signature='', out_signature='')
     def RunCommand(self):
+        # FIXME: this thread object leaks, it needs to be .join()ed
         runner = Thread(target=self._run_command,
                         args=(self.session, self.job, self))
         runner.start()
@@ -1027,7 +1044,7 @@ class RunningJob(dbus.service.Object):
 
     def emitJobResultAvailable(self, job, result):
         result_wrapper = JobResultWrapper(result)
-        result_wrapper.publish_objects(self.connection)
+        result_wrapper.publish_related_objects(self.connection)
         job_path = PlainBoxObjectWrapper.find_wrapper_by_native(job)
         result_path = PlainBoxObjectWrapper.find_wrapper_by_native(result)
         self.JobResultAvailable(job_path, result_path)

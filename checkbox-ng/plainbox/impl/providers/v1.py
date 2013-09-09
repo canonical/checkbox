@@ -1,4 +1,3 @@
-
 # This file is part of Checkbox.
 #
 # Copyright 2013 Canonical Ltd.
@@ -19,133 +18,22 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-:mod:`plainbox.impl.provider` -- PlainBox providers
-===================================================
-
-Providers are a mechanism by which PlainBox can enumerate jobs and whitelists.
-Currently there are only v1 (as in version one) providers that basically have
-to behave as CheckBox itself (mini CheckBox forks for example)
-
-There is ongoing work and discussion on V2 providers that would have a
-lower-level interface and would be able to define new job types, new whitelist
-types and generally all the next-gen semantics.
-
-PlainBox does not come with any real provider by default. PlainBox sometimes
-creates special dummy providers that have particular data in them for testing.
-
-
-V1 providers
-------------
-
-The first (current) version of PlainBox providers has the following properties,
-this is also described by :class:`IProvider1`::
-
-    * there is a directory with '.txt' or '.txt.in' files with RFC822-encoded
-      job definitions. The definitions need a particular set of keys to work.
-
-    * there is a directory with '.whitelist' files that contain a list (one per
-      line) of job definitions to execute.
-
-    * there is a directory with additional executables (added to PATH)
-
-    * there is a directory with an additional python3 libraries (added to
-      PYTHONPATH)
+:mod:`plainbox.impl.providers.v1` -- Implementation of V1 provider
+==================================================================
 """
 
-import abc
 import logging
 import os
 import io
 
+from plainbox.abc import IProvider1, IProviderBackend1
 from plainbox.impl.applogic import WhiteList
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.plugins import PlugInCollection
 from plainbox.impl.rfc822 import load_rfc822_records
 
 
-logger = logging.getLogger("plainbox.provider")
-
-
-class ProviderNotFound(LookupError):
-    """
-    Exception used to report that a provider cannot be located
-    """
-
-
-class IProviderBackend1(metaclass=abc.ABCMeta):
-    """
-    Provider for the current type of tests.
-
-    This class provides the APIs required by the internal implementation
-    that are not considered normal public APIs. The only consumer of the
-    those methods and properties are internal to plainbox.
-    """
-
-    @abc.abstractproperty
-    def CHECKBOX_SHARE(self):
-        """
-        Return the required value of CHECKBOX_SHARE environment variable.
-
-        .. note::
-            This variable is only required by one script.
-            It would be nice to remove this later on.
-        """
-
-    @abc.abstractproperty
-    def extra_PYTHONPATH(self):
-        """
-        Return additional entry for PYTHONPATH, if needed.
-
-        This entry is required for CheckBox scripts to import the correct
-        CheckBox python libraries.
-
-        .. note::
-            The result may be None
-        """
-
-    @abc.abstractproperty
-    def extra_PATH(self):
-        """
-        Return additional entry for PATH
-
-        This entry is required to lookup CheckBox scripts.
-        """
-
-
-class IProvider1(metaclass=abc.ABCMeta):
-    """
-    Provider for the current type of tests
-
-    Also known as the 'checkbox-like' provider.
-    """
-
-    @abc.abstractproperty
-    def name(self):
-        """
-        name of this provider
-
-        This name should be dbus-friendly. It should not be localizable.
-        """
-
-    @abc.abstractproperty
-    def description(self):
-        """
-        description of this providr
-
-        This name should be dbus-friendly. It should not be localizable.
-        """
-
-    @abc.abstractmethod
-    def get_builtin_jobs(self):
-        """
-        Load all the built-in jobs and return them
-        """
-
-    @abc.abstractmethod
-    def get_builtin_whitelists(self):
-        """
-        Load all the built-in whitelists and return them
-        """
+logger = logging.getLogger("plainbox.providers.v1")
 
 
 class Provider1(IProvider1, IProviderBackend1):

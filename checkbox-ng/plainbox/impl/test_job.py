@@ -24,7 +24,6 @@ plainbox.impl.test_job
 Test definitions for plainbox.impl.job module
 """
 
-import json
 import os
 from unittest import TestCase
 
@@ -33,7 +32,6 @@ from mock import Mock
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.rfc822 import RFC822Record
 from plainbox.impl.rfc822 import Origin
-from plainbox.impl.session import SessionStateEncoder
 from plainbox.testing_utils.testcases import TestCaseWithParameters
 
 
@@ -183,24 +181,6 @@ class TestJobDefinition(TestCase):
             'requires': "foo.bar == bar"})
         self.assertRaises(Exception, job.get_resource_dependencies)
 
-    def test_encode(self):
-        job = JobDefinition({
-            'name': 'name',
-            'plugin': 'plugin',
-            'requires': "foo.bar == bar"})
-        job_enc = job._get_persistance_subset()
-        self.assertEqual(job_enc['data']['plugin'], job.plugin)
-        self.assertEqual(job_enc['data']['name'], job.name)
-        self.assertEqual(job_enc['data']['requires'], job.requires)
-        with self.assertRaises(KeyError):
-            job_enc['depends']
-        with self.assertRaises(KeyError):
-            job_enc['description']
-        with self.assertRaises(KeyError):
-            job_enc['command']
-        with self.assertRaises(KeyError):
-            job_enc['origin']
-
     def test_checksum_smoke(self):
         job1 = JobDefinition({
             'name': 'name',
@@ -222,20 +202,6 @@ class TestJobDefinition(TestCase):
         self.assertEqual(
             job1.get_checksum(),
             "ad137ba3654827cb07a254a55c5e2a8daa4de6af604e84ccdbe9b7f221014362")
-
-    def test_decode(self):
-        raw_json = """{
-                "_class_id": "JOB_DEFINITION",
-                "data": {
-                    "name": "camera/still",
-                    "plugin": "user-verify"
-                }
-            }"""
-        job_dec = json.loads(
-            raw_json, object_hook=SessionStateEncoder().dict_to_object)
-        self.assertIsInstance(job_dec, JobDefinition)
-        self.assertEqual(job_dec.name, "camera/still")
-        self.assertEqual(job_dec.plugin, "user-verify")
 
     def test_via_does_not_change_checksum(self):
         parent = JobDefinition({'name': 'parent', 'plugin': 'local'})

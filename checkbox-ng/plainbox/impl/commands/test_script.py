@@ -32,7 +32,7 @@ import mock
 
 from plainbox.impl.applogic import PlainBoxConfig
 from plainbox.impl.commands.script import ScriptInvocation, ScriptCommand
-from plainbox.impl.provider import DummyProvider1
+from plainbox.impl.providers.v1 import DummyProvider1
 from plainbox.impl.testing_utils import make_job
 from plainbox.testing_utils.io import TestIO
 

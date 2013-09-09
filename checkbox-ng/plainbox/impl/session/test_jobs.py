@@ -32,7 +32,6 @@ from plainbox.abc import IJobResult
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.session import JobReadinessInhibitor
 from plainbox.impl.session import JobState
-from plainbox.impl.session import SessionStateEncoder
 from plainbox.impl.session import UndesiredJobReadinessInhibitor
 from plainbox.impl.testing_utils import make_job, make_job_result
 
@@ -157,6 +156,45 @@ class JobStateTests(TestCase):
         self.job_state.result = result
         self.assertIs(self.job_state.result, result)
 
+    def test_setting_result_fires_signal(self):
+        """
+        verify that assigning state.result fires the on_result_changed signal
+        """
+        # Remember both new and old result for verification
+        new_result = make_job_result()
+        old_result = self.job_state.result
+
+        def changed_callback(old, new):
+            # Verify that new and old are correct and not swapped
+            self.assertIs(new, new_result)
+            self.assertIs(old, old_result)
+            # Set a flag that we verify below in case this never gets called
+            self.on_changed_fired = True
+        # Connect the signal handler
+        self.job_state.on_result_changed.connect(changed_callback)
+        # Assign the new result
+        self.job_state.result = new_result
+        # Ensure that the signal was fired and called our callback
+        self.assertTrue(self.on_changed_fired)
+
+    def test_setting_result_fires_signal_only_when_real_change_happens(self):
+        """
+        verify that assigning state.result does NOT fire the signal when the
+        new result is the same
+        """
+        # Assume we never get called and reset the flag
+        self.on_changed_fired = False
+
+        def changed_callback(old, new):
+            # Set the flag in case we do get called
+            self.on_changed_fired = True
+        # Connect the signal handler
+        self.job_state.on_result_changed.connect(changed_callback)
+        # Assign the same result again
+        self.job_state.result = self.job_state.result
+        # Ensure that the signal was NOT fired
+        self.assertFalse(self.on_changed_fired)
+
     def test_setting_readiness_inhibitor_list(self):
         inhibitor = JobReadinessInhibitor(JobReadinessInhibitor.UNDESIRED)
         self.job_state.readiness_inhibitor_list = [inhibitor]
@@ -178,59 +216,3 @@ class JobStateTests(TestCase):
         self.assertTrue(
             self.job_state.get_readiness_description().startswith(
                 "job cannot be started: "))
-
-    def test_encode_resource_job(self):
-        self.job_R = make_job("R", plugin="resource")
-        result_R = MemoryJobResult({
-            'outcome': IJobResult.OUTCOME_PASS,
-            'io_log': ((0, 'stdout', "attr: value\n"),)
-        })
-        jobstate = JobState(self.job_R)
-        jobstate.result = result_R
-        jobstate_enc = jobstate._get_persistance_subset()
-        # The inhibitor list is not saved
-        with self.assertRaises(KeyError):
-            jobstate_enc['_readiness_inhibitor_list']
-        # Resource have to be re evealutated on startup, outcome of the job
-        # must be reset to IJobResult.OUTCOME_NONE
-        self.assertEqual(
-            jobstate_enc['_result'].outcome,
-            IJobResult.OUTCOME_NONE)
-
-    def test_encode_normal_job(self):
-        result = MemoryJobResult({
-            'outcome': IJobResult.OUTCOME_PASS,
-        })
-        self.job_state.result = result
-        jobstate_enc = self.job_state._get_persistance_subset()
-        # The inhibitor list is not saved
-        with self.assertRaises(KeyError):
-            jobstate_enc['_readiness_inhibitor_list']
-        # Normal jobs should keep their outcome value
-        self.assertEqual(jobstate_enc['_result'].outcome,
-                         IJobResult.OUTCOME_PASS)
-
-    def test_decode(self):
-        raw_json = """{
-            "_class_id": "JOB_STATE",
-            "_job": {
-                "_class_id": "JOB_DEFINITION",
-                "data": {
-                    "name": "X",
-                    "plugin": "dummy"
-                }
-            },
-            "_result": {
-                "_class_id": "JOB_RESULT(m)",
-                "data": {
-                    "comments": null,
-                    "outcome": "pass",
-                    "return_code": null
-                }
-            }
-        }"""
-        job_dec = json.loads(
-            raw_json, object_hook=SessionStateEncoder().dict_to_object)
-        self.assertIsInstance(job_dec, JobState)
-        self.assertEqual(
-            repr(job_dec._result), "<MemoryJobResult outcome:'pass'>")

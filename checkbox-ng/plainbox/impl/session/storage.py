@@ -74,6 +74,15 @@ class SessionStorageRepository:
     def get_last_storage(self):
         """
         Find the last session storage object created in this repository.
+
+        :returns:
+            SessionStorage object associated with the last session created in
+            this repository using legacy mode.
+
+        .. note::
+            This will only return storage objects that were created using
+            legacy mode. Nonlegacy storage objects will not be returned this
+            way.
         """
         pathname = os.path.join(self.location, self._LAST_SESSION_SYMLINK)
         try:

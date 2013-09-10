@@ -128,7 +128,7 @@ class SessionStorageRepository:
 
     def __iter__(self):
         """
-        Same as :meth:`enumerate_sessions()`
+        Same as :meth:`get_storage_list()`
         """
         return iter(self.get_storage_list())
 

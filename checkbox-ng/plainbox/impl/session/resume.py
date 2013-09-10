@@ -182,17 +182,23 @@ class SessionResumeHelper:
         """
         # Construct a fresh session object.
         session = SessionState(self.job_list)
+        logger.debug("Constructed new session for resume %r", session)
         # Give early_cb a chance to see the session before we start resuming.
         # This way applications can see, among other things, generated jobs
         # as they are added to the session, by registering appropriate signal
         # handlers on the freshly-constructed session instance.
         if early_cb is not None:
+            logger.debug("Invoking early callback %r", early_cb)
             early_cb(session)
         # Restore bits and pieces of state
+        logger.debug("Starting to restore jobs and results...")
         self._restore_SessionState_jobs_and_results(session, session_repr)
+        logger.debug("Starting to restore metadata...")
         self._restore_SessionState_metadata(session, session_repr)
+        logger.debug("Starting to restore desired job list...")
         self._restore_SessionState_desired_job_list(session, session_repr)
         # Return whatever we've got
+        logger.debug("Resume complete!")
         return session
 
     def _restore_SessionState_jobs_and_results(self, session, session_repr):
@@ -296,6 +302,8 @@ class SessionResumeHelper:
         # result but showing the most recent (last) result should be good
         # in general.
         if len(result_list) > 0:
+            logger.debug(
+                "calling update_job_result(%r, %r)", job, result_list[-1])
             session.update_job_result(job, result_list[-1])
 
     @classmethod
@@ -319,6 +327,7 @@ class SessionResumeHelper:
         session.metadata.running_job_name = _validate(
             metadata_repr, key='running_job_name', value_type=str,
             value_none=True)
+        logger.debug("restored metadata %r", session.metadata)
 
     @classmethod
     def _restore_SessionState_desired_job_list(cls, session, session_repr):
@@ -338,6 +347,7 @@ class SessionResumeHelper:
             for job_name in _validate(
                 session_repr, key='desired_job_list', value_type=list)]
         # Restore job selection
+        logger.debug("calling update_desired_job_list(%r)", desired_job_list)
         try:
             session.update_desired_job_list([
                 session.job_state_map[job_name].job

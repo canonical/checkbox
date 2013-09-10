@@ -113,7 +113,7 @@ class SessionStorageRepository:
             # Don't silence any other errors
             raise
         session_list = []
-        # Check each item by constructing SuspendedSessionState.
+        # Check each item by looking for directories
         for item in item_list:
             pathname = os.path.join(self.location, item)
             # Make sure not to follow any symlinks here

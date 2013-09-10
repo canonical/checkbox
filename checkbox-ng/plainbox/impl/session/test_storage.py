@@ -28,6 +28,8 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 import os
 
+import mock
+
 from plainbox.impl.session.storage import SessionStorage
 from plainbox.impl.session.storage import SessionStorageRepository
 
@@ -96,9 +98,27 @@ class SessionStorageRepositoryTests(TestCase):
             # Make sure it's not valid
             self.assertEqual(storage, None)
 
-    def test_get_default_location(self):
-        # TODO: implement this by mocking os.environ
-        pass
+    def test_get_default_location_with_XDG_CACHE_HOME(self):
+        """
+        verify return value of get_default_location() when XDG_CACHE_HOME is
+        set and HOME has any value.
+        """
+        env_patch = {'XDG_CACHE_HOME': 'XDG_CACHE_HOME'}
+        with mock.patch.dict('os.environ', values=env_patch):
+            measured = SessionStorageRepository.get_default_location()
+            expected = "XDG_CACHE_HOME/plainbox/sessions"
+            self.assertEqual(measured, expected)
+
+    def test_get_default_location_with_HOME(self):
+        """
+        verify return value of get_default_location() when XDG_CACHE_HOME is
+        not set but HOME is set
+        """
+        env_patch = {'HOME': 'HOME'}
+        with mock.patch.dict('os.environ', values=env_patch, clear=True):
+            measured = SessionStorageRepository.get_default_location()
+            expected = "HOME/.cache/plainbox/sessions"
+            self.assertEqual(measured, expected)
 
 
 class SessionStorageTests(TestCase):

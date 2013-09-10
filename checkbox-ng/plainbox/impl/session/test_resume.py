@@ -29,7 +29,9 @@ import base64
 import binascii
 import copy
 import gzip
+import json
 
+from plainbox.impl.job import JobDefinition
 from plainbox.impl.resource import Resource
 from plainbox.impl.result import DiskJobResult
 from plainbox.impl.result import IOLogRecord
@@ -103,6 +105,98 @@ class SessionResumeTests(TestCase):
         with self.assertRaises(CorruptedSessionError) as boom:
             SessionResumeHelper([]).resume(data)
         self.assertIsInstance(boom.exception.__context__, ValueError)
+
+
+class EndToEndTests(TestCase):
+
+    full_repr = {
+        'version': 1,
+        'session': {
+            'jobs': {
+                '__category__': (
+                    '5267192a5eac9288d144242d800b981eeca476c17e0'
+                    'dd32a09c4b3ea0a14f955'),
+                'generator': (
+                    '7e67e23b7e7a6a5803721a9f282c0e88c7f40bae470'
+                    '950f880e419bb9c7665d8'),
+                'generated': (
+                    'bfee8c57b6adc9f0f281b59fe818de2ed98b6affb78'
+                    '9cf4fbf282d89453190d3'),
+            },
+            'results': {
+                '__category__': [{
+                    'comments': None,
+                    'execution_duration': None,
+                    'io_log': [
+                        [0.0, 'stdout', 'cGx1Z2luOmxvY2FsCg=='],
+                        [0.1, 'stdout', 'bmFtZTpnZW5lcmF0b3IK']],
+                    'outcome': None,
+                    'return_code': None,
+                }],
+                'generator': [{
+                    'comments': None,
+                    'execution_duration': None,
+                    'io_log': [
+                        [0.0, 'stdout', 'bmFtZTpnZW5lcmF0ZWQ=']],
+                    'outcome': None,
+                    'return_code': None,
+                }],
+                'generated': [{
+                    'comments': None,
+                    'execution_duration': None,
+                    'io_log': [],
+                    'outcome': None,
+                    'return_code': None,
+                }]
+            },
+            'desired_job_list': ['__category__', 'generator'],
+            'metadata': {
+                'flags': [],
+                'running_job_name': None,
+                'title': None
+            },
+        }
+    }
+
+    def setUp(self):
+        # Crete a "__category__" job
+        self.category_job = JobDefinition({
+            "plugin": "local",
+            "name": "__category__"
+        })
+        # Create a "generator" job
+        self.generator_job = JobDefinition({
+            "plugin": "local",
+            "name": "generator"
+        })
+        # Keep a variable for the (future) generated job
+        self.generated_job = None
+        # Create a result for the "__category__" job.
+        # It must define a verbatim copy of the "generator" job
+        self.category_result = MemoryJobResult({
+            "io_log": [
+                (0.0, "stdout", b'plugin:local\n'),
+                (0.1, "stdout", b'name:generator\n'),
+            ]
+        })
+        # Create a result for the "generator" job.
+        # It will define the "generated" job
+        self.generator_result = MemoryJobResult({
+            "io_log": [(0.0, 'stdout', b'name:generated')]
+        })
+        self.job_list = [self.category_job, self.generator_job]
+        self.suspend_data = gzip.compress(
+            json.dumps(self.full_repr).encode("UTF-8"))
+
+    def test_resume_early_callback(self):
+        """
+        verify that early_cb is called with a session object
+        """
+        def early_cb(session):
+            self.seen_session = session
+        session = SessionResumeHelper(self.job_list).resume(
+            self.suspend_data, early_cb)
+        self.assertIs(session, self.seen_session)
 
 
 class IOLogRecordResumeTests(TestCase):

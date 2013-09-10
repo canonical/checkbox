@@ -112,25 +112,30 @@ class SessionResumeHelper:
         """
         self.job_list = job_list
 
-    def resume(self, data):
+    def resume(self, data, early_cb=None):
         """
         Resume a dormant session.
 
         :param data:
-            bytes representing the dormant session
-
+            Bytes representing the dormant session
+        :param early_cb:
+            A callback that allows the caller to "see" the session object
+            early, before the bulk of resume operation happens. This method can
+            be used to register signal listeners on the new session before this
+            method call returns. The callback accepts one argument, session,
+            which is being resumed.
         :returns:
             resumed session instance
         :rtype:
             :class:`~plainbox.impl.session.state.SessionState`
 
         This method validates the representation of a dormant session and
-        re-creates a similar-but-not-identical SessionState instance.
-        It can fail in multiple ways, some of which are a part of normal
-        operation and should always be handled (:class:`IncompatibleJobError`
-        and :class:`IncompatibleJobError`). Applications may wish to capture
-        :class:`SessionResumeError` as a generic base exception for all
-        the possible problems.
+        re-creates a similar-but-not-identical SessionState instance. It can
+        fail in multiple ways, some of which are a part of normal operation and
+        should always be handled (:class:`IncompatibleJobError` and
+        :class:`IncompatibleJobError`). Applications may wish to capture
+        :class:`SessionResumeError` as a generic base exception for all the
+        possible problems.
 
         :raises CorruptedSessionError:
             if the representation of the session is corrupted in any way
@@ -151,9 +156,9 @@ class SessionResumeHelper:
             json_repr = json.loads(text)
         except ValueError:
             raise CorruptedSessionError("Cannot interpret session JSON")
-        return self._resume_json(json_repr)
+        return self._resume_json(json_repr, early_cb)
 
-    def _resume_json(self, json_repr):
+    def _resume_json(self, json_repr, early_cb=None):
         """
         Resume a SessionState object from the JSON representation.
 
@@ -166,9 +171,9 @@ class SessionResumeHelper:
         _validate(json_repr, value_type=dict)
         _validate(json_repr, key="version", choice=[1])
         session_repr = _validate(json_repr, key='session', value_type=dict)
-        return self._build_SessionState(session_repr)
+        return self._build_SessionState(session_repr, early_cb)
 
-    def _build_SessionState(self, session_repr):
+    def _build_SessionState(self, session_repr, early_cb=None):
         """
         Reconstruct the session state object.
 
@@ -177,11 +182,23 @@ class SessionResumeHelper:
         """
         # Construct a fresh session object.
         session = SessionState(self.job_list)
+        logger.debug("Constructed new session for resume %r", session)
+        # Give early_cb a chance to see the session before we start resuming.
+        # This way applications can see, among other things, generated jobs
+        # as they are added to the session, by registering appropriate signal
+        # handlers on the freshly-constructed session instance.
+        if early_cb is not None:
+            logger.debug("Invoking early callback %r", early_cb)
+            early_cb(session)
         # Restore bits and pieces of state
+        logger.debug("Starting to restore jobs and results...")
         self._restore_SessionState_jobs_and_results(session, session_repr)
+        logger.debug("Starting to restore metadata...")
         self._restore_SessionState_metadata(session, session_repr)
+        logger.debug("Starting to restore desired job list...")
         self._restore_SessionState_desired_job_list(session, session_repr)
         # Return whatever we've got
+        logger.debug("Resume complete!")
         return session
 
     def _restore_SessionState_jobs_and_results(self, session, session_repr):
@@ -285,6 +302,8 @@ class SessionResumeHelper:
         # result but showing the most recent (last) result should be good
         # in general.
         if len(result_list) > 0:
+            logger.debug(
+                "calling update_job_result(%r, %r)", job, result_list[-1])
             session.update_job_result(job, result_list[-1])
 
     @classmethod
@@ -308,6 +327,7 @@ class SessionResumeHelper:
         session.metadata.running_job_name = _validate(
             metadata_repr, key='running_job_name', value_type=str,
             value_none=True)
+        logger.debug("restored metadata %r", session.metadata)
 
     @classmethod
     def _restore_SessionState_desired_job_list(cls, session, session_repr):
@@ -327,6 +347,7 @@ class SessionResumeHelper:
             for job_name in _validate(
                 session_repr, key='desired_job_list', value_type=list)]
         # Restore job selection
+        logger.debug("calling update_desired_job_list(%r)", desired_job_list)
         try:
             session.update_desired_job_list([
                 session.job_state_map[job_name].job

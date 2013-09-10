@@ -245,7 +245,7 @@ class JobState:
         Event fired when the result associated with this job state changes
         """
         logger.info(
-            "Result fob %s changed from %r to %r",
+            "Result for %s changed from %r to %r",
             self.job.name, old, new)
 
     def can_start(self):

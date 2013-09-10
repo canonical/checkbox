@@ -69,6 +69,11 @@ class PlainBoxObjectWrapper(dbus.service.ObjectWrapper):
     to DBus.
     """
 
+    # Use a different logger for the translate decorator.
+    # This is just so that we don't spam people that want to peek
+    # at the service module.
+    _logger = logging.getLogger("plainbox.dbus.service.translate")
+
     def __init__(self,
                  native,
                  conn=None, object_path=None, bus_name=None,
@@ -188,7 +193,7 @@ class PlainBoxObjectWrapper(dbus.service.ObjectWrapper):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             bound = sig.bind(*args, **kwargs)
-            logger.debug(
+            cls._logger.debug(
                 "wrapped %s called with %s", func, bound.arguments)
             for param in sig.parameters.values():
                 if param.annotation is Signature.empty:
@@ -207,10 +212,10 @@ class PlainBoxObjectWrapper(dbus.service.ObjectWrapper):
                     raise ValueError(
                         "unsupported translation {!r}".format(
                             param.annotation))
-            logger.debug(
+            cls._logger.debug(
                 "unwrapped %s called with %s", func, bound.arguments)
             retval = func(**bound.arguments)
-            logger.debug("unwrapped %s returned %r", func, retval)
+            cls._logger.debug("unwrapped %s returned %r", func, retval)
             if sig.return_annotation is Signature.empty:
                 pass
             elif sig.return_annotation == 'o':
@@ -223,7 +228,7 @@ class PlainBoxObjectWrapper(dbus.service.ObjectWrapper):
                 raise ValueError(
                     "unsupported translation {!r}".format(
                         sig.return_annotation))
-            logger.debug("wrapped %s returned  %r", func, retval)
+            cls._logger.debug("wrapped %s returned  %r", func, retval)
             return retval
         return wrapper
 

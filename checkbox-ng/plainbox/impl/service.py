@@ -338,7 +338,7 @@ class WhiteListWrapper(PlainBoxObjectWrapper):
 
     def _get_preferred_object_path(self):
         # TODO: this clashes with providers, maybe use a random ID instead
-        return "/plainbox/whitelist/{}".format(self.native.name)
+        return "/plainbox/whitelist/{}".format(self.native.name.replace("-", "_"))
 
     # Value added
 

@@ -112,25 +112,30 @@ class SessionResumeHelper:
         """
         self.job_list = job_list
 
-    def resume(self, data):
+    def resume(self, data, early_cb=None):
         """
         Resume a dormant session.
 
         :param data:
-            bytes representing the dormant session
-
+            Bytes representing the dormant session
+        :param early_cb:
+            A callback that allows the caller to "see" the session object
+            early, before the bulk of resume operation happens. This method can
+            be used to register signal listeners on the new session before this
+            method call returns. The callback accepts one argument, session,
+            which is being resumed.
         :returns:
             resumed session instance
         :rtype:
             :class:`~plainbox.impl.session.state.SessionState`
 
         This method validates the representation of a dormant session and
-        re-creates a similar-but-not-identical SessionState instance.
-        It can fail in multiple ways, some of which are a part of normal
-        operation and should always be handled (:class:`IncompatibleJobError`
-        and :class:`IncompatibleJobError`). Applications may wish to capture
-        :class:`SessionResumeError` as a generic base exception for all
-        the possible problems.
+        re-creates a similar-but-not-identical SessionState instance. It can
+        fail in multiple ways, some of which are a part of normal operation and
+        should always be handled (:class:`IncompatibleJobError` and
+        :class:`IncompatibleJobError`). Applications may wish to capture
+        :class:`SessionResumeError` as a generic base exception for all the
+        possible problems.
 
         :raises CorruptedSessionError:
             if the representation of the session is corrupted in any way
@@ -151,9 +156,9 @@ class SessionResumeHelper:
             json_repr = json.loads(text)
         except ValueError:
             raise CorruptedSessionError("Cannot interpret session JSON")
-        return self._resume_json(json_repr)
+        return self._resume_json(json_repr, early_cb)
 
-    def _resume_json(self, json_repr):
+    def _resume_json(self, json_repr, early_cb=None):
         """
         Resume a SessionState object from the JSON representation.
 
@@ -166,9 +171,9 @@ class SessionResumeHelper:
         _validate(json_repr, value_type=dict)
         _validate(json_repr, key="version", choice=[1])
         session_repr = _validate(json_repr, key='session', value_type=dict)
-        return self._build_SessionState(session_repr)
+        return self._build_SessionState(session_repr, early_cb)
 
-    def _build_SessionState(self, session_repr):
+    def _build_SessionState(self, session_repr, early_cb=None):
         """
         Reconstruct the session state object.
 
@@ -177,6 +182,12 @@ class SessionResumeHelper:
         """
         # Construct a fresh session object.
         session = SessionState(self.job_list)
+        # Give early_cb a chance to see the session before we start resuming.
+        # This way applications can see, among other things, generated jobs
+        # as they are added to the session, by registering appropriate signal
+        # handlers on the freshly-constructed session instance.
+        if early_cb is not None:
+            early_cb(session)
         # Restore bits and pieces of state
         self._restore_SessionState_jobs_and_results(session, session_repr)
         self._restore_SessionState_metadata(session, session_repr)

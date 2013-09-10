@@ -169,7 +169,7 @@ class SessionManager:
         return cls(state, storage)
 
     @classmethod
-    def load_session(cls, job_list, storage):
+    def load_session(cls, job_list, storage, early_cb=None):
         """
         Open a previously checkpointed session.
 
@@ -192,6 +192,13 @@ class SessionManager:
             before it was saved.
         :ptype storage:
             :class:`~plainbox.impl.session.storage.SessionStorage`
+        :param early_cb:
+            A callback that allows the caller to "see" the session object
+            early, before the bulk of resume operation happens. This method can
+            be used to register callbacks on the new session before this method
+            call returns. The callback accepts one argument, session, which is
+            being resumed. This is being passed directly to
+            :meth:`plainbox.impl.session.resume.SessionResumeHelper.resume()`
         :raises:
             Anything that can be raised by
             :meth:`~plainbox.impl.session.storage.SessionStorage.
@@ -202,7 +209,7 @@ class SessionManager:
         """
         logger.debug("SessionManager.open_session()")
         data = storage.load_checkpoint()
-        state = SessionResumeHelper(job_list).resume(data)
+        state = SessionResumeHelper(job_list).resume(data, early_cb)
         return cls(state, storage)
 
     def checkpoint(self):

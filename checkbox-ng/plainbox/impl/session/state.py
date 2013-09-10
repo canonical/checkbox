@@ -67,6 +67,11 @@ class SessionMetaData:
         self._flags = set(flags)
         self._running_job_name = running_job_name
 
+    def __repr__(self):
+        return "<{} title:{!r} flags:{!r} running_job_name:{!r}>".format(
+            self.__class__.__name__, self.title, self.flags,
+            self.running_job_name)
+
     @property
     def title(self):
         """

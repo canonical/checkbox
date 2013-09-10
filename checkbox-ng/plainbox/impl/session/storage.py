@@ -74,6 +74,15 @@ class SessionStorageRepository:
     def get_last_storage(self):
         """
         Find the last session storage object created in this repository.
+
+        :returns:
+            SessionStorage object associated with the last session created in
+            this repository using legacy mode.
+
+        .. note::
+            This will only return storage objects that were created using
+            legacy mode. Nonlegacy storage objects will not be returned this
+            way.
         """
         pathname = os.path.join(self.location, self._LAST_SESSION_SYMLINK)
         try:
@@ -113,7 +122,7 @@ class SessionStorageRepository:
             # Don't silence any other errors
             raise
         session_list = []
-        # Check each item by constructing SuspendedSessionState.
+        # Check each item by looking for directories
         for item in item_list:
             pathname = os.path.join(self.location, item)
             # Make sure not to follow any symlinks here
@@ -128,7 +137,7 @@ class SessionStorageRepository:
 
     def __iter__(self):
         """
-        Same as :meth:`enumerate_sessions()`
+        Same as :meth:`get_storage_list()`
         """
         return iter(self.get_storage_list())
 

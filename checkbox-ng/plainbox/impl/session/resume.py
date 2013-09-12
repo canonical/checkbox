@@ -189,9 +189,13 @@ class SessionResumeHelper:
         # handlers on the freshly-constructed session instance.
         if early_cb is not None:
             logger.debug("Invoking early callback %r", early_cb)
-            early_cb(session)
+            new_session = early_cb(session)
+            if new_session is not None:
+                logger.debug(
+                    "Using different session for resume: %r", new_session)
+                session = new_session
         # Restore bits and pieces of state
-        logger.debug("Starting to restore jobs and results...")
+        logger.debug("Starting to restore jobs and results to %r...", session)
         self._restore_SessionState_jobs_and_results(session, session_repr)
         logger.debug("Starting to restore metadata...")
         self._restore_SessionState_metadata(session, session_repr)

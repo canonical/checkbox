@@ -217,16 +217,8 @@ class SessionStateLegacyAPICompatImpl(SessionState, ISessionStateLegacyAPI):
         last_storage = SessionStorageRepository().get_last_storage()
         assert last_storage is not None, "no saved session to resume"
         self._manager = SessionManager.load_session(
-            self.job_list, last_storage)
-        # Copy over the resumed state to this instance
-        self._job_list = self._manager.state._job_list
-        self._job_state_map = self._manager.state._job_state_map
-        self._run_list = self._manager.state._run_list
-        self._desired_job_list = self._manager.state._desired_job_list
-        self._resource_map = self._manager.state._resource_map
-        self._metadata = self._manager.state._metadata
-        # Copy this instance over what the manager manages
-        self._manager._state = self
+            self.job_list, last_storage, lambda session: self)
+        logger.debug("_commit_resume() finished")
 
     @property
     def session_dir(self):

@@ -301,17 +301,19 @@ class JobDefinitionWrapper(PlainBoxObjectWrapper):
     @dbus.service.method(dbus_interface=JOB_IFACE,
                          in_signature='', out_signature='as')
     def GetDirectDependencies(self):
-        return self.native.get_direct_dependencies()
+        return dbus.Array(
+            self.native.get_direct_dependencies(), signature="s")
 
     @dbus.service.method(dbus_interface=JOB_IFACE,
                          in_signature='', out_signature='as')
     def GetResourceDependencies(self):
-        return self.native.get_resource_dependencies()
+        return dbus.Array(
+            self.native.get_resource_dependencies(), signature="s")
 
     @dbus.service.method(dbus_interface=CHECKBOX_JOB_IFACE,
                          in_signature='', out_signature='as')
     def GetEnvironSettings(self):
-        return self.native.get_environ_settings()
+        return dbus.Array(self.native.get_environ_settings(), signature='s')
 
     # CheckBox properties
 
@@ -378,8 +380,10 @@ class WhiteListWrapper(PlainBoxObjectWrapper):
         """
         Get a list of regular expression patterns that make up this whitelist
         """
-        return [qualifier.pattern_text
-                for qualifier in self.native.inclusive_qualifier_list]
+        return dbus.Array([
+            qualifier.pattern_text
+            for qualifier in self.native.inclusive_qualifier_list],
+            signature='s')
 
     @dbus.service.method(
         dbus_interface=WHITELIST_IFACE, in_signature='o', out_signature='b')

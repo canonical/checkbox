@@ -408,12 +408,12 @@ class JobResultWrapper(PlainBoxObjectWrapper):
     ])
 
     def __shared_initialize__(self, **kwargs):
-        self.native.on_comments_changed.connect(self.on_comments_changed)
-        self.native.on_outcome_changed.connect(self.on_outcome_changed)
+        self.native.on_outcome_changed.connect(self._outcome_changed)
+        self.native.on_comments_changed.connect(self._comments_changed)
 
     def __del__(self):
-        self.native.on_comments_changed.disconnect(self.on_comments_changed)
-        self.native.on_outcome_changed.disconnect(self.on_outcome_changed)
+        self.native.on_comments_changed.disconnect(self._comments_changed)
+        self.native.on_outcome_changed.disconnect(self._outcome_changed)
 
     # Value added
 
@@ -422,7 +422,7 @@ class JobResultWrapper(PlainBoxObjectWrapper):
         """
         outcome of the job
 
-        The result is one of a set of fixed strings
+        The result is one of a set of fixed strings.
         """
         # XXX: it would be nice if we could not do this remapping.
         return self.native.outcome or "none"
@@ -437,9 +437,12 @@ class JobResultWrapper(PlainBoxObjectWrapper):
             new_value = None
         self.native.outcome = new_value
 
-    @Signal.define
-    def on_outcome_changed(self, old, new):
-        logger.debug("on_outcome_changed(%r, %r)", old, new)
+    def _outcome_changed(self, old, new):
+        """
+        Internal method called when the value of self.native.outcome changes
+
+        It sends the DBus PropertiesChanged signal for the 'outcome' property.
+        """
         self.PropertiesChanged(JOB_RESULT_IFACE, {
             self.__class__.outcome._dbus_property: new
         }, [])
@@ -475,17 +478,23 @@ class JobResultWrapper(PlainBoxObjectWrapper):
     @dbus.service.property(dbus_interface=JOB_RESULT_IFACE, signature="s")
     def comments(self):
         """
-        Comment added by the operator
+        comment added by the operator
         """
         return self.native.comments or ""
 
     @comments.setter
     def comments(self, value):
+        """
+        set comments to a new value
+        """
         self.native.comments = value
 
-    @Signal.define
-    def on_comments_changed(self, old, new):
-        logger.debug("on_comments_changed(%r, %r)", old, new)
+    def _comments_changed(self, old, new):
+        """
+        Internal method called when the value of self.native.comments changes
+
+        It sends the DBus PropertiesChanged signal for the 'comments' property.
+        """
         self.PropertiesChanged(JOB_RESULT_IFACE, {
             self.__class__.comments._dbus_property: new
         }, [])

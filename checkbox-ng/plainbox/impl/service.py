@@ -27,7 +27,6 @@ import collections
 import functools
 import itertools
 import logging
-import random
 
 try:
     from inspect import Signature
@@ -38,12 +37,13 @@ except ImportError:
         raise SystemExit("DBus parts require 'funcsigs' from pypi.")
 from plainbox.vendor import extcmd
 
+from plainbox.abc import IJobResult
 from plainbox.impl import dbus
 from plainbox.impl.dbus import OBJECT_MANAGER_IFACE
+from plainbox.impl.job import JobDefinition
 from plainbox.impl.result import DiskJobResult
 from plainbox.impl.runner import JobRunner
-from plainbox.impl.signal import Signal
-
+from plainbox.impl.session import JobState
 
 logger = logging.getLogger("plainbox.service")
 
@@ -104,6 +104,13 @@ class PlainBoxObjectWrapper(dbus.service.ObjectWrapper):
         """
         Publish this object to the connection
         """
+        # Don't publish this object if it's already on the required connection
+        # TODO: check if we can just drop this test and publish unconditionally
+        try:
+            if self.connection is connection:
+                return
+        except AttributeError:
+            pass
         object_path = self._get_preferred_object_path()
         self.add_to_connection(connection, object_path)
         logger.debug("Published DBus wrapper for %r as %s",
@@ -116,6 +123,9 @@ class PlainBoxObjectWrapper(dbus.service.ObjectWrapper):
         Do not send ObjectManager events, just register any additional objects
         on the bus. By default only the object itself is published but
         collection managers are expected to publish all of the children here.
+
+        This method is meant to be called only once, soon after the object
+        is constructed but before :meth:`publish_managed_objects()` is called.
         """
         self.publish_self(connection)
 
@@ -125,6 +135,9 @@ class PlainBoxObjectWrapper(dbus.service.ObjectWrapper):
         and sends the right events. This is a separate stage so that the whole
         hierarchy can first put all of the objects on the bus and then tell the
         world about it in one big signal message.
+
+        This method is meant to be called only once, soon after
+        :meth:`publish_related_objects()` was called.
         """
 
     @classmethod
@@ -235,7 +248,12 @@ class PlainBoxObjectWrapper(dbus.service.ObjectWrapper):
 
 class JobDefinitionWrapper(PlainBoxObjectWrapper):
     """
-    Wrapper for exposing JobDefinition objects on DBus
+    Wrapper for exposing JobDefinition objects on DBus.
+
+    .. note::
+        Life cycle of JobDefinition wrappers is associated _either_
+        with a Provider wrapper or with a Session wrapper, depending
+        on if the job itself is generated or not.
     """
 
     HIDDEN_INTERFACES = frozenset([
@@ -372,7 +390,12 @@ class WhiteListWrapper(PlainBoxObjectWrapper):
 
 class JobResultWrapper(PlainBoxObjectWrapper):
     """
-    Wrapper for exposing JobResult objects on DBus
+    Wrapper for exposing JobResult objects on DBus.
+
+    This wrapper class exposes two mutable properties, 'outcome'
+    and 'comments'. Changing them either through native python APIs
+    or through DBus property API will result in synchronized updates
+    as well as property change notification signals being sent.
     """
 
     HIDDEN_INTERFACES = frozenset([
@@ -478,19 +501,50 @@ class JobResultWrapper(PlainBoxObjectWrapper):
 
 class JobStateWrapper(PlainBoxObjectWrapper):
     """
-    Wrapper for exposing JobState objects on DBus
+    Wrapper for exposing JobState objects on DBus.
+
+    Each job state wrapper has two related objects, job definition and job
+    result. The job state wrapper itself is not a object manager so all of
+    the managed objects belong in the session this job state is associated
+    with.
+
+    The job property is immutable. The result property is mutable but only
+    through native python API. Any changes to the result property are
+    propagated to changes in the DBus layer. When the 'result' property
+    changes it is not reflecting changes of the object referenced by that
+    property (those are separate) but instead indicates that the whole
+    referenced object has been replaced by another object.
+
+    Since JobStateWrapper is not an ObjectManager it does not manage the
+    exact lifecycle and does not keep a collection that would reference
+    the various result objects it must delegate this task to an instance
+    of SessionWrapper (the instance that it is associated with).
     """
 
     HIDDEN_INTERFACES = frozenset([
         OBJECT_MANAGER_IFACE,
     ])
 
-    def __shared_initialize__(self, **kwargs):
-        self._result_wrapper = JobResultWrapper(self.native.result)
+    def __shared_initialize__(self, session_wrapper, **kwargs):
+        # We need a reference to the session wrapper so that we can
+        # react to result changes.
+        self._session_wrapper = session_wrapper
+        # Let's cache (and hold) references to the wrappers that
+        # we should know about. This keeps them in the live set and makes
+        # accessing relevant properties faster.
+        self._result_wrapper = self.find_wrapper_by_native(self.native.result)
+        self._job_wrapper = self.find_wrapper_by_native(self.native.job)
+        # Connect to the on_result_changed signal so that we can keep the
+        # referenced 'result' wrapper in sync with the native result object.
+        self.native.on_result_changed.connect(self._result_changed)
+
+    def __del__(self):
+        self.native.on_result_changed.disconnect(self._result_changed)
 
     def publish_related_objects(self, connection):
         super(JobStateWrapper, self).publish_related_objects(connection)
         self._result_wrapper.publish_related_objects(connection)
+        self._job_wrapper.publish_related_objects(connection)
 
     # Value added
 
@@ -526,21 +580,22 @@ class JobStateWrapper(PlainBoxObjectWrapper):
         """
         return self.native.result
 
-    @Signal.define
-    def on_result_changed(self):
-        result_wrapper = JobResultWrapper(self.native.result)
-        try:
-            result_wrapper.publish_related_objects(self.connection)
-        except KeyError:
-            logger.warning("Result already exists for: %r", result_wrapper)
-            self.PropertiesChanged(JOB_STATE_IFACE, {
-                self.__class__.result._dbus_property:
-                result_wrapper._get_preferred_object_path()
-            }, [])
-        else:
-            self.PropertiesChanged(JOB_STATE_IFACE, {
-                self.__class__.result._dbus_property: result_wrapper
-            }, [])
+    def _result_changed(self, old, new):
+        """
+        Internal method called when the value of self.native.comments changes
+
+        It ensures that we have appropriate wrapper for the new result wrapper
+        and that it is properly accounted for by the session. It also sends
+        the DBus PropertiesChanged signal for the 'result' property.
+        """
+        # Add the new result object
+        result_wrapper = self._session_wrapper.add_result(new)
+        # Notify applications that the result property has changed
+        self.PropertiesChanged(JOB_STATE_IFACE, {
+            self.__class__.result._dbus_property: result_wrapper
+        }, [])
+        # Remove the old result object
+        self._session_wrapper.remove_result(old)
 
     @dbus.service.property(dbus_interface=JOB_STATE_IFACE, signature='a(isss)')
     def readiness_inhibitor_list(self):
@@ -594,13 +649,31 @@ class SessionWrapper(PlainBoxObjectWrapper):
     # a part of that (along with session storage)
 
     def __shared_initialize__(self, **kwargs):
-        self._job_state_map_wrapper = {
-            job_name: JobStateWrapper(job_state)
-            for job_name, job_state in self.native.job_state_map.items()
-        }
+        # Wrap the initial set of objects reachable via the session state map
+        # We don't use the add_{job,result,state}() methods as they also
+        # change managed_object_list and we just want to send one big event
+        # rather than a storm of tiny events.
+        self._job_state_map_wrapper = {}
+        for job_name, job_state in self.native.job_state_map.items():
+            # NOTE: we assume that each job is already wrapped by its provider
+            job_wrapper = self.find_wrapper_by_native(job_state.job)
+            assert job_wrapper is not None
+            # Wrap the result and the state object
+            result_wrapper = self._maybe_wrap(job_state.result)
+            assert result_wrapper is not None
+            state_wrapper = self._maybe_wrap(job_state)
+            self._job_state_map_wrapper[job_name] = state_wrapper
+        # Keep track of new jobs as they are added to the session
+        self.native.on_job_added.connect(self._job_added)
+
+    def __del__(self):
+        self.native.on_job_added.disconnect(self._job_added)
+        for wrapper in self.managed_objects:
+            wrapper.remove_from_connection()
 
     def publish_related_objects(self, connection):
-        self.publish_self(connection)
+        super(SessionWrapper, self).publish_related_objects(connection)
+        # Publish all the JobState wrappers and their related objects
         for job_state in self._job_state_map_wrapper.values():
             job_state.publish_related_objects(connection)
 
@@ -612,29 +685,154 @@ class SessionWrapper(PlainBoxObjectWrapper):
 
     def _iter_wrappers(self):
         return itertools.chain(
-            # Get all of the JobResult wrappers
+            # Get all of the JobState wrappers
             self._job_state_map_wrapper.values(),
-            # And all the JobDefinition wrappers
+            # And all the JobResult wrappers
             [self.find_wrapper_by_native(job_state_wrapper.native.result)
              for job_state_wrapper in self._job_state_map_wrapper.values()])
 
-    def check_and_wrap_new_jobs(self):
-        # Since new jobs may have been added, we need to create and publish
-        # new JobDefinitionWrappers for them.
-        for job in self.native.job_list:
-            key = id(job)
-            if not key in self._native_id_to_wrapper_map:
-                logger.debug("Creating a new JobDefinitionWrapper for %s",
-                             job.name)
-                wrapper = JobDefinitionWrapper(job)
-                wrapper.publish_related_objects(self.connection)
-                #Newly created jobs also need a JobState.
-                #Note that publishing the JobState also should automatically
-                #publish the MemoryJobResult.
-                self._job_state_map_wrapper[job.name] = JobStateWrapper(
-                        self.native.job_state_map[job.name])
-                self._job_state_map_wrapper[job.name].publish_related_objects(
-                        self.connection)
+    def add_result(self, result):
+        """
+        Add a result representation to DBus.
+
+        Take a IJobResult subclass instance, wrap it in JobResultWrapper,
+        publish it so that it shows up on DBus, add it to the collection
+        of objects managed by this SessionWrapper so that it sends
+        InterfacesAdded signals and can be enumerated with
+        GetManagedObjects() and return the wrapper to the caller.
+
+        :returns:
+            The wrapper for the result that was added
+        """
+        logger.info("Adding result %r to DBus", result)
+        result_wrapper = self._maybe_wrap(result)
+        result_wrapper.publish_self(self.connection)
+        self.add_managed_object(result_wrapper)
+        return result_wrapper
+
+    def remove_result(self, result):
+        """
+        Remove a result representation from DBus.
+
+        Take a IJobResult subclass instance, find the JobResultWrapper that
+        it is wrapped in. Remove it from the collection of objects managed
+        by this SessionWrapper so that it sends InterfacesRemoved signal
+        and can no longer be enumerated with GetManagedObjects(), remove it
+        from the bus and return the wrapper to the caller.
+
+        :returns:
+            The wrapper for the result that was removed
+        """
+        logger.info("Removing result %r from DBus", result)
+        result_wrapper = self.find_wrapper_by_native(result)
+        self.remove_managed_object(result_wrapper)
+        result_wrapper.remove_from_connection()
+        return result_wrapper
+
+    def add_job(self, job):
+        """
+        Add a job representation to DBus.
+
+        :param job:
+            Job to add to the bus
+        :ptype job:
+            JobDefinition
+
+        Take a JobDefinition, wrap it in JobResultWrapper, publish it so that
+        it shows up on DBus, add it to the collection of objects managed by
+        this SessionWrapper so that it sends InterfacesAdded signals and
+        can be enumerated with GetManagedObjects.
+
+        :returns:
+            The wrapper for the job that was added
+        """
+        logger.info("Adding job %r to DBus", job)
+        job_wrapper = self._maybe_wrap(job)
+        job_wrapper.publish_self(self.connection)
+        self.add_managed_object(job_wrapper)
+        return job_wrapper
+
+    def add_state(self, state):
+        """
+        Add a job state representatio to DBus.
+
+        :param state:
+            Job state to add to the bus
+        :ptype state:
+            JobState
+
+        Take a JobState, wrap it in JobStateWrapper, publish it so that
+        it shows up on DBus, add it to the collection of objects managed by
+        this SessionWrapper so that it sends InterfacesAdded signals and
+        can be enumerated with GetManagedObjects.
+
+        .. note::
+            This method must be called after both result and job definition
+            have been added (presumably with :meth:`add_job()` and
+            :meth:`add_result()`). This method *does not* publish those
+            objects, it only publishes the state object.
+
+        :returns:
+            The wrapper for the job that was added
+
+        """
+        logger.info("Adding job state %r to DBus", state)
+        state_wrapper = self._maybe_wrap(state)
+        state_wrapper.publish_self(self.connection)
+        self.add_managed_object(state_wrapper)
+        return state_wrapper
+
+    def _maybe_wrap(self, obj):
+        """
+        Wrap a native object in the appropriate DBus wrapper.
+
+        :param obj:
+            The object to wrap
+        :ptype obj:
+            JobDefinition, IJobResult or JobState
+        :returns:
+            The wrapper associated with the object
+
+        The object is only wrapped if it was not wrapped previously (at most
+        one wrapper is created for any given native object). Only a few classes
+        are supported, those are JobDefinition, IJobResult, JobState.
+        """
+        try:
+            return self.find_wrapper_by_native(obj)
+        except LookupError:
+            if isinstance(obj, JobDefinition):
+                return JobDefinitionWrapper(obj)
+            elif isinstance(obj, IJobResult):
+                return JobResultWrapper(obj)
+            elif isinstance(obj, JobState):
+                return JobStateWrapper(obj, session_wrapper=self)
+            else:
+                raise TypeError("Unable to wrap object of type %r" % type(obj))
+
+    def _job_added(self, job):
+        """
+        Internal method connected to the SessionState.on_job_added() signal.
+
+        This method is called when a generated job is added to the session.
+        This method adds the corresponding job definition, job result and
+        job state to the bus and sends appropriate notifications.
+        """
+        logger.debug("_job_added(%r)", job)
+        # Get references to the three key objects, job, state and result
+        state = self.native.job_state_map[job.name]
+        result = state.result
+        assert job is state.job
+        # Wrap them in the right order (state has to be last)
+        self.add_job(job)
+        self.add_result(result)
+        state_wrapper = self.add_state(state)
+        # Update the job_state_map wrapper that we have here
+        self._job_state_map_wrapper[job.name] = state_wrapper
+        # Send the signal that the 'job_state_map' property has changed
+        self.PropertiesChanged(SESSION_IFACE, {
+            self.__class__.job_state_map._dbus_property:
+            self._job_state_map_wrapper
+        }, [])
 
     # Value added
 
@@ -644,8 +842,6 @@ class SessionWrapper(PlainBoxObjectWrapper):
     def UpdateDesiredJobList(self, desired_job_list: 'ao'):
         logger.info("UpdateDesiredJobList(%r)", desired_job_list)
         problem_list = self.native.update_desired_job_list(desired_job_list)
-        # Do the necessary housekeeping for any new jobs
-        self.check_and_wrap_new_jobs()
         # TODO: map each problem into a structure (check which fields should be
         # presented). Document this in the docstring.
         return [str(problem) for problem in problem_list]
@@ -678,69 +874,7 @@ class SessionWrapper(PlainBoxObjectWrapper):
     @dbus.service.method(
         dbus_interface=SESSION_IFACE, in_signature='', out_signature='')
     def Resume(self):
-        #FIXME TODO XXX KLUDGE ALERT
-        #The way we replace restored job definitions with the ones from the
-        #freshly-initialized session is extremely kludgy. This implementation
-        #needs to be revisited at some point and made cleaner. It was done this
-        #way to unblock usage of this API under time pressure.
-        #
-        #First, we take a snapshot of job definitions from the "pristine"
-        #session. These already have JobStateWrappers over DBus pointing to
-        #the ones created when the provider was exposed.
-        old_jobs = [state.job for state in self.native.job_state_map.values()]
-        #Now, native resume. This is the only non-kludgy line in this method.
         self.native.resume()
-        #After the native resume completes, we need to "synchronize"
-        #the new job_list and job_state_map over DBus. This is very similar
-        # to what we do
-        #when adding jobs from a local job, with the exception that here,
-        #*all* the jobs need a JobStateWrapper because since they weren't
-        #known when the session was created, they don't have one yet.
-        # Also, we need to take the jobs as contained in the job_state_map,
-        #rather than job_list, otherwise they won't point to the correct
-        #dbus JobDefinition.
-        #Finally, the KLUDGE is that we look at the job definitions for each
-        #JobState. These were reconstructed from restored session information,
-        #and unfortunately they don't map to the exposed-over-dbus JobDefs.
-        #However, we can't just create the JobDefinition because since they're
-        #exposed over DBus using their unique checksum, trying to expose an
-        #identical JobDefinition will create a clash and a crash.
-        #The solution, then, is to replace each JobState's "job" attribute
-        #with the equivalent job from the old_jobs map. Those *should* be
-        #identical value-wise but point to the correct, already-exposed
-        #JobDefinition and their wrapper.
-        for job_state in self.native.job_state_map.values():
-            job = job_state.job
-            #Find old equivalent of this job
-            if job in old_jobs:
-                 index = old_jobs.index(job)
-                 #Next three statements are for debugging only, they further
-                 #underline the kludgy nature of this section of code.
-                 old_id = id(job)
-                 new_id = id(old_jobs[index])
-                 logger.debug("Replacing object %s with %s for job %s" %
-                              (old_id, new_id, job.name))
-                 job_state.job = old_jobs[index]
-            else:
-                #Here we just create new JobDefinitionWrappers, like we
-                #do in check_and_wrap_new_jobs, in case the session contained
-                #a job whose definition we don't have (i.e. one created by
-                #local jobs). I haven't seen this happen yet.
-                if not id(job) in self._native_id_to_wrapper_map:
-                    logger.debug("Creating a new JobDefinitionWrapper for %s",
-                                 job.name)
-                    wrapper = JobDefinitionWrapper(job)
-                    wrapper.publish_related_objects(self.connection)
-
-            #By here, either job definitions already exist, or they
-            #have been created. Create and publish the corresponding
-            #JobStateWrapper. Note that the JobStates already  had their
-            #'job' attribute pointed to an existing, mapped JobDefinition
-            #object.
-            self._job_state_map_wrapper[job.name] = JobStateWrapper(
-                    self.native.job_state_map[job.name])
-            self._job_state_map_wrapper[job.name].publish_related_objects(
-                    self.connection)
 
     @dbus.service.method(
         dbus_interface=SESSION_IFACE, in_signature='', out_signature='')
@@ -777,12 +911,6 @@ class SessionWrapper(PlainBoxObjectWrapper):
     @PlainBoxObjectWrapper.translate
     def job_state_map(self) -> 'a{so}':
         return self.native.job_state_map
-
-    @Signal.define
-    def on_job_state_map_changed(self):
-        self.PropertiesChanged(SESSION_IFACE, {
-            self.__class__.job_state_map._dbus_property: self.job_state_map
-        }, [])
 
     @dbus.service.property(dbus_interface=SESSION_IFACE, signature='a{sv}')
     def metadata(self):

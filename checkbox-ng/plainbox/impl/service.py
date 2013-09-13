@@ -363,7 +363,8 @@ class WhiteListWrapper(PlainBoxObjectWrapper):
 
     def _get_preferred_object_path(self):
         # TODO: this clashes with providers, maybe use a random ID instead
-        return "/plainbox/whitelist/{}".format(self.native.name.replace("-", "_"))
+        return "/plainbox/whitelist/{}".format(
+            self.native.name.replace("-", "_"))
 
     # Value added
 
@@ -1051,9 +1052,9 @@ class ServiceWrapper(PlainBoxObjectWrapper):
         dbus_interface=SERVICE_IFACE, in_signature='osass', out_signature='s')
     @PlainBoxObjectWrapper.translate
     def ExportSessionToFile(self, session: 'o', output_format: 's',
-                      option_list: 'as', output_file: 's'):
-        return self.native.export_session_to_file(session, output_format, option_list,
-                                          output_file)
+                            option_list: 'as', output_file: 's'):
+        return self.native.export_session_to_file(
+            session, output_format, option_list, output_file)
 
     @dbus.service.method(
         dbus_interface=SERVICE_IFACE, in_signature='ao', out_signature='o')

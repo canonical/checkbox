@@ -67,7 +67,13 @@ class _JobResultBase(IJobResult):
         values are explicitly used, such as 'outcome', 'comments' and
         'return_code' but all of those are optional.
         """
-        self._data = data
+        # Filter out boring items so that stuff that is rally identical,
+        # behaves as if it was identical. This is especially important for
+        # __eq__() below as various types of IJobResult are constructed and
+        # compared with default entries that should not compare differently.
+        self._data = {
+            key: value for key, value in data.items()
+            if value is not None and value != []}
 
     def __str__(self):
         return str(self.outcome)

@@ -383,8 +383,11 @@ class SessionStateReactionToJobResultTests(TestCase):
 
     def test_normal_job_result_updates(self):
         # This function checks what happens when a JobResult for job A is
-        # presented to the session.
-        result_A = MemoryJobResult({})
+        # presented to the session. Set the outcome to a "different" value as
+        # the initial job result was pretty much identical and the comparison
+        # below would fail to work as the update would have been silently
+        # ignored.
+        result_A = MemoryJobResult({'outcome': 'different'})
         self.session.update_job_result(self.job_A, result_A)
         # As before the result should be stored as-is
         self.assertIs(self.job_state('A').result, result_A)

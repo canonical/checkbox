@@ -67,14 +67,27 @@ class _JobResultBase(IJobResult):
         values are explicitly used, such as 'outcome', 'comments' and
         'return_code' but all of those are optional.
         """
-        self._data = data
+        # Filter out boring items so that stuff that is rally identical,
+        # behaves as if it was identical. This is especially important for
+        # __eq__() below as various types of IJobResult are constructed and
+        # compared with default entries that should not compare differently.
+        self._data = {
+            key: value for key, value in data.items()
+            if value is not None and value != []}
+
+    def __eq__(self, other):
+        if not isinstance(other, _JobResultBase):
+            return NotImplemented
+        return self._data == other._data
 
     def __str__(self):
         return str(self.outcome)
 
     def __repr__(self):
-        return "<{} outcome:{!r}>".format(
-            self.__class__.__name__, self.outcome)
+        return "<{}>".format(
+            ' '.join([self.__class__.__name__] + [
+                "{}:{!r}".format(key, self._data[key])
+                for key in sorted(self._data.keys())]))
 
     @Signal.define
     def on_outcome_changed(self, old, new):

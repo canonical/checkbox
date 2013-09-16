@@ -75,6 +75,11 @@ class _JobResultBase(IJobResult):
             key: value for key, value in data.items()
             if value is not None and value != []}
 
+    def __eq__(self, other):
+        if not isinstance(other, _JobResultBase):
+            return NotImplemented
+        return self._data == other._data
+
     def __str__(self):
         return str(self.outcome)
 

@@ -84,8 +84,10 @@ class _JobResultBase(IJobResult):
         return str(self.outcome)
 
     def __repr__(self):
-        return "<{} outcome:{!r}>".format(
-            self.__class__.__name__, self.outcome)
+        return "<{}>".format(
+            ' '.join([self.__class__.__name__] + [
+                "{}:{!r}".format(key, self._data[key])
+                for key in sorted(self._data.keys())]))
 
     @Signal.define
     def on_outcome_changed(self, old, new):

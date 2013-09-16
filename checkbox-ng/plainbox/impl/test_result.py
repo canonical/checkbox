@@ -47,7 +47,7 @@ class DiskJobResultTests(TestCase):
     def test_smoke(self):
         result = DiskJobResult({})
         self.assertEqual(str(result), "None")
-        self.assertEqual(repr(result), "<DiskJobResult outcome:None>")
+        self.assertEqual(repr(result), "<DiskJobResult>")
         self.assertIsNone(result.outcome)
         self.assertIsNone(result.comments)
         self.assertEqual(result.io_log, ())
@@ -63,7 +63,12 @@ class DiskJobResultTests(TestCase):
             'return_code': 0
         })
         self.assertEqual(str(result), "pass")
-        self.assertEqual(repr(result), "<DiskJobResult outcome:'pass'>")
+        # This result contains a random vale of io_log_filename so direct repr
+        # comparison is not feasable. All we want to check here is that it looks
+        # right and that it has the outcome value
+        self.assertTrue(repr(result).startswith("<DiskJobResult"))
+        self.assertTrue(repr(result).endswith(">"))
+        self.assertIn("outcome:'pass'", repr(result))
         self.assertEqual(result.outcome, IJobResult.OUTCOME_PASS)
         self.assertEqual(result.comments, "it said blah")
         self.assertEqual(result.io_log, ((0, 'stdout', b'blah\n'),))
@@ -75,7 +80,7 @@ class MemoryJobResultTests(TestCase):
     def test_smoke(self):
         result = MemoryJobResult({})
         self.assertEqual(str(result), "None")
-        self.assertEqual(repr(result), "<MemoryJobResult outcome:None>")
+        self.assertEqual(repr(result), "<MemoryJobResult>")
         self.assertIsNone(result.outcome)
         self.assertIsNone(result.comments)
         self.assertEqual(result.io_log, ())
@@ -89,7 +94,7 @@ class MemoryJobResultTests(TestCase):
             'return_code': 0
         })
         self.assertEqual(str(result), "pass")
-        self.assertEqual(repr(result), "<MemoryJobResult outcome:'pass'>")
+        self.assertEqual(repr(result), "<MemoryJobResult comments:'it said blah' io_log:[(0, 'stdout', b'blah\\n')] outcome:'pass' return_code:0>")
         self.assertEqual(result.outcome, IJobResult.OUTCOME_PASS)
         self.assertEqual(result.comments, "it said blah")
         self.assertEqual(result.io_log, ((0, 'stdout', b'blah\n'),))

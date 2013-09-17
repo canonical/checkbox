@@ -557,3 +557,16 @@ class SessionMetadataTests(TestCase):
         self.assertEqual(metadata.flags, set(["f1", "f2"]))
         metadata.running_job_name = "name"
         self.assertEqual(metadata.running_job_name, "name")
+
+    def test_app_blob_default_value(self):
+        metadata = SessionMetaData()
+        self.assertIs(metadata.app_blob, None)
+
+    def test_app_blob_assignment(self):
+        metadata = SessionMetaData()
+        metadata.app_blob = b'blob'
+        self.assertEqual(metadata.app_blob, b'blob')
+
+    def test_app_blob_kwarg_to_init(self):
+        metadata = SessionMetaData(app_blob=b'blob')
+        self.assertEqual(metadata.app_blob, b'blob')

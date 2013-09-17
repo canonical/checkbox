@@ -60,12 +60,13 @@ class SessionMetaData:
     # set this flag after successfully sending the result somewhere.
     FLAG_SUBMITTED = "submitted"
 
-    def __init__(self, title=None, flags=None, running_job_name=None):
+    def __init__(self, title=None, flags=None, running_job_name=None, app_blob=None):
         if flags is None:
             flags = []
         self._title = title
         self._flags = set(flags)
         self._running_job_name = running_job_name
+        self._app_blob = app_blob
 
     def __repr__(self):
         return "<{} title:{!r} flags:{!r} running_job_name:{!r}>".format(
@@ -124,6 +125,25 @@ class SessionMetaData:
     @running_job_name.setter
     def running_job_name(self, running_job_name):
         self._running_job_name = running_job_name
+
+    @property
+    def app_blob(self):
+        """
+        Custom, application specific binary blob.
+
+        The type and value of this property is irrelevant as it is not
+        inspected by plainbox at all. Reasonable applications will not make use
+        of this property for storing large amounts of data. If you are tempted
+        to do that, please redesign your application or propose changes to
+        plainbox.
+        """
+        return self._app_blob
+
+    @app_blob.setter
+    def app_blob(self, value):
+        if value is not None and not isinstance(value, bytes):
+            raise TypeError("app_blob must be either none or bytes")
+        self._app_blob = value
 
 
 class SessionState:

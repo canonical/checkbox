@@ -30,8 +30,9 @@ from :class:`~plainbox.impl.session.storage.SessionStorageRepository`,
 and :class:`~plainbox.impl.session.suspend.SessionResumeHelper`.
 """
 
-import os
+import errno
 import logging
+import os
 
 from plainbox.impl.session.resume import SessionResumeHelper
 from plainbox.impl.session.state import SessionState
@@ -208,8 +209,15 @@ class SessionManager:
             Fresh instance of :class:`SessionManager`
         """
         logger.debug("SessionManager.open_session()")
-        data = storage.load_checkpoint()
-        state = SessionResumeHelper(job_list).resume(data, early_cb)
+        try:
+            data = storage.load_checkpoint()
+        except IOError as exc:
+            if exc.errno == errno.ENOENT:
+                state = SessionState(job_list)
+            else:
+                raise
+        else:
+            state = SessionResumeHelper(job_list).resume(data, early_cb)
         return cls(state, storage)
 
     def checkpoint(self):

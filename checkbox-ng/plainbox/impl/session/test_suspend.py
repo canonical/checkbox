@@ -36,7 +36,7 @@ from plainbox.impl.result import IOLogRecord
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.session.state import SessionMetaData
 from plainbox.impl.session.state import SessionState
-from plainbox.impl.session.suspend import SessionSuspendHelper
+from plainbox.impl.session.suspend import SessionSuspendHelper1
 
 
 class BaseJobResultTestsTestsMixIn:
@@ -56,7 +56,7 @@ class BaseJobResultTestsTestsMixIn:
     """
 
     def setUp(self):
-        self.helper = SessionSuspendHelper()
+        self.helper = SessionSuspendHelper1()
         self.empty_result = self.TESTED_CLS({})
         self.typical_result = self.TESTED_CLS({
             "outcome": self.TESTED_CLS.OUTCOME_PASS,
@@ -174,7 +174,7 @@ class SessionSuspendHelperTests(TestCase):
     """
 
     def setUp(self):
-        self.helper = SessionSuspendHelper()
+        self.helper = SessionSuspendHelper1()
 
     def test_repr_IOLogRecord(self):
         """
@@ -191,7 +191,7 @@ class SessionSuspendHelperTests(TestCase):
         calls _repr_MemoryJobResult
         """
         result = MemoryJobResult({})
-        helper = SessionSuspendHelper()
+        helper = SessionSuspendHelper1()
         helper._repr_JobResult(result)
         mocked_helper._repr_MemoryJobResult.assertCalledOnceWith(result)
 
@@ -202,7 +202,7 @@ class SessionSuspendHelperTests(TestCase):
         calls _repr_DiskJobResult
         """
         result = DiskJobResult({})
-        helper = SessionSuspendHelper()
+        helper = SessionSuspendHelper1()
         helper._repr_JobResult(result)
         mocked_helper._repr_DiskJobResult.assertCalledOnceWith(result)
 
@@ -377,7 +377,7 @@ class GeneratedJobSuspendTests(TestCase):
         # Now the stage is set for testing. Let's create the suspend helper
         # and use the data we've defined so far to create JSON-friendly
         # description of the session state.
-        self.helper = SessionSuspendHelper()
+        self.helper = SessionSuspendHelper1()
         self.data = self.helper._repr_SessionState(self.session_state)
 
     def test_state_tracked_for_all_jobs(self):

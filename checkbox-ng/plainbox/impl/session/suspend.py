@@ -69,6 +69,10 @@ considerations mentioned above. Generated jobs are re-created from whatever
 results that created them. The framework has special support code for knowing
 how to resume in light of the fact that some jobs might be generated during
 the resume process itself.
+
+Serialization format versions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1) The initial version
 """
 
 import gzip
@@ -82,7 +86,7 @@ from plainbox.impl.result import MemoryJobResult
 logger = logging.getLogger("plainbox.session.suspend")
 
 
-class SessionSuspendHelper:
+class SessionSuspendHelper1:
     """
     Helper class for computing binary representation of a session.
 
@@ -122,7 +126,7 @@ class SessionSuspendHelper:
 
             ``version``
                 A integral number describing the version of the representation.
-                Currently only the first (1) version is defined.
+                See the version table for details.
 
             ``session``
                 Representation of the session as computed by
@@ -319,3 +323,7 @@ class SessionSuspendHelper:
         """
         return [obj[0], obj[1],
                 base64.standard_b64encode(obj[2]).decode("ASCII")]
+
+
+# Alias for the most recent version
+SessionSuspendHelper = SessionSuspendHelper1

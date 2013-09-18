@@ -191,8 +191,7 @@ class SessionSuspendHelperTests(TestCase):
         calls _repr_MemoryJobResult
         """
         result = MemoryJobResult({})
-        helper = SessionSuspendHelper1()
-        helper._repr_JobResult(result)
+        self.helper._repr_JobResult(result)
         mocked_helper._repr_MemoryJobResult.assertCalledOnceWith(result)
 
     @mock.patch('plainbox.impl.session.suspend.SessionSuspendHelper')
@@ -202,8 +201,7 @@ class SessionSuspendHelperTests(TestCase):
         calls _repr_DiskJobResult
         """
         result = DiskJobResult({})
-        helper = SessionSuspendHelper1()
-        helper._repr_JobResult(result)
+        self.helper._repr_JobResult(result)
         mocked_helper._repr_DiskJobResult.assertCalledOnceWith(result)
 
     def test_repr_JobResult_with_junk(self):

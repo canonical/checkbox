@@ -168,7 +168,7 @@ class SuspendDiskJobResultTests(BaseJobResultTestsTestsMixIn, TestCase):
         self.assertEqual(data['io_log_filename'], "/nonexistent.log")
 
 
-class SessionSuspendHelperTests(TestCase):
+class SessionSuspendHelper1Tests(TestCase):
     """
     Tests for various methods of SessionSuspendHelper
     """

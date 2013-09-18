@@ -37,6 +37,7 @@ from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.session.state import SessionMetaData
 from plainbox.impl.session.state import SessionState
 from plainbox.impl.session.suspend import SessionSuspendHelper1
+from plainbox.impl.session.suspend import SessionSuspendHelper2
 
 
 class BaseJobResultTestsTestsMixIn:
@@ -498,3 +499,88 @@ class GeneratedJobSuspendTests(TestCase):
                 'title': None
             },
         })
+
+
+class SessionSuspendHelper2Tests(SessionSuspendHelper1Tests):
+    """
+    Tests for various methods of SessionSuspendHelper2
+    """
+
+    def setUp(self):
+        self.helper = SessionSuspendHelper2()
+
+    def test_json_repr_current_version(self):
+        """
+        verify what the version field is
+        """
+        data = self.helper._json_repr(SessionState([]))
+        self.assertEqual(data['version'], 2)
+
+    def test_repr_SessionMetaData_empty_metadata(self):
+        """
+        verify that representation of empty SessionMetaData is okay
+        """
+        # all defaults with empty values
+        data = self.helper._repr_SessionMetaData(SessionMetaData())
+        self.assertEqual(data, {
+            'title': None,
+            'flags': [],
+            'running_job_name': None,
+            'app_blob': None
+        })
+
+    def test_repr_SessionMetaData_typical_metadata(self):
+        """
+        verify that representation of typical SessionMetaData is okay
+        """
+        # no surprises here, just the same data copied over
+        data = self.helper._repr_SessionMetaData(SessionMetaData(
+            title='USB Testing session',
+            flags=['incomplete'],
+            running_job_name='usb/detect',
+            app_blob=b'blob',
+        ))
+        self.assertEqual(data, {
+            'title': 'USB Testing session',
+            'flags': ['incomplete'],
+            'running_job_name': 'usb/detect',
+            'app_blob': 'YmxvYg==',
+        })
+
+    def test_repr_SessionState_empty_session(self):
+        """
+        verify that representation of empty SessionState is okay
+        """
+        data = self.helper._repr_SessionState(SessionState([]))
+        self.assertEqual(data, {
+            'jobs': {},
+            'results': {},
+            'desired_job_list': [],
+            'metadata': {
+                'title': None,
+                'flags': [],
+                'running_job_name': None,
+                'app_blob': None,
+            },
+        })
+
+    def test_suspend(self):
+        """
+        verify that the suspend() method returns gzipped JSON representation
+        """
+        data = self.helper.suspend(SessionState([]))
+        # XXX: we cannot really test what the compressed data looks like
+        # because apparently python3.2 gzip output is non-deterministic.
+        # It seems to be an instance of the gzip bug that was fixed a few
+        # years ago.
+        #
+        # I've filed a bug on python3.2 in Ubuntu and Python upstream project
+        # https://bugs.launchpad.net/ubuntu/+source/python3.2/+bug/871083
+        #
+        # In the meantime we can only test that we got bytes out
+        self.assertIsInstance(data, bytes)
+        # And that we can gzip uncompress them and get what we expected
+        self.assertEqual(gzip.decompress(data), (
+            b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+            b'{"app_blob":null,"flags":[],"running_job_name":null,"title":null'
+            b'},"results":{}},"version":2}'))

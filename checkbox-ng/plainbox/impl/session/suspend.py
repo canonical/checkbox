@@ -73,6 +73,8 @@ the resume process itself.
 Serialization format versions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 1) The initial version
+2) Same as '1' but suspends
+   :attr:`plainbox.impl.session.state.SessionMetaData.app_blob`
 """
 
 import gzip
@@ -328,6 +330,56 @@ class SessionSuspendHelper1:
         """
         return [obj[0], obj[1],
                 base64.standard_b64encode(obj[2]).decode("ASCII")]
+
+
+class SessionSuspendHelper2(SessionSuspendHelper1):
+    """
+    Helper class for computing binary representation of a session.
+
+    The helper only creates a bytes object to save. Actual saving should
+    be performed using some other means, preferably using
+    :class:`~plainbox.impl.session.storage.SessionStorage`.
+
+    This class creates version '2' snapshots.
+    """
+
+    VERSION = 2
+
+    def _repr_SessionMetaData(self, obj):
+        """
+        Compute the representation of :class:`SessionMetaData`.
+
+        :returns:
+            JSON-friendly representation.
+        :rtype:
+            dict
+
+        The result is a dictionary with the following items:
+
+            ``title``:
+                Title of the session. Arbitrary text provided by the
+                application.
+
+            ``flags``:
+                List of strings that enumerate the flags the session is in.
+                There are some well-known flags but this list can have any
+                items it it.
+
+            ``running_job_name``:
+                Name of the job that was about to be executed before
+                snapshotting took place. Can be None.
+            ``app_blob``:
+                Arbitrary application specific binary blob encoded with base64.
+                This field may be null.
+        """
+        data = super(SessionSuspendHelper2, self)._repr_SessionMetaData(obj)
+        if obj.app_blob is None:
+            data['app_blob'] = None
+        else:
+            data['app_blob'] = base64.standard_b64encode(
+                obj.app_blob
+            ).decode("ASCII")
+        return data
 
 
 # Alias for the most recent version

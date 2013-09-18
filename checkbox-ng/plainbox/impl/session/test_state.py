@@ -566,6 +566,8 @@ class SessionMetadataTests(TestCase):
         metadata = SessionMetaData()
         metadata.app_blob = b'blob'
         self.assertEqual(metadata.app_blob, b'blob')
+        metadata.app_blob = None
+        self.assertEqual(metadata.app_blob, None)
 
     def test_app_blob_kwarg_to_init(self):
         metadata = SessionMetaData(app_blob=b'blob')

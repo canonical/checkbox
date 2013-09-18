@@ -92,18 +92,11 @@ class IncompatibleJobError(SessionResumeError):
 
 class SessionResumeHelper:
     """
-    Helper class for implementing session resume feature
+    Helper class for implementing session resume feature.
 
-    This class works with data constructed by
-    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper`.
-
-    Due to the constraints of what can be represented in a suspended session,
-    this class cannot work in isolation. It must operate with a list of
-    know jobs.
-
-    Since (most of the) jobs are being provided externally (as they represent
-    the non-serialized parts of checkbox or other job providers) several
-    failure modes are possible. Those are documented in :meth:`resume()`
+    This class is a facade that does enough of the resume process to know which
+    version is being resumed and delegate the rest of the process to an
+    appropriate, format specific, resume class.
     """
 
     def __init__(self, job_list):
@@ -169,6 +162,47 @@ class SessionResumeHelper:
         logger.debug("Resuming from json... (see below)")
         logger.debug(json.dumps(json_repr, indent=4))
         _validate(json_repr, value_type=dict)
+        version = _validate(json_repr, key="version", choice=[1])
+        if version == 1:
+            return SessionResumeHelper1(
+                self.job_list).resume_json(json_repr, early_cb)
+        else:
+            raise IncompatibleSessionError(
+                "Unsupported version {}".format(version))
+
+
+class SessionResumeHelper1:
+    """
+    Helper class for implementing session resume feature
+
+    This class works with data constructed by
+    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper1` which has
+    been pre-processed by :class:`SessionResumeHelper` (to strip the initial
+    envelope).
+
+    Due to the constraints of what can be represented in a suspended session,
+    this class cannot work in isolation. It must operate with a list of know
+    jobs.
+
+    Since (most of the) jobs are being provided externally (as they represent
+    the non-serialized parts of checkbox or other job providers) several
+    failure modes are possible. Those are documented in :meth:`resume()`
+    """
+
+    def __init__(self, job_list):
+        """
+        Initialize the helper with a list of known jobs.
+        """
+        self.job_list = job_list
+
+    def resume_json(self, json_repr, early_cb=None):
+        """
+        Resume a SessionState object from the JSON representation.
+
+        This method is called by :meth:`resume()` after the initial envelope
+        and parsing is done. The only error conditions that can happen
+        are related to semantic incompatibilities or corrupted internal state.
+        """
         _validate(json_repr, key="version", choice=[1])
         session_repr = _validate(json_repr, key='session', value_type=dict)
         return self._build_SessionState(session_repr, early_cb)

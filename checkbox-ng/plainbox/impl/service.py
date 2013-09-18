@@ -932,7 +932,8 @@ class SessionWrapper(PlainBoxObjectWrapper):
             'title': self.native.metadata.title or "",
             'flags': dbus.types.Array(
                 sorted(self.native.metadata.flags), signature='s'),
-            'running_job_name': self.native.metadata.running_job_name or ""
+            'running_job_name': self.native.metadata.running_job_name or "",
+            'app_blob': self.native.metadata.app_blob or b''
         }, signature="sv")
 
     @metadata.setter
@@ -940,6 +941,7 @@ class SessionWrapper(PlainBoxObjectWrapper):
         self.native.metadata.title = value['title']
         self.native.metadata.running_job_name = value['running_job_name']
         self.native.metadata.flags = value['flags']
+        self.native.metadata.app_blob = value['app_blob']
 
     # TODO: signal<metadata>
 

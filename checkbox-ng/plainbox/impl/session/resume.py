@@ -509,3 +509,58 @@ def _validate(obj, **flags):
                     obj_name, value_choice))
             raise CorruptedSessionError(error_msg)
     return value
+
+
+class SessionResumeHelper2:
+    """
+    Helper class for implementing session resume feature
+
+    This class works with data constructed by
+    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper2` which has
+    been pre-processed by :class:`SessionResumeHelper` (to strip the initial
+    envelope).
+
+    Due to the constraints of what can be represented in a suspended session,
+    this class cannot work in isolation. It must operate with a list of know
+    jobs.
+
+    Since (most of the) jobs are being provided externally (as they represent
+    the non-serialized parts of checkbox or other job providers) several
+    failure modes are possible. Those are documented in :meth:`resume()`
+    """
+
+    @classmethod
+    def _restore_SessionState_metadata(cls, session, session_repr):
+        """
+        Extract meta-data information from the representation of the session
+        and set it in the given session object
+        """
+        # Get the representation of the meta-data
+        metadata_repr = _validate(
+            session_repr, key='metadata', value_type=dict)
+        # Set each bit back to the session
+        session.metadata.title = _validate(
+            metadata_repr, key='title', value_type=str, value_none=True)
+        session.metadata.flags = set([
+            _validate(
+                flag, value_type=str,
+                value_type_msg="Each flag must be a string")
+            for flag in _validate(
+                metadata_repr, key='flags', value_type=list)])
+        session.metadata.running_job_name = _validate(
+            metadata_repr, key='running_job_name', value_type=str,
+            value_none=True)
+        app_blob = _validate(
+            metadata_repr, key='app_blob', value_type=str,
+            value_none=True)
+        if app_blob is not None:
+            try:
+                app_blob = app_blob.encode("ASCII")
+            except UnicodeEncodeError:
+                raise CorruptedSessionError("app_blob is not ASCII")
+            try:
+                app_blob = base64.standard_b64decode(app_blob)
+            except binascii.Error:
+                raise CorruptedSessionError("Cannot base64 decode app_blob")
+        session.metadata.app_blob = app_blob
+        logger.debug("restored metadata %r", session.metadata)

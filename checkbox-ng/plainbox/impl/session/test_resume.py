@@ -44,6 +44,7 @@ from plainbox.impl.session.resume import IncompatibleSessionError
 from plainbox.impl.session.resume import SessionResumeError
 from plainbox.impl.session.resume import SessionResumeHelper
 from plainbox.impl.session.resume import SessionResumeHelper1
+from plainbox.impl.session.resume import SessionResumeHelper2
 from plainbox.impl.session.state import SessionState
 from plainbox.impl.testing_utils import make_job
 
@@ -863,6 +864,84 @@ class SessionMetaDataResumeTests(TestCase):
         obj_repr['metadata']['running_job_name'] = "a job"
         self.resume_fn(self.session, obj_repr)
         self.assertEqual(self.session.metadata.running_job_name, "a job")
+
+
+class SessionMetaDataResumeTests2(TestCase):
+
+    """
+    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper2`
+    and how it handles recreating SessionMetaData form its representation
+    """
+
+    def setUp(self):
+        # All of the tests need a SessionState object
+        self.session = SessionState([])
+        self.good_repr = {
+            "metadata": {
+                "title": "some title",
+                "flags": ["flag1", "flag2"],
+                "running_job_name": "job1",
+                "app_blob": "YmxvYg=="  # this is b'blob', encoded
+            }
+        }
+        self.resume_fn = SessionResumeHelper2._restore_SessionState_metadata
+
+    def test_restore_SessionState_metadata_checks_app_blob_type(self):
+        """
+        verify that _restore_SessionState_metadata() checks the type of
+        the ``app_blob`` field.
+        """
+        with self.assertRaises(CorruptedSessionError) as boom:
+            obj_repr = copy.copy(self.good_repr)
+            obj_repr['metadata']['app_blob'] = 1
+            self.resume_fn(self.session, obj_repr)
+        self.assertEqual(
+            str(boom.exception),
+            "Value of key 'app_blob' is of incorrect type int")
+
+    def test_restore_SessionState_metadata_allows_for_none_app_blob(self):
+        """
+        verify that _restore_SessionState_metadata() allows for
+        ``title`` to be None
+        """
+        obj_repr = copy.copy(self.good_repr)
+        obj_repr['metadata']['app_blob'] = None
+        self.resume_fn(self.session, obj_repr)
+        self.assertEqual(self.session.metadata.app_blob, None)
+
+    def test_restore_SessionState_metadata_restores_app_blob(self):
+        """
+        verify that _restore_SessionState_metadata() restores ``title``
+        """
+        obj_repr = copy.copy(self.good_repr)
+        obj_repr['metadata']['app_blob'] = "YmxvYg=="
+        self.resume_fn(self.session, obj_repr)
+        self.assertEqual(self.session.metadata.app_blob, b"blob")
+
+    def test_restore_SessionState_metadata_non_ascii_app_blob(self):
+        """
+        verify that _restore_SessionState_metadata() checks that ``app_blob``
+        is ASCII
+        """
+        with self.assertRaises(CorruptedSessionError) as boom:
+            obj_repr = copy.copy(self.good_repr)
+            obj_repr['metadata']['app_blob'] = '\uFFFD'
+            self.resume_fn(self.session, obj_repr)
+        self.assertEqual(str(boom.exception), "app_blob is not ASCII")
+        self.assertIsInstance(boom.exception.__context__, UnicodeEncodeError)
+
+    def test_build_SessionState_metadata_non_base64_app_blob(self):
+        """
+        verify that _restore_SessionState_metadata() checks that ``app_blob``
+        is valid base64
+        """
+        with self.assertRaises(CorruptedSessionError) as boom:
+            obj_repr = copy.copy(self.good_repr)
+            obj_repr['metadata']['app_blob'] = '==broken'
+            self.resume_fn(self.session, obj_repr)
+        self.assertEqual(str(boom.exception), "Cannot base64 decode app_blob")
+        # base64.standard_b64decode() raises binascii.Error
+        self.assertIsInstance(boom.exception.__context__, binascii.Error)
 
 
 class ProcessJobTests(TestCase):

@@ -166,6 +166,9 @@ class SessionResumeHelper:
         if version == 1:
             return SessionResumeHelper1(
                 self.job_list).resume_json(json_repr, early_cb)
+        elif version == 2:
+            return SessionResumeHelper2(
+                self.job_list).resume_json(json_repr, early_cb)
         else:
             raise IncompatibleSessionError(
                 "Unsupported version {}".format(version))

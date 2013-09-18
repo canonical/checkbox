@@ -78,6 +78,15 @@ class SessionResumeHelperTests(TestCase):
         SessionResumeHelper([]).resume(data)
         mocked_helper1.resume_json.assertCalledOnce()
 
+    @mock.patch('plainbox.impl.session.resume.SessionResumeHelper2')
+    def test_resume_dispatch_v2(self, mocked_helper2):
+        data = gzip.compress(
+            b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+            b'{"app_blob":null,"flags":[],"running_job_name":null,"title":null'
+            b'},"results":{}},"version":2}')
+        SessionResumeHelper([]).resume(data)
+        mocked_helper2.resume_json.assertCalledOnce()
+
     def test_resume_dispatch_v3(self):
         data = gzip.compress(
             b'{"version":3}')

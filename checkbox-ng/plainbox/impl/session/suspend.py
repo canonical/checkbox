@@ -167,21 +167,7 @@ class SessionSuspendHelper1:
 
             ``metadata``:
                 The representation of meta-data associated with the session
-                state object. This is encoded as a dictionary
-                with the following items:
-
-                    ``title``:
-                        Title of the session. Arbitrary text provided by
-                        the application.
-
-                    ``flags``:
-                        List of strings that enumerate the flags the session
-                        is in. There are some well-known flags but this list
-                        can have any items it it.
-
-                    ``running_job_name``:
-                        Name of the job that was about to be executed before
-                        snapshotting took place. Can be None.
+                state object.
         """
         return {
             "jobs": {
@@ -208,6 +194,21 @@ class SessionSuspendHelper1:
             JSON-friendly representation.
         :rtype:
             dict
+
+        The result is a dictionary with the following items:
+
+            ``title``:
+                Title of the session. Arbitrary text provided by the
+                application.
+
+            ``flags``:
+                List of strings that enumerate the flags the session is in.
+                There are some well-known flags but this list can have any
+                items it it.
+
+            ``running_job_name``:
+                Name of the job that was about to be executed before
+                snapshotting took place. Can be None.
         """
         return {
             "title": obj.title,

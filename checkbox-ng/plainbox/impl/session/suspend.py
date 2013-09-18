@@ -93,7 +93,11 @@ class SessionSuspendHelper1:
     The helper only creates a bytes object to save. Actual saving should
     be performed using some other means, preferably using
     :class:`~plainbox.impl.session.storage.SessionStorage`.
+
+    This class creates version '1' snapshots.
     """
+
+    VERSION = 1
 
     def suspend(self, session):
         """
@@ -133,7 +137,7 @@ class SessionSuspendHelper1:
                 :meth:`_repr_SessionState()`
         """
         return {
-            "version": 1,
+            "version": self.VERSION,
             "session": self._repr_SessionState(session),
         }
 

@@ -80,8 +80,11 @@ class PlainBoxObjectWrapper(dbus.service.ObjectWrapper):
                  **kwargs):
         super(PlainBoxObjectWrapper, self).__init__(
             native, conn, object_path, bus_name)
-        logger.debug("Created DBus wrapper for: %r", self.native)
+        logger.debug("Created DBus wrapper %s for: %r", id(self), self.native)
         self.__shared_initialize__(**kwargs)
+
+    def __del__(self):
+        logger.debug("DBus wrapper %s died", id(self))
 
     def __shared_initialize__(self, **kwargs):
         """
@@ -412,6 +415,7 @@ class JobResultWrapper(PlainBoxObjectWrapper):
         self.native.on_comments_changed.connect(self._comments_changed)
 
     def __del__(self):
+        super(JobResultWrapper, self).__del__()
         self.native.on_comments_changed.disconnect(self._comments_changed)
         self.native.on_outcome_changed.disconnect(self._outcome_changed)
 
@@ -553,6 +557,7 @@ class JobStateWrapper(PlainBoxObjectWrapper):
         self.native.on_result_changed.connect(self._result_changed)
 
     def __del__(self):
+        super(JobStateWrapper, self).__del__()
         self.native.on_result_changed.disconnect(self._result_changed)
 
     def publish_related_objects(self, connection):
@@ -602,6 +607,7 @@ class JobStateWrapper(PlainBoxObjectWrapper):
         and that it is properly accounted for by the session. It also sends
         the DBus PropertiesChanged signal for the 'result' property.
         """
+        logger.debug("_result_changed(%r, %r)", old, new)
         # Add the new result object
         result_wrapper = self._session_wrapper.add_result(new)
         # Notify applications that the result property has changed
@@ -681,6 +687,7 @@ class SessionWrapper(PlainBoxObjectWrapper):
         self.native.on_job_added.connect(self._job_added)
 
     def __del__(self):
+        super(SessionWrapper, self).__del__()
         self.native.on_job_added.disconnect(self._job_added)
         for wrapper in self.managed_objects:
             wrapper.remove_from_connection()
@@ -864,6 +871,7 @@ class SessionWrapper(PlainBoxObjectWrapper):
         dbus_interface=SESSION_IFACE, in_signature='oo', out_signature='')
     @PlainBoxObjectWrapper.translate
     def UpdateJobResult(self, job: 'o', result: 'o'):
+        logger.info("UpdateJobResult(%r, %r)", job, result)
         self.native.update_job_result(job, result)
 
     @dbus.service.method(
@@ -879,7 +887,11 @@ class SessionWrapper(PlainBoxObjectWrapper):
     @dbus.service.method(
         dbus_interface=SESSION_IFACE, in_signature='', out_signature='s')
     def PreviousSessionFile(self):
+        # TODO: this method makes no sense here, it should not be on a session
+        # object, it should, if anything, be on the service object.
+        logger.info("PreviousSessionFile()")
         previous_session_file = self.native.previous_session_file()
+        logger.info("PreviousSessionFile() -> %r", previous_session_file)
         if previous_session_file:
             return previous_session_file
         else:
@@ -893,11 +905,13 @@ class SessionWrapper(PlainBoxObjectWrapper):
     @dbus.service.method(
         dbus_interface=SESSION_IFACE, in_signature='', out_signature='')
     def Clean(self):
+        logger.info("Clean()")
         self.native.clean()
 
     @dbus.service.method(
         dbus_interface=SESSION_IFACE, in_signature='', out_signature='')
     def PersistentSave(self):
+        logger.info("PersistentSave()")
         self.native.persistent_save()
 
     @dbus.service.property(dbus_interface=SESSION_IFACE, signature='ao')
@@ -1042,6 +1056,7 @@ class ServiceWrapper(PlainBoxObjectWrapper):
         Shut down the service and terminate
         """
         # TODO: raise exception when job is in progress
+        logger.info("Exit()")
         self._on_exit()
 
     @dbus.service.method(
@@ -1088,6 +1103,7 @@ class ServiceWrapper(PlainBoxObjectWrapper):
         dbus_interface=SERVICE_IFACE, in_signature='oo', out_signature='')
     @PlainBoxObjectWrapper.translate
     def RunJob(self, session: 'o', job: 'o'):
+        logger.info("RunJob(%r, %r)", session, job)
         running_job_wrp = RunningJob(job, session, conn=self.connection)
         self.native.run_job(session, job, running_job_wrp)
 

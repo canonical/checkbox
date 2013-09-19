@@ -300,7 +300,10 @@ class Object(Interface, dbus.service.Object):
                     interface_name, property_name))
         try:
             value = prop.__get__(self, self.__class__)
-        except dbus.exceptions.DBusException:
+        except dbus.exceptions.DBusException as exc:
+            logger.error(
+                "%r.Get(%r, %r) -> (exception) %r",
+                self, interface_name, property_name, exc)
             raise
         except Exception as exc:
             logger.exception(

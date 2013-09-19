@@ -172,7 +172,7 @@ class SessionManager:
     @classmethod
     def load_session(cls, job_list, storage, early_cb=None):
         """
-        Open a previously checkpointed session.
+        Load a previously checkpointed session.
 
         This method allows one to re-open a session that was previously
         created by :meth:`SessionManager.checkpoint()`
@@ -208,7 +208,7 @@ class SessionManager:
         :returns:
             Fresh instance of :class:`SessionManager`
         """
-        logger.debug("SessionManager.open_session()")
+        logger.debug("SessionManager.load_session()")
         try:
             data = storage.load_checkpoint()
         except IOError as exc:

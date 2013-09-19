@@ -269,7 +269,9 @@ class SessionStorage:
             logger.debug(
                 "Removing storage associated with last session %r",
                 symlink_target)
-            shutil.rmtree(symlink_target)
+            # Remove the old session, note that the symlink may be broken so
+            # let's ignore any errors here
+            shutil.rmtree(symlink_target, ignore_errors=True)
             # Remove the last-session symlink itself
             logger.debug(
                 "Removing symlink associated with last session: %r",

@@ -514,7 +514,7 @@ def _validate(obj, **flags):
     return value
 
 
-class SessionResumeHelper2:
+class SessionResumeHelper2(SessionResumeHelper1):
     """
     Helper class for implementing session resume feature
 

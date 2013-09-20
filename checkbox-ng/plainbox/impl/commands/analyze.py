@@ -27,6 +27,7 @@
 """
 
 from logging import getLogger
+from datetime import timedelta
 
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
@@ -58,6 +59,8 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
             self._print_dependency_report()
         if self.ns.print_interactivity_report:
             self._print_interactivity_report()
+        if self.ns.print_estimated_duration_report:
+            self._print_estimated_duration_report()
 
     def _run_local_jobs(self):
         print("[Running Local Jobs]".center(80, '='))
@@ -105,11 +108,36 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
         if not self.session.run_list:
             return
         max_job_len = max(len(job.name) for job in self.session.run_list)
-        fmt = "{{job:{}}}: {{interactive}}".format(max_job_len)
+        fmt = "{{job:{}}} : {{interactive:11}} : {{duration}}".format(
+            max_job_len)
         for job in self.session.run_list:
-            print(fmt.format(
-                job=job.name, interactive=(
-                    "automatic" if job.automated else "interactive")))
+            print(
+                fmt.format(
+                    job=job.name,
+                    interactive=(
+                        "automatic" if job.automated else "interactive"),
+                    duration=(
+                        timedelta(seconds=job.estimated_duration)
+                        if job.estimated_duration is not None
+                        else "unknown")
+                )
+            )
+
+    def _print_estimated_duration_report(self):
+        print("[Estimated Duration Report]".center(80, '='))
+        print("Estimated test duration:")
+        automated, manual = self.session.get_estimated_duration()
+        print("   automated tests: {}".format(
+            timedelta(seconds=automated) if automated is not None
+            else "cannot estimate"))
+        print("      manual tests: {}".format(
+            timedelta(seconds=manual) if manual is not None
+            else "cannot estimate"))
+        print("             total: {}".format(
+            timedelta(seconds=manual + automated)
+            if manual is not None and automated is not None
+            else "cannot estimate"))
+
 
 
 class AnalyzeCommand(PlainBoxCommand, CheckBoxCommandMixIn):
@@ -145,6 +173,9 @@ class AnalyzeCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         group.add_argument(
             "-t", "--print-interactivity-report", action='store_true',
             help="Print interactivity report")
+        group.add_argument(
+            "-e", "--print-estimated-duration-report", action='store_true',
+            help="Print estimated duration report")
         parser.set_defaults(command=self)
         # Call enhance_parser from CheckBoxCommandMixIn
         self.enhance_parser(parser)

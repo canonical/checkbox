@@ -102,15 +102,6 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
 
     def _print_interactivity_report(self):
         print("[Interactivity Report]".center(80, '='))
-        is_interactive = {
-            'shell': False,
-            'local': False,
-            'resource': False,
-            'attachment': False,
-            'user-verify': True,
-            'user-interact': True,
-            'manual': True
-        }
         if not self.session.run_list:
             return
         max_job_len = max(len(job.name) for job in self.session.run_list)
@@ -118,8 +109,7 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
         for job in self.session.run_list:
             print(fmt.format(
                 job=job.name, interactive=(
-                    "interactive" if is_interactive[job.plugin]
-                    else "automatic")))
+                    "automatic" if job.automated else "interactive")))
 
 
 class AnalyzeCommand(PlainBoxCommand, CheckBoxCommandMixIn):

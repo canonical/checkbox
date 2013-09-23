@@ -755,24 +755,48 @@ class DesiredJobListResumeTests(TestCaseWithParameters):
             [self.job_a, self.job_b])
 
 
-class SessionMetaDataResumeTests(TestCase):
+class SessionMetaDataResumeTests(TestCaseWithParameters):
+    """
+    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1` and
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and how they
+    handle recreating SessionMetaData form its representation
+    """
 
-    """
-    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1`
-    and how it handles recreating SessionMetaData form its representation
-    """
+    parameter_names = ('format',)
+    parameter_values = ((1,), (2,))
+    good_repr_v1 = {
+        "metadata": {
+            "title": "some title",
+            "flags": ["flag1", "flag2"],
+            "running_job_name": "job1"
+        }
+    }
+    good_repr_v2 = {
+        "metadata": {
+            "title": "some title",
+            "flags": ["flag1", "flag2"],
+            "running_job_name": "job1",
+            "app_blob": None,
+        }
+    }
+    good_repr_map = {
+        1: good_repr_v1,
+        2: good_repr_v2
+    }
+    resume_cls_map = {
+        1: SessionResumeHelper1,
+        2: SessionResumeHelper2,
+    }
 
     def setUp(self):
         # All of the tests need a SessionState object
         self.session = SessionState([])
-        self.good_repr = {
-            "metadata": {
-                "title": "some title",
-                "flags": ["flag1", "flag2"],
-                "running_job_name": "job1"
-            }
-        }
-        self.resume_fn = SessionResumeHelper1._restore_SessionState_metadata
+        self.good_repr = copy.deepcopy(
+            self.good_repr_map[self.parameters.format])
+        self.resume_fn = (
+            self.resume_cls_map[
+                self.parameters.format
+            ]._restore_SessionState_metadata)
 
     def test_restore_SessionState_metadata_cheks_for_representation_type(self):
         """
@@ -780,9 +804,8 @@ class SessionMetaDataResumeTests(TestCase):
         the representation object
         """
         with self.assertRaises(CorruptedSessionError) as boom:
-            obj_repr = copy.copy(self.good_repr)
-            obj_repr['metadata'] = 1
-            self.resume_fn(self.session, obj_repr)
+            self.good_repr['metadata'] = 1
+            self.resume_fn(self.session, self.good_repr)
         self.assertEqual(
             str(boom.exception),
             "Value of key 'metadata' is of incorrect type int")
@@ -793,9 +816,8 @@ class SessionMetaDataResumeTests(TestCase):
         the ``title`` field.
         """
         with self.assertRaises(CorruptedSessionError) as boom:
-            obj_repr = copy.copy(self.good_repr)
-            obj_repr['metadata']['title'] = 1
-            self.resume_fn(self.session, obj_repr)
+            self.good_repr['metadata']['title'] = 1
+            self.resume_fn(self.session, self.good_repr)
         self.assertEqual(
             str(boom.exception),
             "Value of key 'title' is of incorrect type int")
@@ -805,18 +827,16 @@ class SessionMetaDataResumeTests(TestCase):
         verify that _restore_SessionState_metadata() allows for
         ``title`` to be None
         """
-        obj_repr = copy.copy(self.good_repr)
-        obj_repr['metadata']['title'] = None
-        self.resume_fn(self.session, obj_repr)
+        self.good_repr['metadata']['title'] = None
+        self.resume_fn(self.session, self.good_repr)
         self.assertEqual(self.session.metadata.title, None)
 
     def test_restore_SessionState_metadata_restores_title(self):
         """
         verify that _restore_SessionState_metadata() restores ``title``
         """
-        obj_repr = copy.copy(self.good_repr)
-        obj_repr['metadata']['title'] = "a title"
-        self.resume_fn(self.session, obj_repr)
+        self.good_repr['metadata']['title'] = "a title"
+        self.resume_fn(self.session, self.good_repr)
         self.assertEqual(self.session.metadata.title, "a title")
 
     def test_restore_SessionState_metadata_checks_flags_type(self):
@@ -825,9 +845,8 @@ class SessionMetaDataResumeTests(TestCase):
         the ``flags`` field.
         """
         with self.assertRaises(CorruptedSessionError) as boom:
-            obj_repr = copy.copy(self.good_repr)
-            obj_repr['metadata']['flags'] = 1
-            self.resume_fn(self.session, obj_repr)
+            self.good_repr['metadata']['flags'] = 1
+            self.resume_fn(self.session, self.good_repr)
         self.assertEqual(
             str(boom.exception),
             "Value of key 'flags' is of incorrect type int")
@@ -838,9 +857,8 @@ class SessionMetaDataResumeTests(TestCase):
         ``flags`` are None
         """
         with self.assertRaises(CorruptedSessionError) as boom:
-            obj_repr = copy.copy(self.good_repr)
-            obj_repr['metadata']['flags'] = None
-            self.resume_fn(self.session, obj_repr)
+            self.good_repr['metadata']['flags'] = None
+            self.resume_fn(self.session, self.good_repr)
         self.assertEqual(
             str(boom.exception),
             "Value of key 'flags' cannot be None")
@@ -851,9 +869,8 @@ class SessionMetaDataResumeTests(TestCase):
         value of ``flags``
         """
         with self.assertRaises(CorruptedSessionError) as boom:
-            obj_repr = copy.copy(self.good_repr)
-            obj_repr['metadata']['flags'] = [1]
-            self.resume_fn(self.session, obj_repr)
+            self.good_repr['metadata']['flags'] = [1]
+            self.resume_fn(self.session, self.good_repr)
         self.assertEqual(
             str(boom.exception),
             "Each flag must be a string")
@@ -862,9 +879,8 @@ class SessionMetaDataResumeTests(TestCase):
         """
         verify that _restore_SessionState_metadata() restores ``flags``
         """
-        obj_repr = copy.copy(self.good_repr)
-        obj_repr['metadata']['flags'] = ["flag1", "flag2"]
-        self.resume_fn(self.session, obj_repr)
+        self.good_repr['metadata']['flags'] = ["flag1", "flag2"]
+        self.resume_fn(self.session, self.good_repr)
         self.assertEqual(self.session.metadata.flags, set(['flag1', 'flag2']))
 
     def test_restore_SessionState_metadata_checks_running_job_name_type(self):
@@ -873,9 +889,8 @@ class SessionMetaDataResumeTests(TestCase):
         ``running_job_name``.
         """
         with self.assertRaises(CorruptedSessionError) as boom:
-            obj_repr = copy.copy(self.good_repr)
-            obj_repr['metadata']['running_job_name'] = 1
-            self.resume_fn(self.session, obj_repr)
+            self.good_repr['metadata']['running_job_name'] = 1
+            self.resume_fn(self.session, self.good_repr)
         self.assertEqual(
             str(boom.exception),
             "Value of key 'running_job_name' is of incorrect type int")
@@ -885,9 +900,8 @@ class SessionMetaDataResumeTests(TestCase):
         verify that _restore_SessionState_metadata() allows for
         ``running_job_name`` to be None
         """
-        obj_repr = copy.copy(self.good_repr)
-        obj_repr['metadata']['running_job_name'] = None
-        self.resume_fn(self.session, obj_repr)
+        self.good_repr['metadata']['running_job_name'] = None
+        self.resume_fn(self.session, self.good_repr)
         self.assertEqual(self.session.metadata.running_job_name, None)
 
     def test_restore_SessionState_metadata_restores_running_job_name(self):
@@ -895,9 +909,8 @@ class SessionMetaDataResumeTests(TestCase):
         verify that _restore_SessionState_metadata() restores
         the value of ``running_job_name``
         """
-        obj_repr = copy.copy(self.good_repr)
-        obj_repr['metadata']['running_job_name'] = "a job"
-        self.resume_fn(self.session, obj_repr)
+        self.good_repr['metadata']['running_job_name'] = "a job"
+        self.resume_fn(self.session, self.good_repr)
         self.assertEqual(self.session.metadata.running_job_name, "a job")
 
 

@@ -246,39 +246,43 @@ class EndToEndTests(TestCaseWithParameters):
         self.assertIs(session, self.seen_session)
 
 
-class IOLogRecordResumeTests(TestCase):
+class IOLogRecordResumeTests(TestCaseWithParameters):
     """
     Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1` and
-    how it handles resuming IOLogRecord objects
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and how they
+    handle resuming IOLogRecord objects
     """
+
+    parameter_names = ('resume_cls',)
+    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,))
 
     def test_build_IOLogRecord_missing_delay(self):
         """
         verify that _build_IOLogRecord() checks for missing ``delay``
         """
         with self.assertRaises(CorruptedSessionError):
-            SessionResumeHelper1._build_IOLogRecord([])
+            self.parameters.resume_cls._build_IOLogRecord([])
 
     def test_build_IOLogRecord_bad_type_for_delay(self):
         """
         verify that _build_IOLogRecord() checks that ``delay`` is float
         """
         with self.assertRaises(CorruptedSessionError):
-            SessionResumeHelper1._build_IOLogRecord([0, 'stdout', ''])
+            self.parameters.resume_cls._build_IOLogRecord([0, 'stdout', ''])
 
     def test_build_IOLogRecord_negative_delay(self):
         """
         verify that _build_IOLogRecord() checks for negative ``delay``
         """
         with self.assertRaises(CorruptedSessionError):
-            SessionResumeHelper1._build_IOLogRecord([-1.0, 'stdout', ''])
+            self.parameters.resume_cls._build_IOLogRecord([-1.0, 'stdout', ''])
 
     def test_build_IOLogRecord_missing_stream_name(self):
         """
         verify that _build_IOLogRecord() checks for missing ``stream-name``
         """
         with self.assertRaises(CorruptedSessionError):
-            SessionResumeHelper1._build_IOLogRecord([0.0])
+            self.parameters.resume_cls._build_IOLogRecord([0.0])
 
     def test_build_IOLogRecord_bad_type_stream_name(self):
         """
@@ -286,28 +290,29 @@ class IOLogRecordResumeTests(TestCase):
         is a string
         """
         with self.assertRaises(CorruptedSessionError):
-            SessionResumeHelper1._build_IOLogRecord([0.0, 1])
+            self.parameters.resume_cls._build_IOLogRecord([0.0, 1])
 
     def test_build_IOLogRecord_bad_value_stream_name(self):
         """
         verify that _build_IOLogRecord() checks that ``stream-name`` looks sane
         """
         with self.assertRaises(CorruptedSessionError):
-            SessionResumeHelper1._build_IOLogRecord([0.0, "foo", ""])
+            self.parameters.resume_cls._build_IOLogRecord([0.0, "foo", ""])
 
     def test_build_IOLogRecord_missing_data(self):
         """
         verify that _build_IOLogRecord() checks for missing ``data``
         """
         with self.assertRaises(CorruptedSessionError):
-            SessionResumeHelper1._build_IOLogRecord([0.0, 'stdout'])
+            self.parameters.resume_cls._build_IOLogRecord([0.0, 'stdout'])
 
     def test_build_IOLogRecord_non_ascii_data(self):
         """
         verify that _build_IOLogRecord() checks that ``data`` is ASCII
         """
         with self.assertRaises(CorruptedSessionError) as boom:
-            SessionResumeHelper1._build_IOLogRecord([0.0, 'stdout', '\uFFFD'])
+            self.parameters.resume_cls._build_IOLogRecord(
+                [0.0, 'stdout', '\uFFFD'])
         self.assertIsInstance(boom.exception.__context__, UnicodeEncodeError)
 
     def test_build_IOLogRecord_non_base64_ascii_data(self):
@@ -315,7 +320,7 @@ class IOLogRecordResumeTests(TestCase):
         verify that _build_IOLogRecord() checks that ``data`` is valid base64
         """
         with self.assertRaises(CorruptedSessionError) as boom:
-            SessionResumeHelper1._build_IOLogRecord(
+            self.parameters.resume_cls._build_IOLogRecord(
                 [0.0, 'stdout', '==broken'])
         # base64.standard_b64decode() raises binascii.Error
         self.assertIsInstance(boom.exception.__context__, binascii.Error)
@@ -325,7 +330,7 @@ class IOLogRecordResumeTests(TestCase):
         verify that _build_IOLogRecord() returns a proper IOLogRecord object
         with all the values in order
         """
-        record = SessionResumeHelper1._build_IOLogRecord(
+        record = self.parameters.resume_cls._build_IOLogRecord(
             [1.5, 'stderr', 'dGhpcyB3b3Jrcw=='])
         self.assertAlmostEqual(record.delay, 1.5)
         self.assertEqual(record.stream_name, 'stderr')

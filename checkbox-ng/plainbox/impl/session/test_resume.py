@@ -915,7 +915,6 @@ class SessionMetaDataResumeTests(TestCaseWithParameters):
 
 
 class SessionMetaDataResumeTests2(TestCase):
-
     """
     Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper2`
     and how it handles recreating SessionMetaData form its representation

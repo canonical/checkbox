@@ -682,12 +682,15 @@ class DiskJobResultResumeTests(JobResultResumeMixIn, TestCaseWithParameters):
         self.assertEqual(obj.io_log_filename, "some-file.txt")
 
 
-class DesiredJobListResumeTests(TestCase):
+class DesiredJobListResumeTests(TestCaseWithParameters):
     """
-    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1`
-    and how it handles recreating SessionState.desired_job_list form its
-    representation
+    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1` and
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and how they
+    handle recreating SessionState.desired_job_list form its representation
     """
+
+    parameter_names = ('resume_cls',)
+    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,))
 
     def setUp(self):
         # All of the tests need a SessionState object and some jobs to work
@@ -698,8 +701,8 @@ class DesiredJobListResumeTests(TestCase):
         self.good_repr = {
             "desired_job_list": ['a', 'b']
         }
-        self.resume_fn = \
-            SessionResumeHelper1._restore_SessionState_desired_job_list
+        self.resume_fn = (
+            self.parameters.resume_cls._restore_SessionState_desired_job_list)
 
     def test_restore_SessionState_desired_job_list_checks_for_repr_type(self):
         """

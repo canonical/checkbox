@@ -47,6 +47,7 @@ from plainbox.impl.session.resume import SessionResumeHelper1
 from plainbox.impl.session.resume import SessionResumeHelper2
 from plainbox.impl.session.state import SessionState
 from plainbox.impl.testing_utils import make_job
+from plainbox.testing_utils.testcases import TestCaseWithParameters
 
 
 class SessionResumeExceptionTests(TestCase):
@@ -139,9 +140,12 @@ class SessionResumeTests(TestCase):
         self.assertIsInstance(boom.exception.__context__, ValueError)
 
 
-class EndToEndTests(TestCase):
+class EndToEndTests(TestCaseWithParameters):
 
-    full_repr = {
+    parameter_names = ('format',)
+    parameter_values = (('1',), ('2'),)
+
+    full_repr_1 = {
         'version': 1,
         'session': {
             'jobs': {
@@ -190,6 +194,17 @@ class EndToEndTests(TestCase):
         }
     }
 
+    # Copy and patch the v1 representation to get a v2 representation
+    full_repr_2 = copy.deepcopy(full_repr_1)
+    full_repr_2['version'] = 2
+    full_repr_2['session']['metadata']['app_blob'] = None
+
+    # Map of representation names to representations
+    full_repr = {
+        '1': full_repr_1,
+        '2': full_repr_2
+    }
+
     def setUp(self):
         # Crete a "__category__" job
         self.category_job = JobDefinition({
@@ -218,7 +233,7 @@ class EndToEndTests(TestCase):
         })
         self.job_list = [self.category_job, self.generator_job]
         self.suspend_data = gzip.compress(
-            json.dumps(self.full_repr).encode("UTF-8"))
+            json.dumps(self.full_repr[self.parameters.format]).encode("UTF-8"))
 
     def test_resume_early_callback(self):
         """

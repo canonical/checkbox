@@ -338,7 +338,6 @@ class IOLogRecordResumeTests(TestCaseWithParameters):
 
 
 class JobResultResumeMixIn:
-
     """
     Mix-in class the defines most of the common tests for both
     MemoryJobResult and DiskJobResult.
@@ -355,7 +354,7 @@ class JobResultResumeMixIn:
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
             del obj_repr['outcome']
-            SessionResumeHelper1._build_JobResult(obj_repr)
+            self.parameters.resume_cls._build_JobResult(obj_repr)
         self.assertEqual(
             str(boom.exception), "Missing value for key 'outcome'")
 
@@ -366,7 +365,7 @@ class JobResultResumeMixIn:
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
             obj_repr['outcome'] = 42
-            SessionResumeHelper1._build_JobResult(obj_repr)
+            self.parameters.resume_cls._build_JobResult(obj_repr)
         self.assertEqual(
             str(boom.exception),
             "Value of key 'outcome' is of incorrect type int")
@@ -379,7 +378,7 @@ class JobResultResumeMixIn:
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
             obj_repr['outcome'] = 'maybe'
-            SessionResumeHelper1._build_JobResult(obj_repr)
+            self.parameters.resume_cls._build_JobResult(obj_repr)
         self.assertEqual(
             str(boom.exception), (
                 "Value for key 'outcome' not in allowed set [None, 'pass', "
@@ -393,7 +392,7 @@ class JobResultResumeMixIn:
         """
         obj_repr = copy.copy(self.good_repr)
         obj_repr['outcome'] = None
-        obj = SessionResumeHelper1._build_JobResult(obj_repr)
+        obj = self.parameters.resume_cls._build_JobResult(obj_repr)
         self.assertEqual(obj.outcome, None)
 
     def test_build_JobResult_restores_outcome(self):
@@ -402,7 +401,7 @@ class JobResultResumeMixIn:
         """
         obj_repr = copy.copy(self.good_repr)
         obj_repr['outcome'] = 'fail'
-        obj = SessionResumeHelper1._build_JobResult(obj_repr)
+        obj = self.parameters.resume_cls._build_JobResult(obj_repr)
         self.assertEqual(obj.outcome, 'fail')
 
     def test_build_JobResult_checks_for_missing_comments(self):
@@ -412,7 +411,7 @@ class JobResultResumeMixIn:
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
             del obj_repr['comments']
-            SessionResumeHelper1._build_JobResult(obj_repr)
+            self.parameters.resume_cls._build_JobResult(obj_repr)
         self.assertEqual(
             str(boom.exception), "Missing value for key 'comments'")
 
@@ -423,7 +422,7 @@ class JobResultResumeMixIn:
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
             obj_repr['comments'] = False
-            SessionResumeHelper1._build_JobResult(obj_repr)
+            self.parameters.resume_cls._build_JobResult(obj_repr)
         self.assertEqual(
             str(boom.exception),
             "Value of key 'comments' is of incorrect type bool")
@@ -435,7 +434,7 @@ class JobResultResumeMixIn:
         """
         obj_repr = copy.copy(self.good_repr)
         obj_repr['comments'] = None
-        obj = SessionResumeHelper1._build_JobResult(obj_repr)
+        obj = self.parameters.resume_cls._build_JobResult(obj_repr)
         self.assertEqual(obj.comments, None)
 
     def test_build_JobResult_restores_comments(self):
@@ -444,7 +443,7 @@ class JobResultResumeMixIn:
         """
         obj_repr = copy.copy(self.good_repr)
         obj_repr['comments'] = 'this is a comment'
-        obj = SessionResumeHelper1._build_JobResult(obj_repr)
+        obj = self.parameters.resume_cls._build_JobResult(obj_repr)
         self.assertEqual(obj.comments, 'this is a comment')
 
     def test_build_JobResult_checks_for_missing_return_code(self):
@@ -454,7 +453,7 @@ class JobResultResumeMixIn:
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
             del obj_repr['return_code']
-            SessionResumeHelper1._build_JobResult(obj_repr)
+            self.parameters.resume_cls._build_JobResult(obj_repr)
         self.assertEqual(
             str(boom.exception), "Missing value for key 'return_code'")
 
@@ -465,7 +464,7 @@ class JobResultResumeMixIn:
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
             obj_repr['return_code'] = "text"
-            SessionResumeHelper1._build_JobResult(obj_repr)
+            self.parameters.resume_cls._build_JobResult(obj_repr)
         self.assertEqual(
             str(boom.exception),
             "Value of key 'return_code' is of incorrect type str")
@@ -477,7 +476,7 @@ class JobResultResumeMixIn:
         """
         obj_repr = copy.copy(self.good_repr)
         obj_repr['return_code'] = None
-        obj = SessionResumeHelper1._build_JobResult(obj_repr)
+        obj = self.parameters.resume_cls._build_JobResult(obj_repr)
         self.assertEqual(obj.return_code, None)
 
     def test_build_JobResult_restores_return_code(self):
@@ -486,7 +485,7 @@ class JobResultResumeMixIn:
         """
         obj_repr = copy.copy(self.good_repr)
         obj_repr['return_code'] = 42
-        obj = SessionResumeHelper1._build_JobResult(obj_repr)
+        obj = self.parameters.resume_cls._build_JobResult(obj_repr)
         self.assertEqual(obj.return_code, 42)
 
     def test_build_JobResult_checks_for_missing_execution_duration(self):
@@ -497,7 +496,7 @@ class JobResultResumeMixIn:
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
             del obj_repr['execution_duration']
-            SessionResumeHelper1._build_JobResult(obj_repr)
+            self.parameters.resume_cls._build_JobResult(obj_repr)
         self.assertEqual(
             str(boom.exception), "Missing value for key 'execution_duration'")
 
@@ -509,7 +508,7 @@ class JobResultResumeMixIn:
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
             obj_repr['execution_duration'] = "text"
-            SessionResumeHelper1._build_JobResult(obj_repr)
+            self.parameters.resume_cls._build_JobResult(obj_repr)
         self.assertEqual(
             str(boom.exception),
             "Value of key 'execution_duration' is of incorrect type str")
@@ -521,7 +520,7 @@ class JobResultResumeMixIn:
         """
         obj_repr = copy.copy(self.good_repr)
         obj_repr['execution_duration'] = None
-        obj = SessionResumeHelper1._build_JobResult(obj_repr)
+        obj = self.parameters.resume_cls._build_JobResult(obj_repr)
         self.assertEqual(obj.execution_duration, None)
 
     def test_build_JobResult_restores_execution_duration(self):
@@ -531,17 +530,19 @@ class JobResultResumeMixIn:
         """
         obj_repr = copy.copy(self.good_repr)
         obj_repr['execution_duration'] = 5.1
-        obj = SessionResumeHelper1._build_JobResult(obj_repr)
+        obj = self.parameters.resume_cls._build_JobResult(obj_repr)
         self.assertAlmostEqual(obj.execution_duration, 5.1)
 
 
-class MemoryJobResultResumeTests(JobResultResumeMixIn, TestCase):
-
+class MemoryJobResultResumeTests(JobResultResumeMixIn, TestCaseWithParameters):
     """
-    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1`
-    and how it handles recreating MemoryJobResult form their representations
+    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1` and
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and how they
+    handle recreating MemoryJobResult form their representations
     """
 
+    parameter_names = ('resume_cls',)
+    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,))
     good_repr = {
         'outcome': "pass",
         'comments': None,
@@ -551,7 +552,7 @@ class MemoryJobResultResumeTests(JobResultResumeMixIn, TestCase):
     }
 
     def test_build_JobResult_restores_MemoryJobResult_representations(self):
-        obj = SessionResumeHelper1._build_JobResult(self.good_repr)
+        obj = self.parameters.resume_cls._build_JobResult(self.good_repr)
         self.assertIsInstance(obj, MemoryJobResult)
 
     def test_build_JobResult_checks_for_missing_io_log(self):
@@ -561,7 +562,7 @@ class MemoryJobResultResumeTests(JobResultResumeMixIn, TestCase):
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
             del obj_repr['io_log']
-            SessionResumeHelper1._build_JobResult(obj_repr)
+            self.parameters.resume_cls._build_JobResult(obj_repr)
         self.assertEqual(
             str(boom.exception), "Missing value for key 'io_log'")
 
@@ -573,7 +574,7 @@ class MemoryJobResultResumeTests(JobResultResumeMixIn, TestCase):
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
             obj_repr['io_log'] = "text"
-            SessionResumeHelper1._build_JobResult(obj_repr)
+            self.parameters.resume_cls._build_JobResult(obj_repr)
         self.assertEqual(
             str(boom.exception),
             "Value of key 'io_log' is of incorrect type str")
@@ -586,7 +587,7 @@ class MemoryJobResultResumeTests(JobResultResumeMixIn, TestCase):
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
             obj_repr['io_log'] = None
-            SessionResumeHelper1._build_JobResult(obj_repr)
+            self.parameters.resume_cls._build_JobResult(obj_repr)
         self.assertEqual(
             str(boom.exception),
             "Value of key 'io_log' cannot be None")
@@ -598,7 +599,7 @@ class MemoryJobResultResumeTests(JobResultResumeMixIn, TestCase):
         """
         obj_repr = copy.copy(self.good_repr)
         obj_repr['io_log'] = [[0.0, 'stdout', '']]
-        obj = SessionResumeHelper1._build_JobResult(obj_repr)
+        obj = self.parameters.resume_cls._build_JobResult(obj_repr)
         # NOTE: MemoryJobResult.io_log is a property that converts
         # whatever was stored to IOLogRecord and returns a _tuple_
         # so the original list is not visible
@@ -607,13 +608,15 @@ class MemoryJobResultResumeTests(JobResultResumeMixIn, TestCase):
         ]))
 
 
-class DiskJobResultResumeTests(JobResultResumeMixIn, TestCase):
-
+class DiskJobResultResumeTests(JobResultResumeMixIn, TestCaseWithParameters):
     """
-    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1`
-    and how it handles recreating DiskJobResult form their representations
+    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1` and
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and how they
+    handle recreating DiskJobResult form their representations
     """
 
+    parameter_names = ('resume_cls',)
+    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,))
     good_repr = {
         'outcome': "pass",
         'comments': None,
@@ -623,7 +626,7 @@ class DiskJobResultResumeTests(JobResultResumeMixIn, TestCase):
     }
 
     def test_build_JobResult_restores_DiskJobResult_representations(self):
-        obj = SessionResumeHelper1._build_JobResult(self.good_repr)
+        obj = self.parameters.resume_cls._build_JobResult(self.good_repr)
         self.assertIsInstance(obj, DiskJobResult)
 
     def test_build_JobResult_does_not_check_for_missing_io_log_filename(self):
@@ -635,7 +638,7 @@ class DiskJobResultResumeTests(JobResultResumeMixIn, TestCase):
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
             del obj_repr['io_log_filename']
-            SessionResumeHelper1._build_JobResult(obj_repr)
+            self.parameters.resume_cls._build_JobResult(obj_repr)
         # NOTE: the error message explicitly talks about 'io_log', not
         # about 'io_log_filename' because we're hitting the other path
         # of the restore function
@@ -650,7 +653,7 @@ class DiskJobResultResumeTests(JobResultResumeMixIn, TestCase):
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
             obj_repr['io_log_filename'] = False
-            SessionResumeHelper1._build_JobResult(obj_repr)
+            self.parameters.resume_cls._build_JobResult(obj_repr)
         self.assertEqual(
             str(boom.exception),
             "Value of key 'io_log_filename' is of incorrect type bool")
@@ -663,7 +666,7 @@ class DiskJobResultResumeTests(JobResultResumeMixIn, TestCase):
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
             obj_repr['io_log_filename'] = None
-            SessionResumeHelper1._build_JobResult(obj_repr)
+            self.parameters.resume_cls._build_JobResult(obj_repr)
         self.assertEqual(
             str(boom.exception),
             "Value of key 'io_log_filename' cannot be None")
@@ -675,7 +678,7 @@ class DiskJobResultResumeTests(JobResultResumeMixIn, TestCase):
         """
         obj_repr = copy.copy(self.good_repr)
         obj_repr['io_log_filename'] = "some-file.txt"
-        obj = SessionResumeHelper1._build_JobResult(obj_repr)
+        obj = self.parameters.resume_cls._build_JobResult(obj_repr)
         self.assertEqual(obj.io_log_filename, "some-file.txt")
 
 

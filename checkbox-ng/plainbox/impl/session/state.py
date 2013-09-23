@@ -309,6 +309,72 @@ class SessionState:
         self._metadata = SessionMetaData()
         super(SessionState, self).__init__()
 
+    def trim_job_list(self, qualifier):
+        """
+        Discard jobs that are selected by the given qualifier.
+
+        :param qualifier:
+            A qualifier that selects jobs to be removed
+        :ptype qualifier:
+            IJobQualifier
+
+        :raises ValueError:
+            If any of the jobs selected by the qualifier is on the desired job
+            list (or the run list)
+
+        This function correctly and safely discards certain jobs from the job
+        list. It also removes the associated job state (and referenced job
+        result) and results (for jobs that were resource jobs)
+        """
+        # Build a list for each of the jobs in job_list, that tells us if we
+        # should remove that job. This way we only call the qualifier once per
+        # job and can do efficient operations later.
+        #
+        # The whole function should be O(N), where N is len(job_list)
+        remove_flags = [
+            qualifier.designates(job) for job in self._job_list]
+        # Build a list of (job, should_remove) flags, we'll be using this list
+        # a few times below.
+        job_and_flag_list = list(zip(self._job_list, remove_flags))
+        # Build a set of names of jobs that we'll be removing
+        remove_job_name_set = frozenset([
+            job.name for job, should_remove in job_and_flag_list
+            if should_remove is True])
+        # Build a set of names of jobs that are on the run list
+        run_list_name_set = frozenset([job.name for job in self.run_list])
+        # Check if this is safe to do. None of the jobs may be in the run list
+        # (or the desired job list which is always a subset of run list)
+        unremovable_job_name_set = remove_job_name_set.intersection(
+            run_list_name_set)
+        if unremovable_job_name_set:
+            raise ValueError(
+                "cannot remove jobs that are on the run list: {}".format(
+                    ', '.join(sorted(unremovable_job_name_set))))
+        # Remove job state and resources (if present) for all the jobs we're
+        # about to remove. Note that while each job has a state object not all
+        # jobs generated resources so that removal is conditional.
+        for job, should_remove in job_and_flag_list:
+            if should_remove:
+                del self._job_state_map[job.name]
+                if job.name in self._resource_map:
+                    del self._resource_map[job.name]
+        # Compute a list of jobs to retain
+        retain_list = [
+            job for job, should_remove in job_and_flag_list
+            if should_remove is False]
+        # And a list of jobs to remove
+        remove_list = [
+            job for job, should_remove in job_and_flag_list
+            if should_remove is True]
+        # Replace job list with the filtered list
+        self._job_list = retain_list
+        if remove_list:
+            # Notify that the job state map has changed
+            self.on_job_state_map_changed()
+            # And that each removed job was actually removed
+            for job in remove_list:
+                self.on_job_removed(job)
+
     def update_desired_job_list(self, desired_job_list):
         """
         Update the set of desired jobs (that ought to run)

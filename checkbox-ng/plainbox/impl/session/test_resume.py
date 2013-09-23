@@ -991,12 +991,15 @@ class SessionMetaDataResumeTests2(TestCase):
         self.assertIsInstance(boom.exception.__context__, binascii.Error)
 
 
-class ProcessJobTests(TestCase):
+class ProcessJobTests(TestCaseWithParameters):
+    """
+    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1` and
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper2` and how they
+    handle processing jobs using _process_job() method
+    """
 
-    """
-    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1`
-    and how it handles processing jobs using _process_job() method
-    """
+    parameter_names = ('resume_cls',)
+    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,))
 
     def setUp(self):
         self.job_name = 'job'
@@ -1013,7 +1016,7 @@ class ProcessJobTests(TestCase):
                 'io_log': [],
             }]
         }
-        self.helper = SessionResumeHelper1([self.job])
+        self.helper = self.parameters.resume_cls([self.job])
         # This object is artificial and would be constructed internally
         # by the helper but having it here makes testing easier as we
         # can reliably test a single method in isolation.

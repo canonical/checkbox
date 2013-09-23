@@ -1245,13 +1245,16 @@ class JobPluginSpecificTests(TestCaseWithParameters):
             session.job_state_map['generated'].job, session.job_list)
 
 
-class SessionJobsAndResultsResumeTests(TestCase):
+class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
+    """
+    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1` and
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and how they
+    handle resume the session using _restore_SessionState_jobs_and_results()
+    method.
+    """
 
-    """
-    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1`
-    and how it handles resume the session using
-    _restore_SessionState_jobs_and_results() method.
-    """
+    parameter_names = ('resume_cls',)
+    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,))
 
     def test_empty_session(self):
         """
@@ -1264,7 +1267,7 @@ class SessionJobsAndResultsResumeTests(TestCase):
             'jobs': {},
             'results': {}
         }
-        helper = SessionResumeHelper1([])
+        helper = self.parameters.resume_cls([])
         session = SessionState([])
         helper._restore_SessionState_jobs_and_results(session, session_repr)
         self.assertEqual(session.job_list, [])
@@ -1292,7 +1295,7 @@ class SessionJobsAndResultsResumeTests(TestCase):
                 }]
             }
         }
-        helper = SessionResumeHelper1([job])
+        helper = self.parameters.resume_cls([])
         session = SessionState([job])
         helper._restore_SessionState_jobs_and_results(session, session_repr)
         # Session still has one job in it
@@ -1339,7 +1342,7 @@ class SessionJobsAndResultsResumeTests(TestCase):
             }
         }
         # We only pass the parent to the helper! Child will be re-created
-        helper = SessionResumeHelper1([parent])
+        helper = self.parameters.resume_cls([parent])
         session = SessionState([parent])
         helper._restore_SessionState_jobs_and_results(session, session_repr)
         # We should now have two jobs, parent and child
@@ -1413,7 +1416,7 @@ class SessionJobsAndResultsResumeTests(TestCase):
         }
         # We only pass the parent to the helper!
         # The 'child' and 'grandchild' jobs will be re-created
-        helper = SessionResumeHelper1([parent])
+        helper = self.parameters.resume_cls([parent])
         session = SessionState([parent])
         helper._restore_SessionState_jobs_and_results(session, session_repr)
         # We should now have two jobs, parent and child
@@ -1434,7 +1437,7 @@ class SessionJobsAndResultsResumeTests(TestCase):
                 'job-name': []
             }
         }
-        helper = SessionResumeHelper1([])
+        helper = self.parameters.resume_cls([])
         session = SessionState([])
         with self.assertRaises(CorruptedSessionError) as boom:
             helper._restore_SessionState_jobs_and_results(

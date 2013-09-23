@@ -253,6 +253,15 @@ class SessionState:
         """
         logger.info("New job defined: %r", job)
 
+    @Signal.define
+    def on_job_removed(self, job):
+        """
+        Signal sent whenever a job is removed from the session.
+
+        This signal is fired **after** :meth:`on_job_state_map_changed()`
+        """
+        logger.info("Job removed: %r", job)
+
     def __init__(self, job_list):
         """
         Initialize a new SessionState with a given list of jobs.

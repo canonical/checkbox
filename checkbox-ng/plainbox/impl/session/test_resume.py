@@ -1151,13 +1151,16 @@ class ProcessJobTests(TestCaseWithParameters):
             "Value of object is of incorrect type int")
 
 
-class JobPluginSpecificTests(TestCase):
+class JobPluginSpecificTests(TestCaseWithParameters):
+    """
+    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1` and
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and how they
+    handle processing jobs using _process_job() method. This class focuses on
+    plugin-specific test such as for local and resource jobs
+    """
 
-    """
-    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1`
-    and how it handles processing jobs using _process_job() method. This
-    class focuses on plugin-specific test such as for local and resource jobs
-    """
+    parameter_names = ('resume_cls',)
+    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,))
 
     def test_process_job_restores_resources(self):
         """
@@ -1187,7 +1190,7 @@ class JobPluginSpecificTests(TestCase):
                 ],
             }]
         }
-        helper = SessionResumeHelper1([job])
+        helper = self.parameters.resume_cls([job])
         session = SessionState([job])
         # Ensure that the resource was not there initially
         self.assertNotIn(job_name, session.resource_map)
@@ -1226,7 +1229,7 @@ class JobPluginSpecificTests(TestCase):
                 ],
             }]
         }
-        helper = SessionResumeHelper1([job])
+        helper = self.parameters.resume_cls([job])
         session = SessionState([job])
         # Ensure that the 'generated' job was not there initially
         self.assertNotIn('generated', session.job_state_map)

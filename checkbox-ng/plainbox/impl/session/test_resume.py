@@ -1444,3 +1444,36 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
                 session, session_repr)
         self.assertEqual(
             str(boom.exception), "Unknown jobs remaining: job-name")
+
+
+class SessionJobListResumeTests(TestCaseWithParameters):
+    """
+    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1` and
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and how they
+    handle resume session.job_list using _restore_SessionState_job_list()
+    method.
+    """
+
+    parameter_names = ('resume_cls',)
+    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,))
+
+    def test_simple_session(self):
+        """
+        verify that _restore_SessionState_job_list() does restore job_list
+        """
+        job_a = make_job(name='a')
+        job_b = make_job(name='b')
+        session_repr = {
+            'jobs': {
+                job_a.name: job_a.get_checksum()
+            },
+            'results': {
+                job_a.name: [],
+            }
+        }
+        helper = self.parameters.resume_cls([job_a, job_b])
+        session = SessionState([job_a, job_b])
+        helper._restore_SessionState_job_list(session, session_repr)
+        # Job "a" is still in the list but job "b" got removed
+        self.assertEqual(session.job_list, [job_a])
+        # The rest is tested by trim_job_list() tests

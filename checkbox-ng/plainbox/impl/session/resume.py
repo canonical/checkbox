@@ -51,6 +51,7 @@ import json
 import logging
 
 from plainbox.abc import IJobResult
+from plainbox.abc import IJobQualifier
 from plainbox.impl.result import DiskJobResult
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.result import IOLogRecord
@@ -123,9 +124,9 @@ class SessionResumeHelper:
             :class:`~plainbox.impl.session.state.SessionState`
 
         This method validates the representation of a dormant session and
-        re-creates a similar-but-not-identical SessionState instance. It can
-        fail in multiple ways, some of which are a part of normal operation and
-        should always be handled (:class:`IncompatibleJobError` and
+        re-creates an identical SessionState instance. It can fail in multiple
+        ways, some of which are a part of normal operation and should always be
+        handled (:class:`IncompatibleJobError` and
         :class:`IncompatibleJobError`). Applications may wish to capture
         :class:`SessionResumeError` as a generic base exception for all the
         possible problems.
@@ -238,6 +239,8 @@ class SessionResumeHelper1:
         self._restore_SessionState_metadata(session, session_repr)
         logger.debug("Starting to restore desired job list...")
         self._restore_SessionState_desired_job_list(session, session_repr)
+        logger.debug("Starting to restore job list...")
+        self._restore_SessionState_job_list(session, session_repr)
         # Return whatever we've got
         logger.debug("Resume complete!")
         return session
@@ -397,6 +400,36 @@ class SessionResumeHelper1:
             raise CorruptedSessionError(
                 "'desired_job_list' refers to unknown job {!r}".format(
                     exc.args[0]))
+
+    @classmethod
+    def _restore_SessionState_job_list(cls, session, session_repr):
+        """
+        Trim job_list so that it has only those jobs that are mentioned by the
+        session representation. This should never fail as anything that might
+        go wrong must have gone wrong before.
+        """
+        class ResumeDiscardQualifier(IJobQualifier):
+            """
+            A job qualifier that designates jobs that should be removed
+            after doing a session resume.
+            """
+
+            def __init__(self, jobs_repr):
+                # Set of names of jobs to retain (computed as keys of the
+                # dictionary taken from the session resume representation)
+                self._retain_name_set = frozenset(jobs_repr)
+
+            def designates(self, job):
+                return job.name not in self._retain_name_set
+        # Representation of all of the job definitions
+        jobs_repr = _validate(session_repr, key='jobs', value_type=dict)
+        # Qualifier ready to select jobs to remove
+        qualifier = ResumeDiscardQualifier(jobs_repr)
+        # NOTE: this should never raise ValueError (which signals that we
+        # tried to remove a job which is in the run list) because it should
+        # only remove jobs that were not in the representation and any job in
+        # the run list must be in the representation already.
+        session.trim_job_list(qualifier)
 
     @classmethod
     def _build_JobResult(cls, result_repr):

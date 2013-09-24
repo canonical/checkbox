@@ -977,7 +977,7 @@ class SessionMetaDataResumeTests2(TestCase):
         self.assertEqual(str(boom.exception), "app_blob is not ASCII")
         self.assertIsInstance(boom.exception.__context__, UnicodeEncodeError)
 
-    def test_build_SessionState_metadata_non_base64_app_blob(self):
+    def test_restore_SessionState_metadata_non_base64_app_blob(self):
         """
         verify that _restore_SessionState_metadata() checks that ``app_blob``
         is valid base64

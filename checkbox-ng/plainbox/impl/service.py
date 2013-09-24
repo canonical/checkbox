@@ -686,6 +686,7 @@ class SessionWrapper(PlainBoxObjectWrapper):
             self._job_state_map_wrapper[job_name] = state_wrapper
         # Keep track of new jobs as they are added to the session
         self.native.on_job_added.connect(self._job_added)
+        self.native.on_job_removed.connect(self._job_removed)
 
     def __del__(self):
         super(SessionWrapper, self).__del__()
@@ -854,6 +855,41 @@ class SessionWrapper(PlainBoxObjectWrapper):
         state_wrapper = self.add_state(state)
         # Update the job_state_map wrapper that we have here
         self._job_state_map_wrapper[job.name] = state_wrapper
+        # Send the signal that the 'job_state_map' property has changed
+        self.PropertiesChanged(SESSION_IFACE, {
+            self.__class__.job_state_map._dbus_property:
+            self._job_state_map_wrapper
+        }, [])
+
+    def _job_removed(self, job):
+        """
+        Internal method connected to the SessionState.on_job_removed() signal.
+
+        This method is called (so far) only when the list of jobs is trimmed
+        after doing calling :meth:`Resume()`. This method looks up the
+        associated state and result object and removes them. If the removed job
+        was not a part of the provider set (it was a generated job) it is also
+        removed. Lastly this method sends the appropriate notifications.
+        """
+        logger.debug("_job_removed(%r)", job)
+        # Get references to the three key objects, job, state and result
+        state_wrapper = self._job_state_map_wrapper[job.name]
+        result_wrapper = state_wrapper._result_wrapper
+        job_wrapper = state_wrapper._job_wrapper
+        # Remove result and state from our managed object list
+        self.remove_managed_object(result_wrapper)
+        self.remove_managed_object(state_wrapper)
+        # Remove job from managed object list if it was generated
+        if job_wrapper._is_generated:
+            self.remove_managed_object(job_wrapper)
+        # Remove result and state wrappers from dbus
+        result_wrapper.remove_from_connection()
+        state_wrapper.remove_from_connection()
+        # Remove job from dbus if it was generated
+        if job_wrapper._is_generated:
+            job_wrapper.remove_from_connection()
+        # Update the job_state_map wrapper that we have here
+        del self._job_state_map_wrapper[job.name]
         # Send the signal that the 'job_state_map' property has changed
         self.PropertiesChanged(SESSION_IFACE, {
             self.__class__.job_state_map._dbus_property:

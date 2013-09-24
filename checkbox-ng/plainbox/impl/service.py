@@ -267,6 +267,7 @@ class JobDefinitionWrapper(PlainBoxObjectWrapper):
 
     def __shared_initialize__(self, **kwargs):
         self._checksum = self.native.get_checksum()
+        self._is_generated = False
 
     def _get_preferred_object_path(self):
         # TODO: this clashes with providers, maybe use a random ID instead
@@ -769,6 +770,10 @@ class SessionWrapper(PlainBoxObjectWrapper):
         """
         logger.info("Adding job %r to DBus", job)
         job_wrapper = self._maybe_wrap(job)
+        # Mark this job as generated, so far we only add generated jobs at
+        # runtime and we need to treat those differently when we're changing
+        # the session.
+        job_wrapper._is_generated = True
         job_wrapper.publish_self(self.connection)
         self.add_managed_object(job_wrapper)
         return job_wrapper

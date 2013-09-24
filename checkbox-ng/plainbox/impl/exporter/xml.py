@@ -111,9 +111,12 @@ class XMLSessionStateExporter(SessionStateExporterBase):
     # to one of the allowed statuses listed above.
     _STATUS_MAP = {
         "none": "none",
+        IJobResult.OUTCOME_NONE: "none",
         IJobResult.OUTCOME_PASS: IJobResult.OUTCOME_PASS,
         IJobResult.OUTCOME_FAIL: IJobResult.OUTCOME_FAIL,
         IJobResult.OUTCOME_SKIP: IJobResult.OUTCOME_SKIP,
+        IJobResult.OUTCOME_UNDECIDED: "none",
+        IJobResult.OUTCOME_NOT_IMPLEMENTED: IJobResult.OUTCOME_SKIP,
         IJobResult.OUTCOME_NOT_SUPPORTED: IJobResult.OUTCOME_SKIP}
 
     def __init__(self, option_list=None, system_id=None, timestamp=None,

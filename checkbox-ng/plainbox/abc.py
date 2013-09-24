@@ -198,6 +198,25 @@ class IJobResult(metaclass=ABCMeta):
         """
 
 
+class IJobQualifier(metaclass=ABCMeta):
+    """
+    An opaque qualifier for a job definition.
+
+    This is an abstraction for matching jobs definitions to names, patterns and
+    other means of selecting jobs.
+    """
+
+    @abstractmethod
+    def designates(self, job):
+        """
+        Check if this qualifier designates the specified
+        :class:`plainbox.abc.IJobDefinition`
+
+        :returns True: if the qualifier designates the specified job
+        :returns False: otherwise
+        """
+
+
 class IJobRunner(metaclass=ABCMeta):
     """
     Something that can run a job definition and produce results.

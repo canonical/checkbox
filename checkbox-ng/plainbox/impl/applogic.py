@@ -26,32 +26,13 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
-from abc import ABCMeta, abstractmethod
 import os
 import re
 
+from plainbox.abc import IJobQualifier
 from plainbox.abc import IJobResult
 from plainbox.impl import config
 from plainbox.impl.result import MemoryJobResult
-
-
-class IJobQualifier(metaclass=ABCMeta):
-    """
-    An opaque qualifier for a job definition.
-
-    This is an abstraction for matching jobs definitions to names, patterns and
-    other means of selecting jobs.
-    """
-
-    @abstractmethod
-    def designates(self, job):
-        """
-        Check if this qualifier designates the specified
-        :class:`plainbox.abc.IJobDefinition`
-
-        :returns True: if the qualifier designates the specified job
-        :returns False: otherwise
-        """
 
 
 class RegExpJobQualifier(IJobQualifier):

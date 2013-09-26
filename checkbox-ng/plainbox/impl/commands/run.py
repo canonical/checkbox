@@ -61,6 +61,15 @@ class RunInvocation(CheckBoxInvocationMixIn):
         self.config = config
         self.ns = ns
 
+    @property
+    def is_interactive(self):
+        """
+        Flag indicating that this is an interactive invocation and we can
+        interact with the user when we encounter OUTCOME_UNDECIDED
+        """
+        return (sys.stdin.isatty() and sys.stdout.isatty() and not
+                self.ns.not_interactive)
+
     def run(self):
         ns = self.ns
         if ns.output_format == '?':
@@ -187,8 +196,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
                 return_code = authenticate_warmup()
                 if return_code:
                     raise SystemExit(return_code)
-            if (sys.stdin.isatty() and sys.stdout.isatty() and not
-                    ns.not_interactive):
+            if self.is_interactive:
                 interaction_callback = self._interaction_callback
             else:
                 interaction_callback = None

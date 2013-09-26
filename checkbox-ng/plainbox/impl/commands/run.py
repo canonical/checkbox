@@ -196,14 +196,9 @@ class RunInvocation(CheckBoxInvocationMixIn):
                 return_code = authenticate_warmup()
                 if return_code:
                     raise SystemExit(return_code)
-            if self.is_interactive:
-                interaction_callback = self._interaction_callback
-            else:
-                interaction_callback = None
             runner = JobRunner(
                 session.session_dir,
                 session.jobs_io_log_dir,
-                interaction_callback=interaction_callback,
                 dry_run=ns.dry_run
             )
             self._run_jobs_with_session(ns, session, runner)
@@ -355,6 +350,10 @@ class RunInvocation(CheckBoxInvocationMixIn):
             session.metadata.running_job_name = job.name
             session.persistent_save()
             job_result = runner.run_job(job)
+            if (job_result.outcome == IJobResult.OUTCOME_UNDECIDED
+                    and self.is_interactive):
+                job_result = self._interaction_callback(
+                    runner, job, self.config)
             session.metadata.running_job_name = None
             session.persistent_save()
             print("Outcome: {}".format(job_result.outcome))

@@ -80,7 +80,7 @@ class PlainBoxTool(PlainBoxToolBase):
         top-level subcommands.
         """
         # TODO: switch to plainbox plugins
-        RunCommand(self._provider).register_parser(subparsers)
+        RunCommand(self._provider, self._config).register_parser(subparsers)
         SelfTestCommand().register_parser(subparsers)
         SRUCommand(self._provider, self._config).register_parser(subparsers)
         CheckConfigCommand(self._config).register_parser(subparsers)

@@ -56,8 +56,9 @@ logger = getLogger("plainbox.commands.run")
 
 class RunInvocation(CheckBoxInvocationMixIn):
 
-    def __init__(self, provider, ns):
+    def __init__(self, provider, config, ns):
         super(RunInvocation, self).__init__(provider)
+        self.config = config
         self.ns = ns
 
     def run(self):
@@ -361,11 +362,12 @@ class RunInvocation(CheckBoxInvocationMixIn):
 
 class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
 
-    def __init__(self, provider):
+    def __init__(self, provider, config):
         self.provider = provider
+        self.config = config
 
     def invoked(self, ns):
-        return RunInvocation(self.provider, ns).run()
+        return RunInvocation(self.provider, self.config, ns).run()
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser("run", help="run a test job")

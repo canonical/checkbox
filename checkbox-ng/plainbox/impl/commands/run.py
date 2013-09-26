@@ -253,7 +253,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
             output_file.close()
 
     def _interaction_callback(self, runner, job, config, prompt=None,
-                             allowed_outcome=None):
+                              allowed_outcome=None):
         result = {}
         if prompt is None:
             prompt = "Select an outcome or an action: "
@@ -293,7 +293,8 @@ class RunInvocation(CheckBoxInvocationMixIn):
             print("Estimated duration is {:.2f} for automated jobs.".format(
                   estimated_duration_auto))
         else:
-            print("Estimated duration cannot be determined for automated jobs.")
+            print(
+                "Estimated duration cannot be determined for automated jobs.")
         if estimated_duration_manual:
             print("Estimated duration is {:.2f} for manual jobs.".format(
                   estimated_duration_manual))

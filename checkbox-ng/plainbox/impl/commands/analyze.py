@@ -61,6 +61,8 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
             self._print_interactivity_report()
         if self.ns.print_estimated_duration_report:
             self._print_estimated_duration_report()
+        if self.ns.print_validation_report:
+            self._print_validation_report()
 
     def _run_local_jobs(self):
         print("[Running Local Jobs]".center(80, '='))
@@ -138,6 +140,21 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
             if manual is not None and automated is not None
             else "cannot estimate"))
 
+    def _print_validation_report(self):
+        print("[Validation Report]".center(80, '='))
+        if not self.session.run_list:
+            return
+        max_job_len = max(len(job.name) for job in self.session.run_list)
+        fmt = "{{job:{}}} : {{problem}}".format(max_job_len)
+        for job in self.session.run_list:
+            try:
+                job.validate()
+            except ValueError as exc:
+                problem = str(exc)
+            else:
+                problem = ""
+            print(fmt.format(job=job.name, problem=problem))
+
 
 
 class AnalyzeCommand(PlainBoxCommand, CheckBoxCommandMixIn):
@@ -176,6 +193,9 @@ class AnalyzeCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         group.add_argument(
             "-e", "--print-estimated-duration-report", action='store_true',
             help="Print estimated duration report")
+        group.add_argument(
+            "-v", "--print-validation-report", action='store_true',
+            help="Print validation report")
         parser.set_defaults(command=self)
         # Call enhance_parser from CheckBoxCommandMixIn
         self.enhance_parser(parser)

@@ -34,9 +34,124 @@ from plainbox.abc import IJobDefinition
 from plainbox.impl.config import Unset
 from plainbox.impl.resource import ResourceProgram
 from plainbox.impl.secure.checkbox_trusted_launcher import BaseJob
+from plainbox.impl.symbol import SymbolDef
 
 
 logger = logging.getLogger("plainbox.job")
+
+
+class Problem(SymbolDef):
+    """
+    Symbols for each possible problem that a field value may have
+    """
+    missing
+    wrong
+    useless
+
+
+class ValidationError(ValueError):
+    """
+    Exception raised by to report jobs with problematic definitions.
+    """
+
+    def __init__(self, field, problem):
+        self.field = field
+        self.problem = problem
+
+    def __str__(self):
+        return "Problem with field {}: {}".format(self.field, self.problem)
+
+    def __repr__(self):
+        return "ValidationError(field={!r}, problem={!r})".format(
+            self.field, self.problem)
+
+
+class CheckBoxJobValidator:
+    """
+    Validator for CheckBox jobs.
+    """
+
+    @staticmethod
+    def validate(job):
+        """
+        Validate the specified job
+        """
+        # Check if name is empty
+        if job.name is None:
+            raise ValidationError(job.fields.name, Problem.missing)
+        # Check if plugin is empty
+        if job.plugin is None:
+            raise ValidationError(job.fields.plugin, Problem.missing)
+        # Check if plugin has a good value
+        if job.plugin not in JobDefinition.plugin.get_all_symbols():
+            raise ValidationError(job.fields.plugin, Problem.wrong)
+        # Check if user is given without a command to run
+        if job.user is not None and job.command is None:
+            raise ValidationError(job.fields.user, Problem.useless)
+        # Check if environ is given without a command to run
+        if job.environ is not None and job.command is None:
+            raise ValidationError(job.fields.environ, Problem.useless)
+        # Verify that command is present on a job within the subset that should
+        # really have them (shell, local, resource, attachment, user-verify and
+        # user-interact)
+        if job.plugin in {JobDefinition.plugin.shell,
+                          JobDefinition.plugin.local,
+                          JobDefinition.plugin.resource,
+                          JobDefinition.plugin.attachment,
+                          JobDefinition.plugin.user_verify,
+                          JobDefinition.plugin.user_interact}:
+            # Check if shell jobs have a command
+            if job.command is None:
+                raise ValidationError(job.fields.command, Problem.missing)
+            # Check if user has a good value
+            if job.user not in (None, "root"):
+                raise ValidationError(job.fields.user, Problem.wrong)
+        # Do some special checks for manual jobs as those should really be
+        # fully interactive, non-automated jobs (otherwise they are either
+        # user-interact or user-verify)
+        if job.plugin == JobDefinition.plugin.manual:
+            # Ensure that manual jobs have a description
+            if job.description is None:
+                raise ValidationError(
+                    job.fields.description, Problem.missing)
+            # Ensure that manual jobs don't have command
+            if job.command is not None:
+                raise ValidationError(job.fields.command, Problem.useless)
+
+
+class propertywithsymbols(property):
+    """
+    A property that also keeps a group of symbols around
+    """
+
+    def __init__(self, fget=None, fset=None, fdel=None, doc=None,
+                 symbols=None):
+        """
+        Initializes the property with the specified values
+        """
+        super(propertywithsymbols, self).__init__(fget, fset, fdel, doc)
+        self.__doc__ = doc
+        self.symbols = symbols
+
+    def __getattr__(self, attr):
+        """
+        Internal implementation detail.
+
+        Exposes all of the attributes of the SymbolDef group as attributes of
+        the property. The way __getattr__() works it can never hide any
+        existing attributes so it is safe not to break the property.
+        """
+        return getattr(self.symbols, attr)
+
+    def __call__(self, fget):
+        """
+        Internal implementation detail.
+
+        Used to construct the decorator with fget defined to the decorated
+        function.
+        """
+        return propertywithsymbols(
+            fget, self.fset, self.fdel, self.__doc__, symbols=self.symbols)
 
 
 class JobDefinition(BaseJob, IJobDefinition):
@@ -46,6 +161,34 @@ class JobDefinition(BaseJob, IJobDefinition):
     Thin wrapper around the RFC822 record that defines a checkbox job
     definition
     """
+
+    class fields(SymbolDef):
+        """
+        Symbols for each field that a JobDefinition can have
+        """
+        name
+        plugin
+        command
+        description
+        user
+        environ
+        estimated_duration
+
+    class _PluginValues(SymbolDef):
+        """
+        Symbols for each value of the JobDefinition.plugin field
+        """
+        shell
+        attachment
+        local
+        resource
+        manual
+        user_verify = "user-verify"
+        user_interact = "user-interact"
+
+    @propertywithsymbols(symbols=_PluginValues)
+    def plugin(self):
+        return self.get_record_value('plugin')
 
     def get_record_value(self, name, default=None):
         """
@@ -190,6 +333,15 @@ class JobDefinition(BaseJob, IJobDefinition):
         if 'name' not in record.data:
             raise ValueError("Cannot create job without a name")
         return cls(record.data, record.origin)
+
+    def validate(self, validator_cls=CheckBoxJobValidator):
+        """
+        Validate this job definition with the specified validator
+
+        :raises ValidationError:
+            If the job has any problems that make it unsuitable for execution.
+        """
+        validator_cls.validate(self)
 
     def modify_execution_environment(self, env, session_dir,
                                      checkbox_data_dir, config=None):

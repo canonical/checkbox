@@ -29,10 +29,163 @@ from unittest import TestCase
 
 from mock import Mock
 
+from plainbox.impl.job import CheckBoxJobValidator
 from plainbox.impl.job import JobDefinition
-from plainbox.impl.rfc822 import RFC822Record
+from plainbox.impl.job import Problem
+from plainbox.impl.job import ValidationError
 from plainbox.impl.rfc822 import Origin
+from plainbox.impl.rfc822 import RFC822Record
 from plainbox.testing_utils.testcases import TestCaseWithParameters
+
+
+class CheckBoxJobValidatorTests(TestCase):
+
+    def test_validate_checks_for_missing_name(self):
+        """
+        verify that validate() checks if jobs have a value for the 'name'
+        field.
+        """
+        job = JobDefinition({})
+        with self.assertRaises(ValidationError) as boom:
+            CheckBoxJobValidator.validate(job)
+        self.assertEqual(boom.exception.field, JobDefinition.fields.name)
+        self.assertEqual(boom.exception.problem, Problem.missing)
+
+    def test_validate_checks_for_missing_plugin(self):
+        """
+        verify that validate() checks if jobs have a value for the 'plugin'
+        field.
+        """
+        job = JobDefinition({
+            'name': 'name'
+        })
+        with self.assertRaises(ValidationError) as boom:
+            CheckBoxJobValidator.validate(job)
+        self.assertEqual(boom.exception.field, JobDefinition.fields.plugin)
+        self.assertEqual(boom.exception.problem, Problem.missing)
+
+    def test_validate_checks_for_unknown_plugins(self):
+        """
+        verify that validate() checks if jobs have a known value for the
+        'plugin' field.
+        """
+        job = JobDefinition({
+            'name': 'name',
+            'plugin': 'dummy'
+        })
+        with self.assertRaises(ValidationError) as boom:
+            CheckBoxJobValidator.validate(job)
+        self.assertEqual(boom.exception.field, JobDefinition.fields.plugin)
+        self.assertEqual(boom.exception.problem, Problem.wrong)
+
+    def test_validate_checks_for_uselss_user(self):
+        """
+        verify that validate() checks for jobs that have the 'user' field but
+        don't have the 'command' field.
+        """
+        job = JobDefinition({
+            'name': 'name',
+            'plugin': 'shell',
+            'user': 'root'
+        })
+        with self.assertRaises(ValidationError) as boom:
+            CheckBoxJobValidator.validate(job)
+        self.assertEqual(boom.exception.field, JobDefinition.fields.user)
+        self.assertEqual(boom.exception.problem, Problem.useless)
+
+    def test_validate_checks_for_uselss_environ(self):
+        """
+        verify that validate() checks for jobs that have the 'environ' field
+        but don't have the 'command' field.
+        """
+        job = JobDefinition({
+            'name': 'name',
+            'plugin': 'shell',
+            'environ': 'VAR_NAME'
+        })
+        with self.assertRaises(ValidationError) as boom:
+            CheckBoxJobValidator.validate(job)
+        self.assertEqual(boom.exception.field, JobDefinition.fields.environ)
+        self.assertEqual(boom.exception.problem, Problem.useless)
+
+    def test_validate_checks_for_description_on_manual_jobs(self):
+        """
+        verify that validate() checks for manual jobs that don't have a value
+        for the 'description' field.
+        """
+        job = JobDefinition({
+            'name': 'name',
+            'plugin': 'manual',
+        })
+        with self.assertRaises(ValidationError) as boom:
+            CheckBoxJobValidator.validate(job)
+        self.assertEqual(boom.exception.field,
+                         JobDefinition.fields.description)
+        self.assertEqual(boom.exception.problem, Problem.missing)
+
+    def test_validate_checks_for_command_on_manual_jobs(self):
+        """
+        verify that validate() checks for manual jobs that have a value for the
+        'command' field.
+        """
+        job = JobDefinition({
+            'name': 'name',
+            'plugin': 'manual',
+            'description': 'Runs some test',
+            'command': 'run_some_test'
+        })
+        with self.assertRaises(ValidationError) as boom:
+            CheckBoxJobValidator.validate(job)
+        self.assertEqual(boom.exception.field, JobDefinition.fields.command)
+        self.assertEqual(boom.exception.problem, Problem.useless)
+
+
+class CheckBoxJobValidatorTests2(TestCaseWithParameters):
+    """
+    Continuation of unit tests for CheckBoxJobValidator.
+
+    Moved to a separate class because of limitations of TestCaseWithParameters
+    which operates on the whole class.
+    """
+
+    parameter_names = ('plugin',)
+    parameter_values = (
+        ('shell',), ('local',), ('resource',), ('attachment',),
+        ('user-verify',), ('user-interact',),)
+
+    def test_validate_checks_for_missing_command(self):
+        """
+        verify that validate() checks if jobs have a value for the 'command'
+        field.
+        """
+        job = JobDefinition({
+            'name': 'name',
+            'plugin': self.parameters.plugin
+        })
+        with self.assertRaises(ValidationError) as boom:
+            CheckBoxJobValidator.validate(job)
+        self.assertEqual(boom.exception.field, JobDefinition.fields.command)
+        self.assertEqual(boom.exception.problem, Problem.missing)
+
+    def test_validate_checks_for_wrong_user(self):
+        """
+        verify that validate() checks if jobs have a wrong value for the 'user'
+        field.
+        
+        This field has been limited to either not defined or 'root' for sanity.
+        While other choices _may_ be possible having just the two makes our job
+        easier.
+        """
+        job = JobDefinition({
+            'name': 'name',
+            'plugin': self.parameters.plugin,
+            'command': 'true',
+            'user': 'fred',
+        })
+        with self.assertRaises(ValidationError) as boom:
+            CheckBoxJobValidator.validate(job)
+        self.assertEqual(boom.exception.field, JobDefinition.fields.user)
+        self.assertEqual(boom.exception.problem, Problem.wrong)
 
 
 class TestJobDefinition(TestCase):

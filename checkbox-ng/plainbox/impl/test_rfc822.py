@@ -34,7 +34,6 @@ from plainbox.impl.rfc822 import PythonFileTextSource
 from plainbox.impl.rfc822 import RFC822Record
 from plainbox.impl.rfc822 import UnknownTextSource
 from plainbox.impl.rfc822 import load_rfc822_records
-from plainbox.impl.rfc822 import dump_rfc822_records
 from plainbox.impl.secure.checkbox_trusted_launcher import RFC822SyntaxError
 
 
@@ -305,15 +304,18 @@ class RFC822ParserTests(TestCase, RFC822ParserTestsMixIn):
 
 
 class RFC822WriterTests(TestCase):
+    """
+    Tests for the :meth:`RFC822Record.dump()` method.
+    """
 
     def test_single_record(self):
         with StringIO() as stream:
-            dump_rfc822_records({'key': 'value'}, stream)
+            RFC822Record({'key': 'value'}).dump(stream)
             self.assertEqual(stream.getvalue(), "key: value\n\n")
 
     def test_multiple_record(self):
         with StringIO() as stream:
-            dump_rfc822_records({'key1': 'value1', 'key2': 'value2'}, stream)
+            RFC822Record({'key1': 'value1', 'key2': 'value2'}).dump(stream)
             self.assertIn(
                 stream.getvalue(), (
                     "key1: value1\nkey2: value2\n\n",
@@ -326,7 +328,7 @@ class RFC822WriterTests(TestCase):
             " value\n\n"
         )
         with StringIO() as stream:
-            dump_rfc822_records({'key': 'longer\nvalue'}, stream)
+            RFC822Record({'key': 'longer\nvalue'}).dump(stream)
             self.assertEqual(stream.getvalue(), text)
 
     def test_multiline_value_with_space(self):
@@ -337,7 +339,7 @@ class RFC822WriterTests(TestCase):
             " value\n\n"
         )
         with StringIO() as stream:
-            dump_rfc822_records({'key': 'longer\n\nvalue'}, stream)
+            RFC822Record({'key': 'longer\n\nvalue'}).dump(stream)
             self.assertEqual(stream.getvalue(), text)
 
     def test_multiline_value_with_period(self):
@@ -348,10 +350,10 @@ class RFC822WriterTests(TestCase):
             " value\n\n"
         )
         with StringIO() as stream:
-            dump_rfc822_records({'key': 'longer\n.\nvalue'}, stream)
+            RFC822Record({'key': 'longer\n.\nvalue'}).dump(stream)
             self.assertEqual(stream.getvalue(), text)
 
     def test_type_error(self):
         with StringIO() as stream:
             with self.assertRaises(AttributeError):
-                dump_rfc822_records(['key', 'value'], stream)
+                RFC822Record(['key', 'value']).dump(stream)

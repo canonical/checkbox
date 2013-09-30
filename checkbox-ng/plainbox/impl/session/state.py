@@ -588,8 +588,9 @@ class SessionState:
                 if new_job != existing_job:
                     logging.warning(
                         ("Local job %s produced job %r that collides with"
-                         " an existing job %r, the new job was discarded"),
-                        job, new_job, existing_job)
+                         " an existing job %s (from %s), the new job was"
+                         " discarded"),
+                        job, new_job, existing_job, existing_job.origin)
                 else:
                     if not existing_job.via:
                         existing_job._via = new_job.via

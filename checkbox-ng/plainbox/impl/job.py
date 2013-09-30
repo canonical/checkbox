@@ -282,25 +282,23 @@ class JobDefinition(BaseJob, IJobDefinition):
         The checksum of the "parent" job when the current JobDefinition comes
         from a job output using the local plugin
         """
-        return self._via
+        if hasattr(self.origin.source, 'job'):
+            return self.origin.source.job.checksum
 
     @property
     def origin(self):
         """
         The Origin object associated with this JobDefinition
-
-        May be None
         """
         return self._origin
 
-    def __init__(self, data, origin=None, provider=None, via=None):
+    def __init__(self, data, origin=None, provider=None):
         super(JobDefinition, self).__init__(data)
         if origin is None:
             origin = Origin.get_caller_origin()
         self._resource_program = None
         self._origin = origin
         self._provider = provider
-        self._via = via
 
     def __str__(self):
         return self.name
@@ -437,11 +435,13 @@ class JobDefinition(BaseJob, IJobDefinition):
         Create a new JobDefinition from RFC822 record.
 
         This method should only be used to create additional jobs from local
-        jobs (plugin local). The intent is two-fold:
-        1) to encapsulate the sharing of the embedded checkbox reference.
-        2) to set the ``via`` attribute (to aid the trusted launcher)
+        jobs (plugin local). This ensures that the child job shares the
+        embedded provider reference.
         """
+        if not isinstance(record.origin.source, JobOutputTextSource):
+            raise ValueError("record.origin must be a JobOutputTextSource")
+        if not record.origin.source.job is self:
+            raise ValueError("record.origin.source.job must be this job")
         job = self.from_rfc822_record(record)
         job._provider = self._provider
-        job._via = self.get_checksum()
         return job

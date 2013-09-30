@@ -592,8 +592,11 @@ class SessionState:
                          " discarded"),
                         job, new_job, existing_job, existing_job.origin)
                 else:
-                    if not existing_job.via:
-                        existing_job._via = new_job.via
+                    # Patch the origin of the existing job so that it traces
+                    # back to the job that "generated" it again. This is
+                    # basically required to get __category__ jobs to associate
+                    # themselves with their children.
+                    existing_job._origin = new_job.origin
 
     def _gen_rfc822_records_from_io_log(self, job, result):
         """

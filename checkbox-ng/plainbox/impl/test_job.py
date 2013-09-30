@@ -437,11 +437,11 @@ class JobEnvTests(TestCase):
         env = {
             "PATH": ""
         }
-        self.job.modify_execution_environment(env, self.session_dir,
-                                              self.checkbox_data_dir)
+        self.job.modify_execution_environment(
+            env, self.session_dir, self.checkbox_data_dir)
         self.assertEqual(env['CHECKBOX_SHARE'], 'checkbox-share-value')
-        self.assertEqual(env['CHECKBOX_DATA'], os.path.join(self.session_dir,
-                                                            "CHECKBOX_DATA"))
+        self.assertEqual(env['CHECKBOX_DATA'],
+                         os.path.join(self.session_dir, "CHECKBOX_DATA"))
 
     def test_without_config(self):
         env = {
@@ -451,8 +451,8 @@ class JobEnvTests(TestCase):
             # froz is not defined in the environment
         }
         # Ask the job to modify the environment
-        self.job.modify_execution_environment(env, self.session_dir,
-                                              self.checkbox_data_dir)
+        self.job.modify_execution_environment(
+            env, self.session_dir, self.checkbox_data_dir)
         # Check how foo bar and froz look like now
         self.assertNotIn('foo', env)
         self.assertEqual(env['bar'], 'old-bar-value')
@@ -472,9 +472,8 @@ class JobEnvTests(TestCase):
             'bar': 'bar-value'
         }
         # Ask the job to modify the environment
-        self.job.modify_execution_environment(env, self.session_dir,
-                                              self.checkbox_data_dir,
-                                              config)
+        self.job.modify_execution_environment(
+            env, self.session_dir, self.checkbox_data_dir, config)
         # foo got copied from the config
         self.assertEqual(env['foo'], 'foo-value')
         # bar from the old environment
@@ -493,9 +492,8 @@ class JobEnvTests(TestCase):
             'baz': 'baz-value'
         }
         # Ask the job to modify the environment
-        self.job.modify_execution_environment(env, self.session_dir,
-                                              self.checkbox_data_dir,
-                                              config)
+        self.job.modify_execution_environment(
+            env, self.session_dir, self.checkbox_data_dir, config)
         # bar from the old environment
         self.assertEqual(env['bar'], 'old-bar-value')
         # baz from the config environment

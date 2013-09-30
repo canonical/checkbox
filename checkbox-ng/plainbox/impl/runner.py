@@ -261,8 +261,11 @@ class JobRunner(IJobRunner):
         else:
             return DiskJobResult({'outcome': IJobResult.OUTCOME_UNDECIDED})
 
+    # FIXME: All three are BROKEN as they don't run the command. This will be
+    # addressed in a separate change though.
     _plugin_user_interact = _plugin_manual
     _plugin_user_verify = _plugin_manual
+    _plugin_user_interact_verify = _plugin_manual
 
     def _just_run_command(self, job, config):
         # Run the embedded command

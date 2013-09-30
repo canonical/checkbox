@@ -37,6 +37,9 @@ Fields that can be used on a job
          interaction, after which the outcome is automatically set.
      :user-verify: jobs that automatically perform an action or test
          and then request the user to decide on the test's outcome.
+     :user-interact-verify: jobs that require the user to perform an
+        interaction, run a command after which the user is asked to decide on the
+        test's outcome. This is essentially a manual job with a command.
      :attachment: jobs whose command output will be attached to the
          test report or submission.
      :local: a job whose command output needs to be in :term:`CheckBox` job

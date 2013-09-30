@@ -33,6 +33,7 @@ import re
 from plainbox.abc import IJobDefinition
 from plainbox.impl.config import Unset
 from plainbox.impl.resource import ResourceProgram
+from plainbox.impl.rfc822 import Origin
 from plainbox.impl.secure.checkbox_trusted_launcher import BaseJob
 from plainbox.impl.symbol import SymbolDef
 
@@ -262,6 +263,8 @@ class JobDefinition(BaseJob, IJobDefinition):
 
     def __init__(self, data, origin=None, provider=None, via=None):
         super(JobDefinition, self).__init__(data)
+        if origin is None:
+            origin = Origin.get_caller_origin()
         self._resource_program = None
         self._origin = origin
         self._provider = provider

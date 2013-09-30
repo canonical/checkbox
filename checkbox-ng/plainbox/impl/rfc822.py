@@ -117,35 +117,47 @@ class Origin:
     """
     Simple class for tracking where something came from
 
-    :ivar filename: the name of the file
+    :ivar source:
+        something that describes where the text came frome, technically it
+        should be a :class:`~plainbox.abc.ITextSource` subclass but that
+        interface defines just the intent, not any concrete API.
 
-    :ivar line_start: the number of the line where the record begins
+    :ivar line_start:
+        the number of the line where the record begins
 
-    :ivar line_end: the number of the line where the record ends
+    :ivar line_end:
+        the number of the line where the record ends
     """
 
-    __slots__ = ['filename', 'line_start', 'line_end']
+    __slots__ = ['source', 'line_start', 'line_end']
 
-    def __init__(self, filename, line_start, line_end):
-        self.filename = filename
+    def __init__(self, source, line_start, line_end):
+        self.source = source
         self.line_start = line_start
         self.line_end = line_end
 
     def __repr__(self):
-        return "<Origin filename:{!r} line_start:{} line_end:{}>".format(
-            self.filename, self.line_start, self.line_end)
+        return "<{} source:{!r} line_start:{} line_end:{}>".format(
+            self.__class__.__name__,
+            self.source, self.line_start, self.line_end)
 
     def __str__(self):
         return "{}:{}-{}".format(
-            self.filename, self.line_start, self.line_end)
+            self.source, self.line_start, self.line_end)
 
     def __eq__(self, other):
-        return (self.filename, self.line_start, self.line_end) == \
-               (other.filename, other.line_start, other.line_end)
+        if isinstance(other, Origin):
+            return ((self.source, self.line_start, self.line_end) ==
+                    (other.source, other.line_start, other.line_end))
+        else:
+            return False
 
     def __gt__(self, other):
-        return (self.filename, self.line_start, self.line_end) > \
-               (other.filename, other.line_start, other.line_end)
+        if isinstance(other, Origin):
+            return ((self.source, self.line_start, self.line_end) >
+                    (other.source, other.line_start, other.line_end))
+        else:
+            return NotImplemented
 
 
 class RFC822Record(BaseRFC822Record):

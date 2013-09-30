@@ -33,6 +33,7 @@ from plainbox.impl.job import CheckBoxJobValidator
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.job import Problem
 from plainbox.impl.job import ValidationError
+from plainbox.impl.rfc822 import FileTextSource
 from plainbox.impl.rfc822 import Origin
 from plainbox.impl.rfc822 import RFC822Record
 from plainbox.testing_utils.testcases import TestCaseWithParameters
@@ -197,18 +198,18 @@ class TestJobDefinition(TestCase):
             'requires': 'requires',
             'command': 'command',
             'description': 'description'
-        }, Origin('file.txt', 1, 5))
+        }, Origin(FileTextSource('file.txt'), 1, 5))
         self._full_gettext_record = RFC822Record({
             '_plugin': 'plugin',
             '_name': 'name',
             '_requires': 'requires',
             '_command': 'command',
             '_description': 'description'
-        }, Origin('file.txt.in', 1, 5))
+        }, Origin(FileTextSource('file.txt.in'), 1, 5))
         self._min_record = RFC822Record({
             'plugin': 'plugin',
             'name': 'name',
-        }, Origin('file.txt', 1, 2))
+        }, Origin(FileTextSource('file.txt'), 1, 2))
 
     def test_smoke_full_record(self):
         job = JobDefinition(self._full_record.data)

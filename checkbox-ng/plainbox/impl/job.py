@@ -44,9 +44,9 @@ class Problem(SymbolDef):
     """
     Symbols for each possible problem that a field value may have
     """
-    missing
-    wrong
-    useless
+    missing = 'missing'
+    wrong = 'wrong'
+    useless = 'useless'
 
 
 class ValidationError(ValueError):
@@ -166,23 +166,23 @@ class JobDefinition(BaseJob, IJobDefinition):
         """
         Symbols for each field that a JobDefinition can have
         """
-        name
-        plugin
-        command
-        description
-        user
-        environ
-        estimated_duration
+        name = 'name'
+        plugin = 'plugin'
+        command = 'command'
+        description = 'description'
+        user = 'user'
+        environ = 'environ'
+        estimated_duration = 'estimated_duration'
 
     class _PluginValues(SymbolDef):
         """
         Symbols for each value of the JobDefinition.plugin field
         """
-        shell
-        attachment
-        local
-        resource
-        manual
+        shell = 'shell'
+        attachment = 'attachment'
+        local = 'local'
+        resource = 'resource'
+        manual = 'manual'
         user_verify = "user-verify"
         user_interact = "user-interact"
 

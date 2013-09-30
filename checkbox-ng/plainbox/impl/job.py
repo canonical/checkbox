@@ -26,11 +26,13 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
+import functools
 import logging
 import os
 import re
 
 from plainbox.abc import IJobDefinition
+from plainbox.abc import ITextSource
 from plainbox.impl.config import Unset
 from plainbox.impl.resource import ResourceProgram
 from plainbox.impl.rfc822 import Origin
@@ -153,6 +155,36 @@ class propertywithsymbols(property):
         """
         return propertywithsymbols(
             fget, self.fset, self.fdel, self.__doc__, symbols=self.symbols)
+
+
+@functools.total_ordering
+class JobOutputTextSource(ITextSource):
+    """
+    A :class:`ITextSource` subclass indicating that text came from job output.
+
+    This class is used by
+    :meth:`SessionState._gen_rfc822_records_from_io_log()` to allow such
+    (generated) jobs to be traced back to the job that generated them.
+
+    :ivar job:
+        :class:`plainbox.impl.job.JobDefinition` instance that generated the
+        text
+    """
+
+    def __init__(self, job):
+        self.job = job
+
+    def __str__(self):
+        return str(self.job)
+
+    def __repr__(self):
+        return "<{} job:{!r}".format(self.__class__.__name__, self.job)
+
+    def __eq__(self, other):
+        return self.job == other.job
+
+    def __gt__(self, other):
+        return self.job > other.job
 
 
 class JobDefinition(BaseJob, IJobDefinition):

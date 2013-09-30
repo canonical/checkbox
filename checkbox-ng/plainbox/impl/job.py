@@ -99,7 +99,8 @@ class CheckBoxJobValidator:
                           JobDefinition.plugin.resource,
                           JobDefinition.plugin.attachment,
                           JobDefinition.plugin.user_verify,
-                          JobDefinition.plugin.user_interact}:
+                          JobDefinition.plugin.user_interact,
+                          JobDefinition.plugin.user_interact_verify}:
             # Check if shell jobs have a command
             if job.command is None:
                 raise ValidationError(job.fields.command, Problem.missing)
@@ -185,6 +186,7 @@ class JobDefinition(BaseJob, IJobDefinition):
         manual
         user_verify = "user-verify"
         user_interact = "user-interact"
+        user_interact_verify = "user-interact-verify"
 
     @propertywithsymbols(symbols=_PluginValues)
     def plugin(self):

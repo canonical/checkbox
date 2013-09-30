@@ -61,7 +61,8 @@ class SessionMetaData:
     # set this flag after successfully sending the result somewhere.
     FLAG_SUBMITTED = "submitted"
 
-    def __init__(self, title=None, flags=None, running_job_name=None, app_blob=None):
+    def __init__(self, title=None, flags=None, running_job_name=None,
+                 app_blob=None):
         if flags is None:
             flags = []
         self._title = title

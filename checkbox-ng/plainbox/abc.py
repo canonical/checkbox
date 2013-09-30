@@ -38,6 +38,16 @@ easier to understand (by not being mixed with additional source code).
 from abc import ABCMeta, abstractproperty, abstractmethod
 
 
+class ITextSource(metaclass=ABCMeta):
+    """
+    An abstract source of text.
+
+    Concrete instances of this class are used by
+    :class:`plainbox.impl.rfc822.Origin` to keep track of where each entry of a
+    RFC822-like document came from.
+    """
+
+
 class IJobDefinition(metaclass=ABCMeta):
     """
     Job definition that contains a mixture of meta-data and executable

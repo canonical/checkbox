@@ -31,7 +31,6 @@ from gzip import GzipFile
 from io import TextIOWrapper
 from mock import Mock
 from tempfile import NamedTemporaryFile
-import inspect
 import warnings
 
 from plainbox.impl.job import JobDefinition
@@ -64,30 +63,11 @@ def make_io_log(io_log, io_log_dir):
     return byte_stream.name
 
 
+# Deprecated, use JobDefinition() directly
 def make_job(name, plugin="dummy", requires=None, depends=None, **kwargs):
     """
     Make and return a dummy JobDefinition instance
     """
-    # Jobs are usually loaded from RFC822 records and use the
-    # origin tracking to understand which file they came from.
-    #
-    # Here we can create a Origin instance that pinpoints the
-    # place that called make_job(). This aids in debugging as
-    # the origin field is printed by JobDefinition repr
-    caller_frame, filename, lineno = inspect.stack(0)[1][:3]
-    try:
-        # XXX: maybe create special origin subclass for such things?
-        origin = Origin(filename, lineno, lineno)
-    finally:
-        # Explicitly delete the frame object, this breaks the
-        # reference cycle and makes this part of the code deterministic
-        # with regards to the CPython garbage collector.
-        #
-        # As recommended by the python documentation:
-        # http://docs.python.org/3/library/inspect.html#the-interpreter-stack
-        del caller_frame
-    # Carefully add additional data into the job definition so that we
-    # don't add any spurious None-valued keys that change the checksum.
     data = {'name': name}
     if plugin is not None:
         data['plugin'] = plugin
@@ -97,7 +77,7 @@ def make_job(name, plugin="dummy", requires=None, depends=None, **kwargs):
         data['depends'] = depends
     # Add any custom key-value properties
     data.update(kwargs)
-    return JobDefinition(data, origin)
+    return JobDefinition(data, Origin.get_caller_origin())
 
 
 def make_job_result(outcome="dummy"):

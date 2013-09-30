@@ -26,7 +26,10 @@ Test definitions for plainbox.impl.testing_utils module
 
 from unittest import TestCase
 from warnings import warn, catch_warnings
+import os
 
+from plainbox.impl.rfc822 import PythonFileTextSource
+from plainbox.impl.testing_utils import make_job
 from plainbox.impl.testing_utils import suppress_warnings
 
 
@@ -52,3 +55,34 @@ class SuppressWarningTests(TestCase):
             """and docstring"""
         self.assertEqual(func_with_name.__name__, 'func_with_name')
         self.assertEqual(func_with_name.__doc__, 'and docstring')
+
+
+class MakeJobTests(TestCase):
+    """
+    Tests for the make_job() function
+    """
+
+    def setUp(self):
+        self.job = make_job('job')
+
+    def test_origin_is_set(self):
+        """
+        verify that jobs created with make_job() have a non-None origin
+        """
+        self.assertIsNot(self.job.origin, None)
+
+    def test_origin_source_is_special(self):
+        """
+        verify that jobs created with make_job() use PythonFileTextSource as
+        the origin.source attribute.
+        """
+        self.assertIsInstance(self.job.origin.source, PythonFileTextSource)
+
+    def test_origin_source_filename_is_correct(self):
+        """
+        verify that make_job() can properly trace the filename of the python
+        module that called make_job()
+        """
+        self.assertEqual(
+            os.path.basename(self.job.origin.source.filename),
+            "test_testing_utils.py")

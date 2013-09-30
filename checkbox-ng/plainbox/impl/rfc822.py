@@ -215,9 +215,23 @@ class RFC822Record(BaseRFC822Record):
         return self._origin
 
 
-def load_rfc822_records(stream, data_cls=dict):
+
+def load_rfc822_records(stream, data_cls=dict, source=None):
     """
     Load a sequence of rfc822-like records from a text stream.
+
+    :param stream:
+        A file-like object from which to load the rfc822 data
+    :param data_cls:
+        The class of the dictionary-like type to hold the results. This is
+        mainly there so that callers may pass collections.OrderedDict.
+    :param source:
+        A :class:`plainbox.abc.ITextSource` subclass instance that describes
+        where stream data is coming from. If None, it will be inferred from the
+        stream (if possible). Specialized callers should provider a custom
+        source object to allow developers to accurately keep track of where
+        (possibly problematic) RFC822 data is coming from. If this is None and
+        inferring fails then all of the loaded records will have a None origin.
 
     Each record consists of any number of key-value pairs. Subsequent records
     are separated by one blank line. A record key may have a multi-line value
@@ -227,12 +241,25 @@ def load_rfc822_records(stream, data_cls=dict):
     the optional data_cls argument is collections.OrderedDict then the values
     retain their original ordering.
     """
-    return list(gen_rfc822_records(stream, data_cls))
+    return list(gen_rfc822_records(stream, data_cls, source))
 
 
-def gen_rfc822_records(stream, data_cls=dict):
+def gen_rfc822_records(stream, data_cls=dict, source=None):
     """
     Load a sequence of rfc822-like records from a text stream.
+
+    :param stream:
+        A file-like object from which to load the rfc822 data
+    :param data_cls:
+        The class of the dictionary-like type to hold the results. This is
+        mainly there so that callers may pass collections.OrderedDict.
+    :param source:
+        A :class:`plainbox.abc.ITextSource` subclass instance that describes
+        where stream data is coming from. If None, it will be inferred from the
+        stream (if possible). Specialized callers should provider a custom
+        source object to allow developers to accurately keep track of where
+        (possibly problematic) RFC822 data is coming from. If this is None and
+        inferring fails then all of the loaded records will have a None origin.
 
     Each record consists of any number of key-value pairs. Subsequent records
     are separated by one blank line. A record key may have a multi-line value
@@ -247,6 +274,13 @@ def gen_rfc822_records(stream, data_cls=dict):
     key = None
     value_list = None
     origin = None
+    # If the source was not provided then try constructing a FileTextSource
+    # from the name of the stream. If that fails, keep using None.
+    if source is None:
+        try:
+            source = FileTextSource(stream.name)
+        except AttributeError:
+            source = UnknownTextSource()
 
     def _syntax_error(msg):
         """
@@ -270,12 +304,8 @@ def gen_rfc822_records(stream, data_cls=dict):
         key = None
         value_list = None
         data = None
-        try:
-            filename = stream.name
-        except AttributeError:
-            filename = None
-        if filename:
-            origin = Origin(filename, None, None)
+        if source is not None:
+            origin = Origin(source, None, None)
         data = data_cls()
         record = RFC822Record(data, origin)
 

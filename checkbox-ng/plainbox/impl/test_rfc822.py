@@ -26,9 +26,13 @@ Test definitions for plainbox.impl.rfc822 module
 
 from io import StringIO
 from unittest import TestCase
+import os
 
+from plainbox.impl.rfc822 import FileTextSource
 from plainbox.impl.rfc822 import Origin
+from plainbox.impl.rfc822 import PythonFileTextSource
 from plainbox.impl.rfc822 import RFC822Record
+from plainbox.impl.rfc822 import UnknownTextSource
 from plainbox.impl.rfc822 import load_rfc822_records
 from plainbox.impl.rfc822 import dump_rfc822_records
 from plainbox.impl.secure.checkbox_trusted_launcher import RFC822SyntaxError
@@ -37,15 +41,16 @@ from plainbox.impl.secure.checkbox_trusted_launcher import RFC822SyntaxError
 class OriginTests(TestCase):
 
     def setUp(self):
-        self.origin = Origin("file.txt", 10, 12)
+        self.origin = Origin(FileTextSource("file.txt"), 10, 12)
 
     def test_smoke(self):
-        self.assertEqual(self.origin.filename, "file.txt")
+        self.assertEqual(self.origin.source.filename, "file.txt")
         self.assertEqual(self.origin.line_start, 10)
         self.assertEqual(self.origin.line_end, 12)
 
     def test_repr(self):
-        expected = "<Origin filename:'file.txt' line_start:10 line_end:12>"
+        expected = ("<Origin source:<FileTextSource filename:'file.txt'>"
+                    " line_start:10 line_end:12>")
         observed = repr(self.origin)
         self.assertEqual(expected, observed)
 
@@ -55,20 +60,20 @@ class OriginTests(TestCase):
         self.assertEqual(expected, observed)
 
     def test_equal_operator(self):
-        equal_origin = Origin("file.txt", 10, 12)
+        equal_origin = Origin(FileTextSource("file.txt"), 10, 12)
         self.assertEqual(self.origin, equal_origin)
 
     def test_comparison_operators_different_lines(self):
-        unequal_origin_1 = Origin("file.txt", 10, 13)
-        unequal_origin_2 = Origin("file.txt", 11, 12)
-        unequal_origin_3 = Origin("file.txt", 10, 11)
+        unequal_origin_1 = Origin(FileTextSource("file.txt"), 10, 13)
+        unequal_origin_2 = Origin(FileTextSource("file.txt"), 11, 12)
+        unequal_origin_3 = Origin(FileTextSource("file.txt"), 10, 11)
         self.assertNotEqual(self.origin, unequal_origin_1)
         self.assertNotEqual(self.origin, unequal_origin_2)
         self.assertTrue(self.origin < unequal_origin_1)
         self.assertTrue(self.origin > unequal_origin_3)
 
     def test_comparison_operators_different_files(self):
-        unequal_origin = Origin("ghostfile.txt", 10, 12)
+        unequal_origin = Origin(FileTextSource("ghostfile.txt"), 10, 12)
         self.assertNotEqual(self.origin, unequal_origin)
 
     def test_origin_caller(self):
@@ -95,7 +100,7 @@ class RFC822RecordTests(TestCase):
 
     def test_smoke(self):
         data = {'key': 'value'}
-        origin = Origin('file.txt', 1, 1)
+        origin = Origin(FileTextSource('file.txt'), 1, 1)
         record = RFC822Record(data, origin)
         self.assertEqual(record.data, data)
         self.assertEqual(record.origin, origin)
@@ -272,21 +277,25 @@ class NamedStringIO(StringIO):
 
 class RFC822ParserTests(TestCase, RFC822ParserTestsMixIn):
 
-    def test_origin_from_stream_is_null(self):
-        # If the test's origin has no filename, it should be None,
-        # rather than an Origin object with "filename": None
+    def test_origin_from_stream_is_Unknown(self):
+        """
+        verify that gen_rfc822_records() uses origin instances with source
+        equal to UnknownTextSource, when no explicit source is provided and the
+        stream has no name to infer a FileTextSource() from.
+        """
+        expected_origin = Origin(UnknownTextSource(), 1, 1)
         with StringIO("key:value") as stream:
             records = type(self).loader(stream)
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0].data, {'key': 'value'})
-        self.assertEqual(records[0].origin, None)
+        self.assertEqual(records[0].origin, expected_origin)
 
     def test_origin_from_filename_is_filename(self):
         # If the test's origin has a filename, we need a valid origin
         # with proper data.
         # We're faking the name by using a StringIO subclass with a
         # name property, which is how rfc822 gets that data.
-        expected_origin = Origin("file.txt", 1, 1)
+        expected_origin = Origin(FileTextSource("file.txt"), 1, 1)
         with NamedStringIO("key:value",
                            fake_filename="file.txt") as stream:
             records = type(self).loader(stream)

@@ -27,11 +27,12 @@ from plainbox.abc import IJobResult
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyError
 from plainbox.impl.depmgr import DependencySolver
+from plainbox.impl.job import JobOutputTextSource
 from plainbox.impl.resource import ExpressionCannotEvaluateError
 from plainbox.impl.resource import ExpressionFailedError
 from plainbox.impl.resource import Resource
-from plainbox.impl.rfc822 import gen_rfc822_records
 from plainbox.impl.rfc822 import RFC822SyntaxError
+from plainbox.impl.rfc822 import gen_rfc822_records
 from plainbox.impl.session.jobs import JobReadinessInhibitor
 from plainbox.impl.session.jobs import JobState
 from plainbox.impl.session.jobs import UndesiredJobReadinessInhibitor
@@ -601,9 +602,12 @@ class SessionState:
         line_gen = (record[2].decode('UTF-8', errors='replace')
                     for record in result.get_io_log()
                     if record[1] == 'stdout')
+        # Allow the generated records to be traced back to the job that defined
+        # the command which produced (printed) them.
+        source = JobOutputTextSource(job)
         try:
             # Parse rfc822 records from the subsequent lines
-            for record in gen_rfc822_records(line_gen):
+            for record in gen_rfc822_records(line_gen, source=source):
                 yield record
         except RFC822SyntaxError as exc:
             # When this exception happens we will _still_ store all the

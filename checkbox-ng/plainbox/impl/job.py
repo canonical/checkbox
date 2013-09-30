@@ -265,7 +265,7 @@ class JobDefinition(BaseJob, IJobDefinition):
         except ValueError:
             logger.warning((
                 "Incorrect value of 'estimated_duration' in job"
-                "%s read from %s"), self.name, self.origin)
+                " %s read from %s"), self.name, self.origin)
 
     @property
     def automated(self):

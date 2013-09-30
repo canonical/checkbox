@@ -173,7 +173,7 @@ class CheckBoxJobValidatorTests2(TestCaseWithParameters):
         """
         verify that validate() checks if jobs have a wrong value for the 'user'
         field.
-        
+
         This field has been limited to either not defined or 'root' for sanity.
         While other choices _may_ be possible having just the two makes our job
         easier.

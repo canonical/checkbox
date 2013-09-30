@@ -189,7 +189,17 @@ class RFC822Record(BaseRFC822Record):
     Each instance also holds the origin of the data
     """
 
-    def __init__(self, data, origin):
+    def __init__(self, data, origin=None):
+        """
+        Initialize a new record.
+
+        :param data:
+            A dictionary with record data
+        :param origin:
+            A :class:`Origin` instance that describes where the data came from
+        """
+        if origin is None:
+            origin = Origin.get_caller_origin()
         self._data = data
         self._origin = origin
 

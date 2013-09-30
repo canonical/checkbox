@@ -65,6 +65,46 @@ _description:
  VERIFICATION:
      Check that in the report the result is passed and the comment is displayed
 
+plugin: user-interact
+name: stub/user-interact
+command: true
+_description:
+ PURPOSE:
+     This test checks that the user-interact plugin works fine
+ STEPS:
+     1. Read this description
+     2. Press the test button
+ VERIFICATION:
+     Check that in the report the result is passed
+
+plugin: user-verify
+name: stub/user-verify
+command: echo "Please select 'pass'"
+_description:
+ PURPOSE:
+     This test checks that the user-verify plugin works fine
+ STEPS:
+     1. Read this description
+     2. Ensure that the command has been started automatically
+     3. Do not press the test button
+     4. Look at the output and determine the outcome of the test
+ VERIFICATION:
+     The command should have printed "Please select 'pass'"
+
+plugin: user-interact-verify
+name: stub/user-interact-verify
+command: echo "Please select 'pass'"
+_description:
+ PURPOSE:
+     This test checks that the user-interact-verify plugin works fine
+ STEPS:
+     1. Read this description
+     2. Ensure that the command has been started yet
+     3. Press the test button
+     4. Look at the output and determine the outcome of the test
+ VERIFICATION:
+     The command should have printed "Please select 'pass'"
+
 plugin: local
 name: __local__
 _description: stub local tests

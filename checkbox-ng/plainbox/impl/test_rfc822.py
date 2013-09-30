@@ -71,6 +71,25 @@ class OriginTests(TestCase):
         unequal_origin = Origin("ghostfile.txt", 10, 12)
         self.assertNotEqual(self.origin, unequal_origin)
 
+    def test_origin_caller(self):
+        """
+        verify that Origin.get_caller_origin() uses PythonFileTextSource as the
+        origin.source attribute.
+        """
+        self.assertIsInstance(
+            Origin.get_caller_origin().source, PythonFileTextSource)
+
+    def test_origin_source_filename_is_correct(self):
+        """
+        verify that make_job() can properly trace the filename of the python
+        module that called make_job()
+        """
+        # Pass -1 to get_caller_origin() to have filename point at this file
+        # instead of at whatever ends up calling the test method
+        self.assertEqual(
+            os.path.basename(Origin.get_caller_origin(-1).source.filename),
+            "test_rfc822.py")
+
 
 class RFC822RecordTests(TestCase):
 

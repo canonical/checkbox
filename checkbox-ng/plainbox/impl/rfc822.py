@@ -28,10 +28,10 @@ Implementation of rfc822 serializer and deserializer.
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
-import logging
-
 from functools import total_ordering
 from inspect import cleandoc
+import inspect
+import logging
 
 from plainbox.abc import ITextSource
 from plainbox.impl.secure.checkbox_trusted_launcher import RFC822SyntaxError
@@ -158,6 +158,27 @@ class Origin:
                     (other.source, other.line_start, other.line_end))
         else:
             return NotImplemented
+
+    @classmethod
+    def get_caller_origin(cls, back=0):
+        """
+        Create an Origin instance pointing at the call site of this method.
+        """
+        # Create an Origin instance that pinpoints the place that called
+        # get_caller_origin().
+        caller_frame, filename, lineno = inspect.stack(0)[2 + back][:3]
+        try:
+            source = PythonFileTextSource(filename)
+            origin = Origin(source, lineno, lineno)
+        finally:
+            # Explicitly delete the frame object, this breaks the
+            # reference cycle and makes this part of the code deterministic
+            # with regards to the CPython garbage collector.
+            #
+            # As recommended by the python documentation:
+            # http://docs.python.org/3/library/inspect.html#the-interpreter-stack
+            del caller_frame
+        return origin
 
 
 class RFC822Record(BaseRFC822Record):

@@ -33,10 +33,84 @@ import logging
 from functools import total_ordering
 from inspect import cleandoc
 
+from plainbox.abc import ITextSource
 from plainbox.impl.secure.checkbox_trusted_launcher import RFC822SyntaxError
 from plainbox.impl.secure.checkbox_trusted_launcher import BaseRFC822Record
 
 logger = logging.getLogger("plainbox.rfc822")
+
+
+class UnknownTextSource(ITextSource):
+    """
+    A :class:`ITextSource` subclass indicating that the source of text is
+    unknown.
+
+    This instances of this class are constructed by gen_rfc822_records() when
+    no explicit source is provided and the stream has no name. The serve as
+    non-None values to prevent constructing :class:`PythonFileTextSource` with
+    origin computed from :meth:`Origin.get_caller_origin()`
+    """
+
+    def __str__(self):
+        return "???"
+
+    def __repr__(self):
+        return "<{}>".format(self.__class__.__name__)
+
+    def __eq__(self, other):
+        if isinstance(other, UnknownTextSource):
+            return True
+        else:
+            return False
+
+    def __gt__(self, other):
+        return NotImplemented
+
+
+@total_ordering
+class FileTextSource(ITextSource):
+    """
+    A :class:`ITextSource` subclass indicating that text came from a file.
+
+    :ivar filename:
+        name of the file something comes from
+    """
+
+    def __init__(self, filename):
+        self.filename = filename
+
+    def __str__(self):
+        return self.filename
+
+    def __repr__(self):
+        return "<{} filename:{!r}>".format(
+            self.__class__.__name__, self.filename)
+
+    def __eq__(self, other):
+        if isinstance(other, FileTextSource):
+            return self.filename == other.filename
+        else:
+            return False
+
+    def __gt__(self, other):
+        if isinstance(other, FileTextSource):
+            return self.filename > other.filename
+        else:
+            return NotImplemented
+
+
+class PythonFileTextSource(FileTextSource):
+    """
+    A :class:`FileTextSource` subclass indicating the file was a python file.
+
+    It implements no differences but in some context it might be helpful to
+    differentiate on the type of the source field in the origin of a job
+    definition record.
+
+    :ivar filename:
+        name of the python filename that something comes from
+    """
+
 
 @total_ordering
 class Origin:

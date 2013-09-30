@@ -29,6 +29,7 @@ from unittest import TestCase
 
 from mock import Mock
 
+from plainbox.impl.applogic import PlainBoxConfig
 from plainbox.impl.job import CheckBoxJobValidator
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.job import Problem
@@ -465,7 +466,6 @@ class JobEnvTests(TestCase):
             # froz is not defined in the environment
         }
         # Setup a configuration object with values for foo and bar
-        from plainbox.impl.applogic import PlainBoxConfig
         config = PlainBoxConfig()
         config.environment = {
             'foo': 'foo-value',
@@ -488,7 +488,6 @@ class JobEnvTests(TestCase):
         }
         # Setup a configuration object with values for baz.
         # Note that baz is *not* declared in the job's environ line.
-        from plainbox.impl.applogic import PlainBoxConfig
         config = PlainBoxConfig()
         config.environment = {
             'baz': 'baz-value'

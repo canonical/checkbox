@@ -125,7 +125,6 @@ class HTMLSessionStateExporter(XMLSessionStateExporter):
     and then inlines some resources to produce a monolithic report in a
     single file.
     """
-
     def dump(self, data, stream):
         """
         Public method to dump the HTML report to a stream
@@ -137,7 +136,34 @@ class HTMLSessionStateExporter(XMLSessionStateExporter):
             'PLAINBOX_ASSETS': resource_filename("plainbox", "data/")}
         with open(self.xslt_filename, encoding="UTF-8") as xslt_file:
             xslt_template = Template(xslt_file.read())
-        xslt_data = xslt_template.substitute(template_substitutions)
+        return self.dump_etree(root,
+                               stream,
+                               xslt_template,
+                               template_substitutions)
+
+    def dump_etree(self, root, stream, xslt_template, template_substitutions):
+        """
+        Dumps the given lxml root tree into the given stream, by applying the
+        provided xslt. If template_substitutions is provided, the xslt will
+        first be processed as a string.Template with those substitutions.
+
+        :param root:
+            lxml root element of tree to process.
+
+        :param stream:
+            Byte stream into which to dump the resulting output.
+
+        :param xslt_template:
+            String containing an xslt with which to process the lxml
+            tree to output the desired document type.
+
+        :param template_substitutions:
+            Dictionary with substitutions for variables which may be
+            in the xslt_template.
+
+        """
+        if template_substitutions and isinstance(template_substitutions, dict):
+            xslt_data = xslt_template.substitute(template_substitutions)
         xslt_root = ET.XML(xslt_data)
         transformer = ET.XSLT(xslt_root)
         r_tree = transformer(root)

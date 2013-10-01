@@ -217,9 +217,32 @@ class JobRunner(IJobRunner):
     def run_job(self, job, config=None):
         """
         Run the specified job an return the result
+
+        :param job:
+            A JobDefinition to run
+        :param config:
+            A PlainBoxConfig that may influence how this job is executed. This
+            is only used for the environment variables (that should be
+            specified in the environment but, for simplicity in certain setups,
+            can be pulled from a special section of the configuration file.
+        :returns:
+            A IJobResult subclass that describes the result
+        :raises ValueError:
+            In the future, this method will not run jobs that don't themselves
+            validate correctly. Right now this is not enforced.
+
+        This method is the entry point for running all kinds of jobs. Typically
+        execution blocks while a command, embeded in many jobs, is running in
+        another process. How a job is executed depends mostly on the value of
+        the :attr:`plainbox.abc.IJobDefinition.plugin` field.
+
+        The result of a job may in some cases be OUTCOME_UNDECIDED, in which
+        case the application should ask the user what the outcome is (and
+        present sufficient information to make that choice, typically this is
+        the job description and the output of the command)
         """
         logger.info("Running %r", job)
-        func_name = "_plugin_" + job.plugin.replace('-', '_')
+        func_name = "run_{}_job".format(job.plugin.replace('-', '_'))
         try:
             runner = getattr(self, func_name)
         except AttributeError:
@@ -229,45 +252,307 @@ class JobRunner(IJobRunner):
             })
         else:
             if self._dry_run and job.plugin not in self._DRY_RUN_PLUGINS:
-                return self._dry_run_result(job)
+                return self._get_dry_run_result(job)
             else:
                 return runner(job, config)
 
-    def _dry_run_result(self, job):
+    def run_shell_job(self, job, config):
         """
-        Produce the result that is used when running in dry-run mode
+        Method called to run a job with plugin field equal to 'shell'
+
+        The 'shell' job implements the following scenario:
+            1) Maybe display the description to the user
+            -- the API states that :meth:`JobRunner.run_job()` should only be
+               called at this time.
+            2) Run the command and wait for it to finish
+            3) Decide on the outcome based on the return code
+            -- the method ends here
+
+        .. note::
+            Shell jobs are an example of perfectly automated tests. Everything
+            about them is encapsulated inside the test command and the return
+            code from that command is enough to let plainbox know if the test
+            passed or not.
+        """
+        if job.plugin != "shell":
+            raise ValueError("bad job plugin value")
+        return self._just_run_command(job, config)
+
+    def run_attachment_job(self, job, config):
+        """
+        Method called to run a job with plugin field equal to 'attachment'
+
+        The 'attachment' job implements the following scenario:
+            1) Maybe display the description to the user
+            -- the API states that :meth:`JobRunner.run_job()` should only be
+               called at this time.
+            2) Run the command and wait for it to finish
+            3) Decide on the outcome based on the return code
+            -- the method ends here
+
+        .. note::
+            Attachment jobs play an important role in CheckBox. They are used
+            to convert stdout of the command into a file that is embedded
+            inside the final representation of a testing session. Attachment
+            jobs are used to gather all kinds of essential information (by
+            catting log files, sysfs or procfs files)
+        """
+        if job.plugin != "attachment":
+            raise ValueError("bad job plugin value")
+        return self._just_run_command(job, config)
+
+    def run_resource_job(self, job, config):
+        """
+        Method called to run a job with plugin field equal to 'resource'
+
+        The 'resource' job implements the following scenario:
+            1) Maybe display the description to the user
+            -- the API states that :meth:`JobRunner.run_job()` should only be
+               called at this time.
+            2) Run the command and wait for it to finish
+            3) Decide on the outcome based on the return code
+            -- the method ends here
+
+        .. note::
+            Resource jobs are similar to attachment, in that their goal is to
+            produce some text on standard output. Unlike attachment jobs they
+            are typically not added to the final representation of a testing
+            session. Instead the output is parsed and added to the internal
+            state of a testing session. This state can be queried from special
+            resource programs which are embedded in many job definitions.
+        """
+        if job.plugin != "resource":
+            raise ValueError("bad job plugin value")
+        return self._just_run_command(job, config)
+
+    def run_local_job(self, job, config):
+        """
+        Method called to run a job with plugin field equal to 'local'
+
+        The 'local' job implements the following scenario:
+            1) Maybe display the description to the user
+            -- the API states that :meth:`JobRunner.run_job()` should only be
+               called at this time.
+            2) Run the command and wait for it to finish
+            3) Decide on the outcome based on the return code
+            -- the method ends here
+
+        .. note::
+            Local jobs are similar to resource jobs, in that the output matters
+            more than the return code. Unlike resource jobs and attachment
+            jobs, the output is expected to be a job definition in the
+            canonical RFC822 format. Local jobs are discouraged (due to some
+            complexities they introduce) but only supported way of generating
+            additional jobs at runtime.
+        """
+        if job.plugin != "local":
+            raise ValueError("bad job plugin value")
+        return self._just_run_command(job, config)
+
+    def run_manual_job(self, job, config):
+        """
+        Method called to run a job with plugin field equal to 'manual'
+
+        The 'manual' job implements the following scenario:
+            1) Display the description to the user
+            2) Ask the user to perform some operation
+            3) Ask the user to decide on the outcome
+
+        .. note::
+            Technically this method almost always returns a result with
+            OUTCOME_UNDECIDED to indicate that it could not determine if the
+            test passed or not. Manual jobs are basically fully human driven
+            and could totally ignore the job runner. This method is provided
+            for completeness.
+
+        .. warning::
+            Before the interaction callback is fully removed and deprecated it
+            may also return other values through that callback.
+        """
+        if job.plugin != "manual":
+            raise ValueError("bad job plugin value")
+        return self._call_interaction_callback(job, config)
+
+    def run_user_interact_job(self, job, config):
+        """
+        Method called to run a job with plugin field equal to 'user-interact'
+
+        The 'user-interact' job implements the following scenario:
+            1) Display the description to the user
+            2) Ask the user to perform some operation
+            3) Wait for the user to confirm this is done
+            -- the API states that :meth:`JobRunner.run_job()` should only be
+               called at this time.
+            4) Run the command and wait for it to finish
+            5) Decide on the outcome based on the return code
+            -- the method ends here
+
+        .. note::
+            User interaction jobs are candidates for further automation as the
+            outcome can be already determined automatically but some
+            interaction, yet, cannot.
+
+        .. note::
+            User interaction jobs are a hybrid between shell jobs and manual
+            jobs. They finish automatically, once triggered but still require a
+            human to understand and follow test instructions and prepare the
+            process. Instructions may range to getting a particular hardware
+            setup, physical manipulation (pressing a key, closing the lid,
+            plugging in a removable device) or talking to a microphone to get
+            some sound recorded.
+
+        .. note::
+            The user may want to re-run the test a number of times, perhaps
+            because there is some infrequent glitch or simply because he or she
+            was distracted the first time it ran. Users should be given that
+            option but it must always produce a separate result (simply re-run
+            the same API again).
+        """
+        if job.plugin != "user-interact":
+            raise ValueError("bad job plugin value")
+        return self._just_run_command(job, config)
+
+    def run_user_verify_job(self, job, config):
+        """
+        Method called to run a job with plugin field equal to 'user-verify'
+
+        The 'user-verify' job implements the following scenario:
+            1) Maybe display the description to the user
+            -- the API states that :meth:`JobRunner.run_job()` should only be
+               called at this time.
+            2) Run the command and wait for it to finish
+            -- the method typically ends here, unless interaction_callback is
+               used.
+            3) Display the description to the user
+            4) Display the output of the command to the user
+            5) Ask the user to decide on the outcome
+
+        .. note::
+            User verify jobs are a hybrid between shell jobs and manual jobs.
+            They start automatically but require a human to inspect the output
+            and decide on the outcome. This may include looking if the screen
+            looks okay after a number of resolution changes, if the picture
+            quality is good, if the printed IP address matches some
+            expectations or if the sound played from the speakers was
+            distorted.
+
+        .. note::
+            The user may want to re-run the test a number of times, perhaps
+            because there is some infrequent glitch or simply because he or she
+            was distracted the first time it ran. Users should be given that
+            option but it must always produce a separate result (simply re-run
+            the same API again).
+
+        .. note::
+            Technically this method almost always returns a result with
+            OUTCOME_UNDECIDED to indicate that it could not determine if the
+            test passed or not.
+
+        .. warning::
+            Before the interaction callback is fully removed and deprecated it
+            may also return other values through that callback.
+        """
+        if job.plugin != "user-verify":
+            raise ValueError("bad job plugin value")
+        # Run the command
+        result_cmd = self._just_run_command(job, config)
+        # Maybe ask the user
+        result_user = self._call_interaction_callback(job, config)
+        # Copy whatever user has decided over to the command result. This way
+        # we preserve all logs and associated state.
+        result_cmd.outcome = result_user.outcome
+        return result_cmd
+
+    def run_user_interact_verify_job(self, job, config):
+        """
+        Method called to run a job with plugin field equal to
+        'user-interact-verify'
+
+        The 'user-interact-verify' job implements the following scenario:
+            1) Ask the user to perform some operation
+            2) Wait for the user to confirm this is done
+            -- the API states that :meth:`JobRunner.run_job()` should only be
+               called at this time.
+            3) Run the command and wait for it to finish
+            -- the method typically ends here, unless interaction_callback is
+               used.
+            4) Display the description to the user
+            5) Display the output of the command to the user
+            6) Ask the user to decide on the outcome
+
+        .. note::
+            User interact-verify jobs are a hybrid between shell jobs and
+            manual jobs. They are both triggered explicitly by the user and
+            require the user to decide on the outcome. The only function of the
+            command they embed is to give some feedback to the user and perhaps
+            partially automate certain instructions (instead of asking the user
+            to run some command we can run that for them).
+
+        .. note::
+            The user may want to re-run the test a number of times, perhaps
+            because there is some infrequent glitch or simply because he or she
+            was distracted the first time it ran. Users should be given that
+            option but it must always produce a separate result (simply re-run
+            the same API again).
+
+        .. note::
+            Technically this method almost always returns a result with
+            OUTCOME_UNDECIDED to indicate that it could not determine if the
+            test passed or not.
+
+        .. warning::
+            Before the interaction callback is fully removed and deprecated it
+            may also return other values through that callback.
+        """
+        if job.plugin != "user-interact-verify":
+            raise ValueError("bad job plugin value")
+        # Run the command
+        result_cmd = self._just_run_command(job, config)
+        # Maybe ask the user
+        result_user = self._call_interaction_callback(job, config)
+        # Copy whatever user has decided over to the command result. This way
+        # we preserve all logs and associated state.
+        result_cmd.outcome = result_user.outcome
+        return result_cmd
+
+    def _call_interaction_callback(self, job, config):
+        """
+        Internal method of JobRunner.
+
+        Use self.interaction_callback to obtain the result from the user. If
+        the callback is not available return a MemoryJobResult with
+        OUTCOME_UNDECIDED.
+
+        .. note::
+            This method is tentatively deprecated, it will be removed along
+            with the interaction callback when we migrate all of the users.
+        """
+        # Get the outcome from the callback, if available,
+        # or put the special OUTCOME_UNDECIDED value.
+        if self._interaction_callback is not None:
+            return self._interaction_callback(self, job, config)
+        else:
+            return MemoryJobResult({'outcome': IJobResult.OUTCOME_UNDECIDED})
+
+    def _get_dry_run_result(self, job):
+        """
+        Internal method of JobRunner.
+
+        Returns a result that is used when running in dry-run mode (where we
+        don't really test anything)
         """
         return MemoryJobResult({
             'outcome': IJobResult.OUTCOME_SKIP,
             'comments': "Job skipped in dry-run mode"
         })
 
-    def _plugin_shell(self, job, config):
-        return self._just_run_command(job, config)
-
-    _plugin_attachment = _plugin_shell
-
-    def _plugin_resource(self, job, config):
-        return self._just_run_command(job, config)
-
-    def _plugin_local(self, job, config):
-        return self._just_run_command(job, config)
-
-    def _plugin_manual(self, job, config):
-        # Get the outcome from the callback, if available,
-        # or put the special OUTCOME_UNDECIDED value.
-        if self._interaction_callback is not None:
-            return self._interaction_callback(self, job, config)
-        else:
-            return DiskJobResult({'outcome': IJobResult.OUTCOME_UNDECIDED})
-
-    # FIXME: All three are BROKEN as they don't run the command. This will be
-    # addressed in a separate change though.
-    _plugin_user_interact = _plugin_manual
-    _plugin_user_verify = _plugin_manual
-    _plugin_user_interact_verify = _plugin_manual
-
     def _just_run_command(self, job, config):
+        """
+        Internal method of JobRunner.
+
+        Runs the command embedded in the job and returns the DiskJobResult that
+        describes the result.
+        """
         # Run the embedded command
         start_time = time.time()
         return_code, record_path = self._run_command(job, config)
@@ -287,6 +572,8 @@ class JobRunner(IJobRunner):
 
     def _get_script_env(self, job, config=None, only_changes=False):
         """
+        Internal method of JobRunner.
+
         Compute the environment the script will be executed in
         """
         # Get a proper environment

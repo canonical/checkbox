@@ -1157,6 +1157,8 @@ class ServiceWrapper(PlainBoxObjectWrapper):
     def RunJob(self, session: 'o', job: 'o'):
         logger.info("RunJob(%r, %r)", session, job)
         running_job_wrp = RunningJob(job, session, conn=self.connection)
+        PlainBoxObjectWrapper.find_wrapper_by_native(
+            session).add_managed_object(running_job_wrp)
         self.native.run_job(session, job, running_job_wrp)
 
 

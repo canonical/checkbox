@@ -44,6 +44,7 @@ from plainbox.impl.job import JobDefinition
 from plainbox.impl.result import DiskJobResult
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.session import JobState
+from plainbox.impl.signal import remove_signals_listeners
 
 logger = logging.getLogger("plainbox.service")
 
@@ -688,12 +689,6 @@ class SessionWrapper(PlainBoxObjectWrapper):
         self.native.on_job_added.connect(self._job_added)
         self.native.on_job_removed.connect(self._job_removed)
 
-    def __del__(self):
-        super(SessionWrapper, self).__del__()
-        self.native.on_job_added.disconnect(self._job_added)
-        for wrapper in self.managed_objects:
-            wrapper.remove_from_connection()
-
     def publish_related_objects(self, connection):
         super(SessionWrapper, self).publish_related_objects(connection)
         # Publish all the JobState wrappers and their related objects
@@ -951,6 +946,18 @@ class SessionWrapper(PlainBoxObjectWrapper):
 
     @dbus.service.method(
         dbus_interface=SESSION_IFACE, in_signature='', out_signature='')
+    def Remove(self):
+        logger.info("Remove()")
+        # Disconnect all signals listeners from the native session object
+        remove_signals_listeners(self)
+        for wrapper in self.managed_objects:
+            wrapper.remove_from_connection()
+        self.remove_from_connection()
+        self.native.remove()
+        logger.debug("Remove() completed")
+
+    @dbus.service.method(
+        dbus_interface=SESSION_IFACE, in_signature='', out_signature='')
     def PersistentSave(self):
         logger.info("PersistentSave()")
         self.native.persistent_save()
@@ -1146,6 +1153,8 @@ class ServiceWrapper(PlainBoxObjectWrapper):
     def RunJob(self, session: 'o', job: 'o'):
         logger.info("RunJob(%r, %r)", session, job)
         running_job_wrp = RunningJob(job, session, conn=self.connection)
+        PlainBoxObjectWrapper.find_wrapper_by_native(
+            session).add_managed_object(running_job_wrp)
         self.native.run_job(session, job, running_job_wrp)
 
 

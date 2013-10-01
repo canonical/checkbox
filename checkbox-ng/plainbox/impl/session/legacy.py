@@ -73,6 +73,12 @@ class ISessionStateLegacyAPI(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def remove(self):
+        """
+        Remove this session
+        """
+
+    @abc.abstractmethod
     def previous_session_file(self):
         """
         Check the filesystem for previous session data
@@ -156,6 +162,12 @@ class SessionStateLegacyAPICompatImpl(SessionState, ISessionStateLegacyAPI):
         Legacy API, this function does absolutely nothing
         """
         logger.debug("SessionState.close()")
+        self._manager = None
+        self._commit_hint = None
+
+    def remove(self):
+        logger.debug("SessionState.remove()")
+        self.manager.destroy()
         self._manager = None
         self._commit_hint = None
 

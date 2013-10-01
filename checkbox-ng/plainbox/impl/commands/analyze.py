@@ -157,6 +157,8 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
                     continue
                 problem = ""
             print(fmt.format(job=job.name, problem=problem))
+            if problem:
+                print("Job defined in {}".format(job.origin))
         if only_errors and problem is None:
             print("No problems found")
 

@@ -44,6 +44,7 @@ from plainbox.impl.job import JobDefinition
 from plainbox.impl.result import DiskJobResult
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.session import JobState
+from plainbox.impl.signal import remove_signals_listeners
 
 logger = logging.getLogger("plainbox.service")
 
@@ -953,12 +954,13 @@ class SessionWrapper(PlainBoxObjectWrapper):
         dbus_interface=SESSION_IFACE, in_signature='', out_signature='')
     def Remove(self):
         logger.info("Remove()")
-        self.native.on_job_added.disconnect(self._job_added)
+        # Disconnect all signals listeners from the native session object
+        remove_signals_listeners(self)
         for wrapper in self.managed_objects:
             wrapper.remove_from_connection()
         self.remove_from_connection()
         self.native.remove()
-        logger.info("Remove() completed")
+        logger.debug("Remove() completed")
 
     @dbus.service.method(
         dbus_interface=SESSION_IFACE, in_signature='', out_signature='')

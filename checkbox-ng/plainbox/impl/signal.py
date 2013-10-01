@@ -18,7 +18,11 @@
 :mod:`plainbox.impl.signal` -- signal system
 ============================================
 """
+from collections import defaultdict
+import inspect
+import logging
 
+logger = logging.getLogger("plainbox.signal")
 
 __all__ = ['Signal']
 
@@ -53,12 +57,29 @@ class Signal:
         That listener will be called whenever fire() is invoked on the signal
         """
         self._listeners.append(listener)
+        logger.debug("connect %r to %r", str(listener), self._signal_name)
+        # Track listeners in the instances only
+        if inspect.ismethod(listener):
+            listener_object = listener.__self__
+            # Ensure that the instance has __listeners__ property
+            if not hasattr(listener_object, "__listeners__"):
+                listener_object.__listeners__ = defaultdict(list)
+            # Append the signals a listener is connected to
+            listener_object.__listeners__[listener].append(self)
 
     def disconnect(self, listener):
         """
         Disconnect an existing listener from this signal
         """
         self._listeners.remove(listener)
+        logger.debug("disconnect %r from %r", str(listener), self._signal_name)
+        if inspect.ismethod(listener):
+            listener_object = listener.__self__
+            if hasattr(listener_object, "__listeners__"):
+                listener_object.__listeners__[listener].remove(self)
+                # Remove the listener from the list if any signals connected
+                if (len(listener_object.__listeners__[listener])) == 0:
+                    del listener_object.__listeners__[listener]
 
     def fire(self, args, kwargs):
         """

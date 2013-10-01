@@ -689,12 +689,6 @@ class SessionWrapper(PlainBoxObjectWrapper):
         self.native.on_job_added.connect(self._job_added)
         self.native.on_job_removed.connect(self._job_removed)
 
-    def __del__(self):
-        super(SessionWrapper, self).__del__()
-        self.native.on_job_added.disconnect(self._job_added)
-        for wrapper in self.managed_objects:
-            wrapper.remove_from_connection()
-
     def publish_related_objects(self, connection):
         super(SessionWrapper, self).publish_related_objects(connection)
         # Publish all the JobState wrappers and their related objects

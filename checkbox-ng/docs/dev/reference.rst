@@ -13,204 +13,213 @@ Code reference
 
 .. automodule:: plainbox
     :members:
-    :undoc-members:
-    :show-inheritance:
 
 .. automodule:: plainbox.public
     :members:
-    :undoc-members:
-    :show-inheritance:
 
 .. automodule:: plainbox.abc
     :members:
-    :undoc-members:
-    :show-inheritance:
 
 .. automodule:: plainbox.tests
     :members:
-    :undoc-members:
-    :show-inheritance:
 
 .. automodule:: plainbox.testing_utils
     :members:
-    :undoc-members:
-    :show-inheritance:
 
 .. automodule:: plainbox.testing_utils.cwd
     :members:
-    :undoc-members:
-    :show-inheritance:
 
 .. automodule:: plainbox.testing_utils.io
     :members:
-    :undoc-members:
-    :show-inheritance:
 
 .. automodule:: plainbox.testing_utils.testcases
     :members:
-    :undoc-members:
-    :show-inheritance:
 
 .. automodule:: plainbox.vendor
     :members:
 
 .. automodule:: plainbox.vendor.extcmd
     :members:
-    :undoc-members:
-    :show-inheritance:
 
 .. automodule:: plainbox.impl
     :members:
-    :undoc-members:
-    :show-inheritance:
 
-.. automodule:: plainbox.impl.commands
+.. automodule:: plainbox.impl.applogic
     :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. automodule:: plainbox.impl.commands.selftest
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. automodule:: plainbox.impl.exporter
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. automodule:: plainbox.impl.exporter.json
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. automodule:: plainbox.impl.exporter.rfc822
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. automodule:: plainbox.impl.exporter.text
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. automodule:: plainbox.impl.exporter.html
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. automodule:: plainbox.impl.secure
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. automodule:: plainbox.impl.secure.checkbox_trusted_launcher
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. automodule:: plainbox.impl.transport
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. automodule:: plainbox.impl.transport.certification
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
 .. automodule:: plainbox.impl.box
     :members:
-    :undoc-members:
-    :show-inheritance:
 
-.. automodule:: plainbox.impl.checkbox
+.. automodule:: plainbox.impl.color
     :members:
-    :undoc-members:
-    :show-inheritance:
+
+.. automodule:: plainbox.impl.commands
+    :members:
+
+.. automodule:: plainbox.impl.commands.analyze
+    :members:
+
+.. automodule:: plainbox.impl.commands.checkbox
+    :members:
+
+.. automodule:: plainbox.impl.commands.check_config
+    :members:
+
+.. automodule:: plainbox.impl.commands.crash
+    :members:
+
+.. automodule:: plainbox.impl.commands.dev
+    :members:
+
+.. automodule:: plainbox.impl.commands.logtest
+    :members:
+
+.. automodule:: plainbox.impl.commands.parse
+    :members:
+
+.. automodule:: plainbox.impl.commands.run
+    :members:
+
+.. automodule:: plainbox.impl.commands.script
+    :members:
+
+.. automodule:: plainbox.impl.commands.selftest
+    :members:
+
+.. automodule:: plainbox.impl.commands.service
+    :members:
+
+.. automodule:: plainbox.impl.commands.special
+    :members:
+
+.. automodule:: plainbox.impl.commands.sru
+    :members:
 
 .. automodule:: plainbox.impl.config
     :members:
-    :undoc-members:
-    :show-inheritance:
+
+.. automodule:: plainbox.impl.dbus
+    :members:
+
+.. automodule:: plainbox.impl.dbus.decorators
+    :members:
+
+.. automodule:: plainbox.impl.dbus.service
+    :members:
 
 .. automodule:: plainbox.impl.depmgr
     :members:
-    :undoc-members:
-    :show-inheritance:
+
+.. automodule:: plainbox.impl.exporter
+    :members:
+
+.. automodule:: plainbox.impl.exporter.html
+    :members:
+
+.. automodule:: plainbox.impl.exporter.json
+    :members:
+
+.. automodule:: plainbox.impl.exporter.rfc822
+    :members:
+
+.. automodule:: plainbox.impl.exporter.text
+    :members:
+
+.. automodule:: plainbox.impl.exporter.xlsx
+    :members:
+
+.. automodule:: plainbox.impl.exporter.xml
+    :members:
+
+.. automodule:: plainbox.impl.highlevel
+    :members:
 
 .. automodule:: plainbox.impl.integration_tests
     :members:
-    :undoc-members:
-    :show-inheritance:
 
 .. automodule:: plainbox.impl.job
     :members:
-    :undoc-members:
-    :show-inheritance:
+
+.. automodule:: plainbox.impl.logging
+    :members:
+
+.. automodule:: plainbox.impl.parsers
+    :members:
+
+.. automodule:: plainbox.impl.plugins
+    :members:
+
+.. automodule:: plainbox.impl.providers
+    :members:
+
+.. automodule:: plainbox.impl.providers.checkbox
+    :members:
+
+.. automodule:: plainbox.impl.providers.special
+    :members:
+
+.. automodule:: plainbox.impl.providers.stubbox
+    :members:
+
+.. automodule:: plainbox.impl.providers.v1
+    :members:
 
 .. automodule:: plainbox.impl.resource
     :members:
-    :undoc-members:
-    :show-inheritance:
 
 .. automodule:: plainbox.impl.result
     :members:
-    :undoc-members:
-    :show-inheritance:
 
 .. automodule:: plainbox.impl.rfc822
     :members:
-    :show-inheritance:
 
 .. automodule:: plainbox.impl.runner
     :members:
-    :undoc-members:
-    :show-inheritance:
+
+.. automodule:: plainbox.impl.secure
+    :members:
+
+.. automodule:: plainbox.impl.secure.checkbox_trusted_launcher
+    :members:
+
+.. automodule:: plainbox.impl.service
+    :members:
 
 .. automodule:: plainbox.impl.session
     :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. automodule:: plainbox.impl.session.state
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
 .. automodule:: plainbox.impl.session.jobs
     :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. automodule:: plainbox.impl.session.storage
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. automodule:: plainbox.impl.session.suspend
-    :members:
-    :undoc-members:
-    :private-members:
-    :show-inheritance:
-
-.. automodule:: plainbox.impl.session.resume
-    :members:
-    :undoc-members:
-    :private-members:
-    :show-inheritance:
 
 .. automodule:: plainbox.impl.session.legacy
     :members:
-    :undoc-members:
-    :show-inheritance:
 
 .. automodule:: plainbox.impl.session.manager
     :members:
-    :undoc-members:
-    :show-inheritance:
+
+.. automodule:: plainbox.impl.session.resume
+    :members:
+
+.. automodule:: plainbox.impl.session.state
+    :members:
+
+.. automodule:: plainbox.impl.session.storage
+    :members:
+
+.. automodule:: plainbox.impl.session.suspend
+    :members:
+
+.. automodule:: plainbox.impl.signal
+    :members:
+
+.. automodule:: plainbox.impl.symbol
+    :members:
 
 .. automodule:: plainbox.impl.testing_utils
     :members:
-    :undoc-members:
-    :show-inheritance:
+
+.. automodule:: plainbox.impl.transport
+    :members:
+
+.. automodule:: plainbox.impl.transport.certification
+    :members:

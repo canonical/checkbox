@@ -335,7 +335,7 @@ class JobDefinitionWrapper(PlainBoxObjectWrapper):
     def origin(self):
         if self.native.origin is not None:
             return dbus.Struct([
-                self.native.origin.filename,
+                str(self.native.origin.source),
                 self.native.origin.line_start,
                 self.native.origin.line_end
             ], signature="suu")

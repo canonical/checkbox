@@ -19,7 +19,7 @@
 
 """
 :mod:`plainbox.impl.exporter.xlsx`
-=================================
+==================================
 
 XLSX exporter
 
@@ -43,15 +43,17 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
 
     The hardware devices are extracted from the content of the following
     attachment:
-        * lspci_attachment
+
+    * lspci_attachment
 
     The following resource jobs are needed to populate the system info section
     of this report:
-        * dmi
-        * device
-        * cpuinfo
-        * meminfo
-        * package
+
+    * dmi
+    * device
+    * cpuinfo
+    * meminfo
+    * package
     """
 
     OPTION_WITH_SYSTEM_INFO = 'with-sys-info'

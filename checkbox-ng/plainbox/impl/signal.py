@@ -39,7 +39,7 @@ class Signal:
     object (an instance of this Signal class) that is created on demand.
 
     In practice you just have a documentation and use
-    object.signal_name.connect() and object.signal_name(*args, **kwargs) to
+    `object.signal_name.connect()` and `object.signal_name(*args, **kwargs)` to
     fire it.
     """
 

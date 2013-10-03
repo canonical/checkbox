@@ -782,21 +782,19 @@ class SessionWrapper(PlainBoxObjectWrapper):
             Job state to add to the bus
         :ptype state:
             JobState
-
-        Take a JobState, wrap it in JobStateWrapper, publish it so that
-        it shows up on DBus, add it to the collection of objects managed by
-        this SessionWrapper so that it sends InterfacesAdded signals and
-        can be enumerated with GetManagedObjects.
-
-        .. note::
-            This method must be called after both result and job definition
-            have been added (presumably with :meth:`add_job()` and
-            :meth:`add_result()`). This method *does not* publish those
-            objects, it only publishes the state object.
-
         :returns:
             The wrapper for the job that was added
 
+        Take a JobState, wrap it in JobStateWrapper, publish it so that it
+        shows up on DBus, add it to the collection of objects managed by this
+        SessionWrapper so that it sends InterfacesAdded signals and can be
+        enumerated with GetManagedObjects.
+
+        .. note::
+            This method must be called after both result and job definition
+            have been added (presumably with :meth:`add_job()`
+            and :meth:`add_result()`). This method *does not* publish those
+            objects, it only publishes the state object.
         """
         logger.info("Adding job state %r to DBus", state)
         state_wrapper = self._maybe_wrap(state)

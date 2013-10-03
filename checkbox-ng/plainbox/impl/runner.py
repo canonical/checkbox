@@ -261,12 +261,13 @@ class JobRunner(IJobRunner):
         Method called to run a job with plugin field equal to 'shell'
 
         The 'shell' job implements the following scenario:
-            1) Maybe display the description to the user
-            -- the API states that :meth:`JobRunner.run_job()` should only be
-               called at this time.
-            2) Run the command and wait for it to finish
-            3) Decide on the outcome based on the return code
-            -- the method ends here
+
+        * Maybe display the description to the user
+        * The API states that :meth:`JobRunner.run_job()` should only be
+          called at this time.
+        * Run the command and wait for it to finish
+        * Decide on the outcome based on the return code
+        * The method ends here
 
         .. note::
             Shell jobs are an example of perfectly automated tests. Everything
@@ -283,12 +284,13 @@ class JobRunner(IJobRunner):
         Method called to run a job with plugin field equal to 'attachment'
 
         The 'attachment' job implements the following scenario:
-            1) Maybe display the description to the user
-            -- the API states that :meth:`JobRunner.run_job()` should only be
-               called at this time.
-            2) Run the command and wait for it to finish
-            3) Decide on the outcome based on the return code
-            -- the method ends here
+
+        * Maybe display the description to the user
+        * The API states that :meth:`JobRunner.run_job()` should only be
+          called at this time.
+        * Run the command and wait for it to finish
+        * Decide on the outcome based on the return code
+        * The method ends here
 
         .. note::
             Attachment jobs play an important role in CheckBox. They are used
@@ -306,12 +308,13 @@ class JobRunner(IJobRunner):
         Method called to run a job with plugin field equal to 'resource'
 
         The 'resource' job implements the following scenario:
-            1) Maybe display the description to the user
-            -- the API states that :meth:`JobRunner.run_job()` should only be
-               called at this time.
-            2) Run the command and wait for it to finish
-            3) Decide on the outcome based on the return code
-            -- the method ends here
+
+        * Maybe display the description to the user
+        * The API states that :meth:`JobRunner.run_job()` should only be
+          called at this time.
+        * Run the command and wait for it to finish
+        * Decide on the outcome based on the return code
+        * The method ends here
 
         .. note::
             Resource jobs are similar to attachment, in that their goal is to
@@ -330,12 +333,13 @@ class JobRunner(IJobRunner):
         Method called to run a job with plugin field equal to 'local'
 
         The 'local' job implements the following scenario:
-            1) Maybe display the description to the user
-            -- the API states that :meth:`JobRunner.run_job()` should only be
-               called at this time.
-            2) Run the command and wait for it to finish
-            3) Decide on the outcome based on the return code
-            -- the method ends here
+
+        * Maybe display the description to the user
+        * The API states that :meth:`JobRunner.run_job()` should only be
+          called at this time.
+        * Run the command and wait for it to finish
+        * Decide on the outcome based on the return code
+        * The method ends here
 
         .. note::
             Local jobs are similar to resource jobs, in that the output matters
@@ -354,9 +358,10 @@ class JobRunner(IJobRunner):
         Method called to run a job with plugin field equal to 'manual'
 
         The 'manual' job implements the following scenario:
-            1) Display the description to the user
-            2) Ask the user to perform some operation
-            3) Ask the user to decide on the outcome
+
+        * Display the description to the user
+        * Ask the user to perform some operation
+        * Ask the user to decide on the outcome
 
         .. note::
             Technically this method almost always returns a result with
@@ -378,14 +383,15 @@ class JobRunner(IJobRunner):
         Method called to run a job with plugin field equal to 'user-interact'
 
         The 'user-interact' job implements the following scenario:
-            1) Display the description to the user
-            2) Ask the user to perform some operation
-            3) Wait for the user to confirm this is done
-            -- the API states that :meth:`JobRunner.run_job()` should only be
-               called at this time.
-            4) Run the command and wait for it to finish
-            5) Decide on the outcome based on the return code
-            -- the method ends here
+
+        * Display the description to the user
+        * Ask the user to perform some operation
+        * Wait for the user to confirm this is done
+        * The API states that :meth:`JobRunner.run_job()` should only be
+          called at this time.
+        * Run the command and wait for it to finish
+        * Decide on the outcome based on the return code
+        * The method ends here
 
         .. note::
             User interaction jobs are candidates for further automation as the
@@ -417,15 +423,16 @@ class JobRunner(IJobRunner):
         Method called to run a job with plugin field equal to 'user-verify'
 
         The 'user-verify' job implements the following scenario:
-            1) Maybe display the description to the user
-            -- the API states that :meth:`JobRunner.run_job()` should only be
-               called at this time.
-            2) Run the command and wait for it to finish
-            -- the method typically ends here, unless interaction_callback is
-               used.
-            3) Display the description to the user
-            4) Display the output of the command to the user
-            5) Ask the user to decide on the outcome
+
+        * Maybe display the description to the user
+        * The API states that :meth:`JobRunner.run_job()` should only be
+          called at this time.
+        * Run the command and wait for it to finish
+        * The method typically ends here, unless interaction_callback is
+          used.
+        * Display the description to the user
+        * Display the output of the command to the user
+        * Ask the user to decide on the outcome
 
         .. note::
             User verify jobs are a hybrid between shell jobs and manual jobs.
@@ -469,16 +476,17 @@ class JobRunner(IJobRunner):
         'user-interact-verify'
 
         The 'user-interact-verify' job implements the following scenario:
-            1) Ask the user to perform some operation
-            2) Wait for the user to confirm this is done
-            -- the API states that :meth:`JobRunner.run_job()` should only be
-               called at this time.
-            3) Run the command and wait for it to finish
-            -- the method typically ends here, unless interaction_callback is
-               used.
-            4) Display the description to the user
-            5) Display the output of the command to the user
-            6) Ask the user to decide on the outcome
+
+        * Ask the user to perform some operation
+        * Wait for the user to confirm this is done
+        * The API states that :meth:`JobRunner.run_job()` should only be
+          called at this time.
+        * Run the command and wait for it to finish
+        * The method typically ends here, unless interaction_callback is
+          used.
+        * Display the description to the user
+        * Display the output of the command to the user
+        * Ask the user to decide on the outcome
 
         .. note::
             User interact-verify jobs are a hybrid between shell jobs and

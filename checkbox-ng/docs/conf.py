@@ -42,7 +42,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'PlainBox'
-copyright = '2013, Zygmunt Krynicki'
+copyright = '2012, 2013, Canonical Ltd'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

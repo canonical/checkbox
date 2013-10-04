@@ -262,10 +262,8 @@ class SessionStateLegacyAPICompatImpl(SessionState, ISessionStateLegacyAPI):
         Returns the full pathname to the session file if it exists
         """
         last_storage = SessionStorageRepository().get_last_storage()
-        if last_storage:
-            return last_storage.location
-        else:
-            return None
+        if last_storage and os.path.exists(last_storage.session_file):
+            return last_storage.session_file
 
     def persistent_save(self):
         """

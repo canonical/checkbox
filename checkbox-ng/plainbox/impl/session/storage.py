@@ -203,6 +203,13 @@ class SessionStorage:
         """
         return self._location
 
+    @property
+    def session_file(self):
+        """
+        pathname of the session state file
+        """
+        return os.path.join(self._location, self._SESSION_FILE)
+
     @classmethod
     def create(cls, base_dir, legacy_mode=True):
         """

@@ -1,11 +1,21 @@
+# Shell job that always works
 stub/true
+# Shell job that always fails
 stub/false
-stub/dependency/good
-stub/dependency/bad
-# stub_package
-stub/requirement/good
-stub/requirement/bad
+# User-* Job collection
+stub/user-verify
+stub/user-interact
+stub/user-interact-verify
+# A manual job
 stub/manual
+# A shell job with a dependency that always works
+stub/dependency/good
+# A shell job with a dependency that always fails
+stub/dependency/bad
+# A shell job that requires a resource which is available
+stub/requirement/good
+# A shell job that requires a resource which is not available
+stub/requirement/bad
 __local__
 stub/local/true
 stub/multilevel

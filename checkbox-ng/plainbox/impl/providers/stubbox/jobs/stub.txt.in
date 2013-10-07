@@ -98,7 +98,7 @@ _description:
      This test checks that the user-interact-verify plugin works fine
  STEPS:
      1. Read this description
-     2. Ensure that the command has been started yet
+     2. Ensure that the command has not been started yet
      3. Press the test button
      4. Look at the output and determine the outcome of the test
  VERIFICATION:

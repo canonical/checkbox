@@ -546,7 +546,12 @@ class JobRunner(IJobRunner):
         # Get the outcome from the callback, if available,
         # or put the special OUTCOME_UNDECIDED value.
         if self._interaction_callback is not None:
-            return self._interaction_callback(self, job, config)
+            result = self._interaction_callback(self, job, config)
+            if result is None:
+                logger.error(
+                    "Interaction callback %r didn't return a result",
+                    self._interaction_callback)
+            return result
         else:
             return MemoryJobResult({'outcome': IJobResult.OUTCOME_UNDECIDED})
 

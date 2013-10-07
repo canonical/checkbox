@@ -616,8 +616,7 @@ class Object(Interface, dbus.service.Object):
                 except dbus.exceptions.DBusException as exc:
                     logger.warning("Caught %r", exc)
                 else:
-                    if len(props):
-                        ifaces_and_props[iface_name] = props
+                    ifaces_and_props[iface_name] = props
             self.InterfacesAdded(obj.__dbus_object_path__, ifaces_and_props)
         for obj in frozenset(old_objs) - frozenset(new_objs):
             ifaces = list(obj._dct_entry.keys())

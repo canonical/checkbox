@@ -81,13 +81,15 @@ class Service:
                                        option_list, temp_stream)
         return temp_stream.getvalue()
 
-    def export_session_to_file(self, session, output_format, option_list, output_file):
-        with open(output_file, 'wb') as f:
-            self._export_session_to_stream(session, output_format,
-                                       option_list, f)
+    def export_session_to_file(self, session, output_format, option_list,
+                               output_file):
+        with open(output_file, 'wb') as stream:
+            self._export_session_to_stream(
+                session, output_format, option_list, stream)
         return output_file
 
-    def _export_session_to_stream(self, session, output_format, option_list, stream):
+    def _export_session_to_stream(self, session, output_format, option_list,
+                                  stream):
         exporter_cls = get_all_exporters()[output_format]
         exporter = exporter_cls(option_list)
         data_subset = exporter.get_session_data_subset(session)

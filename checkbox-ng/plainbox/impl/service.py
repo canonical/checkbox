@@ -1242,7 +1242,7 @@ class RunningJob(dbus.service.Object):
 
     @dbus.service.signal(
         dbus_interface=SERVICE_IFACE, signature='dsay')
-    def IOLogGenerated(self, offset, name, data):
+    def IOLogGenerated(self, delay, stream_name, data):
         pass
 
     # XXX: Try to use PlainBoxObjectWrapper.translate here instead of calling

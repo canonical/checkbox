@@ -192,7 +192,7 @@ def get_matching_job_list(job_list, qualifier):
     return [job for job in job_list if qualifier.designates(job)]
 
 
-def run_job_if_possible(session, runner, config, job):
+def run_job_if_possible(session, runner, config, job, update=True):
     """
     Coupling point for session, runner, config and job
 
@@ -219,7 +219,8 @@ def run_job_if_possible(session, runner, config, job):
             'comments': job_state.get_readiness_description()
         })
     assert job_result is not None
-    session.update_job_result(job, job_result)
+    if update:
+        session.update_job_result(job, job_result)
     return job_state, job_result
 
 

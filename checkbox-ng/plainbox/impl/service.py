@@ -41,7 +41,7 @@ from plainbox.abc import IJobResult
 from plainbox.impl import dbus
 from plainbox.impl.dbus import OBJECT_MANAGER_IFACE
 from plainbox.impl.job import JobDefinition
-from plainbox.impl.result import DiskJobResult
+from plainbox.impl.result import DiskJobResult, MemoryJobResult
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.session import JobState
 from plainbox.impl.signal import remove_signals_listeners
@@ -1254,6 +1254,7 @@ class RunningJob(dbus.service.Object):
 
     def emitAskForOutcomeSignal(self, *args):
         self.AskForOutcome(self.path)
+        return MemoryJobResult({'outcome': IJobResult.OUTCOME_UNDECIDED})
 
     def emitJobResultAvailable(self, job, result):
         result_wrapper = JobResultWrapper(result)

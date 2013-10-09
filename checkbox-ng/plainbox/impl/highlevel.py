@@ -22,10 +22,10 @@
 ================================================
 """
 
-import logging
-from threading import Thread
-from concurrent.futures.thread import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 from io import BytesIO
+from threading import Thread
+import logging
 
 from plainbox import __version__ as plainbox_version
 from plainbox.abc import IJobResult
@@ -33,6 +33,7 @@ from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.session.legacy import SessionStateLegacyAPI as SessionState
+from plainbox.impl.applogic import run_job_if_possible
 
 
 logger = logging.getLogger("plainbox.highlevel")
@@ -123,3 +124,75 @@ class Service:
         runner.start()
         # FIXME: we need to keep track of this thread
         return job
+
+    def prime_job(self, session, job):
+        """
+        Prime the specified job for running.
+
+        The job will be invoked in a context specific to the session.
+        The configuration object associated with this service instance might be
+        used to fetch any additional configuration data for certain jobs
+        (environment variables)
+
+        :returns: a primed job, ready to be started
+        """
+        return PrimedJob(self, session, job)
+
+
+class PrimedJob:
+    """
+    Job primed for execution.
+
+    This only really exists because of sloppy GUI API design that invented
+    "RunningJob" entity which has a "RunCommand()" method that ...runs the job.
+    """
+
+    def __init__(self, service, session, job):
+        """
+        Initialize a primed job.
+
+        This should not be called by applications.
+        Please call :meth:`Service.prime_job()` instead.
+        """
+        self._service = service
+        self._session = session
+        self._job = job
+        self._runner = JobRunner(
+            session.session_dir,
+            session.jobs_io_log_dir,
+            # Pass a dummy IO delegate, we don't want to get any tracing here
+            # Later on this could be configurable but it's better if it's
+            # simple and limited rather than complete but broken somehow.
+            command_io_delegate=self)
+
+    @property
+    def job(self):
+        """
+        The job to be executed
+        """
+        return self._job
+
+    def run(self):
+        """
+        Run the primed job.
+
+        :returns:
+            Future for the job result
+
+        .. note::
+            This method returns immediately, before the job finishes running.
+        """
+        return self._service._executor.submit(self._really_run)
+
+    def _really_run(self):
+        """
+        Internal method called in executor context.
+
+        Runs a job with run_job_if_possible() and returns the result
+        """
+        # Run the job if possible
+        job_state, job_result = run_job_if_possible(
+            self._session, self._runner, self._service._config, self._job,
+            # Don't call update on your own please
+            update=False)
+        return job_result

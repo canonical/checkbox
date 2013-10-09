@@ -105,7 +105,7 @@ class Service:
                 'outcome': IJobResult.OUTCOME_NOT_SUPPORTED,
                 'comments': job_state.get_readiness_description()
             })
-        if job_result is not None:
+        if job_result.outcome is not IJobResult.OUTCOME_UNDECIDED:
             running_job_wrapper.update_job_result_callback(job, job_result)
 
     # FIXME: broken layering, running_job_wrapper is from the dbus layer

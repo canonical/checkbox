@@ -1108,6 +1108,7 @@ class ServiceWrapper(PlainBoxObjectWrapper):
         """
         # TODO: raise exception when job is in progress
         logger.info("Exit()")
+        self.native.close()
         self._on_exit()
 
     @dbus.service.method(

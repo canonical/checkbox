@@ -350,6 +350,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
                 join(session.jobs_io_log_dir, slugify(job.name))))
             session.metadata.running_job_name = job.name
             session.persistent_save()
+            # TODO: get a confirmation from the user for certain types of job.plugin
             job_result = runner.run_job(job)
             if (job_result.outcome == IJobResult.OUTCOME_UNDECIDED
                     and self.is_interactive):

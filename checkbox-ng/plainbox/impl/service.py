@@ -181,6 +181,11 @@ class PlainBoxObjectWrapper(dbus.service.ObjectWrapper):
                 return [obj.native for obj in obj_list]
 
         def translate_return_o(obj):
+            if isinstance(obj, PlainBoxObjectWrapper):
+                cls._logger.warning(
+                    "Application error: %r should have returned native object"
+                    " but returned wrapper instead", func)
+                return obj
             try:
                 return cls.find_wrapper_by_native(obj)
             except KeyError:

@@ -1235,12 +1235,14 @@ class RunningJob(dbus.service.Object):
     @dbus.service.method(
         dbus_interface=RUNNING_JOB_IFACE, in_signature='ss', out_signature='')
     def SetOutcome(self, outcome, comments=None):
+        logger.info("SetOutcome(%r, %r)", outcome, comments)
         self.result['outcome'] = outcome
         self.result['comments'] = comments
         job_result = DiskJobResult(self.result)
         self.emitJobResultAvailable(self.job, job_result)
 
     def _command_callback(self, return_code, record_path):
+        logger.info("_command_callback(%r, %r)", return_code, record_path)
         self.result['return_code'] = return_code
         self.result['io_log_filename'] = record_path
         self.emitAskForOutcomeSignal()
@@ -1249,6 +1251,7 @@ class RunningJob(dbus.service.Object):
         """
         Run a Job command in a separate thread
         """
+        logger.info("_run_command(%r, %r, %r)", session, job, parent)
         ui_io_delegate = UIOutputPrinter(self)
         runner = JobRunner(session.session_dir, session.jobs_io_log_dir,
                            command_io_delegate=ui_io_delegate)
@@ -1258,6 +1261,7 @@ class RunningJob(dbus.service.Object):
     @dbus.service.method(
         dbus_interface=RUNNING_JOB_IFACE, in_signature='', out_signature='')
     def RunCommand(self):
+        logger.info("RunCommand()")
         # FIXME: this thread object leaks, it needs to be .join()ed
         runner = Thread(target=self._run_command,
                         args=(self.session, self.job, self))
@@ -1266,25 +1270,27 @@ class RunningJob(dbus.service.Object):
     @dbus.service.signal(
         dbus_interface=SERVICE_IFACE, signature='dsay')
     def IOLogGenerated(self, delay, stream_name, data):
-        pass
+        logger.info("IOLogGenerated(%r, %r, %r)", delay, stream_name, data)
 
     # XXX: Try to use PlainBoxObjectWrapper.translate here instead of calling
     # emitJobResultAvailable to do the translation
     @dbus.service.signal(
         dbus_interface=SERVICE_IFACE, signature='oo')
     def JobResultAvailable(self, job, result):
-        pass
+        logger.info("JobResultAvailable(%r, %r)", job, result)
 
     @dbus.service.signal(
         dbus_interface=SERVICE_IFACE, signature='o')
     def AskForOutcome(self, runner):
-        pass
+        logger.info("AskForOutcome(%r)", runner)
 
     def emitAskForOutcomeSignal(self, *args):
+        logger.debug("emitAskForOutcomeSignal(%r)", args)
         self.AskForOutcome(self.path)
         return MemoryJobResult({'outcome': IJobResult.OUTCOME_UNDECIDED})
 
     def emitJobResultAvailable(self, job, result):
+        logger.debug("emitJobResultAvailable(%r, %r)", job, result)
         result_wrapper = JobResultWrapper(result)
         result_wrapper.publish_related_objects(self.connection)
         job_path = PlainBoxObjectWrapper.find_wrapper_by_native(job)
@@ -1292,6 +1298,7 @@ class RunningJob(dbus.service.Object):
         self.JobResultAvailable(job_path, result_path)
 
     def update_job_result_callback(self, job, result):
+        logger.debug("update_job_result_callback(%r, %r)", job, result)
         self.emitJobResultAvailable(job, result)
 
 

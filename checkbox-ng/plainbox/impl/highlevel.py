@@ -24,6 +24,7 @@
 
 import logging
 from threading import Thread
+from concurrent.futures.thread import ThreadPoolExecutor
 from io import BytesIO
 
 from plainbox import __version__ as plainbox_version
@@ -43,6 +44,10 @@ class Service:
         # TODO: session_list will be changed to session_manager_list
         self._provider_list = provider_list
         self._session_list = session_list
+        self._executor = ThreadPoolExecutor(1)
+
+    def close(self):
+        self._executor.shutdown()
 
     @property
     def version(self):

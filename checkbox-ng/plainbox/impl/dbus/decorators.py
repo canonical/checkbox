@@ -337,7 +337,10 @@ def signal(dbus_interface, signature=None, path_keyword=None,
                 location[0].send_message(message)
         # end emit_signal
 
-        args = inspect.getargspec(func)[0]
+        if hasattr(func, '__wrapped__'):
+            args = inspect.getfullargspec(func.__wrapped__)[0]
+        else:
+            args = inspect.getfullargspec(func)[0]
         args.pop(0)
 
         for keyword in rel_path_keyword, path_keyword:

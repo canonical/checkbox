@@ -1183,6 +1183,8 @@ class ServiceWrapper(PlainBoxObjectWrapper):
         # ...and return it
         return primed_job
 
+    RunJob = PrimeJob
+
 
 class UIOutputPrinter(extcmd.DelegateBase):
     """

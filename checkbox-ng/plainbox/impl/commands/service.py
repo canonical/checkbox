@@ -80,7 +80,7 @@ class ServiceInvocation:
         provider_list = [self.provider]
         session_list = []  # TODO: load sessions
         logger.debug("Constructing Service object")
-        service_obj = Service(provider_list, session_list)
+        service_obj = Service(provider_list, session_list, self.config)
         logger.debug("Constructing ServiceWrapper")
         service_wrp = ServiceWrapper(service_obj, on_exit=lambda: loop.quit())
         logger.info("Publishing all objects on DBus")

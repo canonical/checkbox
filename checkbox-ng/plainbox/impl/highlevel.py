@@ -40,11 +40,12 @@ logger = logging.getLogger("plainbox.highlevel")
 
 class Service:
 
-    def __init__(self, provider_list, session_list):
+    def __init__(self, provider_list, session_list, config):
         # TODO: session_list will be changed to session_manager_list
         self._provider_list = provider_list
         self._session_list = session_list
         self._executor = ThreadPoolExecutor(1)
+        self._config = config
 
     def close(self):
         self._executor.shutdown()

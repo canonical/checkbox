@@ -279,6 +279,20 @@ class JobDefinition(BaseJob, IJobDefinition):
                                'attachment', 'local']
 
     @property
+    def startup_user_interaction_required(self):
+        """
+        The job needs to be started explicitly by the test operator. This is
+        intended for things that may be timing-sensitive or may require the
+        tester to understand the necessary manipulations that he or she may
+        have to perform ahead of time.
+
+        The test operator may select to skip certain tests, in that case the
+        outcome is skip.
+        """
+        return self.plugin in ['manual', 'user-interact',
+                               'user-interact-verify']
+
+    @property
     def via(self):
         """
         The checksum of the "parent" job when the current JobDefinition comes

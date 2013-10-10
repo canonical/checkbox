@@ -617,7 +617,10 @@ class JobStateWrapper(PlainBoxObjectWrapper):
         """
         logger.debug("_result_changed(%r, %r)", old, new)
         # Add the new result object
-        result_wrapper = self._session_wrapper.add_result(new)
+        try:
+            result_wrapper = self.find_wrapper_by_native(new)
+        except KeyError:
+            result_wrapper = self._session_wrapper.add_result(new)
         # Notify applications that the result property has changed
         self.PropertiesChanged(JOB_STATE_IFACE, {
             self.__class__.result._dbus_property: result_wrapper

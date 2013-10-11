@@ -198,7 +198,7 @@ class JobRunner(IJobRunner):
     _DRY_RUN_PLUGINS = ('local', 'resource', 'attachment')
 
     def __init__(self, session_dir, jobs_io_log_dir,
-                 command_io_delegate=None, interaction_callback=None,
+                 command_io_delegate=None,
                  dry_run=False):
         """
         Initialize a new job runner.
@@ -211,7 +211,6 @@ class JobRunner(IJobRunner):
         self._session_dir = session_dir
         self._jobs_io_log_dir = jobs_io_log_dir
         self._command_io_delegate = command_io_delegate
-        self._interaction_callback = interaction_callback
         self._dry_run = dry_run
 
     def run_job(self, job, config=None):
@@ -428,8 +427,6 @@ class JobRunner(IJobRunner):
         * The API states that :meth:`JobRunner.run_job()` should only be
           called at this time.
         * Run the command and wait for it to finish
-        * The method typically ends here, unless interaction_callback is
-          used.
         * Display the description to the user
         * Display the output of the command to the user
         * Ask the user to decide on the outcome
@@ -479,8 +476,6 @@ class JobRunner(IJobRunner):
         * The API states that :meth:`JobRunner.run_job()` should only be
           called at this time.
         * Run the command and wait for it to finish
-        * The method typically ends here, unless interaction_callback is
-          used.
         * Display the description to the user
         * Display the output of the command to the user
         * Ask the user to decide on the outcome
@@ -516,30 +511,6 @@ class JobRunner(IJobRunner):
         # Maybe ask the user
         result_cmd.outcome = IJobResult.OUTCOME_UNDECIDED
         return result_cmd
-
-    def _call_interaction_callback(self, job, config):
-        """
-        Internal method of JobRunner.
-
-        Use self.interaction_callback to obtain the result from the user. If
-        the callback is not available return a MemoryJobResult with
-        OUTCOME_UNDECIDED.
-
-        .. note::
-            This method is tentatively deprecated, it will be removed along
-            with the interaction callback when we migrate all of the users.
-        """
-        # Get the outcome from the callback, if available,
-        # or put the special OUTCOME_UNDECIDED value.
-        if self._interaction_callback is not None:
-            result = self._interaction_callback(self, job, config)
-            if result is None:
-                logger.error(
-                    "Interaction callback %r didn't return a result",
-                    self._interaction_callback)
-            return result
-        else:
-            return MemoryJobResult({'outcome': IJobResult.OUTCOME_UNDECIDED})
 
     def _get_dry_run_result(self, job):
         """

@@ -22,7 +22,7 @@
 =========================================================
 """
 
-from threading import Thread, Lock
+from threading import Lock
 import collections
 import functools
 import itertools
@@ -43,7 +43,6 @@ from plainbox.impl.dbus import OBJECT_MANAGER_IFACE
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.result import DiskJobResult
 from plainbox.impl.result import MemoryJobResult
-from plainbox.impl.runner import JobRunner
 from plainbox.impl.session import JobState
 from plainbox.impl.signal import remove_signals_listeners
 
@@ -1157,16 +1156,6 @@ class ServiceWrapper(PlainBoxObjectWrapper):
         return session_wrp
 
     @dbus.service.method(
-        dbus_interface=SERVICE_IFACE, in_signature='oo', out_signature='')
-    @PlainBoxObjectWrapper.translate
-    def RunJob(self, session: 'o', job: 'o'):
-        logger.info("RunJob(%r, %r)", session, job)
-        running_job_wrp = RunningJob(job, session, conn=self.connection)
-        PlainBoxObjectWrapper.find_wrapper_by_native(
-            session).add_managed_object(running_job_wrp)
-        self.native.run_job(session, job, running_job_wrp)
-
-    @dbus.service.method(
         dbus_interface=SERVICE_IFACE, in_signature='oo', out_signature='o')
     @PlainBoxObjectWrapper.translate
     def PrimeJob(self, session: 'o', job: 'o') -> 'o':
@@ -1204,107 +1193,6 @@ class UIOutputPrinter(extcmd.DelegateBase):
         self._lineno[stream_name] += 1
         self._runner.IOLogGenerated(self._lineno[stream_name],
                                     stream_name, line)
-
-
-class RunningJob(dbus.service.Object):
-    """
-    DBus representation of a running job.
-    """
-
-    def __init__(self, job, session, conn=None, object_path=None,
-                 bus_name=None):
-        if object_path is None:
-            object_path = "/plainbox/jobrunner/{}".format(id(self))
-        self.path = object_path
-        dbus.service.Object.__init__(self, conn, self.path, bus_name)
-        self.job = job
-        self.session = session
-        self.result = {}
-        self.ui_io_delegate = UIOutputPrinter(self)
-
-    @dbus.service.method(
-        dbus_interface=RUNNING_JOB_IFACE, in_signature='', out_signature='')
-    def Kill(self):
-        pass
-
-    @dbus.service.property(dbus_interface=RUNNING_JOB_IFACE, signature="s")
-    def outcome_from_command(self):
-        if self.result.get('return_code') is not None:
-            if self.result.get('return_code') == 0:
-                return "pass"
-            else:
-                return "fail"
-        else:
-            return ""
-
-    @dbus.service.method(
-        dbus_interface=RUNNING_JOB_IFACE, in_signature='ss', out_signature='')
-    def SetOutcome(self, outcome, comments=None):
-        logger.info("SetOutcome(%r, %r)", outcome, comments)
-        self.result['outcome'] = outcome
-        self.result['comments'] = comments
-        job_result = DiskJobResult(self.result)
-        self.emitJobResultAvailable(self.job, job_result)
-
-    def _command_callback(self, return_code, record_path):
-        logger.info("_command_callback(%r, %r)", return_code, record_path)
-        self.result['return_code'] = return_code
-        self.result['io_log_filename'] = record_path
-        self.emitAskForOutcomeSignal()
-
-    def _run_command(self, session, job, parent):
-        """
-        Run a Job command in a separate thread
-        """
-        logger.info("_run_command(%r, %r, %r)", session, job, parent)
-        ui_io_delegate = UIOutputPrinter(self)
-        runner = JobRunner(session.session_dir, session.jobs_io_log_dir,
-                           command_io_delegate=ui_io_delegate)
-        return_code, record_path = runner._run_command(job, None)
-        parent._command_callback(return_code, record_path)
-
-    @dbus.service.method(
-        dbus_interface=RUNNING_JOB_IFACE, in_signature='', out_signature='')
-    def RunCommand(self):
-        logger.info("RunCommand()")
-        # FIXME: this thread object leaks, it needs to be .join()ed
-        runner = Thread(target=self._run_command,
-                        args=(self.session, self.job, self))
-        runner.start()
-
-    @dbus.service.signal(
-        dbus_interface=SERVICE_IFACE, signature='dsay')
-    def IOLogGenerated(self, delay, stream_name, data):
-        logger.info("IOLogGenerated(%r, %r, %r)", delay, stream_name, data)
-
-    # XXX: Try to use PlainBoxObjectWrapper.translate here instead of calling
-    # emitJobResultAvailable to do the translation
-    @dbus.service.signal(
-        dbus_interface=SERVICE_IFACE, signature='oo')
-    def JobResultAvailable(self, job, result):
-        logger.info("JobResultAvailable(%r, %r)", job, result)
-
-    @dbus.service.signal(
-        dbus_interface=SERVICE_IFACE, signature='o')
-    def AskForOutcome(self, runner):
-        logger.info("AskForOutcome(%r)", runner)
-
-    def emitAskForOutcomeSignal(self, *args):
-        logger.debug("emitAskForOutcomeSignal(%r)", args)
-        self.AskForOutcome(self.path)
-        return MemoryJobResult({'outcome': IJobResult.OUTCOME_UNDECIDED})
-
-    def emitJobResultAvailable(self, job, result):
-        logger.debug("emitJobResultAvailable(%r, %r)", job, result)
-        result_wrapper = JobResultWrapper(result)
-        result_wrapper.publish_related_objects(self.connection)
-        job_path = PlainBoxObjectWrapper.find_wrapper_by_native(job)
-        result_path = PlainBoxObjectWrapper.find_wrapper_by_native(result)
-        self.JobResultAvailable(job_path, result_path)
-
-    def update_job_result_callback(self, job, result):
-        logger.debug("update_job_result_callback(%r, %r)", job, result)
-        self.emitJobResultAvailable(job, result)
 
 
 class PrimedJobWrapper(PlainBoxObjectWrapper):

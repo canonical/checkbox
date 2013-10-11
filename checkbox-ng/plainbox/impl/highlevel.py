@@ -96,35 +96,6 @@ class Service:
         data_subset = exporter.get_session_data_subset(session)
         exporter.dump(data_subset, stream)
 
-    def _run(self, session, job, running_job_wrapper):
-        """
-        Start a JobRunner in a separate thread
-        """
-        runner = JobRunner(
-            session.session_dir,
-            session.jobs_io_log_dir,
-            command_io_delegate=running_job_wrapper.ui_io_delegate,
-            interaction_callback=running_job_wrapper.emitAskForOutcomeSignal
-        )
-        job_state = session.job_state_map[job.name]
-        if job_state.can_start():
-            job_result = runner.run_job(job)
-        else:
-            job_result = MemoryJobResult({
-                'outcome': IJobResult.OUTCOME_NOT_SUPPORTED,
-                'comments': job_state.get_readiness_description()
-            })
-        if job_result.outcome is not IJobResult.OUTCOME_UNDECIDED:
-            running_job_wrapper.update_job_result_callback(job, job_result)
-
-    # FIXME: broken layering, running_job_wrapper is from the dbus layer
-    def run_job(self, session, job, running_job_wrapper):
-        runner = Thread(target=self._run,
-                        args=(session, job, running_job_wrapper))
-        runner.start()
-        # FIXME: we need to keep track of this thread
-        return job
-
     def prime_job(self, session, job):
         """
         Prime the specified job for running.
@@ -142,9 +113,6 @@ class Service:
 class PrimedJob:
     """
     Job primed for execution.
-
-    This only really exists because of sloppy GUI API design that invented
-    "RunningJob" entity which has a "RunCommand()" method that ...runs the job.
     """
 
     def __init__(self, service, session, job):

@@ -100,7 +100,6 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
                 self.session.session_dir,
                 self.session.jobs_io_log_dir,
                 command_io_delegate=self,
-                interaction_callback=None,  # SRU runs are never interactive
                 dry_run=self.ns.dry_run
             )
             self._run_all_jobs()

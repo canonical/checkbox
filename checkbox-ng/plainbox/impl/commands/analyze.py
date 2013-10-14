@@ -69,7 +69,7 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
         with self.session.open():
             runner = JobRunner(
                 self.session.session_dir, self.session.jobs_io_log_dir,
-                command_io_delegate=self, interaction_callback=None)
+                command_io_delegate=self)
             again = True
             while again:
                 for job in self.session.run_list:

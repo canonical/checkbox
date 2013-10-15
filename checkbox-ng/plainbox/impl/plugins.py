@@ -263,7 +263,7 @@ class PkgResourcesPlugInCollection(PlugInCollectionBase):
         for entry_point in sorted(iterator, key=lambda ep: ep.name):
             try:
                 obj = entry_point.load()
-            except ImportError as exc:
+            except ImportError:
                 logger.exception("Unable to import %s", entry_point)
             else:
                 obj = self._wrapper(entry_point.name, obj)

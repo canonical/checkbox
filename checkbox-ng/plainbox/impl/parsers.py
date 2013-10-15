@@ -32,7 +32,6 @@ import abc
 import inspect
 import json
 import logging
-import sys
 
 from plainbox.impl.plugins import PlugInCollection, PlugIn
 

@@ -150,28 +150,21 @@ class IPlugInCollection:
         """
 
 
-class PkgResourcesPlugInCollection(IPlugInCollection):
+class PlugInCollectionBase(IPlugInCollection):
     """
-    Collection of plug-ins based on pkg_resources
-
-    Instantiate with :attr:`namespace`, call :meth:`load()` and then access any
-    of the loaded plug-ins using the API offered. All loaded objects are
-    wrapped by a plug-in container. By default that is :class:`PlugIn` but it
-    may be adjusted if required.
+    Base class that shares some of the implementation with the other
+    PlugInCollection implemenetations.
     """
 
-    def __init__(self, namespace, load=False, wrapper=PlugIn):
+    def __init__(self, load=False, wrapper=PlugIn):
         """
-        Initialize a collection of plug-ins from the specified name-space.
+        Initialize a collection of plug-ins
 
-        :param namespace:
-            pkg_resources entry-point name-space of the plug-in collection
         :param load:
             if true, load all of the plug-ins now
         :param wrapper:
             wrapper class for all loaded objects, defaults to :class:`PlugIn`
         """
-        self._namespace = namespace
         self._wrapper = wrapper
         self._plugins = collections.OrderedDict()
         self._loaded = False
@@ -202,6 +195,55 @@ class PkgResourcesPlugInCollection(IPlugInCollection):
         Get an iterator to a sequence of (name, plug-in)
         """
         return list(self._plugins.items())
+
+    @contextlib.contextmanager
+    def fake_plugins(self, plugins):
+        """
+        Context manager for using fake list of plugins
+
+        :param plugins: list of PlugIn-alike objects
+
+        The provided list of plugins overrides any previously loaded
+        plugins and prevent loading any other, real, plugins. After
+        the context manager exits the previous state is restored.
+        """
+        old_loaded = self._loaded
+        old_plugins = self._plugins
+        self._loaded = True
+        self._plugins = collections.OrderedDict([
+            (plugin.plugin_name, plugin)
+            for plugin in sorted(
+                plugins, key=lambda plugin: plugin.plugin_name)])
+        try:
+            yield
+        finally:
+            self._loaded = old_loaded
+            self._plugins = old_plugins
+
+
+class PkgResourcesPlugInCollection(PlugInCollectionBase):
+    """
+    Collection of plug-ins based on pkg_resources
+
+    Instantiate with :attr:`namespace`, call :meth:`load()` and then access any
+    of the loaded plug-ins using the API offered. All loaded objects are
+    wrapped by a plug-in container. By default that is :class:`PlugIn` but it
+    may be adjusted if required.
+    """
+
+    def __init__(self, namespace, load=False, wrapper=PlugIn):
+        """
+        Initialize a collection of plug-ins from the specified name-space.
+
+        :param namespace:
+            pkg_resources entry-point name-space of the plug-in collection
+        :param load:
+            if true, load all of the plug-ins now
+        :param wrapper:
+            wrapper class for all loaded objects, defaults to :class:`PlugIn`
+        """
+        self._namespace = namespace
+        super(PkgResourcesPlugInCollection, self).__init__(load, wrapper)
 
     def load(self):
         """
@@ -234,27 +276,3 @@ class PkgResourcesPlugInCollection(IPlugInCollection):
         This is the method you want to mock if you are writing unit tests
         """
         return pkg_resources.iter_entry_points(self._namespace)
-
-    @contextlib.contextmanager
-    def fake_plugins(self, plugins):
-        """
-        Context manager for using fake list of plugins
-
-        :param plugins: list of PlugIn-alike objects
-
-        The provided list of plugins overrides any previously loaded
-        plugins and prevent loading any other, real, plugins. After
-        the context manager exits the previous state is restored.
-        """
-        old_loaded = self._loaded
-        old_plugins = self._plugins
-        self._loaded = True
-        self._plugins = collections.OrderedDict([
-            (plugin.plugin_name, plugin)
-            for plugin in sorted(
-                plugins, key=lambda plugin: plugin.plugin_name)])
-        try:
-            yield
-        finally:
-            self._loaded = old_loaded
-            self._plugins = old_plugins

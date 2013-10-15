@@ -28,7 +28,8 @@ from unittest import TestCase
 
 import mock
 
-from plainbox.impl.plugins import IPlugIn, PlugIn, PkgResourcesPlugInCollection
+from plainbox.impl.plugins import IPlugIn, PlugIn
+from plainbox.impl.plugins import PkgResourcesPlugInCollection
 
 
 class PlugInTests(TestCase):
@@ -49,26 +50,28 @@ class PkgResourcesPlugInCollectionTests(TestCase):
 
     _NAMESPACE = "namespace"
 
-    def test_smoke(self):
+    def setUp(self):
         # Create a collection
-        col = PkgResourcesPlugInCollection(self._NAMESPACE)
+        self.col = PkgResourcesPlugInCollection(self._NAMESPACE)
+
+    def test_namespace_is_set(self):
         # Ensure that namespace was saved
-        self.assertEqual(col._namespace, self._NAMESPACE)
+        self.assertEqual(self.col._namespace, self._NAMESPACE)
+
+    def test_plugins_are_empty(self):
         # Ensure that plugins start out empty
-        self.assertEqual(len(col._plugins), 0)
+        self.assertEqual(len(self.col._plugins), 0)
+
+    def test_initial_loaded_flag(self):
         # Ensure that 'loaded' flag is false
-        self.assertFalse(col._loaded)
+        self.assertFalse(self.col._loaded)
 
     def test_default_wrapper(self):
-        # Create a collection
-        col = PkgResourcesPlugInCollection(self._NAMESPACE)
         # Ensure that the wrapper is :class:`PlugIn`
-        self.assertEqual(col._wrapper, PlugIn)
+        self.assertEqual(self.col._wrapper, PlugIn)
 
     @mock.patch('pkg_resources.iter_entry_points')
     def test_load(self, mock_iter):
-        # Create a collection
-        col = PkgResourcesPlugInCollection(self._NAMESPACE)
         # Create a mocked entry point
         mock_ep1 = mock.Mock()
         mock_ep1.name = "zzz"
@@ -80,7 +83,7 @@ class PkgResourcesPlugInCollectionTests(TestCase):
         # Make the collection load both mocked entry points
         mock_iter.return_value = [mock_ep1, mock_ep2]
         # Load plugins
-        col.load()
+        self.col.load()
         # Ensure that pkg_resources were interrogated
         mock_iter.assert_calledwith(self._NAMESPACE)
         # Ensure that both entry points were loaded
@@ -90,8 +93,6 @@ class PkgResourcesPlugInCollectionTests(TestCase):
     @mock.patch('plainbox.impl.plugins.logger')
     @mock.patch('pkg_resources.iter_entry_points')
     def test_load_failing(self, mock_iter, mock_logger):
-        # Create a collection
-        col = PkgResourcesPlugInCollection(self._NAMESPACE)
         # Create a mocked entry point
         mock_ep1 = mock.Mock()
         mock_ep1.name = "zzz"
@@ -103,7 +104,7 @@ class PkgResourcesPlugInCollectionTests(TestCase):
         # Make the collection load both mocked entry points
         mock_iter.return_value = [mock_ep1, mock_ep2]
         # Load plugins
-        col.load()
+        self.col.load()
         # Ensure that pkg_resources were interrogated
         mock_iter.assert_calledwith(self._NAMESPACE)
         # Ensure that both entry points were loaded
@@ -113,21 +114,19 @@ class PkgResourcesPlugInCollectionTests(TestCase):
         mock_logger.exception.assert_called_with(
             "Unable to import %s", mock_ep2)
 
-    def test_aux_methods(self):
-        # Create a collection
-        col = PkgResourcesPlugInCollection(self._NAMESPACE)
+    def test_fake_plugins(self):
         # Create a mocked entry plugin
         plug1 = PlugIn("ep1", "obj1")
         plug2 = PlugIn("ep2", "obj2")
         # With fake plugins
-        with col.fake_plugins([plug1, plug2]):
+        with self.col.fake_plugins([plug1, plug2]):
             # Check that plugins are correct
-            self.assertIs(col.get_by_name('ep1'), plug1)
-            self.assertIs(col.get_by_name('ep2'), plug2)
+            self.assertIs(self.col.get_by_name('ep1'), plug1)
+            self.assertIs(self.col.get_by_name('ep2'), plug2)
             # Access all plugins
-            self.assertEqual(col.get_all_plugins(), [plug1, plug2])
+            self.assertEqual(self.col.get_all_plugins(), [plug1, plug2])
             # Access all plugin names
-            self.assertEqual(col.get_all_names(), ['ep1', 'ep2'])
+            self.assertEqual(self.col.get_all_names(), ['ep1', 'ep2'])
             # Access all pairs (name, plugin)
-            self.assertEqual(col.get_all_items(),
+            self.assertEqual(self.col.get_all_items(),
                              [('ep1', plug1), ('ep2', plug2)])

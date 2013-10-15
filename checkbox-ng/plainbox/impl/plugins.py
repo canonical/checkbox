@@ -150,7 +150,7 @@ class IPlugInCollection:
         """
 
 
-class PlugInCollection:
+class PlugInCollection(IPlugInCollection):
     """
     Collection of plug-ins based on pkg_resources
 

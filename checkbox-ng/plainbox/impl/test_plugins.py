@@ -28,7 +28,7 @@ from unittest import TestCase
 
 import mock
 
-from plainbox.impl.plugins import IPlugIn, PlugIn, PlugInCollection
+from plainbox.impl.plugins import IPlugIn, PlugIn, PkgResourcesPlugInCollection
 
 
 class PlugInTests(TestCase):
@@ -45,13 +45,13 @@ class PlugInTests(TestCase):
         self.assertTrue(issubclass(PlugIn, IPlugIn))
 
 
-class PlugInCollectionTests(TestCase):
+class PkgResourcesPlugInCollectionTests(TestCase):
 
     _NAMESPACE = "namespace"
 
     def test_smoke(self):
         # Create a collection
-        col = PlugInCollection(self._NAMESPACE)
+        col = PkgResourcesPlugInCollection(self._NAMESPACE)
         # Ensure that namespace was saved
         self.assertEqual(col._namespace, self._NAMESPACE)
         # Ensure that plugins start out empty
@@ -61,14 +61,14 @@ class PlugInCollectionTests(TestCase):
 
     def test_default_wrapper(self):
         # Create a collection
-        col = PlugInCollection(self._NAMESPACE)
+        col = PkgResourcesPlugInCollection(self._NAMESPACE)
         # Ensure that the wrapper is :class:`PlugIn`
         self.assertEqual(col._wrapper, PlugIn)
 
     @mock.patch('pkg_resources.iter_entry_points')
     def test_load(self, mock_iter):
         # Create a collection
-        col = PlugInCollection(self._NAMESPACE)
+        col = PkgResourcesPlugInCollection(self._NAMESPACE)
         # Create a mocked entry point
         mock_ep1 = mock.Mock()
         mock_ep1.name = "zzz"
@@ -91,7 +91,7 @@ class PlugInCollectionTests(TestCase):
     @mock.patch('pkg_resources.iter_entry_points')
     def test_load_failing(self, mock_iter, mock_logger):
         # Create a collection
-        col = PlugInCollection(self._NAMESPACE)
+        col = PkgResourcesPlugInCollection(self._NAMESPACE)
         # Create a mocked entry point
         mock_ep1 = mock.Mock()
         mock_ep1.name = "zzz"
@@ -115,7 +115,7 @@ class PlugInCollectionTests(TestCase):
 
     def test_aux_methods(self):
         # Create a collection
-        col = PlugInCollection(self._NAMESPACE)
+        col = PkgResourcesPlugInCollection(self._NAMESPACE)
         # Create a mocked entry plugin
         plug1 = PlugIn("ep1", "obj1")
         plug2 = PlugIn("ep2", "obj2")

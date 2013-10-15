@@ -29,7 +29,7 @@ import io
 from plainbox.abc import IProvider1, IProviderBackend1
 from plainbox.impl.applogic import WhiteList
 from plainbox.impl.job import JobDefinition
-from plainbox.impl.plugins import PlugInCollection
+from plainbox.impl.plugins import PkgResourcesPlugInCollection
 from plainbox.impl.rfc822 import load_rfc822_records
 
 
@@ -226,4 +226,4 @@ class DummyProvider1(IProvider1, IProviderBackend1):
 
 
 # Collection of all providers
-all_providers = PlugInCollection('plainbox.provider.v1')
+all_providers = PkgResourcesPlugInCollection('plainbox.provider.v1')

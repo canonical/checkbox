@@ -97,6 +97,59 @@ class PlugIn(IPlugIn):
         return self._obj
 
 
+class IPlugInCollection:
+    """
+    A collection of IPlugIn objects.
+    """
+
+    @abc.abstractmethod
+    def get_by_name(self, name):
+        """
+        Get the specified plug-in (by name)
+        """
+
+    @abc.abstractmethod
+    def get_all_names(self):
+        """
+        Get an iterator to a sequence of plug-in names
+        """
+
+    @abc.abstractmethod
+    def get_all_plugins(self):
+        """
+        Get an iterator to a sequence plug-ins
+        """
+
+    @abc.abstractmethod
+    def get_all_items(self):
+        """
+        Get an iterator to a sequence of (name, plug-in)
+        """
+
+    @abc.abstractmethod
+    def load(self):
+        """
+        Load all plug-ins.
+
+        This method loads all plug-ins from the specified name-space.  It may
+        perform a lot of IO so it's somewhat slow / expensive on a cold disk
+        cache.
+        """
+
+    @abc.abstractmethod
+    @contextlib.contextmanager
+    def fake_plugins(self, plugins):
+        """
+        Context manager for using fake list of plugins
+
+        :param plugins: list of PlugIn-alike objects
+
+        The provided list of plugins overrides any previously loaded
+        plugins and prevent loading any other, real, plugins. After
+        the context manager exits the previous state is restored.
+        """
+
+
 class PlugInCollection:
     """
     Collection of plug-ins based on pkg_resources

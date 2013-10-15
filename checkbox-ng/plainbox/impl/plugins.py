@@ -46,6 +46,7 @@ import abc
 import collections
 import contextlib
 import logging
+import os
 
 import pkg_resources
 
@@ -276,3 +277,82 @@ class PkgResourcesPlugInCollection(PlugInCollectionBase):
         This is the method you want to mock if you are writing unit tests
         """
         return pkg_resources.iter_entry_points(self._namespace)
+
+
+class FsPlugInCollection(PlugInCollectionBase):
+    """
+    Collection of plug-ins based on filesystem entries
+
+    Instantiate with :attr:`path` and :attr:`ext`, call :meth:`load()` and then
+    access any of the loaded plug-ins using the API offered. All loaded plugin
+    information files are wrapped by a plug-in container. By default that is
+    :class:`PlugIn` but it may be adjusted if required.
+
+    The name of each plugin is the base name of the plugin file, the object of
+    each plugin is the text read from the plugin file.
+    """
+
+    def __init__(self, path, ext, load=False, wrapper=PlugIn):
+        """
+        Initialize a collection of plug-ins from the specified name-space.
+
+        :param path:
+            a PATH like variable that uses os.path.pathsep to separate multiple
+            directory entries. Each directory is searched for (not recursively)
+            for plugins.
+        :param ext:
+            extension of each plugin definition file
+        :param load:
+            if true, load all of the plug-ins now
+        :param wrapper:
+            wrapper class for all loaded objects, defaults to :class:`PlugIn`
+        """
+        self._path = path
+        self._ext = ext
+        super(FsPlugInCollection, self).__init__(load, wrapper)
+
+    def load(self):
+        """
+        Load all plug-ins.
+
+        This method loads all plug-ins from the search directories (as defined
+        by the path attribute). Missing directories are silently ignored.
+        """
+        if self._loaded:
+            return
+        self._loaded = True
+        iterator = self._get_plugin_files()
+        for filename in sorted(iterator):
+            try:
+                with open(filename, encoding='UTF-8') as stream:
+                    text = stream.read()
+            except IOError as exc:
+                logger.error("Unable to load %r: %s", filename, str(exc))
+            else:
+                name = os.path.basename(filename)
+                obj = self._wrapper(name, text)
+                self._plugins[name] = obj
+
+    def _get_plugin_files(self):
+        """
+        Enumerate (generate) all plugin files according to 'path' and 'ext'
+        """
+        # Look in all parts of 'path' separated by standard system path
+        # separator.
+        for path in self._path.split(os.path.pathsep):
+            # List all files in each path component
+            try:
+                entries = os.listdir(path)
+            except OSError:
+                # Silently ignore anything we cannot access
+                continue
+            # Look at each file there
+            for entry in entries:
+                # Skip files with other extensions
+                if not entry.endswith(self._ext):
+                    continue
+                info_file = os.path.join(path, entry)
+                # Skip all non-files
+                if not os.path.isfile(info_file):
+                    continue
+                yield info_file

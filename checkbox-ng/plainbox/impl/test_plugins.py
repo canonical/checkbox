@@ -25,9 +25,11 @@ Test definitions for plainbox.impl.plugins module
 """
 
 from unittest import TestCase
+import os
 
 import mock
 
+from plainbox.impl.plugins import FsPlugInCollection
 from plainbox.impl.plugins import IPlugIn, PlugIn
 from plainbox.impl.plugins import PkgResourcesPlugInCollection
 
@@ -130,3 +132,111 @@ class PkgResourcesPlugInCollectionTests(TestCase):
             # Access all pairs (name, plugin)
             self.assertEqual(self.col.get_all_items(),
                              [('ep1', plug1), ('ep2', plug2)])
+
+
+class FsPlugInCollectionTests(TestCase):
+
+    _P1 = "/system/providers"
+    _P2 = "home/user/.providers"
+    _PATH = os.path.pathsep.join([_P1, _P2])
+    _EXT = ".plugin"
+
+    def setUp(self):
+        # Create a collection
+        self.col = FsPlugInCollection(self._PATH, self._EXT)
+
+    def test_path_is_set(self):
+        # Ensure that path was saved
+        self.assertEqual(self.col._path, self._PATH)
+
+    def test_ext_is_set(self):
+        # Ensure that ext was saved
+        self.assertEqual(self.col._ext, self._EXT)
+
+    def test_plugins_are_empty(self):
+        # Ensure that plugins start out empty
+        self.assertEqual(len(self.col._plugins), 0)
+
+    def test_initial_loaded_flag(self):
+        # Ensure that 'loaded' flag is false
+        self.assertFalse(self.col._loaded)
+
+    def test_default_wrapper(self):
+        # Ensure that the wrapper is :class:`PlugIn`
+        self.assertEqual(self.col._wrapper, PlugIn)
+
+    @mock.patch('plainbox.impl.plugins.logger')
+    @mock.patch('builtins.open')
+    @mock.patch('os.path.isfile')
+    @mock.patch('os.listdir')
+    def test_load(self, mock_listdir, mock_isfile, mock_open, mock_logger):
+        # Mock a bit of filesystem access methods to make some plugins show up
+        def fake_listdir(path):
+            if path == self._P1:
+                return [
+                    # A regular plugin
+                    'foo.plugin',
+                    # Another regular plugin
+                    'bar.plugin',
+                    # Unrelated file, not a plugin
+                    'unrelated.txt',
+                    # A directory that looks like a plugin
+                    'dir.bad.plugin',
+                    # A plugin without read permissions
+                    'noperm.plugin']
+            else:
+                raise OSError("There is nothing in {}".format(path))
+
+        def fake_isfile(path):
+            return not os.path.basename(path).startswith('dir.')
+
+        def fake_open(path, encoding=None, mode=None):
+            m = mock.Mock()
+            m.__enter__ = mock.Mock()
+            m.__exit__ = mock.Mock()
+            if path == os.path.join(self._P1, 'foo.plugin'):
+                m.read.return_value = "foo"
+                return m
+            elif path == os.path.join(self._P1, 'bar.plugin'):
+                m.read.return_value = "bar"
+                return m
+            elif path == os.path.join(self._P1, 'noperm.plugin'):
+                raise IOError("You cannot open this file")
+            else:
+                raise IOError("Unexpected file: {}".format(path))
+        mock_listdir._wraps = fake_listdir
+        mock_isfile._wraps = fake_isfile
+        mock_open._wraps = fake_open
+        # Load all plugins now
+        self.col.load()
+        # And 'again', just to ensure we're doing the IO only once
+        self.col.load()
+        # Ensure that we actually tried to look at the filesytstem
+        self.assertEqual(
+            mock_listdir.call_args_list, [
+                ((self._P1, ), {}),
+                ((self._P2, ), {})
+            ])
+        # Ensure that we actually tried to check if things are files
+        self.assertEqual(
+            mock_isfile.call_args_list, [
+                ((os.path.join(self._P1, 'foo.plugin'),), {}),
+                ((os.path.join(self._P1, 'bar.plugin'),), {}),
+                ((os.path.join(self._P1, 'dir.bad.plugin'),), {}),
+                ((os.path.join(self._P1, 'noperm.plugin'),), {}),
+            ])
+        # Ensure that we actually tried to open some files
+        self.assertEqual(
+            mock_open.call_args_list, [
+                ((os.path.join(self._P1, 'bar.plugin'),),
+                 {'encoding': 'UTF-8'}),
+                ((os.path.join(self._P1, 'foo.plugin'),),
+                 {'encoding': 'UTF-8'}),
+                ((os.path.join(self._P1, 'noperm.plugin'),),
+                 {'encoding': 'UTF-8'}),
+            ])
+        # Ensure that an exception was logged
+        mock_logger.error.assert_called_with(
+            'Unable to load %r: %s',
+            '/system/providers/noperm.plugin',
+            'You cannot open this file')

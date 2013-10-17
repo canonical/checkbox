@@ -388,6 +388,42 @@ class Config(metaclass=ConfigMeta):
         self.read(cls.Meta.filename_list)
         return self
 
+    def read_string(self, string):
+        """
+        Load settings from a string.
+
+        This method parses the string as an INI file using
+        :class:`PlainBoxConfigParser` (a simple ConfigParser subclass that
+        respects the case of key names).
+
+        If any problem is detected during parsing (e.g. syntax errors) those
+        are captured and added to the :attr:`Config.problem_list`.
+
+        After parsing the string each :class:`Variable` and :class:`Section`
+        defined in the :class:`Config` class is assigned with the data from the
+        configuration data.
+
+        Any variables that cannot be assigned and raise
+        :class:`ValidationError` are ignored but the list of problems is saved.
+
+        All unused configuration (extra variables that are not defined as
+        either Variable or Section class) is silently ignored.
+
+        .. note::
+            This method resets :ivar:`_problem_list` and
+            :ivar:`_filename_list`.
+        """
+        parser = PlainBoxConfigParser()
+        # Reset filename list and problem list
+        self._filename_list = []
+        self._problem_list = []
+        # Try loading all of the config files
+        try:
+            parser.read_string(string)
+        except configparser.Error as exc:
+            self._problem_list.append(exc)
+        self._read_commit(parser)
+
     def read(self, filename_list):
         """
         Load and merge settings from many files.
@@ -425,6 +461,9 @@ class Config(metaclass=ConfigMeta):
             self._filename_list = parser.read(filename_list)
         except configparser.Error as exc:
             self._problem_list.append(exc)
+        self._read_commit(parser)
+
+    def _read_commit(self, parser):
         # Pick a reader function appropriate for the kind of variable
         reader_fn = {
             str: parser.get,
@@ -556,3 +595,18 @@ class ChoiceValidator(IValidator):
     def __call__(self, variable, new_value):
         if new_value not in self.choice_list:
             return "must be one of {}".format(", ".join(self.choice_list))
+
+
+class NotEmptyValidator(IValidator):
+    """
+    A validator ensuring that values aren't empty
+    """
+
+    def __init__(self, msg=None):
+        if msg is None:
+            msg = "cannot be empty"
+        self.msg = msg
+
+    def __call__(self, variable, new_value):
+        if new_value == "":
+            return self.msg

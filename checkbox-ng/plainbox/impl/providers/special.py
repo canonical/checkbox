@@ -30,13 +30,14 @@ import logging
 import os
 
 from plainbox.impl import get_plainbox_dir
+from plainbox.impl.providers import ProviderNotFound
 from plainbox.impl.providers.v1 import Provider1
 
 
 logger = logging.getLogger("plainbox.providers.special")
 
 
-class CheckBoxNotFound(LookupError):
+class CheckBoxNotFound(ProviderNotFound):
     """
     Exception used to report that CheckBox cannot be located
     """

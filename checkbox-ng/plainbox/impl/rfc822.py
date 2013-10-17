@@ -34,8 +34,8 @@ import inspect
 import logging
 
 from plainbox.abc import ITextSource
-from plainbox.impl.secure.checkbox_trusted_launcher import RFC822SyntaxError
-from plainbox.impl.secure.checkbox_trusted_launcher import BaseRFC822Record
+from plainbox.impl.secure.rfc822 import RFC822SyntaxError
+from plainbox.impl.secure.rfc822 import BaseRFC822Record
 
 logger = logging.getLogger("plainbox.rfc822")
 

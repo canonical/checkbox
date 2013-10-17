@@ -36,7 +36,7 @@ from plainbox.abc import ITextSource
 from plainbox.impl.config import Unset
 from plainbox.impl.resource import ResourceProgram
 from plainbox.impl.rfc822 import Origin
-from plainbox.impl.secure.checkbox_trusted_launcher import BaseJob
+from plainbox.impl.secure.job import BaseJob
 from plainbox.impl.symbol import SymbolDef
 
 

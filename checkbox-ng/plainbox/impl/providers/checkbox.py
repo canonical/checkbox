@@ -93,25 +93,3 @@ class CheckBoxSrcProvider(Provider1):
         # the 'checkbox' package) should be added to PYTHONPATH for all the
         # imports to work.
         return _get_checkbox_dir()
-
-
-class CheckBoxDebProvider(Provider1):
-    """
-    A provider for checkbox jobs
-
-    This provider exposes jobs and whitelists of the system-wide installed copy
-    of checkbox.
-    """
-
-    def __init__(self):
-        super(CheckBoxDebProvider, self).__init__(
-            "/usr/share/checkbox/", "checkbox", "CheckBox")
-        if not os.path.exists(self._base_dir):
-            raise CheckBoxNotFound()
-
-
-def CheckBoxAutoProvider():
-    try:
-        return CheckBoxSrcProvider()
-    except LookupError:
-        return CheckBoxDebProvider()

@@ -116,4 +116,5 @@ class StubBoxProvider(Provider1):
     def __init__(self):
         super(StubBoxProvider, self).__init__(
             os.path.join(get_plainbox_dir(), "impl/providers/stubbox"),
-            "stubbox", "StubBox (dummy data for development)")
+            "2013.com.canonical:stubbox",
+            "StubBox (dummy data for development)")

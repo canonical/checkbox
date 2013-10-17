@@ -33,8 +33,8 @@ from plainbox.impl.config import IValidator
 from plainbox.impl.config import NotEmptyValidator
 from plainbox.impl.config import PatternValidator
 from plainbox.impl.job import JobDefinition
+from plainbox.impl.plugins import FsPlugInCollection
 from plainbox.impl.plugins import IPlugIn
-from plainbox.impl.plugins import PkgResourcesPlugInCollection
 from plainbox.impl.rfc822 import load_rfc822_records
 
 
@@ -347,6 +347,37 @@ class Provider1PlugIn(IPlugIn):
         plugin object, the actual Provider1 instance
         """
         return self._provider
+
+
+def get_default_PROVIDERPATH():
+    """
+    Computes the default value for PROVIDERPATH.
+
+    PROVIDERPATH should contain two directory entries:
+
+        * /usr/share/plainbox-providers-1
+        * $XDG_DATA_HOME/plainbox-providers-1
+    """
+    sys_wide = "/usr/share/plainbox-providers-1"
+    per_user = os.path.join(
+        os.getenv('XDG_DATA_HOME', os.path.expanduser("~/.local/share/")),
+        "plainbox-providers-1")
+    return os.path.pathsep.join([sys_wide, per_user])
+
+
+class Provider1PlugInCollection(FsPlugInCollection):
+    """
+    A collection of v1 provider plugins.
+
+    This class is just like FsPlugInCollection but knows the proper arguments
+    (PROVIDERPATH and the extension)
+    """
+
+    def __init__(self):
+        providerpath = os.getenv(
+            "PROVIDERPATH",  get_default_PROVIDERPATH())
+        super(Provider1PlugInCollection, self).__init__(
+            providerpath, '.provider', wrapper=Provider1PlugIn)
 
 
 # Collection of all providers

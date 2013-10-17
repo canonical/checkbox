@@ -102,3 +102,18 @@ class CheckBoxSrcProvider(Provider1):
         # the 'checkbox' package) should be added to PYTHONPATH for all the
         # imports to work.
         return _get_checkbox_dir()
+
+
+class StubBoxProvider(Provider1):
+    """
+    A provider for stub, dummy and otherwise non-production jobs.
+
+    The stubbox provider is useful for various kinds of testing where you don't
+    want to pull in a volume of data, just a bit of each kind of jobs that we
+    need to support.
+    """
+
+    def __init__(self):
+        super(StubBoxProvider, self).__init__(
+            os.path.join(get_plainbox_dir(), "impl/providers/stubbox"),
+            "stubbox", "StubBox (dummy data for development)")

@@ -425,6 +425,9 @@ class Config(metaclass=ConfigMeta):
             self._filename_list = parser.read(filename_list)
         except configparser.Error as exc:
             self._problem_list.append(exc)
+        self._read_commit(parser)
+
+    def _read_commit(self, parser):
         # Pick a reader function appropriate for the kind of variable
         reader_fn = {
             str: parser.get,

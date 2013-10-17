@@ -80,6 +80,13 @@ class CheckBoxSrcProvider(Provider1):
         if not os.path.exists(self._base_dir):
             raise CheckBoxNotFound()
 
+    @staticmethod
+    def exists():
+        """
+        Check if the source provider exists and can be actually used
+        """
+        return os.path.exists(_get_checkbox_dir())
+
     @property
     def extra_PYTHONPATH(self):
         """

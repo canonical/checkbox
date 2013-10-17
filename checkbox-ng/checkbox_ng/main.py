@@ -52,10 +52,10 @@ class CheckBoxNGTool(PlainBoxToolBase):
         return CheckBoxConfig
 
     def add_subcommands(self, subparsers):
-        SRUCommand(self._provider, self._config).register_parser(subparsers)
+        SRUCommand(self._provider_list, self._config).register_parser(subparsers)
         CheckConfigCommand(self._config).register_parser(subparsers)
-        ScriptCommand(self._provider, self._config).register_parser(subparsers)
-        DevCommand(self._provider, self._config).register_parser(subparsers)
+        ScriptCommand(self._provider_list, self._config).register_parser(subparsers)
+        DevCommand(self._provider_list, self._config).register_parser(subparsers)
 
 
 def main(argv=None):

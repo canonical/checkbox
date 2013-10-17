@@ -307,6 +307,12 @@ class IProviderBackend1(metaclass=ABCMeta):
         This entry is required to lookup CheckBox scripts.
         """
 
+    @abstractproperty
+    def uses_policykit(self):
+        """
+        flag indicating that this provider relies on polickit
+        """
+
 
 class IProvider1(metaclass=ABCMeta):
     """

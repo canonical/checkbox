@@ -26,6 +26,7 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
+import ast
 from logging import getLogger
 from datetime import timedelta
 
@@ -33,6 +34,7 @@ from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
 from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.session import SessionStateLegacyAPI as SessionState
+from plainbox.impl.resource import RequirementNodeVisitor
 from plainbox.impl.runner import JobRunner
 
 
@@ -63,6 +65,8 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
             self._print_estimated_duration_report()
         if self.ns.print_validation_report:
             self._print_validation_report(self.ns.only_errors)
+        if self.ns.print_requirement_report:
+            self._print_requirement_report()
 
     def _run_local_jobs(self):
         print("[Running Local Jobs]".center(80, '='))
@@ -162,6 +166,26 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
         if only_errors and problem is None:
             print("No problems found")
 
+    def _print_requirement_report(self):
+        print("[Requirement Report]".center(80, '='))
+        if not self.session.run_list:
+            return
+        requirements = set()
+        for job in self.session.run_list:
+            if job.requires:
+                resource_program = job.get_resource_program()
+                if 'package' in resource_program.required_resources:
+                    for packages in [
+                            resource.text for resource in
+                            resource_program.expression_list
+                            if resource.resource_name == 'package']:
+                        node = ast.parse(packages)
+                        visitor = RequirementNodeVisitor()
+                        visitor.visit(node)
+                        requirements.add((' | ').join(visitor.packages_seen))
+        if requirements:
+            print(',\n'.join(sorted(requirements)))
+
 
 class AnalyzeCommand(PlainBoxCommand, CheckBoxCommandMixIn):
     """
@@ -202,6 +226,9 @@ class AnalyzeCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         group.add_argument(
             "-v", "--print-validation-report", action='store_true',
             help="Print validation report")
+        group.add_argument(
+            "-r", "--print-requirement-report", action='store_true',
+            help="Print requirement report")
         group.add_argument(
             "-E", "--only-errors", action='store_true', default=False,
             help="When coupled with -v, only problematic jobs will be listed")

@@ -50,7 +50,7 @@ class Provider1(IProvider1, IProviderBackend1):
     location for all other data.
     """
 
-    def __init__(self, base_dir, name, description):
+    def __init__(self, base_dir, name, description, uses_policykit):
         """
         Initialize the provider with the associated base directory.
 
@@ -62,6 +62,7 @@ class Provider1(IProvider1, IProviderBackend1):
         self._base_dir = base_dir
         self._name = name
         self._description = description
+        self._uses_policykit = uses_policykit
 
     @property
     def name(self):
@@ -136,6 +137,13 @@ class Provider1(IProvider1, IProviderBackend1):
         # NOTE: This is always the script directory. The actual logic for
         # locating it is implemented in the property accessors.
         return self.scripts_dir
+
+    @property
+    def uses_policykit(self):
+        """
+        flag indicating that this provider relies on polickit
+        """
+        return self._uses_policykit
 
     def get_builtin_whitelists(self):
         logger.debug("Loading built-in whitelists...")
@@ -222,6 +230,10 @@ class DummyProvider1(IProvider1, IProviderBackend1):
     @property
     def extra_PATH(self):
         return self._extras.get("PATH", "")
+
+    @property
+    def uses_policykit(self):
+        return bool(self._extras.get("uses_policykit", ""))
 
     def get_builtin_whitelists(self):
         return self._whitelist_list
@@ -328,7 +340,8 @@ class Provider1PlugIn(IPlugIn):
         definition = Provider1Definition()
         definition.read_string(definition_text)
         self._provider = Provider1(
-            definition.location, definition.name, definition.description)
+            definition.location, definition.name, definition.description,
+            definition.uses_policykit)
 
     def __repr__(self):
         return "<{!s} plugin_name:{!r}>".format(

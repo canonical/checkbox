@@ -77,7 +77,7 @@ class CheckBoxSrcProvider(Provider1):
         super(CheckBoxSrcProvider, self).__init__(
             _get_checkbox_dir(),
             "2013.com.canonical:checkbox-src",
-            "CheckBox (live source)")
+            "CheckBox (live source)", False)
         if not os.path.exists(self._base_dir):
             raise CheckBoxNotFound()
 
@@ -118,4 +118,4 @@ class StubBoxProvider(Provider1):
         super(StubBoxProvider, self).__init__(
             os.path.join(get_plainbox_dir(), "impl/providers/stubbox"),
             "2013.com.canonical:stubbox",
-            "StubBox (dummy data for development)")
+            "StubBox (dummy data for development)", False)

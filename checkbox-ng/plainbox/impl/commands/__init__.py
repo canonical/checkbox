@@ -106,7 +106,7 @@ class PlainBoxToolBase(metaclass=ABCMeta):
         """
         self._early_parser = None  # set in _early_init()
         self._config = None  # set in _late_init()
-        self._provider = None  # set in _late_init()
+        self._provider_list = []  # reset in _late_init()
         self._parser = None  # set in _late_init()
 
     def main(self, argv=None):
@@ -183,9 +183,9 @@ class PlainBoxToolBase(metaclass=ABCMeta):
             debug_console=early_ns.debug_console)
         # Load plainbox configuration
         self._config = self.get_config_cls().get()
-        # Load and initialize checkbox provider
-        # TODO: rename to provider, switch to plugins
+        # Load all providers
         all_providers.load()
+        self._provider_list = all_providers.get_all_plugins()
         # If the default value of 'None' was set for the checkbox (provider)
         # argument then load the actual provider name from the configuration
         # object (default for that is 'auto').

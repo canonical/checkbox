@@ -69,18 +69,17 @@ def connect_to_session_bus():
 
 class ServiceInvocation:
 
-    def __init__(self, provider, config, ns):
-        self.provider = provider
+    def __init__(self, provider_list, config, ns):
+        self.provider_list = provider_list
         self.config = config
         self.ns = ns
 
     def run(self):
         bus, loop = connect_to_session_bus()
         logger.info("Setting up DBus objects...")
-        provider_list = [self.provider]
         session_list = []  # TODO: load sessions
         logger.debug("Constructing Service object")
-        service_obj = Service(provider_list, session_list, self.config)
+        service_obj = Service(self.provider_list, session_list, self.config)
         logger.debug("Constructing ServiceWrapper")
         service_wrp = ServiceWrapper(service_obj, on_exit=lambda: loop.quit())
         logger.info("Publishing all objects on DBus")
@@ -116,12 +115,12 @@ class ServiceCommand(PlainBoxCommand):
     """
 
     # XXX: Maybe drop provider / config and handle them differently
-    def __init__(self, provider, config):
-        self.provider = provider
+    def __init__(self, provider_list, config):
+        self.provider_list = provider_list
         self.config = config
 
     def invoked(self, ns):
-        return ServiceInvocation(self.provider, self.config, ns).run()
+        return ServiceInvocation(self.provider_list, self.config, ns).run()
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser("service", help="spawn dbus service")

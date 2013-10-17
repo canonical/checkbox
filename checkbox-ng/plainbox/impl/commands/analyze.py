@@ -43,8 +43,8 @@ logger = getLogger("plainbox.commands.special")
 
 class AnalyzeInvocation(CheckBoxInvocationMixIn):
 
-    def __init__(self, provider, ns):
-        super(AnalyzeInvocation, self).__init__(provider)
+    def __init__(self, provider_list, ns):
+        super(AnalyzeInvocation, self).__init__(provider_list)
         self.ns = ns
         self.job_list = self.get_job_list(ns)
         self.desired_job_list = self._get_matching_job_list(ns, self.job_list)
@@ -192,11 +192,11 @@ class AnalyzeCommand(PlainBoxCommand, CheckBoxCommandMixIn):
     Implementation of ``$ plainbox dev analyze``
     """
 
-    def __init__(self, provider):
-        self.provider = provider
+    def __init__(self, provider_list):
+        self.provider_list = provider_list
 
     def invoked(self, ns):
-        return AnalyzeInvocation(self.provider, ns).run()
+        return AnalyzeInvocation(self.provider_list, ns).run()
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(

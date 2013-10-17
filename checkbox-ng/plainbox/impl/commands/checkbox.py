@@ -26,9 +26,10 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
-import re
 from argparse import FileType
 from logging import getLogger
+import itertools
+import re
 
 
 logger = getLogger("plainbox.commands.checkbox")
@@ -36,14 +37,16 @@ logger = getLogger("plainbox.commands.checkbox")
 
 class CheckBoxInvocationMixIn:
 
-    def __init__(self, provider):
-        self.provider = provider
+    def __init__(self, provider_list):
+        self.provider_list = provider_list
 
     def get_job_list(self, ns):
         """
         Load and return a list of JobDefinition instances
         """
-        return self.provider.get_builtin_jobs()
+        return list(
+            itertools.chain(*[
+                p.get_builtin_jobs() for p in self.provider_list]))
 
     def _get_matching_job_list(self, ns, job_list):
         # Find jobs that matched patterns

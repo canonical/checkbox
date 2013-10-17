@@ -27,7 +27,6 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 import logging
-import os
 import sys
 import tempfile
 
@@ -60,8 +59,8 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
     time.
     """
 
-    def __init__(self, provider, config, ns):
-        self.provider = provider
+    def __init__(self, provider_list, config, ns):
+        self.provider_list = provider_list
         self.config = config
         self.ns = ns
         if self.ns.whitelist:
@@ -69,10 +68,18 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
         elif self.config.whitelist is not Unset:
             self.whitelist = WhiteList.from_file(self.config.whitelist)
         else:
-            self.whitelist = WhiteList.from_file(os.path.join(
-                self.provider.whitelists_dir, "sru.whitelist"))
-
-        self.job_list = self.provider.get_builtin_jobs()
+            self.whitelist = None
+            for provider in provider_list:
+                for whitelist in provider.get_builtin_whitelists():
+                    if whitelist.name == 'sru':
+                        self.whitelist = whitelist
+                        break
+                if self.whitelist:
+                    break
+            else:
+                raise RuntimeError(
+                    "None of the providers had a whitelist named 'sru'")
+        self.job_list = self.get_job_list()
         # XXX: maybe allow specifying system_id from command line?
         self.exporter = XMLSessionStateExporter(system_id=None)
         self.session = None
@@ -214,8 +221,8 @@ class SRUCommand(PlainBoxCommand, CheckBoxCommandMixIn):
     plainbox core on realistic workloads.
     """
 
-    def __init__(self, provider, config):
-        self.provider = provider
+    def __init__(self, provider_list, config):
+        self.provider_list = provider_list
         self.config = config
 
     def invoked(self, ns):
@@ -236,7 +243,7 @@ class SRUCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             retval = CheckConfigInvocation(self.config).run()
             if retval != 0:
                 return retval
-        return _SRUInvocation(self.provider, self.config, ns).run()
+        return _SRUInvocation(self.provider_list, self.config, ns).run()
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(

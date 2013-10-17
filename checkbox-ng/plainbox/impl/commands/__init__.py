@@ -35,6 +35,8 @@ import sys
 
 from plainbox.impl.logging import adjust_logging
 from plainbox.impl.providers.v1 import all_providers
+from plainbox.impl.providers.special import CheckBoxSrcProvider
+from plainbox.impl.providers.special import StubBoxProvider
 
 
 logger = logging.getLogger("plainbox.commands")
@@ -183,27 +185,40 @@ class PlainBoxToolBase(metaclass=ABCMeta):
             debug_console=early_ns.debug_console)
         # Load plainbox configuration
         self._config = self.get_config_cls().get()
-        # Load all providers
-        all_providers.load()
-        self._provider_list = all_providers.get_all_plugins()
         # If the default value of 'None' was set for the checkbox (provider)
         # argument then load the actual provider name from the configuration
         # object (default for that is 'auto').
         if early_ns.checkbox is None:
             early_ns.checkbox = self._config.default_provider
         assert early_ns.checkbox in ('auto', 'src', 'deb', 'stub', 'ihv')
+        # Decide where to load all of the providers from
         if early_ns.checkbox == 'auto':
-            provider_name = 'checkbox-auto'
+            if CheckBoxSrcProvider.exists():
+                self._provider_list = [CheckBoxSrcProvider()]
+            else:
+                all_providers.load()
+                self._provider_list = [
+                    plugin.plugin_object
+                    for plugin in all_providers.get_all_plugins()]
         elif early_ns.checkbox == 'src':
-            provider_name = 'checkbox-src'
+            self._provider_list = [CheckBoxSrcProvider()]
         elif early_ns.checkbox == 'deb':
-            provider_name = 'checkbox-deb'
+            all_providers.load()
+            self._provider_list = [
+                plugin.plugin_object
+                for plugin in all_providers.get_all_plugins()]
         elif early_ns.checkbox == 'stub':
-            provider_name = 'stubbox'
+            self._provider_list = [StubBoxProvider()]
         elif early_ns.checkbox == 'ihv':
-            provider_name = 'ihv'
-        self._provider = all_providers.get_by_name(
-            provider_name).plugin_object()
+            logger.warning(
+                "The -c ihv option is deprecated and doesn't work anymore")
+            if CheckBoxSrcProvider.exists():
+                self._provider_list = [CheckBoxSrcProvider()]
+            else:
+                all_providers.load()
+                self._provider_list = [
+                    plugin.plugin_object
+                    for plugin in all_providers.get_all_plugins()]
         # Construct the full command line argument parser
         self._parser = self.construct_parser()
 

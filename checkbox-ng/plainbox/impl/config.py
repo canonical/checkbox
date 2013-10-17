@@ -595,3 +595,18 @@ class ChoiceValidator(IValidator):
     def __call__(self, variable, new_value):
         if new_value not in self.choice_list:
             return "must be one of {}".format(", ".join(self.choice_list))
+
+
+class NotEmptyValidator(IValidator):
+    """
+    A validator ensuring that values aren't empty
+    """
+
+    def __init__(self, msg=None):
+        if msg is None:
+            msg = "cannot be empty"
+        self.msg = msg
+
+    def __call__(self, variable, new_value):
+        if new_value == "":
+            return self.msg

@@ -26,8 +26,10 @@ Test definitions for plainbox.impl.config module
 from io import StringIO
 from unittest import TestCase
 
+from plainbox.impl.config import ChoiceValidator
+from plainbox.impl.config import KindValidator
+from plainbox.impl.config import NotEmptyValidator
 from plainbox.impl.config import PlainBoxConfigParser, Config, ConfigMetaData
-from plainbox.impl.config import KindValidator, ChoiceValidator
 from plainbox.impl.config import Variable, Section, Unset
 
 
@@ -171,3 +173,18 @@ class ChoiceValidatorTests(TestCase):
         validator = ChoiceValidator(["foo", "bar"])
         self.assertEqual(validator(None, "foo"), None)
         self.assertEqual(validator(None, "omg"), "must be one of foo, bar")
+
+
+class NotEmptyValidatorTests(TestCase):
+
+    def test_rejects_empty_values(self):
+        validator = NotEmptyValidator()
+        self.assertEqual(validator(None, ""), "cannot be empty")
+
+    def test_supports_custom_message(self):
+        validator = NotEmptyValidator("name required!")
+        self.assertEqual(validator(None, ""), "name required!")
+
+    def test_isnt_broken(self):
+        validator = NotEmptyValidator()
+        self.assertEqual(validator(None, "some value"), None)

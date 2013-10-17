@@ -381,4 +381,4 @@ class Provider1PlugInCollection(FsPlugInCollection):
 
 
 # Collection of all providers
-all_providers = PkgResourcesPlugInCollection('plainbox.provider.v1')
+all_providers = Provider1PlugInCollection()

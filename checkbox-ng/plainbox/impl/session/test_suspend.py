@@ -28,8 +28,6 @@ from functools import partial
 from unittest import TestCase
 import gzip
 
-import mock
-
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.result import DiskJobResult
 from plainbox.impl.result import IOLogRecord
@@ -38,6 +36,7 @@ from plainbox.impl.session.state import SessionMetaData
 from plainbox.impl.session.state import SessionState
 from plainbox.impl.session.suspend import SessionSuspendHelper1
 from plainbox.impl.session.suspend import SessionSuspendHelper2
+from plainbox.vendor import mock
 
 
 class BaseJobResultTestsTestsMixIn:

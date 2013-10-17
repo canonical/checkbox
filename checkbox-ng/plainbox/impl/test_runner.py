@@ -25,7 +25,6 @@ plainbox.impl.test_runner
 Test definitions for plainbox.impl.runner module
 """
 
-from mock import Mock, patch
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 import os
@@ -37,6 +36,7 @@ from plainbox.impl.runner import IOLogRecordGenerator
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.runner import slugify
 from plainbox.testing_utils.io import TestIO
+from plainbox.vendor.mock import Mock, patch
 
 
 class SlugifyTests(TestCase):

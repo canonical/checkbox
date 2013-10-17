@@ -28,10 +28,9 @@ import argparse
 from inspect import cleandoc
 from unittest import TestCase
 
-import mock
-
 from plainbox.impl.commands.dev import DevCommand
 from plainbox.testing_utils.io import TestIO
+from plainbox.vendor import mock
 
 
 class TestDevCommand(TestCase):

@@ -29,7 +29,6 @@
 from functools import wraps
 from gzip import GzipFile
 from io import TextIOWrapper
-from mock import Mock
 from tempfile import NamedTemporaryFile
 import warnings
 
@@ -37,6 +36,7 @@ from plainbox.impl.job import JobDefinition
 from plainbox.impl.result import IOLogRecordWriter
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.rfc822 import Origin
+from plainbox.vendor.mock import Mock
 
 
 def MockJobDefinition(name, *args, **kwargs):

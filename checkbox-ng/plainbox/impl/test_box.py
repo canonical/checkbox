@@ -25,7 +25,6 @@ Test definitions for plainbox.impl.box module
 """
 
 from inspect import cleandoc
-from mock import Mock
 from unittest import TestCase
 
 from plainbox import __version__ as version
@@ -33,6 +32,7 @@ from plainbox.impl.box import main
 from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.testing_utils import MockJobDefinition, suppress_warnings
 from plainbox.testing_utils.io import TestIO
+from plainbox.vendor.mock import Mock
 
 
 class MiscTests(TestCase):

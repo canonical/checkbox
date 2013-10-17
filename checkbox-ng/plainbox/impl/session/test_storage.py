@@ -28,10 +28,9 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 import os
 
-import mock
-
 from plainbox.impl.session.storage import SessionStorage
 from plainbox.impl.session.storage import SessionStorageRepository
+from plainbox.vendor import mock
 
 
 class SessionStorageRepositoryTests(TestCase):

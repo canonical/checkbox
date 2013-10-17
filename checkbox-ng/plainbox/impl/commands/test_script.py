@@ -28,13 +28,12 @@ import argparse
 from inspect import cleandoc
 from unittest import TestCase
 
-import mock
-
 from plainbox.impl.applogic import PlainBoxConfig
 from plainbox.impl.commands.script import ScriptInvocation, ScriptCommand
 from plainbox.impl.providers.v1 import DummyProvider1
 from plainbox.impl.testing_utils import make_job
 from plainbox.testing_utils.io import TestIO
+from plainbox.vendor import mock
 
 
 class TestScriptCommand(TestCase):

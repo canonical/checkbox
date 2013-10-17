@@ -27,11 +27,10 @@ Test definitions for plainbox.impl.plugins module
 from unittest import TestCase
 import os
 
-import mock
-
 from plainbox.impl.plugins import FsPlugInCollection
 from plainbox.impl.plugins import IPlugIn, PlugIn
 from plainbox.impl.plugins import PkgResourcesPlugInCollection
+from plainbox.vendor import mock
 
 
 class PlugInTests(TestCase):

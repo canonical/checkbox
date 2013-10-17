@@ -28,8 +28,6 @@ from contextlib import contextmanager
 from io import TextIOWrapper
 from unittest import TestCase
 
-import mock
-
 from plainbox.impl.applogic import CompositeQualifier, NameJobQualifier
 from plainbox.impl.applogic import IJobQualifier, RegExpJobQualifier
 from plainbox.impl.applogic import PlainBoxConfig
@@ -37,6 +35,7 @@ from plainbox.impl.applogic import WhiteList
 from plainbox.impl.applogic import get_matching_job_list
 from plainbox.impl.config import Unset
 from plainbox.impl.testing_utils import make_job
+from plainbox.vendor import mock
 
 
 class JobQualifierTests(TestCase):

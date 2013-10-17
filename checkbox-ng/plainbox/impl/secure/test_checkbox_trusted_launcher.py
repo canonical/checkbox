@@ -24,21 +24,20 @@ plainbox.impl.secure.test_checkbox_trusted_launcher
 Test definitions for plainbox.impl.secure.checkbox_trusted_launcher module
 """
 
-import os
-
 from inspect import cleandoc
 from io import StringIO
-from mock import Mock, patch
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from unittest import TestCase
+import os
 
 from plainbox.impl.secure.checkbox_trusted_launcher import BaseJob
+from plainbox.impl.secure.checkbox_trusted_launcher import Runner
 from plainbox.impl.secure.checkbox_trusted_launcher import load_rfc822_records
 from plainbox.impl.secure.checkbox_trusted_launcher import main
-from plainbox.impl.secure.checkbox_trusted_launcher import Runner
 from plainbox.impl.test_rfc822 import RFC822ParserTestsMixIn
 from plainbox.testing_utils.io import TestIO
 from plainbox.testing_utils.testcases import TestCaseWithParameters
+from plainbox.vendor.mock import Mock, patch
 
 
 class TestJobDefinition(TestCase):

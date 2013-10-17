@@ -31,7 +31,6 @@ import tempfile
 
 from collections import OrderedDict
 from inspect import cleandoc
-from mock import patch
 from unittest import TestCase
 
 from plainbox.impl.box import main
@@ -40,6 +39,7 @@ from plainbox.impl.exporter.rfc822 import RFC822SessionStateExporter
 from plainbox.impl.exporter.text import TextSessionStateExporter
 from plainbox.impl.exporter.xml import XMLSessionStateExporter
 from plainbox.testing_utils.io import TestIO
+from plainbox.vendor.mock import patch
 
 
 class TestRun(TestCase):

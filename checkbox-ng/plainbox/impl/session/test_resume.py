@@ -31,8 +31,6 @@ import copy
 import gzip
 import json
 
-import mock
-
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.resource import Resource
 from plainbox.impl.result import DiskJobResult
@@ -48,6 +46,7 @@ from plainbox.impl.session.resume import SessionResumeHelper2
 from plainbox.impl.session.state import SessionState
 from plainbox.impl.testing_utils import make_job
 from plainbox.testing_utils.testcases import TestCaseWithParameters
+from plainbox.vendor import mock
 
 
 class SessionResumeExceptionTests(TestCase):

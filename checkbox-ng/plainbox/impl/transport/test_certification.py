@@ -29,14 +29,14 @@ from io import BytesIO
 from pkg_resources import resource_string
 from unittest import TestCase
 
-from mock import MagicMock
-import mock
 from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
 import requests
 
+from plainbox.impl.applogic import PlainBoxConfig
 from plainbox.impl.transport.certification import CertificationTransport
 from plainbox.impl.transport.certification import InvalidSecureIDError
-from plainbox.impl.applogic import PlainBoxConfig
+from plainbox.vendor import mock
+from plainbox.vendor.mock import MagicMock
 
 
 class CertificationTransportTests(TestCase):

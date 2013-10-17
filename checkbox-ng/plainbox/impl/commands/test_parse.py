@@ -28,12 +28,11 @@ import argparse
 from inspect import cleandoc
 from unittest import TestCase
 
-import mock
-
-from plainbox.impl.parsers import all_parsers
-from plainbox.impl.parsers import ParserPlugIn
 from plainbox.impl.commands.parse import ParseCommand
+from plainbox.impl.parsers import ParserPlugIn
+from plainbox.impl.parsers import all_parsers
 from plainbox.testing_utils.io import TestIO
+from plainbox.vendor import mock
 
 
 class TestParseCommand(TestCase):

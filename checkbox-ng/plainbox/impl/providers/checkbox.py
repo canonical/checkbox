@@ -74,7 +74,9 @@ class CheckBoxSrcProvider(Provider1):
 
     def __init__(self):
         super(CheckBoxSrcProvider, self).__init__(
-            _get_checkbox_dir(), "checkbox", "CheckBox (live source)")
+            _get_checkbox_dir(),
+            "2013.com.canonical:checkbox-src",
+            "CheckBox (live source)")
         if not os.path.exists(self._base_dir):
             raise CheckBoxNotFound()
 

@@ -373,6 +373,35 @@ class ResourceNodeVisitor(ast.NodeVisitor):
             raise CodeNotAllowed(node)
 
 
+class RequirementNodeVisitor(ast.NodeVisitor):
+    """
+    A NodeVisitor subclass used to analyze package requirement expressions.
+    """
+
+    def __init__(self):
+        """
+        Initialize a ResourceNodeVisitor with empty list of packages_seen
+        """
+        self._packages_seen = []
+
+    @property
+    def packages_seen(self):
+        """
+        set() of ast.Str().id values seen joined with the "|" operator for
+        use in debian/control files
+        """
+        return self._packages_seen
+
+    def visit_Str(self, node):
+        """
+        Internal method of NodeVisitor.
+
+        This method is called whenever generic_visit() looks at an instance of
+        ast.Str().
+        """
+        self._packages_seen.append(node.s)
+
+
 class NoResourcesReferenced(ResourceProgramError):
     """
     Exception raised when an expression does not reference any resources.

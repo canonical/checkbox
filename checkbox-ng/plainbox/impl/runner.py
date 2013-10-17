@@ -38,7 +38,7 @@ import time
 from plainbox.vendor import extcmd
 
 from plainbox.abc import IJobRunner, IJobResult
-from plainbox.impl.providers.checkbox import CheckBoxSrcProvider
+from plainbox.impl.providers.special import CheckBoxSrcProvider
 from plainbox.impl.result import DiskJobResult
 from plainbox.impl.result import IOLogRecord
 from plainbox.impl.result import IOLogRecordWriter

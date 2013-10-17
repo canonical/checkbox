@@ -18,13 +18,13 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.impl.test_checkbox
-===========================
+plainbox.impl.providers.test_special
+====================================
 
-Test definitions for plainbox.impl.checkbox module
+Test definitions for plainbox.impl.providers.special module
 """
 
-from plainbox.impl.providers.checkbox import CheckBoxSrcProvider
+from plainbox.impl.providers.special import CheckBoxSrcProvider
 from plainbox.testing_utils.testcases import TestCaseWithParameters
 
 

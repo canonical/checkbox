@@ -18,8 +18,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-:mod:`plainbox.impl.providers.checkbox` -- CheckBox Provider
-============================================================
+:mod:`plainbox.impl.providers.special` -- various special providers
+===================================================================
 
 .. warning::
 
@@ -33,7 +33,7 @@ from plainbox.impl import get_plainbox_dir
 from plainbox.impl.providers.v1 import Provider1
 
 
-logger = logging.getLogger("plainbox.providers.checkbox")
+logger = logging.getLogger("plainbox.providers.special")
 
 
 class CheckBoxNotFound(LookupError):

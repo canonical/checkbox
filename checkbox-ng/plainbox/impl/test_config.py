@@ -129,6 +129,15 @@ class ConfigTests(TestCase):
         del conf.s
         self.assertIs(conf.s, Unset)
 
+    def test_read(self):
+        class TestConfig(Config):
+            v = Variable()
+        conf = TestConfig()
+        conf.read_string(
+            "[DEFAULT]\n"
+            "v = 1")
+        self.assertEqual(conf.v, "1")
+
 
 class ConfigMetaDataTests(TestCase):
 

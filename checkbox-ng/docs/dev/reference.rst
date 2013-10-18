@@ -149,9 +149,6 @@ Code reference
 .. automodule:: plainbox.impl.providers
     :members:
 
-.. automodule:: plainbox.impl.providers.checkbox
-    :members:
-
 .. automodule:: plainbox.impl.providers.special
     :members:
 

@@ -34,7 +34,7 @@ from plainbox.impl.rfc822 import PythonFileTextSource
 from plainbox.impl.rfc822 import RFC822Record
 from plainbox.impl.rfc822 import UnknownTextSource
 from plainbox.impl.rfc822 import load_rfc822_records
-from plainbox.impl.secure.checkbox_trusted_launcher import RFC822SyntaxError
+from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 
 
 class OriginTests(TestCase):

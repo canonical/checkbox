@@ -143,9 +143,6 @@ Code reference
 .. automodule:: plainbox.impl.parsers
     :members:
 
-.. automodule:: plainbox.impl.plugins
-    :members:
-
 .. automodule:: plainbox.impl.providers
     :members:
 
@@ -180,6 +177,9 @@ Code reference
     :members:
 
 .. automodule:: plainbox.impl.secure.job
+    :members:
+
+.. automodule:: plainbox.impl.secure.plugins
     :members:
 
 .. automodule:: plainbox.impl.secure.rfc822

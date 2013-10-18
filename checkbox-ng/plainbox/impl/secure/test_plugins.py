@@ -18,18 +18,18 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.impl.test_plugins
-==========================
+plainbox.impl.secure.test_plugins
+=================================
 
-Test definitions for plainbox.impl.plugins module
+Test definitions for plainbox.impl.secure.plugins module
 """
 
 from unittest import TestCase
 import os
 
-from plainbox.impl.plugins import FsPlugInCollection
-from plainbox.impl.plugins import IPlugIn, PlugIn
-from plainbox.impl.plugins import PkgResourcesPlugInCollection
+from plainbox.impl.secure.plugins import FsPlugInCollection
+from plainbox.impl.secure.plugins import IPlugIn, PlugIn
+from plainbox.impl.secure.plugins import PkgResourcesPlugInCollection
 from plainbox.vendor import mock
 
 
@@ -91,7 +91,7 @@ class PkgResourcesPlugInCollectionTests(TestCase):
         mock_ep1.load.assert_called_with()
         mock_ep2.load.assert_called_with()
 
-    @mock.patch('plainbox.impl.plugins.logger')
+    @mock.patch('plainbox.impl.secure.plugins.logger')
     @mock.patch('pkg_resources.iter_entry_points')
     def test_load_failing(self, mock_iter, mock_logger):
         # Create a mocked entry point
@@ -164,7 +164,7 @@ class FsPlugInCollectionTests(TestCase):
         # Ensure that the wrapper is :class:`PlugIn`
         self.assertEqual(self.col._wrapper, PlugIn)
 
-    @mock.patch('plainbox.impl.plugins.logger')
+    @mock.patch('plainbox.impl.secure.plugins.logger')
     @mock.patch('builtins.open')
     @mock.patch('os.path.isfile')
     @mock.patch('os.listdir')

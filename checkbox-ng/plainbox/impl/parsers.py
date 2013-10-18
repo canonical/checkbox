@@ -33,7 +33,7 @@ import inspect
 import json
 import logging
 
-from plainbox.impl.plugins import PkgResourcesPlugInCollection, PlugIn
+from plainbox.impl.secure.plugins import PkgResourcesPlugInCollection, PlugIn
 
 
 logger = logging.getLogger("plainbox.parsers")

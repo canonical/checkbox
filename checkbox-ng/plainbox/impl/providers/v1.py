@@ -86,15 +86,15 @@ class Provider1(IProvider1, IProviderBackend1):
         return os.path.join(self._base_dir, "jobs")
 
     @property
-    def scripts_dir(self):
+    def bin_dir(self):
         """
-        Return an absolute path of the scripts directory
+        Return an absolute path of the bin directory
 
         .. note::
-            The scripts may not work without setting PYTHONPATH and
-            CHECKBOX_SHARE.
+            The programs in that directory may not work without setting
+            PYTHONPATH and CHECKBOX_SHARE.
         """
-        return os.path.join(self._base_dir, "scripts")
+        return os.path.join(self._base_dir, "bin")
 
     @property
     def whitelists_dir(self):
@@ -136,7 +136,7 @@ class Provider1(IProvider1, IProviderBackend1):
         """
         # NOTE: This is always the script directory. The actual logic for
         # locating it is implemented in the property accessors.
-        return self.scripts_dir
+        return self.bin_dir
 
     @property
     def uses_policykit(self):

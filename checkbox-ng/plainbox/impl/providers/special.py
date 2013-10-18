@@ -64,7 +64,35 @@ def _get_checkbox_dir():
             get_plainbox_dir(), "..", "..", "checkbox-old"))
 
 
-class CheckBoxSrcProvider(Provider1):
+class ExecutablesInScriptsMixIn:
+    """
+    A mix-in class for Provider1 that switches to the "legacy" behavior of
+    looking up executable programs associated with that provider in the
+    'scripts' directory.
+    """
+
+    @property
+    def scripts_dir(self):
+        """
+        Return an absolute path of the scripts directory
+
+        .. note::
+            The scripts may not work without setting PYTHONPATH and
+            CHECKBOX_SHARE.
+        """
+        return os.path.join(self._base_dir, "scripts")
+
+    @property
+    def extra_PATH(self):
+        """
+        Return additional entry for PATH
+
+        This entry is required to lookup CheckBox scripts.
+        """
+        return self.scripts_dir
+
+
+class CheckBoxSrcProvider(ExecutablesInScriptsMixIn, Provider1):
     """
     A provider for checkbox jobs when used in development mode.
 
@@ -105,7 +133,7 @@ class CheckBoxSrcProvider(Provider1):
         return _get_checkbox_dir()
 
 
-class StubBoxProvider(Provider1):
+class StubBoxProvider(ExecutablesInScriptsMixIn, Provider1):
     """
     A provider for stub, dummy and otherwise non-production jobs.
 

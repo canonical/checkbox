@@ -149,9 +149,6 @@ Code reference
 .. automodule:: plainbox.impl.providers.special
     :members:
 
-.. automodule:: plainbox.impl.providers.stubbox
-    :members:
-
 .. automodule:: plainbox.impl.providers.v1
     :members:
 

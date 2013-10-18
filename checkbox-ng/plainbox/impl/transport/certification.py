@@ -31,8 +31,8 @@ from logging import getLogger
 import re
 import requests
 
+from plainbox.impl.secure.config import Unset
 from plainbox.impl.transport import TransportBase
-from plainbox.impl.config import Unset
 
 logger = getLogger("plainbox.transport.certification")
 

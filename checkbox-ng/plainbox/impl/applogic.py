@@ -31,8 +31,8 @@ import re
 
 from plainbox.abc import IJobQualifier
 from plainbox.abc import IJobResult
-from plainbox.impl import config
 from plainbox.impl.result import MemoryJobResult
+from plainbox.impl.secure import config
 
 
 class RegExpJobQualifier(IJobQualifier):

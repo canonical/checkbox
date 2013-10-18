@@ -28,14 +28,14 @@ import io
 
 from plainbox.abc import IProvider1, IProviderBackend1
 from plainbox.impl.applogic import WhiteList
-from plainbox.impl.config import Config, Variable
-from plainbox.impl.config import IValidator
-from plainbox.impl.config import NotEmptyValidator
-from plainbox.impl.config import PatternValidator
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.plugins import FsPlugInCollection
 from plainbox.impl.plugins import IPlugIn
 from plainbox.impl.rfc822 import load_rfc822_records
+from plainbox.impl.secure.config import Config, Variable
+from plainbox.impl.secure.config import IValidator
+from plainbox.impl.secure.config import NotEmptyValidator
+from plainbox.impl.secure.config import PatternValidator
 
 
 logger = logging.getLogger("plainbox.providers.v1")

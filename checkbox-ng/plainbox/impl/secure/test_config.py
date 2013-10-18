@@ -18,19 +18,20 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.impl.test_config
-=========================
+plainbox.impl.secure.test_config
+================================
 
-Test definitions for plainbox.impl.config module
+Test definitions for plainbox.impl.secure.config module
 """
 from io import StringIO
 from unittest import TestCase
 
-from plainbox.impl.config import ChoiceValidator
-from plainbox.impl.config import KindValidator
-from plainbox.impl.config import NotEmptyValidator
-from plainbox.impl.config import PlainBoxConfigParser, Config, ConfigMetaData
-from plainbox.impl.config import Variable, Section, Unset
+from plainbox.impl.secure.config import ChoiceValidator
+from plainbox.impl.secure.config import ConfigMetaData
+from plainbox.impl.secure.config import KindValidator
+from plainbox.impl.secure.config import NotEmptyValidator
+from plainbox.impl.secure.config import PlainBoxConfigParser, Config
+from plainbox.impl.secure.config import Variable, Section, Unset
 
 
 class VariableTests(TestCase):

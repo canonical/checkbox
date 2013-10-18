@@ -95,9 +95,6 @@ Code reference
 .. automodule:: plainbox.impl.commands.sru
     :members:
 
-.. automodule:: plainbox.impl.config
-    :members:
-
 .. automodule:: plainbox.impl.dbus
     :members:
 
@@ -180,6 +177,9 @@ Code reference
     :members:
 
 .. automodule:: plainbox.impl.secure.checkbox_trusted_launcher
+    :members:
+
+.. automodule:: plainbox.impl.secure.config
     :members:
 
 .. automodule:: plainbox.impl.service

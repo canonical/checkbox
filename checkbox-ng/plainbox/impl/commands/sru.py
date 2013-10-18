@@ -39,11 +39,11 @@ from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.check_config import CheckConfigInvocation
 from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
 from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
-from plainbox.impl.config import ValidationError, Unset
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter.xml import XMLSessionStateExporter
 from plainbox.impl.runner import JobRunner
+from plainbox.impl.secure.config import ValidationError, Unset
 from plainbox.impl.session import SessionStateLegacyAPI as SessionState
 from plainbox.impl.transport.certification import CertificationTransport
 from plainbox.impl.transport.certification import InvalidSecureIDError

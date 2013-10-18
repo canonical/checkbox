@@ -29,7 +29,7 @@
 import logging
 
 from plainbox.impl.commands import PlainBoxCommand
-from plainbox.impl.config import ValidationError
+from plainbox.impl.secure.config import ValidationError
 
 
 logger = logging.getLogger("plainbox.commands.check_config")

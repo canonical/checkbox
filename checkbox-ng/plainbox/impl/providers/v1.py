@@ -22,9 +22,10 @@
 ==================================================================
 """
 
+import errno
+import io
 import logging
 import os
-import io
 
 from plainbox.abc import IProvider1, IProviderBackend1
 from plainbox.impl.applogic import WhiteList
@@ -148,7 +149,14 @@ class Provider1(IProvider1, IProviderBackend1):
     def get_builtin_whitelists(self):
         logger.debug("Loading built-in whitelists...")
         whitelist_list = []
-        for name in os.listdir(self.whitelists_dir):
+        try:
+            items = os.listdir(self.whitelists_dir)
+        except OSError as exc:
+            if exc.errno == errno.ENOENT:
+                items = []
+            else:
+                raise
+        for name in items:
             if name.endswith(".whitelist"):
                 whitelist_list.append(
                     WhiteList.from_file(os.path.join(
@@ -158,7 +166,14 @@ class Provider1(IProvider1, IProviderBackend1):
     def get_builtin_jobs(self):
         logger.debug("Loading built-in jobs...")
         job_list = []
-        for name in os.listdir(self.jobs_dir):
+        try:
+            items = os.listdir(self.jobs_dir)
+        except OSError as exc:
+            if exc.errno == errno.ENOENT:
+                items = []
+            else:
+                raise
+        for name in items:
             if name.endswith(".txt") or name.endswith(".txt.in"):
                 job_list.extend(
                     self.load_jobs(

@@ -148,8 +148,7 @@ class CheckBoxSrcProvider(WhiteListsInDataMixIn, ExecutablesInScriptsMixIn,
         return _get_checkbox_dir()
 
 
-class StubBoxProvider(WhiteListsInDataMixIn, ExecutablesInScriptsMixIn,
-                      Provider1):
+class StubBoxProvider(Provider1):
     """
     A provider for stub, dummy and otherwise non-production jobs.
 

@@ -101,7 +101,7 @@ class Provider1(IProvider1, IProviderBackend1):
         """
         Return an absolute path of the whitelist directory
         """
-        return os.path.join(self._base_dir, "data", "whitelists")
+        return os.path.join(self._base_dir, "whitelists")
 
     @property
     def CHECKBOX_SHARE(self):

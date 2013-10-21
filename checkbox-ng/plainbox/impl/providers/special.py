@@ -92,7 +92,22 @@ class ExecutablesInScriptsMixIn:
         return self.scripts_dir
 
 
-class CheckBoxSrcProvider(ExecutablesInScriptsMixIn, Provider1):
+class WhiteListsInDataMixIn:
+    """
+    A mix-in class for Provider1 that switches to the "legacy" bevhavior of
+    looking up whitelist definitions from the "data/whitelists" directory.
+    """
+
+    @property
+    def whitelists_dir(self):
+        """
+        Return an absolute path of the whitelist directory
+        """
+        return os.path.join(self._base_dir, "data", "whitelists")
+
+
+class CheckBoxSrcProvider(WhiteListsInDataMixIn, ExecutablesInScriptsMixIn,
+                          Provider1):
     """
     A provider for checkbox jobs when used in development mode.
 
@@ -133,7 +148,8 @@ class CheckBoxSrcProvider(ExecutablesInScriptsMixIn, Provider1):
         return _get_checkbox_dir()
 
 
-class StubBoxProvider(ExecutablesInScriptsMixIn, Provider1):
+class StubBoxProvider(WhiteListsInDataMixIn, ExecutablesInScriptsMixIn,
+                      Provider1):
     """
     A provider for stub, dummy and otherwise non-production jobs.
 

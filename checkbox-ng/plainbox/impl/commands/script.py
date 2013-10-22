@@ -31,10 +31,11 @@ from tempfile import TemporaryDirectory
 import os
 
 
-from plainbox.impl.applogic import NameJobQualifier, get_matching_job_list
+from plainbox.impl.applogic import get_matching_job_list
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.runner import JobRunner
+from plainbox.impl.secure.qualifiers import NameJobQualifier
 from plainbox.testing_utils.cwd import TestCwd
 
 

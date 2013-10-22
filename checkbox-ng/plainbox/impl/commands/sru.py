@@ -32,7 +32,6 @@ import tempfile
 
 from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
 
-from plainbox.impl.applogic import WhiteList
 from plainbox.impl.applogic import get_matching_job_list
 from plainbox.impl.applogic import run_job_if_possible
 from plainbox.impl.commands import PlainBoxCommand
@@ -44,6 +43,7 @@ from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter.xml import XMLSessionStateExporter
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.secure.config import ValidationError, Unset
+from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.session import SessionStateLegacyAPI as SessionState
 from plainbox.impl.transport.certification import CertificationTransport
 from plainbox.impl.transport.certification import InvalidSecureIDError

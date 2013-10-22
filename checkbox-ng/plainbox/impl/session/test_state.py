@@ -27,11 +27,11 @@ Test definitions for plainbox.impl.session module
 from unittest import TestCase
 
 from plainbox.abc import IJobResult
-from plainbox.impl.applogic import NameJobQualifier
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyMissingError
 from plainbox.impl.resource import Resource
 from plainbox.impl.result import MemoryJobResult
+from plainbox.impl.secure.qualifiers import NameJobQualifier
 from plainbox.impl.session import JobReadinessInhibitor
 from plainbox.impl.session import SessionState
 from plainbox.impl.session import UndesiredJobReadinessInhibitor

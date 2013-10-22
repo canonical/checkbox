@@ -34,9 +34,9 @@ import re
 from plainbox.abc import IJobDefinition
 from plainbox.abc import ITextSource
 from plainbox.impl.resource import ResourceProgram
-from plainbox.impl.rfc822 import Origin
 from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.job import BaseJob
+from plainbox.impl.secure.rfc822 import Origin
 from plainbox.impl.symbol import SymbolDef
 
 

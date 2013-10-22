@@ -28,7 +28,7 @@ from unittest import TestCase
 from warnings import warn, catch_warnings
 import os
 
-from plainbox.impl.rfc822 import PythonFileTextSource
+from plainbox.impl.secure.rfc822 import PythonFileTextSource
 from plainbox.impl.testing_utils import make_job
 from plainbox.impl.testing_utils import suppress_warnings
 

@@ -35,7 +35,7 @@ import warnings
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.result import IOLogRecordWriter
 from plainbox.impl.result import MemoryJobResult
-from plainbox.impl.rfc822 import Origin
+from plainbox.impl.secure.rfc822 import Origin
 from plainbox.vendor.mock import Mock
 
 

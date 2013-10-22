@@ -30,7 +30,7 @@ from collections import OrderedDict
 from io import StringIO
 
 from plainbox.impl.exporter import SessionStateExporterBase
-from plainbox.impl.rfc822 import RFC822Record
+from plainbox.impl.secure.rfc822 import RFC822Record
 
 
 class RFC822SessionStateExporter(SessionStateExporterBase):

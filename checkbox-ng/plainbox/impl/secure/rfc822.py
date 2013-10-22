@@ -18,8 +18,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-:mod:`plainbox.impl.secure.rfc822 ` -- RFC822 parser
-====================================================
+:mod:`plainbox.impl.secure.rfc822` -- RFC822 parser
+===================================================
 
 .. warning::
 

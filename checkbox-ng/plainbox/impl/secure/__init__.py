@@ -21,7 +21,11 @@
 :mod:`plainbox.impl.secure` -- code for external (trusted) launchers
 ====================================================================
 
-.. warning::
+This package keeps all of the plainbox code that is executed as root. It should
+be carefully reviewed to ensure that we don't introduce security issues that
+could allow unpriviledged uses to exploit plainbox to run arbitrary commands as
+root.
 
-    THIS MODULE DOES NOT HAVE STABLE PUBLIC API
+None of the modues in the secure package may import code that is not coming
+from either the plainbox secure package or from the standard python library.
 """

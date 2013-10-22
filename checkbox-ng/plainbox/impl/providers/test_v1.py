@@ -25,113 +25,51 @@ Test definitions for plainbox.impl.providers.v1 module
 """
 
 from unittest import TestCase
+import os.path
 
-from plainbox.impl.providers.v1 import AbsolutePathValidator
-from plainbox.impl.providers.v1 import ExistingDirectoryValidator
-from plainbox.impl.providers.v1 import IQNValidator
-from plainbox.impl.providers.v1 import Provider1
-from plainbox.impl.providers.v1 import Provider1Definition
-from plainbox.impl.providers.v1 import Provider1PlugIn
+from plainbox.impl.providers.v1 import get_default_PROVIDERPATH
 from plainbox.vendor import mock
 
 
-class IQNValidatorTests(TestCase):
+class Tests(TestCase):
 
-    def setUp(self):
-        self.validator = IQNValidator()
-        self.variable = None
+    @mock.patch('os.path.expanduser')
+    @mock.patch('os.getenv')
+    def test_get_default_PROVIDERPATH(self, mock_getenv, mock_expanduser):
+        """
+        verify that unset XDG_DATA_HOME still works
+        """
+        def getenv(name, default=None):
+            if name == 'XDG_DATA_HOME':
+                return default
+            else:
+                self.fail("no other environment should be consulted (asked for %r)" % name)
+        mock_getenv.side_effect = getenv
 
-    def test_good_values_work(self):
-        name = "2013.com.canonical:certification-resources-server"
-        self.assertEqual(self.validator(self.variable, name), None)
+        def expanduser(path):
+            return path.replace("~", "/home/user")
+        mock_expanduser.side_effect = expanduser
+        measured = get_default_PROVIDERPATH()
+        expected = os.pathsep.join([
+            "/usr/share/plainbox-providers-1",
+            "/home/user/.local/share/plainbox-providers-1"])
+        self.assertEqual(measured, expected)
 
-    def test_bad_values_dont(self):
-        self.assertEqual(
-            self.validator(self.variable, ""),
-            "must look like RFC3720 IQN")
-
-
-class ExistingDirectoryValidatorTests(TestCase):
-
-    _PATH = "/some/directory"
-
-    def setUp(self):
-        self.validator = ExistingDirectoryValidator()
-        self.variable = None
-
-    @mock.patch('os.path.isdir')
-    def test_existing_directories_work(self, mock_isdir):
-        mock_isdir.return_value = True
-        self.assertEqual(self.validator(self.variable, self._PATH), None)
-        mock_isdir.assertCalledWith(self._PATH)
-
-    @mock.patch('os.path.isdir')
-    def test_missing_directories_dont(self, mock_isdir):
-        mock_isdir.return_value = False
-        self.assertEqual(
-            self.validator(self.variable, self._PATH),
-            "no such directory")
-        mock_isdir.assertCalledWith(self._PATH)
-
-
-class AbsolutePathValidatorTests(TestCase):
-
-    def setUp(self):
-        self.validator = AbsolutePathValidator()
-        self.variable = None
-
-    def test_absolute_values_work(self):
-        self.assertEqual(self.validator(self.variable, '/path'), None)
-
-    def test_relative_values_dont(self):
-        self.assertEqual(
-            self.validator(self.variable, 'path'),
-            "cannot be relative")
-
-
-class Provider1DefinitionTests(TestCase):
-
-    DEF_TEXT = (
-        "[PlainBox Provider]\n"
-        "location = /some/directory/\n"
-        "name = 2013.org.example:smoke-test\n"
-        "description = A provider for smoke testing\n")
-
-    def setUp(self):
-        self.definition = Provider1Definition()
-
-    def test_smoke(self):
-        with mock.patch('os.path.isdir') as mock_isdir:
-            # Mock os.path.isdir so that we can validate location
-            mock_isdir.return_value = True
-            self.definition.read_string(self.DEF_TEXT)
-        self.assertEqual(self.definition.location, "/some/directory/")
-        self.assertEqual(self.definition.name, "2013.org.example:smoke-test")
-        self.assertEqual(
-            self.definition.description, "A provider for smoke testing")
-
-    def test_default_policykit(self):
-        self.assertEqual(self.definition.uses_policykit, True)
-
-
-class Provider1PlugInTests(TestCase):
-
-    def setUp(self):
-        with mock.patch('os.path.isdir') as mock_isdir:
-            # Mock os.path.isdir so that we can validate location
-            mock_isdir.return_value = True
-            self.plugin = Provider1PlugIn(
-                "foo.provider", Provider1DefinitionTests.DEF_TEXT)
-
-    def test_plugin_name(self):
-        self.assertEqual(
-            self.plugin.plugin_name, "2013.org.example:smoke-test")
-
-    def test_plugin_object(self):
-        self.assertIsInstance(self.plugin.plugin_object, Provider1)
-
-    def test_provieder_data(self):
-        provider = self.plugin.plugin_object
-        self.assertEqual(provider._base_dir, "/some/directory/")
-        self.assertEqual(provider.name, "2013.org.example:smoke-test")
-        self.assertEqual(provider.description, "A provider for smoke testing")
+    @mock.patch('os.path.expanduser')
+    @mock.patch('os.getenv')
+    def test_get_default_PROVIDERPATH_respects_XDG_DATA_HOME(
+            self, mock_getenv, mock_expanduser):
+        """
+        verify that XDG_DATA_HOME is honored
+        """
+        def getenv(name, default=None):
+            if name == 'XDG_DATA_HOME':
+                return '/home/user/xdg-data'
+            else:
+                self.fail("no other environment should be consulted")
+        mock_getenv.side_effect = getenv
+        measured = get_default_PROVIDERPATH()
+        expected = os.pathsep.join([
+            "/usr/share/plainbox-providers-1",
+            "/home/user/xdg-data/plainbox-providers-1"])
+        self.assertEqual(measured, expected)

@@ -179,6 +179,12 @@ Code reference
 .. automodule:: plainbox.impl.secure.plugins
     :members:
 
+.. automodule:: plainbox.impl.secure.providers
+    :members:
+
+.. automodule:: plainbox.impl.secure.providers.v1
+    :members:
+
 .. automodule:: plainbox.impl.secure.rfc822
     :members:
 

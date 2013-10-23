@@ -308,6 +308,18 @@ class JobDefinition(BaseJob, IJobDefinition):
         """
         return self._origin
 
+    def update_origin(self, origin):
+        """
+        Change the Origin object associated with this JobDefinition
+
+        .. note::
+
+            This method is a unfortunate side effect of how via and local jobs
+            that cat existing jobs are implemented. Ideally jobs would be
+            trully immutable. Do not use this method lightly.
+        """
+        self._origin = origin
+
     def __init__(self, data, origin=None, provider=None):
         super(JobDefinition, self).__init__(data)
         if origin is None:

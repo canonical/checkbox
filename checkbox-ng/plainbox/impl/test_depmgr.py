@@ -150,24 +150,6 @@ class DependencyDuplicateErrorTests(TestCase):
 
 class DependencySolverInternalsTests(TestCase):
 
-    def test_get_dependency_set_empty(self):
-        A = make_job('A')
-        expected = set()
-        observed = DependencySolver._get_dependency_set(A)
-        self.assertEqual(expected, observed)
-
-    def test_get_dependency_set_direct_one(self):
-        A = make_job('A', depends='B')
-        expected = set([("direct", 'B')])
-        observed = DependencySolver._get_dependency_set(A)
-        self.assertEqual(expected, observed)
-
-    def test_get_dependency_set_direct_two(self):
-        A = make_job('A', depends='B, C')
-        expected = set([("direct", 'B'), ("direct", 'C')])
-        observed = DependencySolver._get_dependency_set(A)
-        self.assertEqual(expected, observed)
-
     def test_get_job_map_produces_map(self):
         A = make_job('A')
         B = make_job('B')

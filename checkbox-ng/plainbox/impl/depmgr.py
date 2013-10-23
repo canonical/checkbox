@@ -28,8 +28,6 @@
 
 from abc import ABCMeta
 from abc import abstractproperty
-from itertools import chain
-from itertools import repeat
 from logging import getLogger
 
 
@@ -267,9 +265,7 @@ class DependencySolver:
             # If the trail was not specified start a trail for this node
             if trail is None:
                 trail = [job]
-            # Visit each dependency
-            for dep_type, job_name in sorted(self._get_dependency_set(job)):
-                logger.debug("Found dependency %s: %s", dep_type, job_name)
+            for dep_type, job_name in job.controller.get_dependency_set(job):
                 # Dependency is just a name, we need to resolve it
                 # to a job instance. This can fail (missing dependencies)
                 # so let's guard against that.
@@ -316,19 +312,3 @@ class DependencySolver:
             else:
                 job_map[job.name] = job
         return job_map
-
-    @staticmethod
-    def _get_dependency_set(job):
-        """
-        Internal method of DependencySolver
-
-        Returns a set of pairs (dep_type, job_name) that describe all
-        dependencies of the specified job. The first element in the pair,
-        dep_type, is either DEP_TYPE_DIRECT or DEP_TYPE_RESOURCE. The second
-        element is the name of the job.
-        """
-        direct = DependencyMissingError.DEP_TYPE_DIRECT
-        resource = DependencyMissingError.DEP_TYPE_RESOURCE
-        return set(chain(
-            zip(repeat(direct), job.get_direct_dependencies()),
-            zip(repeat(resource), job.get_resource_dependencies())))

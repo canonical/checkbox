@@ -206,6 +206,16 @@ class RFC822Record:
         return "<{} data:{!r} origin:{!r}>".format(
             self.__class__.__name__, self._data, self._origin)
 
+    def __eq__(self, other):
+        if isinstance(other, RFC822Record):
+            return (self._data, self._origin) == (other._data, other._origin)
+        return NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, RFC822Record):
+            return (self._data, self._origin) != (other._data, other._origin)
+        return NotImplemented
+
     @property
     def data(self):
         """

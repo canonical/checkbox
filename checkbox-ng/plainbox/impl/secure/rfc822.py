@@ -149,7 +149,7 @@ class Origin:
             return ((self.source, self.line_start, self.line_end) ==
                     (other.source, other.line_start, other.line_end))
         else:
-            return False
+            return NotImplemented
 
     def __gt__(self, other):
         if isinstance(other, Origin):

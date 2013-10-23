@@ -182,10 +182,14 @@ class JobOutputTextSource(ITextSource):
         return "<{} job:{!r}".format(self.__class__.__name__, self.job)
 
     def __eq__(self, other):
-        return self.job == other.job
+        if isinstance(other, JobOutputTextSource):
+            return self.job == other.job
+        return NotImplemented
 
     def __gt__(self, other):
-        return self.job > other.job
+        if isinstance(other, JobOutputTextSource):
+            return self.job > other.job
+        return NotImplemented
 
 
 class JobDefinition(BaseJob, IJobDefinition):

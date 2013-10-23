@@ -621,59 +621,6 @@ class SessionState:
             # Remove the undesired inhibitor as we want to run this job
             job_state.readiness_inhibitor_list.remove(
                 UndesiredJobReadinessInhibitor)
-            # Check if all job resource requirements are met
-            prog = job.get_resource_program()
-            if prog is not None:
-                try:
-                    prog.evaluate_or_raise(self._resource_map)
-                except ExpressionCannotEvaluateError as exc:
-                    # Lookup the related job (the job that provides the
-                    # resources needed by the expression that cannot be
-                    # evaluated)
-                    related_job = self._job_state_map[
-                        exc.expression.resource_name].job
-                    # Add A PENDING_RESOURCE inhibitor as we are unable to
-                    # determine if the resource requirement is met or not. This
-                    # can happen if the resource job did not ran for any reason
-                    # (it can either be prevented from running by normal means
-                    # or simply be on the run_list but just was not executed
-                    # yet).
-                    inhibitor = JobReadinessInhibitor(
-                        cause=JobReadinessInhibitor.PENDING_RESOURCE,
-                        related_job=related_job,
-                        related_expression=exc.expression)
-                    job_state.readiness_inhibitor_list.append(inhibitor)
-                except ExpressionFailedError as exc:
-                    # Lookup the related job (the job that provides the
-                    # resources needed by the expression that failed)
-                    related_job = self._job_state_map[
-                        exc.expression.resource_name].job
-                    # Add a FAILED_RESOURCE inhibitor as we have all the data
-                    # to run the requirement program but it simply returns a
-                    # non-True value. This typically indicates a missing
-                    # software package or necessary hardware.
-                    inhibitor = JobReadinessInhibitor(
-                        cause=JobReadinessInhibitor.FAILED_RESOURCE,
-                        related_job=related_job,
-                        related_expression=exc.expression)
-                    job_state.readiness_inhibitor_list.append(inhibitor)
-            # Check if all job dependencies ran successfully
-            for dep_name in sorted(job.get_direct_dependencies()):
-                dep_job_state = self._job_state_map[dep_name]
-                # If the dependency did not have a chance to run yet add the
-                # PENDING_DEP inhibitor.
-                if dep_job_state.result.outcome == IJobResult.OUTCOME_NONE:
-                    inhibitor = JobReadinessInhibitor(
-                        cause=JobReadinessInhibitor.PENDING_DEP,
-                        related_job=dep_job_state.job)
-                    job_state.readiness_inhibitor_list.append(inhibitor)
-                # If the dependency is anything but successful add the
-                # FAILED_DEP inhibitor. In theory the PENDING_DEP code above
-                # could be discarded but this would loose context and would
-                # prevent the operator from actually understanding why a job
-                # cannot run.
-                elif dep_job_state.result.outcome != IJobResult.OUTCOME_PASS:
-                    inhibitor = JobReadinessInhibitor(
-                        cause=JobReadinessInhibitor.FAILED_DEP,
-                        related_job=dep_job_state.job)
-                    job_state.readiness_inhibitor_list.append(inhibitor)
+            # Ask the job controller about inhibitors affecting this job
+            for inhibitor in job.controller.get_inhibitor_list(self, job):
+                job_state.readiness_inhibitor_list.append(inhibitor)

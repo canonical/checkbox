@@ -23,17 +23,9 @@
 """
 import logging
 
-from plainbox.abc import IJobResult
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyError
 from plainbox.impl.depmgr import DependencySolver
-from plainbox.impl.job import JobOutputTextSource
-from plainbox.impl.resource import ExpressionCannotEvaluateError
-from plainbox.impl.resource import ExpressionFailedError
-from plainbox.impl.resource import Resource
-from plainbox.impl.secure.rfc822 import RFC822SyntaxError
-from plainbox.impl.secure.rfc822 import gen_rfc822_records
-from plainbox.impl.session.jobs import JobReadinessInhibitor
 from plainbox.impl.session.jobs import JobState
 from plainbox.impl.session.jobs import UndesiredJobReadinessInhibitor
 from plainbox.impl.signal import Signal

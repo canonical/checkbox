@@ -494,11 +494,21 @@ class SessionState:
         # Update all job readiness state
         self._recompute_job_readiness()
 
-    def add_job(self, new_job):
+    def add_job(self, new_job, recompute=True):
         """
         Add a new job to the session
 
-        :param new_job: the job being added
+        :param new_job:
+            The job being added
+        :param recompute:
+            If True, recompute readiness inhibitors for all jobs.
+            You should only set this to False if you're adding
+            a number of jobs and will otherwise ensure that
+            :meth:`_recompute_job_readiness()` gets called before
+            session state users can see the state again.
+        :returns:
+            The job that was actually added or an existing, identical
+            job if a perfect clash was silently ignored.
 
         :raises DependencyDuplicateError:
             if a duplicate, clashing job definition is detected
@@ -517,21 +527,25 @@ class SessionState:
         """
         # See if we have a job with the same name already
         try:
-            existing_job = self._job_state_map[new_job.name].job
+            existing_job = self.job_state_map[new_job.name].job
         except KeyError:
             # Register the new job in our state
-            self._job_state_map[new_job.name] = JobState(new_job)
-            self._job_list.append(new_job)
+            self.job_state_map[new_job.name] = JobState(new_job)
+            self.job_list.append(new_job)
             self.on_job_state_map_changed()
             self.on_job_added(new_job)
+            return new_job
         else:
             # If there is a clash report DependencyDuplicateError only when the
             # hashes are different. This prevents a common "problem" where
             # "__foo__" local jobs just load all jobs from the "foo" category.
             if new_job != existing_job:
                 raise DependencyDuplicateError(existing_job, new_job)
-        # Update all job readiness state
-        self._recompute_job_readiness()
+            return existing_job
+        finally:
+            # Update all job readiness state
+            if recompute:
+                self._recompute_job_readiness()
 
     def set_resource_list(self, resource_name, resource_list):
         """

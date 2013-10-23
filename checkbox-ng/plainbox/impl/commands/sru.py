@@ -79,7 +79,7 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
             else:
                 raise RuntimeError(
                     "None of the providers had a whitelist named 'sru'")
-        self.job_list = self.get_job_list()
+        self.job_list = self.get_job_list(ns)
         # XXX: maybe allow specifying system_id from command line?
         self.exporter = XMLSessionStateExporter(system_id=None)
         self.session = None

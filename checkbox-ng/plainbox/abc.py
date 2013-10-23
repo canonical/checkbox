@@ -360,3 +360,66 @@ class IProvider1(metaclass=ABCMeta):
         """
         Load all the built-in whitelists and return them
         """
+
+
+class ISessionStateController(metaclass=ABCMeta):
+    """
+    Interface for session state controller classes.
+
+    Session state controller classes cooperate with
+    :class:`~plainbox.impl.session.state.SessionState` and
+    :class:`~plainbox.impl.depmgr.DependencySolver` classes and implement
+    knowledge unique to particular job semantics. Before execution the
+    controller can influence job runnability (by setting inhibitors). After
+    execution the controller can observe the result and influence session state
+    """
+
+    @abstractmethod
+    def get_dependency_set(self, job):
+        """
+        Get the set of direct dependencies of a particular job.
+
+        :param job:
+            A IJobDefinition instance that is to be visited
+        :returns:
+            set of pairs (dep_type, job_name)
+
+        Returns a set of pairs (dep_type, job_name) that describe all
+        dependencies of the specified job. The first element in the pair,
+        dep_type, is either DEP_TYPE_DIRECT or DEP_TYPE_RESOURCE. The second
+        element is the name of the job.
+        """
+
+    @abstractmethod
+    def get_inhibitor_list(self, session_state, job):
+        """
+        Get a list of readiness inhibitors that inhibit a particular job.
+
+        :param session_state:
+            A SessionState instance that is used to interrogate the
+            state of the session where it matters for a particular
+            job. Currently this is used to access resources and job
+            results.
+        :param job:
+            A JobDefinition instance
+        :returns:
+            List of JobReadinessInhibitor
+        """
+
+    @abstractmethod
+    def observe_result(self, session_state, job, result):
+        """
+        Notice the specified test result and update readiness state.
+
+        :param session_state:
+            A SessionState object
+        :param job:
+            A JobDefinition object
+        :param result:
+            A IJobResult object
+
+        This function updates the internal result collection with the data from
+        the specified test result. Results can safely override older results.
+        Results also change the ready map (jobs that can run) because of
+        dependency relations.
+        """

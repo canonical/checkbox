@@ -207,6 +207,18 @@ class IJobResult(metaclass=ABCMeta):
         process was killed with, if any.
         """
 
+    @abstractmethod
+    def get_io_log(self):
+        """
+        Compute and return the sequence of IOLogRecord objects.
+
+        :returns:
+            A sequence of tuples (delay, stream-name, data) where delay is the
+            delay since the previous message seconds (typically a fractional
+            number), stream name is either 'stdout' or 'stderr' and data is the
+            bytes object that was obtained from that stream.
+        """
+
 
 class IJobQualifier(metaclass=ABCMeta):
     """

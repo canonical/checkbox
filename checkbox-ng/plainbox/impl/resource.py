@@ -447,6 +447,16 @@ class ResourceExpression:
     def __repr__(self):
         return "<ResourceExpression text:{!r}>".format(self._text)
 
+    def __eq__(self, other):
+        if isinstance(other, ResourceExpression):
+            return self._text == other._text
+        return NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, ResourceExpression):
+            return self._text != other._text
+        return NotImplemented
+
     @property
     def text(self):
         """

@@ -123,6 +123,18 @@ class JobReadinessInhibitor:
         self.related_job = related_job
         self.related_expression = related_expression
 
+    def __eq__(self, other):
+        if isinstance(other, JobReadinessInhibitor):
+            return ((self.cause, self.related_job, self.related_expression)
+                    == (self.cause, self.related_job, self.related_expression))
+        return NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, JobReadinessInhibitor):
+            return ((self.cause, self.related_job, self.related_expression)
+                    != (self.cause, self.related_job, self.related_expression))
+        return NotImplemented
+
     @property
     def cause_name(self):
         return self._cause_display[self.cause]

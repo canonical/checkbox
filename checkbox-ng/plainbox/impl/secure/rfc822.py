@@ -256,6 +256,18 @@ class RFC822SyntaxError(SyntaxError):
         self.lineno = lineno
         self.msg = msg
 
+    def __eq__(self, other):
+        if isinstance(other, RFC822SyntaxError):
+            return ((self.filename, self.lineno, self.msg)
+                    == (other.filename, other.lineno, other.msg))
+        return NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, RFC822SyntaxError):
+            return ((self.filename, self.lineno, self.msg)
+                    != (other.filename, other.lineno, other.msg))
+        return NotImplemented
+
 
 def load_rfc822_records(stream, data_cls=dict, source=None):
     """

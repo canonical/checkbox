@@ -559,9 +559,8 @@ class JobRunner(IJobRunner):
         # Use non-internationalized environment
         env['LANG'] = 'C.UTF-8'
         # Allow the job to customize anything
-        job.modify_execution_environment(env, self._session_dir,
-                                         self._checkbox_data_dir,
-                                         config)
+        job.modify_execution_environment(
+            env, self._checkbox_data_dir, config)
         # If a differential environment is requested return only the subset
         # that has been altered.
         #

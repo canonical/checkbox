@@ -420,16 +420,11 @@ class JobDefinition(BaseJob, IJobDefinition):
         """
         validator_cls.validate(self)
 
-    def modify_execution_environment(self, env, session_dir,
-                                     checkbox_data_dir, config=None):
+    def modify_execution_environment(self, env, checkbox_data_dir, config=None):
         """
         Alter execution environment as required to execute this job.
 
         The environment is modified in place.
-
-        The session_dir argument can be passed to scripts to know where to
-        create temporary data. This data will persist during the lifetime of
-        the session.
 
         The config argument (which defaults to None) should be a PlainBoxConfig
         object. It is used to provide values for missing environment variables

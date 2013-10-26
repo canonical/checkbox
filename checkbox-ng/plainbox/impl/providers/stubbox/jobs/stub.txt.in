@@ -117,3 +117,10 @@ _description: stub multilevel tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/multilevel.txt?(.in)
+
+plugin: shell
+name: stub/root
+user: root
+command: test $(id -u) -eq 0
+_description:
+ Check that becoming root works

@@ -79,9 +79,8 @@ class DummyProvider1(IProvider1, IProviderBackend1):
     def extra_PATH(self):
         return self._extras.get("PATH", "")
 
-    @property
-    def uses_policykit(self):
-        return bool(self._extras.get("uses_policykit", ""))
+    def secure(self):
+        return False
 
     def get_builtin_whitelists(self):
         return self._whitelist_list

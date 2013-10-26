@@ -51,7 +51,7 @@ class Provider1(IProvider1, IProviderBackend1):
     location for all other data.
     """
 
-    def __init__(self, base_dir, name, description, uses_policykit):
+    def __init__(self, base_dir, name, description, secure):
         """
         Initialize the provider with the associated base directory.
 
@@ -63,7 +63,7 @@ class Provider1(IProvider1, IProviderBackend1):
         self._base_dir = base_dir
         self._name = name
         self._description = description
-        self._uses_policykit = uses_policykit
+        self._secure = secure
 
     @property
     def name(self):
@@ -140,11 +140,12 @@ class Provider1(IProvider1, IProviderBackend1):
         return self.bin_dir
 
     @property
-    def uses_policykit(self):
+    def secure(self):
         """
-        flag indicating that this provider relies on polickit
+        flag indicating that this provider was loaded from the secure portion
+        of PROVIDERPATH and thus can be used with the checkbox-trusted-launcher.
         """
-        return self._uses_policykit
+        return self._secure
 
     def get_builtin_whitelists(self):
         logger.debug("Loading built-in whitelists...")

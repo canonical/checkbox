@@ -110,9 +110,6 @@ class Provider1DefinitionTests(TestCase):
         self.assertEqual(
             self.definition.description, "A provider for smoke testing")
 
-    def test_default_policykit(self):
-        self.assertEqual(self.definition.uses_policykit, True)
-
 
 class Provider1PlugInTests(TestCase):
 

@@ -285,12 +285,6 @@ class Provider1Definition(Config):
         section='PlainBox Provider',
         help_text="Description of the provider")
 
-    uses_policykit = Variable(
-        section='PlainBox Provider',
-        help_text="Flag indicating that this provider uses policykit",
-        default=True,
-        kind=bool)
-
 
 class Provider1PlugIn(IPlugIn):
     """

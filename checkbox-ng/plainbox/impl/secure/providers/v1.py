@@ -298,7 +298,7 @@ class Provider1PlugIn(IPlugIn):
     files
     """
 
-    def __init__(self, name, definition_text):
+    def __init__(self, filename, definition_text):
         """
         Initialize the plug-in with the specified name and external object
         """
@@ -306,7 +306,7 @@ class Provider1PlugIn(IPlugIn):
         definition.read_string(definition_text)
         self._provider = Provider1(
             definition.location, definition.name, definition.description,
-            definition.uses_policykit)
+            secure=os.path.dirname(filename) == get_secure_PROVIDERPATH())
 
     def __repr__(self):
         return "<{!s} plugin_name:{!r}>".format(

@@ -329,9 +329,8 @@ class FsPlugInCollection(PlugInCollectionBase):
             except IOError as exc:
                 logger.error("Unable to load %r: %s", filename, str(exc))
             else:
-                name = os.path.basename(filename)
-                obj = self._wrapper(name, text)
-                self._plugins[name] = obj
+                obj = self._wrapper(filename, text)
+                self._plugins[filename] = obj
 
     def _get_plugin_files(self):
         """

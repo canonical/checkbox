@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012 Canonical Ltd.
+# Copyright 2012, 2013 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
@@ -38,12 +38,16 @@ import time
 from plainbox.vendor import extcmd
 
 from plainbox.abc import IJobRunner, IJobResult
-from plainbox.impl.providers.special import CheckBoxSrcProvider
+from plainbox.impl.ctrl import RootViaCTLExecutionController
+from plainbox.impl.ctrl import RootViaPkexecExecutionController
+from plainbox.impl.ctrl import RootViaSudoExecutionController
+from plainbox.impl.ctrl import UserJobExecutionController
 from plainbox.impl.result import DiskJobResult
 from plainbox.impl.result import IOLogRecord
 from plainbox.impl.result import IOLogRecordWriter
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.signal import Signal
+
 
 logger = logging.getLogger("plainbox.runner")
 
@@ -198,20 +202,34 @@ class JobRunner(IJobRunner):
     _DRY_RUN_PLUGINS = ('local', 'resource', 'attachment')
 
     def __init__(self, session_dir, jobs_io_log_dir,
-                 command_io_delegate=None,
-                 dry_run=False):
+                 command_io_delegate=None, dry_run=False):
         """
         Initialize a new job runner.
 
-        Uses the specified session_dir as CHECKBOX_DATA environment variable.
-        Uses the specified IO delegate for extcmd.ExternalCommandWithDelegate
-        to track IO done by the called commands (optional, a simple console
-        printer is provided if missing).
+        :param session_dir:
+            Base directory of the session. This is currently used to initialize
+            execution controllers. Later on it will go away and callers will be
+            responsible for passing a list of execution controllers explicitly.
+        :param jobs_io_log_dir:
+            Base directory where IO log files are created.
+        :param command_io_delegate:
+            Application specific extcmd IO delegate applicable for
+            extcmd.ExternalCommandWithDelegate. Can be Left out, in which case
+            :class:`FallbackCommandOutputPrinter` is used instead.
+        :param dry_run:
+            Flag indicating that the runner is in "dry run mode". When True
+            most normal commands won't execute. Useful for testing.
         """
-        self._session_dir = session_dir
         self._jobs_io_log_dir = jobs_io_log_dir
         self._command_io_delegate = command_io_delegate
         self._dry_run = dry_run
+        self._execution_ctrl_list = [
+            RootViaCTLExecutionController(session_dir),
+            RootViaPkexecExecutionController(session_dir),
+            # XXX: maybe this one should be only used on command line
+            RootViaSudoExecutionController(session_dir),
+            UserJobExecutionController(session_dir),
+        ]
 
     def run_job(self, job, config=None):
         """
@@ -548,63 +566,6 @@ class JobRunner(IJobRunner):
             'execution_duration': execution_duration
         })
 
-    def _get_script_env(self, job, config=None, only_changes=False):
-        """
-        Internal method of JobRunner.
-
-        Compute the environment the script will be executed in
-        """
-        # Get a proper environment
-        env = dict(os.environ)
-        # Use non-internationalized environment
-        env['LANG'] = 'C.UTF-8'
-        # Allow the job to customize anything
-        job.modify_execution_environment(
-            env, self._checkbox_data_dir, config)
-        # If a differential environment is requested return only the subset
-        # that has been altered.
-        #
-        # XXX: This will effectively give the root user our PATH which _may_ be
-        # good bud _might_ be dangerous. This will need some peer review.
-        if only_changes:
-            return {key: value
-                    for key, value in env.items()
-                    if key not in os.environ or os.environ[key] != value
-                    or key in job.get_environ_settings()}
-        else:
-            return env
-
-    def _get_command_trusted(self, job, config=None):
-        # When the job requires to run as root then elevate our permissions
-        # via pkexec(1). Since pkexec resets environment we need to somehow
-        # pass the extra things we require. To do that we pass the list of
-        # changed environment variables in addition to the job hash.
-        cmd = ['checkbox-trusted-launcher', '--hash', job.get_checksum()] + [
-            "{key}={value}".format(key=key, value=value)
-            for key, value in self._get_script_env(
-                job, config, only_changes=True
-            ).items()
-        ]
-        if job.via is not None:
-            cmd += ['--via', job.via]
-        return cmd
-
-    def _get_command_src(self, job, config=None):
-        # Running PlainBox from source doesn't require the trusted launcher
-        # That's why we use the env(1)' command and pass it the list of
-        # changed environment variables.
-        # The whole pkexec and env part gets prepended to the command
-        # we were supposed to run.
-        cmd = ['env']
-        cmd += [
-            "{key}={value}".format(key=key, value=value)
-            for key, value in self._get_script_env(
-                job, only_changes=True
-            ).items()
-        ]
-        cmd += ['bash', '-c', job.command]
-        return cmd
-
     def _prepare_io_handling(self, job, config):
         ui_io_delegate = self._command_io_delegate
         # If there is no UI delegate specified create a simple
@@ -657,13 +618,6 @@ class JobRunner(IJobRunner):
         # Bail early if there is nothing do do
         if job.command is None:
             return None, ()
-        # Create an equivalent of the CHECKBOX_DATA directory used by
-        # some jobs to store logs and other files that may later be used
-        # by other jobs.
-        self._checkbox_data_dir = os.path.join(
-            self._session_dir, "CHECKBOX_DATA")
-        if not os.path.isdir(self._checkbox_data_dir):
-            os.makedirs(self._checkbox_data_dir)
         # Get an extcmd delegate for observing all the IO the way we need
         delegate, io_log_gen = self._prepare_io_handling(job, config)
         # Create a subprocess.Popen() like object that uses the delegate
@@ -691,22 +645,20 @@ class JobRunner(IJobRunner):
         return return_code, record_path
 
     def _run_extcmd(self, job, config, extcmd_popen):
-        # If we need to switch user use pkexec for that
-        # otherwise just run the command directly.
-        if job.user is not None:
-            # Use regular pkexec in src mode (when the provider is in the
-            # source tree), or basically when working from trunk. Use the
-            # trusted launcher otherwise (to get all the pkexec policy applied)
-            if isinstance(job._provider, CheckBoxSrcProvider):
-                cmd = self._get_command_src(job, config)
-            else:
-                cmd = self._get_command_trusted(job, config)
-            cmd = ['pkexec', '--user', job.user] + cmd
-            env = None
-        else:
-            # XXX: sadly using /bin/sh results in broken output
-            # XXX: maybe run it both ways and raise exceptions on differences?
-            cmd = ['bash', '-c', job.command]
-            env = self._get_script_env(job, config)
-        logger.debug("job[%s] executing %r with env %r", job.name, cmd, env)
-        return extcmd_popen.call(cmd, env=env)
+        # Compute the score of each controller
+        ctrl_score = [
+            (ctrl, ctrl.get_score(job))
+            for ctrl in self._execution_ctrl_list]
+        # Sort scores
+        ctrl_score.sort(key=lambda pair: pair[1])
+        # Get the best score
+        ctrl, score = ctrl_score[-1]
+        # Ensure that the controler is viable
+        if score < 0:
+            raise RuntimeError(
+                "No exec controller supports job {}".format(job))
+        logger.debug(
+            "Selected execution controller %s (score %d) for job %r",
+            ctrl.__class__.__name__, score, job.name)
+        # Delegate and execute
+        return ctrl.execute_job(job, config, extcmd_popen)

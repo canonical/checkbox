@@ -21,28 +21,49 @@
 :mod:`plainbox.impl.ctrl` -- Controller Classes
 ===============================================
 
-Controller classes implement the glue between models (jobs, whitelists, session
-state) and the rest of the application. They encapsulate knowledge that used to
-be special-cased and sprinkled around various parts of both plainbox and
-particular plainbox-using applications.
+Session controller classes implement the glue between models (jobs, whitelists,
+session state) and the rest of the application. They encapsulate knowledge that
+used to be special-cased and sprinkled around various parts of both plainbox
+and particular plainbox-using applications.
+
+Execution controllers are used by the :class:`~plainbox.impl.runner.JobRunner`
+class to select the best method to execute a command of a particular job.  This
+is mostly applicable to jobs that need to run as another user, typically as
+root, as the method that is used to effectively gain root differs depending on
+circumstances.
 """
 
+import abc
+import grp
 import itertools
 import logging
+import os
+import posix
 
+from plainbox.abc import IExecutionController
 from plainbox.abc import IJobResult
 from plainbox.abc import ISessionStateController
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyMissingError
+from plainbox.impl.job import JobDefinition
 from plainbox.impl.job import JobOutputTextSource
 from plainbox.impl.resource import ExpressionCannotEvaluateError
 from plainbox.impl.resource import ExpressionFailedError
 from plainbox.impl.resource import Resource
+from plainbox.impl.secure.config import Unset
+from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 from plainbox.impl.secure.rfc822 import gen_rfc822_records
 from plainbox.impl.session.jobs import JobReadinessInhibitor
 
-__all__ = ['checkbox_session_state_ctrl', 'CheckBoxSessionStateController']
+__all__ = [
+    'CheckBoxSessionStateController',
+    'RootViaCTLExecutionController',
+    'RootViaPkexecExecutionController',
+    'RootViaSudoExecutionController',
+    'UserJobExecutionController',
+    'checkbox_session_state_ctrl',
+]
 
 
 logger = logging.getLogger("plainbox.ctrl")
@@ -279,3 +300,416 @@ def gen_rfc822_records_from_io_log(job, result):
 
 
 checkbox_session_state_ctrl = CheckBoxSessionStateController()
+
+
+class CheckBoxExecutionController(IExecutionController):
+    """
+    Base class for checkbox-like execution controllers.
+
+    This abstract class provides common features for all checkbox execution
+    controllers.
+    """
+
+    def __init__(self, session_dir):
+        """
+        Initialize a new CheckBoxExecutionController
+
+        :param session_dir:
+            Base directory of the session this job will execute in.
+            This directory is used to co-locate some data that is unique to
+            this execution as well as data that is shared by all executions.
+        """
+        self._session_dir = session_dir
+
+    def execute_job(self, job, config, extcmd_popen):
+        """
+        Execute the specified job using the specified subprocess-like object
+
+        :param job:
+            The JobDefinition to execute
+        :param config:
+            A PlainBoxConfig instance which can be used to load missing
+            environment definitions that apply to all jobs. It is used to
+            provide values for missing environment variables that are required
+            by the job (as expressed by the environ key in the job definition
+            file).
+        :param extcmd_popen:
+            A subprocess.Popen like object
+        :returns:
+            The return code of the command, as returned by subprocess.call()
+        """
+        # Get the command and the environment.
+        # of this execution controller
+        cmd = self.get_execution_command(job, config)
+        env = self.get_execution_environment(job, config)
+        # CHECKBOX_DATA is where jobs can share output.
+        # It has to be an directory that scripts can assume exists.
+        if not os.path.isdir(self.CHECKBOX_DATA):
+            os.makedirs(self.CHECKBOX_DATA)
+        # run the command
+        logger.debug("job[%s] executing %r with env %r", job.name, cmd, env)
+        return extcmd_popen.call(cmd, env=env)
+
+    def get_score(self, job):
+        """
+        Compute how applicable this controller is for the specified job.
+
+        :returns:
+            A numeric score, or None if the controller cannot run this job.
+            The higher the value, the more applicable this controller is.
+        """
+        if isinstance(job, JobDefinition):
+            return self.get_checkbox_score(job)
+        else:
+            return -1
+
+    @abc.abstractmethod
+    def get_checkbox_score(self, job):
+        """
+        Compute how applicable this controller is for the specified job.
+
+        The twist is that it is always a checkbox job definition so we can be
+        more precise.
+
+        :returns:
+            A number that specifies how applicable this controller is for the
+            specified job (the higher the better) or None if it cannot be used
+            at all
+        """
+
+    @abc.abstractmethod
+    def get_execution_command(self, job, config):
+        """
+        Get the command to execute the specified job
+
+        :param job:
+            job definition with the command and environment definitions
+        :param config:
+            A PlainBoxConfig instance which can be used to load missing
+            environment definitions that apply to all jobs. It is used to
+            provide values for missing environment variables that are required
+            by the job (as expressed by the environ key in the job definition
+            file).
+        :returns:
+            List of command arguments
+        """
+
+    def get_execution_environment(self, job, config):
+        """
+        Get the environment required to execute the specified job:
+
+        :param job:
+            job definition with the command and environment definitions
+        :param config:
+            A PlainBoxConfig instance which can be used to load missing
+            environment definitions that apply to all jobs. It is used to
+            provide values for missing environment variables that are required
+            by the job (as expressed by the environ key in the job definition
+            file).
+        :return:
+            dictionary with the environment to use.
+
+        This returned environment has additional PATH, PYTHONPATH entries. It
+        also uses fixed LANG so that scripts behave as expected.  Lastly it
+        sets CHECKBOX_SHARE and CHECKBOX_DATA that may be required by some
+        scripts.
+        """
+        # Get a proper environment
+        env = dict(os.environ)
+        # Use non-internationalized environment
+        env['LANG'] = 'C.UTF-8'
+        # Use PATH that can lookup checkbox scripts
+        if job.provider.extra_PYTHONPATH:
+            env['PYTHONPATH'] = os.pathsep.join(
+                [job.provider.extra_PYTHONPATH]
+                + env.get("PYTHONPATH", "").split(os.pathsep))
+        # Update PATH so that scripts can be found
+        env['PATH'] = os.pathsep.join(
+            [job.provider.extra_PATH]
+            + env.get("PATH", "").split(os.pathsep))
+        # Add CHECKBOX_SHARE that is needed by one script
+        env['CHECKBOX_SHARE'] = job.provider.CHECKBOX_SHARE
+        # Add CHECKBOX_DATA (temporary checkbox data)
+        env['CHECKBOX_DATA'] = self.CHECKBOX_DATA
+        # Inject additional variables that are requested in the config
+        if config is not None and config.environment is not Unset:
+            for env_var in config.environment:
+                # Don't override anything that is already present in the
+                # current environment. This will allow users to customize
+                # variables without editing any config files.
+                if env_var in env:
+                    continue
+                # If the environment section of the configuration file has a
+                # particular variable then copy it over.
+                env[env_var] = config.environment[env_var]
+        return env
+
+    @property
+    def CHECKBOX_DATA(self):
+        """
+        value of the CHECKBOX_DATA environment variable.
+
+        This variable names a sub-directory of the session directory
+        where jobs can share data between invocations.
+        """
+        return os.path.join(self._session_dir, "CHECKBOX_DATA")
+
+
+class UserJobExecutionController(CheckBoxExecutionController):
+    """
+    An execution controller that works for jobs invoked as the current user.
+    """
+
+    def get_execution_command(self, job, config):
+        """
+        Get the command to execute the specified job
+
+        :param job:
+            job definition with the command and environment definitions
+        :param config:
+            A PlainBoxConfig instance which can be used to load missing
+            environment definitions that apply to all jobs. It is used to
+            provide values for missing environment variables that are required
+            by the job (as expressed by the environ key in the job definition
+            file).
+        :returns:
+            List of command arguments
+
+        This basically returns ['bash', '-c', job.command]
+        """
+        return ['bash', '-c', job.command]
+
+    def get_checkbox_score(self, job):
+        """
+        Compute how applicable this controller is for the specified job.
+
+        :returns:
+            one for jobs without a user override, -1 otherwise
+        """
+        if job.user is None:
+            return 1
+        else:
+            return -1
+
+
+class CheckBoxDifferentialExecutionController(CheckBoxExecutionController):
+    """
+    A CheckBoxExecutionController subclass that uses differential environment.
+
+    This special subclass has a special :meth:`get_execution_environment()`
+    method that always returns None. Instead the new method
+    :meth:`get_differential_execution_environment()` that returns the
+    difference between the target environment and the current environment.
+    """
+
+    def get_differential_execution_environment(self, job, config):
+        """
+        Get the environment required to execute the specified job:
+
+        :param job:
+            job definition with the command and environment definitions
+        :param config:
+            A PlainBoxConfig instance which can be used to load missing
+            environment definitions that apply to all jobs. It is used to
+            provide values for missing environment variables that are required
+            by the job (as expressed by the environ key in the job definition
+            file).
+        :returns:
+            Differential environment (see below).
+
+        This implementation computes the desired environment (as it was
+        computed in the base class) and then discards all of the environment
+        variables that are identical in both sets. The exception are variables
+        that are mentioned in
+        :meth:`plainbox.impl.job.JobDefinition.get_environ_settings()` which
+        are always retained.
+        """
+        base_env = os.environ
+        target_env = super().get_execution_environment(job, config)
+        return {
+            key: value
+            for key, value in target_env.items()
+            if key not in base_env or target_env[key] != value
+            or key in job.get_environ_settings()
+        }
+
+    def get_execution_environment(self, job, config):
+        """
+        Get the environment required to execute the specified job:
+
+        :param job:
+            job definition with the command and environment definitions
+        :param config:
+            A PlainBoxConfig instance which can be used to load missing
+            environment definitions that apply to all jobs. It is used to
+            provide values for missing environment variables that are required
+            by the job (as expressed by the environ key in the job definition
+            file).
+        :returns:
+            None
+
+        This implementation always returns None since the environment is always
+        passed in via :meth:`get_execution_command()`
+        """
+        return None
+
+
+class RootViaCTLExecutionController(CheckBoxDifferentialExecutionController):
+    """
+    Execution controller that gains root using checkbox-trusted-launcher
+    """
+
+    def get_execution_command(self, job, config):
+        """
+        Get the command to invoke.
+
+        This overridden implementation returns especially crafted command that
+        uses pkexec to run the checkbox-trusted-launcher as the desired user
+        (typically root). It passes the checksum of the job definition as
+        argument, along with all of the required environment key-value pairs.
+        If a job is generated it also passes the special via attribute to let
+        the trusted launcher discover the generated job. Currently it supports
+        at most one-level of generated jobs.
+        """
+        # Run checkbox-trusted-launcher as the required user
+        cmd = ['pkexec', '--user', job.user, 'checkbox-trusted-launcher',
+               '--hash', job.get_checksum()]
+        # Append all environment data
+        env = self.get_differential_execution_environment(job, config)
+        cmd += ["{key}={value}".format(key=key, value=value)
+                for key, value in env.items()]
+        # Append the --via flag for generated jobs
+        if job.via is not None:
+            cmd += ['--via', job.via]
+        return cmd
+
+    def get_checkbox_score(self, job):
+        """
+        Compute how applicable this controller is for the specified job.
+
+        :returns:
+            two for jobs with an user override that can be invoked by the
+            trusted launcher, zero for jobs without an user override that can
+            be invoked by the trusted launcher, -1 otherwise
+        """
+        # Only works with jobs coming from the Provider1 instance
+        if not isinstance(job.provider, Provider1):
+            return -1
+        # Only works with jobs loaded from the secure PROVIDERPATH
+        if not job.provider.secure:
+            return -1
+        # Only makes sense with jobs that need to run as another user
+        if job.user is not None:
+            return 2
+        else:
+            return 0
+
+
+class RootViaPkexecExecutionController(
+        CheckBoxDifferentialExecutionController):
+    """
+    Execution controller that gains root by using pkexec.
+
+    This controller should be used for jobs that need root but cannot be
+    executed by the checkbox-trusted-launcher. This happens whenever the job is
+    not in the system-wide provider location.
+
+    In practice it is used when working with the special
+    'checkbox-in-source-tree' provider as well as for jobs that need to run as
+    root from the non-system-wide location.
+    """
+
+    def get_execution_command(self, job, config):
+        """
+        Get the command to invoke.
+
+        Since we cannot pass environment in the ordinary way while using
+        pkexec(1) (pkexec starts new processes in a sanitized, pristine,
+        environment) we're relying on env(1) to pass some of the environment
+        variables that we require.
+        """
+        # Run env(1) as the required user
+        cmd = ['pkexec', '--user', job.user, 'env']
+        # Append all environment data
+        env = self.get_differential_execution_environment(job, config)
+        cmd += ["{key}={value}".format(key=key, value=value)
+                for key, value in env.items()]
+        # Lastly use bash -c, to run our command
+        cmd += ['bash', '-c', job.command]
+        return cmd
+
+    def get_checkbox_score(self, job):
+        """
+        Compute how applicable this controller is for the specified job.
+
+        :returns:
+            one for jobs with a user override, zero otherwise
+        """
+        if job.user is not None:
+            return 1
+        else:
+            return 0
+
+
+class RootViaSudoExecutionController(CheckBoxExecutionController):
+    """
+    Execution controller that gains root by using sudo.
+
+    This controller should be used for jobs that need root but cannot
+    be executed by the checkbox-trusted-launcher.
+
+    This happens whenever the job is not in the system-wide provider location.
+    In practice it is used when working with the special
+    'checkbox-in-source-tree' provider as well as for jobs that need to run as
+    root from the non-system-wide location.
+
+    Using this controller is preferable to pkexec if running on command line as
+    unlike pkexec, it retains 'memory' and doesn't ask for the password over
+    and over again.
+    """
+
+    def __init__(self, session_dir):
+        """
+        Initialize a new CheckBoxExecutionController
+
+        :param session_dir:
+            Base directory of the session this job will execute in.
+            This directory is used to co-locate some data that is unique to
+            this execution as well as data that is shared by all executions.
+        """
+        super().__init__(session_dir)
+        # Check if the user can use 'sudo' on this machine. This check is a bit
+        # Ubuntu specific and can be wrong due to local configuration but
+        # without a better API all we can do is guess.
+        #
+        # Shamelessly stolen from command-not-found
+        self.user_can_sudo = (
+            grp.getgrnam("sudo").gr_gid in posix.getgroups()
+            or grp.getgrnam("admin").gr_gid in posix.getgroups())
+
+    def get_execution_command(self, job, config):
+        """
+        Get the command to invoke.
+
+        Since we cannot pass environment in the ordinary way while using pkxec
+        (pkexec starts new processes in a sanitized, pristine, environment)
+        we're relying on env(1) to pass some of the environment variables that
+        we require.
+        """
+        # Use sudo(8) to run the command as the required user passing -E to
+        # preserve the current environment.
+        return ['sudo', '-u', job.user, '-E', 'bash', '-c', job.command]
+
+    def get_checkbox_score(self, job):
+        """
+        Compute how applicable this controller is for the specified job.
+
+        :returns:
+            -1 if the job does not have a user override or the user cannot use
+            sudo and 2 otherwise
+        """
+        # Only makes sense with jobs that need to run as another user
+        if job.user is not None and self.user_can_sudo:
+            return 2
+        else:
+            return -1

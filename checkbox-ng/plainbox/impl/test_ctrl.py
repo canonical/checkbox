@@ -27,7 +27,7 @@ Test definitions for plainbox.impl.ctrl module
 from unittest import TestCase
 
 from plainbox.abc import IJobResult
-from plainbox.impl.ctrl import CheckBoxController
+from plainbox.impl.ctrl import CheckBoxSessionStateController
 from plainbox.impl.ctrl import gen_rfc822_records_from_io_log
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.job import JobDefinition
@@ -42,10 +42,10 @@ from plainbox.impl.session import SessionState
 from plainbox.vendor import mock
 
 
-class CheckBoxControllerTests(TestCase):
+class CheckBoxSessionStateControllerTests(TestCase):
 
     def setUp(self):
-        self.ctrl = CheckBoxController()
+        self.ctrl = CheckBoxSessionStateController()
 
     def test_get_dependency_set(self):
         # Job with no dependencies

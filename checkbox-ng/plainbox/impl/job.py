@@ -344,8 +344,8 @@ class JobDefinition(BaseJob, IJobDefinition):
             origin = Origin.get_caller_origin()
         if controller is None:
             # XXX: moved here because of cyclic imports
-            from plainbox.impl.ctrl import checkbox_ctrl
-            controller = checkbox_ctrl
+            from plainbox.impl.ctrl import checkbox_session_state_ctrl
+            controller = checkbox_session_state_ctrl
         self._resource_program = None
         self._origin = origin
         self._provider = provider

@@ -42,13 +42,13 @@ from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 from plainbox.impl.secure.rfc822 import gen_rfc822_records
 from plainbox.impl.session.jobs import JobReadinessInhibitor
 
-__all__ = ['checkbox_ctrl', 'CheckBoxController']
+__all__ = ['checkbox_session_state_ctrl', 'CheckBoxSessionStateController']
 
 
 logger = logging.getLogger("plainbox.ctrl")
 
 
-class CheckBoxController(ISessionStateController):
+class CheckBoxSessionStateController(ISessionStateController):
     """
     A combo controller for CheckBox-like jobs.
 
@@ -278,4 +278,4 @@ def gen_rfc822_records_from_io_log(job, result):
             job, exc)
 
 
-checkbox_ctrl = CheckBoxController()
+checkbox_session_state_ctrl = CheckBoxSessionStateController()

@@ -272,7 +272,7 @@ class JobDefinitionWrapper(PlainBoxObjectWrapper):
     # Some internal helpers
 
     def __shared_initialize__(self, **kwargs):
-        self._checksum = self.native.get_checksum()
+        self._checksum = self.native.checksum
         self._is_generated = False
 
     def _get_preferred_object_path(self):

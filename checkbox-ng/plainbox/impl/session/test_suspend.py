@@ -355,7 +355,7 @@ class GeneratedJobSuspendTests(TestCase):
         # Ensure that the generator job gained the "via" attribute
         # This is how we know the code above has no typos or anything.
         self.assertEqual(
-            self.generator_job.via, self.category_job.get_checksum())
+            self.generator_job.via, self.category_job.checksum)
         # "execute" the "generator" job by showing the session the result.
         # Connect the 'on_job_added' signal to a helper function that
         # extracts the "generated" job

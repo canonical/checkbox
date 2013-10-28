@@ -23,7 +23,7 @@ list in the trusted launcher. This identifier is the job hash:
 
     $ pkexec trusted-launcher JOB-HASH
 
-See :meth:`plainbox.impl.secure.checkbox_trusted_launcher.BaseJob.get_checksum()` for details about job hashes.
+See :attr:`plainbox.impl.secure.checkbox_trusted_launcher.BaseJob.checksum` for details about job hashes.
 
 Using Polkit
 ^^^^^^^^^^^^

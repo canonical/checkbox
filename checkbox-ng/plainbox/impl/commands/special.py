@@ -77,7 +77,7 @@ class SpecialInvocation(CheckBoxInvocationMixIn):
     def _print_job_hash_list(self, ns, job_list):
         matching_job_list = self._get_matching_job_list(ns, job_list)
         for job in matching_job_list:
-            print("{} {}".format(job.get_checksum(), job))
+            print("{} {}".format(job.checksum, job))
 
     def _print_expression_list(self, ns, job_list):
         matching_job_list = self._get_matching_job_list(ns, job_list)

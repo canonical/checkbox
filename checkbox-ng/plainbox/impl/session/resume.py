@@ -331,7 +331,7 @@ class SessionResumeHelper1:
         # This can raise KeyError but it is okay, callers expect that
         job = session.job_state_map[job_name].job
         # Check if job definition has not changed
-        if job.get_checksum() != checksum:
+        if job.checksum != checksum:
             raise IncompatibleJobError(
                 "Definition of job {!r} has changed".format(job_name))
         # Collect all of the result objects into result_list

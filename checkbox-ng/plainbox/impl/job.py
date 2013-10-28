@@ -359,12 +359,12 @@ class JobDefinition(BaseJob, IJobDefinition):
     def __eq__(self, other):
         if not isinstance(other, JobDefinition):
             return False
-        return self.get_checksum() == other.get_checksum()
+        return self.checksum == other.checksum
 
     def __ne__(self, other):
         if not isinstance(other, JobDefinition):
             return True
-        return self.get_checksum() != other.get_checksum()
+        return self.checksum != other.checksum
 
     def get_resource_program(self):
         """

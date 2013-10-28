@@ -346,16 +346,16 @@ class TestJobDefinition(TestCase):
             'plugin': 'plugin'
         })
         # Two distinct but identical jobs have the same checksum
-        self.assertEqual(job1.get_checksum(), identical_to_job1.get_checksum())
+        self.assertEqual(job1.checksum, identical_to_job1.checksum)
         job2 = JobDefinition({
             'name': 'other name',
             'plugin': 'plugin'
         })
         # Two jobs with different definitions have different checksum
-        self.assertNotEqual(job1.get_checksum(), job2.get_checksum())
+        self.assertNotEqual(job1.checksum, job2.checksum)
         # The checksum is stable and does not change over time
         self.assertEqual(
-            job1.get_checksum(),
+            job1.checksum,
             "ad137ba3654827cb07a254a55c5e2a8daa4de6af604e84ccdbe9b7f221014362")
 
     def test_via_does_not_change_checksum(self):
@@ -378,12 +378,12 @@ class TestJobDefinition(TestCase):
                     line_start=1,
                     line_end=1)))
         # Now 'child.via' should be the same as 'parent.checksum'
-        self.assertEqual(child.via, parent.get_checksum())
+        self.assertEqual(child.via, parent.checksum)
         # Create an unrelated job 'helper' with the definition identical as
         # 'child' but without any ties to the 'parent' job
         helper = JobDefinition({'name': 'test', 'plugin': 'shell'})
         # And again, child.checksum should be the same as helper.checksum
-        self.assertEqual(child.get_checksum(), helper.get_checksum())
+        self.assertEqual(child.checksum, helper.checksum)
 
     def test_estimated_duration(self):
         job1 = JobDefinition({})

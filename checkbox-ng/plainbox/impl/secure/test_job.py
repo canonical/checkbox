@@ -63,13 +63,13 @@ class TestJobDefinition(TestCase):
         job1 = BaseJob({'plugin': 'plugin', 'user': 'root'})
         identical_to_job1 = BaseJob({'plugin': 'plugin', 'user': 'root'})
         # Two distinct but identical jobs have the same checksum
-        self.assertEqual(job1.get_checksum(), identical_to_job1.get_checksum())
+        self.assertEqual(job1.checksum, identical_to_job1.checksum)
         job2 = BaseJob({'plugin': 'plugin', 'user': 'anonymous'})
         # Two jobs with different definitions have different checksum
-        self.assertNotEqual(job1.get_checksum(), job2.get_checksum())
+        self.assertNotEqual(job1.checksum, job2.checksum)
         # The checksum is stable and does not change over time
         self.assertEqual(
-            job1.get_checksum(),
+            job1.checksum,
             "c47cc3719061e4df0010d061e6f20d3d046071fd467d02d093a03068d2f33400")
 
 

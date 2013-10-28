@@ -91,7 +91,7 @@ class Runner:
         if args.via_hash is not None:
             local_list = [j for j in self.builtin_jobs if j.plugin == 'local']
             desired_job_list = [j for j in local_list
-                                if j.get_checksum() == args.via_hash]
+                                if j.checksum == args.via_hash]
             if desired_job_list:
                 via_job = desired_job_list.pop()
                 via_job_result = subprocess.Popen(
@@ -112,7 +112,7 @@ class Runner:
 
         try:
             target_job = [j for j in lookup_list
-                          if j.get_checksum() == args.hash][0]
+                          if j.checksum == args.hash][0]
         except IndexError:
             return "Job not found"
         try:

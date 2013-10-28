@@ -655,7 +655,7 @@ class RootViaCTLExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
             self.ctrl.get_execution_command(self.job, self.config),
             ['pkexec', '--user', self.job.user,
              'checkbox-trusted-launcher',
-             '--hash', self.job.get_checksum(),
+             '--hash', self.job.checksum,
              'CHECKBOX_DATA=session-dir/CHECKBOX_DATA',
              'CHECKBOX_SHARE=CHECKBOX_SHARE',
              '--via', self.job.via])
@@ -670,7 +670,7 @@ class RootViaCTLExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
             self.ctrl.get_execution_command(self.job, self.config),
             ['pkexec', '--user', self.job.user,
              'checkbox-trusted-launcher',
-             '--hash', self.job.get_checksum(),
+             '--hash', self.job.checksum,
              'CHECKBOX_DATA=session-dir/CHECKBOX_DATA',
              'CHECKBOX_SHARE=CHECKBOX_SHARE'])
 

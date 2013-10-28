@@ -68,13 +68,6 @@ class BaseJob:
     def user(self):
         return self.get_record_value('user')
 
-    def get_checksum(self):
-        """
-        Compute a checksum of the job definition.
-
-        """
-        return self.checksum
-
     @property
     def checksum(self):
         """
@@ -94,7 +87,7 @@ class BaseJob:
 
     def _compute_checksum(self):
         """
-        Compute the value for :meth:`get_checksum()` and :attr:`checksum`.
+        Compute the value for :attr:`checksum`.
         """
         # Ideally we'd use simplejson.dumps() with sorted keys to get
         # predictable serialization but that's another dependency. To get

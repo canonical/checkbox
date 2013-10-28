@@ -620,7 +620,7 @@ class SessionStateReactionToJobResultTests(TestCase):
         self.assertTrue(job_foo.name, "foo")
         self.assertTrue(job_foo.plugin, "manual")
         # It should be linked to the job L via the via attribute
-        self.assertTrue(job_foo.via, self.job_L.get_checksum())
+        self.assertTrue(job_foo.via, self.job_L.checksum)
 
 
 class SessionMetadataTests(TestCase):

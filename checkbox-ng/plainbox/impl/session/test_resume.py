@@ -1076,7 +1076,7 @@ class ProcessJobTests(TestCaseWithParameters):
         self.job_name = 'job'
         self.job = make_job(name=self.job_name)
         self.jobs_repr = {
-            self.job_name: self.job.get_checksum()
+            self.job_name: self.job.checksum
         }
         self.results_repr = {
             self.job_name: [{
@@ -1244,7 +1244,7 @@ class JobPluginSpecificTests(TestCaseWithParameters):
         job_name = 'resource'
         job = make_job(name=job_name, plugin='resource')
         jobs_repr = {
-            job_name: job.get_checksum()
+            job_name: job.checksum
         }
         results_repr = {
             job_name: [{
@@ -1285,7 +1285,7 @@ class JobPluginSpecificTests(TestCaseWithParameters):
         job_name = 'local'
         job = make_job(name=job_name, plugin='local')
         jobs_repr = {
-            job_name: job.get_checksum()
+            job_name: job.checksum
         }
         results_repr = {
             job_name: [{
@@ -1354,7 +1354,7 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
         job = make_job(name='job')
         session_repr = {
             'jobs': {
-                job.name: job.get_checksum(),
+                job.name: job.checksum,
             },
             'results': {
                 job.name: [{
@@ -1392,8 +1392,8 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
         child = make_job(name='child', plugin=None)
         session_repr = {
             'jobs': {
-                parent.name: parent.get_checksum(),
-                child.name: child.get_checksum(),
+                parent.name: parent.checksum,
+                child.name: child.checksum,
             },
             'results': {
                 parent.name: [{
@@ -1447,9 +1447,9 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
         grandchild = make_job(name='a_grandchild', plugin=None)
         session_repr = {
             'jobs': {
-                parent.name: parent.get_checksum(),
-                child.name: child.get_checksum(),
-                grandchild.name: grandchild.get_checksum(),
+                parent.name: parent.checksum,
+                child.name: child.checksum,
+                grandchild.name: grandchild.checksum,
             },
             'results': {
                 parent.name: [{
@@ -1536,7 +1536,7 @@ class SessionJobListResumeTests(TestCaseWithParameters):
         job_b = make_job(name='b')
         session_repr = {
             'jobs': {
-                job_a.name: job_a.get_checksum()
+                job_a.name: job_a.checksum
             },
             'results': {
                 job_a.name: [],

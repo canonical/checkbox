@@ -573,7 +573,7 @@ class RootViaCTLExecutionController(CheckBoxDifferentialExecutionController):
         """
         # Run checkbox-trusted-launcher as the required user
         cmd = ['pkexec', '--user', job.user, 'checkbox-trusted-launcher',
-               '--hash', job.get_checksum()]
+               '--hash', job.checksum]
         # Append all environment data
         env = self.get_differential_execution_environment(job, config)
         cmd += ["{key}={value}".format(key=key, value=value)

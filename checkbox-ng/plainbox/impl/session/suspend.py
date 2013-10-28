@@ -60,8 +60,8 @@ sensible anymore.
 The design decision is to allow abstract, opaque Providers to offer various
 types of JobDefinitions (that may be radically different to what current
 CheckBox jobs look like). This is why the resume interface requires one to
-provide a full list of job definitions to resume. This is also why the
-get_checksum() method can be implemented differently in non-CheckBox jobs.
+provide a full list of job definitions to resume. This is also why the checksum
+attribute can be implemented differently in non-CheckBox jobs.
 
 As an exception to this rule we _do_ serialize generated jobs. Those are a
 compromise between ease-of-use of the framework and the external
@@ -157,7 +157,7 @@ class SessionSuspendHelper1:
             ``jobs``:
                 Dictionary mapping job name to job checksum.
                 The checksum is computed with
-                :meth:`~plainbox.impl.job.JobDefinition.get_checksum()`
+                :attr:`~plainbox.impl.job.JobDefinition.checksum`
 
             ``results``
                 Dictionary mapping job name to a list of results.
@@ -173,7 +173,7 @@ class SessionSuspendHelper1:
         """
         return {
             "jobs": {
-                state.job.name: state.job.get_checksum()
+                state.job.name: state.job.checksum
                 for state in obj.job_state_map.values()
             },
             "results": {

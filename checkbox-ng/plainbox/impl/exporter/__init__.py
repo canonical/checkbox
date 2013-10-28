@@ -162,8 +162,7 @@ class SessionStateExporterBase(metaclass=ABCMeta):
 
             # Add Job hash if requested
             if self.OPTION_WITH_JOB_HASH in self._option_list:
-                data['result_map'][job_name]['hash'] = \
-                    job_state.job.get_checksum()
+                data['result_map'][job_name]['hash'] = job_state.job.checksum
 
             # Add Job definitions if requested
             if self.OPTION_WITH_JOB_DEFS in self._option_list:

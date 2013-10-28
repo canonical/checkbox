@@ -577,7 +577,7 @@ class RootViaCTLExecutionController(CheckBoxDifferentialExecutionController):
         # Append all environment data
         env = self.get_differential_execution_environment(job, config)
         cmd += ["{key}={value}".format(key=key, value=value)
-                for key, value in env.items()]
+                for key, value in sorted(env.items())]
         # Append the --via flag for generated jobs
         if job.via is not None:
             cmd += ['--via', job.via]
@@ -633,7 +633,7 @@ class RootViaPkexecExecutionController(
         # Append all environment data
         env = self.get_differential_execution_environment(job, config)
         cmd += ["{key}={value}".format(key=key, value=value)
-                for key, value in env.items()]
+                for key, value in sorted(env.items())]
         # Lastly use bash -c, to run our command
         cmd += ['bash', '-c', job.command]
         return cmd

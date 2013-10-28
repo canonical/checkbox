@@ -24,10 +24,8 @@ plainbox.impl.test_job
 Test definitions for plainbox.impl.job module
 """
 
-import os
 from unittest import TestCase
 
-from plainbox.impl.applogic import PlainBoxConfig
 from plainbox.impl.job import CheckBoxJobValidator
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.job import JobOutputTextSource
@@ -37,7 +35,6 @@ from plainbox.impl.secure.rfc822 import FileTextSource
 from plainbox.impl.secure.rfc822 import Origin
 from plainbox.impl.secure.rfc822 import RFC822Record
 from plainbox.testing_utils.testcases import TestCaseWithParameters
-from plainbox.vendor.mock import Mock
 
 
 class CheckBoxJobValidatorTests(TestCase):

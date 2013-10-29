@@ -33,6 +33,7 @@ import tempfile
 from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
 
 from plainbox.impl.applogic import get_matching_job_list
+from plainbox.impl.applogic import get_whitelist_by_name
 from plainbox.impl.applogic import run_job_if_possible
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.check_config import CheckConfigInvocation
@@ -68,17 +69,7 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
         elif self.config.whitelist is not Unset:
             self.whitelist = WhiteList.from_file(self.config.whitelist)
         else:
-            self.whitelist = None
-            for provider in provider_list:
-                for whitelist in provider.get_builtin_whitelists():
-                    if whitelist.name == 'sru':
-                        self.whitelist = whitelist
-                        break
-                if self.whitelist:
-                    break
-            else:
-                raise RuntimeError(
-                    "None of the providers had a whitelist named 'sru'")
+            self.whitelist = get_whitelist_by_name(provider_list, 'sru')
         self.job_list = self.get_job_list(ns)
         # XXX: maybe allow specifying system_id from command line?
         self.exporter = XMLSessionStateExporter(system_id=None)

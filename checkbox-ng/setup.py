@@ -43,8 +43,8 @@ setup(
     entry_points={
         'console_scripts': [
             'plainbox=plainbox.public:main',
-            'checkbox-trusted-launcher='
-            'plainbox.impl.secure.checkbox_trusted_launcher:main',
+            ('plainbox-trusted-launcher-1='
+             'plainbox.impl.secure.launcher1:main'),
         ],
         'plainbox.exporter': [
             'text=plainbox.impl.exporter.text:TextSessionStateExporter',

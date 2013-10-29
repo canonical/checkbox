@@ -39,6 +39,7 @@ setup(
     entry_points={
         'console_scripts': [
             'checkbox=checkbox_ng.main:main',
+            'canonical-certification-server=checkbox_ng.main:cert_server',
         ],
     },
     include_package_data=True)

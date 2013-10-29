@@ -58,7 +58,7 @@ from plainbox.impl.session.jobs import JobReadinessInhibitor
 
 __all__ = [
     'CheckBoxSessionStateController',
-    'RootViaCTLExecutionController',
+    'RootViaPTL1ExecutionController',
     'RootViaPkexecExecutionController',
     'RootViaSudoExecutionController',
     'UserJobExecutionController',
@@ -554,9 +554,9 @@ class CheckBoxDifferentialExecutionController(CheckBoxExecutionController):
         return None
 
 
-class RootViaCTLExecutionController(CheckBoxDifferentialExecutionController):
+class RootViaPTL1ExecutionController(CheckBoxDifferentialExecutionController):
     """
-    Execution controller that gains root using checkbox-trusted-launcher
+    Execution controller that gains root using plainbox-trusted-launcher-1
     """
 
     def get_execution_command(self, job, config):
@@ -564,15 +564,15 @@ class RootViaCTLExecutionController(CheckBoxDifferentialExecutionController):
         Get the command to invoke.
 
         This overridden implementation returns especially crafted command that
-        uses pkexec to run the checkbox-trusted-launcher as the desired user
+        uses pkexec to run the plainbox-trusted-launcher-1 as the desired user
         (typically root). It passes the checksum of the job definition as
         argument, along with all of the required environment key-value pairs.
         If a job is generated it also passes the special via attribute to let
         the trusted launcher discover the generated job. Currently it supports
         at most one-level of generated jobs.
         """
-        # Run checkbox-trusted-launcher as the required user
-        cmd = ['pkexec', '--user', job.user, 'checkbox-trusted-launcher',
+        # Run plainbox-trusted-launcher-1 as the required user
+        cmd = ['pkexec', '--user', job.user, 'plainbox-trusted-launcher-1',
                '--hash', job.checksum]
         # Append all environment data
         env = self.get_differential_execution_environment(job, config)
@@ -611,8 +611,8 @@ class RootViaPkexecExecutionController(
     Execution controller that gains root by using pkexec.
 
     This controller should be used for jobs that need root but cannot be
-    executed by the checkbox-trusted-launcher. This happens whenever the job is
-    not in the system-wide provider location.
+    executed by the plainbox-trusted-launcher-1. This happens whenever the job
+    is not in the system-wide provider location.
 
     In practice it is used when working with the special
     'checkbox-in-source-tree' provider as well as for jobs that need to run as
@@ -655,8 +655,8 @@ class RootViaSudoExecutionController(CheckBoxExecutionController):
     """
     Execution controller that gains root by using sudo.
 
-    This controller should be used for jobs that need root but cannot
-    be executed by the checkbox-trusted-launcher.
+    This controller should be used for jobs that need root but cannot be
+    executed by the plainbox-trusted-launcher-1.
 
     This happens whenever the job is not in the system-wide provider location.
     In practice it is used when working with the special

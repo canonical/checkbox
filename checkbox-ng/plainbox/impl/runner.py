@@ -38,7 +38,7 @@ import time
 from plainbox.vendor import extcmd
 
 from plainbox.abc import IJobRunner, IJobResult
-from plainbox.impl.ctrl import RootViaCTLExecutionController
+from plainbox.impl.ctrl import RootViaPTL1ExecutionController
 from plainbox.impl.ctrl import RootViaPkexecExecutionController
 from plainbox.impl.ctrl import RootViaSudoExecutionController
 from plainbox.impl.ctrl import UserJobExecutionController
@@ -224,7 +224,7 @@ class JobRunner(IJobRunner):
         self._command_io_delegate = command_io_delegate
         self._dry_run = dry_run
         self._execution_ctrl_list = [
-            RootViaCTLExecutionController(session_dir),
+            RootViaPTL1ExecutionController(session_dir),
             RootViaPkexecExecutionController(session_dir),
             # XXX: maybe this one should be only used on command line
             RootViaSudoExecutionController(session_dir),

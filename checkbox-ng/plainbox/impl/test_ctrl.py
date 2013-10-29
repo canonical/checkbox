@@ -31,7 +31,7 @@ from plainbox.abc import IProvider1
 from plainbox.impl.applogic import PlainBoxConfig
 from plainbox.impl.ctrl import CheckBoxExecutionController
 from plainbox.impl.ctrl import CheckBoxSessionStateController
-from plainbox.impl.ctrl import RootViaCTLExecutionController
+from plainbox.impl.ctrl import RootViaPTL1ExecutionController
 from plainbox.impl.ctrl import RootViaPkexecExecutionController
 from plainbox.impl.ctrl import RootViaSudoExecutionController
 from plainbox.impl.ctrl import UserJobExecutionController
@@ -632,13 +632,13 @@ class UserJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
         self.assertEqual(env['key'], 'old-value')
 
 
-class RootViaCTLExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
-                                         TestCase):
+class RootViaPTL1ExecutionControllerTests(
+        CheckBoxExecutionControllerTestsMixIn, TestCase):
     """
-    Tests for RootViaCTLExecutionController
+    Tests for RootViaPTL1ExecutionController
     """
 
-    CLS = RootViaCTLExecutionController
+    CLS = RootViaPTL1ExecutionController
 
     def test_get_execution_environment_is_None(self):
         # Call the tested method
@@ -648,13 +648,13 @@ class RootViaCTLExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
 
     def test_get_command(self):
         """
-        verify that we run checkbox-trusted-launcher as the desired user
+        verify that we run plainbox-trusted-launcher-1 as the desired user
         """
         self.job.get_environ_settings.return_value = []
         self.assertEqual(
             self.ctrl.get_execution_command(self.job, self.config),
             ['pkexec', '--user', self.job.user,
-             'checkbox-trusted-launcher',
+             'plainbox-trusted-launcher-1',
              '--hash', self.job.checksum,
              'CHECKBOX_DATA=session-dir/CHECKBOX_DATA',
              'CHECKBOX_SHARE=CHECKBOX_SHARE',
@@ -662,14 +662,14 @@ class RootViaCTLExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
 
     def test_get_command_without_via(self):
         """
-        verify that we run checkbox-trusted-launcher as the desired user
+        verify that we run plainbox-trusted-launcher-1 as the desired user
         """
         self.job.get_environ_settings.return_value = []
         self.job.via = None
         self.assertEqual(
             self.ctrl.get_execution_command(self.job, self.config),
             ['pkexec', '--user', self.job.user,
-             'checkbox-trusted-launcher',
+             'plainbox-trusted-launcher-1',
              '--hash', self.job.checksum,
              'CHECKBOX_DATA=session-dir/CHECKBOX_DATA',
              'CHECKBOX_SHARE=CHECKBOX_SHARE'])

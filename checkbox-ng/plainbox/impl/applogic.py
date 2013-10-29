@@ -43,6 +43,21 @@ def get_matching_job_list(job_list, qualifier):
     return [job for job in job_list if qualifier.designates(job)]
 
 
+def get_whitelist_by_name(provider_list, desired_whitelist):
+    """
+    Get the first whitelist matching desired_whitelist from the loaded
+    providers
+    """
+    for provider in provider_list:
+        for whitelist in provider.get_builtin_whitelists():
+            if whitelist.name == desired_whitelist:
+                return whitelist
+    else:
+        raise LookupError(
+            "None of the providers had a whitelist "
+            "named '{}'".format(desired_whitelist))
+
+
 def run_job_if_possible(session, runner, config, job, update=True):
     """
     Coupling point for session, runner, config and job

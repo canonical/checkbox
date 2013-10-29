@@ -683,9 +683,15 @@ class RootViaSudoExecutionController(CheckBoxExecutionController):
         # without a better API all we can do is guess.
         #
         # Shamelessly stolen from command-not-found
-        self.user_can_sudo = (
-            grp.getgrnam("sudo").gr_gid in posix.getgroups()
-            or grp.getgrnam("admin").gr_gid in posix.getgroups())
+        try:
+            in_sudo_group = grp.getgrnam("sudo").gr_gid in posix.getgroups()
+        except KeyError:
+            in_sudo_group = False
+        try:
+            in_admin_group = grp.getgrnam("admin").gr_gid in posix.getgroups()
+        except KeyError:
+            in_admin_group = False
+        self.user_can_sudo = in_sudo_group or in_admin_group
 
     def get_execution_command(self, job, config):
         """

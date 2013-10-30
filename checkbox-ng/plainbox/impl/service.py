@@ -40,6 +40,7 @@ from plainbox.vendor import extcmd
 from plainbox.abc import IJobResult
 from plainbox.impl import dbus
 from plainbox.impl.dbus import OBJECT_MANAGER_IFACE
+from plainbox.impl.dbus import mangle_object_path
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.result import DiskJobResult
 from plainbox.impl.result import MemoryJobResult
@@ -374,7 +375,7 @@ class WhiteListWrapper(PlainBoxObjectWrapper):
     def _get_preferred_object_path(self):
         # TODO: this clashes with providers, maybe use a random ID instead
         return "/plainbox/whitelist/{}".format(
-            self.native.name.replace("-", "_"))
+            mangle_object_path(self.native.name))
 
     # Value added
 
@@ -1030,7 +1031,8 @@ class ProviderWrapper(PlainBoxObjectWrapper):
             for whitelist in self.native.get_builtin_whitelists()]
 
     def _get_preferred_object_path(self):
-        return "/plainbox/provider/{}".format(self.native.name)
+        mangled_name = mangle_object_path(self.native.name)
+        return "/plainbox/provider/{}".format(mangled_name)
 
     def publish_related_objects(self, connection):
         super(ProviderWrapper, self).publish_related_objects(connection)

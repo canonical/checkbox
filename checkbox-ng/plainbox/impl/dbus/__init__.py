@@ -34,6 +34,8 @@ __all__ = [
     'OBJECT_MANAGER_IFACE',
 ]
 
+import re
+
 from dbus import INTROSPECTABLE_IFACE
 from dbus import PEER_IFACE
 from dbus import PROPERTIES_IFACE
@@ -45,3 +47,12 @@ from dbus import types
 OBJECT_MANAGER_IFACE = "org.freedesktop.DBus.ObjectManager"
 
 from plainbox.impl.dbus import service
+
+def mangle_object_path(path):
+    """
+    "Mangles" the provided candidate dbus object path to ensure it complies
+    with the dbus specification. Returns the mangled path.
+    """
+    # TODO: It just enforces the valid characters rule, not the rest of the
+    # DBus path construction rules
+    return re.sub(r"[^a-zA-Z0-9_/]", "_", path)

@@ -143,7 +143,8 @@ class Provider1(IProvider1, IProviderBackend1):
     def secure(self):
         """
         flag indicating that this provider was loaded from the secure portion
-        of PROVIDERPATH and thus can be used with the checkbox-trusted-launcher.
+        of PROVIDERPATH and thus can be used with the
+        plainbox-trusted-launcher-1.
         """
         return self._secure
 

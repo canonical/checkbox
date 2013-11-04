@@ -71,7 +71,7 @@ def authenticate_warmup():
     """
     warmup_popen = extcmd.ExternalCommand()
     return warmup_popen.call(
-        ['pkexec', 'checkbox-trusted-launcher', '--warmup'])
+        ['pkexec', 'plainbox-trusted-launcher-1', '--warmup'])
 
 
 class IOLogRecordGenerator(extcmd.DelegateBase):

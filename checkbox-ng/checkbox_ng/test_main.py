@@ -51,16 +51,17 @@ class TestMain(TestCase):
         expected = """
         usage: checkbox [-h] [--version] [-c {src,deb,auto,stub,ihv}] [-v] [-D] [-C]
                         [-T LOGGER] [-P] [-I]
-                        {sru,check-config,script,dev,certification-server} ...
+                        {sru,check-config,script,dev,certification-server,service} ...
 
         positional arguments:
-          {sru,check-config,script,dev,certification-server}
+          {sru,check-config,script,dev,certification-server,service}
             sru                 run automated stable release update tests
             check-config        check and display plainbox configuration
             script              run a command from a job
             dev                 development commands
             certification-server
                                 run the server certification tests
+            service             spawn dbus service
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -89,7 +90,7 @@ class TestMain(TestCase):
         expected = """
         usage: checkbox [-h] [--version] [-c {src,deb,auto,stub,ihv}] [-v] [-D] [-C]
                         [-T LOGGER] [-P] [-I]
-                        {sru,check-config,script,dev,certification-server} ...
+                        {sru,check-config,script,dev,certification-server,service} ...
         checkbox: error: too few arguments
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")

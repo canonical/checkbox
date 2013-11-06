@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=com.canonical.certification.PlainBox1
+Exec=/usr/bin/checkbox service

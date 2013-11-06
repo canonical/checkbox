@@ -30,9 +30,13 @@ from plainbox.impl.commands.check_config import CheckConfigCommand
 from plainbox.impl.commands.dev import DevCommand
 from plainbox.impl.commands.script import ScriptCommand
 from plainbox.impl.commands.sru import SRUCommand
-from checkbox_ng.commands.server import ServerCommand
 
 from checkbox_ng import __version__ as version
+from checkbox_ng.commands.server import ServerCommand
+try:
+    from checkbox_ng.commands.service import ServiceCommand
+except ImportError:
+    pass
 from checkbox_ng.config import CheckBoxConfig
 
 
@@ -64,6 +68,11 @@ class CheckBoxNGTool(PlainBoxToolBase):
             self._provider_list, self._config).register_parser(subparsers)
         ServerCommand(
             self._provider_list, self._config).register_parser(subparsers)
+        try:
+            ServiceCommand(self._provider_list, self._config).register_parser(
+                subparsers)
+        except NameError:
+            pass
 
 
 def main(argv=None):

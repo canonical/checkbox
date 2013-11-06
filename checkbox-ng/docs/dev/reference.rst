@@ -89,9 +89,6 @@ Code reference
 .. automodule:: plainbox.impl.commands.special
     :members:
 
-.. automodule:: plainbox.impl.commands.sru
-    :members:
-
 .. automodule:: plainbox.impl.depmgr
     :members:
 

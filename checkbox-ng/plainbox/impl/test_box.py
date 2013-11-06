@@ -162,13 +162,12 @@ class TestMain(TestCase):
         expected = """
         usage: plainbox [-h] [--version] [-c {src,deb,auto,stub,ihv}] [-v] [-D] [-C]
                         [-T LOGGER] [-P] [-I]
-                        {run,self-test,sru,check-config,dev} ...
+                        {run,self-test,check-config,dev} ...
 
         positional arguments:
-          {run,self-test,sru,check-config,dev}
+          {run,self-test,check-config,dev}
             run                 run a test job
             self-test           run integration tests
-            sru                 run automated stable release update tests
             check-config        check and display plainbox configuration
             dev                 development commands
 
@@ -200,7 +199,7 @@ class TestMain(TestCase):
         expected = """
         usage: plainbox [-h] [--version] [-c {src,deb,auto,stub,ihv}] [-v] [-D] [-C]
                         [-T LOGGER] [-P] [-I]
-                        {run,self-test,sru,check-config,dev} ...
+                        {run,self-test,check-config,dev} ...
         plainbox: error: too few arguments
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")

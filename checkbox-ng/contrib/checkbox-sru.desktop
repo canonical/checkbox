@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=CheckBox SRU
+Comment=CheckBox can run after login to test a system automatically.
+Icon=checkbox
+Exec=sh -c "/usr/bin/checkbox sru --check-config >/tmp/checkbox.log 2>&1; sudo initctl emit checkbox-sru-finished"
+Terminal=false
+Type=Application
+Categories=
+X-Ubuntu-Gettext-Domain=checkbox

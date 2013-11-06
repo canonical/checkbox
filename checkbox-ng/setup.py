@@ -35,6 +35,7 @@ setup(
     long_description=open("README.rst", "rt", encoding="UTF-8").read(),
     install_requires=[
         'lxml >= 2.3',
+        'requests >= 1.1',
     ],
     extras_require={
         'XLSX': 'XlsxWriter >= 0.3',

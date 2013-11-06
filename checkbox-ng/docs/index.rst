@@ -28,6 +28,24 @@ or newer.
 
     $ sudo add-apt-repository ppa:checkbox-dev/ppa && sudo apt-get update && sudo apt-get install checkbox-ng 
 
+Running stable release update tests
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+CheckBoxNG has special support for running stable release updates tests in an
+automated manner. This runs all the jobs from the *sru.whitelist* and sends the
+results to the certification website.
+
+To run SRU tests you will need to know the so-called :term:`Secure ID` of the
+device you are testing. Once you know that all you need to do is run:
+
+.. code-block:: bash
+
+    $ checkbox sru $secure_id submission.xml
+
+The second argument, submission.xml, is a name of the fallback file that is
+only created when sending the data to the certification website fails to work
+for any reason.
+
 Table of contents
 =================
 

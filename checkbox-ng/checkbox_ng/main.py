@@ -29,10 +29,10 @@ from plainbox.impl.commands import PlainBoxToolBase
 from plainbox.impl.commands.check_config import CheckConfigCommand
 from plainbox.impl.commands.dev import DevCommand
 from plainbox.impl.commands.script import ScriptCommand
-from plainbox.impl.commands.sru import SRUCommand
 
 from checkbox_ng import __version__ as version
 from checkbox_ng.commands.server import ServerCommand
+from checkbox_ng.commands.sru import SRUCommand
 try:
     from checkbox_ng.commands.service import ServiceCommand
 except ImportError:

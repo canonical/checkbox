@@ -86,22 +86,10 @@ Code reference
 .. automodule:: plainbox.impl.commands.selftest
     :members:
 
-.. automodule:: plainbox.impl.commands.service
-    :members:
-
 .. automodule:: plainbox.impl.commands.special
     :members:
 
 .. automodule:: plainbox.impl.commands.sru
-    :members:
-
-.. automodule:: plainbox.impl.dbus
-    :members:
-
-.. automodule:: plainbox.impl.dbus.decorators
-    :members:
-
-.. automodule:: plainbox.impl.dbus.service
     :members:
 
 .. automodule:: plainbox.impl.depmgr
@@ -186,9 +174,6 @@ Code reference
     :members:
 
 .. automodule:: plainbox.impl.secure.rfc822
-    :members:
-
-.. automodule:: plainbox.impl.service
     :members:
 
 .. automodule:: plainbox.impl.session

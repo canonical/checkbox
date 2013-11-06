@@ -26,9 +26,7 @@ Test definitions for plainbox.impl.applogic module
 
 from unittest import TestCase
 
-from plainbox.impl.applogic import PlainBoxConfig
 from plainbox.impl.applogic import get_matching_job_list
-from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.qualifiers import RegExpJobQualifier
 from plainbox.impl.testing_utils import make_job
 
@@ -40,18 +38,3 @@ class FunctionTests(TestCase):
         self.assertEqual(
             get_matching_job_list(job_list, RegExpJobQualifier('f.*')),
             [make_job('foo'), make_job('froz')])
-
-
-class PlainBoxConfigTests(TestCase):
-
-    def test_smoke(self):
-        config = PlainBoxConfig()
-        self.assertIs(config.secure_id, Unset)
-        secure_id = "0123456789ABCDE"
-        config.secure_id = secure_id
-        self.assertEqual(config.secure_id, secure_id)
-        with self.assertRaises(ValueError):
-            config.secure_id = "bork"
-        self.assertEqual(config.secure_id, secure_id)
-        del config.secure_id
-        self.assertIs(config.secure_id, Unset)

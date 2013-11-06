@@ -30,7 +30,7 @@ from unittest import TestCase
 from plainbox.testing_utils.io import TestIO
 
 from checkbox_ng import __version__ as version
-from checkbox_ng.main import main
+from checkbox_ng.main import cert_server, main
 
 
 class TestMain(TestCase):
@@ -92,5 +92,50 @@ class TestMain(TestCase):
                         [-T LOGGER] [-P] [-I]
                         {sru,check-config,script,dev,certification-server,service} ...
         checkbox: error: too few arguments
+        """
+        self.assertEqual(io.combined, cleandoc(expected) + "\n")
+
+
+class TestCertServer(TestCase):
+
+    def test_help(self):
+        with TestIO(combined=True) as io:
+            with self.assertRaises(SystemExit) as call:
+                cert_server(['--help'])
+        self.assertEqual(call.exception.args, (0,))
+        self.maxDiff = None
+        expected = """
+        usage: checkbox certification-server [-h] [--check-config]
+                                             [--secure-id SECURE-ID]
+                                             [--destination URL] [--staging]
+                                             [--self-test] [--not-interactive]
+                                             [-i PATTERN] [-x PATTERN] [-w WHITELIST]
+
+        optional arguments:
+          -h, --help            show this help message and exit
+          --check-config        Run check-config
+
+        certification-specific options:
+          --secure-id SECURE-ID
+                                Associate submission with a machine using this SECURE-
+                                ID (None)
+          --destination URL     POST the test report XML to this URL (https://certific
+                                ation.canonical.com/submissions/submit/)
+          --staging             Override --destination to use the staging
+                                certification website
+
+        user interface options:
+          --self-test           Select the self-test whitelist
+          --not-interactive     Skip tests that require interactivity
+
+        job definition options:
+          -i PATTERN, --include-pattern PATTERN
+                                Run jobs matching the given regular expression.
+                                Matches from the start to the end of the line.
+          -x PATTERN, --exclude-pattern PATTERN
+                                Do not run jobs matching the given regular expression.
+                                Matches from the start to the end of the line.
+          -w WHITELIST, --whitelist WHITELIST
+                                Load whitelist containing run patterns
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")

@@ -32,6 +32,7 @@ from shutil import copyfileobj
 import io
 import os
 import sys
+import textwrap
 
 from plainbox.abc import IJobResult
 from plainbox.impl.applogic import get_matching_job_list, get_whitelist_by_name
@@ -74,6 +75,11 @@ class _ServerInvocation(CheckBoxInvocationMixIn):
         else:
             self.whitelist = get_whitelist_by_name(provider_list,
                                                    desired_whitelist)
+        if self.config.welcome_text is not Unset:
+            print()
+            for line in self.config.welcome_text.splitlines():
+                print(textwrap.fill(line, 80, replace_whitespace=False))
+            print()
         print("[ Analyzing Jobs ]".center(80, '='))
         self.job_list = self.get_job_list(ns)
         self.session = None

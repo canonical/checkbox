@@ -26,12 +26,34 @@ import os
 import itertools
 
 from plainbox.impl.applogic import PlainBoxConfig
+from plainbox.impl.secure import config
 
 
 class CheckBoxConfig(PlainBoxConfig):
     """
     Configuration for checkbox-ng
     """
+
+    secure_id = config.Variable(
+        section="sru",
+        help_text="Secure ID of the system",
+        validator_list=[config.PatternValidator(
+            r"^[a-zA-Z0-9]{15}$|^[a-zA-Z0-9]{18}$"
+        )])
+
+    # TODO: Add a validator to check if URL looks fine
+    c3_url = config.Variable(
+        section="sru",
+        help_text="URL of the certification website",
+        default="https://certification.canonical.com/submissions/submit/")
+
+    fallback_file = config.Variable(
+        section="sru",
+        help_text="Location of the fallback file")
+
+    whitelist = config.Variable(
+        section="sru",
+        help_text="Optional whitelist with which to run SRU testing")
 
     class Meta(PlainBoxConfig.Meta):
         # TODO: properly depend on xdg and use real code that also handles

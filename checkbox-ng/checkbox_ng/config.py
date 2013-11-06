@@ -47,3 +47,29 @@ class CheckBoxConfig(PlainBoxConfig):
                     PlainBoxConfig.Meta.filename_list, (
                         '/etc/xdg/checkbox.conf',
                         os.path.expanduser('~/.config/checkbox.conf')))))
+
+
+class CertificationConfig(CheckBoxConfig):
+    """
+    Configuration for canonical-certification
+    """
+
+    class Meta(CheckBoxConfig.Meta):
+        # TODO: properly depend on xdg and use real code that also handles
+        # XDG_CONFIG_HOME.
+        #
+        # NOTE: filename_list is composed of canonical-certification, checkbox
+        # and plainbox variables, mixed so that:
+        # - canonical-certification takes precedence over checkbox
+        # - checkbox takes precedence over plainbox
+        # - ~/.config takes precedence over /etc
+        filename_list = list(
+            itertools.chain(
+                *zip(
+                    itertools.islice(
+                        CheckBoxConfig.Meta.filename_list, 0, None, 2),
+                    itertools.islice(
+                        CheckBoxConfig.Meta.filename_list, 1, None, 2),
+                    ('/etc/xdg/canonical-certification.conf',
+                        os.path.expanduser(
+                            '~/.config/canonical-certification.conf')))))

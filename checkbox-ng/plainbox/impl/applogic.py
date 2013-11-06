@@ -119,6 +119,10 @@ class PlainBoxConfig(config.Config):
     environment = config.Section(
         help_text="Environment variables for scripts and jobs")
 
+    welcome_text = config.Variable(
+        section="common",
+        help_text="Welcome text to display prior to test selection/execution")
+
     default_provider = config.Variable(
         section="common",
         help_text="Name of the default provider to use",

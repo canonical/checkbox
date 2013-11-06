@@ -35,7 +35,6 @@ setup(
     long_description=open("README.rst", "rt", encoding="UTF-8").read(),
     install_requires=[
         'lxml >= 2.3',
-        'requests >= 1.0',
     ],
     extras_require={
         'XLSX': 'XlsxWriter >= 0.3',
@@ -53,10 +52,6 @@ setup(
             'xlsx=plainbox.impl.exporter.xlsx:XLSXSessionStateExporter [XLSX]',
             'xml=plainbox.impl.exporter.xml:XMLSessionStateExporter',
             'html=plainbox.impl.exporter.html:HTMLSessionStateExporter',
-        ],
-        'plainbox.transport': [
-            'certification='
-            'plainbox.impl.transport.certification:CertificationTransport',
         ],
     },
     include_package_data=True)

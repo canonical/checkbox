@@ -208,6 +208,3 @@ Code reference
 
 .. automodule:: plainbox.impl.transport
     :members:
-
-.. automodule:: plainbox.impl.transport.certification
-    :members:

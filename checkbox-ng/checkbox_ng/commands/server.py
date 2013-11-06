@@ -34,8 +34,6 @@ import os
 import sys
 import textwrap
 
-from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
-
 from plainbox.abc import IJobResult
 from plainbox.impl.applogic import get_matching_job_list, get_whitelist_by_name
 from plainbox.impl.commands import PlainBoxCommand
@@ -44,9 +42,9 @@ from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
 from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.exporter import ByteStringStreamTranslator
+from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.exporter.html import HTMLSessionStateExporter
 from plainbox.impl.exporter.xml import XMLSessionStateExporter
-from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.result import DiskJobResult, MemoryJobResult
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.runner import authenticate_warmup
@@ -54,8 +52,10 @@ from plainbox.impl.runner import slugify
 from plainbox.impl.secure.config import Unset, ValidationError
 from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.session import SessionStateLegacyAPI as SessionState
-from plainbox.impl.transport.certification import CertificationTransport
-from plainbox.impl.transport.certification import InvalidSecureIDError
+from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
+
+from checkbox_ng.certification import CertificationTransport
+from checkbox_ng.certification import InvalidSecureIDError
 
 
 logger = getLogger("checkbox.ng.commands.server")

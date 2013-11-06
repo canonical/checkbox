@@ -46,8 +46,9 @@ from plainbox.impl.runner import JobRunner
 from plainbox.impl.secure.config import ValidationError, Unset
 from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.session import SessionStateLegacyAPI as SessionState
-from plainbox.impl.transport.certification import CertificationTransport
-from plainbox.impl.transport.certification import InvalidSecureIDError
+
+from checkbox_ng.certification import CertificationTransport
+from checkbox_ng.certification import InvalidSecureIDError
 
 
 logger = logging.getLogger("plainbox.commands.sru")

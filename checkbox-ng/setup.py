@@ -35,11 +35,16 @@ setup(
     long_description=open("README.rst", "rt", encoding="UTF-8").read(),
     install_requires=[
         'plainbox >= 0.3',
+        'requests >= 1.0',
     ],
     entry_points={
         'console_scripts': [
             'checkbox=checkbox_ng.main:main',
             'canonical-certification-server=checkbox_ng.main:cert_server',
+        ],
+        'plainbox.transport': [
+            'certification='
+            'checkbox_ng.certification:CertificationTransport',
         ],
     },
     include_package_data=True)

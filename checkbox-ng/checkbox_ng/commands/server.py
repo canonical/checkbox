@@ -34,9 +34,12 @@ import os
 import sys
 import textwrap
 
+from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
+
 from plainbox.abc import IJobResult
 from plainbox.impl.applogic import get_matching_job_list, get_whitelist_by_name
 from plainbox.impl.commands import PlainBoxCommand
+from plainbox.impl.commands.check_config import CheckConfigInvocation
 from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
 from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.depmgr import DependencyDuplicateError
@@ -48,9 +51,11 @@ from plainbox.impl.result import DiskJobResult, MemoryJobResult
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.runner import authenticate_warmup
 from plainbox.impl.runner import slugify
-from plainbox.impl.secure.config import Unset
+from plainbox.impl.secure.config import Unset, ValidationError
 from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.session import SessionStateLegacyAPI as SessionState
+from plainbox.impl.transport.certification import CertificationTransport
+from plainbox.impl.transport.certification import InvalidSecureIDError
 
 
 logger = getLogger("checkbox.ng.commands.server")
@@ -177,6 +182,27 @@ class _ServerInvocation(CheckBoxInvocationMixIn):
             )
             self._run_jobs_with_session(ns, session, runner)
             self._save_results(session)
+            if self.config.secure_id is Unset:
+                again = True
+                while again:
+                    if self.ask_user(
+                        "\nSubmit results to certification.canonical.com?",
+                        ('y', 'n')
+                    ).lower() == "y":
+                        try:
+                            self.config.secure_id = input("Secure ID: ")
+                        except ValidationError as exc:
+                            print(
+                                "ERROR: Secure ID must be 15 or 18-character"
+                                " alphanumeric string")
+                        else:
+                            again = False
+                            self._submit_results(session)
+                    else:
+                        again = False
+            else:
+                # Automatically try to submit results if the secure_id is valid
+                self._submit_results(session)
 
         # FIXME: sensible return value
         return 0
@@ -237,10 +263,43 @@ class _ServerInvocation(CheckBoxInvocationMixIn):
             with open(results_path, "wb") as stream:
                 exporter.dump(data_subset, stream)
         print("\nSaving submission file to {}".format(submission_file))
+        self.submission_file = submission_file
         print("View results (HTML): file://{}".format(results_file))
         if 'xlsx' in get_all_exporters():
             print("View results (XLSX): file://{}".format(
                 results_file.replace('html', 'xlsx')))
+
+    def _submit_results(self, session):
+        print("Submitting results to {0} for secure_id {1}".format(
+              self.config.c3_url, self.config.secure_id))
+        options_string = "secure_id={0}".format(self.config.secure_id)
+        # Create the transport object
+        try:
+            transport = CertificationTransport(
+                self.config.c3_url, options_string, self.config)
+        except InvalidSecureIDError as exc:
+            print(exc)
+            return False
+        with open(self.submission_file) as stream:
+            try:
+                # Send the data, reading from the fallback file
+                result = transport.send(stream)
+                if 'url' in result:
+                    print("Successfully sent, submission status at {0}".format(
+                          result['url']))
+                else:
+                    print("Successfully sent, server response: {0}".format(
+                          result))
+
+            except InvalidSchema as exc:
+                print("Invalid destination URL: {0}".format(exc))
+            except ConnectionError as exc:
+                print("Unable to connect to destination URL: {0}".format(exc))
+            except HTTPError as exc:
+                print(("Server returned an error when "
+                       "receiving or processing: {0}").format(exc))
+            except IOError as exc:
+                print("Problem reading a file: {0}".format(exc))
 
     def _interaction_callback(self, runner, job, config, prompt=None,
                               allowed_outcome=None):
@@ -366,6 +425,20 @@ class ServerCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         self.config = config
 
     def invoked(self, ns):
+        # Copy command-line arguments over configuration variables
+        try:
+            if ns.secure_id:
+                self.config.secure_id = ns.secure_id
+            if ns.c3_url:
+                self.config.c3_url = ns.c3_url
+        except ValidationError as exc:
+            print("Configuration problems prevent running Certification tests")
+            print(exc)
+            return 1
+        # Run check-config, if requested
+        if ns.check_config:
+            retval = CheckConfigInvocation(self.config).run()
+            return retval
         return _ServerInvocation(self.provider_list, self.config, ns).run()
 
     def register_parser(self, subparsers):
@@ -373,6 +446,32 @@ class ServerCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             "certification-server",
             help="run the server certification tests")
         parser.set_defaults(command=self)
+        parser.add_argument(
+            "--check-config",
+            action="store_true",
+            help="Run check-config")
+        group = parser.add_argument_group("certification-specific options")
+        # Set defaults from based on values from the config file
+        group.set_defaults(c3_url=self.config.c3_url)
+        if self.config.secure_id is not Unset:
+            group.set_defaults(secure_id=self.config.secure_id)
+        group.add_argument(
+            '--secure-id', metavar="SECURE-ID",
+            action='store',
+            help=("Associate submission with a machine using this SECURE-ID"
+                  " (%(default)s)"))
+        group.add_argument(
+            '--destination', metavar="URL",
+            dest='c3_url',
+            action='store',
+            help=("POST the test report XML to this URL"
+                  " (%(default)s)"))
+        group.add_argument(
+            '--staging',
+            dest='c3_url',
+            action='store_const',
+            const='https://certification.staging.canonical.com/submissions/submit/',
+            help='Override --destination to use the staging certification website')
         group = parser.add_argument_group(title="user interface options")
         group.add_argument(
             '--self-test', action='store_true',

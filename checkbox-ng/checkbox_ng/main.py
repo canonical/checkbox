@@ -37,7 +37,7 @@ try:
     from checkbox_ng.commands.service import ServiceCommand
 except ImportError:
     pass
-from checkbox_ng.config import CheckBoxConfig
+from checkbox_ng.config import CertificationConfig, CheckBoxConfig
 
 
 logger = logging.getLogger("checkbox.ng.main")
@@ -75,6 +75,13 @@ class CheckBoxNGTool(PlainBoxToolBase):
             pass
 
 
+class CertificationNGTool(CheckBoxNGTool):
+
+    @classmethod
+    def get_config_cls(cls):
+        return CertificationConfig
+
+
 def main(argv=None):
     """
     checkbox command line utility
@@ -86,5 +93,9 @@ def cert_server(argv=None):
     """
     certification-server command line utility
     """
+    if argv:
+        args = argv
+    else:
+        args = sys.argv[1:]
     raise SystemExit(
-        CheckBoxNGTool().main(['certification-server'] + sys.argv[1:]))
+        CertificationNGTool().main(['certification-server'] + args))

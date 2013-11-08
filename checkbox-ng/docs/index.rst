@@ -54,6 +54,7 @@ Table of contents
    author/index.rst
    appdev/index.rst
    dev/index.rst
+   ref/index.rst
    glossary.rst
    changelog.rst
 

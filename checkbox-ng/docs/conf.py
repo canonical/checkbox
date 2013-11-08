@@ -14,6 +14,18 @@
 
 import sys, os
 
+try:
+    import plainbox
+except ImportError as exc:
+    raise SystemExit("plainbox has to be importable")
+else:
+    # Inject mock modules so that we can build the
+    # documentation without having the real stuff available
+    from plainbox.vendor import mock
+    for mod_name in ['lxml', 'xlsxwriter', 'requests', 'requests.exceptions']:
+        sys.modules[mod_name] = mock.Mock()
+        print("Mocked {}".format(mod_name))
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.

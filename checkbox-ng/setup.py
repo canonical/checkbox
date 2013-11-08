@@ -22,6 +22,12 @@ import os
 
 from setuptools import setup, find_packages
 
+base_dir = os.path.dirname(__file__)
+
+# Load the README.rst file relative to the setup file
+with open(os.path.join(base_dir, "README.rst"), encoding="UTF-8") as stream:
+    long_description = stream.read()
+
 # Check if we are running on readthedocs.org builder.
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
@@ -46,7 +52,7 @@ setup(
     author_email="zygmunt.krynicki@canonical.com",
     license="GPLv3+",
     description="CheckBox / Next Generation",
-    long_description=open("README.rst", "rt", encoding="UTF-8").read(),
+    long_description=long_description,
     install_requires=install_requires,
     entry_points={
         'console_scripts': [

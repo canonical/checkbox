@@ -18,9 +18,23 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 
 from setuptools import setup, find_packages
 
+# Check if we are running on readthedocs.org builder.
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+
+# When building on readthedocs.org, skip all real dependencies as those are
+# mocked away in 'plainbox/docs/conf.py'. This speeds up the build process.
+# and makes it independent on any packages that are hard to get in a virtualenv
+if on_rtd:
+    install_requires = []
+else:
+    install_requires = [
+        'plainbox >= 0.3',
+        'requests >= 1.0',
+    ]
 
 setup(
     name="checkbox-ng",
@@ -33,10 +47,7 @@ setup(
     license="GPLv3+",
     description="CheckBox / Next Generation",
     long_description=open("README.rst", "rt", encoding="UTF-8").read(),
-    install_requires=[
-        'plainbox >= 0.3',
-        'requests >= 1.0',
-    ],
+    install_requires=install_requires,
     entry_points={
         'console_scripts': [
             'checkbox=checkbox_ng.main:main',

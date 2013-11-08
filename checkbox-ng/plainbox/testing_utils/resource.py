@@ -18,8 +18,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.testing_utils.resource
-===============================
+:mod:`plainbox.testing_utils.resource`
+======================================
 
 Implementation of simple resource sharing cache for unit tests
 """
@@ -52,7 +52,7 @@ class ResourceCache:
     Cache for expensive operations.
 
     If your test needs to compute something (slowly) and reuse it in various
-    different test_ methods then this will save time.
+    different test\_ methods then this will save time.
     """
 
     def __init__(self, weak=True):

@@ -24,19 +24,173 @@
 
 from concurrent.futures import ThreadPoolExecutor
 from io import BytesIO
-from threading import Thread
 import logging
 
 from plainbox import __version__ as plainbox_version
-from plainbox.abc import IJobResult
-from plainbox.impl.exporter import get_all_exporters
-from plainbox.impl.result import MemoryJobResult
-from plainbox.impl.runner import JobRunner
-from plainbox.impl.session.legacy import SessionStateLegacyAPI as SessionState
 from plainbox.impl.applogic import run_job_if_possible
+from plainbox.impl.exporter import get_all_exporters
+from plainbox.impl.runner import JobRunner
+from plainbox.impl.session import SessionStorageRepository
+from plainbox.impl.session.legacy import SessionStateLegacyAPI as SessionState
 
 
 logger = logging.getLogger("plainbox.highlevel")
+
+
+class PlainBoxObject:
+    """
+    A thin wrapper around some other plainbox object.
+    """
+
+    def __init__(self, impl, name=None, group=None, children=None):
+        """
+        Initialize a new PlainBoxObject with the specified internal
+        implementation object and some meta-data.
+
+        :param impl:
+            The implementation object (internal API)
+        :param name:
+            Human-visible name of this object
+        :param group:
+            Human-visible group (class) this object belongs to
+        :param children:
+            A list of children that this object has
+        """
+        self._impl = impl
+        self._name = name
+        if children is None:
+            children = []
+        self._children = children
+        self._group = group
+
+    def __str__(self):
+        """
+        String for of this object
+
+        :returns:
+            :attr:`name`.
+        """
+        return self.name
+
+    def __iter__(self):
+        """
+        Iterate over all of the children
+        """
+        return iter(self._children)
+
+    @property
+    def name(self):
+        """
+        name of this object
+
+        This may be an abbreviated form that assumes the group is displayed
+        before the name. It will probably take a few iterations before we get
+        right names (and other, additional properties) for everything.
+        """
+        return self._name
+
+    @property
+    def group(self):
+        """
+        group this object belongs to.
+
+        This is a way to distinguish high-level "classes" that may not map
+        one-to-one to a internal python class.
+        """
+        return self._group
+
+    @property
+    def children(self):
+        """
+        A list of children that this object has
+
+        This list is mutable and is always guaranteed to exist.
+        """
+        return self._children
+
+
+# NOTE: This should merge with the service object below but I didn't want
+# to do it right away as that would have to alter Service.__init__() and
+# I want to get Explorer API right first.
+class Explorer:
+    """
+    Class simplifying discovery of various PlainBox objects.
+    """
+
+    def __init__(self, provider_list=None, repository_list=None):
+        """
+        Initialize a new Explorer
+
+        :param provider_list:
+            List of providers that this explorer will know about.
+            Defaults to nothing (BYOP - bring your own providers)
+        :param repository_list:
+            List of session storage repositories. Defaults to the
+            single default repository.
+        """
+        if provider_list is None:
+            provider_list = []
+        self.provider_list = provider_list
+        if repository_list is None:
+            repo = SessionStorageRepository()
+            repository_list = [repo]
+        self.repository_list = repository_list
+
+    def get_object_tree(self):
+        """
+        Get a tree of :class:`PlainBoxObject` that represents everything that
+        PlainBox knows about.
+
+        :returns:
+            A :class:`PlainBoxObject` that represents the explorer
+            object itself, along with all the children reachable from it.
+
+        This function computes the following set of data::
+
+            the explorer itself
+                - all providers
+                    - all jobs
+                    - all whitelists
+                - all repositories
+                    - all storages
+        """
+        service_obj = PlainBoxObject(
+            self,
+            name='service object',
+            group="service")
+        # Milk each provider for jobs and whitelists
+        for provider in self.provider_list:
+            provider_obj = PlainBoxObject(
+                provider,
+                group="provider",
+                name=provider.name)
+            for job in provider.get_builtin_jobs():
+                job_obj = PlainBoxObject(
+                    job,
+                    group="job",
+                    name=job.name)
+                provider_obj.children.append(job_obj)
+            for whitelist in provider.get_builtin_whitelists():
+                whitelist_obj = PlainBoxObject(
+                    whitelist,
+                    group="whitelist",
+                    name=whitelist.name)
+                provider_obj.children.append(whitelist_obj)
+            service_obj.children.append(provider_obj)
+        # Milk each repository for session storage data
+        for repo in self.repository_list:
+            repo_obj = PlainBoxObject(
+                repo,
+                group='repository',
+                name=repo.location)
+            service_obj.children.append(repo_obj)
+            for storage in repo.get_storage_list():
+                storage_obj = PlainBoxObject(
+                    storage,
+                    group="storage",
+                    name=storage.location)
+                repo_obj.children.append(storage_obj)
+        return service_obj
 
 
 class Service:

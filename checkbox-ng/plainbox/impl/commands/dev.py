@@ -35,6 +35,7 @@ from plainbox.impl.commands.logtest import LogTestCommand
 from plainbox.impl.commands.parse import ParseCommand
 from plainbox.impl.commands.script import ScriptCommand
 from plainbox.impl.commands.special import SpecialCommand
+from plainbox.impl.commands.list import ListCommand
 
 
 logger = getLogger("plainbox.commands.dev")
@@ -62,3 +63,4 @@ class DevCommand(PlainBoxCommand):
         ParseCommand().register_parser(subdev)
         CrashCommand().register_parser(subdev)
         LogTestCommand().register_parser(subdev)
+        ListCommand(self.provider_list).register_parser(subdev)

@@ -30,6 +30,7 @@ from abc import abstractmethod, ABCMeta
 import argparse
 import errno
 import logging
+import os
 import pdb
 import sys
 
@@ -66,6 +67,16 @@ class PlainBoxCommand(metaclass=ABCMeta):
         command. The subparsers argument is the return value of
         ArgumentParser.add_subparsers()
         """
+
+    def autopager(self):
+        """
+        Enable automatic pager.
+
+        This invokes :func:`autopager()` which wraps execution in a pager
+        program so that long output is not a problem to read. Do not call this
+        in interactive commands.
+        """
+        autopager()
 
 
 class PlainBoxToolBase(metaclass=ABCMeta):
@@ -385,3 +396,99 @@ class PlainBoxToolBase(metaclass=ABCMeta):
                 logger.error("starting debugger...")
                 pdb.post_mortem()
                 return 1
+
+
+def autopager(pager_list=['sensible-pager', 'less', 'more']):
+    """
+    Enable automatic pager
+
+    :param pager_list:
+        List of pager programs to try.
+
+    :returns:
+        Nothing immedaitely if auto-pagerification cannot be turned on.
+        This is true when running on windows or when sys.stdout is not
+        a tty.
+
+    This function executes the following steps:
+
+        * A pager is selected
+        * A pipe is created
+        * The current process forks
+        * The parent uses execlp() and becomes the pager
+        * The child/python carries on the execution of python code.
+        * The parent/pager stdin is connected to the childs stdout.
+        * The child/python stderr is connected to parent/pager stdin only when
+          sys.stderr is connected to a tty
+
+    .. note::
+        Pager selection is influenced by the pager environment variabe. if set
+        it will be prepended to the pager_list. This makes the expected
+        behavior of allowing users to customize their environment work okay.
+
+    .. warning::
+        This function must not be used for interactive commands. Doing so
+        will prevent users from feeding any input to plainbox as all input
+        will be "stolen" by the pager process.
+    """
+    # If stdout is not connected to a tty or when running on win32, just return
+    if not sys.stdout.isatty() or sys.platform == "win32":
+        return
+    # Check if the user has a PAGER set, if so, consider that the prime
+    # candidate for the effective pager.
+    pager = os.getenv('PAGER')
+    if pager is not None:
+        pager_list = [pager] + pager_list
+    # Find the best pager based on user perferences and built-in knowledge
+    try:
+        pager_name, pager_pathname = find_exec(pager_list)
+    except LookupError:
+        # If none of the pagers are installed, just return
+        return
+    # Flush any pending output
+    sys.stdout.flush()
+    sys.stderr.flush()
+    # Create a pipe that we'll use to glue ourselves to the pager
+    read_end, write_end = os.pipe()
+    # Fork so that we can have a pager process
+    if os.fork() == 0:
+        # NOTE: this is where plainbox will run
+        # Rewire stdout and stderr (if a tty) to the pipe
+        os.dup2(write_end, sys.stdout.fileno())
+        if sys.stderr.isatty():
+            os.dup2(write_end, sys.stderr.fileno())
+        # Close the unused end of the pipe
+        os.close(read_end)
+    else:
+        # NOTE: this is where the pager will run
+        # Rewire stdin to the pipe
+        os.dup2(read_end, sys.stdin.fileno())
+        # Close the unused end of the pipe
+        os.close(write_end)
+        # Execute the pager
+        os.execl(pager_pathname, pager_name)
+
+
+def find_exec(name_list):
+    """
+    Find the first executable from name_list in PATH
+
+    :param name_list:
+        List of names of executable programs to look for, in the order
+        of preference. Only basenames should be passed here (not absolute
+        pathnames)
+    :returns:
+        Tuple (name, pathname), if the executable can be found
+    :raises:
+        LookupError if none of the names in name_list are executable
+        programs in PATH
+    """
+    path_list = os.getenv('PATH', '').split(os.path.pathsep)
+    for name in name_list:
+        for path in path_list:
+            pathname = os.path.join(path, name)
+            if os.access(pathname, os.X_OK):
+                return (name, pathname)
+    raise LookupError(
+        "Unable to find any of the executables {}".format(
+            ", ".join(name_list)))

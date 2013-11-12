@@ -52,6 +52,8 @@ Table of contents
 .. toctree::
    :maxdepth: 2
 
+   scripts/index.rst
+
 Indices and tables
 ==================
 

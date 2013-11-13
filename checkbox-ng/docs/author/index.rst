@@ -12,7 +12,8 @@ core.
     real value.
 
 .. toctree::
-   checkbox-job-format.rst 
+   checkbox-job-format.rst
+   providers.rst
 
 Personas and stories
 --------------------

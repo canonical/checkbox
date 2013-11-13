@@ -162,7 +162,7 @@ class _ServerInvocation(CheckBoxInvocationMixIn):
                 self.job_list, self.whitelist)
             self._update_desired_job_list(session, desired_job_list)
             if session.previous_session_file():
-                if self.ask_for_resume():
+                if self.is_interactive and self.ask_for_resume():
                     session.resume()
                     self._maybe_skip_last_job_after_resume(session)
                 else:
@@ -171,7 +171,7 @@ class _ServerInvocation(CheckBoxInvocationMixIn):
             session.persistent_save()
             # Ask the password before anything else in order to run jobs
             # requiring privileges
-            if self._auth_warmup_needed(session):
+            if self.is_interactive and self._auth_warmup_needed(session):
                 print("[ Authentication ]".center(80, '='))
                 return_code = authenticate_warmup()
                 if return_code:
@@ -184,6 +184,8 @@ class _ServerInvocation(CheckBoxInvocationMixIn):
             self._save_results(session)
             if self.config.secure_id is Unset:
                 again = True
+                if not self.is_interactive:
+                    again = False
                 while again:
                     if self.ask_user(
                         "\nSubmit results to certification.canonical.com?",

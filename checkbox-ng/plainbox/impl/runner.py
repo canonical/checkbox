@@ -224,11 +224,11 @@ class JobRunner(IJobRunner):
         self._command_io_delegate = command_io_delegate
         self._dry_run = dry_run
         self._execution_ctrl_list = [
-            RootViaPTL1ExecutionController(session_dir),
-            RootViaPkexecExecutionController(session_dir),
+            RootViaPTL1ExecutionController(session_dir, provider_list),
+            RootViaPkexecExecutionController(session_dir, provider_list),
             # XXX: maybe this one should be only used on command line
-            RootViaSudoExecutionController(session_dir),
-            UserJobExecutionController(session_dir),
+            RootViaSudoExecutionController(session_dir, provider_list),
+            UserJobExecutionController(session_dir, provider_list),
         ]
 
     def run_job(self, job, config=None):

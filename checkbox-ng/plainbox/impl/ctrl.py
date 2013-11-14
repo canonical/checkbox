@@ -310,7 +310,7 @@ class CheckBoxExecutionController(IExecutionController):
     controllers.
     """
 
-    def __init__(self, session_dir):
+    def __init__(self, session_dir, provider_list):
         """
         Initialize a new CheckBoxExecutionController
 
@@ -318,8 +318,13 @@ class CheckBoxExecutionController(IExecutionController):
             Base directory of the session this job will execute in.
             This directory is used to co-locate some data that is unique to
             this execution as well as data that is shared by all executions.
+        :param provider_list:
+            A list of Provider1 objects that will be available for script
+            dependency resolutions. Currently all of the scripts are makedirs
+            available but this will be refined to the minimal set later.
         """
         self._session_dir = session_dir
+        self._provider_list = provider_list
 
     def execute_job(self, job, config, extcmd_popen):
         """
@@ -668,7 +673,7 @@ class RootViaSudoExecutionController(CheckBoxExecutionController):
     and over again.
     """
 
-    def __init__(self, session_dir):
+    def __init__(self, session_dir, provider_list):
         """
         Initialize a new CheckBoxExecutionController
 
@@ -677,7 +682,7 @@ class RootViaSudoExecutionController(CheckBoxExecutionController):
             This directory is used to co-locate some data that is unique to
             this execution as well as data that is shared by all executions.
         """
-        super().__init__(session_dir)
+        super().__init__(session_dir, provider_list)
         # Check if the user can use 'sudo' on this machine. This check is a bit
         # Ubuntu specific and can be wrong due to local configuration but
         # without a better API all we can do is guess.

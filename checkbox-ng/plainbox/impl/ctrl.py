@@ -302,6 +302,36 @@ def gen_rfc822_records_from_io_log(job, result):
 checkbox_session_state_ctrl = CheckBoxSessionStateController()
 
 
+class SymLinkNest:
+    """
+    A class for setting up a control directory with symlinked executables
+    """
+
+    def __init__(self, dirname):
+        self._dirname = dirname
+
+    def add_provider(self, provider):
+        """
+        Add all of the executables associated a particular provider
+
+        :param provider:
+            A Provider1 instance
+        """
+        for filename in provider.get_all_executables():
+            self.add_executable(filename)
+
+    def add_executable(self, filename):
+        """
+        Add a executable to the control directory
+        """
+        logger.debug(
+            "Adding executable %s to nest %s",
+            filename, self._dirname)
+        os.symlink(
+            filename, os.path.join(
+                self._dirname, os.path.basename(filename)))
+
+
 class CheckBoxExecutionController(IExecutionController):
     """
     Base class for checkbox-like execution controllers.

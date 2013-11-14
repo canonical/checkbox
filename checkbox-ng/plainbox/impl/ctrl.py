@@ -39,6 +39,7 @@ import itertools
 import logging
 import os
 import posix
+import tempfile
 
 from plainbox.abc import IExecutionController
 from plainbox.abc import IJobResult
@@ -381,9 +382,21 @@ class CheckBoxExecutionController(IExecutionController):
         # It has to be an directory that scripts can assume exists.
         if not os.path.isdir(self.CHECKBOX_DATA):
             os.makedirs(self.CHECKBOX_DATA)
-        # run the command
-        logger.debug("job[%s] executing %r with env %r", job.name, cmd, env)
-        return extcmd_popen.call(cmd, env=env)
+        # Create a nest for all the private executables needed for execution
+        prefix = 'nest-'
+        suffix = '.{}'.format(job.checksum)
+        with tempfile.TemporaryDirectory(suffix, prefix) as nest_dir:
+            logger.debug("Symlink nest for executables: %s", nest_dir)
+            nest = SymLinkNest(nest_dir)
+            # Add all providers executables to PATH
+            for provider in self._provider_list:
+                nest.add_provider(provider)
+            # Inject nest_dir into PATH
+            env['PATH'] = nest_dir + ':' + env['PATH']
+            # run the command
+            logger.debug("job[%s] executing %r with env %r",
+                         job.name, cmd, env)
+            return extcmd_popen.call(cmd, env=env)
 
     def get_score(self, job):
         """
@@ -458,10 +471,6 @@ class CheckBoxExecutionController(IExecutionController):
             env['PYTHONPATH'] = os.pathsep.join(
                 [job.provider.extra_PYTHONPATH]
                 + env.get("PYTHONPATH", "").split(os.pathsep))
-        # Update PATH so that scripts can be found
-        env['PATH'] = os.pathsep.join(
-            [job.provider.extra_PATH]
-            + env.get("PATH", "").split(os.pathsep))
         # Add CHECKBOX_SHARE that is needed by one script
         env['CHECKBOX_SHARE'] = job.provider.CHECKBOX_SHARE
         # Add CHECKBOX_DATA (temporary checkbox data)

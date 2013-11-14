@@ -132,7 +132,7 @@ class CheckBoxSrcProvider(Provider1):
         return os.path.join(self._base_dir, "data", "whitelists")
 
     @property
-    def scripts_dir(self):
+    def bin_dir(self):
         """
         Return an absolute path of the scripts directory
 
@@ -149,7 +149,7 @@ class CheckBoxSrcProvider(Provider1):
 
         This entry is required to lookup CheckBox scripts.
         """
-        return self.scripts_dir
+        return self.bin_dir
 
 
 class StubBoxProvider(Provider1):

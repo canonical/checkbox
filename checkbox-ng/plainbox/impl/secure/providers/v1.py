@@ -182,6 +182,24 @@ class Provider1(IProvider1, IProviderBackend1):
                         os.path.join(self.jobs_dir, name)))
         return sorted(job_list, key=lambda job: job.name)
 
+    def get_all_executables(self):
+        """
+        Discover and return all executables offered by this provider
+        """
+        executable_list = []
+        try:
+            items = os.listdir(self.bin_dir)
+        except OSError as exc:
+            if exc.errno == errno.ENOENT:
+                items = []
+            else:
+                raise
+        for name in items:
+            filename = os.path.join(self.bin_dir, name)
+            if os.access(filename, os.F_OK | os.X_OK):
+                executable_list.append(filename)
+        return sorted(executable_list)
+
     def load_jobs(self, somewhere):
         """
         Load job definitions from somewhere

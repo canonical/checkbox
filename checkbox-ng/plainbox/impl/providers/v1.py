@@ -88,6 +88,9 @@ class DummyProvider1(IProvider1, IProviderBackend1):
     def get_builtin_jobs(self):
         return self._job_list
 
+    def get_all_executables(self):
+        return self._extras.get("get_all_executables", [])
+
 
 def get_default_PROVIDERPATH():
     """

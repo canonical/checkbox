@@ -201,7 +201,7 @@ class JobRunner(IJobRunner):
     # List of plugins that are still executed
     _DRY_RUN_PLUGINS = ('local', 'resource', 'attachment')
 
-    def __init__(self, session_dir, jobs_io_log_dir,
+    def __init__(self, session_dir, provider_list, jobs_io_log_dir,
                  command_io_delegate=None, dry_run=False):
         """
         Initialize a new job runner.
@@ -224,11 +224,11 @@ class JobRunner(IJobRunner):
         self._command_io_delegate = command_io_delegate
         self._dry_run = dry_run
         self._execution_ctrl_list = [
-            RootViaPTL1ExecutionController(session_dir),
-            RootViaPkexecExecutionController(session_dir),
+            RootViaPTL1ExecutionController(session_dir, provider_list),
+            RootViaPkexecExecutionController(session_dir, provider_list),
             # XXX: maybe this one should be only used on command line
-            RootViaSudoExecutionController(session_dir),
-            UserJobExecutionController(session_dir),
+            RootViaSudoExecutionController(session_dir, provider_list),
+            UserJobExecutionController(session_dir, provider_list),
         ]
 
     def run_job(self, job, config=None):

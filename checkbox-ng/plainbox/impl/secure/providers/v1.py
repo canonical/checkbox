@@ -129,17 +129,6 @@ class Provider1(IProvider1, IProviderBackend1):
         return None
 
     @property
-    def extra_PATH(self):
-        """
-        Return additional entry for PATH
-
-        This entry is required to lookup CheckBox scripts.
-        """
-        # NOTE: This is always the script directory. The actual logic for
-        # locating it is implemented in the property accessors.
-        return self.bin_dir
-
-    @property
     def secure(self):
         """
         flag indicating that this provider was loaded from the secure portion
@@ -181,6 +170,24 @@ class Provider1(IProvider1, IProviderBackend1):
                     self.load_jobs(
                         os.path.join(self.jobs_dir, name)))
         return sorted(job_list, key=lambda job: job.name)
+
+    def get_all_executables(self):
+        """
+        Discover and return all executables offered by this provider
+        """
+        executable_list = []
+        try:
+            items = os.listdir(self.bin_dir)
+        except OSError as exc:
+            if exc.errno == errno.ENOENT:
+                items = []
+            else:
+                raise
+        for name in items:
+            filename = os.path.join(self.bin_dir, name)
+            if os.access(filename, os.F_OK | os.X_OK):
+                executable_list.append(filename)
+        return sorted(executable_list)
 
     def load_jobs(self, somewhere):
         """

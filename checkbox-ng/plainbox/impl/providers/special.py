@@ -76,7 +76,7 @@ class CheckBoxSrcProvider(Provider1):
     changed before we can stop using the old checkbox codebase.
 
     1) The location for provider-specific executables is '$base/scripts'. This
-       is implemented by custom :attr:`extra_PATH` and :attr:`scripts_dir`.
+       is implemented by custom :attr:`bin_dir  `.
 
     2) The location for whitelists is '$base/data/whitelists'. This is
        implemented by custom :attr:`whitelists_dir`.
@@ -132,7 +132,7 @@ class CheckBoxSrcProvider(Provider1):
         return os.path.join(self._base_dir, "data", "whitelists")
 
     @property
-    def scripts_dir(self):
+    def bin_dir(self):
         """
         Return an absolute path of the scripts directory
 
@@ -141,15 +141,6 @@ class CheckBoxSrcProvider(Provider1):
             CHECKBOX_SHARE.
         """
         return os.path.join(self._base_dir, "scripts")
-
-    @property
-    def extra_PATH(self):
-        """
-        Return additional entry for PATH
-
-        This entry is required to lookup CheckBox scripts.
-        """
-        return self.scripts_dir
 
 
 class StubBoxProvider(Provider1):

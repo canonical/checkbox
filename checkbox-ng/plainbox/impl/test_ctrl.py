@@ -445,11 +445,12 @@ class CheckBoxExecutionControllerTestsMixIn:
     """
 
     SESSION_DIR = 'session-dir'
+    PROVIDER_LIST = []  # we don't need any here
 
     CLS = CheckBoxExecutionController
 
     def setUp(self):
-        self.ctrl = self.CLS(self.SESSION_DIR)
+        self.ctrl = self.CLS(self.SESSION_DIR, self.PROVIDER_LIST)
         # Create mocked job definition.
         # Put a mocked provider on the job and give it some values for:
         # * extra_PYTHONPATH (optional, set it to None),
@@ -481,8 +482,10 @@ class CheckBoxExecutionControllerTestsMixIn:
         verify that __init__() stores session_dir
         """
         session_dir = mock.Mock()
-        ctrl = self.CLS(session_dir)
+        provider_list = mock.Mock()
+        ctrl = self.CLS(session_dir, provider_list)
         self.assertIs(ctrl._session_dir, session_dir)
+        self.assertIs(ctrl._provider_list, provider_list)
 
     @mock.patch('os.path.isdir')
     @mock.patch('os.makedirs')
@@ -564,13 +567,6 @@ class UserJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
         env = self.ctrl.get_execution_environment(self.job, self.config)
         # Ensure that LANG is rese to C.UTF-8
         self.assertEqual(env['LANG'], 'C.UTF-8')
-
-    @mock.patch.dict('os.environ', clear=True)
-    def test_get_execution_environment_extends_PATH(self):
-        # Call the tested method
-        env = self.ctrl.get_execution_environment(self.job, self.config)
-        # Ensure that PATH has provider.extra_PATH in front
-        self.assertTrue(env['PATH'].startswith(self.job.provider.extra_PATH))
 
     @mock.patch.dict('os.environ', clear=True, PYTHONPATH='PYTHONPATH')
     def test_get_execution_environment_keeps_PYTHONPATH(self):
@@ -783,7 +779,7 @@ class RootViaSudoExecutionControllerTests(
         # Mock that the current user is a member of group 1 ('sudo')
         mock_getgroups.return_value = [self.SUDO]
         # Create a fresh execution controller
-        ctrl = self.CLS(self.SESSION_DIR)
+        ctrl = self.CLS(self.SESSION_DIR, self.PROVIDER_LIST)
         # Ensure that the user can use sudo
         self.assertTrue(ctrl.user_can_sudo)
 
@@ -796,7 +792,7 @@ class RootViaSudoExecutionControllerTests(
         # Mock that the current user is a member of group 1 ('admin')
         mock_getgroups.return_value = [self.ADMIN]
         # Create a fresh execution controller
-        ctrl = self.CLS(self.SESSION_DIR)
+        ctrl = self.CLS(self.SESSION_DIR, self.PROVIDER_LIST)
         # Ensure that the user can use sudo
         self.assertTrue(ctrl.user_can_sudo)
 
@@ -809,7 +805,7 @@ class RootViaSudoExecutionControllerTests(
         # Mock that the current user not a member of any group
         mock_getgroups.return_value = []
         # Create a fresh execution controller
-        ctrl = self.CLS(self.SESSION_DIR)
+        ctrl = self.CLS(self.SESSION_DIR, self.PROVIDER_LIST)
         # Ensure that the user can use sudo
         self.assertFalse(ctrl.user_can_sudo)
 

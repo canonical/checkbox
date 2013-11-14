@@ -39,6 +39,7 @@ import itertools
 import logging
 import os
 import posix
+import tempfile
 
 from plainbox.abc import IExecutionController
 from plainbox.abc import IJobResult
@@ -302,6 +303,36 @@ def gen_rfc822_records_from_io_log(job, result):
 checkbox_session_state_ctrl = CheckBoxSessionStateController()
 
 
+class SymLinkNest:
+    """
+    A class for setting up a control directory with symlinked executables
+    """
+
+    def __init__(self, dirname):
+        self._dirname = dirname
+
+    def add_provider(self, provider):
+        """
+        Add all of the executables associated a particular provider
+
+        :param provider:
+            A Provider1 instance
+        """
+        for filename in provider.get_all_executables():
+            self.add_executable(filename)
+
+    def add_executable(self, filename):
+        """
+        Add a executable to the control directory
+        """
+        logger.debug(
+            "Adding executable %s to nest %s",
+            filename, self._dirname)
+        os.symlink(
+            filename, os.path.join(
+                self._dirname, os.path.basename(filename)))
+
+
 class CheckBoxExecutionController(IExecutionController):
     """
     Base class for checkbox-like execution controllers.
@@ -310,7 +341,7 @@ class CheckBoxExecutionController(IExecutionController):
     controllers.
     """
 
-    def __init__(self, session_dir):
+    def __init__(self, session_dir, provider_list):
         """
         Initialize a new CheckBoxExecutionController
 
@@ -318,8 +349,13 @@ class CheckBoxExecutionController(IExecutionController):
             Base directory of the session this job will execute in.
             This directory is used to co-locate some data that is unique to
             this execution as well as data that is shared by all executions.
+        :param provider_list:
+            A list of Provider1 objects that will be available for script
+            dependency resolutions. Currently all of the scripts are makedirs
+            available but this will be refined to the minimal set later.
         """
         self._session_dir = session_dir
+        self._provider_list = provider_list
 
     def execute_job(self, job, config, extcmd_popen):
         """
@@ -346,9 +382,21 @@ class CheckBoxExecutionController(IExecutionController):
         # It has to be an directory that scripts can assume exists.
         if not os.path.isdir(self.CHECKBOX_DATA):
             os.makedirs(self.CHECKBOX_DATA)
-        # run the command
-        logger.debug("job[%s] executing %r with env %r", job.name, cmd, env)
-        return extcmd_popen.call(cmd, env=env)
+        # Create a nest for all the private executables needed for execution
+        prefix = 'nest-'
+        suffix = '.{}'.format(job.checksum)
+        with tempfile.TemporaryDirectory(suffix, prefix) as nest_dir:
+            logger.debug("Symlink nest for executables: %s", nest_dir)
+            nest = SymLinkNest(nest_dir)
+            # Add all providers executables to PATH
+            for provider in self._provider_list:
+                nest.add_provider(provider)
+            # Inject nest_dir into PATH
+            env['PATH'] = nest_dir + ':' + env['PATH']
+            # run the command
+            logger.debug("job[%s] executing %r with env %r",
+                         job.name, cmd, env)
+            return extcmd_popen.call(cmd, env=env)
 
     def get_score(self, job):
         """
@@ -423,10 +471,6 @@ class CheckBoxExecutionController(IExecutionController):
             env['PYTHONPATH'] = os.pathsep.join(
                 [job.provider.extra_PYTHONPATH]
                 + env.get("PYTHONPATH", "").split(os.pathsep))
-        # Update PATH so that scripts can be found
-        env['PATH'] = os.pathsep.join(
-            [job.provider.extra_PATH]
-            + env.get("PATH", "").split(os.pathsep))
         # Add CHECKBOX_SHARE that is needed by one script
         env['CHECKBOX_SHARE'] = job.provider.CHECKBOX_SHARE
         # Add CHECKBOX_DATA (temporary checkbox data)
@@ -668,7 +712,7 @@ class RootViaSudoExecutionController(CheckBoxExecutionController):
     and over again.
     """
 
-    def __init__(self, session_dir):
+    def __init__(self, session_dir, provider_list):
         """
         Initialize a new CheckBoxExecutionController
 
@@ -677,7 +721,7 @@ class RootViaSudoExecutionController(CheckBoxExecutionController):
             This directory is used to co-locate some data that is unique to
             this execution as well as data that is shared by all executions.
         """
-        super().__init__(session_dir)
+        super().__init__(session_dir, provider_list)
         # Check if the user can use 'sudo' on this machine. This check is a bit
         # Ubuntu specific and can be wrong due to local configuration but
         # without a better API all we can do is guess.

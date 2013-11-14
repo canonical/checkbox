@@ -72,8 +72,8 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
         print("[Running Local Jobs]".center(80, '='))
         with self.session.open():
             runner = JobRunner(
-                self.session.session_dir, self.session.jobs_io_log_dir,
-                command_io_delegate=self)
+                self.session.session_dir, self.provider_list,
+                self.session.jobs_io_log_dir, command_io_delegate=self)
             again = True
             while again:
                 for job in self.session.run_list:

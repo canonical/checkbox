@@ -233,7 +233,7 @@ class IQNValidator(PatternValidator):
 
     def __init__(self):
         super(IQNValidator, self).__init__(
-            "[0-9]{4}\.[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*)+:[a-z][a-z0-9-]+")
+            "[0-9]{4}\.[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*)+:[a-z][a-z0-9-]*")
 
     def __call__(self, variable, new_value):
         if super(IQNValidator, self).__call__(variable, new_value):

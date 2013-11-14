@@ -261,7 +261,7 @@ class Service:
 
         :returns: a primed job, ready to be started
         """
-        return PrimedJob(self, session, job)
+        return PrimedJob(self, session, self._provider_list, job)
 
 
 class PrimedJob:
@@ -269,7 +269,7 @@ class PrimedJob:
     Job primed for execution.
     """
 
-    def __init__(self, service, session, job):
+    def __init__(self, service, session, provider_list, job):
         """
         Initialize a primed job.
 
@@ -278,6 +278,7 @@ class PrimedJob:
         """
         self._service = service
         self._session = session
+        self._provider_list = provider_list
         self._job = job
         self._runner = JobRunner(
             session.session_dir,

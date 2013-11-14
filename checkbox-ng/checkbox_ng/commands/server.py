@@ -177,9 +177,8 @@ class _ServerInvocation(CheckBoxInvocationMixIn):
                 if return_code:
                     raise SystemExit(return_code)
             runner = JobRunner(
-                session.session_dir,
-                session.jobs_io_log_dir,
-            )
+                session.session_dir, self.provider_list,
+                session.jobs_io_log_dir)
             self._run_jobs_with_session(ns, session, runner)
             self._save_results(session)
             if self.config.secure_id is Unset:

@@ -96,11 +96,9 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
         with self.session.open():
             self._set_job_selection()
             self.runner = JobRunner(
-                self.session.session_dir,
-                self.session.jobs_io_log_dir,
-                command_io_delegate=self,
-                dry_run=self.ns.dry_run
-            )
+                self.session.session_dir, self.provider_list,
+                self.session.jobs_io_log_dir, command_io_delegate=self,
+                dry_run=self.ns.dry_run)
             self._run_all_jobs()
             if self.config.fallback_file is not Unset:
                 self._save_results()

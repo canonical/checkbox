@@ -76,8 +76,8 @@ class DummyProvider1(IProvider1, IProviderBackend1):
         return self._extras.get("PYTHONPATH")
 
     @property
-    def extra_PATH(self):
-        return self._extras.get("PATH", "")
+    def bin_dir(self):
+        return self._extras.get("bin_dir")
 
     def secure(self):
         return False

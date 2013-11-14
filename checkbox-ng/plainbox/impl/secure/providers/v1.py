@@ -129,17 +129,6 @@ class Provider1(IProvider1, IProviderBackend1):
         return None
 
     @property
-    def extra_PATH(self):
-        """
-        Return additional entry for PATH
-
-        This entry is required to lookup CheckBox scripts.
-        """
-        # NOTE: This is always the script directory. The actual logic for
-        # locating it is implemented in the property accessors.
-        return self.bin_dir
-
-    @property
     def secure(self):
         """
         flag indicating that this provider was loaded from the secure portion

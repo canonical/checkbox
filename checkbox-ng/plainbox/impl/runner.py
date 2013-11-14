@@ -201,7 +201,7 @@ class JobRunner(IJobRunner):
     # List of plugins that are still executed
     _DRY_RUN_PLUGINS = ('local', 'resource', 'attachment')
 
-    def __init__(self, session_dir, jobs_io_log_dir,
+    def __init__(self, session_dir, provider_list, jobs_io_log_dir,
                  command_io_delegate=None, dry_run=False):
         """
         Initialize a new job runner.

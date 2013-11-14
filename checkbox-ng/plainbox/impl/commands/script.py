@@ -64,7 +64,7 @@ class ScriptInvocation(CheckBoxInvocationMixIn):
             print("Selected job does not have a command")
             return 125
         with TemporaryDirectory() as scratch, TemporaryDirectory() as iologs:
-            runner = JobRunner(scratch, iologs)
+            runner = JobRunner(scratch, self.provider_list, iologs)
             bait_dir = os.path.join(scratch, 'files-created-in-current-dir')
             os.mkdir(bait_dir)
             with TestCwd(bait_dir):

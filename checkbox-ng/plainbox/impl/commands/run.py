@@ -196,10 +196,8 @@ class RunInvocation(CheckBoxInvocationMixIn):
                 if return_code:
                     raise SystemExit(return_code)
             runner = JobRunner(
-                session.session_dir,
-                session.jobs_io_log_dir,
-                dry_run=ns.dry_run
-            )
+                session.session_dir, self.provider_list,
+                session.jobs_io_log_dir, dry_run=ns.dry_run)
             self._run_jobs_with_session(ns, session, runner)
             # Get a stream with exported session data.
             exported_stream = io.BytesIO()

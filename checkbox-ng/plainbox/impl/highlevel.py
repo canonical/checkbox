@@ -282,6 +282,7 @@ class PrimedJob:
         self._job = job
         self._runner = JobRunner(
             session.session_dir,
+            self._provider_list,
             session.jobs_io_log_dir,
             # Pass a dummy IO delegate, we don't want to get any tracing here
             # Later on this could be configurable but it's better if it's

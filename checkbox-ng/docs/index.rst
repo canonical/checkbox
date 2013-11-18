@@ -53,6 +53,7 @@ Table of contents
    :maxdepth: 2
 
    scripts/index.rst
+   release.rst
 
 Indices and tables
 ==================

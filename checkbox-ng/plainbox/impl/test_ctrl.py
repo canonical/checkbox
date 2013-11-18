@@ -491,7 +491,6 @@ class CheckBoxExecutionControllerTestsMixIn:
         # Create mocked job definition.
         # Put a mocked provider on the job and give it some values for:
         # * extra_PYTHONPATH (optional, set it to None),
-        # * extra_PATH (mandatory)
         # * CHECKBOX_SHARE (mandatory)
         self.job = mock.Mock(
             name='job',
@@ -500,7 +499,6 @@ class CheckBoxExecutionControllerTestsMixIn:
                 name='provider',
                 spec=IProvider1,
                 extra_PYTHONPATH=None,
-                extra_PATH='extra_PATH',
                 CHECKBOX_SHARE='CHECKBOX_SHARE'))
         # Create mocked config.
         # Put an empty dictionary of environment overrides

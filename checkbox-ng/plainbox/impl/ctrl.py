@@ -818,13 +818,10 @@ class RootViaSudoExecutionController(CheckBoxExecutionController):
             A directory with a nest of symlinks to all executables required to
             execute the specified job. Ingored.
 
-        Since we cannot pass environment in the ordinary way while using pkxec
-        (pkexec starts new processes in a sanitized, pristine, environment)
-        we're relying on env(1) to pass some of the environment variables that
-        we require.
+        The only special thing to note is that we pass the -E flag to pass all
+        of the current environment to the process started with sudo. This saves
+        us from having to push all of the variables via env(1) as a hack.
         """
-        # Use sudo(8) to run the command as the required user passing -E to
-        # preserve the current environment.
         return ['sudo', '-u', job.user, '-E', 'bash', '-c', job.command]
 
     def get_checkbox_score(self, job):

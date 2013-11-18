@@ -578,7 +578,7 @@ class CheckBoxDifferentialExecutionController(CheckBoxExecutionController):
         return {
             key: value
             for key, value in target_env.items()
-            if key not in base_env or target_env[key] != value
+            if key not in base_env or base_env[key] != value
             or key in job.get_environ_settings()
         }
 

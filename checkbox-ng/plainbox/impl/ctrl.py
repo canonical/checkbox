@@ -34,6 +34,7 @@ circumstances.
 """
 
 import abc
+import contextlib
 import grp
 import itertools
 import logging
@@ -374,14 +375,39 @@ class CheckBoxExecutionController(IExecutionController):
         :returns:
             The return code of the command, as returned by subprocess.call()
         """
-        # Get the command and the environment.
-        # of this execution controller
-        cmd = self.get_execution_command(job, config)
-        env = self.get_execution_environment(job, config)
         # CHECKBOX_DATA is where jobs can share output.
         # It has to be an directory that scripts can assume exists.
         if not os.path.isdir(self.CHECKBOX_DATA):
             os.makedirs(self.CHECKBOX_DATA)
+        # Setup the executable nest directory
+        with self.configured_filesystem(config, job) as nest_dir:
+            # Get the command and the environment.
+            # of this execution controller
+            cmd = self.get_execution_command(job, config)
+            env = self.get_execution_environment(job, config)
+            # Inject nest_dir into PATH
+            env['PATH'] = nest_dir + ':' + env['PATH']
+            # run the command
+            logger.debug("job[%s] executing %r with env %r",
+                         job.name, cmd, env)
+            return extcmd_popen.call(cmd, env=env)
+
+    @contextlib.contextmanager
+    def configured_filesystem(self, job, config):
+        """
+        Context manager for handling filesystem aspects of job execution.
+
+        :param job:
+            The JobDefinition to execute
+        :param config:
+            A PlainBoxConfig instance which can be used to load missing
+            environment definitions that apply to all jobs. It is used to
+            provide values for missing environment variables that are required
+            by the job (as expressed by the environ key in the job definition
+            file).
+        :returns:
+            Pathname of the executable symlink nest directory.
+        """
         # Create a nest for all the private executables needed for execution
         prefix = 'nest-'
         suffix = '.{}'.format(job.checksum)
@@ -391,12 +417,8 @@ class CheckBoxExecutionController(IExecutionController):
             # Add all providers executables to PATH
             for provider in self._provider_list:
                 nest.add_provider(provider)
-            # Inject nest_dir into PATH
-            env['PATH'] = nest_dir + ':' + env['PATH']
-            # run the command
-            logger.debug("job[%s] executing %r with env %r",
-                         job.name, cmd, env)
-            return extcmd_popen.call(cmd, env=env)
+            logger.debug("Symlink nest for executables: %s", nest_dir)
+            yield nest_dir
 
     def get_score(self, job):
         """

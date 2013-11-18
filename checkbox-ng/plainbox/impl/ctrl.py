@@ -763,7 +763,8 @@ class RootViaPkexecExecutionController(
             return 0
 
 
-class RootViaSudoExecutionController(CheckBoxExecutionController):
+class RootViaSudoExecutionController(
+        CheckBoxDifferentialExecutionController):
     """
     Execution controller that gains root by using sudo.
 
@@ -818,11 +819,21 @@ class RootViaSudoExecutionController(CheckBoxExecutionController):
             A directory with a nest of symlinks to all executables required to
             execute the specified job. Ingored.
 
-        The only special thing to note is that we pass the -E flag to pass all
-        of the current environment to the process started with sudo. This saves
-        us from having to push all of the variables via env(1) as a hack.
+        Since we cannot pass environment in the ordinary way while using
+        sudo(8) (even passing -E doesn't get us everything due to security
+        features built into sudo itself) we're relying on env(1) to pass some
+        of the environment variables that we require.
         """
-        return ['sudo', '-u', job.user, '-E', 'bash', '-c', job.command]
+        # Run env(1) as the required user
+        cmd = ['sudo', '-u', job.user, 'env']
+        # Append all environment data
+        env = self.get_differential_execution_environment(
+            job, config, nest_dir)
+        cmd += ["{key}={value}".format(key=key, value=value)
+                for key, value in sorted(env.items())]
+        # Lastly use bash -c, to run our command
+        cmd += ['bash', '-c', job.command]
+        return cmd
 
     def get_checkbox_score(self, job):
         """

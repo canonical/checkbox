@@ -25,6 +25,7 @@ Test definitions for plainbox.impl.ctrl module
 """
 
 from unittest import TestCase
+import os
 
 from plainbox.abc import IJobResult
 from plainbox.abc import IProvider1
@@ -820,15 +821,22 @@ class RootViaSudoExecutionControllerTests(
 
     CLS = RootViaSudoExecutionController
 
+    @mock.patch.dict('os.environ', clear=True, PATH='vanilla-path')
     def test_get_command(self):
         """
         verify that we run sudo(8)
         """
         self.job.get_environ_settings.return_value = []
         self.assertEqual(
-            self.ctrl.get_execution_command(self.job, self.config), [
-                'sudo', '-u', self.job.user, '-E',
-                'bash', '-c', self.job.command])
+            self.ctrl.get_execution_command(
+                self.job, self.config, self.NEST_DIR),
+            ['sudo', '-u', self.job.user, 'env',
+             'CHECKBOX_DATA=session-dir/CHECKBOX_DATA',
+             'CHECKBOX_SHARE=CHECKBOX_SHARE',
+             'LANG=C.UTF-8',
+             'PATH={}'.format(
+                 os.pathsep.join([self.NEST_DIR, 'vanilla-path'])),
+             'bash', '-c', self.job.command])
 
     SUDO, ADMIN = range(2)
 

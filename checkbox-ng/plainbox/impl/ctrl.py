@@ -783,7 +783,7 @@ class RootViaSudoExecutionController(
 
     def __init__(self, session_dir, provider_list):
         """
-        Initialize a new CheckBoxExecutionController
+        Initialize a new RootViaSudoExecutionController
 
         :param session_dir:
             Base directory of the session this job will execute in.

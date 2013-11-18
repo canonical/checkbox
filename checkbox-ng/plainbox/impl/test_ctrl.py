@@ -34,6 +34,7 @@ from plainbox.impl.ctrl import CheckBoxSessionStateController
 from plainbox.impl.ctrl import RootViaPTL1ExecutionController
 from plainbox.impl.ctrl import RootViaPkexecExecutionController
 from plainbox.impl.ctrl import RootViaSudoExecutionController
+from plainbox.impl.ctrl import SymLinkNest
 from plainbox.impl.ctrl import UserJobExecutionController
 from plainbox.impl.ctrl import gen_rfc822_records_from_io_log
 from plainbox.impl.depmgr import DependencyDuplicateError
@@ -437,6 +438,42 @@ class FunctionTests(TestCase):
             "local script %s returned invalid RFC822 data: %s",
             job, RFC822SyntaxError(
                 None, 3, "Unexpected non-empty line"))
+
+
+class SymLinkNestTests(TestCase):
+    """
+    Tests for SymLinkNest class
+    """
+
+    NEST_DIR = "nest"
+
+    def setUp(self):
+        self.nest = SymLinkNest(self.NEST_DIR)
+
+    def test_init(self):
+        """
+        verify that SymLinkNest.__init__() stores its argument
+        """
+        self.assertEqual(self.nest._dirname, self.NEST_DIR)
+
+    def test_add_provider(self):
+        """
+        verify that add_provider() adds each executable
+        """
+        provider = mock.Mock(name='provider', spec=Provider1)
+        provider.get_all_executables.return_value = ['exec1', 'exec2']
+        with mock.patch.object(self.nest, 'add_executable'):
+            self.nest.add_provider(provider)
+            self.nest.add_executable.assert_has_calls([
+                (('exec1',), {}),
+                (('exec2',), {})])
+        provider.get_all_executables.assert_called_once()
+
+    @mock.patch('os.symlink')
+    def test_add_executable(self, mock_symlink):
+        self.nest.add_executable('/usr/lib/foo/exec')
+        mock_symlink.assert_called_with(
+            '/usr/lib/foo/exec', 'nest/exec')
 
 
 class CheckBoxExecutionControllerTestsMixIn:

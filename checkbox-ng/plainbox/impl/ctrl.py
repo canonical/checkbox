@@ -380,13 +380,11 @@ class CheckBoxExecutionController(IExecutionController):
         if not os.path.isdir(self.CHECKBOX_DATA):
             os.makedirs(self.CHECKBOX_DATA)
         # Setup the executable nest directory
-        with self.configured_filesystem(config, job) as nest_dir:
+        with self.configured_filesystem(job, config) as nest_dir:
             # Get the command and the environment.
             # of this execution controller
-            cmd = self.get_execution_command(job, config)
-            env = self.get_execution_environment(job, config)
-            # Inject nest_dir into PATH
-            env['PATH'] = nest_dir + ':' + env['PATH']
+            cmd = self.get_execution_command(job, config, nest_dir)
+            env = self.get_execution_environment(job, config, nest_dir)
             # run the command
             logger.debug("job[%s] executing %r with env %r",
                          job.name, cmd, env)
@@ -448,7 +446,7 @@ class CheckBoxExecutionController(IExecutionController):
         """
 
     @abc.abstractmethod
-    def get_execution_command(self, job, config):
+    def get_execution_command(self, job, config, nest_dir):
         """
         Get the command to execute the specified job
 
@@ -460,11 +458,16 @@ class CheckBoxExecutionController(IExecutionController):
             provide values for missing environment variables that are required
             by the job (as expressed by the environ key in the job definition
             file).
+        :param nest_dir:
+            A directory with a nest of symlinks to all executables required to
+            execute the specified job. This argument may or may not be used,
+            depending on how PATH is passed to the command (via environment or
+            via the commant line)
         :returns:
             List of command arguments
         """
 
-    def get_execution_environment(self, job, config):
+    def get_execution_environment(self, job, config, nest_dir):
         """
         Get the environment required to execute the specified job:
 
@@ -476,6 +479,11 @@ class CheckBoxExecutionController(IExecutionController):
             provide values for missing environment variables that are required
             by the job (as expressed by the environ key in the job definition
             file).
+        :param nest_dir:
+            A directory with a nest of symlinks to all executables required to
+            execute the specified job. This argument may or may not be used,
+            depending on how PATH is passed to the command (via environment or
+            via the commant line)
         :return:
             dictionary with the environment to use.
 
@@ -498,6 +506,10 @@ class CheckBoxExecutionController(IExecutionController):
             env['PYTHONPATH'] = os.pathsep.join(
                 [job.provider.extra_PYTHONPATH]
                 + env.get("PYTHONPATH", "").split(os.pathsep))
+        # Inject nest_dir into PATH
+        env['PATH'] = os.pathsep.join(
+            [nest_dir]
+            + env.get("PATH", "").split(os.pathsep))
         # Add CHECKBOX_SHARE that is needed by one script
         env['CHECKBOX_SHARE'] = job.provider.CHECKBOX_SHARE
         # Add CHECKBOX_DATA (temporary checkbox data)
@@ -531,7 +543,7 @@ class UserJobExecutionController(CheckBoxExecutionController):
     An execution controller that works for jobs invoked as the current user.
     """
 
-    def get_execution_command(self, job, config):
+    def get_execution_command(self, job, config, nest_dir):
         """
         Get the command to execute the specified job
 
@@ -539,10 +551,10 @@ class UserJobExecutionController(CheckBoxExecutionController):
             job definition with the command and environment definitions
         :param config:
             A PlainBoxConfig instance which can be used to load missing
-            environment definitions that apply to all jobs. It is used to
-            provide values for missing environment variables that are required
-            by the job (as expressed by the environ key in the job definition
-            file).
+            environment definitions that apply to all jobs. Ignored.
+        :param nest_dir:
+            A directory with a nest of symlinks to all executables required to
+            execute the specified job. Ingored.
         :returns:
             List of command arguments
 
@@ -573,7 +585,7 @@ class CheckBoxDifferentialExecutionController(CheckBoxExecutionController):
     difference between the target environment and the current environment.
     """
 
-    def get_differential_execution_environment(self, job, config):
+    def get_differential_execution_environment(self, job, config, nest_dir):
         """
         Get the environment required to execute the specified job:
 
@@ -585,6 +597,10 @@ class CheckBoxDifferentialExecutionController(CheckBoxExecutionController):
             provide values for missing environment variables that are required
             by the job (as expressed by the environ key in the job definition
             file).
+        :param nest_dir:
+            A directory with a nest of symlinks to all executables required to
+            execute the specified job. This is simply passed to
+            :meth:`get_execution_environment()` directly.
         :returns:
             Differential environment (see below).
 
@@ -596,7 +612,7 @@ class CheckBoxDifferentialExecutionController(CheckBoxExecutionController):
         are always retained.
         """
         base_env = os.environ
-        target_env = super().get_execution_environment(job, config)
+        target_env = super().get_execution_environment(job, config, nest_dir)
         return {
             key: value
             for key, value in target_env.items()
@@ -604,18 +620,19 @@ class CheckBoxDifferentialExecutionController(CheckBoxExecutionController):
             or key in job.get_environ_settings()
         }
 
-    def get_execution_environment(self, job, config):
+    def get_execution_environment(self, job, config, nest_dir):
         """
         Get the environment required to execute the specified job:
 
         :param job:
-            job definition with the command and environment definitions
+            job definition with the command and environment definitions.
+            Ignored.
         :param config:
             A PlainBoxConfig instance which can be used to load missing
-            environment definitions that apply to all jobs. It is used to
-            provide values for missing environment variables that are required
-            by the job (as expressed by the environ key in the job definition
-            file).
+            environment definitions that apply to all jobs. Ignored.
+        :param nest_dir:
+            A directory with a nest of symlinks to all executables required to
+            execute the specified job. Ignored.
         :returns:
             None
 
@@ -630,9 +647,20 @@ class RootViaPTL1ExecutionController(CheckBoxDifferentialExecutionController):
     Execution controller that gains root using plainbox-trusted-launcher-1
     """
 
-    def get_execution_command(self, job, config):
+    def get_execution_command(self, job, config, nest_dir):
         """
         Get the command to invoke.
+
+        :param job:
+            job definition with the command and environment definitions
+        :param config:
+            A PlainBoxConfig instance which can be used to load missing
+            environment definitions that apply to all jobs. Passed to
+            :meth:`get_differential_execution_environment()`.
+        :param nest_dir:
+            A directory with a nest of symlinks to all executables required to
+            execute the specified job. Passed to
+            :meth:`get_differential_execution_environment()`.
 
         This overridden implementation returns especially crafted command that
         uses pkexec to run the plainbox-trusted-launcher-1 as the desired user
@@ -646,7 +674,8 @@ class RootViaPTL1ExecutionController(CheckBoxDifferentialExecutionController):
         cmd = ['pkexec', '--user', job.user, 'plainbox-trusted-launcher-1',
                '--hash', job.checksum]
         # Append all environment data
-        env = self.get_differential_execution_environment(job, config)
+        env = self.get_differential_execution_environment(
+            job, config, nest_dir)
         cmd += ["{key}={value}".format(key=key, value=value)
                 for key, value in sorted(env.items())]
         # Append the --via flag for generated jobs
@@ -690,9 +719,20 @@ class RootViaPkexecExecutionController(
     root from the non-system-wide location.
     """
 
-    def get_execution_command(self, job, config):
+    def get_execution_command(self, job, config, nest_dir):
         """
         Get the command to invoke.
+
+        :param job:
+            job definition with the command and environment definitions
+        :param config:
+            A PlainBoxConfig instance which can be used to load missing
+            environment definitions that apply to all jobs. Passed to
+            :meth:`get_differential_execution_environment()`.
+        :param nest_dir:
+            A directory with a nest of symlinks to all executables required to
+            execute the specified job. Passed to
+            :meth:`get_differential_execution_environment()`.
 
         Since we cannot pass environment in the ordinary way while using
         pkexec(1) (pkexec starts new processes in a sanitized, pristine,
@@ -702,7 +742,8 @@ class RootViaPkexecExecutionController(
         # Run env(1) as the required user
         cmd = ['pkexec', '--user', job.user, 'env']
         # Append all environment data
-        env = self.get_differential_execution_environment(job, config)
+        env = self.get_differential_execution_environment(
+            job, config, nest_dir)
         cmd += ["{key}={value}".format(key=key, value=value)
                 for key, value in sorted(env.items())]
         # Lastly use bash -c, to run our command
@@ -764,9 +805,18 @@ class RootViaSudoExecutionController(CheckBoxExecutionController):
             in_admin_group = False
         self.user_can_sudo = in_sudo_group or in_admin_group
 
-    def get_execution_command(self, job, config):
+    def get_execution_command(self, job, config, nest_dir):
         """
         Get the command to invoke.
+
+        :param job:
+            job definition with the command and environment definitions
+        :param config:
+            A PlainBoxConfig instance which can be used to load missing
+            environment definitions that apply to all jobs. Ignored.
+        :param nest_dir:
+            A directory with a nest of symlinks to all executables required to
+            execute the specified job. Ingored.
 
         Since we cannot pass environment in the ordinary way while using pkxec
         (pkexec starts new processes in a sanitized, pristine, environment)

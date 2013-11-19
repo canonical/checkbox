@@ -247,6 +247,23 @@ class IQNValidator(PatternValidator):
             return "must look like RFC3720 IQN"
 
 
+class VersionValidator(PatternValidator):
+    """
+    A validator for provider provider version.
+
+    Provider version must be a sequence of non-negative numbers separated by
+    dots. At most one version number must be present, which may be followed by
+    any sub-versions.
+    """
+
+    def __init__(self):
+        super().__init__("^[0-9]+(\.[0-9]+)*$")
+
+    def __call__(self, variable, new_value):
+        if super().__call__(variable, new_value):
+            return "must be a sequence of digits separated by dots"
+
+
 class ExistingDirectoryValidator(IValidator):
     """
     A validator that checks that the value points to an existing directory

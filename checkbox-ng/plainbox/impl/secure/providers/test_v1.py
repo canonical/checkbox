@@ -32,6 +32,7 @@ from plainbox.impl.secure.providers.v1 import IQNValidator
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.providers.v1 import Provider1Definition
 from plainbox.impl.secure.providers.v1 import Provider1PlugIn
+from plainbox.impl.secure.providers.v1 import VersionValidator
 from plainbox.vendor import mock
 
 
@@ -49,6 +50,27 @@ class IQNValidatorTests(TestCase):
         self.assertEqual(
             self.validator(self.variable, ""),
             "must look like RFC3720 IQN")
+
+
+class VersionValidatorTests(TestCase):
+
+    def setUp(self):
+        self.validator = VersionValidator()
+        self.variable = None
+
+    def test_typical_versions_work(self):
+        version = "1.10.7"
+        self.assertEqual(self.validator(self.variable, version), None)
+
+    def test_single_digit_versions_work(self):
+        version = "5"
+        self.assertEqual(self.validator(self.variable, version), None)
+
+    def test_bad_values_dont(self):
+        version = "1.5a7"
+        self.assertEqual(
+            self.validator(self.variable, version),
+            "must be a sequence of digits separated by dots")
 
 
 class ExistingDirectoryValidatorTests(TestCase):

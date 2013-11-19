@@ -45,6 +45,10 @@ class IQNValidatorTests(TestCase):
         name = "2013.com.canonical:certification-resources-server"
         self.assertEqual(self.validator(self.variable, name), None)
 
+    def test_must_match_whole_string(self):
+        name = "2013.com.canonical:certification-resources-server BOGUS"
+        self.assertNotEqual(self.validator(self.variable, name), None)
+
     def test_bad_values_dont(self):
         self.assertEqual(
             self.validator(self.variable, ""),

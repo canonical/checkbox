@@ -95,7 +95,7 @@ class CheckBoxSrcProvider(Provider1):
     def __init__(self):
         super(CheckBoxSrcProvider, self).__init__(
             _get_checkbox_dir(),
-            "2013.com.canonical:checkbox-src",
+            "2013.com.canonical:checkbox-src", "1.0",
             "CheckBox (live source)",
             secure=False)
         if not os.path.exists(self._base_dir):
@@ -155,6 +155,6 @@ class StubBoxProvider(Provider1):
     def __init__(self):
         super(StubBoxProvider, self).__init__(
             os.path.join(get_plainbox_dir(), "impl/providers/stubbox"),
-            "2013.com.canonical:stubbox",
+            "2013.com.canonical:stubbox", "1.0",
             "StubBox (dummy data for development)",
             secure=False)

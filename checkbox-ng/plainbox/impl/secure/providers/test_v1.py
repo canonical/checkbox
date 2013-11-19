@@ -117,6 +117,7 @@ class Provider1DefinitionTests(TestCase):
         "[PlainBox Provider]\n"
         "location = /some/directory/\n"
         "name = 2013.org.example:smoke-test\n"
+        "version = 1.0\n"
         "description = A provider for smoke testing\n")
 
     def setUp(self):
@@ -129,6 +130,7 @@ class Provider1DefinitionTests(TestCase):
             self.definition.read_string(self.DEF_TEXT)
         self.assertEqual(self.definition.location, "/some/directory/")
         self.assertEqual(self.definition.name, "2013.org.example:smoke-test")
+        self.assertEqual(self.definition.version, "1.0")
         self.assertEqual(
             self.definition.description, "A provider for smoke testing")
 
@@ -153,4 +155,5 @@ class Provider1PlugInTests(TestCase):
         provider = self.plugin.plugin_object
         self.assertEqual(provider._base_dir, "/some/directory/")
         self.assertEqual(provider.name, "2013.org.example:smoke-test")
+        self.assertEqual(provider.version, "1.0")
         self.assertEqual(provider.description, "A provider for smoke testing")

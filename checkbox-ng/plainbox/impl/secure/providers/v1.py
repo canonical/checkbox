@@ -65,6 +65,17 @@ class Provider1(IProvider1, IProviderBackend1):
         self._description = description
         self._secure = secure
 
+
+    @property
+    def base_dir(self):
+        """
+        pathname to a directory with essential provider data
+
+        This pathname is used for deriving :attr:`jobs_dir`, :attr:`bin_dir`
+        and :attr:`whitelists_dir`.
+        """
+        return self._base_dir
+
     @property
     def name(self):
         """

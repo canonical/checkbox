@@ -66,6 +66,9 @@ class Provider1(IProvider1, IProviderBackend1):
         self._description = description
         self._secure = secure
 
+    def __repr__(self):
+        return "<{} name:{!r} base_dir:{!r}>".format(
+            self.__class__.__name__, self.name, self.base_dir)
 
     @property
     def base_dir(self):

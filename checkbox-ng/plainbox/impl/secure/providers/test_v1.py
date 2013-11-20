@@ -161,3 +161,22 @@ class Provider1PlugInTests(TestCase):
         self.assertEqual(provider.name, "2013.org.example:smoke-test")
         self.assertEqual(provider.version, "1.0")
         self.assertEqual(provider.description, "A provider for smoke testing")
+
+
+class Provider1Tests(TestCase):
+
+    BASE_DIR = "base-dir"
+    NAME = "2013.org.example:name"
+    VERSION = "1.0"
+    DESCRIPTION = "description"
+    SECURE = True
+
+    def setUp(self):
+        self.provider = Provider1(
+            self.BASE_DIR, self.NAME, self.VERSION, self.DESCRIPTION,
+            self.SECURE)
+
+    def test_repr(self):
+        self.assertEqual(
+            repr(self.provider),
+            "<Provider1 name:'2013.org.example:name' base_dir:'base-dir'>")

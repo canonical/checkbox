@@ -63,6 +63,10 @@ class DummyProvider1(IProvider1, IProviderBackend1):
         return self._extras.get('name', "dummy")
 
     @property
+    def version(self):
+        return self._extras.get('version', '1.0')
+
+    @property
     def description(self):
         return self._extras.get(
             'description', "A dummy provider useful for testing")

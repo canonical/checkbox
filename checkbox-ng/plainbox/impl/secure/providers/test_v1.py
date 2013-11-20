@@ -32,6 +32,7 @@ from plainbox.impl.secure.providers.v1 import IQNValidator
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.providers.v1 import Provider1Definition
 from plainbox.impl.secure.providers.v1 import Provider1PlugIn
+from plainbox.impl.secure.providers.v1 import VersionValidator
 from plainbox.vendor import mock
 
 
@@ -53,6 +54,27 @@ class IQNValidatorTests(TestCase):
         self.assertEqual(
             self.validator(self.variable, ""),
             "must look like RFC3720 IQN")
+
+
+class VersionValidatorTests(TestCase):
+
+    def setUp(self):
+        self.validator = VersionValidator()
+        self.variable = None
+
+    def test_typical_versions_work(self):
+        version = "1.10.7"
+        self.assertEqual(self.validator(self.variable, version), None)
+
+    def test_single_digit_versions_work(self):
+        version = "5"
+        self.assertEqual(self.validator(self.variable, version), None)
+
+    def test_bad_values_dont(self):
+        version = "1.5a7"
+        self.assertEqual(
+            self.validator(self.variable, version),
+            "must be a sequence of digits separated by dots")
 
 
 class ExistingDirectoryValidatorTests(TestCase):
@@ -99,6 +121,7 @@ class Provider1DefinitionTests(TestCase):
         "[PlainBox Provider]\n"
         "location = /some/directory/\n"
         "name = 2013.org.example:smoke-test\n"
+        "version = 1.0\n"
         "description = A provider for smoke testing\n")
 
     def setUp(self):
@@ -111,6 +134,7 @@ class Provider1DefinitionTests(TestCase):
             self.definition.read_string(self.DEF_TEXT)
         self.assertEqual(self.definition.location, "/some/directory/")
         self.assertEqual(self.definition.name, "2013.org.example:smoke-test")
+        self.assertEqual(self.definition.version, "1.0")
         self.assertEqual(
             self.definition.description, "A provider for smoke testing")
 
@@ -135,4 +159,5 @@ class Provider1PlugInTests(TestCase):
         provider = self.plugin.plugin_object
         self.assertEqual(provider.base_dir, "/some/directory/")
         self.assertEqual(provider.name, "2013.org.example:smoke-test")
+        self.assertEqual(provider.version, "1.0")
         self.assertEqual(provider.description, "A provider for smoke testing")

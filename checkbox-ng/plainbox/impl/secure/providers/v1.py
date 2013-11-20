@@ -51,7 +51,7 @@ class Provider1(IProvider1, IProviderBackend1):
     location for all other data.
     """
 
-    def __init__(self, base_dir, name, description, secure):
+    def __init__(self, base_dir, name, version, description, secure):
         """
         Initialize the provider with the associated base directory.
 
@@ -62,6 +62,7 @@ class Provider1(IProvider1, IProviderBackend1):
         """
         self._base_dir = base_dir
         self._name = name
+        self._version = version
         self._description = description
         self._secure = secure
 
@@ -82,6 +83,13 @@ class Provider1(IProvider1, IProviderBackend1):
         name of this provider
         """
         return self._name
+
+    @property
+    def version(self):
+        """
+        version of this provider
+        """
+        return self._version
 
     @property
     def description(self):
@@ -258,6 +266,23 @@ class IQNValidator(PatternValidator):
             return "must look like RFC3720 IQN"
 
 
+class VersionValidator(PatternValidator):
+    """
+    A validator for provider provider version.
+
+    Provider version must be a sequence of non-negative numbers separated by
+    dots. At most one version number must be present, which may be followed by
+    any sub-versions.
+    """
+
+    def __init__(self):
+        super().__init__("^[0-9]+(\.[0-9]+)*$")
+
+    def __call__(self, variable, new_value):
+        if super().__call__(variable, new_value):
+            return "must be a sequence of digits separated by dots"
+
+
 class ExistingDirectoryValidator(IValidator):
     """
     A validator that checks that the value points to an existing directory
@@ -300,6 +325,15 @@ class Provider1Definition(Config):
             IQNValidator(),
         ])
 
+    version = Variable(
+        section='PlainBox Provider',
+        help_text="Version of the provider",
+        default="0.0",
+        validator_list=[
+            NotEmptyValidator(),
+            VersionValidator(),
+        ])
+
     description = Variable(
         section='PlainBox Provider',
         help_text="Description of the provider")
@@ -318,7 +352,10 @@ class Provider1PlugIn(IPlugIn):
         definition = Provider1Definition()
         definition.read_string(definition_text)
         self._provider = Provider1(
-            definition.location, definition.name, definition.description,
+            definition.location,
+            definition.name,
+            definition.version,
+            definition.description,
             secure=os.path.dirname(filename) == get_secure_PROVIDERPATH())
 
     def __repr__(self):

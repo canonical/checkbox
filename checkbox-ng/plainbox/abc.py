@@ -342,6 +342,12 @@ class IProvider1(metaclass=ABCMeta):
         """
 
     @abstractproperty
+    def version(self):
+        """
+        version of this provider
+        """
+
+    @abstractproperty
     def description(self):
         """
         description of this providr

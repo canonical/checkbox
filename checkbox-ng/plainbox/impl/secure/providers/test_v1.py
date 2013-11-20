@@ -129,6 +129,6 @@ class Provider1PlugInTests(TestCase):
 
     def test_provieder_data(self):
         provider = self.plugin.plugin_object
-        self.assertEqual(provider._base_dir, "/some/directory/")
+        self.assertEqual(provider.base_dir, "/some/directory/")
         self.assertEqual(provider.name, "2013.org.example:smoke-test")
         self.assertEqual(provider.description, "A provider for smoke testing")

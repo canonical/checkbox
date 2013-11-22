@@ -44,7 +44,7 @@ else:
 
 setup(
     name="plainbox",
-    version="0.4.dev",
+    version="0.4b1",
     url="https://launchpad.net/checkbox/",
     packages=find_packages(),
     author="Zygmunt Krynicki",

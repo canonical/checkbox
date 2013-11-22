@@ -567,10 +567,13 @@ class UserJobExecutionController(CheckBoxExecutionController):
         Compute how applicable this controller is for the specified job.
 
         :returns:
-            one for jobs without a user override, -1 otherwise
+            1 for jobs without a user override, 3 for jobs with user override
+            if the invoking uid is 0 (root), -1 otherwise
         """
         if job.user is None:
             return 1
+        if os.getuid() == 0:
+            return 3
         else:
             return -1
 

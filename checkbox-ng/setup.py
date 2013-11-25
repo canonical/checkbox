@@ -56,8 +56,10 @@ setup(
     install_requires=install_requires,
     entry_points={
         'console_scripts': [
-            'checkbox=checkbox_ng.main:main',
             'canonical-certification-server=checkbox_ng.main:cert_server',
+            'canonical-driver-test-suite-cli=checkbox_ng.main:cdts_cli',
+            'checkbox=checkbox_ng.main:main',
+            'checkbox-cli=checkbox_ng.main:checkbox_cli',
         ],
         'plainbox.transport': [
             'certification='

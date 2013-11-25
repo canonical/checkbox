@@ -63,14 +63,12 @@ logger = getLogger("checkbox.ng.commands.cli")
 
 class _CliInvocation(CheckBoxInvocationMixIn):
 
-    def __init__(self, provider_list, config, ns):
+    def __init__(self, provider_list, config, default_whitelist, ns):
         super().__init__(provider_list)
         self.provider_list = provider_list
         self.config = config
         self.ns = ns
-        desired_whitelist = 'server-cert'
-        if self.ns.self_test:
-            desired_whitelist = 'server-selftest'
+        desired_whitelist = default_whitelist
         if self.ns.whitelist:
             self.whitelist = WhiteList.from_file(self.ns.whitelist[0].name)
         elif self.config.whitelist is not Unset:
@@ -421,9 +419,10 @@ class _CliInvocation(CheckBoxInvocationMixIn):
 
 class CliCommand(PlainBoxCommand, CheckBoxCommandMixIn):
 
-    def __init__(self, provider_list, config):
+    def __init__(self, provider_list, config, default_whitelist):
         self.provider_list = provider_list
         self.config = config
+        self.default_whitelist = default_whitelist
 
     def invoked(self, ns):
         # Copy command-line arguments over configuration variables
@@ -433,19 +432,18 @@ class CliCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             if ns.c3_url:
                 self.config.c3_url = ns.c3_url
         except ValidationError as exc:
-            print("Configuration problems prevent running Certification tests")
+            print("Configuration problems prevent running tests")
             print(exc)
             return 1
         # Run check-config, if requested
         if ns.check_config:
             retval = CheckConfigInvocation(self.config).run()
             return retval
-        return _CliInvocation(self.provider_list, self.config, ns).run()
+        return _CliInvocation(self.provider_list, self.config,
+                              self.default_whitelist, ns).run()
 
-    def register_parser(self, subparsers):
-        parser = subparsers.add_parser(
-            "certification-server",
-            help="run the server certification tests")
+    def register_parser(self, subparsers, parser_name, parser_help=None):
+        parser = subparsers.add_parser(parser_name, help=parser_help)
         parser.set_defaults(command=self)
         parser.add_argument(
             "--check-config",
@@ -473,10 +471,6 @@ class CliCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             action='store_const',
             const='https://certification.staging.canonical.com/submissions/submit/',
             help='Override --destination to use the staging certification website')
-        group = parser.add_argument_group(title="user interface options")
-        group.add_argument(
-            '--self-test', action='store_true',
-            help="Select the self-test whitelist")
         group.add_argument(
             '--not-interactive', action='store_true',
             help="Skip tests that require interactivity")

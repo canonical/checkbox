@@ -51,16 +51,19 @@ class TestMain(TestCase):
         expected = """
         usage: checkbox [-h] [--version] [-c {src,deb,auto,stub,ihv}] [-v] [-D] [-C]
                         [-T LOGGER] [-P] [-I]
-                        {sru,check-config,script,dev,certification-server,service} ...
+                        
+                        {sru,check-config,script,dev,checkbox-cli,certification-server,driver-test-suite-cli,service}
+                        ...
 
         positional arguments:
-          {sru,check-config,script,dev,certification-server,service}
+          {sru,check-config,script,dev,checkbox-cli,certification-server,driver-test-suite-cli,service}
             sru                 run automated stable release update tests
             check-config        check and display plainbox configuration
             script              run a command from a job
             dev                 development commands
+            checkbox-cli
             certification-server
-                                run the server certification tests
+            driver-test-suite-cli
             service             spawn dbus service
 
         optional arguments:
@@ -90,8 +93,11 @@ class TestMain(TestCase):
         expected = """
         usage: checkbox [-h] [--version] [-c {src,deb,auto,stub,ihv}] [-v] [-D] [-C]
                         [-T LOGGER] [-P] [-I]
-                        {sru,check-config,script,dev,certification-server,service} ...
+                        
+                        {sru,check-config,script,dev,checkbox-cli,certification-server,driver-test-suite-cli,service}
+                        ...
         checkbox: error: too few arguments
+
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
 
@@ -108,8 +114,8 @@ class TestCertServer(TestCase):
         usage: checkbox certification-server [-h] [--check-config]
                                              [--secure-id SECURE-ID]
                                              [--destination URL] [--staging]
-                                             [--self-test] [--not-interactive]
-                                             [-i PATTERN] [-x PATTERN] [-w WHITELIST]
+                                             [--not-interactive] [-i PATTERN]
+                                             [-x PATTERN] [-w WHITELIST]
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -123,9 +129,6 @@ class TestCertServer(TestCase):
                                 ation.canonical.com/submissions/submit/)
           --staging             Override --destination to use the staging
                                 certification website
-
-        user interface options:
-          --self-test           Select the self-test whitelist
           --not-interactive     Skip tests that require interactivity
 
         job definition options:

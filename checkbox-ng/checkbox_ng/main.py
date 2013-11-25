@@ -31,7 +31,7 @@ from plainbox.impl.commands.dev import DevCommand
 from plainbox.impl.commands.script import ScriptCommand
 
 from checkbox_ng import __version__ as version
-from checkbox_ng.commands.server import ServerCommand
+from checkbox_ng.commands.cli import CliCommand
 from checkbox_ng.commands.sru import SRUCommand
 try:
     from checkbox_ng.commands.service import ServiceCommand
@@ -66,8 +66,15 @@ class CheckBoxNGTool(PlainBoxToolBase):
             self._provider_list, self._config).register_parser(subparsers)
         DevCommand(
             self._provider_list, self._config).register_parser(subparsers)
-        ServerCommand(
-            self._provider_list, self._config).register_parser(subparsers)
+        CliCommand(
+            self._provider_list, self._config, 'default').register_parser(
+            subparsers, 'checkbox-cli')
+        CliCommand(
+            self._provider_list, self._config, 'server-cert').register_parser(
+            subparsers, 'certification-server')
+        CliCommand(
+            self._provider_list, self._config, 'ihv-firmware').register_parser(
+            subparsers, 'driver-test-suite-cli')
         try:
             ServiceCommand(self._provider_list, self._config).register_parser(
                 subparsers)
@@ -87,6 +94,30 @@ def main(argv=None):
     checkbox command line utility
     """
     raise SystemExit(CheckBoxNGTool().main(argv))
+
+
+def checkbox_cli(argv=None):
+    """
+    CheckBox command line utility
+    """
+    if argv:
+        args = argv
+    else:
+        args = sys.argv[1:]
+    raise SystemExit(
+        CheckBoxNGTool().main(['checkbox-cli'] + args))
+
+
+def cdts_cli(argv=None):
+    """
+    certification-server command line utility
+    """
+    if argv:
+        args = argv
+    else:
+        args = sys.argv[1:]
+    raise SystemExit(
+        CheckBoxNGTool().main(['driver-test-suite-cli'] + args))
 
 
 def cert_server(argv=None):

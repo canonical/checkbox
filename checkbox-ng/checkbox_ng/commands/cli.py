@@ -18,8 +18,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-:mod:`checkbox_ng.commands.server` -- Certification Server sub-command
-======================================================================
+:mod:`checkbox_ng.commands.cli` -- Command line sub-command
+===========================================================
 
 .. warning::
 
@@ -58,10 +58,10 @@ from checkbox_ng.certification import CertificationTransport
 from checkbox_ng.certification import InvalidSecureIDError
 
 
-logger = getLogger("checkbox.ng.commands.server")
+logger = getLogger("checkbox.ng.commands.cli")
 
 
-class _ServerInvocation(CheckBoxInvocationMixIn):
+class _CliInvocation(CheckBoxInvocationMixIn):
 
     def __init__(self, provider_list, config, ns):
         super().__init__(provider_list)
@@ -419,7 +419,7 @@ class _ServerInvocation(CheckBoxInvocationMixIn):
             session.update_job_result(job, job_result)
 
 
-class ServerCommand(PlainBoxCommand, CheckBoxCommandMixIn):
+class CliCommand(PlainBoxCommand, CheckBoxCommandMixIn):
 
     def __init__(self, provider_list, config):
         self.provider_list = provider_list
@@ -440,7 +440,7 @@ class ServerCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         if ns.check_config:
             retval = CheckConfigInvocation(self.config).run()
             return retval
-        return _ServerInvocation(self.provider_list, self.config, ns).run()
+        return _CliInvocation(self.provider_list, self.config, ns).run()
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(

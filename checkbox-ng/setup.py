@@ -50,7 +50,7 @@ setup(
     author="Zygmunt Krynicki",
     test_suite='plainbox.tests.test_suite',
     author_email="zygmunt.krynicki@canonical.com",
-    license="GPLv3+",
+    license="GPLv3",
     description="Simple replacement for checkbox",
     long_description=long_description,
     install_requires=install_requires,

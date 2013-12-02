@@ -76,7 +76,7 @@ class CheckBoxSrcProvider(Provider1):
     changed before we can stop using the old checkbox codebase.
 
     1) The location for provider-specific executables is '$base/scripts'. This
-       is implemented by custom :attr:`bin_dir  `.
+       is implemented by custom :attr:`bin_dir`.
 
     2) The location for whitelists is '$base/data/whitelists'. This is
        implemented by custom :attr:`whitelists_dir`.

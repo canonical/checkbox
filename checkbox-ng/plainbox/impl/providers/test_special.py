@@ -24,8 +24,38 @@ plainbox.impl.providers.test_special
 Test definitions for plainbox.impl.providers.special module
 """
 
+from unittest import TestCase
+
+from plainbox.impl.providers import ProviderNotFound
+from plainbox.impl.providers.special import CheckBoxNotFound
 from plainbox.impl.providers.special import CheckBoxSrcProvider
 from plainbox.testing_utils.testcases import TestCaseWithParameters
+from plainbox.vendor import mock
+
+
+class CheckBoxSrcProviderTests(TestCase):
+
+    def setUp(self):
+        with mock.patch('os.path.exists') as mock_exists:
+            mock_exists.return_value = True
+            self.provider = CheckBoxSrcProvider()
+
+    @mock.patch('os.path.exists')
+    def test_initializer_verifies_presence(self, mock_exists):
+        """
+        verify that CheckBoxNotFound is raised when working out-of-tree
+        """
+        mock_exists.return_value = False
+        with self.assertRaises(CheckBoxNotFound) as boom:
+            CheckBoxSrcProvider()
+        self.assertIsInstance(boom.exception, ProviderNotFound)
+
+    def test_extra_PYTHONPATH(self):
+        """
+        verify that extra_PYTHONPATH has a sane value
+        """
+        self.assertTrue(
+            self.provider.extra_PYTHONPATH.endswith('checkbox-old'))
 
 
 class TestCheckBox(TestCaseWithParameters):
@@ -33,8 +63,13 @@ class TestCheckBox(TestCaseWithParameters):
 
     @classmethod
     def get_parameter_values(cls):
-        for job in CheckBoxSrcProvider().get_builtin_jobs():
-            yield (job,)
+        try:
+            for job in CheckBoxSrcProvider().get_builtin_jobs():
+                yield (job,)
+        except ProviderNotFound:
+            # This may happen if plainbox tests are invoked standalone,
+            # without access to checkbox source tree
+            pass
 
     def test_job_resource_expression(self):
         self.parameters.job.get_resource_program()

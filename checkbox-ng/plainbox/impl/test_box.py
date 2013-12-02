@@ -254,52 +254,49 @@ class TestSpecial(TestCase):
     def test_run_list_jobs(self):
         with TestIO() as io:
             with self.assertRaises(SystemExit) as call:
-                main(['dev', 'special', '--list-jobs'])
+                main(['-c', 'stub', 'dev', 'special', '--list-jobs'])
             self.assertEqual(call.exception.args, (0,))
-        # This is pretty shoddy, ideally we'd load a special job and test for
-        # that but it's something that keeps the test more valid than
-        # otherwise.
-        self.assertIn("mediacard/mmc-insert", io.stdout.splitlines())
-        self.assertIn("usb3/insert", io.stdout.splitlines())
-        self.assertIn("usb/insert", io.stdout.splitlines())
+        self.assertIn("stub/false", io.stdout.splitlines())
+        self.assertIn("stub/true", io.stdout.splitlines())
 
     def test_run_list_jobs_with_filtering(self):
         with TestIO() as io:
             with self.assertRaises(SystemExit) as call:
-                main(['dev', 'special', '--include-pattern=usb3.+', '--list-jobs'])
+                main(['-c', 'stub', 'dev', 'special',
+                      '--include-pattern=stub/false', '--list-jobs'])
             self.assertEqual(call.exception.args, (0,))
-        # Test that usb3 insertion test was listed but the usb (2.0) test was not
-        self.assertIn("usb3/insert", io.stdout.splitlines())
-        self.assertNotIn("usb/insert", io.stdout.splitlines())
+        self.assertIn("stub/false", io.stdout.splitlines())
+        self.assertNotIn("stub/true", io.stdout.splitlines())
 
     def test_run_list_expressions(self):
         with TestIO() as io:
             with self.assertRaises(SystemExit) as call:
-                main(['dev', 'special', '--list-expressions'])
+                main(['-c', 'stub', 'dev', 'special', '--list-expressions'])
             self.assertEqual(call.exception.args, (0,))
-        # See comment in test_run_list_jobs
-        self.assertIn("package.name == 'samba'", io.stdout.splitlines())
+        self.assertIn(
+            'stub_package.name == "checkbox"', io.stdout.splitlines())
 
     def test_run_dot(self):
         with TestIO() as io:
             with self.assertRaises(SystemExit) as call:
-                main(['dev', 'special', '--dot'])
+                main(['-c', 'stub', 'dev', 'special', '--dot'])
             self.assertEqual(call.exception.args, (0,))
-        # See comment in test_run_list_jobs
-        self.assertIn('\t"usb/insert" [color=orange];', io.stdout.splitlines())
+        self.assertIn(
+            '\t"stub/true" [];', io.stdout.splitlines())
         # Do basic graph checks
         self._check_digraph_sanity(io)
 
     def test_run_dot_with_resources(self):
         with TestIO() as io:
             with self.assertRaises(SystemExit) as call:
-                main(['dev', 'special', '--dot', '--dot-resources'])
+                main(['-c', 'stub', 'dev', 'special', '--dot',
+                      '--dot-resources'])
             self.assertEqual(call.exception.args, (0,))
-        # See comment in test_run_list_jobs
         self.assertIn(
-            '\t"usb/insert" [color=orange];', io.stdout.splitlines())
+            '\t"stub/true" [];', io.stdout.splitlines())
         self.assertIn(
-            '\t"daemons/smbd" -> "package" [style=dashed, label="package.name == \'samba\'"];',
+            ('\t"stub/requirement/good" -> "stub_package" [style=dashed, label'
+             '="stub_package.name == \'checkbox\'"];'),
             io.stdout.splitlines())
         # Do basic graph checks
         self._check_digraph_sanity(io)

@@ -126,8 +126,8 @@ class MiscTests(TestCase):
         ns.whitelist = None
         ns.include_pattern_list = ['?']
         ns.exclude_pattern_list = []
-        observed = self.obj._get_matching_job_list(ns, [self.job_foo,
-        self.job_bar])
+        observed = self.obj._get_matching_job_list(
+            ns, [self.job_foo, self.job_bar])
         self.assertEqual(observed, [])
 
     def test_invalid_pattern_excluding(self):
@@ -135,8 +135,8 @@ class MiscTests(TestCase):
         ns.whitelist = None
         ns.include_pattern_list = ['fo.*']
         ns.exclude_pattern_list = ['[bar']
-        observed = self.obj._get_matching_job_list(ns, [self.job_foo,
-        self.job_bar])
+        observed = self.obj._get_matching_job_list(
+            ns, [self.job_foo, self.job_bar])
         self.assertEqual(observed, [self.job_foo])
 
 

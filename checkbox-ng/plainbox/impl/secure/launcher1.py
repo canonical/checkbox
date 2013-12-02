@@ -173,3 +173,7 @@ def main(argv=None):
             return launcher.run_shell_from_job(ns.hash, env)
         except LookupError as exc:
             raise SystemExit(str(exc))
+
+
+if __name__ == "__main__":
+    main()

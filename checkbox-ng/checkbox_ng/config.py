@@ -95,3 +95,29 @@ class CertificationConfig(CheckBoxConfig):
                     ('/etc/xdg/canonical-certification.conf',
                         os.path.expanduser(
                             '~/.config/canonical-certification.conf')))))
+
+
+class CDTSConfig(CheckBoxConfig):
+    """
+    Configuration for canonical-driver-test-suite (CDTS)
+    """
+
+    class Meta(CheckBoxConfig.Meta):
+        # TODO: properly depend on xdg and use real code that also handles
+        # XDG_CONFIG_HOME.
+        #
+        # NOTE: filename_list is composed of canonical-certification, checkbox
+        # and plainbox variables, mixed so that:
+        # - CDTS takes precedence over checkbox
+        # - checkbox takes precedence over plainbox
+        # - ~/.config takes precedence over /etc
+        filename_list = list(
+            itertools.chain(
+                *zip(
+                    itertools.islice(
+                        CheckBoxConfig.Meta.filename_list, 0, None, 2),
+                    itertools.islice(
+                        CheckBoxConfig.Meta.filename_list, 1, None, 2),
+                    ('/etc/xdg/canonical-driver-test-suite.conf',
+                        os.path.expanduser(
+                            '~/.config/canonical-driver-test-suite.conf')))))

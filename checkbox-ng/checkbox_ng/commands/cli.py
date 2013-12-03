@@ -172,16 +172,34 @@ class CliInvocation(CheckBoxInvocationMixIn):
             self.whitelists.append(WhiteList.from_file(self.config.whitelist))
         elif self.ns.include_pattern_list:
             self.whitelists.append(WhiteList(self.ns.include_pattern_list))
+
+        if self.is_interactive:
+            if self.settings['welcome_text']:
+                try:
+                    curses.wrapper(show_welcome, self.settings['welcome_text'])
+                except curses.error:
+                    raise SystemExit('Terminal size must be at least 80x24')
+            if not self.whitelists:
+                whitelists = []
+                for p in self.provider_list:
+                    if p.name in self.settings['default_providers']:
+                        whitelists.extend(
+                            [w.name for w in p.get_builtin_whitelists()])
+                try:
+                    selection = curses.wrapper(show_menu, "Suite selection",
+                                               whitelists)
+                except curses.error:
+                    raise SystemExit('Terminal size must be at least 80x24')
+                if not selection:
+                    raise SystemExit('No whitelists selected, aborting...')
+                for s in selection:
+                    self.whitelists.append(
+                        get_whitelist_by_name(provider_list, whitelists[s]))
         else:
             self.whitelists.append(
                 get_whitelist_by_name(
                     provider_list, self.settings['default_whitelist']))
 
-        if self.config.welcome_text is not Unset:
-            print()
-            for line in self.config.welcome_text.splitlines():
-                print(textwrap.fill(line, 80, replace_whitespace=False))
-            print()
         print("[ Analyzing Jobs ]".center(80, '='))
         self.session = None
         self.runner = None

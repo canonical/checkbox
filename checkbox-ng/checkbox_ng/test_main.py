@@ -52,18 +52,20 @@ class TestMain(TestCase):
         usage: checkbox [-h] [--version] [-c {src,deb,auto,stub,ihv}] [-v] [-D] [-C]
                         [-T LOGGER] [-P] [-I]
                         
-                        {sru,check-config,script,dev,checkbox-cli,certification-server,driver-test-suite-cli,service}
+                        {sru,check-config,script,dev,checkbox-cli,driver-test-suite-cli,certification-server,service}
                         ...
 
         positional arguments:
-          {sru,check-config,script,dev,checkbox-cli,certification-server,driver-test-suite-cli,service}
+          {sru,check-config,script,dev,checkbox-cli,driver-test-suite-cli,certification-server,service}
             sru                 run automated stable release update tests
             check-config        check and display plainbox configuration
             script              run a command from a job
             dev                 development commands
-            checkbox-cli
-            certification-server
+            checkbox-cli        application for system testing
             driver-test-suite-cli
+                                driver test suite application
+            certification-server
+                                application for server certification
             service             spawn dbus service
 
         optional arguments:
@@ -94,7 +96,7 @@ class TestMain(TestCase):
         usage: checkbox [-h] [--version] [-c {src,deb,auto,stub,ihv}] [-v] [-D] [-C]
                         [-T LOGGER] [-P] [-I]
                         
-                        {sru,check-config,script,dev,checkbox-cli,certification-server,driver-test-suite-cli,service}
+                        {sru,check-config,script,dev,checkbox-cli,driver-test-suite-cli,certification-server,service}
                         ...
         checkbox: error: too few arguments
 
@@ -111,15 +113,15 @@ class TestCertServer(TestCase):
         self.assertEqual(call.exception.args, (0,))
         self.maxDiff = None
         expected = """
-        usage: checkbox certification-server [-h] [--check-config]
+        usage: checkbox certification-server [-h] [--check-config] [--not-interactive]
                                              [--secure-id SECURE-ID]
                                              [--destination URL] [--staging]
-                                             [--not-interactive] [-i PATTERN]
-                                             [-x PATTERN] [-w WHITELIST]
+                                             [-i PATTERN] [-x PATTERN] [-w WHITELIST]
 
         optional arguments:
           -h, --help            show this help message and exit
           --check-config        Run check-config
+          --not-interactive     Skip tests that require interactivity
 
         certification-specific options:
           --secure-id SECURE-ID
@@ -129,7 +131,6 @@ class TestCertServer(TestCase):
                                 ation.canonical.com/submissions/submit/)
           --staging             Override --destination to use the staging
                                 certification website
-          --not-interactive     Skip tests that require interactivity
 
         job definition options:
           -i PATTERN, --include-pattern PATTERN

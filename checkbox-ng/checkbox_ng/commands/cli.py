@@ -84,7 +84,6 @@ class _CliInvocation(CheckBoxInvocationMixIn):
                 print(textwrap.fill(line, 80, replace_whitespace=False))
             print()
         print("[ Analyzing Jobs ]".center(80, '='))
-        self.job_list = self.get_job_list(ns)
         self.session = None
         self.runner = None
 
@@ -144,7 +143,7 @@ class _CliInvocation(CheckBoxInvocationMixIn):
     def _run_jobs(self, ns, job_list):
         # Create a session that handles most of the stuff needed to run jobs
         try:
-            session = SessionState(self.job_list)
+            session = SessionState(job_list)
         except DependencyDuplicateError as exc:
             # Handle possible DependencyDuplicateError that can happen if
             # someone is using plainbox for job development.

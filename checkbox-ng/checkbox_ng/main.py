@@ -31,6 +31,7 @@ from plainbox.impl.commands.dev import DevCommand
 from plainbox.impl.commands.script import ScriptCommand
 
 from checkbox_ng import __version__ as version
+from checkbox_ng.commands.certification import CertificationCommand
 from checkbox_ng.commands.cli import CliCommand
 from checkbox_ng.commands.sru import SRUCommand
 try:
@@ -119,14 +120,14 @@ class CheckBoxNGTool(PlainBoxToolBase):
         DevCommand(
             self._provider_list, self._config).register_parser(subparsers)
         CliCommand(
-            self._provider_list, self._config, 'default').register_parser(
-            subparsers, 'checkbox-cli')
+            self._provider_list, self._config, checkbox_cli_settings
+            ).register_parser(subparsers)
         CliCommand(
-            self._provider_list, self._config, 'server-cert').register_parser(
-            subparsers, 'certification-server')
-        CliCommand(
-            self._provider_list, self._config, 'ihv-firmware').register_parser(
-            subparsers, 'driver-test-suite-cli')
+            self._provider_list, self._config, cdts_cli_settings
+            ).register_parser(subparsers)
+        CertificationCommand(
+            self._provider_list, self._config, cert_cli_settings
+            ).register_parser(subparsers)
         try:
             ServiceCommand(self._provider_list, self._config).register_parser(
                 subparsers)

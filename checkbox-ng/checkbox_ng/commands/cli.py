@@ -29,6 +29,7 @@
 from logging import getLogger
 from os.path import join
 from shutil import copyfileobj
+import curses
 import io
 import os
 import sys
@@ -55,6 +56,104 @@ from plainbox.impl.session import SessionStateLegacyAPI as SessionState
 
 
 logger = getLogger("checkbox.ng.commands.cli")
+
+
+def show_menu(stdscr, title, menu):
+    """
+    Display the appropriate curses menu and return the selected options
+    """
+
+    curses.use_default_colors()
+    curses.curs_set(0)
+    stdscr.keypad(1)
+    # Modify color pair #1, to get black on white text
+    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
+
+    option_count = len(menu)
+    position = 0  # Zero-based index of the selected menu option
+    old_position = None
+    key_pressed = None
+    selection = [position]
+    new_selection = False
+
+    while True:
+        if position != old_position or new_selection:
+            stdscr.erase()
+            old_position = position
+            new_selection = False
+            stdscr.border(0)
+            # Display title at x=2, y=2
+            stdscr.addstr(2, 2, title, curses.A_STANDOUT)
+
+            # Display all the menu items
+            for i in range(option_count):
+                text_style = curses.A_NORMAL
+                if position == i:
+                    text_style = curses.color_pair(1)
+                # Display options from line 4, column 4
+                stdscr.addstr(4 + i, 4, "[{}] - {}".format(
+                    'X' if i in selection else ' ',
+                    menu[i].replace('ihv-', '').capitalize()), text_style)
+
+            # Display "OK" at bottom of menu
+            text_style = curses.A_NORMAL
+            if position == option_count:
+                text_style = curses.color_pair(1)
+            # Add an empty line before the last option
+            stdscr.addstr(5 + option_count, 4, "OK", text_style)
+            stdscr.refresh()
+
+        key_pressed = stdscr.getch()
+        if key_pressed == curses.KEY_DOWN:
+            if position < option_count:
+                position += 1
+            else:
+                position = 0
+        elif key_pressed == curses.KEY_UP:
+            if position > 0:
+                position -= 1
+            else:
+                position = option_count
+        elif position == option_count:
+            break
+        elif key_pressed == 32:  # KEY_SPACE
+            if position in selection:
+                selection.remove(position)
+            elif position < option_count:
+                selection.append(position)
+            new_selection = True
+
+    return selection
+
+
+def show_welcome(stdscr, text):
+    """
+    Display a curses splash screen containing a welcome text
+
+    Left and right margins are set to 3 chars. Including the border width (1),
+    the text is wrapped to screen width - 3 * 2 - 1 *2 using:
+        * stdscr.getmaxyx()[1] - 8
+        * stdscr.addstr(i, 4, line)
+    8 equals to margins(3*2) + borders(2*1)
+    4 equals to left margin(3) + left border(1)
+    """
+    curses.use_default_colors()
+    curses.curs_set(0)
+    stdscr.border(0)
+
+    i = 0
+    for paragraph in text.splitlines():
+        i += 1
+        for line in textwrap.fill(paragraph,
+                                  stdscr.getmaxyx()[1] - 8,
+                                  replace_whitespace=False).splitlines():
+            stdscr.addstr(i, 4, line)
+            i += 1
+    stdscr.addstr(i + 1, 4, "Continue", curses.A_STANDOUT)
+    while True:
+        key_pressed = stdscr.getch()
+        if key_pressed == ord('\n'):
+            break
 
 
 class CliInvocation(CheckBoxInvocationMixIn):

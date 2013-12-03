@@ -63,10 +63,11 @@ logger = getLogger("checkbox.ng.commands.cli")
 
 class _CliInvocation(CheckBoxInvocationMixIn):
 
-    def __init__(self, provider_list, config, default_whitelist, ns):
+    def __init__(self, provider_list, config, settings, ns):
         super().__init__(provider_list)
         self.provider_list = provider_list
         self.config = config
+        self.settings = settings
         self.ns = ns
         desired_whitelist = default_whitelist
         if self.ns.whitelist:
@@ -417,11 +418,14 @@ class _CliInvocation(CheckBoxInvocationMixIn):
 
 
 class CliCommand(PlainBoxCommand, CheckBoxCommandMixIn):
+    """
+    Command for running tests using the command line UI.
+    """
 
-    def __init__(self, provider_list, config, default_whitelist):
+    def __init__(self, provider_list, config, settings):
         self.provider_list = provider_list
         self.config = config
-        self.default_whitelist = default_whitelist
+        self.settings = settings
 
     def invoked(self, ns):
         # Copy command-line arguments over configuration variables
@@ -438,11 +442,12 @@ class CliCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         if ns.check_config:
             retval = CheckConfigInvocation(self.config).run()
             return retval
-        return _CliInvocation(self.provider_list, self.config,
-                              self.default_whitelist, ns).run()
+        return CliInvocation(self.provider_list, self.config,
+                             self.settings, ns).run()
 
-    def register_parser(self, subparsers, parser_name, parser_help=None):
-        parser = subparsers.add_parser(parser_name, help=parser_help)
+    def register_parser(self, subparsers):
+        parser = subparsers.add_parser(self.settings['subparser_name'],
+                                       help=self.settings['subparser_help'])
         parser.set_defaults(command=self)
         parser.add_argument(
             "--check-config",

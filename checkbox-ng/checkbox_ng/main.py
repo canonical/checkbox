@@ -37,7 +37,7 @@ try:
     from checkbox_ng.commands.service import ServiceCommand
 except ImportError:
     pass
-from checkbox_ng.config import CertificationConfig, CheckBoxConfig
+from checkbox_ng.config import CertificationConfig, CheckBoxConfig, CDTSConfig
 
 
 logger = logging.getLogger("checkbox.ng.main")
@@ -89,6 +89,13 @@ class CertificationNGTool(CheckBoxNGTool):
         return CertificationConfig
 
 
+class CDTSTool(CheckBoxNGTool):
+
+    @classmethod
+    def get_config_cls(cls):
+        return CDTSConfig
+
+
 def main(argv=None):
     """
     checkbox command line utility
@@ -117,7 +124,7 @@ def cdts_cli(argv=None):
     else:
         args = sys.argv[1:]
     raise SystemExit(
-        CheckBoxNGTool().main(['driver-test-suite-cli'] + args))
+        CDTSTool().main(['driver-test-suite-cli'] + args))
 
 
 def cert_server(argv=None):

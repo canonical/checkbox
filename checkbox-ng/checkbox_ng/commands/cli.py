@@ -69,16 +69,19 @@ class _CliInvocation(CheckBoxInvocationMixIn):
         self.config = config
         self.settings = settings
         self.ns = ns
-        desired_whitelist = default_whitelist
+        self.whitelists = []
         if self.ns.whitelist:
-            self.whitelist = WhiteList.from_file(self.ns.whitelist[0].name)
+            for whitelist in self.ns.whitelist:
+                self.whitelists.append(WhiteList.from_file(whitelist.name))
         elif self.config.whitelist is not Unset:
-            self.whitelist = WhiteList.from_file(self.config.whitelist)
+            self.whitelists.append(WhiteList.from_file(self.config.whitelist))
         elif self.ns.include_pattern_list:
-            self.whitelist = WhiteList(self.ns.include_pattern_list)
+            self.whitelists.append(WhiteList(self.ns.include_pattern_list))
         else:
-            self.whitelist = get_whitelist_by_name(provider_list,
-                                                   desired_whitelist)
+            self.whitelists.append(
+                get_whitelist_by_name(
+                    provider_list, self.settings['default_whitelist']))
+
         if self.config.welcome_text is not Unset:
             print()
             for line in self.config.welcome_text.splitlines():
@@ -156,8 +159,10 @@ class _CliInvocation(CheckBoxInvocationMixIn):
                 exc.duplicate_job.origin))
             raise SystemExit(exc)
         with session.open():
-            desired_job_list = get_matching_job_list(
-                self.job_list, self.whitelist)
+            desired_job_list = []
+            for whitelist in self.whitelists:
+                desired_job_list.extend(get_matching_job_list(job_list,
+                                                              whitelist))
             self._update_desired_job_list(session, desired_job_list)
             if session.previous_session_file():
                 if self.is_interactive and self.ask_for_resume():
@@ -370,8 +375,10 @@ class _CliInvocation(CheckBoxInvocationMixIn):
                 if job.plugin == "local":
                     # After each local job runs rebuild the list of matching
                     # jobs and run everything again
-                    desired_job_list = get_matching_job_list(
-                        session.job_list, self.whitelist)
+                    desired_job_list = []
+                    for whitelist in self.whitelists:
+                        desired_job_list.extend(
+                            get_matching_job_list(session.job_list, whitelist))
                     self._update_desired_job_list(session, desired_job_list)
                     again = True
                     break

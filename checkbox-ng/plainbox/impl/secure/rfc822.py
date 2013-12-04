@@ -398,6 +398,9 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
 
     # Start with an empty record
     _new_record()
+    # Support simple text strings
+    if isinstance(stream, str):
+        stream = iter(stream.splitlines())
     # Iterate over subsequent lines of the stream
     for lineno, line in enumerate(stream, start=1):
         logger.debug("Looking at line %d:%r", lineno, line)

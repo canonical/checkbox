@@ -266,6 +266,10 @@ class RFC822SyntaxError(SyntaxError):
         self.lineno = lineno
         self.msg = msg
 
+    def __repr__(self):
+        return "{}({!r}, {!r}, {!r})".format(
+            self.__class__.__name__, self.filename, self.lineno, self.msg)
+
     def __eq__(self, other):
         if isinstance(other, RFC822SyntaxError):
             return ((self.filename, self.lineno, self.msg)

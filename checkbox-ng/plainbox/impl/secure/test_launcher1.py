@@ -28,7 +28,7 @@ Test definitions for plainbox.impl.secure.launcher1 module
 from inspect import cleandoc
 from unittest import TestCase
 
-from plainbox.impl.job import JobDefinition
+from plainbox.impl.job import JobDefinition, JobOutputTextSource
 from plainbox.impl.secure.launcher1 import TrustedLauncher
 from plainbox.impl.secure.launcher1 import main
 from plainbox.impl.secure.providers.v1 import Provider1
@@ -107,7 +107,8 @@ class TrustedLauncherTests(TestCase):
         mock_check_output.assert_called_with(
             ['bash', '-c', job.command], env=None, universal_newlines=True)
         # Ensure that we parse all of the output
-        mock_load_rfc822_records.assert_called_with(mock_check_output())
+        mock_load_rfc822_records.assert_called_with(
+            mock_check_output(), source=JobOutputTextSource(job))
         # Ensure that we return the jobs back
         self.assertEqual(len(job_list), 2)
         self.assertEqual(job_list[0], mock_from_rfc822_record(record1))

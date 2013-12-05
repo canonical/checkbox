@@ -24,12 +24,14 @@
 
 import argparse
 import copy
+import logging
 import subprocess
 
 from plainbox.impl.job import JobDefinition
+from plainbox.impl.job import JobOutputTextSource
 from plainbox.impl.providers.special import CheckBoxSrcProvider
 from plainbox.impl.secure.providers.v1 import all_providers
-from plainbox.impl.secure.rfc822 import load_rfc822_records
+from plainbox.impl.secure.rfc822 import load_rfc822_records, RFC822SyntaxError
 
 
 class TrustedLauncher:
@@ -91,10 +93,17 @@ class TrustedLauncher:
         cmd = ['bash', '-c', job.command]
         output = subprocess.check_output(cmd, universal_newlines=True, env=env)
         job_list = []
-        record_list = load_rfc822_records(output)
-        for record in record_list:
-            job = JobDefinition.from_rfc822_record(record)
-            job_list.append(job)
+        source = JobOutputTextSource(job)
+        try:
+            record_list = load_rfc822_records(output, source=source)
+        except RFC822SyntaxError as exc:
+            logging.error(
+                "Syntax error in job generated from %s: %s",
+                job, exc)
+        else:
+            for record in record_list:
+                job = JobDefinition.from_rfc822_record(record)
+                job_list.append(job)
         return job_list
 
 

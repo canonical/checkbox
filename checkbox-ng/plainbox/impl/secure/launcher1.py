@@ -23,6 +23,7 @@
 """
 
 import argparse
+import copy
 import subprocess
 
 from plainbox.impl.job import JobDefinition
@@ -92,6 +93,48 @@ class TrustedLauncher:
             job = JobDefinition.from_rfc822_record(record)
             job_list.append(job)
         return job_list
+
+
+class UpdateAction(argparse.Action):
+    """
+    Argparse action that builds up a dictionary.
+
+    This action is similar to the built-in append action but it constructs
+    a dictionary instead of a list.
+    """
+
+    def __init__(self, option_strings, dest, nargs=None, const=None,
+                 default=None, type=None, choices=None, required=False,
+                 help=None, metavar=None):
+        if nargs == 0:
+            raise ValueError('nargs for append actions must be > 0; if arg '
+                             'strings are not supplying the value to append, '
+                             'the append const action may be more appropriate')
+        if const is not None and nargs != argparse.OPTIONAL:
+            raise ValueError(
+                'nargs must be {!r} to supply const'.format(argparse.OPTIONAL))
+        super().__init__(
+            option_strings=option_strings, dest=dest, nargs=nargs, const=const,
+            default=default, type=type, choices=choices, required=required,
+            help=help, metavar=metavar)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        """
+        Internal method of argparse.Action
+
+        This method is invoked to "apply" the action after seeing all the values
+        for a given argument. Please refer to argparse source code for
+        information on how it is used.
+        """
+        items = copy.copy(argparse._ensure_value(namespace, self.dest, {}))
+        for value in values:
+            try:
+                k, v = value.split('=', 1)
+            except ValueError:
+                raise argparse.ArgumentError(self, "expected NAME=VALUE")
+            else:
+                items[k] = v
+        setattr(namespace, self.dest, items)
 
 
 def main(argv=None):

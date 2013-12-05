@@ -73,12 +73,14 @@ class TrustedLauncher:
         cmd = ['bash', '-c', job.command]
         return subprocess.call(cmd, env=env)
 
-    def run_local_job(self, checksum):
+    def run_local_job(self, checksum, env):
         """
         Run a job with and interpret the stdout as a job definition.
 
         :param checksum:
             The checksum of the job to execute
+        :param env:
+            Environment to execute the job in.
         :returns:
             A list of job definitions that were parsed out of the output.
         :raises LookupError:
@@ -86,7 +88,7 @@ class TrustedLauncher:
         """
         job = self.find_job(checksum)
         cmd = ['bash', '-c', job.command]
-        output = subprocess.check_output(cmd, universal_newlines=True)
+        output = subprocess.check_output(cmd, universal_newlines=True, env=env)
         job_list = []
         record_list = load_rfc822_records(output)
         for record in record_list:
@@ -212,7 +214,8 @@ def main(argv=None):
     # Run the local job and feed the result back to the launcher
     if ns.generator:
         try:
-            generated_job_list = launcher.run_local_job(ns.generator)
+            generated_job_list = launcher.run_local_job(
+                ns.generator, ns.generator_env)
             launcher.add_job_list(generated_job_list)
         except LookupError as exc:
             raise SystemExit(str(exc))

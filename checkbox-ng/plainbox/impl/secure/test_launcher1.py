@@ -102,10 +102,10 @@ class TrustedLauncherTests(TestCase):
         # Ensure that load_rfc822_records() returns some mocked records
         mock_load_rfc822_records.return_value = [record1, record2]
         # Run the tested method
-        job_list = self.launcher.run_local_job(job.checksum)
+        job_list = self.launcher.run_local_job(job.checksum, None)
         # Ensure that we run the job command via bash
         mock_check_output.assert_called_with(
-            ['bash', '-c', job.command], universal_newlines=True)
+            ['bash', '-c', job.command], env=None, universal_newlines=True)
         # Ensure that we parse all of the output
         mock_load_rfc822_records.assert_called_with(mock_check_output())
         # Ensure that we return the jobs back

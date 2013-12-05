@@ -675,6 +675,9 @@ class RootViaPTL1ExecutionController(CheckBoxDifferentialExecutionController):
         """
         # Run plainbox-trusted-launcher-1 as the required user
         cmd = ['pkexec', '--user', job.user, 'plainbox-trusted-launcher-1']
+        # Pass a special switch when working from source
+        if job.provider.name == '2013.com.canonical:checkbox-src':
+            cmd += ['--development']
         # Run the specified generator job in the specified environment
         if job.via is not None:
             cmd += ['--generator', job.via]
@@ -702,6 +705,11 @@ class RootViaPTL1ExecutionController(CheckBoxDifferentialExecutionController):
         # Only works with jobs coming from the Provider1 instance
         if not isinstance(job.provider, Provider1):
             return -1
+        # Be very appropriate for running jobs in the source provider
+        if (os.getenv('PLAINBOX_USE_TRUSTED_LAUNCHER')
+                and job.user is not None
+                and job.provider.name == '2013.com.canonical:checkbox-src'):
+            return 100
         # Only works with jobs loaded from the secure PROVIDERPATH
         if not job.provider.secure:
             return -1

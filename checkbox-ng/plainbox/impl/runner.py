@@ -433,7 +433,7 @@ class JobRunner(IJobRunner):
         """
         if job.plugin != "user-interact":
             raise ValueError("bad job plugin value")
-        return MemoryJobResult({'outcome': IJobResult.OUTCOME_UNDECIDED})
+        return self._just_run_command(job, config)
 
     def run_user_verify_job(self, job, config):
         """

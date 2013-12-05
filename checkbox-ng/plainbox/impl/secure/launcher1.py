@@ -144,12 +144,11 @@ def main(argv=None):
     :param argv:
         Command line arguments to parse. If None (default) then sys.argv is
         used instead.
-
     :returns:
-        The return code of the job that was selected with the --hash argument
+        The return code of the job that was selected with the --target argument
         or zero if the --warmup argument was specified.
     :raises:
-        SystemExit if --hash or --via point to unknown jobs.
+        SystemExit if --taget or --generator point to unknown jobs.
 
     The trusted launcher is a sudo-like program, that can grant unprivileged
     users permission to run something as root, that is restricted to executing
@@ -174,48 +173,54 @@ def main(argv=None):
     parser = argparse.ArgumentParser(prog="plainbox-trusted-launcher-1")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
-        '--hash',
-        metavar='CHECKSUM',
-        help='run a job with this checksum')
-    group.add_argument(
-        '--warmup',
+        '-w', '--warmup',
         action='store_true',
         help='return immediately, only useful when used with pkexec(1)')
-    parser.add_argument(
-        '--via',
+    group.add_argument(
+        '-t', '--target',
         metavar='CHECKSUM',
-        dest='via',
+        help='run a job with this checksum')
+    group = parser.add_argument_group("target job specification")
+    group.add_argument(
+        '-T', '--target-environment', metavar='NAME=VALUE',
+        dest='target_env',
+        nargs='+',
+        action=UpdateAction,
+        help='environment passed to the target job')
+    group = parser.add_argument_group(title="generator job specification")
+    group.add_argument(
+        '-g', '--generator',
+        metavar='CHECKSUM',
         help='also run a job with this checksum (assuming it is a local job)')
-    parser.add_argument(
-        'env', metavar='NAME=VALUE', nargs='*',
-        help='set each NAME to VALUE in the string environment')
+    group.add_argument(
+        '-G', '--generator-environment',
+        dest='generator_env',
+        nargs='+',
+        metavar='NAME=VALUE',
+        action=UpdateAction,
+        help='environment passed to the generator job')
     ns = parser.parse_args(argv)
+    # Just quit if warming up
     if ns.warmup:
         return 0
-    else:
-        # "parse environment"
+    launcher = TrustedLauncher()
+    # Siphon all jobs from all providers
+    all_providers.load()
+    for plugin in all_providers.get_all_plugins():
+        launcher.add_job_list(
+            plugin.plugin_object.get_builtin_jobs())
+    # Run the local job and feed the result back to the launcher
+    if ns.generator:
         try:
-            env = dict(item.split('=', 1) for item in ns.env)
-        except ValueError:
-            raise SystemExit(
-                "environment definitions must use NAME=VALUE syntax")
-        launcher = TrustedLauncher()
-        # Siphon all jobs from all providers
-        all_providers.load()
-        for plugin in all_providers.get_all_plugins():
-            launcher.add_job_list(
-                plugin.plugin_object.get_builtin_jobs())
-        # Run the local job and feed the result back to the launcher
-        if ns.via:
-            try:
-                launcher.add_job_list(launcher.run_local_job(ns.via))
-            except LookupError as exc:
-                raise SystemExit(str(exc))
-        # Run the target job and return the result code
-        try:
-            return launcher.run_shell_from_job(ns.hash, env)
+            generated_job_list = launcher.run_local_job(ns.generator)
+            launcher.add_job_list(generated_job_list)
         except LookupError as exc:
             raise SystemExit(str(exc))
+    # Run the target job and return the result code
+    try:
+        return launcher.run_shell_from_job(ns.target, ns.target_env)
+    except LookupError as exc:
+        raise SystemExit(str(exc))
 
 
 if __name__ == "__main__":

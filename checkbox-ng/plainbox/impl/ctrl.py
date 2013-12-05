@@ -674,16 +674,20 @@ class RootViaPTL1ExecutionController(CheckBoxDifferentialExecutionController):
         at most one-level of generated jobs.
         """
         # Run plainbox-trusted-launcher-1 as the required user
-        cmd = ['pkexec', '--user', job.user, 'plainbox-trusted-launcher-1',
-               '--hash', job.checksum]
-        # Append all environment data
+        cmd = ['pkexec', '--user', job.user, 'plainbox-trusted-launcher-1']
+        # Run the specified generator job in the specified environment
+        if job.via is not None:
+            cmd += ['--generator', job.via]
+            parent_env = self.get_differential_execution_environment(
+                job.origin.source.job, config, nest_dir)
+            for key, value in sorted(parent_env.items()):
+                cmd += ['-G', '{}={}'.format(key, value)]
+        # Run the specified target job in the specified environment
+        cmd += ['--target', job.checksum]
         env = self.get_differential_execution_environment(
             job, config, nest_dir)
-        cmd += ["{key}={value}".format(key=key, value=value)
-                for key, value in sorted(env.items())]
-        # Append the --via flag for generated jobs
-        if job.via is not None:
-            cmd += ['--via', job.via]
+        for key, value in sorted(env.items()):
+            cmd += ['-T', '{}={}'.format(key, value)]
         return cmd
 
     def get_checkbox_score(self, job):

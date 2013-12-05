@@ -142,19 +142,28 @@ class MainTests(TestCase):
         self.assertEqual(call.exception.args, (0,))
         self.maxDiff = None
         expected = """
-        usage: plainbox-trusted-launcher-1 [-h] (--hash CHECKSUM | --warmup)
-                                           [--via CHECKSUM]
-                                           [NAME=VALUE [NAME=VALUE ...]]
-
-        positional arguments:
-          NAME=VALUE       set each NAME to VALUE in the string environment
+        usage: plainbox-trusted-launcher-1 [-h] (-w | -t CHECKSUM)
+                                           [-T NAME=VALUE [NAME=VALUE ...]]
+                                           [-g CHECKSUM]
+                                           [-G NAME=VALUE [NAME=VALUE ...]]
 
         optional arguments:
-          -h, --help       show this help message and exit
-          --hash CHECKSUM  run a job with this checksum
-          --warmup         return immediately, only useful when used with pkexec(1)
-          --via CHECKSUM   also run a job with this checksum (assuming it is a local
-                           job)
+          -h, --help            show this help message and exit
+          -w, --warmup          return immediately, only useful when used with
+                                pkexec(1)
+          -t CHECKSUM, --target CHECKSUM
+                                run a job with this checksum
+
+        target job specification:
+          -T NAME=VALUE [NAME=VALUE ...], --target-environment NAME=VALUE [NAME=VALUE ...]
+                                environment passed to the target job
+
+        generator job specification:
+          -g CHECKSUM, --generator CHECKSUM
+                                also run a job with this checksum (assuming it is a
+                                local job)
+          -G NAME=VALUE [NAME=VALUE ...], --generator-environment NAME=VALUE [NAME=VALUE ...]
+                                environment passed to the generator job
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
 
@@ -180,10 +189,11 @@ class MainTests(TestCase):
                 main([])
             self.assertEqual(call.exception.args, (2,))
         expected = """
-        usage: plainbox-trusted-launcher-1 [-h] (--hash CHECKSUM | --warmup)
-                                           [--via CHECKSUM]
-                                           [NAME=VALUE [NAME=VALUE ...]]
-        plainbox-trusted-launcher-1: error: one of the arguments --hash --warmup is required
+        usage: plainbox-trusted-launcher-1 [-h] (-w | -t CHECKSUM)
+                                           [-T NAME=VALUE [NAME=VALUE ...]]
+                                           [-g CHECKSUM]
+                                           [-G NAME=VALUE [NAME=VALUE ...]]
+        plainbox-trusted-launcher-1: error: one of the arguments -w/--warmup -t/--target is required
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
 
@@ -199,7 +209,8 @@ class MainTests(TestCase):
         self.provider.get_builtin_jobs.return_value = [job]
         # Run the program with io intercept
         with TestIO(combined=True) as io:
-            retval = main(['--hash=1234', 'key=value', 'other=value'])
+            retval = main([
+                '--target=1234', '-T', 'key=value', '-T', 'other=value'])
         # Ensure that the job command was invoked
         # and that environment was properly parsed and provided
         mock_launcher().run_shell_from_job.assert_called_with(
@@ -232,45 +243,45 @@ class MainTests(TestCase):
         mock_launcher.run_local_job.return_value = [target_job]
         # Run the program with io intercept
         with TestIO(combined=True) as io:
-            retval = main(['--hash=1234', '--via=5678'])
+            retval = main(['--target=1234', '--generator=5678'])
         # Ensure that the local job command was invoked
-        mock_launcher().run_local_job.assert_called_with(local_job.checksum)
+        mock_launcher().run_local_job.assert_called_with(local_job.checksum, None)
         # Ensure that the target job command was invoked
         mock_launcher().run_shell_from_job.assert_called_with(
-            target_job.checksum, {})
+            target_job.checksum, None)
         # Ensure that the return code is propagated
         self.assertEqual(retval, mock_launcher().run_shell_from_job())
         # Ensure that we didn't print anything (we normally do but this is not
         # tested here since we mock that part away)
         self.assertEqual(io.combined, '')
 
-    def test_run_invalid_hash(self):
+    def test_run_invalid_target_checksum(self):
         """
         verify what happens when `plainbox-trusted-launcher-1` is called with a
-        checksum that cannot be found in any of the providers.
+        target job checksum that cannot be found in any of the providers.
         """
         # Ensure this there are no jobs that the launcher knows about
         self.provider.get_builtin_jobs.return_value = []
         # Run the program with io intercept
         with TestIO(combined=True) as io:
             with self.assertRaises(SystemExit) as call:
-                main(['--hash=1234'])
+                main(['--target=1234'])
         # Ensure that the error message contains the checksum of the target job
         self.assertEqual(call.exception.args, (
             'Cannot find job with checksum 1234',))
         self.assertEqual(io.combined, '')
 
-    def test_run_invalid_via(self):
+    def test_run_invalid_generator_checksum(self):
         """
         verify what happens when `plainbox-trusted-launcher-1` is called with a
-        checksum that cannot be found in any of the providers.
+        generator job checksum that cannot be found in any of the providers.
         """
         # Ensure this there are no jobs that the launcher knows about
         self.provider.get_builtin_jobs.return_value = []
         # Run the program with io intercept
         with TestIO(combined=True) as io:
             with self.assertRaises(SystemExit) as call:
-                main(['--hash=1234', '--via=4567'])
+                main(['--target=1234', '--generator=4567'])
         # Ensure that the error message contains the checksum of the via job
         self.assertEqual(call.exception.args, (
             'Cannot find job with checksum 4567',))
@@ -286,10 +297,15 @@ class MainTests(TestCase):
        # Run the program with io intercept
         with TestIO(combined=True) as io:
             with self.assertRaises(SystemExit) as call:
-                main(['--hash=1234', 'blarg'])
-        # Ensure that the error message contains the checksum of the via job
-        self.assertEqual(call.exception.args, (
-            'environment definitions must use NAME=VALUE syntax',))
-        # Ensure that we didn't print anything (we normally do but this is not
-        # tested here since we mock that part away)
-        self.assertEqual(io.combined, '')
+                main(['--target=1234', '-T', 'blarg'])
+        # Ensure that we exit with an error code
+        self.assertEqual(call.exception.args, (2,))
+        # Ensure that we print a meaningful error message
+        expected = """
+        usage: plainbox-trusted-launcher-1 [-h] (-w | -t CHECKSUM)
+                                           [-T NAME=VALUE [NAME=VALUE ...]]
+                                           [-g CHECKSUM]
+                                           [-G NAME=VALUE [NAME=VALUE ...]]
+        plainbox-trusted-launcher-1: error: argument -T/--target-environment: expected NAME=VALUE
+        """
+        self.assertEqual(io.combined, cleandoc(expected) + "\n")

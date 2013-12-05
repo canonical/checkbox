@@ -714,18 +714,32 @@ class RootViaPTL1ExecutionControllerTests(
         verify that we run plainbox-trusted-launcher-1 as the desired user
         """
         self.job.get_environ_settings.return_value = []
-        self.assertEqual(
-            self.ctrl.get_execution_command(
-                self.job, self.config, self.NEST_DIR),
-            ['pkexec', '--user', self.job.user,
-             'plainbox-trusted-launcher-1',
-             '--hash', self.job.checksum,
-             'CHECKBOX_DATA=session-dir/CHECKBOX_DATA',
-             'CHECKBOX_SHARE=CHECKBOX_SHARE',
-             'LANG=C.UTF-8',
-             'PATH={}'.format(
-                 os.pathsep.join([self.NEST_DIR, 'vanilla-path'])),
-             '--via', self.job.via])
+        self.job.origin.source.job = mock.Mock(
+            name='generator_job',
+            spec=JobDefinition,
+            provider=mock.Mock(
+                name='provider',
+                spec=IProvider1,
+                extra_PYTHONPATH=None,
+                CHECKBOX_SHARE='CHECKBOX_SHARE-generator'))
+        PATH = os.pathsep.join([self.NEST_DIR, 'vanilla-path'])
+        expected = [
+            'pkexec', '--user', self.job.user,
+            'plainbox-trusted-launcher-1',
+            '--generator', self.job.via,
+            '-G', 'CHECKBOX_DATA=session-dir/CHECKBOX_DATA',
+            '-G', 'CHECKBOX_SHARE=CHECKBOX_SHARE-generator',
+            '-G', 'LANG=C.UTF-8',
+            '-G', 'PATH={}'.format(PATH),
+            '--target', self.job.checksum,
+            '-T', 'CHECKBOX_DATA=session-dir/CHECKBOX_DATA',
+            '-T', 'CHECKBOX_SHARE=CHECKBOX_SHARE',
+            '-T', 'LANG=C.UTF-8',
+            '-T', 'PATH={}'.format(PATH),
+        ]
+        actual = self.ctrl.get_execution_command(
+            self.job, self.config, self.NEST_DIR)
+        self.assertEqual(actual, expected)
 
     @mock.patch.dict('os.environ', clear=True, PATH='vanilla-path')
     def test_get_command_without_via(self):
@@ -734,18 +748,18 @@ class RootViaPTL1ExecutionControllerTests(
         """
         self.job.get_environ_settings.return_value = []
         self.job.via = None
-        self.assertEqual(
-            self.ctrl.get_execution_command(
-                self.job, self.config, self.NEST_DIR),
-            ['pkexec', '--user', self.job.user,
-             'plainbox-trusted-launcher-1',
-             '--hash', self.job.checksum,
-             'CHECKBOX_DATA=session-dir/CHECKBOX_DATA',
-             'CHECKBOX_SHARE=CHECKBOX_SHARE',
-             'LANG=C.UTF-8',
-             'PATH={}'.format(
-                 os.pathsep.join([self.NEST_DIR, 'vanilla-path'])),
-            ])
+        PATH = os.pathsep.join([self.NEST_DIR, 'vanilla-path'])
+        expected = [
+            'pkexec', '--user', self.job.user,
+            'plainbox-trusted-launcher-1',
+            '--target', self.job.checksum,
+            '-T', 'CHECKBOX_DATA=session-dir/CHECKBOX_DATA',
+            '-T', 'CHECKBOX_SHARE=CHECKBOX_SHARE',
+            '-T', 'LANG=C.UTF-8',
+            '-T', 'PATH={}'.format(PATH)]
+        actual = self.ctrl.get_execution_command(
+            self.job, self.config, self.NEST_DIR)
+        self.assertEqual(actual, expected)
 
     def test_get_checkbox_score_for_other_providers(self):
         # Ensure that the job provider is not Provider1

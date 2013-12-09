@@ -489,7 +489,8 @@ class CheckBoxExecutionControllerTestsMixIn:
 
     CLS = CheckBoxExecutionController
 
-    def setUp(self):
+    @mock.patch('plainbox.impl.ctrl.check_output')
+    def setUp(self, mock_check_output):
         self.ctrl = self.CLS(self.SESSION_DIR, self.PROVIDER_LIST)
         # Create mocked job definition.
         # Put a mocked provider on the job and give it some values for:
@@ -515,7 +516,8 @@ class CheckBoxExecutionControllerTestsMixIn:
             name='extcmd_popen',
             spec=extcmd.ExternalCommand)
 
-    def test_init(self):
+    @mock.patch('plainbox.impl.ctrl.check_output')
+    def test_init(self, mock_check_output):
         """
         verify that __init__() stores session_dir
         """

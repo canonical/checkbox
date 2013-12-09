@@ -24,6 +24,7 @@ plainbox.impl.test_ctrl
 Test definitions for plainbox.impl.ctrl module
 """
 
+from subprocess import CalledProcessError
 from unittest import TestCase
 import os
 
@@ -600,7 +601,7 @@ class UserJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
         self.assertEqual(self.ctrl.get_checkbox_score(self.job), 1)
 
     @mock.patch('os.getuid')
-    def test_get_checkbox_score_for_jobs_with_user(mock_getuid, self):
+    def test_get_checkbox_score_for_jobs_with_user(self, mock_getuid):
         """
         verify that score for jobs with an user override is minus one
         """
@@ -610,13 +611,13 @@ class UserJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
         self.assertEqual(self.ctrl.get_checkbox_score(self.job), -1)
 
     @mock.patch('os.getuid')
-    def test_get_checkbox_score_as_root(mock_getuid, self):
+    def test_get_checkbox_score_as_root(self, mock_getuid):
         """
-        verify that score for jobs with an user override is 3 if I am root
+        verify that score for jobs with an user override is 4 if I am root
         """
         mock_getuid.return_value = 0  # Pretend to be root
         self.job.user = 'root'
-        self.assertEqual(self.ctrl.get_checkbox_score(self.job), 3)
+        self.assertEqual(self.ctrl.get_checkbox_score(self.job), 4)
 
     @mock.patch.dict('os.environ', clear=True)
     def test_get_execution_environment_resets_LANG(self):
@@ -783,14 +784,51 @@ class RootViaPTL1ExecutionControllerTests(
         # Ensure that we get a neutral score of zero
         self.assertEqual(self.ctrl.get_checkbox_score(self.job), 0)
 
-    def test_get_checkbox_score_for_secure_provider_and_root_job(self):
+    @mock.patch('plainbox.impl.ctrl.check_output')
+    def test_get_checkbox_score_for_secure_provider_root_job_with_policy(
+            self, mock_check_output):
         # Assume that the job is coming from Provider1 provider
         # and the provider is secure
         self.job.provider = mock.Mock(spec=Provider1, secure=True)
         # Assume that the job runs as root
         self.job.user = 'root'
+        # Ensure we get the right action id from pkaction(1)
+        mock_check_output.return_value = \
+            b"org.freedesktop.policykit.pkexec.run-plainbox-job\n"
+        # Ensure that we get a positive score of three
+        ctrl = self.CLS(self.SESSION_DIR, self.PROVIDER_LIST)
+        self.assertEqual(ctrl.get_checkbox_score(self.job), 3)
+
+    @mock.patch('plainbox.impl.ctrl.check_output')
+    def test_get_checkbox_score_for_secure_provider_root_job_with_policy_2(
+            self, mock_check_output):
+        # Assume that the job is coming from Provider1 provider
+        # and the provider is secure
+        self.job.provider = mock.Mock(spec=Provider1, secure=True)
+        # Assume that the job runs as root
+        self.job.user = 'root'
+        # Ensure we get the right action id from pkaction(1) even with
+        # polikt version < 0.110 (pkaction always exists with status 1), see:
+        # https://bugs.freedesktop.org/show_bug.cgi?id=29936#attach_78263
+        mock_check_output.side_effect = CalledProcessError(1, '',
+            b"org.freedesktop.policykit.pkexec.run-plainbox-job\n")
+        # Ensure that we get a positive score of three
+        ctrl = self.CLS(self.SESSION_DIR, self.PROVIDER_LIST)
+        self.assertEqual(ctrl.get_checkbox_score(self.job), 3)
+
+    @mock.patch('plainbox.impl.ctrl.check_output')
+    def test_get_checkbox_score_for_secure_provider_root_job_no_policy(
+            self, mock_check_output):
+        # Assume that the job is coming from Provider1 provider
+        # and the provider is secure
+        self.job.provider = mock.Mock(spec=Provider1, secure=True)
+        # Assume that the job runs as root
+        self.job.user = 'root'
+        # Ensure pkaction(1) return nothing
+        mock_check_output.return_value = "No action with action id BLAHBLAH"
         # Ensure that we get a positive score of two
-        self.assertEqual(self.ctrl.get_checkbox_score(self.job), 2)
+        ctrl = self.CLS(self.SESSION_DIR, self.PROVIDER_LIST)
+        self.assertEqual(ctrl.get_checkbox_score(self.job), 0)
 
 
 class RootViaPkexecExecutionControllerTests(

@@ -39,11 +39,12 @@ from plainbox.impl.exporter.rfc822 import RFC822SessionStateExporter
 from plainbox.impl.exporter.text import TextSessionStateExporter
 from plainbox.impl.exporter.xml import XMLSessionStateExporter
 from plainbox.testing_utils.io import TestIO
-from plainbox.vendor.mock import patch
+from plainbox.vendor.mock import patch, Mock
 
 
 class TestRun(TestCase):
 
+    @patch.dict('sys.modules', {'concurrent': Mock()})
     def setUp(self):
         # session data are kept in XDG_CACHE_HOME/plainbox/.session
         # To avoid resuming a real session, we have to select a temporary

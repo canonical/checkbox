@@ -122,7 +122,8 @@ class ScriptInvocationTests(TestCase):
                 """) + '\n')
         self.assertEqual(retval, 125)
 
-    def test_job_with_command(self):
+    @mock.patch('plainbox.impl.ctrl.check_output')
+    def test_job_with_command(self, mock_check_output):
         dummy_name = 'foo'
         dummy_command = 'echo ok'
         provider_list = [DummyProvider1([
@@ -138,7 +139,8 @@ class ScriptInvocationTests(TestCase):
                 "command: {}\n".format(dummy_command))
         self.assertEqual(retval, 0)
 
-    def test_job_with_command_making_files(self):
+    @mock.patch('plainbox.impl.ctrl.check_output')
+    def test_job_with_command_making_files(self, mock_check_output):
         dummy_name = 'foo'
         dummy_command = 'echo ok > file'
         provider_list = [DummyProvider1([

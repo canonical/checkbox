@@ -109,7 +109,8 @@ class TestRun(TestCase):
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
 
-    def test_run_without_args(self):
+    @patch('plainbox.impl.ctrl.check_output')
+    def test_run_without_args(self, mock_check_output):
         with TestIO(combined=True) as io:
             with self.assertRaises(SystemExit) as call:
                 with patch('plainbox.impl.commands.run.authenticate_warmup') as mock_warmup:

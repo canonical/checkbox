@@ -41,6 +41,7 @@ import logging
 import os
 import posix
 import tempfile
+from subprocess import check_output, CalledProcessError
 
 from plainbox.abc import IExecutionController
 from plainbox.abc import IJobResult
@@ -573,7 +574,7 @@ class UserJobExecutionController(CheckBoxExecutionController):
         if job.user is None:
             return 1
         if os.getuid() == 0:
-            return 3
+            return 4
         else:
             return -1
 
@@ -650,6 +651,23 @@ class RootViaPTL1ExecutionController(CheckBoxDifferentialExecutionController):
     Execution controller that gains root using plainbox-trusted-launcher-1
     """
 
+    def __init__(self, session_dir, provider_list):
+        """
+        Initialize a new RootViaPTL1ExecutionController
+        """
+        super().__init__(session_dir, provider_list)
+        # Ask pkaction(1) if the "run-plainbox-job" policykit action is
+        # registered on this machine.
+        action_id = b"org.freedesktop.policykit.pkexec.run-plainbox-job"
+        # Catch CalledProcessError because pkaction (polkit < 0.110) always
+        # exits with status 1, see:
+        # https://bugs.freedesktop.org/show_bug.cgi?id=29936#attach_78263
+        try:
+            result = check_output(["pkaction", "--action-id", action_id])
+        except CalledProcessError as exc:
+            result = exc.output
+        self.is_supported = True if result.strip() == action_id else False
+
     def get_execution_command(self, job, config, nest_dir):
         """
         Get the command to invoke.
@@ -706,8 +724,10 @@ class RootViaPTL1ExecutionController(CheckBoxDifferentialExecutionController):
         if not job.provider.secure:
             return -1
         # Only makes sense with jobs that need to run as another user
-        if job.user is not None:
-            return 2
+        # Promote this controller only if the trusted launcher is authorized to
+        # run jobs as another user
+        if job.user is not None and self.is_supported:
+            return 3
         else:
             return 0
 

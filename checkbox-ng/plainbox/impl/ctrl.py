@@ -41,7 +41,7 @@ import logging
 import os
 import posix
 import tempfile
-from subprocess import check_output, CalledProcessError
+from subprocess import check_output, CalledProcessError, STDOUT
 
 from plainbox.abc import IExecutionController
 from plainbox.abc import IJobResult
@@ -663,7 +663,8 @@ class RootViaPTL1ExecutionController(CheckBoxDifferentialExecutionController):
         # exits with status 1, see:
         # https://bugs.freedesktop.org/show_bug.cgi?id=29936#attach_78263
         try:
-            result = check_output(["pkaction", "--action-id", action_id])
+            result = check_output(["pkaction", "--action-id", action_id],
+                                  stderr=STDOUT)
         except CalledProcessError as exc:
             result = exc.output
         self.is_supported = True if result.strip() == action_id else False

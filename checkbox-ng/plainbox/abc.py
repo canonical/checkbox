@@ -358,7 +358,20 @@ class IProvider1(metaclass=ABCMeta):
     @abstractmethod
     def get_builtin_jobs(self):
         """
-        Load all the built-in jobs and return them
+        Load and parse all of the job definitions of this provider.
+
+        :returns:
+            A sorted list of JobDefinition objects
+        :raises RFC822SyntaxError:
+            if any of the loaded files was not valid RFC822
+        :raises IOError, OSError:
+            if there were any problems accessing files or directories.
+            Note that OSError is silently ignored when the `jobs_dir`
+            directory is missing.
+
+        ..note::
+            This method should not be used anymore. Consider transitioning your
+            code to :meth:`load_all_jobs()` which is more reliable.
         """
 
     @abstractmethod

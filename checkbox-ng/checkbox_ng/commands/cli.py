@@ -297,6 +297,7 @@ class CliInvocation(CheckBoxInvocationMixIn):
                 session.jobs_io_log_dir)
             self._run_jobs_with_session(ns, session, runner)
             self.save_results(session)
+            session.remove()
 
         # FIXME: sensible return value
         return 0

@@ -127,19 +127,48 @@ class PlainBoxToolBase(ToolBase):
         # Decide which providers to expose to the rest of plainbox
         if ns.checkbox == 'auto':
             if CheckBoxSrcProvider.exists():
-                return [CheckBoxSrcProvider()]
+                return (self._load_checkbox_source_provider()
+                        + self._load_normal_providers_except_checkbox())
             else:
-                all_providers.load()
-                return [plugin.plugin_object
-                        for plugin in all_providers.get_all_plugins()]
+                return self._load_normal_providers()
         elif ns.checkbox == 'src':
-            return [CheckBoxSrcProvider()]
+            return self._load_checkbox_source_provider()
         elif ns.checkbox == 'deb':
-            all_providers.load()
-            return [plugin.plugin_object
-                    for plugin in all_providers.get_all_plugins()]
+            return self._load_normal_providers()
         elif ns.checkbox == 'stub':
-            return [StubBoxProvider()]
+            return self._load_stub_provider_only()
+
+    def _is_part_of_checkbox_src(self, provider):
+        """
+        Check a provider is derived of the CheckBoxSrcProvider().
+
+        :returns:
+            True if the specified provider's data is included in the special,
+            all-in-one, CheckBoxSrcProvider.
+        """
+        return provider.name in (
+            "2013.com.canonical:certification-client",
+            "2013.com.canonical:certification-server",
+            "2013.com.canonical:certification-server-soc",
+            "2013.com.canonical:checkbox",
+            "2013.com.canonical:plainbox-resources")
+
+    def _load_normal_providers(self):
+        all_providers.load()
+        return [plugin.plugin_object
+                for plugin in all_providers.get_all_plugins()]
+
+    def _load_normal_providers_except_checkbox(self):
+        all_providers.load()
+        return [plugin.plugin_object
+                for plugin in all_providers.get_all_plugins()
+                if not self._is_part_of_checkbox_src(plugin.plugin_object)]
+
+    def _load_checkbox_source_provider(self):
+        return [CheckBoxSrcProvider()]
+
+    def _load_stub_provider_only(self):
+        return [StubBoxProvider()]
 
     def add_early_parser_arguments(self, parser):
         """

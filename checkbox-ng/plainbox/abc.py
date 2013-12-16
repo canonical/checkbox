@@ -318,6 +318,18 @@ class IProviderBackend1(metaclass=ABCMeta):
         """
 
     @abstractproperty
+    def jobs_dir(self):
+        """
+        Return an absolute path of the jobs directory
+        """
+
+    @abstractproperty
+    def whitelists_dir(self):
+        """
+        Return an absolute path of the whitelist directory
+        """
+
+    @abstractproperty
     def secure(self):
         """
         flag indicating that this provider was loaded from the secure portion

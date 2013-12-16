@@ -83,6 +83,14 @@ class DummyProvider1(IProvider1, IProviderBackend1):
     def bin_dir(self):
         return self._extras.get("bin_dir")
 
+    @property
+    def jobs_dir(self):
+        return self._extras.get("jobs_dir")
+
+    @property
+    def whitelists_dir(self):
+        return self._extras.get("whitelists_dir")
+
     def secure(self):
         return False
 

@@ -25,6 +25,10 @@ Test definitions for plainbox.impl.secure.providers.v1 module
 """
 
 from unittest import TestCase
+import errno
+import os
+import posix
+import stat
 
 from plainbox.impl.secure.providers.v1 import AbsolutePathValidator
 from plainbox.impl.secure.providers.v1 import ExistingDirectoryValidator
@@ -33,6 +37,7 @@ from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.providers.v1 import Provider1Definition
 from plainbox.impl.secure.providers.v1 import Provider1PlugIn
 from plainbox.impl.secure.providers.v1 import VersionValidator
+from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.vendor import mock
 
 
@@ -241,8 +246,119 @@ class Provider1Tests(TestCase):
         """
         self.assertEqual(self.provider.secure, self.SECURE)
 
-    def test_get_builtin_whitelists(self):
-        self.skipTest("not implemented")
+    @mock.patch("os.listdir")
+    @mock.patch("plainbox.impl.secure.providers.v1.logger")
+    def test_get_builtin_whitelists_missing_directory(
+            self, mock_logger, mock_listdir):
+        """
+        verify that Provider1.get_builtin_whitelists() ignores missing
+        directories and silently returns an empty list of whitelists
+        """
+        # Pretend that there is no whitelists_dir directory
+        mock_listdir.side_effect = OSError(errno.ENOENT, "[mock] ENOENT")
+        # See what whitelists we got
+        result = self.provider.get_builtin_whitelists()
+        # Ensure that we got no whitelists but no errors either
+        self.assertEqual(result, [])
+        # Ensure that we tried
+        mock_listdir.assert_called_once_with(self.provider.whitelists_dir)
+        log_message = "Loading built-in whitelists..."
+        mock_logger.debug.assert_called_once_with(log_message)
+
+    @mock.patch("os.listdir")
+    @mock.patch("plainbox.impl.secure.providers.v1.logger")
+    def test_get_builtin_whitelists_unreadable_directory(
+            self, mock_logger, mock_listdir):
+        """
+        verify that Provider1.get_builtin_whitelists() does not conceal other
+        types OSError exceptions, such as EPERM.
+        """
+        # Pretend that we cannot read the whitelists_dir directory
+        mock_listdir.side_effect = OSError(errno.EPERM, "[mock] EPERM")
+        # Ensure that the exception is simply raised back to the calller
+        with self.assertRaises(OSError):
+            self.provider.get_builtin_whitelists()
+        # Ensure that we tried
+        mock_listdir.assert_called_once_with(self.provider.whitelists_dir)
+        log_message = "Loading built-in whitelists..."
+        mock_logger.debug.assert_called_once_with(log_message)
+
+    @mock.patch("os.listdir")
+    @mock.patch("os.stat")
+    @mock.patch("plainbox.impl.secure.providers.v1.logger")
+    def test_get_builtin_whitelists_skips_directories(
+            self, mock_logger, mock_stat, mock_listdir):
+        """
+        verify that Provider1.get_builtin_whitelists() skips directories,
+        even if they have a .whitelist extension.
+        """
+        # Pretend there is a 'dir.whitelist' entry in whitelists_dir
+        mock_listdir.return_value = ["dir.whitelist"]
+        # Pretend it is a directory
+        mock_stat.return_value = mock.Mock(
+            spec=posix.stat_result, st_mode=stat.S_IFDIR)
+        # See what whitelists we got
+        result = self.provider.get_builtin_whitelists()
+        # Ensure that we got nothing at all
+        self.assertEqual(len(result), 0)
+        # Ensure that we tried
+        mock_listdir.assert_called_once_with(self.provider.whitelists_dir)
+        log_message = "Loading built-in whitelists..."
+        mock_logger.debug.assert_called_once_with(log_message)
+
+    @mock.patch("os.listdir")
+    @mock.patch("plainbox.impl.secure.providers.v1.logger")
+    def test_get_builtin_whitelists_skips_other_files(
+            self, mock_logger, mock_listdir):
+        """
+        verify that Provider1.get_builtin_whitelists() ignores files other than
+        those ending with a '.whitelist'
+        """
+        # Pretend there is a 'a-file' entry in whitelists_dir
+        mock_listdir.return_value = ["a-file"]
+        # See what whitelists we got
+        result = self.provider.get_builtin_whitelists()
+        # Ensure that we got nothing at all
+        self.assertEqual(len(result), 0)
+        # Ensure that we tried
+        mock_listdir.assert_called_once_with(self.provider.whitelists_dir)
+        log_message = "Loading built-in whitelists..."
+        mock_logger.debug.assert_called_once_with(log_message)
+
+    @mock.patch("os.listdir")
+    @mock.patch("os.stat")
+    @mock.patch("plainbox.impl.secure.providers.v1.logger")
+    @mock.patch("plainbox.impl.secure.qualifiers.WhiteList.from_file")
+    def test_get_builtin_whitelists_normal_operation(
+            self, mock_from_file, mock_logger, mock_stat, mock_listdir):
+        """
+        verify that Provider1.get_builtin_whitelists() can load whitelists
+        """
+        # Pretend there are two whitelist-looking entries in whitelists_dir
+        mock_listdir.return_value = ["zzz.whitelist", "aaa.whitelist"]
+        # Pretend that they are both files
+        mock_stat.return_value = mock.Mock(
+            spec=posix.stat_result, st_mode=stat.S_IFREG)
+
+        def make_whitelist(filename):
+            whitelist = mock.Mock(spec=WhiteList)
+            # Set the name to the basename without the extension
+            whitelist.name = os.path.splitext(os.path.basename(filename))[0]
+            return whitelist
+        # Pretend that loading them returns a likely whitelist
+        mock_from_file.side_effect = make_whitelist
+        # See what whitelists we got
+        result = self.provider.get_builtin_whitelists()
+        # Ensure that we got two whitelists back
+        self.assertEqual(len(result), 2)
+        # This also checks that whitelists are sorted as they were opened in
+        # reverse order.
+        self.assertEqual(result[0].name, "aaa")
+        self.assertEqual(result[1].name, "zzz")
+        # Ensure that we tried
+        mock_listdir.assert_called_once_with(self.provider.whitelists_dir)
+        log_message = "Loading built-in whitelists..."
+        mock_logger.debug.assert_called_once_with(log_message)
 
     def test_get_builtin_jobs(self):
         self.skipTest("not implemented")

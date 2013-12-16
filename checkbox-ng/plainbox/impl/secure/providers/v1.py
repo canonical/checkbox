@@ -26,6 +26,7 @@ import errno
 import io
 import logging
 import os
+import stat
 
 from plainbox.abc import IProvider1, IProviderBackend1
 from plainbox.impl.job import JobDefinition
@@ -160,6 +161,21 @@ class Provider1(IProvider1, IProviderBackend1):
         return self._secure
 
     def get_builtin_whitelists(self):
+        """
+        Load all the whitelists from :attr:`whitelists_dir` and return them
+
+        This method looks at the whitelist directory and loads all files ending
+        with .whitelist as a WhiteList object.
+
+        :returns:
+            A list of :class:`~plainbox.impl.secure.qualifiers.WhiteList`
+            objects sorted by
+            :attr:`plainbox.impl.secure.qualifiers.WhiteList.name`.
+        :raises IOError, OSError:
+            if there were any problems accessing files or directories.  Note
+            that OSError is silently ignored when the `whitelists_dir`
+            directory is missing.
+        """
         logger.debug("Loading built-in whitelists...")
         whitelist_list = []
         try:
@@ -170,10 +186,16 @@ class Provider1(IProvider1, IProviderBackend1):
             else:
                 raise
         for name in items:
-            if name.endswith(".whitelist"):
-                whitelist_list.append(
-                    WhiteList.from_file(os.path.join(
-                        self.whitelists_dir, name)))
+            if not name.endswith(".whitelist"):
+                continue
+            pathname = os.path.join(self.whitelists_dir, name)
+            if not stat.S_ISREG(os.stat(pathname).st_mode):
+                continue
+            # FIXME: check if it's a readable file, skip everything else
+            # FIXME: broken whitelists will break apps, needs separate method
+            # like load_all_jobs() but for whitelists.
+            whitelist = WhiteList.from_file(pathname)
+            whitelist_list.append(whitelist)
         return sorted(whitelist_list, key=lambda whitelist: whitelist.name)
 
     def get_builtin_jobs(self):

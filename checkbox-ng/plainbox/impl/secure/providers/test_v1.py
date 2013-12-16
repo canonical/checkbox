@@ -180,3 +180,75 @@ class Provider1Tests(TestCase):
         self.assertEqual(
             repr(self.provider),
             "<Provider1 name:'2013.org.example:name' base_dir:'base-dir'>")
+
+    def test_base_dir(self):
+        """
+        Verify that Provider1.base_dir attribute is set correctly
+        """
+        self.assertEqual(self.provider.base_dir, self.BASE_DIR)
+
+    def test_name(self):
+        """
+        Verify that Provider1.name attribute is set correctly
+        """
+        self.assertEqual(self.provider.name, self.NAME)
+
+    def test_version(self):
+        """
+        Verify that Provider1.version attribute is set correctly
+        """
+        self.assertEqual(self.provider.version, self.VERSION)
+
+    def test_description(self):
+        """
+        Verify that Provider1.description attribute is set correctly
+        """
+        self.assertEqual(self.provider.description, self.DESCRIPTION)
+
+    def test_jobs_dir(self):
+        """
+        Verify that Provider1.jobs_dir attribute is set correctly
+        """
+        self.assertEqual(self.provider.jobs_dir, "base-dir/jobs")
+
+    def test_bin_dir(self):
+        """
+        Verify that Provider1.bin_dir attribute is set correctly
+        """
+        self.assertEqual(self.provider.bin_dir, "base-dir/bin")
+
+    def test_whitelists_dir(self):
+        """
+        Verify that Provider1.whitelists_dir attribute is set correctly
+        """
+        self.assertEqual(self.provider.whitelists_dir, "base-dir/whitelists")
+
+    def test_CHECKBOX_SHARE(self):
+        """
+        Verify that Provider1.CHECKBOX_SHARE is always equal to base_dir
+        """
+        self.assertEqual(self.provider.CHECKBOX_SHARE, self.provider.base_dir)
+
+    def test_extra_PYTHONPATH(self):
+        """
+        Verify that Provider1.extra_PYTHONPATH is always None
+        """
+        self.assertIsNone(self.provider.extra_PYTHONPATH)
+
+    def test_secure(self):
+        """
+        Verify that Provider1.secure attribute is set correctly
+        """
+        self.assertEqual(self.provider.secure, self.SECURE)
+
+    def test_get_builtin_whitelists(self):
+        self.skipTest("not implemented")
+
+    def test_get_builtin_jobs(self):
+        self.skipTest("not implemented")
+
+    def test_get_all_executables(self):
+        self.skipTest("not implemented")
+
+    def test_load_jobs(self):
+        self.skipTest("not implemented")

@@ -72,6 +72,13 @@ class IPlugIn(metaclass=abc.ABCMeta):
         """
 
 
+class PlugInError(Exception):
+    """
+    Exception that may be raised by PlugIn.__init__() to signal it cannot
+    be fully loaded and should not be added to any collection.
+    """
+
+
 class PlugIn(IPlugIn):
     """
     Simple plug-in that does not offer any guarantees beyond knowing it's name
@@ -221,6 +228,15 @@ class PlugInCollectionBase(IPlugInCollection):
             self._loaded = old_loaded
             self._plugins = old_plugins
 
+    def wrap_and_add_plugin(self, plugin_name, plugin_obj):
+        try:
+            wrapper = self._wrapper(plugin_name, plugin_obj)
+        except PlugInError as exc:
+            logger.warning(
+                "Unable to prepare plugin %s: %s", plugin_name, exc)
+        else:
+            self._plugins[plugin_name] = wrapper
+
 
 class PkgResourcesPlugInCollection(PlugInCollectionBase):
     """
@@ -267,8 +283,7 @@ class PkgResourcesPlugInCollection(PlugInCollectionBase):
             except ImportError:
                 logger.exception("Unable to import %s", entry_point)
             else:
-                obj = self._wrapper(entry_point.name, obj)
-                self._plugins[entry_point.name] = obj
+                self.wrap_and_add_plugin(entry_point.name, obj)
 
     def _get_entry_points(self):
         """
@@ -329,8 +344,7 @@ class FsPlugInCollection(PlugInCollectionBase):
             except IOError as exc:
                 logger.error("Unable to load %r: %s", filename, str(exc))
             else:
-                obj = self._wrapper(filename, text)
-                self._plugins[filename] = obj
+                self.wrap_and_add_plugin(filename, text)
 
     def _get_plugin_files(self):
         """

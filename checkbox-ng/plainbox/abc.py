@@ -392,6 +392,11 @@ class IProvider1(metaclass=ABCMeta):
         Load all the built-in whitelists and return them
         """
 
+    def get_all_executables(self):
+        """
+        Discover and return all executables offered by this provider
+        """
+
 
 class ISessionStateController(metaclass=ABCMeta):
     """

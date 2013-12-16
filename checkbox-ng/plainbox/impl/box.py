@@ -47,16 +47,6 @@ class PlainBoxTool(PlainBoxToolBase):
     """
 
     @classmethod
-    def get_config_cls(cls):
-        """
-        Get the Config class that is used by this implementation.
-
-        This can be overriden by subclasses to use a different config class
-        that is suitable for the particular application.
-        """
-        return PlainBoxConfig
-
-    @classmethod
     def get_exec_name(cls):
         """
         Get the name of this executable
@@ -74,7 +64,7 @@ class PlainBoxTool(PlainBoxToolBase):
         """
         Add top-level subcommands to the argument parser.
 
-        This can be overriden by subclasses to use a different set of
+        This can be overridden by subclasses to use a different set of
         top-level subcommands.
         """
         # TODO: switch to plainbox plugins
@@ -82,6 +72,16 @@ class PlainBoxTool(PlainBoxToolBase):
         SelfTestCommand().register_parser(subparsers)
         CheckConfigCommand(self._config).register_parser(subparsers)
         DevCommand(self._provider_list, self._config).register_parser(subparsers)
+
+    @classmethod
+    def get_config_cls(cls):
+        """
+        Get the Config class that is used by this implementation.
+
+        This can be overridden by subclasses to use a different config
+        class that is suitable for the particular application.
+        """
+        return PlainBoxConfig
 
 
 def main(argv=None):

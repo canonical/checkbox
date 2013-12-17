@@ -137,6 +137,13 @@ class WhiteList(CompositeQualifier):
         """
         return self._name
 
+    @name.setter
+    def name(self, value):
+        """
+        set a new name for a WhiteList
+        """
+        self._name = value
+
     @classmethod
     def from_file(cls, pathname):
         """

@@ -149,6 +149,20 @@ class WhiteListTests(TestCase):
         whitelist = WhiteList([], name="test")
         self.assertEqual(repr(whitelist), "<WhiteList name:'test'>")
 
+    def test_name_getter(self):
+        """
+        verify that WhiteList.name getter works
+        """
+        self.assertEqual(WhiteList([], "foo").name, "foo")
+
+    def test_name_setter(self):
+        """
+        verify that WhiteList.name setter works
+        """
+        whitelist = WhiteList([], "foo")
+        whitelist.name = "bar"
+        self.assertEqual(whitelist.name, "bar")
+
 
 class NameJobQualifierTests(TestCase):
 

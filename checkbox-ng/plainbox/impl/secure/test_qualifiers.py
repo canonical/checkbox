@@ -175,6 +175,18 @@ class WhiteListTests(TestCase):
         whitelist.name = "bar"
         self.assertEqual(whitelist.name, "bar")
 
+    def test_name_from_fielename(self):
+        """
+        verify how name_from_filename() works
+        """
+        self.assertEqual(
+            WhiteList.name_from_filename("some/path/foo.whitelist"), "foo")
+        self.assertEqual(WhiteList.name_from_filename("foo.whitelist"), "foo")
+        self.assertEqual(WhiteList.name_from_filename("foo."), "foo")
+        self.assertEqual(WhiteList.name_from_filename("foo"), "foo")
+        self.assertEqual(
+            WhiteList.name_from_filename("foo.notawhitelist"), "foo")
+
 
 class NameJobQualifierTests(TestCase):
 

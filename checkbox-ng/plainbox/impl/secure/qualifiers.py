@@ -172,6 +172,14 @@ class WhiteList(CompositeQualifier):
         return cls(pattern_list)
 
     @classmethod
+    def name_from_filename(cls, filename):
+        """
+        Compute the name of a whitelist based on the name
+        of the file it is stored in.
+        """
+        return os.path.splitext(os.path.basename(filename))[0]
+
+    @classmethod
     def _parse_patterns(cls, text):
         """
         Load whitelist patterns from the specified text

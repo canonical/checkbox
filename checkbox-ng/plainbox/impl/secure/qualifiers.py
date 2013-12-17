@@ -124,8 +124,8 @@ class WhiteList(CompositeQualifier):
         """
         inclusive = [RegExpJobQualifier(pattern) for pattern in pattern_list]
         exclusive = ()
-        super(WhiteList, self).__init__(inclusive, exclusive)
         self._name = name
+        super(WhiteList, self).__init__(inclusive, exclusive)
 
     def __repr__(self):
         return "<{} name:{!r}>".format(self.__class__.__name__, self.name)

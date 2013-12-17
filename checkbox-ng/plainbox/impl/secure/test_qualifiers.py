@@ -44,6 +44,7 @@ class JobQualifierTests(TestCase):
 
     def test_RegExpJobQualifier_smoke(self):
         qualifier = RegExpJobQualifier("foo")
+        self.assertEqual(qualifier.pattern_text, "foo")
         self.assertEqual(
             repr(qualifier), "<RegExpJobQualifier pattern:'foo'>")
         self.assertTrue(qualifier.designates(make_job("foo")))

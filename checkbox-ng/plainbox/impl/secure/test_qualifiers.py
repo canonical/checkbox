@@ -104,7 +104,10 @@ class WhiteListTests(TestCase):
         m_open = mock.MagicMock(name='open', spec=open)
         m_stream = mock.MagicMock(spec=TextIOWrapper)
         m_stream.__enter__.return_value = m_stream
+        # The next two lines are complementary, either will suffice but the
+        # test may need changes if the code that reads stuff changes.
         m_stream.__iter__.side_effect = lambda: iter(content)
+        m_stream.read.return_value = "\n".join(content)
         m_open.return_value = m_stream
         with mock.patch('plainbox.impl.secure.qualifiers.open', m_open,
                         create=True):
@@ -138,6 +141,15 @@ class WhiteListTests(TestCase):
         """
         with self.mocked_file(self._name, self._content):
             whitelist = WhiteList.from_file(self._name)
+        self.assertEqual(
+            repr(whitelist.inclusive_qualifier_list[0]),
+            "<RegExpJobQualifier pattern:'^foo$'>")
+
+    def test_from_string(self):
+        """
+        verify that WhiteList.from_string() works
+        """
+        whitelist = WhiteList.from_string("\n".join(self._content))
         self.assertEqual(
             repr(whitelist.inclusive_qualifier_list[0]),
             "<RegExpJobQualifier pattern:'^foo$'>")

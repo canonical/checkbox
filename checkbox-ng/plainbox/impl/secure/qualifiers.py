@@ -157,29 +157,49 @@ class WhiteList(CompositeQualifier):
         return cls(pattern_list, name=name)
 
     @classmethod
-    def _load_patterns(self, pathname):
+    def from_string(cls, text):
         """
-        Load whitelist patterns from the specified file
+        Load and initialize the WhiteList object from the specified file.
+
+        :param pathname:
+            text to parse and load
+        :returns:
+            a fresh WhiteList object
+        """
+        pattern_list = cls._parse_patterns(text)
+        return cls(pattern_list)
+
+    @classmethod
+    def _parse_patterns(cls, text):
+        """
+        Load whitelist patterns from the specified text
         """
         pattern_list = []
         # Load the file
-        with open(pathname, "rt", encoding="UTF-8") as stream:
-            for line in stream:
-                # Strip shell-style comments if there are any
-                try:
-                    index = line.index("#")
-                except ValueError:
-                    pass
-                else:
-                    line = line[:index]
-                # Strip whitespace
-                line = line.strip()
-                # Skip empty lines (especially after stripping comments)
-                if line == "":
-                    continue
-                # Surround the pattern with ^ and $
-                # so that it wont just match a part of the job name.
-                regexp_pattern = r"^{pattern}$".format(pattern=line)
-                # Accumulate patterns into the list
-                pattern_list.append(regexp_pattern)
+        for line in text.splitlines():
+            # Strip shell-style comments if there are any
+            try:
+                index = line.index("#")
+            except ValueError:
+                pass
+            else:
+                line = line[:index]
+            # Strip whitespace
+            line = line.strip()
+            # Skip empty lines (especially after stripping comments)
+            if line == "":
+                continue
+            # Surround the pattern with ^ and $
+            # so that it wont just match a part of the job name.
+            regexp_pattern = r"^{pattern}$".format(pattern=line)
+            # Accumulate patterns into the list
+            pattern_list.append(regexp_pattern)
         return pattern_list
+
+    @classmethod
+    def _load_patterns(cls, pathname):
+        """
+        Load whitelist patterns from the specified file
+        """
+        with open(pathname, "rt", encoding="UTF-8") as stream:
+            return cls._parse_patterns(stream.read())

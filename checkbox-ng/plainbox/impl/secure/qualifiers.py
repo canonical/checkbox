@@ -149,8 +149,10 @@ class WhiteList(CompositeQualifier):
         """
         Load and initialize the WhiteList object from the specified file.
 
-        :param pathname: file to load
-        :returns: a fresh WhiteList object
+        :param pathname:
+            file to load
+        :returns:
+            a fresh WhiteList object
         """
         pattern_list = cls._load_patterns(pathname)
         name = os.path.splitext(os.path.basename(pathname))[0]

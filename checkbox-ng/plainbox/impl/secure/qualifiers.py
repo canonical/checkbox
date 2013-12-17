@@ -118,7 +118,7 @@ class WhiteList(CompositeQualifier):
 
     def __init__(self, pattern_list, name=None):
         """
-        Initialize a whitelist object with the specified list of patterns.
+        Initialize a WhiteList object with the specified list of patterns.
 
         The patterns must be already mangled with '^' and '$'.
         """

@@ -318,6 +318,18 @@ class IProviderBackend1(metaclass=ABCMeta):
         """
 
     @abstractproperty
+    def jobs_dir(self):
+        """
+        Return an absolute path of the jobs directory
+        """
+
+    @abstractproperty
+    def whitelists_dir(self):
+        """
+        Return an absolute path of the whitelist directory
+        """
+
+    @abstractproperty
     def secure(self):
         """
         flag indicating that this provider was loaded from the secure portion
@@ -358,13 +370,31 @@ class IProvider1(metaclass=ABCMeta):
     @abstractmethod
     def get_builtin_jobs(self):
         """
-        Load all the built-in jobs and return them
+        Load and parse all of the job definitions of this provider.
+
+        :returns:
+            A sorted list of JobDefinition objects
+        :raises RFC822SyntaxError:
+            if any of the loaded files was not valid RFC822
+        :raises IOError, OSError:
+            if there were any problems accessing files or directories.
+            Note that OSError is silently ignored when the `jobs_dir`
+            directory is missing.
+
+        ..note::
+            This method should not be used anymore. Consider transitioning your
+            code to :meth:`load_all_jobs()` which is more reliable.
         """
 
     @abstractmethod
     def get_builtin_whitelists(self):
         """
         Load all the built-in whitelists and return them
+        """
+
+    def get_all_executables(self):
+        """
+        Discover and return all executables offered by this provider
         """
 
 

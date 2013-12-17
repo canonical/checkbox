@@ -116,13 +116,31 @@ class WhiteListTests(TestCase):
             pattern_list = WhiteList._load_patterns(self._name)
         self.assertEqual(pattern_list, ['^foo$', '^bar$'])
 
-    def test_smoke(self):
+    def test_designates(self):
+        """
+        verify that WhiteList.designates() works
+        """
+        self.assertTrue(
+            WhiteList.from_string("foo").designates(make_job('foo')))
+        self.assertTrue(
+            WhiteList.from_string("foo\nbar\n").designates(make_job('foo')))
+        self.assertTrue(
+            WhiteList.from_string("foo\nbar\n").designates(make_job('bar')))
+        # Note, it's not matching either!
+        self.assertFalse(
+            WhiteList.from_string("foo").designates(make_job('foobar')))
+        self.assertFalse(
+            WhiteList.from_string("bar").designates(make_job('foobar')))
+
+    def test_from_file(self):
+        """
+        verify that WhiteList.from_file() works
+        """
         with self.mocked_file(self._name, self._content):
             whitelist = WhiteList.from_file(self._name)
         self.assertEqual(
             repr(whitelist.inclusive_qualifier_list[0]),
             "<RegExpJobQualifier pattern:'^foo$'>")
-        self.assertTrue(whitelist.designates(make_job('foo')))
 
     def test_repr(self):
         """

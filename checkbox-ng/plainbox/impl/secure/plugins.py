@@ -409,7 +409,7 @@ class FsPlugInCollection(PlugInCollectionBase):
             directory entries. Each directory is searched for (not recursively)
             for plugins.
         :param ext:
-            extension of each plugin definition file
+            extension of each plugin definition file (or a list of those)
         :param load:
             if true, load all of the plug-ins now
         :param wrapper:
@@ -460,8 +460,15 @@ class FsPlugInCollection(PlugInCollectionBase):
             # Look at each file there
             for entry in entries:
                 # Skip files with other extensions
-                if not entry.endswith(self._ext):
-                    continue
+                if isinstance(self._ext, str):
+                    if not entry.endswith(self._ext):
+                        continue
+                elif isinstance(self._ext, collections.Sequence):
+                    for ext in self._ext:
+                        if entry.endswith(ext):
+                            break
+                    else:
+                        continue
                 info_file = os.path.join(path, entry)
                 # Skip all non-files
                 if not os.path.isfile(info_file):

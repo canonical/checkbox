@@ -410,7 +410,7 @@ class FsPlugInCollectionTests(TestCase):
                 m.read.return_value = "bar"
                 return m
             elif path == os.path.join(self._P1, 'noperm.plugin'):
-                raise IOError("You cannot open this file")
+                raise OSError("You cannot open this file")
             else:
                 raise IOError("Unexpected file: {}".format(path))
         mock_listdir.side_effect = fake_listdir
@@ -454,3 +454,58 @@ class FsPlugInCollectionTests(TestCase):
         self.assertEqual(
             repr(self.col.problem_list[0]),
             repr(OSError('You cannot open this file')))
+
+    @mock.patch('plainbox.impl.secure.plugins.logger')
+    @mock.patch('builtins.open')
+    @mock.patch('os.path.isfile')
+    @mock.patch('os.listdir')
+    def test_load__two_extensions(self, mock_listdir, mock_isfile, mock_open,
+                                  mock_logger):
+        """
+        verify that FsPlugInCollection works with multiple extensions
+        """
+        mock_listdir.return_value = ["foo.txt", "bar.txt.in"]
+        mock_isfile.return_value = True
+
+        def fake_open(path, encoding=None, mode=None):
+            m = mock.MagicMock(name='opened file {!r}'.format(path))
+            m.read.return_value = "text"
+            m.__enter__.return_value = m
+            return m
+        mock_open.side_effect = fake_open
+        # Create a collection that looks for both extensions
+        col = FsPlugInCollection(self._P1, (".txt", ".txt.in"))
+        # Load everything
+        col.load()
+        # Ensure that we actually tried to look at the filesystem
+        self.assertEqual(
+            mock_listdir.call_args_list, [
+                ((self._P1, ), {}),
+            ])
+        # Ensure that we actually tried to check if things are files
+        self.assertEqual(
+            mock_isfile.call_args_list, [
+                ((os.path.join(self._P1, 'foo.txt'),), {}),
+                ((os.path.join(self._P1, 'bar.txt.in'),), {}),
+            ])
+        # Ensure that we actually tried to open some files
+        self.assertEqual(
+            mock_open.call_args_list, [
+                ((os.path.join(self._P1, 'bar.txt.in'),),
+                 {'encoding': 'UTF-8'}),
+                ((os.path.join(self._P1, 'foo.txt'),),
+                 {'encoding': 'UTF-8'}),
+            ])
+        # Ensure that no exception was logged
+        mock_logger.error.assert_not_called()
+        # Ensure that everything was okay
+        self.assertEqual(col.problem_list, [])
+        # Ensure that both files got added
+        self.assertEqual(
+            col.get_by_name(
+                os.path.join(self._P1, "foo.txt")
+            ).plugin_object, "text")
+        self.assertEqual(
+            col.get_by_name(
+                os.path.join(self._P1, "bar.txt.in")
+            ).plugin_object, "text")

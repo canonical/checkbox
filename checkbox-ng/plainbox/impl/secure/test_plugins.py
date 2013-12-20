@@ -32,6 +32,7 @@ from plainbox.impl.secure.plugins import FsPlugInCollection
 from plainbox.impl.secure.plugins import IPlugIn, PlugIn
 from plainbox.impl.secure.plugins import PkgResourcesPlugInCollection
 from plainbox.impl.secure.plugins import PlugInCollectionBase
+from plainbox.impl.secure.plugins import PlugInError
 from plainbox.vendor import mock
 
 
@@ -116,6 +117,7 @@ class PlugInCollectionBaseTests(TestCase):
         self.assertEqual(self.col._plugins, collections.OrderedDict())
         self.assertEqual(self.col._loaded, False)
         self.assertEqual(self.col._mocked_objects, None)
+        self.assertEqual(self.col._problem_list, [])
 
     def test_get_by_name__typical(self):
         """
@@ -160,6 +162,12 @@ class PlugInCollectionBaseTests(TestCase):
                 [(self.plug1.plugin_name, self.plug1),
                  (self.plug2.plugin_name, self.plug2)])
 
+    def test_problem_list(self):
+        """
+        verify that PlugInCollectionBase.problem_list works
+        """
+        self.assertIs(self.col.problem_list, self.col._problem_list)
+
     def test_fake_plugins(self):
         """
         verify that PlugInCollectionBase.fake_plugins() works
@@ -170,18 +178,49 @@ class PlugInCollectionBaseTests(TestCase):
         # fake_plugins()
         self.col._loaded = canary
         self.col._plugins = canary
+        self.col._problems = canary
         # use fake_plugins() with some plugins we have
-        with self.col.fake_plugins([self.plug1, self.plug2]):
+        fake_plugins = [self.plug1, self.plug2]
+        with self.col.fake_plugins(fake_plugins):
             # ensure that we don't have canaries here
             self.assertEqual(self.col._loaded, True)
             self.assertEqual(self.col._plugins, collections.OrderedDict([
                 (self.plug1.plugin_name, self.plug1),
                 (self.plug2.plugin_name, self.plug2)]))
+            self.assertEqual(self.col._problem_list, [])
         # ensure that we see canaries outside of the context manager
         self.assertEqual(self.col._loaded, canary)
         self.assertEqual(self.col._plugins, canary)
+        self.assertEqual(self.col._problems, canary)
 
-    def test_wrap_and_add_plugin(self):
+    def test_fake_plugins__with_problem_list(self):
+        """
+        verify that PlugInCollectionBase.fake_plugins() works when called with
+        the optional problem list.
+        """
+        # create a canary object we'll check for below
+        canary = object()
+        # store it to all the attributes we expect to see changed by
+        # fake_plugins()
+        self.col._loaded = canary
+        self.col._plugins = canary
+        self.col._problems = canary
+        # use fake_plugins() with some plugins we have
+        fake_plugins = [self.plug1, self.plug2]
+        fake_problems = [PlugInError("just testing")]
+        with self.col.fake_plugins(fake_plugins, fake_problems):
+            # ensure that we don't have canaries here
+            self.assertEqual(self.col._loaded, True)
+            self.assertEqual(self.col._plugins, collections.OrderedDict([
+                (self.plug1.plugin_name, self.plug1),
+                (self.plug2.plugin_name, self.plug2)]))
+            self.assertEqual(self.col._problem_list, fake_problems)
+        # ensure that we see canaries outside of the context manager
+        self.assertEqual(self.col._loaded, canary)
+        self.assertEqual(self.col._plugins, canary)
+        self.assertEqual(self.col._problems, canary)
+
+    def test_wrap_and_add_plugin__normal(self):
         """
         verify that PlugInCollectionBase.wrap_and_add_plugin() works
         """
@@ -191,6 +230,18 @@ class PlugInCollectionBaseTests(TestCase):
             self.col._plugins["new-name"].plugin_name, "new-name")
         self.assertEqual(
             self.col._plugins["new-name"].plugin_object, "new-obj")
+
+    def test_wrap_and_add_plugin__problem(self):
+        """
+        verify that PlugInCollectionBase.wrap_and_add_plugin() works when a
+        problem occurs.
+        """
+        with mock.patch.object(self.col, "_wrapper") as mock_wrapper:
+            mock_wrapper.side_effect = PlugInError
+            self.col.wrap_and_add_plugin("new-name", "new-obj")
+            mock_wrapper.assert_called_with("new-name", "new-obj")
+        self.assertIsInstance(self.col.problem_list[0], PlugInError)
+        self.assertNotIn("new-name", self.col._plugins)
 
 
 class PkgResourcesPlugInCollectionTests(TestCase):
@@ -263,6 +314,8 @@ class PkgResourcesPlugInCollectionTests(TestCase):
         # Ensure that an exception was logged
         mock_logger.exception.assert_called_with(
             "Unable to import %s", mock_ep2)
+        # Ensure that the error was collected
+        self.assertIsInstance(self.col.problem_list[0], ImportError)
 
 
 class FsPlugInCollectionTests(TestCase):
@@ -371,3 +424,8 @@ class FsPlugInCollectionTests(TestCase):
             'Unable to load %r: %s',
             '/system/providers/noperm.plugin',
             'You cannot open this file')
+        # Ensure that all of the errors are collected
+        # Using repr() since OSError seems hard to compare correctly
+        self.assertEqual(
+            repr(self.col.problem_list[0]),
+            repr(OSError('You cannot open this file')))

@@ -140,6 +140,12 @@ class IPlugInCollection(metaclass=abc.ABCMeta):
         Get an iterator to a sequence of (name, plug-in)
         """
 
+    @abc.abstractproperty
+    def problem_list(self):
+        """
+        List of problems encountered while loading plugins
+        """
+
     @abc.abstractmethod
     def load(self):
         """
@@ -152,15 +158,18 @@ class IPlugInCollection(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     @contextlib.contextmanager
-    def fake_plugins(self, plugins):
+    def fake_plugins(self, plugins, problem_list=None):
         """
         Context manager for using fake list of plugins
 
-        :param plugins: list of PlugIn-alike objects
+        :param plugins:
+            list of PlugIn-alike objects
+        :param problem_list:
+            list of problems (exceptions)
 
-        The provided list of plugins overrides any previously loaded
-        plugins and prevent loading any other, real, plugins. After
-        the context manager exits the previous state is restored.
+        The provided list of plugins and exceptions overrides any previously
+        loaded plugins and prevent loading any other, real, plugins. After the
+        context manager exits the previous state is restored.
         """
 
 
@@ -183,6 +192,7 @@ class PlugInCollectionBase(IPlugInCollection):
         self._plugins = collections.OrderedDict()
         self._loaded = False
         self._mocked_objects = None
+        self._problem_list = []
         if load:
             self.load()
 
@@ -226,29 +236,44 @@ class PlugInCollectionBase(IPlugInCollection):
         """
         return list(self._plugins.items())
 
+    @property
+    def problem_list(self):
+        """
+        List of problems encountered while loading plugins
+        """
+        return self._problem_list
+
     @contextlib.contextmanager
-    def fake_plugins(self, plugins):
+    def fake_plugins(self, plugins, problem_list=None):
         """
         Context manager for using fake list of plugins
 
-        :param plugins: list of PlugIn-alike objects
+        :param plugins:
+            list of PlugIn-alike objects
+        :param problem_list:
+            list of problems (exceptions)
 
         The provided list of plugins overrides any previously loaded
         plugins and prevent loading any other, real, plugins. After
         the context manager exits the previous state is restored.
         """
         old_loaded = self._loaded
+        old_problem_list = self._problem_list
         old_plugins = self._plugins
         self._loaded = True
         self._plugins = collections.OrderedDict([
             (plugin.plugin_name, plugin)
             for plugin in sorted(
                 plugins, key=lambda plugin: plugin.plugin_name)])
+        if problem_list is None:
+            problem_list = []
+        self._problem_list = problem_list
         try:
             yield
         finally:
             self._loaded = old_loaded
             self._plugins = old_plugins
+            self._problem_list = old_problem_list
 
     def wrap_and_add_plugin(self, plugin_name, plugin_obj):
         """
@@ -270,6 +295,7 @@ class PlugInCollectionBase(IPlugInCollection):
         except PlugInError as exc:
             logger.warning(
                 "Unable to prepare plugin %s: %s", plugin_name, exc)
+            self._problem_list.append(exc)
         else:
             self._plugins[plugin_name] = wrapper
 
@@ -316,8 +342,9 @@ class PkgResourcesPlugInCollection(PlugInCollectionBase):
         for entry_point in sorted(iterator, key=lambda ep: ep.name):
             try:
                 obj = entry_point.load()
-            except ImportError:
+            except ImportError as exc:
                 logger.exception("Unable to import %s", entry_point)
+                self._problem_list.append(exc)
             else:
                 self.wrap_and_add_plugin(entry_point.name, obj)
 
@@ -379,6 +406,7 @@ class FsPlugInCollection(PlugInCollectionBase):
                     text = stream.read()
             except IOError as exc:
                 logger.error("Unable to load %r: %s", filename, str(exc))
+                self._problem_list.append(exc)
             else:
                 self.wrap_and_add_plugin(filename, text)
 

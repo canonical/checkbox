@@ -98,10 +98,16 @@ class PlugIn(IPlugIn):
 
     @property
     def plugin_name(self):
+        """
+        plugin name, arbitrary string
+        """
         return self._name
 
     @property
     def plugin_object(self):
+        """
+        plugin object, arbitrary object
+        """
         return self._obj
 
 

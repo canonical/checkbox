@@ -392,7 +392,7 @@ class Provider1Definition(Config):
 
 class Provider1PlugIn(IPlugIn):
     """
-    A specialized IPlugIn that loads Provider1 instances from their defition
+    A specialized IPlugIn that loads Provider1 instances from their definition
     files
     """
 

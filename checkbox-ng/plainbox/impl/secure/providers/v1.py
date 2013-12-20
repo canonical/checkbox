@@ -26,7 +26,6 @@ import errno
 import io
 import logging
 import os
-import stat
 
 from plainbox.abc import IProvider1, IProviderBackend1
 from plainbox.impl.job import JobDefinition
@@ -36,11 +35,44 @@ from plainbox.impl.secure.config import NotEmptyValidator
 from plainbox.impl.secure.config import PatternValidator
 from plainbox.impl.secure.plugins import FsPlugInCollection
 from plainbox.impl.secure.plugins import IPlugIn
+from plainbox.impl.secure.plugins import PlugInError
 from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.secure.rfc822 import load_rfc822_records
 
 
 logger = logging.getLogger("plainbox.secure.providers.v1")
+
+
+class WhiteListPlugIn(IPlugIn):
+    """
+    A specialized :class:`plainbox.impl.secure.plugins.IPlugIn` that loads
+    :class:`plainbox.impl.secure.qualifiers.WhiteList` instances from a file.
+    """
+
+    def __init__(self, filename, text):
+        """
+        Initialize the plug-in with the specified name text
+        """
+        try:
+            self._whitelist = WhiteList.from_string(text)
+            self._whitelist.name = WhiteList.name_from_filename(filename)
+        except Exception as exc:
+            raise PlugInError(
+                "Cannot load whitelist {!r}: {}".format(filename, exc))
+
+    @property
+    def plugin_name(self):
+        """
+        plugin name, the name of the WhiteList
+        """
+        return self._whitelist.name
+
+    @property
+    def plugin_object(self):
+        """
+        plugin object, the actual WhiteList instance
+        """
+        return self._whitelist
 
 
 class Provider1(IProvider1, IProviderBackend1):
@@ -66,6 +98,8 @@ class Provider1(IProvider1, IProviderBackend1):
         self._version = version
         self._description = description
         self._secure = secure
+        self._whitelist_collection = FsPlugInCollection(
+            self.whitelists_dir, ext=".whitelist", wrapper=WhiteListPlugIn)
 
     def __repr__(self):
         return "<{} name:{!r} base_dir:{!r}>".format(
@@ -176,27 +210,12 @@ class Provider1(IProvider1, IProviderBackend1):
             that OSError is silently ignored when the `whitelists_dir`
             directory is missing.
         """
-        logger.debug("Loading built-in whitelists...")
-        whitelist_list = []
-        try:
-            items = os.listdir(self.whitelists_dir)
-        except OSError as exc:
-            if exc.errno == errno.ENOENT:
-                items = []
-            else:
-                raise
-        for name in items:
-            if not name.endswith(".whitelist"):
-                continue
-            pathname = os.path.join(self.whitelists_dir, name)
-            if not stat.S_ISREG(os.stat(pathname).st_mode):
-                continue
-            # FIXME: check if it's a readable file, skip everything else
-            # FIXME: broken whitelists will break apps, needs separate method
-            # like load_all_jobs() but for whitelists.
-            whitelist = WhiteList.from_file(pathname)
-            whitelist_list.append(whitelist)
-        return sorted(whitelist_list, key=lambda whitelist: whitelist.name)
+        self._whitelist_collection.load()
+        if self._whitelist_collection.problem_list:
+            raise self._whitelist_collection.problem_list[0]
+        else:
+            return sorted(self._whitelist_collection.get_all_plugin_objects(),
+                          key=lambda whitelist: whitelist.name)
 
     def get_builtin_jobs(self):
         logger.debug("Loading built-in jobs...")

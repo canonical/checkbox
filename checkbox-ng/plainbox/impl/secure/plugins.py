@@ -438,7 +438,7 @@ class FsPlugInCollection(PlugInCollectionBase):
             try:
                 with open(filename, encoding='UTF-8') as stream:
                     text = stream.read()
-            except IOError as exc:
+            except (OSError, IOError) as exc:
                 logger.error("Unable to load %r: %s", filename, str(exc))
                 self._problem_list.append(exc)
             else:

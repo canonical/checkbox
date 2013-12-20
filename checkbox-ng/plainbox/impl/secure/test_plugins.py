@@ -194,6 +194,9 @@ class PlugInCollectionBaseTests(TestCase):
 
 
 class PkgResourcesPlugInCollectionTests(TestCase):
+    """
+    Tests for PlugInCollectionBase class
+    """
 
     _NAMESPACE = "namespace"
 

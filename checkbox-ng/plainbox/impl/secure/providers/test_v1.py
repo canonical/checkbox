@@ -26,10 +26,12 @@ Test definitions for plainbox.impl.secure.providers.v1 module
 
 from unittest import TestCase
 
+from plainbox.impl.job import JobDefinition
 from plainbox.impl.secure.plugins import PlugInError
 from plainbox.impl.secure.providers.v1 import AbsolutePathValidator
 from plainbox.impl.secure.providers.v1 import ExistingDirectoryValidator
 from plainbox.impl.secure.providers.v1 import IQNValidator
+from plainbox.impl.secure.providers.v1 import JobDefinitionPlugIn
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.providers.v1 import Provider1Definition
 from plainbox.impl.secure.providers.v1 import Provider1PlugIn
@@ -217,6 +219,65 @@ class WhiteListPlugInTests(TestCase):
              "nothing to repeat"))
 
 
+class JobDefintionPlugInTests(TestCase):
+    """
+    Tests for JobDefinitionPlugIn
+    """
+
+    def setUp(self):
+        self.provider = mock.Mock(name="provider", spec=Provider1)
+        self.plugin = JobDefinitionPlugIn(
+            "/path/to/jobs.txt", (
+                "name: test/job\n"
+                "plugin: shell\n"
+                "command: true\n"),
+            self.provider)
+
+    def test_plugin_name(self):
+        """
+        verify that the JobDefinitionPlugIn.plugin_name property returns
+        pathname of the job definition file
+        """
+        self.assertEqual(self.plugin.plugin_name, "/path/to/jobs.txt")
+
+    def test_plugin_object(self):
+        """
+        verify that the JobDefinitionPlugIn.plugin_object property returns a
+        list of JobDefintion instances
+        """
+        self.assertEqual(len(self.plugin.plugin_object), 1)
+        self.assertIsInstance(self.plugin.plugin_object[0], JobDefinition)
+
+    def test_job_data(self):
+        """
+        verify the contents of the loaded JobDefinition object
+        """
+        job = self.plugin.plugin_object[0]
+        self.assertEqual(job.name, "test/job")
+        self.assertEqual(job.plugin, "shell")
+        self.assertEqual(job.command, "true")
+
+    def test_job_provider(self):
+        """
+        verify the loaded job got the provider from the plugin
+        """
+        job = self.plugin.plugin_object[0]
+        self.assertIs(job.provider, self.provider)
+
+    def test_init_failing(self):
+        """
+        verify how JobDefinitionPlugIn() initializer works if something is
+        wrong
+        """
+        # The pattern is purposefully invalid
+        with self.assertRaises(PlugInError) as boom:
+            JobDefinitionPlugIn("/path/to/jobs.txt", "broken", self.provider)
+        self.assertEqual(
+            str(boom.exception),
+            ("Cannot load job definitions from '/path/to/jobs.txt': "
+             "Unexpected non-empty line: 'broken' (line 1)"))
+
+
 class Provider1Tests(TestCase):
 
     BASE_DIR = "base-dir"
@@ -318,8 +379,42 @@ class Provider1Tests(TestCase):
                     fake_plugins, fake_problems):
                 self.provider.get_builtin_whitelists()
 
-    def test_get_builtin_jobs(self):
-        self.skipTest("not implemented")
+    def test_get_builtin_jobs__normal(self):
+        """
+        verify that Provider1.get_builtin_jobs() loads and returns all of
+        the job definitions (and that they are in the right order)
+        """
+        # Create unsorted job definitions that define a1, a2, a3 and a4
+        fake_plugins = [
+            JobDefinitionPlugIn("/path/to/jobs1.txt", (
+                "name: a2\n"
+                "\n"
+                "name: a1\n"), self.provider),
+            JobDefinitionPlugIn("/path/to/jobs2.txt", (
+                "name: a3\n"
+                "\n"
+                "name: a4\n"), self.provider)
+        ]
+        with self.provider._job_collection.fake_plugins(fake_plugins):
+            job_list = self.provider.get_builtin_jobs()
+        self.assertEqual(len(job_list), 4)
+        self.assertEqual(job_list[0].name, "a1")
+        self.assertEqual(job_list[1].name, "a2")
+        self.assertEqual(job_list[2].name, "a3")
+        self.assertEqual(job_list[3].name, "a4")
+
+    def test_get_builtin_jobs__failing(self):
+        """
+        verify that Provider1.get_builtin_jobs() raises the first
+        exception that happens during the load process
+        """
+        fake_plugins = [JobDefinitionPlugIn(
+            "/path/to/jobs.txt", "", self.provider)]
+        fake_problems = [IOError("first problem"), OSError("second problem")]
+        with self.assertRaises(IOError):
+            with self.provider._job_collection.fake_plugins(
+                    fake_plugins, fake_problems):
+                self.provider.get_builtin_jobs()
 
     def test_get_all_executables(self):
         self.skipTest("not implemented")

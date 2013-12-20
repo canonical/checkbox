@@ -188,7 +188,8 @@ class PlugInCollectionBase(IPlugInCollection):
     PlugInCollection implemenetations.
     """
 
-    def __init__(self, load=False, wrapper=PlugIn):
+    def __init__(self, load=False, wrapper=PlugIn, *wrapper_args,
+                 **wrapper_kwargs):
         """
         Initialize a collection of plug-ins
 
@@ -196,8 +197,14 @@ class PlugInCollectionBase(IPlugInCollection):
             if true, load all of the plug-ins now
         :param wrapper:
             wrapper class for all loaded objects, defaults to :class:`PlugIn`
+        :param wrapper_args:
+            additional arguments passed to each instantiated wrapper
+        :param wrapper_kwargs:
+            additional keyword arguments passed to each instantiated wrapper
         """
         self._wrapper = wrapper
+        self._wrapper_args = wrapper_args
+        self._wrapper_kwargs = wrapper_kwargs
         self._plugins = collections.OrderedDict()
         self._loaded = False
         self._mocked_objects = None
@@ -306,7 +313,9 @@ class PlugInCollectionBase(IPlugInCollection):
         collection of plugins.
         """
         try:
-            wrapper = self._wrapper(plugin_name, plugin_obj)
+            wrapper = self._wrapper(
+                plugin_name, plugin_obj,
+                *self._wrapper_args, **self._wrapper_kwargs)
         except PlugInError as exc:
             logger.warning(
                 "Unable to prepare plugin %s: %s", plugin_name, exc)
@@ -325,7 +334,8 @@ class PkgResourcesPlugInCollection(PlugInCollectionBase):
     may be adjusted if required.
     """
 
-    def __init__(self, namespace, load=False, wrapper=PlugIn):
+    def __init__(self, namespace, load=False, wrapper=PlugIn, *wrapper_args,
+                 **wrapper_kwargs):
         """
         Initialize a collection of plug-ins from the specified name-space.
 
@@ -335,9 +345,13 @@ class PkgResourcesPlugInCollection(PlugInCollectionBase):
             if true, load all of the plug-ins now
         :param wrapper:
             wrapper class for all loaded objects, defaults to :class:`PlugIn`
+        :param wrapper_args:
+            additional arguments passed to each instantiated wrapper
+        :param wrapper_kwargs:
+            additional keyword arguments passed to each instantiated wrapper
         """
         self._namespace = namespace
-        super(PkgResourcesPlugInCollection, self).__init__(load, wrapper)
+        super().__init__(load, wrapper, *wrapper_args, **wrapper_kwargs)
 
     def load(self):
         """
@@ -385,7 +399,8 @@ class FsPlugInCollection(PlugInCollectionBase):
     each plugin is the text read from the plugin file.
     """
 
-    def __init__(self, path, ext, load=False, wrapper=PlugIn):
+    def __init__(self, path, ext, load=False, wrapper=PlugIn, *wrapper_args,
+                 **wrapper_kwargs):
         """
         Initialize a collection of plug-ins from the specified name-space.
 
@@ -399,10 +414,14 @@ class FsPlugInCollection(PlugInCollectionBase):
             if true, load all of the plug-ins now
         :param wrapper:
             wrapper class for all loaded objects, defaults to :class:`PlugIn`
+        :param wrapper_args:
+            additional arguments passed to each instantiated wrapper
+        :param wrapper_kwargs:
+            additional keyword arguments passed to each instantiated wrapper
         """
         self._path = path
         self._ext = ext
-        super(FsPlugInCollection, self).__init__(load, wrapper)
+        super().__init__(load, wrapper, *wrapper_args, **wrapper_kwargs)
 
     def load(self):
         """

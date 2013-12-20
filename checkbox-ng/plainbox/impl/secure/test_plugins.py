@@ -252,6 +252,22 @@ class PlugInCollectionBaseTests(TestCase):
         self.assertIsInstance(self.col.problem_list[0], PlugInError)
         self.assertNotIn("new-name", self.col._plugins)
 
+    def test_extra_wrapper_args(self):
+        """
+        verify that PlugInCollectionBase passes extra arguments to the wrapper
+        """
+        class TestPlugIn(PlugIn):
+
+            def __init__(self, name, obj, *args, **kwargs):
+                super().__init__(name, obj)
+                self.args = args
+                self.kwargs = kwargs
+        col = DummyPlugInCollection(
+            False, TestPlugIn, 1, 2, 3, some="argument")
+        col.wrap_and_add_plugin("name", "obj")
+        self.assertEqual(col._plugins["name"].args, (1, 2, 3))
+        self.assertEqual(col._plugins["name"].kwargs, {"some": "argument"})
+
 
 class PkgResourcesPlugInCollectionTests(TestCase):
     """

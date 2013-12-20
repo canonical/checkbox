@@ -12,6 +12,7 @@ core.
     real value.
 
 .. toctree::
+   whitelists.rst
    checkbox-job-format.rst
    providers.rst
 

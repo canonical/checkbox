@@ -418,6 +418,3 @@ class Provider1Tests(TestCase):
 
     def test_get_all_executables(self):
         self.skipTest("not implemented")
-
-    def test_load_jobs(self):
-        self.skipTest("not implemented")

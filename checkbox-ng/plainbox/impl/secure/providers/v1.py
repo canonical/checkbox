@@ -301,31 +301,6 @@ class Provider1(IProvider1, IProviderBackend1):
                 executable_list.append(filename)
         return sorted(executable_list)
 
-    def load_jobs(self, somewhere):
-        """
-        Load job definitions from somewhere
-        """
-        if isinstance(somewhere, str):
-            # Load data from a file with the given name
-            filename = somewhere
-            with open(filename, 'rt', encoding='UTF-8') as stream:
-                return self.load_jobs(stream)
-        if isinstance(somewhere, io.TextIOWrapper):
-            stream = somewhere
-            logger.debug("Loading jobs definitions from %r...", stream.name)
-            record_list = load_rfc822_records(stream)
-            job_list = []
-            for record in record_list:
-                job = JobDefinition.from_rfc822_record(record)
-                job._provider = self
-                logger.debug("Loaded %r", job)
-                job_list.append(job)
-            return job_list
-        else:
-            raise TypeError(
-                "Unsupported type of 'somewhere': {!r}".format(
-                    type(somewhere)))
-
 
 class IQNValidator(PatternValidator):
     """

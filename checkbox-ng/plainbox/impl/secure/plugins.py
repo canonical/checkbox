@@ -189,24 +189,40 @@ class PlugInCollectionBase(IPlugInCollection):
     def get_by_name(self, name):
         """
         Get the specified plug-in (by name)
+
+        :param name:
+            name of the plugin to locate
+        :returns:
+            :class:`PlugIn` like object associated with the name
+        :raises KeyError:
+            if the specified name cannot be found
         """
         return self._plugins[name]
 
     def get_all_names(self):
         """
-        Get an iterator to a sequence of plug-in names
+        Get a list of all the plug-in names
+
+        :returns:
+            a list of plugin names
         """
         return list(self._plugins.keys())
 
     def get_all_plugins(self):
         """
-        Get an iterator to a sequence plug-ins
+        Get a list of all the plug-ins
+
+        :returns:
+            a list of plugin objects
         """
         return list(self._plugins.values())
 
     def get_all_items(self):
         """
-        Get an iterator to a sequence of (name, plug-in)
+        Get a list of all the pairs of plugin name and plugin
+
+        :returns:
+            a list of tuples (plugin.plugin_name, plugin)
         """
         return list(self._plugins.items())
 
@@ -235,6 +251,20 @@ class PlugInCollectionBase(IPlugInCollection):
             self._plugins = old_plugins
 
     def wrap_and_add_plugin(self, plugin_name, plugin_obj):
+        """
+        Internal method of PlugInCollectionBase.
+
+        :param plugin_name:
+            plugin name, some arbitrary string
+        :param plugin_obj:
+            plugin object, some arbitrary object.
+
+        This method prepares a wrapper (PlugIn subclass instance) for the
+        specified plugin name/object by attempting to instantiate the wrapper
+        class. If a PlugInError exception is raised then it is added to the
+        problem_list and the corresponding plugin is not added to the
+        collection of plugins.
+        """
         try:
             wrapper = self._wrapper(plugin_name, plugin_obj)
         except PlugInError as exc:

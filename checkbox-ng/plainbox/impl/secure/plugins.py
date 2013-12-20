@@ -135,6 +135,15 @@ class IPlugInCollection(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def get_all_plugin_objects(self):
+        """
+        Get an list of plug-in objects
+
+        This is a shortcut that gives fastest access to a list of
+        :attr:`IPlugIn.plugin_object` of each loaded plugin.
+        """
+
+    @abc.abstractmethod
     def get_all_items(self):
         """
         Get an iterator to a sequence of (name, plug-in)
@@ -226,6 +235,12 @@ class PlugInCollectionBase(IPlugInCollection):
             a list of plugin objects
         """
         return list(self._plugins.values())
+
+    def get_all_plugin_objects(self):
+        """
+        Get an list of plug-in objects
+        """
+        return [plugin.plugin_object for plugin in self._plugins.values()]
 
     def get_all_items(self):
         """

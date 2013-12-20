@@ -152,6 +152,15 @@ class PlugInCollectionBaseTests(TestCase):
             self.assertEqual(
                 self.col.get_all_plugins(), [self.plug1, self.plug2])
 
+    def test_get_all_plugin_objects(self):
+        """
+        verify that PlugInCollectionBase.get_all_plugin_objects() works
+        """
+        with self.col.fake_plugins([self.plug1, self.plug2]):
+            self.assertEqual(
+                self.col.get_all_plugin_objects(),
+                [self.plug1.plugin_object, self.plug2.plugin_object])
+
     def test_get_items(self):
         """
         verify that PlugInCollectionBase.get_all_items() works

@@ -105,7 +105,7 @@ class PlugIn(IPlugIn):
         return self._obj
 
 
-class IPlugInCollection:
+class IPlugInCollection(metaclass=abc.ABCMeta):
     """
     A collection of IPlugIn objects.
     """

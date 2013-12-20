@@ -34,16 +34,38 @@ from plainbox.vendor import mock
 
 
 class PlugInTests(TestCase):
+    """
+    Tests for PlugIn class
+    """
 
-    def test_smoke(self):
-        obj = mock.Mock()
-        # Create a plug-in
-        plugin = PlugIn("name", obj)
-        # Ensure that plugin name and plugin object are okay
-        self.assertEqual(plugin.plugin_name, "name")
-        self.assertEqual(plugin.plugin_object, obj)
+    NAME = "name"
+    OBJ = mock.Mock(name="obj")
+
+    def setUp(self):
+        self.plugin = PlugIn(self.NAME, self.OBJ)
+
+    def test_property_name(self):
+        """
+        verify that PlugIn.plugin_name getter works
+        """
+        self.assertEqual(self.plugin.plugin_name, self.NAME)
+
+    def test_property_object(self):
+        """
+        verify that PlugIn.plugin_object getter works
+        """
+        self.assertEqual(self.plugin.plugin_object, self.OBJ)
+
+    def test_repr(self):
+        """
+        verify that repr for PlugIn works
+        """
+        self.assertEqual(repr(self.plugin), "<PlugIn plugin_name:'name'>")
 
     def test_base_cls(self):
+        """
+        verify that PlugIn inherits IPlugIn
+        """
         self.assertTrue(issubclass(PlugIn, IPlugIn))
 
 

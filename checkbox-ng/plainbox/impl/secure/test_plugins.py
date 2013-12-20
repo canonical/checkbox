@@ -400,9 +400,8 @@ class FsPlugInCollectionTests(TestCase):
             return not os.path.basename(path).startswith('dir.')
 
         def fake_open(path, encoding=None, mode=None):
-            m = mock.Mock()
-            m.__enter__ = mock.Mock()
-            m.__exit__ = mock.Mock()
+            m = mock.MagicMock(name='opened file {!r}'.format(path))
+            m.__enter__.return_value = m
             if path == os.path.join(self._P1, 'foo.plugin'):
                 m.read.return_value = "foo"
                 return m

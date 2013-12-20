@@ -25,11 +25,13 @@ Test definitions for plainbox.impl.secure.plugins module
 """
 
 from unittest import TestCase
+import collections
 import os
 
 from plainbox.impl.secure.plugins import FsPlugInCollection
 from plainbox.impl.secure.plugins import IPlugIn, PlugIn
 from plainbox.impl.secure.plugins import PkgResourcesPlugInCollection
+from plainbox.impl.secure.plugins import PlugInCollectionBase
 from plainbox.vendor import mock
 
 
@@ -67,6 +69,128 @@ class PlugInTests(TestCase):
         verify that PlugIn inherits IPlugIn
         """
         self.assertTrue(issubclass(PlugIn, IPlugIn))
+
+
+class DummyPlugInCollection(PlugInCollectionBase):
+    """
+    A dummy, concrete subclass of PlugInCollectionBase
+    """
+
+    def load(self):
+        """
+        dummy implementation of load()
+
+        :raises NotImplementedError:
+            always raised
+        """
+        raise NotImplementedError("this is a dummy method")
+
+
+class PlugInCollectionBaseTests(TestCase):
+    """
+    Tests for PlugInCollectionBase class.
+
+    Since this is an abstract class we're creating a concrete subclass with
+    dummy implementation of the load() method.
+    """
+
+    def setUp(self):
+        self.col = DummyPlugInCollection()
+        self.plug1 = PlugIn("name1", "obj1")
+        self.plug2 = PlugIn("name2", "obj2")
+
+    @mock.patch.object(DummyPlugInCollection, "load")
+    def test_auto_loading(self, mock_col):
+        """
+        verify that PlugInCollectionBase.load() is called when load=True is
+        passed to the initializer.
+        """
+        col = DummyPlugInCollection(load=True)
+        col.load.assert_called()
+
+    def test_defaults(self):
+        """
+        verify what defaults are passed to the initializer or set internally
+        """
+        self.assertEqual(self.col._wrapper, PlugIn)
+        self.assertEqual(self.col._plugins, collections.OrderedDict())
+        self.assertEqual(self.col._loaded, False)
+        self.assertEqual(self.col._mocked_objects, None)
+
+    def test_get_by_name__typical(self):
+        """
+        verify that PlugInCollectionBase.get_by_name() works
+        """
+        with self.col.fake_plugins([self.plug1]):
+            self.assertEqual(
+                self.col.get_by_name(self.plug1.plugin_name), self.plug1)
+
+    def test_get_by_name__missing(self):
+        """
+        check how PlugInCollectionBase.get_by_name() behaves when there is no
+        match for the given name.
+        """
+        with self.assertRaises(KeyError), self.col.fake_plugins([]):
+            self.col.get_by_name(self.plug1.plugin_name)
+
+    def test_get_all_names(self):
+        """
+        verify that PlugInCollectionBase.get_all_names() works
+        """
+        with self.col.fake_plugins([self.plug1, self.plug2]):
+            self.assertEqual(
+                self.col.get_all_names(),
+                [self.plug1.plugin_name, self.plug2.plugin_name])
+
+    def test_get_all_plugins(self):
+        """
+        verify that PlugInCollectionBase.get_all_plugins() works
+        """
+        with self.col.fake_plugins([self.plug1, self.plug2]):
+            self.assertEqual(
+                self.col.get_all_plugins(), [self.plug1, self.plug2])
+
+    def test_get_items(self):
+        """
+        verify that PlugInCollectionBase.get_all_items() works
+        """
+        with self.col.fake_plugins([self.plug1, self.plug2]):
+            self.assertEqual(
+                self.col.get_all_items(),
+                [(self.plug1.plugin_name, self.plug1),
+                 (self.plug2.plugin_name, self.plug2)])
+
+    def test_fake_plugins(self):
+        """
+        verify that PlugInCollectionBase.fake_plugins() works
+        """
+        # create a canary object we'll check for below
+        canary = object()
+        # store it to all the attributes we expect to see changed by
+        # fake_plugins()
+        self.col._loaded = canary
+        self.col._plugins = canary
+        # use fake_plugins() with some plugins we have
+        with self.col.fake_plugins([self.plug1, self.plug2]):
+            # ensure that we don't have canaries here
+            self.assertEqual(self.col._loaded, True)
+            self.assertEqual(self.col._plugins, collections.OrderedDict([
+                (self.plug1.plugin_name, self.plug1),
+                (self.plug2.plugin_name, self.plug2)]))
+        # ensure that we see canaries outside of the context manager
+        self.assertEqual(self.col._loaded, canary)
+        self.assertEqual(self.col._plugins, canary)
+
+    def test_wrap_and_add_plugin(self):
+        """
+        verify that PlugInCollectionBase.wrap_and_add_plugin() works
+        """
+        self.col.wrap_and_add_plugin("new-name", "new-obj")
+        self.assertIn("new-name", self.col._plugins)
+        self.assertEqual(
+            self.col._plugins["new-name"].plugin_name, "new-name")
+        self.assertEqual(
+            self.col._plugins["new-name"].plugin_object, "new-obj")
 
 
 class PkgResourcesPlugInCollectionTests(TestCase):
@@ -136,23 +260,6 @@ class PkgResourcesPlugInCollectionTests(TestCase):
         # Ensure that an exception was logged
         mock_logger.exception.assert_called_with(
             "Unable to import %s", mock_ep2)
-
-    def test_fake_plugins(self):
-        # Create a mocked entry plugin
-        plug1 = PlugIn("ep1", "obj1")
-        plug2 = PlugIn("ep2", "obj2")
-        # With fake plugins
-        with self.col.fake_plugins([plug1, plug2]):
-            # Check that plugins are correct
-            self.assertIs(self.col.get_by_name('ep1'), plug1)
-            self.assertIs(self.col.get_by_name('ep2'), plug2)
-            # Access all plugins
-            self.assertEqual(self.col.get_all_plugins(), [plug1, plug2])
-            # Access all plugin names
-            self.assertEqual(self.col.get_all_names(), ['ep1', 'ep2'])
-            # Access all pairs (name, plugin)
-            self.assertEqual(self.col.get_all_items(),
-                             [('ep1', plug1), ('ep2', plug2)])
 
 
 class FsPlugInCollectionTests(TestCase):

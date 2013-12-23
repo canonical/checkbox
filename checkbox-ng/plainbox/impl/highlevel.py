@@ -164,7 +164,7 @@ class Explorer:
                 provider,
                 group="provider",
                 name=provider.name)
-            for job in provider.get_builtin_jobs():
+            for job in provider.load_all_jobs()[0]:
                 job_obj = PlainBoxObject(
                     job,
                     group="job",

@@ -416,5 +416,49 @@ class Provider1Tests(TestCase):
                     fake_plugins, fake_problems):
                 self.provider.get_builtin_jobs()
 
+    def test_load_all_job__normal(self):
+        """
+        verify that Provider1.load_all_jobs() loads and returns all of
+        the job definitions (and that they are in the right order)
+        """
+        # Create unsorted job definitions that define a1, a2, a3 and a4
+        fake_plugins = [
+            JobDefinitionPlugIn("/path/to/jobs1.txt", (
+                "name: a2\n"
+                "\n"
+                "name: a1\n"), self.provider),
+            JobDefinitionPlugIn("/path/to/jobs2.txt", (
+                "name: a3\n"
+                "\n"
+                "name: a4\n"), self.provider)
+        ]
+        with self.provider._job_collection.fake_plugins(fake_plugins):
+            job_list, problem_list = self.provider.load_all_jobs()
+        self.assertEqual(len(job_list), 4)
+        self.assertEqual(job_list[0].name, "a1")
+        self.assertEqual(job_list[1].name, "a2")
+        self.assertEqual(job_list[2].name, "a3")
+        self.assertEqual(job_list[3].name, "a4")
+        self.assertEqual(len(problem_list), 0)
+
+    def test_load_all_jobs__failing(self):
+        """
+        verify that Provider1.load_all_jobs() returns all of the problems
+        without raising an exception that happens during the load process
+        """
+        fake_plugins = [
+            JobDefinitionPlugIn(
+                "/path/to/jobs1.txt", "name: working\n", self.provider)
+        ]
+        fake_problems = [
+            PlugInError("some problem"),
+        ]
+        with self.provider._job_collection.fake_plugins(
+                fake_plugins, fake_problems):
+            job_list, problem_list = self.provider.load_all_jobs()
+        self.assertEqual(len(job_list), 1)
+        self.assertEqual(job_list[0].name, "working")
+        self.assertEqual(problem_list, fake_problems)
+
     def test_get_all_executables(self):
         self.skipTest("not implemented")

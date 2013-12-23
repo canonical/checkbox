@@ -23,7 +23,6 @@
 """
 
 import errno
-import io
 import itertools
 import logging
 import os
@@ -273,15 +272,37 @@ class Provider1(IProvider1, IProviderBackend1):
             if there were any problems accessing files or directories.
             Note that OSError is silently ignored when the `jobs_dir`
             directory is missing.
+
+        ..note::
+            This method should not be used anymore. Consider transitioning your
+            code to :meth:`load_all_jobs()` which is more reliable.
+        """
+        job_list, problem_list = self.load_all_jobs()
+        if problem_list:
+            raise problem_list[0]
+        else:
+            return job_list
+
+    def load_all_jobs(self):
+        """
+        Load and parse all of the job definitions of this provider.
+
+        Unlike :meth:`get_builtin_jobs()` this method does not stop after the
+        first problem encountered and instead collects all of the problems into
+        a list which is returned alongside the job list.
+
+        :returns:
+            Pair (job_list, problem_list) where each job_list is a sorted list
+            of JobDefinition objects and each item from problem_list is an
+            exception.
         """
         self._job_collection.load()
-        if self._job_collection.problem_list:
-            raise self._job_collection.problem_list[0]
-        else:
-            return sorted(
-                itertools.chain(
-                    *self._job_collection.get_all_plugin_objects()),
-                key=lambda job: job.name)
+        job_list = sorted(
+            itertools.chain(
+                *self._job_collection.get_all_plugin_objects()),
+            key=lambda job: job.name)
+        problem_list = self._job_collection.problem_list
+        return job_list, problem_list
 
     def get_all_executables(self):
         """

@@ -6,6 +6,11 @@ ChangeLog
     accounting of development history please inspect the source history
     directly.
 
+PlainBox 0.4
+^^^^^^^^^^^^
+
+* Bugfixes: https://launchpad.net/checkbox/+milestone/plainbox-0.4
+
 PlainBox 0.4 beta 2
 ^^^^^^^^^^^^^^^^^^^
 

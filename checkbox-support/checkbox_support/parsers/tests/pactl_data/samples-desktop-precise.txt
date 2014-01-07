@@ -1,0 +1,60 @@
+Sample #0
+	Name: bell-window-system
+	Sample Specification: s16le 2ch 44100Hz
+	Channel Map: front-left,front-right
+	Volume: (invalid)
+	        (invalid)
+	        balance 0.00
+	Duration: 0.8s
+	Size: 138.3 KiB
+	Lazy: no
+	Filename: n/a
+	Properties:
+		media.role = "event"
+		application.process.id = "3036"
+		application.name = "pantheon-terminal"
+		event.description = "Zdarzenie sygnału dźwiękowego"
+		event.id = "bell-window-system"
+		media.name = "bell-window-system"
+		media.filename = "/usr/share//sounds/freedesktop/stereo/bell.oga"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "26"
+		window.x11.display = ":0"
+		window.x11.screen = "0"
+		application.process.user = "zyga"
+		application.process.host = "g580"
+		application.process.binary = "gala"
+		application.language = "pl_PL.UTF-8"
+		application.process.machine_id = "71e162f888790906f342d4960000000b"
+		application.process.session_id = "71e162f888790906f342d4960000000b-1369811321.802895-1218540690"
+
+Sample #1
+	Name: audio-volume-change
+	Sample Specification: s16le 2ch 44100Hz
+	Channel Map: front-left,front-right
+	Volume: (invalid)
+	        (invalid)
+	        balance 0.00
+	Duration: 0.1s
+	Size: 11.5 KiB
+	Lazy: no
+	Filename: n/a
+	Properties:
+		media.role = "event"
+		event.description = "volume changed through key press"
+		event.id = "audio-volume-change"
+		media.name = "audio-volume-change"
+		media.filename = "/usr/share//sounds/freedesktop/stereo/audio-volume-change.oga"
+		application.name = "libcanberra"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "26"
+		application.version = "0.28"
+		application.id = "org.freedesktop.libcanberra"
+		application.process.id = "2834"
+		application.process.user = "zyga"
+		application.process.host = "g580"
+		application.process.binary = "gnome-settings-daemon"
+		application.language = "pl_PL.UTF-8"
+		window.x11.display = ":0"
+		application.process.machine_id = "71e162f888790906f342d4960000000b"
+		application.process.session_id = "71e162f888790906f342d4960000000b-1369811321.802895-1218540690"

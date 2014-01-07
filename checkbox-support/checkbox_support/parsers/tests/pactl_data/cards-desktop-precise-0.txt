@@ -1,0 +1,33 @@
+Card #0
+	Name: alsa_card.pci-0000_02_00.1
+	Driver: module-alsa-card.c
+	Owner Module: 4
+	Properties:
+		alsa.card = "2"
+		alsa.card_name = "HDA NVidia"
+		alsa.long_card_name = "HDA NVidia at 0xfbdfc000 irq 34"
+		alsa.driver_name = "snd_hda_intel"
+		device.bus_path = "pci-0000:02:00.1"
+		sysfs.path = "/devices/pci0000:00/0000:00:03.0/0000:02:00.1/sound/card2"
+		device.bus = "pci"
+		device.vendor.id = "10de"
+		device.vendor.name = "NVIDIA Corporation"
+		device.string = "2"
+		device.description = "HDA NVidia"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Profiles:
+		output:hdmi-stereo: Wyjście Digital Stereo (HDMI) (sinks: 1, sources: 0, priority. 5400)
+		output:hdmi-surround: Wyjście Digital Surround 5.1 (HDMI) (sinks: 1, sources: 0, priority. 300)
+		output:hdmi-stereo-extra1: Wyjście Digital Stereo (HDMI) (sinks: 1, sources: 0, priority. 5200)
+		output:hdmi-stereo-extra2: Wyjście Digital Stereo (HDMI) (sinks: 1, sources: 0, priority. 5200)
+		output:hdmi-surround-extra2: Wyjście Digital Surround 5.1 (HDMI) (sinks: 1, sources: 0, priority. 100)
+		off: Wyłącz (sinks: 0, sources: 0, priority. 0)
+	Active Profile: output:hdmi-stereo-extra1
+	Ports:
+		hdmi-output-0: HDMI / DisplayPort (priority 5900)
+			Part of profile(s): output:hdmi-stereo, output:hdmi-surround
+		hdmi-output-1: HDMI / DisplayPort 2 (priority 5800)
+			Part of profile(s): output:hdmi-stereo-extra1
+		hdmi-output-2: HDMI / DisplayPort 3 (priority 5700)
+			Part of profile(s): output:hdmi-stereo-extra2, output:hdmi-surround-extra2

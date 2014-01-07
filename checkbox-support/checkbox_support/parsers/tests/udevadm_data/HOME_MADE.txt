@@ -1,0 +1,5383 @@
+P: /devices/LNXSYSTM:00
+E: DEVPATH=/devices/LNXSYSTM:00
+E: MODALIAS=acpi:LNXSYSTM:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/LNXCPU:00
+E: DEVPATH=/devices/LNXSYSTM:00/LNXCPU:00
+E: DRIVER=processor
+E: MODALIAS=acpi:LNXCPU:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/LNXCPU:01
+E: DEVPATH=/devices/LNXSYSTM:00/LNXCPU:01
+E: DRIVER=processor
+E: MODALIAS=acpi:LNXCPU:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/LNXCPU:02
+E: DEVPATH=/devices/LNXSYSTM:00/LNXCPU:02
+E: DRIVER=processor
+E: MODALIAS=acpi:LNXCPU:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/LNXCPU:03
+E: DEVPATH=/devices/LNXSYSTM:00/LNXCPU:03
+E: DRIVER=processor
+E: MODALIAS=acpi:LNXCPU:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/LNXPWRBN:00
+E: DEVPATH=/devices/LNXSYSTM:00/LNXPWRBN:00
+E: DRIVER=button
+E: MODALIAS=acpi:LNXPWRBN:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/LNXPWRBN:00/input/input1
+E: DEVPATH=/devices/LNXSYSTM:00/LNXPWRBN:00/input/input1
+E: EV=3
+E: ID_INPUT=1
+E: ID_INPUT_KEY=1
+E: ID_PATH=acpi-LNXPWRBN:00
+E: ID_PATH_TAG=acpi-LNXPWRBN_00
+E: KEY=10000000000000 0
+E: MODALIAS=input:b0019v0000p0001e0000-e0,1,k74,ramlsfw
+E: NAME="Power Button"
+E: PHYS="LNXPWRBN/button/input0"
+E: PRODUCT=19/0/1/0
+E: PROP=0
+E: SUBSYSTEM=input
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1451734
+
+P: /devices/LNXSYSTM:00/LNXPWRBN:00/input/input1/event1
+N: input/event1
+E: DEVNAME=/dev/input/event1
+E: DEVPATH=/devices/LNXSYSTM:00/LNXPWRBN:00/input/input1/event1
+E: DMI_VENDOR=System manufacturer
+E: ID_INPUT=1
+E: ID_INPUT_KEY=1
+E: ID_PATH=acpi-LNXPWRBN:00
+E: ID_PATH_TAG=acpi-LNXPWRBN_00
+E: MAJOR=13
+E: MINOR=65
+E: SUBSYSTEM=input
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1471048
+E: XKBLAYOUT=fr
+E: XKBMODEL=pc105
+E: XKBVARIANT=latin9
+
+P: /devices/LNXSYSTM:00/device:00
+E: DEVPATH=/devices/LNXSYSTM:00/device:00
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00
+E: DRIVER=pci_root
+E: MODALIAS=acpi:PNP0A08:PNP0A03:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/PNP0C01:00
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/PNP0C01:00
+E: MODALIAS=acpi:PNP0C01:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/PNP0C02:04
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/PNP0C02:04
+E: MODALIAS=acpi:PNP0C02:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:01
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:01
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:02
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:02
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:03
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:03
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/ATK0110:00
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/ATK0110:00
+E: DRIVER=ATK0110
+E: MODALIAS=acpi:ATK0110:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/ATK0110:00/hwmon/hwmon0
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/ATK0110:00/hwmon/hwmon0
+E: SUBSYSTEM=hwmon
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/INT0800:00
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/INT0800:00
+E: MODALIAS=acpi:INT0800:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0000:00
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0000:00
+E: MODALIAS=acpi:PNP0000:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0100:00
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0100:00
+E: MODALIAS=acpi:PNP0100:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0103:00
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0103:00
+E: MODALIAS=acpi:PNP0103:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0200:00
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0200:00
+E: MODALIAS=acpi:PNP0200:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0501:00
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0501:00
+E: MODALIAS=acpi:PNP0501:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0700:00
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0700:00
+E: MODALIAS=acpi:PNP0700:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0800:00
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0800:00
+E: MODALIAS=acpi:PNP0800:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0B00:00
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0B00:00
+E: MODALIAS=acpi:PNP0B00:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0C02:00
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0C02:00
+E: MODALIAS=acpi:PNP0C02:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0C02:01
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0C02:01
+E: MODALIAS=acpi:PNP0C02:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0C02:02
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0C02:02
+E: MODALIAS=acpi:PNP0C02:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0C02:03
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0C02:03
+E: MODALIAS=acpi:PNP0C02:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0C04:00
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:04/PNP0C04:00
+E: MODALIAS=acpi:PNP0C04:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:05
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:05
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:05/device:06
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:05/device:06
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:05/device:06/device:07
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:05/device:06/device:07
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:05/device:06/device:08
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:05/device:06/device:08
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:05/device:09
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:05/device:09
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:05/device:09/device:0a
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:05/device:09/device:0a
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:05/device:09/device:0b
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:05/device:09/device:0b
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:0c
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:0c
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:0c/device:0d
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:0c/device:0d
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:0c/device:0d/device:0e
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:0c/device:0d/device:0e
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:0c/device:0d/device:0f
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:0c/device:0d/device:0f
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:0c/device:10
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:0c/device:10
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:0c/device:10/device:11
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:0c/device:10/device:11
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:0c/device:10/device:12
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:0c/device:10/device:12
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:13
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:13
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:14
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:14
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:15
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:15
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:16
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:16
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:17
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:17
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:18
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:18
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:19
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:19
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:1a
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:1a
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:1b
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:1b
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:1c
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:1c
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:1d
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:1d
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:1e
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:1e
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:1f
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:1f
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:20
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:20
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:21
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:21
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0A08:00/device:22
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0A08:00/device:22
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0C01:01
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0C01:01
+E: MODALIAS=acpi:PNP0C01:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0C0C:00
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0C0C:00
+E: DRIVER=button
+E: MODALIAS=acpi:PNP0C0C:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0C0C:00/input/input0
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0C0C:00/input/input0
+E: EV=3
+E: ID_INPUT=1
+E: ID_INPUT_KEY=1
+E: ID_PATH=acpi-PNP0C0C:00
+E: ID_PATH_TAG=acpi-PNP0C0C_00
+E: KEY=10000000000000 0
+E: MODALIAS=input:b0019v0000p0001e0000-e0,1,k74,ramlsfw
+E: NAME="Power Button"
+E: PHYS="PNP0C0C/button/input0"
+E: PRODUCT=19/0/1/0
+E: PROP=0
+E: SUBSYSTEM=input
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1455958
+
+P: /devices/LNXSYSTM:00/device:00/PNP0C0C:00/input/input0/event0
+N: input/event0
+E: DEVNAME=/dev/input/event0
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0C0C:00/input/input0/event0
+E: DMI_VENDOR=System manufacturer
+E: ID_INPUT=1
+E: ID_INPUT_KEY=1
+E: ID_PATH=acpi-PNP0C0C:00
+E: ID_PATH_TAG=acpi-PNP0C0C_00
+E: MAJOR=13
+E: MINOR=64
+E: SUBSYSTEM=input
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1471898
+E: XKBLAYOUT=fr
+E: XKBMODEL=pc105
+E: XKBVARIANT=latin9
+
+P: /devices/LNXSYSTM:00/device:00/PNP0C0F:00
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0C0F:00
+E: DRIVER=pci_link
+E: MODALIAS=acpi:PNP0C0F:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0C0F:01
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0C0F:01
+E: DRIVER=pci_link
+E: MODALIAS=acpi:PNP0C0F:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0C0F:02
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0C0F:02
+E: DRIVER=pci_link
+E: MODALIAS=acpi:PNP0C0F:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0C0F:03
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0C0F:03
+E: DRIVER=pci_link
+E: MODALIAS=acpi:PNP0C0F:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0C0F:04
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0C0F:04
+E: DRIVER=pci_link
+E: MODALIAS=acpi:PNP0C0F:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0C0F:05
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0C0F:05
+E: DRIVER=pci_link
+E: MODALIAS=acpi:PNP0C0F:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0C0F:06
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0C0F:06
+E: DRIVER=pci_link
+E: MODALIAS=acpi:PNP0C0F:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:00/PNP0C0F:07
+E: DEVPATH=/devices/LNXSYSTM:00/device:00/PNP0C0F:07
+E: DRIVER=pci_link
+E: MODALIAS=acpi:PNP0C0F:
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/LNXSYSTM:00/device:23
+E: DEVPATH=/devices/LNXSYSTM:00/device:23
+E: SUBSYSTEM=acpi
+E: UDEV_LOG=3
+
+P: /devices/breakpoint
+E: DEVPATH=/devices/breakpoint
+E: SUBSYSTEM=event_source
+E: UDEV_LOG=3
+
+P: /devices/cpu
+E: DEVPATH=/devices/cpu
+E: SUBSYSTEM=event_source
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:00.0
+E: DEVPATH=/devices/pci0000:00/0000:00:00.0
+E: MODALIAS=pci:v00008086d00002E20sv00001043sd000082D3bc06sc00i00
+E: PCI_CLASS=60000
+E: PCI_ID=8086:2E20
+E: PCI_SLOT_NAME=0000:00:00.0
+E: PCI_SUBSYS_ID=1043:82D3
+E: SUBSYSTEM=pci
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:01.0
+E: DEVPATH=/devices/pci0000:00/0000:00:01.0
+E: DRIVER=pcieport
+E: MODALIAS=pci:v00008086d00002E21sv00001043sd000082D3bc06sc04i00
+E: PCI_CLASS=60400
+E: PCI_ID=8086:2E21
+E: PCI_SLOT_NAME=0000:00:01.0
+E: PCI_SUBSYS_ID=1043:82D3
+E: SUBSYSTEM=pci
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:01.0/0000:00:01.0:pcie08
+E: DEVPATH=/devices/pci0000:00/0000:00:01.0/0000:00:01.0:pcie08
+E: SUBSYSTEM=pci_express
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:01.0/0000:01:00.0
+E: DEVPATH=/devices/pci0000:00/0000:00:01.0/0000:01:00.0
+E: DRIVER=fglrx_pci
+E: MODALIAS=pci:v00001002d00009442sv000010B0sd00000801bc03sc00i00
+E: PCI_CLASS=30000
+E: PCI_ID=1002:9442
+E: PCI_SLOT_NAME=0000:01:00.0
+E: PCI_SUBSYS_ID=10B0:0801
+E: SUBSYSTEM=pci
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:01.0/0000:01:00.1
+E: DEVPATH=/devices/pci0000:00/0000:00:01.0/0000:01:00.1
+E: DRIVER=snd_hda_intel
+E: MODALIAS=pci:v00001002d0000AA30sv000010B0sd0000AA30bc04sc03i00
+E: PCI_CLASS=40300
+E: PCI_ID=1002:AA30
+E: PCI_SLOT_NAME=0000:01:00.1
+E: PCI_SUBSYS_ID=10B0:AA30
+E: SUBSYSTEM=pci
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:01.0/0000:01:00.1/sound/card1
+E: DEVPATH=/devices/pci0000:00/0000:00:01.0/0000:01:00.1/sound/card1
+E: ID_BUS=pci
+E: ID_MODEL_FROM_DATABASE=RV770 HDMI Audio [Radeon HD 4850/4870]
+E: ID_MODEL_ID=/sys/devices/pci0000:00/0000:00:01.0/0000:01:00.1
+E: ID_PATH=pci-0000:01:00.1
+E: ID_PATH_TAG=pci-0000_01_00_1
+E: ID_VENDOR_FROM_DATABASE=Advanced Micro Devices [AMD] nee ATI
+E: ID_VENDOR_ID=0x1002
+E: PULSE_PROFILE_SET=extra-hdmi.conf
+E: SOUND_INITIALIZED=1
+E: SUBSYSTEM=sound
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11494260
+
+P: /devices/pci0000:00/0000:00:01.0/0000:01:00.1/sound/card1/hwC1D0
+N: snd/hwC1D0
+E: DEVNAME=/dev/snd/hwC1D0
+E: DEVPATH=/devices/pci0000:00/0000:00:01.0/0000:01:00.1/sound/card1/hwC1D0
+E: MAJOR=116
+E: MINOR=10
+E: SUBSYSTEM=sound
+E: TAGS=:udev-acl:
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11341193
+
+P: /devices/pci0000:00/0000:00:01.0/0000:01:00.1/sound/card1/input6
+E: DEVPATH=/devices/pci0000:00/0000:00:01.0/0000:01:00.1/sound/card1/input6
+E: EV=21
+E: ID_INPUT=1
+E: ID_PATH=pci-0000:01:00.1
+E: ID_PATH_TAG=pci-0000_01_00_1
+E: MODALIAS=input:b0000v0000p0000e0000-e0,5,kramlsfw6,8,
+E: NAME="HDA ATI HDMI HDMI/DP,pcm=3"
+E: PHYS="ALSA"
+E: PRODUCT=0/0/0/0
+E: PROP=0
+E: SUBSYSTEM=input
+E: SW=140
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11341808
+
+P: /devices/pci0000:00/0000:00:01.0/0000:01:00.1/sound/card1/input6/event6
+N: input/event6
+E: DEVNAME=/dev/input/event6
+E: DEVPATH=/devices/pci0000:00/0000:00:01.0/0000:01:00.1/sound/card1/input6/event6
+E: ID_INPUT=1
+E: ID_PATH=pci-0000:01:00.1
+E: ID_PATH_TAG=pci-0000_01_00_1
+E: MAJOR=13
+E: MINOR=70
+E: SUBSYSTEM=input
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11344335
+
+P: /devices/pci0000:00/0000:00:01.0/0000:01:00.1/sound/card1/pcmC1D3p
+N: snd/pcmC1D3p
+E: DEVNAME=/dev/snd/pcmC1D3p
+E: DEVPATH=/devices/pci0000:00/0000:00:01.0/0000:01:00.1/sound/card1/pcmC1D3p
+E: MAJOR=116
+E: MINOR=9
+E: SUBSYSTEM=sound
+E: TAGS=:udev-acl:
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11341157
+
+P: /devices/pci0000:00/0000:00:01.0/0000:01:00.1/sound/card1/controlC1
+N: snd/controlC1
+S: snd/by-path/pci-0000:01:00.1
+E: DEVLINKS=/dev/snd/by-path/pci-0000:01:00.1
+E: DEVNAME=/dev/snd/controlC1
+E: DEVPATH=/devices/pci0000:00/0000:00:01.0/0000:01:00.1/sound/card1/controlC1
+E: ID_PATH=pci-0000:01:00.1
+E: ID_PATH_TAG=pci-0000_01_00_1
+E: MAJOR=116
+E: MINOR=11
+E: SUBSYSTEM=sound
+E: TAGS=:udev-acl:
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11341462
+
+P: /devices/pci0000:00/0000:00:01.0/pci_bus/0000:01
+E: DEVPATH=/devices/pci0000:00/0000:00:01.0/pci_bus/0000:01
+E: SUBSYSTEM=pci_bus
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1a.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1a.0
+E: DRIVER=uhci_hcd
+E: MODALIAS=pci:v00008086d00003A37sv00001043sd000082D4bc0Csc03i00
+E: PCI_CLASS=C0300
+E: PCI_ID=8086:3A37
+E: PCI_SLOT_NAME=0000:00:1a.0
+E: PCI_SUBSYS_ID=1043:82D4
+E: SUBSYSTEM=pci
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1a.0/usb3
+N: bus/usb/003/001
+E: BUSNUM=003
+E: DEVNAME=/dev/bus/usb/003/001
+E: DEVNUM=001
+E: DEVPATH=/devices/pci0000:00/0000:00:1a.0/usb3
+E: DEVTYPE=usb_device
+E: DRIVER=usb
+E: ID_BUS=usb
+E: ID_MODEL=UHCI_Host_Controller
+E: ID_MODEL_ENC=UHCI\x20Host\x20Controller
+E: ID_MODEL_ID=0001
+E: ID_REVISION=0302
+E: ID_SERIAL=Linux_3.2.0-32-generic_uhci_hcd_UHCI_Host_Controller_0000:00:1a.0
+E: ID_SERIAL_SHORT=0000:00:1a.0
+E: ID_USB_INTERFACES=:090000:
+E: ID_VENDOR=Linux_3.2.0-32-generic_uhci_hcd
+E: ID_VENDOR_ENC=Linux\x203.2.0-32-generic\x20uhci_hcd
+E: ID_VENDOR_ID=1d6b
+E: MAJOR=189
+E: MINOR=256
+E: PRODUCT=1d6b/1/302
+E: SUBSYSTEM=usb
+E: TYPE=9/0/0
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1426414
+
+P: /devices/pci0000:00/0000:00:1a.0/usb3/3-0:1.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1a.0/usb3/3-0:1.0
+E: DEVTYPE=usb_interface
+E: DRIVER=hub
+E: INTERFACE=9/0/0
+E: MODALIAS=usb:v1D6Bp0001d0302dc09dsc00dp00ic09isc00ip00
+E: PRODUCT=1d6b/1/302
+E: SUBSYSTEM=usb
+E: TYPE=9/0/0
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1a.0/usbmon/usbmon3
+N: usbmon3
+E: DEVNAME=/dev/usbmon3
+E: DEVPATH=/devices/pci0000:00/0000:00:1a.0/usbmon/usbmon3
+E: MAJOR=252
+E: MINOR=3
+E: SUBSYSTEM=usbmon
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1a.1
+E: DEVPATH=/devices/pci0000:00/0000:00:1a.1
+E: DRIVER=uhci_hcd
+E: MODALIAS=pci:v00008086d00003A38sv00001043sd000082D4bc0Csc03i00
+E: PCI_CLASS=C0300
+E: PCI_ID=8086:3A38
+E: PCI_SLOT_NAME=0000:00:1a.1
+E: PCI_SUBSYS_ID=1043:82D4
+E: SUBSYSTEM=pci
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1a.1/usb4
+N: bus/usb/004/001
+E: BUSNUM=004
+E: DEVNAME=/dev/bus/usb/004/001
+E: DEVNUM=001
+E: DEVPATH=/devices/pci0000:00/0000:00:1a.1/usb4
+E: DEVTYPE=usb_device
+E: DRIVER=usb
+E: ID_BUS=usb
+E: ID_MODEL=UHCI_Host_Controller
+E: ID_MODEL_ENC=UHCI\x20Host\x20Controller
+E: ID_MODEL_ID=0001
+E: ID_REVISION=0302
+E: ID_SERIAL=Linux_3.2.0-32-generic_uhci_hcd_UHCI_Host_Controller_0000:00:1a.1
+E: ID_SERIAL_SHORT=0000:00:1a.1
+E: ID_USB_INTERFACES=:090000:
+E: ID_VENDOR=Linux_3.2.0-32-generic_uhci_hcd
+E: ID_VENDOR_ENC=Linux\x203.2.0-32-generic\x20uhci_hcd
+E: ID_VENDOR_ID=1d6b
+E: MAJOR=189
+E: MINOR=384
+E: PRODUCT=1d6b/1/302
+E: SUBSYSTEM=usb
+E: TYPE=9/0/0
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1427073
+
+P: /devices/pci0000:00/0000:00:1a.1/usb4/4-0:1.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1a.1/usb4/4-0:1.0
+E: DEVTYPE=usb_interface
+E: DRIVER=hub
+E: INTERFACE=9/0/0
+E: MODALIAS=usb:v1D6Bp0001d0302dc09dsc00dp00ic09isc00ip00
+E: PRODUCT=1d6b/1/302
+E: SUBSYSTEM=usb
+E: TYPE=9/0/0
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1a.1/usbmon/usbmon4
+N: usbmon4
+E: DEVNAME=/dev/usbmon4
+E: DEVPATH=/devices/pci0000:00/0000:00:1a.1/usbmon/usbmon4
+E: MAJOR=252
+E: MINOR=4
+E: SUBSYSTEM=usbmon
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1a.2
+E: DEVPATH=/devices/pci0000:00/0000:00:1a.2
+E: DRIVER=uhci_hcd
+E: MODALIAS=pci:v00008086d00003A39sv00001043sd000082D4bc0Csc03i00
+E: PCI_CLASS=C0300
+E: PCI_ID=8086:3A39
+E: PCI_SLOT_NAME=0000:00:1a.2
+E: PCI_SUBSYS_ID=1043:82D4
+E: SUBSYSTEM=pci
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1a.2/usb5
+N: bus/usb/005/001
+E: BUSNUM=005
+E: DEVNAME=/dev/bus/usb/005/001
+E: DEVNUM=001
+E: DEVPATH=/devices/pci0000:00/0000:00:1a.2/usb5
+E: DEVTYPE=usb_device
+E: DRIVER=usb
+E: ID_BUS=usb
+E: ID_MODEL=UHCI_Host_Controller
+E: ID_MODEL_ENC=UHCI\x20Host\x20Controller
+E: ID_MODEL_ID=0001
+E: ID_REVISION=0302
+E: ID_SERIAL=Linux_3.2.0-32-generic_uhci_hcd_UHCI_Host_Controller_0000:00:1a.2
+E: ID_SERIAL_SHORT=0000:00:1a.2
+E: ID_USB_INTERFACES=:090000:
+E: ID_VENDOR=Linux_3.2.0-32-generic_uhci_hcd
+E: ID_VENDOR_ENC=Linux\x203.2.0-32-generic\x20uhci_hcd
+E: ID_VENDOR_ID=1d6b
+E: MAJOR=189
+E: MINOR=512
+E: PRODUCT=1d6b/1/302
+E: SUBSYSTEM=usb
+E: TYPE=9/0/0
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1432205
+
+P: /devices/pci0000:00/0000:00:1a.2/usb5/5-0:1.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1a.2/usb5/5-0:1.0
+E: DEVTYPE=usb_interface
+E: DRIVER=hub
+E: INTERFACE=9/0/0
+E: MODALIAS=usb:v1D6Bp0001d0302dc09dsc00dp00ic09isc00ip00
+E: PRODUCT=1d6b/1/302
+E: SUBSYSTEM=usb
+E: TYPE=9/0/0
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1a.2/usbmon/usbmon5
+N: usbmon5
+E: DEVNAME=/dev/usbmon5
+E: DEVPATH=/devices/pci0000:00/0000:00:1a.2/usbmon/usbmon5
+E: MAJOR=252
+E: MINOR=5
+E: SUBSYSTEM=usbmon
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1a.7
+E: DEVPATH=/devices/pci0000:00/0000:00:1a.7
+E: DRIVER=ehci_hcd
+E: MODALIAS=pci:v00008086d00003A3Csv00001043sd000082D4bc0Csc03i20
+E: PCI_CLASS=C0320
+E: PCI_ID=8086:3A3C
+E: PCI_SLOT_NAME=0000:00:1a.7
+E: PCI_SUBSYS_ID=1043:82D4
+E: SUBSYSTEM=pci
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1a.7/usb1
+N: bus/usb/001/001
+E: BUSNUM=001
+E: DEVNAME=/dev/bus/usb/001/001
+E: DEVNUM=001
+E: DEVPATH=/devices/pci0000:00/0000:00:1a.7/usb1
+E: DEVTYPE=usb_device
+E: DRIVER=usb
+E: ID_BUS=usb
+E: ID_MODEL=EHCI_Host_Controller
+E: ID_MODEL_ENC=EHCI\x20Host\x20Controller
+E: ID_MODEL_ID=0002
+E: ID_REVISION=0302
+E: ID_SERIAL=Linux_3.2.0-32-generic_ehci_hcd_EHCI_Host_Controller_0000:00:1a.7
+E: ID_SERIAL_SHORT=0000:00:1a.7
+E: ID_USB_INTERFACES=:090000:
+E: ID_VENDOR=Linux_3.2.0-32-generic_ehci_hcd
+E: ID_VENDOR_ENC=Linux\x203.2.0-32-generic\x20ehci_hcd
+E: ID_VENDOR_ID=1d6b
+E: MAJOR=189
+E: MINOR=0
+E: PRODUCT=1d6b/2/302
+E: SUBSYSTEM=usb
+E: TYPE=9/0/0
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1429576
+
+P: /devices/pci0000:00/0000:00:1a.7/usb1/1-0:1.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1a.7/usb1/1-0:1.0
+E: DEVTYPE=usb_interface
+E: DRIVER=hub
+E: INTERFACE=9/0/0
+E: MODALIAS=usb:v1D6Bp0002d0302dc09dsc00dp00ic09isc00ip00
+E: PRODUCT=1d6b/2/302
+E: SUBSYSTEM=usb
+E: TYPE=9/0/0
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1a.7/usbmon/usbmon1
+N: usbmon1
+E: DEVNAME=/dev/usbmon1
+E: DEVPATH=/devices/pci0000:00/0000:00:1a.7/usbmon/usbmon1
+E: MAJOR=252
+E: MINOR=1
+E: SUBSYSTEM=usbmon
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1b.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1b.0
+E: DRIVER=snd_hda_intel
+E: MODALIAS=pci:v00008086d00003A3Esv00001043sd000082FEbc04sc03i00
+E: PCI_CLASS=40300
+E: PCI_ID=8086:3A3E
+E: PCI_SLOT_NAME=0000:00:1b.0
+E: PCI_SUBSYS_ID=1043:82FE
+E: SUBSYSTEM=pci
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1b.0/sound/card0
+E: DEVPATH=/devices/pci0000:00/0000:00:1b.0/sound/card0
+E: ID_BUS=pci
+E: ID_MODEL_FROM_DATABASE=82801JI (ICH10 Family) HD Audio Controller
+E: ID_MODEL_ID=/sys/devices/pci0000:00/0000:00:1b.0
+E: ID_PATH=pci-0000:00:1b.0
+E: ID_PATH_TAG=pci-0000_00_1b_0
+E: ID_VENDOR_FROM_DATABASE=Intel Corporation
+E: ID_VENDOR_ID=0x8086
+E: PULSE_PROFILE_SET=extra-hdmi.conf
+E: SOUND_FORM_FACTOR=internal
+E: SOUND_INITIALIZED=1
+E: SUBSYSTEM=sound
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11503880
+
+P: /devices/pci0000:00/0000:00:1b.0/sound/card0/hwC0D0
+N: snd/hwC0D0
+E: DEVNAME=/dev/snd/hwC0D0
+E: DEVPATH=/devices/pci0000:00/0000:00:1b.0/sound/card0/hwC0D0
+E: MAJOR=116
+E: MINOR=7
+E: SUBSYSTEM=sound
+E: TAGS=:udev-acl:
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11296014
+
+P: /devices/pci0000:00/0000:00:1b.0/sound/card0/pcmC0D0c
+N: snd/pcmC0D0c
+E: DEVNAME=/dev/snd/pcmC0D0c
+E: DEVPATH=/devices/pci0000:00/0000:00:1b.0/sound/card0/pcmC0D0c
+E: MAJOR=116
+E: MINOR=6
+E: SUBSYSTEM=sound
+E: TAGS=:udev-acl:
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11295807
+
+P: /devices/pci0000:00/0000:00:1b.0/sound/card0/pcmC0D0p
+N: snd/pcmC0D0p
+E: DEVNAME=/dev/snd/pcmC0D0p
+E: DEVPATH=/devices/pci0000:00/0000:00:1b.0/sound/card0/pcmC0D0p
+E: MAJOR=116
+E: MINOR=5
+E: SUBSYSTEM=sound
+E: TAGS=:udev-acl:
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11295605
+
+P: /devices/pci0000:00/0000:00:1b.0/sound/card0/pcmC0D1c
+N: snd/pcmC0D1c
+E: DEVNAME=/dev/snd/pcmC0D1c
+E: DEVPATH=/devices/pci0000:00/0000:00:1b.0/sound/card0/pcmC0D1c
+E: MAJOR=116
+E: MINOR=4
+E: SUBSYSTEM=sound
+E: TAGS=:udev-acl:
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11295406
+
+P: /devices/pci0000:00/0000:00:1b.0/sound/card0/pcmC0D1p
+N: snd/pcmC0D1p
+E: DEVNAME=/dev/snd/pcmC0D1p
+E: DEVPATH=/devices/pci0000:00/0000:00:1b.0/sound/card0/pcmC0D1p
+E: MAJOR=116
+E: MINOR=3
+E: SUBSYSTEM=sound
+E: TAGS=:udev-acl:
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11295168
+
+P: /devices/pci0000:00/0000:00:1b.0/sound/card0/pcmC0D2c
+N: snd/pcmC0D2c
+E: DEVNAME=/dev/snd/pcmC0D2c
+E: DEVPATH=/devices/pci0000:00/0000:00:1b.0/sound/card0/pcmC0D2c
+E: MAJOR=116
+E: MINOR=2
+E: SUBSYSTEM=sound
+E: TAGS=:udev-acl:
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11296285
+
+P: /devices/pci0000:00/0000:00:1b.0/sound/card0/controlC0
+N: snd/controlC0
+S: snd/by-path/pci-0000:00:1b.0
+E: DEVLINKS=/dev/snd/by-path/pci-0000:00:1b.0
+E: DEVNAME=/dev/snd/controlC0
+E: DEVPATH=/devices/pci0000:00/0000:00:1b.0/sound/card0/controlC0
+E: ID_PATH=pci-0000:00:1b.0
+E: ID_PATH_TAG=pci-0000_00_1b_0
+E: MAJOR=116
+E: MINOR=8
+E: SUBSYSTEM=sound
+E: TAGS=:udev-acl:
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11295244
+
+P: /devices/pci0000:00/0000:00:1c.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1c.0
+E: DRIVER=pcieport
+E: MODALIAS=pci:v00008086d00003A40sv00001043sd000082D4bc06sc04i00
+E: PCI_CLASS=60400
+E: PCI_ID=8086:3A40
+E: PCI_SLOT_NAME=0000:00:1c.0
+E: PCI_SUBSYS_ID=1043:82D4
+E: SUBSYSTEM=pci
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1c.0/0000:00:1c.0:pcie08
+E: DEVPATH=/devices/pci0000:00/0000:00:1c.0/0000:00:1c.0:pcie08
+E: SUBSYSTEM=pci_express
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1c.0/pci_bus/0000:03
+E: DEVPATH=/devices/pci0000:00/0000:00:1c.0/pci_bus/0000:03
+E: SUBSYSTEM=pci_bus
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1c.5
+E: DEVPATH=/devices/pci0000:00/0000:00:1c.5
+E: DRIVER=pcieport
+E: MODALIAS=pci:v00008086d00003A4Asv00001043sd000082D4bc06sc04i00
+E: PCI_CLASS=60400
+E: PCI_ID=8086:3A4A
+E: PCI_SLOT_NAME=0000:00:1c.5
+E: PCI_SUBSYS_ID=1043:82D4
+E: SUBSYSTEM=pci
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1c.5/0000:00:1c.5:pcie08
+E: DEVPATH=/devices/pci0000:00/0000:00:1c.5/0000:00:1c.5:pcie08
+E: SUBSYSTEM=pci_express
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1c.5/0000:02:00.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1c.5/0000:02:00.0
+E: DRIVER=ATL1E
+E: MODALIAS=pci:v00001969d00001026sv00001043sd00008226bc02sc00i00
+E: PCI_CLASS=20000
+E: PCI_ID=1969:1026
+E: PCI_SLOT_NAME=0000:02:00.0
+E: PCI_SUBSYS_ID=1043:8226
+E: SUBSYSTEM=pci
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1c.5/0000:02:00.0/net/eth0
+E: DEVPATH=/devices/pci0000:00/0000:00:1c.5/0000:02:00.0/net/eth0
+E: ID_BUS=pci
+E: ID_MM_CANDIDATE=1
+E: ID_MODEL_FROM_DATABASE=AR8121/AR8113/AR8114 Gigabit or Fast Ethernet
+E: ID_MODEL_ID=/sys/devices/pci0000:00/0000:00:1c.5/0000:02:00.0
+E: ID_VENDOR_FROM_DATABASE=Atheros Communications Inc.
+E: ID_VENDOR_ID=0x1969
+E: IFINDEX=2
+E: INTERFACE=eth0
+E: SUBSYSTEM=net
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11177200
+
+P: /devices/pci0000:00/0000:00:1c.5/pci_bus/0000:02
+E: DEVPATH=/devices/pci0000:00/0000:00:1c.5/pci_bus/0000:02
+E: SUBSYSTEM=pci_bus
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0
+E: DRIVER=uhci_hcd
+E: MODALIAS=pci:v00008086d00003A34sv00001043sd000082D4bc0Csc03i00
+E: PCI_CLASS=C0300
+E: PCI_ID=8086:3A34
+E: PCI_SLOT_NAME=0000:00:1d.0
+E: PCI_SUBSYS_ID=1043:82D4
+E: SUBSYSTEM=pci
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6
+N: bus/usb/006/001
+E: BUSNUM=006
+E: DEVNAME=/dev/bus/usb/006/001
+E: DEVNUM=001
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6
+E: DEVTYPE=usb_device
+E: DRIVER=usb
+E: ID_BUS=usb
+E: ID_MODEL=UHCI_Host_Controller
+E: ID_MODEL_ENC=UHCI\x20Host\x20Controller
+E: ID_MODEL_ID=0001
+E: ID_REVISION=0302
+E: ID_SERIAL=Linux_3.2.0-32-generic_uhci_hcd_UHCI_Host_Controller_0000:00:1d.0
+E: ID_SERIAL_SHORT=0000:00:1d.0
+E: ID_USB_INTERFACES=:090000:
+E: ID_VENDOR=Linux_3.2.0-32-generic_uhci_hcd
+E: ID_VENDOR_ENC=Linux\x203.2.0-32-generic\x20uhci_hcd
+E: ID_VENDOR_ID=1d6b
+E: MAJOR=189
+E: MINOR=640
+E: PRODUCT=1d6b/1/302
+E: SUBSYSTEM=usb
+E: TYPE=9/0/0
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1427747
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-0:1.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-0:1.0
+E: DEVTYPE=usb_interface
+E: DRIVER=hub
+E: INTERFACE=9/0/0
+E: MODALIAS=usb:v1D6Bp0001d0302dc09dsc00dp00ic09isc00ip00
+E: PRODUCT=1d6b/1/302
+E: SUBSYSTEM=usb
+E: TYPE=9/0/0
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1
+N: bus/usb/006/002
+E: BUSNUM=006
+E: DEVNAME=/dev/bus/usb/006/002
+E: DEVNUM=002
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1
+E: DEVTYPE=usb_device
+E: DRIVER=usb
+E: ID_BUS=usb
+E: ID_MODEL=Generic_USB_Hub
+E: ID_MODEL_ENC=Generic\x20USB\x20Hub
+E: ID_MODEL_ID=9254
+E: ID_REVISION=0312
+E: ID_SERIAL=ALCOR_Generic_USB_Hub
+E: ID_USB_INTERFACES=:090000:
+E: ID_VENDOR=ALCOR
+E: ID_VENDOR_ENC=ALCOR
+E: ID_VENDOR_ID=058f
+E: MAJOR=189
+E: MINOR=641
+E: PRODUCT=58f/9254/312
+E: SUBSYSTEM=usb
+E: TYPE=9/0/0
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1485470
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.1
+N: bus/usb/006/003
+E: BUSNUM=006
+E: DEVNAME=/dev/bus/usb/006/003
+E: DEVNUM=003
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.1
+E: DEVTYPE=usb_device
+E: DRIVER=usb
+E: ID_BUS=usb
+E: ID_MODEL=Logitech_Illuminated_Keyboard
+E: ID_MODEL_ENC=Logitech\x20Illuminated\x20Keyboard
+E: ID_MODEL_ID=c318
+E: ID_REVISION=5501
+E: ID_SERIAL=Logitech_Logitech_Illuminated_Keyboard
+E: ID_USB_INTERFACES=:030101:030002:
+E: ID_VENDOR=Logitech
+E: ID_VENDOR_ENC=Logitech
+E: ID_VENDOR_ID=046d
+E: MAJOR=189
+E: MINOR=642
+E: PRODUCT=46d/c318/5501
+E: SUBSYSTEM=usb
+E: TYPE=0/0/0
+E: UDEV_LOG=3
+E: UPOWER_VENDOR=Logitech, Inc.
+E: USEC_INITIALIZED=1911218
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.1/6-1.1:1.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.1/6-1.1:1.0
+E: DEVTYPE=usb_interface
+E: DRIVER=usbhid
+E: INTERFACE=3/1/1
+E: MODALIAS=usb:v046DpC318d5501dc00dsc00dp00ic03isc01ip01
+E: PRODUCT=46d/c318/5501
+E: SUBSYSTEM=usb
+E: TYPE=0/0/0
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.1/6-1.1:1.0/0003:046D:C318.0001
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.1/6-1.1:1.0/0003:046D:C318.0001
+E: DRIVER=generic-usb
+E: HID_ID=0003:0000046D:0000C318
+E: HID_NAME=Logitech Logitech Illuminated Keyboard
+E: HID_PHYS=usb-0000:00:1d.0-1.1/input0
+E: MODALIAS=hid:b0003v0000046Dp0000C318
+E: SUBSYSTEM=hid
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.1/6-1.1:1.0/0003:046D:C318.0001/hidraw/hidraw0
+N: hidraw0
+E: DEVNAME=/dev/hidraw0
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.1/6-1.1:1.0/0003:046D:C318.0001/hidraw/hidraw0
+E: MAJOR=250
+E: MINOR=0
+E: SUBSYSTEM=hidraw
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.1/6-1.1:1.0/input/input2
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.1/6-1.1:1.0/input/input2
+E: EV=120013
+E: ID_BUS=usb
+E: ID_INPUT=1
+E: ID_INPUT_KEY=1
+E: ID_INPUT_KEYBOARD=1
+E: ID_MODEL=Logitech_Illuminated_Keyboard
+E: ID_MODEL_ENC=Logitech\x20Illuminated\x20Keyboard
+E: ID_MODEL_ID=c318
+E: ID_PATH=pci-0000:00:1d.0-usb-0:1.1:1.0
+E: ID_PATH_TAG=pci-0000_00_1d_0-usb-0_1_1_1_0
+E: ID_REVISION=5501
+E: ID_SERIAL=Logitech_Logitech_Illuminated_Keyboard
+E: ID_TYPE=hid
+E: ID_USB_DRIVER=usbhid
+E: ID_USB_INTERFACES=:030101:030002:
+E: ID_USB_INTERFACE_NUM=00
+E: ID_VENDOR=Logitech
+E: ID_VENDOR_ENC=Logitech
+E: ID_VENDOR_ID=046d
+E: KEY=1000000000007 ff9f207ac14057ff febeffdfffefffff fffffffffffffffe
+E: LED=1f
+E: MODALIAS=input:b0003v046DpC318e0111-e0,1,4,11,14,k71,72,73,74,75,77,79,7A,7B,7C,7D,7E,7F,80,81,82,83,84,85,86,87,88,89,8A,8C,8E,96,98,9E,9F,A1,A3,A4,A5,A6,AD,B0,B1,B2,B3,B4,B7,B8,B9,BA,BB,BC,BD,BE,BF,C0,C1,C2,F0,ram4,l0,1,2,3,4,sfw
+E: MSC=10
+E: NAME="Logitech Logitech Illuminated Keyboard"
+E: PHYS="usb-0000:00:1d.0-1.1/input0"
+E: PRODUCT=3/46d/c318/111
+E: PROP=0
+E: SUBSYSTEM=input
+E: UDEV_LOG=3
+E: UNIQ=""
+E: USEC_INITIALIZED=1924582
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.1/6-1.1:1.0/input/input2/event2
+N: input/event2
+S: input/by-id/usb-Logitech_Logitech_Illuminated_Keyboard-event-kbd
+S: input/by-path/pci-0000:00:1d.0-usb-0:1.1:1.0-event-kbd
+E: DEVLINKS=/dev/input/by-id/usb-Logitech_Logitech_Illuminated_Keyboard-event-kbd /dev/input/by-path/pci-0000:00:1d.0-usb-0:1.1:1.0-event-kbd
+E: DEVNAME=/dev/input/event2
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.1/6-1.1:1.0/input/input2/event2
+E: ID_BUS=usb
+E: ID_INPUT=1
+E: ID_INPUT_KEY=1
+E: ID_INPUT_KEYBOARD=1
+E: ID_MODEL=Logitech_Illuminated_Keyboard
+E: ID_MODEL_ENC=Logitech\x20Illuminated\x20Keyboard
+E: ID_MODEL_ID=c318
+E: ID_PATH=pci-0000:00:1d.0-usb-0:1.1:1.0
+E: ID_PATH_TAG=pci-0000_00_1d_0-usb-0_1_1_1_0
+E: ID_REVISION=5501
+E: ID_SERIAL=Logitech_Logitech_Illuminated_Keyboard
+E: ID_TYPE=hid
+E: ID_USB_DRIVER=usbhid
+E: ID_USB_INTERFACES=:030101:030002:
+E: ID_USB_INTERFACE_NUM=00
+E: ID_VENDOR=Logitech
+E: ID_VENDOR_ENC=Logitech
+E: ID_VENDOR_ID=046d
+E: MAJOR=13
+E: MINOR=66
+E: SUBSYSTEM=input
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1925507
+E: XKBLAYOUT=fr
+E: XKBMODEL=pc105
+E: XKBVARIANT=latin9
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.1/6-1.1:1.1
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.1/6-1.1:1.1
+E: DEVTYPE=usb_interface
+E: DRIVER=usbhid
+E: INTERFACE=3/0/2
+E: MODALIAS=usb:v046DpC318d5501dc00dsc00dp00ic03isc00ip02
+E: PRODUCT=46d/c318/5501
+E: SUBSYSTEM=usb
+E: TYPE=0/0/0
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.1/6-1.1:1.1/0003:046D:C318.0002
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.1/6-1.1:1.1/0003:046D:C318.0002
+E: DRIVER=generic-usb
+E: HID_ID=0003:0000046D:0000C318
+E: HID_NAME=Logitech Logitech Illuminated Keyboard
+E: HID_PHYS=usb-0000:00:1d.0-1.1/input1
+E: MODALIAS=hid:b0003v0000046Dp0000C318
+E: SUBSYSTEM=hid
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.1/6-1.1:1.1/0003:046D:C318.0002/hidraw/hidraw1
+N: hidraw1
+E: DEVNAME=/dev/hidraw1
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.1/6-1.1:1.1/0003:046D:C318.0002/hidraw/hidraw1
+E: MAJOR=250
+E: MINOR=1
+E: SUBSYSTEM=hidraw
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.1/6-1.1:1.1/input/input3
+E: ABS=100000000
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.1/6-1.1:1.1/input/input3
+E: EV=1f
+E: ID_BUS=usb
+E: ID_INPUT=1
+E: ID_INPUT_KEY=1
+E: ID_MODEL=Logitech_Illuminated_Keyboard
+E: ID_MODEL_ENC=Logitech\x20Illuminated\x20Keyboard
+E: ID_MODEL_ID=c318
+E: ID_PATH=pci-0000:00:1d.0-usb-0:1.1:1.1
+E: ID_PATH_TAG=pci-0000_00_1d_0-usb-0_1_1_1_1
+E: ID_REVISION=5501
+E: ID_SERIAL=Logitech_Logitech_Illuminated_Keyboard
+E: ID_TYPE=hid
+E: ID_USB_DRIVER=usbhid
+E: ID_USB_INTERFACES=:030101:030002:
+E: ID_USB_INTERFACE_NUM=01
+E: ID_VENDOR=Logitech
+E: ID_VENDOR_ENC=Logitech
+E: ID_VENDOR_ID=046d
+E: KEY=4837fff072ff32d bf54444600000000 1 20f908b17c000 677bfad9415fed 9ed68000004400 10000002
+E: MODALIAS=input:b0003v046DpC318e0111-e0,1,2,3,4,k71,72,73,74,77,80,82,83,85,86,87,88,89,8A,8B,8C,8E,90,96,98,9B,9C,9E,9F,A1,A3,A4,A5,A6,A7,A8,A9,AB,AC,AD,AE,B0,B1,B2,B5,B6,CE,CF,D0,D1,D2,D4,D8,D9,DB,DF,E4,E7,E8,E9,EA,EB,F1,100,161,162,166,16A,16E,172,174,176,178,179,17A,17B,17C,17D,17F,180,182,183,185,188,189,18C,18D,18E,18F,190,191,192,193,195,198,199,19A,1A0,1A1,1A2,1A3,1A4,1A5,1A6,1A7,1A8,1A9,1AA,1AB,1AC,1AD,1AE,1B0,1B1,1B7,1BA,r6,a20,m4,lsfw
+E: MSC=10
+E: NAME="Logitech Logitech Illuminated Keyboard"
+E: PHYS="usb-0000:00:1d.0-1.1/input1"
+E: PRODUCT=3/46d/c318/111
+E: PROP=0
+E: REL=40
+E: SUBSYSTEM=input
+E: UDEV_LOG=3
+E: UNIQ=""
+E: USEC_INITIALIZED=11118222
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.1/6-1.1:1.1/input/input3/event3
+N: input/event3
+S: input/by-id/usb-Logitech_Logitech_Illuminated_Keyboard-event-if01
+S: input/by-path/pci-0000:00:1d.0-usb-0:1.1:1.1-event
+E: DEVLINKS=/dev/input/by-id/usb-Logitech_Logitech_Illuminated_Keyboard-event-if01 /dev/input/by-path/pci-0000:00:1d.0-usb-0:1.1:1.1-event
+E: DEVNAME=/dev/input/event3
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.1/6-1.1:1.1/input/input3/event3
+E: ID_BUS=usb
+E: ID_INPUT=1
+E: ID_INPUT_KEY=1
+E: ID_MODEL=Logitech_Illuminated_Keyboard
+E: ID_MODEL_ENC=Logitech\x20Illuminated\x20Keyboard
+E: ID_MODEL_ID=c318
+E: ID_PATH=pci-0000:00:1d.0-usb-0:1.1:1.1
+E: ID_PATH_TAG=pci-0000_00_1d_0-usb-0_1_1_1_1
+E: ID_REVISION=5501
+E: ID_SERIAL=Logitech_Logitech_Illuminated_Keyboard
+E: ID_TYPE=hid
+E: ID_USB_DRIVER=usbhid
+E: ID_USB_INTERFACES=:030101:030002:
+E: ID_USB_INTERFACE_NUM=01
+E: ID_VENDOR=Logitech
+E: ID_VENDOR_ENC=Logitech
+E: ID_VENDOR_ID=046d
+E: MAJOR=13
+E: MINOR=67
+E: SUBSYSTEM=input
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11154675
+E: XKBLAYOUT=fr
+E: XKBMODEL=pc105
+E: XKBVARIANT=latin9
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.1/6-1.1:1.1/usb/hiddev0
+N: usb/hiddev0
+E: DEVNAME=/dev/usb/hiddev0
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.1/6-1.1:1.1/usb/hiddev0
+E: MAJOR=180
+E: MINOR=96
+E: SUBSYSTEM=usb
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.2
+N: bus/usb/006/004
+E: BUSNUM=006
+E: DEVNAME=/dev/bus/usb/006/004
+E: DEVNUM=004
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.2
+E: DEVTYPE=usb_device
+E: DRIVER=usb
+E: ID_BUS=usb
+E: ID_MODEL=Microsoft_5-Button_Mouse_with_IntelliEye_TM_
+E: ID_MODEL_ENC=Microsoft\x205-Button\x20Mouse\x20with\x20IntelliEye\x28TM\x29
+E: ID_MODEL_ID=0047
+E: ID_REVISION=0300
+E: ID_SERIAL=Microsoft_Microsoft_5-Button_Mouse_with_IntelliEye_TM_
+E: ID_USB_INTERFACES=:030102:
+E: ID_VENDOR=Microsoft
+E: ID_VENDOR_ENC=Microsoft
+E: ID_VENDOR_ID=045e
+E: MAJOR=189
+E: MINOR=643
+E: PRODUCT=45e/47/300
+E: SUBSYSTEM=usb
+E: TYPE=0/0/0
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11097678
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.2/6-1.2:1.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.2/6-1.2:1.0
+E: DEVTYPE=usb_interface
+E: DRIVER=usbhid
+E: INTERFACE=3/1/2
+E: MODALIAS=usb:v045Ep0047d0300dc00dsc00dp00ic03isc01ip02
+E: PRODUCT=45e/47/300
+E: SUBSYSTEM=usb
+E: TYPE=0/0/0
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.2/6-1.2:1.0/0003:045E:0047.0003
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.2/6-1.2:1.0/0003:045E:0047.0003
+E: DRIVER=generic-usb
+E: HID_ID=0003:0000045E:00000047
+E: HID_NAME=Microsoft Microsoft 5-Button Mouse with IntelliEye(TM)
+E: HID_PHYS=usb-0000:00:1d.0-1.2/input0
+E: MODALIAS=hid:b0003v0000045Ep00000047
+E: SUBSYSTEM=hid
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.2/6-1.2:1.0/0003:045E:0047.0003/hidraw/hidraw2
+N: hidraw2
+E: DEVNAME=/dev/hidraw2
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.2/6-1.2:1.0/0003:045E:0047.0003/hidraw/hidraw2
+E: MAJOR=250
+E: MINOR=2
+E: SUBSYSTEM=hidraw
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.2/6-1.2:1.0/input/input4
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.2/6-1.2:1.0/input/input4
+E: EV=17
+E: ID_BUS=usb
+E: ID_INPUT=1
+E: ID_INPUT_MOUSE=1
+E: ID_MODEL=Microsoft_5-Button_Mouse_with_IntelliEye_TM_
+E: ID_MODEL_ENC=Microsoft\x205-Button\x20Mouse\x20with\x20IntelliEye\x28TM\x29
+E: ID_MODEL_ID=0047
+E: ID_PATH=pci-0000:00:1d.0-usb-0:1.2:1.0
+E: ID_PATH_TAG=pci-0000_00_1d_0-usb-0_1_2_1_0
+E: ID_REVISION=0300
+E: ID_SERIAL=Microsoft_Microsoft_5-Button_Mouse_with_IntelliEye_TM_
+E: ID_TYPE=hid
+E: ID_USB_DRIVER=usbhid
+E: ID_USB_INTERFACES=:030102:
+E: ID_USB_INTERFACE_NUM=00
+E: ID_VENDOR=Microsoft
+E: ID_VENDOR_ENC=Microsoft
+E: ID_VENDOR_ID=045e
+E: KEY=1f0000 0 0 0 0
+E: MODALIAS=input:b0003v045Ep0047e0110-e0,1,2,4,k110,111,112,113,114,r0,1,8,am4,lsfw
+E: MSC=10
+E: NAME="Microsoft Microsoft 5-Button Mouse with IntelliEye(TM)"
+E: PHYS="usb-0000:00:1d.0-1.2/input0"
+E: PRODUCT=3/45e/47/110
+E: PROP=0
+E: REL=103
+E: SUBSYSTEM=input
+E: UDEV_LOG=3
+E: UNIQ=""
+E: USEC_INITIALIZED=11119735
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.2/6-1.2:1.0/input/input4/event4
+N: input/event4
+S: input/by-id/usb-Microsoft_Microsoft_5-Button_Mouse_with_IntelliEye_TM_-event-mouse
+S: input/by-path/pci-0000:00:1d.0-usb-0:1.2:1.0-event-mouse
+E: DEVLINKS=/dev/input/by-id/usb-Microsoft_Microsoft_5-Button_Mouse_with_IntelliEye_TM_-event-mouse /dev/input/by-path/pci-0000:00:1d.0-usb-0:1.2:1.0-event-mouse
+E: DEVNAME=/dev/input/event4
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.2/6-1.2:1.0/input/input4/event4
+E: ID_BUS=usb
+E: ID_INPUT=1
+E: ID_INPUT_MOUSE=1
+E: ID_MODEL=Microsoft_5-Button_Mouse_with_IntelliEye_TM_
+E: ID_MODEL_ENC=Microsoft\x205-Button\x20Mouse\x20with\x20IntelliEye\x28TM\x29
+E: ID_MODEL_ID=0047
+E: ID_PATH=pci-0000:00:1d.0-usb-0:1.2:1.0
+E: ID_PATH_TAG=pci-0000_00_1d_0-usb-0_1_2_1_0
+E: ID_REVISION=0300
+E: ID_SERIAL=Microsoft_Microsoft_5-Button_Mouse_with_IntelliEye_TM_
+E: ID_TYPE=hid
+E: ID_USB_DRIVER=usbhid
+E: ID_USB_INTERFACES=:030102:
+E: ID_USB_INTERFACE_NUM=00
+E: ID_VENDOR=Microsoft
+E: ID_VENDOR_ENC=Microsoft
+E: ID_VENDOR_ID=045e
+E: MAJOR=13
+E: MINOR=68
+E: SUBSYSTEM=input
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11149152
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.2/6-1.2:1.0/input/input4/mouse0
+N: input/mouse0
+S: input/by-id/usb-Microsoft_Microsoft_5-Button_Mouse_with_IntelliEye_TM_-mouse
+S: input/by-path/pci-0000:00:1d.0-usb-0:1.2:1.0-mouse
+E: DEVLINKS=/dev/input/by-id/usb-Microsoft_Microsoft_5-Button_Mouse_with_IntelliEye_TM_-mouse /dev/input/by-path/pci-0000:00:1d.0-usb-0:1.2:1.0-mouse
+E: DEVNAME=/dev/input/mouse0
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.2/6-1.2:1.0/input/input4/mouse0
+E: ID_BUS=usb
+E: ID_INPUT=1
+E: ID_INPUT_MOUSE=1
+E: ID_MODEL=Microsoft_5-Button_Mouse_with_IntelliEye_TM_
+E: ID_MODEL_ENC=Microsoft\x205-Button\x20Mouse\x20with\x20IntelliEye\x28TM\x29
+E: ID_MODEL_ID=0047
+E: ID_PATH=pci-0000:00:1d.0-usb-0:1.2:1.0
+E: ID_PATH_TAG=pci-0000_00_1d_0-usb-0_1_2_1_0
+E: ID_REVISION=0300
+E: ID_SERIAL=Microsoft_Microsoft_5-Button_Mouse_with_IntelliEye_TM_
+E: ID_TYPE=hid
+E: ID_USB_DRIVER=usbhid
+E: ID_USB_INTERFACES=:030102:
+E: ID_USB_INTERFACE_NUM=00
+E: ID_VENDOR=Microsoft
+E: ID_VENDOR_ENC=Microsoft
+E: ID_VENDOR_ID=045e
+E: MAJOR=13
+E: MINOR=32
+E: SUBSYSTEM=input
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11152122
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.3
+N: bus/usb/006/005
+E: BUSNUM=006
+E: DEVNAME=/dev/bus/usb/006/005
+E: DEVNUM=005
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.3
+E: DEVTYPE=usb_device
+E: DRIVER=usb
+E: ID_BUS=usb
+E: ID_MODEL=2Port_KVMSwicther
+E: ID_MODEL_ENC=2Port\x20KVMSwicther
+E: ID_MODEL_ID=55a2
+E: ID_REVISION=0100
+E: ID_SERIAL=No_brand_2Port_KVMSwicther_02
+E: ID_SERIAL_SHORT=02
+E: ID_USB_INTERFACES=:030000:
+E: ID_VENDOR=No_brand
+E: ID_VENDOR_ENC=No\x20brand
+E: ID_VENDOR_ID=10d5
+E: MAJOR=189
+E: MINOR=644
+E: PRODUCT=10d5/55a2/100
+E: SUBSYSTEM=usb
+E: TYPE=0/0/0
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11099472
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.3/6-1.3:1.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.3/6-1.3:1.0
+E: DEVTYPE=usb_interface
+E: DRIVER=usbhid
+E: INTERFACE=3/0/0
+E: MODALIAS=usb:v10D5p55A2d0100dc00dsc00dp00ic03isc00ip00
+E: PRODUCT=10d5/55a2/100
+E: SUBSYSTEM=usb
+E: TYPE=0/0/0
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.3/6-1.3:1.0/0003:10D5:55A2.0004
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.3/6-1.3:1.0/0003:10D5:55A2.0004
+E: DRIVER=generic-usb
+E: HID_ID=0003:000010D5:000055A2
+E: HID_NAME=No brand 2Port KVMSwicther
+E: HID_PHYS=usb-0000:00:1d.0-1.3/input0
+E: HID_UNIQ=02
+E: MODALIAS=hid:b0003v000010D5p000055A2
+E: SUBSYSTEM=hid
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.3/6-1.3:1.0/0003:10D5:55A2.0004/hidraw/hidraw3
+N: hidraw3
+E: DEVNAME=/dev/hidraw3
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.3/6-1.3:1.0/0003:10D5:55A2.0004/hidraw/hidraw3
+E: MAJOR=250
+E: MINOR=3
+E: SUBSYSTEM=hidraw
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.3/6-1.3:1.0/input/input5
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.3/6-1.3:1.0/input/input5
+E: EV=120013
+E: ID_BUS=usb
+E: ID_INPUT=1
+E: ID_INPUT_KEY=1
+E: ID_INPUT_KEYBOARD=1
+E: ID_MODEL=2Port_KVMSwicther
+E: ID_MODEL_ENC=2Port\x20KVMSwicther
+E: ID_MODEL_ID=55a2
+E: ID_PATH=pci-0000:00:1d.0-usb-0:1.3:1.0
+E: ID_PATH_TAG=pci-0000_00_1d_0-usb-0_1_3_1_0
+E: ID_REVISION=0100
+E: ID_SERIAL=No_brand_2Port_KVMSwicther_02
+E: ID_SERIAL_SHORT=02
+E: ID_TYPE=hid
+E: ID_USB_DRIVER=usbhid
+E: ID_USB_INTERFACES=:030000:
+E: ID_USB_INTERFACE_NUM=00
+E: ID_VENDOR=No_brand
+E: ID_VENDOR_ENC=No\x20brand
+E: ID_VENDOR_ID=10d5
+E: KEY=1000000000007 ff9f207ac14057ff febeffdfffefffff fffffffffffffffe
+E: LED=1f
+E: MODALIAS=input:b0003v10D5p55A2e0110-e0,1,4,11,14,k71,72,73,74,75,77,79,7A,7B,7C,7D,7E,7F,80,81,82,83,84,85,86,87,88,89,8A,8C,8E,96,98,9E,9F,A1,A3,A4,A5,A6,AD,B0,B1,B2,B3,B4,B7,B8,B9,BA,BB,BC,BD,BE,BF,C0,C1,C2,F0,ram4,l0,1,2,3,4,sfw
+E: MSC=10
+E: NAME="No brand 2Port KVMSwicther"
+E: PHYS="usb-0000:00:1d.0-1.3/input0"
+E: PRODUCT=3/10d5/55a2/110
+E: PROP=0
+E: SUBSYSTEM=input
+E: UDEV_LOG=3
+E: UNIQ="02"
+E: USEC_INITIALIZED=11120754
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.3/6-1.3:1.0/input/input5/event5
+N: input/event5
+S: input/by-id/usb-No_brand_2Port_KVMSwicther_02-event-kbd
+S: input/by-path/pci-0000:00:1d.0-usb-0:1.3:1.0-event-kbd
+E: DEVLINKS=/dev/input/by-id/usb-No_brand_2Port_KVMSwicther_02-event-kbd /dev/input/by-path/pci-0000:00:1d.0-usb-0:1.3:1.0-event-kbd
+E: DEVNAME=/dev/input/event5
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.3/6-1.3:1.0/input/input5/event5
+E: ID_BUS=usb
+E: ID_INPUT=1
+E: ID_INPUT_KEY=1
+E: ID_INPUT_KEYBOARD=1
+E: ID_MODEL=2Port_KVMSwicther
+E: ID_MODEL_ENC=2Port\x20KVMSwicther
+E: ID_MODEL_ID=55a2
+E: ID_PATH=pci-0000:00:1d.0-usb-0:1.3:1.0
+E: ID_PATH_TAG=pci-0000_00_1d_0-usb-0_1_3_1_0
+E: ID_REVISION=0100
+E: ID_SERIAL=No_brand_2Port_KVMSwicther_02
+E: ID_SERIAL_SHORT=02
+E: ID_TYPE=hid
+E: ID_USB_DRIVER=usbhid
+E: ID_USB_INTERFACES=:030000:
+E: ID_USB_INTERFACE_NUM=00
+E: ID_VENDOR=No_brand
+E: ID_VENDOR_ENC=No\x20brand
+E: ID_VENDOR_ID=10d5
+E: MAJOR=13
+E: MINOR=69
+E: SUBSYSTEM=input
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11153143
+E: XKBLAYOUT=fr
+E: XKBMODEL=pc105
+E: XKBVARIANT=latin9
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.3/6-1.3:1.1
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1.3/6-1.3:1.1
+E: DEVTYPE=usb_interface
+E: INTERFACE=3/0/0
+E: MODALIAS=usb:v10D5p55A2d0100dc00dsc00dp00ic03isc00ip00
+E: PRODUCT=10d5/55a2/100
+E: SUBSYSTEM=usb
+E: TYPE=0/0/0
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1:1.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1:1.0
+E: DEVTYPE=usb_interface
+E: DRIVER=hub
+E: INTERFACE=9/0/0
+E: MODALIAS=usb:v058Fp9254d0312dc09dsc00dp00ic09isc00ip00
+E: PRODUCT=58f/9254/312
+E: SUBSYSTEM=usb
+E: TYPE=9/0/0
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.0/usbmon/usbmon6
+N: usbmon6
+E: DEVNAME=/dev/usbmon6
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.0/usbmon/usbmon6
+E: MAJOR=252
+E: MINOR=6
+E: SUBSYSTEM=usbmon
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.1
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.1
+E: DRIVER=uhci_hcd
+E: MODALIAS=pci:v00008086d00003A35sv00001043sd000082D4bc0Csc03i00
+E: PCI_CLASS=C0300
+E: PCI_ID=8086:3A35
+E: PCI_SLOT_NAME=0000:00:1d.1
+E: PCI_SUBSYS_ID=1043:82D4
+E: SUBSYSTEM=pci
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.1/usb7
+N: bus/usb/007/001
+E: BUSNUM=007
+E: DEVNAME=/dev/bus/usb/007/001
+E: DEVNUM=001
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.1/usb7
+E: DEVTYPE=usb_device
+E: DRIVER=usb
+E: ID_BUS=usb
+E: ID_MODEL=UHCI_Host_Controller
+E: ID_MODEL_ENC=UHCI\x20Host\x20Controller
+E: ID_MODEL_ID=0001
+E: ID_REVISION=0302
+E: ID_SERIAL=Linux_3.2.0-32-generic_uhci_hcd_UHCI_Host_Controller_0000:00:1d.1
+E: ID_SERIAL_SHORT=0000:00:1d.1
+E: ID_USB_INTERFACES=:090000:
+E: ID_VENDOR=Linux_3.2.0-32-generic_uhci_hcd
+E: ID_VENDOR_ENC=Linux\x203.2.0-32-generic\x20uhci_hcd
+E: ID_VENDOR_ID=1d6b
+E: MAJOR=189
+E: MINOR=768
+E: PRODUCT=1d6b/1/302
+E: SUBSYSTEM=usb
+E: TYPE=9/0/0
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1428172
+
+P: /devices/pci0000:00/0000:00:1d.1/usb7/7-0:1.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.1/usb7/7-0:1.0
+E: DEVTYPE=usb_interface
+E: DRIVER=hub
+E: INTERFACE=9/0/0
+E: MODALIAS=usb:v1D6Bp0001d0302dc09dsc00dp00ic09isc00ip00
+E: PRODUCT=1d6b/1/302
+E: SUBSYSTEM=usb
+E: TYPE=9/0/0
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.1/usbmon/usbmon7
+N: usbmon7
+E: DEVNAME=/dev/usbmon7
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.1/usbmon/usbmon7
+E: MAJOR=252
+E: MINOR=7
+E: SUBSYSTEM=usbmon
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.2
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.2
+E: DRIVER=uhci_hcd
+E: MODALIAS=pci:v00008086d00003A36sv00001043sd000082D4bc0Csc03i00
+E: PCI_CLASS=C0300
+E: PCI_ID=8086:3A36
+E: PCI_SLOT_NAME=0000:00:1d.2
+E: PCI_SUBSYS_ID=1043:82D4
+E: SUBSYSTEM=pci
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.2/usb8
+N: bus/usb/008/001
+E: BUSNUM=008
+E: DEVNAME=/dev/bus/usb/008/001
+E: DEVNUM=001
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.2/usb8
+E: DEVTYPE=usb_device
+E: DRIVER=usb
+E: ID_BUS=usb
+E: ID_MODEL=UHCI_Host_Controller
+E: ID_MODEL_ENC=UHCI\x20Host\x20Controller
+E: ID_MODEL_ID=0001
+E: ID_REVISION=0302
+E: ID_SERIAL=Linux_3.2.0-32-generic_uhci_hcd_UHCI_Host_Controller_0000:00:1d.2
+E: ID_SERIAL_SHORT=0000:00:1d.2
+E: ID_USB_INTERFACES=:090000:
+E: ID_VENDOR=Linux_3.2.0-32-generic_uhci_hcd
+E: ID_VENDOR_ENC=Linux\x203.2.0-32-generic\x20uhci_hcd
+E: ID_VENDOR_ID=1d6b
+E: MAJOR=189
+E: MINOR=896
+E: PRODUCT=1d6b/1/302
+E: SUBSYSTEM=usb
+E: TYPE=9/0/0
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1428436
+
+P: /devices/pci0000:00/0000:00:1d.2/usb8/8-0:1.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.2/usb8/8-0:1.0
+E: DEVTYPE=usb_interface
+E: DRIVER=hub
+E: INTERFACE=9/0/0
+E: MODALIAS=usb:v1D6Bp0001d0302dc09dsc00dp00ic09isc00ip00
+E: PRODUCT=1d6b/1/302
+E: SUBSYSTEM=usb
+E: TYPE=9/0/0
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.2/usbmon/usbmon8
+N: usbmon8
+E: DEVNAME=/dev/usbmon8
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.2/usbmon/usbmon8
+E: MAJOR=252
+E: MINOR=8
+E: SUBSYSTEM=usbmon
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.7
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.7
+E: DRIVER=ehci_hcd
+E: MODALIAS=pci:v00008086d00003A3Asv00001043sd000082D4bc0Csc03i20
+E: PCI_CLASS=C0320
+E: PCI_ID=8086:3A3A
+E: PCI_SLOT_NAME=0000:00:1d.7
+E: PCI_SUBSYS_ID=1043:82D4
+E: SUBSYSTEM=pci
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.7/usb2
+N: bus/usb/002/001
+E: BUSNUM=002
+E: DEVNAME=/dev/bus/usb/002/001
+E: DEVNUM=001
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.7/usb2
+E: DEVTYPE=usb_device
+E: DRIVER=usb
+E: ID_BUS=usb
+E: ID_MODEL=EHCI_Host_Controller
+E: ID_MODEL_ENC=EHCI\x20Host\x20Controller
+E: ID_MODEL_ID=0002
+E: ID_REVISION=0302
+E: ID_SERIAL=Linux_3.2.0-32-generic_ehci_hcd_EHCI_Host_Controller_0000:00:1d.7
+E: ID_SERIAL_SHORT=0000:00:1d.7
+E: ID_USB_INTERFACES=:090000:
+E: ID_VENDOR=Linux_3.2.0-32-generic_ehci_hcd
+E: ID_VENDOR_ENC=Linux\x203.2.0-32-generic\x20ehci_hcd
+E: ID_VENDOR_ID=1d6b
+E: MAJOR=189
+E: MINOR=128
+E: PRODUCT=1d6b/2/302
+E: SUBSYSTEM=usb
+E: TYPE=9/0/0
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1450979
+
+P: /devices/pci0000:00/0000:00:1d.7/usb2/2-0:1.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.7/usb2/2-0:1.0
+E: DEVTYPE=usb_interface
+E: DRIVER=hub
+E: INTERFACE=9/0/0
+E: MODALIAS=usb:v1D6Bp0002d0302dc09dsc00dp00ic09isc00ip00
+E: PRODUCT=1d6b/2/302
+E: SUBSYSTEM=usb
+E: TYPE=9/0/0
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.7/usb2/2-2
+N: bus/usb/002/003
+E: BUSNUM=002
+E: DEVNAME=/dev/bus/usb/002/003
+E: DEVNUM=003
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.7/usb2/2-2
+E: DEVTYPE=usb_device
+E: DRIVER=usb
+E: ID_BUS=usb
+E: ID_MODEL=2514
+E: ID_MODEL_ENC=2514
+E: ID_MODEL_ID=2514
+E: ID_REVISION=0000
+E: ID_SERIAL=0424_2514
+E: ID_USB_INTERFACES=:090001:090002:
+E: ID_VENDOR=0424
+E: ID_VENDOR_ENC=0424
+E: ID_VENDOR_ID=0424
+E: MAJOR=189
+E: MINOR=130
+E: PRODUCT=424/2514/0
+E: SUBSYSTEM=usb
+E: TYPE=9/0/2
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1452976
+
+P: /devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1
+N: bus/usb/002/004
+E: BUSNUM=002
+E: DEVNAME=/dev/bus/usb/002/004
+E: DEVNUM=004
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1
+E: DEVTYPE=usb_device
+E: DRIVER=usb
+E: ID_BUS=usb
+E: ID_MODEL=2640
+E: ID_MODEL_ENC=2640
+E: ID_MODEL_ID=2640
+E: ID_REVISION=0000
+E: ID_SERIAL=0424_2640
+E: ID_USB_INTERFACES=:090000:
+E: ID_VENDOR=0424
+E: ID_VENDOR_ENC=0424
+E: ID_VENDOR_ID=0424
+E: MAJOR=189
+E: MINOR=131
+E: PRODUCT=424/2640/0
+E: SUBSYSTEM=usb
+E: TYPE=9/0/1
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1664648
+
+P: /devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1/2-2.1.1
+N: bus/usb/002/005
+E: BUSNUM=002
+E: DEVNAME=/dev/bus/usb/002/005
+E: DEVNUM=005
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1/2-2.1.1
+E: DEVTYPE=usb_device
+E: DRIVER=usb
+E: ID_BUS=usb
+E: ID_MODEL=Ultra_Fast_Media_Reader
+E: ID_MODEL_ENC=Ultra\x20Fast\x20Media\x20Reader
+E: ID_MODEL_ID=4060
+E: ID_REVISION=0182
+E: ID_SERIAL=Generic_Ultra_Fast_Media_Reader_000000264001
+E: ID_SERIAL_SHORT=000000264001
+E: ID_USB_INTERFACES=:080650:
+E: ID_VENDOR=Generic
+E: ID_VENDOR_ENC=Generic
+E: ID_VENDOR_ID=0424
+E: MAJOR=189
+E: MINOR=132
+E: PRODUCT=424/4060/182
+E: SUBSYSTEM=usb
+E: TYPE=0/0/0
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11066735
+
+P: /devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0
+E: DEVTYPE=usb_interface
+E: DRIVER=usb-storage
+E: INTERFACE=8/6/80
+E: MODALIAS=usb:v0424p4060d0182dc00dsc00dp00ic08isc06ip50
+E: PRODUCT=424/4060/182
+E: SUBSYSTEM=usb
+E: TYPE=0/0/0
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0/host4
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0/host4
+E: DEVTYPE=scsi_host
+E: SUBSYSTEM=scsi
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0/host4/scsi_host/host4
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0/host4/scsi_host/host4
+E: SUBSYSTEM=scsi_host
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0/host4/target4:0:0
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0/host4/target4:0:0
+E: DEVTYPE=scsi_target
+E: SUBSYSTEM=scsi
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0/host4/target4:0:0/4:0:0:0
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0/host4/target4:0:0/4:0:0:0
+E: DEVTYPE=scsi_device
+E: DRIVER=sd
+E: MODALIAS=scsi:t-0x00
+E: SUBSYSTEM=scsi
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0/host4/target4:0:0/4:0:0:0/block/sdc
+N: sdc
+S: disk/by-id/usb-Generic_Ultra_HS-SD_MMC_000000264001-0:0
+S: disk/by-path/pci-0000:00:1d.7-usb-0:2.1.1:1.0-scsi-0:0:0:0
+E: DEVLINKS=/dev/disk/by-id/usb-Generic_Ultra_HS-SD_MMC_000000264001-0:0 /dev/disk/by-path/pci-0000:00:1d.7-usb-0:2.1.1:1.0-scsi-0:0:0:0
+E: DEVNAME=/dev/sdc
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0/host4/target4:0:0/4:0:0:0/block/sdc
+E: DEVTYPE=disk
+E: ID_BUS=usb
+E: ID_INSTANCE=0:0
+E: ID_MODEL=Ultra_HS-SD_MMC
+E: ID_MODEL_ENC=Ultra\x20HS-SD\x2fMMC\x20
+E: ID_MODEL_ID=4060
+E: ID_PATH=pci-0000:00:1d.7-usb-0:2.1.1:1.0-scsi-0:0:0:0
+E: ID_PATH_TAG=pci-0000_00_1d_7-usb-0_2_1_1_1_0-scsi-0_0_0_0
+E: ID_REVISION=1.82
+E: ID_SERIAL=Generic_Ultra_HS-SD_MMC_000000264001-0:0
+E: ID_SERIAL_SHORT=000000264001
+E: ID_TYPE=disk
+E: ID_USB_DRIVER=usb-storage
+E: ID_USB_INTERFACES=:080650:
+E: ID_USB_INTERFACE_NUM=00
+E: ID_VENDOR=Generic
+E: ID_VENDOR_ENC=Generic\x20
+E: ID_VENDOR_ID=0424
+E: MAJOR=8
+E: MINOR=32
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: UDISKS_PRESENTATION_NOPOLICY=0
+E: USEC_INITIALIZED=11953756
+
+P: /devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0/host4/target4:0:0/4:0:0:0/bsg/4:0:0:0
+N: bsg/4:0:0:0
+E: DEVNAME=/dev/bsg/4:0:0:0
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0/host4/target4:0:0/4:0:0:0/bsg/4:0:0:0
+E: MAJOR=253
+E: MINOR=4
+E: SUBSYSTEM=bsg
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0/host4/target4:0:0/4:0:0:0/scsi_device/4:0:0:0
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0/host4/target4:0:0/4:0:0:0/scsi_device/4:0:0:0
+E: SUBSYSTEM=scsi_device
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0/host4/target4:0:0/4:0:0:0/scsi_disk/4:0:0:0
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0/host4/target4:0:0/4:0:0:0/scsi_disk/4:0:0:0
+E: SUBSYSTEM=scsi_disk
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0/host4/target4:0:0/4:0:0:0/scsi_generic/sg4
+N: sg4
+E: DEVNAME=/dev/sg4
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0/host4/target4:0:0/4:0:0:0/scsi_generic/sg4
+E: MAJOR=21
+E: MINOR=4
+E: SUBSYSTEM=scsi_generic
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1/2-2.1:1.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2.1/2-2.1:1.0
+E: DEVTYPE=usb_interface
+E: DRIVER=hub
+E: INTERFACE=9/0/0
+E: MODALIAS=usb:v0424p2640d0000dc09dsc00dp01ic09isc00ip00
+E: PRODUCT=424/2640/0
+E: SUBSYSTEM=usb
+E: TYPE=9/0/1
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2:1.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.7/usb2/2-2/2-2:1.0
+E: DEVTYPE=usb_interface
+E: DRIVER=hub
+E: INTERFACE=9/0/2
+E: MODALIAS=usb:v0424p2514d0000dc09dsc00dp02ic09isc00ip02
+E: PRODUCT=424/2514/0
+E: SUBSYSTEM=usb
+E: TYPE=9/0/2
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1d.7/usbmon/usbmon2
+N: usbmon2
+E: DEVNAME=/dev/usbmon2
+E: DEVPATH=/devices/pci0000:00/0000:00:1d.7/usbmon/usbmon2
+E: MAJOR=252
+E: MINOR=2
+E: SUBSYSTEM=usbmon
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1e.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1e.0
+E: MODALIAS=pci:v00008086d0000244Esv00001043sd000082D4bc06sc04i01
+E: PCI_CLASS=60401
+E: PCI_ID=8086:244E
+E: PCI_SLOT_NAME=0000:00:1e.0
+E: PCI_SUBSYS_ID=1043:82D4
+E: SUBSYSTEM=pci
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1e.0/0000:04:03.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1e.0/0000:04:03.0
+E: DRIVER=firewire_ohci
+E: MODALIAS=pci:v000011C1d00005811sv00001043sd00008294bc0Csc00i10
+E: PCI_CLASS=C0010
+E: PCI_ID=11C1:5811
+E: PCI_SLOT_NAME=0000:04:03.0
+E: PCI_SUBSYS_ID=1043:8294
+E: SUBSYSTEM=pci
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1e.0/0000:04:03.0/fw0
+N: fw0
+E: DEVNAME=/dev/fw0
+E: DEVPATH=/devices/pci0000:00/0000:00:1e.0/0000:04:03.0/fw0
+E: MAJOR=251
+E: MINOR=0
+E: SUBSYSTEM=firewire
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1e.0/pci_bus/0000:04
+E: DEVPATH=/devices/pci0000:00/0000:00:1e.0/pci_bus/0000:04
+E: SUBSYSTEM=pci_bus
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.0
+E: MODALIAS=pci:v00008086d00003A16sv00001043sd000082D4bc06sc01i00
+E: PCI_CLASS=60100
+E: PCI_ID=8086:3A16
+E: PCI_SLOT_NAME=0000:00:1f.0
+E: PCI_SUBSYS_ID=1043:82D4
+E: SUBSYSTEM=pci
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2
+E: DRIVER=ata_piix
+E: ID_MODEL_FROM_DATABASE=82801JI (ICH10 Family) 4 port SATA IDE Controller #1
+E: ID_VENDOR_FROM_DATABASE=Intel Corporation
+E: MODALIAS=pci:v00008086d00003A20sv00001043sd000082D4bc01sc01i8f
+E: PCI_CLASS=1018F
+E: PCI_ID=8086:3A20
+E: PCI_SLOT_NAME=0000:00:1f.2
+E: PCI_SUBSYS_ID=1043:82D4
+E: SUBSYSTEM=pci
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11159618
+
+P: /devices/pci0000:00/0000:00:1f.2/ata1/ata_port/ata1
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/ata1/ata_port/ata1
+E: SUBSYSTEM=ata_port
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/ata1/link1/ata_link/link1
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/ata1/link1/ata_link/link1
+E: SUBSYSTEM=ata_link
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/ata1/link1/dev1.0/ata_device/dev1.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/ata1/link1/dev1.0/ata_device/dev1.0
+E: SUBSYSTEM=ata_device
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/ata1/link1/dev1.1/ata_device/dev1.1
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/ata1/link1/dev1.1/ata_device/dev1.1
+E: SUBSYSTEM=ata_device
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/ata2/ata_port/ata2
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/ata2/ata_port/ata2
+E: SUBSYSTEM=ata_port
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/ata2/link2/ata_link/link2
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/ata2/link2/ata_link/link2
+E: SUBSYSTEM=ata_link
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/ata2/link2/dev2.0/ata_device/dev2.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/ata2/link2/dev2.0/ata_device/dev2.0
+E: SUBSYSTEM=ata_device
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/ata2/link2/dev2.1/ata_device/dev2.1
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/ata2/link2/dev2.1/ata_device/dev2.1
+E: SUBSYSTEM=ata_device
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/host0
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host0
+E: DEVTYPE=scsi_host
+E: SUBSYSTEM=scsi
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/host0/scsi_host/host0
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host0/scsi_host/host0
+E: SUBSYSTEM=scsi_host
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/host0/target0:0:0
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host0/target0:0:0
+E: DEVTYPE=scsi_target
+E: SUBSYSTEM=scsi
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0
+E: DEVTYPE=scsi_device
+E: DRIVER=sd
+E: MODALIAS=scsi:t-0x00
+E: SUBSYSTEM=scsi
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/block/sda
+N: sda
+S: disk/by-id/ata-SAMSUNG_HD502IJ_S13TJ90Q930357
+S: disk/by-id/scsi-SATA_SAMSUNG_HD502IJS13TJ90Q930357
+S: disk/by-id/wwn-0x50000f000b393075
+S: disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0
+E: DEVLINKS=/dev/disk/by-id/ata-SAMSUNG_HD502IJ_S13TJ90Q930357 /dev/disk/by-id/scsi-SATA_SAMSUNG_HD502IJS13TJ90Q930357 /dev/disk/by-id/wwn-0x50000f000b393075 /dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0
+E: DEVNAME=/dev/sda
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/block/sda
+E: DEVTYPE=disk
+E: ID_ATA=1
+E: ID_ATA_DOWNLOAD_MICROCODE=1
+E: ID_ATA_FEATURE_SET_AAM=1
+E: ID_ATA_FEATURE_SET_AAM_CURRENT_VALUE=0
+E: ID_ATA_FEATURE_SET_AAM_ENABLED=0
+E: ID_ATA_FEATURE_SET_AAM_VENDOR_RECOMMENDED_VALUE=254
+E: ID_ATA_FEATURE_SET_APM=1
+E: ID_ATA_FEATURE_SET_APM_ENABLED=0
+E: ID_ATA_FEATURE_SET_HPA=1
+E: ID_ATA_FEATURE_SET_HPA_ENABLED=1
+E: ID_ATA_FEATURE_SET_PM=1
+E: ID_ATA_FEATURE_SET_PM_ENABLED=1
+E: ID_ATA_FEATURE_SET_PUIS=1
+E: ID_ATA_FEATURE_SET_PUIS_ENABLED=0
+E: ID_ATA_FEATURE_SET_SECURITY=1
+E: ID_ATA_FEATURE_SET_SECURITY_ENABLED=0
+E: ID_ATA_FEATURE_SET_SECURITY_ENHANCED_ERASE_UNIT_MIN=90
+E: ID_ATA_FEATURE_SET_SECURITY_ERASE_UNIT_MIN=90
+E: ID_ATA_FEATURE_SET_SECURITY_FROZEN=1
+E: ID_ATA_FEATURE_SET_SMART=1
+E: ID_ATA_FEATURE_SET_SMART_ENABLED=1
+E: ID_ATA_SATA=1
+E: ID_ATA_SATA_SIGNAL_RATE_GEN1=1
+E: ID_ATA_SATA_SIGNAL_RATE_GEN2=1
+E: ID_ATA_WRITE_CACHE=1
+E: ID_ATA_WRITE_CACHE_ENABLED=1
+E: ID_BUS=ata
+E: ID_MODEL=SAMSUNG_HD502IJ
+E: ID_MODEL_ENC=SAMSUNG\x20HD502IJ\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20
+E: ID_PART_TABLE_TYPE=dos
+E: ID_PATH=pci-0000:00:1f.2-scsi-0:0:0:0
+E: ID_PATH_TAG=pci-0000_00_1f_2-scsi-0_0_0_0
+E: ID_REVISION=1AA01131
+E: ID_SCSI_COMPAT=SATA_SAMSUNG_HD502IJS13TJ90Q930357
+E: ID_SERIAL=SAMSUNG_HD502IJ_S13TJ90Q930357
+E: ID_SERIAL_SHORT=S13TJ90Q930357
+E: ID_TYPE=disk
+E: ID_WWN=0x50000f000b393075
+E: ID_WWN_WITH_EXTENSION=0x50000f000b393075
+E: MAJOR=8
+E: MINOR=0
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: UDISKS_ATA_SMART_IS_AVAILABLE=1
+E: UDISKS_PARTITION_TABLE=1
+E: UDISKS_PARTITION_TABLE_COUNT=4
+E: UDISKS_PARTITION_TABLE_SCHEME=mbr
+E: UDISKS_PRESENTATION_NOPOLICY=0
+E: USEC_INITIALIZED=1406196
+
+P: /devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/block/sda/sda1
+N: sda1
+S: disk/by-id/ata-SAMSUNG_HD502IJ_S13TJ90Q930357-part1
+S: disk/by-id/scsi-SATA_SAMSUNG_HD502IJS13TJ90Q930357-part1
+S: disk/by-id/wwn-0x50000f000b393075-part1
+S: disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0-part1
+S: disk/by-uuid/b1dd88a3-3f5f-403d-a2fc-8db8efbc31c7
+E: DEVLINKS=/dev/disk/by-id/ata-SAMSUNG_HD502IJ_S13TJ90Q930357-part1 /dev/disk/by-id/scsi-SATA_SAMSUNG_HD502IJS13TJ90Q930357-part1 /dev/disk/by-id/wwn-0x50000f000b393075-part1 /dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0-part1 /dev/disk/by-uuid/b1dd88a3-3f5f-403d-a2fc-8db8efbc31c7
+E: DEVNAME=/dev/sda1
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/block/sda/sda1
+E: DEVTYPE=partition
+E: ID_ATA=1
+E: ID_ATA_DOWNLOAD_MICROCODE=1
+E: ID_ATA_FEATURE_SET_AAM=1
+E: ID_ATA_FEATURE_SET_AAM_CURRENT_VALUE=0
+E: ID_ATA_FEATURE_SET_AAM_ENABLED=0
+E: ID_ATA_FEATURE_SET_AAM_VENDOR_RECOMMENDED_VALUE=254
+E: ID_ATA_FEATURE_SET_APM=1
+E: ID_ATA_FEATURE_SET_APM_ENABLED=0
+E: ID_ATA_FEATURE_SET_HPA=1
+E: ID_ATA_FEATURE_SET_HPA_ENABLED=1
+E: ID_ATA_FEATURE_SET_PM=1
+E: ID_ATA_FEATURE_SET_PM_ENABLED=1
+E: ID_ATA_FEATURE_SET_PUIS=1
+E: ID_ATA_FEATURE_SET_PUIS_ENABLED=0
+E: ID_ATA_FEATURE_SET_SECURITY=1
+E: ID_ATA_FEATURE_SET_SECURITY_ENABLED=0
+E: ID_ATA_FEATURE_SET_SECURITY_ENHANCED_ERASE_UNIT_MIN=90
+E: ID_ATA_FEATURE_SET_SECURITY_ERASE_UNIT_MIN=90
+E: ID_ATA_FEATURE_SET_SECURITY_FROZEN=1
+E: ID_ATA_FEATURE_SET_SMART=1
+E: ID_ATA_FEATURE_SET_SMART_ENABLED=1
+E: ID_ATA_SATA=1
+E: ID_ATA_SATA_SIGNAL_RATE_GEN1=1
+E: ID_ATA_SATA_SIGNAL_RATE_GEN2=1
+E: ID_ATA_WRITE_CACHE=1
+E: ID_ATA_WRITE_CACHE_ENABLED=1
+E: ID_BUS=ata
+E: ID_FS_TYPE=ext4
+E: ID_FS_USAGE=filesystem
+E: ID_FS_UUID=b1dd88a3-3f5f-403d-a2fc-8db8efbc31c7
+E: ID_FS_UUID_ENC=b1dd88a3-3f5f-403d-a2fc-8db8efbc31c7
+E: ID_FS_VERSION=1.0
+E: ID_MODEL=SAMSUNG_HD502IJ
+E: ID_MODEL_ENC=SAMSUNG\x20HD502IJ\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20
+E: ID_PART_ENTRY_DISK=8:0
+E: ID_PART_ENTRY_FLAGS=0x80
+E: ID_PART_ENTRY_NUMBER=1
+E: ID_PART_ENTRY_OFFSET=63
+E: ID_PART_ENTRY_SCHEME=dos
+E: ID_PART_ENTRY_SIZE=140841792
+E: ID_PART_ENTRY_TYPE=0x83
+E: ID_PART_TABLE_TYPE=dos
+E: ID_PATH=pci-0000:00:1f.2-scsi-0:0:0:0
+E: ID_PATH_TAG=pci-0000_00_1f_2-scsi-0_0_0_0
+E: ID_REVISION=1AA01131
+E: ID_SCSI_COMPAT=SATA_SAMSUNG_HD502IJS13TJ90Q930357
+E: ID_SERIAL=SAMSUNG_HD502IJ_S13TJ90Q930357
+E: ID_SERIAL_SHORT=S13TJ90Q930357
+E: ID_TYPE=disk
+E: ID_WWN=0x50000f000b393075
+E: ID_WWN_WITH_EXTENSION=0x50000f000b393075
+E: MAJOR=8
+E: MINOR=1
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: UDISKS_PARTITION=1
+E: UDISKS_PARTITION_ALIGNMENT_OFFSET=0
+E: UDISKS_PARTITION_FLAGS=boot
+E: UDISKS_PARTITION_NUMBER=1
+E: UDISKS_PARTITION_OFFSET=32256
+E: UDISKS_PARTITION_SCHEME=mbr
+E: UDISKS_PARTITION_SIZE=72110997504
+E: UDISKS_PARTITION_SLAVE=/sys/devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/block/sda
+E: UDISKS_PARTITION_TYPE=0x83
+E: UDISKS_PRESENTATION_NOPOLICY=0
+E: USEC_INITIALIZED=1869612
+
+P: /devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/block/sda/sda2
+N: sda2
+S: disk/by-id/ata-SAMSUNG_HD502IJ_S13TJ90Q930357-part2
+S: disk/by-id/scsi-SATA_SAMSUNG_HD502IJS13TJ90Q930357-part2
+S: disk/by-id/wwn-0x50000f000b393075-part2
+S: disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0-part2
+E: DEVLINKS=/dev/disk/by-id/ata-SAMSUNG_HD502IJ_S13TJ90Q930357-part2 /dev/disk/by-id/scsi-SATA_SAMSUNG_HD502IJS13TJ90Q930357-part2 /dev/disk/by-id/wwn-0x50000f000b393075-part2 /dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0-part2
+E: DEVNAME=/dev/sda2
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/block/sda/sda2
+E: DEVTYPE=partition
+E: ID_ATA=1
+E: ID_ATA_DOWNLOAD_MICROCODE=1
+E: ID_ATA_FEATURE_SET_AAM=1
+E: ID_ATA_FEATURE_SET_AAM_CURRENT_VALUE=0
+E: ID_ATA_FEATURE_SET_AAM_ENABLED=0
+E: ID_ATA_FEATURE_SET_AAM_VENDOR_RECOMMENDED_VALUE=254
+E: ID_ATA_FEATURE_SET_APM=1
+E: ID_ATA_FEATURE_SET_APM_ENABLED=0
+E: ID_ATA_FEATURE_SET_HPA=1
+E: ID_ATA_FEATURE_SET_HPA_ENABLED=1
+E: ID_ATA_FEATURE_SET_PM=1
+E: ID_ATA_FEATURE_SET_PM_ENABLED=1
+E: ID_ATA_FEATURE_SET_PUIS=1
+E: ID_ATA_FEATURE_SET_PUIS_ENABLED=0
+E: ID_ATA_FEATURE_SET_SECURITY=1
+E: ID_ATA_FEATURE_SET_SECURITY_ENABLED=0
+E: ID_ATA_FEATURE_SET_SECURITY_ENHANCED_ERASE_UNIT_MIN=90
+E: ID_ATA_FEATURE_SET_SECURITY_ERASE_UNIT_MIN=90
+E: ID_ATA_FEATURE_SET_SECURITY_FROZEN=1
+E: ID_ATA_FEATURE_SET_SMART=1
+E: ID_ATA_FEATURE_SET_SMART_ENABLED=1
+E: ID_ATA_SATA=1
+E: ID_ATA_SATA_SIGNAL_RATE_GEN1=1
+E: ID_ATA_SATA_SIGNAL_RATE_GEN2=1
+E: ID_ATA_WRITE_CACHE=1
+E: ID_ATA_WRITE_CACHE_ENABLED=1
+E: ID_BUS=ata
+E: ID_MODEL=SAMSUNG_HD502IJ
+E: ID_MODEL_ENC=SAMSUNG\x20HD502IJ\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20
+E: ID_PART_ENTRY_DISK=8:0
+E: ID_PART_ENTRY_NUMBER=2
+E: ID_PART_ENTRY_OFFSET=943656958
+E: ID_PART_ENTRY_SCHEME=dos
+E: ID_PART_ENTRY_SIZE=21045250
+E: ID_PART_ENTRY_TYPE=0x5
+E: ID_PART_TABLE_TYPE=dos
+E: ID_PATH=pci-0000:00:1f.2-scsi-0:0:0:0
+E: ID_PATH_TAG=pci-0000_00_1f_2-scsi-0_0_0_0
+E: ID_REVISION=1AA01131
+E: ID_SCSI_COMPAT=SATA_SAMSUNG_HD502IJS13TJ90Q930357
+E: ID_SERIAL=SAMSUNG_HD502IJ_S13TJ90Q930357
+E: ID_SERIAL_SHORT=S13TJ90Q930357
+E: ID_TYPE=disk
+E: ID_WWN=0x50000f000b393075
+E: ID_WWN_WITH_EXTENSION=0x50000f000b393075
+E: MAJOR=8
+E: MINOR=2
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: UDISKS_PARTITION=1
+E: UDISKS_PARTITION_ALIGNMENT_OFFSET=0
+E: UDISKS_PARTITION_NUMBER=2
+E: UDISKS_PARTITION_OFFSET=483152362496
+E: UDISKS_PARTITION_SCHEME=mbr
+E: UDISKS_PARTITION_SIZE=10775168000
+E: UDISKS_PARTITION_SLAVE=/sys/devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/block/sda
+E: UDISKS_PARTITION_TYPE=0x05
+E: UDISKS_PRESENTATION_NOPOLICY=0
+E: USEC_INITIALIZED=1740483
+
+P: /devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/block/sda/sda3
+N: sda3
+S: disk/by-id/ata-SAMSUNG_HD502IJ_S13TJ90Q930357-part3
+S: disk/by-id/scsi-SATA_SAMSUNG_HD502IJS13TJ90Q930357-part3
+S: disk/by-id/wwn-0x50000f000b393075-part3
+S: disk/by-label/Data2
+S: disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0-part3
+S: disk/by-uuid/02D4E26262F1C4A6
+E: DEVLINKS=/dev/disk/by-id/ata-SAMSUNG_HD502IJ_S13TJ90Q930357-part3 /dev/disk/by-id/scsi-SATA_SAMSUNG_HD502IJS13TJ90Q930357-part3 /dev/disk/by-id/wwn-0x50000f000b393075-part3 /dev/disk/by-label/Data2 /dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0-part3 /dev/disk/by-uuid/02D4E26262F1C4A6
+E: DEVNAME=/dev/sda3
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/block/sda/sda3
+E: DEVTYPE=partition
+E: ID_ATA=1
+E: ID_ATA_DOWNLOAD_MICROCODE=1
+E: ID_ATA_FEATURE_SET_AAM=1
+E: ID_ATA_FEATURE_SET_AAM_CURRENT_VALUE=0
+E: ID_ATA_FEATURE_SET_AAM_ENABLED=0
+E: ID_ATA_FEATURE_SET_AAM_VENDOR_RECOMMENDED_VALUE=254
+E: ID_ATA_FEATURE_SET_APM=1
+E: ID_ATA_FEATURE_SET_APM_ENABLED=0
+E: ID_ATA_FEATURE_SET_HPA=1
+E: ID_ATA_FEATURE_SET_HPA_ENABLED=1
+E: ID_ATA_FEATURE_SET_PM=1
+E: ID_ATA_FEATURE_SET_PM_ENABLED=1
+E: ID_ATA_FEATURE_SET_PUIS=1
+E: ID_ATA_FEATURE_SET_PUIS_ENABLED=0
+E: ID_ATA_FEATURE_SET_SECURITY=1
+E: ID_ATA_FEATURE_SET_SECURITY_ENABLED=0
+E: ID_ATA_FEATURE_SET_SECURITY_ENHANCED_ERASE_UNIT_MIN=90
+E: ID_ATA_FEATURE_SET_SECURITY_ERASE_UNIT_MIN=90
+E: ID_ATA_FEATURE_SET_SECURITY_FROZEN=1
+E: ID_ATA_FEATURE_SET_SMART=1
+E: ID_ATA_FEATURE_SET_SMART_ENABLED=1
+E: ID_ATA_SATA=1
+E: ID_ATA_SATA_SIGNAL_RATE_GEN1=1
+E: ID_ATA_SATA_SIGNAL_RATE_GEN2=1
+E: ID_ATA_WRITE_CACHE=1
+E: ID_ATA_WRITE_CACHE_ENABLED=1
+E: ID_BUS=ata
+E: ID_FS_LABEL=Data2
+E: ID_FS_LABEL_ENC=Data2
+E: ID_FS_TYPE=ntfs
+E: ID_FS_USAGE=filesystem
+E: ID_FS_UUID=02D4E26262F1C4A6
+E: ID_FS_UUID_ENC=02D4E26262F1C4A6
+E: ID_MODEL=SAMSUNG_HD502IJ
+E: ID_MODEL_ENC=SAMSUNG\x20HD502IJ\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20
+E: ID_PART_ENTRY_DISK=8:0
+E: ID_PART_ENTRY_NUMBER=3
+E: ID_PART_ENTRY_OFFSET=140841855
+E: ID_PART_ENTRY_SCHEME=dos
+E: ID_PART_ENTRY_SIZE=306472005
+E: ID_PART_ENTRY_TYPE=0x7
+E: ID_PART_TABLE_TYPE=dos
+E: ID_PATH=pci-0000:00:1f.2-scsi-0:0:0:0
+E: ID_PATH_TAG=pci-0000_00_1f_2-scsi-0_0_0_0
+E: ID_REVISION=1AA01131
+E: ID_SCSI_COMPAT=SATA_SAMSUNG_HD502IJS13TJ90Q930357
+E: ID_SERIAL=SAMSUNG_HD502IJ_S13TJ90Q930357
+E: ID_SERIAL_SHORT=S13TJ90Q930357
+E: ID_TYPE=disk
+E: ID_WWN=0x50000f000b393075
+E: ID_WWN_WITH_EXTENSION=0x50000f000b393075
+E: MAJOR=8
+E: MINOR=3
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: UDISKS_PARTITION=1
+E: UDISKS_PARTITION_ALIGNMENT_OFFSET=0
+E: UDISKS_PARTITION_NUMBER=3
+E: UDISKS_PARTITION_OFFSET=72111029760
+E: UDISKS_PARTITION_SCHEME=mbr
+E: UDISKS_PARTITION_SIZE=156913666560
+E: UDISKS_PARTITION_SLAVE=/sys/devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/block/sda
+E: UDISKS_PARTITION_TYPE=0x07
+E: UDISKS_PRESENTATION_NOPOLICY=0
+E: USEC_INITIALIZED=1851931
+
+P: /devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/block/sda/sda5
+N: sda5
+S: disk/by-id/ata-SAMSUNG_HD502IJ_S13TJ90Q930357-part5
+S: disk/by-id/scsi-SATA_SAMSUNG_HD502IJS13TJ90Q930357-part5
+S: disk/by-id/wwn-0x50000f000b393075-part5
+S: disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0-part5
+S: disk/by-uuid/14822152-5725-4b3f-864b-4e5e7eccf8a6
+E: DEVLINKS=/dev/disk/by-id/ata-SAMSUNG_HD502IJ_S13TJ90Q930357-part5 /dev/disk/by-id/scsi-SATA_SAMSUNG_HD502IJS13TJ90Q930357-part5 /dev/disk/by-id/wwn-0x50000f000b393075-part5 /dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0-part5 /dev/disk/by-uuid/14822152-5725-4b3f-864b-4e5e7eccf8a6
+E: DEVNAME=/dev/sda5
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/block/sda/sda5
+E: DEVTYPE=partition
+E: ID_ATA=1
+E: ID_ATA_DOWNLOAD_MICROCODE=1
+E: ID_ATA_FEATURE_SET_AAM=1
+E: ID_ATA_FEATURE_SET_AAM_CURRENT_VALUE=0
+E: ID_ATA_FEATURE_SET_AAM_ENABLED=0
+E: ID_ATA_FEATURE_SET_AAM_VENDOR_RECOMMENDED_VALUE=254
+E: ID_ATA_FEATURE_SET_APM=1
+E: ID_ATA_FEATURE_SET_APM_ENABLED=0
+E: ID_ATA_FEATURE_SET_HPA=1
+E: ID_ATA_FEATURE_SET_HPA_ENABLED=1
+E: ID_ATA_FEATURE_SET_PM=1
+E: ID_ATA_FEATURE_SET_PM_ENABLED=1
+E: ID_ATA_FEATURE_SET_PUIS=1
+E: ID_ATA_FEATURE_SET_PUIS_ENABLED=0
+E: ID_ATA_FEATURE_SET_SECURITY=1
+E: ID_ATA_FEATURE_SET_SECURITY_ENABLED=0
+E: ID_ATA_FEATURE_SET_SECURITY_ENHANCED_ERASE_UNIT_MIN=90
+E: ID_ATA_FEATURE_SET_SECURITY_ERASE_UNIT_MIN=90
+E: ID_ATA_FEATURE_SET_SECURITY_FROZEN=1
+E: ID_ATA_FEATURE_SET_SMART=1
+E: ID_ATA_FEATURE_SET_SMART_ENABLED=1
+E: ID_ATA_SATA=1
+E: ID_ATA_SATA_SIGNAL_RATE_GEN1=1
+E: ID_ATA_SATA_SIGNAL_RATE_GEN2=1
+E: ID_ATA_WRITE_CACHE=1
+E: ID_ATA_WRITE_CACHE_ENABLED=1
+E: ID_BUS=ata
+E: ID_FS_TYPE=swap
+E: ID_FS_USAGE=other
+E: ID_FS_UUID=14822152-5725-4b3f-864b-4e5e7eccf8a6
+E: ID_FS_UUID_ENC=14822152-5725-4b3f-864b-4e5e7eccf8a6
+E: ID_FS_VERSION=2
+E: ID_MODEL=SAMSUNG_HD502IJ
+E: ID_MODEL_ENC=SAMSUNG\x20HD502IJ\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20
+E: ID_PART_ENTRY_DISK=8:0
+E: ID_PART_ENTRY_NUMBER=5
+E: ID_PART_ENTRY_OFFSET=943656960
+E: ID_PART_ENTRY_SCHEME=dos
+E: ID_PART_ENTRY_SIZE=21045248
+E: ID_PART_ENTRY_TYPE=0x82
+E: ID_PART_TABLE_TYPE=dos
+E: ID_PATH=pci-0000:00:1f.2-scsi-0:0:0:0
+E: ID_PATH_TAG=pci-0000_00_1f_2-scsi-0_0_0_0
+E: ID_REVISION=1AA01131
+E: ID_SCSI_COMPAT=SATA_SAMSUNG_HD502IJS13TJ90Q930357
+E: ID_SERIAL=SAMSUNG_HD502IJ_S13TJ90Q930357
+E: ID_SERIAL_SHORT=S13TJ90Q930357
+E: ID_TYPE=disk
+E: ID_WWN=0x50000f000b393075
+E: ID_WWN_WITH_EXTENSION=0x50000f000b393075
+E: MAJOR=8
+E: MINOR=5
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: UDISKS_PARTITION=1
+E: UDISKS_PARTITION_ALIGNMENT_OFFSET=0
+E: UDISKS_PARTITION_NUMBER=5
+E: UDISKS_PARTITION_OFFSET=483152363520
+E: UDISKS_PARTITION_SCHEME=mbr
+E: UDISKS_PARTITION_SIZE=10775166976
+E: UDISKS_PARTITION_SLAVE=/sys/devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/block/sda
+E: UDISKS_PARTITION_TYPE=0x82
+E: UDISKS_PRESENTATION_NOPOLICY=0
+E: USEC_INITIALIZED=1740147
+
+P: /devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/bsg/0:0:0:0
+N: bsg/0:0:0:0
+E: DEVNAME=/dev/bsg/0:0:0:0
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/bsg/0:0:0:0
+E: MAJOR=253
+E: MINOR=0
+E: SUBSYSTEM=bsg
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/scsi_device/0:0:0:0
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/scsi_device/0:0:0:0
+E: SUBSYSTEM=scsi_device
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/scsi_disk/0:0:0:0
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/scsi_disk/0:0:0:0
+E: SUBSYSTEM=scsi_disk
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/scsi_generic/sg0
+N: sg0
+E: DEVNAME=/dev/sg0
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/scsi_generic/sg0
+E: MAJOR=21
+E: MINOR=0
+E: SUBSYSTEM=scsi_generic
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/host0/target0:0:1
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host0/target0:0:1
+E: DEVTYPE=scsi_target
+E: SUBSYSTEM=scsi
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/host0/target0:0:1/0:0:1:0
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host0/target0:0:1/0:0:1:0
+E: DEVTYPE=scsi_device
+E: DRIVER=sr
+E: MODALIAS=scsi:t-0x05
+E: SUBSYSTEM=scsi
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/host0/target0:0:1/0:0:1:0/block/sr0
+N: sr0
+S: cdrom
+S: cdrw
+S: disk/by-id/ata-TSSTcorp_CDDVDW_SH-S223F
+S: disk/by-path/pci-0000:00:1f.2-scsi-0:0:1:0
+S: dvd
+S: dvdrw
+E: DEVLINKS=/dev/cdrom /dev/cdrw /dev/disk/by-id/ata-TSSTcorp_CDDVDW_SH-S223F /dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:1:0 /dev/dvd /dev/dvdrw
+E: DEVNAME=/dev/sr0
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host0/target0:0:1/0:0:1:0/block/sr0
+E: DEVTYPE=disk
+E: GENERATED=1
+E: ID_ATA=1
+E: ID_ATA_SATA=1
+E: ID_ATA_SATA_SIGNAL_RATE_GEN1=1
+E: ID_BUS=ata
+E: ID_CDROM=1
+E: ID_CDROM_CD=1
+E: ID_CDROM_CD_R=1
+E: ID_CDROM_CD_RW=1
+E: ID_CDROM_DVD=1
+E: ID_CDROM_DVD_PLUS_R=1
+E: ID_CDROM_DVD_PLUS_RW=1
+E: ID_CDROM_DVD_PLUS_R_DL=1
+E: ID_CDROM_DVD_R=1
+E: ID_CDROM_DVD_RAM=1
+E: ID_CDROM_DVD_RW=1
+E: ID_CDROM_MRW=1
+E: ID_CDROM_MRW_W=1
+E: ID_MODEL=TSSTcorp_CDDVDW_SH-S223F
+E: ID_MODEL_ENC=TSSTcorp\x20CDDVDW\x20SH-S223F\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20
+E: ID_PATH=pci-0000:00:1f.2-scsi-0:0:1:0
+E: ID_PATH_TAG=pci-0000_00_1f_2-scsi-0_0_1_0
+E: ID_REVISION=SB00
+E: ID_SERIAL=TSSTcorp_CDDVDW_SH-S223F
+E: ID_TYPE=cd
+E: MAJOR=11
+E: MINOR=0
+E: SUBSYSTEM=block
+E: TAGS=:udev-acl:
+E: UDEV_LOG=3
+E: UDISKS_PRESENTATION_NOPOLICY=0
+E: USEC_INITIALIZED=1406316
+
+P: /devices/pci0000:00/0000:00:1f.2/host0/target0:0:1/0:0:1:0/bsg/0:0:1:0
+N: bsg/0:0:1:0
+E: DEVNAME=/dev/bsg/0:0:1:0
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host0/target0:0:1/0:0:1:0/bsg/0:0:1:0
+E: MAJOR=253
+E: MINOR=1
+E: SUBSYSTEM=bsg
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/host0/target0:0:1/0:0:1:0/scsi_device/0:0:1:0
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host0/target0:0:1/0:0:1:0/scsi_device/0:0:1:0
+E: SUBSYSTEM=scsi_device
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/host0/target0:0:1/0:0:1:0/scsi_generic/sg1
+N: sg1
+E: DEVNAME=/dev/sg1
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host0/target0:0:1/0:0:1:0/scsi_generic/sg1
+E: MAJOR=21
+E: MINOR=1
+E: SUBSYSTEM=scsi_generic
+E: TAGS=:udev-acl:
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11171021
+
+P: /devices/pci0000:00/0000:00:1f.2/host1
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host1
+E: DEVTYPE=scsi_host
+E: SUBSYSTEM=scsi
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/host1/scsi_host/host1
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host1/scsi_host/host1
+E: SUBSYSTEM=scsi_host
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/host1/target1:0:0
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host1/target1:0:0
+E: DEVTYPE=scsi_target
+E: SUBSYSTEM=scsi
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/host1/target1:0:0/1:0:0:0
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host1/target1:0:0/1:0:0:0
+E: DEVTYPE=scsi_device
+E: DRIVER=sd
+E: MODALIAS=scsi:t-0x00
+E: SUBSYSTEM=scsi
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/host1/target1:0:0/1:0:0:0/block/sdb
+N: sdb
+S: disk/by-id/ata-SAMSUNG_HD502IJ_S13TJ90Q930358
+S: disk/by-id/scsi-SATA_SAMSUNG_HD502IJS13TJ90Q930358
+S: disk/by-id/wwn-0x50000f000b393085
+S: disk/by-path/pci-0000:00:1f.2-scsi-1:0:0:0
+E: DEVLINKS=/dev/disk/by-id/ata-SAMSUNG_HD502IJ_S13TJ90Q930358 /dev/disk/by-id/scsi-SATA_SAMSUNG_HD502IJS13TJ90Q930358 /dev/disk/by-id/wwn-0x50000f000b393085 /dev/disk/by-path/pci-0000:00:1f.2-scsi-1:0:0:0
+E: DEVNAME=/dev/sdb
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host1/target1:0:0/1:0:0:0/block/sdb
+E: DEVTYPE=disk
+E: ID_ATA=1
+E: ID_ATA_DOWNLOAD_MICROCODE=1
+E: ID_ATA_FEATURE_SET_AAM=1
+E: ID_ATA_FEATURE_SET_AAM_CURRENT_VALUE=0
+E: ID_ATA_FEATURE_SET_AAM_ENABLED=0
+E: ID_ATA_FEATURE_SET_AAM_VENDOR_RECOMMENDED_VALUE=254
+E: ID_ATA_FEATURE_SET_APM=1
+E: ID_ATA_FEATURE_SET_APM_ENABLED=0
+E: ID_ATA_FEATURE_SET_HPA=1
+E: ID_ATA_FEATURE_SET_HPA_ENABLED=1
+E: ID_ATA_FEATURE_SET_PM=1
+E: ID_ATA_FEATURE_SET_PM_ENABLED=1
+E: ID_ATA_FEATURE_SET_PUIS=1
+E: ID_ATA_FEATURE_SET_PUIS_ENABLED=0
+E: ID_ATA_FEATURE_SET_SECURITY=1
+E: ID_ATA_FEATURE_SET_SECURITY_ENABLED=0
+E: ID_ATA_FEATURE_SET_SECURITY_ENHANCED_ERASE_UNIT_MIN=86
+E: ID_ATA_FEATURE_SET_SECURITY_ERASE_UNIT_MIN=86
+E: ID_ATA_FEATURE_SET_SECURITY_FROZEN=1
+E: ID_ATA_FEATURE_SET_SMART=1
+E: ID_ATA_FEATURE_SET_SMART_ENABLED=1
+E: ID_ATA_SATA=1
+E: ID_ATA_SATA_SIGNAL_RATE_GEN1=1
+E: ID_ATA_SATA_SIGNAL_RATE_GEN2=1
+E: ID_ATA_WRITE_CACHE=1
+E: ID_ATA_WRITE_CACHE_ENABLED=1
+E: ID_BUS=ata
+E: ID_MODEL=SAMSUNG_HD502IJ
+E: ID_MODEL_ENC=SAMSUNG\x20HD502IJ\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20
+E: ID_PART_TABLE_TYPE=dos
+E: ID_PATH=pci-0000:00:1f.2-scsi-1:0:0:0
+E: ID_PATH_TAG=pci-0000_00_1f_2-scsi-1_0_0_0
+E: ID_REVISION=1AA01131
+E: ID_SCSI_COMPAT=SATA_SAMSUNG_HD502IJS13TJ90Q930358
+E: ID_SERIAL=SAMSUNG_HD502IJ_S13TJ90Q930358
+E: ID_SERIAL_SHORT=S13TJ90Q930358
+E: ID_TYPE=disk
+E: ID_WWN=0x50000f000b393085
+E: ID_WWN_WITH_EXTENSION=0x50000f000b393085
+E: MAJOR=8
+E: MINOR=16
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: UDISKS_ATA_SMART_IS_AVAILABLE=1
+E: UDISKS_PARTITION_TABLE=1
+E: UDISKS_PARTITION_TABLE_COUNT=4
+E: UDISKS_PARTITION_TABLE_SCHEME=mbr
+E: UDISKS_PRESENTATION_NOPOLICY=0
+E: USEC_INITIALIZED=1406387
+
+P: /devices/pci0000:00/0000:00:1f.2/host1/target1:0:0/1:0:0:0/block/sdb/sdb1
+N: sdb1
+S: disk/by-id/ata-SAMSUNG_HD502IJ_S13TJ90Q930358-part1
+S: disk/by-id/scsi-SATA_SAMSUNG_HD502IJS13TJ90Q930358-part1
+S: disk/by-id/wwn-0x50000f000b393085-part1
+S: disk/by-label/System
+S: disk/by-path/pci-0000:00:1f.2-scsi-1:0:0:0-part1
+S: disk/by-uuid/F464EBC464EB87A6
+E: DEVLINKS=/dev/disk/by-id/ata-SAMSUNG_HD502IJ_S13TJ90Q930358-part1 /dev/disk/by-id/scsi-SATA_SAMSUNG_HD502IJS13TJ90Q930358-part1 /dev/disk/by-id/wwn-0x50000f000b393085-part1 /dev/disk/by-label/System /dev/disk/by-path/pci-0000:00:1f.2-scsi-1:0:0:0-part1 /dev/disk/by-uuid/F464EBC464EB87A6
+E: DEVNAME=/dev/sdb1
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host1/target1:0:0/1:0:0:0/block/sdb/sdb1
+E: DEVTYPE=partition
+E: ID_ATA=1
+E: ID_ATA_DOWNLOAD_MICROCODE=1
+E: ID_ATA_FEATURE_SET_AAM=1
+E: ID_ATA_FEATURE_SET_AAM_CURRENT_VALUE=0
+E: ID_ATA_FEATURE_SET_AAM_ENABLED=0
+E: ID_ATA_FEATURE_SET_AAM_VENDOR_RECOMMENDED_VALUE=254
+E: ID_ATA_FEATURE_SET_APM=1
+E: ID_ATA_FEATURE_SET_APM_ENABLED=0
+E: ID_ATA_FEATURE_SET_HPA=1
+E: ID_ATA_FEATURE_SET_HPA_ENABLED=1
+E: ID_ATA_FEATURE_SET_PM=1
+E: ID_ATA_FEATURE_SET_PM_ENABLED=1
+E: ID_ATA_FEATURE_SET_PUIS=1
+E: ID_ATA_FEATURE_SET_PUIS_ENABLED=0
+E: ID_ATA_FEATURE_SET_SECURITY=1
+E: ID_ATA_FEATURE_SET_SECURITY_ENABLED=0
+E: ID_ATA_FEATURE_SET_SECURITY_ENHANCED_ERASE_UNIT_MIN=86
+E: ID_ATA_FEATURE_SET_SECURITY_ERASE_UNIT_MIN=86
+E: ID_ATA_FEATURE_SET_SECURITY_FROZEN=1
+E: ID_ATA_FEATURE_SET_SMART=1
+E: ID_ATA_FEATURE_SET_SMART_ENABLED=1
+E: ID_ATA_SATA=1
+E: ID_ATA_SATA_SIGNAL_RATE_GEN1=1
+E: ID_ATA_SATA_SIGNAL_RATE_GEN2=1
+E: ID_ATA_WRITE_CACHE=1
+E: ID_ATA_WRITE_CACHE_ENABLED=1
+E: ID_BUS=ata
+E: ID_FS_LABEL=System
+E: ID_FS_LABEL_ENC=System
+E: ID_FS_TYPE=ntfs
+E: ID_FS_USAGE=filesystem
+E: ID_FS_UUID=F464EBC464EB87A6
+E: ID_FS_UUID_ENC=F464EBC464EB87A6
+E: ID_MODEL=SAMSUNG_HD502IJ
+E: ID_MODEL_ENC=SAMSUNG\x20HD502IJ\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20
+E: ID_PART_ENTRY_DISK=8:16
+E: ID_PART_ENTRY_FLAGS=0x80
+E: ID_PART_ENTRY_NUMBER=1
+E: ID_PART_ENTRY_OFFSET=63
+E: ID_PART_ENTRY_SCHEME=dos
+E: ID_PART_ENTRY_SIZE=204796557
+E: ID_PART_ENTRY_TYPE=0x7
+E: ID_PART_TABLE_TYPE=dos
+E: ID_PATH=pci-0000:00:1f.2-scsi-1:0:0:0
+E: ID_PATH_TAG=pci-0000_00_1f_2-scsi-1_0_0_0
+E: ID_REVISION=1AA01131
+E: ID_SCSI_COMPAT=SATA_SAMSUNG_HD502IJS13TJ90Q930358
+E: ID_SERIAL=SAMSUNG_HD502IJ_S13TJ90Q930358
+E: ID_SERIAL_SHORT=S13TJ90Q930358
+E: ID_TYPE=disk
+E: ID_WWN=0x50000f000b393085
+E: ID_WWN_WITH_EXTENSION=0x50000f000b393085
+E: MAJOR=8
+E: MINOR=17
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: UDISKS_PARTITION=1
+E: UDISKS_PARTITION_ALIGNMENT_OFFSET=0
+E: UDISKS_PARTITION_FLAGS=boot
+E: UDISKS_PARTITION_NUMBER=1
+E: UDISKS_PARTITION_OFFSET=32256
+E: UDISKS_PARTITION_SCHEME=mbr
+E: UDISKS_PARTITION_SIZE=104855837184
+E: UDISKS_PARTITION_SLAVE=/sys/devices/pci0000:00/0000:00:1f.2/host1/target1:0:0/1:0:0:0/block/sdb
+E: UDISKS_PARTITION_TYPE=0x07
+E: UDISKS_PRESENTATION_NOPOLICY=0
+E: USEC_INITIALIZED=1800420
+
+P: /devices/pci0000:00/0000:00:1f.2/host1/target1:0:0/1:0:0:0/block/sdb/sdb2
+N: sdb2
+S: disk/by-id/ata-SAMSUNG_HD502IJ_S13TJ90Q930358-part2
+S: disk/by-id/scsi-SATA_SAMSUNG_HD502IJS13TJ90Q930358-part2
+S: disk/by-id/wwn-0x50000f000b393085-part2
+S: disk/by-path/pci-0000:00:1f.2-scsi-1:0:0:0-part2
+E: DEVLINKS=/dev/disk/by-id/ata-SAMSUNG_HD502IJ_S13TJ90Q930358-part2 /dev/disk/by-id/scsi-SATA_SAMSUNG_HD502IJS13TJ90Q930358-part2 /dev/disk/by-id/wwn-0x50000f000b393085-part2 /dev/disk/by-path/pci-0000:00:1f.2-scsi-1:0:0:0-part2
+E: DEVNAME=/dev/sdb2
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host1/target1:0:0/1:0:0:0/block/sdb/sdb2
+E: DEVTYPE=partition
+E: ID_ATA=1
+E: ID_ATA_DOWNLOAD_MICROCODE=1
+E: ID_ATA_FEATURE_SET_AAM=1
+E: ID_ATA_FEATURE_SET_AAM_CURRENT_VALUE=0
+E: ID_ATA_FEATURE_SET_AAM_ENABLED=0
+E: ID_ATA_FEATURE_SET_AAM_VENDOR_RECOMMENDED_VALUE=254
+E: ID_ATA_FEATURE_SET_APM=1
+E: ID_ATA_FEATURE_SET_APM_ENABLED=0
+E: ID_ATA_FEATURE_SET_HPA=1
+E: ID_ATA_FEATURE_SET_HPA_ENABLED=1
+E: ID_ATA_FEATURE_SET_PM=1
+E: ID_ATA_FEATURE_SET_PM_ENABLED=1
+E: ID_ATA_FEATURE_SET_PUIS=1
+E: ID_ATA_FEATURE_SET_PUIS_ENABLED=0
+E: ID_ATA_FEATURE_SET_SECURITY=1
+E: ID_ATA_FEATURE_SET_SECURITY_ENABLED=0
+E: ID_ATA_FEATURE_SET_SECURITY_ENHANCED_ERASE_UNIT_MIN=86
+E: ID_ATA_FEATURE_SET_SECURITY_ERASE_UNIT_MIN=86
+E: ID_ATA_FEATURE_SET_SECURITY_FROZEN=1
+E: ID_ATA_FEATURE_SET_SMART=1
+E: ID_ATA_FEATURE_SET_SMART_ENABLED=1
+E: ID_ATA_SATA=1
+E: ID_ATA_SATA_SIGNAL_RATE_GEN1=1
+E: ID_ATA_SATA_SIGNAL_RATE_GEN2=1
+E: ID_ATA_WRITE_CACHE=1
+E: ID_ATA_WRITE_CACHE_ENABLED=1
+E: ID_BUS=ata
+E: ID_MODEL=SAMSUNG_HD502IJ
+E: ID_MODEL_ENC=SAMSUNG\x20HD502IJ\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20
+E: ID_PART_ENTRY_DISK=8:16
+E: ID_PART_ENTRY_NUMBER=2
+E: ID_PART_ENTRY_OFFSET=204796620
+E: ID_PART_ENTRY_SCHEME=dos
+E: ID_PART_ENTRY_SIZE=771955380
+E: ID_PART_ENTRY_TYPE=0xf
+E: ID_PART_TABLE_TYPE=dos
+E: ID_PATH=pci-0000:00:1f.2-scsi-1:0:0:0
+E: ID_PATH_TAG=pci-0000_00_1f_2-scsi-1_0_0_0
+E: ID_REVISION=1AA01131
+E: ID_SCSI_COMPAT=SATA_SAMSUNG_HD502IJS13TJ90Q930358
+E: ID_SERIAL=SAMSUNG_HD502IJ_S13TJ90Q930358
+E: ID_SERIAL_SHORT=S13TJ90Q930358
+E: ID_TYPE=disk
+E: ID_WWN=0x50000f000b393085
+E: ID_WWN_WITH_EXTENSION=0x50000f000b393085
+E: MAJOR=8
+E: MINOR=18
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: UDISKS_PARTITION=1
+E: UDISKS_PARTITION_ALIGNMENT_OFFSET=0
+E: UDISKS_PARTITION_NUMBER=2
+E: UDISKS_PARTITION_OFFSET=104855869440
+E: UDISKS_PARTITION_SCHEME=mbr
+E: UDISKS_PARTITION_SIZE=395241154560
+E: UDISKS_PARTITION_SLAVE=/sys/devices/pci0000:00/0000:00:1f.2/host1/target1:0:0/1:0:0:0/block/sdb
+E: UDISKS_PARTITION_TYPE=0x0f
+E: UDISKS_PRESENTATION_NOPOLICY=0
+E: USEC_INITIALIZED=1565685
+
+P: /devices/pci0000:00/0000:00:1f.2/host1/target1:0:0/1:0:0:0/block/sdb/sdb5
+N: sdb5
+S: disk/by-id/ata-SAMSUNG_HD502IJ_S13TJ90Q930358-part5
+S: disk/by-id/scsi-SATA_SAMSUNG_HD502IJS13TJ90Q930358-part5
+S: disk/by-id/wwn-0x50000f000b393085-part5
+S: disk/by-label/Games
+S: disk/by-path/pci-0000:00:1f.2-scsi-1:0:0:0-part5
+S: disk/by-uuid/406ABC8A6ABC7E6A
+E: DEVLINKS=/dev/disk/by-id/ata-SAMSUNG_HD502IJ_S13TJ90Q930358-part5 /dev/disk/by-id/scsi-SATA_SAMSUNG_HD502IJS13TJ90Q930358-part5 /dev/disk/by-id/wwn-0x50000f000b393085-part5 /dev/disk/by-label/Games /dev/disk/by-path/pci-0000:00:1f.2-scsi-1:0:0:0-part5 /dev/disk/by-uuid/406ABC8A6ABC7E6A
+E: DEVNAME=/dev/sdb5
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host1/target1:0:0/1:0:0:0/block/sdb/sdb5
+E: DEVTYPE=partition
+E: ID_ATA=1
+E: ID_ATA_DOWNLOAD_MICROCODE=1
+E: ID_ATA_FEATURE_SET_AAM=1
+E: ID_ATA_FEATURE_SET_AAM_CURRENT_VALUE=0
+E: ID_ATA_FEATURE_SET_AAM_ENABLED=0
+E: ID_ATA_FEATURE_SET_AAM_VENDOR_RECOMMENDED_VALUE=254
+E: ID_ATA_FEATURE_SET_APM=1
+E: ID_ATA_FEATURE_SET_APM_ENABLED=0
+E: ID_ATA_FEATURE_SET_HPA=1
+E: ID_ATA_FEATURE_SET_HPA_ENABLED=1
+E: ID_ATA_FEATURE_SET_PM=1
+E: ID_ATA_FEATURE_SET_PM_ENABLED=1
+E: ID_ATA_FEATURE_SET_PUIS=1
+E: ID_ATA_FEATURE_SET_PUIS_ENABLED=0
+E: ID_ATA_FEATURE_SET_SECURITY=1
+E: ID_ATA_FEATURE_SET_SECURITY_ENABLED=0
+E: ID_ATA_FEATURE_SET_SECURITY_ENHANCED_ERASE_UNIT_MIN=86
+E: ID_ATA_FEATURE_SET_SECURITY_ERASE_UNIT_MIN=86
+E: ID_ATA_FEATURE_SET_SECURITY_FROZEN=1
+E: ID_ATA_FEATURE_SET_SMART=1
+E: ID_ATA_FEATURE_SET_SMART_ENABLED=1
+E: ID_ATA_SATA=1
+E: ID_ATA_SATA_SIGNAL_RATE_GEN1=1
+E: ID_ATA_SATA_SIGNAL_RATE_GEN2=1
+E: ID_ATA_WRITE_CACHE=1
+E: ID_ATA_WRITE_CACHE_ENABLED=1
+E: ID_BUS=ata
+E: ID_FS_LABEL=Games
+E: ID_FS_LABEL_ENC=Games
+E: ID_FS_TYPE=ntfs
+E: ID_FS_USAGE=filesystem
+E: ID_FS_UUID=406ABC8A6ABC7E6A
+E: ID_FS_UUID_ENC=406ABC8A6ABC7E6A
+E: ID_MODEL=SAMSUNG_HD502IJ
+E: ID_MODEL_ENC=SAMSUNG\x20HD502IJ\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20
+E: ID_PART_ENTRY_DISK=8:16
+E: ID_PART_ENTRY_NUMBER=5
+E: ID_PART_ENTRY_OFFSET=204796683
+E: ID_PART_ENTRY_SCHEME=dos
+E: ID_PART_ENTRY_SIZE=362362077
+E: ID_PART_ENTRY_TYPE=0x7
+E: ID_PART_TABLE_TYPE=dos
+E: ID_PATH=pci-0000:00:1f.2-scsi-1:0:0:0
+E: ID_PATH_TAG=pci-0000_00_1f_2-scsi-1_0_0_0
+E: ID_REVISION=1AA01131
+E: ID_SCSI_COMPAT=SATA_SAMSUNG_HD502IJS13TJ90Q930358
+E: ID_SERIAL=SAMSUNG_HD502IJ_S13TJ90Q930358
+E: ID_SERIAL_SHORT=S13TJ90Q930358
+E: ID_TYPE=disk
+E: ID_WWN=0x50000f000b393085
+E: ID_WWN_WITH_EXTENSION=0x50000f000b393085
+E: MAJOR=8
+E: MINOR=21
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: UDISKS_PARTITION=1
+E: UDISKS_PARTITION_ALIGNMENT_OFFSET=0
+E: UDISKS_PARTITION_NUMBER=5
+E: UDISKS_PARTITION_OFFSET=104855901696
+E: UDISKS_PARTITION_SCHEME=mbr
+E: UDISKS_PARTITION_SIZE=185529383424
+E: UDISKS_PARTITION_SLAVE=/sys/devices/pci0000:00/0000:00:1f.2/host1/target1:0:0/1:0:0:0/block/sdb
+E: UDISKS_PARTITION_TYPE=0x07
+E: UDISKS_PRESENTATION_NOPOLICY=0
+E: USEC_INITIALIZED=1767165
+
+P: /devices/pci0000:00/0000:00:1f.2/host1/target1:0:0/1:0:0:0/block/sdb/sdb6
+N: sdb6
+S: disk/by-id/ata-SAMSUNG_HD502IJ_S13TJ90Q930358-part6
+S: disk/by-id/scsi-SATA_SAMSUNG_HD502IJS13TJ90Q930358-part6
+S: disk/by-id/wwn-0x50000f000b393085-part6
+S: disk/by-label/Data
+S: disk/by-path/pci-0000:00:1f.2-scsi-1:0:0:0-part6
+S: disk/by-uuid/349413659413293E
+E: DEVLINKS=/dev/disk/by-id/ata-SAMSUNG_HD502IJ_S13TJ90Q930358-part6 /dev/disk/by-id/scsi-SATA_SAMSUNG_HD502IJS13TJ90Q930358-part6 /dev/disk/by-id/wwn-0x50000f000b393085-part6 /dev/disk/by-label/Data /dev/disk/by-path/pci-0000:00:1f.2-scsi-1:0:0:0-part6 /dev/disk/by-uuid/349413659413293E
+E: DEVNAME=/dev/sdb6
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host1/target1:0:0/1:0:0:0/block/sdb/sdb6
+E: DEVTYPE=partition
+E: ID_ATA=1
+E: ID_ATA_DOWNLOAD_MICROCODE=1
+E: ID_ATA_FEATURE_SET_AAM=1
+E: ID_ATA_FEATURE_SET_AAM_CURRENT_VALUE=0
+E: ID_ATA_FEATURE_SET_AAM_ENABLED=0
+E: ID_ATA_FEATURE_SET_AAM_VENDOR_RECOMMENDED_VALUE=254
+E: ID_ATA_FEATURE_SET_APM=1
+E: ID_ATA_FEATURE_SET_APM_ENABLED=0
+E: ID_ATA_FEATURE_SET_HPA=1
+E: ID_ATA_FEATURE_SET_HPA_ENABLED=1
+E: ID_ATA_FEATURE_SET_PM=1
+E: ID_ATA_FEATURE_SET_PM_ENABLED=1
+E: ID_ATA_FEATURE_SET_PUIS=1
+E: ID_ATA_FEATURE_SET_PUIS_ENABLED=0
+E: ID_ATA_FEATURE_SET_SECURITY=1
+E: ID_ATA_FEATURE_SET_SECURITY_ENABLED=0
+E: ID_ATA_FEATURE_SET_SECURITY_ENHANCED_ERASE_UNIT_MIN=86
+E: ID_ATA_FEATURE_SET_SECURITY_ERASE_UNIT_MIN=86
+E: ID_ATA_FEATURE_SET_SECURITY_FROZEN=1
+E: ID_ATA_FEATURE_SET_SMART=1
+E: ID_ATA_FEATURE_SET_SMART_ENABLED=1
+E: ID_ATA_SATA=1
+E: ID_ATA_SATA_SIGNAL_RATE_GEN1=1
+E: ID_ATA_SATA_SIGNAL_RATE_GEN2=1
+E: ID_ATA_WRITE_CACHE=1
+E: ID_ATA_WRITE_CACHE_ENABLED=1
+E: ID_BUS=ata
+E: ID_FS_LABEL=Data
+E: ID_FS_LABEL_ENC=Data
+E: ID_FS_TYPE=ntfs
+E: ID_FS_USAGE=filesystem
+E: ID_FS_UUID=349413659413293E
+E: ID_FS_UUID_ENC=349413659413293E
+E: ID_MODEL=SAMSUNG_HD502IJ
+E: ID_MODEL_ENC=SAMSUNG\x20HD502IJ\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20
+E: ID_PART_ENTRY_DISK=8:16
+E: ID_PART_ENTRY_NUMBER=6
+E: ID_PART_ENTRY_OFFSET=567158823
+E: ID_PART_ENTRY_SCHEME=dos
+E: ID_PART_ENTRY_SIZE=409593177
+E: ID_PART_ENTRY_TYPE=0x7
+E: ID_PART_TABLE_TYPE=dos
+E: ID_PATH=pci-0000:00:1f.2-scsi-1:0:0:0
+E: ID_PATH_TAG=pci-0000_00_1f_2-scsi-1_0_0_0
+E: ID_REVISION=1AA01131
+E: ID_SCSI_COMPAT=SATA_SAMSUNG_HD502IJS13TJ90Q930358
+E: ID_SERIAL=SAMSUNG_HD502IJ_S13TJ90Q930358
+E: ID_SERIAL_SHORT=S13TJ90Q930358
+E: ID_TYPE=disk
+E: ID_WWN=0x50000f000b393085
+E: ID_WWN_WITH_EXTENSION=0x50000f000b393085
+E: MAJOR=8
+E: MINOR=22
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: UDISKS_PARTITION=1
+E: UDISKS_PARTITION_ALIGNMENT_OFFSET=0
+E: UDISKS_PARTITION_NUMBER=6
+E: UDISKS_PARTITION_OFFSET=290385317376
+E: UDISKS_PARTITION_SCHEME=mbr
+E: UDISKS_PARTITION_SIZE=209711706624
+E: UDISKS_PARTITION_SLAVE=/sys/devices/pci0000:00/0000:00:1f.2/host1/target1:0:0/1:0:0:0/block/sdb
+E: UDISKS_PARTITION_TYPE=0x07
+E: UDISKS_PRESENTATION_NOPOLICY=0
+E: USEC_INITIALIZED=1697821
+
+P: /devices/pci0000:00/0000:00:1f.2/host1/target1:0:0/1:0:0:0/bsg/1:0:0:0
+N: bsg/1:0:0:0
+E: DEVNAME=/dev/bsg/1:0:0:0
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host1/target1:0:0/1:0:0:0/bsg/1:0:0:0
+E: MAJOR=253
+E: MINOR=2
+E: SUBSYSTEM=bsg
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/host1/target1:0:0/1:0:0:0/scsi_device/1:0:0:0
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host1/target1:0:0/1:0:0:0/scsi_device/1:0:0:0
+E: SUBSYSTEM=scsi_device
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/host1/target1:0:0/1:0:0:0/scsi_disk/1:0:0:0
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host1/target1:0:0/1:0:0:0/scsi_disk/1:0:0:0
+E: SUBSYSTEM=scsi_disk
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/host1/target1:0:0/1:0:0:0/scsi_generic/sg2
+N: sg2
+E: DEVNAME=/dev/sg2
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host1/target1:0:0/1:0:0:0/scsi_generic/sg2
+E: MAJOR=21
+E: MINOR=2
+E: SUBSYSTEM=scsi_generic
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/host1/target1:0:1
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host1/target1:0:1
+E: DEVTYPE=scsi_target
+E: SUBSYSTEM=scsi
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/host1/target1:0:1/1:0:1:0
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host1/target1:0:1/1:0:1:0
+E: DEVTYPE=scsi_device
+E: DRIVER=sr
+E: MODALIAS=scsi:t-0x05
+E: SUBSYSTEM=scsi
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/host1/target1:0:1/1:0:1:0/block/sr1
+N: sr1
+S: cdrom1
+S: cdrw1
+S: disk/by-id/ata-TSSTcorp_CDDVDW_SH-S223F
+S: disk/by-path/pci-0000:00:1f.2-scsi-1:0:1:0
+S: dvd1
+S: dvdrw1
+E: DEVLINKS=/dev/cdrom1 /dev/cdrw1 /dev/disk/by-id/ata-TSSTcorp_CDDVDW_SH-S223F /dev/disk/by-path/pci-0000:00:1f.2-scsi-1:0:1:0 /dev/dvd1 /dev/dvdrw1
+E: DEVNAME=/dev/sr1
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host1/target1:0:1/1:0:1:0/block/sr1
+E: DEVTYPE=disk
+E: GENERATED=1
+E: ID_ATA=1
+E: ID_ATA_SATA=1
+E: ID_ATA_SATA_SIGNAL_RATE_GEN1=1
+E: ID_BUS=ata
+E: ID_CDROM=1
+E: ID_CDROM_CD=1
+E: ID_CDROM_CD_R=1
+E: ID_CDROM_CD_RW=1
+E: ID_CDROM_DVD=1
+E: ID_CDROM_DVD_PLUS_R=1
+E: ID_CDROM_DVD_PLUS_RW=1
+E: ID_CDROM_DVD_PLUS_R_DL=1
+E: ID_CDROM_DVD_R=1
+E: ID_CDROM_DVD_RAM=1
+E: ID_CDROM_DVD_RW=1
+E: ID_CDROM_MRW=1
+E: ID_CDROM_MRW_W=1
+E: ID_MODEL=TSSTcorp_CDDVDW_SH-S223F
+E: ID_MODEL_ENC=TSSTcorp\x20CDDVDW\x20SH-S223F\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20
+E: ID_PATH=pci-0000:00:1f.2-scsi-1:0:1:0
+E: ID_PATH_TAG=pci-0000_00_1f_2-scsi-1_0_1_0
+E: ID_REVISION=SB00
+E: ID_SERIAL=TSSTcorp_CDDVDW_SH-S223F
+E: ID_TYPE=cd
+E: MAJOR=11
+E: MINOR=1
+E: SUBSYSTEM=block
+E: TAGS=:udev-acl:
+E: UDEV_LOG=3
+E: UDISKS_PRESENTATION_NOPOLICY=0
+E: USEC_INITIALIZED=1407789
+
+P: /devices/pci0000:00/0000:00:1f.2/host1/target1:0:1/1:0:1:0/bsg/1:0:1:0
+N: bsg/1:0:1:0
+E: DEVNAME=/dev/bsg/1:0:1:0
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host1/target1:0:1/1:0:1:0/bsg/1:0:1:0
+E: MAJOR=253
+E: MINOR=3
+E: SUBSYSTEM=bsg
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/host1/target1:0:1/1:0:1:0/scsi_device/1:0:1:0
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host1/target1:0:1/1:0:1:0/scsi_device/1:0:1:0
+E: SUBSYSTEM=scsi_device
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.2/host1/target1:0:1/1:0:1:0/scsi_generic/sg3
+N: sg3
+E: DEVNAME=/dev/sg3
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host1/target1:0:1/1:0:1:0/scsi_generic/sg3
+E: MAJOR=21
+E: MINOR=3
+E: SUBSYSTEM=scsi_generic
+E: TAGS=:udev-acl:
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11173231
+
+P: /devices/pci0000:00/0000:00:1f.3
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.3
+E: MODALIAS=pci:v00008086d00003A30sv00001043sd000082D4bc0Csc05i00
+E: PCI_CLASS=C0500
+E: PCI_ID=8086:3A30
+E: PCI_SLOT_NAME=0000:00:1f.3
+E: PCI_SUBSYS_ID=1043:82D4
+E: SUBSYSTEM=pci
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.5
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.5
+E: DRIVER=ata_piix
+E: ID_MODEL_FROM_DATABASE=82801JI (ICH10 Family) 2 port SATA IDE Controller #2
+E: ID_VENDOR_FROM_DATABASE=Intel Corporation
+E: MODALIAS=pci:v00008086d00003A26sv00001043sd000082D4bc01sc01i85
+E: PCI_CLASS=10185
+E: PCI_ID=8086:3A26
+E: PCI_SLOT_NAME=0000:00:1f.5
+E: PCI_SUBSYS_ID=1043:82D4
+E: SUBSYSTEM=pci
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11158845
+
+P: /devices/pci0000:00/0000:00:1f.5/ata3/ata_port/ata3
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.5/ata3/ata_port/ata3
+E: SUBSYSTEM=ata_port
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.5/ata3/link3/ata_link/link3
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.5/ata3/link3/ata_link/link3
+E: SUBSYSTEM=ata_link
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.5/ata3/link3/dev3.0/ata_device/dev3.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.5/ata3/link3/dev3.0/ata_device/dev3.0
+E: SUBSYSTEM=ata_device
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.5/ata4/ata_port/ata4
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.5/ata4/ata_port/ata4
+E: SUBSYSTEM=ata_port
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.5/ata4/link4/ata_link/link4
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.5/ata4/link4/ata_link/link4
+E: SUBSYSTEM=ata_link
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.5/ata4/link4/dev4.0/ata_device/dev4.0
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.5/ata4/link4/dev4.0/ata_device/dev4.0
+E: SUBSYSTEM=ata_device
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.5/host2
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.5/host2
+E: DEVTYPE=scsi_host
+E: SUBSYSTEM=scsi
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.5/host2/scsi_host/host2
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.5/host2/scsi_host/host2
+E: SUBSYSTEM=scsi_host
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.5/host3
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.5/host3
+E: DEVTYPE=scsi_host
+E: SUBSYSTEM=scsi
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/0000:00:1f.5/host3/scsi_host/host3
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.5/host3/scsi_host/host3
+E: SUBSYSTEM=scsi_host
+E: UDEV_LOG=3
+
+P: /devices/pci0000:00/pci_bus/0000:00
+E: DEVPATH=/devices/pci0000:00/pci_bus/0000:00
+E: SUBSYSTEM=pci_bus
+E: UDEV_LOG=3
+
+P: /devices/platform/Fixed MDIO bus.0
+E: DEVPATH=/devices/platform/Fixed MDIO bus.0
+E: MODALIAS=platform:Fixed MDIO bus
+E: SUBSYSTEM=platform
+E: UDEV_LOG=3
+
+P: /devices/platform/Fixed MDIO bus.0/mdio_bus/0
+E: DEVPATH=/devices/platform/Fixed MDIO bus.0/mdio_bus/0
+E: SUBSYSTEM=mdio_bus
+E: UDEV_LOG=3
+
+P: /devices/platform/alarmtimer
+E: DEVPATH=/devices/platform/alarmtimer
+E: DRIVER=alarmtimer
+E: MODALIAS=platform:alarmtimer
+E: SUBSYSTEM=platform
+E: UDEV_LOG=3
+
+P: /devices/platform/floppy.0
+E: DEVPATH=/devices/platform/floppy.0
+E: DRIVER=floppy
+E: MODALIAS=platform:floppy
+E: SUBSYSTEM=platform
+E: UDEV_LOG=3
+
+P: /devices/platform/floppy.0/block/fd0
+N: fd0
+E: DEVNAME=/dev/fd0
+E: DEVPATH=/devices/platform/floppy.0/block/fd0
+E: DEVTYPE=disk
+E: ID_DRIVE_FLOPPY=1
+E: MAJOR=2
+E: MINOR=0
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: UDISKS_PRESENTATION_NOPOLICY=1
+E: USEC_INITIALIZED=11074338
+
+P: /devices/platform/i8042
+E: DEVPATH=/devices/platform/i8042
+E: DRIVER=i8042
+E: MODALIAS=platform:i8042
+E: SUBSYSTEM=platform
+E: UDEV_LOG=3
+
+P: /devices/platform/i8042/serio0
+E: DEVPATH=/devices/platform/i8042/serio0
+E: MODALIAS=serio:ty06pr00id00ex00
+E: SERIO_EXTRA=00
+E: SERIO_ID=00
+E: SERIO_PROTO=00
+E: SERIO_TYPE=06
+E: SUBSYSTEM=serio
+E: UDEV_LOG=3
+
+P: /devices/platform/i8042/serio1
+E: DEVPATH=/devices/platform/i8042/serio1
+E: MODALIAS=serio:ty01pr00id00ex00
+E: SERIO_EXTRA=00
+E: SERIO_ID=00
+E: SERIO_PROTO=00
+E: SERIO_TYPE=01
+E: SUBSYSTEM=serio
+E: UDEV_LOG=3
+
+P: /devices/platform/pcspkr
+E: DEVPATH=/devices/platform/pcspkr
+E: MODALIAS=platform:pcspkr
+E: SUBSYSTEM=platform
+E: UDEV_LOG=3
+
+P: /devices/platform/reg-dummy
+E: DEVPATH=/devices/platform/reg-dummy
+E: DRIVER=reg-dummy
+E: MODALIAS=platform:reg-dummy
+E: SUBSYSTEM=platform
+E: UDEV_LOG=3
+
+P: /devices/platform/serial8250
+E: DEVPATH=/devices/platform/serial8250
+E: DRIVER=serial8250
+E: MODALIAS=platform:serial8250
+E: SUBSYSTEM=platform
+E: UDEV_LOG=3
+
+P: /devices/platform/serial8250/tty/ttyS1
+N: ttyS1
+E: DEVNAME=/dev/ttyS1
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS1
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=65
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11076282
+
+P: /devices/platform/serial8250/tty/ttyS10
+N: ttyS10
+E: DEVNAME=/dev/ttyS10
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS10
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=74
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11076652
+
+P: /devices/platform/serial8250/tty/ttyS11
+N: ttyS11
+E: DEVNAME=/dev/ttyS11
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS11
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=75
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11077022
+
+P: /devices/platform/serial8250/tty/ttyS12
+N: ttyS12
+E: DEVNAME=/dev/ttyS12
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS12
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=76
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11077389
+
+P: /devices/platform/serial8250/tty/ttyS13
+N: ttyS13
+E: DEVNAME=/dev/ttyS13
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS13
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=77
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11077756
+
+P: /devices/platform/serial8250/tty/ttyS14
+N: ttyS14
+E: DEVNAME=/dev/ttyS14
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS14
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=78
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11078123
+
+P: /devices/platform/serial8250/tty/ttyS15
+N: ttyS15
+E: DEVNAME=/dev/ttyS15
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS15
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=79
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11078501
+
+P: /devices/platform/serial8250/tty/ttyS16
+N: ttyS16
+E: DEVNAME=/dev/ttyS16
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS16
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=80
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11078869
+
+P: /devices/platform/serial8250/tty/ttyS17
+N: ttyS17
+E: DEVNAME=/dev/ttyS17
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS17
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=81
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11079239
+
+P: /devices/platform/serial8250/tty/ttyS18
+N: ttyS18
+E: DEVNAME=/dev/ttyS18
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS18
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=82
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11079606
+
+P: /devices/platform/serial8250/tty/ttyS19
+N: ttyS19
+E: DEVNAME=/dev/ttyS19
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS19
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=83
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11079971
+
+P: /devices/platform/serial8250/tty/ttyS2
+N: ttyS2
+E: DEVNAME=/dev/ttyS2
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS2
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=66
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11080343
+
+P: /devices/platform/serial8250/tty/ttyS20
+N: ttyS20
+E: DEVNAME=/dev/ttyS20
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS20
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=84
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11080574
+
+P: /devices/platform/serial8250/tty/ttyS21
+N: ttyS21
+E: DEVNAME=/dev/ttyS21
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS21
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=85
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11081102
+
+P: /devices/platform/serial8250/tty/ttyS22
+N: ttyS22
+E: DEVNAME=/dev/ttyS22
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS22
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=86
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11081313
+
+P: /devices/platform/serial8250/tty/ttyS23
+N: ttyS23
+E: DEVNAME=/dev/ttyS23
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS23
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=87
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11081680
+
+P: /devices/platform/serial8250/tty/ttyS24
+N: ttyS24
+E: DEVNAME=/dev/ttyS24
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS24
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=88
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11082194
+
+P: /devices/platform/serial8250/tty/ttyS25
+N: ttyS25
+E: DEVNAME=/dev/ttyS25
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS25
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=89
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11082405
+
+P: /devices/platform/serial8250/tty/ttyS26
+N: ttyS26
+E: DEVNAME=/dev/ttyS26
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS26
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=90
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11082771
+
+P: /devices/platform/serial8250/tty/ttyS27
+N: ttyS27
+E: DEVNAME=/dev/ttyS27
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS27
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=91
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11083284
+
+P: /devices/platform/serial8250/tty/ttyS28
+N: ttyS28
+E: DEVNAME=/dev/ttyS28
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS28
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=92
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11083495
+
+P: /devices/platform/serial8250/tty/ttyS29
+N: ttyS29
+E: DEVNAME=/dev/ttyS29
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS29
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=93
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11083862
+
+P: /devices/platform/serial8250/tty/ttyS3
+N: ttyS3
+E: DEVNAME=/dev/ttyS3
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS3
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=67
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11084232
+
+P: /devices/platform/serial8250/tty/ttyS30
+N: ttyS30
+E: DEVNAME=/dev/ttyS30
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS30
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=94
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11084746
+
+P: /devices/platform/serial8250/tty/ttyS31
+N: ttyS31
+E: DEVNAME=/dev/ttyS31
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS31
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=95
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11084956
+
+P: /devices/platform/serial8250/tty/ttyS4
+N: ttyS4
+E: DEVNAME=/dev/ttyS4
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS4
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=68
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11085326
+
+P: /devices/platform/serial8250/tty/ttyS5
+N: ttyS5
+E: DEVNAME=/dev/ttyS5
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS5
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=69
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11085842
+
+P: /devices/platform/serial8250/tty/ttyS6
+N: ttyS6
+E: DEVNAME=/dev/ttyS6
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS6
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=70
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11086053
+
+P: /devices/platform/serial8250/tty/ttyS7
+N: ttyS7
+E: DEVNAME=/dev/ttyS7
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS7
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=71
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11086421
+
+P: /devices/platform/serial8250/tty/ttyS8
+N: ttyS8
+E: DEVNAME=/dev/ttyS8
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS8
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=72
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11086924
+
+P: /devices/platform/serial8250/tty/ttyS9
+N: ttyS9
+E: DEVNAME=/dev/ttyS9
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS9
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=73
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11087297
+
+P: /devices/platform/vesafb.0
+E: DEVPATH=/devices/platform/vesafb.0
+E: DRIVER=vesafb
+E: MODALIAS=platform:vesafb
+E: SUBSYSTEM=platform
+E: UDEV_LOG=3
+
+P: /devices/platform/vesafb.0/graphics/fb0
+N: fb0
+E: DEVNAME=/dev/fb0
+E: DEVPATH=/devices/platform/vesafb.0/graphics/fb0
+E: MAJOR=29
+E: MINOR=0
+E: PRIMARY_DEVICE_FOR_DISPLAY=1
+E: SUBSYSTEM=graphics
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=12128933
+
+P: /devices/pnp0/00:00
+E: DEVPATH=/devices/pnp0/00:00
+E: SUBSYSTEM=pnp
+E: UDEV_LOG=3
+
+P: /devices/pnp0/00:01
+E: DEVPATH=/devices/pnp0/00:01
+E: DRIVER=system
+E: SUBSYSTEM=pnp
+E: UDEV_LOG=3
+
+P: /devices/pnp0/00:02
+E: DEVPATH=/devices/pnp0/00:02
+E: SUBSYSTEM=pnp
+E: UDEV_LOG=3
+
+P: /devices/pnp0/00:03
+E: DEVPATH=/devices/pnp0/00:03
+E: DRIVER=rtc_cmos
+E: SUBSYSTEM=pnp
+E: UDEV_LOG=3
+
+P: /devices/pnp0/00:03/rtc/rtc0
+N: rtc0
+S: rtc
+E: DEVLINKS=/dev/rtc
+E: DEVNAME=/dev/rtc0
+E: DEVPATH=/devices/pnp0/00:03/rtc/rtc0
+E: MAJOR=254
+E: MINOR=0
+E: SUBSYSTEM=rtc
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1472485
+
+P: /devices/pnp0/00:04
+E: DEVPATH=/devices/pnp0/00:04
+E: SUBSYSTEM=pnp
+E: UDEV_LOG=3
+
+P: /devices/pnp0/00:05
+E: DEVPATH=/devices/pnp0/00:05
+E: SUBSYSTEM=pnp
+E: UDEV_LOG=3
+
+P: /devices/pnp0/00:06
+E: DEVPATH=/devices/pnp0/00:06
+E: SUBSYSTEM=pnp
+E: UDEV_LOG=3
+
+P: /devices/pnp0/00:07
+E: DEVPATH=/devices/pnp0/00:07
+E: DRIVER=system
+E: SUBSYSTEM=pnp
+E: UDEV_LOG=3
+
+P: /devices/pnp0/00:08
+E: DEVPATH=/devices/pnp0/00:08
+E: DRIVER=system
+E: SUBSYSTEM=pnp
+E: UDEV_LOG=3
+
+P: /devices/pnp0/00:09
+E: DEVPATH=/devices/pnp0/00:09
+E: SUBSYSTEM=pnp
+E: UDEV_LOG=3
+
+P: /devices/pnp0/00:0a
+E: DEVPATH=/devices/pnp0/00:0a
+E: SUBSYSTEM=pnp
+E: UDEV_LOG=3
+
+P: /devices/pnp0/00:0b
+E: DEVPATH=/devices/pnp0/00:0b
+E: DRIVER=system
+E: SUBSYSTEM=pnp
+E: UDEV_LOG=3
+
+P: /devices/pnp0/00:0c
+E: DEVPATH=/devices/pnp0/00:0c
+E: DRIVER=serial
+E: SUBSYSTEM=pnp
+E: UDEV_LOG=3
+
+P: /devices/pnp0/00:0c/tty/ttyS0
+N: ttyS0
+E: DEVNAME=/dev/ttyS0
+E: DEVPATH=/devices/pnp0/00:0c/tty/ttyS0
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=64
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11123432
+
+P: /devices/pnp0/00:0d
+E: DEVPATH=/devices/pnp0/00:0d
+E: DRIVER=system
+E: SUBSYSTEM=pnp
+E: UDEV_LOG=3
+
+P: /devices/pnp0/00:0e
+E: DEVPATH=/devices/pnp0/00:0e
+E: DRIVER=system
+E: SUBSYSTEM=pnp
+E: UDEV_LOG=3
+
+P: /devices/pnp0/00:0f
+E: DEVPATH=/devices/pnp0/00:0f
+E: DRIVER=system
+E: SUBSYSTEM=pnp
+E: UDEV_LOG=3
+
+P: /devices/software
+E: DEVPATH=/devices/software
+E: SUBSYSTEM=event_source
+E: UDEV_LOG=3
+
+P: /devices/tracepoint
+E: DEVPATH=/devices/tracepoint
+E: SUBSYSTEM=event_source
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/0:20
+E: DEVPATH=/devices/virtual/bdi/0:20
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/11:0
+E: DEVPATH=/devices/virtual/bdi/11:0
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/11:1
+E: DEVPATH=/devices/virtual/bdi/11:1
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/1:0
+E: DEVPATH=/devices/virtual/bdi/1:0
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/1:1
+E: DEVPATH=/devices/virtual/bdi/1:1
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/1:10
+E: DEVPATH=/devices/virtual/bdi/1:10
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/1:11
+E: DEVPATH=/devices/virtual/bdi/1:11
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/1:12
+E: DEVPATH=/devices/virtual/bdi/1:12
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/1:13
+E: DEVPATH=/devices/virtual/bdi/1:13
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/1:14
+E: DEVPATH=/devices/virtual/bdi/1:14
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/1:15
+E: DEVPATH=/devices/virtual/bdi/1:15
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/1:2
+E: DEVPATH=/devices/virtual/bdi/1:2
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/1:3
+E: DEVPATH=/devices/virtual/bdi/1:3
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/1:4
+E: DEVPATH=/devices/virtual/bdi/1:4
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/1:5
+E: DEVPATH=/devices/virtual/bdi/1:5
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/1:6
+E: DEVPATH=/devices/virtual/bdi/1:6
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/1:7
+E: DEVPATH=/devices/virtual/bdi/1:7
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/1:8
+E: DEVPATH=/devices/virtual/bdi/1:8
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/1:9
+E: DEVPATH=/devices/virtual/bdi/1:9
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/2:0
+E: DEVPATH=/devices/virtual/bdi/2:0
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/7:0
+E: DEVPATH=/devices/virtual/bdi/7:0
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/7:1
+E: DEVPATH=/devices/virtual/bdi/7:1
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/7:2
+E: DEVPATH=/devices/virtual/bdi/7:2
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/7:3
+E: DEVPATH=/devices/virtual/bdi/7:3
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/7:4
+E: DEVPATH=/devices/virtual/bdi/7:4
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/7:5
+E: DEVPATH=/devices/virtual/bdi/7:5
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/7:6
+E: DEVPATH=/devices/virtual/bdi/7:6
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/7:7
+E: DEVPATH=/devices/virtual/bdi/7:7
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/8:0
+E: DEVPATH=/devices/virtual/bdi/8:0
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/8:16
+E: DEVPATH=/devices/virtual/bdi/8:16
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/8:32
+E: DEVPATH=/devices/virtual/bdi/8:32
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/bdi/default
+E: DEVPATH=/devices/virtual/bdi/default
+E: SUBSYSTEM=bdi
+E: UDEV_LOG=3
+
+P: /devices/virtual/block/loop0
+N: loop0
+E: DEVNAME=/dev/loop0
+E: DEVPATH=/devices/virtual/block/loop0
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=0
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: UDISKS_PRESENTATION_NOPOLICY=1
+E: USEC_INITIALIZED=1407929
+
+P: /devices/virtual/block/loop1
+N: loop1
+E: DEVNAME=/dev/loop1
+E: DEVPATH=/devices/virtual/block/loop1
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=1
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: UDISKS_PRESENTATION_NOPOLICY=1
+E: USEC_INITIALIZED=1412043
+
+P: /devices/virtual/block/loop2
+N: loop2
+E: DEVNAME=/dev/loop2
+E: DEVPATH=/devices/virtual/block/loop2
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=2
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: UDISKS_PRESENTATION_NOPOLICY=1
+E: USEC_INITIALIZED=1412140
+
+P: /devices/virtual/block/loop3
+N: loop3
+E: DEVNAME=/dev/loop3
+E: DEVPATH=/devices/virtual/block/loop3
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=3
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: UDISKS_PRESENTATION_NOPOLICY=1
+E: USEC_INITIALIZED=1412229
+
+P: /devices/virtual/block/loop4
+N: loop4
+E: DEVNAME=/dev/loop4
+E: DEVPATH=/devices/virtual/block/loop4
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=4
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: UDISKS_PRESENTATION_NOPOLICY=1
+E: USEC_INITIALIZED=1412318
+
+P: /devices/virtual/block/loop5
+N: loop5
+E: DEVNAME=/dev/loop5
+E: DEVPATH=/devices/virtual/block/loop5
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=5
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: UDISKS_PRESENTATION_NOPOLICY=1
+E: USEC_INITIALIZED=1412406
+
+P: /devices/virtual/block/loop6
+N: loop6
+E: DEVNAME=/dev/loop6
+E: DEVPATH=/devices/virtual/block/loop6
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=6
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: UDISKS_PRESENTATION_NOPOLICY=1
+E: USEC_INITIALIZED=1412486
+
+P: /devices/virtual/block/loop7
+N: loop7
+E: DEVNAME=/dev/loop7
+E: DEVPATH=/devices/virtual/block/loop7
+E: DEVTYPE=disk
+E: MAJOR=7
+E: MINOR=7
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: UDISKS_PRESENTATION_NOPOLICY=1
+E: USEC_INITIALIZED=1412573
+
+P: /devices/virtual/block/ram0
+N: ram0
+E: DEVNAME=/dev/ram0
+E: DEVPATH=/devices/virtual/block/ram0
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=0
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1412665
+
+P: /devices/virtual/block/ram1
+N: ram1
+E: DEVNAME=/dev/ram1
+E: DEVPATH=/devices/virtual/block/ram1
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=1
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1412753
+
+P: /devices/virtual/block/ram10
+N: ram10
+E: DEVNAME=/dev/ram10
+E: DEVPATH=/devices/virtual/block/ram10
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=10
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1412837
+
+P: /devices/virtual/block/ram11
+N: ram11
+E: DEVNAME=/dev/ram11
+E: DEVPATH=/devices/virtual/block/ram11
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=11
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1412935
+
+P: /devices/virtual/block/ram12
+N: ram12
+E: DEVNAME=/dev/ram12
+E: DEVPATH=/devices/virtual/block/ram12
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=12
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1413018
+
+P: /devices/virtual/block/ram13
+N: ram13
+E: DEVNAME=/dev/ram13
+E: DEVPATH=/devices/virtual/block/ram13
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=13
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1413103
+
+P: /devices/virtual/block/ram14
+N: ram14
+E: DEVNAME=/dev/ram14
+E: DEVPATH=/devices/virtual/block/ram14
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=14
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1413205
+
+P: /devices/virtual/block/ram15
+N: ram15
+E: DEVNAME=/dev/ram15
+E: DEVPATH=/devices/virtual/block/ram15
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=15
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1413293
+
+P: /devices/virtual/block/ram2
+N: ram2
+E: DEVNAME=/dev/ram2
+E: DEVPATH=/devices/virtual/block/ram2
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=2
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1413385
+
+P: /devices/virtual/block/ram3
+N: ram3
+E: DEVNAME=/dev/ram3
+E: DEVPATH=/devices/virtual/block/ram3
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=3
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1413485
+
+P: /devices/virtual/block/ram4
+N: ram4
+E: DEVNAME=/dev/ram4
+E: DEVPATH=/devices/virtual/block/ram4
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=4
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1413583
+
+P: /devices/virtual/block/ram5
+N: ram5
+E: DEVNAME=/dev/ram5
+E: DEVPATH=/devices/virtual/block/ram5
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=5
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1413670
+
+P: /devices/virtual/block/ram6
+N: ram6
+E: DEVNAME=/dev/ram6
+E: DEVPATH=/devices/virtual/block/ram6
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=6
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1413770
+
+P: /devices/virtual/block/ram7
+N: ram7
+E: DEVNAME=/dev/ram7
+E: DEVPATH=/devices/virtual/block/ram7
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=7
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1413870
+
+P: /devices/virtual/block/ram8
+N: ram8
+E: DEVNAME=/dev/ram8
+E: DEVPATH=/devices/virtual/block/ram8
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=8
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1413961
+
+P: /devices/virtual/block/ram9
+N: ram9
+E: DEVNAME=/dev/ram9
+E: DEVPATH=/devices/virtual/block/ram9
+E: DEVTYPE=disk
+E: MAJOR=1
+E: MINOR=9
+E: SUBSYSTEM=block
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=1414060
+
+P: /devices/virtual/dmi/id
+E: DEVPATH=/devices/virtual/dmi/id
+E: MODALIAS=dmi:bvnAmericanMegatrendsInc.:bvr2102:bd02/23/2009:svnSystemmanufacturer:pnSystemProductName:pvrSystemVersion:rvnASUSTeKComputerINC.:rnP5Q-PRO:rvrRev1.xx:cvnChassisManufacture:ct3:cvrChassisVersion:
+E: SUBSYSTEM=dmi
+E: UDEV_LOG=3
+
+P: /devices/virtual/graphics/fbcon
+E: DEVPATH=/devices/virtual/graphics/fbcon
+E: SUBSYSTEM=graphics
+E: UDEV_LOG=3
+
+P: /devices/virtual/input/mice
+N: input/mice
+E: DEVNAME=/dev/input/mice
+E: DEVPATH=/devices/virtual/input/mice
+E: MAJOR=13
+E: MINOR=63
+E: SUBSYSTEM=input
+E: UDEV_LOG=3
+
+P: /devices/virtual/mem/full
+N: full
+E: DEVMODE=0666
+E: DEVNAME=/dev/full
+E: DEVPATH=/devices/virtual/mem/full
+E: MAJOR=1
+E: MINOR=7
+E: SUBSYSTEM=mem
+E: UDEV_LOG=3
+
+P: /devices/virtual/mem/kmsg
+N: kmsg
+E: DEVNAME=/dev/kmsg
+E: DEVPATH=/devices/virtual/mem/kmsg
+E: MAJOR=1
+E: MINOR=11
+E: SUBSYSTEM=mem
+E: UDEV_LOG=3
+
+P: /devices/virtual/mem/mem
+N: mem
+E: DEVNAME=/dev/mem
+E: DEVPATH=/devices/virtual/mem/mem
+E: MAJOR=1
+E: MINOR=1
+E: SUBSYSTEM=mem
+E: UDEV_LOG=3
+
+P: /devices/virtual/mem/null
+N: null
+E: DEVMODE=0666
+E: DEVNAME=/dev/null
+E: DEVPATH=/devices/virtual/mem/null
+E: MAJOR=1
+E: MINOR=3
+E: SUBSYSTEM=mem
+E: UDEV_LOG=3
+
+P: /devices/virtual/mem/oldmem
+N: oldmem
+E: DEVNAME=/dev/oldmem
+E: DEVPATH=/devices/virtual/mem/oldmem
+E: MAJOR=1
+E: MINOR=12
+E: SUBSYSTEM=mem
+E: UDEV_LOG=3
+
+P: /devices/virtual/mem/port
+N: port
+E: DEVNAME=/dev/port
+E: DEVPATH=/devices/virtual/mem/port
+E: MAJOR=1
+E: MINOR=4
+E: SUBSYSTEM=mem
+E: UDEV_LOG=3
+
+P: /devices/virtual/mem/random
+N: random
+E: DEVMODE=0666
+E: DEVNAME=/dev/random
+E: DEVPATH=/devices/virtual/mem/random
+E: MAJOR=1
+E: MINOR=8
+E: SUBSYSTEM=mem
+E: UDEV_LOG=3
+
+P: /devices/virtual/mem/urandom
+N: urandom
+E: DEVMODE=0666
+E: DEVNAME=/dev/urandom
+E: DEVPATH=/devices/virtual/mem/urandom
+E: MAJOR=1
+E: MINOR=9
+E: SUBSYSTEM=mem
+E: UDEV_LOG=3
+
+P: /devices/virtual/mem/zero
+N: zero
+E: DEVMODE=0666
+E: DEVNAME=/dev/zero
+E: DEVPATH=/devices/virtual/mem/zero
+E: MAJOR=1
+E: MINOR=5
+E: SUBSYSTEM=mem
+E: UDEV_LOG=3
+
+P: /devices/virtual/misc/cpu_dma_latency
+N: cpu_dma_latency
+E: DEVNAME=/dev/cpu_dma_latency
+E: DEVPATH=/devices/virtual/misc/cpu_dma_latency
+E: MAJOR=10
+E: MINOR=60
+E: SUBSYSTEM=misc
+E: UDEV_LOG=3
+
+P: /devices/virtual/misc/device-mapper
+N: mapper/control
+E: DEVNAME=/dev/mapper/control
+E: DEVPATH=/devices/virtual/misc/device-mapper
+E: MAJOR=10
+E: MINOR=236
+E: SUBSYSTEM=misc
+E: UDEV_LOG=3
+
+P: /devices/virtual/misc/ecryptfs
+N: ecryptfs
+E: DEVNAME=/dev/ecryptfs
+E: DEVPATH=/devices/virtual/misc/ecryptfs
+E: MAJOR=10
+E: MINOR=61
+E: SUBSYSTEM=misc
+E: UDEV_LOG=3
+
+P: /devices/virtual/misc/fuse
+N: fuse
+E: DEVNAME=/dev/fuse
+E: DEVPATH=/devices/virtual/misc/fuse
+E: MAJOR=10
+E: MINOR=229
+E: SUBSYSTEM=misc
+E: UDEV_LOG=3
+
+P: /devices/virtual/misc/hpet
+N: hpet
+E: DEVNAME=/dev/hpet
+E: DEVPATH=/devices/virtual/misc/hpet
+E: MAJOR=10
+E: MINOR=228
+E: SUBSYSTEM=misc
+E: UDEV_LOG=3
+
+P: /devices/virtual/misc/loop-control
+N: loop-control
+E: DEVNAME=/dev/loop-control
+E: DEVPATH=/devices/virtual/misc/loop-control
+E: MAJOR=10
+E: MINOR=237
+E: SUBSYSTEM=misc
+E: UDEV_LOG=3
+
+P: /devices/virtual/misc/mcelog
+N: mcelog
+E: DEVNAME=/dev/mcelog
+E: DEVPATH=/devices/virtual/misc/mcelog
+E: MAJOR=10
+E: MINOR=227
+E: SUBSYSTEM=misc
+E: UDEV_LOG=3
+
+P: /devices/virtual/misc/network_latency
+N: network_latency
+E: DEVNAME=/dev/network_latency
+E: DEVPATH=/devices/virtual/misc/network_latency
+E: MAJOR=10
+E: MINOR=59
+E: SUBSYSTEM=misc
+E: UDEV_LOG=3
+
+P: /devices/virtual/misc/network_throughput
+N: network_throughput
+E: DEVNAME=/dev/network_throughput
+E: DEVPATH=/devices/virtual/misc/network_throughput
+E: MAJOR=10
+E: MINOR=58
+E: SUBSYSTEM=misc
+E: UDEV_LOG=3
+
+P: /devices/virtual/misc/psaux
+N: psaux
+E: DEVNAME=/dev/psaux
+E: DEVPATH=/devices/virtual/misc/psaux
+E: MAJOR=10
+E: MINOR=1
+E: SUBSYSTEM=misc
+E: UDEV_LOG=3
+
+P: /devices/virtual/misc/rfkill
+N: rfkill
+E: DEVNAME=/dev/rfkill
+E: DEVPATH=/devices/virtual/misc/rfkill
+E: MAJOR=10
+E: MINOR=62
+E: SUBSYSTEM=misc
+E: TAGS=:udev-acl:
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11175753
+
+P: /devices/virtual/misc/snapshot
+N: snapshot
+E: DEVNAME=/dev/snapshot
+E: DEVPATH=/devices/virtual/misc/snapshot
+E: MAJOR=10
+E: MINOR=231
+E: SUBSYSTEM=misc
+E: UDEV_LOG=3
+
+P: /devices/virtual/misc/tun
+N: net/tun
+E: DEVNAME=/dev/net/tun
+E: DEVPATH=/devices/virtual/misc/tun
+E: MAJOR=10
+E: MINOR=200
+E: SUBSYSTEM=misc
+E: UDEV_LOG=3
+
+P: /devices/virtual/misc/uinput
+N: uinput
+E: DEVNAME=/dev/uinput
+E: DEVPATH=/devices/virtual/misc/uinput
+E: MAJOR=10
+E: MINOR=223
+E: SUBSYSTEM=misc
+E: UDEV_LOG=3
+
+P: /devices/virtual/misc/vga_arbiter
+N: vga_arbiter
+E: DEVNAME=/dev/vga_arbiter
+E: DEVPATH=/devices/virtual/misc/vga_arbiter
+E: MAJOR=10
+E: MINOR=63
+E: SUBSYSTEM=misc
+E: UDEV_LOG=3
+
+P: /devices/virtual/net/lo
+E: DEVPATH=/devices/virtual/net/lo
+E: ID_MM_CANDIDATE=1
+E: IFINDEX=1
+E: INTERFACE=lo
+E: SUBSYSTEM=net
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11176649
+
+P: /devices/virtual/ppp/ppp
+N: ppp
+E: DEVNAME=/dev/ppp
+E: DEVPATH=/devices/virtual/ppp/ppp
+E: MAJOR=108
+E: MINOR=0
+E: SUBSYSTEM=ppp
+E: UDEV_LOG=3
+
+P: /devices/virtual/regulator/regulator.0
+E: DEVPATH=/devices/virtual/regulator/regulator.0
+E: SUBSYSTEM=regulator
+E: UDEV_LOG=3
+
+P: /devices/virtual/sound/seq
+N: snd/seq
+E: DEVNAME=/dev/snd/seq
+E: DEVPATH=/devices/virtual/sound/seq
+E: MAJOR=116
+E: MINOR=1
+E: SUBSYSTEM=sound
+E: TAGS=:udev-acl:
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11219174
+
+P: /devices/virtual/sound/timer
+N: snd/timer
+E: DEVNAME=/dev/snd/timer
+E: DEVPATH=/devices/virtual/sound/timer
+E: MAJOR=116
+E: MINOR=33
+E: SUBSYSTEM=sound
+E: TAGS=:udev-acl:
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11218594
+
+P: /devices/virtual/thermal/cooling_device0
+E: DEVPATH=/devices/virtual/thermal/cooling_device0
+E: SUBSYSTEM=thermal
+E: UDEV_LOG=3
+
+P: /devices/virtual/thermal/cooling_device1
+E: DEVPATH=/devices/virtual/thermal/cooling_device1
+E: SUBSYSTEM=thermal
+E: UDEV_LOG=3
+
+P: /devices/virtual/tty/console
+N: console
+E: DEVNAME=/dev/console
+E: DEVPATH=/devices/virtual/tty/console
+E: ID_MM_CANDIDATE=1
+E: MAJOR=5
+E: MINOR=1
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11198214
+
+P: /devices/virtual/tty/ptmx
+N: ptmx
+E: DEVMODE=0666
+E: DEVNAME=/dev/ptmx
+E: DEVPATH=/devices/virtual/tty/ptmx
+E: ID_MM_CANDIDATE=1
+E: MAJOR=5
+E: MINOR=2
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11198407
+
+P: /devices/virtual/tty/tty
+N: tty
+E: DEVMODE=0666
+E: DEVNAME=/dev/tty
+E: DEVPATH=/devices/virtual/tty/tty
+E: ID_MM_CANDIDATE=1
+E: MAJOR=5
+E: MINOR=0
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11198600
+
+P: /devices/virtual/tty/tty0
+N: tty0
+E: DEVNAME=/dev/tty0
+E: DEVPATH=/devices/virtual/tty/tty0
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=0
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11198795
+
+P: /devices/virtual/tty/tty1
+N: tty1
+E: DEVNAME=/dev/tty1
+E: DEVPATH=/devices/virtual/tty/tty1
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=1
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11199000
+
+P: /devices/virtual/tty/tty10
+N: tty10
+E: DEVNAME=/dev/tty10
+E: DEVPATH=/devices/virtual/tty/tty10
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=10
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11199262
+
+P: /devices/virtual/tty/tty11
+N: tty11
+E: DEVNAME=/dev/tty11
+E: DEVPATH=/devices/virtual/tty/tty11
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=11
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11199290
+
+P: /devices/virtual/tty/tty12
+N: tty12
+E: DEVNAME=/dev/tty12
+E: DEVPATH=/devices/virtual/tty/tty12
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=12
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11199629
+
+P: /devices/virtual/tty/tty13
+N: tty13
+E: DEVNAME=/dev/tty13
+E: DEVPATH=/devices/virtual/tty/tty13
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=13
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11199822
+
+P: /devices/virtual/tty/tty14
+N: tty14
+E: DEVNAME=/dev/tty14
+E: DEVPATH=/devices/virtual/tty/tty14
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=14
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11200017
+
+P: /devices/virtual/tty/tty15
+N: tty15
+E: DEVNAME=/dev/tty15
+E: DEVPATH=/devices/virtual/tty/tty15
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=15
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11200206
+
+P: /devices/virtual/tty/tty16
+N: tty16
+E: DEVNAME=/dev/tty16
+E: DEVPATH=/devices/virtual/tty/tty16
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=16
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11200393
+
+P: /devices/virtual/tty/tty17
+N: tty17
+E: DEVNAME=/dev/tty17
+E: DEVPATH=/devices/virtual/tty/tty17
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=17
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11200579
+
+P: /devices/virtual/tty/tty18
+N: tty18
+E: DEVNAME=/dev/tty18
+E: DEVPATH=/devices/virtual/tty/tty18
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=18
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11200766
+
+P: /devices/virtual/tty/tty19
+N: tty19
+E: DEVNAME=/dev/tty19
+E: DEVPATH=/devices/virtual/tty/tty19
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=19
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11200953
+
+P: /devices/virtual/tty/tty2
+N: tty2
+E: DEVNAME=/dev/tty2
+E: DEVPATH=/devices/virtual/tty/tty2
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=2
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11201140
+
+P: /devices/virtual/tty/tty20
+N: tty20
+E: DEVNAME=/dev/tty20
+E: DEVPATH=/devices/virtual/tty/tty20
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=20
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11201368
+
+P: /devices/virtual/tty/tty21
+N: tty21
+E: DEVNAME=/dev/tty21
+E: DEVPATH=/devices/virtual/tty/tty21
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=21
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11201556
+
+P: /devices/virtual/tty/tty22
+N: tty22
+E: DEVNAME=/dev/tty22
+E: DEVPATH=/devices/virtual/tty/tty22
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=22
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11201745
+
+P: /devices/virtual/tty/tty23
+N: tty23
+E: DEVNAME=/dev/tty23
+E: DEVPATH=/devices/virtual/tty/tty23
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=23
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11201932
+
+P: /devices/virtual/tty/tty24
+N: tty24
+E: DEVNAME=/dev/tty24
+E: DEVPATH=/devices/virtual/tty/tty24
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=24
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11202118
+
+P: /devices/virtual/tty/tty25
+N: tty25
+E: DEVNAME=/dev/tty25
+E: DEVPATH=/devices/virtual/tty/tty25
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=25
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11202306
+
+P: /devices/virtual/tty/tty26
+N: tty26
+E: DEVNAME=/dev/tty26
+E: DEVPATH=/devices/virtual/tty/tty26
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=26
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11202516
+
+P: /devices/virtual/tty/tty27
+N: tty27
+E: DEVNAME=/dev/tty27
+E: DEVPATH=/devices/virtual/tty/tty27
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=27
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11202722
+
+P: /devices/virtual/tty/tty28
+N: tty28
+E: DEVNAME=/dev/tty28
+E: DEVPATH=/devices/virtual/tty/tty28
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=28
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11202908
+
+P: /devices/virtual/tty/tty29
+N: tty29
+E: DEVNAME=/dev/tty29
+E: DEVPATH=/devices/virtual/tty/tty29
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=29
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11203095
+
+P: /devices/virtual/tty/tty3
+N: tty3
+E: DEVNAME=/dev/tty3
+E: DEVPATH=/devices/virtual/tty/tty3
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=3
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11203283
+
+P: /devices/virtual/tty/tty30
+N: tty30
+E: DEVNAME=/dev/tty30
+E: DEVPATH=/devices/virtual/tty/tty30
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=30
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11203532
+
+P: /devices/virtual/tty/tty31
+N: tty31
+E: DEVNAME=/dev/tty31
+E: DEVPATH=/devices/virtual/tty/tty31
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=31
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11203724
+
+P: /devices/virtual/tty/tty32
+N: tty32
+E: DEVNAME=/dev/tty32
+E: DEVPATH=/devices/virtual/tty/tty32
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=32
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11203912
+
+P: /devices/virtual/tty/tty33
+N: tty33
+E: DEVNAME=/dev/tty33
+E: DEVPATH=/devices/virtual/tty/tty33
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=33
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11204795
+
+P: /devices/virtual/tty/tty34
+N: tty34
+E: DEVNAME=/dev/tty34
+E: DEVPATH=/devices/virtual/tty/tty34
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=34
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11204988
+
+P: /devices/virtual/tty/tty35
+N: tty35
+E: DEVNAME=/dev/tty35
+E: DEVPATH=/devices/virtual/tty/tty35
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=35
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11205176
+
+P: /devices/virtual/tty/tty36
+N: tty36
+E: DEVNAME=/dev/tty36
+E: DEVPATH=/devices/virtual/tty/tty36
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=36
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11205364
+
+P: /devices/virtual/tty/tty37
+N: tty37
+E: DEVNAME=/dev/tty37
+E: DEVPATH=/devices/virtual/tty/tty37
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=37
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11205552
+
+P: /devices/virtual/tty/tty38
+N: tty38
+E: DEVNAME=/dev/tty38
+E: DEVPATH=/devices/virtual/tty/tty38
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=38
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11205739
+
+P: /devices/virtual/tty/tty39
+N: tty39
+E: DEVNAME=/dev/tty39
+E: DEVPATH=/devices/virtual/tty/tty39
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=39
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11206321
+
+P: /devices/virtual/tty/tty4
+N: tty4
+E: DEVNAME=/dev/tty4
+E: DEVPATH=/devices/virtual/tty/tty4
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=4
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11206708
+
+P: /devices/virtual/tty/tty40
+N: tty40
+E: DEVNAME=/dev/tty40
+E: DEVPATH=/devices/virtual/tty/tty40
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=40
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11206978
+
+P: /devices/virtual/tty/tty41
+N: tty41
+E: DEVNAME=/dev/tty41
+E: DEVPATH=/devices/virtual/tty/tty41
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=41
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11207717
+
+P: /devices/virtual/tty/tty42
+N: tty42
+E: DEVNAME=/dev/tty42
+E: DEVPATH=/devices/virtual/tty/tty42
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=42
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11209222
+
+P: /devices/virtual/tty/tty43
+N: tty43
+E: DEVNAME=/dev/tty43
+E: DEVPATH=/devices/virtual/tty/tty43
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=43
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11209592
+
+P: /devices/virtual/tty/tty44
+N: tty44
+E: DEVNAME=/dev/tty44
+E: DEVPATH=/devices/virtual/tty/tty44
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=44
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11209930
+
+P: /devices/virtual/tty/tty45
+N: tty45
+E: DEVNAME=/dev/tty45
+E: DEVPATH=/devices/virtual/tty/tty45
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=45
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11210287
+
+P: /devices/virtual/tty/tty46
+N: tty46
+E: DEVNAME=/dev/tty46
+E: DEVPATH=/devices/virtual/tty/tty46
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=46
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11210607
+
+P: /devices/virtual/tty/tty47
+N: tty47
+E: DEVNAME=/dev/tty47
+E: DEVPATH=/devices/virtual/tty/tty47
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=47
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11210926
+
+P: /devices/virtual/tty/tty48
+N: tty48
+E: DEVNAME=/dev/tty48
+E: DEVPATH=/devices/virtual/tty/tty48
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=48
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11211245
+
+P: /devices/virtual/tty/tty49
+N: tty49
+E: DEVNAME=/dev/tty49
+E: DEVPATH=/devices/virtual/tty/tty49
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=49
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11211552
+
+P: /devices/virtual/tty/tty5
+N: tty5
+E: DEVNAME=/dev/tty5
+E: DEVPATH=/devices/virtual/tty/tty5
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=5
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11212195
+
+P: /devices/virtual/tty/tty50
+N: tty50
+E: DEVNAME=/dev/tty50
+E: DEVPATH=/devices/virtual/tty/tty50
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=50
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11211761
+
+P: /devices/virtual/tty/tty51
+N: tty51
+E: DEVNAME=/dev/tty51
+E: DEVPATH=/devices/virtual/tty/tty51
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=51
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11211930
+
+P: /devices/virtual/tty/tty52
+N: tty52
+E: DEVNAME=/dev/tty52
+E: DEVPATH=/devices/virtual/tty/tty52
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=52
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11212262
+
+P: /devices/virtual/tty/tty53
+N: tty53
+E: DEVNAME=/dev/tty53
+E: DEVPATH=/devices/virtual/tty/tty53
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=53
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11212431
+
+P: /devices/virtual/tty/tty54
+N: tty54
+E: DEVNAME=/dev/tty54
+E: DEVPATH=/devices/virtual/tty/tty54
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=54
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11212597
+
+P: /devices/virtual/tty/tty55
+N: tty55
+E: DEVNAME=/dev/tty55
+E: DEVPATH=/devices/virtual/tty/tty55
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=55
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11212765
+
+P: /devices/virtual/tty/tty56
+N: tty56
+E: DEVNAME=/dev/tty56
+E: DEVPATH=/devices/virtual/tty/tty56
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=56
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11212932
+
+P: /devices/virtual/tty/tty57
+N: tty57
+E: DEVNAME=/dev/tty57
+E: DEVPATH=/devices/virtual/tty/tty57
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=57
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11213099
+
+P: /devices/virtual/tty/tty58
+N: tty58
+E: DEVNAME=/dev/tty58
+E: DEVPATH=/devices/virtual/tty/tty58
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=58
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11213266
+
+P: /devices/virtual/tty/tty59
+N: tty59
+E: DEVNAME=/dev/tty59
+E: DEVPATH=/devices/virtual/tty/tty59
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=59
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11213433
+
+P: /devices/virtual/tty/tty6
+N: tty6
+E: DEVNAME=/dev/tty6
+E: DEVPATH=/devices/virtual/tty/tty6
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=6
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11213600
+
+P: /devices/virtual/tty/tty60
+N: tty60
+E: DEVNAME=/dev/tty60
+E: DEVPATH=/devices/virtual/tty/tty60
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=60
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11214095
+
+P: /devices/virtual/tty/tty61
+N: tty61
+E: DEVNAME=/dev/tty61
+E: DEVPATH=/devices/virtual/tty/tty61
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=61
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11214267
+
+P: /devices/virtual/tty/tty62
+N: tty62
+E: DEVNAME=/dev/tty62
+E: DEVPATH=/devices/virtual/tty/tty62
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=62
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11214435
+
+P: /devices/virtual/tty/tty63
+N: tty63
+E: DEVNAME=/dev/tty63
+E: DEVPATH=/devices/virtual/tty/tty63
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=63
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11214602
+
+P: /devices/virtual/tty/tty7
+N: tty7
+E: DEVNAME=/dev/tty7
+E: DEVPATH=/devices/virtual/tty/tty7
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=7
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11214769
+
+P: /devices/virtual/tty/tty8
+N: tty8
+E: DEVNAME=/dev/tty8
+E: DEVPATH=/devices/virtual/tty/tty8
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=8
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11214936
+
+P: /devices/virtual/tty/tty9
+N: tty9
+E: DEVNAME=/dev/tty9
+E: DEVPATH=/devices/virtual/tty/tty9
+E: ID_MM_CANDIDATE=1
+E: MAJOR=4
+E: MINOR=9
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11215102
+
+P: /devices/virtual/tty/ttyprintk
+N: ttyprintk
+E: DEVNAME=/dev/ttyprintk
+E: DEVPATH=/devices/virtual/tty/ttyprintk
+E: ID_MM_CANDIDATE=1
+E: MAJOR=5
+E: MINOR=3
+E: SUBSYSTEM=tty
+E: UDEV_LOG=3
+E: USEC_INITIALIZED=11215268
+
+P: /devices/virtual/usbmon/usbmon0
+N: usbmon0
+E: DEVNAME=/dev/usbmon0
+E: DEVPATH=/devices/virtual/usbmon/usbmon0
+E: MAJOR=252
+E: MINOR=0
+E: SUBSYSTEM=usbmon
+E: UDEV_LOG=3
+
+P: /devices/virtual/vc/vcs
+N: vcs
+E: DEVNAME=/dev/vcs
+E: DEVPATH=/devices/virtual/vc/vcs
+E: MAJOR=7
+E: MINOR=0
+E: SUBSYSTEM=vc
+E: UDEV_LOG=3
+
+P: /devices/virtual/vc/vcs1
+N: vcs1
+E: DEVNAME=/dev/vcs1
+E: DEVPATH=/devices/virtual/vc/vcs1
+E: MAJOR=7
+E: MINOR=1
+E: SUBSYSTEM=vc
+E: UDEV_LOG=3
+
+P: /devices/virtual/vc/vcs2
+N: vcs2
+E: DEVNAME=/dev/vcs2
+E: DEVPATH=/devices/virtual/vc/vcs2
+E: MAJOR=7
+E: MINOR=2
+E: SUBSYSTEM=vc
+E: UDEV_LOG=3
+
+P: /devices/virtual/vc/vcs3
+N: vcs3
+E: DEVNAME=/dev/vcs3
+E: DEVPATH=/devices/virtual/vc/vcs3
+E: MAJOR=7
+E: MINOR=3
+E: SUBSYSTEM=vc
+E: UDEV_LOG=3
+
+P: /devices/virtual/vc/vcs4
+N: vcs4
+E: DEVNAME=/dev/vcs4
+E: DEVPATH=/devices/virtual/vc/vcs4
+E: MAJOR=7
+E: MINOR=4
+E: SUBSYSTEM=vc
+E: UDEV_LOG=3
+
+P: /devices/virtual/vc/vcs5
+N: vcs5
+E: DEVNAME=/dev/vcs5
+E: DEVPATH=/devices/virtual/vc/vcs5
+E: MAJOR=7
+E: MINOR=5
+E: SUBSYSTEM=vc
+E: UDEV_LOG=3
+
+P: /devices/virtual/vc/vcs6
+N: vcs6
+E: DEVNAME=/dev/vcs6
+E: DEVPATH=/devices/virtual/vc/vcs6
+E: MAJOR=7
+E: MINOR=6
+E: SUBSYSTEM=vc
+E: UDEV_LOG=3
+
+P: /devices/virtual/vc/vcsa
+N: vcsa
+E: DEVNAME=/dev/vcsa
+E: DEVPATH=/devices/virtual/vc/vcsa
+E: MAJOR=7
+E: MINOR=128
+E: SUBSYSTEM=vc
+E: UDEV_LOG=3
+
+P: /devices/virtual/vc/vcsa1
+N: vcsa1
+E: DEVNAME=/dev/vcsa1
+E: DEVPATH=/devices/virtual/vc/vcsa1
+E: MAJOR=7
+E: MINOR=129
+E: SUBSYSTEM=vc
+E: UDEV_LOG=3
+
+P: /devices/virtual/vc/vcsa2
+N: vcsa2
+E: DEVNAME=/dev/vcsa2
+E: DEVPATH=/devices/virtual/vc/vcsa2
+E: MAJOR=7
+E: MINOR=130
+E: SUBSYSTEM=vc
+E: UDEV_LOG=3
+
+P: /devices/virtual/vc/vcsa3
+N: vcsa3
+E: DEVNAME=/dev/vcsa3
+E: DEVPATH=/devices/virtual/vc/vcsa3
+E: MAJOR=7
+E: MINOR=131
+E: SUBSYSTEM=vc
+E: UDEV_LOG=3
+
+P: /devices/virtual/vc/vcsa4
+N: vcsa4
+E: DEVNAME=/dev/vcsa4
+E: DEVPATH=/devices/virtual/vc/vcsa4
+E: MAJOR=7
+E: MINOR=132
+E: SUBSYSTEM=vc
+E: UDEV_LOG=3
+
+P: /devices/virtual/vc/vcsa5
+N: vcsa5
+E: DEVNAME=/dev/vcsa5
+E: DEVPATH=/devices/virtual/vc/vcsa5
+E: MAJOR=7
+E: MINOR=133
+E: SUBSYSTEM=vc
+E: UDEV_LOG=3
+
+P: /devices/virtual/vc/vcsa6
+N: vcsa6
+E: DEVNAME=/dev/vcsa6
+E: DEVPATH=/devices/virtual/vc/vcsa6
+E: MAJOR=7
+E: MINOR=134
+E: SUBSYSTEM=vc
+E: UDEV_LOG=3
+
+P: /devices/virtual/vtconsole/vtcon0
+E: DEVPATH=/devices/virtual/vtconsole/vtcon0
+E: SUBSYSTEM=vtconsole
+E: UDEV_LOG=3
+
+P: /devices/virtual/vtconsole/vtcon1
+E: DEVPATH=/devices/virtual/vtconsole/vtcon1
+E: SUBSYSTEM=vtconsole
+E: UDEV_LOG=3
+

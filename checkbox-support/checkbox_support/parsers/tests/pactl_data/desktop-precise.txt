@@ -1,0 +1,696 @@
+Module #0
+	Name: module-device-restore
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Automatically restore the volume/mute state of devices"
+		module.version = "1.1"
+
+Module #1
+	Name: module-stream-restore
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Automatically restore the volume/mute/device state of streams"
+		module.version = "1.1"
+
+Module #2
+	Name: module-card-restore
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Automatically restore profile of cards"
+		module.version = "1.1"
+
+Module #3
+	Name: module-augment-properties
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Augment the property sets of streams with additional static information"
+		module.version = "1.1"
+
+Module #4
+	Name: module-alsa-card
+	Argument: device_id="0" name="pci-0000_00_1b.0" card_name="alsa_card.pci-0000_00_1b.0" namereg_fail=false tsched=yes ignore_dB=no deferred_volume=yes card_properties="module-udev-detect.discovered=1"
+	Usage counter: 2
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "ALSA Card"
+		module.version = "1.1"
+
+Module #5
+	Name: module-udev-detect
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Detect available audio hardware and load matching drivers"
+		module.version = "1.1"
+
+Module #6
+	Name: module-bluetooth-discover
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Joao Paulo Rechi Vita"
+		module.description = "Detect available bluetooth audio devices and load bluetooth audio drivers"
+		module.version = "1.1"
+
+Module #7
+	Name: module-native-protocol-unix
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Native protocol (UNIX sockets)"
+		module.version = "1.1"
+
+Module #8
+	Name: module-gconf
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "GConf Adapter"
+		module.version = "1.1"
+
+Module #9
+	Name: module-default-device-restore
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Automatically restore the default sink and source"
+		module.version = "1.1"
+
+Module #10
+	Name: module-rescue-streams
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "When a sink/source is removed, try to move their streams to the default sink/source"
+		module.version = "1.1"
+
+Module #11
+	Name: module-always-sink
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Colin Guthrie"
+		module.description = "Utrzymywanie zawsze co najmniej jednego wczytanego odpływu nawet, jeśli to pusty odpływ"
+		module.version = "1.1"
+
+Module #12
+	Name: module-intended-roles
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Automatically set device of streams based of intended roles of devices"
+		module.version = "1.1"
+
+Module #13
+	Name: module-suspend-on-idle
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "When a sink/source is idle for too long, suspend it"
+		module.version = "1.1"
+
+Module #14
+	Name: module-console-kit
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Create a client for each ConsoleKit session of this user"
+		module.version = "1.1"
+
+Module #15
+	Name: module-position-event-sounds
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Position event sounds between L and R depending on the position on screen of the widget triggering them."
+		module.version = "1.1"
+
+Module #16
+	Name: module-filter-heuristics
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Colin Guthrie"
+		module.description = "Detect when various filters are desirable"
+		module.version = "1.1"
+
+Module #17
+	Name: module-filter-apply
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Colin Guthrie"
+		module.description = "Load filter sinks automatically when needed"
+		module.version = "1.1"
+
+Module #18
+	Name: module-switch-on-port-available
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		
+
+Module #19
+	Name: module-x11-publish
+	Argument: display=:0
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "X11 credential publisher"
+		module.version = "1.1"
+
+Module #20
+	Name: module-x11-bell
+	Argument: display=:0 sample=bell.ogg
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "X11 bell interceptor"
+		module.version = "1.1"
+
+Module #21
+	Name: module-x11-cork-request
+	Argument: display=:0
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Synthesize X11 media key events when cork/uncork is requested"
+		module.version = "1.1"
+
+Module #22
+	Name: module-x11-xsmp
+	Argument: display=:0 session_manager=local/g580:@/tmp/.ICE-unix/2788,unix/g580:/tmp/.ICE-unix/2788
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "X11 session management"
+		module.version = "1.1"
+
+Module #23
+	Name: module-cli-protocol-unix
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Lennart Poettering"
+		module.description = "Command line interface protocol (UNIX sockets)"
+		module.version = "1.1"
+
+Sink #0
+	State: RUNNING
+	Name: alsa_output.pci-0000_00_1b.0.analog-stereo
+	Description: Wbudowany dźwięk Analogowe stereo
+	Driver: module-alsa-card.c
+	Sample Specification: s16le 2ch 44100Hz
+	Channel Map: front-left,front-right
+	Owner Module: 4
+	Mute: no
+	Volume: 0:  64% 1:  64%
+	        0: -11.67 dB 1: -11.67 dB
+	        balance 0.00
+	Base Volume: 100%
+	             0.00 dB
+	Monitor Source: alsa_output.pci-0000_00_1b.0.analog-stereo.monitor
+	Latency: 86152 usec, configured 86000 usec
+	Flags: HARDWARE HW_MUTE_CTRL HW_VOLUME_CTRL DECIBEL_VOLUME LATENCY 
+	Properties:
+		alsa.resolution_bits = "16"
+		device.api = "alsa"
+		device.class = "sound"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = "CONEXANT Analog"
+		alsa.id = "CONEXANT Analog"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "0"
+		alsa.card = "0"
+		alsa.card_name = "HDA Intel PCH"
+		alsa.long_card_name = "HDA Intel PCH at 0xe0610000 irq 46"
+		alsa.driver_name = "snd_hda_intel"
+		device.bus_path = "pci-0000:00:1b.0"
+		sysfs.path = "/devices/pci0000:00/0000:00:1b.0/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.name = "Panther Point High Definition Audio Controller"
+		device.form_factor = "internal"
+		device.string = "front:0"
+		device.buffering.buffer_size = "65536"
+		device.buffering.fragment_size = "32768"
+		device.access_mode = "mmap+timer"
+		device.profile.name = "analog-stereo"
+		device.profile.description = "Analogowe stereo"
+		device.description = "Wbudowany dźwięk Analogowe stereo"
+		alsa.mixer_name = "Intel PantherPoint HDMI"
+		alsa.components = "HDA:14f1506e,17aac023,00100003 HDA:80862806,80860101,00100000"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Ports:
+		analog-output-speaker: Głośniki (priority: 10000, not available)
+		analog-output-headphones: Słuchawki (priority: 9000, available)
+	Active Port: analog-output-headphones
+	Formats:
+		pcm
+
+Source #0
+	State: IDLE
+	Name: alsa_output.pci-0000_00_1b.0.analog-stereo.monitor
+	Description: Monitor of Wbudowany dźwięk Analogowe stereo
+	Driver: module-alsa-card.c
+	Sample Specification: s16le 2ch 44100Hz
+	Channel Map: front-left,front-right
+	Owner Module: 4
+	Mute: no
+	Volume: 0: 100% 1: 100%
+	        0: 0.00 dB 1: 0.00 dB
+	        balance 0.00
+	Base Volume: 100%
+	             0.00 dB
+	Monitor of Sink: alsa_output.pci-0000_00_1b.0.analog-stereo
+	Latency: 0 usec, configured 371519 usec
+	Flags: DECIBEL_VOLUME LATENCY 
+	Properties:
+		device.description = "Monitor of Wbudowany dźwięk Analogowe stereo"
+		device.class = "monitor"
+		alsa.card = "0"
+		alsa.card_name = "HDA Intel PCH"
+		alsa.long_card_name = "HDA Intel PCH at 0xe0610000 irq 46"
+		alsa.driver_name = "snd_hda_intel"
+		device.bus_path = "pci-0000:00:1b.0"
+		sysfs.path = "/devices/pci0000:00/0000:00:1b.0/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.name = "Panther Point High Definition Audio Controller"
+		device.form_factor = "internal"
+		device.string = "0"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Formats:
+		pcm
+
+Source #1
+	State: RUNNING
+	Name: alsa_input.pci-0000_00_1b.0.analog-stereo
+	Description: Wbudowany dźwięk Analogowe stereo
+	Driver: module-alsa-card.c
+	Sample Specification: s16le 2ch 44100Hz
+	Channel Map: front-left,front-right
+	Owner Module: 4
+	Mute: no
+	Volume: 0: 100% 1: 100%
+	        0: 0.00 dB 1: 0.00 dB
+	        balance 0.00
+	Base Volume:  17%
+	             -46.00 dB
+	Monitor of Sink: n/a
+	Latency: 3425 usec, configured 56000 usec
+	Flags: HARDWARE HW_MUTE_CTRL HW_VOLUME_CTRL DECIBEL_VOLUME LATENCY 
+	Properties:
+		alsa.resolution_bits = "16"
+		device.api = "alsa"
+		device.class = "sound"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = "CONEXANT Analog"
+		alsa.id = "CONEXANT Analog"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "0"
+		alsa.card = "0"
+		alsa.card_name = "HDA Intel PCH"
+		alsa.long_card_name = "HDA Intel PCH at 0xe0610000 irq 46"
+		alsa.driver_name = "snd_hda_intel"
+		device.bus_path = "pci-0000:00:1b.0"
+		sysfs.path = "/devices/pci0000:00/0000:00:1b.0/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.name = "Panther Point High Definition Audio Controller"
+		device.form_factor = "internal"
+		device.string = "front:0"
+		device.buffering.buffer_size = "65536"
+		device.buffering.fragment_size = "32768"
+		device.access_mode = "mmap+timer"
+		device.profile.name = "analog-stereo"
+		device.profile.description = "Analogowe stereo"
+		device.description = "Wbudowany dźwięk Analogowe stereo"
+		alsa.mixer_name = "Intel PantherPoint HDMI"
+		alsa.components = "HDA:14f1506e,17aac023,00100003 HDA:80862806,80860101,00100000"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Ports:
+		analog-input-microphone-internal: Wewnętrzny mikrofon (priority: 8900)
+		analog-input-microphone: Mikrofon (priority: 8700, not available)
+	Active Port: analog-input-microphone-internal
+	Formats:
+		pcm
+
+Sink Input #1249
+	Driver: protocol-native.c
+	Owner Module: 7
+	Client: 173
+	Sink: 0
+	Sample Specification: s16le 2ch 44100Hz
+	Channel Map: front-left,front-right
+	Format: pcm, format.sample_format = "\"s16le\""  format.rate = "44100"  format.channels = "2"  format.channel_map = "\"front-left,front-right\""
+	Mute: no
+	Volume: 0: 100% 1: 100%
+	        0: 0.00 dB 1: 0.00 dB
+	        balance 0.00
+	Buffer Latency: 82811 usec
+	Sink Latency: 85934 usec
+	Resample method: n/a
+	Properties:
+		media.name = "playStream"
+		application.name = "WEBRTC VoiceEngine"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "26"
+		application.process.id = "32440"
+		application.process.user = "zyga"
+		application.process.host = "g580"
+		application.process.binary = "GoogleTalkPlugin"
+		application.language = "pl_PL.UTF-8"
+		window.x11.display = ":0"
+		application.process.machine_id = "71e162f888790906f342d4960000000b"
+		application.process.session_id = "71e162f888790906f342d4960000000b-1369811321.802895-1218540690"
+		module-stream-restore.id = "sink-input-by-application-name:WEBRTC VoiceEngine"
+
+Source Output #11
+	Driver: protocol-native.c
+	Owner Module: 7
+	Client: 173
+	Source: 1
+	Sample Specification: s16le 2ch 44100Hz
+	Channel Map: front-left,front-right
+	Format: pcm, format.sample_format = "\"s16le\""  format.rate = "44100"  format.channels = "2"  format.channel_map = "\"front-left,front-right\""
+	Mute: no
+	Volume: 0: 100% 1: 100%
+	        0: 0.00 dB 1: 0.00 dB
+	        balance 0.00
+	Buffer Latency: 0 usec
+	Source Latency: 3551 usec
+	Resample method: n/a
+	Properties:
+		media.name = "recStream"
+		application.name = "WEBRTC VoiceEngine"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "26"
+		application.process.id = "32440"
+		application.process.user = "zyga"
+		application.process.host = "g580"
+		application.process.binary = "GoogleTalkPlugin"
+		application.language = "pl_PL.UTF-8"
+		window.x11.display = ":0"
+		application.process.machine_id = "71e162f888790906f342d4960000000b"
+		application.process.session_id = "71e162f888790906f342d4960000000b-1369811321.802895-1218540690"
+		module-stream-restore.id = "source-output-by-application-name:WEBRTC VoiceEngine"
+
+Client #0
+	Driver: module-console-kit.c
+	Owner Module: 14
+	Properties:
+		application.name = "ConsoleKit Session /org/freedesktop/ConsoleKit/Session2"
+		console-kit.session = "/org/freedesktop/ConsoleKit/Session2"
+
+Client #1
+	Driver: protocol-native.c
+	Owner Module: 7
+	Properties:
+		application.name = "GNOME Volume Control Media Keys"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "26"
+		application.id = "org.gnome.VolumeControl"
+		application.icon_name = "multimedia-volume-control"
+		application.version = "3.4.2"
+		application.process.id = "2834"
+		application.process.user = "zyga"
+		application.process.host = "g580"
+		application.process.binary = "gnome-settings-daemon"
+		application.language = "pl_PL.UTF-8"
+		window.x11.display = ":0"
+		application.process.machine_id = "71e162f888790906f342d4960000000b"
+		application.process.session_id = "71e162f888790906f342d4960000000b-1369811321.802895-1218540690"
+
+Client #2
+	Driver: protocol-native.c
+	Owner Module: 7
+	Properties:
+		application.name = "Indicator Sound"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "26"
+		application.id = "com.canonical.indicator.sound"
+		application.icon_name = "multimedia-volume-control"
+		application.version = "0.8.5.0"
+		application.process.id = "2949"
+		application.process.user = "zyga"
+		application.process.host = "g580"
+		application.process.binary = "indicator-sound-service"
+		application.language = "pl_PL.UTF-8"
+		window.x11.display = ":0"
+		application.process.machine_id = "71e162f888790906f342d4960000000b"
+		application.process.session_id = "71e162f888790906f342d4960000000b-1369811321.802895-1218540690"
+
+Client #7
+	Driver: module-x11-xsmp.c
+	Owner Module: 22
+	Properties:
+		application.name = "XSMP Session on gnome-session as 104cd3b730ce810ec6136981133027539500000027880053"
+		xsmp.vendor = "gnome-session"
+		xsmp.client.id = "104cd3b730ce810ec6136981133027539500000027880053"
+
+Client #9
+	Driver: protocol-native.c
+	Owner Module: 7
+	Properties:
+		application.name = "Gala"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "26"
+		window.x11.display = ":0"
+		window.x11.screen = "0"
+		application.process.id = "2860"
+		application.process.user = "zyga"
+		application.process.host = "g580"
+		application.process.binary = "gala"
+		application.language = "pl_PL.UTF-8"
+		application.process.machine_id = "71e162f888790906f342d4960000000b"
+		application.process.session_id = "71e162f888790906f342d4960000000b-1369811321.802895-1218540690"
+
+Client #10
+	Driver: protocol-native.c
+	Owner Module: 7
+	Properties:
+		application.name = "gnome-settings-daemon"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "26"
+		window.x11.display = ":0"
+		window.x11.screen = "0"
+		application.process.id = "2834"
+		application.process.user = "zyga"
+		application.process.host = "g580"
+		application.process.binary = "gnome-settings-daemon"
+		application.language = "pl_PL.UTF-8"
+		application.process.machine_id = "71e162f888790906f342d4960000000b"
+		application.process.session_id = "71e162f888790906f342d4960000000b-1369811321.802895-1218540690"
+
+Client #63
+	Driver: protocol-native.c
+	Owner Module: 7
+	Properties:
+		application.name = "libcanberra"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "26"
+		application.version = "0.28"
+		application.id = "org.freedesktop.libcanberra"
+		application.process.id = "2834"
+		application.process.user = "zyga"
+		application.process.host = "g580"
+		application.process.binary = "gnome-settings-daemon"
+		application.language = "pl_PL.UTF-8"
+		window.x11.display = ":0"
+		application.process.machine_id = "71e162f888790906f342d4960000000b"
+		application.process.session_id = "71e162f888790906f342d4960000000b-1369811321.802895-1218540690"
+
+Client #101
+	Driver: protocol-native.c
+	Owner Module: 7
+	Properties:
+		application.name = "Chrome input"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "26"
+		application.process.id = "32091"
+		application.process.user = "zyga"
+		application.process.host = "g580"
+		application.process.binary = "chrome"
+		window.x11.display = ":0"
+		application.language = "pl_PL.UTF-8"
+		application.process.machine_id = "71e162f888790906f342d4960000000b"
+		application.process.session_id = "71e162f888790906f342d4960000000b-1369811321.802895-1218540690"
+
+Client #173
+	Driver: protocol-native.c
+	Owner Module: 7
+	Properties:
+		application.name = "WEBRTC VoiceEngine"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "26"
+		application.process.id = "32440"
+		application.process.user = "zyga"
+		application.process.host = "g580"
+		application.process.binary = "GoogleTalkPlugin"
+		application.language = "pl_PL.UTF-8"
+		window.x11.display = ":0"
+		application.process.machine_id = "71e162f888790906f342d4960000000b"
+		application.process.session_id = "71e162f888790906f342d4960000000b-1369811321.802895-1218540690"
+
+Client #175
+	Driver: protocol-native.c
+	Owner Module: 7
+	Properties:
+		application.name = "WEBRTC VoiceEngine"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "26"
+		application.process.id = "32440"
+		application.process.user = "zyga"
+		application.process.host = "g580"
+		application.process.binary = "GoogleTalkPlugin"
+		application.language = "pl_PL.UTF-8"
+		window.x11.display = ":0"
+		application.process.machine_id = "71e162f888790906f342d4960000000b"
+		application.process.session_id = "71e162f888790906f342d4960000000b-1369811321.802895-1218540690"
+
+Client #195
+	Driver: protocol-native.c
+	Owner Module: 7
+	Properties:
+		application.name = "pactl"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "26"
+		application.process.id = "2078"
+		application.process.user = "zyga"
+		application.process.host = "g580"
+		application.process.binary = "pactl"
+		application.language = "C"
+		window.x11.display = ":0"
+		application.process.machine_id = "71e162f888790906f342d4960000000b"
+		application.process.session_id = "71e162f888790906f342d4960000000b-1369811321.802895-1218540690"
+
+Sample #0
+	Name: bell-window-system
+	Sample Specification: s16le 2ch 44100Hz
+	Channel Map: front-left,front-right
+	Volume: (invalid)
+	        (invalid)
+	        balance 0.00
+	Duration: 0.8s
+	Size: 138.3 KiB
+	Lazy: no
+	Filename: n/a
+	Properties:
+		media.role = "event"
+		application.process.id = "3036"
+		application.name = "pantheon-terminal"
+		event.description = "Zdarzenie sygnału dźwiękowego"
+		event.id = "bell-window-system"
+		media.name = "bell-window-system"
+		media.filename = "/usr/share//sounds/freedesktop/stereo/bell.oga"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "26"
+		window.x11.display = ":0"
+		window.x11.screen = "0"
+		application.process.user = "zyga"
+		application.process.host = "g580"
+		application.process.binary = "gala"
+		application.language = "pl_PL.UTF-8"
+		application.process.machine_id = "71e162f888790906f342d4960000000b"
+		application.process.session_id = "71e162f888790906f342d4960000000b-1369811321.802895-1218540690"
+
+Sample #1
+	Name: audio-volume-change
+	Sample Specification: s16le 2ch 44100Hz
+	Channel Map: front-left,front-right
+	Volume: (invalid)
+	        (invalid)
+	        balance 0.00
+	Duration: 0.1s
+	Size: 11.5 KiB
+	Lazy: no
+	Filename: n/a
+	Properties:
+		media.role = "event"
+		event.description = "volume changed through key press"
+		event.id = "audio-volume-change"
+		media.name = "audio-volume-change"
+		media.filename = "/usr/share//sounds/freedesktop/stereo/audio-volume-change.oga"
+		application.name = "libcanberra"
+		native-protocol.peer = "UNIX socket client"
+		native-protocol.version = "26"
+		application.version = "0.28"
+		application.id = "org.freedesktop.libcanberra"
+		application.process.id = "2834"
+		application.process.user = "zyga"
+		application.process.host = "g580"
+		application.process.binary = "gnome-settings-daemon"
+		application.language = "pl_PL.UTF-8"
+		window.x11.display = ":0"
+		application.process.machine_id = "71e162f888790906f342d4960000000b"
+		application.process.session_id = "71e162f888790906f342d4960000000b-1369811321.802895-1218540690"
+
+Card #0
+	Name: alsa_card.pci-0000_00_1b.0
+	Driver: module-alsa-card.c
+	Owner Module: 4
+	Properties:
+		alsa.card = "0"
+		alsa.card_name = "HDA Intel PCH"
+		alsa.long_card_name = "HDA Intel PCH at 0xe0610000 irq 46"
+		alsa.driver_name = "snd_hda_intel"
+		device.bus_path = "pci-0000:00:1b.0"
+		sysfs.path = "/devices/pci0000:00/0000:00:1b.0/sound/card0"
+		device.bus = "pci"
+		device.vendor.id = "8086"
+		device.vendor.name = "Intel Corporation"
+		device.product.name = "Panther Point High Definition Audio Controller"
+		device.form_factor = "internal"
+		device.string = "0"
+		device.description = "Wbudowany dźwięk"
+		module-udev-detect.discovered = "1"
+		device.icon_name = "audio-card-pci"
+	Profiles:
+		output:analog-stereo: Wyjście Analogowe stereo (sinks: 1, sources: 0, priority. 6000)
+		output:analog-stereo+input:analog-stereo: Analogowy dupleks stereo (sinks: 1, sources: 1, priority. 6060)
+		output:hdmi-stereo: Wyjście Digital Stereo (HDMI) (sinks: 1, sources: 0, priority. 5400)
+		output:hdmi-stereo+input:analog-stereo: Wyjście Digital Stereo (HDMI) + Wejście Analogowe stereo (sinks: 1, sources: 1, priority. 5460)
+		output:hdmi-surround: Wyjście Digital Surround 5.1 (HDMI) (sinks: 1, sources: 0, priority. 300)
+		output:hdmi-surround+input:analog-stereo: Wyjście Digital Surround 5.1 (HDMI) + Wejście Analogowe stereo (sinks: 1, sources: 1, priority. 360)
+		input:analog-stereo: Wejście Analogowe stereo (sinks: 0, sources: 1, priority. 60)
+		off: Wyłącz (sinks: 0, sources: 0, priority. 0)
+	Active Profile: output:analog-stereo+input:analog-stereo
+	Ports:
+		analog-output-speaker: Głośniki (priority 10000)
+			Part of profile(s): output:analog-stereo, output:analog-stereo+input:analog-stereo
+		analog-output-headphones: Słuchawki (priority 9000)
+			Part of profile(s): output:analog-stereo, output:analog-stereo+input:analog-stereo
+		analog-input-microphone-internal: Wewnętrzny mikrofon (priority 8900)
+			Part of profile(s): output:analog-stereo+input:analog-stereo, output:hdmi-stereo+input:analog-stereo, output:hdmi-surround+input:analog-stereo, input:analog-stereo
+		analog-input-microphone: Mikrofon (priority 8700)
+			Part of profile(s): output:analog-stereo+input:analog-stereo, output:hdmi-stereo+input:analog-stereo, output:hdmi-surround+input:analog-stereo, input:analog-stereo
+		hdmi-output-0: HDMI / DisplayPort (priority 5900)
+			Part of profile(s): output:hdmi-stereo, output:hdmi-stereo+input:analog-stereo, output:hdmi-surround, output:hdmi-surround+input:analog-stereo

@@ -115,7 +115,7 @@ class PactlDataMixIn:
 
     def get_text(self, name):
         resource = 'parsers/tests/pactl_data/{}.txt'.format(name)
-        filename = resource_filename('checkbox', resource)
+        filename = resource_filename('checkbox_support', resource)
         with open(filename, 'rt', encoding='UTF-8') as stream:
             return stream.read()
 

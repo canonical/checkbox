@@ -18,15 +18,15 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-:mod:`checkbox.tests` -- auxiliary test loaders for checkbox and scripts
-========================================================================
+:mod:`checkbox_support.tests` -- auxiliary test loaders for the support library
+===============================================================================
 """
 
 from inspect import getabsfile
 from unittest.loader import defaultTestLoader
 import os
 
-import checkbox
+import checkbox_support
 
 
 def load_unit_tests():
@@ -36,7 +36,7 @@ def load_unit_tests():
     # Discover all unit tests. By simple convention those are kept in
     # python modules that start with the word 'test_' .
     return defaultTestLoader.discover(
-        os.path.dirname(getabsfile(checkbox)))
+        os.path.dirname(getabsfile(checkbox_support)))
 
 
 def test_suite():
@@ -44,6 +44,7 @@ def test_suite():
     Test suite function used by setuptools test loader.
 
     Uses unittest test discovery system to get a list of test cases defined
-    inside checkbox. See setup.py setup(test_suite=...) for a matching entry
+    inside checkbox_support.
+    See setup.py setup(test_suite=...) for a matching entry
     """
     return load_unit_tests()

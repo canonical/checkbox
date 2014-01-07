@@ -26,8 +26,8 @@ from math import log10, floor, ceil
 from unittest import TestCase
 
 from pkg_resources import resource_filename
+import pyparsing as p
 
-from checkbox.parsers import pyparsing as p
 from checkbox_support.parsers import pactl
 
 

@@ -52,7 +52,7 @@ the parser but actual usage of the data can be more difficult.
 from collections import OrderedDict
 from inspect import isroutine
 
-from checkbox.parsers import pyparsing as p
+import pyparsing as p
 
 
 # Enable packrat paring.

@@ -20,8 +20,8 @@ from tempfile import NamedTemporaryFile
 import os
 import unittest
 
-from checkbox.scripts.gputest_benchmark import check_log
-from checkbox.vendor.mock import patch
+from checkbox_support.scripts.gputest_benchmark import check_log
+from checkbox_support.vendor.mock import patch
 
 
 class LogParserTest(unittest.TestCase):

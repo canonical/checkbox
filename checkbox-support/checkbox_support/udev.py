@@ -18,7 +18,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 #
 """
-checkbox.udev
+checkbox_support.udev
 =============
 
 A collection of utility function sfor interacting with GUdev
@@ -26,7 +26,7 @@ A collection of utility function sfor interacting with GUdev
 
 from gi.repository import GUdev
 
-from checkbox.heuristics.udev import is_virtual_device
+from checkbox_support.heuristics.udev import is_virtual_device
 
 
 def get_interconnect_speed(device):
@@ -76,7 +76,7 @@ def get_udev_block_devices(udev_client):
 
     Returns a list of GUdev.Device objects representing all block devices in
     the system. Virtual devices are filtered away using
-    checkbox.heuristics.udev.is_virtual_device.
+    checkbox_support.heuristics.udev.is_virtual_device.
     """
     # setup an enumerator so that we can list devices
     enumerator = GUdev.Enumerator(client=udev_client)

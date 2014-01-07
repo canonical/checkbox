@@ -19,15 +19,15 @@
 
 """
 
-checkbox.heuristics.tests.test_udisks2
+checkbox_support.heuristics.tests.test_udisks2
 ======================================
 
-Unit tests for checkbox.heuristics.udisks2 module
+Unit tests for checkbox_support.heuristics.udisks2 module
 """
 
 from unittest import TestCase
 
-from checkbox.heuristics.udisks2 import is_memory_card
+from checkbox_support.heuristics.udisks2 import is_memory_card
 
 
 class TestIsMemoryCard(TestCase):

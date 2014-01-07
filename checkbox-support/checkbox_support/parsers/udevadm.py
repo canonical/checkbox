@@ -21,10 +21,10 @@ import string
 
 from collections import OrderedDict
 
-from checkbox.lib.bit import get_bitmask, test_bit
-from checkbox.lib.input import Input
-from checkbox.lib.pci import Pci
-from checkbox.lib.usb import Usb
+from checkbox_support.lib.bit import get_bitmask, test_bit
+from checkbox_support.lib.input import Input
+from checkbox_support.lib.pci import Pci
+from checkbox_support.lib.usb import Usb
 
 
 PCI_RE = re.compile(

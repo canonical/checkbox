@@ -18,7 +18,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 #
 """
-checkbox.dbus
+checkbox_support.dbus
 =============
 
 Utility modules for working with various things accessible over dbus

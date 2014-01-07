@@ -18,7 +18,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-checkbox.heuristics.dev
+checkbox_support.heuristics.dev
 =======================
 
 Heuristics for udev.

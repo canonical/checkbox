@@ -19,8 +19,8 @@
 import os
 import unittest
 
-from checkbox.scripts.audio_settings import _guess_hdmi_profile
-from checkbox.parsers.tests.test_pactl import PactlDataMixIn
+from checkbox_support.scripts.audio_settings import _guess_hdmi_profile
+from checkbox_support.parsers.tests.test_pactl import PactlDataMixIn
 
 
 class SetProfileTest(unittest.TestCase, PactlDataMixIn):

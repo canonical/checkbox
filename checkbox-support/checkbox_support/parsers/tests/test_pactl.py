@@ -18,7 +18,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-:mod:`checkbox.parsers.tests.test_pactl` -- tests for pactl parser
+:mod:`checkbox_support.parsers.tests.test_pactl` -- tests for pactl parser
 ==================================================================
 """
 
@@ -28,7 +28,7 @@ from unittest import TestCase
 from pkg_resources import resource_filename
 
 from checkbox.parsers import pyparsing as p
-from checkbox.parsers import pactl
+from checkbox_support.parsers import pactl
 
 
 class ParsingMixIn:

@@ -20,7 +20,7 @@ from io import StringIO
 
 from unittest import TestCase
 
-from checkbox.parsers.efi import EfiParser
+from checkbox_support.parsers.efi import EfiParser
 
 
 class EfiResult:

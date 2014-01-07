@@ -18,7 +18,7 @@
 #
 import os
 
-from checkbox.lib.conversion import string_to_type
+from checkbox_support.lib.conversion import string_to_type
 
 # See also 3.3.4.1 of the "System Management BIOS Reference Specification,
 # Version 2.6.1" (Preliminary Standard) document, available from

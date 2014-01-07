@@ -23,7 +23,7 @@ from string import (
     ascii_uppercase,
     )
 
-from checkbox.lib.dmi import (
+from checkbox_support.lib.dmi import (
     Dmi,
     DmiDevice,
     )

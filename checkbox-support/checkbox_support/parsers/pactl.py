@@ -18,7 +18,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-:mod:`checkbox.parsers.pactl` -- `pactl list` parser
+:mod:`checkbox_support.parsers.pactl` -- `pactl list` parser
 ====================================================
 
 Parser for the output of ``pactl list`` syntax.

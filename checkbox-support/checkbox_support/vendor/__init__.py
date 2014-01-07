@@ -18,7 +18,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-:mod:`checkbox.vendor` -- vendorized packages
+:mod:`checkbox_support.vendor` -- vendorized packages
 =============================================
 
 This module contains external packages that were vendorized (shipped with a

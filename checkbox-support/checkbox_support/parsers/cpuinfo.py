@@ -20,7 +20,7 @@ import re
 
 from os import uname
 
-from checkbox.lib.conversion import string_to_type
+from checkbox_support.lib.conversion import string_to_type
 
 
 class CpuinfoParser:

@@ -18,7 +18,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-checkbox.heuristics
+checkbox_support.heuristics
 ===================
 
 This module contains implementations behind various heuristics used throughout

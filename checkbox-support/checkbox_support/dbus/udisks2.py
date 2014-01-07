@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-checkbox.dbus.udisks2
+checkbox_support.dbus.udisks2
 =====================
 
 Module for working with UDisks2 from python.
@@ -38,7 +38,7 @@ import logging
 from dbus import Interface, PROPERTIES_IFACE
 from dbus.exceptions import DBusException
 
-from checkbox.dbus import drop_dbus_type
+from checkbox_support.dbus import drop_dbus_type
 
 __all__ = ['UDisks2Observer', 'UDisks2Model', 'Signal', 'is_udisks2_supported',
            'lookup_udev_device']

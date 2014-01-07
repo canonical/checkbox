@@ -21,8 +21,8 @@ from io import StringIO
 from pkg_resources import resource_filename
 from unittest import TestCase
 
-from checkbox.parsers.udevadm import UdevadmParser, decode_id
-from checkbox.parsers.udevadm import parse_udevadm_output
+from checkbox_support.parsers.udevadm import UdevadmParser, decode_id
+from checkbox_support.parsers.udevadm import parse_udevadm_output
 
 
 class DeviceResult:

@@ -23,7 +23,7 @@ from datetime import (
     timedelta,
     )
 
-from checkbox.lib.tz import tzutc
+from checkbox_support.lib.tz import tzutc
 
 
 DATETIME_RE = re.compile(r"""

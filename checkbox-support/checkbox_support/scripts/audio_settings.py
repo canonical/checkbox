@@ -26,7 +26,7 @@ import sys
 from argparse import ArgumentParser
 from subprocess import check_output, check_call, CalledProcessError
 
-from checkbox.parsers.pactl import parse_pactl_output
+from checkbox_support.parsers.pactl import parse_pactl_output
 
 TYPES = ("source", "sink")
 DIRECTIONS = {"source": "input", "sink": "output"}

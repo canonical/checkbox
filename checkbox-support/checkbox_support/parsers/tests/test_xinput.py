@@ -21,7 +21,7 @@ import os
 
 from unittest import TestCase
 
-from checkbox.parsers.xinput import (
+from checkbox_support.parsers.xinput import (
     DEVICE_RE,
     ATTRIBUTE_RE,
     CLASS_VALUE_RE,

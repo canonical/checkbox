@@ -18,7 +18,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-checkbox.heuristics.udisks2
+checkbox_support.heuristics.udisks2
 ===========================
 
 Heuristics for udisks2.
@@ -28,7 +28,7 @@ Heuristics for udisks2.
     Bug tracker: http://bugs.freedesktop.org/ (using systemd product)
 """
 
-from checkbox.parsers.udevadm import CARD_READER_RE, GENERIC_RE, FLASH_RE
+from checkbox_support.parsers.udevadm import CARD_READER_RE, GENERIC_RE, FLASH_RE
 
 
 def is_memory_card(vendor, model, udisks2_media):

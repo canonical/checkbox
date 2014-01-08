@@ -195,13 +195,9 @@ class WhiteListPlugInTests(TestCase):
         verify the contents of the loaded whitelist object
         """
         self.assertEqual(
-            self.plugin.plugin_object.inclusive_qualifier_list[0].pattern_text,
-            "^foo$")
+            self.plugin.plugin_object.qualifier_list[0].pattern_text, "^foo$")
         self.assertEqual(
-            self.plugin.plugin_object.inclusive_qualifier_list[1].pattern_text,
-            "^bar$")
-        self.assertEqual(
-            self.plugin.plugin_object.exclusive_qualifier_list, ())
+            self.plugin.plugin_object.qualifier_list[1].pattern_text, "^bar$")
 
     def test_init_failing(self):
         """

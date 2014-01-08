@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012, 2013 Canonical Ltd.
+# Copyright 2012, 2013, 2014 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
@@ -31,6 +31,7 @@ import copy
 import gzip
 import json
 
+from plainbox.abc import IJobQualifier
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.resource import Resource
 from plainbox.impl.result import DiskJobResult
@@ -39,6 +40,7 @@ from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.session.resume import CorruptedSessionError
 from plainbox.impl.session.resume import IncompatibleJobError
 from plainbox.impl.session.resume import IncompatibleSessionError
+from plainbox.impl.session.resume import ResumeDiscardQualifier
 from plainbox.impl.session.resume import SessionResumeError
 from plainbox.impl.session.resume import SessionResumeHelper
 from plainbox.impl.session.resume import SessionResumeHelper1
@@ -47,6 +49,45 @@ from plainbox.impl.session.state import SessionState
 from plainbox.impl.testing_utils import make_job
 from plainbox.testing_utils.testcases import TestCaseWithParameters
 from plainbox.vendor import mock
+
+
+class ResumeDiscardQualifierTests(TestCase):
+    """
+    Tests for the ResumeDiscardQualifier class
+    """
+
+    def setUp(self):
+        # The initializer accepts the jobs representation dictionary but uses
+        # keys only. Here the values are dummy None objects
+        self.obj = ResumeDiscardQualifier({'foo': None, 'bar': None})
+
+    def test_init(self):
+        self.assertEqual(self.obj._retain_name_set, frozenset(['foo', 'bar']))
+
+    def test_get_simple_match(self):
+        # Direct hits return the IGNORE vote as those jobs are not to be
+        # removed. Everything else should return VOTE_INCLUDE (include for
+        # removal)
+        self.assertEqual(
+            self.obj.get_vote(JobDefinition({'name': 'foo'})),
+            IJobQualifier.VOTE_IGNORE)
+        self.assertEqual(
+            self.obj.get_vote(JobDefinition({'name': 'bar'})),
+            IJobQualifier.VOTE_IGNORE)
+        # Jobs that are in the retain set are NOT designated
+        self.assertEqual(
+            self.obj.designates(JobDefinition({'name': 'bar'})), False)
+        self.assertEqual(
+            self.obj.designates(JobDefinition({'name': 'foo'})), False)
+        # Jobs that are not on the retain list are INCLUDED and marked for
+        # removal. This includes jobs that are substrings of strings in the
+        # retain set, names are matched exactly, not by pattern.
+        self.assertEqual(
+            self.obj.get_vote(JobDefinition({'name': 'foobar'})),
+            IJobQualifier.VOTE_INCLUDE)
+        self.assertEqual(
+            self.obj.get_vote(JobDefinition({'name': 'fo'})),
+            IJobQualifier.VOTE_INCLUDE)
 
 
 class SessionResumeExceptionTests(TestCase):

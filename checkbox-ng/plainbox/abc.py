@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012 Canonical Ltd.
+# Copyright 2012, 2013, 2014 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
@@ -226,7 +226,71 @@ class IJobQualifier(metaclass=ABCMeta):
 
     This is an abstraction for matching jobs definitions to names, patterns and
     other means of selecting jobs.
+
+    There are two ways to use a qualifier object. The naive, direct, old API
+    can simply check if a qualifier designates a particular job (if it selects
+    it and marks for subsequent execution). This API works fine for certain
+    tasks but it was found that it is insufficient to implement so-called
+    whitelist ordering, where the order of jobs in a whitelist is preserved
+    when selecting that whitelist for execution. This spawned the second,
+    lower-level API, that gives portable visibility into composite qualifiers
+    (such as a whitelist) and distinct select, deselect vote so that full range
+    of current expressiveness can be preserved.
     """
+
+    # NOTE: VOTE_xxx are sorted by priority, lowest being the most important
+    # one.  When multiple votes are cast, the one with lowest value (highest
+    # priority) takes precedence. When adding additional votes keep this in
+    # mind.
+    VOTE_EXCLUDE = 0
+    VOTE_INCLUDE = 2
+    VOTE_IGNORE = 3
+
+    @abstractmethod
+    def get_vote(self, job):
+        """
+        Get one of the VOTE_IGNORE, VOTE_INCLUDE, VOTE_EXCLUDE votes that
+        this qualifier associated with the specified job.
+
+        :param job:
+            A IJobDefinition instance that is to be visited
+        :returns:
+            one of the VOTE_ constants
+
+        .. versionadded: 0.5
+        """
+
+    @abstractmethod
+    def get_primitive_qualifiers(self):
+        """
+        Return a list of primitives that constitute this qualifier.
+
+        :returns:
+            A list of IJobQualifier objects that each is the smallest,
+            indivisible entity.
+
+        When each vote cast by those qualifiers is applied sequentially to
+        a given job then the result is the same as the return value of the
+        :meth:`designates()` method. The resulting list has more structure
+        and this structure may matter to job ordering when a list of jobs
+        is matched against a list of qualifiers. The resulting sets are
+        identical but ordering of results is more accurately reflected by
+        iterating over the fine structure of each qualifier.
+
+        .. versionadded: 0.5
+        """
+
+    @abstractproperty
+    def is_primitive(self):
+        """
+        property indicating that a qualifier is not divisible by calling
+        :meth:`get_primitive_qualifiers()`.
+
+        If a qualifier is not primitive it can be replaced with a list of
+        qualifiers it produces by the call to the aforementioned method.
+
+        .. versionadded: 0.5
+        """
 
     @abstractmethod
     def designates(self, job):

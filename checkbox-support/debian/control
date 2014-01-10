@@ -1,0 +1,33 @@
+Source: checkbox-support
+Section: utils
+Priority: optional
+Maintainer: Sylvain Pineau <sylvain.pineau@canonical.com>
+Uploaders: Debian Python Modules Team <python-modules-team@lists.alioth.debian.org>
+Build-Depends:
+ debhelper (>= 9),
+ dh-python,
+ python3-all,
+ python3-pkg-resources,
+ python3-setuptools
+Standards-Version: 3.9.5
+X-Python3-Version: >= 3.2, << 3.4
+Vcs-Svn: svn://anonscm.debian.org/python-modules/packages/checkbox-support/trunk/
+Vcs-Browser: http://anonscm.debian.org/viewvc/python-modules/packages/checkbox-support/trunk/
+Homepage: http://launchpad.net/checkbox
+
+Package: python3-checkbox-support
+Section: python
+Architecture: all
+Depends: gir1.2-gudev-1.0,
+         python3-pyparsing,
+         udev,
+         udisks2 | udisks,
+         ${misc:Depends},
+         ${python3:Depends}
+Description: CheckBox support python3 library
+ This package contains the CheckBox support python3 library.
+ .
+ Since CheckBox (http://launchpad.net/checkbox) provides the system tests
+ outside of its monolithic package, a few of them require python modules
+ originally located under the checkbox namespace to be installed.
+ This package provides such modules (parsers, heuristics, ...)

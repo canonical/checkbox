@@ -139,9 +139,9 @@ class Provider1(IProvider1, IProviderBackend1):
         self._description = description
         self._secure = secure
         self._whitelist_collection = FsPlugInCollection(
-            self.whitelists_dir, ext=".whitelist", wrapper=WhiteListPlugIn)
+            [self.whitelists_dir], ext=".whitelist", wrapper=WhiteListPlugIn)
         self._job_collection = FsPlugInCollection(
-            self.jobs_dir, ext=(".txt", ".txt.in"),
+            [self.jobs_dir], ext=(".txt", ".txt.in"),
             wrapper=JobDefinitionPlugIn, provider=self)
 
     def __repr__(self):
@@ -498,8 +498,9 @@ class Provider1PlugInCollection(FsPlugInCollection):
 
     def __init__(self):
         providerpath = os.getenv("PROVIDERPATH", self.DEFAULT_PROVIDERPATH)
+        dir_list = providerpath.split(os.path.pathsep)
         super(Provider1PlugInCollection, self).__init__(
-            providerpath, '.provider', wrapper=Provider1PlugIn)
+            dir_list, '.provider', wrapper=Provider1PlugIn)
 
 
 # Collection of all providers

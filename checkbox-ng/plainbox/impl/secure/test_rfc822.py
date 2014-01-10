@@ -37,6 +37,43 @@ from plainbox.impl.secure.rfc822 import UnknownTextSource
 from plainbox.impl.secure.rfc822 import load_rfc822_records
 
 
+class UnknownTextSourceTests(TestCase):
+    """
+    Tests for UnknownTextSource class
+    """
+
+    def setUp(self):
+        self.src = UnknownTextSource()
+
+    def test_str(self):
+        """
+        verify how UnknownTextSource. __str__() works
+        """
+        self.assertEqual(str(self.src), "???")
+
+    def test_repr(self):
+        """
+        verify how UnknownTextSource.__repr__() works
+        """
+        self.assertEqual(repr(self.src), "UnknownTextSource()")
+
+    def test_eq(self):
+        """
+        verify instances of UnknownTextSource are all equal to each other
+        """
+        other_src = UnknownTextSource()
+        self.assertTrue(self.src == other_src)
+        self.assertFalse(self.src == "???")
+
+    def test_gt(self):
+        """
+        verify that instances of UnknownTextSource are not ordered
+        """
+        other_src = UnknownTextSource()
+        self.assertFalse(self.src < other_src)
+        self.assertFalse(other_src < self.src)
+
+
 class OriginTests(TestCase):
 
     def setUp(self):

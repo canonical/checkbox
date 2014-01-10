@@ -39,6 +39,7 @@ from plainbox.abc import ITextSource
 logger = logging.getLogger("plainbox.secure.rfc822")
 
 
+@total_ordering
 class UnknownTextSource(ITextSource):
     """
     A :class:`ITextSource` subclass indicating that the source of text is
@@ -54,7 +55,7 @@ class UnknownTextSource(ITextSource):
         return "???"
 
     def __repr__(self):
-        return "<{}>".format(self.__class__.__name__)
+        return "{}()".format(self.__class__.__name__)
 
     def __eq__(self, other):
         if isinstance(other, UnknownTextSource):
@@ -63,7 +64,10 @@ class UnknownTextSource(ITextSource):
             return False
 
     def __gt__(self, other):
-        return NotImplemented
+        if isinstance(other, UnknownTextSource):
+            return False
+        else:
+            return NotImplemented
 
 
 @total_ordering

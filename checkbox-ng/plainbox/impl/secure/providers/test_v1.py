@@ -412,7 +412,7 @@ class Provider1Tests(TestCase):
                     fake_plugins, fake_problems):
                 self.provider.get_builtin_jobs()
 
-    def test_load_all_job__normal(self):
+    def test_load_all_jobs__normal(self):
         """
         verify that Provider1.load_all_jobs() loads and returns all of
         the job definitions (and that they are in the right order)

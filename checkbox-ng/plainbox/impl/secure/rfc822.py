@@ -86,7 +86,7 @@ class FileTextSource(ITextSource):
         return self.filename
 
     def __repr__(self):
-        return "<{} filename:{!r}>".format(
+        return "{}({!r})".format(
             self.__class__.__name__, self.filename)
 
     def __eq__(self, other):

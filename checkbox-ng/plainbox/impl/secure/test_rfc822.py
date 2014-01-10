@@ -119,8 +119,7 @@ class FileTextSourceTests(TestCase):
         """
         verify that FileTextSource.__repr__() works
         """
-        self.assertEqual(
-            repr(self.src), "<FileTextSource filename:'filename'>")
+        self.assertEqual(repr(self.src), "FileTextSource('filename')")
 
     def test_eq(self):
         """
@@ -169,7 +168,7 @@ class OriginTests(TestCase):
         self.assertEqual(self.origin.line_end, 12)
 
     def test_repr(self):
-        expected = ("<Origin source:<FileTextSource filename:'file.txt'>"
+        expected = ("<Origin source:FileTextSource('file.txt')"
                     " line_start:10 line_end:12>")
         observed = repr(self.origin)
         self.assertEqual(expected, observed)

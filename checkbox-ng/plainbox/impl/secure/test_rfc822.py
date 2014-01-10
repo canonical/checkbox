@@ -37,43 +37,238 @@ from plainbox.impl.secure.rfc822 import UnknownTextSource
 from plainbox.impl.secure.rfc822 import load_rfc822_records
 
 
+class UnknownTextSourceTests(TestCase):
+    """
+    Tests for UnknownTextSource class
+    """
+
+    def setUp(self):
+        self.src = UnknownTextSource()
+
+    def test_str(self):
+        """
+        verify how UnknownTextSource. __str__() works
+        """
+        self.assertEqual(str(self.src), "???")
+
+    def test_repr(self):
+        """
+        verify how UnknownTextSource.__repr__() works
+        """
+        self.assertEqual(repr(self.src), "UnknownTextSource()")
+
+    def test_eq(self):
+        """
+        verify instances of UnknownTextSource are all equal to each other
+        but not equal to any other object
+        """
+        other_src = UnknownTextSource()
+        self.assertTrue(self.src == other_src)
+        self.assertFalse(self.src == "???")
+
+    def test_eq_others(self):
+        """
+        verify instances of UnknownTextSource are unequal to instances of other
+        classes
+        """
+        self.assertTrue(self.src != object())
+        self.assertFalse(self.src == object())
+
+    def test_gt(self):
+        """
+        verify that instances of UnknownTextSource are not ordered
+        """
+        other_src = UnknownTextSource()
+        self.assertFalse(self.src < other_src)
+        self.assertFalse(other_src < self.src)
+
+    def test_gt_others(self):
+        """
+        verify that instances of UnknownTextSource are not comparable to other
+        objects
+        """
+        with self.assertRaises(TypeError):
+            self.src < object()
+        with self.assertRaises(TypeError):
+            object() < self.src
+
+
+class FileTextSourceTests(TestCase):
+    """
+    Tests for FileTextSource class
+    """
+
+    _FILENAME = "filename"
+    _CLS = FileTextSource
+
+    def setUp(self):
+        self.src = self._CLS(self._FILENAME)
+
+    def test_filename(self):
+        """
+        verify that FileTextSource.filename works
+        """
+        self.assertEqual(self._FILENAME, self.src.filename)
+
+    def test_str(self):
+        """
+        verify that FileTextSource.__str__() works
+        """
+        self.assertEqual(str(self.src), self._FILENAME)
+
+    def test_repr(self):
+        """
+        verify that FileTextSource.__repr__() works
+        """
+        self.assertEqual(
+            repr(self.src),
+            "{}({!r})".format(self._CLS.__name__, self._FILENAME))
+
+    def test_eq(self):
+        """
+        verify that FileTextSource compares equal to other instances with the
+        same filename and unequal to instances with different filenames.
+        """
+        self.assertTrue(self._CLS('foo') == self._CLS('foo'))
+        self.assertTrue(self._CLS('foo') != self._CLS('bar'))
+
+    def test_eq_others(self):
+        """
+        verify instances of FileTextSource are unequal to instances of other
+        classes
+        """
+        self.assertTrue(self._CLS('foo') != object())
+        self.assertFalse(self._CLS('foo') == object())
+
+    def test_gt(self):
+        """
+        verify that FileTextSource is ordered by filename
+        """
+        self.assertTrue(self._CLS("a") < self._CLS("b") < self._CLS("c"))
+        self.assertTrue(self._CLS("c") > self._CLS("b") > self._CLS("a"))
+
+    def test_gt_others(self):
+        """
+        verify that instances of FileTextSource are not comparable to other
+        objects
+        """
+        with self.assertRaises(TypeError):
+            self.src < object()
+        with self.assertRaises(TypeError):
+            object() < self.src
+
+    def test_relative_to(self):
+        """
+        verify that FileTextSource.relative_to() works
+        """
+        self.assertEqual(
+            self._CLS("/path/to/file.txt").relative_to("/path/to"),
+            self._CLS("file.txt"))
+
+
+class PythonFileTextSourceTests(FileTextSourceTests):
+    """
+    Tests for PythonFileTextSource class
+    """
+
+    _FILENAME = "filename.py"
+    _CLS = PythonFileTextSource
+
+
 class OriginTests(TestCase):
+    """
+    Tests for Origin class
+    """
 
     def setUp(self):
         self.origin = Origin(FileTextSource("file.txt"), 10, 12)
 
     def test_smoke(self):
+        """
+        verify that all three instance attributes actually work
+        """
         self.assertEqual(self.origin.source.filename, "file.txt")
         self.assertEqual(self.origin.line_start, 10)
         self.assertEqual(self.origin.line_end, 12)
 
     def test_repr(self):
-        expected = ("<Origin source:<FileTextSource filename:'file.txt'>"
+        """
+        verify that Origin.__repr__() works
+        """
+        expected = ("<Origin source:FileTextSource('file.txt')"
                     " line_start:10 line_end:12>")
         observed = repr(self.origin)
         self.assertEqual(expected, observed)
 
     def test_str(self):
+        """
+        verify that Origin.__str__() works
+        """
         expected = "file.txt:10-12"
         observed = str(self.origin)
         self.assertEqual(expected, observed)
 
-    def test_equal_operator(self):
-        equal_origin = Origin(FileTextSource("file.txt"), 10, 12)
-        self.assertEqual(self.origin, equal_origin)
+    def test_eq(self):
+        """
+        verify instances of Origin are all equal to other instances with the
+        same instance attributes but not equal to instances with different
+        attributes
+        """
+        origin1 = Origin(
+            self.origin.source, self.origin.line_start, self.origin.line_end)
+        origin2 = Origin(
+            self.origin.source, self.origin.line_start, self.origin.line_end)
+        self.assertTrue(origin1 == origin2)
+        origin_other1 = Origin(
+            self.origin.source, self.origin.line_start + 1,
+            self.origin.line_end)
+        self.assertTrue(origin1 != origin_other1)
+        self.assertFalse(origin1 == origin_other1)
+        origin_other2 = Origin(
+            self.origin.source, self.origin.line_start,
+            self.origin.line_end + 1)
+        self.assertTrue(origin1 != origin_other2)
+        self.assertFalse(origin1 == origin_other2)
+        origin_other3 = Origin(
+            FileTextSource("unrelated"), self.origin.line_start,
+            self.origin.line_end)
+        self.assertTrue(origin1 != origin_other3)
+        self.assertFalse(origin1 == origin_other3)
 
-    def test_comparison_operators_different_lines(self):
-        unequal_origin_1 = Origin(FileTextSource("file.txt"), 10, 13)
-        unequal_origin_2 = Origin(FileTextSource("file.txt"), 11, 12)
-        unequal_origin_3 = Origin(FileTextSource("file.txt"), 10, 11)
-        self.assertNotEqual(self.origin, unequal_origin_1)
-        self.assertNotEqual(self.origin, unequal_origin_2)
-        self.assertTrue(self.origin < unequal_origin_1)
-        self.assertTrue(self.origin > unequal_origin_3)
+    def test_eq_other(self):
+        """
+        verify instances of UnknownTextSource are unequal to instances of other
+        classes
+        """
+        self.assertTrue(self.origin != object())
+        self.assertFalse(self.origin == object())
 
-    def test_comparison_operators_different_files(self):
-        unequal_origin = Origin(FileTextSource("ghostfile.txt"), 10, 12)
-        self.assertNotEqual(self.origin, unequal_origin)
+    def test_gt(self):
+        """
+        verify that Origin instances are ordered by their constituting
+        components
+        """
+        self.assertTrue(
+            Origin(FileTextSource('file.txt'), 1, 1) <
+            Origin(FileTextSource('file.txt'), 1, 2) <
+            Origin(FileTextSource('file.txt'), 1, 3))
+        self.assertTrue(
+            Origin(FileTextSource('file.txt'), 1, 10) <
+            Origin(FileTextSource('file.txt'), 2, 10) <
+            Origin(FileTextSource('file.txt'), 3, 10))
+        self.assertTrue(
+            Origin(FileTextSource('file1.txt'), 1, 10) <
+            Origin(FileTextSource('file2.txt'), 1, 10) <
+            Origin(FileTextSource('file3.txt'), 1, 10))
+
+    def test_gt_other(self):
+        """
+        verify that Origin instances are not comparable to other objects
+        """
+        with self.assertRaises(TypeError):
+            self.origin < object()
+        with self.assertRaises(TypeError):
+            object() < self.origin
 
     def test_origin_caller(self):
         """
@@ -93,6 +288,20 @@ class OriginTests(TestCase):
         self.assertEqual(
             os.path.basename(Origin.get_caller_origin(-1).source.filename),
             "test_rfc822.py")
+
+    def test_relative_to(self):
+        """
+        verify how Origin.relative_to() works in various situations
+        """
+        # if the source does not have relative_to method, nothing is changed
+        origin = Origin(UnknownTextSource(), 1, 2)
+        self.assertIs(origin.relative_to("/some/path"), origin)
+        # otherwise the source is replaced and a new origin is returned
+        self.assertEqual(
+            Origin(
+                FileTextSource("/some/path/file.txt"), 1, 2
+            ).relative_to("/some/path"),
+            Origin(FileTextSource("file.txt"), 1, 2))
 
 
 class RFC822RecordTests(TestCase):
@@ -354,3 +563,17 @@ class RFC822WriterTests(TestCase):
         with StringIO() as stream:
             with self.assertRaises(AttributeError):
                 RFC822Record(['key', 'value']).dump(stream)
+
+
+class RFC822SyntaxErrorTests(TestCase):
+    """
+    Tests for RFC822SyntaxError class
+    """
+
+    def test_hash(self):
+        """
+        verify that RFC822SyntaxError is hashable
+        """
+        self.assertEqual(
+            hash(RFC822SyntaxError("file.txt", 10, "msg")),
+            hash(RFC822SyntaxError("file.txt", 10, "msg")))

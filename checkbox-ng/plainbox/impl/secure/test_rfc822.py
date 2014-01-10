@@ -99,9 +99,10 @@ class FileTextSourceTests(TestCase):
     """
 
     _FILENAME = "filename"
+    _CLS = FileTextSource
 
     def setUp(self):
-        self.src = FileTextSource(self._FILENAME)
+        self.src = self._CLS(self._FILENAME)
 
     def test_filename(self):
         """
@@ -119,32 +120,32 @@ class FileTextSourceTests(TestCase):
         """
         verify that FileTextSource.__repr__() works
         """
-        self.assertEqual(repr(self.src), "FileTextSource('filename')")
+        self.assertEqual(
+            repr(self.src),
+            "{}({!r})".format(self._CLS.__name__, self._FILENAME))
 
     def test_eq(self):
         """
         verify that FileTextSource compares equal to other instances with the
         same filename and unequal to instances with different filenames.
         """
-        self.assertTrue(FileTextSource('foo') == FileTextSource('foo'))
-        self.assertTrue(FileTextSource('foo') != FileTextSource('bar'))
+        self.assertTrue(self._CLS('foo') == self._CLS('foo'))
+        self.assertTrue(self._CLS('foo') != self._CLS('bar'))
 
     def test_eq_others(self):
         """
         verify instances of FileTextSource are unequal to instances of other
         classes
         """
-        self.assertTrue(FileTextSource('foo') != object())
-        self.assertFalse(FileTextSource('foo') == object())
+        self.assertTrue(self._CLS('foo') != object())
+        self.assertFalse(self._CLS('foo') == object())
 
     def test_gt(self):
         """
         verify that FileTextSource is ordered by filename
         """
-        self.assertTrue(
-            FileTextSource("a") < FileTextSource("b") < FileTextSource("c"))
-        self.assertTrue(
-            FileTextSource("c") > FileTextSource("b") > FileTextSource("a"))
+        self.assertTrue(self._CLS("a") < self._CLS("b") < self._CLS("c"))
+        self.assertTrue(self._CLS("c") > self._CLS("b") > self._CLS("a"))
 
     def test_gt_others(self):
         """
@@ -155,6 +156,15 @@ class FileTextSourceTests(TestCase):
             self.src < object()
         with self.assertRaises(TypeError):
             object() < self.src
+
+
+class PythonFileTextSourceTests(FileTextSourceTests):
+    """
+    Tests for PythonFileTextSource class
+    """
+
+    _FILENAME = "filename.py"
+    _CLS = PythonFileTextSource
 
 
 class OriginTests(TestCase):

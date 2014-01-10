@@ -33,6 +33,7 @@ from functools import total_ordering
 from inspect import cleandoc
 import inspect
 import logging
+import os
 
 from plainbox.abc import ITextSource
 
@@ -101,6 +102,18 @@ class FileTextSource(ITextSource):
         else:
             return NotImplemented
 
+    def relative_to(self, base_dir):
+        """
+        Compute a FileTextSource with the filename being a realtive path from
+        the specified base directory.
+
+        :param base_dir:
+            A base directory name
+        :returns:
+            A new FileTextSource with filename relative to that base_dir
+        """
+        return self.__class__(os.path.relpath(self.filename, base_dir))
+
 
 class PythonFileTextSource(FileTextSource):
     """
@@ -147,6 +160,27 @@ class Origin:
     def __str__(self):
         return "{}:{}-{}".format(
             self.source, self.line_start, self.line_end)
+
+    def relative_to(self, base_dir):
+        """
+        Create a Origin with source relative to the specified base directory.
+
+        :param base_dir:
+            A base directory name
+        :returns:
+            A new Origin with source replaced by the result of calling
+            relative_to(base_dir) on the current source *iff* the current
+            source has that method, self otherwise.
+
+        This method is useful for obtaining user friendly Origin objects that
+        have short, understandable filenames.
+        """
+        if hasattr(self.source, 'relative_to'):
+            return Origin(
+                self.source.relative_to(base_dir),
+                self.line_start, self.line_end)
+        else:
+            return self
 
     def __eq__(self, other):
         if isinstance(other, Origin):

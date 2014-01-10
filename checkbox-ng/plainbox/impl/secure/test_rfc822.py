@@ -157,6 +157,14 @@ class FileTextSourceTests(TestCase):
         with self.assertRaises(TypeError):
             object() < self.src
 
+    def test_relative_to(self):
+        """
+        verify that FileTextSource.relative_to() works
+        """
+        self.assertEqual(
+            self._CLS("/path/to/file.txt").relative_to("/path/to"),
+            self._CLS("file.txt"))
+
 
 class PythonFileTextSourceTests(FileTextSourceTests):
     """
@@ -280,6 +288,20 @@ class OriginTests(TestCase):
         self.assertEqual(
             os.path.basename(Origin.get_caller_origin(-1).source.filename),
             "test_rfc822.py")
+
+    def test_relative_to(self):
+        """
+        verify how Origin.relative_to() works in various situations
+        """
+        # if the source does not have relative_to method, nothing is changed
+        origin = Origin(UnknownTextSource(), 1, 2)
+        self.assertIs(origin.relative_to("/some/path"), origin)
+        # otherwise the source is replaced and a new origin is returned
+        self.assertEqual(
+            Origin(
+                FileTextSource("/some/path/file.txt"), 1, 2
+            ).relative_to("/some/path"),
+            Origin(FileTextSource("file.txt"), 1, 2))
 
 
 class RFC822RecordTests(TestCase):

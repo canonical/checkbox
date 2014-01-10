@@ -354,3 +354,17 @@ class RFC822WriterTests(TestCase):
         with StringIO() as stream:
             with self.assertRaises(AttributeError):
                 RFC822Record(['key', 'value']).dump(stream)
+
+
+class RFC822SyntaxErrorTests(TestCase):
+    """
+    Tests for RFC822SyntaxError class
+    """
+
+    def test_hash(self):
+        """
+        verify that RFC822SyntaxError is hashable
+        """
+        self.assertEqual(
+            hash(RFC822SyntaxError("file.txt", 10, "msg")),
+            hash(RFC822SyntaxError("file.txt", 10, "msg")))

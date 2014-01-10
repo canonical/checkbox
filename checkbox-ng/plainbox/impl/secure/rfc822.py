@@ -282,6 +282,9 @@ class RFC822SyntaxError(SyntaxError):
                     != (other.filename, other.lineno, other.msg))
         return NotImplemented
 
+    def __hash__(self):
+        return hash((self.filename, self.lineno, self.msg))
+
 
 def load_rfc822_records(stream, data_cls=dict, source=None):
     """

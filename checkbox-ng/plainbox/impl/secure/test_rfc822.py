@@ -168,42 +168,99 @@ class PythonFileTextSourceTests(FileTextSourceTests):
 
 
 class OriginTests(TestCase):
+    """
+    Tests for Origin class
+    """
 
     def setUp(self):
         self.origin = Origin(FileTextSource("file.txt"), 10, 12)
 
     def test_smoke(self):
+        """
+        verify that all three instance attributes actually work
+        """
         self.assertEqual(self.origin.source.filename, "file.txt")
         self.assertEqual(self.origin.line_start, 10)
         self.assertEqual(self.origin.line_end, 12)
 
     def test_repr(self):
+        """
+        verify that Origin.__repr__() works
+        """
         expected = ("<Origin source:FileTextSource('file.txt')"
                     " line_start:10 line_end:12>")
         observed = repr(self.origin)
         self.assertEqual(expected, observed)
 
     def test_str(self):
+        """
+        verify that Origin.__str__() works
+        """
         expected = "file.txt:10-12"
         observed = str(self.origin)
         self.assertEqual(expected, observed)
 
-    def test_equal_operator(self):
-        equal_origin = Origin(FileTextSource("file.txt"), 10, 12)
-        self.assertEqual(self.origin, equal_origin)
+    def test_eq(self):
+        """
+        verify instances of Origin are all equal to other instances with the
+        same instance attributes but not equal to instances with different
+        attributes
+        """
+        origin1 = Origin(
+            self.origin.source, self.origin.line_start, self.origin.line_end)
+        origin2 = Origin(
+            self.origin.source, self.origin.line_start, self.origin.line_end)
+        self.assertTrue(origin1 == origin2)
+        origin_other1 = Origin(
+            self.origin.source, self.origin.line_start + 1,
+            self.origin.line_end)
+        self.assertTrue(origin1 != origin_other1)
+        self.assertFalse(origin1 == origin_other1)
+        origin_other2 = Origin(
+            self.origin.source, self.origin.line_start,
+            self.origin.line_end + 1)
+        self.assertTrue(origin1 != origin_other2)
+        self.assertFalse(origin1 == origin_other2)
+        origin_other3 = Origin(
+            FileTextSource("unrelated"), self.origin.line_start,
+            self.origin.line_end)
+        self.assertTrue(origin1 != origin_other3)
+        self.assertFalse(origin1 == origin_other3)
 
-    def test_comparison_operators_different_lines(self):
-        unequal_origin_1 = Origin(FileTextSource("file.txt"), 10, 13)
-        unequal_origin_2 = Origin(FileTextSource("file.txt"), 11, 12)
-        unequal_origin_3 = Origin(FileTextSource("file.txt"), 10, 11)
-        self.assertNotEqual(self.origin, unequal_origin_1)
-        self.assertNotEqual(self.origin, unequal_origin_2)
-        self.assertTrue(self.origin < unequal_origin_1)
-        self.assertTrue(self.origin > unequal_origin_3)
+    def test_eq_other(self):
+        """
+        verify instances of UnknownTextSource are unequal to instances of other
+        classes
+        """
+        self.assertTrue(self.origin != object())
+        self.assertFalse(self.origin == object())
 
-    def test_comparison_operators_different_files(self):
-        unequal_origin = Origin(FileTextSource("ghostfile.txt"), 10, 12)
-        self.assertNotEqual(self.origin, unequal_origin)
+    def test_gt(self):
+        """
+        verify that Origin instances are ordered by their constituting
+        components
+        """
+        self.assertTrue(
+            Origin(FileTextSource('file.txt'), 1, 1) <
+            Origin(FileTextSource('file.txt'), 1, 2) <
+            Origin(FileTextSource('file.txt'), 1, 3))
+        self.assertTrue(
+            Origin(FileTextSource('file.txt'), 1, 10) <
+            Origin(FileTextSource('file.txt'), 2, 10) <
+            Origin(FileTextSource('file.txt'), 3, 10))
+        self.assertTrue(
+            Origin(FileTextSource('file1.txt'), 1, 10) <
+            Origin(FileTextSource('file2.txt'), 1, 10) <
+            Origin(FileTextSource('file3.txt'), 1, 10))
+
+    def test_gt_other(self):
+        """
+        verify that Origin instances are not comparable to other objects
+        """
+        with self.assertRaises(TypeError):
+            self.origin < object()
+        with self.assertRaises(TypeError):
+            object() < self.origin
 
     def test_origin_caller(self):
         """

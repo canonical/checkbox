@@ -60,10 +60,19 @@ class UnknownTextSourceTests(TestCase):
     def test_eq(self):
         """
         verify instances of UnknownTextSource are all equal to each other
+        but not equal to any other object
         """
         other_src = UnknownTextSource()
         self.assertTrue(self.src == other_src)
         self.assertFalse(self.src == "???")
+
+    def test_eq_others(self):
+        """
+        verify instances of UnknownTextSource are unequal to instances of other
+        classes
+        """
+        self.assertTrue(self.src != object())
+        self.assertFalse(self.src == object())
 
     def test_gt(self):
         """
@@ -72,6 +81,81 @@ class UnknownTextSourceTests(TestCase):
         other_src = UnknownTextSource()
         self.assertFalse(self.src < other_src)
         self.assertFalse(other_src < self.src)
+
+    def test_gt_others(self):
+        """
+        verify that instances of UnknownTextSource are not comparable to other
+        objects
+        """
+        with self.assertRaises(TypeError):
+            self.src < object()
+        with self.assertRaises(TypeError):
+            object() < self.src
+
+
+class FileTextSourceTests(TestCase):
+    """
+    Tests for FileTextSource class
+    """
+
+    _FILENAME = "filename"
+
+    def setUp(self):
+        self.src = FileTextSource(self._FILENAME)
+
+    def test_filename(self):
+        """
+        verify that FileTextSource.filename works
+        """
+        self.assertEqual(self._FILENAME, self.src.filename)
+
+    def test_str(self):
+        """
+        verify that FileTextSource.__str__() works
+        """
+        self.assertEqual(str(self.src), self._FILENAME)
+
+    def test_repr(self):
+        """
+        verify that FileTextSource.__repr__() works
+        """
+        self.assertEqual(
+            repr(self.src), "<FileTextSource filename:'filename'>")
+
+    def test_eq(self):
+        """
+        verify that FileTextSource compares equal to other instances with the
+        same filename and unequal to instances with different filenames.
+        """
+        self.assertTrue(FileTextSource('foo') == FileTextSource('foo'))
+        self.assertTrue(FileTextSource('foo') != FileTextSource('bar'))
+
+    def test_eq_others(self):
+        """
+        verify instances of FileTextSource are unequal to instances of other
+        classes
+        """
+        self.assertTrue(FileTextSource('foo') != object())
+        self.assertFalse(FileTextSource('foo') == object())
+
+    def test_gt(self):
+        """
+        verify that FileTextSource is ordered by filename
+        """
+        self.assertTrue(
+            FileTextSource("a") < FileTextSource("b") < FileTextSource("c"))
+        self.assertTrue(
+            FileTextSource("c") > FileTextSource("b") > FileTextSource("a"))
+
+    def test_gt_others(self):
+        """
+        verify that instances of FileTextSource are not comparable to other
+        objects
+        """
+        with self.assertRaises(TypeError):
+            self.src < object()
+        with self.assertRaises(TypeError):
+            object() < self.src
 
 
 class OriginTests(TestCase):

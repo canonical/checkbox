@@ -8,6 +8,7 @@ Build-Depends:
  dh-python,
  python3-all,
  python3-pkg-resources,
+ python3-pyparsing,
  python3-setuptools
 Standards-Version: 3.9.5
 X-Python3-Version: >= 3.2, << 3.4

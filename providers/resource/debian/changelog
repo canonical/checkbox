@@ -1,0 +1,5 @@
+plainbox-provider-resource-generic (0.2-1) unstable; urgency=low
+
+  * Initial release (Closes: #735187)
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Mon, 13 Jan 2014 15:27:48 +0100

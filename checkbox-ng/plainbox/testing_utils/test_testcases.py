@@ -122,7 +122,7 @@ class TestCaseWithParametersTests(TestCase):
     def test_id(self):
         self.assertIn(
             "test_str_upper [<unparameterized>]",
-             self.test_case.id())
+            self.test_case.id())
         self.assertIn(
             "test_str_upper [original: foo, upper: FOO]",
             self.parametrized_test_case.id())

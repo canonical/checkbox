@@ -202,7 +202,12 @@ class TestCaseWithParameters(TestCase):
         Each parametrized instance (created with _parametrize()) returns 1
         """
         if self.parameters is None:
-            return len(self.get_parameter_values())
+            try:
+                return len(self.get_parameter_values())
+            except TypeError:
+                # if get_parameter_values() returns a generator then
+                # we need to count it ourselves
+                return len(list(self.get_parameter_values()))
         else:
             return 1
 

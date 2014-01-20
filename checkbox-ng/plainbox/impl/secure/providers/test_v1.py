@@ -258,6 +258,9 @@ class JobDefintionPlugInTests(TestCase):
         self.assertEqual(job.name, "test/job")
         self.assertEqual(job.plugin, "shell")
         self.assertEqual(job.command, "true")
+        self.assertEqual(
+            job.origin, Origin(FileTextSource("/path/to/jobs.txt"), 1, 3))
+
 
     def test_job_provider(self):
         """

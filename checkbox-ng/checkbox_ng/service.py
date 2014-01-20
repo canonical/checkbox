@@ -1013,6 +1013,41 @@ class SessionWrapper(PlainBoxObjectWrapper):
 
     # TODO: signal<metadata>
 
+    @dbus.service.signal(
+        dbus_interface=SESSION_IFACE, signature='os')
+    def AskForOutcome(self, primed_job: 'o', suggested_outcome: 's'):
+        """
+        Signal sent when the user should be consulted for the outcome.
+
+        The signal carries:
+        - the primed_job instance (which is the sender of this signal anyway).
+        - the suggested_outcome for the test based on the execution of the
+          test command if it exists.
+
+        This signal triggers important interactions in the GUI, the typical
+        use case for the suggested_outcome is:
+
+        - When the "test" button is clicked on a manual test, the outcome
+          (e.g. the yes/no/skip radiobox) needs to be automatically updated to
+          reflect actual test result. Otherwise, a failing test will not be
+          detected by the user, which will cause embarrassment.
+        """
+        logger.info("AskForOutcome(%r) suggested outcome is (%s)", primed_job,
+                    suggested_outcome)
+
+    @dbus.service.signal(
+        dbus_interface=SESSION_IFACE, signature='o')
+    def ShowInteractiveUI(self, primed_job: 'o'):
+        """
+        Signal sent when the test requires user interaction.
+
+        The signal carries:
+        - the primed_job instance (which is the sender of this signal anyway).
+
+        This signal triggers important interactions in the GUI.
+        """
+        logger.info("ShowInteractiveUI(%r)", primed_job)
+
 
 class ProviderWrapper(PlainBoxObjectWrapper):
     """
@@ -1344,19 +1379,6 @@ class PrimedJobWrapper(PlainBoxObjectWrapper):
         """
         logger.info("JobResultAvailable(%r, %r)", job, result)
 
-    # Legacy GUI behavior signal.
-    # Should be redesigned when we can change GUI internals
-    @dbus.service.signal(
-        dbus_interface=SERVICE_IFACE, signature='o')
-    def AskForOutcome(self, primed_job: 'o'):
-        """
-        Signal sent when the user should be consulted for the outcome.
-
-        The signal carries the primed_job instance (which is the sender of this
-        signal anyway). This signal triggers important interactions in the GUI
-        """
-        logger.info("AskForOutcome(%r)", primed_job)
-
     def _decide_on_what_to_do(self):
         """
         Internal method of PrimedJobWrapper.
@@ -1373,9 +1395,10 @@ class PrimedJobWrapper(PlainBoxObjectWrapper):
         # TODO: change this to depend on jobbox 'startup' property
         # http://jobbox.readthedocs.org/en/latest/jobspec.html#startup
         if self.native.job.startup_user_interaction_required:
-            logger.info("Sending AskForOutcome() and not starting the job...")
+            logger.info(
+                "Sending ShowInteractiveUI() and not starting the job...")
             # Ask the application to show the interaction GUI
-            self.AskForOutcome(self)
+            self._session_wrapper.ShowInteractiveUI(self)
         else:
             logger.info("Running %r right away", self.native.job)
             with self._result_lock:
@@ -1425,4 +1448,10 @@ class PrimedJobWrapper(PlainBoxObjectWrapper):
                 logger.debug(
                     ("sending AskForOutcome() after job finished"
                      " running with OUTCOME_UNDECIDED"))
-                self.AskForOutcome(self)
+                # Convert the return of the command to the suggested_outcome
+                # for the job
+                if self._result.return_code == 0:
+                    suggested_outcome = IJobResult.OUTCOME_PASS
+                else:
+                    suggested_outcome = IJobResult.OUTCOME_FAIL
+                self._session_wrapper.AskForOutcome(self, suggested_outcome)

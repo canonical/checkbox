@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2013 Canonical Ltd.
+# Copyright 2013, 2014 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
@@ -595,6 +595,28 @@ class ChoiceValidator(IValidator):
     def __call__(self, variable, new_value):
         if new_value not in self.choice_list:
             return "must be one of {}".format(", ".join(self.choice_list))
+
+
+class NotUnsetValidator(IValidator):
+    """
+    A validator ensuring that values are set
+
+    ..note::
+        Due to the way validators work this validator *must* be the first
+        one in any validator list in order to work. Otherwise the implicit
+        :func:`KindValidator` will take precedence and the check will most
+        likely fail as None or Unset are not of the expected type of the
+        configuration variable being worked with.
+    """
+
+    def __init__(self, msg=None):
+        if msg is None:
+            msg = "must be set to something"
+        self.msg = msg
+
+    def __call__(self, variable, new_value):
+        if new_value is Unset:
+            return self.msg
 
 
 class NotEmptyValidator(IValidator):

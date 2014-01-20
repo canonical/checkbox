@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2013 Canonical Ltd.
+# Copyright 2013, 2014 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
@@ -30,6 +30,7 @@ from plainbox.impl.secure.config import ChoiceValidator
 from plainbox.impl.secure.config import ConfigMetaData
 from plainbox.impl.secure.config import KindValidator
 from plainbox.impl.secure.config import NotEmptyValidator
+from plainbox.impl.secure.config import NotUnsetValidator
 from plainbox.impl.secure.config import PlainBoxConfigParser, Config
 from plainbox.impl.secure.config import Variable, Section, Unset
 
@@ -174,6 +175,49 @@ class ChoiceValidatorTests(TestCase):
         validator = ChoiceValidator(["foo", "bar"])
         self.assertEqual(validator(None, "foo"), None)
         self.assertEqual(validator(None, "omg"), "must be one of foo, bar")
+
+
+class NotUnsetValidatorTests(TestCase):
+    """
+    Tests for the NotUnsetValidator class
+    """
+
+    class _Config(Config):
+        var = Variable()
+
+    def test_rejects_unset_values(self):
+        """
+        verify that Unset variables are rejected
+        """
+        validator = NotUnsetValidator()
+        self.assertEqual(
+            validator(self._Config.var, Unset), "must be set to something")
+
+    def test_accepts_other_values(self):
+        """
+        verify that other values are accepted
+        """
+        validator = NotUnsetValidator()
+        self.assertIsNone(validator(self._Config.var, None))
+        self.assertIsNone(validator(self._Config.var, "string"))
+        self.assertIsNone(validator(self._Config.var, 15))
+
+    def test_supports_custom_message(self):
+        """
+        verify that custom message is used
+        """
+        validator = NotUnsetValidator("value required!")
+        self.assertEqual(
+            validator(self._Config.var, Unset), "value required!")
+
+    def test_comparison_works(self):
+        """
+        verify that comparison works as expected
+        """
+        self.assertTrue(NotUnsetValidator() == NotUnsetValidator())
+        self.assertTrue(NotUnsetValidator("?") == NotUnsetValidator("?"))
+        self.assertTrue(NotUnsetValidator() != NotUnsetValidator("?"))
+        self.assertTrue(NotUnsetValidator() != object())
 
 
 class NotEmptyValidatorTests(TestCase):

@@ -35,6 +35,9 @@ from plainbox.impl.secure.qualifiers import NameJobQualifier
 from plainbox.impl.secure.qualifiers import RegExpJobQualifier
 from plainbox.impl.secure.qualifiers import SimpleQualifier
 from plainbox.impl.secure.qualifiers import WhiteList
+from plainbox.impl.secure.rfc822 import FileTextSource
+from plainbox.impl.secure.rfc822 import Origin
+from plainbox.impl.secure.rfc822 import UnknownTextSource
 from plainbox.impl.testing_utils import make_job
 from plainbox.vendor import mock
 
@@ -387,8 +390,9 @@ class WhiteListTests(TestCase):
 
     def test_load_patterns(self):
         with self.mocked_file(self._name, self._content):
-            pattern_list = WhiteList._load_patterns(self._name)
+            pattern_list, max_lineno = WhiteList._load_patterns(self._name)
         self.assertEqual(pattern_list, ['^foo$', '^bar$'])
+        self.assertEqual(max_lineno, 3)
 
     def test_designates(self):
         """
@@ -412,18 +416,67 @@ class WhiteListTests(TestCase):
         """
         with self.mocked_file(self._name, self._content):
             whitelist = WhiteList.from_file(self._name)
+        # verify that the patterns are okay
         self.assertEqual(
             repr(whitelist.qualifier_list[0]),
             "RegExpJobQualifier('^foo$', inclusive=True)")
+        # verify that whitelist name got set
+        self.assertEqual(whitelist.name, "whitelist")
+        # verify that the origin got set
+        self.assertEqual(
+            whitelist.origin,
+            Origin(FileTextSource("whitelist.txt"), 1, 3))
 
     def test_from_string(self):
         """
         verify that WhiteList.from_string() works
         """
         whitelist = WhiteList.from_string("\n".join(self._content))
+        # verify that the patterns are okay
         self.assertEqual(
             repr(whitelist.qualifier_list[0]),
             "RegExpJobQualifier('^foo$', inclusive=True)")
+        # verify that whitelist name is the empty default
+        self.assertEqual(whitelist.name, None)
+        # verify that the origin got set to the default constructed value
+        self.assertEqual(whitelist.origin, Origin(UnknownTextSource(), 1, 3))
+
+    def test_from_string__with_name_and_origin(self):
+        """
+        verify that WhiteList.from_string() works when passing name and origin
+        """
+        # construct a whitelist with some dummy data, the names, pathnames and
+        # line ranges are arbitrary
+        whitelist = WhiteList.from_string(
+            "\n".join(self._content), name="somefile",
+            origin=Origin(FileTextSource("somefile.txt"), 1, 3))
+        # verify that the patterns are okay
+        self.assertEqual(
+            repr(whitelist.qualifier_list[0]),
+            "RegExpJobQualifier('^foo$', inclusive=True)")
+        # verify that whitelist name is copied
+        self.assertEqual(whitelist.name, "somefile")
+        # verify that the origin is copied
+        self.assertEqual(
+            whitelist.origin, Origin(FileTextSource("somefile.txt"), 1, 3))
+
+    def test_from_string__with_filename(self):
+        """
+        verify that WhiteList.from_string() works when passing filename
+        """
+        # construct a whitelist with some dummy data, the names, pathnames and
+        # line ranges are arbitrary
+        whitelist = WhiteList.from_string(
+            "\n".join(self._content), filename="somefile.txt")
+        # verify that the patterns are okay
+        self.assertEqual(
+            repr(whitelist.qualifier_list[0]),
+            "RegExpJobQualifier('^foo$', inclusive=True)")
+        # verify that whitelist name is derived from the filename
+        self.assertEqual(whitelist.name, "somefile")
+        # verify that the origin is properly derived from the filename
+        self.assertEqual(
+            whitelist.origin, Origin(FileTextSource("somefile.txt"), 1, 3))
 
     def test_repr(self):
         """

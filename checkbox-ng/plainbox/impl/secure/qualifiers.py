@@ -31,6 +31,9 @@ import os
 import re
 
 from plainbox.abc import IJobQualifier
+from plainbox.impl.secure.rfc822 import FileTextSource
+from plainbox.impl.secure.rfc822 import Origin
+from plainbox.impl.secure.rfc822 import UnknownTextSource
 
 
 class SimpleQualifier(IJobQualifier):
@@ -221,13 +224,14 @@ class WhiteList(CompositeQualifier):
     and appended (respectively) to the actual pattern specified in the file.
     """
 
-    def __init__(self, pattern_list, name=None):
+    def __init__(self, pattern_list, name=None, origin=None):
         """
         Initialize a WhiteList object with the specified list of patterns.
 
         The patterns must be already mangled with '^' and '$'.
         """
         self._name = name
+        self._origin = origin
         super(WhiteList, self).__init__(
             [RegExpJobQualifier(pattern) for pattern in pattern_list])
 
@@ -248,6 +252,13 @@ class WhiteList(CompositeQualifier):
         """
         self._name = value
 
+    @property
+    def origin(self):
+        """
+        origin object associated with this WhiteList (might be None)
+        """
+        return self._origin
+
     @classmethod
     def from_file(cls, pathname):
         """
@@ -258,22 +269,47 @@ class WhiteList(CompositeQualifier):
         :returns:
             a fresh WhiteList object
         """
-        pattern_list = cls._load_patterns(pathname)
+        pattern_list, max_lineno = cls._load_patterns(pathname)
         name = os.path.splitext(os.path.basename(pathname))[0]
-        return cls(pattern_list, name=name)
+        origin = Origin(FileTextSource(pathname), 1, max_lineno)
+        return cls(pattern_list, name, origin)
 
     @classmethod
-    def from_string(cls, text):
+    def from_string(cls, text, *, filename=None, name=None, origin=None):
         """
-        Load and initialize the WhiteList object from the specified file.
+        Load and initialize the WhiteList object from the specified string.
 
-        :param pathname:
-            text to parse and load
+        :param text:
+            full text of the whitelist
+        :param filename:
+            (optional, keyword-only) filename from which text was read from.
+            This simulates a call to :meth:`from_file()` which properly
+            computes the name and origin of the whitelist.
+        :param name:
+            (optional) name of the whitelist, only used if filename is not
+            specified.
+        :param origin:
+            (optional) origin of the whitelist, only used if a filename is not
+            specified.  If omitted a default origin value will be constructed
+            out of UnknownTextSource instance
         :returns:
             a fresh WhiteList object
+
+        The optional filename or a pair of name and origin arguments may be
+        provided in order to have additional meta-data. This is typically
+        needed when the :meth:`from_file()` method cannot be used as the caller
+        already has the full text of the intended file available.
         """
-        pattern_list = cls._parse_patterns(text)
-        return cls(pattern_list)
+        pattern_list, max_lineno = cls._parse_patterns(text)
+        # generate name and origin if filename is provided
+        if filename is not None:
+            name = WhiteList.name_from_filename(filename)
+            origin = Origin(FileTextSource(filename), 1, max_lineno)
+        else:
+            # otherwise generate origin if it's not specified
+            if origin is None:
+                origin = Origin(UnknownTextSource(), 1, max_lineno)
+        return cls(pattern_list, name, origin)
 
     @classmethod
     def name_from_filename(cls, filename):
@@ -287,10 +323,17 @@ class WhiteList(CompositeQualifier):
     def _parse_patterns(cls, text):
         """
         Load whitelist patterns from the specified text
+
+        :param text:
+            string of text, including newlines, to parse
+        :returns:
+            (pattern_list, lineno) where lineno is the final line number
+            (1-based) and pattern_list is a list of regular expression strings
+            parsed from the whitelist.
         """
         pattern_list = []
         # Load the file
-        for line in text.splitlines():
+        for lineno, line in enumerate(text.splitlines(), 1):
             # Strip shell-style comments if there are any
             try:
                 index = line.index("#")
@@ -308,12 +351,19 @@ class WhiteList(CompositeQualifier):
             regexp_pattern = r"^{pattern}$".format(pattern=line)
             # Accumulate patterns into the list
             pattern_list.append(regexp_pattern)
-        return pattern_list
+        return pattern_list, lineno
 
     @classmethod
     def _load_patterns(cls, pathname):
         """
         Load whitelist patterns from the specified file
+
+        :param pathname:
+            pathname of the file to load and parse
+        :returns:
+            (pattern_list, lineno) where lineno is the final line number
+            (1-based) and pattern_list is a list of regular expression strings
+            parsed from the whitelist.
         """
         with open(pathname, "rt", encoding="UTF-8") as stream:
             return cls._parse_patterns(stream.read())

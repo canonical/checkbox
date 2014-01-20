@@ -38,6 +38,8 @@ from plainbox.impl.secure.providers.v1 import Provider1PlugIn
 from plainbox.impl.secure.providers.v1 import VersionValidator
 from plainbox.impl.secure.providers.v1 import WhiteListPlugIn
 from plainbox.impl.secure.qualifiers import WhiteList
+from plainbox.impl.secure.rfc822 import FileTextSource
+from plainbox.impl.secure.rfc822 import Origin
 from plainbox.vendor import mock
 
 
@@ -198,6 +200,10 @@ class WhiteListPlugInTests(TestCase):
             self.plugin.plugin_object.qualifier_list[0].pattern_text, "^foo$")
         self.assertEqual(
             self.plugin.plugin_object.qualifier_list[1].pattern_text, "^bar$")
+        self.assertEqual(self.plugin.plugin_object.name, 'some')
+        self.assertEqual(
+            self.plugin.plugin_object.origin,
+            Origin(FileTextSource('/path/to/some.whitelist'), 1, 2))
 
     def test_init_failing(self):
         """

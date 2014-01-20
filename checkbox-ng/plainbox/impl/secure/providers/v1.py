@@ -55,8 +55,7 @@ class WhiteListPlugIn(IPlugIn):
         Initialize the plug-in with the specified name text
         """
         try:
-            self._whitelist = WhiteList.from_string(text)
-            self._whitelist.name = WhiteList.name_from_filename(filename)
+            self._whitelist = WhiteList.from_string(text, filename=filename)
         except Exception as exc:
             raise PlugInError(
                 "Cannot load whitelist {!r}: {}".format(filename, exc))

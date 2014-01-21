@@ -36,6 +36,15 @@ from plainbox.impl.secure.config import PlainBoxConfigParser, Config
 from plainbox.impl.secure.config import Variable, Section, Unset
 
 
+class UnsetTests(TestCase):
+
+    def test_str(self):
+        self.assertEqual(str(Unset), "unset")
+
+    def test_repr(self):
+        self.assertEqual(repr(Unset), "Unset")
+
+
 class VariableTests(TestCase):
 
     def test_name(self):

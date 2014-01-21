@@ -31,6 +31,7 @@ from plainbox.impl.secure.config import ConfigMetaData
 from plainbox.impl.secure.config import KindValidator
 from plainbox.impl.secure.config import NotEmptyValidator
 from plainbox.impl.secure.config import NotUnsetValidator
+from plainbox.impl.secure.config import PatternValidator
 from plainbox.impl.secure.config import PlainBoxConfigParser, Config
 from plainbox.impl.secure.config import Variable, Section, Unset
 
@@ -191,15 +192,45 @@ class PlainBoxConfigParserTest(TestCase):
         self.assertFalse('upper' in all_keys)
 
 
+class PatternValidatorTests(TestCase):
+
+    class _Config(Config):
+        var = Variable()
+
+    def test_smoke(self):
+        """
+        verify that PatternValidator works as intended
+        """
+        validator = PatternValidator("foo.+")
+        self.assertEqual(validator(self._Config.var, "foobar"), None)
+        self.assertEqual(
+            validator(self._Config.var, "foo"),
+            "does not match pattern: 'foo.+'")
+
+    def test_comparison_works(self):
+        self.assertTrue(PatternValidator('foo') == PatternValidator('foo'))
+        self.assertTrue(PatternValidator('foo') != PatternValidator('bar'))
+        self.assertTrue(PatternValidator('foo') != object())
+
+
 class ChoiceValidatorTests(TestCase):
+
+    class _Config(Config):
+        var = Variable()
 
     def test_smoke(self):
         """
         verify that ChoiceValidator works as intended
         """
         validator = ChoiceValidator(["foo", "bar"])
-        self.assertEqual(validator(None, "foo"), None)
-        self.assertEqual(validator(None, "omg"), "must be one of foo, bar")
+        self.assertEqual(validator(self._Config.var, "foo"), None)
+        self.assertEqual(
+            validator(self._Config.var, "omg"), "must be one of foo, bar")
+
+    def test_comparison_works(self):
+        self.assertTrue(ChoiceValidator(["a"]) == ChoiceValidator(["a"]))
+        self.assertTrue(ChoiceValidator(["a"]) != ChoiceValidator(["b"]))
+        self.assertTrue(ChoiceValidator(["a"]) != object())
 
 
 class NotUnsetValidatorTests(TestCase):
@@ -247,14 +278,23 @@ class NotUnsetValidatorTests(TestCase):
 
 class NotEmptyValidatorTests(TestCase):
 
+    class _Config(Config):
+        var = Variable()
+
     def test_rejects_empty_values(self):
         validator = NotEmptyValidator()
-        self.assertEqual(validator(None, ""), "cannot be empty")
+        self.assertEqual(validator(self._Config.var, ""), "cannot be empty")
 
     def test_supports_custom_message(self):
         validator = NotEmptyValidator("name required!")
-        self.assertEqual(validator(None, ""), "name required!")
+        self.assertEqual(validator(self._Config.var, ""), "name required!")
 
     def test_isnt_broken(self):
         validator = NotEmptyValidator()
-        self.assertEqual(validator(None, "some value"), None)
+        self.assertEqual(validator(self._Config.var, "some value"), None)
+
+    def test_comparison_works(self):
+        self.assertTrue(NotEmptyValidator() == NotEmptyValidator())
+        self.assertTrue(NotEmptyValidator("?") == NotEmptyValidator("?"))
+        self.assertTrue(NotEmptyValidator() != NotEmptyValidator("?"))
+        self.assertTrue(NotEmptyValidator() != object())

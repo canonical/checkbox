@@ -595,6 +595,12 @@ class PatternValidator(IValidator):
         if not self.pattern.match(new_value):
             return "does not match pattern: {!r}".format(self.pattern_text)
 
+    def __eq__(self, other):
+        if isinstance(other, PatternValidator):
+            return self.pattern_text == other.pattern_text
+        else:
+            return False
+
 
 class ChoiceValidator(IValidator):
     """
@@ -607,6 +613,12 @@ class ChoiceValidator(IValidator):
     def __call__(self, variable, new_value):
         if new_value not in self.choice_list:
             return "must be one of {}".format(", ".join(self.choice_list))
+
+    def __eq__(self, other):
+        if isinstance(other, ChoiceValidator):
+            return self.choice_list == other.choice_list
+        else:
+            return False
 
 
 class NotUnsetValidator(IValidator):
@@ -650,3 +662,9 @@ class NotEmptyValidator(IValidator):
     def __call__(self, variable, new_value):
         if new_value == "":
             return self.msg
+
+    def __eq__(self, other):
+        if isinstance(other, NotEmptyValidator):
+            return self.msg == other.msg
+        else:
+            return False

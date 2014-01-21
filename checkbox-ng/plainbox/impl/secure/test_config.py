@@ -25,6 +25,7 @@ Test definitions for plainbox.impl.secure.config module
 """
 from io import StringIO
 from unittest import TestCase
+import configparser
 
 from plainbox.impl.secure.config import ChoiceValidator
 from plainbox.impl.secure.config import ConfigMetaData
@@ -159,13 +160,14 @@ class ConfigTests(TestCase):
         class TestConfig(Config):
             v1 = Variable()
             v2 = Variable(section="v2_section")
+            v_unset = Variable()
             v_bool = Variable(section="type_section", kind=bool)
             v_int = Variable(section="type_section", kind=int)
             v_float = Variable(section="type_section", kind=float)
             v_str = Variable(section="type_section", kind=str)
             s = Section()
         conf = TestConfig()
-        # assign value to each variable
+        # assign value to each variable, except v3_unset
         conf.v1 = "v1 value"
         conf.v2 = "v2 value"
         conf.v_bool = True
@@ -186,6 +188,9 @@ class ConfigTests(TestCase):
         # verify that section and section-less variables work
         self.assertEqual(parser.get("DEFAULT", "v1"), "v1 value")
         self.assertEqual(parser.get("v2_section", "v2"), "v2 value")
+        # verify that unset variable is not getting set to anything
+        with self.assertRaises(configparser.Error):
+            parser.get("DEFAULT", "v_unset")
         # verify that various types got converted correctly and still resolve
         # to correct typed values
         self.assertEqual(parser.get("type_section", "v_bool"), "True")

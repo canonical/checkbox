@@ -515,6 +515,10 @@ class CheckBoxExecutionController(IExecutionController):
         env['CHECKBOX_SHARE'] = job.provider.CHECKBOX_SHARE
         # Add CHECKBOX_DATA (temporary checkbox data)
         env['CHECKBOX_DATA'] = self.CHECKBOX_DATA
+        # Add plainbox equivalents of the two above
+        env['PLAINBOX_PROVIDER_DATA'] = os.path.join(
+            job.provider.CHECKBOX_SHARE, 'data')
+        env['PLAINBOX_SESSION_SHARE'] = self.CHECKBOX_DATA
         # Inject additional variables that are requested in the config
         if config is not None and config.environment is not Unset:
             for env_var in config.environment:

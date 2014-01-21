@@ -734,11 +734,15 @@ class RootViaPTL1ExecutionControllerTests(
             '-G', 'CHECKBOX_SHARE=CHECKBOX_SHARE-generator',
             '-G', 'LANG=C.UTF-8',
             '-G', 'PATH={}'.format(PATH),
+            '-G', 'PLAINBOX_PROVIDER_DATA=CHECKBOX_SHARE-generator/data',
+            '-G', 'PLAINBOX_SESSION_SHARE=session-dir/CHECKBOX_DATA',
             '--target', self.job.checksum,
             '-T', 'CHECKBOX_DATA=session-dir/CHECKBOX_DATA',
             '-T', 'CHECKBOX_SHARE=CHECKBOX_SHARE',
             '-T', 'LANG=C.UTF-8',
             '-T', 'PATH={}'.format(PATH),
+            '-T', 'PLAINBOX_PROVIDER_DATA=CHECKBOX_SHARE/data',
+            '-T', 'PLAINBOX_SESSION_SHARE=session-dir/CHECKBOX_DATA',
         ]
         actual = self.ctrl.get_execution_command(
             self.job, self.config, self.NEST_DIR)
@@ -759,7 +763,10 @@ class RootViaPTL1ExecutionControllerTests(
             '-T', 'CHECKBOX_DATA=session-dir/CHECKBOX_DATA',
             '-T', 'CHECKBOX_SHARE=CHECKBOX_SHARE',
             '-T', 'LANG=C.UTF-8',
-            '-T', 'PATH={}'.format(PATH)]
+            '-T', 'PATH={}'.format(PATH),
+            '-T', 'PLAINBOX_PROVIDER_DATA=CHECKBOX_SHARE/data',
+            '-T', 'PLAINBOX_SESSION_SHARE=session-dir/CHECKBOX_DATA',
+        ]
         actual = self.ctrl.get_execution_command(
             self.job, self.config, self.NEST_DIR)
         self.assertEqual(actual, expected)
@@ -864,6 +871,8 @@ class RootViaPkexecExecutionControllerTests(
              'LANG=C.UTF-8',
              'PATH={}'.format(
                  os.pathsep.join([self.NEST_DIR, 'vanilla-path'])),
+             'PLAINBOX_PROVIDER_DATA=CHECKBOX_SHARE/data',
+             'PLAINBOX_SESSION_SHARE=session-dir/CHECKBOX_DATA',
              'bash', '-c', self.job.command])
 
     def test_get_checkbox_score_for_user_jobs(self):
@@ -902,6 +911,8 @@ class RootViaSudoExecutionControllerTests(
              'LANG=C.UTF-8',
              'PATH={}'.format(
                  os.pathsep.join([self.NEST_DIR, 'vanilla-path'])),
+             'PLAINBOX_PROVIDER_DATA=CHECKBOX_SHARE/data',
+             'PLAINBOX_SESSION_SHARE=session-dir/CHECKBOX_DATA',
              'bash', '-c', self.job.command])
 
     SUDO, ADMIN = range(2)

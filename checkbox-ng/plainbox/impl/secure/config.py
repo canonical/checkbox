@@ -462,6 +462,9 @@ class Config(metaclass=ConfigMeta):
         """
         Load settings from a string.
 
+        :param string:
+            The full text of INI-like configuration to parse and apply
+
         This method parses the string as an INI file using
         :class:`PlainBoxConfigParser` (a simple ConfigParser subclass that
         respects the case of key names).

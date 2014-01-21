@@ -1,0 +1,5 @@
+plainbox-provider-checkbox (0.3-1) unstable; urgency=low
+
+  * Initial release (Closes: #735208)
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Wed, 22 Jan 2014 00:58:42 +0100

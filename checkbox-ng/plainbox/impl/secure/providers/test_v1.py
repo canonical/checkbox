@@ -261,7 +261,6 @@ class JobDefintionPlugInTests(TestCase):
         self.assertEqual(
             job.origin, Origin(FileTextSource("/path/to/jobs.txt"), 1, 3))
 
-
     def test_job_provider(self):
         """
         verify the loaded job got the provider from the plugin

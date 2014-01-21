@@ -453,7 +453,7 @@ class Provider1PlugIn(IPlugIn):
             definition.name,
             definition.version,
             definition.description,
-            secure=os.path.dirname(filename) == get_secure_PROVIDERPATH())
+            secure=os.path.dirname(filename) in get_secure_PROVIDERPATH_list())
 
     def __repr__(self):
         return "<{!s} plugin_name:{!r}>".format(
@@ -474,35 +474,42 @@ class Provider1PlugIn(IPlugIn):
         return self._provider
 
 
-def get_secure_PROVIDERPATH():
+def get_secure_PROVIDERPATH_list():
     """
-    Computes the secure value for PROVIDERPATH.
+    Computes the secure value of PROVIDERPATH
 
-    For the root-elevated trusted launcher PROVIDERPATH should contain one
-    directory entry:
+    This value is used by `plainbox-trusted-launcher-1` executable to discover
+    all secure providers.
 
-        * /usr/share/plainbox-providers-1
+    :returns:
+        A list of two strings:
+        * `/usr/local/share/plainbox-providers-1`
+        * `/usr/share/plainbox-providers-1`
     """
-    sys_wide = "/usr/share/plainbox-providers-1"
-    return os.path.pathsep.join([sys_wide])
+    return ["/usr/local/share/plainbox-providers-1",
+            "/usr/share/plainbox-providers-1"]
 
 
-class Provider1PlugInCollection(FsPlugInCollection):
+class SecureProvider1PlugInCollection(FsPlugInCollection):
     """
     A collection of v1 provider plugins.
 
-    This class is just like FsPlugInCollection but knows the proper arguments
-    (PROVIDERPATH and the extension)
+    This FsPlugInCollection subclass carries proper, built-in defaults, that
+    make loading providers easier.
+
+    This particular class loads providers from the system-wide managed
+    locations. This defines the security boundary, as if someone can compromise
+    those locations then they already own the corresponding system. In
+    consequence this plug in collection does not respect ``PROVIDERPATH``, it
+    cannot be customized to load provider definitions from any other location.
+    This feature is supported by the
+    :class:`plainbox.impl.providers.v1.InsecureProvider1PlugInCollection`
     """
 
-    DEFAULT_PROVIDERPATH = get_secure_PROVIDERPATH()
-
     def __init__(self):
-        providerpath = os.getenv("PROVIDERPATH", self.DEFAULT_PROVIDERPATH)
-        dir_list = providerpath.split(os.path.pathsep)
-        super(Provider1PlugInCollection, self).__init__(
-            dir_list, '.provider', wrapper=Provider1PlugIn)
+        dir_list = get_secure_PROVIDERPATH_list()
+        super().__init__(dir_list, '.provider', wrapper=Provider1PlugIn)
 
 
 # Collection of all providers
-all_providers = Provider1PlugInCollection()
+all_providers = SecureProvider1PlugInCollection()

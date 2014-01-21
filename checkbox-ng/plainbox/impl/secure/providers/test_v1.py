@@ -148,26 +148,192 @@ class Provider1DefinitionTests(TestCase):
 
 class Provider1PlugInTests(TestCase):
 
-    def setUp(self):
+    def test_plugin_name(self):
         with mock.patch('os.path.isdir') as mock_isdir:
             # Mock os.path.isdir so that we can validate location
             mock_isdir.return_value = True
-            self.plugin = Provider1PlugIn(
+            plugin = Provider1PlugIn(
                 "foo.provider", Provider1DefinitionTests.DEF_TEXT)
-
-    def test_plugin_name(self):
         self.assertEqual(
-            self.plugin.plugin_name, "2013.org.example:smoke-test")
+            plugin.plugin_name, "2013.org.example:smoke-test")
 
     def test_plugin_object(self):
-        self.assertIsInstance(self.plugin.plugin_object, Provider1)
+        with mock.patch('os.path.isdir') as mock_isdir:
+            # Mock os.path.isdir so that we can validate location
+            mock_isdir.return_value = True
+            plugin = Provider1PlugIn(
+                "foo.provider", Provider1DefinitionTests.DEF_TEXT)
+        self.assertIsInstance(plugin.plugin_object, Provider1)
 
-    def test_provieder_data(self):
-        provider = self.plugin.plugin_object
+    def test_provider_data(self):
+        with mock.patch('os.path.isdir') as mock_isdir:
+            # Mock os.path.isdir so that we can validate location
+            mock_isdir.return_value = True
+            plugin = Provider1PlugIn(
+                "foo.provider", Provider1DefinitionTests.DEF_TEXT)
+        provider = plugin.plugin_object
         self.assertEqual(provider.base_dir, "/some/directory/")
         self.assertEqual(provider.name, "2013.org.example:smoke-test")
         self.assertEqual(provider.version, "1.0")
         self.assertEqual(provider.description, "A provider for smoke testing")
+
+    def test_init_validation__no_name(self):
+        """
+        verify how Provider1PlugIn validates missing name field
+        """
+        with self.assertRaises(PlugInError) as boom:
+            with mock.patch('os.path.isdir') as mock_isdir:
+                # Mock os.path.isdir so that we can validate location
+                mock_isdir.return_value = True
+                Provider1PlugIn("broken.provider", (
+                    "[PlainBox Provider]\n"
+                    # NOTE: no name set, we should see that being caught
+                    # "name = 2014.example.org:name\n"
+                    "version = 1.0\n"
+                    "location = /some/place\n"
+                ))
+        self.assertEqual(
+            str(boom.exception), (
+                "Problem in provider definition, "
+                "field 'name': must be set to something"))
+
+    def test_init_validation__empty_name(self):
+        """
+        verify how Provider1PlugIn validates missing name field
+        """
+        with self.assertRaises(PlugInError) as boom:
+            with mock.patch('os.path.isdir') as mock_isdir:
+                # Mock os.path.isdir so that we can validate location
+                mock_isdir.return_value = True
+                Provider1PlugIn("broken.provider", (
+                    "[PlainBox Provider]\n"
+                    "name =\n"
+                    "version = 1.0\n"
+                    "location = /some/place\n"
+                ))
+        self.assertEqual(
+            str(boom.exception), (
+                "Problem in provider definition, "
+                "field 'name': cannot be empty"))
+
+    def test_init_validation__non_iqn_name(self):
+        """
+        verify how Provider1PlugIn validates missing name field
+        """
+        with self.assertRaises(PlugInError) as boom:
+            with mock.patch('os.path.isdir') as mock_isdir:
+                # Mock os.path.isdir so that we can validate location
+                mock_isdir.return_value = True
+                Provider1PlugIn("broken.provider", (
+                    "[PlainBox Provider]\n"
+                    "name = my pretty name\n"
+                    "version = 1.0\n"
+                    "location = /some/place\n"
+                ))
+        self.assertEqual(
+            str(boom.exception), (
+                "Problem in provider definition, "
+                "field 'name': must look like RFC3720 IQN"))
+
+    def test_init_validation__no_version(self):
+        """
+        verify how Provider1PlugIn validates missing version field
+        """
+        with self.assertRaises(PlugInError) as boom:
+            with mock.patch('os.path.isdir') as mock_isdir:
+                # Mock os.path.isdir so that we can validate location
+                mock_isdir.return_value = True
+                Provider1PlugIn("broken.provider", (
+                    "[PlainBox Provider]\n"
+                    "name = 2014.example.org:name\n"
+                    # NOTE: no version set, we should see that being caught
+                    # "version = 1.0\n"
+                    "location = /some/place\n"
+                ))
+        self.assertEqual(
+            str(boom.exception), (
+                "Problem in provider definition, "
+                "field 'version': must be set to something"))
+
+    def test_init_validation__no_location(self):
+        """
+        verify how Provider1PlugIn validates missing location field
+        """
+        with self.assertRaises(PlugInError) as boom:
+            with mock.patch('os.path.isdir') as mock_isdir:
+                # Mock os.path.isdir so that we can validate location
+                mock_isdir.return_value = True
+                Provider1PlugIn("broken.provider", (
+                    "[PlainBox Provider]\n"
+                    "name = 2014.example.org:name\n"
+                    "version = 1.0\n"
+                    # NOTE: no location set, we should see that being caught
+                    # "location = /some/place\n"
+                ))
+        self.assertEqual(
+            str(boom.exception), (
+                "Problem in provider definition, "
+                "field 'location': must be set to something"))
+
+    def test_init_validation__location_is_empty(self):
+        """
+        verify how Provider1PlugIn validates missing location field
+        """
+        with self.assertRaises(PlugInError) as boom:
+            with mock.patch('os.path.isdir') as mock_isdir:
+                # Mock os.path.isdir so that we can validate location
+                mock_isdir.return_value = True
+                Provider1PlugIn("broken.provider", (
+                    "[PlainBox Provider]\n"
+                    "name = 2014.example.org:name\n"
+                    "version = 1.0\n"
+                    "location =\n"
+                ))
+        self.assertEqual(
+            str(boom.exception), (
+                "Problem in provider definition, "
+                "field 'location': cannot be empty"))
+
+    def test_init_validation__location_relative(self):
+        """
+        verify how Provider1PlugIn validates location field
+        having a relative value
+        """
+        with self.assertRaises(PlugInError) as boom:
+            with mock.patch('os.path.isdir') as mock_isdir:
+                # Mock os.path.isdir so that we can validate location
+                mock_isdir.return_value = True
+                Provider1PlugIn("broken.provider", (
+                    "[PlainBox Provider]\n"
+                    "name = 2014.example.org:name\n"
+                    "version = 1.0\n"
+                    "location = some/place\n"
+                ))
+        self.assertEqual(
+            str(boom.exception), (
+                "Problem in provider definition, "
+                "field 'location': cannot be relative"))
+
+    def test_init_validation__location_doesnt_exist(self):
+        """
+        verify how Provider1PlugIn validates location field pointing to a
+        directory that does not exist
+        """
+        with self.assertRaises(PlugInError) as boom:
+            with mock.patch('os.path.isdir') as mock_isdir:
+                # Mock os.path.isdir the *other* way around, so that this
+                # directory doesn't exist, even if it does somehow
+                mock_isdir.return_value = False
+                Provider1PlugIn("broken.provider", (
+                    "[PlainBox Provider]\n"
+                    "name = 2014.example.org:name\n"
+                    "version = 1.0\n"
+                    "location = /some/place\n"
+                ))
+        self.assertEqual(
+            str(boom.exception), (
+                "Problem in provider definition, "
+                "field 'location': no such directory"))
 
 
 class WhiteListPlugInTests(TestCase):

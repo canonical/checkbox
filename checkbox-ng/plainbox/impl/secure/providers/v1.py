@@ -29,6 +29,7 @@ import os
 
 from plainbox.abc import IProvider1, IProviderBackend1
 from plainbox.impl.job import JobDefinition
+from plainbox.impl.secure.config import NotUnsetValidator
 from plainbox.impl.secure.config import Config, Variable
 from plainbox.impl.secure.config import IValidator
 from plainbox.impl.secure.config import NotEmptyValidator
@@ -409,6 +410,7 @@ class Provider1Definition(Config):
         section='PlainBox Provider',
         help_text="Base directory with provider data",
         validator_list=[
+            NotUnsetValidator(),
             NotEmptyValidator(),
             AbsolutePathValidator(),
             ExistingDirectoryValidator(),
@@ -418,6 +420,7 @@ class Provider1Definition(Config):
         section='PlainBox Provider',
         help_text="Name of the provider",
         validator_list=[
+            NotUnsetValidator(),
             NotEmptyValidator(),
             IQNValidator(),
         ])
@@ -426,6 +429,7 @@ class Provider1Definition(Config):
         section='PlainBox Provider',
         help_text="Version of the provider",
         validator_list=[
+            NotUnsetValidator(),
             NotEmptyValidator(),
             VersionValidator(),
         ])
@@ -446,7 +450,16 @@ class Provider1PlugIn(IPlugIn):
         Initialize the plug-in with the specified name and external object
         """
         definition = Provider1Definition()
+        # Load the provider definition
         definition.read_string(definition_text)
+        # any validation issues prevent plugin from being used
+        if definition.problem_list:
+            # take the earliest problem and report it
+            exc = definition.problem_list[0]
+            raise PlugInError(
+                "Problem in provider definition, field {!a}: {}".format(
+                    exc.variable.name, exc.message))
+        # Initialize the provider object
         self._provider = Provider1(
             definition.location,
             definition.name,

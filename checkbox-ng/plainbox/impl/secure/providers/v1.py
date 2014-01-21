@@ -425,7 +425,6 @@ class Provider1Definition(Config):
     version = Variable(
         section='PlainBox Provider',
         help_text="Version of the provider",
-        default="0.0",
         validator_list=[
             NotEmptyValidator(),
             VersionValidator(),

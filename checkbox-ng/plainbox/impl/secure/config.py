@@ -550,10 +550,8 @@ class Config(metaclass=ConfigMeta):
             try:
                 value = reader_fn[variable.kind](
                     variable.section, variable.name)
-            except configparser.NoSectionError:
-                continue
-            except configparser.NoOptionError:
-                continue
+            except (configparser.NoSectionError, configparser.NoOptionError):
+                value = variable.default
             # Try to assign it
             try:
                 variable.__set__(self, value)

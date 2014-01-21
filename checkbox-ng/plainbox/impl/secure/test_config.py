@@ -247,7 +247,7 @@ class ConfigTests(TestCase):
         del conf.s
         self.assertIs(conf.s, Unset)
 
-    def test_read(self):
+    def test_read_string(self):
         class TestConfig(Config):
             v = Variable()
         conf = TestConfig()
@@ -255,6 +255,20 @@ class ConfigTests(TestCase):
             "[DEFAULT]\n"
             "v = 1")
         self.assertEqual(conf.v, "1")
+        self.assertEqual(len(conf.problem_list), 0)
+
+    def test_read_string__does_not_ignore_nonmentioned_variables(self):
+        class TestConfig(Config):
+            v = Variable(validator_list=[NotUnsetValidator()])
+        conf = TestConfig()
+        conf.read_string("")
+        # Because Unset is the default, sadly
+        self.assertEqual(conf.v, Unset)
+        # But there was a problem noticed
+        self.assertEqual(len(conf.problem_list), 1)
+        self.assertEqual(conf.problem_list[0].variable, TestConfig.v)
+        self.assertEqual(conf.problem_list[0].new_value, Unset)
+        self.assertEqual(conf.problem_list[0].message, "must be set to something")
 
 
 class ConfigMetaDataTests(TestCase):

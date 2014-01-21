@@ -159,7 +159,8 @@ class ConfigTests(TestCase):
         # define a featureful config class
         class TestConfig(Config):
             v1 = Variable()
-            v2 = Variable(section="v2_section")
+            v2 = Variable(section="v23_section")
+            v3 = Variable(section="v23_section")
             v_unset = Variable()
             v_bool = Variable(section="type_section", kind=bool)
             v_int = Variable(section="type_section", kind=int)
@@ -170,6 +171,7 @@ class ConfigTests(TestCase):
         # assign value to each variable, except v3_unset
         conf.v1 = "v1 value"
         conf.v2 = "v2 value"
+        conf.v3 = "v3 value"
         conf.v_bool = True
         conf.v_int = -7
         conf.v_float = 1.5
@@ -187,7 +189,8 @@ class ConfigTests(TestCase):
         parser = conf.get_parser_obj()
         # verify that section and section-less variables work
         self.assertEqual(parser.get("DEFAULT", "v1"), "v1 value")
-        self.assertEqual(parser.get("v2_section", "v2"), "v2 value")
+        self.assertEqual(parser.get("v23_section", "v2"), "v2 value")
+        self.assertEqual(parser.get("v23_section", "v3"), "v3 value")
         # verify that unset variable is not getting set to anything
         with self.assertRaises(configparser.Error):
             parser.get("DEFAULT", "v_unset")
@@ -215,8 +218,9 @@ class ConfigTests(TestCase):
                 "[DEFAULT]\n"
                 "v1 = v1 value\n"
                 "\n"
-                "[v2_section]\n"
+                "[v23_section]\n"
                 "v2 = v2 value\n"
+                "v3 = v3 value\n"
                 "\n"
                 "[type_section]\n"
                 "v_bool = True\n"

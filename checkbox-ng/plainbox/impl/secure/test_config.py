@@ -186,6 +186,9 @@ class ConfigMetaDataTests(TestCase):
     def test_variable_list(self):
         self.assertEqual(ConfigMetaData.variable_list, [])
 
+    def test_section_list(self):
+        self.assertEqual(ConfigMetaData.section_list, [])
+
 
 class PlainBoxConfigParserTest(TestCase):
 

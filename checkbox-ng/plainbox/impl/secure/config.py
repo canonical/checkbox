@@ -335,11 +335,38 @@ class ConfigMeta(type):
 
 class PlainBoxConfigParser(configparser.ConfigParser):
     """
-    A simple ConfigParser subclass that does not lowercase
-    key names.
+    A subclass of ConfigParser with the following changes:
+
+    - option names are not lower-cased
+    - write() has deterministic ordering (sorted by name)
     """
+
     def optionxform(self, option):
+        """
+        Overridden method from :class:`configparser.ConfigParser`.
+
+        Returns `option` without any transformations
+        """
         return option
+
+    def write(self, fp, space_around_delimiters=True):
+        """
+        Write an .ini-format representation of the configuration state.
+
+        If `space_around_delimiters' is True (the default), delimiters between
+        keys and values are surrounded by spaces. The ordering of section and
+        values within is deterministic.
+        """
+        if space_around_delimiters:
+            d = " {} ".format(self._delimiters[0])
+        else:
+            d = self._delimiters[0]
+        if self._defaults:
+            self._write_section(
+                fp, self.default_section, sorted(self._defaults.items()), d)
+        for section in self._sections:
+            self._write_section(
+                fp, section, sorted(self._sections[section].items()), d)
 
 
 class Config(metaclass=ConfigMeta):
@@ -400,6 +427,35 @@ class Config(metaclass=ConfigMeta):
         self.read(cls.Meta.filename_list)
         return self
 
+    def get_parser_obj(self):
+        """
+        Get a ConfigParser-like object with the same data.
+
+        :returns:
+            A :class:`PlainBoxConfigParser` object with all of the data copied
+            from this :class:`Config` object.
+
+        Since :class:`PlainBoxConfigParser` is a subclass of
+        :class:`configparser.ConfigParser` it has a number of useful utility
+        methods.  By using this function one can obtain a ConfigParser-like
+        object and work with it directly.
+        """
+        parser = PlainBoxConfigParser()
+        # Write all variables that we know about
+        for variable in self.Meta.variable_list:
+            if (not parser.has_section(variable.section)
+                    and variable.section != "DEFAULT"):
+                parser.add_section(variable.section)
+            value = variable.__get__(self, self.__class__)
+            parser.set(variable.section, variable.name, str(value))
+        # Write all sections that we know about
+        for section in self.Meta.section_list:
+            if not parser.has_section(section.name):
+                parser.add_section(section.name)
+            for name, value in section.__get__(self, self.__class__).items():
+                parser.set(section.name, name, str(value))
+        return parser
+
     def read_string(self, string):
         """
         Load settings from a string.
@@ -435,6 +491,9 @@ class Config(metaclass=ConfigMeta):
         except configparser.Error as exc:
             self._problem_list.append(exc)
         self._read_commit(parser)
+
+    def write(self, stream):
+        self.get_parser_obj().write(stream)
 
     def read(self, filename_list):
         """

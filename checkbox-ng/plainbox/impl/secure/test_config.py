@@ -154,6 +154,76 @@ class ConfigTests(TestCase):
         del conf.v
         self.assertIs(conf.v, Unset)
 
+    def _get_featureful_config(self):
+        # define a featureful config class
+        class TestConfig(Config):
+            v1 = Variable()
+            v2 = Variable(section="v2_section")
+            v_bool = Variable(section="type_section", kind=bool)
+            v_int = Variable(section="type_section", kind=int)
+            v_float = Variable(section="type_section", kind=float)
+            v_str = Variable(section="type_section", kind=str)
+            s = Section()
+        conf = TestConfig()
+        # assign value to each variable
+        conf.v1 = "v1 value"
+        conf.v2 = "v2 value"
+        conf.v_bool = True
+        conf.v_int = -7
+        conf.v_float = 1.5
+        conf.v_str = "hi"
+        # assign value to the section
+        conf.s = {"a": 1, "b": 2}
+        return conf
+
+    def test_get_parser_obj(self):
+        """
+        verify that Config.get_parser_obj() properly writes all the data to the
+        ConfigParser object.
+        """
+        conf = self._get_featureful_config()
+        parser = conf.get_parser_obj()
+        # verify that section and section-less variables work
+        self.assertEqual(parser.get("DEFAULT", "v1"), "v1 value")
+        self.assertEqual(parser.get("v2_section", "v2"), "v2 value")
+        # verify that various types got converted correctly and still resolve
+        # to correct typed values
+        self.assertEqual(parser.get("type_section", "v_bool"), "True")
+        self.assertEqual(parser.getboolean("type_section", "v_bool"), True)
+        self.assertEqual(parser.get("type_section", "v_int"), "-7")
+        self.assertEqual(parser.getint("type_section", "v_int"), -7)
+        self.assertEqual(parser.get("type_section", "v_float"), "1.5")
+        self.assertEqual(parser.getfloat("type_section", "v_float"), 1.5)
+        self.assertEqual(parser.get("type_section", "v_str"), "hi")
+        # verify that section work okay
+        self.assertEqual(parser.get("s", "a"), "1")
+        self.assertEqual(parser.get("s", "b"), "2")
+
+    def test_write(self):
+        """
+        verify that Config.write() works
+        """
+        conf = self._get_featureful_config()
+        with StringIO() as stream:
+            conf.write(stream)
+            self.assertEqual(stream.getvalue(), (
+                "[DEFAULT]\n"
+                "v1 = v1 value\n"
+                "\n"
+                "[v2_section]\n"
+                "v2 = v2 value\n"
+                "\n"
+                "[type_section]\n"
+                "v_bool = True\n"
+                "v_float = 1.5\n"
+                "v_int = -7\n"
+                "v_str = hi\n"
+                "\n"
+                "[s]\n"
+                "a = 1\n"
+                "b = 2\n"
+                "\n"))
+
     def test_section_smoke(self):
         class TestConfig(Config):
             s = Section()

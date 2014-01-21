@@ -108,8 +108,20 @@ class Variable(INameTracking):
         # Ensure that we have a validator_list, even if empty
         if validator_list is None:
             validator_list = []
-        # Insert a KindValidator as the first validator to run
-        validator_list.insert(0, KindValidator)
+        if validator_list and isinstance(validator_list[0], NotUnsetValidator):
+            # XXX: Kludge ahead, beware!
+            # Insert a KindValidator as the second validator to run
+            # just after the NotUnsetValidator
+            # TODO: To properly handle this without any special-casing we
+            # should drop the implicit insertion of the KindValidator and
+            # convert all users to properly order KindValidator and
+            # NotUnsetValidator instances so that the error message is helpful
+            # to the user. The whole idea is to validate Unset before we try to
+            # validate the type.
+            validator_list.insert(1, KindValidator)
+        else:
+            # Insert a KindValidator as the first validator to run
+            validator_list.insert(0, KindValidator)
         # Assign all the attributes
         self._name = name
         self._section = section
@@ -617,6 +629,12 @@ class NotUnsetValidator(IValidator):
     def __call__(self, variable, new_value):
         if new_value is Unset:
             return self.msg
+
+    def __eq__(self, other):
+        if isinstance(other, NotUnsetValidator):
+            return self.msg == other.msg
+        else:
+            return False
 
 
 class NotEmptyValidator(IValidator):

@@ -65,9 +65,34 @@ class VariableTests(TestCase):
         with self.assertRaises(ValueError):
             Variable(kind=list)
 
-    def test_validator_list(self):
-        v1 = Variable()
-        self.assertEqual(v1.validator_list, [KindValidator])
+    def test_validator_list__default(self):
+        """
+        verify that each Variable has a validator_list and that by default,
+        that list contains a KindValidator as the first element
+        """
+        self.assertEqual(Variable().validator_list, [KindValidator])
+
+    def test_validator_list__explicit(self):
+        """
+        verify that each Variable has a validator_list and that, if
+        customized, the list contains the custom validators, preceded by
+        the implicit KindValidator object
+        """
+        def DummyValidator(variable, new_value):
+            """ Dummy validator for the test below"""
+            pass
+        var = Variable(validator_list=[DummyValidator])
+        self.assertEqual(var.validator_list, [KindValidator, DummyValidator])
+
+    def test_validator_list__with_NotUnsetValidator(self):
+        """
+        verify that each Variable has a validator_list and that, if
+        customized, and if using NotUnsetValidator it will take precedence
+        over all other validators, including the implicit KindValidator
+        """
+        var = Variable(validator_list=[NotUnsetValidator()])
+        self.assertEqual(
+            var.validator_list, [NotUnsetValidator(), KindValidator])
 
 
 class SectionTests(TestCase):

@@ -1,0 +1,9 @@
+Document: checkbox-ng
+Title: CheckBox NG Manual
+Author: Canonical Ltd.
+Abstract: This manual describes what CheckBox NG is, and how it can be used.
+Section: Programming/Python
+
+Format: HTML
+Index: /usr/share/doc/python3-checkbox-ng-doc/html/index.html
+Files: /usr/share/doc/python3-checkbox-ng-doc/html/*.html

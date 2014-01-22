@@ -43,7 +43,7 @@ Depends: python3-plainbox,
          python3-requests ( >= 1.0),
          ${misc:Depends},
          ${python3:Depends}
-Description: Simple replacement for CheckBox
+Description: Simple replacement for CheckBox (Python 3 library)
  CheckBoxNG is a hardware testing tool useful for certifying laptops,
  desktops and servers. It is a new version of CheckBox that is built
  directly on top of PlainBox. CheckBoxNG replaces CheckBox, where applicable.

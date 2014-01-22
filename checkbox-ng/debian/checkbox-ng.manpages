@@ -1,0 +1,5 @@
+build/sphinx/man/checkbox_ng.1
+debian/checkbox.1
+debian/checkbox-cli.1
+debian/canonical-driver-test-suite-cli.1
+debian/canonical-certification-server.1

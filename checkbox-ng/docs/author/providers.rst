@@ -44,26 +44,28 @@ Tutorial
 
 To best illustrate how providers work, we will walk through creating one
 step-by-step. At the end of this tutorial you will have a provider which adds
-a new whitelist, several new jobs and the scripts and test data supporting
-those jobs. Before starting this tutorial you will need to have a running
-version of Checkbox installed. You can either install it from the Ubuntu 
-repositories by running ``apt-get install checkbox``, or if you prefer to work 
-with the source, see :doc:`Getting started with development <../dev/intro>`.
+a new :term:`whitelist`, several new jobs and the scripts and test data 
+supporting those jobs. Before starting this tutorial you will need to have a 
+running version of :term:`PlainBox` installed. You can either install it from 
+the  repositories of Debian or its derivatives by running ``apt-get install 
+plainbox``, or if you prefer to work with the source, see :doc:`Getting 
+started with development <../dev/intro>`. There is also a Launchpad PPA with
+the very latest development build for Ubuntu, which is `ppa:checkbox-dev/ppa`.
 
 #. To get started we create an initial template for our provider by running
-   ``plainbox startprovider `date +"%Y"`.com.example:myprovider``.
+   ``plainbox startprovider 2014.com.example:myprovider``.
 
-#. This will create a directory called ``<thisyear>.com.example:myprovider`` 
-   where this year is of course the current year. Change to this directory 
-   and you will see that it contains::
+#. This will create a directory called ``2014.com.example:myprovider``
+   where this year is of course the current year (2014 is when this document
+   was written). Change to this directory and you will see that it contains::
 
-    bin
-    data
-    integration-tests
-    jobs
+    /bin
+    /data
+    /integration-tests
+    /jobs
     manage.py
     README.md
-    whitelists
+    /whitelists
 
    The ``manage.py`` script is a helper script for developing the provider.
    It provides a set of commands which assist in validating the correctness
@@ -75,24 +77,18 @@ with the source, see :doc:`Getting started with development <../dev/intro>`.
    ``myjobs.txt``. This can contain the following simple jobs::
 
     plugin: shell
-    name: myjobs/builtin_command
+    name: myjobs/shell_command
     command: true
     _description:
-     An example job that uses built in commands.
+     An example job that uses a command provided by the shell.
 
     plugin: shell
-    name: myjobs/this_provider_command
+    name: myjobs/provider_command
     command: mycommand
     _description:
       An example job that uses a test command provided by this provider.
-
-    plugin: shell
-    name: myjobs/other_provider_command
-    command: memory_info
-    _description:
-     An example job that uses a test command provided by another provider.
   
-   At this point we can check that everything is working by running the command
+   At this point we can check that everything looks okay by running the command
    ``./manage.py info`` which displays some information about the provider. The
    output should be something like::
 
@@ -101,8 +97,7 @@ with the source, see :doc:`Getting started with development <../dev/intro>`.
 	version: 1.0
     [Job Definitions]
 	'myjobs/builtin_command', from jobs/myjobs.txt:1-5
-	'myjobs/other_provider_command', from jobs/myjobs.txt:13-17
-	'myjobs/this_provider_command', from jobs/myjobs.txt:7-11
+	'myjobs/provider_command', from jobs/myjobs.txt:7-11
     [White Lists]    
         'category', from whitelists/category.whitelist:1-1
 
@@ -112,8 +107,8 @@ with the source, see :doc:`Getting started with development <../dev/intro>`.
    job ``myjobs/this_provider_command``. We create a file there called 
    ``mycommand`` which contains the following text::
 
-    #!/bin/bash
-    test `cat $CHECKBOX_SHARE/data/testfile` == 'expected'
+    #!/bin/sh
+    test `cat $CHECKBOX_SHARE/data/testfile` = 'expected'
 
    This needs to be executable to be used in the job command so we need to run
    ``chmod a+x mycommand`` to make it executable.
@@ -132,19 +127,14 @@ with the source, see :doc:`Getting started with development <../dev/intro>`.
 
    As simple as that!
 
-#. Lastly we need to add a whitelist that utilizes the jobs we created earlier.
-   This whitelist can include jobs from other providers as well (and needs to
-   include at least one from the default provider in fact). We need to change
-   to the directory called ``whitelists``. As with the ``jobs`` directory 
-   there is already an example file there called ``category.whitelist``. We can
-   delete that and add a file called ``mywhitelist.whitelist``. The contents
-   should be::
+#. Lastly we need to add a :term:`whitelist` that utilizes the jobs we created
+   earlier. We need to change to the directory called ``whitelists``. As with
+   the ``jobs`` directory  there is already an example file there called 
+   ``category.whitelist``. We can delete that and add a file called 
+   ``mywhitelist.whitelist``. The contents should be::
 
-    miscellanea/submission_resources
     myjobs/builtin_command
-    myjobs/other_provider_command
-    myjobs/this_provider_command
-    graphics/glxgears
+    myjobs/provider_command
 
    The ``miscellanea/submission_resources`` and ``graphics/glxgears`` jobs
    are from the default provider that is part of PlainBox.
@@ -157,12 +147,11 @@ with the source, see :doc:`Getting started with development <../dev/intro>`.
 	version: 1.0
     [Job Definitions]
 	'myjobs/builtin_command', from jobs/myjobs.txt:1-5
-	'myjobs/other_provider_command', from jobs/myjobs.txt:13-17
-	'myjobs/this_provider_command', from jobs/myjobs.txt:7-11
+	'myjobs/provider_command', from jobs/myjobs.txt:7-11
     [White Lists]
-	'mywhitelist', from whitelists/mywhitelist.whitelist:1-5 
+	'mywhitelist', from whitelists/mywhitelist.whitelist:1-2 
   
-   Our new whitelist is listed there.
+   Our new :term:`whitelist` is listed there.
 
 #. Now we have a provider we need to test it to make sure everything is
    correct. The first thing to do is to install the provider so that it
@@ -171,7 +160,7 @@ with the source, see :doc:`Getting started with development <../dev/intro>`.
    that is displayed.
 
 #. We should also make sure the whole provider works end-to-end by running
-   the whitelist which it provides. Run the following command - 
+   the :term:`whitelist` which it provides. Run the following command - 
    ``plainbox run -w whitelists/mywhitelist.whitelist``.
 
 #. Assuming everything works okay, we can now package the provider for 

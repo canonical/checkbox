@@ -50,7 +50,7 @@ To list all known jobs run:
 Running a white list
 ^^^^^^^^^^^^^^^^^^^^
 
-To run a :term:`white list` pass the ``--whitelist`` or ``-w`` option.
+To run a :term:`whitelist` pass the ``--whitelist`` or ``-w`` option.
 
 For example, to run the default white list run:
 

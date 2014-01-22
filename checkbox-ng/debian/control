@@ -8,8 +8,10 @@ Build-Depends:
  dh-python,
  help2man,
  python3-all,
+ python3-docutils,
  python3-plainbox,
- python3-setuptools
+ python3-setuptools,
+ python3-sphinx
 Standards-Version: 3.9.5
 X-Python3-Version: >= 3.2
 Vcs-Svn: svn://anonscm.debian.org/python-modules/packages/checkbox-ng/trunk/
@@ -20,12 +22,20 @@ Package: checkbox-ng
 Architecture: all
 Depends: python3-checkbox-ng, ${misc:Depends}, ${python3:Depends}
 Description: Simple replacement for CheckBox
- CheckBox command line tools
+ CheckBoxNG is a hardware testing tool useful for certifying laptops,
+ desktops and servers. It is a new version of CheckBox that is built
+ directly on top of PlainBox. CheckBoxNG replaces CheckBox, where applicable.
+ .
+ This package contains the CheckBox command line tool
 
 Package: checkbox-ng-service
 Architecture: all
 Depends: checkbox-ng, python3-dbus, python3-gi, ${misc:Depends}
 Description: CheckBox D-Bus service
+ CheckBoxNG is a hardware testing tool useful for certifying laptops,
+ desktops and servers. It is a new version of CheckBox that is built
+ directly on top of PlainBox. CheckBoxNG replaces CheckBox, where applicable.
+ .
  File(s) needed for auto-starting CheckBox D-Bus service on demand.
 
 Package: python3-checkbox-ng
@@ -35,4 +45,22 @@ Depends: python3-plainbox,
          ${misc:Depends},
          ${python3:Depends}
 Description: Simple replacement for CheckBox
+ CheckBoxNG is a hardware testing tool useful for certifying laptops,
+ desktops and servers. It is a new version of CheckBox that is built
+ directly on top of PlainBox. CheckBoxNG replaces CheckBox, where applicable.
+ .
  This package contains the checkbox-ng Python 3 library
+
+Package: python3-checkbox-ng-doc
+Architecture: all
+Section: doc
+Priority: extra
+Depends:
+ ${misc:Depends},
+ ${sphinxdoc:Depends}
+Description: Simple replacement for CheckBox (documentation)
+ CheckBoxNG is a hardware testing tool useful for certifying laptops,
+ desktops and servers. It is a new version of CheckBox that is built
+ directly on top of PlainBox. CheckBoxNG replaces CheckBox, where applicable.
+ .
+ This package contains the documentation for the checkbox-ng Python 3 library

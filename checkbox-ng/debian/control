@@ -6,7 +6,6 @@ Uploaders: Debian Python Modules Team <python-modules-team@lists.alioth.debian.o
 Build-Depends:
  debhelper (>= 9),
  dh-python,
- help2man,
  python3-all,
  python3-docutils,
  python3-plainbox,

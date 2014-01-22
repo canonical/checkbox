@@ -1,0 +1,39 @@
+Source: checkbox-ng
+Section: utils
+Priority: optional
+Maintainer: Sylvain Pineau <sylvain.pineau@canonical.com>
+Uploaders: Debian Python Modules Team <python-modules-team@lists.alioth.debian.org>
+Build-Depends:
+ debhelper (>= 9),
+ dh-python,
+ help2man,
+ python3-all,
+ python3-plainbox,
+ python3-setuptools
+Standards-Version: 3.9.5
+X-Python3-Version: >= 3.2
+Vcs-Svn: svn://anonscm.debian.org/python-modules/packages/checkbox-ng/trunk/
+Vcs-Browser: http://anonscm.debian.org/viewvc/python-modules/packages/checkbox-ng/trunk/
+Homepage: http://launchpad.net/checkbox
+
+Package: python3-checkbox-ng
+Architecture: all
+Depends: python3-plainbox,
+         python3-requests ( >= 1.0),
+         ${misc:Depends},
+         ${python3:Depends}
+Description: Simple replacement for CheckBox
+ This package contains the checkbox-ng Python 3 library
+
+Package: checkbox-ng
+Architecture: all
+Depends: python3-checkbox-ng
+         ${misc:Depends}, ${python3:Depends}
+Description: Simple replacement for CheckBox
+ CheckBox command line tool
+
+Package: checkbox-ng-service
+Architecture: all
+Depends: checkbox-ng, python3-dbus, python3-gi
+Description: CheckBox D-Bus service
+ File(s) needed for auto-starting CheckBox D-Bus service on demand.

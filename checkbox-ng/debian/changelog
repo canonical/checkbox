@@ -1,0 +1,5 @@
+checkbox-ng (0.1-1) unstable; urgency=low
+
+  * Initial release (Closes: #736284)
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Tue, 21 Jan 2014 21:18:23 +0100

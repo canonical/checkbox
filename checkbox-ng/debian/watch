@@ -1,0 +1,3 @@
+version=3
+opts=pgpsigurlmangle=s/$/.asc/ \
+    http://pypi.python.org/packages/source/c/checkbox-ng/checkbox-ng-(.*)\.tar\.gz

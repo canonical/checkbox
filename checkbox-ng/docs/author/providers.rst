@@ -65,6 +65,10 @@ with the source, see :doc:`Getting started with development <../dev/intro>`.
     README.md
     whitelists
 
+   The ``manage.py`` script is a helper script for developing the provider.
+   It provides a set of commands which assist in validating the correctness
+   of the provider and making it ready for distribution.
+
 #. Let’s create some jobs first by changing to the jobs directory. It currently
    contains a file called category.txt which serves as an example of how
    jobs should look. Let’s delete it and instead create a file called
@@ -84,7 +88,7 @@ with the source, see :doc:`Getting started with development <../dev/intro>`.
 
     plugin: shell
     name: myjobs/other_provider_command
-    command: removable_storage_test usb -l
+    command: memory_info
     _description:
      An example job that uses a test command provided by another provider.
   
@@ -108,7 +112,7 @@ with the source, see :doc:`Getting started with development <../dev/intro>`.
    job ``myjobs/this_provider_command``. We create a file there called 
    ``mycommand`` which contains the following text::
 
-    !#/usr/bin/bash
+    #!/bin/bash
     test `cat $CHECKBOX_SHARE/data/testfile` == 'expected'
 
    This needs to be executable to be used in the job command so we need to run
@@ -160,4 +164,64 @@ with the source, see :doc:`Getting started with development <../dev/intro>`.
   
    Our new whitelist is listed there.
 
-#. Now we have a provider we need to test it to make sure everything is correct.
+#. Now we have a provider we need to test it to make sure everything is
+   correct. The first thing to do is to install the provider so that it
+   it visible to PlainBox. Run ``./manage.py develop`` then run 
+   ``plainbox dev list provider``. Your provider should be in the list
+   that is displayed.
+
+#. We should also make sure the whole provider works end-to-end by running
+   the whitelist which it provides. Run the following command - 
+   ``plainbox run -w whitelists/mywhitelist.whitelist``.
+
+#. Assuming everything works okay, we can now package the provider for 
+   distribution. This involves creating a basic ``debian`` directory
+   containing all of the files needed for packaging your provider. Create
+   a directory called ``debian`` at the base of your provider, and then
+   create the following files within it.
+
+   ``compat``::
+
+    9
+
+   ``control``::
+
+    Source: plainbox-myprovider
+    Section: utils
+    Priority: optional
+    Maintainer: Brendan Donegan <brendan.donegan@canonical.com>
+    Standards-Version: 3.9.3
+    X-Python3-Version: >= 3.2
+    Build-Depends: debhelper (>= 9.2),
+                   lsb-release,
+                   python3 (>= 3.2),
+                   python3-plainbox
+
+    Package: plainbox-myprovider
+    Architecture: all
+    Depends: plainbox-provider-checkbox
+    Description: My whitelist provider
+     A provider for PlainBox.
+
+   ``rules``::
+
+    #!/usr/bin/make -f
+    %:
+        dh "$@"
+
+    override_dh_auto_build:
+        $(CURDIR)/manage.py install
+
+   Note that the ``rules`` file must be executable. Make it so with 
+   ``chmod a+x rules``. Also, be careful with the indentation in the
+   file - all indents must be actual TAB characters, not four spaces
+   for example.
+
+   ``source/format``::
+
+    3.0 (native)
+
+   Finally we should create a ``changelog`` file. The easiest way to do this
+   is to run the command ``dch --create 'Initial release.'``. You'll need to
+   edit the field ``PACKAGE`` to the name of your provider and the field
+   ``VERSION`` to something like ``0.1``.

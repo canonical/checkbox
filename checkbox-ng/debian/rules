@@ -2,4 +2,19 @@
 export PYBUILD_NAME=checkbox-ng
 
 %:
-	dh $@ --with=python3 --buildsystem=pybuild
+	dh $@ --with=python3,sphinxdoc --buildsystem=pybuild
+
+# Build sphinx html documentation. Generate manual pages for checkbox-ng
+# console_scripts
+override_dh_auto_build:
+	dh_auto_build --buildsystem=pybuild
+	python3 setup.py build_sphinx
+	python3 setup.py build_sphinx -b man
+
+# Override dh_install to ensure that console_scripts are in the
+# checkbox-ng package and not in the python3-checkbox-ng package.
+override_dh_install:
+	dh_install
+	mkdir -p debian/checkbox-ng/usr/bin
+	mv debian/python3-checkbox-ng/usr/bin/canonical* debian/checkbox-ng/usr/bin
+	mv debian/python3-checkbox-ng/usr/bin/checkbox* debian/checkbox-ng/usr/bin

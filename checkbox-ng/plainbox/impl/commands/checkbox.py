@@ -46,7 +46,7 @@ class CheckBoxInvocationMixIn:
         """
         return list(
             itertools.chain(*[
-                p.get_builtin_jobs() for p in self.provider_list]))
+                p.load_all_jobs()[0] for p in self.provider_list]))
 
     def _get_matching_job_list(self, ns, job_list):
         # Find jobs that matched patterns

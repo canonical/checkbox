@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2013 Canonical Ltd.
+# Copyright 2013, 2014 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
@@ -108,8 +108,20 @@ class Variable(INameTracking):
         # Ensure that we have a validator_list, even if empty
         if validator_list is None:
             validator_list = []
-        # Insert a KindValidator as the first validator to run
-        validator_list.insert(0, KindValidator)
+        if validator_list and isinstance(validator_list[0], NotUnsetValidator):
+            # XXX: Kludge ahead, beware!
+            # Insert a KindValidator as the second validator to run
+            # just after the NotUnsetValidator
+            # TODO: To properly handle this without any special-casing we
+            # should drop the implicit insertion of the KindValidator and
+            # convert all users to properly order KindValidator and
+            # NotUnsetValidator instances so that the error message is helpful
+            # to the user. The whole idea is to validate Unset before we try to
+            # validate the type.
+            validator_list.insert(1, KindValidator)
+        else:
+            # Insert a KindValidator as the first validator to run
+            validator_list.insert(0, KindValidator)
         # Assign all the attributes
         self._name = name
         self._section = section
@@ -323,11 +335,38 @@ class ConfigMeta(type):
 
 class PlainBoxConfigParser(configparser.ConfigParser):
     """
-    A simple ConfigParser subclass that does not lowercase
-    key names.
+    A subclass of ConfigParser with the following changes:
+
+    - option names are not lower-cased
+    - write() has deterministic ordering (sorted by name)
     """
+
     def optionxform(self, option):
+        """
+        Overridden method from :class:`configparser.ConfigParser`.
+
+        Returns `option` without any transformations
+        """
         return option
+
+    def write(self, fp, space_around_delimiters=True):
+        """
+        Write an .ini-format representation of the configuration state.
+
+        If `space_around_delimiters' is True (the default), delimiters between
+        keys and values are surrounded by spaces. The ordering of section and
+        values within is deterministic.
+        """
+        if space_around_delimiters:
+            d = " {} ".format(self._delimiters[0])
+        else:
+            d = self._delimiters[0]
+        if self._defaults:
+            self._write_section(
+                fp, self.default_section, sorted(self._defaults.items()), d)
+        for section in self._sections:
+            self._write_section(
+                fp, section, sorted(self._sections[section].items()), d)
 
 
 class Config(metaclass=ConfigMeta):
@@ -388,9 +427,43 @@ class Config(metaclass=ConfigMeta):
         self.read(cls.Meta.filename_list)
         return self
 
+    def get_parser_obj(self):
+        """
+        Get a ConfigParser-like object with the same data.
+
+        :returns:
+            A :class:`PlainBoxConfigParser` object with all of the data copied
+            from this :class:`Config` object.
+
+        Since :class:`PlainBoxConfigParser` is a subclass of
+        :class:`configparser.ConfigParser` it has a number of useful utility
+        methods.  By using this function one can obtain a ConfigParser-like
+        object and work with it directly.
+        """
+        parser = PlainBoxConfigParser()
+        # Write all variables that we know about
+        for variable in self.Meta.variable_list:
+            if (not parser.has_section(variable.section)
+                    and variable.section != "DEFAULT"):
+                parser.add_section(variable.section)
+            value = variable.__get__(self, self.__class__)
+            # Except Unset, we don't want that to convert to 'unset'
+            if value is not Unset:
+                parser.set(variable.section, variable.name, str(value))
+        # Write all sections that we know about
+        for section in self.Meta.section_list:
+            if not parser.has_section(section.name):
+                parser.add_section(section.name)
+            for name, value in section.__get__(self, self.__class__).items():
+                parser.set(section.name, name, str(value))
+        return parser
+
     def read_string(self, string):
         """
         Load settings from a string.
+
+        :param string:
+            The full text of INI-like configuration to parse and apply
 
         This method parses the string as an INI file using
         :class:`PlainBoxConfigParser` (a simple ConfigParser subclass that
@@ -423,6 +496,9 @@ class Config(metaclass=ConfigMeta):
         except configparser.Error as exc:
             self._problem_list.append(exc)
         self._read_commit(parser)
+
+    def write(self, stream):
+        self.get_parser_obj().write(stream)
 
     def read(self, filename_list):
         """
@@ -477,10 +553,8 @@ class Config(metaclass=ConfigMeta):
             try:
                 value = reader_fn[variable.kind](
                     variable.section, variable.name)
-            except configparser.NoSectionError:
-                continue
-            except configparser.NoOptionError:
-                continue
+            except (configparser.NoSectionError, configparser.NoOptionError):
+                value = variable.default
             # Try to assign it
             try:
                 variable.__set__(self, value)
@@ -583,6 +657,12 @@ class PatternValidator(IValidator):
         if not self.pattern.match(new_value):
             return "does not match pattern: {!r}".format(self.pattern_text)
 
+    def __eq__(self, other):
+        if isinstance(other, PatternValidator):
+            return self.pattern_text == other.pattern_text
+        else:
+            return False
+
 
 class ChoiceValidator(IValidator):
     """
@@ -595,6 +675,40 @@ class ChoiceValidator(IValidator):
     def __call__(self, variable, new_value):
         if new_value not in self.choice_list:
             return "must be one of {}".format(", ".join(self.choice_list))
+
+    def __eq__(self, other):
+        if isinstance(other, ChoiceValidator):
+            return self.choice_list == other.choice_list
+        else:
+            return False
+
+
+class NotUnsetValidator(IValidator):
+    """
+    A validator ensuring that values are set
+
+    ..note::
+        Due to the way validators work this validator *must* be the first
+        one in any validator list in order to work. Otherwise the implicit
+        :func:`KindValidator` will take precedence and the check will most
+        likely fail as None or Unset are not of the expected type of the
+        configuration variable being worked with.
+    """
+
+    def __init__(self, msg=None):
+        if msg is None:
+            msg = "must be set to something"
+        self.msg = msg
+
+    def __call__(self, variable, new_value):
+        if new_value is Unset:
+            return self.msg
+
+    def __eq__(self, other):
+        if isinstance(other, NotUnsetValidator):
+            return self.msg == other.msg
+        else:
+            return False
 
 
 class NotEmptyValidator(IValidator):
@@ -610,3 +724,9 @@ class NotEmptyValidator(IValidator):
     def __call__(self, variable, new_value):
         if new_value == "":
             return self.msg
+
+    def __eq__(self, other):
+        if isinstance(other, NotEmptyValidator):
+            return self.msg == other.msg
+        else:
+            return False

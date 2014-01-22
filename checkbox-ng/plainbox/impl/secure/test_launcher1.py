@@ -34,7 +34,7 @@ from plainbox.impl.secure.launcher1 import main
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.providers.v1 import Provider1PlugIn
 from plainbox.impl.secure.providers.v1 import all_providers
-from plainbox.impl.secure.providers.v1 import get_secure_PROVIDERPATH
+from plainbox.impl.secure.providers.v1 import get_secure_PROVIDERPATH_list
 from plainbox.impl.secure.rfc822 import RFC822Record
 from plainbox.testing_utils.io import TestIO
 from plainbox.vendor import mock
@@ -128,7 +128,7 @@ class MainTests(TestCase):
                 name='plugin',
                 spec=Provider1PlugIn,
                 plugin_name='{}/fake.provider'.format(
-                    get_secure_PROVIDERPATH()),
+                    get_secure_PROVIDERPATH_list()[0]),
                 plugin_object=self.provider)
         ])
 

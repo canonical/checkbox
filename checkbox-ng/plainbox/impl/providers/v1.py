@@ -25,15 +25,17 @@ Most of the implementation is available in
 :mod:`plainbox.impl.secure.providers.v1`
 """
 
-__all__ = ['DummyProvider1', 'Provider1', 'Provider1PlugInCollection',
-           'all_providers', 'get_default_PROVIDERPATH', ]
+__all__ = ['DummyProvider1', 'Provider1', 'InsecureProvider1PlugInCollection',
+           'all_providers', 'get_insecure_PROVIDERPATH_list', ]
 
 import logging
 import os
 
 from plainbox.abc import IProvider1, IProviderBackend1
-from plainbox.impl.secure.providers.v1 import Provider1PlugInCollection
+from plainbox.impl.secure.plugins import FsPlugInCollection
 from plainbox.impl.secure.providers.v1 import Provider1
+from plainbox.impl.secure.providers.v1 import Provider1PlugIn
+from plainbox.impl.secure.providers.v1 import get_secure_PROVIDERPATH_list
 
 
 logger = logging.getLogger("plainbox.providers.v1")
@@ -100,36 +102,63 @@ class DummyProvider1(IProvider1, IProviderBackend1):
     def get_builtin_jobs(self):
         return self._job_list
 
+    def load_all_jobs(self):
+        return self._job_list, []
+
     def get_all_executables(self):
         return self._extras.get("get_all_executables", [])
 
 
-def get_default_PROVIDERPATH():
+def _get_user_PROVIDERPATH_entry():
     """
-    Computes the default value for PROVIDERPATH.
+    Computes the per-user component of PROVIDERPATH
 
-    PROVIDERPATH should contain two directory entries:
-
-        * /usr/share/plainbox-providers-1
-        * $XDG_DATA_HOME/plainbox-providers-1
+    :returns:
+        `$XDG_DATA_HOME/plainbox-providers-1`
     """
-    sys_wide = "/usr/share/plainbox-providers-1"
-    per_user = os.path.join(
-        os.getenv('XDG_DATA_HOME', os.path.expanduser("~/.local/share/")),
-        "plainbox-providers-1")
-    return os.path.pathsep.join([sys_wide, per_user])
+    XDG_DATA_HOME = os.getenv(
+        'XDG_DATA_HOME', os.path.expanduser("~/.local/share/"))
+    return os.path.join(XDG_DATA_HOME, "plainbox-providers-1")
 
 
-class Provider1PlugInCollection(Provider1PlugInCollection):
+def get_insecure_PROVIDERPATH_list():
+    """
+    Computes the insecure value of PROVIDERPATH.
+
+    This value is *not* used by `plainbox-trusted-launcher-1` executable since
+    it would involve reading files outside of the control by the local
+    administrator. This value is used for handing non-root jobs.
+
+    :returns:
+        A list of three strings:
+        * `/usr/local/share/plainbox-providers-1`
+        * `/usr/share/plainbox-providers-1`
+        * `$XDG_DATA_HOME/plainbox-providers-1`
+    """
+    return get_secure_PROVIDERPATH_list() + [_get_user_PROVIDERPATH_entry()]
+
+
+class InsecureProvider1PlugInCollection(FsPlugInCollection):
     """
     A collection of v1 provider plugins.
 
-    This class is just like FsPlugInCollection but knows the proper arguments
-    (PROVIDERPATH and the extension)
+    This FsPlugInCollection subclass carries proper, built-in defaults, that
+    make loading providers easier.
+
+    This particular class loads providers from both the system-wide managed
+    locations and per-user location. In addition the list of locations searched
+    can be changed by setting the ``PROVIDERPATH``, which behaves just like
+    PATH, but is used for looking up providers.
     """
 
-    DEFAULT_PROVIDERPATH = get_default_PROVIDERPATH()
+    def __init__(self):
+        PROVIDERPATH = os.getenv("PROVIDERPATH")
+        if PROVIDERPATH is None:
+            dir_list = get_insecure_PROVIDERPATH_list()
+        else:
+            dir_list = PROVIDERPATH.split(os.path.pathsep)
+        super().__init__(dir_list, '.provider', wrapper=Provider1PlugIn)
 
 
 # Collection of all providers
-all_providers = Provider1PlugInCollection()
+all_providers = InsecureProvider1PlugInCollection()

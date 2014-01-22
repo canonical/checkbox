@@ -25,9 +25,11 @@ Test definitions for plainbox.impl.providers.v1 module
 """
 
 from unittest import TestCase
-import os.path
+import os
 
-from plainbox.impl.providers.v1 import get_default_PROVIDERPATH
+from plainbox.impl.providers.v1 import InsecureProvider1PlugInCollection
+from plainbox.impl.providers.v1 import _get_user_PROVIDERPATH_entry
+from plainbox.impl.providers.v1 import get_insecure_PROVIDERPATH_list
 from plainbox.vendor import mock
 
 
@@ -35,41 +37,86 @@ class Tests(TestCase):
 
     @mock.patch('os.path.expanduser')
     @mock.patch('os.getenv')
-    def test_get_default_PROVIDERPATH(self, mock_getenv, mock_expanduser):
+    def test_get_user_PROVIDERPATH_entry__unset_XDG_DATA_HOME(
+            self, mock_getenv, mock_expanduser):
         """
-        verify that unset XDG_DATA_HOME still works
+        verify that _get_user_PROVIDERPATH_entry() still works with unset
+        XDG_DATA_HOME
         """
         def getenv(name, default=None):
             if name == 'XDG_DATA_HOME':
                 return default
             else:
-                self.fail("no other environment should be consulted (asked for %r)" % name)
+                self.fail(("no other environment should be consulted"
+                           " (asked for {!r})".format(name)))
         mock_getenv.side_effect = getenv
 
         def expanduser(path):
             return path.replace("~", "/home/user")
         mock_expanduser.side_effect = expanduser
-        measured = get_default_PROVIDERPATH()
-        expected = os.pathsep.join([
-            "/usr/share/plainbox-providers-1",
-            "/home/user/.local/share/plainbox-providers-1"])
+        measured = _get_user_PROVIDERPATH_entry()
+        expected = "/home/user/.local/share/plainbox-providers-1"
         self.assertEqual(measured, expected)
 
     @mock.patch('os.path.expanduser')
     @mock.patch('os.getenv')
-    def test_get_default_PROVIDERPATH_respects_XDG_DATA_HOME(
+    def test_get_user_PROVIDERPATH_entry__respects_XDG_DATA_HOME(
             self, mock_getenv, mock_expanduser):
         """
-        verify that XDG_DATA_HOME is honored
+        verify that _get_user_PROVIDERPATH_entry() honors XDG_DATA_HOME
         """
         def getenv(name, default=None):
             if name == 'XDG_DATA_HOME':
                 return '/home/user/xdg-data'
             else:
-                self.fail("no other environment should be consulted")
+                self.fail(("no other environment should be consulted"
+                           " (asked for {!r})".format(name)))
         mock_getenv.side_effect = getenv
-        measured = get_default_PROVIDERPATH()
-        expected = os.pathsep.join([
-            "/usr/share/plainbox-providers-1",
-            "/home/user/xdg-data/plainbox-providers-1"])
+        measured = _get_user_PROVIDERPATH_entry()
+        expected = "/home/user/xdg-data/plainbox-providers-1"
         self.assertEqual(measured, expected)
+
+    @mock.patch('plainbox.impl.providers.v1.get_secure_PROVIDERPATH_list')
+    @mock.patch('plainbox.impl.providers.v1._get_user_PROVIDERPATH_entry')
+    def test_get_insecure_PROVIDERPATH_list(self, mock_guPe, mock_gsPl):
+        """
+        verify that get_insecure_PROVIDERPATH_list() works
+        """
+        mock_guPe.return_value = "per-user"
+        mock_gsPl.return_value = ["system-wide"]
+        self.assertEqual(
+            get_insecure_PROVIDERPATH_list(),
+            ["system-wide", "per-user"])
+
+
+class InsecureProvider1PlugInCollectionTests(TestCase):
+    """
+    Tests for the InsecureProvider1PlugInCollection
+    """
+
+    def test_init__without_PROVIDERPATH_set(self):
+        """
+        validate that InsecureProvider1PlugInCollection() has working defaults
+        if PROVIDERPATH are not in env
+        """
+        real_os_getenv = os.getenv
+
+        def getenv(*args):
+            if args[0] == 'PROVIDERPATH':
+                return None
+            else:
+                return real_os_getenv(*args)
+        with mock.patch('os.getenv') as mock_getenv:
+            mock_getenv.side_effect = getenv
+            obj = InsecureProvider1PlugInCollection()
+        self.assertTrue(len(obj._dir_list) > 0)
+
+    @mock.patch('os.getenv')
+    def test_init__with_PROVIDERPATH_set(self, mock_getenv):
+        """
+        validate that InsecureProvider1PlugInCollection() respects PROVIDERPATH
+        if set in the environment
+        """
+        mock_getenv.return_value = os.path.pathsep.join(['/foo', '/bar'])
+        obj = InsecureProvider1PlugInCollection()
+        self.assertTrue(obj._dir_list, ['/foo', '/bar'])

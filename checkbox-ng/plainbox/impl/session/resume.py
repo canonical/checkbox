@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012, 2013 Canonical Ltd.
+# Copyright 2012, 2013, 2014 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
@@ -51,10 +51,10 @@ import json
 import logging
 
 from plainbox.abc import IJobResult
-from plainbox.abc import IJobQualifier
 from plainbox.impl.result import DiskJobResult
-from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.result import IOLogRecord
+from plainbox.impl.result import MemoryJobResult
+from plainbox.impl.secure.qualifiers import SimpleQualifier
 from plainbox.impl.session.state import SessionState
 
 logger = logging.getLogger("plainbox.session.resume")
@@ -173,6 +173,22 @@ class SessionResumeHelper:
         else:
             raise IncompatibleSessionError(
                 "Unsupported version {}".format(version))
+
+
+class ResumeDiscardQualifier(SimpleQualifier):
+    """
+    A job qualifier that designates jobs that should be removed
+    after doing a session resume.
+    """
+
+    def __init__(self, jobs_repr):
+        super().__init__()
+        # Set of names of jobs to retain (computed as keys of the
+        # dictionary taken from the session resume representation)
+        self._retain_name_set = frozenset(jobs_repr)
+
+    def get_simple_match(self, job):
+        return job.name not in self._retain_name_set
 
 
 class SessionResumeHelper1:
@@ -408,19 +424,7 @@ class SessionResumeHelper1:
         session representation. This should never fail as anything that might
         go wrong must have gone wrong before.
         """
-        class ResumeDiscardQualifier(IJobQualifier):
-            """
-            A job qualifier that designates jobs that should be removed
-            after doing a session resume.
-            """
 
-            def __init__(self, jobs_repr):
-                # Set of names of jobs to retain (computed as keys of the
-                # dictionary taken from the session resume representation)
-                self._retain_name_set = frozenset(jobs_repr)
-
-            def designates(self, job):
-                return job.name not in self._retain_name_set
         # Representation of all of the job definitions
         jobs_repr = _validate(session_repr, key='jobs', value_type=dict)
         # Qualifier ready to select jobs to remove

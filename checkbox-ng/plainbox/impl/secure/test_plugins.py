@@ -347,16 +347,16 @@ class FsPlugInCollectionTests(TestCase):
 
     _P1 = "/system/providers"
     _P2 = "home/user/.providers"
-    _PATH = os.path.pathsep.join([_P1, _P2])
+    _DIR_LIST = [_P1, _P2]
     _EXT = ".plugin"
 
     def setUp(self):
         # Create a collection
-        self.col = FsPlugInCollection(self._PATH, self._EXT)
+        self.col = FsPlugInCollection(self._DIR_LIST, self._EXT)
 
     def test_path_is_set(self):
         # Ensure that path was saved
-        self.assertEqual(self.col._path, self._PATH)
+        self.assertEqual(self.col._dir_list, self._DIR_LIST)
 
     def test_ext_is_set(self):
         # Ensure that ext was saved
@@ -473,7 +473,7 @@ class FsPlugInCollectionTests(TestCase):
             return m
         mock_open.side_effect = fake_open
         # Create a collection that looks for both extensions
-        col = FsPlugInCollection(self._P1, (".txt", ".txt.in"))
+        col = FsPlugInCollection([self._P1], (".txt", ".txt.in"))
         # Load everything
         col.load()
         # Ensure that we actually tried to look at the filesystem

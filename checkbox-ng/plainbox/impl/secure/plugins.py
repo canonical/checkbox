@@ -390,24 +390,22 @@ class FsPlugInCollection(PlugInCollectionBase):
     """
     Collection of plug-ins based on filesystem entries
 
-    Instantiate with :attr:`path` and :attr:`ext`, call :meth:`load()` and then
-    access any of the loaded plug-ins using the API offered. All loaded plugin
-    information files are wrapped by a plug-in container. By default that is
-    :class:`PlugIn` but it may be adjusted if required.
+    Instantiate with :attr:`dir_list` and :attr:`ext`, call :meth:`load()` and
+    then access any of the loaded plug-ins using the API offered. All loaded
+    plugin information files are wrapped by a plug-in container. By default
+    that is :class:`PlugIn` but it may be adjusted if required.
 
     The name of each plugin is the base name of the plugin file, the object of
     each plugin is the text read from the plugin file.
     """
 
-    def __init__(self, path, ext, load=False, wrapper=PlugIn, *wrapper_args,
-                 **wrapper_kwargs):
+    def __init__(self, dir_list, ext, load=False, wrapper=PlugIn,
+                 *wrapper_args, **wrapper_kwargs):
         """
         Initialize a collection of plug-ins from the specified name-space.
 
-        :param path:
-            a PATH like variable that uses os.path.pathsep to separate multiple
-            directory entries. Each directory is searched for (not recursively)
-            for plugins.
+        :param dir_list:
+            a list of directories to search
         :param ext:
             extension of each plugin definition file (or a list of those)
         :param load:
@@ -419,7 +417,10 @@ class FsPlugInCollection(PlugInCollectionBase):
         :param wrapper_kwargs:
             additional keyword arguments passed to each instantiated wrapper
         """
-        self._path = path
+        if (not isinstance(dir_list, list)
+                or not all(isinstance(item, str) for item in dir_list)):
+            raise TypeError("dir_list needs to be List[str]")
+        self._dir_list = dir_list
         self._ext = ext
         super().__init__(load, wrapper, *wrapper_args, **wrapper_kwargs)
 
@@ -450,10 +451,10 @@ class FsPlugInCollection(PlugInCollectionBase):
         """
         # Look in all parts of 'path' separated by standard system path
         # separator.
-        for path in self._path.split(os.path.pathsep):
+        for dirname in self._dir_list:
             # List all files in each path component
             try:
-                entries = os.listdir(path)
+                entries = os.listdir(dirname)
             except OSError:
                 # Silently ignore anything we cannot access
                 continue
@@ -469,7 +470,7 @@ class FsPlugInCollection(PlugInCollectionBase):
                             break
                     else:
                         continue
-                info_file = os.path.join(path, entry)
+                info_file = os.path.join(dirname, entry)
                 # Skip all non-files
                 if not os.path.isfile(info_file):
                     continue

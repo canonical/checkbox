@@ -98,7 +98,7 @@ class CheckBoxSrcProvider(Provider1):
             "2013.com.canonical:checkbox-src", "1.0",
             "CheckBox (live source)",
             secure=False)
-        if not os.path.exists(self._base_dir):
+        if not os.path.exists(self.base_dir):
             raise CheckBoxNotFound()
 
     @staticmethod

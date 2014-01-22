@@ -101,10 +101,28 @@ class TestCaseWithParametersTests(TestCase):
         # This test is parametrized so it counts as only one
         self.assertEqual(self.parametrized_test_case.countTestCases(), 1)
 
+    def test_countTestCases_regression_1265748(self):
+        """
+        verify regression testing for bug:
+        https://bugs.launchpad.net/checkbox/+bug/1265748
+
+        TestCaseWithParameters.countTestCases() should work when
+        get_paremeter_values() reteurns a generator.
+        """
+        class RegressionTest(TestCaseWithParameters):
+
+            parameter_names = ('name1',)
+
+            def get_parameter_values(self):
+                yield ('value1', )
+                yield ('value2', )
+
+        self.assertEqual(RegressionTest().countTestCases(), 2)
+
     def test_id(self):
         self.assertIn(
             "test_str_upper [<unparameterized>]",
-             self.test_case.id())
+            self.test_case.id())
         self.assertIn(
             "test_str_upper [original: foo, upper: FOO]",
             self.parametrized_test_case.id())

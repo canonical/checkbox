@@ -133,7 +133,7 @@ the very latest development build for Ubuntu, which is `ppa:checkbox-dev/ppa`.
    ``category.whitelist``. We can delete that and add a file called 
    ``mywhitelist.whitelist``. The contents should be::
 
-    myjobs/builtin_command
+    myjobs/shell_command
     myjobs/provider_command
 
    The ``miscellanea/submission_resources`` and ``graphics/glxgears`` jobs

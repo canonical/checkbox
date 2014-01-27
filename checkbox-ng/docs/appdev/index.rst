@@ -2,7 +2,7 @@ Application developers
 ======================
 
 This chapter organizes information useful for developers working on testing
-systems and checkbox drivatives.
+systems and checkbox derivatives.
 
 .. note::
 

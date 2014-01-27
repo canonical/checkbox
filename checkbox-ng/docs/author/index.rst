@@ -9,7 +9,7 @@ core.
 .. toctree::
    tutorial.rst
    providers.rst
-   checkbox-job-format.rst
+   jobs.rst
    whitelists.rst
    rfc822.rst
 

@@ -27,7 +27,8 @@ It has these fields:
     location should contain at least one of the following directories:
 
     * jobs
-        Should contain one or more files in the :doc:`Checkbox job file format <checkbox-job-format>`.
+        Should contain one or more files in the
+        :doc:`Checkbox job file format <jobs>`.
     * bin
         Should contain one or more executable programs.
     * data

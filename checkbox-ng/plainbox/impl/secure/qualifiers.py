@@ -332,6 +332,7 @@ class WhiteList(CompositeQualifier):
             parsed from the whitelist.
         """
         pattern_list = []
+        lineno = 0
         # Load the file
         for lineno, line in enumerate(text.splitlines(), 1):
             # Strip shell-style comments if there are any

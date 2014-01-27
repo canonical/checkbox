@@ -441,6 +441,12 @@ class WhiteListTests(TestCase):
         # verify that the origin got set to the default constructed value
         self.assertEqual(whitelist.origin, Origin(UnknownTextSource(), 1, 3))
 
+    def test_from_empty_string(self):
+        """
+        verify that WhiteList.from_string("") works
+        """
+        WhiteList.from_string("")
+
     def test_from_string__with_name_and_origin(self):
         """
         verify that WhiteList.from_string() works when passing name and origin

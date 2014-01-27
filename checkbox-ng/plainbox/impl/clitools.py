@@ -29,6 +29,7 @@
 import abc
 import argparse
 import errno
+import inspect
 import logging
 import os
 import pdb
@@ -45,8 +46,14 @@ class CommandBase(metaclass=abc.ABCMeta):
     Simple interface class for sub-commands of :class:`ToolBase`.
 
     Command objects like this are consumed by `ToolBase` subclasses to
-    implement hierarchical command system. The API supports arbitrary
-    many sub commands in arbitrary nesting arrangement.
+    implement hierarchical command system. The API supports arbitrary many sub
+    commands in arbitrary nesting arrangement.
+
+    Subcommands need to be registered inside the :meth:`register_parser()`,
+    either manually by calling add_parser() on the passed subparsers instance,
+    or by calling the helper :meth:`add_subcommand()` method. By common
+    convention each subclass of CommandBase adds exactly one subcommand to the
+    parser.
     """
 
     @abc.abstractmethod
@@ -74,6 +81,117 @@ class CommandBase(metaclass=abc.ABCMeta):
         in interactive commands.
         """
         autopager()
+
+    def get_command_name(self):
+        """
+        Get the name of the command, as seen on command line.
+
+        :returns:
+            self.name, if defined
+        :returns:
+            lower-cased class name, with the string "command" stripped out
+        """
+        try:
+            return self.name
+        except AttributeError:
+            name = self.__class__.__name__.lower()
+            if name.endswith("command"):
+                name = name.replace("command", "")
+        return name
+
+    def get_command_help(self):
+        """
+        Get a single-line help string associated with this command, as seen on
+        command line.
+
+        :returns:
+            self.help, if defined
+        :returns:
+            The first line of the docstring of this class, if any
+        :returns:
+            None, otherwise
+        """
+        try:
+            return self.help
+        except AttributeError:
+            pass
+        try:
+            return inspect.getdoc(self.__class__).splitlines()[0]
+        except (AttributeError, ValueError, IndexError):
+            pass
+
+    def get_command_description(self):
+        """
+        Get a multi-line description string associated with this command, as
+        seen on command line.
+
+        The description is printed after command usage but before argument and
+        option definitions.
+
+        :returns:
+            self.description, if defined
+        :returns:
+            A substring of the class docstring between the first line (which
+            goes to :meth:`get_command_help()`) and the string ``@EPILOG@`, if
+            present, or the end of the docstring, if any.
+        :returns:
+            None, otherwise
+        """
+        try:
+            return self.description
+        except AttributeError:
+            pass
+        try:
+            return '\n'.join(
+                inspect.getdoc(self.__class__).splitlines()[1:]
+            ).split('@EPILOG@', 1)[0].strip()
+        except (AttributeError, IndexError, ValueError):
+            pass
+
+    def get_command_epilog(self):
+        """
+        Get a multi-line description string associated with this command, as
+        seen on command line.
+
+        The epilog is printed after the definitions of arguments and options
+
+        :returns:
+            self.epilog, if defined
+        :returns:
+            A substring of the class docstring between the string ``@EPILOG``
+            and the end of the docstring, if defined
+        :returns:
+            None, otherwise
+        """
+        try:
+            return self.epilog
+        except AttributeError:
+            pass
+        try:
+            return '\n'.join(
+                inspect.getdoc(self.__class__).splitlines()[1:]
+            ).split('@EPILOG@', 1)[1].strip()
+        except (AttributeError, IndexError, ValueError):
+            pass
+
+    def add_subcommand(self, subparsers):
+        """
+        Add a parser to the specified subparsers instance.
+
+        :returns:
+            The new parser for the added subcommand
+
+        This command works by convention, depending on
+        :meth:`get_command_name(), :meth:`get_command_help()`,
+        :meth:`get_command_description()` and :meth:`get_command_epilog()`.
+        """
+        parser = subparsers.add_parser(
+            self.get_command_name(),
+            help=self.get_command_help(),
+            description=self.get_command_description(),
+            epilog=self.get_command_epilog())
+        parser.set_defaults(command=self)
+        return parser
 
 
 class ToolBase(metaclass=abc.ABCMeta):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # This file is part of Checkbox.
 #
-# Copyright 2013 Canonical Ltd.
+# Copyright 2014 Canonical Ltd.
 # Written by:
 #   Sylvain Pineau <sylvain.pineau@canonical.com>
 #
@@ -25,7 +25,7 @@ with open("README.rst", encoding="UTF-8") as stream:
 
 setup(
     name="checkbox-support",
-    version="0.4.b2",
+    version="0.1",
     url="https://launchpad.net/checkbox/",
     packages=find_packages(),
     test_suite='checkbox_support.tests.test_suite',

@@ -1,3 +1,4 @@
+=======================
 Job and Test Developers
 =======================
 
@@ -5,17 +6,20 @@ This chapter organizes information useful for developers creating and
 maintaining jobs and test scripts but not directly involved in changing the
 core.
 
+.. toctree::
+   checkbox-job-format.rst
+   whitelists.rst
+   providers.rst
+   rfc822.rst
+
+Missing Documentation / TODO
+============================
+
 .. note::
 
     This chapter is very much under development. The list of stories below
     is a guiding point for subsequent editions that will expand and provide
     real value.
-
-.. toctree::
-   whitelists.rst
-   checkbox-job-format.rst
-   providers.rst
-   rfc822.rst
 
 Personas and stories
 --------------------

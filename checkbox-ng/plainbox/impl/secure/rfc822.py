@@ -449,8 +449,11 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
     # Iterate over subsequent lines of the stream
     for lineno, line in enumerate(stream, start=1):
         logger.debug("Looking at line %d:%r", lineno, line)
+        # Treat # as comments
+        if line.startswith("#"):
+            continue
         # Treat empty lines as record separators
-        if line.strip() == "":
+        elif line.strip() == "":
             # Commit the current record so that the multi-line value of the
             # last key, if any, is saved as a string
             _commit_key_value_if_needed()

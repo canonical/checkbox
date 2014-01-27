@@ -329,6 +329,18 @@ class RFC822ParserTestsMixIn():
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0].data, {'key': 'value'})
 
+    def test_comments(self):
+        text = (
+            "# this is a comment\n"
+            "key:\n"
+            " multi-line value\n"
+            "# this is a comment\n"
+        )
+        with StringIO(text) as stream:
+            records = type(self).loader(stream)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0].data, {'key': 'multi-line value'})
+
     def test_many_newlines(self):
         text = (
             "\n"

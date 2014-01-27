@@ -236,6 +236,18 @@ class IJobQualifier(metaclass=ABCMeta):
     lower-level API, that gives portable visibility into composite qualifiers
     (such as a whitelist) and distinct select, deselect vote so that full range
     of current expressiveness can be preserved.
+
+    :attr VOTE_EXCLUDE:
+        (0) vote indicating that a job should *not* be included for
+        selection. It overwrites any other votes.
+
+    :attr VOTE_INCLUDE:
+        (1) vote indicating that a job should be included for selection. It is
+        overridden by VOTE_EXCLUDE.
+
+    :attr VOTE_IGNORE:
+        (2) vote indicating that a job should neither be included nor excluded
+        for selection. This is a neutral value overridden by all other votes.
     """
 
     # NOTE: VOTE_xxx are sorted by priority, lowest being the most important
@@ -243,19 +255,20 @@ class IJobQualifier(metaclass=ABCMeta):
     # priority) takes precedence. When adding additional votes keep this in
     # mind.
     VOTE_EXCLUDE = 0
-    VOTE_INCLUDE = 2
-    VOTE_IGNORE = 3
+    VOTE_INCLUDE = 1
+    VOTE_IGNORE = 2
 
     @abstractmethod
     def get_vote(self, job):
         """
-        Get one of the VOTE_IGNORE, VOTE_INCLUDE, VOTE_EXCLUDE votes that
-        this qualifier associated with the specified job.
+        Get one of the :attr:`VOTE_IGNORE`, :attr:`VOTE_INCLUDE`,
+        :attr:`VOTE_EXCLUDE` votes that this qualifier associated with the
+        specified job.
 
         :param job:
             A IJobDefinition instance that is to be visited
         :returns:
-            one of the VOTE_ constants
+            one of the ``VOTE_xxx`` constants
 
         .. versionadded: 0.5
         """

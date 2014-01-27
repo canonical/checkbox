@@ -1,3 +1,4 @@
+=======================
 Job and Test Developers
 =======================
 
@@ -5,16 +6,21 @@ This chapter organizes information useful for developers creating and
 maintaining jobs and test scripts but not directly involved in changing the
 core.
 
+.. toctree::
+   tutorial.rst
+   providers.rst
+   jobs.rst
+   whitelists.rst
+   rfc822.rst
+
+Missing Documentation / TODO
+============================
+
 .. note::
 
     This chapter is very much under development. The list of stories below
     is a guiding point for subsequent editions that will expand and provide
     real value.
-
-.. toctree::
-   whitelists.rst
-   checkbox-job-format.rst
-   providers.rst
 
 Personas and stories
 --------------------
@@ -42,18 +48,6 @@ Personas and stories
     with plainbox)
   * how can I find about all the existing jobs?
   * how can I find about all the existing resource jobs?
-
-* I'm a developer working on test system different from but not unlike plainbox
-  (this is in the same chapter but should heavily link to derivative systems
-  and application development chapter)
-
-  * Why would I depend on plainbox rather than do everything I need myself?
-  * Do I need to create a derivative or can I just create jobs for what
-    plainbox supports?
-  * What are the stability guarantees if I choose to build with planbox?
-  * How can I use plainbox as a base for my automated or manual testing system?
-  * How does an example third party test system built on top of plainbox look
-    like?
 
 Key topics
 ----------

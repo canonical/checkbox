@@ -8,13 +8,9 @@ described here.
 
 File format and location
 ------------------------
-Jobs are expressed as sections in text files that conform somewhat to
-the rfc822 specification format. Each section defines a single job. The
-section is delimited with an empty newline. Within each section, each
-field starts with the field name, a colon, a space and then the field
-contents. Multiple-line fields can be input by having a newline right
-after the colon, and then entering text lines after that, each line
-should start with at least one space.
+Jobs are expressed as sections in text files that conform somewhat to the
+:rfc:`822` specification format. Our variant of the format is described in
+:ref:`rfc822`. Each record defines a single job.
 
 Fields that can be used on a job
 --------------------------------

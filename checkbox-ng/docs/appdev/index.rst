@@ -1,8 +1,12 @@
+======================
 Application developers
 ======================
 
 This chapter organizes information useful for developers working on testing
-systems and checkbox drivatives.
+systems and checkbox derivatives.
+
+Missing Documentation / TODO
+============================
 
 .. note::
 
@@ -25,6 +29,19 @@ Personas and stories
 
     * I'm adding a new feature, should that feature go to CheckBox or PlainBox?
     * I'm writing a new job, should that job go to CheckBox or JobBox?
+
+* I'm a developer working on test system different from but not unlike plainbox
+  (this is in the same chapter but should heavily link to derivative systems
+  and application development chapter)
+
+    * Why would I depend on plainbox rather than do everything I need myself?
+    * Do I need to create a derivative or can I just create jobs for what
+      plainbox supports?
+    * What are the stability guarantees if I choose to build with planbox?
+    * How can I use plainbox as a base for my automated or manual testing
+      system?
+    * How does an example third party test system built on top of plainbox look
+      like?
 
 Key topics
 ----------

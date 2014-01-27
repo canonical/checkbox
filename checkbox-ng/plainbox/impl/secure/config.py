@@ -353,7 +353,7 @@ class PlainBoxConfigParser(configparser.ConfigParser):
         """
         Write an .ini-format representation of the configuration state.
 
-        If `space_around_delimiters' is True (the default), delimiters between
+        If `space_around_delimiters` is True (the default), delimiters between
         keys and values are surrounded by spaces. The ordering of section and
         values within is deterministic.
         """

@@ -1,0 +1,64 @@
+.. _rfc822:
+
+=============================
+PlainBox RFC822 Specification
+=============================
+
+The syntax is only loosely inspired by the actual :RFC:`822` syntax. Since
+PlainBox is not processing email, the original specification is used only as an
+inspiration. One of the most important aspect of the syntax we're using is
+relative familiarity for other users of the system and ease-of-use when using
+general, off-the-shelf text editors.
+
+BNF
+---
+
+An approximated syntax can be summarized as the following BNF::
+
+    record-list: record-list '\n' record
+                 | record
+    record: entry-list '\n\n' entry
+            | entry
+    entry: KEY ':' VALUE
+    KEY: ^[^:]+
+    VALUE: .+\n([ ].+)*
+
+There are two quirks which not handled by this syntax (see below). Otherwise
+the syntax is very simple. It defines a list of records. Each record is a list
+of entries. Each entry is a key-value pair. Values can be multi-line, which
+allows for convenient expression of longer text fragments.
+
+Quirk 1 -- the magic dot
+------------------------
+
+Due to the way the multi-line VALUE syntax is defined, it would be impossible
+(or possible but dependant only on whitespace, which is not friendly) to
+include two consecutive newlines. For that reason a line consisting of a single
+space, followed by a single dot is translated to an empty line.
+
+The example below::
+
+    key:
+     .
+     more value
+
+Is parsed as an ENTRY (in python syntax)::
+
+    ("key", "\nvalue")
+
+Quirk 2 -- the # comments 
+-------------------------
+
+Since it's a line-oriented format and people are used to being able to insert
+comments anywhere with the ``# comment`` notation, any line that _starts_ with
+a hash or pound character is discarded. This happens earlier than other parts
+of parsing so comments are invisible to the rest of the parser. They can be
+included anywhere, including in the middle of a multi-line value.
+
+Example::
+
+    # this is a comment
+    key: value
+     multi-line
+    # comment!
+     and more

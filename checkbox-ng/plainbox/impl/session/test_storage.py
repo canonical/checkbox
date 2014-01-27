@@ -126,10 +126,27 @@ class SessionStorageTests(TestCase):
         storage = SessionStorage('foo')
         self.assertEqual(storage.location, 'foo')
 
-    def test_create_remove(self):
+    def test_create_remove__modern(self):
         with TemporaryDirectory() as tmp:
             # Create a new storage in the specified directory
-            storage = SessionStorage.create(tmp)
+            storage = SessionStorage.create(tmp, legacy_mode=False)
+            # The location should have been created
+            self.assertTrue(os.path.exists(storage.location))
+            # And it should be in the directory we indicated
+            self.assertEqual(os.path.dirname(storage.location), tmp)
+            # There should not be any symlink now, pointing to this storage
+            self.assertFalse(
+                os.path.exists(os.path.join(
+                    tmp, SessionStorageRepository._LAST_SESSION_SYMLINK)))
+            # Remove the storage now
+            storage.remove()
+            # And make sure the storage is gone
+            self.assertFalse(os.path.exists(storage.location))
+
+    def test_create_remove__legacy(self):
+        with TemporaryDirectory() as tmp:
+            # Create a new storage in the specified directory
+            storage = SessionStorage.create(tmp, legacy_mode=True)
             # The location should have been created
             self.assertTrue(os.path.exists(storage.location))
             # And it should be in the directory we indicated
@@ -147,10 +164,22 @@ class SessionStorageTests(TestCase):
             # NOTE: this does not check if the symlink is gone but we don't
             # touch it, it's just left as a dangling link there
 
-    def test_load_save_checkpoint(self):
+    def test_load_save_checkpoint__legacy(self):
         with TemporaryDirectory() as tmp:
             # Create a new storage in the specified directory
-            storage = SessionStorage.create(tmp)
+            storage = SessionStorage.create(tmp, legacy_mode=True)
+            # Save some checkpoint data
+            data_out = b'some data'
+            storage.save_checkpoint(data_out)
+            # Load it back
+            data_in = storage.load_checkpoint()
+            # Check if it's right
+            self.assertEqual(data_out, data_in)
+
+    def test_load_save_checkpoint__modern(self):
+        with TemporaryDirectory() as tmp:
+            # Create a new storage in the specified directory
+            storage = SessionStorage.create(tmp, legacy_mode=False)
             # Save some checkpoint data
             data_out = b'some data'
             storage.save_checkpoint(data_out)

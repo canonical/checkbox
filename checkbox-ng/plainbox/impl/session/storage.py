@@ -211,7 +211,7 @@ class SessionStorage:
         return os.path.join(self._location, self._SESSION_FILE)
 
     @classmethod
-    def create(cls, base_dir, legacy_mode=True):
+    def create(cls, base_dir, legacy_mode=False):
         """
         Create a new :class:`SessionStorage` in a random subdirectory
         of the specified base directory. The base directory is also

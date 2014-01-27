@@ -341,6 +341,19 @@ class RFC822ParserTestsMixIn():
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0].data, {'key': 'multi-line value'})
 
+    def test_dot_escape(self):
+        text = (
+            "key: something\n"
+            " .\n"
+            " .this\n"
+            " ..should\n"
+            " ...work\n"
+        )
+        with StringIO(text) as stream:
+            records = type(self).loader(stream)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0].data, {'key': 'something\n\nthis\n.should\n..work'})
+
     def test_many_newlines(self):
         text = (
             "\n"

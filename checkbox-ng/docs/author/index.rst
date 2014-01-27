@@ -7,9 +7,10 @@ maintaining jobs and test scripts but not directly involved in changing the
 core.
 
 .. toctree::
+   tutorial.rst
+   providers.rst
    checkbox-job-format.rst
    whitelists.rst
-   providers.rst
    rfc822.rst
 
 Missing Documentation / TODO

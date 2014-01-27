@@ -15,6 +15,7 @@ core.
    whitelists.rst
    checkbox-job-format.rst
    providers.rst
+   rfc822.rst
 
 Personas and stories
 --------------------

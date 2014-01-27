@@ -2,9 +2,12 @@
 Providers
 =========
 
-Providers are entities which provide Plainbox with jobs, scripts and whitelists, as well as miscellaneous data that may be used by tests. They work
-by providing a configuration file which tells Plainbox the name and location of the provider. The provider needs to install this file to 
-`/usr/share/plainbox-providers-1` (alternatively they can be placed in `~/.local/share/plainbox-providers-1`).
+Providers are entities which provide Plainbox with jobs, scripts and
+whitelists, as well as miscellaneous data that may be used by tests. They work
+by providing a configuration file which tells Plainbox the name and location of
+the provider. The provider needs to install this file to
+`/usr/share/plainbox-providers-1` (alternatively they can be placed in
+`~/.local/share/plainbox-providers-1`).
 
 An example of such a file is::
 
@@ -13,7 +16,9 @@ An example of such a file is::
     location = /usr/share/plainbox-providers-1/myprovider
     description = My Plainbox test provider
 
-Note that normally this file is created automatically during the provider installation process and it should not be necessary to create such a file by hand.
+Note that normally this file is created automatically during the provider
+installation process and it should not be necessary to create such a file by
+hand.
 
 It has these fields:
 
@@ -32,10 +37,11 @@ It has these fields:
     * bin
         Should contain one or more executable programs.
     * data
-        Can contain any files that may be neccesary for implementing the jobs 
+        Can contain any files that may be neccesary for implementing the jobs
         contained in the provider, e.g. image files.
     * whitelists
-        Should contain one or more files in the :doc:`Checkbox whitelist format <whitelists>`.
+        Should contain one or more files in the
+        :doc:`Checkbox whitelist format <whitelists>`.
 
 * description
     A short description of the provider.

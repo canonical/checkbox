@@ -28,8 +28,8 @@ from unittest import TestCase
 import os
 
 from plainbox.impl.providers.v1 import InsecureProvider1PlugInCollection
-from plainbox.impl.providers.v1 import _get_user_PROVIDERPATH_entry
 from plainbox.impl.providers.v1 import get_insecure_PROVIDERPATH_list
+from plainbox.impl.providers.v1 import get_user_PROVIDERPATH_entry
 from plainbox.vendor import mock
 
 
@@ -40,7 +40,7 @@ class Tests(TestCase):
     def test_get_user_PROVIDERPATH_entry__unset_XDG_DATA_HOME(
             self, mock_getenv, mock_expanduser):
         """
-        verify that _get_user_PROVIDERPATH_entry() still works with unset
+        verify that get_user_PROVIDERPATH_entry() still works with unset
         XDG_DATA_HOME
         """
         def getenv(name, default=None):
@@ -54,7 +54,7 @@ class Tests(TestCase):
         def expanduser(path):
             return path.replace("~", "/home/user")
         mock_expanduser.side_effect = expanduser
-        measured = _get_user_PROVIDERPATH_entry()
+        measured = get_user_PROVIDERPATH_entry()
         expected = "/home/user/.local/share/plainbox-providers-1"
         self.assertEqual(measured, expected)
 
@@ -63,7 +63,7 @@ class Tests(TestCase):
     def test_get_user_PROVIDERPATH_entry__respects_XDG_DATA_HOME(
             self, mock_getenv, mock_expanduser):
         """
-        verify that _get_user_PROVIDERPATH_entry() honors XDG_DATA_HOME
+        verify that get_user_PROVIDERPATH_entry() honors XDG_DATA_HOME
         """
         def getenv(name, default=None):
             if name == 'XDG_DATA_HOME':
@@ -72,12 +72,12 @@ class Tests(TestCase):
                 self.fail(("no other environment should be consulted"
                            " (asked for {!r})".format(name)))
         mock_getenv.side_effect = getenv
-        measured = _get_user_PROVIDERPATH_entry()
+        measured = get_user_PROVIDERPATH_entry()
         expected = "/home/user/xdg-data/plainbox-providers-1"
         self.assertEqual(measured, expected)
 
     @mock.patch('plainbox.impl.providers.v1.get_secure_PROVIDERPATH_list')
-    @mock.patch('plainbox.impl.providers.v1._get_user_PROVIDERPATH_entry')
+    @mock.patch('plainbox.impl.providers.v1.get_user_PROVIDERPATH_entry')
     def test_get_insecure_PROVIDERPATH_list(self, mock_guPe, mock_gsPl):
         """
         verify that get_insecure_PROVIDERPATH_list() works

@@ -109,7 +109,7 @@ class DummyProvider1(IProvider1, IProviderBackend1):
         return self._extras.get("get_all_executables", [])
 
 
-def _get_user_PROVIDERPATH_entry():
+def get_user_PROVIDERPATH_entry():
     """
     Computes the per-user component of PROVIDERPATH
 
@@ -135,7 +135,7 @@ def get_insecure_PROVIDERPATH_list():
         * `/usr/share/plainbox-providers-1`
         * `$XDG_DATA_HOME/plainbox-providers-1`
     """
-    return get_secure_PROVIDERPATH_list() + [_get_user_PROVIDERPATH_entry()]
+    return get_secure_PROVIDERPATH_list() + [get_user_PROVIDERPATH_entry()]
 
 
 class InsecureProvider1PlugInCollection(FsPlugInCollection):

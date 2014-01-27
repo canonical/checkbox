@@ -314,7 +314,7 @@ class RFC822RecordTests(TestCase):
         self.assertEqual(record.origin, origin)
 
 
-class RFC822ParserTestsMixIn():
+class RFC822ParserTests(TestCase):
 
     loader = load_rfc822_records
 
@@ -446,14 +446,18 @@ class RFC822ParserTestsMixIn():
         with StringIO(text) as stream:
             with self.assertRaises(RFC822SyntaxError) as call:
                 type(self).loader(stream)
-            self.assertEqual(call.exception.msg, "Unexpected non-empty line")
+        self.assertEqual(
+            call.exception.msg,
+            "Unexpected non-empty line: 'garbage'")
 
     def test_syntax_error(self):
         text = "key1 = value1"
         with StringIO(text) as stream:
             with self.assertRaises(RFC822SyntaxError) as call:
                 type(self).loader(stream)
-            self.assertEqual(call.exception.msg, "Unexpected non-empty line")
+        self.assertEqual(
+            call.exception.msg,
+            "Unexpected non-empty line: 'key1 = value1'")
 
     def test_duplicate_error(self):
         text = (

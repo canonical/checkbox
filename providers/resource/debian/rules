@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+export PYBUILD_NAME=plainbox-provider-resource-generic
+
+%:
+	dh $@ --with=python3 --buildsystem=pybuild
+
+override_dh_auto_install:
+	dh_auto_install
+	rm -rf debian/*/usr/lib/python3*/dist-packages/*.egg-info

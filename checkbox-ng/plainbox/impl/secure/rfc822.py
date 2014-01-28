@@ -449,8 +449,11 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
     # Iterate over subsequent lines of the stream
     for lineno, line in enumerate(stream, start=1):
         logger.debug("Looking at line %d:%r", lineno, line)
+        # Treat # as comments
+        if line.startswith("#"):
+            pass
         # Treat empty lines as record separators
-        if line.strip() == "":
+        elif line.strip() == "":
             # Commit the current record so that the multi-line value of the
             # last key, if any, is saved as a string
             _commit_key_value_if_needed()
@@ -467,14 +470,17 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
             if key is None:
                 # If we have not seen any keys yet then this is a syntax error
                 raise _syntax_error("Unexpected multi-line value")
+            # If the line is is composed of a leading space and a dot the strip
+            # those away. This allows us to support a generic escape sequence
+            # after which any characters can be injected (until the end of the
+            # line), including empty lines, lines any number of dots.
+            if line.startswith(" ."):
+                line = line[2:]
+            # Strip the whitespace from the right side
+            line = line.strip()
             # Append the current line to the list of values of the most recent
             # key. This prevents quadratic complexity of string concatenation
-            if line == " .\n":
-                value_list.append(" ")
-            elif line == " ..\n":
-                value_list.append(" .")
-            else:
-                value_list.append(line.rstrip())
+            value_list.append(line)
             # Update the end line location of this record
             _update_end_lineno()
         # Treat lines with a colon as new key-value pairs

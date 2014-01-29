@@ -66,7 +66,7 @@ class CertificationInvocation(CliInvocation):
                             " alphanumeric string")
                     else:
                         again = False
-                        self._submit_results(session)
+                        self.submit_results(session)
                 else:
                     again = False
         else:

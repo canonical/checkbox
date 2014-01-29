@@ -20,6 +20,12 @@ out on each day or group of days is described below:
 * Day 5: Changes are merged from the trunk of ``lp:checkbox`` and
   ``lp:checkbox-certification`` to their respective release branches.
   The changelogs for both are *bumped* at this point and revisions are tagged.
+  At this stage it may also be necessary to copy the package 'fwts' from the
+  `FWTS Stable PPA
+  <https://launchpad.net/~firmware-testing-team/+archive/ppa-fwts-stable>`_ 
+  to the `Checkbox Release Testing PPA
+  <https://launchpad.net/~checkbox-dev/+archive/testing>`_.
+  
 * Days 6-9: Testing is performed by the release manager for the Hardware
   Certification team, and a representative of the CE QA team (the main
   customer for CheckBox within Canonical)
@@ -67,7 +73,7 @@ of branches shown above, do the following (the example uses ``lp:checkbox`` and
     bzr branch lp:checkbox/release checkbox-release
     bzr branch lp:checkbox checkbox-trunk
     cd checkbox-release
-    current_stable=`head -n1 checkbox-old/debian/changelog | grep -oP '(?<=\().*(?=\))'`
+    current_stable=`head -n1 $(find . -name 'changelog') | grep -oP '(?<=\().*(?=\))'`
     bzr merge lp:checkbox
 
 at this point if no changes (other than one to ``debian/changelog``) get merged
@@ -77,7 +83,7 @@ this often happens with ``checkbox-certification`` but never with
 
     bzr commit -m "Merged in changes from rev$(bzr revno -r tag:$current_stable lp:checkbox) to rev$(bzr revno lp:checkbox) from lp:checkbox"
     bzr push lp:checkbox/release
-    cd ../checkbox-trunk/checkbox-old
+    cd `find . -name 'debian'`; cd ..
     bzr tag `head -n1 debian/changelog | grep -oP '(?<=\().*(?=\))'`
     dch -r (save modified changelog)
     dch -i -U 'Incremented changelog'
@@ -95,6 +101,24 @@ for the ``checkbox`` and/or ``checkbox-certification`` release branches.
 
 The **Build Now** option should be available on the page. Click it to start a
 build.
+
+Copying Firmware Test Suite to the Testing PPA
+==============================================
+
+The Firmware Test Suite tool is a test tool for system firmware that is 
+naturally heavily utilised by Checkbox. To make sure the latest version
+which contains fixes and new tests/features needed by Checkbox is available
+and also doesn't break anything in Checkbox, we need to release it alongside
+Checkbox. After cutting the release if the Firmware Testing team have notified
+that a new version is available and that this version should be used for
+certification, we need to copy it to the Testing PPA. To do this we need to go
+to the `Copy packages view of the Firmware Test Suite (Stable) PPA
+<https://launchpad.net/~firmware-testing-team/+archive/ppa-fwts-stable/+copy-packages>`_
+and select the 'fwts' packages for all releases back to Precise. We need to
+set the 'Destination PPA' as 'Checkbox Release Testing [~checkbox-dev/testing]'
+and the 'Copy options' field to 'Copy existing binaries', then click 'Copy
+packages'. This step then needs to be repeated but set the 'Destination PPA'
+field to 'PPA for Checkbox Developers [~checkbox-dev/ppa]'.
 
 Next Release of Checkbox e-mail
 ===============================
@@ -143,13 +167,22 @@ this `calendar invite
 <https://www.google.com/calendar/hosted/canonical.com/event?action=TEMPLATE&tmeid=Y3QxcWVla3ViMTRvMXByOHZlOTFvc283Y2NfMjAxMzA4MjlUMDczMDAwWiBicmVuZGFuLmRvbmVnYW5AY2Fub25pY2FsLmNvbQ&tmsrc=brendan.donegan%40canonical.com>`_.
 An agenda for the meeting is included in the invite.
 
-Finalizing the release
+Publishing the release
 ======================
 
-(Written by Zygmunt Krynicki, may require changes after peer review)
+To publish the release we simply need to copy a number of packages from the
+`Checkbox Release Testing PPA 
+<https://launchpad.net/~checkbox-dev/+archive/testing>`_
+to the `Hardware Certification Public PPA
+<https://launchpad.net/~hardware-certification/+archive/public>`_. To do this 
+we go to the `Copy packages view of the Checkbox Release Testing PPA
+<https://launchpad.net/~checkbox-dev/+archive/testing/+copy-packages>`_ and 
+select all versions of the following list of packages: ``checkbox,
+checkbox-certification, fwts``. Make sure that the 'Destination PPA'
+field is set to 'Public PPA for Hardware Certification
+[~hardware-certification/public]' and that the 'Copy options' field is set to
+'Copy existing binaries', then click 'Copy Packages'.
 
-To finalize the release process packages from the `checkbox testing PPA <https://code.launchpad.net/~checkbox-dev/+archive/testing>`_
-need to be manually copied to the `checkbox public PPA <https://launchpad.net/~hardware-certification/+archive/public>`_
 After that is done an announcement email should be sent to
 `commercial-engineering@lists.canonical.com <mailto:commercial-engineering@lists.canonical.com>`_. 
 A template for the announcement in included below::

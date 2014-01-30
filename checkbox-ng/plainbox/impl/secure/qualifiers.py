@@ -201,9 +201,7 @@ class CompositeQualifier(IJobQualifier):
             return self.VOTE_IGNORE
 
     def get_primitive_qualifiers(self):
-        return list(itertools.chain(*[
-            qual.get_primitive_qualifiers()
-            for qual in self.qualifier_list]))
+        return get_flat_primitive_qualifier_list(self.qualifier_list)
 
 
 # NOTE: using CompositeQualifier seems strange but it's a tested proven

@@ -414,6 +414,18 @@ class RFC822ParserTests(TestCase):
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0].data, {'key': 'longer\n\nvalue'})
 
+    def test_multiline_value_with_space__deep_indent(self):
+        text = (
+            "key:\n"
+            "       longer\n"
+            "       .\n"
+            "       value\n"
+        )
+        with StringIO(text) as stream:
+            records = type(self).loader(stream)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0].data, {'key': 'longer\n\nvalue'})
+
     def test_multiline_value_with_period(self):
         text = (
             "key:\n"
@@ -441,6 +453,36 @@ class RFC822ParserTests(TestCase):
         self.assertEqual(len(records), 2)
         self.assertEqual(records[0].data, {'key1': 'initial\nlonger\nvalue 1'})
         self.assertEqual(records[1].data, {'key2': 'longer\nvalue 2'})
+
+    def test_proper_parsing_nested_multiline(self):
+        text = (
+            "key:"
+            " nested: stuff\n"
+            " even:\n"
+            "  more\n"
+            "  text\n"
+        )
+        with StringIO(text) as stream:
+            records = type(self).loader(stream)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(
+            records[0].data,
+            {'key': 'nested: stuff\neven:\n more\n text'})
+
+    def test_proper_parsing_nested_multiline__deep_indent(self):
+        text = (
+            "key:"
+            "        nested: stuff\n"
+            "        even:\n"
+            "           more\n"
+            "           text\n"
+        )
+        with StringIO(text) as stream:
+            records = type(self).loader(stream)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(
+            records[0].data,
+            {'key': 'nested: stuff\neven:\n   more\n   text'})
 
     def test_irrelevant_whitespace(self):
         text = "key :  value  "

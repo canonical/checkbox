@@ -54,6 +54,10 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
 
     def run(self):
         if self.ns.run_local:
+            if self.ns.print_desired_job_list:
+                self._print_desired_job_list()
+            if self.ns.print_run_list:
+                self._print_run_list()
             self._run_local_jobs()
         if self.ns.print_stats:
             self._print_general_stats()
@@ -67,6 +71,20 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
             self._print_validation_report(self.ns.only_errors)
         if self.ns.print_requirement_report:
             self._print_requirement_report()
+        if self.ns.print_desired_job_list:
+            self._print_desired_job_list()
+        if self.ns.print_run_list:
+            self._print_run_list()
+
+    def _print_desired_job_list(self):
+        print("[Desired Job List]".center(80, '='))
+        for job in self.session.desired_job_list:
+            print("{}".format(job.name))
+
+    def _print_run_list(self):
+        print("[Run List]".center(80, '='))
+        for job in self.session.run_list:
+            print("{}".format(job.name))
 
     def _run_local_jobs(self):
         print("[Running Local Jobs]".center(80, '='))
@@ -232,6 +250,12 @@ class AnalyzeCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         group.add_argument(
             "-E", "--only-errors", action='store_true', default=False,
             help="When coupled with -v, only problematic jobs will be listed")
+        group.add_argument(
+            "-S", "--print-desired-job-list", action='store_true',
+            help="Print desired job list")
+        group.add_argument(
+            "-R", "--print-run-list", action='store_true',
+            help="Print run list")
         parser.set_defaults(command=self)
         # Call enhance_parser from CheckBoxCommandMixIn
         self.enhance_parser(parser)

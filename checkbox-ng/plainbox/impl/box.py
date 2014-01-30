@@ -34,6 +34,7 @@ from plainbox.impl.commands import PlainBoxToolBase
 from plainbox.impl.commands.check_config import CheckConfigCommand
 from plainbox.impl.commands.dev import DevCommand
 from plainbox.impl.commands.run import RunCommand
+from plainbox.impl.commands.startprovider import StartProviderCommand
 from plainbox.impl.commands.selftest import SelfTestCommand
 from plainbox.impl.logging import setup_logging
 
@@ -68,10 +69,13 @@ class PlainBoxTool(PlainBoxToolBase):
         top-level subcommands.
         """
         # TODO: switch to plainbox plugins
-        RunCommand(self._provider_list, self._config).register_parser(subparsers)
+        RunCommand(self._provider_list, self._config).register_parser(
+            subparsers)
         SelfTestCommand().register_parser(subparsers)
         CheckConfigCommand(self._config).register_parser(subparsers)
-        DevCommand(self._provider_list, self._config).register_parser(subparsers)
+        DevCommand(self._provider_list, self._config).register_parser(
+            subparsers)
+        StartProviderCommand().register_parser(subparsers)
 
     @classmethod
     def get_config_cls(cls):

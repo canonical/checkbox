@@ -368,3 +368,9 @@ class WhiteList(CompositeQualifier):
         """
         with open(pathname, "rt", encoding="UTF-8") as stream:
             return cls._parse_patterns(stream.read())
+
+
+def get_flat_primitive_qualifier_list(qualifier_list):
+    return list(itertools.chain(*[
+        qual.get_primitive_qualifiers()
+        for qual in qualifier_list]))

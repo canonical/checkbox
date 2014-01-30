@@ -36,6 +36,7 @@ import pdb
 import sys
 
 from plainbox.impl.logging import adjust_logging
+from plainbox.impl._argparse import LegacyHelpFormatter
 
 
 logger = logging.getLogger("plainbox.clitools")
@@ -324,7 +325,9 @@ class ToolBase(metaclass=abc.ABCMeta):
         :returns:
             argparse.ArgumentParser instance.
         """
-        parser = argparse.ArgumentParser(prog=self.get_exec_name())
+        parser = argparse.ArgumentParser(
+            prog=self.get_exec_name(),
+            formatter_class=LegacyHelpFormatter)
         parser.add_argument(
             "--version", action="version", version=self.get_exec_version())
         return parser

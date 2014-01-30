@@ -26,6 +26,7 @@ Test definitions for plainbox.impl.secure.qualifiers module
 
 from contextlib import contextmanager
 from io import TextIOWrapper
+from itertools import permutations
 from unittest import TestCase
 
 from plainbox.abc import IJobQualifier
@@ -35,6 +36,7 @@ from plainbox.impl.secure.qualifiers import NameJobQualifier
 from plainbox.impl.secure.qualifiers import RegExpJobQualifier
 from plainbox.impl.secure.qualifiers import SimpleQualifier
 from plainbox.impl.secure.qualifiers import WhiteList
+from plainbox.impl.secure.qualifiers import select_jobs
 from plainbox.impl.secure.rfc822 import FileTextSource
 from plainbox.impl.secure.rfc822 import Origin
 from plainbox.impl.secure.rfc822 import UnknownTextSource
@@ -516,3 +518,42 @@ class WhiteListTests(TestCase):
         self.assertEqual(WhiteList.name_from_filename("foo"), "foo")
         self.assertEqual(
             WhiteList.name_from_filename("foo.notawhitelist"), "foo")
+
+
+class FunctionTests(TestCase):
+
+    def test_select_jobs__inclusion(self):
+        """
+        verify that select_jobs() honors qualifier ordering
+        """
+        job_a = JobDefinition({'name': 'a'})
+        job_b = JobDefinition({'name': 'b'})
+        job_c = JobDefinition({'name': 'c'})
+        qual_a = NameJobQualifier("a")
+        qual_c = NameJobQualifier("c")
+        for job_list in permutations([job_a, job_b, job_c], 3):
+            # Regardless of how the list of job is ordered the result
+            # should be the same, depending on the qualifier list
+            self.assertEqual(
+                select_jobs(job_list, [qual_a, qual_c]),
+                [job_a, job_c])
+
+    def test_select_jobs__exclusion(self):
+        """
+        verify that select_jobs() honors qualifier ordering
+        """
+        job_a = JobDefinition({'name': 'a'})
+        job_b = JobDefinition({'name': 'b'})
+        job_c = JobDefinition({'name': 'c'})
+        qual_all = CompositeQualifier([
+            NameJobQualifier("a"),
+            NameJobQualifier("b"),
+            NameJobQualifier("c"),
+        ])
+        qual_not_c = NameJobQualifier("c", inclusive=False)
+        for job_list in permutations([job_a, job_b, job_c], 3):
+            # Regardless of how the list of job is ordered the result
+            # should be the same, depending on the qualifier list
+            self.assertEqual(
+                select_jobs(job_list, [qual_all, qual_not_c]),
+                [job_a, job_b])

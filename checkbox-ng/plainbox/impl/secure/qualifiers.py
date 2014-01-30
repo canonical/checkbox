@@ -201,9 +201,7 @@ class CompositeQualifier(IJobQualifier):
             return self.VOTE_IGNORE
 
     def get_primitive_qualifiers(self):
-        return list(itertools.chain(*[
-            qual.get_primitive_qualifiers()
-            for qual in self.qualifier_list]))
+        return get_flat_primitive_qualifier_list(self.qualifier_list)
 
 
 # NOTE: using CompositeQualifier seems strange but it's a tested proven
@@ -368,3 +366,94 @@ class WhiteList(CompositeQualifier):
         """
         with open(pathname, "rt", encoding="UTF-8") as stream:
             return cls._parse_patterns(stream.read())
+
+
+def get_flat_primitive_qualifier_list(qualifier_list):
+    return list(itertools.chain(*[
+        qual.get_primitive_qualifiers()
+        for qual in qualifier_list]))
+
+
+def select_jobs(job_list, qualifier_list):
+    """
+    Select desired jobs.
+
+    :param job_list:
+        A list of JobDefinition objects
+    :param qualifier_list:
+        A list of IJobQualifier objects.
+    :returns:
+        A sub-list of JobDefinition objects, selected from job_list.
+    """
+    # Flatten the qualifier list, so that we can see the fine structure of
+    # composite objects, such as whitelists.
+    flat_qualifier_list = get_flat_primitive_qualifier_list(qualifier_list)
+    # Short-circuit if there are no jobs to select. Min is used later and this
+    # will allow us to assume that the matrix is not empty.
+    if not flat_qualifier_list:
+        return []
+    # Vote matrix, encodes the vote cast by a particular qualifier for a
+    # particular job. Visually it's a two-dimensional array like this:
+    #
+    #   ^
+    # q |
+    # u |   X
+    # a |
+    # l |  ........
+    # i |
+    # f |             .
+    # i | .
+    # e |          .
+    # r |
+    #    ------------------->
+    #                    job
+    #
+    # The vertical axis represents qualifiers from the flattened qualifier
+    # list.  The horizontal axis represents jobs from job list. Dots represent
+    # inclusion, X represents exclusion.
+    #
+    # The result of the select_job() function is a list of jobs that have at
+    # least one inclusion and no exclusions. The resulting list is ordered by
+    # increasing qualifier index.
+    #
+    # The algorithm implemented below is composed of two steps.
+    #
+    # The first step iterates over the vote matrix (row-major, meaning that we
+    # visit all columns for each visit of one row) and constructs two
+    # structures: a set of jobs that got VOTE_INCLUDE and a list of those jobs,
+    # in the order of discovery. All VOTE_EXCLUDE votes are collected in
+    # another set.
+    #
+    # The second step filters-out all items from the excluded job set from the
+    # selected job list. For extra efficiency the algorithm operates on
+    # integers representing the index of a particular job in job_list.
+    #
+    # The final complexity is O(N x M) + O(M), where N is the number of
+    # qualifiers (flattened) and M is the number of jobs. The algorithm assumes
+    # that set lookup is a O(1) operation which is true enough for python.
+    #
+    # A possible optimization would differentiate qualifiers that may select
+    # more than one job and fall-back to the current implementation while
+    # short-circuiting qualifiers that may select at most one job with a
+    # separate set lookup. That would make the algorithm "mostly" linear in the
+    # common case.
+    #
+    # As a separate feature, we might return a list of qualifiers that never
+    # matched anything. That may be helpful for debugging.
+    included_list = []
+    included_set = set()
+    excluded_set = set()
+    for qualifier in flat_qualifier_list:
+        for j_index, job in enumerate(job_list):
+            vote = qualifier.get_vote(job)
+            if vote == IJobQualifier.VOTE_INCLUDE:
+                if j_index in included_set:
+                    continue
+                included_set.add(j_index)
+                included_list.append(j_index)
+            elif vote == IJobQualifier.VOTE_EXCLUDE:
+                excluded_set.add(j_index)
+            elif vote == IJobQualifier.VOTE_IGNORE:
+                pass
+    return [job_list[index] for index in included_list
+            if index not in excluded_set]

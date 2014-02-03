@@ -470,14 +470,15 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
             if key is None:
                 # If we have not seen any keys yet then this is a syntax error
                 raise _syntax_error("Unexpected multi-line value")
-            # If the line is is composed of a leading space and a dot the strip
-            # those away. This allows us to support a generic escape sequence
-            # after which any characters can be injected (until the end of the
+            # If the line is is composed of leading spaces and a dot
+            # then the remove the dot whithout touching the spaces.
+            # This allows us to support a generic escape sequence after
+            # which any characters can be injected (until the end of the
             # line), including empty lines, lines any number of dots.
-            if line.startswith(" ."):
-                line = line[2:]
+            if line.lstrip().startswith("."):
+                line = line.replace('.', '', 1)
             # Strip the whitespace from the right side
-            line = line.strip()
+            line = line.rstrip()
             # Append the current line to the list of values of the most recent
             # key. This prevents quadratic complexity of string concatenation
             value_list.append(line)

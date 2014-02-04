@@ -2,7 +2,7 @@ Core Developers
 ===============
 
 This chapter organizes information useful for developers working on the core,
-aka, PlainBox inself.
+aka, PlainBox itself.
 
 .. note::
 

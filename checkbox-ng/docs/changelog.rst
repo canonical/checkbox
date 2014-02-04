@@ -169,7 +169,7 @@ PlainBox 0.3
 * Added support for exporting test results to JSON, plain text and XML
 * Added support for handling binary data (eg, binary attachments)
 * Added support for using sub-commands to the main plainbox executable
-* Added documentation to the project 
+* Added documentation to the project
 * Numerous internal re-factorings, changes and improvements.
 * Improved unit and integration testing coverage
 

@@ -102,29 +102,27 @@ pygments_style = 'sphinx'
 
 # -- Options for HTML output ---------------------------------------------------
 
-try:
-    import sphinx_bootstrap_theme
-except ImportError:
-    html_theme = 'default'
-    html_theme_options = {}
-else:
-    html_theme = 'bootstrap'
-    html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
-    html_theme_options = {
-        'bootswatch_theme': 'united',
-        'navbar_class': "navbar navbar-inverse",
-    }
-
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
+#
+# Use our custom theme. For now it only adds Disqus.com support but we may
+# customize it further later on. The theme is called 'plainbox' and has one
+# option which controls if disqus is active or not.
+html_theme = 'plainbox'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#html_theme_options = {}
+#
+# Due to the way disqus works, it's only going to work on
+# plainbox.readthedocs.org so only use it if building for readthedocs.
+
+html_theme_options = {
+    'show_disqus': 'true' if os.environ.get("READTHEDOCS", None) == 'True' else ''
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
-#html_theme_path = []
+html_theme_path = ['_theme']
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".

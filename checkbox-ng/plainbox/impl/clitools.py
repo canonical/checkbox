@@ -18,8 +18,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-:mod:`plainbox.impl.clitools ` -- support code for command line utilities
-=========================================================================
+:mod:`plainbox.impl.clitools` -- support code for command line utilities
+========================================================================
 
 .. warning::
 
@@ -133,7 +133,7 @@ class CommandBase(metaclass=abc.ABCMeta):
             self.description, if defined
         :returns:
             A substring of the class docstring between the first line (which
-            goes to :meth:`get_command_help()`) and the string ``@EPILOG@`, if
+            goes to :meth:`get_command_help()`) and the string ``@EPILOG@``, if
             present, or the end of the docstring, if any.
         :returns:
             None, otherwise
@@ -477,14 +477,14 @@ def autopager(pager_list=['sensible-pager', 'less', 'more']):
 
     This function executes the following steps:
 
-        * A pager is selected
-        * A pipe is created
-        * The current process forks
-        * The parent uses execlp() and becomes the pager
-        * The child/python carries on the execution of python code.
-        * The parent/pager stdin is connected to the childs stdout.
-        * The child/python stderr is connected to parent/pager stdin only when
-          sys.stderr is connected to a tty
+    * A pager is selected
+    * A pipe is created
+    * The current process forks
+    * The parent uses execlp() and becomes the pager
+    * The child/python carries on the execution of python code.
+    * The parent/pager stdin is connected to the childs stdout.
+    * The child/python stderr is connected to parent/pager stdin only when
+      sys.stderr is connected to a tty
 
     .. note::
         Pager selection is influenced by the pager environment variabe. if set

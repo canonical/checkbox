@@ -6,6 +6,121 @@ ChangeLog
     accounting of development history please inspect the source history
     directly.
 
+PlainBox 0.5a1
+^^^^^^^^^^^^^^
+
+.. note::
+
+    The 0.5 release is not finalized and the list below is incomplete.
+
+New Features
+------------
+
+* PlainBox is now a better development tool for test authors. With the new
+  'plainbox startprovider' command it is easy to bootstrapp  development of
+  third party test collections. This is further explained in the new
+  :ref:`tutorial`.
+
+Workflow Changes
+----------------
+
+* PlainBox dropped support for Ubuntu 13.04 (Raring Rigtail), following
+  scheduled end-of-life of that release.
+* PlainBox dropped support for Ubuntu 13.10 (Saucy Salamander) given the
+  imminent release of the next release.
+* PlainBox now supports Ubuntu 14.04 (Trusty Thar), scheduled for release on
+  the 17th of April 2014.
+
+This implies that any patch merged into trunk is only tested on Ubuntu 12.04
+(with python3.2) and Ubuntu 14.04 (with python3.3, which will switch to python
+3.4 later, before the final release.)
+
+Internal Changes
+----------------
+
+General Changes
+...............
+
+* PlainBox now supports Python 3.4.
+
+New Modules
+...........
+
+* PlainBox now has a dedicated module for implementing versatile command line
+  utilities :mod:`plainbox.impl.clitools`. This module is used to implement the
+  new :mod:`plainbox.provider_manager` which is what backs the per-provider
+  management script.
+
+API changes (WhiteLists)
+........................
+
+* PlainBox has new and improved APIs for loading whitelists
+  :meth:`plainbox.impl.secure.qualifiers.WhiteList.from_string()` and
+  :meth:`plainbox.impl.secure.qualifiers.WhiteList.from_file()`.
+* PlainBox now tracks the origin of whitelist, knowing where they were defined
+  in. Origin is available as
+  :meth:`plainbox.impl.secure.qualifiers.WhiteList.origin`
+
+API changes (Providers)
+.......................
+
+* PlainBox can validate providers, jobs and whitelists better than before. In
+  particular, broken providers are now verbosely ignored. This is implemented
+  as a number of additional validators on
+  :class:`plainbox.impl.secure.providers.v1.Provider1Definition`
+* PlainBox can now enumerate all the executables of a provider
+  :meth:`plainbox.abc.IProvider1.get_all_executables()`
+* PlainBox has new APIs for applications to load as much of provider content as
+  possible, without stopping on the first encountered problem.
+  :meth:`plainbox.impl.secure.providers.v1.Provider1.load_all_jobs()`
+* The ``Provider1.load_jobs()`` method has been removed. It was only used
+  internally by the class itself. Identical functionality is now offered by
+  :class:`plainbox.impl.secure.plugins.FsPlugInCollection` and
+  :class:`plainbox.impl.secure.providers.v1.JobDefinitionPlugIn`.
+
+API changes (Qualifiers)
+........................
+
+* PlainBox now has additional APIs that correctly preserve order of jobs
+  selected by a :term:`WhiteList`, see:
+  :func:`plainbox.impl.secure.qualifiers.select_jobs`.
+* PlainBox has new APIs for converting any qualifier into a list of primitive
+  (non-divisible) qualifiers that express the same selection,
+  :meth:`plainbox.abc.IJobQualifier.get_primitive_qualifiers()` and
+  :meth:`plainbox.abc.IJobQualifier.is_primitive()`.
+* PlainBox has new APIs for qualifiers to uniformly include and exclude jobs
+  from the selection list. This is implemented as a voting system described in
+  the :meth:`plainbox.abc.IJobQualifier.get_vote()` method.
+
+API changes (Other)
+...................
+
+* :class:`plainbox.impl.secure.plugins.FsPlugInCollection` can now load plug-ins
+  from files of various extensions. The ``ext`` argument can now be a list of
+  extensions to load.
+* :class:`plainbox.impl.secure.plugins.FsPlugInCollection` now takes a list of
+  directories instead of a PATH-like argument that had to be split with the
+  platform-specific path separator.
+* :class:`plainbox.impl.secure.rfc822.Origin` gained the
+  :meth:`plainbox.impl.secure.rfc822.Origin.relative_to()` method which is
+  useful for presenting origin objects in a human-friendly form.
+* Implementations of :class:`plainbox.impl.secure.plugins.IPlugIn` can now
+  raise :class:`plainbox.impl.secure.plugins.PlugInError` to prevent being
+  added to a plug-in collection.
+* :class:`plainbox.impl.secure.config.Config` gained
+  :meth:`plainbox.impl.secure.config.Config.get_parser_obj()` and
+  :meth:`plainbox.impl.secure.config.Config.write()` which allow configuration
+  changes to be written back to the filesystem.
+* :class:`plainbox.impl.secure.config.Config` now has special support for the
+  new :class:`plainbox.impl.secure.config.NotUnsetValidator`. Unlike all other
+  validators, it is allowed to inspect the special
+  :data:`plainbox.impl.secure.config.Unset` value.
+
+Bug fixes
+---------
+
+* Bugfixes: https://launchpad.net/checkbox/+milestone/plainbox-0.5a1
+
 PlainBox 0.4
 ^^^^^^^^^^^^
 

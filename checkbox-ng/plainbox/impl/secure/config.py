@@ -63,15 +63,13 @@ class ConfigMetaData:
 
     This class has typically two attributes:
 
-        :cvar variable_list:
-            A list of all Variable objects defined in the class
-
-        :cvar section_list:
-            A list of all Section object defined in the class
-
-        :cvar filename_list:
-            A list of config files (pathnames) to read on call to
-            :meth:`Config.read`
+    :attr variable_list:
+        A list of all Variable objects defined in the class
+    :attr section_list:
+        A list of all Section object defined in the class
+    :attr filename_list:
+        A list of config files (pathnames) to read on call to
+        :meth:`Config.read`
     """
     variable_list = []
     section_list = []
@@ -244,7 +242,7 @@ class Section(INameTracking):
 
     def _set_tracked_name(self, name):
         """
-        Internal method used by :meth:`ConfigMeta.__new__`
+        Internal method used by :meth:`ConfigMeta.__new__()`
         """
         if self._name is None:
             self._name = name
@@ -373,17 +371,14 @@ class Config(metaclass=ConfigMeta):
     """
     Base class for configuration systems
 
-    :ivar _var:
+    :attr _var:
         storage backend for Variable definitions
-
-    :ivar _section:
+    :attr _section:
         storage backend for Section definitions
-
-    :ivar _filename_list:
+    :attr _filename_list:
         list of pathnames to files that were loaded by the last call to
         :meth:`read()`
-
-    :ivar _problem_list:
+    :attr _problem_list:
         list of :class:`ValidationError` that were detected by the last call to
         :meth:`read()`
     """
@@ -483,8 +478,8 @@ class Config(metaclass=ConfigMeta):
         either Variable or Section class) is silently ignored.
 
         .. note::
-            This method resets :ivar:`_problem_list` and
-            :ivar:`_filename_list`.
+            This method resets :attr:`_problem_list` and
+            :attr:`_filename_list`.
         """
         parser = PlainBoxConfigParser()
         # Reset filename list and problem list
@@ -498,6 +493,15 @@ class Config(metaclass=ConfigMeta):
         self._read_commit(parser)
 
     def write(self, stream):
+        """
+        Write configuration data to a stream.
+
+        :param stream:
+            a file-like object that can be written to.
+
+        This method recreates the content of all the configuration variables in
+        a manner that can be subsequently read back.
+        """
         self.get_parser_obj().write(stream)
 
     def read(self, filename_list):
@@ -524,8 +528,8 @@ class Config(metaclass=ConfigMeta):
         either Variable or Section class) is silently ignored.
 
         .. note::
-            This method resets :ivar:`_problem_list` and
-            :ivar:`_filename_list`.
+            This method resets :attr:`_problem_list` and
+            :attr:`_filename_list`.
         """
         parser = PlainBoxConfigParser()
         # Reset filename list and problem list

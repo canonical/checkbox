@@ -300,13 +300,13 @@ class ConfigMeta(type):
                 section_list = namespace['Meta'].section_list[:]
         # Discover all Variable and Section instances
         # defined in the class namespace
-        for name, item in namespace.items():
-            if isinstance(item, INameTracking):
-                item._set_tracked_name(name)
-            if isinstance(item, Variable):
-                variable_list.append(item)
-            elif isinstance(item, Section):
-                section_list.append(item)
+        for attr_name, attr_value in namespace.items():
+            if isinstance(attr_value, INameTracking):
+                attr_value._set_tracked_name(attr_name)
+            if isinstance(attr_value, Variable):
+                variable_list.append(attr_value)
+            elif isinstance(attr_value, Section):
+                section_list.append(attr_value)
         # Get or create the class of the 'Meta' object.
         #
         # This class should always inherit from ConfigMetaData and whatever the

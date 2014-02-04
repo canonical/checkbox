@@ -13,14 +13,11 @@ core.
    whitelists.rst
    rfc822.rst
 
-Missing Documentation / TODO
-============================
+.. warning::
 
-.. note::
-
-    This chapter is very much under development. The list of stories below
-    is a guiding point for subsequent editions that will expand and provide
-    real value.
+    This chapter is very much under development. The list of stories below is a
+    guiding point for subsequent editions that will expand and provide real
+    value.
 
 Personas and stories
 --------------------

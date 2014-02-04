@@ -3,16 +3,13 @@ Application developers
 ======================
 
 This chapter organizes information useful for developers working on testing
-systems and checkbox derivatives.
+systems and :term:`CheckBox` derivatives.
 
-Missing Documentation / TODO
-============================
+.. warning::
 
-.. note::
-
-    This chapter is very much under development. The list of stories below
-    is a guiding point for subsequent editions that will expand and provide
-    real value.
+    This chapter is very much under development. The list of stories below is a
+    guiding point for subsequent editions that will expand and provide real
+    value.
 
 Personas and stories
 --------------------

@@ -1,0 +1,25 @@
+Description: Fix unit test to comply with recent upload of python 3.3.4
+ Fix a build failure caused by the recent upload of python 3.3.4 which 
+ included updates to the standard library argparse module. Those changes 
+ caused slight change in the contents of the command usage help message.
+Author: Sylvain Pineau <sylvain.pineau@canonical.com>
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+--- a/checkbox_ng/test_main.py
++++ b/checkbox_ng/test_main.py
+@@ -51,7 +51,6 @@ class TestMain(TestCase):
+         expected = """
+         usage: checkbox [-h] [--version] [-c {src,deb,auto,stub,ihv}] [-v] [-D] [-C]
+                         [-T LOGGER] [-P] [-I]
+-                        
+                         {sru,check-config,script,dev,checkbox-cli,driver-test-suite-cli,certification-server,service}
+                         ...
+ 
+@@ -95,7 +94,6 @@ class TestMain(TestCase):
+         expected = """
+         usage: checkbox [-h] [--version] [-c {src,deb,auto,stub,ihv}] [-v] [-D] [-C]
+                         [-T LOGGER] [-P] [-I]
+-                        
+                         {sru,check-config,script,dev,checkbox-cli,driver-test-suite-cli,certification-server,service}
+                         ...
+         checkbox: error: too few arguments

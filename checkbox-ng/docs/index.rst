@@ -40,12 +40,12 @@ Table of contents
 
    install.rst
    usage.rst
+   changelog.rst
    author/index.rst
    appdev/index.rst
    dev/index.rst
    ref/index.rst
    glossary.rst
-   changelog.rst
 
 Indices and tables
 ==================

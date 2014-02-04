@@ -38,6 +38,7 @@ Table of contents
 .. toctree::
    :maxdepth: 2
 
+   install.rst
    usage.rst
    author/index.rst
    appdev/index.rst

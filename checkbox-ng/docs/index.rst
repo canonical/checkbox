@@ -6,43 +6,31 @@
 PlainBox
 ========
 
-:term:`PlainBox` is a hardware testing tool useful for certifying laptops,
-desktops and servers with Ubuntu. It is a replacement for the current
-certification tool, :term:`CheckBox`.
+:term:`PlainBox` is a toolkit consisting of python3 library, development tools,
+documentation and examples. It is targeted at developers working on testing or
+certification applications and authors creating tests for such applications.
 
-PlainBox *complements* CheckBox. It uses all the hardware test definitions,
-scripts and libraries from CheckBox. PlainBox is currently in **alpha** stages,
-having mostly but not entirely complete core and a developer-centric command
-line interface.
+PlainBox can be used to both create simple and comprehensive test tools as well
+as to develop and execute test jobs and test scenarios. It was created as a
+refined and rewritten core of the :term:`CheckBox` project. It has a well
+tested and documented core, small but active development community and a
+collection of associated projects that use it as a lower-level engine/back-end
+library.
 
-.. warning::
+PlainBox has a novel approach to discovering (and probing) hardware and
+software that is extensible and not hardwired into the system. It allows test
+developers to express association between a particular test and the hardware,
+software and configuration constraints that must be met for the test to execute
+meaningfully. This feature, along with pluggable test definitions, makes
+PlainBox flexible and applicable to many diverse testing situations, ranging
+from mobile phones, traditional desktop computers, servers and up to testing
+"cloud" installations.
 
-    Documentation is under development. Some things are wrong, inaccurate or
-    describe development goals rather than current state.
+What are you interested in?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Installation
-^^^^^^^^^^^^
-
-PlainBox can be installed from a :abbr:`PPA (Personal Package Archive)`
-(recommended) or :abbr:`pypi (python package index)` on Ubuntu Precise (12.04)
-or newer.
-
-.. code-block:: bash
-
-    $ sudo add-apt-repository ppa:checkbox-dev/ppa && sudo apt-get update && sudo apt-get install plainbox
-
-
-Testing your hardware
-^^^^^^^^^^^^^^^^^^^^^
-
-To test your hardware with the default set of tests run this command.
-
-.. code-block:: bash
-
-    $ plainbox run --whitelist=/usr/share/checkbox/data/whitelists/default.whitelist --output-format=xml --output-file=submission.xml
-
-The :file:`submission.xml` you get in the end can be submitted to the
-:term:`certification website`. For more details see :ref:`usage`
+Are you a :doc:`test author <author/index>`, :doc:`application developer
+<appdev/index>` or :doc:`core developer <dev/index>`?
 
 Table of contents
 =================

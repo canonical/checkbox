@@ -439,9 +439,7 @@ class IProvider1(metaclass=ABCMeta):
     @abstractproperty
     def description(self):
         """
-        description of this providr
-
-        This name should be dbus-friendly. It should not be localizable.
+        description of this provider
         """
 
     @abstractproperty

@@ -361,6 +361,9 @@ class JobDefinition(BaseJob, IJobDefinition):
             return False
         return self.checksum == other.checksum
 
+    def __hash__(self):
+        return hash(self.checksum)
+
     def __ne__(self, other):
         if not isinstance(other, JobDefinition):
             return True

@@ -264,6 +264,13 @@ class TestJobDefinition(TestCase):
         observed = repr(job)
         self.assertEqual(expected, observed)
 
+    def test_hash(self):
+        job1 = JobDefinition(self._min_record.data)
+        job2 = JobDefinition(self._min_record.data)
+        job3 = JobDefinition(self._full_record.data)
+        self.assertEqual(hash(job1), hash(job2))
+        self.assertNotEqual(hash(job1), hash(job3))
+
     def test_dependency_parsing_empty(self):
         job = JobDefinition({
             'name': 'name',

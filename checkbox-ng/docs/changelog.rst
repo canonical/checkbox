@@ -77,6 +77,10 @@ API changes (Providers)
   internally by the class itself. Identical functionality is now offered by
   :class:`plainbox.impl.secure.plugins.FsPlugInCollection` and
   :class:`plainbox.impl.secure.providers.v1.JobDefinitionPlugIn`.
+* PlainBox now associates a gettext domain with each provider. This
+  information is available both in
+  :attr:`plainbox.impl.secure.providers.v1.Provider1Definition.gettext_domain`
+  and :attr:`plainbox.impl.secure.providers.v1.Provider1.gettext_domain`
 
 API changes (Qualifiers)
 ........................

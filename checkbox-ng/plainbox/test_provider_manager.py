@@ -86,6 +86,7 @@ class ProviderManagerToolTests(TestCase):
         content = (
             "[PlainBox Provider]\n"
             "description = description\n"
+            "gettext_domain = domain\n"
             "location = /foo/lib/plainbox-providers-1/2014.com.example.test\n"
             "name = 2014.com.example:test\n"
             "version = 1.0\n"
@@ -180,6 +181,7 @@ class ProviderManagerToolTests(TestCase):
         content = (
             "[PlainBox Provider]\n"
             "description = description\n"
+            "gettext_domain = domain\n"
             "location = {}\n"
             "name = 2014.com.example:test\n"
             "version = 1.0\n"
@@ -200,6 +202,7 @@ class ProviderManagerToolTests(TestCase):
         content = (
             "[PlainBox Provider]\n"
             "description = description\n"
+            "gettext_domain = domain\n"
             "location = {}\n"
             "name = 2014.com.example:test\n"
             "version = 1.0\n"
@@ -294,6 +297,7 @@ class ProviderManagerToolTests(TestCase):
             "[Provider MetaData]\n"
             "\tname: 2014.com.example:test\n"
             "\tversion: 1.0\n"
+            "\tgettext_domain: domain\n"
             "[Job Definitions]\n"
             "\t'dummy', from jobs/jobs.txt:1-3\n"
             "[White Lists]\n"
@@ -330,6 +334,7 @@ class ProviderManagerToolTests(TestCase):
         definition.name = "2014.com.example:test"
         definition.version = "1.0"
         definition.description = "description"
+        definition.gettext_domain = "domain"
         return definition
 
     def tearDown(self):

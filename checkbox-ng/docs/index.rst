@@ -40,6 +40,7 @@ Table of contents
 
    install.rst
    usage.rst
+   manpages/index.rst
    changelog.rst
    author/index.rst
    appdev/index.rst

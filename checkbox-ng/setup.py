@@ -18,6 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+# To avoid an error in atexit._run_exitfuncs while running tests:
+import concurrent.futures
 import os
 
 from setuptools import setup, find_packages

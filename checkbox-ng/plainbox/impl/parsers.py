@@ -121,7 +121,8 @@ class ParserPlugIn(IParser, PlugIn):
         """
         ast = self.parse_text_to_ast(text)
         if ast is not None:
-            return json.dumps(ast, indent=4, default=self._to_json)
+            return json.dumps(ast, indent=4, sort_keys=True,
+                              default=self._to_json)
 
     def parse_text_to_ast(self, text):
         """

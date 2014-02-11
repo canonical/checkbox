@@ -82,7 +82,7 @@ class ManageCommand(CommandBase):
         return Provider1(
             self.definition.location, self.definition.name,
             self.definition.version, self.definition.description,
-            secure=False)
+            secure=False, gettext_domain=self.definition.gettext_domain)
 
 
 class InstallCommand(ManageCommand):
@@ -337,6 +337,7 @@ class InfoCommand(ManageCommand):
         print("[Provider MetaData]")
         print("\tname: {}".format(provider.name))
         print("\tversion: {}".format(provider.version))
+        print("\tgettext_domain: {}".format(provider.gettext_domain))
         print("[Job Definitions]")
         job_list, problem_list = provider.load_all_jobs()
         for job in job_list:

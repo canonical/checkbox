@@ -129,7 +129,8 @@ class Provider1DefinitionTests(TestCase):
         "location = /some/directory/\n"
         "name = 2013.org.example:smoke-test\n"
         "version = 1.0\n"
-        "description = A provider for smoke testing\n")
+        "description = A provider for smoke testing\n"
+        "gettext_domain = plainbox\n")
 
     def setUp(self):
         self.definition = Provider1Definition()
@@ -144,6 +145,7 @@ class Provider1DefinitionTests(TestCase):
         self.assertEqual(self.definition.version, "1.0")
         self.assertEqual(
             self.definition.description, "A provider for smoke testing")
+        self.assertEqual(self.definition.gettext_domain, "plainbox")
 
 
 class Provider1PlugInTests(TestCase):
@@ -455,11 +457,12 @@ class Provider1Tests(TestCase):
     VERSION = "1.0"
     DESCRIPTION = "description"
     SECURE = True
+    GETTEXT_DOMAIN = "domain"
 
     def setUp(self):
         self.provider = Provider1(
             self.BASE_DIR, self.NAME, self.VERSION, self.DESCRIPTION,
-            self.SECURE)
+            self.SECURE, self.GETTEXT_DOMAIN)
 
     def test_repr(self):
         self.assertEqual(
@@ -525,6 +528,12 @@ class Provider1Tests(TestCase):
         Verify that Provider1.secure attribute is set correctly
         """
         self.assertEqual(self.provider.secure, self.SECURE)
+
+    def test_gettext_domain(self):
+        """
+        Verify that Provider1.gettext_domain attribute is set correctly
+        """
+        self.assertEqual(self.provider.gettext_domain, self.GETTEXT_DOMAIN)
 
     def test_get_builtin_whitelists__normal(self):
         """

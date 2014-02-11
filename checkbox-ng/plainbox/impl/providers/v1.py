@@ -74,6 +74,10 @@ class DummyProvider1(IProvider1, IProviderBackend1):
             'description', "A dummy provider useful for testing")
 
     @property
+    def gettext_domain(self):
+        return self._extras.get('gettext_domain', "")
+
+    @property
     def CHECKBOX_SHARE(self):
         return self._extras.get('CHECKBOX_SHARE', "")
 

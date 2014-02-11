@@ -126,7 +126,8 @@ class Provider1(IProvider1, IProviderBackend1):
     location for all other data.
     """
 
-    def __init__(self, base_dir, name, version, description, secure):
+    def __init__(self, base_dir, name, version, description, secure,
+                 gettext_domain=None):
         """
         Initialize the provider with the associated base directory.
 
@@ -140,6 +141,7 @@ class Provider1(IProvider1, IProviderBackend1):
         self._version = version
         self._description = description
         self._secure = secure
+        self._gettext_domain = gettext_domain
         self._whitelist_collection = FsPlugInCollection(
             [self.whitelists_dir], ext=".whitelist", wrapper=WhiteListPlugIn)
         self._job_collection = FsPlugInCollection(
@@ -238,6 +240,16 @@ class Provider1(IProvider1, IProviderBackend1):
         plainbox-trusted-launcher-1.
         """
         return self._secure
+
+    @property
+    def gettext_domain(self):
+        """
+        the name of the gettext domain associated with this provider
+
+        This value may be empty, in such case provider data cannot be localized
+        for the user environment.
+        """
+        return self._gettext_domain
 
     def get_builtin_whitelists(self):
         """
@@ -438,6 +450,11 @@ class Provider1Definition(Config):
         section='PlainBox Provider',
         help_text="Description of the provider")
 
+    gettext_domain = Variable(
+        section='PlainBox Provider',
+        default="",
+        help_text="Name of the gettext domain for translations")
+
 
 class Provider1PlugIn(IPlugIn):
     """
@@ -465,7 +482,8 @@ class Provider1PlugIn(IPlugIn):
             definition.name,
             definition.version,
             definition.description,
-            secure=os.path.dirname(filename) in get_secure_PROVIDERPATH_list())
+            secure=os.path.dirname(filename) in get_secure_PROVIDERPATH_list(),
+            gettext_domain=definition.gettext_domain)
 
     def __repr__(self):
         return "<{!s} plugin_name:{!r}>".format(

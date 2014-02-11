@@ -439,9 +439,16 @@ class IProvider1(metaclass=ABCMeta):
     @abstractproperty
     def description(self):
         """
-        description of this providr
+        description of this provider
+        """
 
-        This name should be dbus-friendly. It should not be localizable.
+    @abstractproperty
+    def gettext_domain(self):
+        """
+        the name of the gettext domain associated with this provider
+
+        This value may be empty, in such case provider data cannot be localized
+        for the user environment.
         """
 
     @abstractmethod

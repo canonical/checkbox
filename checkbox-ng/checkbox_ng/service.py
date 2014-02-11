@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2013 Canonical Ltd.
+# Copyright 2013, 2014 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
@@ -1098,6 +1098,16 @@ class ProviderWrapper(PlainBoxObjectWrapper):
         description of this provider
         """
         return self.native.description
+
+    @dbus.service.property(dbus_interface=PROVIDER_IFACE, signature="s")
+    def gettext_domain(self):
+        """
+        the name of the gettext domain associated with this provider
+
+        This value may be empty, in such case provider data cannot be localized
+        for the user environment.
+        """
+        return self.native.gettext_domain or ""
 
 
 class ServiceWrapper(PlainBoxObjectWrapper):

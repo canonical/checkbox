@@ -527,6 +527,23 @@ def setup(**kwargs):
     :raises:
         SystemExit with the exit code of the program. This is done regardless
         of normal / abnormal termination.
+
+    The following keyword parameters are supported:
+
+        name:
+            name of the provider (IQN compatible). Typically something like
+            ``2013.org.example:some-name`` where the ``some-name`` is a simple
+            identifier and a private namespace for whoever owned
+            ``org.example`` in ``2013``
+
+        version:
+            version string, required
+
+        description:
+            description (may be long/multi line), optional
+
+        gettext_domain:
+            gettext translation domain for job definition strings, optional
     """
     setup_logging()
     manage_py = inspect.stack()[1][0].f_globals['__file__']
@@ -537,6 +554,7 @@ def setup(**kwargs):
         definition.name = kwargs.get('name', None)
         definition.version = kwargs.get('version', None)
         definition.description = kwargs.get('description', None)
+        definition.gettext_domain = kwargs.get('gettext_domain', "")
     except ConfigValidationError as exc:
         raise SystemExit("{}: bad value of {!r}, {}".format(
             manage_py, exc.variable.name, exc.message))

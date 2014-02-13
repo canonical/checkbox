@@ -29,11 +29,13 @@ from unittest import TestCase
 from plainbox.impl.job import CheckBoxJobValidator
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.job import JobOutputTextSource
+from plainbox.impl.job import JobTreeNode
 from plainbox.impl.job import Problem
 from plainbox.impl.job import ValidationError
 from plainbox.impl.secure.rfc822 import FileTextSource
 from plainbox.impl.secure.rfc822 import Origin
 from plainbox.impl.secure.rfc822 import RFC822Record
+from plainbox.impl.testing_utils import make_job
 from plainbox.testing_utils.testcases import TestCaseWithParameters
 
 
@@ -478,3 +480,108 @@ class ParsingTests(TestCaseWithParameters):
         expected = set({'foo', 'bar', 'froz'})
         observed = job.get_direct_dependencies()
         self.assertEqual(expected, observed)
+
+
+class TestJobTreeNode_legacy(TestCase):
+
+    def setUp(self):
+        A = make_job('A')
+        B = make_job('B', plugin='local', description='foo')
+        C = make_job('C')
+        D = B.create_child_job_from_record(
+            RFC822Record(
+                data={'name': 'D', 'plugin': 'shell'},
+                origin=Origin(source=JobOutputTextSource(B),
+                              line_start=1,
+                              line_end=1)))
+        E = B.create_child_job_from_record(
+            RFC822Record(
+                data={'name': 'E', 'plugin': 'local', 'description': 'bar'},
+                origin=Origin(source=JobOutputTextSource(B),
+                              line_start=1,
+                              line_end=1)))
+        F = E.create_child_job_from_record(
+            RFC822Record(
+                data={'name': 'F', 'plugin': 'shell'},
+                origin=Origin(source=JobOutputTextSource(E),
+                              line_start=1,
+                              line_end=1)))
+        G = make_job('G', plugin='local', description='baz')
+        R = make_job('R', plugin='resource')
+        Z = make_job('Z', plugin='local', description='zaz')
+
+        self.tree = JobTreeNode.create_tree([R, B, C, D, E, F, G, A, Z],
+                                            legacy_mode=True)
+
+    def test_create_tree(self):
+        self.assertIsInstance(self.tree, JobTreeNode)
+        self.assertEqual(len(self.tree.categories), 3)
+        [self.assertIsInstance(c, JobTreeNode) for c in self.tree.categories]
+        self.assertEqual(len(self.tree.jobs), 3)
+        [self.assertIsInstance(j, JobDefinition) for j in self.tree.jobs]
+        self.assertIsNone(self.tree.parent)
+        self.assertEqual(self.tree.depth, 0)
+        node = self.tree.categories[1]
+        self.assertEqual(node.name, 'foo')
+        self.assertEqual(len(node.categories), 1)
+        [self.assertIsInstance(c, JobTreeNode) for c in node.categories]
+        self.assertEqual(len(node.jobs), 1)
+        [self.assertIsInstance(j, JobDefinition) for j in node.jobs]
+
+
+class TestNewJoB:
+    """
+    Simple Job definition to demonstrate the categories property and how it
+    could be used to create a JobTreeNode
+    """
+    def __init__(self, name, categories={}):
+        self.name = name
+        self.categories = categories
+
+
+class TestJobTreeNodeExperimental(TestCase):
+
+    def setUp(self):
+        A = TestNewJoB('A', {'Audio'})
+        B = TestNewJoB('B', {'Audio', 'USB'})
+        C = TestNewJoB('C', {'USB'})
+        D = TestNewJoB('D', {'Wireless'})
+        E = TestNewJoB('E', {})
+        F = TestNewJoB('F', {'Wireless'})
+
+        # Populate the tree with a existing hierarchy as plainbox does not
+        # provide yet a way to build such categorization
+        root = JobTreeNode()
+        MM = JobTreeNode('Multimedia')
+        Audio = JobTreeNode('Audio')
+        root.add_category(MM)
+        MM.add_category(Audio)
+        self.tree = JobTreeNode.create_tree([A, B, C, D, E, F], root, link='')
+
+    def test_create_tree(self):
+        self.assertIsInstance(self.tree, JobTreeNode)
+        self.assertEqual(len(self.tree.categories), 3)
+        [self.assertIsInstance(c, JobTreeNode) for c in self.tree.categories]
+        self.assertEqual(len(self.tree.jobs), 1)
+        [self.assertIsInstance(j, TestNewJoB) for j in self.tree.jobs]
+        self.assertIsNone(self.tree.parent)
+        self.assertEqual(self.tree.depth, 0)
+        node = self.tree.categories[0]
+        self.assertEqual(node.name, 'Multimedia')
+        self.assertEqual(len(node.categories), 1)
+        [self.assertIsInstance(c, JobTreeNode) for c in node.categories]
+        self.assertEqual(len(node.jobs), 0)
+        node = node.categories[0]
+        self.assertEqual(node.name, 'Audio')
+        self.assertEqual(len(node.categories), 0)
+        self.assertEqual(len(node.jobs), 2)
+        self.assertIn('B', [job.name for job in node.jobs])
+        [self.assertIsInstance(j, TestNewJoB) for j in node.jobs]
+        node = self.tree.categories[1]
+        self.assertEqual(node.name, 'USB')
+        self.assertIn('B', [job.name for job in node.jobs])
+        node = self.tree.categories[2]
+        self.assertEqual(node.name, 'Wireless')
+        self.assertEqual(len(node.categories), 0)
+        self.assertEqual(len(node.jobs), 2)
+        [self.assertIsInstance(j, TestNewJoB) for j in node.jobs]

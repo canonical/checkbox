@@ -30,7 +30,7 @@ from logging import getLogger
 from tempfile import TemporaryDirectory
 import os
 
-
+from plainbox.i18n import gettext as _
 from plainbox.impl.applogic import get_matching_job_list
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
@@ -57,11 +57,12 @@ class ScriptInvocation(CheckBoxInvocationMixIn):
     def run(self):
         job = self._get_job()
         if job is None:
-            print("There is no job called {!a}".format(self.job_name))
-            print("See `plainbox special --list-jobs` for a list of choices")
+            print(_("There is no job called {!a}").format(self.job_name))
+            print(_(
+                "See `plainbox special --list-jobs` for a list of choices"))
             return 126
         elif job.command is None:
-            print("Selected job does not have a command")
+            print(_("Selected job does not have a command"))
             return 125
         with TemporaryDirectory() as scratch, TemporaryDirectory() as iologs:
             runner = JobRunner(scratch, self.provider_list, iologs)
@@ -76,7 +77,7 @@ class ScriptInvocation(CheckBoxInvocationMixIn):
 
     def _display_file(self, pathname, origin):
         filename = os.path.relpath(pathname, origin)
-        print("Leftover file detected: {!a}:".format(filename))
+        print(_("Leftover file detected: {!a}:").format(filename))
         with open(pathname, 'rt', encoding='UTF-8') as stream:
             for lineno, line in enumerate(stream, 1):
                 line = line.rstrip('\n')
@@ -89,8 +90,8 @@ class ScriptInvocation(CheckBoxInvocationMixIn):
                     os.path.join(dirpath, filename), scratch)
 
     def _display_script_outcome(self, job, return_code):
-        print(job.name, "returned", return_code)
-        print("command:", job.command)
+        print(_("job {} returned {}").format(job.name, return_code))
+        print(_("command:"), job.command)
 
     def _get_job(self):
         job_list = get_matching_job_list(
@@ -119,8 +120,8 @@ class ScriptCommand(PlainBoxCommand):
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(
-            "script", help="run a command from a job")
+            "script", help=_("run a command from a job"))
         parser.set_defaults(command=self)
         parser.add_argument(
-            'job_name', metavar='JOB-NAME',
-            help="Name of the job to run")
+            'job_name', metavar=_('JOB-NAME'),
+            help=_("Name of the job to run"))

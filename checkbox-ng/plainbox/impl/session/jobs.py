@@ -201,10 +201,9 @@ class JobState:
         })
 
     def __repr__(self):
-        return ("<{} job:{!r} readiness_inhibitor_list:{!r}"
-                " result:{!r}>").format(
-                    self.__class__.__name__, self._job,
-                    self._readiness_inhibitor_list, self._result)
+        fmt = ("<{} job:{!r} readiness_inhibitor_list:{!r} result:{!r}>")
+        return fmt.format(self.__class__.__name__, self._job,
+                          self._readiness_inhibitor_list, self._result)
 
     @property
     def job(self):

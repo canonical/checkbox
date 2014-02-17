@@ -199,3 +199,10 @@ The following environment variables affect PlainBox:
     * ``/usr/share/plainbox-providers-1``
     * ``$XDG_DATA_HOME/plainbox-providers-1``
 
+``PLAINBOX_USE_TRUSTED_LAUNCHER``
+    Alters the PlainBox execution controller voting score so that jobs coming
+    from the ``2013.com.canonical:checkbox-src`` provider are forced to go
+    through the ``plainbox-trusted-launcher(1)``. This is a development-only
+    feature. It is patched away by responsible packagers to prevent security
+    risk present from using plainbox-trusted-launcher with the insecure job
+    definitions installed in not system-wide locations.

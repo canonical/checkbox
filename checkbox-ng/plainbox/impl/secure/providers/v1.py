@@ -30,10 +30,10 @@ import os
 from plainbox.abc import IProvider1, IProviderBackend1
 from plainbox.i18n import gettext as _
 from plainbox.impl.job import JobDefinition
-from plainbox.impl.secure.config import NotUnsetValidator
 from plainbox.impl.secure.config import Config, Variable
 from plainbox.impl.secure.config import IValidator
 from plainbox.impl.secure.config import NotEmptyValidator
+from plainbox.impl.secure.config import NotUnsetValidator
 from plainbox.impl.secure.config import PatternValidator
 from plainbox.impl.secure.plugins import FsPlugInCollection
 from plainbox.impl.secure.plugins import IPlugIn

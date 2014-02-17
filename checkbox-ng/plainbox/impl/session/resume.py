@@ -51,6 +51,7 @@ import json
 import logging
 
 from plainbox.abc import IJobResult
+from plainbox.i18n import gettext as _
 from plainbox.impl.result import DiskJobResult
 from plainbox.impl.result import IOLogRecord
 from plainbox.impl.result import MemoryJobResult
@@ -141,15 +142,15 @@ class SessionResumeHelper:
         try:
             data = gzip.decompress(data)
         except IOError:
-            raise CorruptedSessionError("Cannot decompress session data")
+            raise CorruptedSessionError(_("Cannot decompress session data"))
         try:
             text = data.decode("UTF-8")
         except UnicodeDecodeError:
-            raise CorruptedSessionError("Cannot decode session text")
+            raise CorruptedSessionError(_("Cannot decode session text"))
         try:
             json_repr = json.loads(text)
         except ValueError:
-            raise CorruptedSessionError("Cannot interpret session JSON")
+            raise CorruptedSessionError(_("Cannot interpret session JSON"))
         return self._resume_json(json_repr, early_cb)
 
     def _resume_json(self, json_repr, early_cb=None):
@@ -160,7 +161,7 @@ class SessionResumeHelper:
         and parsing is done. The only error conditions that can happen
         are related to semantic incompatibilities or corrupted internal state.
         """
-        logger.debug("Resuming from json... (see below)")
+        logger.debug(_("Resuming from json... (see below)"))
         logger.debug(json.dumps(json_repr, indent=4))
         _validate(json_repr, value_type=dict)
         version = _validate(json_repr, key="version", choice=[1])
@@ -172,7 +173,7 @@ class SessionResumeHelper:
                 self.job_list).resume_json(json_repr, early_cb)
         else:
             raise IncompatibleSessionError(
-                "Unsupported version {}".format(version))
+                _("Unsupported version {}").format(version))
 
 
 class ResumeDiscardQualifier(SimpleQualifier):
@@ -236,29 +237,30 @@ class SessionResumeHelper1:
         """
         # Construct a fresh session object.
         session = SessionState(self.job_list)
-        logger.debug("Constructed new session for resume %r", session)
+        logger.debug(_("Constructed new session for resume %r"), session)
         # Give early_cb a chance to see the session before we start resuming.
         # This way applications can see, among other things, generated jobs
         # as they are added to the session, by registering appropriate signal
         # handlers on the freshly-constructed session instance.
         if early_cb is not None:
-            logger.debug("Invoking early callback %r", early_cb)
+            logger.debug(_("Invoking early callback %r"), early_cb)
             new_session = early_cb(session)
             if new_session is not None:
                 logger.debug(
-                    "Using different session for resume: %r", new_session)
+                    _("Using different session for resume: %r"), new_session)
                 session = new_session
         # Restore bits and pieces of state
-        logger.debug("Starting to restore jobs and results to %r...", session)
+        logger.debug(
+            _("Starting to restore jobs and results to %r..."), session)
         self._restore_SessionState_jobs_and_results(session, session_repr)
-        logger.debug("Starting to restore metadata...")
+        logger.debug(_("Starting to restore metadata..."))
         self._restore_SessionState_metadata(session, session_repr)
-        logger.debug("Starting to restore desired job list...")
+        logger.debug(_("Starting to restore desired job list..."))
         self._restore_SessionState_desired_job_list(session, session_repr)
-        logger.debug("Starting to restore job list...")
+        logger.debug(_("Starting to restore job list..."))
         self._restore_SessionState_job_list(session, session_repr)
         # Return whatever we've got
-        logger.debug("Resume complete!")
+        logger.debug(_("Resume complete!"))
         return session
 
     def _restore_SessionState_jobs_and_results(self, session, session_repr):
@@ -314,7 +316,7 @@ class SessionResumeHelper1:
             # that nothing generated so we need an end condition for that case
             if not leftover_shrunk:
                 raise CorruptedSessionError(
-                    "Unknown jobs remaining: {}".format(
+                    _("Unknown jobs remaining: {}").format(
                         ", ".join(leftover_jobs)))
 
     def _process_job(self, session, jobs_repr, results_repr, job_name):
@@ -349,7 +351,7 @@ class SessionResumeHelper1:
         # Check if job definition has not changed
         if job.checksum != checksum:
             raise IncompatibleJobError(
-                "Definition of job {!r} has changed".format(job_name))
+                _("Definition of job {!r} has changed").format(job_name))
         # Collect all of the result objects into result_list
         result_list = []
         result_list_repr = _validate(
@@ -363,7 +365,7 @@ class SessionResumeHelper1:
         # in general.
         if len(result_list) > 0:
             logger.debug(
-                "calling update_job_result(%r, %r)", job, result_list[-1])
+                _("calling update_job_result(%r, %r)"), job, result_list[-1])
             session.update_job_result(job, result_list[-1])
 
     @classmethod
@@ -381,13 +383,13 @@ class SessionResumeHelper1:
         session.metadata.flags = set([
             _validate(
                 flag, value_type=str,
-                value_type_msg="Each flag must be a string")
+                value_type_msg=_("Each flag must be a string"))
             for flag in _validate(
                 metadata_repr, key='flags', value_type=list)])
         session.metadata.running_job_name = _validate(
             metadata_repr, key='running_job_name', value_type=str,
             value_none=True)
-        logger.debug("restored metadata %r", session.metadata)
+        logger.debug(_("restored metadata %r"), session.metadata)
 
     @classmethod
     def _restore_SessionState_desired_job_list(cls, session, session_repr):
@@ -403,18 +405,19 @@ class SessionResumeHelper1:
         desired_job_list = [
             _validate(
                 job_name, value_type=str,
-                value_type_msg="Each job name must be a string")
+                value_type_msg=_("Each job name must be a string"))
             for job_name in _validate(
                 session_repr, key='desired_job_list', value_type=list)]
         # Restore job selection
-        logger.debug("calling update_desired_job_list(%r)", desired_job_list)
+        logger.debug(
+            _("calling update_desired_job_list(%r)"), desired_job_list)
         try:
             session.update_desired_job_list([
                 session.job_state_map[job_name].job
                 for job_name in desired_job_list])
         except KeyError as exc:
             raise CorruptedSessionError(
-                "'desired_job_list' refers to unknown job {!r}".format(
+                _("'desired_job_list' refers to unknown job {!r}").format(
                     exc.args[0]))
 
     @classmethod
@@ -484,7 +487,7 @@ class SessionResumeHelper1:
         _validate(record_repr, value_type=list)
         delay = _validate(record_repr, key=0, value_type=float)
         if delay < 0:
-            raise CorruptedSessionError("delay cannot be negative")
+            raise CorruptedSessionError(_("delay cannot be negative"))
         stream_name = _validate(
             record_repr, key=1, value_type=str,
             value_choice=['stdout', 'stderr'])
@@ -496,12 +499,12 @@ class SessionResumeHelper1:
             data = data.encode("ASCII")
         except UnicodeEncodeError:
             raise CorruptedSessionError(
-                "record data {!r} is not ASCII", data)
+                _("record data {!r} is not ASCII").format(data))
         try:
             data = base64.standard_b64decode(data)
         except binascii.Error:
             raise CorruptedSessionError(
-                "record data {!r} is not correct base64")
+                _("record data {!r} is not correct base64").format(data))
         return IOLogRecord(delay, stream_name, data)
 
 
@@ -512,23 +515,23 @@ def _validate(obj, **flags):
     # Fetch data from the container OR use json_repr directly
     if 'key' in flags:
         key = flags['key']
-        obj_name = "key {!r}".format(key)
+        obj_name = _("key {!r}").format(key)
         try:
             value = obj[key]
         except (TypeError, IndexError, KeyError):
             error_msg = flags.get(
                 "missing_key_msg",
-                "Missing value for key {!r}".format(key))
+                _("Missing value for key {!r}").format(key))
             raise CorruptedSessionError(error_msg)
     else:
         value = obj
-        obj_name = "object"
+        obj_name = _("object")
     # Check if value can be None (defaulting to "no")
     value_none = flags.get('value_none', False)
     if value is None and value_none is False:
         error_msg = flags.get(
             "value_none_msg",
-            "Value of {} cannot be None".format(obj_name))
+            _("Value of {} cannot be None").format(obj_name))
         raise CorruptedSessionError(error_msg)
     # Check if value is of correct type
     if value is not None and "value_type" in flags:
@@ -536,7 +539,7 @@ def _validate(obj, **flags):
         if not isinstance(value, value_type):
             error_msg = flags.get(
                 "value_type_msg",
-                "Value of {} is of incorrect type {}".format(
+                _("Value of {} is of incorrect type {}").format(
                     obj_name, type(value).__name__))
             raise CorruptedSessionError(error_msg)
     # Check if value is in the set of correct values
@@ -545,7 +548,7 @@ def _validate(obj, **flags):
         if value not in value_choice:
             error_msg = flags.get(
                 "value_choice_msg",
-                "Value for {} not in allowed set {!r}".format(
+                _("Value for {} not in allowed set {!r}").format(
                     obj_name, value_choice))
             raise CorruptedSessionError(error_msg)
     return value
@@ -584,7 +587,7 @@ class SessionResumeHelper2(SessionResumeHelper1):
         session.metadata.flags = set([
             _validate(
                 flag, value_type=str,
-                value_type_msg="Each flag must be a string")
+                value_type_msg=_("Each flag must be a string"))
             for flag in _validate(
                 metadata_repr, key='flags', value_type=list)])
         session.metadata.running_job_name = _validate(
@@ -597,10 +600,10 @@ class SessionResumeHelper2(SessionResumeHelper1):
             try:
                 app_blob = app_blob.encode("ASCII")
             except UnicodeEncodeError:
-                raise CorruptedSessionError("app_blob is not ASCII")
+                raise CorruptedSessionError(_("app_blob is not ASCII"))
             try:
                 app_blob = base64.standard_b64decode(app_blob)
             except binascii.Error:
-                raise CorruptedSessionError("Cannot base64 decode app_blob")
+                raise CorruptedSessionError(_("Cannot base64 decode app_blob"))
         session.metadata.app_blob = app_blob
-        logger.debug("restored metadata %r", session.metadata)
+        logger.debug(_("restored metadata %r"), session.metadata)

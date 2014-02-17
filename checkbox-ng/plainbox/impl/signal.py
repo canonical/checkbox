@@ -22,6 +22,8 @@ from collections import defaultdict
 import inspect
 import logging
 
+from plainbox.i18n import gettext as _
+
 logger = logging.getLogger("plainbox.signal")
 
 __all__ = ['Signal']
@@ -57,7 +59,7 @@ class Signal:
         That listener will be called whenever fire() is invoked on the signal
         """
         self._listeners.append(listener)
-        logger.debug("connect %r to %r", str(listener), self._signal_name)
+        logger.debug(_("connect %r to %r"), str(listener), self._signal_name)
         # Track listeners in the instances only
         if inspect.ismethod(listener):
             listener_object = listener.__self__
@@ -72,7 +74,8 @@ class Signal:
         Disconnect an existing listener from this signal
         """
         self._listeners.remove(listener)
-        logger.debug("disconnect %r from %r", str(listener), self._signal_name)
+        logger.debug(
+            _("disconnect %r from %r"), str(listener), self._signal_name)
         if inspect.ismethod(listener):
             listener_object = listener.__self__
             if hasattr(listener_object, "__listeners__"):

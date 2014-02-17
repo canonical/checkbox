@@ -34,6 +34,7 @@ import shutil
 import tarfile
 
 from plainbox import __version__ as version
+from plainbox.i18n import gettext as _
 from plainbox.impl.commands import ToolBase, CommandBase
 from plainbox.impl.job import Problem
 from plainbox.impl.job import ValidationError as JobValidationError
@@ -120,11 +121,11 @@ class InstallCommand(ManageCommand):
         """
         parser = self.add_subcommand(subparsers)
         parser.add_argument(
-            "--prefix", default="/usr/local", help="installation prefix")
+            "--prefix", default="/usr/local", help=_("installation prefix"))
         parser.add_argument(
             "--root", default="",
-            help=("install everything relative to this alternate root"
-                  " directory"))
+            help=_("install everything relative to this alternate root"
+                   " directory"))
         parser.set_defaults(command=self)
 
     def invoked(self, ns):
@@ -284,10 +285,10 @@ class DevelopCommand(ManageCommand):
         parser = self.add_subcommand(subparsers)
         parser.add_argument(
             "-u", "--uninstall", default=False, action="store_true",
-            help="remove the generated .provider file")
+            help=_("remove the generated .provider file"))
         parser.add_argument(
             "-f", "--force", default=False, action="store_true",
-            help="overwrite existing provider files")
+            help=_("overwrite existing provider files"))
 
     def invoked(self, ns):
         pathname = os.path.join(
@@ -295,14 +296,14 @@ class DevelopCommand(ManageCommand):
                 self.definition.name.replace(':', '.')))
         if ns.uninstall:
             if os.path.isfile(pathname):
-                _logger.info("Removing provider file: %s", pathname)
+                _logger.info(_("Removing provider file: %s"), pathname)
                 os.unlink(pathname)
         else:
             if os.path.isfile(pathname) and not ns.force:
-                print("Provider file already exists: {}".format(pathname))
+                print(_("Provider file already exists: {}").format(pathname))
                 return 1
             else:
-                _logger.info("Creating provider file: %s", pathname)
+                _logger.info(_("Creating provider file: %s"), pathname)
                 os.makedirs(os.path.dirname(pathname), exist_ok=True)
                 with open(pathname, 'wt', encoding='UTF-8') as stream:
                     self.definition.write(stream)
@@ -334,29 +335,29 @@ class InfoCommand(ManageCommand):
 
     def invoked(self, ns):
         provider = self.get_provider()
-        print("[Provider MetaData]")
-        print("\tname: {}".format(provider.name))
-        print("\tversion: {}".format(provider.version))
-        print("\tgettext_domain: {}".format(provider.gettext_domain))
-        print("[Job Definitions]")
+        print(_("[Provider MetaData]"))
+        print(_("\tname: {}").format(provider.name))
+        print(_("\tversion: {}").format(provider.version))
+        print(_("\tgettext_domain: {}").format(provider.gettext_domain))
+        print(_("[Job Definitions]"))
         job_list, problem_list = provider.load_all_jobs()
         for job in job_list:
-            print("\t{!a}, from {}".format(
+            print(_("\t{!a}, from {}").format(
                 job.name, job.origin.relative_to(provider.base_dir)))
         if problem_list:
-            print("\tSome jobs could not be parsed correctly")
-            print("\tPlease run `manage.py validate` for details")
-        print("[White Lists]")
+            print(_("\tSome jobs could not be parsed correctly"))
+            print(_("\tPlease run `manage.py validate` for details"))
+        print(_("[White Lists]"))
         try:
             whitelist_list = provider.get_builtin_whitelists()
         except RFC822SyntaxError as exc:
             print("{}:{}: {}".format(
                 os.path.relpath(exc.filename, provider.base_dir),
                 exc.lineno, exc.msg))
-            print("Errors prevent whitelists from being displayed")
+            print(_("Errors prevent whitelists from being displayed"))
         else:
             for whitelist in whitelist_list:
-                print("\t{!a}, from {}".format(
+                print(_("\t{!a}, from {}").format(
                     whitelist.name,
                     whitelist.origin.relative_to(provider.base_dir)))
 
@@ -401,7 +402,8 @@ class ValidateCommand(ManageCommand):
                 print("{}:{}: {}".format(
                     os.path.relpath(exc.filename, provider.base_dir),
                     exc.lineno, exc.msg))
-            print("NOTE: subsequent jobs from problematic files are ignored")
+            print(_("NOTE: subsequent jobs from problematic"
+                    " files are ignored"))
         return job_list
 
     def validate_jobs(self, job_list):
@@ -418,18 +420,18 @@ class ValidateCommand(ManageCommand):
         job_list = self.get_job_list(provider)
         problem_list = self.validate_jobs(job_list)
         explain = {
-            Problem.missing: "missing definition of required field",
-            Problem.wrong: "incorrect value supplied",
-            Problem.useless: "useless field in this context"
+            Problem.missing: _("missing definition of required field"),
+            Problem.wrong: _("incorrect value supplied"),
+            Problem.useless: _("useless field in this context"),
         }
         for job, error in problem_list:
-            print("{}: job {!a}, field {!a}: {}".format(
+            print(_("{}: job {!a}, field {!a}: {}").format(
                 job.origin.relative_to(provider.base_dir),
                 job.name, error.field.name, explain[error.problem]))
         if problem_list:
             return 1
         else:
-            print("All jobs seem to be valid")
+            print(_("All jobs seem to be valid"))
 
 
 class ProviderManagerTool(ToolBase):
@@ -487,7 +489,7 @@ class ProviderManagerTool(ToolBase):
     def create_parser_object(self):
         parser = argparse.ArgumentParser(
             prog=self.get_exec_name(),
-            usage="manage.py [--help] [--version] [options] <command>")
+            usage=_("manage.py [--help] [--version] [options] <command>"))
         parser.add_argument(
             "--version", action="version", version=self.get_exec_version())
         return parser
@@ -556,7 +558,7 @@ def setup(**kwargs):
         definition.description = kwargs.get('description', None)
         definition.gettext_domain = kwargs.get('gettext_domain', "")
     except ConfigValidationError as exc:
-        raise SystemExit("{}: bad value of {!r}, {}".format(
+        raise SystemExit(_("{}: bad value of {!r}, {}").format(
             manage_py, exc.variable.name, exc.message))
     else:
         raise SystemExit(ProviderManagerTool(definition).main())

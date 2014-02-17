@@ -33,6 +33,7 @@ import logging.config
 import os
 import sys
 
+from plainbox.i18n import gettext as _
 from plainbox.impl.color import ansi_on, ansi_off
 
 
@@ -94,9 +95,9 @@ class LoggingHelper:
                 os.makedirs(self.log_dir, exist_ok=True)
             except OSError as error:
                 logger.warning(
-                    "Unable to create log directory: %s", self.log_dir)
-                logger.warning(("Reason: %s. All logs will go to "
-                                "console instead."), error)
+                    _("Unable to create log directory: %s"), self.log_dir)
+                logger.warning(_("Reason: %s. All logs will go to "
+                                 "console instead."), error)
                 config_dict = self.DEFAULT_CONSOLE_ONLY_CONFIG
         # Apply the selected configuration. This overrides anything currently
         # defined for all of the logging subsystem in this python runtime
@@ -106,13 +107,13 @@ class LoggingHelper:
         # Bump logging on the root logger if requested
         if level is not None:
             logging.getLogger(None).setLevel(level)
-            logger.debug("Enabled %r on root logger", level)
+            logger.debug(_("Enabled %r on root logger"), level)
             logging.getLogger("plainbox").setLevel(level)
         # Enable tracing on specified loggers
         if trace_list is not None:
             for name in trace_list:
                 logging.getLogger(name).setLevel(logging.DEBUG)
-                logger.debug("Enabled debugging on logger %r", name)
+                logger.debug(_("Enabled debugging on logger %r"), name)
         if debug_console and (level == 'DEBUG' or trace_list):
             # Enable DEBUG logging to console if explicitly requested
             logging.config.dictConfig(self.DEBUG_CONSOLE_CONFIG)

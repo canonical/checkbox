@@ -30,6 +30,7 @@ that prevent the job from being runnable in a particular session.
 import logging
 
 from plainbox.abc import IJobResult
+from plainbox.i18n import gettext as _
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.signal import Signal
 
@@ -111,14 +112,16 @@ class JobReadinessInhibitor:
         necessary as well. A ValueError is raised when this is violated.
         """
         if cause not in self._cause_display:
-            raise ValueError("unsupported value for cause")
+            raise ValueError(_("unsupported value for cause"))
         if cause != self.UNDESIRED and related_job is None:
-            raise ValueError("related_job must not be None when cause is"
-                             " {}".format(self._cause_display[cause]))
+            raise ValueError(
+                _("related_job must not be None when cause is {}").format(
+                    self._cause_display[cause]))
         if cause in (self.PENDING_RESOURCE, self.FAILED_RESOURCE) \
                 and related_expression is None:
-            raise ValueError("related_expression must not be None when cause"
-                             "is {}".format(self._cause_display[cause]))
+            raise ValueError(_(
+                "related_expression must not be None when cause is {}"
+            ).format(self._cause_display[cause]))
         self.cause = cause
         self.related_job = related_job
         self.related_expression = related_expression
@@ -146,20 +149,21 @@ class JobReadinessInhibitor:
 
     def __str__(self):
         if self.cause == self.UNDESIRED:
-            return "undesired"
+            return _("undesired")
         elif self.cause == self.PENDING_DEP:
-            return "required dependency {!r} did not run yet".format(
+            return _("required dependency {!r} did not run yet").format(
                 self.related_job.name)
         elif self.cause == self.FAILED_DEP:
-            return "required dependency {!r} has failed".format(
+            return _("required dependency {!r} has failed").format(
                 self.related_job.name)
         elif self.cause == self.PENDING_RESOURCE:
-            return ("resource expression {!r} could not be evaluated because"
-                    " the resource it depends on did not run yet").format(
-                        self.related_expression.text)
+            return _(
+                "resource expression {!r} could not be evaluated because"
+                " the resource it depends on did not run yet"
+            ).format(self.related_expression.text)
         else:
             assert self.cause == self.FAILED_RESOURCE
-            return "resource expression {!r} evaluates to false".format(
+            return _("resource expression {!r} evaluates to false").format(
                 self.related_expression.text)
 
 
@@ -197,10 +201,9 @@ class JobState:
         })
 
     def __repr__(self):
-        return ("<{} job:{!r} readiness_inhibitor_list:{!r}"
-                " result:{!r}>").format(
-                    self.__class__.__name__, self._job,
-                    self._readiness_inhibitor_list, self._result)
+        fmt = ("<{} job:{!r} readiness_inhibitor_list:{!r} result:{!r}>")
+        return fmt.format(self.__class__.__name__, self._job,
+                          self._readiness_inhibitor_list, self._result)
 
     @property
     def job(self):
@@ -271,7 +274,7 @@ class JobState:
         Get a human readable description of the current readiness state
         """
         if self._readiness_inhibitor_list:
-            return "job cannot be started: {}".format(
+            return _("job cannot be started: {}").format(
                 ", ".join((str(inhibitor)
                            for inhibitor in self._readiness_inhibitor_list)))
         else:

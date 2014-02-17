@@ -32,6 +32,7 @@ import re
 
 from plainbox.abc import IJobDefinition
 from plainbox.abc import ITextSource
+from plainbox.i18n import gettext as _
 from plainbox.impl.resource import ResourceProgram
 from plainbox.impl.secure.job import BaseJob
 from plainbox.impl.secure.rfc822 import Origin
@@ -60,7 +61,7 @@ class ValidationError(ValueError):
         self.problem = problem
 
     def __str__(self):
-        return "Problem with field {}: {}".format(self.field, self.problem)
+        return _("Problem with field {}: {}").format(self.field, self.problem)
 
     def __repr__(self):
         return "ValidationError(field={!r}, problem={!r})".format(
@@ -267,9 +268,9 @@ class JobDefinition(BaseJob, IJobDefinition):
         try:
             return float(value)
         except ValueError:
-            logger.warning((
-                "Incorrect value of 'estimated_duration' in job"
-                " %s read from %s"), self.name, self.origin)
+            logger.warning(
+                _("Incorrect value of 'estimated_duration' in job"
+                  " %s read from %s"), self.name, self.origin)
 
     @property
     def automated(self):
@@ -416,7 +417,7 @@ class JobDefinition(BaseJob, IJobDefinition):
         All other data is stored as is and is entirely optional.
         """
         if 'name' not in record.data:
-            raise ValueError("Cannot create job without a name")
+            raise ValueError(_("Cannot create job without a name"))
         return cls(record.data, record.origin)
 
     def validate(self, validator_cls=CheckBoxJobValidator):
@@ -437,9 +438,9 @@ class JobDefinition(BaseJob, IJobDefinition):
         embedded provider reference.
         """
         if not isinstance(record.origin.source, JobOutputTextSource):
-            raise ValueError("record.origin must be a JobOutputTextSource")
+            raise ValueError(_("record.origin must be a JobOutputTextSource"))
         if not record.origin.source.job is self:
-            raise ValueError("record.origin.source.job must be this job")
+            raise ValueError(_("record.origin.source.job must be this job"))
         job = self.from_rfc822_record(record)
         job._provider = self._provider
         return job

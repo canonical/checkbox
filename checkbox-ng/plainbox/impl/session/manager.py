@@ -34,6 +34,7 @@ import errno
 import logging
 import os
 
+from plainbox.i18n import gettext as _
 from plainbox.impl.session.resume import SessionResumeHelper
 from plainbox.impl.session.state import SessionState
 from plainbox.impl.session.storage import LockedStorageError
@@ -110,7 +111,7 @@ class SessionManager:
         self._state = state
         self._storage = storage
         logger.debug(
-            "Created SessionManager with state:%r and storage:%r",
+            _("Created SessionManager with state:%r and storage:%r"),
             state, storage)
 
     @property
@@ -159,7 +160,7 @@ class SessionManager:
         :return:
             fresh :class:`SessionManager` instance
         """
-        logger.debug("SessionManager.create_session()")
+        logger.debug(_("SessionManager.create_session()"))
         if job_list is None:
             job_list = []
         state = SessionState(job_list)
@@ -208,7 +209,7 @@ class SessionManager:
         :returns:
             Fresh instance of :class:`SessionManager`
         """
-        logger.debug("SessionManager.load_session()")
+        logger.debug(_("SessionManager.load_session()"))
         try:
             data = storage.load_checkpoint()
         except IOError as exc:
@@ -227,10 +228,10 @@ class SessionManager:
         After calling this method you can later reopen the same session with
         :meth:`SessionManager.open_session()`.
         """
-        logger.debug("SessionManager.checkpoint()")
+        logger.debug(_("SessionManager.checkpoint()"))
         data = SessionSuspendHelper().suspend(self.state)
         logger.debug(
-            "Saving %d bytes of checkpoint data to %r",
+            _("Saving %d bytes of checkpoint data to %r"),
             len(data), self.storage.location)
         try:
             self.storage.save_checkpoint(data)
@@ -245,5 +246,5 @@ class SessionManager:
         This basically calls
         :meth:`~plainbox.impl.session.storage.SessionStorage.remove()`
         """
-        logger.debug("SessionManager.destroy()")
+        logger.debug(_("SessionManager.destroy()"))
         self.storage.remove()

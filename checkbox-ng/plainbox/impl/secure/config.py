@@ -32,6 +32,8 @@ import configparser
 import logging
 import re
 
+from plainbox.i18n import gettext as _
+
 
 logger = logging.getLogger("plainbox.config")
 
@@ -82,7 +84,7 @@ class UnsetType:
     """
 
     def __str__(self):
-        return "unset"
+        return _("unset")
 
     def __repr__(self):
         return "Unset"
@@ -102,7 +104,7 @@ class Variable(INameTracking):
                  default=Unset, validator_list=None, help_text=None):
         # Ensure kind is correct
         if kind not in self._KIND_CHOICE:
-            raise ValueError("unsupported kind")
+            raise ValueError(_("unsupported kind"))
         # Ensure that we have a validator_list, even if empty
         if validator_list is None:
             validator_list = []
@@ -537,7 +539,7 @@ class Config(metaclass=ConfigMeta):
         self._problem_list = []
         # Try loading all of the config files
         try:
-            logger.info("Loading configuration from %s", filename_list)
+            logger.info(_("Loading configuration from %s"), filename_list)
             self._filename_list = parser.read(filename_list)
         except configparser.Error as exc:
             self._problem_list.append(exc)
@@ -645,7 +647,7 @@ def KindValidator(variable, new_value):
     A validator ensuring that values match the "kind" of the variable.
     """
     if not isinstance(new_value, variable.kind):
-        return "expected a {}".format(variable.kind.__name__)
+        return _("expected a {}").format(variable.kind.__name__)
 
 
 class PatternValidator(IValidator):
@@ -659,7 +661,7 @@ class PatternValidator(IValidator):
 
     def __call__(self, variable, new_value):
         if not self.pattern.match(new_value):
-            return "does not match pattern: {!r}".format(self.pattern_text)
+            return _("does not match pattern: {!r}").format(self.pattern_text)
 
     def __eq__(self, other):
         if isinstance(other, PatternValidator):
@@ -678,7 +680,7 @@ class ChoiceValidator(IValidator):
 
     def __call__(self, variable, new_value):
         if new_value not in self.choice_list:
-            return "must be one of {}".format(", ".join(self.choice_list))
+            return _("must be one of {}").format(", ".join(self.choice_list))
 
     def __eq__(self, other):
         if isinstance(other, ChoiceValidator):
@@ -701,7 +703,7 @@ class NotUnsetValidator(IValidator):
 
     def __init__(self, msg=None):
         if msg is None:
-            msg = "must be set to something"
+            msg = _("must be set to something")
         self.msg = msg
 
     def __call__(self, variable, new_value):
@@ -722,7 +724,7 @@ class NotEmptyValidator(IValidator):
 
     def __init__(self, msg=None):
         if msg is None:
-            msg = "cannot be empty"
+            msg = _("cannot be empty")
         self.msg = msg
 
     def __call__(self, variable, new_value):

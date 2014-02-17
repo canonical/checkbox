@@ -28,6 +28,7 @@
 
 from logging import getLogger
 
+from plainbox.i18n import gettext as _
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
 from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
@@ -132,28 +133,28 @@ class SpecialCommand(PlainBoxCommand, CheckBoxCommandMixIn):
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(
-            "special", help="special/internal commands")
+            "special", help=_("special/internal commands"))
         parser.set_defaults(command=self)
         group = parser.add_mutually_exclusive_group(required=True)
         group.add_argument(
             '-j', '--list-jobs',
-            help="List jobs instead of running them",
+            help=_("List jobs instead of running them"),
             action="store_const", const="list-jobs", dest="special")
         group.add_argument(
             '-J', '--list-job-hashes',
-            help="List jobs with hashes instead of running them",
+            help=_("List jobs with hashes instead of running them"),
             action="store_const", const="list-job-hashes", dest="special")
         group.add_argument(
             '-e', '--list-expressions',
-            help="List all unique resource expressions",
+            help=_("List all unique resource expressions"),
             action="store_const", const="list-expr", dest="special")
         group.add_argument(
             '-d', '--dot',
-            help="Print a graph of jobs instead of running them",
+            help=_("Print a graph of jobs instead of running them"),
             action="store_const", const="dep-graph", dest="special")
         parser.add_argument(
             '--dot-resources',
-            help="Render resource relationships (for --dot)",
+            help=_("Render resource relationships (for --dot)"),
             action='store_true')
         # Call enhance_parser from CheckBoxCommandMixIn
         self.enhance_parser(parser)

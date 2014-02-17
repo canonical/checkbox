@@ -31,6 +31,7 @@ from logging import getLogger
 import itertools
 import re
 
+from plainbox.i18n import gettext as _
 
 logger = getLogger("plainbox.commands.checkbox")
 
@@ -68,7 +69,7 @@ class CheckBoxInvocationMixIn:
                     regexp_pattern = re.compile(
                         r"^{pattern}$".format(pattern=pattern))
                 except re.error:
-                    logger.warning("Invalid exclude pattern: %s", pattern)
+                    logger.warning(_("Invalid exclude pattern: %s"), pattern)
                     continue
                 for job in job_list:
                     if regexp_pattern.match(job.name):
@@ -82,7 +83,7 @@ class CheckBoxInvocationMixIn:
                     regexp_pattern = re.compile(
                         r"^{pattern}$".format(pattern=pattern))
                 except re.error:
-                    logger.warning("Invalid include pattern: %s", pattern)
+                    logger.warning(_("Invalid include pattern: %s"), pattern)
                     continue
                 for job in job_list:
                     if regexp_pattern.match(job.name):
@@ -100,10 +101,10 @@ class CheckBoxCommandMixIn:
         """
         Add common options for job selection to an existing parser
         """
-        group = parser.add_argument_group(title="job definition options")
+        group = parser.add_argument_group(title=_("job definition options"))
         group.add_argument(
             '-i', '--include-pattern', action="append",
-            metavar='PATTERN', default=[], dest='include_pattern_list',
+            metavar=_('PATTERN'), default=[], dest='include_pattern_list',
             help=("Run jobs matching the given regular expression. Matches "
                   "from the start to the end of the line."))
         group.add_argument(
@@ -115,6 +116,6 @@ class CheckBoxCommandMixIn:
         group.add_argument(
             '-w', '--whitelist',
             action="append",
-            metavar="WHITELIST",
+            metavar=_("WHITELIST"),
             type=FileType("rt"),
-            help="Load whitelist containing run patterns")
+            help=_("Load whitelist containing run patterns"))

@@ -38,6 +38,7 @@ import time
 from plainbox.vendor import extcmd
 
 from plainbox.abc import IJobRunner, IJobResult
+from plainbox.i18n import gettext as _
 from plainbox.impl.ctrl import RootViaPTL1ExecutionController
 from plainbox.impl.ctrl import RootViaPkexecExecutionController
 from plainbox.impl.ctrl import RootViaSudoExecutionController
@@ -110,7 +111,7 @@ class IOLogRecordGenerator(extcmd.DelegateBase):
 
         Called when a new record is generated and needs to be processed.
         """
-        logger.debug("io log generated %r", record)
+        logger.debug(_("io log generated %r"), record)
 
 
 class CommandOutputWriter(extcmd.DelegateBase):
@@ -258,14 +259,14 @@ class JobRunner(IJobRunner):
         present sufficient information to make that choice, typically this is
         the job description and the output of the command)
         """
-        logger.info("Running %r", job)
+        logger.info(_("Running %r"), job)
         func_name = "run_{}_job".format(job.plugin.replace('-', '_'))
         try:
             runner = getattr(self, func_name)
         except AttributeError:
             return MemoryJobResult({
                 'outcome': IJobResult.OUTCOME_NOT_IMPLEMENTED,
-                'comment': 'This plugin is not supported'
+                'comment': _('This plugin is not supported'),
             })
         else:
             if self._dry_run and job.plugin not in self._DRY_RUN_PLUGINS:
@@ -293,7 +294,7 @@ class JobRunner(IJobRunner):
             passed or not.
         """
         if job.plugin != "shell":
-            raise ValueError("bad job plugin value")
+            raise ValueError(_("bad job plugin value"))
         return self._just_run_command(job, config)
 
     def run_attachment_job(self, job, config):
@@ -317,7 +318,7 @@ class JobRunner(IJobRunner):
             catting log files, sysfs or procfs files)
         """
         if job.plugin != "attachment":
-            raise ValueError("bad job plugin value")
+            raise ValueError(_("bad job plugin value"))
         return self._just_run_command(job, config)
 
     def run_resource_job(self, job, config):
@@ -342,7 +343,7 @@ class JobRunner(IJobRunner):
             resource programs which are embedded in many job definitions.
         """
         if job.plugin != "resource":
-            raise ValueError("bad job plugin value")
+            raise ValueError(_("bad job plugin value"))
         return self._just_run_command(job, config)
 
     def run_local_job(self, job, config):
@@ -367,7 +368,7 @@ class JobRunner(IJobRunner):
             additional jobs at runtime.
         """
         if job.plugin != "local":
-            raise ValueError("bad job plugin value")
+            raise ValueError(_("bad job plugin value"))
         return self._just_run_command(job, config)
 
     def run_manual_job(self, job, config):
@@ -392,7 +393,7 @@ class JobRunner(IJobRunner):
             may also return other values through that callback.
         """
         if job.plugin != "manual":
-            raise ValueError("bad job plugin value")
+            raise ValueError(_("bad job plugin value"))
         return MemoryJobResult({'outcome': IJobResult.OUTCOME_UNDECIDED})
 
     def run_user_interact_job(self, job, config):
@@ -432,7 +433,7 @@ class JobRunner(IJobRunner):
             the same API again).
         """
         if job.plugin != "user-interact":
-            raise ValueError("bad job plugin value")
+            raise ValueError(_("bad job plugin value"))
         return self._just_run_command(job, config)
 
     def run_user_verify_job(self, job, config):
@@ -475,7 +476,7 @@ class JobRunner(IJobRunner):
             may also return other values through that callback.
         """
         if job.plugin != "user-verify":
-            raise ValueError("bad job plugin value")
+            raise ValueError(_("bad job plugin value"))
         # Run the command
         result_cmd = self._just_run_command(job, config)
         # Maybe ask the user
@@ -523,7 +524,7 @@ class JobRunner(IJobRunner):
             may also return other values through that callback.
         """
         if job.plugin != "user-interact-verify":
-            raise ValueError("bad job plugin value")
+            raise ValueError(_("bad job plugin value"))
         # Run the command
         result_cmd = self._just_run_command(job, config)
         # Maybe ask the user
@@ -539,7 +540,7 @@ class JobRunner(IJobRunner):
         """
         return MemoryJobResult({
             'outcome': IJobResult.OUTCOME_SKIP,
-            'comments': "Job skipped in dry-run mode"
+            'comments': _("Job skipped in dry-run mode")
         })
 
     def _just_run_command(self, job, config):
@@ -602,7 +603,7 @@ class JobRunner(IJobRunner):
         # Send the third copy to the output writer that writes everything to
         # disk.
         delegate = extcmd.Chain([ui_io_delegate, io_log_gen, output_writer])
-        logger.debug("job[%s] extcmd delegate: %r", job.name, delegate)
+        logger.debug(_("job[%s] extcmd delegate: %r"), job.name, delegate)
         # Attach listeners to io_log_gen (the IOLogRecordGenerator instance)
         # One listener appends each record to an array
         return delegate, io_log_gen
@@ -637,11 +638,12 @@ class JobRunner(IJobRunner):
             # while the process is running. It will also spawn a few
             # threads although all callbacks will be fired from a single
             # thread (which is _not_ the main thread)
-            logger.debug("job[%s] starting command: %s", job.name, job.command)
+            logger.debug(
+                _("job[%s] starting command: %s"), job.name, job.command)
             # Run the job command using extcmd
             return_code = self._run_extcmd(job, config, extcmd_popen)
             logger.debug(
-                "job[%s] command return code: %r", job.name, return_code)
+                _("job[%s] command return code: %r"), job.name, return_code)
         return return_code, record_path
 
     def _run_extcmd(self, job, config, extcmd_popen):
@@ -656,9 +658,9 @@ class JobRunner(IJobRunner):
         # Ensure that the controler is viable
         if score < 0:
             raise RuntimeError(
-                "No exec controller supports job {}".format(job))
+                _("No exec controller supports job {}").format(job))
         logger.debug(
-            "Selected execution controller %s (score %d) for job %r",
+            _("Selected execution controller %s (score %d) for job %r"),
             ctrl.__class__.__name__, score, job.name)
         # Delegate and execute
         return ctrl.execute_job(job, config, extcmd_popen)

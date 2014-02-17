@@ -135,7 +135,7 @@ class ScriptInvocationTests(TestCase):
             io.stdout, cleandoc(
                 """
                 (job foo, <stdout:00001>) ok
-                """) + '\n' + "{} returned 0\n".format(dummy_name) +
+                """) + '\n' + "job {} returned 0\n".format(dummy_name) +
                 "command: {}\n".format(dummy_command))
         self.assertEqual(retval, 0)
 
@@ -154,6 +154,6 @@ class ScriptInvocationTests(TestCase):
                 """
                 Leftover file detected: 'files-created-in-current-dir/file':
                   files-created-in-current-dir/file:1: ok
-                """) + '\n' + "{} returned 0\n".format(dummy_name) +
+                """) + '\n' + "job {} returned 0\n".format(dummy_name) +
                 "command: {}\n".format(dummy_command))
         self.assertEqual(retval, 0)

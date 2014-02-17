@@ -30,12 +30,13 @@ import ast
 from logging import getLogger
 from datetime import timedelta
 
+from plainbox.i18n import gettext as _
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
 from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
-from plainbox.impl.session import SessionStateLegacyAPI as SessionState
 from plainbox.impl.resource import RequirementNodeVisitor
 from plainbox.impl.runner import JobRunner
+from plainbox.impl.session import SessionStateLegacyAPI as SessionState
 
 
 logger = getLogger("plainbox.commands.special")
@@ -77,17 +78,17 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
             self._print_run_list()
 
     def _print_desired_job_list(self):
-        print("[Desired Job List]".center(80, '='))
+        print(_("[Desired Job List]").center(80, '='))
         for job in self.session.desired_job_list:
             print("{}".format(job.name))
 
     def _print_run_list(self):
-        print("[Run List]".center(80, '='))
+        print(_("[Run List]").center(80, '='))
         for job in self.session.run_list:
             print("{}".format(job.name))
 
     def _run_local_jobs(self):
-        print("[Running Local Jobs]".center(80, '='))
+        print(_("[Running Local Jobs]").center(80, '='))
         with self.session.open():
             runner = JobRunner(
                 self.session.session_dir, self.provider_list,
@@ -111,24 +112,24 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
         new_problem_list = self.session.update_desired_job_list(
             new_desired_job_list)
         if new_problem_list:
-            print("Problem list", new_problem_list)
+            print(_("Problem list"), new_problem_list)
             self.problem_list.extend(new_problem_list)
 
     def _print_general_stats(self):
-        print("[General Statistics]".center(80, '='))
-        print("Known jobs: {}".format(len(self.job_list)))
-        print("Selected jobs: {}".format(len(self.desired_job_list)))
+        print(_("[General Statistics]").center(80, '='))
+        print(_("Known jobs: {}").format(len(self.job_list)))
+        print(_("Selected jobs: {}").format(len(self.desired_job_list)))
 
     def _print_dependency_report(self):
-        print("[Dependency Report]".center(80, '='))
+        print(_("[Dependency Report]").center(80, '='))
         if self.problem_list:
             for problem in self.problem_list:
                 print(" * {}".format(problem))
         else:
-            print("Selected jobs have no dependency problems")
+            print(_("Selected jobs have no dependency problems"))
 
     def _print_interactivity_report(self):
-        print("[Interactivity Report]".center(80, '='))
+        print(_("[Interactivity Report]").center(80, '='))
         if not self.session.run_list:
             return
         max_job_len = max(len(job.name) for job in self.session.run_list)
@@ -139,31 +140,33 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
                 fmt.format(
                     job=job.name,
                     interactive=(
-                        "automatic" if job.automated else "interactive"),
+                        _("automatic") if job.automated else _("interactive")),
                     duration=(
+                        # TODO: use python-babel to format localized timedelta
+                        # in 14.04+ as 12.04 babel API is too limited
                         timedelta(seconds=job.estimated_duration)
                         if job.estimated_duration is not None
-                        else "unknown")
+                        else _("unknown"))
                 )
             )
 
     def _print_estimated_duration_report(self):
-        print("[Estimated Duration Report]".center(80, '='))
-        print("Estimated test duration:")
+        print(_("[Estimated Duration Report]").center(80, '='))
+        print(_("Estimated test duration:"))
         automated, manual = self.session.get_estimated_duration()
-        print("   automated tests: {}".format(
+        print(_("   automated tests: {}").format(
             timedelta(seconds=automated) if automated is not None
-            else "cannot estimate"))
-        print("      manual tests: {}".format(
+            else _("cannot estimate")))
+        print(_("      manual tests: {}").format(
             timedelta(seconds=manual) if manual is not None
-            else "cannot estimate"))
-        print("             total: {}".format(
+            else _("cannot estimate")))
+        print(_("             total: {}").format(
             timedelta(seconds=manual + automated)
             if manual is not None and automated is not None
-            else "cannot estimate"))
+            else _("cannot estimate")))
 
     def _print_validation_report(self, only_errors):
-        print("[Validation Report]".center(80, '='))
+        print(_("[Validation Report]").center(80, '='))
         if not self.session.run_list:
             return
         max_job_len = max(len(job.name) for job in self.session.run_list)
@@ -180,12 +183,12 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
                 problem = ""
             print(fmt.format(job=job.name, problem=problem))
             if problem:
-                print("Job defined in {}".format(job.origin))
+                print(_("Job defined in {}").format(job.origin))
         if only_errors and problem is None:
-            print("No problems found")
+            print(_("No problems found"))
 
     def _print_requirement_report(self):
-        print("[Requirement Report]".center(80, '='))
+        print(_("[Requirement Report]").center(80, '='))
         if not self.session.run_list:
             return
         requirements = set()
@@ -218,44 +221,45 @@ class AnalyzeCommand(PlainBoxCommand, CheckBoxCommandMixIn):
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(
-            "analyze", help="analyze how selected jobs would be executed")
+            "analyze", help=_("analyze how selected jobs would be executed"))
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
             '-l', '--run-local',
             action='store_true', dest='run_local',
-            help='Run all selected local jobs, required to see true data')
+            help=_('Run all selected local jobs, required to see true data'))
         group.add_argument(
             '-L', '--skip-local',
             action='store_false', dest='run_local',
-            help='Do not run local jobs')
+            help=_('Do not run local jobs'))
         group = parser.add_argument_group("reports")
         group.add_argument(
             '-s', '--print-stats', action='store_true',
-            help="Print general job statistics")
+            help=_("Print general job statistics"))
         group.add_argument(
             "-d", "--print-dependency-report", action='store_true',
-            help="Print dependency report")
+            help=_("Print dependency report"))
         group.add_argument(
             "-t", "--print-interactivity-report", action='store_true',
-            help="Print interactivity report")
+            help=_("Print interactivity report"))
         group.add_argument(
             "-e", "--print-estimated-duration-report", action='store_true',
-            help="Print estimated duration report")
+            help=_("Print estimated duration report"))
         group.add_argument(
             "-v", "--print-validation-report", action='store_true',
-            help="Print validation report")
+            help=_("Print validation report"))
         group.add_argument(
             "-r", "--print-requirement-report", action='store_true',
-            help="Print requirement report")
+            help=_("Print requirement report"))
         group.add_argument(
             "-E", "--only-errors", action='store_true', default=False,
-            help="When coupled with -v, only problematic jobs will be listed")
+            help=_(
+                "When coupled with -v, only problematic jobs will be listed"))
         group.add_argument(
             "-S", "--print-desired-job-list", action='store_true',
-            help="Print desired job list")
+            help=_("Print desired job list"))
         group.add_argument(
             "-R", "--print-run-list", action='store_true',
-            help="Print run list")
+            help=_("Print run list"))
         parser.set_defaults(command=self)
         # Call enhance_parser from CheckBoxCommandMixIn
         self.enhance_parser(parser)

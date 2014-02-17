@@ -33,6 +33,7 @@ import inspect
 import json
 import logging
 
+from plainbox.i18n import gettext as _
 from plainbox.impl.secure.plugins import PkgResourcesPlugInCollection, PlugIn
 
 
@@ -136,7 +137,7 @@ class ParserPlugIn(IParser, PlugIn):
         except Exception:
             # TODO: portable parser error would be nice, to know where it
             # fails. This is difficult at this stage.
-            logger.exception("Cannot parse input")
+            logger.exception(_("Cannot parse input"))
             return None
 
     def _to_json(self, obj):

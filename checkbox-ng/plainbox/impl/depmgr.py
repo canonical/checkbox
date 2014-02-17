@@ -30,6 +30,8 @@ from abc import ABCMeta
 from abc import abstractproperty
 from logging import getLogger
 
+from plainbox.i18n import gettext as _
+
 
 logger = getLogger("plainbox.depmgr")
 
@@ -95,7 +97,7 @@ class DependencyCycleError(DependencyError):
         return self.affected_job
 
     def __str__(self):
-        return "dependency cycle detected: {}".format(
+        return _("dependency cycle detected: {}").format(
             " -> ".join([job.name for job in self.job_list]))
 
     def __repr__(self):
@@ -134,7 +136,7 @@ class DependencyMissingError(DependencyError):
         return None
 
     def __str__(self):
-        return "missing dependency: {!r} ({})".format(
+        return _("missing dependency: {!r} ({})").format(
             self.missing_job_name, self.dep_type)
 
     def __repr__(self):
@@ -168,7 +170,7 @@ class DependencyDuplicateError(DependencyError):
         return self.duplicate_job
 
     def __str__(self):
-        return "duplicate job name: {!r}".format(self.affected_job.name)
+        return _("duplicate job name: {!r}").format(self.affected_job.name)
 
     def __repr__(self):
         return "<{} job:{!r} duplicate_job:{!r}>".format(
@@ -238,12 +240,12 @@ class DependencySolver:
         Calls _visit() on each of the initial nodes/jobs
         """
         # Visit the visit list
-        logger.debug("Starting solve")
+        logger.debug(_("Starting solve"))
         if visit_list is None:
             visit_list = self._job_list
         for job in visit_list:
             self._visit(job)
-        logger.debug("Done solving")
+        logger.debug(_("Done solving"))
         # Return the solution
         return self._solution
 
@@ -257,7 +259,7 @@ class DependencySolver:
         to be raised. Calls _visit recursively on all dependencies.
         """
         color = self._job_color_map[job.name]
-        logger.debug("Visiting job %s (color %s)", job, color)
+        logger.debug(_("Visiting job %s (color %s)"), job, color)
         if color == self.COLOR_WHITE:
             # This node has not been visited yet. Let's mark it as GRAY (being
             # visited) and iterate through the list of dependencies
@@ -276,14 +278,14 @@ class DependencySolver:
                 else:
                     # For each dependency that we visit let's reuse the trail
                     # to give proper error messages if a dependency loop exists
-                    logger.debug("Visiting dependency: %r", next_job)
+                    logger.debug(_("Visiting dependency: %r"), next_job)
                     # Update the trail as we visit that node
                     trail.append(next_job)
                     self._visit(next_job, trail)
                     trail.pop()
             # We've visited (recursively) all dependencies of this node,
             # let's color it black and append it to the solution list.
-            logger.debug("Appending %r to solution", job)
+            logger.debug(_("Appending %r to solution"), job)
             self._job_color_map[job.name] = self.COLOR_BLACK
             self._solution.append(job)
         elif color == self.COLOR_GRAY:

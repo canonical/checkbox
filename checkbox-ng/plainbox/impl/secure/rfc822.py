@@ -36,6 +36,7 @@ import logging
 import os
 
 from plainbox.abc import ITextSource
+from plainbox.i18n import gettext as _
 
 logger = logging.getLogger("plainbox.secure.rfc822")
 
@@ -53,7 +54,7 @@ class UnknownTextSource(ITextSource):
     """
 
     def __str__(self):
-        return "???"
+        return _("???")
 
     def __repr__(self):
         return "{}()".format(self.__class__.__name__)
@@ -424,7 +425,7 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
         nonlocal key
         if key is not None:
             data[key] = cleandoc('\n'.join(value_list))
-            logger.debug("Committed key/value %r=%r", key, data[key])
+            logger.debug(_("Committed key/value %r=%r"), key, data[key])
             key = None
 
     def _set_start_lineno_if_needed():
@@ -448,7 +449,7 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
         stream = iter(stream.splitlines())
     # Iterate over subsequent lines of the stream
     for lineno, line in enumerate(stream, start=1):
-        logger.debug("Looking at line %d:%r", lineno, line)
+        logger.debug(_("Looking at line %d:%r"), lineno, line)
         # Treat # as comments
         if line.startswith("#"):
             pass
@@ -460,7 +461,7 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
             # If data is non-empty, yield the record, this allows us to safely
             # use newlines for formatting
             if data:
-                logger.debug("yielding record: %r", record)
+                logger.debug(_("yielding record: %r"), record)
                 yield record
             # Reset local state so that we can build a new record
             _new_record()
@@ -469,7 +470,7 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
         elif line.startswith(" "):
             if key is None:
                 # If we have not seen any keys yet then this is a syntax error
-                raise _syntax_error("Unexpected multi-line value")
+                raise _syntax_error(_("Unexpected multi-line value"))
             # If the line is is composed of leading spaces and a dot
             # then the remove the dot whithout touching the spaces.
             # This allows us to support a generic escape sequence after
@@ -501,7 +502,7 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
             value = value.strip()
             # Check if the key already exist in this message
             if key in record.data:
-                raise _syntax_error((
+                raise _syntax_error(_(
                     "Job has a duplicate key {!r} "
                     "with old value {!r} and new value {!r}"
                 ).format(key, record.data[key], value))
@@ -513,10 +514,11 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
             _update_end_lineno()
         # Treat all other lines as syntax errors
         else:
-            raise _syntax_error("Unexpected non-empty line: {!r}".format(line))
+            raise _syntax_error(
+                _("Unexpected non-empty line: {!r}").format(line))
     # Make sure to commit the last key from the record
     _commit_key_value_if_needed()
     # Once we've seen the whole file return the last record, if any
     if data:
-        logger.debug("yielding record: %r", record)
+        logger.debug(_("yielding record: %r"), record)
         yield record

@@ -29,6 +29,8 @@
 import ast
 import logging
 
+from plainbox.i18n import gettext as _
+
 logger = logging.getLogger("plainbox.resource")
 
 
@@ -47,7 +49,7 @@ class ExpressionFailedError(Exception):
         self.expression = expression
 
     def __str__(self):
-        return "expression {!r} evaluated to a non-true result".format(
+        return _("expression {!r} evaluated to a non-true result").format(
             self.expression.text)
 
     def __repr__(self):
@@ -66,7 +68,7 @@ class ExpressionCannotEvaluateError(ExpressionFailedError):
     """
 
     def __str__(self):
-        return "expression {!r} needs unavailable resource {!r}".format(
+        return _("expression {!r} needs unavailable resource {!r}").format(
             self.expression.text, self.expression.resource_name)
 
 
@@ -213,7 +215,7 @@ class CodeNotAllowed(ResourceProgramError):
         return "CodeNotAllowed({!r})".format(self.node)
 
     def __str__(self):
-        return "this kind of python code is not allowed: {}".format(
+        return _("this kind of python code is not allowed: {}").format(
             ast.dump(self.node))
 
 
@@ -408,7 +410,7 @@ class NoResourcesReferenced(ResourceProgramError):
     """
 
     def __str__(self):
-        return "expression did not reference any resources"
+        return _("expression did not reference any resources")
 
 
 class MultipleResourcesReferenced(ResourceProgramError):
@@ -417,7 +419,7 @@ class MultipleResourcesReferenced(ResourceProgramError):
     """
 
     def __str__(self):
-        return "expression referenced multiple resources"
+        return _("expression referenced multiple resources")
 
 
 class ResourceExpression:
@@ -492,8 +494,8 @@ class ResourceExpression:
                 # XXX: it would be interesting to see if we have exceptions and
                 # why they happen.  We could do deeper validation this way.
                 logger.debug(
-                    "Exception in requirement expression %r (with %s=%r): %r",
-                    self._text, self._resource_name, resource, exc)
+                    _("Exception in requirement expression %r (with %s=%r):"
+                      " %r"), self._text, self._resource_name, resource, exc)
                 continue
             # Treat any true result as a success
             if result:

@@ -28,6 +28,7 @@
 
 import logging
 
+from plainbox.i18n import gettext as _
 from plainbox.impl.commands import PlainBoxCommand
 
 
@@ -41,7 +42,7 @@ class CrashInvocation:
 
     def run(self):
         if self.ns.action == 'crash':
-            raise Exception("crashing as requested")
+            raise Exception(_("crashing as requested"))
         elif self.ns.action == 'hang':
             while True:
                 pass
@@ -57,18 +58,18 @@ class CrashCommand(PlainBoxCommand):
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(
-            "crash", help="crash the application")
+            "crash", help=_("crash the application"))
         group = parser.add_mutually_exclusive_group(required=True)
         group.add_argument(
             '-c', '--crash',
             dest='action',
             action='store_const',
             const='crash',
-            help='Raise an exception')
+            help=_('Raise an exception'))
         group.add_argument(
             '-H', '--hang',
             dest='action',
             action='store_const',
             const='hang',
-            help='Hang the application with a busy loop')
+            help=_('Hang the application with a busy loop'))
         parser.set_defaults(command=self)

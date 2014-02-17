@@ -50,6 +50,8 @@ import os
 
 import pkg_resources
 
+from plainbox.i18n import gettext as _
+
 
 logger = logging.getLogger("plainbox.secure.plugins")
 
@@ -372,7 +374,7 @@ class PkgResourcesPlugInCollection(PlugInCollectionBase):
             try:
                 obj = entry_point.load()
             except ImportError as exc:
-                logger.exception("Unable to import %s", entry_point)
+                logger.exception(_("Unable to import %s"), entry_point)
                 self._problem_list.append(exc)
             else:
                 self.wrap_and_add_plugin(entry_point.name, obj)
@@ -440,7 +442,7 @@ class FsPlugInCollection(PlugInCollectionBase):
                 with open(filename, encoding='UTF-8') as stream:
                     text = stream.read()
             except (OSError, IOError) as exc:
-                logger.error("Unable to load %r: %s", filename, str(exc))
+                logger.error(_("Unable to load %r: %s"), filename, str(exc))
                 self._problem_list.append(exc)
             else:
                 self.wrap_and_add_plugin(filename, text)

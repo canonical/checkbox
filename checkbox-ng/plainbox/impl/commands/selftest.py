@@ -28,6 +28,7 @@
 """
 from unittest.runner import TextTestRunner
 
+from plainbox.i18n import gettext as _
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.tests import load_integration_tests, load_unit_tests
 
@@ -52,7 +53,7 @@ class SelfTestCommand(PlainBoxCommand):
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(
-            "self-test", help="run integration tests")
+            "self-test", help=_("run integration tests"))
         parser.set_defaults(command=self)
         # Add an option that selects either integration tests or unit tests
         group = parser.add_mutually_exclusive_group(required=True)
@@ -61,26 +62,26 @@ class SelfTestCommand(PlainBoxCommand):
             action='store_const',
             dest='suite_loader',
             const=load_integration_tests,
-            help="Run integration test suite (this verifies checkbox jobs)")
+            help=_("Run integration test suite (this verifies checkbox jobs)"))
         group.add_argument(
             '-u', '--unit-tests',
             action='store_const',
             dest='suite_loader',
             const=load_unit_tests,
-            help="Run unit tests (this only verifies plainbox core)")
+            help=_("Run unit tests (this only verifies plainbox core)"))
         # Register a number of TextTestRunner options.
         # More items may be added here as the need arises.
         parser.add_argument(
             '--fail-fast', default=False, action="store_true",
-            help="abort the test on first failure")
+            help=_("abort the test on first failure"))
         group = parser.add_argument_group("verbosity settings")
         group.set_defaults(verbosity=1)
         group.add_argument(
             '-q', '--quiet', dest='verbosity', action="store_const", const=0,
-            help="run tests quietly")
+            help=_("run tests quietly"))
         group.add_argument(
             '--normal', dest='verbosity', action="store_const", const=1,
-            help="run tests with normal verbosity (default)")
+            help=_("run tests with normal verbosity (default)"))
         group.add_argument(
             '-v', '--verbose', dest='verbosity', action="store_const", const=2,
-            help="run tests verbosely, printing each test case name")
+            help=_("run tests verbosely, printing each test case name"))

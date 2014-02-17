@@ -25,6 +25,7 @@
 import logging
 
 from plainbox.impl.commands import PlainBoxCommand
+from plainbox.i18n import gettext as _
 
 
 logger = logging.getLogger("plainbox.commands.logtest")
@@ -36,11 +37,11 @@ class LogTestInvocation:
         pass
 
     def run(self):
-        logger.debug("a debug message")
-        logger.info("a info message")
-        logger.warning("a warning message")
-        logger.error("an error message")
-        logger.critical("a critical message")
+        logger.debug(_("a debug message"))
+        logger.info(_("a info message"))
+        logger.warning(_("a warning message"))
+        logger.error(_("an error message"))
+        logger.critical(_("a critical message"))
         return 0
 
 
@@ -54,5 +55,5 @@ class LogTestCommand(PlainBoxCommand):
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(
-            "logtest", help="log messages at various levels")
+            "logtest", help=_("log messages at various levels"))
         parser.set_defaults(command=self)

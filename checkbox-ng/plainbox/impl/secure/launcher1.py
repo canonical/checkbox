@@ -27,6 +27,7 @@ import copy
 import logging
 import subprocess
 
+from plainbox.i18n import gettext as _
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.job import JobOutputTextSource
 from plainbox.impl.providers.special import CheckBoxSrcProvider
@@ -57,7 +58,7 @@ class TrustedLauncher:
                 return job
         else:
             raise LookupError(
-                "Cannot find job with checksum {}".format(checksum))
+                _("Cannot find job with checksum {}").format(checksum))
 
     def run_shell_from_job(self, checksum, env):
         """
@@ -98,8 +99,7 @@ class TrustedLauncher:
             record_list = load_rfc822_records(output, source=source)
         except RFC822SyntaxError as exc:
             logging.error(
-                "Syntax error in job generated from %s: %s",
-                job, exc)
+                _("Syntax error in job generated from %s: %s"), job, exc)
         else:
             for record in record_list:
                 job = JobDefinition.from_rfc822_record(record)
@@ -189,30 +189,31 @@ def main(argv=None):
     group.add_argument(
         '-w', '--warmup',
         action='store_true',
-        help='return immediately, only useful when used with pkexec(1)')
+        help=_('return immediately, only useful when used with pkexec(1)'))
     group.add_argument(
         '-t', '--target',
-        metavar='CHECKSUM',
-        help='run a job with this checksum')
-    group = parser.add_argument_group("target job specification")
+        metavar=_('CHECKSUM'),
+        help=_('run a job with this checksum'))
+    group = parser.add_argument_group(_("target job specification"))
     group.add_argument(
         '-T', '--target-environment', metavar='NAME=VALUE',
         dest='target_env',
         nargs='+',
         action=UpdateAction,
-        help='environment passed to the target job')
+        help=_('environment passed to the target job'))
     group = parser.add_argument_group(title="generator job specification")
     group.add_argument(
         '-g', '--generator',
-        metavar='CHECKSUM',
-        help='also run a job with this checksum (assuming it is a local job)')
+        metavar=_('CHECKSUM'),
+        help=_(
+            'also run a job with this checksum (assuming it is a local job)'))
     group.add_argument(
         '-G', '--generator-environment',
         dest='generator_env',
         nargs='+',
-        metavar='NAME=VALUE',
+        metavar=_('NAME=VALUE'),
         action=UpdateAction,
-        help='environment passed to the generator job')
+        help=_('environment passed to the generator job'))
     ns = parser.parse_args(argv)
     # Just quit if warming up
     if ns.warmup:

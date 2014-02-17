@@ -29,6 +29,7 @@
 import os
 
 from plainbox.abc import IJobResult
+from plainbox.i18n import gettext as _
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.secure import config
 
@@ -54,8 +55,8 @@ def get_whitelist_by_name(provider_list, desired_whitelist):
                 return whitelist
     else:
         raise LookupError(
-            "None of the providers had a whitelist "
-            "named '{}'".format(desired_whitelist))
+            _("None of the providers had a whitelist "
+              "named '{}'").format(desired_whitelist))
 
 
 def run_job_if_possible(session, runner, config, job, update=True):
@@ -96,15 +97,16 @@ class PlainBoxConfig(config.Config):
     """
 
     environment = config.Section(
-        help_text="Environment variables for scripts and jobs")
+        help_text=_("Environment variables for scripts and jobs"))
 
     welcome_text = config.Variable(
         section="common",
-        help_text="Welcome text to display prior to test selection/execution")
+        help_text=_("Welcome text to display prior to test"
+                    " selection/execution"))
 
     default_provider = config.Variable(
         section="common",
-        help_text="Name of the default provider to use",
+        help_text=_("Name of the default provider to use"),
         validator_list=[
             config.ChoiceValidator(['auto', 'src', 'deb', 'stub', 'ihv'])],
         default="auto")

@@ -24,6 +24,7 @@
 
 import logging
 
+from plainbox.i18n import gettext as _
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.highlevel import Explorer
 
@@ -68,7 +69,8 @@ class ListCommand(PlainBoxCommand):
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(
-            "list", help="list and describe various objects")
+            "list", help=_("list and describe various objects"))
         parser.add_argument(
-            'group', nargs='?', help="list objects from the specified group")
+            'group', nargs='?',
+            help=_("list objects from the specified group"))
         parser.set_defaults(command=self)

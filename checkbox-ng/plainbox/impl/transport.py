@@ -62,9 +62,10 @@ class TransportBase(metaclass=ABCMeta):
         if not option_string:
             return
         if "=" in option_string:
-            self.options = {option: value for (option, value) in
-                            [pair.split("=", 1) for pair in
-                            option_string.split(",")]}
+            self.options = {
+                option: value for (option, value) in
+                [pair.split("=", 1) for pair in option_string.split(",")]
+            }
         if not self.options:
             raise ValueError(_("No valid options in option string"))
 

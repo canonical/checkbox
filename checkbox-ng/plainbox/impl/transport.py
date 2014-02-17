@@ -33,6 +33,8 @@ from logging import getLogger
 
 import pkg_resources
 
+from plainbox.i18n import gettext as _
+
 
 logger = getLogger("plainbox.transport")
 
@@ -64,7 +66,7 @@ class TransportBase(metaclass=ABCMeta):
                             [pair.split("=", 1) for pair in
                             option_string.split(",")]}
         if not self.options:
-            raise ValueError("No valid options in option string")
+            raise ValueError(_("No valid options in option string"))
 
     @abstractmethod
     def send(self, data):
@@ -89,7 +91,7 @@ def get_all_transports():
         try:
             transport_cls = entry_point.load()
         except ImportError as exc:
-            logger.exception("Unable to import {}: {}", entry_point, exc)
+            logger.exception(_("Unable to import {}: {}"), entry_point, exc)
         else:
             transport_map[entry_point.name] = transport_cls
     return transport_map

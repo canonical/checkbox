@@ -31,6 +31,7 @@ import logging
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.secure.config import ValidationError
 
+from plainbox.i18n import gettext as _
 
 logger = logging.getLogger("plainbox.commands.check_config")
 
@@ -46,32 +47,32 @@ class CheckConfigInvocation:
         self.config = config
 
     def run(self):
-        print("Configuration files:")
+        print(_("Configuration files:"))
         for filename in self.config.Meta.filename_list:
             if filename in self.config.filename_list:
                 print(" - {0}".format(filename))
             else:
-                print(" - {0} (not present)".format(filename))
-        print("Variables:")
+                print(_(" - {0} (not present)").format(filename))
+        print(_("Variables:"))
         for variable in self.config.Meta.variable_list:
             print("   {0}={1}".format(
                 variable.name,
                 variable.__get__(self.config, self.config.__class__)))
-        print("Sections:")
+        print(_("Sections:"))
         for section in self.config.Meta.section_list:
             print("   {0}={1}".format(
                 section.name,
                 section.__get__(self.config, self.config.__class__)))
         if self.config.problem_list:
-            print("Problems:")
+            print(_("Problems:"))
             for problem in self.config.problem_list:
                 if isinstance(problem, ValidationError):
-                    print(" - variable {0}: {1}".format(
+                    print(_(" - variable {0}: {1}").format(
                         problem.variable.name, problem.message))
                 else:
                     print(" - {0}".format(problem.message))
         else:
-            print("No validation problems found")
+            print(_("No validation problems found"))
         return 0 if len(self.config.problem_list) == 0 else 1
 
 
@@ -88,5 +89,5 @@ class CheckConfigCommand(PlainBoxCommand):
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(
-            "check-config", help="check and display plainbox configuration")
+            "check-config", help=_("check and display plainbox configuration"))
         parser.set_defaults(command=self)

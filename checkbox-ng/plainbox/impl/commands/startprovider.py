@@ -25,6 +25,7 @@ import inspect
 import logging
 import os
 
+from plainbox.i18n import gettext as _
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.secure.providers.v1 import IQNValidator
 
@@ -55,7 +56,7 @@ class SomethingInTheWay(Exception):
         self.filename = filename
 
     def __str__(self):
-        return "refusing to overwrite {!a}".format(self.filename)
+        return _("refusing to overwrite {!a}").format(self.filename)
 
 
 class File:
@@ -471,6 +472,6 @@ class StartProviderCommand(PlainBoxCommand):
         parser.add_argument(
             'name',
             type=IQN,
-            help=("name of the directory with provider data"
-                  " (eg: YYYY.example.org:some-name)"))
+            help=_("name of the directory with provider data"
+                   " (eg: YYYY.example.org:some-name)"))
         parser.set_defaults(command=self)

@@ -30,6 +30,7 @@ import io
 import logging
 import sys
 
+from plainbox.i18n import gettext as _
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.parsers import all_parsers
 
@@ -73,7 +74,7 @@ class ParseInvocation:
         try:
             return stream.read()
         except UnicodeEncodeError:
-            print("Unable to decode input stream, must be valid UTF-8",
+            print(_("Unable to decode input stream, must be valid UTF-8"),
                   file=sys.stderr)
             return None
 
@@ -95,15 +96,15 @@ class ParseCommand(PlainBoxCommand):
             return ParseInvocation(parser).run()
 
     def _print_parser_list(self):
-        print("The following parsers are available:")
+        print(_("The following parsers are available:"))
         for parser in self.parser_collection.get_all_plugins():
             print("  {}: {}".format(parser.name, parser.summary))
         return 0
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(
-            "parse", help="parse stdin with the specified parser",
-            description="""
+            "parse", help=_("parse stdin with the specified parser"),
+            description=_("""
                 This command can be used to invoke any of the parsers exposed
             to the `plainbox.parsers` entry point, parse standard input and
             produce a JSON dump of the resulting data structure on stdout.
@@ -111,13 +112,13 @@ class ParseCommand(PlainBoxCommand):
             Keep in mind that most parsers were designed with the 'C' locale in
             mind. You may have to override the environment variable LANG to
             "C".
-            """,
-            epilog="""
+            """),
+            epilog=_("""
             Example: LANG=C pactl list | plainbox dev parse pactl-list
-            """,
+            """),
         )
         parser.set_defaults(command=self)
         parser.add_argument(
-            "parser_name", metavar="PARSER-NAME",
+            "parser_name", metavar=_("PARSER-NAME"),
             choices=['?'] + list(self.parser_collection.get_all_names()),
-            help="Name of the parser to use")
+            help=_("Name of the parser to use"))

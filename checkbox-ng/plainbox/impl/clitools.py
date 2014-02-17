@@ -35,8 +35,9 @@ import os
 import pdb
 import sys
 
-from plainbox.impl.logging import adjust_logging
+from plainbox.i18n import gettext as _
 from plainbox.impl._argparse import LegacyHelpFormatter
+from plainbox.impl.logging import adjust_logging
 
 
 logger = logging.getLogger("plainbox.clitools")
@@ -240,12 +241,12 @@ class ToolBase(metaclass=abc.ABCMeta):
             self.late_init(early_ns)
             # Construct the full command line argument parser
             self._parser = self.construct_parser()
-            logger.debug("parsed early namespace: %s", early_ns)
+            logger.debug(_("parsed early namespace: %s"), early_ns)
             # parse the full command line arguments, this is also where we
             # do argcomplete-dictated exit if bash shell completion
             # is requested
             ns = self._parser.parse_args(argv)
-            logger.debug("parsed full namespace: %s", ns)
+            logger.debug(_("parsed full namespace: %s"), ns)
             self.final_init(ns)
         except KeyboardInterrupt:
             pass
@@ -364,39 +365,39 @@ class ToolBase(metaclass=abc.ABCMeta):
             dest="log_level",
             action="store_const",
             const="INFO",
-            help="be more verbose (same as --log-level=INFO)")
+            help=_("be more verbose (same as --log-level=INFO)"))
         # Add the --debug flag
         group.add_argument(
             "-D", "--debug",
             dest="log_level",
             action="store_const",
             const="DEBUG",
-            help="enable DEBUG messages on the root logger")
+            help=_("enable DEBUG messages on the root logger"))
         # Add the --debug flag
         group.add_argument(
             "-C", "--debug-console",
             action="store_true",
-            help="display DEBUG messages in the console")
+            help=_("display DEBUG messages in the console"))
         # Add the --trace flag
         group.add_argument(
             "-T", "--trace",
             metavar="LOGGER",
             action="append",
             default=[],
-            help=("enable DEBUG messages on the specified logger "
-                  "(can be used multiple times)"))
+            help=_("enable DEBUG messages on the specified logger "
+                   "(can be used multiple times)"))
         # Add the --pdb flag
         group.add_argument(
             "-P", "--pdb",
             action="store_true",
             default=False,
-            help="jump into pdb (python debugger) when a command crashes")
+            help=_("jump into pdb (python debugger) when a command crashes"))
         # Add the --debug-interrupt flag
         group.add_argument(
             "-I", "--debug-interrupt",
             action="store_true",
             default=False,
-            help="crash on SIGINT/KeyboardInterrupt, useful with --pdb")
+            help=_("crash on SIGINT/KeyboardInterrupt, useful with --pdb"))
 
     def dispatch_command(self, ns):
         # Argh the horrror!
@@ -423,12 +424,12 @@ class ToolBase(metaclass=abc.ABCMeta):
         except SystemExit:
             # Don't let SystemExit be caught in the logic below, we really
             # just want to exit when that gets thrown.
-            logger.debug("caught SystemExit, exiting")
+            logger.debug(_("caught SystemExit, exiting"))
             # We may want to raise SystemExit as it can carry a status code
             # along and we cannot just consume that.
             raise
         except BaseException as exc:
-            logger.debug("caught %r, deciding on what to do next", exc)
+            logger.debug(_("caught %r, deciding on what to do next"), exc)
             # For all other exceptions (and I mean all), do a few checks
             # and perform actions depending on the command line arguments
             # By default we want to re-raise the exception
@@ -448,17 +449,17 @@ class ToolBase(metaclass=abc.ABCMeta):
                 # For all other execptions, debug if requested
                 if ns.pdb:
                     action = 'debug'
-            logger.debug("action for exception %r is %s", exc, action)
+            logger.debug(_("action for exception %r is %s"), exc, action)
             if action == 'ignore':
                 return 0
             elif action == 'raise':
                 logging.getLogger("plainbox.crashes").fatal(
-                    "Executable %r invoked with %r has crashed",
+                    _("Executable %r invoked with %r has crashed"),
                     self.get_exec_name(), ns, exc_info=1)
                 raise
             elif action == 'debug':
-                logger.error("caught runaway exception: %r", exc)
-                logger.error("starting debugger...")
+                logger.error(_("caught runaway exception: %r"), exc)
+                logger.error(_("starting debugger..."))
                 pdb.post_mortem()
                 return 1
 
@@ -555,5 +556,5 @@ def find_exec(name_list):
             if os.access(pathname, os.X_OK):
                 return (name, pathname)
     raise LookupError(
-        "Unable to find any of the executables {}".format(
+        _("Unable to find any of the executables {}").format(
             ", ".join(name_list)))

@@ -34,9 +34,9 @@ from plainbox.i18n import gettext as _
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
 from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
-from plainbox.impl.session import SessionStateLegacyAPI as SessionState
 from plainbox.impl.resource import RequirementNodeVisitor
 from plainbox.impl.runner import JobRunner
+from plainbox.impl.session import SessionStateLegacyAPI as SessionState
 
 
 logger = getLogger("plainbox.commands.special")

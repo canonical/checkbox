@@ -28,6 +28,7 @@ import logging
 import os
 
 from plainbox.abc import IProvider1, IProviderBackend1
+from plainbox.i18n import gettext as _
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.secure.config import NotUnsetValidator
 from plainbox.impl.secure.config import Config, Variable
@@ -60,7 +61,7 @@ class WhiteListPlugIn(IPlugIn):
             self._whitelist = WhiteList.from_string(text, filename=filename)
         except Exception as exc:
             raise PlugInError(
-                "Cannot load whitelist {!r}: {}".format(filename, exc))
+                _("Cannot load whitelist {!r}: {}").format(filename, exc))
 
     @property
     def plugin_name(self):
@@ -89,17 +90,17 @@ class JobDefinitionPlugIn(IPlugIn):
         """
         self._filename = filename
         self._job_list = []
-        logger.debug("Loading jobs definitions from %r...", filename)
+        logger.debug(_("Loading jobs definitions from %r..."), filename)
         try:
             for record in load_rfc822_records(
                     text, source=FileTextSource(filename)):
                 job = JobDefinition.from_rfc822_record(record)
                 job._provider = provider
                 self._job_list.append(job)
-                logger.debug("Loaded %r", job)
+                logger.debug(_("Loaded %r"), job)
         except RFC822SyntaxError as exc:
             raise PlugInError(
-                "Cannot load job definitions from {!r}: {}".format(
+                _("Cannot load job definitions from {!r}: {}").format(
                     filename, exc))
 
     @property
@@ -373,7 +374,7 @@ class IQNValidator(PatternValidator):
 
     def __call__(self, variable, new_value):
         if super(IQNValidator, self).__call__(variable, new_value):
-            return "must look like RFC3720 IQN"
+            return _("must look like RFC3720 IQN")
 
 
 class VersionValidator(PatternValidator):
@@ -390,7 +391,7 @@ class VersionValidator(PatternValidator):
 
     def __call__(self, variable, new_value):
         if super().__call__(variable, new_value):
-            return "must be a sequence of digits separated by dots"
+            return _("must be a sequence of digits separated by dots")
 
 
 class ExistingDirectoryValidator(IValidator):
@@ -400,7 +401,7 @@ class ExistingDirectoryValidator(IValidator):
 
     def __call__(self, variable, new_value):
         if not os.path.isdir(new_value):
-            return "no such directory"
+            return _("no such directory")
 
 
 class AbsolutePathValidator(IValidator):
@@ -410,7 +411,7 @@ class AbsolutePathValidator(IValidator):
 
     def __call__(self, variable, new_value):
         if not os.path.isabs(new_value):
-            return "cannot be relative"
+            return _("cannot be relative")
 
 
 class Provider1Definition(Config):
@@ -420,7 +421,7 @@ class Provider1Definition(Config):
 
     location = Variable(
         section='PlainBox Provider',
-        help_text="Base directory with provider data",
+        help_text=_("Base directory with provider data"),
         validator_list=[
             NotUnsetValidator(),
             NotEmptyValidator(),
@@ -430,7 +431,7 @@ class Provider1Definition(Config):
 
     name = Variable(
         section='PlainBox Provider',
-        help_text="Name of the provider",
+        help_text=_("Name of the provider"),
         validator_list=[
             NotUnsetValidator(),
             NotEmptyValidator(),
@@ -439,7 +440,7 @@ class Provider1Definition(Config):
 
     version = Variable(
         section='PlainBox Provider',
-        help_text="Version of the provider",
+        help_text=_("Version of the provider"),
         validator_list=[
             NotUnsetValidator(),
             NotEmptyValidator(),
@@ -448,12 +449,12 @@ class Provider1Definition(Config):
 
     description = Variable(
         section='PlainBox Provider',
-        help_text="Description of the provider")
+        help_text=_("Description of the provider"))
 
     gettext_domain = Variable(
         section='PlainBox Provider',
         default="",
-        help_text="Name of the gettext domain for translations")
+        help_text=_("Name of the gettext domain for translations"))
 
 
 class Provider1PlugIn(IPlugIn):
@@ -474,7 +475,7 @@ class Provider1PlugIn(IPlugIn):
             # take the earliest problem and report it
             exc = definition.problem_list[0]
             raise PlugInError(
-                "Problem in provider definition, field {!a}: {}".format(
+                _("Problem in provider definition, field {!a}: {}").format(
                     exc.variable.name, exc.message))
         # Initialize the provider object
         self._provider = Provider1(

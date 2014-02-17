@@ -29,6 +29,7 @@
 import abc
 import logging
 
+from plainbox.i18n import gettext as _
 from plainbox.impl.clitools import CommandBase, ToolBase
 from plainbox.impl.providers.special import CheckBoxSrcProvider
 from plainbox.impl.providers.special import StubBoxProvider
@@ -122,7 +123,7 @@ class PlainBoxToolBase(ToolBase):
         # Handle the deprecated 'ihv' value
         if ns.checkbox == 'ihv':
             logger.warning(
-                "The -c ihv option is deprecated and doesn't work anymore")
+                _("The -c ihv option is deprecated and doesn't work anymore"))
             ns.checkbox = 'auto'
         # Decide which providers to expose to the rest of plainbox
         if ns.checkbox == 'auto':
@@ -188,7 +189,7 @@ class PlainBoxToolBase(ToolBase):
             choices=['src', 'deb', 'auto', 'stub', 'ihv'],
             # None is a special value that means 'use whatever configured'
             default=None,
-            help="where to find the installation of CheckBox.")
+            help=_("where to find the installation of CheckBox."))
         super().add_early_parser_arguments(parser)
 
 

@@ -23,6 +23,7 @@
 """
 import logging
 
+from plainbox.i18n import gettext as _
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyError
 from plainbox.impl.depmgr import DependencySolver
@@ -136,7 +137,7 @@ class SessionMetaData:
     @app_blob.setter
     def app_blob(self, value):
         if value is not None and not isinstance(value, bytes):
-            raise TypeError("app_blob must be either none or bytes")
+            raise TypeError(_("app_blob must be either none or bytes"))
         self._app_blob = value
 
 
@@ -236,7 +237,7 @@ class SessionState:
 
         This signal is fired **after** :meth:`on_job_state_map_changed()`
         """
-        logger.info("Job %s result changed to %r", job, result)
+        logger.info(_("Job %s result changed to %r"), job, result)
 
     @Signal.define
     def on_job_added(self, job):
@@ -245,7 +246,7 @@ class SessionState:
 
         This signal is fired **after** :meth:`on_job_state_map_changed()`
         """
-        logger.info("New job defined: %r", job)
+        logger.info(_("New job defined: %r"), job)
 
     @Signal.define
     def on_job_removed(self, job):
@@ -254,7 +255,7 @@ class SessionState:
 
         This signal is fired **after** :meth:`on_job_state_map_changed()`
         """
-        logger.info("Job removed: %r", job)
+        logger.info(_("Job removed: %r"), job)
 
     def __init__(self, job_list):
         """
@@ -342,7 +343,7 @@ class SessionState:
             run_list_name_set)
         if unremovable_job_name_set:
             raise ValueError(
-                "cannot remove jobs that are on the run list: {}".format(
+                _("cannot remove jobs that are on the run list: {}").format(
                     ', '.join(sorted(unremovable_job_name_set))))
         # Remove job state and resources (if present) for all the jobs we're
         # about to remove. Note that while each job has a state object not all

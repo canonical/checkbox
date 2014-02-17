@@ -46,6 +46,7 @@ from subprocess import check_output, CalledProcessError, STDOUT
 from plainbox.abc import IExecutionController
 from plainbox.abc import IJobResult
 from plainbox.abc import ISessionStateController
+from plainbox.i18n import gettext as _
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyMissingError
 from plainbox.impl.job import JobDefinition
@@ -238,7 +239,8 @@ class CheckBoxSessionStateController(ISessionStateController):
             # XXX: Consider forwarding the origin object here.  I guess we
             # should have from_frc822_record as with JobDefinition
             resource = Resource(record.data)
-            logger.info("Storing resource record %r: %s", job.name, resource)
+            logger.info(
+                _("Storing resource record %r: %s"), job.name, resource)
             new_resource_list.append(resource)
         # Replace any old resources with the new resource list
         session_state.set_resource_list(job.name, new_resource_list)
@@ -265,9 +267,9 @@ class CheckBoxSessionStateController(ISessionStateController):
                 # could simply return a list of problems in a similar manner
                 # how update_desired_job_list() does.
                 logger.warning(
-                    ("Local job %s produced job %r that collides with"
-                     " an existing job %s (from %s), the new job was"
-                     " discarded"),
+                    _("Local job %s produced job %r that collides with"
+                      " an existing job %s (from %s), the new job was"
+                      " discarded"),
                     job, exc.duplicate_job, exc.job, exc.job.origin)
             else:
                 # Patch the origin of the existing job so that it traces
@@ -282,7 +284,7 @@ def gen_rfc822_records_from_io_log(job, result):
     """
     Convert io_log from a job result to a sequence of rfc822 records
     """
-    logger.debug("processing output from a job: %r", job)
+    logger.debug(_("processing output from a job: %r"), job)
     # Select all stdout lines from the io log
     line_gen = (record[2].decode('UTF-8', errors='replace')
                 for record in result.get_io_log()
@@ -298,7 +300,7 @@ def gen_rfc822_records_from_io_log(job, result):
         # When this exception happens we will _still_ store all the
         # preceding records. This is worth testing
         logger.warning(
-            "local script %s returned invalid RFC822 data: %s",
+            _("local script %s returned invalid RFC822 data: %s"),
             job, exc)
 
 
@@ -328,7 +330,7 @@ class SymLinkNest:
         Add a executable to the control directory
         """
         logger.debug(
-            "Adding executable %s to nest %s",
+            _("Adding executable %s to nest %s"),
             filename, self._dirname)
         os.symlink(
             filename, os.path.join(
@@ -387,7 +389,7 @@ class CheckBoxExecutionController(IExecutionController):
             cmd = self.get_execution_command(job, config, nest_dir)
             env = self.get_execution_environment(job, config, nest_dir)
             # run the command
-            logger.debug("job[%s] executing %r with env %r",
+            logger.debug(_("job[%s] executing %r with env %r"),
                          job.name, cmd, env)
             return extcmd_popen.call(cmd, env=env)
 
@@ -411,12 +413,12 @@ class CheckBoxExecutionController(IExecutionController):
         prefix = 'nest-'
         suffix = '.{}'.format(job.checksum)
         with tempfile.TemporaryDirectory(suffix, prefix) as nest_dir:
-            logger.debug("Symlink nest for executables: %s", nest_dir)
+            logger.debug(_("Symlink nest for executables: %s"), nest_dir)
             nest = SymLinkNest(nest_dir)
             # Add all providers executables to PATH
             for provider in self._provider_list:
                 nest.add_provider(provider)
-            logger.debug("Symlink nest for executables: %s", nest_dir)
+            logger.debug(_("Symlink nest for executables: %s"), nest_dir)
             yield nest_dir
 
     def get_score(self, job):

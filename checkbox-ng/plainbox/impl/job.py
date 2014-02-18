@@ -359,7 +359,7 @@ class JobDefinition(BaseJob, IJobDefinition):
         self._controller = controller
 
     def __str__(self):
-        return self.name
+        return self.summary
 
     def __repr__(self):
         return "<JobDefinition name:{!r} plugin:{!r}>".format(

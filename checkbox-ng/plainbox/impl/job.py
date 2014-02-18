@@ -204,6 +204,7 @@ class JobDefinition(BaseJob, IJobDefinition):
         Symbols for each field that a JobDefinition can have
         """
         name = 'name'
+        summary = 'summary'
         plugin = 'plugin'
         command = 'command'
         description = 'description'
@@ -236,6 +237,10 @@ class JobDefinition(BaseJob, IJobDefinition):
         if value is None:
             value = super(JobDefinition, self).get_record_value(name, default)
         return value
+
+    @property
+    def summary(self):
+        return self.get_record_value('summary', self.name)
 
     @property
     def name(self):

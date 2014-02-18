@@ -18,7 +18,12 @@ Fields that can be used on a job
     (mandatory) - A name for the job. Should be unique, an error will
     be generated if there are duplicates. Should contain characters in 
     [a-z0-9/-].
-    
+
+:summary:
+    (mandatory) - A human readable name for the job. This value is available
+    for translation into other languages. It is used when listing jobs. It must
+    be one line long, ideally it should be short (50-70 characters max).
+
 :plugin:
 
     (mandatory) - For historical reasons it's called "plugin" but it's

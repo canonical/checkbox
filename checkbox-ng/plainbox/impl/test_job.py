@@ -399,6 +399,16 @@ class TestJobDefinition(TestCase):
         job3 = JobDefinition({'estimated_duration': '123.5'})
         self.assertEqual(job3.estimated_duration, 123.5)
 
+    def test_summary(self):
+        job1 = JobDefinition({})
+        self.assertEqual(job1.summary, None)
+        job2 = JobDefinition({'name': 'name'})
+        self.assertEqual(job2.summary, 'name')
+        job3 = JobDefinition({'summary': 'summary'})
+        self.assertEqual(job3.summary, 'summary')
+        job4 = JobDefinition({'summary': 'summary', 'name': 'name'})
+        self.assertEqual(job4.summary, 'summary')
+
 
 class TestJobDefinitionStartup(TestCaseWithParameters):
     """

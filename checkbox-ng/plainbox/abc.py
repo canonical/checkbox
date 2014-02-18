@@ -72,6 +72,12 @@ class IJobDefinition(metaclass=ABCMeta):
         """
 
     @abstractproperty
+    def summary(self):
+        """
+        Short (one line) description of the job
+        """
+
+    @abstractproperty
     def requires(self):
         """
         List of expressions that need to be true for this job to be available

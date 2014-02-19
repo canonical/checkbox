@@ -1,5 +1,5 @@
 plugin: shell
-name: stub/local/true
+id: stub/local/true
 command: true
 _description:
  Check success result from shell test case (generated from a local job)

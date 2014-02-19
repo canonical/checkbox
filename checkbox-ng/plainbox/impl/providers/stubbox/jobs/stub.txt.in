@@ -1,60 +1,60 @@
 plugin: shell
-name: stub/true
+id: stub/true
 command: true; echo oops
 _description:
  Check success result from shell test case
 
 plugin: shell
-name: stub/false
+id: stub/false
 command: false
 _description:
  Check failed result from shell test case
 
 plugin: shell
-name: stub/dependency/good
+id: stub/dependency/good
 depends: stub/true
 command: true
 _description:
  Check job is executed when dependency succeeds
 
 plugin: shell
-name: stub/dependency/bad
+id: stub/dependency/bad
 depends: stub/false
 command: true
 _description:
  Check job result is set to uninitiated when dependency fails
 
 plugin: shell
-name: stub/sleep-60
+id: stub/sleep-60
 command: sleep 60
 _description: Sleep for sixty seconds
 
 plugin: shell
 depends: stub/multilevel
-name: stub/kill-ppid-if-KILLER-set
+id: stub/kill-ppid-if-KILLER-set
 command: if [ "$KILLER" == "yes" ]; then kill -9 $PPID; fi
 _description: Kill $PPID if $KILLER is set to yes
 
 plugin: resource
-name: stub_package
+id: stub_package
 command: stub_package_list
 
 plugin: shell
-name: stub/requirement/good
+id: stub/requirement/good
 requires: stub_package.name == "checkbox"
 command: true
 _description:
  Check job is executed when requirements are met
 
 plugin: shell
-name: stub/requirement/bad
+id: stub/requirement/bad
 requires: stub_package.name == "unknown-package"
 command: true
 _description:
  Check job result is set to "not required on this system" when requirements are not met
 
 plugin: manual
-name: stub/manual
+id: stub/manual
 _description:
  PURPOSE:
      This test checks that the manual plugin works fine
@@ -65,7 +65,7 @@ _description:
      Check that in the report the result is passed and the comment is displayed
 
 plugin: user-interact
-name: stub/user-interact
+id: stub/user-interact
 command: true
 _description:
  PURPOSE:
@@ -77,7 +77,7 @@ _description:
      Check that in the report the result is passed
 
 plugin: user-verify
-name: stub/user-verify
+id: stub/user-verify
 command: echo "Please select 'pass'"
 _description:
  PURPOSE:
@@ -91,7 +91,7 @@ _description:
      The command should have printed "Please select 'pass'"
 
 plugin: user-interact-verify
-name: stub/user-interact-verify
+id: stub/user-interact-verify
 command: echo "Please select 'pass'"
 _description:
  PURPOSE:
@@ -105,21 +105,21 @@ _description:
      The command should have printed "Please select 'pass'"
 
 plugin: local
-name: __local__
+id: __local__
 _description: stub local tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/local.txt?(.in)
 
 plugin: local
-name: __multilevel__
+id: __multilevel__
 _description: stub multilevel tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/multilevel.txt?(.in)
 
 plugin: shell
-name: stub/root
+id: stub/root
 user: root
 command: test $(id -u) -eq 0
 _description:

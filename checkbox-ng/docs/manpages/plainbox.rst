@@ -206,3 +206,17 @@ The following environment variables affect PlainBox:
     feature. It is patched away by responsible packagers to prevent security
     risk present from using plainbox-trusted-launcher with the insecure job
     definitions installed in not system-wide locations.
+
+``PLAINBOX_LOCALE_DIR``
+    Alters the lookup directory for translation catalogs. When unset uses
+    system-wide locations. Developers working with a local copy should set it
+    to ``build/mo`` (after running ``./setup.py build_i18n``)
+
+``PLAINBOX_I18N_MODE``
+    Alters behavior of the translation subsystem. This is only useful to
+    developers that wish to see fake translations of all the strings marked as
+    translatable. Available values include ``no-op``, ``gettext`` (default),
+    ``rot-13``, ``lorem-ipsum-XX`` where ``XX`` is the language code of the
+    faked translations. Supported faked translations are: ``ar`` (Arabic),
+    ``ch`` (Chinese), ``he`` (Hebrew), ``jp`` (Japanese), ``kr`` (Korean),
+    ``pl`` (Polish) and ``ru`` (Russian)

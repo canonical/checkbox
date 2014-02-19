@@ -14,10 +14,14 @@ Jobs are expressed as sections in text files that conform somewhat to the
 
 Fields that can be used on a job
 --------------------------------
-:name:
+:id:
     (mandatory) - A name for the job. Should be unique, an error will
     be generated if there are duplicates. Should contain characters in 
     [a-z0-9/-].
+
+    This field used to be called ``name``. That name is now deprecated. For
+    backwards compatibility it is still recognized and used if ``id`` is
+    missing.
 
 :summary:
     (mandatory) - A human readable name for the job. This value is available

@@ -78,6 +78,14 @@ class IJobDefinition(metaclass=ABCMeta):
         """
 
     @abstractproperty
+    def id(self):
+        """
+        Unique job identifier
+
+        The identifier is unique within the provider a job belongs to
+        """
+
+    @abstractproperty
     def requires(self):
         """
         List of expressions that need to be true for this job to be available

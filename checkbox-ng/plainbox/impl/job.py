@@ -242,6 +242,10 @@ class JobDefinition(BaseJob, IJobDefinition):
         return value
 
     @property
+    def id(self):
+        return self.get_record_value('id', self.name)
+
+    @property
     def summary(self):
         return self.get_record_value('summary', self.name)
 

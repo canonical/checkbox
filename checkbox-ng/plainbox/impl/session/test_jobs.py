@@ -73,7 +73,7 @@ class JobReadinessInhibitorTests(TestCase):
         self.assertEqual(
             repr(obj), (
                 "<JobReadinessInhibitor cause:PENDING_DEP"
-                " related_job:<JobDefinition name:'A' plugin:'dummy'>"
+                " related_job:<JobDefinition id:'A' plugin:'dummy'>"
                 " related_expression:None>"))
         self.assertEqual(str(obj), "required dependency 'A' did not run yet")
 
@@ -84,7 +84,7 @@ class JobReadinessInhibitorTests(TestCase):
         self.assertEqual(
             repr(obj), (
                 "<JobReadinessInhibitor cause:FAILED_DEP"
-                " related_job:<JobDefinition name:'A' plugin:'dummy'>"
+                " related_job:<JobDefinition id:'A' plugin:'dummy'>"
                 " related_expression:None>"))
         self.assertEqual(str(obj), "required dependency 'A' has failed")
 
@@ -97,7 +97,7 @@ class JobReadinessInhibitorTests(TestCase):
         self.assertEqual(
             repr(obj), (
                 "<JobReadinessInhibitor cause:PENDING_RESOURCE"
-                " related_job:<JobDefinition name:'A' plugin:'dummy'>"
+                " related_job:<JobDefinition id:'A' plugin:'dummy'>"
                 " related_expression:"
                 "<ResourceExpression text:\"resource.attr == 'value'\">>"))
         self.assertEqual(
@@ -115,7 +115,7 @@ class JobReadinessInhibitorTests(TestCase):
         self.assertEqual(
             repr(obj), (
                 "<JobReadinessInhibitor cause:FAILED_RESOURCE"
-                " related_job:<JobDefinition name:'A' plugin:'dummy'>"
+                " related_job:<JobDefinition id:'A' plugin:'dummy'>"
                 " related_expression:"
                 "<ResourceExpression text:\"resource.attr == 'value'\">>"))
         self.assertEqual(

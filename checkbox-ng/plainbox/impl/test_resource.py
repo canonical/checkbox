@@ -159,13 +159,13 @@ class ResourceNodeVisitorTests(TestCase):
 
     def test_smoke(self):
         visitor = ResourceNodeVisitor()
-        self.assertEqual(visitor.names_seen, set())
+        self.assertEqual(visitor.ids_seen, set())
 
-    def test_names_seen(self):
+    def test_ids_seen(self):
         visitor = ResourceNodeVisitor()
         node = ast.parse("package.name == 'fwts' and package.version == '1.2'")
         visitor.visit(node)
-        self.assertEqual(visitor.names_seen, {'package'})
+        self.assertEqual(visitor.ids_seen, {'package'})
 
     def test_name_assignment_disallowed(self):
         visitor = ResourceNodeVisitor()
@@ -239,7 +239,7 @@ class ResourceExpressionTests(TestCase):
         text = "package.name == 'fwts'"
         expr = ResourceExpression(text)
         self.assertEqual(expr.text, text)
-        self.assertEqual(expr.resource_name, "package")
+        self.assertEqual(expr.resource_id, "package")
 
     def test_smoke_bad(self):
         self.assertRaises(SyntaxError, ResourceExpression, "barf'")
@@ -252,7 +252,7 @@ class ResourceExpressionTests(TestCase):
         self.assertFalse(ResourceExpression("whatever").evaluate([]))
 
     def test_evaluate_normal(self):
-        # NOTE: the actual expr.resource_name is irrelevant for this test
+        # NOTE: the actual expr.resource_id is irrelevant for this test
         expr = ResourceExpression("obj.a == 2")
         self.assertTrue(
             expr.evaluate([
@@ -265,7 +265,7 @@ class ResourceExpressionTests(TestCase):
                 Resource({'a': 1}), Resource({'a': 3})]))
 
     def test_evaluate_exception(self):
-        # NOTE: the actual expr.resource_name is irrelevant for this test
+        # NOTE: the actual expr.resource_id is irrelevant for this test
         expr = ResourceExpression("obj.a == 2")
         self.assertFalse(expr.evaluate([Resource()]))
 
@@ -287,11 +287,11 @@ class ResourceProgramTests(TestCase):
         self.assertEqual(len(self.prog.expression_list), 2)
         self.assertEqual(self.prog.expression_list[0].text,
                          "package.name == 'fwts'")
-        self.assertEqual(self.prog.expression_list[0].resource_name,
+        self.assertEqual(self.prog.expression_list[0].resource_id,
                          "package")
         self.assertEqual(self.prog.expression_list[1].text,
                          "platform.arch in ('i386', 'amd64')")
-        self.assertEqual(self.prog.expression_list[1].resource_name,
+        self.assertEqual(self.prog.expression_list[1].resource_id,
                          "platform")
 
     def test_required_resources(self):

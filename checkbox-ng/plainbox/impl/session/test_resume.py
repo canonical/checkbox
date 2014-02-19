@@ -62,31 +62,31 @@ class ResumeDiscardQualifierTests(TestCase):
         self.obj = ResumeDiscardQualifier({'foo': None, 'bar': None})
 
     def test_init(self):
-        self.assertEqual(self.obj._retain_name_set, frozenset(['foo', 'bar']))
+        self.assertEqual(self.obj._retain_id_set, frozenset(['foo', 'bar']))
 
     def test_get_simple_match(self):
         # Direct hits return the IGNORE vote as those jobs are not to be
         # removed. Everything else should return VOTE_INCLUDE (include for
         # removal)
         self.assertEqual(
-            self.obj.get_vote(JobDefinition({'name': 'foo'})),
+            self.obj.get_vote(JobDefinition({'id': 'foo'})),
             IJobQualifier.VOTE_IGNORE)
         self.assertEqual(
-            self.obj.get_vote(JobDefinition({'name': 'bar'})),
+            self.obj.get_vote(JobDefinition({'id': 'bar'})),
             IJobQualifier.VOTE_IGNORE)
         # Jobs that are in the retain set are NOT designated
         self.assertEqual(
-            self.obj.designates(JobDefinition({'name': 'bar'})), False)
+            self.obj.designates(JobDefinition({'id': 'bar'})), False)
         self.assertEqual(
-            self.obj.designates(JobDefinition({'name': 'foo'})), False)
+            self.obj.designates(JobDefinition({'id': 'foo'})), False)
         # Jobs that are not on the retain list are INCLUDED and marked for
         # removal. This includes jobs that are substrings of strings in the
-        # retain set, names are matched exactly, not by pattern.
+        # retain set, ids are matched exactly, not by pattern.
         self.assertEqual(
-            self.obj.get_vote(JobDefinition({'name': 'foobar'})),
+            self.obj.get_vote(JobDefinition({'id': 'foobar'})),
             IJobQualifier.VOTE_INCLUDE)
         self.assertEqual(
-            self.obj.get_vote(JobDefinition({'name': 'fo'})),
+            self.obj.get_vote(JobDefinition({'id': 'fo'})),
             IJobQualifier.VOTE_INCLUDE)
 
 
@@ -190,14 +190,14 @@ class EndToEndTests(TestCaseWithParameters):
         'session': {
             'jobs': {
                 '__category__': (
-                    '5267192a5eac9288d144242d800b981eeca476c17e0'
-                    'dd32a09c4b3ea0a14f955'),
+                    'e2475434e4c0b2c825541430e526fe0565780dfeb67'
+                    '050f3b7f3453aa3cc439b'),
                 'generator': (
-                    '7e67e23b7e7a6a5803721a9f282c0e88c7f40bae470'
-                    '950f880e419bb9c7665d8'),
+                    'b2aa7b7c4298678cebfdbe30f4aae5be97d320910a5'
+                    'b4dd312606099f35c03b6'),
                 'generated': (
-                    'bfee8c57b6adc9f0f281b59fe818de2ed98b6affb78'
-                    '9cf4fbf282d89453190d3'),
+                    '57b395e91bb4af94143eb19586bd18e4013efc5e60d'
+                    '6050d9ec0bea15dd19489'),
             },
             'results': {
                 '__category__': [{
@@ -205,7 +205,7 @@ class EndToEndTests(TestCaseWithParameters):
                     'execution_duration': None,
                     'io_log': [
                         [0.0, 'stdout', 'cGx1Z2luOmxvY2FsCg=='],
-                        [0.1, 'stdout', 'bmFtZTpnZW5lcmF0b3IK']],
+                        [0.1, 'stdout', 'aWQ6Z2VuZXJhdG9yCg==']],
                     'outcome': None,
                     'return_code': None,
                 }],
@@ -213,7 +213,7 @@ class EndToEndTests(TestCaseWithParameters):
                     'comments': None,
                     'execution_duration': None,
                     'io_log': [
-                        [0.0, 'stdout', 'bmFtZTpnZW5lcmF0ZWQ=']],
+                        [0.0, 'stdout', 'aWQ6Z2VuZXJhdGVk']],
                     'outcome': None,
                     'return_code': None,
                 }],
@@ -239,7 +239,7 @@ class EndToEndTests(TestCaseWithParameters):
     full_repr_2['version'] = 2
     full_repr_2['session']['metadata']['app_blob'] = None
 
-    # Map of representation names to representations
+    # Map of representation ids to representations
     full_repr = {
         '1': full_repr_1,
         '2': full_repr_2
@@ -249,12 +249,12 @@ class EndToEndTests(TestCaseWithParameters):
         # Crete a "__category__" job
         self.category_job = JobDefinition({
             "plugin": "local",
-            "name": "__category__"
+            "id": "__category__"
         })
         # Create a "generator" job
         self.generator_job = JobDefinition({
             "plugin": "local",
-            "name": "generator"
+            "id": "generator"
         })
         # Keep a variable for the (future) generated job
         self.generated_job = None
@@ -263,13 +263,13 @@ class EndToEndTests(TestCaseWithParameters):
         self.category_result = MemoryJobResult({
             "io_log": [
                 (0.0, "stdout", b'plugin:local\n'),
-                (0.1, "stdout", b'name:generator\n'),
+                (0.1, "stdout", b'id:generator\n'),
             ]
         })
         # Create a result for the "generator" job.
         # It will define the "generated" job
         self.generator_result = MemoryJobResult({
-            "io_log": [(0.0, 'stdout', b'name:generated')]
+            "io_log": [(0.0, 'stdout', b'id:generated')]
         })
         self.job_list = [self.category_job, self.generator_job]
         self.suspend_data = gzip.compress(
@@ -807,8 +807,8 @@ class DesiredJobListResumeTests(TestCaseWithParameters):
     def setUp(self):
         # All of the tests need a SessionState object and some jobs to work
         # with. Actual values don't matter much.
-        self.job_a = make_job(name='a')
-        self.job_b = make_job(name='b')
+        self.job_a = make_job(id='a')
+        self.job_b = make_job(id='b')
         self.session = SessionState([self.job_a, self.job_b])
         self.good_repr = {
             "desired_job_list": ['a', 'b']
@@ -829,16 +829,16 @@ class DesiredJobListResumeTests(TestCaseWithParameters):
             str(boom.exception),
             "Value of key 'desired_job_list' is of incorrect type int")
 
-    def test_restore_SessionState_desired_job_list_checks_job_name_type(self):
+    def test_restore_SessionState_desired_job_list_checks_job_id_type(self):
         """
         verify that _restore_SessionState_desired_job_list() checks the
-        type of each job name listed in ``desired_job_list``.
+        type of each job id listed in ``desired_job_list``.
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
             obj_repr['desired_job_list'] = [1]
             self.resume_fn(self.session, obj_repr)
-        self.assertEqual(str(boom.exception), "Each job name must be a string")
+        self.assertEqual(str(boom.exception), "Each job id must be a string")
 
     def test_restore_SessionState_desired_job_list_checks_for_bogus_jobs(self):
         """
@@ -1114,13 +1114,13 @@ class ProcessJobTests(TestCaseWithParameters):
     parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,))
 
     def setUp(self):
-        self.job_name = 'job'
-        self.job = make_job(name=self.job_name)
+        self.job_id = 'job'
+        self.job = make_job(id=self.job_id)
         self.jobs_repr = {
-            self.job_name: self.job.checksum
+            self.job_id: self.job.checksum
         }
         self.results_repr = {
-            self.job_name: [{
+            self.job_id: [{
                 'outcome': 'fail',
                 'comments': None,
                 'execution_duration': None,
@@ -1134,15 +1134,15 @@ class ProcessJobTests(TestCaseWithParameters):
         # can reliably test a single method in isolation.
         self.session = SessionState([self.job])
 
-    def test_process_job_checks_type_of_job_name(self):
+    def test_process_job_checks_type_of_job_id(self):
         """
-        verify that _process_job() checks the type of ``job_name``
+        verify that _process_job() checks the type of ``job_id``
         """
         with self.assertRaises(CorruptedSessionError) as boom:
-            # Pass a job name of the wrong type
-            job_name = 1
+            # Pass a job id of the wrong type
+            job_id = 1
             self.helper._process_job(
-                self.session, self.jobs_repr, self.results_repr, job_name)
+                self.session, self.jobs_repr, self.results_repr, job_id)
         self.assertEqual(
             str(boom.exception), "Value of object is of incorrect type int")
 
@@ -1154,7 +1154,7 @@ class ProcessJobTests(TestCaseWithParameters):
             # Pass a jobs_repr that has no checksums (for any job)
             jobs_repr = {}
             self.helper._process_job(
-                self.session, jobs_repr, self.results_repr, self.job_name)
+                self.session, jobs_repr, self.results_repr, self.job_id)
         self.assertEqual(str(boom.exception), "Missing value for key 'job'")
 
     def test_process_job_checks_if_job_is_known(self):
@@ -1165,19 +1165,19 @@ class ProcessJobTests(TestCaseWithParameters):
             # Pass a session that does not know about any jobs
             session = SessionState([])
             self.helper._process_job(
-                session, self.jobs_repr, self.results_repr, self.job_name)
+                session, self.jobs_repr, self.results_repr, self.job_id)
         self.assertEqual(boom.exception.args[0], 'job')
 
     def test_process_job_checks_if_job_checksum_matches(self):
         """
         verify that _process_job() checks if job checksum matches the
-        checksum of a job with the same name that was passed to the helper.
+        checksum of a job with the same id that was passed to the helper.
         """
         with self.assertRaises(IncompatibleJobError) as boom:
             # Pass a jobs_repr with a bad checksum
-            jobs_repr = {self.job_name: 'bad-checksum'}
+            jobs_repr = {self.job_id: 'bad-checksum'}
             self.helper._process_job(
-                self.session, jobs_repr, self.results_repr, self.job_name)
+                self.session, jobs_repr, self.results_repr, self.job_id)
         self.assertEqual(
             str(boom.exception), "Definition of job 'job' has changed")
 
@@ -1187,35 +1187,35 @@ class ProcessJobTests(TestCaseWithParameters):
         for a particular job
         """
         self.assertEqual(
-            self.session.job_state_map[self.job_name].result.outcome, None)
+            self.session.job_state_map[self.job_id].result.outcome, None)
         results_repr = {
-            self.job_name: []
+            self.job_id: []
         }
         self.helper._process_job(
-            self.session, self.jobs_repr, results_repr, self.job_name)
+            self.session, self.jobs_repr, results_repr, self.job_id)
         self.assertEqual(
-            self.session.job_state_map[self.job_name].result.outcome, None)
+            self.session.job_state_map[self.job_id].result.outcome, None)
 
     def test_process_job_handles_only_result_back_to_the_session(self):
         """
         verify that _process_job() passes the only result to the session
         """
         self.assertEqual(
-            self.session.job_state_map[self.job_name].result.outcome, None)
+            self.session.job_state_map[self.job_id].result.outcome, None)
         self.helper._process_job(
-            self.session, self.jobs_repr, self.results_repr, self.job_name)
+            self.session, self.jobs_repr, self.results_repr, self.job_id)
         # The result in self.results_repr is a failure so we should see it here
         self.assertEqual(
-            self.session.job_state_map[self.job_name].result.outcome, "fail")
+            self.session.job_state_map[self.job_id].result.outcome, "fail")
 
     def test_process_job_handles_last_result_back_to_the_session(self):
         """
         verify that _process_job() passes last of the results to the session
         """
         self.assertEqual(
-            self.session.job_state_map[self.job_name].result.outcome, None)
+            self.session.job_state_map[self.job_id].result.outcome, None)
         results_repr = {
-            self.job_name: [{
+            self.job_id: [{
                 'outcome': 'fail',
                 'comments': None,
                 'execution_duration': None,
@@ -1230,11 +1230,11 @@ class ProcessJobTests(TestCaseWithParameters):
             }]
         }
         self.helper._process_job(
-            self.session, self.jobs_repr, results_repr, self.job_name)
+            self.session, self.jobs_repr, results_repr, self.job_id)
         # results_repr has two entries: [fail, pass] so we should see
         # the passing entry only
         self.assertEqual(
-            self.session.job_state_map[self.job_name].result.outcome, "pass")
+            self.session.job_state_map[self.job_id].result.outcome, "pass")
 
     def test_process_job_checks_results_repr_is_a_list(self):
         """
@@ -1242,9 +1242,9 @@ class ProcessJobTests(TestCaseWithParameters):
         of lists.
         """
         with self.assertRaises(CorruptedSessionError) as boom:
-            results_repr = {self.job_name: 1}
+            results_repr = {self.job_id: 1}
             self.helper._process_job(
-                self.session, self.jobs_repr, results_repr, self.job_name)
+                self.session, self.jobs_repr, results_repr, self.job_id)
         self.assertEqual(
             str(boom.exception),
             "Value of key 'job' is of incorrect type int")
@@ -1255,9 +1255,9 @@ class ProcessJobTests(TestCaseWithParameters):
         of lists, each of which holds a dictionary.
         """
         with self.assertRaises(CorruptedSessionError) as boom:
-            results_repr = {self.job_name: [1]}
+            results_repr = {self.job_id: [1]}
             self.helper._process_job(
-                self.session, self.jobs_repr, results_repr, self.job_name)
+                self.session, self.jobs_repr, results_repr, self.job_id)
         self.assertEqual(
             str(boom.exception),
             "Value of object is of incorrect type int")
@@ -1282,13 +1282,13 @@ class JobPluginSpecificTests(TestCaseWithParameters):
         # resource job, representation of the job (checksum)
         # and representation of a single result, which has a single line
         # that defines a 'key': 'value' resource record.
-        job_name = 'resource'
-        job = make_job(name=job_name, plugin='resource')
+        job_id = 'resource'
+        job = make_job(id=job_id, plugin='resource')
         jobs_repr = {
-            job_name: job.checksum
+            job_id: job.checksum
         }
         results_repr = {
-            job_name: [{
+            job_id: [{
                 'outcome': None,
                 'comments': None,
                 'execution_duration': None,
@@ -1305,14 +1305,14 @@ class JobPluginSpecificTests(TestCaseWithParameters):
         helper = self.parameters.resume_cls([job])
         session = SessionState([job])
         # Ensure that the resource was not there initially
-        self.assertNotIn(job_name, session.resource_map)
+        self.assertNotIn(job_id, session.resource_map)
         # Process the representation data defined above
-        helper._process_job(session, jobs_repr, results_repr, job_name)
+        helper._process_job(session, jobs_repr, results_repr, job_id)
         # Ensure that we now have the resource in the resource map
-        self.assertIn(job_name, session.resource_map)
+        self.assertIn(job_id, session.resource_map)
         # And that it looks right
         self.assertEqual(
-            session.resource_map[job_name],
+            session.resource_map[job_id],
             [Resource({'key': 'value'})])
 
     def test_process_job_restores_jobs(self):
@@ -1322,21 +1322,21 @@ class JobPluginSpecificTests(TestCaseWithParameters):
         # Set the stage for testing. Setup a session with a known
         # local job, representation of the job (checksum)
         # and representation of a single result, which has a single line
-        # that defines a 'name': 'generated' job.
-        job_name = 'local'
-        job = make_job(name=job_name, plugin='local')
+        # that defines a 'id': 'generated' job.
+        job_id = 'local'
+        job = make_job(id=job_id, plugin='local')
         jobs_repr = {
-            job_name: job.checksum
+            job_id: job.checksum
         }
         results_repr = {
-            job_name: [{
+            job_id: [{
                 'outcome': None,
                 'comments': None,
                 'execution_duration': None,
                 'return_code': None,
                 'io_log': [
                     [0.0, 'stdout', base64.standard_b64encode(
-                        b'name: generated'
+                        b'id: generated'
                     ).decode('ASCII')]
                 ],
             }]
@@ -1347,12 +1347,12 @@ class JobPluginSpecificTests(TestCaseWithParameters):
         self.assertNotIn('generated', session.job_state_map)
         self.assertEqual(session.job_list, [job])
         # Process the representation data defined above
-        helper._process_job(session, jobs_repr, results_repr, job_name)
+        helper._process_job(session, jobs_repr, results_repr, job_id)
         # Ensure that we now have the 'generated' job in the job_state_map
         self.assertIn('generated', session.job_state_map)
         # And that it looks right
         self.assertEqual(
-            session.job_state_map['generated'].job.name, 'generated')
+            session.job_state_map['generated'].job.id, 'generated')
         self.assertIn(
             session.job_state_map['generated'].job, session.job_list)
 
@@ -1392,13 +1392,13 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
         faced with a representation of a simple session (no generated jobs
         or anything "exotic").
         """
-        job = make_job(name='job')
+        job = make_job(id='job')
         session_repr = {
             'jobs': {
-                job.name: job.checksum,
+                job.id: job.checksum,
             },
             'results': {
-                job.name: [{
+                job.id: [{
                     'outcome': 'pass',
                     'comments': None,
                     'execution_duration': None,
@@ -1417,7 +1417,7 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
         # The result was restored correctly. This is just a smoke test
         # as specific tests for restoring results are written elsewhere
         self.assertEqual(
-            session.job_state_map[job.name].result.outcome, 'pass')
+            session.job_state_map[job.id].result.outcome, 'pass')
 
     def test_session_with_generated_jobs(self):
         """
@@ -1425,19 +1425,19 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
         faced with a representation of a non-trivial session where one
         job generates another one.
         """
-        parent = make_job(name='parent', plugin='local')
+        parent = make_job(id='parent', plugin='local')
         # The child job is only here so that we can get the checksum.
         # We don't actually introduce it into the resume machinery
         # caveat: make_job() has a default value for
         # plugin='dummy' which we don't want here
-        child = make_job(name='child', plugin=None)
+        child = make_job(id='child', plugin=None)
         session_repr = {
             'jobs': {
-                parent.name: parent.checksum,
-                child.name: child.checksum,
+                parent.id: parent.checksum,
+                child.id: child.checksum,
             },
             'results': {
-                parent.name: [{
+                parent.id: [{
                     'outcome': 'pass',
                     'comments': None,
                     'execution_duration': None,
@@ -1446,11 +1446,11 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
                         # This record will generate a job identical
                         # to the 'child' job defined above.
                         [0.0, 'stdout', base64.standard_b64encode(
-                            b'name: child\n'
+                            b'id: child\n'
                         ).decode('ASCII')]
                     ],
                 }],
-                child.name: [],
+                child.id: [],
             }
         }
         # We only pass the parent to the helper! Child will be re-created
@@ -1479,21 +1479,21 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
         # b_child (generated)
         # c_parent
         # creates the most pathological case possible.
-        parent = make_job(name='c_parent', plugin='local')
+        parent = make_job(id='c_parent', plugin='local')
         # The child job is only here so that we can get the checksum.
         # We don't actually introduce it into the resume machinery
-        child = make_job(name='b_child', plugin='local')
+        child = make_job(id='b_child', plugin='local')
         # caveat: make_job() has a default value for
         # plugin='dummy' which we don't want here
-        grandchild = make_job(name='a_grandchild', plugin=None)
+        grandchild = make_job(id='a_grandchild', plugin=None)
         session_repr = {
             'jobs': {
-                parent.name: parent.checksum,
-                child.name: child.checksum,
-                grandchild.name: grandchild.checksum,
+                parent.id: parent.checksum,
+                child.id: child.checksum,
+                grandchild.id: grandchild.checksum,
             },
             'results': {
-                parent.name: [{
+                parent.id: [{
                     'outcome': 'pass',
                     'comments': None,
                     'execution_duration': None,
@@ -1502,7 +1502,7 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
                         # This record will generate a job identical
                         # to the 'child' job defined above.
                         [0.0, 'stdout', base64.standard_b64encode(
-                            b'name: b_child\n'
+                            b'id: b_child\n'
                         ).decode('ASCII')],
                         [0.1, 'stdout', base64.standard_b64encode(
                             b'plugin: local\n'
@@ -1510,7 +1510,7 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
 
                     ],
                 }],
-                child.name: [{
+                child.id: [{
                     'outcome': 'pass',
                     'comments': None,
                     'execution_duration': None,
@@ -1519,11 +1519,11 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
                         # This record will generate a job identical
                         # to the 'child' job defined above.
                         [0.0, 'stdout', base64.standard_b64encode(
-                            b'name: a_grandchild\n'
+                            b'id: a_grandchild\n'
                         ).decode('ASCII')]
                     ],
                 }],
-                grandchild.name: [],
+                grandchild.id: [],
             }
         }
         # We only pass the parent to the helper!
@@ -1543,10 +1543,10 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
         """
         session_repr = {
             'jobs': {
-                'job-name': 'job-checksum',
+                'job-id': 'job-checksum',
             },
             'results': {
-                'job-name': []
+                'job-id': []
             }
         }
         helper = self.parameters.resume_cls([])
@@ -1555,7 +1555,7 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
             helper._restore_SessionState_jobs_and_results(
                 session, session_repr)
         self.assertEqual(
-            str(boom.exception), "Unknown jobs remaining: job-name")
+            str(boom.exception), "Unknown jobs remaining: job-id")
 
 
 class SessionJobListResumeTests(TestCaseWithParameters):
@@ -1573,14 +1573,14 @@ class SessionJobListResumeTests(TestCaseWithParameters):
         """
         verify that _restore_SessionState_job_list() does restore job_list
         """
-        job_a = make_job(name='a')
-        job_b = make_job(name='b')
+        job_a = make_job(id='a')
+        job_b = make_job(id='b')
         session_repr = {
             'jobs': {
-                job_a.name: job_a.checksum
+                job_a.id: job_a.checksum
             },
             'results': {
-                job_a.name: [],
+                job_a.id: [],
             }
         }
         helper = self.parameters.resume_cls([job_a, job_b])

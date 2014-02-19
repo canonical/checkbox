@@ -45,7 +45,7 @@ from plainbox.vendor.mock import patch, Mock
 class IntegrationTests(TestCaseWithParameters):
     """
     Test cases for checking execution and outcome of checkbox jobs.
-    Each test case is parametrized by the job name and execution "profile".
+    Each test case is parametrized by the job id and execution "profile".
 
     The profile is simply a string that somehow characterizes where this test
     is applicable.
@@ -75,7 +75,7 @@ class IntegrationTests(TestCaseWithParameters):
         # Skip tests that are not applicable for the current system
         self.skip_if_incompatible()
         # Execute the job and remember the results.
-        (self.job_name, self.job_outcome, self.job_execution_duration,
+        (self.job_id, self.job_outcome, self.job_execution_duration,
          self.job_return_code, self.job_stdout,
          self.job_stderr) = self.cache.get(
              key=('job-run-artifacts', self.parameters.scenario_pathname),
@@ -85,7 +85,7 @@ class IntegrationTests(TestCaseWithParameters):
         # Check that results match expected values
         self.assertEqual(self.job_outcome,
                          self.scenario_data['result']['result_map'] \
-                                           [self.job_name]['outcome'])
+                                           [self.job_id]['outcome'])
 
     def test_job_return_code(self):
         # Check the return code for correctness
@@ -150,7 +150,7 @@ def load_scenario_data(scenario_pathname):
         return json.load(stream)
 
 
-def execute_job(job_name):
+def execute_job(job_id):
     """
     Execute the specified job.
 
@@ -171,7 +171,7 @@ def execute_job(job_name):
         # Run the script, having relocated to the scratch directory
         with TestIO() as io, TestCwd(scratch_dir):
             try:
-                main(['run', '-i', job_name,
+                main(['run', '-i', job_id,
                       '--output-format=json', '-o', pathname])
             except SystemExit as exc:
                 # Capture SystemExit that is always raised by main() so that we
@@ -182,9 +182,9 @@ def execute_job(job_name):
         # Load the actual results and keep them in memory
         with open(pathname, encoding='UTF-8') as stream:
             job_result = json.load(stream)
-            job_outcome = job_result['result_map'][job_name]['outcome']
-            job_execution_duration = job_result['result_map'][job_name] \
+            job_outcome = job_result['result_map'][job_id]['outcome']
+            job_execution_duration = job_result['result_map'][job_id] \
                                                ['execution_duration']
     # [ At this time TestIO and TemporaryDirectory are gone ]
-    return (job_name, job_outcome, job_execution_duration,
+    return (job_id, job_outcome, job_execution_duration,
            job_return_code, io.stdout, io.stderr)

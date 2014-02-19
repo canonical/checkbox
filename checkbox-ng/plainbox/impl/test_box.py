@@ -38,9 +38,9 @@ from plainbox.vendor.mock import Mock
 class MiscTests(TestCase):
 
     def setUp(self):
-        self.job_foo = MockJobDefinition(name='foo')
-        self.job_bar = MockJobDefinition(name='bar')
-        self.job_baz = MockJobDefinition(name='baz')
+        self.job_foo = MockJobDefinition(id='foo')
+        self.job_bar = MockJobDefinition(id='bar')
+        self.job_baz = MockJobDefinition(id='baz')
         self.obj = CheckBoxInvocationMixIn(Mock(name="checkbox"))
 
     def test_matching_job_list(self):

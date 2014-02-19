@@ -184,12 +184,12 @@ class ResumeDiscardQualifier(SimpleQualifier):
 
     def __init__(self, jobs_repr):
         super().__init__()
-        # Set of names of jobs to retain (computed as keys of the
+        # Set of ids of jobs to retain (computed as keys of the
         # dictionary taken from the session resume representation)
-        self._retain_name_set = frozenset(jobs_repr)
+        self._retain_id_set = frozenset(jobs_repr)
 
     def get_simple_match(self, job):
-        return job.name not in self._retain_name_set
+        return job.id not in self._retain_id_set
 
 
 class SessionResumeHelper1:
@@ -277,7 +277,7 @@ class SessionResumeHelper1:
         jobs_repr = _validate(session_repr, key='jobs', value_type=dict)
         # Representation of all of the job results
         results_repr = _validate(session_repr, key='results', value_type=dict)
-        # List of jobs (names) that could not be processed on the first pass
+        # List of jobs (ids) that could not be processed on the first pass
         leftover_jobs = deque()
         # Run a first pass through jobs and results. Anything that didn't
         # work (generated jobs) gets added to leftover_jobs list.
@@ -285,11 +285,11 @@ class SessionResumeHelper1:
         # going to process job results in alphabetic orderer.
         first_pass_list = sorted(
             set(jobs_repr.keys()) | set(results_repr.keys()))
-        for job_name in first_pass_list:
+        for job_id in first_pass_list:
             try:
-                self._process_job(session, jobs_repr, results_repr, job_name)
+                self._process_job(session, jobs_repr, results_repr, job_id)
             except KeyError:
-                leftover_jobs.append(job_name)
+                leftover_jobs.append(job_id)
         # Process leftovers. For each iteration the leftover_jobs list should
         # shrink or we're not making any progress. If that happens we've got
         # undefined jobs (in general the session is corrupted)
@@ -300,15 +300,15 @@ class SessionResumeHelper1:
             leftover_jobs.append(None)
             leftover_shrunk = False
             while leftover_jobs:  # pragma: no branch
-                job_name = leftover_jobs.popleft()
+                job_id = leftover_jobs.popleft()
                 # Treat the sentinel None object as the end of the iteration
-                if job_name is None:
+                if job_id is None:
                     break
                 try:
                     self._process_job(
-                        session, jobs_repr, results_repr, job_name)
+                        session, jobs_repr, results_repr, job_id)
                 except KeyError:
-                    leftover_jobs.append(job_name)
+                    leftover_jobs.append(job_id)
                 else:
                     leftover_shrunk = True
             # Check if we're making any progress.
@@ -319,12 +319,12 @@ class SessionResumeHelper1:
                     _("Unknown jobs remaining: {}").format(
                         ", ".join(leftover_jobs)))
 
-    def _process_job(self, session, jobs_repr, results_repr, job_name):
+    def _process_job(self, session, jobs_repr, results_repr, job_id):
         """
         Process all representation details associated with a particular job
 
         This method takes a session object, representation of all the jobs
-        and all the results (and a job name) and tries to reconstruct the
+        and all the results (and a job id) and tries to reconstruct the
         state associated with that job in the session object.
 
         Jobs are verified to match existing (known) jobs. Results are
@@ -341,21 +341,21 @@ class SessionResumeHelper1:
             cannot yet do that the implementation of this method restores
             the state of the _last_ result object only.
         """
-        _validate(job_name, value_type=str)
+        _validate(job_id, value_type=str)
         # Get the checksum from the representation
         checksum = _validate(
-            jobs_repr, key=job_name, value_type=str)
+            jobs_repr, key=job_id, value_type=str)
         # Look up the actual job definition in the session.
         # This can raise KeyError but it is okay, callers expect that
-        job = session.job_state_map[job_name].job
+        job = session.job_state_map[job_id].job
         # Check if job definition has not changed
         if job.checksum != checksum:
             raise IncompatibleJobError(
-                _("Definition of job {!r} has changed").format(job_name))
+                _("Definition of job {!r} has changed").format(job_id))
         # Collect all of the result objects into result_list
         result_list = []
         result_list_repr = _validate(
-            results_repr, key=job_name, value_type=list, value_none=True)
+            results_repr, key=job_id, value_type=list, value_none=True)
         for result_repr in result_list_repr:
             _validate(result_repr, value_type=dict)
             result = self._build_JobResult(result_repr)
@@ -401,20 +401,20 @@ class SessionResumeHelper1:
         :raises CorruptedSessionError:
             if desired_job_list refers to unknown job
         """
-        # List of all the _names_ of the jobs that were selected
+        # List of all the _ids_ of the jobs that were selected
         desired_job_list = [
             _validate(
-                job_name, value_type=str,
-                value_type_msg=_("Each job name must be a string"))
-            for job_name in _validate(
+                job_id, value_type=str,
+                value_type_msg=_("Each job id must be a string"))
+            for job_id in _validate(
                 session_repr, key='desired_job_list', value_type=list)]
         # Restore job selection
         logger.debug(
             _("calling update_desired_job_list(%r)"), desired_job_list)
         try:
             session.update_desired_job_list([
-                session.job_state_map[job_name].job
-                for job_name in desired_job_list])
+                session.job_state_map[job_id].job
+                for job_id in desired_job_list])
         except KeyError as exc:
             raise CorruptedSessionError(
                 _("'desired_job_list' refers to unknown job {!r}").format(

@@ -100,11 +100,11 @@ class CheckBoxSessionStateControllerTests(TestCase):
         # verify that jobs that require a resource that hasn't been
         # invoked yet produce the PENDING_RESOURCE inhibitor
         j1 = JobDefinition({
-            'name': 'j1',
+            'id': 'j1',
             'requires': 'j2.attr == "ok"'
         })
         j2 = JobDefinition({
-            'name': 'j2'
+            'id': 'j2'
         })
         session_state = mock.MagicMock(spec=SessionState)
         session_state.job_state_map['j2'].job = j2
@@ -120,11 +120,11 @@ class CheckBoxSessionStateControllerTests(TestCase):
         # invoked and produced resources but the expression dones't
         # evaluate to True produce the FAILED_RESOURCE inhibitor
         j1 = JobDefinition({
-            'name': 'j1',
+            'id': 'j1',
             'requires': 'j2.attr == "ok"'
         })
         j2 = JobDefinition({
-            'name': 'j2'
+            'id': 'j2'
         })
         session_state = mock.MagicMock(spec=SessionState)
         session_state.job_state_map['j2'].job = j2
@@ -142,11 +142,11 @@ class CheckBoxSessionStateControllerTests(TestCase):
         # produced resources for which the expression evaluates to True don't
         # have any inhibitors
         j1 = JobDefinition({
-            'name': 'j1',
+            'id': 'j1',
             'requires': 'j2.attr == "ok"'
         })
         j2 = JobDefinition({
-            'name': 'j2'
+            'id': 'j2'
         })
         session_state = mock.MagicMock(spec=SessionState)
         session_state.resource_map = {
@@ -160,11 +160,11 @@ class CheckBoxSessionStateControllerTests(TestCase):
         # verify that jobs that depend on another job that hasn't
         # been invoked yet produce the PENDING_DEP inhibitor
         j1 = JobDefinition({
-            'name': 'j1',
+            'id': 'j1',
             'depends': 'j2'
         })
         j2 = JobDefinition({
-            'name': 'j2'
+            'id': 'j2'
         })
         session_state = mock.MagicMock(spec=SessionState)
         jsm_j2 = session_state.job_state_map['j2']
@@ -180,11 +180,11 @@ class CheckBoxSessionStateControllerTests(TestCase):
         # didn't result in OUTCOME_PASS produce the FAILED_DEP
         # inhibitor.
         j1 = JobDefinition({
-            'name': 'j1',
+            'id': 'j1',
             'depends': 'j2'
         })
         j2 = JobDefinition({
-            'name': 'j2'
+            'id': 'j2'
         })
         session_state = mock.MagicMock(spec=SessionState)
         jsm_j2 = session_state.job_state_map['j2']
@@ -199,11 +199,11 @@ class CheckBoxSessionStateControllerTests(TestCase):
         # verify that jobs that depend on another job that ran and has outcome
         # equal to OUTCOME_PASS don't have any inhibitors
         j1 = JobDefinition({
-            'name': 'j1',
+            'id': 'j1',
             'depends': 'j2'
         })
         j2 = JobDefinition({
-            'name': 'j2'
+            'id': 'j2'
         })
         session_state = mock.MagicMock(spec=SessionState)
         jsm_j2 = session_state.job_state_map['j2']
@@ -219,7 +219,7 @@ class CheckBoxSessionStateControllerTests(TestCase):
         self.ctrl.observe_result(session_state, job, result)
         # Ensure that result got stored
         self.assertIs(
-            session_state.job_state_map[job.name].result, result)
+            session_state.job_state_map[job.id].result, result)
         # Ensure that signals got fired
         session_state.on_job_state_map_changed.assert_called_once()
         session_state.on_job_result_changed.assert_called_once_with(
@@ -236,14 +236,14 @@ class CheckBoxSessionStateControllerTests(TestCase):
         self.ctrl.observe_result(session_state, job, result)
         # Ensure that result got stored
         self.assertIs(
-            session_state.job_state_map[job.name].result, result)
+            session_state.job_state_map[job.id].result, result)
         # Ensure that signals got fired
         session_state.on_job_state_map_changed.assert_called_once_with()
         session_state.on_job_result_changed.assert_called_once_with(
             job, result)
         # Ensure that new resource was defined
         session_state.set_resource_list.assert_called_once_with(
-            job.name, [
+            job.id, [
                 Resource({'attr': 'value1'}), Resource({'attr': 'value2'})])
 
     @mock.patch('plainbox.impl.ctrl.logger')
@@ -255,7 +255,7 @@ class CheckBoxSessionStateControllerTests(TestCase):
         self.ctrl.observe_result(session_state, job, result)
         # Ensure that result got stored
         self.assertIs(
-            session_state.job_state_map[job.name].result, result)
+            session_state.job_state_map[job.id].result, result)
         # Ensure that signals got fired
         session_state.on_job_state_map_changed.assert_called_once_with()
         session_state.on_job_result_changed.assert_called_once_with(
@@ -287,7 +287,7 @@ class CheckBoxSessionStateControllerTests(TestCase):
         self.ctrl.observe_result(session_state, job, result)
         # Ensure that result got stored
         self.assertIs(
-            session_state.job_state_map[job.name].result, result)
+            session_state.job_state_map[job.id].result, result)
         # Ensure that new job was defined
         session_state.add_job.assert_called_once_with(
             job.create_child_job_from_record(), recompute=False)
@@ -313,9 +313,9 @@ class CheckBoxSessionStateControllerTests(TestCase):
         # Create a session that already knows about 'existing_job'
         # and raises a DependencyDuplicateError when add_job() gets called.
         existing_job = mock.Mock(spec=JobDefinition, name='existing_job')
-        existing_job.name = 'generated'
+        existing_job.id = 'generated'
         clashing_job = mock.Mock(spec=JobDefinition, name='existing_job')
-        clashing_job.name = 'generated'
+        clashing_job.id = 'generated'
         session_state = mock.MagicMock(spec=SessionState, name='session_state')
         session_state.add_job.side_effect = DependencyDuplicateError(
             existing_job, clashing_job)
@@ -331,7 +331,7 @@ class CheckBoxSessionStateControllerTests(TestCase):
         self.ctrl.observe_result(session_state, job, result)
         # Ensure that result got stored
         self.assertIs(
-            session_state.job_state_map[job.name].result, result)
+            session_state.job_state_map[job.id].result, result)
         # Ensure that we tried to define a new job by calling add_job() with
         # the clashing_job as argument
         session_state.add_job.assert_called_once_with(
@@ -362,7 +362,7 @@ class CheckBoxSessionStateControllerTests(TestCase):
         # Create a session that already knows about 'existing_job'
         # and returns existing_job when add_job() gets called.
         existing_job = mock.Mock(spec=JobDefinition, name='existing_job')
-        existing_job.name = 'generated'
+        existing_job.id = 'generated'
         session_state = mock.MagicMock(spec=SessionState, name='session_state')
         session_state.add_job.side_effect = (
             lambda new_job, recompute: existing_job)
@@ -376,7 +376,7 @@ class CheckBoxSessionStateControllerTests(TestCase):
         self.ctrl.observe_result(session_state, job, result)
         # Ensure that result got stored
         self.assertIs(
-            session_state.job_state_map[job.name].result, result)
+            session_state.job_state_map[job.id].result, result)
         # Ensure that we tried to define a new job using
         # whatever create_child_job_from_record() returns.
         session_state.add_job.assert_called_once_with(

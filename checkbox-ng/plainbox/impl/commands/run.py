@@ -175,8 +175,8 @@ class RunInvocation(CheckBoxInvocationMixIn):
             # Handle possible DependencyDuplicateError that can happen if
             # someone is using plainbox for job development.
             print(_("The job database you are currently using is broken"))
-            print(_("At least two jobs contend for the name {0}").format(
-                exc.job.name))
+            print(_("At least two jobs contend for the id {0}").format(
+                exc.job.id))
             print(_("First job defined in: {0}").format(exc.job.origin))
             print(_("Second job defined in: {0}").format(
                 exc.duplicate_job.origin))
@@ -320,7 +320,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
                 # Skip jobs that already have result, this is only needed when
                 # we run over the list of jobs again, after discovering new
                 # jobs via the local job output
-                if session.job_state_map[job.name].result.outcome is not None:
+                if session.job_state_map[job.id].result.outcome is not None:
                     continue
                 self._run_single_job_with_session(ns, session, runner, job)
                 session.persistent_save()
@@ -335,13 +335,13 @@ class RunInvocation(CheckBoxInvocationMixIn):
                     break
 
     def _run_single_job_with_session(self, ns, session, runner, job):
-        print("[ {} ]".format(job.name).center(80, '-'))
+        print("[ {} ]".format(job.id).center(80, '-'))
         if job.description is not None:
             print(job.description)
             print("^" * len(job.description.splitlines()[-1]))
             print()
-        job_state = session.job_state_map[job.name]
-        logger.debug(_("Job name: %s"), job.name)
+        job_state = session.job_state_map[job.id]
+        logger.debug(_("Job id: %s"), job.id)
         logger.debug(_("Plugin: %s"), job.plugin)
         logger.debug(_("Direct dependencies: %s"),
                      job.get_direct_dependencies())
@@ -353,8 +353,8 @@ class RunInvocation(CheckBoxInvocationMixIn):
         logger.debug(_("Readiness: %s"), job_state.get_readiness_description())
         if job_state.can_start():
             print(_("Running... (output in {}.*)").format(
-                join(session.jobs_io_log_dir, slugify(job.name))))
-            session.metadata.running_job_name = job.name
+                join(session.jobs_io_log_dir, slugify(job.id))))
+            session.metadata.running_job_name = job.id
             session.persistent_save()
             # TODO: get a confirmation from the user for certain types of job.plugin
             job_result = runner.run_job(job)

@@ -54,7 +54,7 @@ class DependencyError(Exception, metaclass=ABCMeta):
         :attr:`affected_job`
 
         This may be None in certain cases (eg, when the job does not exist and
-        is merely referred to by name). If this job exists removing it SHOULD
+        is merely referred to by id). If this job exists removing it SHOULD
         fix this problem from occurring.
 
         This may be the same as :attr:`affected_job`
@@ -98,7 +98,7 @@ class DependencyCycleError(DependencyError):
 
     def __str__(self):
         return _("dependency cycle detected: {}").format(
-            " -> ".join([job.name for job in self.job_list]))
+            " -> ".join([job.id for job in self.job_list]))
 
     def __repr__(self):
         return "<{} job_list:{!r}>".format(
@@ -113,9 +113,9 @@ class DependencyMissingError(DependencyError):
     DEP_TYPE_RESOURCE = "resource"
     DEP_TYPE_DIRECT = "direct"
 
-    def __init__(self, job, missing_job_name, dep_type):
+    def __init__(self, job, missing_job_id, dep_type):
         self.job = job
-        self.missing_job_name = missing_job_name
+        self.missing_job_id = missing_job_id
         self.dep_type = dep_type
 
     @property
@@ -137,21 +137,21 @@ class DependencyMissingError(DependencyError):
 
     def __str__(self):
         return _("missing dependency: {!r} ({})").format(
-            self.missing_job_name, self.dep_type)
+            self.missing_job_id, self.dep_type)
 
     def __repr__(self):
-        return "<{} job:{!r} missing_job_name:{!r} dep_type:{!r}>".format(
+        return "<{} job:{!r} missing_job_id:{!r} dep_type:{!r}>".format(
             self.__class__.__name__,
-            self.job, self.missing_job_name, self.dep_type)
+            self.job, self.missing_job_id, self.dep_type)
 
 
 class DependencyDuplicateError(DependencyError):
     """
-    Exception raised when two jobs have identical name
+    Exception raised when two jobs have identical id
     """
 
     def __init__(self, job, duplicate_job):
-        assert job.name == duplicate_job.name
+        assert job.id == duplicate_job.id
         self.job = job
         self.duplicate_job = duplicate_job
 
@@ -170,7 +170,7 @@ class DependencyDuplicateError(DependencyError):
         return self.duplicate_job
 
     def __str__(self):
-        return _("duplicate job name: {!r}").format(self.affected_job.name)
+        return _("duplicate job id: {!r}").format(self.affected_job.id)
 
     def __repr__(self):
         return "<{} job:{!r} duplicate_job:{!r}>".format(
@@ -222,10 +222,10 @@ class DependencySolver:
         """
         # Remember the jobs that were passed
         self._job_list = job_list
-        # Build a map of jobs (by name)
+        # Build a map of jobs (by id)
         self._job_map = self._get_job_map(job_list)
-        # Job colors, maps from job.name to COLOR_xxx
-        self._job_color_map = {job.name: self.COLOR_WHITE for job in job_list}
+        # Job colors, maps from job.id to COLOR_xxx
+        self._job_color_map = {job.id: self.COLOR_WHITE for job in job_list}
         # The computed solution, made out of job instances. This is not
         # necessarily the only solution but the algorithm computes the same
         # value each time, given the same input.
@@ -258,23 +258,23 @@ class DependencySolver:
         resource) and resolve them. Missing jobs cause DependencyMissingError
         to be raised. Calls _visit recursively on all dependencies.
         """
-        color = self._job_color_map[job.name]
+        color = self._job_color_map[job.id]
         logger.debug(_("Visiting job %s (color %s)"), job, color)
         if color == self.COLOR_WHITE:
             # This node has not been visited yet. Let's mark it as GRAY (being
             # visited) and iterate through the list of dependencies
-            self._job_color_map[job.name] = self.COLOR_GRAY
+            self._job_color_map[job.id] = self.COLOR_GRAY
             # If the trail was not specified start a trail for this node
             if trail is None:
                 trail = [job]
-            for dep_type, job_name in job.controller.get_dependency_set(job):
-                # Dependency is just a name, we need to resolve it
+            for dep_type, job_id in job.controller.get_dependency_set(job):
+                # Dependency is just an id, we need to resolve it
                 # to a job instance. This can fail (missing dependencies)
                 # so let's guard against that.
                 try:
-                    next_job = self._job_map[job_name]
+                    next_job = self._job_map[job_id]
                 except KeyError:
-                    raise DependencyMissingError(job, job_name, dep_type)
+                    raise DependencyMissingError(job, job_id, dep_type)
                 else:
                     # For each dependency that we visit let's reuse the trail
                     # to give proper error messages if a dependency loop exists
@@ -286,7 +286,7 @@ class DependencySolver:
             # We've visited (recursively) all dependencies of this node,
             # let's color it black and append it to the solution list.
             logger.debug(_("Appending %r to solution"), job)
-            self._job_color_map[job.name] = self.COLOR_BLACK
+            self._job_color_map[job.id] = self.COLOR_BLACK
             self._solution.append(job)
         elif color == self.COLOR_GRAY:
             # This node is not fully traced yet but has been visited already
@@ -304,13 +304,13 @@ class DependencySolver:
         """
         Internal method of DependencySolver.
 
-        Computes a map of job.name => job
+        Computes a map of job.id => job
         Raises DependencyDuplicateError if a collision is found
         """
         job_map = {}
         for job in job_list:
-            if job.name in job_map:
-                raise DependencyDuplicateError(job_map[job.name], job)
+            if job.id in job_map:
+                raise DependencyDuplicateError(job_map[job.id], job)
             else:
-                job_map[job.name] = job
+                job_map[job.id] = job
         return job_map

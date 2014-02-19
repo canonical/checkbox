@@ -168,7 +168,7 @@ class Explorer:
                 job_obj = PlainBoxObject(
                     job,
                     group="job",
-                    name=job.name)
+                    name=job.id)
                 provider_obj.children.append(job_obj)
             for whitelist in provider.get_builtin_whitelists():
                 whitelist_obj = PlainBoxObject(

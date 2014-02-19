@@ -32,7 +32,7 @@ from unittest import TestCase
 from plainbox.abc import IJobQualifier
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.secure.qualifiers import CompositeQualifier
-from plainbox.impl.secure.qualifiers import NameJobQualifier
+from plainbox.impl.secure.qualifiers import JobIdQualifier
 from plainbox.impl.secure.qualifiers import RegExpJobQualifier
 from plainbox.impl.secure.qualifiers import SimpleQualifier
 from plainbox.impl.secure.qualifiers import WhiteList
@@ -73,7 +73,7 @@ class SimpleQualifierTests(TestCase):
 
     def setUp(self):
         self.obj = DummySimpleQualifier()
-        self.job = JobDefinition({'name': "dummy"})
+        self.job = JobDefinition({'id': "dummy"})
 
     def test_init(self):
         """
@@ -191,72 +191,72 @@ class RegExpJobQualifierTests(TestCase):
         """
         self.assertEqual(
             RegExpJobQualifier("foo").get_vote(
-                JobDefinition({'name': 'foo'})),
+                JobDefinition({'id': 'foo'})),
             IJobQualifier.VOTE_INCLUDE)
         self.assertEqual(
             RegExpJobQualifier("foo", inclusive=False).get_vote(
-                JobDefinition({'name': 'foo'})),
+                JobDefinition({'id': 'foo'})),
             IJobQualifier.VOTE_EXCLUDE)
         self.assertEqual(
             RegExpJobQualifier("foo").get_vote(
-                JobDefinition({'name': 'bar'})),
+                JobDefinition({'id': 'bar'})),
             IJobQualifier.VOTE_IGNORE)
         self.assertEqual(
             RegExpJobQualifier("foo", inclusive=False).get_vote(
-                JobDefinition({'name': 'bar'})),
+                JobDefinition({'id': 'bar'})),
             IJobQualifier.VOTE_IGNORE)
 
 
-class NameJobQualifierTests(TestCase):
+class JobIdQualifierTests(TestCase):
     """
-    Test cases for NameJobQualifier class
+    Test cases for JobIdQualifier class
     """
 
     def setUp(self):
-        self.qualifier = NameJobQualifier("foo")
+        self.qualifier = JobIdQualifier("foo")
 
     def test_is_primitive(self):
         """
-        verify that NameJobQualifier.is_primitive is True
+        verify that JobIdQualifier.is_primitive is True
         """
         self.assertTrue(self.qualifier.is_primitive)
 
     def test_repr(self):
         """
-        verify that NameJobQualifier.__repr__() works as expected
+        verify that JobIdQualifier.__repr__() works as expected
         """
         self.assertEqual(
-            repr(self.qualifier), "NameJobQualifier('foo', inclusive=True)")
+            repr(self.qualifier), "JobIdQualifier('foo', inclusive=True)")
 
     def test_get_vote(self):
         """
-        verify that NameJobQualifier.get_vote() works as expected
+        verify that JobIdQualifier.get_vote() works as expected
         """
         self.assertEqual(
-            NameJobQualifier("foo").get_vote(
-                JobDefinition({'name': 'foo'})),
+            JobIdQualifier("foo").get_vote(
+                JobDefinition({'id': 'foo'})),
             IJobQualifier.VOTE_INCLUDE)
         self.assertEqual(
-            NameJobQualifier("foo", inclusive=False).get_vote(
-                JobDefinition({'name': 'foo'})),
+            JobIdQualifier("foo", inclusive=False).get_vote(
+                JobDefinition({'id': 'foo'})),
             IJobQualifier.VOTE_EXCLUDE)
         self.assertEqual(
-            NameJobQualifier("foo").get_vote(
-                JobDefinition({'name': 'bar'})),
+            JobIdQualifier("foo").get_vote(
+                JobDefinition({'id': 'bar'})),
             IJobQualifier.VOTE_IGNORE)
         self.assertEqual(
-            NameJobQualifier("foo", inclusive=False).get_vote(
-                JobDefinition({'name': 'bar'})),
+            JobIdQualifier("foo", inclusive=False).get_vote(
+                JobDefinition({'id': 'bar'})),
             IJobQualifier.VOTE_IGNORE)
 
     def test_smoke(self):
         """
-        various smoke tests that check if NameJobQualifier.designates() works
+        various smoke tests that check if JobIdQualifier.designates() works
         """
-        self.assertTrue(NameJobQualifier('name').designates(make_job('name')))
-        self.assertFalse(NameJobQualifier('nam').designates(make_job('name')))
-        self.assertFalse(NameJobQualifier('.*').designates(make_job('name')))
-        self.assertFalse(NameJobQualifier('*').designates(make_job('name')))
+        self.assertTrue(JobIdQualifier('name').designates(make_job('name')))
+        self.assertFalse(JobIdQualifier('nam').designates(make_job('name')))
+        self.assertFalse(JobIdQualifier('.*').designates(make_job('name')))
+        self.assertFalse(JobIdQualifier('*').designates(make_job('name')))
 
 
 class CompositeQualifierTests(TestCase):
@@ -349,9 +349,9 @@ class CompositeQualifierTests(TestCase):
         verify that CompositeQualifiers.get_composite_qualifiers() works
         """
         # given three qualifiers
-        q1 = NameJobQualifier("q1")
-        q2 = NameJobQualifier("q2")
-        q3 = NameJobQualifier("q3")
+        q1 = JobIdQualifier("q1")
+        q2 = JobIdQualifier("q2")
+        q3 = JobIdQualifier("q3")
         # we expect to see them flattened
         expected = [q1, q2, q3]
         # from a nested structure like this
@@ -526,11 +526,11 @@ class FunctionTests(TestCase):
         """
         verify that select_jobs() honors qualifier ordering
         """
-        job_a = JobDefinition({'name': 'a'})
-        job_b = JobDefinition({'name': 'b'})
-        job_c = JobDefinition({'name': 'c'})
-        qual_a = NameJobQualifier("a")
-        qual_c = NameJobQualifier("c")
+        job_a = JobDefinition({'id': 'a'})
+        job_b = JobDefinition({'id': 'b'})
+        job_c = JobDefinition({'id': 'c'})
+        qual_a = JobIdQualifier("a")
+        qual_c = JobIdQualifier("c")
         for job_list in permutations([job_a, job_b, job_c], 3):
             # Regardless of how the list of job is ordered the result
             # should be the same, depending on the qualifier list
@@ -542,15 +542,15 @@ class FunctionTests(TestCase):
         """
         verify that select_jobs() honors qualifier ordering
         """
-        job_a = JobDefinition({'name': 'a'})
-        job_b = JobDefinition({'name': 'b'})
-        job_c = JobDefinition({'name': 'c'})
+        job_a = JobDefinition({'id': 'a'})
+        job_b = JobDefinition({'id': 'b'})
+        job_c = JobDefinition({'id': 'c'})
         qual_all = CompositeQualifier([
-            NameJobQualifier("a"),
-            NameJobQualifier("b"),
-            NameJobQualifier("c"),
+            JobIdQualifier("a"),
+            JobIdQualifier("b"),
+            JobIdQualifier("c"),
         ])
-        qual_not_c = NameJobQualifier("c", inclusive=False)
+        qual_not_c = JobIdQualifier("c", inclusive=False)
         for job_list in permutations([job_a, job_b, job_c], 3):
             # Regardless of how the list of job is ordered the result
             # should be the same, depending on the qualifier list

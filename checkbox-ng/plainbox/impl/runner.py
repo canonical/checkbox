@@ -572,10 +572,10 @@ class JobRunner(IJobRunner):
         # If there is no UI delegate specified create a simple
         # delegate that logs all output to the console
         if ui_io_delegate is None:
-            ui_io_delegate = FallbackCommandOutputPrinter(job.name)
+            ui_io_delegate = FallbackCommandOutputPrinter(job.id)
         # Compute a shared base filename for all logging activity associated
         # with this job (aka: the slug)
-        slug = slugify(job.name)
+        slug = slugify(job.id)
         # Create a delegate that writes all IO to disk
         output_writer = CommandOutputWriter(
             stdout_path=os.path.join(
@@ -603,7 +603,7 @@ class JobRunner(IJobRunner):
         # Send the third copy to the output writer that writes everything to
         # disk.
         delegate = extcmd.Chain([ui_io_delegate, io_log_gen, output_writer])
-        logger.debug(_("job[%s] extcmd delegate: %r"), job.name, delegate)
+        logger.debug(_("job[%s] extcmd delegate: %r"), job.id, delegate)
         # Attach listeners to io_log_gen (the IOLogRecordGenerator instance)
         # One listener appends each record to an array
         return delegate, io_log_gen
@@ -627,7 +627,7 @@ class JobRunner(IJobRunner):
         # Stream all IOLogRecord entries to disk
         record_path = os.path.join(
             self._jobs_io_log_dir, "{}.record.gz".format(
-                slugify(job.name)))
+                slugify(job.id)))
         with gzip.open(record_path, mode='wb') as gzip_stream, \
                 io.TextIOWrapper(
                     gzip_stream, encoding='UTF-8') as record_stream:
@@ -639,11 +639,11 @@ class JobRunner(IJobRunner):
             # threads although all callbacks will be fired from a single
             # thread (which is _not_ the main thread)
             logger.debug(
-                _("job[%s] starting command: %s"), job.name, job.command)
+                _("job[%s] starting command: %s"), job.id, job.command)
             # Run the job command using extcmd
             return_code = self._run_extcmd(job, config, extcmd_popen)
             logger.debug(
-                _("job[%s] command return code: %r"), job.name, return_code)
+                _("job[%s] command return code: %r"), job.id, return_code)
         return return_code, record_path
 
     def _run_extcmd(self, job, config, extcmd_popen):
@@ -661,6 +661,6 @@ class JobRunner(IJobRunner):
                 _("No exec controller supports job {}").format(job))
         logger.debug(
             _("Selected execution controller %s (score %d) for job %r"),
-            ctrl.__class__.__name__, score, job.name)
+            ctrl.__class__.__name__, score, job.id)
         # Delegate and execute
         return ctrl.execute_job(job, config, extcmd_popen)

@@ -102,12 +102,12 @@ class CheckBoxSessionStateController(ISessionStateController):
         :param job:
             A IJobDefinition instance that is to be visited
         :returns:
-            set of pairs (dep_type, job_name)
+            set of pairs (dep_type, job_id)
 
-        Returns a set of pairs (dep_type, job_name) that describe all
+        Returns a set of pairs (dep_type, job_id) that describe all
         dependencies of the specified job. The first element in the pair,
         dep_type, is either DEP_TYPE_DIRECT or DEP_TYPE_RESOURCE. The second
-        element is the name of the job.
+        element is the id of the job.
         """
         direct = DependencyMissingError.DEP_TYPE_DIRECT
         resource = DependencyMissingError.DEP_TYPE_RESOURCE
@@ -140,7 +140,7 @@ class CheckBoxSessionStateController(ISessionStateController):
                 # resources needed by the expression that cannot be
                 # evaluated)
                 related_job = session_state.job_state_map[
-                    exc.expression.resource_name].job
+                    exc.expression.resource_id].job
                 # Add A PENDING_RESOURCE inhibitor as we are unable to
                 # determine if the resource requirement is met or not. This
                 # can happen if the resource job did not ran for any reason
@@ -156,7 +156,7 @@ class CheckBoxSessionStateController(ISessionStateController):
                 # Lookup the related job (the job that provides the
                 # resources needed by the expression that failed)
                 related_job = session_state.job_state_map[
-                    exc.expression.resource_name].job
+                    exc.expression.resource_id].job
                 # Add a FAILED_RESOURCE inhibitor as we have all the data
                 # to run the requirement program but it simply returns a
                 # non-True value. This typically indicates a missing
@@ -167,8 +167,8 @@ class CheckBoxSessionStateController(ISessionStateController):
                     related_expression=exc.expression)
                 inhibitors.append(inhibitor)
         # Check if all job dependencies ran successfully
-        for dep_name in sorted(job.get_direct_dependencies()):
-            dep_job_state = session_state.job_state_map[dep_name]
+        for dep_id in sorted(job.get_direct_dependencies()):
+            dep_job_state = session_state.job_state_map[dep_id]
             # If the dependency did not have a chance to run yet add the
             # PENDING_DEP inhibitor.
             if dep_job_state.result.outcome == IJobResult.OUTCOME_NONE:
@@ -217,10 +217,10 @@ class CheckBoxSessionStateController(ISessionStateController):
         Local jobs produce more jobs. Like with resource jobs, their IO log is
         parsed and interpreted as additional jobs. Unlike in resource jobs
         local jobs don't replace anything. They cannot replace an existing job
-        with the same name.
+        with the same id.
         """
         # Store the result in job_state_map
-        session_state.job_state_map[job.name].result = result
+        session_state.job_state_map[job.id].result = result
         session_state.on_job_state_map_changed()
         session_state.on_job_result_changed(job, result)
         # Treat some jobs specially and interpret their output
@@ -240,10 +240,10 @@ class CheckBoxSessionStateController(ISessionStateController):
             # should have from_frc822_record as with JobDefinition
             resource = Resource(record.data)
             logger.info(
-                _("Storing resource record %r: %s"), job.name, resource)
+                _("Storing resource record %r: %s"), job.id, resource)
             new_resource_list.append(resource)
         # Replace any old resources with the new resource list
-        session_state.set_resource_list(job.name, new_resource_list)
+        session_state.set_resource_list(job.id, new_resource_list)
 
     def _process_local_result(self, session_state, job, result):
         """
@@ -257,7 +257,7 @@ class CheckBoxSessionStateController(ISessionStateController):
             new_job = job.create_child_job_from_record(record)
             new_job_list.append(new_job)
         # Then for each new job, add it to the job_list, unless it collides
-        # with another job with the same name.
+        # with another job with the same id.
         for new_job in new_job_list:
             try:
                 added_job = session_state.add_job(new_job, recompute=False)
@@ -390,7 +390,7 @@ class CheckBoxExecutionController(IExecutionController):
             env = self.get_execution_environment(job, config, nest_dir)
             # run the command
             logger.debug(_("job[%s] executing %r with env %r"),
-                         job.name, cmd, env)
+                         job.id, cmd, env)
             return extcmd_popen.call(cmd, env=env)
 
     @contextlib.contextmanager

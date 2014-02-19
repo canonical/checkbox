@@ -80,12 +80,12 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
     def _print_desired_job_list(self):
         print(_("[Desired Job List]").center(80, '='))
         for job in self.session.desired_job_list:
-            print("{}".format(job.name))
+            print("{}".format(job.id))
 
     def _print_run_list(self):
         print(_("[Run List]").center(80, '='))
         for job in self.session.run_list:
-            print("{}".format(job.name))
+            print("{}".format(job.id))
 
     def _run_local_jobs(self):
         print(_("[Running Local Jobs]").center(80, '='))
@@ -97,14 +97,14 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
             while again:
                 for job in self.session.run_list:
                     if job.plugin == 'local':
-                        if self.session.job_state_map[job.name].result.outcome is None:
+                        if self.session.job_state_map[job.id].result.outcome is None:
                             self._run_local_job(runner, job)
                             break
                 else:
                     again = False
 
     def _run_local_job(self, runner, job):
-        print("{job}".format(job=job.name))
+        print("{job}".format(job=job.id))
         result = runner.run_job(job)
         self.session.update_job_result(job, result)
         new_desired_job_list = self._get_matching_job_list(
@@ -132,13 +132,13 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
         print(_("[Interactivity Report]").center(80, '='))
         if not self.session.run_list:
             return
-        max_job_len = max(len(job.name) for job in self.session.run_list)
+        max_job_len = max(len(job.id) for job in self.session.run_list)
         fmt = "{{job:{}}} : {{interactive:11}} : {{duration}}".format(
             max_job_len)
         for job in self.session.run_list:
             print(
                 fmt.format(
-                    job=job.name,
+                    job=job.id,
                     interactive=(
                         _("automatic") if job.automated else _("interactive")),
                     duration=(
@@ -169,7 +169,7 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
         print(_("[Validation Report]").center(80, '='))
         if not self.session.run_list:
             return
-        max_job_len = max(len(job.name) for job in self.session.run_list)
+        max_job_len = max(len(job.id) for job in self.session.run_list)
         fmt = "{{job:{}}} : {{problem}}".format(max_job_len)
         problem = None
         for job in self.session.run_list:
@@ -181,7 +181,7 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
                 if only_errors:
                     continue
                 problem = ""
-            print(fmt.format(job=job.name, problem=problem))
+            print(fmt.format(job=job.id, problem=problem))
             if problem:
                 print(_("Job defined in {}").format(job.origin))
         if only_errors and problem is None:
@@ -199,7 +199,7 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
                     for packages in [
                             resource.text for resource in
                             resource_program.expression_list
-                            if resource.resource_name == 'package']:
+                            if resource.resource_id== 'package']:
                         node = ast.parse(packages)
                         visitor = RequirementNodeVisitor()
                         visitor.visit(node)

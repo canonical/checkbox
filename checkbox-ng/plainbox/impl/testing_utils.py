@@ -39,12 +39,12 @@ from plainbox.impl.secure.rfc822 import Origin
 from plainbox.vendor.mock import Mock
 
 
-def MockJobDefinition(name, *args, **kwargs):
+def MockJobDefinition(id, *args, **kwargs):
     """
     Mock for JobDefinition class
     """
     job = Mock(*args, spec_set=JobDefinition, **kwargs)
-    job.name = name
+    job.id = id
     return job
 
 
@@ -64,11 +64,11 @@ def make_io_log(io_log, io_log_dir):
 
 
 # Deprecated, use JobDefinition() directly
-def make_job(name, plugin="dummy", requires=None, depends=None, **kwargs):
+def make_job(id, plugin="dummy", requires=None, depends=None, **kwargs):
     """
     Make and return a dummy JobDefinition instance
     """
-    data = {'name': name}
+    data = {'id': id}
     if plugin is not None:
         data['plugin'] = plugin
     if requires is not None:

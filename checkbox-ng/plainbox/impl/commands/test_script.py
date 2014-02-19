@@ -62,10 +62,10 @@ class TestScriptCommand(TestCase):
         self.assertEqual(
             io.stdout, cleandoc(
                 """
-                usage: test script [-h] JOB-NAME
+                usage: test script [-h] JOB-ID
 
                 positional arguments:
-                  JOB-NAME    Name of the job to run
+                  JOB-ID      Id of the job to run
 
                 optional arguments:
                   -h, --help  show this help message and exit
@@ -76,11 +76,11 @@ class TestScriptCommand(TestCase):
     def test_invoked(self, patched_ScriptInvocation):
         retval = ScriptCommand(self.provider_list, self.config).invoked(self.ns)
         patched_ScriptInvocation.assert_called_once_with(
-            self.provider_list, self.config, self.ns.job_name)
+            self.provider_list, self.config, self.ns.job_id)
         self.assertEqual(
             retval, patched_ScriptInvocation(
                 self.provider_list, self.config,
-                self.ns.job_name).run.return_value)
+                self.ns.job_id).run.return_value)
 
 
 class ScriptInvocationTests(TestCase):
@@ -88,14 +88,14 @@ class ScriptInvocationTests(TestCase):
     def setUp(self):
         self.provider_list = mock.Mock()
         self.config = PlainBoxConfig()
-        self.job_name = mock.Mock()
+        self.job_id = mock.Mock()
 
     def test_init(self):
         script_inv = ScriptInvocation(
-            self.provider_list, self.config, self.job_name)
+            self.provider_list, self.config, self.job_id)
         self.assertIs(script_inv.provider_list, self.provider_list)
         self.assertIs(script_inv.config, self.config)
-        self.assertIs(script_inv.job_name, self.job_name)
+        self.assertIs(script_inv.job_id, self.job_id)
 
     def test_run_no_such_job(self):
         provider_list = [DummyProvider1()]
@@ -124,28 +124,28 @@ class ScriptInvocationTests(TestCase):
 
     @mock.patch('plainbox.impl.ctrl.check_output')
     def test_job_with_command(self, mock_check_output):
-        dummy_name = 'foo'
+        dummy_id = 'foo'
         dummy_command = 'echo ok'
         provider_list = [DummyProvider1([
-            make_job(dummy_name, command=dummy_command)])]
-        script_inv = ScriptInvocation(provider_list, self.config, dummy_name)
+            make_job(dummy_id, command=dummy_command)])]
+        script_inv = ScriptInvocation(provider_list, self.config, dummy_id)
         with TestIO() as io:
             retval = script_inv.run()
         self.assertEqual(
             io.stdout, cleandoc(
                 """
                 (job foo, <stdout:00001>) ok
-                """) + '\n' + "job {} returned 0\n".format(dummy_name) +
+                """) + '\n' + "job {} returned 0\n".format(dummy_id) +
                 "command: {}\n".format(dummy_command))
         self.assertEqual(retval, 0)
 
     @mock.patch('plainbox.impl.ctrl.check_output')
     def test_job_with_command_making_files(self, mock_check_output):
-        dummy_name = 'foo'
+        dummy_id = 'foo'
         dummy_command = 'echo ok > file'
         provider_list = [DummyProvider1([
-            make_job(dummy_name, command=dummy_command)])]
-        script_inv = ScriptInvocation(provider_list, self.config, dummy_name)
+            make_job(dummy_id, command=dummy_command)])]
+        script_inv = ScriptInvocation(provider_list, self.config, dummy_id)
         with TestIO() as io:
             retval = script_inv.run()
         self.maxDiff = None
@@ -154,6 +154,6 @@ class ScriptInvocationTests(TestCase):
                 """
                 Leftover file detected: 'files-created-in-current-dir/file':
                   files-created-in-current-dir/file:1: ok
-                """) + '\n' + "job {} returned 0\n".format(dummy_name) +
+                """) + '\n' + "job {} returned 0\n".format(dummy_id) +
                 "command: {}\n".format(dummy_command))
         self.assertEqual(retval, 0)

@@ -315,7 +315,7 @@ class Provider1(IProvider1, IProviderBackend1):
         job_list = sorted(
             itertools.chain(
                 *self._job_collection.get_all_plugin_objects()),
-            key=lambda job: job.name)
+            key=lambda job: job.id)
         problem_list = self._job_collection.problem_list
         return job_list, problem_list
 

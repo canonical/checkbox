@@ -35,7 +35,7 @@ from plainbox.impl.applogic import get_matching_job_list
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.runner import JobRunner
-from plainbox.impl.secure.qualifiers import NameJobQualifier
+from plainbox.impl.secure.qualifiers import JobIdQualifier
 from plainbox.testing_utils.cwd import TestCwd
 
 
@@ -49,15 +49,15 @@ class ScriptInvocation(CheckBoxInvocationMixIn):
     the command is to be invoked.
     """
 
-    def __init__(self, provider_list, config, job_name):
+    def __init__(self, provider_list, config, job_id):
         self.provider_list = provider_list
         self.config = config
-        self.job_name = job_name
+        self.job_id = job_id
 
     def run(self):
         job = self._get_job()
         if job is None:
-            print(_("There is no job called {!a}").format(self.job_name))
+            print(_("There is no job called {!a}").format(self.job_id))
             print(_(
                 "See `plainbox special --list-jobs` for a list of choices"))
             return 126
@@ -90,13 +90,13 @@ class ScriptInvocation(CheckBoxInvocationMixIn):
                     os.path.join(dirpath, filename), scratch)
 
     def _display_script_outcome(self, job, return_code):
-        print(_("job {} returned {}").format(job.name, return_code))
+        print(_("job {} returned {}").format(job.id, return_code))
         print(_("command:"), job.command)
 
     def _get_job(self):
         job_list = get_matching_job_list(
             self.get_job_list(None),
-            NameJobQualifier(self.job_name))
+            JobIdQualifier(self.job_id))
         if len(job_list) == 0:
             return None
         else:
@@ -115,7 +115,7 @@ class ScriptCommand(PlainBoxCommand):
 
     def invoked(self, ns):
         return ScriptInvocation(
-            self.provider_list, self.config, ns.job_name
+            self.provider_list, self.config, ns.job_id
         ).run()
 
     def register_parser(self, subparsers):
@@ -123,5 +123,5 @@ class ScriptCommand(PlainBoxCommand):
             "script", help=_("run a command from a job"))
         parser.set_defaults(command=self)
         parser.add_argument(
-            'job_name', metavar=_('JOB-NAME'),
-            help=_("Name of the job to run"))
+            'job_id', metavar=_('JOB-ID'),
+            help=_("Id of the job to run"))

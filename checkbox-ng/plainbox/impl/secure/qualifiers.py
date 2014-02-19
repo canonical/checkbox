@@ -106,7 +106,7 @@ class SimpleQualifier(IJobQualifier):
 
 class RegExpJobQualifier(SimpleQualifier):
     """
-    A JobQualifier that designates jobs by matching their name to a regular
+    A JobQualifier that designates jobs by matching their id to a regular
     expression
     """
 
@@ -125,7 +125,7 @@ class RegExpJobQualifier(SimpleQualifier):
         This method should not be called directly, it is an implementation
         detail of SimpleQualifier class.
         """
-        return self._pattern.match(job.name) is not None
+        return self._pattern.match(job.id) is not None
 
     @property
     def pattern_text(self):
@@ -139,14 +139,14 @@ class RegExpJobQualifier(SimpleQualifier):
             self.__class__.__name__, self._pattern_text, self._inclusive)
 
 
-class NameJobQualifier(SimpleQualifier):
+class JobIdQualifier(SimpleQualifier):
     """
-    A JobQualifier that designates a single job with a particular name
+    A JobQualifier that designates a single job with a particular id
     """
 
-    def __init__(self, name, inclusive=True):
+    def __init__(self, id, inclusive=True):
         super().__init__(inclusive)
-        self._name = name
+        self._id = id
 
     def get_simple_match(self, job):
         """
@@ -155,11 +155,11 @@ class NameJobQualifier(SimpleQualifier):
         This method should not be called directly, it is an implementation
         detail of SimpleQualifier class.
         """
-        return self._name == job.name
+        return self._id == job.id
 
     def __repr__(self):
         return "{0}({1!r}, inclusive={2})".format(
-            self.__class__.__name__, self._name, self._inclusive)
+            self.__class__.__name__, self._id, self._inclusive)
 
 
 class CompositeQualifier(IJobQualifier):
@@ -212,7 +212,7 @@ class WhiteList(CompositeQualifier):
     A qualifier that understands checkbox whitelist files.
 
     A whitelist file is a plain text, line oriented file. Each line represents
-    a regular expression pattern that can be matched against the name of a job.
+    a regular expression pattern that can be matched against the id of a job.
 
     The file can contain simple shell-style comments that begin with the pound
     or hash key (#). Those are ignored. Comments can span both a fraction of a

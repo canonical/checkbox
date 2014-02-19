@@ -152,10 +152,10 @@ class JobReadinessInhibitor:
             return _("undesired")
         elif self.cause == self.PENDING_DEP:
             return _("required dependency {!r} did not run yet").format(
-                self.related_job.name)
+                self.related_job.id)
         elif self.cause == self.FAILED_DEP:
             return _("required dependency {!r} has failed").format(
-                self.related_job.name)
+                self.related_job.id)
         elif self.cause == self.PENDING_RESOURCE:
             return _(
                 "resource expression {!r} could not be evaluated because"

@@ -31,7 +31,7 @@ from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyMissingError
 from plainbox.impl.resource import Resource
 from plainbox.impl.result import MemoryJobResult
-from plainbox.impl.secure.qualifiers import NameJobQualifier
+from plainbox.impl.secure.qualifiers import JobIdQualifier
 from plainbox.impl.session import JobReadinessInhibitor
 from plainbox.impl.session import SessionState
 from plainbox.impl.session import UndesiredJobReadinessInhibitor
@@ -134,14 +134,14 @@ class SessionStateAPITests(TestCase):
         # The job got added to job list
         self.assertIn(job, session.job_list)
         # The job got added to job state map
-        self.assertIs(session.job_state_map[job.name].job, job)
+        self.assertIs(session.job_state_map[job.id].job, job)
         # The job is not added to the desired job list
         self.assertNotIn(job, session.desired_job_list)
         # The job is not in the run list
         self.assertNotIn(job, session.run_list)
         # The job is not selected to run
         self.assertEqual(
-            session.job_state_map[job.name].readiness_inhibitor_list,
+            session.job_state_map[job.id].readiness_inhibitor_list,
             [UndesiredJobReadinessInhibitor])
 
     def test_add_job_duplicate_job(self):
@@ -177,7 +177,7 @@ class SessionStateAPITests(TestCase):
         # Define a different job that clashes with the initial job
         clashing_job = make_job("A", plugin='other')
         self.assertNotEqual(job, clashing_job)
-        self.assertEqual(job.name, clashing_job.name)
+        self.assertEqual(job.id, clashing_job.id)
         # Try adding it to the session
         #
         # This raises an exception
@@ -250,7 +250,7 @@ class SessionStateTrimTests(TestCase):
         """
         verify that trim_job_list() removes jobs as requested
         """
-        self.session.trim_job_list(NameJobQualifier("a"))
+        self.session.trim_job_list(JobIdQualifier("a"))
         self.assertEqual(self.session.job_list, [self.job_b])
 
     def test_trim_does_remove_job_state(self):
@@ -258,7 +258,7 @@ class SessionStateTrimTests(TestCase):
         verify that trim_job_list() removes job state for removed jobs
         """
         self.assertIn("a", self.session.job_state_map)
-        self.session.trim_job_list(NameJobQualifier("a"))
+        self.session.trim_job_list(JobIdQualifier("a"))
         self.assertNotIn("a", self.session.job_state_map)
 
     def test_trim_does_remove_resources(self):
@@ -267,7 +267,7 @@ class SessionStateTrimTests(TestCase):
         """
         self.session.set_resource_list("a", [Resource({'attr': 'value'})])
         self.assertIn("a", self.session.resource_map)
-        self.session.trim_job_list(NameJobQualifier("a"))
+        self.session.trim_job_list(JobIdQualifier("a"))
         self.assertNotIn("a", self.session.resource_map)
 
     def test_trim_fires_on_job_removed(self):
@@ -281,7 +281,7 @@ class SessionStateTrimTests(TestCase):
             nonlocal signal_fired
             signal_fired = True
         self.session.on_job_removed.connect(on_job_removed)
-        self.session.trim_job_list(NameJobQualifier("a"))
+        self.session.trim_job_list(JobIdQualifier("a"))
         self.assertTrue(signal_fired)
 
     def test_trim_fires_on_job_state_map_changed(self):
@@ -294,7 +294,7 @@ class SessionStateTrimTests(TestCase):
             nonlocal signal_fired
             signal_fired = True
         self.session.on_job_state_map_changed.connect(on_job_state_map_changed)
-        self.session.trim_job_list(NameJobQualifier("a"))
+        self.session.trim_job_list(JobIdQualifier("a"))
         self.assertTrue(signal_fired)
 
     def test_trim_fires_on_job_state_map_changed_only_when_needed(self):
@@ -308,7 +308,7 @@ class SessionStateTrimTests(TestCase):
             nonlocal signal_fired
             signal_fired = True
         self.session.on_job_state_map_changed.connect(on_job_state_map_changed)
-        self.session.trim_job_list(NameJobQualifier("x"))
+        self.session.trim_job_list(JobIdQualifier("x"))
         self.assertFalse(signal_fired)
 
     def test_trim_raises_ValueError_for_jobs_on_run_list(self):
@@ -318,7 +318,7 @@ class SessionStateTrimTests(TestCase):
         """
         self.session.update_desired_job_list([self.job_a])
         with self.assertRaises(ValueError) as boom:
-            self.session.trim_job_list(NameJobQualifier("a"))
+            self.session.trim_job_list(JobIdQualifier("a"))
             self.assertEqual(
                 str(boom.exception),
                 "cannot remove jobs that are on the run list: a")
@@ -382,13 +382,13 @@ class SessionStateReactionToJobResultTests(TestCase):
             self.job_A, self.job_R, self.job_X, self.job_Y, self.job_L]
         self.session = SessionState(self.job_list)
 
-    def job_state(self, name):
+    def job_state(self, id):
         # A helper function to avoid overly long expressions
-        return self.session.job_state_map[name]
+        return self.session.job_state_map[id]
 
-    def job_inhibitor(self, name, index):
+    def job_inhibitor(self, id, index):
         # Another helper that shortens deep object nesting
-        return self.job_state(name).readiness_inhibitor_list[index]
+        return self.job_state(id).readiness_inhibitor_list[index]
 
     def test_assumptions(self):
         # This function checks the assumptions of SessionState initial state.
@@ -608,7 +608,7 @@ class SessionStateReactionToJobResultTests(TestCase):
         # Create a result for the local job L
         result_L = MemoryJobResult({
             'io_log': [
-                (0, 'stdout', b'name: foo\n'),
+                (0, 'stdout', b'id: foo\n'),
                 (1, 'stdout', b'plugin: manual\n'),
             ],
         })
@@ -617,7 +617,7 @@ class SessionStateReactionToJobResultTests(TestCase):
         # A job should be generated
         self.assertTrue("foo" in self.session.job_state_map)
         job_foo = self.session.job_state_map['foo'].job
-        self.assertTrue(job_foo.name, "foo")
+        self.assertTrue(job_foo.id, "foo")
         self.assertTrue(job_foo.plugin, "manual")
         # It should be linked to the job L via the via attribute
         self.assertTrue(job_foo.via, self.job_L.checksum)
@@ -633,10 +633,10 @@ class SessionMetadataTests(TestCase):
 
     def test_initializer(self):
         metadata = SessionMetaData(
-            title="title", flags=['f1', 'f2'], running_job_name='name')
+            title="title", flags=['f1', 'f2'], running_job_name='id')
         self.assertEqual(metadata.title, "title")
         self.assertEqual(metadata.flags, set(["f1", "f2"]))
-        self.assertEqual(metadata.running_job_name, "name")
+        self.assertEqual(metadata.running_job_name, "id")
 
     def test_accessors(self):
         metadata = SessionMetaData()
@@ -644,8 +644,8 @@ class SessionMetadataTests(TestCase):
         self.assertEqual(metadata.title, "title")
         metadata.flags = set(["f1", "f2"])
         self.assertEqual(metadata.flags, set(["f1", "f2"]))
-        metadata.running_job_name = "name"
-        self.assertEqual(metadata.running_job_name, "name")
+        metadata.running_job_name = "id"
+        self.assertEqual(metadata.running_job_name, "id")
 
     def test_app_blob_default_value(self):
         metadata = SessionMetaData()

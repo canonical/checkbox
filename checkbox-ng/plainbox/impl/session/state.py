@@ -105,7 +105,11 @@ class SessionMetaData:
     @property
     def running_job_name(self):
         """
-        name of the running job
+        id of the running job
+
+        .. note::
+            This property has a confusing name. It actually refers to job ID,
+            not name.
 
         This property should be updated to keep track of the name of the
         job that is being executed. When either plainbox or the machine it
@@ -172,16 +176,16 @@ class SessionState:
 
     :ivar dict job_state_map: mapping that tracks the state of each job
 
-        Mapping from job name to :class:`JobState`. This basically has the test
+        Mapping from job id to :class:`JobState`. This basically has the test
         result and the inhibitor of each job. It also serves as a
-        :attr:`plainbox.impl.job.JobDefinition.name`-> job lookup helper.
+        :attr:`plainbox.impl.job.JobDefinition.id`-> job lookup helper.
 
         Directly exposed with the intent to fuel part of the UI. This is a way
         to get at the readiness state, result and readiness inhibitors, if any.
 
-        XXX: this can loose data job_list has jobs with the same name. It would
+        XXX: this can loose data job_list has jobs with the same id. It would
         be better to use job id as the keys here. A separate map could be used
-        for the name->job lookup. This will be fixed when session controller
+        for the id->job lookup. This will be fixed when session controller
         branch lands in trunk as then jobs are dynamically added to the system
         one at a time and proper error conditions can be detected and reported.
 
@@ -199,7 +203,7 @@ class SessionState:
 
     :ivar dict resource_map: all known resources
 
-        A mapping from resource name to a list of
+        A mapping from resource id to a list of
         :class:`plainbox.impl.resource.Resource` objects. This encapsulates all
         "knowledge" about the system plainbox is running on.
 
@@ -296,7 +300,7 @@ class SessionState:
                 # If there are no problems then break the loop
                 break
         self._job_list = job_list
-        self._job_state_map = {job.name: JobState(job)
+        self._job_state_map = {job.id: JobState(job)
                                for job in self._job_list}
         self._desired_job_list = []
         self._run_list = []
@@ -331,28 +335,28 @@ class SessionState:
         # Build a list of (job, should_remove) flags, we'll be using this list
         # a few times below.
         job_and_flag_list = list(zip(self._job_list, remove_flags))
-        # Build a set of names of jobs that we'll be removing
-        remove_job_name_set = frozenset([
-            job.name for job, should_remove in job_and_flag_list
+        # Build a set of ids of jobs that we'll be removing
+        remove_job_id_set = frozenset([
+            job.id for job, should_remove in job_and_flag_list
             if should_remove is True])
-        # Build a set of names of jobs that are on the run list
-        run_list_name_set = frozenset([job.name for job in self.run_list])
+        # Build a set of ids of jobs that are on the run list
+        run_list_id_set = frozenset([job.id for job in self.run_list])
         # Check if this is safe to do. None of the jobs may be in the run list
         # (or the desired job list which is always a subset of run list)
-        unremovable_job_name_set = remove_job_name_set.intersection(
-            run_list_name_set)
-        if unremovable_job_name_set:
+        unremovable_job_id_set = remove_job_id_set.intersection(
+            run_list_id_set)
+        if unremovable_job_id_set:
             raise ValueError(
                 _("cannot remove jobs that are on the run list: {}").format(
-                    ', '.join(sorted(unremovable_job_name_set))))
+                    ', '.join(sorted(unremovable_job_id_set))))
         # Remove job state and resources (if present) for all the jobs we're
         # about to remove. Note that while each job has a state object not all
         # jobs generated resources so that removal is conditional.
         for job, should_remove in job_and_flag_list:
             if should_remove:
-                del self._job_state_map[job.name]
-                if job.name in self._resource_map:
-                    del self._resource_map[job.name]
+                del self._job_state_map[job.id]
+                if job.id in self._resource_map:
+                    del self._resource_map[job.id]
         # Compute a list of jobs to retain
         retain_list = [
             job for job, should_remove in job_and_flag_list
@@ -472,7 +476,7 @@ class SessionState:
         Local jobs produce more jobs. Like with resource jobs, their IO log is
         parsed and interpreted as additional jobs. Unlike in resource jobs
         local jobs don't replace anything. They cannot replace an existing job
-        with the same name.
+        with the same id.
         """
         job.controller.observe_result(self, job, result)
         self._recompute_job_readiness()
@@ -500,7 +504,7 @@ class SessionState:
         session.  The job is initially not selected to run (it is not in the
         desired_job_list and has the undesired inhibitor).
 
-        The new_job may clash with an existing job with the same name. Unless
+        The new_job may clash with an existing job with the same id. Unless
         both jobs are identical this will cause DependencyDuplicateError to be
         raised. Identical jobs are silently discarded.
 
@@ -508,12 +512,12 @@ class SessionState:
 
             This method recomputes job readiness for all jobs
         """
-        # See if we have a job with the same name already
+        # See if we have a job with the same id already
         try:
-            existing_job = self.job_state_map[new_job.name].job
+            existing_job = self.job_state_map[new_job.id].job
         except KeyError:
             # Register the new job in our state
-            self.job_state_map[new_job.name] = JobState(new_job)
+            self.job_state_map[new_job.id] = JobState(new_job)
             self.job_list.append(new_job)
             self.on_job_state_map_changed()
             self.on_job_added(new_job)
@@ -530,13 +534,13 @@ class SessionState:
             if recompute:
                 self._recompute_job_readiness()
 
-    def set_resource_list(self, resource_name, resource_list):
+    def set_resource_list(self, resource_id, resource_list):
         """
-        Add or change a resource with the given name.
+        Add or change a resource with the given id.
 
-        Resources silently overwrite any old resources with the same name.
+        Resources silently overwrite any old resources with the same id.
         """
-        self._resource_map[resource_name] = resource_list
+        self._resource_map[resource_id] = resource_list
 
     @property
     def job_list(self):
@@ -574,14 +578,14 @@ class SessionState:
     @property
     def job_state_map(self):
         """
-        Map from job name to JobState that encodes the state of each job.
+        Map from job id to JobState that encodes the state of each job.
         """
         return self._job_state_map
 
     @property
     def resource_map(self):
         """
-        Map from resource name to a list of resource records
+        Map from resource id to a list of resource records
         """
         return self._resource_map
 
@@ -610,7 +614,7 @@ class SessionState:
         # do a single O(N) pass over _run_list. All "current/update" state is
         # computed before it needs to be observed (thanks to the ordering)
         for job in self._run_list:
-            job_state = self._job_state_map[job.name]
+            job_state = self._job_state_map[job.id]
             # Remove the undesired inhibitor as we want to run this job
             job_state.readiness_inhibitor_list.remove(
                 UndesiredJobReadinessInhibitor)

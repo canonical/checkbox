@@ -398,7 +398,7 @@ class JobDefintionPlugInTests(TestCase):
         self.provider = mock.Mock(name="provider", spec=Provider1)
         self.plugin = JobDefinitionPlugIn(
             "/path/to/jobs.txt", (
-                "name: test/job\n"
+                "id: test/job\n"
                 "plugin: shell\n"
                 "command: true\n"),
             self.provider)
@@ -423,7 +423,7 @@ class JobDefintionPlugInTests(TestCase):
         verify the contents of the loaded JobDefinition object
         """
         job = self.plugin.plugin_object[0]
-        self.assertEqual(job.name, "test/job")
+        self.assertEqual(job.id, "test/job")
         self.assertEqual(job.plugin, "shell")
         self.assertEqual(job.command, "true")
         self.assertEqual(
@@ -566,21 +566,21 @@ class Provider1Tests(TestCase):
         # Create unsorted job definitions that define a1, a2, a3 and a4
         fake_plugins = [
             JobDefinitionPlugIn("/path/to/jobs1.txt", (
-                "name: a2\n"
+                "id: a2\n"
                 "\n"
-                "name: a1\n"), self.provider),
+                "id: a1\n"), self.provider),
             JobDefinitionPlugIn("/path/to/jobs2.txt", (
-                "name: a3\n"
+                "id: a3\n"
                 "\n"
-                "name: a4\n"), self.provider)
+                "id: a4\n"), self.provider)
         ]
         with self.provider._job_collection.fake_plugins(fake_plugins):
             job_list = self.provider.get_builtin_jobs()
         self.assertEqual(len(job_list), 4)
-        self.assertEqual(job_list[0].name, "a1")
-        self.assertEqual(job_list[1].name, "a2")
-        self.assertEqual(job_list[2].name, "a3")
-        self.assertEqual(job_list[3].name, "a4")
+        self.assertEqual(job_list[0].id, "a1")
+        self.assertEqual(job_list[1].id, "a2")
+        self.assertEqual(job_list[2].id, "a3")
+        self.assertEqual(job_list[3].id, "a4")
 
     def test_get_builtin_jobs__failing(self):
         """
@@ -603,21 +603,21 @@ class Provider1Tests(TestCase):
         # Create unsorted job definitions that define a1, a2, a3 and a4
         fake_plugins = [
             JobDefinitionPlugIn("/path/to/jobs1.txt", (
-                "name: a2\n"
+                "id: a2\n"
                 "\n"
-                "name: a1\n"), self.provider),
+                "id: a1\n"), self.provider),
             JobDefinitionPlugIn("/path/to/jobs2.txt", (
-                "name: a3\n"
+                "id: a3\n"
                 "\n"
-                "name: a4\n"), self.provider)
+                "id: a4\n"), self.provider)
         ]
         with self.provider._job_collection.fake_plugins(fake_plugins):
             job_list, problem_list = self.provider.load_all_jobs()
         self.assertEqual(len(job_list), 4)
-        self.assertEqual(job_list[0].name, "a1")
-        self.assertEqual(job_list[1].name, "a2")
-        self.assertEqual(job_list[2].name, "a3")
-        self.assertEqual(job_list[3].name, "a4")
+        self.assertEqual(job_list[0].id, "a1")
+        self.assertEqual(job_list[1].id, "a2")
+        self.assertEqual(job_list[2].id, "a3")
+        self.assertEqual(job_list[3].id, "a4")
         self.assertEqual(len(problem_list), 0)
 
     def test_load_all_jobs__failing(self):
@@ -627,7 +627,7 @@ class Provider1Tests(TestCase):
         """
         fake_plugins = [
             JobDefinitionPlugIn(
-                "/path/to/jobs1.txt", "name: working\n", self.provider)
+                "/path/to/jobs1.txt", "id: working\n", self.provider)
         ]
         fake_problems = [
             PlugInError("some problem"),
@@ -636,7 +636,7 @@ class Provider1Tests(TestCase):
                 fake_plugins, fake_problems):
             job_list, problem_list = self.provider.load_all_jobs()
         self.assertEqual(len(job_list), 1)
-        self.assertEqual(job_list[0].name, "working")
+        self.assertEqual(job_list[0].id, "working")
         self.assertEqual(problem_list, fake_problems)
 
     def test_get_all_executables(self):

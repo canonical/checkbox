@@ -155,17 +155,17 @@ class SessionSuspendHelper1:
         The result is a dictionary with the following items:
 
             ``jobs``:
-                Dictionary mapping job name to job checksum.
+                Dictionary mapping job id to job checksum.
                 The checksum is computed with
                 :attr:`~plainbox.impl.job.JobDefinition.checksum`
 
             ``results``
-                Dictionary mapping job name to a list of results.
+                Dictionary mapping job id to a list of results.
                 Each result is represented by data computed by
                 :meth:`_repr_JobResult()`
 
             ``desired_job_list``:
-                List of (names) of jobs that are desired (to be executed)
+                List of (ids) of jobs that are desired (to be executed)
 
             ``metadata``:
                 The representation of meta-data associated with the session
@@ -173,17 +173,17 @@ class SessionSuspendHelper1:
         """
         return {
             "jobs": {
-                state.job.name: state.job.checksum
+                state.job.id: state.job.checksum
                 for state in obj.job_state_map.values()
             },
             "results": {
                 # Currently we store only one result but we may store
                 # more than that in a later version.
-                state.job.name: [self._repr_JobResult(state.result)]
+                state.job.id: [self._repr_JobResult(state.result)]
                 for state in obj.job_state_map.values()
             },
             "desired_job_list": [
-                job.name for job in obj.desired_job_list
+                job.id for job in obj.desired_job_list
             ],
             "metadata": self._repr_SessionMetaData(obj.metadata),
         }
@@ -209,7 +209,7 @@ class SessionSuspendHelper1:
                 items it it.
 
             ``running_job_name``:
-                Name of the job that was about to be executed before
+                Id of the job that was about to be executed before
                 snapshotting took place. Can be None.
         """
         return {
@@ -366,7 +366,7 @@ class SessionSuspendHelper2(SessionSuspendHelper1):
                 items it it.
 
             ``running_job_name``:
-                Name of the job that was about to be executed before
+                Id of the job that was about to be executed before
                 snapshotting took place. Can be None.
             ``app_blob``:
                 Arbitrary application specific binary blob encoded with base64.

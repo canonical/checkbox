@@ -42,7 +42,7 @@ class TestJobDefinition(TestCase):
         }
         self._min_record = {
             'plugin': 'plugin',
-            'name': 'name',
+            'id': 'id',
         }
 
     def test_smoke_full_record(self):
@@ -97,7 +97,7 @@ class ParsingTests(TestCaseWithParameters):
 
     def test_environ_parsing_with_various_separators(self):
         job = BaseJob({
-            'name': 'name',
+            'id': 'id',
             'plugin': 'plugin',
             'environ': self.parameters_keymap[
                 self.parameters.glue].join(['foo', 'bar', 'froz'])})

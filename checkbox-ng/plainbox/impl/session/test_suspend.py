@@ -320,12 +320,12 @@ class GeneratedJobSuspendTests(TestCase):
         # Crete a "__category__" job
         self.category_job = JobDefinition({
             "plugin": "local",
-            "name": "__category__"
+            "id": "__category__"
         })
         # Create a "generator" job
         self.generator_job = JobDefinition({
             "plugin": "local",
-            "name": "generator"
+            "id": "generator"
         })
         # Keep a variable for the (future) generated job
         self.generated_job = None
@@ -334,13 +334,13 @@ class GeneratedJobSuspendTests(TestCase):
         self.category_result = MemoryJobResult({
             "io_log": [
                 (0.0, "stdout", b'plugin:local\n'),
-                (0.1, "stdout", b'name:generator\n'),
+                (0.1, "stdout", b'id:generator\n'),
             ]
         })
         # Create a result for the "generator" job.
         # It will define the "generated" job
         self.generator_result = MemoryJobResult({
-            "io_log": [(0.0, 'stdout', b'name:generated')]
+            "io_log": [(0.0, 'stdout', b'id:generated')]
         })
         # Create a session that knows about the two jobs that exist
         # directly as files (__category__ and generator)
@@ -382,9 +382,9 @@ class GeneratedJobSuspendTests(TestCase):
         """
         verify that 'state' keeps track of all three jobs
         """
-        self.assertIn(self.category_job.name, self.data['jobs'])
-        self.assertIn(self.generator_job.name, self.data['jobs'])
-        self.assertIn(self.generated_job.name, self.data['jobs'])
+        self.assertIn(self.category_job.id, self.data['jobs'])
+        self.assertIn(self.generator_job.id, self.data['jobs'])
+        self.assertIn(self.generated_job.id, self.data['jobs'])
 
     def test_category_job_result_is_saved(self):
         """
@@ -404,7 +404,7 @@ class GeneratedJobSuspendTests(TestCase):
                 'return_code': None,
                 'io_log': [
                     [0.0, 'stdout', 'cGx1Z2luOmxvY2FsCg=='],
-                    [0.1, 'stdout', 'bmFtZTpnZW5lcmF0b3IK']
+                    [0.1, 'stdout', 'aWQ6Z2VuZXJhdG9yCg==']
                 ]
             }]
         )
@@ -420,7 +420,7 @@ class GeneratedJobSuspendTests(TestCase):
                 'outcome': None,
                 'return_code': None,
                 'io_log': [
-                    [0.0, 'stdout', 'bmFtZTpnZW5lcmF0ZWQ='],
+                    [0.0, 'stdout', 'aWQ6Z2VuZXJhdGVk'],
                 ]
             }]
         )
@@ -456,14 +456,14 @@ class GeneratedJobSuspendTests(TestCase):
         self.assertEqual(self.data, {
             'jobs': {
                 '__category__': (
-                    '5267192a5eac9288d144242d800b981eeca476c17e0'
-                    'dd32a09c4b3ea0a14f955'),
+                    'e2475434e4c0b2c825541430e526fe0565780dfeb67'
+                    '050f3b7f3453aa3cc439b'),
                 'generator': (
-                    '7e67e23b7e7a6a5803721a9f282c0e88c7f40bae470'
-                    '950f880e419bb9c7665d8'),
+                    'b2aa7b7c4298678cebfdbe30f4aae5be97d320910a5'
+                    'b4dd312606099f35c03b6'),
                 'generated': (
-                    'bfee8c57b6adc9f0f281b59fe818de2ed98b6affb78'
-                    '9cf4fbf282d89453190d3'),
+                    '57b395e91bb4af94143eb19586bd18e4013efc5e60d'
+                    '6050d9ec0bea15dd19489'),
             },
             'results': {
                 '__category__': [{
@@ -471,7 +471,7 @@ class GeneratedJobSuspendTests(TestCase):
                     'execution_duration': None,
                     'io_log': [
                         [0.0, 'stdout', 'cGx1Z2luOmxvY2FsCg=='],
-                        [0.1, 'stdout', 'bmFtZTpnZW5lcmF0b3IK']],
+                        [0.1, 'stdout', 'aWQ6Z2VuZXJhdG9yCg==']],
                     'outcome': None,
                     'return_code': None,
                 }],
@@ -479,7 +479,7 @@ class GeneratedJobSuspendTests(TestCase):
                     'comments': None,
                     'execution_duration': None,
                     'io_log': [
-                        [0.0, 'stdout', 'bmFtZTpnZW5lcmF0ZWQ=']],
+                        [0.0, 'stdout', 'aWQ6Z2VuZXJhdGVk']],
                     'outcome': None,
                     'return_code': None,
                 }],

@@ -65,7 +65,7 @@ def run_job_if_possible(session, runner, config, job, update=True):
 
     :returns: (job_state, job_result)
     """
-    job_state = session.job_state_map[job.name]
+    job_state = session.job_state_map[job.id]
     if job_state.can_start():
         job_result = runner.run_job(job, config)
     else:
@@ -78,7 +78,7 @@ def run_job_if_possible(session, runner, config, job, update=True):
             if inhibitor.cause != inhibitor.FAILED_DEP:
                 continue
             related_job_state = session.job_state_map[
-                inhibitor.related_job.name]
+                inhibitor.related_job.id]
             if related_job_state.result.outcome == IJobResult.OUTCOME_SKIP:
                 outcome = IJobResult.OUTCOME_SKIP
         job_result = MemoryJobResult({

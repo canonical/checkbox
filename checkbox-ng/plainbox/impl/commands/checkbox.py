@@ -72,7 +72,7 @@ class CheckBoxInvocationMixIn:
                     logger.warning(_("Invalid exclude pattern: %s"), pattern)
                     continue
                 for job in job_list:
-                    if regexp_pattern.match(job.name):
+                    if regexp_pattern.match(job.id):
                         job_list.remove(job)
         if ns.include_pattern_list:
             for pattern in ns.include_pattern_list:
@@ -86,7 +86,7 @@ class CheckBoxInvocationMixIn:
                     logger.warning(_("Invalid include pattern: %s"), pattern)
                     continue
                 for job in job_list:
-                    if regexp_pattern.match(job.name):
+                    if regexp_pattern.match(job.id):
                         matching_job_list.append(job)
         return matching_job_list
 

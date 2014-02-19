@@ -97,25 +97,25 @@ class SpecialInvocation(CheckBoxInvocationMixIn):
         print('\tnode [shape=box];')
         for job in matching_job_list:
             if job.plugin == "resource":
-                print('\t"{}" [shape=ellipse,color=blue];'.format(job.name))
+                print('\t"{}" [shape=ellipse,color=blue];'.format(job.id))
             elif job.plugin == "attachment":
-                print('\t"{}" [color=green];'.format(job.name))
+                print('\t"{}" [color=green];'.format(job.id))
             elif job.plugin == "local":
                 print('\t"{}" [shape=invtriangle,color=red];'.format(
-                    job.name))
+                    job.id))
             elif job.plugin == "shell":
-                print('\t"{}" [];'.format(job.name))
+                print('\t"{}" [];'.format(job.id))
             elif job.plugin in ("manual", "user-verify", "user-interact"):
-                print('\t"{}" [color=orange];'.format(job.name))
-            for dep_name in job.get_direct_dependencies():
-                print('\t"{}" -> "{}";'.format(job.name, dep_name))
+                print('\t"{}" [color=orange];'.format(job.id))
+            for dep_id in job.get_direct_dependencies():
+                print('\t"{}" -> "{}";'.format(job.id, dep_id))
             prog = job.get_resource_program()
             if ns.dot_resources and prog is not None:
                 for expression in prog.expression_list:
                     print('\t"{}" [shape=ellipse,color=blue];'.format(
-                        expression.resource_name))
+                        expression.resource_id))
                     print('\t"{}" -> "{}" [style=dashed, label="{}"];'.format(
-                        job.name, expression.resource_name,
+                        job.id, expression.resource_id,
                         expression.text.replace('"', "'")))
         print("}")
 

@@ -40,8 +40,8 @@ class ExpressionFailedError(Exception):
 
     This class is meant to be consumed by the UI layers to provide meaningful
     error messages to the operator. The expression attribute can be used to
-    obtain the text of the expression that failed as well as the resource name
-    that is used by that expression. The resource name can be used to lookup
+    obtain the text of the expression that failed as well as the resource id
+    that is used by that expression. The resource id can be used to lookup
     the (resource) job that produces such values.
     """
 
@@ -69,7 +69,7 @@ class ExpressionCannotEvaluateError(ExpressionFailedError):
 
     def __str__(self):
         return _("expression {!r} needs unavailable resource {!r}").format(
-            self.expression.text, self.expression.resource_name)
+            self.expression.text, self.expression.resource_id)
 
 
 class Resource:
@@ -161,9 +161,9 @@ class ResourceProgram:
     @property
     def required_resources(self):
         """
-        A set() of resource names that are needed to evaluate this program
+        A set() of resource ids that are needed to evaluate this program
         """
-        return set((expression.resource_name
+        return set((expression.resource_id
                     for expression in self._expression_list))
 
     def evaluate_or_raise(self, resource_map):
@@ -176,17 +176,17 @@ class ResourceProgram:
 
         Returns True
 
-        Resources must be a dictionary of mapping resource name to a list of
+        Resources must be a dictionary of mapping resource id to a list of
         Resource objects.
         """
         # First check if we have all required resources
         for expression in self._expression_list:
-            if expression.resource_name not in resource_map:
+            if expression.resource_id not in resource_map:
                 raise ExpressionCannotEvaluateError(expression)
         # Then evaluate all expressions
         for expression in self._expression_list:
             result = expression.evaluate(
-                resource_map[expression.resource_name])
+                resource_map[expression.resource_id])
             if not result:
                 raise ExpressionFailedError(expression)
         return True
@@ -242,19 +242,19 @@ class ResourceNodeVisitor(ast.NodeVisitor):
     Function calls are also disallowed, with the notable exception of 'bool',
     'int', 'float' and 'len'.
 
-    One very important aspect of each expression is the name of the resource it
+    One very important aspect of each expression is the id of the resource it
     is computing against. This is visible as the 'object' the expressions are
     operating on, such as:
 
         package.name == 'fwts'
 
-    As a rule of a thumb exactly one such name is allowed per expression. This
+    As a rule of a thumb exactly one such id is allowed per expression. This
     allows the code that evaluates this to know which resource to use. As
     resources are actually lists of records (where record values are available
     as object attribute) only one object/record is exposed to each expression.
     Using more than one object (by intent or simple typo) would lead to
     expression that will never match. This visitor class facilitates detecting
-    that by computing the names_seen set.
+    that by computing the ids_seen set.
 
     One notable fact is that storing is not allowed so it is (presumably) safe
     to evaluate the code in the context of the current python interpreter.
@@ -266,11 +266,11 @@ class ResourceNodeVisitor(ast.NodeVisitor):
     custom validation implemented. For all other nodes the generic_visit()
     method is called instead.
 
-    On each visit to ast.Name node we record the referenced 'id' (the name of
+    On each visit to ast.Name node we record the referenced 'id' (the id of
     the object being referenced, in simple terms)
 
     On each visit to ast.Call node we check if the called function is in the
-    allowed list of names. This also takes care of stuff like foo()() which
+    allowed list of ids. This also takes care of stuff like foo()() which
     would call the return value of foo.
 
     On each visit to any other ast.Node we check if the class is in the
@@ -321,16 +321,16 @@ class ResourceNodeVisitor(ast.NodeVisitor):
 
     def __init__(self):
         """
-        Initialize a ResourceNodeVisitor with empty set of names_seen
+        Initialize a ResourceNodeVisitor with empty set of ids_seen
         """
-        self._names_seen = set()
+        self._ids_seen = set()
 
     @property
-    def names_seen(self):
+    def ids_seen(self):
         """
         set() of ast.Name().id values seen
         """
-        return self._names_seen
+        return self._ids_seen
 
     def visit_Name(self, node):
         """
@@ -340,7 +340,7 @@ class ResourceNodeVisitor(ast.NodeVisitor):
         ast.Name(). It records the node identifier and calls _check_node()
         """
         self._check_node(node)
-        self._names_seen.add(node.id)
+        self._ids_seen.add(node.id)
 
     def visit_Call(self, node):
         """
@@ -438,10 +438,10 @@ class ResourceExpression:
 
         May raise ResourceProgramError
         """
-        self._resource_name = self._analyze(text)
+        self._resource_id = self._analyze(text)
         self._text = text
         self._lambda = eval("lambda {}: {}".format(
-            self._resource_name, self._text))
+            self._resource_id, self._text))
 
     def __str__(self):
         return self._text
@@ -467,18 +467,18 @@ class ResourceExpression:
         return self._text
 
     @property
-    def resource_name(self):
+    def resource_id(self):
         """
-        The name of the resource this expression depends on
+        The id of the resource this expression depends on
         """
-        return self._resource_name
+        return self._resource_id
 
     def evaluate(self, resource_list):
         """
         Evaluate the expression against a list of resources
 
         Each subsequent resource from the list will be bound to the resource
-        name in the expression. The return value is True if any of the attempts
+        id in the expression. The return value is True if any of the attempts
         return a true value, otherwise the result is False.
         """
         # Try each resource in sequence.
@@ -495,7 +495,7 @@ class ResourceExpression:
                 # why they happen.  We could do deeper validation this way.
                 logger.debug(
                     _("Exception in requirement expression %r (with %s=%r):"
-                      " %r"), self._text, self._resource_name, resource, exc)
+                      " %r"), self._text, self._resource_id, resource, exc)
                 continue
             # Treat any true result as a success
             if result:
@@ -508,7 +508,7 @@ class ResourceExpression:
     @classmethod
     def _analyze(cls, text):
         """
-        Analyze the expression and return the name of the required resource
+        Analyze the expression and return the id of the required resource
 
         May raise SyntaxError or a ResourceProgramError subclass
         """
@@ -519,10 +519,10 @@ class ResourceExpression:
         # which should be captured by the higher layers.
         visitor = ResourceNodeVisitor()
         visitor.visit(node)
-        # Bail if the expression is not using exactly one resource name
-        if len(visitor.names_seen) == 0:
+        # Bail if the expression is not using exactly one resource id
+        if len(visitor.ids_seen) == 0:
             raise NoResourcesReferenced()
-        elif len(visitor.names_seen) == 1:
-            return list(visitor.names_seen)[0]
+        elif len(visitor.ids_seen) == 1:
+            return list(visitor.ids_seen)[0]
         else:
             raise MultipleResourcesReferenced()

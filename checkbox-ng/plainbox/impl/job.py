@@ -78,9 +78,9 @@ class CheckBoxJobValidator:
         """
         Validate the specified job
         """
-        # Check if name is empty
-        if job.name is None:
-            raise ValidationError(job.fields.name, Problem.missing)
+        # Check if id is empty
+        if job.id is None:
+            raise ValidationError(job.fields.id, Problem.missing)
         # Check if summary is empty
         if job.summary is None:
             raise ValidationError(job.fields.summary, Problem.missing)

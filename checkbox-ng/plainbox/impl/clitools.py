@@ -104,6 +104,14 @@ class CommandBase(metaclass=abc.ABCMeta):
                 name = name.replace("command", "")
         return name
 
+    def get_localized_docstring(self):
+        """
+        Get a cleaned-up, localized copy of docstring of this class.
+        """
+        if self.__class__.__doc__ is not None:
+            return inspect.cleandoc(
+                dgettext(self.get_gettext_domain(), self.__class__.__doc__))
+
     def get_command_help(self):
         """
         Get a single-line help string associated with this command, as seen on
@@ -121,7 +129,7 @@ class CommandBase(metaclass=abc.ABCMeta):
         except AttributeError:
             pass
         try:
-            return inspect.getdoc(self.__class__).splitlines()[0]
+            return self.get_localized_docstring().splitlines()[0]
         except (AttributeError, ValueError, IndexError):
             pass
 
@@ -148,7 +156,7 @@ class CommandBase(metaclass=abc.ABCMeta):
             pass
         try:
             return '\n'.join(
-                inspect.getdoc(self.__class__).splitlines()[1:]
+                self.get_localized_docstring().splitlines()[1:]
             ).split('@EPILOG@', 1)[0].strip()
         except (AttributeError, IndexError, ValueError):
             pass
@@ -174,7 +182,7 @@ class CommandBase(metaclass=abc.ABCMeta):
             pass
         try:
             return '\n'.join(
-                inspect.getdoc(self.__class__).splitlines()[1:]
+                self.get_localized_docstring().splitlines()[1:]
             ).split('@EPILOG@', 1)[1].strip()
         except (AttributeError, IndexError, ValueError):
             pass
@@ -208,16 +216,9 @@ class CommandBase(metaclass=abc.ABCMeta):
         :meth:`get_command_name(), :meth:`get_command_help()`,
         :meth:`get_command_description()` and :meth:`get_command_epilog()`.
         """
-        gettext_domain = self.get_gettext_domain()
         help = self.get_command_help()
-        if help is not None:
-            help = dgettext(gettext_domain, help)
         description = self.get_command_description()
-        if description is not None:
-            description = dgettext(gettext_domain, description)
         epilog = self.get_command_epilog()
-        if epilog is not None:
-            epilog = dgettext(gettext_domain, epilog)
         name = self.get_command_name()
         parser = subparsers.add_parser(
             name, help=help, description=description, epilog=epilog)

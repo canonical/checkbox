@@ -66,12 +66,10 @@ class TestSru(TestCase):
 
         job definition options:
           -i PATTERN, --include-pattern PATTERN
-                                Run jobs matching the given regular expression.
-                                Matches from the start to the end of the line.
+                                include jobs matching the given regular expression
           -x PATTERN, --exclude-pattern PATTERN
-                                Do not run jobs matching the given regular expression.
-                                Matches from the start to the end of the line.
+                                exclude jobs matching the given regular expression
           -w WHITELIST, --whitelist WHITELIST
-                                Load whitelist containing run patterns
+                                load whitelist containing run patterns
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")

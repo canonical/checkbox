@@ -111,6 +111,7 @@ class IOLogRecordGenerator(extcmd.DelegateBase):
 
         Called when a new record is generated and needs to be processed.
         """
+        # TRANSLATORS: io means input-output
         logger.debug(_("io log generated %r"), record)
 
 
@@ -259,6 +260,7 @@ class JobRunner(IJobRunner):
         present sufficient information to make that choice, typically this is
         the job description and the output of the command)
         """
+        # TRANSLATORS: %r is the name of the job
         logger.info(_("Running %r"), job)
         func_name = "run_{}_job".format(job.plugin.replace('-', '_'))
         try:
@@ -294,6 +296,7 @@ class JobRunner(IJobRunner):
             passed or not.
         """
         if job.plugin != "shell":
+            # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
         return self._just_run_command(job, config)
 
@@ -318,6 +321,7 @@ class JobRunner(IJobRunner):
             catting log files, sysfs or procfs files)
         """
         if job.plugin != "attachment":
+            # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
         return self._just_run_command(job, config)
 
@@ -343,6 +347,7 @@ class JobRunner(IJobRunner):
             resource programs which are embedded in many job definitions.
         """
         if job.plugin != "resource":
+            # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
         return self._just_run_command(job, config)
 
@@ -368,6 +373,7 @@ class JobRunner(IJobRunner):
             additional jobs at runtime.
         """
         if job.plugin != "local":
+            # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
         return self._just_run_command(job, config)
 
@@ -393,6 +399,7 @@ class JobRunner(IJobRunner):
             may also return other values through that callback.
         """
         if job.plugin != "manual":
+            # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
         return MemoryJobResult({'outcome': IJobResult.OUTCOME_UNDECIDED})
 
@@ -433,6 +440,7 @@ class JobRunner(IJobRunner):
             the same API again).
         """
         if job.plugin != "user-interact":
+            # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
         return self._just_run_command(job, config)
 
@@ -476,6 +484,7 @@ class JobRunner(IJobRunner):
             may also return other values through that callback.
         """
         if job.plugin != "user-verify":
+            # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
         # Run the command
         result_cmd = self._just_run_command(job, config)
@@ -524,6 +533,7 @@ class JobRunner(IJobRunner):
             may also return other values through that callback.
         """
         if job.plugin != "user-interact-verify":
+            # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
         # Run the command
         result_cmd = self._just_run_command(job, config)

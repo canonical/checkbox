@@ -230,8 +230,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         if 'device' in data['resource_map']:
             result = ['{}'.format(i['product'])
                       for i in data["resource_map"]['device']
-                      if ('category' in i and
-                      i['category'] == 'BLUETOOTH' and 'driver' in i)]
+                      if ('category' in i and i['category'] == 'BLUETOOTH' and
+                          'driver' in i)]
             if result:
                 hw_info['bluetooth'] = result.pop()
         return hw_info
@@ -297,20 +297,20 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         self.worksheet2.write(
             4, 2,
             '{} Tests passed - Success Rate: {:.2f}% ({}/{})'.format(
-            self.total_pass, self.total_pass / self.total * 100,
-            self.total_pass, self.total), self.format02)
+                self.total_pass, self.total_pass / self.total * 100,
+                self.total_pass, self.total), self.format02)
         self.worksheet2.write(5, 1, '✘', self.format11)
         self.worksheet2.write(
             5, 2,
             '{} Tests failed - Failure Rate: {:.2f}% ({}/{})'.format(
-            self.total_fail, self.total_fail / self.total * 100,
-            self.total_fail, self.total), self.format02)
+                self.total_fail, self.total_fail / self.total * 100,
+                self.total_fail, self.total), self.format02)
         self.worksheet2.write(6, 1, '-', self.format12)
         self.worksheet2.write(
             6, 2,
             '{} Tests skipped - Skip Rate: {:.2f}% ({}/{})'.format(
-            self.total_skip, self.total_skip / self.total * 100,
-            self.total_skip, self.total), self.format02)
+                self.total_skip, self.total_skip / self.total * 100,
+                self.total_skip, self.total), self.format02)
         self.worksheet2.write_column(
             'L3', ['Fail', 'Skip', 'Pass'], self.format14)
         self.worksheet2.write_column(
@@ -344,7 +344,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 result_map[parent]['category_status'] = IJobResult.OUTCOME_FAIL
             elif (
                 child_status == IJobResult.OUTCOME_PASS and
-                result_map[parent]['category_status'] != IJobResult.OUTCOME_FAIL
+                result_map[parent]['category_status'] !=
+                    IJobResult.OUTCOME_FAIL
             ):
                 result_map[parent]['category_status'] = IJobResult.OUTCOME_PASS
             elif (
@@ -465,8 +466,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 io_log = ' '
                 if result_map[job]['io_log']:
                     io_log = standard_b64decode(
-                        result_map[job]['io_log'].encode()).decode(
-                            'UTF-8').rstrip()
+                        result_map[job]['io_log'].encode()
+                    ).decode('UTF-8').rstrip()
                 io_lines = len(io_log.splitlines()) - 1
                 desc_lines = len(result_map[job]['description'].splitlines())
                 desc_lines -= 1

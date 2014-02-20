@@ -201,3 +201,5 @@ class PlainBoxCommand(CommandBase):
     implement hierarchical command system. The API supports arbitrary many sub
     commands in arbitrary nesting arrangement.
     """
+
+    gettext_domain = "plainbox"

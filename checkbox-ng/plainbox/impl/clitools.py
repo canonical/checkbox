@@ -523,7 +523,7 @@ def autopager(pager_list=['sensible-pager', 'less', 'more']):
       sys.stderr is connected to a tty
 
     .. note::
-        Pager selection is influenced by the pager environment variabe. if set
+        Pager selection is influenced by the pager environment variable. if set
         it will be prepended to the pager_list. This makes the expected
         behavior of allowing users to customize their environment work okay.
 

@@ -59,6 +59,7 @@ class Signal:
         That listener will be called whenever fire() is invoked on the signal
         """
         self._listeners.append(listener)
+        # TRANSLATORS: this is a indicative statement
         logger.debug(_("connect %r to %r"), str(listener), self._signal_name)
         # Track listeners in the instances only
         if inspect.ismethod(listener):
@@ -75,6 +76,7 @@ class Signal:
         """
         self._listeners.remove(listener)
         logger.debug(
+            # TRANSLATORS: this is a indicative statement
             _("disconnect %r from %r"), str(listener), self._signal_name)
         if inspect.ismethod(listener):
             listener_object = listener.__self__

@@ -281,6 +281,7 @@ class JobDefinition(BaseJob, IJobDefinition):
         try:
             return float(value)
         except ValueError:
+            # TRANSLATORS: keep "estimated_duratin" untranslated.
             logger.warning(
                 _("Incorrect value of 'estimated_duration' in job"
                   " %s read from %s"), self.id, self.origin)

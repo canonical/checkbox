@@ -366,7 +366,8 @@ class SessionStorage:
             self._location, self._SESSION_FILE_NEXT)
         logger.debug(
             # TRANSLATORS: unlinking as in deleting a file
-            _("Forcibly unlinking 'next' file %r:"), _next_session_pathname)
+            # Please keep the 'next' string untranslated
+            _("Forcibly unlinking 'next' file %r"), _next_session_pathname)
         os.unlink(_next_session_pathname)
 
     def _load_checkpoint_unix_py32(self):

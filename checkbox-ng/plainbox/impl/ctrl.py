@@ -267,6 +267,8 @@ class CheckBoxSessionStateController(ISessionStateController):
                 # could simply return a list of problems in a similar manner
                 # how update_desired_job_list() does.
                 logger.warning(
+                    # TRANSLATORS: keep the word "local" untranslated. It is a
+                    # special type of job that needs to be distinguished.
                     _("Local job %s produced job %r that collides with"
                       " an existing job %s (from %s), the new job was"
                       " discarded"),
@@ -299,7 +301,10 @@ def gen_rfc822_records_from_io_log(job, result):
     except RFC822SyntaxError as exc:
         # When this exception happens we will _still_ store all the
         # preceding records. This is worth testing
+
         logger.warning(
+            # TRANSLATORS: keep the word "local" untranslated. It is a
+            # special type of job that needs to be distinguished.
             _("local script %s returned invalid RFC822 data: %s"),
             job, exc)
 

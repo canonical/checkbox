@@ -30,7 +30,6 @@
 ./plainbox/impl/commands/test_parse.py
 ./plainbox/impl/commands/test_run.py
 ./plainbox/impl/commands/test_script.py
-./plainbox/impl/commands/test_startprovider.py
 ./plainbox/impl/ctrl.py
 ./plainbox/impl/depmgr.py
 ./plainbox/impl/exporter/__init__.py

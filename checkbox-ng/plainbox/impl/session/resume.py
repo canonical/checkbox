@@ -487,6 +487,7 @@ class SessionResumeHelper1:
         _validate(record_repr, value_type=list)
         delay = _validate(record_repr, key=0, value_type=float)
         if delay < 0:
+            # TRANSLATORS: please keep delay untranslated
             raise CorruptedSessionError(_("delay cannot be negative"))
         stream_name = _validate(
             record_repr, key=1, value_type=str,

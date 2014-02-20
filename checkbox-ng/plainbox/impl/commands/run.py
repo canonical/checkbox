@@ -143,7 +143,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
         last_job = session.metadata.running_job_name
         if last_job is None:
             return
-        print(_("We have previously tried to execute {}").format(last_job))
+        print(_("Previous session run tried to execute: {}").format(last_job))
         action = self.ask_for_resume_action()
         if action == _('skip'):
             result = MemoryJobResult({
@@ -390,27 +390,27 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         group = parser.add_argument_group(title=_("user interface options"))
         group.add_argument(
             '--not-interactive', action='store_true',
-            help=_("Skip tests that require interactivity"))
+            help=_("skip tests that require interactivity"))
         group.add_argument(
             '-n', '--dry-run', action='store_true',
-            help=_("Don't actually run any jobs"))
+            help=_("don't really run most jobs"))
         group = parser.add_argument_group(_("output options"))
         assert 'text' in get_all_exporters()
         group.add_argument(
             '-f', '--output-format', default='text',
             metavar=_('FORMAT'), choices=[_('?')] + list(
                 get_all_exporters().keys()),
-            help=_('Save test results in the specified FORMAT'
+            help=_('save test results in the specified FORMAT'
                    ' (pass ? for a list of choices)'))
         group.add_argument(
             '-p', '--output-options', default='',
             metavar=_('OPTIONS'),
-            help=_('Comma-separated list of options for the export mechanism'
+            help=_('comma-separated list of options for the export mechanism'
                    ' (pass ? for a list of choices)'))
         group.add_argument(
             '-o', '--output-file', default='-',
             metavar=_('FILE'), type=FileType("wb"),
-            help=_('Save test results to the specified FILE'
+            help=_('save test results to the specified FILE'
                    ' (or to stdout if FILE is -)'))
         group.add_argument(
             '-t', '--transport',
@@ -421,12 +421,11 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         group.add_argument(
             '--transport-where',
             metavar=_('WHERE'),
-            help=_('Where to send data using the selected transport.'
-                   ' This is passed as-is and is transport-dependent.'))
+            help=_('where to send data using the selected transport'))
         group.add_argument(
             '--transport-options',
             metavar=_('OPTIONS'),
-            help=_('Comma-separated list of key-value options (k=v) to '
-                   ' be passed to the transport.'))
+            help=_('comma-separated list of key-value options (k=v) to '
+                   ' be passed to the transport'))
         # Call enhance_parser from CheckBoxCommandMixIn
         self.enhance_parser(parser)

@@ -75,38 +75,35 @@ class TestRun(TestCase):
           -h, --help            show this help message and exit
 
         user interface options:
-          --not-interactive     Skip tests that require interactivity
-          -n, --dry-run         Don't actually run any jobs
+          --not-interactive     skip tests that require interactivity
+          -n, --dry-run         don't really run most jobs
 
         output options:
           -f FORMAT, --output-format FORMAT
-                                Save test results in the specified FORMAT (pass ? for
+                                save test results in the specified FORMAT (pass ? for
                                 a list of choices)
           -p OPTIONS, --output-options OPTIONS
-                                Comma-separated list of options for the export
+                                comma-separated list of options for the export
                                 mechanism (pass ? for a list of choices)
           -o FILE, --output-file FILE
-                                Save test results to the specified FILE (or to stdout
+                                save test results to the specified FILE (or to stdout
                                 if FILE is -)
           -t TRANSPORT, --transport TRANSPORT
                                 use TRANSPORT to send results somewhere (pass ? for a
                                 list of choices)
           --transport-where WHERE
-                                Where to send data using the selected transport. This
-                                is passed as-is and is transport-dependent.
+                                where to send data using the selected transport
           --transport-options OPTIONS
-                                Comma-separated list of key-value options (k=v) to be
-                                passed to the transport.
+                                comma-separated list of key-value options (k=v) to be
+                                passed to the transport
 
         job definition options:
           -i PATTERN, --include-pattern PATTERN
-                                Run jobs matching the given regular expression.
-                                Matches from the start to the end of the line.
+                                include jobs matching the given regular expression
           -x PATTERN, --exclude-pattern PATTERN
-                                Do not run jobs matching the given regular expression.
-                                Matches from the start to the end of the line.
+                                exclude jobs matching the given regular expression
           -w WHITELIST, --whitelist WHITELIST
-                                Load whitelist containing run patterns
+                                load whitelist containing run patterns
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
 

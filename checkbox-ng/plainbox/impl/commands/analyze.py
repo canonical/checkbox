@@ -199,7 +199,7 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
                     for packages in [
                             resource.text for resource in
                             resource_program.expression_list
-                            if resource.resource_id== 'package']:
+                            if resource.resource_id == 'package']:
                         node = ast.parse(packages)
                         visitor = RequirementNodeVisitor()
                         visitor.visit(node)

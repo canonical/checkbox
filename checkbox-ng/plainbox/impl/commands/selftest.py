@@ -75,13 +75,13 @@ class SelfTestCommand(PlainBoxCommand):
             action='store_const',
             dest='suite_loader',
             const=load_integration_tests,
-            help=_("Run integration test suite (this verifies checkbox jobs)"))
+            help=_("run integration test suite (this verifies checkbox jobs)"))
         group.add_argument(
             '-u', '--unit-tests',
             action='store_const',
             dest='suite_loader',
             const=load_unit_tests,
-            help=_("Run unit tests (this only verifies plainbox core)"))
+            help=_("run unit tests (this only verifies plainbox core)"))
         # Register a number of TextTestRunner options.
         # More items may be added here as the need arises.
         parser.add_argument(

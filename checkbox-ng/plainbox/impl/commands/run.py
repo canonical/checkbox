@@ -420,7 +420,7 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
                    ' (pass ? for a list of choices)'))
         group.add_argument(
             '--transport-where',
-            metavar=('WHERE'),
+            metavar=_('WHERE'),
             help=_('Where to send data using the selected transport.'
                    ' This is passed as-is and is transport-dependent.'))
         group.add_argument(

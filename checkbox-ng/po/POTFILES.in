@@ -120,3 +120,6 @@
 ./plainbox/testing_utils/test_testcases.py
 ./plainbox/testing_utils/testcases.py
 ./plainbox/tests.py
+./plainbox/vendor/argparse/py32-argparse.py
+./plainbox/vendor/argparse/py33-argparse.py
+./plainbox/vendor/argparse/py34-argparse.py

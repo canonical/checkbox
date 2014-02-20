@@ -315,6 +315,7 @@ class DevelopCommand(ManageCommand):
         parser = self.add_subcommand(subparsers)
         parser.add_argument(
             "-u", "--uninstall", default=False, action="store_true",
+            # TRANSLATORS: don't translate the extension name
             help=_("remove the generated .provider file"))
         parser.add_argument(
             "-f", "--force", default=False, action="store_true",
@@ -375,17 +376,22 @@ class InfoCommand(ManageCommand):
     def invoked(self, ns):
         provider = self.get_provider()
         print(_("[Provider MetaData]"))
-        print(_("\tname: {}").format(provider.name))
-        print(_("\tversion: {}").format(provider.version))
-        print(_("\tgettext domain: {}").format(provider.gettext_domain))
+        # TRANSLATORS: {} is the name of the test provider
+        print("\t" + _("name: {}").format(provider.name))
+        # TRANSLATORS: {} is the version of the test provider
+        print("\t" + _("version: {}").format(provider.version))
+        # TRANSLATORS: {} is the gettext translation domain of the provider
+        print("\t" + _("gettext domain: {}").format(provider.gettext_domain))
         print(_("[Job Definitions]"))
         job_list, problem_list = provider.load_all_jobs()
         for job in job_list:
-            print(_("\t{!a}, from {}").format(
+            # TRANSLATORS: {!a} is the job name, {} is the filename
+            print("\t" + ("{!a}, from {}").format(
                 job.name, job.origin.relative_to(provider.base_dir)))
         if problem_list:
-            print(_("\tSome jobs could not be parsed correctly"))
-            print(_("\tPlease run `manage.py validate` for details"))
+            print("\t" + _("Some jobs could not be parsed correctly"))
+            # TRANSLATORS: please don't translate `manage.py validate`
+            print("\t" + _("Please run `manage.py validate` for details"))
         print(_("[White Lists]"))
         try:
             whitelist_list = provider.get_builtin_whitelists()
@@ -396,7 +402,10 @@ class InfoCommand(ManageCommand):
             print(_("Errors prevent whitelists from being displayed"))
         else:
             for whitelist in whitelist_list:
-                print(_("\t{!a}, from {}").format(
+                # TRANSLATORS: the fields are as follows:
+                # 0: whitelist name
+                # 1: pathname of the file the whitelist is defined in
+                print("\t" + _("{0!a}, from {1}").format(
                     whitelist.name,
                     whitelist.origin.relative_to(provider.base_dir)))
 
@@ -473,7 +482,12 @@ class ValidateCommand(ManageCommand):
             Problem.useless: _("useless field in this context"),
         }
         for job, error in problem_list:
-            print(_("{}: job {!a}, field {!a}: {}").format(
+            # TRANSLATORS: fields are as follows:
+            # 0: filename with job definition
+            # 1: job name
+            # 2: field name
+            # 3: explanation of the problem
+            print(_("{0}: job {1!a}, field {2!a}: {3}").format(
                 job.origin.relative_to(provider.base_dir),
                 job.name, error.field.name, explain[error.problem]))
         if problem_list:
@@ -537,6 +551,8 @@ class ProviderManagerTool(ToolBase):
     def create_parser_object(self):
         parser = argparse.ArgumentParser(
             prog=self.get_exec_name(),
+            # TRANSLATORS: please keep 'manage.py', '--help', '--version'
+            # untranslated. Translate only '[options]' and '<command>'
             usage=_("manage.py [--help] [--version] [options] <command>"))
         parser.add_argument(
             "--version", action="version", version=self.get_exec_version())

@@ -34,7 +34,8 @@ import shutil
 import tarfile
 
 from plainbox import __version__ as version
-from plainbox.i18n import gettext as _
+from plainbox.i18n import docstring
+from plainbox.i18n import gettext as _, gettext_noop as N_
 from plainbox.impl.commands import ToolBase, CommandBase
 from plainbox.impl.job import Problem
 from plainbox.impl.job import ValidationError as JobValidationError
@@ -88,8 +89,16 @@ class ManageCommand(CommandBase):
             secure=False, gettext_domain=self.definition.gettext_domain)
 
 
-class InstallCommand(ManageCommand):
-    """
+@docstring(
+    # TRANSLATORS: please leave various options (both long and short forms),
+    # environment variables and paths in their original form. Also keep the
+    # special @EPILOG@ string. The first line of the translation is special and
+    # is used as the help message. Please keep the pseudo-statement form and
+    # don't finish the sentence with a dot. Pay extra attention to whitespace.
+    # It must be correctly preserved or the result won't work. In particular
+    # the leading whitespace *must* be preserved and *must* have the same
+    # length on each line.
+    N_("""
     install this provider in the system
 
     This command installs the provider to the specified prefix.
@@ -105,7 +114,8 @@ class InstallCommand(ManageCommand):
     directory: jobs, whitelists, bin, data. Missing directories are silently
     ignored. A new, generated ``.provider`` file will be created at an
     appropriate location, based on the meta-data from the ``manage.py`` script.
-    """
+    """))
+class InstallCommand(ManageCommand):
 
     _INCLUDED_ITEMS = ['jobs', 'whitelists', 'bin', 'data']
 
@@ -169,8 +179,16 @@ class InstallCommand(ManageCommand):
                 shutil.copytree(src_name, dst_name)
 
 
-class SourceDistributionCommand(ManageCommand):
-    """
+@docstring(
+    # TRANSLATORS: please leave various options (both long and short forms),
+    # environment variables and paths in their original form. Also keep the
+    # special @EPILOG@ string. The first line of the translation is special and
+    # is used as the help message. Please keep the pseudo-statement form and
+    # don't finish the sentence with a dot. Pay extra attention to whitespace.
+    # It must be correctly preserved or the result won't work. In particular
+    # the leading whitespace *must* be preserved and *must* have the same
+    # length on each line.
+    N_("""
     create a source tarball
 
     This commands creates a source distribution (tarball) of all of the
@@ -190,7 +208,8 @@ class SourceDistributionCommand(ManageCommand):
     - the data directory as above
 
     Any of the missing items are silently ignored.
-    """
+    """))
+class SourceDistributionCommand(ManageCommand):
 
     name = "sdist"
 
@@ -250,8 +269,16 @@ class SourceDistributionCommand(ManageCommand):
                     tarball.add(src_name, dst_name)
 
 
-class DevelopCommand(ManageCommand):
-    """
+@docstring(
+    # TRANSLATORS: please leave various options (both long and short forms),
+    # environment variables and paths in their original form. Also keep the
+    # special @EPILOG@ string. The first line of the translation is special and
+    # is used as the help message. Please keep the pseudo-statement form and
+    # don't finish the sentence with a dot. Pay extra attention to whitespace.
+    # It must be correctly preserved or the result won't work. In particular
+    # the leading whitespace *must* be preserved and *must* have the same
+    # length on each line.
+    N_("""
     install/remove this provider, only for development
 
     This commands creates or removes the ``.provider`` file describing the
@@ -270,7 +297,8 @@ class DevelopCommand(ManageCommand):
 
     Note that the full path of the source directory is placed in the generated
     file so you will need to re-run develop if you move this directory around.
-    """
+    """))
+class DevelopCommand(ManageCommand):
 
     def register_parser(self, subparsers):
         """
@@ -311,15 +339,24 @@ class DevelopCommand(ManageCommand):
                     self.definition.write(stream)
 
 
-class InfoCommand(ManageCommand):
-    """
+@docstring(
+    # TRANSLATORS: please leave various options (both long and short forms),
+    # environment variables and paths in their original form. Also keep the
+    # special @EPILOG@ string. The first line of the translation is special and
+    # is used as the help message. Please keep the pseudo-statement form and
+    # don't finish the sentence with a dot. Pay extra attention to whitespace.
+    # It must be correctly preserved or the result won't work. In particular
+    # the leading whitespace *must* be preserved and *must* have the same
+    # length on each line.
+    N_("""
     display basic information about this provider
 
     This command displays various essential facts about the provider associated
     with the ``manage.py`` script. Displayed data includes provider name and
     other meta-data, all of the jobs and whitelist, with their precise
     locations.
-    """
+    """))
+class InfoCommand(ManageCommand):
 
     def register_parser(self, subparsers):
         """
@@ -364,8 +401,16 @@ class InfoCommand(ManageCommand):
                     whitelist.origin.relative_to(provider.base_dir)))
 
 
-class ValidateCommand(ManageCommand):
-    """
+@docstring(
+    # TRANSLATORS: please leave various options (both long and short forms),
+    # environment variables and paths in their original form. Also keep the
+    # special @EPILOG@ string. The first line of the translation is special and
+    # is used as the help message. Please keep the pseudo-statement form and
+    # don't finish the sentence with a dot. Pay extra attention to whitespace.
+    # It must be correctly preserved or the result won't work. In particular
+    # the leading whitespace *must* be preserved and *must* have the same
+    # length on each line.
+    N_("""
     perform various static analysis and validation
 
     This command inspects all of the jobs defined in the provider associated
@@ -381,7 +426,8 @@ class ValidateCommand(ManageCommand):
 
     The exit code can be used to determine if there were any failures. If you
     have any, ``manage.py validate`` is something that could run in a CI loop.
-    """
+    """))
+class ValidateCommand(ManageCommand):
 
     def register_parser(self, subparsers):
         """

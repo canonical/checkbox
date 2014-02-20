@@ -60,6 +60,8 @@ class ManageCommand(CommandBase):
     the provider that is being worked on even if it's not in PROVIDERPATH.
     """
 
+    gettext_domain = "plainbox"
+
     def __init__(self, definition):
         """
         Initialize a new ManageCommand instance with the specified provider.
@@ -514,6 +516,12 @@ class ProviderManagerTool(ToolBase):
         """
         for cmd_cls in self._SUB_COMMANDS:
             cmd_cls(self.definition).register_parser(subparsers)
+
+    def get_gettext_domain(self):
+        return "plainbox"
+
+    def get_locale_dir(self):
+        return os.getenv("PLAINBOX_LOCALE_DIR", None)
 
 
 def setup(**kwargs):

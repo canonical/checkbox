@@ -35,7 +35,10 @@ import os
 import pdb
 import sys
 
-from plainbox.i18n import gettext as _, dgettext
+from plainbox.i18n import bindtextdomain
+from plainbox.i18n import dgettext
+from plainbox.i18n import gettext as _
+from plainbox.i18n import textdomain
 from plainbox.impl._argparse import LegacyHelpFormatter
 from plainbox.impl.logging import adjust_logging
 
@@ -307,7 +310,37 @@ class ToolBase(metaclass=abc.ABCMeta):
         Do very early initialization. This is where we initialize stuff even
         without seeing a shred of command line data or anything else.
         """
+        self.setup_i18n()
         self._early_parser = self.construct_early_parser()
+
+    def setup_i18n(self):
+        """
+        Setup i18n and l10n system.
+        """
+        domain = self.get_gettext_domain()
+        if domain is not None:
+            textdomain(domain)
+            bindtextdomain(domain, self.get_locale_dir())
+
+    def get_gettext_domain(self):
+        """
+        Get the name of the gettext domain that should be used by this tool.
+
+        The value returned will be used to select translations to
+        global calls to gettext() and ngettext() everywhere in
+        python.
+        """
+        return None
+
+    def get_locale_dir(self):
+        """
+        Get the path of the gettext translation catalogs for this tool.
+
+        This value is used to bind the domain returned by
+        :meth:`get_gettext_domain()` to a specific directory. By default None
+        is returned, which means that standard, system-wide locations are used.
+        """
+        return None
 
     def late_init(self, early_ns):
         """

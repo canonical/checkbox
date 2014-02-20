@@ -244,3 +244,34 @@ gettext = _translator.gettext
 ngettext = _translator.ngettext
 dgettext = _translator.dgettext
 gettext_noop = lambda msgid: msgid
+
+
+def docstring(docstring):
+    """
+    Decorator factory for assigning docstrings to functions.
+
+    This decorator is intended for functions that reuse their docstring
+    as translatable text that needs to be tagged with gettext_noop.
+
+    Example:
+
+        @docstring("the foo function")
+        def foo():
+            pass
+
+
+        @docstring("the Foo class")
+        class Foo:
+            pass
+    """
+    def decorator(cls_or_func):
+        try:
+            cls_or_func.__doc__ = docstring
+            return cls_or_func
+        except AttributeError:
+            assert isinstance(cls_or_func, type)
+            return type(
+                cls_or_func.__name__,
+                (cls_or_func,),
+                {'__doc__': docstring})
+    return decorator

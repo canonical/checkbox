@@ -24,6 +24,7 @@
 import inspect
 import logging
 import os
+import re
 
 from plainbox.i18n import gettext as _
 from plainbox.impl.commands import PlainBoxCommand
@@ -421,9 +422,10 @@ class ProviderSkeleton(Skeleton):
         # (optional)
 
         setup(
-           name={name!r},
-           version="1.0",
-           description="The {name} provider",
+            name={name!r},
+            version="1.0",
+            description="The {name} provider",
+            gettext_domain="{gettext_domain}",
         )
         """))
 
@@ -439,7 +441,9 @@ class StartProviderInvocation:
 
     def run(self):
         try:
-            ProviderSkeleton(self.name).instantiate('.', name=self.name)
+            ProviderSkeleton(self.name).instantiate(
+                '.', name=self.name,
+                gettext_domain=re.sub("[.:]", "_", self.name))
         except SomethingInTheWay as exc:
             raise SystemExit(exc)
 

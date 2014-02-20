@@ -391,6 +391,7 @@ class ToolBase(metaclass=abc.ABCMeta):
             dest="log_level",
             action="store_const",
             const="INFO",
+            # TRANSLATORS: please keep --log-level=INFO untranslated
             help=_("be more verbose (same as --log-level=INFO)"))
         # Add the --debug flag
         group.add_argument(
@@ -398,11 +399,13 @@ class ToolBase(metaclass=abc.ABCMeta):
             dest="log_level",
             action="store_const",
             const="DEBUG",
+            # TRANSLATORS: please keep DEBUG untranslated
             help=_("enable DEBUG messages on the root logger"))
         # Add the --debug flag
         group.add_argument(
             "-C", "--debug-console",
             action="store_true",
+            # TRANSLATORS: please keep DEBUG untranslated
             help=_("display DEBUG messages in the console"))
         # Add the --trace flag
         group.add_argument(
@@ -410,6 +413,7 @@ class ToolBase(metaclass=abc.ABCMeta):
             metavar=_("LOGGER"),
             action="append",
             default=[],
+            # TRANSLATORS: please keep DEBUG untranslated
             help=_("enable DEBUG messages on the specified logger "
                    "(can be used multiple times)"))
         # Add the --pdb flag
@@ -417,12 +421,15 @@ class ToolBase(metaclass=abc.ABCMeta):
             "-P", "--pdb",
             action="store_true",
             default=False,
+            # TRANSLATORS: please keep pdb untranslated
             help=_("jump into pdb (python debugger) when a command crashes"))
         # Add the --debug-interrupt flag
         group.add_argument(
             "-I", "--debug-interrupt",
             action="store_true",
             default=False,
+            # TRANSLATORS: please keep SIGINT/KeyboardInterrupt and --pdb
+            # untranslated
             help=_("crash on SIGINT/KeyboardInterrupt, useful with --pdb"))
 
     def dispatch_command(self, ns):
@@ -450,6 +457,8 @@ class ToolBase(metaclass=abc.ABCMeta):
         except SystemExit:
             # Don't let SystemExit be caught in the logic below, we really
             # just want to exit when that gets thrown.
+
+            # TRANSLATORS: please keep SystemExit untranslated
             logger.debug(_("caught SystemExit, exiting"))
             # We may want to raise SystemExit as it can carry a status code
             # along and we cannot just consume that.

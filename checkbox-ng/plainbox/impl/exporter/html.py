@@ -37,6 +37,7 @@ import mimetypes
 from lxml import etree as ET
 from pkg_resources import resource_filename
 
+from plainbox.i18n import gettext as _
 from plainbox.impl.exporter.xml import XMLSessionStateExporter
 
 
@@ -51,8 +52,8 @@ class HTMLResourceInliner(object):
             with open(url, 'rb') as f:
                 file_contents = f.read()
         except (IOError, OSError):
-            logger.warning("Unable to load resource %s, not inlining",
-                           url)
+            logger.warning(
+                _("Unable to load resource %s, not inlining"), url)
             return ""
         type, encoding = mimetypes.guess_type(url)
         if not encoding:
@@ -65,7 +66,7 @@ class HTMLResourceInliner(object):
             return_string = "data:{};base64,{}".format(type, b64_data)
             return return_string
         else:
-            logger.warning("Resource of type %s unknown", type)
+            logger.warning(_("Resource of type %s unknown"), type)
             #Strip it out, better not to have it.
             return ""
 

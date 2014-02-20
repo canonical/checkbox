@@ -241,8 +241,6 @@ except KeyError:
 gettext = _translator.gettext
 ngettext = _translator.ngettext
 dgettext = _translator.dgettext
-gettext_noop = lambda msgid: msgid
-
 
 def docstring(docstring):
     """
@@ -301,3 +299,20 @@ def bindtextdomain(domain, localedir=None):
         Name of the directory with translation catalogs.
     """
     gettext_module.bindtextdomain(domain, localedir)
+
+
+def gettext_noop(msgid):
+    """
+    No-operation gettext implementation.
+
+    :param msgid:
+        The message not to translate
+    :returns:
+        msgid itself
+
+    This function should be used (typically aliased as ``N_`` to mark strings
+    that don't require translation at the place where they are defined but will
+    be translated later on. This is just a hint to the message extraction
+    system.
+    """
+    return msgid

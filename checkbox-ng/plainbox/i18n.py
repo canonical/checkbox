@@ -233,14 +233,6 @@ _translators = {
     "rot-13": Rot13Translator,
 }
 
-_mode = os.getenv("PLAINBOX_I18N_MODE", "gettext")
-try:
-    _translator = _translators[_mode]
-except KeyError:
-    raise RuntimeError("Unsupported PLAINBOX_I18N_MODE: {!r}".format(_mode))
-gettext = _translator.gettext
-ngettext = _translator.ngettext
-dgettext = _translator.dgettext
 
 def docstring(docstring):
     """
@@ -316,3 +308,13 @@ def gettext_noop(msgid):
     system.
     """
     return msgid
+
+
+_mode = os.getenv("PLAINBOX_I18N_MODE", "gettext")
+try:
+    _translator = _translators[_mode]
+except KeyError:
+    raise RuntimeError("Unsupported PLAINBOX_I18N_MODE: {!r}".format(_mode))
+gettext = _translator.gettext
+ngettext = _translator.ngettext
+dgettext = _translator.dgettext

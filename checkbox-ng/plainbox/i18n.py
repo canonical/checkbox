@@ -273,3 +273,31 @@ def docstring(docstring):
                 (cls_or_func,),
                 {'__doc__': docstring})
     return decorator
+
+
+def textdomain(domain):
+    """
+    Set global gettext domain
+
+    :param domain:
+        Name of the global gettext domain. This domain will be used to all
+        unqualified calls to gettext() and ngettext().
+
+    .. note::
+        gettext and ngettext exposed from this module transparently use
+        "plainbox" as the domain name. This call affects all *other*, typical
+        gettext calls.
+    """
+    gettext_module.textdomain(domain)
+
+
+def bindtextdomain(domain, localedir=None):
+    """
+    Set set directory for gettext messages for a specific domain
+
+    :param domain:
+        Name of the domain to configure
+    :param localedir:
+        Name of the directory with translation catalogs.
+    """
+    gettext_module.bindtextdomain(domain, localedir)

@@ -34,6 +34,7 @@ import base64
 
 import pkg_resources
 
+from plainbox.i18n import gettext as _
 
 logger = getLogger("plainbox.exporter")
 
@@ -291,9 +292,9 @@ def get_all_exporters():
         try:
             exporter_cls = entry_point.load()
         except pkg_resources.DistributionNotFound as exc:
-            logger.info("Unable to load %s: %s", entry_point, exc)
+            logger.info(_("Unable to load %s: %s"), entry_point, exc)
         except ImportError as exc:
-            logger.exception("Unable to import %s: %s", entry_point, exc)
+            logger.exception(_("Unable to import %s: %s"), entry_point, exc)
         else:
             exporter_map[entry_point.name] = exporter_cls
     return exporter_map

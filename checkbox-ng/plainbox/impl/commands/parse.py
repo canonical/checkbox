@@ -114,9 +114,8 @@ class ParseCommand(PlainBoxCommand):
             mind. You may have to override the environment variable LANG to
             "C".
             """),
-            epilog=_("""
-            Example: LANG=C pactl list | plainbox dev parse pactl-list
-            """),
+            epilog=(_("Example: ")
+                    + "LANG=C pactl list | plainbox dev parse pactl-list"),
         )
         parser.set_defaults(command=self)
         parser.add_argument(

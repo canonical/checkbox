@@ -35,7 +35,8 @@ import tarfile
 
 from plainbox import __version__ as version
 from plainbox.i18n import docstring
-from plainbox.i18n import gettext as _, gettext_noop as N_
+from plainbox.i18n import gettext as _
+from plainbox.i18n import gettext_noop as N_
 from plainbox.impl.commands import ToolBase, CommandBase
 from plainbox.impl.job import Problem
 from plainbox.impl.job import ValidationError as JobValidationError

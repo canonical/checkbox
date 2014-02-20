@@ -136,7 +136,7 @@ class SessionStateLegacyAPICompatImpl(SessionState, ISessionStateLegacyAPI):
         """
         Open session state for running jobs.
         """
-        logger.debug(_("SessionState.open()"))
+        logger.debug("SessionState.open()")
         self._add_hint('open')
         return self
 
@@ -144,7 +144,7 @@ class SessionStateLegacyAPICompatImpl(SessionState, ISessionStateLegacyAPI):
         """
         Erase the job_state_map and desired_job_list with the saved ones
         """
-        logger.debug(_("SessionState.resume()"))
+        logger.debug("SessionState.resume()")
         self._add_hint('resume')
         self._commit_manager()
 
@@ -152,7 +152,7 @@ class SessionStateLegacyAPICompatImpl(SessionState, ISessionStateLegacyAPI):
         """
         Clean the session directory.
         """
-        logger.debug(_("SessionState.clean()"))
+        logger.debug("SessionState.clean()")
         self._add_hint('clean')
         self._commit_manager()
 
@@ -162,12 +162,12 @@ class SessionStateLegacyAPICompatImpl(SessionState, ISessionStateLegacyAPI):
 
         Legacy API, this function does absolutely nothing
         """
-        logger.debug(_("SessionState.close()"))
+        logger.debug("SessionState.close()")
         self._manager = None
         self._commit_hint = None
 
     def remove(self):
-        logger.debug(_("SessionState.remove()"))
+        logger.debug("SessionState.remove()")
         self.manager.destroy()
         self._manager = None
         self._commit_hint = None
@@ -195,7 +195,7 @@ class SessionStateLegacyAPICompatImpl(SessionState, ISessionStateLegacyAPI):
         instance that this class is tracking.
         """
         logger.debug(
-            _("_commit_manager(), _commit_hint: %r"), self._commit_hint)
+            "_commit_manager(), _commit_hint: %r", self._commit_hint)
         assert isinstance(self._commit_hint, set)
         if 'open' in self._commit_hint:
             if 'resume' in self._commit_hint:
@@ -207,7 +207,7 @@ class SessionStateLegacyAPICompatImpl(SessionState, ISessionStateLegacyAPI):
         self._commit_hint = None
 
     def _commit_open(self):
-        logger.debug(_("_commit_open()"))
+        logger.debug("_commit_open()")
         self._manager = SessionManager.create_session(
             self.job_list, legacy_mode=True)
         # Compatibility hack. Since session manager is supposed to
@@ -218,7 +218,7 @@ class SessionStateLegacyAPICompatImpl(SessionState, ISessionStateLegacyAPI):
         self._manager._state = self
 
     def _commit_clean(self):
-        logger.debug(_("_commit_clean()"))
+        logger.debug("_commit_clean()")
         if self._manager:
             self._manager.destroy()
             self._manager.create_session(self.job_list)
@@ -227,7 +227,7 @@ class SessionStateLegacyAPICompatImpl(SessionState, ISessionStateLegacyAPI):
         self._manager._state = self
 
     def _commit_resume(self):
-        logger.debug(_("_commit_resume()"))
+        logger.debug("_commit_resume()")
         last_storage = SessionStorageRepository().get_last_storage()
         assert last_storage is not None, "no saved session to resume"
         self._manager = SessionManager.load_session(

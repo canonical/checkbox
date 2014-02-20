@@ -29,6 +29,7 @@
 import logging
 import os
 
+from plainbox.i18n import gettext as _
 from plainbox.impl import get_plainbox_dir
 from plainbox.impl.providers import ProviderNotFound
 from plainbox.impl.providers.v1 import Provider1
@@ -46,7 +47,7 @@ class CheckBoxNotFound(ProviderNotFound):
         return "CheckBoxNotFound()"
 
     def __str__(self):
-        return "CheckBox cannot be found"
+        return _("CheckBox cannot be found")
 
 
 def _get_checkbox_dir():

@@ -377,7 +377,7 @@ class ToolBase(metaclass=abc.ABCMeta):
 
     def add_early_parser_arguments(self, parser):
         group = parser.add_argument_group(
-            title="logging and debugging")
+            title=_("logging and debugging"))
         # Add the --log-level argument
         group.add_argument(
             "-l", "--log-level",
@@ -407,7 +407,7 @@ class ToolBase(metaclass=abc.ABCMeta):
         # Add the --trace flag
         group.add_argument(
             "-T", "--trace",
-            metavar="LOGGER",
+            metavar=_("LOGGER"),
             action="append",
             default=[],
             help=_("enable DEBUG messages on the specified logger "

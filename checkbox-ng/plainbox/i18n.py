@@ -23,7 +23,6 @@
 This module provides public APIs for plainbox translation system.
 """
 
-import codecs
 import collections
 import gettext as gettext_module
 import os
@@ -37,26 +36,6 @@ __all__ = [
     'ngettext',
     'textdomain',
 ]
-
-
-class Rot13Translator:
-
-    rot13 = codecs.getencoder("rot-13")
-
-    @classmethod
-    def gettext(cls, msgid):
-        return cls.rot13(msgid)[0]
-
-    @classmethod
-    def dgettext(cls, domain, msgid):
-        return cls.rot13(msgid)[0]
-
-    @classmethod
-    def ngettext(cls, msgid1, msgid2, n):
-        if n == 1:
-            return cls.rot13(msgid1)[0]
-        else:
-            return cls.rot13(msgid2)[0]
 
 
 class NoOpTranslator:

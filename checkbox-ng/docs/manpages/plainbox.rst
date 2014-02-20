@@ -216,7 +216,7 @@ The following environment variables affect PlainBox:
     Alters behavior of the translation subsystem. This is only useful to
     developers that wish to see fake translations of all the strings marked as
     translatable. Available values include ``no-op``, ``gettext`` (default),
-    ``rot-13``, ``lorem-ipsum-XX`` where ``XX`` is the language code of the
-    faked translations. Supported faked translations are: ``ar`` (Arabic),
-    ``ch`` (Chinese), ``he`` (Hebrew), ``jp`` (Japanese), ``kr`` (Korean),
-    ``pl`` (Polish) and ``ru`` (Russian)
+    ``lorem-ipsum-XX`` where ``XX`` is the language code of the faked
+    translations. Supported faked translations are: ``ar`` (Arabic), ``ch``
+    (Chinese), ``he`` (Hebrew), ``jp`` (Japanese), ``kr`` (Korean), ``pl``
+    (Polish) and ``ru`` (Russian)

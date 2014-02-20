@@ -220,20 +220,6 @@ class GettextTranslator:
         return self._get_translation(self._domian).ngettext(msgid1, msgid2, n)
 
 
-_translators = {
-    "gettext": GettextTranslator("plainbox"),
-    "lorem-ipsum-ar": LoremIpsumTranslator("ar"),
-    "lorem-ipsum-ch": LoremIpsumTranslator("ch"),
-    "lorem-ipsum-he": LoremIpsumTranslator("he"),
-    "lorem-ipsum-jp": LoremIpsumTranslator("jp"),
-    "lorem-ipsum-kr": LoremIpsumTranslator("kr"),
-    "lorem-ipsum-pl": LoremIpsumTranslator("pl"),
-    "lorem-ipsum-ru": LoremIpsumTranslator("ru"),
-    "no-op": NoOpTranslator,
-    "rot-13": Rot13Translator,
-}
-
-
 def docstring(docstring):
     """
     Decorator factory for assigning docstrings to functions.
@@ -310,11 +296,24 @@ def gettext_noop(msgid):
     return msgid
 
 
-_mode = os.getenv("PLAINBOX_I18N_MODE", "gettext")
+# This is the global plainbox-specific translator.
 try:
-    _translator = _translators[_mode]
-except KeyError:
-    raise RuntimeError("Unsupported PLAINBOX_I18N_MODE: {!r}".format(_mode))
+    _translator = {
+        "gettext": GettextTranslator("plainbox"),
+        "no-op": NoOpTranslator,
+        "lorem-ipsum-ar": LoremIpsumTranslator("ar"),
+        "lorem-ipsum-ch": LoremIpsumTranslator("ch"),
+        "lorem-ipsum-he": LoremIpsumTranslator("he"),
+        "lorem-ipsum-jp": LoremIpsumTranslator("jp"),
+        "lorem-ipsum-kr": LoremIpsumTranslator("kr"),
+        "lorem-ipsum-pl": LoremIpsumTranslator("pl"),
+        "lorem-ipsum-ru": LoremIpsumTranslator("ru"),
+    }[os.getenv("PLAINBOX_I18N_MODE", "gettext")]
+except KeyError as exc:
+    raise RuntimeError(
+        "Unsupported PLAINBOX_I18N_MODE: {!r}".format(exc.args[0]))
+
+# This is the public API of this module
 gettext = _translator.gettext
 ngettext = _translator.ngettext
 dgettext = _translator.dgettext

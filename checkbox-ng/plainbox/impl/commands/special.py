@@ -138,24 +138,24 @@ class SpecialCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         group = parser.add_mutually_exclusive_group(required=True)
         group.add_argument(
             '-j', '--list-jobs',
-            help=_("List jobs instead of running them"),
+            help=_("list jobs instead of running them"),
             action="store_const", const="list-jobs", dest="special")
         group.add_argument(
             '-J', '--list-job-hashes',
-            help=_("List jobs with hashes instead of running them"),
+            help=_("list jobs with cheksums instead of running them"),
             action="store_const", const="list-job-hashes", dest="special")
         group.add_argument(
             '-e', '--list-expressions',
-            help=_("List all unique resource expressions"),
+            help=_("list all unique resource expressions"),
             action="store_const", const="list-expr", dest="special")
         group.add_argument(
             '-d', '--dot',
-            help=_("Print a graph of jobs instead of running them"),
+            help=_("print a graph of jobs instead of running them"),
             action="store_const", const="dep-graph", dest="special")
         parser.add_argument(
             '--dot-resources',
             # TRANSLATORS: please keep --dot untranslated
-            help=_("Render resource relationships (for --dot)"),
+            help=_("show resource relationships (for --dot)"),
             action='store_true')
         # Call enhance_parser from CheckBoxCommandMixIn
         self.enhance_parser(parser)

@@ -23,14 +23,29 @@
 """
 
 from unittest.loader import defaultTestLoader
+import os
 
 from plainbox.impl import get_plainbox_dir
+
+
+def disable_translations():
+    """
+    Disable translations for testing.
+
+    Tests assume to run in a non-localized environment. Ideally this would be a
+    part of the test suite setup but I haven't found any better way to do it.
+
+    This method needs to be called by :func:`load_unit_tests()`,
+    :func:`load_unit_tests()` and :func:`load_integration_tests()`.
+    """
+    os.environ["PLAINBOX_I18N_MODE"] = "no-op"
 
 
 def load_unit_tests():
     """
     Load all unit tests and return a TestSuite object
     """
+    disable_translations()
     # Discover all unit tests. By simple convention those are kept in
     # python modules that start with the word 'test_' .
     return defaultTestLoader.discover(get_plainbox_dir())
@@ -40,6 +55,7 @@ def load_integration_tests():
     """
     Load all integration tests and return a TestSuite object
     """
+    disable_translations()
     # Discover all integration tests. By simple convention those are kept in
     # python modules that start with the word 'integration_' .
     return defaultTestLoader.discover(
@@ -53,4 +69,5 @@ def test_suite():
     Uses unittest test discovery system to get a list of test cases defined
     inside plainbox. See setup.py setup(test_suite=...) for a matching entry
     """
+    disable_translations()
     return load_unit_tests()

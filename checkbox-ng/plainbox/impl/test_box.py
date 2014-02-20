@@ -167,7 +167,7 @@ class TestMain(TestCase):
         positional arguments:
           {run,self-test,check-config,dev,startprovider}
             run                 run a test job
-            self-test           run integration tests
+            self-test           run unit and integration tests
             check-config        check and display plainbox configuration
             dev                 development commands
             startprovider       create a new provider (directory)
@@ -220,23 +220,21 @@ class TestSpecial(TestCase):
 
         optional arguments:
           -h, --help            show this help message and exit
-          -j, --list-jobs       List jobs instead of running them
+          -j, --list-jobs       list jobs instead of running them
           -J, --list-job-hashes
-                                List jobs with hashes instead of running them
+                                list jobs with cheksums instead of running them
           -e, --list-expressions
-                                List all unique resource expressions
-          -d, --dot             Print a graph of jobs instead of running them
-          --dot-resources       Render resource relationships (for --dot)
+                                list all unique resource expressions
+          -d, --dot             print a graph of jobs instead of running them
+          --dot-resources       show resource relationships (for --dot)
 
         job definition options:
           -i PATTERN, --include-pattern PATTERN
-                                Run jobs matching the given regular expression.
-                                Matches from the start to the end of the line.
+                                include jobs matching the given regular expression
           -x PATTERN, --exclude-pattern PATTERN
-                                Do not run jobs matching the given regular expression.
-                                Matches from the start to the end of the line.
+                                exclude jobs matching the given regular expression
           -w WHITELIST, --whitelist WHITELIST
-                                Load whitelist containing run patterns
+                                load whitelist containing run patterns
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
 

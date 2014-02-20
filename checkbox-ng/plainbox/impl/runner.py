@@ -268,7 +268,7 @@ class JobRunner(IJobRunner):
         except AttributeError:
             return MemoryJobResult({
                 'outcome': IJobResult.OUTCOME_NOT_IMPLEMENTED,
-                'comment': _('This plugin is not supported'),
+                'comment': _('This type of job is not supported'),
             })
         else:
             if self._dry_run and job.plugin not in self._DRY_RUN_PLUGINS:

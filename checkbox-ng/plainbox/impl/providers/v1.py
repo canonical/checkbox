@@ -70,6 +70,8 @@ class DummyProvider1(IProvider1, IProviderBackend1):
 
     @property
     def description(self):
+        # XXX: how do we handle provider meta-data? Do we translate it it at
+        # display time or at access time?
         return self._extras.get(
             'description', "A dummy provider useful for testing")
 

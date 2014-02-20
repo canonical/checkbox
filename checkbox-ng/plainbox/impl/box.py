@@ -27,6 +27,7 @@
 """
 
 import logging
+import os
 
 from plainbox import __version__ as version
 from plainbox.impl.applogic import PlainBoxConfig
@@ -86,6 +87,12 @@ class PlainBoxTool(PlainBoxToolBase):
         class that is suitable for the particular application.
         """
         return PlainBoxConfig
+
+    def get_gettext_domain(self):
+        return "plainbox"
+
+    def get_locale_dir(self):
+        return os.getenv("PLAINBOX_LOCALE_DIR", None)
 
 
 def main(argv=None):

@@ -431,6 +431,7 @@ class JobDefinition(BaseJob, IJobDefinition):
         All other data is stored as is and is entirely optional.
         """
         if 'id' not in record.data and 'name' not in record.data:
+            # TRANSLATORS: don't translate id or translate it as 'id field'
             raise ValueError(_("Cannot create job without an id"))
         return cls(record.data, record.origin)
 
@@ -452,8 +453,10 @@ class JobDefinition(BaseJob, IJobDefinition):
         embedded provider reference.
         """
         if not isinstance(record.origin.source, JobOutputTextSource):
+            # TRANSLATORS: don't translate record.origin or JobOutputTextSource
             raise ValueError(_("record.origin must be a JobOutputTextSource"))
         if not record.origin.source.job is self:
+            # TRANSLATORS: don't translate record.origin.source.job
             raise ValueError(_("record.origin.source.job must be this job"))
         job = self.from_rfc822_record(record)
         job._provider = self._provider

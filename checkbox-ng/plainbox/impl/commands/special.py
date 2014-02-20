@@ -154,6 +154,7 @@ class SpecialCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             action="store_const", const="dep-graph", dest="special")
         parser.add_argument(
             '--dot-resources',
+            # TRANSLATORS: please keep --dot untranslated
             help=_("Render resource relationships (for --dot)"),
             action='store_true')
         # Call enhance_parser from CheckBoxCommandMixIn

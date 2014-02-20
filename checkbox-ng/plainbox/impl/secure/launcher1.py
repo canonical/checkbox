@@ -189,6 +189,7 @@ def main(argv=None):
     group.add_argument(
         '-w', '--warmup',
         action='store_true',
+        # TRANSLATORS: don't translate pkexec(1)
         help=_('return immediately, only useful when used with pkexec(1)'))
     group.add_argument(
         '-t', '--target',
@@ -196,15 +197,17 @@ def main(argv=None):
         help=_('run a job with this checksum'))
     group = parser.add_argument_group(_("target job specification"))
     group.add_argument(
-        '-T', '--target-environment', metavar='NAME=VALUE',
+        '-T', '--target-environment', metavar=_('NAME=VALUE'),
         dest='target_env',
         nargs='+',
         action=UpdateAction,
         help=_('environment passed to the target job'))
-    group = parser.add_argument_group(title="generator job specification")
+    group = parser.add_argument_group(title=_("generator job specification"))
     group.add_argument(
         '-g', '--generator',
         metavar=_('CHECKSUM'),
+        # TRANSLATORS: don't translate 'local' in the sentence below. It
+        # denotes a special type of job, not its location.
         help=_(
             'also run a job with this checksum (assuming it is a local job)'))
     group.add_argument(

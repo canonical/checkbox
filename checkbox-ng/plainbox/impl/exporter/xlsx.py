@@ -35,7 +35,7 @@ from xlsxwriter.workbook import Workbook
 from xlsxwriter.utility import xl_rowcol_to_cell
 
 from plainbox.abc import IJobResult
-from plainbox.i18n import gettext as _
+from plainbox.i18n import gettext as _, ngettext
 from plainbox.impl.exporter import SessionStateExporterBase
 
 
@@ -241,35 +241,39 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         self.worksheet1.set_column(1, 1, 34)
         self.worksheet1.set_column(2, 3, 58)
         hw_info = self._hw_collection(data)
-        self.worksheet1.write(5, 1, 'Platform Name', self.format03)
+        self.worksheet1.write(5, 1, _('Platform Name'), self.format03)
         self.worksheet1.write(5, 2, hw_info['platform'], self.format03)
-        self.worksheet1.write(7, 1, 'BIOS', self.format04)
+        self.worksheet1.write(7, 1, _('BIOS'), self.format04)
         self.worksheet1.write(7, 2, hw_info['bios'], self.format06)
-        self.worksheet1.write(8, 1, 'Processors', self.format04)
+        self.worksheet1.write(8, 1, _('Processors'), self.format04)
         self.worksheet1.write(8, 2, hw_info['processors'], self.format05)
-        self.worksheet1.write(9, 1, 'Chipset', self.format04)
+        self.worksheet1.write(9, 1, _('Chipset'), self.format04)
         self.worksheet1.write(9, 2, hw_info['chipset'], self.format06)
-        self.worksheet1.write(10, 1, 'Memory', self.format04)
+        self.worksheet1.write(10, 1, _('Memory'), self.format04)
         self.worksheet1.write(10, 2, hw_info['memory'], self.format05)
-        self.worksheet1.write(11, 1, 'Video (on board)', self.format04)
+        # TRANSLATORS: on board as in 'built in card'
+        self.worksheet1.write(11, 1, _('Video (on board)'), self.format04)
         self.worksheet1.write(11, 2, hw_info['video1'], self.format06)
-        self.worksheet1.write(12, 1, 'Video (add-on)', self.format04)
+        # TRANSLATORS: add-on as in dedicated graphics card
+        self.worksheet1.write(12, 1, _('Video (add-on)'), self.format04)
         self.worksheet1.write(12, 2, hw_info['video2'], self.format05)
-        self.worksheet1.write(13, 1, 'Video memory', self.format04)
+        self.worksheet1.write(13, 1, _('Video memory'), self.format04)
         self.worksheet1.write(13, 2, hw_info['vram'], self.format06)
-        self.worksheet1.write(14, 1, 'Audio', self.format04)
+        self.worksheet1.write(14, 1, _('Audio'), self.format04)
         self.worksheet1.write(14, 2, hw_info['audio'], self.format05)
-        self.worksheet1.write(15, 1, 'NIC', self.format04)
+        # TRANSLATORS: NIC is network interface card
+        self.worksheet1.write(15, 1, _('NIC'), self.format04)
         self.worksheet1.write(15, 2, hw_info['nic'], self.format06)
-        self.worksheet1.write(16, 1, 'Wireless', self.format04)
+        # TRANSLTORS: Wireless as in wireless network cards
+        self.worksheet1.write(16, 1, _('Wireless'), self.format04)
         self.worksheet1.write(16, 2, hw_info['wireless'], self.format05)
-        self.worksheet1.write(17, 1, 'Bluetooth', self.format04)
+        self.worksheet1.write(17, 1, _('Bluetooth'), self.format04)
         self.worksheet1.write(17, 2, hw_info['bluetooth'], self.format06)
         if "package" in data["resource_map"]:
-            self.worksheet1.write(19, 1, 'Packages Installed', self.format03)
+            self.worksheet1.write(
+                19, 1, _('Packages Installed'), self.format03)
             self.worksheet1.write_row(
-                21, 1, ['Name', 'Version'], self.format07
-            )
+                21, 1, [_('Name'), _('Version')], self.format07)
             for i in range(20, 22):
                 self.worksheet1.set_row(
                     i, None, None, {'level': 1, 'hidden': True}
@@ -292,27 +296,38 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         self.worksheet2.set_column(0, 0, 5)
         self.worksheet2.set_column(1, 1, 2)
         self.worksheet2.set_column(3, 3, 27)
-        self.worksheet2.write(3, 1, 'Failures summary', self.format03)
+        self.worksheet2.write(3, 1, _('Failures summary'), self.format03)
         self.worksheet2.write(4, 1, '✔', self.format10)
         self.worksheet2.write(
-            4, 2,
-            '{} Tests passed - Success Rate: {:.2f}% ({}/{})'.format(
-                self.total_pass, self.total_pass / self.total * 100,
-                self.total_pass, self.total), self.format02)
+            4, 2, (
+                ngettext('{} Test passed', '{} Tests passed',
+                         self.total_pass).format(self.total_pass)
+                + " - "
+                + _('Success Rate: {:.2f}% ({}/{})').format(
+                    self.total_pass / self.total * 100,
+                    self.total_pass, self.total)
+            ), self.format02)
         self.worksheet2.write(5, 1, '✘', self.format11)
         self.worksheet2.write(
-            5, 2,
-            '{} Tests failed - Failure Rate: {:.2f}% ({}/{})'.format(
-                self.total_fail, self.total_fail / self.total * 100,
-                self.total_fail, self.total), self.format02)
+            5, 2, (
+                ngettext('{} Test failed', '{} Tests failed', self.total_fail)
+                + ' - '
+                + _('Failure Rate: {:.2f}% ({}/{})').format(
+                    self.total_fail / self.total * 100,
+                    self.total_fail, self.total)
+            ), self.format02)
         self.worksheet2.write(6, 1, '-', self.format12)
         self.worksheet2.write(
-            6, 2,
-            '{} Tests skipped - Skip Rate: {:.2f}% ({}/{})'.format(
-                self.total_skip, self.total_skip / self.total * 100,
-                self.total_skip, self.total), self.format02)
+            6, 2, (
+                ngettext('{} Test skipped', '{} Tests skipped',
+                         self.total_skip)
+                + ' - '
+                + _('Skip Rate: {:.2f}% ({}/{})').format(
+                    self.total_skip / self.total * 100,
+                    self.total_skip, self.total)
+            ), self.format02)
         self.worksheet2.write_column(
-            'L3', ['Fail', 'Skip', 'Pass'], self.format14)
+            'L3', [_('Fail'), _('Skip'), _('Pass')], self.format14)
         self.worksheet2.write_column(
             'M3', [self.total_fail, self.total_skip, self.total_pass],
             self.format14)
@@ -325,8 +340,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 {'fill': {'color': 'gray'}},
                 {'fill': {'color': 'lime'}},
             ],
-            'categories': '=Summary!$L$3:$L$5',
-            'values': '=Summary!$M$3:$M$5'}
+            'categories': '=' + _("Summary") + '!$L$3:$L$5',
+            'values': '=' + _("Summary") + '!$M$3:$M$5'}
         )
         # Insert the chart into the worksheet.
         self.worksheet2.insert_chart('F4', chart, {
@@ -424,7 +439,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                     link_cell = xl_rowcol_to_cell(self._lineno, max_level + 1)
                     self.worksheet3.write_url(
                         self._lineno, max_level + 1,
-                        'internal:Test Descriptions!' + link_cell,
+                        'internal:' + _("Test Descriptions") + '!' + link_cell,
                         self.format08 if self._lineno % 2 else self.format09,
                         job)
                     self.worksheet4.write(
@@ -435,19 +450,19 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                     self.worksheet3.write(
                         self._lineno, max_level, '✔', self.format10)
                     self.worksheet3.write(
-                        self._lineno, max_level + 2, 'PASS', self.format10)
+                        self._lineno, max_level + 2, _('PASS'), self.format10)
                     self.total_pass += 1
                 elif result_map[job]['outcome'] == IJobResult.OUTCOME_FAIL:
                     self.worksheet3.write(
                         self._lineno, max_level, '✘', self.format11)
                     self.worksheet3.write(
-                        self._lineno, max_level + 2, 'FAIL', self.format11)
+                        self._lineno, max_level + 2, _('FAIL'), self.format11)
                     self.total_fail += 1
                 elif result_map[job]['outcome'] == IJobResult.OUTCOME_SKIP:
                     self.worksheet3.write(
                         self._lineno, max_level, '-', self.format12)
                     self.worksheet3.write(
-                        self._lineno, max_level + 2, 'skip', self.format12)
+                        self._lineno, max_level + 2, _('skip'), self.format12)
                     self.total_skip += 1
                 elif result_map[job]['outcome'] == \
                         IJobResult.OUTCOME_NOT_SUPPORTED:
@@ -455,7 +470,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                         self._lineno, max_level, '-', self.format12)
                     self.worksheet3.write(
                         self._lineno, max_level + 2,
-                        'not supported', self.format12)
+                        _('not supported'), self.format12)
                     self.total_skip += 1
                 else:
                     self.worksheet3.write(
@@ -495,7 +510,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
 
     def write_results(self, data):
         tree, max_level = self._tree(data['result_map'])
-        self.worksheet3.write(3, 1, 'Tests Performed', self.format03)
+        self.worksheet3.write(3, 1, _('Tests Performed'), self.format03)
         self.worksheet3.freeze_panes(6, 0)
         self.worksheet3.set_tab_color('#DC4C00')  # Orange
         self.worksheet3.set_column(0, 0, 5)
@@ -504,10 +519,10 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         self.worksheet3.set_column(max_level + 2, max_level + 1, 12)
         self.worksheet3.set_column(max_level + 3, max_level + 2, 65)
         self.worksheet3.write_row(
-            5, max_level + 1, ['Name', 'Result', 'I/O Log'], self.format07
-        )
+            5, max_level + 1, [_('Name'), _('Result'), _('I/O Log')],
+            self.format07)
         if self.OPTION_WITH_DESCRIPTION in self._option_list:
-            self.worksheet4.write(3, 1, 'Tests Descriptions', self.format03)
+            self.worksheet4.write(3, 1, _('Test Descriptions'), self.format03)
             self.worksheet4.freeze_panes(6, 0)
             self.worksheet4.set_column(0, 0, 5)
             [self.worksheet4.set_column(i, i, 2)
@@ -515,7 +530,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             self.worksheet4.set_column(max_level + 1, max_level + 0, 48)
             self.worksheet4.set_column(max_level + 2, max_level + 1, 65)
             self.worksheet4.write_row(
-                5, max_level + 1, ['Name', 'Description'], self.format07
+                5, max_level + 1, [_('Name'), _('Description')], self.format07
             )
         self._lineno = 5
         self._write_job(tree, data['result_map'], max_level)
@@ -554,22 +569,23 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         self.workbook = Workbook(stream)
         self._set_formats()
         if self.OPTION_WITH_SYSTEM_INFO in self._option_list:
-            self.worksheet1 = self.workbook.add_worksheet('System Info')
+            self.worksheet1 = self.workbook.add_worksheet(_('System Info'))
             self.write_systeminfo(data)
-        self.worksheet3 = self.workbook.add_worksheet('Test Results')
+        self.worksheet3 = self.workbook.add_worksheet(_('Test Results'))
         if self.OPTION_WITH_DESCRIPTION in self._option_list:
-            self.worksheet4 = self.workbook.add_worksheet('Test Descriptions')
+            self.worksheet4 = self.workbook.add_worksheet(
+                _('Test Descriptions'))
         self.write_results(data)
         if self.OPTION_WITH_SUMMARY in self._option_list:
-            self.worksheet2 = self.workbook.add_worksheet('Summary')
+            self.worksheet2 = self.workbook.add_worksheet(_('Summary'))
             self.write_summary(data)
         if self.OPTION_WITH_TEXT_ATTACHMENTS in self._option_list:
-            self.worksheet5 = self.workbook.add_worksheet('Log Files')
+            self.worksheet5 = self.workbook.add_worksheet(_('Log Files'))
             self.write_attachments(data)
         for worksheet in self.workbook.worksheets():
             worksheet.outline_settings(True, False, False, True)
             worksheet.hide_gridlines(2)
             worksheet.fit_to_pages(1, 0)
-            worksheet.write(1, 1, 'System Testing Report', self.format01)
+            worksheet.write(1, 1, _('System Testing Report'), self.format01)
             worksheet.set_row(1, 30)
         self.workbook.close()

@@ -35,7 +35,7 @@ import os
 import pdb
 import sys
 
-from plainbox.i18n import gettext as _
+from plainbox.i18n import gettext as _, dgettext
 from plainbox.impl._argparse import LegacyHelpFormatter
 from plainbox.impl.logging import adjust_logging
 
@@ -176,6 +176,24 @@ class CommandBase(metaclass=abc.ABCMeta):
         except (AttributeError, IndexError, ValueError):
             pass
 
+    def get_gettext_domain(self):
+        """
+        Get the gettext translation domain associated with this command.
+
+        The domain will be used to translate the description, epilog and help
+        string, as obtained by their respective methods.
+
+        :returns:
+            self.gettext_domain, if defined
+        :returns:
+            None, otherwise. Note that it will cause the string to be
+            translated with the globally configured domain.
+        """
+        try:
+            return self.gettext_domain
+        except AttributeError:
+            pass
+
     def add_subcommand(self, subparsers):
         """
         Add a parser to the specified subparsers instance.
@@ -187,11 +205,19 @@ class CommandBase(metaclass=abc.ABCMeta):
         :meth:`get_command_name(), :meth:`get_command_help()`,
         :meth:`get_command_description()` and :meth:`get_command_epilog()`.
         """
+        gettext_domain = self.get_gettext_domain()
+        help = self.get_command_help()
+        if help is not None:
+            help = dgettext(gettext_domain, help)
+        description = self.get_command_description()
+        if description is not None:
+            description = dgettext(gettext_domain, description)
+        epilog = self.get_command_epilog()
+        if epilog is not None:
+            epilog = dgettext(gettext_domain, epilog)
+        name = self.get_command_name()
         parser = subparsers.add_parser(
-            self.get_command_name(),
-            help=self.get_command_help(),
-            description=self.get_command_description(),
-            epilog=self.get_command_epilog())
+            name, help=help, description=description, epilog=epilog)
         parser.set_defaults(command=self)
         return parser
 

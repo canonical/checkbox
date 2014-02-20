@@ -17,7 +17,6 @@
 ./plainbox/impl/commands/checkbox.py
 ./plainbox/impl/commands/crash.py
 ./plainbox/impl/commands/dev.py
-./plainbox/impl/commands/init.py
 ./plainbox/impl/commands/list.py
 ./plainbox/impl/commands/logtest.py
 ./plainbox/impl/commands/parse.py

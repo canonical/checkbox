@@ -25,6 +25,7 @@ This module provides public APIs for plainbox translation system.
 
 import collections
 import gettext as gettext_module
+import logging
 import os
 import random
 import re
@@ -37,6 +38,7 @@ __all__ = [
     'textdomain',
 ]
 
+_logger = logging.getLogger("plainbox.i18n")
 
 class NoOpTranslator:
 
@@ -251,7 +253,8 @@ def textdomain(domain):
         "plainbox" as the domain name. This call affects all *other*, typical
         gettext calls.
     """
-    gettext_module.textdomain(domain)
+    _logger.debug("textdomain(%r)", domain)
+    return gettext_module.textdomain(domain)
 
 
 def bindtextdomain(domain, localedir=None):
@@ -263,7 +266,8 @@ def bindtextdomain(domain, localedir=None):
     :param localedir:
         Name of the directory with translation catalogs.
     """
-    gettext_module.bindtextdomain(domain, localedir)
+    _logger.debug("bindtextdomain(%r, %r)", domain, localedir)
+    return gettext_module.bindtextdomain(domain, localedir)
 
 
 def gettext_noop(msgid):

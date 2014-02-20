@@ -600,10 +600,12 @@ class SessionResumeHelper2(SessionResumeHelper1):
             try:
                 app_blob = app_blob.encode("ASCII")
             except UnicodeEncodeError:
+                # TRANSLATORS: please don't translate app_blob
                 raise CorruptedSessionError(_("app_blob is not ASCII"))
             try:
                 app_blob = base64.standard_b64decode(app_blob)
             except binascii.Error:
+                # TRANSLATORS: please don't translate app_blob
                 raise CorruptedSessionError(_("Cannot base64 decode app_blob"))
         session.metadata.app_blob = app_blob
         logger.debug(_("restored metadata %r"), session.metadata)

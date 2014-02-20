@@ -107,7 +107,6 @@
 ./plainbox/impl/test_transport.py
 ./plainbox/impl/testing_utils.py
 ./plainbox/impl/transport.py
-./plainbox/pep380.py
 ./plainbox/provider_manager.py
 ./plainbox/public.py
 ./plainbox/test_abc.py

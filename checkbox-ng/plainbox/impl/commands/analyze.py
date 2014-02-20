@@ -230,6 +230,8 @@ class AnalyzeCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         group.add_argument(
             '-L', '--skip-local',
             action='store_false', dest='run_local',
+            # TRANSLATORS: please keep the word 'local' untranslated.
+            # It designates special type of jobs, not their location.
             help=_('Do not run local jobs'))
         group = parser.add_argument_group("reports")
         group.add_argument(

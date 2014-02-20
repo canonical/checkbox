@@ -123,6 +123,7 @@ class PlainBoxToolBase(ToolBase):
         # Handle the deprecated 'ihv' value
         if ns.checkbox == 'ihv':
             logger.warning(
+                # TRANSLATORS: please keep '-c ihv' untranslated
                 _("The -c ihv option is deprecated and doesn't work anymore"))
             ns.checkbox = 'auto'
         # Decide which providers to expose to the rest of plainbox

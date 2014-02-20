@@ -47,7 +47,7 @@ class NoOpTranslator:
         return msgid
 
     @classmethod
-    def dgettext(cls, domian, msgid):
+    def dgettext(cls, domain, msgid):
         return msgid
 
     @classmethod
@@ -206,7 +206,7 @@ class GettextTranslator:
         return self._get_translation(self._domain).gettext(msgid)
 
     def ngettext(self, msgid1, msgid2, n):
-        return self._get_translation(self._domian).ngettext(msgid1, msgid2, n)
+        return self._get_translation(self._domain).ngettext(msgid1, msgid2, n)
 
 
 def docstring(docstring):

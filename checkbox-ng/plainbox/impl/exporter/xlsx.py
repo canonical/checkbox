@@ -31,10 +31,11 @@ from base64 import standard_b64decode
 from collections import defaultdict, OrderedDict
 import re
 
-from plainbox.impl.exporter import SessionStateExporterBase
-from plainbox.abc import IJobResult
 from xlsxwriter.workbook import Workbook
 from xlsxwriter.utility import xl_rowcol_to_cell
+
+from plainbox.abc import IJobResult
+from plainbox.impl.exporter import SessionStateExporterBase
 
 
 class XLSXSessionStateExporter(SessionStateExporterBase):

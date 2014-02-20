@@ -26,7 +26,9 @@ import logging
 import os
 import re
 
+from plainbox.i18n import docstring
 from plainbox.i18n import gettext as _
+from plainbox.i18n import gettext_noop as N_
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.secure.providers.v1 import IQNValidator
 
@@ -448,9 +450,19 @@ class StartProviderInvocation:
             raise SystemExit(exc)
 
 
-class StartProviderCommand(PlainBoxCommand):
-    """
+@docstring(
+    # TRANSLATORS: please leave various options (both long and short forms),
+    # environment variables and paths in their original form. Also keep the
+    # special @EPILOG@ string. The first line of the translation is special and
+    # is used as the help message. Please keep the pseudo-statement form and
+    # don't finish the sentence with a dot. Pay extra attention to whitespace.
+    # It must be correctly preserved or the result won't work. In particular
+    # the leading whitespace *must* be preserved and *must* have the same
+    # length on each line.
+    N_("""
     create a new provider (directory)
+
+    Creates a new provider from a built-in skeleton.
 
     @EPILOG@
 
@@ -466,7 +478,8 @@ class StartProviderCommand(PlainBoxCommand):
 
     This command creates a new skeleton test provider for PlainBox. The
     generated content should be edited to fit a particular purpose.
-    """
+    """))
+class StartProviderCommand(PlainBoxCommand):
 
     def invoked(self, ns):
         return StartProviderInvocation(ns.name).run()
@@ -475,8 +488,11 @@ class StartProviderCommand(PlainBoxCommand):
         parser = self.add_subcommand(subparsers)
         parser.add_argument(
             'name',
+            metavar=_("name"),
             type=IQN,
-            # TRANSLATORS: please keep the YYYY.example... text unchanged
-            help=_("name of the directory with provider data"
-                   " (eg: YYYY.example.org:some-name)"))
+            # TRANSLATORS: please keep the YYYY.example... text unchanged or at
+            # the very least translate only YYYY and some-name. In either case
+            # some-name must be a reasonably-ASCII string (should be safe for a
+            # portable directory name)
+            help=_("provider name, eg: YYYY.example.org:some-name"))
         parser.set_defaults(command=self)

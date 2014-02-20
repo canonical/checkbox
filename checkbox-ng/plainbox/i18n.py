@@ -206,7 +206,8 @@ class GettextTranslator:
             return self._translations[domain]
         except KeyError:
             try:
-                translation = gettext_module.translation(domain, self._locale_dir)
+                translation = gettext_module.translation(
+                    domain, self._locale_dir)
             except IOError:
                 translation = gettext_module.NullTranslations()
             self._translations[domain] = translation

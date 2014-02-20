@@ -476,6 +476,7 @@ class StartProviderCommand(PlainBoxCommand):
         parser.add_argument(
             'name',
             type=IQN,
+            # TRANSLATORS: please keep the YYYY.example... text unchanged
             help=_("name of the directory with provider data"
                    " (eg: YYYY.example.org:some-name)"))
         parser.set_defaults(command=self)

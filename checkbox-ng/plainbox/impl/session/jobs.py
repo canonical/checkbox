@@ -115,14 +115,15 @@ class JobReadinessInhibitor:
             raise ValueError(_("unsupported value for cause"))
         if cause != self.UNDESIRED and related_job is None:
             raise ValueError(
-                # TRANSLATORS: please don't translate related_job and None
+                # TRANSLATORS: please don't translate related_job, None and
+                # cause
                 _("related_job must not be None when cause is {}").format(
                     self._cause_display[cause]))
         if cause in (self.PENDING_RESOURCE, self.FAILED_RESOURCE) \
                 and related_expression is None:
             raise ValueError(_(
-                # TRANSLATORS: please don't translate related_expression and
-                # None
+                # TRANSLATORS: please don't translate related_expression, None
+                # and cause.
                 "related_expression must not be None when cause is {}"
             ).format(self._cause_display[cause]))
         self.cause = cause
@@ -152,6 +153,7 @@ class JobReadinessInhibitor:
 
     def __str__(self):
         if self.cause == self.UNDESIRED:
+            # TRANSLATORS: as in undesired job
             return _("undesired")
         elif self.cause == self.PENDING_DEP:
             return _("required dependency {!r} did not run yet").format(

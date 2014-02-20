@@ -35,6 +35,7 @@ from xlsxwriter.workbook import Workbook
 from xlsxwriter.utility import xl_rowcol_to_cell
 
 from plainbox.abc import IJobResult
+from plainbox.i18n import gettext as _
 from plainbox.impl.exporter import SessionStateExporterBase
 
 
@@ -81,7 +82,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             option_list = ()
         for option in option_list:
             if option not in self.supported_option_list:
-                raise ValueError("Unsupported option: {}".format(option))
+                raise ValueError(_("Unsupported option: {}").format(option))
         self._option_list = (
             SessionStateExporterBase.OPTION_WITH_IO_LOG,
             SessionStateExporterBase.OPTION_FLATTEN_IO_LOG,

@@ -377,7 +377,7 @@ class InfoCommand(ManageCommand):
         print(_("[Provider MetaData]"))
         print(_("\tname: {}").format(provider.name))
         print(_("\tversion: {}").format(provider.version))
-        print(_("\tgettext_domain: {}").format(provider.gettext_domain))
+        print(_("\tgettext domain: {}").format(provider.gettext_domain))
         print(_("[Job Definitions]"))
         job_list, problem_list = provider.load_all_jobs()
         for job in job_list:

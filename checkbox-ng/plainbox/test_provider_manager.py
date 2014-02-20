@@ -297,7 +297,7 @@ class ProviderManagerToolTests(TestCase):
             "[Provider MetaData]\n"
             "\tname: 2014.com.example:test\n"
             "\tversion: 1.0\n"
-            "\tgettext_domain: domain\n"
+            "\tgettext domain: domain\n"
             "[Job Definitions]\n"
             "\t'dummy', from jobs/jobs.txt:1-3\n"
             "[White Lists]\n"

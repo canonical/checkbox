@@ -501,10 +501,10 @@ class ProviderManagerTool(ToolBase):
         a normal test run.
 
     `manage.py develop`:
-        This command ensures that plainbox can see this provider. It creates
-        a definition file in $XDG_DATA_HOME/plainbox-providers-1/{name}.provider
-        with all the meta-data and location pointing at the directory with
-        the manage.py script
+        This command ensures that plainbox can see this provider. It creates a
+        definition file in $XDG_DATA_HOME/plainbox-providers-1/{name}.provider
+        with all the meta-data and location pointing at the directory with the
+        manage.py script
 
     `manage.py install`:
         This command installs all of the files required by this provider to

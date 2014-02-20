@@ -20,10 +20,7 @@
 :mod:`plainbox.i18n` -- i18n support
 ====================================
 
-This module provides public APIs for plainbox translation system. Currently
-all functions exported here are STUB and offer no translations. In addition,
-functions defined in this module are assumed to implicitly use the gettext
-domain ``"plainbox"``.
+This module provides public APIs for plainbox translation system.
 """
 
 import codecs

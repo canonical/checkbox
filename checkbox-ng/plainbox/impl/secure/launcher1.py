@@ -208,8 +208,8 @@ def main(argv=None):
         metavar=_('CHECKSUM'),
         # TRANSLATORS: don't translate 'local' in the sentence below. It
         # denotes a special type of job, not its location.
-        help=_(
-            'also run a job with this checksum (assuming it is a local job)'))
+        help=_('also run a job with this checksum (assuming it is a local'
+               ' job)'))
     group.add_argument(
         '-G', '--generator-environment',
         dest='generator_env',

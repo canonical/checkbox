@@ -141,8 +141,8 @@ class SessionMetaData:
     @app_blob.setter
     def app_blob(self, value):
         if value is not None and not isinstance(value, bytes):
-            # TRANSLATORS: please don't translate app_blob
-            raise TypeError(_("app_blob must be either none or bytes"))
+            # TRANSLATORS: please don't translate app_blob, None and bytes
+            raise TypeError(_("app_blob must be either None or bytes"))
         self._app_blob = value
 
 

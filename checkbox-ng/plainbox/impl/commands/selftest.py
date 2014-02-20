@@ -26,6 +26,9 @@
 
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
+import argparse
+import os
+import sys
 from unittest.runner import TextTestRunner
 
 from plainbox.i18n import gettext as _
@@ -41,7 +44,17 @@ class SelfTestCommand(PlainBoxCommand):
     instance of plainbox.
     """
 
+    def _reexec_without_locale(self):
+        os.environ['LANG'] = ''
+        os.environ['LANGUAGE'] = ''
+        os.environ['LC_ALL'] = 'C.UTF-8'
+        sys.argv.insert(2, '--after-reexec')
+        os.execvpe(sys.argv[0], sys.argv, os.environ)
+
     def invoked(self, ns):
+        # If asked to, re-execute without locale
+        if ns.reexec:
+            self._reexec_without_locale()
         # Load tests selected on command line
         tests = ns.suite_loader()
         # Use standard unittest runner, it has somewhat annoying way of
@@ -85,3 +98,6 @@ class SelfTestCommand(PlainBoxCommand):
         group.add_argument(
             '-v', '--verbose', dest='verbosity', action="store_const", const=2,
             help=_("run tests verbosely, printing each test case name"))
+        parser.add_argument(
+            '--after-reexec', dest='reexec', action="store_false",
+            default=True, help=argparse.SUPPRESS)

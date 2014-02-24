@@ -33,6 +33,7 @@ from plainbox.abc import IJobQualifier
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.secure.qualifiers import CompositeQualifier
 from plainbox.impl.secure.qualifiers import JobIdQualifier
+from plainbox.impl.secure.qualifiers import NonLocalJobQualifier
 from plainbox.impl.secure.qualifiers import RegExpJobQualifier
 from plainbox.impl.secure.qualifiers import SimpleQualifier
 from plainbox.impl.secure.qualifiers import WhiteList
@@ -257,6 +258,49 @@ class JobIdQualifierTests(TestCase):
         self.assertFalse(JobIdQualifier('nam').designates(make_job('name')))
         self.assertFalse(JobIdQualifier('.*').designates(make_job('name')))
         self.assertFalse(JobIdQualifier('*').designates(make_job('name')))
+
+
+class NonLocalJobQualifierTests(TestCase):
+    """
+    Test cases for NonLocalJobQualifier class
+    """
+
+    def setUp(self):
+        self.qualifier = NonLocalJobQualifier()
+
+    def test_is_primitive(self):
+        """
+        verify that LocalJobQualifier.is_primitive is True
+        """
+        self.assertTrue(self.qualifier.is_primitive)
+
+    def test_repr(self):
+        """
+        verify that NonLocalJobQualifier.__repr__() works as expected
+        """
+        self.assertEqual(
+            repr(self.qualifier), "NonLocalJobQualifier(inclusive=True)")
+
+    def test_get_vote(self):
+        """
+        verify that NonLocalJobQualifier.get_vote() works as expected
+        """
+        self.assertEqual(
+            NonLocalJobQualifier().get_vote(
+                JobDefinition({'name': 'foo', 'plugin': 'shell'})),
+            IJobQualifier.VOTE_INCLUDE)
+        self.assertEqual(
+            NonLocalJobQualifier(inclusive=False).get_vote(
+                JobDefinition({'name': 'foo', 'plugin': 'shell'})),
+            IJobQualifier.VOTE_EXCLUDE)
+        self.assertEqual(
+            NonLocalJobQualifier().get_vote(
+                JobDefinition({'name': 'bar', 'plugin': 'local'})),
+            IJobQualifier.VOTE_IGNORE)
+        self.assertEqual(
+            NonLocalJobQualifier(inclusive=False).get_vote(
+                JobDefinition({'name': 'bar', 'plugin': 'local'})),
+            IJobQualifier.VOTE_IGNORE)
 
 
 class CompositeQualifierTests(TestCase):
@@ -507,7 +551,7 @@ class WhiteListTests(TestCase):
         whitelist.name = "bar"
         self.assertEqual(whitelist.name, "bar")
 
-    def test_name_from_fielename(self):
+    def test_name_from_filename(self):
         """
         verify how name_from_filename() works
         """

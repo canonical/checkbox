@@ -162,6 +162,28 @@ class JobIdQualifier(SimpleQualifier):
             self.__class__.__name__, self._id, self._inclusive)
 
 
+class NonLocalJobQualifier(SimpleQualifier):
+    """
+    A JobQualifier that designates only non local jobs
+    """
+
+    def __init__(self, inclusive=True):
+        super().__init__(inclusive)
+
+    def get_simple_match(self, job):
+        """
+        Check if the given job matches this qualifier.
+
+        This method should not be called directly, it is an implementation
+        detail of SimpleQualifier class.
+        """
+        return job.plugin != 'local'
+
+    def __repr__(self):
+        return "{0}(inclusive={1})".format(
+            self.__class__.__name__, self._inclusive)
+
+
 class CompositeQualifier(IJobQualifier):
     """
     A JobQualifier that has qualifies jobs matching any inclusive qualifiers

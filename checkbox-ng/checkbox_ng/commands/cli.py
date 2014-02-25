@@ -761,9 +761,10 @@ class CliInvocation(CheckBoxInvocationMixIn):
                     runner, job, self.config)
             manager.state.metadata.running_job_name = None
             manager.checkpoint()
-            print("Comments: {}".format(job_result.comments))
             if job.plugin not in ['local', 'resource']:
                 print("Outcome: {}".format(job_result.outcome))
+                if job_result.comments is not None:
+                    print("Comments: {}".format(job_result.comments))
         else:
             job_result = MemoryJobResult({
                 'outcome': IJobResult.OUTCOME_NOT_SUPPORTED,

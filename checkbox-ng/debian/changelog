@@ -1,3 +1,14 @@
+checkbox-ng (0.1-2) unstable; urgency=low
+
+  [ Daniel Manrique ]
+  * checkbox-ng Replaces: and Breaks: old, pre-transitional versions of
+    checkbox, to avoid conflict with some files.
+
+  [ Matthias Klose ]
+  * Don't used a python3.x shebang.
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Tue, 25 Feb 2014 15:57:58 +0100
+
 checkbox-ng (0.1-1) unstable; urgency=low
 
   * Initial release (Closes: #736284)

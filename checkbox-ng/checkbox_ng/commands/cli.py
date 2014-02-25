@@ -35,7 +35,7 @@ import sys
 import textwrap
 
 from plainbox.abc import IJobResult
-from plainbox.impl.applogic import get_matching_job_list, get_whitelist_by_name
+from plainbox.impl.applogic import get_whitelist_by_name
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.check_config import CheckConfigInvocation
 from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
@@ -52,6 +52,7 @@ from plainbox.impl.runner import authenticate_warmup
 from plainbox.impl.runner import slugify
 from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.qualifiers import WhiteList
+from plainbox.impl.secure.qualifiers import select_jobs
 from plainbox.impl.session import SessionManager, SessionStorageRepository
 from plainbox.vendor.textland import DrawingContext
 from plainbox.vendor.textland import EVENT_KEYBOARD
@@ -566,10 +567,8 @@ class CliInvocation(CheckBoxInvocationMixIn):
                 raise SystemExit(exc)
             manager.state.metadata.title = " ".join(sys.argv)
             manager.checkpoint()
-            desired_job_list = []
-            for whitelist in self.whitelists:
-                desired_job_list.extend(get_matching_job_list(job_list,
-                                                              whitelist))
+            desired_job_list = select_jobs(manager.state.job_list,
+                                           self.whitelists)
             self._update_desired_job_list(manager, desired_job_list)
         # Ask the password before anything else in order to run jobs
         # requiring privileges
@@ -722,10 +721,8 @@ class CliInvocation(CheckBoxInvocationMixIn):
                 if job.plugin == "local":
                     # After each local job runs rebuild the list of matching
                     # jobs and run everything again
-                    desired_job_list = []
-                    for whitelist in self.whitelists:
-                        desired_job_list.extend(
-                            get_matching_job_list(manager.state.job_list, whitelist))
+                    desired_job_list = select_jobs(manager.state.job_list,
+                                                   self.whitelists)
                     self._update_desired_job_list(manager, desired_job_list)
                     again = True
                     break

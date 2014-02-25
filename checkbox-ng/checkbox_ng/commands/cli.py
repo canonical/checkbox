@@ -52,7 +52,7 @@ from plainbox.impl.runner import authenticate_warmup
 from plainbox.impl.runner import slugify
 from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.qualifiers import WhiteList
-from plainbox.impl.session import SessionStateLegacyAPI as SessionState
+from plainbox.impl.session import SessionManager, SessionStorageRepository
 from plainbox.vendor.textland import DrawingContext
 from plainbox.vendor.textland import EVENT_KEYBOARD
 from plainbox.vendor.textland import EVENT_RESIZE
@@ -477,7 +477,7 @@ class CliInvocation(CheckBoxInvocationMixIn):
                     provider_list, self.settings['default_whitelist']))
 
         print("[ Analyzing Jobs ]".center(80, '='))
-        self.session = None
+        self.manager = None
         self.runner = None
 
     @property
@@ -509,8 +509,8 @@ class CliInvocation(CheckBoxInvocationMixIn):
             answer = input("{} [{}] ".format(prompt, ", ".join(allowed)))
         return answer
 
-    def _maybe_skip_last_job_after_resume(self, session):
-        last_job = session.metadata.running_job_name
+    def _maybe_skip_last_job_after_resume(self, manager):
+        last_job = manager.state.metadata.running_job_name
         if last_job is None:
             return
         print("We have previously tried to execute {}".format(last_job))
@@ -528,57 +528,67 @@ class CliInvocation(CheckBoxInvocationMixIn):
         elif action == 'run':
             result = None
         if result:
-            session.update_job_result(
-                session.job_state_map[last_job].job, result)
-            session.metadata.running_job_name = None
-            session.persistent_save()
+            manager.state.update_job_result(
+                manager.state.job_state_map[last_job].job, result)
+            manager.state.metadata.running_job_name = None
+            manager.checkpoint()
 
-    def _run_jobs(self, ns, job_list):
-        # Create a session that handles most of the stuff needed to run jobs
-        try:
-            session = SessionState(job_list)
-        except DependencyDuplicateError as exc:
-            # Handle possible DependencyDuplicateError that can happen if
-            # someone is using plainbox for job development.
-            print("The job database you are currently using is broken")
-            print("At least two jobs contend for the name {0}".format(
-                exc.job.name))
-            print("First job defined in: {0}".format(exc.job.origin))
-            print("Second job defined in: {0}".format(
-                exc.duplicate_job.origin))
-            raise SystemExit(exc)
-        with session.open():
+    def _run_jobs(self, ns, manager):
+        job_list = self.get_job_list(ns)
+        previous_session_file = SessionStorageRepository().get_last_storage()
+        resume_in_progress = False
+        if previous_session_file:
+            if self.is_interactive:
+                if self.ask_for_resume():
+                    resume_in_progress = True
+                    manager = SessionManager.load_session(
+                        job_list, previous_session_file)
+                    self._maybe_skip_last_job_after_resume(manager)
+            else:
+                resume_in_progress = True
+                manager = SessionManager.load_session(
+                    job_list, previous_session_file)
+        if not resume_in_progress:
+            # Create a session that handles most of the stuff needed to run
+            # jobs
+            try:
+                manager = SessionManager.create_session(job_list,
+                                                        legacy_mode=True)
+            except DependencyDuplicateError as exc:
+                # Handle possible DependencyDuplicateError that can happen if
+                # someone is using plainbox for job development.
+                print("The job database you are currently using is broken")
+                print("At least two jobs contend for the name {0}".format(
+                    exc.job.name))
+                print("First job defined in: {0}".format(exc.job.origin))
+                print("Second job defined in: {0}".format(
+                    exc.duplicate_job.origin))
+                raise SystemExit(exc)
+            manager.state.metadata.title = " ".join(sys.argv)
+            manager.checkpoint()
             desired_job_list = []
             for whitelist in self.whitelists:
                 desired_job_list.extend(get_matching_job_list(job_list,
                                                               whitelist))
-            self._update_desired_job_list(session, desired_job_list)
-            if session.previous_session_file():
-                if self.is_interactive and self.ask_for_resume():
-                    session.resume()
-                    self._maybe_skip_last_job_after_resume(session)
-                else:
-                    session.clean()
-            session.metadata.title = " ".join(sys.argv)
-            session.persistent_save()
-            # Ask the password before anything else in order to run jobs
-            # requiring privileges
-            if self.is_interactive and self._auth_warmup_needed(session):
-                print("[ Authentication ]".center(80, '='))
-                return_code = authenticate_warmup()
-                if return_code:
-                    raise SystemExit(return_code)
-            runner = JobRunner(
-                session.session_dir, self.provider_list,
-                session.jobs_io_log_dir)
-            self._run_jobs_with_session(ns, session, runner)
-            self.save_results(session)
-            session.remove()
+            self._update_desired_job_list(manager, desired_job_list)
+        # Ask the password before anything else in order to run jobs
+        # requiring privileges
+        if self.is_interactive and self._auth_warmup_needed(manager):
+            print("[ Authentication ]".center(80, '='))
+            return_code = authenticate_warmup()
+            if return_code:
+                raise SystemExit(return_code)
+        runner = JobRunner(
+            manager.storage.location, self.provider_list,
+            os.path.join(manager.storage.location, 'io-logs'))
+        self._run_jobs_with_session(ns, manager, runner)
+        self.save_results(manager)
+        manager.destroy()
 
         # FIXME: sensible return value
         return 0
 
-    def _auth_warmup_needed(self, session):
+    def _auth_warmup_needed(self, manager):
         # Don't warm up plainbox-trusted-launcher-1 if none of the providers
         # use it. We assume that the mere presence of a provider makes it
         # possible for a root job to be preset but it could be improved to
@@ -589,17 +599,17 @@ class CliInvocation(CheckBoxInvocationMixIn):
             return False
         # Don't use authentication warm-up if none of the jobs on the run list
         # requires it.
-        if all(job.user is None for job in session.run_list):
+        if all(job.user is None for job in manager.state.run_list):
             return False
         # Otherwise, do pre-authentication
         return True
 
-    def save_results(self, session):
+    def save_results(self, manager):
         if self.is_interactive:
             print("[ Results ]".center(80, '='))
             exporter = get_all_exporters()['text']()
             exported_stream = io.BytesIO()
-            data_subset = exporter.get_session_data_subset(session)
+            data_subset = exporter.get_session_data_subset(manager.state)
             exporter.dump(data_subset, exported_stream)
             exported_stream.seek(0)  # Need to rewind the file, puagh
             # This requires a bit more finesse, as exporters output bytes
@@ -624,7 +634,7 @@ class CliInvocation(CheckBoxInvocationMixIn):
             exporter = exporter_cls(
                 ['with-sys-info', 'with-summary', 'with-job-description',
                  'with-text-attachments'])
-            data_subset = exporter.get_session_data_subset(session)
+            data_subset = exporter.get_session_data_subset(manager.state)
             results_path = results_file
             if exporter_cls is XMLSessionStateExporter:
                 results_path = submission_file
@@ -667,8 +677,8 @@ class CliInvocation(CheckBoxInvocationMixIn):
                 result['comments'] = input('Please enter your comments:\n')
         return DiskJobResult(result)
 
-    def _update_desired_job_list(self, session, desired_job_list):
-        problem_list = session.update_desired_job_list(desired_job_list)
+    def _update_desired_job_list(self, manager, desired_job_list):
+        problem_list = manager.state.update_desired_job_list(desired_job_list)
         if problem_list:
             print("[ Warning ]".center(80, '*'))
             print("There were some problems with the selected jobs")
@@ -676,7 +686,7 @@ class CliInvocation(CheckBoxInvocationMixIn):
                 print(" * {}".format(problem))
             print("Problematic jobs will not be considered")
         (estimated_duration_auto,
-         estimated_duration_manual) = session.get_estimated_duration()
+         estimated_duration_manual) = manager.state.get_estimated_duration()
         if estimated_duration_auto:
             print("Estimated duration is {:.2f} for automated jobs.".format(
                   estimated_duration_auto))
@@ -689,7 +699,7 @@ class CliInvocation(CheckBoxInvocationMixIn):
         else:
             print("Estimated duration cannot be determined for manual jobs.")
 
-    def _run_jobs_with_session(self, ns, session, runner):
+    def _run_jobs_with_session(self, ns, manager, runner):
         # TODO: run all resource jobs concurrently with multiprocessing
         # TODO: make local job discovery nicer, it would be best if
         # desired_jobs could be managed entirely internally by SesionState. In
@@ -699,32 +709,33 @@ class CliInvocation(CheckBoxInvocationMixIn):
         again = True
         while again:
             again = False
-            for job in session.run_list:
+            for job in manager.state.run_list:
                 # Skip jobs that already have result, this is only needed when
                 # we run over the list of jobs again, after discovering new
                 # jobs via the local job output
-                if session.job_state_map[job.name].result.outcome is not None:
+                if (manager.state.job_state_map[job.name].result.outcome
+                        is not None):
                     continue
-                self._run_single_job_with_session(ns, session, runner, job)
-                session.persistent_save()
+                self._run_single_job_with_session(ns, manager, runner, job)
+                manager.checkpoint()
                 if job.plugin == "local":
                     # After each local job runs rebuild the list of matching
                     # jobs and run everything again
                     desired_job_list = []
                     for whitelist in self.whitelists:
                         desired_job_list.extend(
-                            get_matching_job_list(session.job_list, whitelist))
-                    self._update_desired_job_list(session, desired_job_list)
+                            get_matching_job_list(manager.state.job_list, whitelist))
+                    self._update_desired_job_list(manager, desired_job_list)
                     again = True
                     break
 
-    def _run_single_job_with_session(self, ns, session, runner, job):
+    def _run_single_job_with_session(self, ns, manager, runner, job):
         print("[ {} ]".format(job.name).center(80, '-'))
         if job.description is not None:
             print(job.description)
             print("^" * len(job.description.splitlines()[-1]))
             print()
-        job_state = session.job_state_map[job.name]
+        job_state = manager.state.job_state_map[job.name]
         logger.debug("Job name: %s", job.name)
         logger.debug("Plugin: %s", job.plugin)
         logger.debug("Direct dependencies: %s", job.get_direct_dependencies())
@@ -736,9 +747,9 @@ class CliInvocation(CheckBoxInvocationMixIn):
         logger.debug("Readiness: %s", job_state.get_readiness_description())
         if job_state.can_start():
             print("Running... (output in {}.*)".format(
-                join(session.jobs_io_log_dir, slugify(job.name))))
-            session.metadata.running_job_name = job.name
-            session.persistent_save()
+                join(manager.storage.location, slugify(job.name))))
+            manager.state.metadata.running_job_name = job.name
+            manager.checkpoint()
             # TODO: get a confirmation from the user for certain types of
             # job.plugin
             job_result = runner.run_job(job)
@@ -746,8 +757,8 @@ class CliInvocation(CheckBoxInvocationMixIn):
                     and self.is_interactive):
                 job_result = self._interaction_callback(
                     runner, job, self.config)
-            session.metadata.running_job_name = None
-            session.persistent_save()
+            manager.state.metadata.running_job_name = None
+            manager.checkpoint()
             print("Outcome: {}".format(job_result.outcome))
             print("Comments: {}".format(job_result.comments))
         else:
@@ -756,7 +767,7 @@ class CliInvocation(CheckBoxInvocationMixIn):
                 'comments': job_state.get_readiness_description()
             })
         if job_result is not None:
-            session.update_job_result(job, job_result)
+            manager.state.update_job_result(job, job_result)
 
 
 class CliCommand(PlainBoxCommand, CheckBoxCommandMixIn):

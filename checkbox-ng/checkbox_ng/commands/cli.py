@@ -486,8 +486,8 @@ class CliInvocation(CheckBoxInvocationMixIn):
             # Create a session that handles most of the stuff needed to run
             # jobs
             try:
-                manager = SessionManager.create_session(job_list,
-                                                        legacy_mode=True)
+                manager = SessionManager.create_with_job_list(
+                    job_list, legacy_mode=True)
             except DependencyDuplicateError as exc:
                 # Handle possible DependencyDuplicateError that can happen if
                 # someone is using plainbox for job development.

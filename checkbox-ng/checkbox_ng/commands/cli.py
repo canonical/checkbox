@@ -775,10 +775,6 @@ class CliInvocation(CheckBoxInvocationMixIn):
     def _run_single_job_with_session(self, ns, manager, runner, job):
         if job.plugin not in ['local', 'resource']:
             print("[ {} ]".format(job.name).center(80, '-'))
-            if job.description is not None:
-                print(job.description)
-                print("^" * len(job.description.splitlines()[-1]))
-                print()
         job_state = manager.state.job_state_map[job.name]
         logger.debug("Job name: %s", job.name)
         logger.debug("Plugin: %s", job.plugin)
@@ -791,6 +787,10 @@ class CliInvocation(CheckBoxInvocationMixIn):
         logger.debug("Readiness: %s", job_state.get_readiness_description())
         if job_state.can_start():
             if job.plugin not in ['local', 'resource']:
+                if job.description is not None:
+                    print(job.description)
+                    print("^" * len(job.description.splitlines()[-1]))
+                    print()
                 print("Running... (output in {}.*)".format(
                     join(manager.storage.location, slugify(job.name))))
             manager.state.metadata.running_job_name = job.name

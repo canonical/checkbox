@@ -458,9 +458,12 @@ class ValidateCommand(ManageCommand):
         job_list, problem_list = provider.load_all_jobs()
         if problem_list:
             for exc in problem_list:
-                print("{}:{}: {}".format(
-                    os.path.relpath(exc.filename, provider.base_dir),
-                    exc.lineno, exc.msg))
+                if isinstance(exc, RFC822SyntaxError):
+                    print("{}:{}: {}".format(
+                        os.path.relpath(exc.filename, provider.base_dir),
+                        exc.lineno, exc.msg))
+                else:
+                    print("{}".format(exc))
             print(_("NOTE: subsequent jobs from problematic"
                     " files are ignored"))
         return job_list

@@ -267,7 +267,9 @@ class ProviderManagerToolTests(TestCase):
         self.assertEqual(
             test_io.stdout, (
                 "jobs/broken.txt:1-2: job 'broken', field 'plugin': "
-                "incorrect value supplied\n"))
+                "incorrect value supplied\n"
+                "allowed values are: attachment, local, manual, resource"
+                ", shell, user-interact, user-interact-verify, user-verify\n"))
 
     def test_validate__broken_useless_field(self):
         """

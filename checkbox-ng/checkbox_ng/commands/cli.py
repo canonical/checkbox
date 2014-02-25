@@ -29,14 +29,13 @@
 from logging import getLogger
 from os.path import join
 from shutil import copyfileobj
-import curses
 import io
 import os
 import sys
 import textwrap
 
 from plainbox.abc import IJobResult
-from plainbox.impl.applogic import get_matching_job_list, get_whitelist_by_name
+from plainbox.impl.applogic import get_whitelist_by_name
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.check_config import CheckConfigInvocation
 from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
@@ -52,8 +51,21 @@ from plainbox.impl.runner import JobRunner
 from plainbox.impl.runner import authenticate_warmup
 from plainbox.impl.runner import slugify
 from plainbox.impl.secure.config import Unset
+from plainbox.impl.secure.qualifiers import CompositeQualifier
+from plainbox.impl.secure.qualifiers import NonLocalJobQualifier
 from plainbox.impl.secure.qualifiers import WhiteList
-from plainbox.impl.session import SessionStateLegacyAPI as SessionState
+from plainbox.impl.secure.qualifiers import select_jobs
+from plainbox.impl.session import SessionManager, SessionStorageRepository
+from plainbox.vendor.textland import DrawingContext
+from plainbox.vendor.textland import EVENT_KEYBOARD
+from plainbox.vendor.textland import EVENT_RESIZE
+from plainbox.vendor.textland import Event
+from plainbox.vendor.textland import IApplication
+from plainbox.vendor.textland import KeyboardData
+from plainbox.vendor.textland import Size
+from plainbox.vendor.textland import TextImage
+from plainbox.vendor.textland import get_display
+from plainbox.vendor.textland import NORMAL, REVERSE, UNDERLINE
 
 
 logger = getLogger("checkbox.ng.commands.cli")
@@ -200,113 +212,243 @@ class SelectableJobTreeNode(JobTreeNode):
             category.set_descendants_state(new_state)
 
 
-def show_menu(stdscr, title, menu):
+class ShowWelcome(IApplication):
     """
-    Display the appropriate curses menu and return the selected options
+    Display a welcome message
     """
+    def __init__(self, text):
+        self.image = TextImage(Size(0, 0))
+        self.text = text
 
-    curses.use_default_colors()
-    curses.curs_set(0)
-    stdscr.keypad(1)
-    # Modify color pair #1, to get black on white text
-    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
+    def consume_event(self, event: Event):
+        if event.kind == EVENT_RESIZE:
+            self.image = TextImage(event.data)  # data is the new size
+        elif event.kind == EVENT_KEYBOARD and event.data.key == "enter":
+            raise StopIteration
+        self.repaint(event)
+        return self.image
 
-    option_count = len(menu)
-    position = 0  # Zero-based index of the selected menu option
-    old_position = None
-    key_pressed = None
-    selection = [position]
-    new_selection = False
-
-    while True:
-        if position != old_position or new_selection:
-            stdscr.erase()
-            old_position = position
-            new_selection = False
-            stdscr.border(0)
-            # Display title at x=2, y=2
-            stdscr.addstr(2, 2, title, curses.A_STANDOUT)
-
-            # Display all the menu items
-            for i in range(option_count):
-                text_style = curses.A_NORMAL
-                if position == i:
-                    text_style = curses.color_pair(1)
-                # Display options from line 4, column 4
-                stdscr.addstr(4 + i, 4, "[{}] - {}".format(
-                    'X' if i in selection else ' ',
-                    menu[i].replace('ihv-', '').capitalize()), text_style)
-
-            # Display "OK" at bottom of menu
-            text_style = curses.A_NORMAL
-            if position == option_count:
-                text_style = curses.color_pair(1)
-            # Add an empty line before the last option
-            stdscr.addstr(5 + option_count, 4, "OK", text_style)
-            stdscr.refresh()
-
-        key_pressed = stdscr.getch()
-        if key_pressed == curses.KEY_DOWN:
-            if position < option_count:
-                position += 1
-            else:
-                position = 0
-        elif key_pressed == curses.KEY_UP:
-            if position > 0:
-                position -= 1
-            else:
-                position = option_count
-        elif position == option_count:
-            break
-        elif key_pressed == 32:  # KEY_SPACE
-            if position in selection:
-                selection.remove(position)
-            elif position < option_count:
-                selection.append(position)
-            new_selection = True
-
-    return selection
-
-
-def show_welcome(stdscr, text):
-    """
-    Display a curses splash screen containing a welcome text
-
-    Left and right margins are set to 3 chars. Including the border width (1),
-    the text is wrapped to screen width - 3 * 2 - 1 *2 using:
-        * stdscr.getmaxyx()[1] - 8
-        * stdscr.addstr(i, 4, line)
-    8 equals to margins(3*2) + borders(2*1)
-    4 equals to left margin(3) + left border(1)
-    """
-    curses.use_default_colors()
-    curses.curs_set(0)
-    stdscr.border(0)
-
-    i = 0
-    for paragraph in text.splitlines():
-        i += 1
-        for line in textwrap.fill(paragraph,
-                                  stdscr.getmaxyx()[1] - 8,
-                                  replace_whitespace=False).splitlines():
-            stdscr.addstr(i, 4, line)
+    def repaint(self, event: Event):
+        ctx = DrawingContext(self.image)
+        i = 0
+        ctx.border()
+        for paragraph in self.text.splitlines():
             i += 1
-    stdscr.addstr(i + 1, 4, "Continue", curses.A_STANDOUT)
-    while True:
-        key_pressed = stdscr.getch()
-        if key_pressed == ord('\n'):
-            break
+            for line in textwrap.fill(
+                    paragraph,
+                    self.image.size.width - 8,
+                    replace_whitespace=False).splitlines():
+                ctx.move_to(4, i)
+                ctx.print(line)
+                i += 1
+        ctx.move_to(4, i + 1)
+        ctx.attributes.style = REVERSE
+        ctx.print("< Continue >")
+
+
+class ShowMenu(IApplication):
+    """
+    Display the appropriate menu and return the selected options
+    """
+    def __init__(self, title, menu):
+        self.image = TextImage(Size(0, 0))
+        self.title = title
+        self.menu = menu
+        self.option_count = len(menu)
+        self.position = 0  # Zero-based index of the selected menu option
+        self.selection = [self.position]
+
+    def consume_event(self, event: Event):
+        if event.kind == EVENT_RESIZE:
+            self.image = TextImage(event.data)  # data is the new size
+        elif event.kind == EVENT_KEYBOARD:
+            if event.data.key == "down":
+                if self.position < self.option_count:
+                    self.position += 1
+                else:
+                    self.position = 0
+            elif event.data.key == "up":
+                if self.position > 0:
+                    self.position -= 1
+                else:
+                    self.position = self.option_count
+            elif (event.data.key == "enter" and
+                  self.position == self.option_count):
+                raise StopIteration(self.selection)
+            elif event.data.key == "space":
+                if self.position in self.selection:
+                    self.selection.remove(self.position)
+                elif self.position < self.option_count:
+                    self.selection.append(self.position)
+        self.repaint(event)
+        return self.image
+
+    def repaint(self, event: Event):
+        ctx = DrawingContext(self.image)
+        ctx.border(tm=1)
+        ctx.attributes.style = REVERSE
+        ctx.print(' ' * self.image.size.width)
+        ctx.move_to(1, 0)
+        ctx.print(self.title)
+
+        # Display all the menu items
+        for i in range(self.option_count):
+            ctx.attributes.style = NORMAL
+            if i == self.position:
+                ctx.attributes.style = REVERSE
+            # Display options from line 3, column 4
+            ctx.move_to(4, 3 + i)
+            ctx.print("[{}] - {}".format(
+                'X' if i in self.selection else ' ',
+                self.menu[i].replace('ihv-', '').capitalize()))
+
+        # Display "OK" at bottom of menu
+        ctx.attributes.style = NORMAL
+        if self.position == self.option_count:
+            ctx.attributes.style = REVERSE
+        # Add an empty line before the last option
+        ctx.move_to(4, 4 + self.option_count)
+        ctx.print("< OK >")
+
+
+class ScrollableTreeNode(IApplication):
+    """
+    Class used to interact with a SelectableJobTreeNode
+    """
+    def __init__(self, tree, title):
+        self.image = TextImage(Size(0, 0))
+        self.tree = tree
+        self.title = title
+        self.top = 0  # Top line number
+        self.highlight = 0  # Highlighted line number
+
+    def consume_event(self, event: Event):
+        if event.kind == EVENT_RESIZE:
+            self.image = TextImage(event.data)  # data is the new size
+        elif event.kind == EVENT_KEYBOARD:
+            self.image = TextImage(self.image.size)
+            if event.data.key == "up":
+                self._scroll("up")
+            elif event.data.key == "down":
+                self._scroll("down")
+            elif event.data.key == "space":
+                self._selectNode()
+            elif event.data.key == "enter":
+                self._toggleNode()
+            elif event.data.key in 'sS':
+                self.tree.set_descendants_state(True)
+            elif event.data.key in 'dD':
+                self.tree.set_descendants_state(False)
+            elif event.data.key in 'tT':
+                raise StopIteration
+        self.repaint(event)
+        return self.image
+
+    def repaint(self, event: Event):
+        ctx = DrawingContext(self.image)
+        ctx.border(tm=1, bm=1)
+        cols = self.image.size.width
+        extra_cols = 0
+        if cols > 80:
+            extra_cols = cols - 80
+        ctx.attributes.style = REVERSE
+        ctx.print(' ' * cols)
+        ctx.move_to(1, 0)
+        bottom = self.top + self.image.size.height - 4
+        ctx.print(self.title)
+        ctx.move_to(1, self.image.size.height - 1)
+        ctx.attributes.style = UNDERLINE
+        ctx.print("Enter")
+        ctx.move_to(6, self.image.size.height - 1)
+        ctx.attributes.style = NORMAL
+        ctx.print(": Expand/Collapse")
+        ctx.move_to(27, self.image.size.height - 1)
+        ctx.attributes.style = UNDERLINE
+        ctx.print("S")
+        ctx.move_to(28, self.image.size.height - 1)
+        ctx.attributes.style = NORMAL
+        ctx.print("elect All")
+        ctx.move_to(41, self.image.size.height - 1)
+        ctx.attributes.style = UNDERLINE
+        ctx.print("D")
+        ctx.move_to(42, self.image.size.height - 1)
+        ctx.attributes.style = NORMAL
+        ctx.print("eselect All")
+        ctx.move_to(66 + extra_cols, self.image.size.height - 1)
+        ctx.print("Start ")
+        ctx.move_to(72 + extra_cols, self.image.size.height - 1)
+        ctx.attributes.style = UNDERLINE
+        ctx.print("T")
+        ctx.move_to(73 + extra_cols, self.image.size.height - 1)
+        ctx.attributes.style = NORMAL
+        ctx.print("esting")
+        for i, line in enumerate(self.tree.render(cols - 3)[self.top:bottom]):
+            ctx.move_to(2, i + 2)
+            if i != self.highlight:
+                ctx.attributes.style = NORMAL
+            else:  # highlight the current line
+                ctx.attributes.style = REVERSE
+            ctx.print(line)
+
+    def _selectNode(self):
+        """
+        Mark a node/job as selected for this test run.
+        See :meth:`SelectableJobTreeNode.set_ancestors_state()` and
+        :meth:`SelectableJobTreeNode.set_descendants_state()` for details
+        about the automatic selection of parents and descendants.
+        """
+        node, category = self.tree.get_node_by_index(self.top + self.highlight)
+        if category:  # then the selected node is a job not a category
+            job = node
+            category.job_selection[job] = not(category.job_selection[job])
+            category.update_selected_state()
+            category.set_ancestors_state(category.job_selection[job])
+        else:
+            node.selected = not(node.selected)
+            node.set_descendants_state(node.selected)
+            node.set_ancestors_state(node.selected)
+
+    def _toggleNode(self):
+        """
+        Expand/collapse a node
+        """
+        node, is_job = self.tree.get_node_by_index(self.top + self.highlight)
+        if not is_job:
+            node.expanded = not(node.expanded)
+
+    def _scroll(self, direction):
+        visible_length = len(self.tree.render())
+        # Scroll the tree view
+        if (direction == "up" and
+                self.highlight == 0 and self.top != 0):
+            self.top -= 1
+            return
+        elif (direction == "down" and
+                (self.highlight + 1) == (self.image.size.height - 4) and
+                (self.top + self.image.size.height - 4) != visible_length):
+            self.top += 1
+            return
+        # Move the highlighted line
+        if (direction == "up" and
+                (self.top != 0 or self.highlight != 0)):
+            self.highlight -= 1
+        elif (direction == "down" and
+                (self.top + self.highlight + 1) != visible_length and
+                (self.highlight + 1) != (self.image.size.height - 4)):
+            self.highlight += 1
 
 
 class CliInvocation(CheckBoxInvocationMixIn):
 
-    def __init__(self, provider_list, config, settings, ns):
+    def __init__(self, provider_list, config, settings, ns, display=None):
         super().__init__(provider_list)
         self.provider_list = provider_list
         self.config = config
         self.settings = settings
+        self.display = display
         self.ns = ns
         self.whitelists = []
+        self._local_only = False  # Only run local jobs
         if self.ns.whitelist:
             for whitelist in self.ns.whitelist:
                 self.whitelists.append(WhiteList.from_file(whitelist.name))
@@ -314,37 +456,6 @@ class CliInvocation(CheckBoxInvocationMixIn):
             self.whitelists.append(WhiteList.from_file(self.config.whitelist))
         elif self.ns.include_pattern_list:
             self.whitelists.append(WhiteList(self.ns.include_pattern_list))
-
-        if self.is_interactive:
-            if self.settings['welcome_text']:
-                try:
-                    curses.wrapper(show_welcome, self.settings['welcome_text'])
-                except curses.error:
-                    raise SystemExit('Terminal size must be at least 80x24')
-            if not self.whitelists:
-                whitelists = []
-                for p in self.provider_list:
-                    if p.name in self.settings['default_providers']:
-                        whitelists.extend(
-                            [w.name for w in p.get_builtin_whitelists()])
-                try:
-                    selection = curses.wrapper(show_menu, "Suite selection",
-                                               whitelists)
-                except curses.error:
-                    raise SystemExit('Terminal size must be at least 80x24')
-                if not selection:
-                    raise SystemExit('No whitelists selected, aborting...')
-                for s in selection:
-                    self.whitelists.append(
-                        get_whitelist_by_name(provider_list, whitelists[s]))
-        else:
-            self.whitelists.append(
-                get_whitelist_by_name(
-                    provider_list, self.settings['default_whitelist']))
-
-        print("[ Analyzing Jobs ]".center(80, '='))
-        self.session = None
-        self.runner = None
 
     @property
     def is_interactive(self):
@@ -358,7 +469,127 @@ class CliInvocation(CheckBoxInvocationMixIn):
     def run(self):
         ns = self.ns
         job_list = self.get_job_list(ns)
-        return self._run_jobs(ns, job_list)
+        previous_session_file = SessionStorageRepository().get_last_storage()
+        resume_in_progress = False
+        if previous_session_file:
+            if self.is_interactive:
+                if self.ask_for_resume():
+                    resume_in_progress = True
+                    manager = SessionManager.load_session(
+                        job_list, previous_session_file)
+                    self._maybe_skip_last_job_after_resume(manager)
+            else:
+                resume_in_progress = True
+                manager = SessionManager.load_session(
+                    job_list, previous_session_file)
+        if not resume_in_progress:
+            # Create a session that handles most of the stuff needed to run
+            # jobs
+            try:
+                manager = SessionManager.create_session(job_list,
+                                                        legacy_mode=True)
+            except DependencyDuplicateError as exc:
+                # Handle possible DependencyDuplicateError that can happen if
+                # someone is using plainbox for job development.
+                print("The job database you are currently using is broken")
+                print("At least two jobs contend for the name {0}".format(
+                    exc.job.name))
+                print("First job defined in: {0}".format(exc.job.origin))
+                print("Second job defined in: {0}".format(
+                    exc.duplicate_job.origin))
+                raise SystemExit(exc)
+            manager.state.metadata.title = " ".join(sys.argv)
+            if self.is_interactive:
+                if self.display is None:
+                    self.display = get_display()
+                if self.settings['welcome_text']:
+                    self.display.run(
+                        ShowWelcome(self.settings['welcome_text']))
+                if not self.whitelists:
+                    whitelists = []
+                    for p in self.provider_list:
+                        if p.name in self.settings['default_providers']:
+                            whitelists.extend(
+                                [w.name for w in p.get_builtin_whitelists()])
+                    selection = self.display.run(ShowMenu("Suite selection",
+                                                          whitelists))
+                    if not selection:
+                        raise SystemExit('No whitelists selected, aborting...')
+                    for s in selection:
+                        self.whitelists.append(
+                            get_whitelist_by_name(self.provider_list,
+                                                  whitelists[s]))
+            else:
+                self.whitelists.append(
+                    get_whitelist_by_name(
+                        self.provider_list,
+                        self.settings['default_whitelist']))
+        manager.checkpoint()
+
+        if self.is_interactive and not resume_in_progress:
+            # Pre-run all local jobs
+            desired_job_list = select_jobs(
+                manager.state.job_list,
+                [CompositeQualifier(
+                    self.whitelists +
+                    [NonLocalJobQualifier(inclusive=False)]
+                )])
+            self._update_desired_job_list(manager, desired_job_list)
+            # Ask the password before anything else in order to run local jobs
+            # requiring privileges
+            if self._auth_warmup_needed(manager):
+                print("[ Authentication ]".center(80, '='))
+                return_code = authenticate_warmup()
+                if return_code:
+                    raise SystemExit(return_code)
+            self._local_only = True
+            self._run_jobs(ns, manager)
+            self._local_only = False
+
+        if not resume_in_progress:
+            # Run the rest of the desired jobs
+            desired_job_list = select_jobs(manager.state.job_list,
+                                           self.whitelists)
+            self._update_desired_job_list(manager, desired_job_list)
+            if self.is_interactive:
+                # Ask the password before anything else in order to run jobs
+                # requiring privileges
+                if self._auth_warmup_needed(manager):
+                    print("[ Authentication ]".center(80, '='))
+                    return_code = authenticate_warmup()
+                    if return_code:
+                        raise SystemExit(return_code)
+                tree = SelectableJobTreeNode.create_tree(
+                    manager.state.run_list,
+                    legacy_mode=True)
+                title = 'Choose tests to run on your system:'
+                if self.display is None:
+                    self.display = get_display()
+                self.display.run(ScrollableTreeNode(tree, title))
+                self._update_desired_job_list(manager, tree.selection)
+                estimated_duration_auto, estimated_duration_manual = \
+                    manager.state.get_estimated_duration()
+                if estimated_duration_auto:
+                    print(
+                        "Estimated duration is {:.2f} "
+                        "for automated jobs.".format(estimated_duration_auto))
+                else:
+                    print(
+                        "Estimated duration cannot be "
+                        "determined for automated jobs.")
+                if estimated_duration_manual:
+                    print(
+                        "Estimated duration is {:.2f} "
+                        "for manual jobs.".format(estimated_duration_manual))
+                else:
+                    print(
+                        "Estimated duration cannot be "
+                        "determined for manual jobs.")
+        self._run_jobs(ns, manager)
+        manager.destroy()
+
+        # FIXME: sensible return value
+        return 0
 
     def ask_for_resume(self):
         return self.ask_user(
@@ -375,8 +606,8 @@ class CliInvocation(CheckBoxInvocationMixIn):
             answer = input("{} [{}] ".format(prompt, ", ".join(allowed)))
         return answer
 
-    def _maybe_skip_last_job_after_resume(self, session):
-        last_job = session.metadata.running_job_name
+    def _maybe_skip_last_job_after_resume(self, manager):
+        last_job = manager.state.metadata.running_job_name
         if last_job is None:
             return
         print("We have previously tried to execute {}".format(last_job))
@@ -394,78 +625,42 @@ class CliInvocation(CheckBoxInvocationMixIn):
         elif action == 'run':
             result = None
         if result:
-            session.update_job_result(
-                session.job_state_map[last_job].job, result)
-            session.metadata.running_job_name = None
-            session.persistent_save()
+            manager.state.update_job_result(
+                manager.state.job_state_map[last_job].job, result)
+            manager.state.metadata.running_job_name = None
+            manager.checkpoint()
 
-    def _run_jobs(self, ns, job_list):
-        # Create a session that handles most of the stuff needed to run jobs
-        try:
-            session = SessionState(job_list)
-        except DependencyDuplicateError as exc:
-            # Handle possible DependencyDuplicateError that can happen if
-            # someone is using plainbox for job development.
-            print("The job database you are currently using is broken")
-            print("At least two jobs contend for the name {0}".format(
-                exc.job.name))
-            print("First job defined in: {0}".format(exc.job.origin))
-            print("Second job defined in: {0}".format(
-                exc.duplicate_job.origin))
-            raise SystemExit(exc)
-        with session.open():
-            desired_job_list = []
-            for whitelist in self.whitelists:
-                desired_job_list.extend(get_matching_job_list(job_list,
-                                                              whitelist))
-            self._update_desired_job_list(session, desired_job_list)
-            if session.previous_session_file():
-                if self.is_interactive and self.ask_for_resume():
-                    session.resume()
-                    self._maybe_skip_last_job_after_resume(session)
-                else:
-                    session.clean()
-            session.metadata.title = " ".join(sys.argv)
-            session.persistent_save()
-            # Ask the password before anything else in order to run jobs
-            # requiring privileges
-            if self.is_interactive and self._auth_warmup_needed(session):
-                print("[ Authentication ]".center(80, '='))
-                return_code = authenticate_warmup()
-                if return_code:
-                    raise SystemExit(return_code)
-            runner = JobRunner(
-                session.session_dir, self.provider_list,
-                session.jobs_io_log_dir)
-            self._run_jobs_with_session(ns, session, runner)
-            self.save_results(session)
-            session.remove()
+    def _run_jobs(self, ns, manager):
+        runner = JobRunner(
+            manager.storage.location, self.provider_list,
+            os.path.join(manager.storage.location, 'io-logs'),
+            command_io_delegate=self)
+        self._run_jobs_with_session(ns, manager, runner)
+        if not self._local_only:
+            self.save_results(manager)
 
-        # FIXME: sensible return value
-        return 0
-
-    def _auth_warmup_needed(self, session):
+    def _auth_warmup_needed(self, manager):
         # Don't warm up plainbox-trusted-launcher-1 if none of the providers
         # use it. We assume that the mere presence of a provider makes it
         # possible for a root job to be preset but it could be improved to
-        # acutally know when this step is absolutely not required (no local
+        # actually know when this step is absolutely not required (no local
         # jobs, no jobs
         # need root)
         if all(not provider.secure for provider in self.provider_list):
             return False
         # Don't use authentication warm-up if none of the jobs on the run list
         # requires it.
-        if all(job.user is None for job in session.run_list):
+        if all(job.user is None for job in manager.state.run_list):
             return False
         # Otherwise, do pre-authentication
         return True
 
-    def save_results(self, session):
+    def save_results(self, manager):
         if self.is_interactive:
             print("[ Results ]".center(80, '='))
             exporter = get_all_exporters()['text']()
             exported_stream = io.BytesIO()
-            data_subset = exporter.get_session_data_subset(session)
+            data_subset = exporter.get_session_data_subset(manager.state)
             exporter.dump(data_subset, exported_stream)
             exported_stream.seek(0)  # Need to rewind the file, puagh
             # This requires a bit more finesse, as exporters output bytes
@@ -490,7 +685,7 @@ class CliInvocation(CheckBoxInvocationMixIn):
             exporter = exporter_cls(
                 ['with-sys-info', 'with-summary', 'with-job-description',
                  'with-text-attachments'])
-            data_subset = exporter.get_session_data_subset(session)
+            data_subset = exporter.get_session_data_subset(manager.state)
             results_path = results_file
             if exporter_cls is XMLSessionStateExporter:
                 results_path = submission_file
@@ -533,64 +728,54 @@ class CliInvocation(CheckBoxInvocationMixIn):
                 result['comments'] = input('Please enter your comments:\n')
         return DiskJobResult(result)
 
-    def _update_desired_job_list(self, session, desired_job_list):
-        problem_list = session.update_desired_job_list(desired_job_list)
+    def _update_desired_job_list(self, manager, desired_job_list):
+        problem_list = manager.state.update_desired_job_list(desired_job_list)
         if problem_list:
             print("[ Warning ]".center(80, '*'))
             print("There were some problems with the selected jobs")
             for problem in problem_list:
                 print(" * {}".format(problem))
             print("Problematic jobs will not be considered")
-        (estimated_duration_auto,
-         estimated_duration_manual) = session.get_estimated_duration()
-        if estimated_duration_auto:
-            print("Estimated duration is {:.2f} for automated jobs.".format(
-                  estimated_duration_auto))
-        else:
-            print(
-                "Estimated duration cannot be determined for automated jobs.")
-        if estimated_duration_manual:
-            print("Estimated duration is {:.2f} for manual jobs.".format(
-                  estimated_duration_manual))
-        else:
-            print("Estimated duration cannot be determined for manual jobs.")
 
-    def _run_jobs_with_session(self, ns, session, runner):
+    def _run_jobs_with_session(self, ns, manager, runner):
         # TODO: run all resource jobs concurrently with multiprocessing
         # TODO: make local job discovery nicer, it would be best if
         # desired_jobs could be managed entirely internally by SesionState. In
         # such case the list of jobs to run would be changed during iteration
         # but would be otherwise okay).
-        print("[ Running All Jobs ]".center(80, '='))
+        if self._local_only:
+            print("[ Loading Jobs Definition ]".center(80, '='))
+        else:
+            print("[ Running All Jobs ]".center(80, '='))
         again = True
         while again:
             again = False
-            for job in session.run_list:
+            for job in manager.state.run_list:
                 # Skip jobs that already have result, this is only needed when
                 # we run over the list of jobs again, after discovering new
                 # jobs via the local job output
-                if session.job_state_map[job.name].result.outcome is not None:
+                if (manager.state.job_state_map[job.name].result.outcome
+                        is not None):
                     continue
-                self._run_single_job_with_session(ns, session, runner, job)
-                session.persistent_save()
+                self._run_single_job_with_session(ns, manager, runner, job)
+                manager.checkpoint()
                 if job.plugin == "local":
                     # After each local job runs rebuild the list of matching
                     # jobs and run everything again
-                    desired_job_list = []
-                    for whitelist in self.whitelists:
-                        desired_job_list.extend(
-                            get_matching_job_list(session.job_list, whitelist))
-                    self._update_desired_job_list(session, desired_job_list)
+                    desired_job_list = select_jobs(manager.state.job_list,
+                                                   self.whitelists)
+                    if self._local_only:
+                        desired_job_list = [
+                            job for job in desired_job_list
+                            if job.plugin == 'local']
+                    self._update_desired_job_list(manager, desired_job_list)
                     again = True
                     break
 
-    def _run_single_job_with_session(self, ns, session, runner, job):
-        print("[ {} ]".format(job.name).center(80, '-'))
-        if job.description is not None:
-            print(job.description)
-            print("^" * len(job.description.splitlines()[-1]))
-            print()
-        job_state = session.job_state_map[job.name]
+    def _run_single_job_with_session(self, ns, manager, runner, job):
+        if job.plugin not in ['local', 'resource']:
+            print("[ {} ]".format(job.name).center(80, '-'))
+        job_state = manager.state.job_state_map[job.name]
         logger.debug("Job name: %s", job.name)
         logger.debug("Plugin: %s", job.plugin)
         logger.debug("Direct dependencies: %s", job.get_direct_dependencies())
@@ -601,10 +786,15 @@ class CliInvocation(CheckBoxInvocationMixIn):
         logger.debug("Can start: %s", job_state.can_start())
         logger.debug("Readiness: %s", job_state.get_readiness_description())
         if job_state.can_start():
-            print("Running... (output in {}.*)".format(
-                join(session.jobs_io_log_dir, slugify(job.name))))
-            session.metadata.running_job_name = job.name
-            session.persistent_save()
+            if job.plugin not in ['local', 'resource']:
+                if job.description is not None:
+                    print(job.description)
+                    print("^" * len(job.description.splitlines()[-1]))
+                    print()
+                print("Running... (output in {}.*)".format(
+                    join(manager.storage.location, slugify(job.name))))
+            manager.state.metadata.running_job_name = job.name
+            manager.checkpoint()
             # TODO: get a confirmation from the user for certain types of
             # job.plugin
             job_result = runner.run_job(job)
@@ -612,17 +802,21 @@ class CliInvocation(CheckBoxInvocationMixIn):
                     and self.is_interactive):
                 job_result = self._interaction_callback(
                     runner, job, self.config)
-            session.metadata.running_job_name = None
-            session.persistent_save()
-            print("Outcome: {}".format(job_result.outcome))
-            print("Comments: {}".format(job_result.comments))
+            manager.state.metadata.running_job_name = None
+            manager.checkpoint()
+            if job.plugin not in ['local', 'resource']:
+                print("Outcome: {}".format(job_result.outcome))
+                if job_result.comments is not None:
+                    print("Comments: {}".format(job_result.comments))
         else:
             job_result = MemoryJobResult({
                 'outcome': IJobResult.OUTCOME_NOT_SUPPORTED,
                 'comments': job_state.get_readiness_description()
             })
+            if job.plugin not in ['local', 'resource']:
+                print("Outcome: {}".format(job_result.outcome))
         if job_result is not None:
-            session.update_job_result(job, job_result)
+            manager.state.update_job_result(job, job_result)
 
 
 class CliCommand(PlainBoxCommand, CheckBoxCommandMixIn):

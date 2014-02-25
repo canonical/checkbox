@@ -90,7 +90,8 @@ class CertificationTransportTests(TestCase):
             self.invalid_url, files={'data': dummy_data},
             headers={'X_HARDWARE_ID': self.valid_secure_id}, proxies=None)
 
-    def test_valid_url_cant_connect(self):
+    @mock.patch('checkbox_ng.certification.logger')
+    def test_valid_url_cant_connect(self, mock_logger):
         transport = CertificationTransport(
             self.unreachable_url, self.valid_option_string)
         dummy_data = BytesIO(b"some data to send")

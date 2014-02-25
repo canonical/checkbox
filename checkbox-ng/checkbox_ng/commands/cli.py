@@ -813,6 +813,8 @@ class CliInvocation(CheckBoxInvocationMixIn):
                 'outcome': IJobResult.OUTCOME_NOT_SUPPORTED,
                 'comments': job_state.get_readiness_description()
             })
+            if job.plugin not in ['local', 'resource']:
+                print("Outcome: {}".format(job_result.outcome))
         if job_result is not None:
             manager.state.update_job_result(job, job_result)
 

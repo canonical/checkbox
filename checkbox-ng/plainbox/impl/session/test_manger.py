@@ -96,3 +96,36 @@ class SessionManagerTests(TestCase):
         # Ensure that the resulting manager has correct data inside
         self.assertEqual(manager.state, helper_cls().resume())
         self.assertEqual(manager.storage, storage)
+
+    @mock.patch.multiple(
+        "plainbox.impl.session.manager", spec_set=True,
+        SessionStorageRepository=mock.DEFAULT,
+        SessionState=mock.DEFAULT,
+        SessionStorage=mock.DEFAULT,
+        WellKnownDirsHelper=mock.DEFAULT)
+    def test_create_with_job_list(self, **mocks):
+        """
+        verify that SessionManager.create_with_job_list() correctly sets up
+        storage repository and creates session directories
+        """
+        # Mock job list
+        job_list = mock.Mock(name='job_list')
+        # Create the new manager
+        manager = SessionManager.create_with_job_list(job_list)
+        # Ensure that a state object was created
+        mocks['SessionState'].assert_called_with(job_list)
+        state = mocks['SessionState']()
+        # Ensure that a default repository was created
+        mocks['SessionStorageRepository'].assert_called_with()
+        repo = mocks['SessionStorageRepository']()
+        # Ensure that a storage was created, with repository location and
+        # without legacy mode turned on
+        mocks['SessionStorage'].create.assert_called_with(repo.location, False)
+        storage = mocks['SessionStorage'].create()
+        # Ensure that a default directories were created
+        mocks['WellKnownDirsHelper'].assert_called_with(storage)
+        helper = mocks['WellKnownDirsHelper']()
+        helper.populate.assert_called_with()
+        # Ensure that the resulting manager has correct data inside
+        self.assertEqual(manager.state, state)
+        self.assertEqual(manager.storage, storage)

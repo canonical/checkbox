@@ -54,6 +54,16 @@ from plainbox.impl.runner import slugify
 from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.session import SessionStateLegacyAPI as SessionState
+from plainbox.vendor.textland import DrawingContext
+from plainbox.vendor.textland import EVENT_KEYBOARD
+from plainbox.vendor.textland import EVENT_RESIZE
+from plainbox.vendor.textland import Event
+from plainbox.vendor.textland import IApplication
+from plainbox.vendor.textland import KeyboardData
+from plainbox.vendor.textland import Size
+from plainbox.vendor.textland import TextImage
+from plainbox.vendor.textland import get_display
+from plainbox.vendor.textland import NORMAL, REVERSE, UNDERLINE
 
 
 logger = getLogger("checkbox.ng.commands.cli")
@@ -298,13 +308,113 @@ def show_welcome(stdscr, text):
             break
 
 
+class ShowWelcome(IApplication):
+    """
+    Display a welcome message
+    """
+    def __init__(self, text):
+        self.image = TextImage(Size(0, 0))
+        self.text = text
+
+    def consume_event(self, event: Event):
+        if event.kind == EVENT_RESIZE:
+            self.image = TextImage(event.data)  # data is the new size
+        elif event.kind == EVENT_KEYBOARD and event.data.key == "enter":
+            raise StopIteration
+        self.repaint(event)
+        return self.image
+
+    def repaint(self, event: Event):
+        ctx = DrawingContext(self.image)
+        i = 0
+        ctx.border()
+        for paragraph in self.text.splitlines():
+            i += 1
+            for line in textwrap.fill(
+                    paragraph,
+                    self.image.size.width - 8,
+                    replace_whitespace=False).splitlines():
+                ctx.move_to(4, i)
+                ctx.print(line)
+                i += 1
+        ctx.move_to(4, i + 1)
+        ctx.attributes.style = REVERSE
+        ctx.print("< Continue >")
+
+
+class ShowMenu(IApplication):
+    """
+    Display the appropriate menu and return the selected options
+    """
+    def __init__(self, title, menu):
+        self.image = TextImage(Size(0, 0))
+        self.title = title
+        self.menu = menu
+        self.option_count = len(menu)
+        self.position = 0  # Zero-based index of the selected menu option
+        self.selection = [self.position]
+
+    def consume_event(self, event: Event):
+        if event.kind == EVENT_RESIZE:
+            self.image = TextImage(event.data)  # data is the new size
+        elif event.kind == EVENT_KEYBOARD:
+            if event.data.key == "down":
+                if self.position < self.option_count:
+                    self.position += 1
+                else:
+                    self.position = 0
+            elif event.data.key == "up":
+                if self.position > 0:
+                    self.position -= 1
+                else:
+                    self.position = self.option_count
+            elif (event.data.key == "enter" and
+                  self.position == self.option_count):
+                raise StopIteration(self.selection)
+            elif event.data.key == "space":
+                if self.position in self.selection:
+                    self.selection.remove(self.position)
+                elif self.position < self.option_count:
+                    self.selection.append(self.position)
+        self.repaint(event)
+        return self.image
+
+    def repaint(self, event: Event):
+        ctx = DrawingContext(self.image)
+        ctx.border(tm=1)
+        ctx.attributes.style = REVERSE
+        ctx.print(' ' * self.image.size.width)
+        ctx.move_to(1, 0)
+        ctx.print(self.title)
+
+        # Display all the menu items
+        for i in range(self.option_count):
+            ctx.attributes.style = NORMAL
+            if i == self.position:
+                ctx.attributes.style = REVERSE
+            # Display options from line 3, column 4
+            ctx.move_to(4, 3 + i)
+            ctx.print("[{}] - {}".format(
+                'X' if i in self.selection else ' ',
+                self.menu[i].replace('ihv-', '').capitalize()))
+
+        # Display "OK" at bottom of menu
+        ctx.attributes.style = NORMAL
+        if self.position == self.option_count:
+            ctx.attributes.style = REVERSE
+        # Add an empty line before the last option
+        ctx.move_to(4, 4 + self.option_count)
+        ctx.print("< OK >")
+
+
 class CliInvocation(CheckBoxInvocationMixIn):
 
-    def __init__(self, provider_list, config, settings, ns):
+    def __init__(self, provider_list, config, settings, ns, display=None):
         super().__init__(provider_list)
         self.provider_list = provider_list
         self.config = config
         self.settings = settings
+        self.display = display
         self.ns = ns
         self.whitelists = []
         if self.ns.whitelist:
@@ -317,21 +427,17 @@ class CliInvocation(CheckBoxInvocationMixIn):
 
         if self.is_interactive:
             if self.settings['welcome_text']:
-                try:
-                    curses.wrapper(show_welcome, self.settings['welcome_text'])
-                except curses.error:
-                    raise SystemExit('Terminal size must be at least 80x24')
+                if self.display is None:
+                    self.display = get_display()
+                self.display.run(ShowWelcome(self.settings['welcome_text']))
             if not self.whitelists:
                 whitelists = []
                 for p in self.provider_list:
                     if p.name in self.settings['default_providers']:
                         whitelists.extend(
                             [w.name for w in p.get_builtin_whitelists()])
-                try:
-                    selection = curses.wrapper(show_menu, "Suite selection",
-                                               whitelists)
-                except curses.error:
-                    raise SystemExit('Terminal size must be at least 80x24')
+                selection = self.display.run(ShowMenu("Suite selection",
+                                                      whitelists))
                 if not selection:
                     raise SystemExit('No whitelists selected, aborting...')
                 for s in selection:

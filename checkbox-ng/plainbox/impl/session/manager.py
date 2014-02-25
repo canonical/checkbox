@@ -260,7 +260,7 @@ class SessionManager:
         Create a checkpoint of the session.
 
         After calling this method you can later reopen the same session with
-        :meth:`SessionManager.open_session()`.
+        :meth:`SessionManager.load_session()`.
         """
         logger.debug("SessionManager.checkpoint()")
         data = SessionSuspendHelper().suspend(self.state)

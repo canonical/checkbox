@@ -580,7 +580,8 @@ class CliInvocation(CheckBoxInvocationMixIn):
                 raise SystemExit(return_code)
         runner = JobRunner(
             manager.storage.location, self.provider_list,
-            os.path.join(manager.storage.location, 'io-logs'))
+            os.path.join(manager.storage.location, 'io-logs'),
+            command_io_delegate=self)
         self._run_jobs_with_session(ns, manager, runner)
         self.save_results(manager)
         manager.destroy()

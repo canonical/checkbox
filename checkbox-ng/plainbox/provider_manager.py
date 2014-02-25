@@ -38,6 +38,7 @@ from plainbox.i18n import docstring
 from plainbox.i18n import gettext as _
 from plainbox.i18n import gettext_noop as N_
 from plainbox.impl.commands import ToolBase, CommandBase
+from plainbox.impl.job import JobDefinition
 from plainbox.impl.job import Problem
 from plainbox.impl.job import ValidationError as JobValidationError
 from plainbox.impl.logging import setup_logging
@@ -386,9 +387,9 @@ class InfoCommand(ManageCommand):
         print(_("[Job Definitions]"))
         job_list, problem_list = provider.load_all_jobs()
         for job in job_list:
-            # TRANSLATORS: {!a} is the job name, {} is the filename
+            # TRANSLATORS: {!a} is the job id, {} is the filename
             print("\t" + ("{!a}, from {}").format(
-                job.name, job.origin.relative_to(provider.base_dir)))
+                job.id, job.origin.relative_to(provider.base_dir)))
         if problem_list:
             print("\t" + _("Some jobs could not be parsed correctly"))
             # TRANSLATORS: please don't translate `manage.py validate`
@@ -457,9 +458,12 @@ class ValidateCommand(ManageCommand):
         job_list, problem_list = provider.load_all_jobs()
         if problem_list:
             for exc in problem_list:
-                print("{}:{}: {}".format(
-                    os.path.relpath(exc.filename, provider.base_dir),
-                    exc.lineno, exc.msg))
+                if isinstance(exc, RFC822SyntaxError):
+                    print("{}:{}: {}".format(
+                        os.path.relpath(exc.filename, provider.base_dir),
+                        exc.lineno, exc.msg))
+                else:
+                    print("{}".format(exc))
             print(_("NOTE: subsequent jobs from problematic"
                     " files are ignored"))
         return job_list
@@ -483,14 +487,26 @@ class ValidateCommand(ManageCommand):
             Problem.useless: _("useless field in this context"),
         }
         for job, error in problem_list:
-            # TRANSLATORS: fields are as follows:
-            # 0: filename with job definition
-            # 1: job name
-            # 2: field name
-            # 3: explanation of the problem
-            print(_("{0}: job {1!a}, field {2!a}: {3}").format(
-                job.origin.relative_to(provider.base_dir),
-                job.name, error.field.name, explain[error.problem]))
+            if isinstance(error, JobValidationError):
+                # TRANSLATORS: fields are as follows:
+                # 0: filename with job definition
+                # 1: job id
+                # 2: field name
+                # 3: explanation of the problem
+                print(_("{0}: job {1!a}, field {2!a}: {3}").format(
+                    job.origin.relative_to(provider.base_dir),
+                    job.id, error.field.name, explain[error.problem]))
+                # If this is a "wrong value" problem then perhaps we can
+                # suggest the set of acceptable values? Those may be stored as
+                # $field.symbols, though as of this writing that is only true
+                # for the 'plugin' field.
+                field_prop = getattr(JobDefinition, str(error.field))
+                if error.problem == Problem.wrong and hasattr(field_prop, "symbols"):
+                    symbol_list = field_prop.get_all_symbols()
+                    print(_("allowed values are: {0}").format(
+                        ', '.join(str(symbol) for symbol in symbol_list)))
+            else:
+                print(str(error))
         if problem_list:
             return 1
         else:

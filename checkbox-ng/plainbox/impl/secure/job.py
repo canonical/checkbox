@@ -110,31 +110,3 @@ class BaseJob:
             return {variable for variable in re.split('[\s,]+', self.environ)}
         else:
             return set()
-
-    def modify_execution_environment(self, environ, packages):
-        """
-        Compute the environment the script will be executed in
-        """
-        # Get a proper environment
-        env = dict(os.environ)
-        # Use non-internationalized environment
-        env['LANG'] = 'C.UTF-8'
-        # Create CHECKBOX*_SHARE for every checkbox related packages
-        # Add their respective script directory to the PATH variable
-        # giving precedence to those located in /usr/lib/
-        for path in packages:
-            basename = os.path.basename(path)
-            env[basename.upper().replace('-', '_') + '_SHARE'] = path
-            # Update PATH so that scripts can be found
-            env['PATH'] = os.pathsep.join([
-                os.path.join('usr', 'lib', basename, 'bin'),
-                os.path.join(path, 'scripts')]
-                + env.get("PATH", "").split(os.pathsep))
-        if 'CHECKBOX_DATA' in env:
-            env['CHECKBOX_DATA'] = environ['CHECKBOX_DATA']
-        # Add new environment variables only if they are defined in the
-        # job environ property
-        for key in self.get_environ_settings():
-            if key in environ:
-                env[key] = environ[key]
-        return env

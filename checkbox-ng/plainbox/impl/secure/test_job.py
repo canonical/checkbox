@@ -110,26 +110,3 @@ class ParsingTests(TestCaseWithParameters):
         expected = set()
         observed = job.get_environ_settings()
         self.assertEqual(expected, observed)
-
-
-class JobEnvTests(TestCase):
-
-    def setUp(self):
-        self.job = BaseJob({'plugin': 'plugin', 'environ': 'foo'})
-
-    def test_checkbox_env(self):
-        base_env = {"PATH": "", 'foo': 'bar', 'baz': 'qux'}
-        path = '/usr/share/checkbox-lambda'
-        with patch.dict('os.environ', {}):
-            env = self.job.modify_execution_environment(base_env, [path])
-            self.assertEqual(env['CHECKBOX_LAMBDA_SHARE'], path)
-            self.assertEqual(env['foo'], 'bar')
-            self.assertNotIn('bar', env)
-
-    def test_checkbox_env_with_data_dir(self):
-        base_env = {"PATH": "", "CHECKBOX_DATA": "DEADBEEF"}
-        path = '/usr/share/checkbox-lambda'
-        with patch.dict('os.environ', {"CHECKBOX_DATA": "DEADBEEF"}):
-            env = self.job.modify_execution_environment(base_env, [path])
-            self.assertEqual(env['CHECKBOX_LAMBDA_SHARE'], path)
-            self.assertEqual(env['CHECKBOX_DATA'], "DEADBEEF")

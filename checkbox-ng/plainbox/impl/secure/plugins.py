@@ -320,7 +320,7 @@ class PlugInCollectionBase(IPlugInCollection):
                 *self._wrapper_args, **self._wrapper_kwargs)
         except PlugInError as exc:
             logger.warning(
-                "Unable to prepare plugin %s: %s", plugin_name, exc)
+                _("Unable to prepare plugin %s: %s"), plugin_name, exc)
             self._problem_list.append(exc)
         else:
             self._plugins[plugin_name] = wrapper

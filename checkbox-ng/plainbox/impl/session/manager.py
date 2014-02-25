@@ -55,7 +55,7 @@ class WellKnownDirsHelper:
     """
 
     def __init__(self, storage):
-        assert isinstance(storage, SessionStorage)
+        # assert isinstance(storage, SessionStorage)
         self._storage = storage
 
     @property
@@ -106,8 +106,8 @@ class SessionManager:
         :class:`~plainbox.impl.session.state.SessionState` and
         :class:`~plainbox.impl.session.storage.SessionStorage`.
         """
-        assert isinstance(state, SessionState)
-        assert isinstance(storage, SessionStorage)
+        # assert isinstance(state, SessionState)
+        # assert isinstance(storage, SessionStorage)
         self._state = state
         self._storage = storage
         logger.debug(

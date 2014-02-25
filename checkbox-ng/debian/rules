@@ -18,3 +18,6 @@ override_dh_install:
 	mkdir -p debian/checkbox-ng/usr/bin
 	mv debian/python3-checkbox-ng/usr/bin/canonical* debian/checkbox-ng/usr/bin
 	mv debian/python3-checkbox-ng/usr/bin/checkbox* debian/checkbox-ng/usr/bin
+
+override_dh_python3:
+	dh_python3 --shebang=/usr/bin/python3

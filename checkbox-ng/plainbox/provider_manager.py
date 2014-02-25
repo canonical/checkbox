@@ -483,14 +483,18 @@ class ValidateCommand(ManageCommand):
             Problem.useless: _("useless field in this context"),
         }
         for job, error in problem_list:
-            # TRANSLATORS: fields are as follows:
-            # 0: filename with job definition
-            # 1: job name
-            # 2: field name
-            # 3: explanation of the problem
-            print(_("{0}: job {1!a}, field {2!a}: {3}").format(
-                job.origin.relative_to(provider.base_dir),
-                job.name, error.field.name, explain[error.problem]))
+            if isinstance(error, JobValidationError):
+                # TRANSLATORS: fields are as follows:
+                # 0: filename with job definition
+                # 1: job name
+                # 2: field name
+                # 3: explanation of the problem
+                print(_("{0}: job {1!a}, field {2!a}: {3}").format(
+                    job.origin.relative_to(provider.base_dir),
+                    job.id, error.field.name, explain[error.problem]))
+                # If this is a "wrong value" problem then perhaps we can
+            else:
+                print(str(error))
         if problem_list:
             return 1
         else:

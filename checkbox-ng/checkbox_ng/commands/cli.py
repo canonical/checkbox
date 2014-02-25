@@ -308,6 +308,133 @@ class ShowMenu(IApplication):
         ctx.print("< OK >")
 
 
+class ScrollableTreeNode(IApplication):
+    """
+    Class used to interact with a SelectableJobTreeNode
+    """
+    def __init__(self, tree, title):
+        self.image = TextImage(Size(0, 0))
+        self.tree = tree
+        self.title = title
+        self.top = 0  # Top line number
+        self.highlight = 0  # Highlighted line number
+
+    def consume_event(self, event: Event):
+        if event.kind == EVENT_RESIZE:
+            self.image = TextImage(event.data)  # data is the new size
+        elif event.kind == EVENT_KEYBOARD:
+            self.image = TextImage(self.image.size)
+            if event.data.key == "up":
+                self._scroll("up")
+            elif event.data.key == "down":
+                self._scroll("down")
+            elif event.data.key == "space":
+                self._selectNode()
+            elif event.data.key == "enter":
+                self._toggleNode()
+            elif event.data.key in 'sS':
+                self.tree.set_descendants_state(True)
+            elif event.data.key in 'dD':
+                self.tree.set_descendants_state(False)
+            elif event.data.key in 'tT':
+                raise StopIteration
+        self.repaint(event)
+        return self.image
+
+    def repaint(self, event: Event):
+        ctx = DrawingContext(self.image)
+        ctx.border(tm=1, bm=1)
+        cols = self.image.size.width
+        extra_cols = 0
+        if cols > 80:
+            extra_cols = cols - 80
+        ctx.attributes.style = REVERSE
+        ctx.print(' ' * cols)
+        ctx.move_to(1, 0)
+        bottom = self.top + self.image.size.height - 4
+        ctx.print(self.title)
+        ctx.move_to(1, self.image.size.height - 1)
+        ctx.attributes.style = UNDERLINE
+        ctx.print("Enter")
+        ctx.move_to(6, self.image.size.height - 1)
+        ctx.attributes.style = NORMAL
+        ctx.print(": Expand/Collapse")
+        ctx.move_to(27, self.image.size.height - 1)
+        ctx.attributes.style = UNDERLINE
+        ctx.print("S")
+        ctx.move_to(28, self.image.size.height - 1)
+        ctx.attributes.style = NORMAL
+        ctx.print("elect All")
+        ctx.move_to(41, self.image.size.height - 1)
+        ctx.attributes.style = UNDERLINE
+        ctx.print("D")
+        ctx.move_to(42, self.image.size.height - 1)
+        ctx.attributes.style = NORMAL
+        ctx.print("eselect All")
+        ctx.move_to(66 + extra_cols, self.image.size.height - 1)
+        ctx.print("Start ")
+        ctx.move_to(72 + extra_cols, self.image.size.height - 1)
+        ctx.attributes.style = UNDERLINE
+        ctx.print("T")
+        ctx.move_to(73 + extra_cols, self.image.size.height - 1)
+        ctx.attributes.style = NORMAL
+        ctx.print("esting")
+        for i, line in enumerate(self.tree.render(cols - 3)[self.top:bottom]):
+            ctx.move_to(2, i + 2)
+            if i != self.highlight:
+                ctx.attributes.style = NORMAL
+            else:  # highlight the current line
+                ctx.attributes.style = REVERSE
+            ctx.print(line)
+
+    def _selectNode(self):
+        """
+        Mark a node/job as selected for this test run.
+        See :meth:`SelectableJobTreeNode.set_ancestors_state()` and
+        :meth:`SelectableJobTreeNode.set_descendants_state()` for details
+        about the automatic selection of parents and descendants.
+        """
+        node, category = self.tree.get_node_by_index(self.top + self.highlight)
+        if category:  # then the selected node is a job not a category
+            job = node
+            category.job_selection[job] = not(category.job_selection[job])
+            category.update_selected_state()
+            category.set_ancestors_state(category.job_selection[job])
+        else:
+            node.selected = not(node.selected)
+            node.set_descendants_state(node.selected)
+            node.set_ancestors_state(node.selected)
+
+    def _toggleNode(self):
+        """
+        Expand/collapse a node
+        """
+        node, is_job = self.tree.get_node_by_index(self.top + self.highlight)
+        if not is_job:
+            node.expanded = not(node.expanded)
+
+    def _scroll(self, direction):
+        visible_length = len(self.tree.render())
+        # Scroll the tree view
+        if (direction == "up" and
+                self.highlight == 0 and self.top != 0):
+            self.top -= 1
+            return
+        elif (direction == "down" and
+                (self.highlight + 1) == (self.image.size.height - 4) and
+                (self.top + self.image.size.height - 4) != visible_length):
+            self.top += 1
+            return
+        # Move the highlighted line
+        if (direction == "up" and
+                (self.top != 0 or self.highlight != 0)):
+            self.highlight -= 1
+        elif (direction == "down" and
+                (self.top + self.highlight + 1) != visible_length and
+                (self.highlight + 1) != (self.image.size.height - 4)):
+            self.highlight += 1
+
+
 class CliInvocation(CheckBoxInvocationMixIn):
 
     def __init__(self, provider_list, config, settings, ns, display=None):

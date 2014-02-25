@@ -92,16 +92,23 @@ class JobDefinitionPlugIn(IPlugIn):
         self._job_list = []
         logger.debug(_("Loading jobs definitions from %r..."), filename)
         try:
-            for record in load_rfc822_records(
-                    text, source=FileTextSource(filename)):
-                job = JobDefinition.from_rfc822_record(record)
-                job._provider = provider
-                self._job_list.append(job)
-                logger.debug(_("Loaded %r"), job)
+            records = load_rfc822_records(
+                text, source=FileTextSource(filename))
         except RFC822SyntaxError as exc:
             raise PlugInError(
                 _("Cannot load job definitions from {!r}: {}").format(
                     filename, exc))
+        for record in records:
+            try:
+                job = JobDefinition.from_rfc822_record(record)
+            except ValueError as exc:
+                raise PlugInError(
+                    _("Cannot define job from record {!r}: {}").format(
+                        record, exc))
+            else:
+                job._provider = provider
+                self._job_list.append(job)
+                logger.debug(_("Loaded %r"), job)
 
     @property
     def plugin_name(self):

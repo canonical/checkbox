@@ -51,6 +51,8 @@ from plainbox.impl.runner import JobRunner
 from plainbox.impl.runner import authenticate_warmup
 from plainbox.impl.runner import slugify
 from plainbox.impl.secure.config import Unset
+from plainbox.impl.secure.qualifiers import CompositeQualifier
+from plainbox.impl.secure.qualifiers import NonLocalJobQualifier
 from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.secure.qualifiers import select_jobs
 from plainbox.impl.session import SessionManager, SessionStorageRepository
@@ -446,6 +448,7 @@ class CliInvocation(CheckBoxInvocationMixIn):
         self.display = display
         self.ns = ns
         self.whitelists = []
+        self._local_only = False  # Only run local jobs
         if self.ns.whitelist:
             for whitelist in self.ns.whitelist:
                 self.whitelists.append(WhiteList.from_file(whitelist.name))
@@ -453,33 +456,6 @@ class CliInvocation(CheckBoxInvocationMixIn):
             self.whitelists.append(WhiteList.from_file(self.config.whitelist))
         elif self.ns.include_pattern_list:
             self.whitelists.append(WhiteList(self.ns.include_pattern_list))
-
-        if self.is_interactive:
-            if self.settings['welcome_text']:
-                if self.display is None:
-                    self.display = get_display()
-                self.display.run(ShowWelcome(self.settings['welcome_text']))
-            if not self.whitelists:
-                whitelists = []
-                for p in self.provider_list:
-                    if p.name in self.settings['default_providers']:
-                        whitelists.extend(
-                            [w.name for w in p.get_builtin_whitelists()])
-                selection = self.display.run(ShowMenu("Suite selection",
-                                                      whitelists))
-                if not selection:
-                    raise SystemExit('No whitelists selected, aborting...')
-                for s in selection:
-                    self.whitelists.append(
-                        get_whitelist_by_name(provider_list, whitelists[s]))
-        else:
-            self.whitelists.append(
-                get_whitelist_by_name(
-                    provider_list, self.settings['default_whitelist']))
-
-        print("[ Analyzing Jobs ]".center(80, '='))
-        self.manager = None
-        self.runner = None
 
     @property
     def is_interactive(self):
@@ -493,7 +469,127 @@ class CliInvocation(CheckBoxInvocationMixIn):
     def run(self):
         ns = self.ns
         job_list = self.get_job_list(ns)
-        return self._run_jobs(ns, job_list)
+        previous_session_file = SessionStorageRepository().get_last_storage()
+        resume_in_progress = False
+        if previous_session_file:
+            if self.is_interactive:
+                if self.ask_for_resume():
+                    resume_in_progress = True
+                    manager = SessionManager.load_session(
+                        job_list, previous_session_file)
+                    self._maybe_skip_last_job_after_resume(manager)
+            else:
+                resume_in_progress = True
+                manager = SessionManager.load_session(
+                    job_list, previous_session_file)
+        if not resume_in_progress:
+            # Create a session that handles most of the stuff needed to run
+            # jobs
+            try:
+                manager = SessionManager.create_session(job_list,
+                                                        legacy_mode=True)
+            except DependencyDuplicateError as exc:
+                # Handle possible DependencyDuplicateError that can happen if
+                # someone is using plainbox for job development.
+                print("The job database you are currently using is broken")
+                print("At least two jobs contend for the name {0}".format(
+                    exc.job.name))
+                print("First job defined in: {0}".format(exc.job.origin))
+                print("Second job defined in: {0}".format(
+                    exc.duplicate_job.origin))
+                raise SystemExit(exc)
+            manager.state.metadata.title = " ".join(sys.argv)
+            if self.is_interactive:
+                if self.display is None:
+                    self.display = get_display()
+                if self.settings['welcome_text']:
+                    self.display.run(
+                        ShowWelcome(self.settings['welcome_text']))
+                if not self.whitelists:
+                    whitelists = []
+                    for p in self.provider_list:
+                        if p.name in self.settings['default_providers']:
+                            whitelists.extend(
+                                [w.name for w in p.get_builtin_whitelists()])
+                    selection = self.display.run(ShowMenu("Suite selection",
+                                                          whitelists))
+                    if not selection:
+                        raise SystemExit('No whitelists selected, aborting...')
+                    for s in selection:
+                        self.whitelists.append(
+                            get_whitelist_by_name(self.provider_list,
+                                                  whitelists[s]))
+            else:
+                self.whitelists.append(
+                    get_whitelist_by_name(
+                        self.provider_list,
+                        self.settings['default_whitelist']))
+        manager.checkpoint()
+
+        if self.is_interactive and not resume_in_progress:
+            # Pre-run all local jobs
+            desired_job_list = select_jobs(
+                manager.state.job_list,
+                [CompositeQualifier(
+                    self.whitelists +
+                    [NonLocalJobQualifier(inclusive=False)]
+                )])
+            self._update_desired_job_list(manager, desired_job_list)
+            # Ask the password before anything else in order to run local jobs
+            # requiring privileges
+            if self._auth_warmup_needed(manager):
+                print("[ Authentication ]".center(80, '='))
+                return_code = authenticate_warmup()
+                if return_code:
+                    raise SystemExit(return_code)
+            self._local_only = True
+            self._run_jobs(ns, manager)
+            self._local_only = False
+
+        if not resume_in_progress:
+            # Run the rest of the desired jobs
+            desired_job_list = select_jobs(manager.state.job_list,
+                                           self.whitelists)
+            self._update_desired_job_list(manager, desired_job_list)
+            if self.is_interactive:
+                # Ask the password before anything else in order to run jobs
+                # requiring privileges
+                if self._auth_warmup_needed(manager):
+                    print("[ Authentication ]".center(80, '='))
+                    return_code = authenticate_warmup()
+                    if return_code:
+                        raise SystemExit(return_code)
+                tree = SelectableJobTreeNode.create_tree(
+                    manager.state.run_list,
+                    legacy_mode=True)
+                title = 'Choose tests to run on your system:'
+                if self.display is None:
+                    self.display = get_display()
+                self.display.run(ScrollableTreeNode(tree, title))
+                self._update_desired_job_list(manager, tree.selection)
+                estimated_duration_auto, estimated_duration_manual = \
+                    manager.state.get_estimated_duration()
+                if estimated_duration_auto:
+                    print(
+                        "Estimated duration is {:.2f} "
+                        "for automated jobs.".format(estimated_duration_auto))
+                else:
+                    print(
+                        "Estimated duration cannot be "
+                        "determined for automated jobs.")
+                if estimated_duration_manual:
+                    print(
+                        "Estimated duration is {:.2f} "
+                        "for manual jobs.".format(estimated_duration_manual))
+                else:
+                    print(
+                        "Estimated duration cannot be "
+                        "determined for manual jobs.")
+        self._run_jobs(ns, manager)
+        manager.destroy()
+
+        # FIXME: sensible return value
+        return 0
 
     def ask_for_resume(self):
         return self.ask_user(
@@ -535,64 +631,19 @@ class CliInvocation(CheckBoxInvocationMixIn):
             manager.checkpoint()
 
     def _run_jobs(self, ns, manager):
-        job_list = self.get_job_list(ns)
-        previous_session_file = SessionStorageRepository().get_last_storage()
-        resume_in_progress = False
-        if previous_session_file:
-            if self.is_interactive:
-                if self.ask_for_resume():
-                    resume_in_progress = True
-                    manager = SessionManager.load_session(
-                        job_list, previous_session_file)
-                    self._maybe_skip_last_job_after_resume(manager)
-            else:
-                resume_in_progress = True
-                manager = SessionManager.load_session(
-                    job_list, previous_session_file)
-        if not resume_in_progress:
-            # Create a session that handles most of the stuff needed to run
-            # jobs
-            try:
-                manager = SessionManager.create_session(job_list,
-                                                        legacy_mode=True)
-            except DependencyDuplicateError as exc:
-                # Handle possible DependencyDuplicateError that can happen if
-                # someone is using plainbox for job development.
-                print("The job database you are currently using is broken")
-                print("At least two jobs contend for the name {0}".format(
-                    exc.job.name))
-                print("First job defined in: {0}".format(exc.job.origin))
-                print("Second job defined in: {0}".format(
-                    exc.duplicate_job.origin))
-                raise SystemExit(exc)
-            manager.state.metadata.title = " ".join(sys.argv)
-            manager.checkpoint()
-            desired_job_list = select_jobs(manager.state.job_list,
-                                           self.whitelists)
-            self._update_desired_job_list(manager, desired_job_list)
-        # Ask the password before anything else in order to run jobs
-        # requiring privileges
-        if self.is_interactive and self._auth_warmup_needed(manager):
-            print("[ Authentication ]".center(80, '='))
-            return_code = authenticate_warmup()
-            if return_code:
-                raise SystemExit(return_code)
         runner = JobRunner(
             manager.storage.location, self.provider_list,
             os.path.join(manager.storage.location, 'io-logs'),
             command_io_delegate=self)
         self._run_jobs_with_session(ns, manager, runner)
-        self.save_results(manager)
-        manager.destroy()
-
-        # FIXME: sensible return value
-        return 0
+        if not self._local_only:
+            self.save_results(manager)
 
     def _auth_warmup_needed(self, manager):
         # Don't warm up plainbox-trusted-launcher-1 if none of the providers
         # use it. We assume that the mere presence of a provider makes it
         # possible for a root job to be preset but it could be improved to
-        # acutally know when this step is absolutely not required (no local
+        # actually know when this step is absolutely not required (no local
         # jobs, no jobs
         # need root)
         if all(not provider.secure for provider in self.provider_list):
@@ -685,19 +736,6 @@ class CliInvocation(CheckBoxInvocationMixIn):
             for problem in problem_list:
                 print(" * {}".format(problem))
             print("Problematic jobs will not be considered")
-        (estimated_duration_auto,
-         estimated_duration_manual) = manager.state.get_estimated_duration()
-        if estimated_duration_auto:
-            print("Estimated duration is {:.2f} for automated jobs.".format(
-                  estimated_duration_auto))
-        else:
-            print(
-                "Estimated duration cannot be determined for automated jobs.")
-        if estimated_duration_manual:
-            print("Estimated duration is {:.2f} for manual jobs.".format(
-                  estimated_duration_manual))
-        else:
-            print("Estimated duration cannot be determined for manual jobs.")
 
     def _run_jobs_with_session(self, ns, manager, runner):
         # TODO: run all resource jobs concurrently with multiprocessing
@@ -705,7 +743,10 @@ class CliInvocation(CheckBoxInvocationMixIn):
         # desired_jobs could be managed entirely internally by SesionState. In
         # such case the list of jobs to run would be changed during iteration
         # but would be otherwise okay).
-        print("[ Running All Jobs ]".center(80, '='))
+        if self._local_only:
+            print("[ Loading Jobs Definition ]".center(80, '='))
+        else:
+            print("[ Running All Jobs ]".center(80, '='))
         again = True
         while again:
             again = False
@@ -723,6 +764,10 @@ class CliInvocation(CheckBoxInvocationMixIn):
                     # jobs and run everything again
                     desired_job_list = select_jobs(manager.state.job_list,
                                                    self.whitelists)
+                    if self._local_only:
+                        desired_job_list = [
+                            job for job in desired_job_list
+                            if job.plugin == 'local']
                     self._update_desired_job_list(manager, desired_job_list)
                     again = True
                     break

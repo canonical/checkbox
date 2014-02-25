@@ -165,7 +165,7 @@ class SessionManager:
         return cls(state, storage)
 
     @classmethod
-    def create_session(cls, job_list=None, repo=None, legacy_mode=False):
+    def create_with_job_list(cls, job_list=None, repo=None, legacy_mode=False):
         """
         Create a session manager with a fresh session.
 

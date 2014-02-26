@@ -96,11 +96,9 @@ class MiscTests(TestCase):
     def test_matching_job_list_whitelist(self):
         # whitelists contain list of include patterns
         # that are read and interpreted as usual
-        whitelist = Mock()
-        whitelist.readlines.return_value = ['foo']
-        whitelists = [whitelist]
         ns = Mock()
-        ns.whitelist = whitelists
+        ns.whitelist = [
+            mock_whitelist("foo_whitelist", "foo", "foo.whitelist")]
         ns.include_pattern_list = []
         ns.exclude_pattern_list = []
         observed = self.obj._get_matching_job_list(ns, [
@@ -108,13 +106,11 @@ class MiscTests(TestCase):
         self.assertEqual(observed, [self.job_foo])
 
     def test_matching_job_list_multiple_whitelists(self):
-        whitelist_a = Mock()
-        whitelist_a.readlines.return_value = ['foo']
-        whitelist_b = Mock()
-        whitelist_b.readlines.return_value = ['baz']
-        whitelists = [whitelist_a, whitelist_b]
         ns = Mock()
-        ns.whitelist = whitelists
+        ns.whitelist = [
+            mock_whitelist("whitelist_a", "foo", "a.whitelist"),
+            mock_whitelist("whitelist_b", "baz", "b.whitelist"),
+        ]
         ns.include_pattern_list = []
         ns.exclude_pattern_list = []
         observed = self.obj._get_matching_job_list(ns, [
@@ -124,7 +120,10 @@ class MiscTests(TestCase):
     def test_no_prefix_matching_including(self):
         # Include patterns should only match whole job name
         ns = Mock()
-        ns.whitelist = []
+        ns.whitelist = [
+            mock_whitelist("whitelist_a", "fo", "a.whitelist"),
+            mock_whitelist("whitelist_b", "ba.+", "b.whitelist"),
+        ]
         ns.include_pattern_list = ['fo', 'ba.+']
         ns.exclude_pattern_list = []
         observed = self.obj._get_matching_job_list(ns, [self.job_foo,
@@ -137,8 +136,8 @@ class MiscTests(TestCase):
         ns.whitelist = []
         ns.include_pattern_list = ['.+']
         ns.exclude_pattern_list = ['fo', 'ba.+']
-        observed = self.obj._get_matching_job_list(ns, [self.job_foo,
-                                                        self.job_bar])
+        observed = self.obj._get_matching_job_list(
+            ns, [self.job_foo, self.job_bar])
         self.assertEqual(observed, [self.job_foo])
 
     def test_invalid_pattern_including(self):

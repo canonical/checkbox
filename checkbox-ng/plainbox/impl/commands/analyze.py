@@ -29,6 +29,7 @@
 import ast
 from logging import getLogger
 from datetime import timedelta
+import os
 
 from plainbox.i18n import gettext as _
 from plainbox.impl.commands import PlainBoxCommand
@@ -36,7 +37,9 @@ from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
 from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.resource import RequirementNodeVisitor
 from plainbox.impl.runner import JobRunner
-from plainbox.impl.session import SessionStateLegacyAPI as SessionState
+from plainbox.impl.session import SessionManager
+from plainbox.impl.session import SessionMetaData
+from plainbox.impl.session import SessionState
 
 
 logger = getLogger("plainbox.commands.special")
@@ -89,22 +92,33 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
 
     def _run_local_jobs(self):
         print(_("[Running Local Jobs]").center(80, '='))
-        with self.session.open():
+        manager = SessionManager.create_with_state(self.session)
+        try:
+            manager.state.metadata.title = "plainbox dev analyze session"
+            manager.state.metadata.flags = [SessionMetaData.FLAG_INCOMPLETE]
+            manager.checkpoint()
             runner = JobRunner(
-                self.session.session_dir, self.provider_list,
-                self.session.jobs_io_log_dir, command_io_delegate=self)
+                manager.storage.location, self.provider_list,
+                os.path.join(manager.storage.location, 'io-logs'),
+                command_io_delegate=self)
             again = True
             while again:
                 for job in self.session.run_list:
                     if job.plugin == 'local':
                         if self.session.job_state_map[job.id].result.outcome is None:
-                            self._run_local_job(runner, job)
+                            self._run_local_job(manager, runner, job)
                             break
                 else:
                     again = False
+            manager.state.metadata.flags = []
+            manager.checkpoint()
+        finally:
+            manager.destroy()
 
-    def _run_local_job(self, runner, job):
+    def _run_local_job(self, manager, runner, job):
         print("{job}".format(job=job.id))
+        manager.state.metadata.running_job_name = job.id
+        manager.checkpoint()
         result = runner.run_job(job)
         self.session.update_job_result(job, result)
         new_desired_job_list = self._get_matching_job_list(

@@ -117,6 +117,7 @@ class CheckBoxCommandMixIn:
             '-w', '--whitelist',
             action="append",
             metavar=_("WHITELIST"),
+            default=[],
             type=FileType("rt"),
             # TRANSLATORS: this is in imperative form
             help=_("load whitelist containing run patterns"))

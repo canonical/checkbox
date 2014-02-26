@@ -52,6 +52,7 @@ class CheckBoxInvocationMixIn:
                 p.load_all_jobs()[0] for p in self.provider_list]))
 
     def _get_matching_job_list(self, ns, job_list):
+        logger.debug("_get_matching_job_list(%r, %r)", ns, job_list)
         qualifier_list = []
         # Add whitelists
         for whitelist_file in ns.whitelist:
@@ -83,6 +84,7 @@ class CheckBoxInvocationMixIn:
                     _("Incorrect pattern %r: %s"), pattern, exc)
             else:
                 qualifier_list.append(qualifier)
+        logger.debug("select_jobs(%r, %r)", job_list, qualifier_list)
         return select_jobs(job_list, qualifier_list)
 
 

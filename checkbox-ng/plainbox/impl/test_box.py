@@ -25,6 +25,7 @@ Test definitions for plainbox.impl.box module
 """
 
 from inspect import cleandoc
+from io import TextIOWrapper
 from unittest import TestCase
 
 from plainbox import __version__ as version
@@ -33,6 +34,25 @@ from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.testing_utils import MockJobDefinition, suppress_warnings
 from plainbox.testing_utils.io import TestIO
 from plainbox.vendor.mock import Mock
+
+
+def mock_whitelist(name, text, filename):
+    """
+    Create a mocked whitelist for
+    CheckBoxInvocationMixIn._get_matching_job_list(). Specifically
+    for ``ns.whitelists`` as passed to that function.
+
+    :param name:
+        Name of the mocked object, helps in debugging
+    :param text:
+        Full text of the whitelist
+    :param filename:
+        Filename of the whitelist file
+    """
+    whitelist = Mock(spec=TextIOWrapper, name=name)
+    whitelist.name = filename
+    whitelist.read.return_value = text
+    return whitelist
 
 
 class MiscTests(TestCase):

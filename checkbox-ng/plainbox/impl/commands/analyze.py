@@ -26,9 +26,9 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
-import ast
-from logging import getLogger
 from datetime import timedelta
+from logging import getLogger
+import ast
 import os
 
 from plainbox.i18n import gettext as _

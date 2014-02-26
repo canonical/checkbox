@@ -32,8 +32,10 @@ from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.secure import config
+from plainbox.impl.secure.qualifiers import select_jobs
 
 
+# Deprecated, use plainbox.impl.secure.qualifiers.select_jobs() instead
 def get_matching_job_list(job_list, qualifier):
     """
     Get a list of jobs that are designated by the specified qualifier.
@@ -41,7 +43,7 @@ def get_matching_job_list(job_list, qualifier):
     This is intended to be used with :class:`CompositeQualifier`
     but works with any :class:`IJobQualifier` subclass.
     """
-    return [job for job in job_list if qualifier.designates(job)]
+    return select_jobs(job_list, [qualifier])
 
 
 def get_whitelist_by_name(provider_list, desired_whitelist):

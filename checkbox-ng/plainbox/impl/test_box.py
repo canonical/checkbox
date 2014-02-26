@@ -25,6 +25,7 @@ Test definitions for plainbox.impl.box module
 """
 
 from inspect import cleandoc
+from io import TextIOWrapper
 from unittest import TestCase
 
 from plainbox import __version__ as version
@@ -33,6 +34,25 @@ from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.testing_utils import MockJobDefinition, suppress_warnings
 from plainbox.testing_utils.io import TestIO
 from plainbox.vendor.mock import Mock
+
+
+def mock_whitelist(name, text, filename):
+    """
+    Create a mocked whitelist for
+    CheckBoxInvocationMixIn._get_matching_job_list(). Specifically
+    for ``ns.whitelists`` as passed to that function.
+
+    :param name:
+        Name of the mocked object, helps in debugging
+    :param text:
+        Full text of the whitelist
+    :param filename:
+        Filename of the whitelist file
+    """
+    whitelist = Mock(spec=TextIOWrapper, name=name)
+    whitelist.name = filename
+    whitelist.read.return_value = text
+    return whitelist
 
 
 class MiscTests(TestCase):
@@ -45,8 +65,8 @@ class MiscTests(TestCase):
 
     def test_matching_job_list(self):
         # Nothing gets selected automatically
-        ns = Mock()
-        ns.whitelist = None
+        ns = Mock(name="ns")
+        ns.whitelist = []
         ns.include_pattern_list = []
         ns.exclude_pattern_list = []
         observed = self.obj._get_matching_job_list(ns, [
@@ -55,8 +75,8 @@ class MiscTests(TestCase):
 
     def test_matching_job_list_including(self):
         # Including jobs with glob pattern works
-        ns = Mock()
-        ns.whitelist = None
+        ns = Mock(name="ns")
+        ns.whitelist = []
         ns.include_pattern_list = ['f.+']
         ns.exclude_pattern_list = []
         observed = self.obj._get_matching_job_list(ns, [
@@ -65,8 +85,8 @@ class MiscTests(TestCase):
 
     def test_matching_job_list_excluding(self):
         # Excluding jobs with glob pattern works
-        ns = Mock()
-        ns.whitelist = None
+        ns = Mock(name="ns")
+        ns.whitelist = []
         ns.include_pattern_list = ['.+']
         ns.exclude_pattern_list = ['f.+']
         observed = self.obj._get_matching_job_list(ns, [
@@ -76,11 +96,9 @@ class MiscTests(TestCase):
     def test_matching_job_list_whitelist(self):
         # whitelists contain list of include patterns
         # that are read and interpreted as usual
-        whitelist = Mock()
-        whitelist.readlines.return_value = ['foo']
-        whitelists = [whitelist]
-        ns = Mock()
-        ns.whitelist = whitelists
+        ns = Mock(name="ns")
+        ns.whitelist = [
+            mock_whitelist("foo_whitelist", "foo", "foo.whitelist")]
         ns.include_pattern_list = []
         ns.exclude_pattern_list = []
         observed = self.obj._get_matching_job_list(ns, [
@@ -88,13 +106,11 @@ class MiscTests(TestCase):
         self.assertEqual(observed, [self.job_foo])
 
     def test_matching_job_list_multiple_whitelists(self):
-        whitelist_a = Mock()
-        whitelist_a.readlines.return_value = ['foo']
-        whitelist_b = Mock()
-        whitelist_b.readlines.return_value = ['baz']
-        whitelists = [whitelist_a, whitelist_b]
-        ns = Mock()
-        ns.whitelist = whitelists
+        ns = Mock(name="ns")
+        ns.whitelist = [
+            mock_whitelist("whitelist_a", "foo", "a.whitelist"),
+            mock_whitelist("whitelist_b", "baz", "b.whitelist"),
+        ]
         ns.include_pattern_list = []
         ns.exclude_pattern_list = []
         observed = self.obj._get_matching_job_list(ns, [
@@ -103,8 +119,11 @@ class MiscTests(TestCase):
 
     def test_no_prefix_matching_including(self):
         # Include patterns should only match whole job name
-        ns = Mock()
-        ns.whitelist = None
+        ns = Mock(name="ns")
+        ns.whitelist = [
+            mock_whitelist("whitelist_a", "fo", "a.whitelist"),
+            mock_whitelist("whitelist_b", "ba.+", "b.whitelist"),
+        ]
         ns.include_pattern_list = ['fo', 'ba.+']
         ns.exclude_pattern_list = []
         observed = self.obj._get_matching_job_list(ns, [self.job_foo,
@@ -113,17 +132,17 @@ class MiscTests(TestCase):
 
     def test_no_prefix_matching_excluding(self):
         # Exclude patterns should only match whole job name
-        ns = Mock()
-        ns.whitelist = None
+        ns = Mock(name="ns")
+        ns.whitelist = []
         ns.include_pattern_list = ['.+']
         ns.exclude_pattern_list = ['fo', 'ba.+']
-        observed = self.obj._get_matching_job_list(ns, [self.job_foo,
-                                                        self.job_bar])
+        observed = self.obj._get_matching_job_list(
+            ns, [self.job_foo, self.job_bar])
         self.assertEqual(observed, [self.job_foo])
 
     def test_invalid_pattern_including(self):
-        ns = Mock()
-        ns.whitelist = None
+        ns = Mock(name="ns")
+        ns.whitelist = []
         ns.include_pattern_list = ['?']
         ns.exclude_pattern_list = []
         observed = self.obj._get_matching_job_list(
@@ -131,8 +150,8 @@ class MiscTests(TestCase):
         self.assertEqual(observed, [])
 
     def test_invalid_pattern_excluding(self):
-        ns = Mock()
-        ns.whitelist = None
+        ns = Mock(name="ns")
+        ns.whitelist = []
         ns.include_pattern_list = ['fo.*']
         ns.exclude_pattern_list = ['[bar']
         observed = self.obj._get_matching_job_list(

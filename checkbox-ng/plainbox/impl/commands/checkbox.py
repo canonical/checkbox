@@ -29,9 +29,11 @@
 from argparse import FileType
 from logging import getLogger
 import itertools
-import re
 
 from plainbox.i18n import gettext as _
+from plainbox.impl.secure.qualifiers import RegExpJobQualifier
+from plainbox.impl.secure.qualifiers import WhiteList
+from plainbox.impl.secure.qualifiers import select_jobs
 
 logger = getLogger("plainbox.commands.checkbox")
 
@@ -50,45 +52,40 @@ class CheckBoxInvocationMixIn:
                 p.load_all_jobs()[0] for p in self.provider_list]))
 
     def _get_matching_job_list(self, ns, job_list):
-        # Find jobs that matched patterns
-        matching_job_list = []
-        # Pre-seed the include pattern list with data read from
-        # the whitelist file.
-        if ns.whitelist:
-            for whitelist in ns.whitelist:
-                ns.include_pattern_list.extend([
-                    pattern.strip()
-                    for pattern in whitelist.readlines()])
-        # Decide which of the known jobs to include
-        if ns.exclude_pattern_list:
-            for pattern in ns.exclude_pattern_list:
-                # Reject all jobs that match any of the exclude
-                # patterns, matching strictly from the start to
-                # the end of the line.
-                try:
-                    regexp_pattern = re.compile(
-                        r"^{pattern}$".format(pattern=pattern))
-                except re.error:
-                    logger.warning(_("Invalid exclude pattern: %s"), pattern)
-                    continue
-                for job in job_list:
-                    if regexp_pattern.match(job.id):
-                        job_list.remove(job)
-        if ns.include_pattern_list:
-            for pattern in ns.include_pattern_list:
-                # Accept (include) all job that matches
-                # any of include patterns, matching strictly
-                # from the start to the end of the line.
-                try:
-                    regexp_pattern = re.compile(
-                        r"^{pattern}$".format(pattern=pattern))
-                except re.error:
-                    logger.warning(_("Invalid include pattern: %s"), pattern)
-                    continue
-                for job in job_list:
-                    if regexp_pattern.match(job.id):
-                        matching_job_list.append(job)
-        return matching_job_list
+        logger.debug("_get_matching_job_list(%r, %r)", ns, job_list)
+        qualifier_list = []
+        # Add whitelists
+        for whitelist_file in ns.whitelist:
+            try:
+                qualifier = WhiteList.from_string(
+                    whitelist_file.read(), filename=whitelist_file.name)
+            except Exception as exc:
+                logger.warning(
+                    _("Unable to load whitelist %r: %s"), whitelist_file, exc)
+            else:
+                qualifier_list.append(qualifier)
+        # Add all the --include jobs
+        for pattern in ns.include_pattern_list:
+            try:
+                qualifier = RegExpJobQualifier(
+                    '^{}$'.format(pattern), inclusive=True)
+            except Exception as exc:
+                logger.warning(
+                    _("Incorrect pattern %r: %s"), pattern, exc)
+            else:
+                qualifier_list.append(qualifier)
+        # Add all the --exclude jobs
+        for pattern in ns.exclude_pattern_list:
+            try:
+                qualifier = RegExpJobQualifier(
+                    '^{}$'.format(pattern), inclusive=False)
+            except Exception as exc:
+                logger.warning(
+                    _("Incorrect pattern %r: %s"), pattern, exc)
+            else:
+                qualifier_list.append(qualifier)
+        logger.debug("select_jobs(%r, %r)", job_list, qualifier_list)
+        return select_jobs(job_list, qualifier_list)
 
 
 class CheckBoxCommandMixIn:
@@ -117,6 +114,7 @@ class CheckBoxCommandMixIn:
             '-w', '--whitelist',
             action="append",
             metavar=_("WHITELIST"),
+            default=[],
             type=FileType("rt"),
             # TRANSLATORS: this is in imperative form
             help=_("load whitelist containing run patterns"))

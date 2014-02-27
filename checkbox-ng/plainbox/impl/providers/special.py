@@ -155,6 +155,7 @@ class StubBoxProvider(Provider1):
     """
 
     def __init__(self):
+        # TODO: load stubbox using what's in manage.py, maybe?
         super(StubBoxProvider, self).__init__(
             os.path.join(get_plainbox_dir(), "impl/providers/stubbox"),
             "2013.com.canonical:stubbox", "1.0",

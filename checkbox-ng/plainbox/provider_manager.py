@@ -207,8 +207,9 @@ class InstallCommand(ManageCommand):
     - the README.md file
     - the jobs directory, and everything in it
     - the whitelists directory, and everything in it
-    - the bin directory, as above
-    - the data directory as above
+    - the bin directory, and everything in it
+    - the data directory, and everything in it
+    - the po directory, and everything in it
 
     Any of the missing items are silently ignored.
     """))
@@ -217,7 +218,7 @@ class SourceDistributionCommand(ManageCommand):
     name = "sdist"
 
     _INCLUDED_ITEMS = ['manage.py', 'README.md', 'jobs', 'whitelists', 'bin',
-                       'data']
+                       'data', 'po']
 
     def register_parser(self, subparsers):
         """

@@ -5,7 +5,7 @@ checkbox-ng (0.1-2) unstable; urgency=low
     checkbox, to avoid conflict with some files.
 
   [ Matthias Klose ]
-  * Don't used a python3.x shebang.
+  * Don't used a python3.x shebang. Closes: #739883.
 
  -- Sylvain Pineau <sylvain.pineau@canonical.com>  Tue, 25 Feb 2014 15:57:58 +0100
 

@@ -31,6 +31,7 @@ import inspect
 import logging
 import os
 import shutil
+import subprocess
 import tarfile
 
 from plainbox import __version__ as version
@@ -513,6 +514,110 @@ class ValidateCommand(ManageCommand):
             print(_("All jobs seem to be valid"))
 
 
+@docstring(
+    # TRANSLATORS: please leave various options (both long and short forms),
+    # environment variables and paths in their original form. Also keep the
+    # special @EPILOG@ string. The first line of the translation is special and
+    # is used as the help message. Please keep the pseudo-statement form and
+    # don't finish the sentence with a dot. Pay extra attention to whitespace.
+    # It must be correctly preserved or the result won't work. In particular
+    # the leading whitespace *must* be preserved and *must* have the same
+    # length on each line.
+    N_("""
+    update, merge and build translation catalogs
+
+    This command exposes facilities for updating, merging and building
+    message translation catalogs.
+    """))
+class I18NCommand(ManageCommand):
+
+    def register_parser(self, subparsers):
+        """
+        Overridden method of CommandBase.
+
+        :param subparsers:
+            The argparse subparsers objects in which command line argument
+            specification should be created.
+
+        This method is invoked by the command line handling code to register
+        arguments specific to this sub-command. It must also register itself as
+        the command class with the ``command`` default.
+        """
+        parser = self.add_subcommand(subparsers)
+        parser.add_argument(
+            "-n", "--dry-run", default=False, action="store_true",
+            help=_("don't actually do anything"))
+        group = parser.add_argument_group(title=_("actions to perform"))
+        group.add_argument(
+            "--dont-update-pot", default=False, action="store_false",
+            help=_("do not update the translation template"))
+        group.add_argument(
+            "--dont-merge-po", default=False, action="store_true",
+            help=_("do not merge translation files with the template"))
+        group.add_argument(
+            "--dont-build-mo", default=False, action="store_true",
+            help=_("do not build binary translation files"))
+
+    def invoked(self, ns):
+        # First update / generate the template
+        if not ns.dont_update_pot:
+            self._update_pot(ns.dry_run)
+        # Then merge all of the po files with the new template
+        if not ns.dont_merge_po:
+            self._merge_po(ns.dry_run)
+        # Then build all of the .mo files from each of the .po files
+        if not ns.dont_build_mo:
+            self._build_mo(ns.dry_run)
+
+    @property
+    def po_dir(self):
+        return os.path.join(self.definition.location, 'po')
+
+    def _update_pot(self, dry_run):
+        self._cmd([
+            'intltool-update',
+            '--gettext-package={}'.format(self.definition.gettext_domain),
+            '--pot',
+        ], self.po_dir, dry_run)
+
+    def _merge_po(self, dry_run):
+        for item in os.listdir(self.po_dir):
+            if not item.endswith('.po'):
+                continue
+            lang = os.path.splitext(item)[0]
+            mo_dir = 'build/mo/LC_MESSAGES/{}'.format(lang)
+            os.makedirs(mo_dir, exist_ok=True)
+            self._cmd([
+                'intltool-update',
+                '--gettext-package={}'.format(self.definition.gettext_domain),
+                '--dist', lang
+            ], self.po_dir, dry_run)
+
+    def _build_mo(self, dry_run):
+        for item in os.listdir(self.po_dir):
+            if not item.endswith('.po'):
+                continue
+            lang = os.path.splitext(item)[0]
+            mo_dir = 'build/mo/LC_MESSAGES/{}'.format(lang)
+            os.makedirs(mo_dir, exist_ok=True)
+            self._cmd([
+                'msgfmt',
+                '{}/{}.po'.format(os.path.relpath(self.po_dir), lang),
+                '-o', '{}/{}.mo'.format(
+                    mo_dir, self.definition.gettext_domain)
+            ], None, dry_run)
+
+    def _cmd(self, cmd, cwd, dry_run):
+        if cwd is not None:
+            print('(', 'cd', os.path.relpath(cwd), '&&', " ".join(cmd), ')')
+        else:
+            print(" ".join(cmd))
+        if not dry_run:
+            return subprocess.call(cmd, cwd=cwd)
+        else:
+            return 0
+
+
 class ProviderManagerTool(ToolBase):
     """
     Command line tool that is covertly used by each provider's manage.py script
@@ -547,6 +652,11 @@ class ProviderManagerTool(ToolBase):
         This command creates a tarball with all of the source files required
         to install this provider. It can be used to release open-source
         providers and archive them.
+
+    `manage.py i18n`:
+        This command updates, merges and builds binary versions of message
+        translation catalogs. It can be used as a part of a build system, to
+        standardize and facilitate providing localized test definitions.
     """
 
     _SUB_COMMANDS = [
@@ -555,6 +665,7 @@ class ProviderManagerTool(ToolBase):
         DevelopCommand,
         InstallCommand,
         SourceDistributionCommand,
+        I18NCommand,
     ]
 
     def __init__(self, definition):

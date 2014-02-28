@@ -168,6 +168,15 @@ class Variable(INameTracking):
             Tf the value was not valid in any way
         """
         for validator in self.validator_list:
+            # Most validators don't want to deal with the unset type so let's
+            # special case that.  Anything that is decorated with
+            # @understands_Unset will have that attribute set to True.
+            #
+            # If the value _is_ unset and the validator doesn't claim to
+            # support it then just skip it.
+            if value is Unset and not getattr(validator, 'understands_Unset',
+                                              False):
+                continue
             message = validator(self, value)
             if message is not None:
                 raise ValidationError(self, value, message)

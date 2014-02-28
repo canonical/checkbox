@@ -337,6 +337,40 @@ class Provider1PlugInTests(TestCase):
                 "Problem in provider definition, "
                 "field 'location': no such directory"))
 
+    def test_init_validation__gettext_domain_can_be_unset(self):
+        """
+        verify how Provider1PlugIn validates the lack of gettext_domain field
+        (it should be allowed not to exist)
+        """
+        with mock.patch('os.path.isdir') as mock_isdir:
+            # Mock os.path.isdir so that we can validate location
+            mock_isdir.return_value = True
+            plugin = Provider1PlugIn("text.provider", (
+                "[PlainBox Provider]\n"
+                "name = 2014.example.org:name\n"
+                "version = 1.0\n"
+                "location = /some/place\n"
+            ))
+        # NOTE: the Unset value is translated by Provider1PlugIn
+        self.assertIs(plugin.plugin_object.gettext_domain, None)
+
+    def test_init_validation__gettext_domain_can_be_defined(self):
+        """
+        verify how Provider1PlugIn validates the lack of gettext_domain field
+        (it should be allowed not to exist)
+        """
+        with mock.patch('os.path.isdir') as mock_isdir:
+            # Mock os.path.isdir so that we can validate location
+            mock_isdir.return_value = True
+            plugin = Provider1PlugIn("text.provider", (
+                "[PlainBox Provider]\n"
+                "name = 2014.example.org:name\n"
+                "version = 1.0\n"
+                "location = /some/place\n"
+                "gettext_domain = some-id-6\n"
+            ))
+        self.assertEqual(plugin.plugin_object.gettext_domain, "some-id-6")
+
 
 class WhiteListPlugInTests(TestCase):
     """

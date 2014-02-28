@@ -460,7 +460,11 @@ class Provider1Definition(Config):
 
     gettext_domain = Variable(
         section='PlainBox Provider',
-        help_text=_("Name of the gettext domain for translations"))
+        help_text=_("Name of the gettext domain for translations"),
+        validator_list=[
+            # NOTE: it *can* be unset!
+            PatternValidator("[a-z0-9-]+"),
+        ])
 
 
 class Provider1PlugIn(IPlugIn):

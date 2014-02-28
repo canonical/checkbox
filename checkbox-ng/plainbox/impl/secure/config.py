@@ -89,6 +89,9 @@ class UnsetType:
     def __repr__(self):
         return "Unset"
 
+    def __bool__(self):
+        return False
+
 
 Unset = UnsetType()
 

@@ -46,6 +46,9 @@ class UnsetTests(TestCase):
     def test_repr(self):
         self.assertEqual(repr(Unset), "Unset")
 
+    def test_bool(self):
+        self.assertEqual(bool(Unset), False)
+
 
 class understands_Unset_Tests(TestCase):
 

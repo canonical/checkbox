@@ -143,20 +143,8 @@ class Variable(INameTracking):
         self._default = default
         self._validator_list = validator_list
         self._help_text = help_text
-        self._validate_default_value()
         # Workaround for Sphinx breaking if __doc__ is a property
         self.__doc__ = self.help_text or self.__class__.__doc__
-
-    def _validate_default_value(self):
-        """
-        Validate the default value, unless it is Unset
-        """
-        if self.default is Unset:
-            return
-        for validator in self.validator_list:
-            message = validator(self, self.default)
-            if message is not None:
-                raise ValidationError(self, self.default, message)
 
     def validate(self, value):
         """

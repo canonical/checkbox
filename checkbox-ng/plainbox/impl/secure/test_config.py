@@ -321,6 +321,33 @@ class PlainBoxConfigParserTest(TestCase):
         self.assertFalse('upper' in all_keys)
 
 
+class KindValidatorTests(TestCase):
+
+    class _Config(Config):
+        var_bool = Variable(kind=bool)
+        var_int = Variable(kind=int)
+        var_float = Variable(kind=float)
+        var_str = Variable(kind=str)
+
+    def test_error_msg(self):
+        """
+        verify that KindValidator() has correct error message for each type
+        """
+        bad_value = object()
+        self.assertEqual(
+            KindValidator(self._Config.var_bool, bad_value),
+            "expected a boolean")
+        self.assertEqual(
+            KindValidator(self._Config.var_int, bad_value),
+            "expected an integer")
+        self.assertEqual(
+            KindValidator(self._Config.var_float, bad_value),
+            "expected a floating point number")
+        self.assertEqual(
+            KindValidator(self._Config.var_str, bad_value),
+            "expected a string")
+
+
 class PatternValidatorTests(TestCase):
 
     class _Config(Config):

@@ -672,7 +672,12 @@ def KindValidator(variable, new_value):
     A validator ensuring that values match the "kind" of the variable.
     """
     if not isinstance(new_value, variable.kind):
-        return _("expected a {}").format(variable.kind.__name__)
+        return {
+            bool: _("expected a boolean"),
+            int: _("expected an integer"),
+            float: _("expected a floating point number"),
+            str: _("expected a string"),
+        }[variable.kind]
 
 
 class PatternValidator(IValidator):

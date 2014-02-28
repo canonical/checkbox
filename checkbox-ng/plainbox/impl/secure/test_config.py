@@ -367,6 +367,12 @@ class NotUnsetValidatorTests(TestCase):
     class _Config(Config):
         var = Variable()
 
+    def test_understands_Unset(self):
+        """
+        verify that Unset can be handled at all
+        """
+        self.assertTrue(getattr(NotUnsetValidator, "understands_Unset"))
+
     def test_rejects_unset_values(self):
         """
         verify that Unset variables are rejected

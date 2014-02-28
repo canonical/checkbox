@@ -714,6 +714,7 @@ class ChoiceValidator(IValidator):
             return False
 
 
+@understands_Unset
 class NotUnsetValidator(IValidator):
     """
     A validator ensuring that values are set

@@ -460,7 +460,6 @@ class Provider1Definition(Config):
 
     gettext_domain = Variable(
         section='PlainBox Provider',
-        default="",
         help_text=_("Name of the gettext domain for translations"))
 
 
@@ -491,7 +490,7 @@ class Provider1PlugIn(IPlugIn):
             definition.version,
             definition.description,
             secure=os.path.dirname(filename) in get_secure_PROVIDERPATH_list(),
-            gettext_domain=definition.gettext_domain)
+            gettext_domain=definition.gettext_domain or None)
 
     def __repr__(self):
         return "<{!s} plugin_name:{!r}>".format(

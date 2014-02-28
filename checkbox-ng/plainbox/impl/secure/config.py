@@ -144,6 +144,20 @@ class Variable(INameTracking):
             if message is not None:
                 raise ValidationError(self, self.default, message)
 
+    def validate(self, value):
+        """
+        Check if the supplied value is valid for this variable.
+
+        :param value:
+            The proposed value
+        :raises ValidationError:
+            Tf the value was not valid in any way
+        """
+        for validator in self.validator_list:
+            message = validator(self, value)
+            if message is not None:
+                raise ValidationError(self, value, message)
+
     def _set_tracked_name(self, name):
         """
         Internal method used by :meth:`ConfigMeta.__new__`

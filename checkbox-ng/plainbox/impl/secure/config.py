@@ -93,6 +93,20 @@ class UnsetType:
 Unset = UnsetType()
 
 
+def understands_Unset(cls_or_func):
+    """
+    Decorator for marking validators as supporting the special Unset value.
+
+    This decorator should be applied to every validator that natively supports
+    Unset values. Without it, Unset is never validated.
+
+    This decorator works by setting the ``understands_Unset`` attribute on the
+    decorated object and returning it intact.
+    """
+    cls_or_func.understands_Unset = True
+    return cls_or_func
+
+
 class Variable(INameTracking):
     """
     Variable that can be used in a configuration systems

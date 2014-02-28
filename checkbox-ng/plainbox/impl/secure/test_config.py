@@ -35,6 +35,7 @@ from plainbox.impl.secure.config import NotUnsetValidator
 from plainbox.impl.secure.config import PatternValidator
 from plainbox.impl.secure.config import PlainBoxConfigParser, Config
 from plainbox.impl.secure.config import Variable, Section, Unset
+from plainbox.impl.secure.config import understands_Unset
 
 
 class UnsetTests(TestCase):
@@ -44,6 +45,25 @@ class UnsetTests(TestCase):
 
     def test_repr(self):
         self.assertEqual(repr(Unset), "Unset")
+
+
+class understands_Unset_Tests(TestCase):
+
+    def test_func(self):
+        @understands_Unset
+        def func():
+            pass
+
+        self.assertTrue(hasattr(func, 'understands_Unset'))
+        self.assertTrue(getattr(func, 'understands_Unset'))
+
+    def test_cls(self):
+        @understands_Unset
+        class cls:
+            pass
+
+        self.assertTrue(hasattr(cls, 'understands_Unset'))
+        self.assertTrue(getattr(cls, 'understands_Unset'))
 
 
 class VariableTests(TestCase):

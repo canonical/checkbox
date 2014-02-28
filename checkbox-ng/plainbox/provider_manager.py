@@ -44,6 +44,7 @@ from plainbox.impl.job import Problem
 from plainbox.impl.job import ValidationError as JobValidationError
 from plainbox.impl.logging import setup_logging
 from plainbox.impl.providers.v1 import get_user_PROVIDERPATH_entry
+from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.config import ValidationError \
     as ConfigValidationError
 from plainbox.impl.secure.providers.v1 import Provider1, Provider1Definition
@@ -755,7 +756,7 @@ def setup(**kwargs):
         definition.name = kwargs.get('name', None)
         definition.version = kwargs.get('version', None)
         definition.description = kwargs.get('description', None)
-        definition.gettext_domain = kwargs.get('gettext_domain', "")
+        definition.gettext_domain = kwargs.get('gettext_domain', Unset)
     except ConfigValidationError as exc:
         raise SystemExit(_("{}: bad value of {!r}, {}").format(
             manage_py, exc.variable.name, exc.message))

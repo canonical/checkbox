@@ -139,7 +139,7 @@ only one of fixed possible choices::
     ...         if value not in self.choices:
     ...             return "unspported value"
 
-Each time the check() method returns None, it is assumed that everything is
+Each time the called validator returns None, it is assumed that everything is
 okay. Otherwise the returned string is used as a message and
 :class:`plainbox.impl.secure.config.ValidationError` is raised.
 

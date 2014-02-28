@@ -268,7 +268,8 @@ class ConfigTests(TestCase):
         self.assertEqual(len(conf.problem_list), 1)
         self.assertEqual(conf.problem_list[0].variable, TestConfig.v)
         self.assertEqual(conf.problem_list[0].new_value, Unset)
-        self.assertEqual(conf.problem_list[0].message, "must be set to something")
+        self.assertEqual(conf.problem_list[0].message,
+                         "must be set to something")
 
 
 class ConfigMetaDataTests(TestCase):

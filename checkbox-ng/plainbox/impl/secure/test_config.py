@@ -35,6 +35,7 @@ from plainbox.impl.secure.config import NotUnsetValidator
 from plainbox.impl.secure.config import PatternValidator
 from plainbox.impl.secure.config import PlainBoxConfigParser, Config
 from plainbox.impl.secure.config import Variable, Section, Unset
+from plainbox.impl.secure.config import understands_Unset
 
 
 class UnsetTests(TestCase):
@@ -44,6 +45,28 @@ class UnsetTests(TestCase):
 
     def test_repr(self):
         self.assertEqual(repr(Unset), "Unset")
+
+    def test_bool(self):
+        self.assertEqual(bool(Unset), False)
+
+
+class understands_Unset_Tests(TestCase):
+
+    def test_func(self):
+        @understands_Unset
+        def func():
+            pass
+
+        self.assertTrue(hasattr(func, 'understands_Unset'))
+        self.assertTrue(getattr(func, 'understands_Unset'))
+
+    def test_cls(self):
+        @understands_Unset
+        class cls:
+            pass
+
+        self.assertTrue(hasattr(cls, 'understands_Unset'))
+        self.assertTrue(getattr(cls, 'understands_Unset'))
 
 
 class VariableTests(TestCase):
@@ -268,7 +291,8 @@ class ConfigTests(TestCase):
         self.assertEqual(len(conf.problem_list), 1)
         self.assertEqual(conf.problem_list[0].variable, TestConfig.v)
         self.assertEqual(conf.problem_list[0].new_value, Unset)
-        self.assertEqual(conf.problem_list[0].message, "must be set to something")
+        self.assertEqual(conf.problem_list[0].message,
+                         "must be set to something")
 
 
 class ConfigMetaDataTests(TestCase):
@@ -295,6 +319,33 @@ class PlainBoxConfigParserTest(TestCase):
         self.assertTrue('lower' in all_keys)
         self.assertTrue('UPPER' in all_keys)
         self.assertFalse('upper' in all_keys)
+
+
+class KindValidatorTests(TestCase):
+
+    class _Config(Config):
+        var_bool = Variable(kind=bool)
+        var_int = Variable(kind=int)
+        var_float = Variable(kind=float)
+        var_str = Variable(kind=str)
+
+    def test_error_msg(self):
+        """
+        verify that KindValidator() has correct error message for each type
+        """
+        bad_value = object()
+        self.assertEqual(
+            KindValidator(self._Config.var_bool, bad_value),
+            "expected a boolean")
+        self.assertEqual(
+            KindValidator(self._Config.var_int, bad_value),
+            "expected an integer")
+        self.assertEqual(
+            KindValidator(self._Config.var_float, bad_value),
+            "expected a floating point number")
+        self.assertEqual(
+            KindValidator(self._Config.var_str, bad_value),
+            "expected a string")
 
 
 class PatternValidatorTests(TestCase):
@@ -345,6 +396,12 @@ class NotUnsetValidatorTests(TestCase):
 
     class _Config(Config):
         var = Variable()
+
+    def test_understands_Unset(self):
+        """
+        verify that Unset can be handled at all
+        """
+        self.assertTrue(getattr(NotUnsetValidator, "understands_Unset"))
 
     def test_rejects_unset_values(self):
         """

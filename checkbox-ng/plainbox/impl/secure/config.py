@@ -89,8 +89,25 @@ class UnsetType:
     def __repr__(self):
         return "Unset"
 
+    def __bool__(self):
+        return False
+
 
 Unset = UnsetType()
+
+
+def understands_Unset(cls_or_func):
+    """
+    Decorator for marking validators as supporting the special Unset value.
+
+    This decorator should be applied to every validator that natively supports
+    Unset values. Without it, Unset is never validated.
+
+    This decorator works by setting the ``understands_Unset`` attribute on the
+    decorated object and returning it intact.
+    """
+    cls_or_func.understands_Unset = True
+    return cls_or_func
 
 
 class Variable(INameTracking):
@@ -129,20 +146,31 @@ class Variable(INameTracking):
         self._default = default
         self._validator_list = validator_list
         self._help_text = help_text
-        self._validate_default_value()
         # Workaround for Sphinx breaking if __doc__ is a property
         self.__doc__ = self.help_text or self.__class__.__doc__
 
-    def _validate_default_value(self):
+    def validate(self, value):
         """
-        Validate the default value, unless it is Unset
+        Check if the supplied value is valid for this variable.
+
+        :param value:
+            The proposed value
+        :raises ValidationError:
+            Tf the value was not valid in any way
         """
-        if self.default is Unset:
-            return
         for validator in self.validator_list:
-            message = validator(self, self.default)
+            # Most validators don't want to deal with the unset type so let's
+            # special case that.  Anything that is decorated with
+            # @understands_Unset will have that attribute set to True.
+            #
+            # If the value _is_ unset and the validator doesn't claim to
+            # support it then just skip it.
+            if value is Unset and not getattr(validator, 'understands_Unset',
+                                              False):
+                continue
+            message = validator(self, value)
             if message is not None:
-                raise ValidationError(self, self.default, message)
+                raise ValidationError(self, value, message)
 
     def _set_tracked_name(self, name):
         """
@@ -217,10 +245,7 @@ class Variable(INameTracking):
         :raises ValidationError: if the new value is incorrect
         """
         # Check it against all validators
-        for validator in self.validator_list:
-            message = validator(self, new_value)
-            if message is not None:
-                raise ValidationError(self, new_value, message)
+        self.validate(new_value)
         # Assign it to the backing store of the instance
         instance._set_variable(self.name, new_value)
 
@@ -647,7 +672,12 @@ def KindValidator(variable, new_value):
     A validator ensuring that values match the "kind" of the variable.
     """
     if not isinstance(new_value, variable.kind):
-        return _("expected a {}").format(variable.kind.__name__)
+        return {
+            bool: _("expected a boolean"),
+            int: _("expected an integer"),
+            float: _("expected a floating point number"),
+            str: _("expected a string"),
+        }[variable.kind]
 
 
 class PatternValidator(IValidator):
@@ -689,6 +719,7 @@ class ChoiceValidator(IValidator):
             return False
 
 
+@understands_Unset
 class NotUnsetValidator(IValidator):
     """
     A validator ensuring that values are set

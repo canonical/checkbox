@@ -40,6 +40,19 @@ Writes are validated (see validators below), reads go to the backing store and,
 if missing, pick the default from the variable declaration. By default values
 are not constrained in any way.
 
+The Unset value
+---------------
+
+Apart from handling arbitrary values, variables can store the ``Unset`` value,
+which is of the special ``UnsetType``. Unset variables are used as the implicit
+default values so understanding them is important.
+
+The ``Unset`` value is always false in a boolean context. This makes it easier
+to accommodate but applications are still expected to handle it correctly. One
+way to do that is to provide a default value for **every** variable used.
+Another is to use the :class:`~plainbox.impl.secure.config.NotUnsetValidator`
+to prevent such values from reaching the application.
+
 Using Variable with custom default values
 -----------------------------------------
 
@@ -126,7 +139,7 @@ only one of fixed possible choices::
     ...         if value not in self.choices:
     ...             return "unspported value"
 
-Each time the check() method returns None, it is assumed that everything is
+Each time the called validator returns None, it is assumed that everything is
 okay. Otherwise the returned string is used as a message and
 :class:`plainbox.impl.secure.config.ValidationError` is raised.
 
@@ -146,6 +159,17 @@ argument::
     ...         default='/var/log/plainbox.log')
     ...
     ...     debug = Variable(default=False, kind=bool)
+
+
+.. note::
+
+    Validators that want to see the ``Unset`` value need to be explicitly
+    tagged, otherwise they will never see that value (they will not be called)
+    but can assume that the value is of correct type (bool, int, float or str).
+
+    If you need to write a validator that understands and somehow handles the
+    Unset value, decorate it with the
+    :func:`~plainbox.impl.secure.config.understands_Unset` decorator.
 
 Using Section objects
 ---------------------

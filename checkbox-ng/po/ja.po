@@ -1,4 +1,4 @@
-# Chinese (Traditional) translation for checkbox
+# Japanese translation for checkbox
 # Copyright (c) 2014 Rosetta Contributors and Canonical Ltd 2014
 # This file is distributed under the same license as the checkbox package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
@@ -8,9 +8,9 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-02-20 22:46+0100\n"
-"PO-Revision-Date: 2014-02-27 10:23+0000\n"
+"PO-Revision-Date: 2014-02-27 09:48+0000\n"
 "Last-Translator: Po-Hsu Lin <po-hsu.lin@canonical.com>\n"
-"Language-Team: Chinese (Traditional) <zh_TW@li.org>\n"
+"Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -52,7 +52,7 @@ msgstr ""
 #. description
 #: ../plainbox/impl/providers/stubbox/jobs/stub.txt.in:30
 msgid "Sleep for sixty seconds"
-msgstr "休眠六十秒鐘"
+msgstr ""
 
 #. description
 #: ../plainbox/impl/providers/stubbox/jobs/stub.txt.in:36
@@ -144,7 +144,7 @@ msgstr ""
 #: .././plainbox/vendor/argparse/py33-argparse.py:300
 #: .././plainbox/vendor/argparse/py34-argparse.py:300
 msgid "usage: "
-msgstr ""
+msgstr "使い方: "
 
 #: .././plainbox/impl/applogic.py:58
 msgid "None of the providers had a whitelist named '{}'"
@@ -420,11 +420,11 @@ msgstr ""
 
 #: .././plainbox/impl/commands/check_config.py:61
 msgid "Sections:"
-msgstr ""
+msgstr "セクション:"
 
 #: .././plainbox/impl/commands/check_config.py:67
 msgid "Problems:"
-msgstr ""
+msgstr "問題:"
 
 #: .././plainbox/impl/commands/check_config.py:70
 #, python-brace-format
@@ -574,7 +574,7 @@ msgstr ""
 #: .././plainbox/impl/commands/run.py:401
 #: .././plainbox/impl/commands/run.py:417
 msgid "?"
-msgstr ""
+msgstr "?"
 
 #: .././plainbox/impl/commands/run.py:91
 msgid "Available output formats: {}"
@@ -600,7 +600,7 @@ msgstr ""
 #: .././plainbox/impl/commands/run.py:148
 #: .././plainbox/impl/exporter/xlsx.py:465
 msgid "skip"
-msgstr ""
+msgstr "スキップ"
 
 #: .././plainbox/impl/commands/run.py:134
 #: .././plainbox/impl/commands/run.py:153
@@ -683,12 +683,12 @@ msgstr ""
 #: .././plainbox/impl/commands/run.py:268
 #: .././plainbox/impl/commands/run.py:282
 msgid "comments"
-msgstr ""
+msgstr "コメント"
 
 #: .././plainbox/impl/commands/run.py:270
 #: .././plainbox/impl/commands/run.py:279
 msgid "test"
-msgstr ""
+msgstr "テスト"
 
 #: .././plainbox/impl/commands/run.py:273
 msgid "Allowed answers are: {}"
@@ -743,7 +743,7 @@ msgstr ""
 #: .././plainbox/impl/commands/run.py:345
 #, python-format
 msgid "Plugin: %s"
-msgstr ""
+msgstr "プラグイン: %s"
 
 #: .././plainbox/impl/commands/run.py:346
 #, python-format
@@ -763,7 +763,7 @@ msgstr ""
 #: .././plainbox/impl/commands/run.py:351
 #, python-format
 msgid "Command: %r"
-msgstr ""
+msgstr "コマンド: %r"
 
 #: .././plainbox/impl/commands/run.py:352
 #, python-format
@@ -785,7 +785,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/run.py:368
 msgid "Comments: {}"
-msgstr ""
+msgstr "コメント: {}"
 
 #: .././plainbox/impl/commands/run.py:388
 msgid "run a test job"
@@ -819,7 +819,7 @@ msgstr ""
 #: .././plainbox/impl/commands/run.py:407
 #: .././plainbox/impl/commands/run.py:427
 msgid "OPTIONS"
-msgstr ""
+msgstr "オプション"
 
 #: .././plainbox/impl/commands/run.py:408
 msgid ""
@@ -829,7 +829,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/run.py:412
 msgid "FILE"
-msgstr ""
+msgstr "ファイル"
 
 #: .././plainbox/impl/commands/run.py:413
 msgid "save test results to the specified FILE (or to stdout if FILE is -)"
@@ -880,7 +880,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/script.py:94
 msgid "command:"
-msgstr ""
+msgstr "コマンド:"
 
 #: .././plainbox/impl/commands/script.py:123
 msgid "run a command from a job"
@@ -1111,19 +1111,19 @@ msgstr ""
 
 #: .././plainbox/impl/exporter/xlsx.py:246
 msgid "BIOS"
-msgstr ""
+msgstr "BIOS"
 
 #: .././plainbox/impl/exporter/xlsx.py:248
 msgid "Processors"
-msgstr ""
+msgstr "プロセッサ"
 
 #: .././plainbox/impl/exporter/xlsx.py:250
 msgid "Chipset"
-msgstr ""
+msgstr "チップセット"
 
 #: .././plainbox/impl/exporter/xlsx.py:252
 msgid "Memory"
-msgstr ""
+msgstr "メモリ"
 
 #. TRANSLATORS: on board as in 'built in card'
 #: .././plainbox/impl/exporter/xlsx.py:255
@@ -1137,11 +1137,11 @@ msgstr ""
 
 #: .././plainbox/impl/exporter/xlsx.py:260
 msgid "Video memory"
-msgstr ""
+msgstr "ビデオメモリ"
 
 #: .././plainbox/impl/exporter/xlsx.py:262
 msgid "Audio"
-msgstr ""
+msgstr "オーディオ"
 
 #. TRANSLATORS: NIC is network interface card
 #: .././plainbox/impl/exporter/xlsx.py:265
@@ -1151,7 +1151,7 @@ msgstr ""
 #. TRANSLTORS: Wireless as in wireless network cards
 #: .././plainbox/impl/exporter/xlsx.py:268
 msgid "Wireless"
-msgstr ""
+msgstr "ワイヤレス"
 
 #: .././plainbox/impl/exporter/xlsx.py:270
 msgid "Bluetooth"
@@ -1159,7 +1159,7 @@ msgstr ""
 
 #: .././plainbox/impl/exporter/xlsx.py:274
 msgid "Packages Installed"
-msgstr ""
+msgstr "インストールされたパッケージ"
 
 #: .././plainbox/impl/exporter/xlsx.py:276
 #: .././plainbox/impl/exporter/xlsx.py:522
@@ -1169,7 +1169,7 @@ msgstr ""
 
 #: .././plainbox/impl/exporter/xlsx.py:276
 msgid "Version"
-msgstr ""
+msgstr "バージョン"
 
 #: .././plainbox/impl/exporter/xlsx.py:299
 msgid "Failures summary"
@@ -1207,11 +1207,11 @@ msgstr ""
 
 #: .././plainbox/impl/exporter/xlsx.py:330
 msgid "Fail"
-msgstr ""
+msgstr "失敗"
 
 #: .././plainbox/impl/exporter/xlsx.py:330
 msgid "Skip"
-msgstr ""
+msgstr "スキップ"
 
 #: .././plainbox/impl/exporter/xlsx.py:330
 msgid "Pass"
@@ -1235,7 +1235,7 @@ msgstr ""
 
 #: .././plainbox/impl/exporter/xlsx.py:459
 msgid "FAIL"
-msgstr ""
+msgstr "失敗"
 
 #: .././plainbox/impl/exporter/xlsx.py:473
 msgid "not supported"
@@ -1247,7 +1247,7 @@ msgstr ""
 
 #: .././plainbox/impl/exporter/xlsx.py:522
 msgid "Result"
-msgstr ""
+msgstr "結果"
 
 #: .././plainbox/impl/exporter/xlsx.py:522
 msgid "I/O Log"
@@ -1259,7 +1259,7 @@ msgstr ""
 
 #: .././plainbox/impl/exporter/xlsx.py:572
 msgid "System Info"
-msgstr ""
+msgstr "システム情報"
 
 #: .././plainbox/impl/exporter/xlsx.py:574
 msgid "Test Results"
@@ -1267,7 +1267,7 @@ msgstr ""
 
 #: .././plainbox/impl/exporter/xlsx.py:583
 msgid "Log Files"
-msgstr ""
+msgstr "ログファイル"
 
 #: .././plainbox/impl/exporter/xlsx.py:589
 msgid "System Testing Report"
@@ -1426,7 +1426,7 @@ msgstr ""
 #: .././plainbox/impl/secure/config.py:542
 #, python-format
 msgid "Loading configuration from %s"
-msgstr ""
+msgstr "%s から設定を読み込んでいます"
 
 #: .././plainbox/impl/secure/config.py:650
 msgid "expected a {}"
@@ -1568,7 +1568,7 @@ msgstr ""
 
 #: .././plainbox/impl/secure/rfc822.py:57
 msgid "???"
-msgstr ""
+msgstr "???"
 
 #: .././plainbox/impl/secure/rfc822.py:428
 #, python-format
@@ -2046,7 +2046,7 @@ msgstr ""
 
 #: .././plainbox/impl/transport.py:95
 msgid "Unable to import {}: {}"
-msgstr "無法匯入 {}：{}"
+msgstr ""
 
 #. TRANSLATORS: please leave various options (both long and short forms),
 #. environment variables and paths in their original form. Also keep the
@@ -2217,7 +2217,7 @@ msgstr ""
 #. TRANSLATORS: {} is the version of the test provider
 #: .././plainbox/provider_manager.py:383
 msgid "version: {}"
-msgstr ""
+msgstr "バージョン: {}"
 
 #. TRANSLATORS: {} is the gettext translation domain of the provider
 #: .././plainbox/provider_manager.py:385
@@ -2318,7 +2318,7 @@ msgstr ""
 #. untranslated. Translate only '[options]' and '<command>'
 #: .././plainbox/provider_manager.py:557
 msgid "manage.py [--help] [--version] [options] <command>"
-msgstr "manage.py [--help] [--version] [選項] <指令>"
+msgstr ""
 
 #: .././plainbox/provider_manager.py:632
 msgid "{}: bad value of {!r}, {}"
@@ -2328,7 +2328,7 @@ msgstr ""
 #: .././plainbox/vendor/argparse/py33-argparse.py:832
 #: .././plainbox/vendor/argparse/py34-argparse.py:831
 msgid ".__call__() not defined"
-msgstr ".__call__() 未定義"
+msgstr ""
 
 #: .././plainbox/vendor/argparse/py32-argparse.py:1102
 #: .././plainbox/vendor/argparse/py33-argparse.py:1128
@@ -2349,7 +2349,7 @@ msgstr ""
 #: .././plainbox/vendor/argparse/py34-argparse.py:1183
 #, python-format
 msgid "can't open '%s': %s"
-msgstr "無法開啟 '%s'：%s"
+msgstr ""
 
 #: .././plainbox/vendor/argparse/py32-argparse.py:1352
 #: .././plainbox/vendor/argparse/py33-argparse.py:1378
@@ -2406,23 +2406,23 @@ msgstr ""
 #: .././plainbox/vendor/argparse/py33-argparse.py:1619
 #: .././plainbox/vendor/argparse/py34-argparse.py:1629
 msgid "positional arguments"
-msgstr ""
+msgstr "固定引数"
 
 #: .././plainbox/vendor/argparse/py32-argparse.py:1604
 #: .././plainbox/vendor/argparse/py33-argparse.py:1620
 #: .././plainbox/vendor/argparse/py34-argparse.py:1630
 msgid "optional arguments"
-msgstr "選擇性引數"
+msgstr ""
 
 #: .././plainbox/vendor/argparse/py32-argparse.py:1619
 #: .././plainbox/vendor/argparse/py33-argparse.py:1635
 #: .././plainbox/vendor/argparse/py34-argparse.py:1645
 msgid "show this help message and exit"
-msgstr "顯示此說明訊息並離開"
+msgstr "ヘルプメッセージを表示して終了する"
 
 #: .././plainbox/vendor/argparse/py32-argparse.py:1625
 msgid "show program's version number and exit"
-msgstr "顯示程式的版本並離開"
+msgstr ""
 
 #: .././plainbox/vendor/argparse/py32-argparse.py:1657
 #: .././plainbox/vendor/argparse/py33-argparse.py:1666
@@ -2435,7 +2435,7 @@ msgstr ""
 #: .././plainbox/vendor/argparse/py34-argparse.py:1728
 #, python-format
 msgid "unrecognized arguments: %s"
-msgstr "無法識別的引數： %s"
+msgstr ""
 
 #: .././plainbox/vendor/argparse/py32-argparse.py:1806
 #: .././plainbox/vendor/argparse/py33-argparse.py:1815
@@ -2470,7 +2470,7 @@ msgstr ""
 #: .././plainbox/vendor/argparse/py33-argparse.py:2043
 #: .././plainbox/vendor/argparse/py34-argparse.py:2050
 msgid "expected one argument"
-msgstr "需要一個引數"
+msgstr ""
 
 #: .././plainbox/vendor/argparse/py32-argparse.py:2024
 #: .././plainbox/vendor/argparse/py33-argparse.py:2044
@@ -2482,7 +2482,7 @@ msgstr ""
 #: .././plainbox/vendor/argparse/py33-argparse.py:2045
 #: .././plainbox/vendor/argparse/py34-argparse.py:2052
 msgid "expected at least one argument"
-msgstr ""
+msgstr "最低でも一つ以上おの引数が必要です"
 
 #: .././plainbox/vendor/argparse/py32-argparse.py:2027
 #: .././plainbox/vendor/argparse/py33-argparse.py:2047
@@ -2539,4 +2539,4 @@ msgstr ""
 #: .././plainbox/vendor/argparse/py34-argparse.py:1992
 #, python-format
 msgid "the following arguments are required: %s"
-msgstr "需要下列引數：%s"
+msgstr ""

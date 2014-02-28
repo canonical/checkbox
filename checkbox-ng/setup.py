@@ -18,9 +18,16 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 import os
 
 from setuptools import setup, find_packages
+
+if "test" in sys.argv:
+    # Reset locale for setup.py test
+    os.environ["LANG"] = ""
+    os.environ["LANGUAGE"] = ""
+    os.environ["LC_ALL"] = "C.UTF-8"
 
 base_dir = os.path.dirname(__file__)
 

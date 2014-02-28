@@ -231,10 +231,7 @@ class Variable(INameTracking):
         :raises ValidationError: if the new value is incorrect
         """
         # Check it against all validators
-        for validator in self.validator_list:
-            message = validator(self, new_value)
-            if message is not None:
-                raise ValidationError(self, new_value, message)
+        self.validate(new_value)
         # Assign it to the backing store of the instance
         instance._set_variable(self.name, new_value)
 

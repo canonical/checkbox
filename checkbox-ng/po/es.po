@@ -7,20 +7,25 @@ msgid ""
 msgstr ""
 "Project-Id-Version: plainbox 0.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-20 11:59-0500\n"
-"PO-Revision-Date: 2014-02-20 12:19-0500 \n"
+"POT-Creation-Date: 2014-02-20 22:46+0100\n"
+"PO-Revision-Date: 2014-03-01 02:48+0000\n"
 "Last-Translator: Daniel Manrique <daniel.manrique@canonical.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Launchpad-Export-Date: 2014-03-01 04:41+0000\n"
+"X-Generator: Launchpad (build 16948)\n"
+"Language: \n"
 
 #. description
 #: ../plainbox/impl/providers/stubbox/jobs/local.txt.in:5
-msgid "Check success result from shell test case (generated from a local job)"
-msgstr "Verifica que un caso de prueba ejecutado en shell sea exitoso (generado de un trabajo local)"
+msgid ""
+"Check success result from shell test case (generated from a local job)"
+msgstr ""
+"Verifica que un caso de prueba ejecutado en shell sea exitoso (generado de "
+"un trabajo local)"
 
 #. description
 #: ../plainbox/impl/providers/stubbox/jobs/multilevel.txt.in:3
@@ -60,7 +65,8 @@ msgstr "Mata $PID si $KILLER tiene el valor 'yes'"
 #. description
 #: ../plainbox/impl/providers/stubbox/jobs/stub.txt.in:46
 msgid "Check job is executed when requirements are met"
-msgstr "Verifica que el trabajo se ejecute cuando se cumplen los requerimientos"
+msgstr ""
+"Verifica que el trabajo se ejecute cuando se cumplen los requerimientos"
 
 #. description
 #: ../plainbox/impl/providers/stubbox/jobs/stub.txt.in:53
@@ -84,13 +90,14 @@ msgid ""
 "displayed"
 msgstr ""
 "PROPÓSITO:\n"
-"    Esta prueba verifica que los trabajos de tipo 'manual' funcionan correctamente\n"
+"    Esta prueba verifica que los trabajos de tipo 'manual' funcionan "
+"correctamente\n"
 "PASOS:\n"
 "    1. Agregue un comentario\n"
 "    2. Cambie el resultado a 'pasa'\n"
 "VERIFICACIÓN:\n"
-"    Verifique en el reporte que el resultado aparezca como pasado y el "
-"    comentario sea visible"
+"    Verifique en el reporte que el resultado aparezca como pasado y el     "
+"comentario sea visible"
 
 #. description
 #: ../plainbox/impl/providers/stubbox/jobs/stub.txt.in:70
@@ -104,7 +111,8 @@ msgid ""
 "    Check that in the report the result is passed"
 msgstr ""
 "PROPÓSITO:\n"
-"    Esta prueba verifica que los trabajos de tipo 'user-interact' funcionen correctamente\n"
+"    Esta prueba verifica que los trabajos de tipo 'user-interact' funcionen "
+"correctamente\n"
 "PASOS:\n"
 "    1. Lea esta descripción\n"
 "    2. Presione el botón 'probar'\n"
@@ -125,7 +133,8 @@ msgid ""
 "    The command should have printed \"Please select 'pass'\""
 msgstr ""
 "PROPÓSITO:\n"
-"    Esta prueba verifica que los trabajos de tipo 'user-verify' funcionen correctamente\n"
+"    Esta prueba verifica que los trabajos de tipo 'user-verify' funcionen "
+"correctamente\n"
 "PASOS:\n"
 "    1. Lea esta descripción\n"
 "    2. Verifique que el comando se inició automáticamente\n"
@@ -133,7 +142,6 @@ msgstr ""
 "    4. Verifique la salida y determine el resultado de la prueba\n"
 "VERIFICACIÓN:\n"
 "    El comando debe haber mostrado \"Por favor seleccione 'pasado'\""
-
 
 #. description
 #: ../plainbox/impl/providers/stubbox/jobs/stub.txt.in:96
@@ -149,7 +157,8 @@ msgid ""
 "    The command should have printed \"Please select 'pass'\""
 msgstr ""
 "PROPÓSITO:\n"
-"    Esta prueba verifica que los trabajos de tipo 'user-interact-verify' funcionen correctamente\n"
+"    Esta prueba verifica que los trabajos de tipo 'user-interact-verify' "
+"funcionen correctamente\n"
 "PASOS:\n"
 "    1. Lea esta descripción\n"
 "    2. Verifique que el comando no se haya iniciado\n"
@@ -190,7 +199,8 @@ msgstr "Variables de ambiente para guiones y trabajos"
 
 #: .././plainbox/impl/applogic.py:104
 msgid "Welcome text to display prior to test selection/execution"
-msgstr "Texto de bienvenida a mostrar antes de la selección y ejecución de pruebas"
+msgstr ""
+"Texto de bienvenida a mostrar antes de la selección y ejecución de pruebas"
 
 #: .././plainbox/impl/applogic.py:109
 msgid "Name of the default provider to use"
@@ -234,7 +244,8 @@ msgstr "BITÁCORA"
 msgid ""
 "enable DEBUG messages on the specified logger (can be used multiple times)"
 msgstr ""
-"activar mensajes de depuración en la bitácora especificada (puede utilizarse varias veces)"
+"activar mensajes de depuración en la bitácora especificada (puede utilizarse "
+"varias veces)"
 
 #. TRANSLATORS: please keep pdb untranslated
 #: .././plainbox/impl/clitools.py:459
@@ -396,8 +407,9 @@ msgstr "analiza cómo se ejecutarían los trabajos seleccionados"
 
 #: .././plainbox/impl/commands/analyze.py:229
 msgid "Run all selected local jobs, required to see true data"
-
-msgstr "Ejecuta todos los trabajos locales seleccionados, se requiere para mostrar datos reales"
+msgstr ""
+"Ejecuta todos los trabajos locales seleccionados, se requiere para mostrar "
+"datos reales"
 
 #. TRANSLATORS: please keep the word 'local' untranslated.
 #. It designates special type of jobs, not their location.
@@ -431,7 +443,8 @@ msgstr "Mostrar reporte de requerimientos"
 
 #: .././plainbox/impl/commands/analyze.py:258
 msgid "When coupled with -v, only problematic jobs will be listed"
-msgstr "Utilizado en conjunto con -v, muestra únicamente los trabajos con problemas"
+msgstr ""
+"Utilizado en conjunto con -v, muestra únicamente los trabajos con problemas"
 
 #: .././plainbox/impl/commands/analyze.py:261
 msgid "Print desired job list"
@@ -446,6 +459,7 @@ msgid "Configuration files:"
 msgstr "Ficheros de configuración:"
 
 #: .././plainbox/impl/commands/check_config.py:55
+#, python-brace-format
 msgid " - {0} (not present)"
 msgstr " - {0} (no encontrado)"
 
@@ -462,6 +476,7 @@ msgid "Problems:"
 msgstr "Problemas:"
 
 #: .././plainbox/impl/commands/check_config.py:70
+#, python-brace-format
 msgid " - variable {0}: {1}"
 msgstr " - variable {0}: {1}"
 
@@ -494,8 +509,8 @@ msgstr "PATRÓN"
 
 #. TRANSLATORS: this is in imperative form
 #: .././plainbox/impl/commands/checkbox.py:109
-msgid "run jobs matching the given regular expression"
-msgstr "ejecutar los trabajos reconocidos por la expresión regular dada"
+msgid "include jobs matching the given regular expression"
+msgstr ""
 
 #. TRANSLATORS: this is in imperative form
 #: .././plainbox/impl/commands/checkbox.py:114
@@ -595,17 +610,18 @@ msgstr ""
 "analizadores\n"
 "            expuestos por el punto de entrada `plainbox.parsers`, analizar "
 "la entrada estándar\n"
-"            y producir un volcado en JSON en salida estándar de la estructura "
-"de datos resultante.\n"
+"            y producir un volcado en JSON en salida estándar de la "
+"estructura de datos resultante.\n"
 "\n"
 "            Tenga en mente que la mayoría de los analizadores se diseñaron "
 "asumiendo el local 'C'\n"
-"            Tal vez tenga que redefinir la variable de ambiente LANG a\"C\".\n"
+"            Tal vez tenga que redefinir la variable de ambiente LANG "
+"a\"C\".\n"
 "            "
 
 #: .././plainbox/impl/commands/parse.py:117
 msgid "Example: "
-msgstr "Ejemplo"
+msgstr "Ejemplo "
 
 #: .././plainbox/impl/commands/parse.py:122
 msgid "PARSER-NAME"
@@ -681,14 +697,17 @@ msgid "The job database you are currently using is broken"
 msgstr "La base de datos de trabajos es incorrecta"
 
 #: .././plainbox/impl/commands/run.py:178
+#, python-brace-format
 msgid "At least two jobs contend for the id {0}"
 msgstr "Al menos dos trabajos en conflicto por el identificador {0}"
 
 #: .././plainbox/impl/commands/run.py:180
+#, python-brace-format
 msgid "First job defined in: {0}"
 msgstr "El primer trabajo está definido en: {0}"
 
 #: .././plainbox/impl/commands/run.py:181
+#, python-brace-format
 msgid "Second job defined in: {0}"
 msgstr "El segundo trabajo está definido en: {0}"
 
@@ -697,14 +716,17 @@ msgid "[ Authentication ]"
 msgstr "[ Autenticación ]"
 
 #: .././plainbox/impl/commands/run.py:218
+#, python-brace-format
 msgid "Invalid destination URL: {0}"
 msgstr "URL de destino inválido: {0}"
 
 #: .././plainbox/impl/commands/run.py:220
+#, python-brace-format
 msgid "Unable to connect to destination URL: {0}"
 msgstr "Imposible conectars al URL de destino: {0}"
 
 #: .././plainbox/impl/commands/run.py:223
+#, python-brace-format
 msgid "Server returned an error when receiving or processing: {0}"
 msgstr "El servidor envión un error al recibir o procesar: {0}"
 
@@ -756,7 +778,8 @@ msgstr "La duración estimada es {:.2f} para los trabajos automatizados."
 
 #: .././plainbox/impl/commands/run.py:301
 msgid "Estimated duration cannot be determined for automated jobs."
-msgstr "La duración estimada no pudo ser determinada para los trabajos automatizados."
+msgstr ""
+"La duración estimada no pudo ser determinada para los trabajos automatizados."
 
 #: .././plainbox/impl/commands/run.py:303
 msgid "Estimated duration is {:.2f} for manual jobs."
@@ -764,7 +787,8 @@ msgstr "La duración estimada es {:.2f} para los trabajos manuales."
 
 #: .././plainbox/impl/commands/run.py:307
 msgid "Estimated duration cannot be determined for manual jobs."
-msgstr "La duración estimada no pudo ser determinada para los trabajos manuales."
+msgstr ""
+"La duración estimada no pudo ser determinada para los trabajos manuales."
 
 #. TODO: run all resource jobs concurrently with multiprocessing
 #. TODO: make local job discovery nicer, it would be best if
@@ -840,8 +864,8 @@ msgid "skip tests that require interactivity"
 msgstr "saltar pruebas que requieran interactividad"
 
 #: .././plainbox/impl/commands/run.py:396
-msgid "don't really run any job"
-msgstr "no ejecutar realmente ningún trabajo"
+msgid "don't really run most jobs"
+msgstr ""
 
 #: .././plainbox/impl/commands/run.py:397
 msgid "output options"
@@ -855,7 +879,8 @@ msgstr "FORMATO"
 msgid ""
 "save test results in the specified FORMAT (pass ? for a list of choices)"
 msgstr ""
-"Salvar resultados de pruebas en el FORMATO especificado (use ? para ver una lista de opciones)"
+"Salvar resultados de pruebas en el FORMATO especificado (use ? para ver una "
+"lista de opciones)"
 
 #: .././plainbox/impl/commands/run.py:407
 #: .././plainbox/impl/commands/run.py:427
@@ -867,8 +892,8 @@ msgid ""
 "comma-separated list of options for the export mechanism (pass ? for a list "
 "of choices)"
 msgstr ""
-"lista separada por comas de opciones para el mecanismo de exportación "
-"(use ? para ver una lista de opciones)"
+"lista separada por comas de opciones para el mecanismo de exportación (use ? "
+"para ver una lista de opciones)"
 
 #: .././plainbox/impl/commands/run.py:412
 msgid "FILE"
@@ -876,15 +901,20 @@ msgstr "FICHERO"
 
 #: .././plainbox/impl/commands/run.py:413
 msgid "save test results to the specified FILE (or to stdout if FILE is -)"
-msgstr "Salvar los resultados de pruebas en el FICHERO especificado (o salida estándar si FICHERO es -)"
+msgstr ""
+"Salvar los resultados de pruebas en el FICHERO especificado (o salida "
+"estándar si FICHERO es -)"
 
 #: .././plainbox/impl/commands/run.py:417
 msgid "TRANSPORT"
 msgstr "TRANSPORTE"
 
 #: .././plainbox/impl/commands/run.py:419
-msgid "use TRANSPORT to send results somewhere (pass ? for a list of choices)"
-msgstr "utilizar TRANSPORTE para transmitir los resultados a algún lado (use ? para ver una lista de opciones)"
+msgid ""
+"use TRANSPORT to send results somewhere (pass ? for a list of choices)"
+msgstr ""
+"utilizar TRANSPORTE para transmitir los resultados a algún lado (use ? para "
+"ver una lista de opciones)"
 
 #: .././plainbox/impl/commands/run.py:423
 msgid "WHERE"
@@ -899,8 +929,8 @@ msgid ""
 "comma-separated list of key-value options (k=v) to  be passed to the "
 "transport"
 msgstr ""
-"lista separada por comas de opciones en formato llave-valor (l=v) "
-"para el transporte"
+"lista separada por comas de opciones en formato llave-valor (l=v) para el "
+"transporte"
 
 #: .././plainbox/impl/commands/script.py:60
 msgid "There is no job called {!a}"
@@ -938,58 +968,62 @@ msgstr "ID-TRABAJO"
 msgid "Id of the job to run"
 msgstr "Identificador del trabajo a ejecutar"
 
-#: .././plainbox/impl/commands/selftest.py:56
+#: .././plainbox/impl/commands/selftest.py:69
 msgid "run unit and integration tests"
 msgstr "ejecutar pruebas unitarias y de integración"
 
-#: .././plainbox/impl/commands/selftest.py:65
+#: .././plainbox/impl/commands/selftest.py:78
 msgid "run integration test suite (this verifies checkbox jobs)"
-msgstr "ejecutar las pruebas de integración (verifica los trabajos de checkbox)"
+msgstr ""
+"ejecutar las pruebas de integración (verifica los trabajos de checkbox)"
 
-#: .././plainbox/impl/commands/selftest.py:71
+#: .././plainbox/impl/commands/selftest.py:84
 msgid "run unit tests (this only verifies plainbox core)"
-msgstr "ejecutar las pruebas unitarias (únicamente verifica el núcleo de plainbox)"
+msgstr ""
+"ejecutar las pruebas unitarias (únicamente verifica el núcleo de plainbox)"
 
-#: .././plainbox/impl/commands/selftest.py:76
+#: .././plainbox/impl/commands/selftest.py:89
 msgid "abort the test on first failure"
 msgstr "abortar la prueba al primer fallo"
 
-#: .././plainbox/impl/commands/selftest.py:81
+#: .././plainbox/impl/commands/selftest.py:94
 msgid "run tests quietly"
 msgstr "ejecutar las pruebas silenciosamente"
 
-#: .././plainbox/impl/commands/selftest.py:84
+#: .././plainbox/impl/commands/selftest.py:97
 msgid "run tests with normal verbosity (default)"
 msgstr "ejecutar las pruebas con nivel de detalle normal (por omisión)"
 
-#: .././plainbox/impl/commands/selftest.py:87
+#: .././plainbox/impl/commands/selftest.py:100
 msgid "run tests verbosely, printing each test case name"
-msgstr "ejecutar las pruebas dando detalles y mostrando el nombre de cada caso de prueba"
+msgstr ""
+"ejecutar las pruebas dando detalles y mostrando el nombre de cada caso de "
+"prueba"
 
 #: .././plainbox/impl/commands/special.py:136
 msgid "special/internal commands"
 msgstr "comandos especiales/internos"
 
 #: .././plainbox/impl/commands/special.py:141
-msgid "List jobs instead of running them"
-msgstr "Lista los trabajos en lugar de ejecutarlos"
+msgid "list jobs instead of running them"
+msgstr ""
 
 #: .././plainbox/impl/commands/special.py:145
-msgid "List jobs with cheksums instead of running them"
-msgstr "Lista los trabajos y sus sumas de comprobación en lugar de ejecutarlos"
+msgid "list jobs with cheksums instead of running them"
+msgstr ""
 
 #: .././plainbox/impl/commands/special.py:149
-msgid "List all unique resource expressions"
-msgstr "Lista todas las expresiones de recursos únicas"
+msgid "list all unique resource expressions"
+msgstr ""
 
 #: .././plainbox/impl/commands/special.py:153
-msgid "Print a graph of jobs instead of running them"
-msgstr "Imprime una gráfica de trabajos en lugar de ejecutarlos"
+msgid "print a graph of jobs instead of running them"
+msgstr ""
 
 #. TRANSLATORS: please keep --dot untranslated
 #: .././plainbox/impl/commands/special.py:158
-msgid "Show resource relationships (for --dot)"
-msgstr "Muestra las relaciones entre recursos (para --dot)"
+msgid "show resource relationships (for --dot)"
+msgstr ""
 
 #: .././plainbox/impl/commands/startprovider.py:62
 msgid "refusing to overwrite {!a}"
@@ -1012,8 +1046,8 @@ msgid ""
 "\n"
 "    @EPILOG@\n"
 "\n"
-"    The name of the provider must follow the pattern ``YYYY.example.org:"
-"name``\n"
+"    The name of the provider must follow the pattern "
+"``YYYY.example.org:name``\n"
 "    where ``YYYY`` is a four-digit year when the author of the provider "
 "owned\n"
 "    the domain (here, ``example.org``) and ``name`` is arbitrary identifier\n"
@@ -1037,19 +1071,23 @@ msgstr ""
 "\n"
 "    @EPILOG@\n"
 "\n"
-"    El nombre del proveedor debe respetar la forma ``YYYY.example.org:"
-"nombre``\n"
+"    El nombre del proveedor debe respetar la forma "
+"``YYYY.example.org:nombre``\n"
 "    donde ``YYYY`` es un año con cuatro dígitos en el cual el autor del "
 "proveedor era propietario\n"
-"    del dominio(por ejemplo ``example.org``) y ``nombre`` es un identificador arbitrario\n"
-"    administrado por el dueño de dicho dominio. El identificador debe limitarse a\n"
+"    del dominio(por ejemplo ``example.org``) y ``nombre`` es un "
+"identificador arbitrario\n"
+"    administrado por el dueño de dicho dominio. El identificador debe "
+"limitarse a\n"
 "    caracteres ASCII, dígitos y guión.\n"
 "\n"
 "    Esta nomenclatura permite a cualquier propietario de un dominio generar\n"
-"    identificadores de provedor sin conflictos. Los identificadores se utilizan como\n"
+"    identificadores de provedor sin conflictos. Los identificadores se "
+"utilizan como\n"
 "    parte de los nombres calificados en distintos objectos.\n"
 "\n"
-"    Este comando crea el esqueleto de un nuevo proveedor de pruebas para PlainBox.\n"
+"    Este comando crea el esqueleto de un nuevo proveedor de pruebas para "
+"PlainBox.\n"
 "    El contenido generado deberá editarse para cada propósito particular.\n"
 "    "
 
@@ -1078,8 +1116,6 @@ msgid ""
 "Local job %s produced job %r that collides with an existing job %s (from "
 "%s), the new job was discarded"
 msgstr ""
-"Trabajo local %s produjo el trabajo $r que tiene conflicto con el trabajo "
-"existente %s (de %s), el nuevo trabajo fue descartado"
 
 #: .././plainbox/impl/ctrl.py:289
 #, python-format
@@ -2057,7 +2093,7 @@ msgstr ""
 
 #. TRANSLATORS: please don't translate fsync()
 #. Flush kernel buffers on the directory.
-#.
+#. 
 #. This should ensure the rename operation is really on disk by now.
 #. As noted above, this is essential for being able to survive
 #. system crash immediately after exiting this method.
@@ -2608,3 +2644,25 @@ msgstr ""
 #, python-format
 msgid "the following arguments are required: %s"
 msgstr ""
+
+#~ msgid "run jobs matching the given regular expression"
+#~ msgstr "ejecutar los trabajos reconocidos por la expresión regular dada"
+
+#~ msgid "don't really run any job"
+#~ msgstr "no ejecutar realmente ningún trabajo"
+
+#~ msgid "List jobs instead of running them"
+#~ msgstr "Lista los trabajos en lugar de ejecutarlos"
+
+#~ msgid "List jobs with cheksums instead of running them"
+#~ msgstr ""
+#~ "Lista los trabajos y sus sumas de comprobación en lugar de ejecutarlos"
+
+#~ msgid "List all unique resource expressions"
+#~ msgstr "Lista todas las expresiones de recursos únicas"
+
+#~ msgid "Print a graph of jobs instead of running them"
+#~ msgstr "Imprime una gráfica de trabajos en lugar de ejecutarlos"
+
+#~ msgid "Show resource relationships (for --dot)"
+#~ msgstr "Muestra las relaciones entre recursos (para --dot)"

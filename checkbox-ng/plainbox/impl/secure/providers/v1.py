@@ -129,46 +129,85 @@ class Provider1(IProvider1, IProviderBackend1):
     """
     A v1 provider implementation.
 
-    This base class implements a checkbox-like provider object. Subclasses are
-    only required to implement a single method that designates the base
-    location for all other data.
+    A provider is a container of jobs and whitelists. It provides additional
+    meta-data and knows about location of essential directories to both load
+    structured data and provide runtime information for job execution.
+
+    Providers are normally loaded with :class:`Provider1PlugIn`, due to the
+    number of fields involved in basic initialization.
     """
 
-    def __init__(self, base_dir, name, version, description, secure,
-                 gettext_domain=None):
+    def __init__(self, name, version, description, secure, gettext_domain,
+                 jobs_dir, whitelists_dir, data_dir, bin_dir, locale_dir):
         """
-        Initialize the provider with the associated base directory.
+        Initialize a provider with a set of meta-data and directories.
 
-        All of the typical v1 provider data is relative to this directory. It
-        can be customized by subclassing and overriding the particular methods
-        of the IProviderBackend1 class but that should not be necessary in
-        normal operation.
+        :param name:
+            provider name / ID
+
+        :param version:
+            provider version
+
+        :param description:
+            provider version
+
+            This is the untranslated version of this field. Implementations may
+            obtain the localized version based on the gettext_domain property.
+
+        :param secure:
+            secure bit
+
+            When True jobs from this provider should be available via the
+            trusted launcher mechanism. It should be set to True for
+            system-wide installed providers.
+
+        :param gettext_domain:
+            gettext domain that contains translations for this provider
+
+        :param jobs_dir:
+            path of the directory with job definitions
+
+        :param whitelists_dir:
+            path of the directory with whitelists definitions (aka test-plans)
+
+        :param data_dir:
+            path of the directory with files used by jobs at runtime
+
+        :param bin_dir:
+            path of the directory with additional executables
+
+        :param locale_dir:
+            path of the directory with locale database (translation catalogs)
         """
-        self._base_dir = base_dir
+        # Meta-data
         self._name = name
         self._version = version
         self._description = description
         self._secure = secure
         self._gettext_domain = gettext_domain
+        # Directories
+        self._jobs_dir = jobs_dir
+        self._whitelists_dir = whitelists_dir
+        self._data_dir = data_dir
+        self._bin_dir = bin_dir
+        self._locale_dir = locale_dir
+        # Loaded data
+        if self.whitelists_dir is not None:
+            whitelists_dir_list = [self.whitelists_dir]
+        else:
+            whitelists_dir_list = []
         self._whitelist_collection = FsPlugInCollection(
-            [self.whitelists_dir], ext=".whitelist", wrapper=WhiteListPlugIn)
+            whitelists_dir_list, ext=".whitelist", wrapper=WhiteListPlugIn)
+        if self.jobs_dir is not None:
+            jobs_dir_list = [self.jobs_dir]
+        else:
+            jobs_dir_list = []
         self._job_collection = FsPlugInCollection(
-            [self.jobs_dir], ext=(".txt", ".txt.in"),
+            jobs_dir_list, ext=(".txt", ".txt.in"),
             wrapper=JobDefinitionPlugIn, provider=self)
 
     def __repr__(self):
-        return "<{} name:{!r} base_dir:{!r}>".format(
-            self.__class__.__name__, self.name, self.base_dir)
-
-    @property
-    def base_dir(self):
-        """
-        pathname to a directory with essential provider data
-
-        This pathname is used for deriving :attr:`jobs_dir`, :attr:`bin_dir`
-        and :attr:`whitelists_dir`.
-        """
-        return self._base_dir
+        return "<{} name:{!r}>".format(self.__class__.__name__, self.name)
 
     @property
     def name(self):
@@ -194,43 +233,59 @@ class Provider1(IProvider1, IProviderBackend1):
     @property
     def jobs_dir(self):
         """
-        Return an absolute path of the jobs directory
+        absolute path of the jobs directory
         """
-        return os.path.join(self._base_dir, "jobs")
+        return self._jobs_dir
+
+    @property
+    def whitelists_dir(self):
+        """
+        absolute path of the whitelist directory
+        """
+        return self._whitelists_dir
+
+    @property
+    def data_dir(self):
+        """
+        absolute path of the data directory
+        """
+        return self._data_dir
 
     @property
     def bin_dir(self):
         """
-        Return an absolute path of the bin directory
+        absolute path of the bin directory
 
         .. note::
             The programs in that directory may not work without setting
             PYTHONPATH and CHECKBOX_SHARE.
         """
-        return os.path.join(self._base_dir, "bin")
+        return self._bin_dir
 
     @property
-    def whitelists_dir(self):
+    def locale_dir(self):
         """
-        Return an absolute path of the whitelist directory
+        absolute path of the directory with locale data
+
+        The value is applicable as argument bindtextdomain()
         """
-        return os.path.join(self._base_dir, "whitelists")
+        return self._locale_dir
 
     @property
     def CHECKBOX_SHARE(self):
         """
-        Return the required value of CHECKBOX_SHARE environment variable.
+        required value of CHECKBOX_SHARE environment variable.
 
         .. note::
             This variable is only required by one script.
             It would be nice to remove this later on.
         """
-        return self._base_dir
+        return os.path.join(self._data_dir, "..")
 
     @property
     def extra_PYTHONPATH(self):
         """
-        Return additional entry for PYTHONPATH, if needed.
+        additional entry for PYTHONPATH, if needed.
 
         This entry is required for CheckBox scripts to import the correct
         CheckBox python libraries.
@@ -338,6 +393,8 @@ class Provider1(IProvider1, IProviderBackend1):
             missing.
         """
         executable_list = []
+        if self.bin_dir is None:
+            return executable_list
         try:
             items = os.listdir(self.bin_dir)
         except OSError as exc:

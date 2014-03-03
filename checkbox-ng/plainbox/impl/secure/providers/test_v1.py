@@ -25,6 +25,7 @@ Test definitions for plainbox.impl.secure.providers.v1 module
 """
 
 from unittest import TestCase
+import os
 
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.secure.config import Unset
@@ -508,28 +509,27 @@ class JobDefintionPlugInTests(TestCase):
 
 class Provider1Tests(TestCase):
 
-    BASE_DIR = "base-dir"
     NAME = "2013.org.example:name"
     VERSION = "1.0"
     DESCRIPTION = "description"
     SECURE = True
     GETTEXT_DOMAIN = "domain"
+    JOBS_DIR = "jobs-dir"
+    WHITELISTS_DIR = "whitelists-dir"
+    DATA_DIR = "data-dir"
+    BIN_DIR = "bin-dir"
+    LOCALE_DIR = "locale-dir"
 
     def setUp(self):
         self.provider = Provider1(
-            self.BASE_DIR, self.NAME, self.VERSION, self.DESCRIPTION,
-            self.SECURE, self.GETTEXT_DOMAIN)
+            self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
+            self.GETTEXT_DOMAIN, self.JOBS_DIR, self.WHITELISTS_DIR,
+            self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR)
 
     def test_repr(self):
         self.assertEqual(
             repr(self.provider),
-            "<Provider1 name:'2013.org.example:name' base_dir:'base-dir'>")
-
-    def test_base_dir(self):
-        """
-        Verify that Provider1.base_dir attribute is set correctly
-        """
-        self.assertEqual(self.provider.base_dir, self.BASE_DIR)
+            "<Provider1 name:'2013.org.example:name'>")
 
     def test_name(self):
         """
@@ -549,36 +549,6 @@ class Provider1Tests(TestCase):
         """
         self.assertEqual(self.provider.description, self.DESCRIPTION)
 
-    def test_jobs_dir(self):
-        """
-        Verify that Provider1.jobs_dir attribute is set correctly
-        """
-        self.assertEqual(self.provider.jobs_dir, "base-dir/jobs")
-
-    def test_bin_dir(self):
-        """
-        Verify that Provider1.bin_dir attribute is set correctly
-        """
-        self.assertEqual(self.provider.bin_dir, "base-dir/bin")
-
-    def test_whitelists_dir(self):
-        """
-        Verify that Provider1.whitelists_dir attribute is set correctly
-        """
-        self.assertEqual(self.provider.whitelists_dir, "base-dir/whitelists")
-
-    def test_CHECKBOX_SHARE(self):
-        """
-        Verify that Provider1.CHECKBOX_SHARE is always equal to base_dir
-        """
-        self.assertEqual(self.provider.CHECKBOX_SHARE, self.provider.base_dir)
-
-    def test_extra_PYTHONPATH(self):
-        """
-        Verify that Provider1.extra_PYTHONPATH is always None
-        """
-        self.assertIsNone(self.provider.extra_PYTHONPATH)
-
     def test_secure(self):
         """
         Verify that Provider1.secure attribute is set correctly
@@ -590,6 +560,50 @@ class Provider1Tests(TestCase):
         Verify that Provider1.gettext_domain attribute is set correctly
         """
         self.assertEqual(self.provider.gettext_domain, self.GETTEXT_DOMAIN)
+
+    def test_jobs_dir(self):
+        """
+        Verify that Provider1.jobs_dir attribute is set correctly
+        """
+        self.assertEqual(self.provider.jobs_dir, self.JOBS_DIR)
+
+    def test_whitelists_dir(self):
+        """
+        Verify that Provider1.whitelists_dir attribute is set correctly
+        """
+        self.assertEqual(self.provider.whitelists_dir, self.WHITELISTS_DIR)
+
+    def test_data_dir(self):
+        """
+        Verify that Provider1.data_dir attribute is set correctly
+        """
+        self.assertEqual(self.provider.data_dir, self.DATA_DIR)
+
+    def test_bin_dir(self):
+        """
+        Verify that Provider1.bin_dir attribute is set correctly
+        """
+        self.assertEqual(self.provider.bin_dir, self.BIN_DIR)
+
+    def test_locale_dir(self):
+        """
+        Verify that Provider1.locale_dir attribute is set correctly
+        """
+        self.assertEqual(self.provider.locale_dir, self.LOCALE_DIR)
+
+    def test_CHECKBOX_SHARE(self):
+        """
+        Verify that Provider1.CHECKBOX_SHARE is defined as the parent directory
+        of data_dir
+        """
+        self.assertEqual(self.provider.CHECKBOX_SHARE,
+                         os.path.join(self.DATA_DIR, ".."))
+
+    def test_extra_PYTHONPATH(self):
+        """
+        Verify that Provider1.extra_PYTHONPATH is always None
+        """
+        self.assertIsNone(self.provider.extra_PYTHONPATH)
 
     def test_get_builtin_whitelists__normal(self):
         """
@@ -613,6 +627,17 @@ class Provider1Tests(TestCase):
             with self.provider._whitelist_collection.fake_plugins(
                     fake_plugins, fake_problems):
                 self.provider.get_builtin_whitelists()
+
+    def test_get_builtin_whitelists__without_whitelists_dir(self):
+        """
+        verify that Provider1.get_builtin_whitelist() returns an empty list if
+        the whitelists_dir is None
+        """
+        provider = Provider1(
+            self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
+            self.GETTEXT_DOMAIN, self.JOBS_DIR, None,
+            self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR)
+        self.assertEqual(provider.get_builtin_whitelists(), [])
 
     def test_get_builtin_jobs__normal(self):
         """
@@ -650,6 +675,17 @@ class Provider1Tests(TestCase):
             with self.provider._job_collection.fake_plugins(
                     fake_plugins, fake_problems):
                 self.provider.get_builtin_jobs()
+
+    def test_get_builtin_jobs__without_jobs_dir(self):
+        """
+        verify that Provider1.get_builtin_jobs() returns an empty list if there
+        the jobs_dir is None.
+        """
+        provider = Provider1(
+            self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
+            self.GETTEXT_DOMAIN, None, self.WHITELISTS_DIR,
+            self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR)
+        self.assertEqual(provider.get_builtin_jobs(), [])
 
     def test_load_all_jobs__normal(self):
         """
@@ -697,3 +733,14 @@ class Provider1Tests(TestCase):
 
     def test_get_all_executables(self):
         self.skipTest("not implemented")
+
+    def test_get_all_executables__without_bin_dir(self):
+        """
+        verify that Provider1.get_all_executables() returns an empty list if
+        there the bin_dir is None.
+        """
+        provider = Provider1(
+            self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
+            self.GETTEXT_DOMAIN, self.JOBS_DIR, self.WHITELISTS_DIR,
+            self.DATA_DIR, None, self.LOCALE_DIR)
+        self.assertEqual(provider.get_all_executables(), [])

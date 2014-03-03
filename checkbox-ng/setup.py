@@ -21,8 +21,15 @@
 # To avoid an error in atexit._run_exitfuncs while running tests:
 import concurrent.futures
 import os
+import sys
 
 from setuptools import setup, find_packages
+
+if "test" in sys.argv:
+    # Reset locale for setup.py test
+    os.environ["LANG"] = ""
+    os.environ["LANGUAGE"] = ""
+    os.environ["LC_ALL"] = "C.UTF-8"
 
 base_dir = os.path.dirname(__file__)
 

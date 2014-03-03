@@ -370,7 +370,7 @@ class IQNValidator(PatternValidator):
         year:
             four digit number
         domain name:
-            identifiers spearated by dots, at least one dot has to be present
+            identifiers separated by dots, at least one dot has to be present
         identifier:
             `[a-z][a-z0-9-]*`
     """

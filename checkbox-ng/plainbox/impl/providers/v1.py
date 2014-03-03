@@ -99,6 +99,10 @@ class DummyProvider1(IProvider1, IProviderBackend1):
     def whitelists_dir(self):
         return self._extras.get("whitelists_dir")
 
+    @property
+    def locale_dir(self):
+        return self._extras.get("locale_dir")
+
     def secure(self):
         return False
 

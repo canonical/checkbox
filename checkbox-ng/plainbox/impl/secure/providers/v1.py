@@ -463,7 +463,7 @@ class Provider1Definition(Config):
         help_text=_("Name of the gettext domain for translations"),
         validator_list=[
             # NOTE: it *can* be unset!
-            PatternValidator("[a-z0-9-]+"),
+            PatternValidator("[a-z0-9_-]+"),
         ])
 
 

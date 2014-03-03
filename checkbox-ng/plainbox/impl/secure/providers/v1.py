@@ -424,13 +424,22 @@ class AbsolutePathValidator(IValidator):
 class Provider1Definition(Config):
     """
     A Config-like class for parsing plainbox provider definition files
+
+    .. note::
+
+        The location attribute is special, if set, it defines the base
+        directory of *all* the other directory attributes. If location is
+        unset, then all the directory attributes default to None (that is,
+        there is no directory of that type). This is actually a convention that
+        is implemented in :class:`Provider1PlugIn`. Here, all the attributes
+        can be Unset and their validators only check values other than Unset.
     """
 
     location = Variable(
         section='PlainBox Provider',
         help_text=_("Base directory with provider data"),
         validator_list=[
-            NotUnsetValidator(),
+            # NOTE: it *can* be unset!
             NotEmptyValidator(),
             AbsolutePathValidator(),
             ExistingDirectoryValidator(),
@@ -464,6 +473,56 @@ class Provider1Definition(Config):
         validator_list=[
             # NOTE: it *can* be unset!
             PatternValidator("[a-z0-9_-]+"),
+        ])
+
+    jobs_dir = Variable(
+        section='PlainBox Provider',
+        help_text=_("Pathname of the directory with job definitions"),
+        validator_list=[
+            # NOTE: it *can* be unset
+            NotEmptyValidator(),
+            AbsolutePathValidator(),
+            ExistingDirectoryValidator(),
+        ])
+
+    whitelists_dir = Variable(
+        section='PlainBox Provider',
+        help_text=_("Pathname of the directory with whitelists definitions"),
+        validator_list=[
+            # NOTE: it *can* be unset
+            NotEmptyValidator(),
+            AbsolutePathValidator(),
+            ExistingDirectoryValidator(),
+        ])
+
+    data_dir = Variable(
+        section='PlainBox Provider',
+        help_text=_("Pathname of the directory with provider data"),
+        validator_list=[
+            # NOTE: it *can* be unset
+            NotEmptyValidator(),
+            AbsolutePathValidator(),
+            ExistingDirectoryValidator(),
+        ])
+
+    bin_dir = Variable(
+        section='PlainBox Provider',
+        help_text=_("Pathname of the directory with provider executables"),
+        validator_list=[
+            # NOTE: it *can* be unset
+            NotEmptyValidator(),
+            AbsolutePathValidator(),
+            ExistingDirectoryValidator(),
+        ])
+
+    locale_dir = Variable(
+        section='PlainBox Provider',
+        help_text=_("Pathname of the directory with locale data"),
+        validator_list=[
+            # NOTE: it *can* be unset
+            NotEmptyValidator(),
+            AbsolutePathValidator(),
+            ExistingDirectoryValidator(),
         ])
 
 

@@ -600,6 +600,9 @@ class Config(metaclass=ConfigMeta):
                 continue
             # Assign it
             section.__set__(self, value)
+        # Validate the whole configuration object
+        self.validate_whole()
+
 
     def _get_variable(self, name):
         """
@@ -636,6 +639,18 @@ class Config(metaclass=ConfigMeta):
         Internal method called by :meth:`Section.__delete__`
         """
         del self._section[name]
+
+    def validate_whole(self):
+        """
+        Validate the whole configuration object.
+
+        This method may be overridden to provide whole-configuration
+        validation. It is especially useful in cases when a pair or more of
+        variables need to be validated together to be meaningful.
+
+        The default implementation does nothing. Other implementations may
+        raise :class:`ValidationError`.
+        """
 
 
 class ValidationError(ValueError):

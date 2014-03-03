@@ -36,6 +36,7 @@ from plainbox.impl.secure.config import PatternValidator
 from plainbox.impl.secure.config import PlainBoxConfigParser, Config
 from plainbox.impl.secure.config import Variable, Section, Unset
 from plainbox.impl.secure.config import understands_Unset
+from plainbox.vendor import mock
 
 
 class UnsetTests(TestCase):
@@ -279,6 +280,24 @@ class ConfigTests(TestCase):
             "v = 1")
         self.assertEqual(conf.v, "1")
         self.assertEqual(len(conf.problem_list), 0)
+
+    def test_read_string_calls_validate_whole(self):
+        """
+        verify that Config.read_string() calls validate_whole()"
+        """
+        conf = Config()
+        with mock.patch.object(conf, 'validate_whole') as mocked_validate:
+            conf.read_string('')
+        mocked_validate.assert_called_once_with()
+
+    def test_read_calls_validate_whole(self):
+        """
+        verify that Config.read() calls validate_whole()"
+        """
+        conf = Config()
+        with mock.patch.object(conf, 'validate_whole') as mocked_validate:
+            conf.read([])
+        mocked_validate.assert_called_once_with()
 
     def test_read_string__does_not_ignore_nonmentioned_variables(self):
         class TestConfig(Config):

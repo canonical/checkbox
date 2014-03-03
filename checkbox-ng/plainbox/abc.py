@@ -465,6 +465,14 @@ class IProvider1(metaclass=ABCMeta):
         for the user environment.
         """
 
+    @abstractproperty
+    def locale_dir(self):
+        """
+        absolute path of the directory with locale data
+
+        The value is applicable as argument bindtextdomain()
+        """
+
     @abstractmethod
     def get_builtin_jobs(self):
         """

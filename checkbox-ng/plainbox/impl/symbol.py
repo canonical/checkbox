@@ -182,7 +182,8 @@ class SymbolDefMeta(type):
         # are.
         return [value for name, kind, defcls, value
                 in inspect.classify_class_attrs(cls)
-                if kind == 'data' and isinstance(value, Symbol)]
+                if name != '__locals__' and kind == 'data'
+                and isinstance(value, Symbol)]
 
 
 class SymbolDef(metaclass=SymbolDefMeta):

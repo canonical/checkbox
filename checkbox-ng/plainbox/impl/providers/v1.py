@@ -103,6 +103,10 @@ class DummyProvider1(IProvider1, IProviderBackend1):
     def locale_dir(self):
         return self._extras.get("locale_dir")
 
+    @property
+    def data_dir(self):
+        return self._extras.get("data_dir")
+
     def secure(self):
         return False
 

@@ -29,6 +29,7 @@ import os
 
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.secure.config import Unset
+from plainbox.impl.secure.config import ValidationError
 from plainbox.impl.secure.plugins import PlugInError
 from plainbox.impl.secure.providers.v1 import AbsolutePathValidator
 from plainbox.impl.secure.providers.v1 import ExistingDirectoryValidator
@@ -393,6 +394,111 @@ class Provider1DefinitionTests(TestCase):
                     mock_isdir.return_value = False
                     setattr(def_, attr, '/some/place')
             self.assertEqual(str(boom.exception), "no such directory")
+
+
+class Provider1PlugInTests(TestCase):
+
+    DEF_TEXT = (
+        "[PlainBox Provider]\n"
+        "name = 2013.org.example:smoke-test\n"
+        "version = 1.0\n"
+        "description = a description\n"
+        "gettext_domain = domain\n"
+    )
+
+    DEF_TEXT_w_location = DEF_TEXT + (
+        "location = /some/directory\n"
+    )
+
+    DEF_TEXT_w_dirs = DEF_TEXT + (
+        "jobs_dir = /some/directory/jobs\n"
+        "whitelists_dir = /some/directory/whitelists\n"
+        "data_dir = /some/directory/data\n"
+        "bin_dir = /some/directory/bin\n"
+        "locale_dir = /some/directory/locale\n"
+    )
+
+    def setUp(self):
+        with mock.patch('os.path.isdir') as mock_isdir:
+            # Mock os.path.isdir so that we can validate location
+            mock_isdir.return_value = True
+            self.plugin = Provider1PlugIn("a.provider", self.DEF_TEXT)
+            self.plugin_w_location = Provider1PlugIn(
+                "a.provider", self.DEF_TEXT_w_location)
+            self.plugin_w_dirs = Provider1PlugIn(
+                "a.provider", self.DEF_TEXT_w_dirs)
+            # Mock os.path.isdir so that none of the sub-directories of the
+            # location directory seem to exist. This is essential for
+            # Provider1.from_definition()'s special behavior.
+            mock_isdir.side_effect = lambda dn: dn == "/some/directory"
+            self.plugin_w_location_w_no_dirs = Provider1PlugIn(
+                "a.provider", self.DEF_TEXT_w_location)
+
+    def test_plugin_name(self):
+        self.assertEqual(
+            self.plugin.plugin_name, "2013.org.example:smoke-test")
+
+    def test_plugin_object(self):
+        self.assertIsInstance(self.plugin.plugin_object, Provider1)
+
+    def test_provider_metadata(self):
+        provider = self.plugin.plugin_object
+        self.assertEqual(provider.name, "2013.org.example:smoke-test")
+        self.assertEqual(provider.version, "1.0")
+        self.assertEqual(provider.description, "a description")
+        self.assertEqual(provider.gettext_domain, "domain")
+
+    def test_provider_directories__no_location_no_dirs(self):
+        """
+        verify that none of the provider directories are set when loading a
+        provider definition devoid of actual entries and the base location
+        entry.
+        """
+        provider = self.plugin.plugin_object
+        self.assertEqual(provider.jobs_dir, None)
+        self.assertEqual(provider.whitelists_dir, None)
+        self.assertEqual(provider.data_dir, None)
+        self.assertEqual(provider.bin_dir, None)
+        self.assertEqual(provider.locale_dir, None)
+
+    def test_provider_directories__w_location(self):
+        """
+        verify that all of the provider directories are set when loading a
+        provider definition devoid of actual entries but the base location
+        entry.
+        """
+        provider = self.plugin_w_location.plugin_object
+        self.assertEqual(provider.jobs_dir, "/some/directory/jobs")
+        self.assertEqual(provider.whitelists_dir, "/some/directory/whitelists")
+        self.assertEqual(provider.data_dir, "/some/directory/data")
+        self.assertEqual(provider.bin_dir, "/some/directory/bin")
+        self.assertEqual(provider.locale_dir, "/some/directory/locale")
+
+    def test_provider_directories__w_location_w_no_dirs(self):
+        """
+        verify that all of the provider directories are set to None when
+        loading a provider definition devoid of actual entries but the base
+        location entry *and* the filesystem reporting that those directories
+        don't exist.
+        """
+        provider = self.plugin_w_location_w_no_dirs.plugin_object
+        self.assertEqual(provider.jobs_dir, None)
+        self.assertEqual(provider.whitelists_dir, None)
+        self.assertEqual(provider.data_dir, None)
+        self.assertEqual(provider.bin_dir, None)
+        self.assertEqual(provider.locale_dir, None)
+
+    def test_provider_directories__w_dirs(self):
+        """
+        verify that all of the provider directories are set when loading a
+        provider definition with a specific entry for each directory
+        """
+        provider = self.plugin_w_dirs.plugin_object
+        self.assertEqual(provider.jobs_dir, "/some/directory/jobs")
+        self.assertEqual(provider.whitelists_dir, "/some/directory/whitelists")
+        self.assertEqual(provider.data_dir, "/some/directory/data")
+        self.assertEqual(provider.bin_dir, "/some/directory/bin")
+        self.assertEqual(provider.locale_dir, "/some/directory/locale")
 
 
 class WhiteListPlugInTests(TestCase):

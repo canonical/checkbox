@@ -35,6 +35,7 @@ from plainbox.impl.secure.config import IValidator
 from plainbox.impl.secure.config import NotEmptyValidator
 from plainbox.impl.secure.config import NotUnsetValidator
 from plainbox.impl.secure.config import PatternValidator
+from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.plugins import FsPlugInCollection
 from plainbox.impl.secure.plugins import IPlugIn
 from plainbox.impl.secure.plugins import PlugInError
@@ -680,14 +681,10 @@ class Provider1PlugIn(IPlugIn):
             raise PlugInError(
                 _("Problem in provider definition, field {!a}: {}").format(
                     exc.variable.name, exc.message))
+        # Get the secure flag
+        secure = os.path.dirname(filename) in get_secure_PROVIDERPATH_list()
         # Initialize the provider object
-        self._provider = Provider1(
-            definition.location,
-            definition.name,
-            definition.version,
-            definition.description,
-            secure=os.path.dirname(filename) in get_secure_PROVIDERPATH_list(),
-            gettext_domain=definition.gettext_domain or None)
+        self._provider = Provider1.from_definition(definition, secure)
 
     def __repr__(self):
         return "<{!s} plugin_name:{!r}>".format(

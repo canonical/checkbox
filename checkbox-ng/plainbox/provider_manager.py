@@ -502,7 +502,8 @@ class ValidateCommand(ManageCommand):
                 # $field.symbols, though as of this writing that is only true
                 # for the 'plugin' field.
                 field_prop = getattr(JobDefinition, str(error.field))
-                if error.problem == Problem.wrong and hasattr(field_prop, "symbols"):
+                if (error.problem == Problem.wrong
+                        and hasattr(field_prop, "get_all_symbols")):
                     symbol_list = field_prop.get_all_symbols()
                     print(_("allowed values are: {0}").format(
                         ', '.join(str(symbol) for symbol in symbol_list)))

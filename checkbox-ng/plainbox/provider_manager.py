@@ -47,7 +47,8 @@ from plainbox.impl.providers.v1 import get_user_PROVIDERPATH_entry
 from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.config import ValidationError \
     as ConfigValidationError
-from plainbox.impl.secure.providers.v1 import Provider1, Provider1Definition
+from plainbox.impl.secure.providers.v1 import Provider1
+from plainbox.impl.secure.providers.v1 import Provider1Definition
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 
 __all__ = ['setup']
@@ -87,10 +88,7 @@ class ManageCommand(CommandBase):
         """
         Get a Provider1 that describes the current provider
         """
-        return Provider1(
-            self.definition.location, self.definition.name,
-            self.definition.version, self.definition.description,
-            secure=False, gettext_domain=self.definition.gettext_domain)
+        return Provider1.from_definition(self.definition, secure=False)
 
 
 @docstring(
@@ -392,7 +390,7 @@ class InfoCommand(ManageCommand):
         for job in job_list:
             # TRANSLATORS: {!a} is the job id, {} is the filename
             print("\t" + ("{!a}, from {}").format(
-                job.id, job.origin.relative_to(provider.base_dir)))
+                job.id, job.origin.relative_to(self.definition.location)))
         if problem_list:
             print("\t" + _("Some jobs could not be parsed correctly"))
             # TRANSLATORS: please don't translate `manage.py validate`
@@ -402,7 +400,7 @@ class InfoCommand(ManageCommand):
             whitelist_list = provider.get_builtin_whitelists()
         except RFC822SyntaxError as exc:
             print("{}:{}: {}".format(
-                os.path.relpath(exc.filename, provider.base_dir),
+                os.path.relpath(exc.filename, self.definition.location),
                 exc.lineno, exc.msg))
             print(_("Errors prevent whitelists from being displayed"))
         else:
@@ -412,7 +410,7 @@ class InfoCommand(ManageCommand):
                 # 1: pathname of the file the whitelist is defined in
                 print("\t" + _("{0!a}, from {1}").format(
                     whitelist.name,
-                    whitelist.origin.relative_to(provider.base_dir)))
+                    whitelist.origin.relative_to(self.definition.location)))
 
 
 @docstring(
@@ -497,7 +495,7 @@ class ValidateCommand(ManageCommand):
                 # 2: field name
                 # 3: explanation of the problem
                 print(_("{0}: job {1!a}, field {2!a}: {3}").format(
-                    job.origin.relative_to(provider.base_dir),
+                    job.origin.relative_to(self.definition.location),
                     job.id, error.field.name, explain[error.problem]))
                 # If this is a "wrong value" problem then perhaps we can
                 # suggest the set of acceptable values? Those may be stored as
@@ -749,14 +747,18 @@ def setup(**kwargs):
     """
     setup_logging()
     manage_py = inspect.stack()[1][0].f_globals['__file__']
-    base_dir = os.path.dirname(os.path.abspath(manage_py))
+    location = os.path.dirname(os.path.abspath(manage_py))
     definition = Provider1Definition()
     try:
-        definition.location = base_dir
+        definition.location = location
         definition.name = kwargs.get('name', None)
         definition.version = kwargs.get('version', None)
         definition.description = kwargs.get('description', None)
         definition.gettext_domain = kwargs.get('gettext_domain', Unset)
+        # NOTE: this value for locale_dir is only valid for development.
+        # Commands that actually install this system-wide compute a different
+        # value.
+        definition.locale_dir = os.path.join(location, "build/mo")
     except ConfigValidationError as exc:
         raise SystemExit(_("{}: bad value of {!r}, {}").format(
             manage_py, exc.variable.name, exc.message))

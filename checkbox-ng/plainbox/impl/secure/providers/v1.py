@@ -206,6 +206,83 @@ class Provider1(IProvider1, IProviderBackend1):
             jobs_dir_list, ext=(".txt", ".txt.in"),
             wrapper=JobDefinitionPlugIn, provider=self)
 
+    @classmethod
+    def from_definition(cls, definition, secure):
+        """
+        Initialize a provider from Provider1Definition object
+
+        :param definition:
+            A Provider1Definition object to use as reference
+
+        :param secure:
+            Value of the secure flag. This cannot be expressed by a definition
+            object.
+
+        This method simplifies initialization of a Provider1 object where the
+        caller already has a Provider1Definition object. Depending on the value
+        of ``definition.location`` all of the directories are either None or
+        initialized to a *good* (typical) value relative to *location*
+
+        The only value that you may want to adjust, for working with source
+        providers, is *locale_dir*, by default it would be ``location/locale``
+        but ``manage.py i18n`` creates ``location/build/mo``
+        """
+        # Compute all the directories, depending on the value of
+        # definition.location and presence, or lack of thereof, of each
+        # directory definition entry.
+        jobs_dir = None
+        whitelists_dir = None
+        data_dir = None
+        bin_dir = None
+        locale_dir = None
+        if definition.location is not Unset:
+            # When location is not Unset, all the relevant directories _may_ be
+            # subdirectories of location (unless overridden by explicit value).
+            # Since all of the directories are validated we take special care
+            # not to assign directories that may not exist.
+            if definition.jobs_dir is Unset:
+                jobs_dir = os.path.join(definition.location, "jobs")
+                if not os.path.isdir(jobs_dir):
+                    jobs_dir = None
+            if definition.whitelists_dir is Unset:
+                whitelists_dir = os.path.join(definition.location,
+                                              "whitelists")
+                if not os.path.isdir(whitelists_dir):
+                    whitelists_dir = None
+            if definition.data_dir is Unset:
+                data_dir = os.path.join(definition.location, "data")
+                if not os.path.isdir(data_dir):
+                    data_dir = None
+            if definition.bin_dir is Unset:
+                bin_dir = os.path.join(definition.location, "bin")
+                if not os.path.isdir(bin_dir):
+                    bin_dir = None
+            if definition.locale_dir is Unset:
+                locale_dir = os.path.join(definition.location, "locale")
+                if not os.path.isdir(locale_dir):
+                    locale_dir = None
+        else:
+            if definition.jobs_dir is not Unset:
+                jobs_dir = definition.jobs_dir
+            if definition.whitelists_dir is not Unset:
+                whitelists_dir = definition.whitelists_dir
+            if definition.data_dir is not Unset:
+                data_dir = definition.data_dir
+            if definition.bin_dir is not Unset:
+                bin_dir = definition.bin_dir
+            if definition.locale_dir is not Unset:
+                locale_dir = definition.locale_dir
+        # Get gettext domain
+        if definition.gettext_domain is not Unset:
+            gettext_domain = definition.gettext_domain
+        else:
+            gettext_domain = None
+        # Initialize the provider object
+        return cls(
+            definition.name, definition.version, definition.description,
+            secure, gettext_domain, jobs_dir, whitelists_dir, data_dir,
+            bin_dir, locale_dir)
+
     def __repr__(self):
         return "<{} name:{!r}>".format(self.__class__.__name__, self.name)
 

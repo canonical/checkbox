@@ -35,6 +35,7 @@ from plainbox.impl.secure.config import IValidator
 from plainbox.impl.secure.config import NotEmptyValidator
 from plainbox.impl.secure.config import NotUnsetValidator
 from plainbox.impl.secure.config import PatternValidator
+from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.plugins import FsPlugInCollection
 from plainbox.impl.secure.plugins import IPlugIn
 from plainbox.impl.secure.plugins import PlugInError
@@ -129,46 +130,162 @@ class Provider1(IProvider1, IProviderBackend1):
     """
     A v1 provider implementation.
 
-    This base class implements a checkbox-like provider object. Subclasses are
-    only required to implement a single method that designates the base
-    location for all other data.
+    A provider is a container of jobs and whitelists. It provides additional
+    meta-data and knows about location of essential directories to both load
+    structured data and provide runtime information for job execution.
+
+    Providers are normally loaded with :class:`Provider1PlugIn`, due to the
+    number of fields involved in basic initialization.
     """
 
-    def __init__(self, base_dir, name, version, description, secure,
-                 gettext_domain=None):
+    def __init__(self, name, version, description, secure, gettext_domain,
+                 jobs_dir, whitelists_dir, data_dir, bin_dir, locale_dir):
         """
-        Initialize the provider with the associated base directory.
+        Initialize a provider with a set of meta-data and directories.
 
-        All of the typical v1 provider data is relative to this directory. It
-        can be customized by subclassing and overriding the particular methods
-        of the IProviderBackend1 class but that should not be necessary in
-        normal operation.
+        :param name:
+            provider name / ID
+
+        :param version:
+            provider version
+
+        :param description:
+            provider version
+
+            This is the untranslated version of this field. Implementations may
+            obtain the localized version based on the gettext_domain property.
+
+        :param secure:
+            secure bit
+
+            When True jobs from this provider should be available via the
+            trusted launcher mechanism. It should be set to True for
+            system-wide installed providers.
+
+        :param gettext_domain:
+            gettext domain that contains translations for this provider
+
+        :param jobs_dir:
+            path of the directory with job definitions
+
+        :param whitelists_dir:
+            path of the directory with whitelists definitions (aka test-plans)
+
+        :param data_dir:
+            path of the directory with files used by jobs at runtime
+
+        :param bin_dir:
+            path of the directory with additional executables
+
+        :param locale_dir:
+            path of the directory with locale database (translation catalogs)
         """
-        self._base_dir = base_dir
+        # Meta-data
         self._name = name
         self._version = version
         self._description = description
         self._secure = secure
         self._gettext_domain = gettext_domain
+        # Directories
+        self._jobs_dir = jobs_dir
+        self._whitelists_dir = whitelists_dir
+        self._data_dir = data_dir
+        self._bin_dir = bin_dir
+        self._locale_dir = locale_dir
+        # Loaded data
+        if self.whitelists_dir is not None:
+            whitelists_dir_list = [self.whitelists_dir]
+        else:
+            whitelists_dir_list = []
         self._whitelist_collection = FsPlugInCollection(
-            [self.whitelists_dir], ext=".whitelist", wrapper=WhiteListPlugIn)
+            whitelists_dir_list, ext=".whitelist", wrapper=WhiteListPlugIn)
+        if self.jobs_dir is not None:
+            jobs_dir_list = [self.jobs_dir]
+        else:
+            jobs_dir_list = []
         self._job_collection = FsPlugInCollection(
-            [self.jobs_dir], ext=(".txt", ".txt.in"),
+            jobs_dir_list, ext=(".txt", ".txt.in"),
             wrapper=JobDefinitionPlugIn, provider=self)
 
+    @classmethod
+    def from_definition(cls, definition, secure):
+        """
+        Initialize a provider from Provider1Definition object
+
+        :param definition:
+            A Provider1Definition object to use as reference
+
+        :param secure:
+            Value of the secure flag. This cannot be expressed by a definition
+            object.
+
+        This method simplifies initialization of a Provider1 object where the
+        caller already has a Provider1Definition object. Depending on the value
+        of ``definition.location`` all of the directories are either None or
+        initialized to a *good* (typical) value relative to *location*
+
+        The only value that you may want to adjust, for working with source
+        providers, is *locale_dir*, by default it would be ``location/locale``
+        but ``manage.py i18n`` creates ``location/build/mo``
+        """
+        # Compute all the directories, depending on the value of
+        # definition.location and presence, or lack of thereof, of each
+        # directory definition entry.
+        jobs_dir = None
+        whitelists_dir = None
+        data_dir = None
+        bin_dir = None
+        locale_dir = None
+        if definition.location is not Unset:
+            # When location is not Unset, all the relevant directories _may_ be
+            # subdirectories of location (unless overridden by explicit value).
+            # Since all of the directories are validated we take special care
+            # not to assign directories that may not exist.
+            if definition.jobs_dir is Unset:
+                jobs_dir = os.path.join(definition.location, "jobs")
+                if not os.path.isdir(jobs_dir):
+                    jobs_dir = None
+            if definition.whitelists_dir is Unset:
+                whitelists_dir = os.path.join(definition.location,
+                                              "whitelists")
+                if not os.path.isdir(whitelists_dir):
+                    whitelists_dir = None
+            if definition.data_dir is Unset:
+                data_dir = os.path.join(definition.location, "data")
+                if not os.path.isdir(data_dir):
+                    data_dir = None
+            if definition.bin_dir is Unset:
+                bin_dir = os.path.join(definition.location, "bin")
+                if not os.path.isdir(bin_dir):
+                    bin_dir = None
+            if definition.locale_dir is Unset:
+                locale_dir = os.path.join(definition.location, "locale")
+                if not os.path.isdir(locale_dir):
+                    locale_dir = None
+        else:
+            if definition.jobs_dir is not Unset:
+                jobs_dir = definition.jobs_dir
+            if definition.whitelists_dir is not Unset:
+                whitelists_dir = definition.whitelists_dir
+            if definition.data_dir is not Unset:
+                data_dir = definition.data_dir
+            if definition.bin_dir is not Unset:
+                bin_dir = definition.bin_dir
+            if definition.locale_dir is not Unset:
+                locale_dir = definition.locale_dir
+        # Get gettext domain
+        if definition.gettext_domain is not Unset:
+            gettext_domain = definition.gettext_domain
+        else:
+            gettext_domain = None
+        # Initialize the provider object
+        return cls(
+            definition.name, definition.version, definition.description,
+            secure, gettext_domain, jobs_dir, whitelists_dir, data_dir,
+            bin_dir, locale_dir)
+
     def __repr__(self):
-        return "<{} name:{!r} base_dir:{!r}>".format(
-            self.__class__.__name__, self.name, self.base_dir)
-
-    @property
-    def base_dir(self):
-        """
-        pathname to a directory with essential provider data
-
-        This pathname is used for deriving :attr:`jobs_dir`, :attr:`bin_dir`
-        and :attr:`whitelists_dir`.
-        """
-        return self._base_dir
+        return "<{} name:{!r}>".format(self.__class__.__name__, self.name)
 
     @property
     def name(self):
@@ -194,43 +311,59 @@ class Provider1(IProvider1, IProviderBackend1):
     @property
     def jobs_dir(self):
         """
-        Return an absolute path of the jobs directory
+        absolute path of the jobs directory
         """
-        return os.path.join(self._base_dir, "jobs")
+        return self._jobs_dir
+
+    @property
+    def whitelists_dir(self):
+        """
+        absolute path of the whitelist directory
+        """
+        return self._whitelists_dir
+
+    @property
+    def data_dir(self):
+        """
+        absolute path of the data directory
+        """
+        return self._data_dir
 
     @property
     def bin_dir(self):
         """
-        Return an absolute path of the bin directory
+        absolute path of the bin directory
 
         .. note::
             The programs in that directory may not work without setting
             PYTHONPATH and CHECKBOX_SHARE.
         """
-        return os.path.join(self._base_dir, "bin")
+        return self._bin_dir
 
     @property
-    def whitelists_dir(self):
+    def locale_dir(self):
         """
-        Return an absolute path of the whitelist directory
+        absolute path of the directory with locale data
+
+        The value is applicable as argument bindtextdomain()
         """
-        return os.path.join(self._base_dir, "whitelists")
+        return self._locale_dir
 
     @property
     def CHECKBOX_SHARE(self):
         """
-        Return the required value of CHECKBOX_SHARE environment variable.
+        required value of CHECKBOX_SHARE environment variable.
 
         .. note::
             This variable is only required by one script.
             It would be nice to remove this later on.
         """
-        return self._base_dir
+        return os.path.join(self._data_dir, "..")
 
     @property
     def extra_PYTHONPATH(self):
         """
-        Return additional entry for PYTHONPATH, if needed.
+        additional entry for PYTHONPATH, if needed.
 
         This entry is required for CheckBox scripts to import the correct
         CheckBox python libraries.
@@ -338,6 +471,8 @@ class Provider1(IProvider1, IProviderBackend1):
             missing.
         """
         executable_list = []
+        if self.bin_dir is None:
+            return executable_list
         try:
             items = os.listdir(self.bin_dir)
         except OSError as exc:
@@ -370,7 +505,7 @@ class IQNValidator(PatternValidator):
         year:
             four digit number
         domain name:
-            identifiers spearated by dots, at least one dot has to be present
+            identifiers separated by dots, at least one dot has to be present
         identifier:
             `[a-z][a-z0-9-]*`
     """
@@ -424,13 +559,22 @@ class AbsolutePathValidator(IValidator):
 class Provider1Definition(Config):
     """
     A Config-like class for parsing plainbox provider definition files
+
+    .. note::
+
+        The location attribute is special, if set, it defines the base
+        directory of *all* the other directory attributes. If location is
+        unset, then all the directory attributes default to None (that is,
+        there is no directory of that type). This is actually a convention that
+        is implemented in :class:`Provider1PlugIn`. Here, all the attributes
+        can be Unset and their validators only check values other than Unset.
     """
 
     location = Variable(
         section='PlainBox Provider',
         help_text=_("Base directory with provider data"),
         validator_list=[
-            NotUnsetValidator(),
+            # NOTE: it *can* be unset!
             NotEmptyValidator(),
             AbsolutePathValidator(),
             ExistingDirectoryValidator(),
@@ -463,7 +607,57 @@ class Provider1Definition(Config):
         help_text=_("Name of the gettext domain for translations"),
         validator_list=[
             # NOTE: it *can* be unset!
-            PatternValidator("[a-z0-9-]+"),
+            PatternValidator("[a-z0-9_-]+"),
+        ])
+
+    jobs_dir = Variable(
+        section='PlainBox Provider',
+        help_text=_("Pathname of the directory with job definitions"),
+        validator_list=[
+            # NOTE: it *can* be unset
+            NotEmptyValidator(),
+            AbsolutePathValidator(),
+            ExistingDirectoryValidator(),
+        ])
+
+    whitelists_dir = Variable(
+        section='PlainBox Provider',
+        help_text=_("Pathname of the directory with whitelists definitions"),
+        validator_list=[
+            # NOTE: it *can* be unset
+            NotEmptyValidator(),
+            AbsolutePathValidator(),
+            ExistingDirectoryValidator(),
+        ])
+
+    data_dir = Variable(
+        section='PlainBox Provider',
+        help_text=_("Pathname of the directory with provider data"),
+        validator_list=[
+            # NOTE: it *can* be unset
+            NotEmptyValidator(),
+            AbsolutePathValidator(),
+            ExistingDirectoryValidator(),
+        ])
+
+    bin_dir = Variable(
+        section='PlainBox Provider',
+        help_text=_("Pathname of the directory with provider executables"),
+        validator_list=[
+            # NOTE: it *can* be unset
+            NotEmptyValidator(),
+            AbsolutePathValidator(),
+            ExistingDirectoryValidator(),
+        ])
+
+    locale_dir = Variable(
+        section='PlainBox Provider',
+        help_text=_("Pathname of the directory with locale data"),
+        validator_list=[
+            # NOTE: it *can* be unset
+            NotEmptyValidator(),
+            AbsolutePathValidator(),
+            ExistingDirectoryValidator(),
         ])
 
 
@@ -487,14 +681,10 @@ class Provider1PlugIn(IPlugIn):
             raise PlugInError(
                 _("Problem in provider definition, field {!a}: {}").format(
                     exc.variable.name, exc.message))
+        # Get the secure flag
+        secure = os.path.dirname(filename) in get_secure_PROVIDERPATH_list()
         # Initialize the provider object
-        self._provider = Provider1(
-            definition.location,
-            definition.name,
-            definition.version,
-            definition.description,
-            secure=os.path.dirname(filename) in get_secure_PROVIDERPATH_list(),
-            gettext_domain=definition.gettext_domain or None)
+        self._provider = Provider1.from_definition(definition, secure)
 
     def __repr__(self):
         return "<{!s} plugin_name:{!r}>".format(

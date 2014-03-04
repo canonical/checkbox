@@ -32,8 +32,9 @@ import logging
 from plainbox.i18n import gettext as _
 from plainbox.impl.clitools import CommandBase, ToolBase
 from plainbox.impl.providers.special import CheckBoxSrcProvider
-from plainbox.impl.providers.special import StubBoxProvider
+from plainbox.impl.providers.special import get_stubbox_def
 from plainbox.impl.providers.v1 import all_providers
+from plainbox.impl.secure.providers.v1 import Provider1
 
 
 logger = logging.getLogger("plainbox.commands")
@@ -170,7 +171,7 @@ class PlainBoxToolBase(ToolBase):
         return [CheckBoxSrcProvider()]
 
     def _load_stub_provider_only(self):
-        return [StubBoxProvider()]
+        return [Provider1.from_definition(get_stubbox_def(), secure=False)]
 
     def add_early_parser_arguments(self, parser):
         """

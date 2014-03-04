@@ -421,6 +421,12 @@ class IProviderBackend1(metaclass=ABCMeta):
         """
 
     @abstractproperty
+    def data_dir(self):
+        """
+        absolute path of the data directory
+        """
+
+    @abstractproperty
     def secure(self):
         """
         flag indicating that this provider was loaded from the secure portion
@@ -463,6 +469,14 @@ class IProvider1(metaclass=ABCMeta):
 
         This value may be empty, in such case provider data cannot be localized
         for the user environment.
+        """
+
+    @abstractproperty
+    def locale_dir(self):
+        """
+        absolute path of the directory with locale data
+
+        The value is applicable as argument bindtextdomain()
         """
 
     @abstractmethod

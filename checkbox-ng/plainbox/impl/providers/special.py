@@ -30,9 +30,11 @@ import logging
 import os
 
 from plainbox.i18n import gettext as _
+from plainbox.i18n import gettext_noop as N_
 from plainbox.impl import get_plainbox_dir
 from plainbox.impl.providers import ProviderNotFound
 from plainbox.impl.providers.v1 import Provider1
+from plainbox.impl.secure.providers.v1 import Provider1Definition
 
 
 logger = logging.getLogger("plainbox.providers.special")
@@ -76,11 +78,9 @@ class CheckBoxSrcProvider(Provider1):
     Unlike normal v1 providers it has two legacy quirks that should not be
     changed before we can stop using the old checkbox codebase.
 
-    1) The location for provider-specific executables is '$base/scripts'. This
-       is implemented by custom :attr:`bin_dir`.
+    1) The location for provider-specific executables is '$base/scripts'.
 
-    2) The location for whitelists is '$base/data/whitelists'. This is
-       implemented by custom :attr:`whitelists_dir`.
+    2) The location for whitelists is '$base/data/whitelists'.
 
     It also has some quirks which might be revisited and dropped:
 
@@ -94,13 +94,20 @@ class CheckBoxSrcProvider(Provider1):
     """
 
     def __init__(self):
-        super(CheckBoxSrcProvider, self).__init__(
-            _get_checkbox_dir(),
+        base_dir = _get_checkbox_dir()
+        secure = False
+        gettext_domain = "checkbox"
+        jobs_dir = os.path.join(base_dir, 'jobs')
+        whitelists_dir = os.path.join(base_dir, 'data/whitelist')
+        data_dir = os.path.join(base_dir, 'data')
+        bin_dir = os.path.join(base_dir, 'scripts')
+        locale_dir = os.path.join(base_dir, 'build/mo')
+        super().__init__(
             "2013.com.canonical:checkbox-src", "1.0",
-            "CheckBox (live source)",
-            secure=False,
-            gettext_domain="checkbox")
-        if not os.path.exists(self.base_dir):
+            N_("CheckBox (live source)"),
+            secure, gettext_domain, jobs_dir, whitelists_dir, data_dir,
+            bin_dir, locale_dir)
+        if not os.path.exists(base_dir):
             raise CheckBoxNotFound()
 
     @staticmethod
@@ -126,39 +133,19 @@ class CheckBoxSrcProvider(Provider1):
         # imports to work.
         return _get_checkbox_dir()
 
-    @property
-    def whitelists_dir(self):
-        """
-        Return an absolute path of the whitelist directory
-        """
-        return os.path.join(self._base_dir, "data", "whitelists")
 
-    @property
-    def bin_dir(self):
-        """
-        Return an absolute path of the scripts directory
-
-        .. note::
-            The scripts may not work without setting PYTHONPATH and
-            CHECKBOX_SHARE.
-        """
-        return os.path.join(self._base_dir, "scripts")
-
-
-class StubBoxProvider(Provider1):
+def get_stubbox_def():
     """
-    A provider for stub, dummy and otherwise non-production jobs.
-
-    The stubbox provider is useful for various kinds of testing where you don't
-    want to pull in a volume of data, just a bit of each kind of jobs that we
-    need to support.
+    Get a Provider1Definition for stubbox
     """
-
-    def __init__(self):
-        # TODO: load stubbox using what's in manage.py, maybe?
-        super(StubBoxProvider, self).__init__(
-            os.path.join(get_plainbox_dir(), "impl/providers/stubbox"),
-            "2013.com.canonical:stubbox", "1.0",
-            "StubBox (dummy data for development)",
-            secure=False,
-            gettext_domain="plainbox")
+    stubbox_def = Provider1Definition()
+    stubbox_def.name = "2013.com.canonical:stubbox"
+    stubbox_def.version = "1.0"
+    stubbox_def.description = N_("StubBox (dummy data for development)")
+    stubbox_def.secure = False
+    stubbox_def.gettext_domain = "stubbox"
+    stubbox_def.location = os.path.join(get_plainbox_dir(), "impl/providers/stubbox")
+    locale_dir = os.path.join(stubbox_def.location, 'build/mo')
+    if os.path.isdir(locale_dir):
+        stubbox_def.locale_dir = locale_dir
+    return stubbox_def

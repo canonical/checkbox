@@ -240,6 +240,14 @@ class ResourceExpressionTests(TestCase):
         expr = ResourceExpression(text)
         self.assertEqual(expr.text, text)
         self.assertEqual(expr.resource_id, "package")
+        self.assertEqual(expr.implicit_namespace, None)
+
+    def test_namespace_support(self):
+        text = "package.name == 'fwts'"
+        expr = ResourceExpression(text, "2014.com.canonical")
+        self.assertEqual(expr.text, text)
+        self.assertEqual(expr.resource_id, "2014.com.canonical::package")
+        self.assertEqual(expr.implicit_namespace, "2014.com.canonical")
 
     def test_smoke_bad(self):
         self.assertRaises(SyntaxError, ResourceExpression, "barf'")
@@ -340,3 +348,12 @@ class ResourceProgramTests(TestCase):
                 Resource({'arch': 'i386'})]
         }
         self.assertTrue(self.prog.evaluate_or_raise(resource_map))
+
+    def test_namespace_support(self):
+        prog = ResourceProgram(
+            "package.name == 'fwts'\n"
+            "platform.arch in ('i386', 'amd64')",
+            implicit_namespace="2014.com.canonical")
+        self.assertEqual(
+            prog.required_resources,
+            {'2014.com.canonical::package', '2014.com.canonical::platform'})

@@ -161,6 +161,17 @@ class Provider1DefinitionTests(TestCase):
         self.assertEqual(def_.bin_dir, "/some/directory/bin")
         self.assertEqual(def_.locale_dir, "/some/directory/locale")
 
+    def test_name_without_colon(self):
+        """
+        Verify that the property Provider1Definition.name_without_colon
+        is computed correctly
+        """
+        def_ = Provider1Definition()
+        def_.name = "2013.org.example:smoke-test"
+        self.assertEqual(def_.name, "2013.org.example:smoke-test")
+        self.assertEqual(
+            def_.name_without_colon, "2013.org.example.smoke-test")
+
     def test_definition_with_location(self):
         """
         Smoke test to ensure we can load a typical provider definition that is

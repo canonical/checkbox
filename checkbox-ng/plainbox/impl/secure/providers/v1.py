@@ -589,6 +589,10 @@ class Provider1Definition(Config):
             IQNValidator(),
         ])
 
+    @property
+    def name_without_colon(self):
+        return self.name.replace(':', '.')
+
     version = Variable(
         section='PlainBox Provider',
         help_text=_("Version of the provider"),

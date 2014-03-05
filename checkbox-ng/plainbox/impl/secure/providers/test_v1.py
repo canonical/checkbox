@@ -161,6 +161,17 @@ class Provider1DefinitionTests(TestCase):
         self.assertEqual(def_.bin_dir, "/some/directory/bin")
         self.assertEqual(def_.locale_dir, "/some/directory/locale")
 
+    def test_name_without_colon(self):
+        """
+        Verify that the property Provider1Definition.name_without_colon
+        is computed correctly
+        """
+        def_ = Provider1Definition()
+        def_.name = "2013.org.example:smoke-test"
+        self.assertEqual(def_.name, "2013.org.example:smoke-test")
+        self.assertEqual(
+            def_.name_without_colon, "2013.org.example.smoke-test")
+
     def test_definition_with_location(self):
         """
         Smoke test to ensure we can load a typical provider definition that is
@@ -616,6 +627,7 @@ class JobDefintionPlugInTests(TestCase):
 class Provider1Tests(TestCase):
 
     NAME = "2013.org.example:name"
+    NAMESPACE = "2013.org.example"
     VERSION = "1.0"
     DESCRIPTION = "description"
     SECURE = True
@@ -642,6 +654,12 @@ class Provider1Tests(TestCase):
         Verify that Provider1.name attribute is set correctly
         """
         self.assertEqual(self.provider.name, self.NAME)
+
+    def test_namespace(self):
+        """
+        Verify that Provider1.namespace is computed correctly
+        """
+        self.assertEqual(self.provider.namespace, self.NAMESPACE)
 
     def test_version(self):
         """
@@ -704,6 +722,13 @@ class Provider1Tests(TestCase):
         """
         self.assertEqual(self.provider.CHECKBOX_SHARE,
                          os.path.join(self.DATA_DIR, ".."))
+
+    def test_CHECKBOX_SHARE__without_data_dir(self):
+        """
+        Verify that Provider1.CHECKBOX_SHARE is None without data_dir
+        """
+        self.provider._data_dir = None
+        self.assertEqual(self.provider.CHECKBOX_SHARE, None)
 
     def test_extra_PYTHONPATH(self):
         """
@@ -850,3 +875,73 @@ class Provider1Tests(TestCase):
             self.GETTEXT_DOMAIN, self.JOBS_DIR, self.WHITELISTS_DIR,
             self.DATA_DIR, None, self.LOCALE_DIR)
         self.assertEqual(provider.get_all_executables(), [])
+
+    @mock.patch("plainbox.impl.secure.providers.v1.gettext")
+    def test_get_translated_data__typical(self, mock_gettext):
+        """
+        Verify the runtime behavior of get_translated_data()
+        """
+        self.provider._gettext_domain = "some-fake-domain"
+        retval = self.provider.get_translated_data("foo")
+        mock_gettext.dgettext.assert_called_with("some-fake-domain", "foo")
+        self.assertEqual(retval, mock_gettext.dgettext())
+
+    @mock.patch("plainbox.impl.secure.providers.v1.gettext")
+    def test_get_translated_data__empty_string(self, mock_gettext):
+        """
+        Verify the runtime behavior of get_translated_data()
+        """
+        self.provider._gettext_domain = "some-fake-domain"
+        retval = self.provider.get_translated_data("")
+        # This should never go through gettext
+        self.assertEqual(retval, "")
+        # And dgettext should never be called
+        self.assertEqual(mock_gettext.dgettext.call_args_list, [])
+
+    @mock.patch("plainbox.impl.secure.providers.v1.gettext")
+    def test_get_translated_data__None(self, mock_gettext):
+        """
+        Verify the runtime behavior of get_translated_data()
+        """
+        self.provider._gettext_domain = "some-fake-domain"
+        retval = self.provider.get_translated_data(None)
+        # This should never go through gettext
+        self.assertEqual(retval, None)
+        # And dgettext should never be called
+        self.assertEqual(mock_gettext.dgettext.call_args_list, [])
+
+    def test_tr_description(self):
+        """
+        Verify that Provider1.tr_description() works as expected
+        """
+        with mock.patch.object(self.provider, "get_translated_data") as mgtd:
+            retval = self.provider.tr_description()
+        # Ensure that get_translated_data() was called
+        mgtd.assert_called_once_with(self.provider.description)
+        # Ensure tr_description() returned its return value
+        self.assertEqual(retval, mgtd())
+
+    @mock.patch("plainbox.impl.secure.providers.v1.gettext")
+    def test_init_bindtextdomain__called(self, mock_gettext):
+        """
+        Verify that Provider1() calls bindtextdomain under certain
+        circumstances
+        """
+        Provider1(
+            self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
+            self.GETTEXT_DOMAIN, self.JOBS_DIR, self.WHITELISTS_DIR,
+            self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR)
+        mock_gettext.bindtextdomain.assert_called_once_with(
+            self.GETTEXT_DOMAIN, self.LOCALE_DIR)
+
+    @mock.patch("plainbox.impl.secure.providers.v1.gettext")
+    def test_init_bindtextdomain__not_called(self, mock_gettext):
+        """
+        Verify that Provider1() calls bindtextdomain under certain
+        circumstances
+        """
+        Provider1(
+            self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
+            self.GETTEXT_DOMAIN, self.JOBS_DIR, self.WHITELISTS_DIR,
+            self.DATA_DIR, self.BIN_DIR, locale_dir=None)
+        self.assertEqual(mock_gettext.bindtextdomain.call_args_list, [])

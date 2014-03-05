@@ -240,6 +240,14 @@ class ResourceExpressionTests(TestCase):
         expr = ResourceExpression(text)
         self.assertEqual(expr.text, text)
         self.assertEqual(expr.resource_id, "package")
+        self.assertEqual(expr.implicit_namespace, None)
+
+    def test_namespace_support(self):
+        text = "package.name == 'fwts'"
+        expr = ResourceExpression(text, "2014.com.canonical")
+        self.assertEqual(expr.text, text)
+        self.assertEqual(expr.resource_id, "2014.com.canonical::package")
+        self.assertEqual(expr.implicit_namespace, "2014.com.canonical")
 
     def test_smoke_bad(self):
         self.assertRaises(SyntaxError, ResourceExpression, "barf'")

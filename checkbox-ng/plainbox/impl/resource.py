@@ -432,12 +432,13 @@ class ResourceExpression:
     evaluated against a single variable which references a Resource object.
     """
 
-    def __init__(self, text):
+    def __init__(self, text, implicit_namespace=None):
         """
         Analyze the text and prepare it for execution
 
         May raise ResourceProgramError
         """
+        self._implicit_namespace = implicit_namespace
         self._resource_id = self._analyze(text)
         self._text = text
         self._lambda = eval("lambda {}: {}".format(
@@ -471,7 +472,17 @@ class ResourceExpression:
         """
         The id of the resource this expression depends on
         """
-        return self._resource_id
+        if "::" not in self._resource_id and self._implicit_namespace:
+            return "{}::{}".format(self._implicit_namespace, self._resource_id)
+        else:
+            return self._resource_id
+
+    @property
+    def implicit_namespace(self):
+        """
+        implicit namespace for partial identifiers, may be None
+        """
+        return self._implicit_namespace
 
     def evaluate(self, resource_list):
         """

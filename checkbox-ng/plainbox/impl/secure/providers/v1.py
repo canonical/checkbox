@@ -614,6 +614,17 @@ class Provider1Definition(Config):
             PatternValidator("[a-z0-9_-]+"),
         ])
 
+    @property
+    def effective_gettext_domain(self):
+        """
+        effective value of gettext_domian
+
+        The effective value is :meth:`gettex_domain` itself, unless it is
+        Unset. If it is Unset the effective value None.
+        """
+        if self.gettext_domain is not Unset:
+            return self.gettext_domain
+
     jobs_dir = Variable(
         section='PlainBox Provider',
         help_text=_("Pathname of the directory with job definitions"),
@@ -623,6 +634,32 @@ class Provider1Definition(Config):
             AbsolutePathValidator(),
             ExistingDirectoryValidator(),
         ])
+
+    @property
+    def implicit_jobs_dir(self):
+        """
+        implicit value of jobs_dir (if Unset)
+
+        The implicit value is only defined if location is not Unset. It is the
+        'jobs' subdirectory of the directory that location points to.
+        """
+        if self.location is not Unset:
+            return os.path.join(self.location, "jobs")
+
+    @property
+    def effective_jobs_dir(self):
+        """
+        effective value of jobs_dir
+
+        The effective value is :meth:`jobs_dir` itself, unless it is Unset. If
+        it is Unset the effective value is the :meth:`implicit_jobs_dir`, if
+        that value would be valid. The effective value may be None.
+        """
+        if self.jobs_dir is not Unset:
+            return self.jobs_dir
+        implicit = self.implicit_jobs_dir
+        if implicit is not None and os.path.isdir(implicit):
+            return implicit
 
     whitelists_dir = Variable(
         section='PlainBox Provider',
@@ -634,6 +671,33 @@ class Provider1Definition(Config):
             ExistingDirectoryValidator(),
         ])
 
+    @property
+    def implicit_whitelists_dir(self):
+        """
+        implicit value of whitelists_dir (if Unset)
+
+        The implicit value is only defined if location is not Unset. It is the
+        'whitelists' subdirectory of the directory that location points to.
+        """
+        if self.location is not Unset:
+            return os.path.join(self.location, "whitelists")
+
+    @property
+    def effective_whitelists_dir(self):
+        """
+        effective value of whitelists_dir
+
+        The effective value is :meth:`whitelists_dir` itself, unless it is
+        Unset. If it is Unset the effective value is the
+        :meth:`implicit_whitelists_dir`, if that value would be valid. The
+        effective value may be None.
+        """
+        if self.whitelists_dir is not Unset:
+            return self.whitelists_dir
+        implicit = self.implicit_whitelists_dir
+        if implicit is not None and os.path.isdir(implicit):
+            return implicit
+
     data_dir = Variable(
         section='PlainBox Provider',
         help_text=_("Pathname of the directory with provider data"),
@@ -643,6 +707,32 @@ class Provider1Definition(Config):
             AbsolutePathValidator(),
             ExistingDirectoryValidator(),
         ])
+
+    @property
+    def implicit_data_dir(self):
+        """
+        implicit value of data_dir (if Unset)
+
+        The implicit value is only defined if location is not Unset. It is the
+        'data' subdirectory of the directory that location points to.
+        """
+        if self.location is not Unset:
+            return os.path.join(self.location, "data")
+
+    @property
+    def effective_data_dir(self):
+        """
+        effective value of data_dir
+
+        The effective value is :meth:`data_dir` itself, unless it is Unset. If
+        it is Unset the effective value is the :meth:`implicit_data_dir`, if
+        that value would be valid. The effective value may be None.
+        """
+        if self.data_dir is not Unset:
+            return self.data_dir
+        implicit = self.implicit_data_dir
+        if implicit is not None and os.path.isdir(implicit):
+            return implicit
 
     bin_dir = Variable(
         section='PlainBox Provider',
@@ -654,6 +744,32 @@ class Provider1Definition(Config):
             ExistingDirectoryValidator(),
         ])
 
+    @property
+    def implicit_bin_dir(self):
+        """
+        implicit value of bin_dir (if Unset)
+
+        The implicit value is only defined if location is not Unset. It is the
+        'bin' subdirectory of the directory that location points to.
+        """
+        if self.location is not Unset:
+            return os.path.join(self.location, "bin")
+
+    @property
+    def effective_bin_dir(self):
+        """
+        effective value of bin_dir
+
+        The effective value is :meth:`bin_dir` itself, unless it is Unset. If
+        it is Unset the effective value is the :meth:`implicit_bin_dir`, if
+        that value would be valid. The effective value may be None.
+        """
+        if self.bin_dir is not Unset:
+            return self.bin_dir
+        implicit = self.implicit_bin_dir
+        if implicit is not None and os.path.isdir(implicit):
+            return implicit
+
     locale_dir = Variable(
         section='PlainBox Provider',
         help_text=_("Pathname of the directory with locale data"),
@@ -663,6 +779,32 @@ class Provider1Definition(Config):
             AbsolutePathValidator(),
             ExistingDirectoryValidator(),
         ])
+
+    @property
+    def implicit_locale_dir(self):
+        """
+        implicit value of locale_dir (if Unset)
+
+        The implicit value is only defined if location is not Unset. It is the
+        'locale' subdirectory of the directory that location points to.
+        """
+        if self.location is not Unset:
+            return os.path.join(self.location, "locale")
+
+    @property
+    def effective_locale_dir(self):
+        """
+        effective value of locale_dir
+
+        The effective value is :meth:`locale_dir` itself, unless it is Unset.
+        If it is Unset the effective value is the :meth:`implicit_locale_dir`,
+        if that value would be valid. The effective value may be None.
+        """
+        if self.locale_dir is not Unset:
+            return self.locale_dir
+        implicit = self.implicit_locale_dir
+        if implicit is not None and os.path.isdir(implicit):
+            return implicit
 
 
 class Provider1PlugIn(IPlugIn):

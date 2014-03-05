@@ -37,6 +37,7 @@ from plainbox.impl.secure.rfc822 import Origin
 from plainbox.impl.secure.rfc822 import RFC822Record
 from plainbox.impl.testing_utils import make_job
 from plainbox.testing_utils.testcases import TestCaseWithParameters
+from plainbox.vendor import mock
 
 
 class CheckBoxJobValidatorTests(TestCase):
@@ -262,6 +263,15 @@ class TestJobDefinition(TestCase):
         job = JobDefinition(self._min_record.data)
         self.assertEqual(str(job), "id")
 
+    def test_id(self):
+        # NOTE: this test will change when namespace support lands
+        job = JobDefinition(self._min_record.data)
+        self.assertEqual(job.id, "id")
+
+    def test_partial_id(self):
+        job = JobDefinition(self._min_record.data)
+        self.assertEqual(job.partial_id, "id")
+
     def test_repr(self):
         job = JobDefinition(self._min_record.data)
         expected = "<JobDefinition id:'id' plugin:'plugin'>"
@@ -410,6 +420,64 @@ class TestJobDefinition(TestCase):
         self.assertEqual(job3.summary, 'summary')
         job4 = JobDefinition({'summary': 'summary', 'name': 'name'})
         self.assertEqual(job4.summary, 'summary')
+
+    def test_get_translated_data__typical(self):
+        """
+        Verify the runtime behavior of get_translated_data()
+        """
+        job = JobDefinition(self._full_record.data)
+        with mock.patch.object(job, "_provider") as mock_provider:
+            retval = job.get_translated_data('foo')
+        mock_provider.get_translated_data.assert_called_with("foo")
+        self.assertEqual(retval, mock_provider.get_translated_data())
+
+    def test_get_translated_data__no_provider(self):
+        """
+        Verify the runtime behavior of get_translated_data()
+        """
+        job = JobDefinition(self._full_record.data)
+        job._provider = None
+        self.assertEqual(job.get_translated_data('foo'), 'foo')
+
+    def test_get_translated_data__empty_msgid(self):
+        """
+        Verify the runtime behavior of get_translated_data()
+        """
+        job = JobDefinition(self._full_record.data)
+        with mock.patch.object(job, "_provider"):
+            self.assertEqual(job.get_translated_data(''), '')
+
+    def test_get_translated_data__None_msgid(self):
+        """
+        Verify the runtime behavior of get_translated_data()
+        """
+        job = JobDefinition(self._full_record.data)
+        with mock.patch.object(job, "_provider"):
+            self.assertEqual(job.get_translated_data(None), None)
+
+    def test_tr_summary(self):
+        """
+        Verify that Provider1.tr_description() works as expected
+        """
+        job = JobDefinition(self._full_record.data)
+        with mock.patch.object(job, "get_translated_data") as mgtd:
+            retval = job.tr_summary()
+        # Ensure that get_translated_data() was called
+        mgtd.assert_called_once_with(job.summary)
+        # Ensure tr_summary() returned its return value
+        self.assertEqual(retval, mgtd())
+
+    def test_tr_description(self):
+        """
+        Verify that Provider1.tr_description() works as expected
+        """
+        job = JobDefinition(self._full_record.data)
+        with mock.patch.object(job, "get_translated_data") as mgtd:
+            retval = job.tr_description()
+        # Ensure that get_translated_data() was called
+        mgtd.assert_called_once_with(job.description)
+        # Ensure tr_description() returned its return value
+        self.assertEqual(retval, mgtd())
 
 
 class TestJobDefinitionStartup(TestCaseWithParameters):

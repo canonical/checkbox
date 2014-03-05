@@ -215,6 +215,8 @@ class JobDefinition(BaseJob, IJobDefinition):
         user = 'user'
         environ = 'environ'
         estimated_duration = 'estimated_duration'
+        depends = 'depends'
+        requires = 'requires'
 
     class _PluginValues(SymbolDef):
         """
@@ -247,8 +249,23 @@ class JobDefinition(BaseJob, IJobDefinition):
         return self.get_record_value('id', self.name)
 
     @property
+    def partial_id(self):
+        """
+        Identifier of this job, without the provider name
+
+        This field should not be used anymore, except for display
+        """
+        return self.get_record_value('id', self.name)
+
+    @property
     def summary(self):
         return self.get_record_value('summary', self.id)
+
+    def tr_summary(self):
+        """
+        Get the translated version of :meth:`summary`
+        """
+        return self.get_translated_data(self.summary)
 
     @property
     def name(self):
@@ -261,6 +278,12 @@ class JobDefinition(BaseJob, IJobDefinition):
     @property
     def description(self):
         return self.get_record_value('description')
+
+    def tr_description(self):
+        """
+        Get the translated version of :meth:`description`
+        """
+        return self.get_translated_data(self.description)
 
     @property
     def depends(self):
@@ -461,6 +484,21 @@ class JobDefinition(BaseJob, IJobDefinition):
         job = self.from_rfc822_record(record)
         job._provider = self._provider
         return job
+
+    def get_translated_data(self, msgid):
+        """
+        Get a localized piece of data
+
+        :param msgid:
+            data to translate
+        :returns:
+            translated data obtained from the provider if this job has one,
+            msgid itself otherwise.
+        """
+        if msgid and self._provider:
+            return self._provider.get_translated_data(msgid)
+        else:
+            return msgid
 
 
 class JobTreeNode:

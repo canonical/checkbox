@@ -235,6 +235,43 @@ class PatternMatcher(IMatcher):
             self.__class__.__name__, self._pattern_text)
 
 
+class FieldQualifier(SimpleQualifier):
+    """
+    A SimpleQualifer that uses matchers to compare particular fields
+    """
+
+    def __init__(self, field, matcher, inclusive=True):
+        """
+        Initialize a new FieldQualifier with the specified field, matcher and
+        inclusive flag
+
+        :param field:
+            Name of the JobDefinition field to use
+        :param matcher:
+            A IMatcher object
+        :param inclusive:
+            Inclusive selection flag (default: True)
+        """
+        super().__init__(inclusive)
+        self._field = field
+        self._matcher = matcher
+
+    def get_simple_match(self, job):
+        """
+        Check if the given job matches this qualifier.
+
+        This method should not be called directly, it is an implementation
+        detail of SimpleQualifier class.
+        """
+        field_value = getattr(job, str(self._field))
+        return self._matcher.match(field_value)
+
+    def __repr__(self):
+        return "{0}({1!r}, {2!r}, inclusive={3})".format(
+            self.__class__.__name__, self._field, self._matcher,
+            self._inclusive)
+
+
 class CompositeQualifier(IJobQualifier):
     """
     A JobQualifier that has qualifies jobs matching any inclusive qualifiers

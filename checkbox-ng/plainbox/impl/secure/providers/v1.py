@@ -23,6 +23,7 @@
 """
 
 import errno
+import gettext
 import itertools
 import logging
 import os
@@ -503,6 +504,22 @@ class Provider1(IProvider1, IProviderBackend1):
             if os.access(filename, os.F_OK | os.X_OK):
                 executable_list.append(filename)
         return sorted(executable_list)
+
+    def get_translated_data(self, msgid):
+        """
+        Get a localized piece of data
+
+        :param msgid:
+            data to translate
+        :returns:
+            translated data obtained from the provider if msgid is not False
+            (empty string and None both are) and this provider has a
+            gettext_domain defined for it, msgid itself otherwise.
+        """
+        if msgid and self._gettext_domain:
+            return gettext.dgettext(self._gettext_domain, msgid)
+        else:
+            return msgid
 
 
 class IQNValidator(PatternValidator):

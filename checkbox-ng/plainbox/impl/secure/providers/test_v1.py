@@ -868,3 +868,37 @@ class Provider1Tests(TestCase):
             self.GETTEXT_DOMAIN, self.JOBS_DIR, self.WHITELISTS_DIR,
             self.DATA_DIR, None, self.LOCALE_DIR)
         self.assertEqual(provider.get_all_executables(), [])
+
+    @mock.patch("plainbox.impl.secure.providers.v1.gettext")
+    def test_get_translated_data__typical(self, mock_gettext):
+        """
+        Verify the runtime behavior of get_translated_data()
+        """
+        self.provider._gettext_domain = "some-fake-domain"
+        retval = self.provider.get_translated_data("foo")
+        mock_gettext.dgettext.assert_called_with("some-fake-domain", "foo")
+        self.assertEqual(retval, mock_gettext.dgettext())
+
+    @mock.patch("plainbox.impl.secure.providers.v1.gettext")
+    def test_get_translated_data__empty_string(self, mock_gettext):
+        """
+        Verify the runtime behavior of get_translated_data()
+        """
+        self.provider._gettext_domain = "some-fake-domain"
+        retval = self.provider.get_translated_data("")
+        # This should never go through gettext
+        self.assertEqual(retval, "")
+        # And dgettext should never be called
+        self.assertEqual(mock_gettext.dgettext.call_args_list, [])
+
+    @mock.patch("plainbox.impl.secure.providers.v1.gettext")
+    def test_get_translated_data__None(self, mock_gettext):
+        """
+        Verify the runtime behavior of get_translated_data()
+        """
+        self.provider._gettext_domain = "some-fake-domain"
+        retval = self.provider.get_translated_data(None)
+        # This should never go through gettext
+        self.assertEqual(retval, None)
+        # And dgettext should never be called
+        self.assertEqual(mock_gettext.dgettext.call_args_list, [])

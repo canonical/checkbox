@@ -28,12 +28,17 @@ from contextlib import contextmanager
 from io import TextIOWrapper
 from itertools import permutations
 from unittest import TestCase
+import operator
 
 from plainbox.abc import IJobQualifier
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.secure.qualifiers import CompositeQualifier
+from plainbox.impl.secure.qualifiers import FieldQualifier
+from plainbox.impl.secure.qualifiers import IMatcher
 from plainbox.impl.secure.qualifiers import JobIdQualifier
 from plainbox.impl.secure.qualifiers import NonLocalJobQualifier
+from plainbox.impl.secure.qualifiers import OperatorMatcher
+from plainbox.impl.secure.qualifiers import PatternMatcher
 from plainbox.impl.secure.qualifiers import RegExpJobQualifier
 from plainbox.impl.secure.qualifiers import SimpleQualifier
 from plainbox.impl.secure.qualifiers import WhiteList
@@ -156,6 +161,82 @@ class SimpleQualifierTests(TestCase):
         """
         return self.assertEqual(
             self.obj.get_primitive_qualifiers(), [self.obj])
+
+
+class OperatorMatcherTests(TestCase):
+    """
+    Test cases for OperatorMatcher class
+    """
+
+    def test_match(self):
+        matcher = OperatorMatcher(operator.eq, "foo")
+        self.assertTrue(matcher.match("foo"))
+        self.assertFalse(matcher.match("bar"))
+
+    def test_repr(self):
+        self.assertEqual(
+            repr(OperatorMatcher(operator.eq, "foo")),
+            "OperatorMatcher(<built-in function eq>, 'foo')")
+
+
+class PatternMatcherTests(TestCase):
+    """
+    Test cases for PatternMatcher class
+    """
+
+    def test_match(self):
+        matcher = PatternMatcher("foo.*")
+        self.assertTrue(matcher.match("foobar"))
+        self.assertFalse(matcher.match("fo"))
+
+    def test_repr(self):
+        self.assertEqual(
+            repr(PatternMatcher("text")), "PatternMatcher('text')")
+
+
+class FieldQualifierTests(TestCase):
+    """
+    Test cases for FieldQualifier class
+    """
+
+    _FIELD = "field"
+
+    def setUp(self):
+        self._matcher = mock.Mock(spec=IMatcher)
+        self.qualifier_i = FieldQualifier(self._FIELD, self._matcher, True)
+        self.qualifier_e = FieldQualifier(self._FIELD, self._matcher, False)
+
+    def test_is_primitive(self):
+        """
+        verify that FieldQualifier.is_primitive is True
+        """
+        self.assertTrue(self.qualifier_i.is_primitive)
+        self.assertTrue(self.qualifier_e.is_primitive)
+
+    def test_repr(self):
+        """
+        verify that FieldQualifier.__repr__() works as expected
+        """
+        self.assertEqual(
+            repr(self.qualifier_i),
+            "FieldQualifier({!r}, {!r}, inclusive=True)".format(
+                self._FIELD, self._matcher))
+        self.assertEqual(
+            repr(self.qualifier_e),
+            "FieldQualifier({!r}, {!r}, inclusive=False)".format(
+                self._FIELD, self._matcher))
+
+    def test_get_simple_match(self):
+        """
+        verify that FieldQualifier.get_simple_match() works as expected
+        """
+        job = mock.Mock()
+        for qualifier in (self.qualifier_i, self.qualifier_e):
+            self._matcher.reset_mock()
+            result = qualifier.get_simple_match(job)
+            self._matcher.match.assert_called_once_with(
+                getattr(job, self._FIELD))
+            self.assertEqual(result, self._matcher.match())
 
 
 class RegExpJobQualifierTests(TestCase):
@@ -562,6 +643,26 @@ class WhiteListTests(TestCase):
         self.assertEqual(WhiteList.name_from_filename("foo"), "foo")
         self.assertEqual(
             WhiteList.name_from_filename("foo.notawhitelist"), "foo")
+
+    def test_namespace_behavior(self):
+        """
+        verify that WhiteList() correctly respects namespace declarations
+        and uses implict_namespace to fully qualifiy all patterns
+        """
+        whitelist = WhiteList.from_string(
+            "foo\n"
+            "2014\\.example\\.org::bar\n",
+            implicit_namespace="2014.other.example.org")
+        # verify that the implicit namespace was recorded
+        self.assertEqual(
+            whitelist.implicit_namespace, "2014.other.example.org")
+        # verify that the patterns are okay
+        self.assertEqual(
+            whitelist.qualifier_list[0].pattern_text,
+            "^2014\\.other\\.example\\.org::foo$")
+        self.assertEqual(
+            whitelist.qualifier_list[1].pattern_text,
+            "^2014\\.example\\.org::bar$")
 
 
 class FunctionTests(TestCase):

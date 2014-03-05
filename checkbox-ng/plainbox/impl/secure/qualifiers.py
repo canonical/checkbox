@@ -184,6 +184,94 @@ class NonLocalJobQualifier(SimpleQualifier):
             self.__class__.__name__, self._inclusive)
 
 
+class IMatcher(metaclass=abc.ABCMeta):
+    """
+    Interface for objects that perform some kind of comparison on a value
+    """
+
+    @abc.abstractmethod
+    def match(self, value):
+        """
+        Match (or not) specified value
+
+        :param value:
+            value to match
+        :returns:
+            True if it matched, False otherwise
+        """
+
+
+class OperatorMatcher(IMatcher):
+    """
+    A matcher that applies a binary operator to the value
+    """
+
+    def __init__(self, op, value):
+        self._op = op
+        self._value = value
+
+    def match(self, value):
+        return self._op(self._value, value)
+
+    def __repr__(self):
+        return "{0}({1!r}, {2!r})".format(
+            self.__class__.__name__, self._op, self._value)
+
+
+class PatternMatcher(IMatcher):
+    """
+    A matcher that compares values by regular expression pattern
+    """
+
+    def __init__(self, pattern):
+        self._pattern_text = pattern
+        self._pattern = re.compile(pattern)
+
+    def match(self, value):
+        return self._pattern.match(value) is not None
+
+    def __repr__(self):
+        return "{0}({1!r})".format(
+            self.__class__.__name__, self._pattern_text)
+
+
+class FieldQualifier(SimpleQualifier):
+    """
+    A SimpleQualifer that uses matchers to compare particular fields
+    """
+
+    def __init__(self, field, matcher, inclusive=True):
+        """
+        Initialize a new FieldQualifier with the specified field, matcher and
+        inclusive flag
+
+        :param field:
+            Name of the JobDefinition field to use
+        :param matcher:
+            A IMatcher object
+        :param inclusive:
+            Inclusive selection flag (default: True)
+        """
+        super().__init__(inclusive)
+        self._field = field
+        self._matcher = matcher
+
+    def get_simple_match(self, job):
+        """
+        Check if the given job matches this qualifier.
+
+        This method should not be called directly, it is an implementation
+        detail of SimpleQualifier class.
+        """
+        field_value = getattr(job, str(self._field))
+        return self._matcher.match(field_value)
+
+    def __repr__(self):
+        return "{0}({1!r}, {2!r}, inclusive={3})".format(
+            self.__class__.__name__, self._field, self._matcher,
+            self._inclusive)
+
+
 class CompositeQualifier(IJobQualifier):
     """
     A JobQualifier that has qualifies jobs matching any inclusive qualifiers
@@ -244,7 +332,8 @@ class WhiteList(CompositeQualifier):
     and appended (respectively) to the actual pattern specified in the file.
     """
 
-    def __init__(self, pattern_list, name=None, origin=None):
+    def __init__(self, pattern_list, name=None, origin=None,
+                 implicit_namespace=None):
         """
         Initialize a WhiteList object with the specified list of patterns.
 
@@ -252,8 +341,27 @@ class WhiteList(CompositeQualifier):
         """
         self._name = name
         self._origin = origin
-        super(WhiteList, self).__init__(
-            [RegExpJobQualifier(pattern) for pattern in pattern_list])
+        self._implicit_namespace = implicit_namespace
+        if implicit_namespace is not None:
+            # If we have an implicit namespace then transform all the patterns
+            # without the namespace operator ('::')
+            namespace_pattern = implicit_namespace.replace('.', '\\.')
+
+            def transform_pattern(maybe_partial_id_pattern):
+                if "::" not in maybe_partial_id_pattern:
+                    return "^{}::{}$".format(
+                        namespace_pattern, maybe_partial_id_pattern[1:-1])
+                else:
+                    return maybe_partial_id_pattern
+            qualifier_list = [
+                RegExpJobQualifier(transform_pattern(pattern), inclusive=True)
+                for pattern in pattern_list]
+        else:
+            # Otherwise just use the patterns directly
+            qualifier_list = [
+                RegExpJobQualifier(pattern, inclusive=True)
+                for pattern in pattern_list]
+        super().__init__(qualifier_list)
 
     def __repr__(self):
         return "<{} name:{!r}>".format(self.__class__.__name__, self.name)
@@ -279,23 +387,34 @@ class WhiteList(CompositeQualifier):
         """
         return self._origin
 
+    @property
+    def implicit_namespace(self):
+        """
+        namespace used to qualify patterns without explicit namespace
+        """
+        return self._implicit_namespace
+
     @classmethod
-    def from_file(cls, pathname):
+    def from_file(cls, pathname, implicit_namespace=None):
         """
         Load and initialize the WhiteList object from the specified file.
 
         :param pathname:
             file to load
+        :param implicit_namespace:
+            (optional) implicit namespace for jobs that are using partial
+            identifiers (all jobs)
         :returns:
             a fresh WhiteList object
         """
         pattern_list, max_lineno = cls._load_patterns(pathname)
         name = os.path.splitext(os.path.basename(pathname))[0]
         origin = Origin(FileTextSource(pathname), 1, max_lineno)
-        return cls(pattern_list, name, origin)
+        return cls(pattern_list, name, origin, implicit_namespace)
 
     @classmethod
-    def from_string(cls, text, *, filename=None, name=None, origin=None):
+    def from_string(cls, text, *, filename=None, name=None, origin=None,
+                    implicit_namespace=None):
         """
         Load and initialize the WhiteList object from the specified string.
 
@@ -312,6 +431,9 @@ class WhiteList(CompositeQualifier):
             (optional) origin of the whitelist, only used if a filename is not
             specified.  If omitted a default origin value will be constructed
             out of UnknownTextSource instance
+        :param implicit_namespace:
+            (optional) implicit namespace for jobs that are using partial
+            identifiers (all jobs)
         :returns:
             a fresh WhiteList object
 
@@ -329,7 +451,7 @@ class WhiteList(CompositeQualifier):
             # otherwise generate origin if it's not specified
             if origin is None:
                 origin = Origin(UnknownTextSource(), 1, max_lineno)
-        return cls(pattern_list, name, origin)
+        return cls(pattern_list, name, origin, implicit_namespace)
 
     @classmethod
     def name_from_filename(cls, filename):

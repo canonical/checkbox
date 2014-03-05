@@ -28,12 +28,14 @@ from contextlib import contextmanager
 from io import TextIOWrapper
 from itertools import permutations
 from unittest import TestCase
+import operator
 
 from plainbox.abc import IJobQualifier
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.secure.qualifiers import CompositeQualifier
 from plainbox.impl.secure.qualifiers import JobIdQualifier
 from plainbox.impl.secure.qualifiers import NonLocalJobQualifier
+from plainbox.impl.secure.qualifiers import OperatorMatcher
 from plainbox.impl.secure.qualifiers import RegExpJobQualifier
 from plainbox.impl.secure.qualifiers import SimpleQualifier
 from plainbox.impl.secure.qualifiers import WhiteList
@@ -156,6 +158,22 @@ class SimpleQualifierTests(TestCase):
         """
         return self.assertEqual(
             self.obj.get_primitive_qualifiers(), [self.obj])
+
+
+class OperatorMatcherTests(TestCase):
+    """
+    Test cases for OperatorMatcher class
+    """
+
+    def test_match(self):
+        matcher = OperatorMatcher(operator.eq, "foo")
+        self.assertTrue(matcher.match("foo"))
+        self.assertFalse(matcher.match("bar"))
+
+    def test_repr(self):
+        self.assertEqual(
+            repr(OperatorMatcher(operator.eq, "foo")),
+            "OperatorMatcher(<built-in function eq>, 'foo')")
 
 
 class RegExpJobQualifierTests(TestCase):

@@ -199,6 +199,25 @@ class IMatcher(metaclass=abc.ABCMeta):
         :returns:
             True if it matched, False otherwise
         """
+
+
+class OperatorMatcher(IMatcher):
+    """
+    A matcher that applies a binary operator to the value
+    """
+
+    def __init__(self, op, value):
+        self._op = op
+        self._value = value
+
+    def match(self, value):
+        return self._op(self._value, value)
+
+    def __repr__(self):
+        return "{0}({1!r}, {2!r})".format(
+            self.__class__.__name__, self._op, self._value)
+
+
 class CompositeQualifier(IJobQualifier):
     """
     A JobQualifier that has qualifies jobs matching any inclusive qualifiers

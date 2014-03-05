@@ -221,7 +221,8 @@ class CommandBase(metaclass=abc.ABCMeta):
         epilog = self.get_command_epilog()
         name = self.get_command_name()
         parser = subparsers.add_parser(
-            name, help=help, description=description, epilog=epilog)
+            name, help=help, description=description, epilog=epilog,
+            formatter_class=argparse.RawDescriptionHelpFormatter)
         parser.set_defaults(command=self)
         return parser
 

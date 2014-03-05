@@ -327,6 +327,12 @@ class Provider1(IProvider1, IProviderBackend1):
         """
         return self._description
 
+    def tr_description(self):
+        """
+        Get the translated version of :meth:`description`
+        """
+        return self.get_translated_data(self.description)
+
     @property
     def jobs_dir(self):
         """

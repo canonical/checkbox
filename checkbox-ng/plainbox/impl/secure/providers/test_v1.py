@@ -902,3 +902,14 @@ class Provider1Tests(TestCase):
         self.assertEqual(retval, None)
         # And dgettext should never be called
         self.assertEqual(mock_gettext.dgettext.call_args_list, [])
+
+    def test_tr_description(self):
+        """
+        Verify that Provider1.tr_description() works as expected
+        """
+        with mock.patch.object(self.provider, "get_translated_data") as mgtd:
+            retval = self.provider.tr_description()
+        # Ensure that get_translated_data() was called
+        mgtd.assert_called_once_with(self.provider.description)
+        # Ensure tr_description() returned its return value
+        self.assertEqual(retval, mgtd())

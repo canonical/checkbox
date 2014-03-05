@@ -184,6 +184,21 @@ class NonLocalJobQualifier(SimpleQualifier):
             self.__class__.__name__, self._inclusive)
 
 
+class IMatcher(metaclass=abc.ABCMeta):
+    """
+    Interface for objects that perform some kind of comparison on a value
+    """
+
+    @abc.abstractmethod
+    def match(self, value):
+        """
+        Match (or not) specified value
+
+        :param value:
+            value to match
+        :returns:
+            True if it matched, False otherwise
+        """
 class CompositeQualifier(IJobQualifier):
     """
     A JobQualifier that has qualifies jobs matching any inclusive qualifiers

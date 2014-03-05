@@ -519,7 +519,8 @@ class CheckBoxExecutionController(IExecutionController):
             [nest_dir]
             + env.get("PATH", "").split(os.pathsep))
         # Add CHECKBOX_SHARE that is needed by one script
-        env['CHECKBOX_SHARE'] = job.provider.CHECKBOX_SHARE
+        if job.provider.CHECKBOX_SHARE is not None:
+            env['CHECKBOX_SHARE'] = job.provider.CHECKBOX_SHARE
         # Add CHECKBOX_DATA (temporary checkbox data)
         env['CHECKBOX_DATA'] = self.CHECKBOX_DATA
         # Add plainbox equivalents of the two above

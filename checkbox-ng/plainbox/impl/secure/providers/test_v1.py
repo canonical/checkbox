@@ -723,6 +723,13 @@ class Provider1Tests(TestCase):
         self.assertEqual(self.provider.CHECKBOX_SHARE,
                          os.path.join(self.DATA_DIR, ".."))
 
+    def test_CHECKBOX_SHARE__without_data_dir(self):
+        """
+        Verify that Provider1.CHECKBOX_SHARE is None without data_dir
+        """
+        self.provider._data_dir = None
+        self.assertEqual(self.provider.CHECKBOX_SHARE, None)
+
     def test_extra_PYTHONPATH(self):
         """
         Verify that Provider1.extra_PYTHONPATH is always None

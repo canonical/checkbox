@@ -215,6 +215,8 @@ class JobDefinition(BaseJob, IJobDefinition):
         user = 'user'
         environ = 'environ'
         estimated_duration = 'estimated_duration'
+        depends = 'depends'
+        requires = 'requires'
 
     class _PluginValues(SymbolDef):
         """

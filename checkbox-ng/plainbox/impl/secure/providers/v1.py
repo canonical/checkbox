@@ -207,6 +207,9 @@ class Provider1(IProvider1, IProviderBackend1):
         self._job_collection = FsPlugInCollection(
             jobs_dir_list, ext=(".txt", ".txt.in"),
             wrapper=JobDefinitionPlugIn, provider=self)
+        # Setup translations
+        if gettext_domain and locale_dir:
+            gettext.bindtextdomain(self._gettext_domain, self._locale_dir)
 
     @classmethod
     def from_definition(cls, definition, secure):

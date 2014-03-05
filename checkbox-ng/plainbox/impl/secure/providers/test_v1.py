@@ -913,3 +913,28 @@ class Provider1Tests(TestCase):
         mgtd.assert_called_once_with(self.provider.description)
         # Ensure tr_description() returned its return value
         self.assertEqual(retval, mgtd())
+
+    @mock.patch("plainbox.impl.secure.providers.v1.gettext")
+    def test_init_bindtextdomain__called(self, mock_gettext):
+        """
+        Verify that Provider1() calls bindtextdomain under certain
+        circumstances
+        """
+        Provider1(
+            self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
+            self.GETTEXT_DOMAIN, self.JOBS_DIR, self.WHITELISTS_DIR,
+            self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR)
+        mock_gettext.bindtextdomain.assert_called_once_with(
+            self.GETTEXT_DOMAIN, self.LOCALE_DIR)
+
+    @mock.patch("plainbox.impl.secure.providers.v1.gettext")
+    def test_init_bindtextdomain__not_called(self, mock_gettext):
+        """
+        Verify that Provider1() calls bindtextdomain under certain
+        circumstances
+        """
+        Provider1(
+            self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
+            self.GETTEXT_DOMAIN, self.JOBS_DIR, self.WHITELISTS_DIR,
+            self.DATA_DIR, self.BIN_DIR, locale_dir=None)
+        self.assertEqual(mock_gettext.bindtextdomain.call_args_list, [])

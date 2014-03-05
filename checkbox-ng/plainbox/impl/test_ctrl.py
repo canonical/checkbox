@@ -30,6 +30,7 @@ import os
 
 from plainbox.abc import IJobResult
 from plainbox.abc import IProvider1
+from plainbox.abc import IProviderBackend1
 from plainbox.impl.applogic import PlainBoxConfig
 from plainbox.impl.ctrl import CheckBoxExecutionController
 from plainbox.impl.ctrl import CheckBoxSessionStateController
@@ -501,7 +502,16 @@ class CheckBoxExecutionControllerTestsMixIn:
             spec=JobDefinition,
             provider=mock.Mock(
                 name='provider',
-                spec=IProvider1,
+                # XXX: create a new type that has both IProvider1 and
+                # IProviderBackend1 API This type will define the API of the
+                # mocked provider object. We need to access IProvider1.name
+                # (for RootViaPTL1ExecutionController) but we also need to
+                # access many of IProviderBackend1 APIs for all the other code
+                # here. Instead of fusing the interfaces we can just pass a
+                # "concrete provider" "interface" just for this set of tests.
+                spec=type(
+                    'IProvider1+IProviderBackend1',
+                    (IProviderBackend1, IProvider1), {}),
                 extra_PYTHONPATH=None,
                 CHECKBOX_SHARE='CHECKBOX_SHARE'))
         # Create mocked config.
@@ -722,7 +732,7 @@ class RootViaPTL1ExecutionControllerTests(
             spec=JobDefinition,
             provider=mock.Mock(
                 name='provider',
-                spec=IProvider1,
+                spec=IProviderBackend1,
                 extra_PYTHONPATH=None,
                 CHECKBOX_SHARE='CHECKBOX_SHARE-generator'))
         PATH = os.pathsep.join([self.NEST_DIR, 'vanilla-path'])

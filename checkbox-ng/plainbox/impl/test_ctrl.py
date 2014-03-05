@@ -831,8 +831,8 @@ class RootViaPTL1ExecutionControllerTests(
         # Ensure we get the right action id from pkaction(1) even with
         # polikt version < 0.110 (pkaction always exists with status 1), see:
         # https://bugs.freedesktop.org/show_bug.cgi?id=29936#attach_78263
-        mock_check_output.side_effect = CalledProcessError(1, '',
-            b"org.freedesktop.policykit.pkexec.run-plainbox-job\n")
+        mock_check_output.side_effect = CalledProcessError(
+            1, '', b"org.freedesktop.policykit.pkexec.run-plainbox-job\n")
         # Ensure that we get a positive score of three
         ctrl = self.CLS(self.SESSION_DIR, self.PROVIDER_LIST)
         self.assertEqual(ctrl.get_checkbox_score(self.job), 3)

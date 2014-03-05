@@ -270,6 +270,12 @@ class JobDefinition(BaseJob, IJobDefinition):
     def description(self):
         return self.get_record_value('description')
 
+    def tr_description(self):
+        """
+        Get the translated version of :meth:`description`
+        """
+        return self.get_translated_data(self.description)
+
     @property
     def depends(self):
         return self.get_record_value('depends')

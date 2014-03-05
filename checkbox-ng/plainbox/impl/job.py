@@ -252,6 +252,12 @@ class JobDefinition(BaseJob, IJobDefinition):
     def summary(self):
         return self.get_record_value('summary', self.id)
 
+    def tr_summary(self):
+        """
+        Get the translated version of :meth:`summary`
+        """
+        return self.get_translated_data(self.summary)
+
     @property
     def name(self):
         return self.get_record_value('name')

@@ -37,6 +37,7 @@ from plainbox.impl.secure.rfc822 import Origin
 from plainbox.impl.secure.rfc822 import RFC822Record
 from plainbox.impl.testing_utils import make_job
 from plainbox.testing_utils.testcases import TestCaseWithParameters
+from plainbox.vendor import mock
 
 
 class CheckBoxJobValidatorTests(TestCase):
@@ -410,6 +411,40 @@ class TestJobDefinition(TestCase):
         self.assertEqual(job3.summary, 'summary')
         job4 = JobDefinition({'summary': 'summary', 'name': 'name'})
         self.assertEqual(job4.summary, 'summary')
+
+    def test_get_translated_data__typical(self):
+        """
+        Verify the runtime behavior of get_translated_data()
+        """
+        job = JobDefinition(self._full_record.data)
+        with mock.patch.object(job, "_provider") as mock_provider:
+            retval = job.get_translated_data('foo')
+        mock_provider.get_translated_data.assert_called_with("foo")
+        self.assertEqual(retval, mock_provider.get_translated_data())
+
+    def test_get_translated_data__no_provider(self):
+        """
+        Verify the runtime behavior of get_translated_data()
+        """
+        job = JobDefinition(self._full_record.data)
+        job._provider = None
+        self.assertEqual(job.get_translated_data('foo'), 'foo')
+
+    def test_get_translated_data__empty_msgid(self):
+        """
+        Verify the runtime behavior of get_translated_data()
+        """
+        job = JobDefinition(self._full_record.data)
+        with mock.patch.object(job, "_provider"):
+            self.assertEqual(job.get_translated_data(''), '')
+
+    def test_get_translated_data__None_msgid(self):
+        """
+        Verify the runtime behavior of get_translated_data()
+        """
+        job = JobDefinition(self._full_record.data)
+        with mock.patch.object(job, "_provider"):
+            self.assertEqual(job.get_translated_data(None), None)
 
 
 class TestJobDefinitionStartup(TestCaseWithParameters):

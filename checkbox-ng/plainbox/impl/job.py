@@ -464,6 +464,21 @@ class JobDefinition(BaseJob, IJobDefinition):
         job._provider = self._provider
         return job
 
+    def get_translated_data(self, msgid):
+        """
+        Get a localized piece of data
+
+        :param msgid:
+            data to translate
+        :returns:
+            translated data obtained from the provider if this job has one,
+            msgid itself otherwise.
+        """
+        if msgid and self._provider:
+            return self._provider.get_translated_data(msgid)
+        else:
+            return msgid
+
 
 class JobTreeNode:
     """

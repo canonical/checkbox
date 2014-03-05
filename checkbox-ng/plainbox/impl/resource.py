@@ -136,7 +136,7 @@ class ResourceProgram:
     This is used by job requirement expressions
     """
 
-    def __init__(self, program_text):
+    def __init__(self, program_text, implicit_namespace=None):
         """
         Analyze the requirement program and prepare it for execution
 
@@ -149,7 +149,8 @@ class ResourceProgram:
         self._expression_list = []
         for line in program_text.splitlines():
             if line.strip() != "":
-                self._expression_list.append(ResourceExpression(line))
+                self._expression_list.append(
+                    ResourceExpression(line, implicit_namespace))
 
     @property
     def expression_list(self):

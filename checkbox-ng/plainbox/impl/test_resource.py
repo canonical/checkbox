@@ -348,3 +348,12 @@ class ResourceProgramTests(TestCase):
                 Resource({'arch': 'i386'})]
         }
         self.assertTrue(self.prog.evaluate_or_raise(resource_map))
+
+    def test_namespace_support(self):
+        prog = ResourceProgram(
+            "package.name == 'fwts'\n"
+            "platform.arch in ('i386', 'amd64')",
+            implicit_namespace="2014.com.canonical")
+        self.assertEqual(
+            prog.required_resources,
+            {'2014.com.canonical::package', '2014.com.canonical::platform'})

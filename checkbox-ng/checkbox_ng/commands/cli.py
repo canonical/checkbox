@@ -81,6 +81,7 @@ class SelectableJobTreeNode(JobTreeNode):
         self.job_selection = {}
         self.expanded = True
         self.current_index = 0
+        self._resource_jobs = []
 
     def get_node_by_index(self, index, tree=None):
         """
@@ -151,6 +152,10 @@ class SelectableJobTreeNode(JobTreeNode):
 
     def add_job(self, job):
         if job.plugin == 'resource':
+            # I don't want the user to see resources but I need to keep
+            # track of them to put them in the final selection. I also
+            # don't want to add them to the tree.
+            self._resource_jobs.append(job)
             return
         super().add_job(job)
         self.job_selection[job] = True
@@ -166,6 +171,9 @@ class SelectableJobTreeNode(JobTreeNode):
         for job in self.job_selection:
             if self.job_selection[job]:
                 self._selection_list.append(job)
+        # Don't forget to append the collected resource jobs to the final
+        # selection
+        self._selection_list.extend(self._resource_jobs)
         return self._selection_list
 
     def set_ancestors_state(self, new_state):

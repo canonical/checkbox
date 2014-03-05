@@ -263,6 +263,15 @@ class TestJobDefinition(TestCase):
         job = JobDefinition(self._min_record.data)
         self.assertEqual(str(job), "id")
 
+    def test_id(self):
+        # NOTE: this test will change when namespace support lands
+        job = JobDefinition(self._min_record.data)
+        self.assertEqual(job.id, "id")
+
+    def test_partial_id(self):
+        job = JobDefinition(self._min_record.data)
+        self.assertEqual(job.partial_id, "id")
+
     def test_repr(self):
         job = JobDefinition(self._min_record.data)
         expected = "<JobDefinition id:'id' plugin:'plugin'>"

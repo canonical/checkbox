@@ -249,6 +249,15 @@ class JobDefinition(BaseJob, IJobDefinition):
         return self.get_record_value('id', self.name)
 
     @property
+    def partial_id(self):
+        """
+        Identifier of this job, without the provider name
+
+        This field should not be used anymore, except for display
+        """
+        return self.get_record_value('id', self.name)
+
+    @property
     def summary(self):
         return self.get_record_value('summary', self.id)
 

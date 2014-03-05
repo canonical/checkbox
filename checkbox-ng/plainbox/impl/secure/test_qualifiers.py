@@ -644,6 +644,26 @@ class WhiteListTests(TestCase):
         self.assertEqual(
             WhiteList.name_from_filename("foo.notawhitelist"), "foo")
 
+    def test_namespace_behavior(self):
+        """
+        verify that WhiteList() correctly respects namespace declarations
+        and uses implict_namespace to fully qualifiy all patterns
+        """
+        whitelist = WhiteList.from_string(
+            "foo\n"
+            "2014\\.example\\.org::bar\n",
+            implicit_namespace="2014.other.example.org")
+        # verify that the implicit namespace was recorded
+        self.assertEqual(
+            whitelist.implicit_namespace, "2014.other.example.org")
+        # verify that the patterns are okay
+        self.assertEqual(
+            whitelist.qualifier_list[0].pattern_text,
+            "^2014\\.other\\.example\\.org::foo$")
+        self.assertEqual(
+            whitelist.qualifier_list[1].pattern_text,
+            "^2014\\.example\\.org::bar$")
+
 
 class FunctionTests(TestCase):
 

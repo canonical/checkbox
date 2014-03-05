@@ -218,6 +218,23 @@ class OperatorMatcher(IMatcher):
             self.__class__.__name__, self._op, self._value)
 
 
+class PatternMatcher(IMatcher):
+    """
+    A matcher that compares values by regular expression pattern
+    """
+
+    def __init__(self, pattern):
+        self._pattern_text = pattern
+        self._pattern = re.compile(pattern)
+
+    def match(self, value):
+        return self._pattern.match(value) is not None
+
+    def __repr__(self):
+        return "{0}({1!r})".format(
+            self.__class__.__name__, self._pattern_text)
+
+
 class CompositeQualifier(IJobQualifier):
     """
     A JobQualifier that has qualifies jobs matching any inclusive qualifiers

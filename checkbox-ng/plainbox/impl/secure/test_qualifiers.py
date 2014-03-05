@@ -36,6 +36,7 @@ from plainbox.impl.secure.qualifiers import CompositeQualifier
 from plainbox.impl.secure.qualifiers import JobIdQualifier
 from plainbox.impl.secure.qualifiers import NonLocalJobQualifier
 from plainbox.impl.secure.qualifiers import OperatorMatcher
+from plainbox.impl.secure.qualifiers import PatternMatcher
 from plainbox.impl.secure.qualifiers import RegExpJobQualifier
 from plainbox.impl.secure.qualifiers import SimpleQualifier
 from plainbox.impl.secure.qualifiers import WhiteList
@@ -174,6 +175,21 @@ class OperatorMatcherTests(TestCase):
         self.assertEqual(
             repr(OperatorMatcher(operator.eq, "foo")),
             "OperatorMatcher(<built-in function eq>, 'foo')")
+
+
+class PatternMatcherTests(TestCase):
+    """
+    Test cases for PatternMatcher class
+    """
+
+    def test_match(self):
+        matcher = PatternMatcher("foo.*")
+        self.assertTrue(match.match("foobar"))
+        self.assertFalse(match.match("fo"))
+
+    def test_repr(self):
+        self.assertEqual(
+            repr(PatternMatcher("text")), "PatternMatcher('text')")
 
 
 class RegExpJobQualifierTests(TestCase):

@@ -627,6 +627,7 @@ class JobDefintionPlugInTests(TestCase):
 class Provider1Tests(TestCase):
 
     NAME = "2013.org.example:name"
+    NAMESPACE = "2013.org.example"
     VERSION = "1.0"
     DESCRIPTION = "description"
     SECURE = True
@@ -653,6 +654,12 @@ class Provider1Tests(TestCase):
         Verify that Provider1.name attribute is set correctly
         """
         self.assertEqual(self.provider.name, self.NAME)
+
+    def test_namespace(self):
+        """
+        Verify that Provider1.namespace is computed correctly
+        """
+        self.assertEqual(self.provider.namespace, self.NAMESPACE)
 
     def test_version(self):
         """

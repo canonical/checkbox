@@ -27,6 +27,7 @@ Test definitions for plainbox.impl.secure.launcher1 module
 
 from inspect import cleandoc
 from unittest import TestCase
+import os
 
 from plainbox.impl.job import JobDefinition, JobOutputTextSource
 from plainbox.impl.secure.launcher1 import TrustedLauncher
@@ -86,6 +87,24 @@ class TrustedLauncherTests(TestCase):
         retval = self.launcher.run_shell_from_job(job.checksum, env)
         # Ensure that we run the job command via bash
         mock_call.assert_called_once_with(['bash', '-c', job.command], env=env)
+        # Ensure that the return value of subprocess.call() is returned
+        self.assertEqual(retval, mock_call())
+
+    @mock.patch.dict('os.environ', clear=True, DISPLAY='foo')
+    @mock.patch('subprocess.call')
+    def test_run_shell_from_job_with_env_preserved(self, mock_call):
+        # Create a mock job and add it to the launcher
+        job = mock.Mock(spec=JobDefinition, name='job')
+        self.launcher.add_job_list([job])
+        # Create a environment we'll pass (empty)
+        env = {'key': 'value'}
+        # Run the tested method
+        retval = self.launcher.run_shell_from_job(job.checksum, env)
+        # Ensure that we run the job command via bash with a preserved env
+        expected_env = dict(os.environ)
+        expected_env.update(env)
+        mock_call.assert_called_once_with(['bash', '-c', job.command],
+                                          env=expected_env)
         # Ensure that the return value of subprocess.call() is returned
         self.assertEqual(retval, mock_call())
 

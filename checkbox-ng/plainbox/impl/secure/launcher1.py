@@ -25,6 +25,7 @@
 import argparse
 import copy
 import logging
+import os
 import subprocess
 
 from plainbox.i18n import gettext as _
@@ -60,6 +61,21 @@ class TrustedLauncher:
             raise LookupError(
                 _("Cannot find job with checksum {}").format(checksum))
 
+    def modify_execution_environment(self, target_env):
+        """
+        Modify the job execution environment with a new set of values.
+        It's mandatory to do this way to keep variables automatically set by
+        pkexec(1) when the org.freedesktop.policykit.exec.allow_gui annotation
+        is set.
+        It will allow the trusted launcher to run X11 applications as
+        another user since the $DISPLAY and $XAUTHORITY environment
+        variables will be retained.
+        """
+        ptl_env = dict(os.environ)
+        if target_env:
+            ptl_env.update(target_env)
+        return ptl_env
+
     def run_shell_from_job(self, checksum, env):
         """
         Run a job with the given checksum.
@@ -75,7 +91,7 @@ class TrustedLauncher:
         """
         job = self.find_job(checksum)
         cmd = ['bash', '-c', job.command]
-        return subprocess.call(cmd, env=env)
+        return subprocess.call(cmd, env=self.modify_execution_environment(env))
 
     def run_local_job(self, checksum, env):
         """
@@ -92,7 +108,9 @@ class TrustedLauncher:
         """
         job = self.find_job(checksum)
         cmd = ['bash', '-c', job.command]
-        output = subprocess.check_output(cmd, universal_newlines=True, env=env)
+        output = subprocess.check_output(
+            cmd, universal_newlines=True,
+            env=self.modify_execution_environment(env))
         job_list = []
         source = JobOutputTextSource(job)
         try:

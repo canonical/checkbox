@@ -74,6 +74,7 @@ class TrustedLauncherTests(TestCase):
         # Ensure that the job was found correctly
         self.assertIs(self.launcher.find_job(job.checksum), job)
 
+    @mock.patch.dict('os.environ', clear=True)
     @mock.patch('subprocess.call')
     def test_run_shell_from_job(self, mock_call):
         # Create a mock job and add it to the launcher
@@ -88,6 +89,7 @@ class TrustedLauncherTests(TestCase):
         # Ensure that the return value of subprocess.call() is returned
         self.assertEqual(retval, mock_call())
 
+    @mock.patch.dict('os.environ', clear=True)
     @mock.patch('plainbox.impl.job.JobDefinition.from_rfc822_record')
     @mock.patch('plainbox.impl.secure.launcher1.load_rfc822_records')
     @mock.patch('subprocess.check_output')
@@ -105,7 +107,7 @@ class TrustedLauncherTests(TestCase):
         job_list = self.launcher.run_local_job(job.checksum, None)
         # Ensure that we run the job command via bash
         mock_check_output.assert_called_with(
-            ['bash', '-c', job.command], env=None, universal_newlines=True)
+            ['bash', '-c', job.command], env={}, universal_newlines=True)
         # Ensure that we parse all of the output
         mock_load_rfc822_records.assert_called_with(
             mock_check_output(), source=JobOutputTextSource(job))

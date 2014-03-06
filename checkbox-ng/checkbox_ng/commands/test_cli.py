@@ -52,12 +52,14 @@ class TestSelectableJobTreeNode(TestCase):
                 origin=Origin(source=JobOutputTextSource(self.B),
                               line_start=1,
                               line_end=1)))
+        self.F = make_job('f', name='F', plugin='resource', description='baz')
         self.tree = SelectableJobTreeNode.create_tree([
             self.A,
             self.B,
             self.C,
             self.D,
-            self.E
+            self.E,
+            self.F
         ], legacy_mode=True)
 
     def test_create_tree(self):
@@ -144,4 +146,7 @@ class TestSelectableJobTreeNode(TestCase):
         node.job_selection[self.D] = True
         node.update_selected_state()
         node.set_ancestors_state(node.selected)
-        self.assertEqual(self.tree.selection, [self.D])
+        # Note that in addition to the selected (D) test, we need the
+        # tree selection to contain the resource (F), even though the
+        # user never saw it in the previous tests for visual presentation.
+        self.assertEqual(self.tree.selection, [self.D, self.F])

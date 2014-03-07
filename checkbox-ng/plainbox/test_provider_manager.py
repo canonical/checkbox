@@ -342,6 +342,7 @@ class ProviderManagerToolTests(TestCase):
         self.assertEqual(test_io.stdout, (
             "[Provider MetaData]\n"
             "\tname: 2014.com.example:test\n"
+            "\tdescription: description\n"
             "\tversion: 1.0\n"
             "\tgettext domain: domain\n"
             "[Job Definitions]\n"

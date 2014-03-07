@@ -521,6 +521,8 @@ class InfoCommand(ManageCommand):
         print(_("[Provider MetaData]"))
         # TRANSLATORS: {} is the name of the test provider
         print("\t" + _("name: {}").format(provider.name))
+        # TRANSLATORS: {} is the name of the test provider
+        print("\t" + _("description: {}").format(provider.tr_description()))
         # TRANSLATORS: {} is the version of the test provider
         print("\t" + _("version: {}").format(provider.version))
         # TRANSLATORS: {} is the gettext translation domain of the provider

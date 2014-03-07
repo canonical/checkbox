@@ -80,62 +80,105 @@ class ProviderManagerToolTests(TestCase):
                                         crash on SIGINT/KeyboardInterrupt, useful with --pdb
                 """) + '\n')
 
-    def assert_common_install(self):
-        filename = os.path.join(
-            self.tmpdir, "foo", "share", "plainbox-providers-1",
+    def assert_common_flat_install(self, prefix="/foo"):
+        filename = self.tmpdir + os.path.join(
+            prefix, "share", "plainbox-providers-1",
             "2014.com.example.test.provider")
         content = (
             "[PlainBox Provider]\n"
             "description = description\n"
             "gettext_domain = domain\n"
-            "location = /foo/lib/plainbox-providers-1/2014.com.example.test\n"
+            "location = {prefix}/lib/plainbox-providers-1/2014.com.example.test\n"
             "name = 2014.com.example:test\n"
             "version = 1.0\n"
-            "\n")
+            "\n".format(prefix=prefix))
         self.assertFileContent(filename, content)
         self.assertFileContent(
-            os.path.join(
-                self.tmpdir, "foo", "lib", "plainbox-providers-1",
-                "2014.com.example:test", "whitelists",
-                "test.whitelist"),
+            self.tmpdir + os.path.join(
+                prefix, "lib", "plainbox-providers-1", "2014.com.example:test",
+                "whitelists", "test.whitelist"),
             "dummy\n")
         self.assertFileContent(
-            os.path.join(
-                self.tmpdir, "foo", "lib", "plainbox-providers-1",
-                "2014.com.example:test", "data", "test.dat"),
+            self.tmpdir + os.path.join(
+                prefix, "lib", "plainbox-providers-1", "2014.com.example:test",
+                "data", "test.dat"),
             "data\n")
         self.assertFileContent(
-            os.path.join(
-                self.tmpdir, "foo", "lib", "plainbox-providers-1",
-                "2014.com.example:test", "bin", "test.sh"),
+            self.tmpdir + os.path.join(
+                prefix, "lib", "plainbox-providers-1", "2014.com.example:test",
+                "bin", "test.sh"),
             "#!/bin/sh\n:\n")
 
-    def test_install(self):
+    def test_install__flat(self):
         """
-        verify that ``manage.py install`` works
+        verify that ``manage.py install --layout=flat`` works
         """
         self.tool.main(
             ["install", "--prefix=/foo", "--root={}".format(self.tmpdir)])
-        self.assert_common_install()
+        self.assert_common_flat_install()
         self.assertFileContent(
-            os.path.join(
-                self.tmpdir, "foo", "lib", "plainbox-providers-1",
-                "2014.com.example:test", "jobs", "jobs.txt"),
+            self.tmpdir + os.path.join("/foo", "lib", "plainbox-providers-1",
+                                       "2014.com.example:test", "jobs",
+                                       "jobs.txt"),
             "name: dummy\nplugin: shell\ncommand: true\n")
 
-    def test_install__partial(self):
+    def test_install__flat_partial(self):
         """
-        verify that ``manage.py install`` works
+        verify that ``manage.py install --layout=flat`` works when some files
+        are missing
         """
         shutil.rmtree(os.path.join(self.tmpdir, "jobs"))
         self.tool.main(
             ["install", "--prefix=/foo", "--root={}".format(self.tmpdir)])
-        self.assert_common_install()
+        self.assert_common_flat_install()
         self.assertFalse(
-            os.path.exists(
-                os.path.join(
-                    self.tmpdir, "foo", "lib", "plainbox-providers-1",
-                    "2014.com.example:test", "jobs", "jobs.txt")))
+            os.path.exists(self.tmpdir + os.path.join(
+                "/foo", "lib", "plainbox-providers-1", "2014.com.example:test",
+                "jobs", "jobs.txt")))
+
+    def assert_common_unix_install(self, prefix="/foo"):
+        filename = self.tmpdir + os.path.join(
+            prefix, "share", "plainbox-providers-1",
+            "2014.com.example.test.provider")
+        content = (
+            "[PlainBox Provider]\n"
+            "bin_dir = {prefix}/lib/2014.com.example:test/bin\n"
+            "data_dir = {prefix}/share/2014.com.example:test/data\n"
+            "description = description\n"
+            "gettext_domain = domain\n"
+            "jobs_dir = {prefix}/share/2014.com.example:test/jobs\n"
+            "locale_dir = {prefix}/share/locale\n"
+            "name = 2014.com.example:test\n"
+            "version = 1.0\n"
+            "whitelists_dir = {prefix}/share/2014.com.example:test/whitelists\n"
+            "\n".format(prefix=prefix))
+        self.assertFileContent(filename, content)
+        self.assertFileContent(
+            self.tmpdir + os.path.join(
+                prefix, "share", "2014.com.example:test", "jobs", "jobs.txt"),
+            "name: dummy\nplugin: shell\ncommand: true\n")
+        self.assertFileContent(
+            self.tmpdir + os.path.join(
+                prefix, "share",  "2014.com.example:test", "whitelists",
+                "test.whitelist"),
+            "dummy\n")
+        self.assertFileContent(
+            self.tmpdir + os.path.join(
+                prefix, "share", "2014.com.example:test", "data", "test.dat"),
+            "data\n")
+        self.assertFileContent(
+            self.tmpdir + os.path.join(
+                prefix, "lib", "2014.com.example:test", "bin", "test.sh"),
+            "#!/bin/sh\n:\n")
+
+    def test_install__unix(self):
+        """
+        verify that ``manage.py install --layout=unix`` works
+        """
+        self.tool.main(
+            ["install", "--prefix=/foo", "--layout=unix",
+             "--root={}".format(self.tmpdir)])
+        self.assert_common_unix_install()
 
     def assert_common_sdist(self, tarball):
         self.assertTarballContent(
@@ -299,6 +342,7 @@ class ProviderManagerToolTests(TestCase):
         self.assertEqual(test_io.stdout, (
             "[Provider MetaData]\n"
             "\tname: 2014.com.example:test\n"
+            "\tdescription: description\n"
             "\tversion: 1.0\n"
             "\tgettext domain: domain\n"
             "[Job Definitions]\n"
@@ -352,8 +396,11 @@ class ProviderManagerToolTests(TestCase):
         :param content:
             expected text of the file
         """
-        with open(filename, "rt", encoding="UTF-8") as stream:
-            self.assertEqual(stream.read(), content)
+        if os.path.isfile(filename):
+            with open(filename, "rt", encoding="UTF-8") as stream:
+                self.assertEqual(stream.read(), content)
+        else:
+            self.fail("The file {} didn't exist".format(filename))
 
     def assertTarballContent(self, tarball, member, content):
         """

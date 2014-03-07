@@ -30,6 +30,7 @@ import argparse
 import inspect
 import logging
 import os
+import re
 import shutil
 import subprocess
 import tarfile
@@ -94,32 +95,122 @@ class ManageCommand(CommandBase):
 @docstring(
     # TRANSLATORS: please leave various options (both long and short forms),
     # environment variables and paths in their original form. Also keep the
-    # special @EPILOG@ string. The first line of the translation is special and
-    # is used as the help message. Please keep the pseudo-statement form and
-    # don't finish the sentence with a dot. Pay extra attention to whitespace.
-    # It must be correctly preserved or the result won't work. In particular
-    # the leading whitespace *must* be preserved and *must* have the same
-    # length on each line.
+    # special @EPILOG@, @UNIX_LAYOUT@ and @FLAT_LAYOUT@ strings. The first line
+    # of the translation is special and is used as the help message. Please
+    # keep the pseudo-statement form and don't finish the sentence with a dot.
+    # Pay extra attention to whitespace.  It must be correctly preserved or the
+    # result won't work. In particular the leading whitespace *must* be
+    # preserved and *must* have the same length on each line.
     N_("""
     install this provider in the system
 
     This command installs the provider to the specified prefix.
 
-    System-wide installations should typically use ``--prefix=/usr``.For
-    packaging you will want to use the ``--root=`` argument to place all of the
-    copied and generated files into your packaging system staging area. This
-    will not affect generated content which only respects the prefix argument.
-
     @EPILOG@
 
-    The following directories are recursively copied to the installation
-    directory: jobs, whitelists, bin, data. Missing directories are silently
-    ignored. A new, generated ``.provider`` file will be created at an
-    appropriate location, based on the meta-data from the ``manage.py`` script.
+    Installation Layouts
+    ====================
+
+    There are two possible installation layouts: flat, perfect for keeping the
+    whole provider in one directory, and unix, which is optimized for
+    packaging and respecting the filesystem hierarchy.
+
+    In both cases, a generated file is created at a fixed location:
+
+        {prefix}/share/plainbox-providers-1/{provider.name}.provider
+
+    This file is essential for plainbox to discover providers. It contains
+    meta-data collected from the manage.py setup() call.
+
+    For Packaging
+    -------------
+
+    System-wide installations should typically use `--prefix=/usr` coupled
+    with `--layout=unix`. For packaging you will want to use the `--root=`
+    argument to place all of the copied and generated files into your packaging
+    system staging area. This will not affect generated content, which only
+    respects the prefix argument.
+
+    UNIX Layout
+    -----------
+
+    In the unix layout, following transformation is applied:
+
+    @LAYOUT[unix]@
+
+    Flat Layout
+    -----------
+
+    @LAYOUT[flat]@
     """))
 class InstallCommand(ManageCommand):
 
-    _INCLUDED_ITEMS = ['jobs', 'whitelists', 'bin', 'data']
+    # Template of the .provider file
+    _PROVIDER_TEMPLATE = os.path.join(
+        '{prefix}', 'share', 'plainbox-providers-1',
+        '{provider.name_without_colon}.provider')
+
+    # Template of the location= entry
+    _LOCATION_TEMPLATE = os.path.join(
+        '{prefix}', 'lib', 'plainbox-providers-1',
+        '{provider.name_without_colon}')
+
+    # Templates for various installation layouts
+    _INSTALL_LAYOUT = {
+        'unix': {
+            'bin': os.path.join(
+                '{prefix}', 'lib', '{provider.name}', 'bin'),
+            'build/mo': os.path.join('{prefix}', 'share', 'locale'),
+            'data': os.path.join(
+                '{prefix}', 'share', '{provider.name}', 'data'),
+            'jobs': os.path.join(
+                '{prefix}', 'share', '{provider.name}', 'jobs'),
+            'po': None,
+            'whitelists': os.path.join(
+                '{prefix}', 'share', '{provider.name}', 'whitelists'),
+        },
+        'flat': {
+            'bin': os.path.join(
+                '{prefix}', 'lib', 'plainbox-providers-1', '{provider.name}',
+                'bin'),
+            'build/mo': os.path.join(
+                '{prefix}', 'lib', 'plainbox-providers-1', '{provider.name}',
+                'locale'),
+            'data': os.path.join(
+                '{prefix}', 'lib', 'plainbox-providers-1', '{provider.name}',
+                'data'),
+            'jobs': os.path.join(
+                '{prefix}', 'lib', 'plainbox-providers-1', '{provider.name}',
+                'jobs'),
+            'po': None,
+            'whitelists': os.path.join(
+                '{prefix}', 'lib', 'plainbox-providers-1', '{provider.name}',
+                'whitelists'),
+        }
+    }
+
+    # Mapping from directory name to .provider entry name
+    _DEF_MAP = {
+        'bin': 'bin_dir',
+        'build/mo': 'locale_dir',
+        'data': 'data_dir',
+        'jobs': 'jobs_dir',
+        'whitelists': 'whitelists_dir'
+    }
+
+    def get_command_epilog(self):
+        def format_layout(layout):
+            return '\n'.join(
+                # TRANSLATORS: not installed as in 'will not be installed'
+                '    * {:10} => {}'.format(src, _("not installed"))
+                if dest is None else
+                '    * {:10} => {}'.format(src, dest)
+                for src, dest in sorted(layout.items())
+            )
+        return re.sub(
+            '@LAYOUT\[(\w+)]@',
+            lambda m: format_layout(self._INSTALL_LAYOUT[m.group(1)]),
+            super().get_command_epilog())
 
     def register_parser(self, subparsers):
         """
@@ -136,6 +227,12 @@ class InstallCommand(ManageCommand):
         parser = self.add_subcommand(subparsers)
         parser.add_argument(
             "--prefix", default="/usr/local", help=_("installation prefix"))
+        parser.add_argument(
+            '--layout',
+            default='flat',
+            choices=sorted(self._INSTALL_LAYOUT.keys()),
+            # TRANSLATORS: don't translate %(defaults)s
+            help=_("installation directory layout (default: %(default)s)"))
         parser.add_argument(
             "--root", default="",
             help=_("install everything relative to this alternate root"
@@ -156,29 +253,72 @@ class InstallCommand(ManageCommand):
         associated with this commands have been parsed and are ready for
         execution.
         """
-        share_pathname = ns.root + os.path.join(
-            ns.prefix, "share", "plainbox-providers-1")
-        provider_lib_pathname = ns.root + os.path.join(
-            ns.prefix, "lib", "plainbox-providers-1", self._definition.name)
-        provider_pathname = os.path.join(
-            share_pathname, "{}.provider".format(
-                self.definition.name.replace(':', '.')))
-        # Make top-level directories
-        os.makedirs(share_pathname, exist_ok=True)
-        os.makedirs(provider_lib_pathname, exist_ok=True)
-        # Create the .provider file
-        parser_obj = self.definition.get_parser_obj()
-        parser_obj.set('PlainBox Provider', 'location', os.path.join(
-            ns.prefix, "lib", "plainbox-providers-1",
-            self.definition.name.replace(':', '.')))
-        with open(provider_pathname, 'wt', encoding='UTF-8') as stream:
-            parser_obj.write(stream)
-        # Copy all of the content
-        for name in self._INCLUDED_ITEMS:
-            src_name = os.path.join(self.definition.location, name)
-            dst_name = os.path.join(provider_lib_pathname, name)
+        self._write_provider_file(ns.root, ns.prefix, ns.layout)
+        self._copy_all_data(ns.root, ns.prefix, ns.layout)
+
+    def _write_provider_file(self, root, prefix, layout):
+        self._write_to_file(
+            root, self._PROVIDER_TEMPLATE.format(
+                prefix=prefix, provider=self.definition),
+            lambda stream: self._get_provider_config_obj(
+                layout, prefix).write(stream))
+
+    def _copy_all_data(self, root, prefix, layout):
+        dest_map = self._get_dest_map(layout, prefix)
+        assert os.path.isabs(self.definition.location)
+        for src_name, dst_name in dest_map.items():
+            assert not os.path.isabs(src_name)
+            assert os.path.isabs(dst_name)
+            src_name = os.path.join(self.definition.location, src_name)
+            dst_name = root + dst_name
             if os.path.exists(src_name):
+                try:
+                    os.makedirs(os.path.dirname(dst_name), exist_ok=True)
+                except IOError:
+                    pass
+                _logger.info(_("copying: %s => %s"), src_name, dst_name)
                 shutil.copytree(src_name, dst_name)
+            else:
+                _logger.warning(_("cannot copy %s, no such file or directory"),
+                                src_name)
+
+    def _get_dest_map(self, layout, prefix):
+        # Compute directory layout
+        dir_layout = self._INSTALL_LAYOUT[layout]
+        return {
+            src_name: dest_name_template.format(
+                prefix=prefix, provider=self.definition)
+            for src_name, dest_name_template in dir_layout.items()
+            if dest_name_template is not None
+        }
+
+    def _get_provider_config_obj(self, layout, prefix):
+        dest_map = self._get_dest_map(layout, prefix)
+        # Create the .provider file config object
+        config_obj = self.definition.get_parser_obj()
+        section = 'PlainBox Provider'
+        if layout == 'flat':
+            # Treat the flay layout specially, just as it used to behave before
+            # additional layouts were added. In this mode only the location
+            # field is defined.
+            config_obj.set(
+                section, 'location', self._LOCATION_TEMPLATE.format(
+                    prefix=prefix, provider=self.definition))
+        else:
+            # In non-flat layouts don't store location as everything is
+            # explicit
+            config_obj.remove_option(section, 'location')
+            for src_name, key_id in self._DEF_MAP.items():
+                config_obj.set(section, key_id, dest_map[src_name])
+        return config_obj
+
+    def _write_to_file(self, root, pathname, callback):
+        try:
+            os.makedirs(root + os.path.dirname(pathname), exist_ok=True)
+        except IOError:
+            pass
+        with open(root + pathname, 'wt', encoding='UTF-8') as stream:
+            callback(stream)
 
 
 @docstring(
@@ -381,6 +521,8 @@ class InfoCommand(ManageCommand):
         print(_("[Provider MetaData]"))
         # TRANSLATORS: {} is the name of the test provider
         print("\t" + _("name: {}").format(provider.name))
+        # TRANSLATORS: {} is the name of the test provider
+        print("\t" + _("description: {}").format(provider.tr_description()))
         # TRANSLATORS: {} is the version of the test provider
         print("\t" + _("version: {}").format(provider.version))
         # TRANSLATORS: {} is the gettext translation domain of the provider
@@ -388,9 +530,12 @@ class InfoCommand(ManageCommand):
         print(_("[Job Definitions]"))
         job_list, problem_list = provider.load_all_jobs()
         for job in job_list:
-            # TRANSLATORS: {!a} is the job id, {} is the filename
-            print("\t" + ("{!a}, from {}").format(
-                job.id, job.origin.relative_to(self.definition.location)))
+            # TRANSLATORS: the fields are as follows:
+            # 0: job id
+            # 1: pathname of the file the job is defined in
+            print("\t" + _("{0!a}, from {1}").format(
+                job.partial_id,
+                job.origin.relative_to(self.definition.location)))
         if problem_list:
             print("\t" + _("Some jobs could not be parsed correctly"))
             # TRANSLATORS: please don't translate `manage.py validate`
@@ -560,6 +705,13 @@ class I18NCommand(ManageCommand):
             help=_("do not build binary translation files"))
 
     def invoked(self, ns):
+        if self.definition.gettext_domain is Unset:
+            print("This provider doesn't define gettext_domain.")
+            print("Add it to manage.py and try again")
+            return 1
+        # Create the po/ directory if needed
+        if not os.path.exists(self.po_dir):
+            os.makedirs(self.po_dir)
         # First update / generate the template
         if not ns.dont_update_pot:
             self._update_pot(ns.dry_run)
@@ -586,7 +738,7 @@ class I18NCommand(ManageCommand):
             if not item.endswith('.po'):
                 continue
             lang = os.path.splitext(item)[0]
-            mo_dir = 'build/mo/LC_MESSAGES/{}'.format(lang)
+            mo_dir = 'build/mo/{}/LC_MESSAGES'.format(lang)
             os.makedirs(mo_dir, exist_ok=True)
             self._cmd([
                 'intltool-update',
@@ -599,7 +751,7 @@ class I18NCommand(ManageCommand):
             if not item.endswith('.po'):
                 continue
             lang = os.path.splitext(item)[0]
-            mo_dir = 'build/mo/LC_MESSAGES/{}'.format(lang)
+            mo_dir = 'build/mo/{}/LC_MESSAGES'.format(lang)
             os.makedirs(mo_dir, exist_ok=True)
             self._cmd([
                 'msgfmt',
@@ -756,10 +908,6 @@ def setup(**kwargs):
         definition.version = kwargs.get('version', None)
         definition.description = kwargs.get('description', None)
         definition.gettext_domain = kwargs.get('gettext_domain', Unset)
-        # NOTE: this value for locale_dir is only valid for development.
-        # Commands that actually install this system-wide compute a different
-        # value.
-        definition.locale_dir = os.path.join(location, "build/mo")
     except ConfigValidationError as exc:
         raise SystemExit(_("{}: bad value of {!r}, {}").format(
             manage_py, exc.variable.name, exc.message))

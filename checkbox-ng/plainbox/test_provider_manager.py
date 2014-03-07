@@ -395,8 +395,11 @@ class ProviderManagerToolTests(TestCase):
         :param content:
             expected text of the file
         """
-        with open(filename, "rt", encoding="UTF-8") as stream:
-            self.assertEqual(stream.read(), content)
+        if os.path.isfile(filename):
+            with open(filename, "rt", encoding="UTF-8") as stream:
+                self.assertEqual(stream.read(), content)
+        else:
+            self.fail("The file {} didn't exist".format(filename))
 
     def assertTarballContent(self, tarball, member, content):
         """

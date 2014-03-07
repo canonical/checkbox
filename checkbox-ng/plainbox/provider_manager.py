@@ -704,6 +704,9 @@ class I18NCommand(ManageCommand):
             print("This provider doesn't define gettext_domain.")
             print("Add it to manage.py and try again")
             return 1
+        # Create the po/ directory if needed
+        if not os.path.exists(self.po_dir):
+            os.makedirs(self.po_dir)
         # First update / generate the template
         if not ns.dont_update_pot:
             self._update_pot(ns.dry_run)

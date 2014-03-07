@@ -217,47 +217,60 @@ class ProviderSkeleton(Skeleton):
              # documentation for examples of other test cases including
              # interactive tests, "resource" tests and a few other types.
              #
+             # The summary and description keys are prefixed with _
+             # to indicate that they can be translated.
+             #
              # http://plainbox.rtfd.org/en/latest/author/jobs.html
-             name: examples/trivial/always-pass
+             id: examples/trivial/always-pass
+             _summary: A test that always passes
+             _description:
+                A test that always passes
+                .
+                This simple test will always succeed, assuming your
+                platform has a 'true' command that returns 0.
              plugin: shell
+             estimated_duration: 0.01
              command: true
-             description: A test that always passes
-             estimated_duration: 0.01
 
-             name: examples/trivial/always-fail
+             id: examples/trivial/always-fail
+             _summary: A test that always fails
+             _description:
+                A test that always fails
+                .
+                This simple test will always fail, assuming your
+                platform has a 'false' command that returns 1.
              plugin: shell
-             command: false
-             description: A test that always fails
              estimated_duration: 0.01
+             command: false
              """))
 
         things.append(File("examples-normal.txt", parent, full_text="""
-             name: examples/normal/data-access
-             plugin: shell
-             command:
-                test "$(cat $PLAINBOX_PROVIDER_DATA/example.dat)" = "DATA"
-             estimated_duration: 0.01
-             description:
+             id: examples/normal/data-access
+             _summary: Example job using provider-specific data
+             _description:
                 This test illustrates that custom data can be accessed using
                 the $PLAINBOX_PROVIDER_DATA environment variable. It points to
                 the absolute path of the data directory of the provider.
-
-             name: examples/normal/bin-access
              plugin: shell
-             command: custom-executable
              estimated_duration: 0.01
-             description:
+             command:
+                test "$(cat $PLAINBOX_PROVIDER_DATA/example.dat)" = "DATA"
+
+             id: examples/normal/bin-access
+             _summary: Example job using provider-specific executable
+             _description:
                 This test illustrates that custom executables can be accessed
                 directly, if placed in the bin/ directory of the provider.
                 .
                 Those are made available in the PATH, at runtime. This job
                 succeeds because the custom-executable script returns 0.
-
-             name: examples/normal/info-collection
-             plugin: attachment
-             command: cat /proc/cpuinfo
+             plugin: shell
              estimated_duration: 0.01
-             description:
+             command: custom-executable
+
+             id: examples/normal/info-collection
+             _summary: Example job attaching command output to results
+             _description:
                 This test illustrates that output of a job may be collected
                 for analysis using the plugin type ``attachment``
                 .
@@ -268,14 +281,15 @@ class ProviderSkeleton(Skeleton):
                 are handled, may not be displayed. You can save attachments
                 using, for example, the JSON test result exporter, like this:
                 ``plainbox run -f json -p with-attachments``
+             plugin: attachment
+             estimated_duration: 0.01
+             command: cat /proc/cpuinfo
              """))
 
         things.append(File("examples-intermediate.txt", parent, full_text="""
-             name: examples/intermediate/dependency-target
-             plugin: shell
-             command: true
-             estimated_duration: 0.01
-             description:
+             id: examples/intermediate/dependency-target
+             _summary: Example job that some other job depends on
+             _description:
                 This test illustrates how a job can be a dependency of another
                 job. The dependency graph can be arbitrarily complex, it just
                 cannot have any cycles. PlainBox will discover various problems
@@ -286,13 +300,13 @@ class ProviderSkeleton(Skeleton):
                 may include multi-stage manipulation (detect a device, set it
                 up, perform some automatic and some manual tests and summarise
                 the results, for example)
-
-             name: examples/intermediate/dependency-source
              plugin: shell
              command: true
-             depends: examples/intermediate/dependency-target
              estimated_duration: 0.01
-             description:
+
+             id: examples/intermediate/dependency-source
+             _summary: Example job that depends on another job
+             _description:
                 This test illustrates how a job can depend on another job.
                 .
                 If you run this example unmodified (selecting just this job)
@@ -305,18 +319,17 @@ class ProviderSkeleton(Skeleton):
                 of 'true' and rerun this job you will see that it automatically
                 fails without being started. This is because of a rule which
                 automatically fails any job that has a failed dependency.
+             plugin: shell
+             command: true
+             depends: examples/intermediate/dependency-target
+             estimated_duration: 0.01
 
              # TODO: this should be possible:
              # name: examples/intermediate/detected-device
              # resource-object: examples.intermediate.detected_device
-             name: detected_device
-             plugin: resource
-             command:
-                echo "type: WEBCAM"
-                echo ""
-                echo "type: WIFI"
-             estimated_duration: 0.03
-             description:
+             id: detected_device
+             _summary: Example job producing structured resource data
+             _description:
                 This job illustrates that not all jobs are designed to be a
                 "test". PlainBox has a system of the so-called resources.
                 .
@@ -330,13 +343,16 @@ class ProviderSkeleton(Skeleton):
                 All resources are made available to jobs that use resource
                 programs. See the next job for an example of how that can be
                 useful.
+             plugin: resource
+             command:
+                echo "type: WEBCAM"
+                echo ""
+                echo "type: WIFI"
+             estimated_duration: 0.03
 
-             name: examples/intermediate/test-webcam
-             plugin: manual
-             requires:
-                 detected_device.type == "WEBCAM"
-             estimated_duration: 30
-             description:
+             id: examples/intermediate/test-webcam
+             _summary: Example job depending on structured resource
+             _description:
                 This test illustrates two concepts. It is the first test that
                 uses manual jobs (totally not automated test type). It also
                 uses a resource dependency, via a resource program, to limit
@@ -357,6 +373,10 @@ class ProviderSkeleton(Skeleton):
                 http://plainbox.rtfd.org/en/latest/search.html?q=resources
                 Please look at the ``Resources`` chapter there (it may move so
                 a search link is more reliable)
+             plugin: manual
+             requires:
+                 detected_device.type == "WEBCAM"
+             estimated_duration: 30
              """))
 
     with whitelists_dir as parent:
@@ -409,7 +429,7 @@ class ProviderSkeleton(Skeleton):
 
     things.append(File("manage.py", executable=True, full_text="""
         #!/usr/bin/env python3
-        from plainbox.provider_manager import setup
+        from plainbox.provider_manager import setup, N_
 
         # You can inject other stuff here but please don't go overboard.
         #
@@ -426,14 +446,14 @@ class ProviderSkeleton(Skeleton):
         setup(
             name={name!r},
             version="1.0",
-            description="The {name} provider",
+            description=N_("The {name} provider"),
             gettext_domain="{gettext_domain}",
         )
         """))
 
-    things.append(File(".gitignore", full_text="dist/*.tar.gz\n"))
+    things.append(File(".gitignore", full_text="dist/*.tar.gz\nbuild/mo/*\n"))
 
-    things.append(File(".bzrignore", full_text="dist/*.tar.gz\n"))
+    things.append(File(".bzrignore", full_text="dist/*.tar.gz\nbuild/mo/*\n"))
 
 
 class StartProviderInvocation:

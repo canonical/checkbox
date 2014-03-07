@@ -530,9 +530,12 @@ class InfoCommand(ManageCommand):
         print(_("[Job Definitions]"))
         job_list, problem_list = provider.load_all_jobs()
         for job in job_list:
-            # TRANSLATORS: {!a} is the job id, {} is the filename
-            print("\t" + ("{!a}, from {}").format(
-                job.id, job.origin.relative_to(self.definition.location)))
+            # TRANSLATORS: the fields are as follows:
+            # 0: job id
+            # 1: pathname of the file the job is defined in
+            print("\t" + _("{0!a}, from {1}").format(
+                job.partial_id,
+                job.origin.relative_to(self.definition.location)))
         if problem_list:
             print("\t" + _("Some jobs could not be parsed correctly"))
             # TRANSLATORS: please don't translate `manage.py validate`

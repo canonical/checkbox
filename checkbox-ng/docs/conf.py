@@ -236,8 +236,11 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('manpages/plainbox', 'plainbox', 'PlainBox Documentation',
-     ['Zygmunt Krynicki'], 1)
+    ('manpages/plainbox', 'plainbox',
+    'toolkit for software and hardware integration testing',
+     ['Zygmunt Krynicki'], 1),
+    ('manpages/plainbox-trusted-launcher-1', 'plainbox-trusted-launcher-1',
+    'execute job command as another user', ['Zygmunt Krynicki'], 1)
 ]
 
 # If true, show URL addresses after external links.

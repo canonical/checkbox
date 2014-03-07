@@ -239,6 +239,8 @@ man_pages = [
     ('manpages/plainbox', 'plainbox',
     'toolkit for software and hardware integration testing',
      ['Zygmunt Krynicki'], 1),
+    ('manpages/plainbox-trusted-launcher-1', 'plainbox-trusted-launcher-1',
+    'execute job command as another user', ['Zygmunt Krynicki'], 1)
 ]
 
 # If true, show URL addresses after external links.

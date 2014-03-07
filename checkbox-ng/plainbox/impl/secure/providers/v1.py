@@ -802,9 +802,12 @@ class Provider1Definition(Config):
         """
         if self.locale_dir is not Unset:
             return self.locale_dir
-        implicit = self.implicit_locale_dir
-        if implicit is not None and os.path.isdir(implicit):
-            return implicit
+        implicit1 = self.implicit_locale_dir
+        if implicit1 is not None and os.path.isdir(implicit1):
+            return implicit1
+        implicit2 = self.implicit_build_locale_dir
+        if implicit2 is not None and os.path.isdir(implicit2):
+            return implicit2
 
 
 class Provider1PlugIn(IPlugIn):

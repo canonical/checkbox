@@ -160,7 +160,7 @@ class ProviderSkeleton(Skeleton):
     bin_dir = Directory("bin")
     things.append(bin_dir)
 
-    things.append(File("readme.md", full_text="""
+    things.append(File("README.md", full_text="""
          Skeleton for a new PlainBox provider
          ====================================
 

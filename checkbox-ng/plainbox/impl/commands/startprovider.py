@@ -160,6 +160,9 @@ class ProviderSkeleton(Skeleton):
     bin_dir = Directory("bin")
     things.append(bin_dir)
 
+    po_dir = Directory("po")
+    things.append(po_dir)
+
     things.append(File("README.md", full_text="""
          Skeleton for a new PlainBox provider
          ====================================
@@ -391,6 +394,16 @@ class ProviderSkeleton(Skeleton):
              # use regular expression to select all normal jobs
              examples/normal/.*
              """))
+
+    with po_dir as parent:
+
+        things.append(File("POTFILES.in", parent, full_text="""
+            [encoding: UTF-8]
+            [type: gettext/rfc822deb] jobs/examples-trivial.txt
+            [type: gettext/rfc822deb] jobs/examples-normal.txt
+            [type: gettext/rfc822deb] jobs/examples-intermediate.txt
+            manage.py
+        """))
 
     with data_dir as parent:
 

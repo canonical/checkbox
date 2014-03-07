@@ -586,7 +586,7 @@ class I18NCommand(ManageCommand):
             if not item.endswith('.po'):
                 continue
             lang = os.path.splitext(item)[0]
-            mo_dir = 'build/mo/LC_MESSAGES/{}'.format(lang)
+            mo_dir = 'build/mo/{}/LC_MESSAGES'.format(lang)
             os.makedirs(mo_dir, exist_ok=True)
             self._cmd([
                 'intltool-update',
@@ -599,7 +599,7 @@ class I18NCommand(ManageCommand):
             if not item.endswith('.po'):
                 continue
             lang = os.path.splitext(item)[0]
-            mo_dir = 'build/mo/LC_MESSAGES/{}'.format(lang)
+            mo_dir = 'build/mo/{}/LC_MESSAGES'.format(lang)
             os.makedirs(mo_dir, exist_ok=True)
             self._cmd([
                 'msgfmt',

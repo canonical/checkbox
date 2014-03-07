@@ -792,6 +792,17 @@ class Provider1Definition(Config):
             return os.path.join(self.location, "locale")
 
     @property
+    def implicit_build_locale_dir(self):
+        """
+        implicit value of locale_dir (if Unset) as laid out in the source tree
+
+        This value is only applicable to source layouts, where the built
+        translation catalogs are in the build/mo directory.
+        """
+        if self.location is not Unset:
+            return os.path.join(self.location, "build", "mo")
+
+    @property
     def effective_locale_dir(self):
         """
         effective value of locale_dir

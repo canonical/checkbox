@@ -700,6 +700,10 @@ class I18NCommand(ManageCommand):
             help=_("do not build binary translation files"))
 
     def invoked(self, ns):
+        if self.definition.gettext_domain is Unset:
+            print("This provider doesn't define gettext_domain.")
+            print("Add it to manage.py and try again")
+            return 1
         # First update / generate the template
         if not ns.dont_update_pot:
             self._update_pot(ns.dry_run)

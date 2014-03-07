@@ -903,10 +903,6 @@ def setup(**kwargs):
         definition.version = kwargs.get('version', None)
         definition.description = kwargs.get('description', None)
         definition.gettext_domain = kwargs.get('gettext_domain', Unset)
-        # NOTE: this value for locale_dir is only valid for development.
-        # Commands that actually install this system-wide compute a different
-        # value.
-        definition.locale_dir = os.path.join(location, "build/mo")
     except ConfigValidationError as exc:
         raise SystemExit(_("{}: bad value of {!r}, {}").format(
             manage_py, exc.variable.name, exc.message))

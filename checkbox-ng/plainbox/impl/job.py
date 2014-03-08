@@ -431,8 +431,16 @@ class JobDefinition(BaseJob, IJobDefinition):
         To combat a simple mistake where the jobs are space-delimited any
         mixture of white-space (including newlines) and commas are allowed.
         """
+        def transform_id(some_id):
+            if "::" not in some_id and self._provider is not None:
+                return "{}::{}".format(self._provider.namespace, some_id)
+            else:
+                return some_id
         if self.depends:
-            return {id for id in re.split('[\s,]+', self.depends)}
+            return {
+                transform_id(maybe_partial_id)
+                for maybe_partial_id in re.split('[\s,]+', self.depends)
+            }
         else:
             return set()
 

@@ -62,7 +62,7 @@ class DummyProvider1(IProvider1, IProviderBackend1):
 
     @property
     def name(self):
-        return self._extras.get('name', "dummy")
+        return self._extras.get('name', "2013.com.canonical.plainbox:dummy")
 
     @property
     def version(self):

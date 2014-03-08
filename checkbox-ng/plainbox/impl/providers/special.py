@@ -139,7 +139,7 @@ def get_stubbox_def():
     Get a Provider1Definition for stubbox
     """
     stubbox_def = Provider1Definition()
-    stubbox_def.name = "2013.com.canonical:stubbox"
+    stubbox_def.name = "2013.com.canonical.plainbox:stubbox"
     stubbox_def.version = "1.0"
     stubbox_def.description = N_("StubBox (dummy data for development)")
     stubbox_def.secure = False

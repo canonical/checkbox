@@ -451,6 +451,23 @@ class IProvider1(metaclass=ABCMeta):
         """
 
     @abstractproperty
+    def namespace(self):
+        """
+        namespace component of the provider name
+
+        This property defines the namespace in which all provider jobs are
+        defined in. Jobs within one namespace do not need to be fully qualified
+        by prefixing their partial identifier with provider namespace (so all
+        stays 'as-is'). Jobs that need to interact with other provider
+        namespaces need to use the fully qualified job identifier instead.
+
+        The identifier is defined as the part of the provider name, up to the
+        colon. This effectively gives organizations flat namespace within one
+        year-domain pair and allows to create private namespaces by using
+        sub-domains.
+        """
+
+    @abstractproperty
     def version(self):
         """
         version of this provider

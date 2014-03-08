@@ -294,7 +294,7 @@ class ProviderManagerToolTests(TestCase):
             self.tool.main(["validate"])
         self.assertEqual(
             test_io.stdout, (
-                "jobs/broken.txt:1-2: job 'broken', field 'command': "
+                "jobs/broken.txt:1-2: job '2014.com.example::broken', field 'command': "
                 "missing definition of required field\n"))
 
     def test_validate__broken_wrong_field(self):
@@ -310,7 +310,7 @@ class ProviderManagerToolTests(TestCase):
             self.tool.main(["validate"])
         self.assertEqual(
             test_io.stdout, (
-                "jobs/broken.txt:1-2: job 'broken', field 'plugin': "
+                "jobs/broken.txt:1-2: job '2014.com.example::broken', field 'plugin': "
                 "incorrect value supplied\n"
                 "allowed values are: attachment, local, manual, resource"
                 ", shell, user-interact, user-interact-verify, user-verify\n"))
@@ -330,7 +330,7 @@ class ProviderManagerToolTests(TestCase):
             self.tool.main(["validate"])
         self.assertEqual(
             test_io.stdout, (
-                "jobs/broken.txt:1-4: job 'broken', field 'command': "
+                "jobs/broken.txt:1-4: job '2014.com.example::broken', field 'command': "
                 "useless field in this context\n"))
 
     def test_info(self):

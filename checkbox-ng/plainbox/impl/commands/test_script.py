@@ -84,11 +84,16 @@ class TestScriptCommand(TestCase):
 
 
 class ScriptInvocationTests(TestCase):
+    JOB_ID = '2013.com.canonical.plainbox::foo'
+    JOB_PARTIAL_ID = 'foo'
 
     def setUp(self):
         self.provider_list = mock.Mock()
         self.config = PlainBoxConfig()
         self.job_id = mock.Mock()
+
+    def assertCommandOutput(self, actual, expected):
+        self.assertEqual(actual, cleandoc(expected) + '\n')
 
     def test_init(self):
         script_inv = ScriptInvocation(
@@ -99,61 +104,59 @@ class ScriptInvocationTests(TestCase):
 
     def test_run_no_such_job(self):
         provider_list = [DummyProvider1()]
-        script_inv = ScriptInvocation(provider_list, self.config, 'foo')
+        script_inv = ScriptInvocation(provider_list, self.config, self.JOB_ID)
         with TestIO() as io:
             retval = script_inv.run()
-        self.assertEqual(
-            io.stdout, cleandoc(
+        self.assertCommandOutput(
+            io.stdout, (
                 """
-                There is no job called 'foo'
+                There is no job called '{job_id}'
                 See `plainbox special --list-jobs` for a list of choices
-                """) + '\n')
+                """).format(job_id=self.JOB_ID))
         self.assertEqual(retval, 126)
 
     def test_run_job_without_command(self):
-        provider_list = [DummyProvider1([make_job('foo')])]
-        script_inv = ScriptInvocation(provider_list, self.config, 'foo')
+        provider_list = [DummyProvider1([make_job(self.JOB_PARTIAL_ID)])]
+        script_inv = ScriptInvocation(provider_list, self.config, self.JOB_ID)
         with TestIO() as io:
             retval = script_inv.run()
-        self.assertEqual(
-            io.stdout, cleandoc(
+        self.assertCommandOutput(
+            io.stdout, (
                 """
                 Selected job does not have a command
-                """) + '\n')
+                """))
         self.assertEqual(retval, 125)
 
     @mock.patch('plainbox.impl.ctrl.check_output')
     def test_job_with_command(self, mock_check_output):
-        dummy_id = 'foo'
-        dummy_command = 'echo ok'
         provider_list = [DummyProvider1([
-            make_job(dummy_id, command=dummy_command)])]
-        script_inv = ScriptInvocation(provider_list, self.config, dummy_id)
+            make_job(self.JOB_PARTIAL_ID, command='echo ok')])]
+        script_inv = ScriptInvocation(provider_list, self.config, self.JOB_ID)
         with TestIO() as io:
             retval = script_inv.run()
-        self.assertEqual(
-            io.stdout, cleandoc(
+        self.assertCommandOutput(
+            io.stdout, (
                 """
-                (job foo, <stdout:00001>) ok
-                """) + '\n' + "job {} returned 0\n".format(dummy_id) +
-                "command: {}\n".format(dummy_command))
+                (job {job_id}, <stdout:00001>) ok
+                job {job_id} returned 0
+                command: echo ok
+                """).format(job_id=self.JOB_ID))
         self.assertEqual(retval, 0)
 
     @mock.patch('plainbox.impl.ctrl.check_output')
     def test_job_with_command_making_files(self, mock_check_output):
-        dummy_id = 'foo'
-        dummy_command = 'echo ok > file'
         provider_list = [DummyProvider1([
-            make_job(dummy_id, command=dummy_command)])]
-        script_inv = ScriptInvocation(provider_list, self.config, dummy_id)
+            make_job(self.JOB_PARTIAL_ID, command='echo ok > file')])]
+        script_inv = ScriptInvocation(provider_list, self.config, self.JOB_ID)
         with TestIO() as io:
             retval = script_inv.run()
         self.maxDiff = None
-        self.assertEqual(
-            io.stdout, cleandoc(
+        self.assertCommandOutput(
+            io.stdout, (
                 """
                 Leftover file detected: 'files-created-in-current-dir/file':
                   files-created-in-current-dir/file:1: ok
-                """) + '\n' + "job {} returned 0\n".format(dummy_id) +
-                "command: {}\n".format(dummy_command))
+                job {job_id} returned 0
+                command: echo ok > file
+                """).format(job_id=self.JOB_ID))
         self.assertEqual(retval, 0)

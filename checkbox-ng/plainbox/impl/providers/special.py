@@ -144,8 +144,6 @@ def get_stubbox_def():
     stubbox_def.description = N_("StubBox (dummy data for development)")
     stubbox_def.secure = False
     stubbox_def.gettext_domain = "stubbox"
-    stubbox_def.location = os.path.join(get_plainbox_dir(), "impl/providers/stubbox")
-    locale_dir = os.path.join(stubbox_def.location, 'build/mo')
-    if os.path.isdir(locale_dir):
-        stubbox_def.locale_dir = locale_dir
+    stubbox_def.location = os.path.join(
+        get_plainbox_dir(), "impl/providers/stubbox")
     return stubbox_def

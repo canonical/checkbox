@@ -200,7 +200,8 @@ class Provider1(IProvider1, IProviderBackend1):
         else:
             whitelists_dir_list = []
         self._whitelist_collection = FsPlugInCollection(
-            whitelists_dir_list, ext=".whitelist", wrapper=WhiteListPlugIn)
+            whitelists_dir_list, ext=".whitelist", wrapper=WhiteListPlugIn,
+            implicit_namespace=self.namespace)
         if self.jobs_dir is not None:
             jobs_dir_list = [self.jobs_dir]
         else:

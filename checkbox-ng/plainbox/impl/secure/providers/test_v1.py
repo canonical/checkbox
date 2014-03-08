@@ -570,6 +570,7 @@ class JobDefintionPlugInTests(TestCase):
 
     def setUp(self):
         self.provider = mock.Mock(name="provider", spec=Provider1)
+        self.provider.namespace = "2013.com.canonical.plainbox"
         self.plugin = JobDefinitionPlugIn(
             "/path/to/jobs.txt", (
                 "id: test/job\n"
@@ -597,7 +598,8 @@ class JobDefintionPlugInTests(TestCase):
         verify the contents of the loaded JobDefinition object
         """
         job = self.plugin.plugin_object[0]
-        self.assertEqual(job.id, "test/job")
+        self.assertEqual(job.partial_id, "test/job")
+        self.assertEqual(job.id, "2013.com.canonical.plainbox::test/job")
         self.assertEqual(job.plugin, "shell")
         self.assertEqual(job.command, "true")
         self.assertEqual(
@@ -789,10 +791,10 @@ class Provider1Tests(TestCase):
         with self.provider._job_collection.fake_plugins(fake_plugins):
             job_list = self.provider.get_builtin_jobs()
         self.assertEqual(len(job_list), 4)
-        self.assertEqual(job_list[0].id, "a1")
-        self.assertEqual(job_list[1].id, "a2")
-        self.assertEqual(job_list[2].id, "a3")
-        self.assertEqual(job_list[3].id, "a4")
+        self.assertEqual(job_list[0].partial_id, "a1")
+        self.assertEqual(job_list[1].partial_id, "a2")
+        self.assertEqual(job_list[2].partial_id, "a3")
+        self.assertEqual(job_list[3].partial_id, "a4")
 
     def test_get_builtin_jobs__failing(self):
         """
@@ -837,10 +839,10 @@ class Provider1Tests(TestCase):
         with self.provider._job_collection.fake_plugins(fake_plugins):
             job_list, problem_list = self.provider.load_all_jobs()
         self.assertEqual(len(job_list), 4)
-        self.assertEqual(job_list[0].id, "a1")
-        self.assertEqual(job_list[1].id, "a2")
-        self.assertEqual(job_list[2].id, "a3")
-        self.assertEqual(job_list[3].id, "a4")
+        self.assertEqual(job_list[0].partial_id, "a1")
+        self.assertEqual(job_list[1].partial_id, "a2")
+        self.assertEqual(job_list[2].partial_id, "a3")
+        self.assertEqual(job_list[3].partial_id, "a4")
         self.assertEqual(len(problem_list), 0)
 
     def test_load_all_jobs__failing(self):
@@ -859,7 +861,7 @@ class Provider1Tests(TestCase):
                 fake_plugins, fake_problems):
             job_list, problem_list = self.provider.load_all_jobs()
         self.assertEqual(len(job_list), 1)
-        self.assertEqual(job_list[0].id, "working")
+        self.assertEqual(job_list[0].partial_id, "working")
         self.assertEqual(problem_list, fake_problems)
 
     def test_get_all_executables(self):

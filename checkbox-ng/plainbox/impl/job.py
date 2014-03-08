@@ -246,7 +246,10 @@ class JobDefinition(BaseJob, IJobDefinition):
 
     @property
     def id(self):
-        return self.get_record_value('id', self.name)
+        if self._provider:
+            return "{}::{}".format(self._provider.namespace, self.partial_id)
+        else:
+            return self.partial_id
 
     @property
     def partial_id(self):

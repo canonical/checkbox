@@ -65,6 +65,10 @@ class DummyProvider1(IProvider1, IProviderBackend1):
         return self._extras.get('name', "2013.com.canonical.plainbox:dummy")
 
     @property
+    def namespace(self):
+        return self.name.split(':', 1)[0]
+
+    @property
     def version(self):
         return self._extras.get('version', '1.0')
 

@@ -421,7 +421,12 @@ class JobDefinition(BaseJob, IJobDefinition):
         Raises ResourceProgramError or SyntaxError
         """
         if self.requires is not None and self._resource_program is None:
-            self._resource_program = ResourceProgram(self.requires)
+            if self._provider is not None:
+                implicit_namespace = self._provider.namespace
+            else:
+                implicit_namespace = None
+            self._resource_program = ResourceProgram(
+                self.requires, implicit_namespace)
         return self._resource_program
 
     def get_direct_dependencies(self):

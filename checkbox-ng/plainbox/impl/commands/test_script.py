@@ -74,7 +74,8 @@ class TestScriptCommand(TestCase):
 
     @mock.patch("plainbox.impl.commands.script.ScriptInvocation")
     def test_invoked(self, patched_ScriptInvocation):
-        retval = ScriptCommand(self.provider_list, self.config).invoked(self.ns)
+        retval = ScriptCommand(
+            self.provider_list, self.config).invoked(self.ns)
         patched_ScriptInvocation.assert_called_once_with(
             self.provider_list, self.config, self.ns.job_id)
         self.assertEqual(

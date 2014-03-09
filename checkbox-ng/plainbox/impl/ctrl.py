@@ -420,9 +420,10 @@ class CheckBoxExecutionController(IExecutionController):
         with tempfile.TemporaryDirectory(suffix, prefix) as nest_dir:
             logger.debug(_("Symlink nest for executables: %s"), nest_dir)
             nest = SymLinkNest(nest_dir)
-            # Add all providers executables to PATH
+            # Add all providers sharing namespace with the current job to PATH
             for provider in self._provider_list:
-                nest.add_provider(provider)
+                if job.provider.namespace == provider.namespace:
+                    nest.add_provider(provider)
             logger.debug(_("Symlink nest for executables: %s"), nest_dir)
             yield nest_dir
 

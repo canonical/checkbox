@@ -150,11 +150,11 @@ class PlainBoxToolBase(ToolBase):
             all-in-one, CheckBoxSrcProvider.
         """
         return provider.name in (
-            "2013.com.canonical:certification-client",
-            "2013.com.canonical:certification-server",
-            "2013.com.canonical:certification-server-soc",
-            "2013.com.canonical:checkbox",
-            "2013.com.canonical:plainbox-resources")
+            "2013.com.canonical.certification:certification-client",
+            "2013.com.canonical.certification:certification-server",
+            "2013.com.canonical.certification:certification-server-soc",
+            "2013.com.canonical.certification:checkbox",
+            "2013.com.canonical.certification:plainbox-resources")
 
     def _load_normal_providers(self):
         all_providers.load()

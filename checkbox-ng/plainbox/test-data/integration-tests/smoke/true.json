@@ -1,9 +1,9 @@
 {
     "profile": "default",
-    "job_name": "2013.com.canonical::smoke/true",
+    "job_name": "2013.com.canonical.certification::smoke/true",
     "result": {
         "result_map": {
-            "2013.com.canonical::smoke/true": {
+            "2013.com.canonical.certification::smoke/true": {
                 "outcome": "pass"
             }
         }

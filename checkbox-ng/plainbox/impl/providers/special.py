@@ -103,7 +103,7 @@ class CheckBoxSrcProvider(Provider1):
         bin_dir = os.path.join(base_dir, 'scripts')
         locale_dir = os.path.join(base_dir, 'build/mo')
         super().__init__(
-            "2013.com.canonical:checkbox-src", "1.0",
+            "2013.com.canonical.certification:checkbox-src", "1.0",
             N_("CheckBox (live source)"),
             secure, gettext_domain, jobs_dir, whitelists_dir, data_dir,
             bin_dir, locale_dir)

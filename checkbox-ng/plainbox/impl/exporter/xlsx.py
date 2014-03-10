@@ -46,16 +46,16 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
     The hardware devices are extracted from the content of the following
     attachment:
 
-    * lspci_attachment
+    * 2013.com.canonical.certification::lspci_attachment
 
     The following resource jobs are needed to populate the system info section
     of this report:
 
-    * dmi
-    * device
-    * cpuinfo
-    * meminfo
-    * package
+    * 2013.com.canonical.certification::dmi
+    * 2013.com.canonical.certification::device
+    * 2013.com.canonical.certification::cpuinfo
+    * 2013.com.canonical.certification::meminfo
+    * 2013.com.canonical.certification::package
     """
 
     OPTION_WITH_SYSTEM_INFO = 'with-sys-info'
@@ -175,24 +175,24 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
 
     def _hw_collection(self, data):
         hw_info = defaultdict(lambda: 'NA')
-        if 'dmi' in data['resource_map']:
+        if '2013.com.canonical.certification::dmi' in data['resource_map']:
             result = ['{} {} ({})'.format(i['vendor'], i['product'],
-                      i['version']) for i in data["resource_map"]['dmi']
+                      i['version']) for i in data["resource_map"]['2013.com.canonical.certification::dmi']
                       if i['category'] == 'SYSTEM']
             if result:
                 hw_info['platform'] = result.pop()
             result = ['{}'.format(i['version'])
-                      for i in data["resource_map"]['dmi']
+                      for i in data["resource_map"]['2013.com.canonical.certification::dmi']
                       if i['category'] == 'BIOS']
             if result:
                 hw_info['bios'] = result.pop()
-        if 'cpuinfo' in data['resource_map']:
+        if '2013.com.canonical.certification::cpuinfo' in data['resource_map']:
             result = ['{} x {}'.format(i['model'], i['count'])
-                      for i in data["resource_map"]['cpuinfo']]
+                      for i in data["resource_map"]['2013.com.canonical.certification::cpuinfo']]
             if result:
                 hw_info['processors'] = result.pop()
-        if 'lspci_attachment' in data['attachment_map']:
-            lspci = data['attachment_map']['lspci_attachment']
+        if '2013.com.canonical.certification::lspci_attachment' in data['attachment_map']:
+            lspci = data['attachment_map']['2013.com.canonical.certification::lspci_attachment']
             content = standard_b64decode(lspci.encode()).decode("UTF-8")
             match = re.search('ISA bridge.*?:\s(?P<chipset>.*?)\sLPC', content)
             if match:
@@ -222,14 +222,14 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 vram += int(match.group('vram'))
             if vram:
                 hw_info['vram'] = '{} MiB'.format(vram)
-        if 'meminfo' in data['resource_map']:
+        if '2013.com.canonical.certification::meminfo' in data['resource_map']:
             result = ['{} GiB'.format(format(int(i['total']) / 1073741824,
-                      '.1f')) for i in data["resource_map"]['meminfo']]
+                      '.1f')) for i in data["resource_map"]['2013.com.canonical.certification::meminfo']]
             if result:
                 hw_info['memory'] = result.pop()
-        if 'device' in data['resource_map']:
+        if '2013.com.canonical.certification::device' in data['resource_map']:
             result = ['{}'.format(i['product'])
-                      for i in data["resource_map"]['device']
+                      for i in data["resource_map"]['2013.com.canonical.certification::device']
                       if ('category' in i and i['category'] == 'BLUETOOTH' and
                           'driver' in i)]
             if result:
@@ -269,7 +269,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         self.worksheet1.write(16, 2, hw_info['wireless'], self.format05)
         self.worksheet1.write(17, 1, _('Bluetooth'), self.format04)
         self.worksheet1.write(17, 2, hw_info['bluetooth'], self.format06)
-        if "package" in data["resource_map"]:
+        if "2013.com.canonical.certification::package" in data["resource_map"]:
             self.worksheet1.write(
                 19, 1, _('Packages Installed'), self.format03)
             self.worksheet1.write_row(
@@ -278,7 +278,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 self.worksheet1.set_row(
                     i, None, None, {'level': 1, 'hidden': True}
                 )
-            for i, pkg in enumerate(data["resource_map"]["package"]):
+            for i, pkg in enumerate(data["resource_map"]["2013.com.canonical.certification::package"]):
                 self.worksheet1.write_row(
                     22 + i, 1,
                     [pkg['name'], pkg['version']],
@@ -288,7 +288,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                     22 + i, None, None, {'level': 1, 'hidden': True}
                 )
             self.worksheet1.set_row(
-                22+len(data["resource_map"]["package"]),
+                22+len(data["resource_map"]["2013.com.canonical.certification::package"]),
                 None, None, {'collapsed': True}
             )
 

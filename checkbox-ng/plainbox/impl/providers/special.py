@@ -98,7 +98,7 @@ class CheckBoxSrcProvider(Provider1):
         secure = False
         gettext_domain = "checkbox"
         jobs_dir = os.path.join(base_dir, 'jobs')
-        whitelists_dir = os.path.join(base_dir, 'data/whitelist')
+        whitelists_dir = os.path.join(base_dir, 'data/whitelists')
         data_dir = os.path.join(base_dir, 'data')
         bin_dir = os.path.join(base_dir, 'scripts')
         locale_dir = os.path.join(base_dir, 'build/mo')

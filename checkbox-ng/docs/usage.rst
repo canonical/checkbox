@@ -20,11 +20,11 @@ is :command:`plainbox run`. It has a number of options that tell it which
 To run a specific :term:`job` pass it to the ``--include-pattern`` or ``-i``
 option.
 
-For example, to run the ``cpu/scaling_test`` job:
+For example, to run one of the internal "smoke" test job:
 
 .. code-block:: bash
 
-    $ plainbox run -i cpu/scaling_test
+    $ plainbox run -i 2013.com.canonical.plainbox::stub/true
 
 .. note::
 

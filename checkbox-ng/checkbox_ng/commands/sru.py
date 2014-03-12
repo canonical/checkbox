@@ -44,7 +44,6 @@ from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter.xml import XMLSessionStateExporter
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.secure.config import ValidationError, Unset
-from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.session import SessionStateLegacyAPI as SessionState
 
 from checkbox_ng.certification import CertificationTransport
@@ -66,9 +65,11 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
         self.config = config
         self.ns = ns
         if self.ns.whitelist:
-            self.whitelist = WhiteList.from_file(self.ns.whitelist[0].name)
+            self.whitelist = self.get_whitelist_from_file(
+                self.ns.whitelist[0].name, self.ns.whitelist)
         elif self.config.whitelist is not Unset:
-            self.whitelist = WhiteList.from_file(self.config.whitelist)
+            self.whitelist = self.get_whitelist_from_file(
+                self.config.whitelist)
         else:
             self.whitelist = get_whitelist_by_name(provider_list, 'sru')
         self.job_list = self.get_job_list(ns)

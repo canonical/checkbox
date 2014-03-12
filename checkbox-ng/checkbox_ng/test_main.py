@@ -49,7 +49,7 @@ class TestMain(TestCase):
         self.assertEqual(call.exception.args, (0,))
         self.maxDiff = None
         expected = """
-        usage: checkbox [-h] [--version] [-c {src,deb,auto,stub,ihv}] [-v] [-D] [-C]
+        usage: checkbox [-h] [--version] [--providers {all,src,stub}] [-v] [-D] [-C]
                         [-T LOGGER] [-P] [-I]
                         
                         {sru,check-config,script,dev,checkbox-cli,driver-test-suite-cli,certification-server,service}
@@ -71,8 +71,10 @@ class TestMain(TestCase):
         optional arguments:
           -h, --help            show this help message and exit
           --version             show program's version number and exit
-          -c {src,deb,auto,stub,ihv}, --checkbox {src,deb,auto,stub,ihv}
-                                where to find the installation of CheckBox.
+
+        provider list and development:
+          --providers {all,src,stub}
+                                which providers to load
 
         logging and debugging:
           -v, --verbose         be more verbose (same as --log-level=INFO)
@@ -93,7 +95,7 @@ class TestMain(TestCase):
                 main([])
             self.assertEqual(call.exception.args, (2,))
         expected = """
-        usage: checkbox [-h] [--version] [-c {src,deb,auto,stub,ihv}] [-v] [-D] [-C]
+        usage: checkbox [-h] [--version] [--providers {all,src,stub}] [-v] [-D] [-C]
                         [-T LOGGER] [-P] [-I]
                         
                         {sru,check-config,script,dev,checkbox-cli,driver-test-suite-cli,certification-server,service}

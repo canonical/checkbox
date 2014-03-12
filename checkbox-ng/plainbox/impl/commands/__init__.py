@@ -112,60 +112,37 @@ class PlainBoxToolBase(ToolBase):
         """
         Get the list of job providers.
 
-        This method looks at -c|--checkbox argument to figure out which
+        This method looks at --providers argument to figure out which
         providers to expose to all of the commands.
         """
         # If the default value of 'None' was set for the checkbox (provider)
         # argument then load the actual provider name from the configuration
         # object (default for that is 'auto').
-        if ns.checkbox is None:
-            ns.checkbox = self._config.default_provider
-        assert ns.checkbox in ('auto', 'src', 'deb', 'stub', 'ihv')
-        # Handle the deprecated 'ihv' value
-        if ns.checkbox == 'ihv':
-            logger.warning(
-                # TRANSLATORS: please keep '-c ihv' untranslated
-                _("The -c ihv option is deprecated and doesn't work anymore"))
-            ns.checkbox = 'auto'
+        if ns.providers is None:
+            ns.providers = self._config.default_provider
+        assert ns.providers in ('all', 'src', 'stub')
         # Decide which providers to expose to the rest of plainbox
-        if ns.checkbox == 'auto':
-            if CheckBoxSrcProvider.exists():
-                return (self._load_checkbox_source_provider()
-                        + self._load_normal_providers_except_checkbox())
-            else:
-                return self._load_normal_providers()
-        elif ns.checkbox == 'src':
+        if ns.providers == 'all':
+            return self._load_really_all_providers()
+        elif ns.providers == 'src':
             return self._load_checkbox_source_provider()
-        elif ns.checkbox == 'deb':
-            return self._load_normal_providers()
-        elif ns.checkbox == 'stub':
+        elif ns.providers == 'stub':
             return self._load_stub_provider_only()
 
-    def _is_part_of_checkbox_src(self, provider):
-        """
-        Check a provider is derived of the CheckBoxSrcProvider().
-
-        :returns:
-            True if the specified provider's data is included in the special,
-            all-in-one, CheckBoxSrcProvider.
-        """
-        return provider.name in (
-            "2013.com.canonical.certification:certification-client",
-            "2013.com.canonical.certification:certification-server",
-            "2013.com.canonical.certification:certification-server-soc",
-            "2013.com.canonical.certification:checkbox",
-            "2013.com.canonical.certification:plainbox-resources")
-
-    def _load_normal_providers(self):
+    def _load_really_all_providers(self):
+        provider_list = []
+        # StubBox is always enabled
+        provider_list.append(
+            Provider1.from_definition(get_stubbox_def(), secure=False))
+        # Load checkbox-src if working from source
+        try:
+            provider_list.append(CheckBoxSrcProvider())
+        except LookupError:
+            pass
+        # Load all normal providers
         all_providers.load()
-        return [plugin.plugin_object
-                for plugin in all_providers.get_all_plugins()]
-
-    def _load_normal_providers_except_checkbox(self):
-        all_providers.load()
-        return [plugin.plugin_object
-                for plugin in all_providers.get_all_plugins()
-                if not self._is_part_of_checkbox_src(plugin.plugin_object)]
+        provider_list.extend(all_providers.get_all_plugin_objects())
+        return provider_list
 
     def _load_checkbox_source_provider(self):
         return [CheckBoxSrcProvider()]
@@ -180,18 +157,14 @@ class PlainBoxToolBase(ToolBase):
         This method adds the -c|--checkbox argument to the set of early parser
         arguments, so that it is visible in autocomplete and help.
         """
-        # Since we need a CheckBox instance to create the main argument parser
-        # and we need to be able to specify where Checkbox is, we parse that
-        # option alone before parsing everything else
-        # TODO: rename this to -p | --provider
-        parser.add_argument(
-            '-c', '--checkbox',
+        group = parser.add_argument_group(title=_("provider list and development"))
+        group.add_argument(
+            '--providers',
             action='store',
-            # TODO: have some public API for this, pretty please
-            choices=['src', 'deb', 'auto', 'stub', 'ihv'],
-            # None is a special value that means 'use whatever configured'
+            choices=['all', 'src', 'stub'],
+            # None is a special value that means 'use whatever is configured'
             default=None,
-            help=_("where to find the installation of CheckBox."))
+            help=_("which providers to load"))
         super().add_early_parser_arguments(parser)
 
 

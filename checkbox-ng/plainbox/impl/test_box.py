@@ -183,7 +183,7 @@ class TestMain(TestCase):
         self.assertEqual(call.exception.args, (0,))
         self.maxDiff = None
         expected = """
-        usage: plainbox [-h] [--version] [-c {src,deb,auto,stub,ihv}] [-v] [-D] [-C]
+        usage: plainbox [-h] [--version] [--providers {all,src,stub}] [-v] [-D] [-C]
                         [-T LOGGER] [-P] [-I]
                         {run,self-test,check-config,dev,startprovider} ...
 
@@ -198,8 +198,10 @@ class TestMain(TestCase):
         optional arguments:
           -h, --help            show this help message and exit
           --version             show program's version number and exit
-          -c {src,deb,auto,stub,ihv}, --checkbox {src,deb,auto,stub,ihv}
-                                where to find the installation of CheckBox.
+
+        provider list and development:
+          --providers {all,src,stub}
+                                which providers to load
 
         logging and debugging:
           -v, --verbose         be more verbose (same as --log-level=INFO)
@@ -221,7 +223,7 @@ class TestMain(TestCase):
                 main([])
             self.assertEqual(call.exception.args, (2,))
         expected = """
-        usage: plainbox [-h] [--version] [-c {src,deb,auto,stub,ihv}] [-v] [-D] [-C]
+        usage: plainbox [-h] [--version] [--providers {all,src,stub}] [-v] [-D] [-C]
                         [-T LOGGER] [-P] [-I]
                         {run,self-test,check-config,dev,startprovider} ...
         plainbox: error: too few arguments
@@ -276,7 +278,7 @@ class TestSpecial(TestCase):
     def test_run_list_jobs(self):
         with TestIO() as io:
             with self.assertRaises(SystemExit) as call:
-                main(['-c', 'stub', 'dev', 'special', '--list-jobs'])
+                main(['--providers', 'stub', 'dev', 'special', '--list-jobs'])
             self.assertEqual(call.exception.args, (0,))
         self.assertIn(
             "2013.com.canonical.plainbox::stub/false", io.stdout.splitlines())
@@ -286,7 +288,7 @@ class TestSpecial(TestCase):
     def test_run_list_jobs_with_filtering(self):
         with TestIO() as io:
             with self.assertRaises(SystemExit) as call:
-                main(['-c', 'stub', 'dev', 'special',
+                main(['--providers', 'stub', 'dev', 'special',
                       ('--include-pattern='
                        '2013.com.canonical.plainbox::stub/false'),
                       '--list-jobs'])
@@ -299,7 +301,7 @@ class TestSpecial(TestCase):
     def test_run_list_expressions(self):
         with TestIO() as io:
             with self.assertRaises(SystemExit) as call:
-                main(['-c', 'stub', 'dev', 'special', '--list-expressions'])
+                main(['--providers', 'stub', 'dev', 'special', '--list-expressions'])
             self.assertEqual(call.exception.args, (0,))
         self.assertIn(
             'stub_package.name == "checkbox"', io.stdout.splitlines())
@@ -307,7 +309,7 @@ class TestSpecial(TestCase):
     def test_run_dot(self):
         with TestIO() as io:
             with self.assertRaises(SystemExit) as call:
-                main(['-c', 'stub', 'dev', 'special', '--dot'])
+                main(['--providers', 'stub', 'dev', 'special', '--dot'])
             self.assertEqual(call.exception.args, (0,))
         self.assertIn(
             '\t"2013.com.canonical.plainbox::stub/true" [];',
@@ -318,7 +320,7 @@ class TestSpecial(TestCase):
     def test_run_dot_with_resources(self):
         with TestIO() as io:
             with self.assertRaises(SystemExit) as call:
-                main(['-c', 'stub', 'dev', 'special', '--dot',
+                main(['--providers', 'stub', 'dev', 'special', '--dot',
                       '--dot-resources'])
             self.assertEqual(call.exception.args, (0,))
         self.assertIn(

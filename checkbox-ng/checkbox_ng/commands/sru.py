@@ -88,7 +88,7 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
             # someone is using plainbox for job development.
             print("The job database you are currently using is broken")
             print("At least two jobs contend for the name {0}".format(
-                exc.job.name))
+                exc.job.id))
             print("First job defined in: {0}".format(exc.job.origin))
             print("Second job defined in: {0}".format(
                 exc.duplicate_job.origin))
@@ -169,7 +169,7 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
                 # Skip jobs that already have result, this is only needed when
                 # we run over the list of jobs again, after discovering new
                 # jobs via the local job output
-                result = self.session.job_state_map[job.name].result
+                result = self.session.job_state_map[job.id].result
                 if result.outcome is not None:
                     continue
                 self._run_single_job(job)
@@ -182,7 +182,7 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
                     break
 
     def _run_single_job(self, job):
-        print("- {}:".format(job.name), end=' ')
+        print("- {}:".format(job.id), end=' ')
         sys.stdout.flush()
         job_state, job_result = run_job_if_possible(
             self.session, self.runner, self.config, job)

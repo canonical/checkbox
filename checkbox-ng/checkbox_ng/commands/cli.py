@@ -501,7 +501,7 @@ class CliInvocation(CheckBoxInvocationMixIn):
                 # someone is using plainbox for job development.
                 print("The job database you are currently using is broken")
                 print("At least two jobs contend for the name {0}".format(
-                    exc.job.name))
+                    exc.job.id))
                 print("First job defined in: {0}".format(exc.job.origin))
                 print("Second job defined in: {0}".format(
                     exc.duplicate_job.origin))
@@ -762,7 +762,7 @@ class CliInvocation(CheckBoxInvocationMixIn):
                 # Skip jobs that already have result, this is only needed when
                 # we run over the list of jobs again, after discovering new
                 # jobs via the local job output
-                if (manager.state.job_state_map[job.name].result.outcome
+                if (manager.state.job_state_map[job.id].result.outcome
                         is not None):
                     continue
                 self._run_single_job_with_session(ns, manager, runner, job)
@@ -783,8 +783,8 @@ class CliInvocation(CheckBoxInvocationMixIn):
     def _run_single_job_with_session(self, ns, manager, runner, job):
         if job.plugin not in ['local', 'resource']:
             print("[ {} ]".format(job.name).center(80, '-'))
-        job_state = manager.state.job_state_map[job.name]
-        logger.debug("Job name: %s", job.name)
+        job_state = manager.state.job_state_map[job.id]
+        logger.debug("Job id: %s", job.id)
         logger.debug("Plugin: %s", job.plugin)
         logger.debug("Direct dependencies: %s", job.get_direct_dependencies())
         logger.debug("Resource dependencies: %s",
@@ -800,8 +800,8 @@ class CliInvocation(CheckBoxInvocationMixIn):
                     print("^" * len(job.description.splitlines()[-1]))
                     print()
                 print("Running... (output in {}.*)".format(
-                    join(manager.storage.location, slugify(job.name))))
-            manager.state.metadata.running_job_name = job.name
+                    join(manager.storage.location, slugify(job.id))))
+            manager.state.metadata.running_job_name = job.id
             manager.checkpoint()
             # TODO: get a confirmation from the user for certain types of
             # job.plugin

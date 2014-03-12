@@ -352,7 +352,7 @@ po/PORFILES.in
     manage.py
 
 whitelists/trivial.whitelist
----------------------------
+----------------------------
 
 ::
 

@@ -288,6 +288,14 @@ class JobDefinitionWrapper(PlainBoxObjectWrapper):
         return self.native.id
 
     @dbus.service.property(dbus_interface=JOB_IFACE, signature="s")
+    def id(self):
+        return self.native.id
+
+    @dbus.service.property(dbus_interface=JOB_IFACE, signature="s")
+    def partial_id(self):
+        return self.native.partial_id
+
+    @dbus.service.property(dbus_interface=JOB_IFACE, signature="s")
     def description(self):
         return self.native.description or ""
 

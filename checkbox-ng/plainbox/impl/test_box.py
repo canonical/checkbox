@@ -29,6 +29,7 @@ from io import TextIOWrapper
 from unittest import TestCase
 
 from plainbox import __version__ as version
+from plainbox.abc import IProvider1
 from plainbox.impl.box import main
 from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.testing_utils import MockJobDefinition, suppress_warnings
@@ -61,7 +62,10 @@ class MiscTests(TestCase):
         self.job_foo = MockJobDefinition(id='foo')
         self.job_bar = MockJobDefinition(id='bar')
         self.job_baz = MockJobDefinition(id='baz')
-        self.obj = CheckBoxInvocationMixIn(Mock(name="checkbox"))
+        self.provider1 = Mock(IProvider1)
+        self.provider1.get_builtin_whitelists.return_value = []
+        self.provider_list = [self.provider1]
+        self.obj = CheckBoxInvocationMixIn(self.provider_list)
 
     def test_matching_job_list(self):
         # Nothing gets selected automatically

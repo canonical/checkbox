@@ -782,7 +782,7 @@ class CliInvocation(CheckBoxInvocationMixIn):
 
     def _run_single_job_with_session(self, ns, manager, runner, job):
         if job.plugin not in ['local', 'resource']:
-            print("[ {} ]".format(job.name).center(80, '-'))
+            print("[ {} ]".format(job.tr_summary()).center(80, '-'))
         job_state = manager.state.job_state_map[job.id]
         logger.debug("Job id: %s", job.id)
         logger.debug("Plugin: %s", job.plugin)

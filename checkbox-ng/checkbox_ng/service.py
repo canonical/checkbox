@@ -38,6 +38,7 @@ except ImportError:
 from plainbox.abc import IJobResult
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.result import MemoryJobResult
+from plainbox.impl.secure.qualifiers import select_jobs
 from plainbox.impl.session import JobState
 from plainbox.impl.signal import remove_signals_listeners
 from plainbox.vendor import extcmd
@@ -1232,6 +1233,30 @@ class ServiceWrapper(PlainBoxObjectWrapper):
         return primed_job
 
     RunJob = PrimeJob
+
+    @dbus.service.method(
+        dbus_interface=SERVICE_IFACE, in_signature='ao', out_signature='ao')
+    @PlainBoxObjectWrapper.translate
+    def SelectJobs(self, whitelist_list: 'ao') -> 'ao':
+        """
+        Compute the effective desired job list out of a list of (arbitrary)
+        desired whitelists or job definitions.
+
+        :param whitelist_list:
+            A list of jobs or whitelists to select. Each whitelist selects all
+            the jobs selected by that whitelist.
+
+            This argument is a simple, limited, encoding of job qualifiers that
+            is sufficient to implement the desired semantics of the Checkbox
+            GUI.
+
+        :returns:
+            A list of jobs that were selected.
+        """
+        job_list = list(
+            itertools.chain(*[
+                p.load_all_jobs()[0] for p in self.native.provider_list]))
+        return select_jobs(job_list, whitelist_list)
 
 
 class UIOutputPrinter(extcmd.DelegateBase):

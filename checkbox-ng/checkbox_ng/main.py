@@ -47,7 +47,7 @@ checkbox_cli_settings = {
     'subparser_name': 'checkbox-cli',
     'subparser_help': 'application for system testing',
     'default_whitelist': 'default',
-    'default_providers': ['2013.com.canonical:checkbox'],
+    'default_providers': ['2013.com.canonical.certification:checkbox'],
     'welcome_text': """\
 Welcome to System Testing!
 Checkbox provides tests to confirm that your system is working properly. \
@@ -84,7 +84,7 @@ cert_cli_settings = {
     'subparser_name': 'certification-server',
     'subparser_help': 'application for server certification',
     'default_whitelist': 'server-cert',
-    'default_providers': ['2013.com.canonical:certification-server'],
+    'default_providers': ['2013.com.canonical.certification:certification-server'],
     'welcome_text': """\
 Welcome to System Certification!
 This application will gather information from your system. Then you will be \

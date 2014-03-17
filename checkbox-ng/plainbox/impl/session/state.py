@@ -55,13 +55,14 @@ class SessionMetaData:
     FLAG_SUBMITTED = "submitted"
 
     def __init__(self, title=None, flags=None, running_job_name=None,
-                 app_blob=None):
+                 app_blob=None, app_id=None):
         if flags is None:
             flags = []
         self._title = title
         self._flags = set(flags)
         self._running_job_name = running_job_name
         self._app_blob = app_blob
+        self._app_id = app_id
 
     def __repr__(self):
         return "<{} title:{!r} flags:{!r} running_job_name:{!r}>".format(
@@ -144,6 +145,23 @@ class SessionMetaData:
             # TRANSLATORS: please don't translate app_blob, None and bytes
             raise TypeError(_("app_blob must be either None or bytes"))
         self._app_blob = value
+
+    @property
+    def app_id(self):
+        """
+        Application identifier
+
+        A string identifying the application that stored app_blob. It is
+        recommended to use reverse domain names or UUIDs.
+        """
+        return self._app_id
+
+    @app_id.setter
+    def app_id(self, value):
+        if value is not None and not isinstance(value, str):
+            # TRANSLATORS: please don't translate app_blob, None and bytes
+            raise TypeError(_("app_id must be either None or str"))
+        self._app_id = value
 
 
 class SessionState:

@@ -661,3 +661,21 @@ class SessionMetadataTests(TestCase):
     def test_app_blob_kwarg_to_init(self):
         metadata = SessionMetaData(app_blob=b'blob')
         self.assertEqual(metadata.app_blob, b'blob')
+
+    def test_app_id_default_value(self):
+        metadata = SessionMetaData()
+        self.assertIs(metadata.app_id, None)
+
+    def test_app_id_assignment(self):
+        metadata = SessionMetaData()
+        metadata.app_id = 'com.canonical.certification.plainbox'
+        self.assertEqual(
+            metadata.app_id, 'com.canonical.certification.plainbox')
+        metadata.app_id = None
+        self.assertEqual(metadata.app_id, None)
+
+    def test_app_id_kwarg_to_init(self):
+        metadata = SessionMetaData(
+            app_id='com.canonical.certification.plainbox')
+        self.assertEqual(
+            metadata.app_id, 'com.canonical.certification.plainbox')

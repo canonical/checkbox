@@ -45,6 +45,7 @@ from plainbox.impl.session.resume import SessionResumeError
 from plainbox.impl.session.resume import SessionResumeHelper
 from plainbox.impl.session.resume import SessionResumeHelper1
 from plainbox.impl.session.resume import SessionResumeHelper2
+from plainbox.impl.session.resume import SessionResumeHelper3
 from plainbox.impl.session.state import SessionState
 from plainbox.impl.testing_utils import make_job
 from plainbox.testing_utils.testcases import TestCaseWithParameters
@@ -128,12 +129,22 @@ class SessionResumeHelperTests(TestCase):
         SessionResumeHelper([]).resume(data)
         mocked_helper2.resume_json.assertCalledOnce()
 
-    def test_resume_dispatch_v3(self):
+    @mock.patch('plainbox.impl.session.resume.SessionResumeHelper3')
+    def test_resume_dispatch_v3(self, mocked_helper3):
         data = gzip.compress(
-            b'{"version":3}')
+            b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+            b'{"app_blob":null,"app_id":null,"flags":[],'
+            b'"running_job_name":null,"title":null'
+            b'},"results":{}},"version":3}')
+        SessionResumeHelper([]).resume(data)
+        mocked_helper3.resume_json.assertCalledOnce()
+
+    def test_resume_dispatch_v4(self):
+        data = gzip.compress(
+            b'{"version":4}')
         with self.assertRaises(IncompatibleSessionError) as boom:
             SessionResumeHelper([]).resume(data)
-        self.assertEqual(str(boom.exception), "Unsupported version 3")
+        self.assertEqual(str(boom.exception), "Unsupported version 4")
 
 
 class SessionResumeTests(TestCase):
@@ -183,7 +194,7 @@ class SessionResumeTests(TestCase):
 class EndToEndTests(TestCaseWithParameters):
 
     parameter_names = ('format',)
-    parameter_values = (('1',), ('2'),)
+    parameter_values = (('1',), ('2',), ('3',))
 
     full_repr_1 = {
         'version': 1,
@@ -239,10 +250,16 @@ class EndToEndTests(TestCaseWithParameters):
     full_repr_2['version'] = 2
     full_repr_2['session']['metadata']['app_blob'] = None
 
+    # Copy and patch the v2 representation to get a v3 representation
+    full_repr_3 = copy.deepcopy(full_repr_2)
+    full_repr_3['version'] = 3
+    full_repr_3['session']['metadata']['app_id'] = None
+
     # Map of representation ids to representations
     full_repr = {
         '1': full_repr_1,
-        '2': full_repr_2
+        '2': full_repr_2,
+        '3': full_repr_3
     }
 
     def setUp(self):
@@ -288,13 +305,15 @@ class EndToEndTests(TestCaseWithParameters):
 
 class SessionStateResumeTests(TestCaseWithParameters):
     """
-    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1` and
-    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and how they
+    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1`,
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper3' and how they
     handle resuming SessionState inside _build_SessionState() method.
     """
 
     parameter_names = ('resume_cls',)
-    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,))
+    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
+                        (SessionResumeHelper3,))
 
     def setUp(self):
         self.session_repr = {}
@@ -360,13 +379,15 @@ class SessionStateResumeTests(TestCaseWithParameters):
 
 class IOLogRecordResumeTests(TestCaseWithParameters):
     """
-    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1` and
-    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and how they
+    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1`,
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper3' and how they
     handle resuming IOLogRecord objects
     """
 
     parameter_names = ('resume_cls',)
-    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,))
+    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
+                        (SessionResumeHelper3,))
 
     def test_build_IOLogRecord_missing_delay(self):
         """
@@ -648,13 +669,15 @@ class JobResultResumeMixIn:
 
 class MemoryJobResultResumeTests(JobResultResumeMixIn, TestCaseWithParameters):
     """
-    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1` and
-    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and how they
+    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1`,
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper3' and how they
     handle recreating MemoryJobResult form their representations
     """
 
     parameter_names = ('resume_cls',)
-    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,))
+    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
+                        (SessionResumeHelper3,))
     good_repr = {
         'outcome': "pass",
         'comments': None,
@@ -722,13 +745,15 @@ class MemoryJobResultResumeTests(JobResultResumeMixIn, TestCaseWithParameters):
 
 class DiskJobResultResumeTests(JobResultResumeMixIn, TestCaseWithParameters):
     """
-    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1` and
-    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and how they
+    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1`,
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper3' and how they
     handle recreating DiskJobResult form their representations
     """
 
     parameter_names = ('resume_cls',)
-    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,))
+    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
+                        (SessionResumeHelper3,))
     good_repr = {
         'outcome': "pass",
         'comments': None,
@@ -796,13 +821,15 @@ class DiskJobResultResumeTests(JobResultResumeMixIn, TestCaseWithParameters):
 
 class DesiredJobListResumeTests(TestCaseWithParameters):
     """
-    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1` and
-    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and how they
+    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1`,
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper3' and how they
     handle recreating SessionState.desired_job_list form its representation
     """
 
     parameter_names = ('resume_cls',)
-    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,))
+    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
+                        (SessionResumeHelper3,))
 
     def setUp(self):
         # All of the tests need a SessionState object and some jobs to work
@@ -869,13 +896,14 @@ class DesiredJobListResumeTests(TestCaseWithParameters):
 
 class SessionMetaDataResumeTests(TestCaseWithParameters):
     """
-    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1` and
-    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and how they
+    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1`,
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper3' and how they
     handle recreating SessionMetaData form its representation
     """
 
     parameter_names = ('format',)
-    parameter_values = ((1,), (2,))
+    parameter_values = ((1,), (2,), (3,))
     good_repr_v1 = {
         "metadata": {
             "title": "some title",
@@ -891,13 +919,24 @@ class SessionMetaDataResumeTests(TestCaseWithParameters):
             "app_blob": None,
         }
     }
+    good_repr_v3 = {
+        "metadata": {
+            "title": "some title",
+            "flags": ["flag1", "flag2"],
+            "running_job_name": "job1",
+            "app_blob": None,
+            "app_id": None,
+        }
+    }
     good_repr_map = {
         1: good_repr_v1,
-        2: good_repr_v2
+        2: good_repr_v2,
+        3: good_repr_v3
     }
     resume_cls_map = {
         1: SessionResumeHelper1,
         2: SessionResumeHelper2,
+        3: SessionResumeHelper3,
     }
 
     def setUp(self):
@@ -1061,7 +1100,7 @@ class SessionMetaDataResumeTests2(TestCase):
     def test_restore_SessionState_metadata_allows_for_none_app_blob(self):
         """
         verify that _restore_SessionState_metadata() allows for
-        ``title`` to be None
+        ``app_blob`` to be None
         """
         obj_repr = copy.copy(self.good_repr)
         obj_repr['metadata']['app_blob'] = None
@@ -1070,7 +1109,7 @@ class SessionMetaDataResumeTests2(TestCase):
 
     def test_restore_SessionState_metadata_restores_app_blob(self):
         """
-        verify that _restore_SessionState_metadata() restores ``title``
+        verify that _restore_SessionState_metadata() restores ``app_blob``
         """
         obj_repr = copy.copy(self.good_repr)
         obj_repr['metadata']['app_blob'] = "YmxvYg=="
@@ -1103,15 +1142,70 @@ class SessionMetaDataResumeTests2(TestCase):
         self.assertIsInstance(boom.exception.__context__, binascii.Error)
 
 
+class SessionMetaDataResumeTest3(SessionMetaDataResumeTests2):
+    """
+    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper3`
+    and how it handles recreating SessionMetaData form its representation
+    """
+
+    def setUp(self):
+        # All of the tests need a SessionState object
+        self.session = SessionState([])
+        self.good_repr = {
+            "metadata": {
+                "title": "some title",
+                "flags": ["flag1", "flag2"],
+                "running_job_name": "job1",
+                "app_blob": "YmxvYg==",  # this is b'blob', encoded
+                "app_id": "id"
+            }
+        }
+        self.resume_fn = SessionResumeHelper3._restore_SessionState_metadata
+
+    def test_restore_SessionState_metadata_checks_app_id_type(self):
+        """
+        verify that _restore_SessionState_metadata() checks the type of
+        the ``app_id`` field.
+        """
+        with self.assertRaises(CorruptedSessionError) as boom:
+            obj_repr = copy.copy(self.good_repr)
+            obj_repr['metadata']['app_id'] = 1
+            self.resume_fn(self.session, obj_repr)
+        self.assertEqual(
+            str(boom.exception),
+            "Value of key 'app_id' is of incorrect type int")
+
+    def test_restore_SessionState_metadata_allows_for_none_app_id(self):
+        """
+        verify that _restore_SessionState_metadata() allows for
+        ``app_id`` to be None
+        """
+        obj_repr = copy.copy(self.good_repr)
+        obj_repr['metadata']['app_id'] = None
+        self.resume_fn(self.session, obj_repr)
+        self.assertEqual(self.session.metadata.app_id, None)
+
+    def test_restore_SessionState_metadata_restores_app_id(self):
+        """
+        verify that _restore_SessionState_metadata() restores ``app_id``
+        """
+        obj_repr = copy.copy(self.good_repr)
+        obj_repr['metadata']['app_id'] = "id"
+        self.resume_fn(self.session, obj_repr)
+        self.assertEqual(self.session.metadata.app_id, "id")
+
+
 class ProcessJobTests(TestCaseWithParameters):
     """
-    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1` and
-    :class:`~plainbox.impl.session.resume.SessionResumeHelper2` and how they
+    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1`,
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper2` and
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper3` and how they
     handle processing jobs using _process_job() method
     """
 
     parameter_names = ('resume_cls',)
-    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,))
+    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
+                        (SessionResumeHelper3,))
 
     def setUp(self):
         self.job_id = 'job'
@@ -1265,14 +1359,16 @@ class ProcessJobTests(TestCaseWithParameters):
 
 class JobPluginSpecificTests(TestCaseWithParameters):
     """
-    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1` and
-    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and how they
+    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1`,
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper3' and how they
     handle processing jobs using _process_job() method. This class focuses on
     plugin-specific test such as for local and resource jobs
     """
 
     parameter_names = ('resume_cls',)
-    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,))
+    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
+                        (SessionResumeHelper3,))
 
     def test_process_job_restores_resources(self):
         """
@@ -1359,14 +1455,16 @@ class JobPluginSpecificTests(TestCaseWithParameters):
 
 class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
     """
-    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1` and
-    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and how they
+    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1`,
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper3' and how they
     handle resume the session using _restore_SessionState_jobs_and_results()
     method.
     """
 
     parameter_names = ('resume_cls',)
-    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,))
+    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
+                        (SessionResumeHelper3,))
 
     def test_empty_session(self):
         """
@@ -1560,14 +1658,16 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
 
 class SessionJobListResumeTests(TestCaseWithParameters):
     """
-    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1` and
-    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and how they
+    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1`,
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and
+    :class:`~plainbox.impl.session.resume.SessionResumeHelper3' and how they
     handle resume session.job_list using _restore_SessionState_job_list()
     method.
     """
 
     parameter_names = ('resume_cls',)
-    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,))
+    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
+                        (SessionResumeHelper3,))
 
     def test_simple_session(self):
         """

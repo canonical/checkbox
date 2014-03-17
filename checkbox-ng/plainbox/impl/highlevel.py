@@ -22,6 +22,7 @@
 ================================================
 """
 
+from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
 from io import BytesIO
 import logging
@@ -177,18 +178,51 @@ class Explorer:
             provider_obj = PlainBoxObject(
                 provider,
                 group="provider",
-                name=provider.name)
+                name=provider.name,
+                attrs=OrderedDict((
+                    ('name', provider.name),
+                    ('namespace', provider.namespace),
+                    ('version', provider.version),
+                    ('description', provider.description),
+                    ('tr_description', provider.tr_description()),
+                    ('jobs_dir', provider.jobs_dir),
+                    ('whitelists_dir', provider.whitelists_dir),
+                    ('data_dir', provider.data_dir),
+                    ('locale_dir', provider.locale_dir),
+                    ('gettext_domain', provider.gettext_domain),
+                )))
             for job in provider.load_all_jobs()[0]:
                 job_obj = PlainBoxObject(
                     job,
                     group="job",
-                    name=job.id)
+                    name=job.id,
+                    attrs=OrderedDict((
+                        ('id', job.id),
+                        ('partial_id', job.partial_id),
+                        ('summary', job.summary),
+                        ('tr_summary', job.tr_summary()),
+                        ('description', job.description),
+                        ('tr_description', job.tr_description()),
+                        ('plugin', job.plugin),
+                        ('command', job.command),
+                        ('user', job.user),
+                        ('environ', job.environ),
+                        ('estimated_duration', job.estimated_duration),
+                        ('depends', job.depends),
+                        ('requires', job.requires),
+                        ('origin', str(job.origin)),
+                    )))
                 provider_obj.children.append(job_obj)
             for whitelist in provider.get_builtin_whitelists():
                 whitelist_obj = PlainBoxObject(
                     whitelist,
                     group="whitelist",
-                    name=whitelist.name)
+                    name=whitelist.name,
+                    attrs=OrderedDict((
+                        ('name', whitelist.name),
+                        ('implicit_namespace', whitelist.implicit_namespace),
+                        ('origin', str(whitelist.origin)),
+                    )))
                 provider_obj.children.append(whitelist_obj)
             service_obj.children.append(provider_obj)
         # Milk each repository for session storage data
@@ -202,7 +236,11 @@ class Explorer:
                 storage_obj = PlainBoxObject(
                     storage,
                     group="storage",
-                    name=storage.location)
+                    name=storage.location,
+                    attrs=OrderedDict((
+                        ('location', storage.location),
+                        ('session_file', storage.session_file),
+                    )))
                 repo_obj.children.append(storage_obj)
         return service_obj
 

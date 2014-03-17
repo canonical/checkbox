@@ -1,60 +1,76 @@
-plugin: shell
 id: stub/true
-command: true; echo oops
+_summary: Passing shell job
 _description:
  Check success result from shell test case
-
 plugin: shell
+command: true; echo oops
+
 id: stub/false
-command: false
+_summary: Failing shell job
 _description:
  Check failed result from shell test case
-
 plugin: shell
+command: false
+
 id: stub/dependency/good
-depends: stub/true
-command: true
+_summary: Passing shell job depending on a passing shell job
 _description:
  Check job is executed when dependency succeeds
+plugin: shell
+depends: stub/true
+command: true
 
 plugin: shell
 id: stub/dependency/bad
 depends: stub/false
 command: true
+_summary: Passing shell job depending on a failing shell job
 _description:
  Check job result is set to uninitiated when dependency fails
 
-plugin: shell
 id: stub/sleep-60
-command: sleep 60
+_summary: Job sleeping for sixty seconds 
 _description: Sleep for sixty seconds
-
 plugin: shell
-depends: stub/multilevel
-id: stub/kill-ppid-if-KILLER-set
-command: if [ "$KILLER" == "yes" ]; then kill -9 $PPID; fi
-_description: Kill $PPID if $KILLER is set to yes
+command: sleep 60
 
-plugin: resource
+id: stub/kill-ppid-if-KILLER-set
+_summary: Job killing the parent, if KILLER=yes
+_description: Kill $PPID if $KILLER is set to yes
+plugin: shell
+# XXX: why is this dependency here?
+depends: stub/multilevel
+command: if [ "$KILLER" == "yes" ]; then kill -9 $PPID; fi
+
+# FIXME: stub/package once resource_object is supported
 id: stub_package
+_summary: Job determining a fake list of packages
+_description:
+    This job generates a resource object with what looks
+    like a list of packages.
+    .
+    The actual packages are fake
+plugin: resource
 command: stub_package_list
 
-plugin: shell
 id: stub/requirement/good
-requires: stub_package.name == "checkbox"
-command: true
+_summary: Passing shell job depending on an availalbe resource
 _description:
  Check job is executed when requirements are met
-
 plugin: shell
-id: stub/requirement/bad
-requires: stub_package.name == "unknown-package"
+requires: stub_package.name == "checkbox"
 command: true
+
+id: stub/requirement/bad
+_summary: Passing shell job depending on an unavailable resource
 _description:
  Check job result is set to "not required on this system" when requirements are not met
+plugin: shell
+requires: stub_package.name == "unknown-package"
+command: true
 
-plugin: manual
 id: stub/manual
+_summary: A simple manual job
 _description:
  PURPOSE:
      This test checks that the manual plugin works fine
@@ -63,10 +79,10 @@ _description:
      2. Set the result as passed
  VERIFICATION:
      Check that in the report the result is passed and the comment is displayed
+plugin: manual
 
-plugin: user-interact
 id: stub/user-interact
-command: true
+_summary: A simple user interaction job
 _description:
  PURPOSE:
      This test checks that the user-interact plugin works fine
@@ -75,10 +91,11 @@ _description:
      2. Press the test button
  VERIFICATION:
      Check that in the report the result is passed
+plugin: user-interact
+command: true
 
-plugin: user-verify
 id: stub/user-verify
-command: echo "Please select 'pass'"
+_summary: A simple user verification job
 _description:
  PURPOSE:
      This test checks that the user-verify plugin works fine
@@ -89,10 +106,11 @@ _description:
      4. Look at the output and determine the outcome of the test
  VERIFICATION:
      The command should have printed "Please select 'pass'"
-
-plugin: user-interact-verify
-id: stub/user-interact-verify
+plugin: user-verify
 command: echo "Please select 'pass'"
+
+id: stub/user-interact-verify
+_summary: A simple user verification-interaction job
 _description:
  PURPOSE:
      This test checks that the user-interact-verify plugin works fine
@@ -103,24 +121,32 @@ _description:
      4. Look at the output and determine the outcome of the test
  VERIFICATION:
      The command should have printed "Please select 'pass'"
+plugin: user-interact-verify
+command: echo "Please select 'pass'"
 
-plugin: local
 id: __local__
-_description: stub local tests
-command:
-  shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/local.txt?(.in)
-
+_summary: A job generating one more job
+_description:
+    This job generates the stub/local/true job
 plugin: local
-id: __multilevel__
-_description: stub multilevel tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/multilevel.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/local.txt?(.in)
 
-plugin: shell
+id: __multilevel__
+_summary: A job generating more generator jobs
+_description: 
+    This job generates stub/multilevel which in turn can
+    generate stub/multilevel_1 and stub/multilevel_2
+plugin: local
+command:
+  shopt -s extglob
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/multilevel.txt?(.in)
+
 id: stub/root
-user: root
-command: test $(id -u) -eq 0
+_summary: A job that runs as root
 _description:
  Check that becoming root works
+plugin: shell
+user: root
+command: test $(id -u) -eq 0

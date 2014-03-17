@@ -370,6 +370,7 @@ class SessionSuspendHelper2(SessionSuspendHelper1):
             ``running_job_name``:
                 Id of the job that was about to be executed before
                 snapshotting took place. Can be None.
+
             ``app_blob``:
                 Arbitrary application specific binary blob encoded with base64.
                 This field may be null.

@@ -42,7 +42,7 @@ class PlainBoxObject:
     A thin wrapper around some other plainbox object.
     """
 
-    def __init__(self, impl, name=None, group=None, children=None):
+    def __init__(self, impl, name=None, group=None, children=None, attrs=None):
         """
         Initialize a new PlainBoxObject with the specified internal
         implementation object and some meta-data.
@@ -55,6 +55,8 @@ class PlainBoxObject:
             Human-visible group (class) this object belongs to
         :param children:
             A list of children that this object has
+        :param attrs:
+            A list of attributes that this object has
         """
         self._impl = impl
         self._name = name
@@ -62,6 +64,9 @@ class PlainBoxObject:
             children = []
         self._children = children
         self._group = group
+        if attrs is None:
+            attrs = {}
+        self._attrs = attrs
 
     def __str__(self):
         """
@@ -107,6 +112,15 @@ class PlainBoxObject:
         This list is mutable and is always guaranteed to exist.
         """
         return self._children
+
+    @property
+    def attrs(self):
+        """
+        A mapping of key-value attributes that this object has
+
+        This mapping is mutable and is always guaranteed to exist.
+        """
+        return self._attrs
 
 
 # NOTE: This should merge with the service object below but I didn't want

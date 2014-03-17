@@ -1,20 +1,22 @@
-plugin: local
 id: stub/multilevel
-_description:
- Multilevel tests
+_summary: A generated generator job that generates two more jobs
+_description: Multilevel tests
+plugin: local
 command:
  cat <<'EOF'
- plugin: shell
  id: stub/multilevel_1
+ _summary: Generated multi-level job 1
+ _description: This is just a sample multilevel test. Test 1.
+ plugin: shell
  command: echo 1
- description: This is just a sample multilevel test. Test 1.
  EOF
  echo ""
  cat <<'EOF'
- plugin: shell
  id: stub/multilevel_2
+ _summary: Generated multi-level job 2
+ _description: This is just a sample multilevel test. Test 2.
+ plugin: shell
  command: echo 2
- description: This is just a sample multilevel test. Test 2.
  EOF
  echo ""
 

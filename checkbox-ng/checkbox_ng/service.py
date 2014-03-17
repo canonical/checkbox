@@ -660,7 +660,7 @@ class JobStateWrapper(PlainBoxObjectWrapper):
         return dbus.types.Array([
             (inhibitor.cause,
              inhibitor.cause_name,
-             (inhibitor.related_job.name
+             (inhibitor.related_job.id
               if inhibitor.related_job is not None else ""),
              (inhibitor.related_expression.text
               if inhibitor.related_expression is not None else ""))
@@ -847,7 +847,7 @@ class SessionWrapper(PlainBoxObjectWrapper):
         """
         logger.debug("_job_added(%r)", job)
         # Get references to the three key objects, job, state and result
-        state = self.native.job_state_map[job.name]
+        state = self.native.job_state_map[job.id]
         result = state.result
         assert job is state.job
         # Wrap them in the right order (state has to be last)
@@ -855,7 +855,7 @@ class SessionWrapper(PlainBoxObjectWrapper):
         self.add_result(result)
         state_wrapper = self.add_state(state)
         # Update the job_state_map wrapper that we have here
-        self._job_state_map_wrapper[job.name] = state_wrapper
+        self._job_state_map_wrapper[job.id] = state_wrapper
         # Send the signal that the 'job_state_map' property has changed
         self.PropertiesChanged(SESSION_IFACE, {
             self.__class__.job_state_map._dbus_property:
@@ -874,7 +874,7 @@ class SessionWrapper(PlainBoxObjectWrapper):
         """
         logger.debug("_job_removed(%r)", job)
         # Get references to the three key objects, job, state and result
-        state_wrapper = self._job_state_map_wrapper[job.name]
+        state_wrapper = self._job_state_map_wrapper[job.id]
         result_wrapper = state_wrapper._result_wrapper
         job_wrapper = state_wrapper._job_wrapper
         # Remove result and state from our managed object list
@@ -890,7 +890,7 @@ class SessionWrapper(PlainBoxObjectWrapper):
         if job_wrapper._is_generated:
             job_wrapper.remove_from_connection()
         # Update the job_state_map wrapper that we have here
-        del self._job_state_map_wrapper[job.name]
+        del self._job_state_map_wrapper[job.id]
         # Send the signal that the 'job_state_map' property has changed
         self.PropertiesChanged(SESSION_IFACE, {
             self.__class__.job_state_map._dbus_property:

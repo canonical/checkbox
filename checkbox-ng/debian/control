@@ -10,7 +10,7 @@ Build-Depends:
  python3-dbus,
  python3-docutils,
  python3-gi,
- python3-plainbox,
+ python3-plainbox (>= 0.5),
  python3-setuptools,
  python3-sphinx
 Standards-Version: 3.9.5
@@ -43,8 +43,8 @@ Description: CheckBox D-Bus service
 
 Package: python3-checkbox-ng
 Architecture: all
-Depends: python3-plainbox,
-         python3-requests ( >= 1.0),
+Depends: python3-plainbox (>= 0.5),
+         python3-requests (>= 1.0),
          ${misc:Depends},
          ${python3:Depends}
 Description: PlainBox based test runner (Python 3 library)

@@ -75,6 +75,8 @@ Serialization format versions
 1) The initial version
 2) Same as '1' but suspends
    :attr:`plainbox.impl.session.state.SessionMetaData.app_blob`
+3) Same as '2' but suspends
+   :attr:`plainbox.impl.session.state.SessionMetaData.app_id`
 """
 
 import gzip
@@ -379,6 +381,56 @@ class SessionSuspendHelper2(SessionSuspendHelper1):
             data['app_blob'] = base64.standard_b64encode(
                 obj.app_blob
             ).decode("ASCII")
+        return data
+
+
+class SessionSuspendHelper3(SessionSuspendHelper2):
+    """
+    Helper class for computing binary representation of a session.
+
+    The helper only creates a bytes object to save. Actual saving should
+    be performed using some other means, preferably using
+    :class:`~plainbox.impl.session.storage.SessionStorage`.
+
+    This class creates version '3' snapshots.
+    """
+
+    VERSION = 3
+
+    def _repr_SessionMetaData(self, obj):
+        """
+        Compute the representation of :class:`SessionMetaData`.
+
+        :returns:
+            JSON-friendly representation.
+        :rtype:
+            dict
+
+        The result is a dictionary with the following items:
+
+            ``title``:
+                Title of the session. Arbitrary text provided by the
+                application.
+
+            ``flags``:
+                List of strings that enumerate the flags the session is in.
+                There are some well-known flags but this list can have any
+                items it it.
+
+            ``running_job_name``:
+                Id of the job that was about to be executed before
+                snapshotting took place. Can be None.
+
+            ``app_blob``:
+                Arbitrary application specific binary blob encoded with base64.
+                This field may be null.
+
+            ``app_id``:
+                A string identifying the application that stored app_blob.
+                Thirs field may be null.
+        """
+        data = super(SessionSuspendHelper3, self)._repr_SessionMetaData(obj)
+        data['app_id'] = obj.app_id
         return data
 
 

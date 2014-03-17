@@ -37,6 +37,7 @@ class ListInvocation:
     def __init__(self, provider_list, ns):
         self.explorer = Explorer(provider_list)
         self.group = ns.group
+        self.show_attrs = ns.attrs
 
     def run(self):
         obj = self.explorer.get_object_tree()
@@ -49,10 +50,17 @@ class ListInvocation:
         if self.group is None or obj.group == self.group:
             # Display the object name and group
             print("{}{} {!r}".format(indent, obj.group, obj.name))
-            # It would be cool if this would draw an ASCI-art tree
             indent += "  "
-        for child in obj.children:
-            self._show(child, indent)
+            # It would be cool if this would draw an ASCI-art tree
+            if self.show_attrs:
+                for key, value in obj.attrs.items():
+                    print("{}{}: {!r}".format(indent, key, value))
+        if obj.children:
+            if self.group is None or obj.group == self.group:
+                print("{}children:".format(indent))
+                indent += "  "
+            for child in obj.children:
+                self._show(child, indent)
 
 
 class ListCommand(PlainBoxCommand):
@@ -70,6 +78,9 @@ class ListCommand(PlainBoxCommand):
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(
             "list", help=_("list and describe various objects"))
+        parser.add_argument(
+            '-a', '--attrs', default=False, action="store_true",
+            help=_("show object attributes"))
         parser.add_argument(
             'group', nargs='?',
             help=_("list objects from the specified group"))

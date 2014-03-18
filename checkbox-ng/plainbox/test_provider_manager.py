@@ -53,7 +53,7 @@ class ProviderManagerToolTests(TestCase):
         self.assertEqual(
             test_io.stdout, inspect.cleandoc(
                 """
-                usage: manage.py [--help] [--version] [options] <command>
+                usage: manage.py [--help] [--version] [options]
 
                 positional arguments:
                   {info,validate,develop,install,sdist,i18n}

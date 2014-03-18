@@ -836,8 +836,8 @@ class ProviderManagerTool(ToolBase):
         parser = argparse.ArgumentParser(
             prog=self.get_exec_name(),
             # TRANSLATORS: please keep 'manage.py', '--help', '--version'
-            # untranslated. Translate only '[options]' and '<command>'
-            usage=_("manage.py [--help] [--version] [options] <command>"))
+            # untranslated. Translate only '[options]'
+            usage=_("manage.py [--help] [--version] [options]"))
         parser.add_argument(
             "--version", action="version", version=self.get_exec_version(),
             help=_("show program's version number and exit"))

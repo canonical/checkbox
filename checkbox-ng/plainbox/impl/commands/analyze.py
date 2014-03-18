@@ -240,42 +240,42 @@ class AnalyzeCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         group.add_argument(
             '-l', '--run-local',
             action='store_true', dest='run_local',
-            help=_('Run all selected local jobs, required to see true data'))
+            help=_('run all selected local jobs, required to see true data'))
         group.add_argument(
             '-L', '--skip-local',
             action='store_false', dest='run_local',
             # TRANSLATORS: please keep the word 'local' untranslated.
             # It designates special type of jobs, not their location.
-            help=_('Do not run local jobs'))
+            help=_('do not run local jobs'))
         group = parser.add_argument_group("reports")
         group.add_argument(
             '-s', '--print-stats', action='store_true',
-            help=_("Print general job statistics"))
+            help=_("print general job statistics"))
         group.add_argument(
             "-d", "--print-dependency-report", action='store_true',
-            help=_("Print dependency report"))
+            help=_("print dependency report"))
         group.add_argument(
             "-t", "--print-interactivity-report", action='store_true',
-            help=_("Print interactivity report"))
+            help=_("print interactivity report"))
         group.add_argument(
             "-e", "--print-estimated-duration-report", action='store_true',
-            help=_("Print estimated duration report"))
+            help=_("print estimated duration report"))
         group.add_argument(
             "-v", "--print-validation-report", action='store_true',
-            help=_("Print validation report"))
+            help=_("print validation report"))
         group.add_argument(
             "-r", "--print-requirement-report", action='store_true',
-            help=_("Print requirement report"))
+            help=_("print requirement report"))
         group.add_argument(
             "-E", "--only-errors", action='store_true', default=False,
             help=_(
-                "When coupled with -v, only problematic jobs will be listed"))
+                "when coupled with -v, only problematic jobs will be listed"))
         group.add_argument(
             "-S", "--print-desired-job-list", action='store_true',
-            help=_("Print desired job list"))
+            help=_("print desired job list"))
         group.add_argument(
             "-R", "--print-run-list", action='store_true',
-            help=_("Print run list"))
+            help=_("print run list"))
         parser.set_defaults(command=self)
         # Call enhance_parser from CheckBoxCommandMixIn
         self.enhance_parser(parser)

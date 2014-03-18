@@ -839,7 +839,8 @@ class ProviderManagerTool(ToolBase):
             # untranslated. Translate only '[options]' and '<command>'
             usage=_("manage.py [--help] [--version] [options] <command>"))
         parser.add_argument(
-            "--version", action="version", version=self.get_exec_version())
+            "--version", action="version", version=self.get_exec_version(),
+            help=_("show program's version number and exit"))
         return parser
 
     @classmethod

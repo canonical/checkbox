@@ -1,10 +1,15 @@
+global-include *.po *.pot
 global-include *.sh
 global-include COPYING LICENSE
 global-include README*
 global-include Vagrantfile
-recursive-include contrib *.policy *.service
-recursive-include docs *.rst *.py
-recursive-include plainbox/data *.rng *.xsl *.png *.css *.js *.desktop *.conf
-recursive-include plainbox/impl/providers/stubbox *.txt.in *.whitelist
-recursive-include plainbox/impl/providers/stubbox/scripts *
-recursive-include plainbox/test-data *.json *.xml *.txt *.html
+include plainbox/impl/providers/stubbox/bin/*
+include plainbox/impl/providers/stubbox/jobs/*.txt.in
+include plainbox/impl/providers/stubbox/manage.py
+include plainbox/impl/providers/stubbox/whitelists/*.whitelist
+recursive-exclude daily-package-testing *
+recursive-exclude plainbox/vendor/textland-project COPYING README.md
+recursive-include contrib *.policy
+recursive-include docs *.rst *.py *.html *.conf
+recursive-include plainbox/data *.rng *.xsl *.png *.css *.js
+recursive-include plainbox/test-data *.json *.xml *.html

@@ -390,8 +390,11 @@ class ToolBase(metaclass=abc.ABCMeta):
         parser = argparse.ArgumentParser(
             prog=self.get_exec_name(),
             formatter_class=LegacyHelpFormatter)
+        # NOTE: help= is provided explicitly as argparse doesn't wrap
+        # everything with _() correctly (depending on version)
         parser.add_argument(
-            "--version", action="version", version=self.get_exec_version())
+            "--version", action="version", version=self.get_exec_version(),
+            help=_("show program's version number and exit"))
         return parser
 
     def construct_parser(self):

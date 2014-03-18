@@ -729,6 +729,10 @@ class I18NCommand(ManageCommand):
     def po_dir(self):
         return os.path.join(self.definition.location, 'po')
 
+    def mo_dir(self, lang):
+        return os.path.join(
+            self.definition.location, 'build', 'mo', lang, 'LC_MESSAGES')
+
     def _update_pot(self, dry_run):
         self._cmd([
             'intltool-update',
@@ -741,7 +745,7 @@ class I18NCommand(ManageCommand):
             if not item.endswith('.po'):
                 continue
             lang = os.path.splitext(item)[0]
-            mo_dir = 'build/mo/{}/LC_MESSAGES'.format(lang)
+            mo_dir = self.mo_dir(lang)
             os.makedirs(mo_dir, exist_ok=True)
             self._cmd([
                 'intltool-update',
@@ -754,13 +758,13 @@ class I18NCommand(ManageCommand):
             if not item.endswith('.po'):
                 continue
             lang = os.path.splitext(item)[0]
-            mo_dir = 'build/mo/{}/LC_MESSAGES'.format(lang)
+            mo_dir = self.mo_dir(lang)
             os.makedirs(mo_dir, exist_ok=True)
             self._cmd([
                 'msgfmt',
                 '{}/{}.po'.format(os.path.relpath(self.po_dir), lang),
-                '-o', '{}/{}.mo'.format(
-                    mo_dir, self.definition.gettext_domain)
+                '-o', os.path.relpath('{}/{}.mo'.format(
+                    mo_dir, self.definition.gettext_domain))
             ], None, dry_run)
 
     def _cmd(self, cmd, cwd, dry_run):

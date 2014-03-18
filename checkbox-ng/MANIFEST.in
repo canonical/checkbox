@@ -7,6 +7,7 @@ include plainbox/impl/providers/stubbox/bin/*
 include plainbox/impl/providers/stubbox/jobs/*.txt.in
 include plainbox/impl/providers/stubbox/manage.py
 include plainbox/impl/providers/stubbox/whitelists/*.whitelist
+include plainbox/vendor/argparse/py*-argparse.py
 recursive-exclude daily-package-testing *
 recursive-exclude plainbox/vendor/textland-project COPYING README.md
 recursive-include contrib *.policy

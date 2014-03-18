@@ -6,7 +6,7 @@ ChangeLog
     accounting of development history please inspect the source history
     directly.
 
-PlainBox 0.5b1
+PlainBox 0.5b2
 ^^^^^^^^^^^^^^
 
 .. note::
@@ -306,6 +306,13 @@ API changes (Other)
   new :class:`plainbox.impl.secure.config.NotUnsetValidator`. Unlike all other
   validators, it is allowed to inspect the special
   :data:`plainbox.impl.secure.config.Unset` value.
+* PlainBox now stores application identifier
+  :meth:`plainbox.impl.session.state.SessionMetaData.app_id` which complements
+  the existing application-specific blob property
+  :meth:`plainbox.impl.session.state.SessionMetaData.app_blob` to allow
+  applications to resume only the session that they have created. This feature
+  will allow multiple plainbox-based applications to co-exist their state
+  without clashes.
 
 Bug fixes
 ---------

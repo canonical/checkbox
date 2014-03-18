@@ -27,6 +27,7 @@ some set of rules.
 
 import abc
 import itertools
+import logging
 import os
 import re
 
@@ -34,6 +35,9 @@ from plainbox.abc import IJobQualifier
 from plainbox.impl.secure.rfc822 import FileTextSource
 from plainbox.impl.secure.rfc822 import Origin
 from plainbox.impl.secure.rfc822 import UnknownTextSource
+
+
+_logger = logging.getLogger("plainbox.secure.qualifiers")
 
 
 class SimpleQualifier(IJobQualifier):
@@ -442,6 +446,7 @@ class WhiteList(CompositeQualifier):
         needed when the :meth:`from_file()` method cannot be used as the caller
         already has the full text of the intended file available.
         """
+        _logger.debug("Loaded whitelist from %r", filename)
         pattern_list, max_lineno = cls._parse_patterns(text)
         # generate name and origin if filename is provided
         if filename is not None:

@@ -1,4 +1,4 @@
-global-include *.po *.pot
+global-include *.po *.pot POTFILES.in
 global-include *.sh
 global-include COPYING LICENSE
 global-include README*

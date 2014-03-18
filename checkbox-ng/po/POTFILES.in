@@ -1,7 +1,4 @@
 [encoding: UTF-8]
-[type: gettext/rfc822deb] plainbox/impl/providers/stubbox/jobs/local.txt.in
-[type: gettext/rfc822deb] plainbox/impl/providers/stubbox/jobs/multilevel.txt.in
-[type: gettext/rfc822deb] plainbox/impl/providers/stubbox/jobs/stub.txt.in
 ./plainbox/__init__.py
 ./plainbox/__main__.py
 ./plainbox/abc.py

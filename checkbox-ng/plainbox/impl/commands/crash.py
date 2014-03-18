@@ -65,11 +65,11 @@ class CrashCommand(PlainBoxCommand):
             dest='action',
             action='store_const',
             const='crash',
-            help=_('Raise an exception'))
+            help=_('raise an exception'))
         group.add_argument(
             '-H', '--hang',
             dest='action',
             action='store_const',
             const='hang',
-            help=_('Hang the application with a busy loop'))
+            help=_('hang the application with a busy loop'))
         parser.set_defaults(command=self)

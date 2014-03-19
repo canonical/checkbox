@@ -11,14 +11,14 @@ msgstr ""
 "PO-Revision-Date: 2014-02-20 23:52+0000\n"
 "Last-Translator: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>\n"
 "Language-Team: polski <>\n"
-"Language: Polish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2014-03-18 05:40+0000\n"
+"X-Launchpad-Export-Date: 2014-03-19 05:40+0000\n"
 "X-Generator: Launchpad (build 16963)\n"
+"Language: Polish\n"
 
 #: .././plainbox/impl/_argparse.py:139
 #: .././plainbox/vendor/argparse/py32-argparse.py:298
@@ -56,7 +56,7 @@ msgstr "przeparsowano pełną przestrzeń nazw: %s"
 #: .././plainbox/impl/clitools.py:397 .././plainbox/provider_manager.py:843
 #: .././plainbox/vendor/argparse/py32-argparse.py:1625
 msgid "show program's version number and exit"
-msgstr "pokaż numer wersji programu i wyjdź"
+msgstr "pokaż numer wersji programu i zakończ"
 
 #: .././plainbox/impl/clitools.py:418
 msgid "logging and debugging"
@@ -142,11 +142,11 @@ msgstr "Nie można znaleźć żadnego z plików wykonywalnych {}"
 
 #: .././plainbox/impl/commands/__init__.py:160
 msgid "provider list and development"
-msgstr "lista dostawców i rozwój oprogramowania"
+msgstr ""
 
 #: .././plainbox/impl/commands/__init__.py:167
 msgid "which providers to load"
-msgstr "których dostawców załadować"
+msgstr ""
 
 #: .././plainbox/impl/commands/analyze.py:84
 msgid "[Desired Job List]"
@@ -244,54 +244,53 @@ msgstr "[Raport zależności zasobów]"
 
 #: .././plainbox/impl/commands/analyze.py:238
 msgid "analyze how selected jobs would be executed"
-msgstr "zanalizuj jak wybrane zadania byłyby wykonane"
+msgstr "zanalizuj jak wybrane zadania byłyby wyknone"
 
 #: .././plainbox/impl/commands/analyze.py:243
 msgid "run all selected local jobs, required to see true data"
 msgstr ""
-"wykonaj wybrane zadania typu 'local', wymagane aby zobaczyć prawdziwe dane"
 
 #. TRANSLATORS: please keep the word 'local' untranslated.
 #. It designates special type of jobs, not their location.
 #: .././plainbox/impl/commands/analyze.py:249
 msgid "do not run local jobs"
-msgstr "nie uruchamiaj zadań typu 'local'"
+msgstr ""
 
 #: .././plainbox/impl/commands/analyze.py:253
 msgid "print general job statistics"
-msgstr "wyświetl ogólne statystyki zadań"
+msgstr ""
 
 #: .././plainbox/impl/commands/analyze.py:256
 msgid "print dependency report"
-msgstr "wyświetl raport o zależnościach"
+msgstr ""
 
 #: .././plainbox/impl/commands/analyze.py:259
 msgid "print interactivity report"
-msgstr "wyświetl raport o interaktywności"
+msgstr ""
 
 #: .././plainbox/impl/commands/analyze.py:262
 msgid "print estimated duration report"
-msgstr "wyświetl raport o szacowanym czasie trwania"
+msgstr ""
 
 #: .././plainbox/impl/commands/analyze.py:265
 msgid "print validation report"
-msgstr "wyświetl raport weryfikacji"
+msgstr ""
 
 #: .././plainbox/impl/commands/analyze.py:268
 msgid "print requirement report"
-msgstr "wyświetl raport o zależnościach pomiędzy zasobami"
+msgstr ""
 
 #: .././plainbox/impl/commands/analyze.py:272
 msgid "when coupled with -v, only problematic jobs will be listed"
-msgstr "w połączeniu z -v wyświetla tylko problematyczne zadania"
+msgstr ""
 
 #: .././plainbox/impl/commands/analyze.py:275
 msgid "print desired job list"
-msgstr "wyświetl pożądaną listę zadań"
+msgstr ""
 
 #: .././plainbox/impl/commands/analyze.py:278
 msgid "print run list"
-msgstr "wyświetl listę wykonania"
+msgstr ""
 
 #: .././plainbox/impl/commands/check_config.py:50
 msgid "Configuration files:"
@@ -330,18 +329,18 @@ msgstr "sprawdź i wyświetl konfigurację plainboxa"
 #: .././plainbox/impl/commands/checkbox.py:88
 #, python-format
 msgid "Using whitelist %r obtained from provider %r"
-msgstr "Używanie planu testów %r uzyskanego z dostawcy %r"
+msgstr ""
 
 #: .././plainbox/impl/commands/checkbox.py:99
 #, python-format
 msgid "Unable to load whitelist %r: %s"
-msgstr "Nie można wczytać planu testów %r: %s"
+msgstr ""
 
 #: .././plainbox/impl/commands/checkbox.py:117
 #: .././plainbox/impl/commands/checkbox.py:127
 #, python-format
 msgid "Incorrect pattern %r: %s"
-msgstr "Niewłaściwy wzorzec: %s"
+msgstr ""
 
 #: .././plainbox/impl/commands/checkbox.py:144
 msgid "job definition options"
@@ -364,12 +363,12 @@ msgstr "pomiń zadania dopasowane do podanego wrażenia regularnego"
 
 #: .././plainbox/impl/commands/checkbox.py:159
 msgid "WHITELIST"
-msgstr "PLAN-TESTÓW"
+msgstr "LISTA-ZADAŃ"
 
 #. TRANSLATORS: this is in imperative form
 #: .././plainbox/impl/commands/checkbox.py:163
 msgid "load whitelist containing run patterns"
-msgstr "załaduj plan testów zawierający wzorce do wykonania"
+msgstr "załaduj listę zadań zawierającą wzorce do wykonania"
 
 #: .././plainbox/impl/commands/crash.py:45
 msgid "crashing as requested"
@@ -381,11 +380,11 @@ msgstr "wywal aplikację"
 
 #: .././plainbox/impl/commands/crash.py:68
 msgid "raise an exception"
-msgstr "zgłoś wyjątek"
+msgstr ""
 
 #: .././plainbox/impl/commands/crash.py:74
 msgid "hang the application with a busy loop"
-msgstr "zawieś aplikacje w zajętej pętli"
+msgstr ""
 
 #: .././plainbox/impl/commands/dev.py:59
 msgid "development commands"
@@ -393,7 +392,7 @@ msgstr "polecenia dla programistów"
 
 #: .././plainbox/impl/commands/list.py:60
 msgid "children"
-msgstr "dzieci"
+msgstr ""
 
 #: .././plainbox/impl/commands/list.py:80
 msgid "list and describe various objects"
@@ -401,7 +400,7 @@ msgstr "wymień i opisz różne obiekty"
 
 #: .././plainbox/impl/commands/list.py:83
 msgid "show object attributes"
-msgstr "pokaż atrybuty obiektów"
+msgstr ""
 
 #: .././plainbox/impl/commands/list.py:86
 msgid "list objects from the specified group"
@@ -457,16 +456,6 @@ msgid ""
 "            \"C\".\n"
 "            "
 msgstr ""
-"\n"
-"            To polecenie może być wykorzystane do uruchomienia parserów\n"
-"            udostępnionych przez punkt wejścia `plainbox.parsers`,\n"
-"            przeparsowania strumienia standardowe wejścia i wyprodukowania\n"
-"            zrzutu wyjściowej struktury danych w formie dokumentu JSON.\n"
-"\n"
-"            Pamiętaj, ze większość parserów jest przystosowania do tekstu\n"
-"            przygotowanego w lokale 'C'. Możesz musieć nadpisać zmienną\n"
-"            środowiska LANG na C.\n"
-"            "
 
 #: .././plainbox/impl/commands/parse.py:117
 msgid "Example: "
@@ -756,7 +745,8 @@ msgid "TRANSPORT"
 msgstr "TRANSPORT"
 
 #: .././plainbox/impl/commands/run.py:419
-msgid "use TRANSPORT to send results somewhere (pass ? for a list of choices)"
+msgid ""
+"use TRANSPORT to send results somewhere (pass ? for a list of choices)"
 msgstr ""
 "użyj TRANSPORTU do wysłania wyników w jakieś miejsce (? wyświetla "
 "listę możliwości)"
@@ -807,7 +797,7 @@ msgstr "uruchom polecenie z zadania"
 
 #: .././plainbox/impl/commands/script.py:126
 msgid "JOB-ID"
-msgstr "ID-ZADANIA"
+msgstr "IDENTYFIKATOR-ZADANIA"
 
 #: .././plainbox/impl/commands/script.py:127
 msgid "Id of the job to run"
@@ -819,7 +809,8 @@ msgstr "uruchom testy jednostkowe i testy integracji"
 
 #: .././plainbox/impl/commands/selftest.py:78
 msgid "run integration test suite (this verifies checkbox jobs)"
-msgstr "uruchom testy integracji (to weryfikuje definicje zadań z checkbox'a)"
+msgstr ""
+"uruchom testy integracji (to weryfikuje definicje zadań z checkbox'a)"
 
 #: .././plainbox/impl/commands/selftest.py:84
 msgid "run unit tests (this only verifies plainbox core)"
@@ -888,8 +879,8 @@ msgid ""
 "\n"
 "    @EPILOG@\n"
 "\n"
-"    The name of the provider must follow the pattern ``YYYY.example.org:"
-"name``\n"
+"    The name of the provider must follow the pattern "
+"``YYYY.example.org:name``\n"
 "    where ``YYYY`` is a four-digit year when the author of the provider "
 "owned\n"
 "    the domain (here, ``example.org``) and ``name`` is arbitrary identifier\n"
@@ -1278,11 +1269,11 @@ msgstr "Nie można odnaleźć programu Checkbox"
 
 #: .././plainbox/impl/providers/special.py:107
 msgid "CheckBox (live source)"
-msgstr "CheckBox (żywe źródła)"
+msgstr ""
 
 #: .././plainbox/impl/providers/special.py:144
 msgid "StubBox (dummy data for development)"
-msgstr "StubBox (atrapa z danymi do rozwoju oprogramowania)"
+msgstr ""
 
 #: .././plainbox/impl/resource.py:52
 msgid "expression {!r} evaluated to a non-true result"
@@ -1387,19 +1378,19 @@ msgstr "Wczytywanie konfiguracji z %s"
 
 #: .././plainbox/impl/secure/config.py:691
 msgid "expected a boolean"
-msgstr "oczekiwano wartości boolowskiej"
+msgstr ""
 
 #: .././plainbox/impl/secure/config.py:692
 msgid "expected an integer"
-msgstr "oczekiwano liczby całkowitej"
+msgstr ""
 
 #: .././plainbox/impl/secure/config.py:693
 msgid "expected a floating point number"
-msgstr "oczekiwano liczby zmiennoprzecinkowej"
+msgstr ""
 
 #: .././plainbox/impl/secure/config.py:694
 msgid "expected a string"
-msgstr "oczekiwano napisu"
+msgstr ""
 
 #: .././plainbox/impl/secure/config.py:709
 msgid "does not match pattern: {!r}"
@@ -1473,7 +1464,7 @@ msgstr "środowisko przekazane do generatora zadań"
 #: .././plainbox/impl/secure/plugins.py:323
 #, python-format
 msgid "Unable to prepare plugin %s: %s"
-msgstr "Nie można przygotować wtyczki %s: %s"
+msgstr ""
 
 #: .././plainbox/impl/secure/plugins.py:377
 #, python-format
@@ -1500,7 +1491,7 @@ msgstr "Nie można wczytać definicji zadań testowych z {!r}: {}"
 
 #: .././plainbox/impl/secure/providers/v1.py:109
 msgid "Cannot define job from record {!r}: {}"
-msgstr "Nie można zdefiniować zadania z rekordu {!r}: {}"
+msgstr ""
 
 #: .././plainbox/impl/secure/providers/v1.py:114
 #, python-format
@@ -1545,23 +1536,23 @@ msgstr "Nazwa domeny gettext dla tłumaczeń"
 
 #: .././plainbox/impl/secure/providers/v1.py:632
 msgid "Pathname of the directory with job definitions"
-msgstr "Ścieżka do katalogu z definicjami zadań"
+msgstr ""
 
 #: .././plainbox/impl/secure/providers/v1.py:668
 msgid "Pathname of the directory with whitelists definitions"
-msgstr "Ścieżka do katalogu z planami testów"
+msgstr ""
 
 #: .././plainbox/impl/secure/providers/v1.py:705
 msgid "Pathname of the directory with provider data"
-msgstr "Ścieżka do katalogu z danymi dostawcy"
+msgstr ""
 
 #: .././plainbox/impl/secure/providers/v1.py:741
 msgid "Pathname of the directory with provider executables"
-msgstr "Ścieżka do katalogu z plikami wykonywalnymi dostawcy"
+msgstr ""
 
 #: .././plainbox/impl/secure/providers/v1.py:777
 msgid "Pathname of the directory with locale data"
-msgstr "Ścieżka do katalogu z plikami tłumaczeń dostawcy"
+msgstr ""
 
 #: .././plainbox/impl/secure/providers/v1.py:844
 msgid "Problem in provider definition, field {!a}: {}"
@@ -1827,7 +1818,7 @@ msgstr "app_blob musi być None lub bytes"
 #. TRANSLATORS: please don't translate app_blob, None and bytes
 #: .././plainbox/impl/session/state.py:163
 msgid "app_id must be either None or str"
-msgstr "app_id musi być None lub bytes"
+msgstr ""
 
 #: .././plainbox/impl/session/state.py:263
 #, python-format
@@ -1866,7 +1857,8 @@ msgstr "Stworzono nowe miejsce do zapisu w %r"
 #: .././plainbox/impl/session/storage.py:271
 #, python-format
 msgid "%r is not a symlink, repository %r must be corrupted"
-msgstr "%r nie jest dowiązaniem symbolicznym, repozytorium %r musi być popsute"
+msgstr ""
+"%r nie jest dowiązaniem symbolicznym, repozytorium %r musi być popsute"
 
 #: .././plainbox/impl/session/storage.py:275
 #, python-format
@@ -2008,7 +2000,7 @@ msgstr "Usuwanie %r"
 
 #. TRANSLATORS: please don't translate fsync()
 #. Flush kernel buffers on the directory.
-#.
+#. 
 #. This should ensure the rename operation is really on disk by now.
 #. As noted above, this is essential for being able to survive
 #. system crash immediately after exiting this method.
@@ -2124,54 +2116,11 @@ msgid ""
 "    @LAYOUT[flat]@\n"
 "    "
 msgstr ""
-"\n"
-"    instaluj tego dostawce w systemie\n"
-"\n"
-"    To polecenie instaluje dostawce do podanego przedrostku.\n"
-"\n"
-"    @EPILOG@\n"
-"\n"
-"    Układy instalacji\n"
-"    =================\n"
-"\n"
-"    Istnieją dwa możliwe układy instalacji: płaski (flat), doskonały\n"
-"    do przechowywania wszystkich danych w jednym katalogu oraz unix\n"
-"    który jest przystosowany do paczkowania i respektuje hierarchię\n"
-"    systemu plików.\n"
-"\n"
-"    W obu przypadkach generowany jest plik w sztywnej lokalizacji:\n"
-"\n"
-"        {prefix}/share/plainbox-providers-1/{provider.name}.provider\n"
-"\n"
-"    Ten plik jest kluczowy do tego aby plainbox mógł wykryć dostawcę.\n"
-"    Zawiera on meta-dane zebrane z wywołania setup() z pliku manage.py.\n"
-"\n"
-"    Paczkowanie\n"
-"    -----------\n"
-"\n"
-"    Instalacje dla całego systemu powinny używać `--prefix=/usr` wraz z\n"
-"    `--layout=unix`. Dla paczkowania wygodnie też użyć argumentu\n"
-"    `--root=` tak aby umieścić wszystkie wygenerowane pliki w katalogu\n"
-"    tymczasowym systemu paczkowania. Ten argument nie wpływa na\n"
-"    wygenerowaną treść, która podlega tylko argumentowi `--prefix`.\n"
-"\n"
-"    Układ UNIXowy\n"
-"    -------------\n"
-"\n"
-"    W układzie uniksowym stosowane są następujące transformacje:\n"
-"\n"
-"    @LAYOUT[unix]@\n"
-"\n"
-"    Płaski układ\n"
-"    ------------\n"
-"\n"
-"    @LAYOUT[flat]@\n"
-"    "
 
 #. TRANSLATORS: not installed as in 'will not be installed'
 #: .././plainbox/provider_manager.py:205
 msgid "not installed"
-msgstr "nie będzie instalowany"
+msgstr ""
 
 #: .././plainbox/provider_manager.py:229
 msgid "installation prefix"
@@ -2181,21 +2130,22 @@ msgstr "przedrostek instalacji"
 #: .././plainbox/provider_manager.py:235
 #, python-format
 msgid "installation directory layout (default: %(default)s)"
-msgstr "układ katalogów instalacji (domyślnie %(default)s)"
+msgstr ""
 
 #: .././plainbox/provider_manager.py:238
 msgid "install everything relative to this alternate root directory"
-msgstr "instaluje wszystko względnie podanego alternatywnego katalogu głównego"
+msgstr ""
+"instaluje wszystko względnie podanego alternatywnego katalogu głównego"
 
 #: .././plainbox/provider_manager.py:279
 #, python-format
 msgid "copying: %s => %s"
-msgstr "kopiowanie: %s => %s"
+msgstr ""
 
 #: .././plainbox/provider_manager.py:282
 #, python-format
 msgid "cannot copy %s, no such file or directory"
-msgstr "nie można skopiować %s, nie ma takiego pliku lub katalogu"
+msgstr ""
 
 #. TRANSLATORS: please leave various options (both long and short forms),
 #. environment variables and paths in their original form. Also keep the
@@ -2231,29 +2181,6 @@ msgid ""
 "    Any of the missing items are silently ignored.\n"
 "    "
 msgstr ""
-"\n"
-"    utwórz tarball'a ze źródłami\n"
-"\n"
-"    To polecenie tworzy dystrybucję źródłową (tarballa) wszystkich\n"
-"    istotnych plików dostawcy. To polecenie nie pobiera żadnych\n"
-"    argumentów i umieszcza wynikowe archiwum w katalogu dist/\n"
-"    względem skryptu ``manage.py``.\n"
-"    Nazwa archiwum pochodzi od nazwy i wersji dostawcy.\n"
-"\n"
-"    @EPILOG@\n"
-"\n"
-"    Tarball zawiera następujące elementy:\n"
-"\n"
-"    - skrypt manage.py\n"
-"    - plik README.md\n"
-"    - katalog jobs oraz wszystko wewnątrz\n"
-"    - katalog whitelists oraz wszystko wewnątrz\n"
-"    - katalog bin oraz wszystko wewnątrz\n"
-"    - katalog data oraz wszystko wewnątrz\n"
-"    - katalog po oraz wszystko wewnątrz\n"
-"\n"
-"    Nieobecne rzeczy są ignorowane bez ostrzeżeń.\n"
-"    "
 
 #. TRANSLATORS: please leave various options (both long and short forms),
 #. environment variables and paths in their original form. Also keep the
@@ -2290,29 +2217,6 @@ msgid ""
 "around.\n"
 "    "
 msgstr ""
-"\n"
-"    instaluj/usuń tego dostwacę, tylko dla programistów\n"
-"\n"
-"    To polecenie tworzy lub usuwa plik ``.provider`` opisujący tego\n"
-"    dostawcę skojarzonego z tym skryptem ``manage.py``. W odróżnieniu\n"
-"    od ``manage.py install`` dostwaca jest instalowany bez kopiowania\n"
-"    jakichkolwiek plików do atalogów wpływających na cały system\n"
-"    a polecenie to nie musi być wykonane ponownie po jakiejkolwiek\n"
-"    zmianie.\n"
-"\n"
-"    Wygenerowany plik może być usunięty za pomocą opcji ``--uninstall|-u``.\n"
-"\n"
-"    @EPILOG@\n"
-"\n"
-"    Domyślnie plik .provider jest utworzony w katalogu\n"
-"    ``$XDG_DATA_HOME/plainbox-providers-1/``.\n"
-"    Nazwa pliku pochodzi tylko od nazwy dostawcy.\n"
-"    (wersja nie jest brana pod uwagę.)\n"
-"\n"
-"    Zauważ, że wygenerowany plik zawiera pełną ścieżka do katalogu ze\n"
-"    źródłami dostawcy. Jeśli przeniesiesz ten katalog będziesz\n"
-"    musiała/musiał ponownie uruchomić polecenie develop.\n"
-"    "
 
 #. TRANSLATORS: don't translate the extension name
 #: .././plainbox/provider_manager.py:462
@@ -2358,14 +2262,6 @@ msgid ""
 "    locations.\n"
 "    "
 msgstr ""
-"\n"
-"    wyświetl podstawowe informacje o dostawcy\n"
-"\n"
-"    To polecenie wyświetla przeróżne istotne informacje o dostawcy\n"
-"    skojarzonego z tym skryptem ``manage.py``. Wyświetlane informacje\n"
-"    zawierają nazwę i inne meta-dane, listę wszystkich zadań oraz planów\n"
-"    testowych oraz ich szczegółową lokalizację.\n"
-"    "
 
 #: .././plainbox/provider_manager.py:521
 msgid "[Provider MetaData]"
@@ -2379,12 +2275,12 @@ msgstr "nazwa: {}"
 #. TRANSLATORS: {} is the namenamespace of the test provider
 #: .././plainbox/provider_manager.py:525
 msgid "namespace: {} (derived from name)"
-msgstr "przestrzeń nazw: {} (pochodzi od nazwy)"
+msgstr ""
 
 #. TRANSLATORS: {} is the name of the test provider
 #: .././plainbox/provider_manager.py:528
 msgid "description: {}"
-msgstr "opis: {}"
+msgstr ""
 
 #. TRANSLATORS: {} is the version of the test provider
 #: .././plainbox/provider_manager.py:530
@@ -2459,29 +2355,11 @@ msgid ""
 "loop.\n"
 "    "
 msgstr ""
-"\n"
-"    wykonaj weryfikację i analizę statyczną kodu dostawcy\n"
-"\n"
-"    To polecenie analizuje wszystkie definicje zadań dostawcy skojarzonego\n"
-"    z tym skryptem ``manage.py``. Polecenie wykrywa problemy składniowe jak\n"
-"    i pewne problemy znaczeniowe. Wszystkie zgłoszone błędy prawdopodobnie\n"
-"    uniemożliwią poprawne działanie dostawcy w normalnych warunkach.\n"
-"\n"
-"    @EPILOG@\n"
-"\n"
-"    Zwróć się do dokumentacji plainboxa aby zrozumieć jak wyglądaja\n"
-"    poprawne definicje zadań i jak rozwiązywać problemy zgłaszane przez\n"
-"    polecenie ``verify``.\n"
-"\n"
-"    Kod wyjścia programu może być wykorzystywany do określenia czy wykryto\n"
-"    jakiekolwiek problemy. Jeśli twoje środowisko korzysta z systemu "
-"ciągłej\n"
-"    integracji warto dodać do niego ``manage.py validate``.\n"
-"    "
 
 #: .././plainbox/provider_manager.py:616
 msgid "NOTE: subsequent jobs from problematic files are ignored"
-msgstr "UWAGA: późniejsze zadania z problematycznych plików zostały pominięte"
+msgstr ""
+"UWAGA: późniejsze zadania z problematycznych plików zostały pominięte"
 
 #: .././plainbox/provider_manager.py:634
 msgid "missing definition of required field"
@@ -2507,7 +2385,7 @@ msgstr "{0}: zadanie {1!a}, pole {2!a}: {3}"
 #: .././plainbox/provider_manager.py:656
 #, python-brace-format
 msgid "allowed values are: {0}"
-msgstr "dozwolone wartości to: {0}"
+msgstr ""
 
 #: .././plainbox/provider_manager.py:663
 msgid "All jobs seem to be valid"
@@ -2530,38 +2408,32 @@ msgid ""
 "    message translation catalogs.\n"
 "    "
 msgstr ""
-"\n"
-"    aktualizuj, łącz i buduj katalogi tłumaczeń\n"
-"\n"
-"    To polecenie udostępnia narzędzia do aktualizacji, łączenia\n"
-"    oraz budowania katalogów tłumaczeń.\n"
-"    "
 
 #: .././plainbox/provider_manager.py:698
 msgid "don't actually do anything"
-msgstr "nic nie rób"
+msgstr ""
 
 #: .././plainbox/provider_manager.py:699
 msgid "actions to perform"
-msgstr "akcje do wykonania"
+msgstr ""
 
 #: .././plainbox/provider_manager.py:702
 msgid "do not update the translation template"
-msgstr "nie aktualizuj szablonu tłumaczeń"
+msgstr ""
 
 #: .././plainbox/provider_manager.py:705
 msgid "do not merge translation files with the template"
-msgstr "nie łącz plików tłumaczeń z szablonem"
+msgstr ""
 
 #: .././plainbox/provider_manager.py:708
 msgid "do not build binary translation files"
-msgstr "nie buduj binarnych katalogów tłumaczeń"
+msgstr ""
 
 #. TRANSLATORS: please keep 'manage.py', '--help', '--version'
 #. untranslated. Translate only '[options]'
 #: .././plainbox/provider_manager.py:840
 msgid "manage.py [--help] [--version] [options]"
-msgstr "manage.py [--help] [--version] [opcje]"
+msgstr ""
 
 #: .././plainbox/provider_manager.py:916
 msgid "{}: bad value of {!r}, {}"
@@ -2663,7 +2535,7 @@ msgstr "argumenty opcjonalne"
 #: .././plainbox/vendor/argparse/py33-argparse.py:1635
 #: .././plainbox/vendor/argparse/py34-argparse.py:1645
 msgid "show this help message and exit"
-msgstr "wyświetl tę wiadomość pomocy i wyjdź"
+msgstr "wyświetl tą wiadomość pomocy i wyjdź"
 
 #: .././plainbox/vendor/argparse/py32-argparse.py:1657
 #: .././plainbox/vendor/argparse/py33-argparse.py:1666

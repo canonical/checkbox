@@ -11,13 +11,13 @@ msgstr ""
 "PO-Revision-Date: 2014-03-04 05:19+0000\n"
 "Last-Translator: Daniel Manrique <daniel.manrique@canonical.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-03-18 05:40+0000\n"
+"X-Launchpad-Export-Date: 2014-03-19 05:40+0000\n"
 "X-Generator: Launchpad (build 16963)\n"
+"Language: \n"
 
 #: .././plainbox/impl/_argparse.py:139
 #: .././plainbox/vendor/argparse/py32-argparse.py:298
@@ -247,64 +247,50 @@ msgid "analyze how selected jobs would be executed"
 msgstr "analiza cómo se ejecutarían los trabajos seleccionados"
 
 #: .././plainbox/impl/commands/analyze.py:243
-#, fuzzy
 msgid "run all selected local jobs, required to see true data"
 msgstr ""
-"Ejecuta todos los trabajos locales seleccionados, se requiere para mostrar "
-"datos reales"
 
 #. TRANSLATORS: please keep the word 'local' untranslated.
 #. It designates special type of jobs, not their location.
 #: .././plainbox/impl/commands/analyze.py:249
-#, fuzzy
 msgid "do not run local jobs"
-msgstr "no ejecutar trabajos de tipo 'local'"
+msgstr ""
 
 #: .././plainbox/impl/commands/analyze.py:253
-#, fuzzy
 msgid "print general job statistics"
-msgstr "Mostrar estadísticas generales de los trabajos"
+msgstr ""
 
 #: .././plainbox/impl/commands/analyze.py:256
-#, fuzzy
 msgid "print dependency report"
-msgstr "Mostrar reporte de dependencias"
+msgstr ""
 
 #: .././plainbox/impl/commands/analyze.py:259
-#, fuzzy
 msgid "print interactivity report"
-msgstr "Mostrar reporte de interactividad"
+msgstr ""
 
 #: .././plainbox/impl/commands/analyze.py:262
-#, fuzzy
 msgid "print estimated duration report"
-msgstr "Mostrar reporte de duración"
+msgstr ""
 
 #: .././plainbox/impl/commands/analyze.py:265
-#, fuzzy
 msgid "print validation report"
-msgstr "Mostrar reporte de validación"
+msgstr ""
 
 #: .././plainbox/impl/commands/analyze.py:268
-#, fuzzy
 msgid "print requirement report"
-msgstr "Mostrar reporte de requerimientos"
+msgstr ""
 
 #: .././plainbox/impl/commands/analyze.py:272
-#, fuzzy
 msgid "when coupled with -v, only problematic jobs will be listed"
 msgstr ""
-"Utilizado en conjunto con -v, muestra únicamente los trabajos con problemas"
 
 #: .././plainbox/impl/commands/analyze.py:275
-#, fuzzy
 msgid "print desired job list"
-msgstr "Mostrar la lista de trabajos deseados"
+msgstr ""
 
 #: .././plainbox/impl/commands/analyze.py:278
-#, fuzzy
 msgid "print run list"
-msgstr "Mostrar la lista de ejecución"
+msgstr ""
 
 #: .././plainbox/impl/commands/check_config.py:50
 msgid "Configuration files:"
@@ -352,9 +338,9 @@ msgstr ""
 
 #: .././plainbox/impl/commands/checkbox.py:117
 #: .././plainbox/impl/commands/checkbox.py:127
-#, fuzzy, python-format
+#, python-format
 msgid "Incorrect pattern %r: %s"
-msgstr "Patrón de exclusión inválido: %s"
+msgstr ""
 
 #: .././plainbox/impl/commands/checkbox.py:144
 msgid "job definition options"
@@ -393,14 +379,12 @@ msgid "crash the application"
 msgstr "pasmar la aplicación"
 
 #: .././plainbox/impl/commands/crash.py:68
-#, fuzzy
 msgid "raise an exception"
-msgstr "Levantar una excepción"
+msgstr ""
 
 #: .././plainbox/impl/commands/crash.py:74
-#, fuzzy
 msgid "hang the application with a busy loop"
-msgstr "Colgar la aplicación con un ciclo sin fin"
+msgstr ""
 
 #: .././plainbox/impl/commands/dev.py:59
 msgid "development commands"
@@ -460,7 +444,6 @@ msgstr "analizar entrada estándar con el analizador especificado"
 
 #. TRANSLATORS: please keep plainbox.parsers untranslated.
 #: .././plainbox/impl/commands/parse.py:108
-#, fuzzy
 msgid ""
 "\n"
 "            This command can be used to invoke any of the parsers exposed\n"
@@ -473,19 +456,6 @@ msgid ""
 "            \"C\".\n"
 "            "
 msgstr ""
-"\n"
-"                Este comando puede utilizarse para invocar cualquiera de los "
-"analizadores\n"
-"            expuestos por el punto de entrada `plainbox.parsers`, analizar "
-"la entrada estándar\n"
-"            y producir un volcado en JSON en salida estándar de la "
-"estructura de datos resultante.\n"
-"\n"
-"            Tenga en mente que la mayoría de los analizadores se diseñaron "
-"asumiendo el local 'C'\n"
-"            Tal vez tenga que redefinir la variable de ambiente LANG a\"C"
-"\".\n"
-"            "
 
 #: .././plainbox/impl/commands/parse.py:117
 msgid "Example: "
@@ -778,7 +748,8 @@ msgid "TRANSPORT"
 msgstr "TRANSPORTE"
 
 #: .././plainbox/impl/commands/run.py:419
-msgid "use TRANSPORT to send results somewhere (pass ? for a list of choices)"
+msgid ""
+"use TRANSPORT to send results somewhere (pass ? for a list of choices)"
 msgstr ""
 "utilizar TRANSPORTE para transmitir los resultados a algún lado (use ? para "
 "ver una lista de opciones)"
@@ -913,8 +884,8 @@ msgid ""
 "\n"
 "    @EPILOG@\n"
 "\n"
-"    The name of the provider must follow the pattern ``YYYY.example.org:"
-"name``\n"
+"    The name of the provider must follow the pattern "
+"``YYYY.example.org:name``\n"
 "    where ``YYYY`` is a four-digit year when the author of the provider "
 "owned\n"
 "    the domain (here, ``example.org``) and ``name`` is arbitrary identifier\n"
@@ -938,8 +909,8 @@ msgstr ""
 "\n"
 "    @EPILOG@\n"
 "\n"
-"    El nombre del proveedor debe respetar la forma ``YYYY.example.org:"
-"nombre``\n"
+"    El nombre del proveedor debe respetar la forma "
+"``YYYY.example.org:nombre``\n"
 "    donde ``YYYY`` es un año con cuatro dígitos en el cual el autor del "
 "proveedor era propietario\n"
 "    del dominio(por ejemplo ``example.org``) y ``nombre`` es un "
@@ -1571,14 +1542,12 @@ msgid "Pathname of the directory with whitelists definitions"
 msgstr ""
 
 #: .././plainbox/impl/secure/providers/v1.py:705
-#, fuzzy
 msgid "Pathname of the directory with provider data"
-msgstr "Nombre del proveedor a utilizar por omisión"
+msgstr ""
 
 #: .././plainbox/impl/secure/providers/v1.py:741
-#, fuzzy
 msgid "Pathname of the directory with provider executables"
-msgstr "Nombre del proveedor a utilizar por omisión"
+msgstr ""
 
 #: .././plainbox/impl/secure/providers/v1.py:777
 msgid "Pathname of the directory with locale data"
@@ -2020,7 +1989,7 @@ msgstr ""
 
 #. TRANSLATORS: please don't translate fsync()
 #. Flush kernel buffers on the directory.
-#.
+#. 
 #. This should ensure the rename operation is really on disk by now.
 #. As noted above, this is essential for being able to survive
 #. system crash immediately after exiting this method.
@@ -2400,9 +2369,9 @@ msgid "{0}: job {1!a}, field {2!a}: {3}"
 msgstr ""
 
 #: .././plainbox/provider_manager.py:656
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "allowed values are: {0}"
-msgstr "Las respuestas permitidas son: {}"
+msgstr ""
 
 #: .././plainbox/provider_manager.py:663
 msgid "All jobs seem to be valid"
@@ -2668,150 +2637,3 @@ msgstr ""
 #, python-format
 msgid "the following arguments are required: %s"
 msgstr ""
-
-#~ msgid ""
-#~ "Check success result from shell test case (generated from a local job)"
-#~ msgstr ""
-#~ "Verifica que un caso de prueba ejecutado en shell sea exitoso (generado "
-#~ "de un trabajo local)"
-
-#~ msgid "Multilevel tests"
-#~ msgstr "Pruebas multinivel"
-
-#~ msgid "Check success result from shell test case"
-#~ msgstr "Verifica que un caso de prueba ejecutado en shell sea exitoso"
-
-#~ msgid "Check failed result from shell test case"
-#~ msgstr "Verifica que un caso de prueba ejecutado en shell falle"
-
-#~ msgid "Check job is executed when dependency succeeds"
-#~ msgstr ""
-#~ "Verifica que el trabajo se ejecute cuando la dependencia sea exitosa"
-
-#~ msgid "Check job result is set to uninitiated when dependency fails"
-#~ msgstr "Verifica que el trabajo no sea iniciado cuando la dependencia falle"
-
-#, fuzzy
-#~ msgid "Job sleeping for sixty seconds "
-#~ msgstr "Duerme durante 60 segundos"
-
-#~ msgid "Sleep for sixty seconds"
-#~ msgstr "Duerme durante 60 segundos"
-
-#~ msgid "Kill $PPID if $KILLER is set to yes"
-#~ msgstr "Mata $PID si $KILLER tiene el valor 'yes'"
-
-#~ msgid "Check job is executed when requirements are met"
-#~ msgstr ""
-#~ "Verifica que el trabajo se ejecute cuando se cumplen los requerimientos"
-
-#~ msgid ""
-#~ "Check job result is set to \"not required on this system\" when "
-#~ "requirements are not met"
-#~ msgstr ""
-#~ "Verifica que el resultado del trabajo sea \"no requerido en este sistema"
-#~ "\" cuando no se cumplen los requerimientos"
-
-#~ msgid ""
-#~ "PURPOSE:\n"
-#~ "    This test checks that the manual plugin works fine\n"
-#~ "STEPS:\n"
-#~ "    1. Add a comment\n"
-#~ "    2. Set the result as passed\n"
-#~ "VERIFICATION:\n"
-#~ "    Check that in the report the result is passed and the comment is "
-#~ "displayed"
-#~ msgstr ""
-#~ "PROPÓSITO:\n"
-#~ "    Esta prueba verifica que los trabajos de tipo 'manual' funcionan "
-#~ "correctamente\n"
-#~ "PASOS:\n"
-#~ "    1. Agregue un comentario\n"
-#~ "    2. Cambie el resultado a 'pasa'\n"
-#~ "VERIFICACIÓN:\n"
-#~ "    Verifique en el reporte que el resultado aparezca como pasado y "
-#~ "el     comentario sea visible"
-
-#, fuzzy
-#~ msgid "A simple user interaction job"
-#~ msgstr "opciones de interfaz de usuario"
-
-#~ msgid ""
-#~ "PURPOSE:\n"
-#~ "    This test checks that the user-interact plugin works fine\n"
-#~ "STEPS:\n"
-#~ "    1. Read this description\n"
-#~ "    2. Press the test button\n"
-#~ "VERIFICATION:\n"
-#~ "    Check that in the report the result is passed"
-#~ msgstr ""
-#~ "PROPÓSITO:\n"
-#~ "    Esta prueba verifica que los trabajos de tipo 'user-interact' "
-#~ "funcionen correctamente\n"
-#~ "PASOS:\n"
-#~ "    1. Lea esta descripción\n"
-#~ "    2. Presione el botón 'probar'\n"
-#~ "VERIFICACIÓN:\n"
-#~ "    Verifique en el reporte que el resultado aparezca como pasado"
-
-#~ msgid ""
-#~ "PURPOSE:\n"
-#~ "    This test checks that the user-verify plugin works fine\n"
-#~ "STEPS:\n"
-#~ "    1. Read this description\n"
-#~ "    2. Ensure that the command has been started automatically\n"
-#~ "    3. Do not press the test button\n"
-#~ "    4. Look at the output and determine the outcome of the test\n"
-#~ "VERIFICATION:\n"
-#~ "    The command should have printed \"Please select 'pass'\""
-#~ msgstr ""
-#~ "PROPÓSITO:\n"
-#~ "    Esta prueba verifica que los trabajos de tipo 'user-verify' funcionen "
-#~ "correctamente\n"
-#~ "PASOS:\n"
-#~ "    1. Lea esta descripción\n"
-#~ "    2. Verifique que el comando se inició automáticamente\n"
-#~ "    3. No presione el botón 'probar'\n"
-#~ "    4. Verifique la salida y determine el resultado de la prueba\n"
-#~ "VERIFICACIÓN:\n"
-#~ "    El comando debe haber mostrado \"Por favor seleccione 'pasado'\""
-
-#~ msgid ""
-#~ "PURPOSE:\n"
-#~ "    This test checks that the user-interact-verify plugin works fine\n"
-#~ "STEPS:\n"
-#~ "    1. Read this description\n"
-#~ "    2. Ensure that the command has not been started yet\n"
-#~ "    3. Press the test button\n"
-#~ "    4. Look at the output and determine the outcome of the test\n"
-#~ "VERIFICATION:\n"
-#~ "    The command should have printed \"Please select 'pass'\""
-#~ msgstr ""
-#~ "PROPÓSITO:\n"
-#~ "    Esta prueba verifica que los trabajos de tipo 'user-interact-verify' "
-#~ "funcionen correctamente\n"
-#~ "PASOS:\n"
-#~ "    1. Lea esta descripción\n"
-#~ "    2. Verifique que el comando no se haya iniciado\n"
-#~ "    3. Presione el botón 'probar'\n"
-#~ "    4. Verifique la salida y determine el resultado de la prueba\n"
-#~ "VERIFICACIÓN:\n"
-#~ "    El comando debe haber mostrado \"Por favor seleccione 'pasado'\""
-
-#~ msgid "Check that becoming root works"
-#~ msgstr "Verifica que ejecución como superusuario funcione"
-
-#~ msgid "stub local tests"
-#~ msgstr "Pruebas locales del stub"
-
-#~ msgid "stub multilevel tests"
-#~ msgstr "Pruebas multinivel del stub"
-
-#~ msgid "The -c ihv option is deprecated and doesn't work anymore"
-#~ msgstr "la opción -c ihv es obsoleta y ya no debe ser utilizada"
-
-#~ msgid "where to find the installation of CheckBox."
-#~ msgstr "Ubicación de la instalación de CheckBox."
-
-#~ msgid "Invalid include pattern: %s"
-#~ msgstr "Patrón de inclusión inválido: %s"

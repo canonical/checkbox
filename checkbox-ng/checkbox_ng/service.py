@@ -1195,6 +1195,20 @@ class ServiceWrapper(PlainBoxObjectWrapper):
                             option_list: 'as', output_file: 's'):
         return self.native.export_session_to_file(
             session, output_format, option_list, output_file)
+    
+    @dbus.service.method(
+        dbus_interface=SERVICE_IFACE, in_signature='', out_signature='as')
+    def GetAllTransports(self):
+        """
+        Get all transports names and their respective options
+        """
+        return self.native.get_all_transports()
+
+    @dbus.service.method(
+        dbus_interface=SERVICE_IFACE, in_signature='ssss', out_signature='s')
+    def SendDataViaTransport(self, transport, where, options, data):
+        return self.native.send_data_via_transport(transport, where,
+                                                   options, data)
 
     @dbus.service.method(
         dbus_interface=SERVICE_IFACE, in_signature='ao', out_signature='o')

@@ -183,7 +183,7 @@ class TestMain(TestCase):
         self.assertEqual(call.exception.args, (0,))
         self.maxDiff = None
         expected = """
-        usage: plainbox [-h] [--version] [--providers {all,src,stub}] [-v] [-D] [-C]
+        usage: plainbox [-h] [--version] [--providers {all,stub}] [-v] [-D] [-C]
                         [-T LOGGER] [-P] [-I]
                         {run,self-test,check-config,dev,startprovider} ...
 
@@ -200,7 +200,7 @@ class TestMain(TestCase):
           --version             show program's version number and exit
 
         provider list and development:
-          --providers {all,src,stub}
+          --providers {all,stub}
                                 which providers to load
 
         logging and debugging:
@@ -223,7 +223,7 @@ class TestMain(TestCase):
                 main([])
             self.assertEqual(call.exception.args, (2,))
         expected = """
-        usage: plainbox [-h] [--version] [--providers {all,src,stub}] [-v] [-D] [-C]
+        usage: plainbox [-h] [--version] [--providers {all,stub}] [-v] [-D] [-C]
                         [-T LOGGER] [-P] [-I]
                         {run,self-test,check-config,dev,startprovider} ...
         plainbox: error: too few arguments

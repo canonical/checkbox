@@ -31,7 +31,6 @@ import logging
 
 from plainbox.i18n import gettext as _
 from plainbox.impl.clitools import CommandBase, ToolBase
-from plainbox.impl.providers.special import CheckBoxSrcProvider
 from plainbox.impl.providers.special import get_stubbox_def
 from plainbox.impl.providers.v1 import all_providers
 from plainbox.impl.secure.providers.v1 import Provider1
@@ -120,12 +119,10 @@ class PlainBoxToolBase(ToolBase):
         # object (default for that is 'auto').
         if ns.providers is None:
             ns.providers = self._config.default_provider
-        assert ns.providers in ('all', 'src', 'stub')
+        assert ns.providers in ('all', 'stub')
         # Decide which providers to expose to the rest of plainbox
         if ns.providers == 'all':
             return self._load_really_all_providers()
-        elif ns.providers == 'src':
-            return self._load_checkbox_source_provider()
         elif ns.providers == 'stub':
             return self._load_stub_provider_only()
 
@@ -134,18 +131,10 @@ class PlainBoxToolBase(ToolBase):
         # StubBox is always enabled
         provider_list.append(
             Provider1.from_definition(get_stubbox_def(), secure=False))
-        # Load checkbox-src if working from source
-        try:
-            provider_list.append(CheckBoxSrcProvider())
-        except LookupError:
-            pass
         # Load all normal providers
         all_providers.load()
         provider_list.extend(all_providers.get_all_plugin_objects())
         return provider_list
-
-    def _load_checkbox_source_provider(self):
-        return [CheckBoxSrcProvider()]
 
     def _load_stub_provider_only(self):
         return [Provider1.from_definition(get_stubbox_def(), secure=False)]
@@ -154,14 +143,15 @@ class PlainBoxToolBase(ToolBase):
         """
         Overridden version of add_early_parser_arguments().
 
-        This method adds the -c|--checkbox argument to the set of early parser
+        This method adds the --providers argument to the set of early parser
         arguments, so that it is visible in autocomplete and help.
         """
-        group = parser.add_argument_group(title=_("provider list and development"))
+        group = parser.add_argument_group(
+            title=_("provider list and development"))
         group.add_argument(
             '--providers',
             action='store',
-            choices=['all', 'src', 'stub'],
+            choices=['all', 'stub'],
             # None is a special value that means 'use whatever is configured'
             default=None,
             help=_("which providers to load"))

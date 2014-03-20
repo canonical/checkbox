@@ -33,7 +33,10 @@ from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.session import SessionStorageRepository
 from plainbox.impl.session.legacy import SessionStateLegacyAPI as SessionState
+from plainbox.impl.transport import get_all_transports
 
+from requests.exceptions import Timeout, ConnectionError
+from urllib.error import HTTPError
 
 logger = logging.getLogger("plainbox.highlevel")
 
@@ -301,6 +304,25 @@ class Service:
         exporter = exporter_cls(option_list)
         data_subset = exporter.get_session_data_subset(session)
         exporter.dump(data_subset, stream)
+
+    def get_all_transports(self):
+        return [transport for transport in get_all_transports()]
+
+    def send_data_via_transport(self, transport, where, options, data):
+        transport_cls = get_all_transports().get(transport)
+        if transport is None:
+            return "No transport with name '{}' was found".format(transport)
+        
+        try:
+            transport = transport_cls(where, options)
+            json = transport.send(data)
+            return "Submission uploaded to: {}".format(json['url'])
+        except Timeout as error:
+            return "Request to {} timed out: {}".format(where, error)
+        except ConnectionError as error:
+            return "Unable to connect to {}: {}".format(where, error)
+        except HTTPError as error:
+            return "HTTP error"
 
     def prime_job(self, session, job):
         """

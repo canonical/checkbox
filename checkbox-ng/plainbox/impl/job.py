@@ -260,7 +260,8 @@ class JobDefinition(BaseJob, IJobDefinition):
         """
         Get the translated version of :meth:`summary`
         """
-        return self.get_translated_data(self.summary)
+        return self.get_normalized_translated_data(
+            self.get_raw_record_value('summary'))
 
     @property
     def name(self):
@@ -278,7 +279,8 @@ class JobDefinition(BaseJob, IJobDefinition):
         """
         Get the translated version of :meth:`description`
         """
-        return self.get_translated_data(self.description)
+        return self.get_normalized_translated_data(
+            self.get_raw_record_value('description'))
 
     @property
     def depends(self):

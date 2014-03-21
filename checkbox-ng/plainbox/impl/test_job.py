@@ -491,24 +491,24 @@ class TestJobDefinition(TestCase):
         Verify that Provider1.tr_description() works as expected
         """
         job = JobDefinition(self._full_record.data)
-        with mock.patch.object(job, "get_translated_data") as mgtd:
+        with mock.patch.object(job, "get_normalized_translated_data") as mgntd:
             retval = job.tr_summary()
         # Ensure that get_translated_data() was called
-        mgtd.assert_called_once_with(job.summary)
+        mgntd.assert_called_once_with(job.summary)
         # Ensure tr_summary() returned its return value
-        self.assertEqual(retval, mgtd())
+        self.assertEqual(retval, mgntd())
 
     def test_tr_description(self):
         """
         Verify that Provider1.tr_description() works as expected
         """
         job = JobDefinition(self._full_record.data)
-        with mock.patch.object(job, "get_translated_data") as mgtd:
+        with mock.patch.object(job, "get_normalized_translated_data") as mgntd:
             retval = job.tr_description()
         # Ensure that get_translated_data() was called
-        mgtd.assert_called_once_with(job.description)
+        mgntd.assert_called_once_with(job.description)
         # Ensure tr_description() returned its return value
-        self.assertEqual(retval, mgtd())
+        self.assertEqual(retval, mgntd())
 
 
 class TestJobDefinitionStartup(TestCaseWithParameters):

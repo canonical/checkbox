@@ -377,8 +377,33 @@ class JobDefinition(BaseJob, IJobDefinition):
         """
         return self._controller
 
-    def __init__(self, data, origin=None, provider=None, controller=None):
-        super(JobDefinition, self).__init__(data)
+    def __init__(self, data, origin=None, provider=None, controller=None,
+                 raw_data=None):
+        """
+        Initialize a new JobDefinition instance.
+
+        :param data:
+            Normalized data that makes up this job definition
+        :param origin:
+            An (optional) Origin object. If omitted a fake origin object is
+            created. Normally the origin object should be obtained from the
+            RFC822Record object.
+        :param provider:
+            An (optional) Provider1 object. If omitted it defaults to None but
+            the actual job definition is not suitable for execution. All job
+            definitions are expected to have a provider.
+        :param controller:
+            An (optional) session state controller. If omitted a checkbox
+            session state controller is implicitly used. The controller defines
+            how this job influences the session it executes in.
+        :param raw_data:
+            An (optional) raw version of data, without whitespace
+            normalization. If omitted then raw_data is assumed to be data.
+
+        .. note::
+            You should almost always use :meth:`from_rfc822_record()` instead.
+        """
+        super(JobDefinition, self).__init__(data, raw_data)
         if origin is None:
             origin = Origin.get_caller_origin()
         if controller is None:
@@ -472,7 +497,12 @@ class JobDefinition(BaseJob, IJobDefinition):
         if 'id' not in record.data and 'name' not in record.data:
             # TRANSLATORS: don't translate id or translate it as 'id field'
             raise ValueError(_("Cannot create job without an id"))
-        return cls(record.data, record.origin)
+        # Strip the trailing newlines form all the raw values coming from the
+        # RFC822 parser. We don't need them and they don't match gettext keys
+        # (xgettext strips out those newlines)
+        return cls(record.data, record.origin, raw_data={
+            key: value.rstrip('\n')
+            for key, value in record.raw_data.items()})
 
     def validate(self, validator_cls=CheckBoxJobValidator):
         """

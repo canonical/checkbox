@@ -30,10 +30,11 @@ Implementation of rfc822 serializer and deserializer.
 """
 
 from functools import total_ordering
-from inspect import cleandoc
 import inspect
 import logging
 import os
+import re
+import textwrap
 
 from plainbox.abc import ITextSource
 from plainbox.i18n import gettext as _
@@ -219,26 +220,51 @@ class Origin:
         return origin
 
 
+def normalize_rfc822_value(value):
+    # Remove the multi-line dot marker
+    value = re.sub('^(\s*)\.$', '\\1', value, flags=re.M)
+    # Remove consistent indentation
+    value = textwrap.dedent(value)
+    # Strip the remaining whitespace
+    value = value.strip()
+    return value
+
+
 class RFC822Record:
     """
-    Class for tracking RFC822 records
+    Class for tracking RFC822 records.
 
-    This is a simple container for the dictionary of data.
-    Each instance also holds the origin of the data
+    This is a simple container for the dictionary of data. The data is
+    represented by two copies, one original and one after value normalization.
+    Value normalization strips out excess whitespace and processes the magic
+    leading dot syntax that is essential for empty newlines.
+
+    Comparison is performed on the normalized data only, raw data is stored for
+    reference but does not differentiate records.
+
+    Each instance also holds the origin of the data (location of the
+    file/stream where it was parsed from).
     """
 
-    def __init__(self, data, origin=None):
+    def __init__(self, data, origin=None, raw_data=None):
         """
         Initialize a new record.
 
         :param data:
-            A dictionary with record data
+            A dictionary with normalized record data
         :param origin:
             A :class:`Origin` instance that describes where the data came from
+        :param raw_data:
+            An optional dictionary with raw record data. If omitted then it
+            will default to normalized data (as the same object, without making
+            a copy)
         """
+        self._data = data
+        if raw_data is None:
+            raw_data = data
+        self._raw_data = raw_data
         if origin is None:
             origin = Origin.get_caller_origin()
-        self._data = data
         self._origin = origin
 
     def __repr__(self):
@@ -258,9 +284,27 @@ class RFC822Record:
     @property
     def data(self):
         """
-        The data set (dictionary)
+        The normalized version of the data set (dictionary)
+
+        This property exposes the normalized version of the data encapsulated
+        in this record. Normalization is performed with
+        :func:`normalize_rfc822_value()`. Only values are normalized, keys are
+        left intact.
         """
         return self._data
+
+    @property
+    def raw_data(self):
+        """
+        The raw version of data set (dictionary)
+
+        This property exposes the raw (original) version of the data
+        encapsulated by this record. This data is as it was originally parsed,
+        including all the whitespace layout.
+
+        In some records this may be 'normal' data object itself (same object).
+        """
+        return self._raw_data
 
     @property
     def origin(self):
@@ -282,7 +326,7 @@ class RFC822Record:
                     stream.write(" ..\n")
                 else:
                     stream.write(" %s\n" % value)
-        for key, value in self._data.items():
+        for key, value in self.data.items():
             if isinstance(value, (list, tuple)):
                 _dump_part(stream, key, value)
             elif isinstance(value, str) and "\n" in value:
@@ -379,7 +423,6 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
     retain their original ordering.
     """
     record = None
-    data = None
     key = None
     value_list = None
     origin = None
@@ -408,15 +451,12 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
         nonlocal key
         nonlocal value_list
         nonlocal record
-        nonlocal data
         nonlocal origin
         key = None
         value_list = None
-        data = None
         if source is not None:
             origin = Origin(source, None, None)
-        data = data_cls()
-        record = RFC822Record(data, origin)
+        record = RFC822Record(data_cls(), origin, data_cls())
 
     def _commit_key_value_if_needed():
         """
@@ -424,8 +464,11 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
         """
         nonlocal key
         if key is not None:
-            data[key] = cleandoc('\n'.join(value_list))
-            logger.debug(_("Committed key/value %r=%r"), key, data[key])
+            raw_value = ''.join(value_list)
+            normalized_value = normalize_rfc822_value(raw_value)
+            record.raw_data[key] = raw_value
+            record.data[key] = normalized_value
+            logger.debug(_("Committed key/value %r=%r"), key, normalized_value)
             key = None
 
     def _set_start_lineno_if_needed():
@@ -460,7 +503,7 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
             _commit_key_value_if_needed()
             # If data is non-empty, yield the record, this allows us to safely
             # use newlines for formatting
-            if data:
+            if record.data:
                 logger.debug(_("yielding record: %r"), record)
                 yield record
             # Reset local state so that we can build a new record
@@ -471,15 +514,9 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
             if key is None:
                 # If we have not seen any keys yet then this is a syntax error
                 raise _syntax_error(_("Unexpected multi-line value"))
-            # If the line is is composed of leading spaces and a dot
-            # then the remove the dot whithout touching the spaces.
-            # This allows us to support a generic escape sequence after
-            # which any characters can be injected (until the end of the
-            # line), including empty lines, lines any number of dots.
-            if line.lstrip().startswith("."):
-                line = line.replace('.', '', 1)
-            # Strip the whitespace from the right side
-            line = line.rstrip()
+            # Strip the initial space. This matches the behavior of xgettext
+            # scanning our job definitions with multi-line values.
+            line = line[1:]
             # Append the current line to the list of values of the most recent
             # key. This prevents quadratic complexity of string concatenation
             value_list.append(line)
@@ -496,20 +533,24 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
             # single-line values).
             _commit_key_value_if_needed()
             # Parse the line by splitting on the colon, get rid of additional
-            # whitespace from both key and the value
+            # whitespace from the key, leaving value intact.
             key, value = line.split(":", 1)
             key = key.strip()
-            value = value.strip()
             # Check if the key already exist in this message
             if key in record.data:
                 raise _syntax_error(_(
                     "Job has a duplicate key {!r} "
                     "with old value {!r} and new value {!r}"
-                ).format(key, record.data[key], value))
-            # Construct initial value list out of the (only) value that we have
-            # so far. Additional multi-line values will just append to
-            # value_list
-            value_list = [value]
+                ).format(key, record.raw_data[key], value))
+            if value.strip() != "":
+                # Construct initial value list out of the (only) value that we
+                # have so far. Additional multi-line values will just append to
+                # value_list
+                value_list = [value]
+            else:
+                # The initial line may be empty, in that case the spaces and
+                # newlines there are discarded
+                value_list = []
             # Update the end-line location
             _update_end_lineno()
         # Treat all other lines as syntax errors
@@ -519,6 +560,6 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
     # Make sure to commit the last key from the record
     _commit_key_value_if_needed()
     # Once we've seen the whole file return the last record, if any
-    if data:
+    if record.data:
         logger.debug(_("yielding record: %r"), record)
         yield record

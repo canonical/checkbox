@@ -115,7 +115,7 @@ class SessionStateExporterBase(metaclass=ABCMeta):
         The subset of the data that should be saved may depend on a particular
         saver class and options selected by the user.
 
-        Must return a collection that can be handled by save_data().  Special
+        Must return a collection that can be handled by :meth:`dump()`.  Special
         care must be taken when processing io_log (and in the future,
         attachments) as those can be arbitrarily large.
         """

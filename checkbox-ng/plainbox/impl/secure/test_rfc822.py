@@ -402,7 +402,7 @@ class RFC822ParserTests(TestCase):
         with StringIO("key: value ") as stream:
             records = type(self).loader(stream)
         self.assertEqual(records[0].data, {'key': 'value'})
-        self.assertEqual(records[0].raw_data, {'key': ' value '})
+        self.assertEqual(records[0].raw_data, {'key': 'value '})
 
     def test_preserves_whitespace2(self):
         with StringIO("key:\n value ") as stream:
@@ -414,7 +414,7 @@ class RFC822ParserTests(TestCase):
         with StringIO("key: value \n") as stream:
             records = type(self).loader(stream)
         self.assertEqual(records[0].data, {'key': 'value'})
-        self.assertEqual(records[0].raw_data, {'key': ' value \n'})
+        self.assertEqual(records[0].raw_data, {'key': 'value \n'})
 
     def test_strips_newlines2(self):
         with StringIO("key:\n value \n") as stream:
@@ -466,7 +466,7 @@ class RFC822ParserTests(TestCase):
             "...work"
         )
         expected_raw_value = (
-            " something\n"
+            "something\n"
             ".\n"
             ".this\n"
             "..should\n"
@@ -716,7 +716,7 @@ class RFC822ParserTests(TestCase):
             records = type(self).loader(stream)
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0].data, {'key': 'value'})
-        self.assertEqual(records[0].raw_data, {'key': '  value  '})
+        self.assertEqual(records[0].raw_data, {'key': 'value  '})
 
     def test_relevant_whitespace(self):
         text = (
@@ -763,8 +763,8 @@ class RFC822ParserTests(TestCase):
             with self.assertRaises(RFC822SyntaxError) as call:
                 type(self).loader(stream)
             self.assertEqual(call.exception.msg, (
-                "Job has a duplicate key 'key1' with old value ' value1\\n'"
-                " and new value ' value2\\n'"))
+                "Job has a duplicate key 'key1' with old value 'value1\\n'"
+                " and new value 'value2\\n'"))
 
     def test_origin_from_stream_is_Unknown(self):
         """

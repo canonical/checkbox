@@ -532,10 +532,12 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
             # previous key that we may have (regardless of multi-line or
             # single-line values).
             _commit_key_value_if_needed()
-            # Parse the line by splitting on the colon, get rid of additional
-            # whitespace from the key, leaving value intact.
+            # Parse the line by splitting on the colon, getting rid of
+            # all surrounding whitespace from the key and getting rid of the
+            # leading whitespace from the value.
             key, value = line.split(":", 1)
             key = key.strip()
+            value = value.lstrip()
             # Check if the key already exist in this message
             if key in record.data:
                 raise _syntax_error(_(

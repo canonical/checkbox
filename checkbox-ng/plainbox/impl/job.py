@@ -235,15 +235,6 @@ class JobDefinition(BaseJob, IJobDefinition):
     def plugin(self):
         return self.get_record_value('plugin')
 
-    def get_record_value(self, name, default=None):
-        """
-        Obtain the value of the specified record attribute
-        """
-        value = super(JobDefinition, self).get_record_value("_{}".format(name))
-        if value is None:
-            value = super(JobDefinition, self).get_record_value(name, default)
-        return value
-
     @property
     def id(self):
         if self._provider:

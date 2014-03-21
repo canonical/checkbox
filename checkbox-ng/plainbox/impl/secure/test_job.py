@@ -28,33 +28,54 @@ from unittest import TestCase
 
 from plainbox.impl.secure.job import BaseJob
 from plainbox.testing_utils.testcases import TestCaseWithParameters
-from plainbox.vendor.mock import patch
 
 
 class TestJobDefinition(TestCase):
 
-    def setUp(self):
-        self._full_record = {
-            'plugin': 'plugin',
-            'command': 'command',
-            'environ': 'environ',
-            'user': 'user'
-        }
-        self._min_record = {
-            'plugin': 'plugin',
-            'id': 'id',
-        }
+    def test_get_raw_record_value(self):
+        """
+        Ensure that get_raw_record_value() works okay
+        """
+        job1 = BaseJob({'key': 'value'}, {'key': 'raw-value'})
+        job2 = BaseJob({'_key': 'value'}, {'_key': 'raw-value'})
+        self.assertEqual(job1.get_raw_record_value('key'), 'raw-value')
+        self.assertEqual(job2.get_raw_record_value('key'), 'raw-value')
 
-    def test_smoke_full_record(self):
-        job = BaseJob(self._full_record)
-        self.assertEqual(job.plugin, "plugin")
-        self.assertEqual(job.command, "command")
-        self.assertEqual(job.environ, "environ")
-        self.assertEqual(job.user, "user")
+    def test_get_record_value(self):
+        """
+        Ensure that get_record_value() works okay
+        """
+        job1 = BaseJob({'key': 'value'}, {'key': 'raw-value'})
+        job2 = BaseJob({'_key': 'value'}, {'_key': 'raw-value'})
+        self.assertEqual(job1.get_record_value('key'), 'value')
+        self.assertEqual(job2.get_record_value('key'), 'value')
 
-    def test_smoke_min_record(self):
-        job = BaseJob(self._min_record)
-        self.assertEqual(job.plugin, "plugin")
+    def test_properties(self):
+        """
+        Ensure that properties are looked up in the non-raw copy of the data
+        """
+        job = BaseJob({
+            'plugin': 'plugin-value',
+            'command': 'command-value',
+            'environ': 'environ-value',
+            'user': 'user-value',
+        }, {
+            'plugin': 'plugin-raw',
+            'command': 'command-raw',
+            'environ': 'environ-raw',
+            'user': 'user-raw',
+        })
+        self.assertEqual(job.plugin, "plugin-value")
+        self.assertEqual(job.command, "command-value")
+        self.assertEqual(job.environ, "environ-value")
+        self.assertEqual(job.user, "user-value")
+
+    def test_properties_default_values(self):
+        """
+        Ensure that all properties default to None
+        """
+        job = BaseJob({})
+        self.assertEqual(job.plugin, None)
         self.assertEqual(job.command, None)
         self.assertEqual(job.environ, None)
         self.assertEqual(job.user, None)
@@ -71,6 +92,14 @@ class TestJobDefinition(TestCase):
         self.assertEqual(
             job1.checksum,
             "c47cc3719061e4df0010d061e6f20d3d046071fd467d02d093a03068d2f33400")
+
+    def test_get_environ_settings(self):
+        job1 = BaseJob({})
+        self.assertEqual(job1.get_environ_settings(), set())
+        job2 = BaseJob({'environ': 'a b c'})
+        self.assertEqual(job2.get_environ_settings(), set(['a', 'b', 'c']))
+        job3 = BaseJob({'environ': 'a,b,c'})
+        self.assertEqual(job3.get_environ_settings(), set(['a', 'b', 'c']))
 
 
 class ParsingTests(TestCaseWithParameters):

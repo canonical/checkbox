@@ -29,7 +29,6 @@
 import collections
 import hashlib
 import json
-import os
 import re
 
 
@@ -38,8 +37,27 @@ class BaseJob:
     Base Job definition class.
     """
 
-    def __init__(self, data):
+    def __init__(self, data, raw_data=None):
+        """
+        Initialize a new BaseJob object
+
+        :param data:
+            A dictionary of normalized data.
+
+            This data is suitable for normal application usage. It is not
+            suitable for gettext lookups as the original form is lost by the
+            normalization process.
+
+        :param raw_data:
+            A dictionary of raw data (optional). Defaults to data.
+
+            Data in this dictionary is in its raw form, as it was written in a
+            job definition file. This data is suitable for gettext lookups.
+        """
         self.__data = data
+        if raw_data is None:
+            raw_data = data
+        self.__raw_data = raw_data
         self._checksum = None
 
     @property
@@ -48,9 +66,25 @@ class BaseJob:
 
     def get_record_value(self, name, default=None):
         """
-        Obtain the value of the specified record attribute
+        Obtain the normalized value of the specified record attribute
         """
-        return self.__data.get(name, default)
+        value = self.__data.get('_{}'.format(name))
+        if value is None:
+            value = self.__data.get('{}'.format(name), default)
+        return value
+
+    def get_raw_record_value(self, name, default=None):
+        """
+        Obtain the raw value of the specified record attribute
+
+        The raw value may have additional whitespace or indentation around the
+        text. It will also not have the magic RFC822 dots removed. In general
+        the text will be just as it was parsed from a job definition file.
+        """
+        value = self.__raw_data.get('_{}'.format(name))
+        if value is None:
+            value = self.__raw_data.get('{}'.format(name), default)
+        return value
 
     @property
     def plugin(self):

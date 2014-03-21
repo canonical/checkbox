@@ -83,7 +83,7 @@ instructions."""
 cert_cli_settings = {
     'subparser_name': 'certification-server',
     'subparser_help': 'application for server certification',
-    'default_whitelist': 'server-cert',
+    'default_whitelist': 'server-selftest-14.04',
     'default_providers': ['2013.com.canonical.certification:certification-server'],
     'welcome_text': """\
 Welcome to System Certification!

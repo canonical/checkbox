@@ -109,8 +109,7 @@ class PlainBoxConfig(config.Config):
     default_provider = config.Variable(
         section="common",
         help_text=_("Name of the default provider to use"),
-        validator_list=[
-            config.ChoiceValidator(['all', 'src', 'stub'])],
+        validator_list=[config.ChoiceValidator(['all', 'stub'])],
         default="all")
 
     class Meta:

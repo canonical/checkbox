@@ -455,6 +455,37 @@ class TestJobDefinition(TestCase):
         with mock.patch.object(job, "_provider"):
             self.assertEqual(job.get_translated_data(None), None)
 
+    @mock.patch('plainbox.impl.job.normalize_rfc822_value')
+    def test_get_normalized_translated_data__typical(self, mock_norm):
+        """
+        verify the runtime behavior of get_normalized_translated_data()
+        """
+        job = JobDefinition(self._full_record.data)
+        with mock.patch.object(job, "get_translated_data") as mock_tr:
+            retval = job.get_normalized_translated_data('foo')
+        # get_translated_data('foo') was called
+        mock_tr.assert_called_with("foo")
+        # normalize_rfc822_value(x) was called
+        mock_norm.assert_called_with(mock_tr())
+        # return value was returned
+        self.assertEqual(retval, mock_norm())
+
+    @mock.patch('plainbox.impl.job.normalize_rfc822_value')
+    def test_get_normalized_translated_data__no_translation(self, mock_norm):
+        """
+        verify the runtime behavior of get_normalized_translated_data()
+        """
+        job = JobDefinition(self._full_record.data)
+        with mock.patch.object(job, "get_translated_data") as mock_tr:
+            mock_tr.return_value = None
+            retval = job.get_normalized_translated_data('foo')
+        # get_translated_data('foo') was called
+        mock_tr.assert_called_with("foo")
+        # normalize_rfc822_value(x) was NOT called
+        self.assertEqual(mock_norm.call_count, 0)
+        # return value was returned
+        self.assertEqual(retval, 'foo')
+
     def test_tr_summary(self):
         """
         Verify that Provider1.tr_description() works as expected

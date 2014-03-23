@@ -183,6 +183,8 @@ class Explorer:
                 group="provider",
                 name=provider.name,
                 attrs=OrderedDict((
+                    ('broken_i18n',
+                     provider.description == provider.tr_description()),
                     ('name', provider.name),
                     ('namespace', provider.namespace),
                     ('version', provider.version),
@@ -200,6 +202,9 @@ class Explorer:
                     group="job",
                     name=job.id,
                     attrs=OrderedDict((
+                        ('broken_i18n',
+                         job.summary == job.tr_summary()
+                         or job.description == job.tr_description()),
                         ('id', job.id),
                         ('partial_id', job.partial_id),
                         ('summary', job.summary),

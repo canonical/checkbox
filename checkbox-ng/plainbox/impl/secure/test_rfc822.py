@@ -398,6 +398,20 @@ class RFC822ParserTests(TestCase):
             records = type(self).loader(stream)
         self.assertEqual(len(records), 0)
 
+    def test_parsing_strings_preserves_newlines(self):
+        """
+        Ensure that the special behavior, when a string is passed instead of a
+        stream, is parsed the same way as regular streams are, that is, that
+        newlines are preserved.
+        """
+        text = ("key:\n"
+                " line1\n"
+                " line2\n")
+        records_str = type(self).loader(text)
+        with StringIO(text) as stream:
+            records_stream = type(self).loader(stream)
+        self.assertEqual(records_str, records_stream)
+
     def test_preserves_whitespace1(self):
         with StringIO("key: value ") as stream:
             records = type(self).loader(stream)

@@ -206,7 +206,8 @@ class Explorer:
                         ('tr_summary', job.tr_summary()),
                         ('raw_summary', job.get_raw_record_value('summary')),
                         ('description', job.description),
-                        ('raw_description', job.get_raw_record_value('description')),
+                        ('raw_description',
+                         job.get_raw_record_value('description')),
                         ('tr_description', job.tr_description()),
                         ('plugin', job.plugin),
                         ('command', job.command),
@@ -314,7 +315,6 @@ class Service:
         transport_cls = get_all_transports().get(transport)
         if transport is None:
             return "No transport with name '{}' was found".format(transport)
-        
         try:
             transport = transport_cls(where, options)
             json = transport.send(data)

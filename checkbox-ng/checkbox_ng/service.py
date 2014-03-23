@@ -1022,7 +1022,7 @@ class SessionWrapper(PlainBoxObjectWrapper):
         self.native.metadata.running_job_name = value['running_job_name']
         self.native.metadata.flags = value['flags']
         self.native.metadata.app_blob = bytes(value.get('app_blob', b''))
-        self.native.metadata.app_id = bytes(value.get('app_id', ''))
+        self.native.metadata.app_id = value.get('app_id', '')
 
     # TODO: signal<metadata>
 

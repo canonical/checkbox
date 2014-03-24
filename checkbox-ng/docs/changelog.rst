@@ -6,12 +6,10 @@ ChangeLog
     accounting of development history please inspect the source history
     directly.
 
-PlainBox 0.5b2
-^^^^^^^^^^^^^^
+.. _version_0_5:
 
-.. note::
-
-    The 0.5 release is not finalized and the list below is incomplete.
+PlainBox 0.5
+^^^^^^^^^^^^
 
 New Features
 ------------
@@ -313,12 +311,18 @@ API changes (Other)
   applications to resume only the session that they have created. This feature
   will allow multiple plainbox-based applications to co-exist their state
   without clashes.
+* PlainBox now stores both the normalized and raw version of the data produced
+  by the RFC822 parser. The raw form is suitable as keys to gettext. This is
+  exposed through the RFC822 and Job Definition classes.
 
 Bug fixes
 ---------
 
-* Bugfixes: https://launchpad.net/checkbox/+milestone/plainbox-0.5a1
-* Bugfixes: https://launchpad.net/checkbox/+milestone/plainbox-0.5b1
+Bugs fixed in this release are assigned to the following milestones:
+
+* https://launchpad.net/checkbox/+milestone/plainbox-0.5a1
+* https://launchpad.net/checkbox/+milestone/plainbox-0.5b1
+* https://launchpad.net/checkbox/+milestone/plainbox-0.5
 
 PlainBox 0.4
 ^^^^^^^^^^^^

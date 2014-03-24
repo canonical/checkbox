@@ -1,8 +1,8 @@
-checkbox-ng (0.2-1) unstable; urgency=low
+checkbox-ng (0.2.1-1) unstable; urgency=low
 
   * New upstream release.
 
- -- Sylvain Pineau <sylvain.pineau@canonical.com>  Mon, 17 Mar 2014 16:41:39 +0100
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Mon, 24 Mar 2014 14:27:40 +0100
 
 checkbox-ng (0.1-2) unstable; urgency=low
 

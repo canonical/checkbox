@@ -250,6 +250,12 @@ class ToolBase(metaclass=abc.ABCMeta):
     that where already handled.
     """
 
+    _RELEASELEVEL_TO_TOKEN = {
+        "alpha": "a",
+        "beta": "b",
+        "candidate": "c",
+    }
+
     def __init__(self):
         """
         Initialize all the variables, real stuff happens in main()
@@ -283,6 +289,19 @@ class ToolBase(metaclass=abc.ABCMeta):
             pass
         else:
             return self.dispatch_and_catch_exceptions(ns)
+
+    @classmethod
+    def format_version_tuple(cls, version_tuple):
+        major, minor, micro, releaselevel, serial = version_tuple
+        version = "%s.%s" % (major, minor)
+        if micro != 0:
+            version += ".%s" % micro
+        token = cls._RELEASELEVEL_TO_TOKEN.get(releaselevel)
+        if token:
+            version += "%s%d" % (token, serial)
+        if releaselevel == "dev":
+            version += ".dev"
+        return version
 
     @classmethod
     @abc.abstractmethod

@@ -104,7 +104,7 @@ class CheckBoxNGTool(PlainBoxToolBase):
 
     @classmethod
     def get_exec_version(cls):
-        return "{}.{}.{}".format(*version[:3])
+        return cls.format_version_tuple(version)
 
     @classmethod
     def get_config_cls(cls):

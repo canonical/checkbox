@@ -27,6 +27,7 @@ Test definitions for checkbox_ng.main module
 from inspect import cleandoc
 from unittest import TestCase
 
+from plainbox.impl.clitools import ToolBase
 from plainbox.testing_utils.io import TestIO
 
 from checkbox_ng import __version__ as version
@@ -40,7 +41,8 @@ class TestMain(TestCase):
             with self.assertRaises(SystemExit) as call:
                 main(['--version'])
             self.assertEqual(call.exception.args, (0,))
-        self.assertEqual(io.combined, "{}.{}.{}\n".format(*version[:3]))
+        self.assertEqual(io.combined, "{}\n".format(
+            ToolBase.format_version_tuple(version)))
 
     def test_help(self):
         with TestIO(combined=True) as io:

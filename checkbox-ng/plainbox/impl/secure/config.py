@@ -505,8 +505,8 @@ class Config(metaclass=ConfigMeta):
         either Variable or Section class) is silently ignored.
 
         .. note::
-            This method resets :attr:`_problem_list` and
-            :attr:`_filename_list`.
+            This method resets :attr:`_problem_list`
+            and :attr:`_filename_list`.
         """
         parser = PlainBoxConfigParser()
         # Reset filename list and problem list
@@ -555,8 +555,9 @@ class Config(metaclass=ConfigMeta):
         either Variable or Section class) is silently ignored.
 
         .. note::
-            This method resets :attr:`_problem_list` and
-            :attr:`_filename_list`.
+
+            This method resets :attr:`_problem_list`
+            and :attr:`_filename_list`.
         """
         parser = PlainBoxConfigParser()
         # Reset filename list and problem list

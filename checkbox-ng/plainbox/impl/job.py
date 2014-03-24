@@ -673,11 +673,15 @@ class JobTreeNode:
         """
         Build a rooted JobTreeNode from a job list
 
-        :argument job_list: list of jobs to consider for building the tree.
-        :argument None node: parent node to start with.
-        :argument None link: parent-child link used to create the descendants.
-        :argument False legacy_mode: whether local jobs are used to build
-        the tree or a new experimental job metadata (categories).
+        :argument job_list:
+            List of jobs to consider for building the tree.
+        :argument None node:
+            Parent node to start with.
+        :argument None link:
+            Parent-child link used to create the descendants.
+        :argument False legacy_mode:
+            Whether local jobs are used to build the tree or a new experimental
+            job metadata (categories).
         """
         if node is None:
             node = cls()

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-18 11:42+0100\n"
+"POT-Creation-Date: 2014-03-24 10:54+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -51,7 +51,7 @@ msgstr ""
 msgid "parsed full namespace: %s"
 msgstr ""
 
-#: .././plainbox/impl/clitools.py:397 .././plainbox/provider_manager.py:843
+#: .././plainbox/impl/clitools.py:397 .././plainbox/provider_manager.py:847
 #: .././plainbox/vendor/argparse/py32-argparse.py:1625
 msgid "show program's version number and exit"
 msgstr ""
@@ -136,11 +136,11 @@ msgstr ""
 msgid "Unable to find any of the executables {}"
 msgstr ""
 
-#: .././plainbox/impl/commands/__init__.py:160
+#: .././plainbox/impl/commands/__init__.py:150
 msgid "provider list and development"
 msgstr ""
 
-#: .././plainbox/impl/commands/__init__.py:167
+#: .././plainbox/impl/commands/__init__.py:157
 msgid "which providers to load"
 msgstr ""
 
@@ -1172,23 +1172,23 @@ msgstr ""
 msgid "Problem with field {}: {}"
 msgstr ""
 
-#: .././plainbox/impl/job.py:304
+#: .././plainbox/impl/job.py:306
 #, python-format
 msgid "Incorrect value of 'estimated_duration' in job %s read from %s"
 msgstr ""
 
 #. TRANSLATORS: don't translate id or translate it as 'id field'
-#: .././plainbox/impl/job.py:466
+#: .././plainbox/impl/job.py:493
 msgid "Cannot create job without an id"
 msgstr ""
 
 #. TRANSLATORS: don't translate record.origin or JobOutputTextSource
-#: .././plainbox/impl/job.py:488
+#: .././plainbox/impl/job.py:520
 msgid "record.origin must be a JobOutputTextSource"
 msgstr ""
 
 #. TRANSLATORS: don't translate record.origin.source.job
-#: .././plainbox/impl/job.py:491
+#: .././plainbox/impl/job.py:523
 msgid "record.origin.source.job must be this job"
 msgstr ""
 
@@ -1218,15 +1218,7 @@ msgstr ""
 msgid "Cannot parse input"
 msgstr ""
 
-#: .././plainbox/impl/providers/special.py:52
-msgid "CheckBox cannot be found"
-msgstr ""
-
-#: .././plainbox/impl/providers/special.py:107
-msgid "CheckBox (live source)"
-msgstr ""
-
-#: .././plainbox/impl/providers/special.py:144
+#: .././plainbox/impl/providers/special.py:47
 msgid "StubBox (dummy data for development)"
 msgstr ""
 
@@ -1363,53 +1355,53 @@ msgstr ""
 msgid "cannot be empty"
 msgstr ""
 
-#: .././plainbox/impl/secure/launcher1.py:62
+#: .././plainbox/impl/secure/launcher1.py:61
 msgid "Cannot find job with checksum {}"
 msgstr ""
 
-#: .././plainbox/impl/secure/launcher1.py:120
+#: .././plainbox/impl/secure/launcher1.py:119
 #, python-format
 msgid "Syntax error in job generated from %s: %s"
 msgstr ""
 
 #. TRANSLATORS: don't translate pkexec(1)
-#: .././plainbox/impl/secure/launcher1.py:211
+#: .././plainbox/impl/secure/launcher1.py:208
 msgid "return immediately, only useful when used with pkexec(1)"
 msgstr ""
 
-#: .././plainbox/impl/secure/launcher1.py:214
-#: .././plainbox/impl/secure/launcher1.py:226
+#: .././plainbox/impl/secure/launcher1.py:211
+#: .././plainbox/impl/secure/launcher1.py:223
 msgid "CHECKSUM"
 msgstr ""
 
-#: .././plainbox/impl/secure/launcher1.py:215
+#: .././plainbox/impl/secure/launcher1.py:212
 msgid "run a job with this checksum"
 msgstr ""
 
-#: .././plainbox/impl/secure/launcher1.py:216
+#: .././plainbox/impl/secure/launcher1.py:213
 msgid "target job specification"
 msgstr ""
 
-#: .././plainbox/impl/secure/launcher1.py:218
-#: .././plainbox/impl/secure/launcher1.py:235
+#: .././plainbox/impl/secure/launcher1.py:215
+#: .././plainbox/impl/secure/launcher1.py:232
 msgid "NAME=VALUE"
 msgstr ""
 
-#: .././plainbox/impl/secure/launcher1.py:222
+#: .././plainbox/impl/secure/launcher1.py:219
 msgid "environment passed to the target job"
 msgstr ""
 
-#: .././plainbox/impl/secure/launcher1.py:223
+#: .././plainbox/impl/secure/launcher1.py:220
 msgid "generator job specification"
 msgstr ""
 
 #. TRANSLATORS: don't translate 'local' in the sentence below. It
 #. denotes a special type of job, not its location.
-#: .././plainbox/impl/secure/launcher1.py:229
+#: .././plainbox/impl/secure/launcher1.py:226
 msgid "also run a job with this checksum (assuming it is a local job)"
 msgstr ""
 
-#: .././plainbox/impl/secure/launcher1.py:237
+#: .././plainbox/impl/secure/launcher1.py:234
 msgid "environment passed to the generator job"
 msgstr ""
 
@@ -1510,36 +1502,36 @@ msgstr ""
 msgid "Problem in provider definition, field {!a}: {}"
 msgstr ""
 
-#: .././plainbox/impl/secure/rfc822.py:56
+#: .././plainbox/impl/secure/rfc822.py:58
 msgid "???"
 msgstr ""
 
-#: .././plainbox/impl/secure/rfc822.py:427
+#: .././plainbox/impl/secure/rfc822.py:471
 #, python-format
 msgid "Committed key/value %r=%r"
 msgstr ""
 
-#: .././plainbox/impl/secure/rfc822.py:451
+#: .././plainbox/impl/secure/rfc822.py:496
 #, python-format
 msgid "Looking at line %d:%r"
 msgstr ""
 
-#: .././plainbox/impl/secure/rfc822.py:463
-#: .././plainbox/impl/secure/rfc822.py:523
+#: .././plainbox/impl/secure/rfc822.py:508
+#: .././plainbox/impl/secure/rfc822.py:567
 #, python-format
 msgid "yielding record: %r"
 msgstr ""
 
 #. If we have not seen any keys yet then this is a syntax error
-#: .././plainbox/impl/secure/rfc822.py:472
+#: .././plainbox/impl/secure/rfc822.py:517
 msgid "Unexpected multi-line value"
 msgstr ""
 
-#: .././plainbox/impl/secure/rfc822.py:506
+#: .././plainbox/impl/secure/rfc822.py:545
 msgid "Job has a duplicate key {!r} with old value {!r} and new value {!r}"
 msgstr ""
 
-#: .././plainbox/impl/secure/rfc822.py:518
+#: .././plainbox/impl/secure/rfc822.py:562
 msgid "Unexpected non-empty line: {!r}"
 msgstr ""
 
@@ -2370,11 +2362,11 @@ msgstr ""
 
 #. TRANSLATORS: please keep 'manage.py', '--help', '--version'
 #. untranslated. Translate only '[options]'
-#: .././plainbox/provider_manager.py:840
+#: .././plainbox/provider_manager.py:844
 msgid "manage.py [--help] [--version] [options]"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:916
+#: .././plainbox/provider_manager.py:920
 msgid "{}: bad value of {!r}, {}"
 msgstr ""
 

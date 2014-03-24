@@ -10,7 +10,7 @@ Build-Depends:
  python3-dbus,
  python3-docutils,
  python3-gi,
- python3-plainbox (>= 0.5),
+ python3-plainbox (>= 0.5.1),
  python3-setuptools,
  python3-sphinx
 Standards-Version: 3.9.5

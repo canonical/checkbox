@@ -29,7 +29,7 @@
 import logging
 import os
 
-from plainbox import __version__ as version
+from plainbox import __version__ as plainbox_version
 from plainbox.impl.applogic import PlainBoxConfig
 from plainbox.impl.commands import PlainBoxToolBase
 from plainbox.impl.commands.check_config import CheckConfigCommand
@@ -60,7 +60,7 @@ class PlainBoxTool(PlainBoxToolBase):
         """
         Get the version reported by this executable
         """
-        return "{}.{}.{}".format(*version[:3])
+        return cls.format_version_tuple(plainbox_version)
 
     def add_subcommands(self, subparsers):
         """

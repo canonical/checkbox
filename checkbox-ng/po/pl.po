@@ -7,18 +7,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: plainbox 0.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-24 11:06+0100\n"
+"POT-Creation-Date: 2014-03-24 10:54+0100\n"
 "PO-Revision-Date: 2014-03-19 12:15+0000\n"
 "Last-Translator: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>\n"
 "Language-Team: polski <>\n"
-"Language: Polish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2014-03-20 05:28+0000\n"
+"X-Launchpad-Export-Date: 2014-03-25 05:48+0000\n"
 "X-Generator: Launchpad (build 16967)\n"
+"Language: Polish\n"
 
 #: .././plainbox/impl/_argparse.py:139
 #: .././plainbox/vendor/argparse/py32-argparse.py:298
@@ -756,7 +756,8 @@ msgid "TRANSPORT"
 msgstr "TRANSPORT"
 
 #: .././plainbox/impl/commands/run.py:419
-msgid "use TRANSPORT to send results somewhere (pass ? for a list of choices)"
+msgid ""
+"use TRANSPORT to send results somewhere (pass ? for a list of choices)"
 msgstr ""
 "użyj TRANSPORTU do wysłania wyników w jakieś miejsce (? wyświetla "
 "listę możliwości)"
@@ -819,7 +820,8 @@ msgstr "uruchom testy jednostkowe i testy integracji"
 
 #: .././plainbox/impl/commands/selftest.py:78
 msgid "run integration test suite (this verifies checkbox jobs)"
-msgstr "uruchom testy integracji (to weryfikuje definicje zadań z checkbox'a)"
+msgstr ""
+"uruchom testy integracji (to weryfikuje definicje zadań z checkbox'a)"
 
 #: .././plainbox/impl/commands/selftest.py:84
 msgid "run unit tests (this only verifies plainbox core)"
@@ -888,8 +890,8 @@ msgid ""
 "\n"
 "    @EPILOG@\n"
 "\n"
-"    The name of the provider must follow the pattern ``YYYY.example.org:"
-"name``\n"
+"    The name of the provider must follow the pattern "
+"``YYYY.example.org:name``\n"
 "    where ``YYYY`` is a four-digit year when the author of the provider "
 "owned\n"
 "    the domain (here, ``example.org``) and ``name`` is arbitrary identifier\n"
@@ -1858,7 +1860,8 @@ msgstr "Stworzono nowe miejsce do zapisu w %r"
 #: .././plainbox/impl/session/storage.py:271
 #, python-format
 msgid "%r is not a symlink, repository %r must be corrupted"
-msgstr "%r nie jest dowiązaniem symbolicznym, repozytorium %r musi być popsute"
+msgstr ""
+"%r nie jest dowiązaniem symbolicznym, repozytorium %r musi być popsute"
 
 #: .././plainbox/impl/session/storage.py:275
 #, python-format
@@ -2000,7 +2003,7 @@ msgstr "Usuwanie %r"
 
 #. TRANSLATORS: please don't translate fsync()
 #. Flush kernel buffers on the directory.
-#.
+#. 
 #. This should ensure the rename operation is really on disk by now.
 #. As noted above, this is essential for being able to survive
 #. system crash immediately after exiting this method.
@@ -2177,7 +2180,8 @@ msgstr "układ katalogów instalacji (domyślnie %(default)s)"
 
 #: .././plainbox/provider_manager.py:238
 msgid "install everything relative to this alternate root directory"
-msgstr "instaluje wszystko względnie podanego alternatywnego katalogu głównego"
+msgstr ""
+"instaluje wszystko względnie podanego alternatywnego katalogu głównego"
 
 #: .././plainbox/provider_manager.py:279
 #, python-format
@@ -2473,7 +2477,8 @@ msgstr ""
 
 #: .././plainbox/provider_manager.py:616
 msgid "NOTE: subsequent jobs from problematic files are ignored"
-msgstr "UWAGA: późniejsze zadania z problematycznych plików zostały pominięte"
+msgstr ""
+"UWAGA: późniejsze zadania z problematycznych plików zostały pominięte"
 
 #: .././plainbox/provider_manager.py:634
 msgid "missing definition of required field"
@@ -2774,9 +2779,3 @@ msgstr "%(prog)s: błąd: %(message)s\n"
 #, python-format
 msgid "the following arguments are required: %s"
 msgstr "wymagane są następujące argumenty: %s"
-
-#~ msgid "CheckBox cannot be found"
-#~ msgstr "Nie można odnaleźć programu Checkbox"
-
-#~ msgid "CheckBox (live source)"
-#~ msgstr "CheckBox (żywe źródła)"

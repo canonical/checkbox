@@ -7,17 +7,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: plainbox 0.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-24 11:06+0100\n"
+"POT-Creation-Date: 2014-03-24 10:54+0100\n"
 "PO-Revision-Date: 2014-03-19 09:43+0000\n"
 "Last-Translator: Daniel Manrique <daniel.manrique@canonical.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-03-20 05:28+0000\n"
+"X-Launchpad-Export-Date: 2014-03-25 05:48+0000\n"
 "X-Generator: Launchpad (build 16967)\n"
+"Language: \n"
 
 #: .././plainbox/impl/_argparse.py:139
 #: .././plainbox/vendor/argparse/py32-argparse.py:298
@@ -748,7 +748,8 @@ msgid "TRANSPORT"
 msgstr "TRANSPORTE"
 
 #: .././plainbox/impl/commands/run.py:419
-msgid "use TRANSPORT to send results somewhere (pass ? for a list of choices)"
+msgid ""
+"use TRANSPORT to send results somewhere (pass ? for a list of choices)"
 msgstr ""
 "utilizar TRANSPORTE para transmitir los resultados a algún lado (use ? para "
 "ver una lista de opciones)"
@@ -883,8 +884,8 @@ msgid ""
 "\n"
 "    @EPILOG@\n"
 "\n"
-"    The name of the provider must follow the pattern ``YYYY.example.org:"
-"name``\n"
+"    The name of the provider must follow the pattern "
+"``YYYY.example.org:name``\n"
 "    where ``YYYY`` is a four-digit year when the author of the provider "
 "owned\n"
 "    the domain (here, ``example.org``) and ``name`` is arbitrary identifier\n"
@@ -908,8 +909,8 @@ msgstr ""
 "\n"
 "    @EPILOG@\n"
 "\n"
-"    El nombre del proveedor debe respetar la forma ``YYYY.example.org:"
-"nombre``\n"
+"    El nombre del proveedor debe respetar la forma "
+"``YYYY.example.org:nombre``\n"
 "    donde ``YYYY`` es un año con cuatro dígitos en el cual el autor del "
 "proveedor era propietario\n"
 "    del dominio(por ejemplo ``example.org``) y ``nombre`` es un "
@@ -1980,7 +1981,7 @@ msgstr ""
 
 #. TRANSLATORS: please don't translate fsync()
 #. Flush kernel buffers on the directory.
-#.
+#. 
 #. This should ensure the rename operation is really on disk by now.
 #. As noted above, this is essential for being able to survive
 #. system crash immediately after exiting this method.

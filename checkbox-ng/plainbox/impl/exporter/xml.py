@@ -351,10 +351,10 @@ class XMLSessionStateExporter(SessionStateExporterBase):
         Add the software section of the XML report
         """
         software = ET.SubElement(element, "software")
-        if "{}lsb".format(self.NS) in data["resource_map"]:
+        lsb_data = self.get_resource(data, "lsb")
+        if lsb_data is not None:
             lsbrelease = ET.SubElement(software, "lsbrelease")
-            lsb_data = data["resource_map"]["{}lsb".format(self.NS)][0]
-            for key, value in lsb_data.items():
+            for key, value in lsb_data[0].items():
                 lsb_property = ET.SubElement(
                     lsbrelease, "property",
                     attrib=OrderedDict((

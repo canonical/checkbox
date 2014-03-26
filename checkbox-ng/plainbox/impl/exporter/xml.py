@@ -248,8 +248,8 @@ class XMLSessionStateExporter(SessionStateExporterBase):
         """
         def as_text(attachment):
             return standard_b64decode(
-                data["attachment_map"][attachment].encode()).decode(
-                    "ASCII", "ignore")
+                data["attachment_map"][attachment].encode()
+            ).decode("ASCII", "ignore")
         hardware = ET.SubElement(element, "hardware")
         # Attach the content of "dmi_attachment"
         dmi = ET.SubElement(hardware, "dmi")

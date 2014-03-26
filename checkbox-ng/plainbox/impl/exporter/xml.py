@@ -407,11 +407,11 @@ class XMLSessionStateExporter(SessionStateExporterBase):
                 summary, "distroseries", attrib={
                     "value": lsb_data[0]["release"]})
         # Dump some data from 'uname' resource
-        if "{}uname".format(self.NS) in data["resource_map"]:
-            uname_data = data["resource_map"]["{}uname".format(self.NS)][0]
+        uname_data = self.get_resource(data, "uname")
+        if uname_data is not None:
             ET.SubElement(
                 summary, "kernel-release", attrib={
-                    "value": uname_data["release"]})
+                    "value": uname_data[0]["release"]})
         # NOTE: this element is a legacy from the previous certification
         # website. It is retained for compatibility.
         ET.SubElement(

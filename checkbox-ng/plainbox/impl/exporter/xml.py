@@ -242,6 +242,22 @@ class XMLSessionStateExporter(SessionStateExporterBase):
             finally:
                 info.text = content
 
+    def get_resource(self, data, partial_id):
+        """
+        Get resource with the specified partial_id
+
+        :param data:
+            data obtained from get_session_data_subset()
+        :param partial_id:
+            partial identifier of the resuorce job
+        :returns:
+            List of resource objects or None. Does not return empty lists.
+        """
+        resource_id = '{}{}'.format(self.NS, partial_id)
+        resource = data["resource_map"].get(resource_id)
+        if resource:
+            return resource
+
     def _add_hardware(self, element, data):
         """
         Add the hardware section of the XML report

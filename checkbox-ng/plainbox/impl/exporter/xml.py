@@ -361,13 +361,13 @@ class XMLSessionStateExporter(SessionStateExporterBase):
                         ("name", key),
                         ("type", "str"))))
                 lsb_property.text = value
-        if "{}package".format(self.NS) in data["resource_map"]:
+        package_data = self.get_resource(data, "package")
+        if package_data is not None:
             packages = ET.SubElement(software, "packages")
-            package_data = data["resource_map"]["{}package".format(self.NS)]
-            for id, package_dict in enumerate(package_data):
+            for index, package_dict in enumerate(package_data):
                 package = ET.SubElement(
                     packages, "package", attrib=OrderedDict((
-                        ("id", str(id)),
+                        ("id", str(index)),
                         ("name", package_dict["name"]))))
                 for key, value in package_dict.items():
                     if key == "name":

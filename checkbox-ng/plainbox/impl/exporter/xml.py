@@ -224,7 +224,12 @@ class XMLSessionStateExporter(SessionStateExporterBase):
             # to be removed.
             # The new certification website displays the job name instead.
             # So send what it expects.
-            info = ET.SubElement(context, "info", attrib={"command": job_id[len(self.NS):] if job_id.startswith(self.NS) else job_id})
+            info = ET.SubElement(
+                context, "info", attrib={
+                    "command": job_id[len(self.NS):]
+                    if job_id.startswith(self.NS) else job_id
+                }
+            )
             # Special case of plain text attachments, they are sent without any
             # base64 encoding, this may change if we add the MIME type to the
             # list of attributes
@@ -237,14 +242,30 @@ class XMLSessionStateExporter(SessionStateExporterBase):
             finally:
                 info.text = content
 
+    def get_resource(self, data, partial_id):
+        """
+        Get resource with the specified partial_id
+
+        :param data:
+            data obtained from get_session_data_subset()
+        :param partial_id:
+            partial identifier of the resuorce job
+        :returns:
+            List of resource objects or None. Does not return empty lists.
+        """
+        resource_id = '{}{}'.format(self.NS, partial_id)
+        resource = data["resource_map"].get(resource_id)
+        if resource:
+            return resource
+
     def _add_hardware(self, element, data):
         """
         Add the hardware section of the XML report
         """
         def as_text(attachment):
             return standard_b64decode(
-                data["attachment_map"][attachment].encode()).decode(
-                    "ASCII", "ignore")
+                data["attachment_map"][attachment].encode()
+            ).decode("ASCII", "ignore")
         hardware = ET.SubElement(element, "hardware")
         # Attach the content of "dmi_attachment"
         dmi = ET.SubElement(hardware, "dmi")
@@ -253,21 +274,26 @@ class XMLSessionStateExporter(SessionStateExporterBase):
         # Attach the content of "sysfs_attachment"
         sysfs_attributes = ET.SubElement(hardware, "sysfs-attributes")
         if "{}sysfs_attachment".format(self.NS) in data["attachment_map"]:
-            sysfs_attributes.text = as_text("{}sysfs_attachment".format(self.NS))
+            sysfs_attributes.text = as_text(
+                "{}sysfs_attachment".format(self.NS))
         # Attach the content of "udev_attachment"
         udev = ET.SubElement(hardware, "udev")
         if "{}udev_attachment".format(self.NS) in data["attachment_map"]:
             udev.text = as_text("{}udev_attachment".format(self.NS))
-        if "{}cpuinfo".format(self.NS) in data["resource_map"]:
+        cpuinfo_data = self.get_resource(data, "cpuinfo")
+        if cpuinfo_data is not None:
             processors = ET.SubElement(hardware, "processors")
-            for i in range(int(data["resource_map"]["{}cpuinfo".format(self.NS)][0]["count"])):
+            try:
+                count = int(cpuinfo_data[0].get('count', '0'))
+            except ValueError:
+                count = 0
+            for i in range(count):
                 processor = ET.SubElement(
                     processors, "processor",
                     attrib=OrderedDict((
                         ("id", str(i)),
                         ("name", str(i)))))
-                for key, value in sorted(
-                        data["resource_map"]["{}cpuinfo".format(self.NS)][0].items()):
+                for key, value in sorted(cpuinfo_data[0].items()):
                     cpu_property = ET.SubElement(
                         processor, "property",
                         attrib=OrderedDict((
@@ -299,7 +325,11 @@ class XMLSessionStateExporter(SessionStateExporterBase):
             if job_data["plugin"] in ("resource", "local", "attachment"):
                 continue
             question = ET.SubElement(
-                questions, "question", attrib={"name": job_id[len(self.NS):] if job_id.startswith(self.NS) else job_id})
+                questions, "question", attrib={
+                    "name": job_id[len(self.NS):]
+                    if job_id.startswith(self.NS) else job_id
+                }
+            )
             answer = ET.SubElement(
                 question, "answer", attrib={"type": "multiple_choice"})
             if job_data["outcome"]:
@@ -321,21 +351,23 @@ class XMLSessionStateExporter(SessionStateExporterBase):
         Add the software section of the XML report
         """
         software = ET.SubElement(element, "software")
-        if "{}lsb".format(self.NS) in data["resource_map"]:
+        lsb_data = self.get_resource(data, "lsb")
+        if lsb_data is not None:
             lsbrelease = ET.SubElement(software, "lsbrelease")
-            for key, value in data["resource_map"]["{}lsb".format(self.NS)][0].items():
+            for key, value in lsb_data[0].items():
                 lsb_property = ET.SubElement(
                     lsbrelease, "property",
                     attrib=OrderedDict((
                         ("name", key),
                         ("type", "str"))))
                 lsb_property.text = value
-        if "{}package".format(self.NS) in data["resource_map"]:
+        package_data = self.get_resource(data, "package")
+        if package_data is not None:
             packages = ET.SubElement(software, "packages")
-            for id, package_dict in enumerate(data["resource_map"]["{}package".format(self.NS)]):
+            for index, package_dict in enumerate(package_data):
                 package = ET.SubElement(
                     packages, "package", attrib=OrderedDict((
-                        ("id", str(id)),
+                        ("id", str(index)),
                         ("name", package_dict["name"]))))
                 for key, value in package_dict.items():
                     if key == "name":
@@ -360,23 +392,26 @@ class XMLSessionStateExporter(SessionStateExporterBase):
         ET.SubElement(
             summary, "date_created", attrib={"value": self._timestamp})
         # Dump some data from 'dpkg' resource
-        if "{}dpkg".format(self.NS) in data["resource_map"]:
+        dpkg_data = self.get_resource(data, "dpkg")
+        if dpkg_data is not None:
             ET.SubElement(
                 summary, "architecture", attrib={
-                    "value": data["resource_map"]["{}dpkg".format(self.NS)][0]["architecture"]})
+                    "value": dpkg_data[0]["architecture"]})
         # Dump some data from 'lsb' resource
-        if "{}lsb".format(self.NS) in data["resource_map"]:
+        lsb_data = self.get_resource(data, "lsb")
+        if lsb_data is not None:
             ET.SubElement(
                 summary, "distribution", attrib={
-                    "value": data["resource_map"]["{}lsb".format(self.NS)][0]["distributor_id"]})
+                    "value": lsb_data[0]["distributor_id"]})
             ET.SubElement(
                 summary, "distroseries", attrib={
-                    "value": data["resource_map"]["{}lsb".format(self.NS)][0]["release"]})
+                    "value": lsb_data[0]["release"]})
         # Dump some data from 'uname' resource
-        if "{}uname".format(self.NS) in data["resource_map"]:
+        uname_data = self.get_resource(data, "uname")
+        if uname_data is not None:
             ET.SubElement(
                 summary, "kernel-release", attrib={
-                    "value": data["resource_map"]["{}uname".format(self.NS)][0]["release"]})
+                    "value": uname_data[0]["release"]})
         # NOTE: this element is a legacy from the previous certification
         # website. It is retained for compatibility.
         ET.SubElement(

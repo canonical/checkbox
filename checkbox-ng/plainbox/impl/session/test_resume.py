@@ -32,6 +32,7 @@ import gzip
 import json
 
 from plainbox.abc import IJobQualifier
+from plainbox.abc import IJobResult
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.resource import Resource
 from plainbox.impl.result import DiskJobResult
@@ -1385,7 +1386,7 @@ class JobPluginSpecificTests(TestCaseWithParameters):
         }
         results_repr = {
             job_id: [{
-                'outcome': None,
+                'outcome': IJobResult.OUTCOME_PASS,
                 'comments': None,
                 'execution_duration': None,
                 'return_code': None,

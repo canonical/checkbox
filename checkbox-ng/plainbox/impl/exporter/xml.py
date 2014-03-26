@@ -378,12 +378,13 @@ class XMLSessionStateExporter(SessionStateExporterBase):
                     "value": dpkg_data["architecture"]})
         # Dump some data from 'lsb' resource
         if "{}lsb".format(self.NS) in data["resource_map"]:
+            lsb_data = data["resource_map"]["{}lsb".format(self.NS)][0]
             ET.SubElement(
                 summary, "distribution", attrib={
-                    "value": data["resource_map"]["{}lsb".format(self.NS)][0]["distributor_id"]})
+                    "value": lsb_data["distributor_id"]})
             ET.SubElement(
                 summary, "distroseries", attrib={
-                    "value": data["resource_map"]["{}lsb".format(self.NS)][0]["release"]})
+                    "value": lsb_data["release"]})
         # Dump some data from 'uname' resource
         if "{}uname".format(self.NS) in data["resource_map"]:
             ET.SubElement(

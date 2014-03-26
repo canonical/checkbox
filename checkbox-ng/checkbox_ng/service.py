@@ -289,6 +289,14 @@ class JobDefinitionWrapper(PlainBoxObjectWrapper):
         return self.native.id
 
     @dbus.service.property(dbus_interface=JOB_IFACE, signature="s")
+    def summary(self):
+        return self.native.summary
+
+    @dbus.service.property(dbus_interface=JOB_IFACE, signature="s")
+    def tr_summary(self):
+        return self.native.tr_summary()
+
+    @dbus.service.property(dbus_interface=JOB_IFACE, signature="s")
     def id(self):
         return self.native.id
 
@@ -1195,7 +1203,7 @@ class ServiceWrapper(PlainBoxObjectWrapper):
                             option_list: 'as', output_file: 's'):
         return self.native.export_session_to_file(
             session, output_format, option_list, output_file)
-    
+
     @dbus.service.method(
         dbus_interface=SERVICE_IFACE, in_signature='', out_signature='as')
     def GetAllTransports(self):

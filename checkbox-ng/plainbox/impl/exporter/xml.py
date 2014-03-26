@@ -387,9 +387,10 @@ class XMLSessionStateExporter(SessionStateExporterBase):
                     "value": lsb_data["release"]})
         # Dump some data from 'uname' resource
         if "{}uname".format(self.NS) in data["resource_map"]:
+            uname_data = data["resource_map"]["{}uname".format(self.NS)][0]
             ET.SubElement(
                 summary, "kernel-release", attrib={
-                    "value": data["resource_map"]["{}uname".format(self.NS)][0]["release"]})
+                    "value": uname_data["release"]})
         # NOTE: this element is a legacy from the previous certification
         # website. It is retained for compatibility.
         ET.SubElement(

@@ -309,6 +309,10 @@ class JobDefinitionWrapper(PlainBoxObjectWrapper):
         return self.native.description or ""
 
     @dbus.service.property(dbus_interface=JOB_IFACE, signature="s")
+    def tr_description(self):
+        return self.native.tr_description() or ""
+
+    @dbus.service.property(dbus_interface=JOB_IFACE, signature="s")
     def checksum(self):
         # This is a bit expensive to compute so let's keep it cached
         return self._checksum

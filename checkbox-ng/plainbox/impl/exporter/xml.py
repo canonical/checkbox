@@ -372,9 +372,10 @@ class XMLSessionStateExporter(SessionStateExporterBase):
             summary, "date_created", attrib={"value": self._timestamp})
         # Dump some data from 'dpkg' resource
         if "{}dpkg".format(self.NS) in data["resource_map"]:
+            dpkg_data = data["resource_map"]["{}dpkg".format(self.NS)][0]
             ET.SubElement(
                 summary, "architecture", attrib={
-                    "value": data["resource_map"]["{}dpkg".format(self.NS)][0]["architecture"]})
+                    "value": dpkg_data["architecture"]})
         # Dump some data from 'lsb' resource
         if "{}lsb".format(self.NS) in data["resource_map"]:
             ET.SubElement(

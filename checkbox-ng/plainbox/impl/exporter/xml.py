@@ -258,7 +258,8 @@ class XMLSessionStateExporter(SessionStateExporterBase):
         # Attach the content of "sysfs_attachment"
         sysfs_attributes = ET.SubElement(hardware, "sysfs-attributes")
         if "{}sysfs_attachment".format(self.NS) in data["attachment_map"]:
-            sysfs_attributes.text = as_text("{}sysfs_attachment".format(self.NS))
+            sysfs_attributes.text = as_text(
+                "{}sysfs_attachment".format(self.NS))
         # Attach the content of "udev_attachment"
         udev = ET.SubElement(hardware, "udev")
         if "{}udev_attachment".format(self.NS) in data["attachment_map"]:

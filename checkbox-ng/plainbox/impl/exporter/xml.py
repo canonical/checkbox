@@ -224,7 +224,12 @@ class XMLSessionStateExporter(SessionStateExporterBase):
             # to be removed.
             # The new certification website displays the job name instead.
             # So send what it expects.
-            info = ET.SubElement(context, "info", attrib={"command": job_id[len(self.NS):] if job_id.startswith(self.NS) else job_id})
+            info = ET.SubElement(
+                context, "info", attrib={
+                    "command": job_id[len(self.NS):]
+                    if job_id.startswith(self.NS) else job_id
+                }
+            )
             # Special case of plain text attachments, they are sent without any
             # base64 encoding, this may change if we add the MIME type to the
             # list of attributes

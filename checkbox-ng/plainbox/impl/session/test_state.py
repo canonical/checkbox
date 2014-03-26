@@ -445,6 +445,7 @@ class SessionStateReactionToJobResultTests(TestCase):
         # is a resource job via the resource plugin) is presented to the
         # session.
         result_R = MemoryJobResult({
+            'outcome': IJobResult.OUTCOME_PASS,
             'io_log': [(0, 'stdout', b"attr: value\n")],
         })
         self.session.update_job_result(self.job_R, result_R)
@@ -495,6 +496,7 @@ class SessionStateReactionToJobResultTests(TestCase):
         # The output will describe one proper record, one broken record and
         # another proper record in that order.
         result_R = MemoryJobResult({
+            'outcome': IJobResult.OUTCOME_PASS,
             'io_log': [
                 (0, 'stdout', b"attr: value-1\n"),
                 (1, 'stdout', b"\n"),
@@ -571,6 +573,7 @@ class SessionStateReactionToJobResultTests(TestCase):
         # A variant of the two test cases above, using A-R jobs
         self.session.update_desired_job_list([self.job_A])
         result_R = MemoryJobResult({
+            'outcome': IJobResult.OUTCOME_PASS,
             'io_log': [(0, 'stdout', b'attr: wrong value\n')],
         })
         self.session.update_job_result(self.job_R, result_R)
@@ -587,6 +590,7 @@ class SessionStateReactionToJobResultTests(TestCase):
         # This function checks what happens when a JobResult for job R is
         # presented to a session that has some resources from that job already.
         result_R_old = MemoryJobResult({
+            'outcome': IJobResult.OUTCOME_PASS,
             'io_log': [(0, 'stdout', b"attr: old value\n")]
         })
         self.session.update_job_result(self.job_R, result_R_old)
@@ -595,6 +599,7 @@ class SessionStateReactionToJobResultTests(TestCase):
         self.assertEqual(self.session._resource_map, expected_before)
         # Now we present the second result for the same job
         result_R_new = MemoryJobResult({
+            'outcome': IJobResult.OUTCOME_PASS,
             'io_log': [(0, 'stdout', b"attr: new value\n")]
         })
         self.session.update_job_result(self.job_R, result_R_new)

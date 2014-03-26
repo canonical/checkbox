@@ -226,9 +226,24 @@ class CheckBoxSessionStateControllerTests(TestCase):
         session_state.on_job_result_changed.assert_called_once_with(
             job, result)
 
+    def test_observe_result__OUTCOME_NONE(self):
+        job = mock.Mock(spec=JobDefinition, plugin='resource')
+        result = mock.Mock(spec=IJobResult, outcome=IJobResult.OUTCOME_NONE)
+        session_state = mock.MagicMock(spec=SessionState)
+        self.ctrl.observe_result(session_state, job, result)
+        # Ensure that result got stored
+        self.assertIs(
+            session_state.job_state_map[job.id].result, result)
+        # Ensure that signals got fired
+        session_state.on_job_state_map_changed.assert_called_once_with()
+        session_state.on_job_result_changed.assert_called_once_with(
+            job, result)
+        # Ensure that a resource was *not* defined
+        self.assertEqual(session_state.set_resource_list.call_count, 0)
+
     def test_observe_result__resource(self):
         job = mock.Mock(spec=JobDefinition, plugin='resource')
-        result = mock.Mock(spec=IJobResult)
+        result = mock.Mock(spec=IJobResult, outcome=IJobResult.OUTCOME_PASS)
         result.get_io_log.return_value = [
             (0, 'stdout', b'attr: value1\n'),
             (0, 'stdout', b'\n'),
@@ -250,7 +265,7 @@ class CheckBoxSessionStateControllerTests(TestCase):
     @mock.patch('plainbox.impl.ctrl.logger')
     def test_observe_result__broken_resource(self, mock_logger):
         job = mock.Mock(spec=JobDefinition, plugin='resource')
-        result = mock.Mock(spec=IJobResult)
+        result = mock.Mock(spec=IJobResult, outcome=IJobResult.OUTCOME_PASS)
         result.get_io_log.return_value = [(0, 'stdout', b'barf\n')]
         session_state = mock.MagicMock(spec=SessionState)
         self.ctrl.observe_result(session_state, job, result)
@@ -281,7 +296,8 @@ class CheckBoxSessionStateControllerTests(TestCase):
         # Create a job of which result we'll be observing
         job = mock.Mock(spec=JobDefinition, name='job', plugin='local')
         # Create a result for the job we'll be observing
-        result = mock.Mock(spec=IJobResult, name='result')
+        result = mock.Mock(
+            spec=IJobResult, name='result', outcome=IJobResult.OUTCOME_PASS)
         # Mock what rfc822 parser returns
         mock_gen.return_value = [mock.Mock(spec=RFC822Record, name='record')]
         # Pretend that we are observing a 'result' of 'job'
@@ -325,7 +341,8 @@ class CheckBoxSessionStateControllerTests(TestCase):
         # Have job return clashing_job when create_child_job_record() is called
         job.create_child_job_from_record.return_value = clashing_job
         # Create a result for the job we'll be observing
-        result = mock.Mock(spec=IJobResult, name='result')
+        result = mock.Mock(
+            spec=IJobResult, name='result', outcome=IJobResult.OUTCOME_PASS)
         # Mock what rfc822 parser returns
         mock_gen.return_value = [mock.Mock(spec=RFC822Record, name='record')]
         # Pretend that we are observing a 'result' of 'job'
@@ -370,7 +387,8 @@ class CheckBoxSessionStateControllerTests(TestCase):
         # Create a job of which result we'll be observing
         job = mock.Mock(spec=JobDefinition, name='job', plugin='local')
         # Create a result for the job we'll be observing
-        result = mock.Mock(spec=IJobResult, name='result')
+        result = mock.Mock(
+            spec=IJobResult, name='result', outcome=IJobResult.OUTCOME_PASS)
         # Mock what rfc822 parser returns
         mock_gen.return_value = [mock.Mock(spec=RFC822Record, name='record')]
         # Pretend that we are observing a 'result' of 'job'

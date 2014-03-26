@@ -332,7 +332,8 @@ class XMLSessionStateExporter(SessionStateExporterBase):
         software = ET.SubElement(element, "software")
         if "{}lsb".format(self.NS) in data["resource_map"]:
             lsbrelease = ET.SubElement(software, "lsbrelease")
-            for key, value in data["resource_map"]["{}lsb".format(self.NS)][0].items():
+            lsb_data = data["resource_map"]["{}lsb".format(self.NS)][0]
+            for key, value in lsb_data.items():
                 lsb_property = ET.SubElement(
                     lsbrelease, "property",
                     attrib=OrderedDict((

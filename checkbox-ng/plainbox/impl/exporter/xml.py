@@ -280,16 +280,20 @@ class XMLSessionStateExporter(SessionStateExporterBase):
         udev = ET.SubElement(hardware, "udev")
         if "{}udev_attachment".format(self.NS) in data["attachment_map"]:
             udev.text = as_text("{}udev_attachment".format(self.NS))
-        if "{}cpuinfo".format(self.NS) in data["resource_map"]:
+        cpuinfo_data = self.get_resource(data, "cpuinfo")
+        if cpuinfo_data is not None:
             processors = ET.SubElement(hardware, "processors")
-            for i in range(int(data["resource_map"]["{}cpuinfo".format(self.NS)][0]["count"])):
+            try:
+                count = int(cpuinfo_data[0].get('count', '0'))
+            except ValueError:
+                count = 0
+            for i in range(count):
                 processor = ET.SubElement(
                     processors, "processor",
                     attrib=OrderedDict((
                         ("id", str(i)),
                         ("name", str(i)))))
-                for key, value in sorted(
-                        data["resource_map"]["{}cpuinfo".format(self.NS)][0].items()):
+                for key, value in sorted(cpuinfo_data[0].items()):
                     cpu_property = ET.SubElement(
                         processor, "property",
                         attrib=OrderedDict((

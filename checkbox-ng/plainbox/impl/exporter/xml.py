@@ -304,7 +304,11 @@ class XMLSessionStateExporter(SessionStateExporterBase):
             if job_data["plugin"] in ("resource", "local", "attachment"):
                 continue
             question = ET.SubElement(
-                questions, "question", attrib={"name": job_id[len(self.NS):] if job_id.startswith(self.NS) else job_id})
+                questions, "question", attrib={
+                    "name": job_id[len(self.NS):]
+                    if job_id.startswith(self.NS) else job_id
+                }
+            )
             answer = ET.SubElement(
                 question, "answer", attrib={"type": "multiple_choice"})
             if job_data["outcome"]:

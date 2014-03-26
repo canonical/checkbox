@@ -123,11 +123,11 @@ class SessionStateExporterBase(metaclass=ABCMeta):
             'result_map': {}
         }
         if self.OPTION_WITH_JOB_LIST in self._option_list:
-            data['job_list'] = [job.name for job in session.job_list]
+            data['job_list'] = [job.id for job in session.job_list]
         if self.OPTION_WITH_RUN_LIST in self._option_list:
-            data['run_list'] = [job.name for job in session.run_list]
+            data['run_list'] = [job.id for job in session.run_list]
         if self.OPTION_WITH_DESIRED_JOB_LIST in self._option_list:
-            data['desired_job_list'] = [job.name
+            data['desired_job_list'] = [job.id
                                         for job in session.desired_job_list]
         if self.OPTION_WITH_RESOURCE_MAP in self._option_list:
             data['resource_map'] = {
@@ -144,26 +144,25 @@ class SessionStateExporterBase(metaclass=ABCMeta):
             }
         if self.OPTION_WITH_ATTACHMENTS in self._option_list:
             data['attachment_map'] = {}
-        for job_name, job_state in session.job_state_map.items():
+        for job_id, job_state in session.job_state_map.items():
             if job_state.result.outcome is None:
                 continue
-            data['result_map'][job_name] = OrderedDict()
-            data['result_map'][job_name]['outcome'] = job_state.result.outcome
+            data['result_map'][job_id] = OrderedDict()
+            data['result_map'][job_id]['outcome'] = job_state.result.outcome
             if job_state.result.execution_duration:
-                data['result_map'][job_name]['execution_duration'] = \
+                data['result_map'][job_id]['execution_duration'] = \
                     job_state.result.execution_duration
             if self.OPTION_WITH_COMMENTS in self._option_list:
-                data['result_map'][job_name]['comments'] = \
+                data['result_map'][job_id]['comments'] = \
                     job_state.result.comments
 
             # Add Parent hash if requested
             if self.OPTION_WITH_JOB_VIA in self._option_list:
-                data['result_map'][job_name]['via'] = \
-                    job_state.job.via
+                data['result_map'][job_id]['via'] = job_state.job.via
 
             # Add Job hash if requested
             if self.OPTION_WITH_JOB_HASH in self._option_list:
-                data['result_map'][job_name]['hash'] = job_state.job.checksum
+                data['result_map'][job_id]['hash'] = job_state.job.checksum
 
             # Add Job definitions if requested
             if self.OPTION_WITH_JOB_DEFS in self._option_list:
@@ -175,7 +174,7 @@ class SessionStateExporterBase(metaclass=ABCMeta):
                              ):
                     if not getattr(job_state.job, prop):
                         continue
-                    data['result_map'][job_name][prop] = getattr(
+                    data['result_map'][job_id][prop] = getattr(
                         job_state.job, prop)
 
             # Add Attachments if requested
@@ -183,8 +182,9 @@ class SessionStateExporterBase(metaclass=ABCMeta):
                 if self.OPTION_WITH_ATTACHMENTS in self._option_list:
                     raw_bytes = b''.join(
                         (record[2] for record in
-                         job_state.result.get_io_log() if record[1] == 'stdout'))
-                    data['attachment_map'][job_name] = \
+                         job_state.result.get_io_log()
+                         if record[1] == 'stdout'))
+                    data['attachment_map'][job_id] = \
                         base64.standard_b64encode(raw_bytes).decode('ASCII')
                 continue  # Don't add attachments IO logs to the result_map
 
@@ -200,7 +200,7 @@ class SessionStateExporterBase(metaclass=ABCMeta):
                         job_state.result.get_io_log())
                 else:
                     io_log_data = self._io_log(job_state.result.get_io_log())
-                data['result_map'][job_name]['io_log'] = io_log_data
+                data['result_map'][job_id]['io_log'] = io_log_data
         return data
 
     @classmethod

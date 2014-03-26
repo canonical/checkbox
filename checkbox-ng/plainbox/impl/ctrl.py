@@ -234,6 +234,14 @@ class CheckBoxSessionStateController(ISessionStateController):
         Analyze a result of a CheckBox "resource" job and generate
         or replace resource records.
         """
+        # NOTE: https://bugs.launchpad.net/checkbox/+bug/1297928
+        # If we are resuming from a session that had a resource job that
+        # never ran, we will see an empty MemoryJobResult object.
+        # Processing empty I/O log would create an empty resource list
+        # and that state is different from the state the session started
+        # before it was suspended, so don't
+        if result.outcome is IJobResult.OUTCOME_NONE:
+            return
         new_resource_list = []
         for record in gen_rfc822_records_from_io_log(job, result):
             # XXX: Consider forwarding the origin object here.  I guess we

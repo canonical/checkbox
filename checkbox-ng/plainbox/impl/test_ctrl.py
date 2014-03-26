@@ -226,6 +226,21 @@ class CheckBoxSessionStateControllerTests(TestCase):
         session_state.on_job_result_changed.assert_called_once_with(
             job, result)
 
+    def test_observe_result__OUTCOME_NONE(self):
+        job = mock.Mock(spec=JobDefinition, plugin='resource')
+        result = mock.Mock(spec=IJobResult, outcome=IJobResult.OUTCOME_NONE)
+        session_state = mock.MagicMock(spec=SessionState)
+        self.ctrl.observe_result(session_state, job, result)
+        # Ensure that result got stored
+        self.assertIs(
+            session_state.job_state_map[job.id].result, result)
+        # Ensure that signals got fired
+        session_state.on_job_state_map_changed.assert_called_once_with()
+        session_state.on_job_result_changed.assert_called_once_with(
+            job, result)
+        # Ensure that a resource was *not* defined
+        self.assertEqual(session_state.set_resource_list.call_count, 0)
+
     def test_observe_result__resource(self):
         job = mock.Mock(spec=JobDefinition, plugin='resource')
         result = mock.Mock(spec=IJobResult, outcome=IJobResult.OUTCOME_PASS)

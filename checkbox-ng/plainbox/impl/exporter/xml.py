@@ -342,7 +342,8 @@ class XMLSessionStateExporter(SessionStateExporterBase):
                 lsb_property.text = value
         if "{}package".format(self.NS) in data["resource_map"]:
             packages = ET.SubElement(software, "packages")
-            for id, package_dict in enumerate(data["resource_map"]["{}package".format(self.NS)]):
+            package_data = data["resource_map"]["{}package".format(self.NS)]
+            for id, package_dict in enumerate(package_data):
                 package = ET.SubElement(
                     packages, "package", attrib=OrderedDict((
                         ("id", str(id)),

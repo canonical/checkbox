@@ -114,7 +114,7 @@ class CpuinfoParser:
                 "model_revision": "revision",
                 "other": "features",
                 "speed": "cpu mhz"},
-            ("ppc64", "ppc",): {
+            ("ppc64", "ppc64le", "ppc",): {
                 "type": "platform",
                 "model": "cpu",
                 "model_version": "revision",
@@ -159,7 +159,7 @@ class CpuinfoParser:
                 processor["speed"] = int(round(float(speed))) / 2
             elif machine[:3] == "ppc":
                 # String is appended with "mhz"
-                speed = processor["speed"][:-3]
+                processor["speed"] = processor["speed"][:-3]
         except ValueError:
             processor["speed"] = -1
 

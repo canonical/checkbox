@@ -261,7 +261,7 @@ class JobDefinition(BaseJob, IJobDefinition):
         Get the translated version of :meth:`summary`
         """
         return self.get_normalized_translated_data(
-            self.get_raw_record_value('summary'))
+            self.get_raw_record_value('summary')) or self.id
 
     @property
     def name(self):

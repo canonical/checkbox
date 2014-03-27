@@ -498,6 +498,14 @@ class TestJobDefinition(TestCase):
         # Ensure tr_summary() returned its return value
         self.assertEqual(retval, mgntd())
 
+    def test_tr_summary__falls_back_to_id(self):
+        """
+        Verify that Provider1.tr_summary() falls back to job.id, if summary is
+        not defined
+        """
+        job = JobDefinition({'id': 'id'})
+        self.assertEqual(job.tr_summary(), 'id')
+
     def test_tr_description(self):
         """
         Verify that Provider1.tr_description() works as expected

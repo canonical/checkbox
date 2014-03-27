@@ -57,8 +57,7 @@ logger = getLogger("plainbox.commands.run")
 class RunInvocation(CheckBoxInvocationMixIn):
 
     def __init__(self, provider_list, config, ns):
-        super(RunInvocation, self).__init__(provider_list)
-        self.config = config
+        super().__init__(provider_list, config)
         self.ns = ns
 
     @property

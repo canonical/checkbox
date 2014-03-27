@@ -42,8 +42,9 @@ logger = getLogger("plainbox.commands.checkbox")
 
 class CheckBoxInvocationMixIn:
 
-    def __init__(self, provider_list):
+    def __init__(self, provider_list, config):
         self.provider_list = provider_list
+        self.config = config
 
     def get_job_list(self, ns):
         """

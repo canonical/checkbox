@@ -64,9 +64,10 @@ class MiscTests(TestCase):
         self.job_bar = MockJobDefinition(id='bar')
         self.job_baz = MockJobDefinition(id='baz')
         self.provider1 = Mock(IProvider1)
+        self.config = Mock(name='config')
         self.provider1.get_builtin_whitelists.return_value = []
         self.provider_list = [self.provider1]
-        self.obj = CheckBoxInvocationMixIn(self.provider_list)
+        self.obj = CheckBoxInvocationMixIn(self.provider_list, self.config)
 
     def test_matching_job_list(self):
         # Nothing gets selected automatically

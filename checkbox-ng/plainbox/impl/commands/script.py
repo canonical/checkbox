@@ -50,8 +50,7 @@ class ScriptInvocation(CheckBoxInvocationMixIn):
     """
 
     def __init__(self, provider_list, config, job_id):
-        self.provider_list = provider_list
-        self.config = config
+        super().__init__(provider_list, config)
         self.job_id = job_id
 
     def run(self):

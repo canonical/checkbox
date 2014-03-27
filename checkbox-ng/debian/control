@@ -21,7 +21,7 @@ Homepage: http://launchpad.net/checkbox
 
 Package: checkbox-ng
 Architecture: all
-Depends: python3-checkbox-ng, ${misc:Depends}, ${python3:Depends}
+Depends: python3-checkbox-ng (= ${binary:Version}), ${misc:Depends}, ${python3:Depends}
 Replaces: checkbox (<< 0.17.6-0ubuntu1)
 Breaks: checkbox (<< 0.17.6-0ubuntu1)
 Description: PlainBox based test runner
@@ -33,7 +33,7 @@ Description: PlainBox based test runner
 
 Package: checkbox-ng-service
 Architecture: all
-Depends: checkbox-ng, python3-dbus, python3-gi, ${misc:Depends}
+Depends: checkbox-ng (= ${binary:Version}), python3-dbus, python3-gi, ${misc:Depends}
 Description: CheckBox D-Bus service
  CheckBoxNG is a hardware testing tool useful for certifying laptops,
  desktops and servers. It is a new version of CheckBox that is built

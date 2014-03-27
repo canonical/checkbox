@@ -119,7 +119,7 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
         print("{job}".format(job=job.id))
         manager.state.metadata.running_job_name = job.id
         manager.checkpoint()
-        result = runner.run_job(job)
+        result = runner.run_job(job, self.config)
         self.session.update_job_result(job, result)
         new_desired_job_list = self._get_matching_job_list(
             self.ns, self.session.job_list)

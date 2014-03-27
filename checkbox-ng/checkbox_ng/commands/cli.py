@@ -449,9 +449,7 @@ class ScrollableTreeNode(IApplication):
 class CliInvocation(CheckBoxInvocationMixIn):
 
     def __init__(self, provider_list, config, settings, ns, display=None):
-        super().__init__(provider_list)
-        self.provider_list = provider_list
-        self.config = config
+        super().__init__(provider_list, config)
         self.settings = settings
         self.display = display
         self.ns = ns

@@ -488,7 +488,7 @@ class TestJobDefinition(TestCase):
 
     def test_tr_summary(self):
         """
-        Verify that Provider1.tr_description() works as expected
+        Verify that Provider1.tr_summary() works as expected
         """
         job = JobDefinition(self._full_record.data)
         with mock.patch.object(job, "get_normalized_translated_data") as mgntd:

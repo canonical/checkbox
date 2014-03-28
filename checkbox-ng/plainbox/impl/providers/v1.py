@@ -111,6 +111,10 @@ class DummyProvider1(IProvider1, IProviderBackend1):
     def data_dir(self):
         return self._extras.get("data_dir")
 
+    @property
+    def base_dir(self):
+        return self._extras.get("base_dir")
+
     def secure(self):
         return False
 

@@ -449,9 +449,7 @@ class ScrollableTreeNode(IApplication):
 class CliInvocation(CheckBoxInvocationMixIn):
 
     def __init__(self, provider_list, config, settings, ns, display=None):
-        super().__init__(provider_list)
-        self.provider_list = provider_list
-        self.config = config
+        super().__init__(provider_list, config)
         self.settings = settings
         self.display = display
         self.ns = ns
@@ -805,7 +803,7 @@ class CliInvocation(CheckBoxInvocationMixIn):
             manager.checkpoint()
             # TODO: get a confirmation from the user for certain types of
             # job.plugin
-            job_result = runner.run_job(job)
+            job_result = runner.run_job(job, self.config)
             if (job_result.outcome == IJobResult.OUTCOME_UNDECIDED
                     and self.is_interactive):
                 job_result = self._interaction_callback(

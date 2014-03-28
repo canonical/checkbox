@@ -494,14 +494,17 @@ class JobDefinition(BaseJob, IJobDefinition):
             key: value.rstrip('\n')
             for key, value in record.raw_data.items()})
 
-    def validate(self, validator_cls=CheckBoxJobValidator):
+    def validate(self, **validation_kwargs):
         """
         Validate this job definition with the specified validator
 
+        :param validation_kwargs:
+            Keyword arguments to pass to the
+            :meth:`CheckBoxJobValidator.validate()`
         :raises ValidationError:
             If the job has any problems that make it unsuitable for execution.
         """
-        validator_cls.validate(self)
+        CheckBoxJobValidator.validate(self, **validation_kwargs)
 
     def create_child_job_from_record(self, record):
         """

@@ -76,15 +76,27 @@ class CheckBoxJobValidator:
     """
 
     @staticmethod
-    def validate(job):
+    def validate(job, strict=False, deprecated=False):
         """
         Validate the specified job
+
+        :param strict:
+            Enforce strict validation. Non-conforming jobs will be rejected.
+            This is off by default to ensure that non-critical errors don't
+            prevent jobs from running.
+        :param deprecated:
+            Enforce deprecation validation. Jobs having deprecated fields will
+            be rejected. This is off by default to allow backwards compatible
+            jobs to be used without any changes.
         """
+        # Check if name is still being used, if running in strict mode
+        if deprecated and job.name is not None:
+            raise ValidationError(job.fields.name, Problem.deprecated)
         # Check if the partial_id field is empty
         if job.partial_id is None:
             raise ValidationError(job.fields.id, Problem.missing)
-        # Check if summary is empty
-        if job.summary is None:
+        # Check if summary is empty, if running in strict mode
+        if strict and job.summary is None:
             raise ValidationError(job.fields.summary, Problem.missing)
         # Check if plugin is empty
         if job.plugin is None:
@@ -92,11 +104,13 @@ class CheckBoxJobValidator:
         # Check if plugin has a good value
         if job.plugin not in JobDefinition.plugin.get_all_symbols():
             raise ValidationError(job.fields.plugin, Problem.wrong)
-        # Check if user is given without a command to run
-        if job.user is not None and job.command is None:
+        # Check if user is given without a command to run, if running in strict
+        # mode
+        if strict and job.user is not None and job.command is None:
             raise ValidationError(job.fields.user, Problem.useless)
-        # Check if environ is given without a command to run
-        if job.environ is not None and job.command is None:
+        # Check if environ is given without a command to run, if running in
+        # strict mode
+        if strict and job.environ is not None and job.command is None:
             raise ValidationError(job.fields.environ, Problem.useless)
         # Verify that command is present on a job within the subset that should
         # really have them (shell, local, resource, attachment, user-verify and
@@ -122,8 +136,9 @@ class CheckBoxJobValidator:
             if job.description is None:
                 raise ValidationError(
                     job.fields.description, Problem.missing)
-            # Ensure that manual jobs don't have command
-            if job.command is not None:
+            # Ensure that manual jobs don't have command, if running in strict
+            # mode
+            if strict and job.command is not None:
                 raise ValidationError(job.fields.command, Problem.useless)
 
 

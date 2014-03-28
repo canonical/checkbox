@@ -42,6 +42,19 @@ from plainbox.vendor import mock
 
 class CheckBoxJobValidatorTests(TestCase):
 
+    def test_validate_checks_for_deprecated_name(self):
+        """
+        verify that validate() checks if jobs have a value for the 'id'
+        field.
+        """
+        job = JobDefinition({
+            'name': 'name'
+        })
+        with self.assertRaises(ValidationError) as boom:
+            CheckBoxJobValidator.validate(job, deprecated=True)
+        self.assertEqual(boom.exception.field, JobDefinition.fields.name)
+        self.assertEqual(boom.exception.problem, Problem.deprecated)
+
     def test_validate_checks_for_missing_id(self):
         """
         verify that validate() checks if jobs have a value for the 'id'
@@ -91,7 +104,7 @@ class CheckBoxJobValidatorTests(TestCase):
             'user': 'root'
         })
         with self.assertRaises(ValidationError) as boom:
-            CheckBoxJobValidator.validate(job)
+            CheckBoxJobValidator.validate(job, strict=True)
         self.assertEqual(boom.exception.field, JobDefinition.fields.user)
         self.assertEqual(boom.exception.problem, Problem.useless)
 
@@ -106,7 +119,7 @@ class CheckBoxJobValidatorTests(TestCase):
             'environ': 'VAR_NAME'
         })
         with self.assertRaises(ValidationError) as boom:
-            CheckBoxJobValidator.validate(job)
+            CheckBoxJobValidator.validate(job, strict=True)
         self.assertEqual(boom.exception.field, JobDefinition.fields.environ)
         self.assertEqual(boom.exception.problem, Problem.useless)
 
@@ -137,7 +150,7 @@ class CheckBoxJobValidatorTests(TestCase):
             'command': 'run_some_test'
         })
         with self.assertRaises(ValidationError) as boom:
-            CheckBoxJobValidator.validate(job)
+            CheckBoxJobValidator.validate(job, strict=True)
         self.assertEqual(boom.exception.field, JobDefinition.fields.command)
         self.assertEqual(boom.exception.problem, Problem.useless)
 

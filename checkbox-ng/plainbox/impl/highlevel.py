@@ -195,6 +195,7 @@ class Explorer:
                     ('data_dir', provider.data_dir),
                     ('locale_dir', provider.locale_dir),
                     ('gettext_domain', provider.gettext_domain),
+                    ('base_dir', provider.base_dir),
                 )))
             for job in provider.load_all_jobs()[0]:
                 job_obj = PlainBoxObject(

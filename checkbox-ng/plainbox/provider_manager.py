@@ -634,6 +634,7 @@ class ValidateCommand(ManageCommand):
             Problem.missing: _("missing definition of required field"),
             Problem.wrong: _("incorrect value supplied"),
             Problem.useless: _("useless field in this context"),
+            Problem.deprecated: _("usage of deprecated field"),
         }
         for job, error in problem_list:
             if isinstance(error, JobValidationError):

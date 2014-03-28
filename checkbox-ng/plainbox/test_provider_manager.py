@@ -333,6 +333,23 @@ class ProviderManagerToolTests(TestCase):
                 "jobs/broken.txt:1-4: job '2014.com.example::broken', field 'command': "
                 "useless field in this context\n"))
 
+    def test_validate__broken_deprecated_field(self):
+        """
+        verify that ./manage.py validate shows information about deprecated fields
+        """
+        filename = os.path.join(self.tmpdir, "jobs", "broken.txt")
+        with open(filename, "wt", encoding='UTF-8') as stream:
+            print("name: broken", file=stream)
+            print("plugin: manual", file=stream)
+            print("description: broken job definition", file=stream)
+            print("command: true", file=stream)
+        with TestIO() as test_io:
+            self.tool.main(["validate"])
+        self.assertEqual(
+            test_io.stdout, (
+                "jobs/broken.txt:1-4: job '2014.com.example::broken', field 'name': "
+                "usage of deprecated field\n"))
+
     def test_info(self):
         """
         verify that ./manage.py info shows basic provider information

@@ -481,16 +481,12 @@ class JobDefinition(BaseJob, IJobDefinition):
     @classmethod
     def from_rfc822_record(cls, record):
         """
-        Create a JobDefinition instance from rfc822 record
+        Create a JobDefinition instance from rfc822 record. The resulting
+        instance may not be valid but will always be created. Only valid jobs
+        should be executed.
 
         The record must be a RFC822Record instance.
-
-        Only the 'id' and 'plugin' keys are required.
-        All other data is stored as is and is entirely optional.
         """
-        if 'id' not in record.data and 'name' not in record.data:
-            # TRANSLATORS: don't translate id or translate it as 'id field'
-            raise ValueError(_("Cannot create job without an id"))
         # Strip the trailing newlines form all the raw values coming from the
         # RFC822 parser. We don't need them and they don't match gettext keys
         # (xgettext strips out those newlines)

@@ -147,7 +147,6 @@ class ProviderManagerToolTests(TestCase):
             "description = description\n"
             "gettext_domain = domain\n"
             "jobs_dir = {prefix}/share/2014.com.example:test/jobs\n"
-            "locale_dir = {prefix}/share/locale\n"
             "name = 2014.com.example:test\n"
             "version = 1.0\n"
             "whitelists_dir = {prefix}/share/2014.com.example:test/whitelists\n"

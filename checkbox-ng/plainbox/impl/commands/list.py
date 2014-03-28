@@ -56,7 +56,7 @@ class ListInvocation:
                 for key, value in obj.attrs.items():
                     print("{}{}: {!r}".format(indent, key, value))
         if obj.children:
-            if self.group is None or obj.group == self.group:
+            if self.group is None:
                 print("{}{}".format(indent, _("children")))
                 indent += "  "
             for child in obj.children:

@@ -427,6 +427,14 @@ class IProviderBackend1(metaclass=ABCMeta):
         """
 
     @abstractproperty
+    def base_dir(self):
+        """
+        absolute path of the base directory with other directories.
+
+        May be None
+        """
+
+    @abstractproperty
     def secure(self):
         """
         flag indicating that this provider was loaded from the secure portion

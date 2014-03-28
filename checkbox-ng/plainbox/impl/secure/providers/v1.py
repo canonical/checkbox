@@ -31,6 +31,7 @@ import os
 from plainbox.abc import IProvider1, IProviderBackend1
 from plainbox.i18n import gettext as _
 from plainbox.impl.job import JobDefinition
+from plainbox.impl.job import ValidationError
 from plainbox.impl.secure.config import Config, Variable
 from plainbox.impl.secure.config import IValidator
 from plainbox.impl.secure.config import NotEmptyValidator
@@ -87,12 +88,30 @@ class JobDefinitionPlugIn(IPlugIn):
     list of :class:`plainbox.impl.job.JobDefinition` instances from a file.
     """
 
-    def __init__(self, filename, text, provider):
+    def __init__(self, filename, text, provider, *,
+                 validate=True, validation_kwargs=None):
         """
         Initialize the plug-in with the specified name text
+
+        :param filename:
+            Name of the file with job definitions
+        :param text:
+            Full text of the file with job definitions
+        :param provider:
+            A provider object to which those jobs belong to
+        :param validate:
+            Enable job validation. Incorrect job definitions will not be loaded
+            and will abort the process of loading of the remainder of the jobs.
+            This is ON by default to prevent broken job definitions from being
+            used. This is a keyword-only argument.
+        :param validation_kwargs:
+            Keyword arguments to pass to the JobDefinition.validate().  Note,
+            this is a single argument. This is a keyword-only argument.
         """
         self._filename = filename
         self._job_list = []
+        if validation_kwargs is None:
+            validation_kwargs = {}
         logger.debug(_("Loading jobs definitions from %r..."), filename)
         try:
             records = load_rfc822_records(
@@ -108,10 +127,16 @@ class JobDefinitionPlugIn(IPlugIn):
                 raise PlugInError(
                     _("Cannot define job from record {!r}: {}").format(
                         record, exc))
-            else:
-                job._provider = provider
-                self._job_list.append(job)
-                logger.debug(_("Loaded %r"), job)
+            job._provider = provider
+            if validate:
+                try:
+                    job.validate(**validation_kwargs)
+                except ValidationError as exc:
+                    raise PlugInError(
+                        _("Problem in job definition, field {}: {}").format(
+                            exc.field, exc.problem))
+            self._job_list.append(job)
+            logger.debug(_("Loaded %r"), job)
 
     @property
     def plugin_name(self):
@@ -142,7 +167,7 @@ class Provider1(IProvider1, IProviderBackend1):
 
     def __init__(self, name, version, description, secure, gettext_domain,
                  jobs_dir, whitelists_dir, data_dir, bin_dir, locale_dir,
-                 base_dir):
+                 base_dir, *, validate=True, validation_kwargs=None):
         """
         Initialize a provider with a set of meta-data and directories.
 
@@ -187,6 +212,16 @@ class Provider1(IProvider1, IProviderBackend1):
             path of the directory with (perhaps) all of jobs_dir,
             whitelist_dir, data_dir, bin_dir, locale_dir. This may be None.
             This is also the effective value of $CHECKBOX_SHARE
+
+        :param validate:
+            Enable job validation. Incorrect job definitions will not be loaded
+            and will abort the process of loading of the remainder of the jobs.
+            This is ON by default to prevent broken job definitions from being
+            used. This is a keyword-only argument.
+
+        :param validation_kwargs:
+            Keyword arguments to pass to the JobDefinition.validate().  Note,
+            this is a single argument. This is a keyword-only argument.
         """
         # Meta-data
         self._name = name
@@ -215,22 +250,31 @@ class Provider1(IProvider1, IProviderBackend1):
             jobs_dir_list = []
         self._job_collection = FsPlugInCollection(
             jobs_dir_list, ext=(".txt", ".txt.in"),
-            wrapper=JobDefinitionPlugIn, provider=self)
+            wrapper=JobDefinitionPlugIn, provider=self,
+            validate=validate, validation_kwargs=validation_kwargs)
         # Setup translations
         if gettext_domain and locale_dir:
             gettext.bindtextdomain(self._gettext_domain, self._locale_dir)
 
     @classmethod
-    def from_definition(cls, definition, secure):
+    def from_definition(cls, definition, secure, *, validate=True,
+                        validation_kwargs=None):
         """
         Initialize a provider from Provider1Definition object
 
         :param definition:
             A Provider1Definition object to use as reference
-
         :param secure:
             Value of the secure flag. This cannot be expressed by a definition
             object.
+        :param validate:
+            Enable job validation. Incorrect job definitions will not be loaded
+            and will abort the process of loading of the remainder of the jobs.
+            This is ON by default to prevent broken job definitions from being
+            used. This is a keyword-only argument.
+        :param validation_kwargs:
+            Keyword arguments to pass to the JobDefinition.validate().  Note,
+            this is a single argument. This is a keyword-only argument.
 
         This method simplifies initialization of a Provider1 object where the
         caller already has a Provider1Definition object. Depending on the value
@@ -248,7 +292,8 @@ class Provider1(IProvider1, IProviderBackend1):
             secure, definition.effective_gettext_domain,
             definition.effective_jobs_dir, definition.effective_whitelists_dir,
             definition.effective_data_dir, definition.effective_bin_dir,
-            definition.effective_locale_dir, definition.location or None)
+            definition.effective_locale_dir, definition.location or None,
+            validate=validate, validation_kwargs=validation_kwargs)
 
     def __repr__(self):
         return "<{} name:{!r}>".format(self.__class__.__name__, self.name)

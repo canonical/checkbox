@@ -648,7 +648,10 @@ class Provider1Tests(TestCase):
         self.provider = Provider1(
             self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
             self.GETTEXT_DOMAIN, self.JOBS_DIR, self.WHITELISTS_DIR,
-            self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR, self.BASE_DIR)
+            self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR, self.BASE_DIR,
+            # We are using dummy job definitions so let's not shout about those
+            # being invalid in each test
+            validate=False)
 
     def test_repr(self):
         self.assertEqual(
@@ -791,11 +794,11 @@ class Provider1Tests(TestCase):
             JobDefinitionPlugIn("/path/to/jobs1.txt", (
                 "id: a2\n"
                 "\n"
-                "id: a1\n"), self.provider),
+                "id: a1\n"), self.provider, validate=False),
             JobDefinitionPlugIn("/path/to/jobs2.txt", (
                 "id: a3\n"
                 "\n"
-                "id: a4\n"), self.provider)
+                "id: a4\n"), self.provider, validate=False)
         ]
         with self.provider._job_collection.fake_plugins(fake_plugins):
             job_list = self.provider.get_builtin_jobs()
@@ -839,11 +842,11 @@ class Provider1Tests(TestCase):
             JobDefinitionPlugIn("/path/to/jobs1.txt", (
                 "id: a2\n"
                 "\n"
-                "id: a1\n"), self.provider),
+                "id: a1\n"), self.provider, validate=False),
             JobDefinitionPlugIn("/path/to/jobs2.txt", (
                 "id: a3\n"
                 "\n"
-                "id: a4\n"), self.provider)
+                "id: a4\n"), self.provider, validate=False)
         ]
         with self.provider._job_collection.fake_plugins(fake_plugins):
             job_list, problem_list = self.provider.load_all_jobs()
@@ -861,7 +864,8 @@ class Provider1Tests(TestCase):
         """
         fake_plugins = [
             JobDefinitionPlugIn(
-                "/path/to/jobs1.txt", "id: working\n", self.provider)
+                "/path/to/jobs1.txt", "id: working\n", self.provider,
+                validate=False)
         ]
         fake_problems = [
             PlugInError("some problem"),

@@ -309,7 +309,9 @@ class InstallCommand(ManageCommand):
             # explicit
             config_obj.remove_option(section, 'location')
             for src_name, key_id in self._DEF_MAP.items():
-                config_obj.set(section, key_id, dest_map[src_name])
+                if os.path.exists(os.path.join(self.definition.location,
+                                               src_name)):
+                    config_obj.set(section, key_id, dest_map[src_name])
         return config_obj
 
     def _write_to_file(self, root, pathname, callback):

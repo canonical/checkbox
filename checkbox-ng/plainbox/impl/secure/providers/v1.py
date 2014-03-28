@@ -356,10 +356,7 @@ class Provider1(IProvider1, IProviderBackend1):
             This variable is only required by one script.
             It would be nice to remove this later on.
         """
-        if self._data_dir is None:
-            return None
-        else:
-            return os.path.join(self._data_dir, "..")
+        return self.base_dir
 
     @property
     def extra_PYTHONPATH(self):

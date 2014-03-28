@@ -733,14 +733,13 @@ class Provider1Tests(TestCase):
         Verify that Provider1.CHECKBOX_SHARE is defined as the parent directory
         of data_dir
         """
-        self.assertEqual(self.provider.CHECKBOX_SHARE,
-                         os.path.join(self.DATA_DIR, ".."))
+        self.assertEqual(self.provider.CHECKBOX_SHARE, self.BASE_DIR)
 
-    def test_CHECKBOX_SHARE__without_data_dir(self):
+    def test_CHECKBOX_SHARE__without_base_dir(self):
         """
-        Verify that Provider1.CHECKBOX_SHARE is None without data_dir
+        Verify that Provider1.CHECKBOX_SHARE is None without base_dir
         """
-        self.provider._data_dir = None
+        self.provider._base_dir = None
         self.assertEqual(self.provider.CHECKBOX_SHARE, None)
 
     def test_extra_PYTHONPATH(self):

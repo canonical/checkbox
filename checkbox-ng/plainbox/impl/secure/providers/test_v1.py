@@ -471,6 +471,7 @@ class Provider1PlugInTests(TestCase):
         self.assertEqual(provider.data_dir, None)
         self.assertEqual(provider.bin_dir, None)
         self.assertEqual(provider.locale_dir, None)
+        self.assertEqual(provider.base_dir, None)
 
     def test_provider_directories__w_location(self):
         """
@@ -484,6 +485,7 @@ class Provider1PlugInTests(TestCase):
         self.assertEqual(provider.data_dir, "/some/directory/data")
         self.assertEqual(provider.bin_dir, "/some/directory/bin")
         self.assertEqual(provider.locale_dir, "/some/directory/locale")
+        self.assertEqual(provider.base_dir, "/some/directory")
 
     def test_provider_directories__w_location_w_no_dirs(self):
         """
@@ -498,6 +500,7 @@ class Provider1PlugInTests(TestCase):
         self.assertEqual(provider.data_dir, None)
         self.assertEqual(provider.bin_dir, None)
         self.assertEqual(provider.locale_dir, None)
+        self.assertEqual(provider.base_dir, "/some/directory")
 
     def test_provider_directories__w_dirs(self):
         """
@@ -510,6 +513,7 @@ class Provider1PlugInTests(TestCase):
         self.assertEqual(provider.data_dir, "/some/directory/data")
         self.assertEqual(provider.bin_dir, "/some/directory/bin")
         self.assertEqual(provider.locale_dir, "/some/directory/locale")
+        self.assertEqual(provider.base_dir, None)
 
 
 class WhiteListPlugInTests(TestCase):
@@ -639,12 +643,13 @@ class Provider1Tests(TestCase):
     DATA_DIR = "data-dir"
     BIN_DIR = "bin-dir"
     LOCALE_DIR = "locale-dir"
+    BASE_DIR = "base-dir"
 
     def setUp(self):
         self.provider = Provider1(
             self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
             self.GETTEXT_DOMAIN, self.JOBS_DIR, self.WHITELISTS_DIR,
-            self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR)
+            self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR, self.BASE_DIR)
 
     def test_repr(self):
         self.assertEqual(
@@ -717,6 +722,12 @@ class Provider1Tests(TestCase):
         """
         self.assertEqual(self.provider.locale_dir, self.LOCALE_DIR)
 
+    def test_base_dir(self):
+        """
+        Verify that Provider1.base_dir attribute is set correctly
+        """
+        self.assertEqual(self.provider.base_dir, self.BASE_DIR)
+
     def test_CHECKBOX_SHARE(self):
         """
         Verify that Provider1.CHECKBOX_SHARE is defined as the parent directory
@@ -769,7 +780,7 @@ class Provider1Tests(TestCase):
         provider = Provider1(
             self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
             self.GETTEXT_DOMAIN, self.JOBS_DIR, None,
-            self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR)
+            self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR, self.BASE_DIR)
         self.assertEqual(provider.get_builtin_whitelists(), [])
 
     def test_get_builtin_jobs__normal(self):
@@ -817,7 +828,7 @@ class Provider1Tests(TestCase):
         provider = Provider1(
             self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
             self.GETTEXT_DOMAIN, None, self.WHITELISTS_DIR,
-            self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR)
+            self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR, self.BASE_DIR)
         self.assertEqual(provider.get_builtin_jobs(), [])
 
     def test_load_all_jobs__normal(self):
@@ -875,7 +886,7 @@ class Provider1Tests(TestCase):
         provider = Provider1(
             self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
             self.GETTEXT_DOMAIN, self.JOBS_DIR, self.WHITELISTS_DIR,
-            self.DATA_DIR, None, self.LOCALE_DIR)
+            self.DATA_DIR, None, self.LOCALE_DIR, self.BASE_DIR)
         self.assertEqual(provider.get_all_executables(), [])
 
     @mock.patch("plainbox.impl.secure.providers.v1.gettext")
@@ -932,7 +943,7 @@ class Provider1Tests(TestCase):
         Provider1(
             self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
             self.GETTEXT_DOMAIN, self.JOBS_DIR, self.WHITELISTS_DIR,
-            self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR)
+            self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR, self.BASE_DIR)
         mock_gettext.bindtextdomain.assert_called_once_with(
             self.GETTEXT_DOMAIN, self.LOCALE_DIR)
 
@@ -945,5 +956,6 @@ class Provider1Tests(TestCase):
         Provider1(
             self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
             self.GETTEXT_DOMAIN, self.JOBS_DIR, self.WHITELISTS_DIR,
-            self.DATA_DIR, self.BIN_DIR, locale_dir=None)
+            self.DATA_DIR, self.BIN_DIR, locale_dir=None,
+            base_dir=self.BASE_DIR)
         self.assertEqual(mock_gettext.bindtextdomain.call_args_list, [])

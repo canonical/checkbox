@@ -141,7 +141,8 @@ class Provider1(IProvider1, IProviderBackend1):
     """
 
     def __init__(self, name, version, description, secure, gettext_domain,
-                 jobs_dir, whitelists_dir, data_dir, bin_dir, locale_dir):
+                 jobs_dir, whitelists_dir, data_dir, bin_dir, locale_dir,
+                 base_dir):
         """
         Initialize a provider with a set of meta-data and directories.
 
@@ -181,6 +182,11 @@ class Provider1(IProvider1, IProviderBackend1):
 
         :param locale_dir:
             path of the directory with locale database (translation catalogs)
+
+        :param base_dir:
+            path of the directory with (perhaps) all of jobs_dir,
+            whitelist_dir, data_dir, bin_dir, locale_dir. This may be None.
+            This is also the effective value of $CHECKBOX_SHARE
         """
         # Meta-data
         self._name = name
@@ -194,6 +200,7 @@ class Provider1(IProvider1, IProviderBackend1):
         self._data_dir = data_dir
         self._bin_dir = bin_dir
         self._locale_dir = locale_dir
+        self._base_dir = base_dir
         # Loaded data
         if self.whitelists_dir is not None:
             whitelists_dir_list = [self.whitelists_dir]
@@ -241,7 +248,7 @@ class Provider1(IProvider1, IProviderBackend1):
             secure, definition.effective_gettext_domain,
             definition.effective_jobs_dir, definition.effective_whitelists_dir,
             definition.effective_data_dir, definition.effective_bin_dir,
-            definition.effective_locale_dir)
+            definition.effective_locale_dir, definition.location or None)
 
     def __repr__(self):
         return "<{} name:{!r}>".format(self.__class__.__name__, self.name)
@@ -331,6 +338,14 @@ class Provider1(IProvider1, IProviderBackend1):
         The value is applicable as argument bindtextdomain()
         """
         return self._locale_dir
+
+    @property
+    def base_dir(self):
+        """
+        path of the directory with (perhaps) all of jobs_dir, whitelist_dir,
+        data_dir, bin_dir, locale_dir. This may be None
+        """
+        return self._base_dir
 
     @property
     def CHECKBOX_SHARE(self):

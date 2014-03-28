@@ -57,8 +57,7 @@ logger = getLogger("plainbox.commands.run")
 class RunInvocation(CheckBoxInvocationMixIn):
 
     def __init__(self, provider_list, config, ns):
-        super(RunInvocation, self).__init__(provider_list)
-        self.config = config
+        super().__init__(provider_list, config)
         self.ns = ns
 
     @property
@@ -357,7 +356,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
             session.metadata.running_job_name = job.id
             session.persistent_save()
             # TODO: get a confirmation from the user for certain types of job.plugin
-            job_result = runner.run_job(job)
+            job_result = runner.run_job(job, self.config)
             if (job_result.outcome == IJobResult.OUTCOME_UNDECIDED
                     and self.is_interactive):
                 job_result = self._interaction_callback(

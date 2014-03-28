@@ -25,7 +25,6 @@ Test definitions for plainbox.impl.secure.providers.v1 module
 """
 
 from unittest import TestCase
-import os
 
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.secure.config import Unset

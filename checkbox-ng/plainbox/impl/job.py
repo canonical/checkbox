@@ -50,6 +50,7 @@ class Problem(SymbolDef):
     missing = 'missing'
     wrong = 'wrong'
     useless = 'useless'
+    deprecated = 'deprecated'
 
 
 class ValidationError(ValueError):

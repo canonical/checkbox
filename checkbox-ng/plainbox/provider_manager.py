@@ -153,7 +153,7 @@ class InstallCommand(ManageCommand):
     # Template of the location= entry
     _LOCATION_TEMPLATE = os.path.join(
         '{prefix}', 'lib', 'plainbox-providers-1',
-        '{provider.name_without_colon}')
+        '{provider.name}')
 
     # Templates for various installation layouts
     _INSTALL_LAYOUT = {

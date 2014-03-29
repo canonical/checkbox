@@ -88,7 +88,7 @@ class ProviderManagerToolTests(TestCase):
             "[PlainBox Provider]\n"
             "description = description\n"
             "gettext_domain = domain\n"
-            "location = {prefix}/lib/plainbox-providers-1/2014.com.example.test\n"
+            "location = {prefix}/lib/plainbox-providers-1/2014.com.example:test\n"
             "name = 2014.com.example:test\n"
             "version = 1.0\n"
             "\n".format(prefix=prefix))

@@ -279,9 +279,6 @@ class InstallCommand(ManageCommand):
                     pass
                 _logger.info(_("copying: %s => %s"), src_name, dst_name)
                 shutil.copytree(src_name, dst_name)
-            else:
-                _logger.warning(_("cannot copy %s, no such file or directory"),
-                                src_name)
 
     def _get_dest_map(self, layout, prefix):
         # Compute directory layout

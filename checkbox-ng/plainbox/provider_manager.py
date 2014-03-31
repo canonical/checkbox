@@ -39,6 +39,7 @@ from plainbox import __version__ as version
 from plainbox.i18n import docstring
 from plainbox.i18n import gettext as _
 from plainbox.i18n import gettext_noop as N_
+from plainbox.impl.buildsystems import all_buildsystems
 from plainbox.impl.commands import ToolBase, CommandBase
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.job import Problem
@@ -491,6 +492,146 @@ class DevelopCommand(ManageCommand):
     # environment variables and paths in their original form. Also keep the
     # special @EPILOG@ string. The first line of the translation is special and
     # is used as the help message. Please keep the pseudo-statement form and
+    # don't finish the sentence with a dot.  Pay extra attention to whitespace.
+    # It must be correctly preserved or the result won't work. In particular
+    # the leading whitespace *must* be preserved and *must* have the same
+    # length on each line.
+    N_("""
+    build provider specific executables from source
+
+    This command builds provider specific executables from source code.
+
+    The actual logic on how that is done is supplied by provider authors as a
+    part of setup() call inside this manage.py script, as the build_cmd
+    keyword argument.
+
+    @EPILOG@
+
+    PlainBox comes with a pluggable system for doing the right thing so,
+    hopefully, in most cases, you don't need to do anything. If your src/
+    directory has a Makefile or .go source files you should be good to go.
+
+    If the automatic defaults are somehow unsuitable you need to edit manage.py
+    so that it specifies the build command.
+
+    IMPORTANT: It is expected that the build command will create binary files
+    in the current directory. The build command is executed from within the
+    'build/bin' subdirectory (which is created automatically). The relative
+    path of the 'src/' directory is available as the $PLAINBOX_SRC_DIR
+    environment variable.
+    """))
+class BuildCommand(ManageCommand):
+
+    SUPPORTS_KEYWORDS = True
+
+    def __init__(self, definition, keywords):
+        """
+        Initialize a new ManageCommand instance with the specified provider.
+
+        :param provider:
+            A Provider1Definition that describes the provider to encapsulate
+        :param keywords:
+            A set of keywords passed to setup()
+        """
+        super().__init__(definition)
+        self._keywords = keywords
+
+    @property
+    def build_cmd(self):
+        """
+        shell command to build the sources
+        """
+        build_cmd = self._keywords.get("build_cmd")
+        if build_cmd is None:
+            return self.guess_build_command()
+        return build_cmd
+
+    def guess_build_command(self):
+        """
+        Guess a build command by delegating to pluggable build systems
+
+        :returns:
+            The command to execute or None if nothing appropriate is found
+        """
+        # Ask the build systems subsystem to determine how to build the code in
+        # this particular case:
+        all_buildsystems.load()
+        # Compute the score of each buildsystem
+        buildsystem_score = [
+            (buildsystem, buildsystem.probe(self.src_dir))
+            for buildsystem in [buildsystem_cls() for buildsystem_cls in
+                                all_buildsystems.get_all_plugin_objects()]
+        ]
+        # Sort scores
+        buildsystem_score.sort(key=lambda pair: pair[1])
+        # Get the best score (largest one)
+        buildsystem, score = buildsystem_score[-1]
+        # Ensure that the buildsystem is viable
+        if score == 0:
+            # if not, just return as if there was no command, no need to upset
+            # people that run manage.py build inside packages when there's
+            # nothing to do
+            return
+        # otherwise get the right build command
+        return buildsystem.get_build_command(self.src_dir, self.build_bin_dir)
+
+    @property
+    def src_dir(self):
+        """
+        absolute path of the src/ subdirectory
+        """
+        return os.path.join(self.definition.location, 'src')
+
+    @property
+    def build_bin_dir(self):
+        """
+        absolute path of the build/bin subdirectory
+        """
+        return os.path.join(self.definition.location, 'build', 'bin')
+
+    def register_parser(self, subparsers):
+        """
+        Overridden method of CommandBase.
+
+        :param subparsers:
+            The argparse subparsers objects in which command line argument
+            specification should be created.
+
+        This method is invoked by the command line handling code to register
+        arguments specific to this sub-command. It must also register itself as
+        the command class with the ``command`` default.
+        """
+        self.add_subcommand(subparsers)
+
+    def invoked(self, ns):
+        """
+        Overridden method of CommandBase.
+
+        :param ns:
+            The argparse namespace object with parsed argument data
+
+        :returns:
+            the exit code of ./manage.py build
+
+        This method is invoked when all of the command line arguments
+        associated with this commands have been parsed and are ready for
+        execution.
+        """
+        # If there is nothing do to just exist successfully. This will allow
+        # packages to always run `manage.py build.`
+        if self.build_cmd is None:
+            return 0
+        # Create the build/bin directory
+        if not os.path.isdir(self.build_bin_dir):
+            os.makedirs(self.build_bin_dir)
+        # Execute the build command
+        env = dict(os.environ)
+        env['PLAINBOX_SRC_DIR'] = os.path.relpath(
+            self.src_dir, self.definition.location)
+        retval = subprocess.call(
+            self.build_cmd, shell=True, cwd=self.build_bin_dir, env=env)
+        # Pass the exit code along
+        return retval
     # don't finish the sentence with a dot. Pay extra attention to whitespace.
     # It must be correctly preserved or the result won't work. In particular
     # the leading whitespace *must* be preserved and *must* have the same

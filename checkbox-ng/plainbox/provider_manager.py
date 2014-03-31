@@ -349,6 +349,7 @@ class InstallCommand(ManageCommand):
     - the jobs directory, and everything in it
     - the whitelists directory, and everything in it
     - the bin directory, and everything in it
+    - the src directory, and everything in it
     - the data directory, and everything in it
     - the po directory, and everything in it
 
@@ -359,7 +360,7 @@ class SourceDistributionCommand(ManageCommand):
     name = "sdist"
 
     _INCLUDED_ITEMS = ['manage.py', 'README.md', 'jobs', 'whitelists', 'bin',
-                       'data', 'po']
+                       'src', 'data', 'po']
 
     def register_parser(self, subparsers):
         """

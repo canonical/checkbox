@@ -191,6 +191,9 @@ class ProviderManagerToolTests(TestCase):
         self.assertTarballContent(
             tarball, "2014.com.example.test-1.0/bin/test.sh",
             "#!/bin/sh\n:\n")
+        self.assertTarballContent(
+            tarball, "2014.com.example.test-1.0/src/hello.c",
+            "int main() { return 0; }\n")
 
     def test_sdist(self):
         """
@@ -379,6 +382,10 @@ class ProviderManagerToolTests(TestCase):
             print("#!/bin/sh", file=stream)
             print(":", file=stream)
         os.chmod(filename, 0o755)
+        os.mkdir(os.path.join(tmpdir, "src"))
+        filename = os.path.join(tmpdir, "src", "hello.c")
+        with open(filename, "wt", encoding='UTF-8') as stream:
+            print("int main() { return 0; }", file=stream)
         definition = Provider1Definition()
         definition.location = tmpdir
         definition.name = "2014.com.example:test"

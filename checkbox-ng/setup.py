@@ -78,5 +78,9 @@ setup(
             'xml=plainbox.impl.exporter.xml:XMLSessionStateExporter',
             'html=plainbox.impl.exporter.html:HTMLSessionStateExporter',
         ],
+        'plainbox.buildsystem': [
+            'make=plainbox.impl.buildsystems:MakefileBuildSystem',
+            'go=plainbox.impl.buildsystems:GoBuildSystem',
+        ],
     },
     include_package_data=True)

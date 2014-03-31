@@ -831,9 +831,13 @@ class ProviderManagerTool(ToolBase):
         I18NCommand,
     ]
 
-    def __init__(self, definition):
+    # XXX: keywords=None is for anyone who has copied the example go provider
+    # which uses manage_ext.py and subclasses this class to add the very same
+    # _keywords instance attribute.
+    def __init__(self, definition, keywords=None):
         super().__init__()
         self._definition = definition
+        self._keywords = keywords
 
     @property
     def definition(self):
@@ -869,7 +873,11 @@ class ProviderManagerTool(ToolBase):
         Add top-level subcommands to the argument parser.
         """
         for cmd_cls in self._SUB_COMMANDS:
-            cmd_cls(self.definition).register_parser(subparsers)
+            if getattr(cmd_cls, 'SUPPORTS_KEYWORDS', False):
+                cmd = cmd_cls(self.definition, self._keywords)
+            else:
+                cmd = cmd_cls(self.definition)
+            cmd.register_parser(subparsers)
 
     def get_gettext_domain(self):
         return "plainbox"
@@ -923,7 +931,7 @@ def setup(**kwargs):
         raise SystemExit(_("{}: bad value of {!r}, {}").format(
             manage_py, exc.variable.name, exc.message))
     else:
-        raise SystemExit(ProviderManagerTool(definition).main())
+        raise SystemExit(ProviderManagerTool(definition, kwargs).main())
 
 
 def manage_py_extension(cls):

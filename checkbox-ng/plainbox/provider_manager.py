@@ -624,7 +624,7 @@ class ValidateCommand(ManageCommand):
         problem_list = []
         for job in job_list:
             try:
-                job.validate()
+                job.validate(strict=True, deprecated=True)
             except JobValidationError as exc:
                 problem_list.append((job, exc))
         return problem_list
@@ -637,6 +637,7 @@ class ValidateCommand(ManageCommand):
             Problem.missing: _("missing definition of required field"),
             Problem.wrong: _("incorrect value supplied"),
             Problem.useless: _("useless field in this context"),
+            Problem.deprecated: _("usage of deprecated field"),
         }
         for job, error in problem_list:
             if isinstance(error, JobValidationError):
@@ -664,6 +665,17 @@ class ValidateCommand(ManageCommand):
             return 1
         else:
             print(_("All jobs seem to be valid"))
+
+    def get_provider(self):
+        """
+        Get a Provider1 that describes the current provider
+
+        This version disables all validation so that we can see totally broken
+        providers and let us validate them and handle the errors explicitly.
+        """
+        return Provider1.from_definition(
+            # NOTE: don't validate, we want to validate manually
+            self.definition, secure=False, validate=False)
 
 
 @docstring(

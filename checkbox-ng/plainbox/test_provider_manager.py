@@ -123,7 +123,7 @@ class ProviderManagerToolTests(TestCase):
             self.tmpdir + os.path.join("/foo", "lib", "plainbox-providers-1",
                                        "2014.com.example:test", "jobs",
                                        "jobs.txt"),
-            "name: dummy\nplugin: shell\ncommand: true\n")
+            "id: dummy\nplugin: shell\ncommand: true\n")
 
     def test_install__flat_partial(self):
         """
@@ -158,7 +158,7 @@ class ProviderManagerToolTests(TestCase):
         self.assertFileContent(
             self.tmpdir + os.path.join(
                 prefix, "share", "2014.com.example:test", "jobs", "jobs.txt"),
-            "name: dummy\nplugin: shell\ncommand: true\n")
+            "id: dummy\nplugin: shell\ncommand: true\n")
         self.assertFileContent(
             self.tmpdir + os.path.join(
                 prefix, "share",  "2014.com.example:test", "whitelists",
@@ -204,7 +204,7 @@ class ProviderManagerToolTests(TestCase):
             self.tmpdir, "dist", "2014.com.example.test-1.0.tar.gz")
         self.assertTarballContent(
             tarball, "2014.com.example.test-1.0/jobs/jobs.txt",
-            "name: dummy\nplugin: shell\ncommand: true\n")
+            "id: dummy\nplugin: shell\ncommand: true\n")
         self.assert_common_sdist(tarball)
 
     def test_sdist__partial(self):
@@ -293,7 +293,7 @@ class ProviderManagerToolTests(TestCase):
         """
         filename = os.path.join(self.tmpdir, "jobs", "broken.txt")
         with open(filename, "wt", encoding='UTF-8') as stream:
-            print("name: broken", file=stream)
+            print("id: broken", file=stream)
             print("plugin: shell", file=stream)
         with TestIO() as test_io:
             self.tool.main(["validate"])
@@ -309,7 +309,7 @@ class ProviderManagerToolTests(TestCase):
         """
         filename = os.path.join(self.tmpdir, "jobs", "broken.txt")
         with open(filename, "wt", encoding='UTF-8') as stream:
-            print("name: broken", file=stream)
+            print("id: broken", file=stream)
             print("plugin: magic", file=stream)
         with TestIO() as test_io:
             self.tool.main(["validate"])
@@ -327,7 +327,7 @@ class ProviderManagerToolTests(TestCase):
         """
         filename = os.path.join(self.tmpdir, "jobs", "broken.txt")
         with open(filename, "wt", encoding='UTF-8') as stream:
-            print("name: broken", file=stream)
+            print("id: broken", file=stream)
             print("plugin: manual", file=stream)
             print("description: broken job definition", file=stream)
             print("command: true", file=stream)
@@ -337,6 +337,23 @@ class ProviderManagerToolTests(TestCase):
             test_io.stdout, (
                 "jobs/broken.txt:1-4: job '2014.com.example::broken', field 'command': "
                 "useless field in this context\n"))
+
+    def test_validate__broken_deprecated_field(self):
+        """
+        verify that ./manage.py validate shows information about deprecated fields
+        """
+        filename = os.path.join(self.tmpdir, "jobs", "broken.txt")
+        with open(filename, "wt", encoding='UTF-8') as stream:
+            print("name: broken", file=stream)
+            print("plugin: manual", file=stream)
+            print("description: broken job definition", file=stream)
+            print("command: true", file=stream)
+        with TestIO() as test_io:
+            self.tool.main(["validate"])
+        self.assertEqual(
+            test_io.stdout, (
+                "jobs/broken.txt:1-4: job '2014.com.example::broken', field 'name': "
+                "usage of deprecated field\n"))
 
     def test_info(self):
         """
@@ -365,7 +382,7 @@ class ProviderManagerToolTests(TestCase):
         os.mkdir(os.path.join(tmpdir, "jobs"))
         filename = os.path.join(tmpdir, "jobs", "jobs.txt")
         with open(filename, "wt", encoding='UTF-8') as stream:
-            print("name: dummy", file=stream)
+            print("id: dummy", file=stream)
             print("plugin: shell", file=stream)
             print("command: true", file=stream)
         os.mkdir(os.path.join(tmpdir, "whitelists"))

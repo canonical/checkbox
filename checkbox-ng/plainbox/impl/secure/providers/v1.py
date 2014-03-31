@@ -478,7 +478,9 @@ class Provider1(IProvider1, IProviderBackend1):
             that OSError is silently ignored when the `bin_dir` directory is
             missing.
         """
-        return sorted(self._get_executables(self.bin_dir))
+        return sorted(
+            self._get_executables(self.bin_dir) +
+            self._get_executables(self.build_bin_dir))
 
     def _get_executables(self, dirname):
         executable_list = []

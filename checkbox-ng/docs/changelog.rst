@@ -8,6 +8,45 @@ ChangeLog
 
 .. _version_0_5:
 
+PlainBox 0.5.2
+^^^^^^^^^^^^^^
+
+This is a maintenance release of the 0.5 series.
+
+Bug fixes
+---------
+
+Bugs fixed in this release are assigned to the following milestone:
+
+* Bugfixes: https://launchpad.net/checkbox/+milestone/plainbox-0.5.2
+
+API changes
+-----------
+
+* PlainBox now remembers the base directory (aka location) associated with each
+  provider. This is available as and
+  :attr:`plainbox.impl.secure.providers.v1.Provider1.base_dir`
+* The :class:`plainbox.impl.commands.checkbox.CheckBoxInvocationMixIn` gained a
+  new required argument to pass the configuration object around. This is
+  required to fix bug https://bugs.launchpad.net/checkbox/+bug/1298166. This
+  API change is backwards incompatible and breaks checkbox-ng << 0.3.
+* PlainBox now offers the generic extensibility point for build systems for
+  provider executables. Entry points for classes implementing the
+  :class:`plainbox.abc.IBuildSystem` interface can be registered in the
+  ``plainbox.buildsystems`` pkg-resources entry point.
+* PlainBox has a better job validation subsystem. Job validation parameters
+  (eventually passed to
+  :meth:`plainbox.impl.job.CheckBoxJobValidator.validate()`) can be set on the
+  provider loader class and they will propagate across the stack. Along with
+  more fine-tuned controls for strict validation and deprecated fields
+  validation this offers tools better ways to discover potential problems. 
+
+PlainBox 0.5.1
+^^^^^^^^^^^^^^
+
+First working release of the 0.5 series, 0.5 was missing one critical patch and
+didn't work. Basically, The tag was applied on the wrong revision.
+
 PlainBox 0.5
 ^^^^^^^^^^^^
 

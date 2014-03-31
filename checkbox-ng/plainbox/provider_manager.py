@@ -1081,6 +1081,8 @@ class ProviderManagerTool(ToolBase):
         InstallCommand,
         SourceDistributionCommand,
         I18NCommand,
+        BuildCommand,
+        CleanCommand,
     ]
 
     # XXX: keywords=None is for anyone who has copied the example go provider

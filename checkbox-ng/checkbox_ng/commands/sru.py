@@ -61,7 +61,7 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
     """
 
     def __init__(self, provider_list, config, ns):
-        super().__init__(provider_list, conifg)
+        super().__init__(provider_list, config)
         self.ns = ns
         if self.ns.whitelist:
             self.whitelist = self.get_whitelist_from_file(

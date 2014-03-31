@@ -348,6 +348,16 @@ class Provider1(IProvider1, IProviderBackend1):
         return self._base_dir
 
     @property
+    def build_bin_dir(self):
+        """
+        absolute path of the build/bin directory
+
+        This value may be None. It depends on location/base_dir being set.
+        """
+        if self.base_dir is not None:
+            return os.path.join(self.base_dir, 'build', 'bin')
+
+    @property
     def CHECKBOX_SHARE(self):
         """
         required value of CHECKBOX_SHARE environment variable.
@@ -468,21 +478,26 @@ class Provider1(IProvider1, IProviderBackend1):
             that OSError is silently ignored when the `bin_dir` directory is
             missing.
         """
+        return sorted(
+            self._get_executables(self.bin_dir) +
+            self._get_executables(self.build_bin_dir))
+
+    def _get_executables(self, dirname):
         executable_list = []
-        if self.bin_dir is None:
+        if dirname is None:
             return executable_list
         try:
-            items = os.listdir(self.bin_dir)
+            items = os.listdir(dirname)
         except OSError as exc:
             if exc.errno == errno.ENOENT:
                 items = []
             else:
                 raise
         for name in items:
-            filename = os.path.join(self.bin_dir, name)
+            filename = os.path.join(dirname, name)
             if os.access(filename, os.F_OK | os.X_OK):
                 executable_list.append(filename)
-        return sorted(executable_list)
+        return executable_list
 
     def get_translated_data(self, msgid):
         """

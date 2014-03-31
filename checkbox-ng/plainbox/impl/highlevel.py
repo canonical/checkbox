@@ -26,6 +26,7 @@ from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
 from io import BytesIO
 import logging
+import os
 
 from plainbox import __version__ as plainbox_version
 from plainbox.impl.applogic import run_job_if_possible
@@ -169,6 +170,7 @@ class Explorer:
                 - all providers
                     - all jobs
                     - all whitelists
+                    - all executables
                 - all repositories
                     - all storages
         """
@@ -236,6 +238,15 @@ class Explorer:
                         ('origin', str(whitelist.origin)),
                     )))
                 provider_obj.children.append(whitelist_obj)
+            for executable in provider.get_all_executables():
+                executable_obj = PlainBoxObject(
+                    executable,
+                    group="executable",
+                    name=os.path.basename(executable),
+                    attrs=OrderedDict((
+                        ('pathname', executable),
+                    )))
+                provider_obj.children.append(executable_obj)
             service_obj.children.append(provider_obj)
         # Milk each repository for session storage data
         for repo in self.repository_list:

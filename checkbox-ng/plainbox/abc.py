@@ -651,3 +651,64 @@ class IExecutionController(metaclass=ABCMeta):
             A numeric score, or None if the controller cannot run this job.
             The higher the value, the more applicable this controller is.
         """
+
+
+class IBuildSystem(metaclass=ABCMeta):
+    """
+    A pluggable build system definition
+
+    PlainBox uses build systems to assist provider authors in
+    building additional executables from source code. To facilitate
+    support for a specific language or toolkit a build system may
+    detect it and offer proper commands without the test developer
+    having to copy/paste those commands from provider to provider.
+
+    PlainBox discovers providers from the ``plainbox.buildsystem``
+    entry point. Each entry point there must be a class implementing
+    this interface.
+    """
+
+    @abstractmethod
+    def probe(self, src_dir: str) -> int:
+        """
+        Look at the source directory and determine how applicable this build
+        system is.
+
+        :param src_dir:
+            absolute path of the directory with source code
+        :returns:
+            the suitability value, 0 if the build system doesn't support
+            sources of the particular kind, all values greater than zero
+            indicate some level of suitability. The largest return value wins.
+
+        The return value is a number. Values closer to zero mean that the build
+        system is not suitable, values closer to one mean the build system is
+        more suitable. Value of 0 mean that the build system is totally
+        unsuitable and will not be applied, even if no other choices are
+        available.
+
+        The idea is that multiple build systems may recognize a source
+        directory but since the system is extensible, other people may come up
+        with more suitable build system that spots additional files and returns
+        a score better than the average.
+        """
+
+    @abstractmethod
+    def get_build_command(self, src_dir: str, build_dir: str) -> str:
+        """
+        Get shell command to build the sources.
+
+        :param src_dir:
+            absolute path of the source directory
+        :param build_dir:
+            absolute path of the build directory
+        :returns:
+            shell command to execute
+
+        With the given source and build directory, come up with a piece of
+        shell that knows how to build stuff so that it ends up in the build
+        directory.
+
+        .. note::
+            The command will be executed in build_dir.
+        """

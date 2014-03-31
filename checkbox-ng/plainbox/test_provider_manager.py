@@ -32,7 +32,10 @@ import tarfile
 import tempfile
 
 from plainbox.impl.secure.providers.v1 import Provider1Definition
+from plainbox.provider_manager import InstallCommand
+from plainbox.provider_manager import ManageCommand
 from plainbox.provider_manager import ProviderManagerTool
+from plainbox.provider_manager import manage_py_extension
 from plainbox.testing_utils.io import TestIO
 from plainbox.vendor import mock
 
@@ -432,3 +435,34 @@ class ProviderManagerToolTests(TestCase):
         with tarfile.open(tarball, "r:*") as tar:
             with self.assertRaises(KeyError):
                 tar.getmember(member)
+
+
+class ExtensionTests(TestCase):
+    """
+    Test cases for the manage_py_extension decorator
+    """
+
+    def setUp(self):
+        self.saved = ProviderManagerTool._SUB_COMMANDS[:]
+
+    def tearDown(self):
+        ProviderManagerTool._SUB_COMMANDS[:] = self.saved
+
+    def test_add_new_command(self):
+        @manage_py_extension
+        class NewCommand(ManageCommand):
+            """
+            Some new command
+            """
+        self.assertIn(NewCommand, ProviderManagerTool._SUB_COMMANDS)
+
+    def test_replace_command(self):
+        self.assertIn(InstallCommand, ProviderManagerTool._SUB_COMMANDS)
+
+        @manage_py_extension
+        class BetterInstallCommand(InstallCommand):
+            """
+            Improved version of an existing command
+            """
+        self.assertNotIn(InstallCommand, ProviderManagerTool._SUB_COMMANDS)
+        self.assertIn(BetterInstallCommand, ProviderManagerTool._SUB_COMMANDS)

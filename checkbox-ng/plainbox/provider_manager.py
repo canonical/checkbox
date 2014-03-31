@@ -52,7 +52,7 @@ from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.providers.v1 import Provider1Definition
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 
-__all__ = ['setup']
+__all__ = ['setup', 'manage_py_extension']
 
 
 _logger = logging.getLogger("plainbox.provider_manager")
@@ -923,3 +923,28 @@ def setup(**kwargs):
             manage_py, exc.variable.name, exc.message))
     else:
         raise SystemExit(ProviderManagerTool(definition).main())
+
+
+def manage_py_extension(cls):
+    """
+    A decorator for classes that extend subcommands of `manage.py`
+
+    :param cls:
+        A new management subcommand class. Either a new class (subclassing
+        ManageCommand directly) or a subclass of one of the standard manage.py
+        command classes). New commands are just appended, replacement commands
+        override the stock version.
+    :returns:
+        cls itself, unchanged
+    """
+    cmd_list = ProviderManagerTool._SUB_COMMANDS
+    orig = cls.__bases__[0]
+    if orig == ManageCommand:
+        # New subcommand, just append it
+        cmd_list.append(cls)
+    else:
+        # Override / replacement for an existing command
+        index = cmd_list.index(orig)
+        del cmd_list[index]
+        cmd_list.insert(index, cls)
+    return cls

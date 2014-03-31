@@ -59,13 +59,15 @@ class ProviderManagerToolTests(TestCase):
                 usage: manage.py [--help] [--version] [options]
 
                 positional arguments:
-                  {info,validate,develop,install,sdist,i18n}
+                  {info,validate,develop,install,sdist,i18n,build,clean}
                     info                display basic information about this provider
                     validate            perform various static analysis and validation
                     develop             install/remove this provider, only for development
                     install             install this provider in the system
                     sdist               create a source tarball
                     i18n                update, merge and build translation catalogs
+                    build               build provider specific executables from source
+                    clean               clean build results
 
                 optional arguments:
                   -h, --help            show this help message and exit

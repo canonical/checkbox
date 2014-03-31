@@ -632,6 +632,117 @@ class BuildCommand(ManageCommand):
             self.build_cmd, shell=True, cwd=self.build_bin_dir, env=env)
         # Pass the exit code along
         return retval
+
+
+@docstring(
+    # TRANSLATORS: please leave various options (both long and short forms),
+    # environment variables and paths in their original form. Also keep the
+    # special @EPILOG@ string. The first line of the translation is special and
+    # is used as the help message. Please keep the pseudo-statement form and
+    # don't finish the sentence with a dot.  Pay extra attention to whitespace.
+    # It must be correctly preserved or the result won't work. In particular
+    # the leading whitespace *must* be preserved and *must* have the same
+    # length on each line.
+    N_("""
+    clean build results
+
+    This command complements the build command and removes any build artifacts
+    including specifically any binary files added to the bin/ directory.
+
+    The actual logic on how that is done is supplied by provider authors as a
+    part of setup() call inside this manage.py script, as the build_cmd
+    keyword argument
+
+    @EPILOG@
+
+    IMPORTANT: the clean command is executed from the directory with the
+    'manage.py' script.  The relative path of the src/ directory is available
+    as the $PLAINBOX_SRC_DIR environment variable.
+
+    Example
+    =======
+
+    For virtually every case, the following command should be sufficient to
+    clean up all build artifacts. It is also the default command so you
+    don't need to specify it explicitly.
+
+    setup(
+       clean_cmd='rm -rf build/bin'
+    )
+    """))
+class CleanCommand(ManageCommand):
+
+    SUPPORTS_KEYWORDS = True
+
+    def __init__(self, definition, keywords):
+        """
+        Initialize a new ManageCommand instance with the specified provider.
+
+        :param provider:
+            A Provider1Definition that describes the provider to encapsulate
+        :param keywords:
+            A set of keywords passed to setup()
+        """
+        super().__init__(definition)
+        self._keywords = keywords
+
+    @property
+    def clean_cmd(self):
+        """
+        shell command to clean the build tree
+        """
+        return self._keywords.get("clean_cmd", "rm -rf build/bin")
+
+    @property
+    def src_dir(self):
+        """
+        absolute path of the src/ subdirectory
+        """
+        return os.path.join(self.definition.location, 'src')
+
+    def register_parser(self, subparsers):
+        """
+        Overridden method of CommandBase.
+
+        :param subparsers:
+            The argparse subparsers objects in which command line argument
+            specification should be created.
+
+        This method is invoked by the command line handling code to register
+        arguments specific to this sub-command. It must also register itself as
+        the command class with the ``command`` default.
+        """
+        self.add_subcommand(subparsers)
+
+    def invoked(self, ns):
+        """
+        Overridden method of CommandBase.
+
+        :param ns:
+            The argparse namespace object with parsed argument data
+
+        :returns:
+            the exit code of ./manage.py clean
+
+        This method is invoked when all of the command line arguments
+        associated with this commands have been parsed and are ready for
+        execution.
+        """
+        # Execute the clean command
+        env = dict(os.environ)
+        env['PLAINBOX_SRC_DIR'] = os.path.relpath(
+            self.src_dir, self.definition.location)
+        retval = subprocess.call(
+            self.clean_cmd, shell=True, env=env, cwd=self.definition.location)
+        # Pass the exit code along
+        return retval
+
+
+@docstring(
+    # TRANSLATORS: please leave various options (both long and short forms),
+    # environment variables and paths in their original form. Also keep the
+    # special @EPILOG@ string. The first line of the translation is special and
+    # is used as the help message. Please keep the pseudo-statement form and
     # don't finish the sentence with a dot. Pay extra attention to whitespace.
     # It must be correctly preserved or the result won't work. In particular
     # the leading whitespace *must* be preserved and *must* have the same

@@ -468,21 +468,24 @@ class Provider1(IProvider1, IProviderBackend1):
             that OSError is silently ignored when the `bin_dir` directory is
             missing.
         """
+        return sorted(self._get_executables(self.bin_dir))
+
+    def _get_executables(self, dirname):
         executable_list = []
-        if self.bin_dir is None:
+        if dirname is None:
             return executable_list
         try:
-            items = os.listdir(self.bin_dir)
+            items = os.listdir(dirname)
         except OSError as exc:
             if exc.errno == errno.ENOENT:
                 items = []
             else:
                 raise
         for name in items:
-            filename = os.path.join(self.bin_dir, name)
+            filename = os.path.join(dirname, name)
             if os.access(filename, os.F_OK | os.X_OK):
                 executable_list.append(filename)
-        return sorted(executable_list)
+        return executable_list
 
     def get_translated_data(self, msgid):
         """

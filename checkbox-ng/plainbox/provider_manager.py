@@ -254,20 +254,35 @@ class InstallCommand(ManageCommand):
         associated with this commands have been parsed and are ready for
         execution.
         """
-        self._write_provider_file(ns.root, ns.prefix, ns.layout)
+        provider = self.get_provider()
+        self._write_provider_file(ns.root, ns.prefix, ns.layout, provider)
+        self._copy_all_executables(ns.root, ns.prefix, ns.layout, provider)
         self._copy_all_data(ns.root, ns.prefix, ns.layout)
 
-    def _write_provider_file(self, root, prefix, layout):
+    def _write_provider_file(self, root, prefix, layout, provider):
         self._write_to_file(
             root, self._PROVIDER_TEMPLATE.format(
                 prefix=prefix, provider=self.definition),
             lambda stream: self._get_provider_config_obj(
-                layout, prefix).write(stream))
+                layout, prefix, provider).write(stream))
+
+    def _copy_all_executables(self, root, prefix, layout, provider):
+        dest_map = self._get_dest_map(layout, prefix)
+        dest_bin_dir = root + dest_map['bin']
+        try:
+            os.makedirs(dest_bin_dir, exist_ok=True)
+        except IOError:
+            pass
+        for executable in provider.get_all_executables():
+            shutil.copy(executable, dest_bin_dir)
 
     def _copy_all_data(self, root, prefix, layout):
         dest_map = self._get_dest_map(layout, prefix)
         assert os.path.isabs(self.definition.location)
         for src_name, dst_name in dest_map.items():
+            # the bin/ directory is handled by _copy_all_executables()
+            if src_name == 'bin':
+                continue
             assert not os.path.isabs(src_name)
             assert os.path.isabs(dst_name)
             src_name = os.path.join(self.definition.location, src_name)
@@ -290,7 +305,7 @@ class InstallCommand(ManageCommand):
             if dest_name_template is not None
         }
 
-    def _get_provider_config_obj(self, layout, prefix):
+    def _get_provider_config_obj(self, layout, prefix, provider):
         dest_map = self._get_dest_map(layout, prefix)
         # Create the .provider file config object
         config_obj = self.definition.get_parser_obj()
@@ -307,9 +322,18 @@ class InstallCommand(ManageCommand):
             # explicit
             config_obj.remove_option(section, 'location')
             for src_name, key_id in self._DEF_MAP.items():
-                if os.path.exists(os.path.join(self.definition.location,
-                                               src_name)):
+                # We should emit each foo_dir key only if the corresponding
+                # directory actually exists
+                should_emit_key = os.path.exists(
+                    os.path.join(self.definition.location, src_name))
+                if should_emit_key:
                     config_obj.set(section, key_id, dest_map[src_name])
+            # NOTE: Handle bin_dir specially:
+            # For bin_dir do the exception that any executables (also
+            # counting those from build/bin) should trigger bin_dir to be
+            # listed since we will create/copy files there anyway.
+            if provider.get_all_executables() != []:
+                config_obj.set(section, 'bin_dir', dest_map['bin'])
         return config_obj
 
     def _write_to_file(self, root, pathname, callback):

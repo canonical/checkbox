@@ -1,8 +1,10 @@
 Source: checkbox-support
 Section: python
 Priority: optional
-Maintainer: Sylvain Pineau <sylvain.pineau@canonical.com>
-Uploaders: Debian Python Modules Team <python-modules-team@lists.alioth.debian.org>
+Maintainer: Checkbox Developers <checkbox-dev@lists.launchpad.net> 
+Uploaders: Sylvain Pineau <sylvain.pineau@canonical.com>,
+           Zygmunt Krynicki <zygmunt.krynicki@canonical.com>,
+           Debian Python Modules Team <python-modules-team@lists.alioth.debian.org>
 Build-Depends:
  debhelper (>= 9),
  dh-python,

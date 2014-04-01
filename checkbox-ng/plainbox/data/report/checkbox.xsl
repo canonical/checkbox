@@ -19,6 +19,9 @@
                     <h1>System Testing<span class="grey"> Report</span></h1>
                 </div>
                 <div id="content" class="clearfix">
+                    <xsl:apply-templates select=".//summary" />
+                </div>
+                <div id="content" class="clearfix">
                     <h2>Hardware Information</h2>
                     <xsl:apply-templates select=".//hardware/dmi" />
                     <xsl:apply-templates select=".//hardware/sysfs-attributes" />
@@ -29,6 +32,7 @@
                     <h2>Software Information</h2>
                     <xsl:apply-templates select=".//software/packages" />
                     <xsl:apply-templates select=".//software/lsbrelease" />
+                    <xsl:apply-templates select=".//software/requirements"/>
                 </div>
                 <div id="content" class="clearfix">
                     <h2>Tests Performed</h2>
@@ -45,9 +49,10 @@
 </xsl:template>
 
 <xsl:template match="summary">
-    <h3 id="summary">Summary</h3>
-    <p>This report was created using <xsl:value-of select="client/@name" /> <xsl:text> </xsl:text><xsl:value-of select="client/@version" /> on <xsl:value-of select="date_created/@value" />, on <xsl:value-of select="distribution/@value" /><xsl:text> </xsl:text><xsl:value-of select="distroseries/@value" /> (<xsl:value-of select="architecture/@value" />).</p>
-    <p>You can view other reports for this system <a href="https://launchpad.net/+hwdb/+fingerprint/{system_id/@value}">here</a>.</p>
+    <p>
+     This report was created using <xsl:value-of select="client/@name" /> <xsl:text> </xsl:text><xsl:value-of select="client/@version" /> on 
+     <xsl:value-of select="date_created/@value" />
+    </p>
 </xsl:template>
 
 <xsl:template match="hardware/udev">
@@ -123,7 +128,20 @@
     </table>
     </div>
 </xsl:template>
-
+<xsl:template match="software/requirements">
+    <span onClick="showHide('requirements');"><h3 id="requirements"><img class="disclosureimg" src="${PLAINBOX_ASSETS}/report/images/closed.png" />Requirements</h3></span>
+    <div class="data" id="requirements-contents">
+    <table>
+        <xsl:for-each select="requirement">
+            <tr>
+                <td>
+                 <a href="{.}"><xsl:value-of select="@name" /></a>
+                </td>
+            </tr>
+        </xsl:for-each>
+    </table>
+    </div>
+</xsl:template>
 
 <xsl:template match="questions">
     <h3 id="questions">Tests</h3>

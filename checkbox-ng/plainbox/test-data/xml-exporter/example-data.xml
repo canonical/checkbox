@@ -15733,6 +15733,11 @@ ID 1d6b:0001 Linux Foundation 1.1 root hub
         <property name="description" type="str">compression library - development</property>
       </package>
     </packages>
+    <requirements>
+      <requirement id="0" name="example">
+        <property name="link" type="str">http://www.example.com</property>
+      </requirement>
+    </requirements>
   </software>
   <summary>
     <client name="plainbox" version="1.0"/>

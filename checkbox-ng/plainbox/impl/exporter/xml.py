@@ -377,6 +377,22 @@ class XMLSessionStateExporter(SessionStateExporterBase):
                             ("name", key),
                             ("type", "str"))))
                     package_property.text = value
+        requirements_data = self.get_resource(data, "requirements")
+        if requirements_data is not None:
+            requirements = ET.SubElement(software, "requirements")
+            for index, requirements_dict in enumerate(requirements_data):
+                requirement = ET.SubElement(
+                    requirements, "requirement", attrib=OrderedDict((
+                        ("id", str(index)),
+                        ("name", requirements_dict["name"]))))
+                for key, value in requirements_dict.items():
+                    if key == "name":
+                        continue
+                    requirements_property = ET.SubElement(
+                        requirement, "property", attrib=OrderedDict((
+                            ("name", key),
+                            ("type", "str"))))
+                    requirements_property.text = value
 
     def _add_summary(self, element, data):
         """

@@ -228,6 +228,25 @@
                 </element>
             </optional>
             <optional>
+                <element name="requirements">
+                    <zeroOrMore>
+                        <element name="requirement">
+                            <attribute name="name"/>
+                            <attribute name="id">
+                                <data type="integer">
+                                    <except>
+                                        <value/>
+                                    </except>
+                                </data>
+                            </attribute>
+                            <oneOrMore>
+                                <ref name="property"/>
+                            </oneOrMore>
+                        </element>
+                    </zeroOrMore>
+                </element>
+            </optional>
+            <optional>
                 <element name="xorg">
                     <attribute name="version">
                         <text/>

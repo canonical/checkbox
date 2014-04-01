@@ -83,6 +83,24 @@ class SessionStateExporterBaseTests(TestCase):
         session.update_job_result(job_b, result_b)
         return session
 
+    def test_option_list_setting_boolean(self):
+        exporter = self.TestSessionStateExporter()
+        exporter._option_list = [
+            SessionStateExporterBase.OPTION_WITH_IO_LOG,
+            SessionStateExporterBase.OPTION_FLATTEN_IO_LOG]
+        self.assertEqual(exporter._option_list, [
+            SessionStateExporterBase.OPTION_WITH_IO_LOG,
+            SessionStateExporterBase.OPTION_FLATTEN_IO_LOG])
+
+    def test_option_list_setting_boolean_all_at_once(self):
+        # Test every option set, all at once
+        # Just to be paranoid, ensure the options I set are the ones the
+        # exporter actually thinks it has
+        exporter = self.TestSessionStateExporter(
+            self.TestSessionStateExporter.supported_option_list)
+        self.assertEqual(exporter._option_list,
+                self.TestSessionStateExporter.supported_option_list)
+
     def test_defaults(self):
         # Test all defaults, with all options unset
         exporter = self.TestSessionStateExporter()

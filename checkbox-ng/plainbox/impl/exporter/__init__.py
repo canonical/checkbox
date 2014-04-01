@@ -99,7 +99,19 @@ class SessionStateExporterBase(metaclass=ABCMeta):
         for option in option_list:
             if option not in self.supported_option_list:
                 raise ValueError("Unsupported option: {}".format(option))
-        self._option_list = option_list
+        self._my_option_list = option_list
+
+    @property
+    def _option_list(self):
+        return self._my_option_list
+
+    @_option_list.setter
+    def _option_list(self, value):
+        """
+        Sets the option list to exactly what is sent as the parameter.
+        Note that this will obliterate any prior settings in the list.
+        """
+        self._my_option_list = value
 
     @classproperty
     def supported_option_list(cls):

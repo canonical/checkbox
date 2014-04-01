@@ -98,7 +98,8 @@ class XMLSessionStateExporter(SessionStateExporterBase):
 
     NS = '2013.com.canonical.certification::'
 
-    SUPPORTED_OPTION_LIST = ()
+    OPTION_CLIENT_NAME = 'client-name'
+    SUPPORTED_OPTION_LIST = (OPTION_CLIENT_NAME, )
 
     # These are the job statuses allowed by the checkbox parser.
     # This is a limitation of the certification website, so we
@@ -148,16 +149,18 @@ class XMLSessionStateExporter(SessionStateExporterBase):
             The name of the exporter to report. Defaults to "plainbox".
         """
         # Super-call with empty option list
-        super(XMLSessionStateExporter, self).__init__(())
+        super(XMLSessionStateExporter, self).__init__((option_list))
         # All the "options" are simply a required configuration element and are
         # not optional in any way. There is no way to opt-out.
-        self._option_list = (
-            SessionStateExporterBase.OPTION_WITH_IO_LOG,
-            SessionStateExporterBase.OPTION_FLATTEN_IO_LOG,
-            SessionStateExporterBase.OPTION_WITH_JOB_DEFS,
-            SessionStateExporterBase.OPTION_WITH_RESOURCE_MAP,
-            SessionStateExporterBase.OPTION_WITH_COMMENTS,
-            SessionStateExporterBase.OPTION_WITH_ATTACHMENTS)
+        xml_options = (SessionStateExporterBase.OPTION_WITH_IO_LOG,
+                       SessionStateExporterBase.OPTION_FLATTEN_IO_LOG,
+                       SessionStateExporterBase.OPTION_WITH_JOB_DEFS,
+                       SessionStateExporterBase.OPTION_WITH_RESOURCE_MAP,
+                       SessionStateExporterBase.OPTION_WITH_COMMENTS,
+                       SessionStateExporterBase.OPTION_WITH_ATTACHMENTS)
+        for option in xml_options:
+                self.set_option_value(option)
+
         # Generate a dummy system hash if needed
         if system_id is None:
             # FIXME: Compute an real system_id for submission to
@@ -174,6 +177,9 @@ class XMLSessionStateExporter(SessionStateExporterBase):
         self._client_version = client_version
         # Remember client name
         self._client_name = client_name
+        # If a client name was specified as an option, prefer that.
+        if self.get_option_value('client-name'):
+            self._client_name = self.get_option_value('client-name')
 
     def dump(self, data, stream):
         """

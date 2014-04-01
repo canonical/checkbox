@@ -87,17 +87,34 @@ class XMLExporterStatusMappingTests(TestCaseWithParameters):
 class XMLExporterTests(TestCase):
 
     def setUp(self):
+        self.prepare_test_exporter()
+
+    def prepare_test_exporter(self, client_name="plainbox",
+                              system_id="",
+                              option_list=None,
+                              timestamp="2012-12-21T12:00:00",
+                              client_version="1.0"):
         data = resource_json(
             "plainbox", "test-data/xml-exporter/example-data.json",
             exact=True)
-        exporter = XMLSessionStateExporter(
-            system_id="",
-            timestamp="2012-12-21T12:00:00",
-            client_version="1.0")
+        self.exporter = XMLSessionStateExporter(
+            client_name=client_name,
+            option_list=option_list,
+            system_id=system_id,
+            timestamp=timestamp,
+            client_version=client_version)
         stream = io.BytesIO()
-        exporter.dump(data, stream)
+        self.exporter.dump(data, stream)
         self.actual_result = stream.getvalue()  # This is bytes
         self.assertIsInstance(self.actual_result, bytes)
+
+    def test_exporter_option(self):
+        """
+        Ensure that the previously-optionless xml exporter can have its
+        single accepted 'client-name' option set properly.
+        """
+        self.prepare_test_exporter(option_list=['client-name=verifythis'])
+        self.assertEqual(self.exporter.get_option_value('client-name'), "verifythis")
 
     def test_perfect_match(self):
         expected_result = resource_string(
@@ -113,3 +130,17 @@ class XMLExporterTests(TestCase):
         self.assertTrue(
             validator.validate_text(
                 self.actual_result))
+
+    def test_client_name_option_takes_precedence(self):
+        # We use trickery to verify the xml final report has the client name
+        # sent in the option string, rather than the constructor parameter.
+        # We pass a bogus client-name in the constructor, then the correct expected
+        # name in the option, and just check as usual.
+        self.prepare_test_exporter(client_name="bogus",
+                                   option_list=['client-name=plainbox'])
+        expected_result = resource_string(
+            "plainbox", "test-data/xml-exporter/example-data.xml"
+        )  # unintuitively, resource_string returns bytes
+        self.assertEqual(self.actual_result, expected_result)
+
+

@@ -61,9 +61,14 @@ class SessionStateExporterBase(metaclass=ABCMeta):
     preserve everything that the session may hold but instead to present it to
     the user in the best format possible.
 
-    Each exporter can support a set of options (currently boolean flags) that
-    can alter the way it operates. It's best to keep the list of exporter
-    options under control to keep the user interface from becoming annoying.
+    Each exporter can support a set of options that can alter the way it
+    operates. Options can either be set boolean-like, or they can be assigned a
+    value (a string). If an option contains a "=", the part of the string on
+    the right of the equal sign will be assigned as the option's value;
+    otherwise they operate in a boolean fashion.
+
+    It's best to keep the list of exporter options under control to keep the
+    user interface from becoming annoying.
     """
 
     OPTION_WITH_IO_LOG = 'with-io-log'
@@ -96,14 +101,29 @@ class SessionStateExporterBase(metaclass=ABCMeta):
     def __init__(self, option_list=None):
         if option_list is None:
             option_list = []
-        for option in option_list:
+        self._option_dict = {}
+        for option_string in option_list:
+            # An option can look like "foo" or like "foo=bar". In the first case
+            # we assign "True" to that key in the dict, in the second we assign "bar".
+            key_value = option_string.split("=", 1)
+            option = key_value[0]
             if option not in self.supported_option_list:
                 raise ValueError("Unsupported option: {}".format(option))
-        self._my_option_list = option_list
+            if len(key_value) == 2:
+                value = key_value[1]
+            else:
+                value = True
+            self._option_dict[option] = value
 
     @property
     def _option_list(self):
-        return self._my_option_list
+        """
+        Returns a list of set options.
+        Users who only are about whether an option is set, regardless of
+        the value assigned to it, can use this API.
+        """
+        return sorted([option for option in self._option_dict.keys()
+                if self._option_dict[option]])
 
     @_option_list.setter
     def _option_list(self, value):
@@ -111,7 +131,22 @@ class SessionStateExporterBase(metaclass=ABCMeta):
         Sets the option list to exactly what is sent as the parameter.
         Note that this will obliterate any prior settings in the list.
         """
-        self._my_option_list = value
+        self._option_dict = {}
+        for key in value:
+            self._option_dict[key] = True
+
+    def get_option_value(self, option):
+        """
+        Returns the value assigned to an option.
+        """
+        return self._option_dict.get(option, False)
+
+    def set_option_value(self, option, value=True):
+        """
+        assigns a value to an option. If no value is given, it just
+        "sets" the option to True
+        """
+        self._option_dict[option] = value
 
     @classproperty
     def supported_option_list(cls):

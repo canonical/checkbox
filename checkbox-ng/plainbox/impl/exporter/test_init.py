@@ -88,9 +88,9 @@ class SessionStateExporterBaseTests(TestCase):
         exporter._option_list = [
             SessionStateExporterBase.OPTION_WITH_IO_LOG,
             SessionStateExporterBase.OPTION_FLATTEN_IO_LOG]
-        self.assertEqual(exporter._option_list, [
+        self.assertEqual(exporter._option_list, sorted([
             SessionStateExporterBase.OPTION_WITH_IO_LOG,
-            SessionStateExporterBase.OPTION_FLATTEN_IO_LOG])
+            SessionStateExporterBase.OPTION_FLATTEN_IO_LOG]))
 
     def test_option_list_setting_boolean_all_at_once(self):
         # Test every option set, all at once
@@ -99,7 +99,29 @@ class SessionStateExporterBaseTests(TestCase):
         exporter = self.TestSessionStateExporter(
             self.TestSessionStateExporter.supported_option_list)
         self.assertEqual(exporter._option_list,
-                self.TestSessionStateExporter.supported_option_list)
+                sorted(self.TestSessionStateExporter.supported_option_list))
+
+    def test_option_list_init_non_boolean(self):
+        option = SessionStateExporterBase.OPTION_WITH_COMMENTS
+        exporter = self.TestSessionStateExporter(["{}=detailed".format(option)])
+        self.assertEqual(exporter.get_option_value(option),
+                "detailed")
+
+    def test_option_list_non_duplicated_options(self):
+        # Setting the same option twice makes no sense, check it gets squashed
+        # into only one item in the option_list.
+        option = SessionStateExporterBase.OPTION_WITH_COMMENTS
+        exporter = self.TestSessionStateExporter([option, option])
+        self.assertEqual(exporter._option_list, [option])
+
+    def test_option_list_setting_api(self):
+        exporter = self.TestSessionStateExporter(
+                [SessionStateExporterBase.OPTION_WITH_IO_LOG])
+        exporter.set_option_value("with-comments")
+        self.assertEqual(exporter.get_option_value('with-comments'), True)
+        exporter.set_option_value("with-comments", "detailed")
+        self.assertEqual(exporter.get_option_value('with-comments'),
+                "detailed")
 
     def test_defaults(self):
         # Test all defaults, with all options unset

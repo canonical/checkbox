@@ -1,122 +1,122 @@
-name: cpuinfo
+id: cpuinfo
 estimated_duration: 0.37
 plugin: resource
 command: cpuinfo_resource
 description: Gets CPU resource info from /proc/cpuinfo
 
-name: cdimage
+id: cdimage
 estimated_duration: 0.61
 plugin: resource
 user: root
 command: cdimage_resource
 description: Gets installation info from casper.log and media-info
 
-name: dpkg
+id: dpkg
 estimated_duration: 0.19
 plugin: resource
 command: dpkg_resource
 requires: package.name == "dpkg"
 description: Gets info on the version of dpkg installed
 
-name: gconf
+id: gconf
 estimated_duration: 0.42
 plugin: resource
 command: gconf_resource | filter_templates -w 'name=.*proxy.*'
 requires: package.name == "gconf2"
 description: Generates resource info from gconf settings
 
-name: lsb
+id: lsb
 estimated_duration: 1.63
 plugin: resource
 command: lsb_resource
 requires: package.name == "lsb-release"
 description: Generates release info based on /etc/lsb-release
 
-name: meminfo
+id: meminfo
 estimated_duration: 0.1
 plugin: resource
 command: meminfo_resource
 description: Generates resource info based on /proc/meminfo
 
-name: module
+id: module
 estimated_duration: 0.13
 plugin: resource
 command: module_resource
 description: Generates resources info on running kernel modules
 
-name: package
+id: package
 estimated_duration: 1.16
 plugin: resource
-command: dpkg-query -W -f='name: ${Package}\nversion: ${Version}\n\n'
+command: dpkg-query -W -f='id: ${Package}\nversion: ${Version}\n\n'
 description: Generates a list of packages
 
-name: executable
+id: executable
 estimated_duration: 0.78
 plugin: resource
 description: Generates a resource for all available executables
 command:
-    find -H $(echo "$PATH" | sed -e 's/:/ /g') -maxdepth 1 -type f -executable -printf "name: %f\n\n"
+    find -H $(echo "$PATH" | sed -e 's/:/ /g') -maxdepth 1 -type f -executable -printf "id: %f\n\n"
 
-name: device
+id: device
 estimated_duration: 0.48
 plugin: resource
 command: udev_resource
 requires: package.name == "udev"
 description: Creates resource info from udev 
 
-name: dmi
+id: dmi
 estimated_duration: 0.59
 plugin: resource
 user: root
 requires: package.name == "dmidecode"
 command: dmi_resource
 
-name: efi
+id: efi
 estimated_duration: 0.56
 plugin: resource
 user: root
 command: efi_resource
 
-name: uname
+id: uname
 estimated_duration: 0.09
 plugin: resource
 command: uname_resource
 description: Creates resource info from uname output
 
-name: sleep
+id: sleep
 estimated_duration: 0.03
 plugin: resource
 command: for state in `cat /sys/power/state`; do echo "$state: supported"; done
 description: Create resource info for supported sleep states
 
 plugin: local
-name: optical_drive
+id: optical_drive
 estimated_duration: 0.39
 requires: device.category == 'CDROM'
 _description: Create resource info for supported optical actions
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=CDROM"'
- name: optical_drive_`ls /sys$path/block`
+ id: optical_drive_`ls /sys$path/block`
  plugin: resource
  command: optical_resource /dev/`ls /sys/$path/block`
  estimated_duration: 0.5
  description: Create resource info for supported optical actions
  EOF
 
-name: block_device
+id: block_device
 estimated_duration: 0.08
 plugin: resource
 command: block_device_resource
 description: Create resource info for removable block devices 
 
-name: display
+id: display
 estimated_duration: 0.43
 plugin: resource
 command: display_resource
 requires: package.name == "x11-xserver-utils"
 description: Creates display resource info from xrandr output
 
-name: usb
+id: usb
 estimated_duration: 0.33
 plugin: resource
 description: Creates resource info for supported USB versions
@@ -126,14 +126,14 @@ command:
      lsusb |grep -q "Linux Foundation ${version}.0 root hub" && echo "supported" || echo "unsupported"
  done
 
-name: xinput
+id: xinput
 estimated_duration: 0.19
 plugin: resource
 command: xinput_resource
 requires: package.name == "xinput"
 description: Creates resource info from xinput output.
 
-name: environment
+id: environment
 estimated_duration: 0.11
 plugin: resource
 description: Create resource info for environment variables
@@ -143,13 +143,13 @@ command:
      echo $e | awk -F':' '{print $1 ": " $2}'
  done
 
-name: mobilebroadband
+id: mobilebroadband
 estimated_duration: 0.38
 plugin: resource
 description: Create resource for mobile broadband devices
 command: mobilebroadband_resource
 
-name: virtualization
+id: virtualization
 estimated_duration: 0.13
 plugin: resource
 requires: package.name == "cpu-checker"
@@ -162,13 +162,13 @@ command:
      echo "kvm: unsupported"
  fi
 
-name: IEEE_80211
+id: IEEE_80211
 estimated_duration: 0.08
 plugin: resource
 command: 80211_resource
 description: Creates resource info for wifi supported protocols/interfaces
 
-name: rtc
+id: rtc
 estimated_duration: 0.02
 plugin: resource
 command: 

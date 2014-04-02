@@ -1,0 +1,20 @@
+[encoding: UTF-8]
+[type: gettext/rfc822deb] jobs/resource.txt
+bin/block_device_resource
+bin/cdimage_resource
+bin/cpuinfo_resource
+bin/display_resource
+bin/dmi_resource
+bin/dpkg_resource
+bin/efi_resource
+bin/gconf_resource
+bin/hal_resource
+bin/lsb_resource
+bin/meminfo_resource
+bin/module_resource
+bin/udev_resource
+bin/uname_resource
+bin/xinput_resource
+manage.py
+src/80211_resource.c
+src/nl80211.h

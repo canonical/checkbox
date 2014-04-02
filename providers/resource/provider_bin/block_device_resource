@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+
+import os
+import re
+from glob import glob
+
+rootdir_pattern = re.compile('^.*?/devices')
+
+def device_state(name):
+    """
+    Follow pmount policy to determine whether a device is removable or internal.
+    """
+    with open('/sys/block/%s/device/block/%s/removable' % (name, name)) as f:
+        if f.read(1) == '1':
+            return 'removable'
+
+    path = rootdir_pattern.sub('', os.readlink('/sys/block/%s' % name))
+    hotplug_buses = ("usb", "ieee1394", "mmc", "pcmcia", "firewire")
+    for bus in hotplug_buses:
+        if os.path.exists('/sys/bus/%s' % bus):
+            for device_bus in os.listdir('/sys/bus/%s/devices' % bus):
+                device_link = rootdir_pattern.sub('', os.readlink(
+                    '/sys/bus/%s/devices/%s' % (bus, device_bus)))
+                if re.search(device_link, path):
+                    return 'removable'
+
+    return 'internal'
+
+
+def usb_support(name, version):
+    """
+    Check the USB specification number for both hub port and device
+    """
+    path = rootdir_pattern.sub('', os.readlink('/sys/block/%s' % name))
+
+    # Remove the usb config.interface part of the path
+    m = re.match('((.*usb\d+).*\/)\d-[\d\.:\-]+\/.*', path)
+    if m:
+        device_path = m.group(1)
+        hub_port_path = m.group(2)
+
+        # Check the highest version of USB the device supports
+        with open('/sys/devices/%s/version' %device_path) as f:
+            if float(f.readline()) < version:
+                return 'unsupported'
+
+        # Check the highest version of USB the hub supports
+        with open('/sys/devices/%s/version' %hub_port_path) as f:
+            if float(f.readline()) < version:
+                return 'unsupported'
+
+        return 'supported'
+
+    return 'unsupported'
+
+
+for path in glob('/sys/block/*/device'):
+    name = re.sub('.*/(.*?)/device', '\g<1>', path)
+    state = device_state(name)
+    usb2 = usb_support(name, 2.00)
+    usb3 = usb_support(name, 3.00)
+    # FIXME: Remove leading block device name when the requirements
+    # checking code in Checkbox allows it
+    print("""\
+%(name)s_state: %(state)s
+%(name)s_usb2: %(usb2)s
+%(name)s_usb3: %(usb3)s
+""" % {"name": name,
+       "state": state,
+       "usb2": usb2,
+       "usb3": usb3})

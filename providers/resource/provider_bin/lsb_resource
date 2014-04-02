@@ -1,0 +1,56 @@
+#!/usr/bin/python3
+#
+# This file is part of Checkbox.
+#
+# Copyright 2009 Canonical Ltd.
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+#
+import sys
+
+from subprocess import Popen, PIPE
+
+
+# Command to retrieve lsb release information.
+COMMAND = "lsb_release -a 2>/dev/null"
+
+
+def get_lsb_release():
+    lsb_release_map = {
+        "Distributor ID": "distributor_id",
+        "Description": "description",
+        "Release": "release",
+        "Codename": "codename"}
+
+    lsb_release = {}
+    output = Popen(COMMAND, stdout=PIPE, shell=True).communicate()[0]
+    for line in [l for l in output.decode("ascii").split("\n") if l]:
+        (key, value) = line.split(":\t", 1)
+        if key in lsb_release_map:
+            key = lsb_release_map[key]
+            lsb_release[key] = value
+
+    return lsb_release
+
+
+def main():
+    lsb_release = get_lsb_release()
+    for key, value in lsb_release.items():
+        print("%s: %s" % (key, value))
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

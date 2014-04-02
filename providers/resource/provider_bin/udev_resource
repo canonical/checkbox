@@ -1,0 +1,63 @@
+#!/usr/bin/python3
+#
+# This file is part of Checkbox.
+#
+# Copyright 2011 Canonical Ltd.
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+#
+import argparse
+import shlex
+
+from subprocess import check_output, CalledProcessError
+
+from checkbox_support.parsers.udevadm import UdevadmParser
+
+
+class UdevResult:
+
+    attributes = ("path", "bus", "category", "driver", "product_id",
+                  "vendor_id", "subproduct_id", "subvendor_id", "product",
+                  "vendor", "interface",)
+
+    def addDevice(self, device):
+        for attribute in self.attributes:
+            value = getattr(device, attribute)
+            if value is not None:
+                print("%s: %s" % (attribute, value))
+
+        print()
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c", "--command", action='store', type=str,
+                        default="udevadm info --export-db",
+                        help="""Command to execute to get udevadm information.
+                              Only change it if you know what you're doing.""")
+    args = parser.parse_args()
+    try:
+        output = check_output(shlex.split(args.command))
+    except CalledProcessError as exc:
+        raise SystemExit(exc)
+    # Set the error policy to 'ignore' in order to let tests depending on this
+    # resource to properly match udev properties
+    output = output.decode("UTF-8", errors='ignore')
+    udev = UdevadmParser(output)
+    result = UdevResult()
+    udev.run(result)
+
+
+if __name__ == "__main__":
+    main()

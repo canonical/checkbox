@@ -29,6 +29,9 @@ from plainbox.impl.applogic import PlainBoxConfig
 from plainbox.impl.secure import config
 
 
+SECURE_ID_PATTERN =r"^[a-zA-Z0-9]{15}$|^[a-zA-Z0-9]{18}$"
+
+
 class CheckBoxConfig(PlainBoxConfig):
     """
     Configuration for checkbox-ng
@@ -37,9 +40,7 @@ class CheckBoxConfig(PlainBoxConfig):
     secure_id = config.Variable(
         section="sru",
         help_text="Secure ID of the system",
-        validator_list=[config.PatternValidator(
-            r"^[a-zA-Z0-9]{15}$|^[a-zA-Z0-9]{18}$"
-        )])
+        validator_list=[config.PatternValidator(SECURE_ID_PATTERN)])
 
     # TODO: Add a validator to check if URL looks fine
     c3_url = config.Variable(

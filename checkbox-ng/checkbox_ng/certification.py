@@ -26,12 +26,16 @@ This module contains a PlainBox transport that knows how to send the
 certification XML data to the Canonical certification database.
 """
 
+from gettext import gettext as _
 from logging import getLogger
 import re
-import requests
 
 from plainbox.impl.secure.config import Unset
 from plainbox.impl.transport import TransportBase
+import requests
+
+from checkbox_ng.config import SECURE_ID_PATTERN
+
 
 logger = getLogger("checkbox.ng.certification")
 
@@ -52,80 +56,89 @@ class CertificationTransport(TransportBase):
      - Data is expected to be in checkbox xml-compatible format.
        This means it will work best with a stream produced by the
        xml exporter.
-
    """
 
-    def __init__(self, where, options, config=None):
+    def __init__(self, where, options):
         """
         Initialize the Certification Transport.
 
-        The options string must contain:
-        * secure_id: A 15- or 18-character alphanumeric ID for the system.
-                     Valid characters are [a-zA-Z0-9]
-
-        :param config:
-             optional PlainBoxConfig object. If http_proxy and https_proxy
-             values are set in this config object, they will be used to send
-             data via the specified protocols. Note that the transport also
-             honors the http_proxy and https_proxy environment variables.
-             Proxy string format is http://[user:password@]<proxy-ip>:port
+        The options string may contain 'secure_id' which must be
+        a 15- or 18-character alphanumeric ID for the system.
         """
-        super(CertificationTransport, self).__init__(where, options)
+        super().__init__(where, options)
+        self._secure_id = self.options.get('secure_id')
+        if self._secure_id is not None:
+            self._validate_secure_id(self._secure_id)
 
-        if config is not None and config.environment is not Unset:
-            self.proxies = {proto: config.environment[proto + "_proxy"]
-                            for proto in ['http', 'https']
-                            if proto + "_proxy" in config.environment}
-        else:
-            self.proxies = None
-
-        if not 'secure_id' in self.options:
-            raise InvalidSecureIDError("Required option secure_id missing")
-        if not re.match(r"^[a-zA-Z0-9]{15}$|^[a-zA-Z0-9]{18}$",
-                        self.options['secure_id']):
-            raise InvalidSecureIDError(("secure_id must be 15 or 18-character "
-                                        "alphanumeric string"))
-
-    def send(self, data):
-        """ Sends data to the specified server.
+    def send(self, data, config=None, session_state=None):
+        """
+        Sends data to the specified server.
 
         :param data:
             Data containing the xml dump to be sent to the server. This
             can be either bytes or a file-like object (BytesIO works fine too).
             If this is a file-like object, it will be read and streamed "on
             the fly".
-
-        :returns: a dictionary with responses from the server if submission
+        :param config:
+             Optional PlainBoxConfig object. If http_proxy and https_proxy
+             values are set in this config object, they will be used to send
+             data via the specified protocols. Note that the transport also
+             honors the http_proxy and https_proxy environment variables.
+             Proxy string format is http://[user:password@]<proxy-ip>:port
+        :param session_state:
+            The session for which this transport is associated with
+            the data being sent (optional)
+        :returns:
+            A dictionary with responses from the server if submission
             was successful. This should contain an 'id' key, however
             the server response may change, so the only guarantee
             we make is that this will be non-False if the server
             accepted the data.
-
-        :raises requests.exceptions.Timeout: If sending timed out.
-
+        :raises requests.exceptions.Timeout:
+            If sending timed out.
         :raises requests.exceptions.ConnectionError:
             If connection failed outright.
-
-        :raises requests.exceptions.HTTPError: if the server returned
-            a non-success result code
+        :raises requests.exceptions.HTTPError:
+            If the server returned a non-success result code
         """
-
-        logger.debug("Sending to %s, hardware id is %s",
-                     self.url, self.options['secure_id'])
-        cert_headers = {"X_HARDWARE_ID": self.options['secure_id']}
-        form_payload = {"data": data}  # Requests takes care of properly
-                                       # handling a file-like object for
-                                       # data here.
+        proxies = None
+        if config:
+            proxies = {
+                proto[:-len("_proxy")]: config.environment[proto]
+                for proto in ['http_proxy', 'https_proxy']
+                if proto in config.environment
+            }
+        # Find the effective value of secure_id:
+        # - use the configuration object (if available)
+        # - override with secure_id= option (if defined)
+        secure_id = None
+        if config is not None and hasattr(config, 'secure_id'):
+            secure_id = config.secure_id
+        if self._secure_id is not None:
+            secure_id = self._secure_id
+        if secure_id is None:
+            raise InvalidSecureIDError(_("Secure ID not specified"))
+        self._validate_secure_id(secure_id)
+        logger.debug("Sending to %s, hardware id is %s", self.url, secure_id)
+        headers = {"X_HARDWARE_ID": secure_id}
+        # Requests takes care of properly handling a file-like data.
+        form_payload = {"data": data}
         try:
-            r = requests.post(self.url, files=form_payload,
-                              headers=cert_headers, proxies=self.proxies)
-        except requests.exceptions.Timeout as error:
-            logger.warning("Request to %s timed out: %s", self.url, error)
+            response = requests.post(
+                self.url, files=form_payload, headers=headers, proxies=proxies)
+        except requests.exceptions.Timeout as exc:
+            logger.warning("Request to %s timed out: %s", self.url, exc)
             raise
-        except requests.exceptions.ConnectionError as error:
-            logger.error("Unable to connect to %s: %s", self.url, error)
+        except requests.exceptions.ConnectionError as exc:
+            logger.error("Unable to connect to %s: %s", self.url, exc)
             raise
-        if r is not None:
-            r.raise_for_status()  # This will raise HTTPError for status != 20x
-            logger.debug("Success! Server said %s", r.text)
-            return r.json()
+        if response is not None:
+            # This will raise HTTPError for status != 20x
+            response.raise_for_status()
+            logger.debug("Success! Server said %s", response.text)
+            return response.json()
+
+    def _validate_secure_id(self, secure_id):
+        if not re.match(SECURE_ID_PATTERN, secure_id):
+            raise InvalidSecureIDError(
+                _("secure_id must be 15 or 18-character alphanumeric string"))

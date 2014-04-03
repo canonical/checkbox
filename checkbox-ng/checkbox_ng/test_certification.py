@@ -58,8 +58,8 @@ class CertificationTransportTests(TestCase):
 
     def test_parameter_parsing(self):
         #Makes sense since I'm overriding the base class's constructor.
-        transport = CertificationTransport(self.valid_url,
-                                           self.valid_option_string)
+        transport = CertificationTransport(
+            self.valid_url, self.valid_option_string)
         self.assertEqual(self.valid_url, transport.url)
         self.assertEqual(self.valid_secure_id,
                          transport.options['secure_id'])
@@ -69,40 +69,31 @@ class CertificationTransportTests(TestCase):
             dummy_id = "a" * length
             option_string = "secure_id={}".format(dummy_id)
             with self.assertRaises(InvalidSecureIDError):
-                transport = CertificationTransport(self.valid_url,
-                                                   option_string)
-                self.assertIsInstance(CertificationTransport,
-                                      transport)
+                CertificationTransport(self.valid_url, option_string)
 
     def test_invalid_characters_in_secure_id_are_rejected(self):
         option_string = "secure_id=aA0#"
         with self.assertRaises(InvalidSecureIDError):
-                transport = CertificationTransport(self.valid_url,
-                                                   option_string)
-                self.assertIsInstance(CertificationTransport,
-                                      transport)
+            transport = CertificationTransport(self.valid_url, option_string)
 
     def test_invalid_url(self):
-        transport = CertificationTransport(self.invalid_url,
-                                           self.valid_option_string)
+        transport = CertificationTransport(
+            self.invalid_url, self.valid_option_string)
         dummy_data = BytesIO(b"some data to send")
         requests.post.side_effect = InvalidSchema
 
         with self.assertRaises(InvalidSchema):
             result = transport.send(dummy_data)
             self.assertIsNotNone(result)
-        requests.post.assert_called_with(self.invalid_url,
-                                         files={'data': dummy_data},
-                                         headers={'X_HARDWARE_ID':
-                                         self.valid_secure_id},
-                                         proxies=None)
+        requests.post.assert_called_with(
+            self.invalid_url, files={'data': dummy_data},
+            headers={'X_HARDWARE_ID': self.valid_secure_id}, proxies=None)
 
     def test_valid_url_cant_connect(self):
-        transport = CertificationTransport(self.unreachable_url,
-                                           self.valid_option_string)
+        transport = CertificationTransport(
+            self.unreachable_url, self.valid_option_string)
         dummy_data = BytesIO(b"some data to send")
         requests.post.side_effect = ConnectionError
-
         with self.assertRaises(ConnectionError):
             result = transport.send(dummy_data)
             self.assertIsNotNone(result)
@@ -113,20 +104,17 @@ class CertificationTransportTests(TestCase):
                                          proxies=None)
 
     def test_send_success(self):
-        transport = CertificationTransport(self.valid_url,
-                                           self.valid_option_string)
-
+        transport = CertificationTransport(
+            self.valid_url, self.valid_option_string)
         requests.post.return_value = MagicMock(name='response')
         requests.post.return_value.status_code = 200
         requests.post.return_value.text = '{"id": 768}'
         result = transport.send(self.sample_xml)
-
         self.assertTrue(result)
 
     def test_send_failure(self):
-        transport = CertificationTransport(self.valid_url,
-                                           self.valid_option_string)
-
+        transport = CertificationTransport(
+            self.valid_url, self.valid_option_string)
         requests.post.return_value = MagicMock(name='response')
         requests.post.return_value.status_code = 412
         requests.post.return_value.text = 'Some error'
@@ -134,10 +122,8 @@ class CertificationTransportTests(TestCase):
         #so I have to mock *that* method as well..
         requests.post.return_value.raise_for_status = MagicMock(
             side_effect=HTTPError)
-
         with self.assertRaises(HTTPError):
-            result = transport.send(self.sample_xml)
-            self.assertIsNotNone(result)
+            transport.send(self.sample_xml)
 
     def proxy_test(self, environment, proxies):
         test_environment = environment
@@ -145,23 +131,19 @@ class CertificationTransportTests(TestCase):
         test_config = PlainBoxConfig()
         test_config.environment = test_environment
 
-        transport = CertificationTransport(self.valid_url,
-                                           self.valid_option_string,
-                                           config=test_config)
+        transport = CertificationTransport(
+            self.valid_url, self.valid_option_string)
         dummy_data = BytesIO(b"some data to send")
 
         requests.post.return_value = MagicMock(name='response')
         requests.post.return_value.status_code = 200
         requests.post.return_value.text = '{"id": 768}'
-        result = transport.send(dummy_data)
-
+        result = transport.send(dummy_data, config=test_config)
         self.assertTrue(result)
-
-        requests.post.assert_called_with(self.valid_url,
-                                         files={'data': dummy_data},
-                                         headers={'X_HARDWARE_ID':
-                                         self.valid_secure_id},
-                                         proxies=test_proxies)
+        requests.post.assert_called_with(
+            self.valid_url, files={'data': dummy_data},
+            headers={'X_HARDWARE_ID': self.valid_secure_id},
+            proxies=test_proxies)
 
     def test_set_only_one_proxy(self):
         test_environment = {'http_proxy': "http://1.2.3.4:5"}

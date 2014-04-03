@@ -183,7 +183,7 @@ _description: Creates resource info for RTC
 id: requirements
 estimated_duration: 0.01
 plugin: resource
-command: cat $PLAINBOX_PROVIDER_DATA/requirements_docs.txt
+command: [ -f $PLAINBOX_SESSION_SHARE/requirements_docs.txt ] && cat $PLAINBOX_SESSION_SHARE/requirements_docs.txt
 _description:
  Provide links to requirements documents.
  .
@@ -191,3 +191,8 @@ _description:
  values:
  name: (to be used as the anchor text)
  link: (the actual URL)
+ .
+ Providers wishing to use this feature need to:
+ 1- Write a job that places a suitably-formatted file in $PLAINBOX_SESSION_SHARE
+ 2- Update their whitelists to run that job *before* miscellanea/submission-resources
+    or the "requirements" resource job.

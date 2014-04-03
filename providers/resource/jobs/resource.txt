@@ -47,7 +47,7 @@ _description: Generates resources info on running kernel modules
 id: package
 estimated_duration: 1.16
 plugin: resource
-command: dpkg-query -W -f='id: ${Package}\nversion: ${Version}\n\n'
+command: dpkg-query -W -f='name: ${Package}\nversion: ${Version}\n\n'
 _description: Generates a list of packages
 
 id: executable
@@ -55,7 +55,7 @@ estimated_duration: 0.78
 plugin: resource
 _description: Generates a resource for all available executables
 command:
-    find -H $(echo "$PATH" | sed -e 's/:/ /g') -maxdepth 1 -type f -executable -printf "id: %f\n\n"
+    find -H $(echo "$PATH" | sed -e 's/:/ /g') -maxdepth 1 -type f -executable -printf "name: %f\n\n"
 
 id: device
 estimated_duration: 0.48

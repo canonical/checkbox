@@ -712,3 +712,63 @@ class IBuildSystem(metaclass=ABCMeta):
         .. note::
             The command will be executed in build_dir.
         """
+
+
+class ISessionStateTransport(metaclass=ABCMeta):
+    """
+    Interface for transports that send test data somewhere.
+
+    They handle just the transmission portion of data sending; exporters are
+    expected to produce data in the proper format (e.g. json, xml).
+
+    Each transport can have specific parameters that are required for the
+    other end to properly process received information (like system
+    identification, authorization data and so on), and that don't semantically
+    belong in the test data as produced by the exporter. Additionally
+    each transport needs to be told *where* to send test data. This is
+    transport-dependent; things like a HTTP endpoint, IP address, port
+    are good examples.
+    """
+
+    @abstractmethod
+    def __init__(self, where, option_string):
+        """
+        Initialize the transport object
+
+        :param where:
+            a string encoding the destination location
+        :param option_string:
+            a string of additonal configuration for the transport
+        :raises ValueError:
+            if any of the arguments are somehow invalid
+        """
+
+    @abstractmethod
+    def send(self, data, config=None, session_state=None):
+        """
+        Send data somewhere.
+
+        :param data:
+            a stream-like object of data to send (read only)
+        :param config:
+            a PlainBoxConfig object (optional)
+        :param session_state:
+            the session for which this transport is associated with
+            the data being sent (optional)
+        :raises ValueError:
+            if any of the arguments are somehow invalid
+        :raises TransportError:
+            if any transport-specific problem arises
+        :returns:
+            a dictionary with additional items, see notes below
+
+        .. note::
+            The return value is especially vague specifically to allow various
+            transports to express whatever they may need to express for a
+            particular vertical use case yet still to allow most of the code to
+            just work with all transports.
+
+            It is expected that certain keys in the returned dictionary will
+            gain special semantics that can be further standardized. As of this
+            writing there are no standard keys.
+        """

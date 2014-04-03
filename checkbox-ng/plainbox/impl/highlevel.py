@@ -34,10 +34,9 @@ from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.session import SessionStorageRepository
 from plainbox.impl.session.legacy import SessionStateLegacyAPI as SessionState
+from plainbox.impl.transport import TransportError
 from plainbox.impl.transport import get_all_transports
 
-from requests.exceptions import Timeout, ConnectionError
-from urllib.error import HTTPError
 
 logger = logging.getLogger("plainbox.highlevel")
 
@@ -336,12 +335,8 @@ class Service:
             transport = transport_cls(where, options)
             json = transport.send(data)
             return "Submission uploaded to: {}".format(json['url'])
-        except Timeout as error:
-            return "Request to {} timed out: {}".format(where, error)
-        except ConnectionError as error:
-            return "Unable to connect to {}: {}".format(where, error)
-        except HTTPError as error:
-            return "HTTP error"
+        except TransportError as exc:
+            return str(exc)
 
     def prime_job(self, session, job):
         """

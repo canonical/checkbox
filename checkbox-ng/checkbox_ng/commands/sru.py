@@ -30,8 +30,6 @@ import logging
 import sys
 import tempfile
 
-from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
-
 from plainbox.impl.applogic import get_matching_job_list
 from plainbox.impl.applogic import get_whitelist_by_name
 from plainbox.impl.applogic import run_job_if_possible
@@ -45,9 +43,9 @@ from plainbox.impl.exporter.xml import XMLSessionStateExporter
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.secure.config import ValidationError, Unset
 from plainbox.impl.session import SessionStateLegacyAPI as SessionState
+from plainbox.impl.transport import TransportError
 
 from checkbox_ng.certification import CertificationTransport
-from checkbox_ng.certification import InvalidSecureIDError
 
 
 logger = logging.getLogger("plainbox.commands.sru")
@@ -141,20 +139,12 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
                 result = transport.send(stream, self.config, self.session)
                 if 'url' in result:
                     print("Successfully sent, submission status at {0}".format(
-                          result['url']))
+                        result['url']))
                 else:
                     print("Successfully sent, server response: {0}".format(
-                          result))
-
-            except InvalidSecureIDError as exc:
-                print(exc)
-            except InvalidSchema as exc:
-                print("Invalid destination URL: {0}".format(exc))
-            except ConnectionError as exc:
-                print("Unable to connect to destination URL: {0}".format(exc))
-            except HTTPError as exc:
-                print(("Server returned an error when "
-                       "receiving or processing: {0}").format(exc))
+                        result))
+            except (ValueError, TransportError) as exc:
+                print(str(exc))
             except IOError as exc:
                 print("Problem reading a file: {0}".format(exc))
 

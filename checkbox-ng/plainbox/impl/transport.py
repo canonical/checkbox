@@ -40,6 +40,13 @@ from plainbox.i18n import gettext as _
 logger = getLogger("plainbox.transport")
 
 
+class TransportError(Exception):
+    """
+    Base class for problems encountered by the any ISessionStateTransport
+    during execution.
+    """
+
+
 class TransportBase(ISessionStateTransport):
     """
     Base class for transports that send test data somewhere.

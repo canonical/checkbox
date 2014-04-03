@@ -212,7 +212,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
             if transport:
                 exported_stream.seek(0)
                 try:
-                    transport.send(exported_stream.read())
+                    transport.send(exported_stream.read(), self.config, session)
                 except InvalidSchema as exc:
                     print(_("Invalid destination URL: {0}").format(exc))
                 except ConnectionError as exc:

@@ -33,13 +33,14 @@ from logging import getLogger
 
 import pkg_resources
 
+from plainbox.abc import ISessionStateTransport
 from plainbox.i18n import gettext as _
 
 
 logger = getLogger("plainbox.transport")
 
 
-class TransportBase(metaclass=ABCMeta):
+class TransportBase(ISessionStateTransport):
     """
     Base class for transports that send test data somewhere.
 
@@ -68,16 +69,6 @@ class TransportBase(metaclass=ABCMeta):
             }
         if not self.options:
             raise ValueError(_("No valid options in option string"))
-
-    @abstractmethod
-    def send(self, data):
-        """
-        Send data somewhere.
-
-        Data is the stream of data to send, its format depends on the
-        receiving end. It should be a file-like object.
-
-        """
 
 
 def get_all_transports():

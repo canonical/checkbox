@@ -46,7 +46,6 @@ if on_rtd:
 else:
     install_requires = [
         'lxml >= 2.3',
-        'requests >= 1.1',
     ]
 
 setup(

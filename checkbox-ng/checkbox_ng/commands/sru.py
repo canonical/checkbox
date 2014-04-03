@@ -127,12 +127,7 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
               self.config.c3_url, self.config.secure_id))
         options_string = "secure_id={0}".format(self.config.secure_id)
         # Create the transport object
-        try:
-            transport = CertificationTransport(
-                self.config.c3_url, options_string, self.config)
-        except InvalidSecureIDError as exc:
-            print(exc)
-            return False
+        transport = CertificationTransport(self.config.c3_url, options_string)
         # Prepare the data for submission
         data = self.exporter.get_session_data_subset(self.session)
         with tempfile.NamedTemporaryFile(mode='w+b') as stream:
@@ -143,7 +138,7 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
             stream.seek(0)
             try:
                 # Send the data, reading from the temporary file
-                result = transport.send(stream)
+                result = transport.send(stream, self.config, self.session)
                 if 'url' in result:
                     print("Successfully sent, submission status at {0}".format(
                           result['url']))
@@ -151,6 +146,8 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
                     print("Successfully sent, server response: {0}".format(
                           result))
 
+            except InvalidSecureIDError as exc:
+                print(exc)
             except InvalidSchema as exc:
                 print("Invalid destination URL: {0}".format(exc))
             except ConnectionError as exc:

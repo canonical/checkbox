@@ -30,8 +30,8 @@ from gettext import gettext as _
 from logging import getLogger
 import re
 
-from plainbox.impl.secure.config import Unset
 from plainbox.impl.transport import TransportBase
+from plainbox.impl.transport import TransportError
 import requests
 
 from checkbox_ng.config import SECURE_ID_PATTERN
@@ -127,16 +127,27 @@ class CertificationTransport(TransportBase):
             response = requests.post(
                 self.url, files=form_payload, headers=headers, proxies=proxies)
         except requests.exceptions.Timeout as exc:
-            logger.warning("Request to %s timed out: %s", self.url, exc)
-            raise
+            raise TransportError(
+                _("Request to {0} timed out: {1}").format(self.url, exc))
+        except requests.exceptions.InvalidSchema as exc:
+            raise TransportError(
+                _("Invalid destination URL: {0}").format(exc))
         except requests.exceptions.ConnectionError as exc:
-            logger.error("Unable to connect to %s: %s", self.url, exc)
-            raise
+            raise TransportError(
+                _("Unable to connect to {0}: {1}").format(self.url, exc))
         if response is not None:
-            # This will raise HTTPError for status != 20x
-            response.raise_for_status()
+            try:
+                # This will raise HTTPError for status != 20x
+                response.raise_for_status()
+            except requests.exceptions.RequestException as exc:
+                raise TransportError(str(exc))
             logger.debug("Success! Server said %s", response.text)
-            return response.json()
+            try:
+                return response.json()
+            except Exception as exc:
+                raise TransportError(str(exc))
+        # XXX: can response be None?
+        return {}
 
     def _validate_secure_id(self, secure_id):
         if not re.match(SECURE_ID_PATTERN, secure_id):

@@ -30,6 +30,7 @@ from unittest import TestCase
 
 from pkg_resources import resource_string
 from plainbox.impl.applogic import PlainBoxConfig
+from plainbox.impl.transport import TransportError
 from plainbox.vendor import mock
 from plainbox.vendor.mock import MagicMock
 from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
@@ -74,7 +75,7 @@ class CertificationTransportTests(TestCase):
     def test_invalid_characters_in_secure_id_are_rejected(self):
         option_string = "secure_id=aA0#"
         with self.assertRaises(InvalidSecureIDError):
-            transport = CertificationTransport(self.valid_url, option_string)
+            CertificationTransport(self.valid_url, option_string)
 
     def test_invalid_url(self):
         transport = CertificationTransport(
@@ -82,7 +83,7 @@ class CertificationTransportTests(TestCase):
         dummy_data = BytesIO(b"some data to send")
         requests.post.side_effect = InvalidSchema
 
-        with self.assertRaises(InvalidSchema):
+        with self.assertRaises(TransportError):
             result = transport.send(dummy_data)
             self.assertIsNotNone(result)
         requests.post.assert_called_with(
@@ -94,7 +95,7 @@ class CertificationTransportTests(TestCase):
             self.unreachable_url, self.valid_option_string)
         dummy_data = BytesIO(b"some data to send")
         requests.post.side_effect = ConnectionError
-        with self.assertRaises(ConnectionError):
+        with self.assertRaises(TransportError):
             result = transport.send(dummy_data)
             self.assertIsNotNone(result)
         requests.post.assert_called_with(self.unreachable_url,
@@ -122,7 +123,7 @@ class CertificationTransportTests(TestCase):
         #so I have to mock *that* method as well..
         requests.post.return_value.raise_for_status = MagicMock(
             side_effect=HTTPError)
-        with self.assertRaises(HTTPError):
+        with self.assertRaises(TransportError):
             transport.send(self.sample_xml)
 
     def proxy_test(self, environment, proxies):
@@ -162,4 +163,3 @@ class CertificationTransportTests(TestCase):
                             'weird_value': 'What is this'}
         test_proxies = {'http': "http://1.2.3.4:5"}
         self.proxy_test(test_environment, test_proxies)
-

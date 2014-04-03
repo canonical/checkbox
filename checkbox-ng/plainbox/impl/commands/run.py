@@ -425,6 +425,6 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             '--transport-options',
             metavar=_('OPTIONS'),
             help=_('comma-separated list of key-value options (k=v) to '
-                   ' be passed to the transport'))
+                   'be passed to the transport'))
         # Call enhance_parser from CheckBoxCommandMixIn
         self.enhance_parser(parser)

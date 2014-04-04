@@ -73,6 +73,8 @@ setup(
         'plainbox.transport': [
             'certification='
             'checkbox_ng.certification:CertificationTransport',
+            'launchpad='
+            'checkbox_ng.launchpad:LaunchpadTransport',
         ],
     },
     include_package_data=True)

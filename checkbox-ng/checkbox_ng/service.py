@@ -1217,9 +1217,11 @@ class ServiceWrapper(PlainBoxObjectWrapper):
         return self.native.get_all_transports()
 
     @dbus.service.method(
-        dbus_interface=SERVICE_IFACE, in_signature='ssss', out_signature='s')
-    def SendDataViaTransport(self, transport, where, options, data):
-        return self.native.send_data_via_transport(transport, where,
+        dbus_interface=SERVICE_IFACE, in_signature='ossss', out_signature='s')
+    @PlainBoxObjectWrapper.translate
+    def SendDataViaTransport(self, session: 'o', transport: 's', where: 's', 
+                             options: 's', data: 's'):
+        return self.native.send_data_via_transport(session, transport, where,
                                                    options, data)
 
     @dbus.service.method(

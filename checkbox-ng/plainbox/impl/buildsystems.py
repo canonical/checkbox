@@ -35,6 +35,21 @@ class MakefileBuildSystem(IBuildSystem):
                 os.path.join(src_dir, 'Makefile'), build_dir)))
 
 
+class AutotoolsBuildSystem(IBuildSystem):
+    """
+    A build system for projects using autotools
+    """
+
+    def probe(self, src_dir: str) -> int:
+        if os.path.isfile(os.path.join(src_dir, "configure")):
+            return 90
+        return 0
+
+    def get_build_command(self, src_dir: str, build_dir: str) -> str:
+        return "{}/configure && make".format(
+            shlex.quote(os.path.relpath(src_dir, build_dir)))
+
+
 class GoBuildSystem(IBuildSystem):
     """
     A build system for projects written in go

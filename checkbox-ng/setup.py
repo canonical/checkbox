@@ -80,6 +80,7 @@ setup(
         'plainbox.buildsystem': [
             'make=plainbox.impl.buildsystems:MakefileBuildSystem',
             'go=plainbox.impl.buildsystems:GoBuildSystem',
+            'autotools=plainbox.impl.buildsystems:AutotoolsBuildSystem',
         ],
     },
     include_package_data=True)

@@ -28,6 +28,7 @@ from unittest import TestCase
 
 from plainbox.impl.buildsystems import GoBuildSystem
 from plainbox.impl.buildsystems import MakefileBuildSystem
+from plainbox.impl.buildsystems import AutotoolsBuildSystem
 from plainbox.vendor import mock
 
 
@@ -112,3 +113,39 @@ class MakefileBuildSystemTests(TestCase):
             self.buildsystem.get_build_command(
                 "/path/to/src", "/path/to/build/bin"),
             "VPATH=../../src make -f ../../src/Makefile")
+
+
+class AutotoolsBuildSystemTests(TestCase):
+    """
+    Unit tests for the AutotoolsBuildSystem class
+    """
+
+    def setUp(self):
+        self.buildsystem = AutotoolsBuildSystem()
+
+    @mock.patch('plainbox.impl.buildsystems.os.path.isfile')
+    def test_probe__probe(self, mock_isfile):
+        """
+        Ensure that if we have a configure script then the build system finds
+        it and signals suitability
+        """
+        mock_isfile.side_effect = lambda path: path == 'src/configure'
+        self.assertEqual(self.buildsystem.probe("src"), 90)
+
+    @mock.patch('plainbox.impl.buildsystems.os.path.isfile')
+    def test_probe__no_configure(self, mock_isfile):
+        """
+        Ensure that if we don't have a configure script then the build system
+        is not suitable
+        """
+        mock_isfile.side_effect = lambda path: False
+        self.assertEqual(self.buildsystem.probe("src"), 0)
+
+    def test_get_build_command(self):
+        """
+        Ensure that the build command is correct
+        """
+        self.assertEqual(
+            self.buildsystem.get_build_command(
+                "/path/to/src", "/path/to/build/bin"),
+            "../../src/configure && make")

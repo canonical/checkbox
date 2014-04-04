@@ -17,4 +17,3 @@ bin/uname_resource
 bin/xinput_resource
 manage.py
 src/80211_resource.c
-src/nl80211.h

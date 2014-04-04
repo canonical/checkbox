@@ -5,7 +5,6 @@ all: 80211_resource
 clean:
 	rm -f 80211_resource 80211_resource.o
 
-80211_resource: 80211_resource.o | nl80211.h
 80211_resource: CFLAGS += $(shell pkg-config --cflags libnl-3.0 libnl-genl-3.0)
 80211_resource: LDLIBS += $(shell pkg-config --libs libnl-3.0 libnl-genl-3.0)
 

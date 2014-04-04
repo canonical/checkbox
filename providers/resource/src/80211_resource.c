@@ -30,7 +30,7 @@
 #include <netlink/genl/genl.h>
 #include <netlink/genl/ctrl.h>
 
-#include "nl80211.h"
+#include <linux/nl80211.h>
 
 struct nl80211_state {
 	struct nl_sock *nl_sock;

@@ -37,7 +37,7 @@ struct nl80211_state {
 	int nl80211_id;
 };
 
-static const char *ifmodes[NL80211_IFTYPE_MAX + 1] = {
+static const char *ifmodes[] = {
 	"unspecified",
 	"IBSS",
 	"managed",

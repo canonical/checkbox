@@ -403,6 +403,16 @@ class Provider1(IProvider1, IProviderBackend1):
             return os.path.join(self.base_dir, 'build', 'bin')
 
     @property
+    def src_dir(self):
+        """
+        absolute path of the src/ directory
+
+        This value may be None. It depends on location/base_dir set.
+        """
+        if self.base_dir is not None:
+            return os.path.join(self.base_dir, 'src')
+
+    @property
     def CHECKBOX_SHARE(self):
         """
         required value of CHECKBOX_SHARE environment variable.

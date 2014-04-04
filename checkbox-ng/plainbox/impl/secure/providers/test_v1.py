@@ -470,6 +470,7 @@ class Provider1PlugInTests(TestCase):
         self.assertEqual(provider.data_dir, None)
         self.assertEqual(provider.bin_dir, None)
         self.assertEqual(provider.build_bin_dir, None)
+        self.assertEqual(provider.src_dir, None)
         self.assertEqual(provider.locale_dir, None)
         self.assertEqual(provider.base_dir, None)
 
@@ -485,6 +486,7 @@ class Provider1PlugInTests(TestCase):
         self.assertEqual(provider.data_dir, "/some/directory/data")
         self.assertEqual(provider.bin_dir, "/some/directory/bin")
         self.assertEqual(provider.build_bin_dir, "/some/directory/build/bin")
+        self.assertEqual(provider.src_dir, "/some/directory/src")
         self.assertEqual(provider.locale_dir, "/some/directory/locale")
         self.assertEqual(provider.base_dir, "/some/directory")
 
@@ -501,6 +503,7 @@ class Provider1PlugInTests(TestCase):
         self.assertEqual(provider.data_dir, None)
         self.assertEqual(provider.bin_dir, None)
         self.assertEqual(provider.build_bin_dir, "/some/directory/build/bin")
+        self.assertEqual(provider.src_dir, "/some/directory/src")
         self.assertEqual(provider.locale_dir, None)
         self.assertEqual(provider.base_dir, "/some/directory")
 
@@ -515,6 +518,7 @@ class Provider1PlugInTests(TestCase):
         self.assertEqual(provider.data_dir, "/some/directory/data")
         self.assertEqual(provider.bin_dir, "/some/directory/bin")
         self.assertEqual(provider.build_bin_dir, None)
+        self.assertEqual(provider.src_dir, None)
         self.assertEqual(provider.locale_dir, "/some/directory/locale")
         self.assertEqual(provider.base_dir, None)
 

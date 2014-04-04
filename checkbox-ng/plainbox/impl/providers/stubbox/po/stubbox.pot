@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-17 18:33+0100\n"
+"POT-Creation-Date: 2014-04-04 11:10+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -240,6 +240,18 @@ msgstr ""
 
 #. This is stubbox_def.description, we need it here to extract is as a part of
 #. stubbox
-#: .././manage.py:31
+#: .././manage.py:34
 msgid "StubBox (dummy data for development)"
+msgstr ""
+
+#: .././manage.py:44 .././manage.py:55
+msgid "The StubBox provider is special"
+msgstr ""
+
+#: .././manage.py:45
+msgid "You don't need to develop it explicitly"
+msgstr ""
+
+#: .././manage.py:56
+msgid "You don't need to install it explicitly"
 msgstr ""

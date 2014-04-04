@@ -648,7 +648,7 @@ class BuildCommand(ManageCommand):
         # Execute the build command
         env = dict(os.environ)
         env['PLAINBOX_SRC_DIR'] = os.path.relpath(
-            self.src_dir, self.definition.location)
+            self.src_dir, self.build_bin_dir)
         retval = subprocess.call(
             self.build_cmd, shell=True, cwd=self.build_bin_dir, env=env)
         # Pass the exit code along

@@ -17,9 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-
-from plainbox.provider_manager import setup, N_
 from plainbox.impl.providers.special import get_stubbox_def
+from plainbox.provider_manager import DevelopCommand
+from plainbox.provider_manager import InstallCommand
+from plainbox.provider_manager import _, N_
+from plainbox.provider_manager import manage_py_extension
+from plainbox.provider_manager import setup
 
 # NOTE: this is not a good example of manage.py as it is internally bound to
 # plainbox. Don't just copy paste this as good design, it's *not*.
@@ -29,6 +32,29 @@ stubbox_def = get_stubbox_def()
 # This is stubbox_def.description, we need it here to extract is as a part of
 # stubbox
 N_("StubBox (dummy data for development)")
+
+
+@manage_py_extension
+class DevelopCommandExt(DevelopCommand):
+    __doc__ = DevelopCommand.__doc__
+
+    name = 'develop'
+
+    def invoked(self, ns):
+        print(_("The StubBox provider is special"))
+        print(_("You don't need to develop it explicitly"))
+
+
+@manage_py_extension
+class InstallCommandExt(InstallCommand):
+    __doc__ = InstallCommand.__doc__
+
+    name = 'install'
+
+    def invoked(self, ns):
+        print(_("The StubBox provider is special"))
+        print(_("You don't need to install it explicitly"))
+
 
 setup(
     name=stubbox_def.name,

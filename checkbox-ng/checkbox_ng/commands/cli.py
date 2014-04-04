@@ -686,11 +686,15 @@ class CliInvocation(CheckBoxInvocationMixIn):
         if 'xlsx' in get_all_exporters():
             from plainbox.impl.exporter.xlsx import XLSXSessionStateExporter
             exporter_list.append(XLSXSessionStateExporter)
+        # We'd like these options for our reports.
+        exp_options = ['with-sys-info', 'with-summary', 'with-job-description',
+                       'with-text-attachments']
         for exporter_cls in exporter_list:
-            # Options are only relevant to the XLSX exporter
-            exporter = exporter_cls(
-                ['with-sys-info', 'with-summary', 'with-job-description',
-                 'with-text-attachments'])
+            # Exporters may support different sets of options, ensure we don't pass
+            # an unsupported one (which would cause a crash)
+            actual_options = [opt for opt in exp_options
+                              if opt in exporter_cls.supported_option_list]
+            exporter = exporter_cls(actual_options)
             data_subset = exporter.get_session_data_subset(manager.state)
             results_path = results_file
             if exporter_cls is XMLSessionStateExporter:

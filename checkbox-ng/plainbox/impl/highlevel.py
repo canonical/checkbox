@@ -32,6 +32,7 @@ from plainbox import __version__ as plainbox_version
 from plainbox.impl.applogic import run_job_if_possible
 from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.runner import JobRunner
+from plainbox.impl.secure.rfc822 import gen_rfc822_records
 from plainbox.impl.session import SessionStorageRepository
 from plainbox.impl.session.legacy import SessionStateLegacyAPI as SessionState
 from plainbox.impl.transport import TransportError
@@ -327,14 +328,19 @@ class Service:
     def get_all_transports(self):
         return [transport for transport in get_all_transports()]
 
-    def send_data_via_transport(self, transport, where, options, data):
+    def send_data_via_transport(self, session, transport, where, options, data):
         transport_cls = get_all_transports().get(transport)
-        if transport is None:
+        if transport_cls is None:
             return "No transport with name '{}' was found".format(transport)
         try:
             transport = transport_cls(where, options)
-            json = transport.send(data)
-            return "Submission uploaded to: {}".format(json['url'])
+            json = transport.send(data, session_state=session)
+            if json.get('url'):
+                return "Submission uploaded to: {}".format(json['url'])
+            elif json.get('status'):
+                return json['status']
+            else:
+                return "Bad response from {} transport".format(transport)
         except TransportError as exc:
             return str(exc)
 

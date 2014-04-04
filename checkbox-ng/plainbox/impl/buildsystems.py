@@ -18,7 +18,7 @@ class MakefileBuildSystem(IBuildSystem):
     A build system for projects using classic makefiles
     """
 
-    def probe(self, src_dir: str) -> float:
+    def probe(self, src_dir: str) -> int:
         # If a configure script exists (autotools?) then let's not pretend we
         # do the whole thing and bail out. It's better to let test authors to
         # customize everything.
@@ -40,7 +40,7 @@ class GoBuildSystem(IBuildSystem):
     A build system for projects written in go
     """
 
-    def probe(self, src_dir: str) -> float:
+    def probe(self, src_dir: str) -> int:
         if glob.glob("{}/*.go".format(src_dir)) != []:
             return 50
         return 0

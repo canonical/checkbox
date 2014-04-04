@@ -832,6 +832,10 @@ class InfoCommand(ManageCommand):
                 print("\t" + _("{0!a}, from {1}").format(
                     whitelist.name,
                     whitelist.origin.relative_to(self.definition.location)))
+        print(_("[Executables]"))
+        executable_list = provider.get_all_executables()
+        for executable in executable_list:
+            print("\t{0!a}".format(os.path.basename(executable)))
 
 
 @docstring(

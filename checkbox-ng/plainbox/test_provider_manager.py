@@ -373,7 +373,9 @@ class ProviderManagerToolTests(TestCase):
             "[Job Definitions]\n"
             "\t'dummy', from jobs/jobs.txt:1-3\n"
             "[White Lists]\n"
-            "\t'test', from whitelists/test.whitelist:1-1\n"))
+            "\t'test', from whitelists/test.whitelist:1-1\n"
+            "[Executables]\n"
+            "\t'test.sh'\n"))
 
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp()

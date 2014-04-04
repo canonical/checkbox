@@ -32,6 +32,8 @@
 
 #include <linux/nl80211.h>
 
+#include "config.h"
+
 struct nl80211_state {
 	struct nl_sock *nl_sock;
 	int nl80211_id;
@@ -128,12 +130,16 @@ static int print_phy_handler(struct nl_msg *msg, void *arg)
 			nla_parse(tb_band, NL80211_BAND_ATTR_MAX, nla_data(nl_band),
 				  nla_len(nl_band), NULL);
             /* 802.11ac is also known as Very High Throughput (VHT) */
+#if HAVE_NL80211_BAND_ATTR_VHT_CAPA && HAVE_NL80211_BAND_ATTR_VHT_MCS_SET
             if (tb_band[NL80211_BAND_ATTR_VHT_CAPA] &&
 			    tb_band[NL80211_BAND_ATTR_VHT_MCS_SET])
 				ac_support = true;
+#endif
+#if HAVE_NL80211_BAND_ATTR_HT_CAPA
             /* 802.11n can use a new set of rates designed specifically for high throughput (HT) */
             if (tb_band[NL80211_BAND_ATTR_HT_CAPA])
 				n_support = true;
+#endif
             /* Always assume 802.11b/g support */
             bg_support = true;
 

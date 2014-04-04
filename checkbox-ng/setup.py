@@ -47,6 +47,7 @@ if on_rtd:
     install_requires = []
 else:
     install_requires = [
+        'checkbox-support >= 0.2',
         'plainbox >= 0.3',
         'requests >= 1.0',
     ]

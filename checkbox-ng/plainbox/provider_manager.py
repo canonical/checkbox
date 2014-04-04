@@ -667,11 +667,11 @@ class BuildCommand(ManageCommand):
     N_("""
     clean build results
 
-    This command complements the build command and removes any build artifacts
-    including specifically any binary files added to the bin/ directory.
+    This command complements the build command and is intended to clean-up
+    after the build process.
 
     The actual logic on how that is done is supplied by provider authors as a
-    part of setup() call inside this manage.py script, as the build_cmd
+    part of setup() call inside this manage.py script, as the clean_cmd
     keyword argument
 
     @EPILOG@
@@ -680,12 +680,9 @@ class BuildCommand(ManageCommand):
     'manage.py' script.  The relative path of the src/ directory is available
     as the $PLAINBOX_SRC_DIR environment variable.
 
-    Example
-    =======
-
     For virtually every case, the following command should be sufficient to
-    clean up all build artifacts. It is also the default command so you
-    don't need to specify it explicitly.
+    clean up all build artifacts. It is also the default command so you don't
+    need to specify it explicitly.
 
     setup(
        clean_cmd='rm -rf build/bin'

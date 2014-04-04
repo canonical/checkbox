@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-04-04 12:32+0200\n"
+"POT-Creation-Date: 2014-04-04 18:17+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -51,7 +51,7 @@ msgstr ""
 msgid "parsed full namespace: %s"
 msgstr ""
 
-#: .././plainbox/impl/clitools.py:416 .././plainbox/provider_manager.py:1138
+#: .././plainbox/impl/clitools.py:416 .././plainbox/provider_manager.py:1142
 #: .././plainbox/vendor/argparse/py32-argparse.py:1625
 msgid "show program's version number and exit"
 msgstr ""
@@ -1425,63 +1425,63 @@ msgstr ""
 msgid "Loaded %r"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:593
+#: .././plainbox/impl/secure/providers/v1.py:625
 msgid "must look like RFC3720 IQN"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:610
+#: .././plainbox/impl/secure/providers/v1.py:642
 msgid "must be a sequence of digits separated by dots"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:620
+#: .././plainbox/impl/secure/providers/v1.py:652
 msgid "no such directory"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:630
+#: .././plainbox/impl/secure/providers/v1.py:662
 msgid "cannot be relative"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:649
+#: .././plainbox/impl/secure/providers/v1.py:681
 msgid "Base directory with provider data"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:659
+#: .././plainbox/impl/secure/providers/v1.py:691
 msgid "Name of the provider"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:672
+#: .././plainbox/impl/secure/providers/v1.py:704
 msgid "Version of the provider"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:681
+#: .././plainbox/impl/secure/providers/v1.py:713
 msgid "Description of the provider"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:685
+#: .././plainbox/impl/secure/providers/v1.py:717
 msgid "Name of the gettext domain for translations"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:704
+#: .././plainbox/impl/secure/providers/v1.py:736
 msgid "Pathname of the directory with job definitions"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:740
+#: .././plainbox/impl/secure/providers/v1.py:772
 msgid "Pathname of the directory with whitelists definitions"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:777
+#: .././plainbox/impl/secure/providers/v1.py:809
 msgid "Pathname of the directory with provider data"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:813
+#: .././plainbox/impl/secure/providers/v1.py:845
 msgid "Pathname of the directory with provider executables"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:849
+#: .././plainbox/impl/secure/providers/v1.py:881
 msgid "Pathname of the directory with locale data"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:916
+#: .././plainbox/impl/secure/providers/v1.py:948
 msgid "Problem in provider definition, field {!a}: {}"
 msgstr ""
 
@@ -2312,6 +2312,10 @@ msgstr ""
 msgid "Errors prevent whitelists from being displayed"
 msgstr ""
 
+#: .././plainbox/provider_manager.py:835
+msgid "[Executables]"
+msgstr ""
+
 #. TRANSLATORS: please leave various options (both long and short forms),
 #. environment variables and paths in their original form. Also keep the
 #. special @EPILOG@ string. The first line of the translation is special and
@@ -2320,7 +2324,7 @@ msgstr ""
 #. It must be correctly preserved or the result won't work. In particular
 #. the leading whitespace *must* be preserved and *must* have the same
 #. length on each line.
-#: .././plainbox/provider_manager.py:846
+#: .././plainbox/provider_manager.py:850
 msgid ""
 "\n"
 "    perform various static analysis and validation\n"
@@ -2345,23 +2349,23 @@ msgid ""
 "    "
 msgstr ""
 
-#: .././plainbox/provider_manager.py:889
+#: .././plainbox/provider_manager.py:893
 msgid "NOTE: subsequent jobs from problematic files are ignored"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:907
+#: .././plainbox/provider_manager.py:911
 msgid "missing definition of required field"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:908
+#: .././plainbox/provider_manager.py:912
 msgid "incorrect value supplied"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:909
+#: .././plainbox/provider_manager.py:913
 msgid "useless field in this context"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:910
+#: .././plainbox/provider_manager.py:914
 msgid "usage of deprecated field"
 msgstr ""
 
@@ -2370,16 +2374,16 @@ msgstr ""
 #. 1: job id
 #. 2: field name
 #. 3: explanation of the problem
-#: .././plainbox/provider_manager.py:919
+#: .././plainbox/provider_manager.py:923
 msgid "{0}: job {1!a}, field {2!a}: {3}"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:930
+#: .././plainbox/provider_manager.py:934
 #, python-brace-format
 msgid "allowed values are: {0}"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:937
+#: .././plainbox/provider_manager.py:941
 msgid "All jobs seem to be valid"
 msgstr ""
 
@@ -2391,7 +2395,7 @@ msgstr ""
 #. It must be correctly preserved or the result won't work. In particular
 #. the leading whitespace *must* be preserved and *must* have the same
 #. length on each line.
-#: .././plainbox/provider_manager.py:960
+#: .././plainbox/provider_manager.py:964
 msgid ""
 "\n"
 "    update, merge and build translation catalogs\n"
@@ -2401,33 +2405,33 @@ msgid ""
 "    "
 msgstr ""
 
-#: .././plainbox/provider_manager.py:983
+#: .././plainbox/provider_manager.py:987
 msgid "don't actually do anything"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:984
+#: .././plainbox/provider_manager.py:988
 msgid "actions to perform"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:987
+#: .././plainbox/provider_manager.py:991
 msgid "do not update the translation template"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:990
+#: .././plainbox/provider_manager.py:994
 msgid "do not merge translation files with the template"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:993
+#: .././plainbox/provider_manager.py:997
 msgid "do not build binary translation files"
 msgstr ""
 
 #. TRANSLATORS: please keep 'manage.py', '--help', '--version'
 #. untranslated. Translate only '[options]'
-#: .././plainbox/provider_manager.py:1135
+#: .././plainbox/provider_manager.py:1139
 msgid "manage.py [--help] [--version] [options]"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:1215
+#: .././plainbox/provider_manager.py:1219
 msgid "{}: bad value of {!r}, {}"
 msgstr ""
 

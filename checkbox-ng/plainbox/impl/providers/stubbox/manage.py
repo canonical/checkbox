@@ -17,10 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+from gettext import bindtextdomain
+from gettext import dgettext
+
 from plainbox.impl.providers.special import get_stubbox_def
 from plainbox.provider_manager import DevelopCommand
 from plainbox.provider_manager import InstallCommand
-from plainbox.provider_manager import _, N_
+from plainbox.provider_manager import N_
 from plainbox.provider_manager import manage_py_extension
 from plainbox.provider_manager import setup
 
@@ -29,8 +32,16 @@ from plainbox.provider_manager import setup
 # Use `plainbox startprovider` if you want to get a provider template to edit.
 stubbox_def = get_stubbox_def()
 
-# This is stubbox_def.description, we need it here to extract is as a part of
-# stubbox
+
+def _(msgid):
+    """
+    manage.py specific gettext that uses the stubbox provider domain
+    """
+    return dgettext(stubbox_def.gettext_domain, msgid)
+
+
+# This is stubbox_def.description,
+# we need it here to extract is as a part of stubbox
 N_("StubBox (dummy data for development)")
 
 
@@ -56,9 +67,13 @@ class InstallCommandExt(InstallCommand):
         print(_("You don't need to install it explicitly"))
 
 
-setup(
-    name=stubbox_def.name,
-    version=stubbox_def.version,
-    description=stubbox_def.description,
-    gettext_domain=stubbox_def.gettext_domain
-)
+if __name__ == "__main__":
+    if stubbox_def.effective_locale_dir:
+        bindtextdomain(
+            stubbox_def.gettext_domain, stubbox_def.effective_locale_dir)
+    setup(
+        name=stubbox_def.name,
+        version=stubbox_def.version,
+        description=stubbox_def.description,
+        gettext_domain=stubbox_def.gettext_domain
+    )

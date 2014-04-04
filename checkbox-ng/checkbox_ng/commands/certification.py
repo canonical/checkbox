@@ -80,14 +80,14 @@ class CertificationInvocation(CliInvocation):
         # Create the transport object
         try:
             transport = CertificationTransport(
-                self.config.c3_url, options_string, self.config)
+                self.config.c3_url, options_string)
         except InvalidSecureIDError as exc:
             print(exc)
             return False
         with open(self.submission_file) as stream:
             try:
                 # Send the data, reading from the fallback file
-                result = transport.send(stream)
+                result = transport.send(stream, self.config)
                 if 'url' in result:
                     print("Successfully sent, submission status at {0}".format(
                           result['url']))

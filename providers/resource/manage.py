@@ -16,7 +16,7 @@ from plainbox.provider_manager import N_
 
 setup(
     name='2013.com.canonical.certification:plainbox-resources',
-    version="1.0",
+    version="0.3",
     description=N_("PlainBox resources provider"),
     gettext_domain='2013.com.canonical.certification.plainbox-resources',
 )

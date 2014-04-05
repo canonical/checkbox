@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: plainbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-03-24 10:54+0100\n"
+"POT-Creation-Date: 2014-04-04 18:17+0200\n"
 "PO-Revision-Date: 2014-03-27 21:10+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Turkish <tr@li.org>\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-03-28 05:23+0000\n"
-"X-Generator: Launchpad (build 16967)\n"
+"X-Launchpad-Export-Date: 2014-04-05 04:34+0000\n"
+"X-Generator: Launchpad (build 16976)\n"
 
 #: .././plainbox/impl/_argparse.py:139
 #: .././plainbox/vendor/argparse/py32-argparse.py:298
@@ -51,7 +51,7 @@ msgstr ""
 msgid "parsed full namespace: %s"
 msgstr ""
 
-#: .././plainbox/impl/clitools.py:416 .././plainbox/provider_manager.py:847
+#: .././plainbox/impl/clitools.py:416 .././plainbox/provider_manager.py:1142
 #: .././plainbox/vendor/argparse/py32-argparse.py:1625
 msgid "show program's version number and exit"
 msgstr ""
@@ -238,53 +238,53 @@ msgstr ""
 msgid "[Requirement Report]"
 msgstr ""
 
-#: .././plainbox/impl/commands/analyze.py:238
+#: .././plainbox/impl/commands/analyze.py:239
 msgid "analyze how selected jobs would be executed"
 msgstr ""
 
-#: .././plainbox/impl/commands/analyze.py:243
+#: .././plainbox/impl/commands/analyze.py:244
 msgid "run all selected local jobs, required to see true data"
 msgstr ""
 
 #. TRANSLATORS: please keep the word 'local' untranslated.
 #. It designates special type of jobs, not their location.
-#: .././plainbox/impl/commands/analyze.py:249
+#: .././plainbox/impl/commands/analyze.py:250
 msgid "do not run local jobs"
 msgstr ""
 
-#: .././plainbox/impl/commands/analyze.py:253
+#: .././plainbox/impl/commands/analyze.py:254
 msgid "print general job statistics"
 msgstr ""
 
-#: .././plainbox/impl/commands/analyze.py:256
+#: .././plainbox/impl/commands/analyze.py:257
 msgid "print dependency report"
 msgstr ""
 
-#: .././plainbox/impl/commands/analyze.py:259
+#: .././plainbox/impl/commands/analyze.py:260
 msgid "print interactivity report"
 msgstr ""
 
-#: .././plainbox/impl/commands/analyze.py:262
+#: .././plainbox/impl/commands/analyze.py:263
 msgid "print estimated duration report"
 msgstr ""
 
-#: .././plainbox/impl/commands/analyze.py:265
+#: .././plainbox/impl/commands/analyze.py:266
 msgid "print validation report"
 msgstr ""
 
-#: .././plainbox/impl/commands/analyze.py:268
+#: .././plainbox/impl/commands/analyze.py:269
 msgid "print requirement report"
 msgstr ""
 
-#: .././plainbox/impl/commands/analyze.py:272
+#: .././plainbox/impl/commands/analyze.py:273
 msgid "when coupled with -v, only problematic jobs will be listed"
 msgstr ""
 
-#: .././plainbox/impl/commands/analyze.py:275
+#: .././plainbox/impl/commands/analyze.py:276
 msgid "print desired job list"
 msgstr ""
 
-#: .././plainbox/impl/commands/analyze.py:278
+#: .././plainbox/impl/commands/analyze.py:279
 msgid "print run list"
 msgstr ""
 
@@ -322,47 +322,47 @@ msgstr "Onaylama sorunları bulunamadı"
 msgid "check and display plainbox configuration"
 msgstr "plainbox yapılandırmasını denetle ve göster"
 
-#: .././plainbox/impl/commands/checkbox.py:88
+#: .././plainbox/impl/commands/checkbox.py:89
 #, python-format
 msgid "Using whitelist %r obtained from provider %r"
 msgstr ""
 
-#: .././plainbox/impl/commands/checkbox.py:99
+#: .././plainbox/impl/commands/checkbox.py:100
 #, python-format
 msgid "Unable to load whitelist %r: %s"
 msgstr ""
 
-#: .././plainbox/impl/commands/checkbox.py:117
-#: .././plainbox/impl/commands/checkbox.py:127
+#: .././plainbox/impl/commands/checkbox.py:118
+#: .././plainbox/impl/commands/checkbox.py:128
 #, python-format
 msgid "Incorrect pattern %r: %s"
 msgstr ""
 
-#: .././plainbox/impl/commands/checkbox.py:144
+#: .././plainbox/impl/commands/checkbox.py:145
 msgid "job definition options"
 msgstr ""
 
-#: .././plainbox/impl/commands/checkbox.py:147
-#: .././plainbox/impl/commands/checkbox.py:152
+#: .././plainbox/impl/commands/checkbox.py:148
+#: .././plainbox/impl/commands/checkbox.py:153
 msgid "PATTERN"
 msgstr ""
 
 #. TRANSLATORS: this is in imperative form
-#: .././plainbox/impl/commands/checkbox.py:149
+#: .././plainbox/impl/commands/checkbox.py:150
 msgid "include jobs matching the given regular expression"
 msgstr ""
 
 #. TRANSLATORS: this is in imperative form
-#: .././plainbox/impl/commands/checkbox.py:154
+#: .././plainbox/impl/commands/checkbox.py:155
 msgid "exclude jobs matching the given regular expression"
 msgstr ""
 
-#: .././plainbox/impl/commands/checkbox.py:159
+#: .././plainbox/impl/commands/checkbox.py:160
 msgid "WHITELIST"
 msgstr ""
 
 #. TRANSLATORS: this is in imperative form
-#: .././plainbox/impl/commands/checkbox.py:163
+#: .././plainbox/impl/commands/checkbox.py:164
 msgid "load whitelist containing run patterns"
 msgstr ""
 
@@ -465,160 +465,145 @@ msgstr ""
 msgid "Name of the parser to use"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:75 .././plainbox/impl/commands/run.py:78
-#: .././plainbox/impl/commands/run.py:81
-#: .././plainbox/impl/commands/run.py:401
-#: .././plainbox/impl/commands/run.py:417
+#: .././plainbox/impl/commands/run.py:73 .././plainbox/impl/commands/run.py:76
+#: .././plainbox/impl/commands/run.py:79
+#: .././plainbox/impl/commands/run.py:393
+#: .././plainbox/impl/commands/run.py:409
 msgid "?"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:91
+#: .././plainbox/impl/commands/run.py:89
 msgid "Available output formats: {}"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:95
+#: .././plainbox/impl/commands/run.py:93
 msgid "Each format may support a different set of options"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:101
+#: .././plainbox/impl/commands/run.py:99
 msgid "Available transports: {}"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:128
+#: .././plainbox/impl/commands/run.py:126
 msgid "Do you want to resume the previous session?"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:133
+#: .././plainbox/impl/commands/run.py:131
 msgid "What do you want to do with that job?"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:134
-#: .././plainbox/impl/commands/run.py:148
+#: .././plainbox/impl/commands/run.py:132
+#: .././plainbox/impl/commands/run.py:146
 #: .././plainbox/impl/exporter/xlsx.py:465
 msgid "skip"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:134
-#: .././plainbox/impl/commands/run.py:153
+#: .././plainbox/impl/commands/run.py:132
+#: .././plainbox/impl/commands/run.py:151
 msgid "fail"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:134
-#: .././plainbox/impl/commands/run.py:158
+#: .././plainbox/impl/commands/run.py:132
+#: .././plainbox/impl/commands/run.py:156
 msgid "run"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:146
+#: .././plainbox/impl/commands/run.py:144
 msgid "Previous session run tried to execute: {}"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:151
+#: .././plainbox/impl/commands/run.py:149
 msgid "Skipped after resuming execution"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:156
+#: .././plainbox/impl/commands/run.py:154
 msgid "Failed after resuming execution"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:170
+#: .././plainbox/impl/commands/run.py:168
 msgid "[ Analyzing Jobs ]"
 msgstr ""
 
 #. Handle possible DependencyDuplicateError that can happen if
 #. someone is using plainbox for job development.
-#: .././plainbox/impl/commands/run.py:177
+#: .././plainbox/impl/commands/run.py:175
 msgid "The job database you are currently using is broken"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:178
+#: .././plainbox/impl/commands/run.py:176
 #, python-brace-format
 msgid "At least two jobs contend for the id {0}"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:180
+#: .././plainbox/impl/commands/run.py:178
 #, python-brace-format
 msgid "First job defined in: {0}"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:181
+#: .././plainbox/impl/commands/run.py:179
 #, python-brace-format
 msgid "Second job defined in: {0}"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:197
+#: .././plainbox/impl/commands/run.py:195
 msgid "[ Authentication ]"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:218
-#, python-brace-format
-msgid "Invalid destination URL: {0}"
-msgstr ""
-
-#: .././plainbox/impl/commands/run.py:220
-#, python-brace-format
-msgid "Unable to connect to destination URL: {0}"
-msgstr ""
-
-#: .././plainbox/impl/commands/run.py:223
-#, python-brace-format
-msgid "Server returned an error when receiving or processing: {0}"
-msgstr ""
-
-#: .././plainbox/impl/commands/run.py:247
+#: .././plainbox/impl/commands/run.py:239
 msgid "[ Results ]"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:254
+#: .././plainbox/impl/commands/run.py:246
 msgid "Saving results to {}"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:263
+#: .././plainbox/impl/commands/run.py:255
 msgid "Select an outcome or an action: "
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:268
-#: .././plainbox/impl/commands/run.py:282
+#: .././plainbox/impl/commands/run.py:260
+#: .././plainbox/impl/commands/run.py:274
 msgid "comments"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:270
-#: .././plainbox/impl/commands/run.py:279
+#: .././plainbox/impl/commands/run.py:262
+#: .././plainbox/impl/commands/run.py:271
 msgid "test"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:273
+#: .././plainbox/impl/commands/run.py:265
 msgid "Allowed answers are: {}"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:283
+#: .././plainbox/impl/commands/run.py:275
 msgid "Please enter your comments:\n"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:289
+#: .././plainbox/impl/commands/run.py:281
 msgid "[ Warning ]"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:290
+#: .././plainbox/impl/commands/run.py:282
 msgid "There were some problems with the selected jobs"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:293
+#: .././plainbox/impl/commands/run.py:285
 msgid "Problematic jobs will not be considered"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:297
+#: .././plainbox/impl/commands/run.py:289
 msgid "Estimated duration is {:.2f} for automated jobs."
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:301
+#: .././plainbox/impl/commands/run.py:293
 msgid "Estimated duration cannot be determined for automated jobs."
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:303
+#: .././plainbox/impl/commands/run.py:295
 msgid "Estimated duration is {:.2f} for manual jobs."
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:307
+#: .././plainbox/impl/commands/run.py:299
 msgid "Estimated duration cannot be determined for manual jobs."
 msgstr ""
 
@@ -627,166 +612,165 @@ msgstr ""
 #. desired_jobs could be managed entirely internally by SesionState. In
 #. such case the list of jobs to run would be changed during iteration
 #. but would be otherwise okay).
-#: .././plainbox/impl/commands/run.py:315
+#: .././plainbox/impl/commands/run.py:307
 msgid "[ Running All Jobs ]"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:344
+#: .././plainbox/impl/commands/run.py:336
 #, python-format
 msgid "Job id: %s"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:345
+#: .././plainbox/impl/commands/run.py:337
 #, python-format
 msgid "Plugin: %s"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:346
+#: .././plainbox/impl/commands/run.py:338
 #, python-format
 msgid "Direct dependencies: %s"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:348
+#: .././plainbox/impl/commands/run.py:340
 #, python-format
 msgid "Resource dependencies: %s"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:350
+#: .././plainbox/impl/commands/run.py:342
 #, python-format
 msgid "Resource program: %r"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:351
+#: .././plainbox/impl/commands/run.py:343
 #, python-format
 msgid "Command: %r"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:352
+#: .././plainbox/impl/commands/run.py:344
 #, python-format
 msgid "Can start: %s"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:353
+#: .././plainbox/impl/commands/run.py:345
 #, python-format
 msgid "Readiness: %s"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:355
+#: .././plainbox/impl/commands/run.py:347
 msgid "Running... (output in {}.*)"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:367
+#: .././plainbox/impl/commands/run.py:359
 msgid "Outcome: {}"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:368
+#: .././plainbox/impl/commands/run.py:360
 msgid "Comments: {}"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:388
+#: .././plainbox/impl/commands/run.py:380
 msgid "run a test job"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:390
+#: .././plainbox/impl/commands/run.py:382
 msgid "user interface options"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:393
+#: .././plainbox/impl/commands/run.py:385
 msgid "skip tests that require interactivity"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:396
+#: .././plainbox/impl/commands/run.py:388
 msgid "don't really run most jobs"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:397
+#: .././plainbox/impl/commands/run.py:389
 msgid "output options"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:401
+#: .././plainbox/impl/commands/run.py:393
 msgid "FORMAT"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:403
+#: .././plainbox/impl/commands/run.py:395
 msgid ""
 "save test results in the specified FORMAT (pass ? for a list of choices)"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:407
-#: .././plainbox/impl/commands/run.py:427
+#: .././plainbox/impl/commands/run.py:399
+#: .././plainbox/impl/commands/run.py:419
 msgid "OPTIONS"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:408
+#: .././plainbox/impl/commands/run.py:400
 msgid ""
 "comma-separated list of options for the export mechanism (pass ? for a list "
 "of choices)"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:412
+#: .././plainbox/impl/commands/run.py:404
 msgid "FILE"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:413
+#: .././plainbox/impl/commands/run.py:405
 msgid "save test results to the specified FILE (or to stdout if FILE is -)"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:417
+#: .././plainbox/impl/commands/run.py:409
 msgid "TRANSPORT"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:419
+#: .././plainbox/impl/commands/run.py:411
 msgid ""
 "use TRANSPORT to send results somewhere (pass ? for a list of choices)"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:423
+#: .././plainbox/impl/commands/run.py:415
 msgid "WHERE"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:424
+#: .././plainbox/impl/commands/run.py:416
 msgid "where to send data using the selected transport"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:428
+#: .././plainbox/impl/commands/run.py:420
 msgid ""
-"comma-separated list of key-value options (k=v) to  be passed to the "
-"transport"
+"comma-separated list of key-value options (k=v) to be passed to the transport"
 msgstr ""
 
-#: .././plainbox/impl/commands/script.py:60
+#: .././plainbox/impl/commands/script.py:59
 msgid "There is no job called {!a}"
 msgstr ""
 
-#: .././plainbox/impl/commands/script.py:62
+#: .././plainbox/impl/commands/script.py:61
 msgid "See `plainbox special --list-jobs` for a list of choices"
 msgstr ""
 
-#: .././plainbox/impl/commands/script.py:65
+#: .././plainbox/impl/commands/script.py:64
 msgid "Selected job does not have a command"
 msgstr ""
 
-#: .././plainbox/impl/commands/script.py:80
+#: .././plainbox/impl/commands/script.py:79
 msgid "Leftover file detected: {!a}:"
 msgstr ""
 
-#: .././plainbox/impl/commands/script.py:93
+#: .././plainbox/impl/commands/script.py:92
 msgid "job {} returned {}"
 msgstr ""
 
-#: .././plainbox/impl/commands/script.py:94
+#: .././plainbox/impl/commands/script.py:93
 msgid "command:"
 msgstr ""
 
-#: .././plainbox/impl/commands/script.py:123
+#: .././plainbox/impl/commands/script.py:122
 msgid "run a command from a job"
 msgstr ""
 
-#: .././plainbox/impl/commands/script.py:126
+#: .././plainbox/impl/commands/script.py:125
 msgid "JOB-ID"
 msgstr ""
 
-#: .././plainbox/impl/commands/script.py:127
+#: .././plainbox/impl/commands/script.py:126
 msgid "Id of the job to run"
 msgstr ""
 
@@ -818,28 +802,28 @@ msgstr ""
 msgid "run tests verbosely, printing each test case name"
 msgstr ""
 
-#: .././plainbox/impl/commands/special.py:136
+#: .././plainbox/impl/commands/special.py:137
 msgid "special/internal commands"
 msgstr ""
 
-#: .././plainbox/impl/commands/special.py:141
+#: .././plainbox/impl/commands/special.py:142
 msgid "list jobs instead of running them"
 msgstr ""
 
-#: .././plainbox/impl/commands/special.py:145
+#: .././plainbox/impl/commands/special.py:146
 msgid "list jobs with cheksums instead of running them"
 msgstr ""
 
-#: .././plainbox/impl/commands/special.py:149
+#: .././plainbox/impl/commands/special.py:150
 msgid "list all unique resource expressions"
 msgstr ""
 
-#: .././plainbox/impl/commands/special.py:153
+#: .././plainbox/impl/commands/special.py:154
 msgid "print a graph of jobs instead of running them"
 msgstr ""
 
 #. TRANSLATORS: please keep --dot untranslated
-#: .././plainbox/impl/commands/special.py:158
+#: .././plainbox/impl/commands/special.py:159
 msgid "show resource relationships (for --dot)"
 msgstr ""
 
@@ -895,44 +879,44 @@ msgstr ""
 msgid "provider name, eg: YYYY.example.org:some-name"
 msgstr ""
 
-#: .././plainbox/impl/ctrl.py:243
+#: .././plainbox/impl/ctrl.py:251
 #, python-format
 msgid "Storing resource record %r: %s"
 msgstr ""
 
 #. TRANSLATORS: keep the word "local" untranslated. It is a
 #. special type of job that needs to be distinguished.
-#: .././plainbox/impl/ctrl.py:272
+#: .././plainbox/impl/ctrl.py:280
 #, python-format
 msgid ""
 "Local job %s produced job %r that collides with an existing job %s (from "
 "%s), the new job was discarded"
 msgstr ""
 
-#: .././plainbox/impl/ctrl.py:289
+#: .././plainbox/impl/ctrl.py:297
 #, python-format
 msgid "processing output from a job: %r"
 msgstr ""
 
 #. TRANSLATORS: keep the word "local" untranslated. It is a
 #. special type of job that needs to be distinguished.
-#: .././plainbox/impl/ctrl.py:308
+#: .././plainbox/impl/ctrl.py:316
 #, python-format
 msgid "local script %s returned invalid RFC822 data: %s"
 msgstr ""
 
-#: .././plainbox/impl/ctrl.py:338
+#: .././plainbox/impl/ctrl.py:346
 #, python-format
 msgid "Adding executable %s to nest %s"
 msgstr ""
 
 #. run the command
-#: .././plainbox/impl/ctrl.py:397
+#: .././plainbox/impl/ctrl.py:405
 #, python-format
 msgid "job[%s] executing %r with env %r"
 msgstr ""
 
-#: .././plainbox/impl/ctrl.py:421 .././plainbox/impl/ctrl.py:427
+#: .././plainbox/impl/ctrl.py:429 .././plainbox/impl/ctrl.py:435
 #, python-format
 msgid "Symlink nest for executables: %s"
 msgstr ""
@@ -977,12 +961,12 @@ msgstr ""
 msgid "Appending %r to solution"
 msgstr ""
 
-#: .././plainbox/impl/exporter/__init__.py:295
+#: .././plainbox/impl/exporter/__init__.py:342
 #, python-format
 msgid "Unable to load %s: %s"
 msgstr ""
 
-#: .././plainbox/impl/exporter/__init__.py:297
+#: .././plainbox/impl/exporter/__init__.py:344
 #, python-format
 msgid "Unable to import %s: %s"
 msgstr ""
@@ -1169,27 +1153,22 @@ msgstr ""
 msgid "System Testing Report"
 msgstr ""
 
-#: .././plainbox/impl/job.py:65
+#: .././plainbox/impl/job.py:66
 msgid "Problem with field {}: {}"
 msgstr ""
 
-#: .././plainbox/impl/job.py:306
+#: .././plainbox/impl/job.py:322
 #, python-format
 msgid "Incorrect value of 'estimated_duration' in job %s read from %s"
 msgstr ""
 
-#. TRANSLATORS: don't translate id or translate it as 'id field'
-#: .././plainbox/impl/job.py:493
-msgid "Cannot create job without an id"
-msgstr ""
-
 #. TRANSLATORS: don't translate record.origin or JobOutputTextSource
-#: .././plainbox/impl/job.py:520
+#: .././plainbox/impl/job.py:535
 msgid "record.origin must be a JobOutputTextSource"
 msgstr ""
 
 #. TRANSLATORS: don't translate record.origin.source.job
-#: .././plainbox/impl/job.py:523
+#: .././plainbox/impl/job.py:538
 msgid "record.origin.source.job must be this job"
 msgstr ""
 
@@ -1203,12 +1182,12 @@ msgstr ""
 msgid "Reason: %s. All logs will go to console instead."
 msgstr ""
 
-#: .././plainbox/impl/logging.py:106
+#: .././plainbox/impl/logging.py:110
 #, python-format
 msgid "Enabled %r on root logger"
 msgstr ""
 
-#: .././plainbox/impl/logging.py:112
+#: .././plainbox/impl/logging.py:116
 #, python-format
 msgid "Enabled debugging on logger %r"
 msgstr ""
@@ -1421,85 +1400,89 @@ msgstr ""
 msgid "Unable to load %r: %s"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:67
+#: .././plainbox/impl/secure/providers/v1.py:68
 msgid "Cannot load whitelist {!r}: {}"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:96
+#: .././plainbox/impl/secure/providers/v1.py:115
 #, python-format
 msgid "Loading jobs definitions from %r..."
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:102
+#: .././plainbox/impl/secure/providers/v1.py:121
 msgid "Cannot load job definitions from {!r}: {}"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:109
+#: .././plainbox/impl/secure/providers/v1.py:128
 msgid "Cannot define job from record {!r}: {}"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:114
+#: .././plainbox/impl/secure/providers/v1.py:136
+msgid "Problem in job definition, field {}: {}"
+msgstr ""
+
+#: .././plainbox/impl/secure/providers/v1.py:139
 #, python-format
 msgid "Loaded %r"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:521
+#: .././plainbox/impl/secure/providers/v1.py:625
 msgid "must look like RFC3720 IQN"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:538
+#: .././plainbox/impl/secure/providers/v1.py:642
 msgid "must be a sequence of digits separated by dots"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:548
+#: .././plainbox/impl/secure/providers/v1.py:652
 msgid "no such directory"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:558
+#: .././plainbox/impl/secure/providers/v1.py:662
 msgid "cannot be relative"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:577
+#: .././plainbox/impl/secure/providers/v1.py:681
 msgid "Base directory with provider data"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:587
+#: .././plainbox/impl/secure/providers/v1.py:691
 msgid "Name of the provider"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:600
+#: .././plainbox/impl/secure/providers/v1.py:704
 msgid "Version of the provider"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:609
+#: .././plainbox/impl/secure/providers/v1.py:713
 msgid "Description of the provider"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:613
+#: .././plainbox/impl/secure/providers/v1.py:717
 msgid "Name of the gettext domain for translations"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:632
+#: .././plainbox/impl/secure/providers/v1.py:736
 msgid "Pathname of the directory with job definitions"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:668
+#: .././plainbox/impl/secure/providers/v1.py:772
 msgid "Pathname of the directory with whitelists definitions"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:705
+#: .././plainbox/impl/secure/providers/v1.py:809
 msgid "Pathname of the directory with provider data"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:741
+#: .././plainbox/impl/secure/providers/v1.py:845
 msgid "Pathname of the directory with provider executables"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:777
+#: .././plainbox/impl/secure/providers/v1.py:881
 msgid "Pathname of the directory with locale data"
 msgstr ""
 
-#: .././plainbox/impl/secure/providers/v1.py:844
+#: .././plainbox/impl/secure/providers/v1.py:948
 msgid "Problem in provider definition, field {!a}: {}"
 msgstr ""
 
@@ -1986,11 +1969,11 @@ msgstr ""
 msgid "disconnect %r from %r"
 msgstr ""
 
-#: .././plainbox/impl/transport.py:70
+#: .././plainbox/impl/transport.py:78
 msgid "No valid options in option string"
 msgstr ""
 
-#: .././plainbox/impl/transport.py:95
+#: .././plainbox/impl/transport.py:93
 msgid "Unable to import {}: {}"
 msgstr ""
 
@@ -2002,7 +1985,7 @@ msgstr ""
 #. Pay extra attention to whitespace.  It must be correctly preserved or the
 #. result won't work. In particular the leading whitespace *must* be
 #. preserved and *must* have the same length on each line.
-#: .././plainbox/provider_manager.py:104
+#: .././plainbox/provider_manager.py:105
 #, python-brace-format
 msgid ""
 "\n"
@@ -2052,32 +2035,27 @@ msgid ""
 msgstr ""
 
 #. TRANSLATORS: not installed as in 'will not be installed'
-#: .././plainbox/provider_manager.py:205
+#: .././plainbox/provider_manager.py:206
 msgid "not installed"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:229
+#: .././plainbox/provider_manager.py:230
 msgid "installation prefix"
 msgstr ""
 
 #. TRANSLATORS: don't translate %(defaults)s
-#: .././plainbox/provider_manager.py:235
+#: .././plainbox/provider_manager.py:236
 #, python-format
 msgid "installation directory layout (default: %(default)s)"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:238
+#: .././plainbox/provider_manager.py:239
 msgid "install everything relative to this alternate root directory"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:279
+#: .././plainbox/provider_manager.py:295
 #, python-format
 msgid "copying: %s => %s"
-msgstr ""
-
-#: .././plainbox/provider_manager.py:282
-#, python-format
-msgid "cannot copy %s, no such file or directory"
 msgstr ""
 
 #. TRANSLATORS: please leave various options (both long and short forms),
@@ -2088,7 +2066,7 @@ msgstr ""
 #. It must be correctly preserved or the result won't work. In particular
 #. the leading whitespace *must* be preserved and *must* have the same
 #. length on each line.
-#: .././plainbox/provider_manager.py:333
+#: .././plainbox/provider_manager.py:357
 msgid ""
 "\n"
 "    create a source tarball\n"
@@ -2108,6 +2086,7 @@ msgid ""
 "    - the jobs directory, and everything in it\n"
 "    - the whitelists directory, and everything in it\n"
 "    - the bin directory, and everything in it\n"
+"    - the src directory, and everything in it\n"
 "    - the data directory, and everything in it\n"
 "    - the po directory, and everything in it\n"
 "\n"
@@ -2123,7 +2102,7 @@ msgstr ""
 #. It must be correctly preserved or the result won't work. In particular
 #. the leading whitespace *must* be preserved and *must* have the same
 #. length on each line.
-#: .././plainbox/provider_manager.py:424
+#: .././plainbox/provider_manager.py:449
 msgid ""
 "\n"
 "    install/remove this provider, only for development\n"
@@ -2152,26 +2131,104 @@ msgid ""
 msgstr ""
 
 #. TRANSLATORS: don't translate the extension name
-#: .././plainbox/provider_manager.py:462
+#: .././plainbox/provider_manager.py:487
 msgid "remove the generated .provider file"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:465
+#: .././plainbox/provider_manager.py:490
 msgid "overwrite existing provider files"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:473
+#: .././plainbox/provider_manager.py:498
 #, python-format
 msgid "Removing provider file: %s"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:477
+#: .././plainbox/provider_manager.py:502
 msgid "Provider file already exists: {}"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:480
+#: .././plainbox/provider_manager.py:505
 #, python-format
 msgid "Creating provider file: %s"
+msgstr ""
+
+#. TRANSLATORS: please leave various options (both long and short forms),
+#. environment variables and paths in their original form. Also keep the
+#. special @EPILOG@ string. The first line of the translation is special and
+#. is used as the help message. Please keep the pseudo-statement form and
+#. don't finish the sentence with a dot.  Pay extra attention to whitespace.
+#. It must be correctly preserved or the result won't work. In particular
+#. the leading whitespace *must* be preserved and *must* have the same
+#. length on each line.
+#: .././plainbox/provider_manager.py:520
+msgid ""
+"\n"
+"    build provider specific executables from source\n"
+"\n"
+"    This command builds provider specific executables from source code.\n"
+"\n"
+"    The actual logic on how that is done is supplied by provider authors as "
+"a\n"
+"    part of setup() call inside this manage.py script, as the build_cmd\n"
+"    keyword argument.\n"
+"\n"
+"    @EPILOG@\n"
+"\n"
+"    PlainBox comes with a pluggable system for doing the right thing so,\n"
+"    hopefully, in most cases, you don't need to do anything. If your src/\n"
+"    directory has a Makefile or .go source files you should be good to go.\n"
+"\n"
+"    If the automatic defaults are somehow unsuitable you need to edit "
+"manage.py\n"
+"    so that it specifies the build command.\n"
+"\n"
+"    IMPORTANT: It is expected that the build command will create binary "
+"files\n"
+"    in the current directory. The build command is executed from within the\n"
+"    'build/bin' subdirectory (which is created automatically). The relative\n"
+"    path of the 'src/' directory is available as the $PLAINBOX_SRC_DIR\n"
+"    environment variable.\n"
+"    "
+msgstr ""
+
+#. TRANSLATORS: please leave various options (both long and short forms),
+#. environment variables and paths in their original form. Also keep the
+#. special @EPILOG@ string. The first line of the translation is special and
+#. is used as the help message. Please keep the pseudo-statement form and
+#. don't finish the sentence with a dot.  Pay extra attention to whitespace.
+#. It must be correctly preserved or the result won't work. In particular
+#. the leading whitespace *must* be preserved and *must* have the same
+#. length on each line.
+#: .././plainbox/provider_manager.py:667
+msgid ""
+"\n"
+"    clean build results\n"
+"\n"
+"    This command complements the build command and is intended to clean-up\n"
+"    after the build process.\n"
+"\n"
+"    The actual logic on how that is done is supplied by provider authors as "
+"a\n"
+"    part of setup() call inside this manage.py script, as the clean_cmd\n"
+"    keyword argument\n"
+"\n"
+"    @EPILOG@\n"
+"\n"
+"    IMPORTANT: the clean command is executed from the directory with the\n"
+"    'manage.py' script.  The relative path of the src/ directory is "
+"available\n"
+"    as the $PLAINBOX_SRC_DIR environment variable.\n"
+"\n"
+"    For virtually every case, the following command should be sufficient to\n"
+"    clean up all build artifacts. It is also the default command so you "
+"don't\n"
+"    need to specify it explicitly.\n"
+"\n"
+"    setup(\n"
+"       clean_cmd='rm -rf build/bin'\n"
+"    )\n"
+"    "
 msgstr ""
 
 #. TRANSLATORS: please leave various options (both long and short forms),
@@ -2182,7 +2239,7 @@ msgstr ""
 #. It must be correctly preserved or the result won't work. In particular
 #. the leading whitespace *must* be preserved and *must* have the same
 #. length on each line.
-#: .././plainbox/provider_manager.py:495
+#: .././plainbox/provider_manager.py:768
 msgid ""
 "\n"
 "    display basic information about this provider\n"
@@ -2196,36 +2253,36 @@ msgid ""
 "    "
 msgstr ""
 
-#: .././plainbox/provider_manager.py:521
+#: .././plainbox/provider_manager.py:794
 msgid "[Provider MetaData]"
 msgstr ""
 
 #. TRANSLATORS: {} is the name of the test provider
-#: .././plainbox/provider_manager.py:523
+#: .././plainbox/provider_manager.py:796
 msgid "name: {}"
 msgstr ""
 
 #. TRANSLATORS: {} is the namenamespace of the test provider
-#: .././plainbox/provider_manager.py:525
+#: .././plainbox/provider_manager.py:798
 msgid "namespace: {} (derived from name)"
 msgstr ""
 
 #. TRANSLATORS: {} is the name of the test provider
-#: .././plainbox/provider_manager.py:528
+#: .././plainbox/provider_manager.py:801
 msgid "description: {}"
 msgstr ""
 
 #. TRANSLATORS: {} is the version of the test provider
-#: .././plainbox/provider_manager.py:530
+#: .././plainbox/provider_manager.py:803
 msgid "version: {}"
 msgstr ""
 
 #. TRANSLATORS: {} is the gettext translation domain of the provider
-#: .././plainbox/provider_manager.py:532
+#: .././plainbox/provider_manager.py:805
 msgid "gettext domain: {}"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:533
+#: .././plainbox/provider_manager.py:806
 msgid "[Job Definitions]"
 msgstr ""
 
@@ -2235,25 +2292,29 @@ msgstr ""
 #. TRANSLATORS: the fields are as follows:
 #. 0: whitelist name
 #. 1: pathname of the file the whitelist is defined in
-#: .././plainbox/provider_manager.py:539 .././plainbox/provider_manager.py:559
+#: .././plainbox/provider_manager.py:812 .././plainbox/provider_manager.py:832
 msgid "{0!a}, from {1}"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:543
+#: .././plainbox/provider_manager.py:816
 msgid "Some jobs could not be parsed correctly"
 msgstr ""
 
 #. TRANSLATORS: please don't translate `manage.py validate`
-#: .././plainbox/provider_manager.py:545
+#: .././plainbox/provider_manager.py:818
 msgid "Please run `manage.py validate` for details"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:546
+#: .././plainbox/provider_manager.py:819
 msgid "[White Lists]"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:553
+#: .././plainbox/provider_manager.py:826
 msgid "Errors prevent whitelists from being displayed"
+msgstr ""
+
+#: .././plainbox/provider_manager.py:835
+msgid "[Executables]"
 msgstr ""
 
 #. TRANSLATORS: please leave various options (both long and short forms),
@@ -2264,7 +2325,7 @@ msgstr ""
 #. It must be correctly preserved or the result won't work. In particular
 #. the leading whitespace *must* be preserved and *must* have the same
 #. length on each line.
-#: .././plainbox/provider_manager.py:573
+#: .././plainbox/provider_manager.py:850
 msgid ""
 "\n"
 "    perform various static analysis and validation\n"
@@ -2289,20 +2350,24 @@ msgid ""
 "    "
 msgstr ""
 
-#: .././plainbox/provider_manager.py:616
+#: .././plainbox/provider_manager.py:893
 msgid "NOTE: subsequent jobs from problematic files are ignored"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:634
+#: .././plainbox/provider_manager.py:911
 msgid "missing definition of required field"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:635
+#: .././plainbox/provider_manager.py:912
 msgid "incorrect value supplied"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:636
+#: .././plainbox/provider_manager.py:913
 msgid "useless field in this context"
+msgstr ""
+
+#: .././plainbox/provider_manager.py:914
+msgid "usage of deprecated field"
 msgstr ""
 
 #. TRANSLATORS: fields are as follows:
@@ -2310,16 +2375,16 @@ msgstr ""
 #. 1: job id
 #. 2: field name
 #. 3: explanation of the problem
-#: .././plainbox/provider_manager.py:645
+#: .././plainbox/provider_manager.py:923
 msgid "{0}: job {1!a}, field {2!a}: {3}"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:656
+#: .././plainbox/provider_manager.py:934
 #, python-brace-format
 msgid "allowed values are: {0}"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:663
+#: .././plainbox/provider_manager.py:941
 msgid "All jobs seem to be valid"
 msgstr ""
 
@@ -2331,7 +2396,7 @@ msgstr ""
 #. It must be correctly preserved or the result won't work. In particular
 #. the leading whitespace *must* be preserved and *must* have the same
 #. length on each line.
-#: .././plainbox/provider_manager.py:675
+#: .././plainbox/provider_manager.py:964
 msgid ""
 "\n"
 "    update, merge and build translation catalogs\n"
@@ -2341,33 +2406,33 @@ msgid ""
 "    "
 msgstr ""
 
-#: .././plainbox/provider_manager.py:698
+#: .././plainbox/provider_manager.py:987
 msgid "don't actually do anything"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:699
+#: .././plainbox/provider_manager.py:988
 msgid "actions to perform"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:702
+#: .././plainbox/provider_manager.py:991
 msgid "do not update the translation template"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:705
+#: .././plainbox/provider_manager.py:994
 msgid "do not merge translation files with the template"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:708
+#: .././plainbox/provider_manager.py:997
 msgid "do not build binary translation files"
 msgstr ""
 
 #. TRANSLATORS: please keep 'manage.py', '--help', '--version'
 #. untranslated. Translate only '[options]'
-#: .././plainbox/provider_manager.py:844
+#: .././plainbox/provider_manager.py:1139
 msgid "manage.py [--help] [--version] [options]"
 msgstr ""
 
-#: .././plainbox/provider_manager.py:920
+#: .././plainbox/provider_manager.py:1219
 msgid "{}: bad value of {!r}, {}"
 msgstr ""
 

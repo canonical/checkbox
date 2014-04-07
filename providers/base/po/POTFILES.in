@@ -47,104 +47,104 @@
 [type: gettext/rfc822deb] jobs/user_apps.txt.in
 [type: gettext/rfc822deb] jobs/virtualization.txt.in
 [type: gettext/rfc822deb] jobs/wireless.txt.in
-bin/accelerometer_test
+[type: gettext/python] bin/accelerometer_test
 bin/alsa_info
 bin/alsa_record_playback
-bin/ansi_parser
-bin/audio_driver_info
-bin/audio_settings
-bin/audio_test
-bin/battery_test
+[type: gettext/python] bin/ansi_parser
+[type: gettext/python] bin/audio_driver_info
+[type: gettext/python] bin/audio_settings
+[type: gettext/python] bin/audio_test
+[type: gettext/python] bin/battery_test
 bin/bluetooth_scan
-bin/bluetooth_test
-bin/brightness_test
-bin/camera_test
+[type: gettext/python] bin/bluetooth_test
+[type: gettext/python] bin/brightness_test
+[type: gettext/python] bin/camera_test
 bin/check_is_laptop
-bin/cking_suite
-bin/color_depth_info
+[type: gettext/python] bin/cking_suite
+[type: gettext/python] bin/color_depth_info
 bin/connect_wireless
 bin/cpu_offlining
-bin/cpu_topology
-bin/create_connection
+[type: gettext/python] bin/cpu_topology
+[type: gettext/python] bin/create_connection
 bin/cycle_vts
 bin/disk_read_performance_test
-bin/disk_smart
+[type: gettext/python] bin/disk_smart
 bin/disk_stats_test
 bin/dns_server_test
-bin/filter_templates
-bin/floppy_test
-bin/frequency_governors_test
-bin/fresh_rate_info
-bin/fwts_test
-bin/gateway_ping_test
+[type: gettext/python] bin/filter_templates
+[type: gettext/python] bin/floppy_test
+[type: gettext/python] bin/frequency_governors_test
+[type: gettext/python] bin/fresh_rate_info
+[type: gettext/python] bin/fwts_test
+[type: gettext/python] bin/gateway_ping_test
 bin/gcov_tarball
-bin/glob_test
-bin/gpu_test
-bin/gputest_benchmark
-bin/graphic_memory_info
-bin/graphics_driver
-bin/graphics_modes_info
-bin/graphics_stress_test
-bin/gst_pipeline_test
+[type: gettext/python] bin/glob_test
+[type: gettext/python] bin/gpu_test
+[type: gettext/python] bin/gputest_benchmark
+[type: gettext/python] bin/graphic_memory_info
+[type: gettext/python] bin/graphics_driver
+[type: gettext/python] bin/graphics_modes_info
+[type: gettext/python] bin/graphics_stress_test
+[type: gettext/python] bin/gst_pipeline_test
 bin/ipmi_test
-bin/key_test
-bin/keyboard_test
+[type: gettext/python] bin/key_test
+[type: gettext/python] bin/keyboard_test
 bin/lamp_test
 bin/led_hdd_test
-bin/lock_screen_watcher
-bin/lsmod_info
+[type: gettext/python] bin/lock_screen_watcher
+[type: gettext/python] bin/lsmod_info
 bin/max_diskspace_used
-bin/memory_compare
-bin/memory_info
-bin/memory_test
-bin/mm-test
-bin/network
-bin/network_bandwidth_test
-bin/network_check
-bin/network_device_info
-bin/network_info
-bin/network_ntp_test
+[type: gettext/python] bin/memory_compare
+[type: gettext/python] bin/memory_info
+[type: gettext/python] bin/memory_test
+[type: gettext/python] bin/mm-test
+[type: gettext/python] bin/network
+[type: gettext/python] bin/network_bandwidth_test
+[type: gettext/python] bin/network_check
+[type: gettext/python] bin/network_device_info
+[type: gettext/python] bin/network_info
+[type: gettext/python] bin/network_ntp_test
 bin/network_printer_test
-bin/network_reconnect_resume_test
-bin/network_restart
+[type: gettext/python] bin/network_reconnect_resume_test
+[type: gettext/python] bin/network_restart
 bin/network_wait
-bin/obex_send
-bin/optical_detect
-bin/optical_read_test
+[type: gettext/python] bin/obex_send
+[type: gettext/python] bin/optical_detect
+[type: gettext/python] bin/optical_read_test
 bin/optical_write_test
-bin/piglit_test
-bin/pm_log_check
-bin/pm_test
-bin/process_wait
+[type: gettext/python] bin/piglit_test
+[type: gettext/python] bin/pm_log_check
+[type: gettext/python] bin/pm_test
+[type: gettext/python] bin/process_wait
 bin/pts_run
-bin/pulse-active-port-change
-bin/removable_storage_test
-bin/removable_storage_watcher
-bin/rendercheck_test
-bin/resolution_test
-bin/resolution_test.qml
-bin/rotation_test
-bin/run_templates
+[type: gettext/python] bin/pulse-active-port-change
+[type: gettext/python] bin/removable_storage_test
+[type: gettext/python] bin/removable_storage_watcher
+[type: gettext/python] bin/rendercheck_test
+[type: gettext/python] bin/resolution_test
+[type: gettext/python] bin/rotation_test
+[type: gettext/python] bin/run_templates
 bin/samba_test
-bin/screenshot_validation
-bin/sleep_test
-bin/sleep_test_log_check
-bin/sleep_time_check
+[type: gettext/python] bin/screenshot_validation
+[type: gettext/python] bin/sleep_test
+[type: gettext/python] bin/sleep_test_log_check
+[type: gettext/python] bin/sleep_time_check
 bin/sources_test
 bin/spindown
 bin/storage_test
 bin/tomcat_test
-bin/touchpad_driver_info
-bin/touchpad_test
-bin/udisks2_monitor
-bin/virtualization
-bin/volume_test
-bin/wifi_time2reconnect
-bin/window_test
+[type: gettext/python] bin/touchpad_driver_info
+[type: gettext/python] bin/touchpad_test
+[type: gettext/python] bin/udisks2_monitor
+[type: gettext/python] bin/virtualization
+[type: gettext/python] bin/volume_test
+[type: gettext/python] bin/wifi_time2reconnect
+[type: gettext/python] bin/window_test
 bin/wireless_ext
 bin/xen_test
-bin/xml_sanitize
-bin/xrandr_cycle
-manage.py
+[type: gettext/python] bin/xml_sanitize
+[type: gettext/python] bin/xrandr_cycle
+[type: gettext/python] manage.py
 src/clocktest.c
 src/threaded_memtest.c
+data/resolution_test.qml

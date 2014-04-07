@@ -1,5 +1,0 @@
-[PlainBox Provider]
-name = 2013.com.canonical.certification:checkbox
-location = /usr/lib/plainbox-providers-1/checkbox/
-description = CheckBox provider
-version = 1.0

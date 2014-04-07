@@ -249,9 +249,9 @@ plugin: shell
 id: graphics/screenshot_fullscreen_video
 requires: package.name == 'fswebcam'
 command:
- [ -f ${CHECKBOX_SHARE}/data/video/Ogg_Theora_Video.ogv ] || { echo "Video file not found"; exit 1; }
+ [ -f ${PLAINBOX_PROVIDER_DATA}/video/Ogg_Theora_Video.ogv ] || { echo "Video file not found"; exit 1; }
  dbus-launch gsettings set org.gnome.totem repeat true
- totem --fullscreen ${CHECKBOX_SHARE}/data/video/Ogg_Theora_Video.ogv 2>/dev/null &
+ totem --fullscreen ${PLAINBOX_PROVIDER_DATA}/video/Ogg_Theora_Video.ogv 2>/dev/null &
  set -o pipefail
  sleep 15 && camera_test still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot_fullscreen_video.jpg -q 2>&1 | ansi_parser
  sleep 5 && totem --quit 2>/dev/null
@@ -277,7 +277,7 @@ requires: package.name == 'python-opencv'
 environ: EXTERNAL_WEBCAM_DEVICE
 command:
  screenshot_validation \
-    ${CHECKBOX_SHARE}/data/images/logo_Ubuntu_stacked_black.png \
+    ${PLAINBOX_PROVIDER_DATA}/images/logo_Ubuntu_stacked_black.png \
     --device=${EXTERNAL_WEBCAM_DEVICE:-/dev/external_webcam} \
     -o ${PLAINBOX_SESSION_SHARE}/screenshot_opencv_validation.jpg
 _description:

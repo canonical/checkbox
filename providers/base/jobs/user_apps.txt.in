@@ -146,7 +146,7 @@ id: software/view_office_document
 requires: package.name == "ubuntu-desktop"
 _description: Common Document Types Test
 command:
- cat <<'EOF' | run_templates -s "find $CHECKBOX_SHARE/data/documents -type f"
+ cat <<'EOF' | run_templates -s "find $PLAINBOX_PROVIDER_DATA/documents -type f"
  id: `basename $0`_test
  plugin: user-interact-verify
  description:
@@ -166,7 +166,7 @@ id: software/audio_file_play
 requires: package.name == "ubuntu-desktop"
 _description: Common Document Types Test
 command:
- cat <<'EOF' | run_templates -s "find $CHECKBOX_SHARE/data/audio -type f"
+ cat <<'EOF' | run_templates -s "find $PLAINBOX_PROVIDER_DATA/audio -type f"
  id: `basename $0`_test
  plugin: user-interact-verify
  description:
@@ -186,7 +186,7 @@ id: software/video_file_play
 requires: package.name == "ubuntu-desktop"
 _description: Common Document Types Test
 command:
- cat <<'EOF' | run_templates -s "find $CHECKBOX_SHARE/data/video -type f"
+ cat <<'EOF' | run_templates -s "find $PLAINBOX_PROVIDER_DATA/video -type f"
  id: `basename $0`_test
  plugin: user-interact-verify
  description:
@@ -206,7 +206,7 @@ id: software/view_image_file
 requires: package.name == "ubuntu-desktop"
 _description: Common Document Types Test
 command:
- cat <<'EOF' | run_templates -s "find $CHECKBOX_SHARE/data/images -type f"
+ cat <<'EOF' | run_templates -s "find $PLAINBOX_PROVIDER_DATA/images -type f"
  id: `basename $0`_test
  plugin: user-interact-verify
  description:
@@ -224,7 +224,7 @@ command:
 plugin: user-interact-verify
 id: software/firefox
 requires: package.name == 'firefox'
-command: firefox $CHECKBOX_SHARE/data/websites/testindex.html
+command: firefox $PLAINBOX_PROVIDER_DATA/websites/testindex.html
 _description:
  PURPOSE:
   This test will check that Firefox can render a basic web page.
@@ -237,7 +237,7 @@ plugin: user-interact-verify
 id: software/firefox-flash
 depends: software/firefox
 requires: package.name == 'firefox'
-command: firefox $CHECKBOX_SHARE/data/websites/flashtest.html
+command: firefox $PLAINBOX_PROVIDER_DATA/websites/flashtest.html
 _description:
  PURPOSE:
   This test will check that Firefox can run flash applications. Note: this may
@@ -251,7 +251,7 @@ plugin: user-interact-verify
 id: software/firefox-flash-video
 depends: software/firefox-flash
 requires: package.name == 'firefox'
-command: firefox $CHECKBOX_SHARE/data/websites/flashvideo.html
+command: firefox $PLAINBOX_PROVIDER_DATA/websites/flashvideo.html
 _description:
  PURPOSE:
   This test will check that Firefox can play a Flash video. Note: this may
@@ -267,7 +267,7 @@ depends: software/firefox
 requires:
     package.name == 'firefox'
     package.name == 'gstreamer0.10-ffmpeg'
-command: firefox $CHECKBOX_SHARE/data/video/Quicktime_Video.mov
+command: firefox $PLAINBOX_PROVIDER_DATA/video/Quicktime_Video.mov
 _description:
  PURPOSE:
   This test will check that Firefox can play a Quicktime (.mov) video file.

@@ -104,7 +104,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  obex_send $BTDEVADDR $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg
+  obex_send $BTDEVADDR $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg
 _description:
  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
 
@@ -131,7 +131,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR send 2>&1 | ansi_parser
+  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR send 2>&1 | ansi_parser
 _description:
  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
 
@@ -158,7 +158,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR browse 2>&1 | ansi_parser
+  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR browse 2>&1 | ansi_parser
 _description:
  This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR environment variable.
 
@@ -185,7 +185,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR get 2>&1 | ansi_parser
+  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR get 2>&1 | ansi_parser
 _description:
  This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR environment variable
 
@@ -196,7 +196,7 @@ requires:
  package.name == 'bluez'
  package.name == 'obexd-client'
  device.category == 'BLUETOOTH'
-command: rfkill unblock bluetooth; obex_send `bluetooth_scan` $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg
+command: rfkill unblock bluetooth; obex_send `bluetooth_scan` $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg
 _description:
  PURPOSE:
      This test will send the image 'JPEG_Color_Image_Ubuntu.jpg' to a specified device
@@ -786,7 +786,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  obex_send $BTDEVADDR $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg
+  obex_send $BTDEVADDR $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg
 _description:
  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
 
@@ -814,7 +814,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  obex_send $BTDEVADDR $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg
+  obex_send $BTDEVADDR $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg
 _description:
  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
 
@@ -842,7 +842,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR send 2>&1 | ansi_parser
+  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR send 2>&1 | ansi_parser
 _description:
  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
 
@@ -870,7 +870,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR send 2>&1 | ansi_parser
+  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR send 2>&1 | ansi_parser
 _description:
  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
 
@@ -898,7 +898,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR browse 2>&1 | ansi_parser
+  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR browse 2>&1 | ansi_parser
 _description:
  This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR environment variable.
 
@@ -926,7 +926,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR browse 2>&1 | ansi_parser
+  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR browse 2>&1 | ansi_parser
 _description:
  This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR environment variable.
 
@@ -954,7 +954,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR get 2>&1 | ansi_parser
+  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR get 2>&1 | ansi_parser
 _description:
  This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR environment variable
 
@@ -982,7 +982,7 @@ command:
     rfkill unblock bluetooth
     sleep 3
   fi
-  set -o pipefail; bluetooth_test $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR get 2>&1 | ansi_parser
+  set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR get 2>&1 | ansi_parser
 _description:
  This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR environment variable
 
@@ -994,7 +994,7 @@ requires:
  package.name == 'bluez'
  package.name == 'obexd-client'
  device.category == 'BLUETOOTH'
-command: rfkill unblock bluetooth; obex_send `bluetooth_scan` $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg
+command: rfkill unblock bluetooth; obex_send `bluetooth_scan` $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg
 _description:
  PURPOSE:
      This test will send the image 'JPEG_Color_Image_Ubuntu.jpg' to a specified device

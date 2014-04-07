@@ -3,326 +3,326 @@ plugin: local
 _description: Audio tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/audio.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/audio.txt?(.in)
 
 id: __benchmarks__
 plugin: local
 _description: Benchmarks tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/benchmarks.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/benchmarks.txt?(.in)
 
 id: __bluetooth__
 plugin: local
 _description: Bluetooth tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/bluetooth.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/bluetooth.txt?(.in)
 
 id: __camera__
 plugin: local
 _description: Camera tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/camera.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/camera.txt?(.in)
 
 id: __codecs__
 plugin: local
 _description: Codec tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/codecs.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/codecs.txt?(.in)
 
 id: __cpu__
 plugin: local
 _description: CPU tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/cpu.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/cpu.txt?(.in)
 
 id: __daemons__
 plugin: local
 _description: System Daemon tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/daemons.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/daemons.txt?(.in)
 
 id: __disk__
 plugin: local
 _description: Disk tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/disk.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/disk.txt?(.in)
 
 id: __ethernet__
 plugin: local
 _description: Ethernet Device tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/ethernet.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/ethernet.txt?(.in)
 
 id: __esata__
 plugin: local
 _description: eSATA disk tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/esata.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/esata.txt?(.in)
 
 id: __fingerprint__
 plugin: local
 _description: Fingerprint reader tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/fingerprint.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/fingerprint.txt?(.in)
 
 id: __firewire__
 plugin: local
 _description: Firewire disk tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/firewire.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/firewire.txt?(.in)
 
 id: __firmware__
 plugin: local
 _description: Firmware tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/firmware.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/firmware.txt?(.in)
 
 id: __floppy__
 plugin: local
 _description: Floppy disk tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/floppy.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/floppy.txt?(.in)
 
 id: __graphics__
 plugin: local
 _description: Graphics tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/graphics.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/graphics.txt?(.in)
 
 id: __hibernate__
 plugin: local
 _description: Hibernation tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/hibernate.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/hibernate.txt?(.in)
 
 id: __info__
 plugin: local
 _description: Informational tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/info.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/info.txt?(.in)
 
 id: __input__
 plugin: local
 _description: Input Devices tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/input.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/input.txt?(.in)
 
 id: __install__
 plugin: local
 _description: Software Installation tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/install.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/install.txt?(.in)
 
 id: __keys__
 plugin: local
 _description: Hotkey tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/keys.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/keys.txt?(.in)
 
 id: __led__
 plugin: local
 _description: LED tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/led.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/led.txt?(.in)
 
 id: __mediacard__
 plugin: local
 _description: Media Card tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/mediacard.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/mediacard.txt?(.in)
 
 id: __memory__
 plugin: local
 _description: Memory tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/memory.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/memory.txt?(.in)
 
 id: __rendercheck__
 plugin: local
 _description: Rendercheck tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/rendercheck.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/rendercheck.txt?(.in)
 
 id: __mir__
 plugin: local
 _description: MIR tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/mir.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/mir.txt?(.in)
 
 id: __miscellanea__
 plugin: local
 _description: Miscellaneous tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/miscellanea.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/miscellanea.txt?(.in)
 
 id: __monitor__
 plugin: local
 _description: Monitor tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/monitor.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/monitor.txt?(.in)
 
 id: __networking__
 plugin: local
 _description: Non-device specific networking tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/networking.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/networking.txt?(.in)
 
 id: __optical__
 plugin: local
 _description: Optical Drive tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/optical.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/optical.txt?(.in)
 
 id: __panel_clock__
 plugin: local
 _description: Panel Clock Verification tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/panel_clock_test.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/panel_clock_test.txt?(.in)
 
 id: __panel_reboot__
 plugin: local
 _description: Panel Reboot Verification tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/panel_reboot.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/panel_reboot.txt?(.in)
 
 id: __expresscard__
 plugin: local
 _description: ExpressCard tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/expresscard.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/expresscard.txt?(.in)
 
 id: __peripheral__
 plugin: local
 _description: Peripheral tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/peripheral.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/peripheral.txt?(.in)
 
 id: __piglit__
 plugin: local
 _description: Piglit tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/piglit.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/piglit.txt?(.in)
 
 id: __power-management__
 plugin: local
 _description: Power Management tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/power-management.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/power-management.txt?(.in)
 
 id: __server-services__
 plugin: local
 _description: Server Services checks
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/server-services.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/server-services.txt?(.in)
 
 id: __suspend__
 plugin: local
 _description: Suspend tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/suspend.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/suspend.txt?(.in)
 
 id: __touchpad__
 plugin: local
 _description: Touchpad tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/touchpad.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/touchpad.txt?(.in)
 
 id: __touchscreen__
 plugin: local
 _description: Touchscreen tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/touchscreen.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/touchscreen.txt?(.in)
 
 id: __usb__
 plugin: local
 _description: USB tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/usb.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/usb.txt?(.in)
 
 id: __user_apps__
 plugin: local
 _description: User Applications
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/user_apps.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/user_apps.txt?(.in)
 
 id: __virtualization__
 plugin: local
 _description: Virtualization tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/virtualization.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/virtualization.txt?(.in)
 
 id: __wireless__
 plugin: local
 _description: Wireless networking tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/wireless.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/wireless.txt?(.in)
 
 id: __mobilebroadband__
 plugin: local
 _description: Mobile broadband tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/mobilebroadband.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/mobilebroadband.txt?(.in)
 
 id: __stress__
 plugin: local
 _description: Stress tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/stress.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/stress.txt?(.in)
 
 id: __smoke__
 plugin: local
 _description: Smoke tests
 command:
   shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/smoke.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/smoke.txt?(.in)
 
 id: __sniff__
 plugin: local
 _description: Sniff Sniffers
 command:
  shopt -s extglob
- cat $CHECKBOX_SHARE/jobs/sniff.txt?(.in)
+ cat $PLAINBOX_PROVIDER_DATA/../jobs/sniff.txt?(.in)

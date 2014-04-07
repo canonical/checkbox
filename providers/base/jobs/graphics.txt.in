@@ -63,7 +63,7 @@ id: graphics/screen-resolution
 requires:
  device.category == 'VIDEO'
  package.name == 'qmlscene'
-command: timeout 5 qmlscene --transparent --fullscreen $CHECKBOX_SHARE/scripts/resolution_test.qml
+command: timeout 5 qmlscene --transparent --fullscreen $PLAINBOX_PROVIDER_DATA/resolution_test.qml
 estimated_duration: 10
 _description:
  PURPOSE:

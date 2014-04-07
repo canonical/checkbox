@@ -1,0 +1,116 @@
+
+plugin: shell
+name: bluetooth/detect-output
+estimated_duration: 1.2
+requires:
+ package.name == 'bluez'
+ device.category == 'BLUETOOTH'
+command:
+ if rfkill list bluetooth | grep -q 'Hard blocked: yes'; then
+   echo "rfkill shows BT is hard blocked"
+ fi
+ if rfkill list bluetooth | grep -q 'Soft blocked: yes'; then
+   echo "rfkill shows BT is soft blocked, removing before testing"
+   rfkill unblock bluetooth
+   sleep 3
+ fi
+ output=$(hcitool dev | tail -n+2 | awk '{print $2}' | tee $CHECKBOX_DATA/bluetooth_address)
+ echo "$output"
+ if [ -z "$output" ]; then
+     "BT hardware not available"
+     exit 1
+ fi
+_description:
+ Automated test to store bluetooth device information in checkbox report
+
+plugin: manual
+name: bluetooth/browse-files
+depends: bluetooth/detect-output
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     This test will check that bluetooth connection works correctly
+ STEPS:
+     1. Enable bluetooth on any mobile device (PDA, smartphone, etc.)
+     2. Click on the bluetooth icon in the menu bar
+     3. Select 'Setup new device'
+     4. Look for the device in the list and select it
+     5. In the device write the PIN code automatically chosen by the wizard
+     6. The device should pair with the computer
+     7. Right-click on the bluetooth icon and select browse files
+     8. Authorize the computer to browse the files in the device if needed
+     9. You should be able to browse the files
+ VERIFICATION:
+     Did all the steps work?
+
+plugin: manual
+name: bluetooth/file-transfer
+depends: bluetooth/browse-files bluetooth/detect-output
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     This test will check that you can transfer information through a bluetooth connection
+ STEPS:
+     1. Make sure that you're able to browse the files in your mobile device
+     2. Copy a file from the computer to the mobile device
+     3. Copy a file from the mobile device to the computer
+ VERIFICATION:
+     Were all files copied correctly?
+
+plugin: user-interact-verify
+name: bluetooth/audio-a2dp
+depends: bluetooth/detect-output
+estimated_duration: 120.0
+command: audio_settings store --file=$CHECKBOX_DATA/pulseaudio_settings; audio_settings set --device=pci --volume=50; gst_pipeline_test -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'; EXIT_CODE=$?; audio_settings restore --file=$CHECKBOX_DATA/pulseaudio_settings; exit $EXIT_CODE
+_description:
+ PURPOSE:
+     This test will check that you can record and hear audio using a bluetooth audio device
+ STEPS:
+     1. Enable the bluetooth headset
+     2. Click on the sound icon
+     3. Click "Sound Settings"
+     4. Look for the device in the list and select it
+     5. Set Quality to A2DP
+     6. Click "Test" to record for five seconds and reproduce in the bluetooth device
+ VERIFICATION:
+     Did you hear the sound?
+
+plugin: user-interact-verify
+name: bluetooth/audio
+depends: bluetooth/detect-output
+estimated_duration: 120.0
+command: arecord -d 5 -D bluetooth -f S16_LE | aplay -D bluetooth -f S16_LE
+_description:
+ PURPOSE:
+     This test will check that you can record and hear audio using a bluetooth audio device
+ STEPS:
+     1. Enable the bluetooth headset
+     2. Click on the bluetooth icon in the menu bar
+     3. Select 'Setup new device'
+     4. Look for the device in the list and select it
+     5. In the device write the PIN code automatically chosen by the wizard
+     6. The device should pair with the computer
+     7. Click the sound icon
+     8. Click "Sound Settings"
+     9. Select device and ensure Quality is set to "HSP/HFP"
+     10. Click "Test" to record for five seconds and reproduce in the bluetooth device
+ VERIFICATION:
+     Did you hear the sound you recorded in the bluetooth
+
+plugin: user-interact-verify
+name: bluetooth/HID
+depends: bluetooth/detect-output
+estimated_duration: 120.0
+command: keyboard_test
+_description:
+ PURPOSE:
+     This test will check that you can use a BlueTooth HID device
+ STEPS:
+     1. Enable either a BT mouse or keyboard
+     2. Click on the bluetooth icon in the menu bar
+     3. Select 'Setup new device'
+     4. Look for the device in the list and select it
+     5. For mice, perform actions such as moving the pointer, right and left button clicks and double clicks
+     6. For keyboards, click the Test button to lauch a small tool. Enter some text into the tool and close it.
+ VERIFICATION:
+     Did the device work as expected?

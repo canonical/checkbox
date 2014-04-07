@@ -1,0 +1,46 @@
+#!/usr/bin/python3
+import errno
+import io
+import sys
+
+from argparse import ArgumentParser, FileType
+
+VALID_XML_CHARS = frozenset([0x9, 0xA, 0xD] +
+                            list(range(0x20, 0xD7FF)) +
+                            list(range(0xE000, 0xFFFD)) +
+                            list(range(0x10000, 0x10FFFF)))
+
+
+def is_valid_xml_char(ch):
+    # Is this character valid in XML?
+    # http://www.w3.org/TR/xml/#charsets
+    return ord(ch) in VALID_XML_CHARS
+
+
+def main():
+    parser = ArgumentParser("Receives as input some text and outputs "
+                            "the same text without characters which are "
+                            "not valid in the XML specification.")
+    parser.add_argument('input_file',
+                        type=FileType('r'),
+                        nargs='?',
+                        help='The name of the file to sanitize.')
+    args = parser.parse_args()
+
+    if args.input_file:
+        text = ''.join([c for c in args.input_file.read() if
+                       is_valid_xml_char(c)])
+
+    else:
+        with io.TextIOWrapper(
+                sys.stdin.buffer, encoding='UTF-8', errors="ignore") as stdin:
+            text = ''.join([c for c in stdin.read() if is_valid_xml_char(c)])
+
+    print(text)
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except Exception as err:
+        if err.errno != errno.EPIPE:
+            raise(err)

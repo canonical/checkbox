@@ -1,0 +1,38 @@
+#!/bin/bash
+#
+#  Confirm Samba service is running
+#  Requires: samba winbind
+#
+
+#Verify Samba processes are running
+smbd=`pgrep smbd`
+if [ -z "$smbd" ]; then
+  echo "FAIL: smbd is not running."
+  exit 1
+fi
+
+nmbd=`pgrep nmbd`
+if [ -z "$nmbd" ]; then
+  echo "FAIL: nmbd is not running."
+  exit 1
+fi
+
+winbindd=`pgrep winbindd`
+if [ -z "$winbindd" ]; then
+  echo "FAIL: winbindd is not running."
+  exit 1
+fi
+
+sid=`net getlocalsid | grep "S-1-5"` #req. root
+if [ -z "$sid" ]; then
+  echo "FAIL: Default samba workgroup is not set."
+  exit 1
+fi
+
+users=`net usersidlist | grep "UBUNTU"`
+if [ -z "$sid" ]; then
+  echo "FAIL: samba userId is not set."
+  exit 1
+fi
+
+exit 0

@@ -1,0 +1,134 @@
+#!/usr/bin/env python3
+
+import re
+import sys
+import posixpath
+
+from optparse import OptionParser
+
+from checkbox_support.lib.path import path_expand_recursive
+from checkbox_support.lib.template import Template
+
+
+class FilterError(Exception):
+
+    pass
+
+
+def compile_filters(filters):
+    patterns = {}
+    for filter in filters:
+        if "=" not in  filter:
+            raise FilterError("Missing assignment in filter: %s"
+                % filter)
+
+        name, value = filter.split("=", 1)
+        try:
+            pattern = re.compile(r"^%s$" % value)
+        except re.error:
+            raise FilterError("Invalid regular expression in filter: %s"
+                % value)
+        patterns.setdefault(name, [])
+        patterns[name].append(pattern)
+
+    return patterns
+
+
+def match_patterns(patterns_table, element):
+    matches = []
+    for key, patterns in patterns_table.items():
+        if key not in element:
+            matches.append(False)
+        else:
+            value = element[key]
+            for pattern in patterns:
+                matches.append(True if pattern.match(value) else False)
+
+    return matches
+
+
+def match_elements(elements, attributes=[], whitelist=[], blacklist=[]):
+    whitelist_patterns = compile_filters(whitelist)
+    blacklist_patterns = compile_filters(blacklist)
+
+    # Apply attributes
+    for element in elements:
+        for attribute in attributes:
+            name, value = attribute.split("=", 1)
+            element[name] = value
+
+    # Apply whitelist and blacklist
+    matches = []
+    for element in elements:
+        if whitelist_patterns \
+           and True not in match_patterns(whitelist_patterns, element):
+            continue
+        if blacklist_patterns \
+           and True in match_patterns(blacklist_patterns, element):
+            continue
+
+        matches.append(element)
+
+    return matches
+
+
+def parse_file(file, *args, **kwargs):
+    template = Template()
+    matches = match_elements(template.load_file(file), *args, **kwargs)
+    template.dump_file(matches, sys.stdout)
+
+
+def parse_path(path, *args, **kwargs):
+    for filename in path_expand_recursive(path):
+        print("# %s" % filename)
+
+        name = posixpath.basename(filename)
+        if name.startswith(".") or name.endswith("~"):
+            continue
+
+        file = open(filename, "r")
+        parse_file(file, *args, **kwargs)
+
+
+def parse_paths(paths, *args, **kwargs):
+    for path in paths:
+        parse_path(path, *args, **kwargs)
+
+
+def main(args):
+    usage = "Usage: %prog [OPTIONS] [FILE...]"
+    parser = OptionParser(usage=usage)
+    parser.add_option("-a", "--attribute",
+        action="append",
+        type="string",
+        default=[],
+        help="Set additional attributes by name and value.")
+    parser.add_option("-b", "--blacklist",
+        action="append",
+        type="string",
+        default=[],
+        help="Blacklist of elements by name and value.")
+    parser.add_option("-w", "--whitelist",
+        action="append",
+        type="string",
+        default=[],
+        help="Whitelist of elements by name and value.")
+    (options, args) = parser.parse_args(args)
+
+    if args:
+        parse_func = parse_paths
+    else:
+        parse_func = parse_file
+        args = sys.stdin
+
+    try:
+        parse_func(args, options.attribute,
+                   options.whitelist, options.blacklist)
+    except FilterError as error:
+        parser.error(error.args[0])
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

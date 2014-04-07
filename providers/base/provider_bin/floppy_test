@@ -1,0 +1,105 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import filecmp
+import subprocess
+import posixpath
+
+DEFAULT_DIR = "/tmp/checkbox.floppy"
+DEFAULT_DEVICE_DIR = "floppy_device"
+DEFAULT_IMAGE_DIR = "floppy_image"
+DEFAULT_IMAGE = "floppy.img"
+
+
+class FloppyTest(object):
+
+    def __init__(self, device):
+        self.device = device
+        self.device_dir = os.path.join(DEFAULT_DIR, DEFAULT_DEVICE_DIR)
+        self.image_dir = os.path.join(DEFAULT_DIR, DEFAULT_IMAGE_DIR)
+        self.image = os.path.join(DEFAULT_DIR, DEFAULT_IMAGE)
+        self.interactive = True
+
+        for dir in (self.device_dir, self.image_dir):
+            if not posixpath.exists(dir):
+                os.makedirs(dir)
+
+    def run(self):
+        floppyDevice = self.device
+        if floppyDevice:
+            print("  Testing on floppy drive %s " % floppyDevice)
+        else:
+            print("  Error ! No floppy drive found !")
+            return 1
+        # remove temp files if they exist
+        os.system("umount /media/floppy 2>/dev/null")
+        if (os.path.exists(self.device_dir)
+            or os.path.exists(self.image_dir)
+            or os.path.exists(self.image)):
+            os.system("umount %s %s 2>/dev/null"
+                      % (self.device_dir, self.image_dir))
+            os.system("rm -rf %s %s %s 2>/dev/null"
+                      % (self.device_dir, self.image_dir, self.image))
+        # Create the test images
+        os.mkdir(self.device_dir)
+        os.mkdir(self.image_dir)
+        os.system("dd if=/dev/zero of=%s bs=1k count=1440" % self.image)
+        os.system("mkdosfs %s" % self.image)
+        os.system("mount -o loop %s %s" % (self.image, self.image_dir))
+        os.system("cp -a /etc/*.conf %s 2> /dev/null" % self.image_dir)
+        os.system("umount %s" % self.image_dir)
+        # start testing
+        (noFloppyDisk, junkOutput1) = \
+            subprocess.getstatusoutput("dd bs=1c if=%s count=0 2>/dev/null"
+                                     % floppyDevice)
+        if noFloppyDisk != 0:
+            print("Error ! No floppy disc or bad media in %s !" % floppyDevice)
+            return 1
+        else:
+            # writing files
+            print("  Writing data to floppy disc ... ")
+            (ddStatus, ddOutput) = \
+                subprocess.getstatusoutput("dd if=%s of=%s bs=1k count=1440"
+                                         % (self.image, floppyDevice))
+            if ddStatus == 0:
+                print("  Write data to floppy disc done ! ")
+            else:
+                print("  Error ! Write data to floppy disc error ! ")
+                print("  Please check if your floppy disc is write-protected !")
+                return 1
+            # comparing files
+            os.system("mount %s %s" % (floppyDevice, self.device_dir))
+            os.system("mount -o loop %s %s" % (self.image, self.image_dir))
+            print("  Comparing files ... ")
+            fileList = os.listdir(self.image_dir)
+            returnValue = 0
+            for textFile in fileList:
+                file1 = os.path.join(self.device_dir, textFile)
+                file2 = os.path.join(self.image_dir, textFile)
+                if filecmp.cmp(file1, file2):
+                    print("        comparing file %s" % textFile)
+                else:
+                    print("  --  Error ! File %s comparison failed ! -- "
+                          % textFile)
+                    returnValue = 1
+            print("  File comparison done ! ")
+            # remove temp files
+            os.system("umount /media/floppy 2>/dev/null")
+            os.system("umount %s %s " % (self.image_dir, self.device_dir))
+            os.system("rm -rf %s %s %s"
+                      % (self.device_dir, self.image_dir, self.image))
+            print("Done !")
+            return returnValue
+
+
+def main(args):
+    return_values = []
+    for device in args:
+        test = FloppyTest(device)
+        return_values.append(test.run())
+
+    return 1 in return_values
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

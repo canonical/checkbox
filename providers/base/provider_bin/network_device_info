@@ -1,0 +1,262 @@
+#!/usr/bin/env python3
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Parts of this are based on the example python code that ships with
+# NetworkManager
+# http://cgit.freedesktop.org/NetworkManager/NetworkManager/tree/examples/python
+#
+# Copyright (C) 2012 Canonical, Ltd.
+
+from subprocess import check_output, CalledProcessError, STDOUT
+import sys
+
+import dbus
+
+from checkbox_support.parsers.modinfo import ModinfoParser
+from checkbox_support.parsers.udevadm import UdevadmParser
+
+
+# This example lists basic information about network interfaces known to NM
+devtypes = {1: "Ethernet",
+            2: "WiFi",
+            5: "Bluetooth",
+            6: "OLPC",
+            7: "WiMAX",
+            8: "Modem"}
+
+states = {0: "Unknown",
+          10: "Unmanaged",
+          20: "Unavailable",
+          30: "Disconnected",
+          40: "Prepare",
+          50: "Config",
+          60: "Need Auth",
+          70: "IP Config",
+          80: "IP Check",
+          90: "Secondaries",
+          100: "Activated",
+          110: "Deactivating",
+          120: "Failed"}
+
+attributes = ("category", "interface", "product", "vendor", "driver", "path")
+
+udev_devices = []
+nm_devices = []
+
+
+class UdevResult:
+    def addDevice(self, device):
+        if device.interface:
+            udev_devices.append(device)
+
+
+class NetworkingDevice():
+    def __init__(self, devtype, props, dev_proxy, bus):
+        self._devtype = devtype
+        try:
+            self._interface = props['Interface']
+        except KeyError:
+            self._interface = "Unknown"
+
+        try:
+            self._ip = self._int_to_ip(props['Ip4Address'])
+        except KeyError:
+            self._ip = "Unknown"
+
+        try:
+            self._driver = props['Driver']
+        except KeyError:
+            self._driver = "Unknown"
+            self._driver_ver = "Unknown"
+
+        if self._driver != "Unknown":
+            self._modinfo = self._modinfo_parser(props['Driver'])
+            if self._modinfo:
+                self._driver_ver = self._find_driver_ver()
+            else:
+                self._driver_ver = "Unknown"
+
+        try:
+            self._firmware_missing = props['FirmwareMissing']
+        except KeyError:
+            self._firmware_missing = False
+
+        try:
+            self._state = states[props['State']]
+        except KeyError:
+            self._state = "Unknown"
+
+    def __str__(self):
+        ret = "Category: %s\n" % self._devtype
+        ret += "Interface: %s\n" % self._interface
+        ret += "IP: %s\n" % self._ip
+        ret += "Driver: %s (ver: %s)\n" % (self._driver, self._driver_ver)
+        if self._firmware_missing:
+            ret += "Warning: Required Firmware Missing for device\n"
+        ret += "State: %s\n" % self._state
+        return ret
+
+    def getstate(self):
+        return self._state
+
+    def gettype(self):
+        return self._devtype
+
+    def _bitrate_to_mbps(self, bitrate):
+        try:
+            intbr = int(bitrate)
+            return str(intbr / 1000)
+        except Exception:
+            return "NaN"
+
+    def _modinfo_parser(self, driver):
+        cmd = ['/sbin/modinfo', driver]
+        try:
+            stream = check_output(cmd, stderr=STDOUT, universal_newlines=True)
+        except CalledProcessError as err:
+            print("Error running %s:" % ' '.join(cmd), file=sys.stderr)
+            print(err.output, file=sys.stderr)
+            return None
+
+        if not stream:
+            print("Error: modinfo returned nothing", file=sys.stderr)
+            return None
+        else:
+            parser = ModinfoParser(stream)
+            modinfo = parser.get_all()
+
+        return modinfo
+
+    def _find_driver_ver(self):
+        # try the version field first, then vermagic second, some audio
+        # drivers don't report version if the driver is in-tree
+        if self._modinfo['version'] and self._modinfo['version'] != 'in-tree:':
+            return self._modinfo['version']
+        else:
+            # vermagic will look like this (below) and we only care about the
+            # first part:
+            # "3.2.0-29-generic SMP mod_unload modversions"
+            return self._modinfo['vermagic'].split()[0]
+
+    def _int_to_ip(self, int_ip):
+        ip = [0, 0, 0, 0]
+        ip[0] = int_ip & 0xff
+        ip[1] = (int_ip >> 8) & 0xff
+        ip[2] = (int_ip >> 16) & 0xff
+        ip[3] = (int_ip >> 24) & 0xff
+        return "%d.%d.%d.%d" % (ip[0], ip[1], ip[2], ip[3])
+
+
+def get_nm_devices():
+    devices = []
+    bus = dbus.SystemBus()
+
+    # Get a proxy for the base NetworkManager object
+    proxy = bus.get_object("org.freedesktop.NetworkManager",
+                           "/org/freedesktop/NetworkManager")
+    manager = dbus.Interface(proxy, "org.freedesktop.NetworkManager")
+
+    # Get all devices known to NM and print their properties
+    nm_devices = manager.GetDevices()
+    for d in nm_devices:
+        dev_proxy = bus.get_object("org.freedesktop.NetworkManager", d)
+        prop_iface = dbus.Interface(dev_proxy,
+                                    "org.freedesktop.DBus.Properties")
+        props = prop_iface.GetAll("org.freedesktop.NetworkManager.Device")
+        try:
+            devtype = devtypes[props['DeviceType']]
+        except KeyError:
+            devtype = "Unknown"
+
+        # only return WiFi, Ethernet and Modem devices
+        if devtype in ("WiFi", "Ethernet", "Modem"):
+            devices.append(NetworkingDevice(devtype, props, dev_proxy, bus))
+    return devices
+
+
+def match_counts(nm_devices, udev_devices, devtype):
+    """
+    Ensures that the count of devices matching devtype is the same for the
+    two passed in lists, devices from Network Manager and devices from lspci.
+    """
+    # now check that the count (by type) matches
+    nm_type_devices = [dev for dev in nm_devices if dev.gettype() in devtype]
+    udevtype = 'WIRELESS' if devtype == 'WiFi' else 'NETWORK'
+    udev_type_devices = [
+        udev
+        for udev in udev_devices
+        if udev.category == udevtype]
+    if len(nm_type_devices) != len(udev_type_devices):
+        print("ERROR: devices missing - udev showed %d %s devices, but "
+              "NetworkManager saw %d devices in %s" % (len(udev_type_devices), 
+              udevtype, len(nm_type_devices), devtype), file=sys.stderr)
+        return False
+    else:
+        return True
+
+
+def main(args):
+    try:
+        output = check_output(['udevadm', 'info', '--export-db'])
+    except CalledProcessError as err:
+        raise SystemExit(err)
+    try:
+        output = output.decode("UTF-8", errors='ignore')
+    except UnicodeDecodeError as err:
+        raise SystemExit("udevadm output is not valid UTF-8")
+    udev = UdevadmParser(output)
+    result = UdevResult()
+    udev.run(result)
+
+    if udev_devices:
+        print("[ Devices found by udev ]".center(80, '-'))
+        for device in udev_devices:
+            for attribute in attributes:
+                value = getattr(device, attribute)
+                if value is not None:
+                    if attribute == 'driver':
+                        props = {}
+                        props['Driver'] = value
+                        network_dev = NetworkingDevice(None, props, None, None)
+                        print("%s: %s (ver: %s)" % (attribute.capitalize(),
+                              value, network_dev._driver_ver))
+                    else:
+                        print("%s: %s" % (attribute.capitalize(), value))
+
+            print()
+
+    try:
+        nm_devices = get_nm_devices()
+    except dbus.exceptions.DBusException as e:
+        # server's don't have network manager installed
+        print("Warning: Exception while talking to Network Manager over dbus."
+              " Skipping the remainder of this test. If this is a server, this"
+              " is expected.", file=sys.stderr)
+        print("The Error Generated was:\n %s" % e, file=sys.stderr)
+        return 0
+
+    print("[ Devices found by Network Manager ]".center(80, '-'))
+    for nm_dev in nm_devices:
+        print(nm_dev)
+
+    if not match_counts(nm_devices, udev_devices, "WiFi"):
+        return 1
+    elif not match_counts(nm_devices, udev_devices, ("Ethernet","Modem")):
+        return 1
+    else:
+        return 0
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

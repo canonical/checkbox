@@ -1,0 +1,121 @@
+#!/usr/bin/python
+from Globs import benchmarks, hwd
+import argparse
+import locale
+import logging
+import sys
+import os
+
+#Magic to override the _ function from gettext, since
+#it's overkill for our needs here.
+def underscore(string, *args, **kwargs):
+    return(string)
+
+__builtins__._ = underscore 
+
+class Application:
+
+    def __init__(self, share_dir='', bench_dir='', width=800, height=600,
+                 time=5, repetitions=1, fullscreen=False, min_fps=60,
+                 ignore_problems=False):
+        self.opts= {}
+        self.opts['width'] = width
+        self.opts['height'] = height
+        self.opts['time'] = time
+        self.opts['repetitions'] = repetitions
+        self.opts['fullscreen'] = fullscreen
+        self.min_fps = min_fps
+        self.ignore_problems = ignore_problems
+    
+        self.share_dir = share_dir
+        self.bench_dir = bench_dir
+
+
+    def run(self):
+        test_pass = True
+
+        self.hwd = hwd.HWDetect()
+        self.bm = benchmarks.Benchmarks(os.path.join(self.bench_dir,
+                                                     'benchmarks'))
+        ver_str = self.hwd.get_gl_info()['version']
+        hwd_ext = self.hwd.get_gl_info()['extensions']
+        bench_list = [name for name in self.bm.get_names() if name != 'Fake']
+        for benchmark_name in bench_list :
+            runnable = True
+            if  self.bm.check_ver(benchmark_name, ver_str) == False:
+                logging.warning("%s requires OpenGL version %s, I have %s",
+                               benchmark_name,
+                               self.bm.get_info(benchmark_name)['glversion'],
+                               ver_str)
+                runnable = False
+                test_pass = False
+
+            ext_list = self.bm.check_ext(benchmark_name, hwd_ext)
+            if ext_list.__class__ == list: # Returned a list of missing exts
+                missing_ext = ''
+                for ext in ext_list:
+                    missing_ext += ext
+                    if ext_list.index(ext) != len(ext_list) - 1:
+                        missing_ext += ', '
+                    logging.warning("Missing extensions: %s",missing_ext)
+                    runnable = False
+                    test_pass = False
+            if runnable:
+                fps = self.bm.run(benchmark_name, self.opts)
+                if fps is None:
+                    #oops, test failed to produce usable result!
+                    print("Test failed to produce FPS measurement.")
+                    print("Possible causes: OpenGL version too low/high")
+                    if self.ignore_problems:
+                        print("Ignoring this as requested")
+                    else:
+                        print("Considering this a FAIL test")
+                        test_pass = False
+                else:
+                    print("{} {} fps".format(benchmark_name, fps))
+                    if ( self.min_fps > fps):
+                        print("(Failed to meet minimum {} FPS)".format(
+                              self.min_fps))
+                        test_pass = False
+        return test_pass
+        
+
+
+
+share_dir = '/usr/share/globs'
+locale_dir = '/usr/share/locale'
+bench_dir = '/usr/lib/globs'
+
+parser = argparse.ArgumentParser("Executes gl benchmarks non-interactively")
+parser.add_argument("--width", action='store',
+                    default=800, type=int)
+parser.add_argument("--height", action='store',
+                    default=600, type=int)
+parser.add_argument("--repetitions", action='store',
+                    default=1, type=int)
+parser.add_argument("--time", action='store',
+                    default=10, type=int)
+parser.add_argument("--ignore-problems", action='store_true',
+                    default=False, help=("If a test fails to "
+                    "produce a FPS rating, ignore it for global test "
+                    "outcome purposes"))
+parser.add_argument("--fullscreen", action='store_true',
+                    default=False)
+parser.add_argument("--min-fps", action='store',
+                    default=60.0, type=float, help=("If any of the benchmarks"
+                    "obtains less than this FPS, the test will be considered"
+                    "failed"))
+
+args = parser.parse_args()
+
+app = Application(share_dir, bench_dir, args.width, args.height, 
+                  args.time, args.repetitions, args.fullscreen, args.min_fps,
+                  args.ignore_problems)
+
+if app.run():
+    print("PASS")
+    sys.exit(0)
+else:
+    print("FAIL")
+    sys.exit(1)
+

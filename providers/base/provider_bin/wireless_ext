@@ -1,0 +1,15 @@
+#!/bin/sh
+
+if lsmod | grep "80211" &> /dev/null ; 
+then
+  echo "Driver is using MAC80211"
+if iwconfig 2>&1 | grep "IEEE 802.11" &> /dev/null ; 
+then
+  echo "Driver has loaded wireless extension"
+  exit 0
+else
+  echo "No wireless module loaded"
+  exit 1
+
+fi
+fi

@@ -1,0 +1,197 @@
+plugin: manual
+name: led/power
+_description:
+ PURPOSE:
+     Power LED verification
+ STEPS:
+     1. Power LED should be on while device is switched on
+ VERIFICATION:
+     Does the power LED light as expected?
+
+plugin: manual
+name: led/power-blink-suspend
+depends: suspend/suspend_advanced
+_description:
+ PURPOSE:
+     Power LED verification
+ STEPS:
+     1. The Power LED should blink or change color while the system is suspended
+ VERIFICATION:
+     Did the Power LED blink or change color while the system was suspended for the previous suspend test?
+
+plugin: manual
+name: led/suspend
+_description:
+ PURPOSE:
+     Suspend LED verification.
+ STEPS:
+     Skip this test if your system does not have a dedicated Suspend LED.
+     1. The Suspend LED should blink or change color while the system is
+     suspended
+ VERIFICATION
+     Did the Suspend LED blink or change color while the system was suspended?
+
+plugin: manual
+name: led/battery-charging
+_description:
+ PURPOSE:
+     Validate that the battery light shows charging status
+ STEPS:
+     1. Let system run on battery for a while
+     2. Plug in AC plug
+ VERIFICATION:
+     Did the battery indicator LED turn orange?
+
+plugin: manual
+name: led/battery-charged
+_description:
+ PURPOSE:
+     Validate that the battery LED properly displays charged status
+ STEPS:
+     1. Let system run on battery for a short time
+     2. Plug in AC
+     3. Let system run on AC
+ VERIFICATION:
+     Does the orange battery LED shut off when system is fully charged?
+
+plugin: manual
+name: led/battery-low
+_description:
+ PURPOSE:
+     Validate that the battery LED indicated low power
+ STEPS:
+     1. Let system run on battery for several hours
+     2. Monitor battery LED carefully
+ VERIFICATION:
+     Does the LED light orange when battery is low?
+
+plugin: user-interact-verify
+name: led/hdd
+command: led_hdd_test
+_description:
+ PURPOSE:
+     HDD LED verification
+ STEPS:
+     1. Select "Test" to write and read a temporary file for a few seconds
+     2. HDD LED should light when writing to/reading from HDD
+ VERIFICATION:
+     Did the HDD LED light?
+
+plugin: user-interact-verify
+name: led/numeric-keypad
+command: keyboard_test
+_description:
+ PURPOSE:
+     Numeric keypad LED verification
+ STEPS:
+     1. Press "Block Num" key to toggle numeric keypad LED
+     2. Click on the "Test" button to open a window to verify your typing
+     3. Type using the numeric keypad both when the LED is on and off
+ VERIFICATION:
+     1. Numeric keypad LED status should toggle everytime the "Block Num" key is pressed
+     2. Numbers should only be entered in the keyboard verification window when the LED is on
+
+plugin: manual
+name: led/caps-lock
+_description:
+ PURPOSE:
+     Block cap keys LED verification
+ STEPS:
+     1. Press "Block Cap Keys" to activate/deactivate cap keys blocking
+     2. Cap Keys LED should be switched on/off every time the key is pressed
+ VERIFICATION:
+     Did the Cap Keys LED light as expected?
+
+plugin: manual
+name: led/wlan
+depends: keys/wireless
+_description:
+ PURPOSE:
+     WLAN LED verification
+ STEPS:
+     1. During the keys/wireless test you should have observed the
+     wireless LED while turning wireless back on.
+     2. WLAN LED should light or change color when wireless is turned on
+ VERIFICATION:
+     Did the WLAN LED turn on or change color as expected?
+
+plugin: manual
+name: led/wlan-disabled
+depends: keys/wireless
+_description:
+ PURPOSE:
+     Validate that WLAN LED shuts off when disabled
+ STEPS:
+     1. During the keys/wireless test you should have observed the WLAN LED
+     while performing that test after turning wireless off.
+     2. WLAN LED should turn off or change color when wireless is turned off
+ VERIFICATION:
+     Did the WLAN LED turn off or change color as expected?
+
+plugin: manual
+name: led/bluetooth
+depends: bluetooth/detect-output
+_description:
+ PURPOSE:
+     Validate that the Bluetooth LED turns on and off when BT is enabled/disabled
+ STEPS:
+     1. Switch bluetooth off from a hardware switch (if present)
+     2. Switch bluetooth back on
+     3. Switch bluetooth off from the panel applet
+     4. Switch bluetooth back on
+ VERIFICATION:
+     Did the bluetooth LED turn off and on twice?
+
+plugin: user-interact-verify
+name: led/camera
+depends: camera/detect
+command: camera_test led
+_description:
+ PURPOSE:
+     Camera LED verification
+ STEPS:
+     1. Select Test to activate camera
+     2. Camera LED should light for a few seconds
+ VERIFICATION:
+     Did the camera LED light?
+
+plugin: manual
+name: led/touchpad
+_description:
+ PURPOSE:
+     Touchpad LED verification
+ STEPS:
+     1. Click on the touchpad button or press key combination to enable/disable touchpad button
+     2. Slide your finger on the touchpad
+ VERIFICATION:
+     1. Touchpad LED status should toggle everytime the button is clicked or the key combination is pressed
+     2. When the LED is on, the mouse pointer should move on touchpad usage
+     3. When the LED is off, the mouse pointer should not move on touchpad usage
+
+plugin: manual
+name: led/wireless
+_description:
+ PURPOSE:
+     Wireless (WLAN + Bluetooth) LED verification
+ STEPS:
+     1. Make sure WLAN connection is established and Bluetooth is enabled.
+     2. WLAN/Bluetooth LED should light
+     3. Switch WLAN and Bluetooth off from a hardware switch (if present)
+     4. Switch them back on
+     5. Switch WLAN and Bluetooth off from the panel applet
+     6. Switch them back on
+ VERIFICATION:
+     Did the WLAN/Bluetooth LED light as expected?
+
+plugin: manual
+name: led/mute
+depends: keys/mute
+_description:
+ PURPOSE:
+     Audio Mute LED verification.
+ STEPS:
+     Skip this test if your system does not have a special Audio Mute LED.
+     1. Press the Mute key twice and observe the Audio LED to determine if it
+     either turned off and on or changed colors.
+ VERIFICATION:
+     Did the Audio LED turn on and off change color as expected?

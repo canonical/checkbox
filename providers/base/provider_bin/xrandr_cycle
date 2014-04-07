@@ -1,0 +1,168 @@
+#!/usr/bin/env python3
+
+import subprocess
+import argparse
+import tarfile
+import shutil
+import time
+import sys
+import os
+import re
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--keyword', default='',
+                    help=('A keyword to distinguish the screenshots '
+                          'taken in this run of the script'))
+parser.add_argument('--screenshot-dir',
+                    default=os.environ['HOME'],
+                    help=('Specify a directory to store screenshots in. '
+                          'Default is %(default)s'))
+args = parser.parse_args()
+
+
+device_context = ''    # track what device's modes we are looking at
+modes = []             # keep track of all the devices and modes discovered
+current_modes = []     # remember the user's current settings for cleanup later
+failures = 0           # count the number of failed modesets
+failure_messages = []  # remember which modes failed
+success_messages = []  # remember which modes succeeded
+
+# Run xrandr and ask it what devices and modes are supported
+xrandrinfo = subprocess.Popen('xrandr -q', shell=True, stdout=subprocess.PIPE)
+output = xrandrinfo.communicate()[0].decode().split('\n')
+
+
+# The results from xrandr are given in terms of the available display devices.
+# One device can have zero or more associated modes.  Unfortunately xrandr
+# indicates this through indentation and is kinda wordy, so we have to keep
+# track of the context we see mode names in as we parse the results.
+
+for line in output:
+    # I haven't seen any blank lines in xrandr's output in my tests, but meh
+    if line == '':
+        break
+
+    # luckily the various data from xrandr are separated by whitespace...
+    foo = line.split()
+
+    # Check to see if the second word in the line indicates a new context
+    #  -- if so, keep track of the context of the device we're seeing
+    if len(foo) >= 2:  # throw out any weirdly formatted lines
+        if foo[1] == 'disconnected':
+            # we have a new context, but it should be ignored
+            device_context = ''
+        if foo[1] == 'connected':
+            # we have a new context that we want to test
+            device_context = foo[0]
+        elif device_context != '':  # we've previously seen a 'connected' dev
+            # mode names seem to always be of the format [horiz]x[vert]
+            # (there can be non-mode information inside of a device context!)
+            if foo[0].find('x') != -1:
+                modes.append((device_context, foo[0]))
+            # we also want to remember what the current mode is, which xrandr
+            # marks with a '*' character, so we can set things back the way
+            # we found them at the end:
+            if foo[1].find('*') != -1:
+                current_modes.append((device_context, foo[0]))
+
+# Now we have a list of the modes we need to test.  So let's do just that.
+profile_path = os.environ['HOME'] + '/.shutter/profiles/'
+screenshot_path = os.path.join(args.screenshot_dir, 'xrandr_screens')
+script_home = os.path.split(os.path.dirname(os.path.realpath(__file__)))[0]
+
+if args.keyword:
+    screenshot_path = screenshot_path + '_' + args.keyword
+
+regex = re.compile(r'filename="[^"\r\n]*"')
+
+# Keep the shutter profile in place before starting
+try:
+    os.makedirs(profile_path)
+except OSError:
+    pass
+
+try:
+    os.makedirs(screenshot_path)
+except OSError:
+    pass
+
+try:
+    shutil.copy(script_home + '/data/settings/shutter.xml',
+                profile_path)
+except IOError:
+    pass
+
+try:
+    old_profile = open(profile_path + 'shutter.xml', 'r')
+    content = old_profile.read()
+    new_profile = open(profile_path + 'shutter.xml', 'w')
+    # Replace the folder name with the desired one
+    new_profile.write(re.sub(r'folder="[^"\r\n]*"',
+                             'folder="%s"' % screenshot_path, content))
+    new_profile.close()
+    old_profile.close()
+except:
+    pass
+
+for mode in modes:
+    cmd = 'xrandr --output ' + mode[0] + ' --mode ' + mode[1]
+    retval = subprocess.call(cmd, shell=True)
+    if retval != 0:
+        failures = failures + 1
+        message = 'Failed to set mode ' + mode[1] + ' for output ' + mode[0]
+        failure_messages.append(message)
+    else:
+        # Update shutter profile to save the image as the right name
+        mode_string = mode[0] + '_' + mode[1]
+
+        try:
+            old_profile = open(profile_path + 'shutter.xml', 'r')
+            content = old_profile.read()
+            new_profile = open(profile_path + 'shutter.xml', 'w')
+            new_profile.write(regex.sub('filename="%s"' % mode_string,
+                              content))
+            new_profile.close()
+            old_profile.close()
+
+            shuttercmd = ['shutter', '--profile=shutter', '--full', '-e']
+            retval = subprocess.call(shuttercmd, shell=False)
+
+            if retval != 0:
+                print("""Could not capture screenshot -
+                         you may need to install the package 'shutter'.""")
+
+        except:
+            print("""Could not configure screenshot tool -
+                     you may need to install the package 'shutter',
+                     or check that %s exists.""" % profile_path)
+
+        message = 'Set mode ' + mode[1] + ' for output ' + mode[0]
+        success_messages.append(message)
+    time.sleep(3)  # let the hardware recover a bit
+
+# Put things back the way we found them
+
+for mode in current_modes:
+    cmd = 'xrandr --output ' + mode[0] + ' --mode ' + mode[1]
+    subprocess.call(cmd, shell=True)
+
+# Tar up the screenshots for uploading
+try:
+    with tarfile.open(screenshot_path + '.tgz', 'w:gz') as screen_tar:
+        for screen in os.listdir(screenshot_path):
+            screen_tar.add(screenshot_path + '/' + screen, screen)
+except:
+    pass
+
+# Output some fun facts and knock off for the day
+
+for message in failure_messages:
+    print(message, file=sys.stderr)
+
+for message in success_messages:
+    print(message)
+
+if failures != 0:
+    exit(1)
+else:
+    exit(0)

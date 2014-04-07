@@ -1,0 +1,49 @@
+#!/bin/bash
+#
+# Verify dns server setup
+# Packages and ports can be verified offline but external connections
+# require a network connection.  The script will check for this.
+#
+
+# Verify process is running.  Expected output 'pgrep named' is a $pid
+check=`pgrep named`
+if [ -z "$check" ]; then
+  echo "FAIL: DNS bind is not running."
+  exit 1
+fi
+
+# Check ports
+result1=`host www.ubuntu.com localhost | grep "#53"`
+result2=`host -T -6 www.ubuntu.com ip6-localhost | grep "#53"`
+if [ -z "$result1" ]; then
+  echo "FAIL: DNS is not using port 53."
+  exit 1
+elif [ -z "$result2" ]; then
+  echo "FAIL: DNS is not using port 53 on IPv6."
+  exit 1
+fi
+
+# Check if udp is established
+udpCheck=`netstat -auvpn | egrep '(:53)' |egrep 'udp'`
+if [ -z "$udpCheck" ]; then
+    echo "FAIL: DNS udp setup is not established."
+    exit 1
+fi
+
+# Check if external dns queries work but first verify the network
+# is up and running
+check=`ping -c 2 www.ubuntu.com |grep "2 received"`
+if [ -n "$check" ]; then
+  failure="2(SERVFAIL)"
+  result1=`host www.ubuntu.com localhost | grep "SERVFAIL" |awk '{print $5}'`
+  result2=`host -T -6 www.ubuntu.com ip6-localhost | grep "SERVFAIL" |awk '{print $5}'`
+  if [ "$result1" = $failure ]; then
+    echo "FAIL: DNS external connection fails."
+    exit 1
+  elif [ "$result2" = $failure ]; then
+    echo "FAIL: DNS external connection via IPv6 fails."
+    exit 1
+  fi
+fi
+
+exit 0

@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+
+import sys
+import argparse
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('filename',
+                        action='store',
+                        help='The output file from sleep tests to parse')
+    parser.add_argument('--s',
+                        dest='sleep_threshold',
+                        action='store',
+                        type=float,
+                        default=10.00,
+                        help=('The max time a system should have taken to '
+                              'enter a sleep state. (Default: %(default)s)'
+                              ))
+    parser.add_argument('--r',
+                        action='store',
+                        dest='resume_threshold',
+                        type=float,
+                        default=3.00,
+                        help=('The max time a system should have taken to '
+                              'resume from a sleep state. (Default: '
+                              '%(default)s)'))
+    args = parser.parse_args()
+    
+    try:
+        file = open(args.filename)
+        lines = file.readlines()
+    finally:
+        file.close()
+
+    # find our times
+    for line in lines:
+        if "Average time to sleep" in line:
+            sleep_time = float(line.split(':')[1].strip())
+        elif "Average time to resume" in line:
+            resume_time = float(line.split(':')[1].strip())
+
+    print("Average time to enter sleep state: %s seconds" % sleep_time)
+    print("Average time to resume from sleep state: %s seconds" % resume_time)
+    
+    failed = False
+    if sleep_time > args.sleep_threshold:
+        print("System failed to suspend in less than %s seconds" % 
+                args.sleep_threshold)
+        failed = True
+    if resume_time > args.resume_threshold:
+        print("System failed to resume in less than %s seconds" %
+                args.resume_threshold)
+        failed = True
+    if sleep_time <= 0.00 or resume_time <= 0.00:
+        print("ERROR: One or more times was not reported correctly")
+        failed = True
+
+    return failed
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,23 @@
+plugin: shell
+name: mobilebroadband/gsm_connection
+estimated_duration: 20.0
+requires:
+    package.name == 'network-manager'
+    package.name == 'modemmanager'
+    mobilebroadband.gsm == 'supported'
+user: root
+environ: GSM_CONN_NAME GSM_APN GSM_USERNAME GSM_PASSWORD
+command: trap "nmcli con delete id $GSM_CONN_NAME" EXIT; create_connection mobilebroadband gsm `if [ ${GSM_APN} ]; then echo "--apn=$GSM_APN"; fi` `if [ ${GSM_CONN_NAME} ]; then echo "--name=$GSM_CONN_NAME"; fi` `if [ ${GSM_USERNAME} ]; then echo "--username=$GSM_USERNAME"; fi` `if [ ${GSM_PASSWORD} ]; then echo "--password=$GSM_PASSWORD"; fi` && curl http://start.ubuntu.com/connectivity-check.html --interface `nmcli dev status | awk '/gsm/ {print $1}'`; if [ "`nmcli dev status | awk '/gsm/ {print $3}'`" == "connected" ]; then nmcli con down id `[ ${GSM_CONN_NAME} ] && echo "$GSM_CONN_NAME" || echo "MobileBB"`; fi
+_description: Creates a mobile broadband connection for a GSM based modem and checks the connection to ensure it's working. 
+
+plugin: shell
+name: mobilebroadband/cdma_connection
+estimated_duration: 20.0
+requires:
+    package.name == 'network-manager'
+    package.name == 'modemmanager'
+    mobilebroadband.cdma == 'supported'
+user: root
+environ: CDMA_CONN_NAME CDMA_USERNAME CDMA_PASSWORD
+command: trap "nmcli con delete id $CDMA_CONN_NAME" EXIT; create_connection mobilebroadband cdma `if [ ${CDMA_CONN_NAME} ]; then echo "--name=$CDMA_CONN_NAME"; fi` `if [ ${CDMA_USERNAME} ]; then echo "--username=$CDMA_USERNAME"; fi` `if [ ${CDMA_PASSWORD} ]; then echo "--password=$CDMA_PASSWORD"; fi` && curl http://start.ubuntu.com/connectivity-check.html --interface `nmcli dev status | awk '/gsm/ {print $1}'`; if [ "`nmcli dev status | awk '/gsm/ {print $3}'`" == "connected" ]; then nmcli con down id `[ ${CDMA_CONN_NAME} ] && echo "$CDMA_CONN_NAME" || echo "MobileBB"`; fi
+_description: Creates a mobile broadband connection for a CDMA based modem and checks the connection to ensure it's working.

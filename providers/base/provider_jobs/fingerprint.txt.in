@@ -1,0 +1,29 @@
+plugin: manual
+name: fingerprint/login
+_description:
+ PURPOSE:
+    This test will verify that a fingerprint reader will work properly for logging into your system. This test case assumes that there's a testing account from which test cases are run and a personal account that the tester uses to verify the fingerprint reader
+ STEPS:
+    1. Click on the User indicator on the left side of the panel (your user name).
+    2. Select "Switch User Account"
+    3. On the LightDM screen select your username.
+    4. Use the fingerprint reader to login.
+    5. Click on the user switcher applet.
+    6. Select the testing account to continue running tests.
+ VERIFICATION:
+    Did the authentication procedure work correctly?
+
+plugin: manual
+name: fingerprint/unlock
+_description:
+ PURPOSE:
+    This test will verify that a fingerprint reader can be used to unlock a locked system.
+ STEPS:
+    1. Click on the Session indicator (Cog icon on the Left side of the panel) .
+    2. Select 'Lock screen'.
+    3. Press any key or move the mouse.
+    4. A window should appear that provides the ability to unlock either typing your password or using fingerprint authentication.
+    5. Use the fingerprint reader to unlock.
+    6. Your screen should be unlocked.
+ VERIFICATION:
+    Did the authentication procedure work correctly?

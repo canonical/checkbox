@@ -1,0 +1,91 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+
+from checkbox_support.parsers.lshwjson import LshwJsonParser
+from checkbox_support.parsers.meminfo import MeminfoParser
+from subprocess import check_output, PIPE
+
+THRESHOLD = 25
+
+class LshwJsonResult:
+
+    memory_reported = 0
+    banks_reported = 0
+
+    def addHardware(self, hardware):
+        if hardware['id'] == 'memory':
+            self.memory_reported += int(hardware.get('size', 0))
+        elif 'bank' in hardware['id']:
+            self.banks_reported += int(hardware.get('size', 0))
+
+def get_installed_memory_size():
+    lshw = LshwJsonParser(check_output(['lshw','-json'],
+                          universal_newlines=True,
+                          stderr=PIPE))
+    result = LshwJsonResult()
+    lshw.run(result)
+
+    if result.memory_reported:
+        return result.memory_reported
+    else:
+        return result.banks_reported
+
+class MeminfoResult:
+
+    memtotal = 0
+
+    def setMemory(self, memory):
+        self.memtotal = memory['total']
+
+def get_visible_memory_size():
+    parser = MeminfoParser(open('/proc/meminfo'))
+    result = MeminfoResult()
+    parser.run(result)
+
+    return result.memtotal
+
+def get_threshold(installed_memory):
+    GB = 1024**3
+    if installed_memory <= 2 * GB:
+        return 25
+    elif installed_memory <= 6 * GB:
+        return 20
+    else:
+        return 10
+
+def main():
+    if os.geteuid() != 0:
+        print("This script must be run as root.", file=sys.stderr)
+        return 1
+
+    installed_memory = get_installed_memory_size()
+    visible_memory = get_visible_memory_size()
+    threshold = get_threshold(installed_memory)
+
+    difference = installed_memory - visible_memory
+    try:
+        percentage = difference / installed_memory * 100
+    except ZeroDivisionError:
+        print("Results:")
+        print("\t/proc/meminfo reports:\t%s kB" % (visible_memory / 1024), file=sys.stderr)
+        print("\tlshw reports:\t%s kB" % (installed_memory / 1024), file=sys.stderr)
+        print("\nFAIL: Either lshw or /proc/meminfo returned a memory size of 0 kB", file=sys.stderr)
+        return 1
+    
+    if percentage <= threshold:
+        print("Results:")
+        print("\t/proc/meminfo reports:\t%s kB" % (visible_memory / 1024))
+        print("\tlshw reports:\t%s kB" % (installed_memory / 1024))
+        print("\nPASS: Meminfo reports %d bytes less than lshw, a difference of %.2f%%. This is less than the %d%% variance allowed." % (difference, percentage, threshold))
+        return 0
+    else:
+        print("Results")
+        print("\t/proc/meminfo reports:\t%s kB" % (visible_memory / 1024), file=sys.stderr)
+        print("\tlshw reports:\t%s kB" % (installed_memory / 1024), file=sys.stderr)
+        print("\nFAIL: Meminfo reports %d bytes less than lshw, a difference of %.2f%%. Only a variance of %d%% in reported memory is allowed." % (difference, percentage, threshold), file=sys.stderr)
+        return 1
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,74 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+#
+# graphics_modes_info
+#
+# This file is part of Checkbox.
+#
+# Copyright 2012 Canonical Ltd.
+#
+# Authors: Alberto Milone <alberto.milone@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+
+from __future__ import print_function
+from __future__ import unicode_literals
+import sys
+
+from checkbox_support.contrib import xrandr
+
+
+def print_modes_info(screen):
+    """Print some information about the detected screen and its outputs"""
+    xrandr._check_required_version((1, 0))
+    print("Screen %s: minimum %s x %s, current %s x %s, maximum %s x %s" %\
+          (screen._screen,
+           screen._width_min, screen._height_min,
+           screen._width, screen._height,
+           screen._width_max, screen._height_max))
+    print("          %smm x %smm" % (screen._width_mm, screen._height_mm))
+    print("Outputs:")
+    for o in list(screen.outputs.keys()):
+        output = screen.outputs[o]
+        print("  %s" % o, end=' ')
+        if output.is_connected():
+            print("(%smm x %smm)" % (output.get_physical_width(),
+                                     output.get_physical_height()))
+            modes = output.get_available_modes()
+            print("    Modes:")
+            for m in range(len(modes)):
+                mode = modes[m]
+                refresh = mode.dotClock / (mode.hTotal * mode.vTotal)
+                print("      [%s] %s x %s @ %s Hz" % (m,
+                                                   mode.width,
+                                                   mode.height,
+                                                   refresh), end=' ')
+                if mode.id == output._mode:
+                    print("(current)", end=' ')
+                if m == output.get_preferred_mode():
+                    print("(preferred)", end=' ')
+                print("")
+        else:
+            print("(not connected)")
+
+
+def main():
+    screen = xrandr.get_current_screen()
+    try:
+        print_modes_info(screen)
+    except(xrandr.UnsupportedRRError):
+        print('Error: RandR version lower than 1.0', file=sys.stderr)
+
+if __name__ == '__main__':
+    main()

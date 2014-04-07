@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+
+import os
+import re
+import sys
+import time
+import subprocess
+from datetime import datetime
+
+IFACE = None
+TIMEOUT = 30
+
+
+def main():
+    """
+    Check the time needed to reconnect an active WIFI connection
+    """
+    devices = subprocess.getoutput('nmcli dev')
+    match = re.search('(\w+)\s+802-11-wireless\s+connected', devices)
+    if match:
+        IFACE = match.group(1)
+    else:
+        print("No active wifi connection detected", file=sys.stderr)
+        return 1
+
+    dev_status = subprocess.getoutput('nmcli -t -f devices,uuid con status')
+    match = re.search(IFACE+':(.*)', dev_status)
+    uuid = None
+    if match:
+        uuid = match.group(1)
+    else:
+        return 1
+
+    subprocess.call(
+        'nmcli dev disconnect iface %s' %IFACE,
+        stdout=open(os.devnull, 'w'),
+        stderr=subprocess.STDOUT,
+        shell=True)
+
+    time.sleep(2)
+    start = datetime.now()
+
+    subprocess.call(
+        'nmcli con up uuid %s --timeout %s' %(uuid, TIMEOUT),
+        stdout=open(os.devnull, 'w'),
+        stderr=subprocess.STDOUT,
+        shell=True)
+
+    delta = datetime.now() - start
+    print('%.2f Seconds' %delta.total_seconds())
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

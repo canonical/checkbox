@@ -1,0 +1,74 @@
+#!/bin/bash
+## Xen Testing
+## Script to make and fire off some pre-made VMs to test the hypervisor
+## under a bit of simulated load
+##
+## USAGE: xentest.sh /path/to/ORIGINAL_IMAGE /path/to/ORIGINAL_CONFIG
+##
+## this is a kludge and a dirty, dirty hack and shoud die an ignomious
+## death soon.  A more elegant solution would be to modify the script
+## /usr/share/checkbox/scripts/virtualization and add the missing Xen
+## functionality.  But this will do as a first pass.
+
+ORIGINAL_VM=$1
+ORIGINAL_VM_TEMPLATE=$2
+VIRSH_CMD='virsh -c xen:///'
+CLONE_CMD='virt-clone'
+VM_NAME_BASE='xentest-vm'
+
+# First, figure out how many CPUs we have:
+#CPU_CORES=`xm dmesg | grep -c "(XEN) Processor #"`
+CPU_CORES=1
+
+# Verify our image and config file are present
+if [ ! -e $ORIGINAL_VM ]; then
+    echo "Xen VM Image not found!" >&2
+    exit 1
+fi
+if [ ! -e $ORIGINAL_VM_TEMPLATE ]; then
+    echo "Xen VM Config File not found!" >&2
+    exit 1
+fi
+
+#Clone those suckers enough that we have 2 VMs per core and LAUNCH!
+VM_TOTAL=$((CPU_CORES*2))
+
+#Set up an assoticative array (this would translate much better into
+#a simple python list later on, hint hint)
+declare -A VM_NAMES
+
+echo "Starting $VM_TOTAL VM clones" >&2
+for vm in `seq 1 $VM_TOTAL`; do
+    VM_NAME="$VM_NAME_BASE$vm"
+    VM_NAMES[$vm]=$VM_NAME
+    echo "Cloning vm $vm" >&2
+    $CLONE_CMD --original-xml=$ORIGINAL_VM_TEMPLATE -n $VM_NAME -f /vms/$VM_NAME.img --force >&2
+    echo "Starting vm $vm" >&2
+    $VIRSH_CMD start $VM_NAME
+done
+
+#Lets wait a few minutes to let them do some work
+echo "Sleeping for 5 miunutes to let VMs boot and start working" >&2
+sleep 5m
+echo "" >&2
+#Now verify the VMs are still running
+fail=false
+echo "Checking domU state..." >&2
+for vm in `seq 1 $VM_TOTAL`; do
+    state=`$VIRSH_CMD domstate ${VM_NAMES[$vm]}`
+    echo "${VM_NAMES[$vm]}: $state" >&2
+    if [ "$state" != "running" ]; then
+        fail=true
+        echo "VM $vm is not in running state!" >&2
+    fi
+done
+
+if $fail; then
+    echo "One or more guests is not in the running state after 5 minutes." >&2
+    echo "Test Fails" >&2
+    exit 1
+else
+    echo "All guests seem to be running correctly"
+fi
+
+exit 0

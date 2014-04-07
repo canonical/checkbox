@@ -1,0 +1,342 @@
+#!/usr/bin/env python3
+
+"""
+Script to test virtualization functionality
+
+Copyright (C) 2013, 2014 Canonical Ltd.
+
+Authors
+  Jeff Marcom <jeff.marcom@canonical.com>
+  Daniel Manrique <roadmr@ubuntu.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+
+from argparse import ArgumentParser
+import configparser
+import os
+import re
+import logging
+import lsb_release
+import shlex
+import signal
+from subprocess import (
+    Popen,
+    PIPE,
+    CalledProcessError,
+    check_output,
+    call
+)
+import sys
+import tempfile
+import tarfile
+import time
+import urllib.request
+
+DEFAULT_TIMEOUT = 500
+
+
+class XENTest(object):
+    pass
+
+
+class KVMTest(object):
+
+    def __init__(self, image=None, timeout=500, debug_file="virt_debug"):
+        self.image = image
+        self.timeout = timeout
+        self.debug_file = os.path.join(os.getcwd(), debug_file)
+        self.arch = check_output(['arch'], universal_newlines=True)
+
+    def download_image(self):
+        """
+        Downloads Cloud image for same release as host machine
+        """
+
+        # Check Ubuntu release info. Example {quantal, precise}
+        release = lsb_release.get_lsb_information()["CODENAME"]
+
+        # Construct URL
+        cloud_url = "http://cloud-images.ubuntu.com"
+
+        if re.match("arm.*", self.arch):
+            cloud_iso = release + "-server-cloudimg-armhf.tar.gz"
+        else:
+            cloud_iso = release + "-server-cloudimg-i386-disk1.img"
+        image_url = "/".join((
+            cloud_url, release, "current", cloud_iso))
+
+        logging.debug("Downloading {}, from {}".format(cloud_iso, cloud_url))
+
+        # Attempt download
+        try:
+            resp = urllib.request.urlretrieve(image_url, cloud_iso)
+        except (IOError, OSError, urllib.error.HTTPError) as exception:
+            logging.error("Failed download of image from %s: %s", image_url, exception)
+            return False
+
+        # Unpack img file from tar
+        if re.match("arm.*", self.arch):
+            cloud_iso_tgz = tarfile.open(cloud_iso)
+            cloud_iso = cloud_iso.replace('tar.gz', 'img')
+            cloud_iso_tgz.extract(cloud_iso)
+
+        if not os.path.isfile(cloud_iso):
+            return False
+
+        return cloud_iso
+
+    def boot_image(self, data_disk):
+        """
+        Attempts to boot the newly created qcow image using
+        the config data defined in config.iso
+        """
+
+        logging.debug("Attempting boot for:{}".format(data_disk))
+
+        # Set Arbitrary IP values
+        netrange = "10.0.0.0/8"
+        image_ip = "10.0.0.1"
+        hostfwd = "tcp::2222-:22"
+        cloud_disk = ""
+
+        # Should we attach the cloud config disk
+        if os.path.isfile("seed.iso"):
+            logging.debug("Attaching Cloud config disk")
+            cloud_disk = "-drive file=seed.iso,if=virtio"
+
+        if re.match("(arm.*|aarch64)", self.arch):
+            uname = check_output(['uname', '-r'], universal_newlines=True)
+            cloud_disk = cloud_disk.replace("virtio", "sd")
+            params = 'qemu-system-arm -machine vexpress-a15 -cpu cortex-a15 -enable-kvm -m {} -kernel /boot/vmlinuz -append "console=ttyAMA0 earlyprintk=serial root=/dev/mmcblk0 ro rootfstype=ext4" -serial stdio -dtb /lib/firmware/{}/device-tree/vexpress-v2p-ca15-tc1.dtb -initrd /boot/initrd.img -net nic -net user,net={},host={},hostfwd={} -drive file={},if=sd,cache=writeback {} -display none -nographic'.format(uname, "256", netrange, image_ip, hostfwd, data_disk, cloud_disk)
+        else:
+            params = \
+                '''
+                qemu-system-x86_64 -machine accel=kvm:tcg -m {0} -net nic 
+                -net user,net={1},host={2},hostfwd={3} 
+                -drive file={4},if=virtio {5} -display none -nographic
+                '''.format(
+                "256",
+                netrange,
+                image_ip,
+                hostfwd,
+                data_disk,
+                cloud_disk).replace("\n", "").replace("  ", "")
+
+        logging.debug("Using params:{}".format(params))
+
+        # Default file location for log file is in checkbox output directory
+        checkbox_dir = os.getenv("CHECKBOX_DATA")
+
+        if checkbox_dir is not None:
+            self.debug_file = os.path.join(checkbox_dir, self.debug_file)
+        logging.info("Storing VM console output in {}".format(
+                     os.path.realpath(self.debug_file)))
+        # Open VM STDERR/STDOUT log file for writing
+        try:
+            file = open(self.debug_file, 'w')
+        except IOError:
+            logging.error("Failed creating file:{}".format(self.debug_file))
+            return False
+
+        # Start Virtual machine
+        self.process = Popen(
+            shlex.split(params), stdin=PIPE, stderr=file, stdout=file,
+            universal_newlines=True, shell=False)
+
+    def create_cloud_disk(self):
+        """
+        Generate Cloud meta data and creates an iso object
+        to be mounted as virtual device to instance during boot.
+        """
+
+        user_data = """\
+#cloud-config
+
+runcmd:
+ - [ sh, -c, echo "========= CERTIFICATION TEST =========" ]
+
+power_state:
+    mode: halt
+    message: Bye
+    timeout: 480
+
+final_message: CERTIFICATION BOOT COMPLETE
+"""
+
+        meta_data = """\
+{ echo instance-id: iid-local01; echo local-hostname, certification; }
+"""
+
+        for file in ['user-data', 'meta-data']:
+            logging.debug("Creating cloud %s", file)
+            with open(file, "wt") as data_file:
+                os.fchmod(data_file.fileno(), 0o777)
+                data_file.write(vars()[file.replace("-", "_")])
+
+        # Create Data ISO hosting user & meta cloud config data
+        try:
+            iso_build = check_output(
+                ['genisoimage', '-output', 'seed.iso', '-volid',
+                 'cidata', '-joliet', '-rock', 'user-data', 'meta-data'],
+                universal_newlines=True)
+        except CalledProcessError as exception:
+            logging.exception("Cloud data disk creation failed")
+
+    def start(self):
+        logging.debug('Starting KVM Test')
+        status = 1
+        # Create temp directory:
+
+        date = time.strftime("%b_%d_%Y_")
+        with tempfile.TemporaryDirectory("_kvm_test", date) as temp_dir:
+
+            os.chmod(temp_dir, 0o744)
+            os.chdir(temp_dir)
+            if not self.image:
+                logging.debug('No image specified, downloading one now.')
+                # Download cloud image
+                self.image = self.download_image()
+
+            if self.image and os.path.isfile(self.image):
+
+                if "cloud" in self.image:
+                    # Will assume we need to supply cloud meta data
+                    # for instance boot to be successful
+                    self.create_cloud_disk()
+
+                # Boot Virtual Machine
+                instance = self.boot_image(self.image)
+
+                time.sleep(self.timeout)
+                # Reset Console window to regain control from VM Serial I/0
+                call('reset')
+                # Check to be sure VM boot was successful
+                with open(self.debug_file, 'r') as debug_file:
+                    file_contents = debug_file.read()
+                    if "CERTIFICATION BOOT COMPLETE" in file_contents:
+                        if "END SSH HOST KEY KEYS" in file_contents:
+                            print("Booted successfully", file=sys.stderr)
+                        else:
+                            print("Booted successfully (Previously "
+                                  "initalized VM)", file=sys.stderr)
+                        status = 0
+                    else:
+                        print("E: KVM instance failed to boot", file=sys.stderr)
+                        print("Console output".center(72, "="),
+                              file=sys.stderr)
+                        with open(self.debug_file, 'r') as console_log:
+                            print(console_log.read(), file=sys.stderr)
+                        print("E: KVM instance failed to boot", file=sys.stderr)
+                self.process.terminate()
+            elif not self.image:
+                print("Could not find downloaded image")
+            else:
+                print("Could not find: {}".format(self.image), file=sys.stderr)
+
+        return status
+
+
+def test_kvm(args):
+    print("Executing KVM Test", file=sys.stderr)
+
+    DEFAULT_CFG = "/etc/checkbox.d/virtualization.cfg"
+    image = ""
+    timeout = ""
+
+    # Configuration data can come from three sources.
+    # Lowest priority is the config file.
+    config_file = DEFAULT_CFG
+    config = configparser.SafeConfigParser()
+
+    try:
+        config.readfp(open(config_file))
+    except IOError:
+        logging.warn("No config file found")
+    else:
+        try:
+            timeout = config.getfloat("KVM", "timeout")
+        except ValueError:
+            logging.warning('Invalid or Empty timeout in config file. '
+                            'Falling back to default')
+        except configparser.NoSectionError as e:
+            logging.exception(e)
+
+        try:
+            image = config.get("KVM", "image")
+        except configparser.NoSectionError:
+            logging.exception('Invalid or Empty image in config file.')
+
+    # Next in priority are environment variables.
+    if 'KVM_TIMEOUT' in os.environ:
+        try:
+            timeout = float(os.environ['KVM_TIMEOUT'])
+        except ValueError as err:
+            logging.warning("TIMEOUT env variable: %s" % err)
+            timeout = DEFAULT_TIMEOUT
+    if 'KVM_IMAGE' in os.environ:
+        image = os.environ['KVM_IMAGE']
+
+    # Finally, highest-priority are command line arguments.
+    if args.timeout:
+        timeout = args.timeout
+    elif not timeout:
+        timeout = DEFAULT_TIMEOUT
+    if args.image:
+        image = args.image
+
+    kvm_test = KVMTest(image, timeout)
+    result = kvm_test.start()
+
+    sys.exit(result)
+
+
+def main():
+
+    parser = ArgumentParser(description="Virtualization Test")
+    subparsers = parser.add_subparsers()
+
+    # Main cli options
+    kvm_test_parser = subparsers.add_parser(
+        'kvm', help=("Run kvm virtualization test"))
+
+    #xen_test_parser = subparsers.add_parser('xen',
+    #    help=("Run xen virtualization test"))
+
+    # Sub test options
+    kvm_test_parser.add_argument(
+        '-i', '--image', type=str, default=None)
+    kvm_test_parser.add_argument(
+        '-t', '--timeout', type=int)
+    kvm_test_parser.add_argument('--debug', dest='log_level',
+                                 action="store_const", const=logging.DEBUG,
+                                 default=logging.INFO)
+    kvm_test_parser.set_defaults(func=test_kvm)
+
+    args = parser.parse_args()
+
+    try:
+        logging.basicConfig(level=args.log_level)
+    except AttributeError:
+        pass  # avoids exception when trying to run without specifying 'kvm'
+
+    # to check if not len(sys.argv) > 1
+    if len(vars(args)) == 0:
+        parser.print_help()
+        return False
+
+    args.func(args)
+
+if __name__ == "__main__":
+    main()

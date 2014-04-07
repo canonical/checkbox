@@ -1,0 +1,263 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+#
+# rendercheck_test
+#
+# This file is part of Checkbox.
+#
+# Copyright 2012 Canonical Ltd.
+#
+# Authors: Alberto Milone <alberto.milone@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+
+from subprocess import Popen, PIPE
+from argparse import ArgumentParser
+
+import logging
+import os
+import re
+import tempfile
+import errno
+
+
+class RenderCheck(object):
+    """A simple class to run the rendercheck suites"""
+
+    def __init__(self, temp_dir=None):
+        self._temp_dir = temp_dir
+
+    def _print_test_info(self, suites='all', iteration=1, show_errors=False):
+        '''Print the output of the test suite'''
+
+        main_command = 'rendercheck'
+        passed = 0
+        total = 0
+
+        if self._temp_dir:
+            # Use the specified path
+            temp_file = tempfile.NamedTemporaryFile(dir=self._temp_dir,
+                                                    delete=False)
+        else:
+            # Use /tmp
+            temp_file = tempfile.NamedTemporaryFile(delete=False)
+
+        if suites == all:
+            full_command = [main_command, '-f', 'a8r8g8b8']
+        else:
+            full_command = [main_command, '-t', suites, '-f', 'a8r8g8b8']
+
+        try:
+            # Let's dump the output into file as it can be very large
+            # and we don't want to store it in memory
+            process = Popen(full_command, stdout=temp_file,
+                            universal_newlines=True)
+        except OSError as exc:
+            if exc.errno == errno.ENOENT:
+                logging.error('Error: please make sure that rendercheck '
+                              'is installed.')
+                exit(1)
+            else:
+                raise
+
+        exit_code = process.wait()
+
+        temp_file.close()
+
+        # Read values from the file
+        errors = re.compile('.*test error.*')
+        results = re.compile('(.+) tests passed of (.+) total.*')
+
+        first_error = True
+        with open(temp_file.name) as temp_handle:
+            for line in temp_handle:
+                match_output = results.match(line)
+                match_errors = errors.match(line)
+                if match_output:
+                    passed = int(match_output.group(1).strip())
+                    total = int(match_output.group(2).strip())
+                    logging.info('Results:')
+                    logging.info('    %d tests passed out of %d.'
+                                  % (passed, total))
+                if show_errors and match_errors:
+                    error = match_errors.group(0).strip()
+                    if first_error:
+                        logging.debug('Rendercheck %s suite errors '
+                                      'from iteration %d:'
+                                       % (suites, iteration))
+                        first_error = False
+                    logging.debug('    %s' % error)
+
+        # Remove the file
+        os.unlink(temp_file.name)
+
+        return (exit_code, passed, total)
+
+    def run_test(self, suites=[], iterations=1, show_errors=False):
+        exit_status = 0
+        for suite in suites:
+            for it in range(iterations):
+                logging.info('Iteration %d of Rendercheck %s suite...'
+                              % (it + 1, suite))
+                (status, passed, total) = \
+                self._print_test_info(suites=suite,
+                                      iteration=it + 1,
+                                      show_errors=show_errors)
+                if status != 0:
+                    # Make sure to catch a non-zero exit status
+                    logging.info('Iteration %d of Rendercheck %s suite '
+                                  'exited with status %d.'
+                                  % (it + 1, suite, status))
+                    exit_status = status
+                it += 1
+
+                # exit with 1 if passed < total
+                if passed < total:
+                    if exit_status == 0:
+                        exit_status = 1
+        return exit_status
+
+    def get_suites_list(self):
+        '''Return a list of the available test suites'''
+        try:
+            process = Popen(['rendercheck', '--help'], stdout=PIPE,
+                            stderr=PIPE, universal_newlines=True)
+        except OSError as exc:
+            if exc.errno == errno.ENOENT:
+                logging.error('Error: please make sure that rendercheck '
+                              'is installed.')
+                exit(1)
+            else:
+                raise
+
+        proc = process.communicate()[1].split('\n')
+        found = False
+        tests_pattern = re.compile('.*Available tests: *(.+).*')
+        temp_line = ''
+        tests = []
+        for line in proc:
+            if found:
+                temp_line += line
+            match = tests_pattern.match(line)
+            if match:
+                first_line = match.group(1).strip().lower()
+                found = True
+                temp_line += first_line
+        for elem in temp_line.split(','):
+            test = elem.strip()
+            if elem:
+                tests.append(test)
+        return tests
+
+
+def main():
+    usage = 'Usage: %prog [OPTIONS]'
+    all_tests = RenderCheck().get_suites_list()
+
+    parser = ArgumentParser(usage)
+    parser.add_argument('-i', '--iterations',
+                        type=int,
+                        default=1,
+                        help='The number of times to run the test. \
+                              Default is 1')
+    parser.add_argument('-t', '--test',
+                        default='all',
+                        help='The name of the test suit to run. \
+                              Available tests: \
+                              %s. \
+                              Default is all' % (', '.join(all_tests)))
+    parser.add_argument('-b', '--blacklist',
+                        action='append',
+                        help='The name of a test which should not be run.')
+    parser.add_argument('-d', '--debug',
+                        action='store_true',
+                        help='Choose this to add verbose output \
+                              for debug purposes')
+    parser.add_argument('-o', '--output',
+                        default='',
+                        help='The path to the log which will be dumped. \
+                              Default is stdout')
+    parser.add_argument('-tp', '--temp',
+                        default='',
+                        help='The path where to store temporary files. \
+                              Default is /tmp')
+    args = parser.parse_args()
+
+    # Set up logging to console
+    format = '%(message)s'
+
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(logging.Formatter(format))
+
+    # Set up the overall logger
+    logger = logging.getLogger()
+    # This is necessary to ensure debug messages are passed through the logger
+    # to the handler
+    logger.setLevel(logging.DEBUG)
+
+    # This is what happens when -d and/or -o are passed:
+    # -o ->     stdout (info)                - log (info)
+    # -d ->     only stdout (info and debug) - no log
+    # -d -o ->  stdout (info)                - log (info and debug)
+
+    # Write to a log
+    if args.output:
+        # Write INFO to stdout
+        console_handler.setLevel(logging.INFO)
+        logger.addHandler(console_handler)
+        # Specify a log file
+        logfile = args.output
+        logfile_handler = logging.FileHandler(logfile)
+        if args.debug:
+            # Write INFO and DEBUG to a log
+            logfile_handler.setLevel(logging.DEBUG)
+        else:
+            # Write INFO to a log
+            logfile_handler.setLevel(logging.INFO)
+
+        logfile_handler.setFormatter(logging.Formatter(format))
+        logger.addHandler(logfile_handler)
+        log_path = os.path.abspath(logfile)
+        logging.info("The log can be found at %s" % log_path)
+
+    # Write only to stdout
+    else:
+        if args.debug:
+            # Write INFO and DEBUG to stdout
+            console_handler.setLevel(logging.DEBUG)
+            logger.addHandler(console_handler)
+        else:
+            # Write INFO to stdout
+            console_handler.setLevel(logging.INFO)
+            logger.addHandler(console_handler)
+
+    exit_status = 0
+
+    if args.test == 'all':
+        tests = all_tests
+    else:
+        tests = args.test.split(',')
+
+    for test in args.blacklist:
+        if test in tests:
+            tests.remove(test)
+
+    rendercheck = RenderCheck(args.temp)
+    exit_status = rendercheck.run_test(tests, args.iterations,
+                                       args.debug)
+
+    exit(exit_status)
+
+if __name__ == '__main__':
+    main()

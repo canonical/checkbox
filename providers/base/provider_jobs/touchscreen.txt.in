@@ -1,0 +1,92 @@
+plugin: shell
+name: touchscreen/nontouch-automated
+requires:
+  xinput.device_class == 'XITouchClass' and xinput.touch_mode != 'direct'
+command: true
+estimated_duration: 1.2
+_description:
+ Determine whether the screen is detected as a non-touch device automatically.
+
+plugin: shell
+name: touchscreen/multitouch-automated
+requires:
+  xinput.device_class == 'XITouchClass' and xinput.touch_mode == 'direct'
+command: true
+estimated_duration: 1.2
+_description:
+ Determine whether the screen is detected as a multitouch device automatically.
+
+plugin: manual
+name: touchscreen/multitouch-manual
+depends: touchscreen/nontouch-automated
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Touchscreen manual detection of multitouch.
+ STEPS:
+     1. Look at the specifications for your system.
+ VERIFICATION:
+     Is the screen supposed to be multitouch?
+
+plugin: manual
+name: touchscreen/tap-detect
+depends: touchscreen/multitouch-automated
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Check touchscreen tap recognition
+ STEPS:
+     1. Tap an object on the screen with finger. The cursor should jump to location tapped and object should highlight
+ VERIFICATION:
+     Does tap recognition work?
+
+plugin: manual
+name: touchscreen/drag-n-drop
+depends: touchscreen/multitouch-automated
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Check touchscreen drag & drop
+ STEPS:
+     1. Double tap, hold, and drag an object on the desktop
+     2. Drop the object in a different location
+ VERIFICATION:
+     Does the object select and drag and drop?
+
+plugin: manual
+name: touchscreen/multitouch-zoom
+depends: touchscreen/multitouch-automated
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Check touchscreen pinch gesture for zoom
+ STEPS:
+     1. Place two fingers on the screen and pinch them together
+     2. Place two fingers on the screen and move then apart
+ VERIFICATION:
+     Does the screen zoom in and out?
+
+plugin: manual
+name: touchscreen/multitouch-window-move
+depends: touchscreen/multitouch-automated
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Validate that 3-touch drag is operating as expected
+ STEPS:
+     1. Open a windows and bring it to the foreground
+     2. 3-touch the window and drag
+ VERIFICATION:
+     Did the window move along with the drag?
+
+plugin: manual
+name: touchscreen/multitouch-dash
+depends: touchscreen/multitouch-automated
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Validate that 4-touch tap is operating as expected
+ STEPS:
+     1. 4-touch tap anywhere on the touchscreen
+ VERIFICATION:
+     Did the tap open the Dash?

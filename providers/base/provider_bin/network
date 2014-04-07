@@ -1,0 +1,648 @@
+#!/usr/bin/env python3
+"""
+Copyright (C) 2012-2014 Canonical Ltd.
+
+Authors
+  Jeff Marcom <jeff.marcom@canonical.com>
+  Daniel Manrique <roadmr@ubuntu.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
+from argparse import (
+    ArgumentParser,
+    RawTextHelpFormatter
+)
+import configparser
+import fcntl
+import ftplib
+from ftplib import FTP
+import logging
+import os
+import re
+import shlex
+import socket
+import struct
+import subprocess
+from subprocess import (
+    CalledProcessError,
+    check_call,
+    check_output
+)
+import sys
+import time
+
+logging.basicConfig(level=logging.DEBUG)
+
+
+class IPerfPerformanceTest(object):
+    """Measures performance of interface using iperf client
+    and target. Calculated speed is measured against theorectical
+    throughput of selected interface"""
+
+    def __init__(
+            self,
+            interface,
+            target,
+            fail_threshold,
+            protocol="tcp",
+            mbytes="1024M"):
+
+        self.iface = Interface(interface)
+        self.target = target
+        self.protocol = protocol
+        self.fail_threshold = fail_threshold
+
+        self.mbytes = mbytes
+
+    def run(self):
+        cmd = "timeout 180 iperf -c {} -n {}".format(self.target, self.mbytes)
+
+        logging.debug(cmd)
+        try:
+            iperf_return = check_output(
+                shlex.split(cmd), universal_newlines=True)
+        except CalledProcessError as iperf_exception:
+            if iperf_exception.returncode != 124:
+                # timeout command will return 124 if iperf timed out, so any
+                # other return value means something did fail
+                logging.error("Failed executing iperf: %s",
+                              iperf_exception.output)
+                return iperf_exception.returncode
+            else:
+                # this is normal so we "except" this exception and we
+                # "pass through" whatever output iperf did manage to produce.
+                # When confronted with SIGTERM iperf should stop and output
+                # a partial (but usable) result.
+                logging.warning("iperf timed out - this should be OK")
+                iperf_return = iperf_exception.output
+
+        # 930 Mbits/sec\n'
+        print(iperf_return)
+        match = re.search(r'[\d\.]+\s([GM])bits', iperf_return)
+        if match:
+            throughput = match.group(0).split()[0]
+            units = match.group(1)
+            # self.iface.max_speed is always in mb/s, so we need to scale
+            # throughput to match
+            scaled_throughput = float(throughput)
+            if units == 'G':
+                scaled_throughput *= 1000
+            if units == 'K':
+                scaled_throughput /= 1000
+            try:
+                percent = scaled_throughput / int(self.iface.max_speed) * 100
+            except (ZeroDivisionError, TypeError) as error:
+                # Catches a condition where the interface functions fine but
+                # ethtool fails to properly report max speed. In this case
+                # it's up to the reviewer to pass or fail.
+                logging.error("Max Speed was not reported properly.  Run "
+                              "ethtool and verify that the card is properly "
+                              "reporting its capabilities.")
+                logging.error(error)
+                percent = 0
+
+            print("\nTransfer speed: {} {}b/s".format(throughput, units))
+            print("%3.2f%% of " % percent, end="")
+            try:
+                print("theoretical max %sMb/s\n" % int(self.iface.max_speed))
+            except TypeError as error:
+                logging.error("Max Speed was not reported properly.  Run "
+                              "ethtool and verify that the card is properly "
+                              "reporting its capabilities.")
+                logging.error(error)
+
+            if percent < self.fail_threshold:
+                logging.warn("Poor network performance detected")
+                return 30
+
+            logging.debug("Passed benchmark")
+        else:
+            print("Failed iperf benchmark")
+            return 1
+
+
+class FTPPerformanceTest(object):
+    """Provides file transfer rate based information while
+    using the FTP protocol and sending a file (DEFAULT=1GB)
+    over the local or public network using a specified network
+    interface on the host."""
+
+    def __init__(
+            self,
+            target,
+            username,
+            password,
+            interface,
+            binary_size=1,
+            file2send="ftp_performance_test"):
+
+        self.target = target
+        self.username = username
+        self.password = password
+        self.iface = Interface(interface)
+        self.binary_size = binary_size
+        self.file2send = file2send
+
+    def _make_file2send(self):
+        """
+        Makes binary file to send over FTP.
+        Size defaults to 1GB if not supplied.
+        """
+
+        logging.debug("Creating %sGB file", self.binary_size)
+
+        file_size = (1024 * 1024 * 1024) * self.binary_size
+        with open(self.file2send, "wb") as out:
+            out.seek((file_size) - 1)
+            out.write('\0'.encode())
+
+    def send_file(self, filename=None):
+        """
+        Sends file over the network using FTP and returns the
+        amount of bytes sent and delay between send and completed.
+        """
+
+        if filename is None:
+            file = open(self.file2send, 'rb')
+            filename = self.file2send
+
+        send_time = time.time()
+
+        try:
+            logging.debug("Sending file")
+            self.remote.storbinary("STOR " + filename, file, 1024)
+        except (ftplib.all_errors) as send_failure:
+            logging.error("Failed to send file to %s", self.target)
+            logging.error("Reason: %s", send_failure)
+            return 0, 0
+
+        file.close()
+
+        time_lapse = time.time() - send_time
+        bytes_sent = os.stat(filename).st_size
+
+        return bytes_sent, time_lapse
+
+    def close_connection(self):
+        """
+        Close connection to remote FTP target
+        """
+        self.remote.close()
+
+    def connect(self):
+        """
+        Connects to FTP target and set the current directory as /
+        """
+
+        logging.debug("Connecting to %s", self.target)
+        try:
+            self.remote = FTP(self.target)
+            self.remote.set_debuglevel(2)
+            self.remote.set_pasv(True)
+        except socket.error as connect_exception:
+            logging.error("Failed to connect to: %s", self.target)
+            return False
+
+        logging.debug("Logging in")
+        logging.debug("{USER:%s, PASS:%s}", self.username, self.password)
+
+        try:
+            self.remote.login(self.username, self.password)
+        except ftplib.error_perm as login_exception:
+            logging.error("failed to log into target: %s", self.target)
+            return False
+
+        default_out_dir = ""
+        self.remote.cwd(default_out_dir)
+        return True
+
+    def run(self):
+
+        info = {
+            "Interface": self.iface.interface,
+            "HWAddress": self.iface.macaddress,
+            "Duplex": self.iface.duplex_mode,
+            "Speed": self.iface.max_speed,
+            "Status": self.iface.status
+        }
+
+        logging.debug(info)
+
+        if not os.path.isfile(self.file2send):
+            self._make_file2send()
+
+        # Connect to FTP target and send file
+        connected = self.connect()
+
+        if connected is False:
+            return 3
+
+        filesize, delay = self.send_file()
+
+        # Remove created binary
+        try:
+            os.remove(self.file2send)
+        except (IOError, OSError) as file_delete_error:
+            logging.error("Could not remove previous ftp file")
+            logging.error(file_delete_error)
+
+        if connected and filesize > 0:
+
+            logging.debug("Bytes sent (%s): %.2f seconds", filesize, delay)
+
+            # Calculate transfer rate and determine pass/fail status
+            mbs_speed = float(filesize / 131072) / float(delay)
+            percent = (mbs_speed / int(info["Speed"])) * 100
+            print("Transfer speed:")
+            print("%3.2f%% of" % percent)
+            print("theoretical max %smbs" % int(info["Speed"]))
+
+            if percent < 40:
+                logging.warn("Poor network performance detected")
+                return 30
+
+            logging.debug("Passed benchmark")
+        else:
+            print("Failed sending file via ftp")
+            return 1
+
+
+class StressPerformanceTest:
+
+    def __init__(self, interface, target):
+        self.interface = interface
+        self.target = target
+
+    def run(self):
+        iperf_cmd = 'timeout 320 iperf -c {} -t 300'.format(self.target)
+        print("Running iperf...")
+        iperf = subprocess.Popen(shlex.split(iperf_cmd))
+
+        ping_cmd = 'ping -I {} {}'.format(self.interface, self.target)
+        ping = subprocess.Popen(shlex.split(ping_cmd), stdout=subprocess.PIPE)
+        iperf.communicate()
+
+        ping.terminate()
+        (out, err) = ping.communicate()
+
+        if iperf.returncode != 0:
+            return iperf.returncode
+
+        print("Running ping test...")
+        result = 0
+        time_re = re.compile('(?<=time=)[0-9]*')
+        for line in out.decode().split('\n'):
+            time = time_re.search(line)
+
+            if time and int(time.group()) > 2000:
+                print(line)
+                print("ICMP packet was delayed by > 2000 ms.")
+                result = 1
+            if 'unreachable' in line.lower():
+                print(line)
+                result = 1
+
+        return result
+
+
+class Interface(socket.socket):
+    """
+    Simple class that provides network interface information.
+    """
+
+    def __init__(self, interface):
+
+        super(Interface, self).__init__(
+            socket.AF_INET, socket.IPPROTO_ICMP)
+
+        self.interface = interface
+
+        self.dev_path = os.path.join("/sys/class/net", self.interface)
+
+    def _read_data(self, type):
+        try:
+            return open(os.path.join(self.dev_path, type)).read().strip()
+        except OSError:
+            print("{}: Attribute not found".format(type))
+
+    @property
+    def ipaddress(self):
+        freq = struct.pack('256s', self.interface[:15].encode())
+
+        try:
+            nic_data = fcntl.ioctl(self.fileno(), 0x8915, freq)
+        except IOError:
+            logging.error("No IP address for %s", self.interface)
+            return 1
+        return socket.inet_ntoa(nic_data[20:24])
+
+    @property
+    def netmask(self):
+        freq = struct.pack('256s', self.interface.encode())
+
+        try:
+            mask_data = fcntl.ioctl(self.fileno(), 0x891b, freq)
+        except IOError:
+            logging.error("No netmask for %s", self.interface)
+            return 1
+        return socket.inet_ntoa(mask_data[20:24])
+
+    @property
+    def max_speed(self):
+        return self._read_data("speed")
+
+    @property
+    def macaddress(self):
+        return self._read_data("address")
+
+    @property
+    def duplex_mode(self):
+        return self._read_data("duplex")
+
+    @property
+    def status(self):
+        return self._read_data("operstate")
+
+    @property
+    def device_name(self):
+        return self._read_data("device/label")
+
+
+def get_test_parameters(args, environ, config_filename):
+    # Decide the actual values for test parameters, which can come
+    # from one of three possible sources: a config file, command-line
+    # arguments, or environment variables.
+    # - If command-line args were given, they take precedence
+    # - Next come environment variables, if set.
+    # - Last, values in the config file are used if present.
+
+    params = {"test_target_ftp": None,
+              "test_user": None,
+              "test_pass": None,
+              "test_target_iperf": None}
+
+    #First (try to) load values from config file
+    config = configparser.SafeConfigParser()
+
+    try:
+        with open(config_filename) as config_file:
+            config.readfp(config_file)
+            params["test_target_ftp"] = config.get("FTP", "Target")
+            params["test_user"] = config.get("FTP", "User")
+            params["test_pass"] = config.get("FTP", "Pass")
+            params["test_target_iperf"] = config.get("IPERF", "Target")
+    except FileNotFoundError as err:
+        pass  # No biggie, we can still get configs from elsewhere
+
+    # Next see if we have environment variables to override the config file
+    # "partial" overrides are not allowed; if an env variable is missing,
+    # we won't use this at all.
+    if all([param.upper() in os.environ for param in params.keys()]):
+        for key in params.keys():
+            params[key] = os.environ[key.upper()]
+
+    # Finally, see if we have the command-line arguments that are the ultimate
+    # override. Again, we will only override if we have all of them.
+    if args.target and args.username and args.password:
+        params["test_target_ftp"] = args.target
+        params["test_user"] = args.username
+        params["test_pass"] = args.password
+        params["test_target_iperf"] = args.target
+
+    return params
+
+
+def interface_test(args):
+    if not "test_type" in vars(args):
+        return
+
+    # Determine whether to use the default or user-supplied config
+    # file name.
+    DEFAULT_CFG = "/etc/checkbox.d/network.cfg"
+    if not "config" in vars(args):
+        config_filename = DEFAULT_CFG
+    else:
+        config_filename = args.config
+
+    # Get the actual test data from one of three possible sources
+    test_parameters = get_test_parameters(args, os.environ, config_filename)
+
+    test_user = test_parameters["test_user"]
+    test_pass = test_parameters["test_pass"]
+    if (args.test_type.lower() == "iperf" or
+            args.test_type.lower() == "stress"):
+        test_target = test_parameters["test_target_iperf"]
+    else:
+        test_target = test_parameters["test_target_ftp"]
+
+    # Validate that we got reasonable values
+    if not test_target or "example.com" in test_target:
+        # Default values found in config file
+        logging.error("Please supply target via: %s", config_filename)
+        sys.exit(1)
+
+    # Testing begins here!
+    #
+    # Check and make sure that interface is indeed connected
+    try:
+        cmd = "ip link set dev %s up" % args.interface
+        check_call(shlex.split(cmd))
+    except CalledProcessError as interface_failure:
+        logging.error("Failed to use %s:%s", cmd, interface_failure)
+        return 1
+
+    # Give interface enough time to get DHCP address
+    time.sleep(10)
+
+    result = 0
+    # Stop all other interfaces
+    extra_interfaces = \
+        [iface for iface in os.listdir("/sys/class/net")
+         if iface != "lo" and iface != args.interface]
+
+    for iface in extra_interfaces:
+        logging.debug("Shutting down interface:%s", iface)
+        try:
+            cmd = "ip link set dev %s down" % iface
+            check_call(shlex.split(cmd))
+        except CalledProcessError as interface_failure:
+            logging.error("Failed to use %s:%s", cmd, interface_failure)
+            result = 3
+
+    if result == 0:
+        # Execute FTP transfer benchmarking test
+        if args.test_type.lower() == "ftp":
+            ftp_benchmark = FTPPerformanceTest(
+                test_target, test_user, test_pass, args.interface)
+
+            if args.filesize:
+                ftp_benchmark.binary_size = int(args.filesize)
+            result = ftp_benchmark.run()
+
+        elif args.test_type.lower() == "iperf":
+            iperf_benchmark = IPerfPerformanceTest(args.interface, test_target, 
+                                                   args.fail_threshold)
+            result = iperf_benchmark.run()
+
+        elif args.test_type.lower() == "stress":
+            stress_benchmark = StressPerformanceTest(args.interface,
+                                                     test_target)
+            result = stress_benchmark.run()
+
+    for iface in extra_interfaces:
+        logging.debug("Restoring interface:%s", iface)
+        try:
+            cmd = "ip link set dev %s up" % iface
+            check_call(shlex.split(cmd))
+        except CalledProcessError as interface_failure:
+            logging.error("Failed to use %s:%s", cmd, interface_failure)
+            result = 3
+
+    return result
+
+
+def interface_info(args):
+
+    info_set = ""
+    if "all" in vars(args):
+        info_set = args.all
+
+    for key, value in vars(args).items():
+        if value is True or info_set is True:
+            key = key.replace("-", "_")
+            try:
+                print(
+                    key + ":", getattr(Interface(args.interface), key),
+                    file=sys.stderr)
+            except AttributeError:
+                pass
+
+
+def main():
+
+    intro_message = """
+Network module
+
+This script provides benchmarking and information for a specified network
+interface.
+
+Example NIC information usage:
+network info -i eth0 --max-speed
+
+For running ftp benchmark test:
+network test -i eth0 -t ftp
+--target 192.168.0.1 --username USERID --password PASSW0RD
+--filesize-2
+
+Configuration
+=============
+
+Configuration can be supplied in three different ways, with the following
+priorities:
+
+1- Command-line parameters (see above).
+2- Environment variables (example will follow).
+3- Configuration file (example will follow).
+   Default config location is /etc/checkbox.d/network.cfg
+
+Environment variables
+=====================
+ALL environment variables must be defined, even if empty, for them to be
+picked up. The variables are:
+TEST_TARGET_FTP
+TEST_USER
+TEST_PASS
+TEST_TARGET_IPERF
+
+example config file
+===================
+[FTP]
+
+Target: 192.168.1.23
+User: FTPUser
+Pass:PassW0Rd
+
+[IPERF]
+Target: 192.168.1.45
+**NOTE**
+
+"""
+
+    parser = ArgumentParser(
+        description=intro_message, formatter_class=RawTextHelpFormatter)
+    subparsers = parser.add_subparsers()
+
+    # Main cli options
+    test_parser = subparsers.add_parser(
+        'test', help=("Run network performance test"))
+    info_parser = subparsers.add_parser(
+        'info', help=("Gather network info"))
+
+    # Sub test options
+    test_parser.add_argument(
+        '-i', '--interface', type=str, required=True)
+    test_parser.add_argument(
+        '-t', '--test_type', type=str,
+        choices=("ftp", "iperf", "stress"), default="ftp",
+        help=("[FTP *Default*]"))
+    test_parser.add_argument('--target', type=str)
+    test_parser.add_argument(
+        '--username', type=str, help=("For FTP test only"))
+    test_parser.add_argument(
+        '--password', type=str, help=("For FTP test only"))
+    test_parser.add_argument(
+        '--filesize', type=str,
+        help="Size (GB) of binary file to send **Note** for FTP test only")
+    test_parser.add_argument(
+        '--config', type=str,
+        default="/etc/checkbox.d/network.cfg",
+        help="Supply config file for target/host network parameters")
+    test_parser.add_argument(
+        '--fail-threshold', type=int,
+        default=40,
+        help=("IPERF Test ONLY. Set the failure threshold (Percent of maximum "
+              "theoretical bandwidth) as a number like 80.  (Default is "
+              "%(default)s)"))
+
+    # Sub info options
+    info_parser.add_argument(
+        '-i', '--interface', type=str, required=True)
+    info_parser.add_argument(
+        '--all', default=False, action="store_true")
+    info_parser.add_argument(
+        '--duplex-mode', default=False, action="store_true")
+    info_parser.add_argument(
+        '--max-speed', default=False, action="store_true")
+    info_parser.add_argument(
+        '--ipaddress', default=False, action="store_true")
+    info_parser.add_argument(
+        '--netmask', default=False, action="store_true")
+    info_parser.add_argument(
+        '--device-name', default=False, action="store_true")
+    info_parser.add_argument(
+        '--macaddress', default=False, action="store_true")
+    info_parser.add_argument(
+        '--status', default=False, action="store_true",
+        help=("displays connection status"))
+
+    test_parser.set_defaults(func=interface_test)
+    info_parser.set_defaults(func=interface_info)
+
+    args = parser.parse_args()
+
+    return args.func(args)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

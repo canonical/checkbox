@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Now make sure the modules are loaded
+for module in ipmi_si ipmi_devintf ipmi_msghandler; do
+    if lsmod |grep -q $module; then
+        echo "$module already loaded"
+    else
+        echo "Loading $module..."
+        modprobe $module
+        result=$?
+        # if ipmi_si fails to load, it's safe to assume the system
+        # has no BMC, so we'll just politely exit.
+        if [ $result -eq 1 ] && [ "$module" = "ipmi_si" ]; then
+            echo "WARNING: No BMC found. Aborting."
+            exit 0
+        elif [ $result -eq 1 ]; then
+            echo "ERROR: Unable to load module $module" >&2
+            echo "Aborting IPMI test run." >&2
+            exit 1
+        else
+            echo "Successfully loaded module $module"
+        fi
+    fi
+done
+
+# Now get our info from ipmitool to make sure communication works
+# First lest check chassis status
+echo "Checking for chassis status"
+ipmitool chassis status && echo "Successfully got chassis status" && chassis=0 || chassis=1
+echo "Checking to see if we can get sensor data"
+ipmitool sdr list full && echo "Successfully got sensor data" && sensor=0 || sensor=1
+echo "Checking to see if we can get info on the BMC"
+ipmitool bmc info && echo "Successfully got BMC information" && bmc=0 || bmc=1
+
+# if everything passes, exit 0
+[ $chassis -eq 0 ] && [ $sensor -eq 0 ] && [ $bmc -eq 0 ] && exit 0 || echo "FAILURE: chassis: $chassis  sensor: $sensor  bmc: $bmc"
+
+# otherwise exit 1
+exit 1

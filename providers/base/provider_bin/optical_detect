@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+
+import os
+import re
+import sys
+
+
+def main(args):
+    line_pattern = r"\s*(\d+)\s+dev='([^']+)'" \
+        "\s+([wr-]{6})\s:\s'([^']+)'\s'([^']+)'"
+    line_regex = re.compile(line_pattern)
+
+    count = 0
+    command = "wodim --devices"
+    for line in os.popen(command).readlines():
+        match = re.match(line_regex, line)
+        if match:
+            count += 1
+            print(match.group(4), match.group(5))
+
+    if not count:
+        print("No optical devices detected.", file=sys.stderr)
+        return 1
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

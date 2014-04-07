@@ -1,0 +1,2024 @@
+plugin: shell
+name: suspend/network_before_suspend
+depends: ethernet/detect
+estimated_duration: 1.2
+_description: Record the current network before suspending.
+command: set -o pipefail; gateway_ping_test | tee $CHECKBOX_DATA/network_before_suspend.txt
+
+plugin: shell
+name: suspend/resolution_before_suspend
+estimated_duration: 1.2
+_description: Record the current resolution before suspending.
+command: xrandr -q |grep '*'| awk '{print $1}' > $CHECKBOX_DATA/resolution_before_suspend.txt
+
+plugin: shell
+name: suspend/audio_before_suspend
+estimated_duration: 1.0
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+_description: Record mixer settings before suspending.
+command: audio_settings store --file=$CHECKBOX_DATA/audio_settings_before_suspend
+
+plugin: shell
+name: suspend/cpu_before_suspend
+estimated_duration: 1.2
+_description: Verify that all the CPUs are online before suspending
+command: cpuinfo_resource > $CHECKBOX_DATA/cpuinfo_before_suspend
+
+plugin: shell
+name: suspend/memory_before_suspend
+estimated_duration: 1.2
+_description:
+ Dumps memory info to a file for comparison after suspend test has been run
+command: meminfo_resource > $CHECKBOX_DATA/meminfo_before_suspend
+
+plugin: shell
+name: suspend/wireless_before_suspend
+depends: wireless/wireless_connection
+requires: device.category == 'WIRELESS'
+command: nmcli -t -f UUID con status > $CHECKBOX_DATA/connections && connect_wireless && gateway_ping_test --interface=`nmcli dev list | grep -B 1 wireless | grep GENERAL.DEVICE | awk '{print $2}'` && for con in `cat $CHECKBOX_DATA/connections`; do nmcli con up uuid "$con"; done
+estimated_duration: 20.0
+_description:
+ This test disconnects all connections and then connects to the wireless
+ interface. It then checks the connection to confirm it's working as expected.
+
+plugin: local
+name: suspend/iperf_before_suspend_ether_auto
+requires:
+ device.category == 'NETWORK'
+command: 
+ cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
+ plugin: shell
+ name: suspend/iperf_before_suspend_ether_auto_$2
+ depends: ethernet/detect
+ estimated_duration: 20.0
+ requires: device.path == "$1"
+ user: root
+ command: network -i $2 -t iperf
+ _description:
+  This test executes iperf connection performance/stability against all the ethernet devices found on the system before suspend.
+ EOF
+_description:
+ This is an automated test to gather some info on the current state of your network devices. If no devices are found, the test will exit with an error.
+
+plugin: local
+name: suspend/iperf_before_suspend_wifi_auto
+requires:
+ device.category == 'WIRELESS'
+command: 
+ cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=WIRELESS" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
+ plugin: shell
+ name: suspend/iperf_before_suspend_wifi_auto_$2
+ depends: wireless/wireless_connection
+ estimated_duration: 20.0
+ requires: device.path == "$1"
+ user: root
+ command: network -i $2 -t iperf
+ _description:
+  This test executes iperf connection performance/stability against all the ethernet devices found on the system before suspend.
+ EOF
+_description:
+ This is an automated test to gather some info on the current state of your network devices. If no devices are found, the test will exit with an error.
+
+plugin: shell
+name: suspend/bluetooth_obex_before_suspend
+estimated_duration: 10.0
+requires:
+ package.name == 'bluez'
+ package.name == 'obexd-client'
+ device.category == 'BLUETOOTH'
+command:
+  if [ -z "$BTDEVADDR" ]
+  then
+    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.ini"
+    exit 1
+  fi
+  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
+  then
+    echo "rfkill shows BT is hard blocked"
+  fi
+  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
+  then
+    echo "rfkill shows BT is soft blocked, removing before testing."
+    rfkill unblock bluetooth
+    sleep 3
+  fi
+  obex_send $BTDEVADDR $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg
+_description:
+ This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
+
+plugin: shell
+name: suspend/bluetooth_obex_send_before_suspend
+estimated_duration: 10.0
+requires:
+ package.name == 'bluez'
+ package.name == 'obexftp'
+ device.category == 'BLUETOOTH'
+command:
+  if [ -z "$BTDEVADDR" ]
+  then
+    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.ini"
+    exit 1
+  fi
+  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
+  then
+    echo "rfkill list shows BT is hard blocked"
+  fi
+  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
+  then
+    echo "rfkill list shows BT is soft blocked, removing before testing"
+    rfkill unblock bluetooth
+    sleep 3
+  fi
+  set -o pipefail; bluetooth_test $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR send 2>&1 | ansi_parser
+_description:
+ This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
+
+plugin: shell
+name: suspend/bluetooth_obex_browse_before_suspend
+estimated_duration: 10.0
+requires:
+ package.name == 'bluez'
+ package.name == 'obexftp'
+ device.category == 'BLUETOOTH'
+command:
+  if [ -z "$BTDEVADDR" ]
+  then
+    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.ini"
+    exit 1
+  fi
+  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
+  then
+    echo "rfkill list shows BT is hard blocked"
+  fi
+  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
+  then
+    echo "rfkill list shows BT is soft blocked, removing before testing"
+    rfkill unblock bluetooth
+    sleep 3
+  fi
+  set -o pipefail; bluetooth_test $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR browse 2>&1 | ansi_parser
+_description:
+ This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR environment variable.
+
+plugin: shell
+name: suspend/bluetooth_obex_get_before_suspend
+estimated_duration: 20.0
+requires:
+ package.name == 'bluez'
+ package.name == 'obexftp'
+ device.category == 'BLUETOOTH'
+command:
+  if [ -z "$BTDEVADDR" ]
+  then
+    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.ini"
+    exit 1
+  fi
+  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
+  then
+    echo "rfkill list shows BT is hard blocked"
+  fi
+  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
+  then
+    echo "rfkill list shows BT is soft blocked, removing before testing"
+    rfkill unblock bluetooth
+    sleep 3
+  fi
+  set -o pipefail; bluetooth_test $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR get 2>&1 | ansi_parser
+_description:
+ This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR environment variable
+
+plugin: user-interact-verify
+name: suspend/bluetooth_obex_before_suspend_manual
+estimated_duration: 120.0
+requires:
+ package.name == 'bluez'
+ package.name == 'obexd-client'
+ device.category == 'BLUETOOTH'
+command: rfkill unblock bluetooth; obex_send `bluetooth_scan` $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg
+_description:
+ PURPOSE:
+     This test will send the image 'JPEG_Color_Image_Ubuntu.jpg' to a specified device
+ STEPS:
+     1. Make sure Bluetooth is enabled by checking the Bluetooth indicator applet
+     2. Click "Test" and you will be prompted to enter the Bluetooth device name of a device that can accept file transfers (It may take a few moments after entering the name for the file to begin sending)
+     3. Accept any prompts that appear on both devices
+ VERIFICATION:
+     Was the data correctly transferred?
+
+plugin: user-verify
+name: suspend/suspend_advanced
+requires:
+ sleep.mem == 'supported'
+ rtc.state == 'supported'
+user: root
+environ: CHECKBOX_DATA
+command:
+ if type -P fwts >/dev/null; then
+  echo "Calling fwts"
+  set -o pipefail; fwts_test -f none -l $CHECKBOX_DATA/suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $CHECKBOX_DATA/suspend_single_times.log
+ else
+  echo "Calling sleep_test"
+  set -o pipefail; sleep_test -p | tee $CHECKBOX_DATA/suspend_single_times.log
+ fi
+estimated_duration: 90.0
+_description:
+ PURPOSE:
+     This test will check suspend and resume
+ STEPS:
+     1. Click "Test" and your system will suspend for about 30 - 60 seconds
+     2. Observe the Power LED to see if it blinks or changes color during suspend
+     3. If your system does not wake itself up after 60 seconds, please press the power button momentarily to wake the system manually
+     4. If your system fails to wake at all and must be rebooted, restart System Testing after reboot and mark this test as Failed
+ VERIFICATION:
+     Did your system suspend and resume correctly?
+     (NOTE: Please only consider whether the system successfully suspended and resumed. Power/Suspend LED verification will occur after this test is completed.)
+
+plugin: shell
+name: suspend/suspend_advanced_auto
+requires:
+    sleep.mem == 'supported'
+    rtc.state == 'supported'
+_description:
+ This is the automated version of suspend/suspend_advanced.
+user: root
+environ: CHECKBOX_DATA
+command: set -o pipefail; fwts_test -f none -l $CHECKBOX_DATA/suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $CHECKBOX_DATA/suspend_single_times.log
+estimated_duration: 90.000
+
+plugin: shell
+name: suspend/suspend-single-log-check
+estimated_duration: 1.2
+command: [ -e $CHECKBOX_DATA/suspend_single.log ] && sleep_test_log_check -v s3 $CHECKBOX_DATA/suspend_single.log
+_description:
+ Automated check of the suspend log to look for errors reported by fwts
+
+plugin: attachment
+name: suspend/suspend-single-log-attach
+command: [ -e $CHECKBOX_DATA/suspend_single.log ] && cat $CHECKBOX_DATA/suspend_single.log
+_description:
+ Attaches the log from the single suspend/resume test to the results
+
+plugin: shell
+name: suspend/suspend-time-check
+estimated_duration: 1.2
+command: [ -e $CHECKBOX_DATA/suspend_single_times.log ] && sleep_time_check $CHECKBOX_DATA/suspend_single_times.log
+_description:
+ Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
+
+plugin: user-interact-verify
+name: power-management/usb_wakeup_keyboard
+user: root
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+command: pm-suspend
+_description:
+ PURPOSE:
+     Wake up by USB keyboard
+ STEPS:
+     1. Enable "Wake by USB KB/Mouse" item in BIOS
+     2. Press "Test" to enter suspend (S3) mode
+     3. Press any key of USB keyboard to wake system up
+ VERIFICATION:
+     Did the system wake up from suspend mode when you pressed a keyboard key?
+
+plugin: user-interact-verify
+name: power-management/usb_wakeup_mouse
+user: root
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+command: pm-suspend
+_description:
+ PURPOSE:
+     Wake up by USB mouse
+ STEPS:
+     1. Enable "Wake by USB KB/Mouse" item in BIOS
+     2. Press "Test" to enter suspend (S3) mode
+     3. Press any button of USB mouse to wake system up
+ VERIFICATION:
+     Did the system wake up from suspend mode when you pressed the mouse button?
+
+plugin: shell
+name: suspend/network_after_suspend
+estimated_duration: 20.0
+depends: suspend/suspend_advanced suspend/network_before_suspend
+_description: Test the network after resuming.
+command: network_wait; gateway_ping_test | diff $CHECKBOX_DATA/network_before_suspend.txt -
+
+plugin: shell
+name: suspend/resolution_after_suspend
+depends: suspend/suspend_advanced suspend/resolution_before_suspend
+estimated_duration: 1.2
+_description: Test to see that we have the same resolution after resuming as before.
+command: xrandr -q |grep '*'| awk '{print $1}' | diff $CHECKBOX_DATA/resolution_before_suspend.txt -
+
+plugin: shell
+name: suspend/audio_after_suspend
+estimated_duration: 1.0
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+depends: suspend/suspend_advanced suspend/audio_before_suspend
+_description: Verify that mixer settings after suspend are the same as before suspend.
+command:
+ audio_settings store --file=$CHECKBOX_DATA/audio_settings_after_suspend; diff $CHECKBOX_DATA/audio_settings_before_suspend $CHECKBOX_DATA/audio_settings_after_suspend
+
+plugin: shell
+name: suspend/audio_after_suspend_auto
+estimated_duration: 1.2
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+depends: suspend/suspend_advanced_auto suspend/audio_before_suspend
+_description: Verify that mixer settings after suspend are the same as before suspend.
+command:
+ audio_settings store --file=$CHECKBOX_DATA/audio_settings_after_suspend; diff $CHECKBOX_DATA/audio_settings_before_suspend $CHECKBOX_DATA/audio_settings_after_suspend
+
+plugin: shell
+name: suspend/cpu_after_suspend
+estimated_duration: 1.2
+depends: suspend/suspend_advanced suspend/cpu_before_suspend
+_description: Verify that all CPUs are online after resuming.
+command: cpuinfo_resource | diff $CHECKBOX_DATA/cpuinfo_before_suspend -
+
+plugin: shell
+name: suspend/cpu_after_suspend_auto
+estimated_duration: 1.2
+depends: suspend/suspend_advanced_auto suspend/cpu_before_suspend
+_description: Verify that all CPUs are online after resuming.
+command: cpuinfo_resource | diff $CHECKBOX_DATA/cpuinfo_before_suspend -
+
+plugin: shell
+name: suspend/memory_after_suspend
+estimated_duration: 1.2
+depends: suspend/suspend_advanced suspend/memory_before_suspend
+_description:
+ Verify that all memory is available after resuming from suspend.
+command: meminfo_resource | diff $CHECKBOX_DATA/meminfo_before_suspend -
+
+plugin: shell
+name: suspend/memory_after_suspend_auto
+estimated_duration: 1.2
+depends: suspend/suspend_advanced_auto suspend/memory_before_suspend
+_description:
+ Verify that all memory is available after resuming from suspend.
+command: meminfo_resource | diff $CHECKBOX_DATA/meminfo_before_suspend -
+
+plugin: manual
+name: suspend/display_after_suspend
+estimated_duration: 120.0
+depends: suspend/suspend_advanced
+_description:
+ PURPOSE:
+     This test will check that the display is correct after suspend and resume
+ STEPS:
+     1. Check that your display does not show up visual artifacts after resuming.
+ VERIFICATION:
+     Does the display work normally after resuming from suspend?
+
+plugin: shell
+name: suspend/wireless_after_suspend
+depends: suspend/suspend_advanced suspend/wireless_before_suspend
+requires:
+ device.category == 'WIRELESS'
+command: connect_wireless && gateway_ping_test --interface=`nmcli dev list | grep -B 1 wireless | grep GENERAL.DEVICE | awk '{print $2}'` && for con in `cat $CHECKBOX_DATA/connections`; do nmcli con up uuid "$con"; done
+estimated_duration: 20.0
+_description:
+ This test checks that the wireless interface is working after suspending the system. It
+ disconnects all interfaces and then connects to the wireless interface and checks that the
+ connection is working as expected.
+
+plugin: shell
+name: suspend/wireless_connection_after_suspend_wpa_bg
+depends: suspend/suspend_advanced
+estimated_duration: 20.0
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'multiple'
+user: root
+environ: WPA_BG_SSID WPA_BG_PSK
+command: trap "rm -f /etc/NetworkManager/system-connections/$WPA_BG_SSID" EXIT; create_connection wifi $WPA_BG_SSID --security=wpa --key=$WPA_BG_PSK; gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+_description:
+ Tests that the systems wireless hardware can connect to a router using WPA
+ security and the 802.11b/g protocols after the system has been suspended.
+
+plugin: shell
+name: suspend/wireless_connection_after_suspend_open_bg
+depends: suspend/suspend_advanced
+estimated_duration: 1.2
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'multiple'
+user: root
+environ: OPEN_BG_SSID
+command: trap "rm -f /etc/NetworkManager/system-connections/$OPEN_BG_SSID" EXIT; create_connection wifi $OPEN_BG_SSID; gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+_description:
+ Tests that the systems wireless hardware can connect to a router using no
+ security and the 802.11b/g protocols after the system has been suspended.
+
+plugin: shell
+name: suspend/wireless_connection_after_suspend_wpa_n
+depends: suspend/suspend_advanced
+estimated_duration: 1.2
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'multiple'
+ IEEE_80211.n == 'supported'
+user: root
+environ: WPA_N_SSID WPA_N_PSK
+command: trap "rm -f /etc/NetworkManager/system-connections/$WPA_N_SSID" EXIT; create_connection wifi $WPA_N_SSID --security=wpa --key=$WPA_N_PSK; gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+_description:
+ Tests that the systems wireless hardware can connect to a router using WPA
+ security and the 802.11n protocol after the system has been suspended.
+
+plugin: shell
+name: suspend/wireless_connection_after_suspend_open_n
+depends: suspend/suspend_advanced
+estimated_duration: 1.2
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'multiple'
+ IEEE_80211.n == 'supported'
+user: root
+environ: OPEN_N_SSID
+command: trap "rm -f /etc/NetworkManager/system-connections/$OPEN_N_SSID" EXIT; create_connection wifi $OPEN_N_SSID; gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+_description:
+ Tests that the systems wireless hardware can connect to a router using no
+ security and the 802.11n protocol after the system has been suspended.
+
+plugin: shell
+name: suspend/wireless_connection_after_suspend_wpa_ac
+depends: suspend/suspend_advanced
+estimated_duration: 1.2
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'multiple'
+ IEEE_80211.ac == 'supported'
+user: root
+environ: WPA_AC_SSID WPA_AC_PSK
+command: trap "rm -f /etc/NetworkManager/system-connections/$WPA_AC_SSID" EXIT; create_connection wifi $WPA_AC_SSID --security=wpa --key=$WPA_AC_PSK; gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+_description:
+ Tests that the systems wireless hardware can connect to a router using WPA
+ security and the 802.11ac protocol after the system has been suspended.
+
+plugin: shell
+name: suspend/wireless_connection_after_suspend_open_ac
+depends: suspend/suspend_advanced
+estimated_duration: 1.2
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'multiple'
+ IEEE_80211.ac == 'supported'
+user: root
+environ: OPEN_AC_SSID
+command: trap "rm -f /etc/NetworkManager/system-connections/$OPEN_AC_SSID" EXIT; create_connection wifi $OPEN_AC_SSID; gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+_description:
+ Tests that the systems wireless hardware can connect to a router using no
+ security and the 802.11ac protocol after the system has been suspended.
+
+plugin: shell
+name: suspend/wireless_connection_after_suspend_wpa_bg_auto
+depends: suspend/suspend_advanced_auto
+estimated_duration: 1.2
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'multiple'
+user: root
+environ: WPA_BG_SSID WPA_BG_PSK
+command: trap "rm -f /etc/NetworkManager/system-connections/$WPA_BG_SSID" EXIT; create_connection wifi $WPA_BG_SSID --security=wpa --key=$WPA_BG_PSK; gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+_description:
+ Tests that the systems wireless hardware can connect to a router using WPA
+ security and the 802.11b/g protocols after the system has been suspended.
+
+plugin: shell
+name: suspend/wireless_connection_after_suspend_open_bg_auto
+depends: suspend/suspend_advanced_auto
+estimated_duration: 1.2
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'multiple'
+user: root
+environ: OPEN_BG_SSID
+command: trap "rm -f /etc/NetworkManager/system-connections/$OPEN_BG_SSID" EXIT; create_connection wifi $OPEN_BG_SSID; gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+_description:
+ Tests that the systems wireless hardware can connect to a router using no
+ security and the 802.11b/g protocols after the system has been suspended.
+
+plugin: shell
+name: suspend/wireless_connection_after_suspend_wpa_n_auto
+depends: suspend/suspend_advanced_auto
+estimated_duration: 1.2
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'multiple'
+user: root
+environ: WPA_N_SSID WPA_N_PSK
+command: trap "rm -f /etc/NetworkManager/system-connections/$WPA_N_SSID" EXIT; create_connection wifi $WPA_N_SSID --security=wpa --key=$WPA_N_PSK; gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+_description:
+ Tests that the systems wireless hardware can connect to a router using WPA
+ security and the 802.11n protocol after the system has been suspended.
+
+plugin: shell
+name: suspend/wireless_connection_after_suspend_open_n_auto
+depends: suspend/suspend_advanced_auto
+estimated_duration: 1.2
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'multiple'
+user: root
+environ: OPEN_N_SSID
+command: trap "rm -f /etc/NetworkManager/system-connections/$OPEN_N_SSID" EXIT; create_connection wifi $OPEN_N_SSID; gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+_description:
+ Tests that the systems wireless hardware can connect to a router using no
+ security and the 802.11n protocol after the system has been suspended.
+
+plugin: shell
+name: suspend/wireless_connection_after_suspend_wpa_ac_auto
+depends: suspend/suspend_advanced_auto
+estimated_duration: 1.2
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'multiple'
+user: root
+environ: WPA_AC_SSID WPA_AC_PSK
+command: trap "rm -f /etc/NetworkManager/system-connections/$WPA_AC_SSID" EXIT; create_connection wifi $WPA_AC_SSID --security=wpa --key=$WPA_AC_PSK; gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+_description:
+ Tests that the systems wireless hardware can connect to a router using WPA
+ security and the 802.11ac protocol after the system has been suspended.
+
+plugin: shell
+name: suspend/wireless_connection_after_suspend_open_ac_auto
+depends: suspend/suspend_advanced_auto
+estimated_duration: 1.2
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'multiple'
+user: root
+environ: OPEN_AC_SSID
+command: trap "rm -f /etc/NetworkManager/system-connections/$OPEN_AC_SSID" EXIT; create_connection wifi $OPEN_AC_SSID; gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+_description:
+ Tests that the systems wireless hardware can connect to a router using no
+ security and the 802.11ac protocol after the system has been suspended.
+
+plugin: local
+name: suspend/iperf_after_suspend_ether_auto
+estimated_duration: 30.0
+requires:
+ device.category == 'NETWORK'
+command: 
+ cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
+ plugin: shell
+ name: suspend/iperf_after_suspend_ether_auto_$2
+ depends: suspend/suspend_advanced
+ requires: device.path == "$1"
+ user: root
+ command: network -i $2 -t iperf
+ _description:
+  This test executes iperf connection performance/stability against all the ethernet devices found on the system before suspend.
+ EOF
+_description:
+ This is an automated test to gather some info on the current state of your network devices. If no devices are found, the test will exit with an error.
+
+plugin: local
+name: suspend/iperf_after_suspend_wifi_auto
+estimated_duration: 30.0
+requires:
+ device.category == 'WIRELESS'
+command: 
+ cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=WIRELESS" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
+ plugin: shell
+ name: suspend/iperf_before_suspend_wifi_auto_$2
+ depends: suspend/suspend_advanced
+ requires: device.path == "$1"
+ user: root
+ command: network -i $2 -t iperf
+ _description:
+  This test executes iperf connection performance/stability against all the ethernet devices found on the system before suspend.
+ EOF
+_description:
+ This is an automated test to gather some info on the current state of your network devices. If no devices are found, the test will exit with an error.
+
+plugin: user-interact-verify
+name: suspend/wireless_connection_after_suspend_wpa_bg_manual
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'single'
+user: root
+environ: ROUTER_SSID ROUTER_PSK
+command: trap "nmcli con delete id $ROUTER_SSID" EXIT; create_connection wifi $ROUTER_SSID --security=wpa --key=$ROUTER_PSK && gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+_description:
+ PURPOSE:
+     Tests that the systems wireless hardware can connect to a router using WPA
+     security and the 802.11b/g protocols.
+ STEPS:
+     1. Open your routers configuration tool
+     2. Change the settings to only accept connections on the B and G wireless bands
+     3. Make sure the SSID is set to ROUTER_SSID
+     4. Change the security settings to use WPA2 and ensure the PSK matches that set in ROUTER_PSK
+     5. Click the 'Test' button to create a connection to the router and test the connection
+ VERIFICATION:
+     Verification is automated, do not change the automatically selected result.
+
+plugin: user-interact-verify
+name: suspend/wireless_connection_after_suspend_open_bg_manual
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'single'
+user: root
+environ: ROUTER_SSID
+command: trap "nmcli con delete id $ROUTER_SSID" EXIT; create_connection wifi $ROUTER_SSID && gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+_description:
+ PURPOSE:
+     Tests that the systems wireless hardware can connect to a router using
+     no security and the 802.11b/g protocols.
+ STEPS:
+     1. Open your routers configuration tool
+     2. Change the settings to only accept connections on the B and G wireless bands
+     3. Make sure the SSID is set to ROUTER_SSID
+     4. Change the security settings to use no security
+     5. Click the 'Test' button to create a connection to the router and test the connection
+ VERIFICATION:
+     Verification is automated, do not change the automatically selected result.
+
+plugin: user-interact-verify
+name: suspend/wireless_connection_after_suspend_wpa_n_manual
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'single'
+user: root
+environ: ROUTER_SSID ROUTER_PSK
+command: trap "nmcli con delete id $ROUTER_SSID" EXIT; create_connection wifi $ROUTER_SSID --security=wpa --key=$ROUTER_PSK && gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+_description:
+ PURPOSE:
+     Tests that the systems wireless hardware can connect to a router using WPA
+     security and the 802.11n protocols.
+ STEPS:
+     1. Open your routers configuration tool
+     2. Change the settings to only accept connections on the N wireless band
+     3. Make sure the SSID is set to ROUTER_SSID
+     4. Change the security settings to use WPA2 and ensure the PSK matches that set in ROUTER_PSK
+     5. Click the 'Test' button to create a connection to the router and test the connection
+ VERIFICATION:
+     Verification is automated, do not change the automatically selected result.
+
+plugin: user-interact-verify
+name: suspend/wireless_connection_after_suspend_open_n_manual
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'single'
+user: root
+environ: ROUTER_SSID
+command: trap "nmcli con delete id $ROUTER_SSID" EXIT; create_connection wifi $ROUTER_SSID && gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+_description:
+ PURPOSE:
+     Tests that the systems wireless hardware can connect to a router using
+     no security and the 802.11n protocol.
+ STEPS:
+     1. Open your routers configuration tool
+     2. Change the settings to only accept connections on the N wireless band
+     3. Make sure the SSID is set to ROUTER_SSID
+     4. Change the security settings to use no security
+     5. Click the 'Test' button to create a connection to the router and test the connection
+ VERIFICATION:
+     Verification is automated, do not change the automatically selected result.
+
+plugin: user-interact-verify
+name: suspend/wireless_connection_after_suspend_wpa_ac_manual
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'single'
+user: root
+environ: ROUTER_SSID ROUTER_PSK
+command: trap "nmcli con delete id $ROUTER_SSID" EXIT; create_connection wifi $ROUTER_SSID --security=wpa --key=$ROUTER_PSK && gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+_description:
+ PURPOSE:
+     Tests that the systems wireless hardware can connect to a router using WPA
+     security and the 802.11ac protocol.
+ STEPS:
+     1. Open your routers configuration tool
+     2. Change the settings to only accept connections on the 802.11ac protocol.
+     3. Make sure the SSID is set to ROUTER_SSID
+     4. Change the security settings to use WPA2 and ensure the PSK matches that set in ROUTER_PSK
+     5. Click the 'Test' button to create a connection to the router and test the connection
+ VERIFICATION:
+     Verification is automated, do not change the automatically selected result.
+
+plugin: user-interact-verify
+name: suspend/wireless_connection_after_suspend_open_ac_manual
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'single'
+user: root
+environ: ROUTER_SSID
+command: trap "nmcli con delete id $ROUTER_SSID" EXIT; create_connection wifi $ROUTER_SSID && gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+_description:
+ PURPOSE:
+     Tests that the systems wireless hardware can connect to a router using
+     no security and the 802.11ac protocol.
+ STEPS:
+     1. Open your routers configuration tool
+     2. Change the settings to only accept connections on the 802.11ac protocol.
+     3. Make sure the SSID is set to ROUTER_SSID
+     4. Change the security settings to use no security
+     5. Click the 'Test' button to create a connection to the router and test the connection
+ VERIFICATION:
+     Verification is automated, do not change the automatically selected result.
+
+plugin: shell
+name: suspend/bluetooth_detect_after_suspend
+depends: suspend/suspend_advanced bluetooth/detect-output
+estimated_duration: 1.2
+requires:
+ package.name == 'bluez'
+ device.category == 'BLUETOOTH'
+command:
+ if rfkill list bluetooth | grep -q 'Hard blocked: yes'; then
+   echo "rfkill shows BT is hard blocked"
+ fi
+ if rfkill list bluetooth | grep -q 'Soft blocked: yes'; then
+   echo "rfkill shows BT is soft blocked, removing before testing"
+   rfkill unblock bluetooth
+   sleep 3
+ fi
+ output=$(hcitool dev | tail -n+2 | awk '{print $2}')
+ echo $output | diff $CHECKBOX_DATA/bluetooth_address -
+ if [ -z "$output" ]; then
+     echo "BT hardware not available"
+     exit 1
+ fi
+_description:
+ This test grabs the hardware address of the bluetooth adapter after suspend and compares it to the address grabbed before suspend.
+
+plugin: shell
+name: suspend/bluetooth_obex_after_suspend
+depends: suspend/suspend_advanced suspend/bluetooth_obex_before_suspend
+estimated_duration: 10.0
+requires:
+ package.name == 'bluez'
+ package.name == 'obexd-client'
+ device.category == 'BLUETOOTH'
+command:
+  if [ -z "$BTDEVADDR" ]
+  then
+    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.ini"
+    exit 1
+  fi
+  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
+  then
+    echo "rfkill shows BT is hard blocked"
+  fi
+  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
+  then
+    echo "rfkill shows BT is soft blocked, removing before testing."
+    rfkill unblock bluetooth
+    sleep 3
+  fi
+  obex_send $BTDEVADDR $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg
+_description:
+ This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
+
+plugin: shell
+name: suspend/bluetooth_obex_after_suspend_auto
+depends: suspend/suspend_advanced_auto suspend/bluetooth_obex_before_suspend
+estimated_duration: 10.0
+requires:
+ package.name == 'bluez'
+ package.name == 'obexd-client'
+ device.category == 'BLUETOOTH'
+command:
+  if [ -z "$BTDEVADDR" ]
+  then
+    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.ini"
+    exit 1
+  fi
+  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
+  then
+    echo "rfkill shows BT is hard blocked"
+  fi
+  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
+  then
+    echo "rfkill shows BT is soft blocked, removing before testing."
+    rfkill unblock bluetooth
+    sleep 3
+  fi
+  obex_send $BTDEVADDR $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg
+_description:
+ This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
+
+plugin: shell
+name: suspend/bluetooth_obex_send_after_suspend
+depends: suspend/suspend_advanced
+estimated_duration: 10.0
+requires:
+ package.name == 'bluez'
+ package.name == 'obexftp'
+ device.category == 'BLUETOOTH'
+command:
+  if [ -z "$BTDEVADDR" ]
+  then
+    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.ini"
+    exit 1
+  fi
+  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
+  then
+    echo "rfkill list shows BT is hard blocked"
+  fi
+  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
+  then
+    echo "rfkill list shows BT is soft blocked, removing before testing"
+    rfkill unblock bluetooth
+    sleep 3
+  fi
+  set -o pipefail; bluetooth_test $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR send 2>&1 | ansi_parser
+_description:
+ This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
+
+plugin: shell
+name: suspend/bluetooth_obex_send_after_suspend_auto
+depends: suspend/suspend_advanced_auto
+estimated_duration: 10.0
+requires:
+ package.name == 'bluez'
+ package.name == 'obexftp'
+ device.category == 'BLUETOOTH'
+command:
+  if [ -z "$BTDEVADDR" ]
+  then
+    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.ini"
+    exit 1
+  fi
+  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
+  then
+    echo "rfkill list shows BT is hard blocked"
+  fi
+  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
+  then
+    echo "rfkill list shows BT is soft blocked, removing before testing"
+    rfkill unblock bluetooth
+    sleep 3
+  fi
+  set -o pipefail; bluetooth_test $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR send 2>&1 | ansi_parser
+_description:
+ This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
+
+plugin: shell
+name: suspend/bluetooth_obex_browse_after_suspend
+depends: suspend/suspend_advanced
+estimated_duration: 10.0
+requires:
+ package.name == 'bluez'
+ package.name == 'obexftp'
+ device.category == 'BLUETOOTH'
+command:
+  if [ -z "$BTDEVADDR" ]
+  then
+    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.ini"
+    exit 1
+  fi
+  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
+  then
+    echo "rfkill list shows BT is hard blocked"
+  fi
+  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
+  then
+    echo "rfkill list shows BT is soft blocked, removing before testing"
+    rfkill unblock bluetooth
+    sleep 3
+  fi
+  set -o pipefail; bluetooth_test $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR browse 2>&1 | ansi_parser
+_description:
+ This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR environment variable.
+
+plugin: shell
+name: suspend/bluetooth_obex_browse_after_suspend_auto
+depends: suspend/suspend_advanced_auto
+estimated_duration: 20.0
+requires:
+ package.name == 'bluez'
+ package.name == 'obexftp'
+ device.category == 'BLUETOOTH'
+command:
+  if [ -z "$BTDEVADDR" ]
+  then
+    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.ini"
+    exit 1
+  fi
+  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
+  then
+    echo "rfkill list shows BT is hard blocked"
+  fi
+  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
+  then
+    echo "rfkill list shows BT is soft blocked, removing before testing"
+    rfkill unblock bluetooth
+    sleep 3
+  fi
+  set -o pipefail; bluetooth_test $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR browse 2>&1 | ansi_parser
+_description:
+ This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR environment variable.
+
+plugin: shell
+name: suspend/bluetooth_obex_get_after_suspend
+estimated_duration: 20.0
+depends: suspend/suspend_advanced
+requires:
+ package.name == 'bluez'
+ package.name == 'obexftp'
+ device.category == 'BLUETOOTH'
+command:
+  if [ -z "$BTDEVADDR" ]
+  then
+    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.ini"
+    exit 1
+  fi
+  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
+  then
+    echo "rfkill list shows BT is hard blocked"
+  fi
+  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
+  then
+    echo "rfkill list shows BT is soft blocked, removing before testing"
+    rfkill unblock bluetooth
+    sleep 3
+  fi
+  set -o pipefail; bluetooth_test $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR get 2>&1 | ansi_parser
+_description:
+ This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR environment variable
+
+plugin: shell
+name: suspend/bluetooth_obex_get_after_suspend_auto
+depends: suspend/suspend_advanced_auto
+estimated_duration: 20.0
+requires:
+ package.name == 'bluez'
+ package.name == 'obexftp'
+ device.category == 'BLUETOOTH'
+command:
+  if [ -z "$BTDEVADDR" ]
+  then
+    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.ini"
+    exit 1
+  fi
+  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
+  then
+    echo "rfkill list shows BT is hard blocked"
+  fi
+  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
+  then
+    echo "rfkill list shows BT is soft blocked, removing before testing"
+    rfkill unblock bluetooth
+    sleep 3
+  fi
+  set -o pipefail; bluetooth_test $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR get 2>&1 | ansi_parser
+_description:
+ This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR environment variable
+
+plugin: user-interact-verify
+name: suspend/bluetooth_obex_after_suspend_manual
+depends: suspend/suspend_advanced suspend/bluetooth_obex_before_suspend_manual
+estimated_duration: 120.0
+requires:
+ package.name == 'bluez'
+ package.name == 'obexd-client'
+ device.category == 'BLUETOOTH'
+command: rfkill unblock bluetooth; obex_send `bluetooth_scan` $CHECKBOX_SHARE/data/images/JPEG_Color_Image_Ubuntu.jpg
+_description:
+ PURPOSE:
+     This test will send the image 'JPEG_Color_Image_Ubuntu.jpg' to a specified device
+ STEPS:
+     1. Click "Test" and you will be prompted to enter the Bluetooth device name of a device that can accept file transfers (It may take a few moments after entering the name for the file to begin sending)
+     2. Accept any prompts that appear on both devices
+ VERIFICATION:
+     Was the data correctly transferred?
+
+plugin: user-interact-verify
+name: suspend/cycle_resolutions_after_suspend
+estimated_duration: 120.0
+requires: package.name == 'xorg'
+depends: suspend/suspend_advanced graphics/cycle_resolution
+command: xrandr_cycle --keyword=after_suspend --screenshot-dir $CHECKBOX_DATA
+_description:
+ PURPOSE:
+     This test will cycle through the detected display modes
+ STEPS:
+     1. Click "Test" and the display will cycle trough the display modes
+ VERIFICATION:
+     Did your display look fine in the detected mode?
+
+plugin: shell
+name: suspend/cycle_resolutions_after_suspend_auto
+estimated_duration: 1.2
+requires: package.name == 'xorg'
+depends: suspend/suspend_advanced_auto graphics/cycle_resolution
+_description:
+ This test will check to make sure supported video modes work after a suspend and resume.
+ This is done automatically by taking screenshots and uploading them as an attachment.
+command: xrandr_cycle --keyword=after_suspend --screenshot-dir $CHECKBOX_DATA
+
+plugin: attachment
+name: suspend/xrandr_screens_after_suspend.tar.gz
+depends: suspend/cycle_resolutions_after_suspend_auto
+command: [ -e $CHECKBOX_DATA/xrandr_screens_after_suspend.tgz ] && cat $CHECKBOX_DATA/xrandr_screens_after_suspend.tgz
+_description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend_auto test to the results submission.
+
+plugin: shell
+name: suspend/record_playback_after_suspend
+estimated_duration: 10.0
+depends: suspend/suspend_advanced
+requires:
+ package.name == 'python3-gi'
+ package.name == 'gir1.2-gstreamer-1.0'
+ package.name == 'libgstreamer1.0-0'
+ package.name == 'gstreamer1.0-plugins-good'
+ package.name == 'gstreamer1.0-pulseaudio'
+ package.name == 'alsa-base'
+ device.category == 'AUDIO'
+command: audio_test
+_description:
+ This will check to make sure that your audio device works properly after a suspend and resume.  This may work fine with speakers and onboard microphone, however, it works best if used with a cable connecting the audio-out jack to the audio-in jack.
+
+plugin: shell
+name: suspend/record_playback_after_suspend_auto
+estimated_duration: 10.0
+depends: suspend/suspend_advanced_auto
+requires:
+ package.name == 'python3-gi'
+ package.name == 'gir1.2-gstreamer-1.0'
+ package.name == 'libgstreamer1.0-0'
+ package.name == 'gstreamer1.0-plugins-good'
+ package.name == 'gstreamer1.0-pulseaudio'
+ package.name == 'alsa-base'
+ device.category == 'AUDIO'
+command: audio_test
+_description:
+ This will check to make sure that your audio device works properly after a suspend and resume.  This may work fine with speakers and onboard microphone, however, it works best if used with a cable connecting the audio-out jack to the audio-in jack.
+
+plugin: attachment
+name: suspend/suspend-auto-single-log-attach
+command: [ -e $CHECKBOX_DATA/suspend_auto_single_log ] && cat $CHECKBOX_DATA/suspend_auto_single_log
+_description:
+ Attaches the log from the single suspend/resume test to the results
+
+plugin: shell
+name: suspend/screenshot_after_suspend
+estimated_duration: 10.0
+depends: suspend/suspend_advanced_auto
+requires: package.name == 'fswebcam'
+command: set -o pipefail; camera_test still --device=/dev/external_webcam -f ${CHECKBOX_DATA}/screenshot_after_suspend.jpg -q 2>&1 | ansi_parser
+_description:
+ PURPOSE:
+     Take a screengrab of the current screen after suspend (logged on Unity desktop)
+ STEPS:
+     1. Take picture using USB webcam
+ VERIFICATION:
+     Review attachment manually later
+
+plugin: attachment
+name: screenshot_after_suspend.jpg
+depends: suspend/screenshot_after_suspend
+command: base64 ${CHECKBOX_DATA}/screenshot_after_suspend.jpg
+_description: Attaches the screenshot captured in graphics/screenshot.
+
+plugin: shell
+name: suspend/gpu_lockup_after_suspend
+estimated_duration: 10.0
+requires:
+ package.name == 'wmctrl'
+ package.name == 'mesa-utils'
+ package.name == 'firefox'
+depends: suspend/suspend_advanced_auto
+command: gpu_test
+_description:
+ PURPOSE:
+     Do some challenging operations then check for lockup on the GPU
+ STEPS:
+     1. Create 2 glxgears windows and move them quickly
+     2. Switch workspaces with wmctrl
+     3. Launch an HTML5 video playback in firefox
+ VERIFICATION:
+     After a 60s workload, check kern.log for reported GPU errors
+
+plugin: shell
+name: suspend/wifi_resume_time
+depends: suspend/suspend_advanced
+requires:
+   device.category == 'WIRELESS'
+command: network_reconnect_resume_test -t 90 -d wifi
+estimated_duration: 0.530
+_description:
+ Checks the length of time it takes to reconnect an existing wifi connection
+ after a suspend/resume cycle.
+
+plugin: shell
+name: suspend/wifi_resume_time_auto
+estimated_duration: 1.2
+depends: suspend/suspend_advanced_auto
+requires:
+   device.category == 'WIRELESS'
+command: network_reconnect_resume_test -t 90 -d wifi
+_description:
+ Checks the length of time it takes to reconnect an existing wifi connection
+ after a suspend/resume cycle.
+
+plugin: shell
+name: suspend/network_resume_time
+depends: suspend/suspend_advanced
+estimated_duration: 1.2
+requires:
+   device.category == 'NETWORK'
+command: network_reconnect_resume_test -t 10 -d wired
+_description:
+ Checks the length of time it takes to reconnect an existing wired connection
+  after a suspend/resume cycle.
+
+plugin: shell
+name: suspend/network_resume_time_auto
+depends: suspend/suspend_advanced_auto
+estimated_duration: 1.2
+requires:
+   device.category == 'NETWORK'
+command: network_reconnect_resume_test -t 10 -d wired
+_description:
+ Checks the length of time it takes to reconnect an existing wired connection
+  after a suspend/resume cycle.
+
+plugin: manual
+name: suspend/led_after_suspend/power
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Validate that the power LED operated the same after resuming from suspend
+ STEPS:
+     1. Power LED should be on while device is switched on
+ VERIFICATION:
+     Does the power LED remain on after resuming from suspend?
+
+plugin: manual
+name: suspend/led_after_suspend/battery-charging
+estimated_duration: 120.0
+depends: suspend/suspend_advanced
+_description:
+ PURPOSE:
+     Validate that the battery light shows charging status after resuming from suspend
+ STEPS:
+     1. Let system run on battery for a while
+     2. Plug in AC plug
+ VERIFICATION:
+     Did the battery indicator LED still turn orange after resuming from suspend?
+
+plugin: manual
+name: suspend/led_after_suspend/battery-charged
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Validate that the battery LED properly displays charged status after resuming from suspend
+ STEPS:
+     1. Let system run on battery for a short time
+     2. Plug in AC
+     3. Let system run on AC
+ VERIFICATION:
+     Does the orange battery LED still shut off when system is fully charged after resuming from suspend?
+
+plugin: manual
+name: suspend/led_after_suspend/battery-low
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Validate that the battery LED indicated low power after resuming from suspend
+ STEPS:
+     1. Let system run on battery for several hours
+     2. Monitor battery LED carefully
+ VERIFICATION:
+     Does the LED light orange when battery is low after resuming from suspend?
+
+plugin: user-interact-verify
+name: suspend/led_after_suspend/hdd
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+command: led_hdd_test
+_description:
+ PURPOSE:
+     Validate that the HDD LED still operates as expected after resuming from suspend
+ STEPS:
+     1. Select "Test" to write and read a temporary file for a few seconds
+     2. HDD LED should blink when writing to/reading from HDD
+ VERIFICATION:
+     Did the HDD LED still blink with HDD activity after resuming from suspend?
+
+plugin: user-interact-verify
+name: suspend/led_after_suspend/numeric-keypad
+estimated_duration: 120.0
+depends: suspend/suspend_advanced
+command: keyboard_test
+_description:
+ PURPOSE:
+     Validate that the numeric keypad LED operates the same before and after resuming from suspend
+ STEPS:
+     1. Press "Block Num" key to toggle numeric keypad LED
+     2. Click on the "Test" button to open a window to verify your typing
+     3. Type using the numeric keypad both when the LED is on and off
+ VERIFICATION:
+     1. Numeric keypad LED status should toggle everytime the "Block Num" key is pressed
+     2. Numbers should only be entered in the keyboard verification window when the LED is on
+
+plugin: manual
+name: suspend/led_after_suspend/caps-lock
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Validate that the Caps Lock key operates the same before and after resuming from suspend
+ STEPS:
+     1. Press "Block Cap Keys" to activate/deactivate cap keys blocking
+     2. Cap Keys LED should be switched on/off every time the key is pressed
+ VERIFICATION:
+     Did the Cap Keys LED light as expected after resuming from suspend?
+
+plugin: manual
+name: suspend/led_after_suspend/wlan
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     WLAN LED verification after resuming from suspend
+ STEPS:
+     1. Make sure WLAN connection is established
+     2. WLAN LED should light
+ VERIFICATION:
+     Did the WLAN LED light as expected after resuming from suspend?
+
+plugin: manual
+name: suspend/led_after_suspend/wlan-disabled
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Validate that WLAN LED shuts off when disabled after resuming from suspend
+ STEPS:
+     1. Connect to AP
+     2. Use Physical switch to disable WLAN
+     3. Re-enable
+     4. Use Network-Manager to disable WLAN
+ VERIFICATION:
+     Did the LED turn off then WLAN is disabled after resuming from suspend?
+
+plugin: manual
+name: suspend/led_after_suspend/bluetooth
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Validate that the Bluetooth LED turns on and off when BT is enabled/disabled after resuming from suspend
+ STEPS:
+     1. Switch bluetooth off from a hardware switch (if present)
+     2. Switch bluetooth back on
+     3. Switch bluetooth off from the panel applet
+     4. Switch bluetooth back on
+ VERIFICATION:
+     Did the bluetooth LED turn off and on twice after resuming from suspend?
+
+plugin: user-interact-verify
+name: suspend/led_after_suspend/camera
+estimated_duration: 120.0
+depends:
+ camera/detect
+ suspend/suspend_advanced
+command: camera_test led
+_description:
+ PURPOSE:
+     Validate that the camera LED still works as expected after resuming from suspend
+ STEPS:
+     1. Select Test to activate camera
+     2. Camera LED should light for a few seconds
+ VERIFICATION:
+     Did the camera LED still turn on and off after resuming from suspend?
+
+plugin: manual
+name: suspend/led_after_suspend/touchpad
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Touchpad LED verification after resuming from suspend
+ STEPS:
+     1. Click on the touchpad button or press key combination to enable/disable touchpad button
+     2. Slide your finger on the touchpad
+ VERIFICATION:
+     1. Touchpad LED status should toggle everytime the button is clicked or the key combination is pressed
+     2. When the LED is on, the mouse pointer should move on touchpad usage
+     3. When the LED is off, the mouse pointer should not move on touchpad usage
+
+plugin: manual
+name: suspend/led_after_suspend/wireless
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Validate Wireless (WLAN + Bluetooth) LED operated the same after resuming from suspend
+ STEPS:
+     1. Make sure WLAN connection is established and Bluetooth is enabled.
+     2. WLAN/Bluetooth LED should light
+     3. Switch WLAN and Bluetooth off from a hardware switch (if present)
+     4. Switch them back on
+     5. Switch WLAN and Bluetooth off from the panel applet
+     6. Switch them back on
+ VERIFICATION:
+     Did the WLAN/Bluetooth LED light as expected after resuming from suspend?
+
+plugin: manual
+name: suspend/keys_after_suspend/brightness
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+requires: dmi.product in ['Notebook','Laptop','Portable']
+_description:
+ PURPOSE:
+     This test will test the brightness key after resuming from suspend
+ STEPS:
+     1. Press the brightness buttons on the keyboard
+ VERIFICATION:
+     Did the brightness change following to your key presses after resuming from suspend?
+
+plugin: user-interact-verify
+name: suspend/keys_after_suspend/volume
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+requires:
+ device.category == 'KEYBOARD'
+user: root
+command: key_test -s '0xe02e,0xe0ae:Volume Up' '0xe030,0xe0b0:Volume Down'
+_description:
+ PURPOSE:
+     This test will test the volume keys of your keyboard after resuming from suspend
+ STEPS:
+     Skip this test if your computer has no volume keys.
+     1. Click test to open a window on which to test the volume keys.
+     2. If all the keys work, the test will be marked as passed.
+ VERIFICATION:
+     Did the volume change following to your key presses?
+
+plugin: user-interact-verify
+name: suspend/keys_after_suspend/mute
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+requires:
+ device.category == 'KEYBOARD'
+user: root
+command: key_test -s '0xe020,0xe0a0:Mute'
+_description:
+ PURPOSE:
+     This test will test the mute key of your keyboard after resuming from suspend
+ STEPS:
+     1. Click test to open a window on which to test the mute key.
+     2. If the key works, the test will pass and the window will close.
+ VERIFICATION:
+     Did the volume mute following your key presses?
+
+plugin: manual
+name: suspend/keys_after_suspend/sleep
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+requires:
+ device.category == 'KEYBOARD'
+_description:
+ PURPOSE:
+     This test will test the sleep key after resuming from suspend
+ STEPS:
+     1. Press the sleep key on the keyboard
+     2. Wake your system up by pressing the power button
+ VERIFICATION:
+     Did the system go to sleep after pressing the sleep key after resuming from suspend?
+
+plugin: user-interact-verify
+name: suspend/keys_after_suspend/battery-info
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+requires: dmi.product in ['Notebook','Laptop','Portable']
+user: root
+command: key_test -s '0xe071,0xef1:Battery Info'
+_description:
+ PURPOSE:
+     This test will test the battery information key after resuming from suspend
+ STEPS:
+     Skip this test if you do not have a Battery Button.
+     1. Click Test to begin
+     2. Press the Battery Info button (or combo like Fn+F3)
+     3: Close the Power Statistics tool if it opens
+ VERIFICATION:
+     Did the Battery Info key work as expected after resuming from suspend?
+
+plugin: manual
+name: suspend/keys_after_suspend/wireless
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+requires: dmi.product in ['Notebook','Laptop','Portable']
+_description:
+ PURPOSE:
+     This test will test the wireless key after resuming from suspend
+ STEPS:
+     1. Press the wireless key on the keyboard
+     2. Press the same key again
+ VERIFICATION:
+     Did the wireless go off on the first press and on again on the second after resuming from suspend?
+
+plugin: user-interact-verify
+name: suspend/keys_after_suspend/media-control
+estimated_duration: 120.0
+depends: suspend/suspend_advanced
+requires:
+ device.category == 'KEYBOARD'
+user: root
+command: key_test -s 0xe010,0xe090:Previous 0xe024,0xe0a4:Stop 0xe019,0xe099:Next 0xe022,0xe0a2:Play
+_description:
+ PURPOSE:
+     This test will test the media keys of your keyboard after resuming from suspend
+ STEPS:
+     Skip this test if your computer has no media keys.
+     1. Click test to open a window on which to test the media keys.
+     2. If all the keys work, the test will be marked as passed.
+ VERIFICATION:
+     Do the keys work as expected after resuming from suspend?
+
+plugin: user-interact-verify
+name: suspend/keys_after_suspend/super
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+requires:
+ device.category == 'KEYBOARD'
+user: root
+command: key_test -s '0xe05b,0xe0db:Left Super Key'
+_description:
+ PURPOSE:
+     This test will test the super key of your keyboard after resuming from suspend
+ STEPS:
+     1. Click test to open a window on which to test the super key.
+     2. If the key works, the test will pass and the window will close.
+ VERIFICATION:
+     Does the super key work as expected after resuming from suspend?
+
+plugin: manual
+name: suspend/keys_after_suspend/video-out
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+requires: dmi.product in ['Notebook','Laptop','Portable']
+_description:
+ PURPOSE:
+     Validate that the External Video hot key is working as expected after resuming from suspend
+ STEPS:
+     1. Plug in an external monitor
+     2. Press the display hot key to change the monitors configuration
+ VERIFICATION:
+     Check that the video signal can be mirrored, extended, displayed on external or onboard only, after resuming from suspend.
+
+plugin: manual
+name: suspend/keys_after_suspend/touchpad
+depends: suspend/suspend_advanced
+estimated_duration: 120.0
+requires: dmi.product in ['Notebook','Laptop','Portable']
+_description:
+ PURPOSE:
+     Verify touchpad hotkey toggles touchpad functionality on and off after resuming from suspend
+ STEPS:
+     1. Verify the touchpad is functional
+     2. Tap the touchpad toggle hotkey
+     3. Tap the touchpad toggle hotkey again
+ VERIFICATION:
+     Verify the touchpad has been disabled and re-enabled.
+
+plugin: user-interact
+name: suspend/usb_insert_after_suspend
+estimated_duration: 30.0
+depends:
+ suspend/suspend_advanced
+command: removable_storage_watcher insert usb
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects the insertion of
+     a USB storage device after suspend and resume.
+ STEPS:
+     1. Click "Test" and insert a USB storage device (pen-drive/HDD).
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not unplug the device after the test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+name: suspend/usb3_insert_after_suspend
+estimated_duration: 30.0
+requires:
+ usb.usb3 == 'supported'
+depends:
+ suspend/suspend_advanced
+command: removable_storage_watcher -m 500000000 insert usb
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects the insertion of
+     a USB 3.0 storage device after suspend and resume.
+ STEPS:
+     1. Click "Test" and insert a USB 3.0 storage device (pen-drive/HDD) in
+        a USB 3.0 port. (Note: this test will time-out after 20 seconds.)
+     2. Do not unplug the device after the test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+name: suspend/usb_remove_after_suspend
+estimated_duration: 30.0
+depends:
+ suspend/usb_insert_after_suspend
+command: removable_storage_watcher remove usb
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects the removal of
+     a USB storage device after suspend.
+ STEPS:
+     1. Click "Test" and remove the USB device.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+name: suspend/usb3_remove_after_suspend
+estimated_duration: 30.0
+depends:
+ suspend/usb3_insert_after_suspend
+requires:
+ usb.usb3 == 'supported'
+command: removable_storage_watcher -m 500000000 remove usb
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects the removal of
+     a USB 3.0 storage device after suspend
+ STEPS:
+     1. Click "Test" and remove the USB 3.0 device.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+name: suspend/usb_storage_automated_after_suspend
+estimated_duration: 1.2
+depends: suspend/usb_insert_after_suspend
+user: root
+command: removable_storage_test -s 268400000 usb
+_description:
+ This test is automated and executes after the suspend/usb_insert_after_suspend
+ test is run.
+
+plugin: shell
+name: suspend/usb3_storage_automated_after_suspend
+estimated_duration: 1.2
+requires:
+ usb.usb3 == 'supported'
+depends: suspend/usb3_insert_after_suspend
+user: root
+command: removable_storage_test -s 268400000 -m 500000000 -p 7 usb
+_description:
+ This test is automated and executes after the suspend/usb3_insert_after_suspend
+ test is run.
+
+plugin: shell
+name: suspend/usb_storage_preinserted_after_suspend
+estimated_duration: 1.2
+user: root
+depends: suspend/suspend_advanced_auto
+command: removable_storage_test -l usb && removable_storage_test -s 268400000 usb
+_description:
+ This is an automated version of usb/storage-automated and assumes that the
+ server has usb storage devices plugged in prior to checkbox execution. It
+ is intended for servers and SRU automated testing.
+
+plugin: shell
+name: suspend/usb3_storage_preinserted_after_suspend
+estimated_duration: 1.2
+user: root
+requires:
+ usb.usb3 == 'supported'
+depends: suspend/suspend_advanced_auto
+command: removable_storage_test -l usb && removable_storage_test -s 268400000 -m 500000000 -p 7 usb
+_description:
+ This is an automated version of usb3/storage-automated and assumes that the
+ server has usb 3.0 storage devices plugged in prior to checkbox execution. It
+ is intended for servers and SRU automated testing.
+
+plugin: shell
+name: suspend/usb_performance_after_suspend
+depends: suspend/usb_insert_after_suspend
+user: root
+estimated_duration: 45.00
+command: removable_storage_test -s 268400000 -p 15 usb
+_description:
+ This test will check that your USB 2.0 port transfers data at a
+ minimum expected speed.
+
+plugin: shell
+name: suspend/usb3_superspeed_performance_after_suspend
+requires:
+ usb.usb3 == 'supported'
+depends: suspend/usb3_insert_after_suspend
+user: root
+estimated_duration: 45.00
+command: removable_storage_test -s 268400000 -m 500000000 -p 60 usb
+_description:
+ This test will check that your USB 3.0 port transfers data at a
+ minimum expected speed in accordance with the specification of
+ USB 3.0 SuperSpeed mode.
+
+plugin: user-interact
+name: suspend/mmc-insert-after-suspend
+estimated_duration: 30.0
+depends: suspend/suspend_advanced
+command: removable_storage_watcher --memorycard insert sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the systems media card reader can
+     detect the insertion of an MMC card after the system has been suspended
+ STEPS:
+     1. Click "Test" and insert an MMC card into the reader.
+        If a file browser opens up, you can safely close it.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not remove the device after this test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+name: suspend/mmc-storage-after-suspend
+depends: suspend/mmc-insert-after-suspend
+estimated_duration: 10.0
+user: root
+command: removable_storage_test -s 67120000 --memorycard sdio usb scsi
+_description:
+ This test is automated and executes after the mediacard/mmc-insert-after-suspend test
+ is run. It tests reading and writing to the MMC card after the system has been suspended.
+
+plugin: user-interact
+name: suspend/mmc-remove-after-suspend
+depends: suspend/mmc-insert-after-suspend
+estimated_duration: 30.0
+command: removable_storage_watcher --memorycard remove sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects the removal
+     of an MMC card from the systems card reader after the system has been suspended.
+ STEPS:
+     1. Click "Test" and remove the MMC card from the reader.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+name: suspend/sd-insert-after-suspend
+estimated_duration: 30.0
+depends: suspend/suspend_advanced
+command: removable_storage_watcher --memorycard insert sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the systems media card reader can
+     detect the insertion of an UNLOCKED SD card after the system
+     has been suspended
+ STEPS:
+     1. Click "Test" and insert an UNLOCKED SD card into the reader.
+        If a file browser opens up, you can safely close it.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not remove the device after this test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+name: suspend/sd-storage-after-suspend
+estimated_duration: 10.0
+depends: suspend/sd-insert-after-suspend
+user: root
+command: removable_storage_test -s 268400000 --memorycard sdio usb scsi
+_description:
+ This test is automated and executes after the mediacard/sd-insert-after-suspend test
+ is run. It tests reading and writing to the SD card after the system has been suspended.
+
+plugin: user-interact
+name: suspend/sd-remove-after-suspend
+estimated_duration: 30.0
+depends: suspend/sd-insert-after-suspend
+command: removable_storage_watcher --memorycard remove sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects
+     the removal of an SD card from the systems card reader
+     after the system has been suspended.
+ STEPS:
+     1. Click "Test" and remove the SD card from the reader.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+name: suspend/sdhc-insert-after-suspend
+estimated_duration: 30.0
+depends: suspend/suspend_advanced
+command: removable_storage_watcher --memorycard insert sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the systems media card reader can
+     detect the insertion of an UNLOCKED SDHC media card after the
+     system has been suspended
+ STEPS:
+     1. Click "Test" and insert an UNLOCKED SDHC card into the reader.
+        If a file browser opens up, you can safely close it.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not remove the device after this test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+name: suspend/sdhc-storage-after-suspend
+estimated_duration: 10.0
+depends: suspend/sdhc-insert-after-suspend
+user: root
+command: removable_storage_test -s 268400000 --memorycard sdio usb scsi
+_description:
+ This test is automated and executes after the mediacard/sdhc-insert-after-suspend test
+ is run. It tests reading and writing to the SDHC card after the system has been suspended.
+
+plugin: user-interact
+name: suspend/sdhc-remove-after-suspend
+estimated_duration: 30.0
+depends: suspend/sdhc-insert-after-suspend
+command: removable_storage_watcher --memorycard remove sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects the removal
+     of an SDHC card from the systems card reader after the system has been suspended.
+ STEPS:
+     1. Click "Test" and remove the SDHC card from the reader.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+name: mediacard/cf-insert-after-suspend
+estimated_duration: 30.0
+depends: suspend/suspend_advanced
+command: removable_storage_watcher --memorycard insert sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the systems media card reader can
+     detect the insertion of a CF card after the system has been suspended
+ STEPS:
+     1. Click "Test" and insert a CF card into the reader.
+        If a file browser opens up, you can safely close it.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not remove the device after this test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+name: mediacard/cf-storage-after-suspend
+estimated_duration: 10.0
+depends: mediacard/cf-insert-after-suspend
+user: root
+command: removable_storage_test -s 268400000 --memorycard sdio usb scsi
+_description:
+ This test is automated and executes after the mediacard/cf-insert-after-suspend test
+ is run. It tests reading and writing to the CF card after the system has been suspended.
+
+plugin: user-interact
+name: mediacard/cf-remove-after-suspend
+estimated_duration: 30.0
+depends: mediacard/cf-insert-after-suspend
+command: removable_storage_watcher --memorycard remove sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects the removal
+     of a CF card from the systems card reader after the system has been suspended.
+ STEPS:
+     1. Click "Test" and remove the CF card from the reader.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+
+plugin: user-interact
+name: mediacard/sdxc-insert-after-suspend
+estimated_duration: 30.0
+depends: suspend/suspend_advanced
+command: removable_storage_watcher --memorycard insert sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the systems media card reader can
+     detect the insertion of a SDXC card after the system has been suspended
+ STEPS:
+     1. Click "Test" and insert a SDXC card into the reader.
+        If a file browser opens up, you can safely close it.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not remove the device after this test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+name: mediacard/sdxc-storage-after-suspend
+estimated_duration: 10.0
+depends: mediacard/sdxc-insert-after-suspend
+user: root
+command: removable_storage_test -s 268400000 --memorycard sdio usb scsi
+_description:
+ This test is automated and executes after the mediacard/sdxc-insert-after-suspend test
+ is run. It tests reading and writing to the SDXC card after the system has been suspended.
+
+plugin: user-interact
+name: mediacard/sdxc-remove-after-suspend
+depends: mediacard/sdxc-insert-after-suspend
+estimated_duration: 30.0
+command: removable_storage_watcher --memorycard remove sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects the removal
+     of a SDXC card from the systems card reader after the system has been suspended.
+ STEPS:
+     1. Click "Test" and remove the SDXC card from the reader.
+        If a file browser opens up, you can safely close it.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+name: mediacard/ms-insert-after-suspend
+estimated_duration: 30.0
+depends: suspend/suspend_advanced
+command: removable_storage_watcher --memorycard insert sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the systems media card reader can
+     detect the insertion of a MS card after the system has been suspended
+ STEPS:
+     1. Click "Test" and insert a MS card into the reader.
+        If a file browser opens up, you can safely close it.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not remove the device after this test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+name: mediacard/ms-storage-after-suspend
+estimated_duration: 10.0
+depends: mediacard/ms-insert-after-suspend
+user: root
+command: removable_storage_test -s 268400000 --memorycard sdio usb scsi
+_description:
+ This test is automated and executes after the mediacard/ms-insert-after-suspend test
+ is run. It tests reading and writing to the MS card after the system has been suspended.
+
+plugin: user-interact
+name: mediacard/ms-remove-after-suspend
+estimated_duration: 30.0
+depends: mediacard/ms-insert-after-suspend
+command: removable_storage_watcher --memorycard remove sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects the removal
+     of a MS card from the systems card reader after the system has been suspended.
+ STEPS:
+     1. Click "Test" and remove the MS card from the reader.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+name: mediacard/msp-insert-after-suspend
+estimated_duration: 30.0
+depends: suspend/suspend_advanced
+command: removable_storage_watcher --memorycard insert sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the systems media card reader can
+     detect the insertion of a MSP card after the system has been suspended
+ STEPS:
+     1. Click "Test" and insert a MSP card into the reader.
+        If a file browser opens up, you can safely close it.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not remove the device after this test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+name: mediacard/msp-storage-after-suspend
+estimated_duration: 10.0
+depends: mediacard/msp-insert-after-suspend
+user: root
+command: removable_storage_test -s 268400000 --memorycard sdio usb scsi
+_description:
+ This test is automated and executes after the mediacard/msp-insert-after-suspend test
+ is run. It tests reading and writing to the MSP card after the system has been suspended.
+
+plugin: user-interact
+name: mediacard/msp-remove-after-suspend
+estimated_duration: 30.0
+depends: mediacard/msp-insert-after-suspend
+command: removable_storage_watcher --memorycard remove sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects the removal
+     of a MSP card from the systems card reader after the system has been suspended.
+ STEPS:
+     1. Click "Test" and remove the MSP card from the reader.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+name: mediacard/xd-insert-after-suspend
+estimated_duration: 30.0
+depends: suspend/suspend_advanced
+command: removable_storage_watcher --memorycard insert sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the systems media card reader can
+     detect the insertion of a xD card after the system has been suspended
+ STEPS:
+     1. Click "Test" and insert a xD card into the reader.
+        If a file browser opens up, you can safely close it.
+        (Note: this test will time-out after 20 seconds.)
+     2. Do not remove the device after this test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+name: mediacard/xd-storage-after-suspend
+estimated_duration: 10.0
+depends: mediacard/xd-insert-after-suspend
+user: root
+command: removable_storage_test -s 268400000 --memorycard sdio usb scsi
+_description:
+ This test is automated and executes after the mediacard/xd-insert-after-suspend test
+ is run. It tests reading and writing to the xD card after the system has been suspended.
+
+plugin: user-interact
+name: mediacard/xd-remove-after-suspend
+estimated_duration: 30.0
+depends: mediacard/xd-insert-after-suspend
+command: removable_storage_watcher --memorycard remove sdio usb scsi
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects the removal
+     of a xD card from the systems card reader after the system has been suspended.
+ STEPS:
+     1. Click "Test" and remove the xD card from the reader.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+name: touchpad/touchpad_after_suspend
+depends: suspend/suspend_advanced_auto
+requires:
+  dmi.product in ['Notebook','Laptop','Portable']
+  xinput.device_class == 'XITouchClass' and xinput.touch_mode != 'dependent'
+command: true
+estimated_duration: 1.2
+_description:
+ Determine if the touchpad is still functioning after suspend/resume.
+
+plugin: manual
+name: touchscreen/touchscreen_after_suspend
+depends: suspend/suspend_advanced_auto
+estimated_duration: 30.0
+_description:
+ PURPOSE:
+     Check touchscreen tap recognition
+ STEPS:
+     1. Tap an object on the screen with finger. The cursor should jump to location tapped and object should highlight
+ VERIFICATION:
+     Does tap recognition work?

@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# Any active connections?
+conn=''
+
+active_connection=$(nmcli -f SSID,ACTIVE dev wifi list | grep yes)
+
+if [ $? -eq 0 ]
+then
+    ap=$(echo $active_connection | awk -F\' '{print $2}')
+    conn=$(nmcli -t -f UUID,TYPE,NAME con list | grep wireless | grep -e "$ap$" | awk -F\: '{print $1}')
+else
+    conn=$(nmcli -t -f UUID,TYPE con list | grep wireless | head -n 1 | awk -F\: '{print $1}')
+fi
+
+#Strip trailing/leading whitespace
+conn=$(echo $conn |sed 's/^[ \t]*//;s/[ \t]*$//')
+
+# Find out if wireless is enabled
+nmcli nm wifi | grep -q 'enabled'
+if [ $? -ne 0 ]
+then
+    # Find out why
+    rfkill list wifi | grep 'Hard blocked' | grep -q yes
+    if [ $? -eq 0 ]
+    then
+        blkmessage='Your wireless may be hardware blocked. You may need
+                    to use your wireless key/switch to re-enable it.'
+        echo $blkmessage
+    fi
+fi
+
+# Check if there's a connection already (wireless or otherwise)
+nmcli dev status | grep -q '\<connected\>'
+if [ $? -eq 0 ]
+then
+    # Disconnect, pause for a short time
+    for iface in `nmcli -f GENERAL dev list | grep 'GENERAL.DEVICE' | awk '{print $2}'`
+    do
+        nmcli dev disconnect iface $iface
+    done
+    sleep 2
+fi
+
+nmcli con up uuid "$conn"

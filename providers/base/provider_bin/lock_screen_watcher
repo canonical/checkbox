@@ -1,0 +1,101 @@
+#!/usr/bin/env python3
+import argparse
+import sys
+import subprocess
+
+from gi.repository import GObject
+
+from checkbox_support.dbus import connect_to_system_bus
+
+import threading
+import time
+
+GObject.threads_init()
+
+class SceenSaverStatusHelper(threading.Thread):
+
+    def __init__(self, loop):
+        super(SceenSaverStatusHelper, self).__init__()
+        self._loop = loop
+        self.quit = False
+
+    def query(self):
+        p = subprocess.Popen(["gnome-screensaver-command", "-q"], stdout=subprocess.PIPE)
+        stdout, stderr = p.communicate()
+        # parse the stdout string from the command "gnome-screensaver-command -q"
+        # the result should be "active" or "inactive"
+        if "active" == stdout.decode().split(" ")[-1][0:-1] :
+            print("the screensaver is active")
+            self._loop.quit()
+
+    def run(self):
+        while not self.quit:
+            GObject.idle_add(self.query)
+            time.sleep(1)
+
+
+class HotkeyFunctionListener:
+
+    def __init__(self, system_bus, loop):
+        self._bus = system_bus
+        self._loop = loop
+        # Assume the test passes, this is changed when timeout expires
+        self._error = False
+
+    def _on_timeout_expired(self):
+        """
+        Internal function called when the timer expires.
+
+        Basically it's just here to tell the user the test failed or that the
+        user was unable to pressed the hot key during the allowed time.
+        """
+        print("You have failed to perform the required manipulation in time")
+        # Fail the test when the timeout was reached
+        self._error = True
+        # Stop the loop now
+        self._loop.quit()
+
+    def check(self, timeout):
+        """
+        Run the configured test and return the result
+
+        The result is False if the test has failed.  The timeout, when
+        non-zero, will make the test fail after the specified seconds have
+        elapsed without conclusive result.
+        """
+        # Setup a timeout if requested
+        if timeout > 0:
+            GObject.timeout_add_seconds(timeout, self._on_timeout_expired)
+
+        # helper to listen the functionality is triggered or not
+        query_thread = SceenSaverStatusHelper(self._loop)
+        query_thread.start()
+
+        self._loop.run()
+        query_thread.quit = True
+        # Return the outcome of the test
+        return self._error        
+
+def main():
+    description = "Wait for the specified hotkey to be pressed."
+    parser = argparse.ArgumentParser(description=description)
+    parser.add_argument('--timeout', type=int, default=30)
+
+    args = parser.parse_args()
+
+    # Connect to the system bus, we also get the event
+    # loop as we need it to start listening for signals.
+    system_bus, loop = connect_to_system_bus()
+
+    listener = HotkeyFunctionListener(system_bus, loop)
+
+    # Run the actual listener and wait till it either times out or discovers
+    # the specific hot key pressed.
+    try:
+        return listener.check(args.timeout)
+    except KeyboardInterrupt:
+        return 1
+
+if __name__ == "__main__":
+    sys.exit(main())
+

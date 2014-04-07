@@ -1,0 +1,224 @@
+plugin: shell
+name: usb/detect
+estimated_duration: 1.0
+command: lsusb | sed 's/.*\(ID .*\)/\1/' | head -n 4 || echo "No USB devices were detected" >&2
+_description: Detects and shows USB devices attached to this system.
+
+plugin: user-interact-verify
+name: usb/disk_detect
+depends: usb/detect
+estimated_duration: 1.0
+command: removable_storage_test -l usb
+_description:
+ PURPOSE:
+     This test will check that your system detects USB storage devices.
+ STEPS:
+     1. Plug in one or more USB keys or hard drives.
+     2. Click on "Test".
+ INFO:
+     $output
+ VERIFICATION:
+     Were the drives detected?
+
+plugin: user-interact-verify
+name: usb/HID
+depends: usb/detect
+estimated_duration: 1.0
+command: keyboard_test
+_description:
+ PURPOSE:
+     This test will check that you can use a USB HID device
+ STEPS:
+     1. Enable either a USB mouse or keyboard
+     2. For mice, perform actions such as moving the pointer, right and left button clicks and double clicks
+     3. For keyboards, click the Test button to lauch a small tool. Type some text and close the tool.
+ VERIFICATION:
+     Did the device work as expected?
+
+plugin: user-interact
+name: usb/insert
+depends: usb/detect
+estimated_duration: 10.0
+command: removable_storage_watcher insert usb
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects the insertion of
+     a USB storage device
+ STEPS:
+     1. Click "Test" and insert a USB storage device, preferably a HDD.
+        Although a USB pen drive may be used it might cause performance
+        related tests to fail. (Note: this test will time-out after 20
+        seconds.)
+     2. Do not unplug the device after the test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+name: usb3/insert
+requires:
+ usb.usb3 == 'supported'
+estimated_duration: 10.0
+command: removable_storage_watcher -m 500000000 insert usb
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects the insertion of
+     a USB 3.0 storage device
+ STEPS:
+     1. Click "Test" and insert a USB 3.0 storage device, preferably a HDD,
+        in a USB 3.0 port. Although a USB 3.0 pen drive may be used it might
+        cause performance related tests to fail. (Note: this test will 
+        time-out after 20 seconds.)
+     2. Do not unplug the device after the test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+name: usb/remove
+depends: usb/insert
+estimated_duration: 10.0
+command: removable_storage_watcher remove usb
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects the removal of
+     a USB storage device
+ STEPS:
+     1. Click "Test" and remove the USB device.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact
+name: usb3/remove
+depends: usb3/insert
+requires:
+ usb.usb3 == 'supported'
+estimated_duration: 10.0
+command: removable_storage_watcher -m 500000000 remove usb
+_description:
+ PURPOSE:
+     This test will check that the system correctly detects the removal of
+     a USB 3.0 storage device
+ STEPS:
+     1. Click "Test" and remove the USB 3.0 device.
+        (Note: this test will time-out after 20 seconds.)
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact-verify
+name: usb/storage-transfer
+depends: usb/insert
+user: root
+estimated_duration: 45.0
+command: removable_storage_test -s 268400000 usb
+_description:
+ PURPOSE:
+     This test will check your USB connection.
+ STEPS:
+     1. Plug a USB HDD or thumbdrive into the computer.
+     2. An icon should appear on the Launcher.
+     3. Click "Test" to begin the test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: user-interact-verify
+name: usb3/storage-transfer
+requires:
+ usb.usb3 == 'supported'
+depends: usb3/insert
+user: root
+estimated_duration: 45.0
+command: removable_storage_test -s 268400000 -m 500000000 usb
+_description:
+ PURPOSE:
+     This test will check your USB 3.0 connection.
+ STEPS:
+     1. Plug a USB 3.0 HDD or thumbdrive into a USB 3.0 port in the computer.
+     2. An icon should appear on the Launcher.
+     3. Click "Test" to begin the test.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the
+     automatically selected result.
+
+plugin: shell
+name: usb/storage-automated
+depends: usb/insert
+user: root
+estimated_duration: 45.0
+command: removable_storage_test -s 268400000 usb
+_description:
+ This test is automated and executes after the usb/insert test is run.
+
+plugin: shell
+name: usb3/storage-automated
+requires:
+ usb.usb3 == 'supported'
+depends: usb3/insert
+user: root
+estimated_duration: 45.0
+command: removable_storage_test -s 268400000 -m 500000000 -p 7 usb
+_description:
+ This test is automated and executes after the usb3/insert test is run.
+
+plugin: shell
+name: usb/storage-preinserted
+user: root
+estimated_duration: 45.0
+command: removable_storage_test -l usb && removable_storage_test -s 268400000 usb
+_description:
+ This is an automated version of usb/storage-automated and assumes that the
+ server has usb storage devices plugged in prior to checkbox execution. It
+ is intended for servers and SRU automated testing.
+
+plugin: shell
+name: usb3/storage-preinserted
+user: root
+requires:
+ usb.usb3 == 'supported'
+estimated_duration: 45.0
+command: removable_storage_test -l usb && removable_storage_test -s 268400000 -m 500000000 -p 7 usb
+_description:
+ This is an automated version of usb3/storage-automated and assumes that the
+ server has usb 3.0 storage devices plugged in prior to checkbox execution. It
+ is intended for servers and SRU automated testing.
+
+plugin: manual
+name: usb/panels
+_description:
+ PURPOSE:
+     This test will check your USB connection.
+ STEPS:
+     1. Connect a USB storage device to an external USB slot on this computer.
+     2. An icon should appear on the Launcher.
+     3. Confirm that the icon appears.
+     4. Eject the device.
+     5. Repeat with each external USB slot.
+ VERIFICATION:
+     Do all USB slots work with the device?
+
+plugin: shell
+name: usb/performance
+depends: usb/insert
+user: root
+estimated_duration: 45.00
+command: removable_storage_test -s 268400000 -p 15 usb
+_description:
+ This test will check that your USB 2.0 port transfers data at a
+ minimum expected speed.
+
+plugin: shell
+name: usb3/superspeed_performance
+requires:
+ usb.usb3 == 'supported'
+depends: usb3/insert
+user: root
+estimated_duration: 45.00
+command: removable_storage_test -s 268400000 -m 500000000 -p 60 usb
+_description:
+ This test will check that your USB 3.0 port transfers data at a
+ minimum expected speed in accordance with the specification of
+ USB 3.0 SuperSpeed mode.

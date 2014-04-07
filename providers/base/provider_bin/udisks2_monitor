@@ -1,0 +1,154 @@
+#!/usr/bin/env python3
+# Copyright 2012 Canonical Ltd.
+# Written by:
+#   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+Script that observes changes to various devices, as published by
+UDisks2. Note: this script has no UDisks (one) equivalent.
+"""
+
+import errno
+import logging
+import sys
+
+from checkbox_support.dbus import connect_to_system_bus, drop_dbus_type
+from checkbox_support.dbus.udisks2 import UDisks2Observer
+
+from dbus.exceptions import DBusException
+
+
+def _print_interfaces_and_properties(interfaces_and_properties):
+    """
+    Print a collection of interfaces and properties exported by some object
+
+    The argument is the value of the dictionary _values_, as returned from
+    GetManagedObjects() for example. See this for details:
+        http://dbus.freedesktop.org/doc/dbus-specification.html#
+        standard-interfaces-objectmanager
+    """
+    for interface_name, properties in interfaces_and_properties.items():
+        print("   - Interface {}".format(interface_name))
+        for prop_name, prop_value in properties.items():
+            prop_value = drop_dbus_type(prop_value)
+            print("     * Property {}: {}".format(prop_name, prop_value))
+
+
+def main():
+    # Connect to the system bus, we also get the event
+    # loop as we need it to start listening for signals.
+    system_bus, loop = connect_to_system_bus()
+
+    # Create an instance of the observer that we'll need for the model
+    observer = UDisks2Observer()
+
+    # Define all our callbacks in advance, there are three callbacks that we
+    # need, for interface insertion/removal (which roughly corresponds to
+    # objects/devices coming and going) and one extra signal that is only fired
+    # once, when we get the initial list of objects.
+
+    # Let's print everything we know about initially for the users to see
+    def print_initial_objects(managed_objects):
+        print("UDisks2 knows about the following objects:")
+        for object_path, interfaces_and_properties in managed_objects.items():
+            print(" * {}".format(object_path))
+            _print_interfaces_and_properties(interfaces_and_properties)
+        sys.stdout.flush()
+    observer.on_initial_objects.connect(print_initial_objects)
+
+    # Setup a callback for the InterfacesAdded signal. This way we will get
+    # notified of any interface changes in this collection. In practice this
+    # means that all objects that are added/removed will be advertised through
+    # this mechanism
+    def print_interfaces_added(object_path, interfaces_and_properties):
+        print("The object:")
+        print("  {}".format(object_path))
+        print("has gained the following interfaces and properties:")
+        _print_interfaces_and_properties(interfaces_and_properties)
+        sys.stdout.flush()
+    observer.on_interfaces_added.connect(print_interfaces_added)
+
+    # Setup a callback on PropertiesChanged signal. This way we will get
+    # notified on any changes to the values of properties exported by various
+    # objects on the bus.
+    def print_properties_changed(object_path, interface_name,
+                                 changed_properties, invalidated_properties):
+        print("The object")
+        print("  {}".format(object_path))
+        print("has changed the following properties")
+        print("   - Interface {}".format(interface_name))
+        for prop_name, prop_value in changed_properties.items():
+            prop_value = drop_dbus_type(prop_value)
+            print("     * Property {}: {}".format(prop_name, prop_value))
+        for prop_name in invalidated_properties:
+            print("     * Property {} (invalidated)".format(prop_name))
+    observer.on_properties_changed.connect(print_properties_changed)
+
+    # Again, a similar callback for interfaces that go away. It's not spelled
+    # out explicitly but it seems that objects with no interfaces left are
+    # simply gone. We'll treat them as such
+    def print_interfaces_removed(object_path, interfaces):
+        print("The object:")
+        print("  {}".format(object_path))
+        print("has lost the following interfaces:")
+        for interface in interfaces:
+            print(" * {}".format(interface))
+        sys.stdout.flush()
+    observer.on_interfaces_removed.connect(print_interfaces_removed)
+
+    # Now that all signal handlers are set, connect the observer to the system
+    # bus
+    try:
+        logging.debug("Connecting UDisks2 observer to DBus")
+        observer.connect_to_bus(system_bus)
+    except DBusException as exc:
+        # Manage the missing service error if needed to give sensible error
+        # message on precise where UDisks2 is not available
+        if exc.get_dbus_name() == "org.freedesktop.DBus.Error.ServiceUnknown":
+            print("You need to have udisks2 installed to run this program")
+            print("It is only applicable to Ubuntu 12.10, or later")
+            raise SystemExit(1)
+        else:
+            raise  # main_shield() will catch this one
+
+    # Now start the event loop and just display any device changes
+    print("=" * 80)
+    print("Waiting for device changes (press ctlr+c to exit)")
+    print("=" * 80)
+    logging.debug("Entering event loop")
+    sys.stdout.flush()  # Explicitly flush to allow tee users to see things
+    try:
+        loop.run()
+    except KeyboardInterrupt:
+        loop.quit()
+    print("Exiting")
+
+
+def main_shield():
+    """
+    Helper for real main that manages exceptions we don't recover from
+    """
+    try:
+        main()
+    except DBusException as exc:
+        logging.exception("Caught fatal DBus exception, aborting")
+    except IOError as exc:
+        # Ignore pipe errors as they are harmless
+        if exc.errno != errno.EPIPE:
+            raise
+
+
+if __name__ == "__main__":
+    main_shield()

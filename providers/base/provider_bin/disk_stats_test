@@ -1,0 +1,68 @@
+#!/bin/bash
+
+#Simple script to gather some data about a disk to verify it's seen by the OS
+#and is properly represented.  Defaults to sda if not passed a disk at run time
+
+DISK="sda"
+
+check_return_code() {
+    if [ "${1}" -ne "0" ]; then
+        echo "ERROR: retval ${1} : ${2}" >&2
+        exit ${1}
+    fi
+}
+
+if [[ "$1" != '' ]]; then
+    DISK="$1"
+fi
+
+#Get some baseline stats for use later
+echo "Getting baseline stats"
+PROC_STAT_BEGIN=`grep -m 1 $DISK /proc/diskstats`
+SYS_STAT_BEGIN=`cat /sys/block/$DISK/stat`
+
+#Generate some disk activity using hdparm -t
+echo "Generating some disk activity"
+hdparm -t "/dev/$DISK" 2&> /dev/null
+
+#Sleep 5 to let the stats files catch up
+sleep 5
+
+#Check /proc/partitions, exit with fail if disk isn't found
+echo "Checking /proc/partitions"
+grep -q $DISK /proc/partitions
+check_return_code $? "Disk $DISK not found in /proc/partitions"
+
+#Next, check /proc/diskstats
+echo "Checking /proc/diskstats"
+grep -q -m 1 $DISK /proc/diskstats
+check_return_code $? "Disk $DISK not found in /proc/diskstats"
+
+#Verify the disk shows up in /sys/block/
+echo "Checking /sys/block"
+ls /sys/block | grep -q $DISK
+check_return_code $? "Disk $DISK not found in /sys/block"
+
+#Verify there are stats in /sys/block/$DISK/stat
+echo "Checking /sys/block/$DISK/stat"
+[[ -s "/sys/block/$DISK/stat" ]]
+check_return_code $? "stat is either empty or nonexistant in /sys/block/$DISK/"
+
+#Sleep 5 to let the stats files catch up
+sleep 5
+
+#Make sure the stats have changed:
+echo "Getting ending stats"
+PROC_STAT_END=`grep -m 1 $DISK /proc/diskstats`
+SYS_STAT_END=`cat /sys/block/$DISK/stat`
+
+echo "Checking /proc/diskstats for changes"
+[[ "$PROC_STAT_BEGIN" != "$PROC_STAT_END" ]]
+check_return_code $? "Stats in /proc/diskstats did not change"
+
+echo "Checking /sys/block/$DISK/stat for changes"
+[[ "$SYS_STAT_BEGIN" != "$SYS_STAT_END" ]]
+check_return_code $? "Stats in /sys/block/$DISK/stat did not change"
+
+echo "PASS: Finished testing stats for $DISK"
+exit 0

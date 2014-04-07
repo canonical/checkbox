@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Verify default partitioning has used the entire local hard disk.
+# Please remove any non-local attached storage prior to running this
+# test.
+
+for disk in $@; do
+  echo "Checking maximum disk space available on : $disk"
+
+  psize=`parted -l | grep $disk | awk '{print $3}'`
+
+  if [ -n "$psize" ]
+  then
+    echo "Disk space available : $psize"
+
+    fsizes=`df -B ${psize:(-2)} | grep $disk | awk '{print $2}'`
+
+    if [ -n "$fsizes" ]
+    then
+      echo "Disk space used : $fsizes"
+
+      fsize=0
+      for i in $fsizes; do
+          i=`echo $i | grep -oe '[0-9\.]*'`
+          fsize=$(($fsize + $i))
+      done
+
+      psize=`echo $psize | grep -oe '[0-9\.]*'`
+      pct_difference=`awk "BEGIN{print(($psize - $fsize) / $fsize)}"`
+      echo "Difference ( > 0.15 fails ) : $pct_difference"
+      awk "BEGIN{exit($pct_difference > 0.15)}" || exit 1
+    fi
+  fi
+done

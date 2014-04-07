@@ -1,0 +1,73 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+#
+#  rotation_test
+#
+# This file is part of Checkbox.
+#
+# Copyright 2012 Canonical Ltd.
+#
+# Authors: Alberto Milone <alberto.milone@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+
+import time
+import sys
+
+from checkbox_support.contrib import xrandr
+
+
+def rotate_screen(rotation):
+    # Refresh the screen. Required by NVIDIA
+    screen = xrandr.get_current_screen()
+    screen.set_rotation(rotation)
+    return screen.apply_config()
+
+def main():
+    screen = xrandr.get_current_screen()
+    rotations = {'normal': xrandr.RR_ROTATE_0,
+                 'right': xrandr.RR_ROTATE_90,
+                 'inverted': xrandr.RR_ROTATE_180,
+                 'left': xrandr.RR_ROTATE_270}
+    rots_statuses = {}
+
+    for rot in rotations:
+        try:
+            status = rotate_screen(rotations[rot])
+        except(xrandr.RRError, xrandr.UnsupportedRRError) as error:
+            status = 1
+        else:
+            error = 'N/A'
+        # Collect the status and the error message
+        rots_statuses[rot] = (status, error)
+        time.sleep(4)
+
+    # Try to set the screen back to normal
+    try:
+        rotate_screen(xrandr.RR_ROTATE_0)
+    except(xrandr.RRError, xrandr.UnsupportedRRError) as error:
+        print(error)
+
+    result = 0
+    for elem in rots_statuses:
+        status = rots_statuses.get(elem)[0]
+        error = rots_statuses.get(elem)[1]
+        if status != 0:
+            print('Error: rotation "%s" failed with status %d: %s.' %
+                  (elem, status, error), file=sys.stderr)
+            result = 1
+    return result
+
+if __name__ == '__main__':
+    exit(main())

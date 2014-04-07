@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Exit on any error
+set -o errexit
+
+# Accept Terms & Conditions, disable anonymous reporting
+echo -e "Y\nn\nn" | phoronix-test-suite > /dev/null
+
+# Disable batch result saving and all test options selection
+echo -e "n\nn" | phoronix-test-suite batch-setup > /dev/null 
+
+# Run each test only one time
+export FORCE_TIMES_TO_RUN=1
+
+# Run only the following resolution
+export OVERRIDE_VIDEO_MODES=800x600
+
+set +o errexit
+rv=0
+output=$(phoronix-test-suite batch-benchmark $@ 2>&1)
+#The output does NOT report success. It may contain, if it fails:
+# The test did not produce a result
+# The test failed to run properly
+# Failed to Fetch
+
+if (echo "$output" | grep -q -i "Failed to fetch" ); then 
+	rv=1
+fi
+if ( echo "$output" | grep -q -i 'This test failed to run properly'); then 
+	rv=1
+fi
+echo "$output"
+exit $rv
+

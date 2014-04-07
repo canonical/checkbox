@@ -1,0 +1,115 @@
+plugin: shell
+name: ethernet/detect
+requires:
+ device.category == 'NETWORK' or device.category == 'WIRELESS'
+ package.name == 'module-init-tools'
+ package.name == 'pciutils'
+command: network_device_info
+estimated_duration: 1.2
+_description: Test to detect the available network controllers
+
+plugin: shell
+name: ethernet/info_automated
+requires:
+ package.name == 'network-manager'
+ device.category == 'NETWORK'
+command: udev_resource | filter_templates -w "category=NETWORK"| awk "/path: / { print \$2 }"| xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do network_info \$i; done"
+estimated_duration: 30.0
+_description:
+ This is an automated test to gather some info on the current state of your network devices. If no devices are found, the test will exit with an error.
+
+plugin: user-interact-verify
+name: ethernet/wired_connection
+command: network_check
+estimated_duration: 1.2
+_description:
+ PURPOSE:
+     This test will check your wired connection
+ STEPS:
+     1. Click on the Network icon in the top panel
+     2. Select a network below the "Wired network" section
+     3. Click "Test" to verify that it's possible to establish a HTTP connection
+ VERIFICATION:
+     Did a notification show and was the connection correctly established?
+
+plugin: local
+name: ethernet/multi_nic
+requires: device.category == 'NETWORK'
+_description: Automated test to walk multiple network cards and test each one in sequence.
+command:
+ cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
+ plugin: shell
+ name: ethernet/multi_nic_$2
+ requires:
+  package.name == 'ethtool'
+  package.name == 'nmap'
+  device.path == "$1"
+ user: root
+ environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
+ command: network test -i $2 -t iperf --fail-threshold 80
+ estimated_duration: 330.0
+ description:
+  Testing for NIC $2
+ EOF
+
+plugin: local
+name: ethernet/ethtool_info
+requires:
+ device.category == 'NETWORK'
+command: 
+ cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
+ plugin: shell
+ name: ethernet/ethertool_check_$2
+ requires: device.path == "$1"
+ command: ethtool $2
+ estimated_duration: 330.0
+ _description:
+  This test executes ethtool requests against all the ethernet devices found on the system.
+ EOF
+_description:
+ This is an automated test to gather some info on the current state of your network devices. If no devices are found, the test will exit with an error.
+
+plugin: local
+name: ethernet/maximum_bandwidth
+requires:
+ device.category == 'NETWORK'
+ package.name == 'zenity'
+ package.name == 'iperf'
+command:
+ cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
+ plugin: user-verify
+ user: root
+ name: ethernet/maximum_bandwidth_$2
+ requires: device.path == "$1"
+ command: network test -i $2 -t iperf 2>&1 | cat - <(echo; echo "Verify the result and click OK to decide on the outcome") | zenity --text-info --title 'ethernet max bw $2'
+ estimated_duration: 330.0
+ _description:
+  PURPOSE:
+      User verification of whether the observed transfer throughput is acceptable
+      for the type and maximum speed of each ethernet interface.
+  STEPS:
+      1. Read the network test summary and confirm that the throughput is acceptable.
+      2. If needed, click "Test" again to repeat the transfer test.
+  VERIFICATION:
+     Was the reported throughput acceptable for the type and maximum speed of this interface?
+ EOF
+_description:
+ This test executes a maximum throughput test against all the ethernet devices found on the system.
+
+plugin: local
+name: ethernet/stress_performance
+requires:
+  device.category == 'NETWORK'
+_description: Automated test that tests performance of each wired network device under stress.
+command:
+ cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
+ plugin: shell
+ name: ethernet/stress_performance_$2
+ requires: device.path == "$1"
+ user: root
+ command: network test -i $2 -t stress
+ estimated_duration: 330.0
+ _description:
+  This test executes iperf to generate a load on the network device and then performs a ping test to watch for dropped packets and very large latency periods.
+ EOF
+

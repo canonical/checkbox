@@ -1,0 +1,154 @@
+plugin: manual
+name: touchpad/basic
+requires: dmi.product in ['Notebook','Laptop','Portable']
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Touchpad user-verify
+ STEPS:
+     1. Make sure that touchpad is enabled.
+     2. Move cursor using the touchpad.
+ VERIFICATION:
+     Did the cursor move?
+
+plugin: user-interact
+name: touchpad/horizontal
+requires:
+  dmi.product in ['Notebook','Laptop','Portable']
+  'Button Horiz Wheel Left' in xinput.button_labels and 'Button Horiz Wheel Right' in xinput.button_labels
+command: touchpad_test right left --edge-scroll
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Touchpad horizontal scroll verification
+ STEPS:
+     1. Select "Test" when ready and place your cursor within the borders of the displayed test window.
+     2. Verify that you can move the horizontal slider by moving your finger right and left in the lower part of the touchpad.
+ VERIFICATION:
+     Could you scroll right and left?
+
+plugin: user-interact
+name: touchpad/vertical
+requires:
+  dmi.product in ['Notebook','Laptop','Portable']
+  'Button Wheel Up' in xinput.button_labels and 'Button Wheel Down' in xinput.button_labels
+command: touchpad_test up down --edge-scroll
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Touchpad vertical scroll verification
+ STEPS:
+     1. Select "Test" when ready and place your cursor within the borders of the displayed test window.
+     2. Verify that you can move the vertical slider by moving your finger up and down in the right part of the touchpad.
+ VERIFICATION:
+     Could you scroll up and down?
+
+plugin: shell
+name: touchpad/singletouch-automated
+requires:
+  dmi.product in ['Notebook','Laptop','Portable']
+  xinput.device_class == 'XITouchClass' and xinput.touch_mode != 'dependent'
+command: true
+estimated_duration: 1.2
+_description:
+ Determine whether the touchpad is detected as a singletouch device automatically.
+
+plugin: shell
+name: touchpad/multitouch-automated
+estimated_duration: 1.2
+requires:
+  dmi.product in ['Notebook','Laptop','Portable']
+  xinput.device_class == 'XITouchClass' and xinput.touch_mode == 'dependent'
+command: true
+_description:
+ Determine whether the touchpad is detected as a multitouch device automatically.
+
+plugin: manual
+name: touchpad/multitouch-manual
+depends: touchpad/singletouch-automated
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Touchpad manual detection of multitouch.
+ STEPS:
+     1. Look at the specifications for your system.
+ VERIFICATION:
+     Is the touchpad supposed to be multitouch?
+
+plugin: manual
+name: touchpad/singletouch-corner
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Determine that the hot corner feature is working as expected
+ STEPS:
+     1. Launch a browser.
+     2. Go to a website, and hover the cursor over a link.
+     3. Tap the upper right corner if the touchpad.
+ VERIFICATION:
+     Did the tap trigger a new tab to be opended?
+
+plugin: manual
+name: touchpad/singletouch-selection
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Determine that the selection window function is working as expected.
+ STEPS:
+     1. Open a file folder
+     2. Double tap and drag the cursor across several file.
+ VERIFICATION:
+     Did a selection window open and were several files selected?
+
+plugin: manual
+name: touchpad/multitouch-rightclick
+depends: touchpad/multitouch-automated
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Determine that the right click function is working as expected.
+ STEPS:
+     1. Open a file folder
+     2. Hover cursor over file in folder
+     3. 2-touch tap.
+ VERIFICATION:
+     Did the right click pop up menu appear?
+
+plugin: user-interact
+name: touchpad/multitouch-horizontal
+command: touchpad_test right left
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Touchpad 2-touch horizontal scroll verification
+ STEPS:
+     1. Select "Test" when ready and place your cursor within the borders of the displayed test window.
+     2. Verify that you can move the horizontal slider by moving 2 fingers right and left along the touchpad.
+ VERIFICATION:
+     Could you scroll right and left?
+
+plugin: user-interact
+name: touchpad/multitouch-vertical
+command: touchpad_test up down
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Touchpad 2-touch vertical scroll verification
+ STEPS:
+     1. Select "Test" when ready and place your cursor within the borders of the displayed test window.
+     2. Verify that you can move the vertical slider by moving 2 fingers up and down along the touchpad.
+ VERIFICATION:
+     Could you scroll up and down?
+
+plugin: manual
+name: touchpad/drag-and-drop
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Determine that the drag and drop function is working as expected.
+ STEPS:
+     1. Browse to the examples folder in the current user's home directory
+     2. Double tap and hold to select the "Ubuntu_Free_Culture_Showcase" folder
+     2. Drag the selected folder to the desktop and remove finger from touchpad.
+ VERIFICATION:
+     Did a selected folder move to the desktop?

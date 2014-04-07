@@ -1,0 +1,144 @@
+#!/usr/bin/env python3
+
+import os
+import re
+import sys
+import uuid
+
+from optparse import OptionParser
+from subprocess import Popen, PIPE
+
+from checkbox_support.lib.template import Template
+
+
+DEFAULT_INPUT = "-"
+DEFAULT_OUTPUT = "-"
+
+COMMAND_TEMPLATE = """cat <<%(separator)s
+%(input)s
+%(separator)s"""
+
+
+class Runner(object):
+
+    def __init__(self, input, output):
+        self.input = input
+        self.output = output
+
+    def get_args(self, record):
+        return []
+
+    def get_env(self, record):
+        env = dict(os.environ)
+        env["NF"] = str(len(record))
+
+        return env
+
+    def process(self, args, shell=False):
+        process = Popen(
+            args, shell=shell, stdout=PIPE, universal_newlines=True)
+        records = self.process_output(process.stdout)
+
+        for nr, record in enumerate(records):
+            args = self.get_args(record)
+            env = self.get_env(record)
+            env["NR"] = str(nr)
+
+            command_string = COMMAND_TEMPLATE % {
+                "input": self.input,
+                "separator": uuid.uuid4()}
+            command = ["sh", "-c", command_string] + args
+
+            process = Popen(command,
+                env=env,
+                stdout=self.output,
+                universal_newlines=True)
+            process.communicate()
+
+    def process_output(self, output):
+        raise NotImplementedError
+
+
+class LineRunner(Runner):
+
+    field_separator = r"\s+"
+    record_separator = r"(?:\r?\n)"
+
+    def get_args(self, record):
+        args = [record]
+        args.extend(re.split(self.field_separator, record))
+
+        return args
+
+    def process_output(self, file):
+        # Strip trailing separator
+        data = re.sub(r"%s$" % self.record_separator, "", file.read())
+
+        return re.split(self.record_separator, data)
+
+
+class TemplateRunner(Runner):
+
+    def get_env(self, record):
+        env = super(TemplateRunner, self).get_env(record)
+        env.update(record)
+
+        return env
+
+    def process_output(self, output):
+        template = Template()
+        return template.load_file(output)
+
+
+def main(args):
+    usage = "Usage: %prog [OPTIONS] [COMMAND]"
+    parser = OptionParser(usage=usage)
+    parser.add_option("-i", "--input",
+        metavar="FILE",
+        default=DEFAULT_INPUT,
+        help="Input from the given file name, - for stdin")
+    parser.add_option("-o", "--output",
+        metavar="FILE",
+        default=DEFAULT_OUTPUT,
+        help="Output to the given file name, - for stdout")
+    parser.add_option("-s", "--shell",
+        action="store_true",
+        help="Run the command as a shell script")
+    parser.add_option("-t", "--template",
+        action="store_true",
+        help="Interpret the command output as a template")
+    (options, args) = parser.parse_args(args)
+
+    # Default args to echo command
+    if not args:
+        args = ["echo"]
+
+    # Read input
+    if options.input == "-":
+        input = sys.stdin.read()
+    else:
+        input_file = open(options.input, "r")
+        try:
+            input = input_file.read()
+        finally:
+            input_file.close()
+
+    # Open output
+    if options.output == "-":
+        output_file = sys.stdout
+    else:
+        output_file = open(options.output, "w")
+
+    # Determine runner class
+    if options.template:
+        runner_class = TemplateRunner
+    else:
+        runner_class = LineRunner
+
+    runner = runner_class(input, output_file)
+    runner.process(args, options.shell)
+
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

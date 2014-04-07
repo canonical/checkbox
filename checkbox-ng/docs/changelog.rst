@@ -8,6 +8,42 @@ ChangeLog
 
 .. _version_0_5:
 
+PlainBox 0.5.3
+^^^^^^^^^^^^^^
+
+This is a maintenance release of the 0.5 series.
+
+Bug fixes
+---------
+
+Bugs fixed in this release are assigned to the following milestone:
+
+* Bugfixes: https://launchpad.net/plainbox/+milestone/0.5.3
+
+API changes
+-----------
+
+* PlainBox now has an interface for transport classes.
+  :class:`plainbox.abc.ISessionStateTransport` that differs from the old
+  implementation of the certification transport (the only one that used to
+  exist). The new interface has well-defined return value, error semantics and
+  takes one more argument (session state). This change was required to
+  implement the launchpad transport.
+* PlainBox now has support for pluggable build systems that supply automatic
+  value for the build_cmd argument in manage.py's setup() call. They existing
+  build systems are available in the :mod:`plainbox.impl.buildsystems` module.
+* All exporters can now make use of key=value options.
+* The XML exporter can now be customized to set the client name option. This is
+  available using the standard exporter option list and is available both at
+  API level and on command line.
+* The provider class can now keep track of the src/ directory and the build/bin
+  directory, which are important for providers under development. This feature
+  is used to run executables from the build/bin directory.
+* PlainBox will now load the src/EXECUTABLES file, if present, to enumerate
+  executables built from source. This allows manage.py install to be more
+  accurate and allows manage.py info do display executables even before they
+  are built.
+
 PlainBox 0.5.2
 ^^^^^^^^^^^^^^
 

@@ -1,11 +1,11 @@
 plugin: shell
-name: usb/detect
+id: usb/detect
 estimated_duration: 1.0
 command: lsusb | sed 's/.*\(ID .*\)/\1/' | head -n 4 || echo "No USB devices were detected" >&2
 _description: Detects and shows USB devices attached to this system.
 
 plugin: user-interact-verify
-name: usb/disk_detect
+id: usb/disk_detect
 depends: usb/detect
 estimated_duration: 1.0
 command: removable_storage_test -l usb
@@ -21,7 +21,7 @@ _description:
      Were the drives detected?
 
 plugin: user-interact-verify
-name: usb/HID
+id: usb/HID
 depends: usb/detect
 estimated_duration: 1.0
 command: keyboard_test
@@ -36,7 +36,7 @@ _description:
      Did the device work as expected?
 
 plugin: user-interact
-name: usb/insert
+id: usb/insert
 depends: usb/detect
 estimated_duration: 10.0
 command: removable_storage_watcher insert usb
@@ -55,7 +55,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
-name: usb3/insert
+id: usb3/insert
 requires:
  usb.usb3 == 'supported'
 estimated_duration: 10.0
@@ -75,7 +75,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
-name: usb/remove
+id: usb/remove
 depends: usb/insert
 estimated_duration: 10.0
 command: removable_storage_watcher remove usb
@@ -91,7 +91,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
-name: usb3/remove
+id: usb3/remove
 depends: usb3/insert
 requires:
  usb.usb3 == 'supported'
@@ -109,7 +109,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact-verify
-name: usb/storage-transfer
+id: usb/storage-transfer
 depends: usb/insert
 user: root
 estimated_duration: 45.0
@@ -126,7 +126,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact-verify
-name: usb3/storage-transfer
+id: usb3/storage-transfer
 requires:
  usb.usb3 == 'supported'
 depends: usb3/insert
@@ -145,7 +145,7 @@ _description:
      automatically selected result.
 
 plugin: shell
-name: usb/storage-automated
+id: usb/storage-automated
 depends: usb/insert
 user: root
 estimated_duration: 45.0
@@ -154,7 +154,7 @@ _description:
  This test is automated and executes after the usb/insert test is run.
 
 plugin: shell
-name: usb3/storage-automated
+id: usb3/storage-automated
 requires:
  usb.usb3 == 'supported'
 depends: usb3/insert
@@ -165,7 +165,7 @@ _description:
  This test is automated and executes after the usb3/insert test is run.
 
 plugin: shell
-name: usb/storage-preinserted
+id: usb/storage-preinserted
 user: root
 estimated_duration: 45.0
 command: removable_storage_test -l usb && removable_storage_test -s 268400000 usb
@@ -175,7 +175,7 @@ _description:
  is intended for servers and SRU automated testing.
 
 plugin: shell
-name: usb3/storage-preinserted
+id: usb3/storage-preinserted
 user: root
 requires:
  usb.usb3 == 'supported'
@@ -187,7 +187,7 @@ _description:
  is intended for servers and SRU automated testing.
 
 plugin: manual
-name: usb/panels
+id: usb/panels
 _description:
  PURPOSE:
      This test will check your USB connection.
@@ -201,7 +201,7 @@ _description:
      Do all USB slots work with the device?
 
 plugin: shell
-name: usb/performance
+id: usb/performance
 depends: usb/insert
 user: root
 estimated_duration: 45.00
@@ -211,7 +211,7 @@ _description:
  minimum expected speed.
 
 plugin: shell
-name: usb3/superspeed_performance
+id: usb3/superspeed_performance
 requires:
  usb.usb3 == 'supported'
 depends: usb3/insert

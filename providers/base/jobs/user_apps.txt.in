@@ -1,5 +1,5 @@
 plugin: user-interact-verify
-name: software/update_manager_finds_updates
+id: software/update_manager_finds_updates
 depends: ethernet/detect
 user: root
 requires: package.name == 'update-manager'
@@ -16,7 +16,7 @@ _description:
 command: update-manager --check-dist-upgrades
 
 plugin: user-interact-verify
-name: software/nautilus_folder_create
+id: software/nautilus_folder_create
 requires: package.name == 'nautilus'
 command: nautilus
 _description:
@@ -31,7 +31,7 @@ _description:
   Do you now have a new folder called Test Folder?
 
 plugin: user-interact-verify
-name: software/nautilus_folder_copy
+id: software/nautilus_folder_copy
 depends: software/nautilus_folder_create
 command: nautilus
 _description:
@@ -48,7 +48,7 @@ _description:
   Do you now have a folder called Test Data?
 
 plugin: user-interact-verify
-name: software/nautilus_folder_move
+id: software/nautilus_folder_move
 depends: software/nautilus_folder_copy
 command: nautilus
 _description:
@@ -64,7 +64,7 @@ _description:
   Was the folder called Test Data successfully moved into the folder called Test Folder?
 
 plugin: user-interact-verify
-name: software/nautilus_file_create
+id: software/nautilus_file_create
 depends: software/nautilus_folder_create
 command: nautilus $HOME/"Test Folder"
 _description:
@@ -79,7 +79,7 @@ _description:
   Do you now have a file called Test File 1?
 
 plugin: user-interact-verify
-name: software/nautilus_file_copy
+id: software/nautilus_file_copy
 depends: software/nautilus_file_create
 command: nautilus $HOME/"Test Folder"
 _description:
@@ -96,7 +96,7 @@ _description:
   Do you now have a file called Test File 2?
 
 plugin: user-interact-verify
-name: software/nautilus_file_move
+id: software/nautilus_file_move
 depends: software/nautilus_file_copy
 command: nautilus $HOME/"Test Folder"
 _description:
@@ -112,7 +112,7 @@ _description:
   Was the file Test File 2 successfully moved into the Test Data folder?
 
 plugin: user-interact-verify
-name: software/nautilus_file_delete
+id: software/nautilus_file_delete
 depends: software/nautilus_file_create
 command: nautilus $HOME/"Test Folder"
 _description:
@@ -127,7 +127,7 @@ _description:
    Is Test File 1 now gone?
 
 plugin: user-interact-verify
-name: software/nautilus_folder_delete
+id: software/nautilus_folder_delete
 depends: software/nautilus_folder_create
 command: nautilus
 _description:
@@ -142,12 +142,12 @@ _description:
   Has Test Folder been successfully deleted?
 
 plugin: local
-name: software/view_office_document
+id: software/view_office_document
 requires: package.name == "ubuntu-desktop"
 _description: Common Document Types Test
 command:
  cat <<'EOF' | run_templates -s "find $CHECKBOX_SHARE/data/documents -type f"
- name: `basename $0`_test
+ id: `basename $0`_test
  plugin: user-interact-verify
  description:
   PURPOSE:
@@ -162,12 +162,12 @@ command:
  EOF
 
 plugin: local
-name: software/audio_file_play
+id: software/audio_file_play
 requires: package.name == "ubuntu-desktop"
 _description: Common Document Types Test
 command:
  cat <<'EOF' | run_templates -s "find $CHECKBOX_SHARE/data/audio -type f"
- name: `basename $0`_test
+ id: `basename $0`_test
  plugin: user-interact-verify
  description:
   PURPOSE:
@@ -182,12 +182,12 @@ command:
  EOF
 
 plugin: local
-name: software/video_file_play
+id: software/video_file_play
 requires: package.name == "ubuntu-desktop"
 _description: Common Document Types Test
 command:
  cat <<'EOF' | run_templates -s "find $CHECKBOX_SHARE/data/video -type f"
- name: `basename $0`_test
+ id: `basename $0`_test
  plugin: user-interact-verify
  description:
   PURPOSE:
@@ -202,12 +202,12 @@ command:
  EOF
 
 plugin: local
-name: software/view_image_file
+id: software/view_image_file
 requires: package.name == "ubuntu-desktop"
 _description: Common Document Types Test
 command:
  cat <<'EOF' | run_templates -s "find $CHECKBOX_SHARE/data/images -type f"
- name: `basename $0`_test
+ id: `basename $0`_test
  plugin: user-interact-verify
  description:
   PURPOSE:
@@ -222,7 +222,7 @@ command:
  EOF
 
 plugin: user-interact-verify
-name: software/firefox
+id: software/firefox
 requires: package.name == 'firefox'
 command: firefox $CHECKBOX_SHARE/data/websites/testindex.html
 _description:
@@ -234,7 +234,7 @@ _description:
   Did the Ubuntu Test page load correctly?
 
 plugin: user-interact-verify
-name: software/firefox-flash
+id: software/firefox-flash
 depends: software/firefox
 requires: package.name == 'firefox'
 command: firefox $CHECKBOX_SHARE/data/websites/flashtest.html
@@ -248,7 +248,7 @@ _description:
   Did you see the text?
 
 plugin: user-interact-verify
-name: software/firefox-flash-video
+id: software/firefox-flash-video
 depends: software/firefox-flash
 requires: package.name == 'firefox'
 command: firefox $CHECKBOX_SHARE/data/websites/flashvideo.html
@@ -262,7 +262,7 @@ _description:
   Did the video play correctly?
 
 plugin: user-interact-verify
-name: software/firefox-totem
+id: software/firefox-totem
 depends: software/firefox
 requires:
     package.name == 'firefox'
@@ -279,7 +279,7 @@ _description:
   Did the video play using a plugin?
 
 plugin: user-interact-verify
-name: software/empathy-facebook_chat
+id: software/empathy-facebook_chat
 requires: package.name == "empathy"
 command: empathy
 _description:
@@ -293,7 +293,7 @@ _description:
   Were you able to connect correctly and send/receive messages?
 
 plugin: user-interact-verify
-name: software/empathy-google_talk
+id: software/empathy-google_talk
 requires: package.name == "empathy"
 command: empathy
 _description:
@@ -307,7 +307,7 @@ _description:
   Were you able to connect correctly and send/receive messages?
 
 plugin: user-interact-verify
-name: software/empathy-jabber
+id: software/empathy-jabber
 requires: package.name == "empathy"
 command: empathy
 _description:
@@ -321,7 +321,7 @@ _description:
   Were you able to connect correctly and send/receive messages?
 
 plugin: user-interact-verify
-name: software/empathy-aim
+id: software/empathy-aim
 requires: package.name == "empathy"
 command: empathy
 _description:
@@ -335,7 +335,7 @@ _description:
   Were you able to connect correctly and send/receive messages?
 
 plugin: user-interact-verify
-name: software/empathy-msn
+id: software/empathy-msn
 requires: package.name == "empathy"
 command: empathy
 _description:
@@ -349,7 +349,7 @@ _description:
   Were you able to connect correctly and send/receive messages?
 
 plugin: user-interact-verify
-name: software/evolution-pop3
+id: software/evolution-pop3
 requires: package.name == "evolution"
 command: evolution
 _description:
@@ -362,7 +362,7 @@ _description:
   Were you able to receive and read e-mail correctly?
 
 plugin: user-interact-verify
-name: software/evolution-imap
+id: software/evolution-imap
 requires: package.name == "evolution"
 command: evolution
 _description:
@@ -375,7 +375,7 @@ _description:
   Were you able to receive and read e-mail correctly?
 
 plugin: user-interact-verify
-name: software/evolution-smtp
+id: software/evolution-smtp
 requires: package.name == "evolution"
 command: evolution
 _description:
@@ -388,7 +388,7 @@ _description:
   Were you able to send e-mail without errors?
 
 plugin: user-interact-verify
-name: software/gcalctool
+id: software/gcalctool
 requires: package.name == "gcalctool"
 command: gcalctool
 _description:
@@ -400,7 +400,7 @@ _description:
   Did it launch correctly?
 
 plugin: user-interact-verify
-name: software/gcalctool-functions
+id: software/gcalctool-functions
 depends: software/gcalctool
 requires: package.name == "gcalctool"
 command: gcalctool
@@ -417,7 +417,7 @@ _description:
   Did the functions perform as expected?
 
 plugin: user-interact-verify
-name: software/gcalctool-memory
+id: software/gcalctool-memory
 depends: software/gcalctool
 requires: package.name == "gcalctool"
 command: gcalctool
@@ -434,7 +434,7 @@ _description:
   Did the functions perform as expected?
 
 plugin: user-interact-verify
-name: software/gcalctool-clipboard
+id: software/gcalctool-clipboard
 depends: software/gcalctool
 requires: package.name == "gcalctool"
 command: gcalctool
@@ -450,7 +450,7 @@ _description:
   Did the functions perform as expected?
 
 plugin: user-interact-verify
-name: software/gedit
+id: software/gedit
 requires: package.name == "gedit"
 command: gedit
 _description:
@@ -463,7 +463,7 @@ _description:
   Did this perform as expected?
 
 plugin: user-interact-verify
-name: software/gedit-read
+id: software/gedit-read
 depends: software/gedit
 requires: package.name == "gedit"
 command: gedit
@@ -477,7 +477,7 @@ _description:
   Did this perform as expected?
 
 plugin: user-interact-verify
-name: software/gnome-terminal
+id: software/gnome-terminal
 requires: package.name == "gnome-terminal"
 command: gnome-terminal
 _description:

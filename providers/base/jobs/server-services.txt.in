@@ -1,17 +1,17 @@
 plugin: shell
-name: services/open_ssh_test
+id: services/open_ssh_test
 requires: package.name == 'ssh'
 command: pgrep sshd >/dev/null || (echo 'FAIL: sshd is not running.' 2>&1 && false)
 _description: Verifies that sshd is running.
 
 plugin: shell
-name: services/print_server_test
+id: services/print_server_test
 requires: package.name == 'cups'
 command: pgrep cupsd >/dev/null || (echo 'FAIL: cupsd is not running.' 2>&1 && false)
 _description: Verifies that Print/CUPs server is running.
 
 plugin: shell
-name: services/dns_server_test
+id: services/dns_server_test
 requires:
  package.name == 'bind9'
  package.name == 'dnsutils'
@@ -20,7 +20,7 @@ command: dns_server_test
 _description: Verifies that DNS server is running and working.
 
 plugin: shell
-name: services/samba_test
+id: services/samba_test
 requires:
  package.name == 'samba'
  package.name == 'winbind'
@@ -29,7 +29,7 @@ command: samba_test
 _description: Verifies that Samba server is running.
 
 plugin: shell
-name: services/lamp_test
+id: services/lamp_test
 requires:
  package.name == 'apache2'
  package.name == 'php5-mysql'
@@ -40,7 +40,7 @@ command: lamp_test
 _description: Verifies that the LAMP stack is running (Apache, MySQL and PHP).
 
 plugin: shell
-name: services/tomcat_test
+id: services/tomcat_test
 requires: package.name == 'tomcat6'
 user: root
 command: tomcat_test

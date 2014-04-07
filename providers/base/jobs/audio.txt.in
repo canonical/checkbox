@@ -1,5 +1,5 @@
 plugin: shell
-name: audio/list_devices
+id: audio/list_devices
 estimated_duration: 1.0
 requires:
  device.category == 'AUDIO'
@@ -8,7 +8,7 @@ command: cat /proc/asound/cards
 _description: Test to detect audio devices
 
 plugin: user-interact-verify
-name: audio/playback_auto
+id: audio/playback_auto
 estimated_duration: 5.0
 depends: audio/list_devices
 requires:
@@ -28,7 +28,7 @@ _description:
      Did you hear a tone?
 
 plugin: user-interact-verify
-name: audio/playback_hdmi
+id: audio/playback_hdmi
 estimated_duration: 30.0
 requires:
  device.category == 'AUDIO'
@@ -47,7 +47,7 @@ _description:
      Did you hear the sound from the HDMI device?
 
 plugin: user-interact-verify
-name: audio/playback_displayport
+id: audio/playback_displayport
 estimated_duration: 30.0
 requires:
  device.category == 'AUDIO'
@@ -66,7 +66,7 @@ _description:
      Did you hear the sound from the DisplayPort device?
 
 plugin: user-interact-verify
-name: audio/playback_headphones
+id: audio/playback_headphones
 estimated_duration: 20.0
 depends: audio/list_devices
 requires:
@@ -85,7 +85,7 @@ _description:
      Did you hear a sound through the headphones and did the sound play without any distortion, clicks or other strange noises from your headphones?
 
 plugin: user-interact-verify
-name: audio/alsa_record_playback_internal
+id: audio/alsa_record_playback_internal
 estimated_duration: 20.0
 depends: audio/playback_auto
 requires:
@@ -105,7 +105,7 @@ _description:
      Did you hear your speech played back?
 
 plugin: user-interact-verify
-name: audio/alsa_record_playback_external
+id: audio/alsa_record_playback_external
 estimated_duration: 20.0
 depends: audio/playback_headphones
 requires:
@@ -125,7 +125,7 @@ _description:
      Did you hear your speech played back?
 
 plugin: user-interact-verify
-name: audio/alsa_record_playback_usb
+id: audio/alsa_record_playback_usb
 estimated_duration: 120.0
 requires:
  device.category == 'AUDIO'
@@ -144,7 +144,7 @@ _description:
      Did you hear your speech played back through the USB headphones?
 
 plugin: shell
-name: audio/alsa_record_playback_automated
+id: audio/alsa_record_playback_automated
 estimated_duration: 10.0
 requires:
  package.name == 'python3-gi'
@@ -160,7 +160,7 @@ _description:
  default input.
 
 plugin: shell
-name: audio/alsa_info_collect
+id: audio/alsa_info_collect
 estimated_duration: 2.0
 command: alsa_info --no-dialog --no-upload --output ${CHECKBOX_DATA}/alsa_info.log
 _description:
@@ -169,7 +169,7 @@ _description:
  under a controlled environment.
 
 plugin: attachment
-name: audio/alsa_info_attachment
+id: audio/alsa_info_attachment
 depends: audio/alsa_info_collect
 estimated_duration: 1.0
 command: [ -e ${CHECKBOX_DATA}/alsa_info.log ] && cat ${CHECKBOX_DATA}/alsa_info.log
@@ -177,7 +177,7 @@ _description:
  Attaches the audio hardware data collection log to the results.
 
 plugin: user-interact-verify
-name: audio/channels
+id: audio/channels
 estimated_duration:  20.0
 command: speaker-test -c 2 -l 1 -t wav
 _description:
@@ -189,7 +189,7 @@ _description:
      You should clearly hear a voice from the different audio channels
 
 plugin: shell
-name: audio/check_volume
+id: audio/check_volume
 estimated_duration: 1.0
 requires:
  package.name == 'pulseaudio-utils'
@@ -204,7 +204,7 @@ _description:
  volume or mute before running this test.
 
 plugin: manual
-name: audio/external-lineout
+id: audio/external-lineout
 estimated_duration: 30.0
 _description:
  PURPOSE:
@@ -218,7 +218,7 @@ _description:
       2. Do you hear the sound coming out on the corresponding channel?
 
 plugin: user-interact-verify
-name: audio/external-linein
+id: audio/external-linein
 estimated_duration: 120.0
 requires:
  device.category == 'AUDIO'
@@ -237,7 +237,7 @@ _description:
      Did you hear your recording?
 
 plugin: user-interact
-name: audio/speaker-headphone-plug-detection
+id: audio/speaker-headphone-plug-detection
 estimated_duration: 60.0
 requires:
  device.category == 'AUDIO'
@@ -257,7 +257,7 @@ _description:
      The test times out after 30 seconds (and fails in that case).
 
 plugin: user-interact
-name: audio/microphone-plug-detection
+id: audio/microphone-plug-detection
 estimated_duration: 60.0
 requires:
  device.category == 'AUDIO'
@@ -278,7 +278,7 @@ _description:
      The test times out after 30 seconds (and fails in that case).
 
 plugin: user-interact-verify
-name: audio/balance_internal_speaker
+id: audio/balance_internal_speaker
 estimated_duration: 20.0
 depends: audio/playback_auto
 requires:
@@ -299,7 +299,7 @@ _description:
      Does the slider move smoothly, as well as being followed by the setting by the actual audio output?
 
 plugin: user-interact-verify
-name: audio/balance_headphones
+id: audio/balance_headphones
 depends: audio/playback_headphones
 estimated_duration: 30.0
 requires:
@@ -320,7 +320,7 @@ _description:
      Does the slider move smoothly, as well as being followed by the setting by the actual audio output?
 
 plugin: shell
-name: audio/list_devices_after_suspend_30_cycles
+id: audio/list_devices_after_suspend_30_cycles
 estimated_duration: 1.0
 depends: power-management/suspend_30_cycles
 requires:
@@ -330,7 +330,7 @@ command: cat /proc/asound/cards
 _description: Test to detect audio devices after suspending 30 times.
 
 plugin: user-interact-verify
-name: audio/playback_auto_after_suspend_30_cycles
+id: audio/playback_auto_after_suspend_30_cycles
 estimated_duration: 5.0
 depends: audio/list_devices power-management/suspend_30_cycles
 requires:
@@ -350,7 +350,7 @@ _description:
      Did you hear a tone?
 
 plugin: shell
-name: audio/alsa_record_playback_automated_after_suspend_30_cycles
+id: audio/alsa_record_playback_automated_after_suspend_30_cycles
 estimated_duration: 10.0
 depends: power-management/suspend_30_cycles
 requires:
@@ -367,7 +367,7 @@ _description:
  default input, after suspending 30 times.
 
 plugin: shell
-name: audio/check_volume_after_suspend_30_cycles
+id: audio/check_volume_after_suspend_30_cycles
 estimated_duration: 1.0
 depends: power-management/suspend_30_cycles
 requires:
@@ -383,7 +383,7 @@ _description:
  volume or mute before running this test.
 
 plugin: shell
-name: audio/audio_after_suspend_30_cycles
+id: audio/audio_after_suspend_30_cycles
 estimated_duration: 1.0
 depends: power-management/suspend_30_cycles
 requires:

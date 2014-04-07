@@ -1,18 +1,18 @@
 plugin: shell
-name: suspend/network_before_suspend
+id: suspend/network_before_suspend
 depends: ethernet/detect
 estimated_duration: 1.2
 _description: Record the current network before suspending.
 command: set -o pipefail; gateway_ping_test | tee $CHECKBOX_DATA/network_before_suspend.txt
 
 plugin: shell
-name: suspend/resolution_before_suspend
+id: suspend/resolution_before_suspend
 estimated_duration: 1.2
 _description: Record the current resolution before suspending.
 command: xrandr -q |grep '*'| awk '{print $1}' > $CHECKBOX_DATA/resolution_before_suspend.txt
 
 plugin: shell
-name: suspend/audio_before_suspend
+id: suspend/audio_before_suspend
 estimated_duration: 1.0
 requires:
  device.category == 'AUDIO'
@@ -21,20 +21,20 @@ _description: Record mixer settings before suspending.
 command: audio_settings store --file=$CHECKBOX_DATA/audio_settings_before_suspend
 
 plugin: shell
-name: suspend/cpu_before_suspend
+id: suspend/cpu_before_suspend
 estimated_duration: 1.2
 _description: Verify that all the CPUs are online before suspending
 command: cpuinfo_resource > $CHECKBOX_DATA/cpuinfo_before_suspend
 
 plugin: shell
-name: suspend/memory_before_suspend
+id: suspend/memory_before_suspend
 estimated_duration: 1.2
 _description:
  Dumps memory info to a file for comparison after suspend test has been run
 command: meminfo_resource > $CHECKBOX_DATA/meminfo_before_suspend
 
 plugin: shell
-name: suspend/wireless_before_suspend
+id: suspend/wireless_before_suspend
 depends: wireless/wireless_connection
 requires: device.category == 'WIRELESS'
 command: nmcli -t -f UUID con status > $CHECKBOX_DATA/connections && connect_wireless && gateway_ping_test --interface=`nmcli dev list | grep -B 1 wireless | grep GENERAL.DEVICE | awk '{print $2}'` && for con in `cat $CHECKBOX_DATA/connections`; do nmcli con up uuid "$con"; done
@@ -44,13 +44,13 @@ _description:
  interface. It then checks the connection to confirm it's working as expected.
 
 plugin: local
-name: suspend/iperf_before_suspend_ether_auto
+id: suspend/iperf_before_suspend_ether_auto
 requires:
  device.category == 'NETWORK'
 command: 
  cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
  plugin: shell
- name: suspend/iperf_before_suspend_ether_auto_$2
+ id: suspend/iperf_before_suspend_ether_auto_$2
  depends: ethernet/detect
  estimated_duration: 20.0
  requires: device.path == "$1"
@@ -63,13 +63,13 @@ _description:
  This is an automated test to gather some info on the current state of your network devices. If no devices are found, the test will exit with an error.
 
 plugin: local
-name: suspend/iperf_before_suspend_wifi_auto
+id: suspend/iperf_before_suspend_wifi_auto
 requires:
  device.category == 'WIRELESS'
 command: 
  cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=WIRELESS" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
  plugin: shell
- name: suspend/iperf_before_suspend_wifi_auto_$2
+ id: suspend/iperf_before_suspend_wifi_auto_$2
  depends: wireless/wireless_connection
  estimated_duration: 20.0
  requires: device.path == "$1"
@@ -82,7 +82,7 @@ _description:
  This is an automated test to gather some info on the current state of your network devices. If no devices are found, the test will exit with an error.
 
 plugin: shell
-name: suspend/bluetooth_obex_before_suspend
+id: suspend/bluetooth_obex_before_suspend
 estimated_duration: 10.0
 requires:
  package.name == 'bluez'
@@ -109,7 +109,7 @@ _description:
  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
 
 plugin: shell
-name: suspend/bluetooth_obex_send_before_suspend
+id: suspend/bluetooth_obex_send_before_suspend
 estimated_duration: 10.0
 requires:
  package.name == 'bluez'
@@ -136,7 +136,7 @@ _description:
  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
 
 plugin: shell
-name: suspend/bluetooth_obex_browse_before_suspend
+id: suspend/bluetooth_obex_browse_before_suspend
 estimated_duration: 10.0
 requires:
  package.name == 'bluez'
@@ -163,7 +163,7 @@ _description:
  This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR environment variable.
 
 plugin: shell
-name: suspend/bluetooth_obex_get_before_suspend
+id: suspend/bluetooth_obex_get_before_suspend
 estimated_duration: 20.0
 requires:
  package.name == 'bluez'
@@ -190,7 +190,7 @@ _description:
  This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR environment variable
 
 plugin: user-interact-verify
-name: suspend/bluetooth_obex_before_suspend_manual
+id: suspend/bluetooth_obex_before_suspend_manual
 estimated_duration: 120.0
 requires:
  package.name == 'bluez'
@@ -208,7 +208,7 @@ _description:
      Was the data correctly transferred?
 
 plugin: user-verify
-name: suspend/suspend_advanced
+id: suspend/suspend_advanced
 requires:
  sleep.mem == 'supported'
  rtc.state == 'supported'
@@ -236,7 +236,7 @@ _description:
      (NOTE: Please only consider whether the system successfully suspended and resumed. Power/Suspend LED verification will occur after this test is completed.)
 
 plugin: shell
-name: suspend/suspend_advanced_auto
+id: suspend/suspend_advanced_auto
 requires:
     sleep.mem == 'supported'
     rtc.state == 'supported'
@@ -248,27 +248,27 @@ command: set -o pipefail; fwts_test -f none -l $CHECKBOX_DATA/suspend_single -s 
 estimated_duration: 90.000
 
 plugin: shell
-name: suspend/suspend-single-log-check
+id: suspend/suspend-single-log-check
 estimated_duration: 1.2
 command: [ -e $CHECKBOX_DATA/suspend_single.log ] && sleep_test_log_check -v s3 $CHECKBOX_DATA/suspend_single.log
 _description:
  Automated check of the suspend log to look for errors reported by fwts
 
 plugin: attachment
-name: suspend/suspend-single-log-attach
+id: suspend/suspend-single-log-attach
 command: [ -e $CHECKBOX_DATA/suspend_single.log ] && cat $CHECKBOX_DATA/suspend_single.log
 _description:
  Attaches the log from the single suspend/resume test to the results
 
 plugin: shell
-name: suspend/suspend-time-check
+id: suspend/suspend-time-check
 estimated_duration: 1.2
 command: [ -e $CHECKBOX_DATA/suspend_single_times.log ] && sleep_time_check $CHECKBOX_DATA/suspend_single_times.log
 _description:
  Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
 
 plugin: user-interact-verify
-name: power-management/usb_wakeup_keyboard
+id: power-management/usb_wakeup_keyboard
 user: root
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -284,7 +284,7 @@ _description:
      Did the system wake up from suspend mode when you pressed a keyboard key?
 
 plugin: user-interact-verify
-name: power-management/usb_wakeup_mouse
+id: power-management/usb_wakeup_mouse
 user: root
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -300,21 +300,21 @@ _description:
      Did the system wake up from suspend mode when you pressed the mouse button?
 
 plugin: shell
-name: suspend/network_after_suspend
+id: suspend/network_after_suspend
 estimated_duration: 20.0
 depends: suspend/suspend_advanced suspend/network_before_suspend
 _description: Test the network after resuming.
 command: network_wait; gateway_ping_test | diff $CHECKBOX_DATA/network_before_suspend.txt -
 
 plugin: shell
-name: suspend/resolution_after_suspend
+id: suspend/resolution_after_suspend
 depends: suspend/suspend_advanced suspend/resolution_before_suspend
 estimated_duration: 1.2
 _description: Test to see that we have the same resolution after resuming as before.
 command: xrandr -q |grep '*'| awk '{print $1}' | diff $CHECKBOX_DATA/resolution_before_suspend.txt -
 
 plugin: shell
-name: suspend/audio_after_suspend
+id: suspend/audio_after_suspend
 estimated_duration: 1.0
 requires:
  device.category == 'AUDIO'
@@ -325,7 +325,7 @@ command:
  audio_settings store --file=$CHECKBOX_DATA/audio_settings_after_suspend; diff $CHECKBOX_DATA/audio_settings_before_suspend $CHECKBOX_DATA/audio_settings_after_suspend
 
 plugin: shell
-name: suspend/audio_after_suspend_auto
+id: suspend/audio_after_suspend_auto
 estimated_duration: 1.2
 requires:
  device.category == 'AUDIO'
@@ -336,21 +336,21 @@ command:
  audio_settings store --file=$CHECKBOX_DATA/audio_settings_after_suspend; diff $CHECKBOX_DATA/audio_settings_before_suspend $CHECKBOX_DATA/audio_settings_after_suspend
 
 plugin: shell
-name: suspend/cpu_after_suspend
+id: suspend/cpu_after_suspend
 estimated_duration: 1.2
 depends: suspend/suspend_advanced suspend/cpu_before_suspend
 _description: Verify that all CPUs are online after resuming.
 command: cpuinfo_resource | diff $CHECKBOX_DATA/cpuinfo_before_suspend -
 
 plugin: shell
-name: suspend/cpu_after_suspend_auto
+id: suspend/cpu_after_suspend_auto
 estimated_duration: 1.2
 depends: suspend/suspend_advanced_auto suspend/cpu_before_suspend
 _description: Verify that all CPUs are online after resuming.
 command: cpuinfo_resource | diff $CHECKBOX_DATA/cpuinfo_before_suspend -
 
 plugin: shell
-name: suspend/memory_after_suspend
+id: suspend/memory_after_suspend
 estimated_duration: 1.2
 depends: suspend/suspend_advanced suspend/memory_before_suspend
 _description:
@@ -358,7 +358,7 @@ _description:
 command: meminfo_resource | diff $CHECKBOX_DATA/meminfo_before_suspend -
 
 plugin: shell
-name: suspend/memory_after_suspend_auto
+id: suspend/memory_after_suspend_auto
 estimated_duration: 1.2
 depends: suspend/suspend_advanced_auto suspend/memory_before_suspend
 _description:
@@ -366,7 +366,7 @@ _description:
 command: meminfo_resource | diff $CHECKBOX_DATA/meminfo_before_suspend -
 
 plugin: manual
-name: suspend/display_after_suspend
+id: suspend/display_after_suspend
 estimated_duration: 120.0
 depends: suspend/suspend_advanced
 _description:
@@ -378,7 +378,7 @@ _description:
      Does the display work normally after resuming from suspend?
 
 plugin: shell
-name: suspend/wireless_after_suspend
+id: suspend/wireless_after_suspend
 depends: suspend/suspend_advanced suspend/wireless_before_suspend
 requires:
  device.category == 'WIRELESS'
@@ -390,7 +390,7 @@ _description:
  connection is working as expected.
 
 plugin: shell
-name: suspend/wireless_connection_after_suspend_wpa_bg
+id: suspend/wireless_connection_after_suspend_wpa_bg
 depends: suspend/suspend_advanced
 estimated_duration: 20.0
 requires:
@@ -404,7 +404,7 @@ _description:
  security and the 802.11b/g protocols after the system has been suspended.
 
 plugin: shell
-name: suspend/wireless_connection_after_suspend_open_bg
+id: suspend/wireless_connection_after_suspend_open_bg
 depends: suspend/suspend_advanced
 estimated_duration: 1.2
 requires:
@@ -418,7 +418,7 @@ _description:
  security and the 802.11b/g protocols after the system has been suspended.
 
 plugin: shell
-name: suspend/wireless_connection_after_suspend_wpa_n
+id: suspend/wireless_connection_after_suspend_wpa_n
 depends: suspend/suspend_advanced
 estimated_duration: 1.2
 requires:
@@ -433,7 +433,7 @@ _description:
  security and the 802.11n protocol after the system has been suspended.
 
 plugin: shell
-name: suspend/wireless_connection_after_suspend_open_n
+id: suspend/wireless_connection_after_suspend_open_n
 depends: suspend/suspend_advanced
 estimated_duration: 1.2
 requires:
@@ -448,7 +448,7 @@ _description:
  security and the 802.11n protocol after the system has been suspended.
 
 plugin: shell
-name: suspend/wireless_connection_after_suspend_wpa_ac
+id: suspend/wireless_connection_after_suspend_wpa_ac
 depends: suspend/suspend_advanced
 estimated_duration: 1.2
 requires:
@@ -463,7 +463,7 @@ _description:
  security and the 802.11ac protocol after the system has been suspended.
 
 plugin: shell
-name: suspend/wireless_connection_after_suspend_open_ac
+id: suspend/wireless_connection_after_suspend_open_ac
 depends: suspend/suspend_advanced
 estimated_duration: 1.2
 requires:
@@ -478,7 +478,7 @@ _description:
  security and the 802.11ac protocol after the system has been suspended.
 
 plugin: shell
-name: suspend/wireless_connection_after_suspend_wpa_bg_auto
+id: suspend/wireless_connection_after_suspend_wpa_bg_auto
 depends: suspend/suspend_advanced_auto
 estimated_duration: 1.2
 requires:
@@ -492,7 +492,7 @@ _description:
  security and the 802.11b/g protocols after the system has been suspended.
 
 plugin: shell
-name: suspend/wireless_connection_after_suspend_open_bg_auto
+id: suspend/wireless_connection_after_suspend_open_bg_auto
 depends: suspend/suspend_advanced_auto
 estimated_duration: 1.2
 requires:
@@ -506,7 +506,7 @@ _description:
  security and the 802.11b/g protocols after the system has been suspended.
 
 plugin: shell
-name: suspend/wireless_connection_after_suspend_wpa_n_auto
+id: suspend/wireless_connection_after_suspend_wpa_n_auto
 depends: suspend/suspend_advanced_auto
 estimated_duration: 1.2
 requires:
@@ -520,7 +520,7 @@ _description:
  security and the 802.11n protocol after the system has been suspended.
 
 plugin: shell
-name: suspend/wireless_connection_after_suspend_open_n_auto
+id: suspend/wireless_connection_after_suspend_open_n_auto
 depends: suspend/suspend_advanced_auto
 estimated_duration: 1.2
 requires:
@@ -534,7 +534,7 @@ _description:
  security and the 802.11n protocol after the system has been suspended.
 
 plugin: shell
-name: suspend/wireless_connection_after_suspend_wpa_ac_auto
+id: suspend/wireless_connection_after_suspend_wpa_ac_auto
 depends: suspend/suspend_advanced_auto
 estimated_duration: 1.2
 requires:
@@ -548,7 +548,7 @@ _description:
  security and the 802.11ac protocol after the system has been suspended.
 
 plugin: shell
-name: suspend/wireless_connection_after_suspend_open_ac_auto
+id: suspend/wireless_connection_after_suspend_open_ac_auto
 depends: suspend/suspend_advanced_auto
 estimated_duration: 1.2
 requires:
@@ -562,14 +562,14 @@ _description:
  security and the 802.11ac protocol after the system has been suspended.
 
 plugin: local
-name: suspend/iperf_after_suspend_ether_auto
+id: suspend/iperf_after_suspend_ether_auto
 estimated_duration: 30.0
 requires:
  device.category == 'NETWORK'
 command: 
  cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
  plugin: shell
- name: suspend/iperf_after_suspend_ether_auto_$2
+ id: suspend/iperf_after_suspend_ether_auto_$2
  depends: suspend/suspend_advanced
  requires: device.path == "$1"
  user: root
@@ -581,14 +581,14 @@ _description:
  This is an automated test to gather some info on the current state of your network devices. If no devices are found, the test will exit with an error.
 
 plugin: local
-name: suspend/iperf_after_suspend_wifi_auto
+id: suspend/iperf_after_suspend_wifi_auto
 estimated_duration: 30.0
 requires:
  device.category == 'WIRELESS'
 command: 
  cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=WIRELESS" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
  plugin: shell
- name: suspend/iperf_before_suspend_wifi_auto_$2
+ id: suspend/iperf_before_suspend_wifi_auto_$2
  depends: suspend/suspend_advanced
  requires: device.path == "$1"
  user: root
@@ -600,7 +600,7 @@ _description:
  This is an automated test to gather some info on the current state of your network devices. If no devices are found, the test will exit with an error.
 
 plugin: user-interact-verify
-name: suspend/wireless_connection_after_suspend_wpa_bg_manual
+id: suspend/wireless_connection_after_suspend_wpa_bg_manual
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
 requires:
@@ -623,7 +623,7 @@ _description:
      Verification is automated, do not change the automatically selected result.
 
 plugin: user-interact-verify
-name: suspend/wireless_connection_after_suspend_open_bg_manual
+id: suspend/wireless_connection_after_suspend_open_bg_manual
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
 requires:
@@ -646,7 +646,7 @@ _description:
      Verification is automated, do not change the automatically selected result.
 
 plugin: user-interact-verify
-name: suspend/wireless_connection_after_suspend_wpa_n_manual
+id: suspend/wireless_connection_after_suspend_wpa_n_manual
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
 requires:
@@ -669,7 +669,7 @@ _description:
      Verification is automated, do not change the automatically selected result.
 
 plugin: user-interact-verify
-name: suspend/wireless_connection_after_suspend_open_n_manual
+id: suspend/wireless_connection_after_suspend_open_n_manual
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
 requires:
@@ -692,7 +692,7 @@ _description:
      Verification is automated, do not change the automatically selected result.
 
 plugin: user-interact-verify
-name: suspend/wireless_connection_after_suspend_wpa_ac_manual
+id: suspend/wireless_connection_after_suspend_wpa_ac_manual
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
 requires:
@@ -715,7 +715,7 @@ _description:
      Verification is automated, do not change the automatically selected result.
 
 plugin: user-interact-verify
-name: suspend/wireless_connection_after_suspend_open_ac_manual
+id: suspend/wireless_connection_after_suspend_open_ac_manual
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
 requires:
@@ -738,7 +738,7 @@ _description:
      Verification is automated, do not change the automatically selected result.
 
 plugin: shell
-name: suspend/bluetooth_detect_after_suspend
+id: suspend/bluetooth_detect_after_suspend
 depends: suspend/suspend_advanced bluetooth/detect-output
 estimated_duration: 1.2
 requires:
@@ -763,7 +763,7 @@ _description:
  This test grabs the hardware address of the bluetooth adapter after suspend and compares it to the address grabbed before suspend.
 
 plugin: shell
-name: suspend/bluetooth_obex_after_suspend
+id: suspend/bluetooth_obex_after_suspend
 depends: suspend/suspend_advanced suspend/bluetooth_obex_before_suspend
 estimated_duration: 10.0
 requires:
@@ -791,7 +791,7 @@ _description:
  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
 
 plugin: shell
-name: suspend/bluetooth_obex_after_suspend_auto
+id: suspend/bluetooth_obex_after_suspend_auto
 depends: suspend/suspend_advanced_auto suspend/bluetooth_obex_before_suspend
 estimated_duration: 10.0
 requires:
@@ -819,7 +819,7 @@ _description:
  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
 
 plugin: shell
-name: suspend/bluetooth_obex_send_after_suspend
+id: suspend/bluetooth_obex_send_after_suspend
 depends: suspend/suspend_advanced
 estimated_duration: 10.0
 requires:
@@ -847,7 +847,7 @@ _description:
  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
 
 plugin: shell
-name: suspend/bluetooth_obex_send_after_suspend_auto
+id: suspend/bluetooth_obex_send_after_suspend_auto
 depends: suspend/suspend_advanced_auto
 estimated_duration: 10.0
 requires:
@@ -875,7 +875,7 @@ _description:
  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
 
 plugin: shell
-name: suspend/bluetooth_obex_browse_after_suspend
+id: suspend/bluetooth_obex_browse_after_suspend
 depends: suspend/suspend_advanced
 estimated_duration: 10.0
 requires:
@@ -903,7 +903,7 @@ _description:
  This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR environment variable.
 
 plugin: shell
-name: suspend/bluetooth_obex_browse_after_suspend_auto
+id: suspend/bluetooth_obex_browse_after_suspend_auto
 depends: suspend/suspend_advanced_auto
 estimated_duration: 20.0
 requires:
@@ -931,7 +931,7 @@ _description:
  This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR environment variable.
 
 plugin: shell
-name: suspend/bluetooth_obex_get_after_suspend
+id: suspend/bluetooth_obex_get_after_suspend
 estimated_duration: 20.0
 depends: suspend/suspend_advanced
 requires:
@@ -959,7 +959,7 @@ _description:
  This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR environment variable
 
 plugin: shell
-name: suspend/bluetooth_obex_get_after_suspend_auto
+id: suspend/bluetooth_obex_get_after_suspend_auto
 depends: suspend/suspend_advanced_auto
 estimated_duration: 20.0
 requires:
@@ -987,7 +987,7 @@ _description:
  This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR environment variable
 
 plugin: user-interact-verify
-name: suspend/bluetooth_obex_after_suspend_manual
+id: suspend/bluetooth_obex_after_suspend_manual
 depends: suspend/suspend_advanced suspend/bluetooth_obex_before_suspend_manual
 estimated_duration: 120.0
 requires:
@@ -1005,7 +1005,7 @@ _description:
      Was the data correctly transferred?
 
 plugin: user-interact-verify
-name: suspend/cycle_resolutions_after_suspend
+id: suspend/cycle_resolutions_after_suspend
 estimated_duration: 120.0
 requires: package.name == 'xorg'
 depends: suspend/suspend_advanced graphics/cycle_resolution
@@ -1019,7 +1019,7 @@ _description:
      Did your display look fine in the detected mode?
 
 plugin: shell
-name: suspend/cycle_resolutions_after_suspend_auto
+id: suspend/cycle_resolutions_after_suspend_auto
 estimated_duration: 1.2
 requires: package.name == 'xorg'
 depends: suspend/suspend_advanced_auto graphics/cycle_resolution
@@ -1029,13 +1029,13 @@ _description:
 command: xrandr_cycle --keyword=after_suspend --screenshot-dir $CHECKBOX_DATA
 
 plugin: attachment
-name: suspend/xrandr_screens_after_suspend.tar.gz
+id: suspend/xrandr_screens_after_suspend.tar.gz
 depends: suspend/cycle_resolutions_after_suspend_auto
 command: [ -e $CHECKBOX_DATA/xrandr_screens_after_suspend.tgz ] && cat $CHECKBOX_DATA/xrandr_screens_after_suspend.tgz
 _description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend_auto test to the results submission.
 
 plugin: shell
-name: suspend/record_playback_after_suspend
+id: suspend/record_playback_after_suspend
 estimated_duration: 10.0
 depends: suspend/suspend_advanced
 requires:
@@ -1051,7 +1051,7 @@ _description:
  This will check to make sure that your audio device works properly after a suspend and resume.  This may work fine with speakers and onboard microphone, however, it works best if used with a cable connecting the audio-out jack to the audio-in jack.
 
 plugin: shell
-name: suspend/record_playback_after_suspend_auto
+id: suspend/record_playback_after_suspend_auto
 estimated_duration: 10.0
 depends: suspend/suspend_advanced_auto
 requires:
@@ -1067,13 +1067,13 @@ _description:
  This will check to make sure that your audio device works properly after a suspend and resume.  This may work fine with speakers and onboard microphone, however, it works best if used with a cable connecting the audio-out jack to the audio-in jack.
 
 plugin: attachment
-name: suspend/suspend-auto-single-log-attach
+id: suspend/suspend-auto-single-log-attach
 command: [ -e $CHECKBOX_DATA/suspend_auto_single_log ] && cat $CHECKBOX_DATA/suspend_auto_single_log
 _description:
  Attaches the log from the single suspend/resume test to the results
 
 plugin: shell
-name: suspend/screenshot_after_suspend
+id: suspend/screenshot_after_suspend
 estimated_duration: 10.0
 depends: suspend/suspend_advanced_auto
 requires: package.name == 'fswebcam'
@@ -1087,13 +1087,13 @@ _description:
      Review attachment manually later
 
 plugin: attachment
-name: screenshot_after_suspend.jpg
+id: screenshot_after_suspend.jpg
 depends: suspend/screenshot_after_suspend
 command: base64 ${CHECKBOX_DATA}/screenshot_after_suspend.jpg
 _description: Attaches the screenshot captured in graphics/screenshot.
 
 plugin: shell
-name: suspend/gpu_lockup_after_suspend
+id: suspend/gpu_lockup_after_suspend
 estimated_duration: 10.0
 requires:
  package.name == 'wmctrl'
@@ -1112,7 +1112,7 @@ _description:
      After a 60s workload, check kern.log for reported GPU errors
 
 plugin: shell
-name: suspend/wifi_resume_time
+id: suspend/wifi_resume_time
 depends: suspend/suspend_advanced
 requires:
    device.category == 'WIRELESS'
@@ -1123,7 +1123,7 @@ _description:
  after a suspend/resume cycle.
 
 plugin: shell
-name: suspend/wifi_resume_time_auto
+id: suspend/wifi_resume_time_auto
 estimated_duration: 1.2
 depends: suspend/suspend_advanced_auto
 requires:
@@ -1134,7 +1134,7 @@ _description:
  after a suspend/resume cycle.
 
 plugin: shell
-name: suspend/network_resume_time
+id: suspend/network_resume_time
 depends: suspend/suspend_advanced
 estimated_duration: 1.2
 requires:
@@ -1145,7 +1145,7 @@ _description:
   after a suspend/resume cycle.
 
 plugin: shell
-name: suspend/network_resume_time_auto
+id: suspend/network_resume_time_auto
 depends: suspend/suspend_advanced_auto
 estimated_duration: 1.2
 requires:
@@ -1156,7 +1156,7 @@ _description:
   after a suspend/resume cycle.
 
 plugin: manual
-name: suspend/led_after_suspend/power
+id: suspend/led_after_suspend/power
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
 _description:
@@ -1168,7 +1168,7 @@ _description:
      Does the power LED remain on after resuming from suspend?
 
 plugin: manual
-name: suspend/led_after_suspend/battery-charging
+id: suspend/led_after_suspend/battery-charging
 estimated_duration: 120.0
 depends: suspend/suspend_advanced
 _description:
@@ -1181,7 +1181,7 @@ _description:
      Did the battery indicator LED still turn orange after resuming from suspend?
 
 plugin: manual
-name: suspend/led_after_suspend/battery-charged
+id: suspend/led_after_suspend/battery-charged
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
 _description:
@@ -1195,7 +1195,7 @@ _description:
      Does the orange battery LED still shut off when system is fully charged after resuming from suspend?
 
 plugin: manual
-name: suspend/led_after_suspend/battery-low
+id: suspend/led_after_suspend/battery-low
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
 _description:
@@ -1208,7 +1208,7 @@ _description:
      Does the LED light orange when battery is low after resuming from suspend?
 
 plugin: user-interact-verify
-name: suspend/led_after_suspend/hdd
+id: suspend/led_after_suspend/hdd
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
 command: led_hdd_test
@@ -1222,7 +1222,7 @@ _description:
      Did the HDD LED still blink with HDD activity after resuming from suspend?
 
 plugin: user-interact-verify
-name: suspend/led_after_suspend/numeric-keypad
+id: suspend/led_after_suspend/numeric-keypad
 estimated_duration: 120.0
 depends: suspend/suspend_advanced
 command: keyboard_test
@@ -1238,7 +1238,7 @@ _description:
      2. Numbers should only be entered in the keyboard verification window when the LED is on
 
 plugin: manual
-name: suspend/led_after_suspend/caps-lock
+id: suspend/led_after_suspend/caps-lock
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
 _description:
@@ -1251,7 +1251,7 @@ _description:
      Did the Cap Keys LED light as expected after resuming from suspend?
 
 plugin: manual
-name: suspend/led_after_suspend/wlan
+id: suspend/led_after_suspend/wlan
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
 _description:
@@ -1264,7 +1264,7 @@ _description:
      Did the WLAN LED light as expected after resuming from suspend?
 
 plugin: manual
-name: suspend/led_after_suspend/wlan-disabled
+id: suspend/led_after_suspend/wlan-disabled
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
 _description:
@@ -1279,7 +1279,7 @@ _description:
      Did the LED turn off then WLAN is disabled after resuming from suspend?
 
 plugin: manual
-name: suspend/led_after_suspend/bluetooth
+id: suspend/led_after_suspend/bluetooth
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
 _description:
@@ -1294,7 +1294,7 @@ _description:
      Did the bluetooth LED turn off and on twice after resuming from suspend?
 
 plugin: user-interact-verify
-name: suspend/led_after_suspend/camera
+id: suspend/led_after_suspend/camera
 estimated_duration: 120.0
 depends:
  camera/detect
@@ -1310,7 +1310,7 @@ _description:
      Did the camera LED still turn on and off after resuming from suspend?
 
 plugin: manual
-name: suspend/led_after_suspend/touchpad
+id: suspend/led_after_suspend/touchpad
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
 _description:
@@ -1325,7 +1325,7 @@ _description:
      3. When the LED is off, the mouse pointer should not move on touchpad usage
 
 plugin: manual
-name: suspend/led_after_suspend/wireless
+id: suspend/led_after_suspend/wireless
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
 _description:
@@ -1342,7 +1342,7 @@ _description:
      Did the WLAN/Bluetooth LED light as expected after resuming from suspend?
 
 plugin: manual
-name: suspend/keys_after_suspend/brightness
+id: suspend/keys_after_suspend/brightness
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
 requires: dmi.product in ['Notebook','Laptop','Portable']
@@ -1355,7 +1355,7 @@ _description:
      Did the brightness change following to your key presses after resuming from suspend?
 
 plugin: user-interact-verify
-name: suspend/keys_after_suspend/volume
+id: suspend/keys_after_suspend/volume
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
 requires:
@@ -1373,7 +1373,7 @@ _description:
      Did the volume change following to your key presses?
 
 plugin: user-interact-verify
-name: suspend/keys_after_suspend/mute
+id: suspend/keys_after_suspend/mute
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
 requires:
@@ -1390,7 +1390,7 @@ _description:
      Did the volume mute following your key presses?
 
 plugin: manual
-name: suspend/keys_after_suspend/sleep
+id: suspend/keys_after_suspend/sleep
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
 requires:
@@ -1405,7 +1405,7 @@ _description:
      Did the system go to sleep after pressing the sleep key after resuming from suspend?
 
 plugin: user-interact-verify
-name: suspend/keys_after_suspend/battery-info
+id: suspend/keys_after_suspend/battery-info
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
 requires: dmi.product in ['Notebook','Laptop','Portable']
@@ -1423,7 +1423,7 @@ _description:
      Did the Battery Info key work as expected after resuming from suspend?
 
 plugin: manual
-name: suspend/keys_after_suspend/wireless
+id: suspend/keys_after_suspend/wireless
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
 requires: dmi.product in ['Notebook','Laptop','Portable']
@@ -1437,7 +1437,7 @@ _description:
      Did the wireless go off on the first press and on again on the second after resuming from suspend?
 
 plugin: user-interact-verify
-name: suspend/keys_after_suspend/media-control
+id: suspend/keys_after_suspend/media-control
 estimated_duration: 120.0
 depends: suspend/suspend_advanced
 requires:
@@ -1455,7 +1455,7 @@ _description:
      Do the keys work as expected after resuming from suspend?
 
 plugin: user-interact-verify
-name: suspend/keys_after_suspend/super
+id: suspend/keys_after_suspend/super
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
 requires:
@@ -1472,7 +1472,7 @@ _description:
      Does the super key work as expected after resuming from suspend?
 
 plugin: manual
-name: suspend/keys_after_suspend/video-out
+id: suspend/keys_after_suspend/video-out
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
 requires: dmi.product in ['Notebook','Laptop','Portable']
@@ -1486,7 +1486,7 @@ _description:
      Check that the video signal can be mirrored, extended, displayed on external or onboard only, after resuming from suspend.
 
 plugin: manual
-name: suspend/keys_after_suspend/touchpad
+id: suspend/keys_after_suspend/touchpad
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
 requires: dmi.product in ['Notebook','Laptop','Portable']
@@ -1501,7 +1501,7 @@ _description:
      Verify the touchpad has been disabled and re-enabled.
 
 plugin: user-interact
-name: suspend/usb_insert_after_suspend
+id: suspend/usb_insert_after_suspend
 estimated_duration: 30.0
 depends:
  suspend/suspend_advanced
@@ -1519,7 +1519,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
-name: suspend/usb3_insert_after_suspend
+id: suspend/usb3_insert_after_suspend
 estimated_duration: 30.0
 requires:
  usb.usb3 == 'supported'
@@ -1539,7 +1539,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
-name: suspend/usb_remove_after_suspend
+id: suspend/usb_remove_after_suspend
 estimated_duration: 30.0
 depends:
  suspend/usb_insert_after_suspend
@@ -1556,7 +1556,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
-name: suspend/usb3_remove_after_suspend
+id: suspend/usb3_remove_after_suspend
 estimated_duration: 30.0
 depends:
  suspend/usb3_insert_after_suspend
@@ -1575,7 +1575,7 @@ _description:
      automatically selected result.
 
 plugin: shell
-name: suspend/usb_storage_automated_after_suspend
+id: suspend/usb_storage_automated_after_suspend
 estimated_duration: 1.2
 depends: suspend/usb_insert_after_suspend
 user: root
@@ -1585,7 +1585,7 @@ _description:
  test is run.
 
 plugin: shell
-name: suspend/usb3_storage_automated_after_suspend
+id: suspend/usb3_storage_automated_after_suspend
 estimated_duration: 1.2
 requires:
  usb.usb3 == 'supported'
@@ -1597,7 +1597,7 @@ _description:
  test is run.
 
 plugin: shell
-name: suspend/usb_storage_preinserted_after_suspend
+id: suspend/usb_storage_preinserted_after_suspend
 estimated_duration: 1.2
 user: root
 depends: suspend/suspend_advanced_auto
@@ -1608,7 +1608,7 @@ _description:
  is intended for servers and SRU automated testing.
 
 plugin: shell
-name: suspend/usb3_storage_preinserted_after_suspend
+id: suspend/usb3_storage_preinserted_after_suspend
 estimated_duration: 1.2
 user: root
 requires:
@@ -1621,7 +1621,7 @@ _description:
  is intended for servers and SRU automated testing.
 
 plugin: shell
-name: suspend/usb_performance_after_suspend
+id: suspend/usb_performance_after_suspend
 depends: suspend/usb_insert_after_suspend
 user: root
 estimated_duration: 45.00
@@ -1631,7 +1631,7 @@ _description:
  minimum expected speed.
 
 plugin: shell
-name: suspend/usb3_superspeed_performance_after_suspend
+id: suspend/usb3_superspeed_performance_after_suspend
 requires:
  usb.usb3 == 'supported'
 depends: suspend/usb3_insert_after_suspend
@@ -1644,7 +1644,7 @@ _description:
  USB 3.0 SuperSpeed mode.
 
 plugin: user-interact
-name: suspend/mmc-insert-after-suspend
+id: suspend/mmc-insert-after-suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
 command: removable_storage_watcher --memorycard insert sdio usb scsi
@@ -1662,7 +1662,7 @@ _description:
      automatically selected result.
 
 plugin: shell
-name: suspend/mmc-storage-after-suspend
+id: suspend/mmc-storage-after-suspend
 depends: suspend/mmc-insert-after-suspend
 estimated_duration: 10.0
 user: root
@@ -1672,7 +1672,7 @@ _description:
  is run. It tests reading and writing to the MMC card after the system has been suspended.
 
 plugin: user-interact
-name: suspend/mmc-remove-after-suspend
+id: suspend/mmc-remove-after-suspend
 depends: suspend/mmc-insert-after-suspend
 estimated_duration: 30.0
 command: removable_storage_watcher --memorycard remove sdio usb scsi
@@ -1688,7 +1688,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
-name: suspend/sd-insert-after-suspend
+id: suspend/sd-insert-after-suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
 command: removable_storage_watcher --memorycard insert sdio usb scsi
@@ -1707,7 +1707,7 @@ _description:
      automatically selected result.
 
 plugin: shell
-name: suspend/sd-storage-after-suspend
+id: suspend/sd-storage-after-suspend
 estimated_duration: 10.0
 depends: suspend/sd-insert-after-suspend
 user: root
@@ -1717,7 +1717,7 @@ _description:
  is run. It tests reading and writing to the SD card after the system has been suspended.
 
 plugin: user-interact
-name: suspend/sd-remove-after-suspend
+id: suspend/sd-remove-after-suspend
 estimated_duration: 30.0
 depends: suspend/sd-insert-after-suspend
 command: removable_storage_watcher --memorycard remove sdio usb scsi
@@ -1734,7 +1734,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
-name: suspend/sdhc-insert-after-suspend
+id: suspend/sdhc-insert-after-suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
 command: removable_storage_watcher --memorycard insert sdio usb scsi
@@ -1753,7 +1753,7 @@ _description:
      automatically selected result.
 
 plugin: shell
-name: suspend/sdhc-storage-after-suspend
+id: suspend/sdhc-storage-after-suspend
 estimated_duration: 10.0
 depends: suspend/sdhc-insert-after-suspend
 user: root
@@ -1763,7 +1763,7 @@ _description:
  is run. It tests reading and writing to the SDHC card after the system has been suspended.
 
 plugin: user-interact
-name: suspend/sdhc-remove-after-suspend
+id: suspend/sdhc-remove-after-suspend
 estimated_duration: 30.0
 depends: suspend/sdhc-insert-after-suspend
 command: removable_storage_watcher --memorycard remove sdio usb scsi
@@ -1779,7 +1779,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
-name: mediacard/cf-insert-after-suspend
+id: mediacard/cf-insert-after-suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
 command: removable_storage_watcher --memorycard insert sdio usb scsi
@@ -1797,7 +1797,7 @@ _description:
      automatically selected result.
 
 plugin: shell
-name: mediacard/cf-storage-after-suspend
+id: mediacard/cf-storage-after-suspend
 estimated_duration: 10.0
 depends: mediacard/cf-insert-after-suspend
 user: root
@@ -1807,7 +1807,7 @@ _description:
  is run. It tests reading and writing to the CF card after the system has been suspended.
 
 plugin: user-interact
-name: mediacard/cf-remove-after-suspend
+id: mediacard/cf-remove-after-suspend
 estimated_duration: 30.0
 depends: mediacard/cf-insert-after-suspend
 command: removable_storage_watcher --memorycard remove sdio usb scsi
@@ -1824,7 +1824,7 @@ _description:
 
 
 plugin: user-interact
-name: mediacard/sdxc-insert-after-suspend
+id: mediacard/sdxc-insert-after-suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
 command: removable_storage_watcher --memorycard insert sdio usb scsi
@@ -1842,7 +1842,7 @@ _description:
      automatically selected result.
 
 plugin: shell
-name: mediacard/sdxc-storage-after-suspend
+id: mediacard/sdxc-storage-after-suspend
 estimated_duration: 10.0
 depends: mediacard/sdxc-insert-after-suspend
 user: root
@@ -1852,7 +1852,7 @@ _description:
  is run. It tests reading and writing to the SDXC card after the system has been suspended.
 
 plugin: user-interact
-name: mediacard/sdxc-remove-after-suspend
+id: mediacard/sdxc-remove-after-suspend
 depends: mediacard/sdxc-insert-after-suspend
 estimated_duration: 30.0
 command: removable_storage_watcher --memorycard remove sdio usb scsi
@@ -1869,7 +1869,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
-name: mediacard/ms-insert-after-suspend
+id: mediacard/ms-insert-after-suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
 command: removable_storage_watcher --memorycard insert sdio usb scsi
@@ -1887,7 +1887,7 @@ _description:
      automatically selected result.
 
 plugin: shell
-name: mediacard/ms-storage-after-suspend
+id: mediacard/ms-storage-after-suspend
 estimated_duration: 10.0
 depends: mediacard/ms-insert-after-suspend
 user: root
@@ -1897,7 +1897,7 @@ _description:
  is run. It tests reading and writing to the MS card after the system has been suspended.
 
 plugin: user-interact
-name: mediacard/ms-remove-after-suspend
+id: mediacard/ms-remove-after-suspend
 estimated_duration: 30.0
 depends: mediacard/ms-insert-after-suspend
 command: removable_storage_watcher --memorycard remove sdio usb scsi
@@ -1913,7 +1913,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
-name: mediacard/msp-insert-after-suspend
+id: mediacard/msp-insert-after-suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
 command: removable_storage_watcher --memorycard insert sdio usb scsi
@@ -1931,7 +1931,7 @@ _description:
      automatically selected result.
 
 plugin: shell
-name: mediacard/msp-storage-after-suspend
+id: mediacard/msp-storage-after-suspend
 estimated_duration: 10.0
 depends: mediacard/msp-insert-after-suspend
 user: root
@@ -1941,7 +1941,7 @@ _description:
  is run. It tests reading and writing to the MSP card after the system has been suspended.
 
 plugin: user-interact
-name: mediacard/msp-remove-after-suspend
+id: mediacard/msp-remove-after-suspend
 estimated_duration: 30.0
 depends: mediacard/msp-insert-after-suspend
 command: removable_storage_watcher --memorycard remove sdio usb scsi
@@ -1957,7 +1957,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
-name: mediacard/xd-insert-after-suspend
+id: mediacard/xd-insert-after-suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
 command: removable_storage_watcher --memorycard insert sdio usb scsi
@@ -1975,7 +1975,7 @@ _description:
      automatically selected result.
 
 plugin: shell
-name: mediacard/xd-storage-after-suspend
+id: mediacard/xd-storage-after-suspend
 estimated_duration: 10.0
 depends: mediacard/xd-insert-after-suspend
 user: root
@@ -1985,7 +1985,7 @@ _description:
  is run. It tests reading and writing to the xD card after the system has been suspended.
 
 plugin: user-interact
-name: mediacard/xd-remove-after-suspend
+id: mediacard/xd-remove-after-suspend
 estimated_duration: 30.0
 depends: mediacard/xd-insert-after-suspend
 command: removable_storage_watcher --memorycard remove sdio usb scsi
@@ -2001,7 +2001,7 @@ _description:
      automatically selected result.
 
 plugin: shell
-name: touchpad/touchpad_after_suspend
+id: touchpad/touchpad_after_suspend
 depends: suspend/suspend_advanced_auto
 requires:
   dmi.product in ['Notebook','Laptop','Portable']
@@ -2012,7 +2012,7 @@ _description:
  Determine if the touchpad is still functioning after suspend/resume.
 
 plugin: manual
-name: touchscreen/touchscreen_after_suspend
+id: touchscreen/touchscreen_after_suspend
 depends: suspend/suspend_advanced_auto
 estimated_duration: 30.0
 _description:

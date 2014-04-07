@@ -1,5 +1,5 @@
 plugin: user-interact
-name: mediacard/mmc-insert
+id: mediacard/mmc-insert
 estimated_duration: 30.0
 command: removable_storage_watcher --memorycard insert sdio usb scsi
 _description:
@@ -16,7 +16,7 @@ _description:
      automatically selected result.
 
 plugin: shell
-name: mediacard/mmc-storage
+id: mediacard/mmc-storage
 estimated_duration: 30.0
 depends: mediacard/mmc-insert
 user: root
@@ -26,7 +26,7 @@ _description:
  test is run. It tests reading and writing to the MMC card.
 
 plugin: user-interact
-name: mediacard/mmc-remove
+id: mediacard/mmc-remove
 estimated_duration: 30.0
 depends: mediacard/mmc-insert
 command: removable_storage_watcher --memorycard remove sdio usb scsi
@@ -42,7 +42,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
-name: mediacard/sd-insert
+id: mediacard/sd-insert
 estimated_duration: 30.0
 command: removable_storage_watcher --memorycard insert sdio usb scsi
 _description:
@@ -59,7 +59,7 @@ _description:
      automatically selected result.
 
 plugin: shell
-name: mediacard/sd-storage
+id: mediacard/sd-storage
 estimated_duration: 30.0
 depends: mediacard/sd-insert
 user: root
@@ -69,7 +69,7 @@ _description:
  test is run. It tests reading and writing to the SD card.
 
 plugin: user-interact
-name: mediacard/sd-remove
+id: mediacard/sd-remove
 estimated_duration: 30.0
 depends: mediacard/sd-insert
 command: removable_storage_watcher --memorycard remove sdio usb scsi
@@ -85,7 +85,7 @@ _description:
      automatically selected result.
 
 plugin: shell
-name: mediacard/sd-preinserted
+id: mediacard/sd-preinserted
 estimated_duration: 30.0
 user: root
 requires: device.category == 'CARDREADER'
@@ -96,7 +96,7 @@ _description:
  It is intended for SRU automated testing.
 
 plugin: user-interact
-name: mediacard/sdhc-insert
+id: mediacard/sdhc-insert
 estimated_duration: 30.0
 command: removable_storage_watcher --memorycard insert sdio usb scsi
 _description:
@@ -114,7 +114,7 @@ _description:
      automatically selected result.
 
 plugin: shell
-name: mediacard/sdhc-storage
+id: mediacard/sdhc-storage
 estimated_duration: 30.0
 depends: mediacard/sdhc-insert
 user: root
@@ -124,7 +124,7 @@ _description:
  test is run. It tests reading and writing to the SDHC card.
 
 plugin: user-interact
-name: mediacard/sdhc-remove
+id: mediacard/sdhc-remove
 estimated_duration: 30.0
 depends: mediacard/sdhc-insert
 command: removable_storage_watcher --memorycard remove sdio usb scsi
@@ -140,7 +140,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
-name: mediacard/cf-insert
+id: mediacard/cf-insert
 estimated_duration: 30.0
 command: removable_storage_watcher --memorycard insert sdio usb scsi
 _description:
@@ -157,7 +157,7 @@ _description:
      automatically selected result.
 
 plugin: shell
-name: mediacard/cf-storage
+id: mediacard/cf-storage
 estimated_duration: 30.0
 depends: mediacard/cf-insert
 user: root
@@ -167,7 +167,7 @@ _description:
  test is run. It tests reading and writing to the CF card.
 
 plugin: user-interact
-name: mediacard/cf-remove
+id: mediacard/cf-remove
 depends: mediacard/cf-storage
 estimated_duration: 30.0
 command: removable_storage_watcher --memorycard remove sdio usb scsi
@@ -183,7 +183,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
-name: mediacard/sdxc-insert
+id: mediacard/sdxc-insert
 estimated_duration: 30.0
 command: removable_storage_watcher --memorycard insert sdio usb scsi
 _description:
@@ -200,7 +200,7 @@ _description:
      automatically selected result.
 
 plugin: shell
-name: mediacard/sdxc-storage
+id: mediacard/sdxc-storage
 estimated_duration: 30.0
 depends: mediacard/sdxc-insert
 user: root
@@ -210,7 +210,7 @@ _description:
  test is run. It tests reading and writing to the SDXC card.
 
 plugin: user-interact
-name: mediacard/sdxc-remove
+id: mediacard/sdxc-remove
 estimated_duration: 30.0
 depends: mediacard/sdxc-insert
 command: removable_storage_watcher --memorycard remove sdio usb scsi
@@ -226,7 +226,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
-name: mediacard/ms-insert
+id: mediacard/ms-insert
 estimated_duration: 30.0
 command: removable_storage_watcher --memorycard insert sdio usb scsi
 _description:
@@ -243,7 +243,7 @@ _description:
      automatically selected result.
 
 plugin: shell
-name: mediacard/ms-storage
+id: mediacard/ms-storage
 estimated_duration: 30.0
 depends: mediacard/ms-insert
 user: root
@@ -253,7 +253,7 @@ _description:
  test is run. It tests reading and writing to the MS card.
 
 plugin: user-interact
-name: mediacard/ms-remove
+id: mediacard/ms-remove
 estimated_duration: 30.0
 depends: mediacard/ms-insert
 command: removable_storage_watcher --memorycard remove sdio usb scsi
@@ -269,7 +269,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
-name: mediacard/msp-insert
+id: mediacard/msp-insert
 estimated_duration: 30.0
 command: removable_storage_watcher --memorycard insert sdio usb scsi
 _description:
@@ -286,7 +286,7 @@ _description:
      automatically selected result.
 
 plugin: shell
-name: mediacard/msp-storage
+id: mediacard/msp-storage
 estimated_duration: 30.0
 depends: mediacard/msp-insert
 user: root
@@ -296,7 +296,7 @@ _description:
  test is run. It tests reading and writing to the MSP card.
 
 plugin: user-interact
-name: mediacard/msp-remove
+id: mediacard/msp-remove
 estimated_duration: 30.0
 depends: mediacard/msp-insert
 command: removable_storage_watcher --memorycard remove sdio usb scsi
@@ -312,7 +312,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
-name: mediacard/xd-insert
+id: mediacard/xd-insert
 estimated_duration: 30.0
 command: removable_storage_watcher --memorycard insert sdio usb scsi
 _description:
@@ -329,7 +329,7 @@ _description:
      automatically selected result.
 
 plugin: shell
-name: mediacard/xd-storage
+id: mediacard/xd-storage
 estimated_duration: 30.0
 depends: mediacard/xd-insert
 user: root
@@ -339,7 +339,7 @@ _description:
  test is run. It tests reading and writing to the xD card.
 
 plugin: user-interact
-name: mediacard/xd-remove
+id: mediacard/xd-remove
 estimated_duration: 30.0
 depends: mediacard/xd-insert
 command: removable_storage_watcher --memorycard remove sdio usb scsi
@@ -355,7 +355,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact-verify
-name: mediacard/sd-performance-manual
+id: mediacard/sd-performance-manual
 depends: mediacard/sd-insert
 estimated_duration: 120.0
 user: root
@@ -370,7 +370,7 @@ _description:
      Did the results of the test match the expected performance of the inserted device?
 
 plugin: user-interact-verify
-name: mediacard/sdhc-performance-manual
+id: mediacard/sdhc-performance-manual
 depends: mediacard/sdhc-insert
 estimated_duration: 120.0
 user: root
@@ -385,7 +385,7 @@ _description:
      Did the results of the test match the expected performance of the inserted device?
 
 plugin: user-interact-verify
-name: mediacard/mmc-performance-manual
+id: mediacard/mmc-performance-manual
 depends: mediacard/mmc-insert
 estimated_duration: 120.0
 user: root
@@ -400,7 +400,7 @@ _description:
      Did the results of the test match the expected performance of the inserted device?
 
 plugin: user-interact-verify
-name: mediacard/cf-performance-manual
+id: mediacard/cf-performance-manual
 depends: mediacard/cf-insert
 estimated_duration: 120.0
 user: root
@@ -415,7 +415,7 @@ _description:
      Did the results of the test match the expected performance of the inserted device?
 
 plugin: user-interact-verify
-name: mediacard/sdxc-performance-manual
+id: mediacard/sdxc-performance-manual
 depends: mediacard/sdxc-insert
 estimated_duration: 120.0
 user: root
@@ -430,7 +430,7 @@ _description:
      Did the results of the test match the expected performance of the inserted device?
 
 plugin: user-interact-verify
-name: mediacard/ms-performance-manual
+id: mediacard/ms-performance-manual
 depends: mediacard/ms-insert
 estimated_duration: 120.0
 user: root
@@ -445,7 +445,7 @@ _description:
      Did the results of the test match the expected performance of the inserted device?
 
 plugin: user-interact-verify
-name: mediacard/msp-performance-manual
+id: mediacard/msp-performance-manual
 depends: mediacard/msp-insert
 estimated_duration: 120.0
 user: root
@@ -460,7 +460,7 @@ _description:
      Did the results of the test match the expected performance of the inserted device?
 
 plugin: user-interact-verify
-name: mediacard/xd-performance-manual
+id: mediacard/xd-performance-manual
 depends: mediacard/xd-insert
 estimated_duration: 120.0
 user: root

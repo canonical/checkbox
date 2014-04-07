@@ -1,5 +1,5 @@
 plugin: user-interact
-name: firewire/insert
+id: firewire/insert
 command: removable_storage_watcher insert firewire
 _description:
  PURPOSE:
@@ -13,7 +13,7 @@ _description:
      selected result
 
 plugin: shell
-name: firewire/storage-test
+id: firewire/storage-test
 user: root
 depends: firewire/insert
 command: removable_storage_test -s 268400000 firewire
@@ -22,7 +22,7 @@ _description:
  FireWire HDD
 
 plugin: user-interact
-name: firewire/remove
+id: firewire/remove
 depends: firewire/storage-test
 command: removable_storage_watcher remove firewire
 _description:

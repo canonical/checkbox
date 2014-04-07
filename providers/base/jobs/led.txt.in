@@ -1,5 +1,5 @@
 plugin: manual
-name: led/power
+id: led/power
 _description:
  PURPOSE:
      Power LED verification
@@ -9,7 +9,7 @@ _description:
      Does the power LED light as expected?
 
 plugin: manual
-name: led/power-blink-suspend
+id: led/power-blink-suspend
 depends: suspend/suspend_advanced
 _description:
  PURPOSE:
@@ -20,7 +20,7 @@ _description:
      Did the Power LED blink or change color while the system was suspended for the previous suspend test?
 
 plugin: manual
-name: led/suspend
+id: led/suspend
 _description:
  PURPOSE:
      Suspend LED verification.
@@ -32,7 +32,7 @@ _description:
      Did the Suspend LED blink or change color while the system was suspended?
 
 plugin: manual
-name: led/battery-charging
+id: led/battery-charging
 _description:
  PURPOSE:
      Validate that the battery light shows charging status
@@ -43,7 +43,7 @@ _description:
      Did the battery indicator LED turn orange?
 
 plugin: manual
-name: led/battery-charged
+id: led/battery-charged
 _description:
  PURPOSE:
      Validate that the battery LED properly displays charged status
@@ -55,7 +55,7 @@ _description:
      Does the orange battery LED shut off when system is fully charged?
 
 plugin: manual
-name: led/battery-low
+id: led/battery-low
 _description:
  PURPOSE:
      Validate that the battery LED indicated low power
@@ -66,7 +66,7 @@ _description:
      Does the LED light orange when battery is low?
 
 plugin: user-interact-verify
-name: led/hdd
+id: led/hdd
 command: led_hdd_test
 _description:
  PURPOSE:
@@ -78,7 +78,7 @@ _description:
      Did the HDD LED light?
 
 plugin: user-interact-verify
-name: led/numeric-keypad
+id: led/numeric-keypad
 command: keyboard_test
 _description:
  PURPOSE:
@@ -92,7 +92,7 @@ _description:
      2. Numbers should only be entered in the keyboard verification window when the LED is on
 
 plugin: manual
-name: led/caps-lock
+id: led/caps-lock
 _description:
  PURPOSE:
      Block cap keys LED verification
@@ -103,7 +103,7 @@ _description:
      Did the Cap Keys LED light as expected?
 
 plugin: manual
-name: led/wlan
+id: led/wlan
 depends: keys/wireless
 _description:
  PURPOSE:
@@ -116,7 +116,7 @@ _description:
      Did the WLAN LED turn on or change color as expected?
 
 plugin: manual
-name: led/wlan-disabled
+id: led/wlan-disabled
 depends: keys/wireless
 _description:
  PURPOSE:
@@ -129,7 +129,7 @@ _description:
      Did the WLAN LED turn off or change color as expected?
 
 plugin: manual
-name: led/bluetooth
+id: led/bluetooth
 depends: bluetooth/detect-output
 _description:
  PURPOSE:
@@ -143,7 +143,7 @@ _description:
      Did the bluetooth LED turn off and on twice?
 
 plugin: user-interact-verify
-name: led/camera
+id: led/camera
 depends: camera/detect
 command: camera_test led
 _description:
@@ -156,7 +156,7 @@ _description:
      Did the camera LED light?
 
 plugin: manual
-name: led/touchpad
+id: led/touchpad
 _description:
  PURPOSE:
      Touchpad LED verification
@@ -169,7 +169,7 @@ _description:
      3. When the LED is off, the mouse pointer should not move on touchpad usage
 
 plugin: manual
-name: led/wireless
+id: led/wireless
 _description:
  PURPOSE:
      Wireless (WLAN + Bluetooth) LED verification
@@ -184,7 +184,7 @@ _description:
      Did the WLAN/Bluetooth LED light as expected?
 
 plugin: manual
-name: led/mute
+id: led/mute
 depends: keys/mute
 _description:
  PURPOSE:

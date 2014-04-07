@@ -1,5 +1,5 @@
 plugin: shell
-name: optical/detect
+id: optical/detect
 requires: device.category == 'CDROM'
 estimated_duration: 1.2
 _description: Test to detect the optical drives
@@ -9,14 +9,14 @@ command:
  EOF
 
 plugin: local
-name: optical/read
+id: optical/read
 requires:
  device.category == 'CDROM'
 _description: Optical read test.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=CDROM"'
  plugin: user-interact-verify
- name: optical/read_`ls /sys$path/block`
+ id: optical/read_`ls /sys$path/block`
  requires: device.path == "$path"
  estimated_duration: 120.0
  user: root
@@ -33,14 +33,14 @@ command:
  EOF
 
 plugin: local
-name: optical/read-automated
+id: optical/read-automated
 requires:
  device.category == 'CDROM'
 _description: Automated optical read test.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=CDROM"'
  plugin: shell
- name: optical/read-automated_`ls /sys$path/block`
+ id: optical/read-automated_`ls /sys$path/block`
  estimated_duration: 120.0
  requires: device.path == "$path"
  user: root
@@ -50,14 +50,14 @@ command:
  EOF
 
 plugin: local
-name: optical/cdrom-write
+id: optical/cdrom-write
 requires:
  device.category == 'CDROM'
 _description: CD write test.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=CDROM"'
  plugin: user-interact-verify
- name: optical/cdrom-write_`ls /sys$path/block`
+ id: optical/cdrom-write_`ls /sys$path/block`
  estimated_duration: 120.0
  requires: 
   device.path == "$path"
@@ -77,14 +77,14 @@ command:
  EOF
 
 plugin: local
-name: optical/cdrom-write-automated
+id: optical/cdrom-write-automated
 requires:
  device.category == 'CDROM'
 _description: Automated CD write test
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=CDROM"'
  plugin: shell
- name: optical/cdrom-write-automated_`ls /sys$path/block`
+ id: optical/cdrom-write-automated_`ls /sys$path/block`
  estimated_duration: 120.0
  requires: 
   device.path == "$path"
@@ -96,7 +96,7 @@ command:
  EOF
 
 plugin: manual
-name: optical/cdrom-audio-playback
+id: optical/cdrom-audio-playback
 depends: optical/read
 estimated_duration: 120.0
 _description:
@@ -116,14 +116,14 @@ _description:
      Did all the steps work?
 
 plugin: local
-name: optical/dvd-write
+id: optical/dvd-write
 requires:
  device.category == 'CDROM'
 _description: DVD write test.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=CDROM"'
  plugin: user-interact-verify
- name: optical/dvd-write_`ls /sys$path/block`
+ id: optical/dvd-write_`ls /sys$path/block`
  requires: 
   device.path == "$path"
   optical_drive_`ls /sys$path/block`.dvd_write == 'supported'
@@ -143,14 +143,14 @@ command:
  EOF
 
 plugin: local
-name: optical/dvd-write-automated
+id: optical/dvd-write-automated
 requires:
  device.category == 'CDROM'
 _description: Automated DVD write test.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=CDROM"'
  plugin: shell
- name: optical/dvd-write-automated_`ls /sys$path/block`
+ id: optical/dvd-write-automated_`ls /sys$path/block`
  estimated_duration: 120.0
  requires: 
   device.path == "$path"
@@ -162,7 +162,7 @@ command:
  EOF
 
 plugin: user-interact-verify
-name: optical/dvd_playback
+id: optical/dvd_playback
 command: totem /media/cdrom
 estimated_duration: 120.0
 requires:
@@ -178,13 +178,13 @@ _description:
      Did the file play?
 
 plugin: local
-name: optical/bluray-read
+id: optical/bluray-read
 requires: device.category == 'CDROM'
 _description: Automated Blu-Ray read test.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=CDROM"'
  plugin: user-interact
- name: optical/bluray-read_`ls /sys$path/block`
+ id: optical/bluray-read_`ls /sys$path/block`
  estimated_duration: 120.0
  requires:
   device.path == "$path"
@@ -204,13 +204,13 @@ command:
  EOF
 
 plugin: local
-name: optical/bluray-write
+id: optical/bluray-write
 requires: device.category == 'CDROM'
 _description: Automated Blu-Ray write test.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=CDROM"'
  plugin: user-interact
- name: optical/bluray-write_`ls /sys$path/block`
+ id: optical/bluray-write_`ls /sys$path/block`
  requires:
   device.path == "$path"
   optical_drive_`ls /sys$path/block`.bd_write == "supported"

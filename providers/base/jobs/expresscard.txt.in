@@ -1,5 +1,5 @@
 plugin: manual
-name: expresscard/verification
+id: expresscard/verification
 _description:
  PURPOSE:
      This will verify that an ExpressCard slot can detect inserted devices.

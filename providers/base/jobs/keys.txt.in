@@ -1,5 +1,5 @@
 plugin: user-interact
-name: keys/lock-screen
+id: keys/lock-screen
 requires:
  device.category == 'KEYBOARD'
 command: lock_screen_watcher
@@ -16,7 +16,7 @@ _description:
      automatically selected result.
 
 plugin: manual
-name: keys/brightness
+id: keys/brightness
 requires: dmi.product in ['Notebook','Laptop','Portable']
 _description:
  PURPOSE:
@@ -27,7 +27,7 @@ _description:
      Did the brightness change following to your key presses?
 
 plugin: user-interact-verify
-name: keys/volume
+id: keys/volume
 requires:
  device.category == 'KEYBOARD'
 user: root
@@ -43,7 +43,7 @@ _description:
      Do the keys work as expected?
 
 plugin: user-interact-verify
-name: keys/mute
+id: keys/mute
 requires:
  device.category == 'KEYBOARD'
 user: root
@@ -58,7 +58,7 @@ _description:
      Does the mute key work as expected?
 
 plugin: manual
-name: keys/sleep
+id: keys/sleep
 requires:
  device.category == 'KEYBOARD'
 depends: suspend/suspend_advanced
@@ -72,7 +72,7 @@ _description:
      Did the system go to sleep after pressing the sleep key?
 
 plugin: user-interact-verify
-name: keys/battery-info
+id: keys/battery-info
 requires: dmi.product in ['Notebook','Laptop','Portable']
 user: root
 command: key_test -s '0xe071,0xef1:Battery Info'
@@ -88,7 +88,7 @@ _description:
      Did the Battery Info key work as expected?
 
 plugin: manual
-name: keys/wireless
+id: keys/wireless
 requires: dmi.product in ['Notebook','Laptop','Portable']
 _description:
  PURPOSE:
@@ -106,7 +106,7 @@ _description:
      only consider the functionality of the wifi itself here.)
 
 plugin: user-interact
-name: keys/media-control
+id: keys/media-control
 requires:
  device.category == 'KEYBOARD'
 user: root
@@ -122,7 +122,7 @@ _description:
      Do the keys work as expected?
 
 plugin: user-interact
-name: keys/super
+id: keys/super
 requires:
  device.category == 'KEYBOARD'
 user: root
@@ -137,7 +137,7 @@ _description:
      Does the super key work as expected?
 
 plugin: manual
-name: keys/video-out
+id: keys/video-out
 requires: dmi.product in ['Notebook','Laptop','Portable']
 _description:
  PURPOSE:
@@ -149,7 +149,7 @@ _description:
      Check that the video signal can be mirrored, extended, displayed on external or onboard only.
 
 plugin: manual
-name: keys/touchpad
+id: keys/touchpad
 requires: dmi.product in ['Notebook','Laptop','Portable']
 _description:
  PURPOSE:
@@ -162,7 +162,7 @@ _description:
      Verify the touchpad has been disabled and re-enabled.
 
 plugin: manual
-name: keys/keyboard-backlight
+id: keys/keyboard-backlight
 requires: dmi.product in ['Notebook','Laptop','Portable']
 _description:
  PURPOSE:
@@ -176,7 +176,7 @@ _description:
      Did the keyboard backlight state change on each press?
 
 plugin: user-interact-verify
-name: keys/microphone-mute
+id: keys/microphone-mute
 requires:
  device.category == 'AUDIO'
  device.category == 'KEYBOARD'
@@ -195,7 +195,7 @@ _description:
      Does the microphone mute key work as expected?
 
 plugin: manual
-name: keys/hibernate
+id: keys/hibernate
 requires: dmi.product in ['Notebook','Laptop','Portable']
 depends: power-management/hibernate_advanced
 _description:
@@ -209,7 +209,7 @@ _description:
      Did the system go to hibernate after pressing the hibernate key?
 
 plugin: manual
-name: keys/keyboard-overhead-light
+id: keys/keyboard-overhead-light
 requires: dmi.product in ['Notebook','Laptop','Portable']
 _description:
  PURPOSE:

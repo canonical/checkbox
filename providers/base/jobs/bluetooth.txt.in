@@ -1,6 +1,6 @@
 
 plugin: shell
-name: bluetooth/detect-output
+id: bluetooth/detect-output
 estimated_duration: 1.2
 requires:
  package.name == 'bluez'
@@ -24,7 +24,7 @@ _description:
  Automated test to store bluetooth device information in checkbox report
 
 plugin: manual
-name: bluetooth/browse-files
+id: bluetooth/browse-files
 depends: bluetooth/detect-output
 estimated_duration: 120.0
 _description:
@@ -44,7 +44,7 @@ _description:
      Did all the steps work?
 
 plugin: manual
-name: bluetooth/file-transfer
+id: bluetooth/file-transfer
 depends: bluetooth/browse-files bluetooth/detect-output
 estimated_duration: 120.0
 _description:
@@ -58,7 +58,7 @@ _description:
      Were all files copied correctly?
 
 plugin: user-interact-verify
-name: bluetooth/audio-a2dp
+id: bluetooth/audio-a2dp
 depends: bluetooth/detect-output
 estimated_duration: 120.0
 command: audio_settings store --file=$CHECKBOX_DATA/pulseaudio_settings; audio_settings set --device=pci --volume=50; gst_pipeline_test -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'; EXIT_CODE=$?; audio_settings restore --file=$CHECKBOX_DATA/pulseaudio_settings; exit $EXIT_CODE
@@ -76,7 +76,7 @@ _description:
      Did you hear the sound?
 
 plugin: user-interact-verify
-name: bluetooth/audio
+id: bluetooth/audio
 depends: bluetooth/detect-output
 estimated_duration: 120.0
 command: arecord -d 5 -D bluetooth -f S16_LE | aplay -D bluetooth -f S16_LE
@@ -98,7 +98,7 @@ _description:
      Did you hear the sound you recorded in the bluetooth
 
 plugin: user-interact-verify
-name: bluetooth/HID
+id: bluetooth/HID
 depends: bluetooth/detect-output
 estimated_duration: 120.0
 command: keyboard_test

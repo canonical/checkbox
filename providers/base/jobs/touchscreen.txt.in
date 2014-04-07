@@ -1,5 +1,5 @@
 plugin: shell
-name: touchscreen/nontouch-automated
+id: touchscreen/nontouch-automated
 requires:
   xinput.device_class == 'XITouchClass' and xinput.touch_mode != 'direct'
 command: true
@@ -8,7 +8,7 @@ _description:
  Determine whether the screen is detected as a non-touch device automatically.
 
 plugin: shell
-name: touchscreen/multitouch-automated
+id: touchscreen/multitouch-automated
 requires:
   xinput.device_class == 'XITouchClass' and xinput.touch_mode == 'direct'
 command: true
@@ -17,7 +17,7 @@ _description:
  Determine whether the screen is detected as a multitouch device automatically.
 
 plugin: manual
-name: touchscreen/multitouch-manual
+id: touchscreen/multitouch-manual
 depends: touchscreen/nontouch-automated
 estimated_duration: 120.0
 _description:
@@ -29,7 +29,7 @@ _description:
      Is the screen supposed to be multitouch?
 
 plugin: manual
-name: touchscreen/tap-detect
+id: touchscreen/tap-detect
 depends: touchscreen/multitouch-automated
 estimated_duration: 120.0
 _description:
@@ -41,7 +41,7 @@ _description:
      Does tap recognition work?
 
 plugin: manual
-name: touchscreen/drag-n-drop
+id: touchscreen/drag-n-drop
 depends: touchscreen/multitouch-automated
 estimated_duration: 120.0
 _description:
@@ -54,7 +54,7 @@ _description:
      Does the object select and drag and drop?
 
 plugin: manual
-name: touchscreen/multitouch-zoom
+id: touchscreen/multitouch-zoom
 depends: touchscreen/multitouch-automated
 estimated_duration: 120.0
 _description:
@@ -67,7 +67,7 @@ _description:
      Does the screen zoom in and out?
 
 plugin: manual
-name: touchscreen/multitouch-window-move
+id: touchscreen/multitouch-window-move
 depends: touchscreen/multitouch-automated
 estimated_duration: 120.0
 _description:
@@ -80,7 +80,7 @@ _description:
      Did the window move along with the drag?
 
 plugin: manual
-name: touchscreen/multitouch-dash
+id: touchscreen/multitouch-dash
 depends: touchscreen/multitouch-automated
 estimated_duration: 120.0
 _description:

@@ -1,326 +1,326 @@
-name: __audio__
+id: __audio__
 plugin: local
 _description: Audio tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/audio.txt?(.in)
 
-name: __benchmarks__
+id: __benchmarks__
 plugin: local
 _description: Benchmarks tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/benchmarks.txt?(.in)
 
-name: __bluetooth__
+id: __bluetooth__
 plugin: local
 _description: Bluetooth tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/bluetooth.txt?(.in)
 
-name: __camera__
+id: __camera__
 plugin: local
 _description: Camera tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/camera.txt?(.in)
 
-name: __codecs__
+id: __codecs__
 plugin: local
 _description: Codec tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/codecs.txt?(.in)
 
-name: __cpu__
+id: __cpu__
 plugin: local
 _description: CPU tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/cpu.txt?(.in)
 
-name: __daemons__
+id: __daemons__
 plugin: local
 _description: System Daemon tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/daemons.txt?(.in)
 
-name: __disk__
+id: __disk__
 plugin: local
 _description: Disk tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/disk.txt?(.in)
 
-name: __ethernet__
+id: __ethernet__
 plugin: local
 _description: Ethernet Device tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/ethernet.txt?(.in)
 
-name: __esata__
+id: __esata__
 plugin: local
 _description: eSATA disk tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/esata.txt?(.in)
 
-name: __fingerprint__
+id: __fingerprint__
 plugin: local
 _description: Fingerprint reader tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/fingerprint.txt?(.in)
 
-name: __firewire__
+id: __firewire__
 plugin: local
 _description: Firewire disk tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/firewire.txt?(.in)
 
-name: __firmware__
+id: __firmware__
 plugin: local
 _description: Firmware tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/firmware.txt?(.in)
 
-name: __floppy__
+id: __floppy__
 plugin: local
 _description: Floppy disk tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/floppy.txt?(.in)
 
-name: __graphics__
+id: __graphics__
 plugin: local
 _description: Graphics tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/graphics.txt?(.in)
 
-name: __hibernate__
+id: __hibernate__
 plugin: local
 _description: Hibernation tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/hibernate.txt?(.in)
 
-name: __info__
+id: __info__
 plugin: local
 _description: Informational tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/info.txt?(.in)
 
-name: __input__
+id: __input__
 plugin: local
 _description: Input Devices tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/input.txt?(.in)
 
-name: __install__
+id: __install__
 plugin: local
 _description: Software Installation tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/install.txt?(.in)
 
-name: __keys__
+id: __keys__
 plugin: local
 _description: Hotkey tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/keys.txt?(.in)
 
-name: __led__
+id: __led__
 plugin: local
 _description: LED tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/led.txt?(.in)
 
-name: __mediacard__
+id: __mediacard__
 plugin: local
 _description: Media Card tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/mediacard.txt?(.in)
 
-name: __memory__
+id: __memory__
 plugin: local
 _description: Memory tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/memory.txt?(.in)
 
-name: __rendercheck__
+id: __rendercheck__
 plugin: local
 _description: Rendercheck tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/rendercheck.txt?(.in)
 
-name: __mir__
+id: __mir__
 plugin: local
 _description: MIR tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/mir.txt?(.in)
 
-name: __miscellanea__
+id: __miscellanea__
 plugin: local
 _description: Miscellaneous tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/miscellanea.txt?(.in)
 
-name: __monitor__
+id: __monitor__
 plugin: local
 _description: Monitor tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/monitor.txt?(.in)
 
-name: __networking__
+id: __networking__
 plugin: local
 _description: Non-device specific networking tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/networking.txt?(.in)
 
-name: __optical__
+id: __optical__
 plugin: local
 _description: Optical Drive tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/optical.txt?(.in)
 
-name: __panel_clock__
+id: __panel_clock__
 plugin: local
 _description: Panel Clock Verification tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/panel_clock_test.txt?(.in)
 
-name: __panel_reboot__
+id: __panel_reboot__
 plugin: local
 _description: Panel Reboot Verification tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/panel_reboot.txt?(.in)
 
-name: __expresscard__
+id: __expresscard__
 plugin: local
 _description: ExpressCard tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/expresscard.txt?(.in)
 
-name: __peripheral__
+id: __peripheral__
 plugin: local
 _description: Peripheral tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/peripheral.txt?(.in)
 
-name: __piglit__
+id: __piglit__
 plugin: local
 _description: Piglit tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/piglit.txt?(.in)
 
-name: __power-management__
+id: __power-management__
 plugin: local
 _description: Power Management tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/power-management.txt?(.in)
 
-name: __server-services__
+id: __server-services__
 plugin: local
 _description: Server Services checks
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/server-services.txt?(.in)
 
-name: __suspend__
+id: __suspend__
 plugin: local
 _description: Suspend tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/suspend.txt?(.in)
 
-name: __touchpad__
+id: __touchpad__
 plugin: local
 _description: Touchpad tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/touchpad.txt?(.in)
 
-name: __touchscreen__
+id: __touchscreen__
 plugin: local
 _description: Touchscreen tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/touchscreen.txt?(.in)
 
-name: __usb__
+id: __usb__
 plugin: local
 _description: USB tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/usb.txt?(.in)
 
-name: __user_apps__
+id: __user_apps__
 plugin: local
 _description: User Applications
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/user_apps.txt?(.in)
 
-name: __virtualization__
+id: __virtualization__
 plugin: local
 _description: Virtualization tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/virtualization.txt?(.in)
 
-name: __wireless__
+id: __wireless__
 plugin: local
 _description: Wireless networking tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/wireless.txt?(.in)
 
-name: __mobilebroadband__
+id: __mobilebroadband__
 plugin: local
 _description: Mobile broadband tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/mobilebroadband.txt?(.in)
 
-name: __stress__
+id: __stress__
 plugin: local
 _description: Stress tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/stress.txt?(.in)
 
-name: __smoke__
+id: __smoke__
 plugin: local
 _description: Smoke tests
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/smoke.txt?(.in)
 
-name: __sniff__
+id: __sniff__
 plugin: local
 _description: Sniff Sniffers
 command:

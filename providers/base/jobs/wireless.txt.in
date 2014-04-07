@@ -1,5 +1,5 @@
 plugin: shell
-name: wireless/wireless_scanning
+id: wireless/wireless_scanning
 requires:
   package.name == 'network-manager'
   device.category == 'WIRELESS'
@@ -21,7 +21,7 @@ estimated_duration: 0.645
 _description: Wireless scanning test. It scans and reports on discovered APs.
 
 plugin: shell
-name: wireless/info_automated
+id: wireless/info_automated
 requires:
  package.name == 'network-manager'
  device.category == 'WIRELESS'
@@ -31,7 +31,7 @@ _description:
  This is an automated test to gather some info on the current state of your wireless devices. If no devices are found, the test will exit with an error.
 
 plugin: user-interact-verify
-name: wireless/wireless_connection
+id: wireless/wireless_connection
 command: network_check
 estimated_duration: 120.0
 requires: device.category == 'WIRELESS'
@@ -46,7 +46,7 @@ _description:
      Did a notification show and was the connection correctly established?
 
 plugin: shell
-name: wireless/wireless_connection_wpa_bg
+id: wireless/wireless_connection_wpa_bg
 requires:
  device.category == 'WIRELESS'
  environment.ROUTERS == 'multiple'
@@ -59,7 +59,7 @@ _description:
  security and the 802.11b/g protocols.
 
 plugin: shell
-name: wireless/wireless_connection_open_bg
+id: wireless/wireless_connection_open_bg
 requires:
  device.category == 'WIRELESS'
  environment.ROUTERS == 'multiple'
@@ -72,7 +72,7 @@ _description:
  security and the 802.11b/g protocols.
 
 plugin: shell
-name: wireless/wireless_connection_wpa_n
+id: wireless/wireless_connection_wpa_n
 requires:
  device.category == 'WIRELESS'
  environment.ROUTERS == 'multiple'
@@ -86,7 +86,7 @@ _description:
  security and the 802.11n protocol.
 
 plugin: shell
-name: wireless/wireless_connection_open_n
+id: wireless/wireless_connection_open_n
 requires:
  device.category == 'WIRELESS'
  environment.ROUTERS == 'multiple'
@@ -100,7 +100,7 @@ _description:
  security and the 802.11n protocol.
 
 plugin: shell
-name: wireless/wireless_connection_wpa_ac
+id: wireless/wireless_connection_wpa_ac
 requires:
  device.category == 'WIRELESS'
  environment.ROUTERS == 'multiple'
@@ -114,7 +114,7 @@ _description:
  security and the 802.11ac protocol.
 
 plugin: shell
-name: wireless/wireless_connection_open_ac
+id: wireless/wireless_connection_open_ac
 requires:
  device.category == 'WIRELESS'
  environment.ROUTERS == 'multiple'
@@ -128,7 +128,7 @@ _description:
  security and the 802.11ac protocol.
 
 plugin: user-interact-verify
-name: wireless/wireless_connection_wpa_bg_manual
+id: wireless/wireless_connection_wpa_bg_manual
 requires:
  device.category == 'WIRELESS'
  environment.ROUTERS == 'single'
@@ -150,7 +150,7 @@ _description:
      Verification is automated, do not change the automatically selected result.
 
 plugin: user-interact-verify
-name: wireless/wireless_connection_open_bg_manual
+id: wireless/wireless_connection_open_bg_manual
 requires:
  device.category == 'WIRELESS'
  environment.ROUTERS == 'single'
@@ -172,7 +172,7 @@ _description:
      Verification is automated, do not change the automatically selected result.
 
 plugin: user-interact-verify
-name: wireless/wireless_connection_wpa_n_manual
+id: wireless/wireless_connection_wpa_n_manual
 requires:
  device.category == 'WIRELESS'
  environment.ROUTERS == 'single'
@@ -196,7 +196,7 @@ _description:
      Verification is automated, do not change the automatically selected result.
 
 plugin: user-interact-verify
-name: wireless/wireless_connection_open_n_manual
+id: wireless/wireless_connection_open_n_manual
 requires:
  device.category == 'WIRELESS'
  environment.ROUTERS == 'single'
@@ -220,7 +220,7 @@ _description:
      Verification is automated, do not change the automatically selected result.
 
 plugin: user-interact-verify
-name: wireless/wireless_connection_wpa_ac_manual
+id: wireless/wireless_connection_wpa_ac_manual
 requires:
  device.category == 'WIRELESS'
  environment.ROUTERS == 'single'
@@ -243,7 +243,7 @@ _description:
      Verification is automated, do not change the automatically selected result.
 
 plugin: user-interact-verify
-name: wireless/wireless_connection_open_ac_manual
+id: wireless/wireless_connection_open_ac_manual
 requires:
  device.category == 'WIRELESS'
  environment.ROUTERS == 'single'
@@ -266,7 +266,7 @@ _description:
      Verification is automated, do not change the automatically selected result.
 
 plugin: shell
-name: wireless/monitor_wireless_connection
+id: wireless/monitor_wireless_connection
 requires:
  package.name == 'iperf'
  device.category == 'WIRELESS'
@@ -278,7 +278,7 @@ _description:
  Tests the performance of a systems wireless connection through the iperf tool.
 
 plugin: shell
-name: wireless/monitor_wireless_connection_udp
+id: wireless/monitor_wireless_connection_udp
 requires:
  package.name == 'iperf'
  device.category == 'WIRELESS'
@@ -290,7 +290,7 @@ _description:
  Tests the performance of a systems wireless connection through the iperf tool, using UDP packets.
 
 plugin: shell
-name: wireless/wireless_connection_open_a
+id: wireless/wireless_connection_open_a
 requires:
  device.category == 'WIRELESS'
  IEEE_80211.band_5GHz == 'supported'
@@ -304,7 +304,7 @@ _description:
   respond to requests on the 802.11a protocol.
 
 plugin: shell
-name: wireless/wireless_connection_open_b
+id: wireless/wireless_connection_open_b
 requires:
  device.category == 'WIRELESS'
 user: root
@@ -317,14 +317,14 @@ _description:
   respond to requests on the 802.11b protocol.
 
 plugin: local
-name: wireless/stress_performance
+id: wireless/stress_performance
 requires:
   device.category == 'NETWORK'
 _description: Automated test that tests performance of each wireless network device under stress.
 command:
  cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=WIRELESS" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
  plugin: shell
- name: wireless/stress_performance_$2
+ id: wireless/stress_performance_$2
  requires: device.path == "$1"
  user: root
  command: network test -i $2 -t stress
@@ -334,7 +334,7 @@ command:
  EOF
 
 plugin: shell
-name: wireless/wireless_connection_open_g
+id: wireless/wireless_connection_open_g
 requires:
  device.category == 'WIRELESS'
 user: root
@@ -347,7 +347,7 @@ _description:
   respond to requests on the 802.11g protocol.
 
 plugin: shell
-name: wireless/wireless_extension
+id: wireless/wireless_extension
 requires: device.category == 'WIRELESS'
 command: wireless_ext
 estimated_duration: 1.2
@@ -355,13 +355,13 @@ _description:
  Test that the MAC80211 modules are loaded and wireless extensions are working.
 
 plugin: local
-name: wireless/iwconfig_info
+id: wireless/iwconfig_info
 requires:
  device.category == 'WIRELESS'
 command: 
  cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=WIRELESS" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
  plugin: shell
- name: wireless/iwconfig_check_$2
+ id: wireless/iwconfig_check_$2
  requires: device.path == "$1"
  command: iwconfig $2
  estimated_duration: 1.2
@@ -372,7 +372,7 @@ _description:
  This is an automated test to gather some info on the current state of your network devices. If no devices are found, the test will exit with an error.
 
 plugin: user-interact-verify
-name: wireless/wireless_rfkill
+id: wireless/wireless_rfkill
 command: rfkill list | zenity --text-info --title rfkill-Info
 estimated_duration: 120.0
 requires: device.category == 'WIRELESS'
@@ -387,7 +387,7 @@ _description:
      Did the hard or soft blocks show on in the dialog?
 
 plugin: local
-name: wireless/maximum_bandwidth
+id: wireless/maximum_bandwidth
 requires:
  device.category == 'WIRELESS'
  package.name == 'zenity'
@@ -396,7 +396,7 @@ command:
  cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=WIRELESS" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
  plugin: user-verify
  user: root
- name: wireless/maximum_bandwidth_$2
+ id: wireless/maximum_bandwidth_$2
  requires: device.path == "$1"
  command: network test -i $2 -t iperf 2>&1 | cat - <(echo; echo "Verify the result and click OK to decide on the outcome") | zenity --text-info --title 'wireless max bw $2'
  estimated_duration: 120.0

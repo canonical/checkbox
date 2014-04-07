@@ -1,5 +1,5 @@
 plugin: shell
-name: miscellanea/submission-resources
+id: miscellanea/submission-resources
 depends:
  cpuinfo
  dmi
@@ -17,7 +17,7 @@ _description:
     A meta-job depending on the resources needed for a valid submission.
 
 plugin: manual
-name: miscellanea/tester-info
+id: miscellanea/tester-info
 _description:
  PURPOSE:
      Keep tester related information in the report
@@ -31,7 +31,7 @@ _description:
      Nothing to verify for this test
 
 plugin: user-interact-verify
-name: miscellanea/chvt
+id: miscellanea/chvt
 requires:
  package.name == 'kbd'
 user: root
@@ -45,7 +45,7 @@ _description:
      Did your screen change temporarily to a text console and then switch back to your current session?
 
 plugin: shell
-name: miscellanea/fwts_test
+id: miscellanea/fwts_test
 estimated_duration: 1.2
 requires:
   package.name == 'fwts'
@@ -57,13 +57,13 @@ command:
  fwts_test -l $CHECKBOX_DATA/fwts_results.log
 
 plugin: attachment
-name: miscellanea/fwts_results.log
+id: miscellanea/fwts_results.log
 command:
  [[ -e ${CHECKBOX_DATA}/fwts_results.log ]] && cat ${CHECKBOX_DATA}/fwts_results.log
 _description: Attaches the FWTS results log to the submission
 
 plugin: shell
-name: miscellanea/ipmi_test
+id: miscellanea/ipmi_test
 requires: package.name == 'ipmitool'
 user: root
 command: ipmi_test
@@ -71,32 +71,32 @@ _description:
  This will run some basic connectivity tests against a BMC, verifying that IPMI works.
 
 plugin: shell
-name: miscellanea/is_laptop
+id: miscellanea/is_laptop
 user: root
 _description:
     Determine if we need to run tests specific to portable computers that may not apply to desktops.
 command: check_is_laptop
 
 plugin: shell
-name: miscellanea/apport-directory
+id: miscellanea/apport-directory
 requires: package.name == 'apport'
 command: if [ -d /var/crash ]; then if [ $(find /var/crash -type f | grep -v .lock | wc -l) -eq 0 ]; then echo "/var/crash is empty"; else echo `ls /var/crash`; false; fi; else echo "/var/crash does not exist"; fi
 _description:
  Test that the /var/crash directory doesn't contain anything. Lists the files contained within if it does, or echoes the status of the directory (doesn't exist/is empty)
 
 plugin: shell
-name: miscellanea/sources-list
+id: miscellanea/sources-list
 command: sources_test $SOURCES_LIST "$REPOSITORIES"
 _description: Checks that a specified sources list file contains the requested repositories
 
 plugin: local
-name: miscellanea/pxe_boot
+id: miscellanea/pxe_boot
 requires: device.category == 'NETWORK'
 _description: Automated job to generate the PXE verification test for each NIC.
 command:
  cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
  plugin: manual
- name: miscellanea/pxe_boot_$2
+ id: miscellanea/pxe_boot_$2
  description:
   PURPOSE:
     This test will verify that you have attempted to PXE boot this machine from
@@ -110,13 +110,13 @@ command:
  EOF
 
 plugin: local
-name: miscellanea/remote_shared_ipmi
+id: miscellanea/remote_shared_ipmi
 requires: device.category == 'NETWORK'
 _description: Automated job to generate the Remote Shared IPMI verification test for each NIC.
 command:
  cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
  plugin: manual
- name: miscellanea/remote_shared_ipmi_$2
+ id: miscellanea/remote_shared_ipmi_$2
  description:
   PURPOSE:
     This test will verify that you have attempted IPMI control of this machine from the network device $2.
@@ -129,7 +129,7 @@ command:
  EOF
 
 plugin: manual
-name: miscellanea/remote_dedicated_ipmi
+id: miscellanea/remote_dedicated_ipmi
 _description:
  PURPOSE:
   Some systems do not share IPMI over all NICs but instead have a dedicated management port directly connected to the BMC.  This test verifies that you have used that port for remote IPMI connections and actions.

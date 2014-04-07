@@ -1,29 +1,29 @@
-name: codecs_attachment
+id: codecs_attachment
 plugin: attachment
 requires: device.driver == 'snd_hda_intel'
 command: cat /proc/asound/card*/codec#*
 estimated_duration: 0.023
 _description: Attaches a report of installed codecs for Intel HDA
 
-name: cpuinfo_attachment
+id: cpuinfo_attachment
 plugin: attachment
 command: cat /proc/cpuinfo
 estimated_duration: 0.006
 _description: Attaches a report of CPU information
 
-name: dmesg_attachment
+id: dmesg_attachment
 plugin: attachment
 command: cat /var/log/dmesg | ansi_parser
 estimated_duration: 0.640
 _description: Attaches a copy of /var/log/dmesg to the test results
 
-name: dmi_attachment
+id: dmi_attachment
 plugin: attachment
 command: [ -d /sys/class/dmi/id/ ] && (grep -r . /sys/class/dmi/id/ 2>/dev/null || true) || false
 estimated_duration: 0.044
 _description: Attaches info on DMI
 
-name: dmidecode_attachment
+id: dmidecode_attachment
 plugin: attachment
 requires: package.name == 'dmidecode'
 user: root
@@ -31,33 +31,33 @@ command: dmidecode | iconv -t 'utf-8' -c
 estimated_duration: 0.030
 _description: Attaches dmidecode output
 
-name: lshw_attachment
+id: lshw_attachment
 plugin: attachment
 requires: package.name == 'lshw'
 user: root
 command: lshw | iconv -t 'utf-8' -c
 _description: Attaches lshw output
 
-name: efi_attachment
+id: efi_attachment
 plugin: attachment
 user: root
 command: [ -d /sys/firmware/efi ] && grep -m 1 -o --color=never 'EFI v.*' /var/log/kern.log* || true
 estimated_duration: 0.5
 _description: Attaches the firmware version
 
-name: lspci_attachment
+id: lspci_attachment
 plugin: attachment
 command: lspci -vvnn | iconv -t 'utf-8' -c
 estimated_duration: 0.042
 _description: Attaches very verbose lspci output.
 
-name: lspci_network_attachment
+id: lspci_network_attachment
 plugin: attachment
 command: lspci -vvnnQ | iconv -t 'utf-8' -c
 estimated_duration: 1.322
 _description: Attaches very verbose lspci output (with central database Query).
 
-name: lsusb_attachment
+id: lsusb_attachment
 plugin: attachment
 requires: package.name == 'usbutils'
 user: root
@@ -65,30 +65,30 @@ command: lsusb -vv | iconv -t 'utf-8' -c
 estimated_duration: 0.700
 _description: List USB devices
 
-name: meminfo_attachment
+id: meminfo_attachment
 plugin: attachment
 command: cat /proc/meminfo
 estimated_duration: 0.043
 
-name: modprobe_attachment
+id: modprobe_attachment
 plugin: attachment
 command: find /etc/modprobe.* -name \*.conf | xargs cat
 estimated_duration: 0.015
 _description: Attaches the contents of the various modprobe conf files.
 
-name: modules_attachment
+id: modules_attachment
 plugin: attachment
 command: cat /etc/modules
 estimated_duration: 0.004
 _description: Attaches the contents of the /etc/modules file.
 
-name: sysctl_attachment
+id: sysctl_attachment
 plugin: attachment
 command: find /etc/sysctl.* -name \*.conf | xargs cat
 estimated_duration: 0.014
 _description: attaches the contents of various sysctl config files.
 
-name: sysfs_attachment
+id: sysfs_attachment
 plugin: attachment
 _description: Attaches a report of sysfs attributes.
 command:
@@ -99,39 +99,39 @@ command:
  done
 estimated_duration: 6.344
 
-name: udev_attachment
+id: udev_attachment
 plugin: attachment
 command: udevadm info --export-db | xml_sanitize
 estimated_duration: 1.465
 _description: Attaches a dump of the udev database showing system hardware information.
 
-name: udev_resource_attachment
+id: udev_resource_attachment
 plugin: attachment
 command: udev_resource
 estimated_duration: 0.432
 _description: Attaches the output of udev_resource, for debugging purposes
 
-name: gcov_attachment
+id: gcov_attachment
 plugin: attachment
 requires: package.name == 'lcov'
 user: root
 command: gcov_tarball
 _description: Attaches a tarball of gcov data if present.
 
-name: lsmod_attachment
+id: lsmod_attachment
 plugin: attachment
 command: lsmod_info
 estimated_duration: 0.5
 _description: Attaches a list of the currently running kernel modules.
 
 plugin: attachment
-name: acpi_sleep_attachment
+id: acpi_sleep_attachment
 command: [ -e /proc/acpi/sleep ] && cat /proc/acpi/sleep
 estimated_duration: 0.5
 _description: Attaches the contents of /proc/acpi/sleep if it exists.
 
 plugin: shell
-name: info/bootchart
+id: info/bootchart
 _description: Bootchart information.
 requires: package.name == 'bootchart' or package.name == 'pybootchartgui'
 user: root
@@ -140,7 +140,7 @@ command:
  [ `ls /var/log/bootchart/*.tgz 2>/dev/null | wc -l` -lt 2 ] && reboot && sleep 100
 
 plugin: local
-name: info/hdparm
+id: info/hdparm
 _description: SATA/IDE device information.
 requires:
  package.name == 'hdparm'
@@ -148,7 +148,7 @@ requires:
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: attachment
- name: info/hdparm_`ls /sys$path/block`.txt
+ id: info/hdparm_`ls /sys$path/block`.txt
  requires:
   device.path == "$path"
   block_device.`ls /sys$path/block`_state != 'removable'
@@ -157,7 +157,7 @@ command:
  EOF
 
 plugin: attachment
-name: bootchart.png
+id: bootchart.png
 depends: info/bootchart
 requires: package.name == 'pybootchartgui'
 _description: Attaches the bootchart png file for bootchart runs
@@ -166,7 +166,7 @@ command:
  [ -e "$file" ] && cat "$file"
 
 plugin: attachment
-name: bootchart.tgz
+id: bootchart.tgz
 depends: info/bootchart
 _description: Attaches the bootchart log for bootchart test runs.
 command:
@@ -174,18 +174,18 @@ command:
  [ -e "$file" ] && cat "$file"
 
 plugin: attachment
-name: installer_bootchart.tgz
+id: installer_bootchart.tgz
 command: [ -e /var/log/installer/bootchart.tgz ] && cat /var/log/installer/bootchart.tgz
 _description: installs the installer bootchart tarball if it exists.
 
 plugin: attachment
-name: installer_debug.gz
+id: installer_debug.gz
 command: [ -e /var/log/installer/debug ] && gzip -9 -c /var/log/installer/debug
 estimated_duration: 0.1
 _description: Attaches the installer debug log if it exists.
 
 plugin: attachment
-name: info/touchpad_driver
+id: info/touchpad_driver
 requires: device.category == 'TOUCHPAD'
 command: touchpad_driver_info
 estimated_duration: 0.384
@@ -194,7 +194,7 @@ _description:
  the system.
 
 plugin: attachment
-name: info/audio_device_driver
+id: info/audio_device_driver
 requires:
  package.name == 'pulseaudio-utils'
  package.name == 'module-init-tools'
@@ -204,7 +204,7 @@ estimated_duration: 0.177
 _description: Lists the device driver and version for all audio devices.
 
 plugin: attachment
-name: info/network_devices
+id: info/network_devices
 requires:
  device.category == 'NETWORK' or device.category == 'WIRELESS'
  package.name == 'module-init-tools'
@@ -214,12 +214,12 @@ estimated_duration: 0.550
 _description: Provides information about network devices
 
 plugin: attachment
-name: info/xrandr
+id: info/xrandr
 command: xrandr -q --verbose
 _description: Provides information about displays attached to the system
 
 plugin: attachment
-name: info/disk_partitions
+id: info/disk_partitions
 user: root
 command: parted -l
 _description: Attaches information about disk partitions

@@ -1,18 +1,18 @@
 plugin: shell
-name: networking/gateway_ping
+id: networking/gateway_ping
 depends: ethernet/detect
 command: gateway_ping_test
 estimated_duration: 2.000
 _description: Tests whether the system has a working Internet connection.
 
 plugin: local
-name: networking/info
+id: networking/info
 requires: device.category == 'NETWORK'
 _description: Network Information
 command:
  cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
  plugin: user-interact-verify
- name: networking/info_$2
+ id: networking/info_$2
  requires: device.path == "$1"
  command: network_info $2 | zenity --text-info --title="$2"
  _description:
@@ -25,7 +25,7 @@ command:
  EOF
 
 plugin: user-interact-verify
-name: networking/modem_connection
+id: networking/modem_connection
 command: network_check
 _description:
  PURPOSE:
@@ -42,32 +42,32 @@ _description:
     Did a notification show and was the connection correctly established?
 
 plugin: shell
-name: networking/ping
+id: networking/ping
 command: gateway_ping_test $CHECKBOX_SERVER
 _description:
  Automated test case to verify availability of some system on the network using ICMP ECHO packets.
 
 plugin: shell
-name: networking/http
+id: networking/http
 command: wget -SO /dev/null http://$TRANSFER_SERVER
 _description:
  Automated test case to make sure that it's possible to download files through HTTP
 
 plugin: shell
-name: networking/ntp
+id: networking/ntp
 requires: package.name == 'ntpdate'
 user: root
 command: network_ntp_test
 _description: Test to see if we can sync local clock to an NTP server
 
 plugin: shell
-name: networking/ssh
+id: networking/ssh
 requires: package.name == 'openssh-client'
 command: if [ $CHECKBOX_SERVER ]; then ssh -q -o 'StrictHostKeyChecking=no' -o "UserKnownHostsFile=/tmp/ssh_test_$$" -l ubuntu $CHECKBOX_SERVER "uname -a" && rm /tmp/ssh_test_$$; fi
 _description: Verify that an installation of checkbox-server on the network can be reached over SSH.
 
 plugin: shell
-name: networking/printer
+id: networking/printer
 requires: package.name == 'cups-client'
 command: network_printer_test -s $CHECKBOX_SERVER
 _description: Try to enable a remote printer on the network and print a test page.

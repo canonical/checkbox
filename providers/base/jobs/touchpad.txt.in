@@ -1,5 +1,5 @@
 plugin: manual
-name: touchpad/basic
+id: touchpad/basic
 requires: dmi.product in ['Notebook','Laptop','Portable']
 estimated_duration: 120.0
 _description:
@@ -12,7 +12,7 @@ _description:
      Did the cursor move?
 
 plugin: user-interact
-name: touchpad/horizontal
+id: touchpad/horizontal
 requires:
   dmi.product in ['Notebook','Laptop','Portable']
   'Button Horiz Wheel Left' in xinput.button_labels and 'Button Horiz Wheel Right' in xinput.button_labels
@@ -28,7 +28,7 @@ _description:
      Could you scroll right and left?
 
 plugin: user-interact
-name: touchpad/vertical
+id: touchpad/vertical
 requires:
   dmi.product in ['Notebook','Laptop','Portable']
   'Button Wheel Up' in xinput.button_labels and 'Button Wheel Down' in xinput.button_labels
@@ -44,7 +44,7 @@ _description:
      Could you scroll up and down?
 
 plugin: shell
-name: touchpad/singletouch-automated
+id: touchpad/singletouch-automated
 requires:
   dmi.product in ['Notebook','Laptop','Portable']
   xinput.device_class == 'XITouchClass' and xinput.touch_mode != 'dependent'
@@ -54,7 +54,7 @@ _description:
  Determine whether the touchpad is detected as a singletouch device automatically.
 
 plugin: shell
-name: touchpad/multitouch-automated
+id: touchpad/multitouch-automated
 estimated_duration: 1.2
 requires:
   dmi.product in ['Notebook','Laptop','Portable']
@@ -64,7 +64,7 @@ _description:
  Determine whether the touchpad is detected as a multitouch device automatically.
 
 plugin: manual
-name: touchpad/multitouch-manual
+id: touchpad/multitouch-manual
 depends: touchpad/singletouch-automated
 estimated_duration: 120.0
 _description:
@@ -76,7 +76,7 @@ _description:
      Is the touchpad supposed to be multitouch?
 
 plugin: manual
-name: touchpad/singletouch-corner
+id: touchpad/singletouch-corner
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -89,7 +89,7 @@ _description:
      Did the tap trigger a new tab to be opended?
 
 plugin: manual
-name: touchpad/singletouch-selection
+id: touchpad/singletouch-selection
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -101,7 +101,7 @@ _description:
      Did a selection window open and were several files selected?
 
 plugin: manual
-name: touchpad/multitouch-rightclick
+id: touchpad/multitouch-rightclick
 depends: touchpad/multitouch-automated
 estimated_duration: 120.0
 _description:
@@ -115,7 +115,7 @@ _description:
      Did the right click pop up menu appear?
 
 plugin: user-interact
-name: touchpad/multitouch-horizontal
+id: touchpad/multitouch-horizontal
 command: touchpad_test right left
 estimated_duration: 120.0
 _description:
@@ -128,7 +128,7 @@ _description:
      Could you scroll right and left?
 
 plugin: user-interact
-name: touchpad/multitouch-vertical
+id: touchpad/multitouch-vertical
 command: touchpad_test up down
 estimated_duration: 120.0
 _description:
@@ -141,7 +141,7 @@ _description:
      Could you scroll up and down?
 
 plugin: manual
-name: touchpad/drag-and-drop
+id: touchpad/drag-and-drop
 estimated_duration: 120.0
 _description:
  PURPOSE:

@@ -1,5 +1,5 @@
 plugin: shell
-name: virtualization/kvm_check_vm
+id: virtualization/kvm_check_vm
 user: root
 environ: http_proxy https_proxy
 requires:
@@ -11,7 +11,7 @@ _description:
  Test to check that a cloud image boots and works properly with KVM
 
 plugin: shell
-name: virtualization/xen_ok
+id: virtualization/xen_ok
 requires: package.name == 'libvirt-bin'
 user: root
 command: virsh -c xen:/// domstate Domain-0
@@ -19,7 +19,7 @@ _description:
  Test to verify that the Xen Hypervisor is running.
 
 plugin: shell
-name: virtualization/xen_check_vm
+id: virtualization/xen_check_vm
 depends: virtualization/xen_ok
 user: root
 command: xen_test /images/xentest.img /images/xentest.xml

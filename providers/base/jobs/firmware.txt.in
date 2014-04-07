@@ -1,12 +1,12 @@
 plugin: local
-name: firmware/fwts
+id: firmware/fwts
 requires: package.name == 'fwts'
 _description: Automated tests for firmware using Firmware Test Suite.
 command:
  cat << 'EOF' | run_templates -s 'fwts_test --list'
  estimated_duration: 1.2
  plugin: shell
- name: firmware/fwts_$1
+ id: firmware/fwts_$1
  requires: package.name == 'fwts'
  user: root
  command: fwts_test -t $1 -l $CHECKBOX_DATA/fwts_$1.log
@@ -14,14 +14,14 @@ command:
  EOF
 
 plugin: local
-name: firmware/fwts_logs
+id: firmware/fwts_logs
 requires: package.name == 'fwts'
 _description: Automated tests for firmware using Firmware Test Suite.
 command:
  cat << 'EOF' | run_templates -s 'fwts_test --list'
  estimated_duration: 1.2
  plugin: attachment
- name: firmware/fwts_$1.log
+ id: firmware/fwts_$1.log
  requires: package.name == 'fwts'
  user: root
  command: [[ -e ${CHECKBOX_DATA}/fwts_$1.log ]] && cat ${CHECKBOX_DATA}/fwts_$1.log

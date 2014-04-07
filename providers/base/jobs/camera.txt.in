@@ -1,5 +1,5 @@
 plugin: shell
-name: camera/detect
+id: camera/detect
 estimated_duration: 1.2
 requires:
  device.category == 'CAPTURE'
@@ -7,7 +7,7 @@ command: camera_test detect
 _description: This Automated test attempts to detect a camera.
 
 plugin: user-verify
-name: camera/display
+id: camera/display
 estimated_duration: 120.0
 depends: camera/detect
 requires:
@@ -22,7 +22,7 @@ _description:
      Did you see the video capture?
 
 plugin: user-verify
-name: camera/still
+id: camera/still
 estimated_duration: 120.0
 depends: camera/detect
 requires:
@@ -40,7 +40,7 @@ _description:
      Did you see the image?
 
 plugin: shell
-name: camera/multiple-resolution-images
+id: camera/multiple-resolution-images
 estimated_duration: 1.2
 depends: camera/detect
 requires:

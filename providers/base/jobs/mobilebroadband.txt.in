@@ -1,5 +1,5 @@
 plugin: shell
-name: mobilebroadband/gsm_connection
+id: mobilebroadband/gsm_connection
 estimated_duration: 20.0
 requires:
     package.name == 'network-manager'
@@ -11,7 +11,7 @@ command: trap "nmcli con delete id $GSM_CONN_NAME" EXIT; create_connection mobil
 _description: Creates a mobile broadband connection for a GSM based modem and checks the connection to ensure it's working. 
 
 plugin: shell
-name: mobilebroadband/cdma_connection
+id: mobilebroadband/cdma_connection
 estimated_duration: 20.0
 requires:
     package.name == 'network-manager'

@@ -1,5 +1,5 @@
 plugin: shell
-name: memory/info
+id: memory/info
 user: root
 command: memory_compare
 _description:
@@ -7,7 +7,7 @@ _description:
  the size of the memory modules detected by DMI.
 
 plugin: shell
-name: memory/check
+id: memory/check
 user: root
 requires:
  uname.name == 'Linux'

@@ -1,12 +1,12 @@
 plugin: local
-name: input/pointing
+id: input/pointing
 requires:
  device.category == 'MOUSE' or device.category == 'TOUCHPAD' or device.category == 'TOUCHSCREEN'
 _description: Pointing device tests.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=MOUSE" -w "category=TOUCHPAD" -w "category=TOUCHSCREEN"'
  plugin: manual
- name: input/pointing_`echo "${product}_${category}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`_`basename $path`
+ id: input/pointing_`echo "${product}_${category}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`_`basename $path`
  requires: device.path == "$path"
  description:
   PURPOSE:
@@ -18,7 +18,7 @@ command:
  EOF
 
 plugin: manual
-name: input/mouse
+id: input/mouse
 _description:
  PURPOSE:
      This test will test your pointing device
@@ -29,7 +29,7 @@ _description:
      Did the pointing device work as expected?
 
 plugin: user-interact-verify
-name: input/keyboard
+id: input/keyboard
 command: keyboard_test
 requires: device.category == 'KEYBOARD'
 _description:
@@ -42,7 +42,7 @@ _description:
      Is your keyboard working properly?
 
 plugin: manual
-name: input/accelerometer_verify
+id: input/accelerometer_verify
 _description:
  PURPOSE:
      Manual detection of accelerometer.
@@ -52,7 +52,7 @@ _description:
      Is this system supposed to have an accelerometer?
 
 plugin: user-interact
-name: input/accelerometer
+id: input/accelerometer
 user: root
 depends: input/accelerometer_verify
 command: accelerometer_test -m

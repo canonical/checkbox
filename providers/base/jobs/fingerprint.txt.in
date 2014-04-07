@@ -1,5 +1,5 @@
 plugin: manual
-name: fingerprint/login
+id: fingerprint/login
 _description:
  PURPOSE:
     This test will verify that a fingerprint reader will work properly for logging into your system. This test case assumes that there's a testing account from which test cases are run and a personal account that the tester uses to verify the fingerprint reader
@@ -14,7 +14,7 @@ _description:
     Did the authentication procedure work correctly?
 
 plugin: manual
-name: fingerprint/unlock
+id: fingerprint/unlock
 _description:
  PURPOSE:
     This test will verify that a fingerprint reader can be used to unlock a locked system.

@@ -1,5 +1,5 @@
 plugin: shell
-name: install/apt-get-gets-updates
+id: install/apt-get-gets-updates
 requires: package.name == 'apt'
 user: root
 command: apt-get -d -y --force-yes dist-upgrade

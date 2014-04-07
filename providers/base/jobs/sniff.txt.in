@@ -1,5 +1,5 @@
 plugin: user-interact
-name: sniff/sniff7
+id: sniff/sniff7
 command: true
 _description:
  PURPOSE:
@@ -10,7 +10,7 @@ _description:
   None Necessary, this is a bogus test
 
 plugin: manual
-name: sniff/sniff6
+id: sniff/sniff6
 _description:
  PURPOSE:
   To sniff things out
@@ -20,7 +20,7 @@ _description:
   None Necessary, this is a bogus test
 
 plugin: manual
-name: sniff/sniff5
+id: sniff/sniff5
 _description:
  PURPOSE:
   To sniff things out
@@ -30,7 +30,7 @@ _description:
   None Necessary, this is a bogus test
 
 plugin: user-interact
-name: sniff/sniff4
+id: sniff/sniff4
 command: reboot
 user: root
 _description:
@@ -43,7 +43,7 @@ _description:
   You won't see the user-verify
 
 plugin: manual
-name: sniff/sniff3
+id: sniff/sniff3
 _description:
  PURPOSE:
   If Recovery is successful, you will see this test on restarting checkbox, not
@@ -54,7 +54,7 @@ _description:
   None Necessary, this is a bogus test
 
 plugin: manual
-name: sniff/sniff2
+id: sniff/sniff2
 _description:
  PURPOSE:
   To sniff things out
@@ -64,7 +64,7 @@ _description:
   None Necessary, this is a bogus test
 
 plugin: manual
-name: sniff/sniff1
+id: sniff/sniff1
 _description:
  PURPOSE:
   To sniff things out

@@ -1,5 +1,5 @@
 plugin: manual
-name: panel_reboot_test
+id: panel_reboot_test
 _description:
  PURPOSE:
     This test will verify that you can reboot your system from the desktop menu

@@ -1,16 +1,16 @@
 plugin: shell
-name: disk/detect
+id: disk/detect
 command: udev_resource | filter_templates -w "category=DISK" | awk -F': ' '$1 == "product" { print $2 }'
 _description: Detects and displays disks attached to the system.
 
 plugin: local
-name: disk/stats
+id: disk/stats
 requires: device.category == 'DISK'
 _description: Check stats changes for each disk
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell
- name: disk/stats_`ls /sys$path/block`
+ id: disk/stats_`ls /sys$path/block`
  requires: 
   device.path == "$path"
   block_device.`ls /sys$path/block`_state != 'removable'
@@ -20,7 +20,7 @@ command:
  EOF
 
 plugin: local
-name: disk/smart
+id: disk/smart
 requires:
  package.name == 'smartmontools'
  device.category == 'DISK'
@@ -28,7 +28,7 @@ _description: SMART test
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell
- name: disk/smart_`ls /sys$path/block`
+ id: disk/smart_`ls /sys$path/block`
  requires: 
   device.path == "$path"
   block_device.`ls /sys$path/block`_state != 'removable'
@@ -39,14 +39,14 @@ command:
  EOF
 
 plugin: local
-name: disk/read_performance
+id: disk/read_performance
 requires:
  device.category == 'DISK'
 _description: Verify system storage performs at or above baseline performance
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell
- name: disk/read_performance_`ls /sys$path/block`
+ id: disk/read_performance_`ls /sys$path/block`
  requires:
   device.path == "$path"
   block_device.`ls /sys$path/block`_state != 'removable'
@@ -56,14 +56,14 @@ command:
  EOF
 
 plugin: local
-name: disk/storage_devices
+id: disk/storage_devices
 requires:
  device.category == 'DISK'
 _description: Verify that storage devices, such as Fibre Channel and RAID can be detected and perform under stress.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell
- name: disk/storage_device_`ls /sys$path/block`
+ id: disk/storage_device_`ls /sys$path/block`
  user: root
  requires:
   device.path == "$path"
@@ -73,7 +73,7 @@ command:
  EOF
 
 plugin: shell
-name: disk/spindown
+id: disk/spindown
 requires: 
  device.category == 'DISK'
  package.name == 'smartmontools'
@@ -83,7 +83,7 @@ _description:
  Some new hard drives include a feature that parks the drive heads after a short period of inactivity. This is a power-saving feature, but it can have a bad interaction with the operating system that results in the drive constantly parked then activated. This produces excess wear on the drive, potentially leading to early failures.
 
 plugin: user-interact
-name: disk/hdd-parking
+id: disk/hdd-parking
 requires: device.category == 'DISK'
 depends: input/accelerometer
 user: root

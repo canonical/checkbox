@@ -1,5 +1,5 @@
 plugin: shell
-name: stress/cpu_stress_test
+id: stress/cpu_stress_test
 requires:
  package.name == 'stress'
 user: root
@@ -9,7 +9,7 @@ _description:
      Create jobs that use the CPU as much as possible for two hours. The test is considered passed if the system does not freeze.
 
 plugin: shell
-name: power-management/hibernate_30_cycles
+id: power-management/hibernate_30_cycles
 depends:
  power-management/hibernate_advanced
 requires:
@@ -30,19 +30,19 @@ _description:
     This is an automated stress test that will force the system to hibernate/resume for 30 cycles
 
 plugin: shell
-name: power-management/hibernate-30-cycles-log-check
+id: power-management/hibernate-30-cycles-log-check
 command: [ -e $CHECKBOX_DATA/hibernate_30_cycles.log ] && sleep_test_log_check -v s4 $CHECKBOX_DATA/hibernate_30_cycles.log
 _description:
  Automated check of the 30 cycle hibernate log for errors detected by fwts.
 
 plugin: attachment
-name: power-management/hibernate-30-cycle-log-attach
+id: power-management/hibernate-30-cycle-log-attach
 command: [ -e $CHECKBOX_DATA/hibernate_30_cycles.log ] && cat $CHECKBOX_DATA/hibernate_30_cycles.log
 _description:
  Attaches the log from the 30 cycle Hibernate/Resume test if it exists
 
 plugin: shell
-name: power-management/suspend_30_cycles
+id: power-management/suspend_30_cycles
 depends:
  power-management/rtc
  suspend/suspend_advanced
@@ -61,28 +61,28 @@ _description:
     This is an automated stress test that will force the system to suspend/resume for 30 cycles.
 
 plugin: shell
-name: power-management/suspend-30-cycles-log-check
+id: power-management/suspend-30-cycles-log-check
 depends: power-management/suspend_30_cycles
 command: [ -e $CHECKBOX_DATA/suspend_30_cycles.log ] && sleep_test_log_check -v s3 $CHECKBOX_DATA/suspend_30_cycles.log
 _description:
  Automated check of the 30 cycle hibernate log for errors detected by fwts.
 
 plugin: attachment
-name: power-management/suspend-30-cycle-log-attach
+id: power-management/suspend-30-cycle-log-attach
 depends: power-management/suspend_30_cycles
 command: [ -e $CHECKBOX_DATA/suspend_30_cycles.log ] && cat $CHECKBOX_DATA/suspend_30_cycles.log
 _description:
  Attaches the log from the 30 cycle Suspend/Resume test if it exists
 
 plugin: shell
-name: power-management/suspend-30-cycles-time-check
+id: power-management/suspend-30-cycles-time-check
 depends: power-management/suspend_30_cycles
 command: [ -e $CHECKBOX_DATA/suspend_30_cycles_times.log ] && sleep_time_check $CHECKBOX_DATA/suspend_30_cycles_times.log
 _description:
  Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
 
 plugin: shell
-name: stress/hibernate_250_cycles
+id: stress/hibernate_250_cycles
 depends: power-management/rtc
 environ: CHECKBOX_DATA
 user: root
@@ -99,13 +99,13 @@ _description:
     This is an automated stress test that will force the system to hibernate/resume for 250 cycles
 
 plugin: attachment
-name: stress/hibernate-250-cycle-log-attach
+id: stress/hibernate-250-cycle-log-attach
 command: [ -e $CHECKBOX_DATA/hibernate_250_cycles.log ] && cat $CHECKBOX_DATA/hibernate_250_cycles.log
 _description:
  Attaches the log from the 250 cycle Hibernate/Resume test if it exists
 
 plugin: shell
-name: stress/suspend_250_cycles
+id: stress/suspend_250_cycles
 depends: power-management/rtc
 environ: CHECKBOX_DATA
 user: root
@@ -122,19 +122,19 @@ _description:
     This is an automated stress test that will force the system to suspend/resume for 250 cycles.
 
 plugin: attachment
-name: stress/suspend-250-cycle-log-attach
+id: stress/suspend-250-cycle-log-attach
 command: [ -e $CHECKBOX_DATA/suspend_250_cycles.log ] && cat $CHECKBOX_DATA/suspend_250_cycles.log
 _description:
  Attaches the log from the 250 cycle Suspend/Resume test if it exists
 
 plugin: shell
-name: stress/suspend-250-cycles-time-check
+id: stress/suspend-250-cycles-time-check
 command: [ -e $CHECKBOX_DATA/suspend_250_cycles_times.log ] && sleep_time_check $CHECKBOX_DATA/suspend_250_cycles_times.log
 _description:
  Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
 
 plugin: shell
-name: stress/reboot
+id: stress/reboot
 requires:
  package.name == 'upstart'
  package.name == 'fwts'
@@ -145,12 +145,12 @@ _description:
  Stress reboot system (100 cycles)
 
 plugin: attachment
-name: stress/reboot_log
+id: stress/reboot_log
 depends: stress/reboot
 command: tar cvfz $CHECKBOX_DATA/stress_reboot.tgz $CHECKBOX_DATA/*reboot.100.log && cat $CHECKBOX_DATA/stress_reboot.tgz
 
 plugin: shell
-name: stress/poweroff
+id: stress/poweroff
 requires:
  package.name == 'upstart'
  package.name == 'fwts'
@@ -161,36 +161,36 @@ _description:
  Stress poweroff system (100 cycles)
 
 plugin: attachment
-name: stress/poweroff_log
+id: stress/poweroff_log
 depends: stress/poweroff
 command: tar cvfz $CHECKBOX_DATA/stress_poweroff.tgz $CHECKBOX_DATA/*poweroff.100.log && cat $CHECKBOX_DATA/stress_poweroff.tgz
 
 plugin: shell
-name: stress/reboot_check
+id: stress/reboot_check
 depends: stress/reboot
 command: pm_log_check --log-level=notset $CHECKBOX_DATA/pm_test.reboot.100.log $CHECKBOX_DATA/pm_log_check_reboot.100.log
 _description: Check logs for the stress reboot (100 cycles) test case
 
 plugin: attachment
-name: stress/reboot_check_log
+id: stress/reboot_check_log
 depends: stress/reboot_check
 command:
  tar cvfz $CHECKBOX_DATA/stress_reboot_check.tgz $CHECKBOX_DATA/pm_log_check_reboot.100.log && cat $CHECKBOX_DATA/stress_reboot_check.tgz
 
 plugin: shell
-name: stress/poweroff_check
+id: stress/poweroff_check
 depends: stress/poweroff
 command: pm_log_check --log-level=notset $CHECKBOX_DATA/pm_test.poweroff.100.log $CHECKBOX_DATA/pm_log_check_poweroff.100.log
 _description: Check logs for the stress poweroff (100 cycles) test case
 
 plugin: attachment
-name: stress/poweroff_check_log
+id: stress/poweroff_check_log
 depends: stress/poweroff_check
 command:
  tar cvfz $CHECKBOX_DATA/stress_poweroff_check.tgz $CHECKBOX_DATA/pm_log_check_poweroff.100.log && cat $CHECKBOX_DATA/stress_poweroff_check.tgz
 
 plugin: shell
-name: stress/graphics
+id: stress/graphics
 requires:
  package.name == 'x11-apps'
 user: root
@@ -200,7 +200,7 @@ _description:
  Run the graphics stress test. This test can take a few minutes.
 
 plugin: shell
-name: stress/graphics-tarball
+id: stress/graphics-tarball
 requires:
  package.name == 'x11-apps'
 depends: stress/graphics
@@ -208,13 +208,13 @@ command: [ -e $CHECKBOX_DATA/graphics-stress-results ] && tar cvfz $CHECKBOX_DAT
 _description: Attaches the graphics stress results to the submission.
 
 plugin: shell
-name: stress/usb
+id: stress/usb
 user: root
 command: removable_storage_test -s 10240000 -c 100 -i 3 usb
 _description: Runs a test that transfers 100 10MB files 3 times to usb.
 
 plugin: user-interact
-name: stress/sdhc
+id: stress/sdhc
 user: root
 _summary: Stress test for SDHC card
 estimated_duration: 780.0
@@ -233,19 +233,19 @@ _description:
      automatically selected result.
 
 plugin: shell
-name: stress/network_restart
+id: stress/network_restart
 user: root
 environ: CHECKBOX_DATA
 command: network_restart -t 1 -o $CHECKBOX_DATA
 _description: Ping ubuntu.com and restart network interfaces 100 times
 
 plugin: attachment
-name: stress/network_restart_log
+id: stress/network_restart_log
 depends: stress/network_restart
 command: file=$CHECKBOX_DATA/network_restart.log; if [ -e "$file" ]; then iconv -t 'ascii' -c "$file"; fi
 
 plugin: manual
-name: stress/wireless_hotkey
+id: stress/wireless_hotkey
 requires: dmi.product in ['Notebook','Laptop','Portable']
 _description:
  PURPOSE:

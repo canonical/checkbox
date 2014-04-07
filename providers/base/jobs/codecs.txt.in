@@ -1,5 +1,5 @@
 plugin: user-interact-verify
-name: codecs/ogg-vorbis
+id: codecs/ogg-vorbis
 requires:
  package.name == 'gstreamer0.10-plugins-base' or package.name == 'gstreamer1.0-plugins-base'
  package.name == 'totem'
@@ -15,7 +15,7 @@ _description:
     Did the sample play correctly?
 
 plugin: user-interact-verify
-name: codecs/wav
+id: codecs/wav
 requires:
  package.name == 'gstreamer0.10-plugins-good' or package.name == 'gstreamer1.0-plugins-good'
  package.name == 'totem'

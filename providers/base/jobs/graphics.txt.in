@@ -1,18 +1,18 @@
 plugin: shell
-name: graphics/driver_version
+id: graphics/driver_version
 command: graphics_driver
 estimated_duration: 0.500
 _description: Parses Xorg.0.Log and discovers the running X driver and version
 
 plugin: shell
-name: graphics/xorg-version
+id: graphics/xorg-version
 requires: package.name == "x11-utils"
 command: xdpyinfo | grep "^X.Org version" | cut -d ':' -f 2 | tr -d ' '
 estimated_duration: 0.018
 _description: Test to output the Xorg version
 
 plugin: manual
-name: graphics/resolution-change
+id: graphics/resolution-change
 depends: graphics/xorg-version
 _description:
  PURPOSE:
@@ -27,7 +27,7 @@ _description:
      Did the resolution change as expected?
 
 plugin: shell
-name: graphics/xorg-process
+id: graphics/xorg-process
 requires:
  package.name == 'xorg'
  package.name == 'procps'
@@ -36,14 +36,14 @@ estimated_duration: 0.100
 _description: Test that the X process is running.
 
 plugin: shell
-name: graphics/xorg-failsafe
+id: graphics/xorg-failsafe
 requires: package.name == 'xorg'
 command: ! test -e /var/log/Xorg.failsafe.log
 estimated_duration: 0.030
 _description: Test that the X is not running in failsafe mode.
 
 plugin: user-verify
-name: graphics/resolution
+id: graphics/resolution
 requires:
  device.category == 'VIDEO'
 command: resolution_test
@@ -59,7 +59,7 @@ _description:
      Is this acceptable for your display?
 
 plugin: user-verify
-name: graphics/screen-resolution
+id: graphics/screen-resolution
 requires:
  device.category == 'VIDEO'
  package.name == 'qmlscene'
@@ -74,7 +74,7 @@ _description:
      Is this acceptable for your display?
 
 plugin: shell
-name: graphics/minimum_resolution
+id: graphics/minimum_resolution
 requires:
  device.category == 'VIDEO'
 command: resolution_test --horizontal 800 --vertical 600
@@ -86,7 +86,7 @@ _description:
  https://help.ubuntu.com/community/Installation/SystemRequirements
 
 plugin: user-verify
-name: graphics/maximum_resolution
+id: graphics/maximum_resolution
 requires:
  device.category == 'VIDEO'
  package.name == 'zenity'
@@ -101,30 +101,30 @@ _description:
  VERIFICATION:
      Is this the display's maximum resolution?
 
-name: graphics/modes
+id: graphics/modes
 plugin: shell
 command: graphics_modes_info
 estimated_duration: 0.250
 _description: Collect info on graphics modes (screen resolution and refresh rate)
 
-name: graphics/color_depth
+id: graphics/color_depth
 plugin: shell
 command: color_depth_info
 estimated_duration: 0.150
 _description: Collect info on color depth and pixel format.
 
-name: graphics/fresh_rate
+id: graphics/fresh_rate
 plugin: shell
 command: fresh_rate_info
 _description: Collect info on fresh rate.
 
-name: graphics/graphic_memory
+id: graphics/graphic_memory
 plugin: shell
 command: graphic_memory_info
 _description: Collect info on graphic memory.
 
 plugin: user-verify
-name: graphics/display
+id: graphics/display
 requires: 
  package.name == 'xorg'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
@@ -138,13 +138,13 @@ _description:
      Do you see color bars and static?
 
 plugin: shell
-name: graphics/VESA_drivers_not_in_use
+id: graphics/VESA_drivers_not_in_use
 command: cat /var/log/Xorg.0.log | perl -e '$a=0;while(<>){$a++ if /Loading.*vesa_drv\.so/;$a-- if /Unloading.*vesa/&&$a}exit 1 if $a'
 estimated_duration: 0.011
 _description: Check that VESA drivers are not in use
 
 plugin: user-verify
-name: graphics/cycle_resolution
+id: graphics/cycle_resolution
 requires: package.name == 'xorg'
 depends: graphics/VESA_drivers_not_in_use
 command: xrandr_cycle --screenshot-dir $CHECKBOX_DATA
@@ -158,7 +158,7 @@ _description:
      Did the screen appear to be working for each mode?
 
 plugin: user-verify
-name: graphics/rotation
+id: graphics/rotation
 depends: graphics/xorg-version
 command: rotation_test
 estimated_duration: 20.000
@@ -172,21 +172,21 @@ _description:
      Did the display rotation take place without without permanent screen corruption?
 
 plugin: shell
-name: graphics/compiz_check
+id: graphics/compiz_check
 requires: package.name == 'nux-tools'
 command: ! /usr/lib/nux/unity_support_test -c -p | ansi_parser | grep ":\(\s\+\)no$"
 estimated_duration: 0.130
 _description: Check that hardware is able to run compiz
 
 plugin: shell
-name: graphics/unity-support
+id: graphics/unity-support
 requires: package.name == 'nux-tools'
 command: ! /usr/lib/nux/unity_support_test -p | ansi_parser | grep ":\(\s\+\)no"
 estimated_duration: 0.131
 _description: Check that hardware is able to run Unity 3D
 
 plugin: user-verify
-name: graphics/glxgears
+id: graphics/glxgears
 requires: package.name == 'mesa-utils'
 command: glxgears; true
 _description:
@@ -200,35 +200,35 @@ _description:
      2. Was the animation free from slowness/jerkiness?
 
 plugin: shell
-name: graphics/3d_window_open_close
+id: graphics/3d_window_open_close
 requires: package.name == 'mesa-utils'
 command: window_test -t open-close -i 10
 estimated_duration: 60.525
 _description: Open and close a 3D window multiple times
 
 plugin: shell
-name: graphics/3d_window_suspend_resume
+id: graphics/3d_window_suspend_resume
 requires: package.name == 'mesa-utils'
 command: window_test -t suspend-resume -i 10
 estimated_duration: 121.00
 _description: Open, suspend resume and close a 3D window multiple times
 
 plugin: shell
-name: graphics/multi_3d_windows_open_close
+id: graphics/multi_3d_windows_open_close
 requires: package.name == 'mesa-utils'
 command: window_test -t open-close-multi -i 10 -w 4
 estimated_duration: 60.000
 _description: Open and close 4 3D windows multiple times
 
 plugin: shell
-name: graphics/3d_window_move
+id: graphics/3d_window_move
 requires: package.name == 'mesa-utils'
 command: window_test -t move
 estimated_duration: 50.000
 _description: Move a 3D window around the screen
 
 plugin: shell
-name: graphics/screenshot
+id: graphics/screenshot
 requires: package.name == 'fswebcam'
 command: set -o pipefail; camera_test still --device=/dev/external_webcam -f ${CHECKBOX_DATA}/screenshot.jpg -q 2>&1 | ansi_parser
 _description:
@@ -240,13 +240,13 @@ _description:
      Review attachment manually later
 
 plugin: attachment
-name: screenshot.jpg
+id: screenshot.jpg
 depends: graphics/screenshot
 command: base64 ${CHECKBOX_DATA}/screenshot.jpg
 _description: Attaches the screenshot captured in graphics/screenshot.
 
 plugin: shell
-name: graphics/screenshot_fullscreen_video
+id: graphics/screenshot_fullscreen_video
 requires: package.name == 'fswebcam'
 command:
  [ -f ${CHECKBOX_SHARE}/data/video/Ogg_Theora_Video.ogv ] || { echo "Video file not found"; exit 1; }
@@ -266,13 +266,13 @@ _description:
      Review attachment manually later
 
 plugin: attachment
-name: screenshot_fullscreen_video.jpg
+id: screenshot_fullscreen_video.jpg
 depends: graphics/screenshot_fullscreen_video
 command: base64 ${CHECKBOX_DATA}/screenshot_fullscreen_video.jpg
 _description: Attaches the screenshot captured in graphics/screenshot_fullscreen_video.
 
 plugin: shell
-name: graphics/screenshot_opencv_validation
+id: graphics/screenshot_opencv_validation
 requires: package.name == 'python-opencv'
 environ: EXTERNAL_WEBCAM_DEVICE
 command:
@@ -285,7 +285,7 @@ _description:
  Check that the screenshot matches the original file using OpenCV ORB detection.
 
 plugin: attachment
-name: screenshot_opencv_validation.jpg
+id: screenshot_opencv_validation.jpg
 depends: graphics/screenshot_opencv_validation
 command: base64 ${CHECKBOX_DATA}/screenshot_opencv_validation.jpg
 _description: Attaches the screenshot captured in graphics/screenshot_opencv_validation.

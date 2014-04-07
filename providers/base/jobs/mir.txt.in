@@ -1,26 +1,26 @@
 plugin: local
-name: mir/integration
+id: mir/integration
 requires: package.name == 'mir-test-tools'
 _description: MIR Integration tests
 command:
  cat << 'EOF' | run_templates -s "mir_integration_tests --gtest_list_tests | sed -n '/\.$/s/\.$//p'"
  estimated_duration: 0.5
  plugin: shell
- name: mir/integration/$1
+ id: mir/integration/$1
  requires: package.name == 'mir-test-tools'
  command: mir_integration_tests --gtest_filter=$1*
  _description: Run $1 test from MIR Integration tests.
  EOF
 
 plugin: local
-name: mir/acceptance
+id: mir/acceptance
 requires: package.name == 'mir-test-tools'
 _description: MIR Acceptance tests
 command:
  cat << 'EOF' | run_templates -s "mir_acceptance_tests --gtest_list_tests | sed -n '/\.$/s/\.$//p'"
  estimated_duration: 0.5
  plugin: shell
- name: mir/acceptance/$1
+ id: mir/acceptance/$1
  requires: package.name == 'mir-test-tools'
  command: mir_acceptance_tests --gtest_filter=$1*
  _description: Run $1 test from MIR Acceptance tests.

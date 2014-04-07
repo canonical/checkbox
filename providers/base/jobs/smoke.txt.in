@@ -1,45 +1,45 @@
 plugin: shell
-name: smoke/true
+id: smoke/true
 command: true
 _description:
  Check success result from shell test case
 
 plugin: shell
-name: smoke/false
+id: smoke/false
 command: false
 _description:
  Check failed result from shell test case
 
 plugin: shell
-name: smoke/dependency/good
+id: smoke/dependency/good
 depends: smoke/true
 command: true
 _description:
  Check job is executed when dependency succeeds
 
 plugin: shell
-name: smoke/dependency/bad
+id: smoke/dependency/bad
 depends: smoke/false
 command: true
 _description:
  Check job result is set to uninitiated when dependency fails
 
 plugin: shell
-name: smoke/requirement/good
+id: smoke/requirement/good
 requires: package.name == "checkbox"
 command: true
 _description:
  Check job is executed when requirements are met
 
 plugin: shell
-name: smoke/requirement/bad
+id: smoke/requirement/bad
 requires: package.name == "unknown-package"
 command: true
 _description:
  Check job result is set to "not required on this system" when requirements are not met
 
 plugin: manual
-name: smoke/manual
+id: smoke/manual
 _description:
  PURPOSE:
      This test checks that the manual plugin works fine

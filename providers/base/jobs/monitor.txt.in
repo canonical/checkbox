@@ -1,5 +1,5 @@
 plugin: manual
-name: monitor/vga
+id: monitor/vga
 requires: display.vga == 'supported'
 _description:
  PURPOSE:
@@ -11,7 +11,7 @@ _description:
      Was the desktop displayed correctly on both screens?
 
 plugin: manual
-name: monitor/dvi
+id: monitor/dvi
 requires: display.dvi == 'supported'
 _description:
  PURPOSE:
@@ -23,7 +23,7 @@ _description:
      Was the desktop displayed correctly on both screens?
 
 plugin: manual
-name: monitor/displayport
+id: monitor/displayport
 requires: display.dp == 'supported'
 _description:
  PURPOSE:
@@ -35,7 +35,7 @@ _description:
      Was the desktop displayed correctly on both screens?
 
 plugin: manual
-name: monitor/hdmi
+id: monitor/hdmi
 requires: display.hdmi == 'supported'
 _description:
  PURPOSE:
@@ -47,7 +47,7 @@ _description:
      Was the desktop displayed correctly on both screens?
 
 plugin: manual
-name: monitor/svideo
+id: monitor/svideo
 requires: display.svideo == 'supported'
 _description:
  PURPOSE:
@@ -59,7 +59,7 @@ _description:
      Was the desktop displayed correctly on both screens?
 
 plugin: manual
-name: monitor/rca
+id: monitor/rca
 requires: display.rca == 'supported'
 _description:
  PURPOSE:
@@ -71,7 +71,7 @@ _description:
      Was the desktop displayed correctly on both screens?
 
 plugin: manual
-name: monitor/multi-head
+id: monitor/multi-head
 requires: dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower']
 _description:
  PURPOSE:
@@ -86,7 +86,7 @@ _description:
      Was the stretched desktop displayed correctly across both screens?
 
 plugin: user-interact-verify
-name: monitor/powersaving
+id: monitor/powersaving
 command: xset dpms force off
 _description:
  PURPOSE:
@@ -98,7 +98,7 @@ _description:
      Did the monitor go blank and turn on again?
 
 plugin: user-interact-verify
-name: monitor/dim_brightness
+id: monitor/dim_brightness
 requires: dmi.product in ['Notebook','Laptop','Portable']
 user: root
 command: brightness_test

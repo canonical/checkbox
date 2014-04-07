@@ -1,11 +1,11 @@
 plugin: local
-name: benchmarks/disk/hdparm-read
+id: benchmarks/disk/hdparm-read
 requires: device.category == 'DISK'
 _description: Benchmark for each disk
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell
- name: benchmarks/disk/hdparm-read_`ls /sys$path/block`
+ id: benchmarks/disk/hdparm-read_`ls /sys$path/block`
  requires: device.path == "$path"
  user: root
  command: hdparm -t /dev/`ls /sys$path/block | sed 's|!|/|'` | sed -e :a -e '$!N;s/\n/ /;ta' | sed 's/.*= *//'
@@ -13,13 +13,13 @@ command:
  EOF
 
 plugin: local
-name: benchmarks/disk/hdparm-cache-read
+id: benchmarks/disk/hdparm-cache-read
 requires: device.category == 'DISK'
 _description: Benchmark for each disk
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell
- name: benchmarks/disk/hdparm-cache-read_`ls /sys$path/block`
+ id: benchmarks/disk/hdparm-cache-read_`ls /sys$path/block`
  requires: device.path == "$path"
  user: root
  command: hdparm -T /dev/`ls /sys$path/block | sed 's|!|/|'` | sed -e :a -e '$!N;s/\n/ /;ta' | sed 's/.*= *//'
@@ -27,7 +27,7 @@ command:
  EOF
 
 plugin: shell
-name: benchmarks/graphics/gtkperf
+id: benchmarks/graphics/gtkperf
 depends: graphics/xorg-version
 requires: package.name == 'gtkperf'
 command: python3 -c 'import re,sys,subprocess; (s, o) = subprocess.getstatusoutput("gtkperf -a"); [sys.exit(1) for i in [s] if s]; m = re.search("Total time:\s+(.*)\n", o); [print(i.group(1)+" Seconds") for i in [m] if m]'
@@ -36,42 +36,42 @@ _description:
  Run gtkperf to make sure that GTK based test cases work
 
 plugin: shell
-name: benchmarks/graphics/render-bench
+id: benchmarks/graphics/render-bench
 requires: package.name == 'render-bench'
 command: /usr/bin/time -f "%e Seconds" render_bench 2>&1 >/dev/null
 estimated_duration: 52.000
 _description: Run Render-Bench XRender/Imlib2 benchmark
 
 plugin: shell
-name: benchmarks/graphics/qgears2-Xrender-gearsfancy
+id: benchmarks/graphics/qgears2-Xrender-gearsfancy
 requires: package.name == 'phoronix-test-suite'
 command: PRESET_OPTIONS="qgears2.render-backend=1; qgears2.test-mode=0" pts_run qgears2
 estimated_duration: 180.000
 _description: Run Qgears2 XRender Extension gearsfancy benchmark
 
 plugin: shell
-name: benchmarks/graphics/qgears2-Xrender-compo
+id: benchmarks/graphics/qgears2-Xrender-compo
 requires: package.name == 'phoronix-test-suite'
 command: PRESET_OPTIONS="qgears2.render-backend=1; qgears2.test-mode=2" pts_run qgears2
 estimated_duration: 31.500
 _description: Run Qgears2 XRender Extension image scaling benchmark
 
 plugin: shell
-name: benchmarks/graphics/qgears2-gl-gearsfancy
+id: benchmarks/graphics/qgears2-gl-gearsfancy
 requires: package.name == 'phoronix-test-suite'
 command: PRESET_OPTIONS="qgears2.render-backend=2; qgears2.test-mode=0" pts_run qgears2
 estimated_duration: 52.000
 _description: Run Qgears2 OpenGL gearsfancy benchmark
 
 plugin: shell
-name: benchmarks/graphics/qgears2-gl-compo
+id: benchmarks/graphics/qgears2-gl-compo
 requires: package.name == 'phoronix-test-suite'
 command: PRESET_OPTIONS="qgears2.render-backend=2; qgears2.test-mode=2" pts_run qgears2
 estimated_duration: 23.000
 _description: Run Qgears2 OpenGL image scaling benchmark
 
 plugin: shell
-name: benchmarks/graphics/glmark2-es2
+id: benchmarks/graphics/glmark2-es2
 requires:
  package.name == 'glmark2-es2'
  'arm' in cpuinfo.type
@@ -80,7 +80,7 @@ command:
 _description: Run GLmark2-ES2 benchmark
 
 plugin: shell
-name: benchmarks/graphics/glmark2
+id: benchmarks/graphics/glmark2
 requires:
  package.name == 'glmark2'
  cpuinfo.platform in ("i386", "x86_64")
@@ -90,7 +90,7 @@ estimated_duration: 306.000
 _description: Run GLmark2 benchmark
 
 plugin: shell
-name: benchmarks/graphics/globs
+id: benchmarks/graphics/globs
 requires:
  package.name == 'globs'
  cpuinfo.platform in ("i386", "x86_64")
@@ -99,140 +99,140 @@ estimated_duration: 53.500
 _description: Run globs benchmark
 
 plugin: shell
-name: benchmarks/graphics/unigine-sanctuary
+id: benchmarks/graphics/unigine-sanctuary
 requires: package.name == 'phoronix-test-suite'
 command: pts_run unigine-sanctuary
 _description: Run Unigine Santuary benchmark
 
 plugin: shell
-name: benchmarks/graphics/unigine-tropics
+id: benchmarks/graphics/unigine-tropics
 requires: package.name == 'phoronix-test-suite'
 command: pts_run unigine-tropics
 _description: Run Unigine Tropics benchmark
 
 plugin: shell
-name: benchmarks/graphics/unigine-heaven
+id: benchmarks/graphics/unigine-heaven
 requires: package.name == 'phoronix-test-suite'
 command: pts_run unigine-heaven
 _description: Run Unigine Heaven benchmark
 
 plugin: shell
-name: benchmarks/graphics/lightsmark
+id: benchmarks/graphics/lightsmark
 requires: package.name == 'phoronix-test-suite'
 command: pts_run lightsmark
 _description: Run Lightsmark benchmark
 
 plugin: shell
-name: benchmarks/memory/cachebench-read
+id: benchmarks/memory/cachebench-read
 requires: package.name == 'phoronix-test-suite'
 command: PRESET_OPTIONS="cachebench.test=0" pts_run cachebench
 _description: Run Cachebench Read benchmark
 
 plugin: shell
-name: benchmarks/memory/cachebench-write
+id: benchmarks/memory/cachebench-write
 requires: package.name == 'phoronix-test-suite'
 command: PRESET_OPTIONS="cachebench.test=1" pts_run cachebench
 _description: Run Cachebench Write benchmark
 
 plugin: shell
-name: benchmarks/memory/cachebench-read-modify-write
+id: benchmarks/memory/cachebench-read-modify-write
 requires: package.name == 'phoronix-test-suite'
 command: PRESET_OPTIONS="cachebench.test=2" pts_run cachebench
 _description: Run Cachebench Read / Modify / Write benchmark
 
 plugin: shell
-name: benchmarks/memory/stream-copy
+id: benchmarks/memory/stream-copy
 requires: package.name == 'phoronix-test-suite'
 command: PRESET_OPTIONS="stream.run-type=0" pts_run stream
 _description: Run Stream Copy benchmark
 
 plugin: shell
-name: benchmarks/memory/stream-scale
+id: benchmarks/memory/stream-scale
 requires: package.name == 'phoronix-test-suite'
 command: PRESET_OPTIONS="stream.run-type=1" pts_run stream
 _description: Run Stream Scale benchmark
 
 plugin: shell
-name: benchmarks/memory/stream-add
+id: benchmarks/memory/stream-add
 requires: package.name == 'phoronix-test-suite'
 command: PRESET_OPTIONS="stream.run-type=2" pts_run stream
 _description: Run Stream Add benchmark
 
 plugin: shell
-name: benchmarks/memory/stream-triad
+id: benchmarks/memory/stream-triad
 requires: package.name == 'phoronix-test-suite'
 command: PRESET_OPTIONS="stream.run-type=3" pts_run stream
 _description: Run Stream Triad benchmark
 
 plugin: shell
-name: benchmarks/network/network-loopback
+id: benchmarks/network/network-loopback
 requires: package.name == 'phoronix-test-suite'
 command: pts_run network-loopback
 estimated_duration: 85.0
 _description: Run Network Loopback benchmark
 
 plugin: shell
-name: benchmarks/network/wifi_time_to_reconnect
+id: benchmarks/network/wifi_time_to_reconnect
 requires: device.category == 'WIRELESS'
 command: wifi_time2reconnect
 _description: Check the time needed to reconnect to a WIFI access point
 
 plugin: shell
-name: benchmarks/processor/encode-mp3
+id: benchmarks/processor/encode-mp3
 requires: package.name == 'phoronix-test-suite'
 command: pts_run encode-mp3
 _description: Run Encode MP3 benchmark
 
 plugin: shell
-name: benchmarks/processor/x264
+id: benchmarks/processor/x264
 requires: package.name == 'phoronix-test-suite'
 command: pts_run x264
 _description: Run x264 H.264/AVC encoder benchmark
 
 plugin: shell
-name: benchmarks/processor/gnupg
+id: benchmarks/processor/gnupg
 requires: package.name == 'phoronix-test-suite'
 command: pts_run gnupg
 _description: Run GnuPG benchmark
 
 plugin: shell
-name: benchmarks/processor/compress-pbzip2
+id: benchmarks/processor/compress-pbzip2
 requires: package.name == 'phoronix-test-suite'
 command: pts_run compress-pbzip2
 _description: Run Compress PBZIP2 benchmark
 
 plugin: shell
-name: benchmarks/processor/compress-7zip
+id: benchmarks/processor/compress-7zip
 requires: package.name == 'phoronix-test-suite'
 command: pts_run compress-7zip
 _description: Run Compress 7ZIP benchmark
 
 plugin: shell
-name: benchmarks/processor/n-queens
+id: benchmarks/processor/n-queens
 requires: package.name == 'phoronix-test-suite'
 command: pts_run n-queens
 _description: Run N-Queens benchmark
 
 plugin: shell
-name: benchmarks/processor/himeno
+id: benchmarks/processor/himeno
 requires: package.name == 'phoronix-test-suite'
 command: pts_run himeno
 _description: Run Himeno benchmark
 
 plugin: shell
-name: benchmarks/system/cpu_on_idle
+id: benchmarks/system/cpu_on_idle
 requires: package.name == 'sysstat'
 command: iostat -x -m 1 10 | python3 -c 'import sys, re; lines="".join(sys.stdin.readlines()); l=[float(n) for n in (re.findall("idle\n.*?(\S+)\n", lines))]; print(sum(l)/len(l),"%")'
 _description: CPU utilization on an idle system.
 
 plugin: shell
-name: benchmarks/system/disk_on_idle
+id: benchmarks/system/disk_on_idle
 requires: package.name == 'sysstat'
 command: iostat -x -m 1 10 | python3 -c 'import sys, re; lines="".join(sys.stdin.readlines()); l=[float(n) for n in (re.findall("util\n.*?(\S+)\n", lines))]; print(sum(l)/len(l),"%")'
 _description: Disk utilization on an idle system.
 
 plugin: shell
-name: benchmarks/graphics/gputest_furmark_fullscreen_1920x1080
+id: benchmarks/graphics/gputest_furmark_fullscreen_1920x1080
 requires:
  package.name == 'gputest'
  cpuinfo.platform == 'x86_64'
@@ -243,7 +243,7 @@ _description:
  Fullscreen 1920x1080 no antialiasing
 
 plugin: shell
-name: benchmarks/graphics/gputest_furmark_windowed_1024x640
+id: benchmarks/graphics/gputest_furmark_windowed_1024x640
 requires:
  package.name == 'gputest'
  cpuinfo.platform == 'x86_64'
@@ -254,7 +254,7 @@ _description:
  Windowed 1024x640 no antialiasing
 
 plugin: shell
-name: benchmarks/graphics/gputest_gimark_fullscreen_1920x1080
+id: benchmarks/graphics/gputest_gimark_fullscreen_1920x1080
 requires:
  package.name == 'gputest'
  cpuinfo.platform == 'x86_64'
@@ -265,7 +265,7 @@ _description:
  Fullscreen 1920x1080 no antialiasing
 
 plugin: shell
-name: benchmarks/graphics/gputest_gimark_windowed_1024x640
+id: benchmarks/graphics/gputest_gimark_windowed_1024x640
 requires:
  package.name == 'gputest'
  cpuinfo.platform == 'x86_64'
@@ -276,7 +276,7 @@ _description:
  Windowed 1024x640 no antialiasing
 
 plugin: shell
-name: benchmarks/graphics/gputest_tessmark_fullscreen_1920x1080
+id: benchmarks/graphics/gputest_tessmark_fullscreen_1920x1080
 requires:
  package.name == 'gputest'
  cpuinfo.platform == 'x86_64'
@@ -287,7 +287,7 @@ _description:
  Fullscreen 1920x1080 no antialiasing
 
 plugin: shell
-name: benchmarks/graphics/gputest_tessmark_windowed_1024x640
+id: benchmarks/graphics/gputest_tessmark_windowed_1024x640
 requires:
  package.name == 'gputest'
  cpuinfo.platform == 'x86_64'

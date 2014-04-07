@@ -1,5 +1,5 @@
 plugin: user-interact-verify
-name: power-management/hibernate_advanced
+id: power-management/hibernate_advanced
 requires:
   sleep.disk == 'supported'
   rtc.state == 'supported'
@@ -26,13 +26,13 @@ _description:
      Did the system successfully hibernate and did it work properly after waking up?
 
 plugin: shell
-name: power-management/hibernate-single-log-check
+id: power-management/hibernate-single-log-check
 command: [ -e $CHECKBOX_DATA/hibernate-single.log ] && sleep_test_log_check -v s4 $CHECKBOX_DATA/hibernate-single.log
 _description:
  Automated check of the hibernate log for errors discovered by fwts
 
 plugin: attachment
-name: power-management/hibernate-single-log-attach
+id: power-management/hibernate-single-log-attach
 command: [ -e $CHECKBOX_DATA/hibernate-single.log ] && cat $CHECKBOX_DATA/hibernate-single.log
 estimated_duration: 0.5
 description: attaches log from single hibernate/resume test to results

@@ -1,5 +1,5 @@
 plugin: manual
-name: power-management/shutdown-boot
+id: power-management/shutdown-boot
 _description:
  PURPOSE:
      This test will check your system shutdown/booting cycle.
@@ -11,7 +11,7 @@ _description:
      Did the system shutdown and rebooted correctly?
 
 plugin: shell
-name: power-management/fwts_wakealarm
+id: power-management/fwts_wakealarm
 environ: CHECKBOX_DATA
 user: root
 _description: Test ACPI Wakealarm (fwts wakealarm)
@@ -20,7 +20,7 @@ requires:
 command: fwts_test -f aborted -t wakealarm -l $CHECKBOX_DATA/fwts-wakealarm.log
 
 plugin: attachment
-name: power-management/fwts_wakealarm-log-attach
+id: power-management/fwts_wakealarm-log-attach
 depends: power-management/fwts_wakealarm
 _description: Attach log from fwts wakealarm test
 requires:
@@ -28,7 +28,7 @@ requires:
 command: [ -e ${CHECKBOX_DATA}/fwts-wakealarm.log ] && cat ${CHECKBOX_DATA}/fwts-wakealarm.log
 
 plugin: user-interact-verify
-name: power-management/poweroff
+id: power-management/poweroff
 depends: power-management/fwts_wakealarm
 user: root
 environ: CHECKBOX_DATA
@@ -50,13 +50,13 @@ _description:
   select 'No'.
 
 plugin: attachment
-name: power-management/poweroff-log-attach
+id: power-management/poweroff-log-attach
 command: tar cvfz power-management_poweroff.tgz $CHECKBOX_DATA/*poweroff.1.log && cat $CHECKBOX_DATA/power-management_poweroff.tgz
 _description:
  This will attach any logs from the power-management/poweroff test to the results.
 
 plugin: user-interact-verify
-name: power-management/reboot
+id: power-management/reboot
 user: root
 environ: CHECKBOX_DATA
 requires:
@@ -75,13 +75,13 @@ _description:
   If the machine successfully reboots, select Yes then select Next.
 
 plugin: attachment
-name: power-management/reboot-log-attach
+id: power-management/reboot-log-attach
 command: tar cvfz power-management_reboot.tgz $CHECKBOX_DATA/*reboot.1.log && cat $CHECKBOX_DATA/power-management_reboot.tgz
 _description:
  This will attach any logs from the power-management/reboot test to the results.
 
 plugin: manual
-name: power-management/lid
+id: power-management/lid
 requires: dmi.product in ['Notebook','Laptop','Portable']
 _description:
  PURPOSE:
@@ -92,7 +92,7 @@ _description:
     Does closing your laptop lid cause your system to suspend?
 
 plugin: user-interact
-name: power-management/lid_close
+id: power-management/lid_close
 requires: device.product == 'Lid Switch'
 command:
  for i in `seq 20`; do
@@ -110,7 +110,7 @@ _description:
      Did the screen turn off while the lid was closed?
 
 plugin: user-interact
-name: power-management/lid_open
+id: power-management/lid_open
 requires: device.product == 'Lid Switch'
 command:
  for i in `seq 20`; do
@@ -130,7 +130,7 @@ _description:
      Did the system resume when the lid was opened?
 
 plugin: shell
-name: power-management/rtc
+id: power-management/rtc
 requires:
   rtc.state == 'supported'
   package.name == 'util-linux'
@@ -141,13 +141,13 @@ _description:
  Verify that the Real-time clock (RTC) device functions properly, if present
 
 plugin: shell
-name: power-management/tickless_idle
+id: power-management/tickless_idle
 _description: Check to see if CONFIG_NO_HZ is set in the kernel (this is just a simple regression check)
 command:
  zgrep 'CONFIG_NO_HZ=y' /boot/config-`uname -r` >/dev/null 2>&1 || ( echo "WARNING: Tickless Idle is NOT set" >&2 && exit 1 )
 
 plugin: manual
-name: power-management/unplug_ac
+id: power-management/unplug_ac
 _description:
  PURPOSE:
      This test will ensure that the AC is unplugged for the battery drain tests to run.
@@ -157,7 +157,7 @@ _description:
      Was the laptop unplugged from AC?
 
 plugin: shell
-name: power-management/battery_drain_idle
+id: power-management/battery_drain_idle
 requires: package.name == 'upower'
 depends: power-management/unplug_ac
 _description: Checks the battery drain during idle.  Reports time until empty
@@ -166,7 +166,7 @@ command:
  battery_test -t 90 --idle
 
 plugin: shell
-name: power-management/battery_drain_movie
+id: power-management/battery_drain_movie
 requires:
  package.name == 'upower'
 depends: power-management/unplug_ac
@@ -176,7 +176,7 @@ command:
  battery_test -t 90 --movie $MOVIE_VAR
 
 plugin: shell
-name: power-management/battery_drain_sleep
+id: power-management/battery_drain_sleep
 user: root
 requires:
  package.name == 'upower'
@@ -188,7 +188,7 @@ command:
  battery_test -t 120 --sleep
 
 plugin: manual
-name: power-management/plug_ac
+id: power-management/plug_ac
 depends: power-management/battery_drain_idle power-management/battery_drain_movie power-management/battery_drain_sleep
 _description:
  PURPOSE:
@@ -200,7 +200,7 @@ _description:
      Was the laptop plugged into AC?
 
 plugin: user-interact-verify
-name: power-management/reboot_manual
+id: power-management/reboot_manual
 user:root
 command: shutdown -r now
 _description:
@@ -218,7 +218,7 @@ _description:
      Did the system reboot correctly?
 
 plugin: user-interact-verify
-name: power-management/shutdown_manual
+id: power-management/shutdown_manual
 user: root
 command: shutdown -h now
 _description:

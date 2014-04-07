@@ -1,5 +1,5 @@
 plugin: user-interact
-name: esata/insert
+id: esata/insert
 command: removable_storage_watcher insert ata_serial_esata
 _description:
  PURPOSE:
@@ -13,7 +13,7 @@ _description:
      selected result
 
 plugin: shell
-name: esata/storage-test
+id: esata/storage-test
 user: root
 depends: esata/insert
 command: removable_storage_test -s 268400000 ata_serial_esata
@@ -22,7 +22,7 @@ _description:
  eSATA HDD
 
 plugin: user-interact
-name: esata/remove
+id: esata/remove
 depends: esata/storage-test
 command: removable_storage_watcher remove ata_serial_esata
 _description:

@@ -6,8 +6,18 @@ ChangeLog
     accounting of development history please inspect the source history
     directly.
 
-CheckBoxNG 0.1 (Unreleased)
----------------------------
+CheckBoxNG 0.3
+--------------
+
+* Bugfixes: https://launchpad.net/checkbox-ng/+milestone/0.3
+
+CheckBoxNG 0.2
+--------------
+
+???
+
+CheckBoxNG 0.1
+--------------
 
 * Initial release
 * Support for displaying configuration

@@ -48,13 +48,13 @@ if on_rtd:
 else:
     install_requires = [
         'checkbox-support >= 0.2',
-        'plainbox >= 0.3',
+        'plainbox >= 0.5.3',
         'requests >= 1.0',
     ]
 
 setup(
     name="checkbox-ng",
-    version="0.3.dev",
+    version="0.3",
     url="https://launchpad.net/checkbox/",
     packages=find_packages(),
     author="Zygmunt Krynicki",

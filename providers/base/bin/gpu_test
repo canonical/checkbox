@@ -117,10 +117,10 @@ class Html5VideoThread(Thread):
 
     @property
     def html5_path(self):
-        if os.getenv('CHECKBOX_SHARE'):
+        if os.getenv('PLAINBOX_PROVIDER_DATA'):
             return os.path.join(
-            os.getenv('CHECKBOX_SHARE'),
-            'data/websites/html5_video.html')
+            os.getenv('PLAINBOX_PROVIDER_DATA'),
+            'websites/html5_video.html')
 
     def run(self):
         if self.html5_path and os.path.isfile(self.html5_path):

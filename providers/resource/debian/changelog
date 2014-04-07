@@ -1,0 +1,33 @@
+plainbox-provider-resource-generic (0.3-1) unstable; urgency=medium
+
+  * New upstream release. List of bugfixes:
+    https://launchpad.net/plainbox-provider-resource/14.04/0.3
+  * debian/watch: look for new releases on launchpad
+  * debian/control: make plainbox-provider-resource-generic arch=any as it
+    builds C source for one provider-specific executable now, also depend on
+    autotools, intltool and two netlink libraries
+  * debian/rules: stop using pybuild and use manage.py
+    {i18n,build,install,validate} instead. The build rule also regenerates.
+    autotools scripts that are present in the tarball.
+  * debian/control: drop X-Python3-Version 
+  * debian/patches: drop (no longer needed)
+  * debian/upstream/signing-key.asc: Use armoured gpg keys to avoid having to
+    keep binary files in Debian packaging. Also, replace that with my key
+    since I made the 0.3 release upstream.
+  * debian/source/include-binaries: no longer needed 
+  * Stop being a python3 module, move to from DPMT to PAPT
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Mon, 07 Apr 2014 14:12:51 +0200
+
+plainbox-provider-resource-generic (0.2-2) unstable; urgency=low
+
+  * Patch the plainbox-resources.provider file to add the version number,
+    required by plainbox >= 0.5.
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Tue, 28 Jan 2014 13:23:22 +0100
+
+plainbox-provider-resource-generic (0.2-1) unstable; urgency=low
+
+  * Initial release (Closes: #735187)
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Mon, 13 Jan 2014 15:27:48 +0100

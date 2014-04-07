@@ -1,6 +1,12 @@
 checkbox-support (0.2-1) UNRELEASED; urgency=low
 
+  [ Sylvain Pineau ]
   * New upstream release
+
+  [ Zygmunt Krynicki ]
+  * Use armoured gpg keys to avoid having to keep binary files in Debian
+    packaging. Also, replace that with my key since I made the 0.2 release
+    upstream. 
 
  -- Sylvain Pineau <sylvain.pineau@canonical.com>  Fri, 04 Apr 2014 15:00:13 +0200
 

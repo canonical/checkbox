@@ -1,7 +1,13 @@
-checkbox-ng (0.2.2-2) UNRELEASED; urgency=medium
+checkbox-ng (0.3-1) UNRELEASED; urgency=medium
 
+  * New upstream release: https://launchpad.net/checkbox-ng/14.04/0.3 
   * debian/control: make python3-checkbox-ng, checkbox-ng and checkbox-service
     all depend on one version of themselves. LP: #1298284
+  * debian/control: depend on latest plainbox 
+  * debian/upstream/signing-key.asc: Use armoured gpg keys to avoid having to
+    keep binary files in Debian packaging. Also, replace that with my key
+    since I made the 0.3 release upstream.
+  * debian/source/include-binaries: no longer needed 
 
  -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Thu, 27 Mar 2014 11:18:14 +0100
 

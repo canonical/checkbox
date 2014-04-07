@@ -1,0 +1,65 @@
+Source: plainbox-provider-checkbox
+Section: utils
+Priority: optional
+Maintainer: Checkbox Developers <checkbox-dev@lists.launchpad.net> 
+Uploaders: Sylvain Pineau <sylvain.pineau@canonical.com>,
+           Zygmunt Krynicki <zygmunt.krynicki@canonical.com>,
+           Python Applications Packaging Team <python-apps-team@lists.alioth.debian.org>
+Build-Depends:
+ debhelper (>= 9),
+ dh-python,
+ intltool,
+ python (>= 2.7),
+ python3,
+ python3-plainbox (>= 0.5.3),
+Standards-Version: 3.9.5
+Vcs-Svn: svn://anonscm.debian.org/python-apps/packages/plainbox-provider-checkbox/trunk/
+Vcs-Browser: http://anonscm.debian.org/viewvc/python-apps/packages/plainbox-provider-checkbox/trunk/
+Homepage: http://launchpad.net/checkbox
+
+Package: plainbox-provider-checkbox
+Architecture: any
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends},
+ plainbox-provider-resource-generic (>= 0.3),
+ python (>= 2.7),
+ python2.7,
+ python3,
+Recommends: gir1.2-gst-plugins-base-1.0,
+            gir1.2-gstreamer-1.0,
+            gstreamer1.0-plugins-good,
+            gstreamer1.0-pulseaudio,
+            libgstreamer1.0-0,
+            pm-utils,
+            python3-apt,
+            python3-dbus,
+            python3-gi
+Suggests: bonnie++,
+          bootchart,
+          curl,
+          ethtool,
+          fwts,
+          git-core,
+          glmark2,
+          glmark2-es2,
+          hdparm,
+          lshw,
+          mesa-utils,
+          nmap,
+          obexd-client,
+          obexftp,
+          render-bench,
+          smartmontools,
+          sox,
+          stress,
+          sysstat,
+          wmctrl
+Description: CheckBox provider for PlainBox
+ This package provides the CheckBox jobs collection, i.e the hardware test
+ definitions and scripts originally included with CheckBox.
+ It is used together alongside with PlainBox.
+ .
+ Jobs are smallest units of testing that can be performed by PlainBox.
+ All jobs have an unique name. There are many types of jobs, some are fully
+ automated others are fully manual.

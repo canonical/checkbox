@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2014-04-06 05:46+0000\n"
+"X-Launchpad-Export-Date: 2014-04-07 05:36+0000\n"
 "X-Generator: Launchpad (build 16976)\n"
 
 #: .././plainbox/impl/_argparse.py:139
@@ -2649,12 +2649,3 @@ msgstr ""
 #, python-format
 msgid "the following arguments are required: %s"
 msgstr ""
-
-#~ msgid "Invalid destination URL: {0}"
-#~ msgstr "Недопустимый URL: {0}"
-
-#~ msgid "Unable to connect to destination URL: {0}"
-#~ msgstr "Не удалось подключиться к URL: {0}"
-
-#~ msgid "Server returned an error when receiving or processing: {0}"
-#~ msgstr "Сервер возвращает ошибку при получении или обработке: {0}"

@@ -1,7 +1,8 @@
 checkbox-support (0.2-1) UNRELEASED; urgency=low
 
   [ Sylvain Pineau ]
-  * New upstream release
+  * New upstream release. List of bugs fixed:
+    https://launchpad.net/checkbox-support/+milestone/0.2
 
   [ Zygmunt Krynicki ]
   * Use armoured gpg keys to avoid having to keep binary files in Debian

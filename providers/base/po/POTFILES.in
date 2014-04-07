@@ -1,0 +1,150 @@
+[encoding: UTF-8]
+[type: gettext/rfc822deb] jobs/audio.txt.in
+[type: gettext/rfc822deb] jobs/benchmarks.txt.in
+[type: gettext/rfc822deb] jobs/bluetooth.txt.in
+[type: gettext/rfc822deb] jobs/camera.txt.in
+[type: gettext/rfc822deb] jobs/codecs.txt.in
+[type: gettext/rfc822deb] jobs/cpu.txt.in
+[type: gettext/rfc822deb] jobs/daemons.txt.in
+[type: gettext/rfc822deb] jobs/disk.txt.in
+[type: gettext/rfc822deb] jobs/esata.txt.in
+[type: gettext/rfc822deb] jobs/ethernet.txt.in
+[type: gettext/rfc822deb] jobs/expresscard.txt.in
+[type: gettext/rfc822deb] jobs/fingerprint.txt.in
+[type: gettext/rfc822deb] jobs/firewire.txt.in
+[type: gettext/rfc822deb] jobs/firmware.txt.in
+[type: gettext/rfc822deb] jobs/floppy.txt.in
+[type: gettext/rfc822deb] jobs/graphics.txt.in
+[type: gettext/rfc822deb] jobs/hibernate.txt.in
+[type: gettext/rfc822deb] jobs/info.txt.in
+[type: gettext/rfc822deb] jobs/input.txt.in
+[type: gettext/rfc822deb] jobs/install.txt.in
+[type: gettext/rfc822deb] jobs/keys.txt.in
+[type: gettext/rfc822deb] jobs/led.txt.in
+[type: gettext/rfc822deb] jobs/local.txt.in
+[type: gettext/rfc822deb] jobs/mediacard.txt.in
+[type: gettext/rfc822deb] jobs/memory.txt.in
+[type: gettext/rfc822deb] jobs/mir.txt.in
+[type: gettext/rfc822deb] jobs/miscellanea.txt.in
+[type: gettext/rfc822deb] jobs/mobilebroadband.txt.in
+[type: gettext/rfc822deb] jobs/monitor.txt.in
+[type: gettext/rfc822deb] jobs/networking.txt.in
+[type: gettext/rfc822deb] jobs/optical.txt.in
+[type: gettext/rfc822deb] jobs/panel_clock_test.txt.in
+[type: gettext/rfc822deb] jobs/panel_reboot.txt.in
+[type: gettext/rfc822deb] jobs/peripheral.txt.in
+[type: gettext/rfc822deb] jobs/piglit.txt.in
+[type: gettext/rfc822deb] jobs/power-management.txt.in
+[type: gettext/rfc822deb] jobs/rendercheck.txt.in
+[type: gettext/rfc822deb] jobs/server-services.txt.in
+[type: gettext/rfc822deb] jobs/smoke.txt.in
+[type: gettext/rfc822deb] jobs/sniff.txt.in
+[type: gettext/rfc822deb] jobs/stress.txt.in
+[type: gettext/rfc822deb] jobs/suspend.txt.in
+[type: gettext/rfc822deb] jobs/touchpad.txt.in
+[type: gettext/rfc822deb] jobs/touchscreen.txt.in
+[type: gettext/rfc822deb] jobs/usb.txt.in
+[type: gettext/rfc822deb] jobs/user_apps.txt.in
+[type: gettext/rfc822deb] jobs/virtualization.txt.in
+[type: gettext/rfc822deb] jobs/wireless.txt.in
+bin/accelerometer_test
+bin/alsa_info
+bin/alsa_record_playback
+bin/ansi_parser
+bin/audio_driver_info
+bin/audio_settings
+bin/audio_test
+bin/battery_test
+bin/bluetooth_scan
+bin/bluetooth_test
+bin/brightness_test
+bin/camera_test
+bin/check_is_laptop
+bin/cking_suite
+bin/color_depth_info
+bin/connect_wireless
+bin/cpu_offlining
+bin/cpu_topology
+bin/create_connection
+bin/cycle_vts
+bin/disk_read_performance_test
+bin/disk_smart
+bin/disk_stats_test
+bin/dns_server_test
+bin/filter_templates
+bin/floppy_test
+bin/frequency_governors_test
+bin/fresh_rate_info
+bin/fwts_test
+bin/gateway_ping_test
+bin/gcov_tarball
+bin/glob_test
+bin/gpu_test
+bin/gputest_benchmark
+bin/graphic_memory_info
+bin/graphics_driver
+bin/graphics_modes_info
+bin/graphics_stress_test
+bin/gst_pipeline_test
+bin/ipmi_test
+bin/key_test
+bin/keyboard_test
+bin/lamp_test
+bin/led_hdd_test
+bin/lock_screen_watcher
+bin/lsmod_info
+bin/max_diskspace_used
+bin/memory_compare
+bin/memory_info
+bin/memory_test
+bin/mm-test
+bin/network
+bin/network_bandwidth_test
+bin/network_check
+bin/network_device_info
+bin/network_info
+bin/network_ntp_test
+bin/network_printer_test
+bin/network_reconnect_resume_test
+bin/network_restart
+bin/network_wait
+bin/obex_send
+bin/optical_detect
+bin/optical_read_test
+bin/optical_write_test
+bin/piglit_test
+bin/pm_log_check
+bin/pm_test
+bin/process_wait
+bin/pts_run
+bin/pulse-active-port-change
+bin/removable_storage_test
+bin/removable_storage_watcher
+bin/rendercheck_test
+bin/resolution_test
+bin/resolution_test.qml
+bin/rotation_test
+bin/run_templates
+bin/samba_test
+bin/screenshot_validation
+bin/sleep_test
+bin/sleep_test_log_check
+bin/sleep_time_check
+bin/sources_test
+bin/spindown
+bin/storage_test
+bin/tomcat_test
+bin/touchpad_driver_info
+bin/touchpad_test
+bin/udisks2_monitor
+bin/virtualization
+bin/volume_test
+bin/wifi_time2reconnect
+bin/window_test
+bin/wireless_ext
+bin/xen_test
+bin/xml_sanitize
+bin/xrandr_cycle
+manage.py
+src/clocktest.c
+src/threaded_memtest.c

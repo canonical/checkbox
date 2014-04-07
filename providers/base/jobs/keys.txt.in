@@ -183,7 +183,7 @@ requires:
  package.name == 'alsa-base'
  package.name == 'pulseaudio-utils'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
-command: audio_settings store --file=$CHECKBOX_DATA/pulseaudio_settings; audio_settings set --device=pci --volume=50; alsa_record_playback; EXIT_CODE=$?; audio_settings restore --file=$CHECKBOX_DATA/pulseaudio_settings; exit $EXIT_CODE
+command: audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; audio_settings set --device=pci --volume=50; alsa_record_playback; EXIT_CODE=$?; audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; exit $EXIT_CODE
 _description:
  PURPOSE:
      This test will test the mute key for your microphone

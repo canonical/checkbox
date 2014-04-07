@@ -16,7 +16,7 @@ requires:
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
-command: audio_settings store --file=$CHECKBOX_DATA/pulseaudio_settings; audio_settings set --device=pci --volume=50; gst_pipeline_test -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'; EXIT_CODE=$?; audio_settings restore --file=$CHECKBOX_DATA/pulseaudio_settings; exit $EXIT_CODE
+command: audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; audio_settings set --device=pci --volume=50; gst_pipeline_test -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'; EXIT_CODE=$?; audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; exit $EXIT_CODE
 _description:
  PURPOSE:
      This test will check that internal speakers work correctly
@@ -36,7 +36,7 @@ requires:
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
 command:
- audio_settings store --verbose --file=$CHECKBOX_DATA/pulseaudio_settings; audio_settings set --verbose --device=hdmi --volume=50; gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'; EXIT_CODE=$?; audio_settings restore --verbose --file=$CHECKBOX_DATA/pulseaudio_settings; exit $EXIT_CODE
+ audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; audio_settings set --verbose --device=hdmi --volume=50; gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'; EXIT_CODE=$?; audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; exit $EXIT_CODE
 _description:
  PURPOSE:
      HDMI audio interface verification
@@ -55,7 +55,7 @@ requires:
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
 command:
- audio_settings store --verbose --file=$CHECKBOX_DATA/pulseaudio_settings; audio_settings set --verbose --device=hdmi --volume=50; gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'; EXIT_CODE=$?; audio_settings restore --verbose --file=$CHECKBOX_DATA/pulseaudio_settings; exit $EXIT_CODE
+ audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; audio_settings set --verbose --device=hdmi --volume=50; gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'; EXIT_CODE=$?; audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; exit $EXIT_CODE
 _description:
  PURPOSE:
      DisplayPort audio interface verification
@@ -74,7 +74,7 @@ requires:
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
-command: audio_settings store --file=$CHECKBOX_DATA/pulseaudio_settings; audio_settings set --device=pci --volume=50; gst_pipeline_test -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'; EXIT_CODE=$?; audio_settings restore --file=$CHECKBOX_DATA/pulseaudio_settings; exit $EXIT_CODE
+command: audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; audio_settings set --device=pci --volume=50; gst_pipeline_test -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'; EXIT_CODE=$?; audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; exit $EXIT_CODE
 _description:
  PURPOSE:
      This test will check that headphones connector works correctly
@@ -93,7 +93,7 @@ requires:
  package.name == 'alsa-base'
  package.name == 'pulseaudio-utils'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
-command: audio_settings store --file=$CHECKBOX_DATA/pulseaudio_settings; audio_settings set --device=pci --volume=50; alsa_record_playback; EXIT_CODE=$?; audio_settings restore --file=$CHECKBOX_DATA/pulseaudio_settings; exit $EXIT_CODE
+command: audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; audio_settings set --device=pci --volume=50; alsa_record_playback; EXIT_CODE=$?; audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; exit $EXIT_CODE
 _description:
  PURPOSE:
      This test will check that recording sound using the onboard microphone works correctly
@@ -113,7 +113,7 @@ requires:
  package.name == 'alsa-base'
  package.name == 'pulseaudio-utils'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
-command: audio_settings store --file=$CHECKBOX_DATA/pulseaudio_settings; audio_settings set --device=pci --volume=50; alsa_record_playback; EXIT_CODE=$?; audio_settings restore --file=$CHECKBOX_DATA/pulseaudio_settings; exit $EXIT_CODE
+command: audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; audio_settings set --device=pci --volume=50; alsa_record_playback; EXIT_CODE=$?; audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; exit $EXIT_CODE
 _description:
  PURPOSE:
      This test will check that recording sound using an external microphone works correctly
@@ -132,7 +132,7 @@ requires:
  package.name == 'alsa-base'
  package.name == 'pulseaudio-utils'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
-command: audio_settings store --file=$CHECKBOX_DATA/pulseaudio_settings; audio_settings set --device=usb --volume=50; alsa_record_playback; EXIT_CODE=$?; audio_settings restore --file=$CHECKBOX_DATA/pulseaudio_settings; exit $EXIT_CODE
+command: audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; audio_settings set --device=usb --volume=50; alsa_record_playback; EXIT_CODE=$?; audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; exit $EXIT_CODE
 _description:
  PURPOSE:
      This test will check that a USB audio device works correctly
@@ -162,7 +162,7 @@ _description:
 plugin: shell
 id: audio/alsa_info_collect
 estimated_duration: 2.0
-command: alsa_info --no-dialog --no-upload --output ${CHECKBOX_DATA}/alsa_info.log
+command: alsa_info --no-dialog --no-upload --output ${PLAINBOX_SESSION_SHARE}/alsa_info.log
 _description:
  Collect audio-related system information. This data can be used to
  simulate this computer's audio subsystem and perform more detailed tests
@@ -172,7 +172,7 @@ plugin: attachment
 id: audio/alsa_info_attachment
 depends: audio/alsa_info_collect
 estimated_duration: 1.0
-command: [ -e ${CHECKBOX_DATA}/alsa_info.log ] && cat ${CHECKBOX_DATA}/alsa_info.log
+command: [ -e ${PLAINBOX_SESSION_SHARE}/alsa_info.log ] && cat ${PLAINBOX_SESSION_SHARE}/alsa_info.log
 _description:
  Attaches the audio hardware data collection log to the results.
 
@@ -225,7 +225,7 @@ requires:
  package.name == 'alsa-base'
  package.name == 'pulseaudio-utils'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
-command: audio_settings store --file=$CHECKBOX_DATA/pulseaudio_settings; audio_settings set --device=pci --volume=50; alsa_record_playback; EXIT_CODE=$?; audio_settings restore --file=$CHECKBOX_DATA/pulseaudio_settings; exit $EXIT_CODE
+command: audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; audio_settings set --device=pci --volume=50; alsa_record_playback; EXIT_CODE=$?; audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; exit $EXIT_CODE
 _description:
  PURPOSE:
      Check that external line in connection works correctly
@@ -286,7 +286,7 @@ requires:
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
-command: audio_settings store --file=$CHECKBOX_DATA/pulseaudio_settings; audio_settings set --device=pci --volume=50; gst_pipeline_test -t 10 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'; EXIT_CODE=$?; audio_settings restore --file=$CHECKBOX_DATA/pulseaudio_settings; exit $EXIT_CODE
+command: audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; audio_settings set --device=pci --volume=50; gst_pipeline_test -t 10 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'; EXIT_CODE=$?; audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; exit $EXIT_CODE
 _description:
  PURPOSE:
      Check that balance control works correctly on internal speakers
@@ -307,7 +307,7 @@ requires:
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
-command: audio_settings store --file=$CHECKBOX_DATA/pulseaudio_settings; audio_settings set --device=pci --volume=50; gst_pipeline_test -t 10 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'; EXIT_CODE=$?; audio_settings restore --file=$CHECKBOX_DATA/pulseaudio_settings; exit $EXIT_CODE
+command: audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; audio_settings set --device=pci --volume=50; gst_pipeline_test -t 10 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'; EXIT_CODE=$?; audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; exit $EXIT_CODE
 _description:
  PURPOSE:
      Check that balance control works correctly on external headphone
@@ -338,7 +338,7 @@ requires:
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
-command: audio_settings store --file=$CHECKBOX_DATA/pulseaudio_settings; audio_settings set --device=pci --volume=50; gst_pipeline_test -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'; EXIT_CODE=$?; audio_settings restore --file=$CHECKBOX_DATA/pulseaudio_settings; exit $EXIT_CODE
+command: audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; audio_settings set --device=pci --volume=50; gst_pipeline_test -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'; EXIT_CODE=$?; audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; exit $EXIT_CODE
 _description:
  PURPOSE:
      This test will check that internal speakers work correctly after suspending 30 times.
@@ -391,4 +391,4 @@ requires:
  package.name == 'alsa-base'
 _description: Record mixer settings after suspending 30 times.
 command:
- audio_settings store --file=$CHECKBOX_DATA/audio_settings_after_suspend_30_cycles; diff $CHECKBOX_DATA/audio_settings_before_suspend $CHECKBOX_DATA/audio_settings_after_suspend_30_cycles
+ audio_settings store --file=$PLAINBOX_SESSION_SHARE/audio_settings_after_suspend_30_cycles; diff $PLAINBOX_SESSION_SHARE/audio_settings_before_suspend $PLAINBOX_SESSION_SHARE/audio_settings_after_suspend_30_cycles

@@ -147,7 +147,7 @@ plugin: user-verify
 id: graphics/cycle_resolution
 requires: package.name == 'xorg'
 depends: graphics/VESA_drivers_not_in_use
-command: xrandr_cycle --screenshot-dir $CHECKBOX_DATA
+command: xrandr_cycle --screenshot-dir $PLAINBOX_SESSION_SHARE
 estimated_duration: 250.000
 _description:
  PURPOSE:
@@ -230,7 +230,7 @@ _description: Move a 3D window around the screen
 plugin: shell
 id: graphics/screenshot
 requires: package.name == 'fswebcam'
-command: set -o pipefail; camera_test still --device=/dev/external_webcam -f ${CHECKBOX_DATA}/screenshot.jpg -q 2>&1 | ansi_parser
+command: set -o pipefail; camera_test still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot.jpg -q 2>&1 | ansi_parser
 _description:
  PURPOSE:
      Take a screengrab of the current screen (logged on Unity desktop)
@@ -242,7 +242,7 @@ _description:
 plugin: attachment
 id: screenshot.jpg
 depends: graphics/screenshot
-command: base64 ${CHECKBOX_DATA}/screenshot.jpg
+command: base64 ${PLAINBOX_SESSION_SHARE}/screenshot.jpg
 _description: Attaches the screenshot captured in graphics/screenshot.
 
 plugin: shell
@@ -253,7 +253,7 @@ command:
  dbus-launch gsettings set org.gnome.totem repeat true
  totem --fullscreen ${CHECKBOX_SHARE}/data/video/Ogg_Theora_Video.ogv 2>/dev/null &
  set -o pipefail
- sleep 15 && camera_test still --device=/dev/external_webcam -f ${CHECKBOX_DATA}/screenshot_fullscreen_video.jpg -q 2>&1 | ansi_parser
+ sleep 15 && camera_test still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot_fullscreen_video.jpg -q 2>&1 | ansi_parser
  sleep 5 && totem --quit 2>/dev/null
  dbus-launch gsettings set org.gnome.totem repeat false
 _description:
@@ -268,7 +268,7 @@ _description:
 plugin: attachment
 id: screenshot_fullscreen_video.jpg
 depends: graphics/screenshot_fullscreen_video
-command: base64 ${CHECKBOX_DATA}/screenshot_fullscreen_video.jpg
+command: base64 ${PLAINBOX_SESSION_SHARE}/screenshot_fullscreen_video.jpg
 _description: Attaches the screenshot captured in graphics/screenshot_fullscreen_video.
 
 plugin: shell
@@ -279,7 +279,7 @@ command:
  screenshot_validation \
     ${CHECKBOX_SHARE}/data/images/logo_Ubuntu_stacked_black.png \
     --device=${EXTERNAL_WEBCAM_DEVICE:-/dev/external_webcam} \
-    -o ${CHECKBOX_DATA}/screenshot_opencv_validation.jpg
+    -o ${PLAINBOX_SESSION_SHARE}/screenshot_opencv_validation.jpg
 _description:
  Take a screengrab of the screen displaying a black and white Ubuntu logo.
  Check that the screenshot matches the original file using OpenCV ORB detection.
@@ -287,5 +287,5 @@ _description:
 plugin: attachment
 id: screenshot_opencv_validation.jpg
 depends: graphics/screenshot_opencv_validation
-command: base64 ${CHECKBOX_DATA}/screenshot_opencv_validation.jpg
+command: base64 ${PLAINBOX_SESSION_SHARE}/screenshot_opencv_validation.jpg
 _description: Attaches the screenshot captured in graphics/screenshot_opencv_validation.

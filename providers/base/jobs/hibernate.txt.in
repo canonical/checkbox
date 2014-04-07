@@ -3,12 +3,12 @@ id: power-management/hibernate_advanced
 requires:
   sleep.disk == 'supported'
   rtc.state == 'supported'
-environ: CHECKBOX_DATA
+environ: PLAINBOX_SESSION_SHARE
 user: root
 command:
  if type -P fwts >/dev/null; then
   echo "Calling fwts"
-  fwts_test -l $CHECKBOX_DATA/hibernate-single -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120
+  fwts_test -l $PLAINBOX_SESSION_SHARE/hibernate-single -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120
  else
   echo "Calling sleep_test"
   sleep_test -s disk -w 120
@@ -27,12 +27,12 @@ _description:
 
 plugin: shell
 id: power-management/hibernate-single-log-check
-command: [ -e $CHECKBOX_DATA/hibernate-single.log ] && sleep_test_log_check -v s4 $CHECKBOX_DATA/hibernate-single.log
+command: [ -e $PLAINBOX_SESSION_SHARE/hibernate-single.log ] && sleep_test_log_check -v s4 $PLAINBOX_SESSION_SHARE/hibernate-single.log
 _description:
  Automated check of the hibernate log for errors discovered by fwts
 
 plugin: attachment
 id: power-management/hibernate-single-log-attach
-command: [ -e $CHECKBOX_DATA/hibernate-single.log ] && cat $CHECKBOX_DATA/hibernate-single.log
+command: [ -e $PLAINBOX_SESSION_SHARE/hibernate-single.log ] && cat $PLAINBOX_SESSION_SHARE/hibernate-single.log
 estimated_duration: 0.5
 description: attaches log from single hibernate/resume test to results

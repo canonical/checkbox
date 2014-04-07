@@ -14,7 +14,7 @@ command:
    rfkill unblock bluetooth
    sleep 3
  fi
- output=$(hcitool dev | tail -n+2 | awk '{print $2}' | tee $CHECKBOX_DATA/bluetooth_address)
+ output=$(hcitool dev | tail -n+2 | awk '{print $2}' | tee $PLAINBOX_SESSION_SHARE/bluetooth_address)
  echo "$output"
  if [ -z "$output" ]; then
      "BT hardware not available"
@@ -61,7 +61,7 @@ plugin: user-interact-verify
 id: bluetooth/audio-a2dp
 depends: bluetooth/detect-output
 estimated_duration: 120.0
-command: audio_settings store --file=$CHECKBOX_DATA/pulseaudio_settings; audio_settings set --device=pci --volume=50; gst_pipeline_test -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'; EXIT_CODE=$?; audio_settings restore --file=$CHECKBOX_DATA/pulseaudio_settings; exit $EXIT_CODE
+command: audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; audio_settings set --device=pci --volume=50; gst_pipeline_test -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'; EXIT_CODE=$?; audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings; exit $EXIT_CODE
 _description:
  PURPOSE:
      This test will check that you can record and hear audio using a bluetooth audio device

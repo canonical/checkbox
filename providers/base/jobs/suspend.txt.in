@@ -3,13 +3,13 @@ id: suspend/network_before_suspend
 depends: ethernet/detect
 estimated_duration: 1.2
 _description: Record the current network before suspending.
-command: set -o pipefail; gateway_ping_test | tee $CHECKBOX_DATA/network_before_suspend.txt
+command: set -o pipefail; gateway_ping_test | tee $PLAINBOX_SESSION_SHARE/network_before_suspend.txt
 
 plugin: shell
 id: suspend/resolution_before_suspend
 estimated_duration: 1.2
 _description: Record the current resolution before suspending.
-command: xrandr -q |grep '*'| awk '{print $1}' > $CHECKBOX_DATA/resolution_before_suspend.txt
+command: xrandr -q |grep '*'| awk '{print $1}' > $PLAINBOX_SESSION_SHARE/resolution_before_suspend.txt
 
 plugin: shell
 id: suspend/audio_before_suspend
@@ -18,26 +18,26 @@ requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
 _description: Record mixer settings before suspending.
-command: audio_settings store --file=$CHECKBOX_DATA/audio_settings_before_suspend
+command: audio_settings store --file=$PLAINBOX_SESSION_SHARE/audio_settings_before_suspend
 
 plugin: shell
 id: suspend/cpu_before_suspend
 estimated_duration: 1.2
 _description: Verify that all the CPUs are online before suspending
-command: cpuinfo_resource > $CHECKBOX_DATA/cpuinfo_before_suspend
+command: cpuinfo_resource > $PLAINBOX_SESSION_SHARE/cpuinfo_before_suspend
 
 plugin: shell
 id: suspend/memory_before_suspend
 estimated_duration: 1.2
 _description:
  Dumps memory info to a file for comparison after suspend test has been run
-command: meminfo_resource > $CHECKBOX_DATA/meminfo_before_suspend
+command: meminfo_resource > $PLAINBOX_SESSION_SHARE/meminfo_before_suspend
 
 plugin: shell
 id: suspend/wireless_before_suspend
 depends: wireless/wireless_connection
 requires: device.category == 'WIRELESS'
-command: nmcli -t -f UUID con status > $CHECKBOX_DATA/connections && connect_wireless && gateway_ping_test --interface=`nmcli dev list | grep -B 1 wireless | grep GENERAL.DEVICE | awk '{print $2}'` && for con in `cat $CHECKBOX_DATA/connections`; do nmcli con up uuid "$con"; done
+command: nmcli -t -f UUID con status > $PLAINBOX_SESSION_SHARE/connections && connect_wireless && gateway_ping_test --interface=`nmcli dev list | grep -B 1 wireless | grep GENERAL.DEVICE | awk '{print $2}'` && for con in `cat $PLAINBOX_SESSION_SHARE/connections`; do nmcli con up uuid "$con"; done
 estimated_duration: 20.0
 _description:
  This test disconnects all connections and then connects to the wireless
@@ -213,14 +213,14 @@ requires:
  sleep.mem == 'supported'
  rtc.state == 'supported'
 user: root
-environ: CHECKBOX_DATA
+environ: PLAINBOX_SESSION_SHARE
 command:
  if type -P fwts >/dev/null; then
   echo "Calling fwts"
-  set -o pipefail; fwts_test -f none -l $CHECKBOX_DATA/suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $CHECKBOX_DATA/suspend_single_times.log
+  set -o pipefail; fwts_test -f none -l $PLAINBOX_SESSION_SHARE/suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $PLAINBOX_SESSION_SHARE/suspend_single_times.log
  else
   echo "Calling sleep_test"
-  set -o pipefail; sleep_test -p | tee $CHECKBOX_DATA/suspend_single_times.log
+  set -o pipefail; sleep_test -p | tee $PLAINBOX_SESSION_SHARE/suspend_single_times.log
  fi
 estimated_duration: 90.0
 _description:
@@ -243,27 +243,27 @@ requires:
 _description:
  This is the automated version of suspend/suspend_advanced.
 user: root
-environ: CHECKBOX_DATA
-command: set -o pipefail; fwts_test -f none -l $CHECKBOX_DATA/suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $CHECKBOX_DATA/suspend_single_times.log
+environ: PLAINBOX_SESSION_SHARE
+command: set -o pipefail; fwts_test -f none -l $PLAINBOX_SESSION_SHARE/suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $PLAINBOX_SESSION_SHARE/suspend_single_times.log
 estimated_duration: 90.000
 
 plugin: shell
 id: suspend/suspend-single-log-check
 estimated_duration: 1.2
-command: [ -e $CHECKBOX_DATA/suspend_single.log ] && sleep_test_log_check -v s3 $CHECKBOX_DATA/suspend_single.log
+command: [ -e $PLAINBOX_SESSION_SHARE/suspend_single.log ] && sleep_test_log_check -v s3 $PLAINBOX_SESSION_SHARE/suspend_single.log
 _description:
  Automated check of the suspend log to look for errors reported by fwts
 
 plugin: attachment
 id: suspend/suspend-single-log-attach
-command: [ -e $CHECKBOX_DATA/suspend_single.log ] && cat $CHECKBOX_DATA/suspend_single.log
+command: [ -e $PLAINBOX_SESSION_SHARE/suspend_single.log ] && cat $PLAINBOX_SESSION_SHARE/suspend_single.log
 _description:
  Attaches the log from the single suspend/resume test to the results
 
 plugin: shell
 id: suspend/suspend-time-check
 estimated_duration: 1.2
-command: [ -e $CHECKBOX_DATA/suspend_single_times.log ] && sleep_time_check $CHECKBOX_DATA/suspend_single_times.log
+command: [ -e $PLAINBOX_SESSION_SHARE/suspend_single_times.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/suspend_single_times.log
 _description:
  Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
 
@@ -304,14 +304,14 @@ id: suspend/network_after_suspend
 estimated_duration: 20.0
 depends: suspend/suspend_advanced suspend/network_before_suspend
 _description: Test the network after resuming.
-command: network_wait; gateway_ping_test | diff $CHECKBOX_DATA/network_before_suspend.txt -
+command: network_wait; gateway_ping_test | diff $PLAINBOX_SESSION_SHARE/network_before_suspend.txt -
 
 plugin: shell
 id: suspend/resolution_after_suspend
 depends: suspend/suspend_advanced suspend/resolution_before_suspend
 estimated_duration: 1.2
 _description: Test to see that we have the same resolution after resuming as before.
-command: xrandr -q |grep '*'| awk '{print $1}' | diff $CHECKBOX_DATA/resolution_before_suspend.txt -
+command: xrandr -q |grep '*'| awk '{print $1}' | diff $PLAINBOX_SESSION_SHARE/resolution_before_suspend.txt -
 
 plugin: shell
 id: suspend/audio_after_suspend
@@ -322,7 +322,7 @@ requires:
 depends: suspend/suspend_advanced suspend/audio_before_suspend
 _description: Verify that mixer settings after suspend are the same as before suspend.
 command:
- audio_settings store --file=$CHECKBOX_DATA/audio_settings_after_suspend; diff $CHECKBOX_DATA/audio_settings_before_suspend $CHECKBOX_DATA/audio_settings_after_suspend
+ audio_settings store --file=$PLAINBOX_SESSION_SHARE/audio_settings_after_suspend; diff $PLAINBOX_SESSION_SHARE/audio_settings_before_suspend $PLAINBOX_SESSION_SHARE/audio_settings_after_suspend
 
 plugin: shell
 id: suspend/audio_after_suspend_auto
@@ -333,21 +333,21 @@ requires:
 depends: suspend/suspend_advanced_auto suspend/audio_before_suspend
 _description: Verify that mixer settings after suspend are the same as before suspend.
 command:
- audio_settings store --file=$CHECKBOX_DATA/audio_settings_after_suspend; diff $CHECKBOX_DATA/audio_settings_before_suspend $CHECKBOX_DATA/audio_settings_after_suspend
+ audio_settings store --file=$PLAINBOX_SESSION_SHARE/audio_settings_after_suspend; diff $PLAINBOX_SESSION_SHARE/audio_settings_before_suspend $PLAINBOX_SESSION_SHARE/audio_settings_after_suspend
 
 plugin: shell
 id: suspend/cpu_after_suspend
 estimated_duration: 1.2
 depends: suspend/suspend_advanced suspend/cpu_before_suspend
 _description: Verify that all CPUs are online after resuming.
-command: cpuinfo_resource | diff $CHECKBOX_DATA/cpuinfo_before_suspend -
+command: cpuinfo_resource | diff $PLAINBOX_SESSION_SHARE/cpuinfo_before_suspend -
 
 plugin: shell
 id: suspend/cpu_after_suspend_auto
 estimated_duration: 1.2
 depends: suspend/suspend_advanced_auto suspend/cpu_before_suspend
 _description: Verify that all CPUs are online after resuming.
-command: cpuinfo_resource | diff $CHECKBOX_DATA/cpuinfo_before_suspend -
+command: cpuinfo_resource | diff $PLAINBOX_SESSION_SHARE/cpuinfo_before_suspend -
 
 plugin: shell
 id: suspend/memory_after_suspend
@@ -355,7 +355,7 @@ estimated_duration: 1.2
 depends: suspend/suspend_advanced suspend/memory_before_suspend
 _description:
  Verify that all memory is available after resuming from suspend.
-command: meminfo_resource | diff $CHECKBOX_DATA/meminfo_before_suspend -
+command: meminfo_resource | diff $PLAINBOX_SESSION_SHARE/meminfo_before_suspend -
 
 plugin: shell
 id: suspend/memory_after_suspend_auto
@@ -363,7 +363,7 @@ estimated_duration: 1.2
 depends: suspend/suspend_advanced_auto suspend/memory_before_suspend
 _description:
  Verify that all memory is available after resuming from suspend.
-command: meminfo_resource | diff $CHECKBOX_DATA/meminfo_before_suspend -
+command: meminfo_resource | diff $PLAINBOX_SESSION_SHARE/meminfo_before_suspend -
 
 plugin: manual
 id: suspend/display_after_suspend
@@ -382,7 +382,7 @@ id: suspend/wireless_after_suspend
 depends: suspend/suspend_advanced suspend/wireless_before_suspend
 requires:
  device.category == 'WIRELESS'
-command: connect_wireless && gateway_ping_test --interface=`nmcli dev list | grep -B 1 wireless | grep GENERAL.DEVICE | awk '{print $2}'` && for con in `cat $CHECKBOX_DATA/connections`; do nmcli con up uuid "$con"; done
+command: connect_wireless && gateway_ping_test --interface=`nmcli dev list | grep -B 1 wireless | grep GENERAL.DEVICE | awk '{print $2}'` && for con in `cat $PLAINBOX_SESSION_SHARE/connections`; do nmcli con up uuid "$con"; done
 estimated_duration: 20.0
 _description:
  This test checks that the wireless interface is working after suspending the system. It
@@ -754,7 +754,7 @@ command:
    sleep 3
  fi
  output=$(hcitool dev | tail -n+2 | awk '{print $2}')
- echo $output | diff $CHECKBOX_DATA/bluetooth_address -
+ echo $output | diff $PLAINBOX_SESSION_SHARE/bluetooth_address -
  if [ -z "$output" ]; then
      echo "BT hardware not available"
      exit 1
@@ -1009,7 +1009,7 @@ id: suspend/cycle_resolutions_after_suspend
 estimated_duration: 120.0
 requires: package.name == 'xorg'
 depends: suspend/suspend_advanced graphics/cycle_resolution
-command: xrandr_cycle --keyword=after_suspend --screenshot-dir $CHECKBOX_DATA
+command: xrandr_cycle --keyword=after_suspend --screenshot-dir $PLAINBOX_SESSION_SHARE
 _description:
  PURPOSE:
      This test will cycle through the detected display modes
@@ -1026,12 +1026,12 @@ depends: suspend/suspend_advanced_auto graphics/cycle_resolution
 _description:
  This test will check to make sure supported video modes work after a suspend and resume.
  This is done automatically by taking screenshots and uploading them as an attachment.
-command: xrandr_cycle --keyword=after_suspend --screenshot-dir $CHECKBOX_DATA
+command: xrandr_cycle --keyword=after_suspend --screenshot-dir $PLAINBOX_SESSION_SHARE
 
 plugin: attachment
 id: suspend/xrandr_screens_after_suspend.tar.gz
 depends: suspend/cycle_resolutions_after_suspend_auto
-command: [ -e $CHECKBOX_DATA/xrandr_screens_after_suspend.tgz ] && cat $CHECKBOX_DATA/xrandr_screens_after_suspend.tgz
+command: [ -e $PLAINBOX_SESSION_SHARE/xrandr_screens_after_suspend.tgz ] && cat $PLAINBOX_SESSION_SHARE/xrandr_screens_after_suspend.tgz
 _description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend_auto test to the results submission.
 
 plugin: shell
@@ -1068,7 +1068,7 @@ _description:
 
 plugin: attachment
 id: suspend/suspend-auto-single-log-attach
-command: [ -e $CHECKBOX_DATA/suspend_auto_single_log ] && cat $CHECKBOX_DATA/suspend_auto_single_log
+command: [ -e $PLAINBOX_SESSION_SHARE/suspend_auto_single_log ] && cat $PLAINBOX_SESSION_SHARE/suspend_auto_single_log
 _description:
  Attaches the log from the single suspend/resume test to the results
 
@@ -1077,7 +1077,7 @@ id: suspend/screenshot_after_suspend
 estimated_duration: 10.0
 depends: suspend/suspend_advanced_auto
 requires: package.name == 'fswebcam'
-command: set -o pipefail; camera_test still --device=/dev/external_webcam -f ${CHECKBOX_DATA}/screenshot_after_suspend.jpg -q 2>&1 | ansi_parser
+command: set -o pipefail; camera_test still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot_after_suspend.jpg -q 2>&1 | ansi_parser
 _description:
  PURPOSE:
      Take a screengrab of the current screen after suspend (logged on Unity desktop)
@@ -1089,7 +1089,7 @@ _description:
 plugin: attachment
 id: screenshot_after_suspend.jpg
 depends: suspend/screenshot_after_suspend
-command: base64 ${CHECKBOX_DATA}/screenshot_after_suspend.jpg
+command: base64 ${PLAINBOX_SESSION_SHARE}/screenshot_after_suspend.jpg
 _description: Attaches the screenshot captured in graphics/screenshot.
 
 plugin: shell

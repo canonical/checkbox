@@ -65,7 +65,7 @@ plugin: shell
 id: piglit/summarize_results
 requires:
  package.name == 'piglit'
-command: [ -e $CHECKBOX_DATA/piglit-results ] && piglit-summary-html.py $CHECKBOX_DATA/piglit-summary/ `find $CHECKBOX_DATA/piglit-results/ -name main` && echo "Successfully summarized piglit results. They are available in $CHECKBOX_DATA/piglit-sumary/"
+command: [ -e $PLAINBOX_SESSION_SHARE/piglit-results ] && piglit-summary-html.py $PLAINBOX_SESSION_SHARE/piglit-summary/ `find $PLAINBOX_SESSION_SHARE/piglit-results/ -name main` && echo "Successfully summarized piglit results. They are available in $PLAINBOX_SESSION_SHARE/piglit-sumary/"
 estimated_duration: 1.380
 _description:
  Runs the piglit results summarizing tool
@@ -75,6 +75,6 @@ id: piglit/tarball
 requires:
  package.name == 'piglit'
 depends: piglit/summarize_results
-command: [ -e $CHECKBOX_DATA/piglit-summary ] && tar cvfz $CHECKBOX_DATA/piglit-results.tar.gz $CHECKBOX_DATA/piglit-summary/
+command: [ -e $PLAINBOX_SESSION_SHARE/piglit-summary ] && tar cvfz $PLAINBOX_SESSION_SHARE/piglit-results.tar.gz $PLAINBOX_SESSION_SHARE/piglit-summary/
 _description:
  Archives the piglit-summary directory into the piglit-results.tar.gz.

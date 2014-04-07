@@ -2,12 +2,12 @@ plugin: shell
 id: rendercheck/tests
 requires:
  package.name == 'x11-apps'
-command: ( rendercheck_test -b repeat -b gradients -d -o $CHECKBOX_DATA/rendercheck-results && echo "Rendercheck tests completed successfully" ) || ( echo "Error running rendercheck. Please see the log $CHECKBOX_DATA/rendercheck-results for details" >&2 && false )
+command: ( rendercheck_test -b repeat -b gradients -d -o $PLAINBOX_SESSION_SHARE/rendercheck-results && echo "Rendercheck tests completed successfully" ) || ( echo "Error running rendercheck. Please see the log $PLAINBOX_SESSION_SHARE/rendercheck-results for details" >&2 && false )
 _description:
  Runs all of the rendercheck test suites. This test can take a few minutes.
 
 plugin: attachment
 id: rendercheck/tarball
 depends: rendercheck/tests
-command: [ -e $CHECKBOX_DATA/rendercheck-results ] && tar cvfz $CHECKBOX_DATA/rendercheck-results.tar.gz $CHECKBOX_DATA/rendercheck-results && cat $CHECKBOX_DATA/rendercheck-results.tar.gz
+command: [ -e $PLAINBOX_SESSION_SHARE/rendercheck-results ] && tar cvfz $PLAINBOX_SESSION_SHARE/rendercheck-results.tar.gz $PLAINBOX_SESSION_SHARE/rendercheck-results && cat $PLAINBOX_SESSION_SHARE/rendercheck-results.tar.gz
 _description: Attach log from rendercheck tests

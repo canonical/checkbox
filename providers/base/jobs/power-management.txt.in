@@ -12,12 +12,12 @@ _description:
 
 plugin: shell
 id: power-management/fwts_wakealarm
-environ: CHECKBOX_DATA
+environ: PLAINBOX_SESSION_SHARE
 user: root
 _description: Test ACPI Wakealarm (fwts wakealarm)
 requires:
  package.name == 'fwts'
-command: fwts_test -f aborted -t wakealarm -l $CHECKBOX_DATA/fwts-wakealarm.log
+command: fwts_test -f aborted -t wakealarm -l $PLAINBOX_SESSION_SHARE/fwts-wakealarm.log
 
 plugin: attachment
 id: power-management/fwts_wakealarm-log-attach
@@ -25,17 +25,17 @@ depends: power-management/fwts_wakealarm
 _description: Attach log from fwts wakealarm test
 requires:
  package.name == 'fwts'
-command: [ -e ${CHECKBOX_DATA}/fwts-wakealarm.log ] && cat ${CHECKBOX_DATA}/fwts-wakealarm.log
+command: [ -e ${PLAINBOX_SESSION_SHARE}/fwts-wakealarm.log ] && cat ${PLAINBOX_SESSION_SHARE}/fwts-wakealarm.log
 
 plugin: user-interact-verify
 id: power-management/poweroff
 depends: power-management/fwts_wakealarm
 user: root
-environ: CHECKBOX_DATA
+environ: PLAINBOX_SESSION_SHARE
 requires:
  package.name == 'upstart'
  package.name == 'fwts'
-command: pm_test poweroff --log-level=debug --log-dir=$CHECKBOX_DATA
+command: pm_test poweroff --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE
 _description:
  PURPOSE:
   This test will check the system's ability to power-off and boot.
@@ -51,18 +51,18 @@ _description:
 
 plugin: attachment
 id: power-management/poweroff-log-attach
-command: tar cvfz power-management_poweroff.tgz $CHECKBOX_DATA/*poweroff.1.log && cat $CHECKBOX_DATA/power-management_poweroff.tgz
+command: tar cvfz power-management_poweroff.tgz $PLAINBOX_SESSION_SHARE/*poweroff.1.log && cat $PLAINBOX_SESSION_SHARE/power-management_poweroff.tgz
 _description:
  This will attach any logs from the power-management/poweroff test to the results.
 
 plugin: user-interact-verify
 id: power-management/reboot
 user: root
-environ: CHECKBOX_DATA
+environ: PLAINBOX_SESSION_SHARE
 requires:
  package.name == 'upstart'
  package.name == 'fwts'
-command: pm_test reboot --log-level=debug --log-dir=$CHECKBOX_DATA
+command: pm_test reboot --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE
 _description:
  PURPOSE:
   This test will check the system's ability to reboot cleanly.
@@ -76,7 +76,7 @@ _description:
 
 plugin: attachment
 id: power-management/reboot-log-attach
-command: tar cvfz power-management_reboot.tgz $CHECKBOX_DATA/*reboot.1.log && cat $CHECKBOX_DATA/power-management_reboot.tgz
+command: tar cvfz power-management_reboot.tgz $PLAINBOX_SESSION_SHARE/*reboot.1.log && cat $PLAINBOX_SESSION_SHARE/power-management_reboot.tgz
 _description:
  This will attach any logs from the power-management/reboot test to the results.
 

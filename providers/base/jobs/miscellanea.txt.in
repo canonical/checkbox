@@ -52,14 +52,14 @@ requires:
 user: root
 _description:
  Run Firmware Test Suite (fwts) automated tests.
-environ: CHECKBOX_DATA
+environ: PLAINBOX_SESSION_SHARE
 command:
- fwts_test -l $CHECKBOX_DATA/fwts_results.log
+ fwts_test -l $PLAINBOX_SESSION_SHARE/fwts_results.log
 
 plugin: attachment
 id: miscellanea/fwts_results.log
 command:
- [[ -e ${CHECKBOX_DATA}/fwts_results.log ]] && cat ${CHECKBOX_DATA}/fwts_results.log
+ [[ -e ${PLAINBOX_SESSION_SHARE}/fwts_results.log ]] && cat ${PLAINBOX_SESSION_SHARE}/fwts_results.log
 _description: Attaches the FWTS results log to the submission
 
 plugin: shell

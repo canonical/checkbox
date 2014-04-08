@@ -247,6 +247,23 @@ environ: PLAINBOX_SESSION_SHARE
 command: set -o pipefail; fwts_test -f none -l $PLAINBOX_SESSION_SHARE/suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $PLAINBOX_SESSION_SHARE/suspend_single_times.log
 estimated_duration: 90.000
 
+plugin: user-verify
+id: suspend/hybrid_sleep
+user: root
+command:
+ set -o pipefail; fwts_test -f none -l $PLAINBOX_SESSION_SHARE/hybrid_sleep_single -s s3 --s3-hybrid --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $PLAINBOX_SESSION_SHARE/hybrid_sleep_single_times.log
+estimated_duration: 90.0
+_description:
+ PURPOSE:
+     This test will check hybrid sleep and resume
+ STEPS:
+     1. Click "Test" and your system will go into hybrid sleep mode for about 30 - 60 seconds
+     2. Observe the Power LED to see if it blinks or changes color during suspend
+     3. If your system does not wake itself up after 60 seconds, please press the power button momentarily to wake the system manually
+     4. If your system fails to wake at all and must be rebooted, restart System Testing after reboot and mark this test as Failed
+ VERIFICATION:
+     Did your system enter hybrid sleep and then resume correctly?
+
 plugin: shell
 id: suspend/suspend-single-log-check
 estimated_duration: 1.2
@@ -259,6 +276,19 @@ id: suspend/suspend-single-log-attach
 command: [ -e $PLAINBOX_SESSION_SHARE/suspend_single.log ] && cat $PLAINBOX_SESSION_SHARE/suspend_single.log
 _description:
  Attaches the log from the single suspend/resume test to the results
+
+plugin: shell
+id: suspend/hybrid-sleep-single-log-check
+estimated_duration: 1.2
+command: [ -e $PLAINBOX_SESSION_SHARE/hybrid_sleep_single.log ] && sleep_test_log_check -v s3 $PLAINBOX_SESSION_SHARE/hybrid_sleep_single.log
+_description:
+ Automated check of the hybrid sleep log to look for errors reported by fwts
+
+plugin: attachment
+id: suspend/hybrid-sleep-single-log-attach
+command: [ -e $PLAINBOX_SESSION_SHARE/hybrid_sleep_single.log ] && cat $PLAINBOX_SESSION_SHARE/hybrid_sleep_single.log
+_description:
+ Attaches the log from the single hybrid sleep/resume test to the results
 
 plugin: shell
 id: suspend/suspend-time-check

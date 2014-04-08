@@ -2022,3 +2022,48 @@ _description:
      1. Tap an object on the screen with finger. The cursor should jump to location tapped and object should highlight
  VERIFICATION:
      Does tap recognition work?
+
+plugin: user-verify
+id: camera/display_after_suspend
+estimated_duration: 120.0
+depends: camera/detect
+requires:
+ device.category == 'CAPTURE'
+command: camera_test display
+_description:
+ PURPOSE:
+     This test will check that the built-in camera works
+ STEPS:
+     1. Click on Test to display a video capture from the camera for ten seconds.
+ VERIFICATION:
+     Did you see the video capture?
+
+plugin: user-verify
+id: camera/still_after_suspend
+estimated_duration: 120.0
+depends: camera/detect
+requires:
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'eog'
+ package.name == 'fswebcam' or package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ device.category == 'CAPTURE'
+command: camera_test still
+_description:
+ PURPOSE:
+     This test will check that the built-in camera works
+ STEPS:
+     1. Click on Test to display a still image from the camera for ten seconds.
+ VERIFICATION:
+     Did you see the image?
+
+plugin: shell
+id: camera/multiple_resolution_after_suspend
+estimated_duration: 1.2
+depends: camera/detect
+requires:
+ package.name == 'fswebcam' or package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ device.category == 'CAPTURE'
+command: camera_test resolutions
+_description:
+  Takes multiple pictures based on the resolutions supported by the camera and
+  validates their size and that they are of a valid format.

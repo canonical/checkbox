@@ -103,6 +103,7 @@ def main():
                    '--s3-delay-delta\n'
                    '--s3-device-check\n'
                    '--s3-device-check-delay\n'
+                   '--s3-hybrid-sleep\n'
                    '--s3-max-delay\n'
                    '--s3-min-delay\n'
                    '--s3-multiple\n'

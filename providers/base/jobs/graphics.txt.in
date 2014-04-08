@@ -11,20 +11,28 @@ command: xdpyinfo | grep "^X.Org version" | cut -d ':' -f 2 | tr -d ' '
 estimated_duration: 0.018
 _description: Test to output the Xorg version
 
-plugin: manual
 id: graphics/resolution-change
-depends: graphics/xorg-version
-_description:
- PURPOSE:
-     This test will verify that the GUI is usable after manually changing resolution
- STEPS:
-     1. Open the Displays application
-     2. Select a new resolution from the dropdown list
-     3. Click on Apply
-     4. Select the original resolution from the dropdown list
-     5. Click on Apply
- VERIFICATION:
-     Did the resolution change as expected?
+requires: device.category == 'VIDEO'
+_description: Resolution change tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: user-interact-verify
+ id: graphics/`echo ${index}`_resolution-change_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ depends: graphics/xorg-version
+ _description:
+  PURPOSE:
+      This test will verify that the GUI is usable after manually changing resolution on the $product graphics card.
+  STEPS:
+      1. Select the $product graphics card (a reboot may be necessary)
+      2. Open the Displays application
+      3. Select a new resolution from the dropdown list
+      4. Click on Apply
+      5. Select the original resolution from the dropdown list
+      6. Click on Apply
+  VERIFICATION:
+      Did the resolution on the $product graphics card change as expected?
+ EOF
 
 plugin: shell
 id: graphics/xorg-process
@@ -64,7 +72,7 @@ requires:
  device.category == 'VIDEO'
  package.name == 'qmlscene'
 command: timeout 5 qmlscene --transparent --fullscreen $PLAINBOX_PROVIDER_DATA/resolution_test.qml
-estimated_duration: 10
+estimated_duration: 10.0
 _description:
  PURPOSE:
      This test will verify the default display resolution
@@ -85,21 +93,30 @@ _description:
  .
  https://help.ubuntu.com/community/Installation/SystemRequirements
 
-plugin: user-verify
 id: graphics/maximum_resolution
-requires:
- device.category == 'VIDEO'
- package.name == 'zenity'
-command: zenity --info --text "Maximum resolution: $(xrandr -q |grep -A 1 "connected\( primary\)* [0-9]" |tail -1 |awk '{print $1}')"
-estimated_duration: 10
-_description:
- PURPOSE:
-     This test will verify the display is operating at its maximum supported resolution 
- STEPS:
-     1. Consult the system's specifications and locate the screen's maximum supported resolution.
-     2. Click on Test to display the maximum resolution that can be used by Ubuntu on the current display.
- VERIFICATION:
-     Is this the display's maximum resolution?
+requires: device.category == 'VIDEO'
+_description: Maximum resolution tests
+estimated_duration: 0.10
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: user-verify
+ id: graphics/`echo $index`_maximum_resolution_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires:
+  device.category == 'VIDEO'
+  package.name == 'zenity'
+ command: zenity --info --text "Maximum resolution: $(xrandr -q |grep -A 1 "connected\( primary\)* [0-9]" |tail -1 |awk '{print $1}')"
+ estimated_duration: 10.0
+ _description:
+  PURPOSE:
+      This test will verify the display is operating at its maximum supported resolution on the $product graphics card. 
+  STEPS:
+      1. Select the $product graphics card (a reboot may be necessary)
+      2. Consult the system's specifications and locate the screen's maximum supported resolution.
+      3. Click on Test to display the maximum resolution that can be used by Ubuntu on the current display.
+  VERIFICATION:
+      Is this the maximum resolution for the display connected to the $product graphics card?
+ EOF
 
 id: graphics/modes
 plugin: shell

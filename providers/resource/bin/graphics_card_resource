@@ -1,0 +1,6 @@
+#!/bin/bash
+# graphics_card_resource was done as a script to be able to reuse it in
+# graphics tests that need to be generated per-card.
+udev_resource | filter_templates -w "category=VIDEO" | \
+awk "BEGIN {RS=\"\"; FS=\"\n\"} { print \"index:\", NR; print; print \"\" }"
+

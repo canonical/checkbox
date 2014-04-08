@@ -196,3 +196,11 @@ _description:
  1- Write a job that places a suitably-formatted file in $PLAINBOX_SESSION_SHARE
  2- Update their whitelists to run that job *before* miscellanea/submission-resources
     or the "requirements" resource job.
+
+id: graphics_card
+estimated_duration: 0.05
+plugin: resource
+_description:
+ Generate an entry for each graphics card present in the system.
+command: graphics_card_resource
+

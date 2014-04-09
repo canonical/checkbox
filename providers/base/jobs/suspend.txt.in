@@ -2026,13 +2026,13 @@ _description:
 plugin: user-verify
 id: camera/display_after_suspend
 estimated_duration: 120.0
-depends: camera/detect
+depends: suspend/suspend_advanced
 requires:
  device.category == 'CAPTURE'
 command: camera_test display
 _description:
  PURPOSE:
-     This test will check that the built-in camera works
+     This test will check that the built-in camera works after suspend
  STEPS:
      1. Click on Test to display a video capture from the camera for ten seconds.
  VERIFICATION:
@@ -2041,7 +2041,7 @@ _description:
 plugin: user-verify
 id: camera/still_after_suspend
 estimated_duration: 120.0
-depends: camera/detect
+depends: camera/display_after_suspend
 requires:
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'eog'
@@ -2050,7 +2050,7 @@ requires:
 command: camera_test still
 _description:
  PURPOSE:
-     This test will check that the built-in camera works
+     This test will check that the built-in camera works after suspend
  STEPS:
      1. Click on Test to display a still image from the camera for ten seconds.
  VERIFICATION:
@@ -2059,11 +2059,11 @@ _description:
 plugin: shell
 id: camera/multiple_resolution_after_suspend
 estimated_duration: 1.2
-depends: camera/detect
+depends: camera/still_after_suspend
 requires:
  package.name == 'fswebcam' or package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  device.category == 'CAPTURE'
 command: camera_test resolutions
 _description:
   Takes multiple pictures based on the resolutions supported by the camera and
-  validates their size and that they are of a valid format.
+  validates their size and that they are of a valid format after suspend

@@ -309,7 +309,7 @@ def is_laptop():
 def hybrid_graphics_check(xlog):
     '''Check for Hybrid Graphics'''
     card_id1 = re.compile('.*0300: *(.+):(.+) \(.+\)')
-    card_id2 = re.compile('.*0300: *(.+):(.+)')
+    card_id2 = re.compile('.*03..: *(.+):(.+)')
     cards_dict = {'8086': 'Intel', '10de': 'NVIDIA', '1002': 'AMD'}
     cards = []
     drivers = []

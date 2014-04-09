@@ -22,7 +22,8 @@ _description:
      This test will check that internal speakers work correctly
  STEPS:
      1. Make sure that no external speakers or headphones are connected
-        If testing a desktop, external speakers are allowed
+        When testing a desktop, you can skip this test if there is no
+        internal speaker, we will test the external output later
      2. Click the Test button to play a brief tone on your audio device
  VERIFICATION:
      Did you hear a tone?
@@ -344,7 +345,8 @@ _description:
      This test will check that internal speakers work correctly after suspending 30 times.
  STEPS:
      1. Make sure that no external speakers or headphones are connected
-        If testing a desktop, external speakers are allowed
+        When testing a desktop, you can skip this test if there is no
+        internal speaker, we will test the external output later
      2. Click the Test button to play a brief tone on your audio device
  VERIFICATION:
      Did you hear a tone?

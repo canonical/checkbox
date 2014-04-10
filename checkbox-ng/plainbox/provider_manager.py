@@ -267,13 +267,16 @@ class InstallCommand(ManageCommand):
                 layout, prefix, provider).write(stream))
 
     def _copy_all_executables(self, root, prefix, layout, provider):
+        executable_list = provider.get_all_executables()
+        if not executable_list:
+            return
         dest_map = self._get_dest_map(layout, prefix)
         dest_bin_dir = root + dest_map['bin']
         try:
             os.makedirs(dest_bin_dir, exist_ok=True)
         except IOError:
             pass
-        for executable in provider.get_all_executables():
+        for executable in executable_list:
             shutil.copy(executable, dest_bin_dir)
 
     def _copy_all_data(self, root, prefix, layout):

@@ -38,8 +38,8 @@ class CpuinfoResult:
                 if posixpath.exists(FREQUENCY_FILENAME):
                     value = open(FREQUENCY_FILENAME).read().strip()
                     value = int(value) // 1000
-
-            print("%s: %s" % (key, value))
+            if value:
+                print("%s: %s" % (key, value))
 
 
 def main():

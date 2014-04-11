@@ -82,7 +82,10 @@ class KVMTest(object):
         # Attempt download
         try:
             resp = urllib.request.urlretrieve(image_url, cloud_iso)
-        except (IOError, OSError, urllib.error.HTTPError) as exception:
+        except (IOError,
+                OSError,
+                urllib.error.HTTPError,
+                urllib.error.URLError) as exception:
             logging.error("Failed download of image from %s: %s", image_url, exception)
             return False
 

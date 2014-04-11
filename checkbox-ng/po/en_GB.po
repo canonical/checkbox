@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: plainbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-04-04 18:17+0200\n"
-"PO-Revision-Date: 2014-03-30 20:41+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2014-04-10 10:08+0000\n"
+"Last-Translator: Andi Chandler <Unknown>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-04-05 04:34+0000\n"
+"X-Launchpad-Export-Date: 2014-04-11 05:30+0000\n"
 "X-Generator: Launchpad (build 16976)\n"
 
 #: .././plainbox/impl/_argparse.py:139
@@ -752,6 +752,7 @@ msgstr "where to send data using the selected transport"
 msgid ""
 "comma-separated list of key-value options (k=v) to be passed to the transport"
 msgstr ""
+"comma-separated list of key-value options (k=v) to be passed to the transport"
 
 #: .././plainbox/impl/commands/script.py:59
 msgid "There is no job called {!a}"
@@ -1216,12 +1217,12 @@ msgstr "record.origin.source.job must be this job"
 #: .././plainbox/impl/logging.py:98
 #, python-format
 msgid "Unable to create log directory: %s"
-msgstr ""
+msgstr "Unable to create log directory: %s"
 
 #: .././plainbox/impl/logging.py:99
 #, python-format
 msgid "Reason: %s. All logs will go to console instead."
-msgstr ""
+msgstr "Reason: %s. All logs will go to console instead."
 
 #: .././plainbox/impl/logging.py:110
 #, python-format
@@ -1460,7 +1461,7 @@ msgstr "Cannot define job from record {!r}: {}"
 
 #: .././plainbox/impl/secure/providers/v1.py:136
 msgid "Problem in job definition, field {}: {}"
-msgstr ""
+msgstr "Problem in job definition, field {}: {}"
 
 #: .././plainbox/impl/secure/providers/v1.py:139
 #, python-format
@@ -2180,6 +2181,30 @@ msgid ""
 "    Any of the missing items are silently ignored.\n"
 "    "
 msgstr ""
+"\n"
+"    create a source tarball\n"
+"\n"
+"    This commands creates a source distribution (tarball) of all of the\n"
+"    essential provider files. This command takes no arguments and places "
+"the\n"
+"    resulting tarball in the dist/ directory, relative to the ``manage.py``\n"
+"    file. The tarball name is derived from provider name and version.\n"
+"\n"
+"    @EPILOG@\n"
+"\n"
+"    The items included in the tarball are:\n"
+"\n"
+"    - the manage.py script itself\n"
+"    - the README.md file\n"
+"    - the jobs directory, and everything in it\n"
+"    - the whitelists directory, and everything in it\n"
+"    - the bin directory, and everything in it\n"
+"    - the src directory, and everything in it\n"
+"    - the data directory, and everything in it\n"
+"    - the po directory, and everything in it\n"
+"\n"
+"    Any of the missing items are silently ignored.\n"
+"    "
 
 #. TRANSLATORS: please leave various options (both long and short forms),
 #. environment variables and paths in their original form. Also keep the
@@ -2302,6 +2327,33 @@ msgid ""
 "    environment variable.\n"
 "    "
 msgstr ""
+"\n"
+"    build provider specific executables from source\n"
+"\n"
+"    This command builds provider specific executables from source code.\n"
+"\n"
+"    The actual logic on how that is done is supplied by provider authors as "
+"a\n"
+"    part of setup() call inside this manage.py script, as the build_cmd\n"
+"    keyword argument.\n"
+"\n"
+"    @EPILOG@\n"
+"\n"
+"    PlainBox comes with a pluggable system for doing the right thing so,\n"
+"    hopefully, in most cases, you don't need to do anything. If your src/\n"
+"    directory has a Makefile or .go source files you should be good to go.\n"
+"\n"
+"    If the automatic defaults are somehow unsuitable you need to edit "
+"manage.py\n"
+"    so that it specifies the build command.\n"
+"\n"
+"    IMPORTANT: It is expected that the build command will create binary "
+"files\n"
+"    in the current directory. The build command is executed from within the\n"
+"    'build/bin' subdirectory (which is created automatically). The relative\n"
+"    path of the 'src/' directory is available as the $PLAINBOX_SRC_DIR\n"
+"    environment variable.\n"
+"    "
 
 #. TRANSLATORS: please leave various options (both long and short forms),
 #. environment variables and paths in their original form. Also keep the
@@ -2341,6 +2393,33 @@ msgid ""
 "    )\n"
 "    "
 msgstr ""
+"\n"
+"    clean build results\n"
+"\n"
+"    This command complements the build command and is intended to clean-up\n"
+"    after the build process.\n"
+"\n"
+"    The actual logic on how that is done is supplied by provider authors as "
+"a\n"
+"    part of setup() call inside this manage.py script, as the clean_cmd\n"
+"    keyword argument\n"
+"\n"
+"    @EPILOG@\n"
+"\n"
+"    IMPORTANT: the clean command is executed from the directory with the\n"
+"    'manage.py' script.  The relative path of the src/ directory is "
+"available\n"
+"    as the $PLAINBOX_SRC_DIR environment variable.\n"
+"\n"
+"    For virtually every case, the following command should be sufficient to\n"
+"    clean up all build artifacts. It is also the default command so you "
+"don't\n"
+"    need to specify it explicitly.\n"
+"\n"
+"    setup(\n"
+"       clean_cmd='rm -rf build/bin'\n"
+"    )\n"
+"    "
 
 #. TRANSLATORS: please leave various options (both long and short forms),
 #. environment variables and paths in their original form. Also keep the
@@ -2436,7 +2515,7 @@ msgstr "Errors prevent whitelists from being displayed"
 
 #: .././plainbox/provider_manager.py:835
 msgid "[Executables]"
-msgstr ""
+msgstr "[Executables]"
 
 #. TRANSLATORS: please leave various options (both long and short forms),
 #. environment variables and paths in their original form. Also keep the
@@ -2510,7 +2589,7 @@ msgstr "useless field in this context"
 
 #: .././plainbox/provider_manager.py:914
 msgid "usage of deprecated field"
-msgstr ""
+msgstr "usage of deprecated field"
 
 #. TRANSLATORS: fields are as follows:
 #. 0: filename with job definition

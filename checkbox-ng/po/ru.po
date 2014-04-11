@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: plainbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-04-04 18:17+0200\n"
-"PO-Revision-Date: 2014-04-07 05:39+0000\n"
-"Last-Translator: Checkbox Administrators <Unknown>\n"
+"PO-Revision-Date: 2014-04-10 12:44+0000\n"
+"Last-Translator: Jay ZDLin <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2014-04-08 05:55+0000\n"
+"X-Launchpad-Export-Date: 2014-04-11 05:30+0000\n"
 "X-Generator: Launchpad (build 16976)\n"
 
 #: .././plainbox/impl/_argparse.py:139
@@ -135,7 +135,7 @@ msgstr "запуск отладчика..."
 
 #: .././plainbox/impl/clitools.py:651
 msgid "Unable to find any of the executables {}"
-msgstr ""
+msgstr "Не удалось найти ни один из исполняемых файлов {}"
 
 #: .././plainbox/impl/commands/__init__.py:150
 msgid "provider list and development"
@@ -393,7 +393,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/list.py:80
 msgid "list and describe various objects"
-msgstr ""
+msgstr "вывести список и описание различных объектов"
 
 #: .././plainbox/impl/commands/list.py:83
 msgid "show object attributes"
@@ -401,7 +401,7 @@ msgstr "показать атрибуты объекта"
 
 #: .././plainbox/impl/commands/list.py:86
 msgid "list objects from the specified group"
-msgstr ""
+msgstr "вывести объекты из заданной группы"
 
 #: .././plainbox/impl/commands/logtest.py:40
 msgid "a debug message"
@@ -425,7 +425,7 @@ msgstr "критическое сообщение"
 
 #: .././plainbox/impl/commands/logtest.py:58
 msgid "log messages at various levels"
-msgstr ""
+msgstr "регистрировать сообщения на различных уровнях"
 
 #: .././plainbox/impl/commands/parse.py:77
 msgid "Unable to decode input stream, must be valid UTF-8"
@@ -511,7 +511,7 @@ msgstr "запуск"
 
 #: .././plainbox/impl/commands/run.py:144
 msgid "Previous session run tried to execute: {}"
-msgstr ""
+msgstr "Предыдущая сессия пыталась выполнить: {}"
 
 #: .././plainbox/impl/commands/run.py:149
 msgid "Skipped after resuming execution"
@@ -529,22 +529,22 @@ msgstr ""
 #. someone is using plainbox for job development.
 #: .././plainbox/impl/commands/run.py:175
 msgid "The job database you are currently using is broken"
-msgstr ""
+msgstr "База данных заданий, используемая в настоящий момент, повреждена"
 
 #: .././plainbox/impl/commands/run.py:176
 #, python-brace-format
 msgid "At least two jobs contend for the id {0}"
-msgstr ""
+msgstr "Как минимум два задания претендуют на идентификатор {0}"
 
 #: .././plainbox/impl/commands/run.py:178
 #, python-brace-format
 msgid "First job defined in: {0}"
-msgstr ""
+msgstr "Первое задание определено в: {0}"
 
 #: .././plainbox/impl/commands/run.py:179
 #, python-brace-format
 msgid "Second job defined in: {0}"
-msgstr ""
+msgstr "Второе задание определено в: {0}"
 
 #: .././plainbox/impl/commands/run.py:195
 msgid "[ Authentication ]"
@@ -560,7 +560,7 @@ msgstr "Сохранение результатов в {}"
 
 #: .././plainbox/impl/commands/run.py:255
 msgid "Select an outcome or an action: "
-msgstr ""
+msgstr "Выберите результат или действие: "
 
 #: .././plainbox/impl/commands/run.py:260
 #: .././plainbox/impl/commands/run.py:274
@@ -582,31 +582,37 @@ msgstr "Введите ваши комментарии:\n"
 
 #: .././plainbox/impl/commands/run.py:281
 msgid "[ Warning ]"
-msgstr ""
+msgstr "[ Предупреждение ]"
 
 #: .././plainbox/impl/commands/run.py:282
 msgid "There were some problems with the selected jobs"
-msgstr ""
+msgstr "Возникли проблемы с выбранными заданиями"
 
 #: .././plainbox/impl/commands/run.py:285
 msgid "Problematic jobs will not be considered"
-msgstr ""
+msgstr "Проблемные задания не будут рассматриваться"
 
 #: .././plainbox/impl/commands/run.py:289
 msgid "Estimated duration is {:.2f} for automated jobs."
 msgstr ""
+"Расчётная продолжительность автоматических заданий составляет {:.2f}."
 
 #: .././plainbox/impl/commands/run.py:293
 msgid "Estimated duration cannot be determined for automated jobs."
 msgstr ""
+"Расчётная продолжительность не может быть определена для автоматических "
+"заданий."
 
 #: .././plainbox/impl/commands/run.py:295
 msgid "Estimated duration is {:.2f} for manual jobs."
 msgstr ""
+"Расчётная продолжительность заданий, выполняемых вручную, составляет {:.2f}."
 
 #: .././plainbox/impl/commands/run.py:299
 msgid "Estimated duration cannot be determined for manual jobs."
 msgstr ""
+"Расчётная продолжительность не может быть определена для заданий, "
+"выполняемых вручную."
 
 #. TODO: run all resource jobs concurrently with multiprocessing
 #. TODO: make local job discovery nicer, it would be best if
@@ -620,12 +626,12 @@ msgstr ""
 #: .././plainbox/impl/commands/run.py:336
 #, python-format
 msgid "Job id: %s"
-msgstr ""
+msgstr "Идентификатор задания: %s"
 
 #: .././plainbox/impl/commands/run.py:337
 #, python-format
 msgid "Plugin: %s"
-msgstr ""
+msgstr "Модуль: %s"
 
 #: .././plainbox/impl/commands/run.py:338
 #, python-format
@@ -645,7 +651,7 @@ msgstr ""
 #: .././plainbox/impl/commands/run.py:343
 #, python-format
 msgid "Command: %r"
-msgstr ""
+msgstr "Команда: %r"
 
 #: .././plainbox/impl/commands/run.py:344
 #, python-format
@@ -655,7 +661,7 @@ msgstr ""
 #: .././plainbox/impl/commands/run.py:345
 #, python-format
 msgid "Readiness: %s"
-msgstr ""
+msgstr "Готовность: %s"
 
 #: .././plainbox/impl/commands/run.py:347
 msgid "Running... (output in {}.*)"
@@ -667,15 +673,15 @@ msgstr ""
 
 #: .././plainbox/impl/commands/run.py:360
 msgid "Comments: {}"
-msgstr ""
+msgstr "Комментарии: {}"
 
 #: .././plainbox/impl/commands/run.py:380
 msgid "run a test job"
-msgstr ""
+msgstr "запустить тестовое здание"
 
 #: .././plainbox/impl/commands/run.py:382
 msgid "user interface options"
-msgstr ""
+msgstr "параметры пользовательского интерфейса"
 
 #: .././plainbox/impl/commands/run.py:385
 msgid "skip tests that require interactivity"

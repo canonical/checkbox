@@ -1,7 +1,7 @@
 plugin: shell
 id: usb/detect
 estimated_duration: 1.0
-command: lsusb | sed 's/.*\(ID .*\)/\1/' | head -n 4 || echo "No USB devices were detected" >&2
+command: set -o pipefail; lsusb 2>/dev/null | sed 's/.*\(ID .*\)/\1/' | head -n 4 || echo "No USB devices were detected" >&2
 _description: Detects and shows USB devices attached to this system.
 
 plugin: user-interact-verify

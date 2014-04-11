@@ -429,7 +429,7 @@ def interface_test(args):
 
     # Determine whether to use the default or user-supplied config
     # file name.
-    DEFAULT_CFG = "/etc/xdg/canonical-certification.conf"
+    DEFAULT_CFG = "/etc/checkbox.d/network.cfg"
     if not "config" in vars(args):
         config_filename = DEFAULT_CFG
     else:
@@ -449,8 +449,7 @@ def interface_test(args):
     # Validate that we got reasonable values
     if not test_target or "example.com" in test_target:
         # Default values found in config file
-        logging.error("No target address found. Please check config file: %s" %
-                      config_filename)
+        logging.error("Please supply target via: %s", config_filename)
         sys.exit(1)
 
     # Testing begins here!

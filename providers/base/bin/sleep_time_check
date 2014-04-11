@@ -21,7 +21,7 @@ def main():
                         action='store',
                         dest='resume_threshold',
                         type=float,
-                        default=3.00,
+                        default=5.00,
                         help=('The max time a system should have taken to '
                               'resume from a sleep state. (Default: '
                               '%(default)s)'))

@@ -7,7 +7,22 @@ requires:
     mobilebroadband.gsm == 'supported'
 user: root
 environ: GSM_CONN_NAME GSM_APN GSM_USERNAME GSM_PASSWORD
-command: trap "nmcli con delete id $GSM_CONN_NAME" EXIT; create_connection mobilebroadband gsm `if [ ${GSM_APN} ]; then echo "--apn=$GSM_APN"; fi` `if [ ${GSM_CONN_NAME} ]; then echo "--name=$GSM_CONN_NAME"; fi` `if [ ${GSM_USERNAME} ]; then echo "--username=$GSM_USERNAME"; fi` `if [ ${GSM_PASSWORD} ]; then echo "--password=$GSM_PASSWORD"; fi` && curl http://start.ubuntu.com/connectivity-check.html --interface `nmcli dev status | awk '/gsm/ {print $1}'`; if [ "`nmcli dev status | awk '/gsm/ {print $3}'`" == "connected" ]; then nmcli con down id `[ ${GSM_CONN_NAME} ] && echo "$GSM_CONN_NAME" || echo "MobileBB"`; fi
+command:
+  trap "nmcli con delete id $GSM_CONN_NAME" EXIT
+  create_connection mobilebroadband gsm \
+  `[ -n "${GSM_APN}" ] && echo "--apn=$GSM_APN"` \
+  `[ -n "${GSM_CONN_NAME}" ] &&  echo "--name=$GSM_CONN_NAME"` \
+  `[ -n "${GSM_USERNAME}" ] && echo "--username=$GSM_USERNAME"` \
+  `[ -n "${GSM_PASSWORD}" ] && echo "--password=$GSM_PASSWORD"` || exit 1
+  INTERFACE=`nmcli -t -f GENERAL -m tabular dev list |grep gsm |cut -d ":" -f 13`
+  echo "connected GSM interface seems to be $INTERFACE"
+  [ -z $INTERFACE ] && exit 1
+  curl http://start.ubuntu.com/connectivity-check.html --interface $INTERFACE
+  EXIT_CODE=$?
+  if [ "`nmcli dev status | awk '/gsm/ {print $3}'`" == "connected" ]; then
+          nmcli con down id `[ ${GSM_CONN_NAME} ] && echo "$GSM_CONN_NAME" || echo "MobileBB"`
+  fi
+  exit $EXIT_CODE
 _description: Creates a mobile broadband connection for a GSM based modem and checks the connection to ensure it's working. 
 
 plugin: shell
@@ -19,5 +34,19 @@ requires:
     mobilebroadband.cdma == 'supported'
 user: root
 environ: CDMA_CONN_NAME CDMA_USERNAME CDMA_PASSWORD
-command: trap "nmcli con delete id $CDMA_CONN_NAME" EXIT; create_connection mobilebroadband cdma `if [ ${CDMA_CONN_NAME} ]; then echo "--name=$CDMA_CONN_NAME"; fi` `if [ ${CDMA_USERNAME} ]; then echo "--username=$CDMA_USERNAME"; fi` `if [ ${CDMA_PASSWORD} ]; then echo "--password=$CDMA_PASSWORD"; fi` && curl http://start.ubuntu.com/connectivity-check.html --interface `nmcli dev status | awk '/gsm/ {print $1}'`; if [ "`nmcli dev status | awk '/gsm/ {print $3}'`" == "connected" ]; then nmcli con down id `[ ${CDMA_CONN_NAME} ] && echo "$CDMA_CONN_NAME" || echo "MobileBB"`; fi
+command:
+  trap "nmcli con delete id $CDMA_CONN_NAME" EXIT
+  create_connection mobilebroadband cdma \
+  `[ -n "${CDMA_CONN_NAME}" ] &&  echo "--name=$CDMA_CONN_NAME"` \
+  `[ -n "${CDMA_USERNAME}" ] && echo "--username=$CDMA_USERNAME"` \
+  `[ -n "${CDMA_PASSWORD}" ] && echo "--password=$CDMA_PASSWORD"` || exit 1
+  INTERFACE=`nmcli -t -f GENERAL -m tabular dev list |grep cdma |cut -d ":" -f 13`
+  echo "connected CDMA interface seems to be $INTERFACE"
+  [ -z $INTERFACE ] && exit 1
+  curl http://start.ubuntu.com/connectivity-check.html --interface $INTERFACE
+  EXIT_CODE=$?
+  if [ "`nmcli dev status | awk '/cdma/ {print $3}'`" == "connected" ]; then
+          nmcli con down id `[ ${CDMA_CONN_NAME} ] && echo "$CDMA_CONN_NAME" || echo "MobileBB"`
+  fi
+  exit $EXIT_CODE
 _description: Creates a mobile broadband connection for a CDMA based modem and checks the connection to ensure it's working.

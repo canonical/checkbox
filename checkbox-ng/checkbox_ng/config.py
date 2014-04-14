@@ -22,6 +22,7 @@
 =====================================================
 """
 
+from gettext import gettext as _
 import os
 import itertools
 
@@ -39,22 +40,22 @@ class CheckBoxConfig(PlainBoxConfig):
 
     secure_id = config.Variable(
         section="sru",
-        help_text="Secure ID of the system",
+        help_text=_("Secure ID of the system"),
         validator_list=[config.PatternValidator(SECURE_ID_PATTERN)])
 
     # TODO: Add a validator to check if URL looks fine
     c3_url = config.Variable(
         section="sru",
-        help_text="URL of the certification website",
+        help_text=_("URL of the certification website"),
         default="https://certification.canonical.com/submissions/submit/")
 
     fallback_file = config.Variable(
         section="sru",
-        help_text="Location of the fallback file")
+        help_text=_("Location of the fallback file"))
 
     whitelist = config.Variable(
         section="sru",
-        help_text="Optional whitelist with which to run SRU testing")
+        help_text=_("Optional whitelist with which to run SRU testing"))
 
     class Meta(PlainBoxConfig.Meta):
         # TODO: properly depend on xdg and use real code that also handles

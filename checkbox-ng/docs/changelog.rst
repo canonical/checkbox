@@ -8,6 +8,15 @@ ChangeLog
 
 .. _version_0_5:
 
+PlainBox 0.5.4
+^^^^^^^^^^^^^^
+
+This is a maintenance release of the 0.5 series.
+
+Bugs fixed in this release are assigned to the following milestone:
+
+* Bugfixes: https://launchpad.net/plainbox/+milestone/0.5.4
+
 PlainBox 0.5.3
 ^^^^^^^^^^^^^^
 

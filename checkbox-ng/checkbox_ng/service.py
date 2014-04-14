@@ -812,7 +812,7 @@ class SessionWrapper(PlainBoxObjectWrapper):
 
     def add_state(self, state):
         """
-        Add a job state representatio to DBus.
+        Add a job state representation to DBus.
 
         :param state:
             Job state to add to the bus

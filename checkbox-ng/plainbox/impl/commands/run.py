@@ -257,21 +257,35 @@ class RunInvocation(CheckBoxInvocationMixIn):
             allowed_outcome = [IJobResult.OUTCOME_PASS,
                                IJobResult.OUTCOME_FAIL,
                                IJobResult.OUTCOME_SKIP]
-        allowed_actions = [_('comments')]
+        allowed_actions = {
+            _('comments'): 'set-comments',
+        }
+        if IJobResult.OUTCOME_PASS in allowed_outcome:
+            allowed_actions[_("pass")] = "set-pass"
+        if IJobResult.OUTCOME_FAIL in allowed_outcome:
+            allowed_actions[_("fail")] = "set-fail"
+        if IJobResult.OUTCOME_SKIP in allowed_outcome:
+            allowed_actions[_("skip")] = "set-skip"
         if job.command:
-            allowed_actions.append(_('test'))
+            allowed_actions[_("test")] = "run-test"
         result['outcome'] = IJobResult.OUTCOME_UNDECIDED
         while result['outcome'] not in allowed_outcome:
             print(_("Allowed answers are: {}").format(
-                ", ".join(allowed_outcome + allowed_actions)))
+                ", ".join(allowed_actions.keys())))
             choice = input(prompt)
-            if choice in allowed_outcome:
-                result['outcome'] = choice
-                break
-            elif choice == _('test'):
-                (result['return_code'],
-                 result['io_log_filename']) = runner._run_command(job, config)
-            elif choice == _('comments'):
+            action = allowed_actions.get(choice)
+            if action is None:
+                continue
+            elif action == 'set-pass':
+                result['outcome'] = IJobResult.OUTCOME_PASS
+            elif action == 'set-fail':
+                result['outcome'] = IJobResult.OUTCOME_FAIL
+            elif action == 'set-skip':
+                result['outcome'] = IJobResult.OUTCOME_SKIP
+            elif action == 'run-test':
+                (result['return_code'], result['io_log_filename']) = (
+                    runner._run_command(job, config))
+            elif action == 'set-comments':
                 result['comments'] = input(_('Please enter your comments:\n'))
         return DiskJobResult(result)
 

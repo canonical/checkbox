@@ -1,0 +1,23 @@
+[encoding: UTF-8]
+./contrib/dbus-mini-client.py
+./checkbox_ng/certification.py
+./checkbox_ng/launchpad.py
+./checkbox_ng/tests.py
+./checkbox_ng/commands/certification.py
+./checkbox_ng/commands/test_sru.py
+./checkbox_ng/commands/test_cli.py
+./checkbox_ng/commands/sru.py
+./checkbox_ng/commands/__init__.py
+./checkbox_ng/commands/service.py
+./checkbox_ng/commands/cli.py
+./checkbox_ng/test_certification.py
+./checkbox_ng/config.py
+./checkbox_ng/dbus_ex/__init__.py
+./checkbox_ng/dbus_ex/service.py
+./checkbox_ng/dbus_ex/test_dbus.py
+./checkbox_ng/dbus_ex/decorators.py
+./checkbox_ng/__init__.py
+./checkbox_ng/service.py
+./checkbox_ng/test_config.py
+./checkbox_ng/main.py
+./checkbox_ng/test_main.py

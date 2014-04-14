@@ -833,6 +833,7 @@ class CliCommand(PlainBoxCommand, CheckBoxCommandMixIn):
     """
     Command for running tests using the command line UI.
     """
+    gettext_domain = "checkbox-ng"
 
     def __init__(self, provider_list, config, settings):
         self.provider_list = provider_list

@@ -114,6 +114,8 @@ class ServiceCommand(PlainBoxCommand):
     DBus service for PlainBox
     """
 
+    gettext_domain = "checkbox-ng"
+
     # XXX: Maybe drop provider / config and handle them differently
     def __init__(self, provider_list, config):
         self.provider_list = provider_list

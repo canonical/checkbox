@@ -198,6 +198,8 @@ class SRUCommand(PlainBoxCommand, CheckBoxCommandMixIn):
     plainbox core on realistic workloads.
     """
 
+    gettext_domain = "checkbox-ng"
+
     def __init__(self, provider_list, config):
         self.provider_list = provider_list
         self.config = config

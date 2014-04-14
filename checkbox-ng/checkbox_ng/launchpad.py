@@ -58,13 +58,6 @@ class LaunchpadTransport(TransportBase):
        xml exporter.
    """
 
-    def __init__(self, where, options):
-        """
-        Initialize the Launchpad Transport.
-        """
-        super().__init__(where, options)
-
-
     def _get_resource_attr(self, session_state, resource, attr):
         resource_result = session_state.resource_map.get(resource)
         if not resource_result:

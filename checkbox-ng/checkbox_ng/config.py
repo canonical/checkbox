@@ -23,14 +23,14 @@
 """
 
 from gettext import gettext as _
-import os
 import itertools
+import os
 
 from plainbox.impl.applogic import PlainBoxConfig
 from plainbox.impl.secure import config
 
 
-SECURE_ID_PATTERN =r"^[a-zA-Z0-9]{15}$|^[a-zA-Z0-9]{18}$"
+SECURE_ID_PATTERN = r"^[a-zA-Z0-9]{15}$|^[a-zA-Z0-9]{18}$"
 
 
 class CheckBoxConfig(PlainBoxConfig):

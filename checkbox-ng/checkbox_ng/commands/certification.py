@@ -26,6 +26,7 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
+from gettext import gettext as _
 from logging import getLogger
 
 from plainbox.impl.commands.check_config import CheckConfigInvocation
@@ -55,15 +56,16 @@ class CertificationInvocation(CliInvocation):
                 again = False
             while again:
                 if self.ask_user(
-                    "\nSubmit results to certification.canonical.com?",
-                    ('y', 'n')
-                ).lower() == "y":
+                    _("\nSubmit results to certification.canonical.com?"),
+                    # TRANSLATORS: These are meant to stand for yes and no
+                    (_('y'), _('n'))
+                ).lower() == _("y"):
                     try:
-                        self.config.secure_id = input("Secure ID: ")
+                        self.config.secure_id = input(_("Secure ID: "))
                     except ValidationError:
                         print(
-                            "ERROR: Secure ID must be 15 or 18-character"
-                            " alphanumeric string")
+                            _("ERROR: Secure ID must be 15 or 18-character"
+                              " alphanumeric string"))
                     else:
                         again = False
                         self.submit_results(session)
@@ -74,8 +76,9 @@ class CertificationInvocation(CliInvocation):
             self.submit_results(session)
 
     def submit_results(self, session):
-        print("Submitting results to {0} for secure_id {1}".format(
-              self.config.c3_url, self.config.secure_id))
+        # TRANSLATORS: Do not translate the {} format markers.
+        print(_("Submitting results to {0} for secure_id {1})").format(
+            self.config.c3_url, self.config.secure_id))
         options_string = "secure_id={0}".format(self.config.secure_id)
         # Create the transport object
         try:
@@ -89,21 +92,28 @@ class CertificationInvocation(CliInvocation):
                 # Send the data, reading from the fallback file
                 result = transport.send(stream, self.config)
                 if 'url' in result:
-                    print("Successfully sent, submission status at {0}".format(
-                          result['url']))
+                    # TRANSLATORS: Do not translate the {} format marker.
+                    print(_("Successfully sent, submission status"
+                            " at {0}").format(result['url']))
                 else:
-                    print("Successfully sent, server response: {0}".format(
-                          result))
+                    # TRANSLATORS: Do not translate the {} format marker.
+                    print(_("Successfully sent, server response"
+                            ": {0}").format(result))
 
             except InvalidSchema as exc:
-                print("Invalid destination URL: {0}".format(exc))
+                # TRANSLATORS: Do not translate the {} format marker.
+                print(_("Invalid destination URL: {0}").format(exc))
             except ConnectionError as exc:
-                print("Unable to connect to destination URL: {0}".format(exc))
+                # TRANSLATORS: Do not translate the {} format marker.
+                print(_("Unable to connect to destination"
+                        " URL: {0}").format(exc))
             except HTTPError as exc:
-                print(("Server returned an error when "
-                       "receiving or processing: {0}").format(exc))
+                # TRANSLATORS: Do not translate the {} format marker.
+                print(_("Server returned an error when "
+                        "receiving or processing: {0}").format(exc))
             except IOError as exc:
-                print("Problem reading a file: {0}".format(exc))
+                # TRANSLATORS: Do not translate the {} format marker.
+                print(_("Problem reading a file: {0}").format(exc))
 
 
 class CertificationCommand(CliCommand):
@@ -121,7 +131,7 @@ class CertificationCommand(CliCommand):
             if ns.c3_url:
                 self.config.c3_url = ns.c3_url
         except ValidationError as exc:
-            print("Configuration problems prevent running tests")
+            print(_("Configuration problems prevent running tests"))
             print(exc)
             return 1
         # Run check-config, if requested
@@ -138,11 +148,11 @@ class CertificationCommand(CliCommand):
         parser.add_argument(
             "--check-config",
             action="store_true",
-            help="Run check-config")
+            help=_("run check-config"))
         parser.add_argument(
             '--not-interactive', action='store_true',
-            help="Skip tests that require interactivity")
-        group = parser.add_argument_group("certification-specific options")
+            help=_("skip tests that require interactivity"))
+        group = parser.add_argument_group(_("certification-specific options"))
         # Set defaults from based on values from the config file
         group.set_defaults(c3_url=self.config.c3_url)
         if self.config.secure_id is not Unset:
@@ -150,21 +160,24 @@ class CertificationCommand(CliCommand):
         group.add_argument(
             '--secure-id', metavar="SECURE-ID",
             action='store',
-            help=("Associate submission with a machine using this"
-                  " SECURE-ID (%(default)s)"))
+            # TRANSLATORS: Do not translate %(default)s
+            help=(_("associate submission with a machine using this"
+                    " SECURE-ID (%(default)s)")))
         group.add_argument(
             '--destination', metavar="URL",
             dest='c3_url',
             action='store',
-            help=("POST the test report XML to this URL"
-                  " (%(default)s)"))
+            # TRANSLATORS: Do not translate %(default)s
+            help=(_("POST the test report XML to this URL"
+                    " (%(default)s)")))
         group.add_argument(
             '--staging',
             dest='c3_url',
             action='store_const',
             const='https://certification.staging.canonical.com'
                   '/submissions/submit/',
-            help='Override --destination to use the staging certification '
-                 'website')
+            # TRANSLATORS: Do not translate --destination
+            help=_('override --destination to use the staging certification '
+                   'website'))
         # Call enhance_parser from CheckBoxCommandMixIn
         self.enhance_parser(parser)

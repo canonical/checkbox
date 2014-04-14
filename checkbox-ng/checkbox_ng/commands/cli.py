@@ -62,7 +62,6 @@ from plainbox.vendor.textland import EVENT_KEYBOARD
 from plainbox.vendor.textland import EVENT_RESIZE
 from plainbox.vendor.textland import Event
 from plainbox.vendor.textland import IApplication
-from plainbox.vendor.textland import KeyboardData
 from plainbox.vendor.textland import Size
 from plainbox.vendor.textland import TextImage
 from plainbox.vendor.textland import get_display

@@ -23,6 +23,7 @@
 
 """
 
+from gettext import gettext as _
 import logging
 import os
 
@@ -76,37 +77,38 @@ class ServiceInvocation:
 
     def run(self):
         bus, loop = connect_to_session_bus()
-        logger.info("Setting up DBus objects...")
+        logger.info(_("Setting up DBus objects..."))
         session_list = []  # TODO: load sessions
-        logger.debug("Constructing Service object")
+        logger.debug(_("Constructing Service object"))
         service_obj = Service(self.provider_list, session_list, self.config)
-        logger.debug("Constructing ServiceWrapper")
+        logger.debug(_("Constructing ServiceWrapper"))
         service_wrp = ServiceWrapper(service_obj, on_exit=lambda: loop.quit())
-        logger.info("Publishing all objects on DBus")
+        logger.info(_("Publishing all objects on DBus"))
         service_wrp.publish_related_objects(bus)
-        logger.info("Publishing all managed objects (events should fire there)")
+        logger.info(
+            _("Publishing all managed objects (events should fire there)"))
         service_wrp.publish_managed_objects()
-        logger.debug("Attempting to claim bus name: %s", self.ns.bus_name)
+        logger.debug(_("Attempting to claim bus name: %s"), self.ns.bus_name)
         bus_name = BusName(self.ns.bus_name, bus)
         logger.info(
-            "PlainBox DBus service ready, claimed name: %s",
+            _("PlainBox DBus service ready, claimed name: %s"),
             bus_name.get_name())
         try:
             loop.run()
         except KeyboardInterrupt:
-            logger.warning((
+            logger.warning(_(
                 "Main loop interrupted!"
                 " It is recommended to call the Exit() method on the"
                 " exported service object instead"))
         finally:
-            logger.debug("Releasing %s", bus_name)
+            logger.debug(_("Releasing %s"), bus_name)
             # XXX: ugly but that's how one can reliably release a bus name
             del bus_name
             # Remove objects from the bus
             service_wrp.remove_from_connection()
-            logger.debug("Closing %s", bus)
+            logger.debug(_("Closing %s"), bus)
             bus.close()
-            logger.debug("Main loop terminated, exiting...")
+            logger.debug(_("Main loop terminated, exiting..."))
 
 
 class ServiceCommand(PlainBoxCommand):
@@ -125,9 +127,9 @@ class ServiceCommand(PlainBoxCommand):
         return ServiceInvocation(self.provider_list, self.config, ns).run()
 
     def register_parser(self, subparsers):
-        parser = subparsers.add_parser("service", help="spawn dbus service")
+        parser = subparsers.add_parser("service", help=_("spawn dbus service"))
         parser.add_argument(
             '--bus-name', action="store",
             default="com.canonical.certification.PlainBox1",
-            help="Use the specified DBus bus name")
+            help=_("Use the specified DBus bus name"))
         parser.set_defaults(command=self)

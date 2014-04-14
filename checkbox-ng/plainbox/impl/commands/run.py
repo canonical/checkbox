@@ -130,9 +130,12 @@ class RunInvocation(CheckBoxInvocationMixIn):
             return False
 
     def ask_for_resume_action(self):
-        return self.ask_user(
-            _("What do you want to do with that job?"),
-            (_('skip'), _('fail'), _('run')))
+        try:
+            return self.ask_user(
+                _("What do you want to do with that job?"),
+                (_('skip'), _('fail'), _('run')))
+        except EOFError:
+            return _('skip')
 
     def ask_user(self, prompt, allowed):
         answer = None

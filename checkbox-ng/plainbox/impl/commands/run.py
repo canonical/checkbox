@@ -122,9 +122,12 @@ class RunInvocation(CheckBoxInvocationMixIn):
 
     def ask_for_resume(self):
         # TODO: use proper APIs for yes-no questions
-        return self.ask_user(
-            _("Do you want to resume the previous session?"), ('y', 'n')
-        ).lower() == "y"
+        try:
+            return self.ask_user(
+                _("Do you want to resume the previous session?"), ('y', 'n')
+            ).lower() == "y"
+        except EOFError:
+            return False
 
     def ask_for_resume_action(self):
         return self.ask_user(

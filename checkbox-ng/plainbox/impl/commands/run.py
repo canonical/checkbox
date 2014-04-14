@@ -328,9 +328,10 @@ class RunInvocation(CheckBoxInvocationMixIn):
 
     def _run_single_job_with_session(self, ns, session, runner, job):
         print("[ {} ]".format(job.id).center(80, '-'))
-        if job.description is not None:
-            print(job.description)
-            print("^" * len(job.description.splitlines()[-1]))
+        description = job.tr_description()
+        if description is not None:
+            print(description)
+            print("^" * len(description.splitlines()[-1]))
             print()
         job_state = session.job_state_map[job.id]
         logger.debug(_("Job id: %s"), job.id)

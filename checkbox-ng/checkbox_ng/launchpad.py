@@ -118,25 +118,24 @@ class LaunchpadTransport(TransportBase):
         """ Sends data to the specified server.
 
         :param data:
-            Data containing the xml dump to be sent to the server. This
-            can be either bytes or a file-like object (BytesIO works fine too).
-            If this is a file-like object, it will be read and streamed "on
-            the fly".
-
+            Data containing the xml dump to be sent to the server. This can be
+            either bytes or a file-like object (BytesIO works fine too).  If
+            this is a file-like object, it will be read and streamed "on the
+            fly".
         :param config:
-             optional PlainBoxConfig object. If http_proxy and https_proxy
-             values are set in this config object, they will be used to send
-             data via the specified protocols. Note that the transport also
-             honors the http_proxy and https_proxy environment variables.
-             Proxy string format is http://[user:password@]<proxy-ip>:port
-
+            An optional PlainBoxConfig object. If http_proxy and https_proxy
+            values are set in this config object, they will be used to send
+            data via the specified protocols. Note that the transport also
+            honors the http_proxy and https_proxy environment variables.
+            Proxy string format is http://[user:password@]<proxy-ip>:port
         :param session_state:
-
-        :returns: a dictionary with responses from the server if submission
-            was successful.
-
-        :raises ValueError: If no session state was provided.
-        :raises TransportError: 
+            ?
+        :returns:
+            A dictionary with responses from the server if submission was
+            successful.
+        :raises ValueError:
+            If no session state was provided.
+        :raises TransportError:
             - If sending timed out.
             - If connection failed outright.
             - If the server returned

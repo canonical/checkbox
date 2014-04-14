@@ -23,6 +23,7 @@
 """
 
 import logging
+import os
 import sys
 
 from plainbox.impl.commands import PlainBoxToolBase
@@ -109,6 +110,12 @@ class CheckBoxNGTool(PlainBoxToolBase):
     @classmethod
     def get_config_cls(cls):
         return CheckBoxConfig
+
+    def get_gettext_domain(self):
+        return "checkbox-ng"
+
+    def get_locale_dir(self):
+        return os.getenv("CHECKBOX_NG_LOCALE_DIR", None)
 
     def add_subcommands(self, subparsers):
         SRUCommand(

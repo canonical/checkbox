@@ -272,8 +272,13 @@ class RunInvocation(CheckBoxInvocationMixIn):
         while result['outcome'] not in allowed_outcome:
             print(_("Allowed answers are: {}").format(
                 ", ".join(allowed_actions.keys())))
-            choice = input(prompt)
-            action = allowed_actions.get(choice)
+            try:
+                choice = input(prompt)
+            except EOFError:
+                result['outcome'] = IJobResult.OUTCOME_SKIP
+                break
+            else:
+                action = allowed_actions.get(choice)
             if action is None:
                 continue
             elif action == 'set-pass':

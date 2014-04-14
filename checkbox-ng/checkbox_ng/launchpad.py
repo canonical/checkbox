@@ -70,12 +70,12 @@ class LaunchpadTransport(TransportBase):
     def _get_resource_attr(self, session_state, resource, attr):
         resource_result = session_state.resource_map.get(resource)
         if not resource_result:
-            raise InvalidSubmissionDataError("Cannot get {} "
-                "resource job".format(resource))
+            raise InvalidSubmissionDataError(
+                _("Cannot get {0} resource job").format(resource))
         attr_value = getattr(resource_result[0], attr)
         if attr_value is None:
-            raise InvalidSubmissionDataError("{} has no attribute "
-                "{}".format(resource, attr))
+            raise InvalidSubmissionDataError(
+                _("{0} has no attribute {1}").format(resource, attr))
         return attr_value
 
     def _get_launchpad_form_fields(self, session_state):
@@ -99,7 +99,8 @@ class LaunchpadTransport(TransportBase):
         dmi_resources = session_state.resource_map.get(
             '2013.com.canonical.certification::dmi')
         if dmi_resources is None:
-            raise InvalidSubmissionDataError("barf")
+            raise InvalidSubmissionDataError(
+                _("DMI resources not found"))
         system_id = ""
         for resource in dmi_resources:
             if resource.category == 'CHASSIS':
@@ -112,7 +113,7 @@ class LaunchpadTransport(TransportBase):
                     fingerprint.update(field.encode('utf-8'))
                 system_id = fingerprint.hexdigest()
         if not system_id:
-            raise InvalidSubmissionDataError("puke")         
+            raise InvalidSubmissionDataError(_("System ID not found"))
         form_fields['field.system'] = system_id
         fingerprint = hashlib.md5()
         fingerprint.update(system_id.encode('utf-8'))
@@ -199,8 +200,8 @@ class LaunchpadTransport(TransportBase):
                 response.raise_for_status()
             except requests.exceptions.RequestException as exc:
                 raise TransportError(str(exc))
-            logger.debug("Success! Server said %s", response.text)
-            status = _('The submission was uploaded to Launchpad succesfully.')
+            logger.debug(_("Success! Server said %s"), response.text)
+            status = _('The submission was uploaded to Launchpad successfully')
             if (response.headers['x-launchpad-hwdb-submission'] !=
                 'OK data stored'):
                 status = response.headers['x-launchpad-hwdb-submission']

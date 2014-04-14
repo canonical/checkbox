@@ -101,6 +101,7 @@ suspend/network_before_suspend
 suspend/memory_before_suspend
 suspend/suspend_advanced_auto
 suspend/suspend-single-log-check
+suspend/suspend-single-log-attach
 suspend/audio_after_suspend_auto
 suspend/network_resume_time_auto
 suspend/wifi_resume_time_auto

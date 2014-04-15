@@ -52,6 +52,11 @@ class CpuinfoParser:
                 if key.endswith("Bogo"):
                     key = "bogomips"
 
+                # Handle version on ppc
+                if self.machine[:3] == "ppc" and key == 'revision':
+                    value, version_value = value.split("(", 1)
+                    attributes["version"] = version_value[:-1]
+
                 attributes[key] = value
 
         if attributes:
@@ -117,7 +122,10 @@ class CpuinfoParser:
             ("ppc64", "ppc64le", "ppc",): {
                 "type": "platform",
                 "model": "cpu",
-                "model_version": "revision",
+                "model_number": "model",
+                "model_version": "version",
+                "model_revision": "revision",
+                "other": "firmware",
                 "speed": "clock"},
             ("sparc64", "sparc",): {
                 "count": "ncpus probed",
@@ -166,6 +174,11 @@ class CpuinfoParser:
         # Make sure speed and bogomips are integers    
         processor["speed"] = int(round(float(processor["speed"])) - 1)
         processor["bogomips"] = int(round(float(processor["bogomips"])))
+
+        # Adjust other for ppc.  Firmware is empty for VM.
+        if machine[:3] == "ppc" and processor["model_number"][13:-1] == \
+                "emulated by qemu":
+            processor["other"] = processor["model_number"][13:-1]
 
         # Adjust count
         try:

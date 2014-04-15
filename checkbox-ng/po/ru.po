@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: plainbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-04-04 18:17+0200\n"
-"PO-Revision-Date: 2014-04-10 12:44+0000\n"
+"PO-Revision-Date: 2014-04-14 07:22+0000\n"
 "Last-Translator: Jay ZDLin <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2014-04-11 05:30+0000\n"
+"X-Launchpad-Export-Date: 2014-04-15 05:35+0000\n"
 "X-Generator: Launchpad (build 16976)\n"
 
 #: .././plainbox/impl/_argparse.py:139
@@ -143,7 +143,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/__init__.py:157
 msgid "which providers to load"
-msgstr ""
+msgstr "каких провайдеров загружать"
 
 #: .././plainbox/impl/commands/analyze.py:84
 msgid "[Desired Job List]"
@@ -175,7 +175,7 @@ msgstr "Выбранные задания: {}"
 
 #: .././plainbox/impl/commands/analyze.py:138
 msgid "[Dependency Report]"
-msgstr ""
+msgstr "[Отчёт о зависимостях]"
 
 #: .././plainbox/impl/commands/analyze.py:143
 msgid "Selected jobs have no dependency problems"
@@ -229,7 +229,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/analyze.py:200
 msgid "Job defined in {}"
-msgstr ""
+msgstr "Задание, определённое в {}"
 
 #: .././plainbox/impl/commands/analyze.py:202
 msgid "No problems found"
@@ -241,7 +241,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/analyze.py:239
 msgid "analyze how selected jobs would be executed"
-msgstr ""
+msgstr "анализ выполнения выбранных заданий"
 
 #: .././plainbox/impl/commands/analyze.py:244
 msgid "run all selected local jobs, required to see true data"
@@ -279,7 +279,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/analyze.py:273
 msgid "when coupled with -v, only problematic jobs will be listed"
-msgstr ""
+msgstr "при наличии параметра -v будут перечислены только проблемные задания"
 
 #: .././plainbox/impl/commands/analyze.py:276
 msgid "print desired job list"
@@ -321,7 +321,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/check_config.py:92
 msgid "check and display plainbox configuration"
-msgstr ""
+msgstr "проверить и отобразить конфигурацию plainbox"
 
 #: .././plainbox/impl/commands/checkbox.py:89
 #, python-format
@@ -369,15 +369,15 @@ msgstr "загрузить белый список, содержащий шаб�
 
 #: .././plainbox/impl/commands/crash.py:45
 msgid "crashing as requested"
-msgstr ""
+msgstr "сбой согласно требованию"
 
 #: .././plainbox/impl/commands/crash.py:61
 msgid "crash the application"
-msgstr ""
+msgstr "вызвать сбой приложения"
 
 #: .././plainbox/impl/commands/crash.py:68
 msgid "raise an exception"
-msgstr ""
+msgstr "вызвать исключение"
 
 #: .././plainbox/impl/commands/crash.py:74
 msgid "hang the application with a busy loop"
@@ -385,7 +385,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/dev.py:59
 msgid "development commands"
-msgstr ""
+msgstr "команды разработчика"
 
 #: .././plainbox/impl/commands/list.py:60
 msgid "children"
@@ -429,7 +429,7 @@ msgstr "регистрировать сообщения на различных 
 
 #: .././plainbox/impl/commands/parse.py:77
 msgid "Unable to decode input stream, must be valid UTF-8"
-msgstr ""
+msgstr "Не удалось декодировать входной поток, некорректный UTF-8"
 
 #: .././plainbox/impl/commands/parse.py:99
 msgid "The following parsers are available:"
@@ -523,7 +523,7 @@ msgstr "Сбой после возобновления выполнения"
 
 #: .././plainbox/impl/commands/run.py:168
 msgid "[ Analyzing Jobs ]"
-msgstr ""
+msgstr "[ Анализ заданий ]"
 
 #. Handle possible DependencyDuplicateError that can happen if
 #. someone is using plainbox for job development.
@@ -621,7 +621,7 @@ msgstr ""
 #. but would be otherwise okay).
 #: .././plainbox/impl/commands/run.py:307
 msgid "[ Running All Jobs ]"
-msgstr ""
+msgstr "[ Выполнение всех заданий ]"
 
 #: .././plainbox/impl/commands/run.py:336
 #, python-format
@@ -636,12 +636,12 @@ msgstr "Модуль: %s"
 #: .././plainbox/impl/commands/run.py:338
 #, python-format
 msgid "Direct dependencies: %s"
-msgstr ""
+msgstr "Прямые зависимости: %s"
 
 #: .././plainbox/impl/commands/run.py:340
 #, python-format
 msgid "Resource dependencies: %s"
-msgstr ""
+msgstr "Зависимости ресурсов: %s"
 
 #: .././plainbox/impl/commands/run.py:342
 #, python-format

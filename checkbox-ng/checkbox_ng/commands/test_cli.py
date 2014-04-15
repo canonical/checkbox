@@ -86,36 +86,36 @@ class TestSelectableJobTreeNode(TestCase):
 
     def test_render(self):
         expected = ['[X] - foo',
-                    '[X]      D',
-                    '[X]      E',
-                    '[X]   A',
-                    '[X]   C']
+                    '[X]      d',
+                    '[X]      e',
+                    '[X]   a',
+                    '[X]   c']
         self.assertEqual(self.tree.render(), expected)
 
     def test_render_deselected_all(self):
         self.tree.set_descendants_state(False)
         expected = ['[ ] - foo',
-                    '[ ]      D',
-                    '[ ]      E',
-                    '[ ]   A',
-                    '[ ]   C']
+                    '[ ]      d',
+                    '[ ]      e',
+                    '[ ]   a',
+                    '[ ]   c']
         self.assertEqual(self.tree.render(), expected)
 
     def test_render_reselected_all(self):
         self.tree.set_descendants_state(False)
         self.tree.set_descendants_state(True)
         expected = ['[X] - foo',
-                    '[X]      D',
-                    '[X]      E',
-                    '[X]   A',
-                    '[X]   C']
+                    '[X]      d',
+                    '[X]      e',
+                    '[X]   a',
+                    '[X]   c']
         self.assertEqual(self.tree.render(), expected)
 
     def test_render_with_child_collapsed(self):
         self.tree.categories[0].expanded = False
         expected = ['[X] + foo',
-                    '[X]   A',
-                    '[X]   C']
+                    '[X]   a',
+                    '[X]   c']
         self.assertEqual(self.tree.render(), expected)
 
     def test_set_ancestors_state(self):
@@ -125,19 +125,19 @@ class TestSelectableJobTreeNode(TestCase):
         node.update_selected_state()
         node.set_ancestors_state(node.selected)
         expected = ['[X] - foo',
-                    '[ ]      D',
-                    '[X]      E',
-                    '[ ]   A',
-                    '[ ]   C']
+                    '[ ]      d',
+                    '[X]      e',
+                    '[ ]   a',
+                    '[ ]   c']
         self.assertEqual(self.tree.render(), expected)
         node.selected = not(node.selected)
         node.set_ancestors_state(node.selected)
         node.set_descendants_state(node.selected)
         expected = ['[ ] - foo',
-                    '[ ]      D',
-                    '[ ]      E',
-                    '[ ]   A',
-                    '[ ]   C']
+                    '[ ]      d',
+                    '[ ]      e',
+                    '[ ]   a',
+                    '[ ]   c']
         self.assertEqual(self.tree.render(), expected)
 
     def test_selection(self):

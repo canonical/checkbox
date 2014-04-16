@@ -125,18 +125,9 @@ pygments_style = 'sphinx'
 
 # -- Options for HTML output ---------------------------------------------------
 
-try:
-    import sphinx_bootstrap_theme
-except ImportError:
-    html_theme = 'default'
-    html_theme_options = {}
-else:
-    html_theme = 'bootstrap'
-    html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
-    html_theme_options = {
-        'bootswatch_theme': 'united',
-        'navbar_class': "navbar navbar-inverse",
-    }
+html_theme_path = ['_templates']
+html_theme = 'ubuntu1204'
+html_theme_options = {}
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.

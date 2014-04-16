@@ -40,7 +40,24 @@ else:
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo', 'sphinx.ext.coverage', 'sphinx.ext.viewcode']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo', 'sphinx.ext.coverage', 'sphinx.ext.viewcode', 'sphinx.ext.intersphinx']
+
+def check_object_path(key, url, path):
+    if os.path.isfile(path):
+        return {key: (url, path)}
+    return {}
+
+
+intersphinx_mapping = {}
+intersphinx_mapping.update(
+    check_object_path(
+        'python', 'http:/docs.python.org/',
+        '/usr/share/doc/python{}/html/objects.inv'.format(
+            '.'.join([str(x) for x in sys.version_info[0:2]]))))
+intersphinx_mapping.update(
+    check_object_path(
+        'plainbox', 'http://plainbox.readthedocs.org/en/latest/',
+        '/usr/share/doc/python3-plainbox-doc/html/objects.inv'))
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

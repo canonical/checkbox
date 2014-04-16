@@ -122,14 +122,20 @@ class RunInvocation(CheckBoxInvocationMixIn):
 
     def ask_for_resume(self):
         # TODO: use proper APIs for yes-no questions
-        return self.ask_user(
-            _("Do you want to resume the previous session?"), ('y', 'n')
-        ).lower() == "y"
+        try:
+            return self.ask_user(
+                _("Do you want to resume the previous session?"), ('y', 'n')
+            ).lower() == "y"
+        except EOFError:
+            return False
 
     def ask_for_resume_action(self):
-        return self.ask_user(
-            _("What do you want to do with that job?"),
-            (_('skip'), _('fail'), _('run')))
+        try:
+            return self.ask_user(
+                _("What do you want to do with that job?"),
+                (_('skip'), _('fail'), _('run')))
+        except EOFError:
+            return _('skip')
 
     def ask_user(self, prompt, allowed):
         answer = None
@@ -257,21 +263,40 @@ class RunInvocation(CheckBoxInvocationMixIn):
             allowed_outcome = [IJobResult.OUTCOME_PASS,
                                IJobResult.OUTCOME_FAIL,
                                IJobResult.OUTCOME_SKIP]
-        allowed_actions = [_('comments')]
+        allowed_actions = {
+            _('comments'): 'set-comments',
+        }
+        if IJobResult.OUTCOME_PASS in allowed_outcome:
+            allowed_actions[_("pass")] = "set-pass"
+        if IJobResult.OUTCOME_FAIL in allowed_outcome:
+            allowed_actions[_("fail")] = "set-fail"
+        if IJobResult.OUTCOME_SKIP in allowed_outcome:
+            allowed_actions[_("skip")] = "set-skip"
         if job.command:
-            allowed_actions.append(_('test'))
+            allowed_actions[_("test")] = "run-test"
         result['outcome'] = IJobResult.OUTCOME_UNDECIDED
         while result['outcome'] not in allowed_outcome:
             print(_("Allowed answers are: {}").format(
-                ", ".join(allowed_outcome + allowed_actions)))
-            choice = input(prompt)
-            if choice in allowed_outcome:
-                result['outcome'] = choice
+                ", ".join(allowed_actions.keys())))
+            try:
+                choice = input(prompt)
+            except EOFError:
+                result['outcome'] = IJobResult.OUTCOME_SKIP
                 break
-            elif choice == _('test'):
-                (result['return_code'],
-                 result['io_log_filename']) = runner._run_command(job, config)
-            elif choice == _('comments'):
+            else:
+                action = allowed_actions.get(choice)
+            if action is None:
+                continue
+            elif action == 'set-pass':
+                result['outcome'] = IJobResult.OUTCOME_PASS
+            elif action == 'set-fail':
+                result['outcome'] = IJobResult.OUTCOME_FAIL
+            elif action == 'set-skip':
+                result['outcome'] = IJobResult.OUTCOME_SKIP
+            elif action == 'run-test':
+                (result['return_code'], result['io_log_filename']) = (
+                    runner._run_command(job, config))
+            elif action == 'set-comments':
                 result['comments'] = input(_('Please enter your comments:\n'))
         return DiskJobResult(result)
 
@@ -328,9 +353,10 @@ class RunInvocation(CheckBoxInvocationMixIn):
 
     def _run_single_job_with_session(self, ns, session, runner, job):
         print("[ {} ]".format(job.id).center(80, '-'))
-        if job.description is not None:
-            print(job.description)
-            print("^" * len(job.description.splitlines()[-1]))
+        description = job.tr_description()
+        if description is not None:
+            print(description)
+            print("^" * len(description.splitlines()[-1]))
             print()
         job_state = session.job_state_map[job.id]
         logger.debug(_("Job id: %s"), job.id)

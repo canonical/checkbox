@@ -284,6 +284,27 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "NETWORK"), 1)
         self.assertEqual(self.count(devices, "WIRELESS"), 1)
 
+    def test_DELL_INSPIRON_7737_NVIDIA(self):
+        devices = self.parse("DELL_INSPIRON_7737_NVIDIA")
+        expected_devices = [(None,
+                             "WIRELESS", "pci", 0x8086, 0x08b1),
+                            (None,
+                             "VIDEO", "pci", 0x10de, 0x0fe4),
+                            (None,
+                             "VIDEO", "pci", 0x8086, 0x0a16)
+                            ]
+        # The first video device is an NVIDIA GPU, which is too new
+        # to have a  device name. The second one is the built-in Haswell
+        # GPU.
+        self.assertEqual(len(devices), 59)
+        self.assertEqual(self.count(devices, "WIRELESS"), 1)
+        self.assertEqual(self.count(devices, "BLUETOOTH"), 1)
+        self.assertEqual(self.count(devices, "NETWORK"), 1)
+        self.assertEqual(self.count(devices, "VIDEO"), 2)
+        self.assertEqual(self.count(devices, "AUDIO"), 4)
+        self.assertEqual(self.count(devices, "DISK"), 1)
+        self.verify_devices(devices, expected_devices)
+
     def test_DELL_INSPIRON_3048_AMD(self):
         devices = self.parse("DELL_INSPIRON_3048")
         expected_devices = [(None,

@@ -284,6 +284,27 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "NETWORK"), 1)
         self.assertEqual(self.count(devices, "WIRELESS"), 1)
 
+    def test_DELL_INSPIRON_3048_AMD(self):
+        devices = self.parse("DELL_INSPIRON_3048")
+        expected_devices = [(None,
+                             "WIRELESS", "pci", 0x168c, 0x0036),
+                            (None,
+                             "VIDEO", "pci", 0x1002, 0x6664),
+                            (None,
+                             "VIDEO", "pci", 0x8086, 0x0402)
+                            ]
+        # The first video device is an AMD GPU, which is too new
+        # to have a  device name. The second one is the built-in Haswell
+        # GPU.
+        self.assertEqual(len(devices), 63)
+        self.assertEqual(self.count(devices, "WIRELESS"), 1)
+        self.assertEqual(self.count(devices, "BLUETOOTH"), 1)
+        self.assertEqual(self.count(devices, "NETWORK"), 1)
+        self.assertEqual(self.count(devices, "AUDIO"), 4)
+        self.assertEqual(self.count(devices, "DISK"), 1)
+        self.assertEqual(self.count(devices, "VIDEO"), 2)
+        self.verify_devices(devices, expected_devices)
+
     def test_HOME_MADE(self):
         devices = self.parse("HOME_MADE")
         self.assertEqual(len(devices), 72)

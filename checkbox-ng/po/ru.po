@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: plainbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-04-04 18:17+0200\n"
-"PO-Revision-Date: 2014-04-14 07:22+0000\n"
+"PO-Revision-Date: 2014-04-17 12:36+0000\n"
 "Last-Translator: Jay ZDLin <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2014-04-15 05:35+0000\n"
-"X-Generator: Launchpad (build 16976)\n"
+"X-Launchpad-Export-Date: 2014-04-18 05:32+0000\n"
+"X-Generator: Launchpad (build 16985)\n"
 
 #: .././plainbox/impl/_argparse.py:139
 #: .././plainbox/vendor/argparse/py32-argparse.py:298
@@ -95,7 +95,7 @@ msgstr "переключиться на pdb (отладчик python) при с�
 #. untranslated
 #: .././plainbox/impl/clitools.py:490
 msgid "crash on SIGINT/KeyboardInterrupt, useful with --pdb"
-msgstr ""
+msgstr "отказ при SIGINT/KeyboardInterrupt, обычно используется с --pdb"
 
 #: .././plainbox/impl/clitools.py:507
 #: .././plainbox/vendor/argparse/py32-argparse.py:1956
@@ -139,7 +139,7 @@ msgstr "Не удалось найти ни один из исполняемых
 
 #: .././plainbox/impl/commands/__init__.py:150
 msgid "provider list and development"
-msgstr ""
+msgstr "список провайдеров и разработка"
 
 #: .././plainbox/impl/commands/__init__.py:157
 msgid "which providers to load"
@@ -147,15 +147,15 @@ msgstr "каких провайдеров загружать"
 
 #: .././plainbox/impl/commands/analyze.py:84
 msgid "[Desired Job List]"
-msgstr ""
+msgstr "[Список желаемых заданий]"
 
 #: .././plainbox/impl/commands/analyze.py:89
 msgid "[Run List]"
-msgstr ""
+msgstr "[Список запуска]"
 
 #: .././plainbox/impl/commands/analyze.py:94
 msgid "[Running Local Jobs]"
-msgstr ""
+msgstr "[Запущенные задания Local]"
 
 #: .././plainbox/impl/commands/analyze.py:129
 msgid "Problem list"
@@ -183,19 +183,19 @@ msgstr "Выбранные задания не имеют проблем с за
 
 #: .././plainbox/impl/commands/analyze.py:146
 msgid "[Interactivity Report]"
-msgstr ""
+msgstr "[Отчёт об интерактивности]"
 
 #: .././plainbox/impl/commands/analyze.py:157
 msgid "automatic"
-msgstr ""
+msgstr "автоматически"
 
 #: .././plainbox/impl/commands/analyze.py:157
 msgid "interactive"
-msgstr ""
+msgstr "интерактивно"
 
 #: .././plainbox/impl/commands/analyze.py:163
 msgid "unknown"
-msgstr ""
+msgstr "неизвестно"
 
 #: .././plainbox/impl/commands/analyze.py:168
 msgid "[Estimated Duration Report]"
@@ -225,7 +225,7 @@ msgstr "итого: {}"
 
 #: .././plainbox/impl/commands/analyze.py:183
 msgid "[Validation Report]"
-msgstr ""
+msgstr "[Отчёт о валидации]"
 
 #: .././plainbox/impl/commands/analyze.py:200
 msgid "Job defined in {}"
@@ -263,7 +263,7 @@ msgstr "вывести отчёт о зависимостях"
 
 #: .././plainbox/impl/commands/analyze.py:260
 msgid "print interactivity report"
-msgstr ""
+msgstr "вывести отчёт об интерактивности"
 
 #: .././plainbox/impl/commands/analyze.py:263
 msgid "print estimated duration report"
@@ -271,7 +271,7 @@ msgstr "вывести отчёт о расчётном времени"
 
 #: .././plainbox/impl/commands/analyze.py:266
 msgid "print validation report"
-msgstr ""
+msgstr "вывести отчёт о валидации"
 
 #: .././plainbox/impl/commands/analyze.py:269
 msgid "print requirement report"
@@ -283,11 +283,11 @@ msgstr "при наличии параметра -v будут перечисл�
 
 #: .././plainbox/impl/commands/analyze.py:276
 msgid "print desired job list"
-msgstr ""
+msgstr "вывести список желаемых заданий"
 
 #: .././plainbox/impl/commands/analyze.py:279
 msgid "print run list"
-msgstr ""
+msgstr "вывести список запуска"
 
 #: .././plainbox/impl/commands/check_config.py:50
 msgid "Configuration files:"
@@ -317,7 +317,7 @@ msgstr " - переменная {0}: {1}"
 
 #: .././plainbox/impl/commands/check_config.py:75
 msgid "No validation problems found"
-msgstr ""
+msgstr "Проблемы валидации не обнаружены"
 
 #: .././plainbox/impl/commands/check_config.py:92
 msgid "check and display plainbox configuration"
@@ -665,7 +665,7 @@ msgstr "Готовность: %s"
 
 #: .././plainbox/impl/commands/run.py:347
 msgid "Running... (output in {}.*)"
-msgstr ""
+msgstr "Выполняется... (результат в {}.*)"
 
 #: .././plainbox/impl/commands/run.py:359
 msgid "Outcome: {}"
@@ -685,7 +685,7 @@ msgstr "параметры пользовательского интерфейс
 
 #: .././plainbox/impl/commands/run.py:385
 msgid "skip tests that require interactivity"
-msgstr ""
+msgstr "пропустить тесты, требующие интерактивности"
 
 #: .././plainbox/impl/commands/run.py:388
 msgid "don't really run most jobs"
@@ -693,7 +693,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/run.py:389
 msgid "output options"
-msgstr ""
+msgstr "параметры вывода"
 
 #: .././plainbox/impl/commands/run.py:393
 msgid "FORMAT"
@@ -717,11 +717,12 @@ msgstr ""
 
 #: .././plainbox/impl/commands/run.py:404
 msgid "FILE"
-msgstr ""
+msgstr "ФАЙЛ"
 
 #: .././plainbox/impl/commands/run.py:405
 msgid "save test results to the specified FILE (or to stdout if FILE is -)"
 msgstr ""
+"сохранить результаты тестов в заданный ФАЙЛ (или в stdout, если ФАЙЛ -)"
 
 #: .././plainbox/impl/commands/run.py:409
 msgid "TRANSPORT"
@@ -734,20 +735,22 @@ msgstr ""
 
 #: .././plainbox/impl/commands/run.py:415
 msgid "WHERE"
-msgstr ""
+msgstr "КУДА"
 
 #: .././plainbox/impl/commands/run.py:416
 msgid "where to send data using the selected transport"
-msgstr ""
+msgstr "куда отправить данные при помощи выбранного транспорта"
 
 #: .././plainbox/impl/commands/run.py:420
 msgid ""
 "comma-separated list of key-value options (k=v) to be passed to the transport"
 msgstr ""
+"транспорту передаётся список разделённых запятыми параметров \"ключ-"
+"значение\" (k=v)"
 
 #: .././plainbox/impl/commands/script.py:59
 msgid "There is no job called {!a}"
-msgstr ""
+msgstr "Задание не вызвано {!a}"
 
 #: .././plainbox/impl/commands/script.py:61
 msgid "See `plainbox special --list-jobs` for a list of choices"
@@ -775,11 +778,11 @@ msgstr ""
 
 #: .././plainbox/impl/commands/script.py:125
 msgid "JOB-ID"
-msgstr ""
+msgstr "ID задания"
 
 #: .././plainbox/impl/commands/script.py:126
 msgid "Id of the job to run"
-msgstr ""
+msgstr "Идентификатор задания, которое требуется запустить"
 
 #: .././plainbox/impl/commands/selftest.py:69
 msgid "run unit and integration tests"

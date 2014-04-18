@@ -40,7 +40,7 @@ class Pci:
     CLASS_DISPLAY_VGA               = 0
     CLASS_DISPLAY_XGA               = 1
     CLASS_DISPLAY_3D                = 2
-    CLASS_DISPLAY_OTHER             = 80
+    CLASS_DISPLAY_OTHER             = 0x80
 
     BASE_CLASS_MULTIMEDIA           = 4
     CLASS_MULTIMEDIA_VIDEO          = 0
@@ -87,3 +87,5 @@ class Pci:
     CLASS_SERIAL_USB                = 3
     CLASS_SERIAL_FIBER              = 4
     CLASS_SERIAL_SMBUS              = 5
+
+    VENDOR_ID_AMD                   = 0x1002

@@ -175,7 +175,16 @@ class UdevadmDevice:
                 else:
                     return "NETWORK"
             if class_id == Pci.BASE_CLASS_DISPLAY:
-                if subclass_id == Pci.CLASS_DISPLAY_VGA:
+                # Not all DISPLAY devices are display adapters. The ones with
+                # subclass OTHER are usually uninteresting devices. As an
+                # exception, some AMD GPUs have recently begun to use the
+                # 0x80 (Pci.CLASS_DISPLAY_OTHER) subclass identifier. In order
+                # to correctly identify them a special case is needed, see
+                # parentheses in the following conditional.
+                if subclass_id == Pci.CLASS_DISPLAY_VGA or \
+                        subclass_id == Pci.CLASS_DISPLAY_3D or \
+                        (subclass_id == Pci.CLASS_DISPLAY_OTHER \
+                         and self.vendor_id == Pci.VENDOR_ID_AMD):
                     return "VIDEO"
             if class_id == Pci.BASE_CLASS_SERIAL \
                and subclass_id == Pci.CLASS_SERIAL_USB:

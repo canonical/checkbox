@@ -26,7 +26,6 @@ from checkbox_support.lib.input import Input
 from checkbox_support.lib.pci import Pci
 from checkbox_support.lib.usb import Usb
 
-
 PCI_RE = re.compile(
     r"^pci:"
     r"v(?P<vendor_id>[%(hex)s]{8})"
@@ -629,6 +628,12 @@ class UdevadmParser:
         # Ignore devices without bus information
         if not device.bus:
             return True
+
+        # Do not ignore devices with bus == net and ID_NET_NAME_MAC
+        # These can be virtual network interfaces which don't have PCI
+        # product/vendor ID, yet still constitute valid ethX interfaces.
+        if device.bus == "net" and "ID_NET_NAME_MAC" in device._environment:
+            return False
 
         # Ignore devices without product AND vendor information
         if (device.product is None and device.product_id is None and

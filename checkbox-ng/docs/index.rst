@@ -52,6 +52,7 @@ Table of contents
 .. toctree::
    :maxdepth: 2
 
+   bugs.rst
    scripts/index.rst
    profiles.rst
    release.rst

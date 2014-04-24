@@ -64,3 +64,23 @@ requires: 'arm' in cpuinfo.type
 command: grep VFP /var/log/syslog
 _description:
  Validate that the Vector Floating Point Unit is running on ARM device
+
+plugin:shell
+id: cpu/cstates
+estimated_duration: 10.0
+requires:
+  package.name == 'fwts'
+user: root
+_description:
+ Run Firmware Test Suite (fwts) cstates tests.
+environ: PLAINBOX_SESSION_SHARE
+command:
+ fwts_test -l $PLAINBOX_SESSION_SHARE/fwts_cstates_results.log -t cstates
+
+plugin: attachment
+estimated_duration: 0.5
+id: cpu/cstates_results.log
+command:
+ [ -e ${PLAINBOX_SESSION_SHARE}/fwts_cstates_results.log ] && cat ${PLAINBOX_SESSION_SHARE}/fwts_cstates_results.log
+_description: Attaches the FWTS desktop diagnosis results log to the submission
+

@@ -27,3 +27,23 @@ command:
  command: [[ -e ${PLAINBOX_SESSION_SHARE}/fwts_$1.log ]] && cat ${PLAINBOX_SESSION_SHARE}/fwts_$1.log
  _description: Attach log for FWTS $1 test.
  EOF
+
+plugin:shell
+id: firmware/fwts_desktop_diagnosis
+estimated_duration: 10.0
+requires:
+  package.name == 'fwts'
+user: root
+_description:
+ Run Firmware Test Suite (fwts) desktop-specific diagnosis tests.
+environ: PLAINBOX_SESSION_SHARE
+command:
+ fwts_test -l $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results.log -t acpidump -t version -t acpitables -t apicinstance -t hpet_check -t mcfg -t method -t mpcheck -t msr -t mtrr -t apicedge -t klog
+
+plugin: attachment
+estimated_duration: 0.5
+id: firmware/fwts_desktop_diagnosis_results.log
+command:
+ [ -e ${PLAINBOX_SESSION_SHARE}/fwts_desktop_diagnosis_results.log ] && cat ${PLAINBOX_SESSION_SHARE}/fwts_desktop_diagnosis_results.log
+_description: Attaches the FWTS desktop diagnosis results log to the submission
+

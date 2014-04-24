@@ -6,9 +6,9 @@
 CheckBoxNG
 ==========
 
-:term:`CheckBoxNG` is a hardware testing tool useful for certifying laptops,
-desktops and servers with Ubuntu. It is a new version of :term:`CheckBox` that
-is built directly on top of :term:`PlainBox`
+CheckBoxNG is a hardware testing tool useful for certifying laptops, desktops
+and servers with Ubuntu. It is a new version of :term:`CheckBox` that is built
+directly on top of :term:`PlainBox`
 
 CheckBoxNG *replaces* CheckBox, where applicable. 
 
@@ -53,6 +53,8 @@ Table of contents
    :maxdepth: 2
 
    bugs.rst
+   stack.rst
+   changelog.rst
    scripts/index.rst
    profiles.rst
    release.rst

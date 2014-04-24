@@ -253,7 +253,9 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'checkbox_ng', 'CheckBoxNG Documentation',
-     ['Zygmunt Krynicki'], 1)
+     ['Zygmunt Krynicki'], 1),
+    ('stack', 'checkbox-stack', 'description of the checkbox stack',
+     ['Zygmunt Krynicki'], 1),
 ]
 
 # If true, show URL addresses after external links.

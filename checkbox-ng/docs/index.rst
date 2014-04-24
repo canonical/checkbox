@@ -53,6 +53,8 @@ Table of contents
    :maxdepth: 2
 
    bugs.rst
+   stack.rst
+   changelog.rst
    scripts/index.rst
    profiles.rst
    release.rst

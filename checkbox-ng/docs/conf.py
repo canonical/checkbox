@@ -49,7 +49,8 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo', 'sp
 def check_object_path(key, url, path):
     if os.path.isfile(path):
         return {key: (url, path)}
-    return {}
+    else:
+        return {key: (url, None)}
 
 
 intersphinx_mapping = {}

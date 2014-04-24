@@ -152,3 +152,31 @@ _description:
      2. Drag the selected folder to the desktop and remove finger from touchpad.
  VERIFICATION:
      Did a selected folder move to the desktop?
+
+plugin: manual
+id: touchpad/multitouch-zoom
+depends: touchpad/multitouch-automated
+estimated_duration: 120.0
+_summary: Check touchpad pinch-to-zoom gesture
+_description:
+ PURPOSE:
+     Check touchpad pinch gesture for zoom
+ STEPS:
+     1. Open gallery-app with an image
+     2. Place two fingers on the touchpad and pinch them together
+     3. Place two fingers on the touchpad and move them apart
+ VERIFICATION:
+     Does the image zoom in and out?
+
+plugin: manual
+id: touchpad/multitouch-dash
+depends: touchpad/multitouch-automated
+estimated_duration: 120.0
+_summary: Check 4-finger tap gesture
+_description:
+ PURPOSE:
+     Validate that 4-touch tap is operating as expected
+ STEPS:
+     1. 4-touch tap (tap with 4 fingers) anywhere on the touchpad
+ VERIFICATION:
+     Did the tap open the Dash?

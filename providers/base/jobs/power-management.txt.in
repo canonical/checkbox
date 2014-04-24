@@ -134,6 +134,7 @@ id: power-management/rtc
 requires:
   rtc.state == 'supported'
   package.name == 'util-linux'
+  cpuinfo.other != 'emulated by qemu'
 user: root
 command: hwclock -r
 estimated_duration: 0.02

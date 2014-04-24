@@ -139,3 +139,23 @@ _description:
   Skip this test if this system ONLY uses shared management/ethernet ports OR if this system does not have a BMC (Management Console)
   1. Select Yes if you successfully used IPMI to remotely power this system off and on using the dedicated management port.
   2. Select No if you attempted to use the dedicated management port to remotely power this system off/on and it failed for some reason.
+
+plugin:shell
+id: miscellanea/oops
+estimated_duration: 10.0
+requires:
+  package.name == 'fwts'
+user: root
+_description:
+ Run Firmware Test Suite (fwts) oops tests.
+environ: PLAINBOX_SESSION_SHARE
+command:
+ fwts_test -l $PLAINBOX_SESSION_SHARE/fwts_oops_results.log -t oops
+
+plugin: attachment
+estimated_duration: 0.5
+id: miscellanea/oops_results.log
+command:
+ [ -e ${PLAINBOX_SESSION_SHARE}/fwts_oops_results.log ] && cat ${PLAINBOX_SESSION_SHARE}/fwts_oops_results.log
+_description: Attaches the FWTS oops results log to the submission
+

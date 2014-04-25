@@ -1290,9 +1290,12 @@ class ServiceWrapper(PlainBoxObjectWrapper):
         :returns:
             A list of jobs that were selected.
         """
-        job_list = list(
-            itertools.chain(*[
-                p.load_all_jobs()[0] for p in self.native.provider_list]))
+        if len(self.native.session_list) > 0:
+            job_list = self.native.session_list[0].job_list
+        else:
+            job_list = list(
+                itertools.chain(*[
+                    p.load_all_jobs()[0] for p in self.native.provider_list]))
         return select_jobs(job_list, whitelist_list)
 
 

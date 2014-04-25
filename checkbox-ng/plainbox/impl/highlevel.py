@@ -299,6 +299,7 @@ class Service:
         # TODO: if something fails destroy storage
         session = SessionState(job_list)
         session.open()
+        self._session_list.append(session)
         return session
 
     def get_all_exporters(self):

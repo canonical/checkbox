@@ -271,19 +271,37 @@ command:
       Did the display rotation take place without without permanent screen corruption?
  EOF
 
-plugin: shell
-id: graphics/compiz_check
-requires: package.name == 'nux-tools'
-command: ! /usr/lib/nux/unity_support_test -c -p | ansi_parser | grep ":\(\s\+\)no$"
-estimated_duration: 0.130
-_description: Check that hardware is able to run compiz
+id: graphics/generator_compiz_check
+requires: device.category == 'VIDEO'
+_description: Compiz support tests
+_summary: Compiz support tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: shell
+ id: graphics/`echo ${index}`_compiz_check_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: package.name == 'nux-tools'
+ command: ! /usr/lib/nux/unity_support_test -c -p | ansi_parser | grep ":\(\s\+\)no$"
+ estimated_duration: 0.130
+ _description: Check that $product hardware is able to run compiz
+ _summary: Test Compiz support for $product
+ EOF
 
-plugin: shell
-id: graphics/unity-support
-requires: package.name == 'nux-tools'
-command: ! /usr/lib/nux/unity_support_test -p | ansi_parser | grep ":\(\s\+\)no"
-estimated_duration: 0.131
-_description: Check that hardware is able to run Unity 3D
+id: graphics/generator_unity_support
+requires: device.category == 'VIDEO'
+_description: Unity support tests
+_summary: Unity support tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: shell
+ id: graphics/`echo ${index}`_unity_support_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: package.name == 'nux-tools'
+ command: ! /usr/lib/nux/unity_support_test -p | ansi_parser | grep ":\(\s\+\)no"
+ estimated_duration: 0.131
+ _description: Check that $product hardware is able to run Unity 3D
+ _summary: Test Unity 3D support for $product
+ EOF
 
 plugin: user-verify
 id: graphics/glxgears

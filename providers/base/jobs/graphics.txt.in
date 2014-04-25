@@ -77,20 +77,29 @@ command:
       Is this acceptable for your display on $product graphics card?
  EOF
 
-plugin: user-verify
-id: graphics/screen-resolution
-requires:
- device.category == 'VIDEO'
- package.name == 'qmlscene'
-command: timeout 5 qmlscene --transparent --fullscreen $PLAINBOX_PROVIDER_DATA/resolution_test.qml
-estimated_duration: 10.0
-_description:
- PURPOSE:
-     This test will verify the default display resolution
- STEPS:
-     1. Click on Test to display the screen resolution overlay for 5 seconds.
- VERIFICATION:
-     Is this acceptable for your display?
+id: graphics/generator_screen_resolution
+requires: device.category == 'VIDEO'
+_description: Default resolution tests
+_summary: Default resolution tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: user-verify
+ id: graphics/`echo ${index}`_screen_resolution_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires:
+  device.category == 'VIDEO'
+  package.name == 'qmlscene'
+ command: timeout 5 qmlscene --transparent --fullscreen $PLAINBOX_PROVIDER_DATA/resolution_test.qml
+ estimated_duration: 10.0
+ _summary: Test default resolution for $product
+ _description:
+  PURPOSE:
+      This test will verify the default display resolution on the $product graphics card
+  STEPS:
+      1. Click on Test to display the screen resolution overlay for 5 seconds.
+  VERIFICATION:
+      Is this acceptable for your display on the $product graphics card?
+ EOF
 
 plugin: shell
 id: graphics/minimum_resolution

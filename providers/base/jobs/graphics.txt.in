@@ -11,15 +11,17 @@ command: xdpyinfo | grep "^X.Org version" | cut -d ':' -f 2 | tr -d ' '
 estimated_duration: 0.018
 _description: Test to output the Xorg version
 
-id: graphics/resolution-change
+id: graphics/generator_resolution-change
 requires: device.category == 'VIDEO'
 _description: Resolution change tests
+_summary: Resolution change tests
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: user-interact-verify
  id: graphics/`echo ${index}`_resolution-change_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  depends: graphics/xorg-version
+ _summary: Test changing resolution for $product
  _description:
   PURPOSE:
       This test will verify that the GUI is usable after manually changing resolution on the $product graphics card.

@@ -642,6 +642,44 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "DISK"), 2)
         self.assertEqual(len(devices), 4)
 
+    def test_DELL_VOSTRO_270(self):
+        # Interesting because while its Intel video card has the same PCI
+        # vendor/product ID as others (8086:0152) the subvendor_id and
+        # subproduct_id attributes were causing it to not be recognized as
+        # video.  HOWEVER, we can't just assume that all Intel video cards are
+        # doing the same, so some creative quirking will be needed in the
+        # parser to single these out.  It's a desktop system so no touchpad and
+        # has an external mouse.  The card reader is not detected as such,
+        # instead it appears as about 11 disk devices.
+        # Finally, it's a hybrid video system with a second Nvidia GPU. 
+        devices = self.parse("DELL_VOSTRO_270")
+        self.assertEqual(self.count(devices, "VIDEO"), 2)
+        self.assertEqual(self.count(devices, "AUDIO"), 4)
+        self.assertEqual(self.count(devices, "KEYBOARD"), 1)
+        self.assertEqual(self.count(devices, "TOUCHPAD"), 0)
+        self.assertEqual(self.count(devices, "CARDREADER"), 0)
+        self.assertEqual(self.count(devices, "CDROM"), 1)
+        self.assertEqual(self.count(devices, "FIREWIRE"), 0)
+        self.assertEqual(self.count(devices, "MOUSE"), 1)
+        self.assertEqual(self.count(devices, "ACCELEROMETER"), 0)
+        self.assertEqual(self.count(devices, "TOUCHSCREEN"), 0)
+        self.assertEqual(self.count(devices, "DISK"), 12)
+        self.assertEqual(self.count(devices, "CAPTURE"), 0)
+        self.assertEqual(self.count(devices, "RAID"), 0)
+        self.assertEqual(self.count(devices, "BLUETOOTH"), 0)
+        self.assertEqual(self.count(devices, "NETWORK"), 1)
+        self.assertEqual(self.count(devices, "WIRELESS"), 1)
+        self.assertEqual(len(devices), 71)
+        # First card is an Intel Xeon E3-1200 v2/3rd Gen Core processor Graphics Controller
+        # Second one is NVidia  GF119 [GeForce GT 620 OEM]
+        expected_devices = [
+            (None, "VIDEO", "pci", 0x8086, 0x0152),
+            (None, "VIDEO", "pci", 0x10de, 0x1049),
+            ("RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller",
+             "NETWORK", "pci", 0x10EC, 0x8168),
+            ]
+        self.verify_devices(devices, expected_devices)
+
     def verify_devices(self, devices, expected_device_list):
         """
         Verify we have exactly one of each device given in the list,

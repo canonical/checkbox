@@ -47,11 +47,12 @@ firewire/insert
 firewire/storage-test
 firewire/remove
 __graphics__
-graphics/compiz_check
+graphics/generator_.*
+graphics/1_compiz_check.*
 graphics/display
-graphics/resolution
-graphics/minimum_resolution
-graphics/driver_version
+graphics/1_resolution.*
+graphics/1_minimum_resolution.*
+graphics/1_driver_version.*
 graphics/VESA_drivers_not_in_use
 __input__
 input/keyboard

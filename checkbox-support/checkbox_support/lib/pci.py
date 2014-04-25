@@ -89,3 +89,4 @@ class Pci:
     CLASS_SERIAL_SMBUS              = 5
 
     VENDOR_ID_AMD                   = 0x1002
+    VENDOR_ID_INTEL                 = 0x8086

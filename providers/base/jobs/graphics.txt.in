@@ -19,6 +19,7 @@ requires: package.name == "x11-utils"
 command: xdpyinfo | grep "^X.Org version" | cut -d ':' -f 2 | tr -d ' '
 estimated_duration: 0.018
 _description: Test to output the Xorg version
+_summary: Test Xorg version
 
 id: graphics/generator_resolution-change
 requires: device.category == 'VIDEO'
@@ -53,6 +54,7 @@ requires:
 command: pgrep -f '/usr/bin/X' >/dev/null
 estimated_duration: 0.100
 _description: Test that the X process is running.
+_summary: Test that the X process is running.
 
 plugin: shell
 id: graphics/xorg-failsafe
@@ -60,6 +62,7 @@ requires: package.name == 'xorg'
 command: ! test -e /var/log/Xorg.failsafe.log
 estimated_duration: 0.030
 _description: Test that the X is not running in failsafe mode.
+_summary: Test that X is not in failsafe mode.
 
 id: graphics/generator_resolution
 requires: device.category == 'VIDEO'
@@ -220,6 +223,7 @@ requires:
  package.name == 'xorg'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
 command: gst_pipeline_test -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink' 
+_summary: Test that video can be displayed
 _description:
  PURPOSE:
      This test will test the default display
@@ -233,6 +237,7 @@ id: graphics/VESA_drivers_not_in_use
 command: cat /var/log/Xorg.0.log | perl -e '$a=0;while(<>){$a++ if /Loading.*vesa_drv\.so/;$a-- if /Unloading.*vesa/&&$a}exit 1 if $a'
 estimated_duration: 0.011
 _description: Check that VESA drivers are not in use
+_summary: Test that VESA drivers are not in use
 
 id: graphics/generator_cycle_resolution
 requires: device.category == 'VIDEO'
@@ -488,6 +493,7 @@ command:
     ${PLAINBOX_PROVIDER_DATA}/images/logo_Ubuntu_stacked_black.png \
     --device=${EXTERNAL_WEBCAM_DEVICE:-/dev/external_webcam} \
     -o ${PLAINBOX_SESSION_SHARE}/screenshot_opencv_validation.jpg
+_summary: Test that a screenshot is valid, automatically
 _description:
  Take a screengrab of the screen displaying a black and white Ubuntu logo.
  Check that the screenshot matches the original file using OpenCV ORB detection.
@@ -497,3 +503,4 @@ id: screenshot_opencv_validation.jpg
 depends: graphics/screenshot_opencv_validation
 command: base64 ${PLAINBOX_SESSION_SHARE}/screenshot_opencv_validation.jpg
 _description: Attaches the screenshot captured in graphics/screenshot_opencv_validation.
+_summary: Attach the screenshot captured for the automatically validated screenshot test

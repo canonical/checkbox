@@ -101,17 +101,24 @@ command:
       Is this acceptable for your display on the $product graphics card?
  EOF
 
-plugin: shell
-id: graphics/minimum_resolution
-requires:
- device.category == 'VIDEO'
-command: resolution_test --horizontal 800 --vertical 600
-estimated_duration: 0.331
-_description:
- Ensure the current resolution meets or exceeds the recommended minimum
- resolution (800x600). See here for details:
- .
- https://help.ubuntu.com/community/Installation/SystemRequirements
+id: graphics/generator_minimum_resolution
+requires: device.category == 'VIDEO'
+_description: Minimum resolution tests
+_summary: Minimum resolution tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: shell
+ id: graphics/`echo ${index}`_minimum_resolution_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires:
+  device.category == 'VIDEO'
+ command: resolution_test --horizontal 800 --vertical 600
+ estimated_duration: 0.331
+ _summary: Test that $product meets minimum resolution requirement
+ _description:
+  Ensure the current resolution meets or exceeds the recommended minimum
+  resolution (800x600) on the $product graphics card. See here for details:
+  https://help.ubuntu.com/community/Installation/SystemRequirements
 
 id: graphics/maximum_resolution
 requires: device.category == 'VIDEO'

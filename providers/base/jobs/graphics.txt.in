@@ -225,19 +225,28 @@ command: cat /var/log/Xorg.0.log | perl -e '$a=0;while(<>){$a++ if /Loading.*ves
 estimated_duration: 0.011
 _description: Check that VESA drivers are not in use
 
-plugin: user-verify
-id: graphics/cycle_resolution
-requires: package.name == 'xorg'
-depends: graphics/VESA_drivers_not_in_use
-command: xrandr_cycle --screenshot-dir $PLAINBOX_SESSION_SHARE
-estimated_duration: 250.000
-_description:
- PURPOSE:
-     This test cycles through the detected video modes
- STEPS:
-     1. Click "Test" to start cycling through the video modes
- VERIFICATION:
-     Did the screen appear to be working for each mode?
+id: graphics/generator_cycle_resolution
+requires: device.category == 'VIDEO'
+_description: Resolution cycling tests
+_summary: Resolution cycling tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: user-verify
+ id: graphics/`echo ${index}`_cycle_resolution_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: package.name == 'xorg'
+ depends: graphics/VESA_drivers_not_in_use
+ command: xrandr_cycle --screenshot-dir $PLAINBOX_SESSION_SHARE
+ estimated_duration: 250.000
+ _summary: Test resolution cycling for $product
+ _description:
+  PURPOSE:
+      This test cycles through the detected video modes for the $product graphics card
+  STEPS:
+      1. Click "Test" to start cycling through the video modes
+  VERIFICATION:
+      Did the screen appear to be working for each mode?
+ EOF
 
 plugin: user-verify
 id: graphics/rotation

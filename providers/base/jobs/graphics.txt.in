@@ -303,19 +303,28 @@ command:
  _summary: Test Unity 3D support for $product
  EOF
 
-plugin: user-verify
-id: graphics/glxgears
-requires: package.name == 'mesa-utils'
-command: glxgears; true
-_description:
- PURPOSE:
-     This test tests the basic 3D capabilities of your video card
- STEPS:
-     1. Click "Test" to execute an OpenGL demo. Press ESC at any time to close.
-     2. Verify that the animation is not jerky or slow.
- VERIFICATION:
-     1. Did the 3d animation appear?
-     2. Was the animation free from slowness/jerkiness?
+id: graphics/generator_glxgears
+requires: device.category == 'VIDEO'
+_description: glxgears tests
+_summary: glxgears tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: user-verify
+ id: graphics/`echo ${index}`_glxgears_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: package.name == 'mesa-utils'
+ command: glxgears; true
+ _summary: Test that glxgears works for $product
+ _description:
+  PURPOSE:
+      This test tests the basic 3D capabilities of your $product video card
+  STEPS:
+      1. Click "Test" to execute an OpenGL demo. Press ESC at any time to close.
+      2. Verify that the animation is not jerky or slow.
+  VERIFICATION:
+      1. Did the 3d animation appear?
+      2. Was the animation free from slowness/jerkiness?
+ EOF
 
 plugin: shell
 id: graphics/3d_window_open_close

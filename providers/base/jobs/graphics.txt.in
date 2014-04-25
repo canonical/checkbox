@@ -435,31 +435,49 @@ command:
  _summary: Attach results of screenshot test for $product
  EOF
 
-plugin: shell
-id: graphics/screenshot_fullscreen_video
-requires: package.name == 'fswebcam'
+id: graphics/generator_screenshot_fullscreen_video
+requires: device.category == 'VIDEO'
+_description: full screen video screenshot tests
+_summary: full screen video screenshot tests
+plugin: local
 command:
- [ -f ${PLAINBOX_PROVIDER_DATA}/video/Ogg_Theora_Video.ogv ] || { echo "Video file not found"; exit 1; }
- dbus-launch gsettings set org.gnome.totem repeat true
- totem --fullscreen ${PLAINBOX_PROVIDER_DATA}/video/Ogg_Theora_Video.ogv 2>/dev/null &
- set -o pipefail
- sleep 15 && camera_test still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot_fullscreen_video.jpg -q 2>&1 | ansi_parser
- sleep 5 && totem --quit 2>/dev/null
- dbus-launch gsettings set org.gnome.totem repeat false
-_description:
- PURPOSE:
-     Take a screengrab of the current screen during fullscreen video playback
- STEPS:
-     1. Start a fullscreen video playback
-     2. Take picture using USB webcam after a few seconds
- VERIFICATION:
-     Review attachment manually later
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: shell
+ id: graphics/`echo ${index}`_screenshot_fullscreen_video_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: package.name == 'fswebcam'
+ command:
+  [ -f ${PLAINBOX_PROVIDER_DATA}/video/Ogg_Theora_Video.ogv ] || { echo "Video file not found"; exit 1; }
+  dbus-launch gsettings set org.gnome.totem repeat true
+  totem --fullscreen ${PLAINBOX_PROVIDER_DATA}/video/Ogg_Theora_Video.ogv 2>/dev/null &
+  set -o pipefail
+  sleep 15 && camera_test still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot_fullscreen_video_${index}.jpg -q 2>&1 | ansi_parser
+  sleep 5 && totem --quit 2>/dev/null
+  dbus-launch gsettings set org.gnome.totem repeat false
+ _summary: Test FSV screenshot for $product
+ _description:
+  PURPOSE:
+      Take a screengrab of the current screen during fullscreen video playback using the $product graphics card
+  STEPS:
+      1. Start a fullscreen video playback
+      2. Take picture using USB webcam after a few seconds
+  VERIFICATION:
+      Review attachment manually later
+ EOF
 
-plugin: attachment
-id: screenshot_fullscreen_video.jpg
-depends: graphics/screenshot_fullscreen_video
-command: base64 ${PLAINBOX_SESSION_SHARE}/screenshot_fullscreen_video.jpg
-_description: Attaches the screenshot captured in graphics/screenshot_fullscreen_video.
+id: graphics/generator_screenshot_fullscreen_video.jpg
+requires: device.category == 'VIDEO'
+_description: full screen video attachment tests
+_summary: full screen video attachment tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: attachment
+ id: `echo ${index}`_screenshot_fullscreen_video_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`.jpg
+ depends: graphics/`echo ${index}`_screenshot_fullscreen_video_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ command: base64 ${PLAINBOX_SESSION_SHARE}/screenshot_fullscreen_video_${index}.jpg
+ _summary: Attach results of FSV screenshot test for $product
+ _description: Attaches the screenshot captured in graphics/screenshot_fullscreen_video for the $product graphics card
+ EOF
 
 plugin: shell
 id: graphics/screenshot_opencv_validation

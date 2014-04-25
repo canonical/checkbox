@@ -248,19 +248,28 @@ command:
       Did the screen appear to be working for each mode?
  EOF
 
-plugin: user-verify
-id: graphics/rotation
-depends: graphics/xorg-version
-command: rotation_test
-estimated_duration: 20.000
-_description:
- PURPOSE:
-     This test will test display rotation
- STEPS:
-     1. Click "Test" to test display rotation. The display will be rotated every 4 seconds.
-     2. Check if all rotations (normal right inverted left) took place without permanent screen corruption
- VERIFICATION:
-     Did the display rotation take place without without permanent screen corruption?
+id: graphics/generator_rotation
+requires: device.category == 'VIDEO'
+_description: Rotation tests
+_summary: Rotation tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: user-verify
+ id: graphics/`echo ${index}`_rotation_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ depends: graphics/xorg-version
+ command: rotation_test
+ estimated_duration: 20.000
+ _summary: Test rotation for $product
+ _description:
+  PURPOSE:
+      This test will test display rotation on the $product graphics card
+  STEPS:
+      1. Click "Test" to test display rotation. The display will be rotated every 4 seconds.
+      2. Check if all rotations (normal right inverted left) took place without permanent screen corruption
+  VERIFICATION:
+      Did the display rotation take place without without permanent screen corruption?
+ EOF
 
 plugin: shell
 id: graphics/compiz_check

@@ -326,33 +326,69 @@ command:
       2. Was the animation free from slowness/jerkiness?
  EOF
 
-plugin: shell
-id: graphics/3d_window_open_close
-requires: package.name == 'mesa-utils'
-command: window_test -t open-close -i 10
-estimated_duration: 60.525
-_description: Open and close a 3D window multiple times
+id: graphics/generator_3d_window_open_close
+requires: device.category == 'VIDEO'
+_description: 3D window open/close tests
+_summary: 3D window open/close tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: shell
+ id: graphics/`echo ${index}`_3d_window_open_close_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: package.name == 'mesa-utils'
+ command: window_test -t open-close -i 10
+ estimated_duration: 60.525
+ _description: Open and close a 3D window multiple times on the $product video card
+ _summary: Test 3D window open/close for $product
+ EOF
 
-plugin: shell
-id: graphics/3d_window_suspend_resume
-requires: package.name == 'mesa-utils'
-command: window_test -t suspend-resume -i 10
-estimated_duration: 121.00
-_description: Open, suspend resume and close a 3D window multiple times
+id: graphics/generator_3d_window_suspend_resume
+requires: device.category == 'VIDEO'
+_description: 3D window with suspend/resume tests
+_summary: 3D window with suspend/resume tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: shell
+ id: graphics/`echo ${index}`_3d_window_suspend_resume_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: package.name == 'mesa-utils'
+ command: window_test -t suspend-resume -i 10
+ estimated_duration: 121.00
+ _description: Open, suspend resume and close a 3D window multiple times on the $product video card
+ _summary: Test a 3D window with suspend/resume for $product
+ EOF
 
-plugin: shell
-id: graphics/multi_3d_windows_open_close
-requires: package.name == 'mesa-utils'
-command: window_test -t open-close-multi -i 10 -w 4
-estimated_duration: 60.000
-_description: Open and close 4 3D windows multiple times
+id: graphics/generator_multi_3d_windows_open_close
+requires: device.category == 'VIDEO'
+_description: Multiple 3D window open/close
+_summary: Multiple 3D window open/close tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: shell
+ id: graphics/`echo ${index}`_multi_3d_windows_open_close_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: package.name == 'mesa-utils'
+ command: window_test -t open-close-multi -i 10 -w 4
+ estimated_duration: 60.000
+ _description: Open and close 4 3D windows multiple times on the $product video card
+ _summary: Test Multi 3D window open/close for $product
+ EOF
 
-plugin: shell
-id: graphics/3d_window_move
-requires: package.name == 'mesa-utils'
-command: window_test -t move
-estimated_duration: 50.000
-_description: Move a 3D window around the screen
+id: graphics/generator_3d_window_move
+requires: device.category == 'VIDEO'
+_description: 3D window movement
+_summary: 3D window movement tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: shell
+ id: graphics/`echo ${index}`_3d_window_move_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: package.name == 'mesa-utils'
+ command: window_test -t move
+ estimated_duration: 50.000
+ _description: Move a 3D window around the screen on the $product video card
+ _summary: Test 3D window movement for $product
+ EOF
 
 plugin: shell
 id: graphics/screenshot

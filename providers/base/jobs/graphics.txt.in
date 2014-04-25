@@ -119,57 +119,95 @@ command:
   Ensure the current resolution meets or exceeds the recommended minimum
   resolution (800x600) on the $product graphics card. See here for details:
   https://help.ubuntu.com/community/Installation/SystemRequirements
+ EOF
 
-id: graphics/maximum_resolution
+id: graphics/generator_maximum_resolution
 requires: device.category == 'VIDEO'
 _description: Maximum resolution tests
-estimated_duration: 0.10
+_summary: Maximum resolution tests
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ id: graphics/`echo ${index}`_maximum_resolution_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  plugin: user-verify
- id: graphics/`echo $index`_maximum_resolution_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  requires:
   device.category == 'VIDEO'
   package.name == 'zenity'
  command: zenity --info --text "Maximum resolution: $(xrandr -q |grep -A 1 "connected\( primary\)* [0-9]" |tail -1 |awk '{print $1}')"
  estimated_duration: 10.0
+ _summary: Test maximum resolution for $product
  _description:
   PURPOSE:
-      This test will verify the display is operating at its maximum supported resolution on the $product graphics card. 
+    This test will verify the display is operating at its maximum supported resolution on the $product graphics card. 
   STEPS:
-      1. Select the $product graphics card (a reboot may be necessary)
-      2. Consult the system's specifications and locate the screen's maximum supported resolution.
-      3. Click on Test to display the maximum resolution that can be used by Ubuntu on the current display.
+    1. Select the $product graphics card (a reboot may be necessary)
+    2. Consult the system's specifications and locate the screen's maximum supported resolution.
+    3. Click on Test to display the maximum resolution that can be used by Ubuntu on the current display.
   VERIFICATION:
-      Is this the maximum resolution for the display connected to the $product graphics card?
+    Is this the maximum resolution for the display connected to the $product graphics card?
  EOF
 
-id: graphics/modes
-plugin: shell
-command: graphics_modes_info
-estimated_duration: 0.250
-_description: Collect info on graphics modes (screen resolution and refresh rate)
+id: graphics/generator_modes
+requires: device.category == 'VIDEO'
+_description: Mode tests
+_summary: Mode tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ id: graphics/`echo ${index}`_modes_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ plugin: shell
+ command: graphics_modes_info
+ estimated_duration: 0.250
+ _description: Collect info on graphics modes (screen resolution and refresh rate) for $product
+ _summary: Test graphic modes info for $product
+ EOF
 
-id: graphics/color_depth
-plugin: shell
-command: color_depth_info
-estimated_duration: 0.150
-_description: Collect info on color depth and pixel format.
+id: graphics/generator_color_depth
+requires: device.category == 'VIDEO'
+_description: Color depth tests
+_summary: Color depth tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ id: graphics/`echo ${index}`_color_depth_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ plugin: shell
+ command: color_depth_info
+ estimated_duration: 0.150
+ _description: Collect info on color depth and pixel format for $product
+ _summary: Test color depth info for $product
+ EOF
 
-id: graphics/fresh_rate
-plugin: shell
-command: fresh_rate_info
-_description: Collect info on fresh rate.
+id: graphics/generator_fresh_rate
+requires: device.category == 'VIDEO'
+_description: Refresh rate tests
+_summary: Refresh rate tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ id: graphics/`echo ${index}`_fresh_rate_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ plugin: shell
+ command: fresh_rate_info
+ _description: Collect info on fresh rate for $product.
+ _summary: Test refresh rate for $product
+ EOF
 
-id: graphics/graphic_memory
-plugin: shell
-command: graphic_memory_info
-_description: Collect info on graphic memory.
+id: graphics/generator_graphic_memory
+requires: device.category == 'VIDEO'
+_description: Graphic memory tests
+_summary: Graphic memory tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ id: graphics/`echo ${index}`_graphic_memory_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ plugin: shell
+ command: graphic_memory_info
+ _description: Collect info on graphic memory for $product.
+ _summary: Test graphic memory info for $product.
+ EOF
 
 plugin: user-verify
 id: graphics/display
-requires: 
+requires:
  package.name == 'xorg'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
 command: gst_pipeline_test -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink' 

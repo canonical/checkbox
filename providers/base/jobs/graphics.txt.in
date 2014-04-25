@@ -1,8 +1,17 @@
-plugin: shell
-id: graphics/driver_version
-command: graphics_driver
-estimated_duration: 0.500
-_description: Parses Xorg.0.Log and discovers the running X driver and version
+id: graphics/generator_driver_version
+requires: device.category == 'VIDEO'
+_description: Driver version tests
+_summary: Driver version tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: shell
+ id: graphics/`echo ${index}`_driver_version_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ command: graphics_driver
+ estimated_duration: 0.500
+ _description: Parses Xorg.0.Log and discovers the running X driver and version for the $product graphics card
+ _summary: Test X driver/version for $product
+ EOF
 
 plugin: shell
 id: graphics/xorg-version

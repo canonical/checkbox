@@ -399,23 +399,41 @@ command:
  _summary: Test 3D window movement for $product
  EOF
 
-plugin: shell
-id: graphics/screenshot
-requires: package.name == 'fswebcam'
-command: set -o pipefail; camera_test still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot.jpg -q 2>&1 | ansi_parser
-_description:
- PURPOSE:
-     Take a screengrab of the current screen (logged on Unity desktop)
- STEPS:
-     1. Take picture using USB webcam
- VERIFICATION:
-     Review attachment manually later
+id: graphics/generator_screenshot
+requires: device.category == 'VIDEO'
+_description: screenshot tests
+_summary: screenshot tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: shell
+ id: graphics/`echo ${index}`_screenshot_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: package.name == 'fswebcam'
+ command: set -o pipefail; camera_test still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot_${index}.jpg -q 2>&1 | ansi_parser
+ _summary: Test grabbing a screenshot for $product
+ _description:
+  PURPOSE:
+      Take a screengrab of the current screen (logged on Unity desktop) as produced by the $product graphics card
+  STEPS:
+      1. Take picture using USB webcam
+  VERIFICATION:
+      Review attachment manually later
+ EOF
 
-plugin: attachment
-id: screenshot.jpg
-depends: graphics/screenshot
-command: base64 ${PLAINBOX_SESSION_SHARE}/screenshot.jpg
-_description: Attaches the screenshot captured in graphics/screenshot.
+id: graphics/generator_screenshot.jpg
+requires: device.category == 'VIDEO'
+_description: screenshot attachment tests
+_summary: screenshot attachment tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: attachment
+ id: `echo ${index}`_screenshot_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`.jpg
+ depends: graphics/`echo ${index}`_screenshot_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ command: base64 ${PLAINBOX_SESSION_SHARE}/screenshot_${index}.jpg
+ _description: Attaches the screenshot captured in graphics/screenshot for the $product graphics card.
+ _summary: Attach results of screenshot test for $product
+ EOF
 
 plugin: shell
 id: graphics/screenshot_fullscreen_video

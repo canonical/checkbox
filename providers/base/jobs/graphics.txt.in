@@ -1,8 +1,17 @@
-plugin: shell
-id: graphics/driver_version
-command: graphics_driver
-estimated_duration: 0.500
-_description: Parses Xorg.0.Log and discovers the running X driver and version
+id: graphics/generator_driver_version
+requires: device.category == 'VIDEO'
+_description: Driver version tests
+_summary: Driver version tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: shell
+ id: graphics/`echo ${index}`_driver_version_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ command: graphics_driver
+ estimated_duration: 0.500
+ _description: Parses Xorg.0.Log and discovers the running X driver and version for the $product graphics card
+ _summary: Test X driver/version for $product
+ EOF
 
 plugin: shell
 id: graphics/xorg-version
@@ -10,16 +19,19 @@ requires: package.name == "x11-utils"
 command: xdpyinfo | grep "^X.Org version" | cut -d ':' -f 2 | tr -d ' '
 estimated_duration: 0.018
 _description: Test to output the Xorg version
+_summary: Test Xorg version
 
-id: graphics/resolution-change
+id: graphics/generator_resolution-change
 requires: device.category == 'VIDEO'
 _description: Resolution change tests
+_summary: Resolution change tests
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: user-interact-verify
  id: graphics/`echo ${index}`_resolution-change_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  depends: graphics/xorg-version
+ _summary: Test changing resolution for $product
  _description:
   PURPOSE:
       This test will verify that the GUI is usable after manually changing resolution on the $product graphics card.
@@ -42,6 +54,7 @@ requires:
 command: pgrep -f '/usr/bin/X' >/dev/null
 estimated_duration: 0.100
 _description: Test that the X process is running.
+_summary: Test that the X process is running.
 
 plugin: shell
 id: graphics/xorg-failsafe
@@ -49,103 +62,168 @@ requires: package.name == 'xorg'
 command: ! test -e /var/log/Xorg.failsafe.log
 estimated_duration: 0.030
 _description: Test that the X is not running in failsafe mode.
+_summary: Test that X is not in failsafe mode.
 
-plugin: user-verify
-id: graphics/resolution
-requires:
- device.category == 'VIDEO'
-command: resolution_test
-estimated_duration: 0.750
-_description:
- PURPOSE:
-     This test will verify the default display resolution
- STEPS:
-     1. This display is using the following resolution:
- INFO:
-     $output
- VERIFICATION:
-     Is this acceptable for your display?
-
-plugin: user-verify
-id: graphics/screen-resolution
-requires:
- device.category == 'VIDEO'
- package.name == 'qmlscene'
-command: timeout 5 qmlscene --transparent --fullscreen $PLAINBOX_PROVIDER_DATA/resolution_test.qml
-estimated_duration: 10.0
-_description:
- PURPOSE:
-     This test will verify the default display resolution
- STEPS:
-     1. Click on Test to display the screen resolution overlay for 5 seconds.
- VERIFICATION:
-     Is this acceptable for your display?
-
-plugin: shell
-id: graphics/minimum_resolution
-requires:
- device.category == 'VIDEO'
-command: resolution_test --horizontal 800 --vertical 600
-estimated_duration: 0.331
-_description:
- Ensure the current resolution meets or exceeds the recommended minimum
- resolution (800x600). See here for details:
- .
- https://help.ubuntu.com/community/Installation/SystemRequirements
-
-id: graphics/maximum_resolution
+id: graphics/generator_resolution
 requires: device.category == 'VIDEO'
-_description: Maximum resolution tests
-estimated_duration: 0.10
+_description: Default resolution tests
+_summary: Default resolution tests
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: user-verify
- id: graphics/`echo $index`_maximum_resolution_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ id: graphics/`echo ${index}`_resolution_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires:
+  device.category == 'VIDEO'
+ command: resolution_test
+ estimated_duration: 0.750
+ _summary: Test default resolution for $product
+ _description:
+  PURPOSE:
+      This test will verify the default display resolution on the $product graphics card.
+  STEPS:
+      1. This display is using the following resolution:
+  INFO:
+      Resolution: $output
+  VERIFICATION:
+      Is this acceptable for your display on $product graphics card?
+ EOF
+
+id: graphics/generator_screen_resolution
+requires: device.category == 'VIDEO'
+_description: Default resolution tests
+_summary: Default resolution tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: user-verify
+ id: graphics/`echo ${index}`_screen_resolution_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires:
+  device.category == 'VIDEO'
+  package.name == 'qmlscene'
+ command: timeout 5 qmlscene --transparent --fullscreen $PLAINBOX_PROVIDER_DATA/resolution_test.qml
+ estimated_duration: 10.0
+ _summary: Test default resolution for $product
+ _description:
+  PURPOSE:
+      This test will verify the default display resolution on the $product graphics card
+  STEPS:
+      1. Click on Test to display the screen resolution overlay for 5 seconds.
+  VERIFICATION:
+      Is this acceptable for your display on the $product graphics card?
+ EOF
+
+id: graphics/generator_minimum_resolution
+requires: device.category == 'VIDEO'
+_description: Minimum resolution tests
+_summary: Minimum resolution tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: shell
+ id: graphics/`echo ${index}`_minimum_resolution_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires:
+  device.category == 'VIDEO'
+ command: resolution_test --horizontal 800 --vertical 600
+ estimated_duration: 0.331
+ _summary: Test that $product meets minimum resolution requirement
+ _description:
+  Ensure the current resolution meets or exceeds the recommended minimum
+  resolution (800x600) on the $product graphics card. See here for details:
+  https://help.ubuntu.com/community/Installation/SystemRequirements
+ EOF
+
+id: graphics/generator_maximum_resolution
+requires: device.category == 'VIDEO'
+_description: Maximum resolution tests
+_summary: Maximum resolution tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ id: graphics/`echo ${index}`_maximum_resolution_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ plugin: user-verify
  requires:
   device.category == 'VIDEO'
   package.name == 'zenity'
  command: zenity --info --text "Maximum resolution: $(xrandr -q |grep -A 1 "connected\( primary\)* [0-9]" |tail -1 |awk '{print $1}')"
  estimated_duration: 10.0
+ _summary: Test maximum resolution for $product
  _description:
   PURPOSE:
-      This test will verify the display is operating at its maximum supported resolution on the $product graphics card. 
+    This test will verify the display is operating at its maximum supported resolution on the $product graphics card. 
   STEPS:
-      1. Select the $product graphics card (a reboot may be necessary)
-      2. Consult the system's specifications and locate the screen's maximum supported resolution.
-      3. Click on Test to display the maximum resolution that can be used by Ubuntu on the current display.
+    1. Select the $product graphics card (a reboot may be necessary)
+    2. Consult the system's specifications and locate the screen's maximum supported resolution.
+    3. Click on Test to display the maximum resolution that can be used by Ubuntu on the current display.
   VERIFICATION:
-      Is this the maximum resolution for the display connected to the $product graphics card?
+    Is this the maximum resolution for the display connected to the $product graphics card?
  EOF
 
-id: graphics/modes
-plugin: shell
-command: graphics_modes_info
-estimated_duration: 0.250
-_description: Collect info on graphics modes (screen resolution and refresh rate)
+id: graphics/generator_modes
+requires: device.category == 'VIDEO'
+_description: Mode tests
+_summary: Mode tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ id: graphics/`echo ${index}`_modes_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ plugin: shell
+ command: graphics_modes_info
+ estimated_duration: 0.250
+ _description: Collect info on graphics modes (screen resolution and refresh rate) for $product
+ _summary: Test graphic modes info for $product
+ EOF
 
-id: graphics/color_depth
-plugin: shell
-command: color_depth_info
-estimated_duration: 0.150
-_description: Collect info on color depth and pixel format.
+id: graphics/generator_color_depth
+requires: device.category == 'VIDEO'
+_description: Color depth tests
+_summary: Color depth tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ id: graphics/`echo ${index}`_color_depth_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ plugin: shell
+ command: color_depth_info
+ estimated_duration: 0.150
+ _description: Collect info on color depth and pixel format for $product
+ _summary: Test color depth info for $product
+ EOF
 
-id: graphics/fresh_rate
-plugin: shell
-command: fresh_rate_info
-_description: Collect info on fresh rate.
+id: graphics/generator_fresh_rate
+requires: device.category == 'VIDEO'
+_description: Refresh rate tests
+_summary: Refresh rate tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ id: graphics/`echo ${index}`_fresh_rate_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ plugin: shell
+ command: fresh_rate_info
+ _description: Collect info on fresh rate for $product.
+ _summary: Test refresh rate for $product
+ EOF
 
-id: graphics/graphic_memory
-plugin: shell
-command: graphic_memory_info
-_description: Collect info on graphic memory.
+id: graphics/generator_graphic_memory
+requires: device.category == 'VIDEO'
+_description: Graphic memory tests
+_summary: Graphic memory tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ id: graphics/`echo ${index}`_graphic_memory_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ plugin: shell
+ command: graphic_memory_info
+ _description: Collect info on graphic memory for $product.
+ _summary: Test graphic memory info for $product.
+ EOF
 
 plugin: user-verify
 id: graphics/display
-requires: 
+requires:
  package.name == 'xorg'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
 command: gst_pipeline_test -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink' 
+_summary: Test that video can be displayed
 _description:
  PURPOSE:
      This test will test the default display
@@ -159,134 +237,252 @@ id: graphics/VESA_drivers_not_in_use
 command: cat /var/log/Xorg.0.log | perl -e '$a=0;while(<>){$a++ if /Loading.*vesa_drv\.so/;$a-- if /Unloading.*vesa/&&$a}exit 1 if $a'
 estimated_duration: 0.011
 _description: Check that VESA drivers are not in use
+_summary: Test that VESA drivers are not in use
 
-plugin: user-verify
-id: graphics/cycle_resolution
-requires: package.name == 'xorg'
-depends: graphics/VESA_drivers_not_in_use
-command: xrandr_cycle --screenshot-dir $PLAINBOX_SESSION_SHARE
-estimated_duration: 250.000
-_description:
- PURPOSE:
-     This test cycles through the detected video modes
- STEPS:
-     1. Click "Test" to start cycling through the video modes
- VERIFICATION:
-     Did the screen appear to be working for each mode?
-
-plugin: user-verify
-id: graphics/rotation
-depends: graphics/xorg-version
-command: rotation_test
-estimated_duration: 20.000
-_description:
- PURPOSE:
-     This test will test display rotation
- STEPS:
-     1. Click "Test" to test display rotation. The display will be rotated every 4 seconds.
-     2. Check if all rotations (normal right inverted left) took place without permanent screen corruption
- VERIFICATION:
-     Did the display rotation take place without without permanent screen corruption?
-
-plugin: shell
-id: graphics/compiz_check
-requires: package.name == 'nux-tools'
-command: ! /usr/lib/nux/unity_support_test -c -p | ansi_parser | grep ":\(\s\+\)no$"
-estimated_duration: 0.130
-_description: Check that hardware is able to run compiz
-
-plugin: shell
-id: graphics/unity-support
-requires: package.name == 'nux-tools'
-command: ! /usr/lib/nux/unity_support_test -p | ansi_parser | grep ":\(\s\+\)no"
-estimated_duration: 0.131
-_description: Check that hardware is able to run Unity 3D
-
-plugin: user-verify
-id: graphics/glxgears
-requires: package.name == 'mesa-utils'
-command: glxgears; true
-_description:
- PURPOSE:
-     This test tests the basic 3D capabilities of your video card
- STEPS:
-     1. Click "Test" to execute an OpenGL demo. Press ESC at any time to close.
-     2. Verify that the animation is not jerky or slow.
- VERIFICATION:
-     1. Did the 3d animation appear?
-     2. Was the animation free from slowness/jerkiness?
-
-plugin: shell
-id: graphics/3d_window_open_close
-requires: package.name == 'mesa-utils'
-command: window_test -t open-close -i 10
-estimated_duration: 60.525
-_description: Open and close a 3D window multiple times
-
-plugin: shell
-id: graphics/3d_window_suspend_resume
-requires: package.name == 'mesa-utils'
-command: window_test -t suspend-resume -i 10
-estimated_duration: 121.00
-_description: Open, suspend resume and close a 3D window multiple times
-
-plugin: shell
-id: graphics/multi_3d_windows_open_close
-requires: package.name == 'mesa-utils'
-command: window_test -t open-close-multi -i 10 -w 4
-estimated_duration: 60.000
-_description: Open and close 4 3D windows multiple times
-
-plugin: shell
-id: graphics/3d_window_move
-requires: package.name == 'mesa-utils'
-command: window_test -t move
-estimated_duration: 50.000
-_description: Move a 3D window around the screen
-
-plugin: shell
-id: graphics/screenshot
-requires: package.name == 'fswebcam'
-command: set -o pipefail; camera_test still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot.jpg -q 2>&1 | ansi_parser
-_description:
- PURPOSE:
-     Take a screengrab of the current screen (logged on Unity desktop)
- STEPS:
-     1. Take picture using USB webcam
- VERIFICATION:
-     Review attachment manually later
-
-plugin: attachment
-id: screenshot.jpg
-depends: graphics/screenshot
-command: base64 ${PLAINBOX_SESSION_SHARE}/screenshot.jpg
-_description: Attaches the screenshot captured in graphics/screenshot.
-
-plugin: shell
-id: graphics/screenshot_fullscreen_video
-requires: package.name == 'fswebcam'
+id: graphics/generator_cycle_resolution
+requires: device.category == 'VIDEO'
+_description: Resolution cycling tests
+_summary: Resolution cycling tests
+plugin: local
 command:
- [ -f ${PLAINBOX_PROVIDER_DATA}/video/Ogg_Theora_Video.ogv ] || { echo "Video file not found"; exit 1; }
- dbus-launch gsettings set org.gnome.totem repeat true
- totem --fullscreen ${PLAINBOX_PROVIDER_DATA}/video/Ogg_Theora_Video.ogv 2>/dev/null &
- set -o pipefail
- sleep 15 && camera_test still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot_fullscreen_video.jpg -q 2>&1 | ansi_parser
- sleep 5 && totem --quit 2>/dev/null
- dbus-launch gsettings set org.gnome.totem repeat false
-_description:
- PURPOSE:
-     Take a screengrab of the current screen during fullscreen video playback
- STEPS:
-     1. Start a fullscreen video playback
-     2. Take picture using USB webcam after a few seconds
- VERIFICATION:
-     Review attachment manually later
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: user-verify
+ id: graphics/`echo ${index}`_cycle_resolution_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: package.name == 'xorg'
+ depends: graphics/VESA_drivers_not_in_use
+ command: xrandr_cycle --screenshot-dir $PLAINBOX_SESSION_SHARE
+ estimated_duration: 250.000
+ _summary: Test resolution cycling for $product
+ _description:
+  PURPOSE:
+      This test cycles through the detected video modes for the $product graphics card
+  STEPS:
+      1. Click "Test" to start cycling through the video modes
+  VERIFICATION:
+      Did the screen appear to be working for each mode?
+ EOF
 
-plugin: attachment
-id: screenshot_fullscreen_video.jpg
-depends: graphics/screenshot_fullscreen_video
-command: base64 ${PLAINBOX_SESSION_SHARE}/screenshot_fullscreen_video.jpg
-_description: Attaches the screenshot captured in graphics/screenshot_fullscreen_video.
+id: graphics/generator_rotation
+requires: device.category == 'VIDEO'
+_description: Rotation tests
+_summary: Rotation tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: user-verify
+ id: graphics/`echo ${index}`_rotation_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ depends: graphics/xorg-version
+ command: rotation_test
+ estimated_duration: 20.000
+ _summary: Test rotation for $product
+ _description:
+  PURPOSE:
+      This test will test display rotation on the $product graphics card
+  STEPS:
+      1. Click "Test" to test display rotation. The display will be rotated every 4 seconds.
+      2. Check if all rotations (normal right inverted left) took place without permanent screen corruption
+  VERIFICATION:
+      Did the display rotation take place without without permanent screen corruption?
+ EOF
+
+id: graphics/generator_compiz_check
+requires: device.category == 'VIDEO'
+_description: Compiz support tests
+_summary: Compiz support tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: shell
+ id: graphics/`echo ${index}`_compiz_check_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: package.name == 'nux-tools'
+ command: ! /usr/lib/nux/unity_support_test -c -p | ansi_parser | grep ":\(\s\+\)no$"
+ estimated_duration: 0.130
+ _description: Check that $product hardware is able to run compiz
+ _summary: Test Compiz support for $product
+ EOF
+
+id: graphics/generator_unity_support
+requires: device.category == 'VIDEO'
+_description: Unity support tests
+_summary: Unity support tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: shell
+ id: graphics/`echo ${index}`_unity_support_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: package.name == 'nux-tools'
+ command: ! /usr/lib/nux/unity_support_test -p | ansi_parser | grep ":\(\s\+\)no"
+ estimated_duration: 0.131
+ _description: Check that $product hardware is able to run Unity 3D
+ _summary: Test Unity 3D support for $product
+ EOF
+
+id: graphics/generator_glxgears
+requires: device.category == 'VIDEO'
+_description: glxgears tests
+_summary: glxgears tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: user-verify
+ id: graphics/`echo ${index}`_glxgears_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: package.name == 'mesa-utils'
+ command: glxgears; true
+ _summary: Test that glxgears works for $product
+ _description:
+  PURPOSE:
+      This test tests the basic 3D capabilities of your $product video card
+  STEPS:
+      1. Click "Test" to execute an OpenGL demo. Press ESC at any time to close.
+      2. Verify that the animation is not jerky or slow.
+  VERIFICATION:
+      1. Did the 3d animation appear?
+      2. Was the animation free from slowness/jerkiness?
+ EOF
+
+id: graphics/generator_3d_window_open_close
+requires: device.category == 'VIDEO'
+_description: 3D window open/close tests
+_summary: 3D window open/close tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: shell
+ id: graphics/`echo ${index}`_3d_window_open_close_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: package.name == 'mesa-utils'
+ command: window_test -t open-close -i 10
+ estimated_duration: 60.525
+ _description: Open and close a 3D window multiple times on the $product video card
+ _summary: Test 3D window open/close for $product
+ EOF
+
+id: graphics/generator_3d_window_suspend_resume
+requires: device.category == 'VIDEO'
+_description: 3D window with suspend/resume tests
+_summary: 3D window with suspend/resume tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: shell
+ id: graphics/`echo ${index}`_3d_window_suspend_resume_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: package.name == 'mesa-utils'
+ command: window_test -t suspend-resume -i 10
+ estimated_duration: 121.00
+ _description: Open, suspend resume and close a 3D window multiple times on the $product video card
+ _summary: Test a 3D window with suspend/resume for $product
+ EOF
+
+id: graphics/generator_multi_3d_windows_open_close
+requires: device.category == 'VIDEO'
+_description: Multiple 3D window open/close
+_summary: Multiple 3D window open/close tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: shell
+ id: graphics/`echo ${index}`_multi_3d_windows_open_close_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: package.name == 'mesa-utils'
+ command: window_test -t open-close-multi -i 10 -w 4
+ estimated_duration: 60.000
+ _description: Open and close 4 3D windows multiple times on the $product video card
+ _summary: Test Multi 3D window open/close for $product
+ EOF
+
+id: graphics/generator_3d_window_move
+requires: device.category == 'VIDEO'
+_description: 3D window movement
+_summary: 3D window movement tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: shell
+ id: graphics/`echo ${index}`_3d_window_move_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: package.name == 'mesa-utils'
+ command: window_test -t move
+ estimated_duration: 50.000
+ _description: Move a 3D window around the screen on the $product video card
+ _summary: Test 3D window movement for $product
+ EOF
+
+id: graphics/generator_screenshot
+requires: device.category == 'VIDEO'
+_description: screenshot tests
+_summary: screenshot tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: shell
+ id: graphics/`echo ${index}`_screenshot_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: package.name == 'fswebcam'
+ command: set -o pipefail; camera_test still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot_${index}.jpg -q 2>&1 | ansi_parser
+ _summary: Test grabbing a screenshot for $product
+ _description:
+  PURPOSE:
+      Take a screengrab of the current screen (logged on Unity desktop) as produced by the $product graphics card
+  STEPS:
+      1. Take picture using USB webcam
+  VERIFICATION:
+      Review attachment manually later
+ EOF
+
+id: graphics/generator_screenshot.jpg
+requires: device.category == 'VIDEO'
+_description: screenshot attachment tests
+_summary: screenshot attachment tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: attachment
+ id: `echo ${index}`_screenshot_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`.jpg
+ depends: graphics/`echo ${index}`_screenshot_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ command: base64 ${PLAINBOX_SESSION_SHARE}/screenshot_${index}.jpg
+ _description: Attaches the screenshot captured in graphics/screenshot for the $product graphics card.
+ _summary: Attach results of screenshot test for $product
+ EOF
+
+id: graphics/generator_screenshot_fullscreen_video
+requires: device.category == 'VIDEO'
+_description: full screen video screenshot tests
+_summary: full screen video screenshot tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: shell
+ id: graphics/`echo ${index}`_screenshot_fullscreen_video_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: package.name == 'fswebcam'
+ command:
+  [ -f ${PLAINBOX_PROVIDER_DATA}/video/Ogg_Theora_Video.ogv ] || { echo "Video file not found"; exit 1; }
+  dbus-launch gsettings set org.gnome.totem repeat true
+  totem --fullscreen ${PLAINBOX_PROVIDER_DATA}/video/Ogg_Theora_Video.ogv 2>/dev/null &
+  set -o pipefail
+  sleep 15 && camera_test still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot_fullscreen_video_${index}.jpg -q 2>&1 | ansi_parser
+  sleep 5 && totem --quit 2>/dev/null
+  dbus-launch gsettings set org.gnome.totem repeat false
+ _summary: Test FSV screenshot for $product
+ _description:
+  PURPOSE:
+      Take a screengrab of the current screen during fullscreen video playback using the $product graphics card
+  STEPS:
+      1. Start a fullscreen video playback
+      2. Take picture using USB webcam after a few seconds
+  VERIFICATION:
+      Review attachment manually later
+ EOF
+
+id: graphics/generator_screenshot_fullscreen_video.jpg
+requires: device.category == 'VIDEO'
+_description: full screen video attachment tests
+_summary: full screen video attachment tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: attachment
+ id: `echo ${index}`_screenshot_fullscreen_video_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`.jpg
+ depends: graphics/`echo ${index}`_screenshot_fullscreen_video_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ command: base64 ${PLAINBOX_SESSION_SHARE}/screenshot_fullscreen_video_${index}.jpg
+ _summary: Attach results of FSV screenshot test for $product
+ _description: Attaches the screenshot captured in graphics/screenshot_fullscreen_video for the $product graphics card
+ EOF
 
 plugin: shell
 id: graphics/screenshot_opencv_validation
@@ -297,6 +493,7 @@ command:
     ${PLAINBOX_PROVIDER_DATA}/images/logo_Ubuntu_stacked_black.png \
     --device=${EXTERNAL_WEBCAM_DEVICE:-/dev/external_webcam} \
     -o ${PLAINBOX_SESSION_SHARE}/screenshot_opencv_validation.jpg
+_summary: Test that a screenshot is valid, automatically
 _description:
  Take a screengrab of the screen displaying a black and white Ubuntu logo.
  Check that the screenshot matches the original file using OpenCV ORB detection.
@@ -306,3 +503,4 @@ id: screenshot_opencv_validation.jpg
 depends: graphics/screenshot_opencv_validation
 command: base64 ${PLAINBOX_SESSION_SHARE}/screenshot_opencv_validation.jpg
 _description: Attaches the screenshot captured in graphics/screenshot_opencv_validation.
+_summary: Attach the screenshot captured for the automatically validated screenshot test

@@ -1,3 +1,10 @@
+checkbox-ng (0.3.1-1) unstable; urgency=medium
+
+  * New upstream release: https://launchpad.net/checkbox-ng/14.04/0.3.1 
+  * debian/control: reformat some dependencies
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Mon, 28 Apr 2014 11:35:20 +0200
+
 checkbox-ng (0.3-2) unstable; urgency=medium
 
   * Add build dependency on python3-requests

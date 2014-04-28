@@ -65,3 +65,24 @@ _description:
      2. Tilt your hardware in the directions onscreen until the axis threshold is met.
  VERIFICATION:
      Is your accelerometer properly detected? Can you use the device?
+
+plugin: local
+id: input/clicking
+requires:
+ device.category == 'MOUSE' or device.category == 'TOUCHPAD'
+_description: Click tests for pointing devices.
+command:
+ cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=MOUSE" -w "category=TOUCHPAD"'
+ plugin: manual
+ id: input/clicking_`echo "${product}_${category}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`_`basename $path`
+ requires: device.path == "$path"
+ description:
+  PURPOSE:
+      This will test the buttons of your $product device
+  STEPS:
+      1. Click the left button with your $product.
+      2. Click the right button with your $product.
+      3. Click the middle button with your $product (if available).
+  VERIFICATION:
+      Did these buttons work as expected?
+ EOF

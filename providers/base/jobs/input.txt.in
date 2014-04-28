@@ -70,13 +70,15 @@ plugin: local
 id: input/clicking
 requires:
  device.category == 'MOUSE' or device.category == 'TOUCHPAD'
+_summary: Create click tests for pointing devices.
 _description: Click tests for pointing devices.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=MOUSE" -w "category=TOUCHPAD"'
  plugin: manual
  id: input/clicking_`echo "${product}_${category}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`_`basename $path`
  requires: device.path == "$path"
- description:
+ _summary: Check button functionality for $product
+ _description:
   PURPOSE:
       This will test the buttons of your $product device
   STEPS:

@@ -47,10 +47,11 @@ Description: CheckBox D-Bus service
 
 Package: python3-checkbox-ng
 Architecture: all
-Depends: python3-plainbox (>= 0.5.3),
-         python3-requests (>= 1.0),
-         ${misc:Depends},
-         ${python3:Depends}
+Depends:
+ python3-plainbox (>= 0.5.3),
+ python3-requests (>= 1.0),
+ ${misc:Depends},
+ ${python3:Depends}
 Description: PlainBox based test runner (Python 3 library)
  CheckBoxNG is a hardware testing tool useful for certifying laptops,
  desktops and servers. It is a new version of CheckBox that is built

@@ -124,16 +124,16 @@ class TestCertServer(TestCase):
 
         optional arguments:
           -h, --help            show this help message and exit
-          --check-config        Run check-config
-          --not-interactive     Skip tests that require interactivity
+          --check-config        run check-config
+          --not-interactive     skip tests that require interactivity
 
         certification-specific options:
           --secure-id SECURE-ID
-                                Associate submission with a machine using this SECURE-
+                                associate submission with a machine using this SECURE-
                                 ID (None)
           --destination URL     POST the test report XML to this URL (https://certific
                                 ation.canonical.com/submissions/submit/)
-          --staging             Override --destination to use the staging
+          --staging             override --destination to use the staging
                                 certification website
 
         job definition options:

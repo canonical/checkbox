@@ -23,6 +23,7 @@
 """
 
 import logging
+import os
 import sys
 
 from plainbox.impl.commands import PlainBoxToolBase
@@ -36,8 +37,9 @@ from checkbox_ng.commands.cli import CliCommand
 from checkbox_ng.commands.sru import SRUCommand
 try:
     from checkbox_ng.commands.service import ServiceCommand
+    dbus_supported = True
 except ImportError:
-    pass
+    dbus_supported = False
 from checkbox_ng.config import CertificationConfig, CheckBoxConfig, CDTSConfig
 
 
@@ -110,6 +112,12 @@ class CheckBoxNGTool(PlainBoxToolBase):
     def get_config_cls(cls):
         return CheckBoxConfig
 
+    def get_gettext_domain(self):
+        return "checkbox-ng"
+
+    def get_locale_dir(self):
+        return os.getenv("CHECKBOX_NG_LOCALE_DIR", None)
+
     def add_subcommands(self, subparsers):
         SRUCommand(
             self._provider_list, self._config).register_parser(subparsers)
@@ -128,11 +136,9 @@ class CheckBoxNGTool(PlainBoxToolBase):
         CertificationCommand(
             self._provider_list, self._config, cert_cli_settings
             ).register_parser(subparsers)
-        try:
+        if dbus_supported:
             ServiceCommand(self._provider_list, self._config).register_parser(
                 subparsers)
-        except NameError:
-            pass
 
 
 class CertificationNGTool(CheckBoxNGTool):

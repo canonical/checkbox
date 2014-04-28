@@ -30,6 +30,7 @@ import logging
 import sys
 import tempfile
 
+from gettext import gettext as _
 from plainbox.impl.applogic import get_matching_job_list
 from plainbox.impl.applogic import get_whitelist_by_name
 from plainbox.impl.applogic import run_job_if_possible
@@ -84,11 +85,10 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
         except DependencyDuplicateError as exc:
             # Handle possible DependencyDuplicateError that can happen if
             # someone is using plainbox for job development.
-            print("The job database you are currently using is broken")
-            print("At least two jobs contend for the name {0}".format(
+            print(_("The job database you are currently using is broken"))
+            print(_("At least two jobs contend for the name {0}").format(
                 exc.job.id))
-            print("First job defined in: {0}".format(exc.job.origin))
-            print("Second job defined in: {0}".format(
+            print(_("Second job defined in: {0}").format(
                 exc.duplicate_job.origin))
             raise SystemExit(exc)
         with self.session.open():
@@ -108,20 +108,21 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
         desired_job_list = get_matching_job_list(self.job_list, self.whitelist)
         problem_list = self.session.update_desired_job_list(desired_job_list)
         if problem_list:
-            logger.warning("There were some problems with the selected jobs")
+            logger.warning(
+                _("There were some problems with the selected jobs"))
             for problem in problem_list:
                 logger.warning("- %s", problem)
-            logger.warning("Problematic jobs will not be considered")
+            logger.warning(_("Problematic jobs will not be considered"))
 
     def _save_results(self):
-        print("Saving results to {0}".format(self.config.fallback_file))
+        print(_("Saving results to {0}").format(self.config.fallback_file))
         data = self.exporter.get_session_data_subset(self.session)
         with open(self.config.fallback_file, "wt", encoding="UTF-8") as stream:
             translating_stream = ByteStringStreamTranslator(stream, "UTF-8")
             self.exporter.dump(data, translating_stream)
 
     def _submit_results(self):
-        print("Submitting results to {0} for secure_id {1}".format(
+        print(_("Submitting results to {0} for secure_id {1}").format(
               self.config.c3_url, self.config.secure_id))
         options_string = "secure_id={0}".format(self.config.secure_id)
         # Create the transport object
@@ -138,15 +139,15 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
                 # Send the data, reading from the temporary file
                 result = transport.send(stream, self.config, self.session)
                 if 'url' in result:
-                    print("Successfully sent, submission status at {0}".format(
-                        result['url']))
+                    print(_("Successfully sent, submission status at"
+                            " {0}").format(result['url']))
                 else:
-                    print("Successfully sent, server response: {0}".format(
+                    print(_("Successfully sent, server response: {0}").format(
                         result))
             except (ValueError, TransportError) as exc:
                 print(str(exc))
             except IOError as exc:
-                print("Problem reading a file: {0}".format(exc))
+                print(_("Problem reading a file: {0}").format(exc))
 
     def _run_all_jobs(self):
         again = True
@@ -176,9 +177,9 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
         print("{0}".format(job_result.outcome))
         sys.stdout.flush()
         if job_result.comments is not None:
-            print("comments: {0}".format(job_result.comments))
+            print(_("comments: {0}").format(job_result.comments))
         if job_state.readiness_inhibitor_list:
-            print("inhibitors:")
+            print(_("inhibitors:"))
         for inhibitor in job_state.readiness_inhibitor_list:
             print("  * {}".format(inhibitor))
         self.session.update_job_result(job, job_result)
@@ -198,6 +199,8 @@ class SRUCommand(PlainBoxCommand, CheckBoxCommandMixIn):
     plainbox core on realistic workloads.
     """
 
+    gettext_domain = "checkbox-ng"
+
     def __init__(self, provider_list, config):
         self.provider_list = provider_list
         self.config = config
@@ -212,7 +215,7 @@ class SRUCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             if ns.c3_url:
                 self.config.c3_url = ns.c3_url
         except ValidationError as exc:
-            print("Configuration problems prevent running SRU tests")
+            print(_("Configuration problems prevent running SRU tests"))
             print(exc)
             return 1
         # Run check-config, if requested
@@ -224,12 +227,12 @@ class SRUCommand(PlainBoxCommand, CheckBoxCommandMixIn):
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(
-            "sru", help="run automated stable release update tests")
+            "sru", help=_("run automated stable release update tests"))
         parser.set_defaults(command=self)
         parser.add_argument(
             "--check-config",
             action="store_true",
-            help="Run plainbox check-config before starting")
+            help=_("run check-config before starting"))
         group = parser.add_argument_group("sru-specific options")
         # Set defaults from based on values from the config file
         group.set_defaults(
@@ -237,37 +240,41 @@ class SRUCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             c3_url=self.config.c3_url,
             fallback_file=self.config.fallback_file)
         group.add_argument(
-            '--secure-id', metavar="SECURE-ID",
+            '--secure-id', metavar=_("SECURE-ID"),
             action='store',
             # NOTE: --secure-id is optional only when set in a config file
             required=self.config.secure_id is Unset,
-            help=("Associate submission with a machine using this SECURE-ID"
-                  " (%(default)s)"))
+            # TRANSLATORS: Do not translate %(default)
+            help=(_("associate submission with a machine using this SECURE-ID"
+                  " (%(default)s)")))
         group.add_argument(
-            '--fallback', metavar="FILE",
+            '--fallback', metavar=_("FILE"),
             dest='fallback_file',
             action='store',
             default=Unset,
-            help=("If submission fails save the test report as FILE"
-                  " (%(default)s)"))
+            # TRANSLATORS: Do not translate %(default)s
+            help=(_("if submission fails save the test report as FILE"
+                  " (%(default)s)")))
         group.add_argument(
-            '--destination', metavar="URL",
+            '--destination', metavar=_("URL"),
             dest='c3_url',
             action='store',
-            help=("POST the test report XML to this URL"
-                  " (%(default)s)"))
+            # TRANSLATORS: Do not translate %(default)s
+            help=(_("POST the test report XML to this URL"
+                  " (%(default)s)")))
         group.add_argument(
             '--staging',
             dest='c3_url',
             action='store_const',
-            const='https://certification.staging.canonical.com/submissions/submit/',
-            help='Override --destination to use the staging certification website')
+            const='https://certification.staging.canonical.com/'
+                  'submissions/submit/',
+            help=_('override --destination to use the staging '
+                   'certification website'))
         group = parser.add_argument_group(title="execution options")
         group.add_argument(
             '-n', '--dry-run',
             action='store_true',
             default=False,
-            help=("Skip all usual jobs."
-                  " Only local, resource and attachment jobs are started"))
+            help=_("don't really run most jobs"))
         # Call enhance_parser from CheckBoxCommandMixIn
         self.enhance_parser(parser)

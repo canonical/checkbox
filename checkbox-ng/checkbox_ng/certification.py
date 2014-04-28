@@ -119,7 +119,8 @@ class CertificationTransport(TransportBase):
         if secure_id is None:
             raise InvalidSecureIDError(_("Secure ID not specified"))
         self._validate_secure_id(secure_id)
-        logger.debug("Sending to %s, hardware id is %s", self.url, secure_id)
+        logger.debug(
+            _("Sending to %s, hardware id is %s"), self.url, secure_id)
         headers = {"X_HARDWARE_ID": secure_id}
         # Requests takes care of properly handling a file-like data.
         form_payload = {"data": data}

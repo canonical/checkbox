@@ -26,6 +26,7 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
+from gettext import gettext as _
 from logging import getLogger
 from os.path import join
 from shutil import copyfileobj
@@ -61,7 +62,6 @@ from plainbox.vendor.textland import EVENT_KEYBOARD
 from plainbox.vendor.textland import EVENT_RESIZE
 from plainbox.vendor.textland import Event
 from plainbox.vendor.textland import IApplication
-from plainbox.vendor.textland import KeyboardData
 from plainbox.vendor.textland import Size
 from plainbox.vendor.textland import TextImage
 from plainbox.vendor.textland import get_display
@@ -142,7 +142,7 @@ class SelectableJobTreeNode(JobTreeNode):
                 prefix = '[ ]'
                 if self.job_selection[job]:
                     prefix = '[X]'
-                title = job.name
+                title = job.partial_id
                 line = prefix + self.depth * '   ' + '   ' + title
                 if len(line) > cols:
                     col_max = cols - 4  # includes len('...') + a space
@@ -251,7 +251,7 @@ class ShowWelcome(IApplication):
                 i += 1
         ctx.move_to(4, i + 1)
         ctx.attributes.style = REVERSE
-        ctx.print("< Continue >")
+        ctx.print(_("< Continue >"))
 
 
 class ShowMenu(IApplication):
@@ -366,26 +366,29 @@ class ScrollableTreeNode(IApplication):
         ctx.print(self.title)
         ctx.move_to(1, self.image.size.height - 1)
         ctx.attributes.style = UNDERLINE
-        ctx.print("Enter")
+        ctx.print(_("Enter"))
         ctx.move_to(6, self.image.size.height - 1)
         ctx.attributes.style = NORMAL
-        ctx.print(": Expand/Collapse")
+        ctx.print(_(": Expand/Collapse"))
         ctx.move_to(27, self.image.size.height - 1)
         ctx.attributes.style = UNDERLINE
+        # FIXME: i18n problem
         ctx.print("S")
         ctx.move_to(28, self.image.size.height - 1)
         ctx.attributes.style = NORMAL
         ctx.print("elect All")
         ctx.move_to(41, self.image.size.height - 1)
         ctx.attributes.style = UNDERLINE
+        # FIXME: i18n problem
         ctx.print("D")
         ctx.move_to(42, self.image.size.height - 1)
         ctx.attributes.style = NORMAL
         ctx.print("eselect All")
         ctx.move_to(66 + extra_cols, self.image.size.height - 1)
-        ctx.print("Start ")
+        ctx.print(_("Start "))
         ctx.move_to(72 + extra_cols, self.image.size.height - 1)
         ctx.attributes.style = UNDERLINE
+        # FIXME: i18n problem
         ctx.print("T")
         ctx.move_to(73 + extra_cols, self.image.size.height - 1)
         ctx.attributes.style = NORMAL
@@ -497,17 +500,20 @@ class CliInvocation(CheckBoxInvocationMixIn):
             except DependencyDuplicateError as exc:
                 # Handle possible DependencyDuplicateError that can happen if
                 # someone is using plainbox for job development.
-                print("The job database you are currently using is broken")
-                print("At least two jobs contend for the name {0}".format(
+                print(_("The job database you are currently using is broken"))
+                print(_("At least two jobs contend for the name {0}").format(
                     exc.job.id))
-                print("First job defined in: {0}".format(exc.job.origin))
-                print("Second job defined in: {0}".format(
+                print(_("First job defined in: {0}").format(exc.job.origin))
+                print(_("Second job defined in: {0}").format(
                     exc.duplicate_job.origin))
                 raise SystemExit(exc)
             manager.state.metadata.title = " ".join(sys.argv)
             if self.is_interactive:
                 if self.display is None:
                     self.display = get_display()
+                # FIXME: i18n problem, welcome text must be translatable but
+                # comes from external source. It should be made a part of the
+                # program.
                 if self.settings['welcome_text']:
                     self.display.run(
                         ShowWelcome(self.settings['welcome_text']))
@@ -520,7 +526,8 @@ class CliInvocation(CheckBoxInvocationMixIn):
                     selection = self.display.run(ShowMenu("Suite selection",
                                                           whitelists))
                     if not selection:
-                        raise SystemExit('No whitelists selected, aborting...')
+                        raise SystemExit(
+                            _('No whitelists selected, aborting...'))
                     for s in selection:
                         self.whitelists.append(
                             get_whitelist_by_name(self.provider_list,
@@ -544,7 +551,7 @@ class CliInvocation(CheckBoxInvocationMixIn):
             # Ask the password before anything else in order to run local jobs
             # requiring privileges
             if self._auth_warmup_needed(manager):
-                print("[ Authentication ]".center(80, '='))
+                print("[ {} ]".format(_("Authentication")).center(80, '='))
                 return_code = authenticate_warmup()
                 if return_code:
                     raise SystemExit(return_code)
@@ -561,14 +568,14 @@ class CliInvocation(CheckBoxInvocationMixIn):
                 # Ask the password before anything else in order to run jobs
                 # requiring privileges
                 if self._auth_warmup_needed(manager):
-                    print("[ Authentication ]".center(80, '='))
+                    print("[ {} ]".format(_("Authentication")).center(80, '='))
                     return_code = authenticate_warmup()
                     if return_code:
                         raise SystemExit(return_code)
                 tree = SelectableJobTreeNode.create_tree(
                     manager.state.run_list,
                     legacy_mode=True)
-                title = 'Choose tests to run on your system:'
+                title = _('Choose tests to run on your system:')
                 if self.display is None:
                     self.display = get_display()
                 self.display.run(ScrollableTreeNode(tree, title))
@@ -576,21 +583,17 @@ class CliInvocation(CheckBoxInvocationMixIn):
                 estimated_duration_auto, estimated_duration_manual = \
                     manager.state.get_estimated_duration()
                 if estimated_duration_auto:
-                    print(
-                        "Estimated duration is {:.2f} "
-                        "for automated jobs.".format(estimated_duration_auto))
+                    print(_("Estimated duration is {:.2f} for automated"
+                            " jobs.").format(estimated_duration_auto))
                 else:
-                    print(
-                        "Estimated duration cannot be "
-                        "determined for automated jobs.")
+                    print(_("Estimated duration cannot be determined for"
+                            " automated jobs."))
                 if estimated_duration_manual:
-                    print(
-                        "Estimated duration is {:.2f} "
-                        "for manual jobs.".format(estimated_duration_manual))
+                    print(_("Estimated duration is {:.2f} for manual"
+                            " jobs.").format(estimated_duration_manual))
                 else:
-                    print(
-                        "Estimated duration cannot be "
-                        "determined for manual jobs.")
+                    print(_("Estimated duration cannot be determined for"
+                            " manual jobs."))
         self._run_jobs(ns, manager)
         manager.destroy()
 
@@ -599,12 +602,13 @@ class CliInvocation(CheckBoxInvocationMixIn):
 
     def ask_for_resume(self):
         return self.ask_user(
-            "Do you want to resume the previous session?", ('y', 'n')
+            _("Do you want to resume the previous session?"), (_('y'), _('n'))
         ).lower() == "y"
 
     def ask_for_resume_action(self):
         return self.ask_user(
-            "What do you want to do with that job?", ('skip', 'fail', 'run'))
+            _("What do you want to do with that job?"),
+            (_('skip'), _('fail'), _('run')))
 
     def ask_user(self, prompt, allowed):
         answer = None
@@ -616,17 +620,17 @@ class CliInvocation(CheckBoxInvocationMixIn):
         last_job = manager.state.metadata.running_job_name
         if last_job is None:
             return
-        print("We have previously tried to execute {}".format(last_job))
+        print(_("We have previously tried to execute {}").format(last_job))
         action = self.ask_for_resume_action()
-        if action == 'skip':
+        if action == _('skip'):
             result = MemoryJobResult({
                 'outcome': 'skip',
-                'comment': "Skipped after resuming execution"
+                'comment': _("Skipped after resuming execution")
             })
-        elif action == 'fail':
+        elif action == _('fail'):
             result = MemoryJobResult({
                 'outcome': 'fail',
-                'comment': "Failed after resuming execution"
+                'comment': _("Failed after resuming execution")
             })
         elif action == 'run':
             result = None
@@ -663,7 +667,7 @@ class CliInvocation(CheckBoxInvocationMixIn):
 
     def save_results(self, manager):
         if self.is_interactive:
-            print("[ Results ]".center(80, '='))
+            print("[ {} ]".format(_('Results')).center(80, '='))
             exporter = get_all_exporters()['text']()
             exported_stream = io.BytesIO()
             data_subset = exporter.get_session_data_subset(manager.state)
@@ -674,6 +678,7 @@ class CliInvocation(CheckBoxInvocationMixIn):
             translating_stream = ByteStringStreamTranslator(
                 sys.stdout, "utf-8")
             copyfileobj(exported_stream, translating_stream)
+        # FIXME: this should probably not go to plainbox but checkbox-ng
         base_dir = os.path.join(
             os.getenv(
                 'XDG_DATA_HOME', os.path.expanduser("~/.local/share/")),
@@ -699,53 +704,56 @@ class CliInvocation(CheckBoxInvocationMixIn):
             results_path = results_file
             if exporter_cls is XMLSessionStateExporter:
                 results_path = submission_file
+            # FIXME: replacing extension is ugly
             if 'xlsx' in get_all_exporters():
                 if exporter_cls is XLSXSessionStateExporter:
                     results_path = results_path.replace('html', 'xlsx')
             with open(results_path, "wb") as stream:
                 exporter.dump(data_subset, stream)
-        print("\nSaving submission file to {}".format(submission_file))
+        print()
+        print(_("Saving submission file to {}").format(submission_file))
         self.submission_file = submission_file
-        print("View results (HTML): file://{}".format(results_file))
+        print(_("View results") + " (HTML): file://{}".format(results_file))
         if 'xlsx' in get_all_exporters():
-            print("View results (XLSX): file://{}".format(
+            # FIXME: replacing extension is ugly
+            print(_("View results") + " (XLSX): file://{}".format(
                 results_file.replace('html', 'xlsx')))
 
     def _interaction_callback(self, runner, job, config, prompt=None,
                               allowed_outcome=None):
         result = {}
         if prompt is None:
-            prompt = "Select an outcome or an action: "
+            prompt = _("Select an outcome or an action: ")
         if allowed_outcome is None:
             allowed_outcome = [IJobResult.OUTCOME_PASS,
                                IJobResult.OUTCOME_FAIL,
                                IJobResult.OUTCOME_SKIP]
-        allowed_actions = ['comments']
+        allowed_actions = [_('comments')]
         if job.command:
-            allowed_actions.append('test')
+            allowed_actions.append(_('test'))
         result['outcome'] = IJobResult.OUTCOME_UNDECIDED
         while result['outcome'] not in allowed_outcome:
-            print("Allowed answers are: {}".format(", ".join(allowed_outcome +
-                                                             allowed_actions)))
+            print(_("Allowed answers are: {}").format(
+                ", ".join(allowed_outcome + allowed_actions)))
             choice = input(prompt)
             if choice in allowed_outcome:
                 result['outcome'] = choice
                 break
-            elif choice == 'test':
+            elif choice == _('test'):
                 (result['return_code'],
                  result['io_log_filename']) = runner._run_command(job, config)
-            elif choice == 'comments':
-                result['comments'] = input('Please enter your comments:\n')
+            elif choice == _('comments'):
+                result['comments'] = input(_('Please enter your comments:\n'))
         return DiskJobResult(result)
 
     def _update_desired_job_list(self, manager, desired_job_list):
         problem_list = manager.state.update_desired_job_list(desired_job_list)
         if problem_list:
-            print("[ Warning ]".center(80, '*'))
-            print("There were some problems with the selected jobs")
+            print("[ {} ]".format(_('Warning')).center(80, '*'))
+            print(_("There were some problems with the selected jobs"))
             for problem in problem_list:
                 print(" * {}".format(problem))
-            print("Problematic jobs will not be considered")
+            print(_("Problematic jobs will not be considered"))
 
     def _run_jobs_with_session(self, ns, manager, runner):
         # TODO: run all resource jobs concurrently with multiprocessing
@@ -754,9 +762,13 @@ class CliInvocation(CheckBoxInvocationMixIn):
         # such case the list of jobs to run would be changed during iteration
         # but would be otherwise okay).
         if self._local_only:
-            print("[ Loading Jobs Definition ]".center(80, '='))
+            print("[ {} ]".format(
+                _('Loading Jobs Definition')
+            ).center(80, '='))
         else:
-            print("[ Running All Jobs ]".center(80, '='))
+            print("[ {} ]".format(
+                _('Running All Jobs')
+            ).center(80, '='))
         again = True
         while again:
             again = False
@@ -786,22 +798,23 @@ class CliInvocation(CheckBoxInvocationMixIn):
         if job.plugin not in ['local', 'resource']:
             print("[ {} ]".format(job.tr_summary()).center(80, '-'))
         job_state = manager.state.job_state_map[job.id]
-        logger.debug("Job id: %s", job.id)
-        logger.debug("Plugin: %s", job.plugin)
-        logger.debug("Direct dependencies: %s", job.get_direct_dependencies())
-        logger.debug("Resource dependencies: %s",
+        logger.debug(_("Job id: %s"), job.id)
+        logger.debug(_("Plugin: %s"), job.plugin)
+        logger.debug(_("Direct dependencies: %s"),
+                     job.get_direct_dependencies())
+        logger.debug(_("Resource dependencies: %s"),
                      job.get_resource_dependencies())
-        logger.debug("Resource program: %r", job.requires)
-        logger.debug("Command: %r", job.command)
-        logger.debug("Can start: %s", job_state.can_start())
-        logger.debug("Readiness: %s", job_state.get_readiness_description())
+        logger.debug(_("Resource program: %r"), job.requires)
+        logger.debug(_("Command: %r"), job.command)
+        logger.debug(_("Can start: %s"), job_state.can_start())
+        logger.debug(_("Readiness: %s"), job_state.get_readiness_description())
         if job_state.can_start():
             if job.plugin not in ['local', 'resource']:
                 if job.description is not None:
                     print(job.description)
                     print("^" * len(job.description.splitlines()[-1]))
                     print()
-                print("Running... (output in {}.*)".format(
+                print(_("Running... (output in {}.*)").format(
                     join(manager.storage.location, slugify(job.id))))
             manager.state.metadata.running_job_name = job.id
             manager.checkpoint()
@@ -815,16 +828,16 @@ class CliInvocation(CheckBoxInvocationMixIn):
             manager.state.metadata.running_job_name = None
             manager.checkpoint()
             if job.plugin not in ['local', 'resource']:
-                print("Outcome: {}".format(job_result.outcome))
+                print(_("Outcome: {}").format(job_result.outcome))
                 if job_result.comments is not None:
-                    print("Comments: {}".format(job_result.comments))
+                    print(_("Comments: {}").format(job_result.comments))
         else:
             job_result = MemoryJobResult({
                 'outcome': IJobResult.OUTCOME_NOT_SUPPORTED,
                 'comments': job_state.get_readiness_description()
             })
             if job.plugin not in ['local', 'resource']:
-                print("Outcome: {}".format(job_result.outcome))
+                print(_("Outcome: {}").format(job_result.outcome))
         if job_result is not None:
             manager.state.update_job_result(job, job_result)
 
@@ -833,6 +846,7 @@ class CliCommand(PlainBoxCommand, CheckBoxCommandMixIn):
     """
     Command for running tests using the command line UI.
     """
+    gettext_domain = "checkbox-ng"
 
     def __init__(self, provider_list, config, settings):
         self.provider_list = provider_list
@@ -854,9 +868,9 @@ class CliCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         parser.add_argument(
             "--check-config",
             action="store_true",
-            help="Run check-config")
+            help=_("run check-config"))
         parser.add_argument(
             '--not-interactive', action='store_true',
-            help="Skip tests that require interactivity")
+            help=_("skip tests that require interactivity"))
         # Call enhance_parser from CheckBoxCommandMixIn
         self.enhance_parser(parser)

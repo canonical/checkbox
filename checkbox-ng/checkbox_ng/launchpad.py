@@ -31,17 +31,16 @@ from logging import getLogger
 from socket import gethostname
 import bz2
 import hashlib
-import re
+
 import requests
 
 from checkbox_support.lib.dmi import Dmi
-from plainbox.impl.secure.config import Unset
 from plainbox.impl.transport import TransportBase, TransportError
 
 logger = getLogger("checkbox.ng.launchpad")
 
 
-class InvalidSubmissionDataError(TransportError): 
+class InvalidSubmissionDataError(TransportError):
     def __init__(self, value):
         self.value = value
 
@@ -57,25 +56,17 @@ class LaunchpadTransport(TransportBase):
      - Data is expected to be in checkbox xml-compatible format.
        This means it will work best with a stream produced by the
        xml exporter.
-
    """
-
-    def __init__(self, where, options):
-        """
-        Initialize the Launchpad Transport.
-        """
-        super().__init__(where, options)
-
 
     def _get_resource_attr(self, session_state, resource, attr):
         resource_result = session_state.resource_map.get(resource)
         if not resource_result:
-            raise InvalidSubmissionDataError("Cannot get {} "
-                "resource job".format(resource))
+            raise InvalidSubmissionDataError(
+                _("Cannot get {0} resource job").format(resource))
         attr_value = getattr(resource_result[0], attr)
         if attr_value is None:
-            raise InvalidSubmissionDataError("{} has no attribute "
-                "{}".format(resource, attr))
+            raise InvalidSubmissionDataError(
+                _("{0} has no attribute {1}").format(resource, attr))
         return attr_value
 
     def _get_launchpad_form_fields(self, session_state):
@@ -87,19 +78,22 @@ class LaunchpadTransport(TransportBase):
         form_fields['field.actions.upload'] = 'Upload'
         form_fields['field.date_created'] = datetime.utcnow().strftime(
             "%Y-%m-%dT%H:%M:%S")
-        arch = self._get_resource_attr(session_state,
-            '2013.com.canonical.certification::dpkg', 'architecture')
+        arch = self._get_resource_attr(
+            session_state, '2013.com.canonical.certification::dpkg',
+            'architecture')
         form_fields['field.architecture'] = arch
-        distro = self._get_resource_attr(session_state,
-            '2013.com.canonical.certification::lsb', 'distributor_id')
+        distro = self._get_resource_attr(
+            session_state, '2013.com.canonical.certification::lsb',
+            'distributor_id')
         form_fields['field.distribution'] = distro
-        series = self._get_resource_attr(session_state,
-            '2013.com.canonical.certification::lsb', 'codename')
+        series = self._get_resource_attr(
+            session_state, '2013.com.canonical.certification::lsb', 'codename')
         form_fields['field.distroseries'] = series
         dmi_resources = session_state.resource_map.get(
             '2013.com.canonical.certification::dmi')
         if dmi_resources is None:
-            raise InvalidSubmissionDataError("barf")
+            raise InvalidSubmissionDataError(
+                _("DMI resources not found"))
         system_id = ""
         for resource in dmi_resources:
             if resource.category == 'CHASSIS':
@@ -107,12 +101,12 @@ class LaunchpadTransport(TransportBase):
                 vendor = getattr(resource, 'vendor', "")
                 model = getattr(resource, 'model', "")
                 fingerprint = hashlib.md5()
-                for field in ["Computer", "unknown", chassis_type, 
+                for field in ["Computer", "unknown", chassis_type,
                               vendor, model]:
                     fingerprint.update(field.encode('utf-8'))
                 system_id = fingerprint.hexdigest()
         if not system_id:
-            raise InvalidSubmissionDataError("puke")         
+            raise InvalidSubmissionDataError(_("System ID not found"))
         form_fields['field.system'] = system_id
         fingerprint = hashlib.md5()
         fingerprint.update(system_id.encode('utf-8'))
@@ -124,25 +118,24 @@ class LaunchpadTransport(TransportBase):
         """ Sends data to the specified server.
 
         :param data:
-            Data containing the xml dump to be sent to the server. This
-            can be either bytes or a file-like object (BytesIO works fine too).
-            If this is a file-like object, it will be read and streamed "on
-            the fly".
-
+            Data containing the xml dump to be sent to the server. This can be
+            either bytes or a file-like object (BytesIO works fine too).  If
+            this is a file-like object, it will be read and streamed "on the
+            fly".
         :param config:
-             optional PlainBoxConfig object. If http_proxy and https_proxy
-             values are set in this config object, they will be used to send
-             data via the specified protocols. Note that the transport also
-             honors the http_proxy and https_proxy environment variables.
-             Proxy string format is http://[user:password@]<proxy-ip>:port
-
+            An optional PlainBoxConfig object. If http_proxy and https_proxy
+            values are set in this config object, they will be used to send
+            data via the specified protocols. Note that the transport also
+            honors the http_proxy and https_proxy environment variables.
+            Proxy string format is http://[user:password@]<proxy-ip>:port
         :param session_state:
-
-        :returns: a dictionary with responses from the server if submission
-            was successful.
-
-        :raises ValueError: If no session state was provided.
-        :raises TransportError: 
+            ?
+        :returns:
+            A dictionary with responses from the server if submission was
+            successful.
+        :raises ValueError:
+            If no session state was provided.
+        :raises TransportError:
             - If sending timed out.
             - If connection failed outright.
             - If the server returned
@@ -170,7 +163,7 @@ class LaunchpadTransport(TransportBase):
         logger.debug("Sending to %s, email is %s",
                      self.url, self.options['field.emailaddress'])
         lp_headers = {"x-launchpad-hwdb-submission": ""}
-        
+
         form_fields = self._get_launchpad_form_fields(session_state)
         form_fields['field.emailaddress'] = self.options['field.emailaddress']
 
@@ -199,10 +192,10 @@ class LaunchpadTransport(TransportBase):
                 response.raise_for_status()
             except requests.exceptions.RequestException as exc:
                 raise TransportError(str(exc))
-            logger.debug("Success! Server said %s", response.text)
-            status = _('The submission was uploaded to Launchpad succesfully.')
-            if (response.headers['x-launchpad-hwdb-submission'] !=
-                'OK data stored'):
+            logger.debug(_("Success! Server said %s"), response.text)
+            status = _('The submission was uploaded to Launchpad successfully')
+            if (response.headers['x-launchpad-hwdb-submission'] != (
+                    'OK data stored')):
                 status = response.headers['x-launchpad-hwdb-submission']
             return {'status': status}
         # XXX: can response be None?

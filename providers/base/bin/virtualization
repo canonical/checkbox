@@ -119,7 +119,7 @@ class KVMTest(object):
             logging.debug("Attaching Cloud config disk")
             cloud_disk = "-drive file=seed.iso,if=virtio"
 
-        if re.match("(arm.*|aarch64)", self.arch):
+        if re.match("arm.*", self.arch):
             uname = check_output(['uname', '-r'], universal_newlines=True)
             cloud_disk = cloud_disk.replace("virtio", "sd")
             params = 'qemu-system-arm -machine vexpress-a15 -cpu cortex-a15 -enable-kvm -m {} -kernel /boot/vmlinuz -append "console=ttyAMA0 earlyprintk=serial root=/dev/mmcblk0 ro rootfstype=ext4" -serial stdio -dtb /lib/firmware/{}/device-tree/vexpress-v2p-ca15-tc1.dtb -initrd /boot/initrd.img -net nic -net user,net={},host={},hostfwd={} -drive file={},if=sd,cache=writeback {} -display none -nographic'.format("256", uname, netrange, image_ip, hostfwd, data_disk, cloud_disk)

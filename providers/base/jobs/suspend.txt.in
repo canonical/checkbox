@@ -1038,7 +1038,7 @@ plugin: user-interact-verify
 id: suspend/cycle_resolutions_after_suspend
 estimated_duration: 120.0
 requires: package.name == 'xorg'
-depends: suspend/suspend_advanced graphics/cycle_resolution
+depends: suspend/suspend_advanced
 command: xrandr_cycle --keyword=after_suspend --screenshot-dir $PLAINBOX_SESSION_SHARE
 _description:
  PURPOSE:
@@ -1052,7 +1052,7 @@ plugin: shell
 id: suspend/cycle_resolutions_after_suspend_auto
 estimated_duration: 1.2
 requires: package.name == 'xorg'
-depends: suspend/suspend_advanced_auto graphics/cycle_resolution
+depends: suspend/suspend_advanced_auto
 _description:
  This test will check to make sure supported video modes work after a suspend and resume.
  This is done automatically by taking screenshots and uploading them as an attachment.

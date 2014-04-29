@@ -469,6 +469,27 @@ command:
       Review attachment manually later
  EOF
 
+id: graphics/generator_switch_card
+requires: device.category == 'VIDEO'
+_description: GPU switch prompt tests
+_summary: GPU switch prompt tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: manual
+ id: graphics/`echo ${index}`_switch_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ _summary: Test GPU switching for $product
+ _description:
+  PURPOSE:
+      Manually switch to the $product card.
+  STEPS:
+      1. Using the appropriate tool (either NVidia settings or AMD Control Center), switch your system to use the $product graphics card. This will require restarting your session.
+      2. Once the session restarts, please restart this testing program and select "continue" when prompted for a resume action.
+      3. Don't answer the verification question until the system has restarted with the $product card enabled.
+  VERIFICATION:
+      Is the system using the $product card now?
+ EOF
+
 id: graphics/generator_screenshot_fullscreen_video.jpg
 requires: device.category == 'VIDEO'
 _description: full screen video attachment tests

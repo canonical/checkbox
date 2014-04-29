@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from argparse import ArgumentParser
 import configparser
+from enum import Enum
 import os
 import re
 import logging
@@ -50,7 +51,95 @@ DEFAULT_TIMEOUT = 500
 class XENTest(object):
     pass
 
+# The "TAR" type is a tarball that contains both
+# a disk image and a kernel binary. This is useful
+# on architectures that don't (yet) have a bootloader
+# in the disk image that we can chain to, and instead
+# we need to have qemu load boot files externally
+CLOUD_IMAGE_TYPE = Enum('CLOUD_IMAGE_TYPE', 'TAR DISK')
+QEMU_DISK_TYPE = Enum('QEMU_DISK_TYPE', 'SD VIRTIO')
 
+QEMU_ARCH_CONFIG = {
+    'armhf': {
+        'cloudimg_type': CLOUD_IMAGE_TYPE.TAR,
+        'cloudimg_arch': 'armhf',
+        'dtb': 'vexpress-v2p-ca15-tc1.dtb',
+        'qemu_bin': 'qemu-system-arm',
+        'qemu_disk_type': QEMU_DISK_TYPE.SD,
+        'qemu_extra_args': [
+            '-machine', 'vexpress-a15',
+            '-cpu', 'cortex-a15',
+            '-enable-kvm',
+            '-serial', 'stdio',
+        ],
+    },
+    'amd64': {
+        'cloudimg_type': CLOUD_IMAGE_TYPE.DISK,
+        'cloudimg_arch': 'i386',
+        'qemu_bin': 'qemu-system-x86_64',
+        'qemu_disk_type': QEMU_DISK_TYPE.VIRTIO,
+        'qemu_extra_args': [
+            '-machine', 'accel=kvm:tcg',
+        ],
+    },
+    'i386': {
+        'cloudimg_type': CLOUD_IMAGE_TYPE.DISK,
+        'cloudimg_arch': 'i386',
+        'qemu_bin': 'qemu-system-x86_64',
+        'qemu_disk_type': QEMU_DISK_TYPE.VIRTIO,
+        'qemu_extra_args': [
+            '-machine', 'accel=kvm:tcg',
+        ],
+    },
+}
+
+class QemuRunner(object):
+    def __init__(self, arch):
+        self.arch = arch
+        self.config = QEMU_ARCH_CONFIG[arch]
+        # Parameters common to all architectures
+        self.params = [
+            self.config['qemu_bin'],
+            "-m", "256",
+            "-display", "none",
+            "-nographic",
+            "-net", "nic",
+            "-net", "user,net=10.0.0.0/8,host=10.0.0.1,hostfwd=tcp::2222-:22",
+        ]
+        # Add any architecture-specific parameters
+        if 'qemu_extra_args' in self.config:
+            self.params = self.params + self.config['qemu_extra_args']
+
+        self.append = []
+        if self.config['cloudimg_type'] == CLOUD_IMAGE_TYPE.TAR:
+            self.append = self.append + ['console=ttyAMA0', 'earlyprintk=serial', 'ro', 'rootfstype=ext4']
+            if self.config['qemu_disk_type'] == QEMU_DISK_TYPE.SD:
+                self.append = self.append + ['root=/dev/mmcblk0']
+            elif self.config['qemu_disk_type'] == QEMU_DISK_TYPE.VIRTIO:
+                self.append = self.append + ['root=/dev/vda']
+
+    def add_boot_files(self, kernel=None, initrd=None, dtb=None):
+        if kernel:
+            self.params = self.params + ['-kernel', kernel]
+        if initrd:
+            self.params = self.params + ['-initrd', initrd]
+        if dtb:
+            self.params = self.params + ['-dtb', dtb]
+
+    def add_drive(self, cloudimg):
+        drive = ["-drive"]
+        if self.config['qemu_disk_type'] == QEMU_DISK_TYPE.SD:
+            drive = drive + ["file=%s,if=sd,cache=writeback" % (cloudimg)]
+        elif self.config['qemu_disk_type'] == QEMU_DISK_TYPE.VIRTIO:
+            drive = drive + ["file=%s,if=virtio" % (cloudimg)]
+        self.params = self.params + drive
+
+    def get_params(self):
+        params = self.params
+        if self.append:
+            params = params + ['-append', '"%s"' % (" ".join(self.append))]
+        return params
+        
 class KVMTest(object):
 
     def __init__(self, image=None, timeout=500, debug_file="virt_debug"):
@@ -58,6 +147,7 @@ class KVMTest(object):
         self.timeout = timeout
         self.debug_file = os.path.join(os.getcwd(), debug_file)
         self.arch = check_output(['dpkg', '--print-architecture'], universal_newlines=True).strip()
+        self.qemu_config = QEMU_ARCH_CONFIG[self.arch]
 
     def download_image(self):
         """
@@ -70,10 +160,13 @@ class KVMTest(object):
         # Construct URL
         cloud_url = "http://cloud-images.ubuntu.com"
 
-        if self.arch == 'armhf':
-            cloud_iso = release + "-server-cloudimg-armhf.tar.gz"
+        if self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE.TAR:
+            cloud_iso = "%s-server-cloudimg-%s.tar.gz" % (release, self.qemu_config['cloudimg_arch'])
+        elif self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE.DISK:
+            cloud_iso = "%s-server-cloudimg-%s-disk1.img" % (release, self.qemu_config['cloudimg_arch'])
         else:
-            cloud_iso = release + "-server-cloudimg-i386-disk1.img"
+            logging.error("Unknown cloud image type")
+            return False
         image_url = "/".join((
             cloud_url, release, "current", cloud_iso))
 
@@ -90,7 +183,7 @@ class KVMTest(object):
             return False
 
         # Unpack img file from tar
-        if self.arch == 'armhf':
+        if self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE.TAR:
             cloud_iso_tgz = tarfile.open(cloud_iso)
             cloud_iso = cloud_iso.replace('tar.gz', 'img')
             cloud_iso_tgz.extract(cloud_iso)
@@ -108,36 +201,27 @@ class KVMTest(object):
 
         logging.debug("Attempting boot for:{}".format(data_disk))
 
-        # Set Arbitrary IP values
-        netrange = "10.0.0.0/8"
-        image_ip = "10.0.0.1"
-        hostfwd = "tcp::2222-:22"
-        cloud_disk = ""
+        qemu = QemuRunner(self.arch)
+
+        # Assume that a tar type image is not self-bootable, so
+        # therefore requires explicit bootfiles (otherwise, why
+        # not just use the disk format directly?
+        if self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE.TAR:
+            qemu.add_boot_files(
+                kernel='/boot/vmlinuz',
+                initrd='/boot/initrd.img',
+                dtb="/lib/firmware/%s/device-tree/%s" % (os.uname()[2], 
+                                                         self.qemu_config['dtb'])
+            )
+        qemu.add_drive(data_disk)
 
         # Should we attach the cloud config disk
         if os.path.isfile("seed.iso"):
             logging.debug("Attaching Cloud config disk")
-            cloud_disk = "-drive file=seed.iso,if=virtio"
+            qemu.add_drive("seed.iso")
 
-        if self.arch == 'armhf':
-            uname = os.uname()[2]
-            cloud_disk = cloud_disk.replace("virtio", "sd")
-            params = 'qemu-system-arm -machine vexpress-a15 -cpu cortex-a15 -enable-kvm -m {} -kernel /boot/vmlinuz -append "console=ttyAMA0 earlyprintk=serial root=/dev/mmcblk0 ro rootfstype=ext4" -serial stdio -dtb /lib/firmware/{}/device-tree/vexpress-v2p-ca15-tc1.dtb -initrd /boot/initrd.img -net nic -net user,net={},host={},hostfwd={} -drive file={},if=sd,cache=writeback {} -display none -nographic'.format("256", uname, netrange, image_ip, hostfwd, data_disk, cloud_disk)
-        else:
-            params = \
-                '''
-                qemu-system-x86_64 -machine accel=kvm:tcg -m {0} -net nic 
-                -net user,net={1},host={2},hostfwd={3} 
-                -drive file={4},if=virtio {5} -display none -nographic
-                '''.format(
-                "256",
-                netrange,
-                image_ip,
-                hostfwd,
-                data_disk,
-                cloud_disk).replace("\n", "").replace("  ", "")
-
-        logging.debug("Using params:{}".format(params))
+        params = qemu.get_params()
+        logging.debug("Using params:{}".format(" ".join(params)))
 
         # Default file location for log file is in checkbox output directory
         checkbox_dir = os.getenv("CHECKBOX_DATA")
@@ -155,7 +239,7 @@ class KVMTest(object):
 
         # Start Virtual machine
         self.process = Popen(
-            shlex.split(params), stdin=PIPE, stderr=file, stdout=file,
+            params, stdin=PIPE, stderr=file, stdout=file,
             universal_newlines=True, shell=False)
 
     def create_cloud_disk(self):

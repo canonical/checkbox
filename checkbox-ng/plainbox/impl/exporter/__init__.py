@@ -103,8 +103,9 @@ class SessionStateExporterBase(metaclass=ABCMeta):
             option_list = []
         self._option_dict = {}
         for option_string in option_list:
-            # An option can look like "foo" or like "foo=bar". In the first case
-            # we assign "True" to that key in the dict, in the second we assign "bar".
+            # An option can look like "foo" or like "foo=bar". In the first
+            # case we assign "True" to that key in the dict, in the second we
+            # assign "bar".
             key_value = option_string.split("=", 1)
             option = key_value[0]
             if option not in self.supported_option_list:

@@ -206,6 +206,13 @@ class SessionStorage:
         return self._location
 
     @property
+    def id(self):
+        """
+        identifier of the session storage (name of the random directory)
+        """
+        return os.path.splitext(os.path.basename(self.location))[0]
+
+    @property
     def session_file(self):
         """
         pathname of the session state file

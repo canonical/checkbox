@@ -26,7 +26,6 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
-from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
 from io import RawIOBase
 from logging import getLogger
@@ -35,6 +34,7 @@ import base64
 import pkg_resources
 
 from plainbox.i18n import gettext as _
+from plainbox.abc import ISessionStateExporter
 
 logger = getLogger("plainbox.exporter")
 
@@ -54,7 +54,7 @@ class classproperty:
         return self.func(owner)
 
 
-class SessionStateExporterBase(metaclass=ABCMeta):
+class SessionStateExporterBase(ISessionStateExporter):
     """
     Base class for "exporter" that write out the state of the session after all
     jobs have finished running, in a user-selected format. The intent is not to
@@ -103,8 +103,9 @@ class SessionStateExporterBase(metaclass=ABCMeta):
             option_list = []
         self._option_dict = {}
         for option_string in option_list:
-            # An option can look like "foo" or like "foo=bar". In the first case
-            # we assign "True" to that key in the dict, in the second we assign "bar".
+            # An option can look like "foo" or like "foo=bar". In the first
+            # case we assign "True" to that key in the dict, in the second we
+            # assign "bar".
             key_value = option_string.split("=", 1)
             option = key_value[0]
             if option not in self.supported_option_list:
@@ -122,8 +123,9 @@ class SessionStateExporterBase(metaclass=ABCMeta):
         Users who only are about whether an option is set, regardless of
         the value assigned to it, can use this API.
         """
-        return sorted([option for option in self._option_dict.keys()
-                if self._option_dict[option]])
+        return sorted([
+            option for option in self._option_dict.keys()
+            if self._option_dict[option]])
 
     @_option_list.setter
     def _option_list(self, value):
@@ -272,23 +274,6 @@ class SessionStateExporterBase(metaclass=ABCMeta):
         return [(record.delay, record.stream_name,
                  base64.standard_b64encode(record.data).decode('ASCII'))
                 for record in io_log]
-
-    @abstractmethod
-    def dump(self, data, stream):
-        """
-        Dump data to stream.
-
-        This method operates on data that was returned by
-        get_session_data_subset(). It may not really process bytes or simple
-        collections. Instead, for efficiency, anything is required.
-
-        As in get_session_data_subset() it's essential to safely save
-        arbitrarily large data sets (or actually, only where it matters the
-        most, like in io_log).
-
-        Data is a text stream suitable for writing.
-        """
-        # TODO: Add a way for the stream to be binary as well.
 
 
 class ByteStringStreamTranslator(RawIOBase):

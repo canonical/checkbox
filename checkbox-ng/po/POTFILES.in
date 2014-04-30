@@ -20,6 +20,7 @@
 ./plainbox/impl/commands/run.py
 ./plainbox/impl/commands/script.py
 ./plainbox/impl/commands/selftest.py
+./plainbox/impl/commands/session.py
 ./plainbox/impl/commands/special.py
 ./plainbox/impl/commands/startprovider.py
 ./plainbox/impl/commands/test_dev.py

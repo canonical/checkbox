@@ -56,6 +56,7 @@ from plainbox.impl.result import DiskJobResult
 from plainbox.impl.result import IOLogRecord
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.secure.qualifiers import SimpleQualifier
+from plainbox.impl.session.state import SessionMetaData
 from plainbox.impl.session.state import SessionState
 
 logger = logging.getLogger("plainbox.session.resume")
@@ -120,6 +121,47 @@ class EnvelopeUnpackMixIn:
             return json.loads(text)
         except ValueError:
             raise CorruptedSessionError(_("Cannot interpret session JSON"))
+
+
+class SessionPeekHelper(EnvelopeUnpackMixIn):
+
+    def peek(self, data):
+        """
+        Peek at the meta-data of a dormant session.
+
+        :param data:
+            Bytes representing the dormant session
+        :returns:
+            a SessionMetaData object
+        :raises CorruptedSessionError:
+            if the representation of the session is corrupted in any way
+        :raises IncompatibleSessionError:
+            if session serialization format is not supported
+        """
+        json_repr = self.unpack_envelope(data)
+        return self._peek_json(json_repr)
+
+    def _peek_json(self, json_repr):
+        """
+        Resume a SessionMetaData object from the JSON representation.
+
+        This method is called by :meth:`peek()` after the initial envelope
+        and parsing is done. The only error conditions that can happen
+        are related to semantic incompatibilities or corrupted internal state.
+        """
+        logger.debug(_("Peeking at json... (see below)"))
+        logger.debug(json.dumps(json_repr, indent=4))
+        _validate(json_repr, value_type=dict)
+        version = _validate(json_repr, key="version", choice=[1])
+        if version == 1:
+            return SessionPeekHelper1().peek_json(json_repr)
+        elif version == 2:
+            return SessionPeekHelper2().peek_json(json_repr)
+        elif version == 3:
+            return SessionPeekHelper3().peek_json(json_repr)
+        else:
+            raise IncompatibleSessionError(
+                _("Unsupported version {}").format(version))
 
 
 class SessionResumeHelper(EnvelopeUnpackMixIn):
@@ -283,6 +325,73 @@ class MetaDataHelper3MixIn(MetaDataHelper2MixIn):
         metadata.app_id = _validate(
             metadata_repr, key='app_id', value_type=str,
             value_none=True)
+
+
+class SessionPeekHelper1(MetaDataHelper1MixIn):
+    """
+    Helper class for implementing session peek feature
+
+    This class works with data constructed by
+    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper1` which has
+    been pre-processed by :class:`SessionPeekHelper` (to strip the initial
+    envelope).
+
+    The only goal of this class is to reconstruct session state meta-data.
+    """
+
+    def peek_json(self, json_repr):
+        """
+        Resume a SessionState object from the JSON representation.
+
+        This method is called by :meth:`peek()` after the initial envelope and
+        parsing is done. The only error conditions that can happen are related
+        to semantic incompatibilities or corrupted internal state.
+        """
+        _validate(json_repr, key="version", choice=[1])
+        session_repr = _validate(json_repr, key='session', value_type=dict)
+        metadata = SessionMetaData()
+        self._restore_SessionState_metadata(metadata, session_repr)
+        return metadata
+
+    def _build_SessionState(self, session_repr, early_cb=None):
+        """
+        Reconstruct the session state object.
+
+        This method creates a fresh SessionState instance and restores
+        jobs, results, meta-data and desired job list using helper methods.
+        """
+        logger.debug(_("Starting to restore metadata..."))
+        metadata = SessionMetaData()
+        self._peek_SessionState_metadata(metadata, session_repr)
+        return metadata
+
+
+class SessionPeekHelper2(MetaDataHelper2MixIn, SessionPeekHelper1):
+    """
+    Helper class for implementing session peek feature
+
+    This class works with data constructed by
+    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper1` which has
+    been pre-processed by :class:`SessionPeekHelper` (to strip the initial
+    envelope).
+
+    The only goal of this class is to reconstruct session state meta-data.
+    """
+
+
+class SessionPeekHelper3(MetaDataHelper3MixIn, SessionPeekHelper2):
+    """
+    Helper class for implementing session peek feature
+
+    This class works with data constructed by
+    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper1` which has
+    been pre-processed by :class:`SessionPeekHelper` (to strip the initial
+    envelope).
+
+    The only goal of this class is to reconstruct session state meta-data.
+    """
+
+
 class SessionResumeHelper1(MetaDataHelper1MixIn):
     """
     Helper class for implementing session resume feature

@@ -92,7 +92,37 @@ class IncompatibleJobError(SessionResumeError):
     """
 
 
-class SessionResumeHelper:
+class EnvelopeUnpackMixIn:
+    """
+    A mix-in class capable of unpacking the envelope of the session storage
+    """
+
+    def unpack_envelope(self, data):
+        """
+        Unpack the binary envelope and get access to a JSON object
+
+        :param data:
+            Bytes representing the dormant session
+        :returns:
+            the JSON representation of a session stored in the envelope
+        :raises CorruptedSessionError:
+            if the representation of the session is corrupted in any way
+        """
+        try:
+            data = gzip.decompress(data)
+        except IOError:
+            raise CorruptedSessionError(_("Cannot decompress session data"))
+        try:
+            text = data.decode("UTF-8")
+        except UnicodeDecodeError:
+            raise CorruptedSessionError(_("Cannot decode session text"))
+        try:
+            return json.loads(text)
+        except ValueError:
+            raise CorruptedSessionError(_("Cannot interpret session JSON"))
+
+
+class SessionResumeHelper(EnvelopeUnpackMixIn):
     """
     Helper class for implementing session resume feature.
 
@@ -139,18 +169,7 @@ class SessionResumeHelper:
         :raises IncompatibleJobError:
             if serialized jobs are not the same as current jobs
         """
-        try:
-            data = gzip.decompress(data)
-        except IOError:
-            raise CorruptedSessionError(_("Cannot decompress session data"))
-        try:
-            text = data.decode("UTF-8")
-        except UnicodeDecodeError:
-            raise CorruptedSessionError(_("Cannot decode session text"))
-        try:
-            json_repr = json.loads(text)
-        except ValueError:
-            raise CorruptedSessionError(_("Cannot interpret session JSON"))
+        json_repr = self.unpack_envelope(data)
         return self._resume_json(json_repr, early_cb)
 
     def _resume_json(self, json_repr, early_cb=None):

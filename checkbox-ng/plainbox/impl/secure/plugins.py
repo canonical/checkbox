@@ -401,8 +401,8 @@ class FsPlugInCollection(PlugInCollectionBase):
     each plugin is the text read from the plugin file.
     """
 
-    def __init__(self, dir_list, ext, load=False, wrapper=PlugIn,
-                 *wrapper_args, **wrapper_kwargs):
+    def __init__(self, dir_list, ext, recursive=False, load=False,
+                 wrapper=PlugIn, *wrapper_args, **wrapper_kwargs):
         """
         Initialize a collection of plug-ins from the specified name-space.
 
@@ -410,6 +410,9 @@ class FsPlugInCollection(PlugInCollectionBase):
             a list of directories to search
         :param ext:
             extension of each plugin definition file (or a list of those)
+        :param recursive:
+            a flag that indicates if we should perform recursive search
+            (default False)
         :param load:
             if true, load all of the plug-ins now
         :param wrapper:
@@ -424,6 +427,7 @@ class FsPlugInCollection(PlugInCollectionBase):
             raise TypeError("dir_list needs to be List[str]")
         self._dir_list = dir_list
         self._ext = ext
+        self._recursive = recursive
         super().__init__(load, wrapper, *wrapper_args, **wrapper_kwargs)
 
     def load(self):
@@ -454,12 +458,20 @@ class FsPlugInCollection(PlugInCollectionBase):
         # Look in all parts of 'path' separated by standard system path
         # separator.
         for dirname in self._dir_list:
-            # List all files in each path component
-            try:
-                entries = os.listdir(dirname)
-            except OSError:
-                # Silently ignore anything we cannot access
-                continue
+            if self._recursive:
+                entries = []
+                for base_dir, dirs, files in os.walk(dirname):
+                    entries.extend([
+                        os.path.relpath(
+                            os.path.join(base_dir, filename), dirname)
+                        for filename in files])
+            else:
+                # List all files in each path component
+                try:
+                    entries = os.listdir(dirname)
+                except OSError:
+                    # Silently ignore anything we cannot access
+                    continue
             # Look at each file there
             for entry in entries:
                 # Skip files with other extensions

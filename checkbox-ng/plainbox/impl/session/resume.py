@@ -195,7 +195,76 @@ class ResumeDiscardQualifier(SimpleQualifier):
         return job.id not in self._retain_id_set
 
 
-class SessionResumeHelper1:
+class MetaDataHelper1MixIn:
+
+    @classmethod
+    def _restore_SessionState_metadata(cls, metadata, session_repr):
+        """
+        Extract meta-data information from the representation of the session
+        and set it in the given session object
+        """
+        # Get the representation of the meta-data
+        metadata_repr = _validate(
+            session_repr, key='metadata', value_type=dict)
+        # Set each bit back to the session
+        metadata.title = _validate(
+            metadata_repr, key='title', value_type=str, value_none=True)
+        metadata.flags = set([
+            _validate(
+                flag, value_type=str,
+                value_type_msg=_("Each flag must be a string"))
+            for flag in _validate(
+                metadata_repr, key='flags', value_type=list)])
+        metadata.running_job_name = _validate(
+            metadata_repr, key='running_job_name', value_type=str,
+            value_none=True)
+
+
+class MetaDataHelper2MixIn(MetaDataHelper1MixIn):
+
+    @classmethod
+    def _restore_SessionState_metadata(cls, metadata, session_repr):
+        """
+        Extract meta-data information from the representation of the session
+        and set it in the given session object
+        """
+        super()._restore_SessionState_metadata(metadata, session_repr)
+        # Get the representation of the meta-data
+        metadata_repr = _validate(
+            session_repr, key='metadata', value_type=dict)
+        app_blob = _validate(
+            metadata_repr, key='app_blob', value_type=str,
+            value_none=True)
+        if app_blob is not None:
+            try:
+                app_blob = app_blob.encode("ASCII")
+            except UnicodeEncodeError:
+                # TRANSLATORS: please don't translate app_blob
+                raise CorruptedSessionError(_("app_blob is not ASCII"))
+            try:
+                app_blob = base64.standard_b64decode(app_blob)
+            except binascii.Error:
+                # TRANSLATORS: please don't translate app_blob
+                raise CorruptedSessionError(_("Cannot base64 decode app_blob"))
+        metadata.app_blob = app_blob
+
+
+class MetaDataHelper3MixIn(MetaDataHelper2MixIn):
+
+    @classmethod
+    def _restore_SessionState_metadata(cls, metadata, session_repr):
+        """
+        Extract meta-data information from the representation of the session
+        and set it in the given session object
+        """
+        super()._restore_SessionState_metadata(metadata, session_repr)
+        # Get the representation of the meta-data
+        metadata_repr = _validate(
+            session_repr, key='metadata', value_type=dict)
+        metadata.app_id = _validate(
+            metadata_repr, key='app_id', value_type=str,
+            value_none=True)
+class SessionResumeHelper1(MetaDataHelper1MixIn):
     """
     Helper class for implementing session resume feature
 
@@ -257,7 +326,8 @@ class SessionResumeHelper1:
             _("Starting to restore jobs and results to %r..."), session)
         self._restore_SessionState_jobs_and_results(session, session_repr)
         logger.debug(_("Starting to restore metadata..."))
-        self._restore_SessionState_metadata(session, session_repr)
+        self._restore_SessionState_metadata(session.metadata, session_repr)
+        logger.debug(_("restored metadata %r"), session.metadata)
         logger.debug(_("Starting to restore desired job list..."))
         self._restore_SessionState_desired_job_list(session, session_repr)
         logger.debug(_("Starting to restore job list..."))
@@ -370,29 +440,6 @@ class SessionResumeHelper1:
             logger.debug(
                 _("calling update_job_result(%r, %r)"), job, result_list[-1])
             session.update_job_result(job, result_list[-1])
-
-    @classmethod
-    def _restore_SessionState_metadata(cls, session, session_repr):
-        """
-        Extract meta-data information from the representation of the session
-        and set it in the given session object
-        """
-        # Get the representation of the meta-data
-        metadata_repr = _validate(
-            session_repr, key='metadata', value_type=dict)
-        # Set each bit back to the session
-        session.metadata.title = _validate(
-            metadata_repr, key='title', value_type=str, value_none=True)
-        session.metadata.flags = set([
-            _validate(
-                flag, value_type=str,
-                value_type_msg=_("Each flag must be a string"))
-            for flag in _validate(
-                metadata_repr, key='flags', value_type=list)])
-        session.metadata.running_job_name = _validate(
-            metadata_repr, key='running_job_name', value_type=str,
-            value_none=True)
-        logger.debug(_("restored metadata %r"), session.metadata)
 
     @classmethod
     def _restore_SessionState_desired_job_list(cls, session, session_repr):
@@ -512,6 +559,44 @@ class SessionResumeHelper1:
         return IOLogRecord(delay, stream_name, data)
 
 
+class SessionResumeHelper2(MetaDataHelper2MixIn, SessionResumeHelper1):
+    """
+    Helper class for implementing session resume feature
+
+    This class works with data constructed by
+    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper2` which has
+    been pre-processed by :class:`SessionResumeHelper` (to strip the initial
+    envelope).
+
+    Due to the constraints of what can be represented in a suspended session,
+    this class cannot work in isolation. It must operate with a list of know
+    jobs.
+
+    Since (most of the) jobs are being provided externally (as they represent
+    the non-serialized parts of checkbox or other job providers) several
+    failure modes are possible. Those are documented in :meth:`resume()`
+    """
+
+
+class SessionResumeHelper3(MetaDataHelper3MixIn, SessionResumeHelper2):
+    """
+    Helper class for implementing session resume feature
+
+    This class works with data constructed by
+    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper3` which has
+    been pre-processed by :class:`SessionResumeHelper` (to strip the initial
+    envelope).
+
+    Due to the constraints of what can be represented in a suspended session,
+    this class cannot work in isolation. It must operate with a list of know
+    jobs.
+
+    Since (most of the) jobs are being provided externally (as they represent
+    the non-serialized parts of checkbox or other job providers) several
+    failure modes are possible. Those are documented in :meth:`resume()`
+    """
+
+
 def _validate(obj, **flags):
     """
     Multi-purpose extraction and validation function.
@@ -556,120 +641,3 @@ def _validate(obj, **flags):
                     obj_name, value_choice))
             raise CorruptedSessionError(error_msg)
     return value
-
-
-class SessionResumeHelper2(SessionResumeHelper1):
-    """
-    Helper class for implementing session resume feature
-
-    This class works with data constructed by
-    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper2` which has
-    been pre-processed by :class:`SessionResumeHelper` (to strip the initial
-    envelope).
-
-    Due to the constraints of what can be represented in a suspended session,
-    this class cannot work in isolation. It must operate with a list of know
-    jobs.
-
-    Since (most of the) jobs are being provided externally (as they represent
-    the non-serialized parts of checkbox or other job providers) several
-    failure modes are possible. Those are documented in :meth:`resume()`
-    """
-
-    @classmethod
-    def _restore_SessionState_metadata(cls, session, session_repr):
-        """
-        Extract meta-data information from the representation of the session
-        and set it in the given session object
-        """
-        # Get the representation of the meta-data
-        metadata_repr = _validate(
-            session_repr, key='metadata', value_type=dict)
-        # Set each bit back to the session
-        session.metadata.title = _validate(
-            metadata_repr, key='title', value_type=str, value_none=True)
-        session.metadata.flags = set([
-            _validate(
-                flag, value_type=str,
-                value_type_msg=_("Each flag must be a string"))
-            for flag in _validate(
-                metadata_repr, key='flags', value_type=list)])
-        session.metadata.running_job_name = _validate(
-            metadata_repr, key='running_job_name', value_type=str,
-            value_none=True)
-        app_blob = _validate(
-            metadata_repr, key='app_blob', value_type=str,
-            value_none=True)
-        if app_blob is not None:
-            try:
-                app_blob = app_blob.encode("ASCII")
-            except UnicodeEncodeError:
-                # TRANSLATORS: please don't translate app_blob
-                raise CorruptedSessionError(_("app_blob is not ASCII"))
-            try:
-                app_blob = base64.standard_b64decode(app_blob)
-            except binascii.Error:
-                # TRANSLATORS: please don't translate app_blob
-                raise CorruptedSessionError(_("Cannot base64 decode app_blob"))
-        session.metadata.app_blob = app_blob
-        logger.debug(_("restored metadata %r"), session.metadata)
-
-
-class SessionResumeHelper3(SessionResumeHelper2):
-    """
-    Helper class for implementing session resume feature
-
-    This class works with data constructed by
-    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper3` which has
-    been pre-processed by :class:`SessionResumeHelper` (to strip the initial
-    envelope).
-
-    Due to the constraints of what can be represented in a suspended session,
-    this class cannot work in isolation. It must operate with a list of know
-    jobs.
-
-    Since (most of the) jobs are being provided externally (as they represent
-    the non-serialized parts of checkbox or other job providers) several
-    failure modes are possible. Those are documented in :meth:`resume()`
-    """
-
-    @classmethod
-    def _restore_SessionState_metadata(cls, session, session_repr):
-        """
-        Extract meta-data information from the representation of the session
-        and set it in the given session object
-        """
-        # Get the representation of the meta-data
-        metadata_repr = _validate(
-            session_repr, key='metadata', value_type=dict)
-        # Set each bit back to the session
-        session.metadata.title = _validate(
-            metadata_repr, key='title', value_type=str, value_none=True)
-        session.metadata.flags = set([
-            _validate(
-                flag, value_type=str,
-                value_type_msg=_("Each flag must be a string"))
-            for flag in _validate(
-                metadata_repr, key='flags', value_type=list)])
-        session.metadata.running_job_name = _validate(
-            metadata_repr, key='running_job_name', value_type=str,
-            value_none=True)
-        app_blob = _validate(
-            metadata_repr, key='app_blob', value_type=str,
-            value_none=True)
-        if app_blob is not None:
-            try:
-                app_blob = app_blob.encode("ASCII")
-            except UnicodeEncodeError:
-                # TRANSLATORS: please don't translate app_blob
-                raise CorruptedSessionError(_("app_blob is not ASCII"))
-            try:
-                app_blob = base64.standard_b64decode(app_blob)
-            except binascii.Error:
-                # TRANSLATORS: please don't translate app_blob
-                raise CorruptedSessionError(_("Cannot base64 decode app_blob"))
-        session.metadata.app_blob = app_blob
-        session.metadata.app_id = _validate(
-            metadata_repr, key='app_id', value_type=str,
-            value_none=True)
-        logger.debug(_("restored metadata %r"), session.metadata)

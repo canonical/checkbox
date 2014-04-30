@@ -112,11 +112,13 @@ class QemuRunner(object):
 
         self.append = []
         if self.config['cloudimg_type'] == CLOUD_IMAGE_TYPE.TAR:
-            self.append = self.append + ['console=ttyAMA0', 'earlyprintk=serial', 'ro', 'rootfstype=ext4']
-            if self.config['qemu_disk_type'] == QEMU_DISK_TYPE.SD:
-                self.append = self.append + ['root=/dev/mmcblk0']
-            elif self.config['qemu_disk_type'] == QEMU_DISK_TYPE.VIRTIO:
-                self.append = self.append + ['root=/dev/vda']
+            self.append = self.append + [
+                'console=ttyAMA0',
+                'earlyprintk=serial',
+                'ro',
+                'rootfstype=ext4',
+                'root=LABEL=cloudimg-rootfs',
+            ]
 
     def add_boot_files(self, kernel=None, initrd=None, dtb=None):
         if kernel:

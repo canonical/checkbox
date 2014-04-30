@@ -123,8 +123,9 @@ class SessionStateExporterBase(metaclass=ABCMeta):
         Users who only are about whether an option is set, regardless of
         the value assigned to it, can use this API.
         """
-        return sorted([option for option in self._option_dict.keys()
-                if self._option_dict[option]])
+        return sorted([
+            option for option in self._option_dict.keys()
+            if self._option_dict[option]])
 
     @_option_list.setter
     def _option_list(self, value):

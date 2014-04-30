@@ -249,7 +249,7 @@ class Provider1(IProvider1, IProviderBackend1):
         else:
             jobs_dir_list = []
         self._job_collection = FsPlugInCollection(
-            jobs_dir_list, ext=(".txt", ".txt.in"),
+            jobs_dir_list, ext=(".txt", ".txt.in"), recursive=True,
             wrapper=JobDefinitionPlugIn, provider=self,
             validate=validate, validation_kwargs=validation_kwargs)
         # Setup translations

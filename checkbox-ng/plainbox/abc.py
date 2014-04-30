@@ -714,6 +714,63 @@ class IBuildSystem(metaclass=ABCMeta):
         """
 
 
+class ISessionStateExporter(metaclass=ABCMeta):
+    """
+    Interface for classes that export session state to a byte stream.
+
+    Exporters write out the state of the session after all jobs have finished
+    running, in a user-selected format. The intent is not to preserve
+    everything that the session may hold but instead to present it to the user
+    in the best format possible.
+
+    Each exporter can support a set of options that can alter the way it
+    operates. Options can either be set boolean-like, or they can be assigned a
+    value (a string). If an option contains a "=", the part of the string on
+    the right of the equal sign will be assigned as the option's value;
+    otherwise they operate in a boolean fashion.
+
+    It's best to keep the list of exporter options under control to keep the
+    user interface from becoming annoying.
+    """
+
+    @abstractmethod
+    # @classproperty -- this is a class-level property
+    def supported_option_list(cls):
+        """
+        Return the list of supported options
+        """
+
+    @abstractmethod
+    def get_session_data_subset(self, session):
+        """
+        Compute a subset of session data.
+
+        The subset of the data that should be saved may depend on a particular
+        saver class and options selected by the user.
+
+        Must return a collection that can be handled by :meth:`dump()`.
+        Special care must be taken when processing io_log (and in the future,
+        attachments) as those can be arbitrarily large.
+        """
+
+    @abstractmethod
+    def dump(self, data, stream):
+        """
+        Dump data to stream.
+
+        This method operates on data that was returned by
+        :meth:`get_session_data_subset()`. It may not really process bytes or
+        simple collections. Instead, for efficiency, anything is required.
+
+        As in get_session_data_subset() it's essential to safely save
+        arbitrarily large data sets (or actually, only where it matters the
+        most, like in io_log).
+
+        Data is a text stream suitable for writing.
+        """
+        # TODO: Add a way for the stream to be binary as well.
+
+
 class ISessionStateTransport(metaclass=ABCMeta):
     """
     Interface for transports that send test data somewhere.

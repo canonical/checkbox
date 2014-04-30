@@ -118,6 +118,7 @@ class QemuRunner(object):
                 'ro',
                 'rootfstype=ext4',
                 'root=LABEL=cloudimg-rootfs',
+                'rootdelay=10',
             ]
 
     def add_boot_files(self, kernel=None, initrd=None, dtb=None):

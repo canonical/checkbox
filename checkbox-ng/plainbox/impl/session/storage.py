@@ -206,6 +206,13 @@ class SessionStorage:
         return self._location
 
     @property
+    def id(self):
+        """
+        identifier of the session storage (name of the random directory)
+        """
+        return os.path.splitext(os.path.basename(self.location))[0]
+
+    @property
     def session_file(self):
         """
         pathname of the session state file
@@ -404,6 +411,11 @@ class SessionStorage:
                 # Close the session file
                 logger.debug(_("Closed descriptor %d"), session_fd)
                 os.close(session_fd)
+        except IOError as exc:
+            if exc.errno == errno.ENOENT:
+                # Treat lack of 'session' file as an empty file
+                return b''
+            raise
         finally:
             # Close the location directory
             logger.debug(_("Closed descriptor %d"), location_fd)
@@ -427,6 +439,11 @@ class SessionStorage:
             finally:
                 # Close the session file
                 os.close(session_fd)
+        except IOError as exc:
+            if exc.errno == errno.ENOENT:
+                # Treat lack of 'session' file as an empty file
+                return b''
+            raise
         finally:
             # Close the location directory
             os.close(location_fd)

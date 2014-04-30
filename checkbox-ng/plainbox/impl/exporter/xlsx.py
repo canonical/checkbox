@@ -176,14 +176,16 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
     def _hw_collection(self, data):
         hw_info = defaultdict(lambda: 'NA')
         if '2013.com.canonical.certification::dmi' in data['resource_map']:
-            result = ['{} {} ({})'.format(i['vendor'], i['product'],
-                      i['version']) for i in data["resource_map"]['2013.com.canonical.certification::dmi']
-                      if i['category'] == 'SYSTEM']
+            result = [
+                '{} {} ({})'.format(i.get('vendor'), i.get('product'), i.get('version'))
+                for i in data["resource_map"]['2013.com.canonical.certification::dmi']
+                if i.get('category') == 'SYSTEM']
             if result:
                 hw_info['platform'] = result.pop()
-            result = ['{}'.format(i['version'])
-                      for i in data["resource_map"]['2013.com.canonical.certification::dmi']
-                      if i['category'] == 'BIOS']
+            result = [
+                '{}'.format(i.get('version'))
+                for i in data["resource_map"]['2013.com.canonical.certification::dmi']
+                if i.get('category') == 'BIOS']
             if result:
                 hw_info['bios'] = result.pop()
         if '2013.com.canonical.certification::cpuinfo' in data['resource_map']:

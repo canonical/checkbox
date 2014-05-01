@@ -57,18 +57,17 @@ class XENTest(object):
 # in the disk image that we can chain to, and instead
 # we need to have qemu load boot files externally
 CLOUD_IMAGE_TYPE = Enum('CLOUD_IMAGE_TYPE', 'TAR DISK')
-QEMU_DISK_TYPE = Enum('QEMU_DISK_TYPE', 'SD VIRTIO')
+QEMU_DISK_TYPE = Enum('QEMU_DISK_TYPE', 'SD VIRTIO VIRTIO_BLK')
 
 QEMU_ARCH_CONFIG = {
     'armhf': {
         'cloudimg_type': CLOUD_IMAGE_TYPE.TAR,
         'cloudimg_arch': 'armhf',
-        'dtb': 'vexpress-v2p-ca15-tc1.dtb',
         'qemu_bin': 'qemu-system-arm',
-        'qemu_disk_type': QEMU_DISK_TYPE.SD,
+        'qemu_disk_type': QEMU_DISK_TYPE.VIRTIO_BLK,
         'qemu_extra_args': [
-            '-machine', 'vexpress-a15',
-            '-cpu', 'cortex-a15',
+            '-machine', 'virt',
+            '-cpu', 'host',
             '-enable-kvm',
             '-serial', 'stdio',
         ],
@@ -97,6 +96,7 @@ class QemuRunner(object):
     def __init__(self, arch):
         self.arch = arch
         self.config = QEMU_ARCH_CONFIG[arch]
+        self.drive_id = 0
         # Parameters common to all architectures
         self.params = [
             self.config['qemu_bin'],
@@ -112,11 +112,14 @@ class QemuRunner(object):
 
         self.append = []
         if self.config['cloudimg_type'] == CLOUD_IMAGE_TYPE.TAR:
-            self.append = self.append + ['console=ttyAMA0', 'earlyprintk=serial', 'ro', 'rootfstype=ext4']
-            if self.config['qemu_disk_type'] == QEMU_DISK_TYPE.SD:
-                self.append = self.append + ['root=/dev/mmcblk0']
-            elif self.config['qemu_disk_type'] == QEMU_DISK_TYPE.VIRTIO:
-                self.append = self.append + ['root=/dev/vda']
+            self.append = self.append + [
+                'console=ttyAMA0',
+                'earlyprintk=serial',
+                'ro',
+                'rootfstype=ext4',
+                'root=LABEL=cloudimg-rootfs',
+                'rootdelay=10',
+            ]
 
     def add_boot_files(self, kernel=None, initrd=None, dtb=None):
         if kernel:
@@ -132,7 +135,13 @@ class QemuRunner(object):
             drive = drive + ["file=%s,if=sd,cache=writeback" % (cloudimg)]
         elif self.config['qemu_disk_type'] == QEMU_DISK_TYPE.VIRTIO:
             drive = drive + ["file=%s,if=virtio" % (cloudimg)]
+        elif self.config['qemu_disk_type'] == QEMU_DISK_TYPE.VIRTIO_BLK:
+            drive = drive + [ "file=%s,if=none,id=disk.%d"
+                              % (cloudimg, self.drive_id) ]
+            drive = drive + [ "-device", "virtio-blk-device,drive=disk.%d"
+                              % (self.drive_id) ]
         self.params = self.params + drive
+        self.drive_id = self.drive_id + 1
 
     def get_params(self):
         params = self.params
@@ -210,8 +219,6 @@ class KVMTest(object):
             qemu.add_boot_files(
                 kernel='/boot/vmlinuz',
                 initrd='/boot/initrd.img',
-                dtb="/lib/firmware/%s/device-tree/%s" % (os.uname()[2], 
-                                                         self.qemu_config['dtb'])
             )
         qemu.add_drive(data_disk)
 

@@ -60,6 +60,18 @@ CLOUD_IMAGE_TYPE = Enum('CLOUD_IMAGE_TYPE', 'TAR DISK')
 QEMU_DISK_TYPE = Enum('QEMU_DISK_TYPE', 'SD VIRTIO VIRTIO_BLK')
 
 QEMU_ARCH_CONFIG = {
+    'arm64': {
+        'cloudimg_type': CLOUD_IMAGE_TYPE.TAR,
+        'cloudimg_arch': 'arm64',
+        'qemu_bin': 'qemu-system-aarch64',
+        'qemu_disk_type': QEMU_DISK_TYPE.VIRTIO_BLK,
+        'qemu_extra_args': [
+            '-machine', 'virt',
+            '-cpu', 'host',
+            '-enable-kvm',
+            '-serial', 'stdio',
+        ],
+    },
     'armhf': {
         'cloudimg_type': CLOUD_IMAGE_TYPE.TAR,
         'cloudimg_arch': 'armhf',

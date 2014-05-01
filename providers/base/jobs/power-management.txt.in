@@ -13,6 +13,7 @@ _description:
 plugin: shell
 id: power-management/fwts_wakealarm
 environ: PLAINBOX_SESSION_SHARE
+estimated_duration: 25.0
 user: root
 _description: Test ACPI Wakealarm (fwts wakealarm)
 requires:
@@ -22,6 +23,7 @@ command: fwts_test -f aborted -t wakealarm -l $PLAINBOX_SESSION_SHARE/fwts-wakea
 plugin: attachment
 id: power-management/fwts_wakealarm-log-attach
 depends: power-management/fwts_wakealarm
+estimated_duration: 2.0
 _description: Attach log from fwts wakealarm test
 requires:
  package.name == 'fwts'

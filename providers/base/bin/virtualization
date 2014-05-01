@@ -216,10 +216,13 @@ class KVMTest(object):
         # therefore requires explicit bootfiles (otherwise, why
         # not just use the disk format directly?
         if self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE.TAR:
-            qemu.add_boot_files(
-                kernel='/boot/vmlinuz',
-                initrd='/boot/initrd.img',
-            )
+            for dir in ['/boot', '/']:
+                kernel = os.path.join(dir, 'vmlinuz')
+                initrd = os.path.join(dir, 'initrd.img')
+                if os.path.isfile(kernel):
+                    qemu.add_boot_files(kernel=kernel, initrd=initrd)
+                    break
+
         qemu.add_drive(data_disk)
 
         # Should we attach the cloud config disk

@@ -22,9 +22,12 @@ from checkbox_support.dbus.udisks2 import is_udisks2_supported
 from checkbox_support.dbus.udisks2 import lookup_udev_device
 from checkbox_support.dbus.udisks2 import map_udisks1_connection_bus
 from checkbox_support.heuristics.udisks2 import is_memory_card
-from checkbox_support.parsers.udevadm import CARD_READER_RE, GENERIC_RE, FLASH_RE
+from checkbox_support.parsers.udevadm import CARD_READER_RE
+from checkbox_support.parsers.udevadm import GENERIC_RE
+from checkbox_support.parsers.udevadm import FLASH_RE
 from checkbox_support.udev import get_interconnect_speed
 from checkbox_support.udev import get_udev_block_devices
+from checkbox_support.udev import get_udev_xhci_devices
 
 
 class ActionTimer():
@@ -99,6 +102,8 @@ class DiskTest():
         self.rem_disks_memory_cards = {}
         self.rem_disks_memory_cards_nm = {}
         self.rem_disks_speed = {}
+        # LP: #1313581, TODO: extend to be rem_disks_driver
+        self.rem_disks_xhci = {}
         self.data = ''
         self.device = device
         self.memorycard = memorycard
@@ -174,8 +179,8 @@ class DiskTest():
             have both the filesystem and block device interfaces
             """
             for udisks2_object_path, interfaces in udisks2_objects.items():
-                if (UDISKS2_FILESYSTEM_INTERFACE in interfaces
-                    and UDISKS2_BLOCK_INTERFACE in interfaces):
+                if (UDISKS2_FILESYSTEM_INTERFACE in interfaces and
+                        UDISKS2_BLOCK_INTERFACE in interfaces):
                     yield udisks2_object_path
         # We need to know about all IO candidates,
         # let's iterate over all the block devices reported by udisks2
@@ -247,6 +252,23 @@ class DiskTest():
             else:
                 self.rem_disks_memory_cards_nm[dev_file] = None
                 self.rem_disks_nm[dev_file] = None
+        # LP: #1313581
+        # Compare the pci slot name of the devices using xhci and
+        # the pci slot name of the disks,
+        # which is usb3 disks in this case so far,
+        # to make sure the usb3 disk does be on the bus using xhci
+        # TODO: it will be better to extend to be all kinds of drivers.
+        try:
+            udev_devices_xhci = get_udev_xhci_devices(udev_client)
+            for udev_device_xhci in udev_devices_xhci:
+                pci_slot_name = udev_device_xhci.get_property('PCI_SLOT_NAME')
+                for udev_device in udev_devices:
+                    if (pci_slot_name ==
+                            udev_device.get_property('DEVPATH').split('/')[3]):
+                        self.rem_disks_xhci[
+                            udev_device.get_property('DEVNAME')] = 'xhci'
+        except:
+            logging.error("Failed to get driver information.")
 
     def _probe_disks_udisks1(self, bus):
         """
@@ -275,14 +297,14 @@ class DiskTest():
                         parent_media = parent_props.Get(udisks, "DriveMedia")
                     if self.memorycard:
                         if (dev_bus != 'sdio'
-                            and not FLASH_RE.search(parent_media)
-                            and not CARD_READER_RE.search(parent_model)
-                            and not GENERIC_RE.search(parent_vendor)):
+                                and not FLASH_RE.search(parent_media)
+                                and not CARD_READER_RE.search(parent_model)
+                                and not GENERIC_RE.search(parent_vendor)):
                             continue
                     else:
                         if (FLASH_RE.search(parent_media)
-                            or CARD_READER_RE.search(parent_model)
-                            or GENERIC_RE.search(parent_vendor)):
+                                or CARD_READER_RE.search(parent_model)
+                                or GENERIC_RE.search(parent_vendor)):
                             continue
                     dev_file = str(device_props.Get(udisks, "DeviceFile"))
                     dev_speed = str(device_props.Get(udisks,
@@ -393,6 +415,10 @@ def main():
                         help=("Memory cards devices on bus other than sdio "
                               "require this parameter to identify "
                               "them as such"))
+    parser.add_argument('--driver',
+                        choices=['xhci_hcd'],
+                        help=("Detect the driver of the host controller."
+                              "Only xhci_hcd for usb3 is supported so far."))
 
     args = parser.parse_args()
 
@@ -444,7 +470,7 @@ def main():
 
                 if errors_mount > 0:
                     print("There're total %d device(s) failed at mounting."
-                           % errors_mount)
+                          % errors_mount)
                     errors += errors_mount
 
                 disks_all = dict(list(test.rem_disks.items())
@@ -452,17 +478,17 @@ def main():
 
             if len(disks_all) > 0:
                 print("Found the following mounted %s partitions:"
-                       % ', '.join(args.device))
+                      % ', '.join(args.device))
 
                 for disk, mount_point in disks_all.items():
                     supported_speed = test.rem_disks_speed[disk]
                     print("    %s : %s : %s bits/s" %
-                            (disk, mount_point, supported_speed),
-                            end="")
-                    if (args.min_speed
-                        and int(args.min_speed) > int(supported_speed)):
+                          (disk, mount_point, supported_speed),
+                          end="")
+                    if (args.min_speed and
+                            int(args.min_speed) > int(supported_speed)):
                         print(" (Will not test it, speed is below %s bits/s)" %
-                                args.min_speed, end="")
+                              args.min_speed, end="")
 
                     print("")
 
@@ -478,7 +504,7 @@ def main():
                 for count in range(args.count):
                     test_files[count] = RandomData(args.size)
                     write_sizes.append(os.path.getsize(
-                                        test_files[count].tfile.name))
+                        test_files[count].tfile.name))
                     total_write_size = sum(write_sizes)
 
                 try:
@@ -525,7 +551,7 @@ def main():
                             for file in target_file_list:
                                 test.clean_up(file)
                             total_write_time = sum(write_times)
-                            avg_write_time = total_write_time / args.count
+                            # avg_write_time = total_write_time / args.count
                             try:
                                 avg_write_speed = ((
                                     total_write_size / total_write_time)
@@ -547,7 +573,7 @@ def main():
                               (iteration_write_time / args.iterations))
                         try:
                             avg_write_speed = (iteration_write_size /
-                                              iteration_write_time)
+                                               iteration_write_time)
                         except ZeroDivisionError:
                             avg_write_speed = 0.00
                         finally:
@@ -573,9 +599,17 @@ def main():
                     return 1
 
                 else:
-                    #Pass is not assured!
+                    # LP: 1313581
+                    if (args.driver == 'xhci_hcd'):
+                        if(5000000000 == test.rem_disks_speed[disk] and
+                           'xhci' == test.rem_disks_xhci[disk]):
+                            print("\t\tDevice Detected: SuperSpeed USB")
+                            print("\t\tDriver Detected: xhci_hcd")
+                        else:
+                            return 1
+                    # Pass is not assured
                     if (not args.pass_speed or
-                        avg_write_speed >= args.pass_speed):
+                            avg_write_speed >= args.pass_speed):
                         return 0
                     else:
                         print("FAIL: Average speed was lower than desired "

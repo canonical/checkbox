@@ -1667,11 +1667,10 @@ requires:
 depends: suspend/usb3_insert_after_suspend
 user: root
 estimated_duration: 45.00
-command: removable_storage_test -s 268400000 -m 500000000 -p 60 usb
+command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
- This test will check that your USB 3.0 port transfers data at a
- minimum expected speed in accordance with the specification of
- USB 3.0 SuperSpeed mode.
+ This test will check that your USB 3.0 port could be recognized
+ as SuperSpeed USB device using xhci_hcd driver and transfers data correctly.
 
 plugin: user-interact
 id: suspend/mmc-insert-after-suspend

@@ -25,6 +25,7 @@ from checkbox_support.heuristics.udisks2 import is_memory_card
 from checkbox_support.parsers.udevadm import CARD_READER_RE, GENERIC_RE, FLASH_RE
 from checkbox_support.udev import get_interconnect_speed
 from checkbox_support.udev import get_udev_block_devices
+from checkbox_support.udev import get_udev_xhci_devices
 
 
 class ActionTimer():
@@ -99,6 +100,7 @@ class DiskTest():
         self.rem_disks_memory_cards = {}
         self.rem_disks_memory_cards_nm = {}
         self.rem_disks_speed = {}
+        self.rem_disks_xhci = {} # LP: #1313581, TODO: extend to be rem_disks_driver
         self.data = ''
         self.device = device
         self.memorycard = memorycard
@@ -247,6 +249,20 @@ class DiskTest():
             else:
                 self.rem_disks_memory_cards_nm[dev_file] = None
                 self.rem_disks_nm[dev_file] = None
+        # LP: #1313581
+        # Compare the pci slot name of the devices using xhci and
+        # the pci slot name of the disks, which is usb3 disks in this case so far,
+        # to make sure the usb3 disk does be on the bus using xhci
+        # TODO: it will be better to extend to be all kinds of drivers.
+        try:
+            udev_devices_xhci = get_udev_xhci_devices(udev_client)
+            for udev_device_xhci in udev_devices_xhci:
+                pci_slot_name = udev_device_xhci.get_property('PCI_SLOT_NAME')
+                for udev_device in udev_devices:
+                    if (pci_slot_name == udev_device.get_property('DEVPATH').split('/')[3]):
+                        self.rem_disks_xhci[udev_device.get_property('DEVNAME')] = 'xhci'
+        except:
+            logging.error("Failed to get driver information.")
 
     def _probe_disks_udisks1(self, bus):
         """
@@ -393,6 +409,10 @@ def main():
                         help=("Memory cards devices on bus other than sdio "
                               "require this parameter to identify "
                               "them as such"))
+    parser.add_argument('--driver',
+                        choices=['xhci_hcd'],
+                        help=("Detect the driver of the host controller."
+                              "Only xhci_hcd for usb3 is supported so far.")) 
 
     args = parser.parse_args()
 
@@ -573,6 +593,14 @@ def main():
                     return 1
 
                 else:
+                    # LP: 1313581
+                    if (args.driver == 'xhci_hcd'):
+                        if(5000000000 == test.rem_disks_speed[disk] and
+                            'xhci' == test.rem_disks_xhci[disk]):
+                            print("\t\tDevice Detected: SuperSpeed USB")
+                            print("\t\tDriver Detected: xhci_hcd")
+                        else:
+                            return 1
                     #Pass is not assured!
                     if (not args.pass_speed or
                         avg_write_speed >= args.pass_speed):

@@ -91,3 +91,20 @@ def get_udev_block_devices(udev_client):
     # look better.
     devices.sort(key=lambda device: device.get_device_file())
     return devices
+
+
+def get_udev_xhci_devices(udev_client):
+    """
+    Get a list of all devices on pci slots using xhci drivers
+    """
+    # setup an enumerator so that we can list devices
+    enumerator = GUdev.Enumerator(client=udev_client)
+    # Iterate over pci devices only
+    enumerator.add_match_subsystem('pci')
+    devices = [
+        device for device in enumerator.execute()
+        if (device.get_driver() == 'xhci_hcd')]
+    # Sort the list, this is not needed but makes various debugging dumps
+    # look better.
+    devices.sort(key=lambda device: device.get_property('PCI_SLOT_NAME'))
+    return devices

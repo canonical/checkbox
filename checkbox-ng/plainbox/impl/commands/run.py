@@ -50,6 +50,7 @@ from plainbox.impl.runner import slugify
 from plainbox.impl.session import SessionManager
 from plainbox.impl.session import SessionMetaData
 from plainbox.impl.session import SessionPeekHelper
+from plainbox.impl.session import SessionResumeError
 from plainbox.impl.session import SessionStorageRepository
 from plainbox.impl.transport import TransportError
 from plainbox.impl.transport import get_all_transports
@@ -167,17 +168,28 @@ class RunInvocation(CheckBoxInvocationMixIn):
         # before starting the session.
         self.create_exporter()
         self.create_transport()
+        # Try to use the first session that can be resumed if the user agrees
         resume_storage_list = self.get_resume_candidates()
-        if resume_storage_list and self.ask_for_resume():
-            # Resume the first (random) existing session that matches resume
-            # criteria. This should be improved one day.
-            resume_storage = resume_storage_list[0]
+        resume_storage = None
+        for resume_storage in resume_storage_list:
+            # Skip sessions that the user doesn't want to resume
+            if not self.ask_for_resume(resume_storage):
+                continue
+            # Skip sessions that cannot be resumed
+            try:
+                self.create_manager(resume_storage)
+            except SessionResumeError:
+                continue
+            # If we resumed maybe not rerun the same, probably broken job
+            if resume_storage is not None:
+                self.maybe_skip_last_job_after_resume()
+            # Finally ignore other sessions that can be resumed
+            break
         else:
-            resume_storage = None
-        # Create the manager (create a new session)
-        self.create_manager(resume_storage)
-        if resume_storage is not None:
-            self.maybe_skip_last_job_after_resume()
+            if resume_storage is not None and not self.ask_for_new_session():
+                raise SystemExit(_("Session not resumed"))
+            # Create a fresh session if nothing got resumed
+            self.create_manager(None)
         # Store the application-identifying meta-data and checkpoint the
         # session.
         self.store_application_metadata()
@@ -241,14 +253,20 @@ class RunInvocation(CheckBoxInvocationMixIn):
                 storage_list.append(storage)
         return storage_list
 
-    def ask_for_resume(self):
+    def ask_for_confirmation(self, message):
         # TODO: use proper APIs for yes-no questions
         try:
-            return self.ask_user(
-                _("Do you want to resume the previous session?"), ('y', 'n')
-            ).lower() == "y"
+            return self.ask_user(message, ('y', 'n')).lower() == "y"
         except EOFError:
             return False
+
+    def ask_for_resume(self, storage):
+        return self.ask_for_confirmation(
+            _("Do you want to resume session: {0}").format(storage.id))
+
+    def ask_for_new_session(self):
+        return self.ask_for_confirmation(
+            _("Do you want to start a new session"))
 
     def ask_for_resume_action(self):
         try:
@@ -328,6 +346,9 @@ class RunInvocation(CheckBoxInvocationMixIn):
 
         The created session state has the on_job_added signal connected to
         :meth:`on_job_added()`.
+
+        :raises SessionResumeError:
+            If the session cannot be resumed for any reason.
         """
         all_jobs = list(
             itertools.chain(*[
@@ -347,6 +368,10 @@ class RunInvocation(CheckBoxInvocationMixIn):
             print(_("Second job defined in: {0}").format(
                 exc.duplicate_job.origin))
             raise SystemExit(exc)
+        except SessionResumeError as exc:
+            print(exc)
+            print(_("This session cannot be resumed"))
+            raise
         else:
             # Connect the on_job_added signal. We use it to mark the test loop
             # for re-execution and to update the list of desired jobs.

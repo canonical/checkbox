@@ -146,6 +146,40 @@ done you should be able to log into, say, ``precise`` and run
       -v, --version         show program's version number and exit
     $ exit
 
+Getting and setting up LXC
+--------------------------
+
+An alternative to run tests in isolated environments for various Ubuntu
+releases is to use `LXC <https://linuxcontainers.org/>`_. LXC is lighter on
+resources and doesn't require hardware virtualization support, but since it
+doesn't do real, full virtualization, it may be inadequate for some kinds of
+tests. It's up to you to decide whether you want to use it.
+
+If you want to use LXC, the easiest way is to use Ubuntu 14.04, and just
+install the lxc package:
+
+.. code-block:: bash
+
+    $ sudo apt-get install lxc
+
+Setting LXC up for plainbox testing is easy, simply configure your system so
+that the user that will run the tests can use `sudo` to execute lxc subcommands
+without requiring a password. For example if your user is called `peter`, run
+`sudo visudo` and paste this configuration at the very end of that file, this
+will allow running lxc tests as that user:
+
+.. code-block:: bash
+
+    Cmnd_Alias LXC_COMMANDS = /usr/bin/lxc-create, /usr/bin/lxc-start, \
+    /usr/bin/lxc-destroy, /usr/bin/lxc-attach, /usr/bin/lxc-start-ephemeral, \
+    /usr/bin/lxc-stop, /usr/bin/lxc-ls
+    peter ALL=NOPASSWD: LXC_COMMANDS
+
+
+The first time you use lxc, it will download the base files for each release
+you test, which will be slow; afterwards, it will use a locally cached copy to
+speed things up.
+
 Running PlainBox tests
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -158,7 +192,11 @@ To test the current code you are working on you can:
 - Run the :command:`./test-in-vagrant.sh` from the top-level directory. This
   will take the longer but will go over *all* the tests on *all* the supported
   versions of Ubuntu. It will run CheckBox unit-tests, PlainBox unit-tests and
-  it will even run integration tests that actually execute jobs. 
+  it will even run integration tests that actually execute jobs.
+
+- Run the :command:`./test-in-lxc.sh` from the top-level directory. This also
+  executes *all* the tests on *all* the supported versions of Ubuntu, however
+  it uses LXC containers instead of a Virtualbox virtual machine. 
 
 - Run :command:`plainbox self-test --unit-tests` or 
   :command:`plainbox self-test --integration-tests`. This will execute all the

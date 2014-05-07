@@ -136,7 +136,7 @@ class SelectableJobTreeNode(JobTreeNode):
                 prefix = '[ ]'
                 if self.job_selection[job]:
                     prefix = '[X]'
-                title = job.partial_id
+                title = job.summary
                 line = prefix + self.depth * '   ' + '   ' + title
                 if len(line) > cols:
                     col_max = cols - 4  # includes len('...') + a space

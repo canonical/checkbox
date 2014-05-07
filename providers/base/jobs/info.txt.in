@@ -126,7 +126,7 @@ _description: Attaches a list of the currently running kernel modules.
 
 plugin: attachment
 id: acpi_sleep_attachment
-command: [ -e /proc/acpi/sleep ] && cat /proc/acpi/sleep
+command: [ -e /proc/acpi/sleep ] && cat /proc/acpi/sleep || echo "No /proc/acpi/sleep found"
 estimated_duration: 0.5
 _description: Attaches the contents of /proc/acpi/sleep if it exists.
 

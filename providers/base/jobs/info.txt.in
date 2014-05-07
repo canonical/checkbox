@@ -180,6 +180,7 @@ _description: installs the installer bootchart tarball if it exists.
 
 plugin: attachment
 id: installer_debug.gz
+user: root
 command: [ -e /var/log/installer/debug ] && gzip -9 -c /var/log/installer/debug
 estimated_duration: 0.1
 _description: Attaches the installer debug log if it exists.

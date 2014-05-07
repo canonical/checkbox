@@ -235,6 +235,42 @@ _description:
      Did your system suspend and resume correctly?
      (NOTE: Please only consider whether the system successfully suspended and resumed. Power/Suspend LED verification will occur after this test is completed.)
 
+id: suspend/generator_suspend_after_switch_to_card
+requires: device.category == 'VIDEO'
+_description: Suspend after graphics card switch tests
+_summary: Suspend after graphics card switch tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: user-verify
+ id: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ depends: suspend/suspend_advanced
+ user: root
+ environ: PLAINBOX_SESSION_SHARE
+ command:
+  if type -P fwts >/dev/null; then
+   echo "Calling fwts"
+   set -o pipefail; fwts_test -f none -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45
+  else
+   echo "Calling sleep_test"
+   set -o pipefail; sleep_test -p
+  fi
+ estimated_duration: 90.0
+ _summary: Test suspend/resume after switching to $product
+ _description:
+  PURPOSE:
+      This test will check suspend and resume after switching to $product graphics card.
+  STEPS:
+      1. Ensure you have switched to $product graphics card.
+      2. Click "Test" and your system will suspend for about 30 - 60 seconds
+      3. Observe the Power LED to see if it blinks or changes color during suspend
+      4. If your system does not wake itself up after 60 seconds, please press the power button momentarily to wake the system manually
+      5. If your system fails to wake at all and must be rebooted, restart System Testing after reboot and mark this test as Failed
+  VERIFICATION:
+      Did your system suspend and resume correctly after switching to $product graphics card?
+      (NOTE: Please only consider whether the system successfully suspended and resumed. Power/Suspend LED verification will occur after this test is completed.)
+ EOF
+
 plugin: shell
 id: suspend/suspend_advanced_auto
 requires:
@@ -395,17 +431,25 @@ _description:
  Verify that all memory is available after resuming from suspend.
 command: meminfo_resource | diff $PLAINBOX_SESSION_SHARE/meminfo_before_suspend -
 
-plugin: manual
-id: suspend/display_after_suspend
-estimated_duration: 120.0
-depends: suspend/suspend_advanced
-_description:
- PURPOSE:
-     This test will check that the display is correct after suspend and resume
- STEPS:
-     1. Check that your display does not show up visual artifacts after resuming.
- VERIFICATION:
-     Does the display work normally after resuming from suspend?
+id: suspend/generator_display_after_suspend
+requires: device.category == 'VIDEO'
+_description: Display after suspend tests
+_summary: Display after suspend tests
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: user-interact-verify
+ id: suspend/`echo ${index}`_display_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ depends: suspend/suspend_advanced
+ _summary: Test display function after suspend for $product
+ _description:
+  PURPOSE:
+      This test will check that the display is correct after suspend and resume on the $product graphics card.
+  STEPS:
+      1. Check that your display does not show up visual artifacts after resuming.
+  VERIFICATION:
+      Does the display work normally after resuming from suspend using the $product graphics card?
+ EOF
 
 plugin: shell
 id: suspend/wireless_after_suspend

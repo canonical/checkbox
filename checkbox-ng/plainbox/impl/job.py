@@ -703,7 +703,10 @@ class JobTreeNode:
         if legacy_mode:  # using local jobs
             for job in [j for j in job_list if j.via == link]:
                 if job.plugin == 'local':
-                    category = cls(job.description)
+                    if job.summary == job.partial_id:
+                        category = cls(job.description)
+                    else:
+                        category = cls(job.summary)
                     cls.create_tree(job_list, category, job.checksum,
                                     legacy_mode)
                     node.add_category(category)

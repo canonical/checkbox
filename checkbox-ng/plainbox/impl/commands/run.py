@@ -447,7 +447,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
                     self.run_single_job(job)
 
     def run_single_job(self, job):
-        print("[ {} ]".format(job.id).center(80, '-'))
+        print("[ {} ]".format(job.tr_summary()).center(80, '-'))
         description = job.tr_description()
         if description is not None:
             print(description)

@@ -112,7 +112,7 @@ Vagrant allows us to ship a tiny text file :file:`Vagrantfile` that describes
 the development and testing environment. This file tells :command:`vagrant` how
 to prepare a virtual machine for testing. If you never used it before you may
 want to keep a tab open on `vagrant getting started guide
-<http:`http://docs.vagrantup.com/v1/docs/getting-started/index.html>`_
+<http://docs.vagrantup.com/v1/docs/getting-started/index.html>`_
 
 We did all the hard work so that you don't have to, to get everything ready
 just run one command:

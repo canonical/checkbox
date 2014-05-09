@@ -76,7 +76,6 @@ id: wireless/wireless_connection_wpa_n
 requires:
  device.category == 'WIRELESS'
  environment.ROUTERS == 'multiple'
- IEEE_80211.n == 'supported'
 user: root
 environ: WPA_N_SSID WPA_N_PSK
 command: trap "nmcli con delete id $WPA_N_SSID" EXIT; create_connection wifi $WPA_N_SSID --security=wpa --key=$WPA_N_PSK && gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
@@ -90,7 +89,6 @@ id: wireless/wireless_connection_open_n
 requires:
  device.category == 'WIRELESS'
  environment.ROUTERS == 'multiple'
- IEEE_80211.n == 'supported'
 user: root
 environ: OPEN_N_SSID
 command: trap "nmcli con delete id $OPEN_N_SSID" EXIT; create_connection wifi $OPEN_N_SSID &&  gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
@@ -176,7 +174,6 @@ id: wireless/wireless_connection_wpa_n_manual
 requires:
  device.category == 'WIRELESS'
  environment.ROUTERS == 'single'
- IEEE_80211.n == 'supported'
  IEEE_80211.band_5GHz == 'supported'
 user: root
 environ: ROUTER_SSID ROUTER_PSK
@@ -200,7 +197,6 @@ id: wireless/wireless_connection_open_n_manual
 requires:
  device.category == 'WIRELESS'
  environment.ROUTERS == 'single'
- IEEE_80211.n == 'supported'
  IEEE_80211.band_5GHz == 'supported'
 user: root
 environ: ROUTER_SSID

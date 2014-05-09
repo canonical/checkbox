@@ -140,6 +140,7 @@ command:
  [ `ls /var/log/bootchart/*.tgz 2>/dev/null | wc -l` -lt 2 ] && reboot && sleep 100
 
 plugin: local
+_summary: SATA/IDE device information.
 id: info/hdparm
 _description: SATA/IDE device information.
 requires:
@@ -224,3 +225,4 @@ id: info/disk_partitions
 user: root
 command: parted -l
 _description: Attaches information about disk partitions
+

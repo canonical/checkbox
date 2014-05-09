@@ -45,3 +45,4 @@ requires: package.name == 'tomcat6'
 user: root
 command: tomcat_test
 _description: Verifies that Tomcat server is running and working.
+

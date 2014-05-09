@@ -527,3 +527,4 @@ depends: graphics/screenshot_opencv_validation
 command: base64 ${PLAINBOX_SESSION_SHARE}/screenshot_opencv_validation.jpg
 _description: Attaches the screenshot captured in graphics/screenshot_opencv_validation.
 _summary: Attach the screenshot captured for the automatically validated screenshot test
+

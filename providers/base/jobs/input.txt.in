@@ -1,4 +1,5 @@
 plugin: local
+_summary: Pointing device tests.
 id: input/pointing
 requires:
  device.category == 'MOUSE' or device.category == 'TOUCHPAD' or device.category == 'TOUCHSCREEN'
@@ -88,3 +89,4 @@ command:
   VERIFICATION:
       Did these buttons work as expected?
  EOF
+

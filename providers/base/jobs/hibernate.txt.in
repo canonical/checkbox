@@ -36,3 +36,4 @@ id: power-management/hibernate-single-log-attach
 command: [ -e $PLAINBOX_SESSION_SHARE/hibernate-single.log ] && cat $PLAINBOX_SESSION_SHARE/hibernate-single.log
 estimated_duration: 0.5
 description: attaches log from single hibernate/resume test to results
+

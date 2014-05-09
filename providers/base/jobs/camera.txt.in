@@ -50,3 +50,4 @@ command: camera_test resolutions
 _description:
   Takes multiple pictures based on the resolutions supported by the camera and
   validates their size and that they are of a valid format.
+

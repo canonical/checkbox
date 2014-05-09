@@ -33,6 +33,7 @@ _description:
      Did a notification show and was the connection correctly established?
 
 plugin: local
+_summary: Automated test to walk multiple network cards and test each one in sequence.
 id: ethernet/multi_nic
 requires: device.category == 'NETWORK'
 _description: Automated test to walk multiple network cards and test each one in sequence.
@@ -97,6 +98,7 @@ _description:
  This test executes a maximum throughput test against all the ethernet devices found on the system.
 
 plugin: local
+_summary: Automated test that tests performance of each wired network device under stress.
 id: ethernet/stress_performance
 requires:
   device.category == 'NETWORK'

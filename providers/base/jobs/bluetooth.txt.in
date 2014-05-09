@@ -1,4 +1,3 @@
-
 plugin: shell
 id: bluetooth/detect-output
 estimated_duration: 1.2
@@ -114,3 +113,4 @@ _description:
      6. For keyboards, click the Test button to lauch a small tool. Enter some text into the tool and close it.
  VERIFICATION:
      Did the device work as expected?
+

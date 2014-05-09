@@ -1,4 +1,5 @@
 plugin: local
+_summary: Floppy test
 id: floppy/check
 requires: device.driver == 'floppy'
 _description: Floppy test
@@ -11,3 +12,4 @@ command:
  user: root
  command: floppy_test /dev/`ls /sys$path/driver/*/*/*/block`
  EOF
+

@@ -50,3 +50,4 @@ command:
   fi
   exit $EXIT_CODE
 _description: Creates a mobile broadband connection for a CDMA based modem and checks the connection to ensure it's working.
+

@@ -78,3 +78,4 @@ depends: piglit/summarize_results
 command: [ -e $PLAINBOX_SESSION_SHARE/piglit-summary ] && tar cvfz $PLAINBOX_SESSION_SHARE/piglit-results.tar.gz $PLAINBOX_SESSION_SHARE/piglit-summary/
 _description:
  Archives the piglit-summary directory into the piglit-results.tar.gz.
+

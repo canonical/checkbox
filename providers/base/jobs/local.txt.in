@@ -326,3 +326,4 @@ _description: Sniff Sniffers
 command:
  shopt -s extglob
  cat $PLAINBOX_PROVIDER_DATA/../jobs/sniff.txt?(.in)
+

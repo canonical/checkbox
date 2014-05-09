@@ -1,4 +1,5 @@
 plugin: local
+_summary: Benchmark for each disk
 id: benchmarks/disk/hdparm-read
 requires: device.category == 'DISK'
 _description: Benchmark for each disk
@@ -13,6 +14,7 @@ command:
  EOF
 
 plugin: local
+_summary: Benchmark for each disk
 id: benchmarks/disk/hdparm-cache-read
 requires: device.category == 'DISK'
 _description: Benchmark for each disk
@@ -295,3 +297,4 @@ command: gputest_benchmark tess
 _description:
  Run a tessellation test based on TessMark (OpenGL 4.0)
  Windowed 1024x640 no antialiasing
+

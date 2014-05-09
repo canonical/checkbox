@@ -255,3 +255,4 @@ _description:
      2. Press wifi hotkey at a rate of 1 press per second and slowly increase the speed of the tap, until you are tapping as fast as possible
  VERIFICATION:
      Verify the system is not frozen and the wifi and bluetooth applets are still visible and functional
+

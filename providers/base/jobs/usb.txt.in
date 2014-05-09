@@ -221,3 +221,4 @@ command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test will check that your USB 3.0 port could be recognized
  as SuperSpeed USB device using xhci_hcd driver and transfers data correctly.
+

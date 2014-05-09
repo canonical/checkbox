@@ -48,3 +48,4 @@ _description:
      2. Set the result as passed
  VERIFICATION:
      Check that in the report the result is passed and the comment is displayed
+

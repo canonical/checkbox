@@ -9,6 +9,7 @@ command:
  EOF
 
 plugin: local
+_summary: Optical read test.
 id: optical/read
 requires:
  device.category == 'CDROM'
@@ -33,6 +34,7 @@ command:
  EOF
 
 plugin: local
+_summary: Automated optical read test.
 id: optical/read-automated
 requires:
  device.category == 'CDROM'
@@ -50,6 +52,7 @@ command:
  EOF
 
 plugin: local
+_summary: CD write test.
 id: optical/cdrom-write
 requires:
  device.category == 'CDROM'
@@ -77,6 +80,7 @@ command:
  EOF
 
 plugin: local
+_summary: Automated CD write test
 id: optical/cdrom-write-automated
 requires:
  device.category == 'CDROM'
@@ -116,6 +120,7 @@ _description:
      Did all the steps work?
 
 plugin: local
+_summary: DVD write test.
 id: optical/dvd-write
 requires:
  device.category == 'CDROM'
@@ -143,6 +148,7 @@ command:
  EOF
 
 plugin: local
+_summary: Automated DVD write test.
 id: optical/dvd-write-automated
 requires:
  device.category == 'CDROM'
@@ -178,6 +184,7 @@ _description:
      Did the file play?
 
 plugin: local
+_summary: Automated Blu-Ray read test.
 id: optical/bluray-read
 requires: device.category == 'CDROM'
 _description: Automated Blu-Ray read test.
@@ -204,6 +211,7 @@ command:
  EOF
 
 plugin: local
+_summary: Automated Blu-Ray write test.
 id: optical/bluray-write
 requires: device.category == 'CDROM'
 _description: Automated Blu-Ray write test.
@@ -228,3 +236,4 @@ command:
   VERIFICATION:
    This test should automatically select "Yes" if it passes, "No" if it fails.
  EOF
+

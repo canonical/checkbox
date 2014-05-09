@@ -6,6 +6,7 @@ estimated_duration: 2.000
 _description: Tests whether the system has a working Internet connection.
 
 plugin: local
+_summary: Network Information
 id: networking/info
 requires: device.category == 'NETWORK'
 _description: Network Information
@@ -71,3 +72,4 @@ id: networking/printer
 requires: package.name == 'cups-client'
 command: network_printer_test -s $CHECKBOX_SERVER
 _description: Try to enable a remote printer on the network and print a test page.
+

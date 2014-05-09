@@ -1,4 +1,5 @@
 plugin: local
+_summary: Automated tests for firmware using Firmware Test Suite.
 id: firmware/fwts
 requires: package.name == 'fwts'
 _description: Automated tests for firmware using Firmware Test Suite.
@@ -14,6 +15,7 @@ command:
  EOF
 
 plugin: local
+_summary: Automated tests for firmware using Firmware Test Suite.
 id: firmware/fwts_logs
 requires: package.name == 'fwts'
 _description: Automated tests for firmware using Firmware Test Suite.

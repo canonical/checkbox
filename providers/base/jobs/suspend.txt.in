@@ -1851,7 +1851,6 @@ _description:
      The verification of this test is automated. Do not change the
      automatically selected result.
 
-
 plugin: user-interact
 id: mediacard/sdxc-insert-after-suspend
 estimated_duration: 30.0
@@ -2096,3 +2095,4 @@ command: camera_test resolutions
 _description:
   Takes multiple pictures based on the resolutions supported by the camera and
   validates their size and that they are of a valid format after suspend
+

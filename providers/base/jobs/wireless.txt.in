@@ -317,6 +317,7 @@ _description:
   respond to requests on the 802.11b protocol.
 
 plugin: local
+_summary: Automated test that tests performance of each wireless network device under stress.
 id: wireless/stress_performance
 requires:
   device.category == 'NETWORK'

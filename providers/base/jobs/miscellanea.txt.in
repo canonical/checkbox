@@ -90,6 +90,7 @@ command: sources_test $SOURCES_LIST "$REPOSITORIES"
 _description: Checks that a specified sources list file contains the requested repositories
 
 plugin: local
+_summary: Automated job to generate the PXE verification test for each NIC.
 id: miscellanea/pxe_boot
 requires: device.category == 'NETWORK'
 _description: Automated job to generate the PXE verification test for each NIC.
@@ -110,6 +111,7 @@ command:
  EOF
 
 plugin: local
+_summary: Automated job to generate the Remote Shared IPMI verification test for each NIC.
 id: miscellanea/remote_shared_ipmi
 requires: device.category == 'NETWORK'
 _description: Automated job to generate the Remote Shared IPMI verification test for each NIC.

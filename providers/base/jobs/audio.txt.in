@@ -394,3 +394,4 @@ requires:
 _description: Record mixer settings after suspending 30 times.
 command:
  audio_settings store --file=$PLAINBOX_SESSION_SHARE/audio_settings_after_suspend_30_cycles; diff $PLAINBOX_SESSION_SHARE/audio_settings_before_suspend $PLAINBOX_SESSION_SHARE/audio_settings_after_suspend_30_cycles
+

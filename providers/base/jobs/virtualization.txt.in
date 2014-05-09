@@ -25,3 +25,4 @@ user: root
 command: xen_test /images/xentest.img /images/xentest.xml
 _description:
  Test to check that a Xen domU image can boot and run on Xen on Ubuntu
+

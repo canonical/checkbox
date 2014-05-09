@@ -64,3 +64,4 @@ id: daemons/winbindd
 requires: package.name == 'winbind'
 command: pgrep -f '/usr/sbin/winbindd' >/dev/null
 _description: Test if the winbindd daemon is running when the package is installed.
+

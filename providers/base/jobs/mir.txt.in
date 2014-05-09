@@ -1,4 +1,5 @@
 plugin: local
+_summary: MIR Integration tests
 id: mir/integration
 requires: package.name == 'mir-test-tools'
 _description: MIR Integration tests
@@ -13,6 +14,7 @@ command:
  EOF
 
 plugin: local
+_summary: MIR Acceptance tests
 id: mir/acceptance
 requires: package.name == 'mir-test-tools'
 _description: MIR Acceptance tests
@@ -25,3 +27,4 @@ command:
  command: mir_acceptance_tests --gtest_filter=$1*
  _description: Run $1 test from MIR Acceptance tests.
  EOF
+

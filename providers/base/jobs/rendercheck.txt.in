@@ -11,3 +11,4 @@ id: rendercheck/tarball
 depends: rendercheck/tests
 command: [ -e $PLAINBOX_SESSION_SHARE/rendercheck-results ] && tar cvfz $PLAINBOX_SESSION_SHARE/rendercheck-results.tar.gz $PLAINBOX_SESSION_SHARE/rendercheck-results && cat $PLAINBOX_SESSION_SHARE/rendercheck-results.tar.gz
 _description: Attach log from rendercheck tests
+

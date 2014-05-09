@@ -9,3 +9,4 @@ _description:
     3. After logging back in, restart System Testing and it should resume here
  VERIFICATION:
     Did your system restart and bring up the GUI login cleanly?
+

@@ -36,3 +36,4 @@ depends: peripheral/external-usb-modem
 command: wget -SO /dev/null http://$TRANSFER_SERVER
 _description:
  Automated test case to make sure that it's possible to download files through HTTP
+

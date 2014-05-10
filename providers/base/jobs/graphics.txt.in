@@ -485,9 +485,10 @@ command:
   PURPOSE:
       Manually switch to the $product card.
   STEPS:
-      1. Using the appropriate tool (either NVidia settings or AMD Control Center), switch your system to use the $product graphics card. This will require restarting your session.
-      2. Once the session restarts, please restart this testing program and select "continue" when prompted for a resume action.
-      3. Don't answer the verification question until the system has restarted with the $product card enabled.
+      1. If your system is already running with the $product card, then no action is necessary.
+      2. Using the appropriate tool (either NVidia settings or AMD Control Center), switch your system to use the $product graphics card. This will require restarting your session.
+      3. Once the session restarts, please restart this testing program and select "continue" when prompted for a resume action.
+      4. Don't answer the verification question until the system has restarted with the $product card enabled.
   VERIFICATION:
       Is the system using the $product card now?
  EOF

@@ -344,7 +344,13 @@ class CliInvocation(CheckBoxInvocationMixIn):
                 if self.display is None:
                     self.display = get_display()
                 self.display.run(ScrollableTreeNode(tree, title))
-                self._update_desired_job_list(manager, tree.selection)
+                # NOTE: tree.selection is correct but ordered badly.  To retain
+                # the original ordering we should just treat it as a mask and
+                # use it to filter jobs from desired_job_list.
+                wanted_set = frozenset(tree.selection)
+                self._update_desired_job_list(
+                    manager, [job for job in manager.run_list
+                              if job in wanted_set])
                 estimated_duration_auto, estimated_duration_manual = \
                     manager.state.get_estimated_duration()
                 if estimated_duration_auto:

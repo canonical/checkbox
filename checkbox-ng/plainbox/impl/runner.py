@@ -233,6 +233,29 @@ class JobRunner(IJobRunner):
             UserJobExecutionController(session_dir, provider_list),
         ]
 
+    def get_warm_up_sequence(self, job_list):
+        """
+        Determine if authentication warm-up may be needed.
+
+        :param job_lits:
+            A list of jobs that may be executed
+        :returns:
+            A list of methods to call to complete the warm-up step.
+
+        Authentication warm-up is related to the plainbox-secure-launcher-1
+        program that can be 'warmed-up' to perhaps cache the security
+        credentials. This is usually done early in the testing process so that
+        we can prompt for passwords before doing anything that takes an
+        extended amount of time.
+        """
+        warm_up_list = []
+        for job in job_list:
+            ctrl = self._get_ctrl_for_job(job)
+            warm_up_func = ctrl.get_warm_up_for_job(job)
+            if warm_up_func is not None and warm_up_func not in warm_up_list:
+                warm_up_list.add(warm_up_func)
+        return warm_up_list
+
     def run_job(self, job, config=None):
         """
         Run the specified job an return the result

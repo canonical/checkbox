@@ -814,6 +814,7 @@ class RootViaPTL1ExecutionControllerTests(
         # Ensure that we get a negative score of minus one
         self.assertEqual(self.ctrl.get_checkbox_score(self.job), -1)
 
+    @mock.patch.dict('plainbox.impl.ctrl.os.environ', clear=True)
     def test_get_checkbox_score_for_secure_provider_and_user_job(self):
         # Assume that the job is coming from Provider1 provider
         # and the provider is secure
@@ -823,6 +824,7 @@ class RootViaPTL1ExecutionControllerTests(
         # Ensure that we get a neutral score of zero
         self.assertEqual(self.ctrl.get_checkbox_score(self.job), 0)
 
+    @mock.patch.dict('plainbox.impl.ctrl.os.environ', clear=True)
     @mock.patch('plainbox.impl.ctrl.check_output')
     def test_get_checkbox_score_for_secure_provider_root_job_with_policy(
             self, mock_check_output):
@@ -838,6 +840,7 @@ class RootViaPTL1ExecutionControllerTests(
         ctrl = self.CLS(self.SESSION_DIR, self.PROVIDER_LIST)
         self.assertEqual(ctrl.get_checkbox_score(self.job), 3)
 
+    @mock.patch.dict('plainbox.impl.ctrl.os.environ', clear=True)
     @mock.patch('plainbox.impl.ctrl.check_output')
     def test_get_checkbox_score_for_secure_provider_root_job_with_policy_2(
             self, mock_check_output):
@@ -855,6 +858,27 @@ class RootViaPTL1ExecutionControllerTests(
         ctrl = self.CLS(self.SESSION_DIR, self.PROVIDER_LIST)
         self.assertEqual(ctrl.get_checkbox_score(self.job), 3)
 
+    @mock.patch.dict('plainbox.impl.ctrl.os.environ', values={
+        'SSH_CONNECTION': '1.2.3.4 123 1.2.3.5 22'
+    })
+    @mock.patch('plainbox.impl.ctrl.check_output')
+    def test_get_checkbox_score_for_normally_supported_job_over_ssh(
+            self, mock_check_output):
+        # Assume that the job is coming from Provider1 provider
+        # and the provider is secure
+        self.job.provider = mock.Mock(spec=Provider1, secure=True)
+        # Assume that the job runs as root
+        self.job.user = 'root'
+        # Assume we get the right action id from pkaction(1) even with
+        # polikt version < 0.110 (pkaction always exists with status 1), see:
+        # https://bugs.freedesktop.org/show_bug.cgi?id=29936#attach_78263
+        mock_check_output.side_effect = CalledProcessError(
+            1, '', b"org.freedesktop.policykit.pkexec.run-plainbox-job\n")
+        # Ensure that we get a positive score of three
+        ctrl = self.CLS(self.SESSION_DIR, self.PROVIDER_LIST)
+        self.assertEqual(ctrl.get_checkbox_score(self.job), -1)
+
+    @mock.patch.dict('plainbox.impl.ctrl.os.environ', clear=True)
     @mock.patch('plainbox.impl.ctrl.check_output')
     def test_get_checkbox_score_for_secure_provider_root_job_no_policy(
             self, mock_check_output):

@@ -509,22 +509,6 @@ class RunInvocation(CheckBoxInvocationMixIn):
             answer = input("{} [{}] ".format(prompt, ", ".join(allowed)))
         return answer
 
-    def _auth_warmup_needed(self):
-        # Don't warm up plainbox-trusted-launcher-1 if none of the providers
-        # use it. We assume that the mere presence of a provider makes it
-        # possible for a root job to be preset but it could be improved to
-        # acutally know when this step is absolutely not required (no local
-        # jobs, no jobs
-        # need root)
-        if all(not provider.secure for provider in self.provider_list):
-            return False
-        # Don't use authentication warm-up if none of the jobs on the run list
-        # requires it.
-        if all(job.user is None for job in self.state.run_list):
-            return False
-        # Otherwise, do pre-authentication
-        return True
-
     def _save_results(self, output_file, input_stream):
         if output_file is sys.stdout:
             print(_("[ Results ]").center(80, '='))

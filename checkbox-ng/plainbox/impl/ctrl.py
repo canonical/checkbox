@@ -559,6 +559,14 @@ class CheckBoxExecutionController(IExecutionController):
         """
         return os.path.join(self._session_dir, "CHECKBOX_DATA")
 
+    def get_warm_up_for_job(self, job):
+        """
+        Get a warm-up function that should be called before running this job.
+
+        :returns:
+            None
+        """
+
 
 class UserJobExecutionController(CheckBoxExecutionController):
     """

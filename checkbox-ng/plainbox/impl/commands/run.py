@@ -45,7 +45,6 @@ from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.result import DiskJobResult, MemoryJobResult
 from plainbox.impl.runner import JobRunner
-from plainbox.impl.runner import authenticate_warmup
 from plainbox.impl.runner import slugify
 from plainbox.impl.session import SessionManager
 from plainbox.impl.session import SessionMetaData
@@ -424,11 +423,11 @@ class RunInvocation(CheckBoxInvocationMixIn):
         Ask the password before anything else in order to run jobs requiring
         privileges
         """
-        if self._auth_warmup_needed():
+        warm_up_list = self.runner.get_warm_up_sequence(self.state.run_list)
+        if warm_up_list:
             print(_("[ Authentication ]").center(80, '='))
-            return_code = authenticate_warmup()
-            if return_code:
-                raise SystemExit(return_code)
+            for warm_up_func in warm_up_list:
+                warm_up_func()
 
     def run_all_selected_jobs(self):
         """
@@ -509,22 +508,6 @@ class RunInvocation(CheckBoxInvocationMixIn):
         while answer not in allowed:
             answer = input("{} [{}] ".format(prompt, ", ".join(allowed)))
         return answer
-
-    def _auth_warmup_needed(self):
-        # Don't warm up plainbox-trusted-launcher-1 if none of the providers
-        # use it. We assume that the mere presence of a provider makes it
-        # possible for a root job to be preset but it could be improved to
-        # acutally know when this step is absolutely not required (no local
-        # jobs, no jobs
-        # need root)
-        if all(not provider.secure for provider in self.provider_list):
-            return False
-        # Don't use authentication warm-up if none of the jobs on the run list
-        # requires it.
-        if all(job.user is None for job in self.state.run_list):
-            return False
-        # Otherwise, do pre-authentication
-        return True
 
     def _save_results(self, output_file, input_stream):
         if output_file is sys.stdout:

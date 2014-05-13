@@ -63,18 +63,6 @@ def slugify(_string):
     return ''.join(c if c in valid_chars else '_' for c in _string)
 
 
-def authenticate_warmup():
-    """
-    Call the checkbox trusted launcher in warmup mode.
-
-    This will use the corresponding PolicyKit action and start the
-    authentication agent (depending on the installed policy file)
-    """
-    warmup_popen = extcmd.ExternalCommand()
-    return warmup_popen.call(
-        ['pkexec', 'plainbox-trusted-launcher-1', '--warmup'])
-
-
 class IOLogRecordGenerator(extcmd.DelegateBase):
     """
     Delegate for extcmd that generates io_log entries.
@@ -232,6 +220,29 @@ class JobRunner(IJobRunner):
             RootViaSudoExecutionController(session_dir, provider_list),
             UserJobExecutionController(session_dir, provider_list),
         ]
+
+    def get_warm_up_sequence(self, job_list):
+        """
+        Determine if authentication warm-up may be needed.
+
+        :param job_lits:
+            A list of jobs that may be executed
+        :returns:
+            A list of methods to call to complete the warm-up step.
+
+        Authentication warm-up is related to the plainbox-secure-launcher-1
+        program that can be 'warmed-up' to perhaps cache the security
+        credentials. This is usually done early in the testing process so that
+        we can prompt for passwords before doing anything that takes an
+        extended amount of time.
+        """
+        warm_up_list = []
+        for job in job_list:
+            ctrl = self._get_ctrl_for_job(job)
+            warm_up_func = ctrl.get_warm_up_for_job(job)
+            if warm_up_func is not None and warm_up_func not in warm_up_list:
+                warm_up_list.add(warm_up_func)
+        return warm_up_list
 
     def run_job(self, job, config=None):
         """
@@ -657,6 +668,21 @@ class JobRunner(IJobRunner):
         return return_code, record_path
 
     def _run_extcmd(self, job, config, extcmd_popen):
+        ctrl = self._get_ctrl_for_job(job)
+        return ctrl.execute_job(job, config, extcmd_popen)
+
+    def _get_ctrl_for_job(self, job):
+        """
+        Get the execution controller most applicable to run this job
+
+        :param job:
+            A job definition to run
+        :returns:
+            An execution controller instance
+        :raises LookupError:
+            if no execution controller capable of running the specified job can
+            be found
+        """
         # Compute the score of each controller
         ctrl_score = [
             (ctrl, ctrl.get_score(job))
@@ -665,12 +691,11 @@ class JobRunner(IJobRunner):
         ctrl_score.sort(key=lambda pair: pair[1])
         # Get the best score
         ctrl, score = ctrl_score[-1]
-        # Ensure that the controler is viable
+        # Ensure that the controller is viable
         if score < 0:
-            raise RuntimeError(
+            raise LookupError(
                 _("No exec controller supports job {}").format(job))
         logger.debug(
             _("Selected execution controller %s (score %d) for job %r"),
             ctrl.__class__.__name__, score, job.id)
-        # Delegate and execute
-        return ctrl.execute_job(job, config, extcmd_popen)
+        return ctrl

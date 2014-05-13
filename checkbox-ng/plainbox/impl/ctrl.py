@@ -59,6 +59,7 @@ from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 from plainbox.impl.secure.rfc822 import gen_rfc822_records
 from plainbox.impl.session.jobs import JobReadinessInhibitor
+from plainbox.vendor import extcmd
 
 __all__ = [
     'CheckBoxSessionStateController',
@@ -559,6 +560,14 @@ class CheckBoxExecutionController(IExecutionController):
         """
         return os.path.join(self._session_dir, "CHECKBOX_DATA")
 
+    def get_warm_up_for_job(self, job):
+        """
+        Get a warm-up function that should be called before running this job.
+
+        :returns:
+            None
+        """
+
 
 class UserJobExecutionController(CheckBoxExecutionController):
     """
@@ -752,6 +761,30 @@ class RootViaPTL1ExecutionController(CheckBoxDifferentialExecutionController):
             return 3
         else:
             return 0
+
+    def get_warm_up_for_job(self, job):
+        """
+        Get a warm-up function that should be called before running this job.
+
+        :returns:
+            a warm-up function for jobs that need to run as another
+            user or None if the job can run as the current user.
+        """
+        if job.user is None:
+            return
+        else:
+            return plainbox_trusted_launcher_warm_up
+
+
+def plainbox_trusted_launcher_warm_up():
+    """
+    Warm-up function for plainbox-trusted-laucher-1.
+
+    returned by :meth:`RootViaPTL1ExecutionController.get_warm_up_for_job()`
+    """
+    warmup_popen = extcmd.ExternalCommand()
+    return warmup_popen.call(
+        ['pkexec', 'plainbox-trusted-launcher-1', '--warmup'])
 
 
 class RootViaPkexecExecutionController(

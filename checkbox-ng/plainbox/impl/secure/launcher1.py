@@ -89,7 +89,7 @@ class TrustedLauncher:
             If the checksum does not match any known job
         """
         job = self.find_job(checksum)
-        cmd = ['bash', '-c', job.command]
+        cmd = [job.shell, '-c', job.command]
         return subprocess.call(cmd, env=self.modify_execution_environment(env))
 
     def run_local_job(self, checksum, env):
@@ -106,7 +106,7 @@ class TrustedLauncher:
             If the checksum does not match any known job
         """
         job = self.find_job(checksum)
-        cmd = ['bash', '-c', job.command]
+        cmd = [job.shell, '-c', job.command]
         output = subprocess.check_output(
             cmd, universal_newlines=True,
             env=self.modify_execution_environment(env))

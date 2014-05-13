@@ -85,8 +85,9 @@ class TrustedLauncherTests(TestCase):
         env = {'key': 'value'}
         # Run the tested method
         retval = self.launcher.run_shell_from_job(job.checksum, env)
-        # Ensure that we run the job command via bash
-        mock_call.assert_called_once_with(['bash', '-c', job.command], env=env)
+        # Ensure that we run the job command via job.shell
+        mock_call.assert_called_once_with(
+            [job.shell, '-c', job.command], env=env)
         # Ensure that the return value of subprocess.call() is returned
         self.assertEqual(retval, mock_call())
 
@@ -100,11 +101,11 @@ class TrustedLauncherTests(TestCase):
         env = {'key': 'value'}
         # Run the tested method
         retval = self.launcher.run_shell_from_job(job.checksum, env)
-        # Ensure that we run the job command via bash with a preserved env
+        # Ensure that we run the job command via job.shell with a preserved env
         expected_env = dict(os.environ)
         expected_env.update(env)
-        mock_call.assert_called_once_with(['bash', '-c', job.command],
-                                          env=expected_env)
+        mock_call.assert_called_once_with(
+            [job.shell, '-c', job.command], env=expected_env)
         # Ensure that the return value of subprocess.call() is returned
         self.assertEqual(retval, mock_call())
 
@@ -124,9 +125,9 @@ class TrustedLauncherTests(TestCase):
         mock_load_rfc822_records.return_value = [record1, record2]
         # Run the tested method
         job_list = self.launcher.run_local_job(job.checksum, None)
-        # Ensure that we run the job command via bash
+        # Ensure that we run the job command via job.shell
         mock_check_output.assert_called_with(
-            ['bash', '-c', job.command], env={}, universal_newlines=True)
+            [job.shell, '-c', job.command], env={}, universal_newlines=True)
         # Ensure that we parse all of the output
         mock_load_rfc822_records.assert_called_with(
             mock_check_output(), source=JobOutputTextSource(job))

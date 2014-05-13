@@ -59,16 +59,19 @@ class TestJobDefinition(TestCase):
             'command': 'command-value',
             'environ': 'environ-value',
             'user': 'user-value',
+            'shell': 'shell-value',
         }, {
             'plugin': 'plugin-raw',
             'command': 'command-raw',
             'environ': 'environ-raw',
             'user': 'user-raw',
+            'shell': 'shell-raw',
         })
         self.assertEqual(job.plugin, "plugin-value")
         self.assertEqual(job.command, "command-value")
         self.assertEqual(job.environ, "environ-value")
         self.assertEqual(job.user, "user-value")
+        self.assertEqual(job.shell, "shell-value")
 
     def test_properties_default_values(self):
         """
@@ -79,6 +82,7 @@ class TestJobDefinition(TestCase):
         self.assertEqual(job.command, None)
         self.assertEqual(job.environ, None)
         self.assertEqual(job.user, None)
+        self.assertEqual(job.shell, 'bash')
 
     def test_checksum_smoke(self):
         job1 = BaseJob({'plugin': 'plugin', 'user': 'root'})

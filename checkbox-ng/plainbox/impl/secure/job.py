@@ -103,6 +103,15 @@ class BaseJob:
         return self.get_record_value('user')
 
     @property
+    def shell(self):
+        """
+        Shell that is used to interpret the command
+
+        Defaults to 'bash' for checkbox compatibility.
+        """
+        return self.get_record_value('shell', 'bash')
+
+    @property
     def checksum(self):
         """
         Checksum of the job definition.

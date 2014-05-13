@@ -94,6 +94,14 @@ class IJobDefinition(metaclass=ABCMeta):
         """
 
     @abstractproperty
+    def shell(self):
+        """
+        Shell that is used to interpret the command
+
+        Defaults to 'bash' for checkbox compatibility.
+        """
+
+    @abstractproperty
     def command(self):
         """
         The shell command to execute to perform the job.

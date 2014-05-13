@@ -1126,7 +1126,7 @@ msgstr[2] "{} Testów zakończonych niepowodzeniem"
 
 #: .././plainbox/impl/exporter/xlsx.py:315
 msgid "Failure Rate: {:.2f}% ({}/{})"
-msgstr "Odsetek niepowodzeń: {:.2f}% {{}/{})"
+msgstr "Odsetek niepowodzeń: {:.2f}% ({}/{})"
 
 #: .././plainbox/impl/exporter/xlsx.py:322
 msgid "{} Test skipped"

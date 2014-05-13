@@ -45,7 +45,6 @@ from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.result import DiskJobResult, MemoryJobResult
 from plainbox.impl.runner import JobRunner
-from plainbox.impl.runner import authenticate_warmup
 from plainbox.impl.runner import slugify
 from plainbox.impl.session import SessionManager
 from plainbox.impl.session import SessionMetaData
@@ -424,11 +423,11 @@ class RunInvocation(CheckBoxInvocationMixIn):
         Ask the password before anything else in order to run jobs requiring
         privileges
         """
-        if self._auth_warmup_needed():
+        warm_up_list = self.runner.get_warm_up_sequence(self.state.run_list)
+        if warm_up_list:
             print(_("[ Authentication ]").center(80, '='))
-            return_code = authenticate_warmup()
-            if return_code:
-                raise SystemExit(return_code)
+            for warm_up_func in warm_up_list:
+                warm_up_func()
 
     def run_all_selected_jobs(self):
         """

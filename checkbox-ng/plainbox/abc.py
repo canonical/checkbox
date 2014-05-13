@@ -356,6 +356,23 @@ class IJobRunner(metaclass=ABCMeta):
         # executing. We could expose the underlying process mechanics so that
         # QT/GTK applications could tie that directly into their event loop.
 
+    @abstractmethod
+    def get_warm_up_sequence(self, job_list):
+        """
+        Determine if authentication warm-up may be needed.
+
+        :param job_lits:
+            A list of jobs that may be executed
+        :returns:
+            A list of methods to call to complete the warm-up step.
+
+        Authentication warm-up is related to the plainbox-secure-launcher-1
+        program that can be 'warmed-up' to perhaps cache the security
+        credentials. This is usually done early in the testing process so that
+        we can prompt for passwords before doing anything that takes an
+        extended amount of time.
+        """
+
 
 class IUserInterfaceIO(metaclass=ABCMeta):
     """

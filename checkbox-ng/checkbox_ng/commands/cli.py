@@ -47,7 +47,6 @@ from plainbox.impl.exporter.xml import XMLSessionStateExporter
 from plainbox.impl.job import JobTreeNode
 from plainbox.impl.result import DiskJobResult, MemoryJobResult
 from plainbox.impl.runner import JobRunner
-from plainbox.impl.runner import authenticate_warmup
 from plainbox.impl.runner import slugify
 from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.qualifiers import CompositeQualifier
@@ -303,7 +302,10 @@ class CliInvocation(CheckBoxInvocationMixIn):
                         self.provider_list,
                         self.settings['default_whitelist']))
         manager.checkpoint()
-
+        runner = JobRunner(
+            manager.storage.location, self.provider_list,
+            os.path.join(manager.storage.location, 'io-logs'),
+            command_io_delegate=self)
         if self.is_interactive and not resume_in_progress:
             # Pre-run all local jobs
             desired_job_list = select_jobs(
@@ -315,13 +317,13 @@ class CliInvocation(CheckBoxInvocationMixIn):
             self._update_desired_job_list(manager, desired_job_list)
             # Ask the password before anything else in order to run local jobs
             # requiring privileges
-            if self._auth_warmup_needed(manager):
+            warm_up_list = runner.get_warm_up_sequence(manager.state.run_list)
+            if warm_up_list:
                 print("[ {} ]".format(_("Authentication")).center(80, '='))
-                return_code = authenticate_warmup()
-                if return_code:
-                    raise SystemExit(return_code)
+                for warm_up_func in warm_up_list:
+                    warm_up_func()
             self._local_only = True
-            self._run_jobs(ns, manager)
+            self._run_jobs(runner, ns, manager)
             self._local_only = False
 
         if not resume_in_progress:
@@ -332,11 +334,11 @@ class CliInvocation(CheckBoxInvocationMixIn):
             if self.is_interactive:
                 # Ask the password before anything else in order to run jobs
                 # requiring privileges
-                if self._auth_warmup_needed(manager):
+                warm_up_list = runner.get_warm_up_sequence(manager.state.run_list)
+                if warm_up_list:
                     print("[ {} ]".format(_("Authentication")).center(80, '='))
-                    return_code = authenticate_warmup()
-                    if return_code:
-                        raise SystemExit(return_code)
+                    for warm_up_func in warm_up_list:
+                        warm_up_func()
                 tree = SelectableJobTreeNode.create_tree(
                     manager.state.run_list,
                     legacy_mode=True)
@@ -365,7 +367,7 @@ class CliInvocation(CheckBoxInvocationMixIn):
                 else:
                     print(_("Estimated duration cannot be determined for"
                             " manual jobs."))
-        self._run_jobs(ns, manager)
+        self._run_jobs(runner, ns, manager)
         manager.destroy()
 
         # FIXME: sensible return value
@@ -411,30 +413,10 @@ class CliInvocation(CheckBoxInvocationMixIn):
             manager.state.metadata.running_job_name = None
             manager.checkpoint()
 
-    def _run_jobs(self, ns, manager):
-        runner = JobRunner(
-            manager.storage.location, self.provider_list,
-            os.path.join(manager.storage.location, 'io-logs'),
-            command_io_delegate=self)
+    def _run_jobs(self, runner, ns, manager):
         self._run_jobs_with_session(ns, manager, runner)
         if not self._local_only:
             self.save_results(manager)
-
-    def _auth_warmup_needed(self, manager):
-        # Don't warm up plainbox-trusted-launcher-1 if none of the providers
-        # use it. We assume that the mere presence of a provider makes it
-        # possible for a root job to be preset but it could be improved to
-        # actually know when this step is absolutely not required (no local
-        # jobs, no jobs
-        # need root)
-        if all(not provider.secure for provider in self.provider_list):
-            return False
-        # Don't use authentication warm-up if none of the jobs on the run list
-        # requires it.
-        if all(job.user is None for job in manager.state.run_list):
-            return False
-        # Otherwise, do pre-authentication
-        return True
 
     def save_results(self, manager):
         if self.is_interactive:

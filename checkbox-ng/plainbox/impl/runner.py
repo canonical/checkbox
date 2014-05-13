@@ -665,7 +665,7 @@ class JobRunner(IJobRunner):
         ctrl_score.sort(key=lambda pair: pair[1])
         # Get the best score
         ctrl, score = ctrl_score[-1]
-        # Ensure that the controler is viable
+        # Ensure that the controller is viable
         if score < 0:
             raise RuntimeError(
                 _("No exec controller supports job {}").format(job))

@@ -412,22 +412,6 @@ class CliInvocation(CheckBoxInvocationMixIn):
         if not self._local_only:
             self.save_results(manager)
 
-    def _auth_warmup_needed(self, manager):
-        # Don't warm up plainbox-trusted-launcher-1 if none of the providers
-        # use it. We assume that the mere presence of a provider makes it
-        # possible for a root job to be preset but it could be improved to
-        # actually know when this step is absolutely not required (no local
-        # jobs, no jobs
-        # need root)
-        if all(not provider.secure for provider in self.provider_list):
-            return False
-        # Don't use authentication warm-up if none of the jobs on the run list
-        # requires it.
-        if all(job.user is None for job in manager.state.run_list):
-            return False
-        # Otherwise, do pre-authentication
-        return True
-
     def save_results(self, manager):
         if self.is_interactive:
             print("[ {} ]".format(_('Results')).center(80, '='))

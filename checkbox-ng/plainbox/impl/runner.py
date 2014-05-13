@@ -63,18 +63,6 @@ def slugify(_string):
     return ''.join(c if c in valid_chars else '_' for c in _string)
 
 
-def authenticate_warmup():
-    """
-    Call the checkbox trusted launcher in warmup mode.
-
-    This will use the corresponding PolicyKit action and start the
-    authentication agent (depending on the installed policy file)
-    """
-    warmup_popen = extcmd.ExternalCommand()
-    return warmup_popen.call(
-        ['pkexec', 'plainbox-trusted-launcher-1', '--warmup'])
-
-
 class IOLogRecordGenerator(extcmd.DelegateBase):
     """
     Delegate for extcmd that generates io_log entries.

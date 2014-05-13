@@ -652,6 +652,22 @@ class IExecutionController(metaclass=ABCMeta):
             The higher the value, the more applicable this controller is.
         """
 
+    @abstractmethod
+    def get_warm_up_for_job(self, job):
+        """
+        Get a warm-up function that should be called before running this job.
+
+        :returns:
+            A callable (without arguments) or None, depending on needs of a
+            particular job.
+
+        The warm-up function is an optional advisory interface to improve the
+        testing experience for the user. A job may not require any warm-up. In
+        such case the return value is None. Note that even if this function is
+        not called the testing process should perform the same way (correctly)
+        but the user may be prompted for additional steps mid-way.
+        """
+
 
 class IBuildSystem(metaclass=ABCMeta):
     """

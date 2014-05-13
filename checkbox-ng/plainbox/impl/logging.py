@@ -325,6 +325,17 @@ class LoggingHelper:
         writable.
         """
         return {
+            "checkbox": {
+                "level": "WARNING",
+                "handlers": [
+                    "console_debug",
+                    "console_info",
+                    "console_warning",
+                    "console_error",
+                    "logfile_error",
+                    "logfile_debug",
+                ],
+            },
             "plainbox": {
                 "level": "WARNING",
                 "handlers": [

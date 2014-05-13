@@ -657,6 +657,21 @@ class JobRunner(IJobRunner):
         return return_code, record_path
 
     def _run_extcmd(self, job, config, extcmd_popen):
+        ctrl = self._get_ctrl_for_job(job)
+        return ctrl.execute_job(job, config, extcmd_popen)
+
+    def _get_ctrl_for_job(self, job):
+        """
+        Get the execution controller most applicable to run this job
+
+        :param job:
+            A job definition to run
+        :returns:
+            An execution controller instance
+        :raises LookupError:
+            if no execution controller capable of running the specified job can
+            be found
+        """
         # Compute the score of each controller
         ctrl_score = [
             (ctrl, ctrl.get_score(job))
@@ -667,10 +682,9 @@ class JobRunner(IJobRunner):
         ctrl, score = ctrl_score[-1]
         # Ensure that the controller is viable
         if score < 0:
-            raise RuntimeError(
+            raise LookupError(
                 _("No exec controller supports job {}").format(job))
         logger.debug(
             _("Selected execution controller %s (score %d) for job %r"),
             ctrl.__class__.__name__, score, job.id)
-        # Delegate and execute
-        return ctrl.execute_job(job, config, extcmd_popen)
+        return ctrl

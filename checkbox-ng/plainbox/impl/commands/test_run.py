@@ -111,28 +111,16 @@ class TestRun(TestCase):
     def test_run_without_args(self, mock_check_output):
         with TestIO(combined=True) as io:
             with self.assertRaises(SystemExit) as call:
-                with patch('plainbox.impl.commands.run.authenticate_warmup') as mock_warmup:
-                    mock_warmup.return_value = 0
-                    main(['run'])
+                main(['run'])
             self.assertEqual(call.exception.args, (0,))
-        expected1 = """
+        expected = """
         ===============================[ Analyzing Jobs ]===============================
         Estimated duration cannot be determined for automated jobs.
         Estimated duration cannot be determined for manual jobs.
         ==============================[ Running All Jobs ]==============================
         ==================================[ Results ]===================================
         """
-        expected2 = """
-        ===============================[ Authentication ]===============================
-        ===============================[ Analyzing Jobs ]===============================
-        Estimated duration cannot be determined for automated jobs.
-        Estimated duration cannot be determined for manual jobs.
-        ==============================[ Running All Jobs ]==============================
-        ==================================[ Results ]===================================
-        """
-        self.assertIn(io.combined, [
-            cleandoc(expected1) + "\n",
-            cleandoc(expected2) + "\n"])
+        self.assertEqual(io.combined, cleandoc(expected) + "\n")
 
     def test_output_format_list(self):
         with TestIO(combined=True) as io:

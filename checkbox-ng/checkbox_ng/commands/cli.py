@@ -47,7 +47,6 @@ from plainbox.impl.exporter.xml import XMLSessionStateExporter
 from plainbox.impl.job import JobTreeNode
 from plainbox.impl.result import DiskJobResult, MemoryJobResult
 from plainbox.impl.runner import JobRunner
-from plainbox.impl.runner import authenticate_warmup
 from plainbox.impl.runner import slugify
 from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.qualifiers import CompositeQualifier
@@ -318,11 +317,11 @@ class CliInvocation(CheckBoxInvocationMixIn):
             self._update_desired_job_list(manager, desired_job_list)
             # Ask the password before anything else in order to run local jobs
             # requiring privileges
-            if self._auth_warmup_needed(manager):
+            warm_up_list = runner.get_warm_up_sequence(manager.state.run_list)
+            if warm_up_list:
                 print("[ {} ]".format(_("Authentication")).center(80, '='))
-                return_code = authenticate_warmup()
-                if return_code:
-                    raise SystemExit(return_code)
+                for warm_up_func in warm_up_list:
+                    warm_up_func()
             self._local_only = True
             self._run_jobs(runner, ns, manager)
             self._local_only = False
@@ -335,11 +334,11 @@ class CliInvocation(CheckBoxInvocationMixIn):
             if self.is_interactive:
                 # Ask the password before anything else in order to run jobs
                 # requiring privileges
-                if self._auth_warmup_needed(manager):
+                warm_up_list = runner.get_warm_up_sequence(manager.state.run_list)
+                if warm_up_list:
                     print("[ {} ]".format(_("Authentication")).center(80, '='))
-                    return_code = authenticate_warmup()
-                    if return_code:
-                        raise SystemExit(return_code)
+                    for warm_up_func in warm_up_list:
+                        warm_up_func()
                 tree = SelectableJobTreeNode.create_tree(
                     manager.state.run_list,
                     legacy_mode=True)

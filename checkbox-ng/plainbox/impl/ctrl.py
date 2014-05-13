@@ -580,9 +580,9 @@ class UserJobExecutionController(CheckBoxExecutionController):
         :returns:
             List of command arguments
 
-        This basically returns ['bash', '-c', job.command]
+        This basically returns [job.shell, '-c', job.command]
         """
-        return ['bash', '-c', job.command]
+        return [job.shell, '-c', job.command]
 
     def get_checkbox_score(self, job):
         """
@@ -795,8 +795,8 @@ class RootViaPkexecExecutionController(
             job, config, nest_dir)
         cmd += ["{key}={value}".format(key=key, value=value)
                 for key, value in sorted(env.items())]
-        # Lastly use bash -c, to run our command
-        cmd += ['bash', '-c', job.command]
+        # Lastly use job.shell -c, to run our command
+        cmd += [job.shell, '-c', job.command]
         return cmd
 
     def get_checkbox_score(self, job):
@@ -880,8 +880,8 @@ class RootViaSudoExecutionController(
             job, config, nest_dir)
         cmd += ["{key}={value}".format(key=key, value=value)
                 for key, value in sorted(env.items())]
-        # Lastly use bash -c, to run our command
-        cmd += ['bash', '-c', job.command]
+        # Lastly use job.shell -c, to run our command
+        cmd += [job.shell, '-c', job.command]
         return cmd
 
     def get_checkbox_score(self, job):

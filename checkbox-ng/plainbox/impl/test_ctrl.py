@@ -617,12 +617,12 @@ class UserJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
 
     def test_get_command(self):
         """
-        verify that we simply execute the command via bash
+        verify that we simply execute the command via job.shell
         """
         self.assertEqual(
             self.ctrl.get_execution_command(
                 self.job, self.config, self.NEST_DIR),
-            ['bash', '-c', self.job.command])
+            [self.job.shell, '-c', self.job.command])
 
     def test_get_checkbox_score_for_jobs_without_user(self):
         """
@@ -888,7 +888,7 @@ class RootViaPkexecExecutionControllerTests(
     @mock.patch.dict('os.environ', clear=True, PATH='vanilla-path')
     def test_get_command(self):
         """
-        verify that we run env(1) + bash(1) as the target user
+        verify that we run env(1) + job.shell as the target user
         """
         self.job.get_environ_settings.return_value = []
         self.assertEqual(
@@ -903,7 +903,7 @@ class RootViaPkexecExecutionControllerTests(
                  os.pathsep.join([self.NEST_DIR, 'vanilla-path'])),
              'PLAINBOX_PROVIDER_DATA=data_dir',
              'PLAINBOX_SESSION_SHARE=session-dir/CHECKBOX_DATA',
-             'bash', '-c', self.job.command])
+             self.job.shell, '-c', self.job.command])
 
     def test_get_checkbox_score_for_user_jobs(self):
         # Assume that the job runs as the current user
@@ -943,7 +943,7 @@ class RootViaSudoExecutionControllerTests(
                  os.pathsep.join([self.NEST_DIR, 'vanilla-path'])),
              'PLAINBOX_PROVIDER_DATA=data_dir',
              'PLAINBOX_SESSION_SHARE=session-dir/CHECKBOX_DATA',
-             'bash', '-c', self.job.command])
+             self.job.shell, '-c', self.job.command])
 
     SUDO, ADMIN = range(2)
 

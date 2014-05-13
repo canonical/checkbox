@@ -303,7 +303,10 @@ class CliInvocation(CheckBoxInvocationMixIn):
                         self.provider_list,
                         self.settings['default_whitelist']))
         manager.checkpoint()
-
+        runner = JobRunner(
+            manager.storage.location, self.provider_list,
+            os.path.join(manager.storage.location, 'io-logs'),
+            command_io_delegate=self)
         if self.is_interactive and not resume_in_progress:
             # Pre-run all local jobs
             desired_job_list = select_jobs(
@@ -321,7 +324,7 @@ class CliInvocation(CheckBoxInvocationMixIn):
                 if return_code:
                     raise SystemExit(return_code)
             self._local_only = True
-            self._run_jobs(ns, manager)
+            self._run_jobs(runner, ns, manager)
             self._local_only = False
 
         if not resume_in_progress:
@@ -359,7 +362,7 @@ class CliInvocation(CheckBoxInvocationMixIn):
                 else:
                     print(_("Estimated duration cannot be determined for"
                             " manual jobs."))
-        self._run_jobs(ns, manager)
+        self._run_jobs(runner, ns, manager)
         manager.destroy()
 
         # FIXME: sensible return value
@@ -405,11 +408,7 @@ class CliInvocation(CheckBoxInvocationMixIn):
             manager.state.metadata.running_job_name = None
             manager.checkpoint()
 
-    def _run_jobs(self, ns, manager):
-        runner = JobRunner(
-            manager.storage.location, self.provider_list,
-            os.path.join(manager.storage.location, 'io-logs'),
-            command_io_delegate=self)
+    def _run_jobs(self, runner, ns, manager):
         self._run_jobs_with_session(ns, manager, runner)
         if not self._local_only:
             self.save_results(manager)

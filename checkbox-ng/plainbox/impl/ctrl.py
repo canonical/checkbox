@@ -745,6 +745,9 @@ class RootViaPTL1ExecutionController(CheckBoxDifferentialExecutionController):
         # Only works with jobs loaded from the secure PROVIDERPATH
         if not job.provider.secure:
             return -1
+        # Doesn't work when connected over SSH (LP: #1299201)
+        if os.environ.get("SSH_CONNECTION"):
+            return -1
         # Only makes sense with jobs that need to run as another user
         # Promote this controller only if the trusted launcher is authorized to
         # run jobs as another user

@@ -83,7 +83,7 @@ class ShowMenu(IApplication):
         self.menu = menu
         self.option_count = len(menu)
         self.position = 0  # Zero-based index of the selected menu option
-        self.selection = [self.position]
+        self.selection = [] if self.option_count == 0 else [0]
 
     def consume_event(self, event: Event):
         if event.kind == EVENT_RESIZE:

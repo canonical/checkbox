@@ -192,7 +192,8 @@ class JobRunner(IJobRunner):
     _DRY_RUN_PLUGINS = ('local', 'resource', 'attachment')
 
     def __init__(self, session_dir, provider_list, jobs_io_log_dir,
-                 command_io_delegate=None, dry_run=False):
+                 command_io_delegate=None, dry_run=False,
+                 execution_ctrl_list=None):
         """
         Initialize a new job runner.
 
@@ -209,17 +210,24 @@ class JobRunner(IJobRunner):
         :param dry_run:
             Flag indicating that the runner is in "dry run mode". When True
             most normal commands won't execute. Useful for testing.
+        :param execution_ctrl_list:
+            (optional) a list of execution controllers that may be used by this
+            runner. By default this should be left blank. This will cause all
+            execution controllers to be instantiated and used. In special cases
+            it may be required to override this.
         """
+        if execution_ctrl_list is None:
+            execution_ctrl_list = [
+                RootViaPTL1ExecutionController(session_dir, provider_list),
+                RootViaPkexecExecutionController(session_dir, provider_list),
+                # XXX: maybe this one should be only used on command line
+                RootViaSudoExecutionController(session_dir, provider_list),
+                UserJobExecutionController(session_dir, provider_list),
+            ]
         self._jobs_io_log_dir = jobs_io_log_dir
         self._command_io_delegate = command_io_delegate
         self._dry_run = dry_run
-        self._execution_ctrl_list = [
-            RootViaPTL1ExecutionController(session_dir, provider_list),
-            RootViaPkexecExecutionController(session_dir, provider_list),
-            # XXX: maybe this one should be only used on command line
-            RootViaSudoExecutionController(session_dir, provider_list),
-            UserJobExecutionController(session_dir, provider_list),
-        ]
+        self._execution_ctrl_list = execution_ctrl_list
 
     def get_warm_up_sequence(self, job_list):
         """

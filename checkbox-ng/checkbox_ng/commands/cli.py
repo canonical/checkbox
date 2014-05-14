@@ -351,7 +351,7 @@ class CliInvocation(CheckBoxInvocationMixIn):
                 # use it to filter jobs from desired_job_list.
                 wanted_set = frozenset(tree.selection)
                 self._update_desired_job_list(
-                    manager, [job for job in manager.run_list
+                    manager, [job for job in manager.state.run_list
                               if job in wanted_set])
                 estimated_duration_auto, estimated_duration_manual = \
                     manager.state.get_estimated_duration()

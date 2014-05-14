@@ -29,14 +29,15 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 import os
 
-from plainbox.impl.job import JobDefinition
+from plainbox.abc import IExecutionController
+from plainbox.abc import IJobDefinition
 from plainbox.impl.runner import CommandOutputWriter
 from plainbox.impl.runner import FallbackCommandOutputPrinter
 from plainbox.impl.runner import IOLogRecordGenerator
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.runner import slugify
 from plainbox.testing_utils.io import TestIO
-from plainbox.vendor.mock import Mock, patch
+from plainbox.vendor.mock import Mock
 
 
 class SlugifyTests(TestCase):
@@ -118,3 +119,29 @@ class CommandOutputWriterTests(TestCase):
             writer.on_end(None)
             self.assertFileContentsEqual(stdout, b'text\n')
             self.assertFileContentsEqual(stderr, b'error\n')
+
+
+class RunnerTests(TestCase):
+
+    def test_get_warm_up_sequence(self):
+        # create a mocked execution controller
+        ctrl = Mock(spec_set=IExecutionController, name='ctrl')
+        # create a fake warm up function
+        warm_up_func = Mock(name='warm_up_func')
+        # make the execution controller accept any job
+        ctrl.get_score.return_value = 1
+        # make the execution controller return warm_up_func as warm-up
+        ctrl.get_warm_up_for_job.return_value = warm_up_func
+        # make a pair of mock jobs for our controller to see
+        job1 = Mock(spec_set=IJobDefinition, name='job1')
+        job2 = Mock(spec_set=IJobDefinition, name='job2')
+        with TemporaryDirectory() as session_dir:
+            provider_list = []
+            io_logs_dir = os.path.join(session_dir, 'io-logs')
+            runner = JobRunner(session_dir, provider_list, io_logs_dir)
+            # Fake the execution controller.
+            # There is no better API for that yet so just patch it in
+            runner._execution_ctrl_list = [ctrl]
+            # Ensure that we got the warm up function we expected
+            self.assertEqual(
+                runner.get_warm_up_sequence([job1, job2]), [warm_up_func])

@@ -241,7 +241,7 @@ class JobRunner(IJobRunner):
             ctrl = self._get_ctrl_for_job(job)
             warm_up_func = ctrl.get_warm_up_for_job(job)
             if warm_up_func is not None and warm_up_func not in warm_up_list:
-                warm_up_list.add(warm_up_func)
+                warm_up_list.append(warm_up_func)
         return warm_up_list
 
     def run_job(self, job, config=None):

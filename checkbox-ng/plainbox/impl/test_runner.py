@@ -136,12 +136,12 @@ class RunnerTests(TestCase):
         job1 = Mock(spec_set=IJobDefinition, name='job1')
         job2 = Mock(spec_set=IJobDefinition, name='job2')
         with TemporaryDirectory() as session_dir:
-            provider_list = []
-            io_logs_dir = os.path.join(session_dir, 'io-logs')
-            runner = JobRunner(session_dir, provider_list, io_logs_dir)
-            # Fake the execution controller.
-            # There is no better API for that yet so just patch it in
-            runner._execution_ctrl_list = [ctrl]
+            # Create a real runner with a fake execution controller, empty list
+            # of providers and fake io-log directory.
+            runner = JobRunner(
+                session_dir, provider_list=[],
+                jobs_io_log_dir=os.path.join(session_dir, 'io-log'),
+                execution_ctrl_list=[ctrl])
             # Ensure that we got the warm up function we expected
             self.assertEqual(
                 runner.get_warm_up_sequence([job1, job2]), [warm_up_func])

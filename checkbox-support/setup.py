@@ -37,4 +37,10 @@ setup(
     install_requires=[
         'pyparsing >= 2.0.0',
     ],
+    entry_points={
+        'plainbox.parsers': [
+            "pactl-list=checkbox_support.parsers.pactl:parse_pactl_output",
+            "udevadm=checkbox_support.parsers.udevadm:parse_udevadm_output",
+        ],
+    },
 )

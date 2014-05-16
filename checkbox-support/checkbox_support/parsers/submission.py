@@ -36,7 +36,6 @@ from io import StringIO
 from logging import getLogger
 from pkg_resources import resource_string
 
-from checkbox.lib.conversion import string_to_datetime
 
 from checkbox.job import (FAIL, PASS, UNINITIATED, UNRESOLVED,
     UNSUPPORTED, UNTESTED)
@@ -243,6 +242,103 @@ class DispatcherQueue(DispatcherList):
     """
 
     listener_factory = ListenerQueue
+
+
+# Constant, class and singleton copied from lp:checkbox-legacy's tz.py
+ZERO = timedelta(0)
+
+
+class _tzutc(tzinfo):
+
+    def utcoffset(self, dt):
+        return ZERO
+
+    def dst(self, dt):
+        return ZERO
+
+    def tzname(self, dt):
+        return "UTC"
+
+    def __eq__(self, other):
+        return isinstance(other, tzutc)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __repr__(self):
+        return "%s()" % self.__class__.__name__
+
+    __reduce__ = object.__reduce__
+
+
+tzutc = _tzutc()
+
+
+# Constant copied from lp:checkbox-legacy's conversion.py
+DATETIME_RE = re.compile(r"""
+    ^(?P<year>\d\d\d\d)-?(?P<month>\d\d)-?(?P<day>\d\d)
+    T(?P<hour>\d\d):?(?P<minute>\d\d):?(?P<second>\d\d)
+    (?:\.(?P<second_fraction>\d{0,6}))?
+    (?P<tz>
+        (?:(?P<tz_sign>[-+])(?P<tz_hour>\d\d):(?P<tz_minute>\d\d))
+        | Z)?$
+    """, re.VERBOSE)
+
+
+# Function copied from lp:checkbox-legacy's conversion.py
+def string_to_datetime(string):
+    """Return a datetime object from a consistent string representation.
+
+    :param string: The string representation.
+    """
+    # we cannot use time.strptime: this function accepts neither fractions
+    # of a second nor a time zone given e.g. as '+02:30'.
+    match = DATETIME_RE.match(string)
+
+    # The Relax NG schema allows a leading minus sign and year numbers
+    # with more than four digits, which are not "covered" by _time_regex.
+    if not match:
+        raise ValueError("Datetime with unreasonable value: %s" % string)
+
+    time_parts = match.groupdict()
+
+    year = int(time_parts['year'])
+    month = int(time_parts['month'])
+    day = int(time_parts['day'])
+    hour = int(time_parts['hour'])
+    minute = int(time_parts['minute'])
+    second = int(time_parts['second'])
+    second_fraction = time_parts['second_fraction']
+    if second_fraction is not None:
+        milliseconds = second_fraction + '0' * (6 - len(second_fraction))
+        milliseconds = int(milliseconds)
+    else:
+        milliseconds = 0
+
+    # The Relax NG validator accepts leap seconds, but the datetime
+    # constructor rejects them. The time values submitted by the HWDB
+    # client are not necessarily very precise, hence we can round down
+    # to 59.999999 seconds without losing any real precision.
+    if second > 59:
+        second = 59
+        milliseconds = 999999
+
+    dt = datetime(
+        year, month, day, hour, minute, second, milliseconds, tzinfo=tzutc)
+
+    tz_sign = time_parts['tz_sign']
+    tz_hour = time_parts['tz_hour']
+    tz_minute = time_parts['tz_minute']
+    if tz_sign in ('-', '+'):
+        delta = timedelta(hours=int(tz_hour), minutes=int(tz_minute))
+        if tz_sign == '-':
+            dt = dt + delta
+        else:
+            dt = dt - delta
+
+    return dt
+
+
 class SubmissionResult:
 
     def __init__(self, test_run_factory, **kwargs):

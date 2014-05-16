@@ -24,21 +24,21 @@ except ImportError:
 
 import re
 
+from checkbox_support import parsers
+from checkbox_support.parsers.cpuinfo import CpuinfoParser
+from checkbox_support.parsers.cputable import CputableParser
+from checkbox_support.parsers.dmidecode import DmidecodeParser
+from checkbox_support.parsers.efi import EfiParser
+from checkbox_support.parsers.meminfo import MeminfoParser
+from checkbox_support.parsers.udevadm import UdevadmParser
 from io import StringIO
 from logging import getLogger
 from pkg_resources import resource_string
 
 from checkbox.lib.conversion import string_to_datetime
 
-from checkbox import parsers
 from checkbox.dispatcher import DispatcherQueue
-from checkbox.parsers.cpuinfo import CpuinfoParser
-from checkbox.parsers.cputable import CputableParser
 from checkbox.parsers.deferred import DeferredParser
-from checkbox.parsers.dmidecode import DmidecodeParser
-from checkbox.parsers.efi import EfiParser
-from checkbox.parsers.meminfo import MeminfoParser
-from checkbox.parsers.udevadm import UdevadmParser
 from checkbox.job import (FAIL, PASS, UNINITIATED, UNRESOLVED,
     UNSUPPORTED, UNTESTED)
 

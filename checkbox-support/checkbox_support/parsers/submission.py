@@ -629,11 +629,11 @@ class SubmissionParser:
         elif type_ in ("float",):
             return float(node.text.strip())
         elif type_ in ("list",):
-            return list(self._getValueAsType(child)
-                for child in node.getchildren())
+            return [self._getValueAsType(child)
+                    for child in node.getchildren()]
         elif type_ in ("dict",):
-            return dict((child.get("name"), self._getValueAsType(child))
-                for child in node.getchildren())
+            return {child.get("name"): self._getValueAsType(child)
+                    for child in node.getchildren()}
         else:
             raise AssertionError(
                 "Unexpected type '%s' in <%s>" % (type_, node.tag))

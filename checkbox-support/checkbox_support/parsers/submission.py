@@ -38,9 +38,20 @@ from pkg_resources import resource_string
 from checkbox.lib.conversion import string_to_datetime
 
 from checkbox.dispatcher import DispatcherQueue
-from checkbox.parsers.deferred import DeferredParser
 from checkbox.job import (FAIL, PASS, UNINITIATED, UNRESOLVED,
     UNSUPPORTED, UNTESTED)
+
+
+# The DeferredParser copied from checkbox-legacy's deffered.py
+class DeferredParser:
+    """Parser for deferred dispatching of events."""
+
+    def __init__(self, dispatcher, event_type="result"):
+        self.dispatcher = dispatcher
+        self.event_type = event_type
+
+    def run(self, result):
+        self.dispatcher.publishEvent(self.event_type, result)
 
 
 class SubmissionResult:

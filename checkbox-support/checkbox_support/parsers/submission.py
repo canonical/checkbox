@@ -37,8 +37,6 @@ from logging import getLogger
 from pkg_resources import resource_string
 
 
-from checkbox.job import (FAIL, PASS, UNINITIATED, UNRESOLVED,
-    UNSUPPORTED, UNTESTED)
 
 
 # The DeferredParser copied from checkbox-legacy's deffered.py
@@ -337,6 +335,15 @@ def string_to_datetime(string):
             dt = dt - delta
 
     return dt
+
+
+# Constants copied from lp:checkbox-legacy's job.py
+FAIL = "fail"
+PASS = "pass"
+UNINITIATED = "uninitiated"
+UNRESOLVED = "unresolved"
+UNSUPPORTED = "unsupported"
+UNTESTED = "untested"
 
 
 class SubmissionResult:

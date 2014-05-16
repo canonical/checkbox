@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<system version="1.0">
+<software>
+<lsbrelease>
+<property name="release" type="str">12.10</property>
+<property name="codename" type="str">quantal</property>
+<property name="distributor_id" type="str">Ubuntu</property>
+<property name="description" type="str">Ubuntu quantal (development branch)</property>
+</lsbrelease>
+</software>
+</system>

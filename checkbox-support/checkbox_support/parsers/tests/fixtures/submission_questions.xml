@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+<system version="1.0">
+<questions>
+<question name="audio/alsa_record_playback_external">
+<answer type="multiple_choice">pass</answer>
+<answer_choices>
+<value type="str">fail</value>
+<value type="str">pass</value>
+<value type="str">uninitiated</value>
+<value type="str">unresolved</value>
+<value type="str">unsupported</value>
+<value type="str">untested</value>
+</answer_choices>
+<comment></comment>
+</question>
+</questions>
+</system>

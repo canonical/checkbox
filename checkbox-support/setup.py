@@ -35,6 +35,7 @@ setup(
     description="CheckBox support library",
     long_description=LONG_DESCRIPTION,
     install_requires=[
+        'lxml >= 2.3',
         'pyparsing >= 2.0.0',
     ],
     entry_points={

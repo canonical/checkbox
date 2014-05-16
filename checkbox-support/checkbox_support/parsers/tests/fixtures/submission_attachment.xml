@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<system version="1.0">
+<context>
+<info command="cat /proc/asound/card*/codec#*">Job requirement not met: 'device.driver == 'HDA Intel''</info>
+</context>
+</system>

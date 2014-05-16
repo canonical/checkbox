@@ -42,6 +42,7 @@ from checkbox_support.parsers.meminfo import MeminfoParser
 from checkbox_support.parsers.udevadm import UdevadmParser
 
 
+logger = logging.getLogger("checkbox_support.parsers.submission")
 
 
 # The DeferredParser copied from checkbox-legacy's deffered.py
@@ -56,6 +57,109 @@ class DeferredParser:
         self.dispatcher.publishEvent(self.event_type, result)
 
 
+# The TestRun class is copied, with permission, from lp:hexr
+# from apps/uploads/checkbox_parser.py licensed internally by Canonical under
+# the license of the Chcekbox project.
+class TestRun(object):
+
+    project = "certification"
+
+    def __init__(self, messages=[]):
+        self.messages = messages
+
+    def setArchitectureState(self, architecture):
+        self.messages.append({
+            "type": "set-architecture",
+            "architecture": architecture})
+        logger.debug("Setting Arch: %s", architecture)
+
+    def setKernelState(self, kernel):
+        self.messages.append({
+            "type": "set-kernel",
+            "kernel": kernel})
+        logger.debug("Setting Kernel: %s", kernel)
+
+    def setDistribution(self, **distribution):
+        self.messages.append({
+            "type": "set-distribution",
+            "distribution": distribution})
+        logger.debug("Setting distribution: %s", distribution)
+
+    def setMemoryState(self, **memory):
+        self.messages.append({
+            "type": "set-memory",
+            "memory": memory})
+        logger.debug("Seting memory amount: %s", memory)
+
+    def setProcessorState(self, **processor):
+        processor["platform"] = processor.pop("platform_name")
+        processor["type"] = processor.pop("make")
+        logger.debug("ADDING Processor info:")
+        logger.debug("Platform: %s", processor["platform"])
+        logger.debug("Type: %s", processor["type"])
+        self.messages.append({
+            "type": "set-processor",
+            "processor": processor})
+
+    def addAttachment(self, **attachment):
+        if not self.messages or self.messages[-1]["type"] != "add-attachments":
+            self.messages.append({
+                "type": "add-attachments",
+                "attachments": []})
+
+        message = self.messages[-1]
+        logger.debug("ADDING Attachment:")
+        logger.debug(attachment)
+        message["attachments"].append(attachment)
+
+    def addDeviceState(self, **device_state):
+        if not self.messages or self.messages[-1]["type"] != "set-devices":
+            self.messages.append({
+                "type": "set-devices",
+                "devices": []})
+
+        message = self.messages[-1]
+        logger.debug("ADDING Device State:")
+        logger.debug(device_state)
+        message["devices"].append({
+            "path": device_state["path"],
+            "bus": device_state["bus_name"],
+            "category": device_state["category_name"],
+            "driver": device_state["driver_name"],
+            "product": device_state["product_name"],
+            "vendor": device_state["vendor_name"],
+            "product_id": device_state["product_id"],
+            "subproduct_id": device_state["subproduct_id"],
+            "vendor_id": device_state["vendor_id"],
+            "subvendor_id": device_state["subvendor_id"],
+            })
+
+    def addPackageVersion(self, **package_version):
+        if not self.messages or self.messages[-1]["type"] != "set-packages":
+            self.messages.append({
+                "type": "set-packages",
+                "packages": []})
+
+        message = self.messages[-1]
+        logger.debug("ADDING Package Version:")
+        logger.debug(package_version)
+        message["packages"].append(package_version)
+
+    def addTestResult(self, **test_result):
+        if not self.messages or self.messages[-1]["type"] != "add-results":
+            self.messages.append({
+                "type": "add-results",
+                "results": []})
+
+        message = self.messages[-1]
+        logger.debug("ADDING new message:")
+        logger.debug(test_result)
+        message["results"].append({
+            "type": "test",
+            "project": self.project,
+            "status": test_result["status"],
+            "name": test_result["name"],
+            "value": test_result["output"]})
 
 
 # All of the dispatcher machinery copied from lp:checkbox-legacy's

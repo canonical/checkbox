@@ -17,13 +17,21 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from datetime import datetime
+from datetime import timedelta
+from datetime import tzinfo
+from io import StringIO
 from itertools import product
+from logging import getLogger
+import logging
+import re
+
+from pkg_resources import resource_string
 try:
     import xml.etree.cElementTree as etree
 except ImportError:
     import cElementTree as etree
 
-import re
 
 from checkbox_support import parsers
 from checkbox_support.parsers.cpuinfo import CpuinfoParser
@@ -32,9 +40,6 @@ from checkbox_support.parsers.dmidecode import DmidecodeParser
 from checkbox_support.parsers.efi import EfiParser
 from checkbox_support.parsers.meminfo import MeminfoParser
 from checkbox_support.parsers.udevadm import UdevadmParser
-from io import StringIO
-from logging import getLogger
-from pkg_resources import resource_string
 
 
 

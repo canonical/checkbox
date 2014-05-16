@@ -156,7 +156,6 @@ display is operating at its maximum supported resolution on the $product graphic
     1. Select the $product graphics card (a reboot may be necessary)
     2. Consult the system's specifications and locate the screen's maximum supported resolution.
     3. Click on Test to display the maximum resolution that can be used by Ubuntu on the current display.
-    Note: Please switch to the maximum resolution for the up coming graphic tests.
   VERIFICATION:
     Is this the maximum resolution for the display connected to the $product graphics card?
  EOF

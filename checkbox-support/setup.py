@@ -41,6 +41,7 @@ setup(
     entry_points={
         'plainbox.parsers': [
             "pactl-list=checkbox_support.parsers.pactl:parse_pactl_output",
+            "submission=checkbox_support.parsers.submission:parse_submission_text",
             "udevadm=checkbox_support.parsers.udevadm:parse_udevadm_output",
         ],
     },

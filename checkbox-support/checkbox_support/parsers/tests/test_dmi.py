@@ -15,8 +15,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-#
-class DmiResult:
+
+
+
+class DmiResult(object):
 
     def __init__(self):
         self.devices = []
@@ -32,7 +34,7 @@ class DmiResult:
         return None
 
 
-class TestDmiMixin:
+class TestDmiMixin(object):
 
     def getParser(self):
         raise NotImplementedError()

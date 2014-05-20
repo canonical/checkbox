@@ -17,14 +17,14 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from argparse import ArgumentParser
+from subprocess import check_output, check_call, CalledProcessError
+from io import open
 import configparser
 import logging
 import os
 import re
 import sys
-
-from argparse import ArgumentParser
-from subprocess import check_output, check_call, CalledProcessError
 
 from checkbox_support.parsers.pactl import parse_pactl_output
 

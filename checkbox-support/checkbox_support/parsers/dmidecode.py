@@ -99,7 +99,8 @@ class DmidecodeParser(object):
             category = Dmi.type_names[type_index]
             category = category.upper().split(" ")[-1]
             if category not in (
-                "BOARD", "BIOS", "CHASSIS", "DEVICE", "PROCESSOR", "SYSTEM"):
+                    "BOARD", "BIOS", "CHASSIS", "DEVICE", "PROCESSOR",
+                    "SYSTEM"):
                 continue
 
             # Parse attributes

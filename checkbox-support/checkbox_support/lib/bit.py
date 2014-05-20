@@ -24,8 +24,8 @@ def get_bitmask(key):
     for value in reversed(key.split()):
         value = int(value, 16)
         bitmask.append(value)
-
     return bitmask
+
 
 def get_bitcount(bitmask):
     bitcount = 0
@@ -33,8 +33,8 @@ def get_bitcount(bitmask):
         while value:
             bitcount += 1
             value &= (value - 1)
-
     return bitcount
+
 
 def test_bit(bit, bitmask, bits=None):
     if bits is None:

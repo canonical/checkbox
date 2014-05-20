@@ -85,12 +85,15 @@ class Template:
                 extended = extended.rstrip("\n")
                 if field:
                     if field in element:
-                        raise Exception("Template %s has a duplicate "
-                            "field '%s' with a new value '%s'." 
-                                % (filename, field, value))
+                        raise Exception(
+                            ("Template %s has a duplicate field '{0}' with a"
+                             " new value '{1}'.").format(filename, field,
+                                                         value))
                     element[field] = value
                     if extended:
-                        element["%s%s" % (field, EXTENDED_STRING)] = extended
+                        element["{0}{1}".format(
+                            field, EXTENDED_STRING)
+                        ] = extended
 
             string = string.strip("\n")
             field = value = extended = ""
@@ -132,8 +135,8 @@ class Template:
                     extended += bit
                     continue
 
-                raise Exception("Template %s parse error at: %s" \
-                    % (filename, line))
+                raise Exception(
+                    "Template {0} parse error at: {1}".format(filename, line))
 
             _save(field, value, extended)
 

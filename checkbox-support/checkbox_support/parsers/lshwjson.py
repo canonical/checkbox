@@ -20,7 +20,7 @@ import json
 import logging
 
 
-class LshwJsonParser:
+class LshwJsonParser(object):
 
     def __init__(self, stream_or_string):
         self.stream_or_string = stream_or_string

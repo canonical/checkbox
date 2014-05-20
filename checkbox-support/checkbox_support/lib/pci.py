@@ -24,7 +24,7 @@ from __future__ import unicode_literals
 
 
 # See http://pciids.sourceforge.net/pci.ids.bz2
-class Pci:
+class Pci(object):
 
     BASE_CLASS_STORAGE              = 1
     CLASS_STORAGE_SCSI              = 0

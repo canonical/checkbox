@@ -15,10 +15,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-#
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import os
 
 from checkbox_support.lib.conversion import string_to_type
+
 
 # See also 3.3.4.1 of the "System Management BIOS Reference Specification,
 # Version 2.6.1" (Preliminary Standard) document, available from

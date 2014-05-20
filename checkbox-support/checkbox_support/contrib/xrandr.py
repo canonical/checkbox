@@ -5,6 +5,7 @@
 # X.org server. XRandR allows to configure resolution, refresh rate, rotation
 # of the screen and multiple outputs of graphics cards.
 #
+# Copyright 2014 © Canonical Ltd.
 # Copyright 2007 © Sebastian Heinlein <sebastian.heinlein@web.de>
 # Copyright 2007 © Michael Vogt <mvo@ubuntu.com>
 # Copyright 2007 © Canonical Ltd.

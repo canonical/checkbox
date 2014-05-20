@@ -22,7 +22,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 
-class ModinfoParser:
+class ModinfoParser(object):
     """
     Parser for modinfo information.
     This will take the stdout for modinfo output and return a dict populated

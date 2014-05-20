@@ -186,14 +186,12 @@ class UdevadmDevice(object):
                 # to correctly identify them special heuristics are needed,
                 # these are encapsulated in the known_to_be_video_device method
                 # (further below).
-                if subclass_id == Pci.CLASS_DISPLAY_VGA or \
-                        subclass_id == Pci.CLASS_DISPLAY_3D or \
-                        (subclass_id == Pci.CLASS_DISPLAY_OTHER \
-                         and known_to_be_video_device(self.vendor_id,
-                                                      self.product_id,
-                                                      class_id,
-                                                      subclass_id)
-                       ):
+                if (subclass_id == Pci.CLASS_DISPLAY_VGA or
+                    subclass_id == Pci.CLASS_DISPLAY_3D or
+                    (subclass_id == Pci.CLASS_DISPLAY_OTHER
+                     and known_to_be_video_device(
+                         self.vendor_id, self.product_id, class_id,
+                         subclass_id))):
                     return "VIDEO"
             if class_id == Pci.BASE_CLASS_SERIAL \
                and subclass_id == Pci.CLASS_SERIAL_USB:
@@ -783,6 +781,7 @@ def decode_id(id):
     decoded_id = encoded_id.decode("unicode-escape")
     return decoded_id.strip()
 
+
 def known_to_be_video_device(vendor_id, product_id, pci_class, pci_subclass):
     # Usually a video device has a PCI subclass_id of Pci.CLASS_DISPLAY_VGA or
     # Pci.CLASS_DISPLAY_3d. However, some manufacturers which hadn't previously
@@ -793,15 +792,16 @@ def known_to_be_video_device(vendor_id, product_id, pci_class, pci_subclass):
     # valid video adapter, based on product/vendor and pci class/subclass
     # information.
     if vendor_id == Pci.VENDOR_ID_AMD:
-        # AMD hadn't used subclass OTHER before, so all AMD devices we get asked about
-        # are VIDEO.
+        # AMD hadn't used subclass OTHER before, so all AMD devices we get
+        # asked about are VIDEO.
         return True
     if vendor_id == Pci.VENDOR_ID_INTEL:
-        # Intel recently (2014) started using subclass OTHER erratically, some older
-        # GPUs have subdevices with OTHER which are uninteresting. If Intel,
-        # we only consider OTHER devices as VIDEO if they are in this explicit
-        # list
+        # Intel recently (2014) started using subclass OTHER erratically, some
+        # older GPUs have subdevices with OTHER which are uninteresting. If
+        # Intel, we only consider OTHER devices as VIDEO if they are in this
+        # explicit list
         return product_id in [0x0152]
+
 
 class UdevResult(object):
     def __init__(self):

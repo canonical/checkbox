@@ -18,6 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with CloudBox.  If not, see <http://www.gnu.org/licenses/>.
 
+from io import open
+
 from setuptools import setup, find_packages
 
 with open("README.rst", encoding="UTF-8") as stream:

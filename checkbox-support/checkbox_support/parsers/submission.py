@@ -49,7 +49,7 @@ logger = logging.getLogger("checkbox_support.parsers.submission")
 
 
 # The DeferredParser copied from checkbox-legacy's deffered.py
-class DeferredParser:
+class DeferredParser(object):
     """Parser for deferred dispatching of events."""
 
     def __init__(self, dispatcher, event_type="result"):
@@ -167,7 +167,7 @@ class TestRun(object):
 
 # All of the dispatcher machinery copied from lp:checkbox-legacy's
 # dispatcher.py
-class Event:
+class Event(object):
     """Event payload containing the positional and keywoard arguments
     passed to the handler in the event listener."""
 
@@ -177,7 +177,7 @@ class Event:
         self.kwargs = kwargs
 
 
-class Listener:
+class Listener(object):
     """Event listener notified when events are published by the dispatcher."""
 
     def __init__(self, event_type, handler, count):
@@ -242,7 +242,7 @@ class ListenerQueue(ListenerList):
                 notify(event)
 
 
-class Dispatcher:
+class Dispatcher(object):
     """Register handlers and publish events for them identified by strings."""
 
     listener_factory = Listener
@@ -458,7 +458,7 @@ UNSUPPORTED = "unsupported"
 UNTESTED = "untested"
 
 
-class SubmissionResult:
+class SubmissionResult(object):
 
     def __init__(self, test_run_factory, **kwargs):
         self.test_run_factory = test_run_factory
@@ -698,7 +698,7 @@ class SubmissionResult:
         parser.run(udevadm_result)
 
 
-class SubmissionParser:
+class SubmissionParser(object):
 
     def __init__(self, file):
         self.file = file

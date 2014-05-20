@@ -39,7 +39,7 @@ import pyparsing as p
 from checkbox_support.parsers import pactl
 
 
-class ParsingMixIn:
+class ParsingMixIn(object):
     """
     Mix-in class for writing tests that parse stuff.
 
@@ -116,7 +116,7 @@ class ParsingMixIn:
                       hl_col * '_' + '^\x1B[0m')
 
 
-class PactlDataMixIn:
+class PactlDataMixIn(object):
     """
     Mix in with a helper method to load sample pactl data
     """

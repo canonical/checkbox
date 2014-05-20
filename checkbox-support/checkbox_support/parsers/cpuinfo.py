@@ -48,7 +48,7 @@ class CpuinfoParser(object):
                     continue
                 key, value = line.split(":", 1)
                 key, value = key.strip(), value.strip()
-                
+
                 if key == 'processor':
                     count += 1
 
@@ -175,7 +175,7 @@ class CpuinfoParser(object):
         except ValueError:
             processor["speed"] = -1
 
-        # Make sure speed and bogomips are integers    
+        # Make sure speed and bogomips are integers
         processor["speed"] = int(round(float(processor["speed"])) - 1)
         processor["bogomips"] = int(round(float(processor["bogomips"])))
 

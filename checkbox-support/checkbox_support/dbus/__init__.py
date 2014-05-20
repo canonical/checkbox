@@ -19,7 +19,7 @@
 #
 """
 checkbox_support.dbus
-=============
+=====================
 
 Utility modules for working with various things accessible over dbus
 """

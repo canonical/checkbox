@@ -19,7 +19,7 @@
 
 """
 :mod:`checkbox_support.parsers.pactl` -- `pactl list` parser
-====================================================
+============================================================
 
 Parser for the output of ``pactl list`` syntax.
 

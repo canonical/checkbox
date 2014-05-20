@@ -23,7 +23,7 @@ from __future__ import unicode_literals
 
 
 # See http://www.linux-usb.org/usb.ids
-class Usb:
+class Usb(object):
 
     BASE_CLASS_INTERFACE             = 0
 

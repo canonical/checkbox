@@ -17,6 +17,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 import json
+import logging
+
 
 class LshwJsonParser:
 
@@ -34,7 +36,7 @@ class LshwJsonParser:
     def run(self, result):
         try:
             lshw = json.loads(self.stream_or_string)
-        except:
-            print('not valid json')
+        except ValueError as exc:
+            logging.error("Unable to parse JSON: %s", exc)
 
         self._parse_lshw(lshw, result)

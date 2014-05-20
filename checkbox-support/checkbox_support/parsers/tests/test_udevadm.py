@@ -30,7 +30,7 @@ from checkbox_support.parsers.udevadm import UdevadmParser, decode_id
 from checkbox_support.parsers.udevadm import parse_udevadm_output
 
 
-class DeviceResult:
+class DeviceResult(object):
 
     def __init__(self):
         self.devices = []
@@ -46,7 +46,7 @@ class DeviceResult:
         return None
 
 
-class UdevadmDataMixIn:
+class UdevadmDataMixIn(object):
     """
     Mix in with a helper method to load sample udevadm data
     """

@@ -24,7 +24,7 @@ from __future__ import unicode_literals
 import re
 
 
-class MeminfoParser:
+class MeminfoParser(object):
     """Parser for the /proc/meminfo file."""
 
     def __init__(self, stream):

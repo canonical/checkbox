@@ -50,7 +50,7 @@ LIST_VALUE_RE = re.compile(
     r"""((?:[^ "]|"[^"]*")+)""")
 
 
-class IXinputResult:
+class IXinputResult(object):
     """
     Base class for a result passed to the XinputParser run method.
     """
@@ -62,7 +62,7 @@ class IXinputResult:
         """Method to add a class under an xinput device."""
 
 
-class XinputParser:
+class XinputParser(object):
     """
     Parser for the xinput command.
     """

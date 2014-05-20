@@ -27,7 +27,7 @@ import re
 from checkbox_support.lib.conversion import string_to_type
 
 
-class CpuinfoParser:
+class CpuinfoParser(object):
     """Parser for the /proc/cpuinfo file."""
 
     def __init__(self, stream, machine=None):

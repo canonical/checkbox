@@ -716,7 +716,7 @@ class Screen(object):
             self._size_index = index
         else:
             raise RRError("There isn't any size associated "
-                          "to the index %s" % index)
+                          "to the index {}".format(index))
 
     def set_rotation(self, rotation):
         """Sets the rotation of the screen. To get in effect call
@@ -732,8 +732,8 @@ class Screen(object):
         if rate in self.get_available_rates_for_size_index(self._size_index):
             self._rate = rate
         else:
-            raise RRError("The chosen refresh rate %s is not "
-                          "supported" % rate)
+            raise RRError(
+                "The chosen refresh rate {0} is not supported".format(rate))
 
     def get_mode_by_xid(self, xid):
         """Returns the mode of the given xid"""
@@ -760,24 +760,24 @@ class Screen(object):
     def print_info(self, verbose=False):
         """Prints some information about the detected screen and its outputs"""
         _check_required_version((1, 0))
-        print("Screen %s: minimum %s x %s, current %s x %s, maximum %s x %s" %\
-              (self._screen,
-               self._width_min, self._height_min,
-               self._width, self._height,
-               self._width_max, self._height_max))
-        print("          %smm x %smm" % (self._width_mm, self._height_mm))
-        print("Crtcs: %s" % len(self.crtcs))
+        print((
+            "Screen {0}: minimum {1} x {2}, current {3} x {4},"
+            " maximum {5} x {6}"
+        ).format(self._screen, self._width_min, self._height_min, self._width,
+                 self._height, self._width_max, self._height_max))
+        print("          {0}mm x {0}mm".format(self._width_mm,
+                                               self._height_mm))
+        print("Crtcs: {0}".format(len(self.crtcs)))
         if verbose:
-            print("Modes (%s):" % self._resources.contents.nmode)
+            print("Modes ({0}):".format(self._resources.contents.nmode))
             modes = self._resources.contents.modes
             for i in range(self._resources.contents.nmode):
-                print("  %s - %sx%s" % (modes[i].name,
-                                       modes[i].width,
-                                       modes[i].height))
+                print("  {0} - {1}x{2}".format(
+                    modes[i].name, modes[i].width, modes[i].height))
         i = 0
         print("Sizes @ Refresh Rates:")
         for s in self.get_available_sizes():
-            print("  [%s] %s x %s @ %s" % (
+            print("  [{0}] {1} x {2} @ {3}".format(
                 i, s.width, s.height,
                 self.get_available_rates_for_size_index(i)))
             i += 1

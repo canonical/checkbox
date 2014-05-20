@@ -29,7 +29,7 @@ import os
 from checkbox_support.parsers.submission import SubmissionParser
 
 
-class SubmissionRun:
+class SubmissionRun(object):
 
     def __init__(self, result=None):
         if result is None:

@@ -19,7 +19,7 @@
 
 """
 checkbox_support.heuristics
-===================
+===========================
 
 This module contains implementations behind various heuristics used throughout
 the code. The intent of this module is twofold:

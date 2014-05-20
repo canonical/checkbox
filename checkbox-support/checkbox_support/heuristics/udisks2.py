@@ -19,7 +19,7 @@
 
 """
 checkbox_support.heuristics.udisks2
-===========================
+===================================
 
 Heuristics for udisks2.
 

@@ -217,7 +217,7 @@ def _array_conv(array, type, conv=lambda x: x):
     return res
 
 
-class Output:
+class Output(object):
     """The output is a reference to a supported output jacket of the graphics
        card. Outputs are attached to a hardware pipe to be used. Furthermore
        they can be a clone of another output or show a subset of the screen"""
@@ -377,7 +377,7 @@ class Output:
             return self._changes != CHANGES_NONE
 
 
-class Crtc:
+class Crtc(object):
     """The crtc is a reference to a hardware pipe that is provided by the
        graphics device. Outputs can be attached to crtcs"""
 
@@ -520,7 +520,7 @@ class Crtc:
         return False
 
 
-class Screen:
+class Screen(object):
     def __init__(self, dpy, screen=-1):
         """Initializes the screen"""
         # Some sane default values

@@ -67,7 +67,7 @@ class ModinfoParser(object):
             except ValueError:
                 # Most likely this will be caused by a blank line in the
                 # stream, so we just ignore it and move on.
-                continue                
+                continue
             else:
                 key = key.strip()
                 data = data.strip()
@@ -77,8 +77,9 @@ class ModinfoParser(object):
                     self._modinfo[key].append(data)
                 # Now handle unknown keys
                 elif key not in self._modinfo.keys():
-                    self._modinfo[key] = ("WARNING: Unknown Key %s providing "
-                                     "data: %s") % (key, data)
+                    self._modinfo[key] = (
+                        "WARNING: Unknown Key %s providing data: %s"
+                    ) % (key, data)
                 # And finally known keys
                 else:
                     self._modinfo[key] = data

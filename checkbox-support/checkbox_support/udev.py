@@ -19,9 +19,9 @@
 #
 """
 checkbox_support.udev
-=============
+=====================
 
-A collection of utility function sfor interacting with GUdev
+A collection of utility functions for interacting with GUdev
 """
 
 from gi.repository import GUdev

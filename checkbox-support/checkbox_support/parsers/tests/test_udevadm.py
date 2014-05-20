@@ -22,6 +22,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from io import StringIO
+from io import open
 from unittest import TestCase
 
 from pkg_resources import resource_filename

@@ -905,8 +905,8 @@ class Screen(object):
                 output._changes = output._changes | CHANGES_POSITION
             if output._relation == RELATION_LEFT_OF:
                 output._y = relative._y + output._relation_offset
-                output._x = relative._x - \
-                            get_mode_width(mode, output._rotation)
+                output._x = relative._x - get_mode_width(
+                    mode, output._rotation)
             elif output._relation == RELATION_RIGHT_OF:
                 output._y = relative._y + output._relation_offset
                 output._x = relative._x + get_mode_width(mode_relative,

@@ -27,7 +27,6 @@ from zipfile import ZipFile
 import argparse
 import os
 import re
-import sys
 
 
 def check_log(logfile):

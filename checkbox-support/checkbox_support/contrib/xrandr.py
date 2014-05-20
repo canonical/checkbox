@@ -340,7 +340,7 @@ class Output(object):
     def set_to_preferred_mode(self):
         modes = self.get_available_modes()
         mode = modes[self.get_preferred_mode()]
-        if mode != None:
+        if mode is not None:
             self._mode = mode.id
             return
         raise RRError("Preferred mode is not available")
@@ -894,7 +894,7 @@ class Screen(object):
         for output in self.get_outputs():
             # Skip not changed and not used outputs
             if not output.has_changed(CHANGES_RELATION) or \
-               output._mode == None:
+               output._mode is None:
                 continue
             relative = output._relative_to
             mode = self.get_mode_by_xid(output._mode)
@@ -928,14 +928,14 @@ class Screen(object):
         min_x = 32768
         min_y = 32768
         for output in self.get_outputs():
-            if output._mode == None:
+            if output._mode is None:
                 continue
             if output._x < min_x:
                 min_x = output._x
             if output._y < min_y:
                 min_y = output._y
         for output in self.get_outputs():
-            if output._mode == None:
+            if output._mode is None:
                 continue
             output._x -= min_x
             output._y -= min_y
@@ -1040,7 +1040,7 @@ def _from_gamma(g):
 def _check_required_version(version):
     """Raises an exception if the given or a later version of xrandr is not
        available"""
-    if XRANDR_VERSION == None or XRANDR_VERSION < version:
+    if XRANDR_VERSION is None or XRANDR_VERSION < version:
         raise UnsupportedRRError(version, XRANDR_VERSION)
 
 

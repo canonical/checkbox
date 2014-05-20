@@ -457,9 +457,9 @@ class AttributeTests(ParsingTestCase):
         self.assertEqual(attr.name, 'Profiles')
         self.assertEqual(attr.value[0].name, 'output:analog-stereo')
         self.assertEqual(attr.value[0].label, 'Wyjście Analogowe stereo')
-        self.assertEqual(attr.value[0].priority, 6000) 
-        self.assertEqual(attr.value[-3].label, 'Wyjście Digital Surround 5.1 (HDMI) + Wejście Analogowe stereo') 
-        self.assertEqual(attr.value[-3].priority, 360) 
+        self.assertEqual(attr.value[0].priority, 6000)
+        self.assertEqual(attr.value[-3].label, 'Wyjście Digital Surround 5.1 (HDMI) + Wejście Analogowe stereo')
+        self.assertEqual(attr.value[-3].priority, 360)
         self.assertEqual(attr.value[-1].name, 'off')
 
     def test_format(self):

@@ -87,7 +87,7 @@ FLASH_RE = re.compile(r"Flash", re.I)
 FLASH_DISK_RE = re.compile(r"Mass|Storage|Disk", re.I)
 
 
-class UdevadmDevice:
+class UdevadmDevice(object):
     __slots__ = (
         "_environment",
         "_bits",
@@ -624,7 +624,7 @@ class UdevadmDevice:
         return {a: getattr(self, a) for a in attributes if getattr(self, a)}
 
 
-class UdevadmParser:
+class UdevadmParser(object):
     """Parser for the udevadm command."""
 
     device_factory = UdevadmDevice
@@ -803,7 +803,7 @@ def known_to_be_video_device(vendor_id, product_id, pci_class, pci_subclass):
         # list
         return product_id in [0x0152]
 
-class UdevResult:
+class UdevResult(object):
     def __init__(self):
         self.devices = {"device_list": []}
 

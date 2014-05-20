@@ -15,13 +15,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-#
-import re
 
-from datetime import (
-    datetime,
-    timedelta,
-    )
+
+import re
+from datetime import datetime, timedelta
 
 from checkbox_support.lib.tz import tzutc
 

@@ -16,13 +16,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-#
-import re
 
-from string import (
-    ascii_letters,
-    ascii_uppercase,
-    )
+
+from string import ascii_letters
+from string import ascii_uppercase
+import re
 
 
 # Device string to match:

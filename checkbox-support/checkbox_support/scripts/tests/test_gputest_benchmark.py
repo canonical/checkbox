@@ -29,6 +29,7 @@ class LogParserTest(unittest.TestCase):
     def setUp(self):
         self.logfile = NamedTemporaryFile(delete=False)
         self.devnull = open(os.devnull, 'w')
+        self.addCleanup(self.devnull.close)
 
     def test_logfile_not_found(self):
         os.unlink(self.logfile.name)

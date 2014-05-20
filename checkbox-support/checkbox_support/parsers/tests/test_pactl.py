@@ -26,7 +26,7 @@ from __future__ import unicode_literals
 
 """
 :mod:`checkbox_support.parsers.tests.test_pactl` -- tests for pactl parser
-==================================================================
+==========================================================================
 """
 
 from math import log10, floor, ceil

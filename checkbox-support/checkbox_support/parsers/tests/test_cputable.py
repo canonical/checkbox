@@ -27,7 +27,7 @@ from unittest import TestCase
 from checkbox_support.parsers.cputable import CputableParser
 
 
-class CputableResult:
+class CputableResult(object):
 
     def __init__(self):
         self.cpus = []

@@ -32,7 +32,7 @@ CPUTABLE_RE = re.compile(
     r"\s+(?P<endianness>big|little)")
 
 
-class CputableParser:
+class CputableParser(object):
     """Parser for the /usr/share/dpkg/cputable file."""
 
     def __init__(self, stream):

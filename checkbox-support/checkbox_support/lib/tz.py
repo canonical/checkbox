@@ -15,15 +15,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-#
-__all__ = [
-    "tzutc",
-    ]
 
-from datetime import (
-    timedelta,
-    tzinfo,
-    )
+
+__all__ = ["tzutc"]
+
+from datetime import timedelta
+from datetime import tzinfo
 
 
 ZERO = timedelta(0)

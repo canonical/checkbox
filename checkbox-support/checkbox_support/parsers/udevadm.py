@@ -15,13 +15,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-#
+
+from collections import OrderedDict
 import re
 import string
 
-from collections import OrderedDict
-
-from checkbox_support.lib.bit import get_bitmask, test_bit
+from checkbox_support.lib.bit import get_bitmask
+from checkbox_support.lib.bit import test_bit
 from checkbox_support.lib.input import Input
 from checkbox_support.lib.pci import Pci
 from checkbox_support.lib.usb import Usb

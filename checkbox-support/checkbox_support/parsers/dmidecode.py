@@ -15,18 +15,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-#
+
+
+from string import hexdigits
+from string import ascii_uppercase
 import re
 
-from string import (
-    hexdigits,
-    ascii_uppercase,
-    )
-
-from checkbox_support.lib.dmi import (
-    Dmi,
-    DmiDevice,
-    )
+from checkbox_support.lib.dmi import Dmi
+from checkbox_support.lib.dmi import DmiDevice
 
 
 HANDLE_RE = re.compile(

@@ -39,7 +39,7 @@ KEY_VALUE_RE = re.compile(
     % ascii_uppercase)
 
 
-class DmidecodeParser:
+class DmidecodeParser(object):
     """Parser for the dmidecode command."""
 
     _key_map = {

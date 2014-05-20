@@ -23,8 +23,8 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 """
-checkbox_support.heuristics.dev
-=======================
+checkbox_support.heuristics.udev
+================================
 
 Heuristics for udev.
 

@@ -672,7 +672,7 @@ class UdevadmParser(object):
         multi_pattern = re.compile(r"(?P<key>[^=]+)=(?P<value>.*)")
 
         stack = []
-        if isinstance(self.stream_or_string, str):
+        if isinstance(self.stream_or_string, type("")):
             output = self.stream_or_string
         else:
             output = self.stream_or_string.read()

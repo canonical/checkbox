@@ -24,7 +24,7 @@ from __future__ import unicode_literals
 import re
 
 
-class EfiDevice:
+class EfiDevice(object):
 
     path = "/sys/class/dmi/id/bios_version"
     category = "EFI"
@@ -34,7 +34,7 @@ class EfiDevice:
         self.vendor = vendor
 
 
-class EfiParser:
+class EfiParser(object):
     """Parser for EFI information."""
 
     def __init__(self, stream):

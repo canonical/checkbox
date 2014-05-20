@@ -27,7 +27,7 @@ from unittest import TestCase
 from checkbox_support.parsers.efi import EfiParser
 
 
-class EfiResult:
+class EfiResult(object):
 
     def __init__(self):
         self.device = None

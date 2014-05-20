@@ -15,10 +15,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-#
-import re
 
 from os import uname
+import re
 
 from checkbox_support.lib.conversion import string_to_type
 

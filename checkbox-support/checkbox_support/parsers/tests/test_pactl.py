@@ -31,6 +31,7 @@ from __future__ import unicode_literals
 
 from math import log10, floor, ceil
 from unittest import TestCase
+from io import open
 
 from pkg_resources import resource_filename
 import pyparsing as p

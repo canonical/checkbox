@@ -22,9 +22,9 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from io import StringIO
+from unittest import TestCase
 
 from pkg_resources import resource_filename
-from unittest import TestCase
 
 from checkbox_support.parsers.udevadm import UdevadmParser, decode_id
 from checkbox_support.parsers.udevadm import parse_udevadm_output

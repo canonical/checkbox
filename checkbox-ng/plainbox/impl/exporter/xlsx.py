@@ -406,7 +406,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             if children:
                 self.worksheet3.write(
                     self._lineno, level + 1,
-                    result_map[job]['description'], self.format15)
+                    result_map[job]['summary'], self.format15)
                 if (
                     result_map[job]['category_status'] ==
                     IJobResult.OUTCOME_PASS
@@ -442,7 +442,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 self._write_job(children, result_map, max_level, level + 1)
             else:
                 self.worksheet3.write(
-                    self._lineno, max_level + 1, job,
+                    self._lineno, max_level + 1, result_map[job]['summary'],
                     self.format08 if self._lineno % 2 else self.format09)
                 if self.OPTION_WITH_DESCRIPTION in self._option_list:
                     link_cell = xl_rowcol_to_cell(self._lineno, max_level + 1)
@@ -450,9 +450,10 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                         self._lineno, max_level + 1,
                         'internal:' + _("Test Descriptions") + '!' + link_cell,
                         self.format08 if self._lineno % 2 else self.format09,
-                        job)
+                        result_map[job]['summary'])
                     self.worksheet4.write(
-                        self._lineno, max_level + 1, job,
+                        self._lineno, max_level + 1,
+                        result_map[job]['summary'],
                         self.format08 if self._lineno % 2 else self.format09)
                 self.total += 1
                 if result_map[job]['outcome'] == IJobResult.OUTCOME_PASS:

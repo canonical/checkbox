@@ -358,6 +358,9 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             child_status = result_map[child]['outcome']
             if 'category_status' in result_map[child]:
                 child_status = result_map[child]['category_status']
+            # Ignore categories without any child
+            elif result_map[child]['plugin'] == 'local':
+                continue
             if child_status == IJobResult.OUTCOME_FAIL:
                 result_map[parent]['category_status'] = IJobResult.OUTCOME_FAIL
             elif (
@@ -396,6 +399,9 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 sorted(
                     tree.items(),
                     key=lambda t: 'z' + t[0] if t[1] else 'a' + t[0])).items():
+            if (result_map[job]['plugin'] == 'local' and
+                not result_map[job].get('category_status')):
+                continue
             self._lineno += 1
             if children:
                 self.worksheet3.write(

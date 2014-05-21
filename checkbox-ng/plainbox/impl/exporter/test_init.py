@@ -25,6 +25,7 @@ plainbox.impl.exporter.test_init
 Test definitions for plainbox.impl.exporter module
 """
 
+from collections import OrderedDict
 from io import StringIO, BytesIO
 from tempfile import TemporaryDirectory
 from unittest import TestCase
@@ -130,12 +131,14 @@ class SessionStateExporterBaseTests(TestCase):
         data = exporter.get_session_data_subset(session)
         expected_data = {
             'result_map': {
-                'job_a': {
-                    'outcome': 'pass'
-                },
-                'job_b': {
-                    'outcome': 'fail'
-                }
+                'job_a': OrderedDict([
+                    ('summary', 'job_a'),
+                    ('outcome', 'pass')
+                ]),
+                'job_b': OrderedDict([
+                    ('summary', 'job_b'),
+                    ('outcome', 'fail')
+                ])
             }
         }
         self.assertEqual(data, expected_data)
@@ -146,12 +149,14 @@ class SessionStateExporterBaseTests(TestCase):
         job_a = JobDefinition({
             'plugin': 'shell',
             'name': 'job_a',
+            'summary': 'This is job A',
             'command': 'echo testing && true',
             'requires': 'job_b.ready == "yes"'
         })
         job_b = JobDefinition({
             'plugin': 'resource',
             'name': 'job_b',
+            'summary': 'This is job B',
             'command': 'echo ready: yes'
         })
         session = SessionState([job_a, job_b])
@@ -194,27 +199,29 @@ class SessionStateExporterBaseTests(TestCase):
                 }]
             },
             'result_map': {
-                'job_a': {
-                    'outcome': 'pass',
-                    'plugin': 'shell',
-                    'command': 'echo testing && true',
-                    'io_log': ['dGVzdGluZwo='],
-                    'requires': 'job_b.ready == "yes"',
-                    'comments': None,
-                    'via': None,
-                    'hash': '1dbae753f6cb823af370ef9fcb5916'
-                            'eba82185992e81813316fe77332a60f1e0',
-                },
-                'job_b': {
-                    'outcome': 'pass',
-                    'plugin': 'resource',
-                    'command': 'echo ready: yes',
-                    'io_log': ['cmVhZHk6IHllcwo='],
-                    'comments': 'foo',
-                    'via': None,
-                    'hash': 'a914c7396e29c2a4669055bf38bd7c'
-                            '7f0eae0bc67f8bc2d90ba7d37f83e52132',
-                }
+                'job_a': OrderedDict([
+                    ('summary', 'This is job A'),
+                    ('outcome', 'pass'),
+                    ('comments', None),
+                    ('via', None),
+                    ('hash', '2def0c995e1b6d934c5a91286ba164'
+                             '18845da26d057bc992a2b5dfeae2e2fe91'),
+                    ('plugin', 'shell'),
+                    ('requires', 'job_b.ready == "yes"'),
+                    ('command', 'echo testing && true'),
+                    ('io_log', ['dGVzdGluZwo=']),
+                ]),
+                'job_b': OrderedDict([
+                    ('summary', 'This is job B'),
+                    ('outcome', 'pass'),
+                    ('comments', 'foo'),
+                    ('via', None),
+                    ('hash', 'ed19ba54624864a7c622ff7d1e8ed5'
+                             '96b1a0fddc4b78c8fb780fe41e55250e6f'),
+                    ('plugin', 'resource'),
+                    ('command', 'echo ready: yes'),
+                    ('io_log', ['cmVhZHk6IHllcwo=']),
+                ])
             },
             'attachment_map': {
             }

@@ -112,17 +112,17 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         })
         # Titles + borders
         self.format04 = self.workbook.add_format({
-            'align': 'left', 'size': 12, 'bold': 1, 'border': 7
+            'align': 'left', 'size': 12, 'bold': 1, 'border': 1
         })
         # System info with borders
         self.format05 = self.workbook.add_format({
             'align': 'left', 'valign': 'vcenter', 'text_wrap': 1, 'size': 8,
-            'border': 7,
+            'border': 1,
         })
         # System info with borders, grayed out background
         self.format06 = self.workbook.add_format({
             'align': 'left', 'valign': 'vcenter', 'text_wrap': 1, 'size': 8,
-            'border': 7, 'bg_color': '#E6E6E6',
+            'border': 1, 'bg_color': '#E6E6E6',
         })
         # Headlines (center)
         self.format07 = self.workbook.add_format({
@@ -140,17 +140,17 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         # Green background / Size 8
         self.format10 = self.workbook.add_format({
             'align': 'center', 'valign': 'vcenter', 'text_wrap': 1, 'size': 8,
-            'bg_color': 'lime', 'border': 7, 'border_color': 'white',
+            'bg_color': 'lime', 'border': 1, 'border_color': 'white',
         })
         # Red background / Size 8
         self.format11 = self.workbook.add_format({
             'align': 'center', 'valign': 'vcenter', 'text_wrap': 1, 'size': 8,
-            'bg_color': 'red', 'border': 7, 'border_color': 'white',
+            'bg_color': 'red', 'border': 1, 'border_color': 'white',
         })
         # Gray background / Size 8
         self.format12 = self.workbook.add_format({
             'align': 'center', 'valign': 'vcenter', 'text_wrap': 1, 'size': 8,
-            'bg_color': 'gray', 'border': 7, 'border_color': 'white',
+            'bg_color': 'gray', 'border': 1, 'border_color': 'white',
         })
         # Attachments
         self.format13 = self.workbook.add_format({

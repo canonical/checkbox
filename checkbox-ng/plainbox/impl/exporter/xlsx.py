@@ -499,17 +499,17 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                         self.format16 if self._lineno % 2 else self.format17)
                 if level:
                     self.worksheet3.set_row(
-                        self._lineno, 12 + 9.71 * io_lines,
+                        self._lineno, 12 + 10.5 * io_lines,
                         None, {'level': level})
                     if self.OPTION_WITH_DESCRIPTION in self._option_list:
                         self.worksheet4.set_row(
-                            self._lineno, 12 + 9.71 * desc_lines,
+                            self._lineno, 12 + 10.5 * desc_lines,
                             None, {'level': level})
                 else:
-                    self.worksheet3.set_row(self._lineno, 12 + 9.71 * io_lines)
+                    self.worksheet3.set_row(self._lineno, 12 + 10.5 * io_lines)
                     if self.OPTION_WITH_DESCRIPTION in self._option_list:
                         self.worksheet4.set_row(
-                            self._lineno, 12 + 9.71 * desc_lines)
+                            self._lineno, 12 + 10.5 * desc_lines)
 
     def write_results(self, data):
         tree, max_level = self._tree(data['result_map'])

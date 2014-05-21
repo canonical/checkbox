@@ -518,9 +518,9 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         self.worksheet3.set_tab_color('#DC4C00')  # Orange
         self.worksheet3.set_column(0, 0, 5)
         [self.worksheet3.set_column(i, i, 2) for i in range(1, max_level + 1)]
-        self.worksheet3.set_column(max_level + 1, max_level + 0, 48)
-        self.worksheet3.set_column(max_level + 2, max_level + 1, 12)
-        self.worksheet3.set_column(max_level + 3, max_level + 2, 65)
+        self.worksheet3.set_column(max_level + 1, max_level + 1, 48)
+        self.worksheet3.set_column(max_level + 2, max_level + 2, 12)
+        self.worksheet3.set_column(max_level + 3, max_level + 3, 65)
         self.worksheet3.write_row(
             5, max_level + 1, [_('Name'), _('Result'), _('I/O Log')],
             self.format07)
@@ -530,8 +530,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             self.worksheet4.set_column(0, 0, 5)
             [self.worksheet4.set_column(i, i, 2)
                 for i in range(1, max_level + 1)]
-            self.worksheet4.set_column(max_level + 1, max_level + 0, 48)
-            self.worksheet4.set_column(max_level + 2, max_level + 1, 65)
+            self.worksheet4.set_column(max_level + 1, max_level + 1, 48)
+            self.worksheet4.set_column(max_level + 2, max_level + 2, 65)
             self.worksheet4.write_row(
                 5, max_level + 1, [_('Name'), _('Description')], self.format07
             )

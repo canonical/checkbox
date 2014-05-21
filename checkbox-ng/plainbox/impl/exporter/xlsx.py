@@ -112,17 +112,17 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         })
         # Titles + borders
         self.format04 = self.workbook.add_format({
-            'align': 'left', 'size': 12, 'bold': 1, 'border': 7
+            'align': 'left', 'size': 12, 'bold': 1, 'border': 1
         })
         # System info with borders
         self.format05 = self.workbook.add_format({
             'align': 'left', 'valign': 'vcenter', 'text_wrap': 1, 'size': 8,
-            'border': 7,
+            'border': 1,
         })
         # System info with borders, grayed out background
         self.format06 = self.workbook.add_format({
             'align': 'left', 'valign': 'vcenter', 'text_wrap': 1, 'size': 8,
-            'border': 7, 'bg_color': '#E6E6E6',
+            'border': 1, 'bg_color': '#E6E6E6',
         })
         # Headlines (center)
         self.format07 = self.workbook.add_format({
@@ -140,17 +140,17 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         # Green background / Size 8
         self.format10 = self.workbook.add_format({
             'align': 'center', 'valign': 'vcenter', 'text_wrap': 1, 'size': 8,
-            'bg_color': 'lime', 'border': 7, 'border_color': 'white',
+            'bg_color': 'lime', 'border': 1, 'border_color': 'white',
         })
         # Red background / Size 8
         self.format11 = self.workbook.add_format({
             'align': 'center', 'valign': 'vcenter', 'text_wrap': 1, 'size': 8,
-            'bg_color': 'red', 'border': 7, 'border_color': 'white',
+            'bg_color': 'red', 'border': 1, 'border_color': 'white',
         })
         # Gray background / Size 8
         self.format12 = self.workbook.add_format({
             'align': 'center', 'valign': 'vcenter', 'text_wrap': 1, 'size': 8,
-            'bg_color': 'gray', 'border': 7, 'border_color': 'white',
+            'bg_color': 'gray', 'border': 1, 'border_color': 'white',
         })
         # Attachments
         self.format13 = self.workbook.add_format({
@@ -312,7 +312,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         self.worksheet2.write(5, 1, '✘', self.format11)
         self.worksheet2.write(
             5, 2, (
-                ngettext('{} Test failed', '{} Tests failed', self.total_fail)
+                ngettext('{} Test failed', '{} Tests failed',
+                         self.total_fail).format(self.total_fail)
                 + ' - '
                 + _('Failure Rate: {:.2f}% ({}/{})').format(
                     self.total_fail / self.total * 100,
@@ -322,7 +323,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         self.worksheet2.write(
             6, 2, (
                 ngettext('{} Test skipped', '{} Tests skipped',
-                         self.total_skip)
+                         self.total_skip).format(self.total_skip)
                 + ' - '
                 + _('Skip Rate: {:.2f}% ({}/{})').format(
                     self.total_skip / self.total * 100,
@@ -347,7 +348,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         )
         # Insert the chart into the worksheet.
         self.worksheet2.insert_chart('F4', chart, {
-            'x_offset': 0, 'y_offset': 10, 'x_scale': 0.25, 'y_scale': 0.25
+            'x_offset': 0, 'y_offset': 10, 'x_scale': 0.50, 'y_scale': 0.50
         })
 
     def _set_category_status(self, result_map, via, child):
@@ -357,6 +358,9 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             child_status = result_map[child]['outcome']
             if 'category_status' in result_map[child]:
                 child_status = result_map[child]['category_status']
+            # Ignore categories without any child
+            elif result_map[child]['plugin'] == 'local':
+                continue
             if child_status == IJobResult.OUTCOME_FAIL:
                 result_map[parent]['category_status'] = IJobResult.OUTCOME_FAIL
             elif (
@@ -395,11 +399,14 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 sorted(
                     tree.items(),
                     key=lambda t: 'z' + t[0] if t[1] else 'a' + t[0])).items():
+            if (result_map[job]['plugin'] == 'local' and
+                not result_map[job].get('category_status')):
+                continue
             self._lineno += 1
             if children:
                 self.worksheet3.write(
                     self._lineno, level + 1,
-                    result_map[job]['description'], self.format15)
+                    result_map[job]['summary'], self.format15)
                 if (
                     result_map[job]['category_status'] ==
                     IJobResult.OUTCOME_PASS
@@ -435,7 +442,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 self._write_job(children, result_map, max_level, level + 1)
             else:
                 self.worksheet3.write(
-                    self._lineno, max_level + 1, job,
+                    self._lineno, max_level + 1, result_map[job]['summary'],
                     self.format08 if self._lineno % 2 else self.format09)
                 if self.OPTION_WITH_DESCRIPTION in self._option_list:
                     link_cell = xl_rowcol_to_cell(self._lineno, max_level + 1)
@@ -443,9 +450,10 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                         self._lineno, max_level + 1,
                         'internal:' + _("Test Descriptions") + '!' + link_cell,
                         self.format08 if self._lineno % 2 else self.format09,
-                        job)
+                        result_map[job]['summary'])
                     self.worksheet4.write(
-                        self._lineno, max_level + 1, job,
+                        self._lineno, max_level + 1,
+                        result_map[job]['summary'],
                         self.format08 if self._lineno % 2 else self.format09)
                 self.total += 1
                 if result_map[job]['outcome'] == IJobResult.OUTCOME_PASS:
@@ -498,17 +506,17 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                         self.format16 if self._lineno % 2 else self.format17)
                 if level:
                     self.worksheet3.set_row(
-                        self._lineno, 12 + 9.71 * io_lines,
+                        self._lineno, 12 + 10.5 * io_lines,
                         None, {'level': level})
                     if self.OPTION_WITH_DESCRIPTION in self._option_list:
                         self.worksheet4.set_row(
-                            self._lineno, 12 + 9.71 * desc_lines,
+                            self._lineno, 12 + 10.5 * desc_lines,
                             None, {'level': level})
                 else:
-                    self.worksheet3.set_row(self._lineno, 12 + 9.71 * io_lines)
+                    self.worksheet3.set_row(self._lineno, 12 + 10.5 * io_lines)
                     if self.OPTION_WITH_DESCRIPTION in self._option_list:
                         self.worksheet4.set_row(
-                            self._lineno, 12 + 9.71 * desc_lines)
+                            self._lineno, 12 + 10.5 * desc_lines)
 
     def write_results(self, data):
         tree, max_level = self._tree(data['result_map'])
@@ -517,9 +525,9 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         self.worksheet3.set_tab_color('#DC4C00')  # Orange
         self.worksheet3.set_column(0, 0, 5)
         [self.worksheet3.set_column(i, i, 2) for i in range(1, max_level + 1)]
-        self.worksheet3.set_column(max_level + 1, max_level + 0, 48)
-        self.worksheet3.set_column(max_level + 2, max_level + 1, 12)
-        self.worksheet3.set_column(max_level + 3, max_level + 2, 65)
+        self.worksheet3.set_column(max_level + 1, max_level + 1, 48)
+        self.worksheet3.set_column(max_level + 2, max_level + 2, 12)
+        self.worksheet3.set_column(max_level + 3, max_level + 3, 65)
         self.worksheet3.write_row(
             5, max_level + 1, [_('Name'), _('Result'), _('I/O Log')],
             self.format07)
@@ -529,8 +537,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             self.worksheet4.set_column(0, 0, 5)
             [self.worksheet4.set_column(i, i, 2)
                 for i in range(1, max_level + 1)]
-            self.worksheet4.set_column(max_level + 1, max_level + 0, 48)
-            self.worksheet4.set_column(max_level + 2, max_level + 1, 65)
+            self.worksheet4.set_column(max_level + 1, max_level + 1, 48)
+            self.worksheet4.set_column(max_level + 2, max_level + 2, 65)
             self.worksheet4.write_row(
                 5, max_level + 1, [_('Name'), _('Description')], self.format07
             )

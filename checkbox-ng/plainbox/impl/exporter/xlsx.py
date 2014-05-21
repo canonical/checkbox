@@ -312,7 +312,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         self.worksheet2.write(5, 1, '✘', self.format11)
         self.worksheet2.write(
             5, 2, (
-                ngettext('{} Test failed', '{} Tests failed', self.total_fail)
+                ngettext('{} Test failed', '{} Tests failed',
+                         self.total_fail).format(self.total_fail)
                 + ' - '
                 + _('Failure Rate: {:.2f}% ({}/{})').format(
                     self.total_fail / self.total * 100,
@@ -322,7 +323,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         self.worksheet2.write(
             6, 2, (
                 ngettext('{} Test skipped', '{} Tests skipped',
-                         self.total_skip)
+                         self.total_skip).format(self.total_skip)
                 + ' - '
                 + _('Skip Rate: {:.2f}% ({}/{})').format(
                     self.total_skip / self.total * 100,

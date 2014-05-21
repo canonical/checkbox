@@ -348,7 +348,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         )
         # Insert the chart into the worksheet.
         self.worksheet2.insert_chart('F4', chart, {
-            'x_offset': 0, 'y_offset': 10, 'x_scale': 0.25, 'y_scale': 0.25
+            'x_offset': 0, 'y_offset': 10, 'x_scale': 0.50, 'y_scale': 0.50
         })
 
     def _set_category_status(self, result_map, via, child):

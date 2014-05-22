@@ -264,7 +264,7 @@ class JobState:
         """
         Event fired when the result associated with this job state changes
         """
-        logger.info(
+        logger.debug(
             "<%s %s>.on_result_changed(%r, %r)",
             self.__class__.__name__, id(self), old, new)
 

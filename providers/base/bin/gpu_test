@@ -140,11 +140,10 @@ class Html5VideoThread(Thread):
 
 def check_gpu(log=None):
     if not log:
-        log = '/var/log/kern.log'
-    with open(log, 'rb') as f:
-        if re.findall(r'gpu\s+hung', str(f.read()), flags=re.I):
-            print("GPU hung Detected")
-            return 1
+        log = subprocess.check_output(['dmesg'], universal_newlines=True)
+    if re.findall(r'gpu\s+hung', log, flags=re.I):
+        print("GPU hung Detected")
+        return 1
 
 
 def main():

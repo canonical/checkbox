@@ -44,7 +44,17 @@ command: if [ "$KILLER" == "yes" ]; then kill -9 $PPID; fi
 
 # FIXME: stub/package once resource_object is supported
 id: stub_package
-_summary: Job determining a fake list of packages
+_summary: Job determining a fake list of packages (1)
+_description:
+    This job generates a resource object with what looks
+    like a list of packages.
+    .
+    The actual packages are fake
+plugin: resource
+command: stub_package_list
+
+id: stub_package2
+_summary: Job determining a fake list of packages (2)
 _description:
     This job generates a resource object with what looks
     like a list of packages.

@@ -30,6 +30,7 @@ from plainbox.impl.depmgr import DependencySolver
 from plainbox.impl.session.jobs import JobState
 from plainbox.impl.session.jobs import UndesiredJobReadinessInhibitor
 from plainbox.impl.signal import Signal
+from plainbox.impl.unit.job import JobDefinition
 
 
 logger = logging.getLogger("plainbox.session.state")
@@ -193,6 +194,14 @@ class SessionState:
         wrong data. As an exception if duplicates are perfectly identical this
         error is silently corrected.
 
+    :ivar list unit_list: A list of all known units
+
+        This list contains all the known units, including all the know job
+        definitions (and in the future, all test plans).
+
+        It may change at runtime because of local jobs and template
+        instantiations.
+
     :ivar dict job_state_map: mapping that tracks the state of each job
 
         Mapping from job id to :class:`JobState`. This basically has the test
@@ -280,14 +289,16 @@ class SessionState:
         """
         logger.info(_("Job removed: %r"), job)
 
-    def __init__(self, job_list):
+    def __init__(self, unit_list):
         """
-        Initialize a new SessionState with a given list of jobs.
+        Initialize a new SessionState with a given list of units.
 
-        The jobs are all of the jobs that the session knows about.
+        The units are all of the units (including jobs) that the
+        session knows about.
         """
         # Start by making a copy of job_list as we may modify it below
-        job_list = job_list[:]
+        job_list = [unit for unit in unit_list
+                    if isinstance(unit, JobDefinition)]
         while True:
             try:
                 # Construct a solver with the job list as passed by the caller.
@@ -319,6 +330,7 @@ class SessionState:
                 # If there are no problems then break the loop
                 break
         self._job_list = job_list
+        self._unit_list = unit_list
         self._job_state_map = {job.id: JobState(job)
                                for job in self._job_list}
         self._desired_job_list = []
@@ -538,6 +550,7 @@ class SessionState:
             # Register the new job in our state
             self.job_state_map[new_job.id] = JobState(new_job)
             self.job_list.append(new_job)
+            self.unit_list.append(new_job)
             self.on_job_state_map_changed()
             self.on_job_added(new_job)
             return new_job
@@ -571,6 +584,13 @@ class SessionState:
         list of all jobs re-instantiate this class please.
         """
         return self._job_list
+
+    @property
+    def unit_list(self):
+        """
+        List of all known units
+        """
+        return self._unit_list
 
     @property
     def desired_job_list(self):

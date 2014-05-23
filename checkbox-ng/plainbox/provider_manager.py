@@ -869,6 +869,20 @@ class InfoCommand(ManageCommand):
     """))
 class ValidateCommand(ManageCommand):
 
+    SUPPORTS_KEYWORDS = True
+
+    def __init__(self, definition, keywords):
+        super().__init__(definition)
+        self._keywords = keywords
+
+    @property
+    def strict(self):
+        return self._keywords.get('strict', True) is True
+
+    @property
+    def deprecated(self):
+        return self._keywords.get('deprecated', True) is True
+
     def register_parser(self, subparsers):
         """
         Overridden method of CommandBase.
@@ -881,7 +895,21 @@ class ValidateCommand(ManageCommand):
         arguments specific to this sub-command. It must also register itself as
         the command class with the ``command`` default.
         """
-        self.add_subcommand(subparsers)
+        parser = self.add_subcommand(subparsers)
+        parser.set_defaults(deprecated=self.deprecated, strict=self.strict)
+        group = parser.add_argument_group(title=_("validation options"))
+        group.add_argument(
+            '-s', '--strict', action='store_true',
+            help=_("Be strict about correctness"))
+        group.add_argument(
+            '-d', '--deprecated', action='store_true',
+            help=_("Report deprecated syntax and features"))
+        group.add_argument(
+            '-l', '--loose', dest='strict', action='store_false',
+            help=_("Be loose about correctness"))
+        group.add_argument(
+            '-L', '--legacy', dest='deprecated', action='store_false',
+            help=_("Support deprecated syntax and features"))
 
     def get_job_list(self, provider):
         job_list, problem_list = provider.load_all_jobs()
@@ -897,11 +925,11 @@ class ValidateCommand(ManageCommand):
                     " files are ignored"))
         return job_list
 
-    def validate_jobs(self, job_list):
+    def validate_jobs(self, job_list, ns):
         problem_list = []
         for job in job_list:
             try:
-                job.validate(strict=True, deprecated=True)
+                job.validate(strict=ns.strict, deprecated=ns.deprecated)
             except JobValidationError as exc:
                 problem_list.append((job, exc))
         return problem_list
@@ -909,7 +937,7 @@ class ValidateCommand(ManageCommand):
     def invoked(self, ns):
         provider = self.get_provider()
         job_list = self.get_job_list(provider)
-        problem_list = self.validate_jobs(job_list)
+        problem_list = self.validate_jobs(job_list, ns)
         explain = {
             Problem.missing: _("missing definition of required field"),
             Problem.wrong: _("incorrect value supplied"),

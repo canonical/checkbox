@@ -564,6 +564,8 @@ class BuildCommand(ManageCommand):
             A set of keywords passed to setup()
         """
         super().__init__(definition)
+        if keywords is None:
+            keywords = {}
         self._keywords = keywords
 
     @property
@@ -711,6 +713,8 @@ class CleanCommand(ManageCommand):
             A set of keywords passed to setup()
         """
         super().__init__(definition)
+        if keywords is None:
+            keywords = {}
         self._keywords = keywords
 
     @property
@@ -879,6 +883,8 @@ class ValidateCommand(ManageCommand):
 
     def __init__(self, definition, keywords):
         super().__init__(definition)
+        if keywords is None:
+            keywords = {}
         self._keywords = keywords
 
     @property

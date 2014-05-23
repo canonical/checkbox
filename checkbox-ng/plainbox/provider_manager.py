@@ -862,7 +862,7 @@ class InfoCommand(ManageCommand):
 
     Refer to the online documentation for plainbox to understand how correct
     job definitions look like and how to resolve problems reported by
-    ``verify``.
+    ``validate``.
 
     The exit code can be used to determine if there were any failures. If you
     have any, ``manage.py validate`` is something that could run in a CI loop.

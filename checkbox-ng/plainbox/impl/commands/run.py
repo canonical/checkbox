@@ -417,6 +417,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
         print(_("[ Analyzing Jobs ]").center(80, '='))
         # TODO resume?
         self._update_desired_job_list(desired_job_list)
+        self._print_estimated_duration()
 
     def maybe_warm_up_authentication(self):
         """
@@ -577,6 +578,8 @@ class RunInvocation(CheckBoxInvocationMixIn):
             for problem in problem_list:
                 print(" * {}".format(problem))
             print(_("Problematic jobs will not be considered"))
+
+    def _print_estimated_duration(self):
         (estimated_duration_auto,
          estimated_duration_manual) = self.state.get_estimated_duration()
         if estimated_duration_auto:

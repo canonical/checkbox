@@ -325,13 +325,6 @@ class JobDefinition(Unit, IJobDefinition):
                   " %s read from %s"), self.id, self.origin)
 
     @property
-    def provider(self):
-        """
-        The provider object associated with this JobDefinition
-        """
-        return self._provider
-
-    @property
     def controller(self):
         """
         The controller object associated with this JobDefinition

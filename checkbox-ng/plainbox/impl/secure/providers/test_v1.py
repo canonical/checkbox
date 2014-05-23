@@ -33,10 +33,10 @@ from plainbox.impl.secure.plugins import PlugInError
 from plainbox.impl.secure.providers.v1 import AbsolutePathValidator
 from plainbox.impl.secure.providers.v1 import ExistingDirectoryValidator
 from plainbox.impl.secure.providers.v1 import IQNValidator
-from plainbox.impl.secure.providers.v1 import JobDefinitionPlugIn
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.providers.v1 import Provider1Definition
 from plainbox.impl.secure.providers.v1 import Provider1PlugIn
+from plainbox.impl.secure.providers.v1 import UnitPlugIn
 from plainbox.impl.secure.providers.v1 import VersionValidator
 from plainbox.impl.secure.providers.v1 import WhiteListPlugIn
 from plainbox.impl.secure.qualifiers import WhiteList
@@ -574,15 +574,15 @@ class WhiteListPlugInTests(TestCase):
              "nothing to repeat"))
 
 
-class JobDefintionPlugInTests(TestCase):
+class UnitPlugInTests(TestCase):
     """
-    Tests for JobDefinitionPlugIn
+    Tests for UnitPlugIn
     """
 
     def setUp(self):
         self.provider = mock.Mock(name="provider", spec=Provider1)
         self.provider.namespace = "2013.com.canonical.plainbox"
-        self.plugin = JobDefinitionPlugIn(
+        self.plugin = UnitPlugIn(
             "/path/to/jobs.txt", (
                 "id: test/job\n"
                 "plugin: shell\n"
@@ -591,14 +591,14 @@ class JobDefintionPlugInTests(TestCase):
 
     def test_plugin_name(self):
         """
-        verify that the JobDefinitionPlugIn.plugin_name property returns
+        verify that the UnitPlugIn.plugin_name property returns
         pathname of the job definition file
         """
         self.assertEqual(self.plugin.plugin_name, "/path/to/jobs.txt")
 
     def test_plugin_object(self):
         """
-        verify that the JobDefinitionPlugIn.plugin_object property returns a
+        verify that the UnitPlugIn.plugin_object property returns a
         list of JobDefintion instances
         """
         self.assertEqual(len(self.plugin.plugin_object), 1)
@@ -625,12 +625,12 @@ class JobDefintionPlugInTests(TestCase):
 
     def test_init_failing(self):
         """
-        verify how JobDefinitionPlugIn() initializer works if something is
+        verify how UnitPlugIn() initializer works if something is
         wrong
         """
         # The pattern is purposefully invalid
         with self.assertRaises(PlugInError) as boom:
-            JobDefinitionPlugIn("/path/to/jobs.txt", "broken", self.provider)
+            UnitPlugIn("/path/to/jobs.txt", "broken", self.provider)
         self.assertEqual(
             str(boom.exception),
             ("Cannot load job definitions from '/path/to/jobs.txt': "
@@ -799,11 +799,11 @@ class Provider1Tests(TestCase):
         """
         # Create unsorted job definitions that define a1, a2, a3 and a4
         fake_plugins = [
-            JobDefinitionPlugIn("/path/to/jobs1.txt", (
+            UnitPlugIn("/path/to/jobs1.txt", (
                 "id: a2\n"
                 "\n"
                 "id: a1\n"), self.provider, validate=False),
-            JobDefinitionPlugIn("/path/to/jobs2.txt", (
+            UnitPlugIn("/path/to/jobs2.txt", (
                 "id: a3\n"
                 "\n"
                 "id: a4\n"), self.provider, validate=False)
@@ -821,7 +821,7 @@ class Provider1Tests(TestCase):
         verify that Provider1.get_builtin_jobs() raises the first
         exception that happens during the load process
         """
-        fake_plugins = [JobDefinitionPlugIn(
+        fake_plugins = [UnitPlugIn(
             "/path/to/jobs.txt", "", self.provider)]
         fake_problems = [IOError("first problem"), OSError("second problem")]
         with self.assertRaises(IOError):
@@ -847,11 +847,11 @@ class Provider1Tests(TestCase):
         """
         # Create unsorted job definitions that define a1, a2, a3 and a4
         fake_plugins = [
-            JobDefinitionPlugIn("/path/to/jobs1.txt", (
+            UnitPlugIn("/path/to/jobs1.txt", (
                 "id: a2\n"
                 "\n"
                 "id: a1\n"), self.provider, validate=False),
-            JobDefinitionPlugIn("/path/to/jobs2.txt", (
+            UnitPlugIn("/path/to/jobs2.txt", (
                 "id: a3\n"
                 "\n"
                 "id: a4\n"), self.provider, validate=False)
@@ -871,7 +871,7 @@ class Provider1Tests(TestCase):
         without raising an exception that happens during the load process
         """
         fake_plugins = [
-            JobDefinitionPlugIn(
+            UnitPlugIn(
                 "/path/to/jobs1.txt", "id: working\n", self.provider,
                 validate=False)
         ]

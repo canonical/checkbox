@@ -44,6 +44,8 @@ from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.secure.rfc822 import FileTextSource
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 from plainbox.impl.secure.rfc822 import load_rfc822_records
+from plainbox.impl.unit import Unit
+from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.validation import ValidationError
 
 
@@ -151,6 +153,89 @@ class JobDefinitionPlugIn(IPlugIn):
         plugin object, a list of JobDefinition instances
         """
         return self._job_list
+
+
+class UnitPlugIn(IPlugIn):
+    """
+    A specialized :class:`plainbox.impl.secure.plugins.IPlugIn` that loads a
+    list of :class:`plainbox.impl.unit.Unit` instances from a file.
+    """
+
+    # Dictionary mapping values of 'unit' field to classes that know how to
+    # load that particular unit. Since jobs don't really define the field
+    # 'unit' at all 'job' is also the default value.
+    UNIT_CLS_MAP = {
+        'job': JobDefinition,
+        'unit': Unit,  # This defines plain units
+    }
+
+    def __init__(self, filename, text, provider, *,
+                 validate=True, validation_kwargs=None):
+        """
+        Initialize the plug-in with the specified name text
+
+        :param filename:
+            Name of the file with unit definitions
+        :param text:
+            Full text of the file with unit definitions
+        :param provider:
+            A provider object to which those units belong to
+        :param validate:
+            Enable unit validation. Incorrect unit definitions will not be
+            loaded and will abort the process of loading of the remainder of
+            the jobs.  This is ON by default to prevent broken units from being
+            used. This is a keyword-only argument.
+        :param validation_kwargs:
+            Keyword arguments to pass to the Unit.validate().  Note, this is a
+            single argument. This is a keyword-only argument.
+        """
+        self._filename = filename
+        self._unit_list = []
+        if validation_kwargs is None:
+            validation_kwargs = {}
+        logger.debug(_("Loading units from %r..."), filename)
+        try:
+            records = load_rfc822_records(
+                text, source=FileTextSource(filename))
+        except RFC822SyntaxError as exc:
+            raise PlugInError(
+                _("Cannot load job definitions from {!r}: {}").format(
+                    filename, exc))
+        for record in records:
+            unit_name = record.data.get('unit', 'job')
+            unit_cls = self.UNIT_CLS_MAP.get(unit_name)
+            if unit_cls is None:
+                raise PlugInError(
+                    _("Unknown unit type: {!r}").format(unit_name))
+            try:
+                unit = unit_cls.from_rfc822_record(record, provider)
+            except ValueError as exc:
+                raise PlugInError(
+                    _("Cannot define unit from record {!r}: {}").format(
+                        record, exc))
+            if validate:
+                try:
+                    unit.validate(**validation_kwargs)
+                except ValidationError as exc:
+                    raise PlugInError(
+                        _("Problem in unit definition, field {}: {}").format(
+                            exc.field, exc.problem))
+            self._unit_list.append(unit)
+            logger.debug(_("Loaded %r"), unit)
+
+    @property
+    def plugin_name(self):
+        """
+        plugin name, name of the file we loaded units from
+        """
+        return self._filename
+
+    @property
+    def plugin_object(self):
+        """
+        plugin object, a list of Unit instances
+        """
+        return self._unit_list
 
 
 class Provider1(IProvider1, IProviderBackend1):

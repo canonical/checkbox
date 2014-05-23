@@ -166,6 +166,8 @@ class InstallCommand(ManageCommand):
                 '{prefix}', 'share', '{provider.name}', 'data'),
             'jobs': os.path.join(
                 '{prefix}', 'share', '{provider.name}', 'jobs'),
+            'units': os.path.join(
+                '{prefix}', 'share', '{provider.name}', 'units'),
             'po': None,
             'whitelists': os.path.join(
                 '{prefix}', 'share', '{provider.name}', 'whitelists'),
@@ -183,6 +185,9 @@ class InstallCommand(ManageCommand):
             'jobs': os.path.join(
                 '{prefix}', 'lib', 'plainbox-providers-1', '{provider.name}',
                 'jobs'),
+            'units': os.path.join(
+                '{prefix}', 'lib', 'plainbox-providers-1', '{provider.name}',
+                'units'),
             'po': None,
             'whitelists': os.path.join(
                 '{prefix}', 'lib', 'plainbox-providers-1', '{provider.name}',
@@ -196,6 +201,7 @@ class InstallCommand(ManageCommand):
         'build/mo': 'locale_dir',
         'data': 'data_dir',
         'jobs': 'jobs_dir',
+        'units': 'units_dir',
         'whitelists': 'whitelists_dir'
     }
 

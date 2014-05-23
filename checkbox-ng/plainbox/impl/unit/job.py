@@ -156,201 +156,6 @@ class JobDefinition(Unit, IJobDefinition):
     definition
     """
 
-    class fields(SymbolDef):
-        """
-        Symbols for each field that a JobDefinition can have
-        """
-        name = 'name'
-        id = 'id'
-        summary = 'summary'
-        plugin = 'plugin'
-        command = 'command'
-        description = 'description'
-        user = 'user'
-        environ = 'environ'
-        estimated_duration = 'estimated_duration'
-        depends = 'depends'
-        requires = 'requires'
-
-    class _PluginValues(SymbolDef):
-        """
-        Symbols for each value of the JobDefinition.plugin field
-        """
-        shell = 'shell'
-        attachment = 'attachment'
-        local = 'local'
-        resource = 'resource'
-        manual = 'manual'
-        user_verify = "user-verify"
-        user_interact = "user-interact"
-        user_interact_verify = "user-interact-verify"
-
-    @property
-    def plugin(self):
-        return self.get_record_value('plugin')
-
-    @property
-    def command(self):
-        return self.get_record_value('command')
-
-    @property
-    def environ(self):
-        return self.get_record_value('environ')
-
-    @property
-    def user(self):
-        return self.get_record_value('user')
-
-    @property
-    def shell(self):
-        """
-        Shell that is used to interpret the command
-
-        Defaults to 'bash' for checkbox compatibility.
-        """
-        return self.get_record_value('shell', 'bash')
-
-    def get_environ_settings(self):
-        """
-        Return a set of requested environment variables
-        """
-        if self.environ is not None:
-            return {variable for variable in re.split('[\s,]+', self.environ)}
-        else:
-            return set()
-
-    @propertywithsymbols(symbols=_PluginValues)
-    def plugin(self):
-        return self.get_record_value('plugin')
-
-    @property
-    def id(self):
-        if self._provider:
-            return "{}::{}".format(self._provider.namespace, self.partial_id)
-        else:
-            return self.partial_id
-
-    @property
-    def partial_id(self):
-        """
-        Identifier of this job, without the provider name
-
-        This field should not be used anymore, except for display
-        """
-        return self.get_record_value('id', self.name)
-
-    @property
-    def summary(self):
-        return self.get_record_value('summary', self.partial_id)
-
-    def tr_summary(self):
-        """
-        Get the translated version of :meth:`summary`
-        """
-        return self.get_normalized_translated_data(
-            self.get_raw_record_value('summary')) or self.partial_id
-
-    @property
-    def name(self):
-        return self.get_record_value('name')
-
-    @property
-    def requires(self):
-        return self.get_record_value('requires')
-
-    @property
-    def description(self):
-        return self.get_record_value('description')
-
-    def tr_description(self):
-        """
-        Get the translated version of :meth:`description`
-        """
-        return self.get_normalized_translated_data(
-            self.get_raw_record_value('description'))
-
-    @property
-    def depends(self):
-        return self.get_record_value('depends')
-
-    @property
-    def estimated_duration(self):
-        """
-        estimated duration of this job in seconds.
-
-        The value may be None, which indicates that the duration is basically
-        unknown. Fractional numbers are allowed and indicate fractions of a
-        second.
-        """
-        value = self.get_record_value('estimated_duration')
-        if value is None:
-            return
-        try:
-            return float(value)
-        except ValueError:
-            # TRANSLATORS: keep "estimated_duratin" untranslated.
-            logger.warning(
-                _("Incorrect value of 'estimated_duration' in job"
-                  " %s read from %s"), self.id, self.origin)
-
-    @property
-    def automated(self):
-        """
-        Whether the job is fully automated and runs without any
-        intervention from the user
-        """
-        return self.plugin in ['shell', 'resource',
-                               'attachment', 'local']
-
-    @property
-    def startup_user_interaction_required(self):
-        """
-        The job needs to be started explicitly by the test operator. This is
-        intended for things that may be timing-sensitive or may require the
-        tester to understand the necessary manipulations that he or she may
-        have to perform ahead of time.
-
-        The test operator may select to skip certain tests, in that case the
-        outcome is skip.
-        """
-        return self.plugin in ['manual', 'user-interact',
-                               'user-interact-verify']
-
-    @property
-    def via(self):
-        """
-        The checksum of the "parent" job when the current JobDefinition comes
-        from a job output using the local plugin
-        """
-        if hasattr(self.origin.source, 'job'):
-            return self.origin.source.job.checksum
-
-    def update_origin(self, origin):
-        """
-        Change the Origin object associated with this JobDefinition
-
-        .. note::
-
-            This method is a unfortunate side effect of how via and local jobs
-            that cat existing jobs are implemented. Ideally jobs would be
-            trully immutable. Do not use this method lightly.
-        """
-        self._origin = origin
-
-    @property
-    def provider(self):
-        """
-        The provider object associated with this JobDefinition
-        """
-        return self._provider
-
-    @property
-    def controller(self):
-        """
-        The controller object associated with this JobDefinition
-        """
-        return self._controller
-
     def __init__(self, data, origin=None, provider=None, controller=None,
                  raw_data=None):
         """
@@ -400,13 +205,205 @@ class JobDefinition(Unit, IJobDefinition):
             return False
         return self.checksum == other.checksum
 
-    def __hash__(self):
-        return hash(self.checksum)
-
     def __ne__(self, other):
         if not isinstance(other, JobDefinition):
             return True
         return self.checksum != other.checksum
+
+    def __hash__(self):
+        return hash(self.checksum)
+
+    class fields(SymbolDef):
+        """
+        Symbols for each field that a JobDefinition can have
+        """
+        name = 'name'
+        id = 'id'
+        summary = 'summary'
+        plugin = 'plugin'
+        command = 'command'
+        description = 'description'
+        user = 'user'
+        environ = 'environ'
+        estimated_duration = 'estimated_duration'
+        depends = 'depends'
+        requires = 'requires'
+        shell = 'shell'
+
+    class _PluginValues(SymbolDef):
+        """
+        Symbols for each value of the JobDefinition.plugin field
+        """
+        attachment = 'attachment'
+        local = 'local'
+        resource = 'resource'
+        manual = 'manual'
+        user_verify = "user-verify"
+        user_interact = "user-interact"
+        user_interact_verify = "user-interact-verify"
+        shell = 'shell'
+
+    def partial_id(self):
+        """
+        Identifier of this job, without the provider name
+
+        This field should not be used anymore, except for display
+        """
+        return self.get_record_value('id', self.name)
+
+    @property
+    def id(self):
+        if self._provider:
+            return "{}::{}".format(self._provider.namespace, self.partial_id)
+        else:
+            return self.partial_id
+
+    @property
+    def name(self):
+        return self.get_record_value('name')
+
+    @propertywithsymbols(symbols=_PluginValues)
+    def plugin(self):
+        return self.get_record_value('plugin')
+
+    @property
+    def summary(self):
+        return self.get_record_value('summary', self.partial_id)
+
+    @property
+    def description(self):
+        return self.get_record_value('description')
+
+    @property
+    def requires(self):
+        return self.get_record_value('requires')
+
+    @property
+    def depends(self):
+        return self.get_record_value('depends')
+
+    @property
+    def command(self):
+        return self.get_record_value('command')
+
+    @property
+    def environ(self):
+        return self.get_record_value('environ')
+
+    @property
+    def user(self):
+        return self.get_record_value('user')
+
+    @property
+    def shell(self):
+        """
+        Shell that is used to interpret the command
+
+        Defaults to 'bash' for checkbox compatibility.
+        """
+        return self.get_record_value('shell', 'bash')
+
+    @property
+    def estimated_duration(self):
+        """
+        estimated duration of this job in seconds.
+
+        The value may be None, which indicates that the duration is basically
+        unknown. Fractional numbers are allowed and indicate fractions of a
+        second.
+        """
+        value = self.get_record_value('estimated_duration')
+        # TODO: make the error case case detected by job validator
+        if value is None:
+            return
+        try:
+            return float(value)
+        except ValueError:
+            # TRANSLATORS: keep "estimated_duration" untranslated.
+            logger.warning(
+                _("Incorrect value of 'estimated_duration' in job"
+                  " %s read from %s"), self.id, self.origin)
+
+    @property
+    def provider(self):
+        """
+        The provider object associated with this JobDefinition
+        """
+        return self._provider
+
+    @property
+    def controller(self):
+        """
+        The controller object associated with this JobDefinition
+        """
+        return self._controller
+
+    def tr_summary(self):
+        """
+        Get the translated version of :meth:`summary`
+        """
+        return self.get_normalized_translated_data(
+            self.get_raw_record_value('summary')) or self.partial_id
+
+    def tr_description(self):
+        """
+        Get the translated version of :meth:`description`
+        """
+        return self.get_normalized_translated_data(
+            self.get_raw_record_value('description'))
+
+    def get_environ_settings(self):
+        """
+        Return a set of requested environment variables
+        """
+        if self.environ is not None:
+            return {variable for variable in re.split('[\s,]+', self.environ)}
+        else:
+            return set()
+
+    @property
+    def automated(self):
+        """
+        Whether the job is fully automated and runs without any
+        intervention from the user
+        """
+        return self.plugin in ['shell', 'resource',
+                               'attachment', 'local']
+
+    @property
+    def startup_user_interaction_required(self):
+        """
+        The job needs to be started explicitly by the test operator. This is
+        intended for things that may be timing-sensitive or may require the
+        tester to understand the necessary manipulations that he or she may
+        have to perform ahead of time.
+
+        The test operator may select to skip certain tests, in that case the
+        outcome is skip.
+        """
+        return self.plugin in ['manual', 'user-interact',
+                               'user-interact-verify']
+
+    @property
+    def via(self):
+        """
+        The checksum of the "parent" job when the current JobDefinition comes
+        from a job output using the local plugin
+        """
+        if hasattr(self.origin.source, 'job'):
+            return self.origin.source.job.checksum
+
+    def update_origin(self, origin):
+        """
+        Change the Origin object associated with this JobDefinition
+
+        .. note::
+
+            This method is a unfortunate side effect of how via and local jobs
+            that cat existing jobs are implemented. Ideally jobs would be
+            trully immutable. Do not use this method lightly.
+        """
+        self._origin = origin
 
     def get_resource_program(self):
         """

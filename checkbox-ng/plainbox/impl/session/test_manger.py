@@ -79,18 +79,18 @@ class SessionManagerTests(TestCase):
         verify that SessionManager.load_session() correctly delegates the task
         to various other objects
         """
-        # Mock SessionState and job list
+        # Mock SessionState and unit list
         storage = mock.Mock(name="storage", spec=SessionStorage)
-        job_list = mock.Mock(name='job_list')
+        unit_list = mock.Mock(name='unit_list')
         helper_name = "plainbox.impl.session.manager.SessionResumeHelper"
         with mock.patch(helper_name) as helper_cls:
             helper_cls().resume.return_value = mock.Mock(
                 name="state", spec=SessionState)
-            manager = SessionManager.load_session(job_list, storage)
+            manager = SessionManager.load_session(unit_list, storage)
         # Ensure that the storage object was used to load the session snapshot
         storage.load_checkpoint.assert_called_with()
-        # Ensure that the helper was instantiated with the job list
-        helper_cls.assert_called_with(job_list)
+        # Ensure that the helper was instantiated with the unit list
+        helper_cls.assert_called_with(unit_list)
         # Ensure that the helper instance was asked to recreate session state
         helper_cls().resume.assert_called_with(storage.load_checkpoint(), None)
         # Ensure that the resulting manager has correct data inside

@@ -41,46 +41,6 @@ from plainbox.impl.validation import ValidationError
 logger = logging.getLogger("plainbox.unit.job")
 
 
-class _BaseJob(Unit):
-    """
-    Base Job definition class.
-    """
-
-    @property
-    def plugin(self):
-        return self.get_record_value('plugin')
-
-    @property
-    def command(self):
-        return self.get_record_value('command')
-
-    @property
-    def environ(self):
-        return self.get_record_value('environ')
-
-    @property
-    def user(self):
-        return self.get_record_value('user')
-
-    @property
-    def shell(self):
-        """
-        Shell that is used to interpret the command
-
-        Defaults to 'bash' for checkbox compatibility.
-        """
-        return self.get_record_value('shell', 'bash')
-
-    def get_environ_settings(self):
-        """
-        Return a set of requested environment variables
-        """
-        if self.environ is not None:
-            return {variable for variable in re.split('[\s,]+', self.environ)}
-        else:
-            return set()
-
-
 class CheckBoxJobValidator:
     """
     Validator for CheckBox jobs.
@@ -188,7 +148,7 @@ class propertywithsymbols(property):
             fget, self.fset, self.fdel, self.__doc__, symbols=self.symbols)
 
 
-class JobDefinition(_BaseJob, IJobDefinition):
+class JobDefinition(Unit, IJobDefinition):
     """
     Job definition class.
 
@@ -224,6 +184,40 @@ class JobDefinition(_BaseJob, IJobDefinition):
         user_verify = "user-verify"
         user_interact = "user-interact"
         user_interact_verify = "user-interact-verify"
+
+    @property
+    def plugin(self):
+        return self.get_record_value('plugin')
+
+    @property
+    def command(self):
+        return self.get_record_value('command')
+
+    @property
+    def environ(self):
+        return self.get_record_value('environ')
+
+    @property
+    def user(self):
+        return self.get_record_value('user')
+
+    @property
+    def shell(self):
+        """
+        Shell that is used to interpret the command
+
+        Defaults to 'bash' for checkbox compatibility.
+        """
+        return self.get_record_value('shell', 'bash')
+
+    def get_environ_settings(self):
+        """
+        Return a set of requested environment variables
+        """
+        if self.environ is not None:
+            return {variable for variable in re.split('[\s,]+', self.environ)}
+        else:
+            return set()
 
     @propertywithsymbols(symbols=_PluginValues)
     def plugin(self):

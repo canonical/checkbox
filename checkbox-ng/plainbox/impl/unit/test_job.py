@@ -29,7 +29,6 @@ from plainbox.impl.secure.origin import FileTextSource
 from plainbox.impl.secure.origin import JobOutputTextSource
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.rfc822 import RFC822Record
-from plainbox.impl.unit.job import _BaseJob as BaseJob
 from plainbox.impl.unit.job import CheckBoxJobValidator
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.validation import Problem
@@ -38,14 +37,14 @@ from plainbox.testing_utils.testcases import TestCaseWithParameters
 from plainbox.vendor import mock
 
 
-class TestBaseJobDefinition(TestCase):
+class TestJobDefinitionDefinition(TestCase):
 
     def test_get_raw_record_value(self):
         """
         Ensure that get_raw_record_value() works okay
         """
-        job1 = BaseJob({'key': 'value'}, {'key': 'raw-value'})
-        job2 = BaseJob({'_key': 'value'}, {'_key': 'raw-value'})
+        job1 = JobDefinition({'key': 'value'}, raw_data={'key': 'raw-value'})
+        job2 = JobDefinition({'_key': 'value'}, raw_data={'_key': 'raw-value'})
         self.assertEqual(job1.get_raw_record_value('key'), 'raw-value')
         self.assertEqual(job2.get_raw_record_value('key'), 'raw-value')
 
@@ -53,8 +52,8 @@ class TestBaseJobDefinition(TestCase):
         """
         Ensure that get_record_value() works okay
         """
-        job1 = BaseJob({'key': 'value'}, {'key': 'raw-value'})
-        job2 = BaseJob({'_key': 'value'}, {'_key': 'raw-value'})
+        job1 = JobDefinition({'key': 'value'}, raw_data={'key': 'raw-value'})
+        job2 = JobDefinition({'_key': 'value'}, raw_data={'_key': 'raw-value'})
         self.assertEqual(job1.get_record_value('key'), 'value')
         self.assertEqual(job2.get_record_value('key'), 'value')
 
@@ -62,13 +61,13 @@ class TestBaseJobDefinition(TestCase):
         """
         Ensure that properties are looked up in the non-raw copy of the data
         """
-        job = BaseJob({
+        job = JobDefinition({
             'plugin': 'plugin-value',
             'command': 'command-value',
             'environ': 'environ-value',
             'user': 'user-value',
             'shell': 'shell-value',
-        }, {
+        }, raw_data={
             'plugin': 'plugin-raw',
             'command': 'command-raw',
             'environ': 'environ-raw',
@@ -85,7 +84,7 @@ class TestBaseJobDefinition(TestCase):
         """
         Ensure that all properties default to None
         """
-        job = BaseJob({})
+        job = JobDefinition({})
         self.assertEqual(job.plugin, None)
         self.assertEqual(job.command, None)
         self.assertEqual(job.environ, None)
@@ -93,11 +92,11 @@ class TestBaseJobDefinition(TestCase):
         self.assertEqual(job.shell, 'bash')
 
     def test_checksum_smoke(self):
-        job1 = BaseJob({'plugin': 'plugin', 'user': 'root'})
-        identical_to_job1 = BaseJob({'plugin': 'plugin', 'user': 'root'})
+        job1 = JobDefinition({'plugin': 'plugin', 'user': 'root'})
+        identical_to_job1 = JobDefinition({'plugin': 'plugin', 'user': 'root'})
         # Two distinct but identical jobs have the same checksum
         self.assertEqual(job1.checksum, identical_to_job1.checksum)
-        job2 = BaseJob({'plugin': 'plugin', 'user': 'anonymous'})
+        job2 = JobDefinition({'plugin': 'plugin', 'user': 'anonymous'})
         # Two jobs with different definitions have different checksum
         self.assertNotEqual(job1.checksum, job2.checksum)
         # The checksum is stable and does not change over time
@@ -106,15 +105,15 @@ class TestBaseJobDefinition(TestCase):
             "c47cc3719061e4df0010d061e6f20d3d046071fd467d02d093a03068d2f33400")
 
     def test_get_environ_settings(self):
-        job1 = BaseJob({})
+        job1 = JobDefinition({})
         self.assertEqual(job1.get_environ_settings(), set())
-        job2 = BaseJob({'environ': 'a b c'})
+        job2 = JobDefinition({'environ': 'a b c'})
         self.assertEqual(job2.get_environ_settings(), set(['a', 'b', 'c']))
-        job3 = BaseJob({'environ': 'a,b,c'})
+        job3 = JobDefinition({'environ': 'a,b,c'})
         self.assertEqual(job3.get_environ_settings(), set(['a', 'b', 'c']))
 
 
-class BaseJobParsingTests(TestCaseWithParameters):
+class JobDefinitionParsingTests(TestCaseWithParameters):
 
     parameter_names = ('glue',)
     parameter_values = (
@@ -137,7 +136,7 @@ class BaseJobParsingTests(TestCaseWithParameters):
     }
 
     def test_environ_parsing_with_various_separators(self):
-        job = BaseJob({
+        job = JobDefinition({
             'id': 'id',
             'plugin': 'plugin',
             'environ': self.parameters_keymap[
@@ -147,7 +146,7 @@ class BaseJobParsingTests(TestCaseWithParameters):
         self.assertEqual(expected, observed)
 
     def test_environ_parsing_empty(self):
-        job = BaseJob({'plugin': 'plugin'})
+        job = JobDefinition({'plugin': 'plugin'})
         expected = set()
         observed = job.get_environ_settings()
         self.assertEqual(expected, observed)

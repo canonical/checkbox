@@ -424,6 +424,7 @@ class Provider1PlugInTests(TestCase):
     )
 
     DEF_TEXT_w_dirs = DEF_TEXT + (
+        "units_dir = /some/directory/units\n"
         "jobs_dir = /some/directory/jobs\n"
         "whitelists_dir = /some/directory/whitelists\n"
         "data_dir = /some/directory/data\n"
@@ -468,6 +469,7 @@ class Provider1PlugInTests(TestCase):
         entry.
         """
         provider = self.plugin.plugin_object
+        self.assertEqual(provider.units_dir, None)
         self.assertEqual(provider.jobs_dir, None)
         self.assertEqual(provider.whitelists_dir, None)
         self.assertEqual(provider.data_dir, None)
@@ -484,6 +486,7 @@ class Provider1PlugInTests(TestCase):
         entry.
         """
         provider = self.plugin_w_location.plugin_object
+        self.assertEqual(provider.units_dir, "/some/directory/units")
         self.assertEqual(provider.jobs_dir, "/some/directory/jobs")
         self.assertEqual(provider.whitelists_dir, "/some/directory/whitelists")
         self.assertEqual(provider.data_dir, "/some/directory/data")
@@ -501,6 +504,7 @@ class Provider1PlugInTests(TestCase):
         don't exist.
         """
         provider = self.plugin_w_location_w_no_dirs.plugin_object
+        self.assertEqual(provider.units_dir, None)
         self.assertEqual(provider.jobs_dir, None)
         self.assertEqual(provider.whitelists_dir, None)
         self.assertEqual(provider.data_dir, None)
@@ -516,6 +520,7 @@ class Provider1PlugInTests(TestCase):
         provider definition with a specific entry for each directory
         """
         provider = self.plugin_w_dirs.plugin_object
+        self.assertEqual(provider.units_dir, "/some/directory/units")
         self.assertEqual(provider.jobs_dir, "/some/directory/jobs")
         self.assertEqual(provider.whitelists_dir, "/some/directory/whitelists")
         self.assertEqual(provider.data_dir, "/some/directory/data")
@@ -648,6 +653,7 @@ class Provider1Tests(TestCase):
     DESCRIPTION = "description"
     SECURE = True
     GETTEXT_DOMAIN = "domain"
+    UNITS_DIR = "units-dir"
     JOBS_DIR = "jobs-dir"
     WHITELISTS_DIR = "whitelists-dir"
     DATA_DIR = "data-dir"
@@ -658,8 +664,9 @@ class Provider1Tests(TestCase):
     def setUp(self):
         self.provider = Provider1(
             self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
-            self.GETTEXT_DOMAIN, self.JOBS_DIR, self.WHITELISTS_DIR,
-            self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR, self.BASE_DIR,
+            self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR,
+            self.WHITELISTS_DIR, self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR,
+            self.BASE_DIR,
             # We are using dummy job definitions so let's not shout about those
             # being invalid in each test
             validate=False)
@@ -704,6 +711,12 @@ class Provider1Tests(TestCase):
         Verify that Provider1.gettext_domain attribute is set correctly
         """
         self.assertEqual(self.provider.gettext_domain, self.GETTEXT_DOMAIN)
+
+    def test_units_dir(self):
+        """
+        Verify that Provider1.jobs_dir attribute is set correctly
+        """
+        self.assertEqual(self.provider.units_dir, self.UNITS_DIR)
 
     def test_jobs_dir(self):
         """
@@ -791,7 +804,7 @@ class Provider1Tests(TestCase):
         """
         provider = Provider1(
             self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
-            self.GETTEXT_DOMAIN, self.JOBS_DIR, None,
+            self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR, None,
             self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR, self.BASE_DIR)
         self.assertEqual(provider.get_builtin_whitelists(), [])
 
@@ -811,7 +824,7 @@ class Provider1Tests(TestCase):
                 "\n"
                 "id: a4\n"), self.provider, validate=False)
         ]
-        with self.provider._job_collection.fake_plugins(fake_plugins):
+        with self.provider._unit_collection.fake_plugins(fake_plugins):
             job_list = self.provider.get_builtin_jobs()
         self.assertEqual(len(job_list), 4)
         self.assertEqual(job_list[0].partial_id, "a1")
@@ -828,7 +841,7 @@ class Provider1Tests(TestCase):
             "/path/to/jobs.txt", "", self.provider)]
         fake_problems = [IOError("first problem"), OSError("second problem")]
         with self.assertRaises(IOError):
-            with self.provider._job_collection.fake_plugins(
+            with self.provider._unit_collection.fake_plugins(
                     fake_plugins, fake_problems):
                 self.provider.get_builtin_jobs()
 
@@ -839,7 +852,7 @@ class Provider1Tests(TestCase):
         """
         provider = Provider1(
             self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
-            self.GETTEXT_DOMAIN, None, self.WHITELISTS_DIR,
+            self.GETTEXT_DOMAIN, self.UNITS_DIR, None, self.WHITELISTS_DIR,
             self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR, self.BASE_DIR)
         self.assertEqual(provider.get_builtin_jobs(), [])
 
@@ -859,7 +872,7 @@ class Provider1Tests(TestCase):
                 "\n"
                 "id: a4\n"), self.provider, validate=False)
         ]
-        with self.provider._job_collection.fake_plugins(fake_plugins):
+        with self.provider._unit_collection.fake_plugins(fake_plugins):
             job_list, problem_list = self.provider.load_all_jobs()
         self.assertEqual(len(job_list), 4)
         self.assertEqual(job_list[0].partial_id, "a1")
@@ -881,7 +894,7 @@ class Provider1Tests(TestCase):
         fake_problems = [
             PlugInError("some problem"),
         ]
-        with self.provider._job_collection.fake_plugins(
+        with self.provider._unit_collection.fake_plugins(
                 fake_plugins, fake_problems):
             job_list, problem_list = self.provider.load_all_jobs()
         self.assertEqual(len(job_list), 1)
@@ -898,8 +911,9 @@ class Provider1Tests(TestCase):
         """
         provider = Provider1(
             self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
-            self.GETTEXT_DOMAIN, self.JOBS_DIR, self.WHITELISTS_DIR,
-            self.DATA_DIR, None, self.LOCALE_DIR, self.BASE_DIR)
+            self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR,
+            self.WHITELISTS_DIR, self.DATA_DIR, None, self.LOCALE_DIR,
+            self.BASE_DIR)
         self.assertEqual(provider.get_all_executables(), [])
 
     @mock.patch("plainbox.impl.secure.providers.v1.gettext")
@@ -955,8 +969,9 @@ class Provider1Tests(TestCase):
         """
         Provider1(
             self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
-            self.GETTEXT_DOMAIN, self.JOBS_DIR, self.WHITELISTS_DIR,
-            self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR, self.BASE_DIR)
+            self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR,
+            self.WHITELISTS_DIR, self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR,
+            self.BASE_DIR)
         mock_gettext.bindtextdomain.assert_called_once_with(
             self.GETTEXT_DOMAIN, self.LOCALE_DIR)
 
@@ -968,7 +983,7 @@ class Provider1Tests(TestCase):
         """
         Provider1(
             self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
-            self.GETTEXT_DOMAIN, self.JOBS_DIR, self.WHITELISTS_DIR,
-            self.DATA_DIR, self.BIN_DIR, locale_dir=None,
+            self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR,
+            self.WHITELISTS_DIR, self.DATA_DIR, self.BIN_DIR, locale_dir=None,
             base_dir=self.BASE_DIR)
         self.assertEqual(mock_gettext.bindtextdomain.call_args_list, [])

@@ -251,8 +251,9 @@ class Provider1(IProvider1, IProviderBackend1):
     """
 
     def __init__(self, name, version, description, secure, gettext_domain,
-                 jobs_dir, whitelists_dir, data_dir, bin_dir, locale_dir,
-                 base_dir, *, validate=True, validation_kwargs=None):
+                 units_dir, jobs_dir, whitelists_dir, data_dir, bin_dir,
+                 locale_dir, base_dir, *, validate=True,
+                 validation_kwargs=None):
         """
         Initialize a provider with a set of meta-data and directories.
 
@@ -277,6 +278,9 @@ class Provider1(IProvider1, IProviderBackend1):
 
         :param gettext_domain:
             gettext domain that contains translations for this provider
+
+        :param units_dir:
+            path of the directory with unit definitions
 
         :param jobs_dir:
             path of the directory with job definitions
@@ -315,6 +319,7 @@ class Provider1(IProvider1, IProviderBackend1):
         self._secure = secure
         self._gettext_domain = gettext_domain
         # Directories
+        self._units_dir = units_dir
         self._jobs_dir = jobs_dir
         self._whitelists_dir = whitelists_dir
         self._data_dir = data_dir
@@ -375,10 +380,11 @@ class Provider1(IProvider1, IProviderBackend1):
         return cls(
             definition.name, definition.version, definition.description,
             secure, definition.effective_gettext_domain,
-            definition.effective_jobs_dir, definition.effective_whitelists_dir,
-            definition.effective_data_dir, definition.effective_bin_dir,
-            definition.effective_locale_dir, definition.location or None,
-            validate=validate, validation_kwargs=validation_kwargs)
+            definition.effective_units_dir, definition.effective_jobs_dir,
+            definition.effective_whitelists_dir, definition.effective_data_dir,
+            definition.effective_bin_dir, definition.effective_locale_dir,
+            definition.location or None, validate=validate,
+            validation_kwargs=validation_kwargs)
 
     def __repr__(self):
         return "<{} name:{!r}>".format(self.__class__.__name__, self.name)
@@ -427,6 +433,13 @@ class Provider1(IProvider1, IProviderBackend1):
         Get the translated version of :meth:`description`
         """
         return self.get_translated_data(self.description)
+
+    @property
+    def units_dir(self):
+        """
+        absolute path of the units directory
+        """
+        return self._units_dir
 
     @property
     def jobs_dir(self):

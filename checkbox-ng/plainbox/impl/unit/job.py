@@ -350,13 +350,6 @@ class JobDefinition(BaseJob, IJobDefinition):
         if hasattr(self.origin.source, 'job'):
             return self.origin.source.job.checksum
 
-    @property
-    def origin(self):
-        """
-        The Origin object associated with this JobDefinition
-        """
-        return self._origin
-
     def update_origin(self, origin):
         """
         Change the Origin object associated with this JobDefinition

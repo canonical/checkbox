@@ -198,7 +198,6 @@ command:
   optical_drive_`ls /sys$path/block`.bd_read == "supported"
  user: root
  command: optical_read_test /dev/`ls /sys$path/block`
- estimated_duration: 10.00
  description:
   PURPOSE:
    This test will check your $product device's ability to read Blu-Ray (BD) media

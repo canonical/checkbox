@@ -46,25 +46,6 @@ class BaseJob(Unit):
     Base Job definition class.
     """
 
-    def __init__(self, data, raw_data=None):
-        """
-        Initialize a new BaseJob object
-
-        :param data:
-            A dictionary of normalized data.
-
-            This data is suitable for normal application usage. It is not
-            suitable for gettext lookups as the original form is lost by the
-            normalization process.
-
-        :param raw_data:
-            A dictionary of raw data (optional). Defaults to data.
-
-            Data in this dictionary is in its raw form, as it was written in a
-            job definition file. This data is suitable for gettext lookups.
-        """
-        super().__init__(data, raw_data=raw_data)
-
     @property
     def plugin(self):
         return self.get_record_value('plugin')
@@ -402,15 +383,14 @@ class JobDefinition(BaseJob, IJobDefinition):
         .. note::
             You should almost always use :meth:`from_rfc822_record()` instead.
         """
-        super(JobDefinition, self).__init__(data, raw_data)
         if origin is None:
             origin = Origin.get_caller_origin()
+        super().__init__(data, raw_data=raw_data, origin=origin)
         if controller is None:
             # XXX: moved here because of cyclic imports
             from plainbox.impl.ctrl import checkbox_session_state_ctrl
             controller = checkbox_session_state_ctrl
         self._resource_program = None
-        self._origin = origin
         self._provider = provider
         self._controller = controller
 

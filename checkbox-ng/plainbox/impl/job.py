@@ -38,36 +38,11 @@ from plainbox.impl.secure.job import BaseJob
 from plainbox.impl.secure.rfc822 import Origin
 from plainbox.impl.secure.rfc822 import normalize_rfc822_value
 from plainbox.impl.symbol import SymbolDef
+from plainbox.impl.validation import Problem
+from plainbox.impl.validation import ValidationError
 
 
 logger = logging.getLogger("plainbox.job")
-
-
-class Problem(SymbolDef):
-    """
-    Symbols for each possible problem that a field value may have
-    """
-    missing = 'missing'
-    wrong = 'wrong'
-    useless = 'useless'
-    deprecated = 'deprecated'
-
-
-class ValidationError(ValueError):
-    """
-    Exception raised by to report jobs with problematic definitions.
-    """
-
-    def __init__(self, field, problem):
-        self.field = field
-        self.problem = problem
-
-    def __str__(self):
-        return _("Problem with field {}: {}").format(self.field, self.problem)
-
-    def __repr__(self):
-        return "ValidationError(field={!r}, problem={!r})".format(
-            self.field, self.problem)
 
 
 class CheckBoxJobValidator:

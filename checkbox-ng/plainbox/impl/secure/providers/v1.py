@@ -31,7 +31,6 @@ import os
 from plainbox.abc import IProvider1, IProviderBackend1
 from plainbox.i18n import gettext as _
 from plainbox.impl.job import JobDefinition
-from plainbox.impl.job import ValidationError
 from plainbox.impl.secure.config import Config, Variable
 from plainbox.impl.secure.config import IValidator
 from plainbox.impl.secure.config import NotEmptyValidator
@@ -45,6 +44,7 @@ from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.secure.rfc822 import FileTextSource
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 from plainbox.impl.secure.rfc822 import load_rfc822_records
+from plainbox.impl.validation import ValidationError
 
 
 logger = logging.getLogger("plainbox.secure.providers.v1")

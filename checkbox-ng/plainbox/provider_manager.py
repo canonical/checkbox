@@ -42,8 +42,6 @@ from plainbox.i18n import gettext_noop as N_
 from plainbox.impl.buildsystems import all_buildsystems
 from plainbox.impl.commands import ToolBase, CommandBase
 from plainbox.impl.job import JobDefinition
-from plainbox.impl.job import Problem
-from plainbox.impl.job import ValidationError as JobValidationError
 from plainbox.impl.logging import setup_logging
 from plainbox.impl.providers.v1 import get_user_PROVIDERPATH_entry
 from plainbox.impl.secure.config import Unset
@@ -52,6 +50,8 @@ from plainbox.impl.secure.config import ValidationError \
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.providers.v1 import Provider1Definition
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
+from plainbox.impl.validation import Problem
+from plainbox.impl.validation import ValidationError as JobValidationError
 
 __all__ = ['setup', 'manage_py_extension']
 

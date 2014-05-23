@@ -30,12 +30,12 @@ from plainbox.impl.job import CheckBoxJobValidator
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.job import JobOutputTextSource
 from plainbox.impl.job import JobTreeNode
-from plainbox.impl.job import Problem
-from plainbox.impl.job import ValidationError
 from plainbox.impl.secure.rfc822 import FileTextSource
 from plainbox.impl.secure.rfc822 import Origin
 from plainbox.impl.secure.rfc822 import RFC822Record
 from plainbox.impl.testing_utils import make_job
+from plainbox.impl.validation import Problem
+from plainbox.impl.validation import ValidationError
 from plainbox.testing_utils.testcases import TestCaseWithParameters
 from plainbox.vendor import mock
 

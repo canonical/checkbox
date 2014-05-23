@@ -141,7 +141,7 @@ class SessionManagerTests(TestCase):
         verify that SessionManager.create_with_state() correctly sets up
         storage repository and creates session directories
         """
-        # Mock job list
+        # Mock state object
         state = mock.Mock(name='state', spec=SessionState)
         # Create the new manager
         manager = SessionManager.create_with_state(state)

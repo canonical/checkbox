@@ -39,6 +39,8 @@ class Problem(SymbolDef):
     wrong = 'wrong'
     useless = 'useless'
     deprecated = 'deprecated'
+    constant = 'constant'
+    variable = 'variable'
 
 
 class ValidationError(ValueError):

@@ -915,6 +915,8 @@ class ValidateCommand(ManageCommand):
             Problem.wrong: _("incorrect value supplied"),
             Problem.useless: _("useless field in this context"),
             Problem.deprecated: _("usage of deprecated field"),
+            Problem.constant: _("template field is constant"),
+            Problem.variable: _("template field is variable"),
         }
         for job, error in problem_list:
             if isinstance(error, JobValidationError):

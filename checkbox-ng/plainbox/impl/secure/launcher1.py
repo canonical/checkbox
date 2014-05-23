@@ -30,7 +30,7 @@ import subprocess
 
 from plainbox.i18n import gettext as _
 from plainbox.impl.job import JobDefinition
-from plainbox.impl.job import JobOutputTextSource
+from plainbox.impl.secure.origin import JobOutputTextSource
 from plainbox.impl.secure.providers.v1 import all_providers
 from plainbox.impl.secure.rfc822 import load_rfc822_records, RFC822SyntaxError
 

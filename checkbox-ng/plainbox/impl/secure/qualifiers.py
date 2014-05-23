@@ -32,9 +32,9 @@ import os
 import re
 
 from plainbox.abc import IJobQualifier
-from plainbox.impl.secure.rfc822 import FileTextSource
-from plainbox.impl.secure.rfc822 import Origin
-from plainbox.impl.secure.rfc822 import UnknownTextSource
+from plainbox.impl.secure.origin import FileTextSource
+from plainbox.impl.secure.origin import Origin
+from plainbox.impl.secure.origin import UnknownTextSource
 
 
 _logger = logging.getLogger("plainbox.secure.qualifiers")

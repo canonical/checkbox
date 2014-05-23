@@ -32,6 +32,9 @@ import operator
 
 from plainbox.abc import IJobQualifier
 from plainbox.impl.job import JobDefinition
+from plainbox.impl.secure.origin import FileTextSource
+from plainbox.impl.secure.origin import Origin
+from plainbox.impl.secure.origin import UnknownTextSource
 from plainbox.impl.secure.qualifiers import CompositeQualifier
 from plainbox.impl.secure.qualifiers import FieldQualifier
 from plainbox.impl.secure.qualifiers import IMatcher
@@ -43,9 +46,6 @@ from plainbox.impl.secure.qualifiers import RegExpJobQualifier
 from plainbox.impl.secure.qualifiers import SimpleQualifier
 from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.secure.qualifiers import select_jobs
-from plainbox.impl.secure.rfc822 import FileTextSource
-from plainbox.impl.secure.rfc822 import Origin
-from plainbox.impl.secure.rfc822 import UnknownTextSource
 from plainbox.impl.testing_utils import make_job
 from plainbox.vendor import mock
 

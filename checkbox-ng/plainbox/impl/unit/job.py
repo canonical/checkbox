@@ -448,7 +448,7 @@ class JobDefinition(Unit, IJobDefinition):
             return set()
 
     @classmethod
-    def from_rfc822_record(cls, record):
+    def from_rfc822_record(cls, record, provider=None):
         """
         Create a JobDefinition instance from rfc822 record. The resulting
         instance may not be valid but will always be created. Only valid jobs
@@ -459,7 +459,7 @@ class JobDefinition(Unit, IJobDefinition):
         # Strip the trailing newlines form all the raw values coming from the
         # RFC822 parser. We don't need them and they don't match gettext keys
         # (xgettext strips out those newlines)
-        return cls(record.data, record.origin, raw_data={
+        return cls(record.data, record.origin, provider=provider, raw_data={
             key: value.rstrip('\n')
             for key, value in record.raw_data.items()})
 

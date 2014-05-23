@@ -812,17 +812,17 @@ class InfoCommand(ManageCommand):
         print("\t" + _("version: {}").format(provider.version))
         # TRANSLATORS: {} is the gettext translation domain of the provider
         print("\t" + _("gettext domain: {}").format(provider.gettext_domain))
-        print(_("[Job Definitions]"))
-        job_list, problem_list = provider.load_all_jobs()
-        for job in job_list:
+        print(_("[Unit Definitions]"))
+        unit_list, problem_list = provider.get_units()
+        for unit in unit_list:
             # TRANSLATORS: the fields are as follows:
-            # 0: job id
+            # 0: unit representation
             # 1: pathname of the file the job is defined in
-            print("\t" + _("{0!a}, from {1}").format(
-                job.partial_id,
-                job.origin.relative_to(self.definition.location)))
+            print("\t" + _("{0} {1}, from {2}").format(
+                unit.get_unit_type(), unit,
+                unit.origin.relative_to(self.definition.location)))
         if problem_list:
-            print("\t" + _("Some jobs could not be parsed correctly"))
+            print("\t" + _("Some units could not be parsed correctly"))
             # TRANSLATORS: please don't translate `manage.py validate`
             print("\t" + _("Please run `manage.py validate` for details"))
         print(_("[White Lists]"))

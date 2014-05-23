@@ -917,8 +917,8 @@ class ValidateCommand(ManageCommand):
             '-L', '--legacy', dest='deprecated', action='store_false',
             help=_("Support deprecated syntax and features"))
 
-    def get_job_list(self, provider):
-        job_list, problem_list = provider.load_all_jobs()
+    def get_unit_list(self, provider):
+        unit_list, problem_list = provider.get_units()
         if problem_list:
             for exc in problem_list:
                 if isinstance(exc, RFC822SyntaxError):
@@ -927,23 +927,23 @@ class ValidateCommand(ManageCommand):
                         exc.lineno, exc.msg))
                 else:
                     print("{}".format(exc))
-            print(_("NOTE: subsequent jobs from problematic"
+            print(_("NOTE: subsequent units from problematic"
                     " files are ignored"))
-        return job_list
+        return unit_list
 
-    def validate_jobs(self, job_list, ns):
+    def validate_units(self, unit_list, ns):
         problem_list = []
-        for job in job_list:
+        for unit in unit_list:
             try:
-                job.validate(strict=ns.strict, deprecated=ns.deprecated)
+                unit.validate(strict=ns.strict, deprecated=ns.deprecated)
             except JobValidationError as exc:
-                problem_list.append((job, exc))
+                problem_list.append((unit, exc))
         return problem_list
 
     def invoked(self, ns):
         provider = self.get_provider()
-        job_list = self.get_job_list(provider)
-        problem_list = self.validate_jobs(job_list, ns)
+        unit_list = self.get_unit_list(provider)
+        problem_list = self.validate_units(unit_list, ns)
         explain = {
             Problem.missing: _("missing definition of required field"),
             Problem.wrong: _("incorrect value supplied"),

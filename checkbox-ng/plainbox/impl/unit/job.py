@@ -243,6 +243,10 @@ class JobDefinition(Unit, IJobDefinition):
         user_interact_verify = "user-interact-verify"
         shell = 'shell'
 
+    def get_unit_type(self):
+        return _("job")
+
+    @property
     def partial_id(self):
         """
         Identifier of this job, without the provider name

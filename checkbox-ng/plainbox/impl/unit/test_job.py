@@ -7,7 +7,6 @@
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -18,15 +17,15 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-plainbox.impl.secure.test_job
-=============================
+plainbox.impl.unit.test_job
+===========================
 
-Test definitions for plainbox.impl.secure.job module
+Test definitions for plainbox.impl.unit.job module
 """
 
 from unittest import TestCase
 
-from plainbox.impl.secure.job import BaseJob
+from plainbox.impl.unit.job import BaseJob
 from plainbox.testing_utils.testcases import TestCaseWithParameters
 
 

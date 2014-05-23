@@ -34,7 +34,7 @@ from plainbox.abc import IJobDefinition
 from plainbox.abc import ITextSource
 from plainbox.i18n import gettext as _
 from plainbox.impl.resource import ResourceProgram
-from plainbox.impl.secure.job import BaseJob
+from plainbox.impl.unit.job import BaseJob
 from plainbox.impl.secure.rfc822 import Origin
 from plainbox.impl.secure.rfc822 import normalize_rfc822_value
 from plainbox.impl.symbol import SymbolDef

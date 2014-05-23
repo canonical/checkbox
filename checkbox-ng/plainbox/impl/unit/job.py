@@ -111,6 +111,16 @@ class JobDefinitionValidator:
             # mode
             if strict and job.command is not None:
                 raise ValidationError(job.fields.command, Problem.useless)
+        estimated_duration = job.get_record_value('estimated_duration')
+        if estimated_duration is not None:
+            try:
+                float(estimated_duration)
+            except ValueError:
+                raise ValidationError(
+                    job.fields.estimated_duration, Problem.wrong)
+        elif strict and estimated_duration is None:
+            raise ValidationError(
+                job.fields.estimated_duration, Problem.missing)
 
 
 class propertywithsymbols(property):

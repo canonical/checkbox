@@ -41,9 +41,9 @@ from plainbox.impl.validation import ValidationError
 logger = logging.getLogger("plainbox.unit.job")
 
 
-class CheckBoxJobValidator:
+class JobDefinitionValidator:
     """
-    Validator for CheckBox jobs.
+    Validator for JobDefinition units.
     """
 
     @staticmethod
@@ -472,15 +472,15 @@ class JobDefinition(Unit, IJobDefinition):
 
     def validate(self, **validation_kwargs):
         """
-        Validate this job definition with the specified validator
+        Validate this job definition
 
         :param validation_kwargs:
             Keyword arguments to pass to the
-            :meth:`CheckBoxJobValidator.validate()`
+            :meth:`JobDefinitionValidator.validate()`
         :raises ValidationError:
             If the job has any problems that make it unsuitable for execution.
         """
-        CheckBoxJobValidator.validate(self, **validation_kwargs)
+        JobDefinitionValidator.validate(self, **validation_kwargs)
 
     def create_child_job_from_record(self, record):
         """

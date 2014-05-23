@@ -29,7 +29,7 @@ from plainbox.impl.secure.origin import FileTextSource
 from plainbox.impl.secure.origin import JobOutputTextSource
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.rfc822 import RFC822Record
-from plainbox.impl.unit.job import CheckBoxJobValidator
+from plainbox.impl.unit.job import JobDefinitionValidator
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import ValidationError
@@ -152,7 +152,7 @@ class JobDefinitionParsingTests(TestCaseWithParameters):
         self.assertEqual(expected, observed)
 
 
-class CheckBoxJobValidatorTests(TestCase):
+class JobDefinitionValidatorTests(TestCase):
 
     def test_validate_checks_for_deprecated_name(self):
         """
@@ -163,7 +163,7 @@ class CheckBoxJobValidatorTests(TestCase):
             'name': 'name'
         })
         with self.assertRaises(ValidationError) as boom:
-            CheckBoxJobValidator.validate(job, deprecated=True)
+            JobDefinitionValidator.validate(job, deprecated=True)
         self.assertEqual(boom.exception.field, JobDefinition.fields.name)
         self.assertEqual(boom.exception.problem, Problem.deprecated)
 
@@ -174,7 +174,7 @@ class CheckBoxJobValidatorTests(TestCase):
         """
         job = JobDefinition({})
         with self.assertRaises(ValidationError) as boom:
-            CheckBoxJobValidator.validate(job)
+            JobDefinitionValidator.validate(job)
         self.assertEqual(boom.exception.field, JobDefinition.fields.id)
         self.assertEqual(boom.exception.problem, Problem.missing)
 
@@ -187,7 +187,7 @@ class CheckBoxJobValidatorTests(TestCase):
             'id': 'id'
         })
         with self.assertRaises(ValidationError) as boom:
-            CheckBoxJobValidator.validate(job)
+            JobDefinitionValidator.validate(job)
         self.assertEqual(boom.exception.field, JobDefinition.fields.plugin)
         self.assertEqual(boom.exception.problem, Problem.missing)
 
@@ -201,7 +201,7 @@ class CheckBoxJobValidatorTests(TestCase):
             'plugin': 'dummy'
         })
         with self.assertRaises(ValidationError) as boom:
-            CheckBoxJobValidator.validate(job)
+            JobDefinitionValidator.validate(job)
         self.assertEqual(boom.exception.field, JobDefinition.fields.plugin)
         self.assertEqual(boom.exception.problem, Problem.wrong)
 
@@ -216,7 +216,7 @@ class CheckBoxJobValidatorTests(TestCase):
             'user': 'root'
         })
         with self.assertRaises(ValidationError) as boom:
-            CheckBoxJobValidator.validate(job, strict=True)
+            JobDefinitionValidator.validate(job, strict=True)
         self.assertEqual(boom.exception.field, JobDefinition.fields.user)
         self.assertEqual(boom.exception.problem, Problem.useless)
 
@@ -231,7 +231,7 @@ class CheckBoxJobValidatorTests(TestCase):
             'environ': 'VAR_NAME'
         })
         with self.assertRaises(ValidationError) as boom:
-            CheckBoxJobValidator.validate(job, strict=True)
+            JobDefinitionValidator.validate(job, strict=True)
         self.assertEqual(boom.exception.field, JobDefinition.fields.environ)
         self.assertEqual(boom.exception.problem, Problem.useless)
 
@@ -245,7 +245,7 @@ class CheckBoxJobValidatorTests(TestCase):
             'plugin': 'manual',
         })
         with self.assertRaises(ValidationError) as boom:
-            CheckBoxJobValidator.validate(job)
+            JobDefinitionValidator.validate(job)
         self.assertEqual(boom.exception.field,
                          JobDefinition.fields.description)
         self.assertEqual(boom.exception.problem, Problem.missing)
@@ -262,14 +262,14 @@ class CheckBoxJobValidatorTests(TestCase):
             'command': 'run_some_test'
         })
         with self.assertRaises(ValidationError) as boom:
-            CheckBoxJobValidator.validate(job, strict=True)
+            JobDefinitionValidator.validate(job, strict=True)
         self.assertEqual(boom.exception.field, JobDefinition.fields.command)
         self.assertEqual(boom.exception.problem, Problem.useless)
 
 
-class CheckBoxJobValidatorTests2(TestCaseWithParameters):
+class JobDefinitionValidatorTests2(TestCaseWithParameters):
     """
-    Continuation of unit tests for CheckBoxJobValidator.
+    Continuation of unit tests for JobDefinitionValidator.
 
     Moved to a separate class because of limitations of TestCaseWithParameters
     which operates on the whole class.
@@ -290,7 +290,7 @@ class CheckBoxJobValidatorTests2(TestCaseWithParameters):
             'plugin': self.parameters.plugin
         })
         with self.assertRaises(ValidationError) as boom:
-            CheckBoxJobValidator.validate(job)
+            JobDefinitionValidator.validate(job)
         self.assertEqual(boom.exception.field, JobDefinition.fields.command)
         self.assertEqual(boom.exception.problem, Problem.missing)
 
@@ -310,7 +310,7 @@ class CheckBoxJobValidatorTests2(TestCaseWithParameters):
             'user': 'fred',
         })
         with self.assertRaises(ValidationError) as boom:
-            CheckBoxJobValidator.validate(job)
+            JobDefinitionValidator.validate(job)
         self.assertEqual(boom.exception.field, JobDefinition.fields.user)
         self.assertEqual(boom.exception.problem, Problem.wrong)
 

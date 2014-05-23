@@ -24,13 +24,11 @@
 
 import errno
 import gettext
-import itertools
 import logging
 import os
 
 from plainbox.abc import IProvider1, IProviderBackend1
 from plainbox.i18n import gettext as _
-from plainbox.impl.job import JobDefinition
 from plainbox.impl.secure.config import Config, Variable
 from plainbox.impl.secure.config import IValidator
 from plainbox.impl.secure.config import NotEmptyValidator
@@ -326,7 +324,12 @@ class Provider1(IProvider1, IProviderBackend1):
         self._bin_dir = bin_dir
         self._locale_dir = locale_dir
         self._base_dir = base_dir
-        # Loaded data
+        # Load and setup everything
+        self._load_whitelists()
+        self._load_units(validate, validation_kwargs)
+        self._setup_translations()
+
+    def _load_whitelists(self):
         if self.whitelists_dir is not None:
             whitelists_dir_list = [self.whitelists_dir]
         else:
@@ -334,16 +337,20 @@ class Provider1(IProvider1, IProviderBackend1):
         self._whitelist_collection = FsPlugInCollection(
             whitelists_dir_list, ext=".whitelist", wrapper=WhiteListPlugIn,
             implicit_namespace=self.namespace)
+
+    def _load_units(self, validate, validation_kwargs):
+        units_dir_list = []
         if self.jobs_dir is not None:
-            jobs_dir_list = [self.jobs_dir]
-        else:
-            jobs_dir_list = []
-        self._job_collection = FsPlugInCollection(
-            jobs_dir_list, ext=(".txt", ".txt.in"), recursive=True,
-            wrapper=JobDefinitionPlugIn, provider=self,
-            validate=validate, validation_kwargs=validation_kwargs)
-        # Setup translations
-        if gettext_domain and locale_dir:
+            units_dir_list.append(self.jobs_dir)
+        if self.units_dir is not None:
+            units_dir_list.append(self.units_dir)
+        self._unit_collection = FsPlugInCollection(
+            units_dir_list, ext=(".txt", ".txt.in"), recursive=True,
+            wrapper=UnitPlugIn, provider=self, validate=validate,
+            validation_kwargs=validation_kwargs)
+
+    def _setup_translations(self):
+        if self._gettext_domain and self._locale_dir:
             gettext.bindtextdomain(self._gettext_domain, self._locale_dir)
 
     @classmethod
@@ -612,13 +619,28 @@ class Provider1(IProvider1, IProviderBackend1):
             of JobDefinition objects and each item from problem_list is an
             exception.
         """
-        self._job_collection.load()
-        job_list = sorted(
-            itertools.chain(
-                *self._job_collection.get_all_plugin_objects()),
-            key=lambda job: job.id)
-        problem_list = self._job_collection.problem_list
-        return job_list, problem_list
+        unit_list, problem_list = self.get_units()
+        unit_list = [
+            unit for unit in unit_list
+            if isinstance(unit, JobDefinition)]
+        unit_list.sort(key=lambda unit: unit.id)
+        return unit_list, problem_list
+
+    def get_units(self):
+        """
+        Get all units.
+
+        :returns:
+            Pair (unit_list, problem_list) where unit_list is a unsorted list
+            of units, as they showed up in subsequent unit definition files and
+            each item from problem_list is an exception.
+        """
+        self._unit_collection.load()
+        unit_list = []
+        problem_list = self._unit_collection.problem_list
+        for sublist in self._unit_collection.get_all_plugin_objects():
+            unit_list.extend(sublist)
+        return unit_list, problem_list
 
     def get_all_executables(self):
         """

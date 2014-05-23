@@ -26,8 +26,9 @@ Test definitions for checkbox_ng.commands.cli module
 
 from unittest import TestCase
 
-from plainbox.impl.job import JobOutputTextSource, JobDefinition
-from plainbox.impl.secure.rfc822 import Origin
+from plainbox.impl.job import JobDefinition
+from plainbox.impl.secure.origin import JobOutputTextSource
+from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.rfc822 import RFC822Record
 from plainbox.impl.testing_utils import make_job
 

@@ -29,7 +29,7 @@ from plainbox.impl.secure.origin import FileTextSource
 from plainbox.impl.secure.origin import JobOutputTextSource
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.rfc822 import RFC822Record
-from plainbox.impl.unit.job import BaseJob
+from plainbox.impl.unit.job import _BaseJob as BaseJob
 from plainbox.impl.unit.job import CheckBoxJobValidator
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.validation import Problem

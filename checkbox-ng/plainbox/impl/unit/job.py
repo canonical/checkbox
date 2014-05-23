@@ -41,7 +41,7 @@ from plainbox.impl.validation import ValidationError
 logger = logging.getLogger("plainbox.unit.job")
 
 
-class BaseJob(Unit):
+class _BaseJob(Unit):
     """
     Base Job definition class.
     """
@@ -188,7 +188,7 @@ class propertywithsymbols(property):
             fget, self.fset, self.fdel, self.__doc__, symbols=self.symbols)
 
 
-class JobDefinition(BaseJob, IJobDefinition):
+class JobDefinition(_BaseJob, IJobDefinition):
     """
     Job definition class.
 

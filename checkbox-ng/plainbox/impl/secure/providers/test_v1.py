@@ -143,6 +143,7 @@ class Provider1DefinitionTests(TestCase):
                 "version = 1.0\n"
                 "description = a description\n"
                 "gettext_domain = domain\n"
+                "units_dir = /some/directory/units\n"
                 "jobs_dir = /some/directory/jobs\n"
                 "whitelists_dir = /some/directory/whitelists\n"
                 "data_dir = /some/directory/data\n"
@@ -154,6 +155,7 @@ class Provider1DefinitionTests(TestCase):
         self.assertEqual(def_.description, "a description")
         self.assertEqual(def_.gettext_domain, "domain")
         self.assertEqual(def_.location, Unset)
+        self.assertEqual(def_.units_dir, "/some/directory/units")
         self.assertEqual(def_.jobs_dir, "/some/directory/jobs")
         self.assertEqual(def_.whitelists_dir, "/some/directory/whitelists")
         self.assertEqual(def_.data_dir, "/some/directory/data")
@@ -196,6 +198,7 @@ class Provider1DefinitionTests(TestCase):
         self.assertEqual(def_.description, "a description")
         self.assertEqual(def_.gettext_domain, "domain")
         self.assertEqual(def_.location, "/some/directory")
+        self.assertEqual(def_.units_dir, Unset)
         self.assertEqual(def_.jobs_dir, Unset)
         self.assertEqual(def_.whitelists_dir, Unset)
         self.assertEqual(def_.data_dir, Unset)
@@ -358,8 +361,8 @@ class Provider1DefinitionTests(TestCase):
         verify that Provider1Definition allows 'jobs_dir', 'whitelists_dir',
         'data_dir', 'bin_dir' and 'locale_dir'  fields to be unset
         """
-        for attr in ('jobs_dir', 'whitelists_dir', 'data_dir', 'bin_dir',
-                     'locale_dir'):
+        for attr in ('units_dir', 'jobs_dir', 'whitelists_dir', 'data_dir',
+                     'bin_dir', 'locale_dir'):
             def_ = Provider1Definition()
             setattr(def_, attr, Unset)
             self.assertEqual(getattr(def_, attr), Unset)
@@ -370,8 +373,8 @@ class Provider1DefinitionTests(TestCase):
         'whitelists_dir', 'data_dir', 'bin_dir' and 'locale_dir' fields are not
         empty
         """
-        for attr in ('jobs_dir', 'whitelists_dir', 'data_dir', 'bin_dir',
-                     'locale_dir'):
+        for attr in ('units_dir', 'jobs_dir', 'whitelists_dir', 'data_dir',
+                     'bin_dir', 'locale_dir'):
             def_ = Provider1Definition()
             with self.assertRaises(ValidationError) as boom:
                 setattr(def_, attr, '')
@@ -383,8 +386,8 @@ class Provider1DefinitionTests(TestCase):
         'whitelists_dir', 'data_dir', 'bin_dir' and 'locale_dir' fields are not
         a relative pathname
         """
-        for attr in ('jobs_dir', 'whitelists_dir', 'data_dir', 'bin_dir',
-                     'locale_dir'):
+        for attr in ('units_dir', 'jobs_dir', 'whitelists_dir', 'data_dir',
+                     'bin_dir', 'locale_dir'):
             def_ = Provider1Definition()
             with self.assertRaises(ValidationError) as boom:
                 setattr(def_, attr, 'some/place')
@@ -396,8 +399,8 @@ class Provider1DefinitionTests(TestCase):
         'whitelists_dir', 'data_dir', 'bin_dir' and 'locale_dir' fields are not
         pointing to a non-existing directory
         """
-        for attr in ('jobs_dir', 'whitelists_dir', 'data_dir', 'bin_dir',
-                     'locale_dir'):
+        for attr in ('units_dir', 'jobs_dir', 'whitelists_dir', 'data_dir',
+                     'bin_dir', 'locale_dir'):
             def_ = Provider1Definition()
             with self.assertRaises(ValidationError) as boom:
                 with mock.patch('os.path.isdir') as mock_isdir:

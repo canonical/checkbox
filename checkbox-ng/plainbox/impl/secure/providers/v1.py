@@ -816,6 +816,42 @@ class Provider1Definition(Config):
         if self.gettext_domain is not Unset:
             return self.gettext_domain
 
+    units_dir = Variable(
+        section='PlainBox Provider',
+        help_text=_("Pathname of the directory with unit definitions"),
+        validator_list=[
+            # NOTE: it *can* be unset
+            NotEmptyValidator(),
+            AbsolutePathValidator(),
+            ExistingDirectoryValidator(),
+        ])
+
+    @property
+    def implicit_units_dir(self):
+        """
+        implicit value of units_dir (if Unset)
+
+        The implicit value is only defined if location is not Unset. It is the
+        'units' subdirectory of the directory that location points to.
+        """
+        if self.location is not Unset:
+            return os.path.join(self.location, "units")
+
+    @property
+    def effective_units_dir(self):
+        """
+        effective value of units_dir
+
+        The effective value is :meth:`units_dir` itself, unless it is Unset. If
+        it is Unset the effective value is the :meth:`implicit_units_dir`, if
+        that value would be valid. The effective value may be None.
+        """
+        if self.units_dir is not Unset:
+            return self.units_dir
+        implicit = self.implicit_units_dir
+        if implicit is not None and os.path.isdir(implicit):
+            return implicit
+
     jobs_dir = Variable(
         section='PlainBox Provider',
         help_text=_("Pathname of the directory with job definitions"),

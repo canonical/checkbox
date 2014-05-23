@@ -23,7 +23,6 @@
 """
 
 from gettext import gettext as _
-from threading import Lock
 import collections
 import functools
 import itertools
@@ -1335,11 +1334,6 @@ class PrimedJobWrapper(PlainBoxObjectWrapper):
         # A future for the result each time we're waiting for the command to
         # finish. Gets reset to None after the command is done executing.
         self._result_future = None
-        # A lock that protects access to :ivar:`_result` and
-        # :ivar:`_result_future` from concurrent access from the thread that is
-        # executing Future callback which we register, the
-        # :meth:`_result_ready()`
-        self._result_lock = Lock()
 
     @dbus.service.method(
         dbus_interface=RUNNING_JOB_IFACE, in_signature='', out_signature='')
@@ -1374,13 +1368,12 @@ class PrimedJobWrapper(PlainBoxObjectWrapper):
         if self.native.job.automated:
             logger.error(
                 _("RunCommand() should not be called for automated jobs"))
-        with self._result_lock:
-            if self._result_future is None:
-                logger.info(_("RunCommand() is starting to run the job"))
-                self._result_future = self._run_and_set_callback()
-            else:
-                logger.warning(
-                    _("RunCommand() ignored, waiting for command to finish"))
+        if self._result_future is None:
+            logger.info(_("RunCommand() is starting to run the job"))
+            self._result_future = self._run_and_set_callback()
+        else:
+            logger.warning(
+                _("RunCommand() ignored, waiting for command to finish"))
 
     # Legacy GUI behavior method.
     # Should be redesigned when we can change GUI internals
@@ -1396,39 +1389,38 @@ class PrimedJobWrapper(PlainBoxObjectWrapper):
         3) The command is still running! (not handled)
         """
         logger.info("SetOutcome(%r, %r)", outcome, comments)
-        with self._result_lock:
-            if self._result_future is not None:
-                logger.error(
-                    _("SetOutcome() called while the command is still"
-                      " running!"))
-            if self._result is None:
-                # Warn us if this method is being called on jobs other than
-                # 'manual' before we get the result after running RunCommand()
-                if self.native.job.plugin != "manual":
-                    logger.warning(
-                        _("SetOutcome() called before RunCommand()"))
-                    logger.warning(
-                        # TRANSLATORS: don't translate 'manual' translate it as
-                        # 'of type manual' and leave the 'manual' string
-                        # intact.
-                        _("But the job is not manual, it is %s"),
-                        self.native.job.plugin)
-                # Create a new result object
-                self._result = MemoryJobResult({
-                    'outcome': outcome,
-                    'comments': comments
-                })
-                # Add the new result object to the bus
-                self._session_wrapper.add_result(self._result)
-            else:
-                # Set the values as requested
-                self._result.outcome = outcome
-                self._result.comments = comments
-            # Notify the application that the result is ready. This has to be
-            # done unconditionally each time this method called.
-            self.JobResultAvailable(
-                self.find_wrapper_by_native(self.native.job),
-                self.find_wrapper_by_native(self._result))
+        if self._result_future is not None:
+            logger.error(
+                _("SetOutcome() called while the command is still"
+                  " running!"))
+        if self._result is None:
+            # Warn us if this method is being called on jobs other than
+            # 'manual' before we get the result after running RunCommand()
+            if self.native.job.plugin != "manual":
+                logger.warning(
+                    _("SetOutcome() called before RunCommand()"))
+                logger.warning(
+                    # TRANSLATORS: don't translate 'manual' translate it as
+                    # 'of type manual' and leave the 'manual' string
+                    # intact.
+                    _("But the job is not manual, it is %s"),
+                    self.native.job.plugin)
+            # Create a new result object
+            self._result = MemoryJobResult({
+                'outcome': outcome,
+                'comments': comments
+            })
+            # Add the new result object to the bus
+            self._session_wrapper.add_result(self._result)
+        else:
+            # Set the values as requested
+            self._result.outcome = outcome
+            self._result.comments = comments
+        # Notify the application that the result is ready. This has to be
+        # done unconditionally each time this method called.
+        self.JobResultAvailable(
+            self.find_wrapper_by_native(self.native.job),
+            self.find_wrapper_by_native(self._result))
 
     # Legacy GUI behavior signal.
     # Should be redesigned when we can change GUI internals
@@ -1437,17 +1429,16 @@ class PrimedJobWrapper(PlainBoxObjectWrapper):
         """
         property that contains the 'outcome' of the result.
         """
-        with self._result_lock:
-            if self._result is not None:
-                # TODO: make it so that we don't have to do this translation
-                if self._result.outcome == IJobResult.OUTCOME_NONE:
-                    return "none"
-                else:
-                    return self._result.outcome
+        if self._result is not None:
+            # TODO: make it so that we don't have to do this translation
+            if self._result.outcome == IJobResult.OUTCOME_NONE:
+                return "none"
             else:
-                logger.warning(_("outcome_from_command() called too early!"))
-                logger.warning(_("There is nothing to return yet"))
-                return ""
+                return self._result.outcome
+        else:
+            logger.warning(_("outcome_from_command() called too early!"))
+            logger.warning(_("There is nothing to return yet"))
+            return ""
 
     @dbus.service.signal(
         dbus_interface=SERVICE_IFACE, signature='dsay')
@@ -1492,8 +1483,7 @@ class PrimedJobWrapper(PlainBoxObjectWrapper):
             self._session_wrapper.ShowInteractiveUI(self)
         else:
             logger.info(_("Running %r right away"), self.native.job)
-            with self._result_lock:
-                self._result_future = self._run_and_set_callback()
+            self._result_future = self._run_and_set_callback()
 
     def _run_and_set_callback(self):
         """
@@ -1511,38 +1501,37 @@ class PrimedJobWrapper(PlainBoxObjectWrapper):
         Internal method called when the result future becomes ready
         """
         logger.debug("_result_ready(%r)", result_future)
-        with self._result_lock:
-            if self._result is not None:
-                # NOTE: I'm not sure how this would behave if someone were to
-                # already assign the old result to any state objects.
-                self._session_wrapper.remove_result(self._result)
-            # Unpack the result from the future
-            self._result = result_future.result()
-            # Add the new result object to the session wrapper (and to the bus)
-            self._session_wrapper.add_result(self._result)
-            # Reset the future so that RunCommand() can run the job again
-            self._result_future = None
-            # Now fiddle with the GUI notifications
-            if self._result.outcome != IJobResult.OUTCOME_UNDECIDED:
-                # NOTE: OUTCOME_UNDECIDED is never handled by this method as
-                # the user should already see the manual test interaction
-                # dialog on their screen. For all other cases we need to notify
-                # the GUI that execution has finished and we are really just
-                # done with testing.
-                logger.debug(
-                    _("calling JobResultAvailable(%r, %r)"),
-                    self.native.job, self._result)
-                self.JobResultAvailable(
-                    self.find_wrapper_by_native(self.native.job),
-                    self.find_wrapper_by_native(self._result))
+        if self._result is not None:
+            # NOTE: I'm not sure how this would behave if someone were to
+            # already assign the old result to any state objects.
+            self._session_wrapper.remove_result(self._result)
+        # Unpack the result from the future
+        self._result = result_future.result()
+        # Add the new result object to the session wrapper (and to the bus)
+        self._session_wrapper.add_result(self._result)
+        # Reset the future so that RunCommand() can run the job again
+        self._result_future = None
+        # Now fiddle with the GUI notifications
+        if self._result.outcome != IJobResult.OUTCOME_UNDECIDED:
+            # NOTE: OUTCOME_UNDECIDED is never handled by this method as
+            # the user should already see the manual test interaction
+            # dialog on their screen. For all other cases we need to notify
+            # the GUI that execution has finished and we are really just
+            # done with testing.
+            logger.debug(
+                _("calling JobResultAvailable(%r, %r)"),
+                self.native.job, self._result)
+            self.JobResultAvailable(
+                self.find_wrapper_by_native(self.native.job),
+                self.find_wrapper_by_native(self._result))
+        else:
+            logger.debug(
+                _("sending AskForOutcome() after job finished"
+                  " running with OUTCOME_UNDECIDED"))
+            # Convert the return of the command to the suggested_outcome
+            # for the job
+            if self._result.return_code == 0:
+                suggested_outcome = IJobResult.OUTCOME_PASS
             else:
-                logger.debug(
-                    _("sending AskForOutcome() after job finished"
-                      " running with OUTCOME_UNDECIDED"))
-                # Convert the return of the command to the suggested_outcome
-                # for the job
-                if self._result.return_code == 0:
-                    suggested_outcome = IJobResult.OUTCOME_PASS
-                else:
-                    suggested_outcome = IJobResult.OUTCOME_FAIL
-                self._session_wrapper.AskForOutcome(self, suggested_outcome)
+                suggested_outcome = IJobResult.OUTCOME_FAIL
+            self._session_wrapper.AskForOutcome(self, suggested_outcome)

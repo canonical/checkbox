@@ -19,14 +19,45 @@ class SceenSaverStatusHelper(threading.Thread):
         self._loop = loop
         self.quit = False
 
+    def getDistributor(self):
+        return self.getLSBReleaseProcess("-i")
+
+    def getCodename(self):
+        return self.getLSBReleaseProcess("-c")
+
+    def getLSBReleaseProcess(self,option):
+        """
+        use the command "lsb_release" to get the distribution-specific information.
+        This method should work on Debian and Ubuntu.
+        """
+        p = subprocess.Popen(["lsb_release", option],
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.STDOUT)
+        stdout = p.communicate()[0]
+        return stdout.decode().split("\t")[-1][0:-1]
+
     def query(self):
-        p = subprocess.Popen(["gnome-screensaver-command", "-q"], stdout=subprocess.PIPE)
-        stdout, stderr = p.communicate()
-        # parse the stdout string from the command "gnome-screensaver-command -q"
-        # the result should be "active" or "inactive"
-        if "active" == stdout.decode().split(" ")[-1][0:-1] :
-            print("the screensaver is active")
-            self._loop.quit()
+        if (self.getDistributor() == "Ubuntu"):
+            if (self.getCodename() == "trusty"):
+                # trusty uses login screen as screen saver
+                process_ps = subprocess.Popen(["ps", "aux"], stdout=subprocess.PIPE)
+                process_grep = subprocess.Popen(["grep",
+                                                 "/usr/lib/unity/unity-panel-service --lockscreen-mode"],
+                                                 stdin=process_ps.stdout,
+                                                 stdout=subprocess.PIPE,
+                                                 stderr=subprocess.STDOUT)
+                process_ps.stdout.close()
+                stdout = process_grep.communicate()[0]
+                if (len(stdout.decode().split("\n")) == 3):
+                    print("the screensaver is active")
+                    self._loop.quit()
+            p = subprocess.Popen(["gnome-screensaver-command", "-q"], stdout=subprocess.PIPE)
+            stdout, stderr = p.communicate()
+            # parse the stdout string from the command "gnome-screensaver-command -q"
+            # the result should be "active" or "inactive"
+            if "active" == stdout.decode().split(" ")[-1][0:-1] :
+                print("the screensaver is active")
+                self._loop.quit()
 
     def run(self):
         while not self.quit:

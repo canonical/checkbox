@@ -3,7 +3,7 @@ id: virtualization/kvm_check_vm
 user: root
 environ: http_proxy https_proxy
 requires:
- package.name == 'qemu-kvm'
+ package.name == 'qemu-system'
  package.name == 'qemu-utils'
  virtualization.kvm == 'supported'
 command: virtualization kvm --debug

@@ -7,4 +7,5 @@ setup(
     version="0.5",
     description=N_("Checkbox provider"),
     gettext_domain='2013.com.canonical.certification.checkbox',
+    strict=False,
 )

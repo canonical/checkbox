@@ -2,6 +2,7 @@
 import argparse
 import sys
 import subprocess
+import lsb_release
 
 from gi.repository import GObject
 
@@ -19,26 +20,9 @@ class SceenSaverStatusHelper(threading.Thread):
         self._loop = loop
         self.quit = False
 
-    def getDistributor(self):
-        return self.getLSBReleaseProcess("-i")
-
-    def getCodename(self):
-        return self.getLSBReleaseProcess("-c")
-
-    def getLSBReleaseProcess(self,option):
-        """
-        use the command "lsb_release" to get the distribution-specific information.
-        This method should work on Debian and Ubuntu.
-        """
-        p = subprocess.Popen(["lsb_release", option],
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.STDOUT)
-        stdout = p.communicate()[0]
-        return stdout.decode().split("\t")[-1][0:-1]
-
     def query(self):
-        if (self.getDistributor() == "Ubuntu"):
-            if (self.getCodename() == "trusty"):
+        if (lsb_release.get_distro_information()["ID"] == "Ubuntu"):
+            if (lsb_release.get_distro_information()["CODENAME"] == "trusty"):
                 # trusty uses login screen as screen saver
                 process_ps = subprocess.Popen(["ps", "aux"], stdout=subprocess.PIPE)
                 process_grep = subprocess.Popen(["grep",

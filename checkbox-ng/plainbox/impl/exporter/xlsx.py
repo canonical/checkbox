@@ -229,14 +229,55 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                       '.1f')) for i in data["resource_map"]['2013.com.canonical.certification::meminfo']]
             if result:
                 hw_info['memory'] = result.pop()
-        if '2013.com.canonical.certification::device' in data['resource_map']:
-            result = ['{}'.format(i['product'])
-                      for i in data["resource_map"]['2013.com.canonical.certification::device']
-                      if ('category' in i and i['category'] == 'BLUETOOTH' and
-                          'driver' in i)]
-            if result:
-                hw_info['bluetooth'] = result.pop()
+        bluetooth = self._get_bluetooth_product_or_path(data)
+        if bluetooth:
+                hw_info['bluetooth'] = bluetooth
         return hw_info
+
+    def _get_resource_list(self, data, resource_id):
+        """
+        Get a list of resource objects associated with the specified job
+        (resource) identifier
+
+        :param data:
+            Exporter data
+        :param resource_id:
+            Identifier of the job / resource
+        :returns:
+            A list of matching resource objects. If there are no resources of
+            that kind then an empty list list returned.
+        """
+        resource_map = data.get('resource_map')
+        if not resource_map:
+            return []
+        return resource_map.get(resource_id, [])
+
+    def _get_bluetooth_product_or_path(
+            self, data,
+            resource_id='2013.com.canonical.certification::device'):
+        """
+        Get the 'product' or 'path' of the first bluetooth device.
+
+        :param data:
+            Exporter data
+        :param resource_id:
+            (optional) Identifier of the device resource.
+        :returns:
+            The 'product' attribute, or the 'path' attribute or None if no such
+            device can be found.
+
+        This method finds the name of the 'product' or 'path' attributes (first
+        available one wins) associated with a resource that has a 'category'
+        attribute equal to BLUETOOTH. The resource is looked using the supplied
+        (default) resource identifier.
+        """
+        for resource in self._get_resource_list(data, resource_id):
+            if resource.get('category') != 'BLUETOOTH':
+                continue
+            if 'product' in resource:
+                return resource['product']
+            if 'path' in resource:
+                return resource['path']
 
     def write_systeminfo(self, data):
         self.worksheet1.set_column(0, 0, 4)

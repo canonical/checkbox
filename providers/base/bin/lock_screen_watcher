@@ -39,7 +39,7 @@ class SceenSaverStatusHelper(threading.Thread):
             stdout, stderr = p.communicate()
             # parse the stdout string from the command "gnome-screensaver-command -q"
             # the result should be "active" or "inactive"
-            if "active" == stdout.decode().split(" ")[-1][0:-1] :
+            if "active" == stdout.decode().split(" ")[-1].rstrip() :
                 print("the screensaver is active")
                 self._loop.quit()
 

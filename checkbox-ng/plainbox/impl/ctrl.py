@@ -50,11 +50,11 @@ from plainbox.i18n import gettext as _
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyMissingError
 from plainbox.impl.job import JobDefinition
-from plainbox.impl.job import JobOutputTextSource
 from plainbox.impl.resource import ExpressionCannotEvaluateError
 from plainbox.impl.resource import ExpressionFailedError
 from plainbox.impl.resource import Resource
 from plainbox.impl.secure.config import Unset
+from plainbox.impl.secure.origin import JobOutputTextSource
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 from plainbox.impl.secure.rfc822 import gen_rfc822_records

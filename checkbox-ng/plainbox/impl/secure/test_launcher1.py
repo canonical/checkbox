@@ -29,9 +29,10 @@ from inspect import cleandoc
 from unittest import TestCase
 import os
 
-from plainbox.impl.job import JobDefinition, JobOutputTextSource
+from plainbox.impl.job import JobDefinition
 from plainbox.impl.secure.launcher1 import TrustedLauncher
 from plainbox.impl.secure.launcher1 import main
+from plainbox.impl.secure.origin import JobOutputTextSource
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.providers.v1 import Provider1PlugIn
 from plainbox.impl.secure.providers.v1 import all_providers

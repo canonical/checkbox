@@ -125,7 +125,8 @@ class ProviderManagerToolTests(TestCase):
             self.tmpdir + os.path.join("/foo", "lib", "plainbox-providers-1",
                                        "2014.com.example:test", "jobs",
                                        "jobs.txt"),
-            "id: dummy\nplugin: shell\ncommand: true\n")
+            ("id: dummy\nplugin: shell\ncommand: true\n"
+             "estimated_duration: 10\n"))
 
     def test_install__flat_partial(self):
         """
@@ -160,7 +161,7 @@ class ProviderManagerToolTests(TestCase):
         self.assertFileContent(
             self.tmpdir + os.path.join(
                 prefix, "share", "2014.com.example:test", "jobs", "jobs.txt"),
-            "id: dummy\nplugin: shell\ncommand: true\n")
+            "id: dummy\nplugin: shell\ncommand: true\nestimated_duration: 10\n")
         self.assertFileContent(
             self.tmpdir + os.path.join(
                 prefix, "share",  "2014.com.example:test", "whitelists",
@@ -206,7 +207,7 @@ class ProviderManagerToolTests(TestCase):
             self.tmpdir, "dist", "2014.com.example.test-1.0.tar.gz")
         self.assertTarballContent(
             tarball, "2014.com.example.test-1.0/jobs/jobs.txt",
-            "id: dummy\nplugin: shell\ncommand: true\n")
+            "id: dummy\nplugin: shell\ncommand: true\nestimated_duration: 10\n")
         self.assert_common_sdist(tarball)
 
     def test_sdist__partial(self):
@@ -370,8 +371,8 @@ class ProviderManagerToolTests(TestCase):
             "\tdescription: description\n"
             "\tversion: 1.0\n"
             "\tgettext domain: domain\n"
-            "[Job Definitions]\n"
-            "\t'dummy', from jobs/jobs.txt:1-3\n"
+            "[Unit Definitions]\n"
+            "\tjob dummy, from jobs/jobs.txt:1-4\n"
             "[White Lists]\n"
             "\t'test', from whitelists/test.whitelist:1-1\n"
             "[Executables]\n"
@@ -389,6 +390,7 @@ class ProviderManagerToolTests(TestCase):
             print("id: dummy", file=stream)
             print("plugin: shell", file=stream)
             print("command: true", file=stream)
+            print("estimated_duration: 10", file=stream)
         os.mkdir(os.path.join(tmpdir, "whitelists"))
         filename = os.path.join(tmpdir, "whitelists", "test.whitelist")
         with open(filename, "wt", encoding='UTF-8') as stream:

@@ -33,10 +33,10 @@ from plainbox.impl.secure.plugins import PlugInError
 from plainbox.impl.secure.providers.v1 import AbsolutePathValidator
 from plainbox.impl.secure.providers.v1 import ExistingDirectoryValidator
 from plainbox.impl.secure.providers.v1 import IQNValidator
-from plainbox.impl.secure.providers.v1 import JobDefinitionPlugIn
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.providers.v1 import Provider1Definition
 from plainbox.impl.secure.providers.v1 import Provider1PlugIn
+from plainbox.impl.secure.providers.v1 import UnitPlugIn
 from plainbox.impl.secure.providers.v1 import VersionValidator
 from plainbox.impl.secure.providers.v1 import WhiteListPlugIn
 from plainbox.impl.secure.qualifiers import WhiteList
@@ -143,6 +143,7 @@ class Provider1DefinitionTests(TestCase):
                 "version = 1.0\n"
                 "description = a description\n"
                 "gettext_domain = domain\n"
+                "units_dir = /some/directory/units\n"
                 "jobs_dir = /some/directory/jobs\n"
                 "whitelists_dir = /some/directory/whitelists\n"
                 "data_dir = /some/directory/data\n"
@@ -154,6 +155,7 @@ class Provider1DefinitionTests(TestCase):
         self.assertEqual(def_.description, "a description")
         self.assertEqual(def_.gettext_domain, "domain")
         self.assertEqual(def_.location, Unset)
+        self.assertEqual(def_.units_dir, "/some/directory/units")
         self.assertEqual(def_.jobs_dir, "/some/directory/jobs")
         self.assertEqual(def_.whitelists_dir, "/some/directory/whitelists")
         self.assertEqual(def_.data_dir, "/some/directory/data")
@@ -196,6 +198,7 @@ class Provider1DefinitionTests(TestCase):
         self.assertEqual(def_.description, "a description")
         self.assertEqual(def_.gettext_domain, "domain")
         self.assertEqual(def_.location, "/some/directory")
+        self.assertEqual(def_.units_dir, Unset)
         self.assertEqual(def_.jobs_dir, Unset)
         self.assertEqual(def_.whitelists_dir, Unset)
         self.assertEqual(def_.data_dir, Unset)
@@ -358,8 +361,8 @@ class Provider1DefinitionTests(TestCase):
         verify that Provider1Definition allows 'jobs_dir', 'whitelists_dir',
         'data_dir', 'bin_dir' and 'locale_dir'  fields to be unset
         """
-        for attr in ('jobs_dir', 'whitelists_dir', 'data_dir', 'bin_dir',
-                     'locale_dir'):
+        for attr in ('units_dir', 'jobs_dir', 'whitelists_dir', 'data_dir',
+                     'bin_dir', 'locale_dir'):
             def_ = Provider1Definition()
             setattr(def_, attr, Unset)
             self.assertEqual(getattr(def_, attr), Unset)
@@ -370,8 +373,8 @@ class Provider1DefinitionTests(TestCase):
         'whitelists_dir', 'data_dir', 'bin_dir' and 'locale_dir' fields are not
         empty
         """
-        for attr in ('jobs_dir', 'whitelists_dir', 'data_dir', 'bin_dir',
-                     'locale_dir'):
+        for attr in ('units_dir', 'jobs_dir', 'whitelists_dir', 'data_dir',
+                     'bin_dir', 'locale_dir'):
             def_ = Provider1Definition()
             with self.assertRaises(ValidationError) as boom:
                 setattr(def_, attr, '')
@@ -383,8 +386,8 @@ class Provider1DefinitionTests(TestCase):
         'whitelists_dir', 'data_dir', 'bin_dir' and 'locale_dir' fields are not
         a relative pathname
         """
-        for attr in ('jobs_dir', 'whitelists_dir', 'data_dir', 'bin_dir',
-                     'locale_dir'):
+        for attr in ('units_dir', 'jobs_dir', 'whitelists_dir', 'data_dir',
+                     'bin_dir', 'locale_dir'):
             def_ = Provider1Definition()
             with self.assertRaises(ValidationError) as boom:
                 setattr(def_, attr, 'some/place')
@@ -396,8 +399,8 @@ class Provider1DefinitionTests(TestCase):
         'whitelists_dir', 'data_dir', 'bin_dir' and 'locale_dir' fields are not
         pointing to a non-existing directory
         """
-        for attr in ('jobs_dir', 'whitelists_dir', 'data_dir', 'bin_dir',
-                     'locale_dir'):
+        for attr in ('units_dir', 'jobs_dir', 'whitelists_dir', 'data_dir',
+                     'bin_dir', 'locale_dir'):
             def_ = Provider1Definition()
             with self.assertRaises(ValidationError) as boom:
                 with mock.patch('os.path.isdir') as mock_isdir:
@@ -421,6 +424,7 @@ class Provider1PlugInTests(TestCase):
     )
 
     DEF_TEXT_w_dirs = DEF_TEXT + (
+        "units_dir = /some/directory/units\n"
         "jobs_dir = /some/directory/jobs\n"
         "whitelists_dir = /some/directory/whitelists\n"
         "data_dir = /some/directory/data\n"
@@ -465,6 +469,7 @@ class Provider1PlugInTests(TestCase):
         entry.
         """
         provider = self.plugin.plugin_object
+        self.assertEqual(provider.units_dir, None)
         self.assertEqual(provider.jobs_dir, None)
         self.assertEqual(provider.whitelists_dir, None)
         self.assertEqual(provider.data_dir, None)
@@ -481,6 +486,7 @@ class Provider1PlugInTests(TestCase):
         entry.
         """
         provider = self.plugin_w_location.plugin_object
+        self.assertEqual(provider.units_dir, "/some/directory/units")
         self.assertEqual(provider.jobs_dir, "/some/directory/jobs")
         self.assertEqual(provider.whitelists_dir, "/some/directory/whitelists")
         self.assertEqual(provider.data_dir, "/some/directory/data")
@@ -498,6 +504,7 @@ class Provider1PlugInTests(TestCase):
         don't exist.
         """
         provider = self.plugin_w_location_w_no_dirs.plugin_object
+        self.assertEqual(provider.units_dir, None)
         self.assertEqual(provider.jobs_dir, None)
         self.assertEqual(provider.whitelists_dir, None)
         self.assertEqual(provider.data_dir, None)
@@ -513,6 +520,7 @@ class Provider1PlugInTests(TestCase):
         provider definition with a specific entry for each directory
         """
         provider = self.plugin_w_dirs.plugin_object
+        self.assertEqual(provider.units_dir, "/some/directory/units")
         self.assertEqual(provider.jobs_dir, "/some/directory/jobs")
         self.assertEqual(provider.whitelists_dir, "/some/directory/whitelists")
         self.assertEqual(provider.data_dir, "/some/directory/data")
@@ -574,15 +582,15 @@ class WhiteListPlugInTests(TestCase):
              "nothing to repeat"))
 
 
-class JobDefintionPlugInTests(TestCase):
+class UnitPlugInTests(TestCase):
     """
-    Tests for JobDefinitionPlugIn
+    Tests for UnitPlugIn
     """
 
     def setUp(self):
         self.provider = mock.Mock(name="provider", spec=Provider1)
         self.provider.namespace = "2013.com.canonical.plainbox"
-        self.plugin = JobDefinitionPlugIn(
+        self.plugin = UnitPlugIn(
             "/path/to/jobs.txt", (
                 "id: test/job\n"
                 "plugin: shell\n"
@@ -591,14 +599,14 @@ class JobDefintionPlugInTests(TestCase):
 
     def test_plugin_name(self):
         """
-        verify that the JobDefinitionPlugIn.plugin_name property returns
+        verify that the UnitPlugIn.plugin_name property returns
         pathname of the job definition file
         """
         self.assertEqual(self.plugin.plugin_name, "/path/to/jobs.txt")
 
     def test_plugin_object(self):
         """
-        verify that the JobDefinitionPlugIn.plugin_object property returns a
+        verify that the UnitPlugIn.plugin_object property returns a
         list of JobDefintion instances
         """
         self.assertEqual(len(self.plugin.plugin_object), 1)
@@ -625,12 +633,12 @@ class JobDefintionPlugInTests(TestCase):
 
     def test_init_failing(self):
         """
-        verify how JobDefinitionPlugIn() initializer works if something is
+        verify how UnitPlugIn() initializer works if something is
         wrong
         """
         # The pattern is purposefully invalid
         with self.assertRaises(PlugInError) as boom:
-            JobDefinitionPlugIn("/path/to/jobs.txt", "broken", self.provider)
+            UnitPlugIn("/path/to/jobs.txt", "broken", self.provider)
         self.assertEqual(
             str(boom.exception),
             ("Cannot load job definitions from '/path/to/jobs.txt': "
@@ -645,6 +653,7 @@ class Provider1Tests(TestCase):
     DESCRIPTION = "description"
     SECURE = True
     GETTEXT_DOMAIN = "domain"
+    UNITS_DIR = "units-dir"
     JOBS_DIR = "jobs-dir"
     WHITELISTS_DIR = "whitelists-dir"
     DATA_DIR = "data-dir"
@@ -655,8 +664,9 @@ class Provider1Tests(TestCase):
     def setUp(self):
         self.provider = Provider1(
             self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
-            self.GETTEXT_DOMAIN, self.JOBS_DIR, self.WHITELISTS_DIR,
-            self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR, self.BASE_DIR,
+            self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR,
+            self.WHITELISTS_DIR, self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR,
+            self.BASE_DIR,
             # We are using dummy job definitions so let's not shout about those
             # being invalid in each test
             validate=False)
@@ -701,6 +711,12 @@ class Provider1Tests(TestCase):
         Verify that Provider1.gettext_domain attribute is set correctly
         """
         self.assertEqual(self.provider.gettext_domain, self.GETTEXT_DOMAIN)
+
+    def test_units_dir(self):
+        """
+        Verify that Provider1.jobs_dir attribute is set correctly
+        """
+        self.assertEqual(self.provider.units_dir, self.UNITS_DIR)
 
     def test_jobs_dir(self):
         """
@@ -788,7 +804,7 @@ class Provider1Tests(TestCase):
         """
         provider = Provider1(
             self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
-            self.GETTEXT_DOMAIN, self.JOBS_DIR, None,
+            self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR, None,
             self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR, self.BASE_DIR)
         self.assertEqual(provider.get_builtin_whitelists(), [])
 
@@ -799,16 +815,16 @@ class Provider1Tests(TestCase):
         """
         # Create unsorted job definitions that define a1, a2, a3 and a4
         fake_plugins = [
-            JobDefinitionPlugIn("/path/to/jobs1.txt", (
+            UnitPlugIn("/path/to/jobs1.txt", (
                 "id: a2\n"
                 "\n"
                 "id: a1\n"), self.provider, validate=False),
-            JobDefinitionPlugIn("/path/to/jobs2.txt", (
+            UnitPlugIn("/path/to/jobs2.txt", (
                 "id: a3\n"
                 "\n"
                 "id: a4\n"), self.provider, validate=False)
         ]
-        with self.provider._job_collection.fake_plugins(fake_plugins):
+        with self.provider._unit_collection.fake_plugins(fake_plugins):
             job_list = self.provider.get_builtin_jobs()
         self.assertEqual(len(job_list), 4)
         self.assertEqual(job_list[0].partial_id, "a1")
@@ -821,11 +837,11 @@ class Provider1Tests(TestCase):
         verify that Provider1.get_builtin_jobs() raises the first
         exception that happens during the load process
         """
-        fake_plugins = [JobDefinitionPlugIn(
+        fake_plugins = [UnitPlugIn(
             "/path/to/jobs.txt", "", self.provider)]
         fake_problems = [IOError("first problem"), OSError("second problem")]
         with self.assertRaises(IOError):
-            with self.provider._job_collection.fake_plugins(
+            with self.provider._unit_collection.fake_plugins(
                     fake_plugins, fake_problems):
                 self.provider.get_builtin_jobs()
 
@@ -836,7 +852,7 @@ class Provider1Tests(TestCase):
         """
         provider = Provider1(
             self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
-            self.GETTEXT_DOMAIN, None, self.WHITELISTS_DIR,
+            self.GETTEXT_DOMAIN, self.UNITS_DIR, None, self.WHITELISTS_DIR,
             self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR, self.BASE_DIR)
         self.assertEqual(provider.get_builtin_jobs(), [])
 
@@ -847,16 +863,16 @@ class Provider1Tests(TestCase):
         """
         # Create unsorted job definitions that define a1, a2, a3 and a4
         fake_plugins = [
-            JobDefinitionPlugIn("/path/to/jobs1.txt", (
+            UnitPlugIn("/path/to/jobs1.txt", (
                 "id: a2\n"
                 "\n"
                 "id: a1\n"), self.provider, validate=False),
-            JobDefinitionPlugIn("/path/to/jobs2.txt", (
+            UnitPlugIn("/path/to/jobs2.txt", (
                 "id: a3\n"
                 "\n"
                 "id: a4\n"), self.provider, validate=False)
         ]
-        with self.provider._job_collection.fake_plugins(fake_plugins):
+        with self.provider._unit_collection.fake_plugins(fake_plugins):
             job_list, problem_list = self.provider.load_all_jobs()
         self.assertEqual(len(job_list), 4)
         self.assertEqual(job_list[0].partial_id, "a1")
@@ -871,14 +887,14 @@ class Provider1Tests(TestCase):
         without raising an exception that happens during the load process
         """
         fake_plugins = [
-            JobDefinitionPlugIn(
+            UnitPlugIn(
                 "/path/to/jobs1.txt", "id: working\n", self.provider,
                 validate=False)
         ]
         fake_problems = [
             PlugInError("some problem"),
         ]
-        with self.provider._job_collection.fake_plugins(
+        with self.provider._unit_collection.fake_plugins(
                 fake_plugins, fake_problems):
             job_list, problem_list = self.provider.load_all_jobs()
         self.assertEqual(len(job_list), 1)
@@ -895,8 +911,9 @@ class Provider1Tests(TestCase):
         """
         provider = Provider1(
             self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
-            self.GETTEXT_DOMAIN, self.JOBS_DIR, self.WHITELISTS_DIR,
-            self.DATA_DIR, None, self.LOCALE_DIR, self.BASE_DIR)
+            self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR,
+            self.WHITELISTS_DIR, self.DATA_DIR, None, self.LOCALE_DIR,
+            self.BASE_DIR)
         self.assertEqual(provider.get_all_executables(), [])
 
     @mock.patch("plainbox.impl.secure.providers.v1.gettext")
@@ -952,8 +969,9 @@ class Provider1Tests(TestCase):
         """
         Provider1(
             self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
-            self.GETTEXT_DOMAIN, self.JOBS_DIR, self.WHITELISTS_DIR,
-            self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR, self.BASE_DIR)
+            self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR,
+            self.WHITELISTS_DIR, self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR,
+            self.BASE_DIR)
         mock_gettext.bindtextdomain.assert_called_once_with(
             self.GETTEXT_DOMAIN, self.LOCALE_DIR)
 
@@ -965,7 +983,7 @@ class Provider1Tests(TestCase):
         """
         Provider1(
             self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
-            self.GETTEXT_DOMAIN, self.JOBS_DIR, self.WHITELISTS_DIR,
-            self.DATA_DIR, self.BIN_DIR, locale_dir=None,
+            self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR,
+            self.WHITELISTS_DIR, self.DATA_DIR, self.BIN_DIR, locale_dir=None,
             base_dir=self.BASE_DIR)
         self.assertEqual(mock_gettext.bindtextdomain.call_args_list, [])

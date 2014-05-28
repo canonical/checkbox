@@ -29,6 +29,7 @@
 from datetime import timedelta
 from logging import getLogger
 import ast
+import itertools
 import os
 
 from plainbox.i18n import gettext as _
@@ -50,9 +51,12 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
     def __init__(self, provider_list, config, ns):
         super().__init__(provider_list, config)
         self.ns = ns
-        self.job_list = self.get_job_list(ns)
-        self.desired_job_list = self._get_matching_job_list(ns, self.job_list)
-        self.session = SessionState(self.job_list)
+        self.unit_list = list(
+            itertools.chain(*[
+                p.get_units()[0] for p in provider_list]))
+        self.session = SessionState(self.unit_list)
+        self.desired_job_list = self._get_matching_job_list(
+            ns, self.session.job_list)
         self.problem_list = self.session.update_desired_job_list(
             self.desired_job_list)
 
@@ -131,7 +135,7 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
 
     def _print_general_stats(self):
         print(_("[General Statistics]").center(80, '='))
-        print(_("Known jobs: {}").format(len(self.job_list)))
+        print(_("Known jobs: {}").format(len(self.session.job_list)))
         print(_("Selected jobs: {}").format(len(self.desired_job_list)))
 
     def _print_dependency_report(self):

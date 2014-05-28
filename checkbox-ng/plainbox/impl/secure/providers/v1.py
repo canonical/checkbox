@@ -24,14 +24,11 @@
 
 import errno
 import gettext
-import itertools
 import logging
 import os
 
 from plainbox.abc import IProvider1, IProviderBackend1
 from plainbox.i18n import gettext as _
-from plainbox.impl.job import JobDefinition
-from plainbox.impl.job import ValidationError
 from plainbox.impl.secure.config import Config, Variable
 from plainbox.impl.secure.config import IValidator
 from plainbox.impl.secure.config import NotEmptyValidator
@@ -45,6 +42,9 @@ from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.secure.rfc822 import FileTextSource
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 from plainbox.impl.secure.rfc822 import load_rfc822_records
+from plainbox.impl.unit import Unit
+from plainbox.impl.unit.job import JobDefinition
+from plainbox.impl.validation import ValidationError
 
 
 logger = logging.getLogger("plainbox.secure.providers.v1")
@@ -82,11 +82,19 @@ class WhiteListPlugIn(IPlugIn):
         return self._whitelist
 
 
-class JobDefinitionPlugIn(IPlugIn):
+class UnitPlugIn(IPlugIn):
     """
     A specialized :class:`plainbox.impl.secure.plugins.IPlugIn` that loads a
-    list of :class:`plainbox.impl.job.JobDefinition` instances from a file.
+    list of :class:`plainbox.impl.unit.Unit` instances from a file.
     """
+
+    # Dictionary mapping values of 'unit' field to classes that know how to
+    # load that particular unit. Since jobs don't really define the field
+    # 'unit' at all 'job' is also the default value.
+    UNIT_CLS_MAP = {
+        'job': JobDefinition,
+        'unit': Unit,  # This defines plain units
+    }
 
     def __init__(self, filename, text, provider, *,
                  validate=True, validation_kwargs=None):
@@ -94,25 +102,25 @@ class JobDefinitionPlugIn(IPlugIn):
         Initialize the plug-in with the specified name text
 
         :param filename:
-            Name of the file with job definitions
+            Name of the file with unit definitions
         :param text:
-            Full text of the file with job definitions
+            Full text of the file with unit definitions
         :param provider:
-            A provider object to which those jobs belong to
+            A provider object to which those units belong to
         :param validate:
-            Enable job validation. Incorrect job definitions will not be loaded
-            and will abort the process of loading of the remainder of the jobs.
-            This is ON by default to prevent broken job definitions from being
+            Enable unit validation. Incorrect unit definitions will not be
+            loaded and will abort the process of loading of the remainder of
+            the jobs.  This is ON by default to prevent broken units from being
             used. This is a keyword-only argument.
         :param validation_kwargs:
-            Keyword arguments to pass to the JobDefinition.validate().  Note,
-            this is a single argument. This is a keyword-only argument.
+            Keyword arguments to pass to the Unit.validate().  Note, this is a
+            single argument. This is a keyword-only argument.
         """
         self._filename = filename
-        self._job_list = []
+        self._unit_list = []
         if validation_kwargs is None:
             validation_kwargs = {}
-        logger.debug(_("Loading jobs definitions from %r..."), filename)
+        logger.debug(_("Loading units from %r..."), filename)
         try:
             records = load_rfc822_records(
                 text, source=FileTextSource(filename))
@@ -121,36 +129,40 @@ class JobDefinitionPlugIn(IPlugIn):
                 _("Cannot load job definitions from {!r}: {}").format(
                     filename, exc))
         for record in records:
+            unit_name = record.data.get('unit', 'job')
+            unit_cls = self.UNIT_CLS_MAP.get(unit_name)
+            if unit_cls is None:
+                raise PlugInError(
+                    _("Unknown unit type: {!r}").format(unit_name))
             try:
-                job = JobDefinition.from_rfc822_record(record)
+                unit = unit_cls.from_rfc822_record(record, provider)
             except ValueError as exc:
                 raise PlugInError(
-                    _("Cannot define job from record {!r}: {}").format(
+                    _("Cannot define unit from record {!r}: {}").format(
                         record, exc))
-            job._provider = provider
             if validate:
                 try:
-                    job.validate(**validation_kwargs)
+                    unit.validate(**validation_kwargs)
                 except ValidationError as exc:
                     raise PlugInError(
-                        _("Problem in job definition, field {}: {}").format(
+                        _("Problem in unit definition, field {}: {}").format(
                             exc.field, exc.problem))
-            self._job_list.append(job)
-            logger.debug(_("Loaded %r"), job)
+            self._unit_list.append(unit)
+            logger.debug(_("Loaded %r"), unit)
 
     @property
     def plugin_name(self):
         """
-        plugin name, name of the file we loaded jobs from
+        plugin name, name of the file we loaded units from
         """
         return self._filename
 
     @property
     def plugin_object(self):
         """
-        plugin object, a list of JobDefinition instances
+        plugin object, a list of Unit instances
         """
-        return self._job_list
+        return self._unit_list
 
 
 class Provider1(IProvider1, IProviderBackend1):
@@ -166,8 +178,9 @@ class Provider1(IProvider1, IProviderBackend1):
     """
 
     def __init__(self, name, version, description, secure, gettext_domain,
-                 jobs_dir, whitelists_dir, data_dir, bin_dir, locale_dir,
-                 base_dir, *, validate=True, validation_kwargs=None):
+                 units_dir, jobs_dir, whitelists_dir, data_dir, bin_dir,
+                 locale_dir, base_dir, *, validate=True,
+                 validation_kwargs=None):
         """
         Initialize a provider with a set of meta-data and directories.
 
@@ -192,6 +205,9 @@ class Provider1(IProvider1, IProviderBackend1):
 
         :param gettext_domain:
             gettext domain that contains translations for this provider
+
+        :param units_dir:
+            path of the directory with unit definitions
 
         :param jobs_dir:
             path of the directory with job definitions
@@ -230,13 +246,19 @@ class Provider1(IProvider1, IProviderBackend1):
         self._secure = secure
         self._gettext_domain = gettext_domain
         # Directories
+        self._units_dir = units_dir
         self._jobs_dir = jobs_dir
         self._whitelists_dir = whitelists_dir
         self._data_dir = data_dir
         self._bin_dir = bin_dir
         self._locale_dir = locale_dir
         self._base_dir = base_dir
-        # Loaded data
+        # Load and setup everything
+        self._load_whitelists()
+        self._load_units(validate, validation_kwargs)
+        self._setup_translations()
+
+    def _load_whitelists(self):
         if self.whitelists_dir is not None:
             whitelists_dir_list = [self.whitelists_dir]
         else:
@@ -244,16 +266,20 @@ class Provider1(IProvider1, IProviderBackend1):
         self._whitelist_collection = FsPlugInCollection(
             whitelists_dir_list, ext=".whitelist", wrapper=WhiteListPlugIn,
             implicit_namespace=self.namespace)
+
+    def _load_units(self, validate, validation_kwargs):
+        units_dir_list = []
         if self.jobs_dir is not None:
-            jobs_dir_list = [self.jobs_dir]
-        else:
-            jobs_dir_list = []
-        self._job_collection = FsPlugInCollection(
-            jobs_dir_list, ext=(".txt", ".txt.in"), recursive=True,
-            wrapper=JobDefinitionPlugIn, provider=self,
-            validate=validate, validation_kwargs=validation_kwargs)
-        # Setup translations
-        if gettext_domain and locale_dir:
+            units_dir_list.append(self.jobs_dir)
+        if self.units_dir is not None:
+            units_dir_list.append(self.units_dir)
+        self._unit_collection = FsPlugInCollection(
+            units_dir_list, ext=(".txt", ".txt.in"), recursive=True,
+            wrapper=UnitPlugIn, provider=self, validate=validate,
+            validation_kwargs=validation_kwargs)
+
+    def _setup_translations(self):
+        if self._gettext_domain and self._locale_dir:
             gettext.bindtextdomain(self._gettext_domain, self._locale_dir)
 
     @classmethod
@@ -290,10 +316,11 @@ class Provider1(IProvider1, IProviderBackend1):
         return cls(
             definition.name, definition.version, definition.description,
             secure, definition.effective_gettext_domain,
-            definition.effective_jobs_dir, definition.effective_whitelists_dir,
-            definition.effective_data_dir, definition.effective_bin_dir,
-            definition.effective_locale_dir, definition.location or None,
-            validate=validate, validation_kwargs=validation_kwargs)
+            definition.effective_units_dir, definition.effective_jobs_dir,
+            definition.effective_whitelists_dir, definition.effective_data_dir,
+            definition.effective_bin_dir, definition.effective_locale_dir,
+            definition.location or None, validate=validate,
+            validation_kwargs=validation_kwargs)
 
     def __repr__(self):
         return "<{} name:{!r}>".format(self.__class__.__name__, self.name)
@@ -342,6 +369,13 @@ class Provider1(IProvider1, IProviderBackend1):
         Get the translated version of :meth:`description`
         """
         return self.get_translated_data(self.description)
+
+    @property
+    def units_dir(self):
+        """
+        absolute path of the units directory
+        """
+        return self._units_dir
 
     @property
     def jobs_dir(self):
@@ -514,13 +548,28 @@ class Provider1(IProvider1, IProviderBackend1):
             of JobDefinition objects and each item from problem_list is an
             exception.
         """
-        self._job_collection.load()
-        job_list = sorted(
-            itertools.chain(
-                *self._job_collection.get_all_plugin_objects()),
-            key=lambda job: job.id)
-        problem_list = self._job_collection.problem_list
-        return job_list, problem_list
+        unit_list, problem_list = self.get_units()
+        unit_list = [
+            unit for unit in unit_list
+            if isinstance(unit, JobDefinition)]
+        unit_list.sort(key=lambda unit: unit.id)
+        return unit_list, problem_list
+
+    def get_units(self):
+        """
+        Get all units.
+
+        :returns:
+            Pair (unit_list, problem_list) where unit_list is a unsorted list
+            of units, as they showed up in subsequent unit definition files and
+            each item from problem_list is an exception.
+        """
+        self._unit_collection.load()
+        unit_list = []
+        problem_list = self._unit_collection.problem_list
+        for sublist in self._unit_collection.get_all_plugin_objects():
+            unit_list.extend(sublist)
+        return unit_list, problem_list
 
     def get_all_executables(self):
         """
@@ -730,6 +779,42 @@ class Provider1Definition(Config):
         """
         if self.gettext_domain is not Unset:
             return self.gettext_domain
+
+    units_dir = Variable(
+        section='PlainBox Provider',
+        help_text=_("Pathname of the directory with unit definitions"),
+        validator_list=[
+            # NOTE: it *can* be unset
+            NotEmptyValidator(),
+            AbsolutePathValidator(),
+            ExistingDirectoryValidator(),
+        ])
+
+    @property
+    def implicit_units_dir(self):
+        """
+        implicit value of units_dir (if Unset)
+
+        The implicit value is only defined if location is not Unset. It is the
+        'units' subdirectory of the directory that location points to.
+        """
+        if self.location is not Unset:
+            return os.path.join(self.location, "units")
+
+    @property
+    def effective_units_dir(self):
+        """
+        effective value of units_dir
+
+        The effective value is :meth:`units_dir` itself, unless it is Unset. If
+        it is Unset the effective value is the :meth:`implicit_units_dir`, if
+        that value would be valid. The effective value may be None.
+        """
+        if self.units_dir is not Unset:
+            return self.units_dir
+        implicit = self.implicit_units_dir
+        if implicit is not None and os.path.isdir(implicit):
+            return implicit
 
     jobs_dir = Variable(
         section='PlainBox Provider',

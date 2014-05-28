@@ -349,14 +349,14 @@ class RunInvocation(CheckBoxInvocationMixIn):
         :raises SessionResumeError:
             If the session cannot be resumed for any reason.
         """
-        all_jobs = list(
+        all_units = list(
             itertools.chain(*[
-                p.load_all_jobs()[0] for p in self.provider_list]))
+                p.get_units()[0] for p in self.provider_list]))
         try:
             if storage is not None:
-                self._manager = SessionManager.load_session(all_jobs, storage)
+                self._manager = SessionManager.load_session(all_units, storage)
             else:
-                self._manager = SessionManager.create_with_job_list(all_jobs)
+                self._manager = SessionManager.create_with_unit_list(all_units)
         except DependencyDuplicateError as exc:
             # Handle possible DependencyDuplicateError that can happen if
             # someone is using plainbox for job development.
@@ -417,6 +417,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
         print(_("[ Analyzing Jobs ]").center(80, '='))
         # TODO resume?
         self._update_desired_job_list(desired_job_list)
+        self._print_estimated_duration()
 
     def maybe_warm_up_authentication(self):
         """
@@ -577,6 +578,8 @@ class RunInvocation(CheckBoxInvocationMixIn):
             for problem in problem_list:
                 print(" * {}".format(problem))
             print(_("Problematic jobs will not be considered"))
+
+    def _print_estimated_duration(self):
         (estimated_duration_auto,
          estimated_duration_manual) = self.state.get_estimated_duration()
         if estimated_duration_auto:

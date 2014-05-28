@@ -165,20 +165,17 @@ class SessionManager:
         return cls(state, storage)
 
     @classmethod
-    def create_with_job_list(cls, job_list=None, repo=None, legacy_mode=False):
+    def create_with_unit_list(cls, unit_list=None, repo=None,
+                              legacy_mode=False):
         """
         Create a session manager with a fresh session.
 
         This method populates the session storage with all of the well known
         directories (using :meth:`WellKnownDirsHelper.populate()`)
 
-        :param job_list:
-            If specified then this will be the initial list of jobs known
-            by the session state object. This can be specified for convenience
-            but is really optional since the application can always add more
-            jobs to an existing session.
-        :ptype job_list:
-            list of :class:`~plainbox.abc.IJobDefinition`.
+        :param unit_list:
+            If specified then this will be the initial list of units known by
+            the session state object.
         :param repo:
             If specified then this particular repository will be used to create
             the storage for this session. If left out, a new repository is
@@ -195,9 +192,9 @@ class SessionManager:
             fresh :class:`SessionManager` instance
         """
         logger.debug("SessionManager.create_session()")
-        if job_list is None:
-            job_list = []
-        state = SessionState(job_list)
+        if unit_list is None:
+            unit_list = []
+        state = SessionState(unit_list)
         if repo is None:
             repo = SessionStorageRepository()
         storage = SessionStorage.create(repo.location, legacy_mode)
@@ -205,20 +202,20 @@ class SessionManager:
         return cls(state, storage)
 
     @classmethod
-    def load_session(cls, job_list, storage, early_cb=None):
+    def load_session(cls, unit_list, storage, early_cb=None):
         """
         Load a previously checkpointed session.
 
         This method allows one to re-open a session that was previously
         created by :meth:`SessionManager.checkpoint()`
 
-        :param job_list:
-            List of all known jobs. This argument is used to reconstruct the
+        :param unit_list:
+            List of all known units. This argument is used to reconstruct the
             session from a dormant state. Since the suspended data cannot
-            capture implementation details of each job reliably actual jobs
+            capture implementation details of each unit reliably, actual units
             need to be provided externally. Unlike in :meth:`create_session()`
-            this list really needs to be complete, it must also include
-            any generated jobs.
+            this list really needs to be complete, it must also include any
+            generated units.
         :param storage:
             The storage that should be used for this particular session.
             The storage object holds references to existing directories
@@ -248,11 +245,11 @@ class SessionManager:
             data = storage.load_checkpoint()
         except IOError as exc:
             if exc.errno == errno.ENOENT:
-                state = SessionState(job_list)
+                state = SessionState(unit_list)
             else:
                 raise
         else:
-            state = SessionResumeHelper(job_list).resume(data, early_cb)
+            state = SessionResumeHelper(unit_list).resume(data, early_cb)
         return cls(state, storage)
 
     def checkpoint(self):

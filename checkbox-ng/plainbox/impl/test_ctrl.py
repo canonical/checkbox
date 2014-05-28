@@ -42,11 +42,11 @@ from plainbox.impl.ctrl import UserJobExecutionController
 from plainbox.impl.ctrl import gen_rfc822_records_from_io_log
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.job import JobDefinition
-from plainbox.impl.job import JobOutputTextSource
 from plainbox.impl.resource import Resource
 from plainbox.impl.resource import ResourceExpression
+from plainbox.impl.secure.origin import JobOutputTextSource
+from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.providers.v1 import Provider1
-from plainbox.impl.secure.rfc822 import Origin
 from plainbox.impl.secure.rfc822 import RFC822Record
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 from plainbox.impl.session import JobReadinessInhibitor

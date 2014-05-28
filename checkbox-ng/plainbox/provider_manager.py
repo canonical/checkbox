@@ -42,8 +42,6 @@ from plainbox.i18n import gettext_noop as N_
 from plainbox.impl.buildsystems import all_buildsystems
 from plainbox.impl.commands import ToolBase, CommandBase
 from plainbox.impl.job import JobDefinition
-from plainbox.impl.job import Problem
-from plainbox.impl.job import ValidationError as JobValidationError
 from plainbox.impl.logging import setup_logging
 from plainbox.impl.providers.v1 import get_user_PROVIDERPATH_entry
 from plainbox.impl.secure.config import Unset
@@ -52,6 +50,8 @@ from plainbox.impl.secure.config import ValidationError \
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.providers.v1 import Provider1Definition
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
+from plainbox.impl.validation import Problem
+from plainbox.impl.validation import ValidationError as JobValidationError
 
 __all__ = ['setup', 'manage_py_extension']
 
@@ -166,6 +166,8 @@ class InstallCommand(ManageCommand):
                 '{prefix}', 'share', '{provider.name}', 'data'),
             'jobs': os.path.join(
                 '{prefix}', 'share', '{provider.name}', 'jobs'),
+            'units': os.path.join(
+                '{prefix}', 'share', '{provider.name}', 'units'),
             'po': None,
             'whitelists': os.path.join(
                 '{prefix}', 'share', '{provider.name}', 'whitelists'),
@@ -183,6 +185,9 @@ class InstallCommand(ManageCommand):
             'jobs': os.path.join(
                 '{prefix}', 'lib', 'plainbox-providers-1', '{provider.name}',
                 'jobs'),
+            'units': os.path.join(
+                '{prefix}', 'lib', 'plainbox-providers-1', '{provider.name}',
+                'units'),
             'po': None,
             'whitelists': os.path.join(
                 '{prefix}', 'lib', 'plainbox-providers-1', '{provider.name}',
@@ -196,6 +201,7 @@ class InstallCommand(ManageCommand):
         'build/mo': 'locale_dir',
         'data': 'data_dir',
         'jobs': 'jobs_dir',
+        'units': 'units_dir',
         'whitelists': 'whitelists_dir'
     }
 
@@ -384,8 +390,8 @@ class SourceDistributionCommand(ManageCommand):
 
     name = "sdist"
 
-    _INCLUDED_ITEMS = ['manage.py', 'README.md', 'jobs', 'whitelists', 'bin',
-                       'src', 'data', 'po']
+    _INCLUDED_ITEMS = ['manage.py', 'README.md', 'units', 'jobs', 'whitelists',
+                       'bin', 'src', 'data', 'po']
 
     def register_parser(self, subparsers):
         """
@@ -558,6 +564,8 @@ class BuildCommand(ManageCommand):
             A set of keywords passed to setup()
         """
         super().__init__(definition)
+        if keywords is None:
+            keywords = {}
         self._keywords = keywords
 
     @property
@@ -705,6 +713,8 @@ class CleanCommand(ManageCommand):
             A set of keywords passed to setup()
         """
         super().__init__(definition)
+        if keywords is None:
+            keywords = {}
         self._keywords = keywords
 
     @property
@@ -806,17 +816,17 @@ class InfoCommand(ManageCommand):
         print("\t" + _("version: {}").format(provider.version))
         # TRANSLATORS: {} is the gettext translation domain of the provider
         print("\t" + _("gettext domain: {}").format(provider.gettext_domain))
-        print(_("[Job Definitions]"))
-        job_list, problem_list = provider.load_all_jobs()
-        for job in job_list:
+        print(_("[Unit Definitions]"))
+        unit_list, problem_list = provider.get_units()
+        for unit in unit_list:
             # TRANSLATORS: the fields are as follows:
-            # 0: job id
+            # 0: unit representation
             # 1: pathname of the file the job is defined in
-            print("\t" + _("{0!a}, from {1}").format(
-                job.partial_id,
-                job.origin.relative_to(self.definition.location)))
+            print("\t" + _("{0} {1}, from {2}").format(
+                unit.get_unit_type(), unit,
+                unit.origin.relative_to(self.definition.location)))
         if problem_list:
-            print("\t" + _("Some jobs could not be parsed correctly"))
+            print("\t" + _("Some units could not be parsed correctly"))
             # TRANSLATORS: please don't translate `manage.py validate`
             print("\t" + _("Please run `manage.py validate` for details"))
         print(_("[White Lists]"))
@@ -862,12 +872,28 @@ class InfoCommand(ManageCommand):
 
     Refer to the online documentation for plainbox to understand how correct
     job definitions look like and how to resolve problems reported by
-    ``verify``.
+    ``validate``.
 
     The exit code can be used to determine if there were any failures. If you
     have any, ``manage.py validate`` is something that could run in a CI loop.
     """))
 class ValidateCommand(ManageCommand):
+
+    SUPPORTS_KEYWORDS = True
+
+    def __init__(self, definition, keywords):
+        super().__init__(definition)
+        if keywords is None:
+            keywords = {}
+        self._keywords = keywords
+
+    @property
+    def strict(self):
+        return self._keywords.get('strict', True) is True
+
+    @property
+    def deprecated(self):
+        return self._keywords.get('deprecated', True) is True
 
     def register_parser(self, subparsers):
         """
@@ -881,10 +907,24 @@ class ValidateCommand(ManageCommand):
         arguments specific to this sub-command. It must also register itself as
         the command class with the ``command`` default.
         """
-        self.add_subcommand(subparsers)
+        parser = self.add_subcommand(subparsers)
+        parser.set_defaults(deprecated=self.deprecated, strict=self.strict)
+        group = parser.add_argument_group(title=_("validation options"))
+        group.add_argument(
+            '-s', '--strict', action='store_true',
+            help=_("Be strict about correctness"))
+        group.add_argument(
+            '-d', '--deprecated', action='store_true',
+            help=_("Report deprecated syntax and features"))
+        group.add_argument(
+            '-l', '--loose', dest='strict', action='store_false',
+            help=_("Be loose about correctness"))
+        group.add_argument(
+            '-L', '--legacy', dest='deprecated', action='store_false',
+            help=_("Support deprecated syntax and features"))
 
-    def get_job_list(self, provider):
-        job_list, problem_list = provider.load_all_jobs()
+    def get_unit_list(self, provider):
+        unit_list, problem_list = provider.get_units()
         if problem_list:
             for exc in problem_list:
                 if isinstance(exc, RFC822SyntaxError):
@@ -893,28 +933,30 @@ class ValidateCommand(ManageCommand):
                         exc.lineno, exc.msg))
                 else:
                     print("{}".format(exc))
-            print(_("NOTE: subsequent jobs from problematic"
+            print(_("NOTE: subsequent units from problematic"
                     " files are ignored"))
-        return job_list
+        return unit_list
 
-    def validate_jobs(self, job_list):
+    def validate_units(self, unit_list, ns):
         problem_list = []
-        for job in job_list:
+        for unit in unit_list:
             try:
-                job.validate(strict=True, deprecated=True)
+                unit.validate(strict=ns.strict, deprecated=ns.deprecated)
             except JobValidationError as exc:
-                problem_list.append((job, exc))
+                problem_list.append((unit, exc))
         return problem_list
 
     def invoked(self, ns):
         provider = self.get_provider()
-        job_list = self.get_job_list(provider)
-        problem_list = self.validate_jobs(job_list)
+        unit_list = self.get_unit_list(provider)
+        problem_list = self.validate_units(unit_list, ns)
         explain = {
             Problem.missing: _("missing definition of required field"),
             Problem.wrong: _("incorrect value supplied"),
             Problem.useless: _("useless field in this context"),
             Problem.deprecated: _("usage of deprecated field"),
+            Problem.constant: _("template field is constant"),
+            Problem.variable: _("template field is variable"),
         }
         for job, error in problem_list:
             if isinstance(error, JobValidationError):

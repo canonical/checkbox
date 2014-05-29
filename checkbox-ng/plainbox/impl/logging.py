@@ -109,6 +109,7 @@ class LoggingHelper:
             logging.getLogger(None).setLevel(level)
             logger.debug(_("Enabled %r on root logger"), level)
             logging.getLogger("plainbox").setLevel(level)
+            logging.getLogger("checkbox").setLevel(level)
         # Enable tracing on specified loggers
         if trace_list is not None:
             for name in trace_list:

@@ -44,7 +44,7 @@ from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter import get_all_exporters
-from plainbox.impl.result import DiskJobResult, MemoryJobResult
+from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.runner import slugify
 from plainbox.impl.session import SessionManager
@@ -219,6 +219,13 @@ class NormalUI(IJobRunnerUI):
 
     def _print_result_outcome(self, result):
         print(_("Outcome") + ": " + self.C.result(result))
+
+
+class ReRunJob(Exception):
+    """
+    Exception raised from _interaction_callback to indicate that a job should
+    be re-started.
+    """
 
 
 class RunInvocation(CheckBoxInvocationMixIn):
@@ -633,11 +640,16 @@ class RunInvocation(CheckBoxInvocationMixIn):
             self.manager.checkpoint()
             # TODO: get a confirmation from the user for certain types of
             # job.plugin
-            job_result = self.runner.run_job(job, self.config)
-            if (job_result.outcome == IJobResult.OUTCOME_UNDECIDED
-                    and self.is_interactive):
-                job_result = self._interaction_callback(
-                    self.runner, job, self.config)
+            while True:
+                job_result = self.runner.run_job(job, self.config)
+                if (job_result.outcome == IJobResult.OUTCOME_UNDECIDED
+                        and self.is_interactive):
+                    try:
+                        job_result = self._interaction_callback(
+                            self.runner, job, job_result, self.config)
+                    except ReRunJob:
+                        continue
+                break
             self.metadata.running_job_name = None
             self.manager.checkpoint()
             print(_("Outcome: {}").format(job_result.outcome))
@@ -687,9 +699,8 @@ class RunInvocation(CheckBoxInvocationMixIn):
         if output_file is not sys.stdout:
             output_file.close()
 
-    def _interaction_callback(self, runner, job, config, prompt=None,
-                              allowed_outcome=None):
-        result = {}
+    def _interaction_callback(self, runner, job, result, config,
+                              prompt=None, allowed_outcome=None):
         if prompt is None:
             prompt = _("Select an outcome or an action: ")
         if allowed_outcome is None:
@@ -705,33 +716,31 @@ class RunInvocation(CheckBoxInvocationMixIn):
             allowed_actions[_("fail")] = "set-fail"
         if IJobResult.OUTCOME_SKIP in allowed_outcome:
             allowed_actions[_("skip")] = "set-skip"
-        if job.command:
-            allowed_actions[_("test")] = "run-test"
-        result['outcome'] = IJobResult.OUTCOME_UNDECIDED
-        while result['outcome'] not in allowed_outcome:
+        if job.command is not None:
+            allowed_actions[_("re-run")] = "re-run"
+        while result.outcome not in allowed_outcome:
             print(_("Allowed answers are: {}").format(
                 ", ".join(allowed_actions.keys())))
             try:
                 choice = input(prompt)
             except EOFError:
-                result['outcome'] = IJobResult.OUTCOME_SKIP
+                result.outcome = IJobResult.OUTCOME_SKIP
                 break
             else:
                 action = allowed_actions.get(choice)
             if action is None:
                 continue
             elif action == 'set-pass':
-                result['outcome'] = IJobResult.OUTCOME_PASS
+                result.outcome = IJobResult.OUTCOME_PASS
             elif action == 'set-fail':
-                result['outcome'] = IJobResult.OUTCOME_FAIL
+                result.outcome = IJobResult.OUTCOME_FAIL
             elif action == 'set-skip':
-                result['outcome'] = IJobResult.OUTCOME_SKIP
-            elif action == 'run-test':
-                (result['return_code'], result['io_log_filename']) = (
-                    runner._run_command(job, config))
+                result.outcome = IJobResult.OUTCOME_SKIP
             elif action == 'set-comments':
-                result['comments'] = input(_('Please enter your comments:\n'))
-        return DiskJobResult(result)
+                result.comments = input(_('Please enter your comments:\n'))
+            elif action == 're-run':
+                raise ReRunJob
+        return result
 
     def _update_desired_job_list(self, desired_job_list):
         problem_list = self.state.update_desired_job_list(desired_job_list)

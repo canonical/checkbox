@@ -480,19 +480,24 @@ class RunInvocation(CheckBoxInvocationMixIn):
         last_job = self.metadata.running_job_name
         if last_job is None:
             return
-        print(_("Previous session run tried to execute: {}").format(last_job))
-        action = self.ask_for_resume_action()
-        if action == _('skip'):
+        print(_("Previous session run tried to execute job: {}").format(
+            last_job))
+        cmd = self._pick_action_cmd([
+            Action('s', _("skip that job"), 'skip'),
+            Action('f', _("mark it as failed and continue"), 'fail'),
+            Action('r', _("run it again"), 'run'),
+        ], _("What do you want to do with that job?"))
+        if cmd == 'skip' or cmd is None:
             result = MemoryJobResult({
                 'outcome': IJobResult.OUTCOME_SKIP,
                 'comments': _("Skipped after resuming execution")
             })
-        elif action == _('fail'):
+        elif cmd == 'fail':
             result = MemoryJobResult({
                 'outcome': IJobResult.OUTCOME_FAIL,
                 'comments': _("Failed after resuming execution")
             })
-        elif action == _('run'):
+        elif cmd == 'run':
             result = None
         if result:
             self.state.update_job_result(

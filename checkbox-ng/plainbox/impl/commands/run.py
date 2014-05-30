@@ -29,6 +29,7 @@
 from argparse import FileType, SUPPRESS
 from logging import getLogger
 from shutil import copyfileobj
+import collections
 import io
 import itertools
 import os
@@ -119,6 +120,9 @@ class Colorizer:
 
     def WHITE(self, text, bright=True):
         return self(text, "WHITE", bright)
+
+
+Action = collections.namedtuple("Action", "accel label cmd")
 
 
 class SilentUI(IJobRunnerUI):
@@ -727,6 +731,27 @@ class RunInvocation(CheckBoxInvocationMixIn):
             copyfileobj(input_stream, output_file)
         if output_file is not sys.stdout:
             output_file.close()
+
+    def _pick_action_cmd(self, action_list, prompt=None):
+        if prompt is None:
+            prompt = _("Pick an action")
+        long_hint = "\n".join(
+            "  {accel} => {label}".format(
+                accel=self.C.BLUE(action.accel) if action.accel else ' ',
+                label=action.label)
+            for action in action_list)
+        short_hint = ''.join(action.accel for action in action_list)
+        while True:
+            try:
+                print(self.C.BLUE(prompt))
+                print(long_hint)
+                choice = input("[{}]: ".format(self.C.BLUE(short_hint)))
+            except EOFError:
+                return None
+            else:
+                for action in action_list:
+                    if choice == action.accel or choice == action.label:
+                        return action.cmd
 
     def _interaction_callback(self, runner, job, result, config,
                               prompt=None, allowed_outcome=None):

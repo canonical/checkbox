@@ -534,6 +534,9 @@ class CheckBoxExecutionController(IExecutionController):
         # Add a path to the per-provider data directory
         if job.provider.data_dir is not None:
             env['PLAINBOX_PROVIDER_DATA'] = job.provider.data_dir
+        # Add a path to the per-provider units directory
+        if job.provider.units_dir is not None:
+            env['PLAINBOX_PROVIDER_UNITS'] = job.provider.units_dir
         # Add a path to the base provider directory (legacy)
         if job.provider.CHECKBOX_SHARE is not None:
             env['CHECKBOX_SHARE'] = job.provider.CHECKBOX_SHARE

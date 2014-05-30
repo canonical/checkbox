@@ -532,7 +532,7 @@ class CheckBoxExecutionControllerTestsMixIn:
                     (IProviderBackend1, IProvider1), {}),
                 extra_PYTHONPATH=None,
                 CHECKBOX_SHARE='CHECKBOX_SHARE',
-                data_dir='data_dir'))
+                data_dir='data_dir', units_dir='units_dir'))
         # Create mocked config.
         # Put an empty dictionary of environment overrides
         # that is expected by get_execution_environment()
@@ -754,6 +754,7 @@ class RootViaPTL1ExecutionControllerTests(
                 spec=IProviderBackend1,
                 extra_PYTHONPATH=None,
                 data_dir="data_dir-generator",
+                units_dir="units_dir-generator",
                 CHECKBOX_SHARE='CHECKBOX_SHARE-generator'))
         PATH = os.pathsep.join([self.NEST_DIR, 'vanilla-path'])
         expected = [
@@ -765,6 +766,7 @@ class RootViaPTL1ExecutionControllerTests(
             '-G', 'LANG=C.UTF-8',
             '-G', 'PATH={}'.format(PATH),
             '-G', 'PLAINBOX_PROVIDER_DATA=data_dir-generator',
+            '-G', 'PLAINBOX_PROVIDER_UNITS=units_dir-generator',
             '-G', 'PLAINBOX_SESSION_SHARE=session-dir/CHECKBOX_DATA',
             '--target', self.job.checksum,
             '-T', 'CHECKBOX_DATA=session-dir/CHECKBOX_DATA',
@@ -772,6 +774,7 @@ class RootViaPTL1ExecutionControllerTests(
             '-T', 'LANG=C.UTF-8',
             '-T', 'PATH={}'.format(PATH),
             '-T', 'PLAINBOX_PROVIDER_DATA=data_dir',
+            '-T', 'PLAINBOX_PROVIDER_UNITS=units_dir',
             '-T', 'PLAINBOX_SESSION_SHARE=session-dir/CHECKBOX_DATA',
         ]
         actual = self.ctrl.get_execution_command(
@@ -795,6 +798,7 @@ class RootViaPTL1ExecutionControllerTests(
             '-T', 'LANG=C.UTF-8',
             '-T', 'PATH={}'.format(PATH),
             '-T', 'PLAINBOX_PROVIDER_DATA=data_dir',
+            '-T', 'PLAINBOX_PROVIDER_UNITS=units_dir',
             '-T', 'PLAINBOX_SESSION_SHARE=session-dir/CHECKBOX_DATA',
         ]
         actual = self.ctrl.get_execution_command(
@@ -926,6 +930,7 @@ class RootViaPkexecExecutionControllerTests(
              'PATH={}'.format(
                  os.pathsep.join([self.NEST_DIR, 'vanilla-path'])),
              'PLAINBOX_PROVIDER_DATA=data_dir',
+             'PLAINBOX_PROVIDER_UNITS=units_dir',
              'PLAINBOX_SESSION_SHARE=session-dir/CHECKBOX_DATA',
              self.job.shell, '-c', self.job.command])
 
@@ -966,6 +971,7 @@ class RootViaSudoExecutionControllerTests(
              'PATH={}'.format(
                  os.pathsep.join([self.NEST_DIR, 'vanilla-path'])),
              'PLAINBOX_PROVIDER_DATA=data_dir',
+             'PLAINBOX_PROVIDER_UNITS=units_dir',
              'PLAINBOX_SESSION_SHARE=session-dir/CHECKBOX_DATA',
              self.job.shell, '-c', self.job.command])
 

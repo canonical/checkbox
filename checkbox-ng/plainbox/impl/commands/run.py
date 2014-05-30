@@ -708,6 +708,9 @@ class RunInvocation(CheckBoxInvocationMixIn):
         if job.command is not None:
             allowed_actions[_("re-run")] = "re-run"
         while result.outcome not in allowed_outcome:
+            print(_("Please decide what to do next:"))
+            print("  " + _("result") + ": {0}".format(result.tr_outcome()))
+            print("  " + _("comments") + ": {0}".format(result.comments))
             print(_("Allowed answers are: {}").format(
                 ", ".join(allowed_actions.keys())))
             try:

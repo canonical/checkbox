@@ -668,7 +668,8 @@ class RunInvocation(CheckBoxInvocationMixIn):
         ui.considering_job(job, job_state)
         if job_state.can_start():
             ui.about_to_start_running(job, job_state)
-            if job.plugin in ('user-interact', 'user-interact-verify'):
+            if (self.is_interactive and
+                    job.plugin in ('user-interact', 'user-interact-verify')):
                 ui.wait_for_interaction_prompt(job)
             self.metadata.running_job_name = job.id
             self.manager.checkpoint()

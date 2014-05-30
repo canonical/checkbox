@@ -37,6 +37,7 @@ import sys
 from plainbox.abc import IJobResult
 from plainbox.abc import IJobRunnerUI
 from plainbox.i18n import gettext as _
+from plainbox.impl.color import ansi_on, ansi_off
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
 from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
@@ -246,8 +247,9 @@ class RunInvocation(CheckBoxInvocationMixIn):
         time the loop-over-all-jobs is started.
     """
 
-    def __init__(self, provider_list, config, ns):
+    def __init__(self, provider_list, config, ns, use_colors=True):
         super().__init__(provider_list, config)
+        self.C = Colorizer(ansi_on if use_colors else ansi_off)
         self.ns = ns
         self._manager = None
         self._runner = None

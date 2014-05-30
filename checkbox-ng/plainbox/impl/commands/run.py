@@ -47,6 +47,7 @@ from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.result import MemoryJobResult
+from plainbox.impl.result import tr_outcome
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.session import SessionManager
 from plainbox.impl.session import SessionMetaData
@@ -780,8 +781,13 @@ class RunInvocation(CheckBoxInvocationMixIn):
             allowed_actions.append(
                 Action('r', _('re-run this job'), 're-run'))
         if result.return_code is not None:
+            if result.return_code == 0:
+                suggested_outcome = IJobResult.OUTCOME_PASS
+            else:
+                suggested_outcome = IJobResult.OUTCOME_FAIL
             allowed_actions.append(
-                Action('', _('auto-select outcome'), 'set-auto'))
+                Action('', _('set suggested outcome [{0}]').format(
+                    tr_outcome(suggested_outcome)), 'set-suggested'))
         while result.outcome not in allowed_outcome:
             print(_("Please decide what to do next:"))
             print("  " + _("result") + ": {0}".format(self.C.result(result)))
@@ -797,10 +803,8 @@ class RunInvocation(CheckBoxInvocationMixIn):
                 result.outcome = IJobResult.OUTCOME_FAIL
             elif cmd == 'set-skip' or cmd is None:
                 result.outcome = IJobResult.OUTCOME_SKIP
-            elif cmd == 'set-auto':
-                result.outcome = (
-                    IJobResult.OUTCOME_PASS if result.return_code == 0
-                    else IJobResult.OUTCOME_FAIL)
+            elif cmd == 'set-suggested':
+                result.outcome = suggested_outcome
             elif cmd == 'set-comments':
                 if result.comments is None:
                     result.comments = ""

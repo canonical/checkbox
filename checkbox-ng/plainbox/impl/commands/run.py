@@ -38,6 +38,7 @@ import sys
 from plainbox.abc import IJobResult
 from plainbox.abc import IJobRunnerUI
 from plainbox.i18n import gettext as _
+from plainbox.i18n import ngettext
 from plainbox.impl.color import ansi_on, ansi_off
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
@@ -830,6 +831,32 @@ class RunInvocation(CheckBoxInvocationMixIn):
         else:
             print(_(
                 "Estimated duration cannot be determined for manual jobs."))
+
+    def get_completion_ratio(self):
+        total_cnt = len(self.state.run_list)
+        total_time = 0
+        done_cnt = 0
+        done_time = 0
+        time_reliable = True
+        for job in self.state.run_list:
+            inc = job.estimated_duration
+            if inc is None:
+                time_reliable = False
+                continue
+            total_time += inc
+            if self.state.job_state_map[job.id].result.outcome is not None:
+                done_cnt += 1
+                done_time += inc
+        if time_reliable:
+            if total_time == 0:
+                return 0
+            else:
+                return done_time / total_time
+        else:
+            if total_cnt == 0:
+                return 0
+            else:
+                return done_cnt / total_cnt
 
     def on_job_added(self, job):
         """

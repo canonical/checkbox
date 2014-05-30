@@ -624,7 +624,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
         # problems in the selected jobs. Currently we just display each problem
         desired_job_list = self._get_matching_job_list(
             self.ns, self.state.job_list)
-        print(_("[ Analyzing Jobs ]").center(80, '='))
+        print(self.C.header(_("Analyzing Jobs")))
         self._update_desired_job_list(desired_job_list)
 
     def maybe_warm_up_authentication(self):
@@ -634,7 +634,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
         """
         warm_up_list = self.runner.get_warm_up_sequence(self.state.run_list)
         if warm_up_list:
-            print(_("[ Authentication ]").center(80, '='))
+            print(self.C.header(_("Authentication")))
             for warm_up_func in warm_up_list:
                 warm_up_func()
 
@@ -642,7 +642,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
         """
         Run all jobs according to the run list.
         """
-        print(_("[ Running All Jobs ]").center(80, '='))
+        print(self.C.header(_("Running All Jobs")))
         self._backtrack_and_run_missing = True
         while self._backtrack_and_run_missing:
             self._backtrack_and_run_missing = False
@@ -716,7 +716,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
 
     def _save_results(self, output_file, input_stream):
         if output_file is sys.stdout:
-            print(_("[ Results ]").center(80, '='))
+            print(self.C.header(_("Results")))
             # This requires a bit more finesse, as exporters output bytes
             # and stdout needs a string.
             translating_stream = ByteStringStreamTranslator(
@@ -777,7 +777,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
     def _update_desired_job_list(self, desired_job_list):
         problem_list = self.state.update_desired_job_list(desired_job_list)
         if problem_list:
-            print(_("[ Warning ]").center(80, '*'))
+            print(self.C.header_("Warning", 'YELLOW'))
             print(_("There were some problems with the selected jobs"))
             for problem in problem_list:
                 print(" * {}".format(problem))

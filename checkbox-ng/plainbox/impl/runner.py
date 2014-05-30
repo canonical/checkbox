@@ -254,9 +254,13 @@ class JobRunner(IJobRunner):
         :param jobs_io_log_dir:
             Base directory where IO log files are created.
         :param command_io_delegate:
-            Application specific extcmd IO delegate applicable for
+            (deprecated) Application specific extcmd IO delegate applicable for
             extcmd.ExternalCommandWithDelegate. Can be Left out, in which case
             :class:`FallbackCommandOutputPrinter` is used instead.
+
+            This argument is deprecated. Use The ui argument on
+            :meth:`run_job()` instead. Note that it has different (but
+            equivalent) API.
         :param dry_run:
             Flag indicating that the runner is in "dry run mode". When True
             most normal commands won't execute. Useful for testing.
@@ -275,7 +279,9 @@ class JobRunner(IJobRunner):
                 UserJobExecutionController(session_dir, provider_list),
             ]
         self._jobs_io_log_dir = jobs_io_log_dir
+        # NOTE: deprecated
         self._command_io_delegate = command_io_delegate
+        self._job_runner_ui_delegate = JobRunnerUIDelegate()
         self._dry_run = dry_run
         self._execution_ctrl_list = execution_ctrl_list
 
@@ -648,6 +654,7 @@ class JobRunner(IJobRunner):
 
     def _prepare_io_handling(self, job, config):
         ui_io_delegate = self._command_io_delegate
+        # NOTE: deprecated
         # If there is no UI delegate specified create a simple
         # delegate that logs all output to the console
         if ui_io_delegate is None:
@@ -665,6 +672,9 @@ class JobRunner(IJobRunner):
         # It takes no arguments as all the interesting stuff is added as a
         # signal listener.
         io_log_gen = IOLogRecordGenerator()
+        # FIXME: this description is probably inaccurate and definitely doesn't
+        # take self._job_runner_ui_delegate into account.
+        #
         # Create the delegate for routing IO
         #
         # Split the stream of data into three parts (each part is expressed as
@@ -681,7 +691,8 @@ class JobRunner(IJobRunner):
         #
         # Send the third copy to the output writer that writes everything to
         # disk.
-        delegate = extcmd.Chain([ui_io_delegate, io_log_gen, output_writer])
+        delegate = extcmd.Chain([self._job_runner_ui_delegate, ui_io_delegate,
+                                 io_log_gen, output_writer])
         logger.debug(_("job[%s] extcmd delegate: %r"), job.id, delegate)
         # Attach listeners to io_log_gen (the IOLogRecordGenerator instance)
         # One listener appends each record to an array

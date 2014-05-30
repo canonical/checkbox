@@ -816,7 +816,10 @@ class RunInvocation(CheckBoxInvocationMixIn):
                 print(" * {}".format(problem))
             print(_("Problematic jobs will not be considered"))
 
-    def _print_estimated_duration(self):
+    def print_estimated_duration(self):
+        print(self.C.header(_("Session Statistics")))
+        print(_("This session is about {0:.2f}% complete").format(
+            self.get_completion_ratio() * 100))
         (estimated_duration_auto,
          estimated_duration_manual) = self.state.get_estimated_duration()
         if estimated_duration_auto:
@@ -831,6 +834,10 @@ class RunInvocation(CheckBoxInvocationMixIn):
         else:
             print(_(
                 "Estimated duration cannot be determined for manual jobs."))
+        print(_("Size of the desired job list: {0}").format(
+            len(self.state.desired_job_list)))
+        print(_("Size of the effective execution plan: {0}").format(
+            len(self.state.run_list)))
 
     def get_completion_ratio(self):
         total_cnt = len(self.state.run_list)

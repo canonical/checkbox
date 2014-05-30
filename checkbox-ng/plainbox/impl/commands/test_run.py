@@ -115,8 +115,12 @@ class TestRun(TestCase):
             self.assertEqual(call.exception.args, (0,))
         expected = """
         ===============================[ Analyzing Jobs ]===============================
+        =============================[ Session Statistics ]=============================
+        This session is about 0.00% complete
         Estimated duration cannot be determined for automated jobs.
         Estimated duration cannot be determined for manual jobs.
+        Size of the desired job list: 0
+        Size of the effective execution plan: 0
         ==============================[ Running All Jobs ]==============================
         ==================================[ Results ]===================================
         """

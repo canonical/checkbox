@@ -4,7 +4,7 @@ global-include COPYING LICENSE
 global-include README*
 global-include Vagrantfile
 include plainbox/impl/providers/stubbox/bin/*
-include plainbox/impl/providers/stubbox/jobs/*.txt.in
+include plainbox/impl/providers/stubbox/units/*.txt.in
 include plainbox/impl/providers/stubbox/manage.py
 include plainbox/impl/providers/stubbox/whitelists/*.whitelist
 include plainbox/vendor/argparse/py*-argparse.py

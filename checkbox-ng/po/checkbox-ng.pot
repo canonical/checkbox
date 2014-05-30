@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-04-16 14:21+0200\n"
+"POT-Creation-Date: 2014-05-30 12:05+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -83,12 +83,12 @@ msgstr ""
 #. TRANSLATORS: These are meant to stand for yes and no
 #: .././checkbox_ng/commands/certification.py:61
 #: .././checkbox_ng/commands/certification.py:62
-#: .././checkbox_ng/commands/cli.py:605
+#: .././checkbox_ng/commands/cli.py:378
 msgid "y"
 msgstr ""
 
 #: .././checkbox_ng/commands/certification.py:61
-#: .././checkbox_ng/commands/cli.py:605
+#: .././checkbox_ng/commands/cli.py:378
 msgid "n"
 msgstr ""
 
@@ -144,12 +144,12 @@ msgid "Configuration problems prevent running tests"
 msgstr ""
 
 #: .././checkbox_ng/commands/certification.py:151
-#: .././checkbox_ng/commands/cli.py:871
+#: .././checkbox_ng/commands/cli.py:624
 msgid "run check-config"
 msgstr ""
 
 #: .././checkbox_ng/commands/certification.py:154
-#: .././checkbox_ng/commands/cli.py:874
+#: .././checkbox_ng/commands/cli.py:627
 msgid "skip tests that require interactivity"
 msgstr ""
 
@@ -180,25 +180,25 @@ msgstr ""
 
 #. Handle possible DependencyDuplicateError that can happen if
 #. someone is using plainbox for job development.
-#: .././checkbox_ng/commands/sru.py:88 .././checkbox_ng/commands/cli.py:503
+#: .././checkbox_ng/commands/sru.py:88 .././checkbox_ng/commands/cli.py:267
 msgid "The job database you are currently using is broken"
 msgstr ""
 
-#: .././checkbox_ng/commands/sru.py:89 .././checkbox_ng/commands/cli.py:504
+#: .././checkbox_ng/commands/sru.py:89 .././checkbox_ng/commands/cli.py:268
 #, python-brace-format
 msgid "At least two jobs contend for the name {0}"
 msgstr ""
 
-#: .././checkbox_ng/commands/sru.py:91 .././checkbox_ng/commands/cli.py:507
+#: .././checkbox_ng/commands/sru.py:91 .././checkbox_ng/commands/cli.py:271
 #, python-brace-format
 msgid "Second job defined in: {0}"
 msgstr ""
 
-#: .././checkbox_ng/commands/sru.py:112 .././checkbox_ng/commands/cli.py:753
+#: .././checkbox_ng/commands/sru.py:112 .././checkbox_ng/commands/cli.py:506
 msgid "There were some problems with the selected jobs"
 msgstr ""
 
-#: .././checkbox_ng/commands/sru.py:115 .././checkbox_ng/commands/cli.py:756
+#: .././checkbox_ng/commands/sru.py:115 .././checkbox_ng/commands/cli.py:509
 msgid "Problematic jobs will not be considered"
 msgstr ""
 
@@ -314,181 +314,165 @@ msgstr ""
 msgid "Use the specified DBus bus name"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:254
-msgid "< Continue >"
-msgstr ""
-
-#: .././checkbox_ng/commands/cli.py:369
-msgid "Enter"
-msgstr ""
-
-#: .././checkbox_ng/commands/cli.py:372
-msgid ": Expand/Collapse"
-msgstr ""
-
-#: .././checkbox_ng/commands/cli.py:388
-msgid "Start "
-msgstr ""
-
-#: .././checkbox_ng/commands/cli.py:506
+#: .././checkbox_ng/commands/cli.py:270
 #, python-brace-format
 msgid "First job defined in: {0}"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:530
+#: .././checkbox_ng/commands/cli.py:294
 msgid "No whitelists selected, aborting..."
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:554 .././checkbox_ng/commands/cli.py:571
+#: .././checkbox_ng/commands/cli.py:322 .././checkbox_ng/commands/cli.py:339
 msgid "Authentication"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:578
+#: .././checkbox_ng/commands/cli.py:345
 msgid "Choose tests to run on your system:"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:586
+#: .././checkbox_ng/commands/cli.py:359
 msgid "Estimated duration is {:.2f} for automated jobs."
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:589
+#: .././checkbox_ng/commands/cli.py:362
 msgid "Estimated duration cannot be determined for automated jobs."
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:592
+#: .././checkbox_ng/commands/cli.py:365
 msgid "Estimated duration is {:.2f} for manual jobs."
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:595
+#: .././checkbox_ng/commands/cli.py:368
 msgid "Estimated duration cannot be determined for manual jobs."
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:605
+#: .././checkbox_ng/commands/cli.py:378
 msgid "Do you want to resume the previous session?"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:610
+#: .././checkbox_ng/commands/cli.py:383
 msgid "What do you want to do with that job?"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:611 .././checkbox_ng/commands/cli.py:625
+#: .././checkbox_ng/commands/cli.py:384 .././checkbox_ng/commands/cli.py:398
 msgid "skip"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:611 .././checkbox_ng/commands/cli.py:630
+#: .././checkbox_ng/commands/cli.py:384 .././checkbox_ng/commands/cli.py:403
 msgid "fail"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:611
+#: .././checkbox_ng/commands/cli.py:384
 msgid "run"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:623
+#: .././checkbox_ng/commands/cli.py:396
 msgid "We have previously tried to execute {}"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:628
+#: .././checkbox_ng/commands/cli.py:401
 msgid "Skipped after resuming execution"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:633
+#: .././checkbox_ng/commands/cli.py:406
 msgid "Failed after resuming execution"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:670
+#: .././checkbox_ng/commands/cli.py:423
 msgid "Results"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:714
+#: .././checkbox_ng/commands/cli.py:467
 msgid "Saving submission file to {}"
 msgstr ""
 
 #. FIXME: replacing extension is ugly
-#: .././checkbox_ng/commands/cli.py:716 .././checkbox_ng/commands/cli.py:719
+#: .././checkbox_ng/commands/cli.py:469 .././checkbox_ng/commands/cli.py:472
 msgid "View results"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:726
+#: .././checkbox_ng/commands/cli.py:479
 msgid "Select an outcome or an action: "
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:731 .././checkbox_ng/commands/cli.py:745
+#: .././checkbox_ng/commands/cli.py:484 .././checkbox_ng/commands/cli.py:498
 msgid "comments"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:733 .././checkbox_ng/commands/cli.py:742
+#: .././checkbox_ng/commands/cli.py:486 .././checkbox_ng/commands/cli.py:495
 msgid "test"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:736
+#: .././checkbox_ng/commands/cli.py:489
 msgid "Allowed answers are: {}"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:746
+#: .././checkbox_ng/commands/cli.py:499
 msgid "Please enter your comments:\n"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:752
+#: .././checkbox_ng/commands/cli.py:505
 msgid "Warning"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:766
+#: .././checkbox_ng/commands/cli.py:519
 msgid "Loading Jobs Definition"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:770
+#: .././checkbox_ng/commands/cli.py:523
 msgid "Running All Jobs"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:801
+#: .././checkbox_ng/commands/cli.py:554
 #, python-format
 msgid "Job id: %s"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:802
+#: .././checkbox_ng/commands/cli.py:555
 #, python-format
 msgid "Plugin: %s"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:803
+#: .././checkbox_ng/commands/cli.py:556
 #, python-format
 msgid "Direct dependencies: %s"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:805
+#: .././checkbox_ng/commands/cli.py:558
 #, python-format
 msgid "Resource dependencies: %s"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:807
+#: .././checkbox_ng/commands/cli.py:560
 #, python-format
 msgid "Resource program: %r"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:808
+#: .././checkbox_ng/commands/cli.py:561
 #, python-format
 msgid "Command: %r"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:809
+#: .././checkbox_ng/commands/cli.py:562
 #, python-format
 msgid "Can start: %s"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:810
+#: .././checkbox_ng/commands/cli.py:563
 #, python-format
 msgid "Readiness: %s"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:817
+#: .././checkbox_ng/commands/cli.py:570
 msgid "Running... (output in {}.*)"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:831 .././checkbox_ng/commands/cli.py:840
+#: .././checkbox_ng/commands/cli.py:584 .././checkbox_ng/commands/cli.py:593
 msgid "Outcome: {}"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:833
+#: .././checkbox_ng/commands/cli.py:586
 msgid "Comments: {}"
 msgstr ""
 
@@ -508,97 +492,97 @@ msgstr ""
 msgid "Optional whitelist with which to run SRU testing"
 msgstr ""
 
-#: .././checkbox_ng/service.py:38
+#: .././checkbox_ng/service.py:37
 msgid "DBus parts require 'funcsigs' from pypi."
 msgstr ""
 
-#: .././checkbox_ng/service.py:87
+#: .././checkbox_ng/service.py:86
 #, python-format
 msgid "Created DBus wrapper %s for: %r"
 msgstr ""
 
-#: .././checkbox_ng/service.py:91
+#: .././checkbox_ng/service.py:90
 #, python-format
 msgid "DBus wrapper %s died"
 msgstr ""
 
-#: .././checkbox_ng/service.py:123
+#: .././checkbox_ng/service.py:122
 #, python-format
 msgid "Published DBus wrapper for %r as %s"
 msgstr ""
 
-#: .././checkbox_ng/service.py:170 .././checkbox_ng/service.py:181
+#: .././checkbox_ng/service.py:169 .././checkbox_ng/service.py:180
 #, python-brace-format
 msgid "object path {0} does not designate an existing object"
 msgstr ""
 
-#: .././checkbox_ng/service.py:189
+#: .././checkbox_ng/service.py:188
 #, python-format
 msgid ""
 "Application error: %r should have returned native object but returned "
 "wrapper instead"
 msgstr ""
 
-#: .././checkbox_ng/service.py:196 .././checkbox_ng/service.py:207
-#: .././checkbox_ng/service.py:218
+#: .././checkbox_ng/service.py:195 .././checkbox_ng/service.py:206
+#: .././checkbox_ng/service.py:217
 #, python-brace-format
 msgid "({0}) internal error, unable to lookup object wrapper"
 msgstr ""
 
-#: .././checkbox_ng/service.py:225
+#: .././checkbox_ng/service.py:224
 #, python-format
 msgid "wrapped %s called with %s"
 msgstr ""
 
-#: .././checkbox_ng/service.py:241 .././checkbox_ng/service.py:257
+#: .././checkbox_ng/service.py:240 .././checkbox_ng/service.py:256
 msgid "unsupported translation {!r}"
 msgstr ""
 
-#: .././checkbox_ng/service.py:244
+#: .././checkbox_ng/service.py:243
 #, python-format
 msgid "unwrapped %s called with %s"
 msgstr ""
 
-#: .././checkbox_ng/service.py:246
+#: .././checkbox_ng/service.py:245
 #, python-format
 msgid "unwrapped %s returned %r"
 msgstr ""
 
-#: .././checkbox_ng/service.py:259
+#: .././checkbox_ng/service.py:258
 #, python-format
 msgid "wrapped %s returned  %r"
 msgstr ""
 
-#: .././checkbox_ng/service.py:761
+#: .././checkbox_ng/service.py:760
 #, python-format
 msgid "Adding result %r to DBus"
 msgstr ""
 
-#: .././checkbox_ng/service.py:780
+#: .././checkbox_ng/service.py:779
 #, python-format
 msgid "Removing result %r from DBus"
 msgstr ""
 
-#: .././checkbox_ng/service.py:803
+#: .././checkbox_ng/service.py:802
 #, python-format
 msgid "Adding job %r to DBus"
 msgstr ""
 
-#: .././checkbox_ng/service.py:835
+#: .././checkbox_ng/service.py:834
 #, python-format
 msgid "Adding job state %r to DBus"
 msgstr ""
 
-#: .././checkbox_ng/service.py:867
+#: .././checkbox_ng/service.py:866
 #, python-brace-format
 msgid "Unable to wrap object of type {0}"
 msgstr ""
 
-#: .././checkbox_ng/service.py:992
+#: .././checkbox_ng/service.py:991
 msgid "Remove() completed"
 msgstr ""
 
-#: .././checkbox_ng/service.py:1067
+#: .././checkbox_ng/service.py:1066
 #, python-format
 msgid "AskForOutcome(%r) suggested outcome is (%s)"
 msgstr ""
@@ -607,61 +591,61 @@ msgstr ""
 #. 1) attempt to cancel the future in the extremely rare case where it
 #. is not started yet
 #. 2) kill the job otherwise
-#: .././checkbox_ng/service.py:1353
+#: .././checkbox_ng/service.py:1350
 msgid "Kill() is not implemented"
 msgstr ""
 
-#: .././checkbox_ng/service.py:1373
+#: .././checkbox_ng/service.py:1370
 msgid "RunCommand() should not be called for automated jobs"
 msgstr ""
 
-#: .././checkbox_ng/service.py:1376
+#: .././checkbox_ng/service.py:1372
 msgid "RunCommand() is starting to run the job"
 msgstr ""
 
-#: .././checkbox_ng/service.py:1380
+#: .././checkbox_ng/service.py:1376
 msgid "RunCommand() ignored, waiting for command to finish"
 msgstr ""
 
-#: .././checkbox_ng/service.py:1399
+#: .././checkbox_ng/service.py:1394
 msgid "SetOutcome() called while the command is still running!"
 msgstr ""
 
-#: .././checkbox_ng/service.py:1406
+#: .././checkbox_ng/service.py:1401
 msgid "SetOutcome() called before RunCommand()"
 msgstr ""
 
 #. TRANSLATORS: don't translate 'manual' translate it as
 #. 'of type manual' and leave the 'manual' string
 #. intact.
-#: .././checkbox_ng/service.py:1411
+#: .././checkbox_ng/service.py:1406
 #, python-format
 msgid "But the job is not manual, it is %s"
 msgstr ""
 
-#: .././checkbox_ng/service.py:1445
+#: .././checkbox_ng/service.py:1439
 msgid "outcome_from_command() called too early!"
 msgstr ""
 
-#: .././checkbox_ng/service.py:1446
+#: .././checkbox_ng/service.py:1440
 msgid "There is nothing to return yet"
 msgstr ""
 
-#: .././checkbox_ng/service.py:1487
+#: .././checkbox_ng/service.py:1481
 msgid "Sending ShowInteractiveUI() and not starting the job..."
 msgstr ""
 
-#: .././checkbox_ng/service.py:1491
+#: .././checkbox_ng/service.py:1485
 #, python-format
 msgid "Running %r right away"
 msgstr ""
 
-#: .././checkbox_ng/service.py:1530
+#: .././checkbox_ng/service.py:1522
 #, python-format
 msgid "calling JobResultAvailable(%r, %r)"
 msgstr ""
 
-#: .././checkbox_ng/service.py:1537
+#: .././checkbox_ng/service.py:1529
 msgid ""
 "sending AskForOutcome() after job finished running with OUTCOME_UNDECIDED"
 msgstr ""

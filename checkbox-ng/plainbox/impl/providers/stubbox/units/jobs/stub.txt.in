@@ -4,6 +4,7 @@ _description:
  Check success result from shell test case
 plugin: shell
 command: true; echo oops
+estimated_duration: 0.1
 
 id: stub/false
 _summary: Failing shell job
@@ -11,6 +12,7 @@ _description:
  Check failed result from shell test case
 plugin: shell
 command: false
+estimated_duration: 0.1
 
 id: stub/dependency/good
 _summary: Passing shell job depending on a passing shell job
@@ -19,6 +21,7 @@ _description:
 plugin: shell
 depends: stub/true
 command: true
+estimated_duration: 0.1
 
 plugin: shell
 id: stub/dependency/bad
@@ -27,12 +30,14 @@ command: true
 _summary: Passing shell job depending on a failing shell job
 _description:
  Check job result is set to uninitiated when dependency fails
+estimated_duration: 0.1
 
 id: stub/sleep-60
 _summary: Job sleeping for sixty seconds 
 _description: Sleep for sixty seconds
 plugin: shell
 command: sleep 60
+estimated_duration: 60
 
 id: stub/kill-ppid-if-KILLER-set
 _summary: Job killing the parent, if KILLER=yes
@@ -41,6 +46,7 @@ plugin: shell
 # XXX: why is this dependency here?
 depends: stub/multilevel
 command: if [ "$KILLER" == "yes" ]; then kill -9 $PPID; fi
+estimated_duration: 0.1
 
 # FIXME: stub/package once resource_object is supported
 id: stub_package
@@ -52,6 +58,7 @@ _description:
     The actual packages are fake
 plugin: resource
 command: stub_package_list
+estimated_duration: 0.5
 
 id: stub_package2
 _summary: Job determining a fake list of packages (2)
@@ -62,6 +69,7 @@ _description:
     The actual packages are fake
 plugin: resource
 command: stub_package_list
+estimated_duration: 0.5
 
 id: stub/requirement/good
 _summary: Passing shell job depending on an availalbe resource
@@ -70,6 +78,7 @@ _description:
 plugin: shell
 requires: stub_package.name == "checkbox"
 command: true
+estimated_duration: 0.1
 
 id: stub/requirement/bad
 _summary: Passing shell job depending on an unavailable resource
@@ -78,6 +87,7 @@ _description:
 plugin: shell
 requires: stub_package.name == "unknown-package"
 command: true
+estimated_duration: 0.1
 
 id: stub/manual
 _summary: A simple manual job
@@ -90,6 +100,7 @@ _description:
  VERIFICATION:
      Check that in the report the result is passed and the comment is displayed
 plugin: manual
+estimated_duration: 30
 
 id: stub/user-interact
 _summary: A simple user interaction job
@@ -103,6 +114,7 @@ _description:
      Check that in the report the result is passed
 plugin: user-interact
 command: true
+estimated_duration: 30
 
 id: stub/user-verify
 _summary: A simple user verification job
@@ -118,6 +130,7 @@ _description:
      The command should have printed "Please select 'pass'"
 plugin: user-verify
 command: echo "Please select 'pass'"
+estimated_duration: 30
 
 id: stub/user-interact-verify
 _summary: A simple user verification-interaction job
@@ -133,6 +146,8 @@ _description:
      The command should have printed "Please select 'pass'"
 plugin: user-interact-verify
 command: echo "Please select 'pass'"
+estimated_duration: 25
+
 
 id: __local__
 _summary: A job generating one more job
@@ -142,6 +157,7 @@ plugin: local
 command:
   shopt -s extglob
   cat $PLAINBOX_PROVIDER_UNITS/jobs/local.txt?(.in)
+estimated_duration: 0.1
 
 id: __multilevel__
 _summary: A job generating more generator jobs
@@ -152,6 +168,7 @@ plugin: local
 command:
   shopt -s extglob
   cat $PLAINBOX_PROVIDER_UNITS/jobs/multilevel.txt?(.in)
+estimated_duration: 0.1
 
 id: stub/root
 _summary: A job that runs as root
@@ -160,3 +177,4 @@ _description:
 plugin: shell
 user: root
 command: test $(id -u) -eq 0
+estimated_duration: 0.1

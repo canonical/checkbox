@@ -5,3 +5,4 @@ _description:
  Check success result from shell test case (generated from a local job)
 plugin: shell
 command: true
+estimated_duration: 0.1

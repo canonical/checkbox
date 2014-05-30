@@ -9,6 +9,7 @@ command:
  _description: This is just a sample multilevel test. Test 1.
  plugin: shell
  command: echo 1
+ estimated_duration: 0.1
  EOF
  echo ""
  cat <<'EOF'
@@ -17,6 +18,7 @@ command:
  _description: This is just a sample multilevel test. Test 2.
  plugin: shell
  command: echo 2
+ estimated_duration: 0.1
  EOF
  echo ""
-
+estimated_duration: 0.1

@@ -337,40 +337,26 @@ class RunInvocation(CheckBoxInvocationMixIn):
         # before starting the session.
         self.create_exporter()
         self.create_transport()
-        # Try to use the first session that can be resumed if the user agrees
-        resume_storage_list = self.get_resume_candidates()
-        resume_storage = None
-        for resume_storage in resume_storage_list:
-            # Skip sessions that the user doesn't want to resume
-            if not self.ask_for_resume(resume_storage):
-                continue
-            # Skip sessions that cannot be resumed
-            try:
-                self.create_manager(resume_storage)
-            except SessionResumeError:
-                continue
-            # If we resumed maybe not rerun the same, probably broken job
-            if resume_storage is not None:
-                self.maybe_skip_last_job_after_resume()
-            # Finally ignore other sessions that can be resumed
-            break
+        if self.is_interactive:
+            resumed = self.maybe_resume_session()
         else:
-            if resume_storage is not None and not self.ask_for_new_session():
-                # TRANSLATORS: This is the exit message
-                raise SystemExit(_("Session not resumed"))
-            # Create a fresh session if nothing got resumed
             self.create_manager(None)
-        # Store the application-identifying meta-data and checkpoint the
-        # session.
-        self.store_application_metadata()
-        self.metadata.flags.add(SessionMetaData.FLAG_INCOMPLETE)
-        self.manager.checkpoint()
+            resumed = False
         # Create the job runner so that we can do stuff
         self.create_runner()
-        # Select all the jobs that we are likely to run. This is the initial
-        # selection as we haven't started any jobs yet. Local jobs will cause
-        # that to happen again.
-        self.do_initial_job_selection()
+        # If we haven't resumed then do some one-time initialization
+        if not resumed:
+            # Store the application-identifying meta-data and checkpoint the
+            # session.
+            self.store_application_metadata()
+            self.metadata.flags.add(SessionMetaData.FLAG_INCOMPLETE)
+            self.manager.checkpoint()
+            # Select all the jobs that we are likely to run. This is the
+            # initial selection as we haven't started any jobs yet. Local jobs
+            # will cause that to happen again.
+            self.do_initial_job_selection()
+        # Print out our estimates
+        self.print_estimated_duration()
         # Maybe ask the secure launcher to prompt for the password now. This is
         # imperfect as we are going to run local jobs and we cannot see if they
         # might need root or not. This cannot be fixed before template jobs are
@@ -391,6 +377,59 @@ class RunInvocation(CheckBoxInvocationMixIn):
         self.manager.checkpoint()
         # FIXME: sensible return value
         return 0
+
+    def maybe_resume_session(self):
+        # Try to use the first session that can be resumed if the user agrees
+        resume_storage_list = self.get_resume_candidates()
+        resume_storage = None
+        resumed = False
+        if resume_storage_list:
+            print(self.C.header(_("Resume Incomplete Session")))
+            print(ngettext(
+                "There is {0} incomplete session that might be resumed",
+                "There are {0} incomplete sessions that might be resumed",
+                len(resume_storage_list)
+            ).format(len(resume_storage_list)))
+        for resume_storage in resume_storage_list:
+            # Skip sessions that the user doesn't want to resume
+            cmd = self._pick_action_cmd([
+                Action('r', _("resume this session"), 'resume'),
+                Action('n', _("next session"), 'next'),
+                Action('c', _("create new session"), 'create')
+            ], _("Do you want to resume session {0!a}?").format(
+                resume_storage.id))
+            if cmd == 'resume':
+                pass
+            elif cmd == 'next' or cmd is None:
+                continue
+            elif cmd == 'create':
+                self.create_manager(None)
+                break
+            # Skip sessions that cannot be resumed
+            try:
+                self.create_manager(resume_storage)
+            except SessionResumeError:
+                cmd = self._pick_action_cmd([
+                    Action('i', _("ignore this problem"), 'ignore'),
+                    Action('e', _("erase this session"), 'erase')])
+                if cmd == 'erase':
+                    resume_storage.remove()
+                    print(_("Session removed"))
+                continue
+            else:
+                resumed = True
+            # If we resumed maybe not rerun the same, probably broken job
+            if resume_storage is not None:
+                self.maybe_skip_last_job_after_resume()
+            # Finally ignore other sessions that can be resumed
+            break
+        else:
+            if resume_storage is not None and not self.ask_for_new_session():
+                # TRANSLATORS: This is the exit message
+                raise SystemExit(_("Session not resumed"))
+            # Create a fresh session if nothing got resumed
+            self.create_manager(None)
+        return resumed
 
     def _print_output_format_list(self, ns):
         print(_("Available output formats: {}").format(
@@ -586,9 +625,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
         desired_job_list = self._get_matching_job_list(
             self.ns, self.state.job_list)
         print(_("[ Analyzing Jobs ]").center(80, '='))
-        # TODO resume?
         self._update_desired_job_list(desired_job_list)
-        self._print_estimated_duration()
 
     def maybe_warm_up_authentication(self):
         """

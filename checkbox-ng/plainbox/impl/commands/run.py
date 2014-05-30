@@ -467,27 +467,14 @@ class RunInvocation(CheckBoxInvocationMixIn):
         return storage_list
 
     def ask_for_confirmation(self, message):
-        # TODO: use proper APIs for yes-no questions
-        try:
-            return self.ask_user(message, ('y', 'n')).lower() == "y"
-        except EOFError:
-            return False
-
-    def ask_for_resume(self, storage):
-        return self.ask_for_confirmation(
-            _("Do you want to resume session: {0}").format(storage.id))
+        return self._pick_action_cmd([
+            Action('y', _("yes"), True),
+            Action('n', _("no"), False)
+        ], message)
 
     def ask_for_new_session(self):
         return self.ask_for_confirmation(
-            _("Do you want to start a new session"))
-
-    def ask_for_resume_action(self):
-        try:
-            return self.ask_user(
-                _("What do you want to do with that job?"),
-                (_('skip'), _('fail'), _('run')))
-        except EOFError:
-            return _('skip')
+            _("Do you want to start a new session?"))
 
     def maybe_skip_last_job_after_resume(self):
         last_job = self.metadata.running_job_name
@@ -711,12 +698,6 @@ class RunInvocation(CheckBoxInvocationMixIn):
                     exported_stream.read(), self.config, self.state)
             except TransportError as exc:
                 print(str(exc))
-
-    def ask_user(self, prompt, allowed):
-        answer = None
-        while answer not in allowed:
-            answer = input("{} [{}] ".format(prompt, ", ".join(allowed)))
-        return answer
 
     def _save_results(self, output_file, input_stream):
         if output_file is sys.stdout:

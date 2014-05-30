@@ -669,23 +669,10 @@ class RunInvocation(CheckBoxInvocationMixIn):
         ui.considering_job(job, job_state)
         if job_state.can_start():
             ui.about_to_start_running(job, job_state)
-            if (self.is_interactive and
-                    job.plugin in ('user-interact', 'user-interact-verify')):
-                ui.wait_for_interaction_prompt(job)
             self.metadata.running_job_name = job.id
             self.manager.checkpoint()
             ui.started_running(job, job_state)
-            while True:
-                job_result = self.runner.run_job(job, self.config)
-                if (job_result.outcome == IJobResult.OUTCOME_UNDECIDED
-                        and self.is_interactive):
-                    ui.notify_about_verification(job)
-                    try:
-                        job_result = self._interaction_callback(
-                            self.runner, job, job_result, self.config)
-                    except ReRunJob:
-                        continue
-                break
+            job_result = self._run_single_job_with_ui_loop(job, ui)
             self.metadata.running_job_name = None
             self.manager.checkpoint()
             ui.finished_running(job, job_state, job_result)
@@ -698,6 +685,24 @@ class RunInvocation(CheckBoxInvocationMixIn):
         if job_result is not None:
             self.state.update_job_result(job, job_result)
         ui.finished(job, job_state, job_result)
+
+    def _run_single_job_with_ui_loop(self, job, ui):
+        while True:
+            if job.plugin in ('user-interact', 'user-interact-verify',
+                              'user-verify', 'manual'):
+                ui.notify_about_description(job)
+            if (self.is_interactive and
+                    job.plugin in ('user-interact', 'user-interact-verify')):
+                ui.wait_for_interaction_prompt(job)
+            job_result = self.runner.run_job(job, self.config, ui)
+            if (self.is_interactive and
+                    job_result.outcome == IJobResult.OUTCOME_UNDECIDED):
+                try:
+                    job_result = self._interaction_callback(
+                        self.runner, job, job_result, self.config)
+                except ReRunJob:
+                    continue
+            return job_result
 
     def export_and_send_results(self):
         # Get a stream with exported session data.

@@ -28,7 +28,6 @@
 
 from argparse import FileType
 from logging import getLogger
-from os.path import join
 from shutil import copyfileobj
 import io
 import itertools
@@ -46,7 +45,6 @@ from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.runner import JobRunner
-from plainbox.impl.runner import slugify
 from plainbox.impl.session import SessionManager
 from plainbox.impl.session import SessionMetaData
 from plainbox.impl.session import SessionPeekHelper
@@ -617,33 +615,23 @@ class RunInvocation(CheckBoxInvocationMixIn):
                     self.run_single_job(job)
 
     def run_single_job(self, job):
-        print("[ {} ]".format(job.tr_summary()).center(80, '-'))
-        description = job.tr_description()
-        if description is not None:
-            print(description)
-            print()
+        self.run_single_job_with_ui(job, VerboseUI())
+
+    def run_single_job_with_ui(self, job, ui):
         job_state = self.state.job_state_map[job.id]
-        logger.debug(_("Job id: %s"), job.id)
-        logger.debug(_("Plugin: %s"), job.plugin)
-        logger.debug(_("Direct dependencies: %s"),
-                     job.get_direct_dependencies())
-        logger.debug(_("Resource dependencies: %s"),
-                     job.get_resource_dependencies())
-        logger.debug(_("Resource program: %r"), job.requires)
-        logger.debug(_("Command: %r"), job.command)
-        logger.debug(_("Can start: %s"), job_state.can_start())
-        logger.debug(_("Readiness: %s"), job_state.get_readiness_description())
+        ui.considering_job(job, job_state)
         if job_state.can_start():
-            print(_("Running... (output in {}.*)").format(
-                join(self.runner._jobs_io_log_dir, slugify(job.id))))
+            ui.about_to_start_running(job, job_state)
+            if job.plugin in ('user-interact', 'user-interact-verify'):
+                ui.wait_for_interaction_prompt(job)
             self.metadata.running_job_name = job.id
             self.manager.checkpoint()
-            # TODO: get a confirmation from the user for certain types of
-            # job.plugin
+            ui.started_running(job, job_state)
             while True:
                 job_result = self.runner.run_job(job, self.config)
                 if (job_result.outcome == IJobResult.OUTCOME_UNDECIDED
                         and self.is_interactive):
+                    ui.notify_about_verification(job)
                     try:
                         job_result = self._interaction_callback(
                             self.runner, job, job_result, self.config)
@@ -652,15 +640,16 @@ class RunInvocation(CheckBoxInvocationMixIn):
                 break
             self.metadata.running_job_name = None
             self.manager.checkpoint()
-            print(_("Outcome: {}").format(job_result.outcome))
-            print(_("Comments: {}").format(job_result.comments))
+            ui.finished_running(job, job_state, job_result)
         else:
             job_result = MemoryJobResult({
                 'outcome': IJobResult.OUTCOME_NOT_SUPPORTED,
                 'comments': job_state.get_readiness_description()
             })
+            ui.job_cannot_start(job, job_state, job_result)
         if job_result is not None:
             self.state.update_job_result(job, job_result)
+        ui.finished(job, job_state, job_result)
 
     def export_and_send_results(self):
         # Get a stream with exported session data.

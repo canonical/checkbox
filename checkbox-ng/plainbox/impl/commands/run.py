@@ -773,6 +773,9 @@ class RunInvocation(CheckBoxInvocationMixIn):
         if job.command is not None:
             allowed_actions.append(
                 Action('r', _('re-run this job'), 're-run'))
+        if result.return_code is not None:
+            allowed_actions.append(
+                Action('', _('auto-select outcome'), 'set-auto'))
         while result.outcome not in allowed_outcome:
             print(_("Please decide what to do next:"))
             print("  " + _("result") + ": {0}".format(self.C.result(result)))
@@ -788,6 +791,10 @@ class RunInvocation(CheckBoxInvocationMixIn):
                 result.outcome = IJobResult.OUTCOME_FAIL
             elif cmd == 'set-skip' or cmd is None:
                 result.outcome = IJobResult.OUTCOME_SKIP
+            elif cmd == 'set-auto':
+                result.outcome = (
+                    IJobResult.OUTCOME_PASS if result.return_code == 0
+                    else IJobResult.OUTCOME_FAIL)
             elif cmd == 'set-comments':
                 if result.comments is None:
                     result.comments = ""

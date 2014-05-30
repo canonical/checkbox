@@ -747,41 +747,44 @@ class RunInvocation(CheckBoxInvocationMixIn):
             allowed_outcome = [IJobResult.OUTCOME_PASS,
                                IJobResult.OUTCOME_FAIL,
                                IJobResult.OUTCOME_SKIP]
-        allowed_actions = {
-            _('comments'): 'set-comments',
-        }
+        allowed_actions = [
+            Action('c', _('add a comment'), 'set-comments')
+        ]
         if IJobResult.OUTCOME_PASS in allowed_outcome:
-            allowed_actions[_("pass")] = "set-pass"
+            allowed_actions.append(
+                Action('p', _('mark as passed'), 'set-pass'))
         if IJobResult.OUTCOME_FAIL in allowed_outcome:
-            allowed_actions[_("fail")] = "set-fail"
+            allowed_actions.append(
+                Action('f', _('mark as failed'), 'set-fail'))
         if IJobResult.OUTCOME_SKIP in allowed_outcome:
-            allowed_actions[_("skip")] = "set-skip"
+            allowed_actions.append(
+                Action('s', _('skip this test'), 'set-skip'))
         if job.command is not None:
-            allowed_actions[_("re-run")] = "re-run"
+            allowed_actions.append(
+                Action('r', _('re-run this job'), 're-run'))
         while result.outcome not in allowed_outcome:
             print(_("Please decide what to do next:"))
-            print("  " + _("result") + ": {0}".format(result.tr_outcome()))
-            print("  " + _("comments") + ": {0}".format(result.comments))
-            print(_("Allowed answers are: {}").format(
-                ", ".join(allowed_actions.keys())))
-            try:
-                choice = input(prompt)
-            except EOFError:
-                result.outcome = IJobResult.OUTCOME_SKIP
-                break
+            print("  " + _("result") + ": {0}".format(self.C.result(result)))
+            if result.comments is None:
+                print("  " + _("comments") + ": {0}".format(_("none")))
             else:
-                action = allowed_actions.get(choice)
-            if action is None:
-                continue
-            elif action == 'set-pass':
+                print("  " + _("comments") + ": {0}".format(
+                    self.C.CYAN(result.comments, bright=False)))
+            cmd = self._pick_action_cmd(allowed_actions)
+            if cmd == 'set-pass':
                 result.outcome = IJobResult.OUTCOME_PASS
-            elif action == 'set-fail':
+            elif cmd == 'set-fail':
                 result.outcome = IJobResult.OUTCOME_FAIL
-            elif action == 'set-skip':
+            elif cmd == 'set-skip' or cmd is None:
                 result.outcome = IJobResult.OUTCOME_SKIP
-            elif action == 'set-comments':
-                result.comments = input(_('Please enter your comments:\n'))
-            elif action == 're-run':
+            elif cmd == 'set-comments':
+                if result.comments is None:
+                    result.comments = ""
+                new_comment = input(self.C.BLUE(
+                    _('Please enter your comments:') + '\n'))
+                if new_comment:
+                    result.comments += new_comment + '\n'
+            elif cmd == 're-run':
                 raise ReRunJob
         return result
 

@@ -158,6 +158,69 @@ class SilentUI(IJobRunnerUI):
         pass
 
 
+class NormalUI(IJobRunnerUI):
+
+    STREAM_MAP = {
+        'stdout': sys.stdout,
+        'stderr': sys.stderr
+    }
+
+    def __init__(self, color, show_cmd_output=True):
+        self.show_cmd_output = show_cmd_output
+        self.C = Colorizer(color)
+
+    def considering_job(self, job, job_state):
+        print(self.C.header(job.id))
+
+    def about_to_start_running(self, job, job_state):
+        pass
+
+    def wait_for_interaction_prompt(self, job):
+        input(self.C.BLUE(_("Press enter to continue") + '\n'))
+
+    def started_running(self, job, job_state):
+        pass
+
+    def about_to_execute_program(self, args, kwargs):
+        if self.show_cmd_output:
+            print(self.C.BLACK("... 8< -".ljust(80, '-')))
+        else:
+            print("(" + _("Command output hidden") + ")")
+
+    def got_program_output(self, stream_name, line):
+        if not self.show_cmd_output:
+            return
+        stream = self.STREAM_MAP[stream_name]
+        stream = {
+            'stdout': sys.stdout,
+            'stderr': sys.stderr
+        }[stream_name]
+        print(self.C.BLACK(line.decode("UTF-8", "ignore").rstrip('\n')),
+              file=stream)
+
+    def finished_executing_program(self, returncode):
+        if self.show_cmd_output:
+            print(self.C.BLACK("- >8 ---".rjust(80, '-')))
+
+    def finished_running(self, job, state, result):
+        pass
+
+    def notify_about_description(self, job):
+        print(_("Please familiarize yourself with the job description"))
+        print(self.C.CYAN(job.tr_description()))
+
+    def job_cannot_start(self, job, job_state, result):
+        print(_("Job cannot be started because:"))
+        for inhibitor in job_state.readiness_inhibitor_list:
+            print(" - {}".format(self.C.YELLOW(inhibitor)))
+
+    def finished(self, job, job_state, result):
+        self._print_result_outcome(result)
+
+    def _print_result_outcome(self, result):
+        print(_("Outcome") + ": " + self.C.result(result))
+
+
 class RunInvocation(CheckBoxInvocationMixIn):
     """
     Invocation of the 'plainbox run' command.

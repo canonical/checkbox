@@ -528,15 +528,15 @@ class CheckBoxExecutionController(IExecutionController):
         env['PATH'] = os.pathsep.join(
             [nest_dir]
             + env.get("PATH", "").split(os.pathsep))
-        # Add CHECKBOX_SHARE that is needed by one script
-        if job.provider.CHECKBOX_SHARE is not None:
-            env['CHECKBOX_SHARE'] = job.provider.CHECKBOX_SHARE
-        # Add CHECKBOX_DATA (temporary checkbox data)
+        # Add per-session shared state directory
+        env['PLAINBOX_SESSION_SHARE'] = self.CHECKBOX_DATA
         env['CHECKBOX_DATA'] = self.CHECKBOX_DATA
-        # Add plainbox equivalents of the two above
+        # Add a path to the per-provider data directory
         if job.provider.data_dir is not None:
             env['PLAINBOX_PROVIDER_DATA'] = job.provider.data_dir
-        env['PLAINBOX_SESSION_SHARE'] = self.CHECKBOX_DATA
+        # Add a path to the base provider directory (legacy)
+        if job.provider.CHECKBOX_SHARE is not None:
+            env['CHECKBOX_SHARE'] = job.provider.CHECKBOX_SHARE
         # Inject additional variables that are requested in the config
         if config is not None and config.environment is not Unset:
             for env_var in config.environment:

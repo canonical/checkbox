@@ -1,0 +1,158 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-05-30 12:01+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. description
+#: ../jobs/resource.txt:5
+msgid "Gets CPU resource info from /proc/cpuinfo"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:12
+msgid "Gets installation info from casper.log and media-info"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:19
+msgid "Gets info on the version of dpkg installed"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:26
+msgid "Generates resource info from gconf settings"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:33
+msgid "Generates release info based on /etc/lsb-release"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:39
+msgid "Generates resource info based on /proc/meminfo"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:45
+msgid "Generates resources info on running kernel modules"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:51
+msgid "Generates a list of packages"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:56
+msgid "Generates a resource for all available executables"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:65
+msgid "Creates resource info from udev"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:84
+msgid "Creates resource info from uname output"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:90
+msgid "Create resource info for supported sleep states"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:96
+msgid "Create resource info for supported optical actions"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:110
+msgid "Create resource info for removable block devices"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:117
+msgid "Creates display resource info from xrandr output"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:122
+msgid "Creates resource info for supported USB versions"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:134
+msgid "Creates resource info from xinput output."
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:139
+msgid "Create resource info for environment variables"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:149
+msgid "Create resource for mobile broadband devices"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:156
+msgid "Resource for hardware virtualization"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:169
+msgid "Creates resource info for wifi supported protocols/interfaces"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:181
+msgid "Creates resource info for RTC"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:187
+msgid "Provide links to requirements documents."
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:187
+msgid ""
+"Each requirement should have two keys with their respective values: name: "
+"(to be used as the anchor text) link: (the actual URL)"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:187
+msgid ""
+"Providers wishing to use this feature need to: 1- Write a job that places a "
+"suitably-formatted file in $PLAINBOX_SESSION_SHARE 2- Update their "
+"whitelists to run that job *before* miscellanea/submission-resources\n"
+"   or the \"requirements\" resource job."
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:203
+msgid "Generate an entry for each graphics card present in the system."
+msgstr ""
+
+#: ../manage.py:48
+msgid "PlainBox resources provider"
+msgstr ""

@@ -176,6 +176,56 @@ class FallbackCommandOutputPrinter(extcmd.DelegateBase):
             self._abort = True
 
 
+class JobRunnerUIDelegate(extcmd.DelegateBase):
+    """
+    Delegate for extcmd that delegates extcmd events to IJobRunnerUI
+
+    The file itself is only opened once on_begin() gets called by extcmd. This
+    makes it safe to instantiate this without worrying about dangling
+    resources.
+
+    The instance attribute 'ui' can be changed at any time. It can also be set
+    to None to silence all notifications from execution progress of external
+    programs.
+    """
+
+    def __init__(self, ui=None):
+        """
+        Initialize the JobRunnerUIDelegate
+
+        :param ui:
+            (optional) an instnace of IJobRunnerUI to delegate events to
+        """
+        self.ui = ui
+
+    def on_begin(self, args, kwargs):
+        """
+        Internal method of extcmd.DelegateBase
+
+        Called when a command is being invoked
+        """
+        if self.ui is not None:
+            self.ui.about_to_execute_program(args, kwargs)
+
+    def on_end(self, returncode):
+        """
+        Internal method of extcmd.DelegateBase
+
+        Called when a command finishes running
+        """
+        if self.ui is not None:
+            self.ui.finished_executing_program(returncode)
+
+    def on_line(self, stream_name, line):
+        """
+        Internal method of extcmd.DelegateBase
+
+        Called for each line of output.
+        """
+        if self.ui is not None:
+            self.ui.got_program_output(stream_name, line)
+
+
 class JobRunner(IJobRunner):
     """
     Runner for jobs - executes jobs and produces results

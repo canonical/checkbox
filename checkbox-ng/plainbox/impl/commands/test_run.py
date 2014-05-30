@@ -111,7 +111,7 @@ class TestRun(TestCase):
     def test_run_without_args(self, mock_check_output):
         with TestIO(combined=True) as io:
             with self.assertRaises(SystemExit) as call:
-                main(['run'])
+                main(['run', '--no-color'])
             self.assertEqual(call.exception.args, (0,))
         expected = """
         ===============================[ Analyzing Jobs ]===============================

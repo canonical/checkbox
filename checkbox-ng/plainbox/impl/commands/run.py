@@ -36,6 +36,7 @@ import os
 import sys
 
 from plainbox.abc import IJobResult
+from plainbox.abc import IJobRunnerUI
 from plainbox.i18n import gettext as _
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
@@ -119,6 +120,42 @@ class Colorizer:
 
     def WHITE(self, text, bright=True):
         return self(text, "WHITE", bright)
+
+
+class SilentUI(IJobRunnerUI):
+
+    def considering_job(self, job, job_state):
+        pass
+
+    def about_to_start_running(self, job, job_state):
+        pass
+
+    def wait_for_interaction_prompt(self, job):
+        pass
+
+    def started_running(self, job, job_state):
+        pass
+
+    def about_to_execute_program(self, args, kwargs):
+        pass
+
+    def finished_executing_program(self, returncode):
+        pass
+
+    def got_program_output(self, stream_name, line):
+        pass
+
+    def finished_running(self, job, job_state, job_result):
+        pass
+
+    def notify_about_description(self, job):
+        pass
+
+    def job_cannot_start(self, job, job_state, job_result):
+        pass
+
+    def finished(self, job, job_state, job_result):
+        pass
 
 
 class RunInvocation(CheckBoxInvocationMixIn):

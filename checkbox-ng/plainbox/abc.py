@@ -382,6 +382,98 @@ class IJobRunner(metaclass=ABCMeta):
         """
 
 
+class IJobRunnerUI(metaclass=ABCMeta):
+    """
+    User interface (textual) related to running a single job
+    """
+
+    @abstractmethod
+    def considering_job(self, job, job_state):
+        """
+        Method called as the runner is considering the specified job can
+        run or not.
+        """
+
+    @abstractmethod
+    def about_to_start_running(self, job, job_state):
+        """
+        Method called as the runner has decided to run the job and is
+        getting ready to start.
+        """
+
+    @abstractmethod
+    def wait_for_interaction_prompt(self, job):
+        """
+        Method called only for user-interact and user-interact-verify jobs
+        that should instruct the user to read the description (that needs
+        to be displayed somehow) and confirm before the test is actually
+        started.
+        """
+
+    @abstractmethod
+    def started_running(self, job, job_state):
+        """
+        Method called immediately before the runner starts to run the job
+        """
+
+    @abstractmethod
+    def about_to_execute_program(self, args, kwargs):
+        """
+        Method called just prior to execute an external program.
+
+        :param args:
+            Same as for subprocess.call
+        :param kwargs:
+            Same as for subprocess.call
+        """
+
+    @abstractmethod
+    def got_program_output(self, stream_name, line):
+        """
+        Method called on every line of output from an external program
+
+        :param stream_name:
+            either 'stdin' or 'stdout'
+        :param line:
+            the full text of the intercepted line
+        """
+
+    @abstractmethod
+    def finished_executing_program(self, returncode):
+        """
+        Method called just after running an external program
+
+        :param returncode:
+            The return code of the external program
+        """
+
+    @abstractmethod
+    def notify_about_description(self, job):
+        """
+        Method called prior to user interactions that might require familiarity
+        of the job description.
+        """
+
+    @abstractmethod
+    def finished_running(self, job, job_state, job_result):
+        """
+        Method called immediately after the runner finishes to run the job
+        """
+
+    @abstractmethod
+    def job_cannot_start(self, job, job_state, job_result):
+        """
+        Method called when a job cannot be started
+        """
+
+    @abstractmethod
+    def finished(self, job, job_state, job_result):
+        """
+        Method called at the end of the process, regardless if the job was
+        actually started or not
+        """
+
+
 class IUserInterfaceIO(metaclass=ABCMeta):
     """
     Base class that allows job runner to interact with the user interface.

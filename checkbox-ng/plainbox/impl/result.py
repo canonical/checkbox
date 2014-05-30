@@ -107,6 +107,17 @@ class _JobResultBase(IJobResult):
         """
         return self._data.get('outcome', self.OUTCOME_NONE)
 
+    def tr_outcome(self):
+        return {
+            self.OUTCOME_NONE: _("none"),
+            self.OUTCOME_PASS: _("pass"),
+            self.OUTCOME_FAIL: _("fail"),
+            self.OUTCOME_SKIP: _("skip"),
+            self.OUTCOME_NOT_SUPPORTED: _("not supported"),
+            self.OUTCOME_NOT_IMPLEMENTED: _("not implemented"),
+            self.OUTCOME_UNDECIDED: _("undecided")
+        }[self.outcome]
+
     @outcome.setter
     def outcome(self, new):
         old = self.outcome

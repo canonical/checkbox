@@ -731,17 +731,20 @@ class JobRunner(IJobRunner):
                     gzip_stream, encoding='UTF-8') as record_stream:
             writer = IOLogRecordWriter(record_stream)
             io_log_gen.on_new_record.connect(writer.write_record)
-            # Start the process and wait for it to finish getting the
-            # result code. This will actually call a number of callbacks
-            # while the process is running. It will also spawn a few
-            # threads although all callbacks will be fired from a single
-            # thread (which is _not_ the main thread)
-            logger.debug(
-                _("job[%s] starting command: %s"), job.id, job.command)
-            # Run the job command using extcmd
-            return_code = self._run_extcmd(job, config, extcmd_popen)
-            logger.debug(
-                _("job[%s] command return code: %r"), job.id, return_code)
+            try:
+                # Start the process and wait for it to finish getting the
+                # result code. This will actually call a number of callbacks
+                # while the process is running. It will also spawn a few
+                # threads although all callbacks will be fired from a single
+                # thread (which is _not_ the main thread)
+                logger.debug(
+                    _("job[%s] starting command: %s"), job.id, job.command)
+                # Run the job command using extcmd
+                return_code = self._run_extcmd(job, config, extcmd_popen)
+                logger.debug(
+                    _("job[%s] command return code: %r"), job.id, return_code)
+            finally:
+                io_log_gen.on_new_record.disconnect(writer.write_record)
         return return_code, record_path
 
     def _run_extcmd(self, job, config, extcmd_popen):

@@ -26,7 +26,7 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
-from argparse import FileType
+from argparse import FileType, SUPPRESS
 from logging import getLogger
 from shutil import copyfileobj
 import io
@@ -784,12 +784,17 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         self.config = config
 
     def invoked(self, ns):
-        return RunInvocation(self.provider_list, self.config, ns).run()
+        return RunInvocation(self.provider_list, self.config, ns,
+                             ns.use_colors).run()
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser("run", help=_("run a test job"))
         parser.set_defaults(command=self)
         group = parser.add_argument_group(title=_("user interface options"))
+        parser.set_defaults(use_colors=True)
+        group.add_argument(
+            '--no-color', dest='use_colors', action='store_false',
+            help=SUPPRESS)
         group.add_argument(
             '--not-interactive', action='store_true',
             help=_("skip tests that require interactivity"))

@@ -308,7 +308,7 @@ class JobRunner(IJobRunner):
                 warm_up_list.append(warm_up_func)
         return warm_up_list
 
-    def run_job(self, job, config=None):
+    def run_job(self, job, config=None, ui=None):
         """
         Run the specified job an return the result
 
@@ -319,6 +319,10 @@ class JobRunner(IJobRunner):
             is only used for the environment variables (that should be
             specified in the environment but, for simplicity in certain setups,
             can be pulled from a special section of the configuration file.
+        :param ui:
+            A IJobRunnerUI object (optional) which will be used do relay
+            external process interaction events during the execution of this
+            job.
         :returns:
             A IJobResult subclass that describes the result
         :raises ValueError:
@@ -349,7 +353,11 @@ class JobRunner(IJobRunner):
             if self._dry_run and job.plugin not in self._DRY_RUN_PLUGINS:
                 return self._get_dry_run_result(job)
             else:
-                return runner(job, config)
+                self._job_runner_ui_delegate.ui = ui
+                try:
+                    return runner(job, config)
+                finally:
+                    self._job_runner_ui_delegate.ui = None
 
     def run_shell_job(self, job, config):
         """

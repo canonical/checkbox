@@ -452,12 +452,12 @@ class RunInvocation(CheckBoxInvocationMixIn):
         if action == _('skip'):
             result = MemoryJobResult({
                 'outcome': IJobResult.OUTCOME_SKIP,
-                'comment': _("Skipped after resuming execution")
+                'comments': _("Skipped after resuming execution")
             })
         elif action == _('fail'):
             result = MemoryJobResult({
                 'outcome': IJobResult.OUTCOME_FAIL,
-                'comment': _("Failed after resuming execution")
+                'comments': _("Failed after resuming execution")
             })
         elif action == _('run'):
             result = None

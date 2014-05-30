@@ -566,16 +566,20 @@ class RunInvocation(CheckBoxInvocationMixIn):
         except DependencyDuplicateError as exc:
             # Handle possible DependencyDuplicateError that can happen if
             # someone is using plainbox for job development.
-            print(_("The job database you are currently using is broken"))
-            print(_("At least two jobs contend for the id {0}").format(
-                exc.job.id))
-            print(_("First job defined in: {0}").format(exc.job.origin))
-            print(_("Second job defined in: {0}").format(
-                exc.duplicate_job.origin))
+            print(self.C.RED(
+                _("The job database you are currently using is broken")))
+            print(self.C.RED(
+                _("At least two jobs contend for the id {0}").format(
+                    exc.job.id)))
+            print(self.C.RED(
+                _("First job defined in: {0}").format(exc.job.origin)))
+            print(self.C.RED(
+                _("Second job defined in: {0}").format(
+                    exc.duplicate_job.origin)))
             raise SystemExit(exc)
         except SessionResumeError as exc:
-            print(exc)
-            print(_("This session cannot be resumed"))
+            print(self.C.RED(exc))
+            print(self.C.RED(_("This session cannot be resumed")))
             raise
         else:
             # Connect the on_job_added signal. We use it to mark the test loop

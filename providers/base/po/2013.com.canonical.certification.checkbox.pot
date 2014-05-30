@@ -1,0 +1,5801 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-05-30 12:03+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. description
+#: ../jobs/audio.txt.in:8
+msgid "Test to detect audio devices"
+msgstr ""
+
+#. description
+#: ../jobs/audio.txt.in:20
+msgid ""
+"PURPOSE:\n"
+"    This test will check that internal speakers work correctly\n"
+"STEPS:\n"
+"    1. Make sure that no external speakers or headphones are connected\n"
+"       When testing a desktop, you can skip this test if there is no\n"
+"       internal speaker, we will test the external output later\n"
+"    2. Click the Test button to play a brief tone on your audio device\n"
+"VERIFICATION:\n"
+"    Did you hear a tone?"
+msgstr ""
+
+#. description
+#: ../jobs/audio.txt.in:41
+msgid ""
+"PURPOSE:\n"
+"    HDMI audio interface verification\n"
+"STEPS:\n"
+"    1. Plug an external HDMI device with sound (Use only one HDMI/"
+"DisplayPort interface at a time for this test)\n"
+"    2. Click the Test button\n"
+"VERIFICATION:\n"
+"    Did you hear the sound from the HDMI device?"
+msgstr ""
+
+#. description
+#: ../jobs/audio.txt.in:60
+msgid ""
+"PURPOSE:\n"
+"    DisplayPort audio interface verification\n"
+"STEPS:\n"
+"    1. Plug an external DisplayPort device with sound (Use only one HDMI/"
+"DisplayPort interface at a time for this test)\n"
+"    2. Click the Test button\n"
+"VERIFICATION:\n"
+"    Did you hear the sound from the DisplayPort device?"
+msgstr ""
+
+#. description
+#: ../jobs/audio.txt.in:79
+msgid ""
+"PURPOSE:\n"
+"    This test will check that headphones connector works correctly\n"
+"STEPS:\n"
+"    1. Connect a pair of headphones to your audio device\n"
+"    2. Click the Test button to play a sound to your audio device\n"
+"VERIFICATION:\n"
+"    Did you hear a sound through the headphones and did the sound play "
+"without any distortion, clicks or other strange noises from your headphones?"
+msgstr ""
+
+#. description
+#: ../jobs/audio.txt.in:98
+msgid ""
+"PURPOSE:\n"
+"    This test will check that recording sound using the onboard microphone "
+"works correctly\n"
+"STEPS:\n"
+"    1. Disconnect any external microphones that you have plugged in\n"
+"    2. Click \"Test\", then speak into your internal microphone\n"
+"    3. After a few seconds, your speech will be played back to you.\n"
+"VERIFICATION:\n"
+"    Did you hear your speech played back?"
+msgstr ""
+
+#. description
+#: ../jobs/audio.txt.in:118
+msgid ""
+"PURPOSE:\n"
+"    This test will check that recording sound using an external microphone "
+"works correctly\n"
+"STEPS:\n"
+"    1. Connect a microphone to your microphone port\n"
+"    2. Click \"Test\", then speak into the external microphone\n"
+"    3. After a few seconds, your speech will be played back to you\n"
+"VERIFICATION:\n"
+"    Did you hear your speech played back?"
+msgstr ""
+
+#. description
+#: ../jobs/audio.txt.in:137
+msgid ""
+"PURPOSE:\n"
+"    This test will check that a USB audio device works correctly\n"
+"STEPS:\n"
+"    1. Connect a USB audio device to your system\n"
+"    2. Click \"Test\", then speak into the microphone\n"
+"    3. After a few seconds, your speech will be played back to you\n"
+"VERIFICATION:\n"
+"    Did you hear your speech played back through the USB headphones?"
+msgstr ""
+
+#. description
+#: ../jobs/audio.txt.in:159
+msgid ""
+"Play back a sound on the default output and listen for it on the default "
+"input."
+msgstr ""
+
+#. description
+#: ../jobs/audio.txt.in:167
+msgid ""
+"Collect audio-related system information. This data can be used to simulate "
+"this computer's audio subsystem and perform more detailed tests under a "
+"controlled environment."
+msgstr ""
+
+#. description
+#: ../jobs/audio.txt.in:177
+msgid "Attaches the audio hardware data collection log to the results."
+msgstr ""
+
+#. description
+#: ../jobs/audio.txt.in:184
+msgid ""
+"PURPOSE:\n"
+"    Check that the various audio channels are working properly\n"
+"STEPS:\n"
+"    1. Click the Test button\n"
+"VERIFICATION:\n"
+"    You should clearly hear a voice from the different audio channels"
+msgstr ""
+
+#. description
+#: ../jobs/audio.txt.in:210
+msgid ""
+"PURPOSE:\n"
+"     Check that external line out connection works correctly\n"
+"STEPS:\n"
+"     1. Insert cable to speakers (with built-in amplifiers) on the line out "
+"port\n"
+"     2. Open system sound preferences, 'Output' tab, select 'Line-out' on "
+"the connector list. Click the Test button\n"
+"     3. On the system sound preferences, select 'Internal Audio' on the "
+"device list and click 'Test Speakers' to check left and right channel\n"
+"VERIFICATION:\n"
+"     1. Do you hear a sound in the speakers? The internal speakers should "
+"*not* be muted automatically\n"
+"     2. Do you hear the sound coming out on the corresponding channel?"
+msgstr ""
+
+#. description
+#: ../jobs/audio.txt.in:230
+msgid ""
+"PURPOSE:\n"
+"    Check that external line in connection works correctly\n"
+"STEPS:\n"
+"    1. Use a cable to connect the line in port to an external line out "
+"source.\n"
+"    2. Open system sound preferences, 'Input' tab, select 'Line-in' on the "
+"connector list. Click the Test button\n"
+"    3. After a few seconds, your recording will be played back to you.\n"
+"VERIFICATION:\n"
+"    Did you hear your recording?"
+msgstr ""
+
+#. description
+#: ../jobs/audio.txt.in:247
+msgid ""
+"PURPOSE:\n"
+"    Check that system detects speakers or headphones being plugged in\n"
+"STEPS:\n"
+"    1. Prepare a pair of headphones or speakers with a standard 3.5mm jack\n"
+"    2. Locate the speaker / headphone jack on the device under test\n"
+"    3. Run the test (you have 30 seconds from now on)\n"
+"    4. Plug headphones or speakers into the appropriate jack\n"
+"    5. Unplug the device for subsequent tests.\n"
+"VERIFICATION:\n"
+"    Verification is automatic, no action is required.\n"
+"    The test times out after 30 seconds (and fails in that case)."
+msgstr ""
+
+#. description
+#: ../jobs/audio.txt.in:267
+msgid ""
+"PURPOSE:\n"
+"    Check that system detects a microphone being plugged in\n"
+"STEPS:\n"
+"    1. Prepare a microphone with a standard 3.5mm jack\n"
+"    2. Locate the microphone jack on the device under test.\n"
+"       Keep in mind that it may be shared with the headphone jack.\n"
+"    3. Run the test (you have 30 seconds from now on)\n"
+"    4. Plug the microphone into the appropriate jack\n"
+"    5. Unplug the device for subsequent tests.\n"
+"VERIFICATION:\n"
+"    Verification is automatic, no action is required.\n"
+"    The test times out after 30 seconds (and fails in that case)."
+msgstr ""
+
+#. description
+#: ../jobs/audio.txt.in:291
+msgid ""
+"PURPOSE:\n"
+"    Check that balance control works correctly on internal speakers\n"
+"STEPS:\n"
+"    1. Check that moving the balance slider from left to right works "
+"smoothly\n"
+"    2. Click the Test button to play an audio tone for 10 seconds.\n"
+"    3. Move the balance slider from left to right and back.\n"
+"    4. Check that actual speaker audio balance follows your setting.\n"
+"VERIFICATION:\n"
+"    Does the slider move smoothly, as well as being followed by the setting "
+"by the actual audio output?"
+msgstr ""
+
+#. description
+#: ../jobs/audio.txt.in:312
+msgid ""
+"PURPOSE:\n"
+"    Check that balance control works correctly on external headphone\n"
+"STEPS:\n"
+"    1. Check that moving the balance slider from left to right works "
+"smoothly\n"
+"    2. Click the Test button to play an audio tone for 10 seconds.\n"
+"    3. Move the balance slider from left to right and back.\n"
+"    4. Check that actual headphone audio balance follows your setting.\n"
+"VERIFICATION:\n"
+"    Does the slider move smoothly, as well as being followed by the setting "
+"by the actual audio output?"
+msgstr ""
+
+#. description
+#: ../jobs/audio.txt.in:331
+msgid "Test to detect audio devices after suspending 30 times."
+msgstr ""
+
+#. description
+#: ../jobs/audio.txt.in:343
+msgid ""
+"PURPOSE:\n"
+"    This test will check that internal speakers work correctly after "
+"suspending 30 times.\n"
+"STEPS:\n"
+"    1. Make sure that no external speakers or headphones are connected\n"
+"       When testing a desktop, you can skip this test if there is no\n"
+"       internal speaker, we will test the external output later\n"
+"    2. Click the Test button to play a brief tone on your audio device\n"
+"VERIFICATION:\n"
+"    Did you hear a tone?"
+msgstr ""
+
+#. description
+#: ../jobs/audio.txt.in:367
+msgid ""
+"Play back a sound on the default output and listen for it on the default "
+"input, after suspending 30 times."
+msgstr ""
+
+#. description
+#: ../jobs/audio.txt.in:379
+msgid ""
+"This test will verify that the volume levels are at an acceptable level on "
+"your local system.  The test will validate that the volume is greater than "
+"or equal to minvol and less than or equal to maxvol for all sources (inputs) "
+"and sinks (outputs) recognized by PulseAudio.  It will also validate that "
+"the active source and sink are not muted.  You should not manually adjust "
+"the volume or mute before running this test."
+msgstr ""
+
+#. description
+#: ../jobs/audio.txt.in:394
+msgid "Record mixer settings after suspending 30 times."
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:20
+msgid "Benchmark for each disk"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:37
+msgid "Run gtkperf to make sure that GTK based test cases work"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:45
+msgid "Run Render-Bench XRender/Imlib2 benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:52
+msgid "Run Qgears2 XRender Extension gearsfancy benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:59
+msgid "Run Qgears2 XRender Extension image scaling benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:66
+msgid "Run Qgears2 OpenGL gearsfancy benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:73
+msgid "Run Qgears2 OpenGL image scaling benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:82
+msgid "Run GLmark2-ES2 benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:92
+msgid "Run GLmark2 benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:101
+msgid "Run globs benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:107
+msgid "Run Unigine Santuary benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:113
+msgid "Run Unigine Tropics benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:119
+msgid "Run Unigine Heaven benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:125
+msgid "Run Lightsmark benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:131
+msgid "Run Cachebench Read benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:137
+msgid "Run Cachebench Write benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:143
+msgid "Run Cachebench Read / Modify / Write benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:149
+msgid "Run Stream Copy benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:155
+msgid "Run Stream Scale benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:161
+msgid "Run Stream Add benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:167
+msgid "Run Stream Triad benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:174
+msgid "Run Network Loopback benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:180
+msgid "Check the time needed to reconnect to a WIFI access point"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:186
+msgid "Run Encode MP3 benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:192
+msgid "Run x264 H.264/AVC encoder benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:198
+msgid "Run GnuPG benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:204
+msgid "Run Compress PBZIP2 benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:210
+msgid "Run Compress 7ZIP benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:216
+msgid "Run N-Queens benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:222
+msgid "Run Himeno benchmark"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:228
+msgid "CPU utilization on an idle system."
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:234
+msgid "Disk utilization on an idle system."
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:243
+msgid ""
+"Run a stress test based on FurMark (OpenGL 2.1 or 3.2) Fullscreen 1920x1080 "
+"no antialiasing"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:254
+msgid ""
+"Run a stress test based on FurMark (OpenGL 2.1 or 3.2) Windowed 1024x640 no "
+"antialiasing"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:265
+msgid ""
+"Run GiMark, a geometry instancing test (OpenGL 3.3) Fullscreen 1920x1080 no "
+"antialiasing"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:276
+msgid ""
+"Run GiMark, a geometry instancing test (OpenGL 3.3) Windowed 1024x640 no "
+"antialiasing"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:287
+msgid ""
+"Run a tessellation test based on TessMark (OpenGL 4.0) Fullscreen 1920x1080 "
+"no antialiasing"
+msgstr ""
+
+#. description
+#: ../jobs/benchmarks.txt.in:297
+msgid ""
+"Run a tessellation test based on TessMark (OpenGL 4.0) Windowed 1024x640 no "
+"antialiasing"
+msgstr ""
+
+#. description
+#: ../jobs/bluetooth.txt.in:22
+msgid "Automated test to store bluetooth device information in checkbox report"
+msgstr ""
+
+#. description
+#: ../jobs/bluetooth.txt.in:29
+msgid ""
+"PURPOSE:\n"
+"    This test will check that bluetooth connection works correctly\n"
+"STEPS:\n"
+"    1. Enable bluetooth on any mobile device (PDA, smartphone, etc.)\n"
+"    2. Click on the bluetooth icon in the menu bar\n"
+"    3. Select 'Setup new device'\n"
+"    4. Look for the device in the list and select it\n"
+"    5. In the device write the PIN code automatically chosen by the wizard\n"
+"    6. The device should pair with the computer\n"
+"    7. Right-click on the bluetooth icon and select browse files\n"
+"    8. Authorize the computer to browse the files in the device if needed\n"
+"    9. You should be able to browse the files\n"
+"VERIFICATION:\n"
+"    Did all the steps work?"
+msgstr ""
+
+#. description
+#: ../jobs/bluetooth.txt.in:49
+msgid ""
+"PURPOSE:\n"
+"    This test will check that you can transfer information through a "
+"bluetooth connection\n"
+"STEPS:\n"
+"    1. Make sure that you're able to browse the files in your mobile device\n"
+"    2. Copy a file from the computer to the mobile device\n"
+"    3. Copy a file from the mobile device to the computer\n"
+"VERIFICATION:\n"
+"    Were all files copied correctly?"
+msgstr ""
+
+#. description
+#: ../jobs/bluetooth.txt.in:64
+msgid ""
+"PURPOSE:\n"
+"    This test will check that you can record and hear audio using a "
+"bluetooth audio device\n"
+"STEPS:\n"
+"    1. Enable the bluetooth headset\n"
+"    2. Click on the sound icon\n"
+"    3. Click \"Sound Settings\"\n"
+"    4. Look for the device in the list and select it\n"
+"    5. Set Quality to A2DP\n"
+"    6. Click \"Test\" to record for five seconds and reproduce in the "
+"bluetooth device\n"
+"VERIFICATION:\n"
+"    Did you hear the sound?"
+msgstr ""
+
+#. description
+#: ../jobs/bluetooth.txt.in:82
+msgid ""
+"PURPOSE:\n"
+"    This test will check that you can record and hear audio using a "
+"bluetooth audio device\n"
+"STEPS:\n"
+"    1. Enable the bluetooth headset\n"
+"    2. Click on the bluetooth icon in the menu bar\n"
+"    3. Select 'Setup new device'\n"
+"    4. Look for the device in the list and select it\n"
+"    5. In the device write the PIN code automatically chosen by the wizard\n"
+"    6. The device should pair with the computer\n"
+"    7. Click the sound icon\n"
+"    8. Click \"Sound Settings\"\n"
+"    9. Select device and ensure Quality is set to \"HSP/HFP\"\n"
+"    10. Click \"Test\" to record for five seconds and reproduce in the "
+"bluetooth device\n"
+"VERIFICATION:\n"
+"    Did you hear the sound you recorded in the bluetooth"
+msgstr ""
+
+#. description
+#: ../jobs/bluetooth.txt.in:104
+msgid ""
+"PURPOSE:\n"
+"    This test will check that you can use a BlueTooth HID device\n"
+"STEPS:\n"
+"    1. Enable either a BT mouse or keyboard\n"
+"    2. Click on the bluetooth icon in the menu bar\n"
+"    3. Select 'Setup new device'\n"
+"    4. Look for the device in the list and select it\n"
+"    5. For mice, perform actions such as moving the pointer, right and left "
+"button clicks and double clicks\n"
+"    6. For keyboards, click the Test button to lauch a small tool. Enter "
+"some text into the tool and close it.\n"
+"VERIFICATION:\n"
+"    Did the device work as expected?"
+msgstr ""
+
+#. description
+#: ../jobs/camera.txt.in:7
+msgid "This Automated test attempts to detect a camera."
+msgstr ""
+
+#. description
+#: ../jobs/camera.txt.in:16
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the built-in camera works\n"
+"STEPS:\n"
+"    1. Click on Test to display a video capture from the camera for ten "
+"seconds.\n"
+"VERIFICATION:\n"
+"    Did you see the video capture?"
+msgstr ""
+
+#. description
+#: ../jobs/camera.txt.in:34
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the built-in camera works\n"
+"STEPS:\n"
+"    1. Click on Test to display a still image from the camera for ten "
+"seconds.\n"
+"VERIFICATION:\n"
+"    Did you see the image?"
+msgstr ""
+
+#. description
+#: ../jobs/camera.txt.in:50
+msgid ""
+" Takes multiple pictures based on the resolutions supported by the camera "
+"and\n"
+" validates their size and that they are of a valid format."
+msgstr ""
+
+#. description
+#: ../jobs/codecs.txt.in:8
+msgid ""
+"PURPOSE:\n"
+"   This test will verify your system's ability to play Ogg Vorbis audio "
+"files.\n"
+"STEPS:\n"
+"   1. Click Test to play an Ogg Vorbis file (.ogg)\n"
+"   2. Please close the player to proceed.\n"
+"VERIFICATION:\n"
+"   Did the sample play correctly?"
+msgstr ""
+
+#. description
+#: ../jobs/codecs.txt.in:24
+msgid ""
+"PURPOSE:\n"
+"   This test will verify your system's ability to play Wave Audio files.\n"
+"STEPS:\n"
+"   1. Select Test to play a Wave Audio format file (.wav)\n"
+"   2. Please close the player to proceed.\n"
+"VERIFICATION:\n"
+"   Did the sample play correctly?"
+msgstr ""
+
+#. description
+#: ../jobs/cpu.txt.in:8
+msgid ""
+"Test the CPU scaling capabilities using Firmware Test Suite (fwts cpufreq)."
+msgstr ""
+
+#. description
+#: ../jobs/cpu.txt.in:15
+msgid "Attaches the log generated by cpu/scaling_test to the results"
+msgstr ""
+
+#. description
+#: ../jobs/cpu.txt.in:24
+msgid ""
+"Test that the CPU can run at its max frequency using Firmware Test Suite "
+"(fwts cpufreq)."
+msgstr ""
+
+#. description
+#: ../jobs/cpu.txt.in:31
+msgid "Attaches the log generated by cpu/maxfreq_test to the results"
+msgstr ""
+
+#. description
+#: ../jobs/cpu.txt.in:37
+msgid "Test for clock jitter."
+msgstr ""
+
+#. description
+#: ../jobs/cpu.txt.in:44
+msgid "Test offlining CPUs in a multicore system."
+msgstr ""
+
+#. description
+#: ../jobs/cpu.txt.in:51
+msgid "This test checks cpu topology for accuracy"
+msgstr ""
+
+#. description
+#: ../jobs/cpu.txt.in:58
+msgid "This test checks that CPU frequency governors are obeyed when set."
+msgstr ""
+
+#. description
+#: ../jobs/cpu.txt.in:65
+msgid "Validate that the Vector Floating Point Unit is running on ARM device"
+msgstr ""
+
+#. description
+#: ../jobs/cpu.txt.in:74
+msgid "Run Firmware Test Suite (fwts) cstates tests."
+msgstr ""
+
+#. description
+#: ../jobs/cpu.txt.in:85 ../jobs/firmware.txt.in:50
+msgid "Attaches the FWTS desktop diagnosis results log to the submission"
+msgstr ""
+
+#. description
+#: ../jobs/daemons.txt.in:5
+msgid "Test if the atd daemon is running when the package is installed."
+msgstr ""
+
+#. description
+#: ../jobs/daemons.txt.in:11
+msgid "Test if the cron daemon is running when the package is installed."
+msgstr ""
+
+#. description
+#: ../jobs/daemons.txt.in:17
+msgid "Test if the cupsd daemon is running when the package is installed."
+msgstr ""
+
+#. description
+#: ../jobs/daemons.txt.in:23
+msgid "Test if the getty daemon is running when the package is installed."
+msgstr ""
+
+#. description
+#: ../jobs/daemons.txt.in:29
+msgid "Test if the init daemon is running when the package is installed."
+msgstr ""
+
+#. description
+#: ../jobs/daemons.txt.in:35
+msgid "Test if the klogd daemon is running when the package is installed."
+msgstr ""
+
+#. description
+#: ../jobs/daemons.txt.in:41
+msgid "Test if the nmbd daemon is running when the package is installed."
+msgstr ""
+
+#. description
+#: ../jobs/daemons.txt.in:47
+msgid "Test if the smbd daemon is running when the package is installed."
+msgstr ""
+
+#. description
+#: ../jobs/daemons.txt.in:53
+msgid "Test if the syslogd daemon is running when the package is installed."
+msgstr ""
+
+#. description
+#: ../jobs/daemons.txt.in:60
+msgid "Test if the udevd daemon is running when the package is installed."
+msgstr ""
+
+#. description
+#: ../jobs/daemons.txt.in:66
+msgid "Test if the winbindd daemon is running when the package is installed."
+msgstr ""
+
+#. description
+#: ../jobs/disk.txt.in:4
+msgid "Detects and displays disks attached to the system."
+msgstr ""
+
+#. description
+#: ../jobs/disk.txt.in:10
+msgid "Check stats changes for each disk"
+msgstr ""
+
+#. description
+#: ../jobs/disk.txt.in:29
+msgid "SMART test"
+msgstr ""
+
+#. description
+#: ../jobs/disk.txt.in:48
+msgid "Verify system storage performs at or above baseline performance"
+msgstr ""
+
+#. description
+#: ../jobs/disk.txt.in:66
+msgid ""
+"Verify that storage devices, such as Fibre Channel and RAID can be detected "
+"and perform under stress."
+msgstr ""
+
+#. description
+#: ../jobs/disk.txt.in:86
+msgid ""
+"Some new hard drives include a feature that parks the drive heads after a "
+"short period of inactivity. This is a power-saving feature, but it can have "
+"a bad interaction with the operating system that results in the drive "
+"constantly parked then activated. This produces excess wear on the drive, "
+"potentially leading to early failures."
+msgstr ""
+
+#. description
+#: ../jobs/disk.txt.in:95
+msgid ""
+"PURPOSE:\n"
+" This test checks that a systems drive protection mechanism works properly.\n"
+"STEPS:\n"
+" 1. Click on Test\n"
+" 2. Move the system under test around, ensuring it is raised and lowered at "
+"some point.\n"
+"VERIFICATION:\n"
+" The verification of this test is automated. Do not change the\n"
+" automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/esata.txt.in:4
+msgid ""
+"PURPOSE:\n"
+"    This test will check the system can detect the insertion of an eSATA "
+"HDD\n"
+"STEPS:\n"
+"    1. Click 'Test' to begin the test. This test will\n"
+"       timeout and fail if the insertion has not been detected within 20 "
+"seconds.\n"
+"    2. Plug an eSATA HDD into an available eSATA port.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the "
+"automatically\n"
+"    selected result"
+msgstr ""
+
+#. description
+#: ../jobs/esata.txt.in:20
+msgid ""
+"This is an automated test which performs read/write operations on an "
+"attached eSATA HDD"
+msgstr ""
+
+#. description
+#: ../jobs/esata.txt.in:28
+msgid ""
+"PURPOSE:\n"
+"    This test will check the system can detect the removal of an eSATA HDD\n"
+"STEPS:\n"
+"    1. Click 'Test' to begin the test. This test will timeout and fail if\n"
+"       the removal has not been detected within 20 seconds.\n"
+"    2. Remove the previously attached eSATA HDD from the eSATA port.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the "
+"automatically\n"
+"    selected result"
+msgstr ""
+
+#. description
+#: ../jobs/ethernet.txt.in:9
+msgid "Test to detect the available network controllers"
+msgstr ""
+
+#. description
+#: ../jobs/ethernet.txt.in:25
+msgid ""
+"PURPOSE:\n"
+"    This test will check your wired connection\n"
+"STEPS:\n"
+"    1. Click on the Network icon in the top panel\n"
+"    2. Select a network below the \"Wired network\" section\n"
+"    3. Click \"Test\" to verify that it's possible to establish a HTTP "
+"connection\n"
+"VERIFICATION:\n"
+"    Did a notification show and was the connection correctly established?"
+msgstr ""
+
+#. description
+#: ../jobs/ethernet.txt.in:39
+msgid ""
+"Automated test to walk multiple network cards and test each one in sequence."
+msgstr ""
+
+#. description
+#: ../jobs/ethernet.txt.in:70 ../jobs/suspend.txt.in:671
+#: ../jobs/wireless.txt.in:368
+msgid ""
+"This is an automated test to gather some info on the current state of your "
+"network devices. If no devices are found, the test will exit with an error."
+msgstr ""
+
+#. description
+#: ../jobs/ethernet.txt.in:97
+msgid ""
+"This test executes a maximum throughput test against all the ethernet "
+"devices found on the system."
+msgstr ""
+
+#. description
+#: ../jobs/ethernet.txt.in:105
+msgid ""
+"Automated test that tests performance of each wired network device under "
+"stress."
+msgstr ""
+
+#. description
+#: ../jobs/expresscard.txt.in:3
+msgid ""
+"PURPOSE:\n"
+"    This will verify that an ExpressCard slot can detect inserted devices.\n"
+"STEPS:\n"
+"    Skip this test if you do not have an ExpressCard slot.\n"
+"    1. Plug an ExpressCard device into the ExpressCard slot\n"
+"VERIFICATION:\n"
+"    Was the device correctly detected?"
+msgstr ""
+
+#. description
+#: ../jobs/fingerprint.txt.in:3
+msgid ""
+"PURPOSE:\n"
+"   This test will verify that a fingerprint reader will work properly for "
+"logging into your system. This test case assumes that there's a testing "
+"account from which test cases are run and a personal account that the tester "
+"uses to verify the fingerprint reader\n"
+"STEPS:\n"
+"   1. Click on the User indicator on the left side of the panel (your user "
+"name).\n"
+"   2. Select \"Switch User Account\"\n"
+"   3. On the LightDM screen select your username.\n"
+"   4. Use the fingerprint reader to login.\n"
+"   5. Click on the user switcher applet.\n"
+"   6. Select the testing account to continue running tests.\n"
+"VERIFICATION:\n"
+"   Did the authentication procedure work correctly?"
+msgstr ""
+
+#. description
+#: ../jobs/fingerprint.txt.in:18
+msgid ""
+"PURPOSE:\n"
+"   This test will verify that a fingerprint reader can be used to unlock a "
+"locked system.\n"
+"STEPS:\n"
+"   1. Click on the Session indicator (Cog icon on the Left side of the "
+"panel) .\n"
+"   2. Select 'Lock screen'.\n"
+"   3. Press any key or move the mouse.\n"
+"   4. A window should appear that provides the ability to unlock either "
+"typing your password or using fingerprint authentication.\n"
+"   5. Use the fingerprint reader to unlock.\n"
+"   6. Your screen should be unlocked.\n"
+"VERIFICATION:\n"
+"   Did the authentication procedure work correctly?"
+msgstr ""
+
+#. description
+#: ../jobs/firewire.txt.in:4
+msgid ""
+"PURPOSE:\n"
+"    This test will check the system can detect the insertion of a FireWire "
+"HDD\n"
+"STEPS:\n"
+"    1. Click 'Test' to begin the test. This test will\n"
+"       timeout and fail if the insertion has not been detected within 20 "
+"seconds.\n"
+"    2. Plug a FireWire HDD into an available FireWire port.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the "
+"automatically\n"
+"    selected result"
+msgstr ""
+
+#. description
+#: ../jobs/firewire.txt.in:20
+msgid ""
+"This is an automated test which performs read/write operations on an "
+"attached FireWire HDD"
+msgstr ""
+
+#. description
+#: ../jobs/firewire.txt.in:28
+msgid ""
+"PURPOSE:\n"
+"    This test will check the system can detect the removal of a FireWire "
+"HDD\n"
+"STEPS:\n"
+"    1. Click 'Test' to begin the test. This test will timeout and fail if\n"
+"       the removal has not been detected within 20 seconds.\n"
+"    2. Remove the previously attached FireWire HDD from the FireWire port.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the "
+"automatically\n"
+"    selected result"
+msgstr ""
+
+#. description
+#: ../jobs/firmware.txt.in:21
+msgid "Automated tests for firmware using Firmware Test Suite."
+msgstr ""
+
+#. description
+#: ../jobs/firmware.txt.in:39
+msgid "Run Firmware Test Suite (fwts) desktop-specific diagnosis tests."
+msgstr ""
+
+#. description
+#: ../jobs/floppy.txt.in:5
+msgid "Floppy test"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:4
+msgid "Driver version tests"
+msgstr ""
+
+#. description
+#: ../jobs/graphics.txt.in:21
+msgid "Test to output the Xorg version"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:22
+msgid "Test Xorg version"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:27
+msgid "Resolution change tests"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:57
+msgid "Test that the X process is running."
+msgstr ""
+
+#. description
+#: ../jobs/graphics.txt.in:64
+msgid "Test that the X is not running in failsafe mode."
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:65
+msgid "Test that X is not in failsafe mode."
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:95
+msgid "Default resolution tests"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:119
+msgid "Minimum resolution tests"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:139
+msgid "Maximum resolution tests"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:165
+msgid "Mode tests"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:180
+msgid "Color depth tests"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:195
+msgid "Refresh rate tests"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:209
+msgid "Graphic memory tests"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:226
+msgid "Test that video can be displayed"
+msgstr ""
+
+#. description
+#: ../jobs/graphics.txt.in:227
+msgid ""
+"PURPOSE:\n"
+"    This test will test the default display\n"
+"STEPS:\n"
+"    1. Click \"Test\" to display a video test.\n"
+"VERIFICATION:\n"
+"    Do you see color bars and static?"
+msgstr ""
+
+#. description
+#: ../jobs/graphics.txt.in:239
+msgid "Check that VESA drivers are not in use"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:240
+msgid "Test that VESA drivers are not in use"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:245
+msgid "Resolution cycling tests"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:268
+msgid "Rotation tests"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:291
+msgid "Compiz support tests"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:307
+msgid "Unity support tests"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:323
+msgid "glxgears tests"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:346
+msgid "3D window open/close tests"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:362
+msgid "3D window with suspend/resume tests"
+msgstr ""
+
+#. description
+#: ../jobs/graphics.txt.in:377
+msgid "Multiple 3D window open/close"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:378
+msgid "Multiple 3D window open/close tests"
+msgstr ""
+
+#. description
+#: ../jobs/graphics.txt.in:393
+msgid "3D window movement"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:394
+msgid "3D window movement tests"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:412
+msgid "screenshot tests"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:433
+msgid "screenshot attachment tests"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:448
+msgid "full screen video screenshot tests"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:477
+msgid "GPU switch prompt tests"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:499
+msgid "full screen video attachment tests"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:520
+msgid "Test that a screenshot is valid, automatically"
+msgstr ""
+
+#. description
+#: ../jobs/graphics.txt.in:521
+msgid ""
+"Take a screengrab of the screen displaying a black and white Ubuntu logo. "
+"Check that the screenshot matches the original file using OpenCV ORB "
+"detection."
+msgstr ""
+
+#. description
+#: ../jobs/graphics.txt.in:529
+msgid ""
+"Attaches the screenshot captured in graphics/screenshot_opencv_validation."
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:530
+msgid ""
+"Attach the screenshot captured for the automatically validated screenshot "
+"test"
+msgstr ""
+
+#. description
+#: ../jobs/hibernate.txt.in:17
+msgid ""
+"PURPOSE:\n"
+"    This test will check to make sure your system can successfully hibernate "
+"(if supported)\n"
+"STEPS:\n"
+"    1. Click on Test\n"
+"    2. The system will hibernate and should wake itself within 5 minutes\n"
+"    3. If your system does not wake itself after 5 minutes, please press the "
+"power button to wake the system manually\n"
+"    4. If the system fails to resume from hibernate, please restart System "
+"Testing and mark this test as Failed\n"
+"VERIFICATION:\n"
+"    Did the system successfully hibernate and did it work properly after "
+"waking up?"
+msgstr ""
+
+#. description
+#: ../jobs/hibernate.txt.in:31
+msgid "Automated check of the hibernate log for errors discovered by fwts"
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:6
+msgid "Attaches a report of installed codecs for Intel HDA"
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:12
+msgid "Attaches a report of CPU information"
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:18
+msgid "Attaches a copy of /var/log/dmesg to the test results"
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:24
+msgid "Attaches info on DMI"
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:32
+msgid "Attaches dmidecode output"
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:39
+msgid "Attaches lshw output"
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:46
+msgid "Attaches the firmware version"
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:52
+msgid "Attaches very verbose lspci output."
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:58
+msgid "Attaches very verbose lspci output (with central database Query)."
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:66
+msgid "List USB devices"
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:77
+msgid "Attaches the contents of the various modprobe conf files."
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:83
+msgid "Attaches the contents of the /etc/modules file."
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:89
+msgid "attaches the contents of various sysctl config files."
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:93
+msgid "Attaches a report of sysfs attributes."
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:106
+msgid ""
+"Attaches a dump of the udev database showing system hardware information."
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:112
+msgid "Attaches the output of udev_resource, for debugging purposes"
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:119
+msgid "Attaches a tarball of gcov data if present."
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:125
+msgid "Attaches a list of the currently running kernel modules."
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:131
+msgid "Attaches the contents of /proc/acpi/sleep if it exists."
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:135
+msgid "Bootchart information."
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:145
+msgid "SATA/IDE device information."
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:164
+msgid "Attaches the bootchart png file for bootchart runs"
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:172
+msgid "Attaches the bootchart log for bootchart test runs."
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:180
+msgid "installs the installer bootchart tarball if it exists."
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:187
+msgid "Attaches the installer debug log if it exists."
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:194
+msgid ""
+"Returns the name, driver name and driver version of any touchpad discovered "
+"on the system."
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:206
+msgid "Lists the device driver and version for all audio devices."
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:216
+msgid "Provides information about network devices"
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:221
+msgid "Provides information about displays attached to the system"
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:227
+msgid "Attaches information about disk partitions"
+msgstr ""
+
+#. description
+#: ../jobs/input.txt.in:6
+msgid "Pointing device tests."
+msgstr ""
+
+#. description
+#: ../jobs/input.txt.in:23
+msgid ""
+"PURPOSE:\n"
+"    This test will test your pointing device\n"
+"STEPS:\n"
+"    1. Move the cursor using the pointing device or touch the screen.\n"
+"    2. Perform some single/double/right click operations.\n"
+"VERIFICATION:\n"
+"    Did the pointing device work as expected?"
+msgstr ""
+
+#. description
+#: ../jobs/input.txt.in:36
+msgid ""
+"PURPOSE:\n"
+"    This test will test your keyboard\n"
+"STEPS:\n"
+"    1. Click on Test\n"
+"    2. On the open text area, use your keyboard to type something\n"
+"VERIFICATION:\n"
+"    Is your keyboard working properly?"
+msgstr ""
+
+#. description
+#: ../jobs/input.txt.in:47
+msgid ""
+"PURPOSE:\n"
+"    Manual detection of accelerometer.\n"
+"STEPS:\n"
+"    1. Look at the specifications for your system.\n"
+"VERIFICATION:\n"
+"    Is this system supposed to have an accelerometer?"
+msgstr ""
+
+#. description
+#: ../jobs/input.txt.in:60
+msgid ""
+"PURPOSE:\n"
+"    This test will test your accelerometer to see if it is detected\n"
+"    and operational as a joystick device.\n"
+"STEPS:\n"
+"    1. Click on Test\n"
+"    2. Tilt your hardware in the directions onscreen until the axis "
+"threshold is met.\n"
+"VERIFICATION:\n"
+"    Is your accelerometer properly detected? Can you use the device?"
+msgstr ""
+
+#. summary
+#: ../jobs/input.txt.in:74
+msgid "Create click tests for pointing devices."
+msgstr ""
+
+#. description
+#: ../jobs/input.txt.in:75
+msgid "Click tests for pointing devices."
+msgstr ""
+
+#. description
+#: ../jobs/install.txt.in:6
+msgid ""
+"Tests to see that apt can access repositories and get updates (does not "
+"install updates). This is done to confirm that you could recover from an "
+"incomplete or broken update."
+msgstr ""
+
+#. description
+#: ../jobs/keys.txt.in:6
+msgid ""
+"PURPOSE:\n"
+"    This test will test the screen lock key\n"
+"STEPS:\n"
+"    1. Press the Test button to begin this test. If there is no such key, "
+"please skip this test.\n"
+"    2. Press the lock screen button on the keyboard in 30 seconds.\n"
+"    3. If the screen is locked, move the mouse or press any key to activate "
+"the prompt.\n"
+"    4. Input the password to unlock the screen.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/keys.txt.in:21
+msgid ""
+"PURPOSE:\n"
+"    This test will test the brightness key\n"
+"STEPS:\n"
+"    1. Press the brightness buttons on the keyboard\n"
+"VERIFICATION:\n"
+"    Did the brightness change following to your key presses?"
+msgstr ""
+
+#. description
+#: ../jobs/keys.txt.in:35
+msgid ""
+"PURPOSE:\n"
+"    This test will test the volume keys of your keyboard\n"
+"STEPS:\n"
+"    Skip this test if your computer has no volume keys.\n"
+"    1. Click test to open a window on which to test the volume keys.\n"
+"    2. If all the keys work, the test will be marked as passed.\n"
+"VERIFICATION:\n"
+"    Do the keys work as expected?"
+msgstr ""
+
+#. description
+#: ../jobs/keys.txt.in:51
+msgid ""
+"PURPOSE:\n"
+"    This test will test the mute key of your keyboard\n"
+"STEPS:\n"
+"    1. Click test to open a window on which to test the mute key.\n"
+"    2. If the key works, the test will pass and the window will close.\n"
+"VERIFICATION:\n"
+"    Does the mute key work as expected?"
+msgstr ""
+
+#. description
+#: ../jobs/keys.txt.in:65
+msgid ""
+"PURPOSE:\n"
+"    This test will test the sleep key\n"
+"STEPS:\n"
+"    1. Press the sleep key on the keyboard\n"
+"    2. Wake your system up by pressing the power button\n"
+"VERIFICATION:\n"
+"    Did the system go to sleep after pressing the sleep key?"
+msgstr ""
+
+#. description
+#: ../jobs/keys.txt.in:79
+msgid ""
+"PURPOSE:\n"
+"    This test will test the battery information key\n"
+"STEPS:\n"
+"    Skip this test if you do not have a Battery Button.\n"
+"    1. Click Test to begin\n"
+"    2. Press the Battery Info button (or combo like Fn+F3)\n"
+"    3: Close the Power Statistics tool if it opens\n"
+"VERIFICATION:\n"
+"    Did the Battery Info key work as expected?"
+msgstr ""
+
+#. description
+#: ../jobs/keys.txt.in:93
+msgid ""
+"PURPOSE:\n"
+"    This test will test the wireless key\n"
+"STEPS:\n"
+"    1. Press the wireless key on the keyboard\n"
+"    2. Check that the wifi LED turns off or changes color\n"
+"    3. Check that wireless is disabled\n"
+"    4. Press the same key again\n"
+"    5. Check that the wifi LED turns on or changes color\n"
+"    6. Check that wireless is enabled\n"
+"VERIFICATION:\n"
+"    Did the wireless turn off on the first press and on again on the "
+"second?\n"
+"    (NOTE: the LED functionality will be reviewed in a following test. "
+"Please\n"
+"    only consider the functionality of the wifi itself here.)"
+msgstr ""
+
+#. description
+#: ../jobs/keys.txt.in:114
+msgid ""
+"PURPOSE:\n"
+"    This test will test the media keys of your keyboard\n"
+"STEPS:\n"
+"    Skip this test if your computer has no media keys.\n"
+"    1. Click test to open a window on which to test the media keys.\n"
+"    2. If all the keys work, the test will be marked as passed.\n"
+"VERIFICATION:\n"
+"    Do the keys work as expected?"
+msgstr ""
+
+#. description
+#: ../jobs/keys.txt.in:130
+msgid ""
+"PURPOSE:\n"
+"    This test will test the super key of your keyboard\n"
+"STEPS:\n"
+"    1. Click test to open a window on which to test the super key.\n"
+"    2. If the key works, the test will pass and the window will close.\n"
+"VERIFICATION:\n"
+"    Does the super key work as expected?"
+msgstr ""
+
+#. description
+#: ../jobs/keys.txt.in:142
+msgid ""
+"PURPOSE:\n"
+"    Validate that the External Video hot key is working as expected\n"
+"STEPS:\n"
+"    1. Plug in an external monitor\n"
+"    2. Press the display hot key to change the monitors configuration\n"
+"VERIFICATION:\n"
+"    Check that the video signal can be mirrored, extended, displayed on "
+"external or onboard only."
+msgstr ""
+
+#. description
+#: ../jobs/keys.txt.in:154
+msgid ""
+"PURPOSE:\n"
+"    Verify touchpad hotkey toggles touchpad functionality on and off\n"
+"STEPS:\n"
+"    1. Verify the touchpad is functional\n"
+"    2. Tap the touchpad toggle hotkey\n"
+"    3. Tap the touchpad toggle hotkey again\n"
+"VERIFICATION:\n"
+"    Verify the touchpad has been disabled and re-enabled."
+msgstr ""
+
+#. description
+#: ../jobs/keys.txt.in:167
+msgid ""
+"PURPOSE:\n"
+"    Verify that the keyboard backlight toggle key works properly\n"
+"STEPS:\n"
+"    1. Tap the keyboard backlight key\n"
+"    2. Confirm that the keyboard backlight was toggled to the opposite "
+"state\n"
+"    3. Tap the keyboard backlight key again\n"
+"    4. Confirm that the keyboard backlight was toggled to the opposite "
+"state\n"
+"VERIFICATION:\n"
+"    Did the keyboard backlight state change on each press?"
+msgstr ""
+
+#. description
+#: ../jobs/keys.txt.in:187
+msgid ""
+"PURPOSE:\n"
+"    This test will test the mute key for your microphone\n"
+"STEPS:\n"
+"    1. Click \"Test\" then speak: \"Imagination is more important than "
+"knowledge\" (or anything else) into your microphone.\n"
+"    2. While you are speaking, please press the mute key for the microphone "
+"to mute it and press it again to unmute.\n"
+"    3. After a few seconds, your speech will be played back to you. If the "
+"key works, your speech should be interrupted for a few seconds.\n"
+"VERIFICATION:\n"
+"    Does the microphone mute key work as expected?"
+msgstr ""
+
+#. description
+#: ../jobs/keys.txt.in:201
+msgid ""
+"PURPOSE:\n"
+"    This test will test the hibernate key\n"
+"STEPS:\n"
+"    1. Press the hibernate key on the keyboard\n"
+"    2. Check that the system hibernated correctly\n"
+"    3. Wake your system after hibernating by pressing the power button\n"
+"VERIFICATION:\n"
+"    Did the system go to hibernate after pressing the hibernate key?"
+msgstr ""
+
+#. description
+#: ../jobs/keys.txt.in:214
+msgid ""
+"PURPOSE:\n"
+"    This test will test the keyboard overhead light key or switch\n"
+"STEPS:\n"
+"    1. Press the keyboard overhead light key or swtich on the light\n"
+"    2. Check the the keyboard overhead light turn on correctly\n"
+"    3. Press the key or switch again to toggle off the light\n"
+"VERIFICATION:\n"
+"    Did the keyboard overhead light key or switch turns on and off the light?"
+msgstr ""
+
+#. description
+#: ../jobs/led.txt.in:3
+msgid ""
+"PURPOSE:\n"
+"    Power LED verification\n"
+"STEPS:\n"
+"    1. Power LED should be on while device is switched on\n"
+"VERIFICATION:\n"
+"    Does the power LED light as expected?"
+msgstr ""
+
+#. description
+#: ../jobs/led.txt.in:14
+msgid ""
+"PURPOSE:\n"
+"    Power LED verification\n"
+"STEPS:\n"
+"    1. The Power LED should blink or change color while the system is "
+"suspended\n"
+"VERIFICATION:\n"
+"    Did the Power LED blink or change color while the system was suspended "
+"for the previous suspend test?"
+msgstr ""
+
+#. description
+#: ../jobs/led.txt.in:24
+msgid ""
+"PURPOSE:\n"
+"    Suspend LED verification.\n"
+"STEPS:\n"
+"    Skip this test if your system does not have a dedicated Suspend LED.\n"
+"    1. The Suspend LED should blink or change color while the system is\n"
+"    suspended\n"
+"VERIFICATION\n"
+"    Did the Suspend LED blink or change color while the system was suspended?"
+msgstr ""
+
+#. description
+#: ../jobs/led.txt.in:36
+msgid ""
+"PURPOSE:\n"
+"    Validate that the battery light shows charging status\n"
+"STEPS:\n"
+"    1. Let system run on battery for a while\n"
+"    2. Plug in AC plug\n"
+"VERIFICATION:\n"
+"    Did the battery indicator LED turn orange?"
+msgstr ""
+
+#. description
+#: ../jobs/led.txt.in:47
+msgid ""
+"PURPOSE:\n"
+"    Validate that the battery LED properly displays charged status\n"
+"STEPS:\n"
+"    1. Let system run on battery for a short time\n"
+"    2. Plug in AC\n"
+"    3. Let system run on AC\n"
+"VERIFICATION:\n"
+"    Does the orange battery LED shut off when system is fully charged?"
+msgstr ""
+
+#. description
+#: ../jobs/led.txt.in:59
+msgid ""
+"PURPOSE:\n"
+"    Validate that the battery LED indicated low power\n"
+"STEPS:\n"
+"    1. Let system run on battery for several hours\n"
+"    2. Monitor battery LED carefully\n"
+"VERIFICATION:\n"
+"    Does the LED light orange when battery is low?"
+msgstr ""
+
+#. description
+#: ../jobs/led.txt.in:71
+msgid ""
+"PURPOSE:\n"
+"    HDD LED verification\n"
+"STEPS:\n"
+"    1. Select \"Test\" to write and read a temporary file for a few seconds\n"
+"    2. HDD LED should light when writing to/reading from HDD\n"
+"VERIFICATION:\n"
+"    Did the HDD LED light?"
+msgstr ""
+
+#. description
+#: ../jobs/led.txt.in:83
+msgid ""
+"PURPOSE:\n"
+"    Numeric keypad LED verification\n"
+"STEPS:\n"
+"    1. Press \"Block Num\" key to toggle numeric keypad LED\n"
+"    2. Click on the \"Test\" button to open a window to verify your typing\n"
+"    3. Type using the numeric keypad both when the LED is on and off\n"
+"VERIFICATION:\n"
+"    1. Numeric keypad LED status should toggle everytime the \"Block Num\" "
+"key is pressed\n"
+"    2. Numbers should only be entered in the keyboard verification window "
+"when the LED is on"
+msgstr ""
+
+#. description
+#: ../jobs/led.txt.in:96
+msgid ""
+"PURPOSE:\n"
+"    Block cap keys LED verification\n"
+"STEPS:\n"
+"    1. Press \"Block Cap Keys\" to activate/deactivate cap keys blocking\n"
+"    2. Cap Keys LED should be switched on/off every time the key is pressed\n"
+"VERIFICATION:\n"
+"    Did the Cap Keys LED light as expected?"
+msgstr ""
+
+#. description
+#: ../jobs/led.txt.in:108
+msgid ""
+"PURPOSE:\n"
+"    WLAN LED verification\n"
+"STEPS:\n"
+"    1. During the keys/wireless test you should have observed the\n"
+"    wireless LED while turning wireless back on.\n"
+"    2. WLAN LED should light or change color when wireless is turned on\n"
+"VERIFICATION:\n"
+"    Did the WLAN LED turn on or change color as expected?"
+msgstr ""
+
+#. description
+#: ../jobs/led.txt.in:121
+msgid ""
+"PURPOSE:\n"
+"    Validate that WLAN LED shuts off when disabled\n"
+"STEPS:\n"
+"    1. During the keys/wireless test you should have observed the WLAN LED\n"
+"    while performing that test after turning wireless off.\n"
+"    2. WLAN LED should turn off or change color when wireless is turned off\n"
+"VERIFICATION:\n"
+"    Did the WLAN LED turn off or change color as expected?"
+msgstr ""
+
+#. description
+#: ../jobs/led.txt.in:134
+msgid ""
+"PURPOSE:\n"
+"    Validate that the Bluetooth LED turns on and off when BT is enabled/"
+"disabled\n"
+"STEPS:\n"
+"    1. Switch bluetooth off from a hardware switch (if present)\n"
+"    2. Switch bluetooth back on\n"
+"    3. Switch bluetooth off from the panel applet\n"
+"    4. Switch bluetooth back on\n"
+"VERIFICATION:\n"
+"    Did the bluetooth LED turn off and on twice?"
+msgstr ""
+
+#. description
+#: ../jobs/led.txt.in:149
+msgid ""
+"PURPOSE:\n"
+"    Camera LED verification\n"
+"STEPS:\n"
+"    1. Select Test to activate camera\n"
+"    2. Camera LED should light for a few seconds\n"
+"VERIFICATION:\n"
+"    Did the camera LED light?"
+msgstr ""
+
+#. description
+#: ../jobs/led.txt.in:160
+msgid ""
+"PURPOSE:\n"
+"    Touchpad LED verification\n"
+"STEPS:\n"
+"    1. Click on the touchpad button or press key combination to enable/"
+"disable touchpad button\n"
+"    2. Slide your finger on the touchpad\n"
+"VERIFICATION:\n"
+"    1. Touchpad LED status should toggle everytime the button is clicked or "
+"the key combination is pressed\n"
+"    2. When the LED is on, the mouse pointer should move on touchpad usage\n"
+"    3. When the LED is off, the mouse pointer should not move on touchpad "
+"usage"
+msgstr ""
+
+#. description
+#: ../jobs/led.txt.in:173
+msgid ""
+"PURPOSE:\n"
+"    Wireless (WLAN + Bluetooth) LED verification\n"
+"STEPS:\n"
+"    1. Make sure WLAN connection is established and Bluetooth is enabled.\n"
+"    2. WLAN/Bluetooth LED should light\n"
+"    3. Switch WLAN and Bluetooth off from a hardware switch (if present)\n"
+"    4. Switch them back on\n"
+"    5. Switch WLAN and Bluetooth off from the panel applet\n"
+"    6. Switch them back on\n"
+"VERIFICATION:\n"
+"    Did the WLAN/Bluetooth LED light as expected?"
+msgstr ""
+
+#. description
+#: ../jobs/led.txt.in:189
+msgid ""
+"PURPOSE:\n"
+"    Audio Mute LED verification.\n"
+"STEPS:\n"
+"    Skip this test if your system does not have a special Audio Mute LED.\n"
+"    1. Press the Mute key twice and observe the Audio LED to determine if "
+"it\n"
+"    either turned off and on or changed colors.\n"
+"VERIFICATION:\n"
+"    Did the Audio LED turn on and off change color as expected?"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:3
+msgid "Audio tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:10
+msgid "Benchmarks tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:17
+msgid "Bluetooth tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:24
+msgid "Camera tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:31
+msgid "Codec tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:38
+msgid "CPU tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:45
+msgid "System Daemon tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:52
+msgid "Disk tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:59
+msgid "Ethernet Device tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:66
+msgid "eSATA disk tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:73
+msgid "Fingerprint reader tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:80
+msgid "Firewire disk tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:87
+msgid "Firmware tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:94
+msgid "Floppy disk tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:101
+msgid "Graphics tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:108
+msgid "Hibernation tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:115
+msgid "Informational tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:122
+msgid "Input Devices tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:129
+msgid "Software Installation tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:136
+msgid "Hotkey tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:143
+msgid "LED tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:150
+msgid "Media Card tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:157
+msgid "Memory tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:164
+msgid "Rendercheck tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:171
+msgid "MIR tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:178
+msgid "Miscellaneous tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:185
+msgid "Monitor tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:192
+msgid "Non-device specific networking tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:199
+msgid "Optical Drive tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:206
+msgid "Panel Clock Verification tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:213
+msgid "Panel Reboot Verification tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:220
+msgid "ExpressCard tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:227
+msgid "Peripheral tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:234
+msgid "Piglit tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:241
+msgid "Power Management tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:248
+msgid "Server Services checks"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:255
+msgid "Suspend tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:262
+msgid "Touchpad tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:269
+msgid "Touchscreen tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:276
+msgid "USB tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:283
+msgid "User Applications"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:290
+msgid "Virtualization tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:297
+msgid "Wireless networking tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:304
+msgid "Mobile broadband tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:311
+msgid "Stress tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:318
+msgid "Smoke tests"
+msgstr ""
+
+#. description
+#: ../jobs/local.txt.in:325
+msgid "Sniff Sniffers"
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:5
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the systems media card reader can\n"
+"    detect the insertion of a Multimedia Card (MMC) media\n"
+"STEPS:\n"
+"    1. Click \"Test\" and then insert an MMC card into the reader.\n"
+"       If a file browser opens up, you can safely close it.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"    2. Do not remove the device after this test.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:24
+msgid ""
+"This test is automated and executes after the mediacard/mmc-insert test is "
+"run. It tests reading and writing to the MMC card."
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:33
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the system correctly detects\n"
+"    the removal of the MMC card from the systems card reader.\n"
+"STEPS:\n"
+"    1. Click \"Test\" and then remove the MMC card from the reader.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:48
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the systems media card reader can\n"
+"    detect the insertion of an UNLOCKED Secure Digital (SD) media card\n"
+"STEPS:\n"
+"    1. Click \"Test\" and then insert an UNLOCKED SD card into the reader.\n"
+"       If a file browser opens up, you can safely close it.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"    2. Do not remove the device after this test.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:67
+msgid ""
+"This test is automated and executes after the mediacard/sd-insert test is "
+"run. It tests reading and writing to the SD card."
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:76
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the system correctly detects\n"
+"    the removal of an SD card from the systems card reader.\n"
+"STEPS:\n"
+"    1. Click \"Test\" and then remove the SD card from the reader.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:93
+msgid ""
+"This is a fully automated version of mediacard/sd-automated and assumes that "
+"the system under test has a memory card device plugged in prior to checkbox "
+"execution. It is intended for SRU automated testing."
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:102
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the systems media card reader can\n"
+"    detect the insertion of a UNLOCKED Secure Digital High-Capacity\n"
+"    (SDHC) media card\n"
+"STEPS:\n"
+"    1. Click \"Test\" and then insert an UNLOCKED SDHC card into the "
+"reader.\n"
+"       If a file browser opens up, you can safely close it.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"    2. Do not remove the device after this test.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:122
+msgid ""
+"This test is automated and executes after the mediacard/sdhc-insert test is "
+"run. It tests reading and writing to the SDHC card."
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:131
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the system correctly detects\n"
+"    the removal of an SDHC card from the systems card reader.\n"
+"STEPS:\n"
+"    1. Click \"Test\" and then remove the SDHC card from the reader.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:146
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the systems media card reader can\n"
+"    detect the insertion of a Compact Flash (CF) media card\n"
+"STEPS:\n"
+"    1. Click \"Test\" and then insert a CF card into the reader.\n"
+"       If a file browser opens up, you can safely close it.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"    2. Do not remove the device after this test.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:165
+msgid ""
+"This test is automated and executes after the mediacard/cf-insert test is "
+"run. It tests reading and writing to the CF card."
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:174
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the system correctly detects\n"
+"    the removal of a CF card from the systems card reader.\n"
+"STEPS:\n"
+"    1. Click \"Test\" and then remove the CF card from the reader.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:189
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the systems media card reader can\n"
+"    detect the insertion of a Secure Digital Extended Capacity (SDXC) media "
+"card\n"
+"STEPS:\n"
+"    1. Click \"Test\" and then insert an UNLOCKED SDXC card into the "
+"reader.\n"
+"       If a file browser opens up, you can safely close it.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"    2. Do not remove the device after this test.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:208
+msgid ""
+"This test is automated and executes after the mediacard/sdxc-insert test is "
+"run. It tests reading and writing to the SDXC card."
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:217
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the system correctly detects\n"
+"    the removal of a SDXC card from the systems card reader.\n"
+"STEPS:\n"
+"    1. Click \"Test\" and then remove the SDXC card from the reader.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:232
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the systems media card reader can\n"
+"    detect the insertion of a Memory Stick (MS) media card\n"
+"STEPS:\n"
+"    1. Click \"Test\" and then insert a MS card into the reader.\n"
+"       If a file browser opens up, you can safely close it.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"    2. Do not remove the device after this test.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:251
+msgid ""
+"This test is automated and executes after the mediacard/ms-insert test is "
+"run. It tests reading and writing to the MS card."
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:260
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the system correctly detects\n"
+"    the removal of a MS card from the systems card reader.\n"
+"STEPS:\n"
+"    1. Click \"Test\" and then remove the MS card from the reader.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:275
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the systems media card reader can\n"
+"    detect the insertion of a Memory Stick Pro (MSP) media card\n"
+"STEPS:\n"
+"    1. Click \"Test\" and then insert a MSP card into the reader.\n"
+"       If a file browser opens up, you can safely close it.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"    2. Do not remove the device after this test.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:294
+msgid ""
+"This test is automated and executes after the mediacard/msp-insert test is "
+"run. It tests reading and writing to the MSP card."
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:303
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the system correctly detects\n"
+"    the removal of a MSP card from the systems card reader.\n"
+"STEPS:\n"
+"    1. Click \"Test\" and remove the MSP card from the reader.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:318
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the systems media card reader can\n"
+"    detect the insertion of a Extreme Digital (xD) media card\n"
+"STEPS:\n"
+"    1. Click \"Test\" and then insert a xD card into the reader.\n"
+"       If a file browser opens up, you can safely close it.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"    2. Do not remove the device after this test.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:337
+msgid ""
+"This test is automated and executes after the mediacard/xd-insert test is "
+"run. It tests reading and writing to the xD card."
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:346
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the system correctly detects\n"
+"    the removal of a xD card from the systems card reader.\n"
+"STEPS:\n"
+"    1. Click \"Test\" and then remove the xD card from the reader.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:363
+msgid ""
+"PURPOSE:\n"
+"    This test will check your Media Card data transfer performance.\n"
+"STEPS:\n"
+"    1. Insert SD card into the reader slot on this computer.\n"
+"    2. Click the test button to perform the test.\n"
+"VERIFICATION:\n"
+"    Did the results of the test match the expected performance of the "
+"inserted device?"
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:378
+msgid ""
+"PURPOSE:\n"
+"    This test will check your Media Card data transfer performance.\n"
+"STEPS:\n"
+"    1. Insert SDHC card into the reader slot on this computer.\n"
+"    2. Click the test button to perform the test.\n"
+"VERIFICATION:\n"
+"    Did the results of the test match the expected performance of the "
+"inserted device?"
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:393
+msgid ""
+"PURPOSE:\n"
+"    This test will check your Media Card data transfer performance.\n"
+"STEPS:\n"
+"    1. Insert MMC card into the reader slot on this computer.\n"
+"    2. Click the test button to perform the test.\n"
+"VERIFICATION:\n"
+"    Did the results of the test match the expected performance of the "
+"inserted device?"
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:408
+msgid ""
+"PURPOSE:\n"
+"    This test will check your Media Card data transfer performance.\n"
+"STEPS:\n"
+"    1. Insert CF card into the reader slot on this computer.\n"
+"    2. Click the test button to perform the test.\n"
+"VERIFICATION:\n"
+"    Did the results of the test match the expected performance of the "
+"inserted device?"
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:423
+msgid ""
+"PURPOSE:\n"
+"    This test will check your Media Card data transfer performance.\n"
+"STEPS:\n"
+"    1. Insert SDXC card into the reader slot on this computer.\n"
+"    2. Click the test button to perform the test.\n"
+"VERIFICATION:\n"
+"    Did the results of the test match the expected performance of the "
+"inserted device?"
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:438
+msgid ""
+"PURPOSE:\n"
+"    This test will check your Media Card data transfer performance.\n"
+"STEPS:\n"
+"    1. Insert MS card into the reader slot on this computer.\n"
+"    2. Click the test button to perform the test.\n"
+"VERIFICATION:\n"
+"    Did the results of the test match the expected performance of the "
+"inserted device?"
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:453
+msgid ""
+"PURPOSE:\n"
+"    This test will check your Media Card data transfer performance.\n"
+"STEPS:\n"
+"    1. Insert MSP card into the reader slot on this computer.\n"
+"    2. Click the test button to perform the test.\n"
+"VERIFICATION:\n"
+"    Did the results of the test match the expected performance of the "
+"inserted device?"
+msgstr ""
+
+#. description
+#: ../jobs/mediacard.txt.in:468
+msgid ""
+"PURPOSE:\n"
+"    This test will check your Media Card data transfer performance.\n"
+"STEPS:\n"
+"    1. Insert XD card into the reader slot on this computer.\n"
+"    2. Click the test button to perform the test.\n"
+"VERIFICATION:\n"
+"    Did the results of the test match the expected performance of the "
+"inserted device?"
+msgstr ""
+
+#. description
+#: ../jobs/memory.txt.in:5
+msgid ""
+"This test checks the amount of memory which is reporting in meminfo against "
+"the size of the memory modules detected by DMI."
+msgstr ""
+
+#. description
+#: ../jobs/memory.txt.in:15
+msgid "Test and exercise memory."
+msgstr ""
+
+#. description
+#: ../jobs/mir.txt.in:5
+msgid "MIR Integration tests"
+msgstr ""
+
+#. description
+#: ../jobs/mir.txt.in:20
+msgid "MIR Acceptance tests"
+msgstr ""
+
+#. description
+#: ../jobs/miscellanea.txt.in:16
+msgid "   A meta-job depending on the resources needed for a valid submission."
+msgstr ""
+
+#. description
+#: ../jobs/miscellanea.txt.in:21
+msgid ""
+"PURPOSE:\n"
+"    Keep tester related information in the report\n"
+"STEPS:\n"
+"    1. Tester Information\n"
+"    2. Please enter the following information in the comments field:\n"
+"       a. Name\n"
+"       b. Email Address\n"
+"       c. Reason for this test run\n"
+"VERIFICATION:\n"
+"    Nothing to verify for this test"
+msgstr ""
+
+#. description
+#: ../jobs/miscellanea.txt.in:39
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the system can switch to a virtual terminal "
+"and back to X\n"
+"STEPS:\n"
+"    1. Click \"Test\" to switch to another virtual terminal and then back to "
+"X\n"
+"VERIFICATION:\n"
+"    Did your screen change temporarily to a text console and then switch "
+"back to your current session?"
+msgstr ""
+
+#. description
+#: ../jobs/miscellanea.txt.in:53
+msgid "Run Firmware Test Suite (fwts) automated tests."
+msgstr ""
+
+#. description
+#: ../jobs/miscellanea.txt.in:63
+msgid "Attaches the FWTS results log to the submission"
+msgstr ""
+
+#. description
+#: ../jobs/miscellanea.txt.in:70
+msgid ""
+"This will run some basic connectivity tests against a BMC, verifying that "
+"IPMI works."
+msgstr ""
+
+#. description
+#: ../jobs/miscellanea.txt.in:76
+msgid ""
+"   Determine if we need to run tests specific to portable computers that may "
+"not apply to desktops."
+msgstr ""
+
+#. description
+#: ../jobs/miscellanea.txt.in:84
+msgid ""
+"Test that the /var/crash directory doesn't contain anything. Lists the files "
+"contained within if it does, or echoes the status of the directory (doesn't "
+"exist/is empty)"
+msgstr ""
+
+#. description
+#: ../jobs/miscellanea.txt.in:90
+msgid ""
+"Checks that a specified sources list file contains the requested repositories"
+msgstr ""
+
+#. description
+#: ../jobs/miscellanea.txt.in:96
+msgid "Automated job to generate the PXE verification test for each NIC."
+msgstr ""
+
+#. description
+#: ../jobs/miscellanea.txt.in:117
+msgid ""
+"Automated job to generate the Remote Shared IPMI verification test for each "
+"NIC."
+msgstr ""
+
+#. description
+#: ../jobs/miscellanea.txt.in:135
+msgid ""
+"PURPOSE:\n"
+" Some systems do not share IPMI over all NICs but instead have a dedicated "
+"management port directly connected to the BMC.  This test verifies that you "
+"have used that port for remote IPMI connections and actions.\n"
+"STEPS:\n"
+" 1. Prior to running the test, you should have configured and used the "
+"Dedicated Management Port to remotely power off/on this sytem.\n"
+"VERIFICATION:\n"
+" Skip this test if this system ONLY uses shared management/ethernet ports OR "
+"if this system does not have a BMC (Management Console)\n"
+" 1. Select Yes if you successfully used IPMI to remotely power this system "
+"off and on using the dedicated management port.\n"
+" 2. Select No if you attempted to use the dedicated management port to "
+"remotely power this system off/on and it failed for some reason."
+msgstr ""
+
+#. description
+#: ../jobs/miscellanea.txt.in:151
+msgid "Run Firmware Test Suite (fwts) oops tests."
+msgstr ""
+
+#. description
+#: ../jobs/miscellanea.txt.in:162
+msgid "Attaches the FWTS oops results log to the submission"
+msgstr ""
+
+#. description
+#: ../jobs/mobilebroadband.txt.in:26
+msgid ""
+"Creates a mobile broadband connection for a GSM based modem and checks the "
+"connection to ensure it's working. "
+msgstr ""
+
+#. description
+#: ../jobs/mobilebroadband.txt.in:52
+msgid ""
+"Creates a mobile broadband connection for a CDMA based modem and checks the "
+"connection to ensure it's working."
+msgstr ""
+
+#. description
+#: ../jobs/monitor.txt.in:4
+msgid ""
+"PURPOSE:\n"
+"    This test will check your VGA port.\n"
+"STEPS:\n"
+"    Skip this test if your system does not have a VGA port.\n"
+"    1. Connect a display (if not already connected) to the VGA port on your "
+"system\n"
+"VERIFICATION:\n"
+"    Was the desktop displayed correctly on both screens?"
+msgstr ""
+
+#. description
+#: ../jobs/monitor.txt.in:16
+msgid ""
+"PURPOSE:\n"
+"    This test will check your DVI port.\n"
+"STEPS:\n"
+"    Skip this test if your system does not have a DVI port.\n"
+"    1. Connect a display (if not already connected) to the DVI port on your "
+"system\n"
+"VERIFICATION:\n"
+"    Was the desktop displayed correctly on both screens?"
+msgstr ""
+
+#. description
+#: ../jobs/monitor.txt.in:28
+msgid ""
+"PURPOSE:\n"
+"    This test will check your DisplayPort port.\n"
+"STEPS:\n"
+"    Skip this test if your system does not have a DisplayPort port.\n"
+"    1. Connect a display (if not already connected) to the DisplayPort port "
+"on your system\n"
+"VERIFICATION:\n"
+"    Was the desktop displayed correctly on both screens?"
+msgstr ""
+
+#. description
+#: ../jobs/monitor.txt.in:40
+msgid ""
+"PURPOSE:\n"
+"    This test will check your HDMI port.\n"
+"STEPS:\n"
+"    Skip this test if your system does not have a HDMI port.\n"
+"    1. Connect a display (if not already connected) to the HDMI port on your "
+"system\n"
+"VERIFICATION:\n"
+"    Was the desktop displayed correctly on both screens?"
+msgstr ""
+
+#. description
+#: ../jobs/monitor.txt.in:52
+msgid ""
+"PURPOSE:\n"
+"    This test will check your S-VIDEO port.\n"
+"STEPS:\n"
+"    Skip this test if your system does not have a S-VIDEO port.\n"
+"    1. Connect a display (if not already connected) to the S-VIDEO port on "
+"your system\n"
+"VERIFICATION:\n"
+"    Was the desktop displayed correctly on both screens?"
+msgstr ""
+
+#. description
+#: ../jobs/monitor.txt.in:64
+msgid ""
+"PURPOSE:\n"
+"    This test will check your RCA port.\n"
+"STEPS:\n"
+"    Skip this test if your system does not have a RCA port.\n"
+"    1. Connect a display (if not already connected) to the RCA port on your "
+"system\n"
+"VERIFICATION:\n"
+"    Was the desktop displayed correctly on both screens?"
+msgstr ""
+
+#. description
+#: ../jobs/monitor.txt.in:76
+msgid ""
+"PURPOSE:\n"
+"    This test verifies that multi-monitor output works on your desktop "
+"system. This is NOT the same test as the external monitor tests you would "
+"run on your laptop.  You will need two monitors to perform this test.\n"
+"STEPS:\n"
+"    Skip this test if your video card does not support multiple monitors.\n"
+"    1. If your second monitor is not already connected, connect it now\n"
+"    2. Open the \"Displays\" tool (open the dash and search for \"Displays"
+"\")\n"
+"    3. Configure your output to provide one desktop across both monitors\n"
+"    4. Open any application and drag it from one monitor to the next.\n"
+"VERIFICATION:\n"
+"    Was the stretched desktop displayed correctly across both screens?"
+msgstr ""
+
+#. description
+#: ../jobs/monitor.txt.in:91
+msgid ""
+"PURPOSE:\n"
+"    This test will check your monitor power saving capabilities\n"
+"STEPS:\n"
+"    1. Click \"Test\" to try the power saving capabilities of your monitor\n"
+"    2. Press any key or move the mouse to recover\n"
+"VERIFICATION:\n"
+"    Did the monitor go blank and turn on again?"
+msgstr ""
+
+#. description
+#: ../jobs/monitor.txt.in:105
+msgid ""
+"PURPOSE:\n"
+"    This test will test changes to screen brightness\n"
+"STEPS:\n"
+"    1. Click \"Test\" to try to dim the screen.\n"
+"    2. Check if the screen was dimmed approximately to half of the maximum "
+"brightness.\n"
+"    3. The screen will go back to the original brightness in 2 seconds.\n"
+"VERIFICATION:\n"
+"    Was your screen dimmed approximately to half of the maximum brightness?"
+msgstr ""
+
+#. description
+#: ../jobs/networking.txt.in:6
+msgid "Tests whether the system has a working Internet connection."
+msgstr ""
+
+#. description
+#: ../jobs/networking.txt.in:12
+msgid "Network Information"
+msgstr ""
+
+#. description
+#: ../jobs/networking.txt.in:31
+msgid ""
+"PURPOSE:\n"
+"   This test will check that a DSL modem can be configured and connected.\n"
+"STEPS:\n"
+"   1. Connect the telephone line to the computer\n"
+"   2. Click on the Network icon on the top panel.\n"
+"   3. Select \"Edit Connections\"\n"
+"   4. Select the \"DSL\" tab\n"
+"   5. Click on \"Add\" button\n"
+"   6. Configure the connection parameters properly\n"
+"   7. Click \"Test\" to verify that it's possible to establish an HTTP "
+"connection\n"
+"VERIFICATION:\n"
+"   Did a notification show and was the connection correctly established?"
+msgstr ""
+
+#. description
+#: ../jobs/networking.txt.in:48
+msgid ""
+"Automated test case to verify availability of some system on the network "
+"using ICMP ECHO packets."
+msgstr ""
+
+#. description
+#: ../jobs/networking.txt.in:54 ../jobs/peripheral.txt.in:37
+msgid ""
+"Automated test case to make sure that it's possible to download files "
+"through HTTP"
+msgstr ""
+
+#. description
+#: ../jobs/networking.txt.in:62
+msgid "Test to see if we can sync local clock to an NTP server"
+msgstr ""
+
+#. description
+#: ../jobs/networking.txt.in:68
+msgid ""
+"Verify that an installation of checkbox-server on the network can be reached "
+"over SSH."
+msgstr ""
+
+#. description
+#: ../jobs/networking.txt.in:74
+msgid "Try to enable a remote printer on the network and print a test page."
+msgstr ""
+
+#. description
+#: ../jobs/optical.txt.in:5
+msgid "Test to detect the optical drives"
+msgstr ""
+
+#. description
+#: ../jobs/optical.txt.in:16
+msgid "Optical read test."
+msgstr ""
+
+#. description
+#: ../jobs/optical.txt.in:41
+msgid "Automated optical read test."
+msgstr ""
+
+#. description
+#: ../jobs/optical.txt.in:59
+msgid "CD write test."
+msgstr ""
+
+#. description
+#: ../jobs/optical.txt.in:87
+msgid "Automated CD write test"
+msgstr ""
+
+#. description
+#: ../jobs/optical.txt.in:106
+msgid ""
+"PURPOSE:\n"
+"    This test will check your CD audio playback capabilities\n"
+"STEPS:\n"
+"    1. Insert an audio CD in your optical drive\n"
+"    2. When prompted, launch the Music Player\n"
+"    3. Locate the CD in the display of the Music Player\n"
+"    4. Select the CD in the Music Player\n"
+"    5. Click the Play button to listen to the music on the CD\n"
+"    6. Stop playing after some time\n"
+"    7. Right click on the CD icon and select \"Eject Disc\"\n"
+"    8. The CD should be ejected\n"
+"    9. Close the Music Player\n"
+"VERIFICATION:\n"
+"    Did all the steps work?"
+msgstr ""
+
+#. description
+#: ../jobs/optical.txt.in:127
+msgid "DVD write test."
+msgstr ""
+
+#. description
+#: ../jobs/optical.txt.in:155
+msgid "Automated DVD write test."
+msgstr ""
+
+#. description
+#: ../jobs/optical.txt.in:177
+msgid ""
+"PURPOSE:\n"
+"    This test will check your DVD  playback capabilities\n"
+"STEPS:\n"
+"    1. Insert a DVD that contains any movie in your optical drive\n"
+"    2. Click \"Test\" to play the DVD in Totem\n"
+"VERIFICATION:\n"
+"    Did the file play?"
+msgstr ""
+
+#. description
+#: ../jobs/optical.txt.in:190
+msgid "Automated Blu-Ray read test."
+msgstr ""
+
+#. description
+#: ../jobs/optical.txt.in:216
+msgid "Automated Blu-Ray write test."
+msgstr ""
+
+#. description
+#: ../jobs/panel_clock_test.txt.in:4
+msgid ""
+"PURPOSE:\n"
+"   This test will verify that the desktop clock displays the correct date "
+"and time\n"
+"STEPS:\n"
+"   1. Check the clock in the upper right corner of your desktop.\n"
+"VERIFICATION:\n"
+"   Is the clock displaying the correct date and time for your timezone?"
+msgstr ""
+
+#. description
+#: ../jobs/panel_clock_test.txt.in:18
+msgid ""
+"PURPOSE:\n"
+"   This test will verify that the desktop clock synchronizes with the system "
+"clock.\n"
+"STEPS:\n"
+"   1. Click the \"Test\" button and verify the clock moves ahead by 1 hour.\n"
+"   Note: It may take a minute or so for the clock to refresh\n"
+"   2. Right click on the clock, then click on \"Time & Date Settings...\"\n"
+"   3. Ensure that your clock application is set to manual.\n"
+"   4. Change the time 1 hour back\n"
+"   5. Close the window and reboot\n"
+"VERIFICATION:\n"
+"   Is your system clock displaying the correct date and time for your "
+"timezone?"
+msgstr ""
+
+#. description
+#: ../jobs/panel_reboot.txt.in:3
+msgid ""
+"PURPOSE:\n"
+"   This test will verify that you can reboot your system from the desktop "
+"menu\n"
+"STEPS:\n"
+"   1. Click the Gear icon in the upper right corner of the desktop and click "
+"on \"Shut Down\"\n"
+"   2. Click the \"Restart\" button on the left side of the Shut Down dialog\n"
+"   3. After logging back in, restart System Testing and it should resume "
+"here\n"
+"VERIFICATION:\n"
+"   Did your system restart and bring up the GUI login cleanly?"
+msgstr ""
+
+#. description
+#: ../jobs/peripheral.txt.in:3
+msgid ""
+"PURPOSE:\n"
+"   This test will verify that a network printer is usable\n"
+"STEPS:\n"
+"   1. Make sure that a printer is available in your network\n"
+"   2. Click on the Gear icon in the upper right corner and then click on "
+"Printers\n"
+"   3. If the printer isn't already listed, click on Add\n"
+"   4. The printer should be detected and proper configuration values  should "
+"be displayed\n"
+"   5. Print a test page\n"
+"VERIFICATION:\n"
+"   Were you able to print a test page to the network printer?"
+msgstr ""
+
+#. description
+#: ../jobs/peripheral.txt.in:18
+msgid ""
+"PURPOSE:\n"
+"   This test will verify that a USB DSL or Mobile Broadband modem works\n"
+"STEPS:\n"
+"   1. Connect the USB cable to the computer\n"
+"   2. Right click on the Network icon in the panel\n"
+"   3. Select 'Edit Connections'\n"
+"   4. Select the 'DSL' (for ADSL modem) or 'Mobile Broadband' (for 3G modem) "
+"tab\n"
+"   5. Click on 'Add' button\n"
+"   6. Configure the connection parameters properly\n"
+"   7. Notify OSD should confirm that the connection has been established\n"
+"   8. Select Test to verify that it's possible to establish an HTTP "
+"connection\n"
+"VERIFICATION:\n"
+"   Was the connection correctly established?"
+msgstr ""
+
+#. description
+#: ../jobs/piglit.txt.in:7
+msgid ""
+"Runs piglit tests for checking support for framebuffer object operations, "
+"depth buffer and stencil buffer"
+msgstr ""
+
+#. description
+#: ../jobs/piglit.txt.in:16
+msgid "Runs piglit tests for checking OpenGL 2.1 support"
+msgstr ""
+
+#. description
+#: ../jobs/piglit.txt.in:25
+msgid ""
+"Runs piglit tests for checking support for vertex buffer object operations"
+msgstr ""
+
+#. description
+#: ../jobs/piglit.txt.in:34
+msgid ""
+"Runs piglit tests for checking support for GLSL fragment shader operations"
+msgstr ""
+
+#. description
+#: ../jobs/piglit.txt.in:43
+msgid ""
+"Runs piglit tests for checking support for GLSL vertex shader operations"
+msgstr ""
+
+#. description
+#: ../jobs/piglit.txt.in:52
+msgid "Runs piglit tests for checking support for texture from pixmap"
+msgstr ""
+
+#. description
+#: ../jobs/piglit.txt.in:61
+msgid "Runs piglit_tests for checking support for stencil buffer operations"
+msgstr ""
+
+#. description
+#: ../jobs/piglit.txt.in:70
+msgid "Runs the piglit results summarizing tool"
+msgstr ""
+
+#. description
+#: ../jobs/piglit.txt.in:79
+msgid "Archives the piglit-summary directory into the piglit-results.tar.gz."
+msgstr ""
+
+#. description
+#: ../jobs/power-management.txt.in:3
+msgid ""
+"PURPOSE:\n"
+"    This test will check your system shutdown/booting cycle.\n"
+"STEPS:\n"
+"    1. Shutdown your machine.\n"
+"    2. Boot your machine.\n"
+"    3. Repeat steps 1 and 2 at least 5 times.\n"
+"VERIFICATION:\n"
+"    Did the system shutdown and rebooted correctly?"
+msgstr ""
+
+#. description
+#: ../jobs/power-management.txt.in:18
+msgid "Test ACPI Wakealarm (fwts wakealarm)"
+msgstr ""
+
+#. description
+#: ../jobs/power-management.txt.in:27
+msgid "Attach log from fwts wakealarm test"
+msgstr ""
+
+#. description
+#: ../jobs/power-management.txt.in:41
+msgid ""
+"PURPOSE:\n"
+" This test will check the system's ability to power-off and boot.\n"
+"STEPS:\n"
+" 1. Select \"Test\" to begin.\n"
+" 2. The machine will shut down.\n"
+" 3. Power the machine back on.\n"
+" 4. After rebooting, wait for the test prompts to inform you that the test "
+"is complete.\n"
+" 5. Once the test has completed, restart checkbox and select 'Re-run' when "
+"prompted.\n"
+"VERIFICATION:\n"
+" If the machine successfully shuts down and boots, select 'Yes', otherwise,\n"
+" select 'No'."
+msgstr ""
+
+#. description
+#: ../jobs/power-management.txt.in:57
+msgid ""
+"This will attach any logs from the power-management/poweroff test to the "
+"results."
+msgstr ""
+
+#. description
+#: ../jobs/power-management.txt.in:68
+msgid ""
+"PURPOSE:\n"
+" This test will check the system's ability to reboot cleanly.\n"
+"STEPS:\n"
+" 1. Select \"Test\" to begin.\n"
+" 2. The machine will reboot.\n"
+" 3. After rebooting, wait for the test prompts to inform you that the test "
+"is complete.\n"
+" 4. Once the test has completed, restart checkbox and select Re-Run when "
+"prompted.\n"
+"VERIFICATION:\n"
+" If the machine successfully reboots, select Yes then select Next."
+msgstr ""
+
+#. description
+#: ../jobs/power-management.txt.in:82
+msgid ""
+"This will attach any logs from the power-management/reboot test to the "
+"results."
+msgstr ""
+
+#. description
+#: ../jobs/power-management.txt.in:88
+msgid ""
+"PURPOSE:\n"
+"    This test will check your lid sensors.\n"
+"STEPS:\n"
+"    1. Close your laptop lid.\n"
+"VERIFICATION:\n"
+"   Does closing your laptop lid cause your system to suspend?"
+msgstr ""
+
+#. description
+#: ../jobs/power-management.txt.in:105
+msgid ""
+"PURPOSE:\n"
+"    This test will check your lid sensors\n"
+"STEPS:\n"
+"    1. Click \"Test\".\n"
+"    2. Close and open the lid.\n"
+"VERIFICATION:\n"
+"    Did the screen turn off while the lid was closed?"
+msgstr ""
+
+#. description
+#: ../jobs/power-management.txt.in:123
+msgid ""
+"PURPOSE:\n"
+"    This test will check your lid sensors.\n"
+"STEPS:\n"
+"    1. Click \"Test\".\n"
+"    2. Close the lid.\n"
+"    3. Wait 5 seconds with the lid closed.\n"
+"    4. Open the lid.\n"
+"VERIFICATION:\n"
+"    Did the system resume when the lid was opened?"
+msgstr ""
+
+#. description
+#: ../jobs/power-management.txt.in:143
+msgid ""
+"Verify that the Real-time clock (RTC) device functions properly, if present"
+msgstr ""
+
+#. description
+#: ../jobs/power-management.txt.in:148
+msgid ""
+"Check to see if CONFIG_NO_HZ is set in the kernel (this is just a simple "
+"regression check)"
+msgstr ""
+
+#. description
+#: ../jobs/power-management.txt.in:154
+msgid ""
+"PURPOSE:\n"
+"    This test will ensure that the AC is unplugged for the battery drain "
+"tests to run.\n"
+"STEPS:\n"
+"    1. Unplug laptop from AC.\n"
+"VERIFICATION:\n"
+"    Was the laptop unplugged from AC?"
+msgstr ""
+
+#. description
+#: ../jobs/power-management.txt.in:166
+msgid "Checks the battery drain during idle.  Reports time until empty"
+msgstr ""
+
+#. description
+#: ../jobs/power-management.txt.in:166
+msgid "and capacity as well."
+msgstr ""
+
+#. description
+#: ../jobs/power-management.txt.in:176
+msgid "Checks the battery drain while watching a movie.  Reports time"
+msgstr ""
+
+#. description
+#: ../jobs/power-management.txt.in:176
+msgid "until empty and capacity as well.  Requires MOVIE_VAR to be set."
+msgstr ""
+
+#. description
+#: ../jobs/power-management.txt.in:188
+msgid "Checks the battery drain during suspend.  Reports time until"
+msgstr ""
+
+#. description
+#: ../jobs/power-management.txt.in:188
+msgid "empty and capacity as well."
+msgstr ""
+
+#. description
+#: ../jobs/power-management.txt.in:196
+msgid ""
+"PURPOSE:\n"
+"    This test will ensure that the AC is plugged back in after the battery.\n"
+"    tests\n"
+"STEPS:\n"
+"    1. Plug laptop into AC.\n"
+"VERIFICATION:\n"
+"    Was the laptop plugged into AC?"
+msgstr ""
+
+#. description
+#: ../jobs/power-management.txt.in:209
+msgid ""
+"PURPOSE:\n"
+"    This test will verify that your system can successfully reboot.\n"
+"STEPS:\n"
+"    1. Select 'Test' to initiate a system reboot.\n"
+"    2. When the grub boot menu is displayed, boot into Ubuntu (Or allow the\n"
+"    system to automatically boot on its own).\n"
+"    3. Once the system has restarted, log in and restart checkbox-"
+"certification-server.\n"
+"    4. Select 'Re-Run' to return to this test.\n"
+"    5. Select 'Yes' to indicate the test has passed if the system rebooted\n"
+"    successfully, otherwise, select 'No' to indicate there was a problem.\n"
+"VERIFICATION:\n"
+"    Did the system reboot correctly?"
+msgstr ""
+
+#. description
+#: ../jobs/power-management.txt.in:227
+msgid ""
+"PURPOSE:\n"
+"    This test will check your system shutdown/booting cycle\n"
+"STEPS:\n"
+"    1. Select 'Test' to initiate a system shutdown.\n"
+"    2. Power the system back on.\n"
+"    3. From the grub menu, boot into the Xen Hypervisor.\n"
+"    4. When the system has restarted, log in and restart checkbox-"
+"certification-server.\n"
+"    5. Select 'Re-Run' to return to this test.\n"
+"    6. Select 'Yes' to indicate the test has passed if the machine shut "
+"down\n"
+"    successfully otherwise, Select 'No' to indicate there was a problem.\n"
+"VERIFICATION:\n"
+"    Did the system shutdown and boot correctly?"
+msgstr ""
+
+#. description
+#: ../jobs/rendercheck.txt.in:6
+msgid ""
+"Runs all of the rendercheck test suites. This test can take a few minutes."
+msgstr ""
+
+#. description
+#: ../jobs/rendercheck.txt.in:13
+msgid "Attach log from rendercheck tests"
+msgstr ""
+
+#. description
+#: ../jobs/server-services.txt.in:5
+msgid "Verifies that sshd is running."
+msgstr ""
+
+#. description
+#: ../jobs/server-services.txt.in:11
+msgid "Verifies that Print/CUPs server is running."
+msgstr ""
+
+#. description
+#: ../jobs/server-services.txt.in:20
+msgid "Verifies that DNS server is running and working."
+msgstr ""
+
+#. description
+#: ../jobs/server-services.txt.in:29
+msgid "Verifies that Samba server is running."
+msgstr ""
+
+#. description
+#: ../jobs/server-services.txt.in:40
+msgid "Verifies that the LAMP stack is running (Apache, MySQL and PHP)."
+msgstr ""
+
+#. description
+#: ../jobs/server-services.txt.in:47
+msgid "Verifies that Tomcat server is running and working."
+msgstr ""
+
+#. description
+#: ../jobs/smoke.txt.in:4
+msgid "Check success result from shell test case"
+msgstr ""
+
+#. description
+#: ../jobs/smoke.txt.in:10
+msgid "Check failed result from shell test case"
+msgstr ""
+
+#. description
+#: ../jobs/smoke.txt.in:17
+msgid "Check job is executed when dependency succeeds"
+msgstr ""
+
+#. description
+#: ../jobs/smoke.txt.in:24
+msgid "Check job result is set to uninitiated when dependency fails"
+msgstr ""
+
+#. description
+#: ../jobs/smoke.txt.in:31
+msgid "Check job is executed when requirements are met"
+msgstr ""
+
+#. description
+#: ../jobs/smoke.txt.in:38
+msgid ""
+"Check job result is set to \"not required on this system\" when requirements "
+"are not met"
+msgstr ""
+
+#. description
+#: ../jobs/smoke.txt.in:43
+msgid ""
+"PURPOSE:\n"
+"    This test checks that the manual plugin works fine\n"
+"STEPS:\n"
+"    1. Add a comment\n"
+"    2. Set the result as passed\n"
+"VERIFICATION:\n"
+"    Check that in the report the result is passed and the comment is "
+"displayed"
+msgstr ""
+
+#. description
+#: ../jobs/sniff.txt.in:36
+msgid ""
+"PURPOSE:\n"
+" Simulates a failure by rebooting the machine\n"
+"STEPS:\n"
+" 1. Click test to trigger a reboot\n"
+" 2. Select \"Continue\" once logged back in and checkbox is restarted\n"
+"VERIFICATION:\n"
+" You won't see the user-verify"
+msgstr ""
+
+#. description
+#: ../jobs/sniff.txt.in:47
+msgid ""
+"PURPOSE:\n"
+" If Recovery is successful, you will see this test on restarting checkbox, "
+"not\n"
+" sniff4.\n"
+"STEPS:\n"
+" 1. Click Yes\n"
+"VERIFICATION:\n"
+" None Necessary, this is a bogus test"
+msgstr ""
+
+#. description
+#: ../jobs/sniff.txt.in:68
+msgid ""
+"PURPOSE:\n"
+" To sniff things out\n"
+"STEPS:\n"
+" 1. Click Yes\n"
+"VERIFICATION:\n"
+" None Necessary, this is a bogus test"
+msgstr ""
+
+#. description
+#: ../jobs/stress.txt.in:7
+msgid ""
+"PURPOSE:\n"
+"    Create jobs that use the CPU as much as possible for two hours. The test "
+"is considered passed if the system does not freeze."
+msgstr ""
+
+#. description
+#: ../jobs/stress.txt.in:28
+msgid ""
+"PURPOSE:\n"
+"   This is an automated stress test that will force the system to hibernate/"
+"resume for 30 cycles"
+msgstr ""
+
+#. description
+#: ../jobs/stress.txt.in:41
+msgid "Attaches the log from the 30 cycle Hibernate/Resume test if it exists"
+msgstr ""
+
+#. description
+#: ../jobs/stress.txt.in:59
+msgid ""
+"PURPOSE:\n"
+"   This is an automated stress test that will force the system to suspend/"
+"resume for 30 cycles."
+msgstr ""
+
+#. description
+#: ../jobs/stress.txt.in:67
+msgid ""
+"Automated check of the 30 cycle hibernate log for errors detected by fwts."
+msgstr ""
+
+#. description
+#: ../jobs/stress.txt.in:74
+msgid "Attaches the log from the 30 cycle Suspend/Resume test if it exists"
+msgstr ""
+
+#. description
+#: ../jobs/stress.txt.in:97
+msgid ""
+"PURPOSE:\n"
+"   This is an automated stress test that will force the system to hibernate/"
+"resume for 250 cycles"
+msgstr ""
+
+#. description
+#: ../jobs/stress.txt.in:104
+msgid "Attaches the log from the 250 cycle Hibernate/Resume test if it exists"
+msgstr ""
+
+#. description
+#: ../jobs/stress.txt.in:120
+msgid ""
+"PURPOSE:\n"
+"   This is an automated stress test that will force the system to suspend/"
+"resume for 250 cycles."
+msgstr ""
+
+#. description
+#: ../jobs/stress.txt.in:127
+msgid "Attaches the log from the 250 cycle Suspend/Resume test if it exists"
+msgstr ""
+
+#. description
+#: ../jobs/stress.txt.in:133 ../jobs/suspend.txt.in:333
+msgid ""
+"Checks the sleep times to ensure that a machine suspends and resumes within "
+"a given threshold"
+msgstr ""
+
+#. description
+#: ../jobs/stress.txt.in:144
+msgid "Stress reboot system (100 cycles)"
+msgstr ""
+
+#. description
+#: ../jobs/stress.txt.in:160
+msgid "Stress poweroff system (100 cycles)"
+msgstr ""
+
+#. description
+#: ../jobs/stress.txt.in:172
+msgid "Check logs for the stress reboot (100 cycles) test case"
+msgstr ""
+
+#. description
+#: ../jobs/stress.txt.in:184
+msgid "Check logs for the stress poweroff (100 cycles) test case"
+msgstr ""
+
+#. description
+#: ../jobs/stress.txt.in:199
+msgid "Run the graphics stress test. This test can take a few minutes."
+msgstr ""
+
+#. description
+#: ../jobs/stress.txt.in:208
+msgid "Attaches the graphics stress results to the submission."
+msgstr ""
+
+#. description
+#: ../jobs/stress.txt.in:214
+msgid "Runs a test that transfers 100 10MB files 3 times to usb."
+msgstr ""
+
+#. summary
+#: ../jobs/stress.txt.in:219
+msgid "Stress test for SDHC card"
+msgstr ""
+
+#. description
+#: ../jobs/stress.txt.in:222
+msgid ""
+"PURPOSE:\n"
+"    This test will transfers 100 10MB files 3 times to a SDHC card, to\n"
+"    check that the systems media card reader can transfer large amounts\n"
+"    of data.\n"
+"STEPS:\n"
+"    1. Insert a SDHC card into the reader and then Click \"Test\".\n"
+"       If a file browser opens up, you can safely close it.\n"
+"    2. Do not remove the device during this test.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/stress.txt.in:240
+msgid "Ping ubuntu.com and restart network interfaces 100 times"
+msgstr ""
+
+#. description
+#: ../jobs/stress.txt.in:250
+msgid ""
+"PURPOSE:\n"
+"    To make sure that stressing the wifi hotkey does not cause applets to "
+"disappear from the panel or the system to lock up\n"
+"STEPS:\n"
+"    1. Log in to desktop\n"
+"    2. Press wifi hotkey at a rate of 1 press per second and slowly increase "
+"the speed of the tap, until you are tapping as fast as possible\n"
+"VERIFICATION:\n"
+"    Verify the system is not frozen and the wifi and bluetooth applets are "
+"still visible and functional"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:5
+msgid "Record the current network before suspending."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:11
+msgid "Record the current resolution before suspending."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:20
+msgid "Record mixer settings before suspending."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:26
+msgid "Verify that all the CPUs are online before suspending"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:32
+msgid ""
+"Dumps memory info to a file for comparison after suspend test has been run"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:42
+msgid ""
+"This test disconnects all connections and then connects to the wireless "
+"interface. It then checks the connection to confirm it's working as expected."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:200
+msgid ""
+"PURPOSE:\n"
+"    This test will send the image 'JPEG_Color_Image_Ubuntu.jpg' to a "
+"specified device\n"
+"STEPS:\n"
+"    1. Make sure Bluetooth is enabled by checking the Bluetooth indicator "
+"applet\n"
+"    2. Click \"Test\" and you will be prompted to enter the Bluetooth device "
+"name of a device that can accept file transfers (It may take a few moments "
+"after entering the name for the file to begin sending)\n"
+"    3. Accept any prompts that appear on both devices\n"
+"VERIFICATION:\n"
+"    Was the data correctly transferred?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:226
+msgid ""
+"PURPOSE:\n"
+"    This test will check suspend and resume\n"
+"STEPS:\n"
+"    1. Click \"Test\" and your system will suspend for about 30 - 60 "
+"seconds\n"
+"    2. Observe the Power LED to see if it blinks or changes color during "
+"suspend\n"
+"    3. If your system does not wake itself up after 60 seconds, please press "
+"the power button momentarily to wake the system manually\n"
+"    4. If your system fails to wake at all and must be rebooted, restart "
+"System Testing after reboot and mark this test as Failed\n"
+"VERIFICATION:\n"
+"    Did your system suspend and resume correctly?\n"
+"    (NOTE: Please only consider whether the system successfully suspended "
+"and resumed. Power/Suspend LED verification will occur after this test is "
+"completed.)"
+msgstr ""
+
+#. summary
+#: ../jobs/suspend.txt.in:241
+msgid "Suspend after graphics card switch tests"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:279
+msgid "This is the automated version of suspend/suspend_advanced."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:292
+msgid ""
+"PURPOSE:\n"
+"    This test will check hybrid sleep and resume\n"
+"STEPS:\n"
+"    1. Click \"Test\" and your system will go into hybrid sleep mode for "
+"about 30 - 60 seconds\n"
+"    2. Observe the Power LED to see if it blinks or changes color during "
+"suspend\n"
+"    3. If your system does not wake itself up after 60 seconds, please press "
+"the power button momentarily to wake the system manually\n"
+"    4. If your system fails to wake at all and must be rebooted, restart "
+"System Testing after reboot and mark this test as Failed\n"
+"VERIFICATION:\n"
+"    Did your system enter hybrid sleep and then resume correctly?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:307
+msgid "Automated check of the suspend log to look for errors reported by fwts"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:320
+msgid ""
+"Automated check of the hybrid sleep log to look for errors reported by fwts"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:326
+msgid ""
+"Attaches the log from the single hybrid sleep/resume test to the results"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:342
+msgid ""
+"PURPOSE:\n"
+"    Wake up by USB keyboard\n"
+"STEPS:\n"
+"    1. Enable \"Wake by USB KB/Mouse\" item in BIOS\n"
+"    2. Press \"Test\" to enter suspend (S3) mode\n"
+"    3. Press any key of USB keyboard to wake system up\n"
+"VERIFICATION:\n"
+"    Did the system wake up from suspend mode when you pressed a keyboard key?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:358
+msgid ""
+"PURPOSE:\n"
+"    Wake up by USB mouse\n"
+"STEPS:\n"
+"    1. Enable \"Wake by USB KB/Mouse\" item in BIOS\n"
+"    2. Press \"Test\" to enter suspend (S3) mode\n"
+"    3. Press any button of USB mouse to wake system up\n"
+"VERIFICATION:\n"
+"    Did the system wake up from suspend mode when you pressed the mouse "
+"button?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:372
+msgid "Test the network after resuming."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:379
+msgid "Test to see that we have the same resolution after resuming as before."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:400
+msgid ""
+"Verify that mixer settings after suspend are the same as before suspend."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:415
+msgid "Verify that all CPUs are online after resuming."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:430
+msgid "Verify that all memory is available after resuming from suspend."
+msgstr ""
+
+#. summary
+#: ../jobs/suspend.txt.in:437
+msgid "Display after suspend tests"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:461
+msgid ""
+"This test checks that the wireless interface is working after suspending the "
+"system. It disconnects all interfaces and then connects to the wireless "
+"interface and checks that the connection is working as expected."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:562
+msgid ""
+"Tests that the systems wireless hardware can connect to a router using WPA "
+"security and the 802.11b/g protocols after the system has been suspended."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:576
+msgid ""
+"Tests that the systems wireless hardware can connect to a router using no "
+"security and the 802.11b/g protocols after the system has been suspended."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:590
+msgid ""
+"Tests that the systems wireless hardware can connect to a router using WPA "
+"security and the 802.11n protocol after the system has been suspended."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:604
+msgid ""
+"Tests that the systems wireless hardware can connect to a router using no "
+"security and the 802.11n protocol after the system has been suspended."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:618
+msgid ""
+"Tests that the systems wireless hardware can connect to a router using WPA "
+"security and the 802.11ac protocol after the system has been suspended."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:632
+msgid ""
+"Tests that the systems wireless hardware can connect to a router using no "
+"security and the 802.11ac protocol after the system has been suspended."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:684 ../jobs/wireless.txt.in:137
+msgid ""
+"PURPOSE:\n"
+"    Tests that the systems wireless hardware can connect to a router using "
+"WPA\n"
+"    security and the 802.11b/g protocols.\n"
+"STEPS:\n"
+"    1. Open your routers configuration tool\n"
+"    2. Change the settings to only accept connections on the B and G "
+"wireless bands\n"
+"    3. Make sure the SSID is set to ROUTER_SSID\n"
+"    4. Change the security settings to use WPA2 and ensure the PSK matches "
+"that set in ROUTER_PSK\n"
+"    5. Click the 'Test' button to create a connection to the router and test "
+"the connection\n"
+"VERIFICATION:\n"
+"    Verification is automated, do not change the automatically selected "
+"result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:707 ../jobs/wireless.txt.in:159
+msgid ""
+"PURPOSE:\n"
+"    Tests that the systems wireless hardware can connect to a router using\n"
+"    no security and the 802.11b/g protocols.\n"
+"STEPS:\n"
+"    1. Open your routers configuration tool\n"
+"    2. Change the settings to only accept connections on the B and G "
+"wireless bands\n"
+"    3. Make sure the SSID is set to ROUTER_SSID\n"
+"    4. Change the security settings to use no security\n"
+"    5. Click the 'Test' button to create a connection to the router and test "
+"the connection\n"
+"VERIFICATION:\n"
+"    Verification is automated, do not change the automatically selected "
+"result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:730 ../jobs/wireless.txt.in:182
+msgid ""
+"PURPOSE:\n"
+"    Tests that the systems wireless hardware can connect to a router using "
+"WPA\n"
+"    security and the 802.11n protocols.\n"
+"STEPS:\n"
+"    1. Open your routers configuration tool\n"
+"    2. Change the settings to only accept connections on the N wireless "
+"band\n"
+"    3. Make sure the SSID is set to ROUTER_SSID\n"
+"    4. Change the security settings to use WPA2 and ensure the PSK matches "
+"that set in ROUTER_PSK\n"
+"    5. Click the 'Test' button to create a connection to the router and test "
+"the connection\n"
+"VERIFICATION:\n"
+"    Verification is automated, do not change the automatically selected "
+"result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:753 ../jobs/wireless.txt.in:205
+msgid ""
+"PURPOSE:\n"
+"    Tests that the systems wireless hardware can connect to a router using\n"
+"    no security and the 802.11n protocol.\n"
+"STEPS:\n"
+"    1. Open your routers configuration tool\n"
+"    2. Change the settings to only accept connections on the N wireless "
+"band\n"
+"    3. Make sure the SSID is set to ROUTER_SSID\n"
+"    4. Change the security settings to use no security\n"
+"    5. Click the 'Test' button to create a connection to the router and test "
+"the connection\n"
+"VERIFICATION:\n"
+"    Verification is automated, do not change the automatically selected "
+"result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:776
+msgid ""
+"PURPOSE:\n"
+"    Tests that the systems wireless hardware can connect to a router using "
+"WPA\n"
+"    security and the 802.11ac protocol.\n"
+"STEPS:\n"
+"    1. Open your routers configuration tool\n"
+"    2. Change the settings to only accept connections on the 802.11ac "
+"protocol.\n"
+"    3. Make sure the SSID is set to ROUTER_SSID\n"
+"    4. Change the security settings to use WPA2 and ensure the PSK matches "
+"that set in ROUTER_PSK\n"
+"    5. Click the 'Test' button to create a connection to the router and test "
+"the connection\n"
+"VERIFICATION:\n"
+"    Verification is automated, do not change the automatically selected "
+"result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:799
+msgid ""
+"PURPOSE:\n"
+"    Tests that the systems wireless hardware can connect to a router using\n"
+"    no security and the 802.11ac protocol.\n"
+"STEPS:\n"
+"    1. Open your routers configuration tool\n"
+"    2. Change the settings to only accept connections on the 802.11ac "
+"protocol.\n"
+"    3. Make sure the SSID is set to ROUTER_SSID\n"
+"    4. Change the security settings to use no security\n"
+"    5. Click the 'Test' button to create a connection to the router and test "
+"the connection\n"
+"VERIFICATION:\n"
+"    Verification is automated, do not change the automatically selected "
+"result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:834
+msgid ""
+"This test grabs the hardware address of the bluetooth adapter after suspend "
+"and compares it to the address grabbed before suspend."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:946
+msgid ""
+"This is an automated Bluetooth file transfer test. It sends an image to the "
+"device specified by the BTDEVADDR environment variable."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1002
+msgid ""
+"This is an automated Bluetooth test. It emulates browsing on a remote device "
+"specified by the BTDEVADDR environment variable."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1058
+msgid ""
+"This is an automated Bluetooth test. It receives the given file from a "
+"remote host specified by the BTDEVADDR environment variable"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1070
+msgid ""
+"PURPOSE:\n"
+"    This test will send the image 'JPEG_Color_Image_Ubuntu.jpg' to a "
+"specified device\n"
+"STEPS:\n"
+"    1. Click \"Test\" and you will be prompted to enter the Bluetooth device "
+"name of a device that can accept file transfers (It may take a few moments "
+"after entering the name for the file to begin sending)\n"
+"    2. Accept any prompts that appear on both devices\n"
+"VERIFICATION:\n"
+"    Was the data correctly transferred?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1085
+msgid ""
+"PURPOSE:\n"
+"    This test will cycle through the detected display modes\n"
+"STEPS:\n"
+"    1. Click \"Test\" and the display will cycle trough the display modes\n"
+"VERIFICATION:\n"
+"    Did your display look fine in the detected mode?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1098
+msgid ""
+"This test will check to make sure supported video modes work after a suspend "
+"and resume. This is done automatically by taking screenshots and uploading "
+"them as an attachment."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1107
+msgid ""
+"This attaches screenshots from the suspend/"
+"cycle_resolutions_after_suspend_auto test to the results submission."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1138
+msgid ""
+"This will check to make sure that your audio device works properly after a "
+"suspend and resume.  This may work fine with speakers and onboard "
+"microphone, however, it works best if used with a cable connecting the audio-"
+"out jack to the audio-in jack."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1144
+msgid "Attaches the log from the single suspend/resume test to the results"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1153
+msgid ""
+"PURPOSE:\n"
+"    Take a screengrab of the current screen after suspend (logged on Unity "
+"desktop)\n"
+"STEPS:\n"
+"    1. Take picture using USB webcam\n"
+"VERIFICATION:\n"
+"    Review attachment manually later"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1165
+msgid "Attaches the screenshot captured in graphics/screenshot."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1176
+msgid ""
+"PURPOSE:\n"
+"    Do some challenging operations then check for lockup on the GPU\n"
+"STEPS:\n"
+"    1. Create 2 glxgears windows and move them quickly\n"
+"    2. Switch workspaces with wmctrl\n"
+"    3. Launch an HTML5 video playback in firefox\n"
+"VERIFICATION:\n"
+"    After a 60s workload, check kern.log for reported GPU errors"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1204
+msgid ""
+"Checks the length of time it takes to reconnect an existing wifi connection "
+"after a suspend/resume cycle."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1226
+msgid ""
+"Checks the length of time it takes to reconnect an existing wired "
+"connection\n"
+" after a suspend/resume cycle."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1234
+msgid ""
+"PURPOSE:\n"
+"    Validate that the power LED operated the same after resuming from "
+"suspend\n"
+"STEPS:\n"
+"    1. Power LED should be on while device is switched on\n"
+"VERIFICATION:\n"
+"    Does the power LED remain on after resuming from suspend?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1246
+msgid ""
+"PURPOSE:\n"
+"    Validate that the battery light shows charging status after resuming "
+"from suspend\n"
+"STEPS:\n"
+"    1. Let system run on battery for a while\n"
+"    2. Plug in AC plug\n"
+"VERIFICATION:\n"
+"    Did the battery indicator LED still turn orange after resuming from "
+"suspend?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1259
+msgid ""
+"PURPOSE:\n"
+"    Validate that the battery LED properly displays charged status after "
+"resuming from suspend\n"
+"STEPS:\n"
+"    1. Let system run on battery for a short time\n"
+"    2. Plug in AC\n"
+"    3. Let system run on AC\n"
+"VERIFICATION:\n"
+"    Does the orange battery LED still shut off when system is fully charged "
+"after resuming from suspend?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1273
+msgid ""
+"PURPOSE:\n"
+"    Validate that the battery LED indicated low power after resuming from "
+"suspend\n"
+"STEPS:\n"
+"    1. Let system run on battery for several hours\n"
+"    2. Monitor battery LED carefully\n"
+"VERIFICATION:\n"
+"    Does the LED light orange when battery is low after resuming from "
+"suspend?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1287
+msgid ""
+"PURPOSE:\n"
+"    Validate that the HDD LED still operates as expected after resuming from "
+"suspend\n"
+"STEPS:\n"
+"    1. Select \"Test\" to write and read a temporary file for a few seconds\n"
+"    2. HDD LED should blink when writing to/reading from HDD\n"
+"VERIFICATION:\n"
+"    Did the HDD LED still blink with HDD activity after resuming from "
+"suspend?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1301
+msgid ""
+"PURPOSE:\n"
+"    Validate that the numeric keypad LED operates the same before and after "
+"resuming from suspend\n"
+"STEPS:\n"
+"    1. Press \"Block Num\" key to toggle numeric keypad LED\n"
+"    2. Click on the \"Test\" button to open a window to verify your typing\n"
+"    3. Type using the numeric keypad both when the LED is on and off\n"
+"VERIFICATION:\n"
+"    1. Numeric keypad LED status should toggle everytime the \"Block Num\" "
+"key is pressed\n"
+"    2. Numbers should only be entered in the keyboard verification window "
+"when the LED is on"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1316
+msgid ""
+"PURPOSE:\n"
+"    Validate that the Caps Lock key operates the same before and after "
+"resuming from suspend\n"
+"STEPS:\n"
+"    1. Press \"Block Cap Keys\" to activate/deactivate cap keys blocking\n"
+"    2. Cap Keys LED should be switched on/off every time the key is pressed\n"
+"VERIFICATION:\n"
+"    Did the Cap Keys LED light as expected after resuming from suspend?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1329
+msgid ""
+"PURPOSE:\n"
+"    WLAN LED verification after resuming from suspend\n"
+"STEPS:\n"
+"    1. Make sure WLAN connection is established\n"
+"    2. WLAN LED should light\n"
+"VERIFICATION:\n"
+"    Did the WLAN LED light as expected after resuming from suspend?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1342
+msgid ""
+"PURPOSE:\n"
+"    Validate that WLAN LED shuts off when disabled after resuming from "
+"suspend\n"
+"STEPS:\n"
+"    1. Connect to AP\n"
+"    2. Use Physical switch to disable WLAN\n"
+"    3. Re-enable\n"
+"    4. Use Network-Manager to disable WLAN\n"
+"VERIFICATION:\n"
+"    Did the LED turn off then WLAN is disabled after resuming from suspend?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1357
+msgid ""
+"PURPOSE:\n"
+"    Validate that the Bluetooth LED turns on and off when BT is enabled/"
+"disabled after resuming from suspend\n"
+"STEPS:\n"
+"    1. Switch bluetooth off from a hardware switch (if present)\n"
+"    2. Switch bluetooth back on\n"
+"    3. Switch bluetooth off from the panel applet\n"
+"    4. Switch bluetooth back on\n"
+"VERIFICATION:\n"
+"    Did the bluetooth LED turn off and on twice after resuming from suspend?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1375
+msgid ""
+"PURPOSE:\n"
+"    Validate that the camera LED still works as expected after resuming from "
+"suspend\n"
+"STEPS:\n"
+"    1. Select Test to activate camera\n"
+"    2. Camera LED should light for a few seconds\n"
+"VERIFICATION:\n"
+"    Did the camera LED still turn on and off after resuming from suspend?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1388
+msgid ""
+"PURPOSE:\n"
+"    Touchpad LED verification after resuming from suspend\n"
+"STEPS:\n"
+"    1. Click on the touchpad button or press key combination to enable/"
+"disable touchpad button\n"
+"    2. Slide your finger on the touchpad\n"
+"VERIFICATION:\n"
+"    1. Touchpad LED status should toggle everytime the button is clicked or "
+"the key combination is pressed\n"
+"    2. When the LED is on, the mouse pointer should move on touchpad usage\n"
+"    3. When the LED is off, the mouse pointer should not move on touchpad "
+"usage"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1403
+msgid ""
+"PURPOSE:\n"
+"    Validate Wireless (WLAN + Bluetooth) LED operated the same after "
+"resuming from suspend\n"
+"STEPS:\n"
+"    1. Make sure WLAN connection is established and Bluetooth is enabled.\n"
+"    2. WLAN/Bluetooth LED should light\n"
+"    3. Switch WLAN and Bluetooth off from a hardware switch (if present)\n"
+"    4. Switch them back on\n"
+"    5. Switch WLAN and Bluetooth off from the panel applet\n"
+"    6. Switch them back on\n"
+"VERIFICATION:\n"
+"    Did the WLAN/Bluetooth LED light as expected after resuming from suspend?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1421
+msgid ""
+"PURPOSE:\n"
+"    This test will test the brightness key after resuming from suspend\n"
+"STEPS:\n"
+"    1. Press the brightness buttons on the keyboard\n"
+"VERIFICATION:\n"
+"    Did the brightness change following to your key presses after resuming "
+"from suspend?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1437
+msgid ""
+"PURPOSE:\n"
+"    This test will test the volume keys of your keyboard after resuming from "
+"suspend\n"
+"STEPS:\n"
+"    Skip this test if your computer has no volume keys.\n"
+"    1. Click test to open a window on which to test the volume keys.\n"
+"    2. If all the keys work, the test will be marked as passed.\n"
+"VERIFICATION:\n"
+"    Did the volume change following to your key presses?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1455
+msgid ""
+"PURPOSE:\n"
+"    This test will test the mute key of your keyboard after resuming from "
+"suspend\n"
+"STEPS:\n"
+"    1. Click test to open a window on which to test the mute key.\n"
+"    2. If the key works, the test will pass and the window will close.\n"
+"VERIFICATION:\n"
+"    Did the volume mute following your key presses?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1470
+msgid ""
+"PURPOSE:\n"
+"    This test will test the sleep key after resuming from suspend\n"
+"STEPS:\n"
+"    1. Press the sleep key on the keyboard\n"
+"    2. Wake your system up by pressing the power button\n"
+"VERIFICATION:\n"
+"    Did the system go to sleep after pressing the sleep key after resuming "
+"from suspend?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1486
+msgid ""
+"PURPOSE:\n"
+"    This test will test the battery information key after resuming from "
+"suspend\n"
+"STEPS:\n"
+"    Skip this test if you do not have a Battery Button.\n"
+"    1. Click Test to begin\n"
+"    2. Press the Battery Info button (or combo like Fn+F3)\n"
+"    3: Close the Power Statistics tool if it opens\n"
+"VERIFICATION:\n"
+"    Did the Battery Info key work as expected after resuming from suspend?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1502
+msgid ""
+"PURPOSE:\n"
+"    This test will test the wireless key after resuming from suspend\n"
+"STEPS:\n"
+"    1. Press the wireless key on the keyboard\n"
+"    2. Press the same key again\n"
+"VERIFICATION:\n"
+"    Did the wireless go off on the first press and on again on the second "
+"after resuming from suspend?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1519
+msgid ""
+"PURPOSE:\n"
+"    This test will test the media keys of your keyboard after resuming from "
+"suspend\n"
+"STEPS:\n"
+"    Skip this test if your computer has no media keys.\n"
+"    1. Click test to open a window on which to test the media keys.\n"
+"    2. If all the keys work, the test will be marked as passed.\n"
+"VERIFICATION:\n"
+"    Do the keys work as expected after resuming from suspend?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1537
+msgid ""
+"PURPOSE:\n"
+"    This test will test the super key of your keyboard after resuming from "
+"suspend\n"
+"STEPS:\n"
+"    1. Click test to open a window on which to test the super key.\n"
+"    2. If the key works, the test will pass and the window will close.\n"
+"VERIFICATION:\n"
+"    Does the super key work as expected after resuming from suspend?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1551
+msgid ""
+"PURPOSE:\n"
+"    Validate that the External Video hot key is working as expected after "
+"resuming from suspend\n"
+"STEPS:\n"
+"    1. Plug in an external monitor\n"
+"    2. Press the display hot key to change the monitors configuration\n"
+"VERIFICATION:\n"
+"    Check that the video signal can be mirrored, extended, displayed on "
+"external or onboard only, after resuming from suspend."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1565
+msgid ""
+"PURPOSE:\n"
+"    Verify touchpad hotkey toggles touchpad functionality on and off after "
+"resuming from suspend\n"
+"STEPS:\n"
+"    1. Verify the touchpad is functional\n"
+"    2. Tap the touchpad toggle hotkey\n"
+"    3. Tap the touchpad toggle hotkey again\n"
+"VERIFICATION:\n"
+"    Verify the touchpad has been disabled and re-enabled."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1581
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the system correctly detects the insertion of\n"
+"    a USB storage device after suspend and resume.\n"
+"STEPS:\n"
+"    1. Click \"Test\" and insert a USB storage device (pen-drive/HDD).\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"    2. Do not unplug the device after the test.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1601
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the system correctly detects the insertion of\n"
+"    a USB 3.0 storage device after suspend and resume.\n"
+"STEPS:\n"
+"    1. Click \"Test\" and insert a USB 3.0 storage device (pen-drive/HDD) "
+"in\n"
+"       a USB 3.0 port. (Note: this test will time-out after 20 seconds.)\n"
+"    2. Do not unplug the device after the test.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1619
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the system correctly detects the removal of\n"
+"    a USB storage device after suspend.\n"
+"STEPS:\n"
+"    1. Click \"Test\" and remove the USB device.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1638
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the system correctly detects the removal of\n"
+"    a USB 3.0 storage device after suspend\n"
+"STEPS:\n"
+"    1. Click \"Test\" and remove the USB 3.0 device.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1655
+msgid ""
+"This test is automated and executes after the suspend/"
+"usb_insert_after_suspend test is run."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1667
+msgid ""
+"This test is automated and executes after the suspend/"
+"usb3_insert_after_suspend test is run."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1677 ../jobs/usb.txt.in:172
+msgid ""
+"This is an automated version of usb/storage-automated and assumes that the "
+"server has usb storage devices plugged in prior to checkbox execution. It is "
+"intended for servers and SRU automated testing."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1690 ../jobs/usb.txt.in:184
+msgid ""
+"This is an automated version of usb3/storage-automated and assumes that the "
+"server has usb 3.0 storage devices plugged in prior to checkbox execution. "
+"It is intended for servers and SRU automated testing."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1701 ../jobs/usb.txt.in:209
+msgid ""
+"This test will check that your USB 2.0 port transfers data at a minimum "
+"expected speed."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1713 ../jobs/usb.txt.in:221
+msgid ""
+"This test will check that your USB 3.0 port could be recognized as "
+"SuperSpeed USB device using xhci_hcd driver and transfers data correctly."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1722
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the systems media card reader can\n"
+"    detect the insertion of an MMC card after the system has been suspended\n"
+"STEPS:\n"
+"    1. Click \"Test\" and insert an MMC card into the reader.\n"
+"       If a file browser opens up, you can safely close it.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"    2. Do not remove the device after this test.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1741
+msgid ""
+"This test is automated and executes after the mediacard/mmc-insert-after-"
+"suspend test is run. It tests reading and writing to the MMC card after the "
+"system has been suspended."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1750
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the system correctly detects the removal\n"
+"    of an MMC card from the systems card reader after the system has been "
+"suspended.\n"
+"STEPS:\n"
+"    1. Click \"Test\" and remove the MMC card from the reader.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1766
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the systems media card reader can\n"
+"    detect the insertion of an UNLOCKED SD card after the system\n"
+"    has been suspended\n"
+"STEPS:\n"
+"    1. Click \"Test\" and insert an UNLOCKED SD card into the reader.\n"
+"       If a file browser opens up, you can safely close it.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"    2. Do not remove the device after this test.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1786
+msgid ""
+"This test is automated and executes after the mediacard/sd-insert-after-"
+"suspend test is run. It tests reading and writing to the SD card after the "
+"system has been suspended."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1795
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the system correctly detects\n"
+"    the removal of an SD card from the systems card reader\n"
+"    after the system has been suspended.\n"
+"STEPS:\n"
+"    1. Click \"Test\" and remove the SD card from the reader.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1812
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the systems media card reader can\n"
+"    detect the insertion of an UNLOCKED SDHC media card after the\n"
+"    system has been suspended\n"
+"STEPS:\n"
+"    1. Click \"Test\" and insert an UNLOCKED SDHC card into the reader.\n"
+"       If a file browser opens up, you can safely close it.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"    2. Do not remove the device after this test.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1832
+msgid ""
+"This test is automated and executes after the mediacard/sdhc-insert-after-"
+"suspend test is run. It tests reading and writing to the SDHC card after the "
+"system has been suspended."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1841
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the system correctly detects the removal\n"
+"    of an SDHC card from the systems card reader after the system has been "
+"suspended.\n"
+"STEPS:\n"
+"    1. Click \"Test\" and remove the SDHC card from the reader.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1857
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the systems media card reader can\n"
+"    detect the insertion of a CF card after the system has been suspended\n"
+"STEPS:\n"
+"    1. Click \"Test\" and insert a CF card into the reader.\n"
+"       If a file browser opens up, you can safely close it.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"    2. Do not remove the device after this test.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1876
+msgid ""
+"This test is automated and executes after the mediacard/cf-insert-after-"
+"suspend test is run. It tests reading and writing to the CF card after the "
+"system has been suspended."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1885
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the system correctly detects the removal\n"
+"    of a CF card from the systems card reader after the system has been "
+"suspended.\n"
+"STEPS:\n"
+"    1. Click \"Test\" and remove the CF card from the reader.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1901
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the systems media card reader can\n"
+"    detect the insertion of a SDXC card after the system has been suspended\n"
+"STEPS:\n"
+"    1. Click \"Test\" and insert a SDXC card into the reader.\n"
+"       If a file browser opens up, you can safely close it.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"    2. Do not remove the device after this test.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1920
+msgid ""
+"This test is automated and executes after the mediacard/sdxc-insert-after-"
+"suspend test is run. It tests reading and writing to the SDXC card after the "
+"system has been suspended."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1929
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the system correctly detects the removal\n"
+"    of a SDXC card from the systems card reader after the system has been "
+"suspended.\n"
+"STEPS:\n"
+"    1. Click \"Test\" and remove the SDXC card from the reader.\n"
+"       If a file browser opens up, you can safely close it.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1946
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the systems media card reader can\n"
+"    detect the insertion of a MS card after the system has been suspended\n"
+"STEPS:\n"
+"    1. Click \"Test\" and insert a MS card into the reader.\n"
+"       If a file browser opens up, you can safely close it.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"    2. Do not remove the device after this test.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1965
+msgid ""
+"This test is automated and executes after the mediacard/ms-insert-after-"
+"suspend test is run. It tests reading and writing to the MS card after the "
+"system has been suspended."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1974
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the system correctly detects the removal\n"
+"    of a MS card from the systems card reader after the system has been "
+"suspended.\n"
+"STEPS:\n"
+"    1. Click \"Test\" and remove the MS card from the reader.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:1990
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the systems media card reader can\n"
+"    detect the insertion of a MSP card after the system has been suspended\n"
+"STEPS:\n"
+"    1. Click \"Test\" and insert a MSP card into the reader.\n"
+"       If a file browser opens up, you can safely close it.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"    2. Do not remove the device after this test.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:2009
+msgid ""
+"This test is automated and executes after the mediacard/msp-insert-after-"
+"suspend test is run. It tests reading and writing to the MSP card after the "
+"system has been suspended."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:2018
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the system correctly detects the removal\n"
+"    of a MSP card from the systems card reader after the system has been "
+"suspended.\n"
+"STEPS:\n"
+"    1. Click \"Test\" and remove the MSP card from the reader.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:2034
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the systems media card reader can\n"
+"    detect the insertion of a xD card after the system has been suspended\n"
+"STEPS:\n"
+"    1. Click \"Test\" and insert a xD card into the reader.\n"
+"       If a file browser opens up, you can safely close it.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"    2. Do not remove the device after this test.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:2053
+msgid ""
+"This test is automated and executes after the mediacard/xd-insert-after-"
+"suspend test is run. It tests reading and writing to the xD card after the "
+"system has been suspended."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:2062
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the system correctly detects the removal\n"
+"    of a xD card from the systems card reader after the system has been "
+"suspended.\n"
+"STEPS:\n"
+"    1. Click \"Test\" and remove the xD card from the reader.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:2081
+msgid "Determine if the touchpad is still functioning after suspend/resume."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:2088 ../jobs/touchscreen.txt.in:35
+msgid ""
+"PURPOSE:\n"
+"    Check touchscreen tap recognition\n"
+"STEPS:\n"
+"    1. Tap an object on the screen with finger. The cursor should jump to "
+"location tapped and object should highlight\n"
+"VERIFICATION:\n"
+"    Does tap recognition work?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:2103
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the built-in camera works after suspend\n"
+"STEPS:\n"
+"    1. Click on Test to display a video capture from the camera for ten "
+"seconds.\n"
+"VERIFICATION:\n"
+"    Did you see the video capture?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:2121
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the built-in camera works after suspend\n"
+"STEPS:\n"
+"    1. Click on Test to display a still image from the camera for ten "
+"seconds.\n"
+"VERIFICATION:\n"
+"    Did you see the image?"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:2137
+msgid ""
+" Takes multiple pictures based on the resolutions supported by the camera "
+"and\n"
+" validates their size and that they are of a valid format after suspend"
+msgstr ""
+
+#. description
+#: ../jobs/touchpad.txt.in:5
+msgid ""
+"PURPOSE:\n"
+"    Touchpad user-verify\n"
+"STEPS:\n"
+"    1. Make sure that touchpad is enabled.\n"
+"    2. Move cursor using the touchpad.\n"
+"VERIFICATION:\n"
+"    Did the cursor move?"
+msgstr ""
+
+#. description
+#: ../jobs/touchpad.txt.in:21
+msgid ""
+"PURPOSE:\n"
+"    Touchpad horizontal scroll verification\n"
+"STEPS:\n"
+"    1. Select \"Test\" when ready and place your cursor within the borders "
+"of the displayed test window.\n"
+"    2. Verify that you can move the horizontal slider by moving your finger "
+"right and left in the lower part of the touchpad.\n"
+"VERIFICATION:\n"
+"    Could you scroll right and left?"
+msgstr ""
+
+#. description
+#: ../jobs/touchpad.txt.in:37
+msgid ""
+"PURPOSE:\n"
+"    Touchpad vertical scroll verification\n"
+"STEPS:\n"
+"    1. Select \"Test\" when ready and place your cursor within the borders "
+"of the displayed test window.\n"
+"    2. Verify that you can move the vertical slider by moving your finger up "
+"and down in the right part of the touchpad.\n"
+"VERIFICATION:\n"
+"    Could you scroll up and down?"
+msgstr ""
+
+#. description
+#: ../jobs/touchpad.txt.in:53
+msgid ""
+"Determine whether the touchpad is detected as a singletouch device "
+"automatically."
+msgstr ""
+
+#. description
+#: ../jobs/touchpad.txt.in:63
+msgid ""
+"Determine whether the touchpad is detected as a multitouch device "
+"automatically."
+msgstr ""
+
+#. description
+#: ../jobs/touchpad.txt.in:70
+msgid ""
+"PURPOSE:\n"
+"    Touchpad manual detection of multitouch.\n"
+"STEPS:\n"
+"    1. Look at the specifications for your system.\n"
+"VERIFICATION:\n"
+"    Is the touchpad supposed to be multitouch?"
+msgstr ""
+
+#. description
+#: ../jobs/touchpad.txt.in:81
+msgid ""
+"PURPOSE:\n"
+"    Determine that the hot corner feature is working as expected\n"
+"STEPS:\n"
+"    1. Launch a browser.\n"
+"    2. Go to a website, and hover the cursor over a link.\n"
+"    3. Tap the upper right corner if the touchpad.\n"
+"VERIFICATION:\n"
+"    Did the tap trigger a new tab to be opended?"
+msgstr ""
+
+#. description
+#: ../jobs/touchpad.txt.in:94
+msgid ""
+"PURPOSE:\n"
+"    Determine that the selection window function is working as expected.\n"
+"STEPS:\n"
+"    1. Open a file folder\n"
+"    2. Double tap and drag the cursor across several file.\n"
+"VERIFICATION:\n"
+"    Did a selection window open and were several files selected?"
+msgstr ""
+
+#. description
+#: ../jobs/touchpad.txt.in:107
+msgid ""
+"PURPOSE:\n"
+"    Determine that the right click function is working as expected.\n"
+"STEPS:\n"
+"    1. Open a file folder\n"
+"    2. Hover cursor over file in folder\n"
+"    3. 2-touch tap.\n"
+"VERIFICATION:\n"
+"    Did the right click pop up menu appear?"
+msgstr ""
+
+#. description
+#: ../jobs/touchpad.txt.in:121
+msgid ""
+"PURPOSE:\n"
+"    Touchpad 2-touch horizontal scroll verification\n"
+"STEPS:\n"
+"    1. Select \"Test\" when ready and place your cursor within the borders "
+"of the displayed test window.\n"
+"    2. Verify that you can move the horizontal slider by moving 2 fingers "
+"right and left along the touchpad.\n"
+"VERIFICATION:\n"
+"    Could you scroll right and left?"
+msgstr ""
+
+#. description
+#: ../jobs/touchpad.txt.in:134
+msgid ""
+"PURPOSE:\n"
+"    Touchpad 2-touch vertical scroll verification\n"
+"STEPS:\n"
+"    1. Select \"Test\" when ready and place your cursor within the borders "
+"of the displayed test window.\n"
+"    2. Verify that you can move the vertical slider by moving 2 fingers up "
+"and down along the touchpad.\n"
+"VERIFICATION:\n"
+"    Could you scroll up and down?"
+msgstr ""
+
+#. description
+#: ../jobs/touchpad.txt.in:146
+msgid ""
+"PURPOSE:\n"
+"    Determine that the drag and drop function is working as expected.\n"
+"STEPS:\n"
+"    1. Browse to the examples folder in the current user's home directory\n"
+"    2. Double tap and hold to select the \"Ubuntu_Free_Culture_Showcase\" "
+"folder\n"
+"    2. Drag the selected folder to the desktop and remove finger from "
+"touchpad.\n"
+"VERIFICATION:\n"
+"    Did a selected folder move to the desktop?"
+msgstr ""
+
+#. summary
+#: ../jobs/touchpad.txt.in:160
+msgid "Check touchpad pinch-to-zoom gesture"
+msgstr ""
+
+#. description
+#: ../jobs/touchpad.txt.in:161
+msgid ""
+"PURPOSE:\n"
+"    Check touchpad pinch gesture for zoom\n"
+"STEPS:\n"
+"    1. Open gallery-app with an image\n"
+"    2. Place two fingers on the touchpad and pinch them together\n"
+"    3. Place two fingers on the touchpad and move them apart\n"
+"VERIFICATION:\n"
+"    Does the image zoom in and out?"
+msgstr ""
+
+#. summary
+#: ../jobs/touchpad.txt.in:175
+msgid "Check 4-finger tap gesture"
+msgstr ""
+
+#. description
+#: ../jobs/touchpad.txt.in:176
+msgid ""
+"PURPOSE:\n"
+"    Validate that 4-touch tap is operating as expected\n"
+"STEPS:\n"
+"    1. 4-touch tap (tap with 4 fingers) anywhere on the touchpad\n"
+"VERIFICATION:\n"
+"    Did the tap open the Dash?"
+msgstr ""
+
+#. description
+#: ../jobs/touchscreen.txt.in:7
+msgid ""
+"Determine whether the screen is detected as a non-touch device automatically."
+msgstr ""
+
+#. description
+#: ../jobs/touchscreen.txt.in:16
+msgid ""
+"Determine whether the screen is detected as a multitouch device "
+"automatically."
+msgstr ""
+
+#. description
+#: ../jobs/touchscreen.txt.in:23
+msgid ""
+"PURPOSE:\n"
+"    Touchscreen manual detection of multitouch.\n"
+"STEPS:\n"
+"    1. Look at the specifications for your system.\n"
+"VERIFICATION:\n"
+"    Is the screen supposed to be multitouch?"
+msgstr ""
+
+#. description
+#: ../jobs/touchscreen.txt.in:47
+msgid ""
+"PURPOSE:\n"
+"    Check touchscreen drag & drop\n"
+"STEPS:\n"
+"    1. Double tap, hold, and drag an object on the desktop\n"
+"    2. Drop the object in a different location\n"
+"VERIFICATION:\n"
+"    Does the object select and drag and drop?"
+msgstr ""
+
+#. description
+#: ../jobs/touchscreen.txt.in:60
+msgid ""
+"PURPOSE:\n"
+"    Check touchscreen pinch gesture for zoom\n"
+"STEPS:\n"
+"    1. Place two fingers on the screen and pinch them together\n"
+"    2. Place two fingers on the screen and move then apart\n"
+"VERIFICATION:\n"
+"    Does the screen zoom in and out?"
+msgstr ""
+
+#. description
+#: ../jobs/touchscreen.txt.in:73
+msgid ""
+"PURPOSE:\n"
+"    Validate that 3-touch drag is operating as expected\n"
+"STEPS:\n"
+"    1. Open a windows and bring it to the foreground\n"
+"    2. 3-touch the window and drag\n"
+"VERIFICATION:\n"
+"    Did the window move along with the drag?"
+msgstr ""
+
+#. description
+#: ../jobs/touchscreen.txt.in:86
+msgid ""
+"PURPOSE:\n"
+"    Validate that 4-touch tap is operating as expected\n"
+"STEPS:\n"
+"    1. 4-touch tap anywhere on the touchscreen\n"
+"VERIFICATION:\n"
+"    Did the tap open the Dash?"
+msgstr ""
+
+#. description
+#: ../jobs/usb.txt.in:5
+msgid "Detects and shows USB devices attached to this system."
+msgstr ""
+
+#. description
+#: ../jobs/usb.txt.in:12
+msgid ""
+"PURPOSE:\n"
+"    This test will check that your system detects USB storage devices.\n"
+"STEPS:\n"
+"    1. Plug in one or more USB keys or hard drives.\n"
+"    2. Click on \"Test\".\n"
+"INFO:\n"
+"    $output\n"
+"VERIFICATION:\n"
+"    Were the drives detected?"
+msgstr ""
+
+#. description
+#: ../jobs/usb.txt.in:28
+msgid ""
+"PURPOSE:\n"
+"    This test will check that you can use a USB HID device\n"
+"STEPS:\n"
+"    1. Enable either a USB mouse or keyboard\n"
+"    2. For mice, perform actions such as moving the pointer, right and left "
+"button clicks and double clicks\n"
+"    3. For keyboards, click the Test button to lauch a small tool. Type some "
+"text and close the tool.\n"
+"VERIFICATION:\n"
+"    Did the device work as expected?"
+msgstr ""
+
+#. description
+#: ../jobs/usb.txt.in:43
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the system correctly detects the insertion of\n"
+"    a USB storage device\n"
+"STEPS:\n"
+"    1. Click \"Test\" and insert a USB storage device, preferably a HDD.\n"
+"       Although a USB pen drive may be used it might cause performance\n"
+"       related tests to fail. (Note: this test will time-out after 20\n"
+"       seconds.)\n"
+"    2. Do not unplug the device after the test.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/usb.txt.in:63
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the system correctly detects the insertion of\n"
+"    a USB 3.0 storage device\n"
+"STEPS:\n"
+"    1. Click \"Test\" and insert a USB 3.0 storage device, preferably a "
+"HDD,\n"
+"       in a USB 3.0 port. Although a USB 3.0 pen drive may be used it might\n"
+"       cause performance related tests to fail. (Note: this test will\n"
+"       time-out after 20 seconds.)\n"
+"    2. Do not unplug the device after the test.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/usb.txt.in:82
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the system correctly detects the removal of\n"
+"    a USB storage device\n"
+"STEPS:\n"
+"    1. Click \"Test\" and remove the USB device.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/usb.txt.in:100
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the system correctly detects the removal of\n"
+"    a USB 3.0 storage device\n"
+"STEPS:\n"
+"    1. Click \"Test\" and remove the USB 3.0 device.\n"
+"       (Note: this test will time-out after 20 seconds.)\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/usb.txt.in:117
+msgid ""
+"PURPOSE:\n"
+"    This test will check your USB connection.\n"
+"STEPS:\n"
+"    1. Plug a USB HDD or thumbdrive into the computer.\n"
+"    2. An icon should appear on the Launcher.\n"
+"    3. Click \"Test\" to begin the test.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/usb.txt.in:136
+msgid ""
+"PURPOSE:\n"
+"    This test will check your USB 3.0 connection.\n"
+"STEPS:\n"
+"    1. Plug a USB 3.0 HDD or thumbdrive into a USB 3.0 port in the "
+"computer.\n"
+"    2. An icon should appear on the Launcher.\n"
+"    3. Click \"Test\" to begin the test.\n"
+"VERIFICATION:\n"
+"    The verification of this test is automated. Do not change the\n"
+"    automatically selected result."
+msgstr ""
+
+#. description
+#: ../jobs/usb.txt.in:153
+msgid "This test is automated and executes after the usb/insert test is run."
+msgstr ""
+
+#. description
+#: ../jobs/usb.txt.in:164
+msgid "This test is automated and executes after the usb3/insert test is run."
+msgstr ""
+
+#. description
+#: ../jobs/usb.txt.in:191
+msgid ""
+"PURPOSE:\n"
+"    This test will check your USB connection.\n"
+"STEPS:\n"
+"    1. Connect a USB storage device to an external USB slot on this "
+"computer.\n"
+"    2. An icon should appear on the Launcher.\n"
+"    3. Confirm that the icon appears.\n"
+"    4. Eject the device.\n"
+"    5. Repeat with each external USB slot.\n"
+"VERIFICATION:\n"
+"    Do all USB slots work with the device?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:6
+msgid ""
+"PURPOSE:\n"
+" This test will check that the update manager can find updates.\n"
+"STEPS:\n"
+" 1. Click Test to launch update-manager.\n"
+" 2. Follow the prompts and if updates are found, install them.\n"
+" 3. When Update Manager has finished, please close the app by clicking the "
+"Close button in the lower right corner.\n"
+"VERIFICATION:\n"
+" Did Update manager find and install updates (Pass if no updates are found,\n"
+" but Fail if updates are found but not installed)"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:22
+msgid ""
+"PURPOSE:\n"
+" This test will check that the file browser can create a new folder.\n"
+"STEPS:\n"
+" 1. Click Test to open the File Browser.\n"
+" 2. On the menu bar, click File -> Create Folder.\n"
+" 3. In the name box for the new folder, enter the name Test Folder and hit "
+"Enter.\n"
+" 4. Close the File browser.\n"
+"VERIFICATION:\n"
+" Do you now have a new folder called Test Folder?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:37
+msgid ""
+"PURPOSE:\n"
+" This test will check that the file browser can copy a folder\n"
+"STEPS:\n"
+" 1. Click Test to open the File Browser.\n"
+" 2. Right click on the folder called Test Folder and click on Copy.\n"
+" 3. Right Click on any white area in the window and click on Paste.\n"
+" 4. Right click on the folder called Test Folder(copy) and click Rename.\n"
+" 5. Enter the name Test Data in the name box and hit Enter.\n"
+" 6. Close the File browser.\n"
+"VERIFICATION:\n"
+" Do you now have a folder called Test Data?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:54
+msgid ""
+"PURPOSE:\n"
+" This test will verify that the file browser can move a folder.\n"
+"STEPS:\n"
+" 1. Click Test to open the File Browser.\n"
+" 2. Click and drag the folder called Test Data onto the icon called Test "
+"Folder.\n"
+" 3. Release the button.\n"
+" 4. Double click the folder called Test Folder to open it up.\n"
+" 5. Close the File Browser.\n"
+"VERIFICATION:\n"
+" Was the folder called Test Data successfully moved into the folder called "
+"Test Folder?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:70
+msgid ""
+"PURPOSE:\n"
+" This test will check that the file browser can create a new file.\n"
+"STEPS:\n"
+" 1. Click Select Test to open the File Browser.\n"
+" 2. Right click in the white space and click Create Document -> Empty "
+"Document.\n"
+" 3. Enter the name Test File 1 in the name box and hit Enter.\n"
+" 4. Close the File browser.\n"
+"VERIFICATION:\n"
+" Do you now have a file called Test File 1?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:85
+msgid ""
+"PURPOSE:\n"
+" This test will check that the file browser can copy a file.\n"
+"STEPS:\n"
+" 1. Click Test to open the File Browser.\n"
+" 2. Right click on the file called Test File 1 and click Copy.\n"
+" 3. Right click in the white space and click Paste.\n"
+" 4. Right click on the file called Test File 1(copy) and click Rename.\n"
+" 5. Enter the name Test File 2 in the name box and hit Enter.\n"
+" 6. Close the File Browser.\n"
+"VERIFICATION:\n"
+" Do you now have a file called Test File 2?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:102
+msgid ""
+"PURPOSE:\n"
+" This test will check that the file browser can move a file.\n"
+"STEPS:\n"
+" 1. Click Test to open the File Browser.\n"
+" 2. Click and drag the file called Test File 2 onto the icon for the folder "
+"called Test Data.\n"
+" 3. Release the button.\n"
+" 4. Double click the icon for Test Data to open that folder up.\n"
+" 5. Close the File Browser.\n"
+"VERIFICATION:\n"
+" Was the file Test File 2 successfully moved into the Test Data folder?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:118
+msgid ""
+"PURPOSE:\n"
+" This test will check that the file browser can delete a file.\n"
+"STEPS:\n"
+" 1. Click Test to open the File Browser.\n"
+" 2. Right click on the file called Test File 1 and click on Move To Trash.\n"
+" 3. Verify that Test File 1 has been removed.\n"
+" 4. Close the File Browser.\n"
+"VERIFICATION:\n"
+"  Is Test File 1 now gone?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:133
+msgid ""
+"PURPOSE:\n"
+" This test will check that the file browser can delete a folder.\n"
+"STEPS:\n"
+" 1. Click Test to open the File Browser.\n"
+" 2. Right click on the folder called Test Folder and click on Move To "
+"Trash.\n"
+" 3. Verify that the folder was deleted.\n"
+" 4. Close the file browser.\n"
+"VERIFICATION:\n"
+" Has Test Folder been successfully deleted?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:211
+msgid "Common Document Types Test"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:232
+msgid ""
+"PURPOSE:\n"
+" This test will check that Firefox can render a basic web page.\n"
+"STEPS:\n"
+" 1. Select Test to launch Firefox and view the test web page.\n"
+"VERIFICATION:\n"
+" Did the Ubuntu Test page load correctly?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:245
+msgid ""
+"PURPOSE:\n"
+" This test will check that Firefox can run flash applications. Note: this "
+"may\n"
+" require installing additional software to successfully complete.\n"
+"STEPS:\n"
+" 1. Select Test to launch Firefox and view a sample Flash test.\n"
+"VERIFICATION:\n"
+" Did you see the text?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:259
+msgid ""
+"PURPOSE:\n"
+" This test will check that Firefox can play a Flash video. Note: this may\n"
+" require installing additional software to successfully complete.\n"
+"STEPS:\n"
+" 1. Select Test to launch Firefox and view a short flash video.\n"
+"VERIFICATION:\n"
+" Did the video play correctly?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:275
+msgid ""
+"PURPOSE:\n"
+" This test will check that Firefox can play a Quicktime (.mov) video file.\n"
+" Note: this may require installing additional software to successfully\n"
+" complete.\n"
+"STEPS:\n"
+" 1. Select Test to launch Firefox with a sample video.\n"
+"VERIFICATION:\n"
+" Did the video play using a plugin?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:289
+msgid ""
+"PURPOSE:\n"
+" This test will check that Empathy messaging client works.\n"
+"STEPS:\n"
+" 1. Select Test to launch Empathy.\n"
+" 2. Configure it to connect to the Facebook Chat service.\n"
+" 3. Once you have completed the test, please quit Empathy to continue here.\n"
+"VERIFICATION:\n"
+" Were you able to connect correctly and send/receive messages?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:303
+msgid ""
+"PURPOSE:\n"
+" This test will check that Empathy messaging client works.\n"
+"STEPS:\n"
+" 1. Select Test to launch Empathy.\n"
+" 2. Configure it to connect to the Google Talk (gtalk) service.\n"
+" 3. Once you have completed the test, please quit Empathy to continue here.\n"
+"VERIFICATION:\n"
+" Were you able to connect correctly and send/receive messages?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:317
+msgid ""
+"PURPOSE:\n"
+" This test will check that Empathy messaging client works.\n"
+"STEPS:\n"
+" 1. Select Test to launch Empathy.\n"
+" 2. Configure it to connect to the Jabber service.\n"
+" 3. Once you have completed the test, please quit Empathy to continue here.\n"
+"VERIFICATION:\n"
+" Were you able to connect correctly and send/receive messages?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:331
+msgid ""
+"PURPOSE:\n"
+" This test will check that Empathy messaging client works.\n"
+"STEPS:\n"
+" 1. Select Test to launch Empathy.\n"
+" 2. Configure it to connect to the AOL Instant Messaging (AIM) service.\n"
+" 3. Once you have completed the test, please quit Empathy to continue here.\n"
+"VERIFICATION:\n"
+" Were you able to connect correctly and send/receive messages?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:345
+msgid ""
+"PURPOSE:\n"
+" This test will check that Empathy messaging client works.\n"
+"STEPS:\n"
+" 1. Select Test to launch Empathy.\n"
+" 2. Configure it to connect to the Microsoft Network (MSN) service.\n"
+" 3. Once you have completed the test, please quit Empathy to continue here.\n"
+"VERIFICATION:\n"
+" Were you able to connect correctly and send/receive messages?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:359
+msgid ""
+"PURPOSE:\n"
+" This test will check that Evolution works.\n"
+"STEPS:\n"
+" 1. Click the \"Test\" button to launch Evolution.\n"
+" 2. Configure it to connect to a POP3 account.\n"
+"VERIFICATION:\n"
+" Were you able to receive and read e-mail correctly?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:372
+msgid ""
+"PURPOSE:\n"
+" This test will check that Evolution works.\n"
+"STEPS:\n"
+" 1. Click the \"Test\" button to launch Evolution.\n"
+" 2. Configure it to connect to a IMAP account.\n"
+"VERIFICATION:\n"
+" Were you able to receive and read e-mail correctly?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:385
+msgid ""
+"PURPOSE:\n"
+" This test will check that Evolution works.\n"
+"STEPS:\n"
+" 1. Click the \"Test\" button to launch Evolution.\n"
+" 2. Configure it to connect to a SMTP account.\n"
+"VERIFICATION:\n"
+" Were you able to send e-mail without errors?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:398
+msgid ""
+"PURPOSE:\n"
+" This test checks that gcalctool (Calculator) works.\n"
+"STEPS:\n"
+" Click the \"Test\" button to open the calculator.\n"
+"VERIFICATION:\n"
+" Did it launch correctly?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:411
+msgid ""
+"PURPOSE:\n"
+" This test checks that gcalctool (Calculator) works.\n"
+"STEPS:\n"
+" Click the \"Test\" button to open the calculator and perform:\n"
+" 1. Simple math functions (+,-,/,*)\n"
+" 2. Nested math functions ((,))\n"
+" 3. Fractional math\n"
+" 4. Decimal math\n"
+"VERIFICATION:\n"
+" Did the functions perform as expected?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:428
+msgid ""
+"PURPOSE:\n"
+" This test checks that gcalctool (Calculator) works.\n"
+"STEPS:\n"
+" Click the \"Test\" button to open the calculator and perform:\n"
+"  1. Memory set\n"
+"  2. Memory reset\n"
+"  3. Memory last clear\n"
+"  4. Memory clear\n"
+"VERIFICATION:\n"
+" Did the functions perform as expected?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:445
+msgid ""
+"PURPOSE:\n"
+" This test checks that gcalctool (Calculator) works.\n"
+"STEPS:\n"
+" Click the \"Test\" button to open the calculator and perform:\n"
+"  1. Cut\n"
+"  2. Copy\n"
+"  3. Paste\n"
+"VERIFICATION:\n"
+" Did the functions perform as expected?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:460
+msgid ""
+"PURPOSE:\n"
+" This test checks that gedit works.\n"
+"STEPS:\n"
+" 1. Click the \"Test\" button to open gedit.\n"
+" 2. Enter some text and save the file (make a note of the file name you "
+"use), then close gedit.\n"
+"VERIFICATION:\n"
+" Did this perform as expected?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:474
+msgid ""
+"PURPOSE:\n"
+" This test checks that gedit works.\n"
+"STEPS:\n"
+" 1. Click the \"Test\" button to open gedit, and re-open the file you "
+"created previously.\n"
+" 2. Edit then save the file, then close gedit.\n"
+"VERIFICATION:\n"
+" Did this perform as expected?"
+msgstr ""
+
+#. description
+#: ../jobs/user_apps.txt.in:487
+msgid ""
+"PURPOSE:\n"
+" This test will check that Gnome Terminal works.\n"
+"STEPS:\n"
+" 1. Click the \"Test\" button to open Terminal.\n"
+" 2. Type 'ls' and press enter. You should see a list of files and folder in "
+"your home directory.\n"
+" 3. Close the terminal window.\n"
+"VERIFICATION:\n"
+" Did this perform as expected?"
+msgstr ""
+
+#. description
+#: ../jobs/virtualization.txt.in:10
+msgid "Test to check that a cloud image boots and works properly with KVM"
+msgstr ""
+
+#. description
+#: ../jobs/virtualization.txt.in:18
+msgid "Test to verify that the Xen Hypervisor is running."
+msgstr ""
+
+#. description
+#: ../jobs/virtualization.txt.in:26
+msgid "Test to check that a Xen domU image can boot and run on Xen on Ubuntu"
+msgstr ""
+
+#. description
+#: ../jobs/wireless.txt.in:21
+msgid "Wireless scanning test. It scans and reports on discovered APs."
+msgstr ""
+
+#. description
+#: ../jobs/wireless.txt.in:30
+msgid ""
+"This is an automated test to gather some info on the current state of your "
+"wireless devices. If no devices are found, the test will exit with an error."
+msgstr ""
+
+#. description
+#: ../jobs/wireless.txt.in:38
+msgid ""
+"PURPOSE:\n"
+"    This test will check your wireless connection.\n"
+"STEPS:\n"
+"    1. Click on the Network icon in the panel.\n"
+"    2. Select a network below the 'Wireless networks' section.\n"
+"    3. Click \"Test\" to verify that it's possible to establish an HTTP "
+"connection.\n"
+"VERIFICATION:\n"
+"    Did a notification show and was the connection correctly established?"
+msgstr ""
+
+#. description
+#: ../jobs/wireless.txt.in:57
+msgid ""
+"Tests that the systems wireless hardware can connect to a router using WPA "
+"security and the 802.11b/g protocols."
+msgstr ""
+
+#. description
+#: ../jobs/wireless.txt.in:70
+msgid ""
+"Tests that the systems wireless hardware can connect to a router using no "
+"security and the 802.11b/g protocols."
+msgstr ""
+
+#. description
+#: ../jobs/wireless.txt.in:83
+msgid ""
+"Tests that the systems wireless hardware can connect to a router using WPA "
+"security and the 802.11n protocol."
+msgstr ""
+
+#. description
+#: ../jobs/wireless.txt.in:96
+msgid ""
+"Tests that the systems wireless hardware can connect to a router using no "
+"security and the 802.11n protocol."
+msgstr ""
+
+#. description
+#: ../jobs/wireless.txt.in:110
+msgid ""
+"Tests that the systems wireless hardware can connect to a router using WPA "
+"security and the 802.11ac protocol."
+msgstr ""
+
+#. description
+#: ../jobs/wireless.txt.in:124
+msgid ""
+"Tests that the systems wireless hardware can connect to a router using no "
+"security and the 802.11ac protocol."
+msgstr ""
+
+#. description
+#: ../jobs/wireless.txt.in:228
+msgid ""
+"PURPOSE:\n"
+"    Tests that the systems wireless hardware can connect to a router using "
+"WPA\n"
+"    security and the 802.11ac protocol.\n"
+"STEPS:\n"
+"    1. Open your router's configuration tool\n"
+"    2. Change the settings to only accept connections with the 802.11ac "
+"protocol.\n"
+"    3. Make sure the SSID is set to ROUTER_SSID\n"
+"    4. Change the security settings to use WPA2 and ensure the PSK matches "
+"that set in ROUTER_PSK\n"
+"    5. Click the 'Test' button to create a connection to the router and test "
+"the connection\n"
+"VERIFICATION:\n"
+"    Verification is automated, do not change the automatically selected "
+"result."
+msgstr ""
+
+#. description
+#: ../jobs/wireless.txt.in:251
+msgid ""
+"PURPOSE:\n"
+"    Tests that the systems wireless hardware can connect to a router using\n"
+"    no security and the 802.11ac protocol.\n"
+"STEPS:\n"
+"    1. Open your routers configuration tool\n"
+"    2. Change the settings to only accept connections with the 802.11ac "
+"protocol.\n"
+"    3. Make sure the SSID is set to ROUTER_SSID\n"
+"    4. Change the security settings to use no security\n"
+"    5. Click the 'Test' button to create a connection to the router and test "
+"the connection\n"
+"VERIFICATION:\n"
+"    Verification is automated, do not change the automatically selected "
+"result."
+msgstr ""
+
+#. description
+#: ../jobs/wireless.txt.in:273
+msgid ""
+"Tests the performance of a systems wireless connection through the iperf "
+"tool."
+msgstr ""
+
+#. description
+#: ../jobs/wireless.txt.in:285
+msgid ""
+"Tests the performance of a systems wireless connection through the iperf "
+"tool, using UDP packets."
+msgstr ""
+
+#. description
+#: ../jobs/wireless.txt.in:297
+msgid ""
+" Test that the system's wireless hardware can connect to a router using the\n"
+" 802.11a protocol. This requires that you have a router pre-configured to "
+"only\n"
+" respond to requests on the 802.11a protocol."
+msgstr ""
+
+#. description
+#: ../jobs/wireless.txt.in:310
+msgid ""
+" Test that the system's wireless hardware can connect to a router using the\n"
+" 802.11b protocol. This requires that you have a router pre-configured to "
+"only\n"
+" respond to requests on the 802.11b protocol."
+msgstr ""
+
+#. description
+#: ../jobs/wireless.txt.in:320
+msgid ""
+"Automated test that tests performance of each wireless network device under "
+"stress."
+msgstr ""
+
+#. description
+#: ../jobs/wireless.txt.in:341
+msgid ""
+" Test that the system's wireless hardware can connect to a router using the\n"
+" 802.11g protocol. This requires that you have a router pre-configured to "
+"only\n"
+" respond to requests on the 802.11g protocol."
+msgstr ""
+
+#. description
+#: ../jobs/wireless.txt.in:351
+msgid ""
+"Test that the MAC80211 modules are loaded and wireless extensions are "
+"working."
+msgstr ""
+
+#. description
+#: ../jobs/wireless.txt.in:376
+msgid ""
+"PURPOSE:\n"
+"    This test will check whether or not your driver responds to rfkill "
+"commands.\n"
+"STEPS:\n"
+"    1. Use the hardware switch on the side of your device to switch off "
+"wireless.\n"
+"    2. If you do not have a hardware switch disable wireless from the "
+"network manager icon in the panel\n"
+"    3. Click \"Test\" to verify that the hard or soft blocks are in place.\n"
+"VERIFICATION:\n"
+"    Did the hard or soft blocks show on in the dialog?"
+msgstr ""
+
+#. description
+#: ../jobs/wireless.txt.in:410
+msgid ""
+"This test executes a maximum throughput test against all the wireless "
+"devices found on the system."
+msgstr ""

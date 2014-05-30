@@ -354,6 +354,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
             break
         else:
             if resume_storage is not None and not self.ask_for_new_session():
+                # TRANSLATORS: This is the exit message
                 raise SystemExit(_("Session not resumed"))
             # Create a fresh session if nothing got resumed
             self.create_manager(None)

@@ -552,6 +552,14 @@ class IProviderBackend1(metaclass=ABCMeta):
         """
 
     @abstractproperty
+    def units_dir(self):
+        """
+        absolute path of the units directory
+
+        May be None
+        """
+
+    @abstractproperty
     def secure(self):
         """
         flag indicating that this provider was loaded from the secure portion

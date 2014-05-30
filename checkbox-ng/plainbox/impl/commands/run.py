@@ -651,7 +651,13 @@ class RunInvocation(CheckBoxInvocationMixIn):
                     self.run_single_job(job)
 
     def run_single_job(self, job):
-        self.run_single_job_with_ui(job, VerboseUI())
+        self.run_single_job_with_ui(job, self.get_ui_for_job(job))
+
+    def get_ui_for_job(self, job):
+        if job.plugin in ('local', 'resource', 'attachment'):
+            return NormalUI(self.C.c, show_cmd_output=False)
+        else:
+            return NormalUI(self.C.c, show_cmd_output=True)
 
     def run_single_job_with_ui(self, job, ui):
         job_state = self.state.job_state_map[job.id]

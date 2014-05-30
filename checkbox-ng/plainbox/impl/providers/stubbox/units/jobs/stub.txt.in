@@ -141,7 +141,7 @@ _description:
 plugin: local
 command:
   shopt -s extglob
-  cat $PLAINBOX_PROVIDER_DATA/../jobs/local.txt?(.in)
+  cat $PLAINBOX_PROVIDER_UNITS/jobs/local.txt?(.in)
 
 id: __multilevel__
 _summary: A job generating more generator jobs
@@ -151,7 +151,7 @@ _description:
 plugin: local
 command:
   shopt -s extglob
-  cat $PLAINBOX_PROVIDER_DATA/../jobs/multilevel.txt?(.in)
+  cat $PLAINBOX_PROVIDER_UNITS/jobs/multilevel.txt?(.in)
 
 id: stub/root
 _summary: A job that runs as root

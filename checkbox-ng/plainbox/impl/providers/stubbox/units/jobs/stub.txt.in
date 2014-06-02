@@ -148,6 +148,41 @@ plugin: user-interact-verify
 command: echo "Please select 'pass'"
 estimated_duration: 25
 
+id: stub/user-interact-verify-passing
+_summary: A suggested-passing user-verification-interaction job
+_description:
+ PURPOSE:
+     This test checks that the application user interface auto-suggests 'pass'
+     as the outcome of a test for user-interact-verify jobs that have a command
+     which completes successfully.
+ STEPS:
+     1. Read this description
+     2. Ensure that the command has not been started yet
+     3. Press the test button
+     4. Confirm the auto-suggested value
+ VERIFICATION:
+     The auto suggested value should have been 'pass'
+plugin: user-interact-verify
+command: true
+estimated_duration: 25
+
+id: stub/user-interact-verify-failing
+_summary: A suggested-failing user-verification-interaction job
+_description:
+ PURPOSE:
+     This test checks that the application user interface auto-suggests 'fail'
+     as the outcome of a test for user-interact-verify jobs that have a command
+     which completes unsuccessfully.
+ STEPS:
+     1. Read this description
+     2. Ensure that the command has not been started yet
+     3. Press the test button
+     4. Confirm the auto-suggested value
+ VERIFICATION:
+     The auto suggested value should have been 'fail'
+plugin: user-interact-verify
+command: false
+estimated_duration: 25
 
 id: __local__
 _summary: A job generating one more job

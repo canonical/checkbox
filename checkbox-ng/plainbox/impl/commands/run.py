@@ -227,7 +227,11 @@ class NormalUI(IJobRunnerUI):
         pass
 
     def wait_for_interaction_prompt(self, job):
-        input(self.C.BLUE(_("Press enter to continue") + '\n'))
+        return self.pick_action_cmd([
+            Action('', _("press ENTER to continue"), 'run'),
+            Action('s', _("skip this job"), 'skip'),
+            Action('q', _("save the session and quit"), 'quit')
+        ])
 
     def started_running(self, job, job_state):
         pass

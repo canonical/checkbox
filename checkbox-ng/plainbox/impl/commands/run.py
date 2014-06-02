@@ -798,7 +798,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
                     tr_outcome(suggested_outcome)), 'set-suggested'))
         while result.outcome not in allowed_outcome:
             print(_("Please decide what to do next:"))
-            print("  " + _("result") + ": {0}".format(self.C.result(result)))
+            print("  " + _("outcome") + ": {0}".format(self.C.result(result)))
             if result.comments is None:
                 print("  " + _("comments") + ": {0}".format(
                     C_("none comment", "none")))

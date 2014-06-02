@@ -217,6 +217,7 @@ class NormalUI(IJobRunnerUI):
     def __init__(self, color, show_cmd_output=True):
         self.show_cmd_output = show_cmd_output
         self.C = Colorizer(color)
+        self._color = color
 
     def considering_job(self, job, job_state):
         print(self.C.header(job.tr_summary()))
@@ -269,6 +270,9 @@ class NormalUI(IJobRunnerUI):
 
     def _print_result_outcome(self, result):
         print(_("Outcome") + ": " + self.C.result(result))
+
+    def pick_action_cmd(self, action_list, prompt=None):
+        return ActionUI(action_list, prompt, self._color).run()
 
 
 class ReRunJob(Exception):

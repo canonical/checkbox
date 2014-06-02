@@ -460,9 +460,9 @@ class RunInvocation(CheckBoxInvocationMixIn):
                 resume_storage.id))
             if cmd == 'resume':
                 pass
-            elif cmd == 'next' or cmd is None:
+            elif cmd == 'next':
                 continue
-            elif cmd == 'create':
+            elif cmd == 'create' or cmd is None:
                 self.create_manager(None)
                 break
             # Skip sessions that cannot be resumed

@@ -236,11 +236,27 @@ class GettextTranslator(ITranslator):
         return self._get_translation(self._domain).ngettext(msgid1, msgid2, n)
 
     def pgettext(self, msgctxt, msgid):
-        return self.gettext(self._contextualize(msgctxt, msgid))
+        effective_msgid = self._contextualize(msgctxt, msgid)
+        msgstr = self.gettext(effective_msgid)
+        # If we got the untranslated version then we want to just return msgid
+        # back, without msgctxt prepended in front.
+        if msgstr == effective_msgid:
+            return msgid
+        else:
+            return msgstr
 
     def pngettext(self, msgctxt, msgid1, msgid2, n):
-        return self.ngettext(self._contextualize(msgctxt, msgid1),
-                             self._contextualize(msgctxt, msgid2), n)
+        effective_msgid1 = self._contextualize(msgctxt, msgid1)
+        effective_msgid2 = self._contextualize(msgctxt, msgid2)
+        msgstr = self.ngettext(effective_msgid1, effective_msgid2, n)
+        # If we got the untranslated version then we want to just return msgid1
+        # or msgid2 back, without msgctxt prepended in front.
+        if msgstr == effective_msgid1:
+            return msgid1
+        elif msgstr == effective_msgid2:
+            return msgid2
+        else:
+            return msgstr
 
     def dgettext(self, domain, msgid):
         return self._get_translation(domain).gettext(msgid)
@@ -249,13 +265,28 @@ class GettextTranslator(ITranslator):
         return self._get_translation(domain).ngettext(msgid1, msgid2, n)
 
     def pdgettext(self, msgctxt, domain, msgid):
-        return self._get_translation(domain).gettext(
-            self._contextualize(msgctxt, msgid))
+        effective_msgid = self._contextualize(msgctxt, msgid)
+        msgstr = self._get_translation(domain).gettext(effective_msgid)
+        # If we got the untranslated version then we want to just return msgid
+        # back, without msgctxt prepended in front.
+        if msgstr == effective_msgid:
+            return msgid
+        else:
+            return msgstr
 
     def pdngettext(self, msgctxt, domain, msgid1, msgid2, n):
-        return self._get_translation(domain).ngettext(
-            self._contextualize(msgctxt, msgid1),
-            self._contextualize(msgctxt, msgid2), n)
+        effective_msgid1 = self._contextualize(msgctxt, msgid1)
+        effective_msgid2 = self._contextualize(msgctxt, msgid2)
+        msgstr = self._get_translation(domain).ngettext(
+            effective_msgid1, effective_msgid2, n)
+        # If we got the untranslated version then we want to just return msgid1
+        # or msgid2 back, without msgctxt prepended in front.
+        if msgstr == effective_msgid1:
+            return msgid1
+        elif msgstr == effective_msgid2:
+            return msgid2
+        else:
+            return msgstr
 
 
 def docstring(docstring):

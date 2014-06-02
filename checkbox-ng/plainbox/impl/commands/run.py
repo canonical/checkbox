@@ -39,6 +39,7 @@ from plainbox.abc import IJobResult
 from plainbox.abc import IJobRunnerUI
 from plainbox.i18n import gettext as _
 from plainbox.i18n import ngettext
+from plainbox.i18n import pgettext as C_
 from plainbox.impl.color import ansi_on, ansi_off
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
@@ -770,13 +771,19 @@ class RunInvocation(CheckBoxInvocationMixIn):
         ]
         if IJobResult.OUTCOME_PASS in allowed_outcome:
             allowed_actions.append(
-                Action('p', _('mark as passed'), 'set-pass'))
+                Action('p', _('set outcome to {0}').format(
+                    self.C.GREEN(C_('set outcome to <pass>', 'pass'))),
+                    'set-pass'))
         if IJobResult.OUTCOME_FAIL in allowed_outcome:
             allowed_actions.append(
-                Action('f', _('mark as failed'), 'set-fail'))
+                Action('f', _('set outcome to {0}').format(
+                    self.C.RED(C_('set outcome to <fail>', 'fail'))),
+                    'set-fail'))
         if IJobResult.OUTCOME_SKIP in allowed_outcome:
             allowed_actions.append(
-                Action('s', _('skip this test'), 'set-skip'))
+                Action('s', _('set outcome to {0}').format(
+                    self.C.YELLOW(C_('set outcome to <skip>', 'skip'))),
+                    'set-skip'))
         if job.command is not None:
             allowed_actions.append(
                 Action('r', _('re-run this job'), 're-run'))

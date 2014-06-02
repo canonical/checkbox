@@ -196,10 +196,10 @@ class LoremIpsumTranslator(NoOpTranslator):
 
 class GettextTranslator:
 
-    def __init__(self, domain):
+    def __init__(self, domain, locale_dir=None):
         self._domain = domain
         self._translations = {}
-        self._locale_dir = os.getenv("PLAINBOX_LOCALE_DIR", None)
+        self._locale_dir = locale_dir
 
     def _get_translation(self, domain):
         try:
@@ -304,7 +304,8 @@ def gettext_noop(msgid):
 # This is the global plainbox-specific translator.
 try:
     _translator = {
-        "gettext": GettextTranslator("plainbox"),
+        "gettext": GettextTranslator(
+            "plainbox", os.getenv("PLAINBOX_LOCALE_DIR", None)),
         "no-op": NoOpTranslator(),
         "lorem-ipsum-ar": LoremIpsumTranslator("ar"),
         "lorem-ipsum-ch": LoremIpsumTranslator("ch"),

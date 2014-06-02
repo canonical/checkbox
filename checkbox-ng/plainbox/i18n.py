@@ -30,6 +30,8 @@ import os
 import random
 import re
 
+from plainbox.abc import ITranslator
+
 __all__ = [
     'bindtextdomain',
     'dgettext',
@@ -40,25 +42,38 @@ __all__ = [
 
 _logger = logging.getLogger("plainbox.i18n")
 
-class NoOpTranslator:
 
-    @classmethod
-    def gettext(cls, msgid):
+class NoOpTranslator(ITranslator):
+    """
+    A translator that doesn't translate anything
+    """
+
+    def gettext(self, msgid):
         return msgid
 
-    @classmethod
-    def dgettext(cls, domain, msgid):
-        return msgid
+    def ngettext(self, msgid1, msgid2, n):
+        return msgid1 if n == 1 else msgid2
 
-    @classmethod
-    def ngettext(cls, msgid1, msgid2, n):
-        if n == 1:
-            return msgid1
-        else:
-            return msgid2
+    def pgettext(self, msgctxt, msgid):
+        return self.gettext(msgid)
+
+    def pngettext(self, msgctxt, msgid1, msgid2, n):
+        return self.ngettext(msgid1, msgid2, n)
+
+    def dgettext(self, domain, msgid):
+        return self.gettext(msgid)
+
+    def dngettext(self, domain, msgid1, msgid2, n):
+        return self.ngettext(msgid1, msgid2, n)
+
+    def pdgettext(self, msgctxt, domain, msgid):
+        return self.gettext(msgid)
+
+    def pdngettext(self, msgctxt, domain, msgid1, msgid2, n):
+        return self.ngettext(msgid1, msgid2, n)
 
 
-class LoremIpsumTranslator:
+class LoremIpsumTranslator(NoOpTranslator):
 
     LOREM_IPSUM = {
         "ch": ('', """小經 施消 了稱 能文 安種 之用 無心 友市 景內 語格。坡對
@@ -169,15 +184,14 @@ class LoremIpsumTranslator:
     def gettext(self, msgid):
         return self.dgettext("plainbox", msgid)
 
-    def dgettext(self, domain, msgid):
-        return "<{}: {}>".format(domain, self._get_ipsum(msgid))
-
     def ngettext(self, msgid1, msgid2, n):
         if n == 1:
             return self._get_ipsum(msgid1)
         else:
             return self._get_ipsum(msgid2)
-        pass
+
+    def dgettext(self, domain, msgid):
+        return "<{}: {}>".format(domain, self._get_ipsum(msgid))
 
 
 class GettextTranslator:
@@ -291,7 +305,7 @@ def gettext_noop(msgid):
 try:
     _translator = {
         "gettext": GettextTranslator("plainbox"),
-        "no-op": NoOpTranslator,
+        "no-op": NoOpTranslator(),
         "lorem-ipsum-ar": LoremIpsumTranslator("ar"),
         "lorem-ipsum-ch": LoremIpsumTranslator("ch"),
         "lorem-ipsum-he": LoremIpsumTranslator("he"),

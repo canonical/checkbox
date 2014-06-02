@@ -259,7 +259,7 @@ class CliInvocation(CheckBoxInvocationMixIn):
             # Create a session that handles most of the stuff needed to run
             # jobs
             try:
-                manager = SessionManager.create_with_job_list(
+                manager = SessionManager.create_with_unit_list(
                     job_list, legacy_mode=True)
             except DependencyDuplicateError as exc:
                 # Handle possible DependencyDuplicateError that can happen if

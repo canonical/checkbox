@@ -748,8 +748,19 @@ class RunInvocation(CheckBoxInvocationMixIn):
                 ui.notify_about_description(job)
             if (self.is_interactive and
                     job.plugin in ('user-interact', 'user-interact-verify')):
-                ui.wait_for_interaction_prompt(job)
-            job_result = self.runner.run_job(job, self.config, ui)
+                cmd = ui.wait_for_interaction_prompt(job)
+                if cmd == 'run' or cmd is None:
+                    job_result = self.runner.run_job(job, self.config, ui)
+                elif cmd == 'skip':
+                    job_result = MemoryJobResult({
+                        'outcome': IJobResult.OUTCOME_SKIP,
+                        'comments': _("Explicitly skipped before execution")
+                    })
+                    break
+                elif cmd == 'quit':
+                    raise SystemExit()
+            else:
+                job_result = self.runner.run_job(job, self.config, ui)
             if (self.is_interactive and
                     job_result.outcome == IJobResult.OUTCOME_UNDECIDED):
                 try:

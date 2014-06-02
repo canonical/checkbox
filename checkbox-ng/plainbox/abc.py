@@ -473,6 +473,19 @@ class IJobRunnerUI(metaclass=ABCMeta):
         actually started or not
         """
 
+    @abstractmethod
+    def pick_action_cmd(self, action_list, prompt=None):
+        """
+        Present a list of actions and let the user pick one
+
+        :param action_list:
+            A list of 3-tuples (accel, label, cmd)
+        :prompt:
+            An optional prompt string
+        :returns:
+            cmd of the selected action or None
+        """
+
 
 class IUserInterfaceIO(metaclass=ABCMeta):
     """

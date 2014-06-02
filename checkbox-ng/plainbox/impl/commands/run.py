@@ -297,13 +297,14 @@ class RunInvocation(CheckBoxInvocationMixIn):
 
     def __init__(self, provider_list, config, ns, use_colors=True):
         super().__init__(provider_list, config)
-        self.C = Colorizer(ansi_on if use_colors else ansi_off)
         self.ns = ns
         self._manager = None
         self._runner = None
         self._exporter = None
         self._transport = None
         self._backtrack_and_run_missing = True
+        self._color = ansi_on if use_colors else ansi_off
+        self.C = Colorizer(self._color)
 
     @property
     def manager(self):

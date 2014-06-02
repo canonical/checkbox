@@ -767,7 +767,8 @@ class RunInvocation(CheckBoxInvocationMixIn):
                         self.runner, job, job_result, self.config)
                 except ReRunJob:
                     continue
-            return job_result
+            break
+        return job_result
 
     def export_and_send_results(self):
         # Get a stream with exported session data.

@@ -407,7 +407,17 @@ class IJobRunnerUI(metaclass=ABCMeta):
         Method called only for user-interact and user-interact-verify jobs
         that should instruct the user to read the description (that needs
         to be displayed somehow) and confirm before the test is actually
-        started.
+        started. The user should be one of the few choices listed below:
+
+        quit:
+            save and quit
+        run:
+            run the job
+        skip:
+            skip and continue
+
+        :returns:
+            The action selected by the user.
         """
 
     @abstractmethod

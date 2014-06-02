@@ -35,6 +35,7 @@ import inspect
 
 from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _
+from plainbox.i18n import pgettext as C_
 from plainbox.impl.signal import Signal
 
 logger = logging.getLogger("plainbox.result")
@@ -58,13 +59,20 @@ def tr_outcome(outcome):
     Get the translated value of OUTCOME_ constant
     """
     return {
-        IJobResult.OUTCOME_NONE: _("none"),
-        IJobResult.OUTCOME_PASS: _("pass"),
-        IJobResult.OUTCOME_FAIL: _("fail"),
-        IJobResult.OUTCOME_SKIP: _("skip"),
-        IJobResult.OUTCOME_NOT_SUPPORTED: _("not supported"),
-        IJobResult.OUTCOME_NOT_IMPLEMENTED: _("not implemented"),
-        IJobResult.OUTCOME_UNDECIDED: _("undecided")
+        IJobResult.OUTCOME_NONE: C_(
+            "textual outcome", "job didn't run"),
+        IJobResult.OUTCOME_PASS: C_(
+            "textual outcome", "job passed"),
+        IJobResult.OUTCOME_FAIL: C_(
+            "textual outcome", "job failed"),
+        IJobResult.OUTCOME_SKIP: C_(
+            "textual outcome", "job skipped"),
+        IJobResult.OUTCOME_NOT_SUPPORTED: C_(
+            "textual outcome", "job cannot be started"),
+        IJobResult.OUTCOME_NOT_IMPLEMENTED: C_(
+            "textual outcome", "job is not implemented"),
+        IJobResult.OUTCOME_UNDECIDED: C_(
+            "textual outcome", "job needs verification")
     }[outcome]
 
 

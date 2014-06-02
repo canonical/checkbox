@@ -697,7 +697,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
         """
         Run all jobs according to the run list.
         """
-        print(self.C.header(_("Running All Jobs")))
+        print(self.C.header(_("Running Selected Jobs")))
         self._backtrack_and_run_missing = True
         while self._backtrack_and_run_missing:
             self._backtrack_and_run_missing = False

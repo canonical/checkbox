@@ -121,7 +121,7 @@ class TestRun(TestCase):
         Estimated duration cannot be determined for manual jobs.
         Size of the desired job list: 0
         Size of the effective execution plan: 0
-        ==============================[ Running All Jobs ]==============================
+        ===========================[ Running Selected Jobs ]============================
         ==================================[ Results ]===================================
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")

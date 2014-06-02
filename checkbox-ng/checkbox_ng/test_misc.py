@@ -32,7 +32,7 @@ from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.rfc822 import RFC822Record
 from plainbox.impl.testing_utils import make_job
 
-from checkbox_ng.commands.cli import SelectableJobTreeNode
+from checkbox_ng.misc import SelectableJobTreeNode
 
 
 class TestSelectableJobTreeNode(TestCase):

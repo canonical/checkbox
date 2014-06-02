@@ -35,7 +35,8 @@ from requests.exceptions import ConnectionError, InvalidSchema, HTTPError
 
 from checkbox_ng.certification import CertificationTransport
 from checkbox_ng.certification import InvalidSecureIDError
-from checkbox_ng.commands.cli import CliCommand, CliInvocation
+from checkbox_ng.commands.cli import CliCommand
+from checkbox_ng.commands.oldcli import CliInvocation
 
 
 logger = getLogger("checkbox.ng.commands.certification")

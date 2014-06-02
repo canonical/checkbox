@@ -261,7 +261,6 @@ class NormalUI(IJobRunnerUI):
         pass
 
     def notify_about_description(self, job):
-        print(_("Please familiarize yourself with the job description"))
         print(self.C.CYAN(job.tr_description()))
 
     def job_cannot_start(self, job, job_state, result):

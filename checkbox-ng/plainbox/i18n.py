@@ -35,8 +35,13 @@ from plainbox.abc import ITranslator
 __all__ = [
     'bindtextdomain',
     'dgettext',
+    'dngettext',
     'gettext',
     'ngettext',
+    'pdgettext',
+    'pdngettext',
+    'pgettext',
+    'pngettext',
     'textdomain',
 ]
 
@@ -388,4 +393,9 @@ except KeyError as exc:
 # This is the public API of this module
 gettext = _translator.gettext
 ngettext = _translator.ngettext
+pgettext = _translator.pgettext
+pngettext = _translator.pngettext
 dgettext = _translator.dgettext
+dngettext = _translator.dngettext
+pdgettext = _translator.pdgettext
+pdngettext = _translator.pdngettext

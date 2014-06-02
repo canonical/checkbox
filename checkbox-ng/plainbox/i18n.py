@@ -194,7 +194,13 @@ class LoremIpsumTranslator(NoOpTranslator):
         return "<{}: {}>".format(domain, self._get_ipsum(msgid))
 
 
-class GettextTranslator:
+class GettextTranslator(ITranslator):
+    """
+    A translator using native stdlib gettext
+
+    # NOTE: The gettext API is a bit wrong as it doesn't respect the
+    # textdomain/bindtextdomain calls.
+    """
 
     def __init__(self, domain, locale_dir=None):
         self._domain = domain
@@ -213,14 +219,43 @@ class GettextTranslator:
             self._translations[domain] = translation
             return translation
 
-    def dgettext(self, domain, msgid):
-        return self._get_translation(domain).gettext(msgid)
+    def _contextualize(self, ctx, msg):
+        """
+        Contextualize message identifier
+
+        This method combines the context string with the message identifier
+        using the character used by gettext (END OF TRANSMISSION, U+0004)
+        """
+        GETTEXT_CONTEXT_GLUE = "\004"
+        return ctx + GETTEXT_CONTEXT_GLUE + msg
 
     def gettext(self, msgid):
         return self._get_translation(self._domain).gettext(msgid)
 
     def ngettext(self, msgid1, msgid2, n):
         return self._get_translation(self._domain).ngettext(msgid1, msgid2, n)
+
+    def pgettext(self, msgctxt, msgid):
+        return self.gettext(self._contextualize(msgctxt, msgid))
+
+    def pngettext(self, msgctxt, msgid1, msgid2, n):
+        return self.ngettext(self._contextualize(msgctxt, msgid1),
+                             self._contextualize(msgctxt, msgid2), n)
+
+    def dgettext(self, domain, msgid):
+        return self._get_translation(domain).gettext(msgid)
+
+    def dngettext(self, domain, msgid1, msgid2, n):
+        return self._get_translation(domain).ngettext(msgid1, msgid2, n)
+
+    def pdgettext(self, msgctxt, domain, msgid):
+        return self._get_translation(domain).gettext(
+            self._contextualize(msgctxt, msgid))
+
+    def pdngettext(self, msgctxt, domain, msgid1, msgid2, n):
+        return self._get_translation(domain).ngettext(
+            self._contextualize(msgctxt, msgid1),
+            self._contextualize(msgctxt, msgid2), n)
 
 
 def docstring(docstring):

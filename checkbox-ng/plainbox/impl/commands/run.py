@@ -128,6 +128,46 @@ class Colorizer:
 Action = collections.namedtuple("Action", "accel label cmd")
 
 
+class ActionUI:
+    """
+    A simple user interface to display a list of actions and let the user to
+    pick one
+    """
+    def __init__(self, action_list, prompt=None, color=None):
+        """
+        :param action_list:
+            A list of 3-tuples (accel, label, cmd)
+        :prompt:
+            An optional prompt string
+        :returns:
+            cmd of the selected action or None
+        """
+        if prompt is None:
+            prompt = _("Pick an action")
+        self.action_list = action_list
+        self.prompt = prompt
+        self.C = Colorizer(color or ansi_off)
+
+    def run(self):
+        long_hint = "\n".join(
+            "  {accel} => {label}".format(
+                accel=self.C.BLUE(action.accel) if action.accel else ' ',
+                label=action.label)
+            for action in self.action_list)
+        short_hint = ''.join(action.accel for action in self.action_list)
+        while True:
+            try:
+                print(self.C.BLUE(self.prompt))
+                print(long_hint)
+                choice = input("[{}]: ".format(self.C.BLUE(short_hint)))
+            except EOFError:
+                return None
+            else:
+                for action in self.action_list:
+                    if choice == action.accel or choice == action.label:
+                        return action.cmd
+
+
 class SilentUI(IJobRunnerUI):
 
     def considering_job(self, job, job_state):

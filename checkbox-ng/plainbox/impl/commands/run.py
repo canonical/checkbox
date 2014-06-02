@@ -800,7 +800,8 @@ class RunInvocation(CheckBoxInvocationMixIn):
             print(_("Please decide what to do next:"))
             print("  " + _("result") + ": {0}".format(self.C.result(result)))
             if result.comments is None:
-                print("  " + _("comments") + ": {0}".format(_("none")))
+                print("  " + _("comments") + ": {0}".format(
+                    C_("none comment", "none")))
             else:
                 print("  " + _("comments") + ": {0}".format(
                     self.C.CYAN(result.comments, bright=False)))

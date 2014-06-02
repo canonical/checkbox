@@ -220,7 +220,7 @@ class NormalUI(IJobRunnerUI):
         self._color = color
 
     def considering_job(self, job, job_state):
-        print(self.C.header(job.tr_summary()))
+        print(self.C.header(job.tr_summary(), fill='-'))
         print(_("ID: {0}").format(job.id))
 
     def about_to_start_running(self, job, job_state):

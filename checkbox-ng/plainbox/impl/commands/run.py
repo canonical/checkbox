@@ -240,7 +240,7 @@ class NormalUI(IJobRunnerUI):
         if self.show_cmd_output:
             print(self.C.BLACK("... 8< -".ljust(80, '-')))
         else:
-            print("(" + _("Command output hidden") + ")")
+            print(self.C.BLACK("(" + _("Command output hidden") + ")"))
 
     def got_program_output(self, stream_name, line):
         if not self.show_cmd_output:

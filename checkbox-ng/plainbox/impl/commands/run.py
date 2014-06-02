@@ -176,7 +176,8 @@ class NormalUI(IJobRunnerUI):
         self.C = Colorizer(color)
 
     def considering_job(self, job, job_state):
-        print(self.C.header(job.id))
+        print(self.C.header(job.tr_summary()))
+        print(_("ID: {0}").format(job.id))
 
     def about_to_start_running(self, job, job_state):
         pass

@@ -8,14 +8,13 @@ msgstr ""
 "Project-Id-Version: stubbox 0.5\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-06-02 15:26+0200\n"
-"PO-Revision-Date: 2014-04-05 00:53+0000\n"
+"PO-Revision-Date: 2014-06-03 04:40+0000\n"
 "Last-Translator: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>\n"
 "Language-Team: polski <>\n"
-"Language: Polish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-05-31 05:29+0000\n"
+"X-Launchpad-Export-Date: 2014-06-03 05:31+0000\n"
 "X-Generator: Launchpad (build 17031)\n"
 "Language: Polish\n"
 
@@ -26,7 +25,8 @@ msgstr "Zadanie wygenerowane przez inne zadanie"
 
 #. description
 #: ../units/jobs/local.txt.in:4
-msgid "Check success result from shell test case (generated from a local job)"
+msgid ""
+"Check success result from shell test case (generated from a local job)"
 msgstr ""
 "Sprawdzenie udanego wyniku z zadania typu 'shell' (wygenerowanego przez "
 "zadanie typu 'local')"
@@ -134,7 +134,8 @@ msgstr "Udane zadanie powłoki zależące od dostępnego zasobu"
 #. description
 #: ../units/jobs/stub.txt.in:76
 msgid "Check job is executed when requirements are met"
-msgstr "Sprawdzenie czy zadanie jest wykonane gdy wymagania zostały spełnione"
+msgstr ""
+"Sprawdzenie czy zadanie jest wykonane gdy wymagania zostały spełnione"
 
 #. summary
 #: ../units/jobs/stub.txt.in:84
@@ -147,8 +148,8 @@ msgid ""
 "Check job result is set to \"not required on this system\" when requirements "
 "are not met"
 msgstr ""
-"Sprawdzenie czy wynik zadania jest ustawiony na \"niewymagany na tym systemie"
-"\" gdy zależności zasobów nie zostały spełnione"
+"Sprawdzenie czy wynik zadania jest ustawiony na \"niewymagany na tym "
+"systemie\" gdy zależności zasobów nie zostały spełnione"
 
 #. summary
 #: ../units/jobs/stub.txt.in:93

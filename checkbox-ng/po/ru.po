@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: plainbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-05-30 12:04+0200\n"
+"POT-Creation-Date: 2014-06-02 14:50+0200\n"
 "PO-Revision-Date: 2014-04-17 12:36+0000\n"
 "Last-Translator: Jay ZDLin <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2014-05-31 05:29+0000\n"
+"X-Launchpad-Export-Date: 2014-06-03 05:30+0000\n"
 "X-Generator: Launchpad (build 17031)\n"
 
 #: .././plainbox/impl/_argparse.py:139
@@ -466,344 +466,368 @@ msgstr "ИМЯ-ОБРАБОТЧИКА"
 msgid "Name of the parser to use"
 msgstr "Имя обработчика, который необходимо использовать"
 
-#: .././plainbox/impl/commands/run.py:184
-msgid "Press enter to continue"
+#: .././plainbox/impl/commands/run.py:146
+msgid "Pick an action"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:193
+#: .././plainbox/impl/commands/run.py:221
+#, python-brace-format
+msgid "ID: {0}"
+msgstr ""
+
+#: .././plainbox/impl/commands/run.py:228
+msgid "press ENTER to continue"
+msgstr ""
+
+#: .././plainbox/impl/commands/run.py:229
+msgid "skip this job"
+msgstr ""
+
+#: .././plainbox/impl/commands/run.py:230
+msgid "save the session and quit"
+msgstr ""
+
+#: .././plainbox/impl/commands/run.py:240
 msgid "Command output hidden"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:214
-msgid "Please familiarize yourself with the job description"
-msgstr ""
-
-#: .././plainbox/impl/commands/run.py:218
+#: .././plainbox/impl/commands/run.py:264
 msgid "Job cannot be started because:"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:226
+#: .././plainbox/impl/commands/run.py:272
 msgid "Outcome"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:326
-#: .././plainbox/impl/commands/run.py:329
-#: .././plainbox/impl/commands/run.py:332
-#: .././plainbox/impl/commands/run.py:920
-#: .././plainbox/impl/commands/run.py:936
+#: .././plainbox/impl/commands/run.py:376
+#: .././plainbox/impl/commands/run.py:379
+#: .././plainbox/impl/commands/run.py:382
+#: .././plainbox/impl/commands/run.py:970
+#: .././plainbox/impl/commands/run.py:986
 msgid "?"
 msgstr "?"
 
-#: .././plainbox/impl/commands/run.py:393
+#: .././plainbox/impl/commands/run.py:443
 msgid "Resume Incomplete Session"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:395
+#: .././plainbox/impl/commands/run.py:445
 #, python-brace-format
 msgid "There is {0} incomplete session that might be resumed"
 msgid_plural "There are {0} incomplete sessions that might be resumed"
 msgstr[0] ""
 msgstr[1] ""
 
-#: .././plainbox/impl/commands/run.py:402
+#: .././plainbox/impl/commands/run.py:452
 msgid "resume this session"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:403
+#: .././plainbox/impl/commands/run.py:453
 msgid "next session"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:404
+#: .././plainbox/impl/commands/run.py:454
 msgid "create new session"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:405
+#: .././plainbox/impl/commands/run.py:455
 msgid "Do you want to resume session {0!a}?"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:419
+#: .././plainbox/impl/commands/run.py:469
 msgid "ignore this problem"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:420
+#: .././plainbox/impl/commands/run.py:470
 msgid "erase this session"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:423
+#: .././plainbox/impl/commands/run.py:473
 #: .././plainbox/impl/commands/session.py:83
 msgid "Session removed"
 msgstr ""
 
 #. TRANSLATORS: This is the exit message
-#: .././plainbox/impl/commands/run.py:435
+#: .././plainbox/impl/commands/run.py:485
 msgid "Session not resumed"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:441
+#: .././plainbox/impl/commands/run.py:491
 msgid "Available output formats: {}"
 msgstr "Доступные форматы вывода: {}"
 
-#: .././plainbox/impl/commands/run.py:445
+#: .././plainbox/impl/commands/run.py:495
 msgid "Each format may support a different set of options"
 msgstr "Каждый формат может поддерживать разные наборы параметров"
 
-#: .././plainbox/impl/commands/run.py:451
+#: .././plainbox/impl/commands/run.py:501
 msgid "Available transports: {}"
 msgstr "Доступные транспорты: {}"
 
-#: .././plainbox/impl/commands/run.py:473
+#: .././plainbox/impl/commands/run.py:523
 msgid "yes"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:474
+#: .././plainbox/impl/commands/run.py:524
 msgid "no"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:479
+#: .././plainbox/impl/commands/run.py:529
 msgid "Do you want to start a new session?"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:485
+#: .././plainbox/impl/commands/run.py:535
 msgid "Previous session run tried to execute job: {}"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:488
+#: .././plainbox/impl/commands/run.py:538
 msgid "skip that job"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:489
+#: .././plainbox/impl/commands/run.py:539
 msgid "mark it as failed and continue"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:490
+#: .././plainbox/impl/commands/run.py:540
 msgid "run it again"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:491
+#: .././plainbox/impl/commands/run.py:541
 msgid "What do you want to do with that job?"
 msgstr "Что требуется сделать с заданием?"
 
-#: .././plainbox/impl/commands/run.py:495
+#: .././plainbox/impl/commands/run.py:545
 msgid "Skipped after resuming execution"
 msgstr "Пропущено после возобновления выполнения"
 
-#: .././plainbox/impl/commands/run.py:500
+#: .././plainbox/impl/commands/run.py:550
 msgid "Failed after resuming execution"
 msgstr "Сбой после возобновления выполнения"
 
-#: .././plainbox/impl/commands/run.py:572
+#: .././plainbox/impl/commands/run.py:622
 msgid "The job database you are currently using is broken"
 msgstr "База данных заданий, используемая в настоящий момент, повреждена"
 
-#: .././plainbox/impl/commands/run.py:574
+#: .././plainbox/impl/commands/run.py:624
 #, python-brace-format
 msgid "At least two jobs contend for the id {0}"
 msgstr "Как минимум два задания претендуют на идентификатор {0}"
 
-#: .././plainbox/impl/commands/run.py:577
+#: .././plainbox/impl/commands/run.py:627
 #, python-brace-format
 msgid "First job defined in: {0}"
 msgstr "Первое задание определено в: {0}"
 
-#: .././plainbox/impl/commands/run.py:579
+#: .././plainbox/impl/commands/run.py:629
 #, python-brace-format
 msgid "Second job defined in: {0}"
 msgstr "Второе задание определено в: {0}"
 
-#: .././plainbox/impl/commands/run.py:584
+#: .././plainbox/impl/commands/run.py:634
 msgid "This session cannot be resumed"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:629
+#: .././plainbox/impl/commands/run.py:679
 msgid "Analyzing Jobs"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:639
+#: .././plainbox/impl/commands/run.py:689
 msgid "Authentication"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:647
+#: .././plainbox/impl/commands/run.py:697
 msgid "Running All Jobs"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:727
+#: .././plainbox/impl/commands/run.py:753
+msgid "Explicitly skipped before execution"
+msgstr ""
+
+#: .././plainbox/impl/commands/run.py:788
 msgid "Results"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:734
+#: .././plainbox/impl/commands/run.py:795
 msgid "Saving results to {}"
 msgstr "Сохранение результатов в {}"
 
-#: .././plainbox/impl/commands/run.py:741
-msgid "Pick an action"
-msgstr ""
-
-#: .././plainbox/impl/commands/run.py:763
+#: .././plainbox/impl/commands/run.py:806
 msgid "Select an outcome or an action: "
 msgstr "Выберите результат или действие: "
 
-#: .././plainbox/impl/commands/run.py:769
+#: .././plainbox/impl/commands/run.py:812
 msgid "add a comment"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:773
-msgid "mark as passed"
+#: .././plainbox/impl/commands/run.py:816
+#: .././plainbox/impl/commands/run.py:821
+#: .././plainbox/impl/commands/run.py:826
+#, python-brace-format
+msgid "set outcome to {0}"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:776
-msgid "mark as failed"
+#: .././plainbox/impl/commands/run.py:817
+msgctxt "set outcome to <pass>"
+msgid "pass"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:779
-msgid "skip this test"
+#: .././plainbox/impl/commands/run.py:822
+msgctxt "set outcome to <fail>"
+msgid "fail"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:782
+#: .././plainbox/impl/commands/run.py:827
+msgctxt "set outcome to <skip>"
+msgid "skip"
+msgstr ""
+
+#: .././plainbox/impl/commands/run.py:831
 msgid "re-run this job"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:789
+#: .././plainbox/impl/commands/run.py:838
 #, python-brace-format
 msgid "set suggested outcome [{0}]"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:792
+#: .././plainbox/impl/commands/run.py:841
 msgid "Please decide what to do next:"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:793
-msgid "result"
+#: .././plainbox/impl/commands/run.py:842
+msgid "outcome"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:795
-#: .././plainbox/impl/commands/run.py:797
+#: .././plainbox/impl/commands/run.py:844
+#: .././plainbox/impl/commands/run.py:847
 msgid "comments"
 msgstr "комментарии"
 
-#: .././plainbox/impl/commands/run.py:795 .././plainbox/impl/result.py:61
+#: .././plainbox/impl/commands/run.py:845
+msgctxt "none comment"
 msgid "none"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:812
+#: .././plainbox/impl/commands/run.py:862
 msgid "Please enter your comments:"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:823
+#: .././plainbox/impl/commands/run.py:873
 msgid "There were some problems with the selected jobs"
 msgstr "Возникли проблемы с выбранными заданиями"
 
-#: .././plainbox/impl/commands/run.py:826
+#: .././plainbox/impl/commands/run.py:876
 msgid "Problematic jobs will not be considered"
 msgstr "Проблемные задания не будут рассматриваться"
 
-#: .././plainbox/impl/commands/run.py:829
+#: .././plainbox/impl/commands/run.py:879
 msgid "Session Statistics"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:830
+#: .././plainbox/impl/commands/run.py:880
 #, python-brace-format, python-format
 msgid "This session is about {0:.2f}% complete"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:835
+#: .././plainbox/impl/commands/run.py:885
 msgid "Estimated duration is {:.2f} for automated jobs."
 msgstr ""
 "Расчётная продолжительность автоматических заданий составляет {:.2f}."
 
-#: .././plainbox/impl/commands/run.py:839
+#: .././plainbox/impl/commands/run.py:889
 msgid "Estimated duration cannot be determined for automated jobs."
 msgstr ""
 "Расчётная продолжительность не может быть определена для автоматических "
 "заданий."
 
-#: .././plainbox/impl/commands/run.py:841
+#: .././plainbox/impl/commands/run.py:891
 msgid "Estimated duration is {:.2f} for manual jobs."
 msgstr ""
 "Расчётная продолжительность заданий, выполняемых вручную, составляет {:.2f}."
 
-#: .././plainbox/impl/commands/run.py:845
+#: .././plainbox/impl/commands/run.py:895
 msgid "Estimated duration cannot be determined for manual jobs."
 msgstr ""
 "Расчётная продолжительность не может быть определена для заданий, "
 "выполняемых вручную."
 
-#: .././plainbox/impl/commands/run.py:846
+#: .././plainbox/impl/commands/run.py:896
 #, python-brace-format
 msgid "Size of the desired job list: {0}"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:848
+#: .././plainbox/impl/commands/run.py:898
 #, python-brace-format
 msgid "Size of the effective execution plan: {0}"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:903
+#: .././plainbox/impl/commands/run.py:953
 msgid "run a test job"
 msgstr "запустить тестовое здание"
 
-#: .././plainbox/impl/commands/run.py:905
+#: .././plainbox/impl/commands/run.py:955
 msgid "user interface options"
 msgstr "параметры пользовательского интерфейса"
 
-#: .././plainbox/impl/commands/run.py:912
+#: .././plainbox/impl/commands/run.py:962
 msgid "skip tests that require interactivity"
 msgstr "пропустить тесты, требующие интерактивности"
 
-#: .././plainbox/impl/commands/run.py:915
+#: .././plainbox/impl/commands/run.py:965
 msgid "don't really run most jobs"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:916
+#: .././plainbox/impl/commands/run.py:966
 msgid "output options"
 msgstr "параметры вывода"
 
-#: .././plainbox/impl/commands/run.py:920
+#: .././plainbox/impl/commands/run.py:970
 msgid "FORMAT"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:922
+#: .././plainbox/impl/commands/run.py:972
 msgid ""
 "save test results in the specified FORMAT (pass ? for a list of choices)"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:926
-#: .././plainbox/impl/commands/run.py:946
+#: .././plainbox/impl/commands/run.py:976
+#: .././plainbox/impl/commands/run.py:996
 msgid "OPTIONS"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:927
+#: .././plainbox/impl/commands/run.py:977
 msgid ""
 "comma-separated list of options for the export mechanism (pass ? for a list "
 "of choices)"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:931
+#: .././plainbox/impl/commands/run.py:981
 msgid "FILE"
 msgstr "ФАЙЛ"
 
-#: .././plainbox/impl/commands/run.py:932
+#: .././plainbox/impl/commands/run.py:982
 msgid "save test results to the specified FILE (or to stdout if FILE is -)"
 msgstr ""
 "сохранить результаты тестов в заданный ФАЙЛ (или в stdout, если ФАЙЛ -)"
 
-#: .././plainbox/impl/commands/run.py:936
+#: .././plainbox/impl/commands/run.py:986
 msgid "TRANSPORT"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:938
+#: .././plainbox/impl/commands/run.py:988
 msgid ""
 "use TRANSPORT to send results somewhere (pass ? for a list of choices)"
 msgstr ""
 
-#: .././plainbox/impl/commands/run.py:942
+#: .././plainbox/impl/commands/run.py:992
 msgid "WHERE"
 msgstr "КУДА"
 
-#: .././plainbox/impl/commands/run.py:943
+#: .././plainbox/impl/commands/run.py:993
 msgid "where to send data using the selected transport"
 msgstr "куда отправить данные при помощи выбранного транспорта"
 
-#: .././plainbox/impl/commands/run.py:947
+#: .././plainbox/impl/commands/run.py:997
 msgid ""
 "comma-separated list of key-value options (k=v) to be passed to the transport"
 msgstr ""
@@ -1323,11 +1347,11 @@ msgstr ""
 msgid "FAIL"
 msgstr ""
 
-#: .././plainbox/impl/exporter/xlsx.py:516 .././plainbox/impl/result.py:64
+#: .././plainbox/impl/exporter/xlsx.py:516
 msgid "skip"
 msgstr "пропустить"
 
-#: .././plainbox/impl/exporter/xlsx.py:524 .././plainbox/impl/result.py:65
+#: .././plainbox/impl/exporter/xlsx.py:524
 msgid "not supported"
 msgstr ""
 
@@ -1434,29 +1458,48 @@ msgstr ""
 msgid "Exception in requirement expression %r (with %s=%r): %r"
 msgstr ""
 
-#: .././plainbox/impl/result.py:62
-msgid "pass"
+#: .././plainbox/impl/result.py:63
+msgctxt "textual outcome"
+msgid "job didn't run"
 msgstr ""
 
-#: .././plainbox/impl/result.py:63
-msgid "fail"
-msgstr "сбой"
-
-#: .././plainbox/impl/result.py:66
-msgid "not implemented"
+#: .././plainbox/impl/result.py:65
+msgctxt "textual outcome"
+msgid "job passed"
 msgstr ""
 
 #: .././plainbox/impl/result.py:67
-msgid "undecided"
+msgctxt "textual outcome"
+msgid "job failed"
+msgstr ""
+
+#: .././plainbox/impl/result.py:69
+msgctxt "textual outcome"
+msgid "job skipped"
+msgstr ""
+
+#: .././plainbox/impl/result.py:71
+msgctxt "textual outcome"
+msgid "job cannot be started"
+msgstr ""
+
+#: .././plainbox/impl/result.py:73
+msgctxt "textual outcome"
+msgid "job is not implemented"
+msgstr ""
+
+#: .././plainbox/impl/result.py:75
+msgctxt "textual outcome"
+msgid "job needs verification"
 msgstr ""
 
 #. TRANSLATORS: please keep DiskJobResult.io_log untranslated
-#: .././plainbox/impl/result.py:241
+#: .././plainbox/impl/result.py:249
 #, python-format
 msgid "Expensive DiskJobResult.io_log property access from %s:%d"
 msgstr ""
 
-#: .././plainbox/impl/result.py:266
+#: .././plainbox/impl/result.py:274
 #, python-format
 msgid "Encoded %r into string %r"
 msgstr ""

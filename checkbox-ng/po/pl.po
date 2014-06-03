@@ -7,20 +7,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: plainbox 0.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-06-02 15:35+0200\n"
-"PO-Revision-Date: 2014-05-14 09:07+0000\n"
+"POT-Creation-Date: 2014-06-02 14:50+0200\n"
+"PO-Revision-Date: 2014-06-03 04:39+0000\n"
 "Last-Translator: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>\n"
 "Language-Team: polski <>\n"
-"Language: Polish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
-"|| n%100>=20) ? 1 : 2);\n"
-"X-Launchpad-Export-Date: 2014-05-23 05:25+0000\n"
-"X-Generator: Launchpad (build 17017)\n"
-"X-Language: pl_PL\n"
-"X-Source-Language: C\n"
+"Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
+"|| n%100>=20) ? 1 : 2;\n"
+"X-Launchpad-Export-Date: 2014-06-03 05:30+0000\n"
+"X-Generator: Launchpad (build 17031)\n"
+"Language: Polish\n"
 
 #: .././plainbox/impl/_argparse.py:139
 #: .././plainbox/vendor/argparse/py32-argparse.py:298
@@ -486,48 +484,48 @@ msgstr "Nazwa parsera który zostanie użyty"
 msgid "Pick an action"
 msgstr "Wybierz działanie"
 
-#: .././plainbox/impl/commands/run.py:224
+#: .././plainbox/impl/commands/run.py:221
 #, python-brace-format
 msgid "ID: {0}"
 msgstr "ID: {0}"
 
-#: .././plainbox/impl/commands/run.py:231
+#: .././plainbox/impl/commands/run.py:228
 msgid "press ENTER to continue"
 msgstr "Aby kontynuować naciśnij ENTER"
 
-#: .././plainbox/impl/commands/run.py:232
+#: .././plainbox/impl/commands/run.py:229
 msgid "skip this job"
 msgstr "pomiń to zadanie"
 
-#: .././plainbox/impl/commands/run.py:233
+#: .././plainbox/impl/commands/run.py:230
 msgid "save the session and quit"
 msgstr "zapisz stan sesji i zakończ program"
 
-#: .././plainbox/impl/commands/run.py:243
+#: .././plainbox/impl/commands/run.py:240
 msgid "Command output hidden"
 msgstr "Wyjście programu ukryte"
 
-#: .././plainbox/impl/commands/run.py:267
+#: .././plainbox/impl/commands/run.py:264
 msgid "Job cannot be started because:"
 msgstr "Zadanie nie może zostać rozpoczęte gdyż:"
 
-#: .././plainbox/impl/commands/run.py:275
+#: .././plainbox/impl/commands/run.py:272
 msgid "Outcome"
 msgstr "Wynik"
 
+#: .././plainbox/impl/commands/run.py:376
 #: .././plainbox/impl/commands/run.py:379
 #: .././plainbox/impl/commands/run.py:382
-#: .././plainbox/impl/commands/run.py:385
-#: .././plainbox/impl/commands/run.py:973
-#: .././plainbox/impl/commands/run.py:989
+#: .././plainbox/impl/commands/run.py:970
+#: .././plainbox/impl/commands/run.py:986
 msgid "?"
 msgstr "?"
 
-#: .././plainbox/impl/commands/run.py:446
+#: .././plainbox/impl/commands/run.py:443
 msgid "Resume Incomplete Session"
 msgstr "Wznawianie niedokończonej sesji"
 
-#: .././plainbox/impl/commands/run.py:448
+#: .././plainbox/impl/commands/run.py:445
 #, python-brace-format
 msgid "There is {0} incomplete session that might be resumed"
 msgid_plural "There are {0} incomplete sessions that might be resumed"
@@ -535,279 +533,279 @@ msgstr[0] "Jest {0} niedokończona sesja która może być wznowiona"
 msgstr[1] "Są {0} niedokończone sesje które mogą być wznowione"
 msgstr[2] "Jest {0} niedokończonych sesji które mogą być wznowione"
 
-#: .././plainbox/impl/commands/run.py:455
+#: .././plainbox/impl/commands/run.py:452
 msgid "resume this session"
 msgstr "wznów tę sesję"
 
-#: .././plainbox/impl/commands/run.py:456
+#: .././plainbox/impl/commands/run.py:453
 msgid "next session"
 msgstr "następna sesja"
 
-#: .././plainbox/impl/commands/run.py:457
+#: .././plainbox/impl/commands/run.py:454
 msgid "create new session"
 msgstr "utwórz nową sesję"
 
-#: .././plainbox/impl/commands/run.py:458
+#: .././plainbox/impl/commands/run.py:455
 msgid "Do you want to resume session {0!a}?"
 msgstr "Czy chcesz wznowić sesję {0!a}?"
 
-#: .././plainbox/impl/commands/run.py:472
+#: .././plainbox/impl/commands/run.py:469
 msgid "ignore this problem"
 msgstr "zignoruj problem"
 
-#: .././plainbox/impl/commands/run.py:473
+#: .././plainbox/impl/commands/run.py:470
 msgid "erase this session"
 msgstr "usuń tę sesję"
 
-#: .././plainbox/impl/commands/run.py:476
+#: .././plainbox/impl/commands/run.py:473
 #: .././plainbox/impl/commands/session.py:83
 msgid "Session removed"
 msgstr "Sesja usunięta"
 
 #. TRANSLATORS: This is the exit message
-#: .././plainbox/impl/commands/run.py:488
+#: .././plainbox/impl/commands/run.py:485
 msgid "Session not resumed"
 msgstr "Nie wznowiono sesji"
 
-#: .././plainbox/impl/commands/run.py:494
+#: .././plainbox/impl/commands/run.py:491
 msgid "Available output formats: {}"
 msgstr "Dostępne formaty wyjściowe: {}"
 
-#: .././plainbox/impl/commands/run.py:498
+#: .././plainbox/impl/commands/run.py:495
 msgid "Each format may support a different set of options"
 msgstr "Każdy format może wspierać inny zestaw opcji"
 
-#: .././plainbox/impl/commands/run.py:504
+#: .././plainbox/impl/commands/run.py:501
 msgid "Available transports: {}"
 msgstr "Dostępne mechanizmy transportu: {}"
 
-#: .././plainbox/impl/commands/run.py:526
+#: .././plainbox/impl/commands/run.py:523
 msgid "yes"
 msgstr "tak"
 
-#: .././plainbox/impl/commands/run.py:527
+#: .././plainbox/impl/commands/run.py:524
 msgid "no"
 msgstr "nie"
 
-#: .././plainbox/impl/commands/run.py:532
+#: .././plainbox/impl/commands/run.py:529
 msgid "Do you want to start a new session?"
 msgstr "Czy chcesz rozpocząć nową sesję?"
 
-#: .././plainbox/impl/commands/run.py:538
+#: .././plainbox/impl/commands/run.py:535
 msgid "Previous session run tried to execute job: {}"
 msgstr "Poprzednia sesja próbowała wykonać zadanie: {}"
 
-#: .././plainbox/impl/commands/run.py:541
+#: .././plainbox/impl/commands/run.py:538
 msgid "skip that job"
 msgstr "pomiń to zadanie"
 
-#: .././plainbox/impl/commands/run.py:542
+#: .././plainbox/impl/commands/run.py:539
 msgid "mark it as failed and continue"
 msgstr "oznacz jako nieudane i kontynuuj"
 
-#: .././plainbox/impl/commands/run.py:543
+#: .././plainbox/impl/commands/run.py:540
 msgid "run it again"
 msgstr "uruchom je ponownie"
 
-#: .././plainbox/impl/commands/run.py:544
+#: .././plainbox/impl/commands/run.py:541
 msgid "What do you want to do with that job?"
 msgstr "Co chcesz zrobić z tym zadaniem testowym?"
 
-#: .././plainbox/impl/commands/run.py:548
+#: .././plainbox/impl/commands/run.py:545
 msgid "Skipped after resuming execution"
 msgstr "Ominięto po wznowieniu sesji"
 
-#: .././plainbox/impl/commands/run.py:553
+#: .././plainbox/impl/commands/run.py:550
 msgid "Failed after resuming execution"
 msgstr "Oznaczono jako nieudany po wznowieniu sesji"
 
-#: .././plainbox/impl/commands/run.py:625
+#: .././plainbox/impl/commands/run.py:622
 msgid "The job database you are currently using is broken"
 msgstr ""
 "Baza danych zawierająca zadania testowe której teraz używasz jest popsuta"
 
-#: .././plainbox/impl/commands/run.py:627
+#: .././plainbox/impl/commands/run.py:624
 #, python-brace-format
 msgid "At least two jobs contend for the id {0}"
 msgstr "Co najmniej dwa zdania testowe konkurują o identyfikator {0}"
 
-#: .././plainbox/impl/commands/run.py:630
+#: .././plainbox/impl/commands/run.py:627
 #, python-brace-format
 msgid "First job defined in: {0}"
 msgstr "Pierwsze zadanie zdefiniowano w: {0}"
 
-#: .././plainbox/impl/commands/run.py:632
+#: .././plainbox/impl/commands/run.py:629
 #, python-brace-format
 msgid "Second job defined in: {0}"
 msgstr "Drugie zadanie zdefiniowano w: {0}"
 
-#: .././plainbox/impl/commands/run.py:637
+#: .././plainbox/impl/commands/run.py:634
 msgid "This session cannot be resumed"
 msgstr "Ta sesja nie może być wznowiona"
 
-#: .././plainbox/impl/commands/run.py:682
+#: .././plainbox/impl/commands/run.py:679
 msgid "Analyzing Jobs"
 msgstr "Analizowanie zadań"
 
-#: .././plainbox/impl/commands/run.py:692
+#: .././plainbox/impl/commands/run.py:689
 msgid "Authentication"
 msgstr "Autentykacja"
 
-#: .././plainbox/impl/commands/run.py:700
+#: .././plainbox/impl/commands/run.py:697
 msgid "Running All Jobs"
 msgstr "Wykonywanie wszystkich zadań"
 
-#: .././plainbox/impl/commands/run.py:756
+#: .././plainbox/impl/commands/run.py:753
 msgid "Explicitly skipped before execution"
 msgstr "Zadanie pominięte przed uruchomieniem"
 
-#: .././plainbox/impl/commands/run.py:791
+#: .././plainbox/impl/commands/run.py:788
 msgid "Results"
 msgstr "Wyniki"
 
-#: .././plainbox/impl/commands/run.py:798
+#: .././plainbox/impl/commands/run.py:795
 msgid "Saving results to {}"
 msgstr "Zapisywanie wyników do {}"
 
-#: .././plainbox/impl/commands/run.py:809
+#: .././plainbox/impl/commands/run.py:806
 msgid "Select an outcome or an action: "
 msgstr "Proszę wybrać rezultat lub akcję: "
 
-#: .././plainbox/impl/commands/run.py:815
+#: .././plainbox/impl/commands/run.py:812
 msgid "add a comment"
 msgstr "dodaj komentarz"
 
-#: .././plainbox/impl/commands/run.py:819
-#: .././plainbox/impl/commands/run.py:824
-#: .././plainbox/impl/commands/run.py:829
+#: .././plainbox/impl/commands/run.py:816
+#: .././plainbox/impl/commands/run.py:821
+#: .././plainbox/impl/commands/run.py:826
 #, python-brace-format
 msgid "set outcome to {0}"
 msgstr "ustaw wynik na {0}"
 
-#: .././plainbox/impl/commands/run.py:820
+#: .././plainbox/impl/commands/run.py:817
 msgctxt "set outcome to <pass>"
 msgid "pass"
 msgstr "powodzenie"
 
-#: .././plainbox/impl/commands/run.py:825
+#: .././plainbox/impl/commands/run.py:822
 msgctxt "set outcome to <fail>"
 msgid "fail"
 msgstr "niepowodzenie"
 
-#: .././plainbox/impl/commands/run.py:830
+#: .././plainbox/impl/commands/run.py:827
 msgctxt "set outcome to <skip>"
 msgid "skip"
 msgstr "pominięcie"
 
-#: .././plainbox/impl/commands/run.py:834
+#: .././plainbox/impl/commands/run.py:831
 msgid "re-run this job"
 msgstr "uruchom ten test ponownie"
 
-#: .././plainbox/impl/commands/run.py:841
+#: .././plainbox/impl/commands/run.py:838
 #, python-brace-format
 msgid "set suggested outcome [{0}]"
 msgstr "ustaw sugerowany wynik [{0}]"
 
-#: .././plainbox/impl/commands/run.py:844
+#: .././plainbox/impl/commands/run.py:841
 msgid "Please decide what to do next:"
 msgstr "Proszę podjąć decyzje co dalej:"
 
-#: .././plainbox/impl/commands/run.py:845
+#: .././plainbox/impl/commands/run.py:842
 msgid "outcome"
 msgstr "wynik"
 
+#: .././plainbox/impl/commands/run.py:844
 #: .././plainbox/impl/commands/run.py:847
-#: .././plainbox/impl/commands/run.py:850
 msgid "comments"
 msgstr "komentarz"
 
-#: .././plainbox/impl/commands/run.py:848
+#: .././plainbox/impl/commands/run.py:845
 msgctxt "none comment"
 msgid "none"
 msgstr "żaden"
 
-#: .././plainbox/impl/commands/run.py:865
+#: .././plainbox/impl/commands/run.py:862
 msgid "Please enter your comments:"
 msgstr "Proszę podać komentarz:"
 
-#: .././plainbox/impl/commands/run.py:876
+#: .././plainbox/impl/commands/run.py:873
 msgid "There were some problems with the selected jobs"
 msgstr "Wystąpiły problemy z wybranymi zadaniami"
 
-#: .././plainbox/impl/commands/run.py:879
+#: .././plainbox/impl/commands/run.py:876
 msgid "Problematic jobs will not be considered"
 msgstr "Problematyczne zadania nie zostaną wzięte pod uwagę"
 
-#: .././plainbox/impl/commands/run.py:882
+#: .././plainbox/impl/commands/run.py:879
 msgid "Session Statistics"
 msgstr "Statystyki Sesji"
 
-#: .././plainbox/impl/commands/run.py:883
-#, python-format, python-brace-format
+#: .././plainbox/impl/commands/run.py:880
+#, python-brace-format, python-format
 msgid "This session is about {0:.2f}% complete"
 msgstr "Ta sesja jest ukończona w około {0:.2f}%"
 
-#: .././plainbox/impl/commands/run.py:888
+#: .././plainbox/impl/commands/run.py:885
 msgid "Estimated duration is {:.2f} for automated jobs."
 msgstr "Oszacowany czas trwania zadań zautomatyzowanych to {:.2f}."
 
-#: .././plainbox/impl/commands/run.py:892
+#: .././plainbox/impl/commands/run.py:889
 msgid "Estimated duration cannot be determined for automated jobs."
 msgstr "Nie można oszacować czasu trwania zadań zautomatyzowanych."
 
-#: .././plainbox/impl/commands/run.py:894
+#: .././plainbox/impl/commands/run.py:891
 msgid "Estimated duration is {:.2f} for manual jobs."
 msgstr "Oszacowany czas trwania zadań ręcznych to {:.2f}."
 
-#: .././plainbox/impl/commands/run.py:898
+#: .././plainbox/impl/commands/run.py:895
 msgid "Estimated duration cannot be determined for manual jobs."
 msgstr "Nie można oszacować czasu trwania zadań ręcznych."
 
-#: .././plainbox/impl/commands/run.py:899
+#: .././plainbox/impl/commands/run.py:896
 #, python-brace-format
 msgid "Size of the desired job list: {0}"
 msgstr "Rozmiar listy pożądanych zadań: {0}"
 
-#: .././plainbox/impl/commands/run.py:901
+#: .././plainbox/impl/commands/run.py:898
 #, python-brace-format
 msgid "Size of the effective execution plan: {0}"
 msgstr "Rozmiar wypadkowej listy zadań: {0}"
 
-#: .././plainbox/impl/commands/run.py:956
+#: .././plainbox/impl/commands/run.py:953
 msgid "run a test job"
 msgstr "uruchom zadania testowe"
 
-#: .././plainbox/impl/commands/run.py:958
+#: .././plainbox/impl/commands/run.py:955
 msgid "user interface options"
 msgstr "opcje interfejsu użytkownika"
 
-#: .././plainbox/impl/commands/run.py:965
+#: .././plainbox/impl/commands/run.py:962
 msgid "skip tests that require interactivity"
 msgstr "pomiń testy wymagające interaktywności"
 
-#: .././plainbox/impl/commands/run.py:968
+#: .././plainbox/impl/commands/run.py:965
 msgid "don't really run most jobs"
 msgstr "tak na prawdę nie uruchamiaj większości zadań"
 
-#: .././plainbox/impl/commands/run.py:969
+#: .././plainbox/impl/commands/run.py:966
 msgid "output options"
 msgstr "opcje wyjściowe"
 
-#: .././plainbox/impl/commands/run.py:973
+#: .././plainbox/impl/commands/run.py:970
 msgid "FORMAT"
 msgstr "FORMAT"
 
-#: .././plainbox/impl/commands/run.py:975
+#: .././plainbox/impl/commands/run.py:972
 msgid ""
 "save test results in the specified FORMAT (pass ? for a list of choices)"
 msgstr "zapisz wyniki w wybranym FORMACIE (? wyświetla listę możliwości)"
 
-#: .././plainbox/impl/commands/run.py:979
-#: .././plainbox/impl/commands/run.py:999
+#: .././plainbox/impl/commands/run.py:976
+#: .././plainbox/impl/commands/run.py:996
 msgid "OPTIONS"
 msgstr "OPCJE"
 
-#: .././plainbox/impl/commands/run.py:980
+#: .././plainbox/impl/commands/run.py:977
 msgid ""
 "comma-separated list of options for the export mechanism (pass ? for a list "
 "of choices)"
@@ -815,35 +813,36 @@ msgstr ""
 "lista opcji, po przecinku, do mechanizmu eksportowania wyników (? wyświetla "
 "listę możliwości)"
 
-#: .././plainbox/impl/commands/run.py:984
+#: .././plainbox/impl/commands/run.py:981
 msgid "FILE"
 msgstr "PLIK"
 
-#: .././plainbox/impl/commands/run.py:985
+#: .././plainbox/impl/commands/run.py:982
 msgid "save test results to the specified FILE (or to stdout if FILE is -)"
 msgstr ""
 "zapisz wyniki testów do wybranego PLIKU (lub na standardowe wyjście, jeśli "
 "PLIK to -)"
 
-#: .././plainbox/impl/commands/run.py:989
+#: .././plainbox/impl/commands/run.py:986
 msgid "TRANSPORT"
 msgstr "TRANSPORT"
 
-#: .././plainbox/impl/commands/run.py:991
-msgid "use TRANSPORT to send results somewhere (pass ? for a list of choices)"
+#: .././plainbox/impl/commands/run.py:988
+msgid ""
+"use TRANSPORT to send results somewhere (pass ? for a list of choices)"
 msgstr ""
 "użyj TRANSPORTU do wysłania wyników w jakieś miejsce (? wyświetla "
 "listę możliwości)"
 
-#: .././plainbox/impl/commands/run.py:995
+#: .././plainbox/impl/commands/run.py:992
 msgid "WHERE"
 msgstr "GDZIE"
 
-#: .././plainbox/impl/commands/run.py:996
+#: .././plainbox/impl/commands/run.py:993
 msgid "where to send data using the selected transport"
 msgstr "gdzie wysłać wyniki za pomocą wybranego mechanizmu transportowego"
 
-#: .././plainbox/impl/commands/run.py:1000
+#: .././plainbox/impl/commands/run.py:997
 msgid ""
 "comma-separated list of key-value options (k=v) to be passed to the transport"
 msgstr ""
@@ -892,7 +891,8 @@ msgstr "uruchom testy jednostkowe i testy integracji"
 
 #: .././plainbox/impl/commands/selftest.py:78
 msgid "run integration test suite (this verifies checkbox jobs)"
-msgstr "uruchom testy integracji (to weryfikuje definicje zadań z checkbox'a)"
+msgstr ""
+"uruchom testy integracji (to weryfikuje definicje zadań z checkbox'a)"
 
 #: .././plainbox/impl/commands/selftest.py:84
 msgid "run unit tests (this only verifies plainbox core)"
@@ -1095,8 +1095,8 @@ msgid ""
 "\n"
 "    @EPILOG@\n"
 "\n"
-"    The name of the provider must follow the pattern ``YYYY.example.org:"
-"name``\n"
+"    The name of the provider must follow the pattern "
+"``YYYY.example.org:name``\n"
 "    where ``YYYY`` is a four-digit year when the author of the provider "
 "owned\n"
 "    the domain (here, ``example.org``) and ``name`` is arbitrary identifier\n"
@@ -2107,7 +2107,8 @@ msgstr "Stworzono nowe miejsce do zapisu w %r"
 #: .././plainbox/impl/session/storage.py:278
 #, python-format
 msgid "%r is not a symlink, repository %r must be corrupted"
-msgstr "%r nie jest dowiązaniem symbolicznym, repozytorium %r musi być popsute"
+msgstr ""
+"%r nie jest dowiązaniem symbolicznym, repozytorium %r musi być popsute"
 
 #: .././plainbox/impl/session/storage.py:282
 #, python-format
@@ -2249,7 +2250,7 @@ msgstr "Usuwanie %r"
 
 #. TRANSLATORS: please don't translate fsync()
 #. Flush kernel buffers on the directory.
-#.
+#. 
 #. This should ensure the rename operation is really on disk by now.
 #. As noted above, this is essential for being able to survive
 #. system crash immediately after exiting this method.
@@ -2454,7 +2455,8 @@ msgstr "układ katalogów instalacji (domyślnie %(default)s)"
 
 #: .././plainbox/provider_manager.py:245
 msgid "install everything relative to this alternate root directory"
-msgstr "instaluje wszystko względnie podanego alternatywnego katalogu głównego"
+msgstr ""
+"instaluje wszystko względnie podanego alternatywnego katalogu głównego"
 
 #: .././plainbox/provider_manager.py:304
 #, python-format
@@ -2629,8 +2631,8 @@ msgid ""
 "    hopefully, in most cases, you don't need to do anything. If your src/\n"
 "    directory has a Makefile or .go source files you should be good to go.\n"
 "\n"
-"    If the automatic defaults are somehow unsuitable you need to edit manage."
-"py\n"
+"    If the automatic defaults are somehow unsuitable you need to edit "
+"manage.py\n"
 "    so that it specifies the build command.\n"
 "\n"
 "    IMPORTANT: It is expected that the build command will create binary "
@@ -3312,11 +3314,12 @@ msgstr "wymagane są następujące argumenty: %s"
 #~ msgstr "[ Wyniki ]"
 
 #~ msgid ""
-#~ "Command output follows, between {c.f.WHITE}{c.s.BRIGHT}8<{c.s.RESET_ALL} "
-#~ "and {c.f.WHITE}{c.s.BRIGHT}>8{c.s.RESET_ALL} markers"
+#~ "Command output follows, between {c.f.WHITE}{c.s.BRIGHT}8<{c.s.RESET_ALL} and "
+#~ "{c.f.WHITE}{c.s.BRIGHT}>8{c.s.RESET_ALL} markers"
 #~ msgstr ""
-#~ "Komunikaty programu poniżej, pomiędzy {c.f.WHITE}{c.s.BRIGHT}8<{c.s."
-#~ "RESET_ALL} i {c.f.WHITE}{c.s.BRIGHT}>8{c.s.RESET_ALL}"
+#~ "Komunikaty programu poniżej, pomiędzy "
+#~ "{c.f.WHITE}{c.s.BRIGHT}8<{c.s.RESET_ALL} i "
+#~ "{c.f.WHITE}{c.s.BRIGHT}>8{c.s.RESET_ALL}"
 
 #~ msgid "readiness"
 #~ msgstr "gotowość"

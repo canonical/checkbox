@@ -645,7 +645,8 @@ command:
  depends: suspend/suspend_advanced
  requires: device.path == "$1"
  user: root
- command: network -i $2 -t iperf
+ environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
+ command: network test -i $2 -t iperf
  _description:
   This test executes iperf connection performance/stability against all the ethernet devices found on the system before suspend.
  EOF
@@ -664,7 +665,8 @@ command:
  depends: suspend/suspend_advanced
  requires: device.path == "$1"
  user: root
- command: network -i $2 -t iperf
+ environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
+ command: network test -i $2 -t iperf
  _description:
   This test executes iperf connection performance/stability against all the ethernet devices found on the system before suspend.
  EOF

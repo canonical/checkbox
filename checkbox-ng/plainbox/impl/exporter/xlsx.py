@@ -336,6 +336,14 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             )
 
     def write_summary(self, data):
+        if self.total != 0:
+            pass_rate = "{:.2f}%".format(self.total_pass / self.total * 100)
+            fail_rate = "{:.2f}%".format(self.total_fail / self.total * 100)
+            skip_rate = "{:.2f}%".format(self.total_skip / self.total * 100)
+        else:
+            pass_rate = _("N/A")
+            fail_rate = _("N/A")
+            skip_rate = _("N/A")
         self.worksheet2.set_column(0, 0, 5)
         self.worksheet2.set_column(1, 1, 2)
         self.worksheet2.set_column(3, 3, 27)
@@ -346,9 +354,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 ngettext('{} Test passed', '{} Tests passed',
                          self.total_pass).format(self.total_pass)
                 + " - "
-                + _('Success Rate: {:.2f}% ({}/{})').format(
-                    self.total_pass / self.total * 100,
-                    self.total_pass, self.total)
+                + _('Success Rate: {} ({}/{})').format(
+                    pass_rate, self.total_pass, self.total)
             ), self.format02)
         self.worksheet2.write(5, 1, '✘', self.format11)
         self.worksheet2.write(
@@ -356,9 +363,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 ngettext('{} Test failed', '{} Tests failed',
                          self.total_fail).format(self.total_fail)
                 + ' - '
-                + _('Failure Rate: {:.2f}% ({}/{})').format(
-                    self.total_fail / self.total * 100,
-                    self.total_fail, self.total)
+                + _('Failure Rate: {} ({}/{})').format(
+                    fail_rate, self.total_fail, self.total)
             ), self.format02)
         self.worksheet2.write(6, 1, '-', self.format12)
         self.worksheet2.write(
@@ -366,9 +372,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 ngettext('{} Test skipped', '{} Tests skipped',
                          self.total_skip).format(self.total_skip)
                 + ' - '
-                + _('Skip Rate: {:.2f}% ({}/{})').format(
-                    self.total_skip / self.total * 100,
-                    self.total_skip, self.total)
+                + _('Skip Rate: {} ({}/{})').format(
+                    skip_rate, self.total_skip, self.total)
             ), self.format02)
         self.worksheet2.write_column(
             'L3', [_('Fail'), _('Skip'), _('Pass')], self.format14)

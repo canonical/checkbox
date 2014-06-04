@@ -23,7 +23,7 @@ Architecture: all
 Depends: gir1.2-gudev-1.0,
          python3-pyparsing,
          udev,
-         udisks2 | udisks,
+         udisks2,
          ${misc:Depends},
          ${python3:Depends}
 Description: collection of Python modules used by PlainBox providers

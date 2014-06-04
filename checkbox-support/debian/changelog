@@ -1,3 +1,9 @@
+checkbox-support (0.2-2) UNRELEASED; urgency=medium
+
+  * Remove dependency on udisks (Closes: #750512)
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Wed, 04 Jun 2014 09:24:47 +0200
+
 checkbox-support (0.2-1) unstable; urgency=low
 
   [ Sylvain Pineau ]

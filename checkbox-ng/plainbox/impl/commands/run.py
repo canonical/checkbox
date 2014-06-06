@@ -479,7 +479,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
                 resumed = True
             # If we resumed maybe not rerun the same, probably broken job
             if resume_storage is not None:
-                self.maybe_skip_last_job_after_resume()
+                self.handle_last_job_after_resume()
             # Finally ignore other sessions that can be resumed
             break
         else:
@@ -531,7 +531,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
         return self.ask_for_confirmation(
             _("Do you want to start a new session?"))
 
-    def maybe_skip_last_job_after_resume(self):
+    def handle_last_job_after_resume(self):
         last_job = self.metadata.running_job_name
         if last_job is None:
             return

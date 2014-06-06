@@ -54,13 +54,14 @@ class TestMain(TestCase):
         usage: checkbox [-h] [--version] [--providers {all,stub}] [-v] [-D] [-C]
                         [-T LOGGER] [-P] [-I]
                         
-                        {sru,check-config,script,dev,checkbox-cli,driver-test-suite-cli,certification-server,service}
+                        {sru,check-config,submit,script,dev,checkbox-cli,driver-test-suite-cli,certification-server,service}
                         ...
 
         positional arguments:
-          {sru,check-config,script,dev,checkbox-cli,driver-test-suite-cli,certification-server,service}
+          {sru,check-config,submit,script,dev,checkbox-cli,driver-test-suite-cli,certification-server,service}
             sru                 run automated stable release update tests
             check-config        check and display plainbox configuration
+            submit              submit test results to Canonical certification website
             script              run a command from a job
             dev                 development commands
             checkbox-cli        application for system testing
@@ -100,7 +101,7 @@ class TestMain(TestCase):
         usage: checkbox [-h] [--version] [--providers {all,stub}] [-v] [-D] [-C]
                         [-T LOGGER] [-P] [-I]
                         
-                        {sru,check-config,script,dev,checkbox-cli,driver-test-suite-cli,certification-server,service}
+                        {sru,check-config,submit,script,dev,checkbox-cli,driver-test-suite-cli,certification-server,service}
                         ...
         checkbox: error: too few arguments
 

@@ -36,6 +36,8 @@ from checkbox_ng import __version__ as version
 from checkbox_ng.commands.certification import CertificationCommand
 from checkbox_ng.commands.cli import CliCommand
 from checkbox_ng.commands.sru import SRUCommand
+from checkbox_ng.commands.submit import SubmitCommand
+
 try:
     from checkbox_ng.commands.service import ServiceCommand
     dbus_supported = True
@@ -123,6 +125,8 @@ class CheckBoxNGTool(PlainBoxToolBase):
         SRUCommand(
             self._provider_list, self._config).register_parser(subparsers)
         CheckConfigCommand(
+            self._config).register_parser(subparsers)
+        SubmitCommand(
             self._config).register_parser(subparsers)
         ScriptCommand(
             self._provider_list, self._config).register_parser(subparsers)

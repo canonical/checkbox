@@ -539,6 +539,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
             last_job))
         cmd = self._pick_action_cmd([
             Action('s', _("skip that job"), 'skip'),
+            Action('p', _("mark it as passed and continue"), 'pass'),
             Action('f', _("mark it as failed and continue"), 'fail'),
             Action('r', _("run it again"), 'run'),
         ], _("What do you want to do with that job?"))
@@ -546,6 +547,11 @@ class RunInvocation(CheckBoxInvocationMixIn):
             result = MemoryJobResult({
                 'outcome': IJobResult.OUTCOME_SKIP,
                 'comments': _("Skipped after resuming execution")
+            })
+        elif cmd == 'pass':
+            result = MemoryJobResult({
+                'outcome': IJobResult.OUTCOME_PASS,
+                'comments': _("Passed after resuming execution")
             })
         elif cmd == 'fail':
             result = MemoryJobResult({

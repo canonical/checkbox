@@ -82,6 +82,19 @@ _description:
  This is an automated test to gather some info on the current state of your network devices. If no devices are found, the test will exit with an error.
 
 plugin: shell
+ id: suspend/iperf_before_suspend_mobilebroadband_auto
+ depends: ethernet/detect
+ estimated_duration: 20.0
+ user: root
+ command: network -i -t iperf
+ _description:
+  This test executes iperf connection performance/stability against all the ethernet devices found on the system before suspend.
+ EOF
+_description:
+ This is an automated test to gather some info on the current state of your network devices. If no devices are found, the test will exit with an error.
+
+
+plugin: shell
 id: suspend/bluetooth_obex_before_suspend
 estimated_duration: 10.0
 requires:
@@ -667,6 +680,18 @@ command:
  user: root
  environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
  command: network test -i $2 -t iperf
+ _description:
+  This test executes iperf connection performance/stability against all the ethernet devices found on the system before suspend.
+ EOF
+_description:
+ This is an automated test to gather some info on the current state of your network devices. If no devices are found, the test will exit with an error.
+
+plugin: shell
+ id: suspend/iperf_after_suspend_mobilebroadband_auto
+ depends: ethernet/detect
+ estimated_duration: 20.0
+ user: root
+ command: network -i -t iperf
  _description:
   This test executes iperf connection performance/stability against all the ethernet devices found on the system before suspend.
  EOF

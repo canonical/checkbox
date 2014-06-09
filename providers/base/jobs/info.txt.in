@@ -216,6 +216,12 @@ estimated_duration: 0.550
 _description: Provides information about network devices
 
 plugin: attachment
+id: info/mobile_broadband_info
+command: broadband_info
+estimated_duration: 0.5
+_description: Provides information about wwan/mobile broadband devices
+
+plugin: attachment
 id: info/xrandr
 command: xrandr -q --verbose
 _description: Provides information about displays attached to the system

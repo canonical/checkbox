@@ -55,3 +55,30 @@ command:
   exit $EXIT_CODE
 _description: Creates a mobile broadband connection for a CDMA based modem and checks the connection to ensure it's working.
 
+plugin: local
+id: mobilebroadband/maximum_bandwidth
+requires:
+ device.category == 'NETWORK'
+ package.name == 'zenity'
+ package.name == 'iperf'
+command:
+ cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
+ plugin: user-verify
+ user: root
+ id: mobilebroadband/maximum_bandwidth_$2
+ requires: device.path == "$1"
+ command: network test -i $2 -t iperf 2>&1 | cat - <(echo; echo "Verify the result and click OK to decide on the outcome") | zenity --text-info --title 'mobile broadband max bw $2'
+ estimated_duration: 330.0
+ _description:
+  PURPOSE:
+      User verification of whether the observed transfer throughput is acceptable
+      for the type and maximum speed of each interface.
+  STEPS:
+      1. Read the network test summary and confirm that the throughput is acceptable.
+      2. If needed, click "Test" again to repeat the transfer test.
+  VERIFICATION:
+     Was the reported throughput acceptable for the type and maximum speed of this interface?
+ EOF
+_description:
+ This test executes a maximum throughput test against all the devices found on the system.
+

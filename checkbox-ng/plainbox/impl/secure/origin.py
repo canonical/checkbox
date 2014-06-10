@@ -226,7 +226,7 @@ class JobOutputTextSource(ITextSource):
         self.job = job
 
     def __str__(self):
-        return str(self.job)
+        return str(self.job.id)
 
     def __repr__(self):
         return "<{} job:{!r}".format(self.__class__.__name__, self.job)

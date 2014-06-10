@@ -86,7 +86,7 @@ id: suspend/iperf_before_suspend_mobilebroadband_gsm_auto
 depends: mobilebroadband/gsm_connection
 estimated_duration: 20.0
 user: root
-environ: GSM_CONN_NAME GSM_APN GSM_USERNAME GSM_PASSWORD
+environ: IPERF_SERVER FTP_SERVER
 command:   
  INTERFACE=`nmcli -t -f GENERAL -m tabular dev list |grep gsm |cut -d ":" -f 13`
  [ -z $INTERFACE ] && exit 1
@@ -99,7 +99,7 @@ id: suspend/iperf_before_suspend_mobilebroadband_cdma_auto
 depends: mobilebroadband/cdma_connection
 estimated_duration: 20.0
 user: root
-environ: CDMA_CONN_NAME CDMA_USERNAME CDMA_PASSWORD
+environ: IPERF_SERVER FTP_SERVER
 command:   
  INTERFACE=`nmcli -t -f GENERAL -m tabular dev list |grep cdma |cut -d ":" -f 13`
  [ -z $INTERFACE ] && exit 1
@@ -705,7 +705,7 @@ id: suspend/iperf_after_suspend_mobilebroadband_gsm_auto
 depends: suspend/suspend_advanced_auto
 estimated_duration: 20.0
 user: root
-environ: GSM_CONN_NAME GSM_APN GSM_USERNAME GSM_PASSWORD
+environ: IPERF_SERVER FTP_SERVER
 command:   
  INTERFACE=`nmcli -t -f GENERAL -m tabular dev list |grep gsm |cut -d ":" -f 13`
  [ -z $INTERFACE ] && exit 1
@@ -718,7 +718,7 @@ id: suspend/iperf_after_suspend_mobilebroadband_cdma_auto
 depends: suspend/suspend_advanced_auto
 estimated_duration: 20.0
 user: root
-environ: CDMA_CONN_NAME CDMA_USERNAME CDMA_PASSWORD
+environ: IPERF_SERVER FTP_SERVER
 command:   
  INTERFACE=`nmcli -t -f GENERAL -m tabular dev list |grep cdma |cut -d ":" -f 13`
  [ -z $INTERFACE ] && exit 1

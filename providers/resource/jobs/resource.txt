@@ -183,14 +183,31 @@ _description: Creates resource info for RTC
 id: requirements
 estimated_duration: 0.01
 plugin: resource
-command: [ -f $PLAINBOX_SESSION_SHARE/requirements_docs.txt ] && cat $PLAINBOX_SESSION_SHARE/requirements_docs.txt
+command:
+ if [ -f $PLAINBOX_SESSION_SHARE/requirements_docs.txt ];then
+    cat $PLAINBOX_SESSION_SHARE/requirements_docs.txt
+ else
+    true
+ fi
 _description:
  Provide links to requirements documents.
+ .
+ The requirement document should contain sets of name/link pairs.
  .
  Each requirement should have two keys with their respective
  values:
  name: (to be used as the anchor text)
  link: (the actual URL)
+ .
+ Each set should be separated from the previous one by a new line.
+ .
+ Example:
+ .
+ name: Requirement 1
+ link: http://example.com/requirement1
+ .
+ name: requirement 2
+ link: http://example.com/requirement2
  .
  Providers wishing to use this feature need to:
  1- Write a job that places a suitably-formatted file in $PLAINBOX_SESSION_SHARE

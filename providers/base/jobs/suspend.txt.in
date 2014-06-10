@@ -687,16 +687,30 @@ _description:
  This is an automated test to gather some info on the current state of your network devices. If no devices are found, the test will exit with an error.
 
 plugin: shell
- id: suspend/iperf_after_suspend_mobilebroadband_auto
- depends: ethernet/detect
- estimated_duration: 20.0
- user: root
- command: network -i -t iperf
- _description:
-  This test executes iperf connection performance/stability against all the ethernet devices found on the system before suspend.
- EOF
+id: suspend/iperf_after_suspend_mobilebroadband_gsm_auto
+depends: ethernet/detect
+estimated_duration: 20.0
+user: root
+environ: GSM_CONN_NAME GSM_APN GSM_USERNAME GSM_PASSWORD
+command:   
+ INTERFACE=`nmcli -t -f GENERAL -m tabular dev list |grep gsm |cut -d ":" -f 13`
+ [ -z $INTERFACE ] && exit 1
+ network -i $INTERFACE -t iperf
 _description:
- This is an automated test to gather some info on the current state of your network devices. If no devices are found, the test will exit with an error.
+ This test executes iperf connection performance/stability against the broadband device found on the system before suspend.
+
+plugin: shell
+id: suspend/iperf_after_suspend_mobilebroadband_cdma_auto
+depends: ethernet/detect
+estimated_duration: 20.0
+user: root
+environ: CDMA_CONN_NAME CDMA_USERNAME CDMA_PASSWORD
+command:   
+ INTERFACE=`nmcli -t -f GENERAL -m tabular dev list |grep cdma |cut -d ":" -f 13`
+ [ -z $INTERFACE ] && exit 1
+ network -i $INTERFACE -t iperf
+_description:
+ This test executes iperf connection performance/stability against the broadband device found on the system before suspend.
 
 plugin: user-interact-verify
 id: suspend/wireless_connection_after_suspend_wpa_bg_manual

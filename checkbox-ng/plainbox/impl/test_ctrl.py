@@ -362,10 +362,10 @@ class CheckBoxSessionStateControllerTests(TestCase):
             job, result)
         # Ensure that a warning was logged
         mock_logger.warning.assert_called_once_with(
-            ("Local job %s produced job %r that collides with"
+            ("Local job %s produced job %s that collides with"
              " an existing job %s (from %s), the new job was"
              " discarded"),
-            job, clashing_job, existing_job, existing_job.origin)
+            job.id, clashing_job.id, existing_job.id, existing_job.origin)
 
     @mock.patch('plainbox.impl.ctrl.gen_rfc822_records_from_io_log')
     def test_observe_result__local_perfect_clash(self, mock_gen):

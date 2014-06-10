@@ -278,10 +278,10 @@ class CheckBoxSessionStateController(ISessionStateController):
                 logger.warning(
                     # TRANSLATORS: keep the word "local" untranslated. It is a
                     # special type of job that needs to be distinguished.
-                    _("Local job %s produced job %r that collides with"
+                    _("Local job %s produced job %s that collides with"
                       " an existing job %s (from %s), the new job was"
                       " discarded"),
-                    job, exc.duplicate_job, exc.job, exc.job.origin)
+                    job.id, exc.duplicate_job.id, exc.job.id, exc.job.origin)
             else:
                 # Patch the origin of the existing job so that it traces
                 # back to the job that "generated" it again. This is

@@ -533,6 +533,8 @@ class CheckBoxExecutionControllerTestsMixIn:
                 extra_PYTHONPATH=None,
                 CHECKBOX_SHARE='CHECKBOX_SHARE',
                 data_dir='data_dir', units_dir='units_dir'))
+        # Mock the default flags (empty set)
+        self.job.get_flag_set.return_value = frozenset()
         # Create mocked config.
         # Put an empty dictionary of environment overrides
         # that is expected by get_execution_environment()
@@ -658,6 +660,15 @@ class UserJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
         # Ensure that LANG is rese to C.UTF-8
         self.assertEqual(env['LANG'], 'C.UTF-8')
 
+    @mock.patch.dict('os.environ', clear=True, LANG='fake_LANG')
+    def test_get_execution_environment_preserves_LANG_if_requested(self):
+        self.job.get_flag_set.return_value = {'preserve-locale'}
+        # Call the tested method
+        env = self.ctrl.get_execution_environment(
+            self.job, self.config, self.NEST_DIR)
+        # Ensure that LANG is what we mocked it to be
+        self.assertEqual(env['LANG'], 'fake_LANG')
+
     @mock.patch.dict('os.environ', clear=True, PYTHONPATH='PYTHONPATH')
     def test_get_execution_environment_keeps_PYTHONPATH(self):
         # Call the tested method
@@ -756,6 +767,8 @@ class RootViaPTL1ExecutionControllerTests(
                 data_dir="data_dir-generator",
                 units_dir="units_dir-generator",
                 CHECKBOX_SHARE='CHECKBOX_SHARE-generator'))
+        # Mock the default flags (empty set)
+        self.job.origin.source.job.get_flag_set.return_value = frozenset()
         PATH = os.pathsep.join([self.NEST_DIR, 'vanilla-path'])
         expected = [
             'pkexec', '--user', self.job.user,

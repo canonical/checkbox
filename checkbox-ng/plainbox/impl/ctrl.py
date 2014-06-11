@@ -512,13 +512,15 @@ class CheckBoxExecutionController(IExecutionController):
         """
         # Get a proper environment
         env = dict(os.environ)
-        # Use non-internationalized environment
-        env['LANG'] = 'C.UTF-8'
-        if 'LANGUAGE' in env:
-            del env['LANGUAGE']
-        for name in list(env.keys()):
-            if name.startswith("LC_"):
-                del env[name]
+        # Neuter locale unless 'preserve-locale' flag is set
+        if 'preserve-locale' not in job.get_flag_set():
+            # Use non-internationalized environment
+            env['LANG'] = 'C.UTF-8'
+            if 'LANGUAGE' in env:
+                del env['LANGUAGE']
+            for name in list(env.keys()):
+                if name.startswith("LC_"):
+                    del env[name]
         # Use PATH that can lookup checkbox scripts
         if job.provider.extra_PYTHONPATH:
             env['PYTHONPATH'] = os.pathsep.join(

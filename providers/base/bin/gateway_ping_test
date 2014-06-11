@@ -36,8 +36,8 @@ class Route(object):
         """
         logging.debug(_("Reading default gateway information from /proc"))
         try:
-            file = open("/proc/net/route")
-            route = file.read()
+            with open("/proc/net/route", "rt") as stream:
+                route = stream.read()
         except:
             logging.error(_("Failed to read def gateway from /proc"))
             return None

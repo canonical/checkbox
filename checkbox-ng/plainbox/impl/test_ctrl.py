@@ -657,7 +657,7 @@ class UserJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
         # Call the tested method
         env = self.ctrl.get_execution_environment(
             self.job, self.config, self.NEST_DIR)
-        # Ensure that LANG is rese to C.UTF-8
+        # Ensure that LANG is reset to C.UTF-8
         self.assertEqual(env['LANG'], 'C.UTF-8')
 
     @mock.patch.dict('os.environ', clear=True, LANG='fake_LANG')

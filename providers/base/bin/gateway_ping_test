@@ -12,22 +12,26 @@ import time
 
 
 class Route(object):
-    """Gets routing information from the system.
+    """
+    Gets routing information from the system.
     """
 
     # auxiliary functions
     def _hex_to_dec(self, string):
-        """Returns the integer value of a hexadecimal string s
+        """
+        Returns the integer value of a hexadecimal string s
         """
         return int(string, 16)
 
     def _num_to_dotted_quad(self, number):
-        """Convert long int to dotted quad string
+        """
+        Convert long int to dotted quad string
         """
         return socket.inet_ntoa(struct.pack("<L", number))
 
     def _get_default_gateway_from_proc(self):
-        """"Returns the current default gateway, reading that from /proc
+        """
+        Returns the current default gateway, reading that from /proc
         """
         logging.debug("Reading default gateway information from /proc")
         try:
@@ -52,7 +56,8 @@ class Route(object):
                 return None
 
     def _get_default_gateway_from_bin_route(self):
-        """Get default gateway from /sbin/route -n
+        """
+        Get default gateway from /sbin/route -n
         Called by get_default_gateway
         and is only used if could not get that from /proc
         """

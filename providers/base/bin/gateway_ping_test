@@ -44,7 +44,8 @@ class Route:
                     return self._num_to_dotted_quad(
                         int(w.group("def_gateway"), 16))
                 else:
-                    logging.error(_("Could not find def gateway info in /proc"))
+                    logging.error(
+                        _("Could not find def gateway info in /proc"))
                     return None
             else:
                 logging.error(_("Could not find def gateway info in /proc"))
@@ -56,7 +57,8 @@ class Route:
         Called by get_default_gateway
         and is only used if could not get that from /proc
         """
-        logging.debug(_("Reading default gateway information from route binary"))
+        logging.debug(
+            _("Reading default gateway information from route binary"))
         routebin = subprocess.getstatusoutput(
             "export LANGUAGE=C; " "/usr/bin/env route -n")
 
@@ -131,16 +133,18 @@ def get_host_to_ping(interface=None, verbose=False, default=None):
         # ping that.
         if default and default in pingable_ips:
             if verbose:
-                print(_("Desired ip address %s is reachable, using it") % default)
+                print(_(
+                    "Desired ip address {0} is reachable, using it"
+                ).format(default))
             return default
 
         #If not, choose another IP.
         address_to_ping = pingable_ips[0] if len(pingable_ips) else None
         if verbose:
-            print(_("Desired ip address %s is not reachable from %s. ")
-                  % (default, interface))
-            print(_("using %s instead.") % address_to_ping)
-
+            print(_(
+                "Desired ip address {0} is not reachable from {1},"
+                " using {2} instead"
+            ).format(default, interface, address_to_ping))
         if address_to_ping:
             return address_to_ping
 
@@ -172,7 +176,7 @@ def ping(host, interface, count, deadline, verbose=False):
             raise
     except subprocess.CalledProcessError as excp:
         # Ping returned fail exit code
-        print(_("ERROR: ping result: {}").format(excp))
+        print(_("ERROR: ping result: {0}").format(excp))
     else:
         if verbose:
             print(output)
@@ -230,8 +234,10 @@ def main(args):
         #Ensure they're both consistent, and exit with a warning if
         #not, rather than modifying what the user explicitly set.
         if args.deadline <= args.count:
-            print(_("ERROR: not enough time for %s pings in %s seconds") %
-                  (args.count, args.deadline))
+            # FIXME: this cannot ever be translated correctly
+            print(_(
+                "ERROR: not enough time for {0} pings in {1} seconds"
+            ).format(args.count, args.deadline))
             return(1)
     elif args.deadline != default_delay:
         #Adjust count according to delay.
@@ -239,21 +245,25 @@ def main(args):
         if args.count < 1:
             args.count = 1
         if args.verbose:
-            print(_("Adjusting ping count to %s to fit in %s-second deadline") %
-                  (args.count, args.deadline))
+            # FIXME: this cannot ever be translated correctly
+            print(_(
+                "Adjusting ping count to {0} to fit in {1}-second deadline"
+            ).format(args.count, args.deadline))
     else:
         #Adjust delay according to count
         args.deadline = args.count + 1
         if args.verbose:
-            print(_("Adjusting deadline to %s seconds to fit %s pings") %
-                  (args.deadline, args.count))
+            # FIXME: this cannot ever be translated correctly
+            print(_(
+                "Adjusting deadline to {0} seconds to fit {1} pings"
+            ).format(args.deadline, args.count))
 
     #If given host is not pingable, override with something pingable.
     host = get_host_to_ping(interface=args.interface,
                             verbose=args.verbose, default=args.host)
 
     if args.verbose:
-        print(_("Checking connectivity to %s") % host)
+        print(_("Checking connectivity to {0}").format(host))
     ping_summary = None
     if host:
         ping_summary = ping(host, args.interface, args.count,
@@ -263,16 +273,17 @@ def main(args):
         print(_("No Internet connection"))
         return 1
     elif ping_summary['transmitted'] != ping_summary['received']:
-        print(_("Connection established, but lost {}% of packets".format(
-            ping_summary['pct_loss'])))
+        print(_("Connection established, but lost {0}% of packets").format(
+            ping_summary['pct_loss']))
         if ping_summary['pct_loss'] > args.threshold:
-            print(_("FAIL: {}% packet loss is higher"
-                    "than {}% threshold").format(ping_summary['pct_loss'],
-                                                 args.threshold))
+            print(_(
+                "FAIL: {0}% packet loss is higher than {1}% threshold"
+            ).format(ping_summary['pct_loss'], args.threshold))
             return 1
         else:
-            print(_("PASS: {}% packet loss is within {}% threshold").format(
-                ping_summary['pct_loss'], args.threshold))
+            print(_(
+                "PASS: {0}% packet loss is within {1}% threshold"
+            ).format(ping_summary['pct_loss'], args.threshold))
             return 0
     else:
         print(_("Internet connection fully established"))

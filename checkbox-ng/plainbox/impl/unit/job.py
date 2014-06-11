@@ -309,6 +309,10 @@ class JobDefinition(Unit, IJobDefinition):
         return self.get_record_value('user')
 
     @property
+    def flags(self):
+        return self.get_record_value('flags')
+
+    @property
     def shell(self):
         """
         Shell that is used to interpret the command

@@ -82,6 +82,33 @@ _description:
  This is an automated test to gather some info on the current state of your network devices. If no devices are found, the test will exit with an error.
 
 plugin: shell
+id: suspend/iperf_before_suspend_mobilebroadband_gsm_auto
+depends: mobilebroadband/gsm_connection
+estimated_duration: 20.0
+user: root
+environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
+command:   
+ INTERFACE=`nmcli -t -f GENERAL -m tabular dev list |grep gsm |cut -d ":" -f 13`
+ [ -z $INTERFACE ] && exit 1
+ network -i $INTERFACE -t iperf
+_description:
+ This test executes iperf connection performance/stability against the broadband device found on the system before suspend.
+
+plugin: shell
+id: suspend/iperf_before_suspend_mobilebroadband_cdma_auto
+depends: mobilebroadband/cdma_connection
+estimated_duration: 20.0
+user: root
+environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
+command:   
+ INTERFACE=`nmcli -t -f GENERAL -m tabular dev list |grep cdma |cut -d ":" -f 13`
+ [ -z $INTERFACE ] && exit 1
+ network -i $INTERFACE -t iperf
+_description:
+ This test executes iperf connection performance/stability against the broadband device found on the system before suspend.
+
+
+plugin: shell
 id: suspend/bluetooth_obex_before_suspend
 estimated_duration: 10.0
 requires:
@@ -672,6 +699,32 @@ command:
  EOF
 _description:
  This is an automated test to gather some info on the current state of your network devices. If no devices are found, the test will exit with an error.
+
+plugin: shell
+id: suspend/iperf_after_suspend_mobilebroadband_gsm_auto
+depends: suspend/suspend_advanced_auto
+estimated_duration: 20.0
+user: root
+environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
+command:   
+ INTERFACE=`nmcli -t -f GENERAL -m tabular dev list |grep gsm |cut -d ":" -f 13`
+ [ -z $INTERFACE ] && exit 1
+ network -i $INTERFACE -t iperf
+_description:
+ This test executes iperf connection performance/stability against the broadband device found on the system before suspend.
+
+plugin: shell
+id: suspend/iperf_after_suspend_mobilebroadband_cdma_auto
+depends: suspend/suspend_advanced_auto
+estimated_duration: 20.0
+user: root
+environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
+command:   
+ INTERFACE=`nmcli -t -f GENERAL -m tabular dev list |grep cdma |cut -d ":" -f 13`
+ [ -z $INTERFACE ] && exit 1
+ network -i $INTERFACE -t iperf
+_description:
+ This test executes iperf connection performance/stability against the broadband device found on the system before suspend.
 
 plugin: user-interact-verify
 id: suspend/wireless_connection_after_suspend_wpa_bg_manual

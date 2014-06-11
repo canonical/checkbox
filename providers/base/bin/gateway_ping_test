@@ -62,8 +62,8 @@ class Route(object):
         and is only used if could not get that from /proc
         """
         logging.debug(_("Reading default gateway information from route binary"))
-        routebin = subprocess.getstatusoutput("export LANGUAGE=C; "
-                                              "/usr/bin/env route -n")
+        routebin = subprocess.getstatusoutput(
+            "export LANGUAGE=C; " "/usr/bin/env route -n")
 
         if routebin[0] == 0:
             h = re.compile("\n0.0.0.0\s+(?P<def_gateway>[\w.]+)\s+")
@@ -162,7 +162,8 @@ def ping(host, interface, count, deadline, verbose=False):
     if interface:
         command.append("-I{}".format(interface))
 
-    reg = re.compile(r"(\d+) packets transmitted, (\d+) received, (\d+)% packet loss")
+    reg = re.compile(
+        r"(\d+) packets transmitted, (\d+) received, (\d+)% packet loss")
     ping_summary = {'transmitted': 0, 'received': 0, 'pct_loss': 0}
 
     try:
@@ -182,9 +183,10 @@ def ping(host, interface, count, deadline, verbose=False):
         if received:
             ping_summary = received[0]
 
-            ping_summary={'transmitted': int(ping_summary[0]),
-                          'received': int(ping_summary[1]),
-                          'pct_loss': int(ping_summary[2])}
+            ping_summary = {
+                'transmitted': int(ping_summary[0]),
+                'received': int(ping_summary[1]),
+                'pct_loss': int(ping_summary[2])}
     return ping_summary
 
 
@@ -258,12 +260,12 @@ def main(args):
         ping_summary = ping(host, args.interface, args.count,
                             args.deadline, args.verbose)
 
-    if ping_summary == None or ping_summary['received'] == 0:
+    if ping_summary is None or ping_summary['received'] == 0:
         print(_("No Internet connection"))
         return 1
     elif ping_summary['transmitted'] != ping_summary['received']:
         print(_("Connection established, but lost {}% of packets".format(
-                                                  ping_summary['pct_loss'])))
+            ping_summary['pct_loss'])))
         if ping_summary['pct_loss'] > args.threshold:
             print(_("FAIL: {}% packet loss is higher"
                     "than {}% threshold").format(ping_summary['pct_loss'],
@@ -271,7 +273,7 @@ def main(args):
             return 1
         else:
             print(_("PASS: {}% packet loss is within {}% threshold").format(
-                                   ping_summary['pct_loss'], args.threshold))
+                ping_summary['pct_loss'], args.threshold))
             return 0
     else:
         print(_("Internet connection fully established"))

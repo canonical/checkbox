@@ -157,26 +157,34 @@ def get_host_to_ping(interface=None, verbose=False, default=None):
 
 
 def ping(host, interface, count, deadline, verbose=False):
-    command = "ping -c %s -w %s %s" % (count, deadline, host)
+
+    command = ["ping", str(host),  "-c", str(count), "-w", str(deadline)]
     if interface:
-        command = ("ping -I%s -c %s -w %s %s"
-                   % (interface, count, deadline, host))
+        command.append("-I{}".format(interface))
 
     reg = re.compile(r"(\d+) packets transmitted, (\d+) received, (\d+)% packet loss")
-    ping_summary = None
+    ping_summary = {'transmitted': 0, 'received': 0, 'pct_loss': 0}
 
-    output = os.popen(command)
-    for line in output.readlines():
+    try:
+        output = subprocess.check_output(command, universal_newlines=True)
+    except FileNotFoundError as excp:
+        # No ping command present; default exception message is
+        # informative enough.
+        print(excp)
+    except subprocess.CalledProcessError as excp:
+        # Ping returned fail exit code
+        print("ERROR: ping result: {}".format(excp))
+    else:
         if verbose:
-            print(line.rstrip())
+            print(output)
 
-        received = re.findall(reg, line)
+        received = re.findall(reg, output)
         if received:
             ping_summary = received[0]
 
-    ping_summary={'transmitted': int(ping_summary[0]),
-                  'received': int(ping_summary[1]),
-                  'pct_loss': int(ping_summary[2])}
+            ping_summary={'transmitted': int(ping_summary[0]),
+                          'received': int(ping_summary[1]),
+                          'pct_loss': int(ping_summary[2])}
     return ping_summary
 
 

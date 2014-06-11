@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-05-30 12:03+0200\n"
+"POT-Creation-Date: 2014-06-11 17:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -877,7 +877,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/ethernet.txt.in:70 ../jobs/suspend.txt.in:671
+#: ../jobs/ethernet.txt.in:70 ../jobs/suspend.txt.in:673
 #: ../jobs/wireless.txt.in:368
 msgid ""
 "This is an automated test to gather some info on the current state of your "
@@ -2659,14 +2659,14 @@ msgid "Attaches the FWTS oops results log to the submission"
 msgstr ""
 
 #. description
-#: ../jobs/mobilebroadband.txt.in:26
+#: ../jobs/mobilebroadband.txt.in:28
 msgid ""
 "Creates a mobile broadband connection for a GSM based modem and checks the "
 "connection to ensure it's working. "
 msgstr ""
 
 #. description
-#: ../jobs/mobilebroadband.txt.in:52
+#: ../jobs/mobilebroadband.txt.in:56
 msgid ""
 "Creates a mobile broadband connection for a CDMA based modem and checks the "
 "connection to ensure it's working."
@@ -3770,7 +3770,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:684 ../jobs/wireless.txt.in:137
+#: ../jobs/suspend.txt.in:686 ../jobs/wireless.txt.in:137
 msgid ""
 "PURPOSE:\n"
 "    Tests that the systems wireless hardware can connect to a router using "
@@ -3791,7 +3791,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:707 ../jobs/wireless.txt.in:159
+#: ../jobs/suspend.txt.in:709 ../jobs/wireless.txt.in:159
 msgid ""
 "PURPOSE:\n"
 "    Tests that the systems wireless hardware can connect to a router using\n"
@@ -3810,7 +3810,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:730 ../jobs/wireless.txt.in:182
+#: ../jobs/suspend.txt.in:732 ../jobs/wireless.txt.in:182
 msgid ""
 "PURPOSE:\n"
 "    Tests that the systems wireless hardware can connect to a router using "
@@ -3831,7 +3831,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:753 ../jobs/wireless.txt.in:205
+#: ../jobs/suspend.txt.in:755 ../jobs/wireless.txt.in:205
 msgid ""
 "PURPOSE:\n"
 "    Tests that the systems wireless hardware can connect to a router using\n"
@@ -3850,7 +3850,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:776
+#: ../jobs/suspend.txt.in:778
 msgid ""
 "PURPOSE:\n"
 "    Tests that the systems wireless hardware can connect to a router using "
@@ -3871,7 +3871,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:799
+#: ../jobs/suspend.txt.in:801
 msgid ""
 "PURPOSE:\n"
 "    Tests that the systems wireless hardware can connect to a router using\n"
@@ -3890,35 +3890,35 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:834
+#: ../jobs/suspend.txt.in:836
 msgid ""
 "This test grabs the hardware address of the bluetooth adapter after suspend "
 "and compares it to the address grabbed before suspend."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:946
+#: ../jobs/suspend.txt.in:948
 msgid ""
 "This is an automated Bluetooth file transfer test. It sends an image to the "
 "device specified by the BTDEVADDR environment variable."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1002
+#: ../jobs/suspend.txt.in:1004
 msgid ""
 "This is an automated Bluetooth test. It emulates browsing on a remote device "
 "specified by the BTDEVADDR environment variable."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1058
+#: ../jobs/suspend.txt.in:1060
 msgid ""
 "This is an automated Bluetooth test. It receives the given file from a "
 "remote host specified by the BTDEVADDR environment variable"
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1070
+#: ../jobs/suspend.txt.in:1072
 msgid ""
 "PURPOSE:\n"
 "    This test will send the image 'JPEG_Color_Image_Ubuntu.jpg' to a "
@@ -3933,7 +3933,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1085
+#: ../jobs/suspend.txt.in:1087
 msgid ""
 "PURPOSE:\n"
 "    This test will cycle through the detected display modes\n"
@@ -3944,7 +3944,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1098
+#: ../jobs/suspend.txt.in:1100
 msgid ""
 "This test will check to make sure supported video modes work after a suspend "
 "and resume. This is done automatically by taking screenshots and uploading "
@@ -3952,14 +3952,14 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1107
+#: ../jobs/suspend.txt.in:1109
 msgid ""
 "This attaches screenshots from the suspend/"
 "cycle_resolutions_after_suspend_auto test to the results submission."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1138
+#: ../jobs/suspend.txt.in:1140
 msgid ""
 "This will check to make sure that your audio device works properly after a "
 "suspend and resume.  This may work fine with speakers and onboard "
@@ -3968,12 +3968,12 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1144
+#: ../jobs/suspend.txt.in:1146
 msgid "Attaches the log from the single suspend/resume test to the results"
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1153
+#: ../jobs/suspend.txt.in:1155
 msgid ""
 "PURPOSE:\n"
 "    Take a screengrab of the current screen after suspend (logged on Unity "
@@ -3985,12 +3985,12 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1165
+#: ../jobs/suspend.txt.in:1167
 msgid "Attaches the screenshot captured in graphics/screenshot."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1176
+#: ../jobs/suspend.txt.in:1178
 msgid ""
 "PURPOSE:\n"
 "    Do some challenging operations then check for lockup on the GPU\n"
@@ -4003,14 +4003,14 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1204
+#: ../jobs/suspend.txt.in:1206
 msgid ""
 "Checks the length of time it takes to reconnect an existing wifi connection "
 "after a suspend/resume cycle."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1226
+#: ../jobs/suspend.txt.in:1228
 msgid ""
 "Checks the length of time it takes to reconnect an existing wired "
 "connection\n"
@@ -4018,7 +4018,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1234
+#: ../jobs/suspend.txt.in:1236
 msgid ""
 "PURPOSE:\n"
 "    Validate that the power LED operated the same after resuming from "
@@ -4030,7 +4030,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1246
+#: ../jobs/suspend.txt.in:1248
 msgid ""
 "PURPOSE:\n"
 "    Validate that the battery light shows charging status after resuming "
@@ -4044,7 +4044,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1259
+#: ../jobs/suspend.txt.in:1261
 msgid ""
 "PURPOSE:\n"
 "    Validate that the battery LED properly displays charged status after "
@@ -4059,7 +4059,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1273
+#: ../jobs/suspend.txt.in:1275
 msgid ""
 "PURPOSE:\n"
 "    Validate that the battery LED indicated low power after resuming from "
@@ -4073,7 +4073,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1287
+#: ../jobs/suspend.txt.in:1289
 msgid ""
 "PURPOSE:\n"
 "    Validate that the HDD LED still operates as expected after resuming from "
@@ -4087,7 +4087,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1301
+#: ../jobs/suspend.txt.in:1303
 msgid ""
 "PURPOSE:\n"
 "    Validate that the numeric keypad LED operates the same before and after "
@@ -4104,7 +4104,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1316
+#: ../jobs/suspend.txt.in:1318
 msgid ""
 "PURPOSE:\n"
 "    Validate that the Caps Lock key operates the same before and after "
@@ -4117,7 +4117,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1329
+#: ../jobs/suspend.txt.in:1331
 msgid ""
 "PURPOSE:\n"
 "    WLAN LED verification after resuming from suspend\n"
@@ -4129,7 +4129,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1342
+#: ../jobs/suspend.txt.in:1344
 msgid ""
 "PURPOSE:\n"
 "    Validate that WLAN LED shuts off when disabled after resuming from "
@@ -4144,7 +4144,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1357
+#: ../jobs/suspend.txt.in:1359
 msgid ""
 "PURPOSE:\n"
 "    Validate that the Bluetooth LED turns on and off when BT is enabled/"
@@ -4159,7 +4159,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1375
+#: ../jobs/suspend.txt.in:1377
 msgid ""
 "PURPOSE:\n"
 "    Validate that the camera LED still works as expected after resuming from "
@@ -4172,7 +4172,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1388
+#: ../jobs/suspend.txt.in:1390
 msgid ""
 "PURPOSE:\n"
 "    Touchpad LED verification after resuming from suspend\n"
@@ -4189,7 +4189,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1403
+#: ../jobs/suspend.txt.in:1405
 msgid ""
 "PURPOSE:\n"
 "    Validate Wireless (WLAN + Bluetooth) LED operated the same after "
@@ -4206,7 +4206,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1421
+#: ../jobs/suspend.txt.in:1423
 msgid ""
 "PURPOSE:\n"
 "    This test will test the brightness key after resuming from suspend\n"
@@ -4218,7 +4218,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1437
+#: ../jobs/suspend.txt.in:1439
 msgid ""
 "PURPOSE:\n"
 "    This test will test the volume keys of your keyboard after resuming from "
@@ -4232,7 +4232,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1455
+#: ../jobs/suspend.txt.in:1457
 msgid ""
 "PURPOSE:\n"
 "    This test will test the mute key of your keyboard after resuming from "
@@ -4245,7 +4245,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1470
+#: ../jobs/suspend.txt.in:1472
 msgid ""
 "PURPOSE:\n"
 "    This test will test the sleep key after resuming from suspend\n"
@@ -4258,7 +4258,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1486
+#: ../jobs/suspend.txt.in:1488
 msgid ""
 "PURPOSE:\n"
 "    This test will test the battery information key after resuming from "
@@ -4273,7 +4273,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1502
+#: ../jobs/suspend.txt.in:1504
 msgid ""
 "PURPOSE:\n"
 "    This test will test the wireless key after resuming from suspend\n"
@@ -4286,7 +4286,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1519
+#: ../jobs/suspend.txt.in:1521
 msgid ""
 "PURPOSE:\n"
 "    This test will test the media keys of your keyboard after resuming from "
@@ -4300,7 +4300,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1537
+#: ../jobs/suspend.txt.in:1539
 msgid ""
 "PURPOSE:\n"
 "    This test will test the super key of your keyboard after resuming from "
@@ -4313,7 +4313,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1551
+#: ../jobs/suspend.txt.in:1553
 msgid ""
 "PURPOSE:\n"
 "    Validate that the External Video hot key is working as expected after "
@@ -4327,7 +4327,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1565
+#: ../jobs/suspend.txt.in:1567
 msgid ""
 "PURPOSE:\n"
 "    Verify touchpad hotkey toggles touchpad functionality on and off after "
@@ -4341,7 +4341,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1581
+#: ../jobs/suspend.txt.in:1583
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the system correctly detects the insertion of\n"
@@ -4356,7 +4356,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1601
+#: ../jobs/suspend.txt.in:1603
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the system correctly detects the insertion of\n"
@@ -4372,7 +4372,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1619
+#: ../jobs/suspend.txt.in:1621
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the system correctly detects the removal of\n"
@@ -4386,7 +4386,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1638
+#: ../jobs/suspend.txt.in:1640
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the system correctly detects the removal of\n"
@@ -4400,21 +4400,21 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1655
+#: ../jobs/suspend.txt.in:1657
 msgid ""
 "This test is automated and executes after the suspend/"
 "usb_insert_after_suspend test is run."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1667
+#: ../jobs/suspend.txt.in:1669
 msgid ""
 "This test is automated and executes after the suspend/"
 "usb3_insert_after_suspend test is run."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1677 ../jobs/usb.txt.in:172
+#: ../jobs/suspend.txt.in:1679 ../jobs/usb.txt.in:172
 msgid ""
 "This is an automated version of usb/storage-automated and assumes that the "
 "server has usb storage devices plugged in prior to checkbox execution. It is "
@@ -4422,7 +4422,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1690 ../jobs/usb.txt.in:184
+#: ../jobs/suspend.txt.in:1692 ../jobs/usb.txt.in:184
 msgid ""
 "This is an automated version of usb3/storage-automated and assumes that the "
 "server has usb 3.0 storage devices plugged in prior to checkbox execution. "
@@ -4430,21 +4430,21 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1701 ../jobs/usb.txt.in:209
+#: ../jobs/suspend.txt.in:1703 ../jobs/usb.txt.in:209
 msgid ""
 "This test will check that your USB 2.0 port transfers data at a minimum "
 "expected speed."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1713 ../jobs/usb.txt.in:221
+#: ../jobs/suspend.txt.in:1715 ../jobs/usb.txt.in:221
 msgid ""
 "This test will check that your USB 3.0 port could be recognized as "
 "SuperSpeed USB device using xhci_hcd driver and transfers data correctly."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1722
+#: ../jobs/suspend.txt.in:1724
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the systems media card reader can\n"
@@ -4460,7 +4460,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1741
+#: ../jobs/suspend.txt.in:1743
 msgid ""
 "This test is automated and executes after the mediacard/mmc-insert-after-"
 "suspend test is run. It tests reading and writing to the MMC card after the "
@@ -4468,7 +4468,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1750
+#: ../jobs/suspend.txt.in:1752
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the system correctly detects the removal\n"
@@ -4483,7 +4483,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1766
+#: ../jobs/suspend.txt.in:1768
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the systems media card reader can\n"
@@ -4500,7 +4500,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1786
+#: ../jobs/suspend.txt.in:1788
 msgid ""
 "This test is automated and executes after the mediacard/sd-insert-after-"
 "suspend test is run. It tests reading and writing to the SD card after the "
@@ -4508,7 +4508,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1795
+#: ../jobs/suspend.txt.in:1797
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the system correctly detects\n"
@@ -4523,7 +4523,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1812
+#: ../jobs/suspend.txt.in:1814
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the systems media card reader can\n"
@@ -4540,7 +4540,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1832
+#: ../jobs/suspend.txt.in:1834
 msgid ""
 "This test is automated and executes after the mediacard/sdhc-insert-after-"
 "suspend test is run. It tests reading and writing to the SDHC card after the "
@@ -4548,7 +4548,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1841
+#: ../jobs/suspend.txt.in:1843
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the system correctly detects the removal\n"
@@ -4563,7 +4563,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1857
+#: ../jobs/suspend.txt.in:1859
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the systems media card reader can\n"
@@ -4579,7 +4579,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1876
+#: ../jobs/suspend.txt.in:1878
 msgid ""
 "This test is automated and executes after the mediacard/cf-insert-after-"
 "suspend test is run. It tests reading and writing to the CF card after the "
@@ -4587,7 +4587,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1885
+#: ../jobs/suspend.txt.in:1887
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the system correctly detects the removal\n"
@@ -4602,7 +4602,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1901
+#: ../jobs/suspend.txt.in:1903
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the systems media card reader can\n"
@@ -4618,7 +4618,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1920
+#: ../jobs/suspend.txt.in:1922
 msgid ""
 "This test is automated and executes after the mediacard/sdxc-insert-after-"
 "suspend test is run. It tests reading and writing to the SDXC card after the "
@@ -4626,7 +4626,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1929
+#: ../jobs/suspend.txt.in:1931
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the system correctly detects the removal\n"
@@ -4642,7 +4642,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1946
+#: ../jobs/suspend.txt.in:1948
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the systems media card reader can\n"
@@ -4658,7 +4658,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1965
+#: ../jobs/suspend.txt.in:1967
 msgid ""
 "This test is automated and executes after the mediacard/ms-insert-after-"
 "suspend test is run. It tests reading and writing to the MS card after the "
@@ -4666,7 +4666,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1974
+#: ../jobs/suspend.txt.in:1976
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the system correctly detects the removal\n"
@@ -4681,7 +4681,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1990
+#: ../jobs/suspend.txt.in:1992
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the systems media card reader can\n"
@@ -4697,7 +4697,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:2009
+#: ../jobs/suspend.txt.in:2011
 msgid ""
 "This test is automated and executes after the mediacard/msp-insert-after-"
 "suspend test is run. It tests reading and writing to the MSP card after the "
@@ -4705,7 +4705,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:2018
+#: ../jobs/suspend.txt.in:2020
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the system correctly detects the removal\n"
@@ -4720,7 +4720,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:2034
+#: ../jobs/suspend.txt.in:2036
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the systems media card reader can\n"
@@ -4736,7 +4736,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:2053
+#: ../jobs/suspend.txt.in:2055
 msgid ""
 "This test is automated and executes after the mediacard/xd-insert-after-"
 "suspend test is run. It tests reading and writing to the xD card after the "
@@ -4744,7 +4744,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:2062
+#: ../jobs/suspend.txt.in:2064
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the system correctly detects the removal\n"
@@ -4759,12 +4759,12 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:2081
+#: ../jobs/suspend.txt.in:2083
 msgid "Determine if the touchpad is still functioning after suspend/resume."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:2088 ../jobs/touchscreen.txt.in:35
+#: ../jobs/suspend.txt.in:2090 ../jobs/touchscreen.txt.in:35
 msgid ""
 "PURPOSE:\n"
 "    Check touchscreen tap recognition\n"
@@ -4776,7 +4776,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:2103
+#: ../jobs/suspend.txt.in:2105
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the built-in camera works after suspend\n"
@@ -4788,7 +4788,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:2121
+#: ../jobs/suspend.txt.in:2123
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the built-in camera works after suspend\n"
@@ -4800,11 +4800,16 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:2137
+#: ../jobs/suspend.txt.in:2139
 msgid ""
 " Takes multiple pictures based on the resolutions supported by the camera "
 "and\n"
 " validates their size and that they are of a valid format after suspend"
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:2148
+msgid "Pointing device tests after suspend."
 msgstr ""
 
 #. description
@@ -5798,4 +5803,97 @@ msgstr ""
 msgid ""
 "This test executes a maximum throughput test against all the wireless "
 "devices found on the system."
+msgstr ""
+
+#: ../bin/gateway_ping_test:56
+msgid "Reading default gateway information from /proc"
+msgstr ""
+
+#: ../bin/gateway_ping_test:61
+msgid "Failed to read def gateway from /proc"
+msgstr ""
+
+#: ../bin/gateway_ping_test:73 ../bin/gateway_ping_test:76
+msgid "Could not find def gateway info in /proc"
+msgstr ""
+
+#: ../bin/gateway_ping_test:86
+msgid "Reading default gateway information from route binary"
+msgstr ""
+
+#: ../bin/gateway_ping_test:96
+msgid "Could not find default gateway by running route"
+msgstr ""
+
+#: ../bin/gateway_ping_test:152
+msgid "Desired ip address {0} is reachable, using it"
+msgstr ""
+
+#: ../bin/gateway_ping_test:159
+msgid "Desired ip address {0} is not reachable from {1}, using {2} instead"
+msgstr ""
+
+#: ../bin/gateway_ping_test:188
+msgid "ERROR: ping result: {0}"
+msgstr ""
+
+#: ../bin/gateway_ping_test:212
+msgid "host to ping"
+msgstr ""
+
+#: ../bin/gateway_ping_test:215
+msgid "number of packets to send"
+msgstr ""
+
+#: ../bin/gateway_ping_test:218
+msgid "timeout in seconds"
+msgstr ""
+
+#: ../bin/gateway_ping_test:221
+msgid "allowed packet loss percentage (default: %(default)s)"
+msgstr ""
+
+#: ../bin/gateway_ping_test:223
+msgid "be verbose"
+msgstr ""
+
+#: ../bin/gateway_ping_test:225
+msgid "use specified interface to send packets"
+msgstr ""
+
+#: ../bin/gateway_ping_test:234
+msgid "ERROR: not enough time for {0} pings in {1} seconds"
+msgstr ""
+
+#: ../bin/gateway_ping_test:245
+msgid "Adjusting ping count to {0} to fit in {1}-second deadline"
+msgstr ""
+
+#: ../bin/gateway_ping_test:253
+msgid "Adjusting deadline to {0} seconds to fit {1} pings"
+msgstr ""
+
+#: ../bin/gateway_ping_test:259
+msgid "Checking connectivity to {0}"
+msgstr ""
+
+#: ../bin/gateway_ping_test:265
+msgid "No Internet connection"
+msgstr ""
+
+#: ../bin/gateway_ping_test:268
+#, c-format
+msgid "Connection established, but lost {0}% of packets"
+msgstr ""
+
+#: ../bin/gateway_ping_test:272
+msgid "FAIL: {0}% packet loss is higher than {1}% threshold"
+msgstr ""
+
+#: ../bin/gateway_ping_test:277
+msgid "PASS: {0}% packet loss is within {1}% threshold"
+msgstr ""
+
+#: ../bin/gateway_ping_test:281
+msgid "Internet connection fully established"
 msgstr ""

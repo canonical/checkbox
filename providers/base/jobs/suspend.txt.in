@@ -2140,3 +2140,24 @@ _description:
   Takes multiple pictures based on the resolutions supported by the camera and
   validates their size and that they are of a valid format after suspend
 
+plugin: local
+_summary: Pointing device tests after suspend.
+id: suspend/pointing-after-suspend
+requires:
+ device.category == 'MOUSE' or device.category == 'TOUCHPAD' or device.category == 'TOUCHSCREEN'
+_description: Pointing device tests after suspend.
+depends: suspend/suspend_advanced
+command:
+ cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=MOUSE" -w "category=TOUCHPAD" -w "category=TOUCHSCREEN"'
+ plugin: manual
+ id: suspend/pointing-after-suspend_`echo "${product}_${category}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`_`basename $path`
+ requires: device.path == "$path"
+ description:
+  PURPOSE:
+      This will test your $product device after suspend.
+  STEPS:
+      1. Move the cursor with your $product.
+  VERIFICATION:
+      Did the cursor move?
+ EOF
+

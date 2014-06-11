@@ -61,7 +61,6 @@ requires:
  device.category == 'NETWORK'
  package.name == 'zenity'
  package.name == 'iperf'
-environ: IPERF_SERVER FTP_SERVER 
 depends: mobilebroadband/gsm_connection
 command:
  cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
@@ -69,6 +68,7 @@ command:
  user: root
  id: mobilebroadband/maximum_bandwidth_$2
  requires: device.path == "$1"
+ environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
  command: network test -i $2 -t iperf 2>&1 | cat - <(echo; echo "Verify the result and click OK to decide on the outcome") | zenity --text-info --title 'mobile broadband max bw $2'
  estimated_duration: 330.0
  _description:
@@ -90,7 +90,6 @@ requires:
  device.category == 'NETWORK'
  package.name == 'zenity'
  package.name == 'iperf'
-environ: IPERF_SERVER FTP_SERVER 
 depends: mobilebroadband/cdma_connection
 command:
  cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
@@ -98,6 +97,7 @@ command:
  user: root
  id: mobilebroadband/maximum_bandwidth_$2
  requires: device.path == "$1"
+ environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
  command: network test -i $2 -t iperf 2>&1 | cat - <(echo; echo "Verify the result and click OK to decide on the outcome") | zenity --text-info --title 'mobile broadband max bw $2'
  estimated_duration: 330.0
  _description:

@@ -194,5 +194,17 @@ _description:
      1. Press the Mute key twice and observe the Audio LED to determine if it
      either turned off and on or changed colors.
  VERIFICATION:
-     Did the Audio LED turn on and off change color as expected?
+     Did the Audio LED turn on and off or change color as expected?
 
+plugin: manual
+id: led/microphone-mute
+depends: keys/microphone-mute
+_description:
+ PURPOSE:
+     Microphone Mute LED verification.
+ STEPS:
+     Skip this test if your system does not have a special Microphone Mute LED.
+     1. Press the Microphone Mute key twice and observe the Microphone LED to
+     determine if it either turned off and on or changed colors.
+ VERIFICATION:
+     Did the Microphone Mute LED turn on and off or change color as expected?

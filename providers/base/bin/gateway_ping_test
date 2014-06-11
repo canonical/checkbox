@@ -1,4 +1,29 @@
 #!/usr/bin/python3
+# This file is part of Checkbox.
+#
+# Copyright 2007-2014 Canonical Ltd.
+# Written by:
+#   Brendan Donegan <brendan.donegan@canonical.com>
+#   Daniel Manrique <daniel.manrique@canonical.com>
+#   David Murphy <david.murphy@canonical.com>
+#   Javier Collado <javier.collado@canonical.com>
+#   Jeff Lane <jeffrey.lane@canonical.com>
+#   Marc Tardif <marc.tardif@canonical.com>
+#   Mathieu Trudel-Lapierre <mathieu.trudel-lapierre@canonical.com>
+#   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+
 from gettext import gettext as _
 import argparse
 import errno

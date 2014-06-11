@@ -1,6 +1,6 @@
 #!/usr/bin/python3
-from argparse import ArgumentParser
 from gettext import gettext as _
+import argparse
 import gettext
 import logging
 import os
@@ -200,8 +200,8 @@ def main(args):
     default_delay = 4
 
     route = Route()
+    parser = argparse.ArgumentParser()
 
-    parser = ArgumentParser()
     parser.add_argument("host",
                         nargs='?',
                         default=route.get_default_gateway(),

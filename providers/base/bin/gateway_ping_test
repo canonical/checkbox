@@ -95,9 +95,8 @@ def get_host_to_ping(interface=None, verbose=False, default=None):
             # Use check_output even if I'll discard the output
             # looks cleaner than using .call and redirecting stdout to null
             try:
-                (subprocess
-                 .check_output(["ping", "-q", "-c", "1", "-b", iface[3]],
-                               stderr=subprocess.STDOUT))
+                subprocess.check_output(["ping", "-q", "-c", "1", "-b",
+                                         iface[3]], stderr=subprocess.STDOUT)
             except subprocess.CalledProcessError:
                 pass
     # If default host given, ping it as well,
@@ -216,7 +215,7 @@ def main(args):
             print(_(
                 "ERROR: not enough time for {0} pings in {1} seconds"
             ).format(args.count, args.deadline))
-            return(1)
+            return 1
     elif args.deadline != default_delay:
         # Adjust count according to delay.
         args.count = args.deadline - 1
@@ -236,8 +235,8 @@ def main(args):
                 "Adjusting deadline to {0} seconds to fit {1} pings"
             ).format(args.deadline, args.count))
     # If given host is not pingable, override with something pingable.
-    host = get_host_to_ping(interface=args.interface,
-                            verbose=args.verbose, default=args.host)
+    host = get_host_to_ping(
+        interface=args.interface, verbose=args.verbose, default=args.host)
     if args.verbose:
         print(_("Checking connectivity to {0}").format(host))
     ping_summary = None

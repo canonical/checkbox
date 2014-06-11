@@ -182,29 +182,22 @@ def main(args):
     default_delay = 4
     route = Route()
     parser = argparse.ArgumentParser()
-    parser.add_argument("host",
-                        nargs='?',
-                        default=route.get_default_gateway(),
-                        help=_("Host to ping"))
-    parser.add_argument("-c", "--count",
-                        default=default_count,
-                        type=int,
-                        help=_("Number of packets to send."))
-    parser.add_argument("-d", "--deadline",
-                        default=default_delay,
-                        type=int,
-                        help=_("Timeouts in seconds."))
-    parser.add_argument("-t", "--threshold",
-                        default=0,
-                        type=int,
-                        help=_("Percentage of allowed packet loss before "
-                               "considering test failed. Defaults to 0 "
-                               "(meaning any packet loss will fail the test)"))
-    parser.add_argument("-v", "--verbose",
-                        action='store_true',
-                        help=_("Be verbose."))
-    parser.add_argument("-I", "--interface",
-                        help=_("Interface to ping from."))
+    parser.add_argument(
+        "host", nargs='?', default=route.get_default_gateway(),
+        help=_("host to ping"))
+    parser.add_argument(
+        "-c", "--count", default=default_count, type=int,
+        help=_("number of packets to send"))
+    parser.add_argument(
+        "-d", "--deadline", default=default_delay, type=int,
+        help=_("timeout in seconds"))
+    parser.add_argument(
+        "-t", "--threshold", default=0, type=int,
+        help=_("allowed packet loss percentage (default: %(default)s)"))
+    parser.add_argument(
+        "-v", "--verbose", action='store_true', help=_("be verbose"))
+    parser.add_argument(
+        "-I", "--interface", help=_("use specified interface to send packets"))
     args = parser.parse_args()
     # Ensure count and deadline make sense. Adjust them if not.
     if args.deadline != default_delay and args.count != default_count:

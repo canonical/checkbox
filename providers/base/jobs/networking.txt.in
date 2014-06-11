@@ -2,6 +2,7 @@ plugin: shell
 id: networking/gateway_ping
 depends: ethernet/detect
 command: gateway_ping_test
+flags: preserve-locale
 estimated_duration: 2.000
 _description: Tests whether the system has a working Internet connection.
 

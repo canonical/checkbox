@@ -3,6 +3,7 @@ from argparse import ArgumentParser
 from gettext import gettext as _
 import gettext
 import logging
+import os
 import re
 import socket
 import struct
@@ -191,8 +192,9 @@ def ping(host, interface, count, deadline, verbose=False):
 
 
 def main(args):
-
     gettext.textdomain("2013.com.canonical.certification.checkbox")
+    gettext.bindtextdomain("2013.com.canonical.certification.checkbox",
+                           os.getenv("CHECKBOX_PROVIDER_LOCALE_DIR", None))
 
     default_count = 2
     default_delay = 4

@@ -192,7 +192,7 @@ def ping(host, interface, count, deadline, verbose=False):
 
 def main(args):
 
-    gettext.textdomain("checkbox")
+    gettext.textdomain("2013.com.canonical.certification.checkbox")
 
     default_count = 2
     default_delay = 4

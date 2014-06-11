@@ -372,6 +372,15 @@ class JobDefinition(Unit, IJobDefinition):
         else:
             return set()
 
+    def get_flag_set(self):
+        """
+        Return a set of flags associated with this job
+        """
+        if self.flags is not None:
+            return {flag for flag in re.split('[\s,]+', self.flags)}
+        else:
+            return set()
+
     @property
     def automated(self):
         """

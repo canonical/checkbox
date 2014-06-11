@@ -116,6 +116,14 @@ class TestJobDefinitionDefinition(TestCase):
         job3 = JobDefinition({'environ': 'a,b,c'})
         self.assertEqual(job3.get_environ_settings(), set(['a', 'b', 'c']))
 
+    def test_get_flag_set(self):
+        job1 = JobDefinition({})
+        self.assertEqual(job1.get_flag_set(), set())
+        job2 = JobDefinition({'flags': 'a b c'})
+        self.assertEqual(job2.get_flag_set(), set(['a', 'b', 'c']))
+        job3 = JobDefinition({'flags': 'a,b,c'})
+        self.assertEqual(job3.get_flag_set(), set(['a', 'b', 'c']))
+
 
 class JobDefinitionParsingTests(TestCaseWithParameters):
 

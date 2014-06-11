@@ -1,21 +1,24 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Checkbox Provider translations
+# Copyright (C) 2014 Canonical
+# This file is distributed under the same license as the plainbox-provider-checkbox package.
+# Zygmunt <Krynicki>, 2014.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: plainbox-provider-checkbox 0.5\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-06-11 17:27+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2014-06-03 04:39+0000\n"
+"Last-Translator: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>\n"
+"Language-Team: polski <>\n"
+"Language: Polish\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
+"|| n%100>=20) ? 1 : 2;\n"
+"X-Launchpad-Export-Date: 2014-06-04 05:33+0000\n"
+"X-Generator: Launchpad (build 17031)\n"
 
 #. description
 #: ../jobs/audio.txt.in:8
@@ -5839,15 +5842,15 @@ msgstr ""
 
 #: ../bin/gateway_ping_test:212
 msgid "host to ping"
-msgstr ""
+msgstr "komputer do pingowania"
 
 #: ../bin/gateway_ping_test:215
 msgid "number of packets to send"
-msgstr ""
+msgstr "ilość pakietów do wysłania"
 
 #: ../bin/gateway_ping_test:218
 msgid "timeout in seconds"
-msgstr ""
+msgstr "czas oczekiwania w sekundach"
 
 #: ../bin/gateway_ping_test:221
 msgid "allowed packet loss percentage (default: %(default)s)"
@@ -5855,7 +5858,7 @@ msgstr ""
 
 #: ../bin/gateway_ping_test:223
 msgid "be verbose"
-msgstr ""
+msgstr "bądź gadatliwy"
 
 #: ../bin/gateway_ping_test:225
 msgid "use specified interface to send packets"
@@ -5871,29 +5874,29 @@ msgstr ""
 
 #: ../bin/gateway_ping_test:253
 msgid "Adjusting deadline to {0} seconds to fit {1} pings"
-msgstr ""
+msgstr "Przestawianie terminu na {0} sekund aby zmieścić {1} pingów"
 
 #: ../bin/gateway_ping_test:259
 msgid "Checking connectivity to {0}"
-msgstr ""
+msgstr "Sprawdzanie połączenia z {0}"
 
 #: ../bin/gateway_ping_test:265
 msgid "No Internet connection"
-msgstr ""
+msgstr "Brak połączenia z Internetem"
 
 #: ../bin/gateway_ping_test:268
 #, c-format
 msgid "Connection established, but lost {0}% of packets"
-msgstr ""
+msgstr "Ustanowiono połączenie, utracono {0}% pakietów"
 
 #: ../bin/gateway_ping_test:272
 msgid "FAIL: {0}% packet loss is higher than {1}% threshold"
-msgstr ""
+msgstr "PORAŻKA: utrata pakietów {0}% większa niż wartość progowa {1}%"
 
 #: ../bin/gateway_ping_test:277
 msgid "PASS: {0}% packet loss is within {1}% threshold"
-msgstr ""
+msgstr "SUKCES: utrata pakietów {0}% poniżej wartości progowej {1}%"
 
 #: ../bin/gateway_ping_test:281
 msgid "Internet connection fully established"
-msgstr ""
+msgstr "Połączenie z internetem ustanowione"

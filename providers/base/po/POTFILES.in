@@ -76,7 +76,7 @@ bin/dns_server_test
 [type: gettext/python] bin/frequency_governors_test
 [type: gettext/python] bin/fresh_rate_info
 [type: gettext/python] bin/fwts_test
-[type: gettext/python] bin/gateway_ping_test
+bin/gateway_ping_test
 bin/gcov_tarball
 [type: gettext/python] bin/glob_test
 [type: gettext/python] bin/gpu_test

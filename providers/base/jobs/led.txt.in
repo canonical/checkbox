@@ -197,8 +197,8 @@ _description:
      Did the Audio LED turn on and off or change color as expected?
 
 plugin: manual
-id: led/microphone_mute
-depends: keys/microphone_mute
+id: led/microphone-mute
+depends: keys/microphone-mute
 _description:
  PURPOSE:
      Microphone Mute LED verification.

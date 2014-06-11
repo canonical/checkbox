@@ -61,7 +61,6 @@ class Route:
             _("Reading default gateway information from route binary"))
         routebin = subprocess.getstatusoutput(
             "export LANGUAGE=C; " "/usr/bin/env route -n")
-
         if routebin[0] == 0:
             h = re.compile("\n0.0.0.0\s+(?P<def_gateway>[\w.]+)\s+")
             w = h.search(routebin[1])
@@ -69,7 +68,6 @@ class Route:
                 def_gateway = w.group("def_gateway")
                 if def_gateway:
                     return def_gateway
-
         logging.error(_("Could not find default gateway by running route"))
         return None
 
@@ -80,19 +78,16 @@ class Route:
         t1 = self._get_default_gateway_from_proc()
         if not t1:
             t1 = self._get_default_gateway_from_bin_route()
-
         return t1
 
 
 def get_host_to_ping(interface=None, verbose=False, default=None):
     #Get list of all IPs from all my interfaces,
     interface_list = subprocess.check_output(["ip", "-o", 'addr', 'show'])
-
     reg = re.compile('\d: (?P<iface>\w+) +inet (?P<address>[\d\.]+)/'
                      '(?P<netmask>[\d]+) brd (?P<broadcast>[\d\.]+)')
     # Will magically exclude lo because it lacks brd field
     interfaces = reg.findall(interface_list.decode())
-
     # ping -b the network on each one (one ping only)
     # exclude the ones not specified in iface
     for iface in interfaces:
@@ -114,21 +109,17 @@ def get_host_to_ping(interface=None, verbose=False, default=None):
                                     stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError:
             pass
-
     ARP_POPULATE_TRIES = 10
     num_tries = 0
-
     while num_tries < ARP_POPULATE_TRIES:
         #Get output from arp -a -n to get known IPs
         known_ips = subprocess.check_output(["arp", "-a", "-n"])
         reg = re.compile('\? \((?P<ip>[\d.]+)\) at (?P<mac>[a-f0-9\:]+) '
                          '\[ether\] on (?P<iface>[\w\d]+)')
-
         #Filter (if needed) IPs not on the specified interface
         pingable_ips = [pingable[0] for pingable in reg.findall(
                         known_ips.decode()) if not interface
                         or pingable[2] == interface]
-
         # If the default given ip is among the remaining ones,
         # ping that.
         if default and default in pingable_ips:
@@ -137,7 +128,6 @@ def get_host_to_ping(interface=None, verbose=False, default=None):
                     "Desired ip address {0} is reachable, using it"
                 ).format(default))
             return default
-
         #If not, choose another IP.
         address_to_ping = pingable_ips[0] if len(pingable_ips) else None
         if verbose:
@@ -147,24 +137,19 @@ def get_host_to_ping(interface=None, verbose=False, default=None):
             ).format(default, interface, address_to_ping))
         if address_to_ping:
             return address_to_ping
-
         time.sleep(2)
         num_tries += 1
-
     # Wait time expired
     return None
 
 
 def ping(host, interface, count, deadline, verbose=False):
-
     command = ["ping", str(host),  "-c", str(count), "-w", str(deadline)]
     if interface:
         command.append("-I{}".format(interface))
-
     reg = re.compile(
         r"(\d+) packets transmitted, (\d+) received, (\d+)% packet loss")
     ping_summary = {'transmitted': 0, 'received': 0, 'pct_loss': 0}
-
     try:
         output = subprocess.check_output(command, universal_newlines=True)
     except OSError as exc:
@@ -180,11 +165,9 @@ def ping(host, interface, count, deadline, verbose=False):
     else:
         if verbose:
             print(output)
-
         received = re.findall(reg, output)
         if received:
             ping_summary = received[0]
-
             ping_summary = {
                 'transmitted': int(ping_summary[0]),
                 'received': int(ping_summary[1]),
@@ -196,13 +179,10 @@ def main(args):
     gettext.textdomain("2013.com.canonical.certification.checkbox")
     gettext.bindtextdomain("2013.com.canonical.certification.checkbox",
                            os.getenv("CHECKBOX_PROVIDER_LOCALE_DIR", None))
-
     default_count = 2
     default_delay = 4
-
     route = Route()
     parser = argparse.ArgumentParser()
-
     parser.add_argument("host",
                         nargs='?',
                         default=route.get_default_gateway(),
@@ -227,9 +207,7 @@ def main(args):
     parser.add_argument("-I", "--interface",
                         help=_("Interface to ping from."))
     args = parser.parse_args()
-
     #Ensure count and deadline make sense. Adjust them if not.
-
     if args.deadline != default_delay and args.count != default_count:
         #Ensure they're both consistent, and exit with a warning if
         #not, rather than modifying what the user explicitly set.
@@ -257,18 +235,15 @@ def main(args):
             print(_(
                 "Adjusting deadline to {0} seconds to fit {1} pings"
             ).format(args.deadline, args.count))
-
     #If given host is not pingable, override with something pingable.
     host = get_host_to_ping(interface=args.interface,
                             verbose=args.verbose, default=args.host)
-
     if args.verbose:
         print(_("Checking connectivity to {0}").format(host))
     ping_summary = None
     if host:
         ping_summary = ping(host, args.interface, args.count,
                             args.deadline, args.verbose)
-
     if ping_summary is None or ping_summary['received'] == 0:
         print(_("No Internet connection"))
         return 1
@@ -288,6 +263,7 @@ def main(args):
     else:
         print(_("Internet connection fully established"))
         return 0
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))

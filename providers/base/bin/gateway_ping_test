@@ -13,7 +13,7 @@ import sys
 import time
 
 
-class Route(object):
+class Route:
     """
     Gets routing information from the system.
     """

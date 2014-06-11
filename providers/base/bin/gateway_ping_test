@@ -82,7 +82,7 @@ class Route:
 
 
 def get_host_to_ping(interface=None, verbose=False, default=None):
-    #Get list of all IPs from all my interfaces,
+    # Get list of all IPs from all my interfaces,
     interface_list = subprocess.check_output(["ip", "-o", 'addr', 'show'])
     reg = re.compile('\d: (?P<iface>\w+) +inet (?P<address>[\d\.]+)/'
                      '(?P<netmask>[\d]+) brd (?P<broadcast>[\d\.]+)')
@@ -92,8 +92,8 @@ def get_host_to_ping(interface=None, verbose=False, default=None):
     # exclude the ones not specified in iface
     for iface in interfaces:
         if not interface or iface[0] == interface:
-            #Use check_output even if I'll discard the output
-            #looks cleaner than using .call and redirecting stdout to null
+            # Use check_output even if I'll discard the output
+            # looks cleaner than using .call and redirecting stdout to null
             try:
                 (subprocess
                  .check_output(["ping", "-q", "-c", "1", "-b", iface[3]],
@@ -112,11 +112,11 @@ def get_host_to_ping(interface=None, verbose=False, default=None):
     ARP_POPULATE_TRIES = 10
     num_tries = 0
     while num_tries < ARP_POPULATE_TRIES:
-        #Get output from arp -a -n to get known IPs
+        # Get output from arp -a -n to get known IPs
         known_ips = subprocess.check_output(["arp", "-a", "-n"])
         reg = re.compile('\? \((?P<ip>[\d.]+)\) at (?P<mac>[a-f0-9\:]+) '
                          '\[ether\] on (?P<iface>[\w\d]+)')
-        #Filter (if needed) IPs not on the specified interface
+        # Filter (if needed) IPs not on the specified interface
         pingable_ips = [pingable[0] for pingable in reg.findall(
                         known_ips.decode()) if not interface
                         or pingable[2] == interface]
@@ -128,7 +128,7 @@ def get_host_to_ping(interface=None, verbose=False, default=None):
                     "Desired ip address {0} is reachable, using it"
                 ).format(default))
             return default
-        #If not, choose another IP.
+        # If not, choose another IP.
         address_to_ping = pingable_ips[0] if len(pingable_ips) else None
         if verbose:
             print(_(
@@ -207,10 +207,10 @@ def main(args):
     parser.add_argument("-I", "--interface",
                         help=_("Interface to ping from."))
     args = parser.parse_args()
-    #Ensure count and deadline make sense. Adjust them if not.
+    # Ensure count and deadline make sense. Adjust them if not.
     if args.deadline != default_delay and args.count != default_count:
-        #Ensure they're both consistent, and exit with a warning if
-        #not, rather than modifying what the user explicitly set.
+        # Ensure they're both consistent, and exit with a warning if not,
+        # rather than modifying what the user explicitly set.
         if args.deadline <= args.count:
             # FIXME: this cannot ever be translated correctly
             print(_(
@@ -218,7 +218,7 @@ def main(args):
             ).format(args.count, args.deadline))
             return(1)
     elif args.deadline != default_delay:
-        #Adjust count according to delay.
+        # Adjust count according to delay.
         args.count = args.deadline - 1
         if args.count < 1:
             args.count = 1
@@ -228,14 +228,14 @@ def main(args):
                 "Adjusting ping count to {0} to fit in {1}-second deadline"
             ).format(args.count, args.deadline))
     else:
-        #Adjust delay according to count
+        # Adjust delay according to count
         args.deadline = args.count + 1
         if args.verbose:
             # FIXME: this cannot ever be translated correctly
             print(_(
                 "Adjusting deadline to {0} seconds to fit {1} pings"
             ).format(args.deadline, args.count))
-    #If given host is not pingable, override with something pingable.
+    # If given host is not pingable, override with something pingable.
     host = get_host_to_ping(interface=args.interface,
                             verbose=args.verbose, default=args.host)
     if args.verbose:

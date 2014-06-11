@@ -45,6 +45,7 @@ _description:
 plugin: shell
 id: networking/ping
 command: gateway_ping_test $CHECKBOX_SERVER
+flags: preserve-locale
 _description:
  Automated test case to verify availability of some system on the network using ICMP ECHO packets.
 

@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 from gettext import gettext as _
 import argparse
+import errno
 import gettext
 import logging
 import os
@@ -169,10 +170,13 @@ def ping(host, interface, count, deadline, verbose=False):
 
     try:
         output = subprocess.check_output(command, universal_newlines=True)
-    except FileNotFoundError as excp:
-        # No ping command present; default exception message is
-        # informative enough.
-        print(excp)
+    except OSError as exc:
+        if exc.errno == errno.ENOENT:
+            # No ping command present;
+            # default exception message is informative enough.
+            print(exc)
+        else:
+            raise
     except subprocess.CalledProcessError as excp:
         # Ping returned fail exit code
         print(_("ERROR: ping result: {}").format(excp))

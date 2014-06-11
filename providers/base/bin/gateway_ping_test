@@ -1,19 +1,14 @@
 #!/usr/bin/python3
-
-import os
-import re
-import sys
-
+from argparse import ArgumentParser
+from gettext import gettext as _
+import gettext
 import logging
+import re
 import socket
 import struct
 import subprocess
-import gettext
+import sys
 import time
-
-from gettext import gettext as _
-
-from argparse import ArgumentParser
 
 
 class Route(object):

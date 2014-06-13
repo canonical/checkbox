@@ -2199,11 +2199,11 @@ id: suspend/pointing-after-suspend
 requires:
  device.category == 'MOUSE' or device.category == 'TOUCHPAD' or device.category == 'TOUCHSCREEN'
 _description: Pointing device tests after suspend.
-depends: suspend/suspend_advanced
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=MOUSE" -w "category=TOUCHPAD" -w "category=TOUCHSCREEN"'
  plugin: manual
  id: suspend/pointing-after-suspend_`echo "${product}_${category}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`_`basename $path`
+ depends: suspend/suspend_advanced
  requires: device.path == "$path"
  description:
   PURPOSE:

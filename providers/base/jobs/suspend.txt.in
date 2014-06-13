@@ -90,7 +90,7 @@ environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
 command:   
  INTERFACE=`nmcli -t -f GENERAL -m tabular dev list |grep gsm |cut -d ":" -f 13`
  [ -z $INTERFACE ] && exit 1
- network -i $INTERFACE -t iperf
+ network test -i $INTERFACE -t iperf
 _description:
  This test executes iperf connection performance/stability against the broadband device found on the system before suspend.
 
@@ -103,7 +103,7 @@ environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
 command:   
  INTERFACE=`nmcli -t -f GENERAL -m tabular dev list |grep cdma |cut -d ":" -f 13`
  [ -z $INTERFACE ] && exit 1
- network -i $INTERFACE -t iperf
+ network test -i $INTERFACE -t iperf
 _description:
  This test executes iperf connection performance/stability against the broadband device found on the system before suspend.
 
@@ -709,9 +709,9 @@ environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
 command:   
  INTERFACE=`nmcli -t -f GENERAL -m tabular dev list |grep gsm |cut -d ":" -f 13`
  [ -z $INTERFACE ] && exit 1
- network -i $INTERFACE -t iperf
+ network test -i $INTERFACE -t iperf
 _description:
- This test executes iperf connection performance/stability against the broadband device found on the system before suspend.
+ This test executes iperf connection performance/stability against the broadband device found on the system after suspend.
 
 plugin: shell
 id: suspend/iperf_after_suspend_mobilebroadband_cdma_auto
@@ -722,9 +722,9 @@ environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
 command:   
  INTERFACE=`nmcli -t -f GENERAL -m tabular dev list |grep cdma |cut -d ":" -f 13`
  [ -z $INTERFACE ] && exit 1
- network -i $INTERFACE -t iperf
+ network test -i $INTERFACE -t iperf
 _description:
- This test executes iperf connection performance/stability against the broadband device found on the system before suspend.
+ This test executes iperf connection performance/stability against the broadband device found on the system after suspend.
 
 plugin: user-interact-verify
 id: suspend/wireless_connection_after_suspend_wpa_bg_manual

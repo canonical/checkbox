@@ -28,7 +28,7 @@ with open("README.rst", encoding="UTF-8") as stream:
 
 setup(
     name="checkbox-support",
-    version="0.3.dev",
+    version="0.3c1",
     url="https://launchpad.net/checkbox/",
     packages=find_packages(),
     test_suite='checkbox_support.tests.test_suite',

@@ -8,17 +8,15 @@ msgstr ""
 "Project-Id-Version: plainbox-provider-checkbox 0.5\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-06-11 17:27+0200\n"
-"PO-Revision-Date: 2014-06-03 04:39+0000\n"
+"PO-Revision-Date: 2014-06-12 07:54+0000\n"
 "Last-Translator: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>\n"
 "Language-Team: polski <>\n"
-"Language: Polish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
-"|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2014-06-04 05:33+0000\n"
-"X-Generator: Launchpad (build 17031)\n"
+"X-Launchpad-Export-Date: 2014-06-13 05:33+0000\n"
+"X-Generator: Launchpad (build 17045)\n"
+"Language: Polish\n"
 
 #. description
 #: ../jobs/audio.txt.in:8
@@ -45,8 +43,8 @@ msgid ""
 "PURPOSE:\n"
 "    HDMI audio interface verification\n"
 "STEPS:\n"
-"    1. Plug an external HDMI device with sound (Use only one HDMI/"
-"DisplayPort interface at a time for this test)\n"
+"    1. Plug an external HDMI device with sound (Use only one "
+"HDMI/DisplayPort interface at a time for this test)\n"
 "    2. Click the Test button\n"
 "VERIFICATION:\n"
 "    Did you hear the sound from the HDMI device?"
@@ -58,8 +56,8 @@ msgid ""
 "PURPOSE:\n"
 "    DisplayPort audio interface verification\n"
 "STEPS:\n"
-"    1. Plug an external DisplayPort device with sound (Use only one HDMI/"
-"DisplayPort interface at a time for this test)\n"
+"    1. Plug an external DisplayPort device with sound (Use only one "
+"HDMI/DisplayPort interface at a time for this test)\n"
 "    2. Click the Test button\n"
 "VERIFICATION:\n"
 "    Did you hear the sound from the DisplayPort device?"
@@ -495,7 +493,8 @@ msgstr ""
 
 #. description
 #: ../jobs/bluetooth.txt.in:22
-msgid "Automated test to store bluetooth device information in checkbox report"
+msgid ""
+"Automated test to store bluetooth device information in checkbox report"
 msgstr ""
 
 #. description
@@ -1809,8 +1808,8 @@ msgstr ""
 #: ../jobs/led.txt.in:134
 msgid ""
 "PURPOSE:\n"
-"    Validate that the Bluetooth LED turns on and off when BT is enabled/"
-"disabled\n"
+"    Validate that the Bluetooth LED turns on and off when BT is "
+"enabled/disabled\n"
 "STEPS:\n"
 "    1. Switch bluetooth off from a hardware switch (if present)\n"
 "    2. Switch bluetooth back on\n"
@@ -1838,8 +1837,8 @@ msgid ""
 "PURPOSE:\n"
 "    Touchpad LED verification\n"
 "STEPS:\n"
-"    1. Click on the touchpad button or press key combination to enable/"
-"disable touchpad button\n"
+"    1. Click on the touchpad button or press key combination to "
+"enable/disable touchpad button\n"
 "    2. Slide your finger on the touchpad\n"
 "VERIFICATION:\n"
 "    1. Touchpad LED status should toggle everytime the button is clicked or "
@@ -2550,7 +2549,8 @@ msgstr ""
 
 #. description
 #: ../jobs/miscellanea.txt.in:16
-msgid "   A meta-job depending on the resources needed for a valid submission."
+msgid ""
+"   A meta-job depending on the resources needed for a valid submission."
 msgstr ""
 
 #. description
@@ -2763,8 +2763,8 @@ msgid ""
 "STEPS:\n"
 "    Skip this test if your video card does not support multiple monitors.\n"
 "    1. If your second monitor is not already connected, connect it now\n"
-"    2. Open the \"Displays\" tool (open the dash and search for \"Displays"
-"\")\n"
+"    2. Open the \"Displays\" tool (open the dash and search for "
+"\"Displays\")\n"
 "    3. Configure your output to provide one desktop across both monitors\n"
 "    4. Open any application and drag it from one monitor to the next.\n"
 "VERIFICATION:\n"
@@ -3411,8 +3411,8 @@ msgstr ""
 #: ../jobs/stress.txt.in:28
 msgid ""
 "PURPOSE:\n"
-"   This is an automated stress test that will force the system to hibernate/"
-"resume for 30 cycles"
+"   This is an automated stress test that will force the system to "
+"hibernate/resume for 30 cycles"
 msgstr ""
 
 #. description
@@ -3424,8 +3424,8 @@ msgstr ""
 #: ../jobs/stress.txt.in:59
 msgid ""
 "PURPOSE:\n"
-"   This is an automated stress test that will force the system to suspend/"
-"resume for 30 cycles."
+"   This is an automated stress test that will force the system to "
+"suspend/resume for 30 cycles."
 msgstr ""
 
 #. description
@@ -3443,21 +3443,22 @@ msgstr ""
 #: ../jobs/stress.txt.in:97
 msgid ""
 "PURPOSE:\n"
-"   This is an automated stress test that will force the system to hibernate/"
-"resume for 250 cycles"
+"   This is an automated stress test that will force the system to "
+"hibernate/resume for 250 cycles"
 msgstr ""
 
 #. description
 #: ../jobs/stress.txt.in:104
-msgid "Attaches the log from the 250 cycle Hibernate/Resume test if it exists"
+msgid ""
+"Attaches the log from the 250 cycle Hibernate/Resume test if it exists"
 msgstr ""
 
 #. description
 #: ../jobs/stress.txt.in:120
 msgid ""
 "PURPOSE:\n"
-"   This is an automated stress test that will force the system to suspend/"
-"resume for 250 cycles."
+"   This is an automated stress test that will force the system to "
+"suspend/resume for 250 cycles."
 msgstr ""
 
 #. description
@@ -3649,7 +3650,8 @@ msgstr ""
 
 #. description
 #: ../jobs/suspend.txt.in:307
-msgid "Automated check of the suspend log to look for errors reported by fwts"
+msgid ""
+"Automated check of the suspend log to look for errors reported by fwts"
 msgstr ""
 
 #. description
@@ -3698,7 +3700,8 @@ msgstr ""
 
 #. description
 #: ../jobs/suspend.txt.in:379
-msgid "Test to see that we have the same resolution after resuming as before."
+msgid ""
+"Test to see that we have the same resolution after resuming as before."
 msgstr ""
 
 #. description
@@ -3957,8 +3960,8 @@ msgstr ""
 #. description
 #: ../jobs/suspend.txt.in:1109
 msgid ""
-"This attaches screenshots from the suspend/"
-"cycle_resolutions_after_suspend_auto test to the results submission."
+"This attaches screenshots from the "
+"suspend/cycle_resolutions_after_suspend_auto test to the results submission."
 msgstr ""
 
 #. description
@@ -4150,8 +4153,8 @@ msgstr ""
 #: ../jobs/suspend.txt.in:1359
 msgid ""
 "PURPOSE:\n"
-"    Validate that the Bluetooth LED turns on and off when BT is enabled/"
-"disabled after resuming from suspend\n"
+"    Validate that the Bluetooth LED turns on and off when BT is "
+"enabled/disabled after resuming from suspend\n"
 "STEPS:\n"
 "    1. Switch bluetooth off from a hardware switch (if present)\n"
 "    2. Switch bluetooth back on\n"
@@ -4180,8 +4183,8 @@ msgid ""
 "PURPOSE:\n"
 "    Touchpad LED verification after resuming from suspend\n"
 "STEPS:\n"
-"    1. Click on the touchpad button or press key combination to enable/"
-"disable touchpad button\n"
+"    1. Click on the touchpad button or press key combination to "
+"enable/disable touchpad button\n"
 "    2. Slide your finger on the touchpad\n"
 "VERIFICATION:\n"
 "    1. Touchpad LED status should toggle everytime the button is clicked or "
@@ -4405,15 +4408,15 @@ msgstr ""
 #. description
 #: ../jobs/suspend.txt.in:1657
 msgid ""
-"This test is automated and executes after the suspend/"
-"usb_insert_after_suspend test is run."
+"This test is automated and executes after the "
+"suspend/usb_insert_after_suspend test is run."
 msgstr ""
 
 #. description
 #: ../jobs/suspend.txt.in:1669
 msgid ""
-"This test is automated and executes after the suspend/"
-"usb3_insert_after_suspend test is run."
+"This test is automated and executes after the "
+"suspend/usb3_insert_after_suspend test is run."
 msgstr ""
 
 #. description
@@ -5199,7 +5202,8 @@ msgstr ""
 
 #. description
 #: ../jobs/usb.txt.in:164
-msgid "This test is automated and executes after the usb3/insert test is run."
+msgid ""
+"This test is automated and executes after the usb3/insert test is run."
 msgstr ""
 
 #. description
@@ -5887,7 +5891,7 @@ msgstr "Brak połączenia z Internetem"
 #: ../bin/gateway_ping_test:268
 #, c-format
 msgid "Connection established, but lost {0}% of packets"
-msgstr "Ustanowiono połączenie, utracono {0}% pakietów"
+msgstr ""
 
 #: ../bin/gateway_ping_test:272
 msgid "FAIL: {0}% packet loss is higher than {1}% threshold"

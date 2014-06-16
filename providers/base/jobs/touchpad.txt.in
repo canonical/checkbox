@@ -65,6 +65,7 @@ _description:
 
 plugin: manual
 id: touchpad/multitouch-manual
+requires: dmi.product in ['Notebook','Laptop','Portable']
 depends: touchpad/singletouch-automated
 estimated_duration: 120.0
 _description:
@@ -77,6 +78,7 @@ _description:
 
 plugin: manual
 id: touchpad/singletouch-corner
+requires: dmi.product in ['Notebook','Laptop','Portable']
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -90,6 +92,7 @@ _description:
 
 plugin: manual
 id: touchpad/singletouch-selection
+requires: dmi.product in ['Notebook','Laptop','Portable']
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -102,6 +105,7 @@ _description:
 
 plugin: manual
 id: touchpad/multitouch-rightclick
+requires: dmi.product in ['Notebook','Laptop','Portable']
 depends: touchpad/multitouch-automated
 estimated_duration: 120.0
 _description:
@@ -116,6 +120,7 @@ _description:
 
 plugin: user-interact
 id: touchpad/multitouch-horizontal
+requires: dmi.product in ['Notebook','Laptop','Portable']
 command: touchpad_test right left
 estimated_duration: 120.0
 _description:
@@ -129,6 +134,7 @@ _description:
 
 plugin: user-interact
 id: touchpad/multitouch-vertical
+requires: dmi.product in ['Notebook','Laptop','Portable']
 command: touchpad_test up down
 estimated_duration: 120.0
 _description:
@@ -142,6 +148,7 @@ _description:
 
 plugin: manual
 id: touchpad/drag-and-drop
+requires: dmi.product in ['Notebook','Laptop','Portable']
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -155,6 +162,7 @@ _description:
 
 plugin: manual
 id: touchpad/multitouch-zoom
+requires: dmi.product in ['Notebook','Laptop','Portable']
 depends: touchpad/multitouch-automated
 estimated_duration: 120.0
 _summary: Check touchpad pinch-to-zoom gesture
@@ -170,6 +178,7 @@ _description:
 
 plugin: manual
 id: touchpad/multitouch-dash
+requires: dmi.product in ['Notebook','Laptop','Portable']
 depends: touchpad/multitouch-automated
 estimated_duration: 120.0
 _summary: Check 4-finger tap gesture

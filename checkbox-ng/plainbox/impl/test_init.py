@@ -26,6 +26,7 @@ Test definitions for plainbox.impl module
 from unittest import TestCase
 
 from plainbox.impl import _get_doc_margin
+from plainbox.impl import deprecated
 
 
 class MiscTests(TestCase):
@@ -40,3 +41,55 @@ class MiscTests(TestCase):
             2)
         self.assertEqual(
             _get_doc_margin("what if there is no margin?"), 0)
+
+
+class DeprecatedDecoratorTests(TestCase):
+    """
+    Tests for the @deprecated function decorator
+    """
+
+    def test_func_deprecation_warning(self):
+        """
+        Ensure that @deprecated decorator makes functions emit deprecation
+        warnings on call.
+        """
+        @deprecated("0.6")
+        def func():
+            return "value"
+
+        with self.assertWarns(DeprecationWarning) as oops:
+            self.assertEqual(func(), "value")
+        # NOTE: we need to use str() as warnings API is a bit silly there
+        self.assertEqual(str(oops.warning),
+                         'func is deprecated since version 0.6')
+
+    def test_func_docstring(self):
+        """
+        Ensure that we set or modify the docstring to indicate the fact that
+        the function is now deprecated. The original docstring should be
+        preserved.
+        """
+
+        @deprecated("0.6")
+        def func1():
+            pass
+
+        @deprecated("0.6")
+        def func2():
+            """ blah """
+
+        self.assertIn(".. deprecated:: 0.6", func1.__doc__)
+        self.assertIn(".. deprecated:: 0.6", func2.__doc__)
+        self.assertIn("blah", func2.__doc__)
+
+    def test_common_mistake(self):
+        """
+        Ensure that we provide a helpful message when a common mistake is made
+        """
+        with self.assertRaises(SyntaxError) as boom:
+            @deprecated
+            def func():
+                pass
+        self.assertEqual(
+            str(boom.exception),
+            "@deprecated() must be called with a parameter")

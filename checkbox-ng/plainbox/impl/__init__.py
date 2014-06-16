@@ -25,11 +25,12 @@
 
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
-
 from functools import wraps
 from inspect import getabsfile
+from warnings import warn
 import os.path
 import sys
+import textwrap
 
 import plainbox
 
@@ -128,6 +129,55 @@ def public(import_path, introduced=None, deprecated=None):
                 " implementation:"])
             call_impl.__doc__ += impl.__doc__
         return call_impl
+    return decorator
+
+
+def deprecated(version, explanation=None):
+    """
+    Decorator for marking functions as deprecated
+
+    :param version:
+        Version in which a function is deprecated
+    :param explanation:
+        Explanation of the deprecation. Ideally this will include hints on how
+        to get a modern replacement.
+
+    Deprecated functions are candidates for removal. Existing code should be
+    adapted not to make any calls to the deprecated functions. New code should
+    not use such functions.
+
+    ..note::
+        Due to the way python warning module works, to see deprecated function
+        notices re-run your application with PYTHONWARNINGS=once
+    """
+    if not isinstance(version, str):
+        # Due to a common mistake, 'version' is probably the decorated function
+        # and @deprecated was called without ()
+        raise SyntaxError("@deprecated() must be called with a parameter")
+
+    def decorator(func):
+        """
+        The @deprecated decorator with deprecation information
+        """
+        msg = "{0} is deprecated since version {1}".format(
+            func.__name__, version)
+        if func.__doc__ is None:
+            func.__doc__ = ''
+            indent = 4 * ' '
+        else:
+            indent = _get_doc_margin(func.__doc__) * ' '
+            func.__doc__ += indent + '\n'
+        func.__doc__ += indent + '.. deprecated:: {}'.format(version)
+        if explanation is not None:
+            func.__doc__ += textwrap.indent(
+                textwrap.dedent(explanation), prefix=indent * 2)
+
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            warn(DeprecationWarning(msg), stacklevel=2)
+            return func(*args, **kwargs)
+        return wrapper
+
     return decorator
 
 

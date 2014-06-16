@@ -29,8 +29,23 @@
 from functools import wraps
 from inspect import getabsfile
 import os.path
+import sys
 
 import plainbox
+
+
+def _get_doc_margin(doc):
+    """
+    Find minimum indentation of any non-blank lines after first line.
+    """
+    lines = doc.expandtabs().split('\n')
+    margin = sys.maxsize
+    for line in lines[1:]:
+        content = len(line.lstrip())
+        if content:
+            indent = len(line) - content
+            margin = min(margin, indent)
+    return 0 if margin == sys.maxsize else margin
 
 
 def public(import_path, introduced=None, deprecated=None):

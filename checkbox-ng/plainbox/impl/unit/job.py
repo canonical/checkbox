@@ -262,6 +262,14 @@ class JobDefinition(Unit, IJobDefinition):
         """
         return 'job'
 
+    def tr_unit(self):
+        """
+        Translated (optionally) value of the unit field (overridden)
+
+        The return value is always 'job' (translated)
+        """
+        return _("job")
+
     def get_unit_type(self):
         return _("job")
 

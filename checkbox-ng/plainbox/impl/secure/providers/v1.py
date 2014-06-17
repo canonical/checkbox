@@ -550,9 +550,8 @@ class Provider1(IProvider1, IProviderBackend1):
             exception.
         """
         unit_list, problem_list = self.get_units()
-        unit_list = [
-            unit for unit in unit_list
-            if isinstance(unit, JobDefinition)]
+        unit_list = [unit for unit in unit_list
+                     if unit.unit == 'job']
         unit_list.sort(key=lambda unit: unit.id)
         return unit_list, problem_list
 

@@ -33,6 +33,7 @@ import sys
 import textwrap
 
 import plainbox
+from plainbox.impl._textwrap import _textwrap_indent
 
 
 def _get_doc_margin(doc):
@@ -169,7 +170,7 @@ def deprecated(version, explanation=None):
             func.__doc__ += indent + '\n'
         func.__doc__ += indent + '.. deprecated:: {}'.format(version)
         if explanation is not None:
-            func.__doc__ += textwrap.indent(
+            func.__doc__ += _textwrap_indent(
                 textwrap.dedent(explanation), prefix=indent * 2)
 
         @wraps(func)

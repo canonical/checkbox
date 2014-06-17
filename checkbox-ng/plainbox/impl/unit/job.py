@@ -219,9 +219,6 @@ class JobDefinition(Unit, IJobDefinition):
             return True
         return self.checksum != other.checksum
 
-    def __hash__(self):
-        return hash(self.checksum)
-
     class fields(SymbolDef):
         """
         Symbols for each field that a JobDefinition can have

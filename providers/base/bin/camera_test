@@ -441,7 +441,6 @@ class CameraTest:
                     if e.errno != errno.EINVAL:
                         print("Unable to determine supported framesizes "
                               "(resolutions), this may be a driver issue.")
-                        return supported_formats
             supported_format['resolutions'] = resolutions
         return supported_formats
 

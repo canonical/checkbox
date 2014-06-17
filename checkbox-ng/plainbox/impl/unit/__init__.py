@@ -28,6 +28,7 @@ import json
 
 from plainbox.i18n import gettext as _
 from plainbox.impl.secure.origin import Origin
+from plainbox.impl.secure.plugins import PkgResourcesPlugInCollection
 
 
 __all__ = ['Unit']
@@ -175,3 +176,7 @@ class Unit:
 
     def get_unit_type(self):
         return self.get_record_value('unit', _("unit"))
+
+
+# Collection of all unit classes
+all_units = PkgResourcesPlugInCollection('plainbox.unit')

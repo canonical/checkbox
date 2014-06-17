@@ -31,7 +31,6 @@ from plainbox.i18n import gettext as _
 from plainbox.impl.resource import ResourceProgram
 from plainbox.impl.secure.origin import JobOutputTextSource
 from plainbox.impl.secure.origin import Origin
-from plainbox.impl.secure.rfc822 import normalize_rfc822_value
 from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit import Unit
 from plainbox.impl.validation import Problem
@@ -536,35 +535,3 @@ class JobDefinition(Unit, IJobDefinition):
         job = self.from_rfc822_record(record)
         job._provider = self._provider
         return job
-
-    def get_translated_data(self, msgid):
-        """
-        Get a localized piece of data
-
-        :param msgid:
-            data to translate
-        :returns:
-            translated data obtained from the provider if this job has one,
-            msgid itself otherwise.
-        """
-        if msgid and self._provider:
-            return self._provider.get_translated_data(msgid)
-        else:
-            return msgid
-
-    def get_normalized_translated_data(self, msgid):
-        """
-        Get a localized piece of data and filter it with RFC822 parser
-        normalization
-
-        :param msgid:
-            data to translate
-        :returns:
-            translated and normalized data obtained from the provider if this
-            job has one, msgid itself otherwise.
-        """
-        msgstr = self.get_translated_data(msgid)
-        if msgstr is not None:
-            return normalize_rfc822_value(msgstr)
-        else:
-            return msgid

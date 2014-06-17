@@ -30,6 +30,7 @@ from plainbox.i18n import gettext as _
 from plainbox.impl import deprecated
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.plugins import PkgResourcesPlugInCollection
+from plainbox.impl.secure.rfc822 import normalize_rfc822_value
 
 
 __all__ = ['Unit']
@@ -195,6 +196,38 @@ class Unit:
     @deprecated("0.7", "call unit.tr_unit() instead")
     def get_unit_type(self):
         return self.tr_unit()
+
+    def get_translated_data(self, msgid):
+        """
+        Get a localized piece of data
+
+        :param msgid:
+            data to translate
+        :returns:
+            translated data obtained from the provider if this unit has one,
+            msgid itself otherwise.
+        """
+        if msgid and self._provider:
+            return self._provider.get_translated_data(msgid)
+        else:
+            return msgid
+
+    def get_normalized_translated_data(self, msgid):
+        """
+        Get a localized piece of data and filter it with RFC822 parser
+        normalization
+
+        :param msgid:
+            data to translate
+        :returns:
+            translated and normalized data obtained from the provider if this
+            unit has one, msgid itself otherwise.
+        """
+        msgstr = self.get_translated_data(msgid)
+        if msgstr is not None:
+            return normalize_rfc822_value(msgstr)
+        else:
+            return msgid
 
 
 # Collection of all unit classes

@@ -25,8 +25,8 @@ Test definitions for plainbox.impl.unit (package init file)
 
 from unittest import TestCase
 
-from plainbox.impl.unit import Unit 
-from plainbox.testing_utils.testcases import TestCaseWithParameters
+from plainbox.impl.unit import Unit
+from plainbox.vendor import mock
 
 
 class TestUnitDefinition(TestCase):
@@ -53,3 +53,67 @@ class TestUnitDefinition(TestCase):
         unit = Unit({})
         unit.validate()
 
+    def test_get_translated_data__typical(self):
+        """
+        Verify the runtime behavior of get_translated_data()
+        """
+        unit = Unit({})
+        with mock.patch.object(unit, "_provider") as mock_provider:
+            retval = unit.get_translated_data('foo')
+        mock_provider.get_translated_data.assert_called_with("foo")
+        self.assertEqual(retval, mock_provider.get_translated_data())
+
+    def test_get_translated_data__no_provider(self):
+        """
+        Verify the runtime behavior of get_translated_data()
+        """
+        unit = Unit({})
+        unit._provider = None
+        self.assertEqual(unit.get_translated_data('foo'), 'foo')
+
+    def test_get_translated_data__empty_msgid(self):
+        """
+        Verify the runtime behavior of get_translated_data()
+        """
+        unit = Unit({})
+        with mock.patch.object(unit, "_provider"):
+            self.assertEqual(unit.get_translated_data(''), '')
+
+    def test_get_translated_data__None_msgid(self):
+        """
+        Verify the runtime behavior of get_translated_data()
+        """
+        unit = Unit({})
+        with mock.patch.object(unit, "_provider"):
+            self.assertEqual(unit.get_translated_data(None), None)
+
+    @mock.patch('plainbox.impl.unit.normalize_rfc822_value')
+    def test_get_normalized_translated_data__typical(self, mock_norm):
+        """
+        verify the runtime behavior of get_normalized_translated_data()
+        """
+        unit = Unit({})
+        with mock.patch.object(unit, "get_translated_data") as mock_tr:
+            retval = unit.get_normalized_translated_data('foo')
+        # get_translated_data('foo') was called
+        mock_tr.assert_called_with("foo")
+        # normalize_rfc822_value(x) was called
+        mock_norm.assert_called_with(mock_tr())
+        # return value was returned
+        self.assertEqual(retval, mock_norm())
+
+    @mock.patch('plainbox.impl.unit.normalize_rfc822_value')
+    def test_get_normalized_translated_data__no_translation(self, mock_norm):
+        """
+        verify the runtime behavior of get_normalized_translated_data()
+        """
+        unit = Unit({})
+        with mock.patch.object(unit, "get_translated_data") as mock_tr:
+            mock_tr.return_value = None
+            retval = unit.get_normalized_translated_data('foo')
+        # get_translated_data('foo') was called
+        mock_tr.assert_called_with("foo")
+        # normalize_rfc822_value(x) was NOT called
+        self.assertEqual(mock_norm.call_count, 0)
+        # return value was returned
+        self.assertEqual(retval, 'foo')

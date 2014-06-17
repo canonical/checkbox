@@ -1,5 +1,6 @@
 plugin: user-interact
 id: firewire/insert
+require: device.category == 'FIREWIRE'
 command: removable_storage_watcher insert firewire
 _description:
  PURPOSE:
@@ -15,6 +16,7 @@ _description:
 plugin: shell
 id: firewire/storage-test
 user: root
+require: device.category == 'FIREWIRE'
 depends: firewire/insert
 command: removable_storage_test -s 268400000 firewire
 _description:
@@ -24,6 +26,7 @@ _description:
 plugin: user-interact
 id: firewire/remove
 depends: firewire/storage-test
+require: device.category == 'FIREWIRE'
 command: removable_storage_watcher remove firewire
 _description:
  PURPOSE:

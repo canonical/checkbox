@@ -43,7 +43,6 @@ from plainbox.impl.secure.rfc822 import FileTextSource
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 from plainbox.impl.secure.rfc822 import load_rfc822_records
 from plainbox.impl.unit import all_units
-from plainbox.impl.unit import Unit
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.validation import ValidationError
 
@@ -88,14 +87,6 @@ class UnitPlugIn(IPlugIn):
     A specialized :class:`plainbox.impl.secure.plugins.IPlugIn` that loads a
     list of :class:`plainbox.impl.unit.Unit` instances from a file.
     """
-
-    # Dictionary mapping values of 'unit' field to classes that know how to
-    # load that particular unit. Since jobs don't really define the field
-    # 'unit' at all 'job' is also the default value.
-    UNIT_CLS_MAP = {
-        'job': JobDefinition,
-        'unit': Unit,  # This defines plain units
-    }
 
     @staticmethod
     def _get_unit_cls(unit_name):

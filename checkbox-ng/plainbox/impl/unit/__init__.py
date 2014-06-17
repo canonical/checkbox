@@ -75,6 +75,10 @@ class Unit:
         self._provider = provider
         self._checksum = None
 
+
+    def __hash__(self):
+        return hash(self.checksum)
+
     @property
     def unit(self):
         """

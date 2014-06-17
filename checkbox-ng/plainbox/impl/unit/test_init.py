@@ -117,3 +117,16 @@ class TestUnitDefinition(TestCase):
         self.assertEqual(mock_norm.call_count, 0)
         # return value was returned
         self.assertEqual(retval, 'foo')
+
+    def test_checksum_smoke(self):
+        unit1 = Unit({'plugin': 'plugin', 'user': 'root'})
+        identical_to_unit1 = Unit({'plugin': 'plugin', 'user': 'root'})
+        # Two distinct but identical units have the same checksum
+        self.assertEqual(unit1.checksum, identical_to_unit1.checksum)
+        unit2 = Unit({'plugin': 'plugin', 'user': 'anonymous'})
+        # Two units with different definitions have different checksum
+        self.assertNotEqual(unit1.checksum, unit2.checksum)
+        # The checksum is stable and does not change over time
+        self.assertEqual(
+            unit1.checksum,
+            "c47cc3719061e4df0010d061e6f20d3d046071fd467d02d093a03068d2f33400")

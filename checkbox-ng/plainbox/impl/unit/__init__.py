@@ -27,6 +27,7 @@ import hashlib
 import json
 
 from plainbox.i18n import gettext as _
+from plainbox.impl import deprecated
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.plugins import PkgResourcesPlugInCollection
 
@@ -191,8 +192,9 @@ class Unit:
         # and return the hex digest as the checksum that can be displayed.
         return hashlib.sha256(canonical_form.encode('UTF-8')).hexdigest()
 
+    @deprecated("0.7", "call unit.tr_unit() instead")
     def get_unit_type(self):
-        return self.get_record_value('unit', _("unit"))
+        return self.tr_unit()
 
 
 # Collection of all unit classes

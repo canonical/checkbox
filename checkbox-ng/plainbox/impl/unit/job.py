@@ -253,6 +253,15 @@ class JobDefinition(Unit, IJobDefinition):
         user_interact_verify = "user-interact-verify"
         shell = 'shell'
 
+    @property
+    def unit(self):
+        """
+        the value of the unit field (overridden)
+
+        The return value is always 'job'
+        """
+        return 'job'
+
     def get_unit_type(self):
         return _("job")
 

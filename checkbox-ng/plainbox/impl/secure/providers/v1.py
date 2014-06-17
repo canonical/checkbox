@@ -42,6 +42,7 @@ from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.secure.rfc822 import FileTextSource
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 from plainbox.impl.secure.rfc822 import load_rfc822_records
+from plainbox.impl.unit import all_units
 from plainbox.impl.unit import Unit
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.validation import ValidationError
@@ -96,6 +97,14 @@ class UnitPlugIn(IPlugIn):
         'unit': Unit,  # This defines plain units
     }
 
+    @staticmethod
+    def _get_unit_cls(unit_name):
+        """
+        Get a class that implements the specified unit
+        """
+        all_units.load()
+        return all_units.get_by_name(unit_name).plugin_object
+
     def __init__(self, filename, text, provider, *,
                  validate=True, validation_kwargs=None):
         """
@@ -130,8 +139,9 @@ class UnitPlugIn(IPlugIn):
                     filename, exc))
         for record in records:
             unit_name = record.data.get('unit', 'job')
-            unit_cls = self.UNIT_CLS_MAP.get(unit_name)
-            if unit_cls is None:
+            try:
+                unit_cls = self._get_unit_cls(unit_name)
+            except KeyError:
                 raise PlugInError(
                     _("Unknown unit type: {!r}").format(unit_name))
             try:

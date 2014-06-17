@@ -130,3 +130,28 @@ class TestUnitDefinition(TestCase):
         self.assertEqual(
             unit1.checksum,
             "c47cc3719061e4df0010d061e6f20d3d046071fd467d02d093a03068d2f33400")
+
+    def test_comparison(self):
+        # Ensure that units with equal data are equal
+        self.assertEqual(Unit({}), Unit({}))
+        # Ensure that units with equal data but different origin are still
+        # equal
+        self.assertEqual(
+            Unit({}, origin=mock.Mock()),
+            Unit({}, origin=mock.Mock()))
+        # Ensure that units with equal data but different provider are still
+        # equal
+        self.assertEqual(
+            Unit({}, provider=mock.Mock()),
+            Unit({}, provider=mock.Mock()))
+        # Ensure that units with equal data but different raw data are still
+        # equal
+        self.assertEqual(
+            Unit({}, raw_data={'key': 'raw-value-1'}),
+            Unit({}, raw_data={'key': 'raw-value-2'}))
+        # Ensure that units with different data are not equal
+        self.assertNotEqual(
+            Unit({'key': 'value'}), Unit({'key': 'other-value'}))
+        # Ensure that units are not equal to other classes
+        self.assertTrue(Unit({}) != object())
+        self.assertFalse(Unit({}) == object())

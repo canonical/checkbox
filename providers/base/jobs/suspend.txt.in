@@ -1157,9 +1157,9 @@ command: xrandr_cycle --keyword=after_suspend --screenshot-dir $PLAINBOX_SESSION
 
 plugin: attachment
 id: suspend/xrandr_screens_after_suspend.tar.gz
-depends: suspend/cycle_resolutions_after_suspend_auto
+depends: suspend/cycle_resolutions_after_suspend
 command: [ -e $PLAINBOX_SESSION_SHARE/xrandr_screens_after_suspend.tgz ] && cat $PLAINBOX_SESSION_SHARE/xrandr_screens_after_suspend.tgz
-_description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend_auto test to the results submission.
+_description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
 
 plugin: shell
 id: suspend/record_playback_after_suspend

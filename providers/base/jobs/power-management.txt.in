@@ -145,6 +145,7 @@ _description:
 
 plugin: shell
 id: power-management/tickless_idle
+requires: cpuinfo.type in ('i386', 'amd64', 'ppc64el')
 _description: Check to see if CONFIG_NO_HZ is set in the kernel (this is just a simple regression check)
 command:
  zgrep 'CONFIG_NO_HZ=y' /boot/config-`uname -r` >/dev/null 2>&1 || ( echo "WARNING: Tickless Idle is NOT set" >&2 && exit 1 )

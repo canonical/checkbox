@@ -84,6 +84,13 @@ class Unit:
         return self.get_record_value('unit', "unit")
 
     @property
+    def tr_unit(self):
+        """
+        Translated (optionally) value of the unit field
+        """
+        return self.get_record_value('unit', _("unit"))
+
+    @property
     def origin(self):
         """
         The Origin object associated with this Unit

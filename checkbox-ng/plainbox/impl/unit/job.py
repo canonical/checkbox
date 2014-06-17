@@ -209,16 +209,6 @@ class JobDefinition(Unit, IJobDefinition):
         return "<JobDefinition id:{!r} plugin:{!r}>".format(
             self.id, self.plugin)
 
-    def __eq__(self, other):
-        if not isinstance(other, JobDefinition):
-            return False
-        return self.checksum == other.checksum
-
-    def __ne__(self, other):
-        if not isinstance(other, JobDefinition):
-            return True
-        return self.checksum != other.checksum
-
     class fields(SymbolDef):
         """
         Symbols for each field that a JobDefinition can have

@@ -82,5 +82,9 @@ setup(
             'go=plainbox.impl.buildsystems:GoBuildSystem',
             'autotools=plainbox.impl.buildsystems:AutotoolsBuildSystem',
         ],
+        'plainbox.unit': [
+            'unit=plainbox.impl.unit:Unit',
+            'job=plainbox.impl.unit.job:JobDefinition',
+        ],
     },
     include_package_data=True)

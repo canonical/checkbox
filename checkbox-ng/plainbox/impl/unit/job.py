@@ -532,6 +532,4 @@ class JobDefinition(Unit, IJobDefinition):
         if not record.origin.source.job is self:
             # TRANSLATORS: don't translate record.origin.source.job
             raise ValueError(_("record.origin.source.job must be this job"))
-        job = self.from_rfc822_record(record)
-        job._provider = self._provider
-        return job
+        return self.from_rfc822_record(record, self.provider)

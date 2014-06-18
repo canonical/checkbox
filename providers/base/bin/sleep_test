@@ -21,13 +21,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-import os
-import sys
 import logging
+import os
 import re
-from subprocess import call
+import sys
+import syslog
+
 from optparse import OptionParser, OptionGroup
-from syslog import *
+from subprocess import call
 
 
 class ListDictHandler(logging.StreamHandler):
@@ -42,16 +43,20 @@ class ListDictHandler(logging.StreamHandler):
             for msg in record.msg:
                 logger = logging.getLogger(record.name)
                 new_record = logger.makeRecord(record.name, record.levelno,
-                    record.pathname, record.lineno, msg, record.args,
-                    record.exc_info, record.funcName)
+                                               record.pathname, record.lineno,
+                                               msg, record.args,
+                                               record.exc_info,
+                                               record.funcName)
                 logging.StreamHandler.emit(self, new_record)
         elif isinstance(record.msg, dict):
             for key, val in record.msg.items():
                 logger = logging.getLogger(record.name)
                 new_msg = '%s: %s' % (key, val)
                 new_record = logger.makeRecord(record.name, record.levelno,
-                    record.pathname, record.lineno, new_msg, record.args,
-                    record.exc_info, record.funcName)
+                                               record.pathname, record.lineno,
+                                               new_msg, record.args,
+                                               record.exc_info,
+                                               record.funcName)
                 logging.StreamHandler.emit(self, new_record)
         else:
             logging.StreamHandler.emit(self, record)
@@ -154,10 +159,10 @@ class SuspendTest():
 
     def GetResults(self, mode, perf):
         '''
-        This will parse /var/log/messages for our start and end markers. Then 
-        it'll find a few key phrases that are part of the sleep and resume 
-        process, grab their timestamps, Bob's your Uncle and return a 
-        three-tuple consisting of: (PASS/FAIL,Sleep elapsed time, Resume 
+        This will parse /var/log/messages for our start and end markers. Then
+        it'll find a few key phrases that are part of the sleep and resume
+        process, grab their timestamps, Bob's your Uncle and return a
+        three-tuple consisting of: (PASS/FAIL,Sleep elapsed time, Resume
         elapsed time)
         '''
         # figure out our elapsed time
@@ -186,7 +191,7 @@ class SuspendTest():
                     sleep_end_time = re.split('[\[\]]',
                                               loglist[idx - 1])[1].strip()
                     logging.debug('Sleep ended at %s' % sleep_end_time)
-                    resume_start_time = re.split('[\[\]]', 
+                    resume_start_time = re.split('[\[\]]',
                                                  loglist[idx])[1].strip()
                     logging.debug('Resume started at %s' % resume_start_time)
                     idx += 1
@@ -195,7 +200,7 @@ class SuspendTest():
                                                loglist[idx])[1].strip()
                     logging.debug('Resume ended at %s' % resume_end_time)
                 if self.end_marker in loglist[idx]:
-                    logging.debug('End Marker found, run appears to ' 
+                    logging.debug('End Marker found, run appears to '
                                   'have completed')
                     run_complete = 'Pass'
                     break
@@ -207,7 +212,7 @@ class SuspendTest():
         else:
             if self.end_marker in loglist:
                 logging.debug('End Marker found, '
-                              'run appears to have completed') 
+                              'run appears to have completed')
                 run_complete = 'Pass'
             sleep_elapsed = None
             resume_elapsed = None
@@ -219,7 +224,7 @@ class SuspendTest():
         Write a stamped marker to syslogd (will appear in /var/log/messages).
         This is used to calculate the elapsed time for each iteration.
         '''
-        syslog(LOG_INFO, '---' + marker + '---')
+        syslog(syslog.LOG_INFO, '---' + marker + '---')
 
     def CheckAlarm(self, mode):
         '''
@@ -276,44 +281,44 @@ class SuspendTest():
 def main():
     usage = 'Usage: %prog [OPTIONS]'
     parser = OptionParser(usage)
-    group = OptionGroup(parser, 'This will not work for hibernat testing due' \
-                        ' to a kernel timestamp bug when doing an S4 ' \
+    group = OptionGroup(parser, 'This will not work for hibernat testing due'
+                        ' to a kernel timestamp bug when doing an S4 '
                         '(hibernate/resume) sleep cycle')
     group.add_option('-p', '--perf',
-                        action='store_true',
-                        default=False,
-                        help='Add some output that tells you how long it ' \
-                        'takes to enter a sleep state and how long it ' \
-                        'takes to resume.')
+                     action='store_true',
+                     default=False,
+                     help='Add some output that tells you how long it '
+                     'takes to enter a sleep state and how long it '
+                     'takes to resume.')
     parser.add_option('-i', '--iterations',
-                        action='store',
-                        type='int',
-                        metavar='NUM',
-                        default=1,
-                        help='The number of times to run the suspend/resume \
-                        loop. Default is %default')
+                      action='store',
+                      type='int',
+                      metavar='NUM',
+                      default=1,
+                      help='The number of times to run the suspend/resume '
+                      'loop. Default is %default')
     parser.add_option('-w', '--wake-in',
-                        action='store',
-                        type='int',
-                        metavar='NUM',
-                        default=60,
-                        dest='wake_time',
-                        help='Sets wake up time (in seconds) in the future \
-                        from now. Default is %default.')
+                      action='store',
+                      type='int',
+                      metavar='NUM',
+                      default=60,
+                      dest='wake_time',
+                      help='Sets wake up time (in seconds) in the future '
+                      'from now. Default is %default.')
     parser.add_option('-s', '--sleep-state',
-                        action='store',
-                        default='mem',
-                        metavar='MODE',
-                        dest='mode',
-                        help='Sets the sleep state to test. Passing mem will \
-                        set the sleep state to Suspend-To-Ram or S3.  Passing \
-                        disk will set the sleep state to Suspend-To-Disk or S4\
-                        (hibernate). Default sleep state is %default')
+                      action='store',
+                      default='mem',
+                      metavar='MODE',
+                      dest='mode',
+                      help='Sets the sleep state to test. Passing mem will '
+                      'set the sleep state to Suspend-To-Ram or S3.  Passing '
+                      'disk will set the sleep state to Suspend-To-Disk or S4 '
+                      '(hibernate). Default sleep state is %default')
     parser.add_option('-d', '--debug',
-                        action='store_true',
-                        default=False,
-                        help='Choose this to add verbose output for debug \
-                        purposes')
+                      action='store_true',
+                      default=False,
+                      help='Choose this to add verbose output for debug \
+                      purposes')
     parser.add_option_group(group)
     (options, args) = parser.parse_args()
     options_dict = vars(options)
@@ -331,10 +336,10 @@ def main():
     # Set up the logger
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
-     
+
     if options.debug:
         handler.setLevel(logging.DEBUG)
-        
+
     logger.addHandler(handler)
     logging.debug('Running with these options')
     logging.debug(options_dict)
@@ -350,7 +355,7 @@ def main():
         return 1
     else:
         logging.debug('%s sleep state supported, continuing test'
-                     % options.mode)
+                      % options.mode)
 
     # We run the following for the number of iterations requested
     for iteration in range(0, options.iterations):
@@ -359,7 +364,7 @@ def main():
         suspender.DoSuspend(options.mode)
         run_count += 1
         run_result[run_count] = suspender.GetResults(options.mode,
-                                options.perf)
+                                                     options.perf)
         if suspender.CheckAlarm(options.mode):
             logging.debug('The alarm is still set')
 
@@ -368,7 +373,7 @@ def main():
         resume_total = 0.0
         logging.info('=' * 20 + ' Test Results ' + '=' * 20)
         logging.info(run_result)
-        
+
         for k in run_result.iterkeys():
             sleep_total += run_result[k][1]
             resume_total += run_result[k][2]
@@ -382,7 +387,7 @@ def main():
 
     if fail_count > 0:
         logging.error('%s sleep/resume test cycles failed' %
-                     fail_count)
+                      fail_count)
         logging.error(run_result)
         return 1
     else:

@@ -45,8 +45,9 @@ def main():
     for rot in rotations:
         try:
             status = rotate_screen(rotations[rot])
-        except(xrandr.RRError, xrandr.UnsupportedRRError) as error:
+        except (xrandr.RRError, xrandr.UnsupportedRRError) as exc:
             status = 1
+            error = exc
         else:
             error = 'N/A'
         # Collect the status and the error message

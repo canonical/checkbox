@@ -1,11 +1,12 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 '''
 Program to automate system entering and resuming from sleep states
 
-Copyright (C) 2010,2011 Canonical Ltd.
+Copyright (C) 2010-2014 Canonical Ltd.
 
 Author:
     Jeff Lane <jeffrey.lane@canonical.com>
+    Daniel Manrique <roadmr@ubuntu.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 2,
@@ -45,7 +46,7 @@ class ListDictHandler(logging.StreamHandler):
                     record.exc_info, record.funcName)
                 logging.StreamHandler.emit(self, new_record)
         elif isinstance(record.msg, dict):
-            for key, val in record.msg.iteritems():
+            for key, val in record.msg.items():
                 logger = logging.getLogger(record.name)
                 new_msg = '%s: %s' % (key, val)
                 new_record = logger.makeRecord(record.name, record.levelno,
@@ -74,9 +75,9 @@ class SuspendTest():
         future kernels.
 
         '''
-        states_fh = open('/sys/power/state', 'r', 0)
+        states_fh = open('/sys/power/state', 'rb', 0)
         try:
-            states = states_fh.read().split()
+            states = states_fh.read().decode('ascii').split()
         finally:
             states_fh.close()
         logging.debug('The following sleep states were found:')
@@ -89,9 +90,9 @@ class SuspendTest():
 
     def GetCurrentTime(self):
 
-        time_fh = open('/sys/class/rtc/rtc0/since_epoch', 'r', 0)
+        time_fh = open('/sys/class/rtc/rtc0/since_epoch', 'rb', 0)
         try:
-            time = int(time_fh.read())
+            time = int(time_fh.read().decode('ascii'))
         finally:
             time_fh.close()
         return time
@@ -110,13 +111,13 @@ class SuspendTest():
         self.last_time = self.GetCurrentTime()
         logging.debug('Current epoch time: %s' % self.last_time)
 
-        wakealarm_fh = open('/sys/class/rtc/rtc0/wakealarm', 'w', 0)
+        wakealarm_fh = open('/sys/class/rtc/rtc0/wakealarm', 'wb', 0)
 
         try:
-            wakealarm_fh.write('0\n')
+            wakealarm_fh.write('0\n'.encode('ascii'))
             wakealarm_fh.flush()
 
-            wakealarm_fh.write('+%s\n' % time)
+            wakealarm_fh.write('+{}\n'.format(time).encode('ascii'))
             wakealarm_fh.flush()
         finally:
             wakealarm_fh.close()
@@ -229,10 +230,10 @@ class SuspendTest():
         the system did not wake by alarm IRQ, but by some other means.
         '''
         rtc = {}
-        rtc_fh = open('/proc/driver/rtc', 'r', 0)
-        alarm_fh = open('/sys/class/rtc/rtc0/wakealarm', 'r', 0)
+        rtc_fh = open('/proc/driver/rtc', 'rb', 0)
+        alarm_fh = open('/sys/class/rtc/rtc0/wakealarm', 'rb', 0)
         try:
-            rtc_data = rtc_fh.read().splitlines()
+            rtc_data = rtc_fh.read().decode('ascii').splitlines()
             for item in rtc_data:
                 rtc_entry = item.partition(':')
                 rtc[rtc_entry[0].strip()] = rtc_entry[2].strip()
@@ -240,7 +241,7 @@ class SuspendTest():
             rtc_fh.close()
 
         try:
-            alarm = int(alarm_fh.read())
+            alarm = int(alarm_fh.read().decode('ascii'))
         except ValueError:
             alarm = None
         finally:

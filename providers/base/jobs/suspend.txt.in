@@ -1718,7 +1718,7 @@ requires:
  usb.usb3 == 'supported'
 depends: suspend/usb3_insert_after_suspend
 user: root
-command: removable_storage_test -s 268400000 -m 500000000 -p 7 usb
+command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
 _description:
  This test is automated and executes after the suspend/usb3_insert_after_suspend
  test is run.
@@ -1741,7 +1741,7 @@ user: root
 requires:
  usb.usb3 == 'supported'
 depends: suspend/suspend_advanced_auto
-command: removable_storage_test -l usb && removable_storage_test -s 268400000 -m 500000000 -p 7 usb
+command: removable_storage_test -l usb && removable_storage_test -s 268400000 -m 500000000  usb --driver xhci_hcd
 _description:
  This is an automated version of usb3/storage-automated and assumes that the
  server has usb 3.0 storage devices plugged in prior to checkbox execution. It

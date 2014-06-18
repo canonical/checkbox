@@ -497,10 +497,14 @@ class DevelopCommand(ManageCommand):
         parser.add_argument(
             "-f", "--force", default=False, action="store_true",
             help=_("overwrite existing provider files"))
+        parser.add_argument(
+            "-d", "--directory", action="store", 
+            default=get_user_PROVIDERPATH_entry(),
+            help=_("directory to use (defaults to user's home provider path"))
 
     def invoked(self, ns):
         pathname = os.path.join(
-            get_user_PROVIDERPATH_entry(), "{}.provider".format(
+            ns.directory, "{}.provider".format(
                 self.definition.name.replace(':', '.')))
         if ns.uninstall:
             if os.path.isfile(pathname):

@@ -61,7 +61,6 @@ plugin: manual
 id: keys/sleep
 requires:
  device.category == 'KEYBOARD'
-depends: suspend/suspend_advanced
 _description:
  PURPOSE:
      This test will test the sleep key
@@ -197,7 +196,6 @@ _description:
 plugin: manual
 id: keys/hibernate
 requires: dmi.product in ['Notebook','Laptop','Portable']
-depends: power-management/hibernate_advanced
 _description:
  PURPOSE:
      This test will test the hibernate key

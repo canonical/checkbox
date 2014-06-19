@@ -28,10 +28,10 @@ AC_DEFINE([HAVE_NL80211_BAND_ATTR_HT_CAPA], [0],
           [Define to 1 if <linux/nl80211.h> defines NL80211_BAND_ATTR_HT_CAPA])
 AC_EGREP_HEADER([NL80211_BAND_ATTR_HT_CAPA], [linux/nl80211.h],
                 [AC_DEFINE([HAVE_NL80211_BAND_ATTR_HT_CAPA], 1)])
-AC_DEFINE([HAVE_NL80211_BAND_ATTR_VHT_MSC_SET], [0],
-          [Define to 1 if <linux/nl80211.h> defines NL80211_BAND_ATTR_VHT_MSC_SET])
+AC_DEFINE([HAVE_NL80211_BAND_ATTR_VHT_MCS_SET], [0],
+          [Define to 1 if <linux/nl80211.h> defines NL80211_BAND_ATTR_VHT_MCS_SET])
 AC_EGREP_HEADER([NL80211_BAND_ATTR_VHT_MCS_SET], [linux/nl80211.h],
-                [AC_DEFINE([HAVE_NL80211_BAND_ATTR_VHT_MSC_SET], 1)])
+                [AC_DEFINE([HAVE_NL80211_BAND_ATTR_VHT_MCS_SET], 1)])
 
 # Checks for typedefs, structures, and compiler characteristics.
 # TODO: re-enable AC_CHECK_HEADER_STDBOOL when Ubuntu 12.04 is no longer supported

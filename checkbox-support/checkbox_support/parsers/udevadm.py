@@ -152,7 +152,7 @@ class UdevadmDevice(object):
                     return "WIRELESS"
             # Ralink wireless
             if "INTERFACE" in self._environment:
-                if (
+                if (self.driver and
                     self.driver.startswith('rt') and
                     self._environment["INTERFACE"].startswith('ra')
                 ):

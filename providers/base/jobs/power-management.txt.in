@@ -53,7 +53,7 @@ _description:
 
 plugin: attachment
 id: power-management/poweroff-log-attach
-command: tar cvfz power-management_poweroff.tgz $PLAINBOX_SESSION_SHARE/*poweroff.1.log && cat $PLAINBOX_SESSION_SHARE/power-management_poweroff.tgz
+command: tar cvfz ${PLAINBOX_SESSION_SHARE}/power-management_poweroff.tgz ${PLAINBOX_SESSION_SHARE}/*poweroff.1.log && cat ${PLAINBOX_SESSION_SHARE}/power-management_poweroff.tgz
 _description:
  This will attach any logs from the power-management/poweroff test to the results.
 
@@ -78,7 +78,7 @@ _description:
 
 plugin: attachment
 id: power-management/reboot-log-attach
-command: tar cvfz power-management_reboot.tgz $PLAINBOX_SESSION_SHARE/*reboot.1.log && cat $PLAINBOX_SESSION_SHARE/power-management_reboot.tgz
+command: tar cvfz ${PLAINBOX_SESSION_SHARE}/power-management_reboot.tgz ${PLAINBOX_SESSION_SHARE}/*reboot.1.log && cat ${PLAINBOX_SESSION_SHARE}/power-management_reboot.tgz
 _description:
  This will attach any logs from the power-management/reboot test to the results.
 

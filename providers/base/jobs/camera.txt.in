@@ -6,7 +6,7 @@ requires:
 command: camera_test detect
 _description: This Automated test attempts to detect a camera.
 
-plugin: user-verify
+plugin: user-verify-interact
 id: camera/display
 estimated_duration: 120.0
 depends: camera/detect
@@ -21,7 +21,7 @@ _description:
  VERIFICATION:
      Did you see the video capture?
 
-plugin: user-verify
+plugin: user-verify-interact
 id: camera/still
 estimated_duration: 120.0
 depends: camera/detect

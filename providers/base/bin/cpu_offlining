@@ -40,7 +40,7 @@ done
 if [ $result -eq 0 ]; then
     echo "Successfully turned $cpu_count cores off and back on"
 else
-    echo "Error with offlining one or more cores." 1>&2
+    echo "Error with offlining one or more cores.  CPU offline may not work if this is an ARM system." 1>&2
 fi
 
 exit $result

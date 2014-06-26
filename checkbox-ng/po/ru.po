@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: plainbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-06-02 14:50+0200\n"
-"PO-Revision-Date: 2014-04-17 12:36+0000\n"
+"PO-Revision-Date: 2014-06-25 12:46+0000\n"
 "Last-Translator: Jay ZDLin <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2014-06-21 05:30+0000\n"
-"X-Generator: Launchpad (build 17058)\n"
+"X-Launchpad-Export-Date: 2014-06-26 05:29+0000\n"
+"X-Generator: Launchpad (build 17065)\n"
 
 #: .././plainbox/impl/_argparse.py:139
 #: .././plainbox/vendor/argparse/py32-argparse.py:298
@@ -468,24 +468,24 @@ msgstr "Имя обработчика, который необходимо ис�
 
 #: .././plainbox/impl/commands/run.py:146
 msgid "Pick an action"
-msgstr ""
+msgstr "Выбор действия"
 
 #: .././plainbox/impl/commands/run.py:221
 #, python-brace-format
 msgid "ID: {0}"
-msgstr ""
+msgstr "ID: {0}"
 
 #: .././plainbox/impl/commands/run.py:228
 msgid "press ENTER to continue"
-msgstr ""
+msgstr "нажмите ВВОД для продолжения"
 
 #: .././plainbox/impl/commands/run.py:229
 msgid "skip this job"
-msgstr ""
+msgstr "пропустить задание"
 
 #: .././plainbox/impl/commands/run.py:230
 msgid "save the session and quit"
-msgstr ""
+msgstr "сохранить сессию и выйти"
 
 #: .././plainbox/impl/commands/run.py:240
 msgid "Command output hidden"
@@ -493,7 +493,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/run.py:264
 msgid "Job cannot be started because:"
-msgstr ""
+msgstr "Задание не может быть начато по причине:"
 
 #: .././plainbox/impl/commands/run.py:272
 msgid "Outcome"
@@ -509,48 +509,49 @@ msgstr "?"
 
 #: .././plainbox/impl/commands/run.py:443
 msgid "Resume Incomplete Session"
-msgstr ""
+msgstr "Возобновить незавершённую сессию"
 
 #: .././plainbox/impl/commands/run.py:445
 #, python-brace-format
 msgid "There is {0} incomplete session that might be resumed"
 msgid_plural "There are {0} incomplete sessions that might be resumed"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Имеется {0} незавершённая сессия, которую можно возобновить"
+msgstr[1] "Имеются {0} незавершённые сессии, которые можно возобновить"
+msgstr[2] "Имеются {0} незавершённых сессий, которые можно возобновить"
 
 #: .././plainbox/impl/commands/run.py:452
 msgid "resume this session"
-msgstr ""
+msgstr "возобновить сессию"
 
 #: .././plainbox/impl/commands/run.py:453
 msgid "next session"
-msgstr ""
+msgstr "следующая сессия"
 
 #: .././plainbox/impl/commands/run.py:454
 msgid "create new session"
-msgstr ""
+msgstr "создать новую сессию"
 
 #: .././plainbox/impl/commands/run.py:455
 msgid "Do you want to resume session {0!a}?"
-msgstr ""
+msgstr "Возобновить сессию {0!a}?"
 
 #: .././plainbox/impl/commands/run.py:469
 msgid "ignore this problem"
-msgstr ""
+msgstr "игнорировать проблему"
 
 #: .././plainbox/impl/commands/run.py:470
 msgid "erase this session"
-msgstr ""
+msgstr "удалить сессию"
 
 #: .././plainbox/impl/commands/run.py:473
 #: .././plainbox/impl/commands/session.py:83
 msgid "Session removed"
-msgstr ""
+msgstr "Сессия удалена"
 
 #. TRANSLATORS: This is the exit message
 #: .././plainbox/impl/commands/run.py:485
 msgid "Session not resumed"
-msgstr ""
+msgstr "Сессия не возобновлена"
 
 #: .././plainbox/impl/commands/run.py:491
 msgid "Available output formats: {}"
@@ -566,15 +567,15 @@ msgstr "Доступные транспорты: {}"
 
 #: .././plainbox/impl/commands/run.py:523
 msgid "yes"
-msgstr ""
+msgstr "да"
 
 #: .././plainbox/impl/commands/run.py:524
 msgid "no"
-msgstr ""
+msgstr "нет"
 
 #: .././plainbox/impl/commands/run.py:529
 msgid "Do you want to start a new session?"
-msgstr ""
+msgstr "Начать новую сессию?"
 
 #: .././plainbox/impl/commands/run.py:535
 msgid "Previous session run tried to execute job: {}"
@@ -582,7 +583,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/run.py:538
 msgid "skip that job"
-msgstr ""
+msgstr "пропустить задание"
 
 #: .././plainbox/impl/commands/run.py:539
 msgid "mark it as failed and continue"
@@ -590,7 +591,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/run.py:540
 msgid "run it again"
-msgstr ""
+msgstr "запустить снова"
 
 #: .././plainbox/impl/commands/run.py:541
 msgid "What do you want to do with that job?"
@@ -625,7 +626,7 @@ msgstr "Второе задание определено в: {0}"
 
 #: .././plainbox/impl/commands/run.py:634
 msgid "This session cannot be resumed"
-msgstr ""
+msgstr "Данная сессия не может быть возобновлена"
 
 #: .././plainbox/impl/commands/run.py:679
 msgid "Analyzing Jobs"
@@ -633,7 +634,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/run.py:689
 msgid "Authentication"
-msgstr ""
+msgstr "Аутентификация"
 
 #: .././plainbox/impl/commands/run.py:697
 msgid "Running All Jobs"
@@ -657,7 +658,7 @@ msgstr "Выберите результат или действие: "
 
 #: .././plainbox/impl/commands/run.py:812
 msgid "add a comment"
-msgstr ""
+msgstr "добавить комментарий"
 
 #: .././plainbox/impl/commands/run.py:816
 #: .././plainbox/impl/commands/run.py:821
@@ -683,7 +684,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/run.py:831
 msgid "re-run this job"
-msgstr ""
+msgstr "перезапустить задание"
 
 #: .././plainbox/impl/commands/run.py:838
 #, python-brace-format

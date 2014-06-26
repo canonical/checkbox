@@ -190,6 +190,8 @@ class XorgLog(object):
 
             # For NVIDIA
             m = re.search(r'\(II\) (.*)\(\d+\): Setting mode "(.*?):', line)
+            if not m:
+                m = re.search(r'\(II\) (.*)\(\d+\): Setting mode "(NULL)"', line)
             if m:
                 self.displays[display_name] = display
                 self.video_driver = m.group(1)

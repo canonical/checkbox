@@ -27,8 +27,11 @@ if [ -x "$MMCLI_PATH" ]; then
         mmcli -m $i |grep -q "supported: .*gsm-umts.*" && GSM=yes
         mmcli -m $i |grep -q "supported: .*cdma.*" && CDMA=yes
     done
-    [ "$GSM" = "yes" ] && echo "gsm: supported"
-    [ "$CDMA" = "yes" ] && echo "cdma: supported"
+    # force final exit status to true in case the test fails,
+    # as it's a resource and we don't want it to fail unless it
+    # really failed :D
+    [ "$GSM" = "yes" ] && echo "gsm: supported" || true
+    [ "$CDMA" = "yes" ] && echo "cdma: supported" || true
 else
     # Fall back to old mm-test script
     if mm-test --no-scan | grep -q 'GSM modem'

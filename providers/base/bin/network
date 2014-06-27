@@ -90,6 +90,7 @@ class IPerfPerformanceTest(object):
         # 930 Mbits/sec\n'
         print(iperf_return)
         match = re.search(r'[\d\.]+\s([GM])bits', iperf_return)
+        invalid_speed = False
         if match:
             throughput = match.group(0).split()[0]
             units = match.group(1)
@@ -111,17 +112,24 @@ class IPerfPerformanceTest(object):
                               "reporting its capabilities.")
                 logging.error(error)
                 percent = 0
+                invalid_speed = True
 
             print("\nTransfer speed: {} {}b/s".format(throughput, units))
             print("%3.2f%% of " % percent, end="")
-            try:
-                print("theoretical max %sMb/s\n" % int(self.iface.max_speed))
-            except TypeError as error:
-                logging.error("Max Speed was not reported properly.  Run "
-                              "ethtool and verify that the card is properly "
-                              "reporting its capabilities.")
-                logging.error(error)
-
+            if invalid_speed:
+                # If we have no max_speed (e.g. wireless interfaces don't
+                # report this), then we shouldn't penalize them because
+                # the transfer may have been reasonable. So in this case,
+                # we'll exit with a pass-warning.
+                logging.warning("Unable to obtain maximum speed, so I can't "
+                                "decide if it passed the required threshold."
+                                "Considering the test as passed, but please"
+                                "review the results manually and decide if"
+                                "performance is acceptable")
+                return 0
+            # Below is guaranteed to not throw an exception because we'll
+            # have exited above if it did.
+            print("theoretical max %sMb/s\n" % int(self.iface.max_speed))
             if percent < self.fail_threshold:
                 logging.warn("Poor network performance detected")
                 return 30

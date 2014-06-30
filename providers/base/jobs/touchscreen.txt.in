@@ -48,10 +48,10 @@ _description:
  PURPOSE:
      Check touchscreen drag & drop
  STEPS:
-     1. Double tap, hold, and drag an object on the desktop
-     2. Drop the object in a different location
+     1. Tap and hold an object on the desktop
+     2. Drag and drop the object in a different location
  VERIFICATION:
-     Does the object select and drag and drop?
+     Does drag and drop work?
 
 plugin: manual
 id: touchscreen/multitouch-zoom

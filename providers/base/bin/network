@@ -37,7 +37,8 @@ import subprocess
 from subprocess import (
     CalledProcessError,
     check_call,
-    check_output
+    check_output,
+    STDOUT
 )
 import sys
 import time
@@ -68,7 +69,7 @@ class IPerfPerformanceTest(object):
     def run(self):
         # if max_speed is 0, assume it's wifi and move on
         if self.iface.max_speed == 0:
-            logging.warning("No max speed detected, assuming Wireless device"
+            logging.warning("No max speed detected, assuming Wireless device "
                             "and continuing with test.")
         # Otherwise, no sense in running if we're not running at full speed. 
         elif self.iface.max_speed > self.iface.link_speed:
@@ -386,17 +387,30 @@ class Interface(socket.socket):
     def max_speed(self):
         # Parse ethtool data for max speed since /sys/class/net/DEV/speed only
         # reports link speed.
-        ethinfo = check_output(['ethtool', self.interface],
-                               universal_newlines = True).split(' ')
-        # Search for things that look like 100baseSX, 40000baseNX, 10000baseT
-        expression = '(\\d+)(base)([A-Z]+)'
-        regex = re.compile(expression)
-        speeds = [0]
-        for i in ethinfo:
-            hit = regex.search(i)
-            if hit:
-                speeds.append(int(hit.group(1)))
-        return max(speeds)
+        
+        # Search for things that look like 100baseSX, 
+        #40000baseNX, 10000baseT
+        try:
+            ethinfo = check_output(['ethtool','-axf', self.interface],
+                               universal_newlines = True,
+                               stderr=STDOUT).split(' ')
+        except FileNotFoundError:
+            logging.warning('ethtool not found! Unable to get max speed')
+            ethinfo = None
+        except CalledProcessError as e:
+            logging.error('ethtool returned an error!')
+            logging.error(e.output)
+            ethinfo = None
+        finally:
+            expression = '(\\d+)(base)([A-Z]+)'
+            regex = re.compile(expression)
+            speeds = [0]
+            if ethinfo:
+                for i in ethinfo:
+                    hit = regex.search(i)
+                    if hit:
+                        speeds.append(int(hit.group(1)))
+            return max(speeds)
 
     @property
     def macaddress(self):

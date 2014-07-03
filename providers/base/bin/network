@@ -383,7 +383,7 @@ class Interface(socket.socket):
         # Search for things that look like 100baseSX, 
         #40000baseNX, 10000baseT
         try:
-            ethinfo = check_output(['ethtool','-axf', self.interface],
+            ethinfo = check_output(['ethtool', self.interface],
                                universal_newlines = True,
                                stderr=STDOUT).split(' ')
         except FileNotFoundError:

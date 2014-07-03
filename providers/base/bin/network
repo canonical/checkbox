@@ -66,6 +66,14 @@ class IPerfPerformanceTest(object):
         self.mbytes = mbytes
 
     def run(self):
+        # No sense in running if we're not running at full speed. 
+        if int(self.iface.max_speed) > int(self.iface.link_speed):
+            logging.error("Detected link speed (%s) is lower than "
+                          "detected max speed (%s)" %
+                          (self.iface.link_speed, self.iface.max_speed))
+            logging.error("Please check your device configuration and try again")
+            return 1
+
         cmd = "timeout 180 iperf -c {} -n {}".format(self.target, self.mbytes)
 
         logging.debug(cmd)
@@ -117,7 +125,7 @@ class IPerfPerformanceTest(object):
             print("\nTransfer speed: {} {}b/s".format(throughput, units))
             print("%3.2f%% of " % percent, end="")
             if invalid_speed:
-                # If we have no max_speed (e.g. wireless interfaces don't
+                # If we have no link_speed (e.g. wireless interfaces don't
                 # report this), then we shouldn't penalize them because
                 # the transfer may have been reasonable. So in this case,
                 # we'll exit with a pass-warning.
@@ -367,8 +375,24 @@ class Interface(socket.socket):
         return socket.inet_ntoa(mask_data[20:24])
 
     @property
-    def max_speed(self):
+    def link_speed(self):
         return self._read_data("speed")
+
+    @property
+    def max_speed(self):
+        # Parse ethtool data for max speed since /sys/class/net/DEV/speed only
+        # reports link speed.
+        ethinfo = check_output(['ethtool', self.interface],
+                               universal_newlines = True).split(' ')
+        # Search for things that look like 100baseSX, 40000baseNX, 10000baseT
+        expression = '(\\d+)(base)([A-Z]+)'
+        regex = re.compile(expression)
+        speeds = ['0']
+        for i in ethinfo:
+            hit = regex.search(i)
+            if hit:
+                speeds.append(int(hit.group(1)))
+        return max(speeds)
 
     @property
     def macaddress(self):
@@ -630,6 +654,8 @@ Target: 192.168.1.45
         '--all', default=False, action="store_true")
     info_parser.add_argument(
         '--duplex-mode', default=False, action="store_true")
+    info_parser.add_argument(
+        '--link-speed', default=False, action="store_true")
     info_parser.add_argument(
         '--max-speed', default=False, action="store_true")
     info_parser.add_argument(

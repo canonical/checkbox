@@ -66,8 +66,12 @@ class IPerfPerformanceTest(object):
         self.mbytes = mbytes
 
     def run(self):
-        # No sense in running if we're not running at full speed. 
-        if int(self.iface.max_speed) > int(self.iface.link_speed):
+        # if max_speed is 0, assume it's wifi and move on
+        if self.iface.max_speed == 0:
+            logging.warning("No max speed detected, assuming Wireless device"
+                            "and continuing with test.")
+        # Otherwise, no sense in running if we're not running at full speed. 
+        elif self.iface.max_speed > self.iface.link_speed:
             logging.error("Detected link speed (%s) is lower than "
                           "detected max speed (%s)" %
                           (self.iface.link_speed, self.iface.max_speed))
@@ -376,7 +380,7 @@ class Interface(socket.socket):
 
     @property
     def link_speed(self):
-        return self._read_data("speed")
+        return int(self._read_data("speed"))
 
     @property
     def max_speed(self):
@@ -387,7 +391,7 @@ class Interface(socket.socket):
         # Search for things that look like 100baseSX, 40000baseNX, 10000baseT
         expression = '(\\d+)(base)([A-Z]+)'
         regex = re.compile(expression)
-        speeds = ['0']
+        speeds = [0]
         for i in ethinfo:
             hit = regex.search(i)
             if hit:

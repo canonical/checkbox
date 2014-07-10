@@ -2,6 +2,7 @@
 
 import os
 import sys
+import subprocess
 import socket
 import fcntl
 import struct
@@ -37,6 +38,12 @@ def get_ip_address(interface):
         struct.pack('256s', interface[:15].encode())
     )[20:24])
 
+def get_ipv6_address(interface):
+    cmd = ['/sbin/ip', '-6', 'addr', 'show', 'dev', interface]
+    proc = subprocess.check_output(cmd,universal_newlines=True)
+    ipaddr = proc.split()[8].strip()
+    return ipaddr
+
 
 def get_mac_address(interface):
     address_file = os.path.join(SYS_PATH, interface, 'address')
@@ -56,9 +63,15 @@ def main(args):
         print("Interface: %s" % interface)
         print("Connected: %s" % connected)
         try:
-            print("IP: %s" % get_ip_address(interface))
+            print("IPv4: %s" % get_ip_address(interface))	
         except IOError:
-            print("IP: n/a")
+            print("IPv4: n/a")
+        try:    
+            print("IPv6: %s" % get_ipv6_address(interface))	
+        except IOError:
+            print("IPv6: n/a")
+        except:    
+            print("IPv6: n/a")
         print("MAC: %s\n" % get_mac_address(interface))
 
     return 0

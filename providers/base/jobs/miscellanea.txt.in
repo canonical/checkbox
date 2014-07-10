@@ -161,3 +161,14 @@ command:
  [ -e ${PLAINBOX_SESSION_SHARE}/fwts_oops_results.log ] && cat ${PLAINBOX_SESSION_SHARE}/fwts_oops_results.log
 _description: Attaches the FWTS oops results log to the submission
 
+plugin: shell
+estimated_duration: 0.1
+id: miscellanea/get_maas_version
+command:
+ if [ -e /etc/installed-by-maas ]; then 
+   cat /etc/installed-by-maas
+ else
+   echo "NOT FOUND" >> /dev/stderr
+   false
+ fi
+_description: If system was installed via MAAS from a cert server, the MAAS version used should be contained in /etc/installed-by-maas

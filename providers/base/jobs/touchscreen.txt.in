@@ -91,7 +91,7 @@ _description:
  VERIFICATION:
      Did the tap open the Dash?
 
-plugin: user-interact
+plugin: user-interact-verify
 id: touchscreen/3-touch-tap
 depends: touchscreen/multitouch-automated
 estimated_duration: 15.0
@@ -105,7 +105,7 @@ _description:
      Did you see the green circles around the three fingers?
 command: qmlscene $PLAINBOX_PROVIDER_DATA/touch_tap_test.qml --touchpoints=3 2>&1 | grep -o PASS
 
-plugin: user-interact
+plugin: user-interact-verify
 id: touchscreen/4-touch-tap
 depends: touchscreen/multitouch-automated
 estimated_duration: 15.0

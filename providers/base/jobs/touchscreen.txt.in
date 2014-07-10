@@ -95,13 +95,27 @@ plugin: user-interact
 id: touchscreen/3-touch-tap
 depends: touchscreen/multitouch-automated
 estimated_duration: 15.0
-_description: Validate that 3-touch tap is operating as expected
+_description: 
+ PURPOSE:
+     Validate that 3-touch tap is operating as expected
+ STEPS:
+     1. Place one finger at a time.
+     2. Once 3 fingers are on the screen you should see the indicator they are recognized.
+ VERIFICATION:
+     Did you see the green circles around the three fingers?
 command: qmlscene $PLAINBOX_PROVIDER_DATA/touch_tap_test.qml --touchpoints=3 2>&1 | grep -o PASS
 
 plugin: user-interact
 id: touchscreen/4-touch-tap
 depends: touchscreen/multitouch-automated
 estimated_duration: 15.0
-_description: Validate that 4-touch tap is operating as expected
+_description: 
+ PURPOSE:
+     Validate that 4-touch tap is operating as expected
+ STEPS:
+     1. Place one finger at a time.
+     2. Once 4 fingers are on the screen you should see the indicator they are recognized.
+ VERIFICATION:
+     Did you see the green circles around the four fingers?
 command: qmlscene $PLAINBOX_PROVIDER_DATA/touch_tap_test.qml --touchpoints=4 2>&1 | grep -o PASS
 

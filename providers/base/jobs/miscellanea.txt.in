@@ -172,3 +172,4 @@ command:
    false
  fi
 _description: If system was installed via MAAS from a cert server, the MAAS version used should be contained in /etc/installed-by-maas
+_summary: Gets the version of MAAS used to deploy the SUT

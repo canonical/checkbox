@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
-import subprocess
 import argparse
-import tarfile
-import shutil
-import time
-import sys
+import errno
 import os
 import re
-import errno
+import shutil
+import subprocess
+import sys
+import tarfile
+import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--keyword', default='',
@@ -79,7 +79,7 @@ if 'PLAINBOX_PROVIDER_DATA' in os.environ:
 else:
     shutter_xml_template = os.path.join(os.path.split(os.path.dirname(
                                         os.path.realpath(__file__)))[0],
-                                        "data",
+                                       "data",
                                         "settings",
                                         "shutter.xml")
 
@@ -155,8 +155,8 @@ for mode in modes:
             print("""Could not configure screenshot tool -
                      you may need to install the package 'shutter',
                      or check that {}/{} exists and is writable.""".format(
-                         profile_path,
-                         'shutter.xml'))
+                profile_path,
+                'shutter.xml'))
 
         message = 'Set mode ' + mode[1] + ' for output ' + mode[0]
         success_messages.append(message)

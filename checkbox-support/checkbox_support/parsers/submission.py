@@ -519,14 +519,14 @@ class SubmissionResult(object):
             "attachment", {"name": command, "content": text})
 
         context_parsers = {
-            "/proc/cpuinfo": self.parseCpuinfo,
-            "meminfo": self.parseMeminfo,
-            "dmidecode": DmidecodeParser,
-            "udevadm": self.parseUdevadm,
-            "efi": EfiParser,
+            r"/proc/cpuinfo": self.parseCpuinfo,
+            r"meminfo": self.parseMeminfo,
+            r"dmidecode": DmidecodeParser,
+            r"udevadm": self.parseUdevadm,
+            r"efi(?!rtvariable)": EfiParser,
             }
         for context, parser in context_parsers.items():
-            if context in command:
+            if re.search(context, command):
                 if hasattr(text, "decode"):
                     text = text.decode("utf-8")
                 stream = StringIO(text)

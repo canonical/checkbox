@@ -48,8 +48,12 @@ def check_log(logfile):
             # Try to find the score in the log file,
             # otherwise something went wrong...
             if not re.search('Benchmark_Score', log):
+                print("=" * 70)
                 raise SystemExit(
-                    'Benchmark score not found, check the log for errors')
+                    'Benchmark score not found. '
+                    'This means the benchmark could not be run. '
+                    'Check the above output for error messages, '
+                    'these will show the reason for the failure.')
     except EnvironmentError as error:
         raise SystemExit(error)
     return False

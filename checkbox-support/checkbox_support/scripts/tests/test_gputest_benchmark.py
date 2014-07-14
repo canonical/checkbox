@@ -64,7 +64,9 @@ class LogParserTest(unittest.TestCase):
             with self.assertRaises(SystemExit) as cm:
                 check_log(self.logfile.name)
             self.assertEqual(
-                'Benchmark score not found, check the log for errors',
+                "Benchmark score not found. This means the benchmark could "
+                "not be run. Check the above output for error messages, "
+                "these will show the reason for the failure.",
                 str(cm.exception))
         os.unlink(self.logfile.name)
 

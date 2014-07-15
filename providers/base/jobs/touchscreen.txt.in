@@ -53,18 +53,20 @@ _description:
  VERIFICATION:
      Does drag and drop work?
 
-plugin: manual
+plugin: user-interact-verify
 id: touchscreen/multitouch-zoom
+_summary: Check touchscreen pinch gesture for zoom
 depends: touchscreen/multitouch-automated
+command: qmlscene $PLAINBOX_PROVIDER_DATA/touch_zoom_test.qml 2>&1 |grep -o PASS
 estimated_duration: 120.0
 _description:
  PURPOSE:
      Check touchscreen pinch gesture for zoom
  STEPS:
-     1. Place two fingers on the screen and pinch them together
-     2. Place two fingers on the screen and move then apart
+     1. Press the Test button
+     2. Using 2 fingers, resize the blue square until it turns green, then release it.
  VERIFICATION:
-     Does the screen zoom in and out?
+     Did the blue square change size following the gesture?
 
 plugin: manual
 id: touchscreen/multitouch-window-move

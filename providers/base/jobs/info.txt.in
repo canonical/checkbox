@@ -229,6 +229,6 @@ _description: Provides information about displays attached to the system
 plugin: attachment
 id: info/disk_partitions
 user: root
-command: parted -l
+command: parted -l -s
 _description: Attaches information about disk partitions
 

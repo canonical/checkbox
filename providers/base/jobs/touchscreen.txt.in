@@ -68,6 +68,21 @@ _description:
  VERIFICATION:
      Did the blue square change size following the gesture?
 
+plugin: user-interact-verify
+id: touchscreen/multitouch-rotate
+_summary: Check touchscreen pinch gesture for rotate
+depends: touchscreen/multitouch-automated
+command: qmlscene $PLAINBOX_PROVIDER_DATA/touch_rotate_test.qml 2>&1 |grep -o PASS
+estimated_duration: 120.0
+_description:
+ PURPOSE:
+     Check touchscreen pinch gesture for rotate
+ STEPS:
+     1. Press the Test button
+     2. Using 2 fingers, rotate the blue square until it turns green, then release it.
+ VERIFICATION:
+     Did the blue square rotate following the gesture?
+
 plugin: manual
 id: touchscreen/multitouch-window-move
 depends: touchscreen/multitouch-automated

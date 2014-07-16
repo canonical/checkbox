@@ -1,18 +1,25 @@
 #!/usr/bin/env python3
 
-import sys
-from subprocess import call
+import os.path
 
+def PrintFileContents(Heading, Filename):
+    if os.path.isfile(Filename):
+        File = open(Filename, 'r')
+        RawContents = File.read()
+        StrippedContents = RawContents.rstrip('\n')
+        print(Heading + ": " + StrippedContents)
+        File.close()
+        return 1
+    else:
+        print("Unable to determine " + Heading)
+        return 0
 
 def main():
-
-    print ("Manufacturer: ", end="", flush=True)
-    call(["dmidecode", "-s", "system-manufacturer"])
-    print ("Model: ", end="", flush=True)
-    call(["dmidecode", "-s", "system-product-name"])
-    print ("Version: ", end="", flush=True)
-    call(["dmidecode", "-s", "system-version"])
-    return 0
+    Success = PrintFileContents('Manufacturer', '/sys/class/dmi/id/sys_vendor')
+    Success = Success & PrintFileContents('Model', '/sys/class/dmi/id/product_name')
+    Success = Success & PrintFileContents('Version', '/sys/class/dmi/id/product_version')
+    return (not Success)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())
+

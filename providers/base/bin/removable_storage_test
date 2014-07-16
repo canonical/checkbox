@@ -263,10 +263,10 @@ class DiskTest():
             for udev_device_xhci in udev_devices_xhci:
                 pci_slot_name = udev_device_xhci.get_property('PCI_SLOT_NAME')
                 for udev_device in udev_devices:
-                    if (pci_slot_name ==
-                            udev_device.get_property('DEVPATH').split('/')[3]):
-                        self.rem_disks_xhci[
-                            udev_device.get_property('DEVNAME')] = 'xhci'
+                    devpath = udev_device.get_property('DEVPATH')
+                    if (self._compare_pci_slot_from_devpath(devpath,
+                                                            pci_slot_name)):
+                        self.rem_disks_xhci[devpath] = 'xhci'
         except:
             logging.error("Failed to get driver information.")
 
@@ -361,6 +361,23 @@ class DiskTest():
                 continue
             if not os.path.ismount(self.rem_disks_nm[disk]):
                 os.rmdir(self.rem_disks_nm[disk])
+
+    def _compare_pci_slot_from_devpath(self, devpath, pci_slot_name):
+        # LP: #1334991
+        # a smarter parser to get and validate a pci slot name from DEVPATH
+        # then compare this pci slot name to the other
+        dl = devpath.split('/')
+        s = set([x for x in dl if dl.count(x) > 1])
+        if ((pci_slot_name in dl)
+             and (dl.index(pci_slot_name) > dl.index('block'))
+             and (not(pci_slot_name in s))):
+            # 1. there is such pci_slot_name
+            # 2. sysfs topology looks like
+            #    DEVPATH = ....../pci_slot_name/....../block/......
+            # 3. pci_slot_name should be unique in DEVPATH
+            return True
+        else:
+            return False
 
 
 def main():

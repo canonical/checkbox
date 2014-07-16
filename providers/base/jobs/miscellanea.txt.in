@@ -179,5 +179,6 @@ estimated_duration: 0.1
 id: miscellanea/get_make_and_model
 user: root
 command: make_model
-summary: Retrieve the computer's make and model
+_description: Retrieve the computer's make and model for easier access than digging through the dmidecode output.
+_summary: Retrieve the computer's make and model
 requires: package.name == "dmidecode"

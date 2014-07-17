@@ -145,12 +145,16 @@ command:
  requires:
   device.category == 'VIDEO'
   package.name == 'zenity'
- command: zenity --info --text "Maximum resolution: $(xrandr -q |grep -A 1 "connected\( primary\)* [0-9]" |tail -1 |awk '{print $1}')"
+ command: 
+    maxi=$(xrandr -q |grep -A 1 "connected\( primary\)* [0-9]" |tail -1 |awk '{print $1}');
+    now=$(xdpyinfo | grep dimension | awk '{print $2}')
+    change_text=$(test $maxi != $now && echo "\nPlease switch to the maximum resolution \nfor the upcoming graphic tests")
+    zenity --info --text "Maximum resolution: $maxi\nCurrent resolution: $now $change_text"
  estimated_duration: 10.0
- _summary: Test maximum resolution for $product
+ _summary: Test maximum supported resolution for $product
  _description:
   PURPOSE:
-    This test will verify the display is operating at its maximum supported resolution on the $product graphics card. 
+    This test will verify the maximum supported resolution on the $product graphics card.
   STEPS:
     1. Select the $product graphics card (a reboot may be necessary)
     2. Consult the system's specifications and locate the screen's maximum supported resolution.

@@ -47,6 +47,7 @@ setup(
     license="GPLv3",
     description="CheckBox support library",
     long_description=long_description,
+    package_data = {"checkbox_support": ["parsers/cputable"]},
     install_requires=[
         'lxml >= 2.3',
         'pyparsing >= 2.0.0',

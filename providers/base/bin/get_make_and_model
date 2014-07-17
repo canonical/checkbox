@@ -2,23 +2,16 @@
 
 import os.path
 
-def PrintFileContents(Heading, Filename):
-    if os.path.isfile(Filename):
-        File = open(Filename, 'r')
-        RawContents = File.read()
-        StrippedContents = RawContents.rstrip('\n')
-        print(Heading + ": " + StrippedContents)
-        File.close()
-        return 1
-    else:
-        print("Unable to determine " + Heading)
-        return 0
+def print_file_contents(heading, filename):
+    with open(filename) as f:
+        text = f.read().strip()
+        print("{}: {}".format(heading, text))
+        f.close()
 
 def main():
-    Success = PrintFileContents('Manufacturer', '/sys/class/dmi/id/sys_vendor')
-    Success = Success & PrintFileContents('Model', '/sys/class/dmi/id/product_name')
-    Success = Success & PrintFileContents('Version', '/sys/class/dmi/id/product_version')
-    return (not Success)
+    print_file_contents('Manufacturer', '/sys/class/dmi/id/sys_vendor')
+    print_file_contents('Model', '/sys/class/dmi/id/product_name')
+    print_file_contents('Version', '/sys/class/dmi/id/product_version')
 
 if __name__ == "__main__":
     raise SystemExit(main())

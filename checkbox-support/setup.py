@@ -21,6 +21,7 @@
 import os
 import sys
 
+from io import open  # For compatibility with Python 2.7
 from setuptools import setup, find_packages
 
 if "test" in sys.argv:

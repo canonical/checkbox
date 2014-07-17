@@ -1,0 +1,18 @@
+#!/usr/bin/env python3
+
+import os.path
+
+def print_file_contents(heading, filename):
+    with open(filename) as f:
+        text = f.read().strip()
+        print("{}: {}".format(heading, text))
+        f.close()
+
+def main():
+    print_file_contents('Manufacturer', '/sys/class/dmi/id/sys_vendor')
+    print_file_contents('Model', '/sys/class/dmi/id/product_name')
+    print_file_contents('Version', '/sys/class/dmi/id/product_version')
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+

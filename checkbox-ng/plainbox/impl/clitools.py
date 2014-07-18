@@ -423,6 +423,10 @@ class ToolBase(metaclass=abc.ABCMeta):
         self.add_early_parser_arguments(parser)
         subparsers = parser.add_subparsers()
         self.add_subcommands(subparsers)
+        self.enable_argcomplete_if_possible(parser)
+        return parser
+
+    def enable_argcomplete_if_possible(self, parser):
         # Enable argcomplete if it is available.
         try:
             import argcomplete
@@ -430,7 +434,6 @@ class ToolBase(metaclass=abc.ABCMeta):
             pass
         else:
             argcomplete.autocomplete(parser)
-        return parser
 
     def add_early_parser_arguments(self, parser):
         group = parser.add_argument_group(

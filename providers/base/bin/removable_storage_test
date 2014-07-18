@@ -266,7 +266,8 @@ class DiskTest():
                     devpath = udev_device.get_property('DEVPATH')
                     if (self._compare_pci_slot_from_devpath(devpath,
                                                             pci_slot_name)):
-                        self.rem_disks_xhci[devpath] = 'xhci'
+                        self.rem_disks_xhci[
+                            udev_device.get_property('DEVNAME')] = 'xhci'
         except:
             logging.error("Failed to get driver information.")
 
@@ -369,7 +370,7 @@ class DiskTest():
         dl = devpath.split('/')
         s = set([x for x in dl if dl.count(x) > 1])
         if ((pci_slot_name in dl)
-             and (dl.index(pci_slot_name) > dl.index('block'))
+             and (dl.index(pci_slot_name) < dl.index('block'))
              and (not(pci_slot_name in s))):
             # 1. there is such pci_slot_name
             # 2. sysfs topology looks like

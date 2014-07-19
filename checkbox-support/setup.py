@@ -21,6 +21,7 @@
 import os
 import sys
 
+from io import open  # For compatibility with Python 2.7
 from setuptools import setup, find_packages
 
 if "test" in sys.argv:
@@ -37,7 +38,7 @@ with open(os.path.join(base_dir, "README.rst"), encoding="UTF-8") as stream:
 
 setup(
     name="checkbox-support",
-    version="0.5c1",
+    version="0.5c2",
     url="https://launchpad.net/checkbox/",
     packages=find_packages(),
     test_suite='checkbox_support.tests.test_suite',
@@ -46,6 +47,7 @@ setup(
     license="GPLv3",
     description="CheckBox support library",
     long_description=long_description,
+    package_data = {"checkbox_support": ["parsers/cputable"]},
     install_requires=[
         'lxml >= 2.3',
         'pyparsing >= 2.0.0',

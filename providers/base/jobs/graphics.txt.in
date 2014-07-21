@@ -96,7 +96,7 @@ _summary: Default resolution tests
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: user-verify
+ plugin: user-interact-verify
  id: graphics/`echo ${index}`_screen_resolution_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  requires:
   device.category == 'VIDEO'
@@ -221,7 +221,7 @@ command:
  _summary: Test graphic memory info for $product.
  EOF
 
-plugin: user-verify
+plugin: user-interact-verify
 id: graphics/display
 requires:
  package.name == 'xorg'
@@ -250,7 +250,7 @@ _summary: Resolution cycling tests
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: user-verify
+ plugin: user-interact-verify
  id: graphics/`echo ${index}`_cycle_resolution_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  requires: package.name == 'xorg'
  depends: graphics/VESA_drivers_not_in_use
@@ -273,7 +273,7 @@ _summary: Rotation tests
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: user-verify
+ plugin: user-interact-verify
  id: graphics/`echo ${index}`_rotation_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  depends: graphics/xorg-version
  command: rotation_test

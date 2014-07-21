@@ -146,10 +146,10 @@ command:
   device.category == 'VIDEO'
   package.name == 'zenity'
  command: 
-    maxi=$(xrandr -q |grep -A 1 "connected\( primary\)* [0-9]" |tail -1 |awk '{print $1}');
-    now=$(xdpyinfo | grep dimension | awk '{print $2}')
-    change_text=$(test $maxi != $now && echo "\nPlease switch to the maximum resolution \nfor the upcoming graphic tests")
-    zenity --info --text "Maximum resolution: $maxi\nCurrent resolution: $now $change_text"
+    maxi="$(xrandr -q |grep -A 1 "connected\( primary\)* [0-9]" |tail -1 |awk '{print $1}')"
+    now="$(xdpyinfo | grep dimension | awk '{print $2}')"
+    test "\$maxi" != "\$now" && notify="\nPlease switch to the maximum resolution \nfor every graphic tests"
+    zenity --info --text "Maximum resolution: \$maxi\nCurrent resolution: \$now \$notify"
  estimated_duration: 10.0
  _summary: Test maximum supported resolution for $product
  _description:

@@ -379,7 +379,7 @@ class Interface(socket.socket):
     def max_speed(self):
         # Parse ethtool data for max speed since /sys/class/net/DEV/speed only
         # reports link speed.
-        
+
         # Search for things that look like 100baseSX, 
         #40000baseNX, 10000baseT
         try:
@@ -421,46 +421,31 @@ class Interface(socket.socket):
         return self._read_data("device/label")
 
 
-def get_test_parameters(args, environ, config_filename):
+def get_test_parameters(args, environ):
     # Decide the actual values for test parameters, which can come
-    # from one of three possible sources: a config file, command-line
+    # from one of two possible sources: command-line
     # arguments, or environment variables.
     # - If command-line args were given, they take precedence
     # - Next come environment variables, if set.
-    # - Last, values in the config file are used if present.
 
     params = {"test_target_ftp": None,
               "test_user": None,
               "test_pass": None,
               "test_target_iperf": None}
 
-    #First (try to) load values from config file
-    config = configparser.SafeConfigParser()
-
-    try:
-        with open(config_filename) as config_file:
-            config.readfp(config_file)
-            params["test_target_ftp"] = config.get("FTP", "Target")
-            params["test_user"] = config.get("FTP", "User")
-            params["test_pass"] = config.get("FTP", "Pass")
-            params["test_target_iperf"] = config.get("IPERF", "Target")
-    except FileNotFoundError as err:
-        pass  # No biggie, we can still get configs from elsewhere
-
-    # Next see if we have environment variables to override the config file
-    # "partial" overrides are not allowed; if an env variable is missing,
-    # we won't use this at all.
-    if all([param.upper() in os.environ for param in params.keys()]):
-        for key in params.keys():
-            params[key] = os.environ[key.upper()]
+    # See if we have environment variables
+    for key in params.keys():
+        params[key] = os.environ.get(key.upper(), "")
 
     # Finally, see if we have the command-line arguments that are the ultimate
-    # override. Again, we will only override if we have all of them.
-    if args.target and args.username and args.password:
+    # override.
+    if args.target:
         params["test_target_ftp"] = args.target
-        params["test_user"] = args.username
-        params["test_pass"] = args.password
         params["test_target_iperf"] = args.target
+    if args.username:
+        params["test_user"] = args.username
+    if args.password:
+        params["test_pass"] = args.password
 
     return params
 
@@ -469,16 +454,8 @@ def interface_test(args):
     if not "test_type" in vars(args):
         return
 
-    # Determine whether to use the default or user-supplied config
-    # file name.
-    DEFAULT_CFG = "/etc/checkbox.d/network.cfg"
-    if not "config" in vars(args):
-        config_filename = DEFAULT_CFG
-    else:
-        config_filename = args.config
-
-    # Get the actual test data from one of three possible sources
-    test_parameters = get_test_parameters(args, os.environ, config_filename)
+    # Get the actual test data from one of two possible sources
+    test_parameters = get_test_parameters(args, os.environ)
 
     test_user = test_parameters["test_user"]
     test_pass = test_parameters["test_pass"]
@@ -491,7 +468,23 @@ def interface_test(args):
     # Validate that we got reasonable values
     if not test_target or "example.com" in test_target:
         # Default values found in config file
-        logging.error("Please supply target via: %s", config_filename)
+        logging.error("Target server has not been supplied.")
+        logging.info("Configuration settings can be configured 3 different ways:")
+        logging.info("1- If calling the script directly, pass the --target option")
+        logging.info("2- Define the TEST_TARGET_IPERF environment variable")
+        logging.info("3- (If running the test via checkbox/plainbox, define the ")
+        logging.info("target in /etc/xdg/canonical-certification.conf)")
+        logging.info("Please run this script with -h to see more details on how to configure")
+        sys.exit(1)
+
+    if args.test_type.lower() == 'ftp' and not (test_user and test_pass):
+        logging.error("Target user/password have not been supplied.")
+        logging.info("Target user/password can be configured 3 different ways:")
+        logging.info("1- If calling the script directly, give --user or  --pass option")
+        logging.info("2- Define the TEST_USER or TEST_PASS environment variables")
+        logging.info("3- (If running the test via checkbox/plainbox, define the ")
+        logging.info("settings in /etc/xdg/canonical-certification.conf)")
+        logging.info("Please run this script with -h to see more details on how to configure")
         sys.exit(1)
 
     # Testing begins here!
@@ -595,13 +588,14 @@ priorities:
 
 1- Command-line parameters (see above).
 2- Environment variables (example will follow).
-3- Configuration file (example will follow).
-   Default config location is /etc/checkbox.d/network.cfg
+3- If run via checkbox/plainbox, /etc/xdg/checkbox-certification.conf
+   can have the below-mentioned environment variables defined in the
+   [environment] section. An example file is provided and can be simply
+   modified with the correct values.
 
 Environment variables
 =====================
-ALL environment variables must be defined, even if empty, for them to be
-picked up. The variables are:
+The variables are:
 TEST_TARGET_FTP
 TEST_USER
 TEST_PASS
@@ -609,14 +603,13 @@ TEST_TARGET_IPERF
 
 example config file
 ===================
-[FTP]
+[environment]
+TEST_TARGET_FTP = ftp-server.example.com
+TEST_USER = my-name
+TEST_PASS = a-password
+TEST_TARGET_IPERF = iperf-server.example.com
 
-Target: 192.168.1.23
-User: FTPUser
-Pass:PassW0Rd
 
-[IPERF]
-Target: 192.168.1.45
 **NOTE**
 
 """

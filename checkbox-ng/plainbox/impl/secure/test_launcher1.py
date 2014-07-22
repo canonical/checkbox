@@ -171,6 +171,8 @@ class MainTests(TestCase):
                                            [-g CHECKSUM]
                                            [-G NAME=VALUE [NAME=VALUE ...]]
 
+        Security elevation mechanism for plainbox
+
         optional arguments:
           -h, --help            show this help message and exit
           -w, --warmup          return immediately, only useful when used with

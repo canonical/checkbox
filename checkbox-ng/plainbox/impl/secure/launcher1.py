@@ -166,6 +166,45 @@ class UpdateAction(argparse.Action):
         setattr(namespace, self.dest, items)
 
 
+def get_parser_for_sphinx():
+    parser = argparse.ArgumentParser(
+        prog="plainbox-trusted-launcher-1",
+        description=_("Security elevation mechanism for plainbox"))
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument(
+        '-w', '--warmup',
+        action='store_true',
+        # TRANSLATORS: don't translate pkexec(1)
+        help=_('return immediately, only useful when used with pkexec(1)'))
+    group.add_argument(
+        '-t', '--target',
+        metavar=_('CHECKSUM'),
+        help=_('run a job with this checksum'))
+    group = parser.add_argument_group(_("target job specification"))
+    group.add_argument(
+        '-T', '--target-environment', metavar=_('NAME=VALUE'),
+        dest='target_env',
+        nargs='+',
+        action=UpdateAction,
+        help=_('environment passed to the target job'))
+    group = parser.add_argument_group(title=_("generator job specification"))
+    group.add_argument(
+        '-g', '--generator',
+        metavar=_('CHECKSUM'),
+        # TRANSLATORS: don't translate 'local' in the sentence below. It
+        # denotes a special type of job, not its location.
+        help=_('also run a job with this checksum (assuming it is a local'
+               ' job)'))
+    group.add_argument(
+        '-G', '--generator-environment',
+        dest='generator_env',
+        nargs='+',
+        metavar=_('NAME=VALUE'),
+        action=UpdateAction,
+        help=_('environment passed to the generator job'))
+    return parser
+
+
 def main(argv=None):
     """
     Entry point for the plainbox-trusted-launcher-1
@@ -199,39 +238,7 @@ def main(argv=None):
     pkexec(1) alongside with an appropriate policy file, to grant users a way
     to run trusted-launcher as root (or another user).
     """
-    parser = argparse.ArgumentParser(prog="plainbox-trusted-launcher-1")
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument(
-        '-w', '--warmup',
-        action='store_true',
-        # TRANSLATORS: don't translate pkexec(1)
-        help=_('return immediately, only useful when used with pkexec(1)'))
-    group.add_argument(
-        '-t', '--target',
-        metavar=_('CHECKSUM'),
-        help=_('run a job with this checksum'))
-    group = parser.add_argument_group(_("target job specification"))
-    group.add_argument(
-        '-T', '--target-environment', metavar=_('NAME=VALUE'),
-        dest='target_env',
-        nargs='+',
-        action=UpdateAction,
-        help=_('environment passed to the target job'))
-    group = parser.add_argument_group(title=_("generator job specification"))
-    group.add_argument(
-        '-g', '--generator',
-        metavar=_('CHECKSUM'),
-        # TRANSLATORS: don't translate 'local' in the sentence below. It
-        # denotes a special type of job, not its location.
-        help=_('also run a job with this checksum (assuming it is a local'
-               ' job)'))
-    group.add_argument(
-        '-G', '--generator-environment',
-        dest='generator_env',
-        nargs='+',
-        metavar=_('NAME=VALUE'),
-        action=UpdateAction,
-        help=_('environment passed to the generator job'))
+    parser = get_parser_for_sphinx()
     ns = parser.parse_args(argv)
     # Just quit if warming up
     if ns.warmup:

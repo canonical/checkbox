@@ -66,6 +66,7 @@ class PlainBoxTool(PlainBoxToolBase):
 
     def create_parser_object(self):
         parser = super().create_parser_object()
+        parser.prog = "plainbox"
         parser.usage = _("plainbox [--help] [--version] | [options] <command>"
                          " ...")
         return parser

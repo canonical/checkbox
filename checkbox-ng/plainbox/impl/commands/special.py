@@ -134,7 +134,8 @@ class SpecialCommand(PlainBoxCommand, CheckBoxCommandMixIn):
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(
-            "special", help=_("special/internal commands"))
+            "special", help=_("special/internal commands"),
+            prog="plainbox dev special")
         parser.set_defaults(command=self)
         group = parser.add_mutually_exclusive_group(required=True)
         group.add_argument(

@@ -44,7 +44,7 @@ class TestParseCommand(TestCase):
         ParseCommand()
 
     _help = """
-usage: test parse [-h] PARSER-NAME
+usage: plainbox dev parse [-h] PARSER-NAME
 
 This command can be used to invoke any of the parsers exposed to the
 `plainbox.parsers` entry point, parse standard input and produce a JSON dump

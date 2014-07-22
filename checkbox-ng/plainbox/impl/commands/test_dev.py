@@ -60,7 +60,7 @@ class TestDevCommand(TestCase):
         self.assertEqual(
             io.stdout, cleandoc(
                 """
-                usage: test dev [-h] {script,special,analyze,parse,crash,logtest,list} ...
+                usage: plainbox dev <subcommand> ...
 
                 positional arguments:
                   {script,special,analyze,parse,crash,logtest,list}

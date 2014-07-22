@@ -104,6 +104,7 @@ class ParseCommand(PlainBoxCommand):
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(
             "parse", help=_("parse stdin with the specified parser"),
+            prog="plainbox dev parse",
             # TRANSLATORS: please keep plainbox.parsers untranslated.
             description=_("""
             This command can be used to invoke any of the parsers exposed

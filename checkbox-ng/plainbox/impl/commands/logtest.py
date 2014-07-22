@@ -55,5 +55,6 @@ class LogTestCommand(PlainBoxCommand):
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(
-            "logtest", help=_("log messages at various levels"))
+            "logtest", help=_("log messages at various levels"),
+            prog="plainbox dev logtest")
         parser.set_defaults(command=self)

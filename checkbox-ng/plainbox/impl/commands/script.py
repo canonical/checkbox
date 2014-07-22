@@ -119,7 +119,8 @@ class ScriptCommand(PlainBoxCommand):
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(
-            "script", help=_("run a command from a job"))
+            "script", help=_("run a command from a job"),
+            prog="plainbox dev script")
         parser.set_defaults(command=self)
         parser.add_argument(
             'job_id', metavar=_('JOB-ID'),

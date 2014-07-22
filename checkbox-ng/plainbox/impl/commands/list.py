@@ -77,7 +77,8 @@ class ListCommand(PlainBoxCommand):
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(
-            "list", help=_("list and describe various objects"))
+            "list", help=_("list and describe various objects"),
+            prog="plainbox dev list")
         parser.add_argument(
             '-a', '--attrs', default=False, action="store_true",
             help=_("show object attributes"))

@@ -58,7 +58,8 @@ class CrashCommand(PlainBoxCommand):
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(
-            "crash", help=_("crash the application"))
+            "crash", help=_("crash the application"),
+            prog="plainbox dev crash")
         group = parser.add_mutually_exclusive_group(required=True)
         group.add_argument(
             '-c', '--crash',

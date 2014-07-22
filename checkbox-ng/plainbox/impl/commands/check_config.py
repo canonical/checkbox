@@ -89,5 +89,6 @@ class CheckConfigCommand(PlainBoxCommand):
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(
-            "check-config", help=_("check and display plainbox configuration"))
+            "check-config", help=_("check and display plainbox configuration"),
+            prog="plainbox check-config")
         parser.set_defaults(command=self)

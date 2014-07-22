@@ -519,6 +519,7 @@ class StartProviderCommand(PlainBoxCommand):
 
     def register_parser(self, subparsers):
         parser = self.add_subcommand(subparsers)
+        parser.prog = 'plainbox startprovider'
         parser.add_argument(
             'name',
             metavar=_("name"),

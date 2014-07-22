@@ -62,7 +62,7 @@ class TestScriptCommand(TestCase):
         self.assertEqual(
             io.stdout, cleandoc(
                 """
-                usage: test script [-h] JOB-ID
+                usage: plainbox dev script [-h] JOB-ID
 
                 positional arguments:
                   JOB-ID      Id of the job to run

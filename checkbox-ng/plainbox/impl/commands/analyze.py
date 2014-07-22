@@ -240,7 +240,8 @@ class AnalyzeCommand(PlainBoxCommand, CheckBoxCommandMixIn):
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(
-            "analyze", help=_("analyze how selected jobs would be executed"))
+            "analyze", help=_("analyze how selected jobs would be executed"),
+            prog="plainbox dev analyze")
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
             '-l', '--run-local',

@@ -56,7 +56,9 @@ class DevCommand(PlainBoxCommand):
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(
-            "dev", help=_("development commands"))
+            "dev", help=_("development commands"),
+            prog="plainbox dev",
+            usage=_("plainbox dev <subcommand> ..."))
         subdev = parser.add_subparsers()
         ScriptCommand(self.provider_list, self.config).register_parser(subdev)
         SpecialCommand(self.provider_list, self.config).register_parser(subdev)

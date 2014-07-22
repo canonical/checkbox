@@ -151,6 +151,7 @@ class SessionCommand(PlainBoxCommand):
 
     def register_parser(self, subparsers):
         parser = self.add_subcommand(subparsers)
+        parser.prog = 'plainbox session'
         parser.set_defaults(default_session_cmd='list')
         session_subparsers = parser.add_subparsers(
             title=_('available session subcommands'))

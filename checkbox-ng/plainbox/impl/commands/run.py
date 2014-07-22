@@ -960,7 +960,8 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
                              ns.use_colors).run()
 
     def register_parser(self, subparsers):
-        parser = subparsers.add_parser("run", help=_("run a test job"))
+        parser = subparsers.add_parser(
+            "run", help=_("run a test job"), prog="plainbox run")
         parser.set_defaults(command=self)
         group = parser.add_argument_group(title=_("user interface options"))
         parser.set_defaults(use_colors=True)

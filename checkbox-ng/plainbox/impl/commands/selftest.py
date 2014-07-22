@@ -66,7 +66,8 @@ class SelfTestCommand(PlainBoxCommand):
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(
-            "self-test", help=_("run unit and integration tests"))
+            "self-test", help=_("run unit and integration tests"),
+            prog="plainbox self-test")
         parser.set_defaults(command=self)
         # Add an option that selects either integration tests or unit tests
         group = parser.add_mutually_exclusive_group(required=True)

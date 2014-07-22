@@ -1182,6 +1182,7 @@ class ProviderManagerTool(ToolBase):
 
     def create_parser_object(self):
         parser = argparse.ArgumentParser(
+            description=_("Per-provider management script"),
             prog=self.get_exec_name(),
             # TRANSLATORS: please keep 'manage.py', '--help', '--version'
             # untranslated. Translate only '[options]'

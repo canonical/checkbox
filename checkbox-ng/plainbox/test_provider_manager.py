@@ -58,6 +58,8 @@ class ProviderManagerToolTests(TestCase):
                 """
                 usage: manage.py [--help] [--version] [options]
 
+                Per-provider management script
+
                 positional arguments:
                   {info,validate,develop,install,sdist,i18n,build,clean}
                     info                display basic information about this provider

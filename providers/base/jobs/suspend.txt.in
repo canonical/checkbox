@@ -234,7 +234,7 @@ _description:
  VERIFICATION:
      Was the data correctly transferred?
 
-plugin: user-verify
+plugin: user-interact-verify
 id: suspend/suspend_advanced
 requires:
  sleep.mem == 'supported'
@@ -269,7 +269,7 @@ _summary: Suspend after graphics card switch tests
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: user-verify
+ plugin: user-interact-verify
  id: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  depends: suspend/suspend_advanced
  user: root
@@ -310,7 +310,7 @@ environ: PLAINBOX_SESSION_SHARE
 command: set -o pipefail; fwts_test -f none -l $PLAINBOX_SESSION_SHARE/suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $PLAINBOX_SESSION_SHARE/suspend_single_times.log
 estimated_duration: 90.000
 
-plugin: user-verify
+plugin: user-interact-verify
 id: suspend/hybrid_sleep
 user: root
 command:
@@ -2148,7 +2148,7 @@ _description:
  VERIFICATION:
      Does tap recognition work?
 
-plugin: user-verify
+plugin: user-interact-verify
 id: camera/display_after_suspend
 estimated_duration: 120.0
 depends: suspend/suspend_advanced
@@ -2163,7 +2163,7 @@ _description:
  VERIFICATION:
      Did you see the video capture?
 
-plugin: user-verify
+plugin: user-interact-verify
 id: camera/still_after_suspend
 estimated_duration: 120.0
 depends: camera/display_after_suspend

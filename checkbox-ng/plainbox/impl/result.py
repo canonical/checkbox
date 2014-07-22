@@ -56,7 +56,7 @@ IOLogRecord = namedtuple("IOLogRecord", "delay stream_name data".split())
 
 def tr_outcome(outcome):
     """
-    Get the translated value of OUTCOME_ constant
+    Get the translated value of ``OUTCOME_`` constant
     """
     return {
         IJobResult.OUTCOME_NONE: C_(

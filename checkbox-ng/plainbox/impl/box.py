@@ -101,6 +101,10 @@ def main(argv=None):
     raise SystemExit(PlainBoxTool().main(argv))
 
 
+def get_parser_for_sphinx():
+    return PlainBoxTool().construct_parser()
+
+
 # Setup logging before anything else starts working.
 # If we do it in main() or some other place then unit tests will see
 # "leaked" log files which are really closed when the runtime shuts

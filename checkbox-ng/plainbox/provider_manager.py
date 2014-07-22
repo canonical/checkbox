@@ -1223,6 +1223,10 @@ class ProviderManagerTool(ToolBase):
         return os.getenv("PLAINBOX_LOCALE_DIR", None)
 
 
+def get_parser_for_sphinx():
+    return ProviderManagerTool(None).construct_parser()
+
+
 def setup(**kwargs):
     """
     The setup method that is being called from generated manage.py scripts.

@@ -289,17 +289,17 @@ class RunInvocation(CheckBoxInvocationMixIn):
     """
     Invocation of the 'plainbox run' command.
 
-    :ivar ns:
+    attr ns:
         The argparse namespace obtained from RunCommand
-    :ivar _manager:
+    attr _manager:
         The SessionManager object
-    :ivar _runner:
+    attr _runner:
         The JobRunner object
-    :ivar _exporter:
+    attr _exporter:
         A ISessionStateExporter of some kind
-    :ivar _transport:
+    attr _transport:
         A ISessionStateTransport of some kind (optional)
-    :ivar _backtrack_and_run_missing:
+    attr _backtrack_and_run_missing:
         A flag indicating that we should run over all the jobs in the
         self.state.run_list again, set every time a job is added. Reset every
         time the loop-over-all-jobs is started.
@@ -570,7 +570,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
         """
         Create the ISessionStateExporter based on the command line options
 
-        This sets the :ivar:`_exporter`.
+        This sets the attr:`_exporter`.
         """
         exporter_cls = get_all_exporters()[self.ns.output_format]
         if self.ns.output_options:
@@ -586,7 +586,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
         """
         Create the ISessionStateTransport based on the command line options
 
-        This sets the :ivar:`_transport`.
+        This sets the attr:`_transport`.
         """
         if self.ns.transport is None:
             return
@@ -607,7 +607,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
         Create or resume a session that handles most of the stuff needed to run
         jobs.
 
-        This sets the :ivar:`_manager` which enables :meth:`manager`,
+        This sets the attr:`_manager` which enables :meth:`manager`,
         :meth:`state` and :meth:`storage` properties.
 
         The created session state has the on_job_added signal connected to
@@ -651,7 +651,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
         """
         Create a job runner.
 
-        This sets the :ivar:`_runner` which enables :meth:`runner` property.
+        This sets the attr:`_runner` which enables :meth:`runner` property.
 
         Requires the manager to be created (we need the storage object)
         """

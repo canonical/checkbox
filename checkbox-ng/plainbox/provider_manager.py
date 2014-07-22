@@ -498,7 +498,7 @@ class DevelopCommand(ManageCommand):
             "-f", "--force", default=False, action="store_true",
             help=_("overwrite existing provider files"))
         parser.add_argument(
-            "-d", "--directory", action="store", 
+            "-d", "--directory", action="store",
             default=get_user_PROVIDERPATH_entry(),
             help=_("directory to use (defaults to user's home provider path"))
 

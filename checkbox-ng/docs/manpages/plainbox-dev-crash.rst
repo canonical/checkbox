@@ -22,7 +22,7 @@ plainbox-dev-crash (1)
 
     If ``plainbox`` is invoked with the ``--pdb`` command line option then all
     uncaught exceptions are handled by starting a debugger session. Using the
-    debugger a developer can inspec the execution stack, including all thre
+    debugger a developer can inspec the execution stack, including all the
     threads, local and global variables, etc..
 
     Jumping into PDB on KeyboardInterrupt

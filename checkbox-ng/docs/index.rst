@@ -6,7 +6,7 @@
 PlainBox
 ========
 
-.. seealso:: See what's new in :ref:`version_0_5`
+.. seealso:: See what's new in :ref:`version_0_8`
 
 :term:`PlainBox` is a toolkit consisting of python3 library, development tools,
 documentation and examples. It is targeted at developers working on testing or

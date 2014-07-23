@@ -591,6 +591,23 @@ class TestJobDefinition(TestCase):
         job2 = JobDefinition({'imports': 'imports'})
         self.assertEqual(job2.imports, 'imports')
 
+    def test_get_imported_jobs(self):
+        job1 = JobDefinition({})
+        self.assertEqual(list(job1.get_imported_jobs()), [])
+        job2 = JobDefinition({
+            'imports': 'from 2013.com.canonical.certification import package'
+        })
+        self.assertEqual(list(job2.get_imported_jobs()), [
+            ('2013.com.canonical.certification::package', 'package')
+        ])
+        job3 = JobDefinition({
+            'imports': ('from 2013.com.canonical.certification'
+                        ' import package as pkg')
+        })
+        self.assertEqual(list(job3.get_imported_jobs()), [
+            ('2013.com.canonical.certification::package', 'pkg')
+        ])
+
 
 class TestJobDefinitionStartup(TestCaseWithParameters):
     """

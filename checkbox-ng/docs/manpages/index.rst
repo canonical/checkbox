@@ -3,6 +3,6 @@ Manual Pages
 
 .. toctree::
    :maxdepth: 1
+   :glob:
 
-   plainbox.rst
-   plainbox-trusted-launcher-1.rst
+   *

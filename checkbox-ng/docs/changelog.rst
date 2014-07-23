@@ -6,6 +6,70 @@ ChangeLog
     accounting of development history please inspect the source history
     directly.
 
+.. _version_0_9:
+
+PlainBox 0.9 (unreleased)
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. note::
+    This version is under active development. The details in the milestone page
+    may vary before the release is finalized.
+
+This is a periodic release, containing both bug fixes and some minor new
+features. Details are available at:
+
+* https://launchpad.net/plainbox/+milestone/0.8
+
+.. warning::
+    API changes were not documented for this release. We are working on a new
+    system that will allow us to automatically generate API changes between
+    releases without the added manual maintenance burden.
+
+.. _version_0_8:
+
+PlainBox 0.8
+^^^^^^^^^^^^
+
+This is a periodic release, containing both bug fixes and some minor new
+features. Details are available at:
+
+* https://launchpad.net/plainbox/+milestone/0.8
+
+.. warning::
+    API changes were not documented for this release. We are working on a new
+    system that will allow us to automatically generate API changes between
+    releases without the added manual maintenance burden.
+
+.. _version_0_7:
+
+PlainBox 0.7
+^^^^^^^^^^^^
+
+This is a periodic release, containing both bug fixes and some minor new
+features. Details are available at:
+
+* https://launchpad.net/plainbox/+milestone/0.7
+
+.. warning::
+    API changes were not documented for this release. We are working on a new
+    system that will allow us to automatically generate API changes between
+    releases without the added manual maintenance burden.
+
+.. _version_0_6:
+
+PlainBox 0.6
+^^^^^^^^^^^^
+
+This is a periodic release, containing both bug fixes and some minor new
+features. Details are available at:
+
+* https://launchpad.net/plainbox/+milestone/0.6
+
+.. warning::
+    API changes were not documented for this release. We are working on a new
+    system that will allow us to automatically generate API changes between
+    releases without the added manual maintenance burden.
+
 .. _version_0_5:
 
 PlainBox 0.5.4

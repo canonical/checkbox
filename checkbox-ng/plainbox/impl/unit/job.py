@@ -326,6 +326,10 @@ class JobDefinition(Unit, IJobDefinition):
         return self.get_record_value('shell', 'bash')
 
     @property
+    def imports(self):
+        return self.get_record_value('imports')
+
+    @property
     def estimated_duration(self):
         """
         estimated duration of this job in seconds.

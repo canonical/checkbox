@@ -608,6 +608,17 @@ class TestJobDefinition(TestCase):
             ('2013.com.canonical.certification::package', 'pkg')
         ])
 
+    def test_get_resource_program_using_imports(self):
+        job = JobDefinition({
+            'imports': ('from 2013.com.canonical.certification'
+                        ' import package as pkg'),
+            'requires': 'pkg.name == "checkbox"',
+        })
+        prog = job.get_resource_program()
+        self.assertEqual(
+            prog.required_resources,
+            {'2013.com.canonical.certification::package'})
+
 
 class TestJobDefinitionStartup(TestCaseWithParameters):
     """

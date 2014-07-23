@@ -496,8 +496,12 @@ class JobDefinition(Unit, IJobDefinition):
                 implicit_namespace = self._provider.namespace
             else:
                 implicit_namespace = None
+            if self.imports is not None:
+                imports = self.get_imported_jobs()
+            else:
+                imports = None
             self._resource_program = ResourceProgram(
-                self.requires, implicit_namespace)
+                self.requires, implicit_namespace, imports)
         return self._resource_program
 
     def get_direct_dependencies(self):

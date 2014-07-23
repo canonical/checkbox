@@ -148,7 +148,7 @@ API changes
   :meth:`plainbox.impl.job.CheckBoxJobValidator.validate()`) can be set on the
   provider loader class and they will propagate across the stack. Along with
   more fine-tuned controls for strict validation and deprecated fields
-  validation this offers tools better ways to discover potential problems. 
+  validation this offers tools better ways to discover potential problems.
 
 PlainBox 0.5.1
 ^^^^^^^^^^^^^^
@@ -236,7 +236,7 @@ New Modules
 * The new :mod:`plainbox.provider_manager` module contains the implementation
   of the ``manage.py`` script, which is generated for each new provider. The
   script implements a set of subcommands for working with the provider from a
-  developer's point of view. 
+  developer's point of view.
 * The vendor package now contains a pre-release version of
   :mod:`~plainbox.impl.vendor.textland` - a text mode, work-in-progress,
   compositor for console applications. TextLand is used to implement certain
@@ -319,7 +319,7 @@ API changes (Providers)
 * The implementation of various directory properties on the
   :class:`plainbox.impl.secure.providers.v1.Provider1` class have changed. They
   are now explicitly configurable and are not derived from the now-gone
-  ``location`` property. This affects 
+  ``location`` property. This affects
   :meth:`plainbox.impl.secure.providers.v1.Provider1.jobs_dir`,
   :meth:`plainbox.impl.secure.providers.v1.Provider1.whitelists_dir`,
   :meth:`plainbox.impl.secure.providers.v1.Provider1.data_dir`,
@@ -378,7 +378,7 @@ API changes (Qualifiers)
   :class:`plainbox.impl.secure.qualifiers.OperatorMatcher` or
   :class:`plainbox.impl.secure.qualifiers.PatternMatcher`. Older qualifiers
   will likely be entirely dropped and replaced by one of the subsequent
-  releases. 
+  releases.
 
 API changes (command line tools)
 --------------------------------

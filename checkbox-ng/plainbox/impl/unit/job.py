@@ -225,6 +225,7 @@ class JobDefinition(Unit, IJobDefinition):
         depends = 'depends'
         requires = 'requires'
         shell = 'shell'
+        imports = 'imports'
 
     class _PluginValues(SymbolDef):
         """

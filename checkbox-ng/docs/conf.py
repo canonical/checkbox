@@ -235,12 +235,64 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
+_authors = ['Zygmunt Krynicki & Checkbox Contributors']
 man_pages = [
+    # Section 1
     ('manpages/plainbox', 'plainbox',
-    'toolkit for software and hardware integration testing',
-     ['Zygmunt Krynicki'], 1),
+     'toolkit for software and hardware integration testing',
+     _authors, 1),
     ('manpages/plainbox-trusted-launcher-1', 'plainbox-trusted-launcher-1',
-    'execute job command as another user', ['Zygmunt Krynicki'], 1)
+     'execute job command as another user', _authors, 1),
+    ('manpages/plainbox-run', 'plainbox-run',
+     'run a test job', _authors, 1),
+    ('manpages/plainbox-check-config', 'plainbox-check-config',
+     'check and display plainbox configuration', _authors, 1),
+    ('manpages/plainbox-startprovider', 'plainbox-startprovider',
+     'create a new plainbox provider', _authors, 1),
+    ('manpages/plainbox-self-test', 'plainbox-self-test',
+     'run unit and integration tests', _authors, 1),
+    ('manpages/plainbox-manage.py', 'manage.py',
+     'plainbox provider management script', _authors, 1),
+    ('manpages/plainbox-session', 'plainbox-session',
+     'session management sub-commands', _authors, 1),
+    ('manpages/plainbox-session-list', 'plainbox-session-list',
+     'list available session', _authors, 1),
+    ('manpages/plainbox-session-remove', 'plainbox-session-remove',
+     'remove one ore more sessions', _authors, 1),
+    ('manpages/plainbox-session-show', 'plainbox-session-show',
+     'show a single session', _authors, 1),
+    ('manpages/plainbox-session-archive', 'plainbox-session-archive',
+     'archive a single session', _authors, 1),
+    ('manpages/plainbox-dev', 'plainbox-dev',
+     'commands for test developers', _authors, 1),
+    ('manpages/plainbox-dev-script', 'plainbox-dev-script',
+     'run a command from a job', _authors, 1),
+    ('manpages/plainbox-dev-special', 'plainbox-dev-special',
+     'special/internal commands', _authors, 1),
+    ('manpages/plainbox-dev-analyze', 'plainbox-dev-analyze',
+     'analyze how seleted jobs would be executed', _authors, 1),
+    ('manpages/plainbox-dev-parse', 'plainbox-dev-parse',
+     'parse stdin with the specified parser', _authors, 1),
+    ('manpages/plainbox-dev-crash', 'plainbox-dev-crash',
+     'crash the application', _authors, 1),
+    ('manpages/plainbox-dev-logtest', 'plainbox-dev-logtest',
+     'log messages at various levels', _authors, 1),
+    ('manpages/plainbox-dev-list', 'plainbox-dev-list',
+     'list and describe various objects', _authors, 1),
+    # Section 5
+    ('manpages/plainbox.conf', 'plainbox.conf',
+     'plainbox configuration file', _authors, 5),
+    # Section 7
+    ('manpages/plainbox-session-structure', 'plainbox-session-structure',
+     'structure of per-session directory', _authors, 7),
+    ('manpages/PLAINBOX_SESSION_SHARE', 'PLAINBOX_SESSION_SHARE',
+     'per-session runtime shared-state directory', _authors, 7),
+    ('manpages/PLAINBOX_PROVIDER_DATA', 'PLAINBOX_PROVIDER_DATA',
+     'per-provider data directory', _authors, 7),
+    ('manpages/CHECKBOX_DATA', 'CHECKBOX_DATA',
+     'legacy name for PLAINBOX_SESSION_SHARE', _authors, 7),
+    ('manpages/CHECKBOX_SHARE', 'CHECKBOX_SHARE',
+     'legacy name for PLAINBOX_PROVIDER_DATA', _authors, 7),
 ]
 
 # If true, show URL addresses after external links.

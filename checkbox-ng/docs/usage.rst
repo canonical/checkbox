@@ -45,7 +45,7 @@ To list all known jobs run:
 
 .. code-block:: bash
 
-    plainbox special --list-jobs
+    plainbox dev special --list-jobs
 
 Running a white list
 ^^^^^^^^^^^^^^^^^^^^

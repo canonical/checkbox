@@ -433,17 +433,26 @@ class ResourceExpression:
     evaluated against a single variable which references a Resource object.
     """
 
-    def __init__(self, text, implicit_namespace=None):
+    def __init__(self, text, implicit_namespace=None, imports=None):
         """
         Analyze the text and prepare it for execution
 
         May raise ResourceProgramError
         """
         self._implicit_namespace = implicit_namespace
-        self._resource_id = self._analyze(text)
+        self._resource_alias = self._analyze(text)
+        # Respect any import statements.
+        # They always take priority over anything we may know locally
+        if imports is not None:
+            for imported_resource_id, imported_alias in imports:
+                if imported_alias == self._resource_alias:
+                    self._resource_id = imported_resource_id
+                    break
+        else:
+            self._resource_id = self._resource_alias
         self._text = text
         self._lambda = eval("lambda {}: {}".format(
-            self._resource_id, self._text))
+            self._resource_alias, self._text))
 
     def __str__(self):
         return self._text
@@ -472,11 +481,26 @@ class ResourceExpression:
     def resource_id(self):
         """
         The id of the resource this expression depends on
+
+        This is different from :meth:`resource_alias` in that it may not be a
+        valid python identifier and it is always (ideally) a fully-qualified
+        job identifier.
         """
         if "::" not in self._resource_id and self._implicit_namespace:
             return "{}::{}".format(self._implicit_namespace, self._resource_id)
         else:
             return self._resource_id
+
+    @property
+    def resource_alias(self):
+        """
+        The alias of the resource object this expression operates on
+
+        This is different from :meth:`resource_id` in that it is always a valid
+        python identifier. The alias is either the partial identifier of the
+        resource job or an arbitrary identifier, as used by the job definition.
+        """
+        return self._resource_alias
 
     @property
     def implicit_namespace(self):

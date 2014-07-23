@@ -516,7 +516,7 @@ class JobDefinition(Unit, IJobDefinition):
         if not isinstance(record.origin.source, JobOutputTextSource):
             # TRANSLATORS: don't translate record.origin or JobOutputTextSource
             raise ValueError(_("record.origin must be a JobOutputTextSource"))
-        if not record.origin.source.job is self:
+        if record.origin.source.job is not self:
             # TRANSLATORS: don't translate record.origin.source.job
             raise ValueError(_("record.origin.source.job must be this job"))
         return self.from_rfc822_record(record, self.provider)

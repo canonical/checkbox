@@ -1,6 +1,6 @@
-===========================================================
-plainbox-trusted-launcher-1 -- security elevation mechanism
-===========================================================
+===========================
+plainbox-trusted-launcher-1
+===========================
 
 .. toctree::
    :maxdepth: 2
@@ -36,7 +36,7 @@ Warm-up Mode
 
 If the --warmup option is specified then nothing more happens and the program
 exists immediately. This is intended to 'warm-up' the tool that executes
-plainbox-trusted-launcher-1 itself (typically pkexec or sudo) 
+plainbox-trusted-launcher-1 itself (typically pkexec or sudo)
 
 Normal Execution
 ----------------

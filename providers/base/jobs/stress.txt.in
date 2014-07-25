@@ -150,6 +150,22 @@ depends: stress/reboot
 command: tar cvfz $PLAINBOX_SESSION_SHARE/stress_reboot.tgz $PLAINBOX_SESSION_SHARE/*reboot.100.log && cat $PLAINBOX_SESSION_SHARE/stress_reboot.tgz
 
 plugin: shell
+id: stress/reboot_30
+requires:
+ package.name == 'upstart'
+ package.name == 'fwts'
+command: pm_test -r 30 --silent --log-level=notset reboot --log-dir=$PLAINBOX_SESSION_SHARE
+user: root
+environ: PLAINBOX_SESSION_SHARE
+_description:
+ Stress reboot system (30 cycles)
+
+plugin: attachment
+id: stress/reboot_30_log
+depends: stress/reboot
+command: tar cvfz $PLAINBOX_SESSION_SHARE/stress_reboot_30.tgz $PLAINBOX_SESSION_SHARE/*reboot.30.log && cat $PLAINBOX_SESSION_SHARE/stress_reboot_30.tgz
+
+plugin: shell
 id: stress/poweroff
 requires:
  package.name == 'upstart'
@@ -164,6 +180,22 @@ plugin: attachment
 id: stress/poweroff_log
 depends: stress/poweroff
 command: tar cvfz $PLAINBOX_SESSION_SHARE/stress_poweroff.tgz $PLAINBOX_SESSION_SHARE/*poweroff.100.log && cat $PLAINBOX_SESSION_SHARE/stress_poweroff.tgz
+
+plugin: shell
+id: stress/poweroff_30
+requires:
+ package.name == 'upstart'
+ package.name == 'fwts'
+command: pm_test -r 30 --silent --log-level=notset poweroff --log-dir=$PLAINBOX_SESSION_SHARE
+user: root
+environ: PLAINBOX_SESSION_SHARE
+_description:
+ Stress poweroff system (30 cycles)
+
+plugin: attachment
+id: stress/poweroff_30_log
+depends: stress/poweroff
+command: tar cvfz $PLAINBOX_SESSION_SHARE/stress_poweroff_30.tgz $PLAINBOX_SESSION_SHARE/*poweroff.30.log && cat $PLAINBOX_SESSION_SHARE/stress_poweroff_30.tgz
 
 plugin: shell
 id: stress/reboot_check

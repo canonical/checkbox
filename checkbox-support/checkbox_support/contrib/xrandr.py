@@ -392,7 +392,7 @@ class Crtc(object):
     def __del__(self):
         """Frees the reference to the rendering pipe if the instance gets
            removed"""
-        rr.XRRFreeCrtcConfigInfo(self._info)
+        rr.XRRFreeCrtcInfo(self._info)
 
     def get_xid(self):
         """Returns the internal id of the crtc from the X server"""

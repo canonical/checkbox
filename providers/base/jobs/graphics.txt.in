@@ -533,3 +533,20 @@ command: base64 ${PLAINBOX_SESSION_SHARE}/screenshot_opencv_validation.jpg
 _description: Attaches the screenshot captured in graphics/screenshot_opencv_validation.
 _summary: Attach the screenshot captured for the automatically validated screenshot test
 
+plugin: shell
+id: graphics/screen-capture-internal
+_summary: Obtains a simple screen capture
+estimated_duration: 1.0
+requires: package.name == 'gnome-screenshot'
+command: gnome-screenshot --file ${PLAINBOX_SESSION_SHARE}/screen-capture.png
+_description: Obtains a simple screen capture using gnome-screenshot if present
+
+plugin: attachment
+id: screen-capture-internal.png
+_summary: Attaches a simple screen capture
+estimated_duration: 1.0
+depends: graphics/screen-capture-internal
+command: [ -f ${PLAINBOX_SESSION_SHARE}/screen-capture.png ] && base64 ${PLAINBOX_SESSION_SHARE}/screen-capture.png
+_description: Attaches the simple screen capture file
+
+

@@ -1,5 +1,6 @@
 plugin: user-interact
 id: keys/lock-screen
+estimated_duration: 30.0
 requires:
  device.category == 'KEYBOARD'
 command: lock_screen_watcher
@@ -17,6 +18,7 @@ _description:
 
 plugin: manual
 id: keys/brightness
+estimated_duration: 30.0
 requires: dmi.product in ['Notebook','Laptop','Portable']
 _description:
  PURPOSE:
@@ -28,6 +30,7 @@ _description:
 
 plugin: user-interact-verify
 id: keys/volume
+estimated_duration: 30.0
 requires:
  device.category == 'KEYBOARD'
 user: root
@@ -44,6 +47,7 @@ _description:
 
 plugin: user-interact-verify
 id: keys/mute
+estimated_duration: 30.0
 requires:
  device.category == 'KEYBOARD'
 user: root
@@ -59,6 +63,7 @@ _description:
 
 plugin: manual
 id: keys/sleep
+estimated_duration: 90.0
 requires:
  device.category == 'KEYBOARD'
 _description:
@@ -72,6 +77,7 @@ _description:
 
 plugin: user-interact-verify
 id: keys/battery-info
+estimated_duration: 30.0
 requires: dmi.product in ['Notebook','Laptop','Portable']
 user: root
 command: key_test -s '0xe071,0xef1:Battery Info'
@@ -88,6 +94,7 @@ _description:
 
 plugin: manual
 id: keys/wireless
+estimated_duration: 90.0
 requires: dmi.product in ['Notebook','Laptop','Portable']
 _description:
  PURPOSE:
@@ -106,6 +113,7 @@ _description:
 
 plugin: user-interact
 id: keys/media-control
+estimated_duration: 30.0
 requires:
  device.category == 'KEYBOARD'
 user: root
@@ -122,6 +130,7 @@ _description:
 
 plugin: user-interact
 id: keys/super
+estimated_duration: 30.0
 requires:
  device.category == 'KEYBOARD'
 user: root
@@ -137,6 +146,7 @@ _description:
 
 plugin: manual
 id: keys/video-out
+estimated_duration: 120.0
 requires: dmi.product in ['Notebook','Laptop','Portable']
 _description:
  PURPOSE:
@@ -149,6 +159,7 @@ _description:
 
 plugin: manual
 id: keys/touchpad
+estimated_duration: 30.0
 requires: dmi.product in ['Notebook','Laptop','Portable']
 _description:
  PURPOSE:
@@ -162,6 +173,7 @@ _description:
 
 plugin: manual
 id: keys/keyboard-backlight
+estimated_duration: 30.0
 requires: dmi.product in ['Notebook','Laptop','Portable']
 _description:
  PURPOSE:
@@ -176,6 +188,7 @@ _description:
 
 plugin: user-interact-verify
 id: keys/microphone-mute
+estimated_duration: 60.0
 requires:
  device.category == 'AUDIO'
  device.category == 'KEYBOARD'
@@ -195,6 +208,7 @@ _description:
 
 plugin: manual
 id: keys/hibernate
+estimated_duration: 120.0
 requires: dmi.product in ['Notebook','Laptop','Portable']
 _description:
  PURPOSE:
@@ -208,6 +222,7 @@ _description:
 
 plugin: manual
 id: keys/keyboard-overhead-light
+estimated_duration: 30.0
 requires: dmi.product in ['Notebook','Laptop','Portable']
 _description:
  PURPOSE:

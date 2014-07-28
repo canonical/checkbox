@@ -262,7 +262,6 @@ id: stress/graphics-tarball
 estimated_duration: 1.0
 requires:
  package.name == 'x11-apps'
-depends: stress/graphics
 command: [ -e $PLAINBOX_SESSION_SHARE/graphics-stress-results ] && tar cvfz $PLAINBOX_SESSION_SHARE/graphics-stress-results.tar.gz $PLAINBOX_SESSION_SHARE/graphics-stress-results
 _description: Attaches the graphics stress results to the submission.
 
@@ -297,7 +296,7 @@ id: stress/network_restart
 estimated_duration: 1500.0
 user: root
 environ: PLAINBOX_SESSION_SHARE
-command: network_restart -t 1 -o $PLAINBOX_SESSION_SHARE
+command: network_restart -t 100 -o $PLAINBOX_SESSION_SHARE
 _description: Ping ubuntu.com and restart network interfaces 100 times
 
 plugin: attachment

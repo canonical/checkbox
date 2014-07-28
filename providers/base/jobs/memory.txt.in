@@ -1,5 +1,6 @@
 plugin: shell
 id: memory/info
+estimated_duration: 5.0 
 user: root
 command: memory_compare
 _description:
@@ -8,6 +9,7 @@ _description:
 
 plugin: shell
 id: memory/check
+estimated_duration: 1000.0
 user: root
 requires:
  uname.name == 'Linux'

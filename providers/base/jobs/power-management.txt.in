@@ -99,7 +99,7 @@ _description:
  VERIFICATION:
     Does closing your laptop lid cause your system to suspend?
 
-plugin: user-interact
+plugin: user-interact-verify
 id: power-management/lid_close
 estimated_duration: 60.0
 requires: device.product == 'Lid Switch'
@@ -118,7 +118,7 @@ _description:
  VERIFICATION:
      Did the screen turn off while the lid was closed?
 
-plugin: user-interact
+plugin: user-interact-verify
 id: power-management/lid_open
 estimated_duration: 60.0
 requires: device.product == 'Lid Switch'

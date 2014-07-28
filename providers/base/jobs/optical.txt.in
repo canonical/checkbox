@@ -65,7 +65,7 @@ command:
  plugin: user-interact-verify
  id: optical/cdrom-write_`ls /sys$path/block`
  estimated_duration: 120.0
- requires: 
+ requires:
   device.path == "$path"
   optical_drive_`ls /sys$path/block`.cd_write == 'supported'
  user: root
@@ -94,7 +94,7 @@ command:
  plugin: shell
  id: optical/cdrom-write-automated_`ls /sys$path/block`
  estimated_duration: 120.0
- requires: 
+ requires:
   device.path == "$path"
   optical_drive_`ls /sys$path/block`.cd_write == 'supported'
  user: root
@@ -134,7 +134,7 @@ command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=CDROM"'
  plugin: user-interact-verify
  id: optical/dvd-write_`ls /sys$path/block`
- requires: 
+ requires:
   device.path == "$path"
   optical_drive_`ls /sys$path/block`.dvd_write == 'supported'
  estimated_duration: 120.0
@@ -164,7 +164,7 @@ command:
  plugin: shell
  id: optical/dvd-write-automated_`ls /sys$path/block`
  estimated_duration: 120.0
- requires: 
+ requires:
   device.path == "$path"
   optical_drive_`ls /sys$path/block`.dvd_write == 'supported'
  user: root

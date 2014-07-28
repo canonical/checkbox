@@ -2,11 +2,13 @@ plugin: local
 _summary: Benchmark for each disk
 id: benchmarks/disk/hdparm-read
 requires: device.category == 'DISK'
+estimated_duration: 1.0
 _description: Benchmark for each disk
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell
  id: benchmarks/disk/hdparm-read_`ls /sys$path/block`
+ estimated_duration: 15.0
  requires: device.path == "$path"
  user: root
  command: hdparm -t /dev/`ls /sys$path/block | sed 's|!|/|'` | sed -e :a -e '$!N;s/\n/ /;ta' | sed 's/.*= *//'
@@ -16,12 +18,14 @@ command:
 plugin: local
 _summary: Benchmark for each disk
 id: benchmarks/disk/hdparm-cache-read
+estimated_duration: 1.0
 requires: device.category == 'DISK'
 _description: Benchmark for each disk
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell
  id: benchmarks/disk/hdparm-cache-read_`ls /sys$path/block`
+ estimated_duration: 10.0
  requires: device.path == "$path"
  user: root
  command: hdparm -T /dev/`ls /sys$path/block | sed 's|!|/|'` | sed -e :a -e '$!N;s/\n/ /;ta' | sed 's/.*= *//'
@@ -126,42 +130,49 @@ _description: Run Lightsmark benchmark
 
 plugin: shell
 id: benchmarks/memory/cachebench-read
+estimated_duration: 160.0
 requires: package.name == 'phoronix-test-suite'
 command: PRESET_OPTIONS="cachebench.test=0" pts_run cachebench
 _description: Run Cachebench Read benchmark
 
 plugin: shell
 id: benchmarks/memory/cachebench-write
+estimated_duration: 130.0
 requires: package.name == 'phoronix-test-suite'
 command: PRESET_OPTIONS="cachebench.test=1" pts_run cachebench
 _description: Run Cachebench Write benchmark
 
 plugin: shell
 id: benchmarks/memory/cachebench-read-modify-write
+estimated_duration: 140.0
 requires: package.name == 'phoronix-test-suite'
 command: PRESET_OPTIONS="cachebench.test=2" pts_run cachebench
 _description: Run Cachebench Read / Modify / Write benchmark
 
 plugin: shell
 id: benchmarks/memory/stream-copy
+estimated_duration: 6.0
 requires: package.name == 'phoronix-test-suite'
 command: PRESET_OPTIONS="stream.run-type=0" pts_run stream
 _description: Run Stream Copy benchmark
 
 plugin: shell
 id: benchmarks/memory/stream-scale
+estimated_duration: 6.0
 requires: package.name == 'phoronix-test-suite'
 command: PRESET_OPTIONS="stream.run-type=1" pts_run stream
 _description: Run Stream Scale benchmark
 
 plugin: shell
 id: benchmarks/memory/stream-add
+estimated_duration: 5.0
 requires: package.name == 'phoronix-test-suite'
 command: PRESET_OPTIONS="stream.run-type=2" pts_run stream
 _description: Run Stream Add benchmark
 
 plugin: shell
 id: benchmarks/memory/stream-triad
+estimated_duration: 4.0
 requires: package.name == 'phoronix-test-suite'
 command: PRESET_OPTIONS="stream.run-type=3" pts_run stream
 _description: Run Stream Triad benchmark
@@ -181,12 +192,14 @@ _description: Check the time needed to reconnect to a WIFI access point
 
 plugin: shell
 id: benchmarks/processor/encode-mp3
+estimated_duration: 140.0
 requires: package.name == 'phoronix-test-suite'
 command: pts_run encode-mp3
 _description: Run Encode MP3 benchmark
 
 plugin: shell
 id: benchmarks/processor/x264
+estimated_duration: 400.0
 requires: package.name == 'phoronix-test-suite'
 command: pts_run x264
 _description: Run x264 H.264/AVC encoder benchmark
@@ -199,36 +212,42 @@ _description: Run GnuPG benchmark
 
 plugin: shell
 id: benchmarks/processor/compress-pbzip2
+estimated_duration: 90.0
 requires: package.name == 'phoronix-test-suite'
 command: pts_run compress-pbzip2
 _description: Run Compress PBZIP2 benchmark
 
 plugin: shell
 id: benchmarks/processor/compress-7zip
+estimated_duration: 1400
 requires: package.name == 'phoronix-test-suite'
 command: pts_run compress-7zip
 _description: Run Compress 7ZIP benchmark
 
 plugin: shell
 id: benchmarks/processor/n-queens
+estimated_duration: 330.0
 requires: package.name == 'phoronix-test-suite'
 command: pts_run n-queens
 _description: Run N-Queens benchmark
 
 plugin: shell
 id: benchmarks/processor/himeno
+estimated_duration: 75.0
 requires: package.name == 'phoronix-test-suite'
 command: pts_run himeno
 _description: Run Himeno benchmark
 
 plugin: shell
 id: benchmarks/system/cpu_on_idle
+estimated_duration: 10.0
 requires: package.name == 'sysstat'
 command: iostat -x -m 1 10 | python3 -c 'import sys, re; lines="".join(sys.stdin.readlines()); l=[float(n) for n in (re.findall("idle\n.*?(\S+)\n", lines))]; print(sum(l)/len(l),"%")'
 _description: CPU utilization on an idle system.
 
 plugin: shell
 id: benchmarks/system/disk_on_idle
+estimated_duration: 10.0
 requires: package.name == 'sysstat'
 command: iostat -x -m 1 10 | python3 -c 'import sys, re; lines="".join(sys.stdin.readlines()); l=[float(n) for n in (re.findall("util\n.*?(\S+)\n", lines))]; print(sum(l)/len(l),"%")'
 _description: Disk utilization on an idle system.

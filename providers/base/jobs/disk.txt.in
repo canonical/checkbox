@@ -1,5 +1,6 @@
 plugin: shell
 id: disk/detect
+estimated_duration: 0.25
 command: udev_resource | filter_templates -w "category=DISK" | awk -F': ' '$1 == "product" { print $2 }'
 _description: Detects and displays disks attached to the system.
 
@@ -12,7 +13,7 @@ command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell
  id: disk/stats_`ls /sys$path/block`
- requires: 
+ requires:
   device.path == "$path"
   block_device.`ls /sys$path/block`_state != 'removable'
  user: root
@@ -23,6 +24,7 @@ command:
 plugin: local
 _summary: SMART test
 id: disk/smart
+estimated_duration: 0.30
 requires:
  package.name == 'smartmontools'
  device.category == 'DISK'
@@ -31,7 +33,7 @@ command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell
  id: disk/smart_`ls /sys$path/block`
- requires: 
+ requires:
   device.path == "$path"
   block_device.`ls /sys$path/block`_state != 'removable'
  description:
@@ -43,6 +45,7 @@ command:
 plugin: local
 _summary: Verify system storage performs at or above baseline performance
 id: disk/read_performance
+estimated_duration: 0.30
 requires:
  device.category == 'DISK'
 _description: Verify system storage performs at or above baseline performance
@@ -50,6 +53,7 @@ command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell
  id: disk/read_performance_`ls /sys$path/block`
+ estimated_duration: 65.0
  requires:
   device.path == "$path"
   block_device.`ls /sys$path/block`_state != 'removable'
@@ -61,6 +65,7 @@ command:
 plugin: local
 _summary: Verify that storage devices, such as Fibre Channel and RAID can be detected and perform under stress.
 id: disk/storage_devices
+estimated_duration: 1.0
 requires:
  device.category == 'DISK'
 _description: Verify that storage devices, such as Fibre Channel and RAID can be detected and perform under stress.
@@ -68,6 +73,7 @@ command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell
  id: disk/storage_device_`ls /sys$path/block`
+ estimated_duration: 375.0
  user: root
  requires:
   device.path == "$path"
@@ -78,7 +84,8 @@ command:
 
 plugin: shell
 id: disk/spindown
-requires: 
+estimated_duration: 875.0
+requires:
  device.category == 'DISK'
  package.name == 'smartmontools'
 user: root
@@ -88,6 +95,7 @@ _description:
 
 plugin: user-interact
 id: disk/hdd-parking
+estimated_duration: 60.0
 requires: device.category == 'DISK'
 depends: input/accelerometer
 user: root

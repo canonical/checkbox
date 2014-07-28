@@ -11,6 +11,7 @@ command:
 plugin: local
 _summary: Optical read test.
 id: optical/read
+estimated_duration: 1.0
 requires:
  device.category == 'CDROM'
 _description: Optical read test.
@@ -36,6 +37,7 @@ command:
 plugin: local
 _summary: Automated optical read test.
 id: optical/read-automated
+estimated_duration: 1.0
 requires:
  device.category == 'CDROM'
 _description: Automated optical read test.
@@ -54,6 +56,7 @@ command:
 plugin: local
 _summary: CD write test.
 id: optical/cdrom-write
+estimated_duration: 1.0
 requires:
  device.category == 'CDROM'
 _description: CD write test.
@@ -62,7 +65,7 @@ command:
  plugin: user-interact-verify
  id: optical/cdrom-write_`ls /sys$path/block`
  estimated_duration: 120.0
- requires: 
+ requires:
   device.path == "$path"
   optical_drive_`ls /sys$path/block`.cd_write == 'supported'
  user: root
@@ -82,6 +85,7 @@ command:
 plugin: local
 _summary: Automated CD write test
 id: optical/cdrom-write-automated
+estimated_duration: 1.0
 requires:
  device.category == 'CDROM'
 _description: Automated CD write test
@@ -90,7 +94,7 @@ command:
  plugin: shell
  id: optical/cdrom-write-automated_`ls /sys$path/block`
  estimated_duration: 120.0
- requires: 
+ requires:
   device.path == "$path"
   optical_drive_`ls /sys$path/block`.cd_write == 'supported'
  user: root
@@ -122,6 +126,7 @@ _description:
 plugin: local
 _summary: DVD write test.
 id: optical/dvd-write
+estimated_duration: 1.0
 requires:
  device.category == 'CDROM'
 _description: DVD write test.
@@ -129,7 +134,7 @@ command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=CDROM"'
  plugin: user-interact-verify
  id: optical/dvd-write_`ls /sys$path/block`
- requires: 
+ requires:
   device.path == "$path"
   optical_drive_`ls /sys$path/block`.dvd_write == 'supported'
  estimated_duration: 120.0
@@ -150,6 +155,7 @@ command:
 plugin: local
 _summary: Automated DVD write test.
 id: optical/dvd-write-automated
+estimated_duration: 1.0
 requires:
  device.category == 'CDROM'
 _description: Automated DVD write test.
@@ -158,7 +164,7 @@ command:
  plugin: shell
  id: optical/dvd-write-automated_`ls /sys$path/block`
  estimated_duration: 120.0
- requires: 
+ requires:
   device.path == "$path"
   optical_drive_`ls /sys$path/block`.dvd_write == 'supported'
  user: root
@@ -186,6 +192,7 @@ _description:
 plugin: local
 _summary: Automated Blu-Ray read test.
 id: optical/bluray-read
+estimated_duration: 1.0
 requires: device.category == 'CDROM'
 _description: Automated Blu-Ray read test.
 command:
@@ -212,6 +219,7 @@ command:
 plugin: local
 _summary: Automated Blu-Ray write test.
 id: optical/bluray-write
+estimated_duration: 1.0
 requires: device.category == 'CDROM'
 _description: Automated Blu-Ray write test.
 command:

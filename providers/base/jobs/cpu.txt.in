@@ -1,5 +1,6 @@
 plugin: shell
 id: cpu/scaling_test
+estimated_duration: 150.0
 requires:
  package.name == 'fwts'
 user: root
@@ -10,6 +11,7 @@ _description:
 
 plugin: attachment
 id: cpu/scaling_test-log-attach
+estimated_duration: 1.0
 depends: cpu/scaling_test
 command: [[ -e ${PLAINBOX_SESSION_SHARE}/scaling_test.log ]] && cat ${PLAINBOX_SESSION_SHARE}/scaling_test.log
 _description:
@@ -17,6 +19,7 @@ _description:
 
 plugin: shell
 id: cpu/maxfreq_test
+estimated_duration: 0.6
 requires:
  package.name == 'fwts'
 user: root
@@ -26,6 +29,7 @@ _description:
 
 plugin: attachment
 id: cpu/maxfreq_test-log-attach
+estimated_duration: 1.0
 depends: cpu/maxfreq_test
 command: [ -e $PLAINBOX_SESSION_SHARE/maxfreq_test.log ] && cat $PLAINBOX_SESSION_SHARE/maxfreq_test.log
 _description:
@@ -33,12 +37,14 @@ _description:
 
 plugin: shell
 id: cpu/clocktest
+estimated_duration: 60.0
 command: clocktest
 _description:
  Test for clock jitter.
 
 plugin: shell
 id: cpu/offlining_test
+estimated_duration: 1.0
 user: root
 command: cpu_offlining
 _description:
@@ -46,6 +52,7 @@ _description:
 
 plugin: shell
 id: cpu/topology
+estimated_duration: 1.0
 requires: int(cpuinfo.count) > 1 and (cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64')
 command: cpu_topology
 _description:
@@ -53,6 +60,7 @@ _description:
 
 plugin: shell
 id: cpu/frequency_governors
+estimated_duration: 22.0
 user: root
 command: nice -n -20 frequency_governors_test --debug
 _description:
@@ -60,6 +68,7 @@ _description:
 
 plugin: shell
 id: cpu/arm_vfp_support
+estimated_duration: 1.0
 requires: 'arm' in cpuinfo.type
 command: grep VFP /var/log/syslog
 _description:

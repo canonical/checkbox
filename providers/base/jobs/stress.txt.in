@@ -153,7 +153,6 @@ requires:
  package.name == 'upstart'
  package.name == 'fwts'
 command: pm_test -r 100 --silent --log-level=notset reboot --log-dir=$PLAINBOX_SESSION_SHARE
-estimated_duration: 9000
 user: root
 environ: PLAINBOX_SESSION_SHARE
 _description:
@@ -189,7 +188,6 @@ requires:
  package.name == 'upstart'
  package.name == 'fwts'
 command: pm_test -r 100 --silent --log-level=notset poweroff --log-dir=$PLAINBOX_SESSION_SHARE
-estimated_duration: 12000
 user: root
 environ: PLAINBOX_SESSION_SHARE
 _description:

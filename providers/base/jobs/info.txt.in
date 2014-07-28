@@ -142,6 +142,7 @@ command:
 plugin: local
 _summary: SATA/IDE device information.
 id: info/hdparm
+estimated_duration: 1.0
 _description: SATA/IDE device information.
 requires:
  package.name == 'hdparm'
@@ -150,6 +151,7 @@ command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: attachment
  id: info/hdparm_`ls /sys$path/block`.txt
+ estimated_duration: 1.0
  requires:
   device.path == "$path"
   block_device.`ls /sys$path/block`_state != 'removable'
@@ -228,6 +230,7 @@ _description: Provides information about displays attached to the system
 
 plugin: attachment
 id: info/disk_partitions
+estimated_duration: 1.0
 user: root
 command: parted -l -s
 _description: Attaches information about disk partitions

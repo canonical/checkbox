@@ -1,6 +1,7 @@
 plugin: local
 _summary: Pointing device tests.
 id: input/pointing
+estimated_duration: 30.0
 requires:
  device.category == 'MOUSE' or device.category == 'TOUCHPAD' or device.category == 'TOUCHSCREEN'
 _description: Pointing device tests.
@@ -20,6 +21,7 @@ command:
 
 plugin: manual
 id: input/mouse
+estimated_duration: 30.0
 _description:
  PURPOSE:
      This test will test your pointing device
@@ -31,6 +33,7 @@ _description:
 
 plugin: user-interact-verify
 id: input/keyboard
+estimated_duration: 30.0
 command: keyboard_test
 requires: device.category == 'KEYBOARD'
 _description:
@@ -44,6 +47,7 @@ _description:
 
 plugin: manual
 id: input/accelerometer_verify
+estimated_duration: 30.0
 _description:
  PURPOSE:
      Manual detection of accelerometer.
@@ -54,6 +58,7 @@ _description:
 
 plugin: user-interact
 id: input/accelerometer
+estimated_duration: 60.0
 user: root
 depends: input/accelerometer_verify
 command: accelerometer_test -m
@@ -69,6 +74,7 @@ _description:
 
 plugin: local
 id: input/clicking
+estimated_duration: 1.0
 requires:
  device.category == 'MOUSE' or device.category == 'TOUCHPAD'
 _summary: Create click tests for pointing devices.
@@ -76,6 +82,7 @@ _description: Click tests for pointing devices.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=MOUSE" -w "category=TOUCHPAD"'
  plugin: manual
+ estimated_duration: 30.0
  id: input/clicking_`echo "${product}_${category}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`_`basename $path`
  requires: device.path == "$path"
  _summary: Check button functionality for $product

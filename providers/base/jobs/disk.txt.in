@@ -13,7 +13,7 @@ command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell
  id: disk/stats_`ls /sys$path/block`
- requires: 
+ requires:
   device.path == "$path"
   block_device.`ls /sys$path/block`_state != 'removable'
  user: root
@@ -33,7 +33,7 @@ command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell
  id: disk/smart_`ls /sys$path/block`
- requires: 
+ requires:
   device.path == "$path"
   block_device.`ls /sys$path/block`_state != 'removable'
  description:
@@ -85,7 +85,7 @@ command:
 plugin: shell
 id: disk/spindown
 estimated_duration: 875.0
-requires: 
+requires:
  device.category == 'DISK'
  package.name == 'smartmontools'
 user: root

@@ -1,5 +1,6 @@
 plugin: shell
 id: stress/cpu_stress_test
+estimated_duration: 7200.0
 requires:
  package.name == 'stress'
 user: root
@@ -10,6 +11,7 @@ _description:
 
 plugin: shell
 id: power-management/hibernate_30_cycles
+estimated_duration: 5400.00
 depends:
  power-management/hibernate_advanced
 requires:
@@ -31,18 +33,21 @@ _description:
 
 plugin: shell
 id: power-management/hibernate-30-cycles-log-check
+estimated_duration: 1.0
 command: [ -e $PLAINBOX_SESSION_SHARE/hibernate_30_cycles.log ] && sleep_test_log_check -v s4 $PLAINBOX_SESSION_SHARE/hibernate_30_cycles.log
 _description:
  Automated check of the 30 cycle hibernate log for errors detected by fwts.
 
 plugin: attachment
 id: power-management/hibernate-30-cycle-log-attach
+estimated_duration: 1.0
 command: [ -e $PLAINBOX_SESSION_SHARE/hibernate_30_cycles.log ] && cat $PLAINBOX_SESSION_SHARE/hibernate_30_cycles.log
 _description:
  Attaches the log from the 30 cycle Hibernate/Resume test if it exists
 
 plugin: shell
 id: power-management/suspend_30_cycles
+estimated_duration: 2400.0
 depends:
  power-management/rtc
  suspend/suspend_advanced
@@ -63,12 +68,14 @@ _description:
 plugin: shell
 id: power-management/suspend-30-cycles-log-check
 depends: power-management/suspend_30_cycles
+estimated_duration: 1.0
 command: [ -e $PLAINBOX_SESSION_SHARE/suspend_30_cycles.log ] && sleep_test_log_check -v s3 $PLAINBOX_SESSION_SHARE/suspend_30_cycles.log
 _description:
  Automated check of the 30 cycle hibernate log for errors detected by fwts.
 
 plugin: attachment
 id: power-management/suspend-30-cycle-log-attach
+estimated_duration: 1.0
 depends: power-management/suspend_30_cycles
 command: [ -e $PLAINBOX_SESSION_SHARE/suspend_30_cycles.log ] && cat $PLAINBOX_SESSION_SHARE/suspend_30_cycles.log
 _description:
@@ -76,6 +83,7 @@ _description:
 
 plugin: shell
 id: power-management/suspend-30-cycles-time-check
+estimated_duration: 1.0
 depends: power-management/suspend_30_cycles
 command: [ -e $PLAINBOX_SESSION_SHARE/suspend_30_cycles_times.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/suspend_30_cycles_times.log
 _description:
@@ -83,6 +91,7 @@ _description:
 
 plugin: shell
 id: stress/hibernate_250_cycles
+estimated_duration: 43400.0
 depends: power-management/rtc
 environ: PLAINBOX_SESSION_SHARE
 user: root
@@ -100,12 +109,14 @@ _description:
 
 plugin: attachment
 id: stress/hibernate-250-cycle-log-attach
+estimated_duration: 1.0
 command: [ -e $PLAINBOX_SESSION_SHARE/hibernate_250_cycles.log ] && cat $PLAINBOX_SESSION_SHARE/hibernate_250_cycles.log
 _description:
  Attaches the log from the 250 cycle Hibernate/Resume test if it exists
 
 plugin: shell
 id: stress/suspend_250_cycles
+estimated_duration: 18750.0
 depends: power-management/rtc
 environ: PLAINBOX_SESSION_SHARE
 user: root
@@ -123,18 +134,21 @@ _description:
 
 plugin: attachment
 id: stress/suspend-250-cycle-log-attach
+estimated_duration: 1.0
 command: [ -e $PLAINBOX_SESSION_SHARE/suspend_250_cycles.log ] && cat $PLAINBOX_SESSION_SHARE/suspend_250_cycles.log
 _description:
  Attaches the log from the 250 cycle Suspend/Resume test if it exists
 
 plugin: shell
 id: stress/suspend-250-cycles-time-check
+estimated_duration: 1.0
 command: [ -e $PLAINBOX_SESSION_SHARE/suspend_250_cycles_times.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/suspend_250_cycles_times.log
 _description:
  Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
 
 plugin: shell
 id: stress/reboot
+estimated_duration: 4500.0
 requires:
  package.name == 'upstart'
  package.name == 'fwts'
@@ -147,6 +161,7 @@ _description:
 
 plugin: attachment
 id: stress/reboot_log
+estimated_duration: 1.0
 depends: stress/reboot
 command: tar cvfz $PLAINBOX_SESSION_SHARE/stress_reboot.tgz $PLAINBOX_SESSION_SHARE/*reboot.100.log && cat $PLAINBOX_SESSION_SHARE/stress_reboot.tgz
 
@@ -169,6 +184,7 @@ command: tar cvfz $PLAINBOX_SESSION_SHARE/stress_reboot_30.tgz $PLAINBOX_SESSION
 
 plugin: shell
 id: stress/poweroff
+estimated_duration: 4500.0
 requires:
  package.name == 'upstart'
  package.name == 'fwts'
@@ -181,6 +197,7 @@ _description:
 
 plugin: attachment
 id: stress/poweroff_log
+estimated_duration: 1.0
 depends: stress/poweroff
 command: tar cvfz $PLAINBOX_SESSION_SHARE/stress_poweroff.tgz $PLAINBOX_SESSION_SHARE/*poweroff.100.log && cat $PLAINBOX_SESSION_SHARE/stress_poweroff.tgz
 
@@ -203,30 +220,35 @@ command: tar cvfz $PLAINBOX_SESSION_SHARE/stress_poweroff_30.tgz $PLAINBOX_SESSI
 
 plugin: shell
 id: stress/reboot_check
+estimated_duration: 1.0
 depends: stress/reboot
 command: pm_log_check --log-level=notset $PLAINBOX_SESSION_SHARE/pm_test.reboot.100.log $PLAINBOX_SESSION_SHARE/pm_log_check_reboot.100.log
 _description: Check logs for the stress reboot (100 cycles) test case
 
 plugin: attachment
 id: stress/reboot_check_log
+estimated_duration: 1.0
 depends: stress/reboot_check
 command:
  tar cvfz $PLAINBOX_SESSION_SHARE/stress_reboot_check.tgz $PLAINBOX_SESSION_SHARE/pm_log_check_reboot.100.log && cat $PLAINBOX_SESSION_SHARE/stress_reboot_check.tgz
 
 plugin: shell
 id: stress/poweroff_check
+estimated_duration: 1.0
 depends: stress/poweroff
 command: pm_log_check --log-level=notset $PLAINBOX_SESSION_SHARE/pm_test.poweroff.100.log $PLAINBOX_SESSION_SHARE/pm_log_check_poweroff.100.log
 _description: Check logs for the stress poweroff (100 cycles) test case
 
 plugin: attachment
 id: stress/poweroff_check_log
+estimated_duration: 1.0
 depends: stress/poweroff_check
 command:
  tar cvfz $PLAINBOX_SESSION_SHARE/stress_poweroff_check.tgz $PLAINBOX_SESSION_SHARE/pm_log_check_poweroff.100.log && cat $PLAINBOX_SESSION_SHARE/stress_poweroff_check.tgz
 
 plugin: shell
 id: stress/graphics
+estimated_duration: 600.0
 requires:
  package.name == 'x11-apps'
 user: root
@@ -237,6 +259,7 @@ _description:
 
 plugin: shell
 id: stress/graphics-tarball
+estimated_duration: 1.0
 requires:
  package.name == 'x11-apps'
 depends: stress/graphics
@@ -245,6 +268,7 @@ _description: Attaches the graphics stress results to the submission.
 
 plugin: shell
 id: stress/usb
+estimated_duration: 710.0
 user: root
 command: removable_storage_test -s 10240000 -c 100 -i 3 usb
 _description: Runs a test that transfers 100 10MB files 3 times to usb.
@@ -270,6 +294,7 @@ _description:
 
 plugin: shell
 id: stress/network_restart
+estimated_duration: 1500.0
 user: root
 environ: PLAINBOX_SESSION_SHARE
 command: network_restart -t 1 -o $PLAINBOX_SESSION_SHARE
@@ -277,11 +302,13 @@ _description: Ping ubuntu.com and restart network interfaces 100 times
 
 plugin: attachment
 id: stress/network_restart_log
+estimated_duration: 1.0
 depends: stress/network_restart
 command: file=$PLAINBOX_SESSION_SHARE/network_restart.log; if [ -e "$file" ]; then iconv -t 'ascii' -c "$file"; fi
 
 plugin: manual
 id: stress/wireless_hotkey
+estimated_duration: 60.0
 requires: dmi.product in ['Notebook','Laptop','Portable']
 _description:
  PURPOSE:

@@ -939,7 +939,7 @@ class ValidateCommand(ManageCommand):
                     print("{}".format(exc))
             print(_("NOTE: subsequent units from problematic"
                     " files are ignored"))
-        return unit_list
+        return unit_list, problem_list
 
     def validate_units(self, unit_list, ns):
         problem_list = []
@@ -952,8 +952,8 @@ class ValidateCommand(ManageCommand):
 
     def invoked(self, ns):
         provider = self.get_provider()
-        unit_list = self.get_unit_list(provider)
-        problem_list = self.validate_units(unit_list, ns)
+        unit_list, load_problem_list = self.get_unit_list(provider)
+        validation_problem_list = self.validate_units(unit_list, ns)
         explain = {
             Problem.missing: _("missing definition of required field"),
             Problem.wrong: _("incorrect value supplied"),
@@ -962,7 +962,7 @@ class ValidateCommand(ManageCommand):
             Problem.constant: _("template field is constant"),
             Problem.variable: _("template field is variable"),
         }
-        for job, error in problem_list:
+        for job, error in validation_problem_list:
             if isinstance(error, JobValidationError):
                 # TRANSLATORS: fields are as follows:
                 # 0: filename with job definition
@@ -984,7 +984,7 @@ class ValidateCommand(ManageCommand):
                         ', '.join(str(symbol) for symbol in symbol_list)))
             else:
                 print(str(error))
-        if problem_list:
+        if validation_problem_list or load_problem_list:
             return 1
         else:
             print(_("All jobs seem to be valid"))

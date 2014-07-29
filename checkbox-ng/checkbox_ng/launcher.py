@@ -26,6 +26,7 @@ from gettext import gettext as _
 import logging
 
 from plainbox.impl.secure import config
+from plainbox.impl.transport import get_all_transports
 
 
 logger = logging.getLogger("checkbox.ng.launcher")
@@ -64,7 +65,7 @@ class LauncherDefinition(config.Config):
 
     submit_to_hexr = config.Variable(
         section="submission",
-        # TODO: choice validator (boolean?)
+        kind=bool,
         # TODO: default?
         help_text=_("If enabled then test results will be also sent to HEXR"))
 
@@ -74,7 +75,7 @@ class LauncherDefinition(config.Config):
 
     submit_to = config.Variable(
         section="transport",
-        # TODO: probably a choice validator
+        validator_list=[config.ChoiceValidator(get_all_transports().keys())],
         help_text=_("Where to submit the test results to"))
 
     config_filename = config.Variable(

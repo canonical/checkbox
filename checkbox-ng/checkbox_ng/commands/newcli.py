@@ -42,12 +42,13 @@ from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.exporter.html import HTMLSessionStateExporter
 from plainbox.impl.exporter.xml import XMLSessionStateExporter
-from plainbox.impl.secure.config import Unset
+from plainbox.impl.secure.config import Unset, ValidationError
 from plainbox.impl.secure.qualifiers import FieldQualifier
 from plainbox.impl.secure.qualifiers import OperatorMatcher
 from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.secure.qualifiers import select_jobs
 from plainbox.impl.session import SessionMetaData
+from plainbox.impl.transport import get_all_transports
 from plainbox.vendor.textland import get_display
 
 from checkbox_ng.misc import SelectableJobTreeNode
@@ -331,3 +332,57 @@ class CliInvocation2(RunInvocation):
             # FIXME: replacing extension is ugly
             print(_("View results") + " (XLSX): file://{}".format(
                 results_file.replace('html', 'xlsx')))
+        if self.launcher.submit_to is not Unset:
+            if self.launcher.submit_to == 'certification':
+                if self.config.secure_id is Unset:
+                    again = True
+                    if not self.is_interactive:
+                        again = False
+                    while again:
+                        if self.ask_for_confirmation(
+                            _("\nSubmit results to "
+                              "certification.canonical.com?")):
+                            try:
+                                self.config.secure_id = input(_("Secure ID: "))
+                            except ValidationError:
+                                print(
+                                    _("ERROR: Secure ID must be 15 or "
+                                      "18-character alphanumeric string"))
+                            else:
+                                again = False
+                                self.submit_certification_results()
+                        else:
+                            again = False
+                else:
+                    # Automatically try to submit results if the secure_id is
+                    # valid
+                    self.submit_certification_results()
+
+    def submit_certification_results(self):
+        from checkbox_ng.certification import InvalidSecureIDError
+        transport_cls = get_all_transports().get('certification')
+        # TRANSLATORS: Do not translate the {} format markers.
+        print(_("Submitting results to {0} for secure_id {1})").format(
+            self.config.c3_url, self.config.secure_id))
+        options_string = "secure_id={0}".format(self.config.secure_id)
+        # Create the transport object
+        try:
+            transport = transport_cls(
+                self.config.c3_url, options_string)
+        except InvalidSecureIDError as exc:
+            print(exc)
+            return False
+        with open(self.submission_file) as stream:
+            try:
+                # Send the data, reading from the fallback file
+                result = transport.send(stream, self.config)
+                if 'url' in result:
+                    # TRANSLATORS: Do not translate the {} format marker.
+                    print(_("Successfully sent, submission status"
+                            " at {0}").format(result['url']))
+                else:
+                    # TRANSLATORS: Do not translate the {} format marker.
+                    print(_("Successfully sent, server response"
+                            ": {0}").format(result))
+            except TransportError as exc:
+                print(str(exc))

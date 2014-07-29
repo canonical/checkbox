@@ -67,6 +67,8 @@ setup(
     entry_points={
         'console_scripts': [
             'checkbox=checkbox_ng.main:main',
+            'checkbox-launcher=checkbox_ng.main:launcher',
+            'checkbox-gui-service=checkbox_ng.main:service',
         ],
         'plainbox.transport': [
             'certification='

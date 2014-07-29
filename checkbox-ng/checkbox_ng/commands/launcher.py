@@ -29,29 +29,11 @@ import sys
 from plainbox.vendor.textland import get_display
 
 from checkbox_ng.commands import CheckboxCommand
+from checkbox_ng.commands.newcli import CliInvocation2
 from checkbox_ng.launcher import LauncherDefinition
-from checkbox_ng.ui import ShowWelcome
 
 
 logger = logging.getLogger("checkbox.ng.commands.launcher")
-
-
-class LauncherInvocation:
-
-    def __init__(self, provider_list, config, launcher):
-        self._provider_list = provider_list
-        self._config = config
-        self._launcher = launcher
-        self._display = get_display()
-
-    def run(self):
-        logger.debug(_("Running tests according to launcher specification"))
-        self.show_welcome()
-
-    def show_welcome(self):
-        logger.debug(_("Using welcome text: %s"), self._launcher.text)
-        self._display.run(
-            ShowWelcome(self._launcher.text))
 
 
 class LauncherCommand(CheckboxCommand):
@@ -82,8 +64,10 @@ class LauncherCommand(CheckboxCommand):
                 logger.error("%s", str(problem))
             return 1
         else:
-            return LauncherInvocation(
-                self.provider_list, self.config, launcher).run()
+            ns.not_interactive = False
+            ns.dry_run = False
+            return CliInvocation2(self.provider_list, self.config, ns,
+                                  launcher).run()
 
     def register_parser(self, subparsers):
         parser = self.add_subcommand(subparsers)

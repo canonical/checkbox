@@ -77,6 +77,19 @@ class CommandBase(metaclass=abc.ABCMeta):
         ArgumentParser.add_subparsers()
         """
 
+    # This method is optional
+    def register_arguments(self, parser):
+        """
+        Implement to customize which arguments need to be added to a parser.
+
+        This method differs from register_parser() in that it allows commands
+        which implement it to be invoked directly from a tool class (without
+        being a subcommand that needs to be selected). If implemented it should
+        be used from within :meth:`register_parser()` to ensure identical
+        behavior in both cases (subcommand and tool-level command)
+        """
+        raise NotImplementedError("register_arguments() not customized")
+
     def autopager(self):
         """
         Enable automatic pager.

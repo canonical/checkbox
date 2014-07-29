@@ -30,6 +30,7 @@ from gettext import gettext as _
 from logging import getLogger
 import re
 
+from plainbox.impl.secure.config import Unset
 from plainbox.impl.transport import TransportBase
 from plainbox.impl.transport import TransportError
 import requests
@@ -102,7 +103,7 @@ class CertificationTransport(TransportBase):
             If the server returned a non-success result code
         """
         proxies = None
-        if config:
+        if config and config.environment is not Unset:
             proxies = {
                 proto[:-len("_proxy")]: config.environment[proto]
                 for proto in ['http_proxy', 'https_proxy']

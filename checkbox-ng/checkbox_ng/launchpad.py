@@ -35,6 +35,7 @@ import hashlib
 import requests
 
 from checkbox_support.lib.dmi import Dmi
+from plainbox.impl.secure.config import Unset
 from plainbox.impl.transport import TransportBase, TransportError
 
 logger = getLogger("checkbox.ng.launchpad")
@@ -149,7 +150,7 @@ class LaunchpadTransport(TransportBase):
                 - dmi: product
         """
         proxies = None
-        if config:
+        if config and config.environment is not Unset:
             proxies = {
                 proto[:-len("_proxy")]: config.environment[proto]
                 for proto in ['http_proxy', 'https_proxy']

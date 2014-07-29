@@ -33,6 +33,7 @@ import io
 import json
 import operator
 import os
+import re
 import sys
 
 from plainbox.impl.applogic import get_whitelist_by_name
@@ -64,29 +65,29 @@ class CliInvocation2(RunInvocation):
 
     :ivar ns:
         The argparse namespace obtained from CliCommand
-    :ivar _settings:
-        Settings specific to 'checkbox cli'
+    :ivar _launcher:
+        launcher specific to 'checkbox cli'
     :ivar _display:
         A textland display object
     :ivar _whitelists:
         A list of whitelists to look at
     """
 
-    def __init__(self, provider_list, config, ns, settings, display=None):
+    def __init__(self, provider_list, config, ns, launcher, display=None):
         super().__init__(provider_list, config, ns)
         if display is None:
             display = get_display()
-        self._settings = settings
+        self._launcher = launcher
         self._display = display
         self._whitelists = []
         self.select_whitelist()
 
     @property
-    def settings(self):
+    def launcher(self):
         """
-        TBD: 'checkbox cli' specific settings
+        TBD: 'checkbox cli' specific launcher settings
         """
-        return self._settings
+        return self._launcher
 
     @property
     def display(self):
@@ -96,12 +97,13 @@ class CliInvocation2(RunInvocation):
         return self._display
 
     def select_whitelist(self):
-        if self.ns.whitelist:
+        if 'whitelist' in self.ns and self.ns.whitelist:
             for whitelist in self.ns.whitelist:
                 self._whitelists.append(WhiteList.from_file(whitelist.name))
         elif self.config.whitelist is not Unset:
             self._whitelists.append(WhiteList.from_file(self.config.whitelist))
-        elif self.ns.include_pattern_list:
+        elif ('include_pattern_list' in self.ns and
+              self.ns.include_pattern_list):
             self._whitelists.append(WhiteList(self.ns.include_pattern_list))
 
     def run(self):
@@ -183,7 +185,7 @@ class CliInvocation2(RunInvocation):
         logger.info("Loaded whitelist mask: %r", self._whitelists)
 
     def show_welcome_screen(self):
-        text = self.settings.get('welcome_text')
+        text = self.launcher.text
         if self.is_interactive and text:
             self.display.run(ShowWelcome(text))
 
@@ -205,10 +207,9 @@ class CliInvocation2(RunInvocation):
         """
         whitelist_name_list = []
         for provider in self.provider_list:
-            if provider.name in self.settings['default_providers'] or True:
-                whitelist_name_list.extend([
-                    whitelist.name for whitelist in
-                    provider.get_builtin_whitelists()])
+            whitelist_name_list.extend([
+                whitelist.name for whitelist in
+                provider.get_builtin_whitelists() if re.search(self.launcher.whitelist_filter, whitelist.name)])
         selected_list = self.display.run(
             ShowMenu(_("Suite selection"), whitelist_name_list))
         if not selected_list:
@@ -219,7 +220,7 @@ class CliInvocation2(RunInvocation):
 
     def get_default_whitelists(self):
         return [get_whitelist_by_name(
-            self.provider_list, self.settings['default_whitelist'])]
+            self.provider_list, self.launcher.default_whitelist)]
 
     def create_exporter(self):
         """

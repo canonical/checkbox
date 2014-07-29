@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012-2013 Canonical Ltd.
+# Copyright 2012-2014 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
@@ -31,7 +31,7 @@ from plainbox.impl.clitools import ToolBase
 from plainbox.testing_utils.io import TestIO
 
 from checkbox_ng import __version__ as version
-from checkbox_ng.main import cert_server, main
+from checkbox_ng.main import main
 
 
 class TestMain(TestCase):
@@ -53,22 +53,15 @@ class TestMain(TestCase):
         expected = """
         usage: checkbox [-h] [--version] [--providers {all,stub}] [-v] [-D] [-C]
                         [-T LOGGER] [-P] [-I]
-                        
-                        {sru,check-config,submit,script,dev,checkbox-cli,driver-test-suite-cli,certification-server,service}
-                        ...
+                        {sru,check-config,script,dev,service} ...
 
         positional arguments:
-          {sru,check-config,submit,script,dev,checkbox-cli,driver-test-suite-cli,certification-server,service}
+          {sru,check-config,script,dev,service}
             sru                 run automated stable release update tests
             check-config        check and display plainbox configuration
             submit              submit test results to Canonical certification website
             script              run a command from a job
             dev                 development commands
-            checkbox-cli        application for system testing
-            driver-test-suite-cli
-                                driver test suite application
-            certification-server
-                                application for server certification
             service             spawn dbus service
 
         optional arguments:
@@ -100,49 +93,8 @@ class TestMain(TestCase):
         expected = """
         usage: checkbox [-h] [--version] [--providers {all,stub}] [-v] [-D] [-C]
                         [-T LOGGER] [-P] [-I]
-                        
-                        {sru,check-config,submit,script,dev,checkbox-cli,driver-test-suite-cli,certification-server,service}
-                        ...
+                        {sru,check-config,script,dev,service} ...
         checkbox: error: too few arguments
 
-        """
-        self.assertEqual(io.combined, cleandoc(expected) + "\n")
-
-
-class TestCertServer(TestCase):
-
-    def test_help(self):
-        with TestIO(combined=True) as io:
-            with self.assertRaises(SystemExit) as call:
-                cert_server(['--help'])
-        self.assertEqual(call.exception.args, (0,))
-        self.maxDiff = None
-        expected = """
-        usage: checkbox certification-server [-h] [--check-config] [--not-interactive]
-                                             [--secure-id SECURE-ID]
-                                             [--destination URL] [--staging]
-                                             [-i PATTERN] [-x PATTERN] [-w WHITELIST]
-
-        optional arguments:
-          -h, --help            show this help message and exit
-          --check-config        run check-config
-          --not-interactive     skip tests that require interactivity
-
-        certification-specific options:
-          --secure-id SECURE-ID
-                                associate submission with a machine using this SECURE-
-                                ID (None)
-          --destination URL     POST the test report XML to this URL (https://certific
-                                ation.canonical.com/submissions/submit/)
-          --staging             override --destination to use the staging
-                                certification website
-
-        job definition options:
-          -i PATTERN, --include-pattern PATTERN
-                                include jobs matching the given regular expression
-          -x PATTERN, --exclude-pattern PATTERN
-                                exclude jobs matching the given regular expression
-          -w WHITELIST, --whitelist WHITELIST
-                                load whitelist containing run patterns
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")

@@ -48,6 +48,7 @@ from plainbox.impl.secure.qualifiers import OperatorMatcher
 from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.secure.qualifiers import select_jobs
 from plainbox.impl.session import SessionMetaData
+from plainbox.impl.transport import TransportError
 from plainbox.impl.transport import get_all_transports
 from plainbox.vendor.textland import get_display
 
@@ -357,6 +358,51 @@ class CliInvocation2(RunInvocation):
                     # Automatically try to submit results if the secure_id is
                     # valid
                     self.submit_certification_results()
+            elif self.launcher.submit_to == 'launchpad':
+                if self.config.email_address is Unset:
+                    again = True
+                    if not self.is_interactive:
+                        again = False
+                    while again:
+                        if self.ask_for_confirmation(
+                                _("\nSubmit results to launchpad.net/+hwdb?")):
+                            self.config.email_address = input(
+                                _("Email address: "))
+                            again = False
+                            self.submit_launchpad_results()
+                        else:
+                            again = False
+                else:
+                    # Automatically try to submit results if the email_address
+                    # is valid
+                    self.submit_launchpad_results()
+
+    def submit_launchpad_results(self):
+        transport_cls = get_all_transports().get('launchpad')
+        options_string = "field.emailaddress={}".format(
+            self.config.email_address)
+        transport = transport_cls(self.config.lp_url, options_string)
+        # TRANSLATORS: Do not translate the {} format markers.
+        print(_("Submitting results to {0} for email_address {1})").format(
+            self.config.lp_url, self.config.email_address))
+        with open(self.submission_file, encoding='utf-8') as stream:
+            try:
+                # NOTE: don't pass the file-like object to this transport
+                json = transport.send(
+                    stream.read(),
+                    self.config,
+                    session_state=self.manager.state)
+                if json.get('url'):
+                    # TRANSLATORS: Do not translate the {} format marker.
+                    print(_("Submission uploaded to: {0}".format(json['url'])))
+                elif json.get('status'):
+                    print(json['status'])
+                else:
+                    # TRANSLATORS: Do not translate the {} format marker.
+                    print(
+                        _("Bad response from {0} transport".format(transport)))
+            except TransportError as exc:
+                print(str(exc))
 
     def submit_certification_results(self):
         from checkbox_ng.certification import InvalidSecureIDError

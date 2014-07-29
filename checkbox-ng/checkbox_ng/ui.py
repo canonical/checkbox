@@ -184,20 +184,20 @@ class ScrollableTreeNode(IApplication):
         bottom = self.top + self.image.size.height - 4
         ctx.print(self.title)
         ctx.move_to(1, self.image.size.height - 1)
-        ctx.attributes.style = UNDERLINE
+        ctx.attributes.style = REVERSE
         ctx.print(_("Enter"))
         ctx.move_to(6, self.image.size.height - 1)
         ctx.attributes.style = NORMAL
         ctx.print(_(": Expand/Collapse"))
         ctx.move_to(27, self.image.size.height - 1)
-        ctx.attributes.style = UNDERLINE
+        ctx.attributes.style = REVERSE
         # FIXME: i18n problem
         ctx.print("S")
         ctx.move_to(28, self.image.size.height - 1)
         ctx.attributes.style = NORMAL
         ctx.print("elect All")
         ctx.move_to(41, self.image.size.height - 1)
-        ctx.attributes.style = UNDERLINE
+        ctx.attributes.style = REVERSE
         # FIXME: i18n problem
         ctx.print("D")
         ctx.move_to(42, self.image.size.height - 1)
@@ -206,7 +206,7 @@ class ScrollableTreeNode(IApplication):
         ctx.move_to(66 + extra_cols, self.image.size.height - 1)
         ctx.print(_("Start "))
         ctx.move_to(72 + extra_cols, self.image.size.height - 1)
-        ctx.attributes.style = UNDERLINE
+        ctx.attributes.style = REVERSE
         # FIXME: i18n problem
         ctx.print("T")
         ctx.move_to(73 + extra_cols, self.image.size.height - 1)

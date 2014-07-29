@@ -23,10 +23,13 @@
 """
 
 from gettext import gettext as _
+import itertools
 import logging
+import os
 
 from checkbox_ng.commands import CheckboxCommand
 from checkbox_ng.commands.newcli import CliInvocation2
+from checkbox_ng.config import CheckBoxConfig
 from checkbox_ng.launcher import LauncherDefinition
 
 
@@ -60,11 +63,24 @@ class LauncherCommand(CheckboxCommand):
             for problem in launcher.problem_list:
                 logger.error("%s", str(problem))
             return 1
-        else:
-            ns.not_interactive = False
-            ns.dry_run = False
-            return CliInvocation2(self.provider_list, self.config, ns,
-                                  launcher).run()
+        # Override the default CheckBox configuration with the one provided
+        # by the launcher
+        self.config.Meta.filename_list = list(
+            itertools.chain(
+                *zip(
+                    itertools.islice(
+                        CheckBoxConfig.Meta.filename_list, 0, None, 2),
+                    itertools.islice(
+                        CheckBoxConfig.Meta.filename_list, 1, None, 2),
+                    ('/etc/xdg/{}'.format(launcher.config_filename),
+                        os.path.expanduser(
+                            '~/.config/{}'.format(launcher.config_filename)))))
+            )
+        self.config.read(self.config.Meta.filename_list)
+        ns.not_interactive = False
+        ns.dry_run = False
+        return CliInvocation2(self.provider_list, self.config, ns,
+                              launcher).run()
 
     def register_parser(self, subparsers):
         parser = self.add_subcommand(subparsers)

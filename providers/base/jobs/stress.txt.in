@@ -217,6 +217,34 @@ depends: stress/poweroff
 command: tar cvfz $PLAINBOX_SESSION_SHARE/stress_poweroff_30.tgz $PLAINBOX_SESSION_SHARE/*poweroff.30.log && cat $PLAINBOX_SESSION_SHARE/stress_poweroff_30.tgz
 
 plugin: shell
+id: stress/reboot_30_check
+estimated_duration: 1.0
+depends: stress/reboot_30
+command: pm_log_check --log-level=notset $PLAINBOX_SESSION_SHARE/pm_test.reboot.30.log $PLAINBOX_SESSION_SHARE/pm_log_check_reboot.30.log
+_description: Check logs for the stress reboot (30 cycles) test case
+
+plugin: attachment
+id: stress/reboot_30_check_log
+estimated_duration: 1.0
+depends: stress/reboot_30_check
+command:
+ tar cvfz $PLAINBOX_SESSION_SHARE/stress_reboot_check_30.tgz $PLAINBOX_SESSION_SHARE/pm_log_check_reboot.30.log && cat $PLAINBOX_SESSION_SHARE/stress_reboot_check_30.tgz
+
+plugin: shell
+id: stress/poweroff_30_check
+estimated_duration: 1.0
+depends: stress/poweroff_30
+command: pm_log_check --log-level=notset $PLAINBOX_SESSION_SHARE/pm_test.poweroff.30.log $PLAINBOX_SESSION_SHARE/pm_log_check_poweroff.30.log
+_description: Check logs for the stress poweroff (30 cycles) test case
+
+plugin: attachment
+id: stress/poweroff_30_check_log
+estimated_duration: 1.0
+depends: stress/poweroff_30_check
+command:
+ tar cvfz $PLAINBOX_SESSION_SHARE/stress_poweroff_check_30.tgz $PLAINBOX_SESSION_SHARE/pm_log_check_poweroff.30.log && cat $PLAINBOX_SESSION_SHARE/stress_poweroff_check_30.tgz
+
+plugin: shell
 id: stress/reboot_check
 estimated_duration: 1.0
 depends: stress/reboot

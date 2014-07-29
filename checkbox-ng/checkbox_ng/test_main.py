@@ -51,26 +51,21 @@ class TestMain(TestCase):
         self.assertEqual(call.exception.args, (0,))
         self.maxDiff = None
         expected = """
-        usage: checkbox [-h] [--version] [--providers {all,stub}] [-v] [-D] [-C]
-                        [-T LOGGER] [-P] [-I]
-                        {sru,check-config,script,dev,service} ...
+        usage: checkbox [-h] [--version] [-v] [-D] [-C] [-T LOGGER] [-P] [-I]
+                        {sru,check-config,service,submit,launcher} ...
 
         positional arguments:
-          {sru,check-config,script,dev,service}
+          {sru,check-config,service,submit,launcher}
             sru                 run automated stable release update tests
             check-config        check and display plainbox configuration
-            submit              submit test results to Canonical certification website
-            script              run a command from a job
-            dev                 development commands
             service             spawn dbus service
+            submit              submit test results to the Canonical certification
+                                website
+            launcher            run a customized testing session
 
         optional arguments:
           -h, --help            show this help message and exit
           --version             show program's version number and exit
-
-        provider list and development:
-          --providers {all,stub}
-                                which providers to load
 
         logging and debugging:
           -v, --verbose         be more verbose (same as --log-level=INFO)
@@ -91,9 +86,8 @@ class TestMain(TestCase):
                 main([])
             self.assertEqual(call.exception.args, (2,))
         expected = """
-        usage: checkbox [-h] [--version] [--providers {all,stub}] [-v] [-D] [-C]
-                        [-T LOGGER] [-P] [-I]
-                        {sru,check-config,script,dev,service} ...
+        usage: checkbox [-h] [--version] [-v] [-D] [-C] [-T LOGGER] [-P] [-I]
+                        {sru,check-config,service,submit,launcher} ...
         checkbox: error: too few arguments
 
         """

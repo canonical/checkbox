@@ -79,7 +79,7 @@ class SubmitInvocation:
     # the leading whitespace *must* be preserved and *must* have the same
     # length on each line.
     N_("""
-    submit test results to Canonical certification website
+    submit test results to the Canonical certification website
 
     This command sends the XML results file to the Certification website.
     """))
@@ -94,8 +94,12 @@ class SubmitCommand(PlainBoxCommand):
         return SubmitInvocation(self.config, ns).run()
 
     def register_parser(self, subparsers):
-        parser = self.add_subcommand(subparsers)
+        parser = subparsers.add_parser("submit", help=_("submit test results to the Canonical certification website"))
+        self.register_arguments(parser)
+
+    def register_arguments(self, parser):
         parser.set_defaults(command=self)
+
         if self.config.secure_id is not Unset:
             parser.set_defaults(secure_id=self.config.secure_id)
 

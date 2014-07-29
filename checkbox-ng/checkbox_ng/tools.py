@@ -111,6 +111,7 @@ class CheckboxTool(CheckboxToolBase):
         from checkbox_ng.commands.launcher import LauncherCommand
         from checkbox_ng.commands.service import ServiceCommand
         from checkbox_ng.commands.sru import SRUCommand
+        from checkbox_ng.commands.submit import SubmitCommand
         from plainbox.impl.commands.check_config import CheckConfigCommand
         SRUCommand(
             self.provider_list, self.config
@@ -120,6 +121,9 @@ class CheckboxTool(CheckboxToolBase):
         ).register_parser(subparsers)
         ServiceCommand(
             self.provider_list, self.config
+        ).register_parser(subparsers)
+        SubmitCommand(
+            self.config
         ).register_parser(subparsers)
         LauncherCommand(
             self.provider_list, self.config
@@ -142,6 +146,23 @@ class CheckboxServiceTool(SingleCommandToolMixIn, CheckboxToolBase):
     def get_command(self):
         from checkbox_ng.commands.service import ServiceCommand
         return ServiceCommand(self.provider_list, self.config)
+
+
+class CheckboxSubmitTool(SingleCommandToolMixIn, CheckboxToolBase):
+    """
+    A tool class that implements checkbox-submit.
+
+    This tool implements the submit feature to send test results to the
+    Canonical certification website
+    """
+
+    @classmethod
+    def get_exec_name(cls):
+        return "checkbox-submit"
+
+    def get_command(self):
+        from checkbox_ng.commands.submit import SubmitCommand
+        return SubmitCommand(self.config)
 
 
 class CheckboxLauncherTool(SingleCommandToolMixIn, CheckboxToolBase):

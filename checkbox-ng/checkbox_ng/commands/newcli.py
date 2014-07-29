@@ -192,7 +192,9 @@ class CliInvocation2(RunInvocation):
             self.display.run(ShowWelcome(text))
 
     def maybe_interactively_select_whitelists(self):
-        if self.is_interactive and not self._whitelists:
+        if self.launcher.skip_whitelist_selection:
+            self._whitelists.extend(self.get_default_whitelists())
+        elif self.is_interactive and not self._whitelists:
             self._whitelists.extend(self.get_interactively_picked_whitelists())
         else:
             self._whitelists.extend(self.get_default_whitelists())
@@ -207,13 +209,18 @@ class CliInvocation2(RunInvocation):
         :returns:
             A list of selected whitelists
         """
-        whitelist_name_list = []
+        whitelist_name_list = whitelist_selection = []
         for provider in self.provider_list:
             whitelist_name_list.extend([
                 whitelist.name for whitelist in
-                provider.get_builtin_whitelists() if re.search(self.launcher.whitelist_filter, whitelist.name)])
+                provider.get_builtin_whitelists() if re.search(
+                    self.launcher.whitelist_filter, whitelist.name)])
+        whitelist_selection = [
+            whitelist_name_list.index(w) for w in whitelist_name_list if
+            re.search(self.launcher.whitelist_selection, w)]
         selected_list = self.display.run(
-            ShowMenu(_("Suite selection"), whitelist_name_list))
+            ShowMenu(_("Suite selection"), whitelist_name_list,
+                     whitelist_selection))
         if not selected_list:
             raise SystemExit(_("No whitelists selected, aborting"))
         return [get_whitelist_by_name(
@@ -221,8 +228,12 @@ class CliInvocation2(RunInvocation):
             for selected_index in selected_list]
 
     def get_default_whitelists(self):
-        return [get_whitelist_by_name(
-            self.provider_list, self.launcher.default_whitelist)]
+        whitelist_name_list = []
+        for provider in self.provider_list:
+            whitelist_name_list.extend([
+                w for w in provider.get_builtin_whitelists() if re.search(
+                    self.launcher.whitelist_selection, w.name)])
+        return whitelist_name_list
 
     def create_exporter(self):
         """
@@ -267,6 +278,8 @@ class CliInvocation2(RunInvocation):
         print(self.C.header(_("Selecting Jobs For Execution")))
         self._update_desired_job_list(select_jobs(
             self.manager.state.job_list, self._whitelists))
+        if self.launcher.skip_test_selection:
+            return
         tree = SelectableJobTreeNode.create_tree(
             self.manager.state.run_list,
             legacy_mode=True)

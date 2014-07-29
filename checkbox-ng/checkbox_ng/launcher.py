@@ -54,6 +54,23 @@ class LauncherDefinition(config.Config):
         # TODO: valid regexp text validator
         help_text=_("Pattern that whitelists need to match to be displayed"))
 
+    whitelist_selection = config.Variable(
+        section="suite",
+        # TODO: valid regexp text validator
+        help_text=_("Pattern that whitelists need to match to be selected"))
+
+    skip_whitelist_selection = config.Variable(
+        section="suite",
+        kind=bool,
+        default=False,
+        help_text=_("If enabled then suite selection screen is not displayed"))
+
+    skip_test_selection = config.Variable(
+        section="suite",
+        kind=bool,
+        default=False,
+        help_text=_("If enabled then test selection screen is not displayed"))
+
     input_type = config.Variable(
         section="submission",
         # TODO: probably a choice validator

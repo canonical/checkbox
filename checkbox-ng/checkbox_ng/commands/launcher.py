@@ -24,9 +24,6 @@
 
 from gettext import gettext as _
 import logging
-import sys
-
-from plainbox.vendor.textland import get_display
 
 from checkbox_ng.commands import CheckboxCommand
 from checkbox_ng.commands.newcli import CliInvocation2

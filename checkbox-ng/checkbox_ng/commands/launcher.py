@@ -23,11 +23,14 @@
 """
 
 from gettext import gettext as _
-import sys
 import logging
+import sys
+
+from plainbox.vendor.textland import get_display
 
 from checkbox_ng.commands import CheckboxCommand
 from checkbox_ng.launcher import LauncherDefinition
+from checkbox_ng.ui import ShowWelcome
 
 
 logger = logging.getLogger("checkbox.ng.commands.launcher")
@@ -39,9 +42,16 @@ class LauncherInvocation:
         self._provider_list = provider_list
         self._config = config
         self._launcher = launcher
+        self._display = get_display()
 
     def run(self):
-        self._launcher.get_parser_obj().write(sys.stdout)
+        logger.debug(_("Running tests according to launcher specification"))
+        self.show_welcome()
+
+    def show_welcome(self):
+        logger.debug(_("Using welcome text: %s"), self._launcher.text)
+        self._display.run(
+            ShowWelcome(self._launcher.text))
 
 
 class LauncherCommand(CheckboxCommand):
@@ -68,8 +78,8 @@ class LauncherCommand(CheckboxCommand):
         launcher.read_string(text)
         if launcher.problem_list:
             logger.error(_("Unable to start launcher because of errors:"))
-            logger.error("%s", ', '.join(
-                [str(problem) for problem in launcher.problem_list]))
+            for problem in launcher.problem_list:
+                logger.error("%s", str(problem))
             return 1
         else:
             return LauncherInvocation(

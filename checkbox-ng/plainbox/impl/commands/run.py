@@ -229,6 +229,7 @@ class NormalUI(IJobRunnerUI):
     def wait_for_interaction_prompt(self, job):
         return self.pick_action_cmd([
             Action('', _("press ENTER to continue"), 'run'),
+            Action('c', _('add a comment'), 'comment'),
             Action('s', _("skip this job"), 'skip'),
             Action('q', _("save the session and quit"), 'quit')
         ])
@@ -747,6 +748,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
         ui.finished(job, job_state, job_result)
 
     def _run_single_job_with_ui_loop(self, job, ui):
+        comments = ""
         while True:
             if job.plugin in ('user-interact', 'user-interact-verify',
                               'user-verify', 'manual'):
@@ -756,11 +758,18 @@ class RunInvocation(CheckBoxInvocationMixIn):
                 cmd = ui.wait_for_interaction_prompt(job)
                 if cmd == 'run' or cmd is None:
                     job_result = self.runner.run_job(job, self.config, ui)
+                elif cmd == 'comment':
+                    new_comment = input(self.C.BLUE(
+                        _('Please enter your comments:') + '\n'))
+                    if new_comment:
+                        comments += new_comment + '\n'
+                    continue
                 elif cmd == 'skip':
                     job_result = MemoryJobResult({
                         'outcome': IJobResult.OUTCOME_SKIP,
                         'comments': _("Explicitly skipped before execution")
                     })
+                    if comments != "" : job_result.comments = comments
                     break
                 elif cmd == 'quit':
                     raise SystemExit()
@@ -769,6 +778,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
             if (self.is_interactive and
                     job_result.outcome == IJobResult.OUTCOME_UNDECIDED):
                 try:
+                    if comments != "" : job_result.comments = comments
                     job_result = self._interaction_callback(
                         self.runner, job, job_result, self.config)
                 except ReRunJob:

@@ -155,9 +155,26 @@ class ScriptInvocationTests(TestCase):
         self.assertCommandOutput(
             io.stdout, (
                 """
-                Leftover file detected: 'files-created-in-current-dir/file':
-                  files-created-in-current-dir/file:1: ok
+                Leftover file detected: 'file':
+                  file:1: ok
                 job {job_id} returned 0
                 command: echo ok > file
+                """).format(job_id=self.JOB_ID))
+        self.assertEqual(retval, 0)
+
+    @mock.patch('plainbox.impl.ctrl.check_output')
+    def test_job_with_command_making_directories(self, mock_check_output):
+        provider_list = [DummyProvider1([
+            make_job(self.JOB_PARTIAL_ID, command='mkdir dir')])]
+        script_inv = ScriptInvocation(provider_list, self.config, self.JOB_ID)
+        with TestIO() as io:
+            retval = script_inv.run()
+        self.maxDiff = None
+        self.assertCommandOutput(
+            io.stdout, (
+                """
+                Leftover directory detected: 'dir'
+                job {job_id} returned 0
+                command: mkdir dir
                 """).format(job_id=self.JOB_ID))
         self.assertEqual(retval, 0)

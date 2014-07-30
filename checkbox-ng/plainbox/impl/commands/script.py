@@ -36,7 +36,6 @@ from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.secure.qualifiers import JobIdQualifier
-from plainbox.testing_utils.cwd import TestCwd
 
 
 logger = getLogger("plainbox.commands.script")
@@ -65,14 +64,20 @@ class ScriptInvocation(CheckBoxInvocationMixIn):
             return 125
         with TemporaryDirectory() as scratch, TemporaryDirectory() as iologs:
             runner = JobRunner(scratch, self.provider_list, iologs)
-            bait_dir = os.path.join(scratch, 'files-created-in-current-dir')
-            os.mkdir(bait_dir)
-            with TestCwd(bait_dir):
-                return_code, record_path = runner._run_command(
-                    job, self.config)
-            self._display_side_effects(scratch)
+            runner.log_leftovers = False
+            runner.on_leftover_files.connect(self._on_leftover_files)
+            return_code, record_path = runner._run_command(job, self.config)
             self._display_script_outcome(job, return_code)
         return return_code
+
+    def _on_leftover_files(self, job, config, cwd_dir, leftovers):
+        for item in leftovers:
+            if os.path.isfile(item):
+                self._display_file(item, cwd_dir)
+            elif os.path.isdir(item):
+                self._display_dir(item, cwd_dir)
+            else:
+                self._display_other(item, cwd_dir)
 
     def _display_file(self, pathname, origin):
         filename = os.path.relpath(pathname, origin)
@@ -82,11 +87,13 @@ class ScriptInvocation(CheckBoxInvocationMixIn):
                 line = line.rstrip('\n')
                 print("  {}:{}: {}".format(filename, lineno, line))
 
-    def _display_side_effects(self, scratch):
-        for dirpath, dirnames, filenames in os.walk(scratch):
-            for filename in filenames:
-                self._display_file(
-                    os.path.join(dirpath, filename), scratch)
+    def _display_dir(self, pathname, origin):
+        print(_("Leftover directory detected: {!a}").format(
+            os.path.relpath(pathname, origin)))
+
+    def _display_other(self, pathname, origin):
+        print(_("Leftover thing detected: {!a}").format(
+            os.path.relpath(pathname, origin)))
 
     def _display_script_outcome(self, job, return_code):
         print(_("job {} returned {}").format(job.id, return_code))

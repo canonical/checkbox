@@ -450,6 +450,29 @@ def get_test_parameters(args, environ):
     return params
 
 
+def can_ping(the_interface, test_target):
+    working_interface = False
+    num_loops = 0
+    devnull = open('/dev/null', 'w')
+
+    while (not working_interface) and (num_loops < 48):
+        working_interface = True
+
+        try:
+            ping_cmd = 'ping -I {} {} -c 1'.format(the_interface, test_target)
+            check_call(shlex.split(ping_cmd), stdout=devnull, stderr=devnull)
+        except CalledProcessError:
+            working_interface = False
+            logging.warning("Ping failure on %s", the_interface)
+
+        if not working_interface:
+            time.sleep(5)
+            num_loops += 1
+
+    devnull.close()
+    return working_interface
+
+
 def interface_test(args):
     if not "test_type" in vars(args):
         return
@@ -497,8 +520,15 @@ def interface_test(args):
         logging.error("Failed to use %s:%s", cmd, interface_failure)
         return 1
 
-    # Give interface enough time to get DHCP address
-    time.sleep(10)
+    # Back up routing table, since network down/up process
+    # tends to trash it....
+    tempfile = open('/tmp/plainbox-network.route', 'wb')
+    try:
+        cmd = "ip route save table all"
+        check_call(shlex.split(cmd), stdout=tempfile)
+    except CalledProcessError:
+        logging.warning("Unable to save routing table!")
+    tempfile.close()
 
     result = 0
     # Stop all other interfaces
@@ -516,6 +546,12 @@ def interface_test(args):
             result = 3
 
     if result == 0:
+        # Ensure that interface is fully up by waiting until it can
+        # ping the test server
+        if not can_ping(args.interface, test_target):
+            logging.error("Can't ping test server on %s", args.interface)
+            return 1
+
         # Execute FTP transfer benchmarking test
         if args.test_type.lower() == "ftp":
             ftp_benchmark = FTPPerformanceTest(
@@ -543,6 +579,18 @@ def interface_test(args):
         except CalledProcessError as interface_failure:
             logging.error("Failed to use %s:%s", cmd, interface_failure)
             result = 3
+
+    # Restore routing table to original state
+    tempfile = open('/tmp/plainbox-network.route', 'rb')
+    devnull = open('/dev/null', 'w')
+    try:
+        cmd = "ip route restore"
+        # Harmless "RTNETLINK answers: File exists" messages on stderr
+        check_call(shlex.split(cmd), stdin=tempfile, stderr=devnull)
+    except CalledProcessError:
+        logging.warning("Unable to restore routing table!")
+    tempfile.close()
+    devnull.close()
 
     return result
 

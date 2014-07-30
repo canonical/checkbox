@@ -326,7 +326,8 @@ class GeneratedJobSuspendTests(TestCase):
         # Create a "generator" job
         self.generator_job = JobDefinition({
             "plugin": "local",
-            "id": "generator"
+            "id": "generator",
+            "command": "fake",
         })
         # Keep a variable for the (future) generated job
         self.generated_job = None
@@ -336,12 +337,17 @@ class GeneratedJobSuspendTests(TestCase):
             "io_log": [
                 (0.0, "stdout", b'plugin:local\n'),
                 (0.1, "stdout", b'id:generator\n'),
+                (0.2, "stdout", b'command:fake\n'),
             ]
         })
         # Create a result for the "generator" job.
         # It will define the "generated" job
         self.generator_result = MemoryJobResult({
-            "io_log": [(0.0, 'stdout', b'id:generated')]
+            "io_log": [
+                (0.0, 'stdout', b'id:generated'),
+                (0.1, 'stdout', b'plugin:shell'),
+                (0.2, 'stdout', b'command:fake'),
+            ]
         })
         # Create a session that knows about the two jobs that exist
         # directly as files (__category__ and generator)
@@ -405,7 +411,8 @@ class GeneratedJobSuspendTests(TestCase):
                 'return_code': None,
                 'io_log': [
                     [0.0, 'stdout', 'cGx1Z2luOmxvY2FsCg=='],
-                    [0.1, 'stdout', 'aWQ6Z2VuZXJhdG9yCg==']
+                    [0.1, 'stdout', 'aWQ6Z2VuZXJhdG9yCg=='],
+                    [0.2, 'stdout', 'Y29tbWFuZDpmYWtlCg==']
                 ]
             }]
         )
@@ -422,6 +429,8 @@ class GeneratedJobSuspendTests(TestCase):
                 'return_code': None,
                 'io_log': [
                     [0.0, 'stdout', 'aWQ6Z2VuZXJhdGVk'],
+                    [0.1, 'stdout', 'cGx1Z2luOnNoZWxs'],
+                    [0.2, 'stdout', 'Y29tbWFuZDpmYWtl'],
                 ]
             }]
         )
@@ -460,11 +469,11 @@ class GeneratedJobSuspendTests(TestCase):
                     'e2475434e4c0b2c825541430e526fe0565780dfeb67'
                     '050f3b7f3453aa3cc439b'),
                 'generator': (
-                    'b2aa7b7c4298678cebfdbe30f4aae5be97d320910a5'
-                    'b4dd312606099f35c03b6'),
+                    '7015c949ce3ae91f37e10b304212022fdbc4b10acbc'
+                    'cb78ac58ff10ef7a2c8c8'),
                 'generated': (
-                    '57b395e91bb4af94143eb19586bd18e4013efc5e60d'
-                    '6050d9ec0bea15dd19489'),
+                    '47dd5e318ef99184e4dee8adf818a7f7548978a9470'
+                    '8114c7b3dd2169b9a7a67')
             },
             'results': {
                 '__category__': [{
@@ -472,7 +481,8 @@ class GeneratedJobSuspendTests(TestCase):
                     'execution_duration': None,
                     'io_log': [
                         [0.0, 'stdout', 'cGx1Z2luOmxvY2FsCg=='],
-                        [0.1, 'stdout', 'aWQ6Z2VuZXJhdG9yCg==']],
+                        [0.1, 'stdout', 'aWQ6Z2VuZXJhdG9yCg=='],
+                        [0.2, 'stdout', 'Y29tbWFuZDpmYWtlCg==']],
                     'outcome': None,
                     'return_code': None,
                 }],
@@ -480,7 +490,9 @@ class GeneratedJobSuspendTests(TestCase):
                     'comments': None,
                     'execution_duration': None,
                     'io_log': [
-                        [0.0, 'stdout', 'aWQ6Z2VuZXJhdGVk']],
+                        [0.0, 'stdout', 'aWQ6Z2VuZXJhdGVk'],
+                        [0.1, 'stdout', 'cGx1Z2luOnNoZWxs'],
+                        [0.2, 'stdout', 'Y29tbWFuZDpmYWtl']],
                     'outcome': None,
                     'return_code': None,
                 }],

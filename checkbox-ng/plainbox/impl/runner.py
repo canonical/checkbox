@@ -716,7 +716,7 @@ class JobRunner(IJobRunner):
         """
         # Bail early if there is nothing do do
         if job.command is None:
-            return None, ()
+            raise ValueError(_("job {0} has no command to run").format(job.id))
         # Get an extcmd delegate for observing all the IO the way we need
         delegate, io_log_gen = self._prepare_io_handling(job, config)
         # Create a subprocess.Popen() like object that uses the delegate

@@ -819,3 +819,13 @@ class JobRunner(IJobRunner):
             Anyone listening to this signal does not need to remove any of the
             files. They are removed automatically after this method returns.
         """
+        if self._log_leftovers:
+            logger.warning(
+                _("Job {0} created leftover filesystem artefacts"
+                  " in its working directory").format(job.id))
+            for item in leftovers:
+                logger.warning(_("Leftover file/directory: %r"),
+                               os.path.relpath(item, cwd_dir))
+            logger.warning(
+                _("Please store desired files in $PLAINBOX_SESSION_SHARE and"
+                  " use regular temporary files for everything else"))

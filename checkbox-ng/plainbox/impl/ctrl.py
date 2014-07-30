@@ -440,7 +440,6 @@ class CheckBoxExecutionController(IExecutionController):
             for provider in self._provider_list:
                 if job.provider.namespace == provider.namespace:
                     nest.add_provider(provider)
-            logger.debug(_("Symlink nest for executables: %s"), nest_dir)
             yield nest_dir
 
     def get_score(self, job):

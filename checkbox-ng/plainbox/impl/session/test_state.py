@@ -615,6 +615,7 @@ class SessionStateReactionToJobResultTests(TestCase):
             'io_log': [
                 (0, 'stdout', b'id: foo\n'),
                 (1, 'stdout', b'plugin: manual\n'),
+                (2, 'stdout', b'description: yada yada\n'),
             ],
         })
         # Show this result to the session

@@ -64,12 +64,13 @@ setup(
     description="Checkbox - Command Line Test Runner",
     long_description=long_description,
     install_requires=install_requires,
+    scripts = ['launchers/checkbox-cli'],
     entry_points={
         'console_scripts': [
-            'canonical-certification-server=checkbox_ng.main:cert_server',
-            'canonical-driver-test-suite-cli=checkbox_ng.main:cdts_cli',
             'checkbox=checkbox_ng.main:main',
-            'checkbox-cli=checkbox_ng.main:checkbox_cli',
+            'checkbox-submit=checkbox_ng.main:submit',
+            'checkbox-launcher=checkbox_ng.main:launcher',
+            'checkbox-gui-service=checkbox_ng.main:service',
         ],
         'plainbox.transport': [
             'certification='

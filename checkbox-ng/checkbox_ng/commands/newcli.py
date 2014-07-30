@@ -33,6 +33,7 @@ import io
 import json
 import operator
 import os
+import re
 import sys
 
 from plainbox.impl.applogic import get_whitelist_by_name
@@ -41,12 +42,14 @@ from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.exporter.html import HTMLSessionStateExporter
 from plainbox.impl.exporter.xml import XMLSessionStateExporter
-from plainbox.impl.secure.config import Unset
+from plainbox.impl.secure.config import Unset, ValidationError
 from plainbox.impl.secure.qualifiers import FieldQualifier
 from plainbox.impl.secure.qualifiers import OperatorMatcher
 from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.secure.qualifiers import select_jobs
 from plainbox.impl.session import SessionMetaData
+from plainbox.impl.transport import TransportError
+from plainbox.impl.transport import get_all_transports
 from plainbox.vendor.textland import get_display
 
 from checkbox_ng.misc import SelectableJobTreeNode
@@ -64,29 +67,29 @@ class CliInvocation2(RunInvocation):
 
     :ivar ns:
         The argparse namespace obtained from CliCommand
-    :ivar _settings:
-        Settings specific to 'checkbox cli'
+    :ivar _launcher:
+        launcher specific to 'checkbox cli'
     :ivar _display:
         A textland display object
     :ivar _whitelists:
         A list of whitelists to look at
     """
 
-    def __init__(self, provider_list, config, ns, settings, display=None):
+    def __init__(self, provider_list, config, ns, launcher, display=None):
         super().__init__(provider_list, config, ns)
         if display is None:
             display = get_display()
-        self._settings = settings
+        self._launcher = launcher
         self._display = display
         self._whitelists = []
         self.select_whitelist()
 
     @property
-    def settings(self):
+    def launcher(self):
         """
-        TBD: 'checkbox cli' specific settings
+        TBD: 'checkbox cli' specific launcher settings
         """
-        return self._settings
+        return self._launcher
 
     @property
     def display(self):
@@ -96,12 +99,13 @@ class CliInvocation2(RunInvocation):
         return self._display
 
     def select_whitelist(self):
-        if self.ns.whitelist:
+        if 'whitelist' in self.ns and self.ns.whitelist:
             for whitelist in self.ns.whitelist:
                 self._whitelists.append(WhiteList.from_file(whitelist.name))
         elif self.config.whitelist is not Unset:
             self._whitelists.append(WhiteList.from_file(self.config.whitelist))
-        elif self.ns.include_pattern_list:
+        elif ('include_pattern_list' in self.ns and
+              self.ns.include_pattern_list):
             self._whitelists.append(WhiteList(self.ns.include_pattern_list))
 
     def run(self):
@@ -183,12 +187,14 @@ class CliInvocation2(RunInvocation):
         logger.info("Loaded whitelist mask: %r", self._whitelists)
 
     def show_welcome_screen(self):
-        text = self.settings.get('welcome_text')
+        text = self.launcher.text
         if self.is_interactive and text:
             self.display.run(ShowWelcome(text))
 
     def maybe_interactively_select_whitelists(self):
-        if self.is_interactive and not self._whitelists:
+        if self.launcher.skip_whitelist_selection:
+            self._whitelists.extend(self.get_default_whitelists())
+        elif self.is_interactive and not self._whitelists:
             self._whitelists.extend(self.get_interactively_picked_whitelists())
         else:
             self._whitelists.extend(self.get_default_whitelists())
@@ -203,14 +209,18 @@ class CliInvocation2(RunInvocation):
         :returns:
             A list of selected whitelists
         """
-        whitelist_name_list = []
+        whitelist_name_list = whitelist_selection = []
         for provider in self.provider_list:
-            if provider.name in self.settings['default_providers'] or True:
-                whitelist_name_list.extend([
-                    whitelist.name for whitelist in
-                    provider.get_builtin_whitelists()])
+            whitelist_name_list.extend([
+                whitelist.name for whitelist in
+                provider.get_builtin_whitelists() if re.search(
+                    self.launcher.whitelist_filter, whitelist.name)])
+        whitelist_selection = [
+            whitelist_name_list.index(w) for w in whitelist_name_list if
+            re.search(self.launcher.whitelist_selection, w)]
         selected_list = self.display.run(
-            ShowMenu(_("Suite selection"), whitelist_name_list))
+            ShowMenu(_("Suite selection"), whitelist_name_list,
+                     whitelist_selection))
         if not selected_list:
             raise SystemExit(_("No whitelists selected, aborting"))
         return [get_whitelist_by_name(
@@ -218,8 +228,12 @@ class CliInvocation2(RunInvocation):
             for selected_index in selected_list]
 
     def get_default_whitelists(self):
-        return [get_whitelist_by_name(
-            self.provider_list, self.settings['default_whitelist'])]
+        whitelist_name_list = []
+        for provider in self.provider_list:
+            whitelist_name_list.extend([
+                w for w in provider.get_builtin_whitelists() if re.search(
+                    self.launcher.whitelist_selection, w.name)])
+        return whitelist_name_list
 
     def create_exporter(self):
         """
@@ -264,6 +278,8 @@ class CliInvocation2(RunInvocation):
         print(self.C.header(_("Selecting Jobs For Execution")))
         self._update_desired_job_list(select_jobs(
             self.manager.state.job_list, self._whitelists))
+        if self.launcher.skip_test_selection:
+            return
         tree = SelectableJobTreeNode.create_tree(
             self.manager.state.run_list,
             legacy_mode=True)
@@ -330,3 +346,102 @@ class CliInvocation2(RunInvocation):
             # FIXME: replacing extension is ugly
             print(_("View results") + " (XLSX): file://{}".format(
                 results_file.replace('html', 'xlsx')))
+        if self.launcher.submit_to is not Unset:
+            if self.launcher.submit_to == 'certification':
+                if self.config.secure_id is Unset:
+                    again = True
+                    if not self.is_interactive:
+                        again = False
+                    while again:
+                        if self.ask_for_confirmation(
+                            _("\nSubmit results to "
+                              "certification.canonical.com?")):
+                            try:
+                                self.config.secure_id = input(_("Secure ID: "))
+                            except ValidationError:
+                                print(
+                                    _("ERROR: Secure ID must be 15 or "
+                                      "18-character alphanumeric string"))
+                            else:
+                                again = False
+                                self.submit_certification_results()
+                        else:
+                            again = False
+                else:
+                    # Automatically try to submit results if the secure_id is
+                    # valid
+                    self.submit_certification_results()
+            elif self.launcher.submit_to == 'launchpad':
+                if self.config.email_address is Unset:
+                    again = True
+                    if not self.is_interactive:
+                        again = False
+                    while again:
+                        if self.ask_for_confirmation(
+                                _("\nSubmit results to launchpad.net/+hwdb?")):
+                            self.config.email_address = input(
+                                _("Email address: "))
+                            again = False
+                            self.submit_launchpad_results()
+                        else:
+                            again = False
+                else:
+                    # Automatically try to submit results if the email_address
+                    # is valid
+                    self.submit_launchpad_results()
+
+    def submit_launchpad_results(self):
+        transport_cls = get_all_transports().get('launchpad')
+        options_string = "field.emailaddress={}".format(
+            self.config.email_address)
+        transport = transport_cls(self.config.lp_url, options_string)
+        # TRANSLATORS: Do not translate the {} format markers.
+        print(_("Submitting results to {0} for email_address {1})").format(
+            self.config.lp_url, self.config.email_address))
+        with open(self.submission_file, encoding='utf-8') as stream:
+            try:
+                # NOTE: don't pass the file-like object to this transport
+                json = transport.send(
+                    stream.read(),
+                    self.config,
+                    session_state=self.manager.state)
+                if json.get('url'):
+                    # TRANSLATORS: Do not translate the {} format marker.
+                    print(_("Submission uploaded to: {0}".format(json['url'])))
+                elif json.get('status'):
+                    print(json['status'])
+                else:
+                    # TRANSLATORS: Do not translate the {} format marker.
+                    print(
+                        _("Bad response from {0} transport".format(transport)))
+            except TransportError as exc:
+                print(str(exc))
+
+    def submit_certification_results(self):
+        from checkbox_ng.certification import InvalidSecureIDError
+        transport_cls = get_all_transports().get('certification')
+        # TRANSLATORS: Do not translate the {} format markers.
+        print(_("Submitting results to {0} for secure_id {1})").format(
+            self.config.c3_url, self.config.secure_id))
+        options_string = "secure_id={0}".format(self.config.secure_id)
+        # Create the transport object
+        try:
+            transport = transport_cls(
+                self.config.c3_url, options_string)
+        except InvalidSecureIDError as exc:
+            print(exc)
+            return False
+        with open(self.submission_file) as stream:
+            try:
+                # Send the data, reading from the fallback file
+                result = transport.send(stream, self.config)
+                if 'url' in result:
+                    # TRANSLATORS: Do not translate the {} format marker.
+                    print(_("Successfully sent, submission status"
+                            " at {0}").format(result['url']))
+                else:
+                    # TRANSLATORS: Do not translate the {} format marker.
+                    print(_("Successfully sent, server response"
+                            ": {0}").format(result))
+            except TransportError as exc:
+                print(str(exc))

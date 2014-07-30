@@ -1,0 +1,17 @@
+#!/usr/bin/env checkbox-launcher
+[welcome]
+text = Welcome to System Testing!
+    Checkbox provides tests to confirm that your system is working properly.
+    Once you are finished running the tests, you can view a summary report for
+    your system.
+    Warning: Some tests could cause your system to freeze or become
+    unresponsive. Please save all your work and close all other running
+    applications before beginning the testing process.
+
+[suite]
+whitelist_filter = ^default$
+whitelist_selection = ^default$
+skip_whitelist_selection = True
+
+[transport]
+submit_to = launchpad

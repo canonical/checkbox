@@ -1,13 +1,12 @@
 # This file is part of Checkbox.
 #
-# Copyright 2013 Canonical Ltd.
+# Copyright 2013-2014 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -31,9 +30,9 @@ from dbus import StarterBus, SessionBus
 from dbus.mainloop.glib import DBusGMainLoop, threads_init
 from dbus.service import BusName
 from gi.repository import GObject
-from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.highlevel import Service
 
+from checkbox_ng.commands import CheckboxCommand
 from checkbox_ng.service import ServiceWrapper
 
 
@@ -111,25 +110,21 @@ class ServiceInvocation:
             logger.debug(_("Main loop terminated, exiting..."))
 
 
-class ServiceCommand(PlainBoxCommand):
+class ServiceCommand(CheckboxCommand):
     """
     DBus service for PlainBox
     """
-
-    gettext_domain = "checkbox-ng"
-
-    # XXX: Maybe drop provider / config and handle them differently
-    def __init__(self, provider_list, config):
-        self.provider_list = provider_list
-        self.config = config
 
     def invoked(self, ns):
         return ServiceInvocation(self.provider_list, self.config, ns).run()
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser("service", help=_("spawn dbus service"))
+        self.register_arguments(parser)
+
+    def register_arguments(self, parser):
         parser.add_argument(
             '--bus-name', action="store",
             default="com.canonical.certification.PlainBox1",
-            help=_("Use the specified DBus bus name"))
+            help=_("use the specified DBus bus name"))
         parser.set_defaults(command=self)

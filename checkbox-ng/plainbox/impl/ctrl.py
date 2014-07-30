@@ -443,6 +443,41 @@ class CheckBoxExecutionController(IExecutionController):
                     nest.add_provider(provider)
             yield nest_dir
 
+    @contextlib.contextmanager
+    def temporary_cwd(self, job, config):
+        """
+        Context manager for handling temporary current working directory
+        for a particular execution of a job definition command.
+
+        :param job:
+            The JobDefinition to execute
+        :param config:
+            A PlainBoxConfig instance which can be used to load missing
+            environment definitions that apply to all jobs. It is used to
+            provide values for missing environment variables that are required
+            by the job (as expressed by the environ key in the job definition
+            file).
+        :returns:
+            Pathname of the new temporary directory
+        """
+        # Create a nest for all the private executables needed for execution
+        prefix = 'cwd-'
+        suffix = '.{}'.format(job.checksum)
+        with tempfile.TemporaryDirectory(suffix, prefix) as cwd_dir:
+            logger.debug(
+                _("Job temporary current working directory: %s"), cwd_dir)
+            try:
+                yield cwd_dir
+            finally:
+                leftovers = []
+                for dirpath, dirnames, filenames in os.walk(cwd_dir):
+                    if dirpath != cwd_dir:
+                        leftovers.append(dirpath)
+                    leftovers.extend(
+                        os.path.join(dirpath, filename)
+                        for filename in filenames)
+                if leftovers:
+                    self.on_leftover_files(job, config, cwd_dir, leftovers)
 
     @Signal.define
     def on_leftover_files(self, job, config, cwd_dir, leftovers):

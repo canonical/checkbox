@@ -284,6 +284,24 @@ class JobRunner(IJobRunner):
         self._job_runner_ui_delegate = JobRunnerUIDelegate()
         self._dry_run = dry_run
         self._execution_ctrl_list = execution_ctrl_list
+        self._log_leftovers = True
+
+    @property
+    def log_leftovers(self):
+        """
+        flag controlling if leftover files should be logged
+
+        If you wish to connect a custom handler to :meth:`on_leftover_files()`
+        then it is advisable to set this property to False so that leftover
+        files are not handled twice
+
+        By default, this property is True and a detailed warning is logged
+        """
+        return self._log_leftovers
+
+    @log_leftovers.setter
+    def log_leftovers(self, value):
+        self._log_leftovers = value
 
     def get_warm_up_sequence(self, job_list):
         """

@@ -279,7 +279,7 @@ class CheckBoxSessionStateControllerTests(TestCase):
         # Ensure that a warning was logged
         mock_logger.warning.assert_called_once_with(
             "local script %s returned invalid RFC822 data: %s",
-            job, RFC822SyntaxError(
+            job.id, RFC822SyntaxError(
                 None, 1, "Unexpected non-empty line: 'barf\\n'"))
 
     @mock.patch('plainbox.impl.ctrl.gen_rfc822_records_from_io_log')
@@ -457,7 +457,7 @@ class FunctionTests(TestCase):
         # Ensure that a warning was logged
         mock_logger.warning.assert_called_once_with(
             "local script %s returned invalid RFC822 data: %s",
-            job, RFC822SyntaxError(
+            job.id, RFC822SyntaxError(
                 None, 3, "Unexpected non-empty line: 'error\\n'"))
 
 

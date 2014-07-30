@@ -322,7 +322,7 @@ def gen_rfc822_records_from_io_log(job, result):
             # TRANSLATORS: keep the word "local" untranslated. It is a
             # special type of job that needs to be distinguished.
             _("local script %s returned invalid RFC822 data: %s"),
-            job, exc)
+            job.id, exc)
 
 
 checkbox_session_state_ctrl = CheckBoxSessionStateController()

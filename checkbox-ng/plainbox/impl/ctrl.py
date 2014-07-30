@@ -59,6 +59,7 @@ from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 from plainbox.impl.secure.rfc822 import gen_rfc822_records
 from plainbox.impl.session.jobs import JobReadinessInhibitor
+from plainbox.impl.signal import Signal
 from plainbox.impl.validation import ValidationError
 from plainbox.vendor import extcmd
 
@@ -441,6 +442,29 @@ class CheckBoxExecutionController(IExecutionController):
                 if job.provider.namespace == provider.namespace:
                     nest.add_provider(provider)
             yield nest_dir
+
+
+    @Signal.define
+    def on_leftover_files(self, job, config, cwd_dir, leftovers):
+        """
+        Handle any files left over by the execution of a job definition.
+
+        :param job:
+            job definition with the command and environment definitions
+        :param config:
+            configuration object (a PlainBoxConfig instance)
+        :param cwd_dir:
+            Temporary directory set as current working directory during job
+            definition command execution. During the time this signal is
+            emitted that directory still exists.
+        :param leftovers:
+            List of absolute pathnames of files and directories that were
+            created in the current working directory (cwd_dir).
+
+        .. note::
+            Anyone listening to this signal does not need to remove any of the
+            files. They are removed automatically after this method returns.
+        """
 
     def get_score(self, job):
         """

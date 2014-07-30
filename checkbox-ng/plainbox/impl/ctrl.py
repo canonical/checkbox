@@ -470,15 +470,28 @@ class CheckBoxExecutionController(IExecutionController):
             try:
                 yield cwd_dir
             finally:
-                leftovers = []
-                for dirpath, dirnames, filenames in os.walk(cwd_dir):
-                    if dirpath != cwd_dir:
-                        leftovers.append(dirpath)
-                    leftovers.extend(
-                        os.path.join(dirpath, filename)
-                        for filename in filenames)
+                leftovers = self._find_leftovers(cwd_dir)
                 if leftovers:
                     self.on_leftover_files(job, config, cwd_dir, leftovers)
+
+    def _find_leftovers(self, cwd_dir):
+        """
+        Find left-over files and directories
+
+        :param cwd_dir:
+            Directory to inspect for leftover files
+        :returns:
+            A list of discovered files and directories (except for the cwd_dir
+            itself)
+        """
+        leftovers = []
+        for dirpath, dirnames, filenames in os.walk(cwd_dir):
+            if dirpath != cwd_dir:
+                leftovers.append(dirpath)
+            leftovers.extend(
+                os.path.join(dirpath, filename)
+                for filename in filenames)
+        return leftovers
 
     @Signal.define
     def on_leftover_files(self, job, config, cwd_dir, leftovers):

@@ -77,6 +77,19 @@ class CommandBase(metaclass=abc.ABCMeta):
         ArgumentParser.add_subparsers()
         """
 
+    # This method is optional
+    def register_arguments(self, parser):
+        """
+        Implement to customize which arguments need to be added to a parser.
+
+        This method differs from register_parser() in that it allows commands
+        which implement it to be invoked directly from a tool class (without
+        being a subcommand that needs to be selected). If implemented it should
+        be used from within :meth:`register_parser()` to ensure identical
+        behavior in both cases (subcommand and tool-level command)
+        """
+        raise NotImplementedError("register_arguments() not customized")
+
     def autopager(self):
         """
         Enable automatic pager.
@@ -423,6 +436,10 @@ class ToolBase(metaclass=abc.ABCMeta):
         self.add_early_parser_arguments(parser)
         subparsers = parser.add_subparsers()
         self.add_subcommands(subparsers)
+        self.enable_argcomplete_if_possible(parser)
+        return parser
+
+    def enable_argcomplete_if_possible(self, parser):
         # Enable argcomplete if it is available.
         try:
             import argcomplete
@@ -430,7 +447,6 @@ class ToolBase(metaclass=abc.ABCMeta):
             pass
         else:
             argcomplete.autocomplete(parser)
-        return parser
 
     def add_early_parser_arguments(self, parser):
         group = parser.add_argument_group(
@@ -554,6 +570,59 @@ class ToolBase(metaclass=abc.ABCMeta):
                 logger.error(_("starting debugger..."))
                 pdb.post_mortem()
                 return 1
+
+
+class SingleCommandToolMixIn:
+    """
+    Mix-in class for ToolBase to implement single-command dispatch.
+
+    This effectively turns the tool into a single-command tool. The only method
+    that needs to be implemented is the get_command() method.
+    """
+
+    @abc.abstractmethod
+    def get_command(self):
+        """
+        Get the command to register
+
+        The return value must be a CommandBase instance that implements the
+        :meth:`CommandBase.register_arguments()` method.
+        """
+
+    def add_subcommands(self, subparsers):
+        """
+        Overridden version of add_subcommands()
+
+        This method does nothing. It is here because ToolBase requires it.
+        """
+
+    def construct_parser(self):
+        """
+        Overridden version of construct_parser()
+
+        This method sets the single subcommand as default. This allows the
+        whole tool to be started without arguments and do the right thing while
+        still supporting optional sub-commands and true (and rich) built-in
+        help.
+        """
+        parser = self.create_parser_object()
+        # Add all the things really parsed by the early parser so that it
+        # shows up in --help and bash tab completion.
+        self.add_early_parser_arguments(parser)
+        # Customize parser with command details
+        self.customize_parser(parser)
+        # Enable argcomplete if it is available.
+        self.enable_argcomplete_if_possible(parser)
+        return parser
+
+    def customize_parser(self, parser):
+        # Instantiate the command to use
+        cmd = self.get_command()
+        # Set top-level parser description and epilog
+        parser.epilog = cmd.get_command_epilog()
+        parser.description = cmd.get_command_description()
+        # Directly register the command
+        cmd.register_arguments(parser)
 
 
 def autopager(pager_list=['sensible-pager', 'less', 'more']):

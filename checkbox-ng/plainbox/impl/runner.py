@@ -767,7 +767,11 @@ class JobRunner(IJobRunner):
 
     def _run_extcmd(self, job, config, extcmd_popen):
         ctrl = self._get_ctrl_for_job(job)
-        return ctrl.execute_job(job, config, extcmd_popen)
+        ctrl.on_leftover_files.connect(self.on_leftover_files)
+        try:
+            return ctrl.execute_job(job, config, extcmd_popen)
+        finally:
+            ctrl.on_leftover_files.disconnect(self.on_leftover_files)
 
     def _get_ctrl_for_job(self, job):
         """

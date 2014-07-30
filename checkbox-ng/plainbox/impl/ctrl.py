@@ -59,6 +59,7 @@ from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 from plainbox.impl.secure.rfc822 import gen_rfc822_records
 from plainbox.impl.session.jobs import JobReadinessInhibitor
+from plainbox.impl.validation import ValidationError
 from plainbox.vendor import extcmd
 
 __all__ = [
@@ -264,7 +265,13 @@ class CheckBoxSessionStateController(ISessionStateController):
         new_job_list = []
         for record in gen_rfc822_records_from_io_log(job, result):
             new_job = job.create_child_job_from_record(record)
-            new_job_list.append(new_job)
+            try:
+                new_job.validate()
+            except ValidationError as exc:
+                logger.error(_("Ignoring invalid generated job %s: %s"),
+                             new_job.id, exc)
+            else:
+                new_job_list.append(new_job)
         # Then for each new job, add it to the job_list, unless it collides
         # with another job with the same id.
         for new_job in new_job_list:

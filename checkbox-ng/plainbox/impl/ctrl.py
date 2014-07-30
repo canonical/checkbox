@@ -410,10 +410,11 @@ class CheckBoxExecutionController(IExecutionController):
             # of this execution controller
             cmd = self.get_execution_command(job, config, nest_dir)
             env = self.get_execution_environment(job, config, nest_dir)
-            # run the command
-            logger.debug(_("job[%s] executing %r with env %r"),
-                         job.id, cmd, env)
-            return extcmd_popen.call(cmd, env=env)
+            with self.temporary_cwd(job, config) as cwd_dir:
+                # run the command
+                logger.debug(_("job[%s] executing %r with env %r in cwd %r"),
+                             job.id, cmd, env, cwd_dir)
+                return extcmd_popen.call(cmd, env=env, cwd=cwd_dir)
 
     @contextlib.contextmanager
     def configured_filesystem(self, job, config):

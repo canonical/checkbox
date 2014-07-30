@@ -569,7 +569,8 @@ class CheckBoxExecutionControllerTestsMixIn:
         # get_execution_{command,environment}() and configured_filesystem()
         with mock.patch.object(self.ctrl, 'get_execution_command'), \
                 mock.patch.object(self.ctrl, 'get_execution_environment'), \
-                mock.patch.object(self.ctrl, 'configured_filesystem'):
+                mock.patch.object(self.ctrl, 'configured_filesystem'), \
+                mock.patch.object(self.ctrl, 'temporary_cwd'):
             retval = self.ctrl.execute_job(
                 self.job, self.config, self.extcmd_popen)
             # Ensure that call was invoked with command end environment (passed
@@ -577,12 +578,14 @@ class CheckBoxExecutionControllerTestsMixIn:
             # configured_filesystem() as nest_dir so that we can pass it to
             # other calls to get their mocked return values.
             # Urgh! is this doable somehow without all that?
-            nest_dir = self.ctrl.configured_filesystem()
+            nest_dir = self.ctrl.configured_filesystem().__enter__()
+            cwd_dir = self.ctrl.temporary_cwd().__enter__()
             self.extcmd_popen.call.assert_called_with(
                 self.ctrl.get_execution_command(
                     self.job, self.config, nest_dir),
                 env=self.ctrl.get_execution_environment(
-                    self.job, self.config, nest_dir))
+                    self.job, self.config, nest_dir),
+                cwd=cwd_dir)
         # Ensure that execute_job() returns the return value of call()
         self.assertEqual(retval, self.extcmd_popen.call())
         # Ensure that presence of CHECKBOX_DATA directory was checked for

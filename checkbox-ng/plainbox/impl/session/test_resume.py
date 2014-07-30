@@ -205,11 +205,11 @@ class EndToEndTests(TestCaseWithParameters):
                     'e2475434e4c0b2c825541430e526fe0565780dfeb67'
                     '050f3b7f3453aa3cc439b'),
                 'generator': (
-                    'b2aa7b7c4298678cebfdbe30f4aae5be97d320910a5'
-                    'b4dd312606099f35c03b6'),
+                    '7015c949ce3ae91f37e10b304212022fdbc4b10acbc'
+                    'cb78ac58ff10ef7a2c8c8'),
                 'generated': (
-                    '57b395e91bb4af94143eb19586bd18e4013efc5e60d'
-                    '6050d9ec0bea15dd19489'),
+                    '47dd5e318ef99184e4dee8adf818a7f7548978a9470'
+                    '8114c7b3dd2169b9a7a67')
             },
             'results': {
                 '__category__': [{
@@ -217,7 +217,8 @@ class EndToEndTests(TestCaseWithParameters):
                     'execution_duration': None,
                     'io_log': [
                         [0.0, 'stdout', 'cGx1Z2luOmxvY2FsCg=='],
-                        [0.1, 'stdout', 'aWQ6Z2VuZXJhdG9yCg==']],
+                        [0.1, 'stdout', 'aWQ6Z2VuZXJhdG9yCg=='],
+                        [0.2, 'stdout', 'Y29tbWFuZDpmYWtlCg==']],
                     'outcome': None,
                     'return_code': None,
                 }],
@@ -225,7 +226,9 @@ class EndToEndTests(TestCaseWithParameters):
                     'comments': None,
                     'execution_duration': None,
                     'io_log': [
-                        [0.0, 'stdout', 'aWQ6Z2VuZXJhdGVk']],
+                        [0.0, 'stdout', 'aWQ6Z2VuZXJhdGVk'],
+                        [0.1, 'stdout', 'cGx1Z2luOnNoZWxs'],
+                        [0.2, 'stdout', 'Y29tbWFuZDpmYWtl']],
                     'outcome': None,
                     'return_code': None,
                 }],
@@ -272,7 +275,8 @@ class EndToEndTests(TestCaseWithParameters):
         # Create a "generator" job
         self.generator_job = JobDefinition({
             "plugin": "local",
-            "id": "generator"
+            "id": "generator",
+            "command": "fake",
         })
         # Keep a variable for the (future) generated job
         self.generated_job = None
@@ -282,12 +286,17 @@ class EndToEndTests(TestCaseWithParameters):
             "io_log": [
                 (0.0, "stdout", b'plugin:local\n'),
                 (0.1, "stdout", b'id:generator\n'),
+                (0.2, "stdout", b'command:fake\n'),
             ]
         })
         # Create a result for the "generator" job.
         # It will define the "generated" job
         self.generator_result = MemoryJobResult({
-            "io_log": [(0.0, 'stdout', b'id:generated')]
+            "io_log": [
+                (0.0, 'stdout', b'id:generated'),
+                (0.1, 'stdout', b'plugin:shell'),
+                (0.2, 'stdout', b'command:fake'),
+            ]
         })
         self.job_list = [self.category_job, self.generator_job]
         self.suspend_data = gzip.compress(
@@ -1416,10 +1425,9 @@ class JobPluginSpecificTests(TestCaseWithParameters):
         """
         verify that _process_job() recreates generated jobs
         """
-        # Set the stage for testing. Setup a session with a known
-        # local job, representation of the job (checksum)
-        # and representation of a single result, which has a single line
-        # that defines a 'id': 'generated' job.
+        # Set the stage for testing. Setup a session with a known local job,
+        # representation of the job (checksum) and representation of a single
+        # result, which has a trivial definition for a 'generated' job.
         job_id = 'local'
         job = make_job(id=job_id, plugin='local')
         jobs_repr = {
@@ -1434,6 +1442,12 @@ class JobPluginSpecificTests(TestCaseWithParameters):
                 'io_log': [
                     [0.0, 'stdout', base64.standard_b64encode(
                         b'id: generated'
+                    ).decode('ASCII')],
+                    [0.1, 'stdout', base64.standard_b64encode(
+                        b'plugin: shell'
+                    ).decode('ASCII')],
+                    [0.2, 'stdout', base64.standard_b64encode(
+                        b'command: fake'
                     ).decode('ASCII')]
                 ],
             }]
@@ -1529,7 +1543,7 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
         # We don't actually introduce it into the resume machinery
         # caveat: make_job() has a default value for
         # plugin='dummy' which we don't want here
-        child = make_job(id='child', plugin=None)
+        child = make_job(id='child', plugin='shell', command='fake')
         session_repr = {
             'jobs': {
                 parent.id: parent.checksum,
@@ -1546,6 +1560,12 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
                         # to the 'child' job defined above.
                         [0.0, 'stdout', base64.standard_b64encode(
                             b'id: child\n'
+                        ).decode('ASCII')],
+                        [0.1, 'stdout', base64.standard_b64encode(
+                            b'plugin: shell\n'
+                        ).decode('ASCII')],
+                        [0.2, 'stdout', base64.standard_b64encode(
+                            b'command: fake\n'
                         ).decode('ASCII')]
                     ],
                 }],
@@ -1581,10 +1601,11 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
         parent = make_job(id='c_parent', plugin='local')
         # The child job is only here so that we can get the checksum.
         # We don't actually introduce it into the resume machinery
-        child = make_job(id='b_child', plugin='local')
+        child = make_job(id='b_child', plugin='local', command='fake')
         # caveat: make_job() has a default value for
         # plugin='dummy' which we don't want here
-        grandchild = make_job(id='a_grandchild', plugin=None)
+        grandchild = make_job(id='a_grandchild', plugin='shell',
+                              command='fake')
         session_repr = {
             'jobs': {
                 parent.id: parent.checksum,
@@ -1605,6 +1626,9 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
                         ).decode('ASCII')],
                         [0.1, 'stdout', base64.standard_b64encode(
                             b'plugin: local\n'
+                        ).decode('ASCII')],
+                        [0.2, 'stdout', base64.standard_b64encode(
+                            b'command: fake\n'
                         ).decode('ASCII')]
 
                     ],
@@ -1619,6 +1643,12 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
                         # to the 'child' job defined above.
                         [0.0, 'stdout', base64.standard_b64encode(
                             b'id: a_grandchild\n'
+                        ).decode('ASCII')],
+                        [0.1, 'stdout', base64.standard_b64encode(
+                            b'plugin: shell\n'
+                        ).decode('ASCII')],
+                        [0.2, 'stdout', base64.standard_b64encode(
+                            b'command: fake\n'
                         ).decode('ASCII')]
                     ],
                 }],

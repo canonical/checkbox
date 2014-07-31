@@ -26,6 +26,8 @@ Test definitions for plainbox.impl.unit (package init file)
 from unittest import TestCase
 
 from plainbox.impl.unit import Unit
+from plainbox.impl.validation import Problem
+from plainbox.impl.validation import ValidationError
 from plainbox.vendor import mock
 
 
@@ -37,8 +39,16 @@ class TestUnitDefinition(TestCase):
         """
         unit1 = Unit({'key': 'value'}, {'key': 'raw-value'})
         unit2 = Unit({'_key': 'value'}, {'_key': 'raw-value'})
+        unit3 = Unit({'key': '{param}'}, {'key': 'raw-{param}'},
+                     parameters={'param': 'value'})
+        unit4 = Unit({'key': '{missing_param}'},
+                     {'key': 'raw-{missing_param}'},
+                     parameters={'param': 'value'})
         self.assertEqual(unit1.get_raw_record_value('key'), 'raw-value')
         self.assertEqual(unit2.get_raw_record_value('key'), 'raw-value')
+        self.assertEqual(unit3.get_raw_record_value('key'), 'raw-value')
+        with self.assertRaises(KeyError):
+            unit4.get_raw_record_value('key')
 
     def test_get_record_value(self):
         """
@@ -46,12 +56,37 @@ class TestUnitDefinition(TestCase):
         """
         unit1 = Unit({'key': 'value'}, {'key': 'raw-value'})
         unit2 = Unit({'_key': 'value'}, {'_key': 'raw-value'})
+        unit3 = Unit({'key': '{param}'}, {'key': 'raw-{param}'},
+                     parameters={'param': 'value'})
+        unit4 = Unit({'key': '{missing_param}'},
+                     {'key': 'raw-{missing_param}'},
+                     parameters={'param': 'value'})
         self.assertEqual(unit1.get_record_value('key'), 'value')
         self.assertEqual(unit2.get_record_value('key'), 'value')
+        self.assertEqual(unit3.get_record_value('key'), 'value')
+        with self.assertRaises(KeyError):
+            unit4.get_record_value('key')
 
     def test_validate(self):
-        unit = Unit({})
-        unit.validate()
+        # Empty units are valid, with or without parameters
+        Unit({}).validate()
+        Unit({}, parameters={}).validate()
+        # Fields cannot refer to parameters that are not supplied
+        with self.assertRaises(ValidationError) as boom:
+            Unit({'field': '{param}'}, parameters={}).validate()
+        self.assertEqual(boom.exception.field, 'field')
+        self.assertEqual(boom.exception.problem, Problem.wrong)
+        # Fields must obey template constraints. (id: vary)
+        with self.assertRaises(ValidationError) as boom:
+            Unit({'id': 'a-simple-id'}, parameters={}).validate()
+        self.assertEqual(boom.exception.field, 'id')
+        self.assertEqual(boom.exception.problem, Problem.constant)
+        # Fields must obey template constraints. (unit: const)
+        with self.assertRaises(ValidationError) as boom:
+            Unit({'unit': '{parametric_id}'},
+                 parameters={'parametric_id': 'foo'}).validate()
+        self.assertEqual(boom.exception.field, 'unit')
+        self.assertEqual(boom.exception.problem, Problem.variable)
 
     def test_get_translated_data__typical(self):
         """
@@ -130,10 +165,23 @@ class TestUnitDefinition(TestCase):
         self.assertEqual(
             unit1.checksum,
             "c47cc3719061e4df0010d061e6f20d3d046071fd467d02d093a03068d2f33400")
+        unit3 = Unit({'plugin': 'plugin', 'user': 'anonymous'},
+                     parameters={'param': 'value'})
+        # Units with identical data but different parameters have different
+        # checksums
+        self.assertNotEqual(unit2.checksum, unit3.checksum)
+        # The checksum is stable and does not change over time
+        self.assertEqual(
+            unit3.checksum,
+            "5558e5231fb192e8126ed69d950972fa878375d1364a221ed6550852e7d5cde0")
 
     def test_comparison(self):
         # Ensure that units with equal data are equal
         self.assertEqual(Unit({}), Unit({}))
+        # Ensure that units with equal data and equal parameters are equal
+        self.assertEqual(
+            Unit({}, parameters={'param': 'value'}),
+            Unit({}, parameters={'param': 'value'}))
         # Ensure that units with equal data but different origin are still
         # equal
         self.assertEqual(
@@ -152,6 +200,34 @@ class TestUnitDefinition(TestCase):
         # Ensure that units with different data are not equal
         self.assertNotEqual(
             Unit({'key': 'value'}), Unit({'key': 'other-value'}))
+        # Ensure that units with equal data but different parameters are not
+        # equal
+        self.assertNotEqual(
+            Unit({}, parameters={'param': 'value1'}),
+            Unit({}, parameters={'param': 'value2'}))
         # Ensure that units are not equal to other classes
         self.assertTrue(Unit({}) != object())
         self.assertFalse(Unit({}) == object())
+
+    def test_get_accessed_parameters(self):
+        # There are no accessed parameters if the unit is not parameterized
+        self.assertEqual(
+            Unit({}).get_accessed_parameters(), {})
+        self.assertEqual(
+            Unit({'field': 'value'}).get_accessed_parameters(),
+            {'field': frozenset()})
+        self.assertEqual(
+            Unit({'field': '{param}'}).get_accessed_parameters(),
+            {'field': frozenset()})
+        # As soon as we enable parameters we get them exposed
+        self.assertEqual(
+            Unit({}, parameters={'param': 'value'}).get_accessed_parameters(),
+            {})
+        self.assertEqual(
+            Unit({
+                'field': 'value'}, parameters={'param': 'value'}
+            ).get_accessed_parameters(), {'field': frozenset()})
+        self.assertEqual(
+            Unit({
+                'field': '{param}'}, parameters={'param': 'value'}
+            ).get_accessed_parameters(), {'field': frozenset(['param'])})

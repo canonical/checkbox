@@ -21,17 +21,19 @@
 ============================================
 """
 
-import logging
 import collections
 import hashlib
 import json
+import logging
+import string
 
 from plainbox.i18n import gettext as _
 from plainbox.impl import deprecated
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.plugins import PkgResourcesPlugInCollection
 from plainbox.impl.secure.rfc822 import normalize_rfc822_value
-
+from plainbox.impl.validation import Problem
+from plainbox.impl.validation import ValidationError
 
 __all__ = ['Unit']
 
@@ -54,7 +56,8 @@ class Unit:
         class.
     """
 
-    def __init__(self, data, raw_data=None, origin=None, provider=None):
+    def __init__(self, data, raw_data=None, origin=None, provider=None,
+                 parameters=None):
         """
         Initialize a new unit
 
@@ -70,6 +73,12 @@ class Unit:
             An (optional) Origin object. If omitted a fake origin object is
             created. Normally the origin object should be obtained from the
             RFC822Record object.
+        :param parameters:
+            An (optional) dictionary of parameters. Parameters allow for unit
+            properties to be altered while maintaining a single definition.
+            This is required to obtain translated summary and description
+            fields, while having a single translated base text and any
+            variation in the available parameters.
         """
         if raw_data is None:
             raw_data = data
@@ -80,6 +89,7 @@ class Unit:
         self._origin = origin
         self._provider = provider
         self._checksum = None
+        self._parameters = parameters
 
     def __eq__(self, other):
         if not isinstance(other, Unit):
@@ -125,6 +135,60 @@ class Unit:
         """
         return self._provider
 
+    @property
+    def parameters(self):
+        """
+        The mapping of parameters supplied to this Unit
+
+        This may be either a dictionary or None.
+
+        .. seealso::
+            :meth:`is_parametric()`
+        """
+        return self._parameters
+
+    @property
+    def is_parametric(self):
+        """
+        If true, then this unit is parametric
+
+        Parametric units are instances of a template. To know which fields are
+        constant and which are parametrized call the support method
+        :meth:`get_accessed_parametes()`
+        """
+        return self._parameters is not None
+
+    def get_accessed_parameters(self):
+        """
+        Get a set of attributes accessed from each template attribute
+
+        :returns:
+            A dictionary of sets with names of attributes accessed by each
+            template field. Note that for non-parametric Units the return value
+            is always a dictionary of empty sets, regardless of how they actual
+            parameter values look like.
+
+        This function computes a dictionary of sets mapping from each template
+        field (except from fields starting with the string 'template-') to a
+        set of all the resource object attributes accessed by that element.
+        """
+        if self.is_parametric:
+            return {
+                key: frozenset(
+                    # See: https://docs.python.org/3.4/library/string.html
+                    #      #string.Formatter.parse
+                    #
+                    # info[1] is the field_name (name of the referenced
+                    # formatting field) it _may_ be None if there are no format
+                    # parameters used
+                    info[1]
+                    for info in string.Formatter().parse(value)
+                    if info[1] is not None)
+                for key, value in self._data.items()
+            }
+        else:
+            return {key: frozenset() for key in self._data}
+
     @classmethod
     def from_rfc822_record(cls, record, provider=None):
         """
@@ -149,15 +213,37 @@ class Unit:
     def get_record_value(self, name, default=None):
         """
         Obtain the normalized value of the specified record attribute
+
+        :param name:
+            Name of the field to access
+        :param default:
+            Default value, used if the field is not defined in the unit
+        :returns:
+            The value of the field, possibly with parameters inserted, or the
+            default value
+        :raises:
+            KeyError if the field is parametrized but parameters are incorrect
         """
         value = self._data.get('_{}'.format(name))
         if value is None:
             value = self._data.get('{}'.format(name), default)
+        if self.is_parametric:
+            value = string.Formatter().vformat(value, (), self.parameters)
         return value
 
     def get_raw_record_value(self, name, default=None):
         """
         Obtain the raw value of the specified record attribute
+
+        :param name:
+            Name of the field to access
+        :param default:
+            Default value, used if the field is not defined in the unit
+        :returns:
+            The raw value of the field, possibly with parameters inserted, or
+            the default value
+        :raises:
+            KeyError if the field is parametrized but parameters are incorrect
 
         The raw value may have additional whitespace or indentation around the
         text. It will also not have the magic RFC822 dots removed. In general
@@ -166,6 +252,8 @@ class Unit:
         value = self._raw_data.get('_{}'.format(name))
         if value is None:
             value = self._raw_data.get('{}'.format(name), default)
+        if self.is_parametric:
+            value = string.Formatter().vformat(value, (), self.parameters)
         return value
 
     def validate(self, **validation_kwargs):
@@ -176,7 +264,34 @@ class Unit:
             Validation parameters (may vary per subclass)
         :raises ValidationError:
             If the unit is incorrect somehow.
+
+        Non-parametric units are always valid. Parametric units are valid if
+        they don't violate the parametric constraints encoded in the
+        :class:`Unit.Meta` unit meta-data class'
+        :attr:`Unit.Meta.template_constraints` field.
         """
+        # Non-parametric units are always valid
+        if not self.is_parametric:
+            return
+        # Parametric units should obey the parametric constraints (encoded in
+        # the helper meta-data class Meta's template_constraints field)
+        for field, param_set in self.get_accessed_parameters().items():
+            constraint = self.Meta.template_constraints.get(field)
+            # Fields cannot refer to parameters that we don't have
+            for param_name in param_set:
+                if param_name not in self.parameters:
+                    raise ValidationError(field, Problem.wrong)
+            # Fields without constraints are otherwise valid.
+            if constraint is None:
+                continue
+            assert constraint in ('vary', 'const')
+            # Fields that need to be variable cannot have a non-parametrized
+            # value
+            if constraint == 'vary' and len(param_set) == 0:
+                raise ValidationError(field, Problem.constant)
+            # Fields that need to be constant cannot have parametrized value
+            elif constraint == 'const' and len(param_set) != 0:
+                raise ValidationError(field, Problem.variable)
 
     @property
     def checksum(self):
@@ -208,9 +323,18 @@ class Unit:
         # json text with default indent and separator settings.
         canonical_form = json.dumps(
             sorted_data, indent=None, separators=(',', ':'))
+        text = canonical_form.encode('UTF-8')
+        # Parametric units also get a copy of their parameters stored as an
+        # additional piece of data
+        if self.is_parametric:
+            sorted_parameters = collections.OrderedDict(
+                sorted(self.parameters.items()))
+            canonical_parameters = json.dumps(
+                sorted_parameters, indent=None, separators=(',', ':'))
+            text += canonical_parameters.encode('UTF-8')
         # Compute the sha256 hash of the UTF-8 encoding of the canonical form
         # and return the hex digest as the checksum that can be displayed.
-        return hashlib.sha256(canonical_form.encode('UTF-8')).hexdigest()
+        return hashlib.sha256(text).hexdigest()
 
     @deprecated("0.7", "call unit.tr_unit() instead")
     def get_unit_type(self):
@@ -256,6 +380,12 @@ class Unit:
         For now it only supports the ``template_constraints`` field which
         describes requirements for templates that wish to instantiate units of
         this type.
+
+        :attr template_constraints:
+            A dictionary mapping field name to parametric constraints. If the
+            unit is parametric then fields may have a constraint to be constant
+            ``const`` or variable ``vary``. Fields without a constraint marker
+            are not checked.
         """
 
         template_constraints = {

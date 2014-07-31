@@ -23,7 +23,6 @@ from argparse import (
     ArgumentParser,
     RawTextHelpFormatter
 )
-import configparser
 import fcntl
 import ftplib
 from ftplib import FTP
@@ -72,12 +71,12 @@ class IPerfPerformanceTest(object):
         if self.iface.max_speed == 0:
             logging.warning("No max speed detected, assuming Wireless device "
                             "and continuing with test.")
-        # Otherwise, no sense in running if we're not running at full speed. 
+        # Otherwise, no sense in running if we're not running at full speed.
         elif self.iface.max_speed > self.iface.link_speed:
             logging.error("Detected link speed (%s) is lower than "
                           "detected max speed (%s)" %
                           (self.iface.link_speed, self.iface.max_speed))
-            logging.error("Please check your device configuration and try again")
+            logging.error("Check your device configuration and try again")
             return 1
 
         cmd = "timeout 180 iperf -c {} -n {}".format(self.target, self.mbytes)
@@ -117,7 +116,7 @@ class IPerfPerformanceTest(object):
                 scaled_throughput /= 1000
             try:
                 percent = scaled_throughput / int(self.iface.max_speed) * 100
-            except (ZeroDivisionError, TypeError) as error:
+            except (ZeroDivisionError, TypeError):
                 # Catches a condition where the interface functions fine but
                 # ethtool fails to properly report max speed. In this case
                 # it's up to the reviewer to pass or fail.
@@ -135,7 +134,8 @@ class IPerfPerformanceTest(object):
                 return 0
             # Below is guaranteed to not throw an exception because we'll
             # have exited above if it did.
-            print("{:03.2f}% of theoretical max {} Mb/s\n".format(percent, int(self.iface.max_speed)))
+            print("{:03.2f}% of theoretical max {} Mb/s\n".format(percent,
+                  int(self.iface.max_speed)))
             if percent < self.fail_threshold:
                 logging.warn("Poor network performance detected")
                 return 30
@@ -225,7 +225,8 @@ class FTPPerformanceTest(object):
             self.remote.set_debuglevel(2)
             self.remote.set_pasv(True)
         except socket.error as connect_exception:
-            logging.error("Failed to connect to: %s", self.target)
+            logging.error("Failed to connect to: %s: %s", self.target,
+                          connect_exception)
             return False
 
         logging.debug("Logging in")
@@ -234,7 +235,8 @@ class FTPPerformanceTest(object):
         try:
             self.remote.login(self.username, self.password)
         except ftplib.error_perm as login_exception:
-            logging.error("failed to log into target: %s", self.target)
+            logging.error("failed to log into target: %s: %s", self.target,
+                          login_exception)
             return False
 
         default_out_dir = ""
@@ -381,12 +383,12 @@ class Interface(socket.socket):
         # Parse ethtool data for max speed since /sys/class/net/DEV/speed only
         # reports link speed.
 
-        # Search for things that look like 100baseSX, 
-        #40000baseNX, 10000baseT
+        # Search for things that look like 100baseSX,
+        # 40000baseNX, 10000baseT
         try:
             ethinfo = check_output(['ethtool', self.interface],
-                               universal_newlines = True,
-                               stderr=STDOUT).split(' ')
+                                   universal_newlines=True,
+                                   stderr=STDOUT).split(' ')
         except FileNotFoundError:
             logging.warning('ethtool not found! Unable to get max speed')
             ethinfo = None
@@ -472,7 +474,7 @@ def can_ping(the_interface, test_target):
 
 
 def interface_test(args):
-    if not "test_type" in vars(args):
+    if not ("test_type" in vars(args)):
         return
 
     # Get the actual test data from one of two possible sources
@@ -514,7 +516,7 @@ def interface_test(args):
     try:
         check_call(["ip", "link", "set", "dev", args.interface, "up"])
     except CalledProcessError as interface_failure:
-        logging.error("Failed to use %s:%s", cmd, interface_failure)
+        logging.error("Failed to use %s:%s", args.interface, interface_failure)
         return 1
 
     # Back up routing table, since network down/up process
@@ -536,7 +538,7 @@ def interface_test(args):
         try:
             check_call(["ip", "link", "set", "dev", iface, "down"])
         except CalledProcessError as interface_failure:
-            logging.error("Failed to use %s:%s", cmd, interface_failure)
+            logging.error("Failed to shut down %s:%s", iface, interface_failure)
             result = 3
 
     if result == 0:
@@ -556,7 +558,7 @@ def interface_test(args):
             result = ftp_benchmark.run()
 
         elif args.test_type.lower() == "iperf":
-            iperf_benchmark = IPerfPerformanceTest(args.interface, test_target, 
+            iperf_benchmark = IPerfPerformanceTest(args.interface, test_target,
                                                    args.fail_threshold)
             result = iperf_benchmark.run()
 
@@ -570,7 +572,7 @@ def interface_test(args):
         try:
             check_call(["ip", "link", "set", "dev", iface, "up"])
         except CalledProcessError as interface_failure:
-            logging.error("Failed to use %s:%s", cmd, interface_failure)
+            logging.error("Failed to restore %s:%s", iface, interface_failure)
             result = 3
 
     # Restore routing table to original state

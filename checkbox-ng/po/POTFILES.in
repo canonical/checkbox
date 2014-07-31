@@ -2,7 +2,6 @@
 ./checkbox_ng/__init__.py
 ./checkbox_ng/certification.py
 ./checkbox_ng/commands/__init__.py
-./checkbox_ng/commands/certification.py
 ./checkbox_ng/commands/cli.py
 ./checkbox_ng/commands/newcli.py
 ./checkbox_ng/commands/oldcli.py

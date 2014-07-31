@@ -248,6 +248,21 @@ class Unit:
         else:
             return msgid
 
+    class Meta:
+        """
+        Class containing unit meta-data.
+
+        This class contains meta-data about the particular Unit is belongs to.
+        For now it only supports the ``template_constraints`` field which
+        describes requirements for templates that wish to instantiate units of
+        this type.
+        """
+
+        template_constraints = {
+            'id': 'vary',
+            'unit': 'const',
+        }
+
 
 # Collection of all unit classes
 all_units = PkgResourcesPlugInCollection('plainbox.unit')

@@ -46,6 +46,12 @@ class Unit:
     Units are used by plainbox to represent various important objects loaded
     from the filesystem. All units have identical representation (RFC822
     records) but each unit type has different semantics.
+
+    .. warning::
+        There is no metaclass to do it automatically yet so please be aware
+        that the Unit.Meta class (which is a collection of metadata, not a
+        meta-class) needs to be manually inherited in each subclass of the Unit
+        class.
     """
 
     def __init__(self, data, raw_data=None, origin=None, provider=None):

@@ -454,20 +454,19 @@ def get_test_parameters(args, environ):
 def can_ping(the_interface, test_target):
     working_interface = False
     num_loops = 0
-    with open('/dev/null', 'w') as devnull:
-        while (not working_interface) and (num_loops < 48):
-            working_interface = True
+    while (not working_interface) and (num_loops < 48):
+        working_interface = True
 
-            try:
-                ping_cmd = 'ping -I {} {} -c 1'.format(the_interface, test_target)
-                check_call(shlex.split(ping_cmd), stdout=devnull, stderr=devnull)
-            except CalledProcessError as excp:
-                working_interface = False
-                logging.warning("Ping failure on %s (%s)", the_interface, excp)
+        try:
+            check_call(["ping", "-I", the_interface, "-c", "1", test_target],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except CalledProcessError as excp:
+            working_interface = False
+            logging.warning("Ping failure on %s (%s)", the_interface, excp)
 
-            if not working_interface:
-                time.sleep(5)
-                num_loops += 1
+        if not working_interface:
+            time.sleep(5)
+            num_loops += 1
 
     return working_interface
 
@@ -511,10 +510,9 @@ def interface_test(args):
 
     # Testing begins here!
     #
-    # Check and make sure that interface is indeed connected
+    # Make sure that the interface is indeed connected
     try:
-        cmd = "ip link set dev %s up" % args.interface
-        check_call(shlex.split(cmd))
+        check_call(["ip", "link", "set", "dev", args.interface, "up"])
     except CalledProcessError as interface_failure:
         logging.error("Failed to use %s:%s", cmd, interface_failure)
         return 1
@@ -522,10 +520,8 @@ def interface_test(args):
     # Back up routing table, since network down/up process
     # tends to trash it....
     temp = tempfile.TemporaryFile()
-
     try:
-        cmd = "ip route save table all"
-        check_call(shlex.split(cmd), stdout=temp)
+        check_call(["ip", "route", "save", "table", "all"], stdout=temp)
     except CalledProcessError as route_error:
         logging.warning("Unable to save routing table: %s", route_error)
 
@@ -538,8 +534,7 @@ def interface_test(args):
     for iface in extra_interfaces:
         logging.debug("Shutting down interface:%s", iface)
         try:
-            cmd = "ip link set dev %s down" % iface
-            check_call(shlex.split(cmd))
+            check_call(["ip", "link", "set", "dev", iface, "down"])
         except CalledProcessError as interface_failure:
             logging.error("Failed to use %s:%s", cmd, interface_failure)
             result = 3
@@ -573,22 +568,19 @@ def interface_test(args):
     for iface in extra_interfaces:
         logging.debug("Restoring interface:%s", iface)
         try:
-            cmd = "ip link set dev %s up" % iface
-            check_call(shlex.split(cmd))
+            check_call(["ip", "link", "set", "dev", iface, "up"])
         except CalledProcessError as interface_failure:
             logging.error("Failed to use %s:%s", cmd, interface_failure)
             result = 3
 
     # Restore routing table to original state
     temp.seek(0)
-    devnull = open('/dev/null', 'w')
     try:
-        cmd = "ip route restore"
         # Harmless "RTNETLINK answers: File exists" messages on stderr
-        check_call(shlex.split(cmd), stdin=temp, stderr=devnull)
-    except CalledProcessError:
-        logging.warning("Unable to restore routing table!")
-    devnull.close()
+        check_call(["ip", "route", "restore"], stdin=temp,
+                   stderr=subprocess.DEVNULL)
+    except CalledProcessError as restore_failure:
+        logging.warning("Unable to restore routing table: %s", restore_failure)
     temp.close()
 
     return result

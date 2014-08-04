@@ -35,6 +35,7 @@ from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit import Unit
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import ValidationError
+from plainbox.impl.resource import parse_imports_stmt
 
 
 logger = logging.getLogger("plainbox.unit.job")
@@ -403,39 +404,7 @@ class JobDefinition(Unit, IJobDefinition):
                          AS <IDENTIFIER>
         """
         imports = self.imports or ""
-        # Poor man's parser. Replace this with our own parser once we get one
-        for lineno, line in enumerate(imports.splitlines()):
-            parts = line.split()
-            if len(parts) not in (4, 6):
-                raise ValueError(
-                    _("unable to parse imports statement {0!r}: expected"
-                      " exactly four or six tokens").format(line))
-            if parts[0] != "from":
-                raise ValueError(
-                    _("unable to parse imports statement {0!r}: expected"
-                      " 'from' keyword").format(line))
-            namespace = parts[1]
-            if "::" in namespace:
-                raise ValueError(
-                    _("unable to parse imports statement {0!r}: expected"
-                      "a namespace, not fully qualified job identifier"))
-            if parts[2] != "import":
-                raise ValueError(
-                    _("unable to parse imports statement {0!r}: expected"
-                      " 'import' keyword").format(line))
-            job_id = effective_id = parts[3]
-            if "::" in job_id:
-                raise ValueError(
-                    _("unable to parse imports statement {0!r}: expected"
-                      " a partial job identifier, not a fully qualified job"
-                      " identifier").format(line))
-            if len(parts) == 6:
-                if parts[4] != "as":
-                    raise ValueError(
-                        _("unable to parse imports statement {0!r}: expected"
-                          " 'as' keyword").format(line))
-                effective_id = parts[5]
-            yield ("{}::{}".format(namespace, job_id), effective_id)
+        return parse_imports_stmt(imports)
 
     @property
     def automated(self):

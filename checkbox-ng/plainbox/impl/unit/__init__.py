@@ -256,6 +256,58 @@ class Unit:
             value = string.Formatter().vformat(value, (), self.parameters)
         return value
 
+    def get_translated_record_value(self, name, default=None):
+        """
+        Obtain the translated value of the specified record attribute
+
+        :param name:
+            Name of the field/attribute to access
+        :param default:
+            Default value, used if the field is not defined in the unit
+        :returns:
+            The (perhaps) translated value of the field with (perhaps)
+            parameters inserted, or the default value. The idea is to return
+            the best value we can but there are no guarantees on returning a
+            translated value.
+        :raises:
+            KeyError if the field is parametrized but parameters are incorrect
+            This may imply that the unit is invalid but it may also imply that
+            translations are broken. A malicious translation can break
+            formatting and prevent an otherwise valid unit from working.
+        """
+        # Try to access the marked-for-translation record
+        msgid = self._raw_data.get('_{}'.format(name))
+        if msgid is not None:
+            # We now have a translatable message that we can look up in the
+            # provider translation database.
+            msgstr = self.get_translated_data(msgid)
+            assert msgstr is not None
+            # We now have the translation _or_ the untranslated msgid again.
+            # We can now normalize it so that it looks nice:
+            msgstr = normalize_rfc822_value(msgstr)
+            # We can now feed it through the template system to get parameters
+            # inserted.
+            if self.is_parametric:
+                # This should not fail if the unit validates okay but it still
+                # might fail due to broken translations. Perhaps we should
+                # handle exceptions here and hint that this might be the cause
+                # of the problem?
+                msgstr = string.Formatter().vformat(
+                    msgstr, (), self.parameters)
+            return msgstr
+        # If there was no marked-for-translation value then let's just return
+        # the normal (untranslatable) version.
+        msgstr = self._data.get(name)
+        if msgstr is not None:
+            # NOTE: there is no need to normalize anything as we already got
+            # the non-raw value here.
+            if self.is_parametric:
+                msgstr = string.Formatter().vformat(
+                    msgstr, (), self.parameters)
+            return msgstr
+        # If we have nothing better let's just return the default value
+        return default
+
     def validate(self, **validation_kwargs):
         """
         Validate data stored in the unit

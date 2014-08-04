@@ -228,6 +228,48 @@ class JobDefinition(Unit, IJobDefinition):
         shell = 'shell'
         imports = 'imports'
 
+    class Meta(Unit.Meta):
+
+        template_constraints = {
+            'name': 'vary',
+            'unit': 'const',
+            # The 'id' field should be always variable (depending on at least
+            # resource reference) or clashes are inevitable (they can *still*
+            # occur but this is something we cannot prevent).
+            'id': 'vary',
+            # The summary should never be constant as that would be confusing
+            # to the test operator. If it is defined in the template it should
+            # be customized by at least one resource reference.
+            'summary': 'vary',
+            # The 'plugin' field should be constant as otherwise validation is
+            # very unreliable. There is no current demand for being able to
+            # customize it from a resource record.
+            'plugin': 'const',
+            # The command field should be variable if it is defined. This may
+            # be too strict but there has to be a channel between the resource
+            # object and the command to make the template job valuable so for
+            # now we will require variability here.
+            'command': 'vary',
+            # The description should never be constant as that would be
+            # confusing to the test operator. If it is defined in the template
+            # it should be customized by at least one resource reference.
+            'description': 'vary',
+            # There is no conceivable value in having a variable user field
+            'user': 'const',
+            'environ': 'const',
+            # TODO: what about estimated duration?
+            # 'estimated_duration': '?',
+            # TODO: what about depends and requires?
+            #
+            # If both are const then we can determine test ordering without any
+            # action and the ordering is not perturbed at runtime. This may be
+            # too strong of a limitation though. We'll see.
+            # 'depends': '?',
+            # 'requires': '?',
+            'shell': 'const',
+            'imports': 'const',
+        }
+
     class _PluginValues(SymbolDef):
         """
         Symbols for each value of the JobDefinition.plugin field

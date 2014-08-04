@@ -167,7 +167,7 @@ class JobDefinition(Unit, IJobDefinition):
     """
 
     def __init__(self, data, origin=None, provider=None, controller=None,
-                 raw_data=None):
+                 raw_data=None, parameters=None):
         """
         Initialize a new JobDefinition instance.
 
@@ -188,13 +188,20 @@ class JobDefinition(Unit, IJobDefinition):
         :param raw_data:
             An (optional) raw version of data, without whitespace
             normalization. If omitted then raw_data is assumed to be data.
+        :param parameters:
+            An (optional) dictionary of parameters. Parameters allow for unit
+            properties to be altered while maintaining a single definition.
+            This is required to obtain translated summary and description
+            fields, while having a single translated base text and any
+            variation in the available parameters.
 
         .. note::
             You should almost always use :meth:`from_rfc822_record()` instead.
         """
         if origin is None:
             origin = Origin.get_caller_origin()
-        super().__init__(data, raw_data=raw_data, origin=origin)
+        super().__init__(data, raw_data=raw_data, origin=origin,
+                         parameters=parameters)
         if controller is None:
             # XXX: moved here because of cyclic imports
             from plainbox.impl.ctrl import checkbox_session_state_ctrl

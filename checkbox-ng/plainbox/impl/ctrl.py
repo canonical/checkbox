@@ -49,7 +49,6 @@ from plainbox.abc import ISessionStateController
 from plainbox.i18n import gettext as _
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyMissingError
-from plainbox.impl.job import JobDefinition
 from plainbox.impl.resource import ExpressionCannotEvaluateError
 from plainbox.impl.resource import ExpressionFailedError
 from plainbox.impl.resource import Resource
@@ -60,6 +59,8 @@ from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 from plainbox.impl.secure.rfc822 import gen_rfc822_records
 from plainbox.impl.session.jobs import JobReadinessInhibitor
 from plainbox.impl.signal import Signal
+from plainbox.impl.unit.job import JobDefinition
+from plainbox.impl.unit.template import TemplateUnit
 from plainbox.impl.validation import ValidationError
 from plainbox.vendor import extcmd
 
@@ -237,6 +238,10 @@ class CheckBoxSessionStateController(ISessionStateController):
         Analyze a result of a CheckBox "resource" job and generate
         or replace resource records.
         """
+        self._parse_and_store_resource(session_state, job, result)
+        self._instantiate_templates(session_state, job, result)
+
+    def _parse_and_store_resource(self, session_state, job, result):
         # NOTE: https://bugs.launchpad.net/checkbox/+bug/1297928
         # If we are resuming from a session that had a resource job that
         # never ran, we will see an empty MemoryJobResult object.
@@ -255,6 +260,22 @@ class CheckBoxSessionStateController(ISessionStateController):
             new_resource_list.append(resource)
         # Replace any old resources with the new resource list
         session_state.set_resource_list(job.id, new_resource_list)
+
+    def _instantiate_templates(self, session_state, job, result):
+        # NOTE: https://bugs.launchpad.net/checkbox/+bug/1297928
+        # If we are resuming from a session that had a resource job that
+        # never ran, we will see an empty MemoryJobResult object.
+        # Processing empty I/O log would create an empty resource list
+        # and that state is different from the state the session started
+        # before it was suspended, so don't
+        if result.outcome is IJobResult.OUTCOME_NONE:
+            return
+        for unit in session_state.unit_list:
+            if isinstance(unit, TemplateUnit) and unit.resource_id == job.id:
+                logger.info("Instantiating unit: %s", unit)
+                for new_unit in unit.instantiate_all(
+                        session_state.resource_map[job.id]):
+                    session_state.add_unit(new_unit)
 
     def _process_local_result(self, session_state, job, result):
         """

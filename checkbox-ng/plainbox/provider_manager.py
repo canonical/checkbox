@@ -500,7 +500,7 @@ class DevelopCommand(ManageCommand):
         parser.add_argument(
             "-d", "--directory", action="store",
             default=get_user_PROVIDERPATH_entry(),
-            help=_("directory to use (defaults to user's home provider path"))
+            help=_("directory to use (defaults to user's home provider path)"))
 
     def invoked(self, ns):
         pathname = os.path.join(

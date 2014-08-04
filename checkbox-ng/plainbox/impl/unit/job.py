@@ -201,13 +201,12 @@ class JobDefinition(Unit, IJobDefinition):
         if origin is None:
             origin = Origin.get_caller_origin()
         super().__init__(data, raw_data=raw_data, origin=origin,
-                         parameters=parameters)
+                         provider=provider, parameters=parameters)
         if controller is None:
             # XXX: moved here because of cyclic imports
             from plainbox.impl.ctrl import checkbox_session_state_ctrl
             controller = checkbox_session_state_ctrl
         self._resource_program = None
-        self._provider = provider
         self._controller = controller
 
     def __str__(self):

@@ -114,6 +114,18 @@ class Resource:
         else:
             raise AttributeError("don't poke at _data")
 
+    def __getitem__(self, item):
+        data = object.__getattribute__(self, '_data')
+        return data[item]
+
+    def __setitem__(self, item, value):
+        data = object.__getattribute__(self, '_data')
+        data[item] = value
+
+    def __delitem__(self, item):
+        data = object.__getattribute__(self, '_data')
+        del data[item]
+
     def __repr__(self):
         data = object.__getattribute__(self, '_data')
         return "Resource({!r})".format(data)

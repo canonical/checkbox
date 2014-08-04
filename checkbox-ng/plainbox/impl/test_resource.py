@@ -94,12 +94,25 @@ class ResourceTests(TestCase):
         res = Resource({'attr': 'value'})
         self.assertEqual(getattr(res, 'attr'), 'value')
 
+    def test_getitem(self):
+        res = Resource()
+        self.assertRaises(KeyError, lambda res: res["attr"], res)
+        res = Resource({'attr': 'value'})
+        self.assertEqual(res['attr'], 'value')
+
     def test_setattr(self):
         res = Resource()
         res.attr = 'value'
         self.assertEqual(res.attr, 'value')
         res.attr = 'other value'
         self.assertEqual(res.attr, 'other value')
+
+    def test_setitem(self):
+        res = Resource()
+        res['attr'] = 'value'
+        self.assertEqual(res['attr'], 'value')
+        res['attr'] = 'other value'
+        self.assertEqual(res['attr'], 'other value')
 
     def test_delattr(self):
         res = Resource()
@@ -108,6 +121,14 @@ class ResourceTests(TestCase):
         del res.attr
         self.assertRaises(AttributeError, getattr, res, "attr")
         self.assertRaises(AttributeError, lambda res: res.attr, res)
+
+    def test_delitem(self):
+        res = Resource()
+        with self.assertRaises(KeyError):
+            del res["attr"]
+        res = Resource({'attr': 'value'})
+        del res['attr']
+        self.assertRaises(KeyError, lambda res: res['attr'], res)
 
     def test_repr(self):
         self.assertEqual(repr(Resource()), "Resource({})")

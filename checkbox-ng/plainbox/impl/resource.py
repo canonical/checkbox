@@ -101,14 +101,18 @@ class Resource:
         else:
             raise AttributeError(attr)
 
-    def __getattribute__(self, attr):
-        if attr.startswith("_"):
-            raise AttributeError(attr)
+    def __getattr__(self, attr):
         data = object.__getattribute__(self, '_data')
         if attr in data:
             return data[attr]
         else:
-            raise AttributeError(attr)
+            raise AttributeError(attr, "don't poke at %r" % attr)
+
+    def __getattribute__(self, attr):
+        if attr != "_data":
+            return object.__getattribute__(self, attr)
+        else:
+            raise AttributeError("don't poke at _data")
 
     def __repr__(self):
         data = object.__getattribute__(self, '_data')

@@ -441,13 +441,14 @@ class ResourceExpression:
         """
         self._implicit_namespace = implicit_namespace
         self._resource_alias = self._analyze(text)
+        if imports is None:
+            imports = ()
         # Respect any import statements.
         # They always take priority over anything we may know locally
-        if imports is not None:
-            for imported_resource_id, imported_alias in imports:
-                if imported_alias == self._resource_alias:
-                    self._resource_id = imported_resource_id
-                    break
+        for imported_resource_id, imported_alias in imports:
+            if imported_alias == self._resource_alias:
+                self._resource_id = imported_resource_id
+                break
         else:
             self._resource_id = self._resource_alias
         self._text = text

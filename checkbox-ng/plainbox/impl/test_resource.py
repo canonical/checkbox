@@ -249,6 +249,23 @@ class ResourceExpressionTests(TestCase):
         self.assertEqual(expr.resource_id, "2014.com.canonical::package")
         self.assertEqual(expr.implicit_namespace, "2014.com.canonical")
 
+    def test_imports_support(self):
+        text = "package.name == 'fwts'"
+        expr1 = ResourceExpression(text, "2014.com.example")
+        self.assertEqual(expr1.text, text)
+        self.assertEqual(expr1.resource_id, "2014.com.example::package")
+        self.assertEqual(expr1.implicit_namespace, "2014.com.example")
+        expr2 = ResourceExpression(text, "2014.com.example", imports=())
+        self.assertEqual(expr2.text, text)
+        self.assertEqual(expr2.resource_id, "2014.com.example::package")
+        self.assertEqual(expr2.implicit_namespace, "2014.com.example")
+        expr3 = ResourceExpression(
+            text, "2014.com.example", imports=[
+                ('2014.com.canonical::package', 'package')])
+        self.assertEqual(expr3.text, text)
+        self.assertEqual(expr3.resource_id, "2014.com.canonical::package")
+        self.assertEqual(expr3.implicit_namespace, "2014.com.example")
+
     def test_smoke_bad(self):
         self.assertRaises(SyntaxError, ResourceExpression, "barf'")
         self.assertRaises(CodeNotAllowed, ResourceExpression, "a = 5")

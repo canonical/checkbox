@@ -116,7 +116,7 @@ class ResourceTests(TestCase):
 
     def test_delattr(self):
         res = Resource()
-        self.assertRaises(AttributeError, delattr, res, "_attr")
+        self.assertRaises(AttributeError, delattr, res, "attr")
         res = Resource({'attr': 'value'})
         del res.attr
         self.assertRaises(AttributeError, getattr, res, "attr")

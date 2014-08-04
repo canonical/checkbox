@@ -545,6 +545,55 @@ class SessionState:
 
             This method recomputes job readiness for all jobs
         """
+        return self.add_unit(new_job, recompute)
+
+    def add_unit(self, new_unit, recompute=True):
+        """
+        Add a new unit to the session
+
+        :param new_unit:
+            The unit being added
+        :param recompute:
+            If True, recompute readiness inhibitors for all jobs.
+            You should only set this to False if you're adding
+            a number of jobs and will otherwise ensure that
+            :meth:`_recompute_job_readiness()` gets called before
+            session state users can see the state again.
+        :returns:
+            The unit that was actually added or an existing, identical
+            unit if a perfect clash was silently ignored.
+
+        :raises DependencyDuplicateError:
+            if a duplicate, clashing job definition is detected
+
+        .. note::
+            The following applies only to newly added job units:
+
+            The new_unit  gets added to all the state tracking objects of the
+            session. The job unit is initially not selected to run (it is not
+            in the desired_job_list and has the undesired inhibitor).
+
+            The new_unit job may clash with an existing job with the same id.
+            Unless both jobs are identical this will cause
+            DependencyDuplicateError to be raised. Identical jobs are silently
+            discarded.
+
+        .. note::
+            This method recomputes job readiness for all jobs unless the
+            recompute=False argument is used. Recomputing takes a while so if
+            you want to add a lot of units consider setting that to False and
+            only recompute at the last call.
+        """
+        if new_unit.unit == 'job':
+            return self._add_job_unit(new_unit, recompute)
+        else:
+            return self._add_other_unit(new_unit)
+
+    def _add_other_unit(self, new_unit):
+        self.unit_list.append(new_unit)
+        return new_unit
+
+    def _add_job_unit(self, new_job, recompute):
         # See if we have a job with the same id already
         try:
             existing_job = self.job_state_map[new_job.id].job

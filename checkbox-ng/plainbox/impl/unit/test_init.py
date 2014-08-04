@@ -44,11 +44,19 @@ class TestUnitDefinition(TestCase):
         unit4 = Unit({'key': '{missing_param}'},
                      {'key': 'raw-{missing_param}'},
                      parameters={'param': 'value'})
+        unit5 = Unit({})
+        unit6 = Unit({}, parameters={'param': 'value'})
         self.assertEqual(unit1.get_raw_record_value('key'), 'raw-value')
         self.assertEqual(unit2.get_raw_record_value('key'), 'raw-value')
         self.assertEqual(unit3.get_raw_record_value('key'), 'raw-value')
         with self.assertRaises(KeyError):
             unit4.get_raw_record_value('key')
+        self.assertEqual(unit5.get_raw_record_value('key'), None)
+        self.assertEqual(
+            unit5.get_raw_record_value('key', 'default'), 'default')
+        self.assertEqual(unit6.get_raw_record_value('key'), None)
+        self.assertEqual(
+            unit6.get_raw_record_value('key', 'default'), 'default')
 
     def test_get_record_value(self):
         """
@@ -61,11 +69,17 @@ class TestUnitDefinition(TestCase):
         unit4 = Unit({'key': '{missing_param}'},
                      {'key': 'raw-{missing_param}'},
                      parameters={'param': 'value'})
+        unit5 = Unit({})
+        unit6 = Unit({}, parameters={'param': 'value'})
         self.assertEqual(unit1.get_record_value('key'), 'value')
         self.assertEqual(unit2.get_record_value('key'), 'value')
         self.assertEqual(unit3.get_record_value('key'), 'value')
         with self.assertRaises(KeyError):
             unit4.get_record_value('key')
+        self.assertEqual(unit5.get_record_value('key'), None)
+        self.assertEqual(unit5.get_record_value('key', 'default'), 'default')
+        self.assertEqual(unit6.get_record_value('key'), None)
+        self.assertEqual(unit6.get_record_value('key', 'default'), 'default')
 
     def test_validate(self):
         # Empty units are valid, with or without parameters

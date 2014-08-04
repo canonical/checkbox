@@ -227,7 +227,7 @@ class Unit:
         value = self._data.get('_{}'.format(name))
         if value is None:
             value = self._data.get('{}'.format(name), default)
-        if self.is_parametric:
+        if value is not None and self.is_parametric:
             value = string.Formatter().vformat(value, (), self.parameters)
         return value
 
@@ -252,7 +252,7 @@ class Unit:
         value = self._raw_data.get('_{}'.format(name))
         if value is None:
             value = self._raw_data.get('{}'.format(name), default)
-        if self.is_parametric:
+        if value is not None and self.is_parametric:
             value = string.Formatter().vformat(value, (), self.parameters)
         return value
 

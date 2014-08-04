@@ -63,5 +63,5 @@ Foo Bar
         result = self.getResult("""
 Foo by Bar
 """)
-        self.assertEqual(result.device.vendor, "Foo")
-        self.assertEqual(result.device.product, "Bar")
+        self.assertEqual(result.device.vendor, "Bar")
+        self.assertEqual(result.device.product, "Foo")

@@ -351,6 +351,20 @@ class TestJobDefinition(TestCase):
             'id': 'id',
         }, Origin(FileTextSource('file.txt'), 1, 2))
 
+    def test_instantiate_template(self):
+        data = mock.Mock(name='data')
+        raw_data = mock.Mock(name='raw_data')
+        origin = mock.Mock(name='origin')
+        provider = mock.Mock(name='provider')
+        parameters = mock.Mock(name='parameters')
+        unit = JobDefinition.instantiate_template(
+            data, raw_data, origin, provider, parameters)
+        self.assertIs(unit._data, data)
+        self.assertIs(unit._raw_data, raw_data)
+        self.assertIs(unit._origin, origin)
+        self.assertIs(unit._provider, provider)
+        self.assertIs(unit._parameters, parameters)
+
     def test_smoke_full_record(self):
         job = JobDefinition(self._full_record.data)
         self.assertEqual(job.plugin, "plugin")

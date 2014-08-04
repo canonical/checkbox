@@ -202,6 +202,9 @@ class JobDefinition(Unit, IJobDefinition):
             origin = Origin.get_caller_origin()
         super().__init__(data, raw_data=raw_data, origin=origin,
                          provider=provider, parameters=parameters)
+        # NOTE: controllers cannot be customized for instantiated templates so
+        # I wonder if we should start hard-coding it in. Nothing seems to be
+        # using custom controller functionality anymore.
         if controller is None:
             # XXX: moved here because of cyclic imports
             from plainbox.impl.ctrl import checkbox_session_state_ctrl

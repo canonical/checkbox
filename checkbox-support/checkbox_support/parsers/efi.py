@@ -42,7 +42,7 @@ class EfiParser(object):
 
     def run(self, result):
         vendor_product_pattern = re.compile(
-            r"^(?P<vendor>.*)\s+by\s+(?P<product>.*)$")
+            r"^(?P<product>.*)\s+by\s+(?P<vendor>.*)$")
 
         for line in self.stream.readlines():
             line = line.strip()

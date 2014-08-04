@@ -91,6 +91,25 @@ class Unit:
         self._checksum = None
         self._parameters = parameters
 
+    @classmethod
+    def instantiate_template(cls, data, raw_data, origin, provider,
+                             parameters):
+        """
+        Instantiate this unit from a template.
+
+        The point of this method is to have a fixed API, regardless of what the
+        API of a particular unit class ``__init__`` method actually looks like.
+
+        It is easier to standardize on a new method that to patch all of the
+        initializers, code using them and tests to have an uniform initializer.
+        """
+        # This assertion is a low-cost trick to ensure that we override this
+        # method in all of the subclasses to ensure that the initializer is
+        # called with correctly-ordered arguments.
+        assert cls is Unit, \
+            "{}.instantiate_template() not customized".format(cls.__name__)
+        return cls(data, raw_data, origin, provider, parameters)
+
     def __eq__(self, other):
         if not isinstance(other, Unit):
             return False

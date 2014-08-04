@@ -33,6 +33,20 @@ from plainbox.vendor import mock
 
 class TestUnitDefinition(TestCase):
 
+    def test_instantiate_template(self):
+        data = mock.Mock(name='data')
+        raw_data = mock.Mock(name='raw_data')
+        origin = mock.Mock(name='origin')
+        provider = mock.Mock(name='provider')
+        parameters = mock.Mock(name='parameters')
+        unit = Unit.instantiate_template(
+            data, raw_data, origin, provider, parameters)
+        self.assertIs(unit._data, data)
+        self.assertIs(unit._raw_data, raw_data)
+        self.assertIs(unit._origin, origin)
+        self.assertIs(unit._provider, provider)
+        self.assertIs(unit._parameters, parameters)
+
     def test_get_raw_record_value(self):
         """
         Ensure that get_raw_record_value() works okay

@@ -645,7 +645,7 @@ def parse_imports_stmt(imports):
         if "::" in namespace:
             raise ValueError(
                 _("unable to parse imports statement {0!r}: expected"
-                  "a namespace, not fully qualified job identifier"))
+                  " a namespace, not fully qualified job identifier"))
         if parts[2] != "import":
             raise ValueError(
                 _("unable to parse imports statement {0!r}: expected"

@@ -61,7 +61,7 @@ Foo Bar
 
     def test_vendor_product(self):
         result = self.getResult("""
-Foo by Bar
+Product by Vendor
 """)
-        self.assertEqual(result.device.vendor, "Bar")
-        self.assertEqual(result.device.product, "Foo")
+        self.assertEqual(result.device.vendor, "Vendor")
+        self.assertEqual(result.device.product, "Product")

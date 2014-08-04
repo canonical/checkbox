@@ -621,6 +621,14 @@ class CheckBoxExecutionController(IExecutionController):
             for name in list(env.keys()):
                 if name.startswith("LC_"):
                     del env[name]
+        else:
+            # Set the per-provider gettext domain and locale directory
+            if job.provider.gettext_domain is not None:
+                env['TEXTDOMAIN'] = env['PLAINBOX_PROVIDER_GETTEXT_DOMAIN'] = \
+                    job.provider.gettext_domain
+            if job.provider.locale_dir is not None:
+                env['TEXTDOMAINDIR'] = env['PLAINBOX_PROVIDER_LOCALE_DIR'] = \
+                    job.provider.locale_dir
         # Use PATH that can lookup checkbox scripts
         if job.provider.extra_PYTHONPATH:
             env['PYTHONPATH'] = os.pathsep.join(

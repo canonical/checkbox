@@ -432,15 +432,13 @@ class JobDefinition(Unit, IJobDefinition):
         """
         Get the translated version of :meth:`summary`
         """
-        return self.get_normalized_translated_data(
-            self.get_raw_record_value('summary')) or self.partial_id
+        return self.get_translated_record_value('summary', self.partial_id)
 
     def tr_description(self):
         """
         Get the translated version of :meth:`description`
         """
-        return self.get_normalized_translated_data(
-            self.get_raw_record_value('description'))
+        return self.get_translated_record_value('description')
 
     def get_environ_settings(self):
         """

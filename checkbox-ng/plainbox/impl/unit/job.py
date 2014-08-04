@@ -571,6 +571,7 @@ class JobDefinition(Unit, IJobDefinition):
         :raises ValidationError:
             If the job has any problems that make it unsuitable for execution.
         """
+        super().validate(**validation_kwargs)
         JobDefinitionValidator.validate(self, **validation_kwargs)
 
     def create_child_job_from_record(self, record):

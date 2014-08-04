@@ -129,6 +129,9 @@ class RegExpJobQualifier(SimpleQualifier):
         This method should not be called directly, it is an implementation
         detail of SimpleQualifier class.
         """
+        if getattr(job, 'is_fake', False):
+            should_match = re.match(job.id, self.pattern_text[1:-1]) is not None
+            return should_match
         return self._pattern.match(job.id) is not None
 
     @property

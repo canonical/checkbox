@@ -115,9 +115,12 @@ class CheckBoxSessionStateController(ISessionStateController):
         """
         direct = DependencyMissingError.DEP_TYPE_DIRECT
         resource = DependencyMissingError.DEP_TYPE_RESOURCE
-        return set(itertools.chain(
+        result = set(itertools.chain(
             zip(itertools.repeat(direct), job.get_direct_dependencies()),
             zip(itertools.repeat(resource), job.get_resource_dependencies())))
+        if hasattr(job, 'template_resource_id'):
+            result.add((resource, job.template_resource_id))
+        return result
 
     def get_inhibitor_list(self, session_state, job):
         """

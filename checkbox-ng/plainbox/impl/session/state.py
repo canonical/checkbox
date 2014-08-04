@@ -21,6 +21,7 @@
 :mod:`plainbox.impl.session.state` -- session state handling
 ============================================================
 """
+import itertools
 import logging
 
 from plainbox.i18n import gettext as _
@@ -28,6 +29,7 @@ from plainbox.impl import deprecated
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyError
 from plainbox.impl.depmgr import DependencySolver
+from plainbox.impl.resource import Resource
 from plainbox.impl.session.jobs import JobState
 from plainbox.impl.session.jobs import UndesiredJobReadinessInhibitor
 from plainbox.impl.signal import Signal
@@ -429,13 +431,16 @@ class SessionState:
         # to remove a problematic job and re-try. The loop provides a stop
         # condition as we will eventually run out of jobs.
         problems = []
+        # Get additional fake jobs that might be generated if we instantiate
+        # templates later on, from resources we don't yet have.
+        fake_job_list = self.get_fake_job_list()
         while self._desired_job_list:
             # XXX: it might be more efficient to incorporate this 'recovery
             # mode' right into the solver, this way we'd probably save some
             # resources or runtime complexity.
             try:
                 self._run_list = DependencySolver.resolve_dependencies(
-                    self._job_list, self._desired_job_list)
+                    self._job_list + fake_job_list, self._desired_job_list)
             except DependencyError as exc:
                 # When a dependency error is detected remove the affected job
                 # form _desired_job_list and try again.
@@ -446,6 +451,10 @@ class SessionState:
             else:
                 # Don't iterate the loop if there was no exception
                 break
+        # Filter-out fake jobs before we try to show them
+        self._run_list = [
+            job for job in self._run_list
+            if getattr(job, 'is_fake', False) is False]
         # Update all job readiness state
         self._recompute_job_readiness()
         # Return all dependency problems to the caller
@@ -635,6 +644,28 @@ class SessionState:
         list of all jobs re-instantiate this class please.
         """
         return self._job_list
+
+    def get_fake_job_list(self):
+        fake_job_list = []
+        for unit in self.unit_list:
+            if unit.unit != 'template':
+                continue
+            resource_id = unit.resource_id
+            state = self.job_state_map.get(resource_id)
+            if state is not None and state.result.outcome is None:
+                fake_params = Resource({
+                    key: '.*'
+                    for key in set(
+                        itertools.chain(
+                            *unit.get_accessed_parameters(
+                                force=True).values()))
+                })
+                fake_job = unit.instantiate_one(fake_params)
+                fake_job.is_fake = True
+                fake_job.template_resource_id = resource_id
+                logger.debug("Adding fake job: %s", fake_job.id)
+                fake_job_list.append(fake_job)
+        return fake_job_list
 
     @property
     def unit_list(self):

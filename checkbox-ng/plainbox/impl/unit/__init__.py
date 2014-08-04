@@ -177,10 +177,15 @@ class Unit:
         """
         return self._parameters is not None
 
-    def get_accessed_parameters(self):
+    def get_accessed_parameters(self, *, force=False):
         """
         Get a set of attributes accessed from each template attribute
 
+        :param force (keyword-only):
+            If specified then it will operate despite being invoked on a
+            non-parametric unit.  This is only intended to be called by
+            TemplateUnit to inspect what the generated unit looks like in the
+            early validation code.
         :returns:
             A dictionary of sets with names of attributes accessed by each
             template field. Note that for non-parametric Units the return value
@@ -191,7 +196,7 @@ class Unit:
         field (except from fields starting with the string 'template-') to a
         set of all the resource object attributes accessed by that element.
         """
-        if self.is_parametric:
+        if force or self.is_parametric:
             return {
                 key: frozenset(
                     # See: https://docs.python.org/3.4/library/string.html

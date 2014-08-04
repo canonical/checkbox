@@ -259,3 +259,11 @@ class TestUnitDefinition(TestCase):
             Unit({
                 'field': '{param}'}, parameters={'param': 'value'}
             ).get_accessed_parameters(), {'field': frozenset(['param'])})
+        # We can always use force=True to pretend any unit is parametric
+        self.assertEqual(Unit({}).get_accessed_parameters(force=True), {})
+        self.assertEqual(
+            Unit({'field': 'value'}).get_accessed_parameters(force=True),
+            {'field': frozenset()})
+        self.assertEqual(
+            Unit({'field': '{param}'}).get_accessed_parameters(force=True),
+            {'field': frozenset(['param'])})

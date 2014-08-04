@@ -24,6 +24,7 @@
 import logging
 
 from plainbox.i18n import gettext as _
+from plainbox.impl import deprecated
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyError
 from plainbox.impl.depmgr import DependencySolver
@@ -512,6 +513,7 @@ class SessionState:
         job.controller.observe_result(self, job, result)
         self._recompute_job_readiness()
 
+    @deprecated('0.9', 'use the add_unit() method instead')
     def add_job(self, new_job, recompute=True):
         """
         Add a new job to the session

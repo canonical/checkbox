@@ -30,6 +30,7 @@ from unittest import TestCase
 from plainbox.impl.resource import CodeNotAllowed
 from plainbox.impl.resource import ExpressionCannotEvaluateError
 from plainbox.impl.resource import ExpressionFailedError
+from plainbox.impl.resource import FakeResource
 from plainbox.impl.resource import MultipleResourcesReferenced
 from plainbox.impl.resource import NoResourcesReferenced
 from plainbox.impl.resource import Resource
@@ -150,6 +151,33 @@ class ResourceTests(TestCase):
 
     def _get_private_data(self, res):
         return object.__getattribute__(res, '_data')
+
+
+class FakeResourceTests(TestCase):
+
+    def test_resource_attributes(self):
+        """
+        Verify that any accessed attribute / item resolves to its name
+        """
+        resource = FakeResource()
+        self.assertEqual(resource.foo, 'foo')
+        self.assertEqual(resource['bar'], 'bar')
+
+    def test_set_membership(self):
+        """
+        Verify that any item is present
+        """
+        self.assertTrue('foo' in FakeResource())
+
+    def test_tracking_support(self):
+        """
+        Verify that each accessed attribute / item is remembered
+        """
+        accessed = set()
+        resource = FakeResource(accessed)
+        self.assertEqual(resource.foo, 'foo')
+        self.assertEqual(resource['bar'], 'bar')
+        self.assertEqual(accessed, {'foo', 'bar'})
 
 
 class ResourceProgramErrorTests(TestCase):

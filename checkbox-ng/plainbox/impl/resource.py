@@ -145,6 +145,42 @@ class Resource:
             != object.__getattribute__(other, '_data'))
 
 
+class FakeResource:
+    """
+    A resource that seemingly has any accessed attribute.
+
+    All attributes resolve back to the their name. All accessed attributes are
+    recorded and can be referenced from a set that needs to be passed to the
+    initializer. Knowledge about accessed attributes can be helpful in various
+    forms of static analysis.
+    """
+
+    def __init__(self, accessed_attributes=None):
+        """
+        Initialize a fake resource object.
+
+        :param accessed_attributes:
+            An optional set object that will record all accessed resource
+            attributes.
+        """
+        self._accessed_attributes = accessed_attributes
+
+    def _notice(self, attr):
+        if self._accessed_attributes is not None:
+            self._accessed_attributes.add(attr)
+
+    def __getattr__(self, attr):
+        self._notice(attr)
+        return attr
+
+    def __getitem__(self, item):
+        self._notice(item)
+        return item
+
+    def __contains__(self, item):
+        return True
+
+
 class ResourceProgram:
     """
     Class for storing and executing resource programs.

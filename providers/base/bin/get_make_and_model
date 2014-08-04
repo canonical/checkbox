@@ -1,17 +1,34 @@
 #!/usr/bin/env python3
 
 import os.path
+import shlex
+from subprocess import check_output
 
-def print_file_contents(heading, filename):
-    with open(filename) as f:
-        text = f.read().strip()
-        print("{}: {}".format(heading, text))
-        f.close()
+def print_data(key, value):
+    print("{}: {}".format(key, value))
 
 def main():
-    print_file_contents('Manufacturer', '/sys/class/dmi/id/sys_vendor')
-    print_file_contents('Model', '/sys/class/dmi/id/product_name')
-    print_file_contents('Version', '/sys/class/dmi/id/product_version')
+    keys = {'Manufacturer': 'vendor',
+            'Model': 'product',
+            'Version': 'version'}
+
+    cmd = "lshw -C system"
+
+    out = check_output(shlex.split(cmd), 
+                          universal_newlines = True)
+    output = out.split('\n')
+    
+    data = {}
+    for key in keys:
+        for line in output:
+            if keys[key] in line:
+                data[key] = line.split(':')[1].strip()
+                break
+            else:
+                data[key] = "NOT FOUND"
+
+    for key in data:
+        print_data(key, data[key])
 
 if __name__ == "__main__":
     raise SystemExit(main())

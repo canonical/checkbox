@@ -685,7 +685,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
         # Compute the desired job list, this can give us notification about
         # problems in the selected jobs. Currently we just display each problem
         desired_job_list = self._get_matching_job_list(
-            self.ns, self.state.job_list + self.state.get_fake_job_list())
+            self.ns, self.state.job_list)
         print(self.C.header(_("Analyzing Jobs")))
         self._update_desired_job_list(desired_job_list)
 
@@ -956,7 +956,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
         _run_all_selected_jobs()
         """
         new_matching_job_list = self._get_matching_job_list(
-            self.ns, self.state.job_list + self.state.get_fake_job_list())
+            self.ns, self.state.job_list)
         self._update_desired_job_list(new_matching_job_list)
         self._backtrack_and_run_missing = True
 

@@ -25,6 +25,7 @@
 from gettext import gettext as _
 import logging
 
+from checkbox_ng.config import SECURE_ID_PATTERN
 from plainbox.impl.secure import config
 from plainbox.impl.transport import get_all_transports
 
@@ -94,6 +95,18 @@ class LauncherDefinition(config.Config):
         section="transport",
         validator_list=[config.ChoiceValidator(get_all_transports().keys())],
         help_text=_("Where to submit the test results to"))
+
+    # TODO: Add a validator to ensure it looks like a valid URL
+    submit_url = config.Variable(
+        section="transport",
+        help_text=_("HTTP endpoint to submit data to, using the"
+                    " transport specified with submit_to."))
+
+    secure_id = config.Variable(
+        section="submission",
+        validator_list=[config.PatternValidator(SECURE_ID_PATTERN)],
+        help_text=_("Secure ID to identify the system this"
+                    " submission belongs to."))
 
     config_filename = config.Variable(
         section="config",

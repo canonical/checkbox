@@ -348,14 +348,23 @@ class CliInvocation2(RunInvocation):
                 results_file.replace('html', 'xlsx')))
         if self.launcher.submit_to is not Unset:
             if self.launcher.submit_to == 'certification':
+                # If we supplied a submit_url in the launcher, it
+                # should override the one in the config.
+                if self.launcher.submit_url:
+                    self.config.c3_url = self.launcher.submit_url
+                # for secure_id, config (which is user-writable) should
+                # override launcher (which is not)
+                if not self.config.secure_id:
+                    self.config.secure_id = self.launcher.secure_id
                 if self.config.secure_id is Unset:
                     again = True
                     if not self.is_interactive:
                         again = False
                     while again:
+                        # TRANSLATORS: Do not translate the {} format marker.
                         if self.ask_for_confirmation(
-                            _("\nSubmit results to "
-                              "certification.canonical.com?")):
+                            _("\nSubmit results to {0}?".format(
+                                self.launcher.submit_url))):
                             try:
                                 self.config.secure_id = input(_("Secure ID: "))
                             except ValidationError:

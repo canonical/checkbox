@@ -7,19 +7,26 @@ from argparse import ArgumentParser, RawTextHelpFormatter, REMAINDER
 from subprocess import Popen, PIPE
 from syslog import *
 
-TESTS = ['ac_adapter',
-         'acpidump',
-         'acpiinfo',
+
+# These tests require user interaction and need either special handling
+# or skipping altogether (right now, we skip them but they're kept here
+# in case we figure out a way to present the interaction to the user).
+INTERACTIVE_TESTS = [
+        'ac_adapter',
+        'battery',
+        'hotkey',
+        'power_button',
+        'brightness',
+        'lid'
+        ]
+TESTS = ['acpidump',
 	 'acpiinfo',
          'acpitables',
          'apicedge',
          'apicinstance',
          'aspm',
-	 'battery',
          'bios32',
-         'bios_info',
 	 'bios_info',
-	 'brightness',
          'checksum',
 	 'crs',
 	 'csm',
@@ -30,10 +37,8 @@ TESTS = ['ac_adapter',
          'fadt',
 	 'fan',
 	 'hda_audio',
-	 'hotkey',
          'hpet_check',
          'klog',
-	 'lid',
 	 'maxfreq',
 	 'maxreadreq',
          'mcfg',
@@ -49,7 +54,6 @@ TESTS = ['ac_adapter',
 	 'pci',
 	 'pciirq',
 	 'pnp',
-	 'power_button',
 	 'securebootcert',
 	 'smbios',
 	 'syntaxcheck',

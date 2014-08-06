@@ -71,6 +71,15 @@ _description:
  This will run some basic connectivity tests against a BMC, verifying that IPMI works.
 
 plugin: shell
+id: miscellanea/bmc_info
+requires: package.name == 'ipmitool'
+estimated_duration: 0.5
+user: root
+command: bmc_info
+_description:
+ This will gather some info about the BMC itself for diagnostic purposes.
+
+plugin: shell
 id: miscellanea/is_laptop
 user: root
 _description:

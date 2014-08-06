@@ -301,8 +301,20 @@ class UdevadmDevice(object):
             if self.driver.startswith("rtsx"):
                 return "CARDREADER"
             if ((self._environment.get("DEVTYPE") not in ("disk", "partition")
-                    or 'ID_DRIVE_FLASH_SD' in self._environment)
+                    or 'ID_DRIVE_FLASH_SD' in self._environment
+                    or ('ID_MODEL' in self._environment
+                        and self._environment['ID_MODEL'] == 'Card_Reader'))
                     and self.driver == "sd" and self.product):
+                # The condition:
+                #     'ID_MODEL' in self._environment
+                #     and
+                #     self._environment['ID_MODEL'] == 'Card_Reader'
+                # is a workaround specific to LP: #1334224
+                # Otherwise, the card reader,
+                # 058f:6366 Alcor Micro Corp. Multi Flash Reader,
+                # of the system,
+                # CID 201009-6503 Dell Inspiron One 2310,
+                # will be given the category attribute 'DISK' by udev_resource
                 if any(FLASH_RE.search(k) for k in self._environment.keys()):
                     return "CARDREADER"
                 if any(d.bus == 'usb' for d in self._stack):

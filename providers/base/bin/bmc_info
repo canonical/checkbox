@@ -12,9 +12,10 @@ def main():
     except FileNotFoundError:
         print("ipmitool was not found! Please install it and try again.",
               file=sys.stderr)
-    except:
-        print("ipmitool command returned an unknown error.  Please try running %s "
-              "manually to debug this problem." % cmd)
+        return 1
+    except CalledProcessError as e:
+        print("Problem running %s.  Error was %s" % (cmd,e),file=sys.stderr)
+        return 1
     result = result.split('\n')
 
     # We need some bits that are formatted oddly so we need to do some parsing

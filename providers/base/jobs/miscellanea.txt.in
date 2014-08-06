@@ -78,6 +78,8 @@ user: root
 command: bmc_info
 _description:
  This will gather some info about the BMC itself for diagnostic purposes.
+_summary:
+ Gather BMC Identification info
 
 plugin: shell
 id: miscellanea/is_laptop

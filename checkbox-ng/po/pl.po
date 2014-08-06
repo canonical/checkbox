@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: plainbox 0.5\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-08-04 16:52+0200\n"
-"PO-Revision-Date: 2014-06-03 04:39+0000\n"
+"PO-Revision-Date: 2014-08-05 17:26+0000\n"
 "Last-Translator: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>\n"
 "Language-Team: polski <>\n"
 "MIME-Version: 1.0\n"
@@ -16,9 +16,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2014-08-05 05:43+0000\n"
+"X-Launchpad-Export-Date: 2014-08-06 05:56+0000\n"
 "X-Generator: Launchpad (build 17147)\n"
 "Language: Polish\n"
+"X-Language: pl_PL\n"
+"X-Source-Language: C\n"
 
 #: .././plainbox/impl/_argparse.py:139
 #: .././plainbox/vendor/argparse/py32-argparse.py:298
@@ -45,7 +47,7 @@ msgstr "Nazwa domyślnego dostawcy do wykorzystania"
 
 #: .././plainbox/impl/box.py:70
 msgid "plainbox [--help] [--version] | [options] <command> ..."
-msgstr ""
+msgstr "plainbox [--help] [--version] | [opcje] <polecenie> ..."
 
 #: .././plainbox/impl/clitools.py:294
 #, python-format
@@ -397,7 +399,7 @@ msgstr "polecenia dla programistów"
 
 #: .././plainbox/impl/commands/dev.py:61
 msgid "plainbox dev <subcommand> ..."
-msgstr ""
+msgstr "plainbox dev <podkomenda> ..."
 
 #: .././plainbox/impl/commands/list.py:60
 msgid "children"
@@ -614,7 +616,7 @@ msgstr "pomiń to zadanie"
 
 #: .././plainbox/impl/commands/run.py:543
 msgid "mark it as passed and continue"
-msgstr ""
+msgstr "oznacz jako udane i kontynuuj"
 
 #: .././plainbox/impl/commands/run.py:544
 msgid "mark it as failed and continue"
@@ -634,7 +636,7 @@ msgstr "Ominięto po wznowieniu sesji"
 
 #: .././plainbox/impl/commands/run.py:555
 msgid "Passed after resuming execution"
-msgstr ""
+msgstr "Oznaczono jako udane po wznowieniu sesji"
 
 #: .././plainbox/impl/commands/run.py:560
 msgid "Failed after resuming execution"
@@ -674,7 +676,7 @@ msgstr "Autentykacja"
 
 #: .././plainbox/impl/commands/run.py:707
 msgid "Running Selected Jobs"
-msgstr ""
+msgstr "Wykonywanie wybranych zadań"
 
 #: .././plainbox/impl/commands/run.py:763
 #: .././plainbox/impl/commands/run.py:882
@@ -885,11 +887,11 @@ msgstr "Wykryto pozostały plik: {!a}:"
 
 #: .././plainbox/impl/commands/script.py:91
 msgid "Leftover directory detected: {!a}"
-msgstr ""
+msgstr "Wykryto pozostały katalog: {!a}:"
 
 #: .././plainbox/impl/commands/script.py:95
 msgid "Leftover thing detected: {!a}"
-msgstr ""
+msgstr "Wykryto pozostałą rzecz: {!a}:"
 
 #: .././plainbox/impl/commands/script.py:99
 msgid "job {} returned {}"
@@ -1038,7 +1040,7 @@ msgstr "wypisz listę sesji"
 
 #: .././plainbox/impl/commands/session.py:162
 msgid "remove one more more sessions"
-msgstr ""
+msgstr "usuwa jedną lub więcej sesji"
 
 #: .././plainbox/impl/commands/session.py:164
 #: .././plainbox/impl/commands/session.py:170
@@ -1183,7 +1185,7 @@ msgstr "Zachowywanie rekordu zasobu %r: %s"
 #: .././plainbox/impl/ctrl.py:293
 #, python-format
 msgid "Ignoring invalid generated job %s: %s"
-msgstr ""
+msgstr "Ignorowanie błędnego zadania wygenerowanego przez %s: %s"
 
 #. TRANSLATORS: keep the word "local" untranslated. It is a
 #. special type of job that needs to be distinguished.
@@ -1193,6 +1195,8 @@ msgid ""
 "Local job %s produced job %s that collides with an existing job %s (from "
 "%s), the new job was discarded"
 msgstr ""
+"Zadanie typu 'local' %s wyprodukowało zadanie %s które koliduje z "
+"istniejącym zadaniem %s (z %s), nowe zadanie zostało odrzucone"
 
 #: .././plainbox/impl/ctrl.py:327
 #, python-format
@@ -1215,7 +1219,7 @@ msgstr "Dodawanie pliku wykonywalnego %s do gniazda %s"
 #: .././plainbox/impl/ctrl.py:436
 #, python-format
 msgid "job[%s] executing %r with env %r in cwd %r"
-msgstr ""
+msgstr "zadanie[%s] wykonywanie %r w środowisku %r w katalogu %r"
 
 #: .././plainbox/impl/ctrl.py:460
 #, python-format
@@ -1225,7 +1229,7 @@ msgstr "Dowiązanie symboliczne dla pliku wykonywalnego: %s"
 #: .././plainbox/impl/ctrl.py:490
 #, python-format
 msgid "Job temporary current working directory: %s"
-msgstr ""
+msgstr "Tymczasowe katalog roboczy dla zadania: %s"
 
 #: .././plainbox/impl/depmgr.py:100
 msgid "dependency cycle detected: {}"
@@ -1361,7 +1365,7 @@ msgstr "Wersja"
 #: .././plainbox/impl/exporter/xlsx.py:345
 #: .././plainbox/impl/exporter/xlsx.py:346
 msgid "N/A"
-msgstr ""
+msgstr "B/D"
 
 #: .././plainbox/impl/exporter/xlsx.py:350
 msgid "Failures summary"
@@ -1376,7 +1380,7 @@ msgstr[2] "{} Testów zakończonych sukcesem"
 
 #: .././plainbox/impl/exporter/xlsx.py:357
 msgid "Success Rate: {} ({}/{})"
-msgstr ""
+msgstr "Odsetek sukcesów  {} ({}/{})"
 
 #: .././plainbox/impl/exporter/xlsx.py:363
 msgid "{} Test failed"
@@ -1387,7 +1391,7 @@ msgstr[2] "{} Testów zakończonych niepowodzeniem"
 
 #: .././plainbox/impl/exporter/xlsx.py:366
 msgid "Failure Rate: {} ({}/{})"
-msgstr ""
+msgstr "Odsetek niepowodzeń: {} ({}/{})"
 
 #: .././plainbox/impl/exporter/xlsx.py:372
 msgid "{} Test skipped"
@@ -1398,7 +1402,7 @@ msgstr[2] "{} Testów pominiętych"
 
 #: .././plainbox/impl/exporter/xlsx.py:375
 msgid "Skip Rate: {} ({}/{})"
-msgstr ""
+msgstr "Odsetek pominięć: {} ({}/{})"
 
 #: .././plainbox/impl/exporter/xlsx.py:379
 msgid "Fail"
@@ -1547,30 +1551,42 @@ msgstr "Wyjątek w wyrażeniu zapotrzebowania %r (z %s=%r): %r"
 msgid ""
 "unable to parse imports statement {0!r}: expected exactly four or six tokens"
 msgstr ""
+"nie można przeparsować deklaracji importowej {0!r}: oczekiwano dokładnie "
+"czterech lub sześciu elementów"
 
 #: .././plainbox/impl/resource.py:642
 msgid "unable to parse imports statement {0!r}: expected 'from' keyword"
 msgstr ""
+"nie można przeparsować deklaracji importowej {0!r}: oczekiwano słowa "
+"kluczowego 'from'"
 
 #: .././plainbox/impl/resource.py:647
 msgid ""
 "unable to parse imports statement {0!r}: expected a namespace, not fully "
 "qualified job identifier"
 msgstr ""
+"nie można przeparsować deklaracji importowej {0!r}: oczekiwano nazwy "
+"przestrzenie nazw a nie w pełni określonego identyfikatora zadania"
 
 #: .././plainbox/impl/resource.py:651
 msgid "unable to parse imports statement {0!r}: expected 'import' keyword"
 msgstr ""
+"nie można przeparsować deklaracji importowej {0!r}: oczekiwano słowa "
+"kluczowego 'import'"
 
 #: .././plainbox/impl/resource.py:656
 msgid ""
 "unable to parse imports statement {0!r}: expected a partial job identifier, "
 "not a fully qualified job identifier"
 msgstr ""
+"nie można przeparsować deklaracji importowej {0!r}: oczekiwano częściowego "
+"identyfikatora zadania a nie w pełni określonego identyfikatora zadania"
 
 #: .././plainbox/impl/resource.py:662
 msgid "unable to parse imports statement {0!r}: expected 'as' keyword"
 msgstr ""
+"nie można przeparsować deklaracji importowej {0!r}: oczekiwano słowa "
+"kluczowego 'as'"
 
 #: .././plainbox/impl/result.py:63
 msgctxt "textual outcome"
@@ -1654,7 +1670,7 @@ msgstr "zadanie[%s] delegat extcmd: %r"
 #: .././plainbox/impl/runner.py:737
 #, python-brace-format
 msgid "job {0} has no command to run"
-msgstr ""
+msgstr "zadanie {0} nie ma żadnego polecenia do wykonania"
 
 #: .././plainbox/impl/runner.py:759
 #, python-format
@@ -1679,18 +1695,20 @@ msgstr "Wybrano kontroler wykonania %s (punkty %d) dla zadania %r"
 #, python-brace-format
 msgid ""
 "Job {0} created leftover filesystem artefacts in its working directory"
-msgstr ""
+msgstr "Zadanie {0} pozostawiło po sobie pliki/katalogi w katalogu roboczym"
 
 #: .././plainbox/impl/runner.py:831
 #, python-format
 msgid "Leftover file/directory: %r"
-msgstr ""
+msgstr "Pozostawiony plik/katalog: %r"
 
 #: .././plainbox/impl/runner.py:834
 msgid ""
 "Please store desired files in $PLAINBOX_SESSION_SHARE and use regular "
 "temporary files for everything else"
 msgstr ""
+"Pożądane pliki należy umieszczać w $PLAINBOX_SESSION_SHARE a wszelkie inne "
+"dane zapisywać do zwykłych plików tymczasowych"
 
 #: .././plainbox/impl/secure/config.py:87
 msgid "unset"
@@ -1748,7 +1766,7 @@ msgstr "Błąd składniowy w zadaniu wygenerowanym z %s: %s"
 
 #: .././plainbox/impl/secure/launcher1.py:172
 msgid "Security elevation mechanism for plainbox"
-msgstr ""
+msgstr "Mechanizm pozyskiwania dodatkowych uprawnień dla plainbox'a"
 
 #. TRANSLATORS: don't translate pkexec(1)
 #: .././plainbox/impl/secure/launcher1.py:178
@@ -2689,6 +2707,7 @@ msgstr "nadpisywanie istniejącego pliku dostawcy"
 #: .././plainbox/provider_manager.py:503
 msgid "directory to use (defaults to user's home provider path)"
 msgstr ""
+"docelowy katalog (domyślnie w podkatalogu specyficznym dla użytkownika)"
 
 #: .././plainbox/provider_manager.py:511
 #, python-format
@@ -3097,7 +3116,7 @@ msgstr "nie buduj binarnych katalogów tłumaczeń"
 
 #: .././plainbox/provider_manager.py:1185
 msgid "Per-provider management script"
-msgstr ""
+msgstr "Skrypt zarządzający dostawcy"
 
 #. TRANSLATORS: please keep 'manage.py', '--help', '--version'
 #. untranslated. Translate only '[options]'
@@ -3112,15 +3131,16 @@ msgstr "{}: zła wartość {!r}, {}"
 #: .././plainbox/test_i18n.py:62 .././plainbox/test_i18n.py:69
 #: .././plainbox/test_i18n.py:123 .././plainbox/test_i18n.py:137
 msgid "msgid"
-msgstr ""
+msgstr "msgid"
 
 #: .././plainbox/test_i18n.py:65 .././plainbox/test_i18n.py:66
 #: .././plainbox/test_i18n.py:73 .././plainbox/test_i18n.py:75
 #: .././plainbox/test_i18n.py:130 .././plainbox/test_i18n.py:144
 msgid "msgid1"
 msgid_plural "msgid2"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "msgid1"
+msgstr[1] "msgid2"
+msgstr[2] "msgid3"
 
 #: .././plainbox/vendor/argparse/py32-argparse.py:806
 #: .././plainbox/vendor/argparse/py33-argparse.py:832
@@ -3192,9 +3212,9 @@ msgstr "niewłaściwa wartość dla conflict_resolution: %r"
 #, python-format
 msgid "conflicting option string: %s"
 msgid_plural "conflicting option strings: %s"
-msgstr[0] "konfliktujące opcja: %s"
+msgstr[0] "konfliktująca opcja: %s"
 msgstr[1] "konfliktujące opcje: %s"
-msgstr[2] "konfliktujące opcje: %s"
+msgstr[2] "konfliktujących opcji: %s"
 
 #: .././plainbox/vendor/argparse/py32-argparse.py:1533
 #: .././plainbox/vendor/argparse/py33-argparse.py:1559

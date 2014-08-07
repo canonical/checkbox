@@ -415,7 +415,8 @@ requires:
 depends: suspend/suspend_advanced suspend/audio_before_suspend
 _description: Verify that mixer settings after suspend are the same as before suspend.
 command:
- audio_settings store --file=$PLAINBOX_SESSION_SHARE/audio_settings_after_suspend; diff $PLAINBOX_SESSION_SHARE/audio_settings_before_suspend $PLAINBOX_SESSION_SHARE/audio_settings_after_suspend
+  audio_settings store --file=$PLAINBOX_SESSION_SHARE/audio_settings_after_suspend
+  diff $PLAINBOX_SESSION_SHARE/audio_settings_before_suspend $PLAINBOX_SESSION_SHARE/audio_settings_after_suspend
 
 plugin: shell
 id: suspend/audio_after_suspend_auto
@@ -426,7 +427,8 @@ requires:
 depends: suspend/suspend_advanced_auto suspend/audio_before_suspend
 _description: Verify that mixer settings after suspend are the same as before suspend.
 command:
- audio_settings store --file=$PLAINBOX_SESSION_SHARE/audio_settings_after_suspend; diff $PLAINBOX_SESSION_SHARE/audio_settings_before_suspend $PLAINBOX_SESSION_SHARE/audio_settings_after_suspend
+  audio_settings store --file=$PLAINBOX_SESSION_SHARE/audio_settings_after_suspend
+  diff $PLAINBOX_SESSION_SHARE/audio_settings_before_suspend $PLAINBOX_SESSION_SHARE/audio_settings_after_suspend
 
 plugin: shell
 id: suspend/cpu_after_suspend

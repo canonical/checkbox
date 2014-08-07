@@ -143,7 +143,7 @@ def set_profile_hdmi():
                       (profile, error))
 
 
-def get_current_profiles_settings():
+def get_current_profiles_settings(profiles_file):
     """Captures and Writes current audio profiles settings"""
     pactl_list = check_output(
         ['pactl', 'list'], universal_newlines=True, env=unlocalized_env())
@@ -160,17 +160,17 @@ def get_current_profiles_settings():
         }
 
     try:
-        with open('active_profiles', 'w') as active_profiles:
+        with open(profiles_file, 'w') as active_profiles:
             config.write(active_profiles)
     except IOError:
         logging.error("Failed to save active profiles information: %s" %
                       sys.exc_info()[1])
 
 
-def restore_profiles_settings():
+def restore_profiles_settings(profiles_file):
     config = configparser.ConfigParser()
     try:
-        config.read('active_profiles')
+        config.read(profiles_file)
     except IOError:
         logging.error("Failed to retrieve previous profiles information")
 
@@ -348,16 +348,24 @@ def main():
                         help="Turn on verbosity")
     args = parser.parse_args()
 
+    # Settings and profiles need to be stored separately
+    if args.action in ['store', 'restore']:
+        if not args.file:
+            logging.error("No file specified to store audio settings!")
+            return 1
+        settings_file = args.file
+        profiles_file = args.file + ".profiles"
+
     if args.verbose:
         logging.basicConfig(format='%(levelname)s:%(message)s',
                             level=logging.INFO, stream=sys.stdout)
     if args.action == "store":
-        if not args.file:
-            logging.error("No file specified to store audio settings!")
+        store_audio_settings(settings_file)
+        get_current_profiles_settings(profiles_file)
+    elif args.action == "restore":
+        if (restore_profiles_settings(profiles_file) or
+                restore_audio_settings(settings_file)):
             return 1
-
-        store_audio_settings(args.file)
-        get_current_profiles_settings()
     elif args.action == "set":
         if not args.device:
             logging.error("No device specified to change settings of!")
@@ -369,9 +377,6 @@ def main():
         if args.device == "hdmi":
             set_profile_hdmi()
         set_audio_settings(args.device, args.mute, args.volume)
-    elif args.action == "restore":
-        if restore_profiles_settings() or restore_audio_settings(args.file):
-            return 1
     else:
         logging.error(args.action + "is not a valid action")
         return 1

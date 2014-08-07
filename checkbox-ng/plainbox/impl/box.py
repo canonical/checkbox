@@ -36,7 +36,7 @@ from plainbox.impl.commands import PlainBoxToolBase
 from plainbox.impl.commands.check_config import CheckConfigCommand
 from plainbox.impl.commands.dev import DevCommand
 from plainbox.impl.commands.run import RunCommand
-from plainbox.impl.commands.selftest import SelfTestCommand
+from plainbox.impl.commands.selftest import PlainboxSelfTestCommand
 from plainbox.impl.commands.session import SessionCommand
 from plainbox.impl.commands.startprovider import StartProviderCommand
 from plainbox.impl.logging import setup_logging
@@ -82,7 +82,7 @@ class PlainBoxTool(PlainBoxToolBase):
         RunCommand(self._provider_list, self._config).register_parser(
             subparsers)
         SessionCommand().register_parser(subparsers)
-        SelfTestCommand().register_parser(subparsers)
+        PlainboxSelfTestCommand().register_parser(subparsers)
         CheckConfigCommand(self._config).register_parser(subparsers)
         DevCommand(self._provider_list, self._config).register_parser(
             subparsers)

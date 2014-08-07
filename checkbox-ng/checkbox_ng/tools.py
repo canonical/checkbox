@@ -27,9 +27,11 @@ import os
 from plainbox.impl.clitools import SingleCommandToolMixIn
 from plainbox.impl.clitools import ToolBase
 from plainbox.impl.providers.v1 import all_providers
+from plainbox.impl.commands.selftest import SelfTestCommand
 
 from checkbox_ng import __version__ as version
 from checkbox_ng.config import CheckBoxConfig
+from checkbox_ng.tests import load_unit_tests
 
 
 logger = logging.getLogger("checkbox.ng.tools")
@@ -128,6 +130,7 @@ class CheckboxTool(CheckboxToolBase):
         LauncherCommand(
             self.provider_list, self.config
         ).register_parser(subparsers)
+        SelfTestCommand(load_unit_tests).register_parser(subparsers)
 
 
 class CheckboxServiceTool(SingleCommandToolMixIn, CheckboxToolBase):

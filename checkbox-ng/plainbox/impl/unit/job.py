@@ -531,8 +531,10 @@ class JobDefinition(Unit, IJobDefinition):
         The program instance is cached in the JobDefinition and is not
         compiled or validated on subsequent calls.
 
-        Returns ResourceProgram or None
-        Raises ResourceProgramError or SyntaxError
+        :returns:
+            ResourceProgram if one is available or None
+        :raises ResourceProgramError:
+            If the program definition is incorrect
         """
         if self.requires is not None and self._resource_program is None:
             if self._provider is not None:

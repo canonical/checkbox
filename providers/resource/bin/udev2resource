@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+# This file is part of Checkbox.
+#
+# Copyright 2014 Canonical Ltd.
+# Written by:
+#   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+"""
+udev2resource -- udev to plainbox resource converter
+====================================================
+
+This script converts the output of 'udev info --export-db' into a RFC822-esque
+PlainBox resource syntax. It handles the P:, N:, E:, S: and L: "directives"
+"""
+
+import sys
+import re
+
+
+def udev2resource(in_stream, out_stream):
+    """
+    Convert the output of 'udev info --export-db' to RFC822 records.
+
+    :param in_stream:
+        Input stream to process
+    :param out_stream:
+        Output stream to process
+
+    The syntax is not documented anywhere that I could find but based on simple
+    experiments it looks like a sequence of lines starting with a one
+    letter-code followed by a colon and a value.
+
+    The following fields are recognized:
+
+        'P' - device path relative to /sysfs
+        'N' - device path relative to /dev
+        'E' - a key-value attribute
+        'S' - symlink path relative to /dev
+        'L' - unknown field
+    """
+    symlink_count = 0
+    for line in in_stream:
+        line = line.rstrip()
+        if line == '':
+            symlink_count = 0
+        elif line.startswith("P: "):
+            line = line.replace("P: ", "path: ", 1)
+        elif line.startswith("N: "):
+            line = line.replace("N: ", "name: ", 1)
+        elif line.startswith("E: "):
+            line = re.sub("E: ([A-Za-z0-9_]+)=", "attr_\\1: ", line)
+        elif line.startswith("S: "):
+            line = re.sub("S: ", "symlink_{}: ".format(symlink_count), line)
+            symlink_count += 1
+        elif line.startswith("L: "):
+            line = line.replace("L: ", "l_something: ", 1)
+        print(line, file=out_stream)
+
+
+if __name__ == '__main__':
+    udev2resource(sys.stdin, sys.stdout)

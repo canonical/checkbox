@@ -36,6 +36,7 @@ from plainbox.impl.unit import Unit
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import ValidationError
 from plainbox.impl.resource import parse_imports_stmt
+from plainbox.impl.resource import ResourceProgramError
 
 
 logger = logging.getLogger("plainbox.unit.job")
@@ -121,6 +122,11 @@ class JobDefinitionValidator:
         elif strict and estimated_duration is None:
             raise ValidationError(
                 job.fields.estimated_duration, Problem.missing)
+        # The resource program should be valid
+        try:
+            job.get_resource_program()
+        except ResourceProgramError:
+            raise ValidationError(job.fields.requires, Problem.wrong)
 
 
 class propertywithsymbols(property):

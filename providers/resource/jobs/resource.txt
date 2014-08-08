@@ -64,6 +64,18 @@ command: udev_resource
 requires: package.name == "udev"
 _description: Creates resource info from udev
 
+id: staging/udev
+estimated_duration: 1.1
+plugin: resource
+shell: /bin/sh
+requires: package.name == "udev"
+command: udevadm info --export-db | udev2resource
+_summary: Collect unfiltered udev data
+_description:
+ This job collects the udev database in mostly raw format. The only
+ transformations applied are basic changes to make the format compatible with
+ RFC822 syntax required by PlainBox.
+
 id: dmi
 estimated_duration: 0.59
 plugin: resource

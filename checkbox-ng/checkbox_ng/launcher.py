@@ -111,3 +111,7 @@ class LauncherDefinition(config.Config):
     config_filename = config.Variable(
         section="config",
         help_text=_("Name of custom configuration file"))
+
+    dont_suppress_output = config.Variable(
+        section="ui", kind=bool, default=False,
+        help_text=_("Don't suppress the output of certain job plugin types."))

@@ -56,7 +56,7 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
                 p.get_units()[0] for p in provider_list]))
         self.session = SessionState(self.unit_list)
         self.desired_job_list = self._get_matching_job_list(
-            ns, self.session.job_list + self.session.get_fake_job_list())
+            ns, self.session.job_list)
         self.problem_list = self.session.update_desired_job_list(
             self.desired_job_list)
 
@@ -126,7 +126,7 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
         result = runner.run_job(job, self.config)
         self.session.update_job_result(job, result)
         new_desired_job_list = self._get_matching_job_list(
-            self.ns, self.session.job_list + self.session.get_fake_job_list())
+            self.ns, self.session.job_list)
         new_problem_list = self.session.update_desired_job_list(
             new_desired_job_list)
         if new_problem_list:

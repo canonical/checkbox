@@ -282,7 +282,14 @@ class CheckBoxSessionStateController(ISessionStateController):
                 logger.info(_("Instantiating unit: %s"), unit)
                 for new_unit in unit.instantiate_all(
                         session_state.resource_map[job.id]):
-                    session_state.add_unit(new_unit)
+                    try:
+                        new_unit.validate()
+                    except ValidationError as exc:
+                        logger.error(
+                            _("Ignoring invalid instantiated unit %s: %s"),
+                            new_unit, exc)
+                    else:
+                        session_state.add_unit(new_unit)
 
     def _process_local_result(self, session_state, job, result):
         """

@@ -31,6 +31,7 @@ _description:
 
 plugin: local
 _summary: Check stats changes for each disk
+flags: deprecated
 id: disk/stats
 requires: device.category == 'DISK'
 _description: Check stats changes for each disk
@@ -38,6 +39,7 @@ command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell
  id: disk/stats_`ls /sys$path/block`
+ flags: deprecated
  requires:
   device.path == "$path"
   block_device.`ls /sys$path/block`_state != 'removable'

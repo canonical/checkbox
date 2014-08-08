@@ -475,6 +475,12 @@ class MultipleResourcesReferenced(ResourceProgramError):
         return _("expression referenced multiple resources")
 
 
+class ResourceSyntaxError(ResourceProgramError):
+
+    def __str__(self):
+        return _("syntax error in resource expression")
+
+
 class ResourceExpression:
     """
     Class representing a single line of an requirement program.
@@ -602,7 +608,10 @@ class ResourceExpression:
         May raise SyntaxError or a ResourceProgramError subclass
         """
         # Use the ast module to build an abstract syntax tree of the expression
-        node = ast.parse(text)
+        try:
+            node = ast.parse(text)
+        except SyntaxError as exc:
+            raise ResourceSyntaxError
         # Use ResourceNodeVisitor to see what kind of ast.Name objects are
         # referenced by the expression. This may also raise CodeNotAllowed
         # which should be captured by the higher layers.

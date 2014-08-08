@@ -38,6 +38,7 @@ from plainbox.impl.resource import ResourceExpression
 from plainbox.impl.resource import ResourceNodeVisitor
 from plainbox.impl.resource import ResourceProgram
 from plainbox.impl.resource import ResourceProgramError
+from plainbox.impl.resource import ResourceSyntaxError
 
 
 class ExpressionFailedTests(TestCase):
@@ -316,7 +317,7 @@ class ResourceExpressionTests(TestCase):
         self.assertEqual(expr3.implicit_namespace, "2014.com.example")
 
     def test_smoke_bad(self):
-        self.assertRaises(SyntaxError, ResourceExpression, "barf'")
+        self.assertRaises(ResourceSyntaxError, ResourceExpression, "barf'")
         self.assertRaises(CodeNotAllowed, ResourceExpression, "a = 5")
         self.assertRaises(NoResourcesReferenced, ResourceExpression, "5 < 10")
         self.assertRaises(MultipleResourcesReferenced,

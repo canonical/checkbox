@@ -720,7 +720,8 @@ class RunInvocation(CheckBoxInvocationMixIn):
         self.run_single_job_with_ui(job, self.get_ui_for_job(job))
 
     def get_ui_for_job(self, job):
-        if job.plugin in ('local', 'resource', 'attachment'):
+        if self.ns.dont_suppress_output is False and job.plugin in (
+                'local', 'resource', 'attachment'):
             return NormalUI(self.C.c, show_cmd_output=False)
         else:
             return NormalUI(self.C.c, show_cmd_output=True)
@@ -986,6 +987,9 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         group.add_argument(
             '-n', '--dry-run', action='store_true',
             help=_("don't really run most jobs"))
+        group.add_argument(
+            '--dont-suppress-output', action="store_true", default=False,
+            help=_("don't suppress the output of certain job plugin types"))
         group = parser.add_argument_group(_("output options"))
         assert 'text' in get_all_exporters()
         group.add_argument(

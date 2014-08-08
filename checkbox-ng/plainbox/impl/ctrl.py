@@ -279,7 +279,7 @@ class CheckBoxSessionStateController(ISessionStateController):
             return
         for unit in session_state.unit_list:
             if isinstance(unit, TemplateUnit) and unit.resource_id == job.id:
-                logger.info("Instantiating unit: %s", unit)
+                logger.info(_("Instantiating unit: %s"), unit)
                 for new_unit in unit.instantiate_all(
                         session_state.resource_map[job.id]):
                     session_state.add_unit(new_unit)

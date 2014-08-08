@@ -136,6 +136,7 @@ device. This feature can be coupled with the existing resource requirement to
 let the user know that we did see their CD-ROM device but it was not tested as
 there was no inserted media at the time::
 
+   unit: template
    template-resource: device
    template-filter: device.physical == 'yes'
    requires: device.has_media == 'yes'

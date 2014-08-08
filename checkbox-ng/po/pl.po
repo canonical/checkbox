@@ -1269,7 +1269,7 @@ msgstr "Odwiedzanie zależności: %r"
 #: .././plainbox/impl/depmgr.py:288
 #, python-format
 msgid "Appending %r to solution"
-msgstr "Dodawanie %r to rozwiązania"
+msgstr "Dodawanie %r do rozwiązania"
 
 #: .././plainbox/impl/exporter/__init__.py:328
 #, python-format

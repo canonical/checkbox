@@ -139,10 +139,10 @@ _description:
      Tests that the systems wireless hardware can connect to a router using WPA
      security and the 802.11b/g protocols.
  STEPS:
-     1. Open your routers configuration tool
+     1. Open your router's configuration tool
      2. Change the settings to only accept connections on the B and G wireless bands
-     3. Make sure the SSID is set to ROUTER_SSID
-     4. Change the security settings to use WPA2 and ensure the PSK matches that set in ROUTER_PSK
+     3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
+     4. Change the security settings to use WPA2 and ensure the PSK matches what is set in the ROUTER_PSK environment variable
      5. Click the 'Test' button to create a connection to the router and test the connection
  VERIFICATION:
      Verification is automated, do not change the automatically selected result.
@@ -161,9 +161,9 @@ _description:
      Tests that the systems wireless hardware can connect to a router using
      no security and the 802.11b/g protocols.
  STEPS:
-     1. Open your routers configuration tool
+     1. Open your router's configuration tool
      2. Change the settings to only accept connections on the B and G wireless bands
-     3. Make sure the SSID is set to ROUTER_SSID
+     3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
      4. Change the security settings to use no security
      5. Click the 'Test' button to create a connection to the router and test the connection
  VERIFICATION:
@@ -184,10 +184,10 @@ _description:
      Tests that the systems wireless hardware can connect to a router using WPA
      security and the 802.11n protocols.
  STEPS:
-     1. Open your routers configuration tool
+     1. Open your router's configuration tool
      2. Change the settings to only accept connections on the N wireless band
-     3. Make sure the SSID is set to ROUTER_SSID
-     4. Change the security settings to use WPA2 and ensure the PSK matches that set in ROUTER_PSK
+     3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
+     4. Change the security settings to use WPA2 and ensure the PSK matches what is set in the ROUTER_PSK environment variable
      5. Click the 'Test' button to create a connection to the router and test the connection
  VERIFICATION:
      Verification is automated, do not change the automatically selected result.
@@ -207,9 +207,9 @@ _description:
      Tests that the systems wireless hardware can connect to a router using
      no security and the 802.11n protocol.
  STEPS:
-     1. Open your routers configuration tool
+     1. Open your router's configuration tool
      2. Change the settings to only accept connections on the N wireless band
-     3. Make sure the SSID is set to ROUTER_SSID
+     3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
      4. Change the security settings to use no security
      5. Click the 'Test' button to create a connection to the router and test the connection
  VERIFICATION:
@@ -232,8 +232,8 @@ _description:
  STEPS:
      1. Open your router's configuration tool
      2. Change the settings to only accept connections with the 802.11ac protocol.
-     3. Make sure the SSID is set to ROUTER_SSID
-     4. Change the security settings to use WPA2 and ensure the PSK matches that set in ROUTER_PSK
+     3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
+     4. Change the security settings to use WPA2 and ensure the PSK matches what is set in the ROUTER_PSK environment variable
      5. Click the 'Test' button to create a connection to the router and test the connection
  VERIFICATION:
      Verification is automated, do not change the automatically selected result.
@@ -253,9 +253,9 @@ _description:
      Tests that the systems wireless hardware can connect to a router using
      no security and the 802.11ac protocol.
  STEPS:
-     1. Open your routers configuration tool
+     1. Open your router's configuration tool
      2. Change the settings to only accept connections with the 802.11ac protocol.
-     3. Make sure the SSID is set to ROUTER_SSID
+     3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
      4. Change the security settings to use no security
      5. Click the 'Test' button to create a connection to the router and test the connection
  VERIFICATION:
@@ -271,7 +271,7 @@ environ: WPA_BG_SSID WPA_BG_PSK SERVER_IPERF
 command: trap "nmcli con delete id $WPA_BG_SSID" EXIT; create_connection wifi $WPA_BG_SSID --security=wpa --key=$WPA_BG_PSK && iperf -c $SERVER_IPERF -t 300 -i 30
 estimated_duration: 330.0
 _description:
- Tests the performance of a systems wireless connection through the iperf tool.
+ Tests the performance of a system's wireless connection through the iperf tool.
 
 plugin: shell
 id: wireless/monitor_wireless_connection_udp
@@ -283,7 +283,7 @@ environ: WPA_BG_SSID WPA_BG_PSK SERVER_IPERF
 command: trap "nmcli con delete id $WPA_BG_SSID" EXIT; create_connection wifi $WPA_BG_SSID --security=wpa --key=$WPA_BG_PSK && iperf -c $SERVER_IPERF -t 300 -i 30 -u -b 100m -p 5050
 estimated_duration: 330.0
 _description:
- Tests the performance of a systems wireless connection through the iperf tool, using UDP packets.
+ Tests the performance of a system's wireless connection through the iperf tool, using UDP packets.
 
 plugin: shell
 id: wireless/wireless_connection_open_a

@@ -79,5 +79,8 @@ class CliCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         parser.add_argument(
             '--not-interactive', action='store_true',
             help=_("skip tests that require interactivity"))
+        parser.add_argument(
+            '--dont-suppress-output', action="store_true", default=False,
+            help=_("don't suppress the output of certain job plugin types"))
         # Call enhance_parser from CheckBoxCommandMixIn
         self.enhance_parser(parser)

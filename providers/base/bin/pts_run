@@ -9,6 +9,10 @@ echo -e "Y\nn\nn" | phoronix-test-suite > /dev/null
 # Disable batch result saving and all test options selection
 echo -e "n\nn" | phoronix-test-suite batch-setup > /dev/null 
 
+# Don't show the browser after each test.
+# The implementation is a bit hacky but works.
+phoronix-test-suite user-config-set DefaultBrowser=/bin/true
+
 # Run each test only one time
 export FORCE_TIMES_TO_RUN=1
 

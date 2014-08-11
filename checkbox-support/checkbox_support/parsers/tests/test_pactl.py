@@ -325,6 +325,20 @@ class AttributeTests(ParsingTestCase):
             '0: -13.40 dB 1: -13.40 dB\n'
             'balance 0.00\n'))
 
+    def test_inf_volume(self):
+        # LP: 1350168
+        attr = self.assertParses(
+            pactl.GenericSimpleAttribute.Syntax, (
+        	'\tVolume: 0:   0% 1:   0%\n'
+	        '\t        0: -inf dB 1: -inf dB\n'
+	        '\t        balance 0.00\n')
+        )['attribute']
+        self.assertEqual(attr.name, 'Volume')
+        self.assertEqual(attr.value, (
+            '0:   0% 1:   0%\n'
+            '0: -inf dB 1: -inf dB\n'
+            'balance 0.00\n'))
+
     def test_volume_with_tabs(self):
         attr = self.assertParses(
             pactl.GenericSimpleAttribute.Syntax, (

@@ -2,7 +2,7 @@
 
 import sys
 import re
-from time import time, sleep
+from time import time
 from argparse import ArgumentParser, RawTextHelpFormatter, REMAINDER
 from subprocess import Popen, PIPE
 from syslog import *
@@ -94,7 +94,7 @@ def get_sleep_times(start_marker, end_marker, sleep_time, resume_time):
         if end_marker in loglist[idx]:
             run = 'PASS'
             break
-        
+
     sleep_elapsed = float(sleep_end_time) - float(sleep_start_time)
     resume_elapsed = float(resume_end_time) - float(resume_start_time)
     return (run, sleep_elapsed, resume_elapsed)
@@ -147,24 +147,26 @@ def main():
                             epilog=epilog_text,
                             formatter_class=RawTextHelpFormatter)
     parser.add_argument('-l', '--log',
-                      default='/tmp/fwts_results.log',
-                      help=('Specify the location and name of the log file.\n'
-                            '[Default: %(default)s]'))
+                        default='/tmp/fwts_results.log',
+                        help=('Specify the location and name '
+                              'of the log file.\n'
+                              '[Default: %(default)s]'))
     parser.add_argument('-f', '--fail-level',
-                      default='high',
-                      choices=['critical', 'high', 'medium', 
-                               'low', 'none', 'aborted'],
-                      help=('Specify the FWTS failure level that will trigger '
-                            'this script to return a failing exit code. For '
-                            'example, if you chose "critical" as the '
-                            'fail-level, this wrapper will NOT return a '
-                            'failing exit code unless FWTS reports a test as '
-                            'FAILED_CRITICAL. You will still be notified of '
-                            'all FWTS test failures. [Default level: '
-                            '%(default)s]'))
+                        default='high',
+                        choices=['critical', 'high', 'medium',
+                                 'low', 'none', 'aborted'],
+                        help=('Specify the FWTS failure level that will '
+                              'trigger this script to return a failing exit '
+                              'code. For example, if you chose "critical" as '
+                              'the fail-level, this wrapper will NOT return '
+                              'a failing exit code unless FWTS reports a '
+                              'test as FAILED_CRITICAL. You will still be '
+                              'notified of all FWTS test failures. '
+                              '[Default level: %(default)s]'))
     sleep_args = parser.add_argument_group('Sleep Options',
-                    ('The following arguments are to only be used with the '
-                    '--sleep test option'))
+                                           ('The following arguments are to '
+                                            'only be used with the '
+                                            '--sleep test option'))
     sleep_args.add_argument('--sleep-time',
                             dest='sleep_time',
                             action='store',
@@ -185,22 +187,22 @@ def main():
                        action='append',
                        help='Name of the test to run.')
     group.add_argument('-a', '--all',
-                      action='store_true',
-                      help='Run ALL FWTS automated tests (assumes -w and -c)')
+                       action='store_true',
+                       help='Run ALL FWTS automated tests (assumes -w and -c)')
     group.add_argument('-s', '--sleep',
-                      nargs=REMAINDER,
-                      action='store',
-                      help=('Perform sleep test(s) using the additional\n'
-                            'arguments provided after --sleep. All remaining\n'
-                            'items on the command line will be passed \n'
-                            'through to fwts for performing sleep tests. \n'
-                            'For info on these extra fwts options, please \n'
-                            'see the epilog below and \n'
-                            'the --fwts-help option.'))
+                       nargs=REMAINDER,
+                       action='store',
+                       help=('Perform sleep test(s) using the additional\n'
+                             'arguments provided after --sleep. Remaining\n'
+                             'items on the command line will be passed \n'
+                             'through to fwts for performing sleep tests. \n'
+                             'For info on these extra fwts options, please \n'
+                             'see the epilog below and \n'
+                             'the --fwts-help option.'))
     group.add_argument('--fwts-help',
-                      dest='fwts_help',
-                      action='store_true',
-                      help='Display the help info for fwts itself (lengthy)')
+                       dest='fwts_help',
+                       action='store_true',
+                       help='Display the help info for fwts itself (lengthy)')
     group.add_argument('--list',
                        action='store_true',
                        help='List all tests in fwts.')
@@ -218,16 +220,16 @@ def main():
     # Set correct fail level
     if args.fail_level is not 'none':
         args.fail_level = 'FAILED_%s' % args.fail_level.upper()
-        
+
         # Get our failure priority and create the priority values
-        fail_levels = {'FAILED_CRITICAL':4,
-                       'FAILED_HIGH':3,
-                       'FAILED_MEDIUM':2,
-                       'FAILED_LOW':1,
-                       'FAILED_NONE':0,
-                       'FAILED_ABORTED':-1}
+        fail_levels = {'FAILED_CRITICAL': 4,
+                       'FAILED_HIGH': 3,
+                       'FAILED_MEDIUM': 2,
+                       'FAILED_LOW': 1,
+                       'FAILED_NONE': 0,
+                       'FAILED_ABORTED': -1}
         fail_priority = fail_levels[args.fail_level]
-        
+
     # Enforce only using sleep opts with --sleep
     if args.sleep_time or args.resume_time and not args.sleep:
         parser.error('--sleep-time and --resume-time only apply to the '
@@ -262,11 +264,11 @@ def main():
         sleep_time_arg = '--sleep-time'
         if resume_time_arg in args.sleep:
             args.resume_time = int(args.sleep.pop(
-                                    args.sleep.index(resume_time_arg) + 1))
+                                   args.sleep.index(resume_time_arg) + 1))
             args.sleep.remove(resume_time_arg)
         if sleep_time_arg in args.sleep:
             args.sleep_time = int(args.sleep.pop(
-                                    args.sleep.index(sleep_time_arg) + 1))
+                                  args.sleep.index(sleep_time_arg) + 1))
             args.sleep.remove(sleep_time_arg)
         # if we still haven't set a sleep or resume time, use defauts.
         if not args.sleep_time:
@@ -287,19 +289,22 @@ def main():
             end_marker = 'CHECKBOX SLEEP TEST STOP %s' % timestamp
             syslog(LOG_INFO, '---' + start_marker + '---' + str(time()))
             command = ('fwts -q --stdout-summary -r %s %s'
-                        % (args.log, ' '.join(tests)))
+                       % (args.log, ' '.join(tests)))
             results['sleep'] = (Popen(command, stdout=PIPE, shell=True)
                                 .communicate()[0].strip()).decode()
             syslog(LOG_INFO, '---' + end_marker + '---' + str(time()))
             if 's4' not in args.sleep:
-                iteration_results[iteration] = get_sleep_times(start_marker,
-                                            end_marker, args.sleep_time, 
-                                            args.resume_time)
+                sleep_times = get_sleep_times(start_marker,
+                                              end_marker,
+                                              args.sleep_time,
+                                              args.resume_time)
+                iteration_results[iteration] = sleep_times
                 print(' - Cycle %s: Status: %s  Sleep Elapsed: %0.5f    '
-                  'Resume Elapsed: %0.5f' % (iteration, 
-                     iteration_results[iteration][0],
-                     iteration_results[iteration][1],
-                     iteration_results[iteration][2]))
+                      'Resume Elapsed: '
+                      ' %0.5f' % (iteration,
+                                  iteration_results[iteration][0],
+                                  iteration_results[iteration][1],
+                                  iteration_results[iteration][2]))
         if 's4' not in args.sleep:
             average_times(iteration_results)
             for run in iteration_results.keys():
@@ -334,41 +339,41 @@ def main():
         print("WARNING: The following test cases were reported as critical\n"
               "level failures by fwts. Please review the log at\n"
               "%s for more information." % args.log)
-        for test in critical_fails: 
+        for test in critical_fails:
             print(" - " + test)
     if high_fails:
         print("High Failures: %d" % len(high_fails))
         print("WARNING: The following test cases were reported as high\n"
               "level failures by fwts. Please review the log at\n"
               "%s for more information." % args.log)
-        for test in high_fails: 
+        for test in high_fails:
             print(" - " + test)
     if medium_fails:
         print("Medium Failures: %d" % len(medium_fails))
         print("WARNING: The following test cases were reported as medium\n"
               "level failures by fwts. Please review the log at\n"
               "%s for more information." % args.log)
-        for test in medium_fails: 
+        for test in medium_fails:
             print(" - " + test)
     if low_fails:
         print("Low Failures: %d" % len(low_fails))
         print("WARNING: The following test cases were reported as low\n"
               "level failures by fwts. Please review the log at\n"
               "%s for more information." % args.log)
-        for test in low_fails: 
+        for test in low_fails:
             print(" - " + test)
     if passed:
         print("Passed: %d" % len(passed))
-        for test in passed: 
+        for test in passed:
             print(" - " + test)
     if aborted:
         print("Aborted Tests: %d" % len(aborted))
         print("WARNING: The following test cases were aborted by fwts\n"
               "Please review the log at %s for more information."
               % args.log)
-        for test in aborted: 
+        for test in aborted:
             print(" - " + test)
-    
+
     if args.fail_level is not 'none':
         if fail_priority == fail_levels['FAILED_CRITICAL']:
             if critical_fails:

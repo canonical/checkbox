@@ -208,6 +208,12 @@ def main():
     group.add_argument('--list',
                        action='store_true',
                        help='List all tests in fwts.')
+    group.add_argument('--list-cert',
+                       action='store_true',
+                       help='List all certification tests in fwts.')
+    group.add_argument('--list-advanced',
+                       action='store_true',
+                       help='List all advanced tests in fwts.')
     args = parser.parse_args()
 
     tests = []
@@ -241,6 +247,12 @@ def main():
         return 0
     elif args.list:
         print('\n'.join(TESTS))
+        return 0
+    elif args.list_cert:
+        print('\n'.join(NON_CERT_TESTS))
+        return 0
+    elif args.list_advanced:
+        print('\n'.join(CERT_TESTS))
         return 0
     elif args.test:
         tests.extend(args.test)

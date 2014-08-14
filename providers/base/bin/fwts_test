@@ -45,24 +45,37 @@ CERT_TESTS = ['acpidump',
 # These are advanced tests that shouldn't affect certification status
 NON_CERT_TESTS = ['acpiinfo',
                   'bios_info',
+                  'cmosdump',
                   'crs',
+                  'crsdump',
                   'csm',
                   'dmicheck',
+                  'ebdadump',
                   'fan',
+                  'gpedump',
                   'hda_audio',
                   'maxfreq',
                   'maxreadreq',
+                  'memmapdump',
                   'microcode',
+                  'mpdump',
                   'os2gap',
                   'osilinux',
+                  'pcc',
                   'pci',
                   'pciirq',
+                  'plddump',
                   'pnp',
+                  'prsdump',
+                  'romdump',
                   'securebootcert',
                   'smbios',
                   'syntaxcheck',
+                  'uefidump',
                   'uefirtmisc',
-                  'uefirttime']
+                  'uefirttime',
+                  'uefivarinfo'
+                  ]
 TESTS = sorted(CERT_TESTS + NON_CERT_TESTS)
 
 

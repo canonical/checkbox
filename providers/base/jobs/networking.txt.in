@@ -2,7 +2,6 @@ plugin: shell
 id: networking/gateway_ping
 depends: ethernet/detect
 command: gateway_ping_test
-flags: preserve-locale
 estimated_duration: 2.000
 _description: Tests whether the system has a working Internet connection.
 
@@ -46,7 +45,6 @@ _description:
 plugin: shell
 id: networking/ping
 command: gateway_ping_test $CHECKBOX_SERVER
-flags: preserve-locale
 _description:
  Automated test case to verify availability of some system on the network using ICMP ECHO packets.
 

@@ -15,7 +15,7 @@ class TouchResult:
     attributes = {}
 
     def addDevice(self, device):
-        if getattr(device, 'category') == 'TOUCH':
+        if getattr(device, 'category') == 'TOUCHPAD':
             self.attributes['driver'] = getattr(device, 'driver')
             self.attributes['product'] = getattr(device, 'product')
 

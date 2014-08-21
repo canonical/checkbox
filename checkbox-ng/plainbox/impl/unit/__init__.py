@@ -486,9 +486,7 @@ class Unit:
             ``const`` or variable ``vary``. Fields without a constraint marker
             are not checked.
         """
-
         template_constraints = {
-            'id': 'vary',
             'unit': 'const',
         }
 

@@ -26,6 +26,7 @@ Test definitions for plainbox.impl.unit (package init file)
 from unittest import TestCase
 
 from plainbox.impl.unit import Unit
+from plainbox.impl.unit import UnitWithId
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import ValidationError
 from plainbox.vendor import mock
@@ -106,7 +107,7 @@ class TestUnitDefinition(TestCase):
         self.assertEqual(boom.exception.problem, Problem.wrong)
         # Fields must obey template constraints. (id: vary)
         with self.assertRaises(ValidationError) as boom:
-            Unit({'id': 'a-simple-id'}, parameters={}).validate()
+            UnitWithId({'id': 'a-simple-id'}, parameters={}).validate()
         self.assertEqual(boom.exception.field, 'id')
         self.assertEqual(boom.exception.problem, Problem.constant)
         # Fields must obey template constraints. (unit: const)

@@ -108,6 +108,7 @@ setup(
             'unit=plainbox.impl.unit:Unit',
             'job=plainbox.impl.unit.job:JobDefinition',
             'template=plainbox.impl.unit.template:TemplateUnit',
+            'category=plainbox.impl.unit.category:CategoryUnit',
         ],
     },
     include_package_data=True)

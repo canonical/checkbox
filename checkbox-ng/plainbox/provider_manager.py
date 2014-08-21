@@ -42,6 +42,7 @@ from plainbox.i18n import gettext_noop as N_
 from plainbox.impl.buildsystems import all_buildsystems
 from plainbox.impl.commands import ToolBase, CommandBase
 from plainbox.impl.job import JobDefinition
+from plainbox.impl.unit import UnitWithId
 from plainbox.impl.logging import setup_logging
 from plainbox.impl.providers.v1 import get_user_PROVIDERPATH_entry
 from plainbox.impl.secure.config import Unset
@@ -827,7 +828,9 @@ class InfoCommand(ManageCommand):
             # 0: unit representation
             # 1: pathname of the file the job is defined in
             print("\t" + _("{0} {1}, from {2}").format(
-                unit.get_unit_type(), unit,
+                unit.get_unit_type(),
+                unit.id if isinstance(unit, (UnitWithId, JobDefinition)) \
+                    else unit,
                 unit.origin.relative_to(self.definition.location)))
         if problem_list:
             print("\t" + _("Some units could not be parsed correctly"))

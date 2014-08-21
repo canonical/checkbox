@@ -374,7 +374,7 @@ class ProviderManagerToolTests(TestCase):
             "\tversion: 1.0\n"
             "\tgettext domain: domain\n"
             "[Unit Definitions]\n"
-            "\tjob dummy, from jobs/jobs.txt:1-4\n"
+            "\tjob 2014.com.example::dummy, from jobs/jobs.txt:1-4\n"
             "[White Lists]\n"
             "\t'test', from whitelists/test.whitelist:1-1\n"
             "[Executables]\n"

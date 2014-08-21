@@ -78,7 +78,7 @@ requires:
  package.name == 'iperf'
 command:
  cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
- plugin: user-verify
+ plugin: user-interact-verify
  user: root
  id: ethernet/maximum_bandwidth_$2
  requires: device.path == "$1"
@@ -89,8 +89,9 @@ command:
       User verification of whether the observed transfer throughput is acceptable
       for the type and maximum speed of each ethernet interface.
   STEPS:
-      1. Read the network test summary and confirm that the throughput is acceptable.
-      2. If needed, click "Test" again to repeat the transfer test.
+      1. Click "Test".
+      2. Read the network test summary and confirm that the throughput is acceptable.
+      3. If needed, click "Test" again to repeat the transfer test.
   VERIFICATION:
      Was the reported throughput acceptable for the type and maximum speed of this interface?
  EOF

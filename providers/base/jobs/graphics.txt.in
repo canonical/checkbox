@@ -71,22 +71,22 @@ _summary: Default resolution tests
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: user-verify
+ plugin: user-interact-verify
  id: graphics/`echo ${index}`_resolution_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  requires:
   device.category == 'VIDEO'
- command: resolution_test
- estimated_duration: 0.750
+  package.name == 'zenity'
+ command: resolution_test | zenity --text-info
+ estimated_duration: 10.00
  _summary: Test default resolution for $product
  _description:
   PURPOSE:
       This test will verify the default display resolution on the $product graphics card.
   STEPS:
-      1. This display is using the following resolution:
-  INFO:
-      Resolution: $output
+      1. Click "Test".
+      2. Confirm that the resolution shown in the text window is acceptable for your display.
   VERIFICATION:
-      Is this acceptable for your display on $product graphics card?
+      Is the resolution shown acceptable for your display on $product graphics card?
  EOF
 
 id: graphics/generator_screen_resolution
@@ -141,7 +141,7 @@ plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  id: graphics/`echo ${index}`_maximum_resolution_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- plugin: user-verify
+ plugin: user-interact-verify
  requires:
   device.category == 'VIDEO'
   package.name == 'zenity'

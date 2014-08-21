@@ -4,7 +4,7 @@ requires: dmi.product in ['Notebook','Laptop','Portable']
 estimated_duration: 120.0
 _description:
  PURPOSE:
-     Touchpad user-verify
+     Touchpad manual verification
  STEPS:
      1. Make sure that touchpad is enabled.
      2. Move cursor using the touchpad.

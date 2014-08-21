@@ -65,6 +65,11 @@ class CertificationTransportTests(TestCase):
         self.assertEqual(self.valid_secure_id,
                          transport.options['secure_id'])
 
+    def test_submit_to_hexr_interpretation(self):
+        transport = CertificationTransport(
+                self.valid_url, "submit_to_hexr=1")
+        self.assertTrue(transport._submit_to_hexr is True)
+
     def test_invalid_length_secure_id_are_rejected(self):
         for length in (14, 16, 20):
             dummy_id = "a" * length
@@ -103,6 +108,21 @@ class CertificationTransportTests(TestCase):
                                          files={'data': dummy_data},
                                          headers={'X_HARDWARE_ID':
                                                   self.valid_secure_id},
+                                         proxies=None)
+
+    @mock.patch('checkbox_ng.certification.logger')
+    def test_share_with_hexr_header_sent(self, mock_logger):
+        transport = CertificationTransport(
+            self.valid_url, self.valid_option_string+",submit_to_hexr=1")
+        dummy_data = BytesIO(b"some data to send")
+        result = transport.send(dummy_data)
+        self.assertIsNotNone(result)
+        requests.post.assert_called_with(self.valid_url,
+                                         files={'data': dummy_data},
+                                         headers={'X_HARDWARE_ID':
+                                                  self.valid_secure_id,
+                                                  'X-Share-With-HEXR':
+                                                  True},
                                          proxies=None)
 
     def test_send_success(self):

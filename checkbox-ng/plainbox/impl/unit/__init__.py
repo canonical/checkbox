@@ -41,6 +41,50 @@ __all__ = ['Unit']
 logger = logging.getLogger("plainbox.unit")
 
 
+class UnitValidator:
+    """
+    Validator class for basic Unit type
+    """
+
+    def validate(self, unit, **validation_kwargs):
+        """
+        Validate data stored in the unit
+
+        :param validation_kwargs:
+            Validation parameters (may vary per subclass)
+        :raises ValidationError:
+            If the unit is incorrect somehow.
+
+        Non-parametric units are always valid. Parametric units are valid if
+        they don't violate the parametric constraints encoded in the
+        :class:`Unit.Meta` unit meta-data class'
+        :attr:`Unit.Meta.template_constraints` field.
+        """
+
+        # Non-parametric units are always valid
+        if not unit.is_parametric:
+            return
+        # Parametric units should obey the parametric constraints (encoded in
+        # the helper meta-data class Meta's template_constraints field)
+        for field, param_set in unit.get_accessed_parameters().items():
+            constraint = unit.Meta.template_constraints.get(field)
+            # Fields cannot refer to parameters that we don't have
+            for param_name in param_set:
+                if param_name not in unit.parameters:
+                    raise ValidationError(field, Problem.wrong)
+            # Fields without constraints are otherwise valid.
+            if constraint is None:
+                continue
+            assert constraint in ('vary', 'const')
+            # Fields that need to be variable cannot have a non-parametrized
+            # value
+            if constraint == 'vary' and len(param_set) == 0:
+                raise ValidationError(field, Problem.constant)
+            # Fields that need to be constant cannot have parametrized value
+            elif constraint == 'const' and len(param_set) != 0:
+                raise ValidationError(field, Problem.variable)
+
+
 class Unit:
     """
     Units are representations of data loaded from RFC822 definitions
@@ -346,28 +390,7 @@ class Unit:
         :class:`Unit.Meta` unit meta-data class'
         :attr:`Unit.Meta.template_constraints` field.
         """
-        # Non-parametric units are always valid
-        if not self.is_parametric:
-            return
-        # Parametric units should obey the parametric constraints (encoded in
-        # the helper meta-data class Meta's template_constraints field)
-        for field, param_set in self.get_accessed_parameters().items():
-            constraint = self.Meta.template_constraints.get(field)
-            # Fields cannot refer to parameters that we don't have
-            for param_name in param_set:
-                if param_name not in self.parameters:
-                    raise ValidationError(field, Problem.wrong)
-            # Fields without constraints are otherwise valid.
-            if constraint is None:
-                continue
-            assert constraint in ('vary', 'const')
-            # Fields that need to be variable cannot have a non-parametrized
-            # value
-            if constraint == 'vary' and len(param_set) == 0:
-                raise ValidationError(field, Problem.constant)
-            # Fields that need to be constant cannot have parametrized value
-            elif constraint == 'const' and len(param_set) != 0:
-                raise ValidationError(field, Problem.variable)
+        return UnitValidator().validate(self, **validation_kwargs)
 
     @property
     def checksum(self):

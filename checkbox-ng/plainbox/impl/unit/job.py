@@ -261,6 +261,7 @@ class JobDefinition(Unit, IJobDefinition):
         requires = 'requires'
         shell = 'shell'
         imports = 'imports'
+        category_id = 'category_id'
 
     class Meta(Unit.Meta):
 
@@ -302,6 +303,7 @@ class JobDefinition(Unit, IJobDefinition):
             # 'requires': '?',
             'shell': 'const',
             'imports': 'const',
+            'category_id': 'const',
         }
 
     class _PluginValues(SymbolDef):
@@ -405,6 +407,10 @@ class JobDefinition(Unit, IJobDefinition):
     @property
     def imports(self):
         return self.get_record_value('imports')
+
+    @property
+    def category_id(self):
+        return self.get_record_value('category_id')
 
     @property
     def estimated_duration(self):

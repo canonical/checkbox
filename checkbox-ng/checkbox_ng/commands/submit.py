@@ -52,7 +52,7 @@ class SubmitInvocation:
 
     def run(self):
         options_string = "secure_id={0}".format(self.ns.secure_id)
-        transport = CertificationTransport(self.config.c3_url, options_string)
+        transport = CertificationTransport(self.ns.url, options_string)
 
         try:
             result = transport.send(self.ns.submission)
@@ -116,3 +116,6 @@ class SubmitCommand(PlainBoxCommand):
         parser.add_argument(
             'submission', type=FileType('r'),
             help=_("The path to the results xml file"))
+        parser.add_argument(
+            '--url', metavar=_("URL"), required=True,
+            help=_("destination to submit to"))

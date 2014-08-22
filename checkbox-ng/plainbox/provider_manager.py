@@ -994,7 +994,7 @@ class ValidateCommand(ManageCommand):
         if validation_problem_list or load_problem_list:
             return 1
         else:
-            print(_("All jobs seem to be valid"))
+            print(_("The provider seems to be valid"))
 
     def get_provider(self):
         """

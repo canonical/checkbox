@@ -290,7 +290,7 @@ class ProviderManagerToolTests(TestCase):
         """
         with TestIO() as test_io:
             self.tool.main(["validate"])
-        self.assertEqual(test_io.stdout, "All jobs seem to be valid\n")
+        self.assertEqual(test_io.stdout, "The provider seems to be valid\n")
 
     def test_validate__broken_missing_field(self):
         """

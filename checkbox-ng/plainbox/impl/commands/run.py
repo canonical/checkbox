@@ -892,7 +892,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
     def _update_desired_job_list(self, desired_job_list):
         problem_list = self.state.update_desired_job_list(desired_job_list)
         if problem_list:
-            print(self.C.header_("Warning", 'YELLOW'))
+            print(self.C.header(_("Warning"), 'YELLOW'))
             print(_("There were some problems with the selected jobs"))
             for problem in problem_list:
                 print(" * {}".format(problem))

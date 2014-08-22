@@ -52,7 +52,7 @@ from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.providers.v1 import Provider1Definition
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 from plainbox.impl.validation import Problem
-from plainbox.impl.validation import ValidationError as JobValidationError
+from plainbox.impl.validation import ValidationError as UnitValidationError
 
 __all__ = ['setup', 'manage_py_extension']
 
@@ -949,7 +949,7 @@ class ValidateCommand(ManageCommand):
         for unit in unit_list:
             try:
                 unit.validate(strict=ns.strict, deprecated=ns.deprecated)
-            except JobValidationError as exc:
+            except UnitValidationError as exc:
                 problem_list.append((unit, exc))
         return problem_list
 
@@ -965,16 +965,20 @@ class ValidateCommand(ManageCommand):
             Problem.constant: _("template field is constant"),
             Problem.variable: _("template field is variable"),
         }
-        for job, error in validation_problem_list:
-            if isinstance(error, JobValidationError):
+        for unit, error in validation_problem_list:
+            if isinstance(error, UnitValidationError):
                 # TRANSLATORS: fields are as follows:
                 # 0: filename with job definition
-                # 1: job id
-                # 2: field name
-                # 3: explanation of the problem
-                print(_("{0}: job {1!a}, field {2!a}: {3}").format(
-                    job.origin.relative_to(self.definition.location),
-                    job.id, error.field.name, explain[error.problem]))
+                # 1: unit type name
+                # 2: unit identifier
+                # 3: field name
+                # 4: explanation of the problem
+                print(_("{0}: {1} {2!a}, field {3!a}: {4}").format(
+                    unit.origin.relative_to(self.definition.location),
+                    unit.get_unit_type(),
+                    unit.id if isinstance(unit, (UnitWithId, JobDefinition)) \
+                        else unit,
+                    str(error.field), explain[error.problem]))
                 # If this is a "wrong value" problem then perhaps we can
                 # suggest the set of acceptable values? Those may be stored as
                 # $field.symbols, though as of this writing that is only true

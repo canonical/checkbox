@@ -46,8 +46,7 @@ class SubmitInvocation:
     time.
     """
 
-    def __init__(self, config, ns):
-        self.config = config
+    def __init__(self, ns):
         self.ns = ns
 
     def run(self):
@@ -91,7 +90,7 @@ class SubmitCommand(PlainBoxCommand):
         self.config = config
 
     def invoked(self, ns):
-        return SubmitInvocation(self.config, ns).run()
+        return SubmitInvocation(ns).run()
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser("submit", help=_("submit test results to the Canonical certification website"))

@@ -718,8 +718,10 @@ TEST_TARGET_IPERF = iperf-server.example.com
     info_parser.set_defaults(func=interface_info)
 
     args = parser.parse_args()
-
-    return args.func(args)
+    if 'func' not in args:
+        parser.print_help()
+    else:
+        return args.func(args)
 
 
 if __name__ == "__main__":

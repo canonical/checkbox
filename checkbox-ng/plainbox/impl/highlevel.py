@@ -193,6 +193,7 @@ class Explorer:
                     ('description', provider.description),
                     ('tr_description', provider.tr_description()),
                     ('jobs_dir', provider.jobs_dir),
+                    ('units_dir', provider.units_dir),
                     ('whitelists_dir', provider.whitelists_dir),
                     ('data_dir', provider.data_dir),
                     ('locale_dir', provider.locale_dir),

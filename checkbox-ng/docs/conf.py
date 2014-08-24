@@ -300,6 +300,8 @@ man_pages = [
      'structure of per-session directory', _authors, 7),
     ('manpages/plainbox-template-units', 'plainbox-template-units',
      'syntax and semantics of PlainBox template unit type', _authors, 7),
+    ('manpages/plainbox-category-units', 'plainbox-category-units',
+     'syntax and semantics of PlainBox category unit type', _authors, 7),
     ('manpages/PLAINBOX_SESSION_SHARE', 'PLAINBOX_SESSION_SHARE',
      'per-session runtime shared-state directory', _authors, 7),
     ('manpages/PLAINBOX_PROVIDER_DATA', 'PLAINBOX_PROVIDER_DATA',

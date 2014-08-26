@@ -262,6 +262,7 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
     key = None
     value_list = None
     origin = None
+    field_offset_map = None
     # If the source was not provided then try constructing a FileTextSource
     # from the name of the stream. If that fails, keep using None.
     if source is None:
@@ -288,11 +289,13 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
         nonlocal value_list
         nonlocal record
         nonlocal origin
+        nonlocal field_offset_map
         key = None
         value_list = None
         if source is not None:
             origin = Origin(source, None, None)
-        record = RFC822Record(data_cls(), origin, data_cls())
+        field_offset_map = {}
+        record = RFC822Record(data_cls(), origin, data_cls(), field_offset_map)
 
     def _commit_key_value_if_needed():
         """
@@ -386,10 +389,19 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
                 # have so far. Additional multi-line values will just append to
                 # value_list
                 value_list = [value]
+                # Store the offset of the filed in the offset map
+                field_offset_map[key] = lineno - origin.line_start
             else:
                 # The initial line may be empty, in that case the spaces and
                 # newlines there are discarded
                 value_list = []
+                # Store the offset of the filed in the offset map
+                # The +1 is for the fact that value is empty (or just
+                # whitespace) and that is stripped away in the normalized data
+                # part of the RFC822 record. To keep line tracking accurate
+                # we just assume that the field actually starts on the following
+                # line.
+                field_offset_map[key] = lineno - origin.line_start + 1
             # Update the end-line location
             _update_end_lineno()
         # Treat all other lines as syntax errors

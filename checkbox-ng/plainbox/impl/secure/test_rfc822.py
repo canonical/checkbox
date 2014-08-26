@@ -537,6 +537,37 @@ class RFC822ParserTests(TestCase):
         self.assertEqual(records[0].data, {'key': 'value'})
         self.assertEqual(records[0].origin, expected_origin)
 
+    def test_field_offset_map_is_computed(self):
+        text = (
+            "a: value-a\n"  # offset 0
+            "b: value-b\n"  # offset 1
+            "# comment\n"   # offset 2
+            "c:\n"          # offset 3
+            " value-c.1\n"  # offset 4
+            " value-c.2\n"  # offset 5
+            "\n"
+            "d: value-d\n"  # offset 0
+        )
+        with StringIO(text) as stream:
+            records = type(self).loader(stream)
+        self.assertEqual(len(records), 2)
+        self.assertEqual(records[0].data, {
+            'a': 'value-a',
+            'b': 'value-b',
+            'c': 'value-c.1\nvalue-c.2',
+        })
+        self.assertEqual(records[0].field_offset_map, {
+            'a': 0,
+            'b': 1,
+            'c': 4,
+        })
+        self.assertEqual(records[1].data, {
+            'd': 'value-d',
+        })
+        self.assertEqual(records[1].field_offset_map, {
+            'd': 0,
+        })
+
 
 class NamedStringIO(StringIO):
     """

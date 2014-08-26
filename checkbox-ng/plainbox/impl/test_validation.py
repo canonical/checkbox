@@ -33,12 +33,20 @@ class ValidationErrorTests(TestCase):
     def test_smoke__no_hint(self):
         err = ValidationError('field', 'problem')
         self.assertEqual(str(err), "Problem with field field: problem")
-        self.assertEqual(
-            repr(err), "ValidationError(field='field', problem='problem')")
+        self.assertEqual(repr(err), (
+            "ValidationError("
+            "field='field', problem='problem', hint=None, origin=None)"))
 
     def test_smoke__hint(self):
         err = ValidationError('field', 'problem', 'hint')
         self.assertEqual(str(err), "Problem with field field: problem")
-        self.assertEqual(
-            repr(err),
-            "ValidationError(field='field', problem='problem', hint='hint')")
+        self.assertEqual(repr(err), (
+            "ValidationError("
+            "field='field', problem='problem', hint='hint', origin=None)"))
+
+    def test_smoke__origin(self):
+        err = ValidationError('field', 'problem', origin='origin')
+        self.assertEqual(str(err), "Problem with field field: problem")
+        self.assertEqual(repr(err), (
+            "ValidationError("
+            "field='field', problem='problem', hint=None, origin='origin')"))

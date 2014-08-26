@@ -58,11 +58,7 @@ class ValidationError(ValueError):
         return _("Problem with field {}: {}").format(self.field, self.problem)
 
     def __repr__(self):
-        if self.hint is None:
-            return "ValidationError(field={!r}, problem={!r})".format(
-                self.field, self.problem)
-        else:
-            return (
-                "ValidationError(field={!r}, problem={!r}, "
-                "hint={!r})"
-            ).format(self.field, self.problem, self.hint)
+        return (
+            "ValidationError(field={!r}, problem={!r}, "
+            "hint={!r}, origin={!r})"
+        ).format(self.field, self.problem, self.hint, self.origin)

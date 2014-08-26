@@ -103,6 +103,16 @@ class Origin:
         return Origin(
             self.source, self.line_start + offset, self.line_end + offset)
 
+    def just_line(self):
+        """
+        Create a new Origin that points to the start line
+
+        :returns:
+            A new Origin with the end_line equal to start_line. This effectively
+            makes the origin describe a single line.
+        """
+        return Origin(self.source, self.line_start, self.line_start)
+
     def __eq__(self, other):
         if isinstance(other, Origin):
             return ((self.source, self.line_start, self.line_end) ==

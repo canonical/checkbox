@@ -275,7 +275,7 @@ class Provider1(IProvider1, IProviderBackend1):
         if self.units_dir is not None:
             units_dir_list.append(self.units_dir)
         self._unit_collection = FsPlugInCollection(
-            units_dir_list, ext=(".txt", ".txt.in"), recursive=True,
+            units_dir_list, ext=(".txt", ".txt.in", ".pxu"), recursive=True,
             wrapper=UnitPlugIn, provider=self, validate=validate,
             validation_kwargs=validation_kwargs)
 

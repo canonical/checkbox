@@ -48,10 +48,11 @@ class ValidationError(ValueError):
     Exception raised by to report jobs with problematic definitions.
     """
 
-    def __init__(self, field, problem, hint=None):
+    def __init__(self, field, problem, hint=None, origin=None):
         self.field = field
         self.problem = problem
         self.hint = hint
+        self.origin = origin
 
     def __str__(self):
         return _("Problem with field {}: {}").format(self.field, self.problem)

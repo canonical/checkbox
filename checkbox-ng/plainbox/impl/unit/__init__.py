@@ -101,7 +101,7 @@ class Unit:
     """
 
     def __init__(self, data, raw_data=None, origin=None, provider=None,
-                 parameters=None):
+                 parameters=None, field_offset_map=None):
         """
         Initialize a new unit
 
@@ -123,6 +123,9 @@ class Unit:
             This is required to obtain translated summary and description
             fields, while having a single translated base text and any
             variation in the available parameters.
+        :param field_offset_map:
+            An optional dictionary with offsets (in line numbers) of each field.
+            Line numbers are relative to the value of origin.line_start
         """
         if raw_data is None:
             raw_data = data
@@ -131,6 +134,7 @@ class Unit:
         self._data = data
         self._raw_data = raw_data
         self._origin = origin
+        self._field_offset_map = field_offset_map
         self._provider = provider
         self._checksum = None
         self._parameters = parameters
@@ -190,6 +194,18 @@ class Unit:
         The Origin object associated with this Unit
         """
         return self._origin
+
+    @property
+    def field_offset_map(self):
+        """
+        The field-to-line-number-offset mapping.
+
+        A dictionary mapping field name to offset (in lines) relative to the
+        origin where that field definition commences.
+
+        Note: the return value may be None
+        """
+        return self._field_offset_map
 
     @property
     def provider(self):
@@ -276,7 +292,8 @@ class Unit:
             for key, value in record.raw_data.items()
         }
         return cls(record.data, origin=record.origin,
-                   raw_data=changed_raw_data, provider=provider)
+                   raw_data=changed_raw_data, provider=provider,
+                   field_offset_map=record.field_offset_map)
 
     def get_record_value(self, name, default=None):
         """

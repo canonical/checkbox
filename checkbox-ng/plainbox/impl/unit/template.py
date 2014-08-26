@@ -135,7 +135,8 @@ class TemplateUnit(Unit):
         :meth:`get_filter_program()`
     """
 
-    def __init__(self, data, origin=None, provider=None, raw_data=None):
+    def __init__(self, data, origin=None, provider=None, raw_data=None,
+                 field_offset_map=None):
         """
         Initialize a new TemplateUnit instance.
 
@@ -162,7 +163,8 @@ class TemplateUnit(Unit):
         """
         if origin is None:
             origin = Origin.get_caller_origin()
-        super().__init__(data, raw_data, origin, provider)
+        super().__init__(
+            data, raw_data, origin, provider, field_offset_map=field_offset_map)
         self._filter_program = None
 
     def __str__(self):

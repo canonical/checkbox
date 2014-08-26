@@ -173,7 +173,7 @@ class JobDefinition(Unit, IJobDefinition):
     """
 
     def __init__(self, data, origin=None, provider=None, controller=None,
-                 raw_data=None, parameters=None):
+                 raw_data=None, parameters=None, field_offset_map=None):
         """
         Initialize a new JobDefinition instance.
 
@@ -200,6 +200,9 @@ class JobDefinition(Unit, IJobDefinition):
             This is required to obtain translated summary and description
             fields, while having a single translated base text and any
             variation in the available parameters.
+        :param field_offset_map:
+            An optional dictionary with offsets (in line numbers) of each field.
+            Line numbers are relative to the value of origin.line_start
 
         .. note::
             You should almost always use :meth:`from_rfc822_record()` instead.
@@ -207,7 +210,8 @@ class JobDefinition(Unit, IJobDefinition):
         if origin is None:
             origin = Origin.get_caller_origin()
         super().__init__(data, raw_data=raw_data, origin=origin,
-                         provider=provider, parameters=parameters)
+                         provider=provider, parameters=parameters,
+                         field_offset_map=field_offset_map)
         # NOTE: controllers cannot be customized for instantiated templates so
         # I wonder if we should start hard-coding it in. Nothing seems to be
         # using custom controller functionality anymore.

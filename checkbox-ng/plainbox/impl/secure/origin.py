@@ -91,6 +91,18 @@ class Origin:
         else:
             return self
 
+    def with_offset(self, offset):
+        """
+        Create a new Origin by adding a offset of a specific number of lines
+
+        :param offset:
+            Number of lines to add (or substract)
+        :returns:
+            A new Origin object
+        """
+        return Origin(
+            self.source, self.line_start + offset, self.line_end + offset)
+
     def __eq__(self, other):
         if isinstance(other, Origin):
             return ((self.source, self.line_start, self.line_end) ==

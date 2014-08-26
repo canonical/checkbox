@@ -308,3 +308,13 @@ class OriginTests(TestCase):
                 FileTextSource("/some/path/file.txt"), 1, 2
             ).relative_to("/some/path"),
             Origin(FileTextSource("file.txt"), 1, 2))
+
+    def test_with_offset(self):
+        """
+        verify how Origin.with_offset() works as expected
+        """
+        origin1 = Origin(UnknownTextSource(), 1, 2)
+        origin2= origin1.with_offset(10)
+        self.assertEqual(origin2.line_start, 11)
+        self.assertEqual(origin2.line_end, 12)
+        self.assertIs(origin2.source, origin1.source)

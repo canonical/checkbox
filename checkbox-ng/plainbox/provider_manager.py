@@ -979,16 +979,17 @@ class ValidateCommand(ManageCommand):
                     unit.id if isinstance(unit, (UnitWithId, JobDefinition)) \
                         else unit,
                     str(error.field), explain[error.problem]))
-                # If this is a "wrong value" problem then perhaps we can
-                # suggest the set of acceptable values? Those may be stored as
-                # $field.symbols, though as of this writing that is only true
-                # for the 'plugin' field.
-                field_prop = getattr(JobDefinition, str(error.field))
-                if (error.problem == Problem.wrong
-                        and hasattr(field_prop, "get_all_symbols")):
-                    symbol_list = field_prop.get_all_symbols()
-                    print(_("allowed values are: {0}").format(
-                        ', '.join(str(symbol) for symbol in symbol_list)))
+                if isinstance(unit, JobDefinition):
+                    # If this is a "wrong value" problem then perhaps we can
+                    # suggest the set of acceptable values? Those may be stored as
+                    # $field.symbols, though as of this writing that is only true
+                    # for the 'plugin' field.
+                    field_prop = getattr(JobDefinition, str(error.field))
+                    if (error.problem == Problem.wrong
+                            and hasattr(field_prop, "get_all_symbols")):
+                        symbol_list = field_prop.get_all_symbols()
+                        print(_("allowed values are: {0}").format(
+                            ', '.join(str(symbol) for symbol in symbol_list)))
             else:
                 print(str(error))
         if validation_problem_list or load_problem_list:

@@ -967,6 +967,7 @@ class ValidateCommand(ManageCommand):
         }
         for unit, error in validation_problem_list:
             if isinstance(error, UnitValidationError):
+                origin = error.origin if error.origin else unit.origin
                 problem_text = explain[error.problem]
                 if error.hint is not None:
                     problem_text = error.hint
@@ -988,7 +989,7 @@ class ValidateCommand(ManageCommand):
                 # 3: field name
                 # 4: explanation of the problem
                 print(_("{0}: {1} {2!a}, field {3!a}: {4}").format(
-                    unit.origin.relative_to(self.definition.location),
+                    origin.relative_to(self.definition.location),
                     unit.get_unit_type(),
                     unit.id if isinstance(unit, (UnitWithId, JobDefinition)) \
                         else unit,

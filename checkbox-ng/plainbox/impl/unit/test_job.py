@@ -337,18 +337,18 @@ class TestJobDefinition(TestCase):
         self._full_record = RFC822Record({
             'plugin': 'plugin',
             'id': 'id',
-            'summary': 'summary',
+            'summary': 'summary-value',
             'requires': 'requires',
             'command': 'command',
-            'description': 'description'
+            'description': 'description-value'
         }, Origin(FileTextSource('file.txt'), 1, 5))
         self._full_gettext_record = RFC822Record({
             '_plugin': 'plugin',
             '_id': 'id',
-            '_summary': 'summary',
+            '_summary': 'summary-value',
             '_requires': 'requires',
             '_command': 'command',
-            '_description': 'description'
+            '_description': 'description-value'
         }, Origin(FileTextSource('file.txt.in'), 1, 5))
         self._min_record = RFC822Record({
             'plugin': 'plugin',
@@ -375,7 +375,7 @@ class TestJobDefinition(TestCase):
         self.assertEqual(job.id, "id")
         self.assertEqual(job.requires, "requires")
         self.assertEqual(job.command, "command")
-        self.assertEqual(job.description, "description")
+        self.assertEqual(job.description, "description-value")
 
     def test_smoke_full_gettext_record(self):
         job = JobDefinition(self._full_gettext_record.data)
@@ -383,7 +383,7 @@ class TestJobDefinition(TestCase):
         self.assertEqual(job.id, "id")
         self.assertEqual(job.requires, "requires")
         self.assertEqual(job.command, "command")
-        self.assertEqual(job.description, "description")
+        self.assertEqual(job.description, "description-value")
 
     def test_smoke_min_record(self):
         job = JobDefinition(self._min_record.data)
@@ -399,7 +399,7 @@ class TestJobDefinition(TestCase):
         self.assertEqual(job.id, "id")
         self.assertEqual(job.requires, "requires")
         self.assertEqual(job.command, "command")
-        self.assertEqual(job.description, "description")
+        self.assertEqual(job.description, "description-value")
 
     def test_from_rfc822_record_min_record(self):
         job = JobDefinition.from_rfc822_record(self._min_record)
@@ -579,7 +579,7 @@ class TestJobDefinition(TestCase):
         with mock.patch.object(job, "get_translated_record_value") as mgtrv:
             retval = job.tr_summary()
         # Ensure that get_translated_record_value() was called
-        mgtrv.assert_called_once_with(job.summary, job.partial_id)
+        mgtrv.assert_called_once_with('summary', job.partial_id)
         # Ensure tr_summary() returned its return value
         self.assertEqual(retval, mgtrv())
 
@@ -599,7 +599,7 @@ class TestJobDefinition(TestCase):
         with mock.patch.object(job, "get_translated_record_value") as mgtrv:
             retval = job.tr_description()
         # Ensure that get_translated_record_value() was called
-        mgtrv.assert_called_once_with(job.description)
+        mgtrv.assert_called_once_with('description')
         # Ensure tr_description() returned its return value
         self.assertEqual(retval, mgtrv())
 

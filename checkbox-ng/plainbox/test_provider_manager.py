@@ -376,7 +376,7 @@ class ProviderManagerToolTests(TestCase):
             "[Unit Definitions]\n"
             "\tjob 2014.com.example::dummy, from jobs/jobs.txt:1-4\n"
             "[White Lists]\n"
-            "\t'test', from whitelists/test.whitelist:1-1\n"
+            "\t'test', from whitelists/test.whitelist:1\n"
             "[Executables]\n"
             "\t'test.sh'\n"))
 

@@ -205,6 +205,15 @@ class OriginTests(TestCase):
         observed = str(self.origin)
         self.assertEqual(expected, observed)
 
+    def test_str__single_line(self):
+        """
+        verify that Origin.__str__() behaves differently when the range
+        describes a single line
+        """
+        expected = "file.txt:15"
+        observed = str(Origin(FileTextSource("file.txt"), 15, 15))
+        self.assertEqual(expected, observed)
+
     def test_eq(self):
         """
         verify instances of Origin are all equal to other instances with the

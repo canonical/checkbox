@@ -67,7 +67,7 @@ class RFC822Record:
     file/stream where it was parsed from).
     """
 
-    def __init__(self, data, origin=None, raw_data=None):
+    def __init__(self, data, origin=None, raw_data=None, field_offset_map=None):
         """
         Initialize a new record.
 
@@ -79,6 +79,8 @@ class RFC822Record:
             An optional dictionary with raw record data. If omitted then it
             will default to normalized data (as the same object, without making
             a copy)
+        :param field_offset_map:
+            An optional dictionary with offsets (in line numbers) of each field
         """
         self._data = data
         if raw_data is None:
@@ -87,6 +89,7 @@ class RFC822Record:
         if origin is None:
             origin = Origin.get_caller_origin()
         self._origin = origin
+        self._field_offset_map = field_offset_map
 
     def __repr__(self):
         return "<{} data:{!r} origin:{!r}>".format(
@@ -133,6 +136,18 @@ class RFC822Record:
         The origin of the record.
         """
         return self._origin
+
+    @property
+    def field_offset_map(self):
+        """
+        The field-to-line-number-offset mapping.
+
+        A dictionary mapping field name to offset (in lines) relative to the
+        origin where that field definition commences.
+
+        Note: the return value may be None
+        """
+        return self._field_offset_map
 
     def dump(self, stream):
         """

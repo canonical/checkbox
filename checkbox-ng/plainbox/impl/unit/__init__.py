@@ -131,6 +131,8 @@ class Unit:
             raw_data = data
         if origin is None:
             origin = Origin.get_caller_origin()
+        if field_offset_map is None:
+            field_offset_map = {field: 0 for field in data}
         self._data = data
         self._raw_data = raw_data
         self._origin = origin

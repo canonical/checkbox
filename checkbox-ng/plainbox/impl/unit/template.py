@@ -385,7 +385,8 @@ class TemplateUnit(Unit):
         parameters = object.__getattribute__(resource, '_data')
         # Instantiate the class using the instantiation API
         return unit_cls.instantiate_template(
-            data, raw_data, self.origin, self.provider, parameters)
+            data, raw_data, self.origin, self.provider, parameters,
+            self.field_offset_map)
 
     def should_instantiate(self, resource):
         """

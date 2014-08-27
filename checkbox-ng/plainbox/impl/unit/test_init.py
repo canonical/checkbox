@@ -40,13 +40,15 @@ class TestUnitDefinition(TestCase):
         origin = mock.Mock(name='origin')
         provider = mock.Mock(name='provider')
         parameters = mock.Mock(name='parameters')
+        field_offset_map = mock.Mock(name='field_offset_map')
         unit = Unit.instantiate_template(
-            data, raw_data, origin, provider, parameters)
+            data, raw_data, origin, provider, parameters, field_offset_map)
         self.assertIs(unit._data, data)
         self.assertIs(unit._raw_data, raw_data)
         self.assertIs(unit._origin, origin)
         self.assertIs(unit._provider, provider)
         self.assertIs(unit._parameters, parameters)
+        self.assertIs(unit._field_offset_map, field_offset_map)
 
     def test_get_raw_record_value(self):
         """

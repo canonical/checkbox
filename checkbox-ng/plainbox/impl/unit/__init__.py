@@ -142,8 +142,8 @@ class Unit:
         self._parameters = parameters
 
     @classmethod
-    def instantiate_template(cls, data, raw_data, origin, provider,
-                             parameters):
+    def instantiate_template(cls, data, raw_data, origin, provider, parameters,
+                             field_offset_map):
         """
         Instantiate this unit from a template.
 
@@ -158,7 +158,8 @@ class Unit:
         # called with correctly-ordered arguments.
         assert cls is Unit, \
             "{}.instantiate_template() not customized".format(cls.__name__)
-        return cls(data, raw_data, origin, provider, parameters)
+        return cls(data, raw_data, origin, provider, parameters,
+                   field_offset_map)
 
     def __eq__(self, other):
         if not isinstance(other, Unit):

@@ -101,7 +101,7 @@ plugin: local
 _description: Graphics tests
 command:
   shopt -s extglob
-  cat $PLAINBOX_PROVIDER_DATA/../jobs/graphics.txt?(.in)
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/graphics.txt?(.in) $PLAINBOX_PROVIDER_DATA/../jobs/graphics-legacy.txt?(.in) 
 
 id: __hibernate__
 plugin: local

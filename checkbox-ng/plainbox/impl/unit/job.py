@@ -604,7 +604,8 @@ class JobDefinition(Unit, IJobDefinition):
         # (xgettext strips out those newlines)
         return cls(record.data, record.origin, provider=provider, raw_data={
             key: value.rstrip('\n')
-            for key, value in record.raw_data.items()})
+            for key, value in record.raw_data.items()
+        }, field_offset_map=record.field_offset_map)
 
     def validate(self, **validation_kwargs):
         """

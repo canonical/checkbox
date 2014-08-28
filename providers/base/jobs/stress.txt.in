@@ -178,7 +178,7 @@ _description:
 
 plugin: attachment
 id: stress/reboot_30_log
-depends: stress/reboot
+depends: stress/reboot_30
 command: tar cvfz $PLAINBOX_SESSION_SHARE/stress_reboot_30.tgz $PLAINBOX_SESSION_SHARE/*reboot.30.log && cat $PLAINBOX_SESSION_SHARE/stress_reboot_30.tgz
 
 plugin: shell

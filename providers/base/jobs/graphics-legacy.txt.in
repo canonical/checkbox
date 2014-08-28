@@ -157,7 +157,7 @@ estimated_duration: 0.131
 _description: Check that hardware is able to run Unity 3D
 _summary: Test Unity 3D support
 
-plugin: user-verify
+plugin: user-interact-verify
 id: graphics/glxgears
 requires: package.name == 'mesa-utils'
 command: glxgears; true

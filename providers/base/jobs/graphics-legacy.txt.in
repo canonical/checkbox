@@ -161,8 +161,8 @@ plugin: user-verify
 id: graphics/glxgears
 requires: package.name == 'mesa-utils'
 command: glxgears; true
-_description:
 _summary: Test that glxgears works
+_description:
  PURPOSE:
      This test tests the basic 3D capabilities of your video card
  STEPS:

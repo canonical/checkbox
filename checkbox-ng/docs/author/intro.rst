@@ -11,57 +11,42 @@ called ``hw-test`` with the vision of running tests against hardware to
 bless the hardware and deem it as Ubuntu Certified.  There was great
 rejoicing.  From the crowd that gathered around this tool came requests and
 requirements for new features, new tests and new methods of doing things. 
-Over the subsequent years, a tool called Checkbox was created. It was the
+Over the subsequent years, a tool called CheckBox was created. It was the
 product of the design by committee philosophy and soon grew ponderous and
 difficult to understand except by a few known only as "The Developers."
-Checkbox's goal was to function as a universal testing engine that could
+CheckBox's goal was to function as a universal testing engine that could
 drive several types of testing: end-users running tests on their systems,
 certification testing with a larger set of tests, and even OEM-specific
 testing with custom tests.
 
-A couple of years ago Checkbox started showing its age. The architecture
+A couple of years ago CheckBox started showing its age. The architecture
 was difficult to understand and to extend and the core didn't really scale
 to some things we wanted to do; however, the test suite itself was still
 quite valuable.
 
-Thus PlainBox was created, as a "plain Checkbox" and again, there was much
+Thus PlainBox was created, as a "plain CheckBox" and again, there was much
 rejoicing. It was originally meant to be a simpler library for creating
 testing applications and as a requirement, it was designed to be compatible
-with the Checkbox test/job definition format.
+with the CheckBox test/job definition format.
 
 Since then, PlainBox has become a large set of libraries and tools, but the
 central aim is still to write testing applications. Note that the term
-*Checkbox* is still used to refer to the test suite generically; *PlainBox*
+*CheckBox* is still used to refer to the test suite generically; *PlainBox*
 is used to refer to the new tool set "under the hood."
 
 Goal
 ----
 
 The goal of these tools is of course to run tests. They use a test
-description language that was inherited from Checkbox, so it has many
-interesting quirks. Since Checkbox itself is now deprecated, we have been
+description language that was inherited from CheckBox, so it has many
+interesting quirks. Since CheckBox itself is now deprecated, we have been
 adding new features and improving the test description language so this is
 in some flux.
 
 Terminology
 -----------
 
-The following terminology is often used when discussing and developing
-PlainBox:
-
- **Plainbox**
-  This term can refer to one of two things:
-   * The core library (``python3-plainbox``). ``python3-plainbox`` is usually installed implicitly, as most of our tools depend on it.
-   * The ``plainbox`` utility/binary, which is essentially a command-line swiss-army frontend to all of the library's functionality. It's useful for develoment and diagnostics but not necessary for end-user work. ``plainbox`` is usually installed explicitly if needed.
-
- **Checkbox-ng**
-  This is the actual direct replacement for Checkbox. It provides a few binaries that can do end-user testing, and which leverage PlainBox as a library to do the heavy lifting. This lives in the ``checkbox-ng`` package for the binaries, and ``python3-checkbox-ng`` for the core functionality.
-
- **Whitelist**
-  This is a filter used to select a set of jobs that *may* be run from the universe of available jobs.
-
- **Provider**
-  This is a package that includes job descriptions (but not, typically, job definitions), whitelists, and dependencies on other packages.
+In developing or using PlainBox, you'll run into several unfamiliar terms. Check the :doc:`../glossary` to learn what they mean. In fact, you should probably check it now. Pay particular attention to the terms *CheckBox*, *PlainBox*, *job*, *provier*, and *whitelist*.
 
 Getting Started
 ---------------
@@ -115,9 +100,9 @@ are shipped in Debian packages, which allows us to express dependencies to
 ensure required external packages are installed, and we can also separate
 those dependencies; for instance, the provider used for server testing
 doesn't actually contain the server-specific test definitions (we try to
-keep all the test definitions in the Checkbox provider), but it does depend
+keep all the test definitions in the CheckBox provider), but it does depend
 on all the packages needed for server testing. Most users will want the
-resource and Checkbox providers which contain many premade tests, but this
+resource and CheckBox providers which contain many premade tests, but this
 organization allows shipping the tiny core and a fully customized provider
 without extraneous dependencies.
 
@@ -186,7 +171,7 @@ Key points to note include:
  * If a field name begins with an underscore, its value can be localized.
  * The values of fields can appear on the same line as their field names, as in ``plugin: local``; or they can appear on a subsequent line, which is indented, as in the preceding example's ``requires: device.category == 'NETWORK'``.
  * The ``requires`` field can be used to specify dependencies; if the specified condition is not met, the test does not run.
- * The ``command`` field specifies the command that's used to run the test. This can be a standard Linux command (or even a set of commands) or a Checkbox test script. In this example's ``local`` test definition, the first ``command`` line generates a list of network devices that is fed to an embedded test, which is defined beginning with the second ``plugin`` line immediately following the first ``command`` line.
+ * The ``command`` field specifies the command that's used to run the test. This can be a standard Linux command (or even a set of commands) or a CheckBox test script. In this example's ``local`` test definition, the first ``command`` line generates a list of network devices that is fed to an embedded test, which is defined beginning with the second ``plugin`` line immediately following the first ``command`` line.
  * In this example, the line that reads ``EOF`` ends the ``ethernet/ethtool_multi_nic_$2`` test's command; it's matched to the ``EOF`` that's part of ``cat << 'EOF'`` near the start of that command.
 
 Each provider has a ``bin`` directory and all binaries there are available in the
@@ -215,7 +200,7 @@ This enables us to create mini-clients for each testing purpose, without
 changing the core utility (``checkbox-launcher``). For instance, let's look
 at the launcher for ``canonical-certification-server``, which appears in
 ``./providers/plainbox-provider-certification-server/launcher/canonical-certification-server``
-in the Checkbox source tree::
+in the CheckBox source tree::
 
  #!/usr/bin/env checkbox-launcher
  [welcome]
@@ -246,29 +231,33 @@ configuration filename. This allows each provider to ship a launcher or
 binary with which to launch its relevant tests.
 
 Developing Tests
-````````````````````````````````
+````````````````
 
-One way to deliver tests via PlainBox is to start your own provider. We
-have a very good document for that:
+One way to deliver tests via PlainBox is to start your own provider. To learn how to do that, see the :ref:`tutorial`.
 
-http://plainbox.readthedocs.org/en/latest/author/tutorial.html
-
-In other cases you want to add tests to the main Checkbox repository (which
+In other cases you want to add tests to the main CheckBox repository (which
 is also what we recommend to keep tests centralized, unless they're so
 purpose-specific that this makes no sense).
 
-This is a bit easier because the provider in question already exists. So let's
-get started by branching a copy of ``lp:checkbox``. In brief, you should change to your software development directory and type ``bzr branch lp:checkbox my-branch`` to create a copy of the ``checkbox`` Launchpad project in the ``my-branch`` subdirectory. You can then edit the files in that subdirectory, upload the results to your own Launchpad account, and request a merge.
+This is a bit easier because the provider in question already exists. So
+let's get started by branching a copy of ``lp:checkbox``. In brief, you
+should change to your software development directory and type ``bzr branch
+lp:checkbox my-branch`` to create a copy of the ``checkbox`` Launchpad
+project in the ``my-branch`` subdirectory. You can then edit the files in
+that subdirectory, upload the results to your own Launchpad account, and
+request a merge.
 
-To begin, consider the files and subdirectories in the main Checkbox development directory (``my-branch`` if you used the preceding ``bzr`` command without change):
+To begin, consider the files and subdirectories in the main CheckBox
+development directory (``my-branch`` if you used the preceding ``bzr``
+command without change):
 
- * ``checkbox-gui`` -- Checkbox GUI components, used in desktop/laptop testing
- * ``checkbox-ng`` -- The PlainBox-based version of Checkbox
+ * ``checkbox-gui`` -- CheckBox GUI components, used in desktop/laptop testing
+ * ``checkbox-ng`` -- The PlainBox-based version of CheckBox
  * ``checkbox-support`` -- Support code for many providers
- * ``checkbox-touch`` -- A Checkbox frontend optimized for touch/tablet devices
- * ``mk-venv`` -- A symbolic link to a script used to set up an environment for testing Checkbox
+ * ``checkbox-touch`` -- A CheckBox frontend optimized for touch/tablet devices
+ * ``mk-venv`` -- A symbolic link to a script used to set up an environment for testing CheckBox
  * ``plainbox`` -- A Python3 library and development tools at the heart of PlainBox
- * ``plainbox-client`` -- Unfinished Python3 interface for Checkbox
+ * ``plainbox-client`` -- Unfinished Python3 interface for CheckBox
  * ``providers`` -- Provider definitions, including test scripts
  * ``README.md`` -- A file describing the contents of the subdirectory in greater detail
  * ``setup.py`` -- A setup script
@@ -280,7 +269,7 @@ To begin, consider the files and subdirectories in the main Checkbox development
  * ``Vagrantfile`` -- A Vagrant configuration file
 
 Let's say I want to write a test to ensure that the ubuntu user exists in
-``/etc/passwd``. You need to remove any existing Checkbox provider
+``/etc/passwd``. You need to remove any existing CheckBox provider
 packages, lest they interfere with your new or modified tests. The
 ``setup.py`` script will set up a PlainBox development environment for you.
 
@@ -317,53 +306,54 @@ Other Questions
 References
 ----------
 
- **Reference on PlainBox test authoring**
-  http://plainbox.readthedocs.org/en/latest/author/index.html
+ :doc:`Reference on PlainBox test authoring <index>`
 
- **Old Checkbox documentation for nostalgia**
-  https://wiki.ubuntu.com/Testing/Automation/Checkbox
+ :doc:`jobs`
 
- **Usual Python modules**
-  https://docs.python.org/3.3/
+ :doc:`PlainBox provider template <provider-template>`
 
- **Docs on how to author jobs**
-  http://plainbox.readthedocs.org/en/latest/author/jobs.html
+ :doc:`Provider and job writing tutorial <tutorial>`
 
- **Document on upcoming template units feature**
-   http://bazaar.launchpad.net/~checkbox-dev/checkbox/trunk/view/head:/plainbox/docs/manpages/plainbox-template-units.rst
+ :doc:`../dev/intro`
 
- **PlainBox provider template**
-  http://plainbox.readthedocs.org/en/latest/author/provider-template.html
+ :doc:`What resources are and how they work <../dev/resources>`
 
- **Provider and job writing tutorial**
-  http://plainbox.readthedocs.org/en/latest/author/tutorial.html
+ :doc:`Man pages on special variables available to jobs <../manpages/PLAINBOX_SESSION_SHARE>`
+  
+ :doc:`All the manpages <../manpages/index>`
 
- **Main PlainBox documentation site**
-  http://plainbox.readthedocs.org/en/latest/dev/intro.html
+ `The CheckBox stack diagram`_
 
- **What resources are and how they work**
-  http://plainbox.readthedocs.org/en/latest/dev/resources.html
+.. _The CheckBox stack diagram: http://checkbox.readthedocs.org/en/latest/stack.html
 
- **Man pages on special variables available to jobs**
-  http://plainbox.readthedocs.org/en/latest/manpages/PLAINBOX_SESSION_SHARE.html
+ `Old CheckBox documentation for nostalgia`_
 
- **All the manpages**
-  http://plainbox.readthedocs.org/en/latest/manpages/index.html
+.. _Old CheckBox documentation for nostalgia: https://wiki.ubuntu.com/Testing/Automation/CheckBox
 
- **A quick introduction to Bazaar and bzr**
-  http://doc.bazaar.canonical.com/bzr.dev/en/mini-tutorial/
+ `Usual Python modules`_
 
- **A tool to use git locally but be able to pull/push from Launchpad**
-  http://zyga.github.io/git-lp/
+.. _Usual Python modules: https://docs.python.org/3.3/
 
- **A video on using git with Launchpad**
-  https://plus.google.com/115602646184989903283/posts/RCepekrA5gu
+ `Document on upcoming template units feature`_
 
- **A video on how to set up Sublime Text for PlainBox development**
-  https://www.youtube.com/watch?v=mrfyAgDg4ME&list=UURGrmUhQo5P9hTbVskIIjoQ
+.. _Document on upcoming template units feature: http://bazaar.launchpad.net/~checkbox-dev/checkbox/trunk/view/head:/plainbox/docs/manpages/plainbox-template-units.rst
 
- **Checkbox(ng) documentation home**
-  http://checkbox.readthedocs.org
+ `A quick introduction to Bazaar and bzr`_
 
- **The Checkbox stack diagram**
-  http://checkbox.readthedocs.org/en/latest/stack.html
+.. _A quick introduction to Bazaar and bzr: http://doc.bazaar.canonical.com/bzr.dev/en/mini-tutorial/
+
+ `A tool to use git locally but be able to pull/push from Launchpad`_
+
+.. _A tool to use git locally but be able to pull/push from Launchpad: http://zyga.github.io/git-lp/
+
+ `A video on using git with Launchpad`_
+
+.. _A video on using git with Launchpad: https://plus.google.com/115602646184989903283/posts/RCepekrA5gu
+
+ `A video on how to set up Sublime Text for PlainBox development`_
+
+.. _A video on how to set up Sublime Text for PlainBox development: https://www.youtube.com/watch?v=mrfyAgDg4ME&list=UURGrmUhQo5P9hTbVskIIjoQ
+
+ `CheckBox(ng) documentation home`_
+
+.. _CheckBox(ng) documentation home: http://checkbox.readthedocs.org

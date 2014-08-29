@@ -21,7 +21,7 @@ _description:
  VERIFICATION:
      Did the resolution change as expected?
 
-plugin: user-verify
+plugin: user-interact-verify
 id: graphics/resolution
 requires:
  device.category == 'VIDEO'
@@ -39,7 +39,7 @@ _description:
  VERIFICATION:
      Is this acceptable for your display?
 
-plugin: user-verify
+plugin: user-interact-verify
 id: graphics/screen-resolution
 requires:
  device.category == 'VIDEO'
@@ -68,7 +68,7 @@ _description:
  .
  https://help.ubuntu.com/community/Installation/SystemRequirements
 
-plugin: user-verify
+plugin: user-interact-verify
 id: graphics/maximum_resolution
 requires:
  device.category == 'VIDEO'
@@ -111,7 +111,7 @@ command: graphic_memory_info
 _description: Collect info on graphic memory.
 _summary: Collect info on graphic memory.
 
-plugin: user-verify
+plugin: user-interact-verify
 id: graphics/cycle_resolution
 requires: package.name == 'xorg'
 depends: graphics/VESA_drivers_not_in_use
@@ -126,7 +126,7 @@ _description:
  VERIFICATION:
      Did the screen appear to be working for each mode?
 
-plugin: user-verify
+plugin: user-interact-verify
 id: graphics/rotation
 depends: graphics/xorg-version
 command: rotation_test

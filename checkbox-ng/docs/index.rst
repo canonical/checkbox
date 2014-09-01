@@ -57,6 +57,7 @@ Table of contents
    changelog.rst
    scripts/index.rst
    profiles.rst
+   launcher-tutorial.rst
    release.rst
 
 Indices and tables

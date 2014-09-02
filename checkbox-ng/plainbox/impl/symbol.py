@@ -126,8 +126,9 @@ class SymbolDefNs:
 
     PASSTHRU = frozenset(('__name__', '__qualname__', '__doc__', '__module__'))
 
-    def __init__(self):
+    def __init__(self, allow_outer=None):
         self.data = {}
+        self.allow_outer = allow_outer
 
     def __setitem__(self, name, value):
         if name in self.PASSTHRU:
@@ -142,6 +143,8 @@ class SymbolDefNs:
     def __getitem__(self, name):
         if name in self.PASSTHRU:
             return self.data[name]
+        elif self.allow_outer is not None and name in self.allow_outer:
+            raise KeyError(name)
         elif name in self.data:
             return self.data[name]
         elif name == 'Symbol':
@@ -161,13 +164,16 @@ class SymbolDefMeta(type):
     """
 
     @classmethod
-    def __prepare__(mcls, name, bases, **kwargs):
-        return SymbolDefNs()
+    def __prepare__(mcls, name, bases, allow_outer=None, **kwargs):
+        return SymbolDefNs(allow_outer)
 
-    def __new__(mcls, name, bases, ns):
+    def __new__(mcls, name, bases, ns, allow_outer=None):
         classdict = ns.data
         classdict['get_all_symbols'] = classmethod(mcls.get_all_symbols)
         return type.__new__(mcls, name, bases, classdict)
+
+    def __init__(mcls, name, bases, ns, allow_outer=None):
+        super().__init__(name, bases, ns)
 
     # This is inserted via a simple trick because it's very hard to do any
     # normal method definition inside SymbolDef blocks.

@@ -174,3 +174,14 @@ class SymbolDefTests(unittest.TestCase):
             c
         self.assertEqual(
             S.get_all_symbols(), [Symbol('a'), Symbol('b'), Symbol('c')])
+
+    def test_allow_outer(self):
+        """
+        verify that referencing outer names is allowed via allow_outer
+        """
+        def magic(text):
+            return text.upper()
+
+        class S(SymbolDef, allow_outer=['magic']):
+            foo = magic('foo')
+        self.assertEqual(S.foo, 'FOO')

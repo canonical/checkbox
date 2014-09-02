@@ -47,4 +47,5 @@ setup(
     version="0.9",
     description=N_("PlainBox resources provider"),
     gettext_domain='2013.com.canonical.certification.plainbox-resources',
+    deprecated=False, strict=False,
 )

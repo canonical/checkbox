@@ -67,7 +67,7 @@ _description:
  STEPS:
      1. Click "Test" and insert a USB 3.0 storage device, preferably a HDD,
         in a USB 3.0 port. Although a USB 3.0 pen drive may be used it might
-        cause performance related tests to fail. (Note: this test will 
+        cause performance related tests to fail. (Note: this test will
         time-out after 20 seconds.)
      2. Do not unplug the device after the test.
  VERIFICATION:

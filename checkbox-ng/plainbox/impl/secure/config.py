@@ -604,7 +604,6 @@ class Config(metaclass=ConfigMeta):
         # Validate the whole configuration object
         self.validate_whole()
 
-
     def _get_variable(self, name):
         """
         Internal method called by :meth:`Variable.__get__`

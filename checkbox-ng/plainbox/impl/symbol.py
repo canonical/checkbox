@@ -121,7 +121,7 @@ class SymbolDefNs:
 
     A special namespace used by :class:`SymbolDefMeta` to keep track of names
     that were being accessed. Each accessed name is converted to a
-    :class:`Symbol` and added to the nanespace.
+    :class:`Symbol` and added to the namespace.
     """
 
     PASSTHRU = frozenset(('__name__', '__qualname__', '__doc__', '__module__'))

@@ -43,6 +43,13 @@ class Problem(SymbolDef):
     deprecated = 'deprecated'
     constant = 'constant'
     variable = 'variable'
+    unknown_param = 'unknown_param'
+    syntax_error = 'syntax_error'
+    unknown = 'unknown'
+    not_unique = 'not_unique'
+    expected_i18n = 'expected_i18n'
+    unexpected_i18n = 'unexpected_i18n'
+    bad_reference = 'bad_reference'
 
 
 class Severity(SymbolDef, allow_outer={"N_"}):

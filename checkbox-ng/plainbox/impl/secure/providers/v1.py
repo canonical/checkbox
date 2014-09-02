@@ -43,7 +43,6 @@ from plainbox.impl.secure.rfc822 import FileTextSource
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 from plainbox.impl.secure.rfc822 import load_rfc822_records
 from plainbox.impl.unit import all_units
-from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.validation import ValidationError
 
 

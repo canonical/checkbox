@@ -829,8 +829,8 @@ class InfoCommand(ManageCommand):
             # 1: pathname of the file the job is defined in
             print("\t" + _("{0} {1}, from {2}").format(
                 unit.get_unit_type(),
-                unit.id if isinstance(unit, (UnitWithId, JobDefinition)) \
-                    else unit,
+                unit.id if isinstance(unit, (UnitWithId, JobDefinition))
+                else unit,
                 unit.origin.relative_to(self.definition.location)))
         if problem_list:
             print("\t" + _("Some units could not be parsed correctly"))
@@ -973,14 +973,14 @@ class ValidateCommand(ManageCommand):
                     problem_text = error.hint
                 elif isinstance(unit, JobDefinition):
                     # If this is a "wrong value" problem then perhaps we can
-                    # suggest the set of acceptable values? Those may be stored as
-                    # $field.symbols, though as of this writing that is only true
-                    # for the 'plugin' field.
+                    # suggest the set of acceptable values? Those may be stored
+                    # as $field.symbols, though as of this writing that is only
+                    # true for the 'plugin' field.
                     field_prop = getattr(JobDefinition, str(error.field))
                     if (error.problem == Problem.wrong
                             and hasattr(field_prop, "get_all_symbols")):
                         symbol_list = field_prop.get_all_symbols()
-                        problem_text =_("allowed values are: {0}").format(
+                        problem_text = _("allowed values are: {0}").format(
                             ', '.join(str(symbol) for symbol in symbol_list))
                 # TRANSLATORS: fields are as follows:
                 # 0: filename with job definition
@@ -991,8 +991,8 @@ class ValidateCommand(ManageCommand):
                 print(_("{0}: {1} {2!a}, field {3!a}: {4}").format(
                     origin.relative_to(self.definition.location),
                     unit.get_unit_type(),
-                    unit.id if isinstance(unit, (UnitWithId, JobDefinition)) \
-                        else unit,
+                    unit.id if isinstance(unit, (UnitWithId, JobDefinition))
+                    else unit,
                     str(error.field), problem_text))
             else:
                 print(str(error))

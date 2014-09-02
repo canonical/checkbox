@@ -26,6 +26,7 @@ import logging
 import copy
 
 from plainbox.i18n import gettext as _
+from plainbox.i18n import gettext_noop as N_
 from plainbox.impl.symbol import SymbolDef
 
 
@@ -42,6 +43,15 @@ class Problem(SymbolDef):
     deprecated = 'deprecated'
     constant = 'constant'
     variable = 'variable'
+
+
+class Severity(SymbolDef, allow_outer={"N_"}):
+    """
+    Symbols for class:`Issue` severity
+    """
+    error = N_('error')
+    warning = N_('warning')
+    advice = N_('advice')
 
 
 class Issue:

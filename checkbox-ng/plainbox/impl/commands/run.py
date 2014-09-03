@@ -373,7 +373,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
         interact with the user when we encounter OUTCOME_UNDECIDED
         """
         return (sys.stdin.isatty() and sys.stdout.isatty() and not
-                self.ns.not_interactive)
+                self.ns.non_interactive)
 
     def run(self):
         ns = self.ns
@@ -982,7 +982,7 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             '--no-color', dest='use_colors', action='store_false',
             help=SUPPRESS)
         group.add_argument(
-            '--not-interactive', action='store_true',
+            '--non-interactive', action='store_true',
             help=_("skip tests that require interactivity"))
         group.add_argument(
             '-n', '--dry-run', action='store_true',

@@ -41,6 +41,25 @@ __all__ = ['Unit']
 logger = logging.getLogger("plainbox.unit")
 
 
+def get_accessed_parameters(text):
+    """
+    Parse a new-style python string template and return parameter names
+
+    :param text:
+        Text string to parse
+    :returns:
+        A frozenset() with a list of names (or indices) of accessed parameters
+    """
+    # https://docs.python.org/3.4/library/string.html#string.Formatter.parse
+    #
+    # info[1] is the field_name (name of the referenced
+    # formatting field) it _may_ be None if there are no format
+    # parameters used
+    return frozenset(
+        info[1] for info in string.Formatter().parse(text)
+        if info[1] is not None)
+
+
 class Unit(UnitLegacyAPI):
     """
     Units are representations of data loaded from RFC822 definitions
@@ -217,16 +236,7 @@ class Unit(UnitLegacyAPI):
         """
         if force or self.is_parametric:
             return {
-                key: frozenset(
-                    # See: https://docs.python.org/3.4/library/string.html
-                    #      #string.Formatter.parse
-                    #
-                    # info[1] is the field_name (name of the referenced
-                    # formatting field) it _may_ be None if there are no format
-                    # parameters used
-                    info[1]
-                    for info in string.Formatter().parse(value)
-                    if info[1] is not None)
+                key: get_accessed_parameters(value)
                 for key, value in self._data.items()
             }
         else:

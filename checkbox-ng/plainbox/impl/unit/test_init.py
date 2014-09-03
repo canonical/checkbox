@@ -27,9 +27,26 @@ from unittest import TestCase
 
 from plainbox.impl.unit import Unit
 from plainbox.impl.unit import UnitWithId
+from plainbox.impl.unit import get_accessed_parameters
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import ValidationError
 from plainbox.vendor import mock
+
+
+class FunctionTests(TestCase):
+
+    def test_get_accessed_parameters(self):
+        self.assertEqual(
+            get_accessed_parameters("some text"), frozenset())
+        self.assertEqual(
+            get_accessed_parameters("some {parametric} text"),
+            frozenset(['parametric']))
+        self.assertEqual(
+            get_accessed_parameters("some {} text"),
+            frozenset(['']))
+        self.assertEqual(
+            get_accessed_parameters("some {1} {2} {3} text"),
+            frozenset(['1', '2', '3']))
 
 
 class TestUnitDefinition(TestCase):

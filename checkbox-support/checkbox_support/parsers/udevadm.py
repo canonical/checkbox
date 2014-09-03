@@ -346,6 +346,10 @@ class UdevadmDevice(object):
                     return "CDROM"
                 if "ID_DRIVE_FLOPPY" in self._environment:
                     return "FLOPPY"
+                if self.driver == 'virtio_blk' and self.bus == 'virtio':
+                    # A QEMU/KVM virtual disk, but should be treated
+                    # as DISK nonetheless
+                    return "DISK"
             if devtype == "scsi_device":
                 match = SCSI_RE.match(self._environment.get("MODALIAS", ""))
                 type = int(match.group("type"), 16) if match else -1
@@ -653,6 +657,12 @@ class UdevadmParser(object):
         # These can be virtual network interfaces which don't have PCI
         # product/vendor ID, yet still constitute valid ethX interfaces.
         if device.bus == "net" and "ID_NET_NAME_MAC" in device._environment:
+            return False
+
+        # Do not ignore QEMU/KVM virtio disks
+        if ("ID_PART_TABLE_TYPE" in device._environment and
+           device.bus == "virtio" and
+           device.driver == "virtio_blk"):
             return False
 
         # Ignore devices without product AND vendor information

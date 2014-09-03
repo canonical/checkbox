@@ -648,6 +648,29 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "DISK"), 2)
         self.assertEqual(len(devices), 4)
 
+    def test_QEMU_KVM(self):
+        # A virtual machine, QEMU-KVM-based. Some of its devices are those
+        # of the host system, we're interested mainly in network and disk
+        # devices (http://pad.lv/1355282)
+        devices = self.parse("QEMU_KVM")
+        self.assertEqual(len(devices), 23)
+        self.assertEqual(self.count(devices, "VIDEO"), 1)
+        self.assertEqual(self.count(devices, "AUDIO"), 0)
+        self.assertEqual(self.count(devices, "KEYBOARD"), 1)
+        self.assertEqual(self.count(devices, "CARDREADER"), 0)
+        self.assertEqual(self.count(devices, "CDROM"), 0)
+        self.assertEqual(self.count(devices, "FIREWIRE"), 0)
+        self.assertEqual(self.count(devices, "MOUSE"), 1)
+        self.assertEqual(self.count(devices, "WIRELESS"), 0)
+        self.assertEqual(self.count(devices, "NETWORK"), 1)
+        self.assertEqual(self.count(devices, "BLUETOOTH"), 0)
+        self.assertEqual(self.count(devices, "CAPTURE"), 0)
+        self.assertEqual(self.count(devices, "RAID"), 0)
+        self.assertEqual(self.count(devices, "DISK"), 1)
+        self.assertEqual(self.count(devices, "SCSI"), 1)
+
+
+
     def test_DELL_VOSTRO_270(self):
         # Interesting because while its Intel video card has the same PCI
         # vendor/product ID as others (8086:0152) the subvendor_id and

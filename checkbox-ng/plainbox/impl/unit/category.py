@@ -34,42 +34,13 @@ from plainbox.i18n import gettext as _
 from plainbox.impl import deprecated
 from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit import UnitWithId
-from plainbox.impl.unit import UnitWithIdValidator
-from plainbox.impl.validation import Problem
-from plainbox.impl.validation import ValidationError
+from plainbox.impl.unit._legacy import CategoryUnitLegacyAPI
 
 
 logger = logging.getLogger("plainbox.unit.category")
 
 
-class CategoryUnitValidator(UnitWithIdValidator):
-    """
-    Validator for :class:`CategoryUnit` units.
-    """
-
-    def validate(self, unit, strict=False, deprecated=False):
-        """
-        Validate the specified category
-
-        :param unit:
-            :class:`CategoryUnit` to validate
-        :param strict:
-            Enforce strict validation. Non-conforming categories will be
-            rejected. This is off by default to ensure that non-critical errors
-            don't prevent categories from being used.
-        :param deprecated:
-            Enforce deprecation validation. Categories having deprecated fields
-            will be rejected. This is off by default to allow backwards
-            compatible categories to be used without any changes.
-        """
-        # Check basic stuff
-        super().validate(unit, strict=strict, deprecated=deprecated)
-        # Check if name is empty
-        if unit.name is None:
-            raise ValidationError(CategoryUnit.fields.name, Problem.missing)
-
-
-class CategoryUnit(UnitWithId):
+class CategoryUnit(UnitWithId, CategoryUnitLegacyAPI):
     """
     Test Category Unit
 
@@ -128,24 +99,3 @@ class CategoryUnit(UnitWithId):
 
     def tr_name(self):
         return self.get_translated_record_value("name")
-
-    def validate(self, **validation_kwargs):
-        """
-        Validate this job definition
-
-        :param validation_kwargs:
-            Keyword arguments to pass to the
-            :meth:`CategoryUnitValidator.validate()`
-        :raises ValidationError:
-            If the category has any problems.
-        """
-        return CategoryUnitValidator().validate(self, **validation_kwargs)
-
-    class Meta(UnitWithId.Meta):
-
-        template_constraints = dict(UnitWithId.Meta.template_constraints)
-        template_constraints.update({
-            # The name field should vary so that instantiated categories
-            # have different user-visible names
-            'name': 'vary',
-        })

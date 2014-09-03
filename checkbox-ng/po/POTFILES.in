@@ -112,6 +112,7 @@
 ./plainbox/impl/testing_utils.py
 ./plainbox/impl/transport.py
 ./plainbox/impl/unit/__init__.py
+./plainbox/impl/unit/_legacy.py
 ./plainbox/impl/unit/job.py
 ./plainbox/impl/unit/test_init.py
 ./plainbox/impl/unit/test_job.py

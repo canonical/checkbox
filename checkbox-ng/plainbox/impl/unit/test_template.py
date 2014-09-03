@@ -24,6 +24,7 @@ Test definitions for plainbox.impl.unit.template module
 """
 
 from unittest import TestCase
+import warnings
 
 from plainbox.abc import IProvider1
 from plainbox.impl.resource import Resource
@@ -37,6 +38,13 @@ from plainbox.vendor import mock
 
 
 class TemplateUnitValidator(TestCase):
+
+    def setUp(self):
+        warnings.filterwarnings(
+            'ignore', 'validate is deprecated since version 0.11')
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_checks_if_template_resource_is_defined(self):
         with self.assertRaises(ValidationError) as boom:

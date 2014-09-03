@@ -24,12 +24,12 @@ Test definitions for plainbox.impl.unit.job module
 """
 
 from unittest import TestCase
+import warnings
 
 from plainbox.impl.secure.origin import FileTextSource
 from plainbox.impl.secure.origin import JobOutputTextSource
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.rfc822 import RFC822Record
-from plainbox.impl.unit.job import JobDefinitionValidator
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import ValidationError
@@ -170,6 +170,13 @@ class JobDefinitionParsingTests(TestCaseWithParameters):
 
 class JobDefinitionValidatorTests(TestCase):
 
+    def setUp(self):
+        warnings.filterwarnings(
+            'ignore', 'validate is deprecated since version 0.11')
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
     def test_validate_checks_for_deprecated_name(self):
         """
         verify that validate() checks if jobs have a value for the 'id'
@@ -179,7 +186,7 @@ class JobDefinitionValidatorTests(TestCase):
             'name': 'name'
         })
         with self.assertRaises(ValidationError) as boom:
-            JobDefinitionValidator.validate(job, deprecated=True)
+            job.validate(deprecated=True)
         self.assertEqual(boom.exception.field, JobDefinition.fields.name)
         self.assertEqual(boom.exception.problem, Problem.deprecated)
 
@@ -190,7 +197,7 @@ class JobDefinitionValidatorTests(TestCase):
         """
         job = JobDefinition({})
         with self.assertRaises(ValidationError) as boom:
-            JobDefinitionValidator.validate(job)
+            job.validate()
         self.assertEqual(boom.exception.field, JobDefinition.fields.id)
         self.assertEqual(boom.exception.problem, Problem.missing)
 
@@ -203,7 +210,7 @@ class JobDefinitionValidatorTests(TestCase):
             'id': 'id'
         })
         with self.assertRaises(ValidationError) as boom:
-            JobDefinitionValidator.validate(job)
+            job.validate()
         self.assertEqual(boom.exception.field, JobDefinition.fields.plugin)
         self.assertEqual(boom.exception.problem, Problem.missing)
 
@@ -217,7 +224,7 @@ class JobDefinitionValidatorTests(TestCase):
             'plugin': 'dummy'
         })
         with self.assertRaises(ValidationError) as boom:
-            JobDefinitionValidator.validate(job)
+            job.validate()
         self.assertEqual(boom.exception.field, JobDefinition.fields.plugin)
         self.assertEqual(boom.exception.problem, Problem.wrong)
 
@@ -232,7 +239,7 @@ class JobDefinitionValidatorTests(TestCase):
             'user': 'root'
         })
         with self.assertRaises(ValidationError) as boom:
-            JobDefinitionValidator.validate(job, strict=True)
+            job.validate(strict=True)
         self.assertEqual(boom.exception.field, JobDefinition.fields.user)
         self.assertEqual(boom.exception.problem, Problem.useless)
 
@@ -247,7 +254,7 @@ class JobDefinitionValidatorTests(TestCase):
             'environ': 'VAR_NAME'
         })
         with self.assertRaises(ValidationError) as boom:
-            JobDefinitionValidator.validate(job, strict=True)
+            job.validate(strict=True)
         self.assertEqual(boom.exception.field, JobDefinition.fields.environ)
         self.assertEqual(boom.exception.problem, Problem.useless)
 
@@ -261,7 +268,7 @@ class JobDefinitionValidatorTests(TestCase):
             'plugin': 'manual',
         })
         with self.assertRaises(ValidationError) as boom:
-            JobDefinitionValidator.validate(job)
+            job.validate()
         self.assertEqual(boom.exception.field,
                          JobDefinition.fields.description)
         self.assertEqual(boom.exception.problem, Problem.missing)
@@ -278,14 +285,14 @@ class JobDefinitionValidatorTests(TestCase):
             'command': 'run_some_test'
         })
         with self.assertRaises(ValidationError) as boom:
-            JobDefinitionValidator.validate(job, strict=True)
+            job.validate(strict=True)
         self.assertEqual(boom.exception.field, JobDefinition.fields.command)
         self.assertEqual(boom.exception.problem, Problem.useless)
 
 
 class JobDefinitionValidatorTests2(TestCaseWithParameters):
     """
-    Continuation of unit tests for JobDefinitionValidator.
+    Continuation of unit tests for JobDefinition.validate().
 
     Moved to a separate class because of limitations of TestCaseWithParameters
     which operates on the whole class.
@@ -295,6 +302,13 @@ class JobDefinitionValidatorTests2(TestCaseWithParameters):
     parameter_values = (
         ('shell',), ('local',), ('resource',), ('attachment',),
         ('user-verify',), ('user-interact',),)
+
+    def setUp(self):
+        warnings.filterwarnings(
+            'ignore', 'validate is deprecated since version 0.11')
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_validate_checks_for_missing_command(self):
         """
@@ -306,7 +320,7 @@ class JobDefinitionValidatorTests2(TestCaseWithParameters):
             'plugin': self.parameters.plugin
         })
         with self.assertRaises(ValidationError) as boom:
-            JobDefinitionValidator.validate(job)
+            job.validate()
         self.assertEqual(boom.exception.field, JobDefinition.fields.command)
         self.assertEqual(boom.exception.problem, Problem.missing)
 
@@ -326,7 +340,7 @@ class JobDefinitionValidatorTests2(TestCaseWithParameters):
             'user': 'fred',
         })
         with self.assertRaises(ValidationError) as boom:
-            JobDefinitionValidator.validate(job)
+            job.validate()
         self.assertEqual(boom.exception.field, JobDefinition.fields.user)
         self.assertEqual(boom.exception.problem, Problem.wrong)
 

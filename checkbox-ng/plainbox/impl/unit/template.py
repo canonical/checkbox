@@ -22,97 +22,25 @@
 """
 
 import logging
-import itertools
 
 from plainbox.i18n import gettext as _
 from plainbox.impl.resource import ExpressionFailedError
-from plainbox.impl.resource import Resource
 from plainbox.impl.resource import ResourceProgram
-from plainbox.impl.resource import ResourceProgramError
 from plainbox.impl.resource import parse_imports_stmt
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.unit import Unit
 from plainbox.impl.unit import all_units
+from plainbox.impl.unit._legacy import TemplateUnitLegacyAPI
 from plainbox.impl.unit.job import JobDefinition
-from plainbox.impl.validation import Problem
-from plainbox.impl.validation import ValidationError
 
 
-__all__ = ['TemplateUnitValidator', 'TemplateUnit']
+__all__ = ['TemplateUnit']
 
 
 logger = logging.getLogger("plainbox.unit.template")
 
 
-class TemplateUnitValidator:
-    """
-    Validator for template unit
-    """
-
-    @classmethod
-    def validate(cls, template, strict=False, deprecated=False):
-        """
-        Validate the specified job template
-
-        :param strict:
-            Enforce strict validation. Non-conforming jobs will be rejected.
-            This is off by default to ensure that non-critical errors don't
-            prevent jobs from running.
-        :param deprecated:
-            Enforce deprecation validation. Jobs having deprecated fields will
-            be rejected. This is off by default to allow backwards compatible
-            jobs to be used without any changes.
-        """
-        # All templates need the template-resource field
-        if template.template_resource is None:
-            raise ValidationError(
-                template.fields.template_resource, Problem.missing)
-        # All templates need a valid (or empty) template filter
-        try:
-            template.get_filter_program()
-        except (ResourceProgramError, SyntaxError) as exc:
-            raise ValidationError(
-                template.fields.template_filter, Problem.wrong,
-                hint=str(exc))
-        # All templates should use the resource object correctly. This is
-        # verified by the code below. It generally means that fields should or
-        # should not use variability induced by the resource object data.
-        accessed_parameters = template.get_accessed_parameters(force=True)
-        # The unit field must be constant.
-        if ('unit' in accessed_parameters
-                and len(accessed_parameters['unit']) != 0):
-            raise ValidationError(template.fields.id, Problem.variable)
-        # Now that we know it's constant we can look up the unit it is supposed
-        # to instantiate.
-        try:
-            unit_cls = template.get_target_unit_cls()
-        except LookupError:
-            raise ValidationError(template.fields.unit, Problem.wrong)
-        # Let's look at the template constraints for the unit
-        for field, constraint in unit_cls.Meta.template_constraints.items():
-            assert constraint in ('vary', 'const')
-            if constraint == 'vary':
-                if (field in accessed_parameters
-                        and len(accessed_parameters[field]) == 0):
-                    raise ValidationError(field, Problem.constant)
-            elif constraint == 'const':
-                if (field in accessed_parameters
-                        and len(accessed_parameters[field]) != 0):
-                    raise ValidationError(field, Problem.variable)
-        # Lastly an example unit generated with a fake resource should still be
-        resource = cls._get_fake_resource(accessed_parameters)
-        unit = template.instantiate_one(resource, unit_cls_hint=unit_cls)
-        return unit.validate(strict=strict, deprecated=deprecated)
-
-    @classmethod
-    def _get_fake_resource(cls, accessed_parameters):
-        return Resource({
-            key: key.upper()
-            for key in set(itertools.chain(*accessed_parameters.values()))
-        })
-
-
-class TemplateUnit(Unit):
+class TemplateUnit(Unit, TemplateUnitLegacyAPI):
     """
     Template that can instantiate zero or more additional units.
 
@@ -415,17 +343,3 @@ class TemplateUnit(Unit):
             })
         except ExpressionFailedError:
             return False
-
-    def validate(self, **validation_kwargs):
-        """
-        Validate this job definition template
-
-        :param validation_kwargs:
-            Keyword arguments to pass to the
-            :meth:`TemplateUnitValidator.validate()`
-        :raises ValidationError:
-            If the template has any problems that make it unsuitable for
-            execution.
-        """
-        super().validate()
-        return TemplateUnitValidator.validate(self, **validation_kwargs)

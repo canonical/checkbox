@@ -29,104 +29,15 @@ import re
 from plainbox.abc import IJobDefinition
 from plainbox.i18n import gettext as _
 from plainbox.impl.resource import ResourceProgram
+from plainbox.impl.resource import parse_imports_stmt
 from plainbox.impl.secure.origin import JobOutputTextSource
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.symbol import SymbolDef
-from plainbox.impl.unit import Unit
-from plainbox.impl.validation import Problem
-from plainbox.impl.validation import ValidationError
-from plainbox.impl.resource import parse_imports_stmt
-from plainbox.impl.resource import ResourceProgramError
+from plainbox.impl.unit import UnitWithId
+from plainbox.impl.unit._legacy import JobDefinitionLegacyAPI
 
 
 logger = logging.getLogger("plainbox.unit.job")
-
-
-class JobDefinitionValidator:
-    """
-    Validator for JobDefinition units.
-    """
-
-    @staticmethod
-    def validate(job, strict=False, deprecated=False):
-        """
-        Validate the specified job
-
-        :param strict:
-            Enforce strict validation. Non-conforming jobs will be rejected.
-            This is off by default to ensure that non-critical errors don't
-            prevent jobs from running.
-        :param deprecated:
-            Enforce deprecation validation. Jobs having deprecated fields will
-            be rejected. This is off by default to allow backwards compatible
-            jobs to be used without any changes.
-        """
-        # Check if name is still being used, if running in strict mode
-        if deprecated and job.name is not None:
-            raise ValidationError(job.fields.name, Problem.deprecated)
-        # Check if the partial_id field is empty
-        if job.partial_id is None:
-            raise ValidationError(job.fields.id, Problem.missing)
-        # Check if summary is empty, if running in strict mode
-        if strict and job.summary is None:
-            raise ValidationError(job.fields.summary, Problem.missing)
-        # Check if plugin is empty
-        if job.plugin is None:
-            raise ValidationError(job.fields.plugin, Problem.missing)
-        # Check if plugin has a good value
-        if job.plugin not in JobDefinition.plugin.get_all_symbols():
-            raise ValidationError(job.fields.plugin, Problem.wrong)
-        # Check if user is given without a command to run, if running in strict
-        # mode
-        if strict and job.user is not None and job.command is None:
-            raise ValidationError(job.fields.user, Problem.useless)
-        # Check if environ is given without a command to run, if running in
-        # strict mode
-        if strict and job.environ is not None and job.command is None:
-            raise ValidationError(job.fields.environ, Problem.useless)
-        # Verify that command is present on a job within the subset that should
-        # really have them (shell, local, resource, attachment, user-verify and
-        # user-interact)
-        if job.plugin in {JobDefinition.plugin.shell,
-                          JobDefinition.plugin.local,
-                          JobDefinition.plugin.resource,
-                          JobDefinition.plugin.attachment,
-                          JobDefinition.plugin.user_verify,
-                          JobDefinition.plugin.user_interact,
-                          JobDefinition.plugin.user_interact_verify}:
-            # Check if shell jobs have a command
-            if job.command is None:
-                raise ValidationError(job.fields.command, Problem.missing)
-            # Check if user has a good value
-            if job.user not in (None, "root"):
-                raise ValidationError(job.fields.user, Problem.wrong)
-        # Do some special checks for manual jobs as those should really be
-        # fully interactive, non-automated jobs (otherwise they are either
-        # user-interact or user-verify)
-        if job.plugin == JobDefinition.plugin.manual:
-            # Ensure that manual jobs have a description
-            if job.description is None:
-                raise ValidationError(
-                    job.fields.description, Problem.missing)
-            # Ensure that manual jobs don't have command, if running in strict
-            # mode
-            if strict and job.command is not None:
-                raise ValidationError(job.fields.command, Problem.useless)
-        estimated_duration = job.get_record_value('estimated_duration')
-        if estimated_duration is not None:
-            try:
-                float(estimated_duration)
-            except ValueError:
-                raise ValidationError(
-                    job.fields.estimated_duration, Problem.wrong)
-        elif strict and estimated_duration is None:
-            raise ValidationError(
-                job.fields.estimated_duration, Problem.missing)
-        # The resource program should be valid
-        try:
-            job.get_resource_program()
-        except ResourceProgramError:
-            raise ValidationError(job.fields.requires, Problem.wrong)
 
 
 class propertywithsymbols(property):
@@ -164,7 +75,7 @@ class propertywithsymbols(property):
             fget, self.fset, self.fdel, self.__doc__, symbols=self.symbols)
 
 
-class JobDefinition(Unit, IJobDefinition):
+class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
     """
     Job definition class.
 
@@ -268,49 +179,6 @@ class JobDefinition(Unit, IJobDefinition):
         imports = 'imports'
         category_id = 'category_id'
 
-    class Meta(Unit.Meta):
-
-        template_constraints = {
-            'name': 'vary',
-            'unit': 'const',
-            # The 'id' field should be always variable (depending on at least
-            # resource reference) or clashes are inevitable (they can *still*
-            # occur but this is something we cannot prevent).
-            'id': 'vary',
-            # The summary should never be constant as that would be confusing
-            # to the test operator. If it is defined in the template it should
-            # be customized by at least one resource reference.
-            'summary': 'vary',
-            # The 'plugin' field should be constant as otherwise validation is
-            # very unreliable. There is no current demand for being able to
-            # customize it from a resource record.
-            'plugin': 'const',
-            # The command field should be variable if it is defined. This may
-            # be too strict but there has to be a channel between the resource
-            # object and the command to make the template job valuable so for
-            # now we will require variability here.
-            'command': 'vary',
-            # The description should never be constant as that would be
-            # confusing to the test operator. If it is defined in the template
-            # it should be customized by at least one resource reference.
-            'description': 'vary',
-            # There is no conceivable value in having a variable user field
-            'user': 'const',
-            'environ': 'const',
-            # TODO: what about estimated duration?
-            # 'estimated_duration': '?',
-            # TODO: what about depends and requires?
-            #
-            # If both are const then we can determine test ordering without any
-            # action and the ordering is not perturbed at runtime. This may be
-            # too strong of a limitation though. We'll see.
-            # 'depends': '?',
-            # 'requires': '?',
-            'shell': 'const',
-            'imports': 'const',
-            'category_id': 'const',
-        }
-
     class _PluginValues(SymbolDef):
         """
         Symbols for each value of the JobDefinition.plugin field
@@ -351,7 +219,7 @@ class JobDefinition(Unit, IJobDefinition):
 
         This field should not be used anymore, except for display
         """
-        return self.get_record_value('id', self.name)
+        return self.get_record_value('id', self.get_record_value('name'))
 
     @property
     def id(self):
@@ -359,10 +227,6 @@ class JobDefinition(Unit, IJobDefinition):
             return "{}::{}".format(self._provider.namespace, self.partial_id)
         else:
             return self.partial_id
-
-    @property
-    def name(self):
-        return self.get_record_value('name')
 
     @propertywithsymbols(symbols=_PluginValues)
     def plugin(self):
@@ -606,19 +470,6 @@ class JobDefinition(Unit, IJobDefinition):
             key: value.rstrip('\n')
             for key, value in record.raw_data.items()
         }, field_offset_map=record.field_offset_map)
-
-    def validate(self, **validation_kwargs):
-        """
-        Validate this job definition
-
-        :param validation_kwargs:
-            Keyword arguments to pass to the
-            :meth:`JobDefinitionValidator.validate()`
-        :raises ValidationError:
-            If the job has any problems that make it unsuitable for execution.
-        """
-        super().validate(**validation_kwargs)
-        JobDefinitionValidator.validate(self, **validation_kwargs)
 
     def create_child_job_from_record(self, record):
         """

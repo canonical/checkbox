@@ -28,6 +28,7 @@ Test definitions for plainbox.impl.run module
 import os
 import shutil
 import tempfile
+import warnings
 
 from collections import OrderedDict
 from inspect import cleandoc
@@ -46,6 +47,8 @@ class TestRun(TestCase):
 
     @patch.dict('sys.modules', {'concurrent': Mock()})
     def setUp(self):
+        warnings.filterwarnings(
+            'ignore', 'validate is deprecated since version 0.11')
         # session data are kept in XDG_CACHE_HOME/plainbox/.session
         # To avoid resuming a real session, we have to select a temporary
         # location instead
@@ -159,3 +162,4 @@ class TestRun(TestCase):
     def tearDown(self):
         shutil.rmtree(self._sandbox)
         os.environ = self._env
+        warnings.resetwarnings()

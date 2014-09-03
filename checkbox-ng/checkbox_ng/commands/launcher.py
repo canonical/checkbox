@@ -77,7 +77,7 @@ class LauncherCommand(CheckboxCommand):
                             '~/.config/{}'.format(launcher.config_filename)))))
             )
         self.config.read(self.config.Meta.filename_list)
-        ns.not_interactive = False
+        ns.non_interactive = False
         ns.dry_run = False
         ns.dont_suppress_output = launcher.dont_suppress_output
         return CliInvocation2(self.provider_list, self.config, ns,

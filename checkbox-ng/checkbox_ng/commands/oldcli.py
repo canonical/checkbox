@@ -59,7 +59,7 @@ class CliInvocation(CheckBoxInvocationMixIn):
         interact with the user when we encounter OUTCOME_UNDECIDED
         """
         return (sys.stdin.isatty() and sys.stdout.isatty() and not
-                self.ns.not_interactive)
+                self.ns.non_interactive)
 
     def run(self):
         ns = self.ns

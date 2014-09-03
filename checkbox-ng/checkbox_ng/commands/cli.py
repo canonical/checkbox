@@ -77,7 +77,7 @@ class CliCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             action="store_true",
             help=_("run check-config"))
         parser.add_argument(
-            '--not-interactive', action='store_true',
+            '--non-interactive', action='store_true',
             help=_("skip tests that require interactivity"))
         parser.add_argument(
             '--dont-suppress-output', action="store_true", default=False,

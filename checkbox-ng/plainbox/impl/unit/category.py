@@ -32,9 +32,9 @@ import logging
 
 from plainbox.i18n import gettext as _
 from plainbox.impl import deprecated
-from plainbox.impl.symbol import SymbolDef
-from plainbox.impl.unit import UnitWithId
 from plainbox.impl.unit._legacy import CategoryUnitLegacyAPI
+from plainbox.impl.unit.unit_with_id import UnitWithId
+from plainbox.impl.symbol import SymbolDef
 
 
 logger = logging.getLogger("plainbox.unit.category")

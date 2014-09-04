@@ -33,8 +33,8 @@ from plainbox.impl.resource import parse_imports_stmt
 from plainbox.impl.secure.origin import JobOutputTextSource
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.symbol import SymbolDef
-from plainbox.impl.unit import UnitWithId
 from plainbox.impl.unit._legacy import JobDefinitionLegacyAPI
+from plainbox.impl.unit.unit_with_id import UnitWithId
 
 
 logger = logging.getLogger("plainbox.unit.job")

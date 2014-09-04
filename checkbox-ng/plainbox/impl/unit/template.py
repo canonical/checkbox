@@ -28,10 +28,10 @@ from plainbox.impl.resource import ExpressionFailedError
 from plainbox.impl.resource import ResourceProgram
 from plainbox.impl.resource import parse_imports_stmt
 from plainbox.impl.secure.origin import Origin
-from plainbox.impl.unit import Unit
 from plainbox.impl.unit import all_units
 from plainbox.impl.unit._legacy import TemplateUnitLegacyAPI
 from plainbox.impl.unit.job import JobDefinition
+from plainbox.impl.unit.unit import Unit
 
 
 __all__ = ['TemplateUnit']

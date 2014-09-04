@@ -29,9 +29,9 @@ import warnings
 from plainbox.abc import IProvider1
 from plainbox.impl.resource import Resource
 from plainbox.impl.resource import ResourceExpression
-from plainbox.impl.unit import Unit
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.template import TemplateUnit
+from plainbox.impl.unit.unit import Unit
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import ValidationError
 from plainbox.vendor import mock

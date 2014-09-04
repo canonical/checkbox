@@ -42,7 +42,7 @@ from plainbox.i18n import gettext_noop as N_
 from plainbox.impl.buildsystems import all_buildsystems
 from plainbox.impl.commands import ToolBase, CommandBase
 from plainbox.impl.job import JobDefinition
-from plainbox.impl.unit import UnitWithId
+from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.logging import setup_logging
 from plainbox.impl.providers.v1 import get_user_PROVIDERPATH_entry
 from plainbox.impl.secure.config import Unset

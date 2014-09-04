@@ -78,7 +78,7 @@ class IPerfPerformanceTest(object):
                           (self.iface.link_speed, self.iface.max_speed))
             logging.error("Check your device configuration and try again")
             return 1
-
+        
         cmd = "timeout 180 iperf -c {} -n {}".format(self.target, self.mbytes)
 
         logging.debug(cmd)
@@ -138,6 +138,10 @@ class IPerfPerformanceTest(object):
                   int(self.iface.max_speed)))
             if percent < self.fail_threshold:
                 logging.warn("Poor network performance detected")
+                logging.warn("  Transfer speed: {} {}b/s".format(
+                             throughput, units))
+                logging.warn("  {:03.2f}% of theoretical max {}Mb/s\n".format(
+                             percent, int(self.iface.max_speed)))
                 return 30
 
             logging.debug("Passed benchmark")
@@ -620,6 +624,11 @@ For running ftp benchmark test:
 network test -i eth0 -t ftp
 --target 192.168.0.1 --username USERID --password PASSW0RD
 --filesize-2
+
+For running iperf test:
+network test -i eth0 -t iperf --target 192.168.0.1
+NOTE: The iperf test requires an iperf server running on the same network
+segment that the test machine is running on.
 
 Configuration
 =============

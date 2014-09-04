@@ -69,7 +69,7 @@ class TestRun(TestCase):
             self.assertEqual(call.exception.args, (0,))
         self.maxDiff = None
         expected = """
-        usage: plainbox run [-h] [--not-interactive] [-n] [--dont-suppress-output]
+        usage: plainbox run [-h] [--non-interactive] [-n] [--dont-suppress-output]
                             [-f FORMAT] [-p OPTIONS] [-o FILE] [-t TRANSPORT]
                             [--transport-where WHERE] [--transport-options OPTIONS]
                             [-i PATTERN] [-x PATTERN] [-w WHITELIST]
@@ -78,7 +78,7 @@ class TestRun(TestCase):
           -h, --help            show this help message and exit
 
         user interface options:
-          --not-interactive     skip tests that require interactivity
+          --non-interactive     skip tests that require interactivity
           -n, --dry-run         don't really run most jobs
           --dont-suppress-output
                                 don't suppress the output of certain job plugin types

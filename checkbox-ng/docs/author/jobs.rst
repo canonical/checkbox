@@ -40,8 +40,6 @@ Fields that can be used on a job
          automatically set the test's outcome.
      :user-interact: jobs that require the user to perform an
          interaction, after which the outcome is automatically set.
-     :user-verify: jobs that automatically perform an action or test
-         and then request the user to decide on the test's outcome.
      :user-interact-verify: jobs that require the user to perform an
         interaction, run a command after which the user is asked to decide on the
         test's outcome. This is essentially a manual job with a command.
@@ -53,6 +51,16 @@ Fields that can be used on a job
      :resource: A job whose command output results in a set of rfc822
           records, containing key/value pairs, and that can be used in other
           jobs' ``requires`` expressions.
+
+.. warning::
+     The following plugin names are deprecated:
+
+     :user-verify: jobs that automatically perform an action or test
+         and then request the user to decide on the test's outcome.  This was
+         deprecated because the user had no chance to read instructions prior
+         to the test. Use user-interact-verify instead; that will present
+         instructions, ask the user to click a button before running the
+         command, and finally prompt for outcome assessment.
 
 :requires:
     (optional). If specified, the job will only run if the conditions

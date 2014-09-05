@@ -30,7 +30,9 @@ from plainbox.impl.secure.origin import FileTextSource
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.rfc822 import RFC822Record
 from plainbox.impl.unit.category import CategoryUnit
+from plainbox.impl.unit.test_unit_with_id import UnitWithIdFieldValidationTests
 from plainbox.impl.validation import Problem
+from plainbox.impl.validation import Severity
 from plainbox.impl.validation import ValidationError
 from plainbox.vendor import mock
 
@@ -124,3 +126,42 @@ class CategoryUnitTests(TestCase):
         self.assertIsNone(CategoryUnit({
             'id': 'id', 'name': 'name'
         }).validate())
+
+
+class CategoryUnitFieldValidationTests(UnitWithIdFieldValidationTests):
+
+    unit_cls = CategoryUnit
+
+    def test_name__translatable(self):
+        issue_list = self.unit_cls({
+            'name': 'name'
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.name,
+                              Problem.expected_i18n, Severity.warning)
+
+    def test_name__template_variant(self):
+        issue_list = self.unit_cls({
+            'name': 'name'
+        }, provider=self.provider, parameters={}).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.name,
+                              Problem.constant, Severity.error)
+
+    def test_name__present(self):
+        issue_list = self.unit_cls({
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.name,
+                              Problem.missing, Severity.error)
+
+    def test_name__one_line(self):
+        issue_list = self.unit_cls({
+            'name': 'line1\nline2'
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.name,
+                              Problem.wrong, Severity.warning)
+
+    def test_name__short_line(self):
+        issue_list = self.unit_cls({
+            'name': 'x' * 81
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.name,
+                              Problem.wrong, Severity.warning)

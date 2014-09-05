@@ -33,7 +33,12 @@ import logging
 from plainbox.i18n import gettext as _
 from plainbox.impl.unit._legacy import CategoryUnitLegacyAPI
 from plainbox.impl.unit.unit_with_id import UnitWithId
-from plainbox.impl.symbol import SymbolDef
+from plainbox.impl.unit.validators import CorrectFieldValueValidator
+from plainbox.impl.unit.validators import PresentFieldValidator
+from plainbox.impl.unit.validators import TemplateVariantFieldValidator
+from plainbox.impl.unit.validators import TranslatableFieldValidator
+from plainbox.impl.validation import Problem
+from plainbox.impl.validation import Severity
 
 
 logger = logging.getLogger("plainbox.unit.category")
@@ -103,3 +108,33 @@ class CategoryUnit(UnitWithId, CategoryUnitLegacyAPI):
         Translated name of the category
         """
         return self.get_translated_record_value("name")
+
+    class Meta(UnitWithId.Meta, CategoryUnitLegacyAPI.Meta):
+
+        class fields(UnitWithId.Meta.fields):
+            """
+            Symbols for each field that a JobDefinition can have
+            """
+            name = 'name'
+
+        field_validators = {}
+        field_validators.update(UnitWithId.Meta.field_validators)
+        field_validators.update({
+            fields.name: [
+                TranslatableFieldValidator,
+                TemplateVariantFieldValidator,
+                PresentFieldValidator,
+                # We want the name to be a single line
+                CorrectFieldValueValidator(
+                    lambda name: name.count("\n") == 0,
+                    Problem.wrong, Severity.warning,
+                    message=_("please use only one line"),
+                    onlyif=lambda unit: unit.name is not None),
+                # We want the name to be relatively short
+                CorrectFieldValueValidator(
+                    lambda name: len(name) <= 80,
+                    Problem.wrong, Severity.warning,
+                    message=_("please stay under 80 characters"),
+                    onlyif=lambda unit: unit.name is not None),
+            ]
+        })

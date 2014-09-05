@@ -26,6 +26,7 @@ Test definitions for plainbox.impl.unit (package init file)
 from unittest import TestCase
 import warnings
 
+from plainbox.abc import IProvider1
 from plainbox.impl.unit.unit import Unit
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.validation import Problem
@@ -280,3 +281,15 @@ class TestUnitDefinition(TestCase):
         self.assertEqual(
             Unit({'field': '{param}'}).get_accessed_parameters(force=True),
             {'field': frozenset(['param'])})
+
+    def test_qualify_id__with_provider(self):
+        provider = mock.Mock(spec_set=IProvider1)
+        provider.namespace = 'ns'
+        unit = Unit({}, provider=provider)
+        self.assertEqual(unit.qualify_id('id'), 'ns::id')
+        self.assertEqual(unit.qualify_id('some-ns::id'), 'some-ns::id')
+
+    def test_qualify_id__without_provider(self):
+        unit = Unit({})
+        self.assertEqual(unit.qualify_id('id'), 'id')
+        self.assertEqual(unit.qualify_id('some-ns::id'), 'some-ns::id')

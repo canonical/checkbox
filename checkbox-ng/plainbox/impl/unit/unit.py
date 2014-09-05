@@ -549,6 +549,24 @@ class Unit(UnitLegacyAPI):
         """
         return '_{}'.format(name) in self._data
 
+    def qualify_id(self, some_id):
+        """
+        Transform some unit identifier to be fully qualified
+
+        :param some_id:
+            A potentially unqualified unit identifier
+        :returns:
+            A fully qualified unit identifier
+
+        This method uses the namespace of the associated provider to transform
+        unqualified unit identifiers to qualified identifiers. Qualified
+        identifiers are left alone.
+        """
+        if "::" not in some_id and self.provider is not None:
+            return "{}::{}".format(self.provider.namespace, some_id)
+        else:
+            return some_id
+
     @property
     def checksum(self):
         """

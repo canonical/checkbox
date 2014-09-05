@@ -48,6 +48,8 @@ from plainbox.impl.unit.validators import UselessFieldValidator
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
 
+__all__ = ['JobDefinition', 'propertywithsymbols']
+
 
 logger = logging.getLogger("plainbox.unit.job")
 

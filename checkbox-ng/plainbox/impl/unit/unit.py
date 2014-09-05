@@ -276,8 +276,8 @@ class Unit(UnitLegacyAPI):
             fields, while having a single translated base text and any
             variation in the available parameters.
         :param field_offset_map:
-            An optional dictionary with offsets (in line numbers) of each field.
-            Line numbers are relative to the value of origin.line_start
+            An optional dictionary with offsets (in line numbers) of each
+            field.  Line numbers are relative to the value of origin.line_start
         """
         if raw_data is None:
             raw_data = data

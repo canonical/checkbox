@@ -23,14 +23,44 @@
 
 import logging
 
+from plainbox.i18n import gettext as _
 from plainbox.impl.unit.unit import Unit
 from plainbox.impl.unit._legacy import UnitWithIdLegacyAPI
+from plainbox.impl.unit._legacy import UnitWithIdValidatorLegacyAPI
+from plainbox.impl.unit.unit import UnitValidator
 
 __all__ = ['UnitWithId']
 
 
 logger = logging.getLogger("plainbox.unit.unit_with_id")
 
+
+class UnitWithIdValidator(UnitValidator, UnitWithIdValidatorLegacyAPI):
+    """
+    Validator for :class:`UnitWithId`
+    """
+
+    def explain(self, unit, field, kind, message):
+        """
+        Lookup an explanatory string for a given issue kind
+
+        :returns:
+            A string (explanation) or None if the issue kind
+            is not known to this method.
+
+        This version overrides the base implementation to use the unit id, if
+        it is available, when reporting issues. This makes the error message
+        easier to read for the vast majority of current units (jobs) that have
+        an identifier and are commonly addressed with one by developers.
+        """
+        if unit.partial_id is None:
+            return super().explain(unit, field, kind, message)
+        stock_msg = self._explain_map.get(kind)
+        if stock_msg is None:
+            return None
+        return _("{unit} {id!a}, field {field!a}, {message}").format(
+            unit=unit.tr_unit(), id=unit.partial_id, field=str(field),
+            message=message or stock_msg)
 
 
 class UnitWithId(Unit, UnitWithIdLegacyAPI):

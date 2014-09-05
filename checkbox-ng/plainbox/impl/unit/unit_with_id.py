@@ -59,7 +59,7 @@ class UnitWithId(Unit, UnitWithIdLegacyAPI):
             from the parent provider. In that case the value of ``id`` is
             always equal to ``partial_id``.
         """
-        if self.provider:
+        if self.provider and self.partial_id:
             return "{}::{}".format(self.provider.namespace, self.partial_id)
         else:
             return self.partial_id

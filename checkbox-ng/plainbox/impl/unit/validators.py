@@ -86,8 +86,12 @@ class UnitValidationContext:
         :param provider_list:
             A list of Provider1 objects
         """
-        self.provider_list = provider_list
+        self._provider_list = provider_list
         self._shared_cache = {}
+
+    @property
+    def provider_list(self):
+        return self._provider_list
 
     def compute_shared(self, cache_key, func, *args, **kwargs):
         """

@@ -31,7 +31,6 @@ in a compatible way.
 import logging
 
 from plainbox.i18n import gettext as _
-from plainbox.impl import deprecated
 from plainbox.impl.unit._legacy import CategoryUnitLegacyAPI
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.symbol import SymbolDef
@@ -90,10 +89,6 @@ class CategoryUnit(UnitWithId, CategoryUnitLegacyAPI):
 
         The return value is always 'category' (translated)
         """
-        return _("category")
-
-    @deprecated("0.7", "call unit.tr_unit() instead")
-    def get_unit_type(self):
         return _("category")
 
     @property

@@ -79,10 +79,10 @@ class UnitWithIdValidatorLegacyAPI(UnitValidatorLegacyAPI):
 
     @deprecated('0.11', 'use .check() instead')
     def validate(self, unit, strict=False, deprecated=False):
+        super().validate(unit, strict, deprecated)
         # Check if the partial_id field is empty
         if unit.partial_id is None:
             raise ValidationError("id", Problem.missing)
-        super().validate(unit, strict, deprecated)
 
 
 class JobDefinitionValidatorLegacyAPI(UnitWithIdValidatorLegacyAPI):
@@ -101,6 +101,7 @@ class JobDefinitionValidatorLegacyAPI(UnitWithIdValidatorLegacyAPI):
             be rejected. This is off by default to allow backwards compatible
             jobs to be used without any changes.
         """
+        super().validate(job, strict, deprecated)
         from plainbox.impl.unit.job import JobDefinition
         # Check if name is still being used, if running in strict mode
         if deprecated and job.get_record_value('name') is not None:

@@ -438,6 +438,14 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
         else:
             return set()
 
+    def get_category_id(self):
+        """
+        Get the fully-qualified category id that this job belongs to
+        """
+        maybe_partial_id = self.category_id
+        if maybe_partial_id is not None:
+            return self.qualify_id(maybe_partial_id)
+
     @classmethod
     def from_rfc822_record(cls, record, provider=None):
         """

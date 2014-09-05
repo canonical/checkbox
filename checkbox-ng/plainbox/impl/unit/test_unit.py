@@ -24,12 +24,22 @@ Test definitions for plainbox.impl.unit (package init file)
 """
 
 from unittest import TestCase
+import warnings
 
 from plainbox.impl.unit.unit import Unit
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import ValidationError
 from plainbox.vendor import mock
+
+
+def setUpModule():
+    warnings.filterwarnings(
+        'ignore', 'validate is deprecated since version 0.11')
+
+
+def tearDownModule():
+    warnings.resetwarnings()
 
 
 class TestUnitDefinition(TestCase):

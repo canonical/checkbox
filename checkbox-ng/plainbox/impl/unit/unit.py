@@ -641,3 +641,33 @@ class Unit(UnitLegacyAPI):
             return normalize_rfc822_value(msgstr)
         else:
             return msgid
+
+    def check(self, *, context=None, live=False):
+        """
+        Check this unit for correctness
+
+        :param context:
+            A keyword-only argument, if specified it should be a
+            :class:`UnitValidationContext` instance used to validate a number
+            of units together.
+        :param live:
+            A keyword-only argument, if True the return value is a generator
+            that yields subsequent issues. Otherwise (default) the return value
+            is buffered and returned as a list. Checking everything takes
+            considerable time, for responsiveness, consider using live=True.
+        :returns:
+            A list of issues or a generator yielding subsequent issues. Each
+            issue is a :class:`plainbox.impl.validation.Issue`.
+        """
+        if live:
+            return self._check_gen(context)
+        else:
+            return list(self._check_gen(context))
+
+    def _check_gen(self, context):
+        validator = self.Meta.validator_cls()
+        for issue in validator.check(self):
+            yield issue
+        if context is not None:
+            for issue in validator.check_in_context(self, context):
+                yield issue

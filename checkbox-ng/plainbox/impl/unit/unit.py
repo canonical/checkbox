@@ -539,6 +539,17 @@ class Unit(UnitLegacyAPI):
         # If we have nothing better let's just return the default value
         return default
 
+    def is_translatable_field(self, name):
+        """
+        Check if a field is marked as translatable
+
+        :param name:
+            Name of the field to check
+        :returns:
+            True if the field is marked as translatable, False otherwise
+        """
+        return '_{}'.format(name) in self._data
+
     @property
     def checksum(self):
         """

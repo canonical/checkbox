@@ -30,6 +30,7 @@ from plainbox.abc import IProvider1
 from plainbox.impl.unit.unit import Unit
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.validation import Problem
+from plainbox.impl.validation import Severity
 from plainbox.impl.validation import ValidationError
 from plainbox.vendor import mock
 
@@ -340,3 +341,33 @@ class TestUnitDefinition(TestCase):
         unit = Unit({})
         self.assertEqual(unit.qualify_id('id'), 'id')
         self.assertEqual(unit.qualify_id('some-ns::id'), 'some-ns::id')
+
+
+class UnitFieldValidationTests(TestCase, IssueMixIn):
+
+    unit_cls = Unit
+
+    def setUp(self):
+        self.provider = mock.Mock(spec_set=IProvider1)
+        self.provider.namespace = 'ns'
+
+    def test_unit__untranslatable(self):
+        issue_list = self.unit_cls({
+            '_unit': 'unit'
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.unit,
+                              Problem.unexpected_i18n, Severity.warning)
+
+    def test_unit__template_invariant(self):
+        issue_list = self.unit_cls({
+            'unit': '{attr}'
+        }, parameters={'attr': 'unit'}, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.unit,
+                              Problem.variable, Severity.error)
+
+    def test_unit__present(self):
+        issue_list = self.unit_cls({
+        }, provider=self.provider).check()
+        message = "field 'unit', unit should explicitly define its type"
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.unit,
+                              Problem.missing, Severity.advice, message)

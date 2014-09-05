@@ -30,11 +30,15 @@ import string
 from plainbox.i18n import gettext as _
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.rfc822 import normalize_rfc822_value
+from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit import get_accessed_parameters
 from plainbox.impl.unit._legacy import UnitLegacyAPI
 from plainbox.impl.unit.validators import IFieldValidator
 from plainbox.impl.unit.validators import MultiUnitFieldIssue
+from plainbox.impl.unit.validators import PresentFieldValidator
+from plainbox.impl.unit.validators import TemplateInvariantFieldValidator
 from plainbox.impl.unit.validators import UnitFieldIssue
+from plainbox.impl.unit.validators import UntranslatableFieldValidator
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
 
@@ -671,3 +675,38 @@ class Unit(UnitLegacyAPI):
         if context is not None:
             for issue in validator.check_in_context(self, context):
                 yield issue
+
+    class Meta(UnitLegacyAPI.Meta):
+        """
+        Class containing additional meta-data about this unit.
+
+        :attr fields:
+            A :class:`plainbox.impl.symbol.SymbolDef` with a symbol for each of
+            the fields used by this unit.
+        :attr validator_cls:
+            A custom validator class specific to this unit
+        :attr field_validators:
+            A dictionary mapping each field to a list of field validators
+        """
+
+        class fields(SymbolDef):
+            """
+            Unit defines only one field, the 'unit'
+            """
+            unit = 'unit'
+
+        validator_cls = UnitValidator
+
+        field_validators = {
+            fields.unit: [
+                # We don't want anyone marking unit type up for translation
+                UntranslatableFieldValidator,
+                # We want each instantiated template to define same unit type
+                TemplateInvariantFieldValidator,
+                # We want to gently advise everyone to mark all units with
+                # and explicit unit type so that we can disable default 'job'
+                PresentFieldValidator(
+                    severity=Severity.advice,
+                    message=_("unit should explicitly define its type")),
+            ]
+        }

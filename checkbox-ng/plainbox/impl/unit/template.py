@@ -21,27 +21,62 @@
 ==============================================
 """
 
+import itertools
 import logging
 
 from plainbox.i18n import gettext as _
 from plainbox.impl.resource import ExpressionFailedError
+from plainbox.impl.resource import Resource
 from plainbox.impl.resource import ResourceProgram
 from plainbox.impl.resource import parse_imports_stmt
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.unit import all_units
 from plainbox.impl.unit._legacy import TemplateUnitLegacyAPI
+from plainbox.impl.unit._legacy import TemplateUnitValidatorLegacyAPI
 from plainbox.impl.unit.unit import Unit
+from plainbox.impl.unit.unit import UnitValidator
 from plainbox.impl.unit.validators import CorrectFieldValueValidator
 from plainbox.impl.unit.validators import PresentFieldValidator
 from plainbox.impl.unit.validators import ReferenceConstraint
+from plainbox.impl.unit.validators import TemplateInvariantFieldValidator
 from plainbox.impl.unit.validators import UnitReferenceValidator
 from plainbox.impl.unit.validators import UntranslatableFieldValidator
+from plainbox.impl.validation import Problem
+from plainbox.impl.validation import Severity
 
 
 __all__ = ['TemplateUnit']
 
 
 logger = logging.getLogger("plainbox.unit.template")
+
+
+class TemplateUnitValidator(UnitValidator, TemplateUnitValidatorLegacyAPI):
+    """
+    Validator for template unit
+    """
+
+    def check(self, unit):
+        for issue in super().check(unit):
+            yield issue
+        # Apart from all the per-field checks, ensure that the unit,
+        # if instantiated with fake resource, produces a valid target unit
+        accessed_parameters = unit.get_accessed_parameters(force=True)
+        resource = Resource({
+            key: key.upper()
+            for key in set(itertools.chain(*accessed_parameters.values()))
+        })
+        try:
+            new_unit = unit.instantiate_one(resource)
+        except Exception as exc:
+            self.error(unit, unit.Meta.fields.template_unit, Problem.wrong,
+                       _("unable to instantiate template: {}").format(exc))
+        else:
+            # TODO: we may need some origin translation to correlate issues
+            # back to the template.
+            for issue in new_unit.check():
+                self.issue_list.append(issue)
+                yield issue
 
 
 class TemplateUnit(Unit, TemplateUnitLegacyAPI):
@@ -360,12 +395,19 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
             template_filter = 'template-filter'
             template_imports = 'template-imports'
 
+        validator_cls = TemplateUnitValidator
+
         field_validators = {}
         field_validators.update(Unit.Meta.field_validators)
         field_validators.update({
             fields.template_unit: [
                 UntranslatableFieldValidator,
-                PresentFieldValidator,
+                CorrectFieldValueValidator(
+                    lambda value, unit: (
+                        unit.get_record_value('template-unit') is not None),
+                    Problem.missing, Severity.advice, message=_(
+                        "template should explicitly define instantiated"
+                        " unit type")),
             ],
             fields.template_resource: [
                 UntranslatableFieldValidator,

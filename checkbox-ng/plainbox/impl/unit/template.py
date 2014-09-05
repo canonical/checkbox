@@ -257,8 +257,8 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
         """
         value of the 'template-unit' field
 
-        This attribute stores the name of the unit that this template intends
-        to instantiate. It defaults to 'unit' for backwards compatibility and
+        This attribute stores the type of the unit that this template intends
+        to instantiate. It defaults to 'job' for backwards compatibility and
         simplicity.
         """
         return self.get_record_value('template-unit', 'job')

@@ -110,9 +110,6 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
         template_filter = 'template-filter'
         template_imports = 'template-imports'
 
-    def get_unit_type(self):
-        return _("template")
-
     @property
     def partial_id(self):
         """

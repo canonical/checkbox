@@ -121,8 +121,8 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
 
     @property
     def id(self):
-        if self._provider:
-            return "{}::{}".format(self._provider.namespace, self.partial_id)
+        if self.provider:
+            return "{}::{}".format(self.provider.namespace, self.partial_id)
         else:
             return self.partial_id
 

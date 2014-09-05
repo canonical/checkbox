@@ -247,8 +247,8 @@ class TemplateUnitTests(TestCase):
         name
         """
         self.assertEqual(TemplateUnit({
-            'template-imports':
-                'from 2014.com.example import resource/name as rc',
+            'template-imports': (
+                'from 2014.com.example import resource/name as rc'),
             'template-resource': 'rc'
         }).resource_id, '2014.com.example::resource/name')
 
@@ -263,8 +263,8 @@ class TemplateUnitTests(TestCase):
         provider = mock.Mock(spec=IProvider1)
         provider.namespace = 'namespace'
         self.assertEqual(TemplateUnit({
-            'template-imports':
-                'from 2014.com.example import resource/name as rc',
+            'template-imports': (
+                'from 2014.com.example import resource/name as rc'),
             'template-resource': 'rc'
         }, provider=provider).resource_id, '2014.com.example::resource/name')
 

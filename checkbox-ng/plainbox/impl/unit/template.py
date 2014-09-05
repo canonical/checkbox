@@ -98,6 +98,9 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
     def __str__(self):
         return "{} <~ {}".format(self.id, self.resource_id)
 
+    def tr_unit(self):
+        return _("template")
+
     class fields(JobDefinition.fields):
         """
         Symbols for each field that a TemplateUnit can have

@@ -228,7 +228,7 @@ class JobDefinitionValidatorTests(TestCase):
         self.assertEqual(boom.exception.field, JobDefinition.fields.plugin)
         self.assertEqual(boom.exception.problem, Problem.wrong)
 
-    def test_validate_checks_for_uselss_user(self):
+    def test_validate_checks_for_useless_user(self):
         """
         verify that validate() checks for jobs that have the 'user' field but
         don't have the 'command' field.

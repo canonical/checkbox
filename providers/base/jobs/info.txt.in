@@ -235,3 +235,9 @@ user: root
 command: parted -l -s
 _description: Attaches information about disk partitions
 
+plugin: attachment
+id: info/buildstamp
+estimated_duration: 0.1
+_description: Attaches the buildstamp identifier for the preinstalled OS
+_summary: Attach /etc/buildstamp
+command: [ -s /etc/buildstamp ] && cat /etc/buildstamp

@@ -44,7 +44,7 @@ class CategoryUnit(UnitWithId, CategoryUnitLegacyAPI):
     """
     Test Category Unit
 
-    This unit defines testing categories. Job defintions can be associated
+    This unit defines testing categories. Job definitions can be associated
     with at most one category.
     """
 
@@ -69,6 +69,9 @@ class CategoryUnit(UnitWithId, CategoryUnitLegacyAPI):
                    field_offset_map)
 
     def __str__(self):
+        """
+        same as .name
+        """
         return self.name
 
     def __repr__(self):
@@ -83,7 +86,7 @@ class CategoryUnit(UnitWithId, CategoryUnitLegacyAPI):
 
     def tr_unit(self):
         """
-        Translated (optionally) value of the unit field (overridden)
+        Translated name of the unit.
 
         The return value is always 'category' (translated)
         """
@@ -95,7 +98,13 @@ class CategoryUnit(UnitWithId, CategoryUnitLegacyAPI):
 
     @property
     def name(self):
+        """
+        Name of the category
+        """
         return self.get_record_value('name')
 
     def tr_name(self):
+        """
+        Translated name of the category
+        """
         return self.get_translated_record_value("name")

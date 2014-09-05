@@ -559,6 +559,27 @@ class UniqueValueValidator(FieldValidatorBase):
                     if other_unit is not unit))
 
 
+class ReferenceConstraint:
+    """
+    Description of a constraint on a unit reference
+
+    :attr constraint_fn:
+        A function fn(referrer, referee) that describes the constraint.
+        The function must return True in order for the constraint to hold.
+    :attr message:
+        Message that should be reported when the constraint fails to hold
+    :attr onlyif:
+        An (optional) function fn(referrer, referee) that checks if the
+        constraint should be checked or not. It must return True for the
+        ``constraint_fn`` to make sense.
+    """
+
+    def __init__(self, constraint_fn, message, *, onlyif=None):
+        self.constraint_fn = constraint_fn
+        self.onlyif = onlyif
+        self.message = message
+
+
 class UnitReferenceValidator(FieldValidatorBase):
     """
     Validator that checks if a field references another unit
@@ -603,10 +624,14 @@ class UnitReferenceValidator(FieldValidatorBase):
                 referrer = unit
                 referee = units_with_this_id[0]
                 for constraint in self.constraints:
-                    if not constraint(referrer, referee):
+                    if constraint.onlyif is not None and not constraint.onlyif(
+                            referrer, referee):
+                        continue
+                    if not constraint.constraint_fn(referrer, referee):
                         yield parent.error(
                             unit, field, Problem.bad_reference,
-                            self.message or _("referee constraint failed"))
+                            self.message or constraint.message
+                            or _("referee constraint failed"))
             elif n > 1:
                 # more than one is also good, which one are we targeting?
                 yield parent.error(

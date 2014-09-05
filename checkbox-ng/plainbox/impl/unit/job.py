@@ -111,8 +111,8 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
             fields, while having a single translated base text and any
             variation in the available parameters.
         :param field_offset_map:
-            An optional dictionary with offsets (in line numbers) of each field.
-            Line numbers are relative to the value of origin.line_start
+            An optional dictionary with offsets (in line numbers) of each
+            field.  Line numbers are relative to the value of origin.line_start
 
         .. note::
             You should almost always use :meth:`from_rfc822_record()` instead.

@@ -74,6 +74,20 @@ class propertywithsymbols(property):
             fget, self.fset, self.fdel, self.__doc__, symbols=self.symbols)
 
 
+class _PluginValues(SymbolDef):
+    """
+    Symbols for each value of the JobDefinition.plugin field
+    """
+    attachment = 'attachment'
+    local = 'local'
+    resource = 'resource'
+    manual = 'manual'
+    user_verify = "user-verify"
+    user_interact = "user-interact"
+    user_interact_verify = "user-interact-verify"
+    shell = 'shell'
+
+
 class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
     """
     Job definition class.
@@ -177,19 +191,6 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
         shell = 'shell'
         imports = 'imports'
         category_id = 'category_id'
-
-    class _PluginValues(SymbolDef):
-        """
-        Symbols for each value of the JobDefinition.plugin field
-        """
-        attachment = 'attachment'
-        local = 'local'
-        resource = 'resource'
-        manual = 'manual'
-        user_verify = "user-verify"
-        user_interact = "user-interact"
-        user_interact_verify = "user-interact-verify"
-        shell = 'shell'
 
     @property
     def unit(self):

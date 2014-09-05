@@ -29,7 +29,8 @@ from plainbox.impl.unit._legacy import UnitWithIdLegacyAPI
 __all__ = ['UnitWithId']
 
 
-logger = logging.getLogger("plainbox.unit")
+logger = logging.getLogger("plainbox.unit.unit_with_id")
+
 
 
 class UnitWithId(Unit, UnitWithIdLegacyAPI):

@@ -24,10 +24,15 @@
 import logging
 
 from plainbox.i18n import gettext as _
-from plainbox.impl.unit.unit import Unit
 from plainbox.impl.unit._legacy import UnitWithIdLegacyAPI
 from plainbox.impl.unit._legacy import UnitWithIdValidatorLegacyAPI
+from plainbox.impl.unit.unit import Unit
 from plainbox.impl.unit.unit import UnitValidator
+from plainbox.impl.unit.validators import CorrectFieldValueValidator
+from plainbox.impl.unit.validators import PresentFieldValidator
+from plainbox.impl.unit.validators import TemplateVariantFieldValidator
+from plainbox.impl.unit.validators import UniqueValueValidator
+from plainbox.impl.unit.validators import UntranslatableFieldValidator
 
 __all__ = ['UnitWithId']
 
@@ -102,3 +107,30 @@ class UnitWithId(Unit, UnitWithIdLegacyAPI):
         The return value is always 'unit-with-id' (translated)
         """
         return _("unit-with-id")
+
+    class Meta(Unit.Meta, UnitWithIdLegacyAPI.Meta):
+
+        class fields(Unit.Meta.fields):
+            id = 'id'
+
+        validator_cls = UnitWithIdValidator
+
+        field_validators = dict(Unit.Meta.field_validators)
+        field_validators.update({
+            fields.id: [
+                # We don't want anyone marking id up for translation
+                UntranslatableFieldValidator,
+                # We want this field to be present at all times
+                PresentFieldValidator,
+                # We want each instance to have a different identifier
+                TemplateVariantFieldValidator,
+                # When checking in a globally, all units need an unique value
+                UniqueValueValidator,
+                # We want to have bare, namespace-less identifiers
+                CorrectFieldValueValidator(
+                    lambda value, unit: (
+                        "::" not in unit.get_record_value('id')),
+                    message=_("identifier cannot define a custom namespace"),
+                    onlyif=lambda unit: unit.get_record_value('id')),
+            ]
+        })

@@ -21,15 +21,11 @@
 ==========================================================
 """
 
-import logging
 import string
 
 from plainbox.impl.secure.plugins import PkgResourcesPlugInCollection
 
 __all__ = ['get_accessed_parameters', 'all_unit']
-
-
-logger = logging.getLogger("plainbox.unit")
 
 
 def get_accessed_parameters(text):

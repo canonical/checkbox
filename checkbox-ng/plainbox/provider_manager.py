@@ -28,6 +28,7 @@ therein.
 
 import argparse
 import inspect
+import itertools
 import logging
 import os
 import re
@@ -39,19 +40,25 @@ from plainbox import __version__ as version
 from plainbox.i18n import docstring
 from plainbox.i18n import gettext as _
 from plainbox.i18n import gettext_noop as N_
+from plainbox.i18n import ngettext
 from plainbox.impl.buildsystems import all_buildsystems
 from plainbox.impl.commands import ToolBase, CommandBase
 from plainbox.impl.job import JobDefinition
-from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.logging import setup_logging
+from plainbox.impl.providers.v1 import InsecureProvider1PlugInCollection
 from plainbox.impl.providers.v1 import get_user_PROVIDERPATH_entry
 from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.config import ValidationError \
     as ConfigValidationError
+from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.providers.v1 import Provider1Definition
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
+from plainbox.impl.unit.unit_with_id import UnitWithId
+from plainbox.impl.unit.validators import UnitValidationContext
+from plainbox.impl.validation import Issue
 from plainbox.impl.validation import Problem
+from plainbox.impl.validation import Severity
 from plainbox.impl.validation import ValidationError as UnitValidationError
 
 __all__ = ['setup', 'manage_py_extension']
@@ -929,31 +936,17 @@ class ValidateCommand(ManageCommand):
         group.add_argument(
             '-L', '--legacy', dest='deprecated', action='store_false',
             help=_("Support deprecated syntax and features"))
-
-    def get_unit_list(self, provider):
-        unit_list, problem_list = provider.get_units()
-        if problem_list:
-            for exc in problem_list:
-                if isinstance(exc, RFC822SyntaxError):
-                    print("{}:{}: {}".format(
-                        os.path.relpath(exc.filename, provider.base_dir),
-                        exc.lineno, exc.msg))
-                else:
-                    print("{}".format(exc))
-            print(_("NOTE: subsequent units from problematic"
-                    " files are ignored"))
-        return unit_list, problem_list
-
-    def validate_units(self, unit_list, ns):
-        problem_list = []
-        for unit in unit_list:
-            try:
-                unit.validate(strict=ns.strict, deprecated=ns.deprecated)
-            except UnitValidationError as exc:
-                problem_list.append((unit, exc))
-        return problem_list
+        group.add_argument(
+            '-N', '--new-validation-core', action='store_true',
+            help=_("Use the new validation subsystem"))
 
     def invoked(self, ns):
+        if ns.new_validation_core:
+            return self.invoked_new(ns)
+        else:
+            return self.invoked_old(ns)
+
+    def invoked_old(self, ns):
         provider = self.get_provider()
         unit_list, load_problem_list = self.get_unit_list(provider)
         validation_problem_list = self.validate_units(unit_list, ns)
@@ -1001,6 +994,99 @@ class ValidateCommand(ManageCommand):
         else:
             print(_("The provider seems to be valid"))
 
+    def get_unit_list(self, provider):
+        unit_list, problem_list = provider.get_units()
+        if problem_list:
+            for exc in problem_list:
+                if isinstance(exc, RFC822SyntaxError):
+                    print("{}:{}: {}".format(
+                        os.path.relpath(exc.filename, provider.base_dir),
+                        exc.lineno, exc.msg))
+                else:
+                    print("{}".format(exc))
+            print(_("NOTE: subsequent units from problematic"
+                    " files are ignored"))
+        return unit_list, problem_list
+
+    def validate_units(self, unit_list, ns):
+        problem_list = []
+        for unit in unit_list:
+            try:
+                unit.validate(strict=ns.strict, deprecated=ns.deprecated)
+            except UnitValidationError as exc:
+                problem_list.append((unit, exc))
+        return problem_list
+
+    def invoked_new(self, ns):
+        _logger.info(_("Loading provider..."))
+        provider = self.get_provider()
+        _logger.info(_("Loading other providers..."))
+        all_providers = InsecureProvider1PlugInCollection(
+            validate=False, check=False)
+        all_providers.load()
+        provider_list = all_providers.get_all_plugin_objects()
+        if all(p.name != provider.name for p in provider_list):
+            provider_list.append(provider)
+        _logger.info(_("Validating everything..."))
+        unit_list, exc_list = self.collect_all_units(provider)
+        early_issue_gen = self.get_early_issues(exc_list)
+        context = UnitValidationContext(provider_list)
+        issue_gen = self.validate_units_in_context(context, unit_list)
+        del context
+        failed = False
+        hidden = 0
+        for issue in itertools.chain(early_issue_gen, issue_gen):
+            show = issue.severity is not Severity.advice
+            if issue.severity is Severity.error:
+                failed = True
+            if ns.strict and issue.severity is Severity.warning:
+                failed = True
+            if ns.deprecated and issue.kind is Problem.deprecated:
+                show = True
+            if ns.strict:
+                failed = True
+                show = True
+            if show:
+                print(issue.relative_to(self.definition.location))
+            else:
+                hidden += 1
+        if hidden > 0:
+            print(ngettext(
+                "NOTE: {0} advice was hidden",
+                "NOTE: {0} advices where hidden",
+                hidden
+            ).format(hidden))
+            print(_(
+                "Run 'manage.py validate -N --strict --deprecated' for details"
+            ))
+        if failed:
+            print(_(
+                "Validation of provider {0} has failed"
+            ).format(provider.name))
+            return 1
+        else:
+            print(_("The provider seems to be valid"))
+
+    def collect_all_units(self, provider):
+        unit_list, exc_list = provider.get_units()
+        return unit_list, exc_list
+
+    def get_early_issues(self, exc_list):
+        # NOTE: exc_list is a list of arbitrary exceptions
+        for exc in exc_list:
+            for exc in exc_list:
+                yield exc2issue(exc)
+        if exc_list:
+            print(_(
+                "NOTE: subsequent units from problematic files are ignored"
+            ))
+
+    def validate_units_in_context(self, context, unit_list):
+        for unit in unit_list:
+            _logger.info(_("Validating unit %s"), unit)
+            for issue in unit.check(context=context, live=True):
+                yield issue
+
     def get_provider(self):
         """
         Get a Provider1 that describes the current provider
@@ -1008,9 +1094,31 @@ class ValidateCommand(ManageCommand):
         This version disables all validation so that we can see totally broken
         providers and let us validate them and handle the errors explicitly.
         """
-        return Provider1.from_definition(
-            # NOTE: don't validate, we want to validate manually
-            self.definition, secure=False, validate=False)
+        # NOTE: don't check or validate, we want to do that manually
+        return Provider1.from_definition(self.definition, secure=False,
+                                         validate=False, check=False)
+
+
+def exc2issue(exc):
+    """
+    Convert an arbitrary exception to an Issue
+
+    :param exc:
+        Any Exception instance
+    :returns:
+        An :class:`plainbox.impl.validation.Issue` instance representing the
+        same error.
+
+    .. note::
+        This should be a single dispatch function so that specialized
+        converters can be used without altering this code all the time.
+    """
+    if isinstance(exc, RFC822SyntaxError):
+        return Issue(
+            exc.msg, Severity.error, Problem.syntax_error,
+            Origin(exc.filename, exc.lineno, exc.lineno))
+    else:
+        return Issue(str(exc), Severity.error, Problem.unknown)
 
 
 @docstring(

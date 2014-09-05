@@ -45,7 +45,7 @@ class UnitWithId(Unit, UnitWithIdLegacyAPI):
     @property
     def partial_id(self):
         """
-        Identifier of this category, without the provider name
+        Identifier of this unit, without the provider namespace
         """
         return self.get_record_value('id')
 

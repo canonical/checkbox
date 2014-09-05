@@ -334,10 +334,10 @@ class Unit(UnitLegacyAPI):
         """
         the value of the unit field
 
-        The default value is 'unit'. This property _may_ be overridden by
-        certain subclasses but this behavior is not generally recommended.
+        This property _may_ be overridden by certain subclasses but this
+        behavior is not generally recommended.
         """
-        return self.get_record_value('unit', "unit")
+        return self.get_record_value('unit')
 
     @property
     def tr_unit(self):

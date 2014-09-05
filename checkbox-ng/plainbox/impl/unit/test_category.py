@@ -24,6 +24,7 @@ Test definitions for plainbox.impl.unit.category module
 """
 
 from unittest import TestCase
+import warnings
 
 from plainbox.impl.secure.origin import FileTextSource
 from plainbox.impl.secure.origin import Origin
@@ -45,6 +46,11 @@ class CategoryUnitTests(TestCase):
             '_id': 'id',
             '_name': 'name'
         }, Origin(FileTextSource('file.txt.in'), 1, 2))
+        warnings.filterwarnings(
+            'ignore', 'validate is deprecated since version 0.11')
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_instantiate_template(self):
         data = mock.Mock(name='data')

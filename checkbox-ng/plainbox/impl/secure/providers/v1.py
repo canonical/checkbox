@@ -194,7 +194,7 @@ class Provider1(IProvider1, IProviderBackend1):
     def __init__(self, name, version, description, secure, gettext_domain,
                  units_dir, jobs_dir, whitelists_dir, data_dir, bin_dir,
                  locale_dir, base_dir, *, validate=True,
-                 validation_kwargs=None):
+                 validation_kwargs=None, check=False, context=None):
         """
         Initialize a provider with a set of meta-data and directories.
 
@@ -269,7 +269,7 @@ class Provider1(IProvider1, IProviderBackend1):
         self._base_dir = base_dir
         # Load and setup everything
         self._load_whitelists()
-        self._load_units(validate, validation_kwargs)
+        self._load_units(validate, validation_kwargs, check, context)
         self._setup_translations()
 
     def _load_whitelists(self):
@@ -281,7 +281,7 @@ class Provider1(IProvider1, IProviderBackend1):
             whitelists_dir_list, ext=".whitelist", wrapper=WhiteListPlugIn,
             implicit_namespace=self.namespace)
 
-    def _load_units(self, validate, validation_kwargs):
+    def _load_units(self, validate, validation_kwargs, check, context):
         units_dir_list = []
         if self.jobs_dir is not None:
             units_dir_list.append(self.jobs_dir)
@@ -290,7 +290,7 @@ class Provider1(IProvider1, IProviderBackend1):
         self._unit_collection = FsPlugInCollection(
             units_dir_list, ext=(".txt", ".txt.in", ".pxu"), recursive=True,
             wrapper=UnitPlugIn, provider=self, validate=validate,
-            validation_kwargs=validation_kwargs)
+            validation_kwargs=validation_kwargs, check=check, context=context)
 
     def _setup_translations(self):
         if self._gettext_domain and self._locale_dir:

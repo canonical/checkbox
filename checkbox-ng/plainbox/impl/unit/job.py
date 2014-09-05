@@ -485,3 +485,6 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
             # TRANSLATORS: don't translate record.origin.source.job
             raise ValueError(_("record.origin.source.job must be this job"))
         return self.from_rfc822_record(record, self.provider)
+
+    class Meta(UnitWithId.Meta, JobDefinitionLegacyAPI.Meta):
+        pass

@@ -140,6 +140,26 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
             data, raw_data, origin, provider, parameters, field_offset_map)
         self._filter_program = None
 
+    @classmethod
+    def instantiate_template(cls, data, raw_data, origin, provider, parameters,
+                             field_offset_map):
+        """
+        Instantiate this unit from a template.
+
+        The point of this method is to have a fixed API, regardless of what the
+        API of a particular unit class ``__init__`` method actually looks like.
+
+        It is easier to standardize on a new method that to patch all of the
+        initializers, code using them and tests to have an uniform initializer.
+        """
+        # This assertion is a low-cost trick to ensure that we override this
+        # method in all of the subclasses to ensure that the initializer is
+        # called with correctly-ordered arguments.
+        assert cls is TemplateUnit, \
+            "{}.instantiate_template() not customized".format(cls.__name__)
+        return cls(data, raw_data, origin, provider, parameters,
+                   field_offset_map)
+
     def __str__(self):
         return "{} <~ {}".format(self.id, self.resource_id)
 

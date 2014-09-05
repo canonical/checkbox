@@ -44,6 +44,7 @@ from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 from plainbox.impl.secure.rfc822 import load_rfc822_records
 from plainbox.impl.unit import all_units
 from plainbox.impl.validation import ValidationError
+from plainbox.impl.validation import Severity
 
 
 logger = logging.getLogger("plainbox.secure.providers.v1")
@@ -96,7 +97,8 @@ class UnitPlugIn(IPlugIn):
         return all_units.get_by_name(unit_name).plugin_object
 
     def __init__(self, filename, text, provider, *,
-                 validate=True, validation_kwargs=None):
+                 validate=True, validation_kwargs=None,
+                 check=False, context=None):
         """
         Initialize the plug-in with the specified name text
 
@@ -114,6 +116,13 @@ class UnitPlugIn(IPlugIn):
         :param validation_kwargs:
             Keyword arguments to pass to the Unit.validate().  Note, this is a
             single argument. This is a keyword-only argument.
+        :param check:
+            Enable unit checking. Incorrect unit definitions will not be loaded
+            and will abort the process of loading of the remainder of the jobs.
+            This is OFF by default to prevent broken units from being used.
+            This is a keyword-only argument.
+        :param context:
+            If checking, use this validation context.
         """
         self._filename = filename
         self._unit_list = []
@@ -140,6 +149,11 @@ class UnitPlugIn(IPlugIn):
                 raise PlugInError(
                     _("Cannot define unit from record {!r}: {}").format(
                         record, exc))
+            if check:
+                for issue in unit.check(context=context, live=True):
+                    if issue.severity is Severity.error:
+                        raise PlugInError(
+                            _("Problem in unit definition, {}").format(issue))
             if validate:
                 try:
                     unit.validate(**validation_kwargs)

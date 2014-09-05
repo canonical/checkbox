@@ -17,8 +17,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-:mod:`plainbox.impl.unit` -- unit definition
-============================================
+:mod:`plainbox.impl.unit.unit` -- unit definition
+=================================================
 """
 
 import collections

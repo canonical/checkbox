@@ -32,9 +32,11 @@ quickly construct symbols without syntax overhead.
 
 __all__ = ['Symbol', 'SymbolDef']
 
+import functools
 import inspect
 
 
+@functools.total_ordering
 class Symbol:
     """
     Symbol type.
@@ -95,18 +97,18 @@ class Symbol:
         elif isinstance(other, str):
             return self._name == other
         else:
-            return False
+            return NotImplemented
 
-    def __ne__(self, other):
+    def __lt__(self, other):
         """
         Compare two symbols or a string and a symbol for inequality
         """
         if isinstance(other, Symbol):
-            return self is not other
+            return self._name < other._name
         elif isinstance(other, str):
-            return self._name != other
+            return self._name < other
         else:
-            return False
+            return NotImplemented
 
     def __hash__(self):
         """

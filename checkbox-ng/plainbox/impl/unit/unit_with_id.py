@@ -36,7 +36,7 @@ class UnitWithId(Unit, UnitWithIdLegacyAPI):
     """
     Base class for Units that have unique identifiers
 
-    Unlike the JobDefintion class thepartial_id property has no fallback
+    Unlike the JobDefintion class the partial_id property has no fallback
     and is simply tied directly to the "id" field. The id property works
     in conjunction with a provider associated with the unit and simply adds
     the namespace part.

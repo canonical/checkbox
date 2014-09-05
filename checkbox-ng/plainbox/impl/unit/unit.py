@@ -33,11 +33,208 @@ from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.rfc822 import normalize_rfc822_value
 from plainbox.impl.unit import get_accessed_parameters
 from plainbox.impl.unit._legacy import UnitLegacyAPI
+from plainbox.impl.unit.validators import IFieldValidator
+from plainbox.impl.unit.validators import MultiUnitFieldIssue
+from plainbox.impl.unit.validators import UnitFieldIssue
+from plainbox.impl.validation import Problem
+from plainbox.impl.validation import Severity
 
-__all__ = ['Unit']
+__all__ = ['Unit', 'UnitValidator']
 
 
 logger = logging.getLogger("plainbox.unit")
+
+
+class UnitValidator:
+    """
+    Validator class for basic :class:`Unit` type
+
+    Typically validators are not used directly. Instead, please call
+    :meth:`Unit.check()` and iterate over the returned issues.
+
+    :attr issue_list:
+        A list of :class`plainbox.impl.validate.Issue`
+    """
+
+    def __init__(self):
+        """
+        Initialize a new validator
+        """
+        self.issue_list = []
+
+    def check(self, unit):
+        """
+        Check a specific unit for correctness
+
+        :param unit:
+            The :class:`Unit` to check
+        :returns:
+            A generator yielding subsequent issues
+        """
+        for field_validator, field in self.make_field_validators(unit):
+            for issue in field_validator.check(self, unit, field):
+                yield issue
+
+    def check_in_context(self, unit, context):
+        """
+        Check a specific unit for correctness in a broader context
+
+        :param unit:
+            The :class:`Unit` to check
+        :param context:
+            A :class:`UnitValidationContext` to use as context
+        :returns:
+            A generator yielding subsequent issues
+        """
+        for field_validator, field in self.make_field_validators(unit):
+            for issue in field_validator.check_in_context(
+                    self, unit, field, context):
+                yield issue
+
+    def make_field_validators(self, unit):
+        """
+        Convert unit meta-data to a sequence of validators
+
+        :returns:
+            A generator for pairs (field_validator, field) where
+            field_validator is an instance of :class:`IFieldValidator` and
+            field is a symbol with the field name.
+        """
+        for field, spec in unit.Meta.field_validators.items():
+            if isinstance(spec, type):
+                validator_list = [spec]
+            elif isinstance(spec, list):
+                validator_list = spec
+            else:
+                raise TypeError(_(
+                    "{}.Meta.fields[{!r}] is not a validator"
+                ).format(unit.__class__.__name__, field))
+            for index, spec in enumerate(validator_list):
+                # If it's a validator class, instantiate it
+                if isinstance(spec, type) \
+                        and issubclass(spec, IFieldValidator):
+                    yield spec(), field
+                # If it's a validator instance, just return it
+                elif isinstance(spec, IFieldValidator):
+                    yield spec, field
+                else:
+                    raise TypeError(_(
+                        "{}.Meta.fields[{!r}][{}] is not a validator"
+                    ).format(unit.__class__.__name__, field, index))
+
+    def advice(self, unit, field, kind, message=None, offset=0):
+        """
+        Shortcut for :meth:`report_issue` with severity=Severity.advice
+        """
+        return self.report_issue(
+            unit, field, kind, Severity.advice, message, offset)
+
+    def warning(self, unit, field, kind, message=None, offset=0):
+        """
+        Shortcut for :meth:`report_issue` with severity=Severity.warning
+        """
+        return self.report_issue(
+            unit, field, kind, Severity.warning, message, offset)
+
+    def error(self, unit, field, kind, message=None, offset=0):
+        """
+        Shortcut for :meth:`report_issue` with severity=Severity.error
+        """
+        return self.report_issue(
+            unit, field, kind, Severity.error, message, offset)
+
+    def report_issue(self, unit, field, kind, severity, message=None,
+                     offset=0):
+        """
+        Helper method that aids in adding issues
+
+        :param unit:
+            A :class:`Unit` that the issue refers to or a list of such objects
+        :param field:
+            Name of the field the issue is specific to
+        :param kind:
+            Type of the issue, this can be an arbitrary
+            symbol. If it is not known to the :meth:`explain()`
+            then a message must be provided or a ValueError
+            will be raised.
+        :param severity:
+            A symbol that represents the severity of the issue.
+            See :class:`plainbox.impl.validation.Severity`.
+        :param message:
+            An (optional) message to use instead of a stock message.
+            This argument is required if :meth:`explain()` doesn't know
+            about the specific value of ``kind`` used
+        :param offset:
+            An (optional) offset within the field itself. This optional
+            argument can be used to point to a specific line in a multi-line
+            field.
+        :returns:
+            The reported issue
+        :raises ValueError:
+            if ``kind`` is not known to :meth:`explain()` and
+            ``message`` is None.
+        """
+        # compute the actual message
+        message = self.explain(
+            unit[0] if isinstance(unit, list) else unit, field, kind, message)
+        if message is None:
+            raise ValueError(
+                _("unable to deduce message and no message provided"))
+        # compute the origin
+        if isinstance(unit, list):
+            cls = MultiUnitFieldIssue
+            origin = unit[0].origin
+            if field in unit[0].field_offset_map:
+                origin = origin.with_offset(
+                    unit[0].field_offset_map[field] + offset
+                ).just_line()
+            elif '_{}'.format(field) in unit[0].field_offset_map:
+                origin = origin.with_offset(
+                    unit[0].field_offset_map['_{}'.format(field)] + offset
+                ).just_line()
+        else:
+            cls = UnitFieldIssue
+            origin = unit.origin
+            if field in unit.field_offset_map:
+                origin = origin.with_offset(
+                    unit.field_offset_map[field] + offset
+                ).just_line()
+            elif '_{}'.format(field) in unit.field_offset_map:
+                origin = origin.with_offset(
+                    unit.field_offset_map['_{}'.format(field)] + offset
+                ).just_line()
+        issue = cls(message, severity, kind, origin, unit, field)
+        self.issue_list.append(issue)
+        return issue
+
+    def explain(self, unit, field, kind, message):
+        """
+        Lookup an explanatory string for a given issue kind
+
+        :returns:
+            A string (explanation) or None if the issue kind
+            is not known to this method.
+        """
+        stock_msg = self._explain_map.get(kind)
+        if message or stock_msg:
+            return _("field {field!a}, {message}").format(
+                field=str(field), message=message or stock_msg)
+
+    _explain_map = {
+        Problem.missing: _("required field missing"),
+        Problem.wrong: _("incorrect value supplied"),
+        Problem.useless: _("definition useless in this context"),
+        Problem.deprecated: _("deprecated field used"),
+        Problem.constant: _("value must be variant (parametrized)"),
+        Problem.variable: _("value must be invariant (unparametrized)"),
+        Problem.unknown_param: _("field refers to unknown parameter"),
+        Problem.not_unique: _("field value is not unique"),
+        Problem.expected_i18n: _("field should be marked as translatable"),
+        Problem.unexpected_i18n: (
+            _("field should not be marked as translatable")),
+        Problem.syntax_error: _("syntax error inside the field"),
+        Problem.bad_reference: _("bad reference to another unit"),
+    }
 
 
 class Unit(UnitLegacyAPI):

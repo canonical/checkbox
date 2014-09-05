@@ -28,7 +28,6 @@ import logging
 import string
 
 from plainbox.i18n import gettext as _
-from plainbox.impl import deprecated
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.rfc822 import normalize_rfc822_value
 from plainbox.impl.unit import get_accessed_parameters
@@ -592,10 +591,6 @@ class Unit(UnitLegacyAPI):
         # Compute the sha256 hash of the UTF-8 encoding of the canonical form
         # and return the hex digest as the checksum that can be displayed.
         return hashlib.sha256(text).hexdigest()
-
-    @deprecated("0.7", "call unit.tr_unit() instead")
-    def get_unit_type(self):
-        return self.tr_unit()
 
     def get_translated_data(self, msgid):
         """

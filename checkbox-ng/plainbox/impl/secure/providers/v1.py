@@ -1032,7 +1032,8 @@ class Provider1PlugIn(IPlugIn):
     files
     """
 
-    def __init__(self, filename, definition_text):
+    def __init__(self, filename, definition_text, *, validate=None,
+                 validation_kwargs=None, check=None, context=None):
         """
         Initialize the plug-in with the specified name and external object
         """
@@ -1049,7 +1050,9 @@ class Provider1PlugIn(IPlugIn):
         # Get the secure flag
         secure = os.path.dirname(filename) in get_secure_PROVIDERPATH_list()
         # Initialize the provider object
-        self._provider = Provider1.from_definition(definition, secure)
+        self._provider = Provider1.from_definition(
+            definition, secure, validate=validate,
+            validation_kwargs=validation_kwargs, check=check, context=context)
 
     def __repr__(self):
         return "<{!s} plugin_name:{!r}>".format(

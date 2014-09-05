@@ -31,6 +31,11 @@ from plainbox.impl.secure.origin import Origin
 from plainbox.impl.unit import all_units
 from plainbox.impl.unit._legacy import TemplateUnitLegacyAPI
 from plainbox.impl.unit.unit import Unit
+from plainbox.impl.unit.validators import CorrectFieldValueValidator
+from plainbox.impl.unit.validators import PresentFieldValidator
+from plainbox.impl.unit.validators import ReferenceConstraint
+from plainbox.impl.unit.validators import UnitReferenceValidator
+from plainbox.impl.unit.validators import UntranslatableFieldValidator
 
 
 __all__ = ['TemplateUnit']
@@ -343,3 +348,65 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
             })
         except ExpressionFailedError:
             return False
+
+    class Meta(Unit.Meta, TemplateUnitLegacyAPI.Meta):
+
+        class fields(Unit.Meta.fields):
+            """
+            Symbols for each field that a TemplateUnit can have
+            """
+            template_unit = 'template-unit'
+            template_resource = 'template-resource'
+            template_filter = 'template-filter'
+            template_imports = 'template-imports'
+
+        field_validators = {}
+        field_validators.update(Unit.Meta.field_validators)
+        field_validators.update({
+            fields.template_unit: [
+                UntranslatableFieldValidator,
+                PresentFieldValidator,
+            ],
+            fields.template_resource: [
+                UntranslatableFieldValidator,
+                PresentFieldValidator,
+                UnitReferenceValidator(
+                    lambda unit: (
+                        [unit.resource_id] if unit.resource_id else []),
+                    constraints=[
+                        ReferenceConstraint(
+                            lambda referrer, referee: referee.unit == 'job',
+                            message=_("the referenced unit is not a job")),
+                        ReferenceConstraint(
+                            lambda referrer, referee: (
+                                referee.plugin == 'resource'),
+                            onlyif=lambda referrer, referee: (
+                                referee.unit == 'job'),
+                            message=_(
+                                "the referenced job is not a resource job")),
+                    ]),
+                # TODO: should not refer to deprecated job,
+                #       onlyif job itself is not deprecated
+            ],
+            fields.template_filter: [
+                UntranslatableFieldValidator,
+                # All templates need a valid (or empty) template filter
+                CorrectFieldValueValidator(
+                    lambda value, unit: unit.get_filter_program(),
+                    onlyif=lambda unit: unit.template_filter is not None),
+                # TODO: must refer to the same job as template-resource
+            ],
+            fields.template_imports: [
+                UntranslatableFieldValidator,
+                CorrectFieldValueValidator(
+                    lambda value, unit: (
+                        list(unit.get_imported_jobs()) is not None)),
+                CorrectFieldValueValidator(
+                    lambda value, unit: (
+                        len(list(unit.get_imported_jobs())) in (0, 1)),
+                    message=_("at most one import statement is allowed")),
+                # TODO: must refer to known or possibly-known job
+                # TODO: should not refer to deprecated jobs,
+                #       onlyif job itself is not deprecated
+            ],
+        })

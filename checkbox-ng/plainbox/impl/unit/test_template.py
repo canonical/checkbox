@@ -31,8 +31,12 @@ from plainbox.impl.resource import Resource
 from plainbox.impl.resource import ResourceExpression
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.template import TemplateUnit
+from plainbox.impl.unit.test_unit import UnitFieldValidationTests
 from plainbox.impl.unit.unit import Unit
+from plainbox.impl.unit.unit_with_id import UnitWithId
+from plainbox.impl.unit.validators import UnitValidationContext
 from plainbox.impl.validation import Problem
+from plainbox.impl.validation import Severity
 from plainbox.impl.validation import ValidationError
 from plainbox.vendor import mock
 
@@ -440,3 +444,121 @@ class TemplateUnitTests(TestCase):
         ])
         self.assertEqual(len(unit_list), 1)
         self.assertEqual(unit_list[0].partial_id, 'check-device-sda1')
+
+
+class TemplateUnitFieldValidationTests(UnitFieldValidationTests):
+
+    unit_cls = TemplateUnit
+
+    def test_template_unit__untranslatable(self):
+        issue_list = self.unit_cls({
+            # NOTE: the value must be a valid unit!
+            '_template-unit': 'unit'
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.template_unit,
+            Problem.unexpected_i18n, Severity.warning)
+
+    def test_template_unit__present(self):
+        issue_list = self.unit_cls({
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.template_unit,
+            Problem.missing, Severity.error)
+
+    def test_template_resource__untranslatable(self):
+        issue_list = self.unit_cls({
+            '_template_resource': 'template_resource'
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.template_resource,
+            Problem.unexpected_i18n, Severity.warning)
+
+    def test_template_resource__template_invarinat(self):
+        issue_list = self.unit_cls({
+            'template_resource': '{attr}'
+        }, parameters={'attr': 'value'}, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.template_resource,
+            Problem.variable, Severity.error)
+
+    def test_template_resource__refers_to_other_units(self):
+        unit = self.unit_cls({
+            'template_resource': 'some-unit'
+        }, provider=self.provider)
+        message = ("field 'template_resource',"
+                   " unit 'ns::some-unit' is not available")
+        self.provider.get_units.return_value = ([unit], ())
+        context = UnitValidationContext([self.provider])
+        issue_list = unit.check(context=context)
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.template_resource,
+            Problem.bad_reference, Severity.error, message)
+
+    def test_template_resource__refers_to_other_jobs(self):
+        other_unit = UnitWithId({
+            'id': 'some-unit'
+        }, provider=self.provider)
+        unit = self.unit_cls({
+            'template-resource': 'some-unit'
+        }, provider=self.provider)
+        message = ("field 'template-resource',"
+                   " the referenced unit is not a job")
+        self.provider.get_units.return_value = ([unit, other_unit], ())
+        context = UnitValidationContext([self.provider])
+        issue_list = unit.check(context=context)
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.template_resource,
+            Problem.bad_reference, Severity.error, message)
+
+    def test_template_filter__untranslatable(self):
+        issue_list = self.unit_cls({
+            '_template-filter': 'template-filter'
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.template_filter,
+            Problem.unexpected_i18n, Severity.warning)
+
+    def test_template_filter__refers_to_other_units(self):
+        unit = self.unit_cls({
+            'template-filter': 'some_unit.attr == "value"'
+        }, provider=self.provider)
+        message = ("field 'template_filter',"
+                   " unit 'ns::some_unit' is not available")
+        self.provider.get_units.return_value = ([unit], ())
+        context = UnitValidationContext([self.provider])
+        issue_list = unit.check(context=context)
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.template_filter,
+            Problem.bad_reference, Severity.error, message)
+
+    def test_template_filter__refers_to_other_jobs(self):
+        other_unit = UnitWithId({
+            'id': 'some_unit'
+        }, provider=self.provider)
+        unit = self.unit_cls({
+            'template-filter': 'some_unit.attr == "value"'
+        }, provider=self.provider)
+        message = "field 'template_filter', the referenced unit is not a job"
+        self.provider.get_units.return_value = ([unit, other_unit], ())
+        context = UnitValidationContext([self.provider])
+        issue_list = unit.check(context=context)
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.template_filter,
+            Problem.bad_reference, Severity.error, message)
+
+    def test_template_filter__refers_to_other_resource_jobs(self):
+        other_unit = JobDefinition({
+            'id': 'some_unit', 'plugin': 'shell'
+        }, provider=self.provider)
+        unit = self.unit_cls({
+            'template-filter': 'some_unit.attr == "value"'
+        }, provider=self.provider)
+        message = ("field 'template-filter',"
+                   " the referenced job is not a resource job")
+        self.provider.get_units.return_value = ([unit, other_unit], ())
+        context = UnitValidationContext([self.provider])
+        issue_list = unit.check(context=context)
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.template_filter,
+            Problem.bad_reference, Severity.error, message)

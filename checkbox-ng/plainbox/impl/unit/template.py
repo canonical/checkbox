@@ -30,7 +30,6 @@ from plainbox.impl.resource import parse_imports_stmt
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.unit import all_units
 from plainbox.impl.unit._legacy import TemplateUnitLegacyAPI
-from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.unit import Unit
 
 
@@ -102,7 +101,7 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
     def tr_unit(self):
         return _("template")
 
-    class fields(JobDefinition.fields):
+    class fields(Unit.Meta.fields):
         """
         Symbols for each field that a TemplateUnit can have
         """

@@ -301,6 +301,8 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
             A subclass of Unit the template will try to instantiate. If there
             is no ``template-unit`` field in the template then a ``job``
             template is assumed.
+        :raises KeyError:
+            if the field 'template-unit' refers to unknown unit or is undefined
 
         .. note::
             Typically this will return a JobDefinition class but it's not the

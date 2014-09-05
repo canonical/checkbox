@@ -323,7 +323,8 @@ class XMLSessionStateExporter(SessionStateExporterBase):
         Add the questions section of the XML report, using the result map
         """
         questions = ET.SubElement(element, "questions")
-        for job_id, job_data in data["result_map"].items():
+        for job_id in sorted(data["result_map"].keys()):
+            job_data = data["result_map"][job_id]
             # Resource jobs are managed in the hardware/software/summary
             # sections and regular attachments are listed in the context
             # element (but dmi, sysfs-attributes and udev are part of the

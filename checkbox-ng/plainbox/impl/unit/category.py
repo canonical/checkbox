@@ -81,13 +81,6 @@ class CategoryUnit(UnitWithId, CategoryUnitLegacyAPI):
     def __repr__(self):
         return "<CategoryUnit id:{!r} name:{!r}>".format(self.id, self.name)
 
-    class fields(SymbolDef):
-        """
-        Symbols for each field that a JobDefinition can have
-        """
-        id = 'id'
-        name = 'name'
-
     def tr_unit(self):
         """
         Translated name of the unit.
@@ -138,3 +131,6 @@ class CategoryUnit(UnitWithId, CategoryUnitLegacyAPI):
                     onlyif=lambda unit: unit.name is not None),
             ]
         })
+
+
+CategoryUnit.fields = CategoryUnit.Meta.fields

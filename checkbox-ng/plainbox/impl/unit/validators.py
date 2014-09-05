@@ -594,7 +594,7 @@ class UnitReferenceValidator(FieldValidatorBase):
                 yield parent.error(
                     unit, field, Problem.bad_reference,
                     self.message or _(
-                        "unit {} is not available"
+                        "unit {!a} is not available"
                     ).format(unit_id))
                 continue
             n = len(units_with_this_id)

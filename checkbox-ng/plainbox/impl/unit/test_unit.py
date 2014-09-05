@@ -24,12 +24,71 @@ Test definitions for plainbox.impl.unit (package init file)
 """
 
 from unittest import TestCase
+import warnings
 
+from plainbox.abc import IProvider1
 from plainbox.impl.unit.unit import Unit
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.validation import Problem
+from plainbox.impl.validation import Severity
 from plainbox.impl.validation import ValidationError
 from plainbox.vendor import mock
+
+
+def setUpModule():
+    warnings.filterwarnings(
+        'ignore', 'validate is deprecated since version 0.11')
+
+
+def tearDownModule():
+    warnings.resetwarnings()
+
+
+class IssueMixIn:
+    """
+    Mix in for TestCase to work with issues and issue lists
+    """
+
+    def assertIssueFound(self, issue_list, field=None, kind=None,
+                         severity=None, message=None):
+        """
+        Raise an assertion unless an issue with the required fields is found
+
+        :param issue_list:
+            A list of issues to look through
+        :param field:
+            (optional) value that must match the same attribute on the Issue
+        :param kind:
+            (optional) value that must match the same attribute on the Issue
+        :param severity:
+            (optional) value that must match the same attribute on the Issue
+        :param message:
+            (optional) value that must match the same attribute on the Issue
+        :returns:
+            The issue matching those constraints, if found
+        """
+        for issue in issue_list:
+            if field is not None and issue.field is not field:
+                continue
+            if severity is not None and issue.severity is not severity:
+                continue
+            if kind is not None and issue.kind is not kind:
+                continue
+            if message is not None and issue.message != message:
+                continue
+            return issue
+        else:
+            msg = "no issue matching:\n{}\nwas found in:\n{}".format(
+                '\n'.join(
+                    ' * {} is {!r}'.format(issue_attr, value)
+                    for issue_attr, value in
+                    [('field', field),
+                     ('severity', severity),
+                     ('kind', kind),
+                     ('message', message)]
+                    if value is not None),
+                '\n'.join(" - {!r}".format(issue) for issue in issue_list))
+            return self.fail(msg)
 
 
 class TestUnitDefinition(TestCase):
@@ -270,3 +329,45 @@ class TestUnitDefinition(TestCase):
         self.assertEqual(
             Unit({'field': '{param}'}).get_accessed_parameters(force=True),
             {'field': frozenset(['param'])})
+
+    def test_qualify_id__with_provider(self):
+        provider = mock.Mock(spec_set=IProvider1)
+        provider.namespace = 'ns'
+        unit = Unit({}, provider=provider)
+        self.assertEqual(unit.qualify_id('id'), 'ns::id')
+        self.assertEqual(unit.qualify_id('some-ns::id'), 'some-ns::id')
+
+    def test_qualify_id__without_provider(self):
+        unit = Unit({})
+        self.assertEqual(unit.qualify_id('id'), 'id')
+        self.assertEqual(unit.qualify_id('some-ns::id'), 'some-ns::id')
+
+
+class UnitFieldValidationTests(TestCase, IssueMixIn):
+
+    unit_cls = Unit
+
+    def setUp(self):
+        self.provider = mock.Mock(spec_set=IProvider1)
+        self.provider.namespace = 'ns'
+
+    def test_unit__untranslatable(self):
+        issue_list = self.unit_cls({
+            '_unit': 'unit'
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.unit,
+                              Problem.unexpected_i18n, Severity.warning)
+
+    def test_unit__template_invariant(self):
+        issue_list = self.unit_cls({
+            'unit': '{attr}'
+        }, parameters={'attr': 'unit'}, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.unit,
+                              Problem.variable, Severity.error)
+
+    def test_unit__present(self):
+        issue_list = self.unit_cls({
+        }, provider=self.provider).check()
+        message = "field 'unit', unit should explicitly define its type"
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.unit,
+                              Problem.missing, Severity.advice, message)

@@ -31,8 +31,12 @@ from plainbox.impl.resource import Resource
 from plainbox.impl.resource import ResourceExpression
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.template import TemplateUnit
+from plainbox.impl.unit.test_unit import UnitFieldValidationTests
 from plainbox.impl.unit.unit import Unit
+from plainbox.impl.unit.unit_with_id import UnitWithId
+from plainbox.impl.unit.validators import UnitValidationContext
 from plainbox.impl.validation import Problem
+from plainbox.impl.validation import Severity
 from plainbox.impl.validation import ValidationError
 from plainbox.vendor import mock
 
@@ -70,7 +74,7 @@ class TemplateUnitValidator(TestCase):
                 'id': 'constant',
             }).validate()
         self.assertEqual(
-            boom.exception.field, TemplateUnit.fields.id)
+            boom.exception.field, JobDefinition.fields.id)
         self.assertEqual(boom.exception.problem, Problem.constant)
 
     def test_checks_if_plugin_is_variable(self):
@@ -81,7 +85,7 @@ class TemplateUnitValidator(TestCase):
                 'plugin': 'variable-{attr}',
             }).validate()
         self.assertEqual(
-            boom.exception.field, TemplateUnit.fields.plugin)
+            boom.exception.field, JobDefinition.fields.plugin)
         self.assertEqual(boom.exception.problem, Problem.variable)
 
     def test_checks_if_summary_is_constant(self):
@@ -93,7 +97,7 @@ class TemplateUnitValidator(TestCase):
                 'summary': 'constant',
             }).validate()
         self.assertEqual(
-            boom.exception.field, TemplateUnit.fields.summary)
+            boom.exception.field, JobDefinition.fields.summary)
         self.assertEqual(boom.exception.problem, Problem.constant)
 
     def test_checks_if_description_is_constant(self):
@@ -106,7 +110,7 @@ class TemplateUnitValidator(TestCase):
                 'description': 'constant',
             }).validate()
         self.assertEqual(
-            boom.exception.field, TemplateUnit.fields.description)
+            boom.exception.field, JobDefinition.fields.description)
         self.assertEqual(boom.exception.problem, Problem.constant)
 
     def test_checks_if_command_is_constant(self):
@@ -120,7 +124,7 @@ class TemplateUnitValidator(TestCase):
                 'command': 'constant',
             }).validate()
         self.assertEqual(
-            boom.exception.field, TemplateUnit.fields.command)
+            boom.exception.field, JobDefinition.fields.command)
         self.assertEqual(boom.exception.problem, Problem.constant)
 
     def test_checks_if_user_is_variable(self):
@@ -135,7 +139,7 @@ class TemplateUnitValidator(TestCase):
                 'user': 'variable-{attr}',
             }).validate()
         self.assertEqual(
-            boom.exception.field, TemplateUnit.fields.user)
+            boom.exception.field, JobDefinition.fields.user)
         self.assertEqual(boom.exception.problem, Problem.variable)
 
     def test_checks_instantiated_job(self):
@@ -247,8 +251,8 @@ class TemplateUnitTests(TestCase):
         name
         """
         self.assertEqual(TemplateUnit({
-            'template-imports':
-                'from 2014.com.example import resource/name as rc',
+            'template-imports': (
+                'from 2014.com.example import resource/name as rc'),
             'template-resource': 'rc'
         }).resource_id, '2014.com.example::resource/name')
 
@@ -263,8 +267,8 @@ class TemplateUnitTests(TestCase):
         provider = mock.Mock(spec=IProvider1)
         provider.namespace = 'namespace'
         self.assertEqual(TemplateUnit({
-            'template-imports':
-                'from 2014.com.example import resource/name as rc',
+            'template-imports': (
+                'from 2014.com.example import resource/name as rc'),
             'template-resource': 'rc'
         }, provider=provider).resource_id, '2014.com.example::resource/name')
 
@@ -440,3 +444,69 @@ class TemplateUnitTests(TestCase):
         ])
         self.assertEqual(len(unit_list), 1)
         self.assertEqual(unit_list[0].partial_id, 'check-device-sda1')
+
+
+class TemplateUnitFieldValidationTests(UnitFieldValidationTests):
+
+    unit_cls = TemplateUnit
+
+    def test_template_unit__untranslatable(self):
+        issue_list = self.unit_cls({
+            # NOTE: the value must be a valid unit!
+            '_template-unit': 'unit'
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.template_unit,
+            Problem.unexpected_i18n, Severity.warning)
+
+    def test_template_unit__present(self):
+        issue_list = self.unit_cls({
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.template_unit,
+            Problem.missing, Severity.advice)
+
+    def test_template_resource__untranslatable(self):
+        issue_list = self.unit_cls({
+            '_template-resource': 'template_resource'
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.template_resource,
+            Problem.unexpected_i18n, Severity.warning)
+
+    def test_template_resource__refers_to_other_units(self):
+        unit = self.unit_cls({
+            'template-resource': 'some-unit'
+        }, provider=self.provider)
+        message = ("field 'template-resource',"
+                   " unit 'ns::some-unit' is not available")
+        self.provider.get_units.return_value = ([unit], ())
+        context = UnitValidationContext([self.provider])
+        issue_list = unit.check(context=context)
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.template_resource,
+            Problem.bad_reference, Severity.error, message)
+
+    def test_template_resource__refers_to_other_jobs(self):
+        other_unit = UnitWithId({
+            'id': 'some-unit'
+        }, provider=self.provider)
+        unit = self.unit_cls({
+            'template-resource': 'some-unit'
+        }, provider=self.provider)
+        message = ("field 'template-resource',"
+                   " the referenced unit is not a job")
+        self.provider.get_units.return_value = ([unit, other_unit], ())
+        context = UnitValidationContext([self.provider])
+        issue_list = unit.check(context=context)
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.template_resource,
+            Problem.bad_reference, Severity.error, message)
+
+    def test_template_filter__untranslatable(self):
+        issue_list = self.unit_cls({
+            '_template-filter': 'template-filter'
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.template_filter,
+            Problem.unexpected_i18n, Severity.warning)

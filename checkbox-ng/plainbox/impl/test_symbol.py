@@ -102,10 +102,10 @@ class SymbolTests(unittest.TestCase):
         self.assertFalse(
             1 == Symbol('foo'),
             "integer compared equal to Symbol")
-        self.assertFalse(
+        self.assertTrue(
             Symbol('foo') != 1,
             "Symbol compared unequal to integer")
-        self.assertFalse(
+        self.assertTrue(
             1 != Symbol('foo'),
             "integer compared unequal to Symbol")
 

@@ -177,13 +177,13 @@ class InsecureProvider1PlugInCollection(FsPlugInCollection):
     PATH, but is used for looking up providers.
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         PROVIDERPATH = os.getenv("PROVIDERPATH")
         if PROVIDERPATH is None:
             dir_list = get_insecure_PROVIDERPATH_list()
         else:
             dir_list = PROVIDERPATH.split(os.path.pathsep)
-        super().__init__(dir_list, '.provider', wrapper=Provider1PlugIn)
+        super().__init__(dir_list, '.provider', wrapper=Provider1PlugIn, **kwargs)
 
 
 # Collection of all providers

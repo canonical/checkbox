@@ -31,11 +31,16 @@ in a compatible way.
 import logging
 
 from plainbox.i18n import gettext as _
-from plainbox.impl import deprecated
 from plainbox.impl.unit._legacy import CategoryUnitLegacyAPI
 from plainbox.impl.unit.unit_with_id import UnitWithId
-from plainbox.impl.symbol import SymbolDef
+from plainbox.impl.unit.validators import CorrectFieldValueValidator
+from plainbox.impl.unit.validators import PresentFieldValidator
+from plainbox.impl.unit.validators import TemplateVariantFieldValidator
+from plainbox.impl.unit.validators import TranslatableFieldValidator
+from plainbox.impl.validation import Problem
+from plainbox.impl.validation import Severity
 
+__all__ = ['CategoryUnit']
 
 logger = logging.getLogger("plainbox.unit.category")
 
@@ -44,7 +49,7 @@ class CategoryUnit(UnitWithId, CategoryUnitLegacyAPI):
     """
     Test Category Unit
 
-    This unit defines testing categories. Job defintions can be associated
+    This unit defines testing categories. Job definitions can be associated
     with at most one category.
     """
 
@@ -69,33 +74,64 @@ class CategoryUnit(UnitWithId, CategoryUnitLegacyAPI):
                    field_offset_map)
 
     def __str__(self):
+        """
+        same as .name
+        """
         return self.name
 
     def __repr__(self):
         return "<CategoryUnit id:{!r} name:{!r}>".format(self.id, self.name)
 
-    class fields(SymbolDef):
-        """
-        Symbols for each field that a JobDefinition can have
-        """
-        id = 'id'
-        name = 'name'
-
     def tr_unit(self):
         """
-        Translated (optionally) value of the unit field (overridden)
+        Translated name of the unit.
 
         The return value is always 'category' (translated)
         """
         return _("category")
 
-    @deprecated("0.7", "call unit.tr_unit() instead")
-    def get_unit_type(self):
-        return _("category")
-
     @property
     def name(self):
+        """
+        Name of the category
+        """
         return self.get_record_value('name')
 
     def tr_name(self):
+        """
+        Translated name of the category
+        """
         return self.get_translated_record_value("name")
+
+    class Meta(UnitWithId.Meta, CategoryUnitLegacyAPI.Meta):
+
+        class fields(UnitWithId.Meta.fields):
+            """
+            Symbols for each field that a JobDefinition can have
+            """
+            name = 'name'
+
+        field_validators = {}
+        field_validators.update(UnitWithId.Meta.field_validators)
+        field_validators.update({
+            fields.name: [
+                TranslatableFieldValidator,
+                TemplateVariantFieldValidator,
+                PresentFieldValidator,
+                # We want the name to be a single line
+                CorrectFieldValueValidator(
+                    lambda name: name.count("\n") == 0,
+                    Problem.wrong, Severity.warning,
+                    message=_("please use only one line"),
+                    onlyif=lambda unit: unit.name is not None),
+                # We want the name to be relatively short
+                CorrectFieldValueValidator(
+                    lambda name: len(name) <= 80,
+                    Problem.wrong, Severity.warning,
+                    message=_("please stay under 80 characters"),
+                    onlyif=lambda unit: unit.name is not None),
+            ]
+        })
+
+
+CategoryUnit.fields = CategoryUnit.Meta.fields

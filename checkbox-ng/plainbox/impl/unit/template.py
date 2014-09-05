@@ -21,23 +21,62 @@
 ==============================================
 """
 
+import itertools
 import logging
 
 from plainbox.i18n import gettext as _
 from plainbox.impl.resource import ExpressionFailedError
+from plainbox.impl.resource import Resource
 from plainbox.impl.resource import ResourceProgram
 from plainbox.impl.resource import parse_imports_stmt
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.unit import all_units
 from plainbox.impl.unit._legacy import TemplateUnitLegacyAPI
-from plainbox.impl.unit.job import JobDefinition
+from plainbox.impl.unit._legacy import TemplateUnitValidatorLegacyAPI
 from plainbox.impl.unit.unit import Unit
+from plainbox.impl.unit.unit import UnitValidator
+from plainbox.impl.unit.validators import CorrectFieldValueValidator
+from plainbox.impl.unit.validators import PresentFieldValidator
+from plainbox.impl.unit.validators import ReferenceConstraint
+from plainbox.impl.unit.validators import TemplateInvariantFieldValidator
+from plainbox.impl.unit.validators import UnitReferenceValidator
+from plainbox.impl.unit.validators import UntranslatableFieldValidator
+from plainbox.impl.validation import Problem
+from plainbox.impl.validation import Severity
 
 
 __all__ = ['TemplateUnit']
 
 
 logger = logging.getLogger("plainbox.unit.template")
+
+
+class TemplateUnitValidator(UnitValidator, TemplateUnitValidatorLegacyAPI):
+    """
+    Validator for template unit
+    """
+
+    def check(self, unit):
+        for issue in super().check(unit):
+            yield issue
+        # Apart from all the per-field checks, ensure that the unit,
+        # if instantiated with fake resource, produces a valid target unit
+        accessed_parameters = unit.get_accessed_parameters(force=True)
+        resource = Resource({
+            key: key.upper()
+            for key in set(itertools.chain(*accessed_parameters.values()))
+        })
+        try:
+            new_unit = unit.instantiate_one(resource)
+        except Exception as exc:
+            self.error(unit, unit.Meta.fields.template_unit, Problem.wrong,
+                       _("unable to instantiate template: {}").format(exc))
+        else:
+            # TODO: we may need some origin translation to correlate issues
+            # back to the template.
+            for issue in new_unit.check():
+                self.issue_list.append(issue)
+                yield issue
 
 
 class TemplateUnit(Unit, TemplateUnitLegacyAPI):
@@ -64,7 +103,7 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
     """
 
     def __init__(self, data, origin=None, provider=None, raw_data=None,
-                 field_offset_map=None):
+                 parameters=None, field_offset_map=None):
         """
         Initialize a new TemplateUnit instance.
 
@@ -85,6 +124,12 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
         :param raw_data:
             An (optional) raw version of data, without whitespace
             normalization. If omitted then raw_data is assumed to be data.
+        :param parameters:
+            An (optional) dictionary of parameters. Parameters allow for unit
+            properties to be altered while maintaining a single definition.
+            This is required to obtain translated summary and description
+            fields, while having a single translated base text and any
+            variation in the available parameters.
 
         .. note::
             You should almost always use :meth:`from_rfc822_record()` instead.
@@ -92,22 +137,33 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
         if origin is None:
             origin = Origin.get_caller_origin()
         super().__init__(
-            data, raw_data, origin, provider, field_offset_map=field_offset_map)
+            data, raw_data, origin, provider, parameters, field_offset_map)
         self._filter_program = None
+
+    @classmethod
+    def instantiate_template(cls, data, raw_data, origin, provider, parameters,
+                             field_offset_map):
+        """
+        Instantiate this unit from a template.
+
+        The point of this method is to have a fixed API, regardless of what the
+        API of a particular unit class ``__init__`` method actually looks like.
+
+        It is easier to standardize on a new method that to patch all of the
+        initializers, code using them and tests to have an uniform initializer.
+        """
+        # This assertion is a low-cost trick to ensure that we override this
+        # method in all of the subclasses to ensure that the initializer is
+        # called with correctly-ordered arguments.
+        assert cls is TemplateUnit, \
+            "{}.instantiate_template() not customized".format(cls.__name__)
+        return cls(data, raw_data, origin, provider, parameters,
+                   field_offset_map)
 
     def __str__(self):
         return "{} <~ {}".format(self.id, self.resource_id)
 
-    class fields(JobDefinition.fields):
-        """
-        Symbols for each field that a TemplateUnit can have
-        """
-        template_unit = 'template-unit'
-        template_resource = 'template-resource'
-        template_filter = 'template-filter'
-        template_imports = 'template-imports'
-
-    def get_unit_type(self):
+    def tr_unit(self):
         return _("template")
 
     @property
@@ -121,8 +177,8 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
 
     @property
     def id(self):
-        if self._provider:
-            return "{}::{}".format(self._provider.namespace, self.partial_id)
+        if self.provider:
+            return "{}::{}".format(self.provider.namespace, self.partial_id)
         else:
             return self.partial_id
 
@@ -201,8 +257,8 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
         """
         value of the 'template-unit' field
 
-        This attribute stores the name of the unit that this template intends
-        to instantiate. It defaults to 'unit' for backwards compatibility and
+        This attribute stores the type of the unit that this template intends
+        to instantiate. It defaults to 'job' for backwards compatibility and
         simplicity.
         """
         return self.get_record_value('template-unit', 'job')
@@ -245,16 +301,15 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
             A subclass of Unit the template will try to instantiate. If there
             is no ``template-unit`` field in the template then a ``job``
             template is assumed.
+        :raises KeyError:
+            if the field 'template-unit' refers to unknown unit or is undefined
 
         .. note::
             Typically this will return a JobDefinition class but it's not the
             only possible value.
         """
         all_units.load()
-        unit_cls = all_units.get_by_name(self.template_unit).plugin_object
-        assert isinstance(unit_cls, type)
-        assert issubclass(unit_cls, Unit)
-        return unit_cls
+        return all_units.get_by_name(self.template_unit).plugin_object
 
     def instantiate_all(self, resource_list):
         """
@@ -343,3 +398,74 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
             })
         except ExpressionFailedError:
             return False
+
+    class Meta(Unit.Meta, TemplateUnitLegacyAPI.Meta):
+
+        class fields(Unit.Meta.fields):
+            """
+            Symbols for each field that a TemplateUnit can have
+            """
+            template_unit = 'template-unit'
+            template_resource = 'template-resource'
+            template_filter = 'template-filter'
+            template_imports = 'template-imports'
+
+        validator_cls = TemplateUnitValidator
+
+        field_validators = {}
+        field_validators.update(Unit.Meta.field_validators)
+        field_validators.update({
+            fields.template_unit: [
+                UntranslatableFieldValidator,
+                CorrectFieldValueValidator(
+                    lambda value, unit: (
+                        unit.get_record_value('template-unit') is not None),
+                    Problem.missing, Severity.advice, message=_(
+                        "template should explicitly define instantiated"
+                        " unit type")),
+            ],
+            fields.template_resource: [
+                UntranslatableFieldValidator,
+                PresentFieldValidator,
+                UnitReferenceValidator(
+                    lambda unit: (
+                        [unit.resource_id] if unit.resource_id else []),
+                    constraints=[
+                        ReferenceConstraint(
+                            lambda referrer, referee: referee.unit == 'job',
+                            message=_("the referenced unit is not a job")),
+                        ReferenceConstraint(
+                            lambda referrer, referee: (
+                                referee.plugin == 'resource'),
+                            onlyif=lambda referrer, referee: (
+                                referee.unit == 'job'),
+                            message=_(
+                                "the referenced job is not a resource job")),
+                    ]),
+                # TODO: should not refer to deprecated job,
+                #       onlyif job itself is not deprecated
+            ],
+            fields.template_filter: [
+                UntranslatableFieldValidator,
+                # All templates need a valid (or empty) template filter
+                CorrectFieldValueValidator(
+                    lambda value, unit: unit.get_filter_program(),
+                    onlyif=lambda unit: unit.template_filter is not None),
+                # TODO: must refer to the same job as template-resource
+            ],
+            fields.template_imports: [
+                UntranslatableFieldValidator,
+                CorrectFieldValueValidator(
+                    lambda value, unit: (
+                        list(unit.get_imported_jobs()) is not None)),
+                CorrectFieldValueValidator(
+                    lambda value, unit: (
+                        len(list(unit.get_imported_jobs())) in (0, 1)),
+                    message=_("at most one import statement is allowed")),
+                # TODO: must refer to known or possibly-known job
+                # TODO: should not refer to deprecated jobs,
+                #       onlyif job itself is not deprecated
+            ],
+        })
+
+TemplateUnit.fields = TemplateUnit.Meta.fields

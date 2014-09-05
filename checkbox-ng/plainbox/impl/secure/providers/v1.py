@@ -44,6 +44,7 @@ from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 from plainbox.impl.secure.rfc822 import load_rfc822_records
 from plainbox.impl.unit import all_units
 from plainbox.impl.validation import ValidationError
+from plainbox.impl.validation import Severity
 
 
 logger = logging.getLogger("plainbox.secure.providers.v1")
@@ -96,7 +97,8 @@ class UnitPlugIn(IPlugIn):
         return all_units.get_by_name(unit_name).plugin_object
 
     def __init__(self, filename, text, provider, *,
-                 validate=True, validation_kwargs=None):
+                 validate=True, validation_kwargs=None,
+                 check=False, context=None):
         """
         Initialize the plug-in with the specified name text
 
@@ -114,6 +116,13 @@ class UnitPlugIn(IPlugIn):
         :param validation_kwargs:
             Keyword arguments to pass to the Unit.validate().  Note, this is a
             single argument. This is a keyword-only argument.
+        :param check:
+            Enable unit checking. Incorrect unit definitions will not be loaded
+            and will abort the process of loading of the remainder of the jobs.
+            This is OFF by default to prevent broken units from being used.
+            This is a keyword-only argument.
+        :param context:
+            If checking, use this validation context.
         """
         self._filename = filename
         self._unit_list = []
@@ -140,6 +149,11 @@ class UnitPlugIn(IPlugIn):
                 raise PlugInError(
                     _("Cannot define unit from record {!r}: {}").format(
                         record, exc))
+            if check:
+                for issue in unit.check(context=context, live=True):
+                    if issue.severity is Severity.error:
+                        raise PlugInError(
+                            _("Problem in unit definition, {}").format(issue))
             if validate:
                 try:
                     unit.validate(**validation_kwargs)
@@ -180,7 +194,7 @@ class Provider1(IProvider1, IProviderBackend1):
     def __init__(self, name, version, description, secure, gettext_domain,
                  units_dir, jobs_dir, whitelists_dir, data_dir, bin_dir,
                  locale_dir, base_dir, *, validate=True,
-                 validation_kwargs=None):
+                 validation_kwargs=None, check=False, context=None):
         """
         Initialize a provider with a set of meta-data and directories.
 
@@ -255,7 +269,7 @@ class Provider1(IProvider1, IProviderBackend1):
         self._base_dir = base_dir
         # Load and setup everything
         self._load_whitelists()
-        self._load_units(validate, validation_kwargs)
+        self._load_units(validate, validation_kwargs, check, context)
         self._setup_translations()
 
     def _load_whitelists(self):
@@ -267,7 +281,7 @@ class Provider1(IProvider1, IProviderBackend1):
             whitelists_dir_list, ext=".whitelist", wrapper=WhiteListPlugIn,
             implicit_namespace=self.namespace)
 
-    def _load_units(self, validate, validation_kwargs):
+    def _load_units(self, validate, validation_kwargs, check, context):
         units_dir_list = []
         if self.jobs_dir is not None:
             units_dir_list.append(self.jobs_dir)
@@ -276,15 +290,16 @@ class Provider1(IProvider1, IProviderBackend1):
         self._unit_collection = FsPlugInCollection(
             units_dir_list, ext=(".txt", ".txt.in", ".pxu"), recursive=True,
             wrapper=UnitPlugIn, provider=self, validate=validate,
-            validation_kwargs=validation_kwargs)
+            validation_kwargs=validation_kwargs, check=check, context=context)
 
     def _setup_translations(self):
         if self._gettext_domain and self._locale_dir:
             gettext.bindtextdomain(self._gettext_domain, self._locale_dir)
 
     @classmethod
-    def from_definition(cls, definition, secure, *, validate=True,
-                        validation_kwargs=None):
+    def from_definition(cls, definition, secure, *,
+                        validate=True, validation_kwargs=None, check=False,
+                        context=None):
         """
         Initialize a provider from Provider1Definition object
 
@@ -320,7 +335,7 @@ class Provider1(IProvider1, IProviderBackend1):
             definition.effective_whitelists_dir, definition.effective_data_dir,
             definition.effective_bin_dir, definition.effective_locale_dir,
             definition.location or None, validate=validate,
-            validation_kwargs=validation_kwargs)
+            validation_kwargs=validation_kwargs, check=check, context=context)
 
     def __repr__(self):
         return "<{} name:{!r}>".format(self.__class__.__name__, self.name)
@@ -1017,7 +1032,8 @@ class Provider1PlugIn(IPlugIn):
     files
     """
 
-    def __init__(self, filename, definition_text):
+    def __init__(self, filename, definition_text, *, validate=None,
+                 validation_kwargs=None, check=None, context=None):
         """
         Initialize the plug-in with the specified name and external object
         """
@@ -1034,7 +1050,9 @@ class Provider1PlugIn(IPlugIn):
         # Get the secure flag
         secure = os.path.dirname(filename) in get_secure_PROVIDERPATH_list()
         # Initialize the provider object
-        self._provider = Provider1.from_definition(definition, secure)
+        self._provider = Provider1.from_definition(
+            definition, secure, validate=validate,
+            validation_kwargs=validation_kwargs, check=check, context=context)
 
     def __repr__(self):
         return "<{!s} plugin_name:{!r}>".format(
@@ -1087,9 +1105,10 @@ class SecureProvider1PlugInCollection(FsPlugInCollection):
     :class:`plainbox.impl.providers.v1.InsecureProvider1PlugInCollection`
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         dir_list = get_secure_PROVIDERPATH_list()
-        super().__init__(dir_list, '.provider', wrapper=Provider1PlugIn)
+        super().__init__(dir_list, '.provider', wrapper=Provider1PlugIn,
+                         **kwargs)
 
 
 # Collection of all providers

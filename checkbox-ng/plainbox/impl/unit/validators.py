@@ -22,7 +22,6 @@
 """
 
 import abc
-import collections
 import inspect
 import itertools
 import logging
@@ -86,8 +85,12 @@ class UnitValidationContext:
         :param provider_list:
             A list of Provider1 objects
         """
-        self.provider_list = provider_list
+        self._provider_list = provider_list
         self._shared_cache = {}
+
+    @property
+    def provider_list(self):
+        return self._provider_list
 
     def compute_shared(self, cache_key, func, *args, **kwargs):
         """
@@ -478,14 +481,19 @@ class ShellProgramValidator(FieldValidatorBase):
                 pass
             else:
                 lex = shlex.shlex(value, posix=True)
+                token = None
                 try:
                     for token in lex:
                         pass
                 except ValueError as exc:
-                    yield parent.error(
-                        unit, field, Problem.syntax_error,
-                        "{}, near {!r}, {}".format(exc, token, lex.lineno),
-                        lex.lineno - 1)
+                    if token is not None:
+                        yield parent.error(
+                            unit, field, Problem.syntax_error,
+                            "{}, near {!r}".format(exc, token), lex.lineno - 1)
+                    else:
+                        yield parent.error(
+                            unit, field, Problem.syntax_error, str(exc),
+                            lex.lineno - 1)
 
 
 def compute_value_map(context, field):
@@ -554,6 +562,27 @@ class UniqueValueValidator(FieldValidatorBase):
                     if other_unit is not unit))
 
 
+class ReferenceConstraint:
+    """
+    Description of a constraint on a unit reference
+
+    :attr constraint_fn:
+        A function fn(referrer, referee) that describes the constraint.
+        The function must return True in order for the constraint to hold.
+    :attr message:
+        Message that should be reported when the constraint fails to hold
+    :attr onlyif:
+        An (optional) function fn(referrer, referee) that checks if the
+        constraint should be checked or not. It must return True for the
+        ``constraint_fn`` to make sense.
+    """
+
+    def __init__(self, constraint_fn, message, *, onlyif=None):
+        self.constraint_fn = constraint_fn
+        self.onlyif = onlyif
+        self.message = message
+
+
 class UnitReferenceValidator(FieldValidatorBase):
     """
     Validator that checks if a field references another unit
@@ -579,7 +608,7 @@ class UnitReferenceValidator(FieldValidatorBase):
         value_list = self.get_references_fn(unit)
         if value_list is None:
             value_list = []
-        elif not isinstance(value_list, collections.abc.Iterable):
+        elif not isinstance(value_list, (list, tuple, set)):
             value_list = [value_list]
         for unit_id in value_list:
             try:
@@ -589,7 +618,7 @@ class UnitReferenceValidator(FieldValidatorBase):
                 yield parent.error(
                     unit, field, Problem.bad_reference,
                     self.message or _(
-                        "unit {} is not available"
+                        "unit {!a} is not available"
                     ).format(unit_id))
                 continue
             n = len(units_with_this_id)
@@ -598,10 +627,14 @@ class UnitReferenceValidator(FieldValidatorBase):
                 referrer = unit
                 referee = units_with_this_id[0]
                 for constraint in self.constraints:
-                    if not constraint(referrer, referee):
+                    if constraint.onlyif is not None and not constraint.onlyif(
+                            referrer, referee):
+                        continue
+                    if not constraint.constraint_fn(referrer, referee):
                         yield parent.error(
                             unit, field, Problem.bad_reference,
-                            self.message or _("referee constraint failed"))
+                            self.message or constraint.message
+                            or _("referee constraint failed"))
             elif n > 1:
                 # more than one is also good, which one are we targeting?
                 yield parent.error(

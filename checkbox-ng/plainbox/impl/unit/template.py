@@ -141,15 +141,6 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
     def tr_unit(self):
         return _("template")
 
-    class fields(Unit.Meta.fields):
-        """
-        Symbols for each field that a TemplateUnit can have
-        """
-        template_unit = 'template-unit'
-        template_resource = 'template-resource'
-        template_filter = 'template-filter'
-        template_imports = 'template-imports'
-
     @property
     def partial_id(self):
         """
@@ -452,3 +443,5 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
                 #       onlyif job itself is not deprecated
             ],
         })
+
+TemplateUnit.fields = TemplateUnit.Meta.fields

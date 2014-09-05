@@ -208,9 +208,6 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
         """
         return _("job")
 
-    def get_unit_type(self):
-        return _("job")
-
     @property
     def partial_id(self):
         """

@@ -100,7 +100,7 @@ class UnitValidator:
             field_validator is an instance of :class:`IFieldValidator` and
             field is a symbol with the field name.
         """
-        for field, spec in unit.Meta.field_validators.items():
+        for field, spec in sorted(unit.Meta.field_validators.items()):
             if isinstance(spec, type):
                 validator_list = [spec]
             elif isinstance(spec, list):

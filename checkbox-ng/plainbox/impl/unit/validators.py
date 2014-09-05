@@ -22,7 +22,6 @@
 """
 
 import abc
-import collections
 import inspect
 import itertools
 import logging
@@ -609,7 +608,7 @@ class UnitReferenceValidator(FieldValidatorBase):
         value_list = self.get_references_fn(unit)
         if value_list is None:
             value_list = []
-        elif not isinstance(value_list, collections.abc.Iterable):
+        elif not isinstance(value_list, (list, tuple, set)):
             value_list = [value_list]
         for unit_id in value_list:
             try:

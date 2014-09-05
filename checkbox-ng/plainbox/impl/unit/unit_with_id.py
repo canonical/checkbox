@@ -51,6 +51,14 @@ class UnitWithId(Unit, UnitWithIdLegacyAPI):
 
     @property
     def id(self):
+        """
+        Identifier of this unit, with the provider namespace.
+
+        .. note::
+            In rare (unit tests only?) edge case a Unit can be separated
+            from the parent provider. In that case the value of ``id`` is
+            always equal to ``partial_id``.
+        """
         if self.provider:
             return "{}::{}".format(self.provider.namespace, self.partial_id)
         else:

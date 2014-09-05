@@ -309,10 +309,7 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
             only possible value.
         """
         all_units.load()
-        unit_cls = all_units.get_by_name(self.template_unit).plugin_object
-        assert isinstance(unit_cls, type)
-        assert issubclass(unit_cls, Unit)
-        return unit_cls
+        return all_units.get_by_name(self.template_unit).plugin_object
 
     def instantiate_all(self, resource_list):
         """

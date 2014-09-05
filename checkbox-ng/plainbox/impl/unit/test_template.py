@@ -70,7 +70,7 @@ class TemplateUnitValidator(TestCase):
                 'id': 'constant',
             }).validate()
         self.assertEqual(
-            boom.exception.field, TemplateUnit.fields.id)
+            boom.exception.field, JobDefinition.fields.id)
         self.assertEqual(boom.exception.problem, Problem.constant)
 
     def test_checks_if_plugin_is_variable(self):
@@ -81,7 +81,7 @@ class TemplateUnitValidator(TestCase):
                 'plugin': 'variable-{attr}',
             }).validate()
         self.assertEqual(
-            boom.exception.field, TemplateUnit.fields.plugin)
+            boom.exception.field, JobDefinition.fields.plugin)
         self.assertEqual(boom.exception.problem, Problem.variable)
 
     def test_checks_if_summary_is_constant(self):
@@ -93,7 +93,7 @@ class TemplateUnitValidator(TestCase):
                 'summary': 'constant',
             }).validate()
         self.assertEqual(
-            boom.exception.field, TemplateUnit.fields.summary)
+            boom.exception.field, JobDefinition.fields.summary)
         self.assertEqual(boom.exception.problem, Problem.constant)
 
     def test_checks_if_description_is_constant(self):
@@ -106,7 +106,7 @@ class TemplateUnitValidator(TestCase):
                 'description': 'constant',
             }).validate()
         self.assertEqual(
-            boom.exception.field, TemplateUnit.fields.description)
+            boom.exception.field, JobDefinition.fields.description)
         self.assertEqual(boom.exception.problem, Problem.constant)
 
     def test_checks_if_command_is_constant(self):
@@ -120,7 +120,7 @@ class TemplateUnitValidator(TestCase):
                 'command': 'constant',
             }).validate()
         self.assertEqual(
-            boom.exception.field, TemplateUnit.fields.command)
+            boom.exception.field, JobDefinition.fields.command)
         self.assertEqual(boom.exception.problem, Problem.constant)
 
     def test_checks_if_user_is_variable(self):
@@ -135,7 +135,7 @@ class TemplateUnitValidator(TestCase):
                 'user': 'variable-{attr}',
             }).validate()
         self.assertEqual(
-            boom.exception.field, TemplateUnit.fields.user)
+            boom.exception.field, JobDefinition.fields.user)
         self.assertEqual(boom.exception.problem, Problem.variable)
 
     def test_checks_instantiated_job(self):

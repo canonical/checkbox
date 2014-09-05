@@ -294,16 +294,11 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
         second.
         """
         value = self.get_record_value('estimated_duration')
-        # TODO: make the error case case detected by job validator
-        if value is None:
-            return
-        try:
-            return float(value)
-        except ValueError:
-            # TRANSLATORS: keep "estimated_duration" untranslated.
-            logger.warning(
-                _("Incorrect value of 'estimated_duration' in job"
-                  " %s read from %s"), self.id, self.origin)
+        if value is not None:
+            try:
+                return float(value)
+            except ValueError:
+                pass
 
     @property
     def controller(self):

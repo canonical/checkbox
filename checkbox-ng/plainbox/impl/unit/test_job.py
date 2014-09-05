@@ -1,8 +1,9 @@
 # This file is part of Checkbox.
 #
-# Copyright 2013 Canonical Ltd.
+# Copyright 2012-2014 Canonical Ltd.
 # Written by:
 #   Sylvain Pineau <sylvain.pineau@canonical.com>
+#   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -31,7 +32,11 @@ from plainbox.impl.secure.origin import JobOutputTextSource
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.rfc822 import RFC822Record
 from plainbox.impl.unit.job import JobDefinition
+from plainbox.impl.unit.test_unit_with_id import UnitWithIdFieldValidationTests
+from plainbox.impl.unit.unit_with_id import UnitWithId
+from plainbox.impl.unit.validators import UnitValidationContext
 from plainbox.impl.validation import Problem
+from plainbox.impl.validation import Severity
 from plainbox.impl.validation import ValidationError
 from plainbox.testing_utils.testcases import TestCaseWithParameters
 from plainbox.vendor import mock
@@ -166,6 +171,466 @@ class JobDefinitionParsingTests(TestCaseWithParameters):
         expected = set()
         observed = job.get_environ_settings()
         self.assertEqual(expected, observed)
+
+
+class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
+
+    unit_cls = JobDefinition
+
+    def test_unit__present(self):
+        # NOTE: this is overriding an identical method from the base class to
+        # disable this test.
+        pass
+
+    def test_name__untranslatable(self):
+        issue_list = self.unit_cls({
+            '_name': 'name'
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.name,
+                              Problem.unexpected_i18n, Severity.warning)
+
+    def test_name__template_variant(self):
+        issue_list = self.unit_cls({
+            'name': 'name'
+        }, parameters={}, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.name,
+                              Problem.constant, Severity.error)
+
+    def test_name__deprecated(self):
+        issue_list = self.unit_cls({
+            'name': 'name'
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.name,
+                              Problem.deprecated, Severity.advice)
+
+    def test_summary__translatable(self):
+        issue_list = self.unit_cls({
+            'summary': 'summary'
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.summary,
+                              Problem.expected_i18n, Severity.warning)
+
+    def test_summary__template_variant(self):
+        issue_list = self.unit_cls({
+            'summary': 'summary'
+        }, provider=self.provider, parameters={}).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.summary,
+                              Problem.constant, Severity.error)
+
+    def test_summary__present(self):
+        issue_list = self.unit_cls({
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.summary,
+                              Problem.missing, Severity.advice)
+
+    def test_summary__one_line(self):
+        issue_list = self.unit_cls({
+            'summary': 'line1\nline2'
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.summary,
+                              Problem.wrong, Severity.warning)
+
+    def test_summary__short_line(self):
+        issue_list = self.unit_cls({
+            'summary': 'x' * 81
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.summary,
+                              Problem.wrong, Severity.warning)
+
+    def test_plugin__untranslatable(self):
+        issue_list = self.unit_cls({
+            '_plugin': 'plugin'
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.plugin,
+                              Problem.unexpected_i18n, Severity.warning)
+
+    def test_plugin__template_invarinat(self):
+        issue_list = self.unit_cls({
+            'plugin': '{attr}'
+        }, parameters={'attr': 'plugin'}, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.plugin,
+                              Problem.variable, Severity.error)
+
+    def test_plugin__correct(self):
+        issue_list = self.unit_cls({
+            'plugin': 'foo'
+        }, provider=self.provider).check()
+        message = ("field 'plugin', valid values are: attachment, local,"
+                   " manual, resource, shell, user-interact,"
+                   " user-interact-verify, user-verify")
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.plugin,
+                              Problem.wrong, Severity.error, message)
+
+    def test_plugin__not_local(self):
+        issue_list = self.unit_cls({
+            'plugin': 'local'
+        }, provider=self.provider).check()
+        message = ("field 'plugin', please migrate to job templates, "
+                   "see plainbox-template-unit(7) for details")
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.plugin,
+                              Problem.deprecated, Severity.advice, message)
+
+    def test_plugin__not_user_verify(self):
+        issue_list = self.unit_cls({
+            'plugin': 'user-verify'
+        }, provider=self.provider).check()
+        message = "field 'plugin', please migrate to user-interact-verify"
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.plugin,
+                              Problem.deprecated, Severity.advice, message)
+
+    def test_command__untranslatable(self):
+        issue_list = self.unit_cls({
+            '_command': 'command'
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.command,
+                              Problem.unexpected_i18n, Severity.warning)
+
+    def test_command__template_variant(self):
+        issue_list = self.unit_cls({
+            'command': 'command'
+        }, parameters={}, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.command,
+                              Problem.constant, Severity.error)
+
+    def test_command__present__on_non_manual(self):
+        for plugin in self.unit_cls.plugin.symbols.get_all_symbols():
+            if plugin == 'manual':
+                continue
+            # TODO: switch to subTest() once we depend on python3.4
+            issue_list = self.unit_cls({
+                'plugin': plugin,
+            }, provider=self.provider).check()
+            self.assertIssueFound(
+                issue_list, self.unit_cls.Meta.fields.command,
+                Problem.missing, Severity.error)
+
+    def test_command__useless__on_manual(self):
+        issue_list = self.unit_cls({
+            'plugin': 'manual',
+            'command': 'command'
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.command,
+            Problem.useless, Severity.warning)
+
+    def test_command__not_using_CHECKBOX_SHARE(self):
+        issue_list = self.unit_cls({
+            'command': '$CHECKBOX_SHARE'
+        }, provider=self.provider).check()
+        message = ("field 'command', please use PLAINBOX_PROVIDER_DATA"
+                   " instead of CHECKBOX_SHARE")
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.command,
+            Problem.deprecated, Severity.advice, message)
+
+    def test_command__not_using_CHECKBOX_DATA(self):
+        issue_list = self.unit_cls({
+            'command': '$CHECKBOX_DATA'
+        }, provider=self.provider).check()
+        message = ("field 'command', please use PLAINBOX_SESSION_SHARE"
+                   " instead of CHECKBOX_DATA")
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.command,
+            Problem.deprecated, Severity.advice, message)
+
+    def test_command__has_valid_syntax(self):
+        issue_list = self.unit_cls({
+            'command': """# Echo a few numbers
+            for i in 1 2 "3; do
+                echo $i
+            done"""
+        }, provider=self.provider).check()
+        message = ("field 'command', No closing quotation, near '2'")
+        issue = self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.command,
+            Problem.syntax_error, Severity.error, message)
+        # Make sure the offset was good too. Since offset is dependant on the
+        # place where we instantiate the unit in the self.unit_cls({}) line
+        # above let's just ensure that the reported error is at a +3 offset
+        # from that line. Note, the offset is a bit confusing since the error
+        # is on line reading 'for i in 1 2 "3; do' but shlex will actually only
+        # report it at the end of the input which is the line with 'done'
+        self.assertEqual(
+            issue.origin.line_start,
+            issue.unit.origin.line_start + 3)
+
+    def test_description__translatable(self):
+        issue_list = self.unit_cls({
+            'description': 'description'
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.description,
+            Problem.expected_i18n, Severity.warning)
+
+    def test_description__template_variant(self):
+        issue_list = self.unit_cls({
+            'description': 'description'
+        }, parameters={}, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.description,
+            Problem.constant, Severity.error)
+
+    def test_description__present__on_non_manual(self):
+        message = "field 'description', all jobs should have a description"
+        for plugin in self.unit_cls.plugin.symbols.get_all_symbols():
+            if plugin == 'manual':
+                continue
+            # TODO: switch to subTest() once we depend on python3.4
+            issue_list = self.unit_cls({
+                'plugin': plugin
+            }, provider=self.provider).check()
+            self.assertIssueFound(
+                issue_list, self.unit_cls.Meta.fields.description,
+                Problem.missing, Severity.advice, message)
+
+    def test_description__present__on_manual(self):
+        message = "field 'description', manual jobs must have a description"
+        issue_list = self.unit_cls({
+            'plugin': 'manual'
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.description,
+            Problem.missing, Severity.error, message)
+
+    def test_user__untranslatable(self):
+        issue_list = self.unit_cls({
+            '_user': 'user'
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.user,
+                              Problem.unexpected_i18n, Severity.warning)
+
+    def test_user__template_invarinat(self):
+        issue_list = self.unit_cls({
+            'user': '{attr}'
+        }, parameters={'attr': 'user'}, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.user,
+                              Problem.variable, Severity.error)
+
+    def test_user__defined_but_not_root(self):
+        message = "field 'user', user can only be 'root'"
+        issue_list = self.unit_cls({
+            'user': 'user'
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.user,
+                              Problem.wrong, Severity.error, message)
+
+    def test_user__useless_without_command(self):
+        message = "field 'user', user without a command makes no sense"
+        issue_list = self.unit_cls({
+            'user': 'user'
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.user,
+                              Problem.useless, Severity.warning, message)
+
+    def test_environ__untranslatable(self):
+        issue_list = self.unit_cls({'_environ': 'environ'}).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.environ,
+                              Problem.unexpected_i18n, Severity.warning)
+
+    def test_environ__template_invarinat(self):
+        issue_list = self.unit_cls({
+            'environ': '{attr}'
+        }, parameters={'attr': 'environ'}, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.environ,
+                              Problem.variable, Severity.error)
+
+    def test_environ__useless_without_command(self):
+        message = "field 'environ', environ without a command makes no sense"
+        issue_list = self.unit_cls({
+            'environ': 'environ'
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.environ,
+                              Problem.useless, Severity.warning, message)
+
+    def test_estimated_duration__untranslatable(self):
+        issue_list = self.unit_cls({
+            '_estimated_duration': 'estimated_duration'
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.estimated_duration,
+            Problem.unexpected_i18n, Severity.warning)
+
+    def test_estimated_duration__template_invarinat(self):
+        issue_list = self.unit_cls({
+            'estimated_duration': '{attr}'
+        }, parameters={'attr': 'value'}, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.estimated_duration,
+            Problem.variable, Severity.error)
+
+    def test_estimated_duration__present(self):
+        issue_list = self.unit_cls({
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.estimated_duration,
+            Problem.missing, Severity.advice)
+
+    def test_estimated_duration__positive(self):
+        issue_list = self.unit_cls({
+            'estimated_duration': '0'
+        }, provider=self.provider).check()
+        message = "field 'estimated_duration', value must be a positive number"
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.estimated_duration,
+            Problem.wrong, Severity.error, message)
+
+    def test_depends__untranslatable(self):
+        issue_list = self.unit_cls({
+            '_depends': 'depends'
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.depends,
+            Problem.unexpected_i18n, Severity.warning)
+
+    def test_depends__refers_to_other_units(self):
+        unit = self.unit_cls({
+            'depends': 'some-unit'
+        }, provider=self.provider)
+        message = "field 'depends', unit 'ns::some-unit' is not available"
+        self.provider.get_units.return_value = ([unit], ())
+        context = UnitValidationContext([self.provider])
+        issue_list = unit.check(context=context)
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.depends,
+            Problem.bad_reference, Severity.error, message)
+
+    def test_depends__refers_to_other_jobs(self):
+        other_unit = UnitWithId({
+            'id': 'some-unit'
+        }, provider=self.provider)
+        unit = self.unit_cls({
+            'depends': 'some-unit'
+        }, provider=self.provider)
+        message = "field 'depends', the referenced unit is not a job"
+        self.provider.get_units.return_value = ([unit, other_unit], ())
+        context = UnitValidationContext([self.provider])
+        issue_list = unit.check(context=context)
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.depends,
+            Problem.bad_reference, Severity.error, message)
+
+    def test_requires__untranslatable(self):
+        issue_list = self.unit_cls({
+            '_requires': 'requires'
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.requires,
+            Problem.unexpected_i18n, Severity.warning)
+
+    def test_requires__refers_to_other_units(self):
+        unit = self.unit_cls({
+            'requires': 'some_unit.attr == "value"'
+        }, provider=self.provider)
+        message = "field 'requires', unit 'ns::some_unit' is not available"
+        self.provider.get_units.return_value = ([unit], ())
+        context = UnitValidationContext([self.provider])
+        issue_list = unit.check(context=context)
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.requires,
+            Problem.bad_reference, Severity.error, message)
+
+    def test_requires__refers_to_other_jobs(self):
+        other_unit = UnitWithId({
+            'id': 'some_unit'
+        }, provider=self.provider)
+        unit = self.unit_cls({
+            'requires': 'some_unit.attr == "value"'
+        }, provider=self.provider)
+        message = "field 'requires', the referenced unit is not a job"
+        self.provider.get_units.return_value = ([unit, other_unit], ())
+        context = UnitValidationContext([self.provider])
+        issue_list = unit.check(context=context)
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.requires,
+            Problem.bad_reference, Severity.error, message)
+
+    def test_requires__refers_to_other_resource_jobs(self):
+        other_unit = JobDefinition({
+            'id': 'some_unit', 'plugin': 'shell'
+        }, provider=self.provider)
+        unit = self.unit_cls({
+            'requires': 'some_unit.attr == "value"'
+        }, provider=self.provider)
+        message = "field 'requires', the referenced job is not a resource job"
+        self.provider.get_units.return_value = ([unit, other_unit], ())
+        context = UnitValidationContext([self.provider])
+        issue_list = unit.check(context=context)
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.requires,
+            Problem.bad_reference, Severity.error, message)
+
+    def test_shell__untranslatable(self):
+        issue_list = self.unit_cls({
+            '_shell': 'shell'
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.shell,
+                              Problem.unexpected_i18n, Severity.warning)
+
+    def test_shell__template_invarinat(self):
+        issue_list = self.unit_cls({
+            'shell': '{attr}'
+        }, parameters={'attr': 'shell'}, provider=self.provider).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.shell,
+                              Problem.variable, Severity.error)
+
+    def test_shell__defined_but_invalid(self):
+        message = "field 'shell', only /bin/sh and /bin/bash are allowed"
+        issue_list = self.unit_cls({'shell': 'shell'},).check()
+        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.shell,
+                              Problem.wrong, Severity.error, message)
+
+    def test_category_id__untranslatable(self):
+        issue_list = self.unit_cls({
+            '_category_id': 'category_id'
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.category_id,
+            Problem.unexpected_i18n, Severity.warning)
+
+    def test_category_id__template_invarinat(self):
+        issue_list = self.unit_cls({
+            'category_id': '{attr}'
+        }, parameters={'attr': 'category_id'}, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.category_id,
+            Problem.variable, Severity.error)
+
+    def test_category_id__refers_to_other_units(self):
+        unit = self.unit_cls({
+            'category_id': 'some-unit'
+        }, provider=self.provider)
+        message = "field 'category_id', unit 'ns::some-unit' is not available"
+        self.provider.get_units.return_value = ([unit], ())
+        context = UnitValidationContext([self.provider])
+        issue_list = unit.check(context=context)
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.category_id,
+            Problem.bad_reference, Severity.error, message)
+
+    def test_category_id__refers_to_other_jobs(self):
+        other_unit = UnitWithId({
+            'id': 'some-unit'
+        }, provider=self.provider)
+        unit = self.unit_cls({
+            'category_id': 'some-unit'
+        }, provider=self.provider)
+        message = "field 'category_id', the referenced unit is not a category"
+        self.provider.get_units.return_value = ([unit, other_unit], ())
+        context = UnitValidationContext([self.provider])
+        issue_list = unit.check(context=context)
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.category_id,
+            Problem.bad_reference, Severity.error, message)
+
+    def test_flags__preserve_locale_is_set(self):
+        message = ("field 'flags', please ensure that the command supports"
+                   " non-C locale then set the preserve-locale flag")
+        issue_list = self.unit_cls({
+            'command': 'command'
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.flags,
+            Problem.expected_i18n, Severity.advice, message)
 
 
 class JobDefinitionValidatorTests(TestCase):

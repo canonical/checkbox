@@ -66,7 +66,7 @@ class UnitWithIdFieldValidationTests(UnitFieldValidationTests):
         context = UnitValidationContext([self.provider])
         message_start = (
             "{} 'id', field 'id', clashes with 1 other unit,"
-            " look at: plainbox/impl/unit/"
+            " look at: "
         ).format(unit.tr_unit())
         issue_list = unit.check(context=context)
         issue = self.assertIssueFound(

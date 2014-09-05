@@ -121,4 +121,6 @@ class CategoryUnitTests(TestCase):
         self.assertEqual(boom.exception.problem, Problem.missing)
         self.assertEqual(boom.exception.field, 'name')
         # When both id and name are present, everything is OK
-        self.assertIsNone(CategoryUnit({'id': 'id', 'name': 'name'}).validate())
+        self.assertIsNone(CategoryUnit({
+            'id': 'id', 'name': 'name'
+        }).validate())

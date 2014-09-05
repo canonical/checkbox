@@ -24,6 +24,8 @@ plainbox.impl.exporter.test_xml
 
 Test definitions for plainbox.impl.exporter.xml module
 """
+
+from lxml import etree
 from unittest import TestCase
 import io
 
@@ -130,6 +132,18 @@ class XMLExporterTests(TestCase):
         self.assertTrue(
             validator.validate_text(
                 self.actual_result))
+
+    def test_questions_ordered_by_id(self):
+       # parse self.actual_result
+        root = etree.fromstring(self.actual_result)
+        # Tests are called "questions" in xml
+        questions = root.find("questions")
+        # Ensure we only have one questions element
+        self.assertNotIsInstance(questions, list)
+        # Flatten each question to just their name attributes
+        names = [ques.attrib.get('name', None) for ques in questions]
+        # Ensure they are in order
+        self.assertEqual(names, sorted(names))
 
     def test_client_name_option_takes_precedence(self):
         # We use trickery to verify the xml final report has the client name

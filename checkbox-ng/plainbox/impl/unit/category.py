@@ -40,6 +40,7 @@ from plainbox.impl.unit.validators import TranslatableFieldValidator
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
 
+__all__ = ['CategoryUnit']
 
 logger = logging.getLogger("plainbox.unit.category")
 

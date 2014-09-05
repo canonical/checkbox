@@ -478,14 +478,19 @@ class ShellProgramValidator(FieldValidatorBase):
                 pass
             else:
                 lex = shlex.shlex(value, posix=True)
+                token = None
                 try:
                     for token in lex:
                         pass
                 except ValueError as exc:
-                    yield parent.error(
-                        unit, field, Problem.syntax_error,
-                        "{}, near {!r}, {}".format(exc, token, lex.lineno),
-                        lex.lineno - 1)
+                    if token is not None:
+                        yield parent.error(
+                            unit, field, Problem.syntax_error,
+                            "{}, near {!r}".format(exc, token), lex.lineno - 1)
+                    else:
+                        yield parent.error(
+                            unit, field, Problem.syntax_error, str(exc),
+                            lex.lineno - 1)
 
 
 def compute_value_map(context, field):

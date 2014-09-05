@@ -297,8 +297,9 @@ class Provider1(IProvider1, IProviderBackend1):
             gettext.bindtextdomain(self._gettext_domain, self._locale_dir)
 
     @classmethod
-    def from_definition(cls, definition, secure, *, validate=True,
-                        validation_kwargs=None):
+    def from_definition(cls, definition, secure, *,
+                        validate=True, validation_kwargs=None, check=False,
+                        context=None):
         """
         Initialize a provider from Provider1Definition object
 
@@ -334,7 +335,7 @@ class Provider1(IProvider1, IProviderBackend1):
             definition.effective_whitelists_dir, definition.effective_data_dir,
             definition.effective_bin_dir, definition.effective_locale_dir,
             definition.location or None, validate=validate,
-            validation_kwargs=validation_kwargs)
+            validation_kwargs=validation_kwargs, check=check, context=context)
 
     def __repr__(self):
         return "<{} name:{!r}>".format(self.__class__.__name__, self.name)

@@ -92,7 +92,8 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
         if origin is None:
             origin = Origin.get_caller_origin()
         super().__init__(
-            data, raw_data, origin, provider, field_offset_map=field_offset_map)
+            data, raw_data, origin, provider,
+            field_offset_map=field_offset_map)
         self._filter_program = None
 
     def __str__(self):

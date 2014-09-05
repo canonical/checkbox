@@ -217,13 +217,6 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
         """
         return self.get_record_value('id', self.get_record_value('name'))
 
-    @property
-    def id(self):
-        if self._provider:
-            return "{}::{}".format(self._provider.namespace, self.partial_id)
-        else:
-            return self.partial_id
-
     @propertywithsymbols(symbols=_PluginValues)
     def plugin(self):
         return self.get_record_value('plugin')

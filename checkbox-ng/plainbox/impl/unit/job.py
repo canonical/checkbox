@@ -186,25 +186,6 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
         return "<JobDefinition id:{!r} plugin:{!r}>".format(
             self.id, self.plugin)
 
-    class fields(SymbolDef):
-        """
-        Symbols for each field that a JobDefinition can have
-        """
-        name = 'name'
-        id = 'id'
-        summary = 'summary'
-        plugin = 'plugin'
-        command = 'command'
-        description = 'description'
-        user = 'user'
-        environ = 'environ'
-        estimated_duration = 'estimated_duration'
-        depends = 'depends'
-        requires = 'requires'
-        shell = 'shell'
-        imports = 'imports'
-        category_id = 'category_id'
-
     @property
     def unit(self):
         """
@@ -717,3 +698,6 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
                     onlyif=lambda unit: unit.command),
             ]
         })
+
+
+JobDefinition.fields = JobDefinition.Meta.fields

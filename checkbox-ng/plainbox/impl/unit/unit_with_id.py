@@ -94,3 +94,11 @@ class UnitWithId(Unit, UnitWithIdLegacyAPI):
             return "{}::{}".format(self.provider.namespace, self.partial_id)
         else:
             return self.partial_id
+
+    def tr_unit(self):
+        """
+        Translated (optionally) value of the unit field (overridden)
+
+        The return value is always 'unit-with-id' (translated)
+        """
+        return _("unit-with-id")

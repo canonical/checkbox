@@ -1101,9 +1101,10 @@ class SecureProvider1PlugInCollection(FsPlugInCollection):
     :class:`plainbox.impl.providers.v1.InsecureProvider1PlugInCollection`
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         dir_list = get_secure_PROVIDERPATH_list()
-        super().__init__(dir_list, '.provider', wrapper=Provider1PlugIn)
+        super().__init__(dir_list, '.provider', wrapper=Provider1PlugIn,
+                         **kwargs)
 
 
 # Collection of all providers

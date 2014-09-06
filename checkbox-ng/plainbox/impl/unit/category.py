@@ -31,6 +31,7 @@ in a compatible way.
 import logging
 
 from plainbox.i18n import gettext as _
+from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit._legacy import CategoryUnitLegacyAPI
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import CorrectFieldValueValidator
@@ -103,17 +104,15 @@ class CategoryUnit(UnitWithId, CategoryUnitLegacyAPI):
         """
         return self.get_translated_record_value("name")
 
-    class Meta(UnitWithId.Meta, CategoryUnitLegacyAPI.Meta):
+    class Meta:
 
-        class fields(UnitWithId.Meta.fields):
+        class fields(SymbolDef):
             """
             Symbols for each field that a JobDefinition can have
             """
             name = 'name'
 
-        field_validators = {}
-        field_validators.update(UnitWithId.Meta.field_validators)
-        field_validators.update({
+        field_validators = {
             fields.name: [
                 TranslatableFieldValidator,
                 TemplateVariantFieldValidator,
@@ -131,7 +130,4 @@ class CategoryUnit(UnitWithId, CategoryUnitLegacyAPI):
                     message=_("please stay under 80 characters"),
                     onlyif=lambda unit: unit.name is not None),
             ]
-        })
-
-
-CategoryUnit.fields = CategoryUnit.Meta.fields
+        }

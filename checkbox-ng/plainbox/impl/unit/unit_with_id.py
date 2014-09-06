@@ -24,6 +24,7 @@
 import logging
 
 from plainbox.i18n import gettext as _
+from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit._legacy import UnitWithIdLegacyAPI
 from plainbox.impl.unit._legacy import UnitWithIdValidatorLegacyAPI
 from plainbox.impl.unit.unit import Unit
@@ -108,15 +109,14 @@ class UnitWithId(Unit, UnitWithIdLegacyAPI):
         """
         return _("unit-with-id")
 
-    class Meta(Unit.Meta, UnitWithIdLegacyAPI.Meta):
+    class Meta:
 
-        class fields(Unit.Meta.fields):
+        class fields(SymbolDef):
             id = 'id'
 
         validator_cls = UnitWithIdValidator
 
-        field_validators = dict(Unit.Meta.field_validators)
-        field_validators.update({
+        field_validators = {
             fields.id: [
                 # We don't want anyone marking id up for translation
                 UntranslatableFieldValidator,
@@ -133,4 +133,4 @@ class UnitWithId(Unit, UnitWithIdLegacyAPI):
                     message=_("identifier cannot define a custom namespace"),
                     onlyif=lambda unit: unit.get_record_value('id')),
             ]
-        })
+        }

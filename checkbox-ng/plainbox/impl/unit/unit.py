@@ -21,6 +21,7 @@
 =================================================
 """
 
+import abc
 import collections
 import hashlib
 import json
@@ -30,7 +31,10 @@ import string
 from plainbox.i18n import gettext as _
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.rfc822 import normalize_rfc822_value
+from plainbox.impl.symbol import Symbol
 from plainbox.impl.symbol import SymbolDef
+from plainbox.impl.symbol import SymbolDefMeta
+from plainbox.impl.symbol import SymbolDefNs
 from plainbox.impl.unit import get_accessed_parameters
 from plainbox.impl.unit._legacy import UnitLegacyAPI
 from plainbox.impl.unit.validators import IFieldValidator
@@ -240,7 +244,97 @@ class UnitValidator:
     }
 
 
-class Unit(UnitLegacyAPI):
+class UnitType(abc.ABCMeta):
+    """
+    Meta-class for all Units
+
+    This metaclass is responsible for collecting meta-data about particular
+    units and exposing them in the special 'Meta' attribute of each class.
+
+    It also handles Meta inheritance so that SubUnit.Meta inherits from
+    Unit.Meta even if it was not specified directly.
+    """
+
+    def __new__(mcls, name, bases, ns):
+        # mro = super().__new__(mcls, name, bases, ns).__mro__
+        base_meta_list = [
+            base.Meta for base in bases if hasattr(base, 'Meta')]
+        our_meta = ns.get('Meta')
+        if our_meta is not None and base_meta_list:
+            new_meta_ns = dict(our_meta.__dict__)
+            new_meta_ns['__doc__'] = """
+                Collection of meta-data about :class:`{}`
+
+                This class is partially automatically generated.
+                It always inherits the Meta class of the base unit type.
+
+                This class has (at most) three attributes:
+
+                    `field_validators`:
+                        A dictionary mapping from each field to a list of
+                        :class:`IFieldvalidator:` that check that particular
+                        field for correctness.
+
+                    `fields`:
+                        A :class`SymbolDef` with a symbol for each field that
+                        this unit defines. This does not include dynamically
+                        created fields that are not a part of the unit itself.
+
+                    `validator_cls`:
+                        A :class:`UnitValidator` subclass that can be used to
+                        check this unit for correctness
+            """.format(name)
+            new_meta_bases = tuple(base_meta_list)
+            # Merge custom field_validators with base unit validators
+            if 'field_validators' in our_meta.__dict__:
+                merged_validators = dict()
+                for base_meta in base_meta_list:
+                    if hasattr(base_meta, 'field_validators'):
+                        merged_validators.update(base_meta.field_validators)
+                merged_validators.update(our_meta.field_validators)
+                new_meta_ns['field_validators'] = merged_validators
+            # Merge fields with base unit fields
+            if 'fields' in our_meta.__dict__:
+                # Look at all the base Meta classes and collect each
+                # Meta.fields class as our (real) list of base classes.
+                assert our_meta.fields.__bases__ == (SymbolDef,)
+                merged_fields_bases = [
+                    base_meta.fields
+                    for base_meta in base_meta_list
+                    if hasattr(base_meta, 'fields')]
+                # If there are no base classes then let's just inherit from the
+                # base SymbolDef class (not that we're actually ignoring any
+                # base classes on the our_meta.fields class as it can only be
+                # SymbolDef and nothing else is supported or makes sense.
+                if not merged_fields_bases:
+                    merged_fields_bases.append(SymbolDef)
+                # The list of base fields needs to be a tuple
+                merged_fields_bases = tuple(merged_fields_bases)
+                # Copy all of the Symbol objects out of the our_meta.field
+                # class that we're re-defining.
+                merged_fields_ns = SymbolDefNs()
+                for sym_name in dir(our_meta.fields):
+                    sym = getattr(our_meta.fields, sym_name)
+                    if isinstance(sym, Symbol):
+                        merged_fields_ns[sym_name] = sym
+                merged_fields_ns['__doc__'] = """
+                A symbol definition containing all fields used by :class:`{}`
+
+                This class is partially automatically generated. It always
+                inherits from the Meta.fields class of the base unit class.
+                """.format(name)
+                # Create a new class in place of the 'fields' defined in
+                # our_meta.fields.
+                fields = SymbolDefMeta(
+                    'fields', merged_fields_bases, merged_fields_ns)
+                fields.__qualname__ = '{}.Meta.fields'.format(name)
+                new_meta_ns['fields'] = fields
+            ns['Meta'] = type('Meta', new_meta_bases, new_meta_ns)
+        ns['fields'] = ns['Meta'].fields
+        return super().__new__(mcls, name, bases, ns)
+
+
+class Unit(UnitLegacyAPI, metaclass=UnitType):
     """
     Units are representations of data loaded from RFC822 definitions
 
@@ -676,7 +770,7 @@ class Unit(UnitLegacyAPI):
             for issue in validator.check_in_context(self, context):
                 yield issue
 
-    class Meta(UnitLegacyAPI.Meta):
+    class Meta:
         """
         Class containing additional meta-data about this unit.
 

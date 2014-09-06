@@ -471,9 +471,9 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
             raise ValueError(_("record.origin.source.job must be this job"))
         return self.from_rfc822_record(record, self.provider)
 
-    class Meta(UnitWithId.Meta, JobDefinitionLegacyAPI.Meta):
+    class Meta:
 
-        class fields(UnitWithId.Meta.fields):
+        class fields(SymbolDef):
             """
             Symbols for each field that a JobDefinition can have
             """
@@ -492,9 +492,7 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
             flags = 'flags'
             category_id = 'category_id'
 
-        field_validators = {}
-        field_validators.update(UnitWithId.Meta.field_validators)
-        field_validators.update({
+        field_validators = {
             fields.name: [
                 UntranslatableFieldValidator,
                 TemplateVariantFieldValidator,
@@ -699,7 +697,4 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
                     ),
                     onlyif=lambda unit: unit.command),
             ]
-        })
-
-
-JobDefinition.fields = JobDefinition.Meta.fields
+        }

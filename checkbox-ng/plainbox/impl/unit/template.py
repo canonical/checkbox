@@ -20,7 +20,6 @@
 :mod:`plainbox.impl.template` -- template unit
 ==============================================
 """
-
 import itertools
 import logging
 
@@ -38,7 +37,6 @@ from plainbox.impl.unit.unit import UnitValidator
 from plainbox.impl.unit.validators import CorrectFieldValueValidator
 from plainbox.impl.unit.validators import PresentFieldValidator
 from plainbox.impl.unit.validators import ReferenceConstraint
-from plainbox.impl.unit.validators import TemplateInvariantFieldValidator
 from plainbox.impl.unit.validators import UnitReferenceValidator
 from plainbox.impl.unit.validators import UntranslatableFieldValidator
 from plainbox.impl.validation import Problem

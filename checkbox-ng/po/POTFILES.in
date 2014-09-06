@@ -113,9 +113,16 @@
 ./plainbox/impl/transport.py
 ./plainbox/impl/unit/__init__.py
 ./plainbox/impl/unit/_legacy.py
+./plainbox/impl/unit/category.py
 ./plainbox/impl/unit/job.py
-./plainbox/impl/unit/test_init.py
+./plainbox/impl/unit/template.py
+./plainbox/impl/unit/test_category.py
 ./plainbox/impl/unit/test_job.py
+./plainbox/impl/unit/test_template.py
+./plainbox/impl/unit/test_unit.py
+./plainbox/impl/unit/unit.py
+./plainbox/impl/unit/unit_with_id.py
+./plainbox/impl/unit/validators.py
 ./plainbox/impl/validation.py
 ./plainbox/provider_manager.py
 ./plainbox/public.py

@@ -163,9 +163,6 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
     def __str__(self):
         return "{} <~ {}".format(self.id, self.resource_id)
 
-    def tr_unit(self):
-        return _("template")
-
     @property
     def partial_id(self):
         """

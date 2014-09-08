@@ -84,14 +84,6 @@ class CategoryUnit(UnitWithId, CategoryUnitLegacyAPI):
     def __repr__(self):
         return "<CategoryUnit id:{!r} name:{!r}>".format(self.id, self.name)
 
-    def tr_unit(self):
-        """
-        Translated name of the unit.
-
-        The return value is always 'category' (translated)
-        """
-        return _("category")
-
     @property
     def name(self):
         """

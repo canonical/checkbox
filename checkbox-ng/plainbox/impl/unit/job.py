@@ -198,14 +198,6 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
         """
         return 'job'
 
-    def tr_unit(self):
-        """
-        Translated (optionally) value of the unit field (overridden)
-
-        The return value is always 'job' (translated)
-        """
-        return _("job")
-
     @property
     def partial_id(self):
         """

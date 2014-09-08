@@ -102,14 +102,6 @@ class UnitWithId(Unit, UnitWithIdLegacyAPI):
         else:
             return self.partial_id
 
-    def tr_unit(self):
-        """
-        Translated (optionally) value of the unit field (overridden)
-
-        The return value is always 'unit-with-id' (translated)
-        """
-        return _("unit-with-id")
-
     class Meta:
 
         name = N_('unit-with-id')

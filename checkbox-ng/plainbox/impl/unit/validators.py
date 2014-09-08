@@ -513,7 +513,10 @@ def compute_value_map(context, field):
         *(provider.get_units()[0]
           for provider in context.provider_list))
     for unit in all_units:
-        value = getattr(unit, field2prop(field))
+        try:
+            value = getattr(unit, field2prop(field))
+        except AttributeError:
+            continue
         if value not in value_map:
             value_map[value] = [unit]
         else:

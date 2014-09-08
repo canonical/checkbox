@@ -72,6 +72,25 @@ class Origin:
         self.line_start = line_start
         self.line_end = line_end
 
+    def mode(self):
+        """
+        Compute the "mode" of this origin instance.
+
+        :returns:
+            :attr:`OriginMode.whole_file`, :attr:`OriginMode.single_line`
+            or :attr:`OriginMode.line_range`.
+
+        The mode tells if this instance is describing the whole file,
+        a range of lines or just a single line. It is mostly used internally
+        by the implementation.
+        """
+        if self.line_start is None and self.line_end is None:
+            return OriginMode.whole_file
+        elif self.line_start == self.line_end:
+            return OriginMode.single_line
+        else:
+            return OriginMode.line_range
+
     def __repr__(self):
         return "<{} source:{!r} line_start:{} line_end:{}>".format(
             self.__class__.__name__,

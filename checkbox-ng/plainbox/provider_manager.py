@@ -828,9 +828,9 @@ class InfoCommand(ManageCommand):
         print("\t" + _("version: {}").format(provider.version))
         # TRANSLATORS: {} is the gettext translation domain of the provider
         print("\t" + _("gettext domain: {}").format(provider.gettext_domain))
-        print(_("[Unit Definitions]"))
+        print(_("[Job Definitions]"))
         unit_list, problem_list = provider.get_units()
-        for unit in unit_list:
+        for unit in (unit for unit in unit_list if unit.Meta.name == 'job'):
             # TRANSLATORS: the fields are as follows:
             # 0: unit representation
             # 1: pathname of the file the job is defined in
@@ -839,6 +839,25 @@ class InfoCommand(ManageCommand):
                 unit.id if isinstance(unit, (UnitWithId, JobDefinition))
                 else unit,
                 unit.origin.relative_to(self.definition.location)))
+        print(_("[Other Units]"))
+        unit_list, problem_list = provider.get_units()
+        for unit in (unit for unit in unit_list if unit.Meta.name != 'job'):
+            # TRANSLATORS: the fields are as follows:
+            # 0: unit representation
+            # 1: pathname of the file the job is defined in
+            from plainbox.impl.secure.origin import OriginMode
+            if unit.Meta.name == 'file':
+                print("\t" + _("{0} {1}, role {2}").format(
+                    unit.get_unit_type(),
+                    unit.origin.relative_to(self.definition.location),
+                    unit.role))
+                # import pdb; pdb.set_trace()
+            else:
+                print("\t" + _("{0} {1}, from {2}").format(
+                    unit.get_unit_type(),
+                    unit.id if isinstance(unit, (UnitWithId, JobDefinition))
+                    else unit,
+                    unit.origin.relative_to(self.definition.location)))
         if problem_list:
             print("\t" + _("Some units could not be parsed correctly"))
             # TRANSLATORS: please don't translate `manage.py validate`

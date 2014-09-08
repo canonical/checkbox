@@ -86,7 +86,8 @@ class propertywithsymbols(property):
         function.
         """
         return propertywithsymbols(
-            fget, self.fset, self.fdel, self.__doc__, symbols=self.symbols)
+            fget, self.fset, self.fdel, self.__doc__ or fget.__doc__,
+            symbols=self.symbols)
 
 
 class _PluginValues(SymbolDef):

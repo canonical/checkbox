@@ -40,6 +40,41 @@ from plainbox.impl.validation import Severity
 from plainbox.impl.validation import ValidationError
 from plainbox.testing_utils.testcases import TestCaseWithParameters
 from plainbox.vendor import mock
+from plainbox.impl.unit.job import propertywithsymbols
+
+
+class DecoratorTests(TestCase):
+
+    def setUp(self):
+        self.symbols = mock.Mock(name='symbols')
+
+        class C:
+
+            @propertywithsymbols(symbols=self.symbols)
+            def prop(self):
+                """a docstring"""
+                return 'prop'
+        self.C = C
+
+    def test_propertywithsymbols__fget_works(self):
+        self.assertEqual(self.C().prop, 'prop')
+
+    def test_propertywithsmybols__symbols_works(self):
+        self.assertIs(self.C.prop.symbols, self.symbols)
+
+    def test_propertywithsymbols__inherits_doc_from_fget(self):
+        self.assertEqual(self.C.prop.__doc__, 'a docstring')
+
+    def test_propertywithsymbols__honors_doc_argument(self):
+
+        class C:
+
+            @propertywithsymbols(doc='different', symbols=self.symbols)
+            def prop(self):
+                """a docstring"""
+                return 'prop'
+
+        self.assertEqual(C.prop.__doc__, 'different')
 
 
 class TestJobDefinitionDefinition(TestCase):

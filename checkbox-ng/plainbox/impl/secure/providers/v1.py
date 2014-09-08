@@ -35,16 +35,19 @@ from plainbox.impl.secure.config import NotEmptyValidator
 from plainbox.impl.secure.config import NotUnsetValidator
 from plainbox.impl.secure.config import PatternValidator
 from plainbox.impl.secure.config import Unset
+from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.plugins import FsPlugInCollection
 from plainbox.impl.secure.plugins import IPlugIn
 from plainbox.impl.secure.plugins import PlugInError
 from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.secure.rfc822 import FileTextSource
-from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 from plainbox.impl.secure.rfc822 import load_rfc822_records
+from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 from plainbox.impl.unit import all_units
-from plainbox.impl.validation import ValidationError
+from plainbox.impl.unit.file import FileRole
+from plainbox.impl.unit.file import FileUnit
 from plainbox.impl.validation import Severity
+from plainbox.impl.validation import ValidationError
 
 
 logger = logging.getLogger("plainbox.secure.providers.v1")
@@ -163,6 +166,32 @@ class UnitPlugIn(IPlugIn):
                             exc.field, exc.problem))
             self._unit_list.append(unit)
             logger.debug(_("Loaded %r"), unit)
+        self.synthetize_virtual_units(filename, provider)
+
+    def synthetize_virtual_units(self, filename, provider):
+        """
+        Synthethise virtual units
+
+        :param filename:
+            Name of the file with unit definitions
+        :param provider:
+            A provider object to which those units belong to
+
+        This method is called automatically by :meth:`__init__()` to create
+        and add additional, virtual units, based on the file that was loaded.
+
+        This implementation instantiates only one FileUnit() with
+        role :attr:`FileRole.unit_source`
+        """
+        self._unit_list.append(
+            self._make_file_unit(filename, provider))
+
+    def _make_file_unit(self, filename, provider):
+        return FileUnit({
+            'unit': FileUnit.Meta.name,
+            'path': filename,
+            'role': FileRole.unit_source,
+        }, origin=Origin(FileTextSource(filename)), provider=provider)
 
     @property
     def plugin_name(self):

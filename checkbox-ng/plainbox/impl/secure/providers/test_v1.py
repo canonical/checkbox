@@ -42,6 +42,7 @@ from plainbox.impl.secure.providers.v1 import WhiteListPlugIn
 from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.secure.rfc822 import FileTextSource
 from plainbox.impl.secure.rfc822 import Origin
+from plainbox.impl.unit.file import FileUnit
 from plainbox.vendor import mock
 
 
@@ -609,8 +610,9 @@ class UnitPlugInTests(TestCase):
         verify that the UnitPlugIn.plugin_object property returns a
         list of JobDefintion instances
         """
-        self.assertEqual(len(self.plugin.plugin_object), 1)
+        self.assertEqual(len(self.plugin.plugin_object), 2)
         self.assertIsInstance(self.plugin.plugin_object[0], JobDefinition)
+        self.assertIsInstance(self.plugin.plugin_object[1], FileUnit)
 
     def test_job_data(self):
         """

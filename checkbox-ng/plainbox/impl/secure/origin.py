@@ -52,15 +52,17 @@ class Origin:
     line_start (inclusive) and line_end (exclusive).
 
     :ivar source:
-        something that describes where the text came frome, technically it
+        Something that describes where the text came frome. Technically it
         should be a :class:`~plainbox.abc.ITextSource` subclass but that
         interface defines just the intent, not any concrete API.
 
     :ivar line_start:
-        the number of the line where the record begins
+        The number of the line where the record begins. This can be None
+        when the intent is to cover the whole file. This can also be equal
+        to line_end (when not None) if the intent is to show a single line.
 
     :ivar line_end:
-        the number of the line where the record ends
+        The number of the line where the record ends
     """
 
     __slots__ = ['source', 'line_start', 'line_end']

@@ -438,7 +438,6 @@ class Unit(UnitLegacyAPI, metaclass=UnitType):
         """
         return self.get_record_value('unit')
 
-    @property
     def tr_unit(self):
         """
         Translated (optionally) value of the unit field

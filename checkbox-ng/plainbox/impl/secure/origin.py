@@ -157,6 +157,15 @@ class Origin:
         """
         return Origin(self.source, self.line_start, self.line_start)
 
+    def just_file(self):
+        """
+        create a new Origin that points to the whole file
+
+        :returns:
+            A new Origin with line_end and line_start both set to None.
+        """
+        return Origin(self.source)
+
     def __eq__(self, other):
         if isinstance(other, Origin):
             return ((self.source, self.line_start, self.line_end) ==

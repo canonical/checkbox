@@ -336,3 +336,13 @@ class OriginTests(TestCase):
         self.assertEqual(origin2.line_start, origin1.line_start)
         self.assertEqual(origin2.line_end, origin1.line_start)
         self.assertIs(origin2.source, origin1.source)
+
+    def test_just_file(self):
+        """
+        verify how Origin.just_file() works as expected
+        """
+        origin1 = Origin(UnknownTextSource(), 1, 2)
+        origin2 = origin1.just_file()
+        self.assertEqual(origin2.line_start, None)
+        self.assertEqual(origin2.line_end, None)
+        self.assertIs(origin2.source, origin1.source)

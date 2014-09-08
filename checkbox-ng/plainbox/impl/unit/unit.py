@@ -329,6 +329,11 @@ class UnitType(abc.ABCMeta):
                     'fields', merged_fields_bases, merged_fields_ns)
                 fields.__qualname__ = '{}.Meta.fields'.format(name)
                 new_meta_ns['fields'] = fields
+            # Ensure that Meta.name is explicitly defined
+            if 'name' not in our_meta.__dict__:
+                raise TypeError(_(
+                    "Please define 'name' in {}.Meta"
+                ).format(name))
             ns['Meta'] = type('Meta', new_meta_bases, new_meta_ns)
         ns['fields'] = ns['Meta'].fields
         return super().__new__(mcls, name, bases, ns)

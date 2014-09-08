@@ -440,9 +440,11 @@ class Unit(UnitLegacyAPI, metaclass=UnitType):
 
     def tr_unit(self):
         """
-        Translated (optionally) value of the unit field
+        Translated (optionally) value of the unit field (overridden)
+
+        The return value is always 'self.Meta.name' (translated)
         """
-        return self.get_record_value('unit', _("unit"))
+        return _(self.Meta.name)
 
     @property
     def origin(self):

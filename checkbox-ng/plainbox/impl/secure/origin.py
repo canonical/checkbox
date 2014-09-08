@@ -28,6 +28,18 @@ import os
 
 from plainbox.abc import ITextSource
 from plainbox.i18n import gettext as _
+from plainbox.impl.symbol import SymbolDef
+
+
+class OriginMode(SymbolDef):
+    """
+    A symbol definition (which will become an enumeration in the near future)
+    that describes all the possible "modes" an :class:`Origin` can operate in.
+    """
+    # NOTE: this should be an enumeration
+    whole_file = 'whole-file'
+    single_line = 'single-line'
+    line_range = 'line-range'
 
 
 @functools.total_ordering

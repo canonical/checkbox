@@ -774,6 +774,8 @@ class Unit(UnitLegacyAPI, metaclass=UnitType):
         """
         Class containing additional meta-data about this unit.
 
+        :attr name:
+            Name of this unit as it can appear in unit definition files
         :attr fields:
             A :class:`plainbox.impl.symbol.SymbolDef` with a symbol for each of
             the fields used by this unit.
@@ -782,6 +784,8 @@ class Unit(UnitLegacyAPI, metaclass=UnitType):
         :attr field_validators:
             A dictionary mapping each field to a list of field validators
         """
+
+        name = 'unit'
 
         class fields(SymbolDef):
             """

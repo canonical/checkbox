@@ -27,6 +27,7 @@ import re
 
 from plainbox.abc import IJobDefinition
 from plainbox.i18n import gettext as _
+from plainbox.i18n import gettext_noop as N_
 from plainbox.impl.resource import ResourceProgram
 from plainbox.impl.resource import parse_imports_stmt
 from plainbox.impl.secure.origin import JobOutputTextSource
@@ -472,6 +473,8 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
         return self.from_rfc822_record(record, self.provider)
 
     class Meta:
+
+        name = N_('job')
 
         class fields(SymbolDef):
             """

@@ -24,6 +24,7 @@
 import logging
 
 from plainbox.i18n import gettext as _
+from plainbox.i18n import gettext_noop as N_
 from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit._legacy import UnitWithIdLegacyAPI
 from plainbox.impl.unit._legacy import UnitWithIdValidatorLegacyAPI
@@ -110,6 +111,8 @@ class UnitWithId(Unit, UnitWithIdLegacyAPI):
         return _("unit-with-id")
 
     class Meta:
+
+        name = N_('unit-with-id')
 
         class fields(SymbolDef):
             id = 'id'

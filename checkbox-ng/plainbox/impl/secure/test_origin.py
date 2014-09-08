@@ -214,6 +214,14 @@ class OriginTests(TestCase):
         observed = str(Origin(FileTextSource("file.txt"), 15, 15))
         self.assertEqual(expected, observed)
 
+    def test_str__whole_file(self):
+        """
+        verify that Origin.__str__() behaves differently when the range is empty
+        """
+        expected = "file.txt"
+        observed = str(Origin(FileTextSource("file.txt")))
+        self.assertEqual(expected, observed)
+
     def test_eq(self):
         """
         verify instances of Origin are all equal to other instances with the

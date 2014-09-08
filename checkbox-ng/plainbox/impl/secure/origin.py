@@ -67,7 +67,7 @@ class Origin:
 
     __slots__ = ['source', 'line_start', 'line_end']
 
-    def __init__(self, source, line_start, line_end):
+    def __init__(self, source, line_start=None, line_end=None):
         self.source = source
         self.line_start = line_start
         self.line_end = line_end
@@ -97,11 +97,16 @@ class Origin:
             self.source, self.line_start, self.line_end)
 
     def __str__(self):
-        if self.line_start == self.line_end:
+        mode = self.mode()
+        if mode is OriginMode.whole_file:
+            return str(self.source)
+        elif mode is OriginMode.single_line:
             return "{}:{}".format(self.source, self.line_start)
-        else:
+        elif mode is OriginMode.line_range:
             return "{}:{}-{}".format(
                 self.source, self.line_start, self.line_end)
+        else:
+            raise NotImplementedError
 
     def relative_to(self, base_dir):
         """
@@ -133,8 +138,14 @@ class Origin:
         :returns:
             A new Origin object
         """
-        return Origin(
-            self.source, self.line_start + offset, self.line_end + offset)
+        mode = self.mode()
+        if mode is OriginMode.whole_file:
+            return self
+        elif mode is OriginMode.single_line or mode is OriginMode.line_range:
+            return Origin(self.source,
+                          self.line_start + offset, self.line_end + offset)
+        else:
+            raise NotImplementedError
 
     def just_line(self):
         """

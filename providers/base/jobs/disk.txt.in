@@ -123,7 +123,9 @@ _description:
 plugin: user-interact
 id: disk/hdd-parking
 estimated_duration: 60.0
-requires: device.category == 'DISK'
+requires:
+    device.category == 'DISK'
+    package.name == 'hdapsd'
 depends: input/accelerometer
 user: root
 command: hdd_parking

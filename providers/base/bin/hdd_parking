@@ -43,8 +43,12 @@ from subprocess import Popen, PIPE
 TIMEOUT = 15.0
 
 def hdaps_test(run_time):
-    hdapsd = Popen(['/usr/sbin/hdapsd'], stdout=PIPE, stderr=PIPE,
+    try:
+        hdapsd = Popen(['/usr/sbin/hdapsd'], stdout=PIPE, stderr=PIPE,
                    universal_newlines=True)
+    except OSError as err:
+        print("Unable to start hdapsd: {}".format(err))
+        return 1
     time.sleep(float(run_time))
     hdapsd.terminate()
     # Look for parking message in hdapsd output.

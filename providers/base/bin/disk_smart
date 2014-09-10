@@ -125,6 +125,7 @@ def get_smart_entries(disk, type='selftest'):
     # Get lengths from header
     line = stdout.readline().decode()
     if not line.startswith('Num'):
+        entries.append('No entries found in log yet')
         return entries
     columns = ['number', 'description', 'status',
                'remaining', 'lifetime', 'lba']
@@ -215,13 +216,16 @@ def main():
         time.sleep(args.sleep)
 
         current_entries = get_smart_entries(disk)
-        logging.debug('%s %s %s %s' % (current_entries[0]['number'],
-                                       current_entries[0]['description'],
-                                       current_entries[0]['status'],
-                                       current_entries[0]['remaining']))
-        if current_entries != previous_entries \
-           and current_entries[0]["status"] != 'Self-test routine in progress':
-            break
+        if type(current_entries[0]) is str:
+            logging.debug(current_entries[0])
+        else:
+            logging.debug('%s %s %s %s' % (current_entries[0]['number'],
+                                           current_entries[0]['description'],
+                                           current_entries[0]['status'],
+                                           current_entries[0]['remaining']))
+            if current_entries != previous_entries \
+            and current_entries[0]["status"] != 'Self-test routine in progress':
+                break
 
         if args.timeout is not None:
             if args.timeout <= 0:

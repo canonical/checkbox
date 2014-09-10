@@ -42,8 +42,9 @@ class FileUnitFieldValidationTests(UnitFieldValidationTests):
             'path': 'foo.txt',
             'role': FileRole.unit_source,
         }, provider=self.provider).check()
-        message = ("please use .pxu as an extension for all"
-                   " files with plainbox units")
+        message = ("please use .pxu as an extension for all files with "
+                   "plainbox units, see: http://plainbox.readthedocs.org"
+                   "/en/latest/author/faq.html#faq-1")
         self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.path,
                               Problem.deprecated, Severity.advice, message)
 

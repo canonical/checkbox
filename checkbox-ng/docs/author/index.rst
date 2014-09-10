@@ -12,6 +12,7 @@ core.
    jobs.rst
    whitelists.rst
    rfc822.rst
+   faq.rst
 
 .. warning::
 

@@ -474,7 +474,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 if self.OPTION_WITH_DESCRIPTION in self._option_list:
                     self.worksheet4.write(
                         self._lineno, level + 1,
-                        result_map[job]['description'], self.format15)
+                        result_map[job].get('description', ""), self.format15)
                 if level:
                     self.worksheet3.set_row(
                         self._lineno, 13, None, {'level': level})
@@ -540,7 +540,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                         result_map[job]['io_log'].encode()
                     ).decode('UTF-8').rstrip()
                 io_lines = len(io_log.splitlines()) - 1
-                desc_lines = len(result_map[job]['description'].splitlines())
+                desc_lines = len(result_map[job].get('description',
+                                                     "").splitlines())
                 desc_lines -= 1
                 self.worksheet3.write(
                     self._lineno, max_level + 3, io_log,
@@ -548,7 +549,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 if self.OPTION_WITH_DESCRIPTION in self._option_list:
                     self.worksheet4.write(
                         self._lineno, max_level + 2,
-                        result_map[job]['description'],
+                        result_map[job].get('description', ""),
                         self.format16 if self._lineno % 2 else self.format17)
                 if level:
                     self.worksheet3.set_row(

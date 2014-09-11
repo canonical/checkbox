@@ -216,7 +216,7 @@ def main():
         time.sleep(args.sleep)
 
         current_entries = get_smart_entries(disk)
-        if type(current_entries[0]) is str:
+        if isinstance(current_entries[0], str):
             logging.debug(current_entries[0])
         else:
             logging.debug('%s %s %s %s' % (current_entries[0]['number'],

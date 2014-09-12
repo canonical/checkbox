@@ -89,7 +89,7 @@ class LauncherDefinition(config.Config):
 
     xml_export_path = config.Variable(
         section="exporter",
-        help_text=_("Filename of the exported XML documente"))
+        help_text=_("Filename of the exported XML document"))
 
     submit_to = config.Variable(
         section="transport",

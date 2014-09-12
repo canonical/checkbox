@@ -232,6 +232,9 @@ class UnknownTextSource(ITextSource):
         else:
             return NotImplemented
 
+    def relative_to(self, path):
+        return self
+
 
 @functools.total_ordering
 class FileTextSource(ITextSource):
@@ -322,3 +325,6 @@ class JobOutputTextSource(ITextSource):
         if isinstance(other, JobOutputTextSource):
             return self.job > other.job
         return NotImplemented
+
+    def relative_to(self, base_path):
+        return self

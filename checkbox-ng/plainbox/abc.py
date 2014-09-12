@@ -47,6 +47,18 @@ class ITextSource(metaclass=ABCMeta):
     RFC822-like document came from.
     """
 
+    @abstractmethod
+    def relative_to(self, path):
+        """
+        Compute a new text source of the same kind with any filesystem
+        references translated to be relative from the specified base directory.
+
+        :param base_dir:
+            A base directory name
+        :returns:
+            A new text source
+        """
+
 
 class IJobDefinition(metaclass=ABCMeta):
     """

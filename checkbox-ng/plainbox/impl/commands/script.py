@@ -35,6 +35,7 @@ from plainbox.impl.applogic import get_matching_job_list
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.runner import JobRunner
+from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import JobIdQualifier
 
 
@@ -102,7 +103,7 @@ class ScriptInvocation(CheckBoxInvocationMixIn):
     def _get_job(self):
         job_list = get_matching_job_list(
             self.get_job_list(None),
-            JobIdQualifier(self.job_id))
+            JobIdQualifier(self.job_id, Origin.get_caller_origin()))
         if len(job_list) == 0:
             return None
         else:

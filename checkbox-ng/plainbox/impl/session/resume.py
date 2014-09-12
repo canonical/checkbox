@@ -55,6 +55,7 @@ from plainbox.i18n import gettext as _
 from plainbox.impl.result import DiskJobResult
 from plainbox.impl.result import IOLogRecord
 from plainbox.impl.result import MemoryJobResult
+from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import SimpleQualifier
 from plainbox.impl.session.state import SessionMetaData
 from plainbox.impl.session.state import SessionState
@@ -247,7 +248,7 @@ class ResumeDiscardQualifier(SimpleQualifier):
     """
 
     def __init__(self, jobs_repr):
-        super().__init__()
+        super().__init__(Origin.get_caller_origin())
         # Set of ids of jobs to retain (computed as keys of the
         # dictionary taken from the session resume representation)
         self._retain_id_set = frozenset(jobs_repr)

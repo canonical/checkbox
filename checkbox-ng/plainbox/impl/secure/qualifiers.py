@@ -47,8 +47,15 @@ class SimpleQualifier(IJobQualifier):
     have share some code.
     """
 
-    def __init__(self, inclusive=True):
+    def __init__(self,  origin: Origin, inclusive: bool=True):
+        if origin is not None and not isinstance(origin, Origin):
+            raise TypeError(_('argument {!a}, expected {}, got {}').format(
+                'origin', Origin, type(origin)))
+        if not isinstance(inclusive, bool):
+            raise TypeError(_('argument {!a}, expected {}, got {}').format(
+                'inclusive', bool, type(inclusive)))
         self._inclusive = inclusive
+        self._origin = origin
 
     @property
     def inclusive(self):
@@ -107,6 +114,16 @@ class SimpleQualifier(IJobQualifier):
         """
         return [self]
 
+    @property
+    def origin(self):
+        """
+        Origin of this qualifier
+
+        This property can be used to trace the origin of a qualifier back to
+        its definition point.
+        """
+        return self._origin
+
 
 class RegExpJobQualifier(SimpleQualifier):
     """
@@ -114,11 +131,11 @@ class RegExpJobQualifier(SimpleQualifier):
     expression
     """
 
-    def __init__(self, pattern, inclusive=True):
+    def __init__(self, pattern, origin, inclusive=True):
         """
         Initialize a new RegExpJobQualifier with the specified pattern.
         """
-        super().__init__(inclusive)
+        super().__init__(origin, inclusive)
         self._pattern = re.compile(pattern)
         self._pattern_text = pattern
 
@@ -148,9 +165,16 @@ class JobIdQualifier(SimpleQualifier):
     A JobQualifier that designates a single job with a particular id
     """
 
-    def __init__(self, id, inclusive=True):
-        super().__init__(inclusive)
+    def __init__(self, id, origin, inclusive=True):
+        super().__init__(origin, inclusive)
         self._id = id
+
+    @property
+    def id(self):
+        """
+        identifier to match
+        """
+        return self._id
 
     def get_simple_match(self, job):
         """
@@ -171,8 +195,8 @@ class NonLocalJobQualifier(SimpleQualifier):
     A JobQualifier that designates only non local jobs
     """
 
-    def __init__(self, inclusive=True):
-        super().__init__(inclusive)
+    def __init__(self, origin, inclusive=True):
+        super().__init__(origin, inclusive)
 
     def get_simple_match(self, job):
         """
@@ -244,7 +268,7 @@ class FieldQualifier(SimpleQualifier):
     A SimpleQualifer that uses matchers to compare particular fields
     """
 
-    def __init__(self, field, matcher, inclusive=True):
+    def __init__(self, field, matcher, origin, inclusive=True):
         """
         Initialize a new FieldQualifier with the specified field, matcher and
         inclusive flag
@@ -256,9 +280,23 @@ class FieldQualifier(SimpleQualifier):
         :param inclusive:
             Inclusive selection flag (default: True)
         """
-        super().__init__(inclusive)
+        super().__init__(origin, inclusive)
         self._field = field
         self._matcher = matcher
+
+    @property
+    def field(self):
+        """
+        Name of the field to match
+        """
+        return self._field
+
+    @property
+    def matcher(self):
+        """
+        The IMatcher-implementing object to use to check for the match
+        """
+        return self._matcher
 
     def get_simple_match(self, job):
         """
@@ -317,6 +355,17 @@ class CompositeQualifier(IJobQualifier):
     def get_primitive_qualifiers(self):
         return get_flat_primitive_qualifier_list(self.qualifier_list)
 
+    @property
+    def origin(self):
+        raise NonPrimitiveQualifierOrigin
+
+
+class NonPrimitiveQualifierOrigin(Exception):
+    """
+    Exception raised when IJobQualifier.origin is meaningless as it is being
+    requested on a non-primitive qualifier such as the CompositeQualifier
+    """
+
 
 # NOTE: using CompositeQualifier seems strange but it's a tested proven
 # component so all we have to ensure is that we read the whitelist files
@@ -358,12 +407,13 @@ class WhiteList(CompositeQualifier):
                 else:
                     return maybe_partial_id_pattern
             qualifier_list = [
-                RegExpJobQualifier(transform_pattern(pattern), inclusive=True)
+                RegExpJobQualifier(
+                    transform_pattern(pattern), origin, inclusive=True)
                 for pattern in pattern_list]
         else:
             # Otherwise just use the patterns directly
             qualifier_list = [
-                RegExpJobQualifier(pattern, inclusive=True)
+                RegExpJobQualifier(pattern, origin, inclusive=True)
                 for pattern in pattern_list]
         super().__init__(qualifier_list)
 

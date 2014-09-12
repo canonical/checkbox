@@ -102,6 +102,9 @@ class CheckBoxInvocationMixIn:
     def _get_matching_job_list(self, ns, job_list):
         logger.debug("_get_matching_job_list(%r, %r)", ns, job_list)
         qualifier_list = []
+        origin = None  # TODO: this should be a real origin, but we're
+                       # not providing one here as this whole API is
+                       # supposed to go away
         # Add whitelists
         for whitelist_file in ns.whitelist:
             qualifier = self.get_whitelist_from_file(
@@ -112,7 +115,7 @@ class CheckBoxInvocationMixIn:
         for pattern in ns.include_pattern_list:
             try:
                 qualifier = RegExpJobQualifier(
-                    '^{}$'.format(pattern), inclusive=True)
+                    '^{}$'.format(pattern), origin, inclusive=True)
             except Exception as exc:
                 logger.warning(
                     _("Incorrect pattern %r: %s"), pattern, exc)
@@ -122,7 +125,7 @@ class CheckBoxInvocationMixIn:
         for pattern in ns.exclude_pattern_list:
             try:
                 qualifier = RegExpJobQualifier(
-                    '^{}$'.format(pattern), inclusive=False)
+                    '^{}$'.format(pattern), origin, inclusive=False)
             except Exception as exc:
                 logger.warning(
                     _("Incorrect pattern %r: %s"), pattern, exc)

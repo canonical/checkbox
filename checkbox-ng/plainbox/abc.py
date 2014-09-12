@@ -337,6 +337,21 @@ class IJobQualifier(metaclass=ABCMeta):
         :returns False: otherwise
         """
 
+    @abstractproperty
+    def origin(self):
+        """
+        Origin of this qualifier
+
+        :raises NonPrimitiveQualifierOrigin:
+            If the :meth:`is_primitive` property is True and this qualifier
+            has no well-defined origin of itself.
+
+        This property can be used to trace the origin of a qualifier back to
+        its definition point. Note that it may not always be available when
+        it doesn't make sense to say that a composite object came from any one
+        particular place.
+        """
+
 
 class IJobRunner(metaclass=ABCMeta):
     """

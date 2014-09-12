@@ -27,14 +27,17 @@ Test definitions for plainbox.impl.applogic module
 from unittest import TestCase
 
 from plainbox.impl.applogic import get_matching_job_list
+from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import RegExpJobQualifier
 from plainbox.impl.testing_utils import make_job
+from plainbox.vendor import mock
 
 
 class FunctionTests(TestCase):
 
     def test_get_matching_job_list(self):
+        origin = mock.Mock(name='origin', spec_set=Origin)
         job_list = [make_job('foo'), make_job('froz'), make_job('barg')]
         self.assertEqual(
-            get_matching_job_list(job_list, RegExpJobQualifier('f.*')),
+            get_matching_job_list(job_list, RegExpJobQualifier('f.*', origin)),
             [make_job('foo'), make_job('froz')])

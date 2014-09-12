@@ -31,12 +31,14 @@ from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyMissingError
 from plainbox.impl.resource import Resource
 from plainbox.impl.result import MemoryJobResult
+from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import JobIdQualifier
 from plainbox.impl.session import JobReadinessInhibitor
 from plainbox.impl.session import SessionState
 from plainbox.impl.session import UndesiredJobReadinessInhibitor
 from plainbox.impl.session.state import SessionMetaData
 from plainbox.impl.testing_utils import make_job
+from plainbox.vendor import mock
 
 
 class SessionStateSmokeTests(TestCase):
@@ -244,13 +246,14 @@ class SessionStateTrimTests(TestCase):
     def setUp(self):
         self.job_a = make_job("a")
         self.job_b = make_job("b")
+        self.origin = mock.Mock(name='origin', spec_set=Origin)
         self.session = SessionState([self.job_a, self.job_b])
 
     def test_trim_does_remove_jobs(self):
         """
         verify that trim_job_list() removes jobs as requested
         """
-        self.session.trim_job_list(JobIdQualifier("a"))
+        self.session.trim_job_list(JobIdQualifier("a", self.origin))
         self.assertEqual(self.session.job_list, [self.job_b])
 
     def test_trim_does_remove_job_state(self):
@@ -258,7 +261,7 @@ class SessionStateTrimTests(TestCase):
         verify that trim_job_list() removes job state for removed jobs
         """
         self.assertIn("a", self.session.job_state_map)
-        self.session.trim_job_list(JobIdQualifier("a"))
+        self.session.trim_job_list(JobIdQualifier("a", self.origin))
         self.assertNotIn("a", self.session.job_state_map)
 
     def test_trim_does_remove_resources(self):
@@ -267,7 +270,7 @@ class SessionStateTrimTests(TestCase):
         """
         self.session.set_resource_list("a", [Resource({'attr': 'value'})])
         self.assertIn("a", self.session.resource_map)
-        self.session.trim_job_list(JobIdQualifier("a"))
+        self.session.trim_job_list(JobIdQualifier("a", self.origin))
         self.assertNotIn("a", self.session.resource_map)
 
     def test_trim_fires_on_job_removed(self):
@@ -281,7 +284,7 @@ class SessionStateTrimTests(TestCase):
             nonlocal signal_fired
             signal_fired = True
         self.session.on_job_removed.connect(on_job_removed)
-        self.session.trim_job_list(JobIdQualifier("a"))
+        self.session.trim_job_list(JobIdQualifier("a", self.origin))
         self.assertTrue(signal_fired)
 
     def test_trim_fires_on_job_state_map_changed(self):
@@ -294,7 +297,7 @@ class SessionStateTrimTests(TestCase):
             nonlocal signal_fired
             signal_fired = True
         self.session.on_job_state_map_changed.connect(on_job_state_map_changed)
-        self.session.trim_job_list(JobIdQualifier("a"))
+        self.session.trim_job_list(JobIdQualifier("a", self.origin))
         self.assertTrue(signal_fired)
 
     def test_trim_fires_on_job_state_map_changed_only_when_needed(self):
@@ -308,7 +311,7 @@ class SessionStateTrimTests(TestCase):
             nonlocal signal_fired
             signal_fired = True
         self.session.on_job_state_map_changed.connect(on_job_state_map_changed)
-        self.session.trim_job_list(JobIdQualifier("x"))
+        self.session.trim_job_list(JobIdQualifier("x", self.origin))
         self.assertFalse(signal_fired)
 
     def test_trim_raises_ValueError_for_jobs_on_run_list(self):
@@ -318,7 +321,7 @@ class SessionStateTrimTests(TestCase):
         """
         self.session.update_desired_job_list([self.job_a])
         with self.assertRaises(ValueError) as boom:
-            self.session.trim_job_list(JobIdQualifier("a"))
+            self.session.trim_job_list(JobIdQualifier("a", self.origin))
             self.assertEqual(
                 str(boom.exception),
                 "cannot remove jobs that are on the run list: a")

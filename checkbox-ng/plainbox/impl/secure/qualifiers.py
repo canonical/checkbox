@@ -693,10 +693,19 @@ def select_jobs(job_list, qualifier_list):
     # As a separate feature, we might return a list of qualifiers that never
     # matched anything. That may be helpful for debugging.
     included_list = []
+    id_to_index_map = {job.id: index for index, job in enumerate(job_list)}
     included_set = set()
     excluded_set = set()
     for qualifier in flat_qualifier_list:
-        for j_index, job in enumerate(job_list):
+        if (isinstance(qualifier, FieldQualifier)
+                and qualifier.field == 'id'
+                and isinstance(qualifier.matcher, OperatorMatcher)
+                and qualifier.matcher.op == operator.eq):
+            # optimize the super-common case where a qualifier refers to
+            # a specific job by using the id_to_index_map to instantly
+            # perform the requested operation on a single job
+            j_index = id_to_index_map(qualifier.matcher.value)
+            job = job_list[j_index]
             vote = qualifier.get_vote(job)
             if vote == IJobQualifier.VOTE_INCLUDE:
                 if j_index in included_set:
@@ -707,5 +716,17 @@ def select_jobs(job_list, qualifier_list):
                 excluded_set.add(j_index)
             elif vote == IJobQualifier.VOTE_IGNORE:
                 pass
+        else:
+            for j_index, job in enumerate(job_list):
+                vote = qualifier.get_vote(job)
+                if vote == IJobQualifier.VOTE_INCLUDE:
+                    if j_index in included_set:
+                        continue
+                    included_set.add(j_index)
+                    included_list.append(j_index)
+                elif vote == IJobQualifier.VOTE_EXCLUDE:
+                    excluded_set.add(j_index)
+                elif vote == IJobQualifier.VOTE_IGNORE:
+                    pass
     return [job_list[index] for index in included_list
             if index not in excluded_set]

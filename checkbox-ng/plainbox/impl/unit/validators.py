@@ -490,11 +490,12 @@ class ShellProgramValidator(FieldValidatorBase):
                     if token is not None:
                         yield parent.error(
                             unit, field, Problem.syntax_error,
-                            "{}, near {!r}".format(exc, token), lex.lineno - 1)
+                            "{}, near {!r}".format(exc, token),
+                            offset=lex.lineno - 1)
                     else:
                         yield parent.error(
                             unit, field, Problem.syntax_error, str(exc),
-                            lex.lineno - 1)
+                            offset=lex.lineno - 1)
 
 
 def compute_value_map(context, field):

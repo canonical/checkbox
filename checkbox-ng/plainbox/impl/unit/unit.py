@@ -129,29 +129,34 @@ class UnitValidator:
                         "{}.Meta.fields[{!r}][{}] is not a validator"
                     ).format(unit.__class__.__name__, field, index))
 
-    def advice(self, unit, field, kind, message=None, offset=0):
+    def advice(self, unit, field, kind, message=None, *, offset=0,
+               origin=None):
         """
         Shortcut for :meth:`report_issue` with severity=Severity.advice
         """
         return self.report_issue(
-            unit, field, kind, Severity.advice, message, offset)
+            unit, field, kind, Severity.advice, message,
+            offset=offset, origin=origin)
 
-    def warning(self, unit, field, kind, message=None, offset=0):
+    def warning(self, unit, field, kind, message=None, *, offset=0,
+                origin=None):
         """
         Shortcut for :meth:`report_issue` with severity=Severity.warning
         """
         return self.report_issue(
-            unit, field, kind, Severity.warning, message, offset)
+            unit, field, kind, Severity.warning, message,
+            offset=offset, origin=origin)
 
-    def error(self, unit, field, kind, message=None, offset=0):
+    def error(self, unit, field, kind, message=None, *, offset=0, origin=None):
         """
         Shortcut for :meth:`report_issue` with severity=Severity.error
         """
         return self.report_issue(
-            unit, field, kind, Severity.error, message, offset)
+            unit, field, kind, Severity.error, message,
+            offset=offset, origin=origin)
 
     def report_issue(self, unit, field, kind, severity, message=None,
-                     offset=0):
+                     *, offset=0, origin=None):
         """
         Helper method that aids in adding issues
 
@@ -172,9 +177,13 @@ class UnitValidator:
             This argument is required if :meth:`explain()` doesn't know
             about the specific value of ``kind`` used
         :param offset:
-            An (optional) offset within the field itself. This optional
-            argument can be used to point to a specific line in a multi-line
+            An (optional, keyword-only) offset within the field itself.
+            If specified it is used to point to a specific line in a multi-line
             field.
+        :param origin:
+            An (optional, keyword-only) origin to use to report the issue.
+            If specified it totally overrides all implicit origin detection.
+            The ``offset`` is not applied in this case.
         :returns:
             The reported issue
         :raises ValueError:
@@ -190,26 +199,30 @@ class UnitValidator:
         # compute the origin
         if isinstance(unit, list):
             cls = MultiUnitFieldIssue
-            origin = unit[0].origin
-            if field in unit[0].field_offset_map:
-                origin = origin.with_offset(
-                    unit[0].field_offset_map[field] + offset
-                ).just_line()
-            elif '_{}'.format(field) in unit[0].field_offset_map:
-                origin = origin.with_offset(
-                    unit[0].field_offset_map['_{}'.format(field)] + offset
-                ).just_line()
+            if origin is None:
+                origin = unit[0].origin
+                if field in unit[0].field_offset_map:
+                    origin = origin.with_offset(
+                        unit[0].field_offset_map[field] + offset
+                    ).just_line()
+                elif '_{}'.format(field) in unit[0].field_offset_map:
+                    if origin is None:
+                        origin = origin.with_offset(
+                            unit[0].field_offset_map['_{}'.format(field)]
+                            + offset).just_line()
         else:
             cls = UnitFieldIssue
-            origin = unit.origin
-            if field in unit.field_offset_map:
-                origin = origin.with_offset(
-                    unit.field_offset_map[field] + offset
-                ).just_line()
-            elif '_{}'.format(field) in unit.field_offset_map:
-                origin = origin.with_offset(
-                    unit.field_offset_map['_{}'.format(field)] + offset
-                ).just_line()
+            if origin is None:
+                origin = unit.origin
+                if field in unit.field_offset_map:
+                    origin = origin.with_offset(
+                        unit.field_offset_map[field] + offset
+                    ).just_line()
+                elif '_{}'.format(field) in unit.field_offset_map:
+                    if origin is None:
+                        origin = origin.with_offset(
+                            unit.field_offset_map['_{}'.format(field)]
+                            + offset).just_line()
         issue = cls(message, severity, kind, origin, unit, field)
         self.issue_list.append(issue)
         return issue

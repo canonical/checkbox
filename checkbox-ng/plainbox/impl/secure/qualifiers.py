@@ -48,7 +48,7 @@ class SimpleQualifier(IJobQualifier):
     have share some code.
     """
 
-    def __init__(self,  origin: Origin, inclusive: bool=True):
+    def __init__(self,  origin, inclusive=True):
         if origin is not None and not isinstance(origin, Origin):
             raise TypeError(_('argument {!a}, expected {}, got {}').format(
                 'origin', Origin, type(origin)))

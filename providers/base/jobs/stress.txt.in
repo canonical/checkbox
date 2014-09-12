@@ -279,7 +279,7 @@ requires:
  package.name == 'x11-apps'
 user: root
 environ: PLAINBOX_SESSION_SHARE
-command: graphics_stress_test -b repeat -d -o $PLAINBOX_SESSION_SHARE/graphics-stress-results && echo "Graphics Stress Test completed successfully" || echo "Graphics Stress Test completed, but there are errors. Please see the log $PLAINBOX_SESSION_SHARE/graphics-stress-results for details" && false
+command: graphics_stress_test --iterations 20 -b repeat -d -o $PLAINBOX_SESSION_SHARE/graphics-stress-results && echo "Graphics Stress Test completed successfully" || echo "Graphics Stress Test completed, but there are errors. Please see the log $PLAINBOX_SESSION_SHARE/graphics-stress-results for details" && false
 _description:
  Run the graphics stress test. This test can take a few minutes.
 

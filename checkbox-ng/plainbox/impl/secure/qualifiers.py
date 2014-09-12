@@ -30,6 +30,7 @@ import itertools
 import logging
 import os
 import re
+import functools
 
 from plainbox.abc import IJobQualifier
 from plainbox.impl.secure.origin import FileTextSource
@@ -229,6 +230,7 @@ class IMatcher(metaclass=abc.ABCMeta):
         """
 
 
+@functools.total_ordering
 class OperatorMatcher(IMatcher):
     """
     A matcher that applies a binary operator to the value
@@ -244,6 +246,22 @@ class OperatorMatcher(IMatcher):
     def __repr__(self):
         return "{0}({1!r}, {2!r})".format(
             self.__class__.__name__, self._op, self._value)
+
+    def __eq__(self, other):
+        if isinstance(other, OperatorMatcher):
+            return self.op == other.op and self.value == other.value
+        else:
+            return NotImplemented
+
+    def __lt__(self, other):
+        if isinstance(other, OperatorMatcher):
+            if self.op < other.op:
+                return True
+            if self.value < other.value:
+                return True
+            return False
+        else:
+            return NotImplemented
 
 
 class PatternMatcher(IMatcher):

@@ -83,7 +83,8 @@ class FileUnit(Unit):
     The file unit can be still defined to provide any additional meta-data.
     The file unit is used for contextual validation of job definitions and
     other unit types. The sole purpose, for now, is to advise against using
-    the ``.txt`` or the ``.txt.in`` extensions in favour of the new one ``.pxu``
+    the ``.txt`` or the ``.txt.in`` extensions in favour of the new one
+    ``.pxu``
     """
 
     def __str__(self):

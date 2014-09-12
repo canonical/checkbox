@@ -27,7 +27,6 @@ Test definitions for plainbox.impl.unit.file module
 from plainbox.impl.unit.file import FileUnit
 from plainbox.impl.unit.file import FileRole
 from plainbox.impl.unit.test_unit import UnitFieldValidationTests
-from plainbox.impl.unit.validators import UnitValidationContext
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
 

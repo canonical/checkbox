@@ -240,6 +240,25 @@ class OperatorMatcher(IMatcher):
         self._op = op
         self._value = value
 
+    @property
+    def op(self):
+        """
+        the operator to use
+
+        The operator is typically one of the functions from the ``operator``
+        module. For example. operator.eq corresponds to the == python operator.
+        """
+        return self._op
+
+    @property
+    def value(self):
+        """
+        The right-hand-side value to apply to the operator
+
+        The left-hand-side is the value that is passed to :meth:`match()`
+        """
+        return self._value
+
     def match(self, value):
         return self._op(self._value, value)
 

@@ -40,4 +40,15 @@ from plainbox.impl.unit.validators import UntranslatableFieldValidator
 class NoTestsForAllThatCode(TestCase):
 
     def test_fake(self):
+        # So that flake8 is silent
+        CorrectFieldValueValidator
+        DeprecatedFieldValidator
+        IFieldValidator
+        PresentFieldValidator
+        TemplateInvariantFieldValidator
+        TemplateVariantFieldValidator
+        TranslatableFieldValidator
+        UniqueValueValidator
+        UnitReferenceValidator
+        UntranslatableFieldValidator
         self.assertTrue(True)

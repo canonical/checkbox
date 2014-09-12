@@ -53,8 +53,7 @@ class Origin:
 
     :ivar source:
         Something that describes where the text came frome. Technically it
-        should be a :class:`~plainbox.abc.ITextSource` subclass but that
-        interface defines just the intent, not any concrete API.
+        should implement the :class:`~plainbox.abc.ITextSource` interface.
 
     :ivar line_start:
         The number of the line where the record begins. This can be None
@@ -122,10 +121,9 @@ class Origin:
         This method is useful for obtaining user friendly Origin objects that
         have short, understandable filenames.
         """
-        if hasattr(self.source, 'relative_to'):
-            return Origin(
-                self.source.relative_to(base_dir),
-                self.line_start, self.line_end)
+        relative_source = self.source.relative_to(base_dir)
+        if relative_source is not self.source:
+            return Origin(relative_source, self.line_start, self.line_end)
         else:
             return self
 

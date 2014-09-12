@@ -32,9 +32,11 @@ from logging import getLogger
 import itertools
 
 from plainbox.i18n import gettext as _
+from plainbox.impl.secure.origin import CommandLineTextSource
+from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import RegExpJobQualifier
-from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.secure.qualifiers import select_jobs
+from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.secure.rfc822 import FileTextSource
 
 logger = getLogger("plainbox.commands.checkbox")
@@ -102,9 +104,6 @@ class CheckBoxInvocationMixIn:
     def _get_matching_job_list(self, ns, job_list):
         logger.debug("_get_matching_job_list(%r, %r)", ns, job_list)
         qualifier_list = []
-        origin = None  # TODO: this should be a real origin, but we're
-                       # not providing one here as this whole API is
-                       # supposed to go away
         # Add whitelists
         for whitelist_file in ns.whitelist:
             qualifier = self.get_whitelist_from_file(
@@ -113,6 +112,7 @@ class CheckBoxInvocationMixIn:
                 qualifier_list.append(qualifier)
         # Add all the --include jobs
         for pattern in ns.include_pattern_list:
+            origin = Origin(CommandLineTextSource('-i', pattern), None, None)
             try:
                 qualifier = RegExpJobQualifier(
                     '^{}$'.format(pattern), origin, inclusive=True)
@@ -123,6 +123,7 @@ class CheckBoxInvocationMixIn:
                 qualifier_list.append(qualifier)
         # Add all the --exclude jobs
         for pattern in ns.exclude_pattern_list:
+            origin = Origin(CommandLineTextSource('-x', pattern), None, None)
             try:
                 qualifier = RegExpJobQualifier(
                     '^{}$'.format(pattern), origin, inclusive=False)

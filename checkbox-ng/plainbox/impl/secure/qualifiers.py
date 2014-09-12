@@ -169,6 +169,13 @@ class JobIdQualifier(SimpleQualifier):
         super().__init__(origin, inclusive)
         self._id = id
 
+    @property
+    def id(self):
+        """
+        identifier to match
+        """
+        return self._id
+
     def get_simple_match(self, job):
         """
         Check if the given job matches this qualifier.

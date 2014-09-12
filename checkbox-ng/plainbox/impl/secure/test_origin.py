@@ -28,6 +28,7 @@ Test definitions for plainbox.impl.secure.origin module
 from unittest import TestCase
 import os
 
+from plainbox.impl.secure.origin import CommandLineTextSource
 from plainbox.impl.secure.origin import FileTextSource
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.origin import PythonFileTextSource
@@ -346,3 +347,32 @@ class OriginTests(TestCase):
         self.assertEqual(origin2.line_start, None)
         self.assertEqual(origin2.line_end, None)
         self.assertIs(origin2.source, origin1.source)
+
+
+class CommandLineTextSourceTests(TestCase):
+
+    def test_str(self):
+        self.assertEqual(
+            str(CommandLineTextSource("--foo", "value")),
+            "command line argument --foo='value'")
+        self.assertEqual(
+            str(CommandLineTextSource(None, "value")),
+            "command line argument 'value'")
+    def test_repr(self):
+        self.assertEqual(
+            repr(CommandLineTextSource("--foo", "value")),
+            "<CommandLineTextSource arg_name:'--foo' arg_value:'value'>")
+
+    def test_relative_to(self):
+        src = CommandLineTextSource("--foo", "value")
+        self.assertIs(src.relative_to('path'), src)
+
+    def test_eq(self):
+        src1 = CommandLineTextSource("--foo", "value")
+        src2 = CommandLineTextSource("--foo", "value")
+        self.assertEqual(src1, src2)
+
+    def test_gt(self):
+        src1 = CommandLineTextSource("--arg2", "value")
+        src2 = CommandLineTextSource("--arg1", "value")
+        self.assertGreater(src1, src2)

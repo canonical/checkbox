@@ -326,3 +326,48 @@ class JobOutputTextSource(ITextSource):
 
     def relative_to(self, base_path):
         return self
+
+
+@functools.total_ordering
+class CommandLineTextSource(ITextSource):
+    """
+    A :class:`ITextSource` describing text that originated arguments to main()
+
+    :attr arg_name:
+        The optional name of the argument that describes the arg_value
+    :attr arg_value:
+        The argument that was passed on command line (the actual text)
+    """
+
+    def __init__(self, arg_name, arg_value):
+        self.arg_value = arg_value
+        self.arg_name = arg_name
+
+    def __str__(self):
+        if self.arg_name is not None:
+            return _("command line argument {}={!a}").format(
+                self.arg_name, self.arg_value)
+        else:
+            return _("command line argument {!a}").format(self.arg_value)
+
+    def __repr__(self):
+        return "<{} arg_name:{!r} arg_value:{!r}>".format(
+            self.__class__.__name__, self.arg_name, self.arg_value)
+
+    def __eq__(self, other):
+        if isinstance(other, CommandLineTextSource):
+            return (self.arg_name == other.arg_name
+                and self.arg_value == other.arg_value)
+        return NotImplemented
+
+    def __gt__(self, other):
+        if isinstance(other, CommandLineTextSource):
+            if self.arg_name > other.arg_name:
+                return True
+            if self.arg_value > other.arg_value:
+                return True
+            return False
+        return NotImplemented
+
+    def relative_to(self, base_path):
+        return self

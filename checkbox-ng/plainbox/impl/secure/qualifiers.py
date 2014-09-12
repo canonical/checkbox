@@ -303,6 +303,18 @@ class PatternMatcher(IMatcher):
         return "{0}({1!r})".format(
             self.__class__.__name__, self._pattern_text)
 
+    def __eq__(self, other):
+        if isinstance(other, PatternMatcher):
+            return self.pattern_text == other.pattern_text
+        else:
+            return NotImplemented
+
+    def __lt__(self, other):
+        if isinstance(other, PatternMatcher):
+            return self.pattern_text < other.pattern_text
+        else:
+            return NotImplemented
+
 
 class FieldQualifier(SimpleQualifier):
     """

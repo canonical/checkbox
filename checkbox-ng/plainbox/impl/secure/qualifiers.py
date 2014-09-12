@@ -284,6 +284,20 @@ class FieldQualifier(SimpleQualifier):
         self._field = field
         self._matcher = matcher
 
+    @property
+    def field(self):
+        """
+        Name of the field to match
+        """
+        return self._field
+
+    @property
+    def matcher(self):
+        """
+        The IMatcher-implementing object to use to check for the match
+        """
+        return self._matcher
+
     def get_simple_match(self, job):
         """
         Check if the given job matches this qualifier.

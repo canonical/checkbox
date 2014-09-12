@@ -38,6 +38,7 @@ from plainbox.impl.validation import Severity
 __all__ = [
     'CorrectFieldValueValidator',
     'DeprecatedFieldValidator',
+    'FieldValidatorBase',
     'IFieldValidator',
     'PresentFieldValidator',
     'TemplateInvariantFieldValidator',

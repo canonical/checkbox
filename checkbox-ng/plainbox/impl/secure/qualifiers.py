@@ -255,6 +255,10 @@ class PatternMatcher(IMatcher):
         self._pattern_text = pattern
         self._pattern = re.compile(pattern)
 
+    @property
+    def pattern_text(self):
+        return self._pattern_text
+
     def match(self, value):
         return self._pattern.match(value) is not None
 

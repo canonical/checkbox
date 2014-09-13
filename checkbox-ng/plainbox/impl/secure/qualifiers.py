@@ -26,13 +26,15 @@ some set of rules.
 """
 
 import abc
+import functools
 import itertools
 import logging
+import operator
 import os
 import re
-import functools
 
 from plainbox.abc import IJobQualifier
+from plainbox.i18n import gettext as _
 from plainbox.impl.secure.origin import FileTextSource
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.origin import UnknownTextSource

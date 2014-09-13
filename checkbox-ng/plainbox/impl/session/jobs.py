@@ -222,11 +222,11 @@ class JobState:
         """
         Changes the job associated with this state
         """
-        #FIXME: This setter should not exist. job attribute should be
-        #read-only. This is a temporary kludge to get session restoring
-        #over DBus working. Once a solution that doesn't involve setting
-        #a JobState's job attribute is implemented, please remove this
-        #awful method.
+        # FIXME: This setter should not exist. job attribute should be
+        # read-only. This is a temporary kludge to get session restoring
+        # over DBus working. Once a solution that doesn't involve setting
+        # a JobState's job attribute is implemented, please remove this
+        # awful method.
         self._job = job
 
     def _readiness_inhibitor_list():

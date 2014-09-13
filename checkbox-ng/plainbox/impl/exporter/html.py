@@ -67,7 +67,7 @@ class HTMLResourceInliner(object):
             return return_string
         else:
             logger.warning(_("Resource of type %s unknown"), type)
-            #Strip it out, better not to have it.
+            # Strip it out, better not to have it.
             return ""
 
     def inline_resources(self, document_tree):

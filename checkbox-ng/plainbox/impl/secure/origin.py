@@ -150,8 +150,8 @@ class Origin:
         Create a new Origin that points to the start line
 
         :returns:
-            A new Origin with the end_line equal to start_line. This effectively
-            makes the origin describe a single line.
+            A new Origin with the end_line equal to start_line.
+            This effectively makes the origin describe a single line.
         """
         return Origin(self.source, self.line_start, self.line_start)
 
@@ -357,7 +357,7 @@ class CommandLineTextSource(ITextSource):
     def __eq__(self, other):
         if isinstance(other, CommandLineTextSource):
             return (self.arg_name == other.arg_name
-                and self.arg_value == other.arg_value)
+                    and self.arg_value == other.arg_value)
         return NotImplemented
 
     def __gt__(self, other):

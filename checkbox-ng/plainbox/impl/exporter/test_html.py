@@ -77,7 +77,7 @@ class HTMLInlinerTests(TestCase):
         for node in self.inlined_tree.xpath('//style'):
             # Skip a fake remote_resource node that's purposefully
             # not inlined
-            if not 'nonexistent_resource' in node.attrib['type']:
+            if 'nonexistent_resource' not in node.attrib['type']:
                 self.assertTrue("body" in node.text)
 
     def test_remote_resource_inlining(self):

@@ -610,7 +610,7 @@ class ResourceExpression:
         # Use the ast module to build an abstract syntax tree of the expression
         try:
             node = ast.parse(text)
-        except SyntaxError as exc:
+        except SyntaxError:
             raise ResourceSyntaxError
         # Use ResourceNodeVisitor to see what kind of ast.Name objects are
         # referenced by the expression. This may also raise CodeNotAllowed

@@ -177,7 +177,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         hw_info = defaultdict(lambda: 'NA')
         if '2013.com.canonical.certification::dmi' in data['resource_map']:
             result = [
-                '{} {} ({})'.format(i.get('vendor'), i.get('product'), i.get('version'))
+                '{} {} ({})'.format(
+                    i.get('vendor'), i.get('product'), i.get('version'))
                 for i in data["resource_map"]['2013.com.canonical.certification::dmi']
                 if i.get('category') == 'SYSTEM']
             if result:
@@ -446,7 +447,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                     tree.items(),
                     key=lambda t: 'z' + t[0] if t[1] else 'a' + t[0])).items():
             if (result_map[job]['plugin'] == 'local' and
-                not result_map[job].get('category_status')):
+                    not result_map[job].get('category_status')):
                 continue
             self._lineno += 1
             if children:

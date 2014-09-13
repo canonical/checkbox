@@ -67,7 +67,8 @@ class RFC822Record:
     file/stream where it was parsed from).
     """
 
-    def __init__(self, data, origin=None, raw_data=None, field_offset_map=None):
+    def __init__(self, data, origin=None, raw_data=None,
+                 field_offset_map=None):
         """
         Initialize a new record.
 
@@ -399,8 +400,8 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
                 # The +1 is for the fact that value is empty (or just
                 # whitespace) and that is stripped away in the normalized data
                 # part of the RFC822 record. To keep line tracking accurate
-                # we just assume that the field actually starts on the following
-                # line.
+                # we just assume that the field actually starts on
+                # the following line.
                 field_offset_map[key] = lineno - origin.line_start + 1
             # Update the end-line location
             _update_end_lineno()

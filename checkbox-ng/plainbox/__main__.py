@@ -17,7 +17,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-:mod:`plainbox.__main__` -- execute plainbox 
+:mod:`plainbox.__main__` -- execute plainbox
 ============================================
 
 This module allows plainbox to be executed with:

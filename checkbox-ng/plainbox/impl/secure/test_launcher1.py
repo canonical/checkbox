@@ -320,7 +320,7 @@ class MainTests(TestCase):
         verify what happens when `plainbox-trusted-launcher-1` is called with a
         checksum that cannot be found in any of the providers.
         """
-       # Run the program with io intercept
+        # Run the program with io intercept
         with TestIO(combined=True) as io:
             with self.assertRaises(SystemExit) as call:
                 main(['--target=1234', '-T', 'blarg'])

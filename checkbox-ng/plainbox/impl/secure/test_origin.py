@@ -217,7 +217,8 @@ class OriginTests(TestCase):
 
     def test_str__whole_file(self):
         """
-        verify that Origin.__str__() behaves differently when the range is empty
+        verify that Origin.__str__() behaves differently when the range
+        is empty
         """
         expected = "file.txt"
         observed = str(Origin(FileTextSource("file.txt")))
@@ -323,7 +324,7 @@ class OriginTests(TestCase):
         verify how Origin.with_offset() works as expected
         """
         origin1 = Origin(UnknownTextSource(), 1, 2)
-        origin2= origin1.with_offset(10)
+        origin2 = origin1.with_offset(10)
         self.assertEqual(origin2.line_start, 11)
         self.assertEqual(origin2.line_end, 12)
         self.assertIs(origin2.source, origin1.source)
@@ -333,7 +334,7 @@ class OriginTests(TestCase):
         verify how Origin.just_line() works as expected
         """
         origin1 = Origin(UnknownTextSource(), 1, 2)
-        origin2= origin1.just_line()
+        origin2 = origin1.just_line()
         self.assertEqual(origin2.line_start, origin1.line_start)
         self.assertEqual(origin2.line_end, origin1.line_start)
         self.assertIs(origin2.source, origin1.source)
@@ -358,6 +359,7 @@ class CommandLineTextSourceTests(TestCase):
         self.assertEqual(
             str(CommandLineTextSource(None, "value")),
             "command line argument 'value'")
+
     def test_repr(self):
         self.assertEqual(
             repr(CommandLineTextSource("--foo", "value")),

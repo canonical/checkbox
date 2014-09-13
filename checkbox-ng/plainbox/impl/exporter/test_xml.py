@@ -116,7 +116,8 @@ class XMLExporterTests(TestCase):
         single accepted 'client-name' option set properly.
         """
         self.prepare_test_exporter(option_list=['client-name=verifythis'])
-        self.assertEqual(self.exporter.get_option_value('client-name'), "verifythis")
+        self.assertEqual(
+            self.exporter.get_option_value('client-name'), "verifythis")
 
     def test_perfect_match(self):
         expected_result = resource_string(
@@ -134,7 +135,7 @@ class XMLExporterTests(TestCase):
                 self.actual_result))
 
     def test_questions_ordered_by_id(self):
-       # parse self.actual_result
+        # parse self.actual_result
         root = etree.fromstring(self.actual_result)
         # Tests are called "questions" in xml
         questions = root.find("questions")
@@ -148,13 +149,11 @@ class XMLExporterTests(TestCase):
     def test_client_name_option_takes_precedence(self):
         # We use trickery to verify the xml final report has the client name
         # sent in the option string, rather than the constructor parameter.
-        # We pass a bogus client-name in the constructor, then the correct expected
-        # name in the option, and just check as usual.
+        # We pass a bogus client-name in the constructor, then the correct
+        # expected name in the option, and just check as usual.
         self.prepare_test_exporter(client_name="bogus",
                                    option_list=['client-name=plainbox'])
         expected_result = resource_string(
             "plainbox", "test-data/xml-exporter/example-data.xml"
         )  # unintuitively, resource_string returns bytes
         self.assertEqual(self.actual_result, expected_result)
-
-

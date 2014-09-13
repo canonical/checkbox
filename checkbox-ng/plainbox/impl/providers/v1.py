@@ -183,7 +183,8 @@ class InsecureProvider1PlugInCollection(FsPlugInCollection):
             dir_list = get_insecure_PROVIDERPATH_list()
         else:
             dir_list = PROVIDERPATH.split(os.path.pathsep)
-        super().__init__(dir_list, '.provider', wrapper=Provider1PlugIn, **kwargs)
+        super().__init__(
+            dir_list, '.provider', wrapper=Provider1PlugIn, **kwargs)
 
 
 # Collection of all providers

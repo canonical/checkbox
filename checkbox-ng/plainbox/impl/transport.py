@@ -8,7 +8,6 @@
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -65,7 +64,7 @@ class TransportBase(ISessionStateTransport):
 
     def __init__(self, where, option_string):
         self.url = where
-        #parse option string only if there's at least one k=v pair
+        # parse option string only if there's at least one k=v pair
         self.options = {}
         if not option_string:
             return

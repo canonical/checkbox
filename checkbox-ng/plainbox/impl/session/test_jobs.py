@@ -24,12 +24,9 @@ plainbox.impl.test_session
 Test definitions for plainbox.impl.session module
 """
 
-import json
-
 from unittest import TestCase, expectedFailure
 
 from plainbox.abc import IJobResult
-from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.session import JobReadinessInhibitor
 from plainbox.impl.session import JobState
 from plainbox.impl.session import UndesiredJobReadinessInhibitor

@@ -24,15 +24,8 @@ plainbox.impl.test_session
 Test definitions for plainbox.impl.session module
 """
 
-import json
-import os
-import tempfile
-import shutil
-
 from unittest import TestCase
 
-from plainbox.abc import IJobResult
-from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.session.legacy import SessionStateLegacyAPICompatImpl
 from plainbox.impl.testing_utils import make_job
 

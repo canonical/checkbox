@@ -26,7 +26,6 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
-from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
 from logging import getLogger
 

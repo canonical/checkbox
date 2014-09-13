@@ -32,7 +32,6 @@ from plainbox import __version__ as plainbox_version
 from plainbox.impl.applogic import run_job_if_possible
 from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.runner import JobRunner
-from plainbox.impl.secure.rfc822 import gen_rfc822_records
 from plainbox.impl.session import SessionStorageRepository
 from plainbox.impl.session.legacy import SessionStateLegacyAPI as SessionState
 from plainbox.impl.transport import TransportError

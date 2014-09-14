@@ -50,7 +50,7 @@ else:
 
 setup(
     name="plainbox",
-    version="0.12c2",
+    version="0.12",
     url="https://launchpad.net/plainbox/",
     packages=find_packages(),
     author="Zygmunt Krynicki",

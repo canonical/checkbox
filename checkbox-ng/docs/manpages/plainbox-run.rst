@@ -9,8 +9,8 @@ plainbox-run (1)
     :path: run
     :nodefault:
 
-    This command runs zero or more PlainBox jobs as a part of a single session
-    and saves the test results. PlainBox will follow the following high-level
+    This command runs zero or more Plainbox jobs as a part of a single session
+    and saves the test results. Plainbox will follow the following high-level
     algorithm during the execution of this command.
 
     1. Parse command line arguments and look if there's a session that can be
@@ -45,7 +45,7 @@ plainbox-run (1)
 
        Before and after executing any job the session state is saved to disk to
        allow resuming from a job that somehow crashes the system or crashes
-       PlainBox itself.
+       Plainbox itself.
 
     5. Remove the `incomplete` flag.
 
@@ -58,14 +58,14 @@ plainbox-run (1)
     SELECTING JOBS
     ==============
 
-    PlainBox offers two mechanisms for selecting jobs. Both can be used at the
+    Plainbox offers two mechanisms for selecting jobs. Both can be used at the
     same time, both can be used multiple times.
 
     Selecting jobs with patterns
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     The first mechanism is exposed through the ``--include-pattern PATTERN``
-    command-line option. It instructs PlainBox to `select` any job whose
+    command-line option. It instructs Plainbox to `select` any job whose
     fully-qualified identifier matches the regular expression ``PATTERN``.
 
     Jobs selected this way will be, if possible, ordered according to the order
@@ -83,7 +83,7 @@ plainbox-run (1)
     identical to those that may be passed with the ``-i`` option.
 
     Unlike the ``-i`` option though, there are two kinds of whitelists.
-    Standalone whitelists are not associated with any PlainBox Provider.  Such
+    Standalone whitelists are not associated with any Plainbox Provider.  Such
     whitelists can be distributed entirely separately from any other component
     and thus have no association with any namespace.
 
@@ -94,7 +94,7 @@ plainbox-run (1)
         2013.com.canonical.plainbox::stub/.*
 
     It will unambiguously select some of the jobs from the special, internal
-    StubBox provider that is built into PlainBox. It can be saved under any
+    StubBox provider that is built into Plainbox. It can be saved under any
     filename and stored in any directory and it will always select the same set
     of jobs.
 
@@ -115,7 +115,7 @@ plainbox-run (1)
     GENERATED JOBS
     ==============
 
-    PlainBox offers a way to generate jobs at runtime. There are two
+    Plainbox offers a way to generate jobs at runtime. There are two
     motivations for this feature.
 
     Instantiating Tests for Multiple Devices
@@ -146,12 +146,12 @@ plainbox-run (1)
     This behavior is special-cased not to cause redefinition errors. Instead,
     existing definitions gain the ``via`` attribute that links them to the
     generator job. This feature is used by derivative application such as
-    Checkbox. PlainBox is not using it at this time.
+    Checkbox. Plainbox is not using it at this time.
 
     RESUMING
     ========
 
-    PlainBox offers a session resume functionality whereas a session that was
+    Plainbox offers a session resume functionality whereas a session that was
     interrupted (either purposefully or due to a malfunction) can be resumed
     and effectively continued where it was left off.
 
@@ -169,16 +169,16 @@ plainbox-run (1)
     This functionality does not allow to interrupt and resume a test job that
     is already being executed. Such job will be restarted from scratch.
 
-    PlainBox tries to ensure that a single session is consistent and the
+    Plainbox tries to ensure that a single session is consistent and the
     assumptions that held at the start of the session are maintained at the
-    end. To that end, PlainBox will try to ensure that job definitions have not
+    end. To that end, Plainbox will try to ensure that job definitions have not
     changed between two separate invocations that worked with a single session.
     If such a situation is detected the session will not be resumed.
 
     EXPORTING RESULTS
     =================
 
-    PlainBox offers a way to export the internal state of the session into a
+    Plainbox offers a way to export the internal state of the session into a
     more useful format for further processing.
 
     Selecting Exporters
@@ -214,7 +214,7 @@ plainbox-run (1)
     of the session state. It is the most versatile exporter and it is useful
     and easy for further processing. It is not particularly human-readable
     but can be quite useful for high-level debugging without having to use
-    pdb and know the internals of PlainBox.
+    pdb and know the internals of Plainbox.
 
     rfc822
     ------
@@ -281,13 +281,13 @@ plainbox-run (1)
         from the shell command associated with some jobs.
 
     squash-io-log:
-        When used together with `with-io-log` option it causes PlainBox to
+        When used together with `with-io-log` option it causes Plainbox to
         discard the stream name and time-stamp and just include a list of
         base64-encoded binary strings. This option is more useful for
         reconstructing simple "log files"
 
     flatten-io-log:
-        When used together with `with-io-log` option it causes PlainBox to
+        When used together with `with-io-log` option it causes Plainbox to
         concatenate all of the separate base64-encoded records into one large
         base64-encoded binary string representing the whole communication that
         took place.
@@ -303,7 +303,7 @@ plainbox-run (1)
         Exported data will include the full resource map. Resources are records
         of key-value sets that are associated with each job result for jobs
         that have plugin type `resource`. They are expected to be printed to
-        `stdout` by such `resource jobs` and are parsed and stored by PlainBox.
+        `stdout` by such `resource jobs` and are parsed and stored by Plainbox.
 
     with-job-defs:
         Exported data will include some of the properties of each job
@@ -392,7 +392,7 @@ plainbox-run (1)
     specified with the ``--transport-where=`` option. The syntax of the URL
     varies by transport type.
 
-    PlainBox comes equipped with the following transports:
+    Plainbox comes equipped with the following transports:
 
     launchpad
     ^^^^^^^^^
@@ -408,7 +408,7 @@ plainbox-run (1)
     the Canonical Certification Website (https://certification.canonical.com).
 
     This transport is of little use to anyone but the Canonical Hardware
-    Certification Team that also maintains PlainBox and Checkbox but it is
+    Certification Team that also maintains Plainbox and Checkbox but it is
     mentioned here for completeness.
 
 See Also

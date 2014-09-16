@@ -5,7 +5,7 @@ Provider Internationalization
 About
 -----
 
-:term:`PlainBox` offers a way for test authors to create localized testing
+:term:`Plainbox` offers a way for test authors to create localized testing
 experience.  This allows test developers to mark certain strings as
 translatable and make them a part of existing internationalization and
 localization frameworks.
@@ -19,7 +19,7 @@ can now extract, merge and build translation catalogs that will be familiar to
 many developers.
 
 The job definition file format already supported this syntax but it was not
-supported by PlainBox before, if you are maintaining an existing provider the
+supported by Plainbox before, if you are maintaining an existing provider the
 only new thing, for you, may be the fact that a job name (summary) is now also
 translatable and that there are dedicated tools that make the process easier.
 

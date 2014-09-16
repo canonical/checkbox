@@ -3,10 +3,10 @@
 Basic Usage
 ===========
 
-Currently :term:`PlainBox` has no graphical user interface. To use it you need
+Currently :term:`Plainbox` has no graphical user interface. To use it you need
 to use the command line.
 
-PlainBox has built-in help system so running :command:`plainbox run --help`
+Plainbox has built-in help system so running :command:`plainbox run --help`
 will give you instant information about all the various arguments and options
 that are available. This document is not intended to replace that.
 
@@ -33,7 +33,7 @@ For example, to run one of the internal "smoke" test job:
 Running jobs related to a specific area
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-PlainBox has no concept of job categories but you can simulate that by
+Plainbox has no concept of job categories but you can simulate that by
 running all jobs that follow a specific naming pattern. For example, to run
 all of the USB tests you can run the following command:
 
@@ -61,7 +61,7 @@ For example, to run the default white list run:
 Saving test results
 ^^^^^^^^^^^^^^^^^^^
 
-Anything that PlainBox captures and stores during test execution can be
+Anything that Plainbox captures and stores during test execution can be
 exported to a file using the exporter system. The two most commonly used
 exporters are JSON (versatile and general) and XML (for internal Canonical use).
 

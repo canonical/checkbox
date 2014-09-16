@@ -5,7 +5,7 @@ plainbox-file-units (7)
 Synopsis
 ========
 
-This page documents the PlainBox file units syntax and runtime behavior
+This page documents the Plainbox file units syntax and runtime behavior
 
 Description
 ===========

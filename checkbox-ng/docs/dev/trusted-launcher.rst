@@ -1,11 +1,11 @@
 Running jobs as root
 ====================
 
-:term:`PlainBox` is started without any privilege.  But several tests need to
+:term:`Plainbox` is started without any privilege.  But several tests need to
 start commands requiring privileges.
 
 Such tests will call a trusted launcher, a standalone script which does not
-depend on the :term:`PlainBox` core modules.
+depend on the :term:`Plainbox` core modules.
 `polkit <http://www.freedesktop.org/wiki/Software/polkit>`_ will control access
 to system resources.  The trusted launcher has to be started using
 `pkexec <http://www.freedesktop.org/software/polkit/docs/0.105/pkexec.1.html>`_
@@ -14,7 +14,7 @@ so that the related policy file works as expected.
 To avoid a security hole that allows anyone to run anything as root, the
 launcher can only run jobs installed in a system-wide directory. This way we
 are not weaken the trust system as root access is required to install both
-components (the trusted runner and jobs). The :term:`PlainBox` process will
+components (the trusted runner and jobs). The :term:`Plainbox` process will
 send an identifier which is matched by a well-known list in the trusted
 launcher. This identifier is the job hash:
 
@@ -33,10 +33,10 @@ Available authentication methods
 
 .. note::
 
-    Only applicable to the package version of PlainBox
+    Only applicable to the package version of Plainbox
 
-PlainBox comes with two authentication methods but both aim to retain the
-granted privileges for the life of the :term:`PlainBox` process.
+Plainbox comes with two authentication methods but both aim to retain the
+granted privileges for the life of the :term:`Plainbox` process.
 
 * The first method will ask the password only once and show the following
   agent on desktop systems (a text-based agent is available for servers):
@@ -59,7 +59,7 @@ granted privileges for the life of the :term:`PlainBox` process.
         |                                                                             |
         | [V] Details:                                                                |
         |  Action: org.freedesktop.policykit.pkexec.run-plainbox-job                  |
-        |  Vendor: PlainBox                                                           |
+        |  Vendor: Plainbox                                                           |
         |                                                                             |
         |                                                     [Cancel] [Authenticate] |
         +-----------------------------------------------------------------------------+
@@ -81,7 +81,7 @@ granted privileges for the life of the :term:`PlainBox` process.
          "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
         <policyconfig>
 
-          <vendor>PlainBox</vendor>
+          <vendor>Plainbox</vendor>
           <vendor_url>https://launchpad.net/checkbox</vendor_url>
           <icon_name>checkbox</icon_name>
 
@@ -105,7 +105,7 @@ granted privileges for the life of the :term:`PlainBox` process.
 
 .. note::
 
-    The two policy files are available in the PlainBox :file:`contrib/`
+    The two policy files are available in the Plainbox :file:`contrib/`
     directory.
 
 Environment settings with pkexec
@@ -133,7 +133,7 @@ plainbox-trusted-launcher-1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The trusted launcher is the minimal code needed to be able to run a
-:term:`CheckBox` job command.
+:term:`Checkbox` job command.
 
 Internally the checkbox trusted launcher looks for jobs in the system locations
 defined in :attr:`plainbox.impl.secure.providers.v1.all_providers` which
@@ -168,11 +168,11 @@ variables defined in the job environ property are allowed to avoid compromising
 the root environment. Needed modifications like adding ``CHECKBOX_SHARE`` and
 new paths to scripts are managed by the plainbox-trusted-launcher-1.
 
-Authentication on PlainBox startup
+Authentication on Plainbox startup
 ----------------------------------
 
 To avoid prompting the password at the first test requiring privileges,
-:term:`PlainBox` will call the ``plainbox-trusted-launcher-1`` with the
+:term:`Plainbox` will call the ``plainbox-trusted-launcher-1`` with the
 ``--warmup`` option.  It's like a NOOP and it will return immediately, but
 thanks to the installed policy file the authentication will be kept.
 
@@ -182,7 +182,7 @@ thanks to the installed policy file the authentication will be kept.
     authentication agent will pop up to ask the password each and every time.
     This is the only difference.
 
-Special case of jobs using the CheckBox local plugin
+Special case of jobs using the Checkbox local plugin
 ----------------------------------------------------
 
 For jobs generated from :ref:`local <local>` jobs (e.g.

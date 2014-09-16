@@ -1,9 +1,9 @@
-Introduction to PlainBox
+Introduction to Plainbox
 ========================
 
 .. contents::
 
-What is PlainBox?
+What is Plainbox?
 -----------------
 
 Many years ago, a dark sorcerer known only as CR3 created a testing tool
@@ -11,50 +11,50 @@ called ``hw-test`` with the vision of running tests against hardware to
 bless the hardware and deem it as Ubuntu Certified.  There was great
 rejoicing.  From the crowd that gathered around this tool came requests and
 requirements for new features, new tests and new methods of doing things. 
-Over the subsequent years, a tool called CheckBox was created. It was the
+Over the subsequent years, a tool called Checkbox was created. It was the
 product of the design by committee philosophy and soon grew ponderous and
 difficult to understand except by a few known only as "The Developers."
-CheckBox's goal was to function as a universal testing engine that could
+Checkbox's goal was to function as a universal testing engine that could
 drive several types of testing: end-users running tests on their systems,
 certification testing with a larger set of tests, and even OEM-specific
 testing with custom tests.
 
-A couple of years ago CheckBox started showing its age. The architecture
+A couple of years ago Checkbox started showing its age. The architecture
 was difficult to understand and to extend and the core didn't really scale
 to some things we wanted to do; however, the test suite itself was still
 quite valuable.
 
-Thus PlainBox was created, as a "plain CheckBox" and again, there was much
+Thus Plainbox was created, as a "plain Checkbox" and again, there was much
 rejoicing. It was originally meant to be a simpler library for creating
 testing applications and as a requirement, it was designed to be compatible
-with the CheckBox test/job definition format.
+with the Checkbox test/job definition format.
 
-Since then, PlainBox has become a large set of libraries and tools, but the
+Since then, Plainbox has become a large set of libraries and tools, but the
 central aim is still to write testing applications. Note that the term
-*CheckBox* is still used to refer to the test suite generically; *PlainBox*
+*Checkbox* is still used to refer to the test suite generically; *Plainbox*
 is used to refer to the new tool set "under the hood."
 
 Goal
 ----
 
 The goal of these tools is of course to run tests. They use a test
-description language that was inherited from CheckBox, so it has many
-interesting quirks. Since CheckBox itself is now deprecated, we have been
+description language that was inherited from Checkbox, so it has many
+interesting quirks. Since Checkbox itself is now deprecated, we have been
 adding new features and improving the test description language so this is
 in some flux.
 
 Terminology
 -----------
 
-In developing or using PlainBox, you'll run into several unfamiliar terms.
+In developing or using Plainbox, you'll run into several unfamiliar terms.
 Check the :doc:`../glossary` to learn what they mean. In fact, you should
-probably check it now. Pay particular attention to the terms *CheckBox*,
-*PlainBox*, *job*, *provier*, and *whitelist*.
+probably check it now. Pay particular attention to the terms *Checkbox*,
+*Plainbox*, *job*, *provier*, and *whitelist*.
 
 Getting Started
 ---------------
 
-To get started, we'll install PlainBox and ``checkbox-ng`` along with some
+To get started, we'll install Plainbox and ``checkbox-ng`` along with some
 tests and look at how they are organized and packaged.
 
 The newest versions are in our PPAs. We'll use the development PPA at
@@ -93,7 +93,7 @@ When the tests are run, the results are saved to files and the program
 prompts to submit them to Launchpad.
 
 As mentioned, ``checkbox-cli`` is just a convenient front-end for some
-PlainBox features but it lets us see some aspects of PlainBox.
+Plainbox features but it lets us see some aspects of Plainbox.
 
 Looking Deeper
 --------------
@@ -107,9 +107,9 @@ are shipped in Debian packages, which allows us to express dependencies to
 ensure required external packages are installed, and we can also separate
 those dependencies; for instance, the provider used for server testing
 doesn't actually contain the server-specific test definitions (we try to
-keep all the test definitions in the CheckBox provider), but it does depend
+keep all the test definitions in the Checkbox provider), but it does depend
 on all the packages needed for server testing. Most users will want the
-resource and CheckBox providers which contain many premade tests, but this
+resource and Checkbox providers which contain many premade tests, but this
 organization allows shipping the tiny core and a fully customized provider
 without extraneous dependencies.
 
@@ -119,7 +119,7 @@ the files from the provider. This file is usually managed automatically
 (more on this later). A provider can ship jobs, binaries, data and
 whitelists.
 
-A **job** or **test** is the smallest unit or description that PlainBox
+A **job** or **test** is the smallest unit or description that Plainbox
 knows about. It describes a single test (historically they're called
 jobs). The simplest possible job is::
 
@@ -143,7 +143,7 @@ types include (but are not limited to):
  * ``local`` -- This type of job is similar to a ``shell`` test, but it
    supports creating multiple tests from a single definition (say, to test
    all the Ethernet ports on a computer). Jobs using the ``local`` plugin
-   are run when PlainBox is initialized.
+   are run when Plainbox is initialized.
  * ``user-interact`` -- A test that asks the user to perform some action
    *before* the test is performed. The test then passes or fails
    automatically based on the output of the test. An example is
@@ -197,7 +197,7 @@ Key points to note include:
    specified condition is not met, the test does not run.
  * The ``command`` field specifies the command that's used to run the test.
    This can be a standard Linux command (or even a set of commands) or a
-   CheckBox test script. In this example's ``local`` test definition, the
+   Checkbox test script. In this example's ``local`` test definition, the
    first ``command`` line generates a list of network devices that is fed
    to an embedded test, which is defined beginning with the second
    ``plugin`` line immediately following the first ``command`` line.
@@ -217,7 +217,7 @@ testing, and maybe give the user a way to fine-tune that selection. Also,
 we need a way to determine the order in which they will run, beyond what
 dependencies may provide. This is where the whitelist comes in; think of it
 as a mask or selection filter from the universe of jobs. Whitelists support
-regular expressions, and PlainBox will attempt to run tests in the order
+regular expressions, and Plainbox will attempt to run tests in the order
 shown in the whitelist. Again, providers ship whitelists in a specific
 directory, and you can use ``plainbox`` to run a specific whitelist with
 the ``-w`` option.
@@ -231,7 +231,7 @@ This enables us to create mini-clients for each testing purpose, without
 changing the core utility (``checkbox-launcher``). For instance, let's look
 at the launcher for ``canonical-certification-server``, which appears in
 ``./providers/plainbox-provider-certification-server/launcher/canonical-certification-server``
-in the CheckBox source tree::
+in the Checkbox source tree::
 
  #!/usr/bin/env checkbox-launcher
  [welcome]
@@ -264,10 +264,10 @@ binary with which to launch its relevant tests.
 Developing Tests
 ````````````````
 
-One way to deliver tests via PlainBox is to start your own provider. To
+One way to deliver tests via Plainbox is to start your own provider. To
 learn how to do that, see the :ref:`tutorial`.
 
-In other cases you want to add tests to the main CheckBox repository (which
+In other cases you want to add tests to the main Checkbox repository (which
 is also what we recommend to keep tests centralized, unless they're so
 purpose-specific that this makes no sense).
 
@@ -279,21 +279,21 @@ project in the ``my-branch`` subdirectory. You can then edit the files in
 that subdirectory, upload the results to your own Launchpad account, and
 request a merge.
 
-To begin, consider the files and subdirectories in the main CheckBox
+To begin, consider the files and subdirectories in the main Checkbox
 development directory (``my-branch`` if you used the preceding ``bzr``
 command without change):
 
- * ``checkbox-gui`` -- CheckBox GUI components, used in desktop/laptop
+ * ``checkbox-gui`` -- Checkbox GUI components, used in desktop/laptop
    testing
- * ``checkbox-ng`` -- The PlainBox-based version of CheckBox
+ * ``checkbox-ng`` -- The Plainbox-based version of Checkbox
  * ``checkbox-support`` -- Support code for many providers
- * ``checkbox-touch`` -- A CheckBox frontend optimized for touch/tablet
+ * ``checkbox-touch`` -- A Checkbox frontend optimized for touch/tablet
    devices
  * ``mk-venv`` -- A symbolic link to a script used to set up an environment
-   for testing CheckBox
+   for testing Checkbox
  * ``plainbox`` -- A Python3 library and development tools at the heart of
-   PlainBox
- * ``plainbox-client`` -- Unfinished Python3 interface for CheckBox
+   Plainbox
+ * ``plainbox-client`` -- Unfinished Python3 interface for Checkbox
  * ``providers`` -- Provider definitions, including test scripts
  * ``README.md`` -- A file describing the contents of the subdirectory in
    greater detail
@@ -307,18 +307,18 @@ command without change):
  * ``Vagrantfile`` -- A Vagrant configuration file
 
 Let's say I want to write a test to ensure that the ubuntu user exists in
-``/etc/passwd``. You need to remove any existing CheckBox provider
+``/etc/passwd``. You need to remove any existing Checkbox provider
 packages, lest they interfere with your new or modified tests. The
-``setup.py`` script will set up a PlainBox development environment for you.
+``setup.py`` script will set up a Plainbox development environment for you.
 
 We can write a simple job here, then add a requirement, perhaps a
 dependency, then a script in the directory. Note that scripts can be
 anything that's executable, we usually prefer either shell or Python but
 anything goes.
 
-PlainBox will supply two environment variables, ``PLAINBOX_PROVIDER_DATA``
+Plainbox will supply two environment variables, ``PLAINBOX_PROVIDER_DATA``
 and ``SHARE``, we usually try to use them in the job description only, not
-in the scripts, to keep the scripts PlainBox-agnostic if possible.
+in the scripts, to keep the scripts Plainbox-agnostic if possible.
 
 Once the test is running correctly, we can create a whitelist with a few
 tests and name it.
@@ -349,22 +349,22 @@ Other Questions
   when developing Python, as I usually prefer a minimalistic editor. I'm
   partial to ``vim`` as it has syntax coloring, decent formatting
   assistance, can interface with ``git`` and ``pyflakes`` and is just
-  really fast. We even have a plugin for PlainBox job files. Another good
+  really fast. We even have a plugin for Plainbox job files. Another good
   option if you're not married to an editor is sublime text, Zygmunt has
   been happy with it and it seems easy to extend, plus it's very
   nice-looking. A recent survey identified Kate as a good alterntive. The
   same survey identified ``gedit`` as *not* a good alternative so I'd avoid
   that one. Finally if you're into cloud, ``cloud9.io`` may be an option
-  although we don't have a specific PlainBox development setup for it.
+  although we don't have a specific Plainbox development setup for it.
 
 References
 ----------
 
- :doc:`Reference on PlainBox test authoring <index>`
+ :doc:`Reference on Plainbox test authoring <index>`
 
  :doc:`jobs`
 
- :doc:`PlainBox provider template <provider-template>`
+ :doc:`Plainbox provider template <provider-template>`
 
  :doc:`Provider and job writing tutorial <tutorial>`
 
@@ -376,15 +376,15 @@ References
 
  :doc:`All the manpages <../manpages/index>`
 
- `The CheckBox stack diagram`_
+ `The Checkbox stack diagram`_
 
-.. _The CheckBox stack diagram:
+.. _The Checkbox stack diagram:
    http://checkbox.readthedocs.org/en/latest/stack.html
 
- `Old CheckBox documentation for nostalgia`_
+ `Old Checkbox documentation for nostalgia`_
 
-.. _Old CheckBox documentation for nostalgia:
-   https://wiki.ubuntu.com/Testing/Automation/CheckBox
+.. _Old Checkbox documentation for nostalgia:
+   https://wiki.ubuntu.com/Testing/Automation/Checkbox
 
  `Usual Python modules`_
 
@@ -409,11 +409,11 @@ References
 .. _A video on using git with Launchpad:
    https://plus.google.com/115602646184989903283/posts/RCepekrA5gu
 
- `A video on how to set up Sublime Text for PlainBox development`_
+ `A video on how to set up Sublime Text for Plainbox development`_
 
-.. _A video on how to set up Sublime Text for PlainBox development:
+.. _A video on how to set up Sublime Text for Plainbox development:
    https://www.youtube.com/watch?v=mrfyAgDg4ME&list=UURGrmUhQo5P9hTbVskIIjoQ
 
- `CheckBox(ng) documentation home`_
+ `Checkbox(ng) documentation home`_
 
-.. _CheckBox(ng) documentation home: http://checkbox.readthedocs.org
+.. _Checkbox(ng) documentation home: http://checkbox.readthedocs.org

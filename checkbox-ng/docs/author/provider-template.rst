@@ -2,7 +2,7 @@
 Provider Template
 =================
 
-PlainBox comes with a built-in template for a new provider. You can use it to
+Plainbox comes with a built-in template for a new provider. You can use it to
 quickly start working on your own collection of tests.
 
 This is not the :doc:`tutorial`, mind you, this is the actual template. It is
@@ -43,10 +43,10 @@ README.md
 
 ::
 
-    Skeleton for a new PlainBox provider
+    Skeleton for a new Plainbox provider
     ====================================
 
-    This is a skeleton PlainBox provider that was generated using
+    This is a skeleton Plainbox provider that was generated using
     ``plainbox startprovider ...``.
 
     It is just the starting point, there is nothing here of value to you
@@ -56,7 +56,7 @@ README.md
 
     Inside the ``jobs/`` directory you will find several files that define
     a number of "jobs" (more than one job per file actually). A job, in
-    PlainBox parlance, is the smallest piece of executable test code. Each
+    Plainbox parlance, is the smallest piece of executable test code. Each
     job has a name and a number of other attributes.
 
     Jobs can be arranged in lists, test plans if you will that are known
@@ -74,7 +74,7 @@ README.md
 
     Lastly there is the ``manage.py`` script. It requires python3 to run.
     It depends on the python3-plainbox Debian package (or just the
-    PlainBox 0.5 upstream package) installed. This script can automate and
+    Plainbox 0.5 upstream package) installed. This script can automate and
     simplify a number of tasks that you will want to do as a test
     developer.
 
@@ -107,7 +107,7 @@ manage.py
 
     # NOTE: one thing that you could do here, that makes a lot of sense,
     # is to compute version somehow. This may vary depending on the
-    # context of your provider. Future version of PlainBox will offer git,
+    # context of your provider. Future version of Plainbox will offer git,
     # bzr and mercurial integration using the versiontools library
     # (optional)
 
@@ -253,7 +253,7 @@ jobs/examples-intermediate.txt
     _description:
        This test illustrates how a job can be a dependency of another
        job. The dependency graph can be arbitrarily complex, it just
-       cannot have any cycles. PlainBox will discover various problems
+       cannot have any cycles. Plainbox will discover various problems
        related to dependencies, including cyclic dependencies and
        jobs that are depended upon, without a definition.
        .
@@ -271,7 +271,7 @@ jobs/examples-intermediate.txt
        This test illustrates how a job can depend on another job.
        .
        If you run this example unmodified (selecting just this job)
-       you will see that PlainBox will automatically run the
+       you will see that Plainbox will automatically run the
        'dependency-target' job before attempting to run this one.
        This will happen, even if you explicitly order the jobs
        incorrectly.
@@ -292,7 +292,7 @@ jobs/examples-intermediate.txt
     _summary: Example job producing structured resource data
     _description:
        This job illustrates that not all jobs are designed to be a
-       "test". PlainBox has a system of the so-called resources.
+       "test". Plainbox has a system of the so-called resources.
        .
        Technically a resource is a list of records with named fields.
        Any program that prints RFC822-like output can be considered a
@@ -320,7 +320,7 @@ jobs/examples-intermediate.txt
        this test only on a machine that has a hypothetical webcam.
        .
        If you run this example unmodified (selecting just this job)
-       you will see that PlainBox will automatically run the
+       you will see that Plainbox will automatically run the
        'detected_device' job before attempting to run this one. This
        will happen, even if you explicitly order the jobs incorrectly.
        .

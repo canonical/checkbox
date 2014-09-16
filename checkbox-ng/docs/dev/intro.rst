@@ -1,22 +1,22 @@
 Getting started with development
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-PlainBox uses python3 for development. The core is really system independent
+Plainbox uses python3 for development. The core is really system independent
 but you will need Ubuntu to really make the best of it and experience it as we
 do. We encourage everyone to use the most recent Ubuntu release for
 development. Usually this brings the best, most recent tools without having to
 search for software on the Internet.
 
-PlainBox has almost no dependencies itself, almost, because we depend on the
-mighty :term:`CheckBox` project to provide us with a lot of existing
-infrastructure. Testing PlainBox requires additional packages and some
+Plainbox has almost no dependencies itself, almost, because we depend on the
+mighty :term:`Checkbox` project to provide us with a lot of existing
+infrastructure. Testing Plainbox requires additional packages and some
 non-packaged software. You will typically want to install it and take advantage
 of the integration we provide.
 
 .. note::
 
-    If you are working with the source please be aware that PlainBox requires
-    an installed copy of CheckBox. CheckBox in turns is has many scripts that
+    If you are working with the source please be aware that Plainbox requires
+    an installed copy of Checkbox. Checkbox in turns is has many scripts that
     depend on various system packages, including python packages that cannot be
     installed from pypi. If you were planning on using :command:`virtualenv`
     then please make sure to create it with the ``--system-site-packages``
@@ -25,7 +25,7 @@ of the integration we provide.
 Get the source
 --------------
 
-Source code for PlainBox is kept along with several other related projects in
+Source code for Plainbox is kept along with several other related projects in
 the `checkbox` project on launchpad. You will need to use bzr to get a local
 copy.
 
@@ -41,7 +41,7 @@ copy.
 Get the dependencies
 --------------------
 
-You will need some tools to work on CheckBox. Scripted installation of almost
+You will need some tools to work on Checkbox. Scripted installation of almost
 everything required is available (except for VirtualBox and Vagrant, those are
 still manual).
 
@@ -51,11 +51,11 @@ all the missing dependencies and set you up for work on your machine.
 Getting Vagrant
 ---------------
 
-While developing PlainBox you will often need to run potentially dangerous
+While developing Plainbox you will often need to run potentially dangerous
 commands on your system, such as asking it to suspend and wake up
 automatically. We also need to support a range of Ubuntu releases, going all
 the way back to Ubuntu 12.04. This may cause compatibility issues that are
-unnoticed all until they hit our CI system. To minimize this PlainBox uses
+unnoticed all until they hit our CI system. To minimize this Plainbox uses
 :term:`Vagrant` to create lightweight execution environments that transparently
 share your source tree and allow you to quickly create and share testing
 environment that can be deployed by any developer in minutes. Vagrant uses
@@ -84,7 +84,7 @@ If you have not installed VirtualBox before, you must add yourself to the
 Initialize virtualenv
 ---------------------
 
-PlainBox will use a few unpackaged and bleeding-edge releases from :term:`pypi`
+Plainbox will use a few unpackaged and bleeding-edge releases from :term:`pypi`
 those are installed by additional script. By default the script assumes you
 have a `/ramdisk` directory but you can pass any path as an argument for an
 alternate location.
@@ -180,10 +180,10 @@ The first time you use lxc, it will download the base files for each release
 you test, which will be slow; afterwards, it will use a locally cached copy to
 speed things up.
 
-Running PlainBox tests
+Running Plainbox tests
 ^^^^^^^^^^^^^^^^^^^^^^
 
-PlainBox is designed to be testable so it would be silly if it was hard to run
+Plainbox is designed to be testable so it would be silly if it was hard to run
 tests. Actually, there are many different ways to run tests. They all run the
 same code so don't worry.
 
@@ -191,7 +191,7 @@ To test the current code you are working on you can:
 
 - Run the :command:`./test-in-vagrant.sh` from the top-level directory. This
   will take the longer but will go over *all* the tests on *all* the supported
-  versions of Ubuntu. It will run CheckBox unit-tests, PlainBox unit-tests and
+  versions of Ubuntu. It will run Checkbox unit-tests, Plainbox unit-tests and
   it will even run integration tests that actually execute jobs.
 
 - Run the :command:`./test-in-lxc.sh` from the top-level directory. This also

@@ -9,10 +9,10 @@ plainbox-check-config (1)
     :path: check-config
     :nodefault:
 
-    This command can be used to validate and display PlainBox configuration.
-    It is also commonly available for PlainBox derivatives such as Checkbox,
+    This command can be used to validate and display Plainbox configuration.
+    It is also commonly available for Plainbox derivatives such as Checkbox,
     where it displays configuration files with additional variables not used by
-    PlainBox.
+    Plainbox.
 
 See Also
 ========

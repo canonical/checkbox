@@ -12,7 +12,7 @@ plainbox-dev-crash (1)
     This command is designed to crash or hang the application.
 
     Using this command a developer can inspect the built-in development and
-    debugging features available in PlainBox.  Specifically, there are several
+    debugging features available in Plainbox.  Specifically, there are several
     options available to the top-level plainbox command (they *have to* be used
     before the ``dev crash`` syntax) that allow to enable one of the following
     actions:

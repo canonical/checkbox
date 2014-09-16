@@ -2,7 +2,7 @@
 Provider Definition Files
 =========================
 
-Provider Definition Files are how :term:`PlainBox` learns about
+Provider Definition Files are how :term:`Plainbox` learns about
 :term:`providers <provider>`.
 
 .. warning:: 
@@ -15,7 +15,7 @@ Provider Definition Files are how :term:`PlainBox` learns about
 Lookup Directories
 ==================
 
-PlainBox discovers and loads providers based on '.provider' files placed in one
+Plainbox discovers and loads providers based on '.provider' files placed in one
 of the following three directories:
 
 * ``/usr/local/share/plainbox-providers-1``
@@ -30,16 +30,16 @@ Each provider file has similar structure based on the well-known ``.ini`` file
 syntax. Square braces denote sections, each of which contains arbitrary
 key-value entries.
 
-Currently only one section is used, *PlainBox Provider*.
+Currently only one section is used, *Plainbox Provider*.
 
-The [PlainBox Provider] Section
+The [Plainbox Provider] Section
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The following keys may be defined in this section:
 
 name
     The format for the provider name is an RFC3720 IQN. This is specified in 
-    :rfc:`3720#section-3.2.6.3.1`. It is used by PlainBox to uniquely identify 
+    :rfc:`3720#section-3.2.6.3.1`. It is used by Plainbox to uniquely identify 
     the provider.
 
 version
@@ -92,7 +92,7 @@ Example
 
 An example provider definition file looks like this::
 
-    [PlainBox Provider]
+    [Plainbox Provider]
     name = 2013.com.canonical:myprovider
     version = 1.0 
     description = My Plainbox test provider

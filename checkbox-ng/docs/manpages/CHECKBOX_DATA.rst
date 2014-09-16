@@ -10,7 +10,7 @@ Legacy name of :doc:`PLAINBOX_SESSION_SHARE`
 Description
 ===========
 
-This environment variable may be used in scripts embedded in PlainBox job
+This environment variable may be used in scripts embedded in Plainbox job
 definitions. It is discouraged and will eventually be deprecated and removed.
 
 See Also

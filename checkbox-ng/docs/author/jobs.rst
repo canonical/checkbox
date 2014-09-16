@@ -45,7 +45,7 @@ Fields that can be used on a job
         test's outcome. This is essentially a manual job with a command.
      :attachment: jobs whose command output will be attached to the
          test report or submission.
-     :local: a job whose command output needs to be in :term:`CheckBox` job
+     :local: a job whose command output needs to be in :term:`Checkbox` job
          format. Jobs output by a local job will be added to the set of
          available jobs to be run.
      :resource: A job whose command output results in a set of rfc822
@@ -77,9 +77,9 @@ Fields that can be used on a job
     respecting the rfc822 multi-line syntax, in which case all
     requirements must be met for the job to run ( ``and`` ed).
     
-    The :term:`PlainBox` resource program evaluator is extensively documented,
+    The :term:`Plainbox` resource program evaluator is extensively documented,
     to see a detailed description including rationale and implementation of
-    :term:`CheckBox` "legacy" compatibility, see :ref:`Resources in Plainbox
+    :term:`Checkbox` "legacy" compatibility, see :ref:`Resources in Plainbox
     <resources>`.
 
 :depends:
@@ -139,7 +139,7 @@ Fields that can be used on a job
 :environ:
     (optional). If specified, the listed environment variables
     (separated by spaces) will be taken from the invoking environment
-    (i.e. the one :term:`CheckBox` is run under) and set to that value on the
+    (i.e. the one :term:`Checkbox` is run under) and set to that value on the
     job execution environment (i.e.  the one the job will run under).
     Note that only the *variable names* should be listed, not the
     *values*, which will be taken from the existing environment. This
@@ -158,7 +158,7 @@ Fields that can be used on a job
 Extension of the job format
 ===========================
 
-The :term:`CheckBox` job format can be considered "extensible", in that
+The :term:`Checkbox` job format can be considered "extensible", in that
 additional keys can be added to existing jobs to contain additional
 data that may be needed.
 
@@ -167,18 +167,18 @@ properties of JobDefinition instances), they need to be declared as
 properties in (:mod:`plainbox.impl.job`). This is a good place to document,
 via a docstring, what the field is for and how to interpret it.
 
-Implementation note: if additional fields are added, *:term:`CheckBox`* needs
-to be also told about them, the reason is that :term:`CheckBox` *does* perform
+Implementation note: if additional fields are added, *:term:`Checkbox`* needs
+to be also told about them, the reason is that :term:`Checkbox` *does* perform
 validation of the job descriptions, ensuring they contain only known fields and
 that fields contain expected data types. The jobs_info plugin contains the job
 schema declaration and can be consulted to verify the known fields, whether
 they are optional or mandatory, and the type of data they're expected to
 contain.
 
-Also, :term:`CheckBox` validates that fields contain data of a specific type,
+Also, :term:`Checkbox` validates that fields contain data of a specific type,
 so care must be taken not to simply change contents of fields if
-:term:`CheckBox` compatibility of jobs is desired.
+:term:`Checkbox` compatibility of jobs is desired.
 
-:term:`PlainBox` does this validation on a per-accessor basis, so data in each
+:term:`Plainbox` does this validation on a per-accessor basis, so data in each
 field must make sense as defined by that field's accessor. There is no need,
 however, to declare field type beforehand.

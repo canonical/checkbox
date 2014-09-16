@@ -25,7 +25,7 @@ plainbox-dev-analyze (1)
     Report Types
     ============
 
-    PlainBox ``dev analyze`` command offers a number of reports that can be
+    Plainbox ``dev analyze`` command offers a number of reports that can be
     selected with their respective command line options. By default, no reports
     are enabled which may be a little bit confusing but all options can be
     enabled at the same time.
@@ -45,7 +45,7 @@ plainbox-dev-analyze (1)
     Estimated Duration Report
     -------------------------
 
-    This report shows if PlainBox would be able to accurately estimate the
+    This report shows if Plainbox would be able to accurately estimate the
     duration of the session. It shows details for both fully automatic and
     interactive jobs.
 

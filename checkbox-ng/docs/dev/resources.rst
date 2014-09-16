@@ -9,12 +9,12 @@ This mechanism allows some types of jobs to publish resource objects to an
 abstract namespace and to a way to evaluate a resource program to determine if
 a job can be started.
 
-Resources in PlainBox
+Resources in Plainbox
 =====================
 
-The following chapters explain how resources actually work in :term:`PlainBox`.
+The following chapters explain how resources actually work in :term:`Plainbox`.
 Currently there *is* a subtle difference between this and the original
-:term:`CheckBox` implementation.
+:term:`Checkbox` implementation.
 
 Resource programs
 -----------------
@@ -79,7 +79,7 @@ The name of the variable determines which resource group to use. It must match
 the name of the job that generates such resources.
 
 In the examples elsewhere in this page the  ``package`` resources are generated
-by the ``package`` job. PlainBox uses this to know which resources to try but
+by the ``package`` job. Plainbox uses this to know which resources to try but
 also to implicitly to express dependencies so that the ``package`` job does not
 have to be explicitly selected and marked for execution prior to the job that
 in fact depends on it. This is all done automatically.
@@ -87,11 +87,11 @@ in fact depends on it. This is all done automatically.
 Evaluation
 ----------
 
-Due to mandatory compatibility with existing :term:`CheckBox` jobs there are
+Due to mandatory compatibility with existing :term:`Checkbox` jobs there are
 some unexpected aspects of how evaluation is performed. Those are marked as
 **unexpected** below:
 
-1. First PlainBox looks at the resource program and splits it into lines. Each
+1. First Plainbox looks at the resource program and splits it into lines. Each
    non-empty line is parsed and converted to a resource expression.
    
 2. **unexpected** Each resource expression is repeatedly evaluated, once for
@@ -233,8 +233,8 @@ Considered enhancements
 We are currently considering one improvement to resource programs. This would
 allow us to introduce a fix that resolves some issues in a backwards compatible
 way. Technical aspects are not yet resolved as that extension would not be
-available in :term:`CheckBox` until CheckBox can be built on top of
-:term:`PlainBox`
+available in :term:`Checkbox` until Checkbox can be built on top of
+:term:`Plainbox`
 
 Implicit any(), explicit all()
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -253,9 +253,9 @@ certain package is **not** installed.  This could be expressed as::
 
     all(package.name != 'ubuntu-desktop')
 
-Resources in CheckBox
+Resources in Checkbox
 =====================
 
 The following chapters explain how resources originally worked in
-:term:`CheckBox`. Only notable differences from :term:`PlainBox` implementation
+:term:`Checkbox`. Only notable differences from :term:`Plainbox` implementation
 are listed.

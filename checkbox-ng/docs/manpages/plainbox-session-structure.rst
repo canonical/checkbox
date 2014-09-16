@@ -5,7 +5,7 @@ plainbox-session-structure (7)
 Synopsis
 ========
 
-This page documents the structure of the PlainBox per-session directory.
+This page documents the structure of the Plainbox per-session directory.
 
 Description
 ===========
@@ -27,11 +27,11 @@ session:
 
 io-logs:
     A directory with files representing input-output operations performed by
-    particular jobs. There are three files for each job. One for PlainBox
+    particular jobs. There are three files for each job. One for Plainbox
     itself and two more for human-readable debugging. The files are:
 
     \*.record.gz:
-        A file internal to PlainBox, containing representation of all of the
+        A file internal to Plainbox, containing representation of all of the
         input-output operations performed by the specified job definition's
         command process.
 
@@ -55,7 +55,7 @@ io-logs:
     \*.stdout:
         Plain-text representation of the entire `stdout` stream as it was
         printed by the command process. This file is purely for debugging and
-        is ignored by PlainBox. It may cease to be generated at some future
+        is ignored by Plainbox. It may cease to be generated at some future
         time.
 
     \*.stderr:

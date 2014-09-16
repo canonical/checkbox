@@ -16,7 +16,7 @@ Loading files from session-share directory::
 Description
 ===========
 
-PlainBox sessions allow jobs to communicate by referring to the
+Plainbox sessions allow jobs to communicate by referring to the
 $PLAINBOX_SESSION_SHARE environment variable. Files generated
 therein are explicitly meant to be accessible to all the other jobs
 participating in the session.
@@ -43,13 +43,13 @@ environment variable ``$PLAINBOX_SESSION_SHARE``.
 
 The ``some-action-attachment`` job will use that same directory and
 the agreed-upon name of the log file and ``cat`` (1) it, which coupled
-with the plugin type `shell` will cause PlainBox to attach the log
+with the plugin type `shell` will cause Plainbox to attach the log
 file to the resulting document.
 
 Checkbox Compatibility
 ----------------------
 
-Jobs designed to work with pre-PlainBox-based Checkbox may still refer
+Jobs designed to work with pre-Plainbox-based Checkbox may still refer
 to the old, somewhat confusing, environment variable
 ``$CHECKBOX_DATA``. It points to the same directory.
 

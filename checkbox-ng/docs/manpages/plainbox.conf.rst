@@ -12,9 +12,9 @@ Synopsis
 Description
 ===========
 
-PlainBox (and its derivatives) uses a configuration system composed of
+Plainbox (and its derivatives) uses a configuration system composed of
 variables arranged in sections. All configuration files follow the well-known
-INI-style syntax. While PlainBox itself is not really using any variables,
+INI-style syntax. While Plainbox itself is not really using any variables,
 knowledge of where those can be defined is useful for working with derivative
 applications, such as Checkbox.
 

@@ -1,7 +1,7 @@
-PlainBox Configuration System
+Plainbox Configuration System
 =============================
 
-PlainBox has a modular configuration system. The system allows one to define
+Plainbox has a modular configuration system. The system allows one to define
 static configuration models that are composed of variables. This is all
 implemented in :mod:`plainbox.impl.secure.config` as two classes
 :class:`plainbox.impl.secure.config.Config` and

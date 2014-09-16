@@ -5,14 +5,14 @@ plainbox-template-units (7)
 Synopsis
 ========
 
-This page documents the PlainBox template units syntax and runtime behavior
+This page documents the Plainbox template units syntax and runtime behavior
 
 Description
 ===========
 
-The template unit is a variant of PlainBox unit types. A template is a skeleton
+The template unit is a variant of Plainbox unit types. A template is a skeleton
 for defining additional units, typically job definitions. A template is defined
-as a typical RFC822-like PlainBox unit (like a typical job definition) with the
+as a typical RFC822-like Plainbox unit (like a typical job definition) with the
 exception that all the fields starting with the string ``template-`` are
 reserved for the template itself while all the other fields are a definition of
 all the eventual instances of the template.

@@ -12,7 +12,7 @@ Running an example-command on a provider-specific data file.
 Description
 ===========
 
-PlainBox providers can require arbitrary data files for successful testing.
+Plainbox providers can require arbitrary data files for successful testing.
 The absolute path of the provider ``data/`` directory is exposed as the
 environment variable ``$PLAINBOX_PROVIDER_DATA``. Job commands can use that
 variable to refer to the data directory in an unambiguous way.
@@ -42,7 +42,7 @@ uniform way.
 Checkbox Compatibility
 ----------------------
 
-Jobs designed to work with pre-PlainBox-based Checkbox may still refer to the
+Jobs designed to work with pre-Plainbox-based Checkbox may still refer to the
 old, somewhat confusing, environment variable :doc:`CHECKBOX_SHARE`. It points
 to the same directory.
 

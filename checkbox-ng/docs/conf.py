@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# PlainBox documentation build configuration file, created by
+# Plainbox documentation build configuration file, created by
 # sphinx-quickstart on Wed Feb 13 11:18:39 2013.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -66,7 +66,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'PlainBox'
+project = 'Plainbox'
 copyright = '2012-2014 Canonical Ltd'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -200,7 +200,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'PlainBoxdoc'
+htmlhelp_basename = 'Plainboxdoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -219,7 +219,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'PlainBox.tex', 'PlainBox Documentation',
+  ('index', 'Plainbox.tex', 'Plainbox Documentation',
    'Zygmunt Krynicki', 'manual'),
 ]
 
@@ -299,11 +299,11 @@ man_pages = [
     ('manpages/plainbox-session-structure', 'plainbox-session-structure',
      'structure of per-session directory', _authors, 7),
     ('manpages/plainbox-template-units', 'plainbox-template-units',
-     'syntax and semantics of PlainBox template unit type', _authors, 7),
+     'syntax and semantics of Plainbox template unit type', _authors, 7),
     ('manpages/plainbox-category-units', 'plainbox-category-units',
-     'syntax and semantics of PlainBox category unit type', _authors, 7),
+     'syntax and semantics of Plainbox category unit type', _authors, 7),
     ('manpages/plainbox-file-units', 'plainbox-file-units',
-     'syntax and semantics of PlainBox file unit type', _authors, 7),
+     'syntax and semantics of Plainbox file unit type', _authors, 7),
     ('manpages/PLAINBOX_SESSION_SHARE', 'PLAINBOX_SESSION_SHARE',
      'per-session runtime shared-state directory', _authors, 7),
     ('manpages/PLAINBOX_PROVIDER_DATA', 'PLAINBOX_PROVIDER_DATA',
@@ -324,8 +324,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'PlainBox', 'PlainBox Documentation',
-   'Zygmunt Krynicki', 'PlainBox', 'One line description of project.',
+  ('index', 'Plainbox', 'Plainbox Documentation',
+   'Zygmunt Krynicki', 'Plainbox', 'One line description of project.',
    'Miscellaneous'),
 ]
 

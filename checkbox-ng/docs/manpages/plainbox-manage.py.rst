@@ -8,40 +8,40 @@ manage.py
     :nodefault:
 
     This manual page documents the typical aspects of the manage.py file
-    initially generated for each PlainBox provider by `plainbox startprovider`.
+    initially generated for each Plainbox provider by `plainbox startprovider`.
     It is not to be confused by `manage.py` files used by web applications
     written using the Django framework.
 
 Working With Providers
 ======================
 
-PlainBox is pretty flexible and allows developers and tests alike to work with
+Plainbox is pretty flexible and allows developers and tests alike to work with
 providers in several different ways. First of all, providers are typically
 packaged into Debian packages. Such packages are installed in system-wide
 locations (look at the output of ``./manage.py install --help``).
 
 One particular file that is a part of such providers, that you don't typically
 see in the source directory, is a file with the extension ``.provider``.
-PlainBox looks for files like that in several places (see plainbox(1)
+Plainbox looks for files like that in several places (see plainbox(1)
 discussion of PROVIDERPATH). When working *on* a provider (either writing a new
 provider from scratch or extending an existing provider) that would be a quite
 tedious process to go through. For that you can use the ``manage.py develop``
 command to create a ``.provider`` file in your
-``$XDG_DATA_HOME/plainbox-providers-1/`` directory. PlainBox will automatically
+``$XDG_DATA_HOME/plainbox-providers-1/`` directory. Plainbox will automatically
 pick it up and and you will be able to run jobs from it directly, without
 having to reinstall.
 
 Caveats
 =======
 
-The behavior of each management script may be different. PlainBox offers APIs
+The behavior of each management script may be different. Plainbox offers APIs
 to extend or override available commands so this man page should be seen as a
 spiritual intent rather than concrete behavior.
 
 Building Provider-Specific Executables
 ======================================
 
-PlainBox assists in building provider-specific executables. Those are
+Plainbox assists in building provider-specific executables. Those are
 additional architecture-specific binary executables that can be used in job
 scripts.
 
@@ -59,7 +59,7 @@ Makefile:
     this is not an issue in practice.
 EXECUTABLES:
     This file lists all the executables (one per line) that will be built by
-    the particular build system. It is used to ensure that PlainBox knows up
+    the particular build system. It is used to ensure that Plainbox knows up
     front about executables built from source and to know which files to copy.
 (sources):
     You obviously need to provide source files for your executables. Just add
@@ -72,7 +72,7 @@ expected.
 
 Resulting executables will be placed in ``build/bin``. When working in
 development mode (via ``manage.py develop``) that will all magically just work.
-PlainBox will figure out where each executable is, coping with files both in
+Plainbox will figure out where each executable is, coping with files both in
 ``build/bin`` and in ``bin/`` directories transparently. When installing
 (``manage.py install``) either locally or as a part of the packaging step that
 will also just work so you don't have do do anything else.
@@ -80,7 +80,7 @@ will also just work so you don't have do do anything else.
 Overriding / Extending Commands
 ===============================
 
-PlainBox offers a decorator that can be used to extend any of the manage.py
+Plainbox offers a decorator that can be used to extend any of the manage.py
 subcommands with additional functionality. The general syntax for extending
 existing commands is (here illustrated by changes to the ``sdist`` command)::
 
@@ -98,7 +98,7 @@ existing commands is (here illustrated by changes to the ``sdist`` command)::
 
 Note that in some cases you need to define the command name to match the
 original command name (for example, the install command requires this).
-Otherwise PlainBox will derive the command name from the class name which may
+Otherwise Plainbox will derive the command name from the class name which may
 be not what you expected::
 
     from plainbox.provider_manager import InstallCommand

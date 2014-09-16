@@ -14,28 +14,28 @@ Glossary
 
         A team inside Canonical working on :term:`Hardware Certification`.
 
-    CheckBox
+    Checkbox
         
-        CheckBox is a hardware testing tool developed by Canonical for
-        certifying hardware with Ubuntu. CheckBox is free software and is
+        Checkbox is a hardware testing tool developed by Canonical for
+        certifying hardware with Ubuntu. Checkbox is free software and is
         available at http://launchpad.net/checkbox. The ``checkbox`` package is
         pre-installed on all Ubuntu systems
 
     Checkbox-ng
   
-	This is the actual direct replacement for CheckBox. It provides a
+	This is the actual direct replacement for Checkbox. It provides a
 	few binaries that can do end-user testing, and which leverage
-	PlainBox as a library to do the heavy lifting. This lives in the
+	Plainbox as a library to do the heavy lifting. This lives in the
 	``checkbox-ng`` package for the binaries, and
 	``python3-checkbox-ng`` for the core functionality.
 
-    PlainBox
+    Plainbox
 
-        PlainBox is a rewrite of CheckBox with the aim of improving internal
+        Plainbox is a rewrite of Checkbox with the aim of improving internal
         architecture, testability, robustness, quality and speed. It is
         currently under active development. It is not pre-installed on Ubuntu.
-        It is developed inside the CheckBox code repository. In common
-	use, the term *PlainBox* can refer to either of two things:
+        It is developed inside the Checkbox code repository. In common
+	use, the term *Plainbox* can refer to either of two things:
 
          * The core library (``python3-plainbox``). ``python3-plainbox`` is
            usually installed implicitly, as most of our tools depend on it.
@@ -56,17 +56,17 @@ Glossary
     job
 
         Jobs are smallest units of testing that can be performed by either
-        CheckBox or PlainBox. All jobs have an unique name. There are many
+        Checkbox or Plainbox. All jobs have an unique name. There are many
         types of jobs, some are fully automated others are fully manual. Some
         jobs are only an implementation detail and a part of the internal
-        architecture of CheckBox
+        architecture of Checkbox
 
     provider
 
         A container for jobs, whitelists, private executables and data.
-        Providers are the foundation of PlainBox as they *provide* all of the
+        Providers are the foundation of Plainbox as they *provide* all of the
         content. Providers can be created and managed by any entity, separately
-        from the CheckBox project.
+        from the Checkbox project.
 
     namespace
 

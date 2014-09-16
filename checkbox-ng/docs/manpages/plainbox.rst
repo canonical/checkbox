@@ -9,15 +9,15 @@ plainbox (1)
     :nodefault:
     :nosubcommands:
 
-    PlainBox is a toolkit consisting of python3 library, development
+    Plainbox is a toolkit consisting of python3 library, development
     tools, documentation and examples. It is targeted at developers working
     on testing or certification applications and authors creating tests for
     such applications.
 
-PlainBox Sub-Commands
+Plainbox Sub-Commands
 =====================
 
-PlainBox uses a number of sub-commands for performing specific operations.
+Plainbox uses a number of sub-commands for performing specific operations.
 Since it targets several different audiences commands are arranged into three
 parts: test authors, test users and core developers
 
@@ -39,7 +39,7 @@ Test Authors
 
     plainbox startprovider
         Create a new provider (directory). This command allows test authors to
-        create a new collection (provider) of test definitions for PlainBox.
+        create a new collection (provider) of test definitions for Plainbox.
 
     plainbox dev script
         Run the command from a job in a way it would run as a part of normal
@@ -52,13 +52,13 @@ Test Authors
         control the type of analysis performed.
 
     plainbox dev parse
-        Parse stdin with the specified parser. PlainBox comes with a system for
+        Parse stdin with the specified parser. Plainbox comes with a system for
         plugging parser definitions so that shell programs (and developers) get
         access to structured data exported from otherwise hard-to-parse output.
 
     plainbox dev list
         List and describe various objects. Run without arguments to see all the
-        high-level objects PlainBox knows about. Optional argument can restrict
+        high-level objects Plainbox knows about. Optional argument can restrict
         the list to objects of one kind.
 
 Core Developers
@@ -81,13 +81,13 @@ Core Developers
 Files
 =====
 
-The following files and directories affect PlainBox:
+The following files and directories affect Plainbox:
 
 Created or written to
 ---------------------
 
 ``$XDG_CACHE_HOME/plainbox/logs``
-    PlainBox keeps all internal log files in this directory. In particular the
+    Plainbox keeps all internal log files in this directory. In particular the
     ``crash.log`` is generated there on abnormal termination. If extended
     logging / tracing is enabled via ``--debug`` or ``--trace`` then
     ``debug.log`` will be created in this directory. The files are generated on
@@ -95,14 +95,14 @@ Created or written to
     any time.
 
 ``$XDG_CACHE_HOME/plainbox/sessions``
-    PlainBox keeps internal state of all running and dormant (suspended or
+    Plainbox keeps internal state of all running and dormant (suspended or
     complete) sessions here. Each session is kept in a separate directory with
     a randomly generated name. This directory may also contain a symlink
     ``last-session`` that points at one of those sessions. The symlink may be
     broken as a part of normal operation.
 
     Sessions may accumulate, in some cases, and they are not garbage collected
-    at this time. In general it is safe to remove sessions when PlainBox is not
+    at this time. In general it is safe to remove sessions when Plainbox is not
     running.
 
 Looked up or read from
@@ -135,7 +135,7 @@ In addition, refer to the list of files mentioned by ``plainbox.conf`` (5)
 Environment Variables
 =====================
 
-The following environment variables affect PlainBox:
+The following environment variables affect Plainbox:
 
 ``PROVIDERPATH``
     Determines the lookup of test providers. Note that unless otherwise

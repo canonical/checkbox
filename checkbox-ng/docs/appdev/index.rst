@@ -3,7 +3,7 @@ Application developers
 ======================
 
 This chapter organizes information useful for developers working on testing
-systems and :term:`CheckBox` derivatives.
+systems and :term:`Checkbox` derivatives.
 
 .. warning::
 
@@ -14,18 +14,18 @@ systems and :term:`CheckBox` derivatives.
 Personas and stories
 --------------------
 
-* I'm a CheckBox, CheckBox derivative or third party developer:
+* I'm a Checkbox, Checkbox derivative or third party developer:
 
     * What use cases should require a new application?
-    * How should I be using PlainBox APIs?
-    * Which parts of PlainBox APIs are stable?
-    * How can I have *special sauce* with using PlainBox at the core?
-    * What is covered by CheckBox
+    * How should I be using Plainbox APIs?
+    * Which parts of Plainbox APIs are stable?
+    * How can I have *special sauce* with using Plainbox at the core?
+    * What is covered by Checkbox
 
-* I'm a CheckBox developer.
+* I'm a Checkbox developer.
 
-    * I'm adding a new feature, should that feature go to CheckBox or PlainBox?
-    * I'm writing a new job, should that job go to CheckBox or JobBox?
+    * I'm adding a new feature, should that feature go to Checkbox or Plainbox?
+    * I'm writing a new job, should that job go to Checkbox or JobBox?
 
 * I'm a developer working on test system different from but not unlike plainbox
   (this is in the same chapter but should heavily link to derivative systems

@@ -1,11 +1,11 @@
 .. _rfc822:
 
 =============================
-PlainBox RFC822 Specification
+Plainbox RFC822 Specification
 =============================
 
 The syntax is only loosely inspired by the actual :RFC:`822` syntax. Since
-PlainBox is not processing email, the original specification is used only as an
+Plainbox is not processing email, the original specification is used only as an
 inspiration. One of the most important aspect of the syntax we're using is
 relative familiarity for other users of the system and ease-of-use when using
 general, off-the-shelf text editors.

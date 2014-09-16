@@ -8,7 +8,7 @@ To best illustrate how providers work, we will walk through creating one
 step-by-step. At the end of this tutorial you will have a provider which adds
 a new :term:`whitelist`, several new jobs and the scripts and test data 
 supporting those jobs. Before starting this tutorial you will need to have a 
-running version of :term:`PlainBox` installed. You can either install it from 
+running version of :term:`Plainbox` installed. You can either install it from 
 the  repositories of Debian or its derivatives by running ``apt-get install 
 plainbox``, or if you prefer to work with the source, see :doc:`Getting 
 started with development <../dev/intro>`. There is also a Launchpad PPA with
@@ -99,7 +99,7 @@ the very latest development build for Ubuntu, which is `ppa:checkbox-dev/ppa`.
     myjobs/provider_command
 
    The ``miscellanea/submission_resources`` and ``graphics/glxgears`` jobs
-   are from the default provider that is part of PlainBox.
+   are from the default provider that is part of Plainbox.
 
    We can check that everything is correct with the whitelist by running the 
    ``./manage.py info`` command again. The output should be like::
@@ -117,7 +117,7 @@ the very latest development build for Ubuntu, which is `ppa:checkbox-dev/ppa`.
 
 #. Now we have a provider we need to test it to make sure everything is
    correct. The first thing to do is to install the provider so that it
-   it visible to PlainBox. Run ``./manage.py develop`` then run 
+   it visible to Plainbox. Run ``./manage.py develop`` then run 
    ``plainbox dev list provider``. Your provider should be in the list
    that is displayed.
 
@@ -152,7 +152,7 @@ the very latest development build for Ubuntu, which is `ppa:checkbox-dev/ppa`.
     Architecture: all
     Depends: plainbox-provider-checkbox
     Description: My whitelist provider
-     A provider for PlainBox.
+     A provider for Plainbox.
 
    ``rules``::
 

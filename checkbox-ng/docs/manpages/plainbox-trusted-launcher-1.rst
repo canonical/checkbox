@@ -62,7 +62,7 @@ Environment Variables
 The following environment variables *DO NOT* affect ``plainbox-trusted-launcher-1``
 
 ``PROVIDERPATH``
-    For :doc:`plainbox` this would affect the set of directories where PlainBox
+    For :doc:`plainbox` this would affect the set of directories where Plainbox
     looks for provider definitions. The trusted launcher has a fixed list of
     directories that cannot be extended.
 

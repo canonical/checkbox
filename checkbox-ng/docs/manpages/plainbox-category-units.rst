@@ -5,7 +5,7 @@ plainbox-category-units (7)
 Synopsis
 ========
 
-This page documents the PlainBox category units syntax and runtime behavior
+This page documents the Plainbox category units syntax and runtime behavior
 
 Description
 ===========

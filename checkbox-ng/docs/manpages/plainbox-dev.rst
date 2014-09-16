@@ -9,12 +9,12 @@ plainbox-dev (1)
     :manpage:
     :nodefault:
 
-    All of the commands in the ``plainbox dev`` group are intended for PlainBox
+    All of the commands in the ``plainbox dev`` group are intended for Plainbox
     developers and may be unstable and may change from release to release
     without notice.
 
     Some of the commands are of general use and, most importantly, are of value
-    to PlainBox provider maintainers. Such commands may be promoted to be
+    to Plainbox provider maintainers. Such commands may be promoted to be
     top-level commands with the next release.
 
 See Also

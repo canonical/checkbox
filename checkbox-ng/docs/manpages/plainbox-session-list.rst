@@ -19,7 +19,7 @@ plainbox-session-list (1)
 
     app:
         The name of the application that created the session.  Typically
-        `plainbox` or `checkbox`. PlainBox only resumes sessions it has itself
+        `plainbox` or `checkbox`. Plainbox only resumes sessions it has itself
         created.
 
     flags:
@@ -39,7 +39,7 @@ plainbox-session-list (1)
         even understood by the core.
 
     title:
-        An arbitrary "title" of the session. PlainBox typically uses the
+        An arbitrary "title" of the session. Plainbox typically uses the
         command line that was used to launch the session but other applications
-        may come up with more interesting titles. PlainBox also uses the title
+        may come up with more interesting titles. Plainbox also uses the title
         to match find a possible resume candidate.

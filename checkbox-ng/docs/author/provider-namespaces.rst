@@ -13,7 +13,7 @@ Theoretical Considerations
 About name-spaces
 -----------------
 
-Starting with the 0.5 release, PlainBox supports name-spaces for job
+Starting with the 0.5 release, Plainbox supports name-spaces for job
 identifiers. Each job has a partial identifier which is encoded by the ``id:``
 or the legacy ``name:`` field in job definition files. That partial identifier
 is prefixed with the name-space of the provider that job belongs to. This
@@ -27,7 +27,7 @@ definitions for various testing tasks. Since there was only one organization
 controlling all jobs there was no problem of undesired clashes as all the
 involved developers could easily coordinate and resolve issues. 
 
-With the rewrite that brought :term:`PlainBox` the core code and the pluggable
+With the rewrite that brought :term:`Plainbox` the core code and the pluggable
 data concept was becoming easier to work with and during the 0.4 development
 cycle we had decided to offer first-class support for external developers to
 work on their own test definitions separately of the Canonical Hardware
@@ -48,7 +48,7 @@ This section documents some guidelines for using name-spaces in practice.
 Provider Name Spaces and IQN
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-PlainBox name-spaces are based on the iSCSI IQN concept. It is a simple
+Plainbox name-spaces are based on the iSCSI IQN concept. It is a simple
 extension of the usage of DNS names to create name-spaces. As DNS is externally
 managed anyone owning a domain name can use that domain name and have a high
 chance of avoiding clashes (as long as no party is maliciously trying to create
@@ -164,7 +164,7 @@ Explicit name-spaces need to be used in two situations:
 Custom Executables & Execution Environment
 ------------------------------------------
 
-When PlainBox needs to execute a job with a shell command it constructs a
+When Plainbox needs to execute a job with a shell command it constructs a
 special execution environment that includes additional executables specific to
 some providers. The execution environment is comprised of a directory with
 symbolic links to all the private executables of all of the provides that have

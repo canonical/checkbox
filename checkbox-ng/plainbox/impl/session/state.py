@@ -584,7 +584,7 @@ class SessionState:
             you want to add a lot of units consider setting that to False and
             only recompute at the last call.
         """
-        if new_unit.unit == 'job':
+        if new_unit.Meta.name == 'job':
             return self._add_job_unit(new_unit, recompute)
         else:
             return self._add_other_unit(new_unit)

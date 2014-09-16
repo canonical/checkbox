@@ -1,12 +1,12 @@
 ========================
-CheckBox Release Process
+Checkbox Release Process
 ========================
 
-This page describes the necessary steps for releasing versions of CheckBox and
-CheckBox Certification to the stable PPA belonging to the Hardware
+This page describes the necessary steps for releasing versions of Checkbox and
+Checkbox Certification to the stable PPA belonging to the Hardware
 Certification team, on a regular basis. Throughout this document the term
-'CheckBox' is used as a catch-all term to cover all versions of CheckBox owned
-by the Hardware Certification team, currently CheckBox itself and the CheckBox
+'Checkbox' is used as a catch-all term to cover all versions of Checkbox owned
+by the Hardware Certification team, currently Checkbox itself and the Checkbox
 Certification extensions.
 
 Overview
@@ -28,12 +28,12 @@ out on each day or group of days is described below:
   
 * Days 6-9: Testing is performed by the release manager for the Hardware
   Certification team, and a representative of the CE QA team (the main
-  customer for CheckBox within Canonical)
+  customer for Checkbox within Canonical)
 * Day 9: A release meeting is held between the release manager for the
   Hardware Certification team and the representative of the CE QA team.
   Potential issues with the release are identified and plans made to address
   them.
-* Day 10: The tested version of CheckBox is copied to the stable PPA.
+* Day 10: The tested version of Checkbox is copied to the stable PPA.
 
 Launchpad Branches
 ==================
@@ -41,7 +41,7 @@ Launchpad Branches
 The release process requires separate branches in Launchpad containing a
 semi-frozen version of the code that was in trunk on day 5 of the process. This
 is so that development can continue on trunk without jeopardising the stability
-of the to-be released version of CheckBox. The relationship between all
+of the to-be released version of Checkbox. The relationship between all
 branches involved in the process is as shown below:
 
 * `lp:checkbox/release` <- `lp:checkbox`
@@ -52,7 +52,7 @@ Auditing milestoned bugs
 ========================
 
 Prior to creating the release candidate the release manager should review the
-list of bugs milestoned for the next release of CheckBox. They should visit
+list of bugs milestoned for the next release of Checkbox. They should visit
 `checkbox milestones <https://launchpad.net/checkbox/+milestones milestones>`_
 and locate the milestone dated with the release date.
 
@@ -132,19 +132,19 @@ sent to the following mailing lists:
 
 The content is typically something like this::
 
-    Subject: Next Release of CheckBox (18/11/2013)
+    Subject: Next Release of Checkbox (18/11/2013)
 
     Hi,
 
-    The next release of CheckBox is available in the
+    The next release of Checkbox is available in the
     https://code.launchpad.net/~checkbox-dev/+archive/testing PPA.
-    Please test it at your convenience. CheckBox is based on revision 2484 of
-    lp:checkbox and CheckBox Certification is based on revision 586 of
+    Please test it at your convenience. Checkbox is based on revision 2484 of
+    lp:checkbox and Checkbox Certification is based on revision 586 of
     lp:checkbox-certification.
 
     Thanks,
 
-If one or the other of CheckBox and CheckBox Certification have not been
+If one or the other of Checkbox and Checkbox Certification have not been
 updated then there is no need to mention that package
 
 Testing the release
@@ -154,8 +154,8 @@ Now that the release has been cut, testing should take place prior to the
 release meeting. From the point of view of the certification team, what needs
 to be tested is ``checkbox-certification-client`` and
 ``checkbox-certification-server`` which form the basis for CE QAs OEM specific
-versions of CheckBox. CheckBox certification server is tested in the CI loop
-CheckBox certification client needs to be tested manually.
+versions of Checkbox. Checkbox certification server is tested in the CI loop
+Checkbox certification client needs to be tested manually.
 
 Release Meeting
 ===============

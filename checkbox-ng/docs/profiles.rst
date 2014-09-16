@@ -14,7 +14,7 @@ key/values.
 This document provides a reference on launcher functionality and syntax. To
 understand the design and concepts and see several examples, you may want to
 read the :doc:`tutorial</launcher-tutorial>` on how to create launchers and
-their relationship with legacy :term:`CheckBox`.
+their relationship with legacy :term:`Checkbox`.
 
 Syntax
 ======

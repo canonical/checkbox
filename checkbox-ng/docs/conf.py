@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# CheckBoxNG documentation build configuration file, created by
+# CheckboxNG documentation build configuration file, created by
 # sphinx-quickstart on Wed Feb 13 11:18:39 2013.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -77,7 +77,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'CheckBoxNG'
+project = 'CheckboxNG'
 copyright = '2013-2014, Zygmunt Krynicki'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -204,7 +204,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'CheckBoxNGdoc'
+htmlhelp_basename = 'CheckboxNGdoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -223,7 +223,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'CheckBoxNG.tex', 'CheckBoxNG Documentation',
+  ('index', 'CheckboxNG.tex', 'CheckboxNG Documentation',
    'Zygmunt Krynicki', 'manual'),
 ]
 
@@ -253,7 +253,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'checkbox_ng', 'CheckBoxNG Documentation',
+    ('index', 'checkbox_ng', 'CheckboxNG Documentation',
      ['Zygmunt Krynicki'], 1),
     ('stack', 'checkbox-stack', 'description of the checkbox stack',
      ['Zygmunt Krynicki'], 1),
@@ -269,8 +269,8 @@ man_show_urls = True
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'CheckBoxNG', 'CheckBoxNG Documentation',
-   'Zygmunt Krynicki', 'CheckBoxNG', 'One line description of project.',
+  ('index', 'CheckboxNG', 'CheckboxNG Documentation',
+   'Zygmunt Krynicki', 'CheckboxNG', 'One line description of project.',
    'Miscellaneous'),
 ]
 

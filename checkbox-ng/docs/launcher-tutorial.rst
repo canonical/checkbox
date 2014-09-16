@@ -11,7 +11,7 @@ by launchers, and specific syntax for launcher files, look at
 Legacy checkbox behavior control
 ================================
 
-In the past, :term:`CheckBox`'s behavior was controlled by three mechanisms.
+In the past, :term:`Checkbox`'s behavior was controlled by three mechanisms.
 
 First, the functions of checkbox could be augmented by adding plugins.
 For example, the ability to submit to certification website was added by

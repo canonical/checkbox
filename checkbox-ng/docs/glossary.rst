@@ -21,12 +21,30 @@ Glossary
         available at http://launchpad.net/checkbox. The ``checkbox`` package is
         pre-installed on all Ubuntu systems
 
+    Checkbox-ng
+  
+	This is the actual direct replacement for CheckBox. It provides a
+	few binaries that can do end-user testing, and which leverage
+	PlainBox as a library to do the heavy lifting. This lives in the
+	``checkbox-ng`` package for the binaries, and
+	``python3-checkbox-ng`` for the core functionality.
+
     PlainBox
 
         PlainBox is a rewrite of CheckBox with the aim of improving internal
         architecture, testability, robustness, quality and speed. It is
         currently under active development. It is not pre-installed on Ubuntu.
-        It is developed inside CheckBox code repository.
+        It is developed inside the CheckBox code repository. In common
+	use, the term *PlainBox* can refer to either of two things:
+
+         * The core library (``python3-plainbox``). ``python3-plainbox`` is
+           usually installed implicitly, as most of our tools depend on it.
+
+         * The ``plainbox`` utility/binary, which is essentially a
+           command-line swiss-army frontend to all of the library's
+           functionality. It's useful for develoment and diagnostics but not
+           necessary for end-user work. ``plainbox`` is usually installed
+           explicitly if needed.
 
     whitelist
 

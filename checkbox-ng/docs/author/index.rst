@@ -7,6 +7,7 @@ maintaining jobs and test scripts but not directly involved in changing the
 core.
 
 .. toctree::
+   intro.rst
    tutorial.rst
    providers.rst
    jobs.rst

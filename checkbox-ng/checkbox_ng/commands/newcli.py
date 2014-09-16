@@ -43,13 +43,14 @@ from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.exporter.html import HTMLSessionStateExporter
 from plainbox.impl.exporter.xml import XMLSessionStateExporter
 from plainbox.impl.secure.config import Unset, ValidationError
+from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import FieldQualifier
 from plainbox.impl.secure.qualifiers import OperatorMatcher
-from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.secure.qualifiers import select_jobs
+from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.session import SessionMetaData
-from plainbox.impl.transport import TransportError
 from plainbox.impl.transport import get_all_transports
+from plainbox.impl.transport import TransportError
 from plainbox.vendor.textland import get_display
 
 from checkbox_ng.misc import SelectableJobTreeNode
@@ -268,8 +269,10 @@ class CliInvocation2(RunInvocation):
         # non-local jobs and we're done.
         qualifier_list = []
         qualifier_list.extend(self._whitelists)
+        origin = Origin.get_caller_origin()
         qualifier_list.append(FieldQualifier(
-            'plugin', OperatorMatcher(operator.ne, 'local'), inclusive=False))
+            'plugin', OperatorMatcher(operator.ne, 'local'), origin,
+            inclusive=False))
         local_job_list = select_jobs(
             self.manager.state.job_list, qualifier_list)
         self._update_desired_job_list(local_job_list)

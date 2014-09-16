@@ -18,6 +18,7 @@ from plainbox.impl.result import DiskJobResult, MemoryJobResult
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.runner import slugify
 from plainbox.impl.secure.config import Unset
+from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import CompositeQualifier
 from plainbox.impl.secure.qualifiers import NonLocalJobQualifier
 from plainbox.impl.secure.qualifiers import WhiteList
@@ -134,7 +135,8 @@ class CliInvocation(CheckBoxInvocationMixIn):
                 manager.state.job_list,
                 [CompositeQualifier(
                     self.whitelists +
-                    [NonLocalJobQualifier(inclusive=False)]
+                    [NonLocalJobQualifier(
+                        Origin.get_caller_origin(), inclusive=False)]
                 )])
             self._update_desired_job_list(manager, desired_job_list)
             # Ask the password before anything else in order to run local jobs

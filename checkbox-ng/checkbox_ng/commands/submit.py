@@ -25,7 +25,7 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
-from argparse import ArgumentTypeError, FileType
+from argparse import ArgumentTypeError
 from plainbox.i18n import docstring
 from plainbox.i18n import gettext as _
 from plainbox.i18n import gettext_noop as N_
@@ -54,8 +54,9 @@ class SubmitInvocation:
         transport = CertificationTransport(self.ns.url, options_string)
 
         try:
-            result = transport.send(self.ns.submission)
-        except TransportError as exc:
+            with open(self.ns.submission, "r", encoding='utf-8') as subm_file:
+                result = transport.send(subm_file)
+        except (TransportError, OSError) as exc:
             raise SystemExit(exc)
         else:
             if 'url' in result:
@@ -112,8 +113,7 @@ class SubmitCommand(PlainBoxCommand):
             'secure_id', metavar=_("SECURE-ID"),
             type=secureid,
             help=_("associate submission with a machine using this SECURE-ID"))
-        parser.add_argument(
-            'submission', type=FileType('r'),
+        parser.add_argument('submission',
             help=_("The path to the results xml file"))
         parser.add_argument(
             '--url', metavar=_("URL"), required=True,

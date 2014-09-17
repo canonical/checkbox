@@ -14,3 +14,4 @@ See Also
 
 :doc:`plainbox-session-list`, :doc:`plainbox-session-remove`,
 :doc:`plainbox-session-show`, :doc:`plainbox-session-archive`
+:doc:`plainbox-session-export`

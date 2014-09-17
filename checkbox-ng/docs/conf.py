@@ -276,6 +276,8 @@ man_pages = [
      'show a single session', _authors, 1),
     ('manpages/plainbox-session-archive', 'plainbox-session-archive',
      'archive a single session', _authors, 1),
+    ('manpages/plainbox-session-export', 'plainbox-session-export',
+     '(re-)export an existing session', _authors, 1),
     ('manpages/plainbox-dev', 'plainbox-dev',
      'commands for test developers', _authors, 1),
     ('manpages/plainbox-dev-script', 'plainbox-dev-script',

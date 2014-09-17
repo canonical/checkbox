@@ -32,9 +32,38 @@ import io
 from pkg_resources import resource_string
 
 from plainbox.abc import IJobResult
-from plainbox.testing_utils import resource_json
+from plainbox.impl.exporter.xml import CONTROL_CODE_RE_BYTES
+from plainbox.impl.exporter.xml import CONTROL_CODE_RE_STR
 from plainbox.impl.exporter.xml import XMLSessionStateExporter, XMLValidator
+from plainbox.testing_utils import resource_json
 from plainbox.testing_utils.testcases import TestCaseWithParameters
+
+
+class ControlCodeTests(TestCase):
+
+    def test_lower_range__str(self):
+        self.assertRegex('\u0000', CONTROL_CODE_RE_STR)
+        self.assertRegex('\u001F', CONTROL_CODE_RE_STR)
+        # The lower range spans from 0..0x20 (space), exclusive
+        self.assertNotRegex('\u0020', CONTROL_CODE_RE_STR)
+
+    def test_higher_range__str(self):
+        self.assertNotRegex('\u007E', CONTROL_CODE_RE_STR)
+        self.assertRegex('\u007F', CONTROL_CODE_RE_STR)
+        self.assertRegex('\u001F', CONTROL_CODE_RE_STR)
+        self.assertNotRegex('\u00A0', CONTROL_CODE_RE_STR)
+
+    def test_lower_range__bytes(self):
+        self.assertRegex(b'\x00', CONTROL_CODE_RE_BYTES)
+        self.assertRegex(b'\x1F', CONTROL_CODE_RE_BYTES)
+        # The lower range spans from 0..0x20 (space), exclusive
+        self.assertNotRegex(b'\x20', CONTROL_CODE_RE_BYTES)
+
+    def test_higher_range__bytes(self):
+        self.assertNotRegex(b'\x7E', CONTROL_CODE_RE_BYTES)
+        self.assertRegex(b'\x7F', CONTROL_CODE_RE_BYTES)
+        self.assertRegex(b'\x1F', CONTROL_CODE_RE_BYTES)
+        self.assertNotRegex(b'\xA0', CONTROL_CODE_RE_BYTES)
 
 
 class XMLSessionStateExporterTests(TestCaseWithParameters):

@@ -20,17 +20,25 @@
 :mod:`plainbox.impl.commands.session` -- run sub-command
 ========================================================
 """
+from argparse import FileType
 from base64 import b64encode
 from logging import getLogger
+from shutil import copyfileobj
 from shutil import make_archive
+import io
+import itertools
 import os
+import sys
 
 from plainbox.i18n import docstring
 from plainbox.i18n import gettext as _
 from plainbox.i18n import gettext_noop as N_
 from plainbox.impl.commands import PlainBoxCommand
-from plainbox.impl.session import SessionStorageRepository
+from plainbox.impl.exporter import ByteStringStreamTranslator
+from plainbox.impl.exporter import get_all_exporters
+from plainbox.impl.session import SessionManager
 from plainbox.impl.session import SessionPeekHelper
+from plainbox.impl.session import SessionStorageRepository
 
 
 logger = getLogger("plainbox.commands.session")
@@ -44,8 +52,9 @@ class SessionInvocation:
         The argparse namespace obtained from SessionCommand
     """
 
-    def __init__(self, ns):
+    def __init__(self, ns, provider_list):
         self.ns = ns
+        self.provider_list = provider_list
 
     def run(self):
         cmd = getattr(self.ns, 'session_cmd', self.ns.default_session_cmd)
@@ -57,6 +66,8 @@ class SessionInvocation:
             self.show_session()
         elif cmd == 'archive':
             self.archive_session()
+        elif cmd == 'export':
+            self.export_session()
 
     def list_sessions(self):
         repo = SessionStorageRepository()
@@ -117,6 +128,66 @@ class SessionInvocation:
                 os.path.basename(storage.location))
             print(_("Created archive: {0}").format(archive))
 
+    def export_session(self):
+        if self.ns.output_format == _('?'):
+            self._print_output_format_list()
+            return 0
+        elif self.ns.output_options == _('?'):
+            self._print_output_option_list()
+            return 0
+        storage = self._lookup_storage(self.ns.session_id)
+        exporter = self._create_exporter()
+        if storage is None:
+            print(_("No such session: {0}").format(self.ns.session_id))
+        else:
+            print(_("Exporting session..."))
+            all_units = self._get_all_units()
+            manager = SessionManager.load_session(all_units, storage)
+            # Get a stream with exported session data.
+            exported_stream = io.BytesIO()
+            data_subset = exporter.get_session_data_subset(manager.state)
+            exporter.dump(data_subset, exported_stream)
+            exported_stream.seek(0)  # Need to rewind the file, puagh
+            # Write the stream to file if requested
+            if self.ns.output_file is sys.stdout:
+                # This requires a bit more finesse, as exporters output bytes
+                # and stdout needs a string.
+                translating_stream = ByteStringStreamTranslator(
+                    self.ns.output_file, "utf-8")
+                copyfileobj(exported_stream, translating_stream)
+            else:
+                print(_("Saving results to {}").format(
+                    self.ns.output_file.name))
+                copyfileobj(exported_stream, self.ns.output_file)
+            if self.ns.output_file is not sys.stdout:
+                self.ns.output_file.close()
+
+    def _get_all_units(self):
+        return list(
+            itertools.chain(*[
+                p.get_units()[0] for p in self.provider_list]))
+
+    def _print_output_format_list(self):
+        print(_("Available output formats: {}").format(
+            ', '.join(get_all_exporters())))
+
+    def _print_output_option_list(self):
+        print(_("Each format may support a different set of options"))
+        for name, exporter_cls in get_all_exporters().items():
+            print("{}: {}".format(
+                name, ", ".join(exporter_cls.supported_option_list)))
+
+    def _create_exporter(self):
+        exporter_cls = get_all_exporters()[self.ns.output_format]
+        if self.ns.output_options:
+            option_list = self.ns.output_options.split(',')
+        else:
+            option_list = None
+        try:
+            return exporter_cls(option_list)
+        except ValueError as exc:
+            raise SystemExit(str(exc))
+
     def _lookup_storage(self, session_id):
         repo = SessionStorageRepository()
         for storage in repo.get_storage_list():
@@ -146,8 +217,12 @@ class SessionInvocation:
     """))
 class SessionCommand(PlainBoxCommand):
 
+    def __init__(self, provider_list):
+        super().__init__()
+        self.provider_list = provider_list
+
     def invoked(self, ns):
-        return SessionInvocation(ns).run()
+        return SessionInvocation(ns, self.provider_list).run()
 
     def register_parser(self, subparsers):
         parser = self.add_subcommand(subparsers)
@@ -179,3 +254,26 @@ class SessionCommand(PlainBoxCommand):
             'archive', metavar=_('ARCHIVE'),
             help=_('Name of the archive to create'))
         archive_parser.set_defaults(session_cmd='archive')
+        export_parser = session_subparsers.add_parser(
+            'export', help=_('export a single session'))
+        export_parser.add_argument(
+            'session_id', metavar=_('SESSION-ID'),
+            help=_('Identifier of the session to export'))
+        export_parser.set_defaults(session_cmd='export')
+        group = export_parser.add_argument_group(_("output options"))
+        group.add_argument(
+            '-f', '--output-format', default='text',
+            metavar=_('FORMAT'), choices=[_('?')] + list(
+                get_all_exporters().keys()),
+            help=_('save test results in the specified FORMAT'
+                   ' (pass ? for a list of choices)'))
+        group.add_argument(
+            '-p', '--output-options', default='',
+            metavar=_('OPTIONS'),
+            help=_('comma-separated list of options for the export mechanism'
+                   ' (pass ? for a list of choices)'))
+        group.add_argument(
+            '-o', '--output-file', default='-',
+            metavar=_('FILE'), type=FileType("wb"),
+            help=_('save test results to the specified FILE'
+                   ' (or to stdout if FILE is -)'))

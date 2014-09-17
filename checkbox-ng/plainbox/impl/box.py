@@ -81,7 +81,7 @@ class PlainBoxTool(PlainBoxToolBase):
         # TODO: switch to plainbox plugins
         RunCommand(self._provider_list, self._config).register_parser(
             subparsers)
-        SessionCommand().register_parser(subparsers)
+        SessionCommand(self._provider_list).register_parser(subparsers)
         PlainboxSelfTestCommand().register_parser(subparsers)
         CheckConfigCommand(self._config).register_parser(subparsers)
         DevCommand(self._provider_list, self._config).register_parser(

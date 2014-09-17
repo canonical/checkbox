@@ -84,7 +84,7 @@ plugin: user-interact-verify
 id: bluetooth/audio
 depends: bluetooth/detect-output
 estimated_duration: 120.0
-command: arecord -d 5 -D bluetooth -f S16_LE | aplay -D bluetooth -f S16_LE
+command: audio_bluetooth_loopback_test
 _description:
  PURPOSE:
      This test will check that you can record and hear audio using a bluetooth audio device

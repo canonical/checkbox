@@ -207,6 +207,21 @@ class XMLSessionStateExporter(SessionStateExporterBase):
             raw_bytes
         ).decode('ASCII')
 
+    @classmethod
+    def _flatten_io_log(cls, io_log):
+        """
+        Overridden version of _flatten_io_log() that enforces additional
+        limits on the I/O log data.
+
+        This implementation filters out what would become Unicode control
+        characters so that they don't appear in the session data subset
+        anywhere.
+        """
+        return standard_b64encode(
+            b''.join([CONTROL_CODE_RE_BYTES.sub(b'', record.data)
+                      for record in io_log])
+        ).decode('ASCII')
+
     def dump(self, data, stream):
         """
         Public method to dump the XML report to a stream

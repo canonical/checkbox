@@ -230,12 +230,7 @@ class SessionStateExporterBase(ISessionStateExporter):
             # Add Attachments if requested
             if job_state.job.plugin == 'attachment':
                 if self.OPTION_WITH_ATTACHMENTS in self._option_list:
-                    raw_bytes = b''.join(
-                        (record[2] for record in
-                         job_state.result.get_io_log()
-                         if record[1] == 'stdout'))
-                    data['attachment_map'][job_id] = \
-                        base64.standard_b64encode(raw_bytes).decode('ASCII')
+                    self._build_attachment_map(data, job_id, job_state)
                 continue  # Don't add attachments IO logs to the result_map
 
             # Add IO log if requested
@@ -252,6 +247,14 @@ class SessionStateExporterBase(ISessionStateExporter):
                     io_log_data = self._io_log(job_state.result.get_io_log())
                 data['result_map'][job_id]['io_log'] = io_log_data
         return data
+
+    def _build_attachment_map(self, data, job_id, job_state):
+        raw_bytes = b''.join(
+            (record[2] for record in
+             job_state.result.get_io_log()
+             if record[1] == 'stdout'))
+        data['attachment_map'][job_id] = \
+            base64.standard_b64encode(raw_bytes).decode('ASCII')
 
     @classmethod
     def _squash_io_log(cls, io_log):

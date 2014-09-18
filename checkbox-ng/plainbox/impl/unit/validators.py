@@ -393,7 +393,8 @@ class TranslatableFieldValidator(FieldValidatorBase):
     """
 
     def check(self, parent, unit, field):
-        if (unit.get_record_value(field)
+        if (unit.virtual is False
+                and unit.get_record_value(field) is not None
                 and not unit.is_translatable_field(field)):
             yield parent.warning(unit, field, Problem.expected_i18n)
 

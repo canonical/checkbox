@@ -22,6 +22,7 @@
 =========================================================================
 """
 
+import abc
 import errno
 import gettext
 import logging
@@ -46,6 +47,7 @@ from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 from plainbox.impl.unit import all_units
 from plainbox.impl.unit.file import FileRole
 from plainbox.impl.unit.file import FileUnit
+from plainbox.impl.unit.testplan import TestPlanUnit
 from plainbox.impl.validation import Severity
 from plainbox.impl.validation import ValidationError
 
@@ -53,22 +55,65 @@ from plainbox.impl.validation import ValidationError
 logger = logging.getLogger("plainbox.secure.providers.v1")
 
 
-class WhiteListPlugIn(IPlugIn):
+class IVirtualUnitSynthethizer(metaclass=abc.ABCMeta):
+    """
+    Interface for all virtual unit synthetizers
+
+    Classes implementing this interface synthetise virtual units while loading
+    some other objects (possibly units), for maintaining backwards
+    compatibility
+    """
+
+    @abc.abstractmethod
+    def synthetize_virtual_units(self, filename, text, provider):
+        """
+        Synthethise virtual units
+
+        :param filename:
+            Name of the file with unit definitions
+        :param text:
+            Full text of the the file pointed to by ``filename``
+        :param provider:
+            A provider object to which those units belong to
+
+        This method is called automatically by :meth:`__init__()` to create
+        and add additional, virtual units, based on the file that was loaded.
+        """
+
+
+class WhiteListPlugIn(IPlugIn, IVirtualUnitSynthethizer):
     """
     A specialized :class:`plainbox.impl.secure.plugins.IPlugIn` that loads
     :class:`plainbox.impl.secure.qualifiers.WhiteList` instances from a file.
     """
 
-    def __init__(self, filename, text, implicit_namespace=None):
+    def __init__(self, filename, text, provider=None):
         """
         Initialize the plug-in with the specified name text
+
+        :param filename:
+            Name of the file that the plugin was loaded from
+        :param text:
+            Full text of the loaded file
+        :param provider:
+            An (optional) provider object. This parameter is highly
+            recommended. If supplied, it associates the whitelist (as well as
+            the synthetized virtual test plan unit) with the namespace and i18n
+            resources of the specified provider).
         """
+        self._whitelist = None
+        self._unit_list = []
         try:
             self._whitelist = WhiteList.from_string(
-                text, filename=filename, implicit_namespace=implicit_namespace)
+                text, filename=filename,
+                implicit_namespace=(
+                    provider.namespace
+                    if provider is not None else None))
         except Exception as exc:
             raise PlugInError(
                 _("Cannot load whitelist {!r}: {}").format(filename, exc))
+        else:
+            self.synthetize_virtual_units(filename, text, provider)
 
     @property
     def plugin_name(self):
@@ -84,8 +129,60 @@ class WhiteListPlugIn(IPlugIn):
         """
         return self._whitelist
 
+    @property
+    def unit_list(self):
+        """
+        list of loaded units
 
-class UnitPlugIn(IPlugIn):
+        ..note::
+            This property is not a part of the standard API of IPlugIn
+        """
+        return self._unit_list
+
+    def synthetize_virtual_units(self, filename, text, provider):
+        """
+        Synthethise virtual units
+
+        :param filename:
+            Name of the file with unit definitions
+        :param text:
+            Full text of the the file pointed to by ``filename``
+        :param provider:
+            A provider object to which those units belong to
+
+        This method is called automatically by :meth:`__init__()` to create
+        and add additional, virtual units, based on the file that was loaded.
+
+        This implementation instantiates a :class:`FileUnit` with
+        role :attr:`FileRole.legacy_whitelist` and a :class:`TestPlanUnit`
+        corresponding to the whitelist data.
+        """
+        self._unit_list.append(self._make_file_unit(filename, provider))
+        self._unit_list.append(self._make_test_plan_unit(
+            filename, text, provider))
+
+    def _make_file_unit(self, filename, provider):
+        return FileUnit({
+            'unit': FileUnit.Meta.name,
+            'path': filename,
+            'role': FileRole.legacy_whitelist,
+        }, origin=Origin(FileTextSource(filename)), provider=provider,
+        virtual=True)
+
+    def _make_test_plan_unit(self, filename, text, provider):
+        name = os.path.basename(os.path.splitext(filename)[0])
+        origin = Origin(FileTextSource(filename), 1, text.count('\n'))
+        field_offset_map = {'include': 0}
+        return TestPlanUnit({
+            'unit': TestPlanUnit.Meta.name,
+            'id': name,
+            'name': name,
+            'include': text,
+        }, origin=origin, provider=provider, field_offset_map=field_offset_map,
+        virtual=True)
+
+
+class UnitPlugIn(IPlugIn, IVirtualUnitSynthethizer):
     """
     A specialized :class:`plainbox.impl.secure.plugins.IPlugIn` that loads a
     list of :class:`plainbox.impl.unit.Unit` instances from a file.
@@ -166,14 +263,16 @@ class UnitPlugIn(IPlugIn):
                             exc.field, exc.problem))
             self._unit_list.append(unit)
             logger.debug(_("Loaded %r"), unit)
-        self.synthetize_virtual_units(filename, provider)
+        self.synthetize_virtual_units(filename, text, provider)
 
-    def synthetize_virtual_units(self, filename, provider):
+    def synthetize_virtual_units(self, filename, text, provider):
         """
         Synthethise virtual units
 
         :param filename:
             Name of the file with unit definitions
+        :param text:
+            Full text of the the file pointed to by ``filename``
         :param provider:
             A provider object to which those units belong to
 
@@ -183,8 +282,7 @@ class UnitPlugIn(IPlugIn):
         This implementation instantiates only one FileUnit() with
         role :attr:`FileRole.unit_source`
         """
-        self._unit_list.append(
-            self._make_file_unit(filename, provider))
+        self._unit_list.append(self._make_file_unit(filename, provider))
 
     def _make_file_unit(self, filename, provider):
         return FileUnit({
@@ -308,7 +406,7 @@ class Provider1(IProvider1, IProviderBackend1):
             whitelists_dir_list = []
         self._whitelist_collection = FsPlugInCollection(
             whitelists_dir_list, ext=".whitelist", wrapper=WhiteListPlugIn,
-            implicit_namespace=self.namespace)
+            provider=self)
 
     def _load_units(self, validate, validation_kwargs, check, context):
         units_dir_list = []
@@ -608,10 +706,14 @@ class Provider1(IProvider1, IProviderBackend1):
             each item from problem_list is an exception.
         """
         self._unit_collection.load()
+        self._whitelist_collection.load()
         unit_list = []
-        problem_list = self._unit_collection.problem_list
         for sublist in self._unit_collection.get_all_plugin_objects():
             unit_list.extend(sublist)
+        for plugin in self._whitelist_collection.get_all_plugins():
+            unit_list.extend(plugin.unit_list)
+        problem_list = (self._unit_collection.problem_list
+                        + self._whitelist_collection.problem_list)
         return unit_list, problem_list
 
     def get_all_executables(self):

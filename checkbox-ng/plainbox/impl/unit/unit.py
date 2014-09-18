@@ -368,7 +368,7 @@ class Unit(UnitLegacyAPI, metaclass=UnitType):
     """
 
     def __init__(self, data, raw_data=None, origin=None, provider=None,
-                 parameters=None, field_offset_map=None):
+                 parameters=None, field_offset_map=None, virtual=False):
         """
         Initialize a new unit
 
@@ -393,6 +393,11 @@ class Unit(UnitLegacyAPI, metaclass=UnitType):
         :param field_offset_map:
             An optional dictionary with offsets (in line numbers) of each
             field.  Line numbers are relative to the value of origin.line_start
+        :param virtual:
+            An optional flag marking this unit as "virtual". It can be used
+            to annotate units synthetized by PlainBox itself so that certain
+            operations can treat them differently. It also helps with merging
+            non-virtual and virtual units.
         """
         if raw_data is None:
             raw_data = data
@@ -407,6 +412,7 @@ class Unit(UnitLegacyAPI, metaclass=UnitType):
         self._provider = provider
         self._checksum = None
         self._parameters = parameters
+        self._virtual = virtual
 
     @classmethod
     def instantiate_template(cls, data, raw_data, origin, provider, parameters,
@@ -496,6 +502,16 @@ class Unit(UnitLegacyAPI, metaclass=UnitType):
             :meth:`is_parametric()`
         """
         return self._parameters
+
+    @property
+    def virtual(self):
+        """
+        Flag indicating if this unit is a virtual unit
+
+        Virtual units are created (synthetised) by PlainBox and don't exist
+        in any one specific file as normal units do.
+        """
+        return self._virtual
 
     @property
     def is_parametric(self):

@@ -24,7 +24,10 @@ Module with implementation of legacy validation API for all the current units.
 This module can be removed once that API is no longer needed.
 """
 import itertools
+import re
+import sre_constants
 
+from plainbox.i18n import gettext as _
 from plainbox.impl import deprecated
 from plainbox.impl.resource import Resource
 from plainbox.impl.resource import ResourceProgramError
@@ -262,6 +265,44 @@ class CategoryUnitValidatorLegacyAPI(UnitWithIdValidatorLegacyAPI):
             raise ValidationError(unit.fields.name, Problem.missing)
 
 
+class TestPlanUnitValidatorLegacyAPI(UnitWithIdValidatorLegacyAPI):
+    """
+    Validator for :class:`TestPlanUnit`
+    """
+
+    @deprecated('0.11', 'use .check() instead')
+    def validate(self, unit, **validation_kwargs):
+        # Check basic stuff
+        super().validate(unit, **validation_kwargs)
+        # Check if name field is empty
+        if unit.name is None:
+            raise ValidationError("name", Problem.missing)
+        # Check that we can convert include + exclude into a list of qualifiers
+        # this is not perfect but it has some sort of added value
+        if unit.include is not None:
+            self._validate_selector(unit, "include")
+        if unit.exclude is not None:
+            self._validate_selector(unit, "exclude")
+        # check if .estimated_duration crashes on ValueError
+        try:
+            unit.estimated_duration
+        except ValueError:
+            raise ValidationError("estimated_duration", Problem.wrong)
+
+    def _validate_selector(self, unit, field_name):
+        field_value = getattr(unit, field_name)
+        matchers_gen = unit.parse_matchers(field_value)
+        for lineno_offset, matcher_field, matcher, error in matchers_gen:
+            if error is None:
+                continue
+            raise ValidationError(
+                field_name, Problem.wrong,
+                hint=_("invalid regular expression: {0}".format(str(error))),
+                origin=unit.origin.with_offset(
+                    lineno_offset + unit.field_offset_map[field_name]
+                ).just_line())
+
+
 # --- units ---
 
 
@@ -433,3 +474,24 @@ class TemplateUnitLegacyAPI(UnitLegacyAPI):
 
     class Meta(UnitLegacyAPI.Meta):
         pass
+
+
+class TestPlanUnitLegacyAPI(UnitWithIdLegacyAPI):
+
+    @deprecated('0.11', 'use .check() instead')
+    def validate(self, **validation_kwargs):
+        """
+        Validate data stored in the unit
+
+        :param validation_kwargs:
+            Validation parameters (may vary per subclass)
+        :raises ValidationError:
+            If the unit is incorrect somehow.
+
+        Non-parametric units are always valid. Parametric units are valid if
+        they don't violate the parametric constraints encoded in the
+        :class:`Unit.Meta` unit meta-data class'
+        :attr:`Unit.Meta.template_constraints` field.
+        """
+        return TestPlanUnitValidatorLegacyAPI().validate(
+            self, **validation_kwargs)

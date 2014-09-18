@@ -45,12 +45,13 @@ from plainbox.impl.buildsystems import all_buildsystems
 from plainbox.impl.commands import ToolBase, CommandBase
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.logging import setup_logging
-from plainbox.impl.providers.v1 import InsecureProvider1PlugInCollection
 from plainbox.impl.providers.v1 import get_user_PROVIDERPATH_entry
+from plainbox.impl.providers.v1 import InsecureProvider1PlugInCollection
 from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.config import ValidationError \
     as ConfigValidationError
 from plainbox.impl.secure.origin import Origin
+from plainbox.impl.secure.origin import UnknownTextSource
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.providers.v1 import Provider1Definition
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
@@ -60,6 +61,7 @@ from plainbox.impl.validation import Issue
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
 from plainbox.impl.validation import ValidationError as UnitValidationError
+
 
 __all__ = ['setup', 'manage_py_extension']
 
@@ -828,60 +830,41 @@ class InfoCommand(ManageCommand):
         print("\t" + _("version: {}").format(provider.version))
         # TRANSLATORS: {} is the gettext translation domain of the provider
         print("\t" + _("gettext domain: {}").format(provider.gettext_domain))
+        unit_list, problem_list = provider.get_units()
         print(_("[Job Definitions]"))
-        unit_list, problem_list = provider.get_units()
-        for unit in (unit for unit in unit_list if unit.Meta.name == 'job'):
-            # TRANSLATORS: the fields are as follows:
-            # 0: unit representation
-            # 1: pathname of the file the job is defined in
-            print("\t" + _("{0} {1}, from {2}").format(
-                unit.get_unit_type(),
-                unit.id if isinstance(unit, (UnitWithId, JobDefinition))
-                else unit,
-                unit.origin.relative_to(self.definition.location)))
+        self._display_units((
+            unit for unit in unit_list if unit.Meta.name == 'job'))
+        print(_("[Test Plans]"))
+        self._display_units((
+            unit for unit in unit_list if unit.Meta.name == 'test plan'))
         print(_("[Other Units]"))
-        unit_list, problem_list = provider.get_units()
-        for unit in (unit for unit in unit_list if unit.Meta.name != 'job'):
-            # TRANSLATORS: the fields are as follows:
-            # 0: unit representation
-            # 1: pathname of the file the job is defined in
-            from plainbox.impl.secure.origin import OriginMode
-            if unit.Meta.name == 'file':
-                print("\t" + _("{0} {1}, role {2}").format(
-                    unit.get_unit_type(),
-                    unit.origin.relative_to(self.definition.location),
-                    unit.role))
-                # import pdb; pdb.set_trace()
-            else:
-                print("\t" + _("{0} {1}, from {2}").format(
-                    unit.get_unit_type(),
-                    unit.id if isinstance(unit, (UnitWithId, JobDefinition))
-                    else unit,
-                    unit.origin.relative_to(self.definition.location)))
+        self._display_units((
+            unit for unit in unit_list
+            if unit.Meta.name not in ('job', 'test plan')))
         if problem_list:
             print("\t" + _("Some units could not be parsed correctly"))
             # TRANSLATORS: please don't translate `manage.py validate`
             print("\t" + _("Please run `manage.py validate` for details"))
-        print(_("[White Lists]"))
-        try:
-            whitelist_list = provider.get_builtin_whitelists()
-        except RFC822SyntaxError as exc:
-            print("{}:{}: {}".format(
-                os.path.relpath(exc.filename, self.definition.location),
-                exc.lineno, exc.msg))
-            print(_("Errors prevent whitelists from being displayed"))
-        else:
-            for whitelist in whitelist_list:
-                # TRANSLATORS: the fields are as follows:
-                # 0: whitelist name
-                # 1: pathname of the file the whitelist is defined in
-                print("\t" + _("{0!a}, from {1}").format(
-                    whitelist.name,
-                    whitelist.origin.relative_to(self.definition.location)))
         print(_("[Executables]"))
         executable_list = provider.get_all_executables()
         for executable in executable_list:
             print("\t{0!a}".format(os.path.basename(executable)))
+
+    def _display_units(self, unit_list):
+        for unit in unit_list:
+            # TRANSLATORS: the fields are as follows:
+            # 0: unit representation
+            # 1: pathname of the file the job is defined in
+            if unit.Meta.name == 'file':
+                print("\t" + _("{0} {1}, role {2}").format(
+                    unit.tr_unit(),
+                    unit.origin.relative_to(self.definition.location),
+                    unit.role))
+            else:
+                print("\t" + _("{0} {1}, from {2}").format(
+                    unit.tr_unit(),
+                    unit.id if isinstance(unit, UnitWithId) else unit,
+                    unit.origin.relative_to(self.definition.location)))
 
 
 @docstring(
@@ -1137,7 +1120,9 @@ def exc2issue(exc):
             exc.msg, Severity.error, Problem.syntax_error,
             Origin(exc.filename, exc.lineno, exc.lineno))
     else:
-        return Issue(str(exc), Severity.error, Problem.unknown)
+        return Issue(
+            str(exc), Severity.error, Problem.unknown,
+            Origin(UnknownTextSource()))
 
 
 @docstring(

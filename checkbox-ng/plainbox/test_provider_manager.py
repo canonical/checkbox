@@ -375,10 +375,11 @@ class ProviderManagerToolTests(TestCase):
             "\tgettext domain: domain\n"
             "[Job Definitions]\n"
             "\tjob 2014.com.example::dummy, from jobs/jobs.txt:1-4\n"
+            "[Test Plans]\n"
+            "\ttest plan 2014.com.example::test, from whitelists/test.whitelist:1\n"
             "[Other Units]\n"
             "\tfile jobs/jobs.txt, role unit-source\n"
-            "[White Lists]\n"
-            "\t'test', from whitelists/test.whitelist:1\n"
+            "\tfile whitelists/test.whitelist, role legacy-whitelist\n"
             "[Executables]\n"
             "\t'test.sh'\n"))
 

@@ -52,6 +52,9 @@ class Signal:
         self._listeners = []
         self._signal_name = signal_name
 
+    def __repr__(self):
+        return "<Signal name:{!r}>".format(self._signal_name)
+
     def connect(self, listener):
         """
         Connect a new listener to this signal

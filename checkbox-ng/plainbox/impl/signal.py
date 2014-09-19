@@ -169,3 +169,90 @@ def remove_signals_listeners(instance):
         for listener in list(instance.__listeners__):
             for signal in instance.__listeners__[listener]:
                 signal.disconnect(listener)
+
+
+class SignalInterceptorMixIn:
+    """
+    A mix-in class for :class:`unittest.TestCase` that simplifies testing
+    uses of the plainbox signal system
+    """
+
+    def _extend_state(self):
+        if not hasattr(self, '_events_seen'):
+            self._events_seen = []
+
+    def watchSignal(self, signal):
+        """
+        Setup provisions to watch a specified signal
+
+        :param signal:
+            The signal (from :mod:`plainbox.impl.signal`) to watch.
+        """
+        self._extend_state()
+
+        def signal_handler(*args, **kwargs):
+            self._events_seen.append((signal, args, kwargs))
+        signal.connect(signal_handler)
+        if hasattr(self, 'addCleanup'):
+            self.addCleanup(signal.disconnect, signal_handler)
+
+    def assertSignalFired(self, signal, *args, **kwargs):
+        """
+        Assert that a signal was fired with appropriate arguments.
+
+        :param signal:
+            The signal (from :mod:`plainbox.impl.signal`) that should have been
+            fired. Typically this is ``SomeClass.on_some_signal`` reference
+        :param args:
+            List of positional arguments passed to the signal handler
+        :param kwargs:
+            List of keyword arguments passed to the signal handler
+        :returns:
+            A 3-tuple (signal, args, kwargs) that describes that event
+        """
+        event = (signal, args, kwargs)
+        self.assertIn(event, self._events_seen)
+        return event
+
+    def assertSignalNotFired(self, signal, *args, **kwargs):
+        """
+        Assert that a signal was fired with appropriate arguments.
+
+        :param signal:
+            The signal (from :mod:`plainbox.impl.signal`) that should have been
+            fired. Typically this is ``SomeClass.on_some_signal`` reference
+        :param args:
+            List of positional arguments passed to the signal handler
+        :param kwargs:
+            List of keyword arguments passed to the signal handler
+        """
+        event = (signal, args, kwargs)
+        self.assertNotIn(event, self._events_seen)
+
+    def assertSignalOrdering(self, *expected_events):
+        """
+        Assert that a signals were fired in a specific sequence.
+
+        :param expected_events:
+            A (varadic) list of events describing the signals that were fired
+            Each element is a 3-tuple (signal, args, kwargs) that describes
+            the event.
+
+        .. note::
+            If you are using :meth:`assertSignalFired()` then the return value
+            of that method is a single event that can be passed to this method
+        """
+        expected_order = [self._events_seen.index(event)
+                          for event in expected_events]
+        actual_order = sorted(expected_order)
+        self.assertEqual(
+            expected_order, actual_order,
+            "\nExpected order of fired signals:\n{}\n"
+            "Actual order observed:\n{}".format(
+                "\n".join(
+                    "\t{}: {}".format(i, event)
+                    for i, event in enumerate(expected_events, 1)),
+                "\n".join(
+                    "\t{}: {}".format(i, event)
+                    for i, event in enumerate(
+                        (self._events_seen[idx] for idx in actual_order), 1))))

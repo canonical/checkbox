@@ -126,7 +126,10 @@ class _SignalDescriptor:
     """
 
     def __init__(self, first_responder):
-        self.signal_name = first_responder.__name__
+        if hasattr(first_responder, '__qualname__'):
+            self.signal_name = first_responder.__qualname__
+        else:
+            self.signal_name = first_responder.__name__
         self.first_responder = first_responder
         self.__doc__ = first_responder.__doc__
 

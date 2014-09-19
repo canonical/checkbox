@@ -634,6 +634,39 @@ class SessionState:
             if recompute:
                 self._recompute_job_readiness()
 
+    def remove_unit(self, unit, *, recompute=True):
+        """
+        Remove an existing unit from the session
+
+        :param unit:
+            The unit to remove
+        :param recompute:
+            If True, recompute readiness inhibitors for all jobs.
+            You should only set this to False if you're adding
+            a number of jobs and will otherwise ensure that
+            :meth:`_recompute_job_readiness()` gets called before
+            session state users can see the state again.
+
+        .. note::
+            This method recomputes job readiness for all jobs unless the
+            recompute=False argument is used. Recomputing takes a while so if
+            you want to add a lot of units consider setting that to False and
+            only recompute at the last call.
+        """
+        self._unit_list.remove(unit)
+        self.on_unit_removed(unit)
+        if unit.Meta.name == 'job':
+            self._job_list.remove(unit)
+            del self._job_state_map[unit.id]
+            try:
+                del self._resource_map[unit.id]
+            except KeyError:
+                pass
+            if recompute:
+                self._recompute_job_readiness()
+            self.on_job_removed(unit)
+            self.on_job_state_map_changed()
+
     def set_resource_list(self, resource_id, resource_list):
         """
         Add or change a resource with the given id.

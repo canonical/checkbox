@@ -32,12 +32,17 @@ from plainbox.impl.depmgr import DependencyMissingError
 from plainbox.impl.resource import Resource
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.secure.origin import Origin
+from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.qualifiers import JobIdQualifier
 from plainbox.impl.session import JobReadinessInhibitor
 from plainbox.impl.session import SessionState
 from plainbox.impl.session import UndesiredJobReadinessInhibitor
+from plainbox.impl.session.state import SessionDeviceContext
 from plainbox.impl.session.state import SessionMetaData
+from plainbox.impl.signal import SignalInterceptorMixIn
 from plainbox.impl.testing_utils import make_job
+from plainbox.impl.unit.job import JobDefinition
+from plainbox.impl.unit.unit import Unit
 from plainbox.vendor import mock
 
 
@@ -688,3 +693,226 @@ class SessionMetadataTests(TestCase):
             app_id='com.canonical.certification.plainbox')
         self.assertEqual(
             metadata.app_id, 'com.canonical.certification.plainbox')
+
+
+class SessionDeviceContextTests(TestCase, SignalInterceptorMixIn):
+
+    def setUp(self):
+        self.ctx = SessionDeviceContext()
+        self.provider = mock.Mock(name='provider', spec_set=Provider1)
+        self.unit = mock.Mock(name='unit', spec_set=Unit)
+        self.unit.provider = self.provider
+        self.provider.get_units.return_value = ([self.unit], ())
+        self.job = mock.Mock(name='job', spec_set=JobDefinition)
+        self.job.Meta.name = 'job'
+
+    def test_smoke(self):
+        """
+        Ensure that you can create a session device context and that
+        default values are what we expect
+        """
+        self.assertIsNone(self.ctx.device)
+        self.assertIsInstance(self.ctx.state, SessionState)
+        self.assertEqual(self.ctx.provider_list, [])
+        self.assertEqual(self.ctx.unit_list, [])
+
+    def test_add_provider(self):
+        """
+        Ensure that adding a provider works
+        """
+        self.ctx.add_provider(self.provider)
+        self.assertIn(self.provider, self.ctx.provider_list)
+
+    def test_add_provider_twice(self):
+        """
+        Ensure that you cannot add a provider twice
+        """
+        self.ctx.add_provider(self.provider)
+        with self.assertRaises(ValueError):
+            self.ctx.add_provider(self.provider)
+
+    def test_add_provider__adds_units(self):
+        """
+        Ensure that adding a provider adds the unit it knows about
+        """
+        self.ctx.add_provider(self.provider)
+        self.assertIn(self.unit, self.ctx.unit_list)
+
+    def test_add_unit(self):
+        """
+        Ensure that adding an unit works
+        """
+        self.ctx.add_unit(self.unit)
+        self.assertIn(self.unit, self.ctx.unit_list)
+        self.assertIn(self.unit, self.ctx.state.unit_list)
+
+    def test_add_unit__job_unit(self):
+        """
+        Ensure that adding a job unit works
+        """
+        self.ctx.add_unit(self.job)
+        self.assertIn(self.job, self.ctx.unit_list)
+        self.assertIn(self.job, self.ctx.state.unit_list)
+        self.assertIn(self.job, self.ctx.state.job_list)
+
+    def test_add_unit_twice(self):
+        """
+        Ensure that you cannot add an unit twice
+        """
+        self.ctx.add_unit(self.unit)
+        with self.assertRaises(ValueError):
+            self.ctx.add_unit(self.unit)
+
+    def test_remove_unit(self):
+        """
+        Ensure that removing an unit works
+        """
+        self.ctx.add_unit(self.unit)
+        self.ctx.remove_unit(self.unit)
+        self.assertNotIn(self.unit, self.ctx.unit_list)
+        self.assertNotIn(self.unit, self.ctx.state.unit_list)
+
+    def test_remove_unit__missing(self):
+        """
+        Ensure that you cannot remove an unit that is not added first
+        """
+        with self.assertRaises(ValueError):
+            self.ctx.remove_unit(self.unit)
+
+    def test_remove_job_unit(self):
+        """
+        Ensure that removing a job unit works
+        """
+        self.ctx.add_unit(self.job)
+        self.ctx.remove_unit(self.job)
+        self.assertNotIn(self.job, self.ctx.unit_list)
+        self.assertNotIn(self.job, self.ctx.state.unit_list)
+        self.assertNotIn(self.job, self.ctx.state.job_list)
+        self.assertNotIn(self.job.id, self.ctx.state.job_state_map)
+        self.assertNotIn(self.job.id, self.ctx.state.resource_map)
+
+    def test_on_unit_added__via_ctx(self):
+        """
+        Ensure that adding units produces same/correct signals
+        regardless of how that unit is added. This test checks the scenario
+        that happens when the context is used directly
+        """
+        self.watchSignal(self.ctx.on_unit_added)
+        self.watchSignal(self.ctx.state.on_unit_added)
+        self.watchSignal(self.ctx.state.on_job_added)
+        self.ctx.add_unit(self.unit)
+        sig1 = self.assertSignalFired(self.ctx.on_unit_added, self.unit)
+        sig2 = self.assertSignalFired(self.ctx.state.on_unit_added, self.unit)
+        self.assertSignalOrdering(sig1, sig2)
+        self.assertSignalNotFired(self.ctx.state.on_job_added, self.unit)
+
+    def test_on_unit_added__via_state(self):
+        """
+        Ensure that adding units produces same/correct signals
+        regardless of how that unit is added. This test checks the scenario
+        that happens when the session state is used.
+        """
+        self.watchSignal(self.ctx.on_unit_added)
+        self.watchSignal(self.ctx.state.on_unit_added)
+        self.watchSignal(self.ctx.state.on_job_added)
+        self.ctx.state.add_unit(self.unit)
+        sig1 = self.assertSignalFired(self.ctx.on_unit_added, self.unit)
+        sig2 = self.assertSignalFired(self.ctx.state.on_unit_added, self.unit)
+        self.assertSignalOrdering(sig1, sig2)
+        self.assertSignalNotFired(self.ctx.state.on_job_added, self.unit)
+
+    def test_on_job_added__via_ctx(self):
+        """
+        Ensure that adding job units produces same/correct signals
+        regardless of how that job is added. This test checks the scenario
+        that happens when the context is used directly
+        """
+        self.watchSignal(self.ctx.on_unit_added)
+        self.watchSignal(self.ctx.state.on_unit_added)
+        self.watchSignal(self.ctx.state.on_job_added)
+        self.ctx.add_unit(self.job)
+        sig1 = self.assertSignalFired(self.ctx.on_unit_added, self.job)
+        sig2 = self.assertSignalFired(self.ctx.state.on_unit_added, self.job)
+        sig3 = self.assertSignalFired(self.ctx.state.on_job_added, self.job)
+        self.assertSignalOrdering(sig1, sig2, sig3)
+
+    def test_on_job_added__via_state(self):
+        """
+        Ensure that adding job units produces same/correct signals
+        regardless of how that job is added. This test checks the scenario
+        that happens when the session state is used.
+        """
+        self.watchSignal(self.ctx.on_unit_added)
+        self.watchSignal(self.ctx.state.on_unit_added)
+        self.watchSignal(self.ctx.state.on_job_added)
+        self.ctx.state.add_unit(self.job)
+        sig1 = self.assertSignalFired(self.ctx.on_unit_added, self.job)
+        sig2 = self.assertSignalFired(self.ctx.state.on_unit_added, self.job)
+        sig3 = self.assertSignalFired(self.ctx.state.on_job_added, self.job)
+        self.assertSignalOrdering(sig1, sig2, sig3)
+
+    def test_on_unit_removed__via_ctx(self):
+        """
+        Ensure that removing units produces same/correct signals
+        regardless of how that unit is removed. This test checks the scenario
+        that happens when the context is used directly
+        """
+        self.ctx.add_unit(self.unit)
+        self.watchSignal(self.ctx.on_unit_removed)
+        self.watchSignal(self.ctx.state.on_unit_removed)
+        self.watchSignal(self.ctx.state.on_job_removed)
+        self.ctx.remove_unit(self.unit)
+        sig1 = self.assertSignalFired(self.ctx.on_unit_removed, self.unit)
+        sig2 = self.assertSignalFired(
+            self.ctx.state.on_unit_removed, self.unit)
+        self.assertSignalOrdering(sig1, sig2)
+        self.assertSignalNotFired(self.ctx.state.on_job_removed, self.unit)
+
+    def test_on_unit_removed__via_state(self):
+        """
+        Ensure that removing units produces same/correct signals
+        regardless of how that unit is removed. This test checks the scenario
+        that happens when the session state is used.
+        """
+        self.ctx.add_unit(self.unit)
+        self.watchSignal(self.ctx.on_unit_removed)
+        self.watchSignal(self.ctx.state.on_unit_removed)
+        self.watchSignal(self.ctx.state.on_job_removed)
+        self.ctx.state.remove_unit(self.unit)
+        sig1 = self.assertSignalFired(self.ctx.on_unit_removed, self.unit)
+        sig2 = self.assertSignalFired(
+            self.ctx.state.on_unit_removed, self.unit)
+        self.assertSignalOrdering(sig1, sig2)
+        self.assertSignalNotFired(self.ctx.state.on_job_removed, self.unit)
+
+    def test_on_job_removed__via_ctx(self):
+        """
+        Ensure that removing job units produces same/correct signals
+        regardless of how that job is removed. This test checks the scenario
+        that happens when the context is used directly
+        """
+        self.ctx.add_unit(self.job)
+        self.watchSignal(self.ctx.on_unit_removed)
+        self.watchSignal(self.ctx.state.on_unit_removed)
+        self.watchSignal(self.ctx.state.on_job_removed)
+        self.ctx.remove_unit(self.job)
+        sig1 = self.assertSignalFired(self.ctx.on_unit_removed, self.job)
+        sig2 = self.assertSignalFired(self.ctx.state.on_unit_removed, self.job)
+        sig3 = self.assertSignalFired(self.ctx.state.on_job_removed, self.job)
+        self.assertSignalOrdering(sig1, sig2, sig3)
+
+    def test_on_job_removed__via_state(self):
+        """
+        Ensure that removing job units produces same/correct signals
+        regardless of how that job is removed. This test checks the scenario
+        that happens when the session state is used.
+        """
+        self.ctx.add_unit(self.job)
+        self.watchSignal(self.ctx.on_unit_removed)
+        self.watchSignal(self.ctx.state.on_unit_removed)
+        self.watchSignal(self.ctx.state.on_job_removed)
+        self.ctx.state.remove_unit(self.job)
+        sig1 = self.assertSignalFired(self.ctx.on_unit_removed, self.job)
+        sig2 = self.assertSignalFired(self.ctx.state.on_unit_removed, self.job)
+        sig3 = self.assertSignalFired(self.ctx.state.on_job_removed, self.job)
+        self.assertSignalOrdering(sig1, sig2, sig3)

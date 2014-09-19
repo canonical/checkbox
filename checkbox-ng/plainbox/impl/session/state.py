@@ -166,6 +166,176 @@ class SessionMetaData:
         self._app_id = value
 
 
+class SessionDeviceContext:
+    """
+    Session context specific to a given device.
+
+    This class exposes access to a "world view" unique to a specific device.
+    The view is composed of the following attributes:
+
+    :attr _provider_list:
+        A list of providers known by this device. All of those providers
+        are compatible with the device.
+
+    :attr _unit_list:
+        A list of all the units known by this device. Initially it is idenitcal
+        to the union of all the units from ``_provider_list`` but it is in fact
+        mutable and can be grown (or shrunk in some cases) when jobs are
+        created at runtime.
+
+    :attr _device:
+        Always None, this is a future extension point
+
+    :attr _state:
+        A :class:`SessionState` object that holds all of the job results
+        and also exposes some legacy API for computing the run list and the
+        desired job list
+    """
+
+    def __init__(self):
+        self._provider_list = []
+        self._unit_list = []
+        self._device = None
+        self._state = SessionState(self._unit_list)
+        # Connect SessionState's signals to fire our signals. This
+        # way all manipulation done through the SessionState object
+        # can be observed through the SessionDeviceContext object
+        # (and vice versa, as all the manipulation is forwarded to
+        # the SessionState)
+        self._state.on_unit_added.connect(self.on_unit_added)
+        self._state.on_unit_removed.connect(self.on_unit_removed)
+
+    @property
+    def device(self):
+        """
+        The device associated with this context.
+
+        .. warning::
+            Currently this method will always return None. In the future it
+            will return an object that describes the device.
+        """
+        return self._device
+
+    @property
+    def state(self):
+        """
+        The session state object associated with this context.
+
+        .. note::
+            You can use both the session state and the session device context
+            to query and monitor the changes to all the participating units
+        """
+        return self._state
+
+    @property
+    def provider_list(self):
+        """
+        The list of providers currently available in this context.
+
+        .. note::
+            You must not modify the return value.
+
+            This is not enforced but please use the :meth:`add_provider()`
+            method if you want to add a provider. Currently you cannot
+            remove providers or reorder the list of providers.
+        """
+        return self._provider_list
+
+    @property
+    def unit_list(self):
+        """
+        The list of units currently available in this context.
+
+        .. note::
+            You must not modify the return value.SessionDeviceContext:
+
+            This is not enforced but please use the :meth:`add_unit()`
+            or :meth:`remove_unit()` if you want to manipulate the list.
+            Currently you cannot reorder the list of units.
+        """
+        return self._unit_list
+
+    def add_provider(self, provider):
+        """
+        Add a provider to the context
+
+        :param provider:
+            The :class:`Provider1` to add
+        :raises ValueError:
+            If the provider is already in the context
+
+        This method can be used to add a provider to the context. It also adds
+        all of the units of that provider automatically.
+
+        .. note::
+            This method fires the :meth:`on_provider_added()` signal but
+            it does so before any of the units from that provider are added.
+        """
+        if provider in self._provider_list:
+            raise ValueError(_("attempting to add the same provider twice"))
+        self._provider_list.append(provider)
+        self.on_provider_added(provider)
+        for unit in provider.get_units()[0]:
+            self.add_unit(unit)
+
+    def add_unit(self, unit):
+        """
+        Add a unit to the context
+
+        :param unit:
+            The :class:`Unit` to add.
+        :raises ValueError:
+            If the unit is already in the context
+
+        This method can be used to register both the initially-known units
+        as well as units generated at runtime.
+
+        This method fires the :meth:`on_unit_added()` signal
+        """
+        if unit in self._unit_list:
+            raise ValueError(_("attempting to add the same unit twice"))
+        self.state.add_unit(unit)
+        # NOTE: no need to fire the on_unit_added() signal becuse the state
+        # object and we've connected it to will fire our version.
+
+    def remove_unit(self, unit):
+        """
+        Add an unit from the context
+
+        :param unit:
+            The :class:`Unit` to remove.
+
+        This method fires the :meth:`on_unit_removed()` signal
+        """
+        if unit not in self._unit_list:
+            raise ValueError(
+                _("attempting to remove unit not in this context"))
+        self.state.remove_unit(unit)
+        # NOTE: no need to fire the on_unit_removed() signal becuse the state
+        # object and we've connected it to will fire our version.
+
+    @Signal.define
+    def on_provider_added(self, provider):
+        """
+        Signal sent whenever a provider is added to the context.
+        """
+        logger.info(_("New provider added: %r"), provider)
+
+    @Signal.define
+    def on_unit_added(self, unit):
+        """
+        Signal sent whenever a unit is added to the context.
+        """
+        logger.info(_("Unit added: %r"), unit)
+
+    @Signal.define
+    def on_unit_removed(self, unit):
+        """
+        Signal sent whenever a unit is removed from the context.
+        """
+        logger.info(_("Unit removed: %r"), unit)
+
+
 class SessionState:
     """
     Class representing all state needed during a single program session.

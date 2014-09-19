@@ -290,6 +290,20 @@ class SessionState:
         """
         logger.info(_("Job removed: %r"), job)
 
+    @Signal.define
+    def on_unit_added(self, unit):
+        """
+        Signal sent whenever a unit is added to the session.
+        """
+        logger.info(_("Unit added: %r"), unit)
+
+    @Signal.define
+    def on_unit_removed(self, unit):
+        """
+        Signal sent whenever a unit is removed from the session.
+        """
+        logger.info(_("Unit removed: %r"), unit)
+
     def __init__(self, unit_list):
         """
         Initialize a new SessionState with a given list of units.
@@ -405,6 +419,7 @@ class SessionState:
             # And that each removed job was actually removed
             for job in remove_list:
                 self.on_job_removed(job)
+                self.on_unit_removed(job)
 
     def update_desired_job_list(self, desired_job_list):
         """
@@ -591,6 +606,7 @@ class SessionState:
 
     def _add_other_unit(self, new_unit):
         self.unit_list.append(new_unit)
+        self.on_unit_added(new_unit)
         return new_unit
 
     def _add_job_unit(self, new_job, recompute):
@@ -603,6 +619,7 @@ class SessionState:
             self.job_list.append(new_job)
             self.unit_list.append(new_job)
             self.on_job_state_map_changed()
+            self.on_unit_added(new_job)
             self.on_job_added(new_job)
             return new_job
         else:

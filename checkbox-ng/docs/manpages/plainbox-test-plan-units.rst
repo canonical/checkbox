@@ -175,7 +175,7 @@ copy such constructs when working on a new test plan from scratch
     effective override in a given test plan. For example, given the
     following two overrides::
 
-        apply cat-1 to *
+        apply cat-1 to .*
         apply cat-2 to foo
 
     The job definition with the partial identifier ``foo`` will be associated

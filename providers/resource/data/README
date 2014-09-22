@@ -1,0 +1,3 @@
+This data directory is empty but exists to enable locating the provider's
+jobs/ directory using a path relative to PLAINBOX_PROVIDER_DATA.
+This enables the __resource__ category to work.

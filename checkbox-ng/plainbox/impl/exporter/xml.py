@@ -80,13 +80,14 @@ class XMLValidator:
         return self._validator.validate(element)
 
 
-# Regular expressions that match control characters
+# Regular expressions that match control characters, EXCEPT for the newline,
+# carriage return, tab and vertical space
 #
 # According to http://unicode.org/glossary/#control_codes
 # control codes are "The 65 characters in the ranges U+0000..U+001F and
 # U+007F..U+009F. Also known as control characters."
-CONTROL_CODE_RE_STR = re.compile("[\u0000-\u001F]|[\u007F-\u009F]")
-CONTROL_CODE_RE_BYTES = re.compile(b"[\x00-\x1F]|[\x7F-\x9F]")
+CONTROL_CODE_RE_STR = re.compile("(?![\n\r\t\v])[\u0000-\u001F]|[\u007F-\u009F]")
+CONTROL_CODE_RE_BYTES = re.compile(b"(?![\n\r\t\v])[\x00-\x1F]|[\x7F-\x9F]")
 
 
 class XMLSessionStateExporter(SessionStateExporterBase):

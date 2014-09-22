@@ -53,6 +53,13 @@ class ControlCodeTests(TestCase):
         self.assertRegex('\u001F', CONTROL_CODE_RE_STR)
         self.assertNotRegex('\u00A0', CONTROL_CODE_RE_STR)
 
+    def test_explicitly_allowed__str(self):
+        self.assertNotRegex(' ', CONTROL_CODE_RE_STR)
+        self.assertNotRegex('\n', CONTROL_CODE_RE_STR)
+        self.assertNotRegex('\r', CONTROL_CODE_RE_STR)
+        self.assertNotRegex('\t', CONTROL_CODE_RE_STR)
+        self.assertNotRegex('\v', CONTROL_CODE_RE_STR)
+
     def test_lower_range__bytes(self):
         self.assertRegex(b'\x00', CONTROL_CODE_RE_BYTES)
         self.assertRegex(b'\x1F', CONTROL_CODE_RE_BYTES)
@@ -64,6 +71,13 @@ class ControlCodeTests(TestCase):
         self.assertRegex(b'\x7F', CONTROL_CODE_RE_BYTES)
         self.assertRegex(b'\x1F', CONTROL_CODE_RE_BYTES)
         self.assertNotRegex(b'\xA0', CONTROL_CODE_RE_BYTES)
+
+    def test_explicitly_allowed__bytes(self):
+        self.assertNotRegex(b' ', CONTROL_CODE_RE_BYTES)
+        self.assertNotRegex(b'\n', CONTROL_CODE_RE_BYTES)
+        self.assertNotRegex(b'\r', CONTROL_CODE_RE_BYTES)
+        self.assertNotRegex(b'\t', CONTROL_CODE_RE_BYTES)
+        self.assertNotRegex(b'\v', CONTROL_CODE_RE_BYTES)
 
 
 class XMLSessionStateExporterTests(TestCaseWithParameters):

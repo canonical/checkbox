@@ -375,7 +375,7 @@ class IJobRunner(metaclass=ABCMeta):
     """
 
     @abstractmethod
-    def run_job(self, job):
+    def run_job(self, job, config=None, ui=None):
         """
         Run the specified job.
 

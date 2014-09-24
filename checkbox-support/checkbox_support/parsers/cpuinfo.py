@@ -108,7 +108,7 @@ class CpuinfoParser(object):
                 "model_revision": "cpu revision",
                 "other": "platform string",
                 "speed": "cycle frequency [Hz]"},
-            ("armv7l",): {
+            ("armv7l","aarch64"): {
                 "type": "Hardware",
                 "model": "Processor",
                 "model_number": "CPU variant",

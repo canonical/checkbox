@@ -402,23 +402,18 @@ class CheckBoxExecutionController(IExecutionController):
     controllers.
     """
 
-    def __init__(self, session_dir, provider_list):
+    def __init__(self, provider_list):
         """
         Initialize a new CheckBoxExecutionController
 
-        :param session_dir:
-            Base directory of the session this job will execute in.
-            This directory is used to co-locate some data that is unique to
-            this execution as well as data that is shared by all executions.
         :param provider_list:
             A list of Provider1 objects that will be available for script
             dependency resolutions. Currently all of the scripts are makedirs
             available but this will be refined to the minimal set later.
         """
-        self._session_dir = session_dir
         self._provider_list = provider_list
 
-    def execute_job(self, job, config, extcmd_popen):
+    def execute_job(self, job, config, session_dir, extcmd_popen):
         """
         Execute the specified job using the specified subprocess-like object
 
@@ -430,6 +425,10 @@ class CheckBoxExecutionController(IExecutionController):
             provide values for missing environment variables that are required
             by the job (as expressed by the environ key in the job definition
             file).
+        :param session_dir:
+            Base directory of the session this job will execute in.
+            This directory is used to co-locate some data that is unique to
+            this execution as well as data that is shared by all executions.
         :param extcmd_popen:
             A subprocess.Popen like object
         :returns:
@@ -437,14 +436,16 @@ class CheckBoxExecutionController(IExecutionController):
         """
         # CHECKBOX_DATA is where jobs can share output.
         # It has to be an directory that scripts can assume exists.
-        if not os.path.isdir(self.CHECKBOX_DATA):
-            os.makedirs(self.CHECKBOX_DATA)
+        if not os.path.isdir(self.get_CHECKBOX_DATA(session_dir)):
+            os.makedirs(self.get_CHECKBOX_DATA(session_dir))
         # Setup the executable nest directory
         with self.configured_filesystem(job, config) as nest_dir:
             # Get the command and the environment.
             # of this execution controller
-            cmd = self.get_execution_command(job, config, nest_dir)
-            env = self.get_execution_environment(job, config, nest_dir)
+            cmd = self.get_execution_command(
+                job, config, session_dir, nest_dir)
+            env = self.get_execution_environment(
+                job, config, session_dir, nest_dir)
             with self.temporary_cwd(job, config) as cwd_dir:
                 # run the command
                 logger.debug(_("job[%s] executing %r with env %r in cwd %r"),
@@ -578,7 +579,7 @@ class CheckBoxExecutionController(IExecutionController):
         """
 
     @abc.abstractmethod
-    def get_execution_command(self, job, config, nest_dir):
+    def get_execution_command(self, job, config, session_dir, nest_dir):
         """
         Get the command to execute the specified job
 
@@ -590,6 +591,10 @@ class CheckBoxExecutionController(IExecutionController):
             provide values for missing environment variables that are required
             by the job (as expressed by the environ key in the job definition
             file).
+        :param session_dir:
+            Base directory of the session this job will execute in.
+            This directory is used to co-locate some data that is unique to
+            this execution as well as data that is shared by all executions.
         :param nest_dir:
             A directory with a nest of symlinks to all executables required to
             execute the specified job. This argument may or may not be used,
@@ -599,7 +604,7 @@ class CheckBoxExecutionController(IExecutionController):
             List of command arguments
         """
 
-    def get_execution_environment(self, job, config, nest_dir):
+    def get_execution_environment(self, job, config, session_dir, nest_dir):
         """
         Get the environment required to execute the specified job:
 
@@ -611,6 +616,10 @@ class CheckBoxExecutionController(IExecutionController):
             provide values for missing environment variables that are required
             by the job (as expressed by the environ key in the job definition
             file).
+        :param session_dir:
+            Base directory of the session this job will execute in.
+            This directory is used to co-locate some data that is unique to
+            this execution as well as data that is shared by all executions.
         :param nest_dir:
             A directory with a nest of symlinks to all executables required to
             execute the specified job. This argument may or may not be used,
@@ -653,8 +662,8 @@ class CheckBoxExecutionController(IExecutionController):
             [nest_dir]
             + env.get("PATH", "").split(os.pathsep))
         # Add per-session shared state directory
-        env['PLAINBOX_SESSION_SHARE'] = self.CHECKBOX_DATA
-        env['CHECKBOX_DATA'] = self.CHECKBOX_DATA
+        env['PLAINBOX_SESSION_SHARE'] = env['CHECKBOX_DATA'] = \
+            self.get_CHECKBOX_DATA(session_dir)
         # Add a path to the per-provider data directory
         if job.provider.data_dir is not None:
             env['PLAINBOX_PROVIDER_DATA'] = job.provider.data_dir
@@ -677,15 +686,15 @@ class CheckBoxExecutionController(IExecutionController):
                 env[env_var] = config.environment[env_var]
         return env
 
-    @property
-    def CHECKBOX_DATA(self):
+    def get_CHECKBOX_DATA(self, session_dir):
         """
         value of the CHECKBOX_DATA environment variable.
 
         This variable names a sub-directory of the session directory
         where jobs can share data between invocations.
         """
-        return os.path.join(self._session_dir, "CHECKBOX_DATA")
+        # TODO, rename this, it's about time now
+        return os.path.join(session_dir, "CHECKBOX_DATA")
 
     def get_warm_up_for_job(self, job):
         """
@@ -701,7 +710,7 @@ class UserJobExecutionController(CheckBoxExecutionController):
     An execution controller that works for jobs invoked as the current user.
     """
 
-    def get_execution_command(self, job, config, nest_dir):
+    def get_execution_command(self, job, config, session_dir, nest_dir):
         """
         Get the command to execute the specified job
 
@@ -710,6 +719,11 @@ class UserJobExecutionController(CheckBoxExecutionController):
         :param config:
             A PlainBoxConfig instance which can be used to load missing
             environment definitions that apply to all jobs. Ignored.
+        :param session_dir:
+            Base directory of the session this job will execute in.
+            This directory is used to co-locate some data that is unique to
+            this execution as well as data that is shared by all executions.
+            Ignored.
         :param nest_dir:
             A directory with a nest of symlinks to all executables required to
             execute the specified job. Ingored.
@@ -746,7 +760,8 @@ class CheckBoxDifferentialExecutionController(CheckBoxExecutionController):
     difference between the target environment and the current environment.
     """
 
-    def get_differential_execution_environment(self, job, config, nest_dir):
+    def get_differential_execution_environment(
+            self, job, config, session_dir, nest_dir):
         """
         Get the environment required to execute the specified job:
 
@@ -758,6 +773,10 @@ class CheckBoxDifferentialExecutionController(CheckBoxExecutionController):
             provide values for missing environment variables that are required
             by the job (as expressed by the environ key in the job definition
             file).
+        :param session_dir:
+            Base directory of the session this job will execute in.
+            This directory is used to co-locate some data that is unique to
+            this execution as well as data that is shared by all executions.
         :param nest_dir:
             A directory with a nest of symlinks to all executables required to
             execute the specified job. This is simply passed to
@@ -773,7 +792,8 @@ class CheckBoxDifferentialExecutionController(CheckBoxExecutionController):
         are always retained.
         """
         base_env = os.environ
-        target_env = super().get_execution_environment(job, config, nest_dir)
+        target_env = super().get_execution_environment(
+            job, config, session_dir, nest_dir)
         return {
             key: value
             for key, value in target_env.items()
@@ -781,7 +801,7 @@ class CheckBoxDifferentialExecutionController(CheckBoxExecutionController):
             or key in job.get_environ_settings()
         }
 
-    def get_execution_environment(self, job, config, nest_dir):
+    def get_execution_environment(self, job, config, session_dir, nest_dir):
         """
         Get the environment required to execute the specified job:
 
@@ -791,6 +811,11 @@ class CheckBoxDifferentialExecutionController(CheckBoxExecutionController):
         :param config:
             A PlainBoxConfig instance which can be used to load missing
             environment definitions that apply to all jobs. Ignored.
+        :param session_dir:
+            Base directory of the session this job will execute in.
+            This directory is used to co-locate some data that is unique to
+            this execution as well as data that is shared by all executions.
+            Ignored.
         :param nest_dir:
             A directory with a nest of symlinks to all executables required to
             execute the specified job. Ignored.
@@ -808,11 +833,11 @@ class RootViaPTL1ExecutionController(CheckBoxDifferentialExecutionController):
     Execution controller that gains root using plainbox-trusted-launcher-1
     """
 
-    def __init__(self, session_dir, provider_list):
+    def __init__(self, provider_list):
         """
         Initialize a new RootViaPTL1ExecutionController
         """
-        super().__init__(session_dir, provider_list)
+        super().__init__(provider_list)
         # Ask pkaction(1) if the "run-plainbox-job" policykit action is
         # registered on this machine.
         action_id = b"org.freedesktop.policykit.pkexec.run-plainbox-job"
@@ -826,7 +851,7 @@ class RootViaPTL1ExecutionController(CheckBoxDifferentialExecutionController):
             result = exc.output
         self.is_supported = True if result.strip() == action_id else False
 
-    def get_execution_command(self, job, config, nest_dir):
+    def get_execution_command(self, job, config, session_dir, nest_dir):
         """
         Get the command to invoke.
 
@@ -836,6 +861,10 @@ class RootViaPTL1ExecutionController(CheckBoxDifferentialExecutionController):
             A PlainBoxConfig instance which can be used to load missing
             environment definitions that apply to all jobs. Passed to
             :meth:`get_differential_execution_environment()`.
+        :param session_dir:
+            Base directory of the session this job will execute in.
+            This directory is used to co-locate some data that is unique to
+            this execution as well as data that is shared by all executions.
         :param nest_dir:
             A directory with a nest of symlinks to all executables required to
             execute the specified job. Passed to
@@ -855,13 +884,13 @@ class RootViaPTL1ExecutionController(CheckBoxDifferentialExecutionController):
         if job.via is not None:
             cmd += ['--generator', job.via]
             parent_env = self.get_differential_execution_environment(
-                job.origin.source.job, config, nest_dir)
+                job.origin.source.job, config, session_dir, nest_dir)
             for key, value in sorted(parent_env.items()):
                 cmd += ['-G', '{}={}'.format(key, value)]
         # Run the specified target job in the specified environment
         cmd += ['--target', job.checksum]
         env = self.get_differential_execution_environment(
-            job, config, nest_dir)
+            job, config, session_dir, nest_dir)
         for key, value in sorted(env.items()):
             cmd += ['-T', '{}={}'.format(key, value)]
         return cmd
@@ -931,7 +960,7 @@ class RootViaPkexecExecutionController(
     root from the non-system-wide location.
     """
 
-    def get_execution_command(self, job, config, nest_dir):
+    def get_execution_command(self, job, config, session_dir, nest_dir):
         """
         Get the command to invoke.
 
@@ -941,6 +970,10 @@ class RootViaPkexecExecutionController(
             A PlainBoxConfig instance which can be used to load missing
             environment definitions that apply to all jobs. Passed to
             :meth:`get_differential_execution_environment()`.
+        :param session_dir:
+            Base directory of the session this job will execute in.
+            This directory is used to co-locate some data that is unique to
+            this execution as well as data that is shared by all executions.
         :param nest_dir:
             A directory with a nest of symlinks to all executables required to
             execute the specified job. Passed to
@@ -955,7 +988,7 @@ class RootViaPkexecExecutionController(
         cmd = ['pkexec', '--user', job.user, 'env']
         # Append all environment data
         env = self.get_differential_execution_environment(
-            job, config, nest_dir)
+            job, config, session_dir, nest_dir)
         cmd += ["{key}={value}".format(key=key, value=value)
                 for key, value in sorted(env.items())]
         # Lastly use job.shell -c, to run our command
@@ -993,16 +1026,11 @@ class RootViaSudoExecutionController(
     and over again.
     """
 
-    def __init__(self, session_dir, provider_list):
+    def __init__(self, provider_list):
         """
         Initialize a new RootViaSudoExecutionController
-
-        :param session_dir:
-            Base directory of the session this job will execute in.
-            This directory is used to co-locate some data that is unique to
-            this execution as well as data that is shared by all executions.
         """
-        super().__init__(session_dir, provider_list)
+        super().__init__(provider_list)
         # Check if the user can use 'sudo' on this machine. This check is a bit
         # Ubuntu specific and can be wrong due to local configuration but
         # without a better API all we can do is guess.
@@ -1018,7 +1046,7 @@ class RootViaSudoExecutionController(
             in_admin_group = False
         self.user_can_sudo = in_sudo_group or in_admin_group
 
-    def get_execution_command(self, job, config, nest_dir):
+    def get_execution_command(self, job, config, session_dir, nest_dir):
         """
         Get the command to invoke.
 
@@ -1027,6 +1055,10 @@ class RootViaSudoExecutionController(
         :param config:
             A PlainBoxConfig instance which can be used to load missing
             environment definitions that apply to all jobs. Ignored.
+        :param session_dir:
+            Base directory of the session this job will execute in.
+            This directory is used to co-locate some data that is unique to
+            this execution as well as data that is shared by all executions.
         :param nest_dir:
             A directory with a nest of symlinks to all executables required to
             execute the specified job. Ingored.
@@ -1040,7 +1072,7 @@ class RootViaSudoExecutionController(
         cmd = ['sudo', '-u', job.user, 'env']
         # Append all environment data
         env = self.get_differential_execution_environment(
-            job, config, nest_dir)
+            job, config, session_dir, nest_dir)
         cmd += ["{key}={value}".format(key=key, value=value)
                 for key, value in sorted(env.items())]
         # Lastly use job.shell -c, to run our command

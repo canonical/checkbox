@@ -270,13 +270,14 @@ class JobRunner(IJobRunner):
             execution controllers to be instantiated and used. In special cases
             it may be required to override this.
         """
+        self._session_dir = session_dir
         if execution_ctrl_list is None:
             execution_ctrl_list = [
-                RootViaPTL1ExecutionController(session_dir, provider_list),
-                RootViaPkexecExecutionController(session_dir, provider_list),
+                RootViaPTL1ExecutionController(provider_list),
+                RootViaPkexecExecutionController(provider_list),
                 # XXX: maybe this one should be only used on command line
-                RootViaSudoExecutionController(session_dir, provider_list),
-                UserJobExecutionController(session_dir, provider_list),
+                RootViaSudoExecutionController(provider_list),
+                UserJobExecutionController(provider_list),
             ]
         self._jobs_io_log_dir = jobs_io_log_dir
         # NOTE: deprecated
@@ -769,7 +770,8 @@ class JobRunner(IJobRunner):
         ctrl = self._get_ctrl_for_job(job)
         ctrl.on_leftover_files.connect(self.on_leftover_files)
         try:
-            return ctrl.execute_job(job, config, extcmd_popen)
+            return ctrl.execute_job(
+                job, config, self._session_dir, extcmd_popen)
         finally:
             ctrl.on_leftover_files.disconnect(self.on_leftover_files)
 

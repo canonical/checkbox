@@ -510,7 +510,7 @@ class CheckBoxExecutionControllerTestsMixIn:
 
     @mock.patch('plainbox.impl.ctrl.check_output')
     def setUp(self, mock_check_output):
-        self.ctrl = self.CLS(self.SESSION_DIR, self.PROVIDER_LIST)
+        self.ctrl = self.CLS(self.PROVIDER_LIST)
         # Create mocked job definition.
         # Put a mocked provider on the job and give it some values for:
         # * extra_PYTHONPATH (optional, set it to None),
@@ -552,10 +552,8 @@ class CheckBoxExecutionControllerTestsMixIn:
         """
         verify that __init__() stores session_dir
         """
-        session_dir = mock.Mock()
         provider_list = mock.Mock()
-        ctrl = self.CLS(session_dir, provider_list)
-        self.assertIs(ctrl._session_dir, session_dir)
+        ctrl = self.CLS(provider_list)
         self.assertIs(ctrl._provider_list, provider_list)
 
     @mock.patch('os.path.isdir')
@@ -572,7 +570,7 @@ class CheckBoxExecutionControllerTestsMixIn:
                 mock.patch.object(self.ctrl, 'configured_filesystem'), \
                 mock.patch.object(self.ctrl, 'temporary_cwd'):
             retval = self.ctrl.execute_job(
-                self.job, self.config, self.extcmd_popen)
+                self.job, self.config, self.SESSION_DIR, self.extcmd_popen)
             # Ensure that call was invoked with command end environment (passed
             # as keyword argument). Extract the return value of
             # configured_filesystem() as nest_dir so that we can pass it to
@@ -582,14 +580,15 @@ class CheckBoxExecutionControllerTestsMixIn:
             cwd_dir = self.ctrl.temporary_cwd().__enter__()
             self.extcmd_popen.call.assert_called_with(
                 self.ctrl.get_execution_command(
-                    self.job, self.config, nest_dir),
+                    self.job, self.config, self.SESSION_DIR, nest_dir),
                 env=self.ctrl.get_execution_environment(
-                    self.job, self.config, nest_dir),
+                    self.job, self.config, self.SESSION_DIR, nest_dir),
                 cwd=cwd_dir)
         # Ensure that execute_job() returns the return value of call()
         self.assertEqual(retval, self.extcmd_popen.call())
         # Ensure that presence of CHECKBOX_DATA directory was checked for
-        mock_os_path_isdir.assert_called_with(self.ctrl.CHECKBOX_DATA)
+        mock_os_path_isdir.assert_called_with(
+            self.ctrl.get_CHECKBOX_DATA(self.SESSION_DIR))
 
     def test_get_score_for_random_jobs(self):
         # Ensure that score for random jobs is -1
@@ -609,7 +608,8 @@ class CheckBoxExecutionControllerTestsMixIn:
         verify the value of CHECKBOX_DATA
         """
         self.assertEqual(
-            self.ctrl.CHECKBOX_DATA, "session-dir/CHECKBOX_DATA")
+            self.ctrl.get_CHECKBOX_DATA(self.SESSION_DIR),
+            "session-dir/CHECKBOX_DATA")
 
 
 class UserJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
@@ -626,7 +626,7 @@ class UserJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
         """
         self.assertEqual(
             self.ctrl.get_execution_command(
-                self.job, self.config, self.NEST_DIR),
+                self.job, self.config, self.SESSION_DIR, self.NEST_DIR),
             [self.job.shell, '-c', self.job.command])
 
     def test_get_checkbox_score_for_jobs_without_user(self):
@@ -659,7 +659,7 @@ class UserJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
     def test_get_execution_environment_resets_LANG(self):
         # Call the tested method
         env = self.ctrl.get_execution_environment(
-            self.job, self.config, self.NEST_DIR)
+            self.job, self.config, self.SESSION_DIR, self.NEST_DIR)
         # Ensure that LANG is reset to C.UTF-8
         self.assertEqual(env['LANG'], 'C.UTF-8')
 
@@ -668,7 +668,7 @@ class UserJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
         self.job.get_flag_set.return_value = {'preserve-locale'}
         # Call the tested method
         env = self.ctrl.get_execution_environment(
-            self.job, self.config, self.NEST_DIR)
+            self.job, self.config, self.SESSION_DIR, self.NEST_DIR)
         # Ensure that LANG is what we mocked it to be
         self.assertEqual(env['LANG'], 'fake_LANG')
 
@@ -676,7 +676,7 @@ class UserJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
     def test_get_execution_environment_keeps_PYTHONPATH(self):
         # Call the tested method
         env = self.ctrl.get_execution_environment(
-            self.job, self.config, self.NEST_DIR)
+            self.job, self.config, self.SESSION_DIR, self.NEST_DIR)
         # Ensure that extra_PYTHONPATH is preprended to PYTHONPATH
         self.assertEqual(env['PYTHONPATH'], 'PYTHONPATH')
 
@@ -686,7 +686,7 @@ class UserJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
         self.job.provider.extra_PYTHONPATH = 'extra_PYTHONPATH'
         # Call the tested method
         env = self.ctrl.get_execution_environment(
-            self.job, self.config, self.NEST_DIR)
+            self.job, self.config, self.SESSION_DIR, self.NEST_DIR)
         # Ensure that extra_PYTHONPATH is preprended to PYTHONPATH
         self.assertTrue(env['PYTHONPATH'].startswith(
             self.job.provider.extra_PYTHONPATH))
@@ -697,7 +697,7 @@ class UserJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
         self.job.provider.extra_PYTHONPATH = 'extra_PYTHONPATH'
         # Call the tested method
         env = self.ctrl.get_execution_environment(
-            self.job, self.config, self.NEST_DIR)
+            self.job, self.config, self.SESSION_DIR, self.NEST_DIR)
         # Ensure that extra_PYTHONPATH is preprended to PYTHONPATH
         self.assertTrue(env['PYTHONPATH'].startswith(
             self.job.provider.extra_PYTHONPATH))
@@ -707,7 +707,7 @@ class UserJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
     def test_get_execution_environment_sets_CHECKBOX_SHARE(self):
         # Call the tested method
         env = self.ctrl.get_execution_environment(
-            self.job, self.config, self.NEST_DIR)
+            self.job, self.config, self.SESSION_DIR, self.NEST_DIR)
         # Ensure that CHECKBOX_SHARE is set to what the job provider wants
         self.assertEqual(
             env['CHECKBOX_SHARE'], self.job.provider.CHECKBOX_SHARE)
@@ -716,16 +716,18 @@ class UserJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
     def test_get_execution_environment_sets_CHECKBOX_DATA(self):
         # Call the tested method
         env = self.ctrl.get_execution_environment(
-            self.job, self.config, self.NEST_DIR)
+            self.job, self.config, self.SESSION_DIR, self.NEST_DIR)
         # Ensure that CHECKBOX_DATA is set to what the controller wants
-        self.assertEqual(env['CHECKBOX_DATA'], self.ctrl.CHECKBOX_DATA)
+        self.assertEqual(
+            env['CHECKBOX_DATA'],
+            self.ctrl.get_CHECKBOX_DATA(self.SESSION_DIR))
 
     @mock.patch.dict('os.environ', clear=True)
     def test_get_execution_environment_respects_config_environment(self):
         self.config.environment['key'] = 'value'
         # Call the tested method
         env = self.ctrl.get_execution_environment(
-            self.job, self.config, self.NEST_DIR)
+            self.job, self.config, self.SESSION_DIR, self.NEST_DIR)
         # Ensure that key=value was passed to the environment
         self.assertEqual(env['key'], 'value')
 
@@ -734,7 +736,7 @@ class UserJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
         self.config.environment['key'] = 'value'
         # Call the tested method
         env = self.ctrl.get_execution_environment(
-            self.job, self.config, self.NEST_DIR)
+            self.job, self.config, self.SESSION_DIR, self.NEST_DIR)
         # Ensure that 'old-value' takes priority over 'value'
         self.assertEqual(env['key'], 'old-value')
 
@@ -750,7 +752,7 @@ class RootViaPTL1ExecutionControllerTests(
     def test_get_execution_environment_is_None(self):
         # Call the tested method
         env = self.ctrl.get_execution_environment(
-            self.job, self.config, self.NEST_DIR)
+            self.job, self.config, self.SESSION_DIR, self.NEST_DIR)
         # Ensure that the environment is None
         self.assertEqual(env, None)
 
@@ -794,7 +796,7 @@ class RootViaPTL1ExecutionControllerTests(
             '-T', 'PLAINBOX_SESSION_SHARE=session-dir/CHECKBOX_DATA',
         ]
         actual = self.ctrl.get_execution_command(
-            self.job, self.config, self.NEST_DIR)
+            self.job, self.config, self.SESSION_DIR, self.NEST_DIR)
         self.assertEqual(actual, expected)
 
     @mock.patch.dict('os.environ', clear=True, PATH='vanilla-path')
@@ -818,7 +820,7 @@ class RootViaPTL1ExecutionControllerTests(
             '-T', 'PLAINBOX_SESSION_SHARE=session-dir/CHECKBOX_DATA',
         ]
         actual = self.ctrl.get_execution_command(
-            self.job, self.config, self.NEST_DIR)
+            self.job, self.config, self.SESSION_DIR, self.NEST_DIR)
         self.assertEqual(actual, expected)
 
     def test_get_checkbox_score_for_other_providers(self):
@@ -857,7 +859,7 @@ class RootViaPTL1ExecutionControllerTests(
         mock_check_output.return_value = \
             b"org.freedesktop.policykit.pkexec.run-plainbox-job\n"
         # Ensure that we get a positive score of three
-        ctrl = self.CLS(self.SESSION_DIR, self.PROVIDER_LIST)
+        ctrl = self.CLS(self.PROVIDER_LIST)
         self.assertEqual(ctrl.get_checkbox_score(self.job), 3)
 
     @mock.patch.dict('plainbox.impl.ctrl.os.environ', clear=True)
@@ -875,7 +877,7 @@ class RootViaPTL1ExecutionControllerTests(
         mock_check_output.side_effect = CalledProcessError(
             1, '', b"org.freedesktop.policykit.pkexec.run-plainbox-job\n")
         # Ensure that we get a positive score of three
-        ctrl = self.CLS(self.SESSION_DIR, self.PROVIDER_LIST)
+        ctrl = self.CLS(self.PROVIDER_LIST)
         self.assertEqual(ctrl.get_checkbox_score(self.job), 3)
 
     @mock.patch.dict('plainbox.impl.ctrl.os.environ', values={
@@ -895,7 +897,7 @@ class RootViaPTL1ExecutionControllerTests(
         mock_check_output.side_effect = CalledProcessError(
             1, '', b"org.freedesktop.policykit.pkexec.run-plainbox-job\n")
         # Ensure that we get a positive score of three
-        ctrl = self.CLS(self.SESSION_DIR, self.PROVIDER_LIST)
+        ctrl = self.CLS(self.PROVIDER_LIST)
         self.assertEqual(ctrl.get_checkbox_score(self.job), -1)
 
     @mock.patch.dict('plainbox.impl.ctrl.os.environ', clear=True)
@@ -910,7 +912,7 @@ class RootViaPTL1ExecutionControllerTests(
         # Ensure pkaction(1) return nothing
         mock_check_output.return_value = "No action with action id BLAHBLAH"
         # Ensure that we get a positive score of two
-        ctrl = self.CLS(self.SESSION_DIR, self.PROVIDER_LIST)
+        ctrl = self.CLS(self.PROVIDER_LIST)
         self.assertEqual(ctrl.get_checkbox_score(self.job), 0)
 
 
@@ -925,7 +927,7 @@ class RootViaPkexecExecutionControllerTests(
     def test_get_execution_environment_is_None(self):
         # Call the tested method
         env = self.ctrl.get_execution_environment(
-            self.job, self.config, self.NEST_DIR)
+            self.job, self.config, self.SESSION_DIR, self.NEST_DIR)
         # Ensure that the environment is None
         self.assertEqual(env, None)
 
@@ -937,7 +939,7 @@ class RootViaPkexecExecutionControllerTests(
         self.job.get_environ_settings.return_value = []
         self.assertEqual(
             self.ctrl.get_execution_command(
-                self.job, self.config, self.NEST_DIR),
+                self.job, self.config, self.SESSION_DIR, self.NEST_DIR),
             ['pkexec', '--user', self.job.user,
              'env',
              'CHECKBOX_DATA=session-dir/CHECKBOX_DATA',
@@ -979,7 +981,7 @@ class RootViaSudoExecutionControllerTests(
         self.job.get_environ_settings.return_value = []
         self.assertEqual(
             self.ctrl.get_execution_command(
-                self.job, self.config, self.NEST_DIR),
+                self.job, self.config, self.SESSION_DIR, self.NEST_DIR),
             ['sudo', '-u', self.job.user, 'env',
              'CHECKBOX_DATA=session-dir/CHECKBOX_DATA',
              'CHECKBOX_SHARE=CHECKBOX_SHARE',
@@ -1010,7 +1012,7 @@ class RootViaSudoExecutionControllerTests(
         # Mock that the current user is a member of group 1 ('sudo')
         mock_getgroups.return_value = [self.SUDO]
         # Create a fresh execution controller
-        ctrl = self.CLS(self.SESSION_DIR, self.PROVIDER_LIST)
+        ctrl = self.CLS(self.PROVIDER_LIST)
         # Ensure that the user can use sudo
         self.assertTrue(ctrl.user_can_sudo)
 
@@ -1023,7 +1025,7 @@ class RootViaSudoExecutionControllerTests(
         # Mock that the current user is a member of group 1 ('admin')
         mock_getgroups.return_value = [self.ADMIN]
         # Create a fresh execution controller
-        ctrl = self.CLS(self.SESSION_DIR, self.PROVIDER_LIST)
+        ctrl = self.CLS(self.PROVIDER_LIST)
         # Ensure that the user can use sudo
         self.assertTrue(ctrl.user_can_sudo)
 
@@ -1036,7 +1038,7 @@ class RootViaSudoExecutionControllerTests(
         # Mock that the current user not a member of any group
         mock_getgroups.return_value = []
         # Create a fresh execution controller
-        ctrl = self.CLS(self.SESSION_DIR, self.PROVIDER_LIST)
+        ctrl = self.CLS(self.PROVIDER_LIST)
         # Ensure that the user can use sudo
         self.assertFalse(ctrl.user_can_sudo)
 

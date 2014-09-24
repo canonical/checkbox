@@ -809,7 +809,7 @@ class IExecutionController(metaclass=ABCMeta):
     """
 
     @abstractmethod
-    def execute_job(self, job, config, extcmd_popen):
+    def execute_job(self, job, config, session_dir, extcmd_popen):
         """
         Execute the specified job using the specified subprocess-like object
 
@@ -821,6 +821,10 @@ class IExecutionController(metaclass=ABCMeta):
             provide values for missing environment variables that are required
             by the job (as expressed by the environ key in the job definition
             file).
+        :param session_dir:
+            Base directory of the session this job will execute in.
+            This directory is used to co-locate some data that is unique to
+            this execution as well as data that is shared by all executions.
         :param extcmd_popen:
             A subprocess.Popen like object
         :returns:

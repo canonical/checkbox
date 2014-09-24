@@ -706,7 +706,7 @@ def select_jobs(job_list, qualifier_list):
             # optimize the super-common case where a qualifier refers to
             # a specific job by using the id_to_index_map to instantly
             # perform the requested operation on a single job
-            j_index = id_to_index_map(qualifier.matcher.value)
+            j_index = id_to_index_map[qualifier.matcher.value]
             job = job_list[j_index]
             vote = qualifier.get_vote(job)
             if vote == IJobQualifier.VOTE_INCLUDE:

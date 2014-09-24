@@ -726,10 +726,18 @@ class Unit(UnitLegacyAPI, metaclass=UnitType):
         # something simple that is equally reliable, just sort all the keys
         # manually and ask standard json to serialize that..
         sorted_data = collections.OrderedDict(sorted(self._data.items()))
+        # Define a helper function to convert symbols to strings for the
+        # purpose of computing the checksum's canonical representation.
+
+        def default_fn(obj):
+            if isinstance(obj, Symbol):
+                return str(obj)
+            raise TypeError
         # Compute the canonical form which is arbitrarily defined as sorted
         # json text with default indent and separator settings.
         canonical_form = json.dumps(
-            sorted_data, indent=None, separators=(',', ':'))
+            sorted_data, indent=None, separators=(',', ':'),
+            default=default_fn)
         text = canonical_form.encode('UTF-8')
         # Parametric units also get a copy of their parameters stored as an
         # additional piece of data
@@ -737,7 +745,8 @@ class Unit(UnitLegacyAPI, metaclass=UnitType):
             sorted_parameters = collections.OrderedDict(
                 sorted(self.parameters.items()))
             canonical_parameters = json.dumps(
-                sorted_parameters, indent=None, separators=(',', ':'))
+                sorted_parameters, indent=None, separators=(',', ':'),
+                default=default_fn)
             text += canonical_parameters.encode('UTF-8')
         # Compute the sha256 hash of the UTF-8 encoding of the canonical form
         # and return the hex digest as the checksum that can be displayed.

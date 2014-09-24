@@ -611,7 +611,11 @@ class UnitReferenceValidator(FieldValidatorBase):
     def check_in_context(self, parent, unit, field, context):
         id_map = context.compute_shared(
             "field_value_map[id]", compute_value_map, context, 'id')
-        value_list = self.get_references_fn(unit)
+        try:
+            value_list = self.get_references_fn(unit)
+        except Exception as exc:
+            yield parent.error(unit, field, Problem.wrong, str(exc))
+            value_list = None
         if value_list is None:
             value_list = []
         elif not isinstance(value_list, (list, tuple, set)):

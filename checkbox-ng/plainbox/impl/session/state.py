@@ -195,13 +195,37 @@ class SessionDeviceContext:
     # Cache key that stores the list of execution controllers
     _CACHE_EXECUTION_CTRL_LIST = 'execution_controller_list'
 
-    def __init__(self):
-        self._provider_list = []
-        self._unit_list = []
+    def __init__(self, state=None):
+        """
+        Initialize a new SessionDeviceContext
+
+        :param state:
+            An (optinal) state to use
+
+        Note that using an initial state will not cause any of the signals to
+        fire for the initial list of units nor the list of providers (derived
+        from the same list).
+        """
         self._device = None
-        self._state = SessionState(self._unit_list)
         # Setup an empty computation cache for this context
         self._shared_cache = {}
+        if state is None:
+            # If we don't have to work with an existing state object
+            # (the preferred mode) then all life is easy as we control both
+            # the unit list and the provider list
+            self._unit_list = []
+            self._provider_list = []
+            self._state = SessionState(self._unit_list)
+        else:
+            if not isinstance(state, SessionState):
+                raise TypeError
+            # If we do have an existing state object then our lists must be
+            # obtained / derived from the state object's data
+            self._unit_list = state.unit_list
+            self._provider_list = list({
+                unit.provider for unit in self._unit_list
+            })
+            self._state = state
         # Connect SessionState's signals to fire our signals. This
         # way all manipulation done through the SessionState object
         # can be observed through the SessionDeviceContext object

@@ -586,7 +586,6 @@ class SessionState:
 
         This signal is fired **after** :meth:`on_job_state_map_changed()`
         """
-        logger.info(_("New job defined: %r"), job)
 
     @Signal.define
     def on_job_removed(self, job):
@@ -595,21 +594,18 @@ class SessionState:
 
         This signal is fired **after** :meth:`on_job_state_map_changed()`
         """
-        logger.info(_("Job removed: %r"), job)
 
     @Signal.define
     def on_unit_added(self, unit):
         """
         Signal sent whenever a unit is added to the session.
         """
-        logger.info(_("Unit added: %r"), unit)
 
     @Signal.define
     def on_unit_removed(self, unit):
         """
         Signal sent whenever a unit is removed from the session.
         """
-        logger.info(_("Unit removed: %r"), unit)
 
     def __init__(self, unit_list):
         """

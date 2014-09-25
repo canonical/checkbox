@@ -916,3 +916,60 @@ class SessionDeviceContextTests(TestCase, SignalInterceptorMixIn):
         sig2 = self.assertSignalFired(self.ctx.state.on_unit_removed, self.job)
         sig3 = self.assertSignalFired(self.ctx.state.on_job_removed, self.job)
         self.assertSignalOrdering(sig1, sig2, sig3)
+
+    def test_execution_controller_list__computed(self):
+        """
+        Ensure that the list of execution controllers is computed correctly
+        """
+        with mock.patch.object(self.ctx, '_compute_execution_ctrl_list') as m:
+            result = self.ctx.execution_controller_list
+        self.assertIs(result, m())
+        m.assert_called_once()
+
+    def test_execution_controller_list__cached(self):
+        """
+        Ensure that the computed list of execution controllers is cached
+        """
+        self.assertNotIn(
+            SessionDeviceContext._CACHE_EXECUTION_CTRL_LIST,
+            self.ctx._shared_cache)
+        with mock.patch.object(self.ctx, '_compute_execution_ctrl_list') as m:
+            result1 = self.ctx.execution_controller_list
+            result2 = self.ctx.execution_controller_list
+        self.assertIs(result1, result2)
+        m.assert_called_once()
+        self.assertIn(
+            SessionDeviceContext._CACHE_EXECUTION_CTRL_LIST,
+            self.ctx._shared_cache)
+
+    def test_execution_controller_list__invalidated(self):
+        """
+        Ensure that the cached list of execution controllers is invalidated
+        when a new provider is added to the context
+        """
+        # Let's have a fake provider ready. We need to mock the get_units()
+        # method to let us add it to the context.
+        provider2 = mock.Mock(name='provider2', spec_set=Provider1)
+        provider2.get_units.return_value = ([], [])
+        with mock.patch.object(self.ctx, '_compute_execution_ctrl_list') as m:
+            m.side_effect = lambda: mock.Mock()
+            self.assertNotIn(
+                SessionDeviceContext._CACHE_EXECUTION_CTRL_LIST,
+                self.ctx._shared_cache)
+            result1 = self.ctx.execution_controller_list
+            self.assertIn(
+                SessionDeviceContext._CACHE_EXECUTION_CTRL_LIST,
+                self.ctx._shared_cache)
+            # Adding the second provider should invalidate the cache
+            self.ctx.add_provider(provider2)
+            self.assertNotIn(
+                SessionDeviceContext._CACHE_EXECUTION_CTRL_LIST,
+                self.ctx._shared_cache)
+            result2 = self.ctx.execution_controller_list
+            self.assertIn(
+                SessionDeviceContext._CACHE_EXECUTION_CTRL_LIST,
+                self.ctx._shared_cache)
+        # Both results are different
+        self.assertNotEqual(result1, result2)
+        # And _compute_execution_ctrl_list was called twice
+        m.assert_has_calls(((), {}), ((), {}))

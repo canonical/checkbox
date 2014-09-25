@@ -192,6 +192,9 @@ class SessionDeviceContext:
         desired job list
     """
 
+    # Cache key that stores the list of execution controllers
+    _CACHE_EXECUTION_CTRL_LIST = 'execution_controller_list'
+
     def __init__(self):
         self._provider_list = []
         self._unit_list = []
@@ -256,6 +259,22 @@ class SessionDeviceContext:
             Currently you cannot reorder the list of units.
         """
         return self._unit_list
+
+    @property
+    def execution_controller_list(self):
+        """
+        A list of execution controllers applicable in this context.
+
+        :returns:
+            A list of IExecutionController objects
+
+        .. note::
+            The return value is different whenever a provider is added to the
+            context. If you have obtained this value in the past it may be
+            no longer accurate.
+        """
+        return self.compute_shared(
+            self._CACHE_EXECUTION_CTRL_LIST, self._compute_execution_ctrl_list)
 
     def add_provider(self, provider):
         """
@@ -322,6 +341,9 @@ class SessionDeviceContext:
         Signal sent whenever a provider is added to the context.
         """
         logger.info(_("New provider added: %r"), provider)
+        # Invalidate the list of execution controllers as they depend
+        # on the accuracy of provider_list
+        self._invalidate_execution_ctrl_list()
 
     @Signal.define
     def on_unit_added(self, unit):
@@ -364,6 +386,30 @@ class SessionDeviceContext:
     def invalidate_shared(self, cache_key):
         if cache_key in self._shared_cache:
             del self._shared_cache[cache_key]
+
+    def _compute_execution_ctrl_list(self):
+        """
+        Internal method that computes the list of execution controllers
+        """
+        # TODO: tie this with the upcoming device patches
+        from plainbox.impl.ctrl import RootViaPkexecExecutionController
+        from plainbox.impl.ctrl import RootViaPTL1ExecutionController
+        from plainbox.impl.ctrl import RootViaSudoExecutionController
+        from plainbox.impl.ctrl import UserJobExecutionController
+        return [
+            RootViaPTL1ExecutionController(self.provider_list),
+            RootViaPkexecExecutionController(self.provider_list),
+            # XXX: maybe this one should be only used on command line
+            RootViaSudoExecutionController(self.provider_list),
+            UserJobExecutionController(self.provider_list),
+        ]
+
+    def _invalidate_execution_ctrl_list(self, *args, **kwargs):
+        """
+        Internal method that invalidates the 'execution_controller_list' cache
+        key that is used to store the list of execution controllers.
+        """
+        self.invalidate_shared(self._CACHE_EXECUTION_CTRL_LIST)
 
 
 class SessionState:

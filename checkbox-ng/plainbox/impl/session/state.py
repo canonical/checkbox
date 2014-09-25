@@ -300,12 +300,15 @@ class SessionDeviceContext:
         return self.compute_shared(
             self._CACHE_EXECUTION_CTRL_LIST, self._compute_execution_ctrl_list)
 
-    def add_provider(self, provider):
+    def add_provider(self, provider, add_units=True):
         """
         Add a provider to the context
 
         :param provider:
             The :class:`Provider1` to add
+        :param add_units:
+            An optional flag that controls if all of the units from that
+            provider should be added. Defaults to True.
         :raises ValueError:
             If the provider is already in the context
 
@@ -320,8 +323,9 @@ class SessionDeviceContext:
             raise ValueError(_("attempting to add the same provider twice"))
         self._provider_list.append(provider)
         self.on_provider_added(provider)
-        for unit in provider.get_units()[0]:
-            self.add_unit(unit)
+        if add_units:
+            for unit in provider.get_units()[0]:
+                self.add_unit(unit)
 
     def add_unit(self, unit):
         """

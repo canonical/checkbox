@@ -397,7 +397,7 @@ class SessionDeviceContext:
         """
         Signal sent whenever a provider is added to the context.
         """
-        logger.info(_("New provider added: %r"), provider)
+        logger.info(_("Provider %s added to context %s"), provider, self)
         # Invalidate the list of execution controllers as they depend
         # on the accuracy of provider_list
         self._invalidate_execution_ctrl_list()
@@ -407,14 +407,14 @@ class SessionDeviceContext:
         """
         Signal sent whenever a unit is added to the context.
         """
-        logger.info(_("Unit added: %r"), unit)
+        logger.debug(_("Unit %s added to context %s"), unit, self)
 
     @Signal.define
     def on_unit_removed(self, unit):
         """
         Signal sent whenever a unit is removed from the context.
         """
-        logger.info(_("Unit removed: %r"), unit)
+        logger.debug(_("Unit %s removed from context %s"), unit, self)
 
     def compute_shared(self, cache_key, func, *args, **kwargs):
         """

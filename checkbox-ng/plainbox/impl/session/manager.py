@@ -141,7 +141,7 @@ class SessionManager:
         directories (using :meth:`WellKnownDirsHelper.populate()`)
 
         :param stage:
-            A pre-existing SessioState object.
+            A pre-existing SessionState object.
         :param repo:
             If specified then this particular repository will be used to create
             the storage for this session. If left out, a new repository is

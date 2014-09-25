@@ -191,7 +191,7 @@ class SessionManager:
         :return:
             fresh :class:`SessionManager` instance
         """
-        logger.debug("SessionManager.create_session()")
+        logger.debug("SessionManager.create_with_unit_list()")
         if unit_list is None:
             unit_list = []
         state = SessionState(unit_list)

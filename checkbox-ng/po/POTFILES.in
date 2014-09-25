@@ -86,7 +86,7 @@
 ./plainbox/impl/session/suspend.py
 ./plainbox/impl/session/test_jobs.py
 ./plainbox/impl/session/test_legacy.py
-./plainbox/impl/session/test_manger.py
+./plainbox/impl/session/test_manager.py
 ./plainbox/impl/session/test_resume.py
 ./plainbox/impl/session/test_state.py
 ./plainbox/impl/session/test_storage.py

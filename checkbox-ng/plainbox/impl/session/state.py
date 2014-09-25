@@ -197,6 +197,8 @@ class SessionDeviceContext:
         self._unit_list = []
         self._device = None
         self._state = SessionState(self._unit_list)
+        # Setup an empty computation cache for this context
+        self._shared_cache = {}
         # Connect SessionState's signals to fire our signals. This
         # way all manipulation done through the SessionState object
         # can be observed through the SessionDeviceContext object
@@ -334,6 +336,34 @@ class SessionDeviceContext:
         Signal sent whenever a unit is removed from the context.
         """
         logger.info(_("Unit removed: %r"), unit)
+
+    def compute_shared(self, cache_key, func, *args, **kwargs):
+        """
+        Compute a shared helper.
+
+        :param cache_key:
+            Key to use to lookup the helper value
+        :param func:
+            Function that computes the helper value. The function is called
+            with the context as the only argument
+        :returns:
+            Return value of func(self, *args, **kwargs) (possibly computed
+            earlier).
+
+        Compute something that can be shared by all users of the device context
+        This allows certain expensive computations to be performed only once.
+
+        .. note::
+            The caller is responsible for ensuring that ``args`` and ``kwargs``
+            match the `cache_key` each time this function is called.
+        """
+        if cache_key not in self._shared_cache:
+            self._shared_cache[cache_key] = func(*args, **kwargs)
+        return self._shared_cache[cache_key]
+
+    def invalidate_shared(self, cache_key):
+        if cache_key in self._shared_cache:
+            del self._shared_cache[cache_key]
 
 
 class SessionState:

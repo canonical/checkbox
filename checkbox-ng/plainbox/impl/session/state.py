@@ -359,6 +359,39 @@ class SessionDeviceContext:
         # NOTE: no need to fire the on_unit_removed() signal becuse the state
         # object and we've connected it to will fire our version.
 
+    def get_ctrl_for_job(self, job):
+        """
+        Get the execution controller most applicable to run this job
+
+        :param job:
+            A job definition to run
+        :returns:
+            An execution controller instance
+        :raises LookupError:
+            if no execution controller capable of running the specified job can
+            be found
+
+        The best controller is the controller that has the highest score
+        (as computed by :meth:`IExecutionController.get_score()) for the
+        job in question.
+        """
+        # Compute the score of each controller
+        ctrl_score = [
+            (ctrl, ctrl.get_score(job))
+            for ctrl in self.execution_controller_list]
+        # Sort scores
+        ctrl_score.sort(key=lambda pair: pair[1])
+        # Get the best score
+        ctrl, score = ctrl_score[-1]
+        # Ensure that the controller is viable
+        if score < 0:
+            raise LookupError(
+                _("No exec controller supports job {}").format(job))
+        logger.debug(
+            _("Selected execution controller %s (score %d) for job %r"),
+            ctrl.__class__.__name__, score, job.id)
+        return ctrl
+
     @Signal.define
     def on_provider_added(self, provider):
         """

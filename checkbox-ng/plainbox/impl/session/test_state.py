@@ -26,6 +26,7 @@ Test definitions for plainbox.impl.session module
 
 from unittest import TestCase
 
+from plainbox.abc import IExecutionController
 from plainbox.abc import IJobResult
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyMissingError
@@ -973,3 +974,49 @@ class SessionDeviceContextTests(TestCase, SignalInterceptorMixIn):
         self.assertNotEqual(result1, result2)
         # And _compute_execution_ctrl_list was called twice
         m.assert_has_calls(((), {}), ((), {}))
+
+    def test_get_ctrl_for_job__best(self):
+        """
+        Ensure that get_ctrl_for_job() picks the best execution controller
+        out of the available choices.
+        """
+        ctrl1 = mock.Mock(name='ctrl1', spec_set=IExecutionController)
+        ctrl1.get_score.return_value = 5
+        ctrl2 = mock.Mock(name='ctrl2', spec_set=IExecutionController)
+        ctrl2.get_score.return_value = 7
+        ctrl3 = mock.Mock(name='ctrl3', spec_set=IExecutionController)
+        ctrl3.get_score.return_value = -1
+        with mock.patch.object(self.ctx, '_compute_execution_ctrl_list') as m:
+            m.return_value = [ctrl1, ctrl2, ctrl3]
+            best_ctrl = self.ctx.get_ctrl_for_job(self.job)
+        self.assertIs(best_ctrl, ctrl2)
+
+    def test_get_ctrl_for_job__tie(self):
+        """
+        Ensure that get_ctrl_for_job() pick the last, best controller,
+        as determined by the order of entries in execution_controller_list
+        """
+        ctrl1 = mock.Mock(name='ctrl1', spec_set=IExecutionController)
+        ctrl1.get_score.return_value = 1
+        ctrl2 = mock.Mock(name='ctrl2', spec_set=IExecutionController)
+        ctrl2.get_score.return_value = 1
+        with mock.patch.object(self.ctx, '_compute_execution_ctrl_list') as m:
+            m.return_value = [ctrl1, ctrl2]
+            best_ctrl = self.ctx.get_ctrl_for_job(self.job)
+        self.assertIs(best_ctrl, ctrl2)
+
+    def test_get_ctrl_for_job__no_candidates(self):
+        """
+        Ensure that get_ctrl_for_job() raises LookupError if no controllers
+        are suitable for the requested job.
+        """
+        ctrl1 = mock.Mock(name='ctrl1', spec_set=IExecutionController)
+        ctrl1.get_score.return_value = -1
+        ctrl2 = mock.Mock(name='ctrl1', spec_set=IExecutionController)
+        ctrl2.get_score.return_value = -1
+        ctrl3 = mock.Mock(name='ctrl1', spec_set=IExecutionController)
+        ctrl3.get_score.return_value = -1
+        with mock.patch.object(self.ctx, '_compute_execution_ctrl_list') as m:
+            m.return_value = [ctrl1, ctrl2, ctrl3]
+            with self.assertRaises(LookupError):
+                self.ctx.get_ctrl_for_job(self.job)

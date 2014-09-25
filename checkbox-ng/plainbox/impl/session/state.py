@@ -276,7 +276,7 @@ class SessionDeviceContext:
         The list of units currently available in this context.
 
         .. note::
-            You must not modify the return value.SessionDeviceContext:
+            You must not modify the return value.
 
             This is not enforced but please use the :meth:`add_unit()`
             or :meth:`remove_unit()` if you want to manipulate the list.
@@ -349,7 +349,7 @@ class SessionDeviceContext:
 
     def remove_unit(self, unit):
         """
-        Add an unit from the context
+        Remove an unit from the context
 
         :param unit:
             The :class:`Unit` to remove.

@@ -36,11 +36,13 @@ import os
 
 from plainbox.i18n import gettext as _, ngettext
 from plainbox.impl.session.resume import SessionResumeHelper
+from plainbox.impl.session.state import SessionDeviceContext
 from plainbox.impl.session.state import SessionState
 from plainbox.impl.session.storage import LockedStorageError
 from plainbox.impl.session.storage import SessionStorage
 from plainbox.impl.session.storage import SessionStorageRepository
 from plainbox.impl.session.suspend import SessionSuspendHelper
+from plainbox.impl.signal import Signal
 
 logger = logging.getLogger("plainbox.session.manager")
 
@@ -100,29 +102,69 @@ class SessionManager:
     associated with each :class:`SessionManager`.
     """
 
-    def __init__(self, state, storage):
+    def __init__(self, device_context_list, storage):
         """
-        Initialize a manager with a specific
-        :class:`~plainbox.impl.session.state.SessionState` and
-        :class:`~plainbox.impl.session.storage.SessionStorage`.
+        Initialize a manager with a list of session device context objects and
+        a storage object that will be used for managing storage for all testing
+        related to those objects.
+
+        :param device_context_list:
+            A list of SessionDeviceContext instances. Currently at most one
+            object may exist in that list but this restriction will be lifted
+            later on without changing the interface.
+        :param storage:
+            A SessionStorage instance.
         """
-        # assert isinstance(state, SessionState)
-        # assert isinstance(storage, SessionStorage)
-        self._state = state
+        if len(device_context_list) > 1:
+            self._too_many_device_context_objects()
+        self._device_context_list = device_context_list
         self._storage = storage
         logger.debug(
-            # TRANSLATORS: please don't translate 'SessionManager' 'state' and
-            # 'storage'
-            _("Created SessionManager with state:%r and storage:%r"),
-            state, storage)
+            # TRANSLATORS: please don't translate 'SessionManager'
+            # and 'device_context_list'
+            _("Created SessionManager with device_context_list:%r"
+              " and storage:%r"), device_context_list, storage)
+
+    @property
+    def device_context_list(self):
+        """
+        A list of session device context objects
+
+        .. note::
+            You must not modify the return value.
+
+            This is not enforced but please use the
+            :meth:`add_device_context()` or :meth:`remove_device_context()` if
+            you want to manipulate the list.  Currently you cannot reorder the
+            list of context objects.
+        """
+        return self._device_context_list
+
+    @property
+    def default_device_context(self):
+        """
+        The default (first) session device context if available
+
+        In single-device sessions this is the context that is used to execute
+        every single job definition. Applications that use multiple devices
+        must access and use the context list directly.
+
+        .. note:
+            The default context may be none if there are no context objects
+            present in the session. This is never the case for applications
+            using the single-device APIs.
+        """
+        return (self._device_context_list[0]
+                if len(self._device_context_list) > 0 else None)
 
     @property
     def state(self):
         """
-        :class:`~plainbox.impl.session.state.SessionState` associated with
-        this manager
+        :class:`~plainbox.impl.session.state.SessionState` associated with this
+        manager
         """
-        return self._state
+        if self.default_device_context is not None:
+            return self.default_device_context.state
 
     @property
     def storage(self):
@@ -131,6 +173,41 @@ class SessionManager:
         this manager
         """
         return self._storage
+
+    @classmethod
+    def create(cls, repo=None, legacy_mode=False):
+        """
+        Create an empty session manager.
+
+        This method creates an empty session manager. This is the most generic
+        API that allows applications to freely work with any set of devices.
+
+        Typically applications will use the :meth:`add_device_context()` method
+        to add additional context objects at a later time. This method creates
+        and populates the session storage with all of the well known
+        directories (using :meth:`WellKnownDirsHelper.populate()`).
+
+        :param repo:
+            If specified then this particular repository will be used to create
+            the storage for this session. If left out, a new repository is
+            constructed with the default location.
+        :ptype repo:
+            :class:`~plainbox.impl.session.storage.SessionStorageRepository`.
+        :param legacy_mode:
+            Propagated to
+            :meth:`~plainbox.impl.session.storage.SessionStorage.create()` to
+            ensure that legacy (single session) mode is used.
+        :ptype legacy_mode:
+            bool
+        :return:
+            fresh :class:`SessionManager` instance
+        """
+        logger.debug("SessionManager.create()")
+        if repo is None:
+            repo = SessionStorageRepository()
+        storage = SessionStorage.create(repo.location, legacy_mode)
+        WellKnownDirsHelper(storage).populate()
+        return cls([], storage)
 
     @classmethod
     def create_with_state(cls, state, repo=None, legacy_mode=False):
@@ -162,7 +239,8 @@ class SessionManager:
             repo = SessionStorageRepository()
         storage = SessionStorage.create(repo.location, legacy_mode)
         WellKnownDirsHelper(storage).populate()
-        return cls(state, storage)
+        context = SessionDeviceContext(state)
+        return cls([context], storage)
 
     @classmethod
     def create_with_unit_list(cls, unit_list=None, repo=None,
@@ -198,8 +276,9 @@ class SessionManager:
         if repo is None:
             repo = SessionStorageRepository()
         storage = SessionStorage.create(repo.location, legacy_mode)
+        context = SessionDeviceContext(state)
         WellKnownDirsHelper(storage).populate()
-        return cls(state, storage)
+        return cls([context], storage)
 
     @classmethod
     def load_session(cls, unit_list, storage, early_cb=None):
@@ -250,7 +329,8 @@ class SessionManager:
                 raise
         else:
             state = SessionResumeHelper(unit_list).resume(data, early_cb)
-        return cls(state, storage)
+        context = SessionDeviceContext(state)
+        return cls([context], storage)
 
     def checkpoint(self):
         """
@@ -281,3 +361,77 @@ class SessionManager:
         """
         logger.debug("SessionManager.destroy()")
         self.storage.remove()
+
+    def add_device_context(self, context):
+        """
+        Add a device context to the session manager
+
+        :param context:
+            The :class:`SessionDeviceContext` to add.
+        :raises ValueError:
+            If the context is already in the session manager or the device
+            represented by that context is already present in the session
+            manager.
+
+        This method fires the :meth:`on_device_context_added()` signal
+        """
+        if any(other_context.device == context.device
+               for other_context in self._device_context_list):
+            raise ValueError(
+                _("attmpting to add a context for device {} which is"
+                  " already represented in this session"
+                  " manager").format(context.device))
+        if len(self._device_context_list) > 0:
+            self._too_many_device_context_objects()
+        self._device_context_list.append(context)
+        self.on_device_context_added(context)
+
+    def add_local_device_context(self):
+        """
+        Create and add a SessionDeviceContext that describes the local device.
+
+        The local device is always the device executing plainbox. Other devices
+        may execute jobs or parts of plainbox but they don't need to store or
+        run the full plainbox code.
+        """
+        self.add_device_context(SessionDeviceContext())
+
+    def remove_device_context(self, context):
+        """
+        Remove an device context from the session manager
+
+        :param unit:
+            The :class:`SessionDeviceContext` to remove.
+
+        This method fires the :meth:`on_device_context_removed()` signal
+        """
+        if context not in self._device_context_list:
+            raise ValueError(_(
+                "attempting to remove a device context not present in this"
+                " session manager"))
+        self._device_context_list.remove(context)
+        self.on_device_context_removed(context)
+
+    @Signal.define
+    def on_device_context_added(self, context):
+        """
+        Signal fired when a session device context object is added
+        """
+        logger.debug(
+            _("Device context %s added to session manager %s"),
+            context, self)
+
+    @Signal.define
+    def on_device_context_removed(self, context):
+        """
+        Signal fired when a session device context object is removed
+        """
+        logger.debug(
+            _("Device context %s removed from session manager %s"),
+            context, self)
+
+    def _too_many_device_context_objects(self):
+        raise ValueError(_(
+            "session manager currently doesn't support sessions"
+            " involving multiple devices (a.k.a multi-node testing)"
+        ))

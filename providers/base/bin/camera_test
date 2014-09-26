@@ -29,12 +29,14 @@
 import os
 import re
 import sys
+import logging
 import time
 import errno
 import fcntl
 import ctypes
 import struct
 import imghdr
+
 from tempfile import NamedTemporaryFile
 from subprocess import check_call, CalledProcessError, STDOUT
 import argparse
@@ -223,6 +225,7 @@ class CameraTest:
                     % {'device': self.args.device,
                        'type': self._gst_video_type,
                        'plugin': self._gst_plugin})
+        logging.debug("LED test with pipeline %s", pipespec)
         self._pipeline = Gst.parse_launch(pipespec)
         self._pipeline.set_state(Gst.State.PLAYING)
         time.sleep(10)
@@ -241,6 +244,7 @@ class CameraTest:
                        'width': self._width,
                        'height': self._height,
                        'plugin': self._gst_plugin})
+        logging.debug("display test with pipeline %s", pipespec)
         self._pipeline = Gst.parse_launch(pipespec)
         self._pipeline.set_state(Gst.State.PLAYING)
         time.sleep(10)
@@ -289,6 +293,8 @@ class CameraTest:
                            'height': height,
                            'plugin': self._gst_plugin,
                            'filename': filename})
+            logging.debug("still test with gstreamer and "
+                          "pipeline %s", pipespec)
             self._pipeline = Gst.parse_launch(pipespec)
             self._pipeline.set_state(Gst.State.PLAYING)
             time.sleep(3)
@@ -494,6 +500,10 @@ def parse_arguments(argv):
                                        title='test',
                                        description='Available camera tests')
 
+    parser.add_argument('--debug', dest='log_level',
+                       action="store_const", const=logging.DEBUG,
+                       default=logging.INFO, help="Show debugging messages")
+
     def add_device_parameter(parser):
         group = parser.add_mutually_exclusive_group()
         group.add_argument("-d", "--device", default="/dev/video0",
@@ -504,7 +514,6 @@ def parse_arguments(argv):
         group.add_argument("--lowest-device", action="store_true",
                            help=("Use the /dev/videoN "
                                  "where N is the lowest value available"))
-
     subparsers.add_parser('detect')
     led_parser = subparsers.add_parser('led')
     add_device_parameter(led_parser)
@@ -539,6 +548,8 @@ if __name__ == "__main__":
 
     if not args.test:
         args.test = 'detect'
+
+    logging.basicConfig(level=args.log_level)
 
     # Import Gst only for the test cases that will need it
     if args.test in ['display', 'still', 'led', 'resolutions']:

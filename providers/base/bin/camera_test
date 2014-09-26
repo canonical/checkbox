@@ -26,22 +26,22 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import os
-import re
-import sys
-import logging
-import time
+import argparse
+import ctypes
 import errno
 import fcntl
-import ctypes
-import struct
 import imghdr
+import logging
+import os
+import re
+import struct
+import sys
+import time
 
-from tempfile import NamedTemporaryFile
-from subprocess import check_call, CalledProcessError, STDOUT
-import argparse
-from glob import glob
 from gi.repository import GObject
+from glob import glob
+from subprocess import check_call, CalledProcessError, STDOUT
+from tempfile import NamedTemporaryFile
 
 
 _IOC_NRBITS = 8

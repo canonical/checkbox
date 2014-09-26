@@ -191,8 +191,8 @@ class CameraTest:
             print("    driver : %s" % cp.driver.decode('UTF-8'))
             print("    version: %s.%s.%s"
                   % (cp.version >> 16,
-                  (cp.version >> 8) & 0xff,
-                  cp.version & 0xff))
+                    (cp.version >> 8) & 0xff,
+                     cp.version & 0xff))
             print("    flags  : 0x%x [" % cp.capabilities,
                   ' CAPTURE' if cp.capabilities & V4L2_CAP_VIDEO_CAPTURE
                   else '',
@@ -207,7 +207,7 @@ class CameraTest:
             resolutions = self._get_supported_resolutions(device)
             print('    ',
                   self._supported_resolutions_to_string(resolutions).replace(
-                  "\n", " "),
+                      "\n", " "),
                   sep="")
 
             if cp.capabilities & V4L2_CAP_VIDEO_CAPTURE:
@@ -431,8 +431,8 @@ class CameraTest:
                         # for continuous and stepwise, let's just use min and
                         # max they use the same structure and only return
                         # one result
-                        elif framesize.type == V4L2_FRMSIZE_TYPE_CONTINUOUS or\
-                            framesize.type == V4L2_FRMSIZE_TYPE_STEPWISE:
+                        elif (framesize.type in (V4L2_FRMSIZE_TYPE_CONTINUOUS,
+                              V4L2_FRMSIZE_TYPE_STEPWISE)):
                             resolutions.append([framesize.stepwise.min_width,
                                                 framesize.stepwise.min_height]
                                                )
@@ -501,8 +501,8 @@ def parse_arguments(argv):
                                        description='Available camera tests')
 
     parser.add_argument('--debug', dest='log_level',
-                       action="store_const", const=logging.DEBUG,
-                       default=logging.INFO, help="Show debugging messages")
+                        action="store_const", const=logging.DEBUG,
+                        default=logging.INFO, help="Show debugging messages")
 
     def add_device_parameter(parser):
         group = parser.add_mutually_exclusive_group()

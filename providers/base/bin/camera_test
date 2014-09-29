@@ -26,20 +26,22 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import os
-import re
-import sys
-import time
+import argparse
+import ctypes
 import errno
 import fcntl
-import ctypes
-import struct
 import imghdr
-from tempfile import NamedTemporaryFile
-from subprocess import check_call, CalledProcessError, STDOUT
-import argparse
-from glob import glob
+import logging
+import os
+import re
+import struct
+import sys
+import time
+
 from gi.repository import GObject
+from glob import glob
+from subprocess import check_call, CalledProcessError, STDOUT
+from tempfile import NamedTemporaryFile
 
 
 _IOC_NRBITS = 8
@@ -189,8 +191,8 @@ class CameraTest:
             print("    driver : %s" % cp.driver.decode('UTF-8'))
             print("    version: %s.%s.%s"
                   % (cp.version >> 16,
-                  (cp.version >> 8) & 0xff,
-                  cp.version & 0xff))
+                    (cp.version >> 8) & 0xff,
+                     cp.version & 0xff))
             print("    flags  : 0x%x [" % cp.capabilities,
                   ' CAPTURE' if cp.capabilities & V4L2_CAP_VIDEO_CAPTURE
                   else '',
@@ -205,7 +207,7 @@ class CameraTest:
             resolutions = self._get_supported_resolutions(device)
             print('    ',
                   self._supported_resolutions_to_string(resolutions).replace(
-                  "\n", " "),
+                      "\n", " "),
                   sep="")
 
             if cp.capabilities & V4L2_CAP_VIDEO_CAPTURE:
@@ -223,6 +225,7 @@ class CameraTest:
                     % {'device': self.args.device,
                        'type': self._gst_video_type,
                        'plugin': self._gst_plugin})
+        logging.debug("LED test with pipeline %s", pipespec)
         self._pipeline = Gst.parse_launch(pipespec)
         self._pipeline.set_state(Gst.State.PLAYING)
         time.sleep(10)
@@ -241,6 +244,7 @@ class CameraTest:
                        'width': self._width,
                        'height': self._height,
                        'plugin': self._gst_plugin})
+        logging.debug("display test with pipeline %s", pipespec)
         self._pipeline = Gst.parse_launch(pipespec)
         self._pipeline.set_state(Gst.State.PLAYING)
         time.sleep(10)
@@ -289,6 +293,8 @@ class CameraTest:
                            'height': height,
                            'plugin': self._gst_plugin,
                            'filename': filename})
+            logging.debug("still test with gstreamer and "
+                          "pipeline %s", pipespec)
             self._pipeline = Gst.parse_launch(pipespec)
             self._pipeline.set_state(Gst.State.PLAYING)
             time.sleep(3)
@@ -425,8 +431,8 @@ class CameraTest:
                         # for continuous and stepwise, let's just use min and
                         # max they use the same structure and only return
                         # one result
-                        elif framesize.type == V4L2_FRMSIZE_TYPE_CONTINUOUS or\
-                            framesize.type == V4L2_FRMSIZE_TYPE_STEPWISE:
+                        elif (framesize.type in (V4L2_FRMSIZE_TYPE_CONTINUOUS,
+                              V4L2_FRMSIZE_TYPE_STEPWISE)):
                             resolutions.append([framesize.stepwise.min_width,
                                                 framesize.stepwise.min_height]
                                                )
@@ -494,6 +500,10 @@ def parse_arguments(argv):
                                        title='test',
                                        description='Available camera tests')
 
+    parser.add_argument('--debug', dest='log_level',
+                        action="store_const", const=logging.DEBUG,
+                        default=logging.INFO, help="Show debugging messages")
+
     def add_device_parameter(parser):
         group = parser.add_mutually_exclusive_group()
         group.add_argument("-d", "--device", default="/dev/video0",
@@ -504,7 +514,6 @@ def parse_arguments(argv):
         group.add_argument("--lowest-device", action="store_true",
                            help=("Use the /dev/videoN "
                                  "where N is the lowest value available"))
-
     subparsers.add_parser('detect')
     led_parser = subparsers.add_parser('led')
     add_device_parameter(led_parser)
@@ -539,6 +548,8 @@ if __name__ == "__main__":
 
     if not args.test:
         args.test = 'detect'
+
+    logging.basicConfig(level=args.log_level)
 
     # Import Gst only for the test cases that will need it
     if args.test in ['display', 'still', 'led', 'resolutions']:

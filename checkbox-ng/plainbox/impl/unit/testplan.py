@@ -405,7 +405,9 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
             fields.estimated_duration: [
                 UntranslatableFieldValidator,
                 TemplateInvariantFieldValidator,
-                PresentFieldValidator(severity=Severity.advice),
+                PresentFieldValidator(
+                    severity=Severity.advice,
+                    onlyif=lambda unit: unit.virtual is False),
                 CorrectFieldValueValidator(
                     lambda duration, unit: float(
                         unit.get_record_value('estimated_duration')) > 0,

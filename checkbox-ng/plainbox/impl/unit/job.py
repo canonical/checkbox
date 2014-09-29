@@ -271,8 +271,9 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
             applications need to include one of the special providers exposed
             as :func:`plainbox.impl.providers.special:get_categories()`.
         """
-        return self.get_record_value(
-            'category_id', '2013.com.canonical.plainbox::uncategorised')
+        return self.qualify_id(
+            self.get_record_value(
+                'category_id', '2013.com.canonical.plainbox::uncategorised'))
 
     @property
     def estimated_duration(self):

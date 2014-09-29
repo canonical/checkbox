@@ -2,6 +2,7 @@ id: stub/multilevel
 _summary: A generated generator job that generates two more jobs
 _description: Multilevel tests
 plugin: local
+flags: preserve-locale
 command:
  cat <<'EOF'
  id: stub/multilevel_1

@@ -20,3 +20,4 @@ __local__
 stub/local/true
 stub/multilevel
 stub/multilevel.*
+stub/root

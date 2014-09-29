@@ -259,7 +259,20 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
 
     @property
     def category_id(self):
-        return self.get_record_value('category_id')
+        """
+        fully qualified identifier of the category unit this job belongs to
+
+        .. note::
+            Jobs that don't have an explicit category association, also known
+            as the natural category, automatically get assigned to the special,
+            built-in 2013.com.canonical.plainbox::uncategorised category.
+
+            Note that to get the definition of that special category unit
+            applications need to include one of the special providers exposed
+            as :func:`plainbox.impl.providers.special:get_categories()`.
+        """
+        return self.get_record_value(
+            'category_id', '2013.com.canonical.plainbox::uncategorised')
 
     @property
     def estimated_duration(self):

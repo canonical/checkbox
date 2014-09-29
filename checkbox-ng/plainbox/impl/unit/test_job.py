@@ -137,7 +137,7 @@ class TestJobDefinitionDefinition(TestCase):
         self.assertEqual(job.user, None)
         self.assertEqual(job.shell, 'bash')
         self.assertEqual(job.flags, None)
-        self.assertEqual(job.category_id, None)
+        self.assertEqual(job.category_id, '2013.com.canonical.plainbox::uncategorised')
 
     def test_checksum_smoke(self):
         job1 = JobDefinition({'plugin': 'plugin', 'user': 'root'})

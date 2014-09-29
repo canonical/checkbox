@@ -6,6 +6,7 @@ plugin: shell
 flags: preserve-locale
 command: true; echo oops
 estimated_duration: 0.1
+category_id: plugin-representative
 
 id: stub/false
 _summary: Failing shell job
@@ -15,6 +16,7 @@ plugin: shell
 flags: preserve-locale
 command: false
 estimated_duration: 0.1
+category_id: plugin-representative
 
 id: stub/dependency/good
 _summary: Passing shell job depending on a passing shell job
@@ -25,6 +27,7 @@ depends: stub/true
 flags: preserve-locale
 command: true
 estimated_duration: 0.1
+category_id: dependency-chain
 
 plugin: shell
 id: stub/dependency/bad
@@ -35,6 +38,7 @@ _summary: Passing shell job depending on a failing shell job
 _description:
  Check job result is set to uninitiated when dependency fails
 estimated_duration: 0.1
+category_id: dependency-chain
 
 id: stub/sleep-60
 _summary: Job sleeping for sixty seconds 
@@ -43,6 +47,7 @@ plugin: shell
 flags: preserve-locale
 command: sleep 60
 estimated_duration: 60
+category_id: long
 
 id: stub/kill-ppid-if-KILLER-set
 _summary: Job killing the parent, if KILLER=yes
@@ -53,6 +58,7 @@ depends: stub/multilevel
 flags: preserve-locale
 command: if [ "$KILLER" == "yes" ]; then kill -9 $PPID; fi
 estimated_duration: 0.1
+category_id: misc
 
 # FIXME: stub/package once resource_object is supported
 id: stub_package
@@ -66,6 +72,7 @@ plugin: resource
 flags: preserve-locale
 command: stub_package_list
 estimated_duration: 0.5
+category_id: plugin-representative
 
 id: stub_package2
 _summary: Job determining a fake list of packages (2)
@@ -88,6 +95,7 @@ requires: stub_package.name == "checkbox"
 flags: preserve-locale
 command: true
 estimated_duration: 0.1
+category_id: dependency-chain
 
 id: stub/requirement/bad
 _summary: Passing shell job depending on an unavailable resource
@@ -98,6 +106,7 @@ requires: stub_package.name == "unknown-package"
 flags: preserve-locale
 command: true
 estimated_duration: 0.1
+category_id: dependency-chain
 
 id: stub/manual
 _summary: A simple manual job
@@ -111,6 +120,7 @@ _description:
      Check that in the report the result is passed and the comment is displayed
 plugin: manual
 estimated_duration: 30
+category_id: plugin-representative
 
 id: stub/user-interact
 _summary: A simple user interaction job
@@ -126,6 +136,7 @@ plugin: user-interact
 flags: preserve-locale
 command: true
 estimated_duration: 30
+category_id: plugin-representative
 
 id: stub/user-verify
 _summary: A simple user verification job
@@ -143,6 +154,7 @@ plugin: user-verify
 flags: preserve-locale
 command: echo "Please select 'pass'"
 estimated_duration: 30
+category_id: plugin-representative
 
 id: stub/user-interact-verify
 _summary: A simple user verification-interaction job
@@ -160,6 +172,7 @@ plugin: user-interact-verify
 flags: preserve-locale
 command: echo "Please select 'pass'"
 estimated_duration: 25
+category_id: plugin-representative
 
 id: stub/user-interact-verify-passing
 _summary: A suggested-passing user-verification-interaction job
@@ -179,6 +192,7 @@ plugin: user-interact-verify
 flags: preserve-locale
 command: true
 estimated_duration: 25
+category_id: plugin-representative
 
 id: stub/user-interact-verify-failing
 _summary: A suggested-failing user-verification-interaction job
@@ -198,6 +212,7 @@ plugin: user-interact-verify
 flags: preserve-locale
 command: false
 estimated_duration: 25
+category_id: plugin-representative
 
 id: __local__
 _summary: A job generating one more job
@@ -209,6 +224,7 @@ command:
   shopt -s extglob
   cat $PLAINBOX_PROVIDER_UNITS/jobs/local.pxu
 estimated_duration: 0.1
+category_id: plugin-representative
 
 id: __multilevel__
 _summary: A job generating more generator jobs
@@ -231,3 +247,4 @@ user: root
 flags: preserve-locale
 command: test $(id -u) -eq 0
 estimated_duration: 0.1
+category_id: superuser

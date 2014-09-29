@@ -1051,7 +1051,8 @@ class ValidateCommand(ManageCommand):
             if ns.deprecated and issue.kind is Problem.deprecated:
                 show = True
             if ns.strict:
-                failed = True
+                if issue.severity is not Severity.advice:
+                    failed = True
                 show = True
             if show:
                 print(issue.relative_to(self.definition.location))

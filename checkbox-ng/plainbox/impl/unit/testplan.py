@@ -23,6 +23,7 @@
 
 import logging
 import operator
+import re
 import shlex
 import sre_constants
 import sre_parse
@@ -333,6 +334,26 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
             # Accumulate patterns into the list
             override_list.append((lineno_offset, category_id, regexp_pattern))
         return override_list
+
+    def get_effective_category_map(self, job_list):
+        """
+        Compute the effective category association for the given list of jobs
+
+        :param job_list:
+            a list of JobDefinition units
+        :returns:
+            A dictionary mapping job.id to the effective category_id. Note that
+            category_id may be None or may not refer to a valid, known
+            category. The caller is responsible for validating that.
+        """
+        effective_map = {job.id: job.category_id for job in job_list}
+        if self.category_overrides is not None:
+            overrides_gen = self.parse_overrides(self.category_overrides)
+            for lineno_offset, category_id, pattern in overrides_gen:
+                for job in job_list:
+                    if re.match(job.id, pattern):
+                        effective_map[job.id] = category_id
+        return effective_map
 
     class Meta:
 

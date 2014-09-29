@@ -1,0 +1,23 @@
+id: plugin-representative
+unit: category
+_name: Representative Jobs (per "plugin" value)
+
+id: dependency-chain
+unit: category
+_name: Dependency Chaining
+
+id: long
+unit: category
+_name: Long Jobs
+
+id: misc
+unit: category
+_name: Miscellaneous Tests
+
+id: generated
+unit: category
+_name: Generated Tests
+
+id: superuser
+unit: category
+_name: Elevated Privilege Tests

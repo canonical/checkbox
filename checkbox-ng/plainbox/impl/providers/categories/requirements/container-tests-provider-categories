@@ -1,2 +1,2 @@
 #!/bin/sh
-./manage.py validate
+./manage.py validate -N

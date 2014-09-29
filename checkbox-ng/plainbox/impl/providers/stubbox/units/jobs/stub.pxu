@@ -191,7 +191,7 @@ _description:
 plugin: local
 command:
   shopt -s extglob
-  cat $PLAINBOX_PROVIDER_UNITS/jobs/local.txt?(.in)
+  cat $PLAINBOX_PROVIDER_UNITS/jobs/local.pxu
 estimated_duration: 0.1
 
 id: __multilevel__
@@ -202,7 +202,7 @@ _description:
 plugin: local
 command:
   shopt -s extglob
-  cat $PLAINBOX_PROVIDER_UNITS/jobs/multilevel.txt?(.in)
+  cat $PLAINBOX_PROVIDER_UNITS/jobs/multilevel.pxu
 estimated_duration: 0.1
 
 id: stub/root

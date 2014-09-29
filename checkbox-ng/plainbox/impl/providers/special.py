@@ -31,6 +31,7 @@ import os
 
 from plainbox.i18n import gettext_noop as N_
 from plainbox.impl import get_plainbox_dir
+from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.providers.v1 import Provider1Definition
 
 
@@ -50,3 +51,22 @@ def get_stubbox_def():
     stubbox_def.location = os.path.join(
         get_plainbox_dir(), "impl/providers/stubbox")
     return stubbox_def
+
+
+def get_categories_def():
+    """
+    Get a Provider1Definition for the provider that knows all the categories
+    """
+    categories_def = Provider1Definition()
+    categories_def.name = "2013.com.canonical.plainbox:categories"
+    categories_def.version = "1.0"
+    categories_def.description = N_("Common test category definitions")
+    categories_def.secure = False
+    categories_def.gettext_domain = "2013_com_canonical_plainbox_categories"
+    categories_def.location = os.path.join(
+        get_plainbox_dir(), "impl/providers/categories")
+    return categories_def
+
+
+def get_categories():
+    return Provider1.from_definition(get_categories_def(), secure=False)

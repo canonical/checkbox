@@ -260,10 +260,10 @@ def main():
         print('\n'.join(TESTS))
         return 0
     elif args.list_cert:
-        print('\n'.join(NON_CERT_TESTS))
+        print('\n'.join(CERT_TESTS))
         return 0
     elif args.list_advanced:
-        print('\n'.join(CERT_TESTS))
+        print('\n'.join(NON_CERT_TESTS))
         return 0
     elif args.test:
         tests.extend(args.test)

@@ -847,6 +847,11 @@ class RootViaPTL1ExecutionController(CheckBoxDifferentialExecutionController):
         try:
             result = check_output(["pkaction", "--action-id", action_id],
                                   stderr=STDOUT)
+        except OSError as exc:
+            logger.warning(
+                _("Cannot check if plainbox-trusted-launcher-1 is"
+                  " available: %s"), str(exc))
+            result = b""
         except CalledProcessError as exc:
             result = exc.output
         self.is_supported = True if result.strip() == action_id else False

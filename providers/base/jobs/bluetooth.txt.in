@@ -120,3 +120,33 @@ _description:
  VERIFICATION:
      Did the device work as expected?
 
+plugin: shell
+id: bluetooth/file_transfer_stress
+estimated_duration: 300.0
+requires:
+ package.name == 'bluez'
+ package.name == 'obexftp'
+ device.category == 'BLUETOOTH'
+command:
+  if [ -z "$BTDEVADDR" ]
+  then
+    echo "btdevaddr option not set to device address of Bluetooth target in plainbox.conf"
+    exit 1
+  fi
+  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
+  then
+    echo "rfkill list shows BT is hard blocked"
+  fi
+  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
+  then
+    echo "rfkill list shows BT is soft blocked, removing before testing"
+    rfkill unblock bluetooth
+    sleep 3
+  fi
+  bluetooth_transfer_stress $BTDEVADDR
+_description:
+ This is an automated Bluetooth file transfer test. It sends a large file
+ to the device specified by the BTDEVADDR environment variable, then
+ retrieves it again using Bluetooth and verifies the checksum to ensure the
+ transfer didn't corrupt the file.
+

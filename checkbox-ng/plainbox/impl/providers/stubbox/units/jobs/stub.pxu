@@ -41,7 +41,7 @@ estimated_duration: 0.1
 category_id: dependency-chain
 
 id: stub/sleep-60
-_summary: Job sleeping for sixty seconds 
+_summary: Job sleeping for sixty seconds
 _description: Sleep for sixty seconds
 plugin: shell
 flags: preserve-locale
@@ -228,7 +228,7 @@ category_id: plugin-representative
 
 id: __multilevel__
 _summary: A job generating more generator jobs
-_description: 
+_description:
     This job generates stub/multilevel which in turn can
     generate stub/multilevel_1 and stub/multilevel_2
 plugin: local

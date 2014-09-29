@@ -1,0 +1,54 @@
+#!/bin/bash
+#
+# Copyright (C) 2014 Canonical
+#
+# Authors:
+#    Daniel Manrique <daniel.manrique@canonical.com>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#
+BTDEVADDR="$1"
+
+if [ -z "$BTDEVADDR" ]; then
+    echo "Please give Bluetooth device address as first parameter"
+    exit 1
+fi
+
+ORIGIN=$(mktemp --tmpdir bluetooth-stress.XXXXXX)
+DESTINATION=$(mktemp --tmpdir bluetooth-stress.XXXXXX)
+REMOTE=$RANDOM
+SIZEKB=10240
+echo "Creating ${SIZEKB}KB  file to test transfer"
+dd if=/dev/urandom of=$ORIGIN count=$SIZEKB bs=1024
+ORIGIN_SUM=$(sha256sum $ORIGIN | cut -f 1 -d ' ')
+set -o pipefail
+echo "Sending file using Bluetooth"
+time obexftp -v -b $BTDEVADDR -o $REMOTE --put $ORIGIN 2>&1 | ansi_parser
+sleep 5
+echo "Receiving file using Bluetooth"
+time obexftp -v -b $BTDEVADDR -o $DESTINATION --get $REMOTE 2>&1 | ansi_parser
+# Now checksum destination and compare
+DESTINATION_SUM=$(sha256sum $DESTINATION | cut -f 1 -d ' ')
+# Clean up before reporting
+rm $ORIGIN $DESTINATION
+if [ "$ORIGIN_SUM" = "$DESTINATION_SUM" ]; then
+  echo "Checksums match, file transfer succeeded"
+  exit 0
+else
+  echo "Checksums don't match, file was corrupted during transfers."
+  echo "Original checksum: $ORIGIN_SUM"
+  echo "Checksum of received file: $DESTINATION_SUM"
+  exit 1
+fi

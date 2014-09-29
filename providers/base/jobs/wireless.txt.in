@@ -52,7 +52,15 @@ requires:
  environment.ROUTERS == 'multiple'
 user: root
 environ: WPA_BG_SSID WPA_BG_PSK
-command: trap "nmcli con delete id $WPA_BG_SSID" EXIT; create_connection wifi $WPA_BG_SSID --security=wpa --key=$WPA_BG_PSK && gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+command:
+    trap "nmcli con delete id $WPA_BG_SSID" EXIT
+    if create_connection wifi $WPA_BG_SSID --security=wpa --key=$WPA_BG_PSK; then
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        iw dev $INTERFACE link
+        gateway_ping_test --interface=$INTERFACE
+    else
+        exit 1
+    fi
 estimated_duration: 30.0
 _description:
  Tests that the systems wireless hardware can connect to a router using WPA
@@ -65,7 +73,15 @@ requires:
  environment.ROUTERS == 'multiple'
 user: root
 environ: OPEN_BG_SSID
-command: trap "nmcli con delete id $OPEN_BG_SSID" EXIT; create_connection wifi $OPEN_BG_SSID && gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+command:
+    trap "nmcli con delete id $OPEN_BG_SSID" EXIT
+    if create_connection wifi $OPEN_BG_SSID; then
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        iw dev $INTERFACE link
+        gateway_ping_test --interface=$INTERFACE
+    else
+        exit 1
+    fi
 estimated_duration: 30.0
 _description:
  Tests that the systems wireless hardware can connect to a router using no
@@ -78,7 +94,15 @@ requires:
  environment.ROUTERS == 'multiple'
 user: root
 environ: WPA_N_SSID WPA_N_PSK
-command: trap "nmcli con delete id $WPA_N_SSID" EXIT; create_connection wifi $WPA_N_SSID --security=wpa --key=$WPA_N_PSK && gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+command:
+    trap "nmcli con delete id $WPA_N_SSID" EXIT
+    if create_connection wifi $WPA_N_SSID --security=wpa --key=$WPA_N_PSK; then
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        iw dev $INTERFACE link
+        gateway_ping_test --interface=$INTERFACE
+    else
+        exit 1
+    fi
 estimated_duration: 30.0
 _description:
  Tests that the systems wireless hardware can connect to a router using WPA
@@ -91,7 +115,15 @@ requires:
  environment.ROUTERS == 'multiple'
 user: root
 environ: OPEN_N_SSID
-command: trap "nmcli con delete id $OPEN_N_SSID" EXIT; create_connection wifi $OPEN_N_SSID &&  gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+command:
+    trap "nmcli con delete id $OPEN_N_SSID" EXIT
+    if create_connection wifi $OPEN_N_SSID; then
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        iw dev $INTERFACE link
+        gateway_ping_test --interface=$INTERFACE
+    else
+        exit 1
+    fi
 estimated_duration: 30.0
 _description:
  Tests that the systems wireless hardware can connect to a router using no
@@ -105,7 +137,15 @@ requires:
  IEEE_80211.ac == 'supported'
 user: root
 environ: WPA_AC_SSID WPA_AC_PSK
-command: trap "nmcli con delete id $WPA_AC_SSID" EXIT; create_connection wifi $WPA_AC_SSID --security=wpa --key=$WPA_AC_PSK && gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+command:
+    trap "nmcli con delete id $WPA_AC_SSID" EXIT
+    if create_connection wifi $WPA_AC_SSID --security=wpa --key=$WPA_AC_PSK; then
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        iw dev $INTERFACE link
+        gateway_ping_test --interface=$INTERFACE
+    else
+        exit 1
+    fi
 estimated_duration: 30.0
 _description:
  Tests that the systems wireless hardware can connect to a router using WPA
@@ -119,7 +159,15 @@ requires:
  IEEE_80211.ac == 'supported'
 user: root
 environ: OPEN_AC_SSID
-command: trap "nmcli con delete id $OPEN_AC_SSID" EXIT; create_connection wifi $OPEN_AC_SSID && gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+command:
+    trap "nmcli con delete id $OPEN_AC_SSID" EXIT
+    if create_connection wifi $OPEN_AC_SSID; then
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        iw dev $INTERFACE link
+        gateway_ping_test --interface=$INTERFACE
+    else
+        exit 1
+    fi
 estimated_duration: 30.0
 _description:
  Tests that the systems wireless hardware can connect to a router using no
@@ -132,7 +180,15 @@ requires:
  environment.ROUTERS == 'single'
 user: root
 environ: ROUTER_SSID ROUTER_PSK
-command: trap "nmcli con delete id $ROUTER_SSID" EXIT; create_connection wifi $ROUTER_SSID --security=wpa --key=$ROUTER_PSK && gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+command:
+    trap "nmcli con delete id $ROUTER_SSID" EXIT
+    if create_connection wifi $ROUTER_SSID --security=wpa --key=$ROUTER_PSK; then
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        iw dev $INTERFACE link
+        gateway_ping_test --interface=$INTERFACE
+    else
+        exit 1
+    fi
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -154,7 +210,15 @@ requires:
  environment.ROUTERS == 'single'
 user: root
 environ: ROUTER_SSID
-command: trap "nmcli con delete id $ROUTER_SSID" EXIT; create_connection wifi $ROUTER_SSID && gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+command:
+    trap "nmcli con delete id $ROUTER_SSID" EXIT
+    if create_connection wifi $ROUTER_SSID; then
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        iw dev $INTERFACE link
+        gateway_ping_test --interface=$INTERFACE
+    else
+        exit 1
+    fi
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -177,7 +241,15 @@ requires:
  IEEE_80211.band_5GHz == 'supported'
 user: root
 environ: ROUTER_SSID ROUTER_PSK
-command: trap "nmcli con delete id $ROUTER_SSID" EXIT; create_connection wifi $ROUTER_SSID --security=wpa --key=$ROUTER_PSK && gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+command:
+    trap "nmcli con delete id $ROUTER_SSID" EXIT
+    if create_connection wifi $ROUTER_SSID --security=wpa --key=$ROUTER_PSK; then
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        iw dev $INTERFACE link
+        gateway_ping_test --interface=$INTERFACE
+    else
+        exit 1
+    fi
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -200,7 +272,15 @@ requires:
  IEEE_80211.band_5GHz == 'supported'
 user: root
 environ: ROUTER_SSID
-command: trap "nmcli con delete id $ROUTER_SSID" EXIT; create_connection wifi $ROUTER_SSID && gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+command:
+    trap "nmcli con delete id $ROUTER_SSID" EXIT
+    if create_connection wifi $ROUTER_SSID; then
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        iw dev $INTERFACE link
+        gateway_ping_test --interface=$INTERFACE
+    else
+        exit 1
+    fi
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -223,7 +303,15 @@ requires:
  IEEE_80211.ac == 'supported'
 user: root
 environ: ROUTER_SSID ROUTER_PSK
-command: trap "nmcli con delete id $ROUTER_SSID" EXIT; create_connection wifi $ROUTER_SSID --security=wpa --key=$ROUTER_PSK && gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+command:
+    trap "nmcli con delete id $ROUTER_SSID" EXIT
+    if create_connection wifi $ROUTER_SSID --security=wpa --key=$ROUTER_PSK; then
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        iw dev $INTERFACE link
+        gateway_ping_test --interface=$INTERFACE
+    else
+        exit 1
+    fi
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -246,7 +334,15 @@ requires:
  IEEE_80211.ac == 'supported'
 user: root
 environ: ROUTER_SSID
-command: trap "nmcli con delete id $ROUTER_SSID" EXIT; create_connection wifi $ROUTER_SSID && gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+command:
+    trap "nmcli con delete id $ROUTER_SSID" EXIT
+    if create_connection wifi $ROUTER_SSID; then
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        iw dev $INTERFACE link
+        gateway_ping_test --interface=$INTERFACE
+    else
+        exit 1
+    fi
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -268,7 +364,15 @@ requires:
  device.category == 'WIRELESS'
 user: root
 environ: WPA_BG_SSID WPA_BG_PSK SERVER_IPERF
-command: trap "nmcli con delete id $WPA_BG_SSID" EXIT; create_connection wifi $WPA_BG_SSID --security=wpa --key=$WPA_BG_PSK && iperf -c $SERVER_IPERF -t 300 -i 30
+command:
+    trap "nmcli con delete id $WPA_BG_SSID" EXIT
+    if create_connection wifi $WPA_BG_SSID --security=wpa --key=$WPA_BG_PSK; then
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        iw dev $INTERFACE link
+        iperf -c $SERVER_IPERF -t 300 -i 30
+    else
+        exit 1
+    fi
 estimated_duration: 330.0
 _description:
  Tests the performance of a system's wireless connection through the iperf tool.
@@ -280,7 +384,15 @@ requires:
  device.category == 'WIRELESS'
 user: root
 environ: WPA_BG_SSID WPA_BG_PSK SERVER_IPERF
-command: trap "nmcli con delete id $WPA_BG_SSID" EXIT; create_connection wifi $WPA_BG_SSID --security=wpa --key=$WPA_BG_PSK && iperf -c $SERVER_IPERF -t 300 -i 30 -u -b 100m -p 5050
+command:
+    trap "nmcli con delete id $WPA_BG_SSID" EXIT
+    if create_connection wifi $WPA_BG_SSID --security=wpa --key=$WPA_BG_PSK; then
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        iw dev $INTERFACE link
+        iperf -c $SERVER_IPERF -t 300 -i 30 -u -b 100m -p 5050
+    else
+        exit 1
+    fi
 estimated_duration: 330.0
 _description:
  Tests the performance of a system's wireless connection through the iperf tool, using UDP packets.
@@ -292,7 +404,15 @@ requires:
  IEEE_80211.band_5GHz == 'supported'
 user: root
 environ: OPEN_A_SSID
-command: trap "nmcli con delete id $OPEN_A_SSID" EXIT; create_connection wifi $OPEN_A_SSID && gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+command:
+    trap "nmcli con delete id $OPEN_A_SSID" EXIT
+    if create_connection wifi $OPEN_A_SSID; then
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        iw dev $INTERFACE link
+        gateway_ping_test --interface=$INTERFACE
+    else
+        exit 1
+    fi
 estimated_duration: 30.0
 _description:
   Test that the system's wireless hardware can connect to a router using the
@@ -305,7 +425,15 @@ requires:
  device.category == 'WIRELESS'
 user: root
 environ: OPEN_B_SSID
-command: trap "nmcli con delete id $OPEN_B_SSID" EXIT; create_connection wifi $OPEN_B_SSID && gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+command:
+    trap "nmcli con delete id $OPEN_B_SSID" EXIT
+    if create_connection wifi $OPEN_B_SSID; then
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        iw dev $INTERFACE link
+        gateway_ping_test --interface=$INTERFACE
+    else
+        exit 1
+    fi
 estimated_duration: 30.0
 _description:
   Test that the system's wireless hardware can connect to a router using the
@@ -336,7 +464,15 @@ requires:
  device.category == 'WIRELESS'
 user: root
 environ: OPEN_G_SSID
-command: trap "nmcli con delete id $OPEN_G_SSID" EXIT; create_connection wifi $OPEN_G_SSID && gateway_ping_test --interface=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+command:
+    trap "nmcli con delete id $OPEN_G_SSID" EXIT
+    if create_connection wifi $OPEN_G_SSID; then
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        iw dev $INTERFACE link
+        gateway_ping_test --interface=$INTERFACE
+    else
+        exit 1
+    fi
 estimated_duration: 30.0
 _description:
   Test that the system's wireless hardware can connect to a router using the

@@ -153,3 +153,7 @@ _name: Mobile broadband tests
 unit: category
 id: stress
 _name: Stress tests
+
+unit: category
+id: uncategorised
+_name: Uncategorised

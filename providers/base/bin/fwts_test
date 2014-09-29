@@ -6,7 +6,8 @@ from time import time
 from argparse import ArgumentParser, RawTextHelpFormatter, REMAINDER
 from subprocess import Popen, PIPE
 from syslog import *
-
+from distutils.spawn import find_executable
+import os
 
 # These tests require user interaction and need either special handling
 # or skipping altogether (right now, we skip them but they're kept here
@@ -135,6 +136,20 @@ def fix_sleep_args(args):
         else:
             new_args.append(arg)
     return new_args
+
+
+def detect_progress_indicator():
+    # Return a command suitable for piping progress information to its
+    # stdin (invoked via Popen), in list format.
+    # Return zenity if installed and DISPLAY (--auto-close)
+    # return dialog if installed and no DISPLAY (width height)
+    display = os.environ.get('DISPLAY')
+    if display and find_executable('zenity'):
+        return ["zenity", "--progress", "--text", "Progress", "--auto-close"]
+    if not display and find_executable('dialog'):
+        return ["dialog", "--gauge", "Progress", "20", "70"]
+    # Return None if no progress indicator is to be used
+    return None
 
 
 def main():
@@ -308,6 +323,10 @@ def main():
     if args.sleep:
         iteration_results = {}
         print('=' * 20 + ' Test Results ' + '=' * 20)
+        progress_indicator = None
+        if detect_progress_indicator():
+            progress_indicator = Popen(detect_progress_indicator(),
+                                       stdin=PIPE)
         for iteration in range(0, iterations):
             timestamp = int(time())
             start_marker = 'CHECKBOX SLEEP TEST START %s' % timestamp
@@ -324,12 +343,36 @@ def main():
                                               args.sleep_time,
                                               args.resume_time)
                 iteration_results[iteration] = sleep_times
-                print(' - Cycle %s: Status: %s  Sleep Elapsed: %0.5f    '
-                      'Resume Elapsed: '
-                      ' %0.5f' % (iteration,
+                progress_tuple = (iteration,
                                   iteration_results[iteration][0],
                                   iteration_results[iteration][1],
-                                  iteration_results[iteration][2]))
+                                  iteration_results[iteration][2])
+                progress_string = (' - Cycle %s: Status: %s  '
+                                   'Sleep Elapsed: %0.5f    '
+                                   'Resume Elapsed: '
+                                   ' %0.5f' % progress_tuple)
+                progress_pct = "{}".format(int(100 * iteration / iterations))
+                if "zenity" in detect_progress_indicator():
+                    progress_indicator.stdin.write("# {}\n".format(
+                        progress_string).encode('utf-8'))
+                    progress_indicator.stdin.write("{}\n".format(
+                        progress_pct).encode('utf-8'))
+                    progress_indicator.stdin.flush()
+                elif "dialog" in detect_progress_indicator():
+                    progress_indicator.stdin.write("XXX\n".encode('utf-8'))
+                    progress_indicator.stdin.write(
+                        progress_pct.encode('utf-8'))
+                    progress_indicator.stdin.write(
+                        "\nTest progress\n".encode('utf-8'))
+                    progress_indicator.stdin.write(
+                        progress_string.encode('utf-8'))
+                    progress_indicator.stdin.write(
+                        "\nXXX\n".encode('utf-8'))
+                    progress_indicator.stdin.flush()
+                else:
+                    print(progress_string)
+        progress_indicator.terminate()
+
         if 's4' not in args.sleep:
             average_times(iteration_results)
             for run in iteration_results.keys():

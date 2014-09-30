@@ -56,3 +56,14 @@ class SessionStateSmokeTests(TestCase):
 
     def test_initial_session_dir(self):
         self.assertIsNone(self.session_state.session_dir)
+
+    def test_commit_open_doesnt_garble_session(self):
+        self.session_state.open()
+        self.session_state.manager
+        self.assertIs(self.session_state, self.session_state.manager.state)
+
+    def test_commit_clean_doesnt_garble_session(self):
+        self.session_state.open()
+        self.session_state.clean()
+        self.session_state.manager
+        self.assertIs(self.session_state, self.session_state.manager.state)

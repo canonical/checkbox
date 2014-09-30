@@ -215,7 +215,6 @@ class SessionStateLegacyAPICompatImpl(SessionState, ISessionStateLegacyAPI):
         logger.debug("_commit_clean()")
         if self._manager:
             self._manager.destroy()
-            self._manager.create_with_unit_list(self.job_list)
         self._manager = SessionManager.create_with_state(
             self, legacy_mode=True)
 

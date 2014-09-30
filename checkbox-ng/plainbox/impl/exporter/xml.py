@@ -32,6 +32,7 @@ from base64 import standard_b64decode, standard_b64encode
 from collections import OrderedDict
 from datetime import datetime
 from io import BytesIO
+import codecs
 import logging
 import re
 
@@ -86,8 +87,12 @@ class XMLValidator:
 # According to http://unicode.org/glossary/#control_codes
 # control codes are "The 65 characters in the ranges U+0000..U+001F and
 # U+007F..U+009F. Also known as control characters."
-CONTROL_CODE_RE_STR = re.compile("(?![\n\r\t\v])[\u0000-\u001F]|[\u007F-\u009F]")
-CONTROL_CODE_RE_BYTES = re.compile(b"(?![\n\r\t\v])[\x00-\x1F]|[\x7F-\x9F]")
+#
+# NOTE: we don't want to match certain control characters (newlines, carriage
+# returns, tabs or vertical tabs as those are allowed by lxml and it would be
+# silly to strip them.
+CONTROL_CODE_RE_STR = re.compile(
+    "(?![\n\r\t\v])[\u0000-\u001F]|[\u007F-\u009F]")
 
 
 class XMLSessionStateExporter(SessionStateExporterBase):
@@ -192,35 +197,31 @@ class XMLSessionStateExporter(SessionStateExporterBase):
         if self.get_option_value('client-name'):
             self._client_name = self.get_option_value('client-name')
 
-    def _build_attachment_map(self, data, job_id, job_state):
-        """
-        Overridden version of _build_attachment_map() that enforces
-        additional limits on the attachment data.
-
-        This implementation filters out what would become Unicode control
-        characters so that they don't appear in the attachment_map anywhere.
-        """
-        raw_bytes = b''.join(
-            (CONTROL_CODE_RE_BYTES.sub(b'', record[2])
-             for record in job_state.result.get_io_log()
-             if record[1] == 'stdout'))
-        data['attachment_map'][job_id] = standard_b64encode(
-            raw_bytes
-        ).decode('ASCII')
-
     @classmethod
     def _flatten_io_log(cls, io_log):
         """
         Overridden version of _flatten_io_log() that enforces additional
         limits on the I/O log data.
 
-        This implementation filters out what would become Unicode control
+        This implementation attempts to decode the stream as UTF-8 (striping
+        out everything that isn't UTF-8), filters out Unicode control
         characters so that they don't appear in the session data subset
-        anywhere.
+        anywhere and saves the stream as a long BASE64 encoded string,
+        representing the same raw, underlying UTF-8 text.
         """
+        # NOTE: CONTROL_CODE_RE_STR matches *one* character so it is safe to do
+        # incrementally as it has no border conditions.
+        #
+        # The code below does, with as few copies as possible, strip out
+        # anything that is matched by CONTROL_CODE_RE_STR from the effective
+        # stream of text represented by the chunked bytes loaded via the io_log
+        # object. The resulting text is UTF-8 encoded and base64 encoded (and
+        # saved as bytes, again, because we need to return bytes)
         return standard_b64encode(
-            b''.join([CONTROL_CODE_RE_BYTES.sub(b'', record.data)
-                      for record in io_log])
+            b''.join(
+                CONTROL_CODE_RE_STR.sub('', text_chunk).encode('UTF-8')
+                for text_chunk in codecs.iterdecode(
+                    (record.data for record in io_log), 'UTF-8', 'replace'))
         ).decode('ASCII')
 
     def dump(self, data, stream):
@@ -280,15 +281,17 @@ class XMLSessionStateExporter(SessionStateExporterBase):
             )
             # Special case of plain text attachments, they are sent without any
             # base64 encoding, this may change if we add the MIME type to the
-            # list of attributes
-            content = ""
+            # list of attributes.
+            #
+            # The rule is, if it looks like UTF-8 text, it's UTF-8 text,
+            # otherwise it is binary. I'll buy a beer to anyone that smuggles a
+            # PNG/JPEG that is also valid UTF-8 :-)
             try:
-                content = standard_b64decode(
-                    data["attachment_map"][job_id].encode()).decode("UTF-8")
+                info.text = standard_b64decode(
+                    self._as_b64(data, job_id).encode('ASCII')
+                ).decode('UTF-8')
             except UnicodeDecodeError:
-                content = data["attachment_map"][job_id]
-            finally:
-                info.text = content
+                info.text = self._as_b64(data, job_id)
 
     def get_resource(self, data, partial_id):
         """
@@ -310,24 +313,21 @@ class XMLSessionStateExporter(SessionStateExporterBase):
         """
         Add the hardware section of the XML report
         """
-        def as_text(attachment):
-            return standard_b64decode(
-                data["attachment_map"][attachment].encode()
-            ).decode("ASCII", "ignore")
         hardware = ET.SubElement(element, "hardware")
         # Attach the content of "dmi_attachment"
         dmi = ET.SubElement(hardware, "dmi")
         if "{}dmi_attachment".format(self.NS) in data["attachment_map"]:
-            dmi.text = as_text("{}dmi_attachment".format(self.NS))
+            dmi.text = self._as_text(data, "{}dmi_attachment".format(self.NS))
         # Attach the content of "sysfs_attachment"
         sysfs_attributes = ET.SubElement(hardware, "sysfs-attributes")
         if "{}sysfs_attachment".format(self.NS) in data["attachment_map"]:
-            sysfs_attributes.text = as_text(
-                "{}sysfs_attachment".format(self.NS))
+            sysfs_attributes.text = self._as_text(
+                data, "{}sysfs_attachment".format(self.NS))
         # Attach the content of "udev_attachment"
         udev = ET.SubElement(hardware, "udev")
         if "{}udev_attachment".format(self.NS) in data["attachment_map"]:
-            udev.text = as_text("{}udev_attachment".format(self.NS))
+            udev.text = self._as_text(
+                data, "{}udev_attachment".format(self.NS))
         cpuinfo_data = self.get_resource(data, "cpuinfo")
         if cpuinfo_data is not None:
             processors = ET.SubElement(hardware, "processors")
@@ -391,7 +391,8 @@ class XMLSessionStateExporter(SessionStateExporterBase):
                 comment.text = job_data["comments"]
             elif job_data["io_log"]:
                 comment.text = standard_b64decode(
-                    job_data["io_log"].encode()).decode('UTF-8')
+                    job_data["io_log"].encode('ASCII')
+                ).decode('UTF-8', 'replace')
             else:
                 comment.text = ""
 
@@ -490,3 +491,32 @@ class XMLSessionStateExporter(SessionStateExporterBase):
         # Insert the system identifier string
         ET.SubElement(
             summary, "system_id", attrib={"value": self._system_id})
+
+    def _as_text(self, data, attachment):
+        """
+        Convert the given attachment to text
+
+        :param data:
+            The data argument that gets passed around here
+        :param attachment:
+            Identifier of the job to look at
+        :returns:
+            stdout of the given job, converted to text (assuming UTF-8
+            encoding) with Unicode control characters removed.
+        """
+        return CONTROL_CODE_RE_STR.sub('', standard_b64decode(
+            data["attachment_map"][attachment].encode("ASCII")
+        ).decode("UTF-8", "replace"))
+
+    def _as_b64(self, data, attachment):
+        """
+        Convert the given attachment to base64-encoded binary (text)
+
+        :param data:
+            The data argument that gets passed around here
+        :param attachment:
+            Identifier of the job to look at
+        :returns:
+            stdout of the given job, encoded with base64
+        """
+        return data["attachment_map"][attachment]

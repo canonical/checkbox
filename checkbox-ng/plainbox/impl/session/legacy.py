@@ -208,23 +208,16 @@ class SessionStateLegacyAPICompatImpl(SessionState, ISessionStateLegacyAPI):
 
     def _commit_open(self):
         logger.debug("_commit_open()")
-        self._manager = SessionManager.create_with_unit_list(
-            self.job_list, legacy_mode=True)
-        # Compatibility hack. Since session manager is supposed to
-        # create and manage both session state and session storage
-        # we need to inject ourselves into its internal attribute.
-        # This way it will keep operating on this instance in the
-        # essential checkpoint() method.
-        self._manager._state = self
+        self._manager = SessionManager.create_with_state(
+            self, legacy_mode=True)
 
     def _commit_clean(self):
         logger.debug("_commit_clean()")
         if self._manager:
             self._manager.destroy()
             self._manager.create_with_unit_list(self.job_list)
-        self._manager = SessionManager.create_with_unit_list(
-            self.job_list, legacy_mode=True)
-        self._manager._state = self
+        self._manager = SessionManager.create_with_state(
+            self, legacy_mode=True)
 
     def _commit_resume(self):
         logger.debug("_commit_resume()")

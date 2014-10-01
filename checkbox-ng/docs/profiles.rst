@@ -104,8 +104,7 @@ submission/input_placeholder
     characters)``. (GUI only)
 
 submission/secure_id
-    Preconfigured secure_id to fill in the text field (GUI only). For
-    text mode, transport/secure_id is used instead.
+    Preconfigured secure_id to fill in the text field.
 
 submission/ok_btn_text
     The label for the "Send" button. ``Submit Results`` (default) or
@@ -136,10 +135,6 @@ transport/submit_url
     websites, for example it can upload directly to hexr, or to the
     staging sites. Used only with the ``certification`` submit_to
     value.
-
-transport/secure_id
-    The system's secure_id. If not specified, user will be prompted.
-    (CLI only). For gui, submission/secure_id is used instead.
 
 transport/config_filename
     Name of a custom config file to load. Config files are mainly

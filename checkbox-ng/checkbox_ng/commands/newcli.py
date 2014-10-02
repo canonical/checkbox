@@ -355,6 +355,11 @@ class CliInvocation2(RunInvocation):
                 # should override the one in the config.
                 if self.launcher.submit_url:
                     self.config.c3_url = self.launcher.submit_url
+                # Same behavior for submit_to_hexr (a boolean flag which
+                # should result in adding "submit_to_hexr=1" to transport
+                # options later on)
+                if self.launcher.submit_to_hexr:
+                    self.config.submit_to_hexr = True
                 # for secure_id, config (which is user-writable) should
                 # override launcher (which is not)
                 if not self.config.secure_id:
@@ -435,7 +440,12 @@ class CliInvocation2(RunInvocation):
         # TRANSLATORS: Do not translate the {} format markers.
         print(_("Submitting results to {0} for secure_id {1})").format(
             self.config.c3_url, self.config.secure_id))
-        options_string = "secure_id={0}".format(self.config.secure_id)
+        option_chunks = []
+        option_chunks.append("secure_id={0}".format(self.config.secure_id))
+        if self.config.submit_to_hexr:
+            option_chunks.append("submit_to_hexr=1")
+        # Assemble the option string
+        options_string = ",".join(option_chunks)
         # Create the transport object
         try:
             transport = transport_cls(

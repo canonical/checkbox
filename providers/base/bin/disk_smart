@@ -158,17 +158,19 @@ def get_smart_entries(disk, type='selftest'):
 # output, False if such a message is not found. In the former case,
 # the in-progress message entries are logged.
 def in_progress(current_entries):
-    ret_val = False
-    for entry in current_entries:
-        if not isinstance(entry, str):
-            if entry['status'] == 'Self-test routine in progress':
-                logging.debug('%s %s %s %s' % (entry['number'],
-                                               entry['description'],
-                                               entry['status'],
-                                               entry['remaining']))
-                ret_val = True
-                break
-    return ret_val
+    statuses = [entry for entry in current_entries
+                if isinstance(entry, dict)
+                and 'status' in entry
+                and entry['status'] == 'Self-test routine in progress']
+    if statuses:
+        for entry in statuses:
+            logging.debug('%s %s %s %s' % (entry['number'],
+                                           entry['description'],
+                                           entry['status'],
+                                           entry['remaining']))
+            return True
+    else:
+        return False
 
 
 # Wait for SMART test to complete; no return value.

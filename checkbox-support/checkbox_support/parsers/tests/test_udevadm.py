@@ -332,6 +332,18 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "VIDEO"), 2)
         self.verify_devices(devices, expected_devices)
 
+    def test_DELL_POWEREDGE_R820_NVME(self):
+        devices = self.parse("DELL_POWEREDGE_R820_NVME")
+        expected_devices = [("NetXtreme BCM5720 Gigabit Ethernet PCIe",
+                             "NETWORK", "pci", 0x14E4, 0x165F, 4),
+                            ]
+        self.assertEqual(len(devices), 250)
+        self.assertEqual(self.count(devices, "NETWORK"), 4)
+        self.assertEqual(self.count(devices, "AUDIO"), 0)
+        self.assertEqual(self.count(devices, "VIDEO"), 1)
+        self.assertEqual(self.count(devices, "DISK"), 3)
+        self.verify_devices(devices, expected_devices)
+
     def test_HOME_MADE(self):
         devices = self.parse("HOME_MADE")
         self.assertEqual(len(devices), 72)

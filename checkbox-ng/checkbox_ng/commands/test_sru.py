@@ -45,7 +45,6 @@ class TestSru(TestCase):
                             [--fallback FILE] [--destination URL] [--staging] [-n]
                             [-T TEST-PLAN-ID] [-i PATTERN] [-x PATTERN] [-w WHITELIST]
 
-
         optional arguments:
           -h, --help            show this help message and exit
           --check-config        run check-config before starting
@@ -64,7 +63,7 @@ class TestSru(TestCase):
         execution options:
           -n, --dry-run         don't really run most jobs
 
-        job definition options:
+        test selection options:
           -T TEST-PLAN-ID, --test-plan TEST-PLAN-ID
                                 load the specified test plan
           -i PATTERN, --include-pattern PATTERN

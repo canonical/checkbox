@@ -43,7 +43,7 @@ class TestSru(TestCase):
         expected = """
         usage: checkbox sru [-h] [--check-config] --secure-id SECURE-ID
                             [--fallback FILE] [--destination URL] [--staging] [-n]
-                            [-i PATTERN] [-x PATTERN] [-w WHITELIST]
+                            [-T TEST-PLAN-ID] [-i PATTERN] [-x PATTERN] [-w WHITELIST]
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -63,7 +63,9 @@ class TestSru(TestCase):
         execution options:
           -n, --dry-run         don't really run most jobs
 
-        job definition options:
+        test selection options:
+          -T TEST-PLAN-ID, --test-plan TEST-PLAN-ID
+                                load the specified test plan
           -i PATTERN, --include-pattern PATTERN
                                 include jobs matching the given regular expression
           -x PATTERN, --exclude-pattern PATTERN

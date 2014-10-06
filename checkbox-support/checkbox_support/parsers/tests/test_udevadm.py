@@ -332,6 +332,18 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "VIDEO"), 2)
         self.verify_devices(devices, expected_devices)
 
+    def test_DELL_POWEREDGE_R820_NVME(self):
+        devices = self.parse("DELL_POWEREDGE_R820_NVME")
+        expected_devices = [("NetXtreme BCM5720 Gigabit Ethernet PCIe",
+                             "NETWORK", "pci", 0x14E4, 0x165F, 4),
+                            ]
+        self.assertEqual(len(devices), 250)
+        self.assertEqual(self.count(devices, "NETWORK"), 4)
+        self.assertEqual(self.count(devices, "AUDIO"), 0)
+        self.assertEqual(self.count(devices, "VIDEO"), 1)
+        self.assertEqual(self.count(devices, "DISK"), 3)
+        self.verify_devices(devices, expected_devices)
+
     def test_HOME_MADE(self):
         devices = self.parse("HOME_MADE")
         self.assertEqual(len(devices), 72)
@@ -711,13 +723,15 @@ E: UDEV_LOG=3
 
     def verify_devices(self, devices, expected_device_list):
         """
-        Verify we have exactly one of each device given in the list,
-        and that product name, category, bus, vendor_id and
-        product_id match.
-        The list contains a tuple with product name, category, bus,
-        vendor and product.
-        They look like:
+        Verify we have the expected quantity of each device given in the list,
+        and that product name, category, bus, vendor_id and product_id match.
+        The list contains a tuple with product name, category, bus, vendor and
+        product.
+        They look like (if we want to ensure there's one and only one device
+        with these characteristics):
         [(name, category, bus, vendor_id, product_id)]
+        OR if we want to ensure a system has X identical devices:
+        [(name, category, bus, vendor_id, product_id, quantity)]
         Note that name can be None, in which case we don't need the
         name to match. All other attributes must have a value and match.
         """
@@ -725,7 +739,15 @@ E: UDEV_LOG=3
         # devices and IDs:
         # https://bugs.launchpad.net/checkbox/+bug/1211521
         for device in expected_device_list:
-            # Match by product and vendor ID
+            # If it's a 5-tuple, then quantity to verify is 1.
+            # If it's a 6-tuple, then 6th element is quantity to verify
+            if len(device) == 5:
+                quantity = 1
+            elif len(device) == 6:
+                quantity = device[5]
+
+            # Find indices of devices that match this expected device by
+            # product and vendor ID
             indices = [idx for idx, elem in enumerate(devices)
                        if elem.product_id == device[4] and
                        elem.vendor_id == device[3]]
@@ -734,13 +756,20 @@ E: UDEV_LOG=3
             if device[0] is not None:
                 indices = [idx for idx in indices
                            if devices[idx].product == device[0]]
-            # Now do my validation checks
-            self.assertEqual(len(indices), 1,
+            # Here, devices that matched the one I'm looking for will be
+            # pointed to in indices. These indices refer to the devices
+            # list.
+
+            # Now I can do my validation checks.
+            # Do we have expected number of devices?
+            self.assertEqual(len(indices), quantity,
                              "{} items of {} (id {}:{}) found".format(
                                  len(indices),
                                  device[0],
                                  device[3],
                                  device[4]))
+            # For specific attribute checks, we will use only the first device.
+            # If there were multiple devices found, they are all identical
             if device[0] is not None:
                 self.assertEqual(devices[indices[0]].product, device[0],
                                  "Bad product name for {}".format(device[0]))

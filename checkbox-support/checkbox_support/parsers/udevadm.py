@@ -350,6 +350,12 @@ class UdevadmDevice(object):
                     # A QEMU/KVM virtual disk, but should be treated
                     # as DISK nonetheless
                     return "DISK"
+                if self.driver == 'nvme' and self.bus == 'pci':
+                    # NVMe device in PCIe bus, this should also be
+                    # treated as DISK as it presents block devices
+                    # we need to test, and is a valid disk device
+                    # we need to report.
+                    return "DISK"
             if devtype == "scsi_device":
                 match = SCSI_RE.match(self._environment.get("MODALIAS", ""))
                 type = int(match.group("type"), 16) if match else -1
@@ -657,6 +663,11 @@ class UdevadmParser(object):
         # These can be virtual network interfaces which don't have PCI
         # product/vendor ID, yet still constitute valid ethX interfaces.
         if device.bus == "net" and "ID_NET_NAME_MAC" in device._environment:
+            return False
+        # Do not ignore nvme devices on the pci bus, these are to be treated
+        # as disks (categorization is done elsewhere). Note that the *parent*
+        # device will have no category, though it's not ignored per se.
+        if device.bus == 'pci' and device.driver == 'nvme':
             return False
 
         # Do not ignore QEMU/KVM virtio disks

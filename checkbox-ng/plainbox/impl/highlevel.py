@@ -371,7 +371,8 @@ class Service:
     def get_all_transports(self):
         return [transport for transport in get_all_transports()]
 
-    def send_data_via_transport(self, session, transport, where, options, data):
+    def send_data_via_transport(self, session, transport, where, options,
+                                data):
         transport_cls = get_all_transports().get(transport)
         if transport_cls is None:
             return "No transport with name '{}' was found".format(transport)

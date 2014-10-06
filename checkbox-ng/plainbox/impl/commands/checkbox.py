@@ -104,6 +104,19 @@ class CheckBoxInvocationMixIn:
     def _get_matching_job_list(self, ns, job_list):
         logger.debug("_get_matching_job_list(%r, %r)", ns, job_list)
         qualifier_list = []
+        # Add the test plan
+        if ns.test_plan is not None:
+            # Uh, dodgy, recreate a list of providers from the list of jobs we
+            # know about here. This code needs to be re-factored to use the
+            # upcoming provider store class.
+            for provider in {job.provider for job in job_list}:
+                for unit in provider.get_units()[0]:
+                    if (unit.Meta.name == 'test plan'
+                            and unit.id == ns.test_plan):
+                        qualifier_list.append(unit.get_qualifier())
+                        break
+            else:
+                logger.error(_("There is no test plan: %s"), ns.test_plan)
         # Add whitelists
         for whitelist_file in ns.whitelist:
             qualifier = self.get_whitelist_from_file(

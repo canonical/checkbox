@@ -60,12 +60,14 @@ def mock_whitelist(name, text, filename):
 class MiscTests(TestCase):
 
     def setUp(self):
-        self.job_foo = MockJobDefinition(id='foo')
-        self.job_bar = MockJobDefinition(id='bar')
-        self.job_baz = MockJobDefinition(id='baz')
         self.provider1 = Mock(IProvider1)
-        self.config = Mock(name='config')
+        self.job_foo = MockJobDefinition(id='foo', provider=self.provider1)
+        self.job_bar = MockJobDefinition(id='bar', provider=self.provider1)
+        self.job_baz = MockJobDefinition(id='baz', provider=self.provider1)
         self.provider1.get_builtin_whitelists.return_value = []
+        self.provider1.get_units.return_value = [(self.job_foo, self.job_bar,
+                                                  self.job_baz), []]
+        self.config = Mock(name='config')
         self.provider_list = [self.provider1]
         self.obj = CheckBoxInvocationMixIn(self.provider_list, self.config)
 

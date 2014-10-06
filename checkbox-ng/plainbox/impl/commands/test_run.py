@@ -72,7 +72,7 @@ class TestRun(TestCase):
         usage: plainbox run [-h] [--non-interactive] [-n] [--dont-suppress-output]
                             [-f FORMAT] [-p OPTIONS] [-o FILE] [-t TRANSPORT]
                             [--transport-where WHERE] [--transport-options OPTIONS]
-                            [-i PATTERN] [-x PATTERN] [-w WHITELIST]
+                            [-T TEST-PLAN-ID] [-i PATTERN] [-x PATTERN] [-w WHITELIST]
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -102,7 +102,9 @@ class TestRun(TestCase):
                                 comma-separated list of key-value options (k=v) to be
                                 passed to the transport
 
-        job definition options:
+        test selection options:
+          -T TEST-PLAN-ID, --test-plan TEST-PLAN-ID
+                                load the specified test plan
           -i PATTERN, --include-pattern PATTERN
                                 include jobs matching the given regular expression
           -x PATTERN, --exclude-pattern PATTERN

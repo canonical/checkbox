@@ -60,12 +60,14 @@ def mock_whitelist(name, text, filename):
 class MiscTests(TestCase):
 
     def setUp(self):
-        self.job_foo = MockJobDefinition(id='foo')
-        self.job_bar = MockJobDefinition(id='bar')
-        self.job_baz = MockJobDefinition(id='baz')
         self.provider1 = Mock(IProvider1)
-        self.config = Mock(name='config')
+        self.job_foo = MockJobDefinition(id='foo', provider=self.provider1)
+        self.job_bar = MockJobDefinition(id='bar', provider=self.provider1)
+        self.job_baz = MockJobDefinition(id='baz', provider=self.provider1)
         self.provider1.get_builtin_whitelists.return_value = []
+        self.provider1.get_units.return_value = [(self.job_foo, self.job_bar,
+                                                  self.job_baz), []]
+        self.config = Mock(name='config')
         self.provider_list = [self.provider1]
         self.obj = CheckBoxInvocationMixIn(self.provider_list, self.config)
 
@@ -241,7 +243,8 @@ class TestSpecial(TestCase):
         self.maxDiff = None
         expected = """
         usage: plainbox dev special [-h] (-j | -J | -e | -d) [--dot-resources]
-                                    [-i PATTERN] [-x PATTERN] [-w WHITELIST]
+                                    [-T TEST-PLAN-ID] [-i PATTERN] [-x PATTERN]
+                                    [-w WHITELIST]
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -253,7 +256,9 @@ class TestSpecial(TestCase):
           -d, --dot             print a graph of jobs instead of running them
           --dot-resources       show resource relationships (for --dot)
 
-        job definition options:
+        test selection options:
+          -T TEST-PLAN-ID, --test-plan TEST-PLAN-ID
+                                load the specified test plan
           -i PATTERN, --include-pattern PATTERN
                                 include jobs matching the given regular expression
           -x PATTERN, --exclude-pattern PATTERN
@@ -270,7 +275,8 @@ class TestSpecial(TestCase):
             self.assertEqual(call.exception.args, (2,))
         expected = """
         usage: plainbox dev special [-h] (-j | -J | -e | -d) [--dot-resources]
-                                    [-i PATTERN] [-x PATTERN] [-w WHITELIST]
+                                    [-T TEST-PLAN-ID] [-i PATTERN] [-x PATTERN]
+                                    [-w WHITELIST]
         plainbox dev special: error: one of the arguments -j/--list-jobs -J/--list-job-hashes -e/--list-expressions -d/--dot is required
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")

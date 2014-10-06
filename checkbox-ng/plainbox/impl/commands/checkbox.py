@@ -148,6 +148,13 @@ class CheckBoxCommandMixIn:
         """
         group = parser.add_argument_group(title=_("job definition options"))
         group.add_argument(
+            '-T', '--test-plan',
+            action="store",
+            metavar=_("TEST-PLAN-ID"),
+            default=None,
+            # TRANSLATORS: this is in imperative form
+            help=_("load the specified test plan"))
+        group.add_argument(
             '-i', '--include-pattern', action="append",
             metavar=_('PATTERN'), default=[], dest='include_pattern_list',
             # TRANSLATORS: this is in imperative form

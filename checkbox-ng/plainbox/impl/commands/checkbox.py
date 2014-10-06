@@ -146,7 +146,7 @@ class CheckBoxCommandMixIn:
         """
         Add common options for job selection to an existing parser
         """
-        group = parser.add_argument_group(title=_("job definition options"))
+        group = parser.add_argument_group(title=_("test selection options"))
         group.add_argument(
             '-T', '--test-plan',
             action="store",

@@ -102,7 +102,7 @@ class TestRun(TestCase):
                                 comma-separated list of key-value options (k=v) to be
                                 passed to the transport
 
-        job definition options:
+        test selection options:
           -T TEST-PLAN-ID, --test-plan TEST-PLAN-ID
                                 load the specified test plan
           -i PATTERN, --include-pattern PATTERN

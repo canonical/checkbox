@@ -254,7 +254,7 @@ class TestSpecial(TestCase):
           -d, --dot             print a graph of jobs instead of running them
           --dot-resources       show resource relationships (for --dot)
 
-        job definition options:
+        test selection options:
           -T TEST-PLAN-ID, --test-plan TEST-PLAN-ID
                                 load the specified test plan
           -i PATTERN, --include-pattern PATTERN

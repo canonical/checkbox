@@ -157,7 +157,7 @@ estimated_duration: 30
 category_id: plugin-representative
 
 id: stub/user-interact-verify
-_summary: A simple user verification-interaction job
+_summary: A simple user interaction and verification job
 _description:
  PURPOSE:
      This test checks that the user-interact-verify plugin works fine

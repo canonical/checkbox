@@ -26,7 +26,6 @@ from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
 from io import BytesIO
 import logging
-import os
 
 from plainbox import __version__ as plainbox_version
 from plainbox.impl.applogic import run_job_if_possible
@@ -199,54 +198,8 @@ class Explorer:
                     ('gettext_domain', provider.gettext_domain),
                     ('base_dir', provider.base_dir),
                 )))
-            for job in provider.load_all_jobs()[0]:
-                job_obj = PlainBoxObject(
-                    job,
-                    group="job",
-                    name=job.id,
-                    attrs=OrderedDict((
-                        ('broken_i18n',
-                         job.summary == job.tr_summary()
-                         or job.description == job.tr_description()),
-                        ('id', job.id),
-                        ('partial_id', job.partial_id),
-                        ('summary', job.summary),
-                        ('tr_summary', job.tr_summary()),
-                        ('raw_summary', job.get_raw_record_value('summary')),
-                        ('description', job.description),
-                        ('raw_description',
-                         job.get_raw_record_value('description')),
-                        ('tr_description', job.tr_description()),
-                        ('plugin', job.plugin),
-                        ('command', job.command),
-                        ('user', job.user),
-                        ('environ', job.environ),
-                        ('estimated_duration', job.estimated_duration),
-                        ('depends', job.depends),
-                        ('requires', job.requires),
-                        ('origin', str(job.origin)),
-                    )))
-                provider_obj.children.append(job_obj)
-            for whitelist in provider.get_builtin_whitelists():
-                whitelist_obj = PlainBoxObject(
-                    whitelist,
-                    group="whitelist",
-                    name=whitelist.name,
-                    attrs=OrderedDict((
-                        ('name', whitelist.name),
-                        ('implicit_namespace', whitelist.implicit_namespace),
-                        ('origin', str(whitelist.origin)),
-                    )))
-                provider_obj.children.append(whitelist_obj)
-            for executable in provider.get_all_executables():
-                executable_obj = PlainBoxObject(
-                    executable,
-                    group="executable",
-                    name=os.path.basename(executable),
-                    attrs=OrderedDict((
-                        ('pathname', executable),
-                    )))
-                provider_obj.children.append(executable_obj)
+            for unit in provider.get_units()[0]:
+                provider_obj.children.append(self._unit_to_obj(unit))
             service_obj.children.append(provider_obj)
         # Milk each repository for session storage data
         for repo in self.repository_list:
@@ -266,6 +219,95 @@ class Explorer:
                     )))
                 repo_obj.children.append(storage_obj)
         return service_obj
+
+    def _unit_to_obj(self, unit):
+        if unit.Meta.name == 'test plan':
+            return self._test_plan_to_obj(unit)
+        elif unit.Meta.name == 'job':
+            return self._job_to_obj(unit)
+        elif unit.Meta.name == 'category':
+            return self._category_to_obj(unit)
+        elif unit.Meta.name == 'file':
+            return self._file_to_obj(unit)
+        elif unit.Meta.name == 'template':
+            return self._template_to_obj(unit)
+        else:
+            raise NotImplementedError(unit.Meta.name)
+
+    def _job_to_obj(self, unit):
+        return PlainBoxObject(
+            unit, group=unit.Meta.name, name=unit.id, attrs=OrderedDict((
+                ('broken_i18n',
+                 unit.summary == unit.tr_summary()
+                 or unit.description == unit.tr_description()),
+                ('id', unit.id),
+                ('partial_id', unit.partial_id),
+                ('summary', unit.summary),
+                ('tr_summary', unit.tr_summary()),
+                ('raw_summary', unit.get_raw_record_value('summary')),
+                ('description', unit.description),
+                ('raw_description',
+                 unit.get_raw_record_value('description')),
+                ('tr_description', unit.tr_description()),
+                ('plugin', unit.plugin),
+                ('command', unit.command),
+                ('user', unit.user),
+                ('environ', unit.environ),
+                ('estimated_duration', unit.estimated_duration),
+                ('depends', unit.depends),
+                ('requires', unit.requires),
+                ('origin', str(unit.origin)),
+            )))
+
+    def _test_plan_to_obj(self, unit):
+        return PlainBoxObject(
+            unit, group=unit.Meta.name, name=unit.id, attrs=OrderedDict((
+                ('broken_i18n',
+                 unit.name == unit.tr_name()
+                 or unit.description == unit.tr_description()),
+                ('id', unit.id),
+                ('include', unit.include),
+                ('exclude', unit.exclude),
+                ('name', unit.name),
+                ('tr_name', unit.tr_name()),
+                ('description', unit.description),
+                ('tr_description', unit.tr_description()),
+                ('estimated_duration', unit.estimated_duration),
+                ('icon', unit.icon),
+                ('category_overrides', unit.category_overrides),
+                ('virtual', unit.virtual),
+                ('origin', str(unit.origin)),
+            )))
+
+    def _category_to_obj(self, unit):
+        return PlainBoxObject(
+            unit, group=unit.Meta.name, name=unit.id, attrs=OrderedDict((
+                ('broken_i18n', unit.name == unit.tr_name()),
+                ('id', unit.id),
+                ('name', unit.name),
+                ('tr_name', unit.tr_name()),
+                ('origin', str(unit.origin)),
+            )))
+
+    def _file_to_obj(self, unit):
+        return PlainBoxObject(
+            unit, group=unit.Meta.name, name=unit.path, attrs=OrderedDict((
+                ('path', unit.path),
+                ('role', str(unit.role)),
+                ('origin', str(unit.origin)),
+            )))
+
+    def _template_to_obj(self, unit):
+        return PlainBoxObject(
+            unit, group=unit.Meta.name, name=unit.id, attrs=OrderedDict((
+                ('id', unit.id),
+                ('partial_id', unit.partial_id),
+                ('template_unit', unit.template_unit),
+                ('template_resource', unit.template_resource),
+                ('template_filter', unit.template_filter),
+                ('template_imports', unit.template_imports),
+                ('origin', str(unit.origin)),
+            )))
 
 
 class Service:
@@ -329,7 +371,8 @@ class Service:
     def get_all_transports(self):
         return [transport for transport in get_all_transports()]
 
-    def send_data_via_transport(self, session, transport, where, options, data):
+    def send_data_via_transport(self, session, transport, where, options,
+                                data):
         transport_cls = get_all_transports().get(transport)
         if transport_cls is None:
             return "No transport with name '{}' was found".format(transport)

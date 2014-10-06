@@ -34,6 +34,7 @@ import io
 import itertools
 import os
 import sys
+import time
 
 from plainbox.abc import IJobResult
 from plainbox.abc import IJobRunnerUI
@@ -717,7 +718,10 @@ class RunInvocation(CheckBoxInvocationMixIn):
                     self.run_single_job(job)
 
     def run_single_job(self, job):
+        job_start_time = time.time()
         self.run_single_job_with_ui(job, self.get_ui_for_job(job))
+        job_state = self.state.job_state_map[job.id]
+        job_state.result.execution_duration = time.time() - job_start_time
 
     def get_ui_for_job(self, job):
         if self.ns.dont_suppress_output is False and job.plugin in (

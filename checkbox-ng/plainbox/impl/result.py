@@ -146,10 +146,13 @@ class _JobResultBase(IJobResult):
     @property
     def execution_duration(self):
         """
-        The amount of time in seconds it took to run this
-        jobs command.
+        The amount of time in seconds it took to run this job.
         """
         return self._data.get('execution_duration')
+
+    @execution_duration.setter
+    def execution_duration(self, elapsed):
+        self._data['execution_duration'] = elapsed
 
     @property
     def comments(self):

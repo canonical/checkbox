@@ -317,7 +317,7 @@ def main():
             args.resume_time = 3
         tests.extend(args.sleep)
     else:
-        tests.extend(TESTS)
+        tests.extend(CERT_TESTS)
 
     # run the tests we want
     if args.sleep:

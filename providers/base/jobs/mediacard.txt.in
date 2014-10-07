@@ -20,7 +20,7 @@ id: mediacard/mmc-storage
 estimated_duration: 30.0
 depends: mediacard/mmc-insert
 user: root
-command: removable_storage_test -s 67120000 --memorycard sdio usb scsi
+command: removable_storage_test -s 67120000 --memorycard sdio usb scsi --auto-reduce-size
 _description:
  This test is automated and executes after the mediacard/mmc-insert
  test is run. It tests reading and writing to the MMC card.

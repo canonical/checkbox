@@ -427,6 +427,11 @@ def main():
                               "You may use SI or IEC suffixes like: 'K', 'M',"
                               "'G', 'T', 'Ki', 'Mi', 'Gi', 'Ti', etc. Default"
                               " is %(default)s"))
+    parser.add_argument('--auto-reduce-size',
+                        action='store_true',
+                        default=False,
+                        help=("Automatically reduce size to fit in the target"
+                              "filesystem. Reducing until fits in 1MiB"))
     parser.add_argument('-n', '--skip-not-mount',
                         action='store_true',
                         default=False,
@@ -521,9 +526,29 @@ def main():
                                   >= int(args.min_speed)}
                 write_sizes = []
                 test_files = {}
+                disks_freespace = {}
+                for disk, path in disks_eligible.items():
+                    stat = os.statvfs(path)
+                    disks_freespace[disk] = stat.f_bfree * stat.f_bsize
+                smallest_freespace = min(disks_freespace.values())
+                desired_size = args.size
+                if desired_size > smallest_freespace:
+                    if args.auto_reduce_size:
+                        min_space = HumanReadableBytes("1MiB")
+                        if smallest_freespace < min_space:
+                            raise IOError("Not enough space. {} is required"
+                                          .format(min_space))
+                        new_size = HumanReadableBytes(int(0.8 * smallest_freespace))
+                        logging.warning("Automatically reducing test data size"
+                                        ". {} requested. Reducing to {}."
+                                        .format(desired_size, new_size))
+                        desired_size = new_size
+                    else:
+                        raise IOError("Not enough space. {} is required"
+                                      .format(desired_size))
                 # Generate our data file(s)
                 for count in range(args.count):
-                    test_files[count] = RandomData(args.size)
+                    test_files[count] = RandomData(desired_size)
                     write_sizes.append(os.path.getsize(
                         test_files[count].tfile.name))
                     total_write_size = sum(write_sizes)

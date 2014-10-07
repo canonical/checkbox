@@ -22,6 +22,7 @@ from checkbox_support.dbus.udisks2 import is_udisks2_supported
 from checkbox_support.dbus.udisks2 import lookup_udev_device
 from checkbox_support.dbus.udisks2 import map_udisks1_connection_bus
 from checkbox_support.heuristics.udisks2 import is_memory_card
+from checkbox_support.helpers.human_readable_bytes import HumanReadableBytes
 from checkbox_support.parsers.udevadm import CARD_READER_RE
 from checkbox_support.parsers.udevadm import GENERIC_RE
 from checkbox_support.parsers.udevadm import FLASH_RE
@@ -420,10 +421,12 @@ def main():
                         help='The number of random data files to generate')
     parser.add_argument('-s', '--size',
                         action='store',
-                        type=int,
-                        default=1048576,
-                        help=("The size of the test data file to use "
-                              "in Bytes. Default is %(default)s"))
+                        type=HumanReadableBytes,
+                        default='1MiB',
+                        help=("The size of the test data file to use. "
+                              "You may use SI or IEC suffixes like: 'K', 'M',"
+                              "'G', 'T', 'Ki', 'Mi', 'Gi', 'Ti', etc. Default"
+                              " is %(default)s"))
     parser.add_argument('-n', '--skip-not-mount',
                         action='store_true',
                         default=False,

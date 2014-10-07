@@ -27,6 +27,7 @@ import sys
 from math import log, copysign
 from subprocess import check_output, PIPE
 
+from checkbox_support.helpers.human_readable_bytes import HumanReadableBytes
 from checkbox_support.parsers.lshwjson import LshwJsonParser
 from checkbox_support.parsers.meminfo import MeminfoParser
 
@@ -82,51 +83,23 @@ def get_threshold(installed_memory):
         return 10
 
 
-def bytes_to_human(my_bytes):
-    """ Convert my_bytes to a scaled representation with a
-    suffix
-    """
-    if my_bytes == 0:
-        return "0 bytes"
-
-    suffixes = ["bytes", "KiB", "MiB", "GiB", "TiB",
-                "PiB", "EiB", "ZiB", "YiB"]
-
-    try:
-        sign = copysign(1, my_bytes)
-    except OverflowError as excp:
-        return "(Number too large: {})".format(excp)
-    my_bytes = abs(my_bytes)
-    # my_bytes' base-1024 logarithm.
-    exponent = log(my_bytes, 1024)
-    try:
-        suffix = suffixes[int(exponent)]
-    except IndexError:
-        return "(Number too large)"
-    scalar = my_bytes / (1024**int(exponent))
-
-    return "{:.2f} {}".format(sign * scalar, suffix)
-
-
 def main():
     if os.geteuid() != 0:
         print("This script must be run as root.", file=sys.stderr)
         return 1
 
-    installed_memory = get_installed_memory_size()
-    visible_memory = get_visible_memory_size()
+    installed_memory = HumanReadableBytes(get_installed_memory_size())
+    visible_memory = HumanReadableBytes(get_visible_memory_size())
     threshold = get_threshold(installed_memory)
 
-    difference = installed_memory - visible_memory
+    difference = HumanReadableBytes(installed_memory - visible_memory)
     try:
         percentage = difference / installed_memory * 100
     except ZeroDivisionError:
         print("Results:")
-        print("\t/proc/meminfo reports:\t{}".format(
-              bytes_to_human(visible_memory)),
+        print("\t/proc/meminfo reports:\t{}".format(visible_memory),
               file=sys.stderr)
-        print("\tlshw reports:\t{}".format(
-              bytes_to_human(installed_memory)),
+        print("\tlshw reports:\t{}".format(installed_memory),
               file=sys.stderr)
         print("\nFAIL: Either lshw or /proc/meminfo returned a memory size "
               "of 0 kB", file=sys.stderr)
@@ -134,22 +107,18 @@ def main():
 
     if percentage <= threshold:
         print("Results:")
-        print("\t/proc/meminfo reports:\t{}".format(
-              bytes_to_human(visible_memory)))
-        print("\tlshw reports:\t{}".format(bytes_to_human(installed_memory)))
+        print("\t/proc/meminfo reports:\t{}".format(visible_memory))
+        print("\tlshw reports:\t{}".format(installed_memory))
         print("\nPASS: Meminfo reports %s less than lshw, a "
               "difference of %.2f%%. This is less than the "
-              "%d%% variance allowed." % (bytes_to_human(difference),
-                                          percentage, threshold))
+              "%d%% variance allowed." % (difference, percentage, threshold))
         return 0
     else:
         print("Results:", file=sys.stderr)
-        print("\t/proc/meminfo reports:\t{}".format(
-              bytes_to_human(visible_memory)),
+        print("\t/proc/meminfo reports:\t{}".format(visible_memory),
               file=sys.stderr)
-        print("\tlshw reports:\t{}".format(bytes_to_human(installed_memory)),
-              file=sys.stderr)
-        print("\nFAIL: Meminfo reports %d bytes less than lshw, "
+        print("\tlshw reports:\t{}".format(installed_memory), file=sys.stderr)
+        print("\nFAIL: Meminfo reports %d less than lshw, "
               "a difference of %.2f%%. Only a variance of %d%% in "
               "reported memory is allowed." %
               (difference, percentage, threshold), file=sys.stderr)

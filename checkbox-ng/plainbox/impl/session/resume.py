@@ -247,11 +247,13 @@ class ResumeDiscardQualifier(SimpleQualifier):
     after doing a session resume.
     """
 
-    def __init__(self, jobs_repr):
+    def __init__(self, jobs_repr, desired_job_list_repr):
         super().__init__(Origin.get_caller_origin())
         # Set of ids of jobs to retain (computed as keys of the
         # dictionary taken from the session resume representation)
-        self._retain_id_set = frozenset(jobs_repr)
+        self._retain_id_set = (
+            frozenset(jobs_repr)
+            | frozenset(desired_job_list_repr))
 
     def get_simple_match(self, job):
         return job.id not in self._retain_id_set
@@ -607,10 +609,13 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
         go wrong must have gone wrong before.
         """
 
-        # Representation of all of the job definitions
+        # Representation of all of the important job definitions
         jobs_repr = _validate(session_repr, key='jobs', value_type=dict)
+        # Representation of all the desired job definitions
+        desired_job_list_repr = _validate(
+            session_repr, key='desired_job_list', value_type=list)
         # Qualifier ready to select jobs to remove
-        qualifier = ResumeDiscardQualifier(jobs_repr)
+        qualifier = ResumeDiscardQualifier(jobs_repr, desired_job_list_repr)
         # NOTE: this should never raise ValueError (which signals that we
         # tried to remove a job which is in the run list) because it should
         # only remove jobs that were not in the representation and any job in

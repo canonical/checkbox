@@ -294,6 +294,8 @@ man_pages = [
      'log messages at various levels', _authors, 1),
     ('manpages/plainbox-dev-list', 'plainbox-dev-list',
      'list and describe various objects', _authors, 1),
+    ('manpages/plainbox-device', 'plainbox-device',
+     'device management commands', _authors, 1),
     # Section 5
     ('manpages/plainbox.conf', 'plainbox.conf',
      'plainbox configuration file', _authors, 5),

@@ -77,6 +77,8 @@ Serialization format versions
    :attr:`plainbox.impl.session.state.SessionMetaData.app_blob`
 3) Same as '2' but suspends
    :attr:`plainbox.impl.session.state.SessionMetaData.app_id`
+4) Same as '3' but hollow results are not saved and jobs that only
+   have hollow results are not mentioned in the job -> checksum map.
 """
 
 import gzip
@@ -433,6 +435,72 @@ class SessionSuspendHelper3(SessionSuspendHelper2):
         data = super(SessionSuspendHelper3, self)._repr_SessionMetaData(obj)
         data['app_id'] = obj.app_id
         return data
+
+
+class SessionSuspendHelper4(SessionSuspendHelper3):
+    """
+    Helper class for computing binary representation of a session.
+
+    The helper only creates a bytes object to save. Actual saving should
+    be performed using some other means, preferably using
+    :class:`~plainbox.impl.session.storage.SessionStorage`.
+
+    This class creates version '4' snapshots.
+    """
+
+    VERSION = 4
+
+    def _repr_SessionState(self, obj):
+        """
+        Compute the representation of :class:`SessionState`
+
+        :returns:
+            JSON-friendly representation
+        :rtype:
+            dict
+
+        The result is a dictionary with the following items:
+
+            ``jobs``:
+                Dictionary mapping job id to job checksum.
+                The checksum is computed with
+                :attr:`~plainbox.impl.job.JobDefinition.checksum`.
+                Only jobs that actually have a result are mentioned here.
+                The automatically generated "None" result that is always
+                present for every job is skipped.
+
+            ``results``
+                Dictionary mapping job id to a list of results.
+                Each result is represented by data computed by
+                :meth:`_repr_JobResult()`. Only jobs that actually have
+                a result are mentioned here. The automatically generated
+                "None" result that is always present for every job is skipped.
+
+            ``desired_job_list``:
+                List of (ids) of jobs that are desired (to be executed)
+
+            ``metadata``:
+                The representation of meta-data associated with the session
+                state object.
+        """
+        return {
+            "jobs": {
+                state.job.id: state.job.checksum
+                for state in obj.job_state_map.values()
+                if not state.result.is_hollow
+            },
+            "results": {
+                # Currently we store only one result but we may store
+                # more than that in a later version.
+                state.job.id: [self._repr_JobResult(state.result)]
+                for state in obj.job_state_map.values()
+                if not state.result.is_hollow
+            },
+            "desired_job_list": [
+                job.id for job in obj.desired_job_list
+            ],
+            "metadata": self._repr_SessionMetaData(obj.metadata),
+        }
 
 
 # Alias for the most recent version

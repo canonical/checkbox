@@ -65,8 +65,9 @@ import sys
 import time
 import logging
 import io
+import shlex
 
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, check_call, check_output, CalledProcessError
 from argparse import ArgumentParser
 
 
@@ -93,9 +94,11 @@ class ListHandler(logging.StreamHandler):
 def enable_smart(disk):
     logging.debug('SMART disabled; attempting to enable it.')
     command = 'smartctl -s on %s' % disk
-    run_command = Popen(command, stdout=PIPE, shell=True)
-    run_command.communicate()[0]
-    return (run_command.returncode == 0)
+    try:
+        check_call(shlex.split(command))
+        return True
+    except CalledProcessError as err:
+        return False
 
 
 # Returns True if SMART is enabled. If not enabled, attempt to
@@ -110,6 +113,9 @@ def is_smart_enabled(disk):
     logging.debug('SMART Info for disk %s', disk)
     logging.debug(diskinfo)
 
+    # Return True if the output (diskinfo) includes BOTH
+    # "SMART support is.*Available" AND "SMART support is.*Enabled".
+    # If SMART is available but not enabled, try to enable it.
     if len(diskinfo) > 2:
         if any("SMART support is" in s and "Available" in s
                for s in diskinfo):

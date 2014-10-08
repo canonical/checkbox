@@ -731,6 +731,25 @@ class SessionResumeHelper3(MetaDataHelper3MixIn, SessionResumeHelper2):
     """
 
 
+class SessionResumeHelper4(SessionResumeHelper3):
+    """
+    Helper class for implementing session resume feature
+
+    This class works with data constructed by
+    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper4` which has
+    been pre-processed by :class:`SessionResumeHelper` (to strip the initial
+    envelope).
+
+    Due to the constraints of what can be represented in a suspended session,
+    this class cannot work in isolation. It must operate with a list of know
+    jobs.
+
+    Since (most of the) jobs are being provided externally (as they represent
+    the non-serialized parts of checkbox or other job providers) several
+    failure modes are possible. Those are documented in :meth:`resume()`
+    """
+
+
 def _validate(obj, **flags):
     """
     Multi-purpose extraction and validation function.

@@ -201,9 +201,8 @@ class JobState:
         """
         self._job = job
         self._readiness_inhibitor_list = [UndesiredJobReadinessInhibitor]
-        self._result = MemoryJobResult({
-            'outcome': IJobResult.OUTCOME_NONE
-        })
+        self._result = MemoryJobResult({})
+        assert self._result.is_hollow
 
     def __repr__(self):
         fmt = ("<{} job:{!r} readiness_inhibitor_list:{!r} result:{!r}>")

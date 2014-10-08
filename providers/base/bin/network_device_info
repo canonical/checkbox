@@ -200,8 +200,10 @@ def match_counts(nm_devices, udev_devices, devtype):
         if udev.category == udevtype]
     if len(nm_type_devices) != len(udev_type_devices):
         print("ERROR: devices missing - udev showed %d %s devices, but "
-              "NetworkManager saw %d devices in %s" % (len(udev_type_devices), 
-              udevtype, len(nm_type_devices), devtype), file=sys.stderr)
+              "NetworkManager saw %d devices in %s" %
+              (len(udev_type_devices), udevtype,
+               len(nm_type_devices), devtype),
+              file=sys.stderr)
         return False
     else:
         return True
@@ -253,7 +255,7 @@ def main(args):
 
     if not match_counts(nm_devices, udev_devices, "WiFi"):
         return 1
-    elif not match_counts(nm_devices, udev_devices, ("Ethernet","Modem")):
+    elif not match_counts(nm_devices, udev_devices, ("Ethernet", "Modem")):
         return 1
     else:
         return 0

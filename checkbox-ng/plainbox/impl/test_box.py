@@ -191,9 +191,10 @@ class TestMain(TestCase):
         usage: plainbox [--help] [--version] | [options] <command> ...
 
         positional arguments:
-          {run,session,self-test,check-config,dev,startprovider}
+          {run,session,device,self-test,check-config,dev,startprovider}
             run                 run a test job
             session             session management commands
+            device              device management commands
             self-test           run unit and integration tests
             check-config        check and display plainbox configuration
             dev                 development commands

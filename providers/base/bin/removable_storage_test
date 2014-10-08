@@ -652,6 +652,12 @@ def main():
                             print("\t\tDevice Detected: SuperSpeed USB")
                             print("\t\tDriver Detected: xhci_hcd")
                         else:
+                            # Give it a hint for the detection failure.
+                            # LP: #1362902
+                            print("No SuperSpeed USB using xhci_hcd \
+                                   was detected correctly.")
+                            print("Hint: please use dmesg to check \
+                                   the system status again.")
                             return 1
                     # Pass is not assured
                     if (not args.pass_speed or

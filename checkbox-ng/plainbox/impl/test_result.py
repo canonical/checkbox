@@ -52,6 +52,7 @@ class DiskJobResultTests(TestCase):
         self.assertIsNone(result.comments)
         self.assertEqual(result.io_log, ())
         self.assertIsNone(result.return_code)
+        self.assertTrue(result.is_hollow)
 
     def test_everything(self):
         result = DiskJobResult({
@@ -73,6 +74,7 @@ class DiskJobResultTests(TestCase):
         self.assertEqual(result.comments, "it said blah")
         self.assertEqual(result.io_log, ((0, 'stdout', b'blah\n'),))
         self.assertEqual(result.return_code, 0)
+        self.assertFalse(result.is_hollow)
 
 
 class MemoryJobResultTests(TestCase):
@@ -85,6 +87,7 @@ class MemoryJobResultTests(TestCase):
         self.assertIsNone(result.comments)
         self.assertEqual(result.io_log, ())
         self.assertIsNone(result.return_code)
+        self.assertTrue(result.is_hollow)
 
     def test_everything(self):
         result = MemoryJobResult({
@@ -102,6 +105,7 @@ class MemoryJobResultTests(TestCase):
         self.assertEqual(result.comments, "it said blah")
         self.assertEqual(result.io_log, ((0, 'stdout', b'blah\n'),))
         self.assertEqual(result.return_code, 0)
+        self.assertFalse(result.is_hollow)
 
 
 class IOLogRecordWriterTests(TestCase):

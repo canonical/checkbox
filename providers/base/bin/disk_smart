@@ -35,6 +35,10 @@ USB/eSATA/eSAS attached storage devices.
 
 Changelog:
 
+v1.3: Fix detection of SMART availability & activate SMART if available
+      but deactivated. Also use smartctl return value rather than string-
+      matching to determine if a test has failed; this should be more
+      robust, as output strings vary between disks.
 v1.2: Handle multiple output formats for "smartctl -l"
 v1.1: Put delay before first attempt to acces log, rather than after
 v1.0: added debugger class and code to allow for verbose debug output if needed
@@ -60,6 +64,7 @@ import os
 import sys
 import time
 import logging
+import io
 
 from subprocess import Popen, PIPE
 from argparse import ArgumentParser
@@ -84,6 +89,17 @@ class ListHandler(logging.StreamHandler):
             logging.StreamHandler.emit(self, record)
 
 
+# Enable SMART; returns True if successful, False if not
+def enable_smart(disk):
+    logging.debug('SMART disabled; attempting to enable it.')
+    command = 'smartctl -s on %s' % disk
+    run_command = Popen(command, stdout=PIPE, shell=True)
+    run_command.communicate()[0]
+    return (run_command.returncode == 0)
+
+
+# Returns True if SMART is enabled. If not enabled, attempt to
+# enable it and return result of that attempt.
 def is_smart_enabled(disk):
     # Check with smartctl to see if SMART is available and enabled on the disk
     command = 'smartctl -i %s' % disk
@@ -94,9 +110,16 @@ def is_smart_enabled(disk):
     logging.debug('SMART Info for disk %s', disk)
     logging.debug(diskinfo)
 
-    return (len(diskinfo) > 2
-            and 'Enabled' in diskinfo[-2]
-            and 'Available' in diskinfo[-3])
+    if len(diskinfo) > 2:
+        if any("SMART support is" in s and "Available" in s
+               for s in diskinfo):
+            if any("SMART support is" in s and "Enabled" in s
+                   for s in diskinfo):
+                return True
+            else:
+                return enable_smart(disk)
+    else:
+        return False
 
 
 def run_smart_test(disk, type='short'):
@@ -115,19 +138,22 @@ def run_smart_test(disk, type='short'):
 def get_smart_entries(disk, type='selftest'):
     entries = []
     command = 'smartctl -l %s %s' % (type, disk)
-    stdout = Popen(command, stdout=PIPE, shell=True).stdout
+    smartout = Popen(command, stdout=PIPE, stderr=PIPE, shell=True,
+                     universal_newlines=True)
+    stdout = smartout.communicate()[0]
 
     # Skip intro lines
-    while True:
-        line = stdout.readline().decode()
+    stdout_lines = io.StringIO(stdout)
+    for line in stdout_lines:
         if not line:
             raise Exception('Failed to parse SMART log entries')
 
-        if line.startswith('SMART'):
+        if (line.startswith('SMART') or
+                line.startswith('No self-tests have been logged')):
             break
 
     # Get lengths from header
-    line = stdout.readline().decode()
+    line = stdout_lines.readline()
     if not line.startswith('Num'):
         entries.append('No entries found in log yet')
         return entries
@@ -139,8 +165,7 @@ def get_smart_entries(disk, type='selftest'):
 
     # Get remaining lines
     entries = []
-    for line_bytes in stdout.readlines():
-        line = line_bytes.decode()
+    for line in stdout_lines:
         if line.startswith('#'):
             entry = {}
             for i, column in enumerate(columns):
@@ -148,10 +173,9 @@ def get_smart_entries(disk, type='selftest'):
 
             # Convert some columns to integers
             entry['number'] = int(entry['number'][1:])
-            entry['lifetime'] = int(entry['lifetime'])
             entries.append(entry)
 
-    return entries
+    return entries, smartout.returncode
 
 
 # Returns True if an "in-progress" message is found in the smartctl
@@ -161,7 +185,8 @@ def in_progress(current_entries):
     statuses = [entry for entry in current_entries
                 if isinstance(entry, dict)
                 and 'status' in entry
-                and entry['status'] == 'Self-test routine in progress']
+                and (entry['status'] == 'Self-test routine in progress'
+                     or "Self test in progress" in entry['status'])]
     if statuses:
         for entry in statuses:
             logging.debug('%s %s %s %s' % (entry['number'],
@@ -173,7 +198,7 @@ def in_progress(current_entries):
         return False
 
 
-# Wait for SMART test to complete; no return value.
+# Wait for SMART test to complete; return status and return code.
 # Note that different disks return different types of values.
 # Some return no status reports while a test is ongoing; others
 # show a status line at the START of the list of tests, and
@@ -189,7 +214,7 @@ def poll_for_status(args, disk, previous_entries):
         # Poll every sleep seconds until test is complete$
         time.sleep(args.sleep)
 
-        current_entries = get_smart_entries(disk)
+        current_entries, returncode = get_smart_entries(disk)
         if current_entries != previous_entries:
             if not in_progress(current_entries):
                 keep_going = False
@@ -202,9 +227,9 @@ def poll_for_status(args, disk, previous_entries):
                 args.timeout -= args.sleep
 
     if isinstance(current_entries[0], str):
-        return current_entries[0]
+        return current_entries[0], returncode
     else:
-        return current_entries[0]['status']
+        return current_entries[0]['status'], returncode
 
 
 def main():
@@ -253,7 +278,7 @@ def main():
         return 0
 
     # Initiate a self test and start polling until the test is done
-    previous_entries = get_smart_entries(disk)
+    previous_entries, returncode = get_smart_entries(disk)
     logging.info("Starting SMART self-test on %s" % disk)
     if run_smart_test(disk) != 0:
         logging.error("Error reported during smartctl test")
@@ -263,15 +288,16 @@ def main():
         # Abort the previous instance
         # so that polling can identify the difference
         run_smart_test(disk)
-        previous_entries = get_smart_entries(disk)
+        previous_entries, returncode = get_smart_entries(disk)
 
-    status = poll_for_status(args, disk, previous_entries)
+    status, returncode = poll_for_status(args, disk, previous_entries)
 
-    if status != 'Completed without error':
-        log = get_smart_entries(disk)
+    if returncode != 0:
+        log, returncode = get_smart_entries(disk)
         logging.error("FAIL: SMART Self-Test appears to have failed for some reason. "
                       "Run 'sudo smartctl -l selftest %s' to see the SMART log" % disk)
-        logging.debug("Last self-test run status: %s" % status)
+        logging.debug("Last smartctl return code: %d" % returncode)
+        logging.debug("Last smartctl run status: %s" % status)
         return 1
     else:
         logging.info("PASS: SMART Self-Test completed without error")

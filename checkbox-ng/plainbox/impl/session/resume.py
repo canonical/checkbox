@@ -160,6 +160,8 @@ class SessionPeekHelper(EnvelopeUnpackMixIn):
             return SessionPeekHelper2().peek_json(json_repr)
         elif version == 3:
             return SessionPeekHelper3().peek_json(json_repr)
+        elif version == 4:
+            return SessionPeekHelper4().peek_json(json_repr)
         else:
             raise IncompatibleSessionError(
                 _("Unsupported version {}").format(version))

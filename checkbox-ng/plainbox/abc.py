@@ -264,6 +264,20 @@ class IJobResult(metaclass=ABCMeta):
             bytes object that was obtained from that stream.
         """
 
+    @abstractproperty
+    def is_hollow(self):
+        """
+        flag that indicates if the result is hollow
+
+        Hollow results may have been created but hold no data at all.
+        Hollow results are also tentatively deprecated, once we have some
+        time to re-factor SessionState and specifically the job_state_map
+        code we will remove the need to have hollow results.
+
+        Hollow results are not saved, beginning with
+        :class:`plainbox.impl.session.suspend.SessionSuspendHelper4`.
+        """
+
 
 class IJobQualifier(metaclass=ABCMeta):
     """

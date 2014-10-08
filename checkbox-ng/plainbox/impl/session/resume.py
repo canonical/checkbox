@@ -236,6 +236,9 @@ class SessionResumeHelper(EnvelopeUnpackMixIn):
         elif version == 3:
             return SessionResumeHelper3(
                 self.job_list).resume_json(json_repr, early_cb)
+        elif version == 4:
+            return SessionResumeHelper4(
+                self.job_list).resume_json(json_repr, early_cb)
         else:
             raise IncompatibleSessionError(
                 _("Unsupported version {}").format(version))

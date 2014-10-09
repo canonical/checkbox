@@ -168,6 +168,23 @@ class _JobResultBase(IJobResult):
             self._data['comments'] = new
             self.on_comments_changed(old, new)
 
+    def append_comments(self, comments):
+        """
+        Append new comments to the result
+
+        :param comments:
+            The comments to append
+
+        This method simplifies appending comments to an existing result.
+        Since initally there are no comments (None is returned) this makes
+        all the code that has to halde updates a little tedious. Using this
+        method, in contrast, is always easy.
+        """
+        if self.comments is None:
+            self.comments = comments
+        else:
+            self.comments = self.comments + '\n' + comments
+
     @Signal.define
     def on_comments_changed(self, old, new):
         """

@@ -36,7 +36,20 @@ from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.testing_utils import make_io_log
 
 
-class DiskJobResultTests(TestCase):
+class CommonTestsMixIn:
+
+    def test_append_comments(self):
+        result = self.result_cls({})
+        self.assertIsNone(result.comments)
+        result.append_comments("first")
+        self.assertEqual(result.comments, "first")
+        result.append_comments("second")
+        self.assertEqual(result.comments, "first\nsecond")
+
+
+class DiskJobResultTests(TestCase, CommonTestsMixIn):
+
+    result_cls = DiskJobResult
 
     def setUp(self):
         self.scratch_dir = TemporaryDirectory()
@@ -75,7 +88,9 @@ class DiskJobResultTests(TestCase):
         self.assertEqual(result.return_code, 0)
 
 
-class MemoryJobResultTests(TestCase):
+class MemoryJobResultTests(TestCase, CommonTestsMixIn):
+
+    result_cls = MemoryJobResult
 
     def test_smoke(self):
         result = MemoryJobResult({})

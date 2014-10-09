@@ -64,10 +64,10 @@ import os
 import sys
 import time
 import logging
-import io
 import shlex
 
-from subprocess import Popen, PIPE, check_call, check_output, CalledProcessError
+from subprocess import Popen, PIPE, check_call, check_output
+from subprocess import CalledProcessError
 from argparse import ArgumentParser
 
 
@@ -90,14 +90,19 @@ class ListHandler(logging.StreamHandler):
             logging.StreamHandler.emit(self, record)
 
 
-# Enable SMART; returns True if successful, False if not
 def enable_smart(disk):
+    """ Enable SMART on the specified disk
+    :param disk:
+        disk device filename (e.g., /dev/sda)
+    :returns:
+        True if enabling smart was successful, False otherwise
+    """
     logging.debug('SMART disabled; attempting to enable it.')
     command = 'smartctl -s on %s' % disk
     try:
         check_call(shlex.split(command))
         return True
-    except CalledProcessError as err:
+    except CalledProcessError:
         return False
 
 
@@ -143,23 +148,23 @@ def run_smart_test(disk, type='short'):
 
 def get_smart_entries(disk, type='selftest'):
     entries = []
-    command = 'smartctl -l %s %s' % (type, disk)
-    smartout = Popen(command, stdout=PIPE, stderr=PIPE, shell=True,
-                     universal_newlines=True)
-    stdout = smartout.communicate()[0]
+    try:
+        stdout = check_output(['smartctl', '-l', type, disk],
+                              universal_newlines=True)
+        returncode = 0
+    except CalledProcessError as err:
+        stdout = err.output
+        returncode = err.returncode
 
     # Skip intro lines
-    stdout_lines = io.StringIO(stdout)
+    stdout_lines = iter(stdout.splitlines())
     for line in stdout_lines:
-        if not line:
-            raise Exception('Failed to parse SMART log entries')
-
         if (line.startswith('SMART') or
                 line.startswith('No self-tests have been logged')):
             break
 
     # Get lengths from header
-    line = stdout_lines.readline()
+    line = next(stdout_lines)
     if not line.startswith('Num'):
         entries.append('No entries found in log yet')
         return entries
@@ -181,7 +186,7 @@ def get_smart_entries(disk, type='selftest'):
             entry['number'] = int(entry['number'][1:])
             entries.append(entry)
 
-    return entries, smartout.returncode
+    return entries, returncode
 
 
 # Returns True if an "in-progress" message is found in the smartctl
@@ -212,7 +217,7 @@ def in_progress(current_entries):
 # (and then move it to the top once the tests are done).
 def poll_for_status(args, disk, previous_entries):
     # Priming read... this is here in case our test is finished or fails
-    # immediate after it begins.
+    # immediate after it beginsAccording to.
     logging.debug('Polling selftest.log for status')
     keep_going = True
 
@@ -285,7 +290,7 @@ def main():
 
     # Initiate a self test and start polling until the test is done
     previous_entries, returncode = get_smart_entries(disk)
-    logging.info("Starting SMART self-test on %s" % disk)
+    logging.info("Starting SMART self-test on %s", disk)
     if run_smart_test(disk) != 0:
         logging.error("Error reported during smartctl test")
         return 1
@@ -301,9 +306,10 @@ def main():
     if returncode != 0:
         log, returncode = get_smart_entries(disk)
         logging.error("FAIL: SMART Self-Test appears to have failed for some reason. "
-                      "Run 'sudo smartctl -l selftest %s' to see the SMART log" % disk)
-        logging.debug("Last smartctl return code: %d" % returncode)
-        logging.debug("Last smartctl run status: %s" % status)
+                      "Run 'sudo smartctl -l selftest %s' to see the SMART log",
+                      disk)
+        logging.debug("Last smartctl return code: %d", returncode)
+        logging.debug("Last smartctl run status: %s", status)
         return 1
     else:
         logging.info("PASS: SMART Self-Test completed without error")

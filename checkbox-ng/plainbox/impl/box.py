@@ -35,6 +35,7 @@ from plainbox.impl.applogic import PlainBoxConfig
 from plainbox.impl.commands import PlainBoxToolBase
 from plainbox.impl.commands.check_config import CheckConfigCommand
 from plainbox.impl.commands.dev import DevCommand
+from plainbox.impl.commands.cmd_device import DeviceCommand
 from plainbox.impl.commands.run import RunCommand
 from plainbox.impl.commands.selftest import PlainboxSelfTestCommand
 from plainbox.impl.commands.session import SessionCommand
@@ -82,6 +83,7 @@ class PlainBoxTool(PlainBoxToolBase):
         RunCommand(self._provider_list, self._config).register_parser(
             subparsers)
         SessionCommand(self._provider_list).register_parser(subparsers)
+        DeviceCommand().register_parser(subparsers)
         PlainboxSelfTestCommand().register_parser(subparsers)
         CheckConfigCommand(self._config).register_parser(subparsers)
         DevCommand(self._provider_list, self._config).register_parser(

@@ -30,8 +30,8 @@ from logging import getLogger
 
 from plainbox.i18n import gettext as _
 from plainbox.impl.commands import PlainBoxCommand
-from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
-from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
+from plainbox.impl.commands.cmd_checkbox import CheckBoxCommandMixIn
+from plainbox.impl.commands.inv_checkbox import CheckBoxInvocationMixIn
 
 
 logger = getLogger("plainbox.commands.special")

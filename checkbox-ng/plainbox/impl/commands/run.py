@@ -43,8 +43,8 @@ from plainbox.i18n import ngettext
 from plainbox.i18n import pgettext as C_
 from plainbox.impl.color import ansi_on, ansi_off
 from plainbox.impl.commands import PlainBoxCommand
-from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
-from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
+from plainbox.impl.commands.cmd_checkbox import CheckBoxCommandMixIn
+from plainbox.impl.commands.inv_checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter import get_all_exporters

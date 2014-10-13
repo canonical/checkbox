@@ -37,7 +37,7 @@ import re
 import sys
 
 from plainbox.impl.applogic import get_whitelist_by_name
-from plainbox.impl.commands.run import RunInvocation
+from plainbox.impl.commands.inv_run import RunInvocation
 from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.exporter.html import HTMLSessionStateExporter

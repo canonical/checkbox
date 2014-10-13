@@ -38,16 +38,6 @@ with open(os.path.join(base_dir, "README.rst"), encoding="UTF-8") as stream:
 # Check if we are running on readthedocs.org builder.
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
-# When building on readthedocs.org, skip all real dependencies as those are
-# mocked away in 'plainbox/docs/conf.py'. This speeds up the build process.
-# and makes it independent on any packages that are hard to get in a virtualenv
-if on_rtd:
-    install_requires = []
-else:
-    install_requires = [
-        'lxml >= 2.3',
-    ]
-
 setup(
     name="plainbox",
     version="0.15.dev",
@@ -81,9 +71,9 @@ setup(
         'Topic :: System :: Benchmark',
         'Topic :: Utilities',
     ],
-    install_requires=install_requires,
     extras_require={
         'XLSX': 'XlsxWriter >= 0.3',
+        'XML': 'lxml >= 2.3',
     },
     entry_points={
         'console_scripts': [
@@ -97,8 +87,8 @@ setup(
             'json=plainbox.impl.exporter.json:JSONSessionStateExporter',
             'rfc822=plainbox.impl.exporter.rfc822:RFC822SessionStateExporter',
             'xlsx=plainbox.impl.exporter.xlsx:XLSXSessionStateExporter [XLSX]',
-            'xml=plainbox.impl.exporter.xml:XMLSessionStateExporter',
-            'html=plainbox.impl.exporter.html:HTMLSessionStateExporter',
+            'xml=plainbox.impl.exporter.xml:XMLSessionStateExporter [XML]',
+            'html=plainbox.impl.exporter.html:HTMLSessionStateExporter [XML]',
         ],
         'plainbox.buildsystem': [
             'make=plainbox.impl.buildsystems:MakefileBuildSystem',

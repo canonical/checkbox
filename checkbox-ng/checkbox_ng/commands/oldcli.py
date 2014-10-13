@@ -8,7 +8,7 @@ import sys
 
 from plainbox.abc import IJobResult
 from plainbox.impl.applogic import get_whitelist_by_name
-from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
+from plainbox.impl.commands.inv_checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter import get_all_exporters

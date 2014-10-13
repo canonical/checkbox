@@ -36,8 +36,8 @@ from plainbox.impl.applogic import get_whitelist_by_name
 from plainbox.impl.applogic import run_job_if_possible
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.check_config import CheckConfigInvocation
-from plainbox.impl.commands.checkbox import CheckBoxCommandMixIn
-from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
+from plainbox.impl.commands.cmd_checkbox import CheckBoxCommandMixIn
+from plainbox.impl.commands.inv_checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter.xml import XMLSessionStateExporter

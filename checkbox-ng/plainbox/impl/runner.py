@@ -33,16 +33,13 @@ import io
 import logging
 import os
 import string
+import sys
 import time
 
 from plainbox.vendor import extcmd
 
 from plainbox.abc import IJobRunner, IJobResult
 from plainbox.i18n import gettext as _
-from plainbox.impl.ctrl import RootViaPTL1ExecutionController
-from plainbox.impl.ctrl import RootViaPkexecExecutionController
-from plainbox.impl.ctrl import RootViaSudoExecutionController
-from plainbox.impl.ctrl import UserJobExecutionController
 from plainbox.impl.result import DiskJobResult
 from plainbox.impl.result import IOLogRecord
 from plainbox.impl.result import IOLogRecordWriter
@@ -272,13 +269,27 @@ class JobRunner(IJobRunner):
         """
         self._session_dir = session_dir
         if execution_ctrl_list is None:
-            execution_ctrl_list = [
-                RootViaPTL1ExecutionController(provider_list),
-                RootViaPkexecExecutionController(provider_list),
-                # XXX: maybe this one should be only used on command line
-                RootViaSudoExecutionController(provider_list),
-                UserJobExecutionController(provider_list),
-            ]
+            logger.warning("execution_ctrl_list not passed to JobRunner")
+            if sys.platform == 'linux' or sys.platform == 'linux2':
+                from plainbox.impl.ctrl import RootViaPkexecExecutionController
+                from plainbox.impl.ctrl import RootViaPTL1ExecutionController
+                from plainbox.impl.ctrl import RootViaSudoExecutionController
+                from plainbox.impl.ctrl import UserJobExecutionController
+                execution_ctrl_list = [
+                    RootViaPTL1ExecutionController(provider_list),
+                    RootViaPkexecExecutionController(provider_list),
+                    # XXX: maybe this one should be only used on command line
+                    RootViaSudoExecutionController(provider_list),
+                    UserJobExecutionController(provider_list),
+                ]
+            elif sys.platform == 'win32':
+                from plainbox.impl.ctrl import UserJobExecutionController
+                execution_ctrl_list = [
+                    UserJobExecutionController(provider_list)
+                ]
+            else:
+                logger.warning("Unsupported platform: %s", sys.platform)
+                execution_ctrl_list = []
         self._jobs_io_log_dir = jobs_io_log_dir
         # NOTE: deprecated
         self._command_io_delegate = command_io_delegate

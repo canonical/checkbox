@@ -27,7 +27,7 @@ import os
 from plainbox.impl.clitools import SingleCommandToolMixIn
 from plainbox.impl.clitools import ToolBase
 from plainbox.impl.providers.v1 import all_providers
-from plainbox.impl.commands.selftest import SelfTestCommand
+from plainbox.impl.commands.cmd_selftest import SelfTestCommand
 
 from checkbox_ng import __version__ as version
 from checkbox_ng.config import CheckBoxConfig

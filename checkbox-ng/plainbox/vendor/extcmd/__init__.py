@@ -235,7 +235,7 @@ except ImportError:
     posix = None
 
 
-_logger = logging.getLogger("extcmd")
+_logger = logging.getLogger("plainbox.vendor.extcmd")
 
 
 class ExternalCommand(object):
@@ -437,6 +437,7 @@ class ExternalCommandWithDelegate(ExternalCommand):
         stdout_reader = None
         stderr_reader = None
         queue_worker = None
+        should_terminate = True
         try:
             # Start the process
             _logger.debug("Starting process %r", (args,))
@@ -467,6 +468,7 @@ class ExternalCommandWithDelegate(ExternalCommand):
                     _logger.debug(
                         "Process did exit with code %d", return_code)
                     # Break out of the endless loop if it does
+                    should_terminate = False
                     break
                 except KeyboardInterrupt:
                     _logger.debug("KeyboardInterrupt in call()")
@@ -475,23 +477,27 @@ class ExternalCommandWithDelegate(ExternalCommand):
                     # And send a notification about this
                     self._delegate.on_interrupt()
         finally:
-            # Try to kill the process
             do_close = False
-            if proc is not None:
-                try:
-                    _logger.debug("Calling terminate() on the process")
-                    proc.terminate()
-                    _logger.debug("Killing the process")
-                    proc.send_signal(9)
-                    _logger.debug("Killing the process again")
-                    proc.send_signal(9)
-                except OSError as exc:
-                    if exc.errno == errno.ESRCH:
-                        _logger.debug("The process is already dead")
-                    else:
-                        _logger.warning("Cannot kill the process: %s", exc)
-                        do_close = True
-                        raise
+            # Don't try to terminate processes that we know have exited.
+            # This causes all kinds of ugly issues on Windows.
+            if should_terminate:
+                # Try to kill the process
+                if proc is not None:
+                    try:
+                        _logger.debug("Calling terminate() on the process")
+                        proc.terminate()
+                        if hasattr(signal, "SIGKILL"):
+                            _logger.debug("Killing the process")
+                            proc.send_signal(signal.SIGKILL)
+                            _logger.debug("Killing the process again")
+                            proc.send_signal(signal.SIGKILL)
+                    except OSError as exc:
+                        if exc.errno == errno.ESRCH:
+                            _logger.debug("The process is already dead")
+                        else:
+                            _logger.warning("Cannot kill the process: %s", exc)
+                            do_close = True
+                            raise
             # Wait until all worker threads shut down
             _logger.debug("Joining all threads...")
             if do_close:

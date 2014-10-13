@@ -19,8 +19,6 @@
 :mod:`plainbox.impl.commands.script` -- script sub-command
 ==========================================================
 """
-
-
 import warnings
 
 warnings.warn(

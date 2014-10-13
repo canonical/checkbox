@@ -63,9 +63,11 @@ class ScriptInvocation(CheckBoxInvocationMixIn):
             return 125
         with TemporaryDirectory() as scratch, TemporaryDirectory() as iologs:
             runner = JobRunner(scratch, self.provider_list, iologs)
+            ctrl = runner._get_ctrl_for_job(job)
             runner.log_leftovers = False
             runner.on_leftover_files.connect(self._on_leftover_files)
-            return_code, record_path = runner._run_command(job, self.config)
+            return_code, record_path = runner._run_command(
+                job, self.config, ctrl)
             self._display_script_outcome(job, return_code)
         return return_code
 

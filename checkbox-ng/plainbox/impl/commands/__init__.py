@@ -25,15 +25,11 @@
 
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
-
 import abc
 import logging
 
-from plainbox.i18n import gettext as _
-from plainbox.impl.clitools import CommandBase, ToolBase
-from plainbox.impl.providers.special import get_stubbox_def
-from plainbox.impl.providers.v1 import all_providers
-from plainbox.impl.secure.providers.v1 import Provider1
+from plainbox.impl.clitools import CommandBase
+from plainbox.impl.clitools import ToolBase
 
 
 logger = logging.getLogger("plainbox.commands")
@@ -102,60 +98,26 @@ class PlainBoxToolBase(ToolBase):
         super().late_init(early_ns)
         # Load plainbox configuration
         self._config = self.get_config_cls().get()
-        # XXX: we cannot change _provider_list as the particular list object is
-        # already passed as argument to several command classes. It seems safe
-        # to append items to it though.
-        self._provider_list.extend(self.get_provider_list(early_ns))
 
-    def get_provider_list(self, ns):
+    def dispatch_command(self, ns):
         """
-        Get the list of job providers.
+        Overridden version of dispatch_command()
 
-        This method looks at --providers argument to figure out which
-        providers to expose to all of the commands.
+        This method delays the loading of the list of providers that
+        PlainBoxToolBase currently knows about to the very last moment.
+        Later on this list (provider_list) will be removed and all commands
+        will use the provider store directly thus lessening the demand on
+        the loading stuff early on.
         """
-        # If the default value of 'None' was set for the checkbox (provider)
-        # argument then load the actual provider name from the configuration
-        # object (default for that is 'auto').
-        if ns.providers is None:
-            ns.providers = self._config.default_provider
-        assert ns.providers in ('all', 'stub')
-        # Decide which providers to expose to the rest of plainbox
-        if ns.providers == 'all':
-            return self._load_really_all_providers()
-        elif ns.providers == 'stub':
-            return self._load_stub_provider_only()
+        self._load_providers()
+        return super().dispatch_command(ns)
 
-    def _load_really_all_providers(self):
-        provider_list = []
-        # StubBox is always enabled
-        provider_list.append(
-            Provider1.from_definition(get_stubbox_def(), secure=False))
+    def _load_providers(self):
+        logger.info("Loading all providers...")
         # Load all normal providers
+        from plainbox.impl.providers.v1 import all_providers
         all_providers.load()
-        provider_list.extend(all_providers.get_all_plugin_objects())
-        return provider_list
-
-    def _load_stub_provider_only(self):
-        return [Provider1.from_definition(get_stubbox_def(), secure=False)]
-
-    def add_early_parser_arguments(self, parser):
-        """
-        Overridden version of add_early_parser_arguments().
-
-        This method adds the --providers argument to the set of early parser
-        arguments, so that it is visible in autocomplete and help.
-        """
-        group = parser.add_argument_group(
-            title=_("provider list and development"))
-        group.add_argument(
-            '--providers',
-            action='store',
-            choices=['all', 'stub'],
-            # None is a special value that means 'use whatever is configured'
-            default=None,
-            help=_("which providers to load"))
-        super().add_early_parser_arguments(parser)
+        self._provider_list.extend(all_providers.get_all_plugin_objects())
 
 
 class PlainBoxCommand(CommandBase):

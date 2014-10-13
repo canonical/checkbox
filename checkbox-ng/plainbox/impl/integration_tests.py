@@ -33,11 +33,11 @@ import tempfile
 
 from pkg_resources import resource_filename, resource_isdir, resource_listdir
 
-from plainbox.impl.box import main
+from plainbox.impl.box import stubbox_main
 from plainbox.testing_utils.cwd import TestCwd
 from plainbox.testing_utils.io import TestIO
-from plainbox.testing_utils.testcases import TestCaseWithParameters
 from plainbox.testing_utils.resource import ResourceCache
+from plainbox.testing_utils.testcases import TestCaseWithParameters
 from plainbox.vendor.mock import patch, Mock
 
 
@@ -170,10 +170,10 @@ def execute_job(job_id):
         # Run the script, having relocated to the scratch directory
         with TestIO() as io, TestCwd(scratch_dir):
             try:
-                main(['run', '-i', job_id,
+                stubbox_main(['run', '-i', job_id,
                       '--output-format=json', '-o', pathname])
             except SystemExit as exc:
-                # Capture SystemExit that is always raised by main() so that we
+                # Capture SystemExit that is always raised by stubbox_main() so that we
                 # can observe the return code as well.
                 job_return_code = exc.args[0]
             else:

@@ -88,6 +88,7 @@ setup(
     entry_points={
         'console_scripts': [
             'plainbox=plainbox.public:main',
+            'stubbox=plainbox.impl.box:stubbox_main',
             ('plainbox-trusted-launcher-1='
              'plainbox.impl.secure.launcher1:main'),
         ],

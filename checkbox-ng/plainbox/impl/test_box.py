@@ -31,6 +31,7 @@ from unittest import TestCase
 from plainbox import __version__ as version
 from plainbox.abc import IProvider1
 from plainbox.impl.box import main
+from plainbox.impl.box import stubbox_main
 from plainbox.impl.clitools import ToolBase
 from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.testing_utils import MockJobDefinition, suppress_warnings
@@ -172,7 +173,7 @@ class TestMain(TestCase):
     def test_version(self):
         with TestIO(combined=True) as io:
             with self.assertRaises(SystemExit) as call:
-                main(['--version'])
+                stubbox_main(['--version'])
             self.assertEqual(call.exception.args, (0,))
         self.assertEqual(io.combined, "{}\n".format(
             ToolBase.format_version_tuple(version)))
@@ -203,10 +204,6 @@ class TestMain(TestCase):
         optional arguments:
           -h, --help            show this help message and exit
           --version             show program's version number and exit
-
-        provider list and development:
-          --providers {all,stub}
-                                which providers to load
 
         logging and debugging:
           -v, --verbose         be more verbose (same as --log-level=INFO)
@@ -285,7 +282,7 @@ class TestSpecial(TestCase):
     def test_run_list_jobs(self):
         with TestIO() as io:
             with self.assertRaises(SystemExit) as call:
-                main(['--providers', 'stub', 'dev', 'special', '--list-jobs'])
+                stubbox_main(['dev', 'special', '--list-jobs'])
             self.assertEqual(call.exception.args, (0,))
         self.assertIn(
             "2013.com.canonical.plainbox::stub/false", io.stdout.splitlines())
@@ -295,10 +292,10 @@ class TestSpecial(TestCase):
     def test_run_list_jobs_with_filtering(self):
         with TestIO() as io:
             with self.assertRaises(SystemExit) as call:
-                main(['--providers', 'stub', 'dev', 'special',
-                      ('--include-pattern='
-                       '2013.com.canonical.plainbox::stub/false'),
-                      '--list-jobs'])
+                stubbox_main(['dev', 'special',
+                             ('--include-pattern='
+                              '2013.com.canonical.plainbox::stub/false'),
+                             '--list-jobs'])
             self.assertEqual(call.exception.args, (0,))
         self.assertIn(
             "2013.com.canonical.plainbox::stub/false", io.stdout.splitlines())
@@ -308,7 +305,7 @@ class TestSpecial(TestCase):
     def test_run_list_expressions(self):
         with TestIO() as io:
             with self.assertRaises(SystemExit) as call:
-                main(['--providers', 'stub', 'dev', 'special', '--list-expressions'])
+                stubbox_main(['dev', 'special', '--list-expressions'])
             self.assertEqual(call.exception.args, (0,))
         self.assertIn(
             'stub_package.name == "checkbox"', io.stdout.splitlines())
@@ -316,7 +313,7 @@ class TestSpecial(TestCase):
     def test_run_dot(self):
         with TestIO() as io:
             with self.assertRaises(SystemExit) as call:
-                main(['--providers', 'stub', 'dev', 'special', '--dot'])
+                stubbox_main(['dev', 'special', '--dot'])
             self.assertEqual(call.exception.args, (0,))
         self.assertIn(
             '\t"2013.com.canonical.plainbox::stub/true" [];',
@@ -327,11 +324,11 @@ class TestSpecial(TestCase):
     def test_run_dot_with_resources(self):
         with TestIO() as io:
             with self.assertRaises(SystemExit) as call:
-                main(['--providers', 'stub', 'dev', 'special', '--dot',
-                      '--dot-resources'])
+                stubbox_main(['dev', 'special', '--dot', '--dot-resources'])
             self.assertEqual(call.exception.args, (0,))
         self.assertIn(
-            '\t"2013.com.canonical.plainbox::stub/true" [];', io.stdout.splitlines())
+            '\t"2013.com.canonical.plainbox::stub/true" [];',
+            io.stdout.splitlines())
         self.assertIn(
             ('\t"2013.com.canonical.plainbox::stub/requirement/good" -> '
              '"2013.com.canonical.plainbox::stub_package" [style=dashed, label'

@@ -109,8 +109,30 @@ class PlainBoxTool(PlainBoxToolBase):
         return os.getenv("PLAINBOX_LOCALE_DIR", None)
 
 
+class StubBoxTool(PlainBoxTool):
+    """
+    Command line interface to StubBox
+
+    The 'stubbox' executable is just just like plainbox but it contains the
+    special stubbox provider with representative test jobs.
+    """
+
+    @classmethod
+    def get_exec_name(cls):
+        return "stubbox"
+
+    def _load_providers(self):
+        logger.info("Loading stubbox provider...")
+        from plainbox.impl.providers.special import get_stubbox
+        self._provider_list.append(get_stubbox())
+
+
 def main(argv=None):
     raise SystemExit(PlainBoxTool().main(argv))
+
+
+def stubbox_main(argv=None):
+    raise SystemExit(StubBoxTool().main(argv))
 
 
 def get_parser_for_sphinx():

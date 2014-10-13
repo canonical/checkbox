@@ -36,7 +36,7 @@ from plainbox.impl.commands import PlainBoxToolBase
 from plainbox.impl.commands.check_config import CheckConfigCommand
 from plainbox.impl.commands.dev import DevCommand
 from plainbox.impl.commands.cmd_device import DeviceCommand
-from plainbox.impl.commands.run import RunCommand
+from plainbox.impl.commands.cmd_run import RunCommand
 from plainbox.impl.commands.selftest import PlainboxSelfTestCommand
 from plainbox.impl.commands.session import SessionCommand
 from plainbox.impl.commands.startprovider import StartProviderCommand

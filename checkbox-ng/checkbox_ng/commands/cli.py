@@ -30,7 +30,7 @@ from logging import getLogger
 import argparse
 
 from plainbox.impl.commands import PlainBoxCommand
-from plainbox.impl.commands.check_config import CheckConfigInvocation
+from plainbox.impl.commands.inv_check_config import CheckConfigInvocation
 from plainbox.impl.commands.cmd_checkbox import CheckBoxCommandMixIn
 
 

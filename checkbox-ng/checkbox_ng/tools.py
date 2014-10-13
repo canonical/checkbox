@@ -114,7 +114,7 @@ class CheckboxTool(CheckboxToolBase):
         from checkbox_ng.commands.service import ServiceCommand
         from checkbox_ng.commands.sru import SRUCommand
         from checkbox_ng.commands.submit import SubmitCommand
-        from plainbox.impl.commands.check_config import CheckConfigCommand
+        from plainbox.impl.commands.cmd_check_config import CheckConfigCommand
         SRUCommand(
             self.provider_list, self.config
         ).register_parser(subparsers)

@@ -395,9 +395,17 @@ class SymLinkNest:
         logger.debug(
             _("Adding executable %s to nest %s"),
             filename, self._dirname)
-        os.symlink(
-            filename, os.path.join(
-                self._dirname, os.path.basename(filename)))
+        dest = os.path.join(self._dirname, os.path.basename(filename))
+        try:
+            os.symlink(filename, dest)
+        except OSError as exc:
+            # Allow symlinks to fail on Windows where it requires some
+            # untold voodoo magic to work (aka running as root)
+            logger.error(
+                _("Unable to create symlink s%s -> %s: %r"),
+                filename, dest, exc)
+            if sys.platform != 'win32':
+                raise
 
 
 class CheckBoxExecutionController(IExecutionController):

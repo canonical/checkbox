@@ -322,12 +322,20 @@ class SessionStorage:
             on various problems related to accessing the filesystem
 
         :raises NotImplementedError:
-            when openat(2) is not available
+            when openat(2) is not available on this platform. Should never
+            happen on Linux or Windows where appropriate checks divert to a
+            correct implementation that is not using them.
         """
-        if sys.version_info[0:2] >= (3, 3):
-            return self._load_checkpoint_unix_py33()
-        else:
-            return self._load_checkpoint_unix_py32()
+        if sys.platform == 'linux' or sys.platform == 'linux2':
+            if sys.version_info[0:2] >= (3, 3):
+                return self._load_checkpoint_unix_py33()
+            else:
+                return self._load_checkpoint_unix_py32()
+        elif sys.platform == 'win32':
+            return self._load_checkpoint_win32_py33()
+        raise NotImplementedError(
+            "platform/python combination is not supported: {} + {}".format(
+                sys.version, sys.platform))
 
     def save_checkpoint(self, data):
         """
@@ -353,12 +361,20 @@ class SessionStorage:
 
         :raises NotImplementedError:
             when openat(2), renameat(2), unlinkat(2) are not available on this
-            platform. Should never happen on Linux.
+            platform. Should never happen on Linux or Windows where appropriate
+            checks divert to a correct implementation that is not using them.
         """
-        if sys.version_info[0:2] >= (3, 3):
-            return self._save_checkpoint_unix_py33(data)
-        else:
-            return self._save_checkpoint_unix_py32(data)
+        if sys.platform == 'linux' or sys.platform == 'linux2':
+            if sys.version_info[0:2] >= (3, 3):
+                return self._save_checkpoint_unix_py33(data)
+            else:
+                return self._save_checkpoint_unix_py32(data)
+        elif sys.platform == 'win32':
+            if sys.version_info[0:2] >= (3, 3):
+                return self._save_checkpoint_win32_py33(data)
+        raise NotImplementedError(
+            "platform/python combination is not supported: {} + {}".format(
+                sys.version, sys.platform))
 
     def break_lock(self):
         """
@@ -376,6 +392,44 @@ class SessionStorage:
             # Please keep the 'next' string untranslated
             _("Forcibly unlinking 'next' file %r"), _next_session_pathname)
         os.unlink(_next_session_pathname)
+
+    def _load_checkpoint_win32_py33(self):
+        logger.debug(_("Loading checkpoint (%s)"), "Windows")
+        _session_pathname = os.path.join(self._location, self._SESSION_FILE)
+        try:
+            # Open the current session file in the location directory
+            session_fd = os.open(_session_pathname, os.O_RDONLY | os.O_BINARY)
+            logger.debug(
+                _("Opened session state file %r as descriptor %d"),
+                _session_pathname, session_fd)
+            # Stat the file to know how much to read
+            session_stat = os.fstat(session_fd)
+            logger.debug(
+                # TRANSLATORS: stat is a system call name, don't translate it
+                _("Stat'ed session state file: %s"), session_stat)
+            try:
+                # Read session data
+                logger.debug(ngettext(
+                    "Reading %d byte of session state",
+                    "Reading %d bytes of session state",
+                    session_stat.st_size), session_stat.st_size)
+                data = os.read(session_fd, session_stat.st_size)
+                logger.debug(ngettext(
+                    "Read %d byte of session state",
+                    "Read %d bytes of session state", len(data)), len(data))
+                if len(data) != session_stat.st_size:
+                    raise IOError(_("partial read?"))
+            finally:
+                # Close the session file
+                logger.debug(_("Closed descriptor %d"), session_fd)
+                os.close(session_fd)
+        except IOError as exc:
+            if exc.errno == errno.ENOENT:
+                # Treat lack of 'session' file as an empty file
+                return b''
+            raise
+        else:
+            return data
 
     def _load_checkpoint_unix_py32(self):
         _session_pathname = os.path.join(self._location, self._SESSION_FILE)
@@ -416,11 +470,12 @@ class SessionStorage:
                 # Treat lack of 'session' file as an empty file
                 return b''
             raise
+        else:
+            return data
         finally:
             # Close the location directory
             logger.debug(_("Closed descriptor %d"), location_fd)
             os.close(location_fd)
-        return data
 
     def _load_checkpoint_unix_py33(self):
         # Open the location directory
@@ -444,10 +499,101 @@ class SessionStorage:
                 # Treat lack of 'session' file as an empty file
                 return b''
             raise
+        else:
+            return data
         finally:
             # Close the location directory
             os.close(location_fd)
-        return data
+
+    def _save_checkpoint_win32_py33(self, data):
+        # NOTE: this is like _save_checkpoint_py32 but without location_fd
+        # wich cannot be opened on windows (no os.O_DIRECTORY)
+        #
+        # NOTE: The windows version is relatively new and under-tested
+        # but then again we don't expect to run tests *on* windows, only
+        # *from* windows so hard data retention requirements are of lesser
+        # importance.
+        if not isinstance(data, bytes):
+            raise TypeError("data must be bytes")
+        logger.debug(ngettext(
+            "Saving %d byte of data (%s)",
+            "Saving %d bytes of data (%s)",
+            len(data)), len(data), "Windows")
+        # Helper pathnames, needed because we don't have *at functions
+        _next_session_pathname = os.path.join(
+            self._location, self._SESSION_FILE_NEXT)
+        _session_pathname = os.path.join(self._location, self._SESSION_FILE)
+        # Open the "next" file in the location_directory
+        #
+        # Use "write" + "create" + "exclusive" flags so that no race
+        # condition is possible.
+        #
+        # This will never return -1, it throws IOError when anything is
+        # wrong. The caller has to catch this.
+        #
+        # As a special exception, this code handles EEXISTS and converts
+        # that to LockedStorageError that can be especially handled by
+        # some layer above.
+        try:
+            next_session_fd = os.open(
+                _next_session_pathname,
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_BINARY, 0o644)
+        except IOError as exc:
+            if exc.errno == errno.EEXISTS:
+                raise LockedStorageError()
+            else:
+                raise
+        logger.debug(
+            _("Opened next session file %s as descriptor %d"),
+            _next_session_pathname, next_session_fd)
+        try:
+            # Write session data to disk
+            #
+            # I cannot find conclusive evidence but it seems that
+            # os.write() handles partial writes internally. In case we do
+            # get a partial write _or_ we run out of disk space, raise an
+            # explicit IOError.
+            num_written = os.write(next_session_fd, data)
+            logger.debug(ngettext(
+                "Wrote %d byte of data to descriptor %d",
+                "Wrote %d bytes of data to descriptor %d",
+                num_written), num_written, next_session_fd)
+            if num_written != len(data):
+                raise IOError(_("partial write?"))
+        except Exception as exc:
+            logger.warning(_("Unable to complete write: %s"), exc)
+            # If anything goes wrong we should unlink the next file.
+            # TRANSLATORS: unlinking as in deleting a file
+            logger.warning(_("Unlinking %r: %r"), _next_session_pathname, exc)
+            os.unlink(_next_session_pathname)
+        else:
+            # If the write was successful we must flush kernel buffers.
+            #
+            # We want to be sure this data is really on disk by now as we
+            # may crash the machine soon after this method exits.
+            logger.debug(
+                # TRANSLATORS: please don't translate fsync()
+                _("Calling fsync() on descriptor %d"), next_session_fd)
+            os.fsync(next_session_fd)
+        finally:
+            # Close the new session file
+            logger.debug(_("Closing descriptor %d"), next_session_fd)
+            os.close(next_session_fd)
+        # Rename FILE_NEXT over FILE.
+        logger.debug(_("Renaming %r to %r"),
+                     _next_session_pathname, _session_pathname)
+        try:
+            os.replace(_next_session_pathname, _session_pathname)
+        except Exception as exc:
+            # Same as above, if we fail we need to unlink the next file
+            # otherwise any other attempts will not be able to open() it
+            # with O_EXCL flag.
+            logger.warning(
+                _("Unable to rename/overwrite %r to %r: %r"),
+                _next_session_pathname, _session_pathname, exc)
+            # TRANSLATORS: unlinking as in deleting a file
+            logger.warning(_("Unlinking %r"), _next_session_pathname)
+            os.unlink(_next_session_pathname)
 
     def _save_checkpoint_unix_py32(self, data):
         # NOTE: this is like _save_checkpoint_py33 but without all the

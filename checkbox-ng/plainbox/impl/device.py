@@ -89,7 +89,8 @@ class LocalDevice:
             On Windows, we return a device based on TBD
             On all other platforms (mac?) we return an empty list
         """
-        if sys.platform == 'linux':
+        # NOTE: sys.platform used to be 'linux2' on older pythons
+        if sys.platform == 'linux' or sys.platform == 'linux2':
             return cls._discover_linux()
         elif sys.platform == 'win32':
             return cls._discover_windows()

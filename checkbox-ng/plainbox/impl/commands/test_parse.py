@@ -28,7 +28,7 @@ import argparse
 from inspect import cleandoc
 from unittest import TestCase
 
-from plainbox.impl.commands.parse import ParseCommand
+from plainbox.impl.commands.cmd_parse import ParseCommand
 from plainbox.impl.parsers import ParserPlugIn
 from plainbox.impl.parsers import all_parsers
 from plainbox.testing_utils.io import TestIO
@@ -85,7 +85,7 @@ Example: LANG=C pactl list | plainbox dev parse pactl-list
         # Ensure that a detailed help message was printed
         self.assertEqual(io.stdout, cleandoc(self._help) + '\n')
 
-    @mock.patch("plainbox.impl.commands.parse.ParseInvocation")
+    @mock.patch("plainbox.impl.commands.inv_parse.ParseInvocation")
     def test_invoked(self, patched_ParseInvocation):
         # Make a fake ParserPlugIn
         mock_parser = mock.Mock(spec=ParserPlugIn)

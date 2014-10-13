@@ -33,7 +33,7 @@ from plainbox import __version__ as plainbox_version
 from plainbox.i18n import gettext as _
 from plainbox.impl.applogic import PlainBoxConfig
 from plainbox.impl.commands import PlainBoxToolBase
-from plainbox.impl.commands.check_config import CheckConfigCommand
+from plainbox.impl.commands.cmd_check_config import CheckConfigCommand
 from plainbox.impl.commands.dev import DevCommand
 from plainbox.impl.commands.cmd_device import DeviceCommand
 from plainbox.impl.commands.cmd_run import RunCommand

@@ -35,11 +35,17 @@ circumstances.
 
 import abc
 import contextlib
-import grp
+try:
+    import grp
+except ImportError:
+    grp = None
 import itertools
 import logging
 import os
-import posix
+try:
+    import posix
+except ImportError:
+    posix = None
 import tempfile
 from subprocess import check_output, CalledProcessError, STDOUT
 

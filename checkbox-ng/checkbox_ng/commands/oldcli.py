@@ -318,8 +318,11 @@ class CliInvocation(CheckBoxInvocationMixIn):
                 result['outcome'] = choice
                 break
             elif choice == _('test'):
+                # NOTE: this can raise but oldcli is dead anyway
+                ctrl = runner._get_ctrl_for_job(job)
                 (result['return_code'],
-                 result['io_log_filename']) = runner._run_command(job, config)
+                 result['io_log_filename']) = runner._run_command(
+                     job, config, ctrl)
             elif choice == _('comments'):
                 result['comments'] = input(_('Please enter your comments:\n'))
         return DiskJobResult(result)

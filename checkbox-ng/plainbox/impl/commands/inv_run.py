@@ -513,11 +513,15 @@ class RunInvocation(CheckBoxInvocationMixIn):
             data = storage.load_checkpoint()
             if len(data) == 0:
                 continue
-            metadata = SessionPeekHelper().peek(data)
-            if (metadata.app_id == self.expected_app_id
-                    and metadata.title == self.expected_session_title
-                    and SessionMetaData.FLAG_INCOMPLETE in metadata.flags):
-                storage_list.append(storage)
+            try:
+                metadata = SessionPeekHelper().peek(data)
+            except SessionResumeError as exc:
+                logger.warning(_("Corrupted session %s: %s"), storage.id, exc)
+            else:
+                if (metadata.app_id == self.expected_app_id
+                        and metadata.title == self.expected_session_title
+                        and SessionMetaData.FLAG_INCOMPLETE in metadata.flags):
+                    storage_list.append(storage)
         return storage_list
 
     def ask_for_confirmation(self, message):

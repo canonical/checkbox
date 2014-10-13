@@ -101,17 +101,6 @@ class PlainBoxConfig(config.Config):
     environment = config.Section(
         help_text=_("Environment variables for scripts and jobs"))
 
-    welcome_text = config.Variable(
-        section="common",
-        help_text=_("Welcome text to display prior to test"
-                    " selection/execution"))
-
-    default_provider = config.Variable(
-        section="common",
-        help_text=_("Name of the default provider to use"),
-        validator_list=[config.ChoiceValidator(['all', 'stub'])],
-        default="all")
-
     class Meta:
 
         # TODO: properly depend on xdg and use real code that also handles

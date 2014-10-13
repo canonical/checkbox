@@ -22,8 +22,6 @@
 
 This module contains the implementation parts of the 'plainbox device' command.
 """
-from logging import getLogger
-
 from plainbox.impl.device import LocalDevice
 
 

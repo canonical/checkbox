@@ -599,9 +599,9 @@ class SessionStorage:
         # NOTE: this is like _save_checkpoint_py33 but without all the
         # *at() functions (openat, renameat)
         #
-        # Since we cannot those functions there is an implicit race condition
-        # on all open() calls with another process that renames any of
-        # the directories that are part of the opened path.
+        # Since we cannot use those functions there is an implicit race
+        # condition on all open() calls with another process that renames
+        # any of the directories that are part of the opened path.
         #
         # I don't think we can really do anything about this in userspace
         # so this, python 3.2 specific version, just does the best effort
@@ -610,9 +610,9 @@ class SessionStorage:
         if not isinstance(data, bytes):
             raise TypeError("data must be bytes")
         logger.debug(ngettext(
-            "Saving %d byte of data (UNIX, python 3.2 or older)",
-            "Saving %d bytes of data (UNIX, python 3.2 or older)",
-            len(data)), len(data))
+            "Saving %d byte of data (%s)",
+            "Saving %d bytes of data (%s)",
+            len(data)), len(data), "UNIX, python 3.2 or older")
         # Helper pathnames, needed because we don't have *at functions
         _next_session_pathname = os.path.join(
             self._location, self._SESSION_FILE_NEXT)
@@ -660,9 +660,9 @@ class SessionStorage:
                     num_written), num_written, next_session_fd)
                 if num_written != len(data):
                     raise IOError(_("partial write?"))
-            except:
+            except Exception as exc:
+                logger.warning(_("Unable to complete write: %r"), exc)
                 # If anything goes wrong we should unlink the next file.
-
                 # TRANSLATORS: unlinking as in deleting a file
                 logger.warning(_("Unlinking %r"), _next_session_pathname)
                 os.unlink(_next_session_pathname)
@@ -684,11 +684,16 @@ class SessionStorage:
                          _next_session_pathname, _session_pathname)
             try:
                 os.rename(_next_session_pathname, _session_pathname)
-            except:
+            except Exception as exc:
                 # Same as above, if we fail we need to unlink the next file
                 # otherwise any other attempts will not be able to open() it
                 # with O_EXCL flag.
-
+                logger.warning(
+                    _("Unable to rename/overwrite %r to %r: %r"),
+                    _next_session_pathname, _session_pathname, exc)
+                # Same as above, if we fail we need to unlink the next file
+                # otherwise any other attempts will not be able to open() it
+                # with O_EXCL flag.
                 # TRANSLATORS: unlinking as in deleting a file
                 logger.warning(_("Unlinking %r"), _next_session_pathname)
                 os.unlink(_next_session_pathname)
@@ -710,9 +715,9 @@ class SessionStorage:
         if not isinstance(data, bytes):
             raise TypeError("data must be bytes")
         logger.debug(ngettext(
-            "Saving %d byte of data (UNIX, python 3.3 or newer)",
-            "Saving %d bytes of data (UNIX, python 3.3 or newer)",
-            len(data)), len(data))
+            "Saving %d byte of data (%s)",
+            "Saving %d bytes of data (%s)",
+            len(data)), len(data), "UNIX, python 3.3 or newer")
         # Open the location directory, we need to fsync that later
         # XXX: this may fail, maybe we should keep the fd open all the time?
         location_fd = os.open(self._location, os.O_DIRECTORY)
@@ -758,11 +763,11 @@ class SessionStorage:
                     num_written, next_session_fd)
                 if num_written != len(data):
                     raise IOError(_("partial write?"))
-            except:
+            except Exception as exc:
+                logger.warning(_("Unable to complete write: %r"), exc)
                 # If anything goes wrong we should unlink the next file. As
                 # with the open() call above we use unlinkat to prevent race
                 # conditions.
-
                 # TRANSLATORS: unlinking as in deleting a file
                 logger.warning(_("Unlinking %r"), self._SESSION_FILE_NEXT)
                 os.unlink(self._SESSION_FILE_NEXT, dir_fd=location_fd)
@@ -789,11 +794,13 @@ class SessionStorage:
             try:
                 os.rename(self._SESSION_FILE_NEXT, self._SESSION_FILE,
                           src_dir_fd=location_fd, dst_dir_fd=location_fd)
-            except:
+            except Exception as exc:
                 # Same as above, if we fail we need to unlink the next file
                 # otherwise any other attempts will not be able to open() it
                 # with O_EXCL flag.
-
+                logger.warning(
+                    _("Unable to rename/overwrite %r to %r: %r"),
+                    _next_session_pathname, _session_pathname, exc)
                 # TRANSLATORS: unlinking as in deleting a file
                 logger.warning(_("Unlinking %r"), self._SESSION_FILE_NEXT)
                 os.unlink(self._SESSION_FILE_NEXT, dir_fd=location_fd)

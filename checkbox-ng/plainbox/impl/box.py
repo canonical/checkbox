@@ -67,9 +67,11 @@ class PlainBoxTool(PlainBoxToolBase):
 
     def create_parser_object(self):
         parser = super().create_parser_object()
-        parser.prog = "plainbox"
-        parser.usage = _("plainbox [--help] [--version] | [options] <command>"
-                         " ...")
+        parser.prog = self.get_exec_name()
+        # TRANSLATORS: '--help' and '--version' are not translatable,
+        # but '[options]' and '<command>' are.
+        parser.usage = _("{0} [--help] [--version] | [options] <command>"
+                         " ...").format(self.get_exec_name())
         return parser
 
     def add_subcommands(self, subparsers):

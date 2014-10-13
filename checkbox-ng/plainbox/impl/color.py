@@ -21,6 +21,7 @@
 :mod:`plainbox.impl.color` -- ANSI color codes
 ==============================================
 """
+import sys
 
 
 class ansi_on:
@@ -88,3 +89,14 @@ for obj_on, obj_off in zip(
     for name in [name for name in dir(obj_on) if name.isupper()]:
         setattr(obj_on, name, "\033[%sm" % getattr(obj_on, name))
         setattr(obj_off, name, "")
+
+
+# XXX: Temporary hack that disables colors on win32 until
+# all of the codebase has been ported over to use colorama
+if sys.platform == 'win32':
+    try:
+        import colorama
+    except ImportError:
+        ansi_on = ansi_off
+    else:
+        colorama.init()

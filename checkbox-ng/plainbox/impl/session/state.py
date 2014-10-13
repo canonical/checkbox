@@ -459,17 +459,25 @@ class SessionDeviceContext:
         Internal method that computes the list of execution controllers
         """
         # TODO: tie this with the upcoming device patches
-        from plainbox.impl.ctrl import RootViaPkexecExecutionController
-        from plainbox.impl.ctrl import RootViaPTL1ExecutionController
-        from plainbox.impl.ctrl import RootViaSudoExecutionController
-        from plainbox.impl.ctrl import UserJobExecutionController
-        return [
-            RootViaPTL1ExecutionController(self.provider_list),
-            RootViaPkexecExecutionController(self.provider_list),
-            # XXX: maybe this one should be only used on command line
-            RootViaSudoExecutionController(self.provider_list),
-            UserJobExecutionController(self.provider_list),
-        ]
+        import sys
+        if sys.platform == 'linux':
+            from plainbox.impl.ctrl import RootViaPkexecExecutionController
+            from plainbox.impl.ctrl import RootViaPTL1ExecutionController
+            from plainbox.impl.ctrl import RootViaSudoExecutionController
+            from plainbox.impl.ctrl import UserJobExecutionController
+            return [
+                RootViaPTL1ExecutionController(self.provider_list),
+                RootViaPkexecExecutionController(self.provider_list),
+                # XXX: maybe this one should be only used on command line
+                RootViaSudoExecutionController(self.provider_list),
+                UserJobExecutionController(self.provider_list),
+            ]
+        elif sys.platform == 'win32':
+            from plainbox.impl.ctrl import UserJobExecutionController
+            return [UserJobExecutionController(self.provider_list)]
+        else:
+            logger.warning("Unsupported platform: %s", sys.platform)
+            return []
 
     def _invalidate_execution_ctrl_list(self, *args, **kwargs):
         """

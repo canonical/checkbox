@@ -636,21 +636,26 @@ class UserJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
         self.job.user = None
         self.assertEqual(self.ctrl.get_checkbox_score(self.job), 1)
 
+    @mock.patch('sys.platform')
     @mock.patch('os.getuid')
-    def test_get_checkbox_score_for_jobs_with_user(self, mock_getuid):
+    def test_get_checkbox_score_for_jobs_with_user(
+            self, mock_getuid, mock_plat):
         """
         verify that score for jobs with an user override is minus one
         """
+        mock_plat.return_value = 'linux'
         # Ensure we're not root, in case test suite *is* run by root.
         mock_getuid.return_value = 1000
         self.job.user = 'root'
         self.assertEqual(self.ctrl.get_checkbox_score(self.job), -1)
 
+    @mock.patch('sys.platform')
     @mock.patch('os.getuid')
-    def test_get_checkbox_score_as_root(self, mock_getuid):
+    def test_get_checkbox_score_as_root(self, mock_getuid, mock_plat):
         """
         verify that score for jobs with an user override is 4 if I am root
         """
+        mock_plat.return_value = 'linux'
         mock_getuid.return_value = 0  # Pretend to be root
         self.job.user = 'root'
         self.assertEqual(self.ctrl.get_checkbox_score(self.job), 4)

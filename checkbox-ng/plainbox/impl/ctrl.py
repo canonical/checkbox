@@ -47,6 +47,7 @@ try:
 except ImportError:
     posix = None
 import tempfile
+import sys
 from subprocess import check_output, CalledProcessError, STDOUT
 
 from plainbox.abc import IExecutionController
@@ -744,9 +745,24 @@ class UserJobExecutionController(CheckBoxExecutionController):
         :returns:
             List of command arguments
 
-        This basically returns [job.shell, '-c', job.command]
+        The return value depends on the flags that a job carries. Since
+        plainbox has originated in a Linux environment where the default
+        shell is a POSIX-y shell (bash or dash) and that's what all existing
+        jobs assume, unless running on windows, this method returns::
+
+            [job.shell, '-c', job.command]
+
+        When the system is running windows, the job must have the 'win32'
+        flag set (or it won't be possible to run it as get_checkbox_score()
+        will be -1). In that case a windows-specific command is used::
+
+            ['cmd.exe', '/C', job.command]
+
         """
-        return [job.shell, '-c', job.command]
+        if 'win32' in job.get_flag_set():
+            return ['cmd.exe', '/C', job.command]
+        else:
+            return [job.shell, '-c', job.command]
 
     def get_checkbox_score(self, job):
         """
@@ -756,12 +772,21 @@ class UserJobExecutionController(CheckBoxExecutionController):
             1 for jobs without a user override, 4 for jobs with user override
             if the invoking uid is 0 (root), -1 otherwise
         """
-        if job.user is None:
+        if sys.platform == 'win32':
+            # Switching user credentials is not supported on Windows
+            if job.user is not None:
+                return -1
+            # Oridinary jobs cannot run on Windows
+            if 'win32' not in job.get_flag_set():
+                return -1
             return 1
-        if os.getuid() == 0:
-            return 4
         else:
-            return -1
+            if job.user is not None:
+                if os.getuid() == 0:
+                    return 4
+                else:
+                    return -1
+            return 1
 
 
 class CheckBoxDifferentialExecutionController(CheckBoxExecutionController):

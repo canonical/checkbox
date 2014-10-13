@@ -22,8 +22,7 @@
 
 This module contains the implementation parts of the 'plainbox device' command.
 """
-from logging import getLogger
-
+from plainbox.i18n import gettext as _
 from plainbox.impl.device import LocalDevice
 
 
@@ -42,3 +41,6 @@ class DeviceInvocation:
         device_list = LocalDevice.discover()
         for device in device_list:
             print(device.cookie)
+            break
+        else:
+            print(_("No supported devices detected?"))

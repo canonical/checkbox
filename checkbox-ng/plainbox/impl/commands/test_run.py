@@ -136,7 +136,7 @@ class TestRun(TestCase):
     def test_output_format_list(self):
         with TestIO(combined=True) as io:
             with self.assertRaises(SystemExit) as call:
-                with patch('plainbox.impl.commands.run.get_all_exporters') as mock_get_all_exporters:
+                with patch('plainbox.impl.commands.inv_run.get_all_exporters') as mock_get_all_exporters:
                     mock_get_all_exporters.return_value = self._exporters
                     main(['run', '--output-format=?'])
             self.assertEqual(call.exception.args, (0,))
@@ -148,7 +148,7 @@ class TestRun(TestCase):
     def test_output_option_list(self):
         with TestIO(combined=True) as io:
             with self.assertRaises(SystemExit) as call:
-                with patch('plainbox.impl.commands.run.get_all_exporters') as mock_get_all_exporters:
+                with patch('plainbox.impl.commands.inv_run.get_all_exporters') as mock_get_all_exporters:
                     mock_get_all_exporters.return_value = self._exporters
                     main(['run', '--output-option=?'])
             self.assertEqual(call.exception.args, (0,))

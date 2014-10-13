@@ -25,12 +25,12 @@ This module contains the user interface parts of the 'plainbox device' command.
 from logging import getLogger
 
 from plainbox.i18n import docstring
-from plainbox.i18n import gettext as _
 from plainbox.i18n import gettext_noop as N_
 from plainbox.impl.commands import PlainBoxCommand
 
 
 logger = getLogger("plainbox.commands.device")
+
 
 @docstring(
     N_("""

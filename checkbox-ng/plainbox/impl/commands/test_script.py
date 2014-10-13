@@ -1,13 +1,12 @@
 # This file is part of Checkbox.
 #
-# Copyright 2013 Canonical Ltd.
+# Copyright 2013-2014 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -29,7 +28,8 @@ from inspect import cleandoc
 from unittest import TestCase
 
 from plainbox.impl.applogic import PlainBoxConfig
-from plainbox.impl.commands.script import ScriptInvocation, ScriptCommand
+from plainbox.impl.commands.cmd_script import ScriptCommand
+from plainbox.impl.commands.inv_script import ScriptInvocation
 from plainbox.impl.providers.v1 import DummyProvider1
 from plainbox.impl.testing_utils import make_job
 from plainbox.testing_utils.io import TestIO
@@ -72,7 +72,7 @@ class TestScriptCommand(TestCase):
                 """)
             + "\n")
 
-    @mock.patch("plainbox.impl.commands.script.ScriptInvocation")
+    @mock.patch("plainbox.impl.commands.inv_script.ScriptInvocation")
     def test_invoked(self, patched_ScriptInvocation):
         retval = ScriptCommand(
             self.provider_list, self.config).invoked(self.ns)

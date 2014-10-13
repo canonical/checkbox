@@ -35,7 +35,7 @@ from plainbox.impl.commands.crash import CrashCommand
 from plainbox.impl.commands.list import ListCommand
 from plainbox.impl.commands.logtest import LogTestCommand
 from plainbox.impl.commands.parse import ParseCommand
-from plainbox.impl.commands.script import ScriptCommand
+from plainbox.impl.commands.cmd_script import ScriptCommand
 from plainbox.impl.commands.special import SpecialCommand
 
 

@@ -266,9 +266,9 @@ class LoggingHelper:
             },
             "logfile_error": {
                 "class": "logging.handlers.RotatingFileHandler",
-                "filename": os.path.join(self.log_dir, "error.log"),
+                "filename": os.path.join(self.log_dir, "problem.log"),
                 "backupCount": 3,
-                "level": "ERROR",
+                "level": "WARNING",
                 "mode": "a",
                 "formatter": "log_precise",
                 "delay": True,

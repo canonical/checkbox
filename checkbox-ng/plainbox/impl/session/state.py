@@ -56,6 +56,12 @@ class SessionMetaData:
     # set this flag after successfully sending the result somewhere.
     FLAG_SUBMITTED = "submitted"
 
+    # Flag indicating that session was just established and requires some
+    # additional actions before test can commence. Applications are encouraged
+    # to set this flag after session is created and then add incomplete flag
+    # once the testing begin
+    FLAG_BOOTSTRAPPING = "bootstrapping"
+
     def __init__(self, title=None, flags=None, running_job_name=None,
                  app_blob=None, app_id=None):
         if flags is None:

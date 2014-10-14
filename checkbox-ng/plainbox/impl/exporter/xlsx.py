@@ -86,6 +86,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         self._option_list = (
             SessionStateExporterBase.OPTION_WITH_IO_LOG,
             SessionStateExporterBase.OPTION_FLATTEN_IO_LOG,
+            SessionStateExporterBase.OPTION_WITH_COMMENTS,
             SessionStateExporterBase.OPTION_WITH_JOB_DEFS,
             SessionStateExporterBase.OPTION_WITH_JOB_VIA,
             SessionStateExporterBase.OPTION_WITH_JOB_HASH,
@@ -547,6 +548,12 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 self.worksheet3.write(
                     self._lineno, max_level + 3, io_log,
                     self.format16 if self._lineno % 2 else self.format17)
+                comments = ' '
+                if result_map[job]['comments']:
+                    comments = result_map[job]['comments'].rstrip()
+                self.worksheet3.write(
+                    self._lineno, max_level + 4, comments,
+                    self.format16 if self._lineno % 2 else self.format17)
                 if self.OPTION_WITH_DESCRIPTION in self._option_list:
                     self.worksheet4.write(
                         self._lineno, max_level + 2,
@@ -576,8 +583,10 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         self.worksheet3.set_column(max_level + 1, max_level + 1, 48)
         self.worksheet3.set_column(max_level + 2, max_level + 2, 12)
         self.worksheet3.set_column(max_level + 3, max_level + 3, 65)
+        self.worksheet3.set_column(max_level + 4, max_level + 4, 65)
         self.worksheet3.write_row(
-            5, max_level + 1, [_('Name'), _('Result'), _('I/O Log')],
+            5, max_level + 1,
+            [_('Name'), _('Result'), _('I/O Log'), _('Comments')],
             self.format07)
         if self.OPTION_WITH_DESCRIPTION in self._option_list:
             self.worksheet4.write(3, 1, _('Test Descriptions'), self.format03)

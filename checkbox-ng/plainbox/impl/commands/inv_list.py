@@ -25,8 +25,8 @@ from plainbox.impl.highlevel import Explorer
 
 class ListInvocation:
 
-    def __init__(self, provider_list, ns):
-        self.explorer = Explorer(provider_list)
+    def __init__(self, provider_loader, ns):
+        self.explorer = Explorer(provider_loader())
         self.group = ns.group
         self.show_attrs = ns.attrs
 

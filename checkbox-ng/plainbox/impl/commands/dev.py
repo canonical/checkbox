@@ -45,8 +45,8 @@ class DevCommand(PlainBoxCommand):
     Command hub for various development commands.
     """
 
-    def __init__(self, provider_list, config):
-        self.provider_list = provider_list
+    def __init__(self, provider_loader, config):
+        self.provider_loader = provider_loader
         self.config = config
 
     def invoked(self, ns):
@@ -58,10 +58,10 @@ class DevCommand(PlainBoxCommand):
             prog="plainbox dev",
             usage=_("plainbox dev <subcommand> ..."))
         subdev = parser.add_subparsers()
-        ScriptCommand(self.provider_list, self.config).register_parser(subdev)
-        SpecialCommand(self.provider_list, self.config).register_parser(subdev)
-        AnalyzeCommand(self.provider_list, self.config).register_parser(subdev)
+        ScriptCommand(self.provider_loader, self.config).register_parser(subdev)
+        SpecialCommand(self.provider_loader, self.config).register_parser(subdev)
+        AnalyzeCommand(self.provider_loader, self.config).register_parser(subdev)
         ParseCommand().register_parser(subdev)
         CrashCommand().register_parser(subdev)
         LogTestCommand().register_parser(subdev)
-        ListCommand(self.provider_list).register_parser(subdev)
+        ListCommand(self.provider_loader).register_parser(subdev)

@@ -30,8 +30,8 @@ logger = getLogger("plainbox.commands.special")
 
 class SpecialInvocation(CheckBoxInvocationMixIn):
 
-    def __init__(self, provider_list, config, ns):
-        super().__init__(provider_list, config)
+    def __init__(self, provider_loader, config, ns):
+        super().__init__(provider_loader, config)
         self.ns = ns
 
     def run(self):

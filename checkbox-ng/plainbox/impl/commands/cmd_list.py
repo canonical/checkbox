@@ -28,13 +28,13 @@ class ListCommand(PlainBoxCommand):
     Implementation of ``$ plainbox dev list <object>``
     """
 
-    def __init__(self, provider_list):
-        self.provider_list = provider_list
+    def __init__(self, provider_loader):
+        self.provider_loader = provider_loader
 
     def invoked(self, ns):
         from plainbox.impl.commands.inv_list import ListInvocation
         self.autopager()
-        return ListInvocation(self.provider_list, ns).run()
+        return ListInvocation(self.provider_loader, ns).run()
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(

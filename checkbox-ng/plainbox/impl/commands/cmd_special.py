@@ -29,13 +29,13 @@ class SpecialCommand(PlainBoxCommand, CheckBoxCommandMixIn):
     Implementation of ``$ plainbox special``
     """
 
-    def __init__(self, provider_list, config):
-        self.provider_list = provider_list
+    def __init__(self, provider_loader, config):
+        self.provider_loader = provider_loader
         self.config = config
 
     def invoked(self, ns):
         from plainbox.impl.commands.inv_special import SpecialInvocation
-        return SpecialInvocation(self.provider_list, self.config, ns).run()
+        return SpecialInvocation(self.provider_loader, self.config, ns).run()
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(

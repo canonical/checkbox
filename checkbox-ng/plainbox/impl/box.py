@@ -82,13 +82,13 @@ class PlainBoxTool(PlainBoxToolBase):
         top-level subcommands.
         """
         # TODO: switch to plainbox plugins
-        RunCommand(self._provider_list, self._config).register_parser(
+        RunCommand(self._load_providers, self._config).register_parser(
             subparsers)
-        SessionCommand(self._provider_list).register_parser(subparsers)
+        SessionCommand(self._load_providers).register_parser(subparsers)
         DeviceCommand().register_parser(subparsers)
         PlainboxSelfTestCommand().register_parser(subparsers)
         CheckConfigCommand(self._config).register_parser(subparsers)
-        DevCommand(self._provider_list, self._config).register_parser(
+        DevCommand(self._load_providers, self._config).register_parser(
             subparsers)
         StartProviderCommand().register_parser(subparsers)
 
@@ -124,7 +124,7 @@ class StubBoxTool(PlainBoxTool):
     def _load_providers(self):
         logger.info("Loading stubbox provider...")
         from plainbox.impl.providers.special import get_stubbox
-        self._provider_list.append(get_stubbox())
+        return [get_stubbox()]
 
 
 def main(argv=None):

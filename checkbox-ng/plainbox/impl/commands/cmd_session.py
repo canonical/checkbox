@@ -50,13 +50,13 @@ from plainbox.impl.exporter import get_all_exporters
     """))
 class SessionCommand(PlainBoxCommand):
 
-    def __init__(self, provider_list):
+    def __init__(self, provider_loader):
         super().__init__()
-        self.provider_list = provider_list
+        self.provider_loader = provider_loader
 
     def invoked(self, ns):
         from plainbox.impl.commands.inv_session import SessionInvocation
-        return SessionInvocation(ns, self.provider_list).run()
+        return SessionInvocation(ns, self.provider_loader).run()
 
     def register_parser(self, subparsers):
         parser = self.add_subcommand(subparsers)

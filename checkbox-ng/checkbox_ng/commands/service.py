@@ -69,8 +69,8 @@ def connect_to_session_bus():
 
 class ServiceInvocation:
 
-    def __init__(self, provider_list, config, ns):
-        self.provider_list = provider_list
+    def __init__(self, provider_loader, config, ns):
+        self.provider_loader = provider_loader
         self.config = config
         self.ns = ns
 
@@ -79,7 +79,7 @@ class ServiceInvocation:
         logger.info(_("Setting up DBus objects..."))
         session_list = []  # TODO: load sessions
         logger.debug(_("Constructing Service object"))
-        service_obj = Service(self.provider_list, session_list, self.config)
+        service_obj = Service(self.provider_loader(), session_list, self.config)
         logger.debug(_("Constructing ServiceWrapper"))
         service_wrp = ServiceWrapper(service_obj, on_exit=lambda: loop.quit())
         logger.info(_("Publishing all objects on DBus"))
@@ -116,7 +116,7 @@ class ServiceCommand(CheckboxCommand):
     """
 
     def invoked(self, ns):
-        return ServiceInvocation(self.provider_list, self.config, ns).run()
+        return ServiceInvocation(self.provider_loader, self.config, ns).run()
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser("service", help=_("spawn dbus service"))

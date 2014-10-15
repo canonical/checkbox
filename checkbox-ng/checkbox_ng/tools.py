@@ -50,9 +50,11 @@ class CheckboxToolBase(ToolBase):
         Initialize all the variables, real stuff happens in main()
         """
         super().__init__()
-        all_providers.load()
         self._config = self.get_config_cls().get()
-        self._provider_list = all_providers.get_all_plugin_objects()
+
+    def _load_providers(self):
+        all_providers.load()
+        return all_providers.get_all_plugin_objects()
 
     @property
     def config(self):
@@ -60,13 +62,6 @@ class CheckboxToolBase(ToolBase):
         A Config instance
         """
         return self._config
-
-    @property
-    def provider_list(self):
-        """
-        A list of available providers
-        """
-        return self._provider_list
 
     @classmethod
     def get_exec_version(cls):
@@ -116,19 +111,19 @@ class CheckboxTool(CheckboxToolBase):
         from checkbox_ng.commands.submit import SubmitCommand
         from plainbox.impl.commands.cmd_check_config import CheckConfigCommand
         SRUCommand(
-            self.provider_list, self.config
+            self._load_providers, self.config
         ).register_parser(subparsers)
         CheckConfigCommand(
             self.config
         ).register_parser(subparsers)
         ServiceCommand(
-            self.provider_list, self.config
+            self._load_providers, self.config
         ).register_parser(subparsers)
         SubmitCommand(
             self.config
         ).register_parser(subparsers)
         LauncherCommand(
-            self.provider_list, self.config
+            self._load_providers, self.config
         ).register_parser(subparsers)
         SelfTestCommand(load_unit_tests).register_parser(subparsers)
 
@@ -148,7 +143,7 @@ class CheckboxServiceTool(SingleCommandToolMixIn, CheckboxToolBase):
 
     def get_command(self):
         from checkbox_ng.commands.service import ServiceCommand
-        return ServiceCommand(self.provider_list, self.config)
+        return ServiceCommand(self._load_providers, self.config)
 
 
 class CheckboxSubmitTool(SingleCommandToolMixIn, CheckboxToolBase):
@@ -182,4 +177,4 @@ class CheckboxLauncherTool(SingleCommandToolMixIn, CheckboxToolBase):
 
     def get_command(self):
         from checkbox_ng.commands.launcher import LauncherCommand
-        return LauncherCommand(self.provider_list, self.config)
+        return LauncherCommand(self._load_providers, self.config)

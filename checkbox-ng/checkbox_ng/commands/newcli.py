@@ -76,8 +76,8 @@ class CliInvocation2(RunInvocation):
         A list of whitelists to look at
     """
 
-    def __init__(self, provider_list, config, ns, launcher, display=None):
-        super().__init__(provider_list, config, ns)
+    def __init__(self, provider_loader, config, ns, launcher, display=None):
+        super().__init__(provider_loader, config, ns)
         if display is None:
             display = get_display()
         self._launcher = launcher

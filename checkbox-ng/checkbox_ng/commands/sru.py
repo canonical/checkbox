@@ -59,8 +59,8 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
     time.
     """
 
-    def __init__(self, provider_list, config, ns):
-        super().__init__(provider_list, config)
+    def __init__(self, provider_loader, config, ns):
+        super().__init__(provider_loader, config)
         self.ns = ns
         if self.ns.whitelist:
             self.whitelist = self.get_whitelist_from_file(
@@ -69,7 +69,7 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
             self.whitelist = self.get_whitelist_from_file(
                 self.config.whitelist)
         else:
-            self.whitelist = get_whitelist_by_name(provider_list, 'sru')
+            self.whitelist = get_whitelist_by_name(self.provider_list, 'sru')
         self.job_list = self.get_job_list(ns)
         # XXX: maybe allow specifying system_id from command line?
         self.exporter = XMLSessionStateExporter(system_id=None)
@@ -201,8 +201,8 @@ class SRUCommand(PlainBoxCommand, CheckBoxCommandMixIn):
 
     gettext_domain = "checkbox-ng"
 
-    def __init__(self, provider_list, config):
-        self.provider_list = provider_list
+    def __init__(self, provider_loader, config):
+        self.provider_loader = provider_loader
         self.config = config
 
     def invoked(self, ns):
@@ -223,7 +223,7 @@ class SRUCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             retval = CheckConfigInvocation(self.config).run()
             if retval != 0:
                 return retval
-        return _SRUInvocation(self.provider_list, self.config, ns).run()
+        return _SRUInvocation(self.provider_loader, self.config, ns).run()
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(

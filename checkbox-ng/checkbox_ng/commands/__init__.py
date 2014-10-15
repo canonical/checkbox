@@ -35,24 +35,25 @@ class CheckboxCommand(CommandBase):
 
     gettext_domain = "checkbox-ng"
 
-    def __init__(self, provider_list, config):
+    def __init__(self, provider_loader, config):
         """
         Initialize a command with the specified arguments.
 
-        :param provider_list:
-            A list of Provider1 objects
+        :param provider_loader:
+            A callable returning a list of Provider1 objects
         :param config:
             A Config object
         """
-        self._provider_list = provider_list
+        self._provider_loader = provider_loader
         self._config = config
 
     @property
-    def provider_list(self):
+    def provider_loader(self):
         """
-        a list of PlainBox providers associated with this command
+        a callable returning a list of PlainBox providers associated with this
+        command
         """
-        return self._provider_list
+        return self._provider_loader
 
     @property
     def config(self):

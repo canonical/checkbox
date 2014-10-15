@@ -38,8 +38,8 @@ logger = getLogger("checkbox.ng.commands.oldcli")
 
 class CliInvocation(CheckBoxInvocationMixIn):
 
-    def __init__(self, provider_list, config, settings, ns, display=None):
-        super().__init__(provider_list, config)
+    def __init__(self, provider_loader, config, settings, ns, display=None):
+        super().__init__(provider_loader, config)
         self.settings = settings
         self.display = display
         self.ns = ns

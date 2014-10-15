@@ -17,7 +17,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 """
 :mod:`plainbox.impl.commands.cmd_startprovider` -- startprovider sub-command
-=================================----=======================================
+============================================================================
 """
 from plainbox.i18n import docstring
 from plainbox.i18n import gettext as _

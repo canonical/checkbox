@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2013-2014 Canonical Ltd.
+# Copyright 2012-2014 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
@@ -15,7 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-
 """
 :mod:`plainbox.impl.commands.inv_analyze` -- analyze sub-command
 ================================================================

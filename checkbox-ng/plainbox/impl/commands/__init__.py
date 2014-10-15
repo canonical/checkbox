@@ -16,7 +16,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-
 """
 :mod:`plainbox.impl.commands` -- shared code for plainbox sub-commands
 ======================================================================
@@ -76,7 +75,6 @@ class PlainBoxToolBase(ToolBase):
         """
         super().__init__()
         self._config = None  # set in late_init()
-        self._provider_list = []  # updated in late_init()
 
     @classmethod
     @abc.abstractmethod
@@ -99,25 +97,12 @@ class PlainBoxToolBase(ToolBase):
         # Load plainbox configuration
         self._config = self.get_config_cls().get()
 
-    def dispatch_command(self, ns):
-        """
-        Overridden version of dispatch_command()
-
-        This method delays the loading of the list of providers that
-        PlainBoxToolBase currently knows about to the very last moment.
-        Later on this list (provider_list) will be removed and all commands
-        will use the provider store directly thus lessening the demand on
-        the loading stuff early on.
-        """
-        self._load_providers()
-        return super().dispatch_command(ns)
-
     def _load_providers(self):
         logger.info("Loading all providers...")
         # Load all normal providers
         from plainbox.impl.providers.v1 import all_providers
         all_providers.load()
-        self._provider_list.extend(all_providers.get_all_plugin_objects())
+        return all_providers.get_all_plugin_objects()
 
 
 class PlainBoxCommand(CommandBase):

@@ -47,8 +47,8 @@ class ScriptInvocation(CheckBoxInvocationMixIn):
     the command is to be invoked.
     """
 
-    def __init__(self, provider_list, config, job_id):
-        super().__init__(provider_list, config)
+    def __init__(self, provider_loader, config, job_id):
+        super().__init__(provider_loader, config)
         self.job_id = job_id
 
     def run(self):

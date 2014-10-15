@@ -37,13 +37,13 @@ from plainbox.impl.transport import get_all_transports
 
 class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
 
-    def __init__(self, provider_list, config):
-        self.provider_list = provider_list
+    def __init__(self, provider_loader, config):
+        self.provider_loader = provider_loader
         self.config = config
 
     def invoked(self, ns):
         from plainbox.impl.commands.inv_run import RunInvocation
-        return RunInvocation(self.provider_list, self.config, ns,
+        return RunInvocation(self.provider_loader, self.config, ns,
                              ns.use_colors).run()
 
     def register_parser(self, subparsers):

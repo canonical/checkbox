@@ -40,13 +40,13 @@ class AnalyzeCommand(PlainBoxCommand, CheckBoxCommandMixIn):
     Implementation of ``$ plainbox dev analyze``
     """
 
-    def __init__(self, provider_list, config):
-        self.provider_list = provider_list
+    def __init__(self, provider_loader, config):
+        self.provider_loader = provider_loader
         self.config = config
 
     def invoked(self, ns):
         from plainbox.impl.commands.inv_analyze import AnalyzeInvocation
-        return AnalyzeInvocation(self.provider_list, self.config, ns).run()
+        return AnalyzeInvocation(self.provider_loader, self.config, ns).run()
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(

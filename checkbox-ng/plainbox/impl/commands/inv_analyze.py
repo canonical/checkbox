@@ -45,12 +45,12 @@ logger = getLogger("plainbox.commands.analyze")
 
 class AnalyzeInvocation(CheckBoxInvocationMixIn):
 
-    def __init__(self, provider_list, config, ns):
-        super().__init__(provider_list, config)
+    def __init__(self, provider_loader, config, ns):
+        super().__init__(provider_loader, config)
         self.ns = ns
         self.unit_list = list(
             itertools.chain(*[
-                p.get_units()[0] for p in provider_list]))
+                p.get_units()[0] for p in self.provider_list]))
         self.session = SessionState(self.unit_list)
         self.desired_job_list = self._get_matching_job_list(
             ns, self.session.job_list)

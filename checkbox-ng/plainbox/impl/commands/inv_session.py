@@ -52,9 +52,9 @@ class SessionInvocation:
         The argparse namespace obtained from SessionCommand
     """
 
-    def __init__(self, ns, provider_list):
+    def __init__(self, ns, provider_loader):
         self.ns = ns
-        self.provider_list = provider_list
+        self.provider_loader = provider_loader
 
     def run(self):
         cmd = getattr(self.ns, 'session_cmd', self.ns.default_session_cmd)
@@ -165,7 +165,7 @@ class SessionInvocation:
     def _get_all_units(self):
         return list(
             itertools.chain(*[
-                p.get_units()[0] for p in self.provider_list]))
+                p.get_units()[0] for p in self.provider_loader()]))
 
     def _print_output_format_list(self):
         print(_("Available output formats: {}").format(

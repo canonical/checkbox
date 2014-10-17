@@ -524,6 +524,11 @@ def main():
                                   if not args.min_speed or
                                   int(test.rem_disks_speed[disk])
                                   >= int(args.min_speed)}
+                if len(disks_eligible) == 0:
+                    logging.error(
+                        "No %s disks with speed higher than %s bits/s",
+                        args.device, args.min_speed)
+                    return 1
                 write_sizes = []
                 test_files = {}
                 disks_freespace = {}
@@ -638,12 +643,6 @@ def main():
                         "Completed %s test iterations, but there were"
                         " errors", args.count)
                     return 1
-                elif len(disks_eligible) == 0:
-                    logging.error(
-                        "No %s disks with speed higher than %s bits/s",
-                        args.device, args.min_speed)
-                    return 1
-
                 else:
                     # LP: 1313581
                     if (args.driver == 'xhci_hcd'):

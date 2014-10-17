@@ -315,19 +315,17 @@ class DiskTest():
         udev_client = GUdev.Client()
         # Get a collection of all udev devices corresponding to block devices
         udev_devices = get_udev_block_devices(udev_client)
-        try:
-            udev_devices_xhci = get_udev_xhci_devices(udev_client)
-            for udev_device_xhci in udev_devices_xhci:
-                pci_slot_name = udev_device_xhci.get_property('PCI_SLOT_NAME')
-                for udev_device in udev_devices:
-                    devpath = udev_device.get_property('DEVPATH')
-                    if (self._compare_pci_slot_from_devpath(devpath,
-                                                            pci_slot_name)):
-                        self.rem_disks_xhci[
-                            udev_device.get_property('DEVNAME')] = 'xhci'
-            return self.rem_disks_xhci
-        except:
-            logging.error("Failed to get driver information.")
+        # Get a collection of all udev devices corresponding to xhci devices
+        udev_devices_xhci = get_udev_xhci_devices(udev_client)
+        for udev_device_xhci in udev_devices_xhci:
+            pci_slot_name = udev_device_xhci.get_property('PCI_SLOT_NAME')
+            for udev_device in udev_devices:
+                devpath = udev_device.get_property('DEVPATH')
+                if (self._compare_pci_slot_from_devpath(devpath,
+                                                        pci_slot_name)):
+                    self.rem_disks_xhci[
+                        udev_device.get_property('DEVNAME')] = 'xhci'
+        return self.rem_disks_xhci
 
     def mount(self):
         passed_mount = {}
@@ -654,25 +652,50 @@ def main():
 
                 else:
                     # LP: 1313581
+                    # Try to figure out whether the disk
+                    # is SuperSpeed USB and using xhci_hcd driver.
                     if (args.driver == 'xhci_hcd'):
                         # The speed reported by udisks is sometimes
-                        # less than 5G bits/s, for example, it may be 705032705 bits/s
+                        # less than 5G bits/s, for example,
+                        # it may be 705032705 bits/s
                         # So using
-                        # 500000000 = 500 M bits/s > 480 M bits/s ( USB 2.0 spec.)
+                        # 500000000
+                        # = 500 M bits/s
+                        # > 480 M bits/s ( USB 2.0 spec.)
                         # to make sure that it is higher USB version than 2.0
                         #
                         # int() for int(test.rem_disks_speed[disk])
                         # is necessary
-                        # because the speed value of the dictionary rem_disks_speed is
+                        # because the speed value of
+                        # the dictionary rem_disks_speed is
                         # 1. str or int from _probe_disks_udisks2
                         # 2. int from _probe_disks_udisks1.
                         # This is really a mess. : (
-                        # 
                         print("\t\t--------------------------------")
-                        if(500000000 < int(test.rem_disks_speed[disk]) and
-                           'xhci' == test.get_disks_xhci()[disk]):
+                        if(500000000 < int(test.rem_disks_speed[disk])):
                             print("\t\tDevice Detected: SuperSpeed USB")
-                            print("\t\tDriver Detected: xhci_hcd")
+                            # Unlike rem_disks_speed,
+                            # which must has the connect speed
+                            # for each disk devices,
+                            # disk devices may not use xhci as
+                            # controller drivers.
+                            # This will raise KeyError for no
+                            # associated disk device was found.
+                            xhci_disks = test.get_disks_xhci()
+                            # pep8 style suggest to limit the try clause
+                            # to the absolute minimum amount of code necessary
+                            try:
+                                disk_xhci_flag = xhci_disks[disk]
+                            except KeyError:
+                                print("\t\tDisk does not use xhci_hci.")
+                                return 1
+                            else:
+                                if('xhci' == disk_xhci_flag):
+                                    print("\t\tDriver Detected: xhci_hcd")
+                                else:
+                                    print("\t\tDisk does not use xhci_hci.")
+                                    logging.debug("disk_xhci_flag is not xhci")
+                                    return 1
                         else:
                             # Give it a hint for the detection failure.
                             # LP: #1362902

@@ -131,7 +131,7 @@ class MemoryTest():
 
         print("Running threaded memory test:")
         run_time = 60  # sec.
-        if not self.run_processes(processes, "%s -qpv -m%um -t%u" % (
+        if not self.run_processes(processes, "%s -qv -m%um -t%u" % (
                 self.threaded_memtest_script, self.process_memory, run_time)):
             print("Multi-process, threaded memory Test FAILED",
                   file=sys.stderr)
@@ -166,7 +166,7 @@ class MemoryTest():
             print("Running for more than free memory at %u MB for %u sec." % (
                 memory, run_time))
 
-            command = "%s -qpv -m%um -t%u" % (
+            command = "%s -qv -m%um -t%u" % (
                 self.threaded_memtest_script, memory, run_time)
             print("Command is: %s" % command)
             process = self._command(command)
@@ -180,7 +180,7 @@ class MemoryTest():
 
         # run again for 15 minutes
         print("Running for free memory")
-        process = self._command("%s -qpv" % self.threaded_memtest_script)
+        process = self._command("%s -qv" % self.threaded_memtest_script)
         process.communicate()
         if process.returncode != 0:
             print("Free Memory Test failed", file=sys.stderr)

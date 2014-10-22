@@ -79,7 +79,8 @@ class IPerfPerformanceTest(object):
             logging.error("Check your device configuration and try again")
             return 1
         
-        cmd = "timeout 180 iperf -c {} -n {}".format(self.target, self.mbytes)
+        cmd = "timeout 180 iperf -c {} -n {} -i 1 -f m".format(
+            self.target, self.mbytes)
 
         logging.debug(cmd)
         try:
@@ -102,20 +103,12 @@ class IPerfPerformanceTest(object):
 
         # 930 Mbits/sec\n'
         print(iperf_return)
-        match = re.search(r'[\d\.]+\s([KGM])bits/sec', iperf_return)
+        speeds = list(map(float,re.findall(r"([\w\.]+)\sMbits/sec", iperf_return)))
         invalid_speed = False
-        if match:
-            throughput = match.group(0).split()[0]
-            units = match.group(1)
-            # self.iface.max_speed is always in mb/s, so we need to scale
-            # throughput to match
-            scaled_throughput = float(throughput)
-            if units == 'G':
-                scaled_throughput *= 1000
-            if units == 'K':
-                scaled_throughput /= 1000
+        if speeds:
+            throughput = sum(speeds)/len(speeds)
             try:
-                percent = scaled_throughput / int(self.iface.max_speed) * 100
+                percent = throughput / int(self.iface.max_speed) * 100
             except (ZeroDivisionError, TypeError):
                 # Catches a condition where the interface functions fine but
                 # ethtool fails to properly report max speed. In this case
@@ -123,7 +116,9 @@ class IPerfPerformanceTest(object):
                 percent = 0
                 invalid_speed = True
 
-            print("\nTransfer speed: {} {}b/s".format(throughput, units))
+            logging.info("Min Transfer speed: {} mb/s".format(min(speeds)))
+            logging.info("Max Transfer speed: {} mb/s".format(max(speeds)))
+            logging.info("Avg Transfer speed: {} mb/s".format(throughput))
             if invalid_speed:
                 # If we have no link_speed (e.g. wireless interfaces don't
                 # report this), then we shouldn't penalize them because
@@ -134,12 +129,11 @@ class IPerfPerformanceTest(object):
                 return 0
             # Below is guaranteed to not throw an exception because we'll
             # have exited above if it did.
-            print("{:03.2f}% of theoretical max {} Mb/s\n".format(percent,
+            logging.info("{:03.2f}% of theoretical max {} Mb/s".format(percent,
                   int(self.iface.max_speed)))
             if percent < self.fail_threshold:
                 logging.warn("Poor network performance detected")
-                logging.warn("  Transfer speed: {} {}b/s".format(
-                             throughput, units))
+                logging.warn("  Transfer speed: {} mb/s".format(throughput))
                 logging.warn("  {:03.2f}% of theoretical max {}Mb/s\n".format(
                              percent, int(self.iface.max_speed)))
                 return 30

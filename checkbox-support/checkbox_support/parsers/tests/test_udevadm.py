@@ -389,6 +389,29 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "DISK"), 1)
         self.assertEqual(self.count(devices, "NETWORK"), 1)
 
+    def test_HP_400_G2(self):
+        devices = self.parse("HP_400_G2")
+        self.assertEqual(len(devices), 69)
+        self.assertEqual(self.count(devices, "OTHER"), 28)
+        self.assertEqual(self.count(devices, "VIDEO"), 2)
+        self.assertEqual(self.count(devices, "AUDIO"), 4)
+        self.assertEqual(self.count(devices, "KEYBOARD"), 1)
+        self.assertEqual(self.count(devices, "TOUCHPAD"), 0)
+        self.assertEqual(self.count(devices, "CDROM"), 1)
+        self.assertEqual(self.count(devices, "FIREWIRE"), 0)
+        self.assertEqual(self.count(devices, "MOUSE"), 1)
+        self.assertEqual(self.count(devices, "ACCELEROMETER"), 0)
+        self.assertEqual(self.count(devices, "TOUCHSCREEN"), 0)
+        self.assertEqual(self.count(devices, "CAPTURE"), 0)
+        self.assertEqual(self.count(devices, "BLUETOOTH"), 0)
+        self.assertEqual(self.count(devices, "WIRELESS"), 1)
+        self.assertEqual(self.count(devices, "RAID"), 0)
+        self.assertEqual(self.count(devices, "DISK"), 1)
+        self.assertEqual(self.count(devices, "NETWORK"), 1)
+        expected_devices = [(None, "VIDEO", "pci", 0x8086, 0x0412)]
+        expected_devices = [(None, "VIDEO", "pci", 0x10DE, 0x107D)]
+        self.verify_devices(devices, expected_devices)
+
     def test_HP_PRO2110(self):
         devices = self.parse("HP_PRO2110")
         self.assertEqual(len(devices), 60)

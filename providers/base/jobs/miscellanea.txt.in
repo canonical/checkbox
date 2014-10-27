@@ -82,6 +82,28 @@ _summary:
  Gather BMC Identification info
 
 plugin: shell
+id: miscellanea/dmitest_server
+requires: package.name == 'dmidecode'
+estimated_duration: 0.5
+user: root
+command: dmitest server
+_description:
+ Sanity check of DMI system identification data (for servers)
+_summary:
+ DMI ID sanity check (servers)
+
+plugin: shell
+id: miscellanea/dmitest_client
+requires: package.name == 'dmidecode'
+estimated_duration: 0.5
+user: root
+command: dmitest desktop
+_description:
+ Sanity check of DMI system identification data (for desktops & laptops)
+_summary:
+ DMI ID sanity check (desktops/laptops)
+
+plugin: shell
 id: miscellanea/is_laptop
 user: root
 _description:

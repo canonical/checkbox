@@ -2,7 +2,7 @@
 #
 # This file is part of Checkbox.
 #
-# Copyright 2011 Canonical Ltd.
+# Copyright 2014 Canonical Ltd.
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -22,7 +22,10 @@
 # system reports a chassis type that suits its class (server or
 # desktop/laptop)
 #
-# Requires 'server' or 'desktop' as command-line parameter.
+# Parameters:
+#  * --dmifile {filename} -- Input filename; optional. If specified,
+#    file is used instead of dmidecode output.
+#  * 'desktop' or 'server' -- Type of system being tested.
 
 import sys
 import subprocess
@@ -34,7 +37,6 @@ from argparse import ArgumentParser
 COMMAND = "dmidecode"
 
 
-# TODO: Fix up empty detection
 def find_in_section(stream, section, label, strings, find_empty):
     """ Search for a set of strings on a labelled line in a section
         of the output.
@@ -78,19 +80,19 @@ def find_in_section(stream, section, label, strings, find_empty):
 def main():
     parser = ArgumentParser("dmitest")
     parser.add_argument('system_type',
-                        help="System type ('server' or 'desktop').")
+                        help="System type ('server' or 'desktop').",
+                        choices=['server', 'desktop'])
+    parser.add_argument('--dmifile',
+                        help="File to use in lieu of dmidecode.")
     args = parser.parse_args()
 
-    if args.system_type not in ['server', 'desktop']:
-        print("*** Invalid system type: " + args.system_type)
-        print("*** System type must be 'server' or 'desktop'")
-        return 1
-
     try:
-        stream = subprocess.check_output(COMMAND, universal_newlines=True).splitlines()
-#        stream = subprocess.check_output(['cat', 'dmidecode-output2/dmidecode.96.201011-6842.txt'], universal_newlines=True).splitlines()
-    except CalledProcessError as err:
-        stream = err.output
+        if args.dmifile:
+            stream = subprocess.check_output(['cat', args.dmifile], universal_newlines=True).splitlines()
+        else:
+            stream = subprocess.check_output(COMMAND, universal_newlines=True).splitlines()
+    except subprocess.CalledProcessError as err:
+        print("Error running " + COMMAND)
         return 1
 
     retval = 0
@@ -164,12 +166,17 @@ def main():
 
     if find_in_section(stream, 'Base Board Information', 'Serial Number:',
                        ['not specified', 'n/a', 'base board serial number',
-                        'to be filled by o\.e\.m\.', 'empty'], True):
+                        'to be filled by o\.e\.m\.', 'empty', '\.\.\.'], True):
         print("*** Invalid base board serial number!")
         retval = 1
 
     # In review of dmidecode data on 10/23/2014, no conspicuous problems
     # found in BIOS Information section's Vendor fields.
+
+    if retval:
+        print("\nFailed one or more tests (see above)")
+    else:
+        print("\nPassed all tests")
 
     return retval
 

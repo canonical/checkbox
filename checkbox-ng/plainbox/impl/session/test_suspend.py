@@ -39,6 +39,7 @@ from plainbox.impl.session.suspend import SessionSuspendHelper1
 from plainbox.impl.session.suspend import SessionSuspendHelper2
 from plainbox.impl.session.suspend import SessionSuspendHelper3
 from plainbox.impl.session.suspend import SessionSuspendHelper4
+from plainbox.impl.testing_utils import make_job
 from plainbox.vendor import mock
 
 
@@ -778,3 +779,37 @@ class SessionSuspendHelper4Tests(SessionSuspendHelper3Tests):
             b'{"app_blob":null,"app_id":null,"flags":[],'
             b'"running_job_name":null,"title":null},"results":{}},'
             b'"version":4}'))
+
+
+class RegressionTests(TestCase):
+
+    def test_1388055(self):
+        """
+        https://bugs.launchpad.net/plainbox/+bug/1388055
+        """
+        # This bug is about being able to resume a session despite job database
+        # modification. Let's assume the following session first:
+        # - desired job list: [a]
+        # - run list [a_dep, a] (computed)
+        # - job_repr: {a_dep: checksum}
+        job_a = make_job(id='a', depends='a_dep')
+        job_a_dep = make_job(id='a_dep')
+        state = SessionState([job_a, job_a_dep])
+        state.update_desired_job_list([job_a])
+        self.assertEqual(state.run_list, [job_a_dep, job_a])
+        self.assertEqual(state.desired_job_list, [job_a])
+        helper = SessionSuspendHelper4()
+        # Mock away the meta-data as we're not testing that
+        with mock.patch.object(helper, '_repr_SessionMetaData') as m:
+            m.return_value = 'mocked'
+            actual = helper._repr_SessionState(state)
+        expected = {
+            'jobs': {
+                job_a_dep.id: job_a_dep.checksum,
+                job_a.id: job_a.checksum,
+            },
+            'desired_job_list': [job_a.id],
+            'results': {},
+            'metadata': 'mocked'
+        }
+        self.assertEqual(expected, actual)

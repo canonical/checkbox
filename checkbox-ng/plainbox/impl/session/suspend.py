@@ -465,9 +465,12 @@ class SessionSuspendHelper4(SessionSuspendHelper3):
                 Dictionary mapping job id to job checksum.
                 The checksum is computed with
                 :attr:`~plainbox.impl.job.JobDefinition.checksum`.
-                Only jobs that actually have a result are mentioned here.
-                The automatically generated "None" result that is always
-                present for every job is skipped.
+                Two kinds of jobs are mentioned here:
+                    - jobs that ever ran and have a result
+                    - jobs that may run (are on the run list now)
+                The idea is to capture the "state" of the jobs that are
+                "important" to this session, that should be checked for
+                modifications when the session resumes later.
 
             ``results``
                 Dictionary mapping job id to a list of results.
@@ -487,7 +490,7 @@ class SessionSuspendHelper4(SessionSuspendHelper3):
             "jobs": {
                 state.job.id: state.job.checksum
                 for state in obj.job_state_map.values()
-                if not state.result.is_hollow
+                if not state.result.is_hollow or state.job in obj.run_list
             },
             "results": {
                 # Currently we store only one result but we may store

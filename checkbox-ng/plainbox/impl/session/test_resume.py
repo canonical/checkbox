@@ -47,6 +47,7 @@ from plainbox.impl.session.resume import SessionResumeHelper
 from plainbox.impl.session.resume import SessionResumeHelper1
 from plainbox.impl.session.resume import SessionResumeHelper2
 from plainbox.impl.session.resume import SessionResumeHelper3
+from plainbox.impl.session.resume import SessionResumeHelper4
 from plainbox.impl.session.state import SessionState
 from plainbox.impl.testing_utils import make_job
 from plainbox.testing_utils.testcases import TestCaseWithParameters
@@ -59,9 +60,8 @@ class ResumeDiscardQualifierTests(TestCase):
     """
 
     def setUp(self):
-        # The initializer accepts the jobs representation dictionary but uses
-        # keys only. Here the values are dummy None objects
-        self.obj = ResumeDiscardQualifier({'foo': None, 'bar': None}, ['froz'])
+        # The initializer accepts a collection of job IDs to retain
+        self.obj = ResumeDiscardQualifier({'foo', 'bar', 'froz'})
 
     def test_init(self):
         self.assertEqual(
@@ -1737,3 +1737,32 @@ class SessionJobListResumeTests(TestCaseWithParameters):
         # Job "a" is still in the list but job "b" got removed
         self.assertEqual(session.job_list, [job_a])
         # The rest is tested by trim_job_list() tests
+
+
+class RegressionTests(TestCase):
+
+    def test_1387782(self):
+        """
+        https://bugs.launchpad.net/plainbox/+bug/1387782
+        """
+        # This bug is about not being able to resume a session like this:
+        # - desired job list: [a]
+        # - run list [a_dep, a] (computed)
+        # - job_repr: []  # assume a_dep is not there
+        job_a = make_job(id='a', depends='a_dep')
+        job_a_dep = make_job(id='a_dep')
+        job_unrelated = make_job('unrelated')
+        session_repr = {
+            'version': 4,
+            'session': {
+                'jobs': {},  # nothing ran yet
+                'desired_job_list': [job_a.id],  # we want a to run
+                'results': {},  # nothing ran yet
+            },
+        }
+        helper = SessionResumeHelper4([job_a, job_a_dep, job_unrelated])
+        # Mock away meta-data restore code as we're not testing that
+        with mock.patch.object(helper, '_restore_SessionState_metadata'):
+            session = helper.resume_json(session_repr)
+        # Both job_a and job_a_dep are there but job_unrelated is now gone
+        self.assertEqual(session.job_list, [job_a, job_a_dep])

@@ -218,6 +218,7 @@ class NormalUI(IJobRunnerUI):
     def considering_job(self, job, job_state):
         print(self.C.header(job.tr_summary(), fill='-'))
         print(_("ID: {0}").format(job.id))
+        print(_("Category: {0}").format(job.category_id))
 
     def about_to_start_running(self, job, job_state):
         pass

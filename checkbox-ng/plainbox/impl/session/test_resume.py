@@ -1712,7 +1712,7 @@ class SessionJobListResumeTests(TestCaseWithParameters):
 
     parameter_names = ('resume_cls',)
     parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
-                        (SessionResumeHelper3,))
+                        (SessionResumeHelper3,), (SessionResumeHelper4,))
 
     def test_simple_session(self):
         """

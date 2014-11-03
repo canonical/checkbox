@@ -252,13 +252,9 @@ class ResumeDiscardQualifier(SimpleQualifier):
     after doing a session resume.
     """
 
-    def __init__(self, jobs_repr, desired_job_list_repr):
+    def __init__(self, retain_id_set):
         super().__init__(Origin.get_caller_origin())
-        # Set of ids of jobs to retain (computed as keys of the
-        # dictionary taken from the session resume representation)
-        self._retain_id_set = (
-            frozenset(jobs_repr)
-            | frozenset(desired_job_list_repr))
+        self._retain_id_set = frozenset(retain_id_set)
 
     def get_simple_match(self, job):
         return job.id not in self._retain_id_set
@@ -626,19 +622,31 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
         session representation. This should never fail as anything that might
         go wrong must have gone wrong before.
         """
-
         # Representation of all of the important job definitions
         jobs_repr = _validate(session_repr, key='jobs', value_type=dict)
-        # Representation of all the desired job definitions
-        desired_job_list_repr = _validate(
-            session_repr, key='desired_job_list', value_type=list)
         # Qualifier ready to select jobs to remove
-        qualifier = ResumeDiscardQualifier(jobs_repr, desired_job_list_repr)
-        # NOTE: this should never raise ValueError (which signals that we
-        # tried to remove a job which is in the run list) because it should
-        # only remove jobs that were not in the representation and any job in
-        # the run list must be in the representation already.
-        session.trim_job_list(qualifier)
+        qualifier = ResumeDiscardQualifier(
+            # This qualifier must select jobs that we want to KEEP:
+            # - All of the jobs that we need to run (aka, the desired jobs
+            #   list). This is pretty obvious and it is exactly what must
+            #   be preserved or trim_job_list() will complain
+            set([job.id for job in session.run_list])
+            # - All of the jobs that have representation (aka checksum).
+            #   We want those jobs because they have results (or they would not
+            #   end up in the list as of format v4). If they have results we
+            #   just have to keep them. Perhaps the session had a different
+            #   selection earlier, who knows.
+            | set(jobs_repr)
+        )
+        try:
+            # NOTE: this should never raise ValueError (which signals that we
+            # tried to remove a job which is in the run list) because it should
+            # only remove jobs that were not in the representation and any job
+            # in the run list must be in the representation already.
+            session.trim_job_list(qualifier)
+        except ValueError:
+            logger.error("BUG in session resume logic / assumptions")
+            raise
 
     @classmethod
     def _build_JobResult(cls, result_repr):

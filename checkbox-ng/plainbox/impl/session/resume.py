@@ -570,6 +570,10 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
         if job.checksum != checksum:
             raise IncompatibleJobError(
                 _("Definition of job {!r} has changed").format(job_id))
+        # The result may not be there. This method is called for all the jobs
+        # we're supposed to check but not all such jobs need to have results
+        if job.id not in results_repr:
+            return
         # Collect all of the result objects into result_list
         result_list = []
         result_list_repr = _validate(

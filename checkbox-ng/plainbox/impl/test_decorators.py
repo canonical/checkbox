@@ -74,3 +74,8 @@ class RaisesTests(unittest.TestCase):
                 This function never fails
                 """
                 raise ValueError
+
+    def test_doesnt_enforce_documentation_for_undocumented_things(self):
+        @raises(ValueError)
+        def func():
+            raise ValueError

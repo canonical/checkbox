@@ -31,6 +31,7 @@ __docformat__ = 'restructuredtext'
 import functools
 import inspect
 import logging
+import os
 
 from dbus import validate_interface_name, Signature, validate_member_name
 from dbus.lowlevel import SignalMessage
@@ -367,3 +368,15 @@ def signal(dbus_interface, signature=None, path_keyword=None,
         return emit_signal
 
     return decorator
+
+
+if os.getenv("MOCK_DBUS") == "yes":
+    def method(**kwargs):
+        def decorator(func):
+            return func
+        return decorator
+
+    def signal(**kwargs):
+        def decorator(func):
+            return func
+        return decorator

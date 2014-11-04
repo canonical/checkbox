@@ -67,6 +67,10 @@ def raises(*exc_cls_list: Exception):
         A decorator that applies the following transformations
     :raises TypeError:
         If any of the exceptions listed aren't subclasses of ``Exception``
+    :raises UndocumentedException:
+        If the decorated function has a docstring but doesn't document all the
+        exceptions listed in ``exc_cls_list``. Note that for undocumented
+        functions this will simply do nothing at all.
 
     1) The original function is wrapped with a helper that detects
        undeclared exceptions and issues an appropriate message on the

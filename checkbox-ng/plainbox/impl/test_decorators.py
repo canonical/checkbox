@@ -46,7 +46,8 @@ class RaisesTests(unittest.TestCase):
         self.assertEqual(
             C.meth.__annotations__['raise'], (ValueError, IOError))
 
-    @unittest.skipIf(sys.version_info[0:2] < (3, 4), "assertLogs not supported")
+    @unittest.skipIf(
+        sys.version_info[0:2] < (3, 4), "assertLogs not supported")
     def test_logs_and_forwards_unknown_exceptions(self):
         @raises(ValueError)
         def func():

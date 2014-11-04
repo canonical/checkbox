@@ -61,7 +61,7 @@ def raises(*exc_cls_list: Exception):
     """
     Declare possible exceptions from a callable
 
-    :param exc_list:
+    :param exc_cls_list:
         A list of exceptions that may be raised
     :returns:
         A decorator that applies the following transformations

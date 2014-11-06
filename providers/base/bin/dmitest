@@ -7,7 +7,6 @@
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -22,14 +21,20 @@
 # system reports a chassis type that suits its class (server or
 # desktop/laptop)
 #
+# By: Rod Smith
+#
 # Parameters:
 #  * --dmifile {filename} -- Input filename; optional. If specified,
 #    file is used instead of dmidecode output.
+#  * --test_versions -- Include chassis, system, and base boad version
+#    numbers among tests.
+#  * --test_serials -- Include system and base board serial numbers among
+#    tests.
 #  * 'desktop' or 'server' -- Type of system being tested.
 
-import sys
-import subprocess
 import re
+import subprocess
+import sys
 
 from argparse import ArgumentParser
 
@@ -47,7 +52,7 @@ def find_in_section(stream, section, label, strings, find_empty):
     :param label:
         label of line on which to search (e.g., "Type:")
     :param strings:
-        set of strings for which to search (e.g., ["server", "blade"]
+        set of strings for which to search (e.g., ["server", "blade"])
     :param find_empty:
         if True, matches empty label field (as if '""' were passed as
         a strings value)
@@ -84,34 +89,57 @@ def main():
                         choices=['server', 'desktop'])
     parser.add_argument('--dmifile',
                         help="File to use in lieu of dmidecode.")
+    parser.add_argument('--test_versions', action="store_true",
+                        help="Set to check version information")
+    parser.add_argument('--test_serials', action="store_true",
+                        help="Set to check serial number information")
     args = parser.parse_args()
 
     try:
         if args.dmifile:
+            print("Reading " + args.dmifile + " as DMI data")
             stream = subprocess.check_output(['cat', args.dmifile], universal_newlines=True).splitlines()
         else:
             stream = subprocess.check_output(COMMAND, universal_newlines=True).splitlines()
     except subprocess.CalledProcessError as err:
-        print("Error running " + COMMAND)
+        print("Error running {}: {}".format(COMMAND, err))
         return 1
 
     retval = 0
 
-    # NOTE: Below tests do NOT include "Other", "Unknown", or null values, so a
-    # computer that shows those values will be flagged as having an invalid
-    # system type. Likewise for any other value not specified.
+    """
+    NOTE: System type is encoded in both the "Chassis Information" and "Base
+    Board Type" sections. The former is more reliable, so we do a whitelist
+    test on it -- the type MUST be specified correctly. The "Base Board Type"
+    section is less reliable, so rather than flag large numbers of systems
+    for having "Unknown", "Other", or something similar here, we just flag
+    it when it's at odds with the type passed on the command line. Also,
+    the "Base Board Type" may specify a desktop or tower system on servers
+    shipped in those form factors, so we don't flag that combination as an
+    error.
+    """
     if args.system_type == 'server':
         if not find_in_section(stream, 'Chassis Information', 'Type:',
                                ['server', 'rack mount', 'blade',
                                 'expansion chassis', 'multi-system'], False):
-            print("*** Invalid or unknown server chassis type!")
+            print("*** Incorrect or unknown server chassis type!")
+            retval = 1
+        if find_in_section(stream, 'Base Board Information', 'Type:',
+                           ['portable', 'notebook', 'space-saving',
+                            'all in one'], False):
+            print("*** Incorrect server base board type!")
             retval = 1
     else:
         if not find_in_section(stream, 'Chassis Information', 'Type:',
                                ['notebook', 'portable', 'laptop', 'desktop',
-                                'lunch box', 'space-saving', 'Tower',
+                                'lunch box', 'space-saving', 'tower',
                                 'all in one', 'hand held'], False):
-            print("*** Invalid or unknown desktop chassis type!")
+            print("*** Incorrect or unknown desktop chassis type!")
+            retval = 1
+        if find_in_section(stream, 'Base Board Information', 'Type:',
+                           ['rack mount', 'server', 'multi-system',
+                            'interconnect board'], False):
+            print("*** Incorrect desktop base board type!")
             retval = 1
 
     if find_in_section(stream, 'Chassis Information', 'Manufacturer:',
@@ -127,51 +155,68 @@ def main():
         print("*** Invalid system manufacturer!")
         retval = 1
 
-    if find_in_section(stream, 'System Information', 'Product Name:',
-                       ['system product name'], True):
-        print("*** Invalid system product name!")
-        retval = 1
-
-    if find_in_section(stream, 'System Information', 'Version:',
-                       ['not specified', 'to be filled by o\.e\.m\.', '\(none\)',
-                        'null', 'system version', 'not applicable',
-                        '\.\.\.\.\.'], True):
-        print("*** Invalid system information version!")
-        retval = 1
-
-    if find_in_section(stream, 'System Information', 'Serial Number:',
-                       ['not specified', 'to be filled by o\.e\.m\.',
-                        'system serial number', '\.\.\.\.\.'],
-                       True):
-        print("*** Invalid system information serial number!")
-        retval = 1
-
     if find_in_section(stream, 'Base Board Information', 'Manufacturer:',
                        ['to be filled by o\.e\.m\.'], True):
         print("*** Invalid base board manufacturer!")
         retval = 1
 
+    if find_in_section(stream, 'System Information', 'Product Name:',
+                       ['system product name', 'to be filled by o\.e\.m\.'],
+                       False):
+        print("*** Invalid system product name!")
+        retval = 1
+
     if find_in_section(stream, 'Base Board Information', 'Product Name:',
                        ['base board product name',
-                        'to be filled by o\.e\.m\.'],
-                       True):
+                        'to be filled by o\.e\.m\.'], False):
         print("*** Invalid base board product name!")
         retval = 1
 
-    if find_in_section(stream, 'Base Board Information', 'Version:',
-                       ['not available', 'not specified', 'base board version',
-                        'empty', 'to be filled by o\.e\.m\.'], True):
-        print("*** Invalid base board version!")
-        retval = 1
+    if args.test_versions:
 
-    if find_in_section(stream, 'Base Board Information', 'Serial Number:',
-                       ['not specified', 'n/a', 'base board serial number',
-                        'to be filled by o\.e\.m\.', 'empty', '\.\.\.'], True):
-        print("*** Invalid base board serial number!")
+        if find_in_section(stream, 'Chassis Information', 'Version:',
+                           ['to be filled by o\.e\.m\.', 'empty'],
+                           False):
+            print("*** Invalid chassis version!")
+            retval = 1
+
+        if find_in_section(stream, 'System Information', 'Version:',
+                           ['to be filled by o\.e\.m\.', '\(none\)',
+                            'null', 'system version', 'not applicable',
+                            '\.\.\.\.\.'], False):
+            print("*** Invalid system information version!")
+            retval = 1
+
+        if find_in_section(stream, 'Base Board Information', 'Version:',
+                           ['base board version',
+                            'empty', 'to be filled by o\.e\.m\.'], False):
+            print("*** Invalid base board version!")
+            retval = 1
+
+    if args.test_serials:
+
+        if find_in_section(stream, 'System Information', 'Serial Number:',
+                           ['to be filled by o\.e\.m\.',
+                            'system serial number', '\.\.\.\.\.'],
+                           False):
+            print("*** Invalid system information serial number!")
+            retval = 1
+
+        if find_in_section(stream, 'Base Board Information', 'Serial Number:',
+                           ['n/a', 'base board serial number',
+                            'to be filled by o\.e\.m\.', 'empty', '\.\.\.'],
+                           False):
+            print("*** Invalid base board serial number!")
+            retval = 1
+
+    if find_in_section(stream, 'Processor Information', 'Version:',
+                       ['sample'], False):
+        print("*** Invalid processor information!")
         retval = 1
 
     # In review of dmidecode data on 10/23/2014, no conspicuous problems
-    # found in BIOS Information section's Vendor fields.
+    # found in BIOS Information section's Vendor, Version, or Release Date
+    # fields. Therefore, no tests based on these fields have been written.
 
     if retval:
         print("\nFailed one or more tests (see above)")

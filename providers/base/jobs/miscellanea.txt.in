@@ -86,7 +86,7 @@ id: miscellanea/dmitest_server
 requires: package.name == 'dmidecode'
 estimated_duration: 0.5
 user: root
-command: dmitest server
+command: dmitest --test_versions --test_serials server
 _description:
  Sanity check of DMI system identification data (for servers)
 _summary:
@@ -97,7 +97,7 @@ id: miscellanea/dmitest_client
 requires: package.name == 'dmidecode'
 estimated_duration: 0.5
 user: root
-command: dmitest desktop
+command: dmitest --test_versions --test_serials desktop
 _description:
  Sanity check of DMI system identification data (for desktops & laptops)
 _summary:

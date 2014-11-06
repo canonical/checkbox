@@ -123,7 +123,7 @@ class CpuinfoParser(object):
                 "model_revision": "revision",
                 "other": "features",
                 "speed": "cpu mhz"},
-            ("ppc64", "ppc64le", "ppc",): {
+            ("ppc64", "ppc64le", "ppc64el", "ppc",): {
                 "type": "platform",
                 "model": "cpu",
                 "model_number": "model",

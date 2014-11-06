@@ -460,6 +460,18 @@ _description:
  Verify that all memory is available after resuming from suspend.
 command: meminfo_resource | diff $PLAINBOX_SESSION_SHARE/meminfo_before_suspend -
 
+plugin: manual
+id: suspend/display_after_suspend
+estimated_duration: 120.0
+depends: suspend/suspend_advanced
+_description:
+ PURPOSE:
+     This test will check that the display is correct after suspend and resume
+ STEPS:
+     1. Check that your display does not show up visual artifacts after resuming.
+ VERIFICATION:
+     Does the display work normally after resuming from suspend?
+
 id: suspend/generator_display_after_suspend
 requires: device.category == 'VIDEO'
 _description: Display after suspend tests

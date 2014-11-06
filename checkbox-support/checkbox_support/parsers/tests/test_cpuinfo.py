@@ -94,6 +94,28 @@ class TestCpuinfoParser(TestCase):
         self.assertEqual(processor['platform'], 'aarch64')
         self.assertEqual(processor['other'], 'fp asimd evtstrm')
 
+    def test_ppc64el(self):
+        # Note that we need to specify the file name (first parameter) and the
+        # GNU identifier for the architecture. This mimics what the submission
+        # parser does.
+        cpuinforesult = self.parse("ppc64el", "ppc64el")
+        processors = cpuinforesult.processors
+        processor = processors[0]
+
+        self.assertEqual(processor['type'], "pSeries")
+        self.assertEqual(processor['count'], 1)
+        self.assertEqual(processor['model'],
+                         "POWER8E (raw), altivec supported")
+        self.assertEqual(processor['model_number'],
+                         'IBM pSeries (emulated by qemu)')
+        self.assertEqual(processor['model_revision'], '2.0 ')
+        self.assertEqual(processor['model_version'], 'pvr 004b 0200')
+        self.assertEqual(processor['platform'], 'pSeries')
+        self.assertEqual(processor['other'], 'emulated by qemu')
+        self.assertEqual(processor['cache'], -1)
+        self.assertEqual(processor['bogomips'], -1)
+        self.assertEqual(processor['speed'], 3457)
+
     def test_amd64(self):
         cpuinforesult = self.parse("amd64", "x86_64")
         processors = cpuinforesult.processors

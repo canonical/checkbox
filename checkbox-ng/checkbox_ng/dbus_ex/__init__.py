@@ -35,6 +35,28 @@ __all__ = [
 ]
 
 import re
+import os
+
+if os.getenv("MOCK_DBUS") == "yes":
+    import sys
+    from plainbox.vendor import mock
+    for name in (
+        '_dbus_bindings',
+        'dbus',
+        'dbus._compat',
+        'dbus.exceptions',
+        'dbus.lowlevel',
+        'dbus.mainloop',
+        'dbus.mainloop.glib',
+        'dbus.service',
+        'gi',
+        'gi.repository',
+    ):
+        sys.modules[name] = mock.MagicMock(name=name)
+    sys.modules['dbus'].service.Object = object
+    sys.modules['dbus'].service.Interface = object
+    sys.modules['dbus'].service.InterfaceType = type
+
 
 from dbus import INTROSPECTABLE_IFACE
 from dbus import PEER_IFACE

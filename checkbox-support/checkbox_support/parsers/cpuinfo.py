@@ -83,8 +83,8 @@ class CpuinfoParser(object):
             "model_number": "",
             "model_version": "",
             "model_revision": "",
-            "cache": 0,
-            "bogomips": 0,
+            "cache": -1,
+            "bogomips": -1,
             "speed": -1,
             "other": ""}
 
@@ -123,7 +123,7 @@ class CpuinfoParser(object):
                 "model_revision": "revision",
                 "other": "features",
                 "speed": "cpu mhz"},
-            ("ppc64", "ppc64le", "ppc",): {
+            ("ppc64", "ppc64le", "ppc64el", "ppc",): {
                 "type": "platform",
                 "model": "cpu",
                 "model_number": "model",
@@ -159,7 +159,10 @@ class CpuinfoParser(object):
 
         # Adjust cache
         if processor["cache"]:
-            processor["cache"] = string_to_type(processor["cache"])
+            try:
+                processor["cache"] = string_to_type(processor["cache"])
+            except TypeError:
+                processor["cache"] = int(round(float(processor["cache"])))
 
         # Adjust speed
         try:

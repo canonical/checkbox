@@ -1766,3 +1766,30 @@ class RegressionTests(TestCase):
             session = helper.resume_json(session_repr)
         # Both job_a and job_a_dep are there but job_unrelated is now gone
         self.assertEqual(session.job_list, [job_a, job_a_dep])
+
+    def test_1388747(self):
+        """
+        https://bugs.launchpad.net/plainbox/+bug/1388747
+        """
+        # This bug is about not being able to resume a session like this:
+        # - job repr: a => a.checksum
+        # - desired job list, run list: [a]
+        # - results: (empty), no a there at all
+        job_a = make_job(id='a')
+        session_repr = {
+            'version': 4,
+            'session': {
+                'jobs': {
+                    # a is about to run so it's mentioned in the checksum map
+                    job_a.id: job_a.checksum
+                },
+                'desired_job_list': [job_a.id],  # we want to run a
+                'results': {},  # nothing ran yet
+            }
+        }
+        helper = SessionResumeHelper4([job_a])
+        # Mock away meta-data restore code as we're not testing that
+        with mock.patch.object(helper, '_restore_SessionState_metadata'):
+            session = helper.resume_json(session_repr)
+        # Both job_a has a default hollow result
+        self.assertTrue(session.job_state_map[job_a.id].result.is_hollow)

@@ -47,6 +47,7 @@ import collections
 import contextlib
 import logging
 import os
+import time
 
 import pkg_resources
 
@@ -54,6 +55,25 @@ from plainbox.i18n import gettext as _
 
 
 logger = logging.getLogger("plainbox.secure.plugins")
+
+
+def now() -> float:
+    """
+    Get the current "time".
+
+    :returns:
+        A fractional number of seconds since some undefined base event.
+
+    This methods returns the current "time" that is useful for measuring
+    plug-in loading time. The return value is meaningless but delta between
+    two values is a fractional number of seconds between the two
+    corresponding events.
+    """
+    try:
+        # time.perf_counter is only available since python 3.3
+        return time.perf_counter()
+    except AttributeError:
+        return time.clock()
 
 
 class IPlugIn(metaclass=abc.ABCMeta):

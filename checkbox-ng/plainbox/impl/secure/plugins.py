@@ -243,6 +243,27 @@ class IPlugInCollection(metaclass=abc.ABCMeta):
         context manager exits the previous state is restored.
         """
 
+    @abc.abstractproperty
+    def discovery_time(self) -> float:
+        """
+        Time, in fractional seconds, that was used to discover all objects.
+
+        This time is separate from the load and wrap time of all each
+        individual plug-in. Typically this is either a fixed cost or a
+        predictable cost related to traversing the file system.
+        """
+
+    @abc.abstractmethod
+    def get_total_time(self) -> float:
+        """
+        Get the cost to prepare everything required by this collection
+
+        :returns:
+            The total number of fractional seconds of wall-clock time spent on
+            discovering, loading and wrapping each object now contained in this
+            collection.
+        """
+
 
 class PlugInCollectionBase(IPlugInCollection):
     """
@@ -271,6 +292,7 @@ class PlugInCollectionBase(IPlugInCollection):
         self._loaded = False
         self._mocked_objects = None
         self._problem_list = []
+        self._discovery_time = 0
         if load:
             self.load()
 
@@ -387,6 +409,34 @@ class PlugInCollectionBase(IPlugInCollection):
         else:
             self._plugins[plugin_name] = wrapper
 
+    @property
+    def discovery_time(self) -> float:
+        """
+        Time, in fractional seconds, that was required to discover all objects.
+
+        This time is separate from the load and wrap time of all each
+        individual plug-in. Typically this is either a fixed cost or a
+        predictable cost related to traversing the file system.
+        """
+        if self._loaded is False:
+            raise AttributeError(
+                _("discovery_time is meaningful after calling load()"))
+        return self._discovery_time
+
+    def get_total_time(self) -> float:
+        """
+        Get the sum of load and wrap time of each plugin object
+
+        :returns:
+            The total number of fractional seconds of wall-clock time spent by
+            loading this collection. This value doesn't include some small
+            overhead of this class but is representative of the load times of
+            pluggable code.
+        """
+        return sum(
+            plugin.plugin_load_time + plugin.plugin_wrap_time
+            for plugin in self._plugins.values()) + self.discovery_time
+
 
 class PkgResourcesPlugInCollection(PlugInCollectionBase):
     """
@@ -431,8 +481,11 @@ class PkgResourcesPlugInCollection(PlugInCollectionBase):
         if self._loaded:
             return
         self._loaded = True
-        iterator = self._get_entry_points()
-        for entry_point in sorted(iterator, key=lambda ep: ep.name):
+        start_time = now()
+        entry_point_list = list(self._get_entry_points())
+        entry_point_list.sort(key=lambda ep: ep.name)
+        self._discovery_time = now() - start_time
+        for entry_point in entry_point_list:
             start_time = now()
             try:
                 obj = entry_point.load()
@@ -504,8 +557,11 @@ class FsPlugInCollection(PlugInCollectionBase):
         if self._loaded:
             return
         self._loaded = True
-        iterator = self._get_plugin_files()
-        for filename in sorted(iterator):
+        start_time = now()
+        filename_list = list(self._get_plugin_files())
+        filename_list.sort()
+        self._discovery_time = now() - start_time
+        for filename in filename_list:
             start_time = now()
             try:
                 with open(filename, encoding='UTF-8') as stream:

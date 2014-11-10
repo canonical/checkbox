@@ -342,7 +342,7 @@ class PkgResourcesPlugInCollectionTests(TestCase):
         mock_ep1 = mock.Mock()
         mock_ep1.name = "zzz"
         mock_ep1.load.return_value = "two"
-        # Create another mockeed antry point
+        # Create another mocked entry point
         mock_ep2 = mock.Mock()
         mock_ep2.name = "aaa"
         mock_ep2.load.side_effect = ImportError("boom")

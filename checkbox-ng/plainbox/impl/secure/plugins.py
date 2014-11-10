@@ -1,13 +1,12 @@
 # This file is part of Checkbox.
 #
-# Copyright 2013 Canonical Ltd.
+# Copyright 2012-2014 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,7 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-
 """
 :mod:`plainbox.impl.secure.plugins` -- interface for accessing extension points
 ===============================================================================
@@ -93,6 +91,24 @@ class IPlugIn(metaclass=abc.ABCMeta):
         external object
         """
 
+    @abc.abstractproperty
+    def plugin_load_time(self) -> float:
+        """
+        time, in fractional seconds, that was needed to load the plugin
+        """
+
+    @abc.abstractproperty
+    def plugin_wrap_time(self) -> float:
+        """
+        time, in fractional seconds, that was needed to wrap the plugin
+
+        .. note::
+            The difference between ``plugin_wrap_time`` and
+            ``plugin_load_time`` depends on context. In practical terms the sum
+            of the two is interesting for analysis but in some cases having
+            access to both may be important.
+        """
+
 
 class PlugInError(Exception):
     """
@@ -107,12 +123,20 @@ class PlugIn(IPlugIn):
     and some arbitrary external object.
     """
 
-    def __init__(self, name, obj):
+    def __init__(self, name: str, obj: object, load_time: float=0):
         """
         Initialize the plug-in with the specified name and external object
+
+        :param name:
+            Name of the plug-in object, semantics is application-defined
+        :param obj:
+            The plugged in object itself
+        :param load_time:
+            Time it took to load the object (in fractional seconds)
         """
         self._name = name
         self._obj = obj
+        self._load_time = load_time
 
     def __repr__(self):
         return "<{!s} plugin_name:{!r}>".format(
@@ -131,6 +155,22 @@ class PlugIn(IPlugIn):
         plugin object, arbitrary object
         """
         return self._obj
+
+    @property
+    def plugin_load_time(self) -> float:
+        """
+        time, in fractional seconds, that was needed to load the plugin
+        """
+        return self._load_time
+
+    @property
+    def plugin_wrap_time(self) -> float:
+        """
+        time, in fractional seconds, that was needed to wrap the plugin
+
+        For this naive plugin class, this time is always zero.
+        """
+        return 0
 
 
 class IPlugInCollection(metaclass=abc.ABCMeta):
@@ -319,7 +359,7 @@ class PlugInCollectionBase(IPlugInCollection):
             self._plugins = old_plugins
             self._problem_list = old_problem_list
 
-    def wrap_and_add_plugin(self, plugin_name, plugin_obj):
+    def wrap_and_add_plugin(self, plugin_name, plugin_obj, plugin_load_time):
         """
         Internal method of PlugInCollectionBase.
 
@@ -327,6 +367,8 @@ class PlugInCollectionBase(IPlugInCollection):
             plugin name, some arbitrary string
         :param plugin_obj:
             plugin object, some arbitrary object.
+        :param plugin_load_time:
+            number of seconds it took to load this plugin
 
         This method prepares a wrapper (PlugIn subclass instance) for the
         specified plugin name/object by attempting to instantiate the wrapper
@@ -336,7 +378,7 @@ class PlugInCollectionBase(IPlugInCollection):
         """
         try:
             wrapper = self._wrapper(
-                plugin_name, plugin_obj,
+                plugin_name, plugin_obj, plugin_load_time,
                 *self._wrapper_args, **self._wrapper_kwargs)
         except PlugInError as exc:
             logger.warning(
@@ -391,13 +433,15 @@ class PkgResourcesPlugInCollection(PlugInCollectionBase):
         self._loaded = True
         iterator = self._get_entry_points()
         for entry_point in sorted(iterator, key=lambda ep: ep.name):
+            start_time = now()
             try:
                 obj = entry_point.load()
             except ImportError as exc:
                 logger.exception(_("Unable to import %s"), entry_point)
                 self._problem_list.append(exc)
             else:
-                self.wrap_and_add_plugin(entry_point.name, obj)
+                self.wrap_and_add_plugin(
+                    entry_point.name, obj, now() - start_time)
 
     def _get_entry_points(self):
         """
@@ -462,6 +506,7 @@ class FsPlugInCollection(PlugInCollectionBase):
         self._loaded = True
         iterator = self._get_plugin_files()
         for filename in sorted(iterator):
+            start_time = now()
             try:
                 with open(filename, encoding='UTF-8') as stream:
                     text = stream.read()
@@ -469,7 +514,7 @@ class FsPlugInCollection(PlugInCollectionBase):
                 logger.error(_("Unable to load %r: %s"), filename, str(exc))
                 self._problem_list.append(exc)
             else:
-                self.wrap_and_add_plugin(filename, text)
+                self.wrap_and_add_plugin(filename, text, now() - start_time)
 
     def _get_plugin_files(self):
         """

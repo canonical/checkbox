@@ -21,7 +21,6 @@
 :mod:`plainbox.impl.secure.providers.v1` -- Implementation of V1 provider
 =========================================================================
 """
-
 import abc
 import errno
 import gettext
@@ -40,6 +39,7 @@ from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.plugins import FsPlugInCollection
 from plainbox.impl.secure.plugins import IPlugIn
 from plainbox.impl.secure.plugins import PlugInError
+from plainbox.impl.secure.plugins import now
 from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.secure.rfc822 import FileTextSource
 from plainbox.impl.secure.rfc822 import load_rfc822_records
@@ -87,7 +87,7 @@ class WhiteListPlugIn(IPlugIn, IVirtualUnitSynthethizer):
     :class:`plainbox.impl.secure.qualifiers.WhiteList` instances from a file.
     """
 
-    def __init__(self, filename, text, provider=None):
+    def __init__(self, filename, text, load_time, provider=None):
         """
         Initialize the plug-in with the specified name text
 
@@ -103,6 +103,9 @@ class WhiteListPlugIn(IPlugIn, IVirtualUnitSynthethizer):
         """
         self._whitelist = None
         self._unit_list = []
+        self._load_time = load_time
+        self._wrap_time = 0
+        start_time = now()
         try:
             self._whitelist = WhiteList.from_string(
                 text, filename=filename,
@@ -114,6 +117,7 @@ class WhiteListPlugIn(IPlugIn, IVirtualUnitSynthethizer):
                 _("Cannot load whitelist {!r}: {}").format(filename, exc))
         else:
             self.synthetize_virtual_units(filename, text, provider)
+        self._wrap_time = now() - start_time
 
     @property
     def plugin_name(self):
@@ -128,6 +132,26 @@ class WhiteListPlugIn(IPlugIn, IVirtualUnitSynthethizer):
         plugin object, the actual WhiteList instance
         """
         return self._whitelist
+
+    @property
+    def plugin_load_time(self) -> float:
+        """
+        time, in fractional seconds, that was needed to load the plugin
+        """
+        return self._load_time
+
+    @property
+    def plugin_wrap_time(self) -> float:
+        """
+        time, in fractional seconds, that was needed to wrap the plugin
+
+        .. note::
+            The difference between ``plugin_wrap_time`` and
+            ``plugin_load_time`` depends on context. In practical terms the sum
+            of the two is interesting for analysis but in some cases having
+            access to both may be important.
+        """
+        return self._wrap_time
 
     @property
     def unit_list(self):
@@ -196,7 +220,7 @@ class UnitPlugIn(IPlugIn, IVirtualUnitSynthethizer):
         all_units.load()
         return all_units.get_by_name(unit_name).plugin_object
 
-    def __init__(self, filename, text, provider, *,
+    def __init__(self, filename, text, load_time, provider, *,
                  validate=True, validation_kwargs=None,
                  check=False, context=None):
         """
@@ -226,6 +250,9 @@ class UnitPlugIn(IPlugIn, IVirtualUnitSynthethizer):
         """
         self._filename = filename
         self._unit_list = []
+        self._load_time = load_time
+        self._wrap_time = 0
+        start_time = now()
         if validation_kwargs is None:
             validation_kwargs = {}
         logger.debug(_("Loading units from %r..."), filename)
@@ -264,6 +291,7 @@ class UnitPlugIn(IPlugIn, IVirtualUnitSynthethizer):
             self._unit_list.append(unit)
             logger.debug(_("Loaded %r"), unit)
         self.synthetize_virtual_units(filename, text, provider)
+        self._wrap_time = now() - start_time
 
     def synthetize_virtual_units(self, filename, text, provider):
         """
@@ -304,6 +332,26 @@ class UnitPlugIn(IPlugIn, IVirtualUnitSynthethizer):
         plugin object, a list of Unit instances
         """
         return self._unit_list
+
+    @property
+    def plugin_load_time(self) -> float:
+        """
+        time, in fractional seconds, that was needed to load the plugin
+        """
+        return self._load_time
+
+    @property
+    def plugin_wrap_time(self) -> float:
+        """
+        time, in fractional seconds, that was needed to wrap the plugin
+
+        .. note::
+            The difference between ``plugin_wrap_time`` and
+            ``plugin_load_time`` depends on context. In practical terms the sum
+            of the two is interesting for analysis but in some cases having
+            access to both may be important.
+        """
+        return self._wrap_time
 
 
 class Provider1(IProvider1, IProviderBackend1):
@@ -1163,11 +1211,13 @@ class Provider1PlugIn(IPlugIn):
     files
     """
 
-    def __init__(self, filename, definition_text, *, validate=None,
+    def __init__(self, filename, definition_text, load_time, *, validate=None,
                  validation_kwargs=None, check=None, context=None):
         """
         Initialize the plug-in with the specified name and external object
         """
+        start = now()
+        self._load_time = load_time
         definition = Provider1Definition()
         # Load the provider definition
         definition.read_string(definition_text)
@@ -1184,6 +1234,7 @@ class Provider1PlugIn(IPlugIn):
         self._provider = Provider1.from_definition(
             definition, secure, validate=validate,
             validation_kwargs=validation_kwargs, check=check, context=context)
+        self._wrap_time = now() - start
 
     def __repr__(self):
         return "<{!s} plugin_name:{!r}>".format(
@@ -1202,6 +1253,22 @@ class Provider1PlugIn(IPlugIn):
         plugin object, the actual Provider1 instance
         """
         return self._provider
+
+    @property
+    def plugin_load_time(self) -> float:
+        """
+        time, in fractional seconds, that was needed to load the provider
+        definition file from the file system
+        """
+        return self._load_time
+
+    @property
+    def plugin_wrap_time(self) -> float:
+        """
+        time, in fractional seconds, that was needed to load the provider from
+        the definition text
+        """
+        return self._wrap_time
 
 
 def get_secure_PROVIDERPATH_list():

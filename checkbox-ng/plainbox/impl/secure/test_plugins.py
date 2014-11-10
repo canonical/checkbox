@@ -1,13 +1,12 @@
 # This file is part of Checkbox.
 #
-# Copyright 2013 Canonical Ltd.
+# Copyright 2012-2014 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,7 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-
 """
 plainbox.impl.secure.test_plugins
 =================================
@@ -43,6 +41,7 @@ class PlugInTests(TestCase):
 
     NAME = "name"
     OBJ = mock.Mock(name="obj")
+    LOAD_TIME = 42
 
     def setUp(self):
         self.plugin = PlugIn(self.NAME, self.OBJ)
@@ -58,6 +57,21 @@ class PlugInTests(TestCase):
         verify that PlugIn.plugin_object getter works
         """
         self.assertEqual(self.plugin.plugin_object, self.OBJ)
+
+    def test_plugin_load_time(self):
+        """
+        verify that PlugIn.plugin_load_time getter works
+        """
+        self.assertEqual(PlugIn(self.NAME, self.OBJ).plugin_load_time, 0)
+        self.assertEqual(
+            PlugIn(self.NAME, self.OBJ, self.LOAD_TIME).plugin_load_time,
+            self.LOAD_TIME)
+
+    def test_plugin_wrap_time(self):
+        """
+        verify that PlugIn.plugin_wrap_time getter works
+        """
+        self.assertEqual(self.plugin.plugin_wrap_time, 0)
 
     def test_repr(self):
         """
@@ -94,6 +108,8 @@ class PlugInCollectionBaseTests(TestCase):
     Since this is an abstract class we're creating a concrete subclass with
     dummy implementation of the load() method.
     """
+
+    LOAD_TIME = 42
 
     def setUp(self):
         self.col = DummyPlugInCollection()
@@ -233,12 +249,14 @@ class PlugInCollectionBaseTests(TestCase):
         """
         verify that PlugInCollectionBase.wrap_and_add_plugin() works
         """
-        self.col.wrap_and_add_plugin("new-name", "new-obj")
+        self.col.wrap_and_add_plugin("new-name", "new-obj", self.LOAD_TIME)
         self.assertIn("new-name", self.col._plugins)
         self.assertEqual(
             self.col._plugins["new-name"].plugin_name, "new-name")
         self.assertEqual(
             self.col._plugins["new-name"].plugin_object, "new-obj")
+        self.assertEqual(
+            self.col._plugins["new-name"].plugin_load_time, self.LOAD_TIME)
 
     def test_wrap_and_add_plugin__problem(self):
         """
@@ -247,8 +265,9 @@ class PlugInCollectionBaseTests(TestCase):
         """
         with mock.patch.object(self.col, "_wrapper") as mock_wrapper:
             mock_wrapper.side_effect = PlugInError
-            self.col.wrap_and_add_plugin("new-name", "new-obj")
-            mock_wrapper.assert_called_with("new-name", "new-obj")
+            self.col.wrap_and_add_plugin("new-name", "new-obj", self.LOAD_TIME)
+            mock_wrapper.assert_called_with("new-name", "new-obj",
+                                            self.LOAD_TIME)
         self.assertIsInstance(self.col.problem_list[0], PlugInError)
         self.assertNotIn("new-name", self.col._plugins)
 
@@ -258,13 +277,13 @@ class PlugInCollectionBaseTests(TestCase):
         """
         class TestPlugIn(PlugIn):
 
-            def __init__(self, name, obj, *args, **kwargs):
-                super().__init__(name, obj)
+            def __init__(self, name, obj, load_time, *args, **kwargs):
+                super().__init__(name, obj, load_time)
                 self.args = args
                 self.kwargs = kwargs
         col = DummyPlugInCollection(
             False, TestPlugIn, 1, 2, 3, some="argument")
-        col.wrap_and_add_plugin("name", "obj")
+        col.wrap_and_add_plugin("name", "obj", self.LOAD_TIME)
         self.assertEqual(col._plugins["name"].args, (1, 2, 3))
         self.assertEqual(col._plugins["name"].kwargs, {"some": "argument"})
 

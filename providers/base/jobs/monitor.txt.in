@@ -99,7 +99,7 @@ _description:
 
 plugin: user-interact-verify
 id: monitor/dim_brightness
-requires: dmi.product in ['Notebook','Laptop','Portable']
+requires: dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO']
 user: root
 command: brightness_test
 _description:

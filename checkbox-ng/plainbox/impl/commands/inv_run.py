@@ -39,6 +39,7 @@ from plainbox.i18n import gettext as _
 from plainbox.i18n import ngettext
 from plainbox.i18n import pgettext as C_
 from plainbox.impl.color import ansi_on, ansi_off, get_color_for_tty
+from plainbox.impl.color import Colorizer
 from plainbox.impl.commands.inv_checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.exporter import ByteStringStreamTranslator
@@ -56,76 +57,6 @@ from plainbox.impl.transport import TransportError
 
 
 logger = logging.getLogger("plainbox.commands.run")
-
-
-class Colorizer:
-    """
-    Colorizing helper for various kinds of content we need to handle
-    """
-
-    # NOTE: Ideally result and all would be handled by multi-dispatch __call__
-
-    def __init__(self, color=None):
-        if color is True:
-            self.c = ansi_on
-        elif color is False:
-            self.c = ansi_off
-        elif color is None:
-            self.c = get_color_for_tty()
-        else:
-            self.c = color
-
-    def result(self, result):
-        outcome_color = {
-            IJobResult.OUTCOME_PASS: "GREEN",
-            IJobResult.OUTCOME_FAIL: "RED",
-            IJobResult.OUTCOME_SKIP: "YELLOW",
-            IJobResult.OUTCOME_UNDECIDED: "MAGENTA",
-            IJobResult.OUTCOME_NOT_SUPPORTED: "YELLOW",
-        }.get(result.outcome, "RESET")
-        return self(result.tr_outcome(), outcome_color)
-
-    def header(self, text, color_name='WHITE', bright=True, fill='='):
-        return self("[ {} ]".format(text).center(80, fill), color_name, bright)
-
-    def f(self, color_name):
-        return getattr(self.c.f, color_name.upper())
-
-    def b(self, color_name):
-        return getattr(self.c.b, color_name.upper())
-
-    def s(self, style_name):
-        return getattr(self.c.s, style_name.upper())
-
-    def __call__(self, text, color_name="WHITE", bright=True):
-        return ''.join([
-            self.f(color_name),
-            self.c.s.BRIGHT if bright else '', str(text),
-            self.c.s.RESET_ALL])
-
-    def BLACK(self, text, bright=True):
-        return self(text, "BLACK", bright)
-
-    def RED(self, text, bright=True):
-        return self(text, "RED", bright)
-
-    def GREEN(self, text, bright=True):
-        return self(text, "GREEN", bright)
-
-    def YELLOW(self, text, bright=True):
-        return self(text, "YELLOW", bright)
-
-    def BLUE(self, text, bright=True):
-        return self(text, "BLUE", bright)
-
-    def MAGENTA(self, text, bright=True):
-        return self(text, "MAGENTA", bright)
-
-    def CYAN(self, text, bright=True):
-        return self(text, "CYAN", bright)
-
-    def WHITE(self, text, bright=True):
-        return self(text, "WHITE", bright)
 
 
 Action = collections.namedtuple("Action", "accel label cmd")

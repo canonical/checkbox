@@ -1,13 +1,12 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012, 2013, 2014 Canonical Ltd.
+# Copyright 2012-2014 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,7 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-
 """
 :mod:`plainbox.abc` -- abstract base classes
 ============================================
@@ -33,8 +31,6 @@ easier to understand (by not being mixed with additional source code).
     three releases. All deprecated symbols will warn when they will cease to be
     available.
 """
-
-
 from abc import ABCMeta, abstractproperty, abstractmethod
 
 
@@ -1058,145 +1054,4 @@ class ISessionStateTransport(metaclass=ABCMeta):
             It is expected that certain keys in the returned dictionary will
             gain special semantics that can be further standardized. As of this
             writing there are no standard keys.
-        """
-
-
-class ITranslator(metaclass=ABCMeta):
-    """
-    Interface for all translators
-    """
-
-    @abstractmethod
-    def gettext(self, msgid):
-        """
-        Translate a message
-
-        :param msgid:
-            Identifier of the message to translate
-        :returns:
-            Translated message or msgid if translation is not available
-        """
-
-    @abstractmethod
-    def ngettext(self, msgid1, msgid2, n):
-        """
-        Translate a message involving plural form
-
-        :param msgid1:
-            Identifier of the singular form of the message to translate
-        :param msgid2:
-            Identifier of the plural form of message to translate
-        :param n:
-            Any integer number
-        :returns:
-            Translated message appropriate for the specified number, if
-            available.  If the translated number is not available one of msgid1
-            and msgid2 are returned, depending on the value of n.
-        """
-
-    # Context aware gettext + ngettext
-
-    @abstractmethod
-    def pgettext(self, msgctxt, msgid):
-        """
-        Translate a message within a context.
-
-        :param msgctxt:
-            Context that specifies which translation of msgid to pick
-        :param msgid:
-            Identifier of the message to translate
-        :returns:
-            Translated message or msgid if translation is not available
-        """
-
-    @abstractmethod
-    def pngettext(self, msgctxt, msgid1, msgid2, n):
-        """
-        Translate a message involving plural form
-
-        :param msgctxt:
-            Context that specifies which translation of msgid1/msgid2 to pick
-        :param msgid1:
-            Identifier of the singular form of the message to translate
-        :param msgid2:
-            Identifier of the plural form of message to translate
-        :param n:
-            Any integer number
-        :returns:
-            Translated message appropriate for the specified number, if
-            available. If the translated number is not available one of msgid1
-            and msgid2 are returned, depending on the value of n.
-        """
-
-    # Explicit domain gettext + ngettext
-
-    @abstractmethod
-    def dgettext(self, domain, msgid):
-        """
-        Translate a message using a specific domain
-
-        :param domain:
-            Name of the domain from which translations are obtained
-        :param msgid:
-            Identifier of the message to translate
-        :returns:
-            Translated message or msgid if translation is not available
-        """
-
-    @abstractmethod
-    def dngettext(self, domain, msgid1, msgid2, n):
-        """
-        Translate a message involving plural form using a specific domain
-
-        :param domain:
-            Name of the domain from which translations are obtained
-        :param msgid1:
-            Identifier of the singular form of the message to translate
-        :param msgid2:
-            Identifier of the plural form of message to translate
-        :param n:
-            Any integer number
-        :returns:
-            Translated message appropriate for the specified number, if
-            available.  If the translated number is not available one of msgid1
-            and msgid2 are returned, depending on the value of n.
-        """
-
-    # Explicit domain and context gettext + ngettext
-
-    @abstractmethod
-    def pdgettext(self, msgctxt, domain, msgid):
-        """
-        Translate a message using a specific context and domain
-
-        :param msgctxt:
-            Context that specifies which translation of msgid to pick
-        :param domain:
-            Name of the domain from which translations are obtained
-        :param msgid:
-            Identifier of the message to translate
-        :returns:
-            Translated message or msgid if translation is not available
-        """
-
-    @abstractmethod
-    def pdngettext(self, msgctxt, domain, msgid1, msgid2, n):
-        """
-        Translate a message involving plural form using a specific context and
-        domain
-
-        :param msgctxt:
-            Context that specifies which translation of msgid1/msgid2 to pick
-        :param domain:
-            Name of the domain from which translations are obtained
-        :param msgid1:
-            Identifier of the singular form of the message to translate
-        :param msgid2:
-            Identifier of the plural form of message to translate
-        :param n:
-            Any integer number
-        :returns:
-            Translated message appropriate for the specified number, if
-            available.  If the translated number is not available one of msgid1
-            and msgid2 are returned, depending on the value of n.
         """

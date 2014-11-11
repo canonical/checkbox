@@ -456,6 +456,7 @@ UNINITIATED = "uninitiated"
 UNRESOLVED = "unresolved"
 UNSUPPORTED = "unsupported"
 UNTESTED = "untested"
+CRASHED = "crashed"
 
 
 class SubmissionResult(object):
@@ -604,6 +605,7 @@ class SubmissionResult(object):
             "unsupported": UNSUPPORTED,
             "untested": UNTESTED,
             "yes": PASS,
+            CRASHED: CRASHED,
             }
 
         test_result = dict(

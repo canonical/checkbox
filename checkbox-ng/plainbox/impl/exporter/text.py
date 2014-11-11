@@ -25,8 +25,7 @@
 
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
-
-
+from plainbox.impl.commands.inv_run import Colorizer
 from plainbox.impl.exporter import SessionStateExporterBase
 
 
@@ -35,7 +34,18 @@ class TextSessionStateExporter(SessionStateExporterBase):
     Human-readable session state exporter.
     """
 
-    def dump(self, data, stream):
-        for job_name, job_data in sorted(data['result_map'].items()):
-            stream.write("{}: {}\n".format(
-                job_name, job_data['outcome']).encode('UTF-8'))
+    def __init__(self, color=None):
+        self.C = Colorizer(color)
+
+    def get_session_data_subset(self, session):
+        return session
+
+    def dump(self, session, stream):
+        for job in session.run_list:
+            state = session.job_state_map[job.id]
+            if state.result.is_hollow:
+                continue
+            stream.write(
+                "{:^15}: {}\n".format(
+                    self.C.result(state.result), state.job.tr_summary(),
+                ).encode("UTF-8"))

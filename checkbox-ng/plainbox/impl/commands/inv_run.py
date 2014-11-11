@@ -38,7 +38,7 @@ from plainbox.abc import IJobRunnerUI
 from plainbox.i18n import gettext as _
 from plainbox.i18n import ngettext
 from plainbox.i18n import pgettext as C_
-from plainbox.impl.color import ansi_on, ansi_off
+from plainbox.impl.color import ansi_on, ansi_off, get_color_for_tty
 from plainbox.impl.commands.inv_checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.exporter import ByteStringStreamTranslator
@@ -65,8 +65,15 @@ class Colorizer:
 
     # NOTE: Ideally result and all would be handled by multi-dispatch __call__
 
-    def __init__(self, color):
-        self.c = color
+    def __init__(self, color=None):
+        if color is True:
+            self.c = ansi_on
+        elif color is False:
+            self.c = ansi_off
+        elif color is None:
+            self.c = get_color_for_tty()
+        else:
+            self.c = color
 
     def result(self, result):
         outcome_color = {

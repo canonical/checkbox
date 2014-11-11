@@ -42,17 +42,16 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
     def invoked(self, ns):
         from plainbox.impl.commands.inv_run import RunInvocation
         return RunInvocation(self.provider_loader, self.config, ns,
-                             ns.use_colors).run()
+                             ns.color).run()
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(
             "run", help=_("run a test job"), prog="plainbox run")
         parser.set_defaults(command=self)
         group = parser.add_argument_group(title=_("user interface options"))
-        parser.set_defaults(use_colors=True)
+        parser.set_defaults(color=None)
         group.add_argument(
-            '--no-color', dest='use_colors', action='store_false',
-            help=SUPPRESS)
+            '--no-color', dest='color', action='store_false', help=SUPPRESS)
         group.add_argument(
             '--non-interactive', action='store_true',
             help=_("skip tests that require interactivity"))

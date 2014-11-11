@@ -100,3 +100,18 @@ if sys.platform == 'win32':
         ansi_on = ansi_off
     else:
         colorama.init()
+
+
+def get_color_for_tty(stream=None):
+    """
+    Get ``ansi_on`` if stdout is a tty, ``ansi_off`` otherwise.
+
+    :param stream:
+        Alternate stream to use (sys.stdout by default)
+    :returns:
+        ``ansi_on`` or ``ansi_off``, depending on if the stream being a tty or
+        not.
+    """
+    if stream is None:
+        stream = sys.stdout
+    return ansi_on if stream.isatty() else ansi_off

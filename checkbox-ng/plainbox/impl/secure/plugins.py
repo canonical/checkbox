@@ -1,13 +1,12 @@
 # This file is part of Checkbox.
 #
-# Copyright 2013 Canonical Ltd.
+# Copyright 2012-2014 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,7 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-
 """
 :mod:`plainbox.impl.secure.plugins` -- interface for accessing extension points
 ===============================================================================
@@ -47,6 +45,7 @@ import collections
 import contextlib
 import logging
 import os
+import time
 
 import pkg_resources
 
@@ -54,6 +53,25 @@ from plainbox.i18n import gettext as _
 
 
 logger = logging.getLogger("plainbox.secure.plugins")
+
+
+def now() -> float:
+    """
+    Get the current "time".
+
+    :returns:
+        A fractional number of seconds since some undefined base event.
+
+    This methods returns the current "time" that is useful for measuring
+    plug-in loading time. The return value is meaningless but delta between
+    two values is a fractional number of seconds between the two
+    corresponding events.
+    """
+    try:
+        # time.perf_counter is only available since python 3.3
+        return time.perf_counter()
+    except AttributeError:
+        return time.clock()
 
 
 class IPlugIn(metaclass=abc.ABCMeta):
@@ -73,6 +91,24 @@ class IPlugIn(metaclass=abc.ABCMeta):
         external object
         """
 
+    @abc.abstractproperty
+    def plugin_load_time(self) -> float:
+        """
+        time, in fractional seconds, that was needed to load the plugin
+        """
+
+    @abc.abstractproperty
+    def plugin_wrap_time(self) -> float:
+        """
+        time, in fractional seconds, that was needed to wrap the plugin
+
+        .. note::
+            The difference between ``plugin_wrap_time`` and
+            ``plugin_load_time`` depends on context. In practical terms the sum
+            of the two is interesting for analysis but in some cases having
+            access to both may be important.
+        """
+
 
 class PlugInError(Exception):
     """
@@ -87,12 +123,20 @@ class PlugIn(IPlugIn):
     and some arbitrary external object.
     """
 
-    def __init__(self, name, obj):
+    def __init__(self, name: str, obj: object, load_time: float=0):
         """
         Initialize the plug-in with the specified name and external object
+
+        :param name:
+            Name of the plug-in object, semantics is application-defined
+        :param obj:
+            The plugged in object itself
+        :param load_time:
+            Time it took to load the object (in fractional seconds)
         """
         self._name = name
         self._obj = obj
+        self._load_time = load_time
 
     def __repr__(self):
         return "<{!s} plugin_name:{!r}>".format(
@@ -111,6 +155,22 @@ class PlugIn(IPlugIn):
         plugin object, arbitrary object
         """
         return self._obj
+
+    @property
+    def plugin_load_time(self) -> float:
+        """
+        time, in fractional seconds, that was needed to load the plugin
+        """
+        return self._load_time
+
+    @property
+    def plugin_wrap_time(self) -> float:
+        """
+        time, in fractional seconds, that was needed to wrap the plugin
+
+        For this naive plugin class, this time is always zero.
+        """
+        return 0
 
 
 class IPlugInCollection(metaclass=abc.ABCMeta):
@@ -183,6 +243,27 @@ class IPlugInCollection(metaclass=abc.ABCMeta):
         context manager exits the previous state is restored.
         """
 
+    @abc.abstractproperty
+    def discovery_time(self) -> float:
+        """
+        Time, in fractional seconds, that was used to discover all objects.
+
+        This time is separate from the load and wrap time of all each
+        individual plug-in. Typically this is either a fixed cost or a
+        predictable cost related to traversing the file system.
+        """
+
+    @abc.abstractmethod
+    def get_total_time(self) -> float:
+        """
+        Get the cost to prepare everything required by this collection
+
+        :returns:
+            The total number of fractional seconds of wall-clock time spent on
+            discovering, loading and wrapping each object now contained in this
+            collection.
+        """
+
 
 class PlugInCollectionBase(IPlugInCollection):
     """
@@ -211,6 +292,7 @@ class PlugInCollectionBase(IPlugInCollection):
         self._loaded = False
         self._mocked_objects = None
         self._problem_list = []
+        self._discovery_time = 0
         if load:
             self.load()
 
@@ -299,7 +381,7 @@ class PlugInCollectionBase(IPlugInCollection):
             self._plugins = old_plugins
             self._problem_list = old_problem_list
 
-    def wrap_and_add_plugin(self, plugin_name, plugin_obj):
+    def wrap_and_add_plugin(self, plugin_name, plugin_obj, plugin_load_time):
         """
         Internal method of PlugInCollectionBase.
 
@@ -307,6 +389,8 @@ class PlugInCollectionBase(IPlugInCollection):
             plugin name, some arbitrary string
         :param plugin_obj:
             plugin object, some arbitrary object.
+        :param plugin_load_time:
+            number of seconds it took to load this plugin
 
         This method prepares a wrapper (PlugIn subclass instance) for the
         specified plugin name/object by attempting to instantiate the wrapper
@@ -316,7 +400,7 @@ class PlugInCollectionBase(IPlugInCollection):
         """
         try:
             wrapper = self._wrapper(
-                plugin_name, plugin_obj,
+                plugin_name, plugin_obj, plugin_load_time,
                 *self._wrapper_args, **self._wrapper_kwargs)
         except PlugInError as exc:
             logger.warning(
@@ -324,6 +408,34 @@ class PlugInCollectionBase(IPlugInCollection):
             self._problem_list.append(exc)
         else:
             self._plugins[plugin_name] = wrapper
+
+    @property
+    def discovery_time(self) -> float:
+        """
+        Time, in fractional seconds, that was required to discover all objects.
+
+        This time is separate from the load and wrap time of all each
+        individual plug-in. Typically this is either a fixed cost or a
+        predictable cost related to traversing the file system.
+        """
+        if self._loaded is False:
+            raise AttributeError(
+                _("discovery_time is meaningful after calling load()"))
+        return self._discovery_time
+
+    def get_total_time(self) -> float:
+        """
+        Get the sum of load and wrap time of each plugin object
+
+        :returns:
+            The total number of fractional seconds of wall-clock time spent by
+            loading this collection. This value doesn't include some small
+            overhead of this class but is representative of the load times of
+            pluggable code.
+        """
+        return sum(
+            plugin.plugin_load_time + plugin.plugin_wrap_time
+            for plugin in self._plugins.values()) + self.discovery_time
 
 
 class PkgResourcesPlugInCollection(PlugInCollectionBase):
@@ -369,15 +481,20 @@ class PkgResourcesPlugInCollection(PlugInCollectionBase):
         if self._loaded:
             return
         self._loaded = True
-        iterator = self._get_entry_points()
-        for entry_point in sorted(iterator, key=lambda ep: ep.name):
+        start_time = now()
+        entry_point_list = list(self._get_entry_points())
+        entry_point_list.sort(key=lambda ep: ep.name)
+        self._discovery_time = now() - start_time
+        for entry_point in entry_point_list:
+            start_time = now()
             try:
                 obj = entry_point.load()
             except ImportError as exc:
                 logger.exception(_("Unable to import %s"), entry_point)
                 self._problem_list.append(exc)
             else:
-                self.wrap_and_add_plugin(entry_point.name, obj)
+                self.wrap_and_add_plugin(
+                    entry_point.name, obj, now() - start_time)
 
     def _get_entry_points(self):
         """
@@ -440,8 +557,12 @@ class FsPlugInCollection(PlugInCollectionBase):
         if self._loaded:
             return
         self._loaded = True
-        iterator = self._get_plugin_files()
-        for filename in sorted(iterator):
+        start_time = now()
+        filename_list = list(self._get_plugin_files())
+        filename_list.sort()
+        self._discovery_time = now() - start_time
+        for filename in filename_list:
+            start_time = now()
             try:
                 with open(filename, encoding='UTF-8') as stream:
                     text = stream.read()
@@ -449,7 +570,7 @@ class FsPlugInCollection(PlugInCollectionBase):
                 logger.error(_("Unable to load %r: %s"), filename, str(exc))
                 self._problem_list.append(exc)
             else:
-                self.wrap_and_add_plugin(filename, text)
+                self.wrap_and_add_plugin(filename, text, now() - start_time)
 
     def _get_plugin_files(self):
         """

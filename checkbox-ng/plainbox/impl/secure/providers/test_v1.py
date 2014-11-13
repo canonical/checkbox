@@ -433,21 +433,24 @@ class Provider1PlugInTests(TestCase):
         "locale_dir = /some/directory/locale\n"
     )
 
+    LOAD_TIME = 42
+
     def setUp(self):
         with mock.patch('os.path.isdir') as mock_isdir:
             # Mock os.path.isdir so that we can validate location
             mock_isdir.return_value = True
-            self.plugin = Provider1PlugIn("a.provider", self.DEF_TEXT)
+            self.plugin = Provider1PlugIn(
+                "a.provider", self.DEF_TEXT, self.LOAD_TIME)
             self.plugin_w_location = Provider1PlugIn(
-                "a.provider", self.DEF_TEXT_w_location)
+                "a.provider", self.DEF_TEXT_w_location, self.LOAD_TIME)
             self.plugin_w_dirs = Provider1PlugIn(
-                "a.provider", self.DEF_TEXT_w_dirs)
+                "a.provider", self.DEF_TEXT_w_dirs, self.LOAD_TIME)
             # Mock os.path.isdir so that none of the sub-directories of the
             # location directory seem to exist. This is essential for
             # Provider1.from_definition()'s special behavior.
             mock_isdir.side_effect = lambda dn: dn == "/some/directory"
             self.plugin_w_location_w_no_dirs = Provider1PlugIn(
-                "a.provider", self.DEF_TEXT_w_location)
+                "a.provider", self.DEF_TEXT_w_location, self.LOAD_TIME)
 
     def test_plugin_name(self):
         self.assertEqual(
@@ -455,6 +458,9 @@ class Provider1PlugInTests(TestCase):
 
     def test_plugin_object(self):
         self.assertIsInstance(self.plugin.plugin_object, Provider1)
+
+    def test_plugin_load_time(self):
+        self.assertEqual(self.plugin.plugin_load_time, self.LOAD_TIME)
 
     def test_provider_metadata(self):
         provider = self.plugin.plugin_object
@@ -537,8 +543,11 @@ class WhiteListPlugInTests(TestCase):
     Tests for WhiteListPlugIn
     """
 
+    LOAD_TIME = 42
+
     def setUp(self):
-        self.plugin = WhiteListPlugIn("/path/to/some.whitelist", "foo\nbar\n")
+        self.plugin = WhiteListPlugIn(
+            "/path/to/some.whitelist", "foo\nbar\n", self.LOAD_TIME)
 
     def test_plugin_name(self):
         """
@@ -553,6 +562,9 @@ class WhiteListPlugInTests(TestCase):
         WhiteList
         """
         self.assertIsInstance(self.plugin.plugin_object, WhiteList)
+
+    def test_plugin_load_time(self):
+        self.assertEqual(self.plugin.plugin_load_time, self.LOAD_TIME)
 
     def test_whitelist_data(self):
         """
@@ -573,7 +585,7 @@ class WhiteListPlugInTests(TestCase):
         """
         # The pattern is purposefully invalid
         with self.assertRaises(PlugInError) as boom:
-            WhiteListPlugIn("/path/to/some.whitelist", "*")
+            WhiteListPlugIn("/path/to/some.whitelist", "*", self.LOAD_TIME)
         # NOTE: we should have syntax error for whitelists that keeps track or
         # line we're at to help developers figure out where errors such as this
         # are coming from.
@@ -588,6 +600,8 @@ class UnitPlugInTests(TestCase):
     Tests for UnitPlugIn
     """
 
+    LOAD_TIME = 42
+
     def setUp(self):
         self.provider = mock.Mock(name="provider", spec=Provider1)
         self.provider.namespace = "2013.com.canonical.plainbox"
@@ -596,7 +610,7 @@ class UnitPlugInTests(TestCase):
                 "id: test/job\n"
                 "plugin: shell\n"
                 "command: true\n"),
-            self.provider)
+            self.LOAD_TIME, self.provider)
 
     def test_plugin_name(self):
         """
@@ -613,6 +627,9 @@ class UnitPlugInTests(TestCase):
         self.assertEqual(len(self.plugin.plugin_object), 2)
         self.assertIsInstance(self.plugin.plugin_object[0], JobDefinition)
         self.assertIsInstance(self.plugin.plugin_object[1], FileUnit)
+
+    def test_plugin_load_time(self):
+        self.assertEqual(self.plugin.plugin_load_time, self.LOAD_TIME)
 
     def test_job_data(self):
         """
@@ -640,7 +657,8 @@ class UnitPlugInTests(TestCase):
         """
         # The pattern is purposefully invalid
         with self.assertRaises(PlugInError) as boom:
-            UnitPlugIn("/path/to/jobs.txt", "broken", self.provider)
+            UnitPlugIn(
+                "/path/to/jobs.txt", "broken", self.LOAD_TIME, self.provider)
         self.assertEqual(
             str(boom.exception),
             ("Cannot load job definitions from '/path/to/jobs.txt': "
@@ -662,6 +680,8 @@ class Provider1Tests(TestCase):
     BIN_DIR = "bin-dir"
     LOCALE_DIR = "locale-dir"
     BASE_DIR = "base-dir"
+
+    LOAD_TIME = 42
 
     def setUp(self):
         self.provider = Provider1(
@@ -781,7 +801,9 @@ class Provider1Tests(TestCase):
         verify that Provider1.get_builtin_whitelist() loads and returns all of
         the whitelists
         """
-        fake_plugins = [WhiteListPlugIn("/path/to/some.whitelist", "foo")]
+        fake_plugins = [
+            WhiteListPlugIn("/path/to/some.whitelist", "foo", self.LOAD_TIME)
+        ]
         with self.provider._whitelist_collection.fake_plugins(fake_plugins):
             whitelist_list = self.provider.get_builtin_whitelists()
         self.assertEqual(len(whitelist_list), 1)
@@ -792,7 +814,9 @@ class Provider1Tests(TestCase):
         verify that Provider1.get_builtin_whitelist() raises the first
         exception that happens during the load process
         """
-        fake_plugins = [WhiteListPlugIn("/path/to/some.whitelist", "foo")]
+        fake_plugins = [
+            WhiteListPlugIn("/path/to/some.whitelist", "foo", self.LOAD_TIME)
+        ]
         fake_problems = [IOError("first problem"), OSError("second problem")]
         with self.assertRaises(IOError):
             with self.provider._whitelist_collection.fake_plugins(
@@ -820,11 +844,11 @@ class Provider1Tests(TestCase):
             UnitPlugIn("/path/to/jobs1.txt", (
                 "id: a2\n"
                 "\n"
-                "id: a1\n"), self.provider, validate=False),
+                "id: a1\n"), self.LOAD_TIME, self.provider, validate=False),
             UnitPlugIn("/path/to/jobs2.txt", (
                 "id: a3\n"
                 "\n"
-                "id: a4\n"), self.provider, validate=False)
+                "id: a4\n"), self.LOAD_TIME, self.provider, validate=False)
         ]
         with self.provider._unit_collection.fake_plugins(fake_plugins):
             job_list = self.provider.get_builtin_jobs()
@@ -840,7 +864,7 @@ class Provider1Tests(TestCase):
         exception that happens during the load process
         """
         fake_plugins = [UnitPlugIn(
-            "/path/to/jobs.txt", "", self.provider)]
+            "/path/to/jobs.txt", "", self.LOAD_TIME, self.provider)]
         fake_problems = [IOError("first problem"), OSError("second problem")]
         with self.assertRaises(IOError):
             with self.provider._unit_collection.fake_plugins(
@@ -868,11 +892,11 @@ class Provider1Tests(TestCase):
             UnitPlugIn("/path/to/jobs1.txt", (
                 "id: a2\n"
                 "\n"
-                "id: a1\n"), self.provider, validate=False),
+                "id: a1\n"), self.LOAD_TIME, self.provider, validate=False),
             UnitPlugIn("/path/to/jobs2.txt", (
                 "id: a3\n"
                 "\n"
-                "id: a4\n"), self.provider, validate=False)
+                "id: a4\n"), self.LOAD_TIME, self.provider, validate=False)
         ]
         with self.provider._unit_collection.fake_plugins(fake_plugins):
             job_list, problem_list = self.provider.load_all_jobs()
@@ -890,8 +914,8 @@ class Provider1Tests(TestCase):
         """
         fake_plugins = [
             UnitPlugIn(
-                "/path/to/jobs1.txt", "id: working\n", self.provider,
-                validate=False)
+                "/path/to/jobs1.txt", "id: working\n", self.LOAD_TIME,
+                self.provider, validate=False)
         ]
         fake_problems = [
             PlugInError("some problem"),

@@ -486,11 +486,12 @@ class SessionSuspendHelper4(SessionSuspendHelper3):
                 The representation of meta-data associated with the session
                 state object.
         """
+        id_run_list = frozenset([job.id for job in obj.run_list])
         return {
             "jobs": {
                 state.job.id: state.job.checksum
                 for state in obj.job_state_map.values()
-                if not state.result.is_hollow or state.job in obj.run_list
+                if not state.result.is_hollow or state.job.id in id_run_list
             },
             "results": {
                 # Currently we store only one result but we may store

@@ -36,16 +36,16 @@ class TestDevCommand(TestCase):
         self.parser = argparse.ArgumentParser(prog='test')
         self.subparsers = self.parser.add_subparsers()
         self.provider_loader = lambda: [mock.Mock()]
-        self.config = mock.Mock()
+        self.config_loader = lambda: mock.Mock()
         self.ns = mock.Mock()
 
     def test_init(self):
-        dev_cmd = DevCommand(self.provider_loader, self.config)
+        dev_cmd = DevCommand(self.provider_loader, self.config_loader)
         self.assertIs(dev_cmd.provider_loader, self.provider_loader)
-        self.assertIs(dev_cmd.config, self.config)
+        self.assertIs(dev_cmd.config_loader, self.config_loader)
 
     def test_register_parser(self):
-        DevCommand(self.provider_loader, self.config).register_parser(
+        DevCommand(self.provider_loader, self.config_loader).register_parser(
             self.subparsers)
         with TestIO() as io:
             self.parser.print_help()

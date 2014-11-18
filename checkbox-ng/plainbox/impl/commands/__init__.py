@@ -68,13 +68,6 @@ class PlainBoxToolBase(ToolBase):
     known yet.
     """
 
-    def __init__(self):
-        """
-        Initialize all the variables, real stuff happens in main()
-        """
-        super().__init__()
-        self._config = None  # set in late_init()
-
     @classmethod
     @abc.abstractmethod
     def get_config_cls(cls):
@@ -85,16 +78,8 @@ class PlainBoxToolBase(ToolBase):
         that is suitable for the particular application.
         """
 
-    def late_init(self, early_ns):
-        """
-        Overridden version of late_init().
-
-        This method loads the configuration object and the list of providers
-        and stores them as instance attributes.
-        """
-        super().late_init(early_ns)
-        # Load plainbox configuration
-        self._config = self.get_config_cls().get()
+    def _load_config(self):
+        return self.get_config_cls().get()
 
     def _load_providers(self):
         logger.info("Loading all providers...")

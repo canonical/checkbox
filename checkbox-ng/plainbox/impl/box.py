@@ -82,13 +82,13 @@ class PlainBoxTool(PlainBoxToolBase):
         top-level subcommands.
         """
         # TODO: switch to plainbox plugins
-        RunCommand(self._load_providers, self._config).register_parser(
+        RunCommand(self._load_providers, self._load_config).register_parser(
             subparsers)
         SessionCommand(self._load_providers).register_parser(subparsers)
         DeviceCommand().register_parser(subparsers)
         PlainboxSelfTestCommand().register_parser(subparsers)
-        CheckConfigCommand(self._config).register_parser(subparsers)
-        DevCommand(self._load_providers, self._config).register_parser(
+        CheckConfigCommand(self._load_config).register_parser(subparsers)
+        DevCommand(self._load_providers, self._load_config).register_parser(
             subparsers)
         StartProviderCommand().register_parser(subparsers)
 

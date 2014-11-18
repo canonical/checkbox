@@ -240,8 +240,8 @@ class RunInvocation(CheckBoxInvocationMixIn):
         time the loop-over-all-jobs is started.
     """
 
-    def __init__(self, provider_loader, config, ns, color):
-        super().__init__(provider_loader, config)
+    def __init__(self, provider_loader, config_loader, ns, color):
+        super().__init__(provider_loader, config_loader)
         self.ns = ns
         self._manager = None
         self._runner = None

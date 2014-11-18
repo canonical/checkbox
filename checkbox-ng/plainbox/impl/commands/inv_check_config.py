@@ -30,10 +30,11 @@ class CheckConfigInvocation:
     time.
     """
 
-    def __init__(self, config):
-        self.config = config
+    def __init__(self, config_loader):
+        self.config_loader = config_loader
 
     def run(self):
+        self.config = self.config_loader()
         print(_("Configuration files:"))
         for filename in self.config.Meta.filename_list:
             if filename in self.config.filename_list:

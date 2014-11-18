@@ -34,14 +34,14 @@ class ScriptCommand(PlainBoxCommand):
     unconditionally.
     """
 
-    def __init__(self, provider_loader, config):
+    def __init__(self, provider_loader, config_loader):
         self.provider_loader = provider_loader
-        self.config = config
+        self.config_loader = config_loader
 
     def invoked(self, ns):
         from plainbox.impl.commands.inv_script import ScriptInvocation
         return ScriptInvocation(
-            self.provider_loader, self.config, ns.job_id
+            self.provider_loader, self.config_loader, ns.job_id
         ).run()
 
     def register_parser(self, subparsers):

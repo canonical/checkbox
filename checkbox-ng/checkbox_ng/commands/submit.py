@@ -87,8 +87,8 @@ class SubmitCommand(PlainBoxCommand):
 
     gettext_domain = "checkbox-ng"
 
-    def __init__(self, config):
-        self.config = config
+    def __init__(self, config_loader):
+        self.config = config_loader()
 
     def invoked(self, ns):
         return SubmitInvocation(ns).run()

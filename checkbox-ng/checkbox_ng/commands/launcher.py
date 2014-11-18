@@ -47,6 +47,7 @@ class LauncherCommand(CheckboxCommand):
     """
 
     def invoked(self, ns):
+        self.config = self.config_loader()
         try:
             with open(ns.launcher, 'rt', encoding='UTF-8') as stream:
                 first_line = stream.readline()

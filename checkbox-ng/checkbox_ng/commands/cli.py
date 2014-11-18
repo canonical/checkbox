@@ -43,23 +43,23 @@ class CliCommand(PlainBoxCommand, CheckBoxCommandMixIn):
     """
     gettext_domain = "checkbox-ng"
 
-    def __init__(self, provider_loader, config, settings):
+    def __init__(self, provider_loader, config_loader, settings):
         self.provider_loader = provider_loader
-        self.config = config
+        self.config_loader = config_loader
         self.settings = settings
 
     def invoked(self, ns):
         # Run check-config, if requested
         if ns.check_config:
-            retval = CheckConfigInvocation(self.config).run()
+            retval = CheckConfigInvocation(self.config_loader).run()
             return retval
         if ns.new_ui:
             from checkbox_ng.commands.newcli import CliInvocation2
-            return CliInvocation2(self.provider_loader, self.config, ns,
+            return CliInvocation2(self.provider_loader, self.loader_config, ns,
                                   self.settings).run()
         else:
             from checkbox_ng.commands.oldcli import CliInvocation
-            return CliInvocation(self.provider_loader, self.config,
+            return CliInvocation(self.provider_loader, self.loader_config,
                                  self.settings, ns).run()
 
     def register_parser(self, subparsers):

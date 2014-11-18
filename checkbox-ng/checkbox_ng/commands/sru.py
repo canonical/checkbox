@@ -59,8 +59,8 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
     time.
     """
 
-    def __init__(self, provider_loader, config, ns):
-        super().__init__(provider_loader, config)
+    def __init__(self, provider_loader, config_loader, ns):
+        super().__init__(provider_loader, config_loader)
         self.ns = ns
         if self.ns.whitelist:
             self.whitelist = self.get_whitelist_from_file(
@@ -201,9 +201,11 @@ class SRUCommand(PlainBoxCommand, CheckBoxCommandMixIn):
 
     gettext_domain = "checkbox-ng"
 
-    def __init__(self, provider_loader, config):
+    def __init__(self, provider_loader, config_loader):
         self.provider_loader = provider_loader
-        self.config = config
+        # This command does funky things to the command line parser and it
+        # needs to load the config subsystem *early* so let's just load it now.
+        self.config = config_loader()
 
     def invoked(self, ns):
         # Copy command-line arguments over configuration variables
@@ -223,7 +225,11 @@ class SRUCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             retval = CheckConfigInvocation(self.config).run()
             if retval != 0:
                 return retval
-        return _SRUInvocation(self.provider_loader, self.config, ns).run()
+        # To maintain the illusion (aka API) the config loader we're presenting
+        # to the invocation class is just a simple lambda that returns the
+        # already loaded config.
+        return _SRUInvocation(
+            self.provider_loader, lambda: self.config, ns).run()
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(

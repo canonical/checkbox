@@ -50,6 +50,7 @@ import gzip
 import json
 import logging
 import os
+import re
 
 from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _
@@ -439,6 +440,20 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
     failure modes are possible. Those are documented in :meth:`resume()`
     """
 
+    # Flag controling reference checks from within the session file to external
+    # files. If enabled such checks are performed and can cause additional
+    # exceptions to be raised. Currently this only affects the representation
+    # of the DiskJobResult instances.
+    FLAG_FILE_REFERENCE_CHECKS_S = 'file-reference-checks'
+    FLAG_FILE_REFERENCE_CHECKS_F = 0x01
+    # Flag controlling rewriting of log file pathnames. It depends on the
+    # location to be non-None and then rewrites pathnames of all them missing
+    # log files to be relative to the session storage location. It effectively
+    # depends on FLAG_FILE_REFERENCe_CHECKS_F being set at the same time,
+    # otherwise it is ignored.
+    FLAG_REWRITE_LOG_PATHNAMES_S = 'rewrite-log-pathnames'
+    FLAG_REWRITE_LOG_PATHNAMES_F = 0x02
+
     def __init__(self, job_list, flags=None, location=None):
         """
         Initialize the helper with a list of known jobs.
@@ -446,6 +461,12 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
         self.job_list = job_list
         self.flags = 0
         self.location = location
+        # Convert flag string constants into numeric flags
+        if flags is not None:
+            if self.FLAG_FILE_REFERENCE_CHECKS_S in flags:
+                self.flags |= self.FLAG_FILE_REFERENCE_CHECKS_F
+            if self.FLAG_REWRITE_LOG_PATHNAMES_S in flags:
+                self.flags |= self.FLAG_REWRITE_LOG_PATHNAMES_F
 
     def resume_json(self, json_repr, early_cb=None):
         """
@@ -594,7 +615,8 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
             results_repr, key=job_id, value_type=list, value_none=True)
         for result_repr in result_list_repr:
             _validate(result_repr, value_type=dict)
-            result = self._build_JobResult(result_repr, self.flags)
+            result = self._build_JobResult(
+                result_repr, self.flags, self.location)
             result_list.append(result)
         # Show the _LAST_ result to the session. Currently we only store one
         # result but showing the most recent (last) result should be good
@@ -667,7 +689,7 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
             raise
 
     @classmethod
-    def _build_JobResult(cls, result_repr, flags=0):
+    def _build_JobResult(cls, result_repr, flags=0, location=None):
         """
         Convert the representation of MemoryJobResult or DiskJobResult
         back into an actual instance.
@@ -687,6 +709,14 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
         if 'io_log_filename' in result_repr:
             io_log_filename = _validate(
                 result_repr, key='io_log_filename', value_type=str)
+            if (flags & cls.FLAG_FILE_REFERENCE_CHECKS_F
+                    and not os.path.isfile(io_log_filename)
+                    and cls.FLAG_REWRITE_LOG_PATHNAMES in flags):
+                io_log_filename2 = cls._rewrite_pathname(io_log_filename,
+                                                         location)
+                logger.warning(_("Rewrote file name from %r to %r"),
+                               io_log_filename, io_log_filename2)
+                io_log_filename = io_log_filename2
             if (flags & cls.FLAG_FILE_REFERENCE_CHECKS_F
                     and not os.path.isfile(io_log_filename)):
                 raise BrokenReferenceToExternalFile(
@@ -710,6 +740,11 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
                 'io_log': io_log,
                 'return_code': return_code
             })
+
+    @classmethod
+    def _rewrite_pathname(cls, pathname, location):
+        return re.sub(
+            '.*\/\.cache\/plainbox\/sessions/[^//]+', location, pathname)
 
     @classmethod
     def _build_IOLogRecord(cls, record_repr):

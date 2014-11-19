@@ -19,7 +19,6 @@
 :mod:`plainbox.impl.commands.session` -- run sub-command
 ========================================================
 """
-from argparse import FileType
 from base64 import b64encode
 from logging import getLogger
 from shutil import copyfileobj
@@ -29,10 +28,7 @@ import itertools
 import os
 import sys
 
-from plainbox.i18n import docstring
 from plainbox.i18n import gettext as _
-from plainbox.i18n import gettext_noop as N_
-from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.session import SessionManager

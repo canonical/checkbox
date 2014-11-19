@@ -25,6 +25,7 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
+from argparse import SUPPRESS
 from gettext import gettext as _
 from logging import getLogger
 import argparse
@@ -76,10 +77,14 @@ class CliCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             "--check-config",
             action="store_true",
             help=_("run check-config"))
-        parser.add_argument(
+        group = parser.add_argument_group(title=_("user interface options"))
+        parser.set_defaults(color=None)
+        group.add_argument(
+            '--no-color', dest='color', action='store_false', help=SUPPRESS)
+        group.add_argument(
             '--non-interactive', action='store_true',
             help=_("skip tests that require interactivity"))
-        parser.add_argument(
+        group.add_argument(
             '--dont-suppress-output', action="store_true", default=False,
             help=_("don't suppress the output of certain job plugin types"))
         # Call enhance_parser from CheckBoxCommandMixIn

@@ -78,7 +78,7 @@ class CliInvocation2(RunInvocation):
 
     def __init__(self, provider_loader, config_loader, ns, launcher,
                  display=None):
-        super().__init__(provider_loader, config_loader, ns)
+        super().__init__(provider_loader, config_loader, ns, ns.color)
         if display is None:
             display = get_display()
         self._launcher = launcher

@@ -22,6 +22,7 @@
 ===================================================================
 """
 
+from argparse import SUPPRESS
 from gettext import gettext as _
 import itertools
 import logging
@@ -89,6 +90,9 @@ class LauncherCommand(CheckboxCommand):
         self.register_arguments(parser)
 
     def register_arguments(self, parser):
+        parser.add_argument(
+            '--no-color', dest='color', action='store_false', help=SUPPRESS)
+        parser.set_defaults(color=None)
         parser.add_argument(
             "launcher", metavar=_("LAUNCHER"),
             help=_("launcher definition file to use"))

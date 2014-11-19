@@ -453,6 +453,13 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
     # otherwise it is ignored.
     FLAG_REWRITE_LOG_PATHNAMES_S = 'rewrite-log-pathnames'
     FLAG_REWRITE_LOG_PATHNAMES_F = 0x02
+    # Flag controlling integrity checks between jobs present at resume time and
+    # jobs present at suspend time. Since providers cannot be serialized (nor
+    # should they) this integrity check prevents anyone from resuming a session
+    # if job definitions have changed. Using this flag effectively disables
+    # that check.
+    FLAG_IGNORE_JOB_CHECKSUMS_S = 'ignore-job-checksums'
+    FLAG_IGNORE_JOB_CHECKSUMS_F = 0x04
 
     def __init__(self, job_list, flags=None, location=None):
         """
@@ -467,6 +474,8 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
                 self.flags |= self.FLAG_FILE_REFERENCE_CHECKS_F
             if self.FLAG_REWRITE_LOG_PATHNAMES_S in flags:
                 self.flags |= self.FLAG_REWRITE_LOG_PATHNAMES_F
+            if self.FLAG_IGNORE_JOB_CHECKSUM_S in flags:
+                self.flags |= self.FLAG_IGNORE_JOB_CHECKSUM_F
 
     def resume_json(self, json_repr, early_cb=None):
         """
@@ -603,8 +612,11 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
         job = session.job_state_map[job_id].job
         # Check if job definition has not changed
         if job.checksum != checksum:
-            raise IncompatibleJobError(
-                _("Definition of job {!r} has changed").format(job_id))
+            if self.flags & self.FLAG_IGNORE_JOB_CHECKSUMS_F:
+                logger.warning(_("Ignoring changes to job %r)"), job_id)
+            else:
+                raise IncompatibleJobError(
+                    _("Definition of job {!r} has changed").format(job_id))
         # The result may not be there. This method is called for all the jobs
         # we're supposed to check but not all such jobs need to have results
         if job.id not in results_repr:

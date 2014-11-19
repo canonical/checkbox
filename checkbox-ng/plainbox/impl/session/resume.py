@@ -231,20 +231,17 @@ class SessionResumeHelper(EnvelopeUnpackMixIn):
         _validate(json_repr, value_type=dict)
         version = _validate(json_repr, key="version", choice=[1])
         if version == 1:
-            return SessionResumeHelper1(
-                self.job_list, self.flags).resume_json(json_repr, early_cb)
+            helper = SessionResumeHelper1(self.job_list, self.flags)
         elif version == 2:
-            return SessionResumeHelper2(
-                self.job_list, self.flags).resume_json(json_repr, early_cb)
+            helper = SessionResumeHelper2(self.job_list, self.flags)
         elif version == 3:
-            return SessionResumeHelper3(
-                self.job_list, self.flags).resume_json(json_repr, early_cb)
+            helper = SessionResumeHelper3(self.job_list, self.flags)
         elif version == 4:
-            return SessionResumeHelper4(
-                self.job_list, self.flags).resume_json(json_repr, early_cb)
+            helper = SessionResumeHelper4(self.job_list, self.flags)
         else:
             raise IncompatibleSessionError(
                 _("Unsupported version {}").format(version))
+        return helper.resume_json(json_repr, early_cb)
 
 
 class ResumeDiscardQualifier(SimpleQualifier):

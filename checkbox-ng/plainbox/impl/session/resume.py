@@ -191,6 +191,7 @@ class SessionResumeHelper(EnvelopeUnpackMixIn):
         Initialize the helper with a list of known jobs.
         """
         self.job_list = job_list
+        logger.debug("Session Resume Helper started with jobs: %r", job_list)
         self.flags = flags
         self.location = location
 
@@ -569,7 +570,8 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
                 try:
                     self._process_job(
                         session, jobs_repr, results_repr, job_id)
-                except KeyError:
+                except KeyError as exc:
+                    logger.debug("Seen KeyError for %r", exc)
                     leftover_jobs.append(job_id)
                 else:
                     leftover_shrunk = True

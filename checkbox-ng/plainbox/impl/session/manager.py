@@ -333,7 +333,9 @@ class SessionManager:
             else:
                 raise
         else:
-            state = SessionResumeHelper(unit_list, flags).resume(data, early_cb)
+            state = SessionResumeHelper(
+                unit_list, flags, storage.location
+            ).resume(data, early_cb)
         context = SessionDeviceContext(state)
         return cls([context], storage)
 

@@ -176,12 +176,13 @@ class SessionResumeHelper(EnvelopeUnpackMixIn):
     appropriate, format specific, resume class.
     """
 
-    def __init__(self, job_list, flags=None):
+    def __init__(self, job_list, flags=None, location=None):
         """
         Initialize the helper with a list of known jobs.
         """
         self.job_list = job_list
         self.flags = flags
+        self.location = location
 
     def resume(self, data, early_cb=None):
         """
@@ -231,13 +232,17 @@ class SessionResumeHelper(EnvelopeUnpackMixIn):
         _validate(json_repr, value_type=dict)
         version = _validate(json_repr, key="version", choice=[1])
         if version == 1:
-            helper = SessionResumeHelper1(self.job_list, self.flags)
+            helper = SessionResumeHelper1(
+                self.job_list, self.flags, self.location)
         elif version == 2:
-            helper = SessionResumeHelper2(self.job_list, self.flags)
+            helper = SessionResumeHelper2(
+                self.job_list, self.flags, self.location)
         elif version == 3:
-            helper = SessionResumeHelper3(self.job_list, self.flags)
+            helper = SessionResumeHelper3(
+                self.job_list, self.flags, self.location)
         elif version == 4:
-            helper = SessionResumeHelper4(self.job_list, self.flags)
+            helper = SessionResumeHelper4(
+                self.job_list, self.flags, self.location)
         else:
             raise IncompatibleSessionError(
                 _("Unsupported version {}").format(version))
@@ -425,12 +430,13 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
     failure modes are possible. Those are documented in :meth:`resume()`
     """
 
-    def __init__(self, job_list, flags=None):
+    def __init__(self, job_list, flags=None, location=None):
         """
         Initialize the helper with a list of known jobs.
         """
         self.job_list = job_list
-        self.flags = flags or frozenset()
+        self.flags = 0
+        self.location = location
 
     def resume_json(self, json_repr, early_cb=None):
         """

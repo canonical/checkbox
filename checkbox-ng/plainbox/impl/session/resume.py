@@ -176,11 +176,12 @@ class SessionResumeHelper(EnvelopeUnpackMixIn):
     appropriate, format specific, resume class.
     """
 
-    def __init__(self, job_list):
+    def __init__(self, job_list, flags=None):
         """
         Initialize the helper with a list of known jobs.
         """
         self.job_list = job_list
+        self.flags = flags
 
     def resume(self, data, early_cb=None):
         """
@@ -231,16 +232,16 @@ class SessionResumeHelper(EnvelopeUnpackMixIn):
         version = _validate(json_repr, key="version", choice=[1])
         if version == 1:
             return SessionResumeHelper1(
-                self.job_list).resume_json(json_repr, early_cb)
+                self.job_list, self.flags).resume_json(json_repr, early_cb)
         elif version == 2:
             return SessionResumeHelper2(
-                self.job_list).resume_json(json_repr, early_cb)
+                self.job_list, self.flags).resume_json(json_repr, early_cb)
         elif version == 3:
             return SessionResumeHelper3(
-                self.job_list).resume_json(json_repr, early_cb)
+                self.job_list, self.flags).resume_json(json_repr, early_cb)
         elif version == 4:
             return SessionResumeHelper4(
-                self.job_list).resume_json(json_repr, early_cb)
+                self.job_list, self.flags).resume_json(json_repr, early_cb)
         else:
             raise IncompatibleSessionError(
                 _("Unsupported version {}").format(version))
@@ -427,11 +428,12 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
     failure modes are possible. Those are documented in :meth:`resume()`
     """
 
-    def __init__(self, job_list):
+    def __init__(self, job_list, flags=None):
         """
         Initialize the helper with a list of known jobs.
         """
         self.job_list = job_list
+        self.flags = flags or frozenset()
 
     def resume_json(self, json_repr, early_cb=None):
         """

@@ -49,6 +49,7 @@ import binascii
 import gzip
 import json
 import logging
+import os
 
 from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _
@@ -91,6 +92,14 @@ class IncompatibleJobError(SessionResumeError):
     """
     Exception raised when :class:`SessionResumeHelper` detects that the set of
     jobs it knows about is incompatible with what was saved before.
+    """
+
+
+class BrokenReferenceToExternalFile(SessionResumeError):
+    """
+    Exception raised when :class:`SessionResumeHelper` detects that a file
+    needed by the session to resume is not present. This is typically used to
+    signal inaccessible log files.
     """
 
 
@@ -585,7 +594,7 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
             results_repr, key=job_id, value_type=list, value_none=True)
         for result_repr in result_list_repr:
             _validate(result_repr, value_type=dict)
-            result = self._build_JobResult(result_repr)
+            result = self._build_JobResult(result_repr, self.flags)
             result_list.append(result)
         # Show the _LAST_ result to the session. Currently we only store one
         # result but showing the most recent (last) result should be good
@@ -658,7 +667,7 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
             raise
 
     @classmethod
-    def _build_JobResult(cls, result_repr):
+    def _build_JobResult(cls, result_repr, flags=0):
         """
         Convert the representation of MemoryJobResult or DiskJobResult
         back into an actual instance.
@@ -678,6 +687,10 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
         if 'io_log_filename' in result_repr:
             io_log_filename = _validate(
                 result_repr, key='io_log_filename', value_type=str)
+            if (flags & cls.FLAG_FILE_REFERENCE_CHECKS_F
+                    and not os.path.isfile(io_log_filename)):
+                raise BrokenReferenceToExternalFile(
+                    _("cannot access file: {!r}").format(io_log_filename))
             return DiskJobResult({
                 'outcome': outcome,
                 'comments': comments,

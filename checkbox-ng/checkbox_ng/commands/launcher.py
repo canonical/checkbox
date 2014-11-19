@@ -82,8 +82,9 @@ class LauncherCommand(CheckboxCommand):
         ns.non_interactive = False
         ns.dry_run = False
         ns.dont_suppress_output = launcher.dont_suppress_output
-        return CliInvocation2(self.provider_loader, self.config, ns,
-                              launcher).run()
+        return CliInvocation2(
+            self.provider_loader, lambda: self.config, ns, launcher
+        ).run()
 
     def register_parser(self, subparsers):
         parser = self.add_subcommand(subparsers)

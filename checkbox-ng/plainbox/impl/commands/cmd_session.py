@@ -78,6 +78,12 @@ class SessionCommand(PlainBoxCommand):
         show_parser.add_argument(
             'session_id_list', metavar=_('SESSION-ID'), nargs="+",
             help=_('Identifier of the session to show'))
+        show_parser.add_argument(
+            '-r', '--resume', action='store_true',
+            help=_("resume the session (useful for debugging)"))
+        show_parser.add_argument(
+            '-f', '--flag', action='append', metavar=_("FLAG"),
+            help=_("pass this resume flag to the session resume code"))
         show_parser.set_defaults(session_cmd='show')
         archive_parser = session_subparsers.add_parser(
             'archive', help=_('archive a single session'))

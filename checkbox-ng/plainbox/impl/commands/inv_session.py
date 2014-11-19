@@ -33,6 +33,7 @@ from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.session import SessionManager
 from plainbox.impl.session import SessionPeekHelper
+from plainbox.impl.session import SessionResumeError
 from plainbox.impl.session import SessionStorageRepository
 
 
@@ -109,6 +110,18 @@ class SessionInvocation:
                 print(_("current job ID: {0!r}").format(
                     metadata.running_job_name))
                 print(_("data size: {0}").format(len(data)))
+                if self.ns.resume:
+                    print(_("Resuming session {0} ...").format(storage.id))
+                    try:
+                        self.resume_session(storage)
+                    except SessionResumeError as exc:
+                        print(_("Failed to resume session:"), exc)
+                    else:
+                        print(_("session resumed successfully"))
+
+    def resume_session(self, storage):
+        return SessionManager.load_session(
+            self._get_all_units(), storage, flags=self.ns.flag)
 
     def archive_session(self):
         session_id = self.ns.session_id

@@ -683,6 +683,11 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "DISK"), 2)
         self.assertEqual(len(devices), 4)
 
+    def test_XEON(self):
+        devices = self.parse("XEON")
+        self.assertEqual(len(devices), 71)
+        self.assertEqual(self.count(devices, "VIDEO"), 2)
+
     def test_QEMU_KVM(self):
         # A virtual machine, QEMU-KVM-based. Some of its devices are those
         # of the host system, we're interested mainly in network and disk
@@ -703,8 +708,6 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "RAID"), 0)
         self.assertEqual(self.count(devices, "DISK"), 1)
         self.assertEqual(self.count(devices, "SCSI"), 1)
-
-
 
     def test_DELL_VOSTRO_270(self):
         # Interesting because while its Intel video card has the same PCI

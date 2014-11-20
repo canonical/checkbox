@@ -25,12 +25,12 @@ be a more universally available, glibc-specific, drop-in replacement.
 """
 from __future__ import absolute_import
 
-from pyglibc import select
-from pyglibc import selectors
-from pyglibc._pipe import pipe, pipe2
-from pyglibc._pthread_sigmask import pthread_sigmask
-from pyglibc._signalfd import signalfd
-from pyglibc._subreaper import subreaper
+from plainbox.vendor.pyglibc import select
+from plainbox.vendor.pyglibc import selectors
+from plainbox.vendor.pyglibc._pipe import pipe, pipe2
+from plainbox.vendor.pyglibc._pthread_sigmask import pthread_sigmask
+from plainbox.vendor.pyglibc._signalfd import signalfd
+from plainbox.vendor.pyglibc._subreaper import subreaper
 
 __author__ = 'Zygmunt Krynicki <zygmunt.krynicki@canonical.com>'
 __version__ = '0.6'

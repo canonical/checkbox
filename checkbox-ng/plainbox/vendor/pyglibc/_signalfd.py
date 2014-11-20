@@ -25,7 +25,7 @@ from ctypes import byref
 from ctypes import sizeof
 from threading import Lock
 
-from glibc import (
+from plainbox.vendor.glibc import (
     SFD_CLOEXEC, SFD_NONBLOCK, sigset_t, signalfd_siginfo, sigemptyset,
     sigaddset, signalfd as _signalfd, read, close
 )

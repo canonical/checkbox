@@ -25,7 +25,7 @@
 """
 from __future__ import absolute_import
 
-from glibc import (
+from plainbox.vendor.glibc import (
     NSIG, SIG_BLOCK, SIG_UNBLOCK, SIG_SETMASK, sigset_t, sigemptyset,
     sigaddset, sigismember, pthread_sigmask as _pthread_sigmask)
 

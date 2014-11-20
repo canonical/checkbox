@@ -36,8 +36,8 @@ import abc
 import collections
 import sys
 
-from pyglibc import select
-from pyglibc._abc import Interface
+from plainbox.vendor.pyglibc import select
+from plainbox.vendor.pyglibc._abc import Interface
 
 __author__ = 'Zygmunt Krynicki <zygmunt.krynicki@canonical.com>'
 __version__ = '1.0'  # Let's claim this is complete and fix issues, if any

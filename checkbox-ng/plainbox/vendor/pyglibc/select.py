@@ -41,29 +41,29 @@ from ctypes import cast
 from errno import EBADF
 from threading import Lock
 
-from glibc import EPOLLERR
-from glibc import EPOLLET
-from glibc import EPOLLHUP
-from glibc import EPOLLIN
-from glibc import EPOLLMSG
-from glibc import EPOLLONESHOT
-from glibc import EPOLLOUT
-from glibc import EPOLLPRI
-from glibc import EPOLLRDBAND
-from glibc import EPOLLRDHUP
-from glibc import EPOLLRDNORM
-from glibc import EPOLLWRBAND
-from glibc import EPOLLWRNORM
-from glibc import EPOLL_CLOEXEC
-from glibc import EPOLL_CTL_ADD
-from glibc import EPOLL_CTL_DEL
-from glibc import EPOLL_CTL_MOD
-from glibc import FD_SETSIZE
-from glibc import close
-from glibc import epoll_create1
-from glibc import epoll_ctl
-from glibc import epoll_event
-from glibc import epoll_wait
+from plainbox.vendor.glibc import EPOLLERR
+from plainbox.vendor.glibc import EPOLLET
+from plainbox.vendor.glibc import EPOLLHUP
+from plainbox.vendor.glibc import EPOLLIN
+from plainbox.vendor.glibc import EPOLLMSG
+from plainbox.vendor.glibc import EPOLLONESHOT
+from plainbox.vendor.glibc import EPOLLOUT
+from plainbox.vendor.glibc import EPOLLPRI
+from plainbox.vendor.glibc import EPOLLRDBAND
+from plainbox.vendor.glibc import EPOLLRDHUP
+from plainbox.vendor.glibc import EPOLLRDNORM
+from plainbox.vendor.glibc import EPOLLWRBAND
+from plainbox.vendor.glibc import EPOLLWRNORM
+from plainbox.vendor.glibc import EPOLL_CLOEXEC
+from plainbox.vendor.glibc import EPOLL_CTL_ADD
+from plainbox.vendor.glibc import EPOLL_CTL_DEL
+from plainbox.vendor.glibc import EPOLL_CTL_MOD
+from plainbox.vendor.glibc import FD_SETSIZE
+from plainbox.vendor.glibc import close
+from plainbox.vendor.glibc import epoll_create1
+from plainbox.vendor.glibc import epoll_ctl
+from plainbox.vendor.glibc import epoll_event
+from plainbox.vendor.glibc import epoll_wait
 
 __author__ = 'Zygmunt Krynicki <zygmunt.krynicki@canonical.com>'
 __version__ = '1.0'  # Let's claim this is complete and fix issues, if any

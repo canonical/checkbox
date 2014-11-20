@@ -28,9 +28,9 @@ from __future__ import absolute_import
 from ctypes import addressof
 from ctypes import c_int
 
-from glibc import PR_GET_CHILD_SUBREAPER
-from glibc import PR_SET_CHILD_SUBREAPER
-from glibc import prctl
+from plainbox.vendor.glibc import PR_GET_CHILD_SUBREAPER
+from plainbox.vendor.glibc import PR_SET_CHILD_SUBREAPER
+from plainbox.vendor.glibc import prctl
 
 __all__ = ['subreaper']
 

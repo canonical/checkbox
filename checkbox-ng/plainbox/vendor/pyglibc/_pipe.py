@@ -28,7 +28,7 @@ from __future__ import absolute_import
 from ctypes import byref
 from ctypes import c_int
 
-from glibc import O_CLOEXEC, pipe2 as _pipe2
+from plainbox.vendor.glibc import O_CLOEXEC, pipe2 as _pipe2
 
 __author__ = 'Zygmunt Krynicki <zygmunt.krynicki@canonical.com>'
 __all__ = ['pipe', 'pipe2']

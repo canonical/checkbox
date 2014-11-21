@@ -107,6 +107,7 @@ class SessionManagerTests(TestCase, SignalInterceptorMixIn):
         """
         job = mock.Mock(name='job', spec_set=IJobDefinition)
         unit_list = [job]
+        flags = None
         helper_name = "plainbox.impl.session.manager.SessionResumeHelper"
         with mock.patch(helper_name) as helper_cls:
             resumed_state = mock.Mock(spec_set=SessionState)
@@ -115,8 +116,9 @@ class SessionManagerTests(TestCase, SignalInterceptorMixIn):
             manager = SessionManager.load_session(unit_list, self.storage)
         # Ensure that the storage object was used to load the session snapshot
         self.storage.load_checkpoint.assert_called_with()
-        # Ensure that the helper was instantiated with the unit list
-        helper_cls.assert_called_with(unit_list)
+        # Ensure that the helper was instantiated with the unit list, flags and
+        # location
+        helper_cls.assert_called_with(unit_list, flags, self.storage.location)
         # Ensure that the helper instance was asked to recreate session state
         helper_cls().resume.assert_called_with(
             self.storage.load_checkpoint(), None)

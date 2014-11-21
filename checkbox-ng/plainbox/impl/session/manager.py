@@ -281,7 +281,7 @@ class SessionManager:
         return cls([context], storage)
 
     @classmethod
-    def load_session(cls, unit_list, storage, early_cb=None):
+    def load_session(cls, unit_list, storage, early_cb=None, flags=None):
         """
         Load a previously checkpointed session.
 
@@ -311,6 +311,11 @@ class SessionManager:
             call returns. The callback accepts one argument, session, which is
             being resumed. This is being passed directly to
             :meth:`plainbox.impl.session.resume.SessionResumeHelper.resume()`
+        :param flags:
+            An optional set of flags that may influence the resume process.
+            Currently this is an internal implementation detail and no "public"
+            flags are provided. Passing None here is a safe equvalent of using
+            this API before it was introduced.
         :raises:
             Anything that can be raised by
             :meth:`~plainbox.impl.session.storage.SessionStorage.
@@ -328,7 +333,9 @@ class SessionManager:
             else:
                 raise
         else:
-            state = SessionResumeHelper(unit_list).resume(data, early_cb)
+            state = SessionResumeHelper(
+                unit_list, flags, storage.location
+            ).resume(data, early_cb)
         context = SessionDeviceContext(state)
         return cls([context], storage)
 

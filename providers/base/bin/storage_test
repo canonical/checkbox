@@ -37,7 +37,7 @@ then
     echo "$disk is a block device"
     
     #Add a check for warnings
-    WARN=`parted -l -s |grep "^Warning.*[Rr]ead-only" 2>&1` || WARN='no'
+    WARN=`parted -l -s |grep "^Warning.*${disk}.*[Rr]ead-only" 2>&1` || WARN='no'
     if [ "$WARN" != "no" ]
     then
         echo "Warning found in parted output:"

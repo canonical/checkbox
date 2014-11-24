@@ -314,7 +314,7 @@ plugin: user-interact-verify
 id: suspend/hybrid_sleep
 user: root
 command:
- set -o pipefail; fwts_test -f none -l $PLAINBOX_SESSION_SHARE/hybrid_sleep_single -s s3 --s3-hybrid --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $PLAINBOX_SESSION_SHARE/hybrid_sleep_single_times.log
+ set -o pipefail; fwts_test -f none -l $PLAINBOX_SESSION_SHARE/hybrid_sleep_single -s s3 --s3-hybrid --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 --pm-method=pm-utils | tee $PLAINBOX_SESSION_SHARE/hybrid_sleep_single_times.log
 estimated_duration: 90.0
 _description:
  PURPOSE:

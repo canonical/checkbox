@@ -222,7 +222,7 @@ class SRUCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             return 1
         # Run check-config, if requested
         if ns.check_config:
-            retval = CheckConfigInvocation(self.config).run()
+            retval = CheckConfigInvocation(lambda: self.config).run()
             if retval != 0:
                 return retval
         # To maintain the illusion (aka API) the config loader we're presenting

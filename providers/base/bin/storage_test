@@ -35,7 +35,21 @@ disk=/dev/$1
 if [ -b $disk ]
 then
     echo "$disk is a block device"
-    size=`parted -l -s | grep $disk | awk '{print $3}'`
+    
+    #Add a check for warnings
+    WARN=$(parted -l -s |grep "^Warning.*${disk}.*[Rr]ead-only" 2>&1)
+    if $?
+    then
+        echo "Warning found in parted output:"
+        echo $WARN
+        echo "Aborting Test"
+        exit 1
+    fi
+    
+    # Regex changed to better handle when $disk appears more than once
+    # in parted output (such as in warning messages or not caught in the
+    # check above)
+    size=`parted -l -s |grep "Disk.*${disk}" |awk '{print $3}'`
 
     if [ -n "$size" ]
     then
@@ -54,7 +68,7 @@ then
 
         if [ $size_range == "KB" ]
         then
-            echo "$disk is too small to be functioning."
+            echo "$disk size reported in KB, seems to be too small for testing."
             exit 1
         elif [ $size_range == "MB" ]
         then
@@ -64,7 +78,7 @@ then
             then
                 run_bonnie $disk
             else
-                echo "$disk is too small to be functioning."
+                echo "$disk is too small to be used for testing."
                 exit 1
             fi
         else

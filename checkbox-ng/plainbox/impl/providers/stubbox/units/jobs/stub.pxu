@@ -122,6 +122,19 @@ plugin: manual
 estimated_duration: 30
 category_id: plugin-representative
 
+id: stub/split-fields/manual
+_summary: A simple manual job using finer description fields
+_purpose:
+    This test checks that the manual plugin works fine
+_steps:
+    1. Add a comment
+    2. Set the result as passed
+_verification:
+    Check that in the report the result is passed and the comment is displayed
+plugin: manual
+estimated_duration: 30
+category_id: split-field-representative
+
 id: stub/user-interact
 _summary: A simple user interaction job
 _description:
@@ -137,6 +150,21 @@ flags: preserve-locale
 command: true
 estimated_duration: 30
 category_id: plugin-representative
+
+id: stub/split-fields/user-interact
+_summary: User-interact job using finer description fields
+_purpose:
+    This is a purpose part of test description
+_steps:
+    1. First step in the user-iteract job
+    2. Second step in the user-iteract job
+_verification:
+    Verification part of test description
+plugin: user-interact
+flags: preserve-locale
+command: true
+estimated_duration: 30
+category_id: split-field-representative
 
 id: stub/user-verify
 _summary: A simple user verification job
@@ -156,6 +184,24 @@ command: echo "Please select 'pass'"
 estimated_duration: 30
 category_id: plugin-representative
 
+id: stub/split-fields/user-verify
+_summary: User-verify job using finer description fields
+_purpose:
+     This test checks that the user-verify plugin works fine and that
+     description field is split properly
+_steps:
+     1. Read this description
+     2. Ensure that the command has been started automatically
+     3. Do not press the test button
+     4. Look at the output and determine the outcome of the test
+_verification:
+     The command should have printed "Please select 'pass'"
+plugin: user-verify
+flags: preserve-locale
+command: echo "Please select 'pass'"
+estimated_duration: 30
+category_id: split-field-representative
+
 id: stub/user-interact-verify
 _summary: A simple user interaction and verification job
 _description:
@@ -173,6 +219,24 @@ flags: preserve-locale
 command: echo "Please select 'pass'"
 estimated_duration: 25
 category_id: plugin-representative
+
+id: stub/split-fields/user-interact-verify
+_summary: A simple user interaction and verification job using finer
+    description fields
+_purpose:
+     This test checks that the user-interact-verify plugin works fine
+_steps:
+     1. Read this description
+     2. Ensure that the command has not been started yet
+     3. Press the test button
+     4. Look at the output and determine the outcome of the test
+_verification:
+     The command should have printed "Please select 'pass'"
+plugin: user-interact-verify
+flags: preserve-locale
+command: echo "Please select 'pass'"
+estimated_duration: 25
+category_id: split-field-representative
 
 id: stub/user-interact-verify-passing
 _summary: A suggested-passing user-verification-interaction job
@@ -194,6 +258,26 @@ command: true
 estimated_duration: 25
 category_id: plugin-representative
 
+id: stub/split-fields/user-interact-verify-passing
+_summary: A suggested-passing user-verification-interaction job using finer
+    description fields
+_purpose:
+     This test checks that the application user interface auto-suggests 'pass'
+     as the outcome of a test for user-interact-verify jobs that have a command
+     which completes successfully.
+_steps:
+     1. Read this description
+     2. Ensure that the command has not been started yet
+     3. Press the test button
+     4. Confirm the auto-suggested value
+_verification:
+     The auto suggested value should have been 'pass'
+plugin: user-interact-verify
+flags: preserve-locale
+command: true
+estimated_duration: 25
+category_id: split-field-representative
+
 id: stub/user-interact-verify-failing
 _summary: A suggested-failing user-verification-interaction job
 _description:
@@ -213,6 +297,26 @@ flags: preserve-locale
 command: false
 estimated_duration: 25
 category_id: plugin-representative
+
+id: stub/split-fields/user-interact-verify-failing
+_summary: A suggested-failing user-verification-interaction job using finer
+    description fields
+_purpose:
+     This test checks that the application user interface auto-suggests 'fail'
+     as the outcome of a test for user-interact-verify jobs that have a command
+     which completes unsuccessfully.
+_steps:
+     1. Read this description
+     2. Ensure that the command has not been started yet
+     3. Press the test button
+     4. Confirm the auto-suggested value
+_verification:
+     The auto suggested value should have been 'fail'
+plugin: user-interact-verify
+flags: preserve-locale
+command: false
+estimated_duration: 25
+category_id: split-field-representative
 
 id: __local__
 _summary: A job generating one more job

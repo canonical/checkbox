@@ -2,6 +2,10 @@ id: plugin-representative
 unit: category
 _name: Representative Jobs (per "plugin" value)
 
+id: split-field-representative
+unit: category
+_name: Representative Jobs with description fields split
+
 id: dependency-chain
 unit: category
 _name: Dependency Chaining

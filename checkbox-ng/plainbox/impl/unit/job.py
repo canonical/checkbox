@@ -221,6 +221,18 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
         return self.get_record_value('description')
 
     @property
+    def purpose(self):
+        return self.get_record_value('purpose')
+
+    @property
+    def steps(self):
+        return self.get_record_value('steps')
+
+    @property
+    def verification(self):
+        return self.get_record_value('verification')
+
+    @property
     def requires(self):
         return self.get_record_value('requires')
 
@@ -309,6 +321,24 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
         Get the translated version of :meth:`description`
         """
         return self.get_translated_record_value('description')
+
+    def tr_purpose(self):
+        """
+        Get the translated version of :meth:`purpose`
+        """
+        return self.get_translated_record_value('purpose')
+
+    def tr_steps(self):
+        """
+        Get the translated version of :meth:`steps`
+        """
+        return self.get_translated_record_value('steps')
+
+    def tr_verification(self):
+        """
+        Get the translated version of :meth:`verification`
+        """
+        return self.get_translated_record_value('verification')
 
     def get_environ_settings(self):
         """
@@ -501,6 +531,9 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
             imports = 'imports'
             flags = 'flags'
             category_id = 'category_id'
+            purpose = 'purpose'
+            steps = 'steps'
+            verification = 'verification'
 
         field_validators = {
             fields.name: [
@@ -586,7 +619,19 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
                 PresentFieldValidator(
                     severity=Severity.advice,
                     message=_("all jobs should have a description"),
-                    onlyif=lambda unit: unit.plugin != 'manual')
+                    onlyif=lambda unit: not unit.plugin in ['manual',
+                        'user-interact-verify', 'user-verify']),
+                # In case of user-[interact-]-verify tests description field
+                # may be substituted with purpose, [steps,] verification
+                # fields
+                PresentFieldValidator(
+                    severity=Severity.advice,
+                    message=_("all jobs should have a description or "
+                        "purpose, steps and verification fields"),
+                    onlyif=lambda unit: unit.plugin in ['user-verify',
+                        'user-interact-verify'] and (
+                        unit.purpose is None and unit.steps is None and
+                        unit.verification is None))
             ],
             fields.user: [
                 UntranslatableFieldValidator,

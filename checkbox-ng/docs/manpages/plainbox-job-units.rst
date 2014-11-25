@@ -142,6 +142,56 @@ Following fields may be used by the job unit:
         passes or fails. The question should be phrased in such a way
         that an answer of **Yes** means the test passed, and an answer of
         **No** means it failed.
+.. warning::
+    since version 0.17 fields: purpose, steps and verification should be used
+    instead of description.
+
+``Example:``
+   `old-way`:
+    _description:
+     PURPOSE:
+         This test will check that internal speakers work correctly
+     STEPS:
+         1. Make sure that no external speakers or headphones are connected
+            When testing a desktop, you can skip this test if there is no
+            internal speaker, we will test the external output later
+         2. Click the Test button to play a brief tone on your audio device
+     VERIFICATION:
+         Did you hear a tone?
+   `new-way`:
+    _purpose:
+         This test will check that internal speakers work correctly
+    _steps:
+         1. Make sure that no external speakers or headphones are connected
+            When testing a desktop, you can skip this test if there is no
+            internal speaker, we will test the external output later
+         2. Click the Test button to play a brief tone on your audio device
+    _verification:
+        Did you hear a tone?
+
+    Note that if client code references the description field, plainbox will
+    combine purpose, steps and verification fields into one and use the result
+
+``purpose``:
+    (optional). Purpose field is used in tests requiring human interaction as
+    an information about what a given test is supposed to do. User interfaces
+    should display content of this field prior to test execution. This field
+    may be omitted if the summary field is supplied.
+    Note that this field is applicable only for human interaction jobs.
+
+``steps``:
+    (optional). Steps field depicts actions that user should perform as a part
+    of job execution. User interfaces should display the content of this field
+    upon starting the test.
+    Note that this field is applicable only for jobs requiring the user to
+    perform some actions.
+
+``verification``:
+    (optional). Verification field is used to inform the user how they can
+    resolve a given job outcome.
+    Note that this field is applicable only for jobs the result of which is
+    determined by the user.
+
 ``user``:
     (optional). If specified, the job will be run as the user specified
     here. This is most commonly used to run jobs as the superuser

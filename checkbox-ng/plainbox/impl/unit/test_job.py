@@ -406,10 +406,12 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             Problem.constant, Severity.error)
 
     def test_description__present__on_non_manual(self):
-        message = "field 'description', all jobs should have a description"
         for plugin in self.unit_cls.plugin.symbols.get_all_symbols():
             if plugin == 'manual':
                 continue
+            message = ("field 'description', all jobs should have a"
+            " description field, or a set of purpose, steps and verification"
+            " fields")
             # TODO: switch to subTest() once we depend on python3.4
             issue_list = self.unit_cls({
                 'plugin': plugin
@@ -419,7 +421,9 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
                 Problem.missing, Severity.advice, message)
 
     def test_description__present__on_manual(self):
-        message = "field 'description', manual jobs must have a description"
+        message = ("field 'description', manual jobs must have a description"
+                   " field, or a set of purpose, steps, and verification"
+                   " fields")
         issue_list = self.unit_cls({
             'plugin': 'manual'
         }, provider=self.provider).check()
@@ -868,6 +872,12 @@ class TestJobDefinition(TestCase):
             'plugin': 'plugin',
             'id': 'id',
         }, Origin(FileTextSource('file.txt'), 1, 2))
+        self._split_description_record = RFC822Record({
+            'id': 'id',
+            'purpose': 'purpose-value',
+            'steps': 'steps-value',
+            'verification': 'verification-value'
+        }, Origin(FileTextSource('file.txt'), 1, 1))
 
     def test_instantiate_template(self):
         data = mock.Mock(name='data')
@@ -908,6 +918,19 @@ class TestJobDefinition(TestCase):
         self.assertEqual(job.requires, None)
         self.assertEqual(job.command, None)
         self.assertEqual(job.description, None)
+
+    def test_smoke_description_split(self):
+        job = JobDefinition(self._split_description_record.data)
+        self.assertEqual(job.id, "id")
+        self.assertEqual(job.purpose, "purpose-value")
+        self.assertEqual(job.steps, "steps-value")
+        self.assertEqual(job.verification, "verification-value")
+
+    def test_description_combining(self):
+        job = JobDefinition(self._split_description_record.data)
+        expected = ("PURPOSE:\npurpose-value\nSTEPS:\nsteps-value\n"
+                    "VERIFICATION:\nverification-value")
+        self.assertEqual(job.description, expected)
 
     def test_from_rfc822_record_full_record(self):
         job = JobDefinition.from_rfc822_record(self._full_record)
@@ -1117,6 +1140,76 @@ class TestJobDefinition(TestCase):
         # Ensure that get_translated_record_value() was called
         mgtrv.assert_called_once_with('description')
         # Ensure tr_description() returned its return value
+        self.assertEqual(retval, mgtrv())
+
+    def test_tr_description_combining(self):
+        """
+        Verify that translated description is properly generated
+        """
+        job = JobDefinition(self._split_description_record.data)
+
+        def side_effect(arg):
+            return {
+                'description': None,
+                'PURPOSE': 'TR_PURPOSE',
+                'STEPS': 'TR_STEPS',
+                'VERIFICATION': 'TR_VERIFICATION',
+                'purpose': 'tr_purpose_value',
+                'steps': 'tr_steps_value',
+                'verification': 'tr_verification_value'
+            }[arg]
+        with mock.patch.object(job, "get_translated_record_value") as mgtrv:
+            mgtrv.side_effect = side_effect
+            with mock.patch('plainbox.impl.unit.job._') as mock_gettext:
+                mock_gettext.side_effect = side_effect
+                retval = job.tr_description()
+        mgtrv.assert_any_call('description')
+        mgtrv.assert_any_call('purpose')
+        mgtrv.assert_any_call('steps')
+        mgtrv.assert_any_call('verification')
+        self.assertEqual(mgtrv.call_count, 4)
+        mock_gettext.assert_any_call('PURPOSE')
+        mock_gettext.assert_any_call('STEPS')
+        mock_gettext.assert_any_call('VERIFICATION')
+        self.assertEqual(mock_gettext.call_count, 3)
+        expected = ("TR_PURPOSE:\ntr_purpose_value\nTR_STEPS:\n"
+                    "tr_steps_value\nTR_VERIFICATION:\ntr_verification_value")
+        self.assertEqual(retval, expected)
+
+    def test_tr_purpose(self):
+        """
+        Verify that Provider1.tr_purpose() works as expected
+        """
+        job = JobDefinition(self._split_description_record.data)
+        with mock.patch.object(job, "get_translated_record_value") as mgtrv:
+            retval = job.tr_purpose()
+        # Ensure that get_translated_record_value() was called
+        mgtrv.assert_called_once_with('purpose')
+        # Ensure tr_purpose() returned its return value
+        self.assertEqual(retval, mgtrv())
+
+    def test_tr_steps(self):
+        """
+        Verify that Provider1.tr_steps() works as expected
+        """
+        job = JobDefinition(self._split_description_record.data)
+        with mock.patch.object(job, "get_translated_record_value") as mgtrv:
+            retval = job.tr_steps()
+        # Ensure that get_translated_record_value() was called
+        mgtrv.assert_called_once_with('steps')
+        # Ensure tr_steps() returned its return value
+        self.assertEqual(retval, mgtrv())
+
+    def test_tr_verification(self):
+        """
+        Verify that Provider1.tr_verification() works as expected
+        """
+        job = JobDefinition(self._split_description_record.data)
+        with mock.patch.object(job, "get_translated_record_value") as mgtrv:
+            retval = job.tr_verification()
+        # Ensure that get_translated_record_value() was called
+        mgtrv.assert_called_once_with('verification')
+        # Ensure tr_verification() returned its return value
         self.assertEqual(retval, mgtrv())
 
     def test_imports(self):

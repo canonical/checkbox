@@ -741,8 +741,8 @@ class RunInvocation(CheckBoxInvocationMixIn):
                         break
                     elif cmd == 'quit':
                         raise SystemExit()
-                else:
-                    job_result = self.runner.run_job(job, self.config, ui)
+            else:
+                job_result = self.runner.run_job(job, self.config, ui)
             if (self.is_interactive and
                     job_result.outcome == IJobResult.OUTCOME_UNDECIDED):
                 try:

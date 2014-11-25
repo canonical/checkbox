@@ -130,6 +130,15 @@ class SilentUI(IJobRunnerUI):
     def notify_about_description(self, job):
         pass
 
+    def notify_about_purpose(self, job):
+        pass
+
+    def notify_about_steps(self, job):
+        pass
+
+    def notify_about_verification(self, job):
+        pass
+
     def job_cannot_start(self, job, job_state, job_result):
         pass
 
@@ -196,7 +205,22 @@ class NormalUI(IJobRunnerUI):
         pass
 
     def notify_about_description(self, job):
-        print(self.C.CYAN(job.tr_description()))
+        if job.tr_description() is not None:
+            print(self.C.CYAN(job.tr_description()))
+
+    def notify_about_purpose(self, job):
+        if job.tr_purpose() is not None:
+            print(self.C.CYAN(job.tr_purpose()))
+        else:
+            self.notify_about_description(job)
+
+    def notify_about_steps(self, job):
+        if job.tr_steps() is not None:
+            print(self.C.CYAN(job.tr_steps()))
+
+    def notify_about_verification(self, job):
+        if job.tr_verification() is not None:
+            print(self.C.CYAN(job.tr_verification()))
 
     def job_cannot_start(self, job, job_state, result):
         print(_("Job cannot be started because:"))
@@ -694,35 +718,37 @@ class RunInvocation(CheckBoxInvocationMixIn):
         while True:
             if job.plugin in ('user-interact', 'user-interact-verify',
                               'user-verify', 'manual'):
-                ui.notify_about_description(job)
-            if (self.is_interactive and
-                    job.plugin in ('user-interact', 'user-interact-verify')):
-                cmd = ui.wait_for_interaction_prompt(job)
-                if cmd == 'run' or cmd is None:
+                ui.notify_about_purpose(job)
+                if self.is_interactive:
+                    cmd = ui.wait_for_interaction_prompt(job)
+                    if cmd == 'run' or cmd is None:
+                        ui.notify_about_steps(job)
+                        job_result = self.runner.run_job(job, self.config, ui)
+                    elif cmd == 'comment':
+                        new_comment = input(self.C.BLUE(
+                            _('Please enter your comments:') + '\n'))
+                        if new_comment:
+                            comments += new_comment + '\n'
+                        continue
+                    elif cmd == 'skip':
+                        job_result = MemoryJobResult({
+                            'outcome': IJobResult.OUTCOME_SKIP,
+                            'comments': _("Explicitly skipped before"
+                                          " execution")
+                        })
+                        if comments != "":
+                            job_result.comments = comments
+                        break
+                    elif cmd == 'quit':
+                        raise SystemExit()
+                else:
                     job_result = self.runner.run_job(job, self.config, ui)
-                elif cmd == 'comment':
-                    new_comment = input(self.C.BLUE(
-                        _('Please enter your comments:') + '\n'))
-                    if new_comment:
-                        comments += new_comment + '\n'
-                    continue
-                elif cmd == 'skip':
-                    job_result = MemoryJobResult({
-                        'outcome': IJobResult.OUTCOME_SKIP,
-                        'comments': _("Explicitly skipped before execution")
-                    })
-                    if comments != "":
-                        job_result.comments = comments
-                    break
-                elif cmd == 'quit':
-                    raise SystemExit()
-            else:
-                job_result = self.runner.run_job(job, self.config, ui)
             if (self.is_interactive and
                     job_result.outcome == IJobResult.OUTCOME_UNDECIDED):
                 try:
                     if comments != "":
                         job_result.comments = comments
+                    ui.notify_about_verification(job)
                     job_result = self._interaction_callback(
                         self.runner, job, job_result, self.config)
                 except ReRunJob:

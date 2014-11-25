@@ -509,7 +509,27 @@ class IJobRunnerUI(metaclass=ABCMeta):
     def notify_about_description(self, job):
         """
         Method called prior to user interactions that might require familiarity
-        of the job description.
+        of the job description. Gets called only if purpose/steps/verification
+        fields are missing.
+        """
+
+    @abstractmethod
+    def notify_about_purpose(self, job):
+        """
+        Method called after starting a job
+        """
+
+    @abstractmethod
+    def notify_about_steps(self, job):
+        """
+        Method called prior to user interactions that might require familiarity
+        with interaction steps
+        """
+
+    @abstractmethod
+    def notify_about_verification(self, job):
+        """
+        Method called before user selects outcome of a job
         """
 
     @abstractmethod

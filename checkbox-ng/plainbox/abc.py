@@ -156,6 +156,25 @@ class IJobDefinition(metaclass=ABCMeta):
             forbidden. All job definition units must belong to a provider.
         """
 
+    @abstractproperty
+    def purpose(self):
+        """
+        Human readable purpose of the test.
+        """
+
+    @abstractproperty
+    def steps(self):
+        """
+        Human readable instruction what actions should user perform while
+        performing test
+        """
+
+    @abstractproperty
+    def verification(self):
+        """
+        Human readable instruction how to verify outcome of a test
+        """
+
 
 class IJobResult(metaclass=ABCMeta):
     """

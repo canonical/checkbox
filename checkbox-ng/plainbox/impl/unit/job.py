@@ -614,12 +614,15 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
                 # Description is mandatory for manual jobs
                 PresentFieldValidator(
                     message=_("manual jobs must have a description"),
-                    onlyif=lambda unit: unit.plugin == 'manual'),
+                    onlyif=lambda unit: unit.plugin == 'manual' and
+                        unit.purpose is None and unit.steps is None or
+                        unit.verification is None
+                    ),
                 # Description is recommended for all other jobs
                 PresentFieldValidator(
                     severity=Severity.advice,
                     message=_("all jobs should have a description"),
-                    onlyif=lambda unit: not unit.plugin in ['manual',
+                    onlyif=lambda unit: unit.plugin not in ['manual',
                         'user-interact-verify', 'user-verify']),
                 # In case of user-[interact-]-verify tests description field
                 # may be substituted with purpose, [steps,] verification
@@ -628,10 +631,40 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
                     severity=Severity.advice,
                     message=_("all jobs should have a description or "
                         "purpose, steps and verification fields"),
-                    onlyif=lambda unit: unit.plugin in ['user-verify',
-                        'user-interact-verify'] and (
+                    onlyif=lambda unit: unit.plugin in ['manual',
+                        'user-interact-verify', 'user-interact'] and (
                         unit.purpose is None and unit.steps is None and
-                        unit.verification is None))
+                        unit.verification is None)),
+            ],
+            fields.purpose: [
+                TranslatableFieldValidator,
+                TemplateVariantFieldValidator,
+                PresentFieldValidator(
+                    severity=Severity.advice,
+                    message=_("user interaction jobs must have a"
+                        " 'purpose' field"),
+                    onlyif=lambda unit: unit.plugin in ['manual',
+                        'user-interact-verify', 'user-interact']),
+            ],
+            fields.steps: [
+                TranslatableFieldValidator,
+                TemplateVariantFieldValidator,
+                PresentFieldValidator(
+                    severity=Severity.advice,
+                    message=_("user interaction jobs must have a"
+                        " 'steps' field"),
+                    onlyif=lambda unit: unit.plugin in ['manual',
+                        'user-interact-verify', 'user-interact']),
+            ],
+            fields.verification: [
+                TranslatableFieldValidator,
+                TemplateVariantFieldValidator,
+                PresentFieldValidator(
+                    severity=Severity.advice,
+                    message=_("user interaction jobs must have a"
+                        " 'verification' field"),
+                    onlyif=lambda unit: unit.plugin in ['manual',
+                        'user-interact-verify', 'user-interact']),
             ],
             fields.user: [
                 UntranslatableFieldValidator,

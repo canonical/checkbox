@@ -423,7 +423,44 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             ):
                 result_map[parent]['category_status'] = IJobResult.OUTCOME_SKIP
 
-    def _tree(self, result_map, via=None, level=0, max_level=0):
+    def _tree(self, result_map):
+        res = {}
+        tmp_result_map = {}
+        for job_name in result_map:
+            if re.search(
+                    'resource|attachment',
+                    result_map[job_name]['plugin']):
+                continue
+            category = result_map[job_name]['category_id']
+            if category not in res:
+                tmp_result_map[category] = {}
+                tmp_result_map[category]['category_status'] = None
+                tmp_result_map[category]['plugin'] = 'local'
+                tmp_result_map[category]['summary'] = category
+                res[category] = {}
+            res[category][job_name] = {}
+            # Generate categories status
+            child_status = result_map[job_name]['outcome']
+            if child_status == IJobResult.OUTCOME_FAIL:
+                tmp_result_map[category]['category_status'] = \
+                    IJobResult.OUTCOME_FAIL
+            elif (
+                child_status == IJobResult.OUTCOME_PASS and
+                tmp_result_map[category]['category_status'] !=
+                    IJobResult.OUTCOME_FAIL
+            ):
+                tmp_result_map[category]['category_status'] = \
+                    IJobResult.OUTCOME_PASS
+            elif (
+                tmp_result_map[category]['category_status'] not in
+                (IJobResult.OUTCOME_PASS, IJobResult.OUTCOME_FAIL)
+            ):
+                tmp_result_map[category]['category_status'] = \
+                    IJobResult.OUTCOME_SKIP
+        result_map.update(tmp_result_map)
+        return res, 2
+
+    def _legacy_tree(self, result_map, via=None, level=0, max_level=0):
         res = {}
         for job_name in [j for j in result_map if result_map[j]['via'] == via]:
             if re.search(
@@ -434,7 +471,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             # Find the maximum depth of the test tree
             if level > max_level:
                 max_level = level
-            res[job_name], max_level = self._tree(
+            res[job_name], max_level = self._legacy_tree(
                 result_map, result_map[job_name]['hash'], level, max_level)
             # Generate parent categories status
             if via is not None:
@@ -476,7 +513,9 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 if self.OPTION_WITH_DESCRIPTION in self._option_list:
                     self.worksheet4.write(
                         self._lineno, level + 1,
-                        result_map[job].get('description', ""), self.format15)
+                        result_map[job].get(
+                            'description',
+                            result_map[job].get('summary', "")), self.format15)
                 if level:
                     self.worksheet3.set_row(
                         self._lineno, 13, None, {'level': level})
@@ -574,7 +613,10 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                             self._lineno, 12 + 10.5 * desc_lines)
 
     def write_results(self, data):
-        tree, max_level = self._tree(data['result_map'])
+        if [k for k, v in data['result_map'].items() if 'category_id' in v]:
+            tree, max_level = self._tree(data['result_map'])
+        else:
+            tree, max_level = self._legacy_tree(data['result_map'])
         self.worksheet3.write(3, 1, _('Tests Performed'), self.format03)
         self.worksheet3.freeze_panes(6, 0)
         self.worksheet3.set_tab_color('#DC4C00')  # Orange

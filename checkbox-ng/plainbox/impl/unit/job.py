@@ -304,6 +304,15 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
                 'category_id', '2013.com.canonical.plainbox::uncategorised'))
 
     @property
+    def partial_category_id(self):
+        """
+        Identifier of this job category, without the provider name
+
+        This field should not be used anymore, except for display
+        """
+        return self.get_record_value('category_id', 'uncategorised')
+
+    @property
     def estimated_duration(self):
         """
         estimated duration of this job in seconds.

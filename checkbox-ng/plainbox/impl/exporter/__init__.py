@@ -198,6 +198,8 @@ class SessionStateExporterBase(ISessionStateExporter):
                 continue
             data['result_map'][job_id] = OrderedDict()
             data['result_map'][job_id]['summary'] = job_state.job.summary
+            data['result_map'][job_id]['category_id'] = \
+                job_state.job.partial_category_id
             data['result_map'][job_id]['outcome'] = job_state.result.outcome
             if job_state.result.execution_duration:
                 data['result_map'][job_id]['execution_duration'] = \

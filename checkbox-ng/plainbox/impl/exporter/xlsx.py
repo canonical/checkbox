@@ -433,7 +433,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                     'resource|attachment',
                     result_map[job_name]['plugin']):
                 continue
-            category = result_map[job_name]['category_id']
+            category = category_map[result_map[job_name]['category_id']]
             if category not in res:
                 tmp_result_map[category] = {}
                 tmp_result_map[category]['category_status'] = None

@@ -182,10 +182,11 @@ class JobState:
     """
     Class representing the state of a job in a session.
 
-    Contains two basic properties of each job:
+    Contains three basic properties of each job:
 
         * the readiness_inhibitor_list that prevent the job form starting
         * the result (outcome) of the run (IJobResult)
+        * the effective category identifier
 
     For convenience (to SessionState implementation) it also has a reference to
     the job itself.  This class is a pure state holder an will typically
@@ -202,6 +203,7 @@ class JobState:
         self._job = job
         self._readiness_inhibitor_list = [UndesiredJobReadinessInhibitor]
         self._result = MemoryJobResult({})
+        self._effective_category_id = None
         assert self._result.is_hollow
 
     def __repr__(self):
@@ -283,3 +285,21 @@ class JobState:
                            for inhibitor in self._readiness_inhibitor_list)))
         else:
             return "job can be started"
+
+    @property
+    def effective_category_id(self):
+        """
+        The effective category identifier of this job in a session
+
+        This property can be assigned to. By default, each effective category
+        identifier is the natural category identifier of the associated job. It
+        can be re-assigned to any other identifier though.
+        """
+        if self._effective_category_id is not None:
+            return self._effective_category_id
+        else:
+            return self.job.category_id
+
+    @effective_category_id.setter
+    def effective_category_id(self, value):
+        self._effective_category_id = value

@@ -136,6 +136,8 @@ class JobStateTests(TestCase):
         self.assertIs(self.job_state.result.outcome, IJobResult.OUTCOME_NONE)
         self.assertEqual(self.job_state.readiness_inhibitor_list, [
             UndesiredJobReadinessInhibitor])
+        self.assertEqual(self.job_state.effective_category_id,
+                         self.job.category_id)
 
     def test_getting_job(self):
         self.assertIs(self.job_state.job, self.job)
@@ -213,3 +215,7 @@ class JobStateTests(TestCase):
         self.assertTrue(
             self.job_state.get_readiness_description().startswith(
                 "job cannot be started: "))
+
+    def test_setting_effective_category_id(self):
+        self.job_state.effective_category_id = 'value'
+        self.assertEqual(self.job_state.effective_category_id, 'value')

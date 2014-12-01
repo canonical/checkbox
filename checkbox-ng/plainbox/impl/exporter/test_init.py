@@ -204,6 +204,7 @@ class SessionStateExporterBaseTests(TestCase):
                 }]
             },
             'category_map': {
+                '2013.com.canonical.plainbox::uncategorised': 'Uncategorised'
             },
             'result_map': {
                 'job_a': OrderedDict([
@@ -296,6 +297,27 @@ class SessionStateExporterBaseTests(TestCase):
         # discarded as nothing was referencing it
         self.assertEqual(data['category_map'], {
             'foo': 'The foo category',
+        })
+
+    def test_category_map_and_uncategorised(self):
+        """
+        Ensure that OPTION_WITH_CATEGORY_MAP synthetizes the special
+        'uncategorised' category.
+        """
+        exporter = self.TestSessionStateExporter([
+            SessionStateExporterBase.OPTION_WITH_CATEGORY_MAP
+        ])
+        # Create a job without a specific category
+        job = JobDefinition({
+            'plugin': 'shell',
+            'id': 'id',
+        })
+        # Create and export a session with that one job
+        state = SessionState([job])
+        data = exporter.get_session_data_subset(state)
+        # Ensure that the special 'uncategorized' category is used
+        self.assertEqual(data['category_map'], {
+            '2013.com.canonical.plainbox::uncategorised': 'Uncategorised',
         })
 
 

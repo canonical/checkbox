@@ -133,12 +133,14 @@ class SessionStateExporterBaseTests(TestCase):
             'result_map': {
                 'job_a': OrderedDict([
                     ('summary', 'job_a'),
-                    ('category_id', 'uncategorised'),
+                    ('category_id', ('2013.com.canonical.plainbox::'
+                                     'uncategorised')),
                     ('outcome', 'pass')
                 ]),
                 'job_b': OrderedDict([
                     ('summary', 'job_b'),
-                    ('category_id', 'uncategorised'),
+                    ('category_id', ('2013.com.canonical.plainbox::'
+                                     'uncategorised')),
                     ('outcome', 'fail')
                 ])
             }
@@ -203,7 +205,8 @@ class SessionStateExporterBaseTests(TestCase):
             'result_map': {
                 'job_a': OrderedDict([
                     ('summary', 'This is job A'),
-                    ('category_id', 'uncategorised'),
+                    ('category_id', ('2013.com.canonical.plainbox::'
+                                     'uncategorised')),
                     ('outcome', 'pass'),
                     ('comments', None),
                     ('via', None),
@@ -216,7 +219,8 @@ class SessionStateExporterBaseTests(TestCase):
                 ]),
                 'job_b': OrderedDict([
                     ('summary', 'This is job B'),
-                    ('category_id', 'uncategorised'),
+                    ('category_id', ('2013.com.canonical.plainbox::'
+                                     'uncategorised')),
                     ('outcome', 'pass'),
                     ('comments', 'foo'),
                     ('via', None),

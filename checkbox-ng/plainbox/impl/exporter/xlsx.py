@@ -62,12 +62,14 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
     OPTION_WITH_SUMMARY = 'with-summary'
     OPTION_WITH_DESCRIPTION = 'with-job-description'
     OPTION_WITH_TEXT_ATTACHMENTS = 'with-text-attachments'
+    OPTION_WITH_UNIT_CATEGORIES = 'with-unit-categories'
 
     SUPPORTED_OPTION_LIST = (
         OPTION_WITH_SYSTEM_INFO,
         OPTION_WITH_SUMMARY,
         OPTION_WITH_DESCRIPTION,
         OPTION_WITH_TEXT_ATTACHMENTS,
+        OPTION_WITH_UNIT_CATEGORIES,
     )
 
     def __init__(self, option_list=None):
@@ -429,9 +431,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         res = {}
         tmp_result_map = {}
         for job_name in result_map:
-            if re.search(
-                    'resource|attachment',
-                    result_map[job_name]['plugin']):
+            if result_map[job_name]['plugin'] in ('resource', 'attachment'):
                 continue
             category = category_map[result_map[job_name]['category_id']]
             if category not in res:
@@ -465,9 +465,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
     def _legacy_tree(self, result_map, via=None, level=0, max_level=0):
         res = {}
         for job_name in [j for j in result_map if result_map[j]['via'] == via]:
-            if re.search(
-                    'resource|attachment',
-                    result_map[job_name]['plugin']):
+            if result_map[job_name]['plugin'] in ('resource', 'attachment'):
                 continue
             level += 1
             # Find the maximum depth of the test tree
@@ -615,7 +613,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                             self._lineno, 12 + 10.5 * desc_lines)
 
     def write_results(self, data):
-        if [k for k, v in data['result_map'].items() if 'category_id' in v]:
+        if self.OPTION_WITH_UNIT_CATEGORIES in self._option_list:
             tree, max_level = self._tree(
                 data['result_map'], data['category_map'])
         else:

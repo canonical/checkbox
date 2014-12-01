@@ -1,0 +1,237 @@
+# PlainBox translations
+# Copyright (C) 2014 Canonical
+# This file is distributed under the same license as the palinbox package.
+# Zygmunt <Krynicki>, 2014.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 2013.com.canonical.plainbox::categories 0.5\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-12-01 16:03+0100\n"
+"PO-Revision-Date: 2014-06-03 04:40+0000\n"
+"Last-Translator: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>\n"
+"Language-Team: polski <>\n"
+"Language: Polish\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2014-11-27 05:41+0000\n"
+"X-Generator: Launchpad (build 17261)\n"
+
+#. name
+#: ../units/categories.pxu:3
+msgid "Audio tests"
+msgstr "Testy dźwięku"
+
+#. name
+#: ../units/categories.pxu:7
+msgid "Benchmarks tests"
+msgstr "Testy wydajności"
+
+#. name
+#: ../units/categories.pxu:11
+msgid "Bluetooth tests"
+msgstr "Testy bluetooth"
+
+#. name
+#: ../units/categories.pxu:15
+msgid "Camera tests"
+msgstr "Testy kamery"
+
+#. name
+#: ../units/categories.pxu:19
+msgid "Codec tests"
+msgstr "Testy kodeków multimedialnych"
+
+#. name
+#: ../units/categories.pxu:23
+msgid "CPU tests"
+msgstr "Testy procesora"
+
+#. name
+#: ../units/categories.pxu:27
+msgid "System Daemon tests"
+msgstr "Testy usług systemowych"
+
+#. name
+#: ../units/categories.pxu:31
+msgid "Disk tests"
+msgstr "Testy dysków twardych"
+
+#. name
+#: ../units/categories.pxu:35
+msgid "Ethernet Device tests"
+msgstr "Testy urządzeń sieciowych"
+
+#. name
+#: ../units/categories.pxu:39
+msgid "eSATA disk tests"
+msgstr "Testy dysków eSATA"
+
+#. name
+#: ../units/categories.pxu:43
+msgid "Fingerprint reader tests"
+msgstr "Testy czytnika linii papilarnych"
+
+#. name
+#: ../units/categories.pxu:47
+msgid "Firewire disk tests"
+msgstr "Testy dysków firewire"
+
+#. name
+#: ../units/categories.pxu:51
+msgid "Firmware tests"
+msgstr "Testy oprogramowania wbudowanego"
+
+#. name
+#: ../units/categories.pxu:55
+msgid "Floppy disk tests"
+msgstr "Testy dyskietek"
+
+#. name
+#: ../units/categories.pxu:59
+msgid "Graphics tests"
+msgstr "Testy grafiki"
+
+#. name
+#: ../units/categories.pxu:63
+msgid "Hibernation tests"
+msgstr "Testy hibernacji"
+
+#. name
+#: ../units/categories.pxu:67
+msgid "Informational tests"
+msgstr "Testy informacyjne"
+
+#. name
+#: ../units/categories.pxu:71
+msgid "Input Devices tests"
+msgstr "Testy urządzeń wejściowych"
+
+#. name
+#: ../units/categories.pxu:75
+msgid "Hotkey tests"
+msgstr "Testy skrótów klawiatury"
+
+#. name
+#: ../units/categories.pxu:79
+msgid "LED tests"
+msgstr "Testy diod"
+
+#. name
+#: ../units/categories.pxu:83
+msgid "Media Card tests"
+msgstr "Testy kart pamięci"
+
+#. name
+#: ../units/categories.pxu:87
+msgid "Memory tests"
+msgstr "Testy pamięci operacyjnej"
+
+#. name
+#: ../units/categories.pxu:91
+msgid "MIR tests"
+msgstr "Testy systemu wyświetlania MIR"
+
+#. name
+#: ../units/categories.pxu:95
+msgid "Miscellaneous tests"
+msgstr "Inne testy"
+
+#. name
+#: ../units/categories.pxu:99
+msgid "Monitor tests"
+msgstr "Testy monitora"
+
+#. name
+#: ../units/categories.pxu:103
+msgid "Non-device specific networking tests"
+msgstr "Testy sieciowe niezwiązane z urządzeniami"
+
+#. name
+#: ../units/categories.pxu:107
+msgid "Optical Drive tests"
+msgstr "Testy urządzeń optycznych"
+
+#. name
+#: ../units/categories.pxu:111
+msgid "ExpressCard tests"
+msgstr "Testy ExpressCard"
+
+#. name
+#: ../units/categories.pxu:115
+msgid "Peripheral tests"
+msgstr "Testy urządzeń peryferyjnych"
+
+#. name
+#: ../units/categories.pxu:119
+msgid "Power Management tests"
+msgstr "Testy zarządzania zasilaniem"
+
+#. name
+#: ../units/categories.pxu:123
+msgid "Suspend tests"
+msgstr "Testy usypiania komputera"
+
+#. name
+#: ../units/categories.pxu:127
+msgid "Touchpad tests"
+msgstr "Testy gładzika"
+
+#. name
+#: ../units/categories.pxu:131
+msgid "Touchscreen tests"
+msgstr "Testy ekranu dotykowego"
+
+#. name
+#: ../units/categories.pxu:135
+msgid "USB tests"
+msgstr "Testy urządzeń USB"
+
+#. name
+#: ../units/categories.pxu:139
+msgid "User Applications"
+msgstr "Testy aplikacji użytkownika"
+
+#. name
+#: ../units/categories.pxu:143
+msgid "Virtualization tests"
+msgstr "Testy wirtualizacji"
+
+#. name
+#: ../units/categories.pxu:147
+msgid "Wireless networking tests"
+msgstr "Testy bezprzewodowych urządzeń sieciowych"
+
+#. name
+#: ../units/categories.pxu:151
+msgid "Mobile broadband tests"
+msgstr "Testy szerokopasmowego dostępu do internetu"
+
+#. name
+#: ../units/categories.pxu:155
+msgid "Stress tests"
+msgstr "Testy obciążenia"
+
+#. name
+#: ../units/categories.pxu:159
+msgid "Uncategorised"
+msgstr "Testy bez kategorii"
+
+#. This is categories_def.description,
+#. we need it here to extract is as a part of this provider
+#: ../manage.py:45
+msgid "Common test category definitions"
+msgstr "Pospolite kategorie testów"
+
+#: ../manage.py:55 ../manage.py:66
+msgid "The Category provider is special"
+msgstr "Dostawca kategorii jest specjalny"
+
+#: ../manage.py:56
+msgid "You don't need to develop it explicitly"
+msgstr "Nie trzeba go jawnie 'developować'"
+
+#: ../manage.py:67
+msgid "You don't need to install it explicitly"
+msgstr "Nie trzeba go jawnie instalować"

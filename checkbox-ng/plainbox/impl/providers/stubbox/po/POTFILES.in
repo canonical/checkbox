@@ -1,5 +1,8 @@
 [encoding: UTF-8]
-[type: gettext/rfc822deb] units/jobs/local.txt.in
-[type: gettext/rfc822deb] units/jobs/multilevel.txt.in
-[type: gettext/rfc822deb] units/jobs/stub.txt.in
+[type: gettext/rfc822deb] units/jobs/categories.pxu
+[type: gettext/rfc822deb] units/jobs/local.pxu
+[type: gettext/rfc822deb] units/jobs/multilevel.pxu
+[type: gettext/rfc822deb] units/jobs/stub.pxu
+[type: gettext/rfc822deb] units/jobs/win.pxu
+[type: gettext/rfc822deb] units/testplans/all.pxu
 ./manage.py

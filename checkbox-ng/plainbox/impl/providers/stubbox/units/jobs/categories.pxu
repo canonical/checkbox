@@ -25,3 +25,7 @@ _name: Generated Tests
 id: superuser
 unit: category
 _name: Elevated Privilege Tests
+
+id: overridden
+unit: category
+_name: Overridden Category

@@ -1,0 +1,17 @@
+id: category-override-test
+_name: Category Override Test
+_description:
+ This test plan can be used to verify that category overrides are working
+ correctly. It is assigning the "overridden" category to all the stubbox
+ jobs starting with stub/.
+ .
+ This test plan selects the stub/multilevel job to ensure that generated jobs
+ are classified corractly. It also selects the stub/true job to check regular
+ jobs (known in advance).
+unit: test plan
+include:
+ stub/multilevel
+ stub/multilevel_[12]
+ stub/true
+category-overrides:
+ apply overridden to stub/.*

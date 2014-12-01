@@ -425,7 +425,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             ):
                 result_map[parent]['category_status'] = IJobResult.OUTCOME_SKIP
 
-    def _tree(self, result_map):
+    def _tree(self, result_map, category_map):
         res = {}
         tmp_result_map = {}
         for job_name in result_map:
@@ -616,7 +616,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
 
     def write_results(self, data):
         if [k for k, v in data['result_map'].items() if 'category_id' in v]:
-            tree, max_level = self._tree(data['result_map'])
+            tree, max_level = self._tree(
+                data['result_map'], data['category_map'])
         else:
             tree, max_level = self._legacy_tree(data['result_map'])
         self.worksheet3.write(3, 1, _('Tests Performed'), self.format03)

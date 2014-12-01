@@ -215,7 +215,7 @@ class SessionStateExporterBase(ISessionStateExporter):
             if job_state.result.outcome is None:
                 continue
             data['result_map'][job_id] = OrderedDict()
-            data['result_map'][job_id]['summary'] = job_state.job.summary
+            data['result_map'][job_id]['summary'] = job_state.job.tr_summary()
             data['result_map'][job_id]['category_id'] = \
                 job_state.effective_category_id
             data['result_map'][job_id]['outcome'] = job_state.result.outcome

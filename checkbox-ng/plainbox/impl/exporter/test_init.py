@@ -38,6 +38,7 @@ from plainbox.impl.job import JobDefinition
 from plainbox.impl.result import MemoryJobResult, IOLogRecord
 from plainbox.impl.session import SessionState
 from plainbox.impl.testing_utils import make_job, make_job_result
+from plainbox.impl.unit.category import CategoryUnit
 
 
 class ClassPropertyTests(TestCase):
@@ -202,6 +203,8 @@ class SessionStateExporterBaseTests(TestCase):
                     'ready': 'yes'
                 }]
             },
+            'category_map': {
+            },
             'result_map': {
                 'job_a': OrderedDict([
                     ('summary', 'This is job A'),
@@ -262,6 +265,38 @@ class SessionStateExporterBaseTests(TestCase):
                 (0, 'stdout', 'Zm9vCg=='),
                 (1, 'stderr', 'YmFyCg=='),
                 (2, 'stdout', 'cXV4eAo=')])
+
+    def test_category_map(self):
+        """
+        Ensure that passing OPTION_WITH_CATEGORY_MAP causes a category id ->
+        tr_name mapping to show up.
+        """
+        exporter = self.TestSessionStateExporter([
+            SessionStateExporterBase.OPTION_WITH_CATEGORY_MAP
+        ])
+        # Create three untis, two categories (foo, bar) and two jobs (froz,
+        # bot) so that froz.category_id == foo
+        cat_foo = CategoryUnit({
+            'id': 'foo',
+            'name': 'The foo category',
+        })
+        cat_bar = CategoryUnit({
+            'id': 'bar',
+            'name': 'The bar category',
+        })
+        job_froz = JobDefinition({
+            'plugin': 'shell',
+            'id': 'froz',
+            'category_id': 'foo'
+        })
+        # Create and export a session with the three units
+        state = SessionState([cat_foo, cat_bar, job_froz])
+        data = exporter.get_session_data_subset(state)
+        # Ensure that only the foo category was used, and the bar category was
+        # discarded as nothing was referencing it
+        self.assertEqual(data['category_map'], {
+            'foo': 'The foo category',
+        })
 
 
 class ByteStringStreamTranslatorTests(TestCase):

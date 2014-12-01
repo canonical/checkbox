@@ -83,6 +83,7 @@ class SessionStateExporterBase(ISessionStateExporter):
     OPTION_WITH_COMMENTS = 'with-comments'
     OPTION_WITH_JOB_VIA = 'with-job-via'
     OPTION_WITH_JOB_HASH = 'with-job-hash'
+    OPTION_WITH_CATEGORY_MAP = 'with-category-map'
 
     SUPPORTED_OPTION_LIST = (
         OPTION_WITH_IO_LOG,
@@ -96,6 +97,7 @@ class SessionStateExporterBase(ISessionStateExporter):
         OPTION_WITH_COMMENTS,
         OPTION_WITH_JOB_VIA,
         OPTION_WITH_JOB_HASH,
+        OPTION_WITH_CATEGORY_MAP,
     )
 
     def __init__(self, option_list=None):
@@ -193,6 +195,17 @@ class SessionStateExporterBase(ISessionStateExporter):
             }
         if self.OPTION_WITH_ATTACHMENTS in self._option_list:
             data['attachment_map'] = {}
+        if self.OPTION_WITH_CATEGORY_MAP in self._option_list:
+            wanted_category_ids = frozenset({
+                job_state.effective_category_id
+                for job_state in session.job_state_map.values()
+            })
+            data['category_map'] = {
+                unit.id: unit.tr_name()
+                for unit in session.unit_list
+                if unit.Meta.name == 'category'
+                and unit.id in wanted_category_ids
+            }
         for job_id, job_state in session.job_state_map.items():
             if job_state.result.outcome is None:
                 continue

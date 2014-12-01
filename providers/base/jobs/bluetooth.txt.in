@@ -87,20 +87,19 @@ estimated_duration: 120.0
 command: audio_bluetooth_loopback_test
 _description:
  PURPOSE:
-     This test will check that you can record and hear audio using a bluetooth audio device
+     This test will check the Telephony Duplex capability of your bluetooth device,
+     to see if you can record and hear audio from it simultaneously.
  STEPS:
      1. Enable the bluetooth headset
      2. Click on the bluetooth icon in the menu bar
-     3. Select 'Setup new device'
-     4. Look for the device in the list and select it
-     5. In the device write the PIN code automatically chosen by the wizard
-     6. The device should pair with the computer
-     7. Click the sound icon
-     8. Click "Sound Settings"
-     9. Select device and ensure Quality is set to "HSP/HFP"
-     10. Click "Test" to record for five seconds and reproduce in the bluetooth device
+     3. Select "Setup new device"
+     4. Look for the device in the list and pair it
+     5. Click the sound icon
+     6. Click "Sound Settings"
+     7. Select device and ensure Mode is set to "Telephony Duplex (HSP/HFP)"
+     8. Click "Test" to record and play for five seconds in the bluetooth device
  VERIFICATION:
-     Did you hear the sound you recorded in the bluetooth
+     Did you hear the sound you recorded in the bluetooth with a slight intended delay?
 
 plugin: user-interact-verify
 id: bluetooth/HID

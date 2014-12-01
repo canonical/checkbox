@@ -2,7 +2,6 @@
 ./setup.py
 ./docs/conf.py
 ./plainbox/vendor/extcmd/test.py
-./plainbox/vendor/extcmd/demo.py
 ./plainbox/vendor/extcmd/__init__.py
 ./plainbox/vendor/pyglibc/_pthread_sigmask.py
 ./plainbox/vendor/pyglibc/select.py

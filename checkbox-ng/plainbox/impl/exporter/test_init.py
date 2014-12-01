@@ -119,7 +119,7 @@ class SessionStateExporterBaseTests(TestCase):
 
     def test_option_list_setting_api(self):
         exporter = self.TestSessionStateExporter(
-                [SessionStateExporterBase.OPTION_WITH_IO_LOG])
+            [SessionStateExporterBase.OPTION_WITH_IO_LOG])
         exporter.set_option_value("with-comments")
         self.assertEqual(exporter.get_option_value('with-comments'), True)
         exporter.set_option_value("with-comments", "detailed")

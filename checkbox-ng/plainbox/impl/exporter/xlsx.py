@@ -91,7 +91,9 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             SessionStateExporterBase.OPTION_WITH_JOB_VIA,
             SessionStateExporterBase.OPTION_WITH_JOB_HASH,
             SessionStateExporterBase.OPTION_WITH_RESOURCE_MAP,
-            SessionStateExporterBase.OPTION_WITH_ATTACHMENTS)
+            SessionStateExporterBase.OPTION_WITH_ATTACHMENTS,
+            SessionStateExporterBase.OPTION_WITH_CATEGORY_MAP,
+        )
         self._option_list += tuple(option_list)
         self.total_pass = 0
         self.total_fail = 0

@@ -124,7 +124,7 @@ class SessionStateExporterBaseTests(TestCase):
         self.assertEqual(exporter.get_option_value('with-comments'), True)
         exporter.set_option_value("with-comments", "detailed")
         self.assertEqual(exporter.get_option_value('with-comments'),
-                "detailed")
+                         "detailed")
 
     def test_defaults(self):
         # Test all defaults, with all options unset

@@ -541,7 +541,11 @@ class RunInvocation(CheckBoxInvocationMixIn):
         else:
             option_list = None
         try:
-            self._exporter = exporter_cls(option_list)
+            if self.ns.output_format == 'text':
+                # Hacky way to pass color flag down to the text exporter
+                self._exporter = exporter_cls(option_list, self.ns.color)
+            else:
+                self._exporter = exporter_cls(option_list)
         except ValueError as exc:
             raise SystemExit(str(exc))
 

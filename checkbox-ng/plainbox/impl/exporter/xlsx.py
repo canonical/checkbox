@@ -429,9 +429,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         res = {}
         tmp_result_map = {}
         for job_name in result_map:
-            if re.search(
-                    'resource|attachment',
-                    result_map[job_name]['plugin']):
+            if result_map[job_name]['plugin'] in ('resource', 'attachment'):
                 continue
             category = category_map[result_map[job_name]['category_id']]
             if category not in res:
@@ -465,9 +463,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
     def _legacy_tree(self, result_map, via=None, level=0, max_level=0):
         res = {}
         for job_name in [j for j in result_map if result_map[j]['via'] == via]:
-            if re.search(
-                    'resource|attachment',
-                    result_map[job_name]['plugin']):
+            if result_map[job_name]['plugin'] in ('resource', 'attachment'):
                 continue
             level += 1
             # Find the maximum depth of the test tree

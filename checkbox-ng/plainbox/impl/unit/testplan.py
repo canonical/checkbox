@@ -355,6 +355,22 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
                         effective_map[job.id] = category_id
         return effective_map
 
+    def get_effective_category(self, job):
+        """
+        Compute the effective category association for a single job
+
+        :param job:
+            a JobDefinition units
+        :returns:
+            The effective category_id
+        """
+        if self.category_overrides is not None:
+            overrides_gen = self.parse_overrides(self.category_overrides)
+            for lineno_offset, category_id, pattern in overrides_gen:
+                if re.match(pattern, job.id):
+                    return category_id
+        return job.category
+
     class Meta:
 
         name = 'test plan'

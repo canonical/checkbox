@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-02 17:33+0200\n"
+"POT-Creation-Date: 2014-12-01 15:44+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,200 +18,219 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #. name
-#: ../units/categories.txt:3
+#: ../units/categories.pxu:3
 msgid "Audio tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:7
+#: ../units/categories.pxu:7
 msgid "Benchmarks tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:11
+#: ../units/categories.pxu:11
 msgid "Bluetooth tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:15
+#: ../units/categories.pxu:15
 msgid "Camera tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:19
+#: ../units/categories.pxu:19
 msgid "Codec tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:23
+#: ../units/categories.pxu:23
 msgid "CPU tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:27
+#: ../units/categories.pxu:27
 msgid "System Daemon tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:31
+#: ../units/categories.pxu:31
 msgid "Disk tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:35
+#: ../units/categories.pxu:35
 msgid "Ethernet Device tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:39
+#: ../units/categories.pxu:39
 msgid "eSATA disk tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:43
+#: ../units/categories.pxu:43
 msgid "Fingerprint reader tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:47
+#: ../units/categories.pxu:47
 msgid "Firewire disk tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:51
+#: ../units/categories.pxu:51
 msgid "Firmware tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:55
+#: ../units/categories.pxu:55
 msgid "Floppy disk tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:59
+#: ../units/categories.pxu:59
 msgid "Graphics tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:63
+#: ../units/categories.pxu:63
 msgid "Hibernation tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:67
+#: ../units/categories.pxu:67
 msgid "Informational tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:71
+#: ../units/categories.pxu:71
 msgid "Input Devices tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:75
+#: ../units/categories.pxu:75
 msgid "Hotkey tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:79
+#: ../units/categories.pxu:79
 msgid "LED tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:83
+#: ../units/categories.pxu:83
 msgid "Media Card tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:87
+#: ../units/categories.pxu:87
 msgid "Memory tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:91
+#: ../units/categories.pxu:91
 msgid "MIR tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:95
+#: ../units/categories.pxu:95
 msgid "Miscellaneous tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:99
+#: ../units/categories.pxu:99
 msgid "Monitor tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:103
+#: ../units/categories.pxu:103
 msgid "Non-device specific networking tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:107
+#: ../units/categories.pxu:107
 msgid "Optical Drive tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:111
+#: ../units/categories.pxu:111
 msgid "ExpressCard tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:115
+#: ../units/categories.pxu:115
 msgid "Peripheral tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:119
+#: ../units/categories.pxu:119
 msgid "Power Management tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:123
+#: ../units/categories.pxu:123
 msgid "Suspend tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:127
+#: ../units/categories.pxu:127
 msgid "Touchpad tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:131
+#: ../units/categories.pxu:131
 msgid "Touchscreen tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:135
+#: ../units/categories.pxu:135
 msgid "USB tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:139
+#: ../units/categories.pxu:139
 msgid "User Applications"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:143
+#: ../units/categories.pxu:143
 msgid "Virtualization tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:147
+#: ../units/categories.pxu:147
 msgid "Wireless networking tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:151
+#: ../units/categories.pxu:151
 msgid "Mobile broadband tests"
 msgstr ""
 
 #. name
-#: ../units/categories.txt:155
+#: ../units/categories.pxu:155
 msgid "Stress tests"
 msgstr ""
 
-#: ../manage.py:37
+#. name
+#: ../units/categories.pxu:159
+msgid "Uncategorised"
+msgstr ""
+
+#. This is categories_def.description,
+#. we need it here to extract is as a part of this provider
+#: ../manage.py:45
 msgid "Common test category definitions"
+msgstr ""
+
+#: ../manage.py:55 ../manage.py:66
+msgid "The Category provider is special"
+msgstr ""
+
+#: ../manage.py:56
+msgid "You don't need to develop it explicitly"
+msgstr ""
+
+#: ../manage.py:67
+msgid "You don't need to install it explicitly"
 msgstr ""

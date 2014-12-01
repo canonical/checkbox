@@ -106,7 +106,8 @@ class SessionStateExporterBaseTests(TestCase):
 
     def test_option_list_init_non_boolean(self):
         option = SessionStateExporterBase.OPTION_WITH_COMMENTS
-        exporter = self.TestSessionStateExporter(["{}=detailed".format(option)])
+        exporter = self.TestSessionStateExporter(
+            ["{}=detailed".format(option)])
         self.assertEqual(exporter.get_option_value(option), "detailed")
 
     def test_option_list_non_duplicated_options(self):

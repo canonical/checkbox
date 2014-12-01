@@ -273,6 +273,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
         self._transport = None
         self._backtrack_and_run_missing = True
         self._color = color
+        self._test_plan = self.find_test_plan()
         self.C = Colorizer(color)
 
     @property
@@ -362,6 +363,8 @@ class RunInvocation(CheckBoxInvocationMixIn):
             resumed = False
         # Create the job runner so that we can do stuff
         self.create_runner()
+        # Set the effective category for each job
+        self.set_effective_categories()
         # If we haven't resumed then do some one-time initialization
         if not resumed:
             # Store the application-identifying meta-data and checkpoint the
@@ -639,6 +642,26 @@ class RunInvocation(CheckBoxInvocationMixIn):
     @property
     def expected_session_title(self):
         return " ".join([os.path.basename(sys.argv[0])] + sys.argv[1:])
+
+    def find_test_plan(self):
+        # This is using getattr because the code is shared with checkbox-ng
+        # that doesn't support the same set of command line options.
+        test_plan_id = getattr(self.ns, "test_plan", None)
+        if test_plan_id is None:
+            return
+        for provider in self.provider_list:
+            for unit in provider.get_units()[0]:
+                if (unit.Meta.name == 'test plan'
+                        and unit.id == test_plan_id):
+                    return unit
+
+    def set_effective_categories(self):
+        if self._test_plan is None:
+            return
+        ecm = self._test_plan.get_effective_category_map(self.state.job_list)
+        for job_id, effective_category_id in ecm.items():
+            job_state = self.state.job_state_map[job_id]
+            job_state.effective_category_id = effective_category_id
 
     def do_initial_job_selection(self):
         """
@@ -926,4 +949,8 @@ class RunInvocation(CheckBoxInvocationMixIn):
         new_matching_job_list = self._get_matching_job_list(
             self.ns, self.state.job_list)
         self._update_desired_job_list(new_matching_job_list)
+        if self._test_plan is not None:
+            job_state = self.state.job_state_map[job.id]
+            job_state.effective_category_id = (
+                self._test_plan.get_effective_category(job))
         self._backtrack_and_run_missing = True

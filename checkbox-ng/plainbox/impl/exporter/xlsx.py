@@ -499,19 +499,19 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                     IJobResult.OUTCOME_PASS
                 ):
                     self.worksheet3.write(
-                        self._lineno, max_level + 2, 'PASS', self.format10)
+                        self._lineno, max_level + 2, _('PASS'), self.format10)
                 elif (
                     result_map[job]['category_status'] ==
                     IJobResult.OUTCOME_FAIL
                 ):
                     self.worksheet3.write(
-                        self._lineno, max_level + 2, 'FAIL', self.format11)
+                        self._lineno, max_level + 2, _('FAIL'), self.format11)
                 elif (
                     result_map[job]['category_status'] ==
                     IJobResult.OUTCOME_SKIP
                 ):
                     self.worksheet3.write(
-                        self._lineno, max_level + 2, 'skip', self.format12)
+                        self._lineno, max_level + 2, _('skip'), self.format12)
                 if self.OPTION_WITH_DESCRIPTION in self._option_list:
                     self.worksheet4.write(
                         self._lineno, level + 1,

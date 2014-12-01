@@ -100,8 +100,9 @@ class SessionStateExporterBaseTests(TestCase):
         # exporter actually thinks it has
         exporter = self.TestSessionStateExporter(
             self.TestSessionStateExporter.supported_option_list)
-        self.assertEqual(exporter._option_list,
-                sorted(self.TestSessionStateExporter.supported_option_list))
+        self.assertEqual(
+            exporter._option_list,
+            sorted(self.TestSessionStateExporter.supported_option_list))
 
     def test_option_list_init_non_boolean(self):
         option = SessionStateExporterBase.OPTION_WITH_COMMENTS

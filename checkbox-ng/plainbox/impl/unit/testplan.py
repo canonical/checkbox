@@ -351,7 +351,7 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
             overrides_gen = self.parse_overrides(self.category_overrides)
             for lineno_offset, category_id, pattern in overrides_gen:
                 for job in job_list:
-                    if re.match(job.id, pattern):
+                    if re.match(pattern, job.id):
                         effective_map[job.id] = category_id
         return effective_map
 

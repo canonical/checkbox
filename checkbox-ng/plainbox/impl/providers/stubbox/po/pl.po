@@ -7,56 +7,56 @@ msgid ""
 msgstr ""
 "Project-Id-Version: stubbox 0.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-01 10:48+0100\n"
+"POT-Creation-Date: 2014-12-01 16:09+0100\n"
 "PO-Revision-Date: 2014-06-03 04:40+0000\n"
 "Last-Translator: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>\n"
 "Language-Team: polski <>\n"
-"Language: Polish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-11-27 05:41+0000\n"
-"X-Generator: Launchpad (build 17261)\n"
+"X-Launchpad-Export-Date: 2014-12-02 05:29+0000\n"
+"X-Generator: Launchpad (build 17274)\n"
+"Language: Polish\n"
 
 #. name
 #: ../units/jobs/categories.pxu:3
 msgid "Representative Jobs (per \"plugin\" value)"
-msgstr "Zadania reprezentacyjne (dla wartośći \"plugin\")"
+msgstr ""
 
 #. name
 #: ../units/jobs/categories.pxu:7
 msgid "Representative Jobs with description fields split"
-msgstr "Zadania reprezentacyjne z podzielonymi polami"
+msgstr ""
 
 #. name
 #: ../units/jobs/categories.pxu:11
 msgid "Dependency Chaining"
-msgstr "Łańcuch zależności"
+msgstr ""
 
 #. name
 #: ../units/jobs/categories.pxu:15
 msgid "Long Jobs"
-msgstr "Długie zadania"
+msgstr ""
 
 #. name
 #: ../units/jobs/categories.pxu:19
 msgid "Miscellaneous Tests"
-msgstr "Inne testy"
+msgstr ""
 
 #. name
 #: ../units/jobs/categories.pxu:23
 msgid "Generated Tests"
-msgstr "Wygenerowane testy"
+msgstr ""
 
 #. name
 #: ../units/jobs/categories.pxu:27
 msgid "Elevated Privilege Tests"
-msgstr "Testy podwyższonych uprawnień"
+msgstr ""
 
 #. name
 #: ../units/jobs/categories.pxu:31
 msgid "Overridden Category"
-msgstr "Nadpisana kategoria"
+msgstr ""
 
 #. summary
 #: ../units/jobs/local.pxu:2
@@ -65,7 +65,8 @@ msgstr "Zadanie wygenerowane przez inne zadanie"
 
 #. description
 #: ../units/jobs/local.pxu:4
-msgid "Check success result from shell test case (generated from a local job)"
+msgid ""
+"Check success result from shell test case (generated from a local job)"
 msgstr ""
 "Sprawdzenie udanego wyniku z zadania typu 'shell' (wygenerowanego przez "
 "zadanie typu 'local')"
@@ -125,7 +126,7 @@ msgstr ""
 #. summary
 #: ../units/jobs/stub.pxu:44
 msgid "Job sleeping for sixty seconds"
-msgstr "Zadanie śpiące przez sześćdziesiąt sekund"
+msgstr ""
 
 #. description
 #: ../units/jobs/stub.pxu:45
@@ -173,7 +174,8 @@ msgstr "Udane zadanie powłoki zależące od dostępnego zasobu"
 #. description
 #: ../units/jobs/stub.pxu:91
 msgid "Check job is executed when requirements are met"
-msgstr "Sprawdzenie czy zadanie jest wykonane gdy wymagania zostały spełnione"
+msgstr ""
+"Sprawdzenie czy zadanie jest wykonane gdy wymagania zostały spełnione"
 
 #. summary
 #: ../units/jobs/stub.pxu:101
@@ -186,8 +188,8 @@ msgid ""
 "Check job result is set to \"not required on this system\" when requirements "
 "are not met"
 msgstr ""
-"Sprawdzenie czy wynik zadania jest ustawiony na \"niewymagany na tym systemie"
-"\" gdy zależności zasobów nie zostały spełnione"
+"Sprawdzenie czy wynik zadania jest ustawiony na \"niewymagany na tym "
+"systemie\" gdy zależności zasobów nie zostały spełnione"
 
 #. summary
 #: ../units/jobs/stub.pxu:112
@@ -326,28 +328,17 @@ msgstr ""
 
 #. steps
 #: ../units/jobs/stub.pxu:192
-#, fuzzy
 msgid ""
 "    1. Read this description\n"
 "    2. Ensure that the command has been started automatically\n"
 "    3. Do not press the test button\n"
 "    4. Look at the output and determine the outcome of the test"
 msgstr ""
-"PRZEZNACZENIE:\n"
-"    Ten test sprawdza poprawność wtyczki 'user-verify'\n"
-"KROKI:\n"
-"    1. Przeczytaj ten opis\n"
-"    2. Upewnij się, że polecenie testowe zostało automatycznie uruchomione\n"
-"    3. Nie wciskaj przycisku 'test'\n"
-"    4. Obejrzyj wyjście programu i określ wynik testu\n"
-"WERYFIKACJA:\n"
-"    Polecenie powinno było wypisać \"Please select 'pass'\""
 
 #. summary
 #: ../units/jobs/stub.pxu:206
-#, fuzzy
 msgid "A simple user interaction and verification job"
-msgstr "Proste zadanie weryfikacji przez użytkownika"
+msgstr ""
 
 #. description
 #: ../units/jobs/stub.pxu:207
@@ -374,9 +365,8 @@ msgstr ""
 
 #. summary
 #: ../units/jobs/stub.pxu:224
-#, fuzzy
 msgid "A simple user interaction and verification job using finer"
-msgstr "Proste zadanie weryfikacji przez użytkownika"
+msgstr ""
 
 #. purpose
 #: ../units/jobs/stub.pxu:226
@@ -385,22 +375,12 @@ msgstr ""
 
 #. steps
 #: ../units/jobs/stub.pxu:228
-#, fuzzy
 msgid ""
 "    1. Read this description\n"
 "    2. Ensure that the command has not been started yet\n"
 "    3. Press the test button\n"
 "    4. Look at the output and determine the outcome of the test"
 msgstr ""
-"PRZEZNACZENIE:\n"
-"    Ten test sprawdza poprawność wtyczki 'user-interact-verify'\n"
-"KROKI:\n"
-"    1. Przeczytaj ten opis\n"
-"    2. Upewnij się, że polecenie testowe nie zostało jeszcze uruchomione\n"
-"    3. Wciśnij przycisk 'test'\n"
-"    4. Obejrzyj wyjście programu i określ wynik testu\n"
-"WERYFIKACJA:\n"
-"    Polecenie powinno było wypisać \"Please select 'pass'\""
 
 #. verification
 #: ../units/jobs/stub.pxu:233
@@ -443,13 +423,11 @@ msgstr ""
 
 #. summary
 #: ../units/jobs/stub.pxu:262
-#, fuzzy
 msgid "A suggested-passing user-verification-interaction job using finer"
-msgstr "Zadanie interakcji-weryfikacji sugerujące 'powodzenie'"
+msgstr ""
 
 #. purpose
 #: ../units/jobs/stub.pxu:264
-#, fuzzy
 msgid ""
 "    This test checks that the application user interface auto-suggests "
 "'pass'\n"
@@ -457,17 +435,6 @@ msgid ""
 "command\n"
 "    which completes successfully."
 msgstr ""
-"PRZEZNACZENIE:\n"
-"    Ten test sprawdza czy interfejs aplikacji testującej automatycznie\n"
-"    sugeruje 'powodzenie' dla zadań typu interakcja-i-weryfikacja gdy\n"
-"    polecenie skojarzone z danym zadaniem zakończy się sukcesem\n"
-"KROKI:\n"
-"    1. Przeczytaj ten opis\n"
-"    2. Upewnij się, że polecenie testowe nie zostało jeszcze uruchomione\n"
-"    3. Wciśnij przycisk 'test'\n"
-"    4. Potwierdź automatycznie sugerowany wynik\n"
-"WERYFIKACJA:\n"
-"    Zasugerowanym wynikiem testu powinno być 'powodzenie'"
 
 #. verification
 #: ../units/jobs/stub.pxu:273
@@ -510,9 +477,8 @@ msgstr ""
 
 #. summary
 #: ../units/jobs/stub.pxu:302
-#, fuzzy
 msgid "A suggested-failing user-verification-interaction job using finer"
-msgstr "Zadanie interakcji-weryfikacji sugerujące 'porażkę'"
+msgstr ""
 
 #. summary
 #: ../units/jobs/stub.pxu:302
@@ -521,7 +487,6 @@ msgstr ""
 
 #. purpose
 #: ../units/jobs/stub.pxu:304
-#, fuzzy
 msgid ""
 "    This test checks that the application user interface auto-suggests "
 "'fail'\n"
@@ -529,17 +494,6 @@ msgid ""
 "command\n"
 "    which completes unsuccessfully."
 msgstr ""
-"PRZEZNACZENIE:\n"
-"    Ten test sprawdza czy interfejs aplikacji testującej automatycznie\n"
-"    sugeruje 'niepowodzenie' dla zadań typu interakcja-i-weryfikacja gdy\n"
-"    polecenie skojarzone z danym zadaniem zakończy się sukcesem\n"
-"KROKI:\n"
-"    1. Przeczytaj ten opis\n"
-"    2. Upewnij się, że polecenie testowe nie zostało jeszcze uruchomione\n"
-"    3. Wciśnij przycisk 'test'\n"
-"    4. Potwierdź automatycznie sugerowany wynik\n"
-"WERYFIKACJA:\n"
-"    Zasugerowanym wynikiem testu powinno być 'niepowodzenie'"
 
 #. steps
 #: ../units/jobs/stub.pxu:308
@@ -596,14 +550,13 @@ msgstr ""
 
 #. description
 #: ../units/jobs/win.pxu:3
-#, fuzzy
 msgid "Check success result from win32 shell"
-msgstr "Sprawdzanie udanego wyniku z zadania typu 'shell'"
+msgstr ""
 
 #. name
 #: ../units/testplans/all.pxu:2
 msgid "Category Override Test"
-msgstr "Test nadpisywania kategorii"
+msgstr ""
 
 #. description
 #: ../units/testplans/all.pxu:3
@@ -638,6 +591,3 @@ msgstr "Nie trzeba na nim uruchamiać polecania 'develop'"
 #: .././manage.py:67
 msgid "You don't need to install it explicitly"
 msgstr "Nie trzeba na nim uruchamiać polecania 'install'"
-
-#~ msgid "A simple user verification-interaction job"
-#~ msgstr "Proste zadanie interakcji z i weryfikacji przez użytkownika"

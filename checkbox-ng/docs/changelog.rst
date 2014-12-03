@@ -6,19 +6,153 @@ ChangeLog
     accounting of development history please inspect the source history
     directly.
 
-.. _version_0_9:
+.. _version_0_18:
 
-Plainbox 0.9 (unreleased)
-^^^^^^^^^^^^^^^^^^^^^^^^^
+Plainbox 0.18 (unreleased)
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. note::
     This version is under active development. The details in the milestone page
     may vary before the release is finalized.
 
+ This is a periodic release, containing both bug fixes and some minor new
+features. Details are available at:
+
+* https://launchpad.net/plainbox/+milestone/0.18
+
+.. warning::
+    API changes were not documented for this release. We are working on a new
+    system that will allow us to automatically generate API changes between
+
+.. _version_0_17:
+
+Plainbox 0.17
+^^^^^^^^^^^^^
+
+This is an (out-of-cycle) periodic release, containing both bug fixes and some
+minor new features. Details are available at:
+
+* https://launchpad.net/plainbox/+milestone/0.17
+
+.. warning::
+    API changes were not documented for this release. We are working on a new
+    system that will allow us to automatically generate API changes between
+    releases without the added manual maintenance burden.
+
+.. _version_0_16:
+
+Plainbox 0.16
+^^^^^^^^^^^^^
+
 This is a periodic release, containing both bug fixes and some minor new
 features. Details are available at:
 
-* https://launchpad.net/plainbox/+milestone/0.8
+* https://launchpad.net/plainbox/+milestone/0.16
+
+.. warning::
+    API changes were not documented for this release. We are working on a new
+    system that will allow us to automatically generate API changes between
+    releases without the added manual maintenance burden.
+
+.. _version_0_15:
+
+Plainbox 0.15
+^^^^^^^^^^^^^
+
+This is a periodic release, containing both bug fixes and some minor new
+features. Details are available at:
+
+* https://launchpad.net/plainbox/+milestone/0.15
+
+.. warning::
+    API changes were not documented for this release. We are working on a new
+    system that will allow us to automatically generate API changes between
+    releases without the added manual maintenance burden.
+
+.. _version_0_14:
+
+Plainbox 0.14
+^^^^^^^^^^^^^
+
+This is a periodic release, containing both bug fixes and some minor new
+features. Details are available at:
+
+* https://launchpad.net/plainbox/+milestone/0.14
+
+.. warning::
+    API changes were not documented for this release. We are working on a new
+    system that will allow us to automatically generate API changes between
+    releases without the added manual maintenance burden.
+
+.. _version_0_13:
+
+Plainbox 0.13
+^^^^^^^^^^^^^
+
+This is a periodic release, containing both bug fixes and some minor new
+features. Details are available at:
+
+* https://launchpad.net/plainbox/+milestone/0.13
+
+.. warning::
+    API changes were not documented for this release. We are working on a new
+    system that will allow us to automatically generate API changes between
+    releases without the added manual maintenance burden.
+
+.. _version_0_12:
+
+Plainbox 0.12
+^^^^^^^^^^^^^
+
+This is a periodic release, containing both bug fixes and some minor new
+features. Details are available at:
+
+* https://launchpad.net/plainbox/+milestone/0.12
+
+.. warning::
+    API changes were not documented for this release. We are working on a new
+    system that will allow us to automatically generate API changes between
+    releases without the added manual maintenance burden.
+
+.. _version_0_11:
+
+Plainbox 0.11
+^^^^^^^^^^^^^
+
+This is a periodic release, containing both bug fixes and some minor new
+features. Details are available at:
+
+* https://launchpad.net/plainbox/+milestone/0.11
+
+.. warning::
+    API changes were not documented for this release. We are working on a new
+    system that will allow us to automatically generate API changes between
+    releases without the added manual maintenance burden.
+
+.. _version_0_10:
+
+Plainbox 0.10
+^^^^^^^^^^^^^
+
+This is a periodic release, containing both bug fixes and some minor new
+features. Details are available at:
+
+* https://launchpad.net/plainbox/+milestone/0.10
+
+.. warning::
+    API changes were not documented for this release. We are working on a new
+    system that will allow us to automatically generate API changes between
+    releases without the added manual maintenance burden.
+
+.. _version_0_9:
+
+Plainbox 0.9
+^^^^^^^^^^^^
+
+This is a periodic release, containing both bug fixes and some minor new
+features. Details are available at:
+
+* https://launchpad.net/plainbox/+milestone/0.9
 
 .. warning::
     API changes were not documented for this release. We are working on a new

@@ -66,7 +66,7 @@ def get_categories_def():
     categories_def.version = "1.0"
     categories_def.description = N_("Common test category definitions")
     categories_def.secure = False
-    categories_def.gettext_domain = "2013_com_canonical_plainbox_categories"
+    categories_def.gettext_domain = "plainbox-provider-categories"
     categories_def.location = os.path.join(
         get_plainbox_dir(), "impl/providers/categories")
     return categories_def

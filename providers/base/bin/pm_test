@@ -617,6 +617,11 @@ Hidden=false
         autostart_directory = os.path.join(config_directory, 'autostart')
         if not os.path.exists(autostart_directory):
             os.makedirs(autostart_directory)
+            user_id = os.getenv('PKEXEC_UID') or os.getenv('SUDO_UID')
+            group_id = os.getenv('PKEXEC_UID') or os.getenv('SUDO_GID')
+            if user_id:
+                os.chown(config_directory, int(user_id), int(group_id))
+                os.chown(autostart_directory, int(user_id), int(group_id))
 
         basename = '{0}.desktop'.format(os.path.basename(__file__))
         self.desktop_filename = os.path.join(autostart_directory,

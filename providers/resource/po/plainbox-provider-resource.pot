@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-05-30 12:01+0200\n"
+"POT-Creation-Date: 2014-12-03 14:45+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -67,80 +67,118 @@ msgstr ""
 msgid "Creates resource info from udev"
 msgstr ""
 
-#. description
-#: ../jobs/resource.txt:84
-msgid "Creates resource info from uname output"
+#. summary
+#: ../jobs/resource.txt:73
+msgid "Collect unfiltered udev data"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:90
-msgid "Create resource info for supported sleep states"
+#: ../jobs/resource.txt:74
+msgid ""
+"This job collects the udev database in mostly raw format. The only "
+"transformations applied are basic changes to make the format compatible with "
+"RFC822 syntax required by PlainBox."
 msgstr ""
 
 #. description
 #: ../jobs/resource.txt:96
+msgid "Creates resource info from uname output"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:102
+msgid "Create resource info for supported sleep states"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:108
 msgid "Create resource info for supported optical actions"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:110
+#: ../jobs/resource.txt:122
 msgid "Create resource info for removable block devices"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:117
+#: ../jobs/resource.txt:129
 msgid "Creates display resource info from xrandr output"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:122
+#: ../jobs/resource.txt:134
 msgid "Creates resource info for supported USB versions"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:134
+#: ../jobs/resource.txt:146
 msgid "Creates resource info from xinput output."
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:139
+#: ../jobs/resource.txt:151
 msgid "Create resource info for environment variables"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:149
+#: ../jobs/resource.txt:161
 msgid "Create resource for mobile broadband devices"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:156
+#: ../jobs/resource.txt:168
 msgid "Resource for hardware virtualization"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:169
+#: ../jobs/resource.txt:181
 msgid "Creates resource info for wifi supported protocols/interfaces"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:181
+#: ../jobs/resource.txt:193
 msgid "Creates resource info for RTC"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:187
+#: ../jobs/resource.txt:204
 msgid "Provide links to requirements documents."
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:187
+#: ../jobs/resource.txt:204
+msgid "The requirement document should contain sets of name/link pairs."
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:204
 msgid ""
 "Each requirement should have two keys with their respective values: name: "
 "(to be used as the anchor text) link: (the actual URL)"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:187
+#: ../jobs/resource.txt:204
+msgid "Each set should be separated from the previous one by a new line."
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:204
+msgid "Example:"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:204
+msgid "name: Requirement 1 link: http://example.com/requirement1"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:204
+msgid "name: requirement 2 link: http://example.com/requirement2"
+msgstr ""
+
+#. description
+#: ../jobs/resource.txt:204
 msgid ""
 "Providers wishing to use this feature need to: 1- Write a job that places a "
 "suitably-formatted file in $PLAINBOX_SESSION_SHARE 2- Update their "
@@ -149,7 +187,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:203
+#: ../jobs/resource.txt:232
 msgid "Generate an entry for each graphics card present in the system."
 msgstr ""
 

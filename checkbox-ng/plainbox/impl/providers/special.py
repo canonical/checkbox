@@ -47,7 +47,7 @@ def get_stubbox_def():
     stubbox_def.version = "1.0"
     stubbox_def.description = N_("StubBox (dummy data for development)")
     stubbox_def.secure = False
-    stubbox_def.gettext_domain = "stubbox"
+    stubbox_def.gettext_domain = "plainbox-provider-stubbox"
     stubbox_def.location = os.path.join(
         get_plainbox_dir(), "impl/providers/stubbox")
     return stubbox_def

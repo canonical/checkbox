@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-06-11 17:27+0200\n"
+"POT-Creation-Date: 2014-12-03 14:39+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,7 +23,7 @@ msgid "Test to detect audio devices"
 msgstr ""
 
 #. description
-#: ../jobs/audio.txt.in:20
+#: ../jobs/audio.txt.in:26
 msgid ""
 "PURPOSE:\n"
 "    This test will check that internal speakers work correctly\n"
@@ -37,7 +37,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/audio.txt.in:41
+#: ../jobs/audio.txt.in:52
 msgid ""
 "PURPOSE:\n"
 "    HDMI audio interface verification\n"
@@ -50,7 +50,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/audio.txt.in:60
+#: ../jobs/audio.txt.in:76
 msgid ""
 "PURPOSE:\n"
 "    DisplayPort audio interface verification\n"
@@ -63,7 +63,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/audio.txt.in:79
+#: ../jobs/audio.txt.in:101
 msgid ""
 "PURPOSE:\n"
 "    This test will check that headphones connector works correctly\n"
@@ -76,7 +76,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/audio.txt.in:98
+#: ../jobs/audio.txt.in:126
 msgid ""
 "PURPOSE:\n"
 "    This test will check that recording sound using the onboard microphone "
@@ -90,7 +90,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/audio.txt.in:118
+#: ../jobs/audio.txt.in:152
 msgid ""
 "PURPOSE:\n"
 "    This test will check that recording sound using an external microphone "
@@ -104,7 +104,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/audio.txt.in:137
+#: ../jobs/audio.txt.in:177
 msgid ""
 "PURPOSE:\n"
 "    This test will check that a USB audio device works correctly\n"
@@ -117,14 +117,14 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/audio.txt.in:159
+#: ../jobs/audio.txt.in:199
 msgid ""
 "Play back a sound on the default output and listen for it on the default "
 "input."
 msgstr ""
 
 #. description
-#: ../jobs/audio.txt.in:167
+#: ../jobs/audio.txt.in:207
 msgid ""
 "Collect audio-related system information. This data can be used to simulate "
 "this computer's audio subsystem and perform more detailed tests under a "
@@ -132,12 +132,12 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/audio.txt.in:177
+#: ../jobs/audio.txt.in:217
 msgid "Attaches the audio hardware data collection log to the results."
 msgstr ""
 
 #. description
-#: ../jobs/audio.txt.in:184
+#: ../jobs/audio.txt.in:224
 msgid ""
 "PURPOSE:\n"
 "    Check that the various audio channels are working properly\n"
@@ -148,7 +148,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/audio.txt.in:210
+#: ../jobs/audio.txt.in:250
 msgid ""
 "PURPOSE:\n"
 "     Check that external line out connection works correctly\n"
@@ -166,7 +166,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/audio.txt.in:230
+#: ../jobs/audio.txt.in:276
 msgid ""
 "PURPOSE:\n"
 "    Check that external line in connection works correctly\n"
@@ -181,7 +181,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/audio.txt.in:247
+#: ../jobs/audio.txt.in:293
 msgid ""
 "PURPOSE:\n"
 "    Check that system detects speakers or headphones being plugged in\n"
@@ -197,7 +197,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/audio.txt.in:267
+#: ../jobs/audio.txt.in:313
 msgid ""
 "PURPOSE:\n"
 "    Check that system detects a microphone being plugged in\n"
@@ -214,7 +214,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/audio.txt.in:291
+#: ../jobs/audio.txt.in:343
 msgid ""
 "PURPOSE:\n"
 "    Check that balance control works correctly on internal speakers\n"
@@ -230,7 +230,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/audio.txt.in:312
+#: ../jobs/audio.txt.in:370
 msgid ""
 "PURPOSE:\n"
 "    Check that balance control works correctly on external headphone\n"
@@ -246,12 +246,12 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/audio.txt.in:331
+#: ../jobs/audio.txt.in:389
 msgid "Test to detect audio devices after suspending 30 times."
 msgstr ""
 
 #. description
-#: ../jobs/audio.txt.in:343
+#: ../jobs/audio.txt.in:407
 msgid ""
 "PURPOSE:\n"
 "    This test will check that internal speakers work correctly after "
@@ -266,14 +266,14 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/audio.txt.in:367
+#: ../jobs/audio.txt.in:431
 msgid ""
 "Play back a sound on the default output and listen for it on the default "
 "input, after suspending 30 times."
 msgstr ""
 
 #. description
-#: ../jobs/audio.txt.in:379
+#: ../jobs/audio.txt.in:443
 msgid ""
 "This test will verify that the volume levels are at an acceptable level on "
 "your local system.  The test will validate that the volume is greater than "
@@ -284,207 +284,207 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/audio.txt.in:394
+#: ../jobs/audio.txt.in:458
 msgid "Record mixer settings after suspending 30 times."
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:20
+#: ../jobs/benchmarks.txt.in:23
 msgid "Benchmark for each disk"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:37
+#: ../jobs/benchmarks.txt.in:41
 msgid "Run gtkperf to make sure that GTK based test cases work"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:45
+#: ../jobs/benchmarks.txt.in:49
 msgid "Run Render-Bench XRender/Imlib2 benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:52
+#: ../jobs/benchmarks.txt.in:56
 msgid "Run Qgears2 XRender Extension gearsfancy benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:59
+#: ../jobs/benchmarks.txt.in:63
 msgid "Run Qgears2 XRender Extension image scaling benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:66
+#: ../jobs/benchmarks.txt.in:70
 msgid "Run Qgears2 OpenGL gearsfancy benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:73
+#: ../jobs/benchmarks.txt.in:77
 msgid "Run Qgears2 OpenGL image scaling benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:82
+#: ../jobs/benchmarks.txt.in:86
 msgid "Run GLmark2-ES2 benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:92
+#: ../jobs/benchmarks.txt.in:96
 msgid "Run GLmark2 benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:101
+#: ../jobs/benchmarks.txt.in:105
 msgid "Run globs benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:107
+#: ../jobs/benchmarks.txt.in:111
 msgid "Run Unigine Santuary benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:113
+#: ../jobs/benchmarks.txt.in:117
 msgid "Run Unigine Tropics benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:119
+#: ../jobs/benchmarks.txt.in:123
 msgid "Run Unigine Heaven benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:125
+#: ../jobs/benchmarks.txt.in:129
 msgid "Run Lightsmark benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:131
+#: ../jobs/benchmarks.txt.in:136
 msgid "Run Cachebench Read benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:137
+#: ../jobs/benchmarks.txt.in:143
 msgid "Run Cachebench Write benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:143
+#: ../jobs/benchmarks.txt.in:150
 msgid "Run Cachebench Read / Modify / Write benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:149
+#: ../jobs/benchmarks.txt.in:157
 msgid "Run Stream Copy benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:155
+#: ../jobs/benchmarks.txt.in:164
 msgid "Run Stream Scale benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:161
+#: ../jobs/benchmarks.txt.in:171
 msgid "Run Stream Add benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:167
+#: ../jobs/benchmarks.txt.in:178
 msgid "Run Stream Triad benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:174
+#: ../jobs/benchmarks.txt.in:185
 msgid "Run Network Loopback benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:180
+#: ../jobs/benchmarks.txt.in:191
 msgid "Check the time needed to reconnect to a WIFI access point"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:186
+#: ../jobs/benchmarks.txt.in:198
 msgid "Run Encode MP3 benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:192
+#: ../jobs/benchmarks.txt.in:205
 msgid "Run x264 H.264/AVC encoder benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:198
+#: ../jobs/benchmarks.txt.in:211
 msgid "Run GnuPG benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:204
+#: ../jobs/benchmarks.txt.in:218
 msgid "Run Compress PBZIP2 benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:210
+#: ../jobs/benchmarks.txt.in:225
 msgid "Run Compress 7ZIP benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:216
+#: ../jobs/benchmarks.txt.in:232
 msgid "Run N-Queens benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:222
+#: ../jobs/benchmarks.txt.in:239
 msgid "Run Himeno benchmark"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:228
+#: ../jobs/benchmarks.txt.in:246
 msgid "CPU utilization on an idle system."
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:234
+#: ../jobs/benchmarks.txt.in:253
 msgid "Disk utilization on an idle system."
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:243
+#: ../jobs/benchmarks.txt.in:262
 msgid ""
 "Run a stress test based on FurMark (OpenGL 2.1 or 3.2) Fullscreen 1920x1080 "
 "no antialiasing"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:254
+#: ../jobs/benchmarks.txt.in:273
 msgid ""
 "Run a stress test based on FurMark (OpenGL 2.1 or 3.2) Windowed 1024x640 no "
 "antialiasing"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:265
+#: ../jobs/benchmarks.txt.in:284
 msgid ""
 "Run GiMark, a geometry instancing test (OpenGL 3.3) Fullscreen 1920x1080 no "
 "antialiasing"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:276
+#: ../jobs/benchmarks.txt.in:295
 msgid ""
 "Run GiMark, a geometry instancing test (OpenGL 3.3) Windowed 1024x640 no "
 "antialiasing"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:287
+#: ../jobs/benchmarks.txt.in:306
 msgid ""
 "Run a tessellation test based on TessMark (OpenGL 4.0) Fullscreen 1920x1080 "
 "no antialiasing"
 msgstr ""
 
 #. description
-#: ../jobs/benchmarks.txt.in:297
+#: ../jobs/benchmarks.txt.in:316
 msgid ""
 "Run a tessellation test based on TessMark (OpenGL 4.0) Windowed 1024x640 no "
 "antialiasing"
@@ -529,7 +529,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/bluetooth.txt.in:64
+#: ../jobs/bluetooth.txt.in:70
 msgid ""
 "PURPOSE:\n"
 "    This test will check that you can record and hear audio using a "
@@ -547,29 +547,30 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/bluetooth.txt.in:82
+#: ../jobs/bluetooth.txt.in:88
 msgid ""
 "PURPOSE:\n"
-"    This test will check that you can record and hear audio using a "
-"bluetooth audio device\n"
+"    This test will check the Telephony Duplex capability of your bluetooth "
+"device,\n"
+"    to see if you can record and hear audio from it simultaneously.\n"
 "STEPS:\n"
 "    1. Enable the bluetooth headset\n"
 "    2. Click on the bluetooth icon in the menu bar\n"
-"    3. Select 'Setup new device'\n"
-"    4. Look for the device in the list and select it\n"
-"    5. In the device write the PIN code automatically chosen by the wizard\n"
-"    6. The device should pair with the computer\n"
-"    7. Click the sound icon\n"
-"    8. Click \"Sound Settings\"\n"
-"    9. Select device and ensure Quality is set to \"HSP/HFP\"\n"
-"    10. Click \"Test\" to record for five seconds and reproduce in the "
-"bluetooth device\n"
+"    3. Select \"Setup new device\"\n"
+"    4. Look for the device in the list and pair it\n"
+"    5. Click the sound icon\n"
+"    6. Click \"Sound Settings\"\n"
+"    7. Select device and ensure Mode is set to \"Telephony Duplex (HSP/"
+"HFP)\"\n"
+"    8. Click \"Test\" to record and play for five seconds in the bluetooth "
+"device\n"
 "VERIFICATION:\n"
-"    Did you hear the sound you recorded in the bluetooth"
+"    Did you hear the sound you recorded in the bluetooth with a slight "
+"intended delay?"
 msgstr ""
 
 #. description
-#: ../jobs/bluetooth.txt.in:104
+#: ../jobs/bluetooth.txt.in:109
 msgid ""
 "PURPOSE:\n"
 "    This test will check that you can use a BlueTooth HID device\n"
@@ -584,6 +585,15 @@ msgid ""
 "some text into the tool and close it.\n"
 "VERIFICATION:\n"
 "    Did the device work as expected?"
+msgstr ""
+
+#. description
+#: ../jobs/bluetooth.txt.in:146
+msgid ""
+"This is an automated Bluetooth file transfer test. It sends a large file to "
+"the device specified by the BTDEVADDR environment variable, then retrieves "
+"it again using Bluetooth and verifies the checksum to ensure the transfer "
+"didn't corrupt the file."
 msgstr ""
 
 #. description
@@ -649,60 +659,60 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/cpu.txt.in:8
+#: ../jobs/cpu.txt.in:9
 msgid ""
 "Test the CPU scaling capabilities using Firmware Test Suite (fwts cpufreq)."
 msgstr ""
 
 #. description
-#: ../jobs/cpu.txt.in:15
+#: ../jobs/cpu.txt.in:17
 msgid "Attaches the log generated by cpu/scaling_test to the results"
 msgstr ""
 
 #. description
-#: ../jobs/cpu.txt.in:24
+#: ../jobs/cpu.txt.in:27
 msgid ""
 "Test that the CPU can run at its max frequency using Firmware Test Suite "
 "(fwts cpufreq)."
 msgstr ""
 
 #. description
-#: ../jobs/cpu.txt.in:31
+#: ../jobs/cpu.txt.in:35
 msgid "Attaches the log generated by cpu/maxfreq_test to the results"
 msgstr ""
 
 #. description
-#: ../jobs/cpu.txt.in:37
+#: ../jobs/cpu.txt.in:42
 msgid "Test for clock jitter."
 msgstr ""
 
 #. description
-#: ../jobs/cpu.txt.in:44
+#: ../jobs/cpu.txt.in:50
 msgid "Test offlining CPUs in a multicore system."
 msgstr ""
 
 #. description
-#: ../jobs/cpu.txt.in:51
+#: ../jobs/cpu.txt.in:58
 msgid "This test checks cpu topology for accuracy"
 msgstr ""
 
 #. description
-#: ../jobs/cpu.txt.in:58
+#: ../jobs/cpu.txt.in:66
 msgid "This test checks that CPU frequency governors are obeyed when set."
 msgstr ""
 
 #. description
-#: ../jobs/cpu.txt.in:65
+#: ../jobs/cpu.txt.in:74
 msgid "Validate that the Vector Floating Point Unit is running on ARM device"
 msgstr ""
 
 #. description
-#: ../jobs/cpu.txt.in:74
+#: ../jobs/cpu.txt.in:83
 msgid "Run Firmware Test Suite (fwts) cstates tests."
 msgstr ""
 
 #. description
-#: ../jobs/cpu.txt.in:85 ../jobs/firmware.txt.in:50
+#: ../jobs/cpu.txt.in:94 ../jobs/firmware.txt.in:55
 msgid "Attaches the FWTS desktop diagnosis results log to the submission"
 msgstr ""
 
@@ -762,34 +772,62 @@ msgid "Test if the winbindd daemon is running when the package is installed."
 msgstr ""
 
 #. description
-#: ../jobs/disk.txt.in:4
+#: ../jobs/disk.txt.in:5
 msgid "Detects and displays disks attached to the system."
 msgstr ""
 
+#. summary
+#: ../jobs/disk.txt.in:18
+msgid "Disk statistics for {attr_DEVNAME}"
+msgstr ""
+
 #. description
-#: ../jobs/disk.txt.in:10
+#: ../jobs/disk.txt.in:19
+msgid ""
+"This test checks disk stats, generates some activity and rechecks stats to "
+"verify they've changed. It also verifies that disks appear in the various "
+"files they're supposed to."
+msgstr ""
+
+#. description
+#: ../jobs/disk.txt.in:19
+msgid "This test will inspect the following disk:"
+msgstr ""
+
+#. description
+#: ../jobs/disk.txt.in:19
+msgid ""
+"    product vendor: {attr_ID_VENDOR}\n"
+"    product name: {attr_ID_MODEL}\n"
+"    serial number: {attr_ID_SERIAL_SHORT}\n"
+"    sysfs path: {path}\n"
+"    device node path: {attr_DEVNAME}"
+msgstr ""
+
+#. description
+#: ../jobs/disk.txt.in:37
 msgid "Check stats changes for each disk"
 msgstr ""
 
 #. description
-#: ../jobs/disk.txt.in:29
+#: ../jobs/disk.txt.in:58
 msgid "SMART test"
 msgstr ""
 
 #. description
-#: ../jobs/disk.txt.in:48
+#: ../jobs/disk.txt.in:78
 msgid "Verify system storage performs at or above baseline performance"
 msgstr ""
 
 #. description
-#: ../jobs/disk.txt.in:66
+#: ../jobs/disk.txt.in:98
 msgid ""
 "Verify that storage devices, such as Fibre Channel and RAID can be detected "
 "and perform under stress."
 msgstr ""
 
 #. description
-#: ../jobs/disk.txt.in:86
+#: ../jobs/disk.txt.in:120
 msgid ""
 "Some new hard drives include a feature that parks the drive heads after a "
 "short period of inactivity. This is a power-saving feature, but it can have "
@@ -799,7 +837,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/disk.txt.in:95
+#: ../jobs/disk.txt.in:132
 msgid ""
 "PURPOSE:\n"
 " This test checks that a systems drive protection mechanism works properly.\n"
@@ -877,22 +915,22 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/ethernet.txt.in:70 ../jobs/suspend.txt.in:673
-#: ../jobs/wireless.txt.in:368
+#: ../jobs/ethernet.txt.in:70 ../jobs/suspend.txt.in:810
+#: ../jobs/wireless.txt.in:504
 msgid ""
 "This is an automated test to gather some info on the current state of your "
 "network devices. If no devices are found, the test will exit with an error."
 msgstr ""
 
 #. description
-#: ../jobs/ethernet.txt.in:97
+#: ../jobs/ethernet.txt.in:98
 msgid ""
 "This test executes a maximum throughput test against all the ethernet "
 "devices found on the system."
 msgstr ""
 
 #. description
-#: ../jobs/ethernet.txt.in:105
+#: ../jobs/ethernet.txt.in:106
 msgid ""
 "Automated test that tests performance of each wired network device under "
 "stress."
@@ -950,7 +988,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/firewire.txt.in:4
+#: ../jobs/firewire.txt.in:5
 msgid ""
 "PURPOSE:\n"
 "    This test will check the system can detect the insertion of a FireWire "
@@ -967,14 +1005,14 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/firewire.txt.in:20
+#: ../jobs/firewire.txt.in:22
 msgid ""
 "This is an automated test which performs read/write operations on an "
 "attached FireWire HDD"
 msgstr ""
 
 #. description
-#: ../jobs/firewire.txt.in:28
+#: ../jobs/firewire.txt.in:31
 msgid ""
 "PURPOSE:\n"
 "    This test will check the system can detect the removal of a FireWire "
@@ -990,13 +1028,23 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/firmware.txt.in:21
+#: ../jobs/firmware.txt.in:24
 msgid "Automated tests for firmware using Firmware Test Suite."
 msgstr ""
 
 #. description
-#: ../jobs/firmware.txt.in:39
+#: ../jobs/firmware.txt.in:43
 msgid "Run Firmware Test Suite (fwts) desktop-specific diagnosis tests."
+msgstr ""
+
+#. summary
+#: ../jobs/firmware.txt.in:45
+msgid "Run FWTS desktop-specific diagnosis tests."
+msgstr ""
+
+#. summary
+#: ../jobs/firmware.txt.in:56
+msgid "Attach FWTS desktop diagnosis log to submission"
 msgstr ""
 
 #. description
@@ -1055,32 +1103,32 @@ msgid "Maximum resolution tests"
 msgstr ""
 
 #. summary
-#: ../jobs/graphics.txt.in:165
+#: ../jobs/graphics.txt.in:169
 msgid "Mode tests"
 msgstr ""
 
 #. summary
-#: ../jobs/graphics.txt.in:180
+#: ../jobs/graphics.txt.in:184
 msgid "Color depth tests"
 msgstr ""
 
 #. summary
-#: ../jobs/graphics.txt.in:195
+#: ../jobs/graphics.txt.in:199
 msgid "Refresh rate tests"
 msgstr ""
 
 #. summary
-#: ../jobs/graphics.txt.in:209
+#: ../jobs/graphics.txt.in:213
 msgid "Graphic memory tests"
 msgstr ""
 
 #. summary
-#: ../jobs/graphics.txt.in:226
+#: ../jobs/graphics.txt.in:230
 msgid "Test that video can be displayed"
 msgstr ""
 
 #. description
-#: ../jobs/graphics.txt.in:227
+#: ../jobs/graphics.txt.in:231
 msgid ""
 "PURPOSE:\n"
 "    This test will test the default display\n"
@@ -1091,102 +1139,102 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/graphics.txt.in:239
+#: ../jobs/graphics.txt.in:243
 msgid "Check that VESA drivers are not in use"
 msgstr ""
 
 #. summary
-#: ../jobs/graphics.txt.in:240
+#: ../jobs/graphics.txt.in:244
 msgid "Test that VESA drivers are not in use"
 msgstr ""
 
 #. summary
-#: ../jobs/graphics.txt.in:245
+#: ../jobs/graphics.txt.in:249
 msgid "Resolution cycling tests"
 msgstr ""
 
 #. summary
-#: ../jobs/graphics.txt.in:268
+#: ../jobs/graphics.txt.in:272
 msgid "Rotation tests"
 msgstr ""
 
 #. summary
-#: ../jobs/graphics.txt.in:291
+#: ../jobs/graphics.txt.in:295
 msgid "Compiz support tests"
 msgstr ""
 
 #. summary
-#: ../jobs/graphics.txt.in:307
+#: ../jobs/graphics.txt.in:311
 msgid "Unity support tests"
 msgstr ""
 
 #. summary
-#: ../jobs/graphics.txt.in:323
+#: ../jobs/graphics.txt.in:327
 msgid "glxgears tests"
 msgstr ""
 
 #. summary
-#: ../jobs/graphics.txt.in:346
+#: ../jobs/graphics.txt.in:350
 msgid "3D window open/close tests"
 msgstr ""
 
 #. summary
-#: ../jobs/graphics.txt.in:362
+#: ../jobs/graphics.txt.in:366
 msgid "3D window with suspend/resume tests"
 msgstr ""
 
 #. description
-#: ../jobs/graphics.txt.in:377
+#: ../jobs/graphics.txt.in:381
 msgid "Multiple 3D window open/close"
 msgstr ""
 
 #. summary
-#: ../jobs/graphics.txt.in:378
+#: ../jobs/graphics.txt.in:382
 msgid "Multiple 3D window open/close tests"
 msgstr ""
 
 #. description
-#: ../jobs/graphics.txt.in:393
+#: ../jobs/graphics.txt.in:397
 msgid "3D window movement"
 msgstr ""
 
 #. summary
-#: ../jobs/graphics.txt.in:394
+#: ../jobs/graphics.txt.in:398
 msgid "3D window movement tests"
 msgstr ""
 
 #. summary
-#: ../jobs/graphics.txt.in:412
+#: ../jobs/graphics.txt.in:416
 msgid "screenshot tests"
 msgstr ""
 
 #. summary
-#: ../jobs/graphics.txt.in:433
+#: ../jobs/graphics.txt.in:437
 msgid "screenshot attachment tests"
 msgstr ""
 
 #. summary
-#: ../jobs/graphics.txt.in:448
+#: ../jobs/graphics.txt.in:452
 msgid "full screen video screenshot tests"
 msgstr ""
 
 #. summary
-#: ../jobs/graphics.txt.in:477
+#: ../jobs/graphics.txt.in:481
 msgid "GPU switch prompt tests"
 msgstr ""
 
 #. summary
-#: ../jobs/graphics.txt.in:499
+#: ../jobs/graphics.txt.in:503
 msgid "full screen video attachment tests"
 msgstr ""
 
 #. summary
-#: ../jobs/graphics.txt.in:520
+#: ../jobs/graphics.txt.in:524
 msgid "Test that a screenshot is valid, automatically"
 msgstr ""
 
 #. description
-#: ../jobs/graphics.txt.in:521
+#: ../jobs/graphics.txt.in:525
 msgid ""
 "Take a screengrab of the screen displaying a black and white Ubuntu logo. "
 "Check that the screenshot matches the original file using OpenCV ORB "
@@ -1194,16 +1242,36 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/graphics.txt.in:529
+#: ../jobs/graphics.txt.in:533
 msgid ""
 "Attaches the screenshot captured in graphics/screenshot_opencv_validation."
 msgstr ""
 
 #. summary
-#: ../jobs/graphics.txt.in:530
+#: ../jobs/graphics.txt.in:534
 msgid ""
 "Attach the screenshot captured for the automatically validated screenshot "
 "test"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:538
+msgid "Obtains a simple screen capture"
+msgstr ""
+
+#. description
+#: ../jobs/graphics.txt.in:542
+msgid "Obtains a simple screen capture using gnome-screenshot if present"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:546
+msgid "Attaches a simple screen capture"
+msgstr ""
+
+#. description
+#: ../jobs/graphics.txt.in:550
+msgid "Attaches the simple screen capture file"
 msgstr ""
 
 #. description
@@ -1227,6 +1295,11 @@ msgstr ""
 #. description
 #: ../jobs/hibernate.txt.in:31
 msgid "Automated check of the hibernate log for errors discovered by fwts"
+msgstr ""
+
+#. description
+#: ../jobs/hibernate.txt.in:38
+msgid "attaches log from single hibernate/resume test to results"
 msgstr ""
 
 #. description
@@ -1331,64 +1404,79 @@ msgid "Bootchart information."
 msgstr ""
 
 #. description
-#: ../jobs/info.txt.in:145
+#: ../jobs/info.txt.in:146
 msgid "SATA/IDE device information."
 msgstr ""
 
 #. description
-#: ../jobs/info.txt.in:164
+#: ../jobs/info.txt.in:166
 msgid "Attaches the bootchart png file for bootchart runs"
 msgstr ""
 
 #. description
-#: ../jobs/info.txt.in:172
+#: ../jobs/info.txt.in:174
 msgid "Attaches the bootchart log for bootchart test runs."
 msgstr ""
 
 #. description
-#: ../jobs/info.txt.in:180
+#: ../jobs/info.txt.in:182
 msgid "installs the installer bootchart tarball if it exists."
 msgstr ""
 
 #. description
-#: ../jobs/info.txt.in:187
+#: ../jobs/info.txt.in:189
 msgid "Attaches the installer debug log if it exists."
 msgstr ""
 
 #. description
-#: ../jobs/info.txt.in:194
+#: ../jobs/info.txt.in:196
 msgid ""
 "Returns the name, driver name and driver version of any touchpad discovered "
 "on the system."
 msgstr ""
 
 #. description
-#: ../jobs/info.txt.in:206
+#: ../jobs/info.txt.in:208
 msgid "Lists the device driver and version for all audio devices."
 msgstr ""
 
 #. description
-#: ../jobs/info.txt.in:216
+#: ../jobs/info.txt.in:218
 msgid "Provides information about network devices"
 msgstr ""
 
 #. description
-#: ../jobs/info.txt.in:221
+#: ../jobs/info.txt.in:224
+msgid "Provides information about wwan/mobile broadband devices"
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:229
 msgid "Provides information about displays attached to the system"
 msgstr ""
 
 #. description
-#: ../jobs/info.txt.in:227
+#: ../jobs/info.txt.in:236
 msgid "Attaches information about disk partitions"
 msgstr ""
 
 #. description
-#: ../jobs/input.txt.in:6
+#: ../jobs/info.txt.in:241
+msgid "Attaches the buildstamp identifier for the preinstalled OS"
+msgstr ""
+
+#. summary
+#: ../jobs/info.txt.in:242
+msgid "Attach /etc/buildstamp"
+msgstr ""
+
+#. description
+#: ../jobs/input.txt.in:7
 msgid "Pointing device tests."
 msgstr ""
 
 #. description
-#: ../jobs/input.txt.in:23
+#: ../jobs/input.txt.in:25
 msgid ""
 "PURPOSE:\n"
 "    This test will test your pointing device\n"
@@ -1400,7 +1488,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/input.txt.in:36
+#: ../jobs/input.txt.in:39
 msgid ""
 "PURPOSE:\n"
 "    This test will test your keyboard\n"
@@ -1412,7 +1500,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/input.txt.in:47
+#: ../jobs/input.txt.in:51
 msgid ""
 "PURPOSE:\n"
 "    Manual detection of accelerometer.\n"
@@ -1423,7 +1511,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/input.txt.in:60
+#: ../jobs/input.txt.in:65
 msgid ""
 "PURPOSE:\n"
 "    This test will test your accelerometer to see if it is detected\n"
@@ -1437,12 +1525,12 @@ msgid ""
 msgstr ""
 
 #. summary
-#: ../jobs/input.txt.in:74
+#: ../jobs/input.txt.in:80
 msgid "Create click tests for pointing devices."
 msgstr ""
 
 #. description
-#: ../jobs/input.txt.in:75
+#: ../jobs/input.txt.in:81
 msgid "Click tests for pointing devices."
 msgstr ""
 
@@ -1455,7 +1543,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/keys.txt.in:6
+#: ../jobs/keys.txt.in:7
 msgid ""
 "PURPOSE:\n"
 "    This test will test the screen lock key\n"
@@ -1472,7 +1560,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/keys.txt.in:21
+#: ../jobs/keys.txt.in:23
 msgid ""
 "PURPOSE:\n"
 "    This test will test the brightness key\n"
@@ -1483,7 +1571,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/keys.txt.in:35
+#: ../jobs/keys.txt.in:38
 msgid ""
 "PURPOSE:\n"
 "    This test will test the volume keys of your keyboard\n"
@@ -1496,7 +1584,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/keys.txt.in:51
+#: ../jobs/keys.txt.in:55
 msgid ""
 "PURPOSE:\n"
 "    This test will test the mute key of your keyboard\n"
@@ -1508,7 +1596,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/keys.txt.in:65
+#: ../jobs/keys.txt.in:69
 msgid ""
 "PURPOSE:\n"
 "    This test will test the sleep key\n"
@@ -1520,7 +1608,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/keys.txt.in:79
+#: ../jobs/keys.txt.in:84
 msgid ""
 "PURPOSE:\n"
 "    This test will test the battery information key\n"
@@ -1534,7 +1622,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/keys.txt.in:93
+#: ../jobs/keys.txt.in:99
 msgid ""
 "PURPOSE:\n"
 "    This test will test the wireless key\n"
@@ -1554,7 +1642,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/keys.txt.in:114
+#: ../jobs/keys.txt.in:121
 msgid ""
 "PURPOSE:\n"
 "    This test will test the media keys of your keyboard\n"
@@ -1567,7 +1655,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/keys.txt.in:130
+#: ../jobs/keys.txt.in:138
 msgid ""
 "PURPOSE:\n"
 "    This test will test the super key of your keyboard\n"
@@ -1579,7 +1667,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/keys.txt.in:142
+#: ../jobs/keys.txt.in:151
 msgid ""
 "PURPOSE:\n"
 "    Validate that the External Video hot key is working as expected\n"
@@ -1592,7 +1680,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/keys.txt.in:154
+#: ../jobs/keys.txt.in:164
 msgid ""
 "PURPOSE:\n"
 "    Verify touchpad hotkey toggles touchpad functionality on and off\n"
@@ -1605,7 +1693,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/keys.txt.in:167
+#: ../jobs/keys.txt.in:178
 msgid ""
 "PURPOSE:\n"
 "    Verify that the keyboard backlight toggle key works properly\n"
@@ -1621,7 +1709,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/keys.txt.in:187
+#: ../jobs/keys.txt.in:205
 msgid ""
 "PURPOSE:\n"
 "    This test will test the mute key for your microphone\n"
@@ -1637,7 +1725,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/keys.txt.in:201
+#: ../jobs/keys.txt.in:219
 msgid ""
 "PURPOSE:\n"
 "    This test will test the hibernate key\n"
@@ -1650,7 +1738,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/keys.txt.in:214
+#: ../jobs/keys.txt.in:233
 msgid ""
 "PURPOSE:\n"
 "    This test will test the keyboard overhead light key or switch\n"
@@ -1663,7 +1751,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/led.txt.in:3
+#: ../jobs/led.txt.in:4
 msgid ""
 "PURPOSE:\n"
 "    Power LED verification\n"
@@ -1674,7 +1762,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/led.txt.in:14
+#: ../jobs/led.txt.in:16
 msgid ""
 "PURPOSE:\n"
 "    Power LED verification\n"
@@ -1687,7 +1775,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/led.txt.in:24
+#: ../jobs/led.txt.in:27
 msgid ""
 "PURPOSE:\n"
 "    Suspend LED verification.\n"
@@ -1700,7 +1788,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/led.txt.in:36
+#: ../jobs/led.txt.in:40
 msgid ""
 "PURPOSE:\n"
 "    Validate that the battery light shows charging status\n"
@@ -1712,7 +1800,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/led.txt.in:47
+#: ../jobs/led.txt.in:52
 msgid ""
 "PURPOSE:\n"
 "    Validate that the battery LED properly displays charged status\n"
@@ -1725,7 +1813,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/led.txt.in:59
+#: ../jobs/led.txt.in:65
 msgid ""
 "PURPOSE:\n"
 "    Validate that the battery LED indicated low power\n"
@@ -1737,7 +1825,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/led.txt.in:71
+#: ../jobs/led.txt.in:78
 msgid ""
 "PURPOSE:\n"
 "    HDD LED verification\n"
@@ -1749,7 +1837,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/led.txt.in:83
+#: ../jobs/led.txt.in:91
 msgid ""
 "PURPOSE:\n"
 "    Numeric keypad LED verification\n"
@@ -1765,7 +1853,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/led.txt.in:96
+#: ../jobs/led.txt.in:105
 msgid ""
 "PURPOSE:\n"
 "    Block cap keys LED verification\n"
@@ -1777,7 +1865,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/led.txt.in:108
+#: ../jobs/led.txt.in:118
 msgid ""
 "PURPOSE:\n"
 "    WLAN LED verification\n"
@@ -1790,7 +1878,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/led.txt.in:121
+#: ../jobs/led.txt.in:132
 msgid ""
 "PURPOSE:\n"
 "    Validate that WLAN LED shuts off when disabled\n"
@@ -1803,7 +1891,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/led.txt.in:134
+#: ../jobs/led.txt.in:146
 msgid ""
 "PURPOSE:\n"
 "    Validate that the Bluetooth LED turns on and off when BT is enabled/"
@@ -1818,7 +1906,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/led.txt.in:149
+#: ../jobs/led.txt.in:162
 msgid ""
 "PURPOSE:\n"
 "    Camera LED verification\n"
@@ -1830,7 +1918,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/led.txt.in:160
+#: ../jobs/led.txt.in:174
 msgid ""
 "PURPOSE:\n"
 "    Touchpad LED verification\n"
@@ -1847,7 +1935,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/led.txt.in:173
+#: ../jobs/led.txt.in:188
 msgid ""
 "PURPOSE:\n"
 "    Wireless (WLAN + Bluetooth) LED verification\n"
@@ -1863,7 +1951,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/led.txt.in:189
+#: ../jobs/led.txt.in:205
 msgid ""
 "PURPOSE:\n"
 "    Audio Mute LED verification.\n"
@@ -1873,7 +1961,22 @@ msgid ""
 "it\n"
 "    either turned off and on or changed colors.\n"
 "VERIFICATION:\n"
-"    Did the Audio LED turn on and off change color as expected?"
+"    Did the Audio LED turn on and off or change color as expected?"
+msgstr ""
+
+#. description
+#: ../jobs/led.txt.in:219
+msgid ""
+"PURPOSE:\n"
+"    Microphone Mute LED verification.\n"
+"STEPS:\n"
+"    Skip this test if your system does not have a special Microphone Mute "
+"LED.\n"
+"    1. Press the Microphone Mute key twice and observe the Microphone LED "
+"to\n"
+"    determine if it either turned off and on or changed colors.\n"
+"VERIFICATION:\n"
+"    Did the Microphone Mute LED turn on and off or change color as expected?"
 msgstr ""
 
 #. description
@@ -2524,14 +2627,14 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/memory.txt.in:5
+#: ../jobs/memory.txt.in:6
 msgid ""
 "This test checks the amount of memory which is reporting in meminfo against "
 "the size of the memory modules detected by DMI."
 msgstr ""
 
 #. description
-#: ../jobs/memory.txt.in:15
+#: ../jobs/memory.txt.in:17
 msgid "Test and exercise memory."
 msgstr ""
 
@@ -2597,14 +2700,45 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/miscellanea.txt.in:76
+#: ../jobs/miscellanea.txt.in:79
+msgid ""
+"This will gather some info about the BMC itself for diagnostic purposes."
+msgstr ""
+
+#. summary
+#: ../jobs/miscellanea.txt.in:81
+msgid "Gather BMC Identification info"
+msgstr ""
+
+#. description
+#: ../jobs/miscellanea.txt.in:90
+msgid "Sanity check of DMI system identification data (for servers)"
+msgstr ""
+
+#. summary
+#: ../jobs/miscellanea.txt.in:92
+msgid "DMI ID sanity check (servers)"
+msgstr ""
+
+#. description
+#: ../jobs/miscellanea.txt.in:101
+msgid "Sanity check of DMI system identification data (for desktops & laptops)"
+msgstr ""
+
+#. summary
+#: ../jobs/miscellanea.txt.in:103
+msgid "DMI ID sanity check (desktops/laptops)"
+msgstr ""
+
+#. description
+#: ../jobs/miscellanea.txt.in:109
 msgid ""
 "   Determine if we need to run tests specific to portable computers that may "
 "not apply to desktops."
 msgstr ""
 
 #. description
-#: ../jobs/miscellanea.txt.in:84
+#: ../jobs/miscellanea.txt.in:117
 msgid ""
 "Test that the /var/crash directory doesn't contain anything. Lists the files "
 "contained within if it does, or echoes the status of the directory (doesn't "
@@ -2612,25 +2746,25 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/miscellanea.txt.in:90
+#: ../jobs/miscellanea.txt.in:123
 msgid ""
 "Checks that a specified sources list file contains the requested repositories"
 msgstr ""
 
 #. description
-#: ../jobs/miscellanea.txt.in:96
+#: ../jobs/miscellanea.txt.in:129
 msgid "Automated job to generate the PXE verification test for each NIC."
 msgstr ""
 
 #. description
-#: ../jobs/miscellanea.txt.in:117
+#: ../jobs/miscellanea.txt.in:150
 msgid ""
 "Automated job to generate the Remote Shared IPMI verification test for each "
 "NIC."
 msgstr ""
 
 #. description
-#: ../jobs/miscellanea.txt.in:135
+#: ../jobs/miscellanea.txt.in:168
 msgid ""
 "PURPOSE:\n"
 " Some systems do not share IPMI over all NICs but instead have a dedicated "
@@ -2649,13 +2783,37 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/miscellanea.txt.in:151
+#: ../jobs/miscellanea.txt.in:184
 msgid "Run Firmware Test Suite (fwts) oops tests."
 msgstr ""
 
 #. description
-#: ../jobs/miscellanea.txt.in:162
+#: ../jobs/miscellanea.txt.in:195
 msgid "Attaches the FWTS oops results log to the submission"
+msgstr ""
+
+#. description
+#: ../jobs/miscellanea.txt.in:207
+msgid ""
+"If system was installed via MAAS from a cert server, the MAAS version used "
+"should be contained in /etc/installed-by-maas"
+msgstr ""
+
+#. summary
+#: ../jobs/miscellanea.txt.in:208
+msgid "Gets the version of MAAS used to deploy the SUT"
+msgstr ""
+
+#. description
+#: ../jobs/miscellanea.txt.in:215
+msgid ""
+"Retrieve the computer's make and model for easier access than digging "
+"through the dmidecode output."
+msgstr ""
+
+#. summary
+#: ../jobs/miscellanea.txt.in:216
+msgid "Retrieve the computer's make and model"
 msgstr ""
 
 #. description
@@ -2670,6 +2828,13 @@ msgstr ""
 msgid ""
 "Creates a mobile broadband connection for a CDMA based modem and checks the "
 "connection to ensure it's working."
+msgstr ""
+
+#. description
+#: ../jobs/mobilebroadband.txt.in:115
+msgid ""
+"This test executes a maximum throughput test against all the devices found "
+"on the system."
 msgstr ""
 
 #. description
@@ -2859,27 +3024,27 @@ msgid "Test to detect the optical drives"
 msgstr ""
 
 #. description
-#: ../jobs/optical.txt.in:16
+#: ../jobs/optical.txt.in:17
 msgid "Optical read test."
 msgstr ""
 
 #. description
-#: ../jobs/optical.txt.in:41
+#: ../jobs/optical.txt.in:43
 msgid "Automated optical read test."
 msgstr ""
 
 #. description
-#: ../jobs/optical.txt.in:59
+#: ../jobs/optical.txt.in:62
 msgid "CD write test."
 msgstr ""
 
 #. description
-#: ../jobs/optical.txt.in:87
+#: ../jobs/optical.txt.in:91
 msgid "Automated CD write test"
 msgstr ""
 
 #. description
-#: ../jobs/optical.txt.in:106
+#: ../jobs/optical.txt.in:110
 msgid ""
 "PURPOSE:\n"
 "    This test will check your CD audio playback capabilities\n"
@@ -2898,17 +3063,17 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/optical.txt.in:127
+#: ../jobs/optical.txt.in:132
 msgid "DVD write test."
 msgstr ""
 
 #. description
-#: ../jobs/optical.txt.in:155
+#: ../jobs/optical.txt.in:161
 msgid "Automated DVD write test."
 msgstr ""
 
 #. description
-#: ../jobs/optical.txt.in:177
+#: ../jobs/optical.txt.in:183
 msgid ""
 "PURPOSE:\n"
 "    This test will check your DVD  playback capabilities\n"
@@ -2920,12 +3085,12 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/optical.txt.in:190
+#: ../jobs/optical.txt.in:197
 msgid "Automated Blu-Ray read test."
 msgstr ""
 
 #. description
-#: ../jobs/optical.txt.in:216
+#: ../jobs/optical.txt.in:224
 msgid "Automated Blu-Ray write test."
 msgstr ""
 
@@ -3063,7 +3228,7 @@ msgid "Archives the piglit-summary directory into the piglit-results.tar.gz."
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:3
+#: ../jobs/power-management.txt.in:4
 msgid ""
 "PURPOSE:\n"
 "    This test will check your system shutdown/booting cycle.\n"
@@ -3076,17 +3241,17 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:18
+#: ../jobs/power-management.txt.in:19
 msgid "Test ACPI Wakealarm (fwts wakealarm)"
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:27
+#: ../jobs/power-management.txt.in:28
 msgid "Attach log from fwts wakealarm test"
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:41
+#: ../jobs/power-management.txt.in:43
 msgid ""
 "PURPOSE:\n"
 " This test will check the system's ability to power-off and boot.\n"
@@ -3104,14 +3269,14 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:57
+#: ../jobs/power-management.txt.in:60
 msgid ""
 "This will attach any logs from the power-management/poweroff test to the "
 "results."
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:68
+#: ../jobs/power-management.txt.in:72
 msgid ""
 "PURPOSE:\n"
 " This test will check the system's ability to reboot cleanly.\n"
@@ -3127,14 +3292,14 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:82
+#: ../jobs/power-management.txt.in:87
 msgid ""
 "This will attach any logs from the power-management/reboot test to the "
 "results."
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:88
+#: ../jobs/power-management.txt.in:94
 msgid ""
 "PURPOSE:\n"
 "    This test will check your lid sensors.\n"
@@ -3145,7 +3310,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:105
+#: ../jobs/power-management.txt.in:112
 msgid ""
 "PURPOSE:\n"
 "    This test will check your lid sensors\n"
@@ -3157,7 +3322,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:123
+#: ../jobs/power-management.txt.in:131
 msgid ""
 "PURPOSE:\n"
 "    This test will check your lid sensors.\n"
@@ -3171,20 +3336,20 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:143
+#: ../jobs/power-management.txt.in:151
 msgid ""
 "Verify that the Real-time clock (RTC) device functions properly, if present"
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:148
+#: ../jobs/power-management.txt.in:158
 msgid ""
 "Check to see if CONFIG_NO_HZ is set in the kernel (this is just a simple "
 "regression check)"
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:154
+#: ../jobs/power-management.txt.in:165
 msgid ""
 "PURPOSE:\n"
 "    This test will ensure that the AC is unplugged for the battery drain "
@@ -3196,37 +3361,37 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:166
+#: ../jobs/power-management.txt.in:178
 msgid "Checks the battery drain during idle.  Reports time until empty"
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:166
+#: ../jobs/power-management.txt.in:178
 msgid "and capacity as well."
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:176
+#: ../jobs/power-management.txt.in:189
 msgid "Checks the battery drain while watching a movie.  Reports time"
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:176
+#: ../jobs/power-management.txt.in:189
 msgid "until empty and capacity as well.  Requires MOVIE_VAR to be set."
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:188
+#: ../jobs/power-management.txt.in:202
 msgid "Checks the battery drain during suspend.  Reports time until"
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:188
+#: ../jobs/power-management.txt.in:202
 msgid "empty and capacity as well."
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:196
+#: ../jobs/power-management.txt.in:211
 msgid ""
 "PURPOSE:\n"
 "    This test will ensure that the AC is plugged back in after the battery.\n"
@@ -3238,7 +3403,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:209
+#: ../jobs/power-management.txt.in:225
 msgid ""
 "PURPOSE:\n"
 "    This test will verify that your system can successfully reboot.\n"
@@ -3256,7 +3421,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:227
+#: ../jobs/power-management.txt.in:244
 msgid ""
 "PURPOSE:\n"
 "    This test will check your system shutdown/booting cycle\n"
@@ -3369,7 +3534,7 @@ msgid ""
 " 1. Click test to trigger a reboot\n"
 " 2. Select \"Continue\" once logged back in and checkbox is restarted\n"
 "VERIFICATION:\n"
-" You won't see the user-verify"
+" You won't see the user verification"
 msgstr ""
 
 #. description
@@ -3397,7 +3562,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:7
+#: ../jobs/stress.txt.in:8
 msgid ""
 "PURPOSE:\n"
 "    Create jobs that use the CPU as much as possible for two hours. The test "
@@ -3405,7 +3570,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:28
+#: ../jobs/stress.txt.in:30
 msgid ""
 "PURPOSE:\n"
 "   This is an automated stress test that will force the system to hibernate/"
@@ -3413,12 +3578,12 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:41
+#: ../jobs/stress.txt.in:45
 msgid "Attaches the log from the 30 cycle Hibernate/Resume test if it exists"
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:59
+#: ../jobs/stress.txt.in:64
 msgid ""
 "PURPOSE:\n"
 "   This is an automated stress test that will force the system to suspend/"
@@ -3426,18 +3591,18 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:67
+#: ../jobs/stress.txt.in:73
 msgid ""
 "Automated check of the 30 cycle hibernate log for errors detected by fwts."
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:74
+#: ../jobs/stress.txt.in:81
 msgid "Attaches the log from the 30 cycle Suspend/Resume test if it exists"
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:97
+#: ../jobs/stress.txt.in:106
 msgid ""
 "PURPOSE:\n"
 "   This is an automated stress test that will force the system to hibernate/"
@@ -3445,12 +3610,12 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:104
+#: ../jobs/stress.txt.in:114
 msgid "Attaches the log from the 250 cycle Hibernate/Resume test if it exists"
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:120
+#: ../jobs/stress.txt.in:131
 msgid ""
 "PURPOSE:\n"
 "   This is an automated stress test that will force the system to suspend/"
@@ -3458,59 +3623,79 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:127
+#: ../jobs/stress.txt.in:139
 msgid "Attaches the log from the 250 cycle Suspend/Resume test if it exists"
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:133 ../jobs/suspend.txt.in:333
+#: ../jobs/stress.txt.in:146 ../jobs/suspend.txt.in:360
 msgid ""
 "Checks the sleep times to ensure that a machine suspends and resumes within "
 "a given threshold"
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:144
+#: ../jobs/stress.txt.in:158
 msgid "Stress reboot system (100 cycles)"
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:160
+#: ../jobs/stress.txt.in:176
+msgid "Stress reboot system (30 cycles)"
+msgstr ""
+
+#. description
+#: ../jobs/stress.txt.in:193
 msgid "Stress poweroff system (100 cycles)"
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:172
+#: ../jobs/stress.txt.in:211
+msgid "Stress poweroff system (30 cycles)"
+msgstr ""
+
+#. description
+#: ../jobs/stress.txt.in:224
+msgid "Check logs for the stress reboot (30 cycles) test case"
+msgstr ""
+
+#. description
+#: ../jobs/stress.txt.in:238
+msgid "Check logs for the stress poweroff (30 cycles) test case"
+msgstr ""
+
+#. description
+#: ../jobs/stress.txt.in:252
 msgid "Check logs for the stress reboot (100 cycles) test case"
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:184
+#: ../jobs/stress.txt.in:266
 msgid "Check logs for the stress poweroff (100 cycles) test case"
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:199
+#: ../jobs/stress.txt.in:283
 msgid "Run the graphics stress test. This test can take a few minutes."
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:208
+#: ../jobs/stress.txt.in:292
 msgid "Attaches the graphics stress results to the submission."
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:214
+#: ../jobs/stress.txt.in:299
 msgid "Runs a test that transfers 100 10MB files 3 times to usb."
 msgstr ""
 
 #. summary
-#: ../jobs/stress.txt.in:219
+#: ../jobs/stress.txt.in:304
 msgid "Stress test for SDHC card"
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:222
+#: ../jobs/stress.txt.in:307
 msgid ""
 "PURPOSE:\n"
 "    This test will transfers 100 10MB files 3 times to a SDHC card, to\n"
@@ -3526,12 +3711,12 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:240
+#: ../jobs/stress.txt.in:326
 msgid "Ping ubuntu.com and restart network interfaces 100 times"
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:250
+#: ../jobs/stress.txt.in:338
 msgid ""
 "PURPOSE:\n"
 "    To make sure that stressing the wifi hotkey does not cause applets to "
@@ -3579,7 +3764,14 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:200
+#: ../jobs/suspend.txt.in:107
+msgid ""
+"This test executes iperf connection performance/stability against the "
+"broadband device found on the system before suspend."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:227
 msgid ""
 "PURPOSE:\n"
 "    This test will send the image 'JPEG_Color_Image_Ubuntu.jpg' to a "
@@ -3596,7 +3788,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:226
+#: ../jobs/suspend.txt.in:253
 msgid ""
 "PURPOSE:\n"
 "    This test will check suspend and resume\n"
@@ -3617,17 +3809,17 @@ msgid ""
 msgstr ""
 
 #. summary
-#: ../jobs/suspend.txt.in:241
+#: ../jobs/suspend.txt.in:268
 msgid "Suspend after graphics card switch tests"
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:279
+#: ../jobs/suspend.txt.in:306
 msgid "This is the automated version of suspend/suspend_advanced."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:292
+#: ../jobs/suspend.txt.in:319
 msgid ""
 "PURPOSE:\n"
 "    This test will check hybrid sleep and resume\n"
@@ -3645,24 +3837,24 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:307
+#: ../jobs/suspend.txt.in:334
 msgid "Automated check of the suspend log to look for errors reported by fwts"
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:320
+#: ../jobs/suspend.txt.in:347
 msgid ""
 "Automated check of the hybrid sleep log to look for errors reported by fwts"
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:326
+#: ../jobs/suspend.txt.in:353
 msgid ""
 "Attaches the log from the single hybrid sleep/resume test to the results"
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:342
+#: ../jobs/suspend.txt.in:369
 msgid ""
 "PURPOSE:\n"
 "    Wake up by USB keyboard\n"
@@ -3675,7 +3867,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:358
+#: ../jobs/suspend.txt.in:385
 msgid ""
 "PURPOSE:\n"
 "    Wake up by USB mouse\n"
@@ -3689,38 +3881,51 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:372
+#: ../jobs/suspend.txt.in:399
 msgid "Test the network after resuming."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:379
+#: ../jobs/suspend.txt.in:406
 msgid "Test to see that we have the same resolution after resuming as before."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:400
+#: ../jobs/suspend.txt.in:428
 msgid ""
 "Verify that mixer settings after suspend are the same as before suspend."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:415
+#: ../jobs/suspend.txt.in:444
 msgid "Verify that all CPUs are online after resuming."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:430
+#: ../jobs/suspend.txt.in:459
 msgid "Verify that all memory is available after resuming from suspend."
 msgstr ""
 
+#. description
+#: ../jobs/suspend.txt.in:467
+msgid ""
+"PURPOSE:\n"
+"    This test will check that the display is correct after suspend and "
+"resume\n"
+"STEPS:\n"
+"    1. Check that your display does not show up visual artifacts after "
+"resuming.\n"
+"VERIFICATION:\n"
+"    Does the display work normally after resuming from suspend?"
+msgstr ""
+
 #. summary
-#: ../jobs/suspend.txt.in:437
+#: ../jobs/suspend.txt.in:478
 msgid "Display after suspend tests"
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:461
+#: ../jobs/suspend.txt.in:502
 msgid ""
 "This test checks that the wireless interface is working after suspending the "
 "system. It disconnects all interfaces and then connects to the wireless "
@@ -3728,49 +3933,56 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:562
+#: ../jobs/suspend.txt.in:659
 msgid ""
 "Tests that the systems wireless hardware can connect to a router using WPA "
 "security and the 802.11b/g protocols after the system has been suspended."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:576
+#: ../jobs/suspend.txt.in:681
 msgid ""
 "Tests that the systems wireless hardware can connect to a router using no "
 "security and the 802.11b/g protocols after the system has been suspended."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:590
+#: ../jobs/suspend.txt.in:703
 msgid ""
 "Tests that the systems wireless hardware can connect to a router using WPA "
 "security and the 802.11n protocol after the system has been suspended."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:604
+#: ../jobs/suspend.txt.in:725
 msgid ""
 "Tests that the systems wireless hardware can connect to a router using no "
 "security and the 802.11n protocol after the system has been suspended."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:618
+#: ../jobs/suspend.txt.in:747
 msgid ""
 "Tests that the systems wireless hardware can connect to a router using WPA "
 "security and the 802.11ac protocol after the system has been suspended."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:632
+#: ../jobs/suspend.txt.in:769
 msgid ""
 "Tests that the systems wireless hardware can connect to a router using no "
 "security and the 802.11ac protocol after the system has been suspended."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:686 ../jobs/wireless.txt.in:137
+#: ../jobs/suspend.txt.in:836
+msgid ""
+"This test executes iperf connection performance/stability against the "
+"broadband device found on the system after suspend."
+msgstr ""
+
+#. description
+#: ../jobs/suspend.txt.in:857
 msgid ""
 "PURPOSE:\n"
 "    Tests that the systems wireless hardware can connect to a router using "
@@ -3791,7 +4003,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:709 ../jobs/wireless.txt.in:159
+#: ../jobs/suspend.txt.in:888
 msgid ""
 "PURPOSE:\n"
 "    Tests that the systems wireless hardware can connect to a router using\n"
@@ -3810,7 +4022,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:732 ../jobs/wireless.txt.in:182
+#: ../jobs/suspend.txt.in:919
 msgid ""
 "PURPOSE:\n"
 "    Tests that the systems wireless hardware can connect to a router using "
@@ -3831,7 +4043,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:755 ../jobs/wireless.txt.in:205
+#: ../jobs/suspend.txt.in:950
 msgid ""
 "PURPOSE:\n"
 "    Tests that the systems wireless hardware can connect to a router using\n"
@@ -3850,7 +4062,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:778
+#: ../jobs/suspend.txt.in:981
 msgid ""
 "PURPOSE:\n"
 "    Tests that the systems wireless hardware can connect to a router using "
@@ -3871,7 +4083,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:801
+#: ../jobs/suspend.txt.in:1012
 msgid ""
 "PURPOSE:\n"
 "    Tests that the systems wireless hardware can connect to a router using\n"
@@ -3890,35 +4102,35 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:836
+#: ../jobs/suspend.txt.in:1047
 msgid ""
 "This test grabs the hardware address of the bluetooth adapter after suspend "
 "and compares it to the address grabbed before suspend."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:948
+#: ../jobs/suspend.txt.in:1159
 msgid ""
 "This is an automated Bluetooth file transfer test. It sends an image to the "
 "device specified by the BTDEVADDR environment variable."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1004
+#: ../jobs/suspend.txt.in:1215
 msgid ""
 "This is an automated Bluetooth test. It emulates browsing on a remote device "
 "specified by the BTDEVADDR environment variable."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1060
+#: ../jobs/suspend.txt.in:1271
 msgid ""
 "This is an automated Bluetooth test. It receives the given file from a "
 "remote host specified by the BTDEVADDR environment variable"
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1072
+#: ../jobs/suspend.txt.in:1283
 msgid ""
 "PURPOSE:\n"
 "    This test will send the image 'JPEG_Color_Image_Ubuntu.jpg' to a "
@@ -3933,7 +4145,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1087
+#: ../jobs/suspend.txt.in:1298
 msgid ""
 "PURPOSE:\n"
 "    This test will cycle through the detected display modes\n"
@@ -3944,7 +4156,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1100
+#: ../jobs/suspend.txt.in:1311
 msgid ""
 "This test will check to make sure supported video modes work after a suspend "
 "and resume. This is done automatically by taking screenshots and uploading "
@@ -3952,14 +4164,14 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1109
+#: ../jobs/suspend.txt.in:1320
 msgid ""
-"This attaches screenshots from the suspend/"
-"cycle_resolutions_after_suspend_auto test to the results submission."
+"This attaches screenshots from the suspend/cycle_resolutions_after_suspend "
+"test to the results submission."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1140
+#: ../jobs/suspend.txt.in:1351
 msgid ""
 "This will check to make sure that your audio device works properly after a "
 "suspend and resume.  This may work fine with speakers and onboard "
@@ -3968,12 +4180,12 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1146
+#: ../jobs/suspend.txt.in:1357
 msgid "Attaches the log from the single suspend/resume test to the results"
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1155
+#: ../jobs/suspend.txt.in:1366
 msgid ""
 "PURPOSE:\n"
 "    Take a screengrab of the current screen after suspend (logged on Unity "
@@ -3985,12 +4197,12 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1167
+#: ../jobs/suspend.txt.in:1378
 msgid "Attaches the screenshot captured in graphics/screenshot."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1178
+#: ../jobs/suspend.txt.in:1389
 msgid ""
 "PURPOSE:\n"
 "    Do some challenging operations then check for lockup on the GPU\n"
@@ -4003,14 +4215,14 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1206
+#: ../jobs/suspend.txt.in:1417
 msgid ""
 "Checks the length of time it takes to reconnect an existing wifi connection "
 "after a suspend/resume cycle."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1228
+#: ../jobs/suspend.txt.in:1439
 msgid ""
 "Checks the length of time it takes to reconnect an existing wired "
 "connection\n"
@@ -4018,7 +4230,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1236
+#: ../jobs/suspend.txt.in:1447
 msgid ""
 "PURPOSE:\n"
 "    Validate that the power LED operated the same after resuming from "
@@ -4030,7 +4242,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1248
+#: ../jobs/suspend.txt.in:1459
 msgid ""
 "PURPOSE:\n"
 "    Validate that the battery light shows charging status after resuming "
@@ -4044,7 +4256,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1261
+#: ../jobs/suspend.txt.in:1472
 msgid ""
 "PURPOSE:\n"
 "    Validate that the battery LED properly displays charged status after "
@@ -4059,7 +4271,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1275
+#: ../jobs/suspend.txt.in:1486
 msgid ""
 "PURPOSE:\n"
 "    Validate that the battery LED indicated low power after resuming from "
@@ -4073,7 +4285,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1289
+#: ../jobs/suspend.txt.in:1500
 msgid ""
 "PURPOSE:\n"
 "    Validate that the HDD LED still operates as expected after resuming from "
@@ -4087,7 +4299,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1303
+#: ../jobs/suspend.txt.in:1514
 msgid ""
 "PURPOSE:\n"
 "    Validate that the numeric keypad LED operates the same before and after "
@@ -4104,7 +4316,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1318
+#: ../jobs/suspend.txt.in:1529
 msgid ""
 "PURPOSE:\n"
 "    Validate that the Caps Lock key operates the same before and after "
@@ -4117,7 +4329,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1331
+#: ../jobs/suspend.txt.in:1542
 msgid ""
 "PURPOSE:\n"
 "    WLAN LED verification after resuming from suspend\n"
@@ -4129,7 +4341,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1344
+#: ../jobs/suspend.txt.in:1555
 msgid ""
 "PURPOSE:\n"
 "    Validate that WLAN LED shuts off when disabled after resuming from "
@@ -4144,7 +4356,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1359
+#: ../jobs/suspend.txt.in:1570
 msgid ""
 "PURPOSE:\n"
 "    Validate that the Bluetooth LED turns on and off when BT is enabled/"
@@ -4159,7 +4371,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1377
+#: ../jobs/suspend.txt.in:1588
 msgid ""
 "PURPOSE:\n"
 "    Validate that the camera LED still works as expected after resuming from "
@@ -4172,7 +4384,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1390
+#: ../jobs/suspend.txt.in:1601
 msgid ""
 "PURPOSE:\n"
 "    Touchpad LED verification after resuming from suspend\n"
@@ -4189,7 +4401,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1405
+#: ../jobs/suspend.txt.in:1616
 msgid ""
 "PURPOSE:\n"
 "    Validate Wireless (WLAN + Bluetooth) LED operated the same after "
@@ -4206,7 +4418,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1423
+#: ../jobs/suspend.txt.in:1634
 msgid ""
 "PURPOSE:\n"
 "    This test will test the brightness key after resuming from suspend\n"
@@ -4218,7 +4430,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1439
+#: ../jobs/suspend.txt.in:1650
 msgid ""
 "PURPOSE:\n"
 "    This test will test the volume keys of your keyboard after resuming from "
@@ -4232,7 +4444,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1457
+#: ../jobs/suspend.txt.in:1668
 msgid ""
 "PURPOSE:\n"
 "    This test will test the mute key of your keyboard after resuming from "
@@ -4245,7 +4457,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1472
+#: ../jobs/suspend.txt.in:1683
 msgid ""
 "PURPOSE:\n"
 "    This test will test the sleep key after resuming from suspend\n"
@@ -4258,7 +4470,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1488
+#: ../jobs/suspend.txt.in:1699
 msgid ""
 "PURPOSE:\n"
 "    This test will test the battery information key after resuming from "
@@ -4273,7 +4485,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1504
+#: ../jobs/suspend.txt.in:1715
 msgid ""
 "PURPOSE:\n"
 "    This test will test the wireless key after resuming from suspend\n"
@@ -4286,7 +4498,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1521
+#: ../jobs/suspend.txt.in:1732
 msgid ""
 "PURPOSE:\n"
 "    This test will test the media keys of your keyboard after resuming from "
@@ -4300,7 +4512,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1539
+#: ../jobs/suspend.txt.in:1750
 msgid ""
 "PURPOSE:\n"
 "    This test will test the super key of your keyboard after resuming from "
@@ -4313,7 +4525,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1553
+#: ../jobs/suspend.txt.in:1764
 msgid ""
 "PURPOSE:\n"
 "    Validate that the External Video hot key is working as expected after "
@@ -4327,7 +4539,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1567
+#: ../jobs/suspend.txt.in:1778
 msgid ""
 "PURPOSE:\n"
 "    Verify touchpad hotkey toggles touchpad functionality on and off after "
@@ -4341,7 +4553,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1583
+#: ../jobs/suspend.txt.in:1794
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the system correctly detects the insertion of\n"
@@ -4356,7 +4568,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1603
+#: ../jobs/suspend.txt.in:1814
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the system correctly detects the insertion of\n"
@@ -4372,7 +4584,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1621
+#: ../jobs/suspend.txt.in:1832
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the system correctly detects the removal of\n"
@@ -4386,7 +4598,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1640
+#: ../jobs/suspend.txt.in:1851
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the system correctly detects the removal of\n"
@@ -4400,21 +4612,21 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1657
+#: ../jobs/suspend.txt.in:1868
 msgid ""
 "This test is automated and executes after the suspend/"
 "usb_insert_after_suspend test is run."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1669
+#: ../jobs/suspend.txt.in:1880
 msgid ""
 "This test is automated and executes after the suspend/"
 "usb3_insert_after_suspend test is run."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1679 ../jobs/usb.txt.in:172
+#: ../jobs/suspend.txt.in:1890 ../jobs/usb.txt.in:172
 msgid ""
 "This is an automated version of usb/storage-automated and assumes that the "
 "server has usb storage devices plugged in prior to checkbox execution. It is "
@@ -4422,7 +4634,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1692 ../jobs/usb.txt.in:184
+#: ../jobs/suspend.txt.in:1903 ../jobs/usb.txt.in:184
 msgid ""
 "This is an automated version of usb3/storage-automated and assumes that the "
 "server has usb 3.0 storage devices plugged in prior to checkbox execution. "
@@ -4430,21 +4642,21 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1703 ../jobs/usb.txt.in:209
+#: ../jobs/suspend.txt.in:1914 ../jobs/usb.txt.in:209
 msgid ""
 "This test will check that your USB 2.0 port transfers data at a minimum "
 "expected speed."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1715 ../jobs/usb.txt.in:221
+#: ../jobs/suspend.txt.in:1926 ../jobs/usb.txt.in:221
 msgid ""
 "This test will check that your USB 3.0 port could be recognized as "
 "SuperSpeed USB device using xhci_hcd driver and transfers data correctly."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1724
+#: ../jobs/suspend.txt.in:1935
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the systems media card reader can\n"
@@ -4460,7 +4672,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1743
+#: ../jobs/suspend.txt.in:1954
 msgid ""
 "This test is automated and executes after the mediacard/mmc-insert-after-"
 "suspend test is run. It tests reading and writing to the MMC card after the "
@@ -4468,7 +4680,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1752
+#: ../jobs/suspend.txt.in:1963
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the system correctly detects the removal\n"
@@ -4483,7 +4695,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1768
+#: ../jobs/suspend.txt.in:1979
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the systems media card reader can\n"
@@ -4500,7 +4712,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1788
+#: ../jobs/suspend.txt.in:1999
 msgid ""
 "This test is automated and executes after the mediacard/sd-insert-after-"
 "suspend test is run. It tests reading and writing to the SD card after the "
@@ -4508,7 +4720,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1797
+#: ../jobs/suspend.txt.in:2008
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the system correctly detects\n"
@@ -4523,7 +4735,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1814
+#: ../jobs/suspend.txt.in:2025
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the systems media card reader can\n"
@@ -4540,7 +4752,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1834
+#: ../jobs/suspend.txt.in:2045
 msgid ""
 "This test is automated and executes after the mediacard/sdhc-insert-after-"
 "suspend test is run. It tests reading and writing to the SDHC card after the "
@@ -4548,7 +4760,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1843
+#: ../jobs/suspend.txt.in:2054
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the system correctly detects the removal\n"
@@ -4563,7 +4775,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1859
+#: ../jobs/suspend.txt.in:2070
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the systems media card reader can\n"
@@ -4579,7 +4791,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1878
+#: ../jobs/suspend.txt.in:2089
 msgid ""
 "This test is automated and executes after the mediacard/cf-insert-after-"
 "suspend test is run. It tests reading and writing to the CF card after the "
@@ -4587,7 +4799,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1887
+#: ../jobs/suspend.txt.in:2098
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the system correctly detects the removal\n"
@@ -4602,7 +4814,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1903
+#: ../jobs/suspend.txt.in:2114
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the systems media card reader can\n"
@@ -4618,7 +4830,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1922
+#: ../jobs/suspend.txt.in:2133
 msgid ""
 "This test is automated and executes after the mediacard/sdxc-insert-after-"
 "suspend test is run. It tests reading and writing to the SDXC card after the "
@@ -4626,7 +4838,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1931
+#: ../jobs/suspend.txt.in:2142
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the system correctly detects the removal\n"
@@ -4642,7 +4854,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1948
+#: ../jobs/suspend.txt.in:2159
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the systems media card reader can\n"
@@ -4658,7 +4870,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1967
+#: ../jobs/suspend.txt.in:2178
 msgid ""
 "This test is automated and executes after the mediacard/ms-insert-after-"
 "suspend test is run. It tests reading and writing to the MS card after the "
@@ -4666,7 +4878,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1976
+#: ../jobs/suspend.txt.in:2187
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the system correctly detects the removal\n"
@@ -4681,7 +4893,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:1992
+#: ../jobs/suspend.txt.in:2203
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the systems media card reader can\n"
@@ -4697,7 +4909,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:2011
+#: ../jobs/suspend.txt.in:2222
 msgid ""
 "This test is automated and executes after the mediacard/msp-insert-after-"
 "suspend test is run. It tests reading and writing to the MSP card after the "
@@ -4705,7 +4917,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:2020
+#: ../jobs/suspend.txt.in:2231
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the system correctly detects the removal\n"
@@ -4720,7 +4932,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:2036
+#: ../jobs/suspend.txt.in:2247
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the systems media card reader can\n"
@@ -4736,7 +4948,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:2055
+#: ../jobs/suspend.txt.in:2266
 msgid ""
 "This test is automated and executes after the mediacard/xd-insert-after-"
 "suspend test is run. It tests reading and writing to the xD card after the "
@@ -4744,7 +4956,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:2064
+#: ../jobs/suspend.txt.in:2275
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the system correctly detects the removal\n"
@@ -4759,12 +4971,12 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:2083
+#: ../jobs/suspend.txt.in:2294
 msgid "Determine if the touchpad is still functioning after suspend/resume."
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:2090 ../jobs/touchscreen.txt.in:35
+#: ../jobs/suspend.txt.in:2301 ../jobs/touchscreen.txt.in:35
 msgid ""
 "PURPOSE:\n"
 "    Check touchscreen tap recognition\n"
@@ -4776,7 +4988,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:2105
+#: ../jobs/suspend.txt.in:2316
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the built-in camera works after suspend\n"
@@ -4788,7 +5000,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:2123
+#: ../jobs/suspend.txt.in:2334
 msgid ""
 "PURPOSE:\n"
 "    This test will check that the built-in camera works after suspend\n"
@@ -4800,7 +5012,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:2139
+#: ../jobs/suspend.txt.in:2350
 msgid ""
 " Takes multiple pictures based on the resolutions supported by the camera "
 "and\n"
@@ -4808,7 +5020,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/suspend.txt.in:2148
+#: ../jobs/suspend.txt.in:2359
 msgid "Pointing device tests after suspend."
 msgstr ""
 
@@ -4816,7 +5028,7 @@ msgstr ""
 #: ../jobs/touchpad.txt.in:5
 msgid ""
 "PURPOSE:\n"
-"    Touchpad user-verify\n"
+"    Touchpad manual verification\n"
 "STEPS:\n"
 "    1. Make sure that touchpad is enabled.\n"
 "    2. Move cursor using the touchpad.\n"
@@ -4867,7 +5079,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/touchpad.txt.in:70
+#: ../jobs/touchpad.txt.in:71
 msgid ""
 "PURPOSE:\n"
 "    Touchpad manual detection of multitouch.\n"
@@ -4878,7 +5090,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/touchpad.txt.in:81
+#: ../jobs/touchpad.txt.in:83
 msgid ""
 "PURPOSE:\n"
 "    Determine that the hot corner feature is working as expected\n"
@@ -4891,7 +5103,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/touchpad.txt.in:94
+#: ../jobs/touchpad.txt.in:97
 msgid ""
 "PURPOSE:\n"
 "    Determine that the selection window function is working as expected.\n"
@@ -4903,7 +5115,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/touchpad.txt.in:107
+#: ../jobs/touchpad.txt.in:111
 msgid ""
 "PURPOSE:\n"
 "    Determine that the right click function is working as expected.\n"
@@ -4916,7 +5128,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/touchpad.txt.in:121
+#: ../jobs/touchpad.txt.in:126
 msgid ""
 "PURPOSE:\n"
 "    Touchpad 2-touch horizontal scroll verification\n"
@@ -4930,7 +5142,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/touchpad.txt.in:134
+#: ../jobs/touchpad.txt.in:140
 msgid ""
 "PURPOSE:\n"
 "    Touchpad 2-touch vertical scroll verification\n"
@@ -4944,7 +5156,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/touchpad.txt.in:146
+#: ../jobs/touchpad.txt.in:153
 msgid ""
 "PURPOSE:\n"
 "    Determine that the drag and drop function is working as expected.\n"
@@ -4959,12 +5171,12 @@ msgid ""
 msgstr ""
 
 #. summary
-#: ../jobs/touchpad.txt.in:160
+#: ../jobs/touchpad.txt.in:168
 msgid "Check touchpad pinch-to-zoom gesture"
 msgstr ""
 
 #. description
-#: ../jobs/touchpad.txt.in:161
+#: ../jobs/touchpad.txt.in:169
 msgid ""
 "PURPOSE:\n"
 "    Check touchpad pinch gesture for zoom\n"
@@ -4977,12 +5189,12 @@ msgid ""
 msgstr ""
 
 #. summary
-#: ../jobs/touchpad.txt.in:175
+#: ../jobs/touchpad.txt.in:184
 msgid "Check 4-finger tap gesture"
 msgstr ""
 
 #. description
-#: ../jobs/touchpad.txt.in:176
+#: ../jobs/touchpad.txt.in:185
 msgid ""
 "PURPOSE:\n"
 "    Validate that 4-touch tap is operating as expected\n"
@@ -5022,26 +5234,50 @@ msgid ""
 "PURPOSE:\n"
 "    Check touchscreen drag & drop\n"
 "STEPS:\n"
-"    1. Double tap, hold, and drag an object on the desktop\n"
-"    2. Drop the object in a different location\n"
+"    1. Tap and hold an object on the desktop\n"
+"    2. Drag and drop the object in a different location\n"
 "VERIFICATION:\n"
-"    Does the object select and drag and drop?"
+"    Does drag and drop work?"
+msgstr ""
+
+#. summary
+#: ../jobs/touchscreen.txt.in:58
+msgid "Check touchscreen pinch gesture for zoom"
 msgstr ""
 
 #. description
-#: ../jobs/touchscreen.txt.in:60
+#: ../jobs/touchscreen.txt.in:62
 msgid ""
 "PURPOSE:\n"
 "    Check touchscreen pinch gesture for zoom\n"
 "STEPS:\n"
-"    1. Place two fingers on the screen and pinch them together\n"
-"    2. Place two fingers on the screen and move then apart\n"
+"    1. Press the Test button\n"
+"    2. Using 2 fingers, resize the blue square until it turns green, then "
+"release it.\n"
 "VERIFICATION:\n"
-"    Does the screen zoom in and out?"
+"    Did the blue square change size following the gesture?"
+msgstr ""
+
+#. summary
+#: ../jobs/touchscreen.txt.in:73
+msgid "Check touchscreen pinch gesture for rotate"
 msgstr ""
 
 #. description
-#: ../jobs/touchscreen.txt.in:73
+#: ../jobs/touchscreen.txt.in:77
+msgid ""
+"PURPOSE:\n"
+"    Check touchscreen pinch gesture for rotate\n"
+"STEPS:\n"
+"    1. Press the Test button\n"
+"    2. Using 2 fingers, rotate the blue square until it turns green, then "
+"release it.\n"
+"VERIFICATION:\n"
+"    Did the blue square rotate following the gesture?"
+msgstr ""
+
+#. description
+#: ../jobs/touchscreen.txt.in:90
 msgid ""
 "PURPOSE:\n"
 "    Validate that 3-touch drag is operating as expected\n"
@@ -5053,7 +5289,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/touchscreen.txt.in:86
+#: ../jobs/touchscreen.txt.in:103
 msgid ""
 "PURPOSE:\n"
 "    Validate that 4-touch tap is operating as expected\n"
@@ -5061,6 +5297,32 @@ msgid ""
 "    1. 4-touch tap anywhere on the touchscreen\n"
 "VERIFICATION:\n"
 "    Did the tap open the Dash?"
+msgstr ""
+
+#. description
+#: ../jobs/touchscreen.txt.in:115
+msgid ""
+"PURPOSE:\n"
+"    Validate that 3-touch tap is operating as expected\n"
+"STEPS:\n"
+"    1. Tap the screen with 3 fingers simultaneously.\n"
+"    2. Once 3 fingers are on the screen you should see the indicator they "
+"are recognized.\n"
+"VERIFICATION:\n"
+"    Did you see the green circles around the three fingers?"
+msgstr ""
+
+#. description
+#: ../jobs/touchscreen.txt.in:134
+msgid ""
+"PURPOSE:\n"
+"    Validate that 4-touch tap is operating as expected\n"
+"STEPS:\n"
+"    1. Tap the screen with 4 fingers simultaneously.\n"
+"    2. Once 4 fingers are on the screen you should see the indicator they "
+"are recognized.\n"
+"VERIFICATION:\n"
+"    Did you see the green circles around the four fingers?"
 msgstr ""
 
 #. description
@@ -5605,18 +5867,33 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/virtualization.txt.in:10
+#: ../jobs/virtualization.txt.in:11
 msgid "Test to check that a cloud image boots and works properly with KVM"
 msgstr ""
 
-#. description
-#: ../jobs/virtualization.txt.in:18
-msgid "Test to verify that the Xen Hypervisor is running."
+#. summary
+#: ../jobs/virtualization.txt.in:13
+msgid "Verify KVM VM boots"
 msgstr ""
 
 #. description
-#: ../jobs/virtualization.txt.in:26
+#: ../jobs/virtualization.txt.in:22
+msgid "Test to verify that the Xen Hypervisor is running."
+msgstr ""
+
+#. summary
+#: ../jobs/virtualization.txt.in:24
+msgid "Verify Xen is running"
+msgstr ""
+
+#. description
+#: ../jobs/virtualization.txt.in:33
 msgid "Test to check that a Xen domU image can boot and run on Xen on Ubuntu"
+msgstr ""
+
+#. summary
+#: ../jobs/virtualization.txt.in:35
+msgid "Verify Xen domU can boot"
 msgstr ""
 
 #. description
@@ -5646,61 +5923,62 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/wireless.txt.in:57
+#: ../jobs/wireless.txt.in:65
 msgid ""
 "Tests that the systems wireless hardware can connect to a router using WPA "
 "security and the 802.11b/g protocols."
 msgstr ""
 
 #. description
-#: ../jobs/wireless.txt.in:70
+#: ../jobs/wireless.txt.in:86
 msgid ""
 "Tests that the systems wireless hardware can connect to a router using no "
 "security and the 802.11b/g protocols."
 msgstr ""
 
 #. description
-#: ../jobs/wireless.txt.in:83
+#: ../jobs/wireless.txt.in:107
 msgid ""
 "Tests that the systems wireless hardware can connect to a router using WPA "
 "security and the 802.11n protocol."
 msgstr ""
 
 #. description
-#: ../jobs/wireless.txt.in:96
+#: ../jobs/wireless.txt.in:128
 msgid ""
 "Tests that the systems wireless hardware can connect to a router using no "
 "security and the 802.11n protocol."
 msgstr ""
 
 #. description
-#: ../jobs/wireless.txt.in:110
+#: ../jobs/wireless.txt.in:150
 msgid ""
 "Tests that the systems wireless hardware can connect to a router using WPA "
 "security and the 802.11ac protocol."
 msgstr ""
 
 #. description
-#: ../jobs/wireless.txt.in:124
+#: ../jobs/wireless.txt.in:172
 msgid ""
 "Tests that the systems wireless hardware can connect to a router using no "
 "security and the 802.11ac protocol."
 msgstr ""
 
 #. description
-#: ../jobs/wireless.txt.in:228
+#: ../jobs/wireless.txt.in:193
 msgid ""
 "PURPOSE:\n"
 "    Tests that the systems wireless hardware can connect to a router using "
 "WPA\n"
-"    security and the 802.11ac protocol.\n"
+"    security and the 802.11b/g protocols.\n"
 "STEPS:\n"
 "    1. Open your router's configuration tool\n"
-"    2. Change the settings to only accept connections with the 802.11ac "
-"protocol.\n"
-"    3. Make sure the SSID is set to ROUTER_SSID\n"
+"    2. Change the settings to only accept connections on the B and G "
+"wireless bands\n"
+"    3. Make sure the SSID is set to the contents of the ROUTER_SSID "
+"environment variable\n"
 "    4. Change the security settings to use WPA2 and ensure the PSK matches "
-"that set in ROUTER_PSK\n"
+"what is set in the ROUTER_PSK environment variable\n"
 "    5. Click the 'Test' button to create a connection to the router and test "
 "the connection\n"
 "VERIFICATION:\n"
@@ -5709,16 +5987,17 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/wireless.txt.in:251
+#: ../jobs/wireless.txt.in:223
 msgid ""
 "PURPOSE:\n"
 "    Tests that the systems wireless hardware can connect to a router using\n"
-"    no security and the 802.11ac protocol.\n"
+"    no security and the 802.11b/g protocols.\n"
 "STEPS:\n"
-"    1. Open your routers configuration tool\n"
-"    2. Change the settings to only accept connections with the 802.11ac "
-"protocol.\n"
-"    3. Make sure the SSID is set to ROUTER_SSID\n"
+"    1. Open your router's configuration tool\n"
+"    2. Change the settings to only accept connections on the B and G "
+"wireless bands\n"
+"    3. Make sure the SSID is set to the contents of the ROUTER_SSID "
+"environment variable\n"
 "    4. Change the security settings to use no security\n"
 "    5. Click the 'Test' button to create a connection to the router and test "
 "the connection\n"
@@ -5728,21 +6007,105 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/wireless.txt.in:273
+#: ../jobs/wireless.txt.in:254
 msgid ""
-"Tests the performance of a systems wireless connection through the iperf "
-"tool."
+"PURPOSE:\n"
+"    Tests that the systems wireless hardware can connect to a router using "
+"WPA\n"
+"    security and the 802.11n protocols.\n"
+"STEPS:\n"
+"    1. Open your router's configuration tool\n"
+"    2. Change the settings to only accept connections on the N wireless "
+"band\n"
+"    3. Make sure the SSID is set to the contents of the ROUTER_SSID "
+"environment variable\n"
+"    4. Change the security settings to use WPA2 and ensure the PSK matches "
+"what is set in the ROUTER_PSK environment variable\n"
+"    5. Click the 'Test' button to create a connection to the router and test "
+"the connection\n"
+"VERIFICATION:\n"
+"    Verification is automated, do not change the automatically selected "
+"result."
 msgstr ""
 
 #. description
 #: ../jobs/wireless.txt.in:285
 msgid ""
-"Tests the performance of a systems wireless connection through the iperf "
+"PURPOSE:\n"
+"    Tests that the systems wireless hardware can connect to a router using\n"
+"    no security and the 802.11n protocol.\n"
+"STEPS:\n"
+"    1. Open your router's configuration tool\n"
+"    2. Change the settings to only accept connections on the N wireless "
+"band\n"
+"    3. Make sure the SSID is set to the contents of the ROUTER_SSID "
+"environment variable\n"
+"    4. Change the security settings to use no security\n"
+"    5. Click the 'Test' button to create a connection to the router and test "
+"the connection\n"
+"VERIFICATION:\n"
+"    Verification is automated, do not change the automatically selected "
+"result."
+msgstr ""
+
+#. description
+#: ../jobs/wireless.txt.in:316
+msgid ""
+"PURPOSE:\n"
+"    Tests that the systems wireless hardware can connect to a router using "
+"WPA\n"
+"    security and the 802.11ac protocol.\n"
+"STEPS:\n"
+"    1. Open your router's configuration tool\n"
+"    2. Change the settings to only accept connections with the 802.11ac "
+"protocol.\n"
+"    3. Make sure the SSID is set to the contents of the ROUTER_SSID "
+"environment variable\n"
+"    4. Change the security settings to use WPA2 and ensure the PSK matches "
+"what is set in the ROUTER_PSK environment variable\n"
+"    5. Click the 'Test' button to create a connection to the router and test "
+"the connection\n"
+"VERIFICATION:\n"
+"    Verification is automated, do not change the automatically selected "
+"result."
+msgstr ""
+
+#. description
+#: ../jobs/wireless.txt.in:347
+msgid ""
+"PURPOSE:\n"
+"    Tests that the systems wireless hardware can connect to a router using\n"
+"    no security and the 802.11ac protocol.\n"
+"STEPS:\n"
+"    1. Open your router's configuration tool\n"
+"    2. Change the settings to only accept connections with the 802.11ac "
+"protocol.\n"
+"    3. Make sure the SSID is set to the contents of the ROUTER_SSID "
+"environment variable\n"
+"    4. Change the security settings to use no security\n"
+"    5. Click the 'Test' button to create a connection to the router and test "
+"the connection\n"
+"VERIFICATION:\n"
+"    Verification is automated, do not change the automatically selected "
+"result."
+msgstr ""
+
+#. description
+#: ../jobs/wireless.txt.in:377
+msgid ""
+"Tests the performance of a system's wireless connection through the iperf "
+"tool."
+msgstr ""
+
+#. description
+#: ../jobs/wireless.txt.in:397
+msgid ""
+"Tests the performance of a system's wireless connection through the iperf "
 "tool, using UDP packets."
 msgstr ""
 
 #. description
-#: ../jobs/wireless.txt.in:297
+#: ../jobs/wireless.txt.in:417
 msgid ""
 " Test that the system's wireless hardware can connect to a router using the\n"
 " 802.11a protocol. This requires that you have a router pre-configured to "
@@ -5751,7 +6114,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/wireless.txt.in:310
+#: ../jobs/wireless.txt.in:438
 msgid ""
 " Test that the system's wireless hardware can connect to a router using the\n"
 " 802.11b protocol. This requires that you have a router pre-configured to "
@@ -5760,14 +6123,14 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/wireless.txt.in:320
+#: ../jobs/wireless.txt.in:448
 msgid ""
 "Automated test that tests performance of each wireless network device under "
 "stress."
 msgstr ""
 
 #. description
-#: ../jobs/wireless.txt.in:341
+#: ../jobs/wireless.txt.in:477
 msgid ""
 " Test that the system's wireless hardware can connect to a router using the\n"
 " 802.11g protocol. This requires that you have a router pre-configured to "
@@ -5776,14 +6139,14 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/wireless.txt.in:351
+#: ../jobs/wireless.txt.in:487
 msgid ""
 "Test that the MAC80211 modules are loaded and wireless extensions are "
 "working."
 msgstr ""
 
 #. description
-#: ../jobs/wireless.txt.in:376
+#: ../jobs/wireless.txt.in:512
 msgid ""
 "PURPOSE:\n"
 "    This test will check whether or not your driver responds to rfkill "
@@ -5799,7 +6162,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/wireless.txt.in:410
+#: ../jobs/wireless.txt.in:547
 msgid ""
 "This test executes a maximum throughput test against all the wireless "
 "devices found on the system."

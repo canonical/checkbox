@@ -136,6 +136,16 @@ class Colorizer:
         else:
             self.c = color
 
+    @property
+    def is_enabled(self):
+        """
+        if true, this colorizer is actually using colors
+
+        This property is useful to let applications customize their
+        behavior if they know color support is desired and enabled.
+        """
+        return self.c is ansi_on
+
     def result(self, result):
         outcome_color = {
             IJobResult.OUTCOME_PASS: "GREEN",

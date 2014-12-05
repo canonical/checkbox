@@ -540,7 +540,12 @@ class ExternalCommandWithDelegate(ExternalCommand):
                 queue_worker.join()
                 _logger.debug("Joined thread: %r", queue_worker)
         # Notify that the process has finished
-        self._delegate.on_end(proc.returncode)
+        if proc.returncode < 0:
+            # negative returncode from subprocess is a sign that the process
+            # was killed by a signal with that number
+            self._delegate.on_abnormal_end(-proc.returncode)
+        else:
+            self._delegate.on_end(proc.returncode)
         return proc.returncode
 
     def _on_keyboard_interrupt(self, proc):

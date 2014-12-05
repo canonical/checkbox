@@ -282,6 +282,14 @@ class LoggingHelper:
                 "formatter": "log_precise",
                 "delay": True,
             },
+            "logfile_bug": {
+                "class": "logging.handlers.RotatingFileHandler",
+                "filename": os.path.join(self.log_dir, "bug.log"),
+                "backupCount": 3,
+                "mode": "a",
+                "formatter": "log_precise",
+                "delay": True,
+            },
         }
 
     @property
@@ -351,6 +359,9 @@ class LoggingHelper:
             "plainbox.crashes": {
                 "level": "ERROR",
                 "handlers": ["logfile_crash"],
+            },
+            "plainbox.bug": {
+                "handlers": ["logfile_bug"],
             },
         }
 

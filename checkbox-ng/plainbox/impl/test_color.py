@@ -49,3 +49,13 @@ class ColorizerTests(TestCase):
         """
         self.assertTrue(Colorizer(True).is_enabled)
         self.assertFalse(Colorizer(False).is_enabled)
+
+    def test_custom(self):
+        """
+        Ensure that .custom(_) works and obeys color settings
+        """
+        self.assertEqual(
+            Colorizer(False).custom("<text>", "<ansi-code>"), "<text>")
+        self.assertEqual(
+            Colorizer(True).custom("<text>", "<ansi-code>"),
+            "<ansi-code><text>\x1b[0m")

@@ -174,6 +174,29 @@ class Colorizer:
             self.c.s.BRIGHT if bright else '', str(text),
             self.c.s.RESET_ALL])
 
+    def custom(self, text, ansi_code):
+        """
+        Render a piece of text with custom ANSI styling sequence
+
+        :param text:
+            The text to stylize
+        :param ansi_code:
+            A string containing ANSI escape sequence to use.
+        :returns:
+            A combination of ``ansi_code``, ``text`` and a fixed
+            reset sequence that resets text styles.
+
+        .. note::
+            When the colorizer is not really doing anything (see
+            :meth:`is_enabled`) then custom text is not used at all.  This is
+            done to ensure that any custom styling is not permantently enabled
+            if colors are to be disabled.
+        """
+        return ''.join([
+            ansi_code if self.is_enabled else "",
+            text,
+            self.c.s.RESET_ALL])
+
     def BLACK(self, text, bright=True):
         return self(text, "BLACK", bright)
 

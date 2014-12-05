@@ -298,6 +298,12 @@ class IDelegate(object, metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def on_abnormal_end(self, signal_num):
+        """
+        Callback invoked when a command gets killed by a signal
+        """
+
+    @abc.abstractmethod
     def on_interrupt(self):
         """
         Callback invoked when the user triggers KeyboardInterrupt
@@ -320,6 +326,11 @@ class DelegateBase(IDelegate):
         """
 
     def on_end(self, returncode):
+        """
+        Do nothing
+        """
+
+    def on_abnormal_end(self, signal_num):
         """
         Do nothing
         """
@@ -372,6 +383,13 @@ class SafeDelegate(IDelegate):
         """
         if hasattr(self._delegate, "on_end"):
             self._delegate.on_end(returncode)
+
+    def on_abnormal_end(self, signal_num):
+        """
+        Call on_abnormal_end() on the wrapped delegate if supported
+        """
+        if hasattr(self._delegate, "on_abnormal_end"):
+            self._delegate.on_abnormal_end(signal_num)
 
     def on_interrupt(self):
         """
@@ -609,6 +627,10 @@ class Chain(IDelegate):
         for delegate in self.delegate_list:
             delegate.on_end(returncode)
 
+    def on_abnormal_end(self, signal_num):
+        for delegate in self.delegate_list:
+            delegate.on_abnormal_end(signal_num)
+
     def on_interrupt(self):
         """
         Call the on_interrupt() method on each delegate in the list
@@ -657,6 +679,15 @@ class Redirect(DelegateBase):
         if self._close_stderr_on_end:
             self._stderr.close()
 
+    def on_abnormal_end(self, signal_num):
+        """
+        Close the output streams if requested
+        """
+        if self._close_stdout_on_end:
+            self._stdout.close()
+        if self._close_stderr_on_end:
+            self._stderr.close()
+
 
 class Transform(DelegateBase):
     """
@@ -691,6 +722,9 @@ class Transform(DelegateBase):
 
     def on_end(self, returncode):
         self._delegate.on_end(returncode)
+
+    def on_abnormal_end(self, signal_num):
+        self._delegate.on_abnormal_end(signal_num)
 
 
 class Decode(Transform):

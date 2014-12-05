@@ -78,7 +78,7 @@ class IPerfPerformanceTest(object):
                           (self.iface.link_speed, self.iface.max_speed))
             logging.error("Check your device configuration and try again")
             return 1
-        
+
         cmd = "timeout 180 iperf -c {} -n {} -i 1 -f m".format(
             self.target, self.mbytes)
 
@@ -103,7 +103,8 @@ class IPerfPerformanceTest(object):
 
         # 930 Mbits/sec\n'
         print(iperf_return)
-        speeds = list(map(float,re.findall(r"([\w\.]+)\sMbits/sec", iperf_return)))
+        speeds = list(map(float, re.findall(r"([\w\.]+)\sMbits/sec",
+                          iperf_return)))
         invalid_speed = False
         if speeds:
             throughput = sum(speeds)/len(speeds)
@@ -130,7 +131,7 @@ class IPerfPerformanceTest(object):
             # Below is guaranteed to not throw an exception because we'll
             # have exited above if it did.
             logging.info("{:03.2f}% of theoretical max {} Mb/s".format(percent,
-                  int(self.iface.max_speed)))
+                         int(self.iface.max_speed)))
             if percent < self.fail_threshold:
                 logging.warn("Poor network performance detected")
                 logging.warn("  Transfer speed: {} mb/s".format(throughput))
@@ -459,7 +460,8 @@ def can_ping(the_interface, test_target):
 
         try:
             with open(os.devnull, 'wb') as DEVNULL:
-                check_call(["ping", "-I", the_interface, "-c", "1", test_target],
+                check_call(["ping", "-I", the_interface,
+                            "-c", "1", test_target],
                            stdout=DEVNULL, stderr=DEVNULL)
         except CalledProcessError as excp:
             working_interface = False
@@ -537,7 +539,8 @@ def interface_test(args):
         try:
             check_call(["ip", "link", "set", "dev", iface, "down"])
         except CalledProcessError as interface_failure:
-            logging.error("Failed to shut down %s:%s", iface, interface_failure)
+            logging.error("Failed to shut down %s:%s",
+                          iface, interface_failure)
             result = 3
 
     if result == 0:

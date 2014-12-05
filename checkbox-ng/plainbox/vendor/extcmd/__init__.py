@@ -204,7 +204,8 @@ supports the on_end() method::
     >>> class ReturnCode(extcmd.DelegateBase):
     ...     def on_end(self, returncode):
     ...         sys.stdout.write("Return code is %s\\n" % returncode)
-    >>> returncode = extcmd.ExternalCommandWithDelegate(ReturnCode()).call(['false'])
+    >>> returncode = extcmd.ExternalCommandWithDelegate(
+    ...     ReturnCode()).call(['false'])
     Return code is 1
     >>> returncode
     1
@@ -215,7 +216,8 @@ Each started program is also passed to the on_start() method::
     >>> class VerboseStart(extcmd.DelegateBase):
     ...     def on_begin(self, args, kwargs):
     ...         sys.stdout.write("Starting %r %r\\n" % (args, kwargs))
-    >>> returncode = extcmd.ExternalCommandWithDelegate(VerboseStart()).call(['true'])
+    >>> returncode = extcmd.ExternalCommandWithDelegate(
+    ...     VerboseStart()).call(['true'])
     Starting (['true'],) {}
 """
 

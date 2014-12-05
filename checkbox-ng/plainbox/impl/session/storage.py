@@ -816,7 +816,7 @@ class SessionStorage:
                 # with O_EXCL flag.
                 logger.warning(
                     _("Unable to rename/overwrite %r to %r: %r"),
-                    _next_session_pathname, _session_pathname, exc)
+                    self._SESSION_FILE_NEXT, self._SESSION_FILE, exc)
                 # TRANSLATORS: unlinking as in deleting a file
                 logger.warning(_("Unlinking %r"), self._SESSION_FILE_NEXT)
                 os.unlink(self._SESSION_FILE_NEXT, dir_fd=location_fd)

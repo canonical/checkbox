@@ -136,6 +136,15 @@ class CommandOutputWriter(extcmd.DelegateBase):
         self.stdout.close()
         self.stderr.close()
 
+    def on_abnormal_end(self, signal_num):
+        """
+        Internal method of extcmd.DelegateBase
+
+        Called when a command abnormally finishes running
+        """
+        self.stdout.close()
+        self.stderr.close()
+
     def on_line(self, stream_name, line):
         """
         Internal method of extcmd.DelegateBase
@@ -212,6 +221,18 @@ class JobRunnerUIDelegate(extcmd.DelegateBase):
         """
         if self.ui is not None:
             self.ui.finished_executing_program(returncode)
+
+    def on_abnormal_end(self, signal_num):
+        """
+        Internal method of extcmd.DelegateBase
+
+        Called when a command abnormally finishes running
+
+        The negated signal number is used as the exit code of the program and
+        fed into the UI (if any)
+        """
+        if self.ui is not None:
+            self.ui.finished_executing_program(-signal_num)
 
     def on_line(self, stream_name, line):
         """

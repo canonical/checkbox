@@ -574,7 +574,11 @@ class SessionStorage:
             logger.debug(
                 # TRANSLATORS: please don't translate fsync()
                 _("Calling fsync() on descriptor %d"), next_session_fd)
-            os.fsync(next_session_fd)
+            try:
+                os.fsync(next_session_fd)
+            except OSError as exc:
+                logger.warning(_("Cannot synchronize file %r: %s"),
+                               _next_session_pathname, exc)
         finally:
             # Close the new session file
             logger.debug(_("Closing descriptor %d"), next_session_fd)
@@ -674,7 +678,11 @@ class SessionStorage:
                 logger.debug(
                     # TRANSLATORS: please don't translate fsync()
                     _("Calling fsync() on descriptor %d"), next_session_fd)
-                os.fsync(next_session_fd)
+                try:
+                    os.fsync(next_session_fd)
+                except OSError as exc:
+                    logger.warning(_("Cannot synchronize file %r: %s"),
+                                   _next_session_pathname, exc)
             finally:
                 # Close the new session file
                 logger.debug(_("Closing descriptor %d"), next_session_fd)
@@ -705,7 +713,11 @@ class SessionStorage:
 
             # TRANSLATORS: please don't translate fsync()
             logger.debug(_("Calling fsync() on descriptor %d"), location_fd)
-            os.fsync(location_fd)
+            try:
+                os.fsync(location_fd)
+            except OSError as exc:
+                logger.warning(_("Cannot synchronize directory %r: %s"),
+                               self._location, exc)
         finally:
             # Close the location directory
             logger.debug(_("Closing descriptor %d"), location_fd)
@@ -779,7 +791,11 @@ class SessionStorage:
                 logger.debug(
                     # TRANSLATORS: please don't translate fsync()
                     _("Calling fsync() on descriptor %d"), next_session_fd)
-                os.fsync(next_session_fd)
+                try:
+                    os.fsync(next_session_fd)
+                except OSError as exc:
+                    logger.warning(_("Cannot synchronize file %r: %s"),
+                                   self._SESSION_FILE_NEXT, exc)
             finally:
                 # Close the new session file
                 logger.debug(_("Closing descriptor %d"), next_session_fd)
@@ -800,7 +816,7 @@ class SessionStorage:
                 # with O_EXCL flag.
                 logger.warning(
                     _("Unable to rename/overwrite %r to %r: %r"),
-                    _next_session_pathname, _session_pathname, exc)
+                    self._SESSION_FILE_NEXT, self._SESSION_FILE, exc)
                 # TRANSLATORS: unlinking as in deleting a file
                 logger.warning(_("Unlinking %r"), self._SESSION_FILE_NEXT)
                 os.unlink(self._SESSION_FILE_NEXT, dir_fd=location_fd)
@@ -812,7 +828,11 @@ class SessionStorage:
 
             # TRANSLATORS: please don't translate fsync()
             logger.debug(_("Calling fsync() on descriptor %d"), location_fd)
-            os.fsync(location_fd)
+            try:
+                os.fsync(location_fd)
+            except OSError as exc:
+                logger.warning(_("Cannot synchronize directory %r: %s"),
+                               self._location, exc)
         finally:
             # Close the location directory
             logger.debug(_("Closing descriptor %d"), location_fd)

@@ -66,6 +66,9 @@ class SessionCommand(PlainBoxCommand):
             title=_('available session subcommands'))
         list_parser = session_subparsers.add_parser(
             'list', help=_('list available sessions'))
+        list_parser.add_argument(
+            '--only-ids', help=_('print one id per line only'),
+            action='store_true', default=False)
         list_parser.set_defaults(session_cmd='list')
         remove_parser = session_subparsers.add_parser(
             'remove', help=_('remove one more more sessions'))

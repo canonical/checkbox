@@ -69,6 +69,9 @@ class SessionInvocation:
         repo = SessionStorageRepository()
         storage = None
         for storage in repo.get_storage_list():
+            if self.ns.only_ids:
+                print(storage.id)
+                continue
             data = storage.load_checkpoint()
             if len(data) > 0:
                 metadata = SessionPeekHelper().peek(data)
@@ -77,7 +80,7 @@ class SessionInvocation:
                               sorted(metadata.flags), metadata.title))
             else:
                 print(_("session {0} (not saved yet)").format(storage.id))
-        if storage is None:
+        if not self.ns.only_ids and storage is None:
             print(_("There are no stored sessions"))
 
     def remove_session(self):

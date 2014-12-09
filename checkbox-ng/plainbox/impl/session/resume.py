@@ -475,8 +475,8 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
                 self.flags |= self.FLAG_FILE_REFERENCE_CHECKS_F
             if self.FLAG_REWRITE_LOG_PATHNAMES_S in flags:
                 self.flags |= self.FLAG_REWRITE_LOG_PATHNAMES_F
-            if self.FLAG_IGNORE_JOB_CHECKSUM_S in flags:
-                self.flags |= self.FLAG_IGNORE_JOB_CHECKSUM_F
+            if self.FLAG_IGNORE_JOB_CHECKSUMS_S in flags:
+                self.flags |= self.FLAG_IGNORE_JOB_CHECKSUMS_F
 
     def resume_json(self, json_repr, early_cb=None):
         """

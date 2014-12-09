@@ -369,7 +369,7 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
             for lineno_offset, category_id, pattern in overrides_gen:
                 if re.match(pattern, job.id):
                     return category_id
-        return job.category
+        return job.category_id
 
     class Meta:
 

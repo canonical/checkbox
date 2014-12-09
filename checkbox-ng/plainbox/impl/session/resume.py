@@ -450,7 +450,7 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
     # Flag controlling rewriting of log file pathnames. It depends on the
     # location to be non-None and then rewrites pathnames of all them missing
     # log files to be relative to the session storage location. It effectively
-    # depends on FLAG_FILE_REFERENCe_CHECKS_F being set at the same time,
+    # depends on FLAG_FILE_REFERENCE_CHECKS_F being set at the same time,
     # otherwise it is ignored.
     FLAG_REWRITE_LOG_PATHNAMES_S = 'rewrite-log-pathnames'
     FLAG_REWRITE_LOG_PATHNAMES_F = 0x02
@@ -475,8 +475,8 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
                 self.flags |= self.FLAG_FILE_REFERENCE_CHECKS_F
             if self.FLAG_REWRITE_LOG_PATHNAMES_S in flags:
                 self.flags |= self.FLAG_REWRITE_LOG_PATHNAMES_F
-            if self.FLAG_IGNORE_JOB_CHECKSUM_S in flags:
-                self.flags |= self.FLAG_IGNORE_JOB_CHECKSUM_F
+            if self.FLAG_IGNORE_JOB_CHECKSUMS_S in flags:
+                self.flags |= self.FLAG_IGNORE_JOB_CHECKSUMS_F
 
     def resume_json(self, json_repr, early_cb=None):
         """
@@ -725,7 +725,7 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
                 result_repr, key='io_log_filename', value_type=str)
             if (flags & cls.FLAG_FILE_REFERENCE_CHECKS_F
                     and not os.path.isfile(io_log_filename)
-                    and cls.FLAG_REWRITE_LOG_PATHNAMES in flags):
+                    and flags & cls.FLAG_REWRITE_LOG_PATHNAMES_F):
                 io_log_filename2 = cls._rewrite_pathname(io_log_filename,
                                                          location)
                 logger.warning(_("Rewrote file name from %r to %r"),

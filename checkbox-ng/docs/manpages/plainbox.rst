@@ -148,6 +148,11 @@ The following environment variables affect Plainbox:
     * ``/usr/share/plainbox-providers-1``
     * ``$XDG_DATA_HOME/plainbox-providers-1``
 
+``PLAINBOX_SESSION_REPOSITORY``
+    Alters the default location of the session storage repository. In practical
+    terms this is where all the test sessions are stored in the filesystem.  By
+    default the effective value is ``$XDG_CACHE_HOME/plainbox/sessions``.
+
 ``PLAINBOX_LOCALE_DIR``
     Alters the lookup directory for translation catalogs. When unset uses
     system-wide locations. Developers working with a local copy should set it

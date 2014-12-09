@@ -146,17 +146,42 @@ class SessionStorageRepository:
     @classmethod
     def get_default_location(cls):
         """
-        Compute the default location of the session state repository
+        Get the default location of the session state repository
 
-        :returns: ${XDG_CACHE_HOME:-$HOME/.cache}/plainbox/sessions
+        The default location is defined by ``$PLAINBOX_SESSION_REPOSITORY``
+        which must be a writable directory (created if needed) where plainbox
+        will keep its session data. The default location, if the environment
+        variable is not provided, is
+        ``${XDG_CACHE_HOME:-$HOME/.cache}/plainbox/sessions``
         """
-        # Pick XDG_CACHE_HOME from environment
-        xdg_cache_home = os.environ.get('XDG_CACHE_HOME')
-        # If not set or empty use the default ~/.cache/
-        if not xdg_cache_home:
-            xdg_cache_home = os.path.join(os.path.expanduser('~'), '.cache')
-        # Use a directory relative to XDG_CACHE_HOME
-        return os.path.join(xdg_cache_home, 'plainbox', 'sessions')
+        repo_dir = os.environ.get('PLAINBOX_SESSION_REPOSITORY')
+        if repo_dir is not None:
+            repo_dir = os.path.abspath(repo_dir)
+        else:
+            # Pick XDG_CACHE_HOME from environment
+            xdg_cache_home = os.environ.get('XDG_CACHE_HOME')
+            # If not set or empty use the default ~/.cache/
+            if not xdg_cache_home:
+                xdg_cache_home = os.path.join(
+                    os.path.expanduser('~'), '.cache')
+            # Use a directory relative to XDG_CACHE_HOME
+            repo_dir = os.path.join(xdg_cache_home, 'plainbox', 'sessions')
+        if (repo_dir is not None and os.path.exists(repo_dir)
+                and not os.path.isdir(repo_dir)):
+            logger.warning(
+                _("Session repository %s it not a directory"), repo_dir)
+            repo_dir = None
+        if (repo_dir is not None and os.path.exists(repo_dir)
+                and not os.access(repo_dir, os.W_OK)):
+            logger.warning(
+                _("Session repository %s is read-only"), repo_dir)
+            repo_dir = None
+        if repo_dir is None:
+            repo_dir = tempfile.mkdtemp()
+            logger.warning(
+                _("Using temporary directory %s as session repository"),
+                repo_dir)
+        return repo_dir
 
 
 class LockedStorageError(IOError):

@@ -162,6 +162,25 @@ The following environment variables affect Plainbox:
     (Chinese), ``he`` (Hebrew), ``jp`` (Japanese), ``kr`` (Korean), ``pl``
     (Polish) and ``ru`` (Russian)
 
+``PLAINBOX_DEBUG``
+    Setting this to a non-empty string enables early logging support.  This is
+    somewhat equivalent to running ``plainbox --debug`` except that it also
+    affects code that runs before command line parsing is finished. One
+    particular value that can be used here is "console". It enables console
+    traces (similar to ``plainbox --debug-console`` command-line argument).
+
+``PLAINBOX_LOG_LEVEL``
+    This variable is only inspected if ``PLAINBOX_DEBUG`` is not empty. It is
+    equivalent to the ``plainbox --log-level=`` command-line argument. By
+    default (assuming ``PLAINBOX_DEBUG`` is set) is ``DEBUG`` which turns on
+    everything.
+
+``PLAINBOX_TRACE``.
+    This variable is only inspected if ``PLAINBOX_DEBUG`` is not empty. It is
+    equivalent to the ``plainbox --trace=`` command-line argument. Unlike the
+    command line argument, it handles a comma-separated list of loggers to
+    trace. By default it is empty.
+
 See Also
 ========
 

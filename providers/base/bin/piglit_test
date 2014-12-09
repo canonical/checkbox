@@ -27,9 +27,15 @@ class PiglitTests:
 
         run_command.extend(['/usr/share/piglit/tests/all.tests', log_path])
 
+        piglit_env = dict(os.environ)
+        if os.path.isdir("/usr/share/piglit"):
+            piglit_env['PYTHONPATH'] = "/usr/share/piglit"
+
         piglit_output = check_output(run_command,
                                      universal_newlines=True,
-                                     stderr=STDOUT)
+                                     stderr=STDOUT,
+                                     env=piglit_env)
+
         # TODO: Capture stderr instead?
         for line in piglit_output.split('\n'):
             if ' :: ' in line:

@@ -129,8 +129,9 @@ class SessionStorageRepository:
             pathname = os.path.join(self.location, item)
             # Make sure not to follow any symlinks here
             stat_result = os.lstat(pathname)
-            # Consider directories only
-            if stat.S_ISDIR(stat_result.st_mode):
+            # Consider non-hidden directories that end with the word .session
+            if (not item.startswith(".") and item.endswith(".session")
+                    and stat.S_ISDIR(stat_result.st_mode)):
                 logger.debug(_("Found possible session in %r"), pathname)
                 session = SessionStorage(pathname)
                 session_list.append(session)

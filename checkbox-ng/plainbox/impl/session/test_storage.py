@@ -36,8 +36,8 @@ from plainbox.vendor import mock
 class SessionStorageRepositoryTests(TestCase):
 
     def _populate_dummy_repo(self, repo,
-                             session_list=['session1', 'session2'],
-                             last_session='session1'):
+                             session_list=['s1.session', 's2.session'],
+                             last_session='s1.session'):
         # Add session directories
         for session_name in session_list:
             os.mkdir(os.path.join(repo.location, session_name))
@@ -70,7 +70,7 @@ class SessionStorageRepositoryTests(TestCase):
                 os.path.basename(storage.location)
                 for storage in storage_list]
             self.assertEqual(
-                sorted(storage_name_list), ["session1", "session2"])
+                sorted(storage_name_list), ["s1.session", "s2.session"])
 
     def test_get_last_storage(self):
         # Directory with some sub-directories looks like a repository
@@ -83,7 +83,7 @@ class SessionStorageRepositoryTests(TestCase):
             storage = repo.get_last_storage()
             # Check that we got session1
             self.assertEqual(
-                os.path.basename(storage.location), 'session1')
+                os.path.basename(storage.location), 's1.session')
 
     def test_get_last_storage__broken_symlink(self):
         # Directory with some sub-directories looks like a repository
@@ -91,7 +91,7 @@ class SessionStorageRepositoryTests(TestCase):
         with TemporaryDirectory() as tmp:
             # Create a repository without any sessions and one broken symlink
             repo = SessionStorageRepository(tmp)
-            self._populate_dummy_repo(repo, [], "b0rken")
+            self._populate_dummy_repo(repo, [], "b0rken.session")
             # Get the last storage object
             storage = repo.get_last_storage()
             # Make sure it's not valid

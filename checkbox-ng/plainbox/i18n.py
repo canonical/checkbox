@@ -187,6 +187,32 @@ class ITranslator(metaclass=ABCMeta):
             and msgid2 are returned, depending on the value of n.
         """
 
+    @abstractmethod
+    def textdomain(self, domain):
+        """
+        Set global gettext domain
+
+        :param domain:
+            Name of the global gettext domain. This domain will be used to all
+            unqualified calls to gettext() and ngettext().
+
+        .. note::
+            gettext and ngettext exposed from this module transparently use
+            "plainbox" as the domain name. This call affects all *other*,
+            typical gettext calls.
+        """
+
+    @abstractmethod
+    def bindtextdomain(self, domain, localedir=None):
+        """
+        Set set directory for gettext messages for a specific domain
+
+        :param domain:
+            Name of the domain to configure
+        :param localedir:
+            Name of the directory with translation catalogs.
+        """
+
 
 class NoOpTranslator(ITranslator):
     """
@@ -216,6 +242,12 @@ class NoOpTranslator(ITranslator):
 
     def pdngettext(self, msgctxt, domain, msgid1, msgid2, n):
         return self.ngettext(msgid1, msgid2, n)
+
+    def textdomain(self, domain):
+        pass
+
+    def bindtextdomain(self, domain, localedir=None):
+        pass
 
 
 class LoremIpsumTranslator(NoOpTranslator):
@@ -350,7 +382,9 @@ class GettextTranslator(ITranslator):
     def __init__(self, domain, locale_dir=None):
         self._domain = domain
         self._translations = {}
-        self._locale_dir = locale_dir
+        self._locale_dir_map = {
+            domain: locale_dir
+        }
 
     def _get_translation(self, domain):
         try:
@@ -358,7 +392,7 @@ class GettextTranslator(ITranslator):
         except KeyError:
             try:
                 translation = gettext_module.translation(
-                    domain, self._locale_dir)
+                    domain, self._locale_dir_map.get(domain))
             except IOError:
                 translation = gettext_module.NullTranslations()
             self._translations[domain] = translation
@@ -404,6 +438,7 @@ class GettextTranslator(ITranslator):
             return msgstr
 
     def dgettext(self, domain, msgid):
+        _logger.debug("dgettext(%r, %r)", domain, msgid)
         return self._get_translation(domain).gettext(msgid)
 
     def dngettext(self, domain, msgid1, msgid2, n):
@@ -432,6 +467,36 @@ class GettextTranslator(ITranslator):
             return msgid2
         else:
             return msgstr
+
+    def textdomain(self, domain):
+        """
+        Set global gettext domain
+
+        :param domain:
+            Name of the global gettext domain. This domain will be used to all
+            unqualified calls to gettext() and ngettext().
+
+        .. note::
+            gettext and ngettext exposed from this module transparently use
+            "plainbox" as the domain name. This call affects all *other*,
+            typical gettext calls.
+        """
+        _logger.debug("textdomain(%r)", domain)
+        self._domain = domain
+        gettext_module.textdomain(domain)
+
+    def bindtextdomain(self, domain, localedir=None):
+        """
+        Set set directory for gettext messages for a specific domain
+
+        :param domain:
+            Name of the domain to configure
+        :param localedir:
+            Name of the directory with translation catalogs.
+        """
+        _logger.debug("bindtextdomain(%r, %r)", domain, localedir)
+        self._locale_dir_map[domain] = localedir
+        gettext_module.bindtextdomain(domain, localedir)
 
 
 def docstring(docstring):
@@ -463,36 +528,6 @@ def docstring(docstring):
                 (cls_or_func,),
                 {'__doc__': docstring})
     return decorator
-
-
-def textdomain(domain):
-    """
-    Set global gettext domain
-
-    :param domain:
-        Name of the global gettext domain. This domain will be used to all
-        unqualified calls to gettext() and ngettext().
-
-    .. note::
-        gettext and ngettext exposed from this module transparently use
-        "plainbox" as the domain name. This call affects all *other*, typical
-        gettext calls.
-    """
-    _logger.debug("textdomain(%r)", domain)
-    return gettext_module.textdomain(domain)
-
-
-def bindtextdomain(domain, localedir=None):
-    """
-    Set set directory for gettext messages for a specific domain
-
-    :param domain:
-        Name of the domain to configure
-    :param localedir:
-        Name of the directory with translation catalogs.
-    """
-    _logger.debug("bindtextdomain(%r, %r)", domain, localedir)
-    return gettext_module.bindtextdomain(domain, localedir)
 
 
 def gettext_noop(msgid):
@@ -530,6 +565,7 @@ except KeyError as exc:
     raise RuntimeError(
         "Unsupported PLAINBOX_I18N_MODE: {!r}".format(exc.args[0]))
 
+
 # This is the public API of this module
 gettext = _translator.gettext
 ngettext = _translator.ngettext
@@ -539,3 +575,5 @@ dgettext = _translator.dgettext
 dngettext = _translator.dngettext
 pdgettext = _translator.pdgettext
 pdngettext = _translator.pdngettext
+bindtextdomain = _translator.bindtextdomain
+textdomain = _translator.textdomain

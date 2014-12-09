@@ -450,7 +450,7 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
     # Flag controlling rewriting of log file pathnames. It depends on the
     # location to be non-None and then rewrites pathnames of all them missing
     # log files to be relative to the session storage location. It effectively
-    # depends on FLAG_FILE_REFERENCe_CHECKS_F being set at the same time,
+    # depends on FLAG_FILE_REFERENCE_CHECKS_F being set at the same time,
     # otherwise it is ignored.
     FLAG_REWRITE_LOG_PATHNAMES_S = 'rewrite-log-pathnames'
     FLAG_REWRITE_LOG_PATHNAMES_F = 0x02

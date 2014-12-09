@@ -725,7 +725,7 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
                 result_repr, key='io_log_filename', value_type=str)
             if (flags & cls.FLAG_FILE_REFERENCE_CHECKS_F
                     and not os.path.isfile(io_log_filename)
-                    and cls.FLAG_REWRITE_LOG_PATHNAMES in flags):
+                    and flags & cls.FLAG_REWRITE_LOG_PATHNAMES_F):
                 io_log_filename2 = cls._rewrite_pathname(io_log_filename,
                                                          location)
                 logger.warning(_("Rewrote file name from %r to %r"),

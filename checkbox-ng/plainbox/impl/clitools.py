@@ -273,8 +273,19 @@ class ToolBase(metaclass=abc.ABCMeta):
         """
         Initialize all the variables, real stuff happens in main()
         """
+        self._setup_logging_from_environment()
         self._early_parser = None  # set in _early_init()
         self._parser = None  # set in main()
+        logger.debug(_("Constructed %r"), self)
+
+    def _setup_logging_from_environment(self):
+        if not os.getenv("PLAINBOX_DEBUG", ""):
+            return
+        adjust_logging(
+            level=os.getenv("PLAINBOX_LOG_LEVEL", "DEBUG"),
+            trace_list=os.getenv("PLAINBOX_TRACE", "").split(","),
+            debug_console=os.getenv("PLAINBOX_DEBUG", "") == "console")
+        logger.debug(_("Activated early logging via environment variables"))
 
     def main(self, argv=None):
         """
@@ -286,21 +297,29 @@ class ToolBase(metaclass=abc.ABCMeta):
         # get to the point when we do something useful and setup
         # all the exception handlers).
         try:
+            logger.debug(_("Tool initialization (early mode)"))
             self.early_init()
+            logger.debug(_("Parsing command line arguments (early mode)"))
             early_ns = self._early_parser.parse_args(argv)
+            logger.debug(_("Command line parsed to (early mode): %r"), early_ns)
+            logger.debug(_("Tool initialization (late mode)"))
             self.late_init(early_ns)
             # Construct the full command line argument parser
+            logger.debug(_("Parser construction"))
             self._parser = self.construct_parser()
-            logger.debug(_("parsed early namespace: %s"), early_ns)
             # parse the full command line arguments, this is also where we
             # do argcomplete-dictated exit if bash shell completion
             # is requested
+            logger.debug(_("Parsing command line arguments"))
             ns = self._parser.parse_args(argv)
-            logger.debug(_("parsed full namespace: %s"), ns)
+            logger.debug(_("Command line parsed to: %r"), ns)
+            logger.debug(_("Tool initialization (final steps)"))
             self.final_init(ns)
+            logger.debug(_("Tool initialization complete"))
         except KeyboardInterrupt:
             pass
         else:
+            logger.debug(_("Dispatching command..."))
             return self.dispatch_and_catch_exceptions(ns)
 
     @classmethod

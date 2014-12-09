@@ -610,3 +610,107 @@ class FsPlugInCollection(PlugInCollectionBase):
                 if not os.path.isfile(info_file):
                     continue
                 yield info_file
+
+
+class LazyPlugInCollection(PlugInCollectionBase):
+    """
+    Collection of plug-ins based on a mapping of imported objects
+
+    All loaded plugin information files are wrapped by a plug-in container. By
+    default that is :class:`PlugIn` but it may be adjusted if required.
+    """
+
+    def __init__(self, mapping, load=False, wrapper=PlugIn,
+                 *wrapper_args, **wrapper_kwargs):
+        """
+        Initialize a collection of plug-ins from the specified mapping of
+        callbacks.
+
+        :param callback_args_map:
+            any mapping from from any string (the plugin name) to a
+            tuple ("module:obj", *args) that if imported and called
+            ``obj(*args)`` produces the plugin object.
+        :param load:
+            if true, load all of the plug-ins now
+        :param wrapper:
+            wrapper class for all loaded objects, defaults to :class:`PlugIn`
+        :param wrapper_args:
+            additional arguments passed to each instantiated wrapper
+        :param wrapper_kwargs:
+            additional keyword arguments passed to each instantiated wrapper
+        """
+        self._mapping = mapping
+        super().__init__(load, wrapper, *wrapper_args, **wrapper_kwargs)
+
+    def load(self):
+        if self._loaded:
+            return
+        logger.debug(_("Loading everything in %r"), self)
+        self._loaded = True
+        name_discovery_data_list = self.discover()
+        for name, discovery_data in name_discovery_data_list:
+            if name in self._plugins:
+                continue
+            self.load_one(name, discovery_data)
+
+    def discover(self):
+        start = now()
+        result = self.do_discover()
+        self._discovery_time = now() - start
+        return result
+
+    def load_one(self, name, discovery_data):
+        start_time = now()
+        try:
+            logger.debug(_("Loading %r"), name)
+            obj = self.do_load_one(name, discovery_data)
+        except (ImportError, AttributeError, ValueError) as exc:
+            logger.exception(_("Unable to load: %r"), name)
+            self._problem_list.append(exc)
+        else:
+            logger.debug(_("Wrapping %r"), name)
+            self.wrap_and_add_plugin(name, obj, now() - start_time)
+
+    def do_discover(self):
+        return sorted(self._mapping.items())
+
+    def do_load_one(self, name, discovery_data):
+        if isinstance(discovery_data, tuple):
+            callable_obj = discovery_data[0]
+            args = discovery_data[1:]
+        else:
+            callable_obj = discovery_data
+            args = ()
+        if isinstance(callable_obj, str):
+            logger.debug(_("Importing %s"),  callable_obj)
+            callable_obj = getattr(
+                __import__(
+                    callable_obj.split(':', 1)[0], fromlist=[1]),
+                callable_obj.split(':', 1)[1])
+        logger.debug(_("Calling %r with %r"), callable_obj, args)
+        return callable_obj(*args)
+
+    def get_all_names(self):
+        """
+        Get a list of all the plug-in names
+
+        :returns:
+            a list of plugin names
+        """
+        return list(self._mapping.keys())
+
+    def get_by_name(self, name):
+        """
+        Get the specified plug-in (by name)
+
+        :param name:
+            name of the plugin to locate
+        :returns:
+            :class:`PlugIn` like object associated with the name
+        :raises KeyError:
+            if the specified name cannot be found
+        """
+        if not self._loaded and name not in self._plugins:
+            discovery_data = self._mapping[name]
+            self.load_one(name, discovery_data)
+        return self._plugins[name]

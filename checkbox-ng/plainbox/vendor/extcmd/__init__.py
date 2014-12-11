@@ -440,7 +440,7 @@ class ExternalCommandWithDelegate(ExternalCommand):
         should_terminate = True
         try:
             # Start the process
-            _logger.debug("Starting process %r", (args,))
+            _logger.debug("starting process %r", (args,))
             proc = self._popen(*args, **kwargs)
             _logger.debug("Process created: %r (pid: %d)", proc, proc.pid)
             # Setup all worker threads. By now the pipes have been created and

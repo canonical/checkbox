@@ -74,7 +74,7 @@ class signalfd(object):
             return "<signalfd (closed)>"
         else:
             return "<signalfd fileno():{} signals:{}>".format(
-                self.fileno(), self.signals())
+                self.fileno(), self.signals)
 
     def __del__(self):
         self.close()

@@ -152,8 +152,8 @@ class SessionInvocation:
             print(_("No such session: {0}").format(self.ns.session_id))
         else:
             print(_("Exporting session..."))
-            all_units = self._get_all_units()
-            manager = SessionManager.load_session(all_units, storage)
+            manager = SessionManager.load_session(
+                self._get_all_units(), storage, flags=self.ns.flag)
             # Get a stream with exported session data.
             exported_stream = io.BytesIO()
             data_subset = exporter.get_session_data_subset(manager.state)

@@ -102,6 +102,9 @@ class SessionCommand(PlainBoxCommand):
         export_parser.add_argument(
             'session_id', metavar=_('SESSION-ID'),
             help=_('Identifier of the session to export'))
+        export_parser.add_argument(
+            '--flag', action='append', metavar=_("FLAG"),
+            help=_("pass this resume flag to the session resume code"))
         export_parser.set_defaults(session_cmd='export')
         group = export_parser.add_argument_group(_("output options"))
         group.add_argument(

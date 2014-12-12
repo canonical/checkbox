@@ -299,7 +299,8 @@ class ToolBase(metaclass=abc.ABCMeta):
             self.early_init()
             logger.debug(_("Parsing command line arguments (early mode)"))
             early_ns = self._early_parser.parse_args(argv)
-            logger.debug(_("Command line parsed to (early mode): %r"), early_ns)
+            logger.debug(
+                _("Command line parsed to (early mode): %r"), early_ns)
             logger.debug(_("Tool initialization (late mode)"))
             self.late_init(early_ns)
             # Construct the full command line argument parser

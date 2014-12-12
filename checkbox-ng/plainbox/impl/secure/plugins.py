@@ -714,3 +714,19 @@ class LazyPlugInCollection(PlugInCollectionBase):
             discovery_data = self._mapping[name]
             self.load_one(name, discovery_data)
         return self._plugins[name]
+
+    @property
+    def discovery_time(self) -> float:
+        """
+        Time, in fractional seconds, that was required to discover all objects.
+
+        This time is separate from the load and wrap time of all each
+        individual plug-in. Typically this is either a fixed cost or a
+        predictable cost related to traversing the file system.
+
+        .. note::
+            This overridden version can be called at any time, unlike the base
+            class implementation. Before all discovery is done, it simply
+            returns zero.
+        """
+        return self._discovery_time

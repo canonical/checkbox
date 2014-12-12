@@ -62,6 +62,9 @@ class SessionCommand(PlainBoxCommand):
         parser = self.add_subcommand(subparsers)
         parser.prog = 'plainbox session'
         parser.set_defaults(default_session_cmd='list')
+        # Duplicate the default value of --only-ids This is only used when
+        # we use the default command aka when 'plainbox session' runs.
+        parser.set_defaults(only_ids=False)
         session_subparsers = parser.add_subparsers(
             title=_('available session subcommands'))
         list_parser = session_subparsers.add_parser(

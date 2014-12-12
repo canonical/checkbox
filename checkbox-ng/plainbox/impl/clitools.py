@@ -304,7 +304,7 @@ class ToolBase(metaclass=abc.ABCMeta):
             self.late_init(early_ns)
             # Construct the full command line argument parser
             logger.debug(_("Parser construction"))
-            self._parser = self.construct_parser()
+            self._parser = self.construct_parser(early_ns)
             # parse the full command line arguments, this is also where we
             # do argcomplete-dictated exit if bash shell completion
             # is requested
@@ -463,7 +463,7 @@ class ToolBase(metaclass=abc.ABCMeta):
         # shows up in --help and bash tab completion.
         self.add_early_parser_arguments(parser)
         subparsers = parser.add_subparsers()
-        self.add_subcommands(subparsers)
+        self.add_subcommands(subparsers, early_ns)
         self.enable_argcomplete_if_possible(parser)
         return parser
 

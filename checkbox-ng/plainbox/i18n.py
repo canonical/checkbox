@@ -438,7 +438,6 @@ class GettextTranslator(ITranslator):
             return msgstr
 
     def dgettext(self, domain, msgid):
-        _logger.debug("dgettext(%r, %r)", domain, msgid)
         return self._get_translation(domain).gettext(msgid)
 
     def dngettext(self, domain, msgid1, msgid2, n):

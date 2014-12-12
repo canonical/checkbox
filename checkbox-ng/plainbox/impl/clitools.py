@@ -457,7 +457,7 @@ class ToolBase(metaclass=abc.ABCMeta):
             help=_("show program's version number and exit"))
         return parser
 
-    def construct_parser(self):
+    def construct_parser(self, early_ns=None):
         parser = self.create_parser_object()
         # Add all the things really parsed by the early parser so that it
         # shows up in --help and bash tab completion.
@@ -624,7 +624,7 @@ class SingleCommandToolMixIn:
         This method does nothing. It is here because ToolBase requires it.
         """
 
-    def construct_parser(self):
+    def construct_parser(self, early_ns=None):
         """
         Overridden version of construct_parser()
 

@@ -24,6 +24,7 @@
 """
 import contextlib
 import errno
+import fcntl
 import logging
 import os
 import signal
@@ -110,9 +111,9 @@ class GlibcExternalCommandWithDelegate(ExternalCommand):
         _logger.debug("Obtained: %r", sfd)
         sigmask = pthread_sigmask(signal_list)
         _logger.debug("Obtained: %r", sigmask)
-        stdout_pair = pipe2(O_CLOEXEC | O_NONBLOCK)
+        stdout_pair = pipe2(O_CLOEXEC)
         _logger.debug("Obtained: %r", stdout_pair)
-        stderr_pair = pipe2(O_CLOEXEC | O_NONBLOCK)
+        stderr_pair = pipe2(O_CLOEXEC)
         _logger.debug("Obtained: %r", stderr_pair)
         key = selector.register(stdout_pair[0], EVENT_READ, 'stdout')
         _logger.debug("Registered key with selector: %r", key)
@@ -171,6 +172,15 @@ class GlibcExternalCommandWithDelegate(ExternalCommand):
                 os.exit(-1)
             else:
                 _logger.debug("Forked child process: %r", pid)
+                # Make all pipes non-blocking as the loop below cannot work
+                # with any blocking I/O.
+                flags = fcntl.fcntl(stdout_pair[0], fcntl.F_GETFL)
+                flags |= O_NONBLOCK
+                fcntl.fcntl(stdout_pair[0], fcntl.F_SETFL, flags)
+                flags = fcntl.fcntl(stderr_pair[0], fcntl.F_GETFL)
+                flags |= O_NONBLOCK
+                fcntl.fcntl(stderr_pair[0], fcntl.F_SETFL, O_NONBLOCK)
+                # Close the write sides of the pipes
                 os.close(stdout_pair[1])
                 os.close(stderr_pair[1])
                 return self._loop(selector, pid)

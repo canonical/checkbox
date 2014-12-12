@@ -352,3 +352,62 @@ flags: preserve-locale
 command: test $(id -u) -eq 0
 estimated_duration: 0.1
 category_id: superuser
+
+id: stub/text-attachment
+_summary: A job that attaches a plain text file
+_description:
+ This job attaches a simple, fixed, piece of UTF-8 encoded text as attachment
+plugin: attachment
+flags: preserve-locale
+# The subsequent polish text is a typical 'the quick brown fox...' text that
+# is used just because it's likely to expose any non-ASCII text handling bugs.
+command:
+ echo "zazółć gęślą jaźń"
+estimated_duration: 0.1
+category_id: plugin-representative
+
+id: stub/binary-attachment
+_summary: A job that attaches representative binary data
+_description:
+ This job generates bytes 0 through 255 to test handling of bytes that may
+ occur but be mishandled by our I/O processing engine.
+plugin: attachment
+flags: preserve-locale
+# The all-bytes file can be generated with the following piece of bash but
+# I wanted to avoid reliance on the obscure escape processing for
+# portability:
+# for i in $(seq 0 255); do
+#  echo -n -e "\x$(printf %x $i)"
+# done
+command:
+ cat $PLAINBOX_PROVIDER_DATA/all-bytes
+
+id: stub/large-text-attachment
+_summary: A job that attaches a plain text file
+_description:
+ This job attaches a large, repeated sequence of UTF-8 encoded text as
+ attachment. It helps to stress the I/O handling code that might not happen in
+ a trivial (short / small) attachment.
+plugin: attachment
+flags: preserve-locale
+# The subsequent polish text is a typical 'the quick brown fox...' text that
+# is used just because it's likely to expose any non-ASCII text handling bugs.
+command:
+ for i in $(seq 100000); do
+    echo "$i: zazółć gęślą jaźń"
+ done
+estimated_duration: 0.1
+category_id: stress
+
+id: stub/large-binary-attachment
+_summary: A job that attaches representative binary data
+_description:
+ This job attaches 16GBs of zeros to see if we can handle (mostly on the memory
+ front) such types of attachments, e.g. someone attaching a swap file, or
+ something equally unexpected and very large.
+plugin: attachment
+flags: preserve-locale
+command:
+ dd if=/dev/zero bs=1M count=16384
+estimated_duration: 750
+category_id: stress

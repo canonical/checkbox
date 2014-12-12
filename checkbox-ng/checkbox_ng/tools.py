@@ -93,7 +93,7 @@ class CheckboxTool(CheckboxToolBase):
     def get_exec_name(cls):
         return "checkbox"
 
-    def add_subcommands(self, subparsers):
+    def add_subcommands(self, subparsers, early_ns=None):
         from checkbox_ng.commands.launcher import LauncherCommand
         from checkbox_ng.commands.service import ServiceCommand
         from checkbox_ng.commands.sru import SRUCommand

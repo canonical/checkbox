@@ -215,17 +215,51 @@ class GlibcExternalCommandWithDelegate(ExternalCommand):
         _logger.debug("Sending SIGQUIT to process %d", pid)
         os.kill(pid, signal.SIGQUIT)
 
-    def _read_pipe(self, fd, name):
+    def _read_pipe(self, fd, name, buffer_map):
         assert name in ('stdout', 'stderr')
         data = os.read(fd, PIPE_BUF)
+        done_reading = len(data) == 0
         _logger.debug("Read %d bytes of data from %s", len(data), name)
-        if len(data) == 0:
-            return True
-        self._delegate.on_line(name, data)
+        buf = buffer_map[name]
+        if buf is not None:
+            # Combine this buffer with the previous one before attempting
+            # to detect newlines. This way, on the outside, we always
+            # return complete lines and no something partial or in the
+            # middle.
+            buf.extend(data)
+        else:
+            buf = bytearray(data)
+        assert isinstance(buf, bytearray)
+        # Split the buffer into lines, the last line (aka line_list[-1])
+        # may be partial and we have to keep it around for the next time
+        # we're called.
+        line_buffer_list = buf.splitlines(True)
+        for line_buffer in line_buffer_list[0:-1]:
+            self._delegate.on_line(name, bytes(line_buffer))
+        if len(line_buffer_list) > 0:
+            last_line_buffer = line_buffer_list[-1]
+            if last_line_buffer.endswith(b'\n') or done_reading:
+                # If the last line is complete (ends with the newline byte)
+                # or this is the last chunk (we're done reading) then send it
+                # out immedaitely.
+                self._delegate.on_line(name, bytes(last_line_buffer))
+                buffer_map[name] = None
+            else:
+                # Otherwise keep the last line around for the next time we're
+                # called
+                buffer_map[name] = last_line_buffer
+        else:
+            buffer_map[name] = None
+        return done_reading
 
     def _loop(self, selector, pid):
         waiting_for = set(['stdout', 'stderr', 'proc'])
         return_code = None
+        # This buffer holds partial data that was not yet published
+        buffer_map = {
+            'stdout': None,
+            'stderr': None,
+        }
         while waiting_for:
             event_list = selector.select()
             for key, events in event_list:
@@ -253,7 +287,7 @@ class GlibcExternalCommandWithDelegate(ExternalCommand):
                             "Unexpected event mask for signalfd: %d", events)
                 else:
                     if events & EVENT_READ:
-                        if self._read_pipe(key.fd, key.data):
+                        if self._read_pipe(key.fd, key.data, buffer_map):
                             _logger.debug(
                                 "pipe %s depleted, unregistering and closing",
                                 key.data)

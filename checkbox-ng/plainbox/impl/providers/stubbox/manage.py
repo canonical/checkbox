@@ -75,5 +75,6 @@ if __name__ == "__main__":
         name=stubbox_def.name,
         version=stubbox_def.version,
         description=stubbox_def.description,
-        gettext_domain=stubbox_def.gettext_domain
+        gettext_domain=stubbox_def.gettext_domain,
+        strict=False,
     )

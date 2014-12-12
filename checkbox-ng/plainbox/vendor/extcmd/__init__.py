@@ -204,7 +204,8 @@ supports the on_end() method::
     >>> class ReturnCode(extcmd.DelegateBase):
     ...     def on_end(self, returncode):
     ...         sys.stdout.write("Return code is %s\\n" % returncode)
-    >>> returncode = extcmd.ExternalCommandWithDelegate(ReturnCode()).call(['false'])
+    >>> returncode = extcmd.ExternalCommandWithDelegate(
+    ...     ReturnCode()).call(['false'])
     Return code is 1
     >>> returncode
     1
@@ -215,7 +216,8 @@ Each started program is also passed to the on_start() method::
     >>> class VerboseStart(extcmd.DelegateBase):
     ...     def on_begin(self, args, kwargs):
     ...         sys.stdout.write("Starting %r %r\\n" % (args, kwargs))
-    >>> returncode = extcmd.ExternalCommandWithDelegate(VerboseStart()).call(['true'])
+    >>> returncode = extcmd.ExternalCommandWithDelegate(
+    ...     VerboseStart()).call(['true'])
     Starting (['true'],) {}
 """
 
@@ -298,6 +300,12 @@ class IDelegate(object, metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def on_abnormal_end(self, signal_num):
+        """
+        Callback invoked when a command gets killed by a signal
+        """
+
+    @abc.abstractmethod
     def on_interrupt(self):
         """
         Callback invoked when the user triggers KeyboardInterrupt
@@ -320,6 +328,11 @@ class DelegateBase(IDelegate):
         """
 
     def on_end(self, returncode):
+        """
+        Do nothing
+        """
+
+    def on_abnormal_end(self, signal_num):
         """
         Do nothing
         """
@@ -372,6 +385,13 @@ class SafeDelegate(IDelegate):
         """
         if hasattr(self._delegate, "on_end"):
             self._delegate.on_end(returncode)
+
+    def on_abnormal_end(self, signal_num):
+        """
+        Call on_abnormal_end() on the wrapped delegate if supported
+        """
+        if hasattr(self._delegate, "on_abnormal_end"):
+            self._delegate.on_abnormal_end(signal_num)
 
     def on_interrupt(self):
         """
@@ -522,7 +542,12 @@ class ExternalCommandWithDelegate(ExternalCommand):
                 queue_worker.join()
                 _logger.debug("Joined thread: %r", queue_worker)
         # Notify that the process has finished
-        self._delegate.on_end(proc.returncode)
+        if proc.returncode < 0:
+            # negative returncode from subprocess is a sign that the process
+            # was killed by a signal with that number
+            self._delegate.on_abnormal_end(-proc.returncode)
+        else:
+            self._delegate.on_end(proc.returncode)
         return proc.returncode
 
     def _on_keyboard_interrupt(self, proc):
@@ -609,6 +634,10 @@ class Chain(IDelegate):
         for delegate in self.delegate_list:
             delegate.on_end(returncode)
 
+    def on_abnormal_end(self, signal_num):
+        for delegate in self.delegate_list:
+            delegate.on_abnormal_end(signal_num)
+
     def on_interrupt(self):
         """
         Call the on_interrupt() method on each delegate in the list
@@ -657,6 +686,15 @@ class Redirect(DelegateBase):
         if self._close_stderr_on_end:
             self._stderr.close()
 
+    def on_abnormal_end(self, signal_num):
+        """
+        Close the output streams if requested
+        """
+        if self._close_stdout_on_end:
+            self._stdout.close()
+        if self._close_stderr_on_end:
+            self._stderr.close()
+
 
 class Transform(DelegateBase):
     """
@@ -691,6 +729,9 @@ class Transform(DelegateBase):
 
     def on_end(self, returncode):
         self._delegate.on_end(returncode)
+
+    def on_abnormal_end(self, signal_num):
+        self._delegate.on_abnormal_end(signal_num)
 
 
 class Decode(Transform):

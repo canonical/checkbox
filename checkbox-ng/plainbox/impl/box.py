@@ -23,31 +23,42 @@
 
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
-
+import collections
 import logging
 import os
 
 from plainbox import __version__ as plainbox_version
 from plainbox.i18n import gettext as _
 from plainbox.impl.applogic import PlainBoxConfig
+from plainbox.impl.clitools import LazyLoadingToolMixIn
 from plainbox.impl.commands import PlainBoxToolBase
-from plainbox.impl.commands.cmd_check_config import CheckConfigCommand
-from plainbox.impl.commands.dev import DevCommand
-from plainbox.impl.commands.cmd_device import DeviceCommand
-from plainbox.impl.commands.cmd_run import RunCommand
-from plainbox.impl.commands.cmd_selftest import PlainboxSelfTestCommand
-from plainbox.impl.commands.cmd_session import SessionCommand
-from plainbox.impl.commands.cmd_startprovider import StartProviderCommand
 from plainbox.impl.logging import setup_logging
+from plainbox.impl.secure.plugins import LazyPlugInCollection
 
 
 logger = logging.getLogger("plainbox.box")
 
 
-class PlainBoxTool(PlainBoxToolBase):
+class PlainBoxTool(LazyLoadingToolMixIn, PlainBoxToolBase):
     """
     Command line interface to PlainBox
     """
+
+    def get_command_collection(self):
+        p = "plainbox.impl.commands."
+        return LazyPlugInCollection(collections.OrderedDict([
+            ('run', (p + "cmd_run:RunCommand", self._load_providers,
+                     self._load_config)),
+            ('session', (p + "cmd_session:SessionCommand",
+                         self._load_providers)),
+            ('device', p + "cmd_device:DeviceCommand",),
+            ('self-test', (p + "cmd_selftest:PlainboxSelfTestCommand",)),
+            ('check-config', (p + "cmd_check_config:CheckConfigCommand",
+                              self._load_config,)),
+            ('dev', (p + "dev:DevCommand", self._load_providers,
+                     self._load_config)),
+            ('startprovider', (p + "cmd_startprovider:StartProviderCommand",)),
+        ]))
 
     @classmethod
     def get_exec_name(cls):
@@ -71,24 +82,6 @@ class PlainBoxTool(PlainBoxToolBase):
         parser.usage = _("{0} [--help] [--version] | [options] <command>"
                          " ...").format(self.get_exec_name())
         return parser
-
-    def add_subcommands(self, subparsers, early_ns=None):
-        """
-        Add top-level subcommands to the argument parser.
-
-        This can be overridden by subclasses to use a different set of
-        top-level subcommands.
-        """
-        # TODO: switch to plainbox plugins
-        RunCommand(self._load_providers, self._load_config).register_parser(
-            subparsers)
-        SessionCommand(self._load_providers).register_parser(subparsers)
-        DeviceCommand().register_parser(subparsers)
-        PlainboxSelfTestCommand().register_parser(subparsers)
-        CheckConfigCommand(self._load_config).register_parser(subparsers)
-        DevCommand(self._load_providers, self._load_config).register_parser(
-            subparsers)
-        StartProviderCommand().register_parser(subparsers)
 
     @classmethod
     def get_config_cls(cls):

@@ -672,7 +672,7 @@ class LazyPlugInCollection(PlugInCollectionBase):
             self.wrap_and_add_plugin(name, obj, now() - start_time)
 
     def do_discover(self):
-        return sorted(self._mapping.items())
+        return self._mapping.items()
 
     def do_load_one(self, name, discovery_data):
         if isinstance(discovery_data, tuple):

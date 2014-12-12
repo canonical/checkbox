@@ -348,9 +348,20 @@ class ToolBase(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def add_subcommands(self, subparsers):
+    def add_subcommands(self, subparsers, early_ns):
         """
         Add top-level subcommands to the argument parser.
+
+        :param subparsers:
+            The argparse subparsers object. Use it to register additional
+            command line syntax parsers and to add your commands there.
+        :param early_ns:
+            A namespace from parsing by the special early parser.  The early
+            parser may be used to quickly guess the command that needs to be
+            loaded, despite not really being able to parse everything the full
+            parser can. Using this as a hint one can optimize the command
+            loading process to skip loading commands that would not be
+            executed.
 
         This can be overridden by subclasses to use a different set of
         top-level subcommands.
@@ -606,7 +617,7 @@ class SingleCommandToolMixIn:
         :meth:`CommandBase.register_arguments()` method.
         """
 
-    def add_subcommands(self, subparsers):
+    def add_subcommands(self, subparsers, early_ns):
         """
         Overridden version of add_subcommands()
 

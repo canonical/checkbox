@@ -72,7 +72,7 @@ class PlainBoxTool(PlainBoxToolBase):
                          " ...").format(self.get_exec_name())
         return parser
 
-    def add_subcommands(self, subparsers):
+    def add_subcommands(self, subparsers, early_ns=None):
         """
         Add top-level subcommands to the argument parser.
 

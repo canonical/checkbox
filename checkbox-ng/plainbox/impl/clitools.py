@@ -39,6 +39,8 @@ from plainbox.i18n import gettext as _
 from plainbox.i18n import textdomain
 from plainbox.impl._argparse import LegacyHelpFormatter
 from plainbox.impl.logging import adjust_logging
+from plainbox.impl.secure.plugins import IPlugInCollection
+from plainbox.impl.secure.plugins import now
 
 
 logger = logging.getLogger("plainbox.clitools")
@@ -599,6 +601,153 @@ class ToolBase(metaclass=abc.ABCMeta):
                 logger.error(_("starting debugger..."))
                 pdb.post_mortem()
                 return 1
+
+
+class LazyLoadingToolMixIn(metaclass=abc.ABCMeta):
+    """
+    Mix-in class for ToolBase that improves responsiveness by loading
+    subcommands lazily on demand and using some heuristic that works well in
+    the common case of running one command.
+
+    Unlike the original, this implementation uses a custom version of
+    add_subcommands() which uses the ``early_ns`` argument as a hint to not
+    load or register commands that are not going to be needed.
+
+    In practice ``tool --help`` doesn't benefit much but ``tool <cmd>`` can now
+    be much, much faster (and more responsive) as it only loads that one
+    command.
+
+    Concrete subclasses must implement the :meth:`get_command_collection()`
+    method which must return a IPlugInCollection (ideally the
+    LazyPlugInCollection that contains extra optimizations for low-cost key
+    enumeration and one-at-a-time value loading).
+    """
+
+    @abc.abstractmethod
+    def get_command_collection(self) -> IPlugInCollection:
+        """
+        Get a (lazy) collection of all subcommands.
+
+        This method returns a IPlugInCollection that maps command name to
+        CommandBase subclass, such as :class:`PlainBoxCommand`.
+
+        The name of each plug in object **must** match the command name.
+        """
+
+    def add_subcommands(
+        self,
+        subparsers: argparse._SubParsersAction,
+        early_ns: "Maybe[argparse.Namespace]"=None,
+    ) -> None:
+        """
+        Add top-level subcommands to the argument parser.
+
+        :param subparsers:
+            A part of argparse that can be used to create additional parsers
+            for specific subcommands.
+        :param early_ns:
+            (optional) An argparse namespace from earlier parsing. If it is not
+            None, it must have the ``rest`` attribute which is used as a list
+            of hints.
+
+        .. note::
+            This method is customized by LazyLoadingToolMixIn and should not be
+            overriden directly. To register your commands use
+            :meth:`get_command_collection()`
+        """
+        if early_ns is not None:
+            self.add_subcommands_with_hints(subparsers, early_ns.rest)
+        else:
+            self.add_subcommands_without_hints(
+                subparsers, self.get_command_collection())
+
+    def add_subcommands_with_hints(
+        self, subparsers: argparse._SubParsersAction,
+        hint_list: "List[str]"
+    ) -> None:
+        """
+        Add top-level subcommands to the argument parser, using a list of
+        hints.
+
+        :param subparsers:
+            A part of argparse that can be used to create additional parsers
+            for specific subcommands.
+        :param hint_list:
+            A list of strings that should be used as hints.
+
+        This method tries to optimize the time needed to register and setup all
+        of the subcommands by looking at a list of hints in search for the
+        (likely) command that will be executed.
+
+        Things that look like options are ignored. The first element of
+        ``hint_list`` that matches a known command name, as provided by
+        meth:`get_command_collection()`, is used as a sign that that command
+        will be executed and all other commands don't have to be loaded or
+        initialized. If no hints are found (e.g. when running ``tool --help``)
+        the slower fallback mode is used and all subcommands are added.
+
+        .. note::
+            This method is customized by LazyLoadingToolMixIn and should not be
+            overriden directly. To register your commands use
+            :meth:`get_command_collection()`
+        """
+        logger.debug(
+            _("Trying to load exactly the right command: %r"), hint_list)
+        command_collection = self.get_command_collection()
+        for hint in hint_list:
+            # Skip all the things that look like additional options
+            if hint.startswith('-'):
+                continue
+            # Break on the first hint that we can load
+            try:
+                plugin = command_collection.get_by_name(hint)
+            except KeyError:
+                continue
+            else:
+                command = plugin.plugin_object
+                logger.debug("Registering single command %r", command)
+                start = now()
+                command.register_parser(subparsers)
+                logger.debug(_("Cost of registering guessed command: %f"),
+                             now() - start)
+                break
+        else:
+            logger.debug("Falling back to loading all commands")
+            self.add_subcommands_without_hints(subparsers, command_collection)
+
+    def add_subcommands_without_hints(
+        self, subparsers: argparse._SubParsersAction,
+        command_collection: IPlugInCollection,
+    ) -> None:
+        """
+        Add top-level subcommands to the argument parser (fallback mode)
+
+        :param subparsers:
+            A part of argparse that can be used to create additional parsers
+            for specific subcommands.
+        :param command_collection:
+            A collection of commands that was obtaioned from
+            :meth:`get_command_collection()` earlier.
+
+        This method is called when hint-based optimization cannot be used and
+        all commands need to be loaded and initialized.
+
+        .. note::
+            This method is customized by LazyLoadingToolMixIn and should not be
+            overriden directly. To register your commands use
+            :meth:`get_command_collection()`
+        """
+        command_collection.load()
+        logger.debug(
+            _("Cost of loading all top-level commands: %f"),
+            command_collection.get_total_time())
+        start = now()
+        for command in command_collection.get_all_plugin_objects():
+            logger.debug("Registering command %r", command)
+            command.register_parser(subparsers)
+        logger.debug(
+            _("Cost of registering all top-level commands: %f"),
+            now() - start)
 
 
 class SingleCommandToolMixIn:

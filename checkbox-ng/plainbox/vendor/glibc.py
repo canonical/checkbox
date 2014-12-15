@@ -558,6 +558,15 @@ _glibc_constants = (
     ('CLOCK_BOOTTIME',              c_int,  7,  ('#include <time.h>',)),
     ('CLOCK_REALTIME_ALARM',        c_int,  8,  ('#include <time.h>',)),
     ('CLOCK_BOOTTIME_ALARM',        c_int,  9,  ('#include <time.h>',)),
+    # fcntl(2) codes
+    ('F_SETPIPE_SZ',                c_int,  1031, (
+        '#define _GNU_SOURCE',
+        '#include <unistd.h>',
+        '#include <fcntl.h>',)),
+    ('F_GETPIPE_SZ',                c_int,  1032, (
+        '#define _GNU_SOURCE',
+        '#include <unistd.h>',
+        '#include <fcntl.h>',)),
 )
 
 

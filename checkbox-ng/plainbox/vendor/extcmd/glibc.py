@@ -127,6 +127,8 @@ class GlibcExternalCommandWithDelegate(ExternalCommand):
             self._delegate.on_begin(None, None)
             pid = os.fork()
             if pid == 0:
+                # Undo signal blocking as those are inherited
+                sigmask.unblock()
                 # Close stdout and stderr, this will also flush the buffers
                 sys.stdout.close()
                 sys.stderr.close()

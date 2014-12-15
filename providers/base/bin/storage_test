@@ -37,15 +37,15 @@ then
     echo "$disk is a block device"
     
     #Add a check for warnings
-    WARN=$(parted -l -s |grep "^Warning.*${disk}.*[Rr]ead-only" 2>&1)
-    if $?
+    WARN=$(parted -s ${disk} print | grep "^Warning.*${disk}.*[Rr]ead-only" 2>&1)
+    if [[ $? == 0 ]]
     then
         echo "Warning found in parted output:"
         echo $WARN
         echo "Aborting Test"
         exit 1
     fi
-    
+
     # Regex changed to better handle when $disk appears more than once
     # in parted output (such as in warning messages or not caught in the
     # check above)

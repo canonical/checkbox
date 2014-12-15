@@ -215,12 +215,13 @@ class GlibcExternalCommandWithDelegate(ExternalCommand):
         _logger.debug("Sending SIGQUIT to process %d", pid)
         os.kill(pid, signal.SIGQUIT)
 
-    def _read_pipe(self, fd, name, buffer_map):
+    def _read_pipe(self, fd, name, buffer_map, force_last):
         assert name in ('stdout', 'stderr')
         pipe_size = fcntl.fcntl(fd, F_GETPIPE_SZ)
         _logger.debug("Reading at most %d bytes of data from %s pipe",
                       pipe_size, name)
         data = os.read(fd, pipe_size)
+        done_reading = force_last or len(data) == 0
         _logger.debug("Read %d bytes of data from %s", len(data), name)
         buf = buffer_map[name]
         if buf is not None:
@@ -272,11 +273,7 @@ class GlibcExternalCommandWithDelegate(ExternalCommand):
                             if fdsi.ssi_signo == signal.SIGCHLD:
                                 return_code = self._handle_SIGCHLD(pid)
                                 if return_code is not None:
-                                    # We're done, the child is gone, let's not
-                                    # wait for anything anymore. This prevents
-                                    # us from hanging on our pipes that may
-                                    # still be alive forever.
-                                    waiting_for.clear()
+                                    waiting_for.remove('proc')
                             elif fdsi.ssi_signo == signal.SIGINT:
                                 self._handle_SIGINT(pid)
                             elif fdsi.ssi_signo == signal.SIGQUIT:
@@ -289,7 +286,13 @@ class GlibcExternalCommandWithDelegate(ExternalCommand):
                             "Unexpected event mask for signalfd: %d", events)
                 else:
                     if events & EVENT_READ:
-                        if self._read_pipe(key.fd, key.data, buffer_map):
+                        # Don't drain the pipe more than once if the process
+                        # has terminated. This way we see everythng the process
+                        # could have written and don't wait forever if the pipe
+                        # has leaked.
+                        force_last = 'proc' not in waiting_for
+                        if self._read_pipe(key.fd, key.data, buffer_map,
+                                           force_last):
                             _logger.debug(
                                 "pipe %s depleted, unregistering and closing",
                                 key.data)

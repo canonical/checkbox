@@ -305,6 +305,10 @@ class GlibcExternalCommandWithDelegate(ExternalCommand):
                     else:
                         _bug_logger.error(
                             "Unexpected event mask for pipe: %d", events)
+        if return_code is None:
+            _bug_logger.error(
+                "We don't know the real status of the child, faking failure")
+            return_code = 1
         # NOTE: we should defer on_end() / on_abnormal_end() until we deplete
         # I/O as delegates might close their files and we still can call
         # on_line() after that happens.

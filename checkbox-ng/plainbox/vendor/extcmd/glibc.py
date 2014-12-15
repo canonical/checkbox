@@ -34,9 +34,9 @@ from plainbox.vendor.glibc import CLD_EXITED
 from plainbox.vendor.glibc import CLD_KILLED
 from plainbox.vendor.glibc import O_CLOEXEC
 from plainbox.vendor.glibc import O_NONBLOCK
-from plainbox.vendor.glibc import PIPE_BUF
 from plainbox.vendor.glibc import SFD_CLOEXEC
 from plainbox.vendor.glibc import SFD_NONBLOCK
+from plainbox.vendor.glibc import F_GETPIPE_SZ
 from plainbox.vendor.glibc import dup3
 from plainbox.vendor.pyglibc import pipe2
 from plainbox.vendor.pyglibc import pthread_sigmask
@@ -217,8 +217,10 @@ class GlibcExternalCommandWithDelegate(ExternalCommand):
 
     def _read_pipe(self, fd, name, buffer_map):
         assert name in ('stdout', 'stderr')
-        data = os.read(fd, PIPE_BUF)
-        done_reading = len(data) == 0
+        pipe_size = fcntl.fcntl(fd, F_GETPIPE_SZ)
+        _logger.debug("Reading at most %d bytes of data from %s pipe",
+                      pipe_size, name)
+        data = os.read(fd, pipe_size)
         _logger.debug("Read %d bytes of data from %s", len(data), name)
         buf = buffer_map[name]
         if buf is not None:

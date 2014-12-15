@@ -198,12 +198,10 @@ class GlibcExternalCommandWithDelegate(ExternalCommand):
         if waitid_result.si_code == CLD_EXITED:
             returncode = waitid_result.si_status
             _logger.debug("Saw CLD_EXITED with return code: %r", returncode)
-            self._delegate.on_end(returncode)
             return returncode
         elif waitid_result.si_code == CLD_KILLED:
             signal_num = waitid_result.si_status
             _logger.debug("Saw CLD_KILLED with signal: %r", signal_num)
-            self._delegate.on_abnormal_end(signal_num)
             return -signal_num
         else:
             _bug_logger.error(
@@ -304,5 +302,13 @@ class GlibcExternalCommandWithDelegate(ExternalCommand):
                     else:
                         _bug_logger.error(
                             "Unexpected event mask for pipe: %d", events)
+        # NOTE: we should defer on_end() / on_abnormal_end() until we deplete
+        # I/O as delegates might close their files and we still can call
+        # on_line() after that happens.
+        if return_code >= 0:
+            self._delegate.on_end(return_code)
+        else:
+            signal_num = -return_code
+            self._delegate.on_abnormal_end(signal_num)
         _logger.debug("Returning from extcmd: %d", return_code)
         return return_code

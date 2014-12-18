@@ -101,6 +101,11 @@ class PlainBoxConfig(config.Config):
     environment = config.Section(
         help_text=_("Environment variables for scripts and jobs"))
 
+    extcmd = config.Variable(
+        section='FEATURE-FLAGS', kind=str, default="legacy",
+        validator_list=[config.ChoiceValidator(["legacy", "glibc"])],
+        help_text=_("Which implementation of extcmd to use"))
+
     class Meta:
 
         # TODO: properly depend on xdg and use real code that also handles

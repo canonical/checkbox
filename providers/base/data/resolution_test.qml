@@ -4,6 +4,7 @@
  * Copyright 2013 Canonical Ltd.
  * Written by:
  *   Sylvain Pineau <sylvain.pineau@canonical.com>
+ *   Maciej Kisielewski <maciej.kisielewski@canonical.com>
  *
  * Checkbox is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3,
@@ -32,6 +33,11 @@ Rectangle {
         font.pointSize: 80
         color: "lime"
         smooth: true
+    }
+    Timer {
+        interval: 5000
+        running: true
+        onTriggered: Qt.quit()
     }
 }
 

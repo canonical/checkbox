@@ -783,7 +783,7 @@ class JobRunner(IJobRunner):
         delegate, io_log_gen = self._prepare_io_handling(job, config)
         # Create a subprocess.Popen() like object that uses the delegate
         # system to observe all IO as it occurs in real time.
-        delegate_cls = self._get_delegate_cls()
+        delegate_cls = self._get_delegate_cls(config)
         extcmd_popen = delegate_cls(delegate)
         # Stream all IOLogRecord entries to disk
         record_path = os.path.join(
@@ -879,8 +879,9 @@ class JobRunner(IJobRunner):
                 _("Please store desired files in $PLAINBOX_SESSION_SHARE and"
                   " use regular temporary files for everything else"))
 
-    def _get_delegate_cls(self):
-        if sys.version_info[0:2] >= (3, 4) and sys.platform == 'linux':
+    def _get_delegate_cls(self, config):
+        if (sys.version_info[0:2] >= (3, 4) and sys.platform == 'linux'
+                and config.extcmd == "glibc"):
             logger.debug("Using glibc-based command runner")
             from plainbox.vendor.extcmd.glibc import (
                 GlibcExternalCommandWithDelegate)

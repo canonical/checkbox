@@ -80,13 +80,13 @@ class IPlugIn(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractproperty
-    def plugin_name(self):
+    def plugin_name(self) -> str:
         """
         name of the plugin, may not be unique
         """
 
     @abc.abstractproperty
-    def plugin_object(self):
+    def plugin_object(self) -> object:
         """
         external object
         """
@@ -143,14 +143,14 @@ class PlugIn(IPlugIn):
             type(self).__name__, self.plugin_name)
 
     @property
-    def plugin_name(self):
+    def plugin_name(self) -> str:
         """
         plugin name, arbitrary string
         """
         return self._name
 
     @property
-    def plugin_object(self):
+    def plugin_object(self) -> float:
         """
         plugin object, arbitrary object
         """
@@ -288,7 +288,7 @@ class PlugInCollectionBase(IPlugInCollection):
         self._wrapper = wrapper
         self._wrapper_args = wrapper_args
         self._wrapper_kwargs = wrapper_kwargs
-        self._plugins = collections.OrderedDict()
+        self._plugins = collections.OrderedDict()  # str -> IPlugIn instance
         self._loaded = False
         self._mocked_objects = None
         self._problem_list = []
@@ -672,7 +672,7 @@ class LazyPlugInCollection(PlugInCollectionBase):
             self.wrap_and_add_plugin(name, obj, now() - start_time)
 
     def do_discover(self):
-        return sorted(self._mapping.items())
+        return self._mapping.items()
 
     def do_load_one(self, name, discovery_data):
         if isinstance(discovery_data, tuple):
@@ -714,3 +714,19 @@ class LazyPlugInCollection(PlugInCollectionBase):
             discovery_data = self._mapping[name]
             self.load_one(name, discovery_data)
         return self._plugins[name]
+
+    @property
+    def discovery_time(self) -> float:
+        """
+        Time, in fractional seconds, that was required to discover all objects.
+
+        This time is separate from the load and wrap time of all each
+        individual plug-in. Typically this is either a fixed cost or a
+        predictable cost related to traversing the file system.
+
+        .. note::
+            This overridden version can be called at any time, unlike the base
+            class implementation. Before all discovery is done, it simply
+            returns zero.
+        """
+        return self._discovery_time

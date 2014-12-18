@@ -3,7 +3,7 @@
 import os
 import sys
 
-from argparse import ArgumentParser, FileType
+from argparse import ArgumentParser
 from subprocess import check_output, STDOUT
 
 
@@ -16,9 +16,9 @@ class PiglitTests:
 
     def run(self):
         piglit_output = ''
-        
+
         log_path = os.path.join(os.environ.get('CHECKBOX_DATA', '.'),
-                                    'piglit-results', self._name)
+                                'piglit-results', self._name)
 
         run_command = ["piglit-run.py"]
 
@@ -27,14 +27,20 @@ class PiglitTests:
 
         run_command.extend(['/usr/share/piglit/tests/all.tests', log_path])
 
+        piglit_env = dict(os.environ)
+        if os.path.isdir("/usr/share/piglit"):
+            piglit_env['PYTHONPATH'] = "/usr/share/piglit"
+
         piglit_output = check_output(run_command,
                                      universal_newlines=True,
-                                     stderr=STDOUT)
+                                     stderr=STDOUT,
+                                     env=piglit_env)
+
         # TODO: Capture stderr instead?
         for line in piglit_output.split('\n'):
             if ' :: ' in line:
                 self._results[line.split(' :: ')[-1].strip()] = \
-                line.split(' :: ')[-2].strip()
+                    line.split(' :: ')[-2].strip()
 
     def get_tests_by_status(self, status):
         """
@@ -50,8 +56,8 @@ class PiglitTests:
 
 def main():
     parser = ArgumentParser("A wrapper script for the Piglit graphics test "
-                               "framework which runs the tests and parses the "
-                               "results.")
+                            "framework which runs the tests and parses the "
+                            "results.")
     parser.add_argument("--test", "-t",
                         required=True,
                         action='append',

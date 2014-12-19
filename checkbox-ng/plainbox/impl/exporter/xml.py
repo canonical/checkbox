@@ -286,12 +286,7 @@ class XMLSessionStateExporter(SessionStateExporterBase):
             # The rule is, if it looks like UTF-8 text, it's UTF-8 text,
             # otherwise it is binary. I'll buy a beer to anyone that smuggles a
             # PNG/JPEG that is also valid UTF-8 :-)
-            try:
-                info.text = standard_b64decode(
-                    self._as_b64(data, job_id).encode('ASCII')
-                ).decode('UTF-8')
-            except UnicodeDecodeError:
-                info.text = self._as_b64(data, job_id)
+            info.text = self._as_text_if_possible(data, job_id)
 
     def get_resource(self, data, partial_id):
         """
@@ -317,16 +312,17 @@ class XMLSessionStateExporter(SessionStateExporterBase):
         # Attach the content of "dmi_attachment"
         dmi = ET.SubElement(hardware, "dmi")
         if "{}dmi_attachment".format(self.NS) in data["attachment_map"]:
-            dmi.text = self._as_text(data, "{}dmi_attachment".format(self.NS))
+            dmi.text = self._as_text_if_possible(
+                data, "{}dmi_attachment".format(self.NS))
         # Attach the content of "sysfs_attachment"
         sysfs_attributes = ET.SubElement(hardware, "sysfs-attributes")
         if "{}sysfs_attachment".format(self.NS) in data["attachment_map"]:
-            sysfs_attributes.text = self._as_text(
+            sysfs_attributes.text = self._as_text_if_possible(
                 data, "{}sysfs_attachment".format(self.NS))
         # Attach the content of "udev_attachment"
         udev = ET.SubElement(hardware, "udev")
         if "{}udev_attachment".format(self.NS) in data["attachment_map"]:
-            udev.text = self._as_text(
+            udev.text = self._as_text_if_possible(
                 data, "{}udev_attachment".format(self.NS))
         cpuinfo_data = self.get_resource(data, "cpuinfo")
         if cpuinfo_data is not None:
@@ -492,9 +488,10 @@ class XMLSessionStateExporter(SessionStateExporterBase):
         ET.SubElement(
             summary, "system_id", attrib={"value": self._system_id})
 
-    def _as_text(self, data, attachment):
+    def _as_text_if_possible(self, data, attachment):
         """
-        Convert the given attachment to text
+        Convert the given attachment to text, if possible, otherwise convert it
+        to base64-encoded binary (text)
 
         :param data:
             The data argument that gets passed around here
@@ -502,11 +499,15 @@ class XMLSessionStateExporter(SessionStateExporterBase):
             Identifier of the job to look at
         :returns:
             stdout of the given job, converted to text (assuming UTF-8
-            encoding) with Unicode control characters removed.
+            encoding) with Unicode control characters removed, if possible, or
+            encoded with base64 otherwise.
         """
-        return CONTROL_CODE_RE_STR.sub('', standard_b64decode(
-            data["attachment_map"][attachment].encode("ASCII")
-        ).decode("UTF-8", "replace"))
+        try:
+            return CONTROL_CODE_RE_STR.sub('', standard_b64decode(
+                data["attachment_map"][attachment].encode("ASCII")
+            ).decode("UTF-8"))
+        except UnicodeDecodeError:
+            return self._as_b64(data, attachment)
 
     def _as_b64(self, data, attachment):
         """

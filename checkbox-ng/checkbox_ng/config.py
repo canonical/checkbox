@@ -43,6 +43,10 @@ class CheckBoxConfig(PlainBoxConfig):
         help_text=_("Secure ID of the system"),
         validator_list=[config.PatternValidator(SECURE_ID_PATTERN)])
 
+    submit_to_c3 = config.Variable(
+        section="submission",
+        help_text=_("Whether to send the submission data to c3"))
+
     submit_to_hexr = config.Variable(
         section="submission",
         help_text=_("Whether to also send the submission data to HEXR"),

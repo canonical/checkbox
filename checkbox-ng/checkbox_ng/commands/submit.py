@@ -110,11 +110,23 @@ class SubmitCommand(PlainBoxCommand):
             return secure_id
 
         parser.add_argument(
-            'secure_id', metavar=_("SECURE-ID"),
+            '--secure_id', metavar=_("SECURE-ID"),
+            required=self.config.secure_id is Unset,
             type=secureid,
             help=_("associate submission with a machine using this SECURE-ID"))
+
         parser.add_argument('submission',
             help=_("The path to the results xml file"))
+
+        # Interpret this setting here
+        # Please remember the Unset.__bool__() return False
+        if self.config.submit_to_c3 and \
+           (self.config.submit_to_c3.lower() in ('yes', 'true') or
+           int(self.config.submit_to_c3) == 1):
+            # self.config.c3_url has a default value written in config.py 
+            parser.set_defaults(url=self.config.c3_url)
+
         parser.add_argument(
-            '--url', metavar=_("URL"), required=True,
+            '--url', metavar=_("URL"),
+            required=self.config.submit_to_c3 is Unset,
             help=_("destination to submit to"))

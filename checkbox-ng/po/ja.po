@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-12-01 14:39+0100\n"
-"PO-Revision-Date: 2014-02-27 09:48+0000\n"
-"Last-Translator: Po-Hsu Lin <po-hsu.lin@canonical.com>\n"
+"PO-Revision-Date: 2014-12-26 04:46+0000\n"
+"Last-Translator: Tom K. C. Chiu <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2014-12-23 05:48+0000\n"
+"X-Launchpad-Export-Date: 2014-12-26 05:48+0000\n"
 "X-Generator: Launchpad (build 17286)\n"
 
 #: .././plainbox/vendor/argparse/py34-argparse.py:300
@@ -113,7 +113,7 @@ msgstr "固定引数"
 #: .././plainbox/vendor/argparse/py32-argparse.py:1604
 #: .././plainbox/vendor/argparse/py33-argparse.py:1620
 msgid "optional arguments"
-msgstr ""
+msgstr "オプション引数"
 
 #: .././plainbox/vendor/argparse/py34-argparse.py:1645
 #: .././plainbox/vendor/argparse/py32-argparse.py:1619
@@ -125,21 +125,21 @@ msgstr "ヘルプメッセージを表示して終了する"
 #: .././plainbox/vendor/argparse/py32-argparse.py:1657
 #: .././plainbox/vendor/argparse/py33-argparse.py:1666
 msgid "cannot have multiple subparser arguments"
-msgstr ""
+msgstr "プログラムのバージョンを表示して終了する"
 
 #: .././plainbox/vendor/argparse/py34-argparse.py:1728
 #: .././plainbox/vendor/argparse/py32-argparse.py:1709
 #: .././plainbox/vendor/argparse/py33-argparse.py:1718
 #, python-format
 msgid "unrecognized arguments: %s"
-msgstr ""
+msgstr "不明な引数: %s"
 
 #: .././plainbox/vendor/argparse/py34-argparse.py:1825
 #: .././plainbox/vendor/argparse/py32-argparse.py:1806
 #: .././plainbox/vendor/argparse/py33-argparse.py:1815
 #, python-format
 msgid "not allowed with argument %s"
-msgstr ""
+msgstr "引数 %s と同時には使えません"
 
 #: .././plainbox/vendor/argparse/py34-argparse.py:1871
 #: .././plainbox/vendor/argparse/py34-argparse.py:1885
@@ -149,7 +149,7 @@ msgstr ""
 #: .././plainbox/vendor/argparse/py33-argparse.py:1875
 #, python-format
 msgid "ignored explicit argument %r"
-msgstr ""
+msgstr "明示的な引数 %r を無視しました"
 
 #: .././plainbox/vendor/argparse/py34-argparse.py:1992
 #: .././plainbox/vendor/argparse/py33-argparse.py:1982
@@ -162,13 +162,13 @@ msgstr ""
 #: .././plainbox/vendor/argparse/py33-argparse.py:1997
 #, python-format
 msgid "one of the arguments %s is required"
-msgstr ""
+msgstr "引数 %s のいずれかが必要です"
 
 #: .././plainbox/vendor/argparse/py34-argparse.py:2050
 #: .././plainbox/vendor/argparse/py32-argparse.py:2023
 #: .././plainbox/vendor/argparse/py33-argparse.py:2043
 msgid "expected one argument"
-msgstr ""
+msgstr "引数が一つ必要です"
 
 #: .././plainbox/vendor/argparse/py34-argparse.py:2051
 #: .././plainbox/vendor/argparse/py32-argparse.py:2024
@@ -241,12 +241,12 @@ msgstr ""
 #: .././plainbox/vendor/argparse/py32-argparse.py:1956
 #: .././plainbox/impl/clitools.py:523
 msgid "too few arguments"
-msgstr ""
+msgstr "引数が少なすぎる"
 
 #: .././plainbox/vendor/argparse/py32-argparse.py:1963
 #, python-format
 msgid "argument %s is required"
-msgstr ""
+msgstr "引数 %s が必要です"
 
 #: .././plainbox/vendor/phablet.py:58
 msgid "Unable to start SSH on the phablet device"
@@ -371,15 +371,15 @@ msgstr ""
 
 #: .././plainbox/impl/validation.py:59
 msgid "error"
-msgstr ""
+msgstr "エラー"
 
 #: .././plainbox/impl/validation.py:60
 msgid "warning"
-msgstr ""
+msgstr "警告"
 
 #: .././plainbox/impl/validation.py:61
 msgid "advice"
-msgstr ""
+msgstr "勧告"
 
 #: .././plainbox/impl/validation.py:119
 msgid "Problem with field {}: {}"
@@ -404,7 +404,7 @@ msgstr ""
 
 #: .././plainbox/impl/depmgr.py:248
 msgid "Done solving"
-msgstr ""
+msgstr "解決の完成"
 
 #: .././plainbox/impl/depmgr.py:262
 #, python-format
@@ -1005,7 +1005,7 @@ msgstr ""
 #: .././plainbox/impl/session/resume.py:177
 #: .././plainbox/impl/session/resume.py:259
 msgid "Unsupported version {}"
-msgstr ""
+msgstr "サポートされていないバージョンです {}"
 
 #: .././plainbox/impl/session/resume.py:241
 msgid "Resuming from json... (see below)"
@@ -1360,7 +1360,7 @@ msgstr ""
 
 #: .././plainbox/impl/secure/providers/v1.py:894
 msgid "no such directory"
-msgstr ""
+msgstr "そのようなディレクトリはありません"
 
 #: .././plainbox/impl/secure/providers/v1.py:904
 msgid "cannot be relative"
@@ -2243,7 +2243,7 @@ msgstr ""
 #: .././plainbox/impl/commands/cmd_session.py:103
 #: .././plainbox/impl/commands/cmd_run.py:64
 msgid "output options"
-msgstr ""
+msgstr "出力オプション"
 
 #: .././plainbox/impl/commands/cmd_session.py:106
 #: .././plainbox/impl/commands/cmd_run.py:68
@@ -2416,7 +2416,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/inv_analyze.py:202
 msgid "No problems found"
-msgstr ""
+msgstr "問題はありませんでした"
 
 #: .././plainbox/impl/commands/inv_analyze.py:205
 msgid "[Requirement Report]"
@@ -2424,7 +2424,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/inv_check_config.py:38
 msgid "Configuration files:"
-msgstr ""
+msgstr "設定ファイル:"
 
 #: .././plainbox/impl/commands/inv_check_config.py:43
 #, python-brace-format
@@ -2433,7 +2433,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/inv_check_config.py:44
 msgid "Variables:"
-msgstr ""
+msgstr "変数:"
 
 #: .././plainbox/impl/commands/inv_check_config.py:49
 msgid "Sections:"

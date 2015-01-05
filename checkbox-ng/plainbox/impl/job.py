@@ -146,7 +146,7 @@ class JobTreeNode:
         return descendants
 
     @classmethod
-    def create_tree(cls, job_list, node=None, link=None, legacy_mode=False):
+    def create_tree(cls, job_list, node=None, link=None):
         """
         Build a rooted JobTreeNode from a job list
 
@@ -156,36 +156,17 @@ class JobTreeNode:
             Parent node to start with.
         :argument None link:
             Parent-child link used to create the descendants.
-        :argument False legacy_mode:
-            Whether local jobs are used to build the tree or a new experimental
-            job metadata (categories).
         """
         if node is None:
             node = cls()
-        if legacy_mode:  # using local jobs
-            for job in [j for j in job_list if j.via == link]:
-                if job.plugin == 'local':
-                    if job.summary == job.partial_id:
-                        category = cls(job.description)
-                    else:
-                        category = cls(job.summary)
-                    cls.create_tree(job_list, category, job.checksum,
-                                    legacy_mode)
-                    node.add_category(category)
+        for job in [j for j in job_list if j.via == link]:
+            if job.plugin == 'local':
+                if job.summary == job.partial_id:
+                    category = cls(job.description)
                 else:
-                    node.add_job(job)
-        else:  # EXPERIMENTAL: Using a new Job property, categories
-            for job in job_list:
-                if job.categories:
-                    for category in job.categories:
-                        for d in node.get_descendants():
-                            if d.name == category:
-                                d.add_job(job)
-                                break
-                        else:
-                            category = cls(category)
-                            category.add_job(job)
-                            node.add_category(category)
-                else:
-                    node.add_job(job)
+                    category = cls(job.summary)
+                cls.create_tree(job_list, category, job.checksum)
+                node.add_category(category)
+            else:
+                node.add_job(job)
         return node

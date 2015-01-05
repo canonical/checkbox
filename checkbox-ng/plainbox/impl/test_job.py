@@ -34,7 +34,7 @@ from plainbox.impl.testing_utils import make_job
 from plainbox.impl.unit.job import JobDefinition
 
 
-class TestJobTreeNode_legacy(TestCase):
+class TestJobTreeNode(TestCase):
 
     def setUp(self):
         A = make_job('A')
@@ -62,8 +62,7 @@ class TestJobTreeNode_legacy(TestCase):
         R = make_job('R', plugin='resource')
         Z = make_job('Z', plugin='local', description='zaz')
 
-        self.tree = JobTreeNode.create_tree([R, B, C, D, E, F, G, A, Z],
-                                            legacy_mode=True)
+        self.tree = JobTreeNode.create_tree([R, B, C, D, E, F, G, A, Z])
 
     def test_create_tree(self):
         self.assertIsInstance(self.tree, JobTreeNode)
@@ -79,66 +78,3 @@ class TestJobTreeNode_legacy(TestCase):
         [self.assertIsInstance(c, JobTreeNode) for c in node.categories]
         self.assertEqual(len(node.jobs), 1)
         [self.assertIsInstance(j, JobDefinition) for j in node.jobs]
-
-
-class TestNewJoB:
-    """
-    Simple Job definition to demonstrate the categories property and how it
-    could be used to create a JobTreeNode
-    """
-    def __init__(self, name, categories={}):
-        self.name = name
-        self.categories = categories
-
-
-class TestJobTreeNodeExperimental(TestCase):
-
-    def brokenSetUp(self):
-        A = TestNewJoB('A', {'Audio'})
-        B = TestNewJoB('B', {'Audio', 'USB'})
-        C = TestNewJoB('C', {'USB'})
-        D = TestNewJoB('D', {'Wireless'})
-        E = TestNewJoB('E', {})
-        F = TestNewJoB('F', {'Wireless'})
-
-        # Populate the tree with a existing hierarchy as plainbox does not
-        # provide yet a way to build such categorization
-        root = JobTreeNode()
-        MM = JobTreeNode('Multimedia')
-        Audio = JobTreeNode('Audio')
-        root.add_category(MM)
-        MM.add_category(Audio)
-        self.tree = JobTreeNode.create_tree([A, B, C, D, E, F], root, link='')
-
-    # This test fails is not using job definitions where it assumes jobs are
-    # being handled and now it crashes inside JobTreeNode.add_job() which
-    # receives a non-job object.
-    @expectedFailure
-    def test_create_tree(self):
-        self.brokenSetUp()
-        self.assertIsInstance(self.tree, JobTreeNode)
-        self.assertEqual(len(self.tree.categories), 3)
-        [self.assertIsInstance(c, JobTreeNode) for c in self.tree.categories]
-        self.assertEqual(len(self.tree.jobs), 1)
-        [self.assertIsInstance(j, TestNewJoB) for j in self.tree.jobs]
-        self.assertIsNone(self.tree.parent)
-        self.assertEqual(self.tree.depth, 0)
-        node = self.tree.categories[0]
-        self.assertEqual(node.name, 'Multimedia')
-        self.assertEqual(len(node.categories), 1)
-        [self.assertIsInstance(c, JobTreeNode) for c in node.categories]
-        self.assertEqual(len(node.jobs), 0)
-        node = node.categories[0]
-        self.assertEqual(node.name, 'Audio')
-        self.assertEqual(len(node.categories), 0)
-        self.assertEqual(len(node.jobs), 2)
-        self.assertIn('B', [job.name for job in node.jobs])
-        [self.assertIsInstance(j, TestNewJoB) for j in node.jobs]
-        node = self.tree.categories[1]
-        self.assertEqual(node.name, 'USB')
-        self.assertIn('B', [job.name for job in node.jobs])
-        node = self.tree.categories[2]
-        self.assertEqual(node.name, 'Wireless')
-        self.assertEqual(len(node.categories), 0)
-        self.assertEqual(len(node.jobs), 2)
-        [self.assertIsInstance(j, TestNewJoB) for j in node.jobs]

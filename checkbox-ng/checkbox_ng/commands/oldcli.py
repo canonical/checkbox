@@ -82,8 +82,7 @@ class CliInvocation(CheckBoxInvocationMixIn):
             # Create a session that handles most of the stuff needed to run
             # jobs
             try:
-                manager = SessionManager.create_with_unit_list(
-                    job_list, legacy_mode=True)
+                manager = SessionManager.create_with_unit_list(job_list)
             except DependencyDuplicateError as exc:
                 # Handle possible DependencyDuplicateError that can happen if
                 # someone is using plainbox for job development.
@@ -165,8 +164,7 @@ class CliInvocation(CheckBoxInvocationMixIn):
                     for warm_up_func in warm_up_list:
                         warm_up_func()
                 tree = SelectableJobTreeNode.create_tree(
-                    manager.state.run_list,
-                    legacy_mode=True)
+                    manager.state.run_list)
                 title = _('Choose tests to run on your system:')
                 if self.display is None:
                     self.display = get_display()

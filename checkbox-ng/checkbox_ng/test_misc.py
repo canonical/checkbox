@@ -61,7 +61,7 @@ class TestSelectableJobTreeNode(TestCase):
             self.D,
             self.E,
             self.F
-        ], legacy_mode=True)
+        ])
 
     def test_create_tree(self):
         self.assertIsInstance(self.tree, SelectableJobTreeNode)

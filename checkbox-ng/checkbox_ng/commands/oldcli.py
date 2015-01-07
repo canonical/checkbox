@@ -164,7 +164,7 @@ class CliInvocation(CheckBoxInvocationMixIn):
                     for warm_up_func in warm_up_list:
                         warm_up_func()
                 tree = SelectableJobTreeNode.create_tree(
-                    manager.state.run_list)
+                    manager.state, manager.state.run_list)
                 title = _('Choose tests to run on your system:')
                 if self.display is None:
                     self.display = get_display()

@@ -342,12 +342,6 @@ class CheckBoxSessionStateController(ISessionStateController):
                 # __category__-style local jobs or to their corresponding
                 # generator job in general.
                 session_state.job_state_map[added_job.id].via_job = job
-                # Patch the origin of the existing job so that it traces
-                # back to the job that "generated" it again. This is
-                # basically required to get __category__ jobs to associate
-                # themselves with their children.
-                if added_job is not new_job:
-                    added_job.update_origin(new_job.origin)
 
 
 def gen_rfc822_records_from_io_log(job, result):

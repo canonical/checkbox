@@ -146,27 +146,108 @@ class JobTreeNode:
         return descendants
 
     @classmethod
-    def create_tree(cls, job_list, node=None, link=None):
+    def create_tree(cls, session_state, job_list):
         """
         Build a rooted JobTreeNode from a job list
 
+        :argument session_state:
+            A session state object
         :argument job_list:
             List of jobs to consider for building the tree.
-        :argument None node:
-            Parent node to start with.
-        :argument None link:
-            Parent-child link used to create the descendants.
         """
-        if node is None:
-            node = cls()
-        for job in [j for j in job_list if j.via == link]:
-            if job.plugin == 'local':
-                if job.summary == job.partial_id:
-                    category = cls(job.description)
-                else:
-                    category = cls(job.summary)
-                cls.create_tree(job_list, category, job.checksum)
-                node.add_category(category)
+        builder = TreeBuilder(session_state, cls)
+        for job in job_list:
+            builder.auto_add_job(job)
+        return builder.root_node
+
+
+class TreeBuilder:
+    """
+    Helper class that assists in building a tree of :class:`JobTreeNode`
+    objects out of job definitions and their associations, as expressed by
+    :attr:`JobState.via_job` associated with each job.
+
+    The builder is a single-use object and should be re-created for each new
+    construct. Internally it stores the job_state_map of the
+    :class:`SessionState` it was created with as well as additional helper
+    state.
+    """
+
+    def __init__(self, session_state: "SessionState", node_cls):
+        self._job_state_map = session_state.job_state_map
+        self._node_cls = node_cls
+        self._root_node = node_cls()
+        self._category_node_map = {}  # id -> node
+
+    @property
+    def root_node(self):
+        return self._root_node
+
+    def auto_add_job(self, job):
+        """
+        Add a job to the tree, automatically creating category nodes as needed.
+
+        :param job:
+            The job definition to add.
+        """
+        if job.plugin == 'local':
+            # For local jobs, just create the category node but don't add the
+            # local job itself there.
+            self.get_or_create_category_node(job)
+        else:
+            # For all other jobs, look at the parent job (if any) and create
+            # the category node out of that node. This never fails as "None" is
+            # the root_node object.
+            state = self._job_state_map[job.id]
+            node = self.get_or_create_category_node(state.via_job)
+            # Then add that job to the category node
+            node.add_job(job)
+
+    def get_or_create_category_node(self, category_job):
+        """
+        Get or create a :class:`JobTreeNode` that corresponds to the
+        category defined (somehow) by the job ``category_job``.
+
+        :param category_job:
+            The job that describes the category. This is either a
+            plugin="local" job or a plugin="resource" job. This can also be
+            None, which is a shorthand to say "root node".
+        :returns:
+            The ``root_node`` if ``category_job`` is None. A freshly
+            created node, created with :func:`create_category_node()` if
+            the category_job was never seen before (as recorded by the
+            category_node_map).
+        """
+        if category_job is None:
+            return self._root_node
+        if category_job.id not in self._category_node_map:
+            category_node = self.create_category_node(category_job)
+            # The category is added to its parent, that's either the root
+            # (if we're standalone) or the non-root category this one
+            # belongs to.
+            category_state = self._job_state_map[category_job.id]
+            if category_state.via_job is not None:
+                parent_category_node = self.get_or_create_category_node(
+                    category_state.via_job)
             else:
-                node.add_job(job)
-        return node
+                parent_category_node = self._root_node
+            parent_category_node.add_category(category_node)
+            self._category_node_map[category_job.id] = category_node
+        else:
+            category_node = self._category_node_map[category_job.id]
+        return category_node
+
+    def create_category_node(self, category_job):
+        """
+        Create a :class:`JobTreeNode` that corresponds to the category defined
+        (somehow) by the job ``category_job``.
+
+        :param category_job:
+            The job that describes the node to create.
+        :returns:
+            A fresh node with appropriate data.
+        """
+        if category_job.summary == category_job.partial_id:
+            return self._node_cls(category_job.description)
+        else:
+            return self._node_cls(category_job.summary)

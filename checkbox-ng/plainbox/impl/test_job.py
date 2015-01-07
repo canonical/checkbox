@@ -24,12 +24,10 @@ plainbox.impl.test_job
 Test definitions for plainbox.impl.job module
 """
 
-from unittest import TestCase, expectedFailure
+from unittest import TestCase
 
 from plainbox.impl.job import JobTreeNode
-from plainbox.impl.secure.origin import JobOutputTextSource
-from plainbox.impl.secure.origin import Origin
-from plainbox.impl.secure.rfc822 import RFC822Record
+from plainbox.impl.session import SessionState
 from plainbox.impl.testing_utils import make_job
 from plainbox.impl.unit.job import JobDefinition
 
@@ -40,29 +38,20 @@ class TestJobTreeNode(TestCase):
         A = make_job('A')
         B = make_job('B', plugin='local', description='foo')
         C = make_job('C')
-        D = B.create_child_job_from_record(
-            RFC822Record(
-                data={'id': 'D', 'plugin': 'shell'},
-                origin=Origin(source=JobOutputTextSource(B),
-                              line_start=1,
-                              line_end=1)))
-        E = B.create_child_job_from_record(
-            RFC822Record(
-                data={'id': 'E', 'plugin': 'local', 'description': 'bar'},
-                origin=Origin(source=JobOutputTextSource(B),
-                              line_start=1,
-                              line_end=1)))
-        F = E.create_child_job_from_record(
-            RFC822Record(
-                data={'id': 'F', 'plugin': 'shell'},
-                origin=Origin(source=JobOutputTextSource(E),
-                              line_start=1,
-                              line_end=1)))
+        D = make_job('D', plugin='shell')
+        E = make_job('E', plugin='local', description='bar')
+        F = make_job('F', plugin='shell')
         G = make_job('G', plugin='local', description='baz')
         R = make_job('R', plugin='resource')
         Z = make_job('Z', plugin='local', description='zaz')
-
-        self.tree = JobTreeNode.create_tree([R, B, C, D, E, F, G, A, Z])
+        state = SessionState([A, B, C, D, E, F, G, R, Z])
+        # D and E are a child of B
+        state.job_state_map[D.id].via_job = B
+        state.job_state_map[E.id].via_job = B
+        # F is a child of E
+        state.job_state_map[F.id].via_job = E
+        self.tree = JobTreeNode.create_tree(
+            state, [R, B, C, D, E, F, G, A, Z])
 
     def test_create_tree(self):
         self.assertIsInstance(self.tree, JobTreeNode)

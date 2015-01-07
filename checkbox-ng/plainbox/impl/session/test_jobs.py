@@ -1,13 +1,12 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012, 2013 Canonical Ltd.
+# Copyright 2012-2015 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,7 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-
 """
 plainbox.impl.test_session
 ==========================
@@ -138,6 +136,7 @@ class JobStateTests(TestCase):
             UndesiredJobReadinessInhibitor])
         self.assertEqual(self.job_state.effective_category_id,
                          self.job.category_id)
+        self.assertIsNone(self.job_state.via_job)
 
     def test_getting_job(self):
         self.assertIs(self.job_state.job, self.job)
@@ -219,3 +218,12 @@ class JobStateTests(TestCase):
     def test_setting_effective_category_id(self):
         self.job_state.effective_category_id = 'value'
         self.assertEqual(self.job_state.effective_category_id, 'value')
+
+    def test_setting_via_job__TypeError(self):
+        with self.assertRaises(TypeError):
+            self.job_state.via_job = 'value'
+
+    def test_setting_via_job(self):
+        parent = make_job("parent")
+        self.job_state.via_job = parent
+        self.assertIs(self.job_state.via_job, parent)

@@ -1,13 +1,12 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012, 2013 Canonical Ltd.
+# Copyright 2012-2015 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,7 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-
 """
 :mod:`plainbox.impl.session.jobs` -- jobs state handling
 ========================================================
@@ -29,10 +27,10 @@ that prevent the job from being runnable in a particular session.
 
 import logging
 
-from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.signal import Signal
+from plainbox.impl.unit.job import JobDefinition
 
 logger = logging.getLogger("plainbox.session.jobs")
 
@@ -182,11 +180,12 @@ class JobState:
     """
     Class representing the state of a job in a session.
 
-    Contains three basic properties of each job:
+    Contains the following basic properties of each job:
 
         * the readiness_inhibitor_list that prevent the job form starting
         * the result (outcome) of the run (IJobResult)
         * the effective category identifier
+        * the job that was used to create it (via_job)
 
     For convenience (to SessionState implementation) it also has a reference to
     the job itself.  This class is a pure state holder an will typically
@@ -204,6 +203,7 @@ class JobState:
         self._readiness_inhibitor_list = [UndesiredJobReadinessInhibitor]
         self._result = MemoryJobResult({})
         self._effective_category_id = None
+        self._via_job = None
         assert self._result.is_hollow
 
     def __repr__(self):
@@ -303,3 +303,18 @@ class JobState:
     @effective_category_id.setter
     def effective_category_id(self, value):
         self._effective_category_id = value
+
+    @property
+    def via_job(self):
+        """
+        The "parent" job when the current JobDefinition comes from a job output
+        using the local plugin or of the corresponding resource that was used
+        to instantiate a template job.
+        """
+        return self._via_job
+
+    @via_job.setter
+    def via_job(self, value: JobDefinition):
+        if not isinstance(value, JobDefinition):
+            raise TypeError("via_job must be the actual job, not the checksum")
+        self._via_job = value

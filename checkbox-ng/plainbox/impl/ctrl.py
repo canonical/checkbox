@@ -297,6 +297,10 @@ class CheckBoxSessionStateController(ISessionStateController):
                             new_unit, exc)
                     else:
                         session_state.add_unit(new_unit)
+                        if new_unit.Meta.name == 'job':
+                            job_state = session_state.job_state_map[
+                                new_unit.id]
+                            job_state.via_job = job
 
     def _process_local_result(self, session_state, job, result):
         """
@@ -333,6 +337,11 @@ class CheckBoxSessionStateController(ISessionStateController):
                       " discarded"),
                     job.id, exc.duplicate_job.id, exc.job.id, exc.job.origin)
             else:
+                # Set the via_job attribute of the newly added job to point to
+                # the generator job. This way it can be traced back to the old
+                # __category__-style local jobs or to their corresponding
+                # generator job in general.
+                session_state.job_state_map[added_job.id].via_job = job
                 # Patch the origin of the existing job so that it traces
                 # back to the job that "generated" it again. This is
                 # basically required to get __category__ jobs to associate

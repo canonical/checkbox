@@ -228,7 +228,10 @@ class SessionStateExporterBase(ISessionStateExporter):
 
             # Add Parent hash if requested
             if self.OPTION_WITH_JOB_VIA in self._option_list:
-                data['result_map'][job_id]['via'] = job_state.job.via
+                data['result_map'][job_id]['via'] = (
+                    job_state.via_job.checksum
+                    if job_state.via_job is not None else None
+                )
 
             # Add Job hash if requested
             if self.OPTION_WITH_JOB_HASH in self._option_list:

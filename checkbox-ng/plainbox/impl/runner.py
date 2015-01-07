@@ -362,12 +362,14 @@ class JobRunner(IJobRunner):
                 warm_up_list.append(warm_up_func)
         return warm_up_list
 
-    def run_job(self, job, config=None, ui=None):
+    def run_job(self, job, job_state, config=None, ui=None):
         """
         Run the specified job an return the result
 
         :param job:
             A JobDefinition to run
+        :param job_state:
+            The JobState associated to the job to execute.
         :param config:
             A PlainBoxConfig that may influence how this job is executed. This
             is only used for the environment variables (that should be
@@ -409,11 +411,11 @@ class JobRunner(IJobRunner):
             else:
                 self._job_runner_ui_delegate.ui = ui
                 try:
-                    return runner(job, config)
+                    return runner(job, job_state, config)
                 finally:
                     self._job_runner_ui_delegate.ui = None
 
-    def run_shell_job(self, job, config):
+    def run_shell_job(self, job, job_state, config):
         """
         Method called to run a job with plugin field equal to 'shell'
 
@@ -435,9 +437,9 @@ class JobRunner(IJobRunner):
         if job.plugin != "shell":
             # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
-        return self._just_run_command(job, config)
+        return self._just_run_command(job, job_state, config)
 
-    def run_attachment_job(self, job, config):
+    def run_attachment_job(self, job, job_state, config):
         """
         Method called to run a job with plugin field equal to 'attachment'
 
@@ -460,9 +462,9 @@ class JobRunner(IJobRunner):
         if job.plugin != "attachment":
             # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
-        return self._just_run_command(job, config)
+        return self._just_run_command(job, job_state, config)
 
-    def run_resource_job(self, job, config):
+    def run_resource_job(self, job, job_state, config):
         """
         Method called to run a job with plugin field equal to 'resource'
 
@@ -486,9 +488,9 @@ class JobRunner(IJobRunner):
         if job.plugin != "resource":
             # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
-        return self._just_run_command(job, config)
+        return self._just_run_command(job, job_state, config)
 
-    def run_local_job(self, job, config):
+    def run_local_job(self, job, job_state, config):
         """
         Method called to run a job with plugin field equal to 'local'
 
@@ -512,9 +514,9 @@ class JobRunner(IJobRunner):
         if job.plugin != "local":
             # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
-        return self._just_run_command(job, config)
+        return self._just_run_command(job, job_state, config)
 
-    def run_manual_job(self, job, config):
+    def run_manual_job(self, job, job_state, config):
         """
         Method called to run a job with plugin field equal to 'manual'
 
@@ -540,7 +542,7 @@ class JobRunner(IJobRunner):
             raise ValueError(_("bad job plugin value"))
         return MemoryJobResult({'outcome': IJobResult.OUTCOME_UNDECIDED})
 
-    def run_user_interact_job(self, job, config):
+    def run_user_interact_job(self, job, job_state, config):
         """
         Method called to run a job with plugin field equal to 'user-interact'
 
@@ -579,9 +581,9 @@ class JobRunner(IJobRunner):
         if job.plugin != "user-interact":
             # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
-        return self._just_run_command(job, config)
+        return self._just_run_command(job, job_state, config)
 
-    def run_user_verify_job(self, job, config):
+    def run_user_verify_job(self, job, job_state, config):
         """
         Method called to run a job with plugin field equal to 'user-verify'
 
@@ -624,12 +626,12 @@ class JobRunner(IJobRunner):
             # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
         # Run the command
-        result_cmd = self._just_run_command(job, config)
+        result_cmd = self._just_run_command(job, job_state, config)
         # Maybe ask the user
         result_cmd.outcome = IJobResult.OUTCOME_UNDECIDED
         return result_cmd
 
-    def run_user_interact_verify_job(self, job, config):
+    def run_user_interact_verify_job(self, job, job_state, config):
         """
         Method called to run a job with plugin field equal to
         'user-interact-verify'
@@ -673,7 +675,7 @@ class JobRunner(IJobRunner):
             # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
         # Run the command
-        result_cmd = self._just_run_command(job, config)
+        result_cmd = self._just_run_command(job, job_state, config)
         # Maybe ask the user
         result_cmd.outcome = IJobResult.OUTCOME_UNDECIDED
         return result_cmd
@@ -690,7 +692,7 @@ class JobRunner(IJobRunner):
             'comments': _("Job skipped in dry-run mode")
         })
 
-    def _just_run_command(self, job, config):
+    def _just_run_command(self, job, job_state, config):
         """
         Internal method of JobRunner.
 
@@ -707,7 +709,8 @@ class JobRunner(IJobRunner):
             })
         # Run the embedded command
         start_time = time.time()
-        return_code, record_path = self._run_command(job, config, ctrl)
+        return_code, record_path = self._run_command(
+            job, job_state, config, ctrl)
         execution_duration = time.time() - start_time
         # Convert the return of the command to the outcome of the job
         if return_code == 0:
@@ -768,7 +771,7 @@ class JobRunner(IJobRunner):
         # One listener appends each record to an array
         return delegate, io_log_gen
 
-    def _run_command(self, job, config, ctrl):
+    def _run_command(self, job, job_state, config, ctrl):
         """
         Run the shell command associated with the specified job.
 
@@ -803,18 +806,19 @@ class JobRunner(IJobRunner):
                 logger.debug(
                     _("job[%s] starting command: %s"), job.id, job.command)
                 # Run the job command using extcmd
-                return_code = self._run_extcmd(job, config, extcmd_popen, ctrl)
+                return_code = self._run_extcmd(
+                    job, job_state, config, extcmd_popen, ctrl)
                 logger.debug(
                     _("job[%s] command return code: %r"), job.id, return_code)
             finally:
                 io_log_gen.on_new_record.disconnect(writer.write_record)
         return return_code, record_path
 
-    def _run_extcmd(self, job, config, extcmd_popen, ctrl):
+    def _run_extcmd(self, job, job_state, config, extcmd_popen, ctrl):
         ctrl.on_leftover_files.connect(self.on_leftover_files)
         try:
-            return ctrl.execute_job(
-                job, config, self._session_dir, extcmd_popen)
+            return ctrl.execute_job(job, job_state, config, self._session_dir,
+                                    extcmd_popen)
         finally:
             ctrl.on_leftover_files.disconnect(self.on_leftover_files)
 

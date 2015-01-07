@@ -108,7 +108,7 @@ class JobTreeNode:
         """
         self._categories.append(category)
         # Always keep this list sorted to easily find a given child by index
-        self._categories = sorted(self._categories, key=lambda cat: cat.name)
+        self._categories.sort(key=lambda item: item.name)
         category._parent = self
 
     def add_job(self, job):
@@ -121,7 +121,7 @@ class JobTreeNode:
         # Always keep this list sorted to easily find a given leaf by index
         # Note bisect.insort(a, x) cannot be used here as JobDefinition are
         # not sortable
-        self._jobs = sorted(self.jobs, key=lambda job: job.id)
+        self._jobs.sort(key=lambda item: item.id)
 
     def get_ancestors(self):
         """

@@ -726,7 +726,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
             self.metadata.running_job_name = job.id
             self.manager.checkpoint()
             ui.started_running(job, job_state)
-            job_result = self._run_single_job_with_ui_loop(job, ui)
+            job_result = self._run_single_job_with_ui_loop(job, job_state, ui)
             self.metadata.running_job_name = None
             self.manager.checkpoint()
             ui.finished_running(job, job_state, job_result)
@@ -740,7 +740,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
             self.state.update_job_result(job, job_result)
         ui.finished(job, job_state, job_result)
 
-    def _run_single_job_with_ui_loop(self, job, ui):
+    def _run_single_job_with_ui_loop(self, job, job_state, ui):
         comments = ""
         while True:
             if job.plugin in ('user-interact', 'user-interact-verify',
@@ -750,7 +750,8 @@ class RunInvocation(CheckBoxInvocationMixIn):
                     cmd = ui.wait_for_interaction_prompt(job)
                     if cmd == 'run' or cmd is None:
                         ui.notify_about_steps(job)
-                        job_result = self.runner.run_job(job, self.config, ui)
+                        job_result = self.runner.run_job(
+                            job, job_state, self.config, ui)
                     elif cmd == 'comment':
                         new_comment = input(self.C.BLUE(
                             _('Please enter your comments:') + '\n'))
@@ -769,9 +770,11 @@ class RunInvocation(CheckBoxInvocationMixIn):
                     elif cmd == 'quit':
                         raise SystemExit()
                 else:
-                    job_result = self.runner.run_job(job, self.config, ui)
+                    job_result = self.runner.run_job(
+                        job, job_state, self.config, ui)
             else:
-                job_result = self.runner.run_job(job, self.config, ui)
+                job_result = self.runner.run_job(
+                    job, job_state, self.config, ui)
             if (self.is_interactive and
                     job_result.outcome == IJobResult.OUTCOME_UNDECIDED):
                 try:

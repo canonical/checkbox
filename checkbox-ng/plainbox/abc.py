@@ -869,12 +869,14 @@ class IExecutionController(metaclass=ABCMeta):
     """
 
     @abstractmethod
-    def execute_job(self, job, config, session_dir, extcmd_popen):
+    def execute_job(self, job, job_state, config, session_dir, extcmd_popen):
         """
         Execute the specified job using the specified subprocess-like object
 
         :param job:
             The JobDefinition to execute
+        :param job_state:
+            The JobState associated to the job to execute.
         :param config:
             A PlainBoxConfig instance which can be used to load missing
             environment definitions that apply to all jobs. It is used to

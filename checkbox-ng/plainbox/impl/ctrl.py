@@ -437,12 +437,14 @@ class CheckBoxExecutionController(IExecutionController):
         """
         self._provider_list = provider_list
 
-    def execute_job(self, job, config, session_dir, extcmd_popen):
+    def execute_job(self, job, job_state, config, session_dir, extcmd_popen):
         """
         Execute the specified job using the specified subprocess-like object
 
         :param job:
             The JobDefinition to execute
+        :param job_state:
+            The JobState associated to the job to execute.
         :param config:
             A PlainBoxConfig instance which can be used to load missing
             environment definitions that apply to all jobs. It is used to
@@ -467,9 +469,9 @@ class CheckBoxExecutionController(IExecutionController):
             # Get the command and the environment.
             # of this execution controller
             cmd = self.get_execution_command(
-                job, config, session_dir, nest_dir)
+                job, job_state, config, session_dir, nest_dir)
             env = self.get_execution_environment(
-                job, config, session_dir, nest_dir)
+                job, job_state, config, session_dir, nest_dir)
             with self.temporary_cwd(job, config) as cwd_dir:
                 # run the command
                 logger.debug(_("job[%s] executing %r with env %r in cwd %r"),
@@ -603,12 +605,15 @@ class CheckBoxExecutionController(IExecutionController):
         """
 
     @abc.abstractmethod
-    def get_execution_command(self, job, config, session_dir, nest_dir):
+    def get_execution_command(self, job, job_state, config, session_dir,
+                              nest_dir):
         """
         Get the command to execute the specified job
 
         :param job:
             job definition with the command and environment definitions
+        :param job_state:
+            The JobState associated to the job to execute.
         :param config:
             A PlainBoxConfig instance which can be used to load missing
             environment definitions that apply to all jobs. It is used to
@@ -628,12 +633,15 @@ class CheckBoxExecutionController(IExecutionController):
             List of command arguments
         """
 
-    def get_execution_environment(self, job, config, session_dir, nest_dir):
+    def get_execution_environment(self, job, job_state, config, session_dir,
+                                  nest_dir):
         """
         Get the environment required to execute the specified job:
 
         :param job:
             job definition with the command and environment definitions
+        :param job_state:
+            The JobState associated to the job to execute.
         :param config:
             A PlainBoxConfig instance which can be used to load missing
             environment definitions that apply to all jobs. It is used to
@@ -734,12 +742,15 @@ class UserJobExecutionController(CheckBoxExecutionController):
     An execution controller that works for jobs invoked as the current user.
     """
 
-    def get_execution_command(self, job, config, session_dir, nest_dir):
+    def get_execution_command(self, job, job_state, config, session_dir,
+                              nest_dir):
         """
         Get the command to execute the specified job
 
         :param job:
             job definition with the command and environment definitions
+        :param job_state:
+            The JobState associated to the job to execute.
         :param config:
             A PlainBoxConfig instance which can be used to load missing
             environment definitions that apply to all jobs. Ignored.
@@ -809,12 +820,14 @@ class CheckBoxDifferentialExecutionController(CheckBoxExecutionController):
     """
 
     def get_differential_execution_environment(
-            self, job, config, session_dir, nest_dir):
+            self, job, job_state, config, session_dir, nest_dir):
         """
         Get the environment required to execute the specified job:
 
         :param job:
             job definition with the command and environment definitions
+        :param job_state:
+            The JobState associated to the job to execute.
         :param config:
             A PlainBoxConfig instance which can be used to load missing
             environment definitions that apply to all jobs. It is used to
@@ -841,7 +854,7 @@ class CheckBoxDifferentialExecutionController(CheckBoxExecutionController):
         """
         base_env = os.environ
         target_env = super().get_execution_environment(
-            job, config, session_dir, nest_dir)
+            job, job_state, config, session_dir, nest_dir)
         return {
             key: value
             for key, value in target_env.items()
@@ -849,13 +862,16 @@ class CheckBoxDifferentialExecutionController(CheckBoxExecutionController):
             or key in job.get_environ_settings()
         }
 
-    def get_execution_environment(self, job, config, session_dir, nest_dir):
+    def get_execution_environment(self, job, job_state, config, session_dir,
+                                  nest_dir):
         """
         Get the environment required to execute the specified job:
 
         :param job:
             job definition with the command and environment definitions.
             Ignored.
+        :param job_state:
+            The JobState associated to the job to execute. Ignored.
         :param config:
             A PlainBoxConfig instance which can be used to load missing
             environment definitions that apply to all jobs. Ignored.
@@ -904,12 +920,15 @@ class RootViaPTL1ExecutionController(CheckBoxDifferentialExecutionController):
             result = exc.output
         self.is_supported = True if result.strip() == action_id else False
 
-    def get_execution_command(self, job, config, session_dir, nest_dir):
+    def get_execution_command(self, job, job_state, config, session_dir,
+                              nest_dir):
         """
         Get the command to invoke.
 
         :param job:
             job definition with the command and environment definitions
+        :param job_state:
+            The JobState associated to the job to execute.
         :param config:
             A PlainBoxConfig instance which can be used to load missing
             environment definitions that apply to all jobs. Passed to
@@ -937,13 +956,15 @@ class RootViaPTL1ExecutionController(CheckBoxDifferentialExecutionController):
         if job.via is not None:
             cmd += ['--generator', job.via]
             parent_env = self.get_differential_execution_environment(
-                job.origin.source.job, config, session_dir, nest_dir)
+                # FIXME: job_state is from an unrelated job :/
+                job.origin.source.job, job_state, config, session_dir,
+                nest_dir)
             for key, value in sorted(parent_env.items()):
                 cmd += ['-G', '{}={}'.format(key, value)]
         # Run the specified target job in the specified environment
         cmd += ['--target', job.checksum]
         env = self.get_differential_execution_environment(
-            job, config, session_dir, nest_dir)
+            job, job_state, config, session_dir, nest_dir)
         for key, value in sorted(env.items()):
             cmd += ['-T', '{}={}'.format(key, value)]
         return cmd
@@ -1013,12 +1034,15 @@ class RootViaPkexecExecutionController(
     root from the non-system-wide location.
     """
 
-    def get_execution_command(self, job, config, session_dir, nest_dir):
+    def get_execution_command(self, job, job_state, config, session_dir,
+                              nest_dir):
         """
         Get the command to invoke.
 
         :param job:
             job definition with the command and environment definitions
+        :param job_state:
+            The JobState associated to the job to execute.
         :param config:
             A PlainBoxConfig instance which can be used to load missing
             environment definitions that apply to all jobs. Passed to
@@ -1041,7 +1065,7 @@ class RootViaPkexecExecutionController(
         cmd = ['pkexec', '--user', job.user, 'env']
         # Append all environment data
         env = self.get_differential_execution_environment(
-            job, config, session_dir, nest_dir)
+            job, job_state, config, session_dir, nest_dir)
         cmd += ["{key}={value}".format(key=key, value=value)
                 for key, value in sorted(env.items())]
         # Lastly use job.shell -c, to run our command
@@ -1099,12 +1123,15 @@ class RootViaSudoExecutionController(
             in_admin_group = False
         self.user_can_sudo = in_sudo_group or in_admin_group
 
-    def get_execution_command(self, job, config, session_dir, nest_dir):
+    def get_execution_command(self, job, job_state, config, session_dir,
+                              nest_dir):
         """
         Get the command to invoke.
 
         :param job:
             job definition with the command and environment definitions
+        :param job_state:
+            The JobState associated to the job to execute.
         :param config:
             A PlainBoxConfig instance which can be used to load missing
             environment definitions that apply to all jobs. Ignored.
@@ -1125,7 +1152,7 @@ class RootViaSudoExecutionController(
         cmd = ['sudo', '-u', job.user, 'env']
         # Append all environment data
         env = self.get_differential_execution_environment(
-            job, config, session_dir, nest_dir)
+            job, job_state, config, session_dir, nest_dir)
         cmd += ["{key}={value}".format(key=key, value=value)
                 for key, value in sorted(env.items())]
         # Lastly use job.shell -c, to run our command

@@ -1065,33 +1065,6 @@ class TestJobDefinition(TestCase):
             job1.checksum,
             "cd21b33e6a2f4d1291977b60d922bbd276775adce73fca8c69b4821c96d7314a")
 
-    def test_via_does_not_change_checksum(self):
-        """
-        verify that the 'via' attribute in no way influences job checksum
-        """
-        # Create a 'parent' job
-        parent = JobDefinition({'id': 'parent', 'plugin': 'local'})
-        # Create a 'child' job, using create_child_job_from_record() should
-        # time the two so that child.via should be parent.checksum.
-        #
-        # The elaborate record that gets passed has all the meta-data that
-        # traces back to the 'parent' job (as well as some imaginary line_start
-        # and line_end values for the purpose of the test).
-        child = parent.create_child_job_from_record(
-            RFC822Record(
-                data={'id': 'test', 'plugin': 'shell'},
-                origin=Origin(
-                    source=JobOutputTextSource(parent),
-                    line_start=1,
-                    line_end=1)))
-        # Now 'child.via' should be the same as 'parent.checksum'
-        self.assertEqual(child.via, parent.checksum)
-        # Create an unrelated job 'helper' with the definition identical as
-        # 'child' but without any ties to the 'parent' job
-        helper = JobDefinition({'id': 'test', 'plugin': 'shell'})
-        # And again, child.checksum should be the same as helper.checksum
-        self.assertEqual(child.checksum, helper.checksum)
-
     def test_estimated_duration(self):
         job1 = JobDefinition({})
         self.assertEqual(job1.estimated_duration, None)

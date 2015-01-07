@@ -431,15 +431,6 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
         return self.plugin in ['manual', 'user-interact',
                                'user-interact-verify']
 
-    @property
-    def via(self):
-        """
-        The checksum of the "parent" job when the current JobDefinition comes
-        from a job output using the local plugin
-        """
-        if hasattr(self.origin.source, 'job'):
-            return self.origin.source.job.checksum
-
     def update_origin(self, origin):
         """
         Change the Origin object associated with this JobDefinition

@@ -953,8 +953,8 @@ class RootViaPTL1ExecutionController(CheckBoxDifferentialExecutionController):
         # Run plainbox-trusted-launcher-1 as the required user
         cmd = ['pkexec', '--user', job.user, 'plainbox-trusted-launcher-1']
         # Run the specified generator job in the specified environment
-        if job.via is not None:
-            cmd += ['--generator', job.via]
+        if job_state.via_job is not None:
+            cmd += ['--generator', job_state.via_job.checksum]
             parent_env = self.get_differential_execution_environment(
                 # FIXME: job_state is from an unrelated job :/
                 job.origin.source.job, job_state, config, session_dir,

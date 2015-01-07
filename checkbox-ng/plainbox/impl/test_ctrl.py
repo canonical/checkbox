@@ -817,7 +817,7 @@ class RootViaPTL1ExecutionControllerTests(
         expected = [
             'pkexec', '--user', self.job.user,
             'plainbox-trusted-launcher-1',
-            '--generator', self.job.via,
+            '--generator', self.job_state.via_job.checksum,
             '-G', 'CHECKBOX_DATA=session-dir/CHECKBOX_DATA',
             '-G', 'CHECKBOX_SHARE=CHECKBOX_SHARE-generator',
             '-G', 'LANG=C.UTF-8',
@@ -845,7 +845,7 @@ class RootViaPTL1ExecutionControllerTests(
         verify that we run plainbox-trusted-launcher-1 as the desired user
         """
         self.job.get_environ_settings.return_value = []
-        self.job.via = None
+        self.job_state.via_job = None
         PATH = os.pathsep.join([self.NEST_DIR, 'vanilla-path'])
         expected = [
             'pkexec', '--user', self.job.user,

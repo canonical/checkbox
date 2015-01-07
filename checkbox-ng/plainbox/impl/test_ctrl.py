@@ -291,8 +291,13 @@ class CheckBoxSessionStateControllerTests(TestCase):
         # Create a session that knows about no jobs yet
         # and happily adds jobs when add_job() gets called
         session_state = mock.MagicMock(spec=SessionState)
-        session_state.add_job.side_effect = (
-            lambda new_job, recompute: new_job)
+
+        def add_job(new_job, recompute):
+            # The only quirk is that our fake session state resets via_job
+            # attribute for each added job as we want to test that below.
+            session_state.job_state_map[new_job.id].via_job = None
+            return new_job
+        session_state.add_job.side_effect = add_job
         # Create a job of which result we'll be observing
         job = mock.Mock(spec=JobDefinition, name='job', plugin='local')
         # Create a result for the job we'll be observing
@@ -311,6 +316,11 @@ class CheckBoxSessionStateControllerTests(TestCase):
         # Ensure that we didn't try to change the origin of the new job
         self.assertFalse(
             job.create_child_job_from_record().update_origin.called)
+        # Ensure that we do keep track of via_job of the new job
+        self.assertIs(
+            session_state.job_state_map[
+                job.create_child_job_from_record().id
+            ].via_job, job)
         # Ensure that signals got fired
         session_state.on_job_state_map_changed.assert_called_once_with()
         session_state.on_job_result_changed.assert_called_once_with(
@@ -356,6 +366,9 @@ class CheckBoxSessionStateControllerTests(TestCase):
             clashing_job, recompute=False)
         # Ensure that existing job origin was *not* updated
         self.assertFalse(existing_job.update_origin.called)
+        # Ensure that we didn't change via_job of the original
+        self.assertIsNot(
+            session_state.job_state_map[existing_job.id].via_job, job)
         # Ensure that signals got fired
         session_state.on_job_state_map_changed.assert_called_once_with()
         session_state.on_job_result_changed.assert_called_once_with(
@@ -400,6 +413,11 @@ class CheckBoxSessionStateControllerTests(TestCase):
         # whatever create_child_job_from_record() returns.
         session_state.add_job.assert_called_once_with(
             job.create_child_job_from_record(), recompute=False)
+        # Ensure that we do keep track of via_job of the new job
+        self.assertIs(
+            session_state.job_state_map[
+                job.create_child_job_from_record().id
+            ].via_job, job)
         # Ensure that the origin of the existing_job was copied
         # from the origin of the generated job
         existing_job.update_origin.assert_called_once_with(

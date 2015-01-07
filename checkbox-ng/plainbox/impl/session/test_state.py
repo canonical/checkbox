@@ -634,8 +634,9 @@ class SessionStateReactionToJobResultTests(TestCase):
         job_foo = self.session.job_state_map['foo'].job
         self.assertTrue(job_foo.id, "foo")
         self.assertTrue(job_foo.plugin, "manual")
-        # It should be linked to the job L via the via attribute
-        self.assertTrue(job_foo.via, self.job_L.checksum)
+        # It should be linked to the job L via the via_job state attribute
+        self.assertIs(
+            self.session.job_state_map[job_foo.id].via_job, self.job_L)
 
 
 class SessionMetadataTests(TestCase):

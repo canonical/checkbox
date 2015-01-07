@@ -69,7 +69,7 @@ def run_job_if_possible(session, runner, config, job, update=True):
     """
     job_state = session.job_state_map[job.id]
     if job_state.can_start():
-        job_result = runner.run_job(job, config)
+        job_result = runner.run_job(job, job_state, config)
     else:
         # Set the outcome of jobs that cannot start to
         # OUTCOME_NOT_SUPPORTED _except_ if any of the inhibitors point to

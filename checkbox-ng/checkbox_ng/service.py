@@ -360,7 +360,23 @@ class JobDefinitionWrapper(PlainBoxObjectWrapper):
 
     @dbus.service.property(dbus_interface=CHECKBOX_JOB_IFACE, signature="s")
     def via(self):
-        return self.native.via or ""
+        # NOTE: the via property is emulated after an incompatible API change
+        # that we didn't want to really expose to checkbox-gui. The property
+        # no longer belongs to the job definition object. Instead it has
+        # to be looked up in the per-session job state object.
+        #
+        # The downside is that it means that we need to find the job in the
+        # state map somewhere and it's not easy to get a hold of that from
+        # each job wrapper. So we cheat and look at the (only one possible)
+        # session object, conveniently exposed from ServiceWrapper, to find
+        # the associated job state object.
+        session_obj = ServiceWrapper.get_session_obj()
+        if session_obj is None:
+            return ""
+        state = session_obj.job_state_map[self.native.id]
+        if state.via_job is None:
+            return ""
+        return state.via_job.checksum
 
     @dbus.service.property(
         dbus_interface=CHECKBOX_JOB_IFACE, signature="(suu)")
@@ -1237,6 +1253,8 @@ class ServiceWrapper(PlainBoxObjectWrapper):
         logger.info("CreateSession(%r)", job_list)
         # Create a session
         session_obj = self.native.create_session(job_list)
+        # Keep a global reference around so that job.via can be emulated
+        self.__class__._session_obj = session_obj
         # Wrap it
         session_wrp = SessionWrapper(session_obj)
         # Publish all objects
@@ -1247,6 +1265,22 @@ class ServiceWrapper(PlainBoxObjectWrapper):
         session_wrp.publish_managed_objects()
         # Return the session wrapper back
         return session_wrp
+
+    # Private class-wide instance of the session that gets created by
+    # :meth:`CreateSession()`.
+    _session_obj = None
+
+    @classmethod
+    def get_session_obj(cls):
+        """
+        Get the non-wrapped (native) session object associated with the most
+        recently created instance of the service wrapper's
+        :meth:`CreateSession()` method
+
+        :returns:
+            The Session object (or None if it's not created yet).
+        """
+        return cls._session_obj
 
     @dbus.service.method(
         dbus_interface=SERVICE_IFACE, in_signature='oo', out_signature='o')

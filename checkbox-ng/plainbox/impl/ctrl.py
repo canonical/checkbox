@@ -801,6 +801,9 @@ class UserJobExecutionController(CheckBoxExecutionController):
                 return -1
             return 1
         else:
+            # Windows jobs won't run on other platforms
+            if 'win32' in job.get_flag_set():
+                return -1
             if job.user is not None:
                 if os.getuid() == 0:
                     return 4

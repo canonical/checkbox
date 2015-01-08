@@ -114,7 +114,7 @@ OUTCOME_METADATA_MAP = {
     ),
     IJobResult.OUTCOME_PASS: OutcomeMetadata(
         value=IJobResult.OUTCOME_PASS,
-        unicode_sigil='✔',
+        unicode_sigil='☑ ',
         tr_outcome=C_("textual outcome", "job passed"),
         tr_label=C_("chart label", "passed"),
         color_ansi="\033[32;1m",
@@ -125,7 +125,7 @@ OUTCOME_METADATA_MAP = {
     ),
     IJobResult.OUTCOME_FAIL: OutcomeMetadata(
         value=IJobResult.OUTCOME_FAIL,
-        unicode_sigil='✘',
+        unicode_sigil='☒ ',
         tr_outcome=C_("textual outcome", "job failed"),
         tr_label=C_("chart label", "failed"),
         color_ansi="\033[31;1m",
@@ -136,7 +136,7 @@ OUTCOME_METADATA_MAP = {
     ),
     IJobResult.OUTCOME_SKIP: OutcomeMetadata(
         value=IJobResult.OUTCOME_SKIP,
-        unicode_sigil='-',
+        unicode_sigil='☐ ',
         tr_outcome=C_("textual outcome", "job skipped"),
         tr_label=C_("chart label", "skipped"),
         color_ansi="\033[33;1m",
@@ -147,7 +147,7 @@ OUTCOME_METADATA_MAP = {
     ),
     IJobResult.OUTCOME_NOT_SUPPORTED: OutcomeMetadata(
         value=IJobResult.OUTCOME_NOT_SUPPORTED,
-        unicode_sigil='-',
+        unicode_sigil='☐ ',
         tr_outcome=C_("textual outcome", "job cannot be started"),
         tr_label=C_("chart label", "not supported"),
         color_ansi="\033[33;1m",
@@ -169,7 +169,7 @@ OUTCOME_METADATA_MAP = {
     ),
     IJobResult.OUTCOME_UNDECIDED: OutcomeMetadata(
         value=IJobResult.OUTCOME_UNDECIDED,
-        unicode_sigil='?',
+        unicode_sigil='⁇ ',
         tr_outcome=C_("textual outcome", "job needs verification"),
         tr_label=C_("chart label", "undecided"),
         color_ansi="\033[35;1m",
@@ -200,6 +200,13 @@ def outcome_color_ansi(outcome):
     Get an ANSI escape sequence that represents this outcome
     """
     return OUTCOME_METADATA_MAP[outcome].color_ansi
+
+
+def outcome_meta(outcome):
+    """
+    Get the OutcomeMetadata object associated with this outcome.
+    """
+    return OUTCOME_METADATA_MAP[outcome]
 
 
 class _JobResultBase(IJobResult):
@@ -280,6 +287,12 @@ class _JobResultBase(IJobResult):
         Get an ANSI escape sequence that represents this outcome
         """
         return outcome_color_ansi(self.outcome)
+
+    def outcome_meta(self):
+        """
+        Get the OutcomeMetadata object associated with this outcome.
+        """
+        return outcome_meta(self.outcome)
 
     @property
     def execution_duration(self):

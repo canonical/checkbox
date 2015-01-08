@@ -27,6 +27,7 @@
 """
 from plainbox.impl.commands.inv_run import Colorizer
 from plainbox.impl.exporter import SessionStateExporterBase
+from plainbox.impl.result import outcome_meta
 
 
 class TextSessionStateExporter(SessionStateExporterBase):
@@ -48,9 +49,11 @@ class TextSessionStateExporter(SessionStateExporterBase):
                 continue
             if self.C.is_enabled:
                 stream.write(
-                    " {} {}\n".format(
-                        self.C.custom("●", state.result.outcome_color_ansi()),
-                        state.job.tr_summary(),
+                    " {}: {}\n".format(
+                        self.C.custom(
+                            outcome_meta(state.result.outcome).unicode_sigil,
+                            outcome_meta(state.result.outcome).color_ansi
+                        ), state.job.tr_summary(),
                     ).encode("UTF-8"))
             else:
                 stream.write(

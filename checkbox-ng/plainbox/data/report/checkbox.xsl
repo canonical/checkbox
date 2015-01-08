@@ -173,7 +173,7 @@
                         <td style='background-color: #FF9900'>not required on this system</td>
                         <td><xsl:value-of select="comment" /></td>
                     </xsl:when>
-                    <xsl:when test="normalize-space(answer) = 'untested'">
+                    <xsl:when test="normalize-space(answer) = 'skip'">
                         <td><img class='resultimg' src='${PLAINBOX_ASSETS}/report/images/skip.png' /></td>
                         <td class="label"><xsl:value-of select="@name" /></td>
                         <td style='background-color: #FF9900'>SKIPPED</td>

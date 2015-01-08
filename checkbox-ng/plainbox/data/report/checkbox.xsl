@@ -158,25 +158,25 @@
                     <xsl:when test="normalize-space(answer) = 'fail'">
                         <td><img class='resultimg' src='${PLAINBOX_ASSETS}/report/images/fail.png' /></td>
                         <td class="label"><xsl:value-of select="@name" /></td>
-                        <td style='background-color: #f00'>FAILED</td>
+                        <td style='background-color: #DC3912'>FAILED</td>
                         <td><xsl:value-of select="comment" /></td>
                     </xsl:when>
                     <xsl:when test="normalize-space(answer) = 'pass'">
                         <td><img class='resultimg' src='${PLAINBOX_ASSETS}/report/images/pass.png' /></td>
                         <td class="label"><xsl:value-of select="@name" /></td>
-                        <td style='background-color: #0f0'>PASSED</td>
+                        <td style='background-color: #6AA84F'>PASSED</td>
                         <td><xsl:value-of select="comment" /></td>
                     </xsl:when>
                     <xsl:when test="normalize-space(answer) = 'unsupported'">
                         <td></td>
                         <td class="label"><xsl:value-of select="@name" /></td>
-                        <td style='background-color: #888'>not required on this system</td>
+                        <td style='background-color: #FF9900'>not required on this system</td>
                         <td><xsl:value-of select="comment" /></td>
                     </xsl:when>
                     <xsl:when test="normalize-space(answer) = 'untested'">
                         <td><img class='resultimg' src='${PLAINBOX_ASSETS}/report/images/skip.png' /></td>
                         <td class="label"><xsl:value-of select="@name" /></td>
-                        <td style='background-color: #888'>skipped</td>
+                        <td style='background-color: #FF9900'>skipped</td>
                         <td><xsl:value-of select="comment" /></td>
                     </xsl:when>
                     <xsl:otherwise>

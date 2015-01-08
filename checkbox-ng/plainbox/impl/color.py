@@ -23,8 +23,6 @@
 """
 import sys
 
-from plainbox.abc import IJobResult
-
 
 class ansi_on:
     """
@@ -147,14 +145,8 @@ class Colorizer:
         return self.c is ansi_on
 
     def result(self, result):
-        outcome_color = {
-            IJobResult.OUTCOME_PASS: "GREEN",
-            IJobResult.OUTCOME_FAIL: "RED",
-            IJobResult.OUTCOME_SKIP: "YELLOW",
-            IJobResult.OUTCOME_UNDECIDED: "MAGENTA",
-            IJobResult.OUTCOME_NOT_SUPPORTED: "YELLOW",
-        }.get(result.outcome, "RESET")
-        return self(result.tr_outcome(), outcome_color)
+        return self.custom(
+            result.tr_outcome(), result.outcome_color_ansi())
 
     def header(self, text, color_name='WHITE', bright=True, fill='='):
         return self("[ {} ]".format(text).center(80, fill), color_name, bright)

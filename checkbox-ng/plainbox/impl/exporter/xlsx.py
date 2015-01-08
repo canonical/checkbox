@@ -37,6 +37,7 @@ from xlsxwriter.utility import xl_rowcol_to_cell
 from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _, ngettext
 from plainbox.impl.exporter import SessionStateExporterBase
+from plainbox.impl.result import OUTCOME_METADATA_MAP as OMM
 
 
 class XLSXSessionStateExporter(SessionStateExporterBase):
@@ -157,6 +158,18 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             'align': 'center', 'valign': 'vcenter', 'text_wrap': 1, 'size': 8,
             'bg_color': 'gray', 'border': 1, 'border_color': 'white',
         })
+        # Dictionary with formats for each possible outcome
+        self.outcome_format_map = {
+            outcome_info.value: self.workbook.add_format({
+                'align': 'center',
+                'valign': 'vcenter',
+                'text_wrap': '1',
+                'size': 8,
+                'bg_color': outcome_info.color_hex,
+                'border': 1,
+                'border_color': 'white'
+            }) for outcome_info in OMM.values()
+        }
         # Attachments
         self.format13 = self.workbook.add_format({
             'align': 'left', 'valign': 'vcenter', 'text_wrap': 1, 'size': 8,
@@ -354,7 +367,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         self.worksheet2.set_column(1, 1, 2)
         self.worksheet2.set_column(3, 3, 27)
         self.worksheet2.write(3, 1, _('Failures summary'), self.format03)
-        self.worksheet2.write(4, 1, '✔', self.format10)
+        self.worksheet2.write(
+            4, 1, OMM['pass'].unicode_sigil, self.outcome_format_map['pass'])
         self.worksheet2.write(
             4, 2, (
                 ngettext('{} Test passed', '{} Tests passed',
@@ -363,7 +377,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 + _('Success Rate: {} ({}/{})').format(
                     pass_rate, self.total_pass, self.total)
             ), self.format02)
-        self.worksheet2.write(5, 1, '✘', self.format11)
+        self.worksheet2.write(
+            5, 1, OMM['fail'].unicode_sigil, self.outcome_format_map['fail'])
         self.worksheet2.write(
             5, 2, (
                 ngettext('{} Test failed', '{} Tests failed',
@@ -372,7 +387,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 + _('Failure Rate: {} ({}/{})').format(
                     fail_rate, self.total_fail, self.total)
             ), self.format02)
-        self.worksheet2.write(6, 1, '-', self.format12)
+        self.worksheet2.write(
+            6, 1, OMM['skip'].unicode_sigil, self.outcome_format_map['skip'])
         self.worksheet2.write(
             6, 2, (
                 ngettext('{} Test skipped', '{} Tests skipped',
@@ -382,7 +398,9 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                     skip_rate, self.total_skip, self.total)
             ), self.format02)
         self.worksheet2.write_column(
-            'L3', [_('Fail'), _('Skip'), _('Pass')], self.format14)
+            'L3', [OMM['fail'].tr_label,
+                   OMM['skip'].tr_label,
+                   OMM['pass'].tr_label], self.format14)
         self.worksheet2.write_column(
             'M3', [self.total_fail, self.total_skip, self.total_pass],
             self.format14)
@@ -391,9 +409,9 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         chart.set_legend({'position': 'none'})
         chart.add_series({
             'points': [
-                {'fill': {'color': 'red'}},
-                {'fill': {'color': 'gray'}},
-                {'fill': {'color': 'lime'}},
+                {'fill': {'color': OMM['fail'].color_hex}},
+                {'fill': {'color': OMM['skip'].color_hex}},
+                {'fill': {'color': OMM['pass'].color_hex}},
             ],
             'categories': '=' + _("Summary") + '!$L$3:$L$5',
             'values': '=' + _("Summary") + '!$M$3:$M$5'}
@@ -492,24 +510,10 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 self.worksheet3.write(
                     self._lineno, level + 1,
                     result_map[job]['summary'], self.format15)
-                if (
-                    result_map[job]['category_status'] ==
-                    IJobResult.OUTCOME_PASS
-                ):
-                    self.worksheet3.write(
-                        self._lineno, max_level + 2, _('PASS'), self.format10)
-                elif (
-                    result_map[job]['category_status'] ==
-                    IJobResult.OUTCOME_FAIL
-                ):
-                    self.worksheet3.write(
-                        self._lineno, max_level + 2, _('FAIL'), self.format11)
-                elif (
-                    result_map[job]['category_status'] ==
-                    IJobResult.OUTCOME_SKIP
-                ):
-                    self.worksheet3.write(
-                        self._lineno, max_level + 2, _('skip'), self.format12)
+                outcome = result_map[job]['category_status']
+                self.worksheet3.write(
+                    self._lineno, max_level + 2,
+                    OMM[outcome].tr_label, self.outcome_format_map[outcome])
                 if self.OPTION_WITH_DESCRIPTION in self._option_list:
                     self.worksheet4.write(
                         self._lineno, level + 1,
@@ -543,37 +547,21 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                         result_map[job]['summary'],
                         self.format08 if self._lineno % 2 else self.format09)
                 self.total += 1
-                if result_map[job]['outcome'] == IJobResult.OUTCOME_PASS:
-                    self.worksheet3.write(
-                        self._lineno, max_level, '✔', self.format10)
-                    self.worksheet3.write(
-                        self._lineno, max_level + 2, _('PASS'), self.format10)
+                outcome = result_map[job]['outcome']
+                self.worksheet3.write(
+                    self._lineno, max_level, OMM[outcome].unicode_sigil,
+                    self.outcome_format_map[outcome])
+                self.worksheet3.write(
+                    self._lineno, max_level + 2, OMM[outcome].tr_label,
+                    self.outcome_format_map[outcome])
+                if outcome == IJobResult.OUTCOME_PASS:
                     self.total_pass += 1
-                elif result_map[job]['outcome'] == IJobResult.OUTCOME_FAIL:
-                    self.worksheet3.write(
-                        self._lineno, max_level, '✘', self.format11)
-                    self.worksheet3.write(
-                        self._lineno, max_level + 2, _('FAIL'), self.format11)
+                elif outcome == IJobResult.OUTCOME_FAIL:
                     self.total_fail += 1
-                elif result_map[job]['outcome'] == IJobResult.OUTCOME_SKIP:
-                    self.worksheet3.write(
-                        self._lineno, max_level, '-', self.format12)
-                    self.worksheet3.write(
-                        self._lineno, max_level + 2, _('skip'), self.format12)
-                    self.total_skip += 1
-                elif result_map[job]['outcome'] == \
-                        IJobResult.OUTCOME_NOT_SUPPORTED:
-                    self.worksheet3.write(
-                        self._lineno, max_level, '-', self.format12)
-                    self.worksheet3.write(
-                        self._lineno, max_level + 2,
-                        _('not supported'), self.format12)
-                    self.total_skip += 1
                 else:
-                    self.worksheet3.write(
-                        self._lineno, max_level, '-',    self.format12)
-                    self.worksheet3.write(
-                        self._lineno, max_level + 2, None, self.format12)
+                    # NOTE: this is inaccurate but that's how the original code
+                    # behaved. This will be fixed with detailed per-outcome
+                    # counters later.
                     self.total_skip += 1
                 io_log = ' '
                 if result_map[job]['io_log']:

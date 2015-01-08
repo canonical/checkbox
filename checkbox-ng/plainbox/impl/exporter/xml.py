@@ -362,12 +362,9 @@ class XMLSessionStateExporter(SessionStateExporterBase):
             )
             answer = ET.SubElement(
                 question, "answer", attrib={"type": "multiple_choice"})
-            if job_data["outcome"]:
-                answer.text = OUTCOME_METADATA_MAP[
-                    job_data["outcome"]
-                ].hexr_xml_mapping
-            else:
-                answer.text = "none"
+            answer.text = OUTCOME_METADATA_MAP[
+                job_data["outcome"]
+            ].hexr_xml_mapping
             self._add_answer_choices(question)
             comment = ET.SubElement(question, "comment")
             if "comments" in job_data and job_data["comments"]:

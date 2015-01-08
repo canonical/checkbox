@@ -91,24 +91,6 @@ class XMLSessionStateExporterTests(TestCaseWithParameters):
         self.assertEqual(actual, expected)
 
 
-class XMLExporterStatusMappingTests(TestCaseWithParameters):
-
-    parameter_names = ('checkbox_status',)
-    parameter_values = [(outcome, ) for outcome in IJobResult.ALL_OUTCOME_LIST]
-
-    def test_status_mapping(self):
-        """
-        Ensure that all possible plainbox statuses are mapped to
-        one of the possible ALLOWED_STATUS permitted by checkbox
-        legacy infrastructure.
-        """
-        pb_outcome = self.parameters.checkbox_status
-        self.assertIn(pb_outcome, XMLSessionStateExporter._STATUS_MAP)
-        mapped_status = XMLSessionStateExporter._STATUS_MAP[pb_outcome]
-        self.assertIn(mapped_status,
-                      XMLSessionStateExporter._ALLOWED_STATUS)
-
-
 class XMLExporterTests(TestCase):
 
     def setUp(self):

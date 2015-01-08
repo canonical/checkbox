@@ -188,6 +188,20 @@ def tr_outcome(outcome):
     return OUTCOME_METADATA_MAP[outcome].tr_outcome
 
 
+def outcome_color_hex(outcome):
+    """
+    Get the hexadecimal "#RRGGBB" color that represents this outcome
+    """
+    return OUTCOME_METADATA_MAP[outcome].color_hex
+
+
+def outcome_color_ansi(outcome):
+    """
+    Get an ANSI escape sequence that represents this outcome
+    """
+    return OUTCOME_METADATA_MAP[outcome].color_ansi
+
+
 class _JobResultBase(IJobResult):
     """
     Base class for :`IJobResult` implementations.

@@ -42,6 +42,7 @@ from pkg_resources import resource_filename
 from plainbox import __version__ as version
 from plainbox.abc import IJobResult
 from plainbox.impl.exporter import SessionStateExporterBase
+from plainbox.impl.result import OUTCOME_METADATA_MAP
 
 
 logger = logging.getLogger("plainbox.exporter.xml")
@@ -116,15 +117,6 @@ class XMLSessionStateExporter(SessionStateExporterBase):
 
     OPTION_CLIENT_NAME = 'client-name'
     SUPPORTED_OPTION_LIST = (OPTION_CLIENT_NAME, )
-
-    # These are the job statuses allowed by the checkbox parser.
-    # This is a limitation of the certification website, so we
-    # have to accomodate that here.
-    _ALLOWED_STATUS = [
-        "none",
-        IJobResult.OUTCOME_PASS,
-        IJobResult.OUTCOME_FAIL,
-        IJobResult.OUTCOME_SKIP]
 
     # This describes mappings from all possible plainbox job statuses
     # to one of the allowed statuses listed above.
@@ -350,11 +342,17 @@ class XMLSessionStateExporter(SessionStateExporterBase):
         Helper writing the answer_choices sections of the XML report
         Every question element must have this group of values.
         """
+        outcome_info_list = [
+            outcome_info for outcome_info in OUTCOME_METADATA_MAP.values()
+            if outcome_info.hexr_xml_allowed is True
+        ]
+        outcome_info_list.sort(
+            key=lambda outcome_info: outcome_info.hexr_xml_order)
         answer_choices = ET.SubElement(element, "answer_choices")
-        for status in self._ALLOWED_STATUS:
+        for outcome_info in outcome_info_list:
             value = ET.SubElement(
                 answer_choices, "value", attrib={"type": "str"})
-            value.text = status
+            value.text = outcome_info.hexr_xml_mapping
 
     def _add_questions(self, element, data):
         """
@@ -380,7 +378,7 @@ class XMLSessionStateExporter(SessionStateExporterBase):
             if job_data["outcome"]:
                 answer.text = self._STATUS_MAP[job_data["outcome"]]
             else:
-                answer.text = self._ALL_STATUS[0]
+                answer.text = "none"
             self._add_answer_choices(question)
             comment = ET.SubElement(question, "comment")
             if "comments" in job_data and job_data["comments"]:

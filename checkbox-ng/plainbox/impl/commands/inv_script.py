@@ -35,6 +35,7 @@ from plainbox.impl.commands.inv_checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import JobIdQualifier
+from plainbox.impl.session import JobState
 
 
 logger = getLogger("plainbox.commands.script")
@@ -63,11 +64,12 @@ class ScriptInvocation(CheckBoxInvocationMixIn):
             return 125
         with TemporaryDirectory() as scratch, TemporaryDirectory() as iologs:
             runner = JobRunner(scratch, self.provider_list, iologs)
+            job_state = JobState(job)
             ctrl = runner._get_ctrl_for_job(job)
             runner.log_leftovers = False
             runner.on_leftover_files.connect(self._on_leftover_files)
             return_code, record_path = runner._run_command(
-                job, self.config, ctrl)
+                job, job_state, self.config, ctrl)
             self._display_script_outcome(job, return_code)
         return return_code
 

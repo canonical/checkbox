@@ -288,6 +288,12 @@ class _JobResultBase(IJobResult):
         """
         return outcome_color_ansi(self.outcome)
 
+    def outcome_meta(self):
+        """
+        Get the OutcomeMetadata object associated with this outcome.
+        """
+        return outcome_meta(self.outcome)
+
     @property
     def execution_duration(self):
         """

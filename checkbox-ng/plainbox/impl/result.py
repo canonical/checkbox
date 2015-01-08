@@ -185,22 +185,7 @@ def tr_outcome(outcome):
     """
     Get the translated value of ``OUTCOME_`` constant
     """
-    return {
-        IJobResult.OUTCOME_NONE: C_(
-            "textual outcome", "job didn't run"),
-        IJobResult.OUTCOME_PASS: C_(
-            "textual outcome", "job passed"),
-        IJobResult.OUTCOME_FAIL: C_(
-            "textual outcome", "job failed"),
-        IJobResult.OUTCOME_SKIP: C_(
-            "textual outcome", "job skipped"),
-        IJobResult.OUTCOME_NOT_SUPPORTED: C_(
-            "textual outcome", "job cannot be started"),
-        IJobResult.OUTCOME_NOT_IMPLEMENTED: C_(
-            "textual outcome", "job is not implemented"),
-        IJobResult.OUTCOME_UNDECIDED: C_(
-            "textual outcome", "job needs verification")
-    }[outcome]
+    return OUTCOME_METADATA_MAP[outcome].tr_outcome
 
 
 class _JobResultBase(IJobResult):

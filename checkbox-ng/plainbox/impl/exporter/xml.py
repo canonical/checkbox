@@ -40,7 +40,6 @@ from lxml import etree as ET
 from pkg_resources import resource_filename
 
 from plainbox import __version__ as version
-from plainbox.abc import IJobResult
 from plainbox.impl.exporter import SessionStateExporterBase
 from plainbox.impl.result import OUTCOME_METADATA_MAP
 
@@ -117,18 +116,6 @@ class XMLSessionStateExporter(SessionStateExporterBase):
 
     OPTION_CLIENT_NAME = 'client-name'
     SUPPORTED_OPTION_LIST = (OPTION_CLIENT_NAME, )
-
-    # This describes mappings from all possible plainbox job statuses
-    # to one of the allowed statuses listed above.
-    _STATUS_MAP = {
-        "none": "none",
-        IJobResult.OUTCOME_NONE: "none",
-        IJobResult.OUTCOME_PASS: IJobResult.OUTCOME_PASS,
-        IJobResult.OUTCOME_FAIL: IJobResult.OUTCOME_FAIL,
-        IJobResult.OUTCOME_SKIP: IJobResult.OUTCOME_SKIP,
-        IJobResult.OUTCOME_UNDECIDED: "none",
-        IJobResult.OUTCOME_NOT_IMPLEMENTED: IJobResult.OUTCOME_SKIP,
-        IJobResult.OUTCOME_NOT_SUPPORTED: IJobResult.OUTCOME_SKIP}
 
     def __init__(self, option_list=None, system_id=None, timestamp=None,
                  client_version=None, client_name='plainbox'):
@@ -376,7 +363,9 @@ class XMLSessionStateExporter(SessionStateExporterBase):
             answer = ET.SubElement(
                 question, "answer", attrib={"type": "multiple_choice"})
             if job_data["outcome"]:
-                answer.text = self._STATUS_MAP[job_data["outcome"]]
+                answer.text = OUTCOME_METADATA_MAP[
+                    job_data["outcome"]
+                ].hexr_xml_mapping
             else:
                 answer.text = "none"
             self._add_answer_choices(question)

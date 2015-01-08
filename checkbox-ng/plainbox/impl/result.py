@@ -202,6 +202,13 @@ def outcome_color_ansi(outcome):
     return OUTCOME_METADATA_MAP[outcome].color_ansi
 
 
+def outcome_meta(outcome):
+    """
+    Get the OutcomeMetadata object associated with this outcome.
+    """
+    return OUTCOME_METADATA_MAP[outcome]
+
+
 class _JobResultBase(IJobResult):
     """
     Base class for :`IJobResult` implementations.

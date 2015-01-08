@@ -176,7 +176,7 @@
                     <xsl:when test="normalize-space(answer) = 'untested'">
                         <td><img class='resultimg' src='${PLAINBOX_ASSETS}/report/images/skip.png' /></td>
                         <td class="label"><xsl:value-of select="@name" /></td>
-                        <td style='background-color: #FF9900'>skipped</td>
+                        <td style='background-color: #FF9900'>SKIPPED</td>
                         <td><xsl:value-of select="comment" /></td>
                     </xsl:when>
                     <xsl:otherwise>

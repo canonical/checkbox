@@ -269,6 +269,18 @@ class _JobResultBase(IJobResult):
         """
         return tr_outcome(self.outcome)
 
+    def outcome_color_hex(self):
+        """
+        Get the hexadecimal "#RRGGBB" color that represents this outcome
+        """
+        return outcome_color_hex(self.outcome)
+
+    def outcome_color_ansi(self):
+        """
+        Get an ANSI escape sequence that represents this outcome
+        """
+        return outcome_color_ansi(self.outcome)
+
     @property
     def execution_duration(self):
         """

@@ -54,6 +54,133 @@ logger = logging.getLogger("plainbox.result")
 IOLogRecord = namedtuple("IOLogRecord", "delay stream_name data".split())
 
 
+# Tuple representing meta-data associated with each possible value of "outcome"
+#
+# This tuple replaces various ad-hoc mapping that keyed off the outcome field
+# to compute something. Currently the following fields are suppoted:
+#
+#   value - the actual constant like IJobResult.OUTCOME_NONE (for completeness)
+#
+#   unicode_sigil - a short string that renders to one character cell, useful
+#   for representing this outcome in tabular renderings.
+#
+#   tr_outcome - a translatable, short string that describes the outcome. Those
+#   strings are looked up with the context of "textual outcome" so that
+#   translations can be more easily tuned without also affecting random parts
+#   of the stack.
+#
+#   tr_label - a label suitable for displaying the type of the outcome. This is
+#   different from tr_outcome as outcome but mostly in translations.
+#
+#   color_ansi - a string containing the ANSI escape sequence for colorizing
+#   this outcome (or for representing it in general). This sequence is suitable
+#   for various terminals.
+#
+#   color_hex - a string containing 7 character string like #RRGGBB that
+#   encodes the hexadecimal representation of the color. This value is suitable
+#   for graphical applications in the same way as color_ansi is useful for
+#   console applications.
+#
+#   hexr_xml_mapping - a string that needs to be used in the XML report for the
+#   Canonical HEXR application (also for the Canonical Certification web
+#   application). Those values must be in sync with a piece of code in
+#   checkbox_support that handles parsing of the XML report, for as long as the
+#   report is to be maintained.
+#
+#   hexr_xml_allowed - a boolean indicating that this outcome may appear
+#   in the XML document generated for the Canonical HEXR application. In
+#   theory it can go away as we can now easily control both "sides"
+#   (client and server) but it does exist today.
+#
+#   hexr_xml_order - an (optional) integer used for ordering allowed values.
+#   This is used so that the XML output can have a fixed ordering regardless of
+#   the actual order of entries in the dictionary.
+OutcomeMetadata = namedtuple(
+    "OutcomeMetadata", ("value unicode_sigil tr_outcome tr_label color_ansi"
+                        " color_hex hexr_xml_mapping hexr_xml_allowed"
+                        " hexr_xml_order"))
+
+OUTCOME_METADATA_MAP = {
+    IJobResult.OUTCOME_NONE: OutcomeMetadata(
+        value=IJobResult.OUTCOME_NONE,
+        unicode_sigil=' ',
+        tr_outcome=C_("textual outcome", "job didn't run"),
+        tr_label=C_("chart label", "not started"),
+        color_ansi="",
+        color_hex="#000000",
+        hexr_xml_mapping="none",
+        hexr_xml_allowed=True,
+        hexr_xml_order=0,
+    ),
+    IJobResult.OUTCOME_PASS: OutcomeMetadata(
+        value=IJobResult.OUTCOME_PASS,
+        unicode_sigil='✔',
+        tr_outcome=C_("textual outcome", "job passed"),
+        tr_label=C_("chart label", "passed"),
+        color_ansi="\033[32;1m",
+        color_hex="#6AA84F",
+        hexr_xml_mapping="pass",
+        hexr_xml_allowed=True,
+        hexr_xml_order=1,
+    ),
+    IJobResult.OUTCOME_FAIL: OutcomeMetadata(
+        value=IJobResult.OUTCOME_FAIL,
+        unicode_sigil='✘',
+        tr_outcome=C_("textual outcome", "job failed"),
+        tr_label=C_("chart label", "failed"),
+        color_ansi="\033[31;1m",
+        color_hex="#DC3912",
+        hexr_xml_mapping="fail",
+        hexr_xml_allowed=True,
+        hexr_xml_order=2,
+    ),
+    IJobResult.OUTCOME_SKIP: OutcomeMetadata(
+        value=IJobResult.OUTCOME_SKIP,
+        unicode_sigil='-',
+        tr_outcome=C_("textual outcome", "job skipped"),
+        tr_label=C_("chart label", "skipped"),
+        color_ansi="\033[33;1m",
+        color_hex="#FF9900",
+        hexr_xml_mapping="skip",
+        hexr_xml_allowed=True,
+        hexr_xml_order=3,
+    ),
+    IJobResult.OUTCOME_NOT_SUPPORTED: OutcomeMetadata(
+        value=IJobResult.OUTCOME_NOT_SUPPORTED,
+        unicode_sigil='-',
+        tr_outcome=C_("textual outcome", "job cannot be started"),
+        tr_label=C_("chart label", "not supported"),
+        color_ansi="\033[33;1m",
+        color_hex="#FF9900",
+        hexr_xml_mapping="skip",
+        hexr_xml_allowed=False,
+        hexr_xml_order=None,
+    ),
+    IJobResult.OUTCOME_NOT_IMPLEMENTED: OutcomeMetadata(
+        value=IJobResult.OUTCOME_NOT_IMPLEMENTED,
+        unicode_sigil='-',
+        tr_outcome=C_("textual outcome", "job is not implemented"),
+        tr_label=C_("chart label", "not implemented"),
+        color_ansi="\033[31;1m",
+        color_hex="#DC3912",
+        hexr_xml_mapping="skip",
+        hexr_xml_allowed=False,
+        hexr_xml_order=None,
+    ),
+    IJobResult.OUTCOME_UNDECIDED: OutcomeMetadata(
+        value=IJobResult.OUTCOME_UNDECIDED,
+        unicode_sigil='?',
+        tr_outcome=C_("textual outcome", "job needs verification"),
+        tr_label=C_("chart label", "undecided"),
+        color_ansi="\033[35;1m",
+        color_hex="#FF00FF",
+        hexr_xml_mapping="skip",
+        hexr_xml_allowed=False,
+        hexr_xml_order=None,
+    ),
+}
+
+
 def tr_outcome(outcome):
     """
     Get the translated value of ``OUTCOME_`` constant

@@ -285,8 +285,7 @@ class CliInvocation2(RunInvocation):
         if self.launcher.skip_test_selection:
             return
         tree = SelectableJobTreeNode.create_tree(
-            self.manager.state.run_list,
-            legacy_mode=True)
+            self.manager.state, self.manager.state.run_list)
         title = _('Choose tests to run on your system:')
         self.display.run(ScrollableTreeNode(tree, title))
         # NOTE: tree.selection is correct but ordered badly.  To retain

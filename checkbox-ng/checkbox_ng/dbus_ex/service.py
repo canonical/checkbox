@@ -22,6 +22,7 @@
 ===============================================================
 """
 
+import functools
 import logging
 import threading
 import weakref
@@ -207,6 +208,20 @@ class property:
     _dbus_is_property = True
 
 
+def cache_in_class(func):
+    @functools.wraps(func)
+    def wrapper(self, *args, **kwargs):
+        cls = self.__class__
+        attr_name = '_cache_{}_{}'.format(cls.__name__, func.__name__)
+        if not hasattr(cls, attr_name):
+            retval = func(self, *args, **kwargs)
+            setattr(cls, attr_name, retval)
+        else:
+            retval = getattr(cls, attr_name)
+        return retval
+    return wrapper
+
+
 class Object(Interface, dbus.service.Object):
     """
     dbus.service.Object subclass that providers additional features.
@@ -239,6 +254,7 @@ class Object(Interface, dbus.service.Object):
         dbus_interface=INTROSPECTABLE_IFACE,
         in_signature='', out_signature='s',
         path_keyword='object_path', connection_keyword='connection')
+    @cache_in_class
     def Introspect(self, object_path, connection):
         """
         Return a string of XML encoding this object's supported interfaces,

@@ -27,7 +27,7 @@ from checkbox_support.parsers.udevadm import UdevadmParser
 
 class UdevResult:
 
-    attributes = ("path", "bus", "category", "driver", "product_id",
+    attributes = ("path", "name", "bus", "category", "driver", "product_id",
                   "vendor_id", "subproduct_id", "subvendor_id", "product",
                   "vendor", "interface",)
 

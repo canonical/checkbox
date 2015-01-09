@@ -120,11 +120,25 @@ class SubmitCommand(PlainBoxCommand):
 
         # Interpret this setting here
         # Please remember the Unset.__bool__() return False
-        if self.config.submit_to_c3 and \
-           (self.config.submit_to_c3.lower() in ('yes', 'true') or
-           int(self.config.submit_to_c3) == 1):
-            # self.config.c3_url has a default value written in config.py 
-            parser.set_defaults(url=self.config.c3_url)
+        # After Interpret the setting,
+        # self.config.submit_to_c3 should has value or be Unset.
+        try:
+            if self.config.submit_to_c3 and \
+               (self.config.submit_to_c3.lower() in ('yes', 'true') or
+               int(self.config.submit_to_c3) == 1):
+                # self.config.c3_url has a default value written in config.py 
+                parser.set_defaults(url=self.config.c3_url)
+            else:
+                # if submit_to_c3 is castable to int but not 1
+                # this is still set as Unset
+                # otherwise url requirement will be None
+                self.config.submit_to_c3 = Unset
+        except ValueError:
+            # When submit_to_c3 is something other than 'yes', 'true',
+            # castable to integer, it raises ValueError.
+            # e.g. 'no', 'false', 'asdf' ...etc.
+            # In this case, it is still set as Unset.
+            self.config.submit_to_c3 = Unset
 
         parser.add_argument(
             '--url', metavar=_("URL"),

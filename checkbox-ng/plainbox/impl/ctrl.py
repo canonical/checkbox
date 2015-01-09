@@ -954,7 +954,7 @@ class RootViaPTL1ExecutionController(CheckBoxDifferentialExecutionController):
             cmd += ['--generator', job_state.via_job.checksum]
             parent_env = self.get_differential_execution_environment(
                 # FIXME: job_state is from an unrelated job :/
-                job.origin.source.job, job_state, config, session_dir,
+                job_state.via_job, job_state, config, session_dir,
                 nest_dir)
             for key, value in sorted(parent_env.items()):
                 cmd += ['-G', '{}={}'.format(key, value)]

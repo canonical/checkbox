@@ -792,7 +792,7 @@ class RootViaPTL1ExecutionControllerTests(
         verify that we run plainbox-trusted-launcher-1 as the desired user
         """
         self.job.get_environ_settings.return_value = []
-        self.job.origin.source.job = mock.Mock(
+        self.job_state.via_job = mock.Mock(
             name='generator_job',
             spec=JobDefinition,
             provider=mock.Mock(
@@ -803,7 +803,7 @@ class RootViaPTL1ExecutionControllerTests(
                 units_dir="units_dir-generator",
                 CHECKBOX_SHARE='CHECKBOX_SHARE-generator'))
         # Mock the default flags (empty set)
-        self.job.origin.source.job.get_flag_set.return_value = frozenset()
+        self.job_state.via_job.get_flag_set.return_value = frozenset()
         PATH = os.pathsep.join([self.NEST_DIR, 'vanilla-path'])
         expected = [
             'pkexec', '--user', self.job.user,

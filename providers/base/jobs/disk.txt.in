@@ -6,16 +6,16 @@ _description: Detects and displays disks attached to the system.
 
 unit: template
 template-unit: job
-template-imports: from 2013.com.canonical.certification import staging/udev as udev
-template-resource: udev
-template-filter: udev.attr_DEVTYPE == 'disk' and 'ram' not in udev.name and 'loop' not in udev.name
+template-imports: from 2013.com.canonical.certification import device
+template-resource: device
+template-filter: device.category == 'DISK'
 plugin: shell
 id: staging/disk/stats_{name}
 requires:
  block_device.{name}_state != 'removable'
 user: root
 command: disk_stats_test {name}
-_summary: Disk statistics for {attr_DEVNAME}
+_summary: Disk statistics for /dev/{name}
 _description:
  This test checks disk stats, generates some activity and rechecks stats to
  verify they've changed. It also verifies that disks appear in the various
@@ -23,11 +23,9 @@ _description:
  .
  This test will inspect the following disk:
  .
-     product vendor: {attr_ID_VENDOR}
-     product name: {attr_ID_MODEL}
-     serial number: {attr_ID_SERIAL_SHORT}
+     product name: {product}
      sysfs path: {path}
-     device node path: {attr_DEVNAME}
+     device node path: /dev/{name}
 
 plugin: local
 _summary: Check stats changes for each disk

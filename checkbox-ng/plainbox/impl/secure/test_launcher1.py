@@ -117,7 +117,7 @@ class TrustedLauncherTests(TestCase):
     def test_run_local_job(self, mock_check_output, mock_load_rfc822_records,
                            mock_from_rfc822_record):
         # Create a mock job and add it to the launcher
-        job = mock.Mock(spec=JobDefinition, name='job')
+        job = mock.Mock(spec=JobDefinition, name='job', plugin='local')
         self.launcher.add_job_list([job])
         # Create two mock rfc822 records
         record1 = mock.Mock(spec=RFC822Record, name='record')
@@ -125,7 +125,7 @@ class TrustedLauncherTests(TestCase):
         # Ensure that load_rfc822_records() returns some mocked records
         mock_load_rfc822_records.return_value = [record1, record2]
         # Run the tested method
-        job_list = self.launcher.run_local_job(job.checksum, None)
+        job_list = self.launcher.run_generator_job(job.checksum, None)
         # Ensure that we run the job command via job.shell
         mock_check_output.assert_called_with(
             [job.shell, '-c', job.command], env={}, universal_newlines=True)
@@ -271,7 +271,7 @@ class MainTests(TestCase):
         with TestIO(combined=True) as io:
             retval = main(['--target=1234', '--generator=5678'])
         # Ensure that the local job command was invoked
-        mock_launcher().run_local_job.assert_called_with(local_job.checksum, None)
+        mock_launcher().run_generator_job.assert_called_with(local_job.checksum, None)
         # Ensure that the target job command was invoked
         mock_launcher().run_shell_from_job.assert_called_with(
             target_job.checksum, None)

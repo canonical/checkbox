@@ -30,6 +30,8 @@ import subprocess
 
 from plainbox.i18n import gettext as _
 from plainbox.impl.job import JobDefinition
+from plainbox.impl.resource import Resource
+from plainbox.impl.unit.template import TemplateUnit
 from plainbox.impl.secure.origin import JobOutputTextSource
 from plainbox.impl.secure.providers.v1 import all_providers
 from plainbox.impl.secure.rfc822 import load_rfc822_records, RFC822SyntaxError
@@ -92,16 +94,16 @@ class TrustedLauncher:
         cmd = [job.shell, '-c', job.command]
         return subprocess.call(cmd, env=self.modify_execution_environment(env))
 
-    def run_local_job(self, checksum, env):
+    def run_generator_job(self, checksum, env):
         """
-        Run a job with and interpret the stdout as a job definition.
+        Run a job with and process the stdout to get a job definition.
 
         :param checksum:
             The checksum of the job to execute
         :param env:
             Environment to execute the job in.
         :returns:
-            A list of job definitions that were parsed out of the output.
+            A list of job definitions that were processed from the output.
         :raises LookupError:
             If the checksum does not match any known job
         """
@@ -116,11 +118,26 @@ class TrustedLauncher:
             record_list = load_rfc822_records(output, source=source)
         except RFC822SyntaxError as exc:
             logging.error(
-                _("Syntax error in job generated from %s: %s"), job, exc)
+                _("Syntax error in record generated from %s: %s"), job, exc)
         else:
-            for record in record_list:
-                job = JobDefinition.from_rfc822_record(record)
-                job_list.append(job)
+            if job.plugin == 'local':
+                for record in record_list:
+                    job = JobDefinition.from_rfc822_record(record)
+                    job_list.append(job)
+            elif job.plugin == 'resource':
+                resource_list = []
+                for record in record_list:
+                    resource = Resource(record.data)
+                    resource_list.append(resource)
+                for plugin in all_providers.get_all_plugins():
+                    for u in plugin.plugin_object.get_units()[0]:
+                        if (
+                            isinstance(u, TemplateUnit) and
+                            u.resource_id == job.id
+                        ):
+                            logging.info(_("Instantiating unit: %s"), u)
+                            for new_unit in u.instantiate_all(resource_list):
+                                job_list.append(new_unit)
         return job_list
 
 
@@ -252,7 +269,7 @@ def main(argv=None):
     # Run the local job and feed the result back to the launcher
     if ns.generator:
         try:
-            generated_job_list = launcher.run_local_job(
+            generated_job_list = launcher.run_generator_job(
                 ns.generator, ns.generator_env)
             launcher.add_job_list(generated_job_list)
         except LookupError as exc:

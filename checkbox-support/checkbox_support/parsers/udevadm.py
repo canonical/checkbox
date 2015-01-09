@@ -90,6 +90,7 @@ FLASH_DISK_RE = re.compile(r"Mass|Storage|Disk", re.I)
 class UdevadmDevice(object):
     __slots__ = (
         "_environment",
+        "_name",
         "_bits",
         "_stack",
         "_bus",
@@ -99,8 +100,9 @@ class UdevadmDevice(object):
         "_vendor",
         "_vendor_id",)
 
-    def __init__(self, environment, bits=None, stack=[]):
+    def __init__(self, environment, name, bits=None, stack=[]):
         self._environment = environment
+        self._name = name
         self._bits = bits
         self._stack = stack
         self._bus = None
@@ -116,6 +118,11 @@ class UdevadmDevice(object):
         return("<{}: bus: {} id [{:x}:{:x}] {}>".format(
             type(self).__name__, self.bus, vid, pid,
             self.product))
+
+    @property
+    def name(self):
+        if self._name is not None:
+            return self._name
 
     @property
     def bus(self):
@@ -639,7 +646,7 @@ class UdevadmDevice(object):
     def as_json(self):
         attributes = ("path", "bus", "category", "driver", "product_id",
                       "vendor_id", "subproduct_id", "subvendor_id", "product",
-                      "vendor", "interface",)
+                      "vendor", "interface", "name")
 
         return {a: getattr(self, a) for a in attributes if getattr(self, a)}
 
@@ -715,8 +722,9 @@ class UdevadmParser(object):
             if not record:
                 continue
 
-            # Determine path and environment
+            # Determine path, name and environment
             path = None
+            name = None
             element = None
             environment = {}
             for line in record.splitlines():
@@ -732,6 +740,8 @@ class UdevadmParser(object):
 
                 if key == "P":
                     path = value
+                elif key == "N":
+                    name = value
                 elif key == "E":
                     key_match = multi_pattern.match(value)
                     if not key_match:
@@ -749,7 +759,8 @@ class UdevadmParser(object):
             # Set default DEVPATH
             environment.setdefault("DEVPATH", path)
 
-            device = self.device_factory(environment, self.bits, list(stack))
+            device = self.device_factory(
+                environment, name, self.bits, list(stack))
             if not self._ignoreDevice(device):
                 if device._raw_path in self.devices:
                     if self.devices[device._raw_path].category == 'CARDREADER':

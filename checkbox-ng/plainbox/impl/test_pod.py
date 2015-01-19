@@ -24,6 +24,7 @@ from plainbox.impl.pod import POD
 from plainbox.impl.pod import UNSET
 from plainbox.impl.pod import _FieldCollection
 from plainbox.impl.pod import read_only_assign_filter
+from plainbox.impl.pod import type_convert_assign_filter
 from plainbox.vendor import mock
 
 
@@ -565,3 +566,19 @@ class AssignFilterTests(TestCase):
         # But rejects everything after that
         with self.assertRaisesRegex(AttributeError, "cls.field is read-only"):
             read_only_assign_filter(instance, field, old, new)
+
+    def test_type_convert_assign_filter(self):
+        """
+        The type_convert_assign_filter works as designed
+        """
+        instance = mock.Mock(name='instance')
+        old = mock.Mock(name='old')
+        field = mock.Mock(name='field')
+        field.type = int
+        # The filter converts values
+        self.assertEqual(
+            type_convert_assign_filter(instance, field, old, '10'), 10)
+        # And can be used for crude type checking
+        msg = "invalid literal for int\\(\\) with base 10: 'hello\\?'"
+        with self.assertRaisesRegex(ValueError, msg):
+            type_convert_assign_filter(instance, field, old, 'hello?')

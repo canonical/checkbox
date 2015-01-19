@@ -62,7 +62,8 @@ from logging import getLogger
 from plainbox.i18n import gettext as _
 from plainbox.impl.signal import Signal
 
-__all__ = ['POD', 'Field', 'MANDATORY', 'UNSET', 'read_only_assign_filter']
+__all__ = ['POD', 'Field', 'MANDATORY', 'UNSET', 'read_only_assign_filter',
+           'type_convert_assign_filter']
 
 
 _logger = getLogger("plainbox.pod")
@@ -555,3 +556,26 @@ def read_only_assign_filter(
     raise AttributeError(_(
         "{}.{} is read-only"
     ).format(instance.__class__.__name__, field.name))
+
+
+def type_convert_assign_filter(
+        instance: POD, field: Field, old: "Any", new: "Any") -> "Any":
+    """
+    An assign filter that converts the value to the field type.
+
+    The field must have a valid python type object stored in the .type field.
+
+    :param instance:
+        A subclass of :class:`POD` that contains ``field``
+    :param field:
+        The :class:`Field` being assigned to
+    :param old:
+        The current value of the field
+    :param new:
+        The proposed value of the field
+    :returns:
+        ``new`` type-converted to ``field.type``.
+    :raises ValueError:
+        if ``new`` cannot be converted to ``field.type``
+    """
+    return field.type(new)

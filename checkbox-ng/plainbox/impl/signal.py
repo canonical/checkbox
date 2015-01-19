@@ -106,14 +106,14 @@ class Signal:
         self.fire(args, kwargs)
 
     @classmethod
-    def define(cls, first_responder):
+    def define(cls, first_responder, signal_name=None):
         """
         Helper decorator to define a signal descriptor in a class
 
         The decorated function is never called but is used to get
         documentation.
         """
-        return _SignalDescriptor(first_responder)
+        return _SignalDescriptor(first_responder, signal_name)
 
 
 class _SignalDescriptor:
@@ -125,11 +125,13 @@ class _SignalDescriptor:
     signal name on a class or instance.
     """
 
-    def __init__(self, first_responder):
-        if hasattr(first_responder, '__qualname__'):
-            self.signal_name = first_responder.__qualname__
-        else:
-            self.signal_name = first_responder.__name__
+    def __init__(self, first_responder, signal_name=None):
+        if signal_name is None:
+            if hasattr(first_responder, '__qualname__'):
+                signal_name = first_responder.__qualname__
+            else:
+                signal_name = first_responder.__name__
+        self.signal_name = signal_name
         self.first_responder = first_responder
         self.__doc__ = first_responder.__doc__
 

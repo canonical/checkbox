@@ -59,9 +59,10 @@ from collections import namedtuple
 from functools import total_ordering
 from logging import getLogger
 
+from plainbox.i18n import gettext as _
 from plainbox.impl.signal import Signal
 
-__all__ = ['POD', 'Field', 'MANDATORY', 'UNSET']
+__all__ = ['POD', 'Field', 'MANDATORY', 'UNSET', 'read_only_assign_filter']
 
 
 _logger = getLogger("plainbox.pod")
@@ -526,3 +527,31 @@ class POD(metaclass=PODMeta):
             field.name: getattr(self, field.name)
             for field in self.__class__.field_list
         }
+
+
+def read_only_assign_filter(
+        instance: POD, field: Field, old: "Any", new: "Any") -> "Any":
+    """
+    An assign filter that makes a field read-only
+
+    The field can be only assigned if the old value is ``UNSET``, that is,
+    during the initial construction of a POD object.
+
+    :param instance:
+        A subclass of :class:`POD` that contains ``field``
+    :param field:
+        The :class:`Field` being assigned to
+    :param old:
+        The current value of the field
+    :param new:
+        The proposed value of the field
+    :returns:
+        ``new``, as-is
+    :raises AttributeError:
+        if ``old`` is anything but the special object ``UNSET``
+    """
+    if old is UNSET:
+        return new
+    raise AttributeError(_(
+        "{}.{} is read-only"
+    ).format(instance.__class__.__name__, field.name))

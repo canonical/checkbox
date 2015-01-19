@@ -23,6 +23,7 @@ from plainbox.impl.pod import MANDATORY
 from plainbox.impl.pod import POD
 from plainbox.impl.pod import UNSET
 from plainbox.impl.pod import _FieldCollection
+from plainbox.impl.pod import read_only_assign_filter
 from plainbox.vendor import mock
 
 
@@ -544,3 +545,23 @@ class PODTests(TestCase):
         self.assertFalse(A(1) == (1,))
         self.assertFalse(A(1) == [1])
         self.assertFalse(A(1) == 1)
+
+
+class AssignFilterTests(TestCase):
+
+    def test_read_only_assign_filter(self):
+        """
+        The read_only_assign_filter works as designed
+        """
+        instance = mock.Mock(name='instance')
+        instance.__class__.__name__ = 'cls'
+        field = mock.Mock(name='field')
+        field.name = 'field'
+        old = 'old'
+        new = 'new'
+        # The filter passes the initial data (when old is UNSET)
+        self.assertEqual(
+            read_only_assign_filter(instance, field, UNSET, new), new)
+        # But rejects everything after that
+        with self.assertRaisesRegex(AttributeError, "cls.field is read-only"):
+            read_only_assign_filter(instance, field, old, new)

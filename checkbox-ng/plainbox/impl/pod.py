@@ -63,7 +63,7 @@ from plainbox.i18n import gettext as _
 from plainbox.impl.signal import Signal
 
 __all__ = ['POD', 'Field', 'MANDATORY', 'UNSET', 'read_only_assign_filter',
-           'type_convert_assign_filter']
+           'type_convert_assign_filter', 'type_check_assign_filter']
 
 
 _logger = getLogger("plainbox.pod")
@@ -579,3 +579,29 @@ def type_convert_assign_filter(
         if ``new`` cannot be converted to ``field.type``
     """
     return field.type(new)
+
+
+def type_check_assign_filter(
+        instance: POD, field: Field, old: "Any", new: "Any") -> "Any":
+    """
+    An assign filter that type-checks the value according to the field type
+
+    The field must have a valid python type object stored in the .type field.
+
+    :param instance:
+        A subclass of :class:`POD` that contains ``field``
+    :param field:
+        The :class:`Field` being assigned to
+    :param old:
+        The current value of the field
+    :param new:
+        The proposed value of the field
+    :returns:
+        ``new``, as-is
+    :raises TypeError:
+        if ``new`` is not an instance of ``field.type``
+    """
+    if isinstance(new, field.type):
+        return new
+    raise TypeError("{}.{} requires objects of type {}".format(
+        instance.__class__.__name__, field.name, field.type.__name__))

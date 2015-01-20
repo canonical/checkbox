@@ -798,14 +798,14 @@ requires:
 command: 
  cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=WIRELESS" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
  plugin: shell
- id: suspend/iperf_before_suspend_wifi_auto_$2
+ id: suspend/iperf_after_suspend_wifi_auto_$2
  depends: suspend/suspend_advanced
  requires: device.path == "$1"
  user: root
  environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
  command: network test -i $2 -t iperf
  _description:
-  This test executes iperf connection performance/stability against all the ethernet devices found on the system before suspend.
+  This test executes iperf connection performance/stability against all the ethernet devices found on the system after suspend.
  EOF
 _description:
  This is an automated test to gather some info on the current state of your network devices. If no devices are found, the test will exit with an error.

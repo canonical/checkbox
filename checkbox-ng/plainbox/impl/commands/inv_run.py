@@ -746,7 +746,9 @@ class RunInvocation(CheckBoxInvocationMixIn):
             if job.plugin in ('user-interact', 'user-interact-verify',
                               'user-verify', 'manual'):
                 ui.notify_about_purpose(job)
-                if self.is_interactive:
+                if (self.is_interactive and
+                        job.plugin in ('user-interact',
+                                       'user-interact-verify')):
                     cmd = ui.wait_for_interaction_prompt(job)
                     if cmd == 'run' or cmd is None:
                         ui.notify_about_steps(job)

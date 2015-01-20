@@ -711,7 +711,10 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
         # Load all common attributes...
         outcome = _validate(
             result_repr, key='outcome', value_type=str,
-            value_choice=IJobResult.ALL_OUTCOME_LIST, value_none=True)
+            value_choice=sorted(
+                IJobResult.ALL_OUTCOME_LIST,
+                key=lambda outcome: outcome or "none"
+            ), value_none=True)
         comments = _validate(
             result_repr, key='comments', value_type=str, value_none=True)
         return_code = _validate(

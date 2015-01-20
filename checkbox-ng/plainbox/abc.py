@@ -214,17 +214,6 @@ class IJobResult(metaclass=ABCMeta):
     # job or any other job that requires manual verification
     OUTCOME_UNDECIDED = 'undecided'
 
-    # List of all valid values of OUTCOME_xxx
-    ALL_OUTCOME_LIST = [
-        OUTCOME_NONE,
-        OUTCOME_PASS,
-        OUTCOME_FAIL,
-        OUTCOME_SKIP,
-        OUTCOME_NOT_SUPPORTED,
-        OUTCOME_NOT_IMPLEMENTED,
-        OUTCOME_UNDECIDED,
-    ]
-
     @abstractproperty
     def outcome(self):
         """

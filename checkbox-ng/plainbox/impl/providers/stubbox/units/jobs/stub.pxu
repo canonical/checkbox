@@ -18,6 +18,16 @@ command: false
 estimated_duration: 0.1
 category_id: plugin-representative
 
+id: stub/crash
+_summary: A crashing shell job
+_description:
+ Check crash result from a shell test case (killed with SIGTERM)
+plugin: shell
+flags: preserve-locale
+command: kill -TERM $$
+estimated_duration: 0.1
+category_id: plugin-representative
+
 id: stub/dependency/good
 _summary: Passing shell job depending on a passing shell job
 _description:

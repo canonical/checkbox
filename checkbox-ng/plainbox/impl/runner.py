@@ -715,6 +715,8 @@ class JobRunner(IJobRunner):
         # Convert the return of the command to the outcome of the job
         if return_code == 0:
             outcome = IJobResult.OUTCOME_PASS
+        elif return_code < 0:
+            outcome = IJobResult.OUTCOME_CRASH
         else:
             outcome = IJobResult.OUTCOME_FAIL
         # Create a result object and return it

@@ -373,7 +373,12 @@ class JobDefinitionWrapper(PlainBoxObjectWrapper):
         session_obj = ServiceWrapper.get_session_obj()
         if session_obj is None:
             return ""
-        state = session_obj.job_state_map[self.native.id]
+        try:
+            state = session_obj.job_state_map[self.native.id]
+        except KeyError:
+            # See: LP: #1412660, session_obj can be None and event if it isn't,
+            # session_obj.job_state_map might *not* have self.native.id in it.
+            return ""
         if state.via_job is None:
             return ""
         return state.via_job.checksum

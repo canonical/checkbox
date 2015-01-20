@@ -213,6 +213,9 @@ class IJobResult(metaclass=ABCMeta):
     # A temporary state before the user decides on the outcome of a manual
     # job or any other job that requires manual verification
     OUTCOME_UNDECIDED = 'undecided'
+    # A kind of failed that indicates the underlying test misbehaved. Currently
+    # it is only used when the test program is killed by a signal.
+    OUTCOME_CRASH = 'crash'
 
     @abstractproperty
     def outcome(self):

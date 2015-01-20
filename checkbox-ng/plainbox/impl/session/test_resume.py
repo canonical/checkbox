@@ -538,8 +538,8 @@ class JobResultResumeMixIn:
             self.parameters.resume_cls._build_JobResult(obj_repr)
         self.assertEqual(
             str(boom.exception), (
-                "Value for key 'outcome' not in allowed set ['fail', None, "
-                "'not-implemented', 'not-supported', 'pass', 'skip', "
+                "Value for key 'outcome' not in allowed set ['crash', 'fail',"
+                " None, 'not-implemented', 'not-supported', 'pass', 'skip', "
                 "'undecided']"))
 
     def test_build_JobResult_allows_none_outcome(self):

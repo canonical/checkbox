@@ -178,6 +178,17 @@ OUTCOME_METADATA_MAP = {
         hexr_xml_allowed=False,
         hexr_xml_order=None,
     ),
+    IJobResult.OUTCOME_CRASH: OutcomeMetadata(
+        value=IJobResult.OUTCOME_CRASH,
+        unicode_sigil='⚠ ',
+        tr_outcome=C_("textual outcome", "job crashed"),
+        tr_label=C_("chart label", "crashed"),
+        color_ansi="\033[41;37;1m",
+        color_hex="#FF0000",
+        hexr_xml_mapping="fail",
+        hexr_xml_allowed=False,
+        hexr_xml_order=None,
+    ),
 }
 
 

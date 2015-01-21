@@ -569,7 +569,7 @@ class SudoersConfigurator(object):
         """
         logging.debug('Enabling user to execute test as root...')
         command = ("sed -i -e '$a{mark}\\n"
-                   "{user} ALL=NOPASSWD: /usr/bin/python' "
+                   "{user} ALL=NOPASSWD: /usr/bin/python3' "
                    "{filename}".format(mark=self.MARK,
                                        user=self.user,
                                        script=os.path.realpath(__file__),
@@ -597,7 +597,7 @@ class AutoStartFile(object):
 [Desktop Entry]
 Name={pm_operation} test
 Comment=Verify {pm_operation} works properly
-Exec=sudo /usr/bin/python {script} -r {repetitions} -w {wakeup} --hardware-delay {hardware_delay} --pm-delay {pm_delay} --min-pm-time {min_pm_time} --max-pm-time {max_pm_time} --append --total {total} --start {start} --pm-timestamp {pm_timestamp} {silent} --log-level={log_level} --log-dir={log_dir} {pm_operation}
+Exec=sudo /usr/bin/python3 {script} -r {repetitions} -w {wakeup} --hardware-delay {hardware_delay} --pm-delay {pm_delay} --min-pm-time {min_pm_time} --max-pm-time {max_pm_time} --append --total {total} --start {start} --pm-timestamp {pm_timestamp} {silent} --log-level={log_level} --log-dir={log_dir} {pm_operation}
 Type=Application
 X-GNOME-Autostart-enabled=true
 Hidden=false

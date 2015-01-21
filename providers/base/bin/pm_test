@@ -7,6 +7,7 @@ import re
 import shutil
 import subprocess
 import sys
+import signal
 
 from argparse import ArgumentParser, SUPPRESS
 from calendar import timegm
@@ -143,7 +144,11 @@ class PowerManagementOperation(object):
         logging.info('Executing new {0!r} operation...'
                      .format(self.args.pm_operation))
         logging.debug('Executing: {0!r}...'.format(command_str))
-        subprocess.Popen(command_str, shell=True)
+        # The PM operation is performed asynchronously so let's just wait
+        # indefinitely until it happens and someone comes along to kill us.
+        # This addresses LP: #1413134
+        subprocess.check_call(command_str, shell=True)
+        signal.pause()
 
     def summary(self):
         """

@@ -213,7 +213,7 @@ _description:
 
 plugin: attachment
 id: stress/poweroff_30_log
-depends: stress/poweroff
+depends: stress/poweroff_30
 command: tar cvfz $PLAINBOX_SESSION_SHARE/stress_poweroff_30.tgz $PLAINBOX_SESSION_SHARE/*poweroff.30.log && cat $PLAINBOX_SESSION_SHARE/stress_poweroff_30.tgz
 
 plugin: shell

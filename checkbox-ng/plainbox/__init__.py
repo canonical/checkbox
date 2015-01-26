@@ -33,4 +33,4 @@ if sys.version_info[0:2] < (3, 2):
 # PEP386 compliant version declaration.
 #
 # This is used by @public decorator to enforce our public API guarantees.
-__version__ = (0, 19, 0, "candidate", 2)
+__version__ = (0, 19, 0, "final", 0)

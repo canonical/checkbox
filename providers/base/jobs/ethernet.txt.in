@@ -11,7 +11,7 @@ _description: Test to detect the available network controllers
 plugin: shell
 id: ethernet/info_automated
 requires:
- package.name == 'network-manager'
+ executable.name == 'ip'
  device.category == 'NETWORK'
 command: udev_resource | filter_templates -w "category=NETWORK"| awk "/path: / { print \$2 }"| xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do network_info \$i; done"
 estimated_duration: 30.0

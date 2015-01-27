@@ -53,6 +53,8 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
               'sphinx.ext.coverage', 'sphinx.ext.viewcode',
               'plainbox.vendor.sphinxarg.ext']
 
+autodoc_default_flags = ['members', 'undoc-members', 'inherited-members', 'show-inheritance']
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 

@@ -1,6 +1,128 @@
-#!/bin/bash
-# graphics_card_resource was done as a script to be able to reuse it in
-# graphics tests that need to be generated per-card.
-udev_resource | filter_templates -w "category=VIDEO" | \
-awk "BEGIN {RS=\"\"; FS=\"\n\"} { print \"index:\", NR; print; print \"\" }"
+#!/usr/bin/env python3
+#
+# This file is part of Checkbox.
+#
+# Copyright 2015 Canonical Ltd.
+#    Authors: Daniel Manrique <daniel.manrique@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+import argparse
+import subprocess
+import shlex
+
+
+def subprocess_lines_generator(command):
+    """
+    Generator that opens a subprocess and spits out lines
+    from the process's stdout.
+    Current assumptions:
+    - Process spits out text (universal_newlines)
+    - output contains suitable newlines
+    """
+    com_pipe = subprocess.Popen(command,
+                                stdout=subprocess.PIPE,
+                                universal_newlines=True)
+    for ln in com_pipe.stdout:
+        yield ln
+    # Final communicate to wait for process to die.
+    com_pipe.communicate()
+
+
+def udev_devices(lines):
+    """
+    Generator that reads the given "lines" iterable (ideally containing
+    text lines) and spits out "records" expressed as dictionaries.
+    A record contains groups of lines delimited by a blank line (BOF/EOF count
+    as delimiters). Each line is split at the first colon (for a key: value
+    syntax) to build the dict. Lines look like:
+    bus: pci
+    index: 2
+    product_id: 26880
+    """
+    record = {}
+
+    for line in lines:
+        line = line.strip()
+        if line == "":
+            if record:
+                yield record
+            record = {}
+        else:
+            try:
+                key, value = line.split(":", 1)
+                key = key.strip()
+                record[key] = value.strip()
+            except ValueError:
+                # If a line has no colon it's suspicious, maybe a
+                # bogus input file. Let's discard it.
+                pass
+    # No more lines to read, so process the remainder
+    if record:
+        yield record
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Resource to filter and "
+                                                 "enumerate graphics cards.")
+    parser.add_argument("-c", "--command",
+                        default='udev_resource',
+                        help="""udev_resource command to run. Defaults
+                        to %(default)s.""")
+    return parser.parse_args()
+
+
+def main():
+    """
+    graphics_card_resource was done as a script to be able to reuse it in
+    graphics tests that need to be generated per-card.
+    It does two things in addition to what filtering the resources by
+    category=VIDEO would achieve:
+    1- It enumerates them and adds an index attribute
+    2- If the device has no product attribute, "fake" it with the PCI ID
+       (so we can visually distinguish them even if they have no name
+       because they are too new or not on the pci.ids database)
+    """
+
+    options = parse_args()
+    udev_command = shlex.split(options.command)
+
+    udev_output = subprocess_lines_generator(udev_command)
+
+    # udev_devices generates one dict per device, the generator shown
+    # below filters that to only VIDEO ones
+    video_devices_generator = (r for r in udev_devices(udev_output)
+                               if r.get("category", "") == 'VIDEO')
+    # Lazily add index to each video device (enumerate on a generator)
+    try:
+        for index, record in enumerate(video_devices_generator, 1):
+            record['index'] = index
+            if 'product' not in record:
+                # Fake a product name with the product_id
+                try:
+                    product_id = int(record.get('product_id', 0))
+                    fake_product = "PCI ID 0x{:x}".format(product_id)
+                except ValueError:
+                    fake_product = "PCI ID unknown"
+                record['product'] = fake_product
+            # Finally, print the record
+            items = ["{key}: {value}".format(key=k, value=record[k])
+                     for k in sorted(record.keys())]
+            print("\n".join(items))
+            print("")
+    except OSError as err:
+        raise SystemExit(err)
+    return 0
+
+if __name__ == "__main__":
+    raise SystemExit(main())

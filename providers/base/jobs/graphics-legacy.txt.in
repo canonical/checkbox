@@ -144,7 +144,7 @@ _description:
 plugin: shell
 id: graphics/compiz_check
 requires: package.name == 'nux-tools'
-command: ! /usr/lib/nux/unity_support_test -c -p | ansi_parser | grep ":\(\s\+\)no$"
+command: ! /usr/lib/nux/unity_support_test -c -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ei "error"
 estimated_duration: 0.130
 _summary: Test Compiz support
 _description: Check that hardware is able to run compiz
@@ -152,7 +152,7 @@ _description: Check that hardware is able to run compiz
 plugin: shell
 id: graphics/unity-support
 requires: package.name == 'nux-tools'
-command: ! /usr/lib/nux/unity_support_test -p | ansi_parser | grep ":\(\s\+\)no"
+command: ! /usr/lib/nux/unity_support_test -p 2&>1 | ansi_parser | grep -e ":\(\s\+\)no$" -ei "error"
 estimated_duration: 0.131
 _description: Check that hardware is able to run Unity 3D
 _summary: Test Unity 3D support

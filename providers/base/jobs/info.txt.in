@@ -241,3 +241,9 @@ estimated_duration: 0.1
 _description: Attaches the buildstamp identifier for the preinstalled OS
 _summary: Attach /etc/buildstamp
 command: [ -s /etc/buildstamp ] && cat /etc/buildstamp
+
+plugin: attachment
+id: info/kvm_output
+estimated_duration: 0.1
+_description: Attaches the debug log from the virtualization run
+command: [ -f $PLAINBOX_SESSION_SHARE/virt_debug ] && cat $PLAINBOX_SESSION_SHARE/virt_debug

@@ -583,28 +583,28 @@ class WhiteList(CompositeQualifier):
             (1-based) and pattern_list is a list of regular expression strings
             parsed from the whitelist.
         """
-        pattern_list = []
-        lineno = 0
-        # Load the file
-        for lineno, line in enumerate(text.splitlines(), 1):
-            # Strip shell-style comments if there are any
-            try:
-                index = line.index("#")
-            except ValueError:
-                pass
-            else:
-                line = line[:index]
-            # Strip whitespace
-            line = line.strip()
-            # Skip empty lines (especially after stripping comments)
-            if line == "":
-                continue
-            # Surround the pattern with ^ and $
-            # so that it wont just match a part of the job name.
-            regexp_pattern = r"^{pattern}$".format(pattern=line)
-            # Accumulate patterns into the list
-            pattern_list.append(regexp_pattern)
-        return pattern_list, lineno
+        from plainbox.impl.xparsers import Re
+        from plainbox.impl.xparsers import Visitor
+        from plainbox.impl.xparsers import WhiteList
+
+        class WhiteListVisitor(Visitor):
+
+            def __init__(self):
+                self.pattern_list = []
+                self.lineno = 0
+
+            def visit_Re_node(self, node: Re):
+                self.pattern_list.append(r"^{}$".format(node.text.strip()))
+                self.lineno = max(node.lineno, self.lineno)
+                return super().generic_visit(node)
+
+            visit_ReFixed_node = visit_Re_node
+            visit_RePattern_node = visit_Re_node
+            visit_ReErr_node = visit_Re_node
+
+        visitor = WhiteListVisitor()
+        visitor.visit(WhiteList.parse(text))
+        return visitor.pattern_list, visitor.lineno
 
     @classmethod
     def _load_patterns(cls, pathname):

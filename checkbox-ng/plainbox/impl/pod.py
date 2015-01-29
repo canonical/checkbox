@@ -650,3 +650,54 @@ def type_check_assign_filter(
 
 
 typed = type_check_assign_filter
+
+
+class sequence_type_check_assign_filter:
+    """
+    An assign filter for typed sequences (lists or tuples) that must contain an
+    object of the given type.
+    """
+
+    def __init__(self, item_type: type):
+        """
+        Initialize the assign filter with the given sequence item type.
+
+        :param item_type:
+            Desired type of each sequence item.
+        """
+        self.item_type = item_type
+
+    @property
+    def field_docstring_ext(self) -> str:
+        return "type-checked sequence (items must be of type {})".format(
+            self.item_type.__name__)
+
+    def __call__(
+            self, instance: POD, field: Field, old: "Any", new: "Any"
+    ) -> "Any":
+        """
+        An assign filter that type-checks the value of all sequence elements
+
+        :param instance:
+            A subclass of :class:`POD` that contains ``field``
+        :param field:
+            The :class:`Field` being assigned to
+        :param old:
+            The current value of the field
+        :param new:
+            The proposed value of the field
+        :returns:
+            ``new``, as-is
+        :raises TypeError:
+            if ``new`` is not an instance of ``field.type``
+        """
+        for item in new:
+            if not isinstance(item, self.item_type):
+                raise TypeError(
+                    "{}.{} requires all sequence elements of type {}".format(
+                        instance.__class__.__name__, field.name,
+                        field.type.__name__))
+        return new
+
+
+typed.sequence = sequence_type_check_assign_filter

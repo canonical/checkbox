@@ -329,7 +329,7 @@ final_message: CERTIFICATION BOOT COMPLETE
                 time.sleep(self.timeout)
                 # If running in console, reset console window to regain
                 # control from VM Serial I/0
-                if os.fstat(0) == os.fstat(1):
+                if sys.stdout.isatty():
                     call('reset')
                 # Check to be sure VM boot was successful
                 with open(self.debug_file, 'r') as debug_file:

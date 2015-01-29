@@ -564,6 +564,7 @@ def modify_field_docstring(field_docstring_ext: str):
     return decorator
 
 
+@modify_field_docstring("constant (read-only after initialization)")
 def read_only_assign_filter(
         instance: POD, field: Field, old: "Any", new: "Any") -> "Any":
     """
@@ -592,6 +593,8 @@ def read_only_assign_filter(
     ).format(instance.__class__.__name__, field.name))
 
 
+@modify_field_docstring(
+    "type-converted (value must be convertible to {field.type.__name__})")
 def type_convert_assign_filter(
         instance: POD, field: Field, old: "Any", new: "Any") -> "Any":
     """
@@ -615,6 +618,8 @@ def type_convert_assign_filter(
     return field.type(new)
 
 
+@modify_field_docstring(
+    "type-checked (value must be of type {field.type.__name__})")
 def type_check_assign_filter(
         instance: POD, field: Field, old: "Any", new: "Any") -> "Any":
     """

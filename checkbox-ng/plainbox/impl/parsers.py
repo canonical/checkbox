@@ -32,12 +32,16 @@ import abc
 import inspect
 import json
 import logging
+import re
 
 from plainbox.i18n import gettext as _
 from plainbox.impl.secure.plugins import PkgResourcesPlugInCollection, PlugIn
 
 
 logger = logging.getLogger("plainbox.parsers")
+
+
+Pattern = type(re.compile(""))
 
 
 class IParser(metaclass=abc.ABCMeta):
@@ -149,7 +153,9 @@ class ParserPlugIn(IParser, PlugIn):
         Anything that has a 'as_json' attribute will be converted to the result
         of calling that method. For all other objects __dict__ is returned.
         """
-        if hasattr(obj, "as_json"):
+        if isinstance(obj, Pattern):
+            return "<Pattern>"
+        elif hasattr(obj, "as_json"):
             return obj.as_json()
         elif hasattr(obj, "__dict__"):
             return obj.__dict__

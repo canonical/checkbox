@@ -188,6 +188,14 @@ class Field:
         self.name = None  # Set via :meth:`gain_name()`
         self.instance_attr = None  # ditto
         self.signal_name = None  # ditto
+        doc_extra = []
+        for fn in self.assign_filter_list or ():
+            if hasattr(fn, 'field_docstring_ext'):
+                doc_extra.append(fn.field_docstring_ext.format(field=self))
+        if doc_extra:
+            self.__doc__ += (
+                '\n\nSide effects of assign filters:\n'
+                + '\n'.join('  - {}'.format(extra) for extra in doc_extra))
 
     def __repr__(self):
         return "<{} name:{!r}>".format(self.__class__.__name__, self.name)

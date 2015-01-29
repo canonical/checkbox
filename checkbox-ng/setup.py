@@ -81,6 +81,7 @@ setup(
             'stubbox=plainbox.impl.box:stubbox_main',
             ('plainbox-trusted-launcher-1='
              'plainbox.impl.secure.launcher1:main'),
+            'plainbox-qml-shell=plainbox.qml_shell.qml_shell:main',
         ],
         'plainbox.exporter': [
             'text=plainbox.impl.exporter.text:TextSessionStateExporter',

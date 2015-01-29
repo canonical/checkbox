@@ -1,13 +1,12 @@
 # This file is part of Checkbox.
 #
-# Copyright 2013 Canonical Ltd.
+# Copyright 2013-2015 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,7 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-
 """
 :mod:`plainbox.impl.parsers` -- generic parser interface
 ========================================================
@@ -27,17 +25,20 @@ to create abstract syntax trees of compatible inputs. For convenience
 and scriptability any parser is expected to be able to dump its AST
 as JSON.
 """
-
 import abc
 import inspect
 import json
 import logging
+import re
 
 from plainbox.i18n import gettext as _
 from plainbox.impl.secure.plugins import PkgResourcesPlugInCollection, PlugIn
 
 
 logger = logging.getLogger("plainbox.parsers")
+
+
+Pattern = type(re.compile(""))
 
 
 class IParser(metaclass=abc.ABCMeta):
@@ -149,10 +150,17 @@ class ParserPlugIn(IParser, PlugIn):
         Anything that has a 'as_json' attribute will be converted to the result
         of calling that method. For all other objects __dict__ is returned.
         """
-        if hasattr(obj, "as_json"):
+        if isinstance(obj, Pattern):
+            return "<Pattern>"
+        elif hasattr(obj, "as_json"):
             return obj.as_json()
-        else:
+        elif hasattr(obj, "__dict__"):
             return obj.__dict__
+        elif hasattr(obj, "__slots__"):
+            return { slot: getattr(obj, slot) for slot in obj.__slots__}
+        else:
+            raise NotImplementedError(
+                "unable to json-ify {!r}".format(obj.__class__))
 
 
 # Collection of all parsers

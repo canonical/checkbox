@@ -63,7 +63,8 @@ from plainbox.i18n import gettext as _
 from plainbox.impl.signal import Signal
 
 __all__ = ['POD', 'Field', 'MANDATORY', 'UNSET', 'read_only_assign_filter',
-           'type_convert_assign_filter', 'type_check_assign_filter']
+           'type_convert_assign_filter', 'type_check_assign_filter',
+           'modify_field_docstring']
 
 
 _logger = getLogger("plainbox.pod")
@@ -188,6 +189,14 @@ class Field:
         self.name = None  # Set via :meth:`gain_name()`
         self.instance_attr = None  # ditto
         self.signal_name = None  # ditto
+        doc_extra = []
+        for fn in self.assign_filter_list or ():
+            if hasattr(fn, 'field_docstring_ext'):
+                doc_extra.append(fn.field_docstring_ext.format(field=self))
+        if doc_extra:
+            self.__doc__ += (
+                '\n\nSide effects of assign filters:\n'
+                + '\n'.join('  - {}'.format(extra) for extra in doc_extra))
 
     def __repr__(self):
         return "<{} name:{!r}>".format(self.__class__.__name__, self.name)
@@ -530,6 +539,32 @@ class POD(metaclass=PODMeta):
         }
 
 
+def modify_field_docstring(field_docstring_ext: str):
+    """
+    A decorator for assign filter functions that allows them to declaratively
+    modify the docstring of the field they are used on.
+
+    :param field_docstring_ext:
+        A string compatible with python's str.format() method. The string
+        should be one line long (newlines will look odd) and may reference any
+        of the field attributes, as exposed by the {field} named format
+        attribute.
+
+    Example:
+
+        >>> @modify_field_docstring("not even")
+        ... def not_even(instance, field, old, new):
+        ...     if new % 2 == 0:
+        ...         raise ValueError("value cannot be even")
+        ...     return new
+    """
+    def decorator(fn):
+        fn.field_docstring_ext = field_docstring_ext
+        return fn
+    return decorator
+
+
+@modify_field_docstring("constant (read-only after initialization)")
 def read_only_assign_filter(
         instance: POD, field: Field, old: "Any", new: "Any") -> "Any":
     """
@@ -558,6 +593,11 @@ def read_only_assign_filter(
     ).format(instance.__class__.__name__, field.name))
 
 
+const = read_only_assign_filter
+
+
+@modify_field_docstring(
+    "type-converted (value must be convertible to {field.type.__name__})")
 def type_convert_assign_filter(
         instance: POD, field: Field, old: "Any", new: "Any") -> "Any":
     """
@@ -581,6 +621,8 @@ def type_convert_assign_filter(
     return field.type(new)
 
 
+@modify_field_docstring(
+    "type-checked (value must be of type {field.type.__name__})")
 def type_check_assign_filter(
         instance: POD, field: Field, old: "Any", new: "Any") -> "Any":
     """
@@ -605,3 +647,57 @@ def type_check_assign_filter(
         return new
     raise TypeError("{}.{} requires objects of type {}".format(
         instance.__class__.__name__, field.name, field.type.__name__))
+
+
+typed = type_check_assign_filter
+
+
+class sequence_type_check_assign_filter:
+    """
+    An assign filter for typed sequences (lists or tuples) that must contain an
+    object of the given type.
+    """
+
+    def __init__(self, item_type: type):
+        """
+        Initialize the assign filter with the given sequence item type.
+
+        :param item_type:
+            Desired type of each sequence item.
+        """
+        self.item_type = item_type
+
+    @property
+    def field_docstring_ext(self) -> str:
+        return "type-checked sequence (items must be of type {})".format(
+            self.item_type.__name__)
+
+    def __call__(
+            self, instance: POD, field: Field, old: "Any", new: "Any"
+    ) -> "Any":
+        """
+        An assign filter that type-checks the value of all sequence elements
+
+        :param instance:
+            A subclass of :class:`POD` that contains ``field``
+        :param field:
+            The :class:`Field` being assigned to
+        :param old:
+            The current value of the field
+        :param new:
+            The proposed value of the field
+        :returns:
+            ``new``, as-is
+        :raises TypeError:
+            if ``new`` is not an instance of ``field.type``
+        """
+        for item in new:
+            if not isinstance(item, self.item_type):
+                raise TypeError(
+                    "{}.{} requires all sequence elements of type {}".format(
+                        instance.__class__.__name__, field.name,
+                        field.type.__name__))
+        return new
+
+
+typed.sequence = sequence_type_check_assign_filter

@@ -126,6 +126,32 @@ class TestJobDefinitionDefinition(TestCase):
         self.assertEqual(job.flags, "flags-value")
         self.assertEqual(job.category_id, "category_id-value")
 
+    def test_qml_file_property_none_when_missing_provider(self):
+        """
+        Ensure that qml_file property is set to None when provider is not set.
+        """
+        job = JobDefinition({
+            'qml_file': 'qml_file-value'
+        }, raw_data={
+            'qml_file': 'qml_file-raw'
+        })
+        self.assertEqual(job.qml_file, None)
+
+    def test_qml_file_property(self):
+        """
+        Ensure that qml_file property is properly constructed
+        """
+        mock_provider = mock.Mock()
+        type(mock_provider).data_dir = mock.PropertyMock(return_value='data')
+        job = JobDefinition({
+            'qml_file': 'qml_file-value'
+        }, raw_data={
+            'qml_file': 'qml_file-raw'
+        }, provider=mock_provider)
+        with mock.patch('os.path.join', return_value='path') as mock_join:
+            self.assertEqual(job.qml_file, 'path')
+            mock_join.assert_called_with('data', 'qml_file-value')
+
     def test_properties_default_values(self):
         """
         Ensure that all properties default to None
@@ -138,6 +164,7 @@ class TestJobDefinitionDefinition(TestCase):
         self.assertEqual(job.shell, 'bash')
         self.assertEqual(job.flags, None)
         self.assertEqual(job.category_id, '2013.com.canonical.plainbox::uncategorised')
+        self.assertEqual(job.qml_file, None)
 
     def test_checksum_smoke(self):
         job1 = JobDefinition({'plugin': 'plugin', 'user': 'root'})
@@ -291,7 +318,7 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             'plugin': 'foo'
         }, provider=self.provider).check()
         message = ("field 'plugin', valid values are: attachment, local,"
-                   " manual, resource, shell, user-interact,"
+                   " manual, qml, resource, shell, user-interact,"
                    " user-interact-verify, user-verify")
         self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.plugin,
                               Problem.wrong, Severity.error, message)
@@ -329,7 +356,7 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
 
     def test_command__present__on_non_manual(self):
         for plugin in self.unit_cls.plugin.symbols.get_all_symbols():
-            if plugin == 'manual':
+            if plugin in ('manual', 'qml'):
                 continue
             # TODO: switch to subTest() once we depend on python3.4
             issue_list = self.unit_cls({
@@ -342,6 +369,15 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
     def test_command__useless__on_manual(self):
         issue_list = self.unit_cls({
             'plugin': 'manual',
+            'command': 'command'
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.command,
+            Problem.useless, Severity.warning)
+
+    def test_command__useless__on_qml(self):
+        issue_list = self.unit_cls({
+            'plugin': 'qml',
             'command': 'command'
         }, provider=self.provider).check()
         self.assertIssueFound(

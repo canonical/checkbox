@@ -298,6 +298,8 @@ man_pages = [
      'list and describe various objects', _authors, 1),
     ('manpages/plainbox-device', 'plainbox-device',
      'device management commands', _authors, 1),
+    ('manpages/plainbox-qml-shell', 'plainbox-qml-shell',
+     'standalone qml-native shell', _authors, 1),
     # Section 5
     ('manpages/plainbox.conf', 'plainbox.conf',
      'plainbox configuration file', _authors, 5),

@@ -34,6 +34,7 @@ from plainbox.abc import IProviderBackend1
 from plainbox.impl.applogic import PlainBoxConfig
 from plainbox.impl.ctrl import CheckBoxExecutionController
 from plainbox.impl.ctrl import CheckBoxSessionStateController
+from plainbox.impl.ctrl import QmlJobExecutionController
 from plainbox.impl.ctrl import RootViaPTL1ExecutionController
 from plainbox.impl.ctrl import RootViaPkexecExecutionController
 from plainbox.impl.ctrl import RootViaSudoExecutionController
@@ -1097,3 +1098,110 @@ class RootViaSudoExecutionControllerTests(
         self.job.user = None
         # Ensure that we get a negative score for this controller
         self.assertEqual(self.ctrl.get_checkbox_score(self.job), -1)
+
+
+class QmlJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
+                                     TestCase):
+    """
+    Tests for QmlJobExecutionController
+    """
+    CLS = QmlJobExecutionController
+
+    SHELL_OUT_FD = 6
+    SHELL_IN_FD = 7
+
+    def test_job_repr(self):
+        self.assertEqual(
+            self.ctrl.gen_job_repr(self.job),
+            {'id': self.job.id,
+             'summary': self.job.tr_summary(),
+             'description': self.job.tr_description()})
+
+    def test_get_execution_command(self):
+        """
+        Tests gluing of commandline arguments when running QML exec. ctrl.
+        """
+        self.assertEqual(
+            self.ctrl.get_execution_command(
+                self.job, self.job_state, self.config, self.SESSION_DIR,
+                self.NEST_DIR, self.SHELL_OUT_FD, self.SHELL_IN_FD),
+            ['qmlscene', '--job', self.job.qml_file, '--fd-out',
+             self.SHELL_OUT_FD, '--fd-in', self.SHELL_IN_FD,
+             self.ctrl.QML_SHELL_PATH])
+
+    @mock.patch('os.path.isdir')
+    @mock.patch('os.fdopen')
+    @mock.patch('os.pipe')
+    @mock.patch('os.write')
+    @mock.patch('os.close')
+    def test_execute_job(self, mock_os_close, mock_os_write, mock_os_pipe,
+                         mock_os_fdopen, mock_os_path_isdir):
+        """
+        Test if qml exec. ctrl. correctly runs piping
+        """
+        mock_os_pipe.side_effect = [("pipe0_r", "pipe0_w"),
+                                    ("pipe1_r", "pipe1_w")]
+        with mock.patch.object(self.ctrl, 'get_execution_command'), \
+                mock.patch.object(self.ctrl, 'get_execution_environment'), \
+                mock.patch.object(self.ctrl, 'configured_filesystem'), \
+                mock.patch.object(self.ctrl, 'temporary_cwd'), \
+                mock.patch.object(self.ctrl, 'gen_job_repr', return_value={}):
+            retval = self.ctrl.execute_job(
+                self.job, self.job_state, self.config, self.SESSION_DIR,
+                self.extcmd_popen)
+            # Ensure that call was invoked with command end environment (passed
+            # as keyword argument). Extract the return value of
+            # configured_filesystem() as nest_dir so that we can pass it to
+            # other calls to get their mocked return values.
+            # Urgh! is this doable somehow without all that?
+            nest_dir = self.ctrl.configured_filesystem().__enter__()
+            cwd_dir = self.ctrl.temporary_cwd().__enter__()
+            self.extcmd_popen.call.assert_called_with(
+                self.ctrl.get_execution_command(
+                    self.job, self.config, self.SESSION_DIR, nest_dir),
+                env=self.ctrl.get_execution_environment(
+                    self.job, self.config, self.SESSION_DIR, nest_dir),
+                cwd=cwd_dir,
+                pass_fds=["pipe0_w", "pipe1_r"])
+        # Ensure that execute_job() returns the return value of call()
+        self.assertEqual(retval, self.extcmd_popen.call())
+        # Ensure that presence of CHECKBOX_DATA directory was checked for
+        mock_os_path_isdir.assert_called_with(
+            self.ctrl.get_CHECKBOX_DATA(self.SESSION_DIR))
+        self.assertEqual(mock_os_pipe.call_count, 2)
+        self.assertEqual(mock_os_fdopen.call_count, 2)
+        self.assertEqual(mock_os_close.call_count, 6)
+
+    @mock.patch('os.path.isdir')
+    @mock.patch('os.fdopen')
+    @mock.patch('os.pipe')
+    @mock.patch('os.write')
+    @mock.patch('os.close')
+    def test_pipes_closed_when_cmd_raises(
+            self, mock_os_close, mock_os_write, mock_os_pipe, mock_os_fdopen,
+            mock_os_path_isdir):
+        """
+        Test if all pipes used by execute_job() are properly closed if
+        exception is raised during execution of command
+        """
+        mock_os_pipe.side_effect = [("pipe0_r", "pipe0_w"),
+                                    ("pipe1_r", "pipe1_w")]
+        with mock.patch.object(self.ctrl, 'get_execution_command'), \
+                mock.patch.object(self.ctrl, 'get_execution_environment'), \
+                mock.patch.object(self.ctrl, 'configured_filesystem'), \
+                mock.patch.object(self.ctrl, 'temporary_cwd'), \
+                mock.patch.object(self.ctrl, 'gen_job_repr', return_value={}), \
+                mock.patch.object(self.extcmd_popen, 'call',
+                                  side_effect=Exception('Boom')):
+            with self.assertRaises(Exception):
+                self.ctrl.execute_job(
+                    self.job, self.job_state, self.config, self.SESSION_DIR,
+                    self.extcmd_popen)
+        os.close.assert_any_call('pipe0_r')
+        os.close.assert_any_call('pipe1_r')
+        os.close.assert_any_call('pipe0_w')
+        os.close.assert_any_call('pipe1_w')
+
+    def test_get_checkbox_score_for_qml_job(self):
+        self.job.plugin = 'qml'
+        self.assertEqual(self.ctrl.get_checkbox_score(self.job), 4)

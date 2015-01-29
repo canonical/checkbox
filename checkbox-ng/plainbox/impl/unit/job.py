@@ -24,6 +24,7 @@
 
 import logging
 import re
+import os
 
 from plainbox.abc import IJobDefinition
 from plainbox.i18n import gettext as _
@@ -103,6 +104,7 @@ class _PluginValues(SymbolDef):
     user_interact = "user-interact"
     user_interact_verify = "user-interact-verify"
     shell = 'shell'
+    qml = 'qml'
 
 
 class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
@@ -302,6 +304,22 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
         return self.qualify_id(
             self.get_record_value(
                 'category_id', '2013.com.canonical.plainbox::uncategorised'))
+
+    @property
+    def qml_file(self):
+        """
+        path to a QML file that implements tests UI for this job
+
+        This property exposes a path to QML file that follows the Plainbox QML
+        Test Specification. The file will be loaded either in the native test
+        shell of the application using plainbox or with a helper, generic
+        loader for all command-line applications.
+
+        To use this property, the plugin type should be set to 'qml'.
+        """
+        qml_file = self.get_record_value('qml_file')
+        if qml_file is not None and self.provider is not None:
+            return os.path.join(self.provider.data_dir, qml_file)
 
     @property
     def estimated_duration(self):
@@ -547,6 +565,7 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
             purpose = 'purpose'
             steps = 'steps'
             verification = 'verification'
+            qml_file = 'qml_file'
 
         field_validators = {
             fields.name: [
@@ -599,11 +618,11 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
                 # All jobs except for manual must have a command
                 PresentFieldValidator(
                     message=_("command is mandatory for non-manual jobs"),
-                    onlyif=lambda unit: unit.plugin != 'manual'),
+                    onlyif=lambda unit: unit.plugin not in ('manual', 'qml')),
                 # Manual jobs cannot have a command
                 UselessFieldValidator(
-                    message=_("command on a manual job makes no sense"),
-                    onlyif=lambda unit: unit.plugin == 'manual'),
+                    message=_("command on a manual or qml job makes no sense"),
+                    onlyif=lambda unit: unit.plugin in ('manual', 'qml')),
                 # We don't want to refer to CHECKBOX_SHARE anymore
                 CorrectFieldValueValidator(
                     lambda command: "CHECKBOX_SHARE" not in command,
@@ -792,5 +811,22 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
                         ' non-C locale then set the preserve-locale flag'
                     ),
                     onlyif=lambda unit: unit.command),
+            ],
+            fields.qml_file: [
+                UntranslatableFieldValidator,
+                TemplateInvariantFieldValidator,
+                PresentFieldValidator(
+                    onlyif=lambda unit: unit.plugin == 'qml'),
+                CorrectFieldValueValidator(
+                    lambda value: value.endswith('.qml'),
+                    Problem.wrong, Severity.advice,
+                    message=_('use the .qml extension for all QML files'),
+                    onlyif=lambda unit: (unit.plugin == 'qml'
+                                         and unit.qml_file)),
+                CorrectFieldValueValidator(
+                    lambda value, unit: os.path.isfile(unit.qml_file),
+                    message=_('please point to an existing QML file'),
+                    onlyif=lambda unit: (unit.plugin == 'qml'
+                                         and unit.qml_file)),
             ]
         }

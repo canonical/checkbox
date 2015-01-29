@@ -35,11 +35,13 @@ circumstances.
 
 import abc
 import contextlib
+import errno
 try:
     import grp
 except ImportError:
     grp = None
 import itertools
+import json
 import logging
 import os
 try:
@@ -54,6 +56,7 @@ from plainbox.abc import IExecutionController
 from plainbox.abc import IJobResult
 from plainbox.abc import ISessionStateController
 from plainbox.i18n import gettext as _
+from plainbox.impl import get_plainbox_dir
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyMissingError
 from plainbox.impl.resource import ExpressionCannotEvaluateError
@@ -804,6 +807,160 @@ class UserJobExecutionController(CheckBoxExecutionController):
                 else:
                     return -1
             return 1
+
+
+class QmlJobExecutionController(CheckBoxExecutionController):
+    """
+    An execution controller that is able to run jobs in QML shell.
+    """
+
+    QML_SHELL_PATH = os.path.join(get_plainbox_dir(), 'data', 'qml-shell',
+                                  'plainbox_qml_shell.qml')
+
+    def get_execution_command(self, job, job_state, config, session_dir,
+                              nest_dir, shell_out_fd, shell_in_fd):
+        """
+        Get the command to execute the specified job
+
+        :param job:
+            job definition with the command and environment definitions
+        :param job_state:
+            The JobState associated to the job to execute.
+        :param config:
+            A PlainBoxConfig instance which can be used to load missing
+            environment definitions that apply to all jobs. Ignored.
+        :param session_dir:
+            Base directory of the session this job will execute in.
+            This directory is used to co-locate some data that is unique to
+            this execution as well as data that is shared by all executions.
+            Ignored.
+        :param nest_dir:
+            A directory with a nest of symlinks to all executables required to
+            execute the specified job. Ingored.
+        :param shell_out_fd:
+            File descriptor number which is used to pipe through result object
+            from the qml shell to plainbox.
+        :param shell_in_fd:
+            File descriptor number which is used to pipe through test meta
+            information from plainbox to qml shell.
+        :returns:
+            List of command arguments
+
+        """
+        cmd = ['qmlscene', '--job', job.qml_file, '--fd-out', shell_out_fd,
+               '--fd-in', shell_in_fd, self.QML_SHELL_PATH]
+        return cmd
+
+    def get_checkbox_score(self, job):
+        """
+        Compute how applicable this controller is for the specified job.
+
+        :returns:
+            4 if the job is a qml job or -1 otherwise
+        """
+        if job.plugin == 'qml':
+            return 4
+        else:
+            return -1
+
+    def gen_job_repr(self, job):
+        """
+        Generate simplified job representation for use in qml shell
+        :returns:
+            dictionary with simplified job representation
+        """
+        logger.debug(_("Generating job repr for job: %r"), job)
+        return {
+            "id": job.id,
+            "summary": job.tr_summary(),
+            "description": job.tr_description(),
+        }
+
+    def execute_job(self, job, job_state, config, session_dir, extcmd_popen):
+        """
+        Execute the specified job using the specified subprocess-like object,
+        passing fd with opened pipe for qml-shell->plainbox communication.
+
+        :param job:
+            The JobDefinition to execute
+        :param config:
+            A PlainBoxConfig instance which can be used to load missing
+            environment definitions that apply to all jobs. It is used to
+            provide values for missing environment variables that are required
+            by the job (as expressed by the environ key in the job definition
+            file).
+        :param session_dir:
+            Base directory of the session this job will execute in.
+            This directory is used to co-locate some data that is unique to
+            this execution as well as data that is shared by all executions.
+        :param extcmd_popen:
+            A subprocess.Popen like object
+        :returns:
+            The return code of the command, as returned by subprocess.call()
+        """
+
+        class DuplexPipe:
+            """
+            Helper context creating two pipes, ensuring they are closed
+            properly
+            """
+            def __enter__(self):
+                self.a_read, self.b_write = os.pipe()
+                self.b_read, self.a_write = os.pipe()
+                return self.a_read, self.b_write, self.b_read, self.a_write
+
+            def __exit__(self, *args):
+                for pipe in (self.a_read, self.b_write,
+                             self.b_read, self.a_write):
+                    # typically those pipes are already closed; trying to
+                    # re-close them causes OSError (errno == 9) to be raised
+                    try:
+                        os.close(pipe)
+                    except OSError as exc:
+                        if exc.errno != errno.EBADF:
+                            raise
+        # CHECKBOX_DATA is where jobs can share output.
+        # It has to be an directory that scripts can assume exists.
+        if not os.path.isdir(self.get_CHECKBOX_DATA(session_dir)):
+            os.makedirs(self.get_CHECKBOX_DATA(session_dir))
+        # Setup the executable nest directory
+        with self.configured_filesystem(job, config) as nest_dir:
+            with DuplexPipe() as (plainbox_read, shell_write,
+                                  shell_read, plainbox_write):
+                # Get the command and the environment.
+                # of this execution controller
+                cmd = self.get_execution_command(
+                    job, job_state, config, session_dir, nest_dir,
+                    str(shell_write), str(shell_read))
+                env = self.get_execution_environment(
+                    job, job_state, config, session_dir, nest_dir)
+                with self.temporary_cwd(job, config) as cwd_dir:
+                    job_json = json.dumps(self.gen_job_repr(job))
+                    pipe_out = os.fdopen(plainbox_write, 'wt')
+                    pipe_out.write(job_json)
+                    pipe_out.close()
+                    # run the command
+                    logger.debug(_("job[%s] executing %r with"
+                                   "env %r in cwd %r"),
+                                 job.id, cmd, env, cwd_dir)
+                    ret = extcmd_popen.call(cmd, env=env, cwd=cwd_dir,
+                                            pass_fds=[shell_write, shell_read])
+                    os.close(shell_read)
+                    os.close(shell_write)
+                    pipe_in = os.fdopen(plainbox_read)
+                    res_object_json_string = pipe_in.read()
+                    pipe_in.close()
+                    if ret != 0:
+                        return ret
+                    try:
+                        result = json.loads(res_object_json_string)
+                        if result['outcome'] == "pass":
+                            return 0
+                        else:
+                            return 1
+                    except ValueError:
+                        # qml-job did not print proper json object
+                        return 1
 
 
 class CheckBoxDifferentialExecutionController(CheckBoxExecutionController):

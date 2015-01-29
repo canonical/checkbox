@@ -421,3 +421,25 @@ command:
  dd if=/dev/zero bs=1M count=16384
 estimated_duration: 750
 category_id: stress
+
+id: stub/qml-simple
+_summary: A QML job that runs simple GUI
+_description:
+ This job displays a GUI that has two buttons determining outcome of the test.
+ It's similar to user-interact-verify, but this job is QML native.
+plugin: qml
+qml_file: qml-simple.qml
+flags: preserve-locale
+estimated_duration: 10
+category_id: qml-native
+
+id: stub/qml-navigation
+_summary: A QML job that has its own navigation
+_description:
+ This job displays a GUI with multiple screens using its own (independent) flow
+ control mechanism (page stack).
+plugin: qml
+qml_file: qml-navigation.qml
+flags: preserve-locale
+estimated_duration: 20
+category_id: qml-native

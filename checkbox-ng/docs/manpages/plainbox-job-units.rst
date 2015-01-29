@@ -62,6 +62,9 @@ Following fields may be used by the job unit:
      :resource: A job whose command output results in a set of rfc822
           records, containing key/value pairs, and that can be used in other
           jobs' ``requires`` expressions.
+     :qml: jobs that run a custom QML payload within a test shell (QML
+        application or a generic, minimalistic QML test shell) using test API
+        described in CEP-5
 
 .. warning::
      The following plugin names are deprecated:

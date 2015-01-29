@@ -29,3 +29,7 @@ _name: Elevated Privilege Tests
 id: overridden
 unit: category
 _name: Overridden Category
+
+id: qml-native
+unit: category
+_name: QML-native tests

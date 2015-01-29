@@ -296,12 +296,14 @@ class JobRunner(IJobRunner):
                 from plainbox.impl.ctrl import RootViaPTL1ExecutionController
                 from plainbox.impl.ctrl import RootViaSudoExecutionController
                 from plainbox.impl.ctrl import UserJobExecutionController
+                from plainbox.impl.ctrl import QmlJobExecutionController
                 execution_ctrl_list = [
                     RootViaPTL1ExecutionController(provider_list),
                     RootViaPkexecExecutionController(provider_list),
                     # XXX: maybe this one should be only used on command line
                     RootViaSudoExecutionController(provider_list),
                     UserJobExecutionController(provider_list),
+                    QmlJobExecutionController(provider_list),
                 ]
             elif sys.platform == 'win32':
                 from plainbox.impl.ctrl import UserJobExecutionController
@@ -679,6 +681,77 @@ class JobRunner(IJobRunner):
         # Maybe ask the user
         result_cmd.outcome = IJobResult.OUTCOME_UNDECIDED
         return result_cmd
+
+    def run_qml_job(self, job, job_state, config):
+        """
+        Method called to run a job with plugin field equal to 'qml'
+
+        The 'qml' job implements the following scenario:
+
+        * Maybe display the description to the user
+        * Run qmlscene with provided test and wait for it to finish
+        * Decide on the outcome based on the result object returned by qml
+          shell
+        * The method ends here
+
+        .. note::
+            QML jobs are fully manual jobs with graphical user interface
+            implemented in QML. They implement proposal described in CEP-5.
+        """
+        if job.plugin != "qml":
+            # TRANSLATORS: please keep 'plugin' untranslated
+            raise ValueError(_("bad job plugin value"))
+        try:
+            ctrl = self._get_ctrl_for_job(job)
+        except LookupError:
+            return MemoryJobResult({
+                'outcome': IJobResult.OUTCOME_NOT_SUPPORTED,
+                'comment': _('No suitable execution controller is available)'),
+            })
+        # Run the embedded command
+        start_time = time.time()
+        delegate, io_log_gen = self._prepare_io_handling(job, config)
+        # Create a subprocess.Popen() like object that uses the delegate
+        # system to observe all IO as it occurs in real time.
+        delegate_cls = self._get_delegate_cls(config)
+        extcmd_popen = delegate_cls(delegate)
+        # Stream all IOLogRecord entries to disk
+        record_path = os.path.join(
+            self._jobs_io_log_dir, "{}.record.gz".format(
+                slugify(job.id)))
+        with gzip.open(record_path, mode='wb') as gzip_stream, \
+                io.TextIOWrapper(
+                    gzip_stream, encoding='UTF-8') as record_stream:
+            writer = IOLogRecordWriter(record_stream)
+            io_log_gen.on_new_record.connect(writer.write_record)
+            try:
+                # Start the process and wait for it to finish getting the
+                # result code. This will actually call a number of callbacks
+                # while the process is running. It will also spawn a few
+                # threads although all callbacks will be fired from a single
+                # thread (which is _not_ the main thread)
+                logger.debug(
+                    _("job[%s] starting qml shell: %s"), job.id, job.qml_file)
+                # Run the job command using extcmd
+                return_code = self._run_extcmd(job, job_state, config,
+                                               extcmd_popen, ctrl)
+                logger.debug(
+                    _("job[%s] shell return code: %r"), job.id, return_code)
+            finally:
+                io_log_gen.on_new_record.disconnect(writer.write_record)
+        execution_duration = time.time() - start_time
+        # Convert the return of the command to the outcome of the job
+        if return_code == 0:
+            outcome = IJobResult.OUTCOME_PASS
+        else:
+            outcome = IJobResult.OUTCOME_FAIL
+        # Create a result object and return it
+        return DiskJobResult({
+            'outcome': outcome,
+            'return_code': return_code,
+            'io_log_filename': record_path,
+            'execution_duration': execution_duration
+        })
 
     def _get_dry_run_result(self, job):
         """

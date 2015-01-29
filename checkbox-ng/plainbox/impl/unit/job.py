@@ -600,11 +600,11 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
                 # All jobs except for manual must have a command
                 PresentFieldValidator(
                     message=_("command is mandatory for non-manual jobs"),
-                    onlyif=lambda unit: unit.plugin != 'manual'),
+                    onlyif=lambda unit: unit.plugin not in ('manual', 'qml')),
                 # Manual jobs cannot have a command
                 UselessFieldValidator(
                     message=_("command on a manual job makes no sense"),
-                    onlyif=lambda unit: unit.plugin == 'manual'),
+                    onlyif=lambda unit: unit.plugin in ('manual', 'qml')),
                 # We don't want to refer to CHECKBOX_SHARE anymore
                 CorrectFieldValueValidator(
                     lambda command: "CHECKBOX_SHARE" not in command,

@@ -329,7 +329,7 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
 
     def test_command__present__on_non_manual(self):
         for plugin in self.unit_cls.plugin.symbols.get_all_symbols():
-            if plugin == 'manual':
+            if plugin in ('manual', 'qml'):
                 continue
             # TODO: switch to subTest() once we depend on python3.4
             issue_list = self.unit_cls({
@@ -342,6 +342,15 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
     def test_command__useless__on_manual(self):
         issue_list = self.unit_cls({
             'plugin': 'manual',
+            'command': 'command'
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.command,
+            Problem.useless, Severity.warning)
+
+    def test_command__useless__on_qml(self):
+        issue_list = self.unit_cls({
+            'plugin': 'qml',
             'command': 'command'
         }, provider=self.provider).check()
         self.assertIssueFound(

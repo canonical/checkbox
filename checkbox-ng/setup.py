@@ -104,6 +104,8 @@ setup(
         ],
         'plainbox.parsers': [
             'pxu=plainbox.impl.secure.rfc822:load_rfc822_records',
+            'regex=plainbox.impl.xparsers:Re.parse',
+            'whitelist=plainbox.impl.xparsers:WhiteList.parse',
         ]
     },
     include_package_data=True)

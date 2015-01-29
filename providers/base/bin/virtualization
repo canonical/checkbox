@@ -166,10 +166,10 @@ class QemuRunner(object):
         
 class KVMTest(object):
 
-    def __init__(self, image=None, timeout=500, debug_file="virt_debug"):
+    def __init__(self, image=None, timeout=500, debug_file=None):
         self.image = image
         self.timeout = timeout
-        self.debug_file = os.path.join(os.getcwd(), debug_file)
+        self.debug_file = debug_file
         self.arch = check_output(['dpkg', '--print-architecture'], universal_newlines=True).strip()
         self.qemu_config = QEMU_ARCH_CONFIG[self.arch]
 
@@ -248,11 +248,6 @@ class KVMTest(object):
         params = qemu.get_params()
         logging.debug("Using params:{}".format(" ".join(params)))
 
-        # Default file location for log file is in checkbox output directory
-        checkbox_dir = os.getenv("CHECKBOX_DATA")
-
-        if checkbox_dir is not None:
-            self.debug_file = os.path.join(checkbox_dir, self.debug_file)
         logging.info("Storing VM console output in {}".format(
                      os.path.realpath(self.debug_file)))
         # Open VM STDERR/STDOUT log file for writing
@@ -408,7 +403,7 @@ def test_kvm(args):
     if args.image:
         image = args.image
 
-    kvm_test = KVMTest(image, timeout)
+    kvm_test = KVMTest(image, timeout, args.log_file)
     result = kvm_test.start()
 
     sys.exit(result)
@@ -431,6 +426,9 @@ def main():
         '-i', '--image', type=str, default=None)
     kvm_test_parser.add_argument(
         '-t', '--timeout', type=int)
+    kvm_test_parser.add_argument(
+        '-l', '--log-file', default='virt_debug',
+        help="Location for debugging output log. Defaults to %(default)s.")
     kvm_test_parser.add_argument('--debug', dest='log_level',
                                  action="store_const", const=logging.DEBUG,
                                  default=logging.INFO)

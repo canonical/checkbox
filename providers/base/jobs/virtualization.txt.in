@@ -7,7 +7,7 @@ requires:
  package.name == 'qemu-system'
  package.name == 'qemu-utils'
  virtualization.kvm == 'supported'
-command: virtualization kvm --debug
+command: virtualization kvm --debug --log-file=$PLAINBOX_SESSION_SHARE/virt_debug
 _description:
  Test to check that a cloud image boots and works properly with KVM
 _summary:

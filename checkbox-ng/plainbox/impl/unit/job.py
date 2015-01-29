@@ -103,6 +103,7 @@ class _PluginValues(SymbolDef):
     user_interact = "user-interact"
     user_interact_verify = "user-interact-verify"
     shell = 'shell'
+    qml = 'qml'
 
 
 class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):

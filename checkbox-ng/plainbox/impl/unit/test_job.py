@@ -291,7 +291,7 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             'plugin': 'foo'
         }, provider=self.provider).check()
         message = ("field 'plugin', valid values are: attachment, local,"
-                   " manual, resource, shell, user-interact,"
+                   " manual, qml, resource, shell, user-interact,"
                    " user-interact-verify, user-verify")
         self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.plugin,
                               Problem.wrong, Severity.error, message)

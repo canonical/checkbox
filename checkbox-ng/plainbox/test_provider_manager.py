@@ -322,7 +322,7 @@ class ProviderManagerToolTests(TestCase):
             test_io.stdout, (
                 "jobs/broken.txt:1-2: job '2014.com.example::broken', field"
                 " 'plugin': allowed values are: attachment, local, manual,"
-                " resource, shell, user-interact, user-interact-verify,"
+                " qml, resource, shell, user-interact, user-interact-verify,"
                 " user-verify\n"))
 
     def test_validate__broken_useless_field(self):

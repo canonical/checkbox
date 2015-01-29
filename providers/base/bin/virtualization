@@ -327,8 +327,10 @@ final_message: CERTIFICATION BOOT COMPLETE
                 instance = self.boot_image(self.image)
 
                 time.sleep(self.timeout)
-                # Reset Console window to regain control from VM Serial I/0
-                call('reset')
+                # If running in console, reset console window to regain
+                # control from VM Serial I/0
+                if os.fstat(0) == os.fstat(1):
+                    call('reset')
                 # Check to be sure VM boot was successful
                 with open(self.debug_file, 'r') as debug_file:
                     file_contents = debug_file.read()

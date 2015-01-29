@@ -50,7 +50,23 @@ from plainbox.impl.commands import PlainBoxToolBase
 
     @EPILOG@
 
-    Provided QML file must conform to the specification described in CEP-5.
+    General purpose of this command is to make development of qml-native jobs
+    faster, by making it easier to test qml file(s) that constitute to job
+    without resorting to installation of provider and running plainbox run.
+    Typical approach to the development of new qml job would be as follows:
+
+    - have an idea for a job
+
+    - create a qml file in Ubuntu-SDK or Your Favourite Editor
+
+    - hack on the file and iterate using qmlscene (or use plainbox-qml-shell
+      immediately if you start with next point)
+
+    - make it conformant to plainbox qml-native API described in CEP-5
+      (calling test-done at the end)
+
+    - copy qml file over to data dir of a provider and add a job unit to it
+
     """))
 class QmlShellCommand(PlainBoxCommand):
     def register_parser(self, subparsers):

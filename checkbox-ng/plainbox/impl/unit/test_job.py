@@ -126,6 +126,32 @@ class TestJobDefinitionDefinition(TestCase):
         self.assertEqual(job.flags, "flags-value")
         self.assertEqual(job.category_id, "category_id-value")
 
+    def test_qml_file_property_none_when_missing_provider(self):
+        """
+        Ensure that qml_file property is set to None when provider is not set.
+        """
+        job = JobDefinition({
+            'qml_file': 'qml_file-value'
+        }, raw_data={
+            'qml_file': 'qml_file-raw'
+        })
+        self.assertEqual(job.qml_file, None)
+
+    def test_qml_file_property(self):
+        """
+        Ensure that qml_file property is properly constructed
+        """
+        mock_provider = mock.Mock()
+        type(mock_provider).data_dir = mock.PropertyMock(return_value='data')
+        job = JobDefinition({
+            'qml_file': 'qml_file-value'
+        }, raw_data={
+            'qml_file': 'qml_file-raw'
+        }, provider=mock_provider)
+        with mock.patch('os.path.join', return_value='path') as mock_join:
+            self.assertEqual(job.qml_file, 'path')
+            mock_join.assert_called_with('data', 'qml_file-value')
+
     def test_properties_default_values(self):
         """
         Ensure that all properties default to None
@@ -138,6 +164,7 @@ class TestJobDefinitionDefinition(TestCase):
         self.assertEqual(job.shell, 'bash')
         self.assertEqual(job.flags, None)
         self.assertEqual(job.category_id, '2013.com.canonical.plainbox::uncategorised')
+        self.assertEqual(job.qml_file, None)
 
     def test_checksum_smoke(self):
         job1 = JobDefinition({'plugin': 'plugin', 'user': 'root'})

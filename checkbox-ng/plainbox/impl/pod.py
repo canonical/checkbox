@@ -63,7 +63,8 @@ from plainbox.i18n import gettext as _
 from plainbox.impl.signal import Signal
 
 __all__ = ['POD', 'Field', 'MANDATORY', 'UNSET', 'read_only_assign_filter',
-           'type_convert_assign_filter', 'type_check_assign_filter']
+           'type_convert_assign_filter', 'type_check_assign_filter',
+           'modify_field_docstring']
 
 
 _logger = getLogger("plainbox.pod")
@@ -536,6 +537,31 @@ class POD(metaclass=PODMeta):
             field.name: getattr(self, field.name)
             for field in self.__class__.field_list
         }
+
+
+def modify_field_docstring(field_docstring_ext: str):
+    """
+    A decorator for assign filter functions that allows them to declaratively
+    modify the docstring of the field they are used on.
+
+    :param field_docstring_ext:
+        A string compatible with python's str.format() method. The string
+        should be one line long (newlines will look odd) and may reference any
+        of the field attributes, as exposed by the {field} named format
+        attribute.
+
+    Example:
+
+        >>> @modify_field_docstring("not even")
+        ... def not_even(instance, field, old, new):
+        ...     if new % 2 == 0:
+        ...         raise ValueError("value cannot be even")
+        ...     return new
+    """
+    def decorator(fn):
+        fn.field_docstring_ext = field_docstring_ext
+        return fn
+    return decorator
 
 
 def read_only_assign_filter(

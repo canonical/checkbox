@@ -102,5 +102,8 @@ setup(
             'category=plainbox.impl.unit.category:CategoryUnit',
             'test plan=plainbox.impl.unit.testplan:TestPlanUnit',
         ],
+        'plainbox.parsers': [
+            'pxu=plainbox.impl.secure.rfc822:load_rfc822_records',
+        ]
     },
     include_package_data=True)

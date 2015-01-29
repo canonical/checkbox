@@ -593,6 +593,9 @@ def read_only_assign_filter(
     ).format(instance.__class__.__name__, field.name))
 
 
+const = read_only_assign_filter
+
+
 @modify_field_docstring(
     "type-converted (value must be convertible to {field.type.__name__})")
 def type_convert_assign_filter(
@@ -644,3 +647,6 @@ def type_check_assign_filter(
         return new
     raise TypeError("{}.{} requires objects of type {}".format(
         instance.__class__.__name__, field.name, field.type.__name__))
+
+
+typed = type_check_assign_filter

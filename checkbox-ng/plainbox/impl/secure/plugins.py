@@ -627,9 +627,10 @@ class LazyPlugInCollection(PlugInCollectionBase):
         callbacks.
 
         :param callback_args_map:
-            any mapping from from any string (the plugin name) to a
-            tuple ("module:obj", *args) that if imported and called
-            ``obj(*args)`` produces the plugin object.
+            any mapping from from any string (the plugin name) to a tuple
+            ("module:obj", *args) that if imported and called ``obj(*args)``
+            produces the plugin object, alternatively, a mapping from the same
+            string to a string that is imported but *not* called.
         :param load:
             if true, load all of the plug-ins now
         :param wrapper:
@@ -680,7 +681,7 @@ class LazyPlugInCollection(PlugInCollectionBase):
             args = discovery_data[1:]
         else:
             callable_obj = discovery_data
-            args = ()
+            args = None
         if isinstance(callable_obj, str):
             logger.debug(_("Importing %s"),  callable_obj)
             callable_obj = getattr(
@@ -688,7 +689,10 @@ class LazyPlugInCollection(PlugInCollectionBase):
                     callable_obj.split(':', 1)[0], fromlist=[1]),
                 callable_obj.split(':', 1)[1])
         logger.debug(_("Calling %r with %r"), callable_obj, args)
-        return callable_obj(*args)
+        if args is None:
+            return callable_obj
+        else:
+            return callable_obj(*args)
 
     def get_all_names(self):
         """

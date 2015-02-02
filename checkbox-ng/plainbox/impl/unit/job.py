@@ -345,6 +345,20 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
         if qml_file is not None and self.provider is not None:
             return os.path.join(self.provider.data_dir, qml_file)
 
+    @propertywithsymbols(symbols=_BlockerStatusValues)
+    def blocker_status(self):
+        """
+        Get the natural blocker status of this job.
+
+        The default blocker status of all jobs is BlockerStatus.unspecified
+
+        .. note::
+            Remember that the blocker status can be overridden by a test plan.
+            You should, instead, consider the effective blocker status that can
+            be obtained from :class:`JobState`.
+        """
+        return self.get_record_value('blocker_status', 'unspecified')
+
     @property
     def estimated_duration(self):
         """
@@ -590,6 +604,7 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
             steps = 'steps'
             verification = 'verification'
             qml_file = 'qml_file'
+            blocker_status = 'blocker_status'
 
         field_validators = {
             fields.name: [
@@ -852,5 +867,16 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
                     message=_('please point to an existing QML file'),
                     onlyif=lambda unit: (unit.plugin == 'qml'
                                          and unit.qml_file)),
-            ]
+            ],
+            fields.blocker_status: [
+                UntranslatableFieldValidator,
+                TemplateInvariantFieldValidator,
+                CorrectFieldValueValidator(
+                    lambda blocker_status: (
+                        blocker_status in
+                        _BlockerStatusValues.get_all_symbols()),
+                    message=_('valid values are: {}').format(
+                        ', '.join(str(sym) for sym in sorted(
+                            _BlockerStatusValues.get_all_symbols())))),
+            ],
         }

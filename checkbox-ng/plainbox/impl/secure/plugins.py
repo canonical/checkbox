@@ -368,8 +368,8 @@ class PlugInCollectionBase(IPlugInCollection):
         self._loaded = True
         self._plugins = collections.OrderedDict([
             (plugin.plugin_name, plugin)
-            for plugin in sorted(
-                plugins, key=lambda plugin: plugin.plugin_name)])
+            for plugin in plugins
+        ])
         if problem_list is None:
             problem_list = []
         self._problem_list = problem_list

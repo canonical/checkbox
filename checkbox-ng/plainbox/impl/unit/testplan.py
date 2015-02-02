@@ -238,7 +238,7 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
         OperatorMatcher:
             This matcher is created for lines of text that **are not** regular
             expressions. The matcher uses the operator.eq operator (equality)
-            and stores the expected job idenifier as the right-hand-side value
+            and stores the expected job identifier as the right-hand-side value
         """
         for lineno_offset, line in enumerate(text.splitlines()):
             # Strip shell-style comments if there are any

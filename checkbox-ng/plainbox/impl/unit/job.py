@@ -107,6 +107,30 @@ class _PluginValues(SymbolDef):
     qml = 'qml'
 
 
+class _BlockerStatusValues(SymbolDef):
+    """
+    Symbols for each value of the JobDefinition.blocker_status field
+
+    Particular values have the following meanings.
+
+    unspecified:
+        Default value without any meaning
+    non-blocker:
+        Test is not routinely performed for certification. Failure of a test is
+        irrelevant for certification.
+    future-blocker:
+        Test is routinely performed for certification. Failure is non-blocking
+        but should be noticed.
+    blocker:
+        Test is routinely performed for certification and any failures block
+        the certification process.
+    """
+    unspecified = 'unspecified'
+    non_blocker = 'non-blocker'
+    future_blocker = 'future-blocker'
+    blocker = 'blocker'
+
+
 class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
     """
     Job definition class.

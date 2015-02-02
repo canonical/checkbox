@@ -290,7 +290,6 @@ class PlugInCollectionBase(IPlugInCollection):
         self._wrapper_kwargs = wrapper_kwargs
         self._plugins = collections.OrderedDict()  # str -> IPlugIn instance
         self._loaded = False
-        self._mocked_objects = None
         self._problem_list = []
         self._discovery_time = 0
         if load:

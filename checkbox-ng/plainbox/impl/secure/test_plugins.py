@@ -132,7 +132,6 @@ class PlugInCollectionBaseTests(TestCase):
         self.assertEqual(self.col._wrapper, PlugIn)
         self.assertEqual(self.col._plugins, collections.OrderedDict())
         self.assertEqual(self.col._loaded, False)
-        self.assertEqual(self.col._mocked_objects, None)
         self.assertEqual(self.col._problem_list, [])
 
     def test_get_by_name__typical(self):

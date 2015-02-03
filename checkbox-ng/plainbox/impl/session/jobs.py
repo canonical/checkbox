@@ -30,13 +30,14 @@ import logging
 from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _
 from plainbox.impl import pod
+from plainbox.impl.resource import ResourceExpression
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.unit.job import JobDefinition
 
 logger = logging.getLogger("plainbox.session.jobs")
 
 
-class JobReadinessInhibitor:
+class JobReadinessInhibitor(pod.POD):
     """
     Class representing the cause of a job not being ready to execute.
 
@@ -102,6 +103,22 @@ class JobReadinessInhibitor:
         FAILED_RESOURCE: "FAILED_RESOURCE"
     }
 
+    cause = pod.Field(
+        doc="cause (constant) of the inhibitor",
+        type=int,
+        initial=pod.MANDATORY,
+        assign_filter_list=[pod.read_only_assign_filter])
+
+    related_job = pod.Field(
+        doc="an (optional) job reference",
+        type=JobDefinition,
+        assign_filter_list=[pod.read_only_assign_filter])
+
+    related_expression = pod.Field(
+        doc="an (optional) resource expression reference",
+        type=ResourceExpression,
+        assign_filter_list=[pod.read_only_assign_filter])
+
     def __init__(self, cause, related_job=None, related_expression=None):
         """
         Initialize a new inhibitor with the specified cause.
@@ -125,21 +142,7 @@ class JobReadinessInhibitor:
                 # and cause.
                 "related_expression must not be None when cause is {}"
             ).format(self._cause_display[cause]))
-        self.cause = cause
-        self.related_job = related_job
-        self.related_expression = related_expression
-
-    def __eq__(self, other):
-        if isinstance(other, JobReadinessInhibitor):
-            return ((self.cause, self.related_job, self.related_expression)
-                    == (self.cause, self.related_job, self.related_expression))
-        return NotImplemented
-
-    def __ne__(self, other):
-        if isinstance(other, JobReadinessInhibitor):
-            return ((self.cause, self.related_job, self.related_expression)
-                    != (self.cause, self.related_job, self.related_expression))
-        return NotImplemented
+        return super().__init__(cause, related_job, related_expression)
 
     @property
     def cause_name(self):

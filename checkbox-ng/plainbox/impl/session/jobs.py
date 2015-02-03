@@ -33,8 +33,36 @@ from plainbox.impl import pod
 from plainbox.impl.resource import ResourceExpression
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.unit.job import JobDefinition
+from plainbox.vendor.enum import IntEnum
 
 logger = logging.getLogger("plainbox.session.jobs")
+
+
+class InhibitionCause(IntEnum):
+    """
+    There are four possible not-ready causes:
+
+        UNDESIRED:
+            This job was not selected to run in this session
+
+        PENDING_DEP:
+           This job depends on another job which was not started yet
+
+        FAILED_DEP:
+            This job depends on another job which was started and failed
+
+        PENDING_RESOURCE:
+            This job has a resource requirement expression that uses a resource
+            produced by another job which was not started yet
+
+        FAILED_RESOURCE:
+            This job has a resource requirement that evaluated to a false value
+    """
+    UNDESIRED = 0
+    PENDING_DEP = 1
+    FAILED_DEP = 2
+    PENDING_RESOURCE = 3
+    FAILED_RESOURCE = 4
 
 
 class JobReadinessInhibitor(pod.POD):

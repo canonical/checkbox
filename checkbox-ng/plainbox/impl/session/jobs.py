@@ -27,9 +27,10 @@ that prevent the job from being runnable in a particular session.
 
 import logging
 
+from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _
+from plainbox.impl.pod import POD, Field, MANDATORY, UNSET
 from plainbox.impl.result import MemoryJobResult
-from plainbox.impl.signal import Signal
 from plainbox.impl.unit.job import JobDefinition
 
 logger = logging.getLogger("plainbox.session.jobs")
@@ -176,7 +177,49 @@ UndesiredJobReadinessInhibitor = JobReadinessInhibitor(
     JobReadinessInhibitor.UNDESIRED)
 
 
-class JobState:
+JOB_VALUE = object()
+
+
+class OverridableJobField(Field):
+    """
+    A readable-writable field that has a special initial value ``JOB_VALUE``
+    which is interpreted as "load this value from the corresponding job
+    definition".
+
+    This field class facilitates implementation of fields that have some
+    per-job value but can be also overridden in a session state context.
+    """
+
+    def __init__(self, job_field, doc=None, type=None, notify=False,
+                 assign_filter_list=None):
+        super().__init__(
+            doc, type, JOB_VALUE, None, notify, assign_filter_list)
+        self.job_field = job_field
+
+    def __get__(self, instance, owner):
+        value = super().__get__(instance, owner)
+        if value is JOB_VALUE:
+            return getattr(instance.job, self.job_field)
+        else:
+            return value
+
+
+def job_assign_filter(pod, field, old_value, new_value):
+    # FIXME: This setter should not exist. job attribute should be
+    # read-only. This is a temporary kludge to get session restoring
+    # over DBus working. Once a solution that doesn't involve setting
+    # a JobState's job attribute is implemented, please remove this
+    # awful method.
+    return new_value
+
+
+def job_via_assign_filter(pod, field, old_value, new_value):
+    if old_value is not UNSET and not isinstance(new_value, JobDefinition):
+        raise TypeError("via_job must be the actual job, not the checksum")
+    return new_value
+
+
+class JobState(POD):
     """
     Class representing the state of a job in a session.
 
@@ -192,82 +235,38 @@ class JobState:
     collaborate with the SessionState class and the UI layer.
     """
 
-    def __init__(self, job):
-        """
-        Initialize a new job state object.
+    job = Field(
+        doc="the job associated with this state",
+        type=JobDefinition,
+        initial=MANDATORY,
+        assign_filter_list=[job_assign_filter])
 
-        The job will be inhibited by a single UNDESIRED inhibitor and will have
-        a result with OUTCOME_NONE that basically says it did not run yet.
-        """
-        self._job = job
-        self._readiness_inhibitor_list = [UndesiredJobReadinessInhibitor]
-        self._result = MemoryJobResult({})
-        self._effective_category_id = None
-        self._via_job = None
-        assert self._result.is_hollow
+    readiness_inhibitor_list = Field(
+        doc="the list of readiness inhibitors of the associated job",
+        type="List[JobReadinessInhibitor]",
+        initial_fn=lambda: [UndesiredJobReadinessInhibitor])
+
+    result = Field(
+        doc="the result of running the associated job",
+        type=IJobResult,
+        initial_fn=lambda: MemoryJobResult({}),
+        notify=True)
+
+    via_job = Field(
+        doc="the parent job definition",
+        type=JobDefinition,
+        assign_filter_list=[job_via_assign_filter])
+
+    effective_category_id = OverridableJobField(
+        job_field="category_id",
+        doc="the effective categorization of this test in a session",
+        type=str)
 
     def __repr__(self):
+        # NOTE: this repr is legacy and it can be dropped
         fmt = ("<{} job:{!r} readiness_inhibitor_list:{!r} result:{!r}>")
         return fmt.format(self.__class__.__name__, self._job,
                           self._readiness_inhibitor_list, self._result)
-
-    @property
-    def job(self):
-        """
-        the job associated with this state
-        """
-        return self._job
-
-    @job.setter
-    def job(self, job):
-        """
-        Changes the job associated with this state
-        """
-        # FIXME: This setter should not exist. job attribute should be
-        # read-only. This is a temporary kludge to get session restoring
-        # over DBus working. Once a solution that doesn't involve setting
-        # a JobState's job attribute is implemented, please remove this
-        # awful method.
-        self._job = job
-
-    def _readiness_inhibitor_list():
-
-        doc = "the list of readiness inhibitors of the associated job"
-
-        def fget(self):
-            return self._readiness_inhibitor_list
-
-        def fset(self, value):
-            self._readiness_inhibitor_list = value
-
-        return (fget, fset, None, doc)
-
-    readiness_inhibitor_list = property(*_readiness_inhibitor_list())
-
-    def _result():
-        doc = "the result of running the associated job"
-
-        def fget(self):
-            return self._result
-
-        def fset(self, new):
-            old = self._result
-            if old != new:
-                self._result = new
-                self.on_result_changed(old, new)
-
-        return (fget, fset, None, doc)
-
-    result = property(*_result())
-
-    @Signal.define
-    def on_result_changed(self, old, new):
-        """
-        Event fired when the result associated with this job state changes
-        """
-        logger.debug(
-            "<%s %s>.on_result_changed(%r, %r)",
-            self.__class__.__name__, id(self), old, new)
 
     def can_start(self):
         """
@@ -285,36 +284,3 @@ class JobState:
                            for inhibitor in self._readiness_inhibitor_list)))
         else:
             return "job can be started"
-
-    @property
-    def effective_category_id(self):
-        """
-        The effective category identifier of this job in a session
-
-        This property can be assigned to. By default, each effective category
-        identifier is the natural category identifier of the associated job. It
-        can be re-assigned to any other identifier though.
-        """
-        if self._effective_category_id is not None:
-            return self._effective_category_id
-        else:
-            return self.job.category_id
-
-    @effective_category_id.setter
-    def effective_category_id(self, value):
-        self._effective_category_id = value
-
-    @property
-    def via_job(self):
-        """
-        The "parent" job when the current JobDefinition comes from a job output
-        using the local plugin or of the corresponding resource that was used
-        to instantiate a template job.
-        """
-        return self._via_job
-
-    @via_job.setter
-    def via_job(self, value: JobDefinition):
-        if not isinstance(value, JobDefinition):
-            raise TypeError("via_job must be the actual job, not the checksum")
-        self._via_job = value

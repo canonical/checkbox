@@ -65,6 +65,18 @@ class InhibitionCause(IntEnum):
     FAILED_RESOURCE = 4
 
 
+def cause_convert_assign_filter(
+        instance: pod.POD, field: pod.Field, old: "Any", new: "Any") -> "Any":
+    """
+    Custom assign filter for the JobReadinessInhibitor.cause field that
+    produces a very specific error message.
+    """
+    try:
+        return pod.type_convert_assign_filter(instance, field, old, new)
+    except ValueError:
+        raise ValueError(_("unsupported value for cause"))
+
+
 class JobReadinessInhibitor(pod.POD):
     """
     Class representing the cause of a job not being ready to execute.
@@ -126,9 +138,10 @@ class JobReadinessInhibitor(pod.POD):
 
     cause = pod.Field(
         doc="cause (constant) of the inhibitor",
-        type=int,
+        type=InhibitionCause,
         initial=pod.MANDATORY,
-        assign_filter_list=[pod.read_only_assign_filter])
+        assign_filter_list=[cause_convert_assign_filter,
+                            pod.read_only_assign_filter])
 
     related_job = pod.Field(
         doc="an (optional) job reference",

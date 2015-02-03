@@ -159,10 +159,6 @@ class JobReadinessInhibitor(pod.POD):
         necessary as well. A ValueError is raised when this is violated.
         """
         super().__init__(cause, related_job, related_expression)
-        try:
-            InhibitionCause(self.cause)
-        except ValueError:
-            raise ValueError(_("unsupported value for cause"))
         if self.cause != self.UNDESIRED and self.related_job is None:
             raise ValueError(
                 # TRANSLATORS: please don't translate related_job, None and

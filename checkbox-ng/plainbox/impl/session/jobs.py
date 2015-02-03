@@ -266,15 +266,15 @@ class JobState(POD):
         """
         Quickly check if the associated job can run right now.
         """
-        return len(self._readiness_inhibitor_list) == 0
+        return len(self.readiness_inhibitor_list) == 0
 
     def get_readiness_description(self):
         """
         Get a human readable description of the current readiness state
         """
-        if self._readiness_inhibitor_list:
+        if self.readiness_inhibitor_list:
             return _("job cannot be started: {}").format(
                 ", ".join((str(inhibitor)
-                           for inhibitor in self._readiness_inhibitor_list)))
+                           for inhibitor in self.readiness_inhibitor_list)))
         else:
             return _("job can be started")

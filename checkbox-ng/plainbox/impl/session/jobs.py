@@ -111,7 +111,8 @@ class JobReadinessInhibitor(pod.POD):
     There are three attributes that can be accessed:
 
         cause:
-            Encodes the reason why a job is not ready, see above.
+            Encodes the reason why a job is not ready, see
+            :class:`InhibitionCause`.
 
         related_job:
             Provides additional context for the problem. This is not the job

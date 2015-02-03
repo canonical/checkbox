@@ -148,7 +148,9 @@ class JobReadinessInhibitor(pod.POD):
         is either PENDING_RESOURCE or FAILED_RESOURCE related_expression is
         necessary as well. A ValueError is raised when this is violated.
         """
-        if cause not in self._cause_display:
+        try:
+            cause = InhibitionCause(cause)
+        except ValueError:
             raise ValueError(_("unsupported value for cause"))
         if cause != self.UNDESIRED and related_job is None:
             raise ValueError(

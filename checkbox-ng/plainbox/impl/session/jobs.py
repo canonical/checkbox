@@ -133,10 +133,6 @@ class JobReadinessInhibitor(pod.POD):
     # is used to represent a resource expression that evaluated to a non-True
     # value
 
-    _cause_display = {
-        value: value.name for value in InhibitionCause
-    }
-
     cause = pod.Field(
         doc="cause (constant) of the inhibitor",
         type=InhibitionCause,

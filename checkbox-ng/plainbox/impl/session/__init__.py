@@ -86,8 +86,10 @@ __all__ = [
     'SessionStorage',
     'SessionStorageRepository',
     'UndesiredJobReadinessInhibitor',
+    'InhibitionCause',
 ]
 
+from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.session.jobs import JobReadinessInhibitor
 from plainbox.impl.session.jobs import JobState
 from plainbox.impl.session.jobs import UndesiredJobReadinessInhibitor

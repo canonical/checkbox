@@ -35,7 +35,7 @@ from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.qualifiers import JobIdQualifier
-from plainbox.impl.session import JobReadinessInhibitor
+from plainbox.impl.session import InhibitionCause
 from plainbox.impl.session import SessionState
 from plainbox.impl.session import UndesiredJobReadinessInhibitor
 from plainbox.impl.session.state import SessionDeviceContext
@@ -415,13 +415,13 @@ class SessionStateReactionToJobResultTests(TestCase):
         self.assertFalse(self.job_state('X').can_start())
         self.assertFalse(self.job_state('Y').can_start())
         self.assertEqual(self.job_inhibitor('A', 0).cause,
-                         JobReadinessInhibitor.UNDESIRED)
+                         InhibitionCause.UNDESIRED)
         self.assertEqual(self.job_inhibitor('R', 0).cause,
-                         JobReadinessInhibitor.UNDESIRED)
+                         InhibitionCause.UNDESIRED)
         self.assertEqual(self.job_inhibitor('X', 0).cause,
-                         JobReadinessInhibitor.UNDESIRED)
+                         InhibitionCause.UNDESIRED)
         self.assertEqual(self.job_inhibitor('Y', 0).cause,
-                         JobReadinessInhibitor.UNDESIRED)
+                         InhibitionCause.UNDESIRED)
 
     def test_desire_job_A_updates_state_map(self):
         # This function checks what happens when the job A becomes desired via
@@ -443,7 +443,7 @@ class SessionStateReactionToJobResultTests(TestCase):
         # pinpoints the related job and related expression.
         self.assertNotEqual(self.job_state('A').readiness_inhibitor_list, [])
         self.assertEqual(self.job_inhibitor('A', 0).cause,
-                         JobReadinessInhibitor.PENDING_RESOURCE)
+                         InhibitionCause.PENDING_RESOURCE)
         self.assertEqual(self.job_inhibitor('A', 0).related_job, self.job_R)
         self.assertEqual(self.job_inhibitor('A', 0).related_expression,
                          self.job_A_expr)
@@ -474,7 +474,7 @@ class SessionStateReactionToJobResultTests(TestCase):
         # update_desired_job_list() a will still have the UNDESIRED inhibitor
         # but it will no longer have the PENDING_RESOURCE inhibitor,
         self.assertEqual(self.job_inhibitor('A', 0).cause,
-                         JobReadinessInhibitor.UNDESIRED)
+                         InhibitionCause.UNDESIRED)
         # Now if we put A on the desired list this should clear the UNDESIRED
         # inhibitor and make A runnable.
         self.session.update_desired_job_list([self.job_A])
@@ -497,7 +497,7 @@ class SessionStateReactionToJobResultTests(TestCase):
         # relationships. While a result for job A was presented, job A is still
         # inhibited by the UNDESIRED inhibitor.
         self.assertEqual(self.job_inhibitor('A', 0).cause,
-                         JobReadinessInhibitor.UNDESIRED)
+                         InhibitionCause.UNDESIRED)
 
     def test_resource_job_with_broken_output(self):
         # This function checks how SessionState parses partially broken
@@ -542,7 +542,7 @@ class SessionStateReactionToJobResultTests(TestCase):
         # pinpoints the related job and related expression.
         self.assertNotEqual(self.job_state('X').readiness_inhibitor_list, [])
         self.assertEqual(self.job_inhibitor('X', 0).cause,
-                         JobReadinessInhibitor.PENDING_DEP)
+                         InhibitionCause.PENDING_DEP)
         self.assertEqual(self.job_inhibitor('X', 0).related_job, self.job_Y)
         self.assertFalse(self.job_state('X').can_start())
 
@@ -554,7 +554,7 @@ class SessionStateReactionToJobResultTests(TestCase):
         # on Y
         self.assertNotEqual(self.job_state('X').readiness_inhibitor_list, [])
         self.assertEqual(self.job_inhibitor('X', 0).cause,
-                         JobReadinessInhibitor.PENDING_DEP)
+                         InhibitionCause.PENDING_DEP)
         self.assertEqual(self.job_inhibitor('X', 0).related_job, self.job_Y)
         self.assertFalse(self.job_state('X').can_start())
         # When a failed Y result is presented X should switch to FAILED_DEP
@@ -564,7 +564,7 @@ class SessionStateReactionToJobResultTests(TestCase):
         # PENDING_DEP it had before. Everything else should stay as-is.
         self.assertNotEqual(self.job_state('X').readiness_inhibitor_list, [])
         self.assertEqual(self.job_inhibitor('X', 0).cause,
-                         JobReadinessInhibitor.FAILED_DEP)
+                         InhibitionCause.FAILED_DEP)
         self.assertEqual(self.job_inhibitor('X', 0).related_job, self.job_Y)
         self.assertFalse(self.job_state('X').can_start())
 
@@ -589,7 +589,7 @@ class SessionStateReactionToJobResultTests(TestCase):
         # Now A is inhibited by FAILED_RESOURCE
         self.assertNotEqual(self.job_state('A').readiness_inhibitor_list, [])
         self.assertEqual(self.job_inhibitor('A', 0).cause,
-                         JobReadinessInhibitor.FAILED_RESOURCE)
+                         InhibitionCause.FAILED_RESOURCE)
         self.assertEqual(self.job_inhibitor('A', 0).related_job, self.job_R)
         self.assertEqual(self.job_inhibitor('A', 0).related_expression,
                          self.job_A_expr)

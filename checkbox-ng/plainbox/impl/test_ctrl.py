@@ -50,6 +50,7 @@ from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.rfc822 import RFC822Record
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
+from plainbox.impl.session import InhibitionCause
 from plainbox.impl.session import JobReadinessInhibitor
 from plainbox.impl.session import JobState
 from plainbox.impl.session import SessionState
@@ -115,7 +116,7 @@ class CheckBoxSessionStateControllerTests(TestCase):
         self.assertEqual(
             self.ctrl.get_inhibitor_list(session_state, j1),
             [JobReadinessInhibitor(
-                JobReadinessInhibitor.PENDING_RESOURCE,
+                InhibitionCause.PENDING_RESOURCE,
                 j2, ResourceExpression('j2.attr == "ok"'))])
 
     def test_get_inhibitor_list_FAILED_RESOURCE(self):
@@ -137,7 +138,7 @@ class CheckBoxSessionStateControllerTests(TestCase):
         self.assertEqual(
             self.ctrl.get_inhibitor_list(session_state, j1),
             [JobReadinessInhibitor(
-                JobReadinessInhibitor.FAILED_RESOURCE,
+                InhibitionCause.FAILED_RESOURCE,
                 j2, ResourceExpression('j2.attr == "ok"'))])
 
     def test_get_inhibitor_list_good_resource(self):
@@ -176,7 +177,7 @@ class CheckBoxSessionStateControllerTests(TestCase):
         self.assertEqual(
             self.ctrl.get_inhibitor_list(session_state, j1),
             [JobReadinessInhibitor(
-                JobReadinessInhibitor.PENDING_DEP, j2, None)])
+                InhibitionCause.PENDING_DEP, j2, None)])
 
     def test_get_inhibitor_list_FAILED_DEP(self):
         # verify that jobs that depend on another job that ran but
@@ -196,7 +197,7 @@ class CheckBoxSessionStateControllerTests(TestCase):
         self.assertEqual(
             self.ctrl.get_inhibitor_list(session_state, j1),
             [JobReadinessInhibitor(
-                JobReadinessInhibitor.FAILED_DEP, j2, None)])
+                InhibitionCause.FAILED_DEP, j2, None)])
 
     def test_get_inhibitor_list_good_dep(self):
         # verify that jobs that depend on another job that ran and has outcome

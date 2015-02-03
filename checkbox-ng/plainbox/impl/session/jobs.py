@@ -159,14 +159,16 @@ class JobReadinessInhibitor(pod.POD):
         necessary as well. A ValueError is raised when this is violated.
         """
         super().__init__(cause, related_job, related_expression)
-        if self.cause != self.UNDESIRED and self.related_job is None:
+        if (self.cause != InhibitionCause.UNDESIRED
+                and self.related_job is None):
             raise ValueError(
                 # TRANSLATORS: please don't translate related_job, None and
                 # cause
                 _("related_job must not be None when cause is {}").format(
                     self.cause.name))
-        if self.cause in (self.PENDING_RESOURCE, self.FAILED_RESOURCE) \
-                and self.related_expression is None:
+        if (self.cause in (InhibitionCause.PENDING_RESOURCE,
+                           InhibitionCause.FAILED_RESOURCE)
+                and self.related_expression is None):
             raise ValueError(_(
                 # TRANSLATORS: please don't translate related_expression, None
                 # and cause.
@@ -183,22 +185,22 @@ class JobReadinessInhibitor(pod.POD):
             self.related_expression)
 
     def __str__(self):
-        if self.cause == self.UNDESIRED:
+        if self.cause == InhibitionCause.UNDESIRED:
             # TRANSLATORS: as in undesired job
             return _("undesired")
-        elif self.cause == self.PENDING_DEP:
+        elif self.cause == InhibitionCause.PENDING_DEP:
             return _("required dependency {!r} did not run yet").format(
                 self.related_job.id)
-        elif self.cause == self.FAILED_DEP:
+        elif self.cause == InhibitionCause.FAILED_DEP:
             return _("required dependency {!r} has failed").format(
                 self.related_job.id)
-        elif self.cause == self.PENDING_RESOURCE:
+        elif self.cause == InhibitionCause.PENDING_RESOURCE:
             return _(
                 "resource expression {!r} could not be evaluated because"
                 " the resource it depends on did not run yet"
             ).format(self.related_expression.text)
         else:
-            assert self.cause == self.FAILED_RESOURCE
+            assert self.cause == InhibitionCause.FAILED_RESOURCE
             return _("resource expression {!r} evaluates to false").format(
                 self.related_expression.text)
 
@@ -213,7 +215,7 @@ del _cause
 # A global instance of :class:`JobReadinessInhibitor` with the UNDESIRED cause.
 # This is used a lot and it makes no sense to instantiate all the time.
 UndesiredJobReadinessInhibitor = JobReadinessInhibitor(
-    JobReadinessInhibitor.UNDESIRED)
+    InhibitionCause.UNDESIRED)
 
 
 JOB_VALUE = object()

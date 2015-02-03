@@ -68,6 +68,7 @@ from plainbox.impl.secure.origin import JobOutputTextSource
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 from plainbox.impl.secure.rfc822 import gen_rfc822_records
+from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.session.jobs import JobReadinessInhibitor
 from plainbox.impl.signal import Signal
 from plainbox.impl.unit.job import JobDefinition
@@ -169,7 +170,7 @@ class CheckBoxSessionStateController(ISessionStateController):
                 # or simply be on the run_list but just was not executed
                 # yet).
                 inhibitor = JobReadinessInhibitor(
-                    cause=JobReadinessInhibitor.PENDING_RESOURCE,
+                    cause=InhibitionCause.PENDING_RESOURCE,
                     related_job=related_job,
                     related_expression=exc.expression)
                 inhibitors.append(inhibitor)
@@ -183,7 +184,7 @@ class CheckBoxSessionStateController(ISessionStateController):
                 # non-True value. This typically indicates a missing
                 # software package or necessary hardware.
                 inhibitor = JobReadinessInhibitor(
-                    cause=JobReadinessInhibitor.FAILED_RESOURCE,
+                    cause=InhibitionCause.FAILED_RESOURCE,
                     related_job=related_job,
                     related_expression=exc.expression)
                 inhibitors.append(inhibitor)
@@ -194,7 +195,7 @@ class CheckBoxSessionStateController(ISessionStateController):
             # PENDING_DEP inhibitor.
             if dep_job_state.result.outcome == IJobResult.OUTCOME_NONE:
                 inhibitor = JobReadinessInhibitor(
-                    cause=JobReadinessInhibitor.PENDING_DEP,
+                    cause=InhibitionCause.PENDING_DEP,
                     related_job=dep_job_state.job)
                 inhibitors.append(inhibitor)
             # If the dependency is anything but successful add the
@@ -204,7 +205,7 @@ class CheckBoxSessionStateController(ISessionStateController):
             # cannot run.
             elif dep_job_state.result.outcome != IJobResult.OUTCOME_PASS:
                 inhibitor = JobReadinessInhibitor(
-                    cause=JobReadinessInhibitor.FAILED_DEP,
+                    cause=InhibitionCause.FAILED_DEP,
                     related_job=dep_job_state.job)
                 inhibitors.append(inhibitor)
         return inhibitors

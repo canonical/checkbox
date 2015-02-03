@@ -25,6 +25,7 @@ Test definitions for plainbox.impl.session module
 from unittest import TestCase, expectedFailure
 
 from plainbox.abc import IJobResult
+from plainbox.impl.session import InhibitionCause
 from plainbox.impl.session import JobReadinessInhibitor
 from plainbox.impl.session import JobState
 from plainbox.impl.session import UndesiredJobReadinessInhibitor
@@ -35,25 +36,25 @@ class JobReadinessInhibitorTests(TestCase):
 
     def test_bad_initialization(self):
         self.assertRaises(ValueError, JobReadinessInhibitor,
-                          JobReadinessInhibitor.UNDESIRED - 1)
+                          InhibitionCause.UNDESIRED - 1)
         self.assertRaises(ValueError, JobReadinessInhibitor,
-                          JobReadinessInhibitor.FAILED_RESOURCE + 1)
+                          InhibitionCause.FAILED_RESOURCE + 1)
         self.assertRaises(ValueError, JobReadinessInhibitor,
-                          JobReadinessInhibitor.PENDING_DEP)
+                          InhibitionCause.PENDING_DEP)
         self.assertRaises(ValueError, JobReadinessInhibitor,
-                          JobReadinessInhibitor.FAILED_DEP)
+                          InhibitionCause.FAILED_DEP)
         self.assertRaises(ValueError, JobReadinessInhibitor,
-                          JobReadinessInhibitor.PENDING_RESOURCE)
+                          InhibitionCause.PENDING_RESOURCE)
         self.assertRaises(ValueError, JobReadinessInhibitor,
-                          JobReadinessInhibitor.FAILED_RESOURCE)
+                          InhibitionCause.FAILED_RESOURCE)
         job = make_job("A")
         self.assertRaises(ValueError, JobReadinessInhibitor,
-                          JobReadinessInhibitor.PENDING_RESOURCE, job)
+                          InhibitionCause.PENDING_RESOURCE, job)
         self.assertRaises(ValueError, JobReadinessInhibitor,
-                          JobReadinessInhibitor.FAILED_RESOURCE, job)
+                          InhibitionCause.FAILED_RESOURCE, job)
 
     def test_unknown(self):
-        obj = JobReadinessInhibitor(JobReadinessInhibitor.UNDESIRED)
+        obj = JobReadinessInhibitor(InhibitionCause.UNDESIRED)
         self.assertEqual(
             repr(obj), (
                 "<JobReadinessInhibitor cause:UNDESIRED"
@@ -64,7 +65,7 @@ class JobReadinessInhibitorTests(TestCase):
     def test_pending_dep(self):
         job = make_job("A")
         obj = JobReadinessInhibitor(
-            JobReadinessInhibitor.PENDING_DEP, related_job=job)
+            InhibitionCause.PENDING_DEP, related_job=job)
         self.assertEqual(
             repr(obj), (
                 "<JobReadinessInhibitor cause:PENDING_DEP"
@@ -75,7 +76,7 @@ class JobReadinessInhibitorTests(TestCase):
     def test_failed_dep(self):
         job = make_job("A")
         obj = JobReadinessInhibitor(
-            JobReadinessInhibitor.FAILED_DEP, related_job=job)
+            InhibitionCause.FAILED_DEP, related_job=job)
         self.assertEqual(
             repr(obj), (
                 "<JobReadinessInhibitor cause:FAILED_DEP"
@@ -87,7 +88,7 @@ class JobReadinessInhibitorTests(TestCase):
         job = make_job("A", requires="resource.attr == 'value'")
         expr = job.get_resource_program().expression_list[0]
         obj = JobReadinessInhibitor(
-            JobReadinessInhibitor.PENDING_RESOURCE, related_job=job,
+            InhibitionCause.PENDING_RESOURCE, related_job=job,
             related_expression=expr)
         self.assertEqual(
             repr(obj), (
@@ -105,7 +106,7 @@ class JobReadinessInhibitorTests(TestCase):
         job = make_job("A", requires="resource.attr == 'value'")
         expr = job.get_resource_program().expression_list[0]
         obj = JobReadinessInhibitor(
-            JobReadinessInhibitor.FAILED_RESOURCE, related_job=job,
+            InhibitionCause.FAILED_RESOURCE, related_job=job,
             related_expression=expr)
         self.assertEqual(
             repr(obj), (
@@ -120,7 +121,7 @@ class JobReadinessInhibitorTests(TestCase):
 
     def test_unknown_global(self):
         self.assertEqual(UndesiredJobReadinessInhibitor.cause,
-                         JobReadinessInhibitor.UNDESIRED)
+                         InhibitionCause.UNDESIRED)
 
 
 class JobStateTests(TestCase):
@@ -194,7 +195,7 @@ class JobStateTests(TestCase):
         self.assertFalse(self.on_changed_fired)
 
     def test_setting_readiness_inhibitor_list(self):
-        inhibitor = JobReadinessInhibitor(JobReadinessInhibitor.UNDESIRED)
+        inhibitor = JobReadinessInhibitor(InhibitionCause.UNDESIRED)
         self.job_state.readiness_inhibitor_list = [inhibitor]
         self.assertEqual(self.job_state.readiness_inhibitor_list, [inhibitor])
 

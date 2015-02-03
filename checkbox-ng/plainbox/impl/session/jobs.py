@@ -175,10 +175,6 @@ class JobReadinessInhibitor(pod.POD):
                 "related_expression must not be None when cause is {}"
             ).format(self.cause.name))
 
-    @property
-    def cause_name(self):
-        return self.cause.name
-
     def __repr__(self):
         return "<{} cause:{} related_job:{!r} related_expression:{!r}>".format(
             self.__class__.__name__, self.cause.name, self.related_job,

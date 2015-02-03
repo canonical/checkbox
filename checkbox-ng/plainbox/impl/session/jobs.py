@@ -277,4 +277,4 @@ class JobState(POD):
                 ", ".join((str(inhibitor)
                            for inhibitor in self._readiness_inhibitor_list)))
         else:
-            return "job can be started"
+            return _("job can be started")

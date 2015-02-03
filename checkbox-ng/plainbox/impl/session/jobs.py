@@ -120,9 +120,6 @@ class JobReadinessInhibitor(pod.POD):
     # is used to represent a resource expression that evaluated to a non-True
     # value
 
-    UNDESIRED, PENDING_DEP, FAILED_DEP, PENDING_RESOURCE, FAILED_RESOURCE \
-        = range(5)
-
     _cause_display = {
         value: value.name for value in InhibitionCause
     }
@@ -196,6 +193,13 @@ class JobReadinessInhibitor(pod.POD):
             assert self.cause == self.FAILED_RESOURCE
             return _("resource expression {!r} evaluates to false").format(
                 self.related_expression.text)
+
+
+# Put all the cause values in the JobReadinessInhibitor class, for backwards
+# compatibility.
+for _cause in InhibitionCause:
+    setattr(JobReadinessInhibitor, _cause.name, _cause)
+del _cause
 
 
 # A global instance of :class:`JobReadinessInhibitor` with the UNDESIRED cause.

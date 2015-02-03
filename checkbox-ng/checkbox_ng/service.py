@@ -707,7 +707,7 @@ class JobStateWrapper(PlainBoxObjectWrapper):
         """
         return dbus.types.Array([
             (inhibitor.cause,
-             inhibitor.cause_name,
+             inhibitor.cause.name,
              (inhibitor.related_job.id
               if inhibitor.related_job is not None else ""),
              (inhibitor.related_expression.text

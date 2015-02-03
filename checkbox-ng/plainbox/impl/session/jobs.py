@@ -124,11 +124,7 @@ class JobReadinessInhibitor(pod.POD):
         = range(5)
 
     _cause_display = {
-        UNDESIRED: "UNDESIRED",
-        PENDING_DEP: "PENDING_DEP",
-        FAILED_DEP: "FAILED_DEP",
-        PENDING_RESOURCE: "PENDING_RESOURCE",
-        FAILED_RESOURCE: "FAILED_RESOURCE"
+        value: value.name for value in InhibitionCause
     }
 
     cause = pod.Field(

@@ -29,7 +29,7 @@ import logging
 
 from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _
-from plainbox.impl.pod import POD, Field, MANDATORY, UNSET
+from plainbox.impl import pod
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.unit.job import JobDefinition
 
@@ -180,7 +180,7 @@ UndesiredJobReadinessInhibitor = JobReadinessInhibitor(
 JOB_VALUE = object()
 
 
-class OverridableJobField(Field):
+class OverridableJobField(pod.Field):
     """
     A readable-writable field that has a special initial value ``JOB_VALUE``
     which is interpreted as "load this value from the corresponding job
@@ -204,7 +204,7 @@ class OverridableJobField(Field):
             return value
 
 
-def job_assign_filter(pod, field, old_value, new_value):
+def job_assign_filter(instance, field, old_value, new_value):
     # FIXME: This setter should not exist. job attribute should be
     # read-only. This is a temporary kludge to get session restoring
     # over DBus working. Once a solution that doesn't involve setting
@@ -213,13 +213,13 @@ def job_assign_filter(pod, field, old_value, new_value):
     return new_value
 
 
-def job_via_assign_filter(pod, field, old_value, new_value):
-    if old_value is not UNSET and not isinstance(new_value, JobDefinition):
+def job_via_assign_filter(instance, field, old_value, new_value):
+    if old_value is not pod.UNSET and not isinstance(new_value, JobDefinition):
         raise TypeError("via_job must be the actual job, not the checksum")
     return new_value
 
 
-class JobState(POD):
+class JobState(pod.POD):
     """
     Class representing the state of a job in a session.
 
@@ -235,24 +235,24 @@ class JobState(POD):
     collaborate with the SessionState class and the UI layer.
     """
 
-    job = Field(
+    job = pod.Field(
         doc="the job associated with this state",
         type=JobDefinition,
-        initial=MANDATORY,
+        initial=pod.MANDATORY,
         assign_filter_list=[job_assign_filter])
 
-    readiness_inhibitor_list = Field(
+    readiness_inhibitor_list = pod.Field(
         doc="the list of readiness inhibitors of the associated job",
         type="List[JobReadinessInhibitor]",
         initial_fn=lambda: [UndesiredJobReadinessInhibitor])
 
-    result = Field(
+    result = pod.Field(
         doc="the result of running the associated job",
         type=IJobResult,
         initial_fn=lambda: MemoryJobResult({}),
         notify=True)
 
-    via_job = Field(
+    via_job = pod.Field(
         doc="the parent job definition",
         type=JobDefinition,
         assign_filter_list=[job_via_assign_filter])

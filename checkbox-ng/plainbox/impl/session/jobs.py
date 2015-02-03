@@ -171,24 +171,24 @@ class JobReadinessInhibitor(pod.POD):
                 # TRANSLATORS: please don't translate related_job, None and
                 # cause
                 _("related_job must not be None when cause is {}").format(
-                    self._cause_display[cause]))
+                    cause.name))
         if cause in (self.PENDING_RESOURCE, self.FAILED_RESOURCE) \
                 and related_expression is None:
             raise ValueError(_(
                 # TRANSLATORS: please don't translate related_expression, None
                 # and cause.
                 "related_expression must not be None when cause is {}"
-            ).format(self._cause_display[cause]))
+            ).format(cause.name))
         return super().__init__(cause, related_job, related_expression)
 
     @property
     def cause_name(self):
-        return self._cause_display[self.cause]
+        return self.cause.name
 
     def __repr__(self):
         return "<{} cause:{} related_job:{!r} related_expression:{!r}>".format(
-            self.__class__.__name__, self._cause_display[self.cause],
-            self.related_job, self.related_expression)
+            self.__class__.__name__, self.cause.name, self.related_job,
+            self.related_expression)
 
     def __str__(self):
         if self.cause == self.UNDESIRED:

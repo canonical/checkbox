@@ -259,7 +259,7 @@ class DependencySolver:
         to be raised. Calls _visit recursively on all dependencies.
         """
         color = self._job_color_map[job.id]
-        logger.debug(_("Visiting job %s (color %s)"), job, color)
+        logger.debug(_("Visiting job %s (color %s)"), job.id, color)
         if color == self.COLOR_WHITE:
             # This node has not been visited yet. Let's mark it as GRAY (being
             # visited) and iterate through the list of dependencies

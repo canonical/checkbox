@@ -158,24 +158,24 @@ class JobReadinessInhibitor(pod.POD):
         is either PENDING_RESOURCE or FAILED_RESOURCE related_expression is
         necessary as well. A ValueError is raised when this is violated.
         """
+        super().__init__(cause, related_job, related_expression)
         try:
-            cause = InhibitionCause(cause)
+            InhibitionCause(self.cause)
         except ValueError:
             raise ValueError(_("unsupported value for cause"))
-        if cause != self.UNDESIRED and related_job is None:
+        if self.cause != self.UNDESIRED and self.related_job is None:
             raise ValueError(
                 # TRANSLATORS: please don't translate related_job, None and
                 # cause
                 _("related_job must not be None when cause is {}").format(
-                    cause.name))
-        if cause in (self.PENDING_RESOURCE, self.FAILED_RESOURCE) \
-                and related_expression is None:
+                    self.cause.name))
+        if self.cause in (self.PENDING_RESOURCE, self.FAILED_RESOURCE) \
+                and self.related_expression is None:
             raise ValueError(_(
                 # TRANSLATORS: please don't translate related_expression, None
                 # and cause.
                 "related_expression must not be None when cause is {}"
-            ).format(cause.name))
-        return super().__init__(cause, related_job, related_expression)
+            ).format(self.cause.name))
 
     @property
     def cause_name(self):

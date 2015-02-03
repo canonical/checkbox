@@ -262,12 +262,6 @@ class JobState(POD):
         doc="the effective categorization of this test in a session",
         type=str)
 
-    def __repr__(self):
-        # NOTE: this repr is legacy and it can be dropped
-        fmt = ("<{} job:{!r} readiness_inhibitor_list:{!r} result:{!r}>")
-        return fmt.format(self.__class__.__name__, self._job,
-                          self._readiness_inhibitor_list, self._result)
-
     def can_start(self):
         """
         Quickly check if the associated job can run right now.

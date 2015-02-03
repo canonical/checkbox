@@ -205,13 +205,6 @@ class JobReadinessInhibitor(pod.POD):
                 self.related_expression.text)
 
 
-# Put all the cause values in the JobReadinessInhibitor class, for backwards
-# compatibility.
-for _cause in InhibitionCause:
-    setattr(JobReadinessInhibitor, _cause.name, _cause)
-del _cause
-
-
 # A global instance of :class:`JobReadinessInhibitor` with the UNDESIRED cause.
 # This is used a lot and it makes no sense to instantiate all the time.
 UndesiredJobReadinessInhibitor = JobReadinessInhibitor(

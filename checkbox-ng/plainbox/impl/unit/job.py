@@ -107,27 +107,40 @@ class _PluginValues(SymbolDef):
     qml = 'qml'
 
 
-class _BlockerStatusValues(SymbolDef):
+class _CertificationStatusValues(SymbolDef):
     """
-    Symbols for each value of the JobDefinition.blocker_status field
+    Symbols for each value of the JobDefinition.certification_status field
 
     Particular values have the following meanings.
 
     unspecified:
-        Default value without any meaning
+        One of the new possible certification status values. This value means
+        that a job was not analyzed in the context of certification status
+        classification and it has no classification at this time. This is also
+        the implicit certification status for all jobs.
+    not-part-of-certification:
+        One of the new possible certification status values. This value means
+        that a given job may fail and this will not affect the certification
+        process in any way. Typically jobs with this certification status are
+        not executed during the certification process. In the past this was
+        informally referred to as a *blacklist item*.
     non-blocker:
-        Test is not routinely performed for certification. Failure of a test is
-        irrelevant for certification.
-    future-blocker:
-        Test is routinely performed for certification. Failure is non-blocking
-        but should be noticed.
+        One of the new possible certification status values. This value means
+        that a given job may fail and while that should be regarded as a
+        possible future problem it will not block the certification process. In
+        the past this was informally referred to as a *graylist item*.
+        Canonical reserves the right to promote jobs from the *non-blocker* to
+        *blocker*.
     blocker:
-        Test is routinely performed for certification and any failures block
-        the certification process.
+        One of the new possible certification status values. This value means
+        that a given job must pass for the certification process to succeed. In
+        the past this was informally referred to as a *whitelist item*. The
+        term *blocker* was chosen to disambiguate the meaning of the two
+        concepts.
     """
     unspecified = 'unspecified'
+    not_part_of_certification = 'not-part-of-certification'
     non_blocker = 'non-blocker'
-    future_blocker = 'future-blocker'
     blocker = 'blocker'
 
 
@@ -345,19 +358,20 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
         if qml_file is not None and self.provider is not None:
             return os.path.join(self.provider.data_dir, qml_file)
 
-    @propertywithsymbols(symbols=_BlockerStatusValues)
-    def blocker_status(self):
+    @propertywithsymbols(symbols=_CertificationStatusValues)
+    def certification_status(self):
         """
-        Get the natural blocker status of this job.
+        Get the natural certification status of this job.
 
-        The default blocker status of all jobs is BlockerStatus.unspecified
+        The default certification status of all jobs is
+        ``CertificationStatus.unspecified``
 
         .. note::
-            Remember that the blocker status can be overridden by a test plan.
-            You should, instead, consider the effective blocker status that can
-            be obtained from :class:`JobState`.
+            Remember that the certification status can be overridden by a test
+            plan.  You should, instead, consider the effective certification
+            status that can be obtained from :class:`JobState`.
         """
-        return self.get_record_value('blocker_status', 'unspecified')
+        return self.get_record_value('certification-status', 'unspecified')
 
     @property
     def estimated_duration(self):
@@ -604,7 +618,7 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
             steps = 'steps'
             verification = 'verification'
             qml_file = 'qml_file'
-            blocker_status = 'blocker_status'
+            certification_status = 'certification_status'
 
         field_validators = {
             fields.name: [
@@ -868,15 +882,15 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
                     onlyif=lambda unit: (unit.plugin == 'qml'
                                          and unit.qml_file)),
             ],
-            fields.blocker_status: [
+            fields.certification_status: [
                 UntranslatableFieldValidator,
                 TemplateInvariantFieldValidator,
                 CorrectFieldValueValidator(
-                    lambda blocker_status: (
-                        blocker_status in
-                        _BlockerStatusValues.get_all_symbols()),
+                    lambda certification_status: (
+                        certification_status in
+                        _CertificationStatusValues.get_all_symbols()),
                     message=_('valid values are: {}').format(
                         ', '.join(str(sym) for sym in sorted(
-                            _BlockerStatusValues.get_all_symbols())))),
+                            _CertificationStatusValues.get_all_symbols())))),
             ],
         }

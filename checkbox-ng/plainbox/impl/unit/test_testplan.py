@@ -265,36 +265,40 @@ class TestTestPlan(TestCase):
         }, provider=self.provider)
         self.assertEqual(unit.get_qualifier().get_primitive_qualifiers(), [])
 
-    def test_parse_overrides__with_provider(self):
+    def test_parse_category_overrides__with_provider(self):
         unit = TestPlanUnit({
         }, provider=self.provider)
         self.assertEqual(
-            unit.parse_overrides('apply "wireless" to "wireless/.*"'),
+            unit.parse_category_overrides('apply "wireless" to "wireless/.*"'),
             [(0, "ns::wireless", "^ns::wireless/.*$")])
         self.assertEqual(
-            unit.parse_overrides('apply "other::wireless" to "wireless/.*"'),
+            unit.parse_category_overrides(
+                'apply "other::wireless" to "wireless/.*"'),
             [(0, "other::wireless", "^ns::wireless/.*$")])
         self.assertEqual(
-            unit.parse_overrides('apply "wireless" to "other::wireless/.*"'),
+            unit.parse_category_overrides(
+                'apply "wireless" to "other::wireless/.*"'),
             [(0, "ns::wireless", "^other::wireless/.*$")])
         self.assertEqual(
-            unit.parse_overrides(
+            unit.parse_category_overrides(
                 'apply "first::wireless" to "second::wireless/.*"'),
             [(0, "first::wireless", "^second::wireless/.*$")])
 
-    def test_parse_overrides__without_provider(self):
+    def test_parse_category_overrides__without_provider(self):
         unit = TestPlanUnit({
         }, provider=None)
         self.assertEqual(
-            unit.parse_overrides('apply "wireless" to "wireless/.*"'),
+            unit.parse_category_overrides('apply "wireless" to "wireless/.*"'),
             [(0, "wireless", "^wireless/.*$")])
         self.assertEqual(
-            unit.parse_overrides('apply "other::wireless" to "wireless/.*"'),
+            unit.parse_category_overrides(
+                'apply "other::wireless" to "wireless/.*"'),
             [(0, "other::wireless", "^wireless/.*$")])
         self.assertEqual(
-            unit.parse_overrides('apply "wireless" to "other::wireless/.*"'),
+            unit.parse_category_overrides(
+                'apply "wireless" to "other::wireless/.*"'),
             [(0, "wireless", "^other::wireless/.*$")])
         self.assertEqual(
-            unit.parse_overrides(
+            unit.parse_category_overrides(
                 'apply "first::wireless" to "second::wireless/.*"'),
             [(0, "first::wireless", "^second::wireless/.*$")])

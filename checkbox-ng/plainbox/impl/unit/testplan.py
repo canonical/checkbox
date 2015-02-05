@@ -291,7 +291,7 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
                     matcher = PatternMatcher(target_id_pattern)
             yield (lineno_offset, field, matcher, error)
 
-    def parse_overrides(self, text):
+    def parse_category_overrides(self, text):
         """
         Parse the specified text as a list of category overrides.
 
@@ -348,7 +348,8 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
         """
         effective_map = {job.id: job.category_id for job in job_list}
         if self.category_overrides is not None:
-            overrides_gen = self.parse_overrides(self.category_overrides)
+            overrides_gen = self.parse_category_overrides(
+                self.category_overrides)
             for lineno_offset, category_id, pattern in overrides_gen:
                 for job in job_list:
                     if re.match(pattern, job.id):
@@ -365,7 +366,8 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
             The effective category_id
         """
         if self.category_overrides is not None:
-            overrides_gen = self.parse_overrides(self.category_overrides)
+            overrides_gen = self.parse_category_overrides(
+                self.category_overrides)
             for lineno_offset, category_id, pattern in overrides_gen:
                 if re.match(pattern, job.id):
                     return category_id

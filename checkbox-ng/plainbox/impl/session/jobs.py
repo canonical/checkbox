@@ -258,6 +258,7 @@ class JobState(pod.POD):
         * the readiness_inhibitor_list that prevent the job form starting
         * the result (outcome) of the run (IJobResult)
         * the effective category identifier
+        * the effective certification status
         * the job that was used to create it (via_job)
 
     For convenience (to SessionState implementation) it also has a reference to
@@ -290,6 +291,11 @@ class JobState(pod.POD):
     effective_category_id = OverridableJobField(
         job_field="category_id",
         doc="the effective categorization of this test in a session",
+        type=str)
+
+    effective_certification_status = OverridableJobField(
+        job_field="certification_status",
+        doc="the effective certification status of this job",
         type=str)
 
     def can_start(self):

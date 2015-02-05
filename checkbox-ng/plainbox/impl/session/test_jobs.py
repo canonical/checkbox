@@ -137,6 +137,8 @@ class JobStateTests(TestCase):
             UndesiredJobReadinessInhibitor])
         self.assertEqual(self.job_state.effective_category_id,
                          self.job.category_id)
+        self.assertEqual(self.job_state.effective_certification_status,
+                         self.job.certification_status)
         self.assertIsNone(self.job_state.via_job)
 
     def test_getting_job(self):
@@ -219,6 +221,10 @@ class JobStateTests(TestCase):
     def test_setting_effective_category_id(self):
         self.job_state.effective_category_id = 'value'
         self.assertEqual(self.job_state.effective_category_id, 'value')
+
+    def test_setting_effective_cert_certification_status(self):
+        self.job_state.effective_certification_status = 'value'
+        self.assertEqual(self.job_state.effective_certification_status, 'value')
 
     def test_setting_via_job__TypeError(self):
         with self.assertRaises(TypeError):

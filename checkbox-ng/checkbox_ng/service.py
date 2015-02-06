@@ -1110,11 +1110,10 @@ class ProviderWrapper(PlainBoxObjectWrapper):
 
     def __shared_initialize__(self, **kwargs):
         self._job_wrapper_list = [
-            JobDefinitionWrapper(job)
-            for job in self.native.get_builtin_jobs()]
+            JobDefinitionWrapper(job) for job in self.native.job_list]
         self._whitelist_wrapper_list = [
             WhiteListWrapper(whitelist)
-            for whitelist in self.native.get_builtin_whitelists()]
+            for whitelist in self.native.whitelist_list]
 
     def _get_preferred_object_path(self):
         mangled_name = mangle_object_path(self.native.name)
@@ -1331,9 +1330,8 @@ class ServiceWrapper(PlainBoxObjectWrapper):
         if len(self.native.session_list) > 0:
             job_list = self.native.session_list[0].job_list
         else:
-            job_list = list(
-                itertools.chain(*[
-                    p.load_all_jobs()[0] for p in self.native.provider_list]))
+            job_list = list(itertools.chain(*[
+                p.job_list for p in self.native.provider_list]))
         return select_jobs(job_list, whitelist_list)
 
 

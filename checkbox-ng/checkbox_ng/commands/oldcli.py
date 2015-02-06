@@ -107,8 +107,8 @@ class CliInvocation(CheckBoxInvocationMixIn):
                     whitelists = []
                     for p in self.provider_list:
                         if p.name in self.settings['default_providers']:
-                            whitelists.extend(
-                                [w.name for w in p.get_builtin_whitelists()])
+                            whitelists.extend([
+                                w.name for w in p.whitelist_list])
                     selection = self.display.run(ShowMenu("Suite selection",
                                                           whitelists))
                     if not selection:

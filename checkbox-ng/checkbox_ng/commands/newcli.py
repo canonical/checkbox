@@ -214,9 +214,8 @@ class CliInvocation2(RunInvocation):
         whitelist_name_list = whitelist_selection = []
         for provider in self.provider_list:
             whitelist_name_list.extend([
-                whitelist.name for whitelist in
-                provider.get_builtin_whitelists() if re.search(
-                    self.launcher.whitelist_filter, whitelist.name)])
+                whitelist.name for whitelist in provider.whitelist_list
+                if re.search(self.launcher.whitelist_filter, whitelist.name)])
         whitelist_selection = [
             whitelist_name_list.index(w) for w in whitelist_name_list if
             re.search(self.launcher.whitelist_selection, w)]
@@ -233,7 +232,7 @@ class CliInvocation2(RunInvocation):
         whitelist_name_list = []
         for provider in self.provider_list:
             whitelist_name_list.extend([
-                w for w in provider.get_builtin_whitelists() if re.search(
+                w for w in provider.whitelist_list if re.search(
                     self.launcher.whitelist_selection, w.name)])
         return whitelist_name_list
 

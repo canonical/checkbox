@@ -44,6 +44,7 @@ import itertools
 import json
 import logging
 import os
+import signal
 try:
     import posix
 except ImportError:
@@ -474,7 +475,10 @@ class CheckBoxExecutionController(IExecutionController):
                 # run the command
                 logger.debug(_("job[%s] executing %r with env %r in cwd %r"),
                              job.id, cmd, env, cwd_dir)
-                return extcmd_popen.call(cmd, env=env, cwd=cwd_dir)
+                return_code = extcmd_popen.call(cmd, env=env, cwd=cwd_dir)
+                if 'noreturn' in job.get_flag_set():
+                    self._halt()
+                return return_code
 
     @contextlib.contextmanager
     def configured_filesystem(self, job, config):
@@ -734,6 +738,15 @@ class CheckBoxExecutionController(IExecutionController):
             None
         """
 
+    def _halt(self):
+        """
+        Suspend operation until signal is received
+
+        This function is useful when plainbox should stop execution and wait
+        for external process to kill it.
+        """
+        signal.pause()
+
 
 class UserJobExecutionController(CheckBoxExecutionController):
     """
@@ -951,6 +964,8 @@ class QmlJobExecutionController(CheckBoxExecutionController):
                     pipe_in = os.fdopen(plainbox_read)
                     res_object_json_string = pipe_in.read()
                     pipe_in.close()
+                    if 'noreturn' in job.get_flag_set():
+                        self._halt()
                     if ret != 0:
                         return ret
                     try:

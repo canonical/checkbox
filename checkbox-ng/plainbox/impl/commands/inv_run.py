@@ -148,6 +148,9 @@ class SilentUI(IJobRunnerUI):
     def pick_action_cmd(self, action_list, prompt=None):
         pass
 
+    def noreturn_job(self):
+        pass
+
 
 class NormalUI(IJobRunnerUI):
 
@@ -235,6 +238,10 @@ class NormalUI(IJobRunnerUI):
 
     def pick_action_cmd(self, action_list, prompt=None):
         return ActionUI(action_list, prompt, self._color).run()
+
+    def noreturn_job(self):
+        print(self.C.RED(_("Waiting for the system to shut down or"
+                           " reboot...")))
 
 
 class ReRunJob(Exception):
@@ -775,6 +782,8 @@ class RunInvocation(CheckBoxInvocationMixIn):
                     job_result = self.runner.run_job(
                         job, job_state, self.config, ui)
             else:
+                if 'noreturn' in job.get_flag_set():
+                   ui.noreturn_job()
                 job_result = self.runner.run_job(
                     job, job_state, self.config, ui)
             if (self.is_interactive and

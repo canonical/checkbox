@@ -104,7 +104,6 @@ class ScriptInvocationTests(TestCase):
         self.provider.CHECKBOX_SHARE = None
         self.provider_loader = lambda: [self.provider]
         self.config_loader = lambda: PlainBoxConfig()
-        self.job_id = mock.Mock()
 
     def add_job(self, job):
         self.provider.job_list.append(job)
@@ -115,11 +114,12 @@ class ScriptInvocationTests(TestCase):
         self.assertEqual(actual, cleandoc(expected) + '\n')
 
     def test_init(self):
+        job_id = mock.Mock()
         script_inv = ScriptInvocation(
-            self.provider_loader, self.config_loader, self.job_id)
+            self.provider_loader, self.config_loader, job_id)
         self.assertIs(script_inv.provider_loader, self.provider_loader)
         self.assertIs(script_inv.config_loader, self.config_loader)
-        self.assertIs(script_inv.job_id, self.job_id)
+        self.assertIs(script_inv.job_id, job_id)
 
     def test_run_no_such_job(self):
         script_inv = ScriptInvocation(

@@ -1154,17 +1154,6 @@ class Provider1(IProvider1):
         self._ensure_loaded()
         return self._loader.path_map
 
-    def get_units(self):
-        """
-        Get all units.
-
-        :returns:
-            Pair (unit_list, problem_list) where unit_list is a unsorted list
-            of units, as they showed up in subsequent unit definition files and
-            each item from problem_list is an exception.
-        """
-        return self.unit_list, self.problem_list
-
     def get_all_executables(self):
         """
         Discover and return all executables offered by this provider

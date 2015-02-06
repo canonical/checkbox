@@ -15,7 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-
 """
 :mod:`plainbox.impl.secure.providers.v1` -- Implementation of V1 provider
 =========================================================================
@@ -42,8 +41,8 @@ from plainbox.impl.secure.plugins import PlugInError
 from plainbox.impl.secure.plugins import now
 from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.secure.rfc822 import FileTextSource
-from plainbox.impl.secure.rfc822 import load_rfc822_records
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
+from plainbox.impl.secure.rfc822 import load_rfc822_records
 from plainbox.impl.unit import all_units
 from plainbox.impl.unit.file import FileRole
 from plainbox.impl.unit.file import FileUnit

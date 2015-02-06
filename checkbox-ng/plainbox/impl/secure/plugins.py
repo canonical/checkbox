@@ -651,6 +651,26 @@ class LazyFileContent:
         if self._text is None:
             with open(self.name, encoding='UTF-8') as stream:
                 self._text = stream.read()
+
+
+class LazyFsPlugInCollection(FsPlugInCollection):
+    """
+    Collection of plug-ins based on filesystem entries
+
+    Instantiate with :attr:`dir_list` and :attr:`ext`, call :meth:`load()` and
+    then access any of the loaded plug-ins using the API offered. All loaded
+    plugin information files are wrapped by a plug-in container. By default
+    that is :class:`PlugIn` but it may be adjusted if required.
+
+    The name of each plugin is the base name of the plugin file, the object of
+    each plugin is a handle that can be used to optionally load the content of
+    the file.
+    """
+
+    def _get_file_text(self, filename):
+        return LazyFileContent(filename)
+
+
 class LazyPlugInCollection(PlugInCollectionBase):
     """
     Collection of plug-ins based on a mapping of imported objects

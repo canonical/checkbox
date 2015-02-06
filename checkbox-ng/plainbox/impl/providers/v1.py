@@ -1,13 +1,12 @@
 # This file is part of Checkbox.
 #
-# Copyright 2013 Canonical Ltd.
+# Copyright 2013-2015 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -25,13 +24,12 @@ Most of the implementation is available in
 :mod:`plainbox.impl.secure.providers.v1`
 """
 
-__all__ = ['DummyProvider1', 'Provider1', 'InsecureProvider1PlugInCollection',
-           'all_providers', 'get_insecure_PROVIDERPATH_list', ]
+__all__ = ['Provider1', 'InsecureProvider1PlugInCollection', 'all_providers',
+           'get_insecure_PROVIDERPATH_list', ]
 
 import logging
 import os
 
-from plainbox.abc import IProvider1, IProviderBackend1
 from plainbox.impl.secure.plugins import FsPlugInCollection
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.providers.v1 import Provider1PlugIn
@@ -39,165 +37,6 @@ from plainbox.impl.secure.providers.v1 import get_secure_PROVIDERPATH_list
 
 
 logger = logging.getLogger("plainbox.providers.v1")
-
-
-class DummyProvider1(IProvider1, IProviderBackend1):
-    """
-    Dummy provider useful for creating isolated test cases
-    """
-
-    def __init__(self, job_list=None, whitelist_list=None, **extras):
-        self._job_list = job_list or []
-        self._whitelist_list = whitelist_list or []
-        self._extras = extras
-        self._patch_provider_field()
-
-    def _patch_provider_field(self):
-        # NOTE: each v1 job needs a _provider attribute that points to the
-        # provider. Since many tests use make_job() which does not set it for
-        # obvious reasons it needs to be patched-in.
-        for job in self._job_list:
-            if job._provider is None:
-                job._provider = self
-
-    @property
-    def name(self):
-        return self._extras.get('name', "2013.com.canonical.plainbox:dummy")
-
-    @property
-    def namespace(self):
-        return self.name.split(':', 1)[0]
-
-    @property
-    def version(self):
-        return self._extras.get('version', '1.0')
-
-    @property
-    def description(self):
-        # XXX: how do we handle provider meta-data? Do we translate it it at
-        # display time or at access time?
-        return self._extras.get(
-            'description', "A dummy provider useful for testing")
-
-    @property
-    def gettext_domain(self):
-        return self._extras.get('gettext_domain', "")
-
-    @property
-    def CHECKBOX_SHARE(self):
-        return self._extras.get('CHECKBOX_SHARE', "")
-
-    @property
-    def extra_PYTHONPATH(self):
-        return self._extras.get("PYTHONPATH")
-
-    @property
-    def bin_dir(self):
-        return self._extras.get("bin_dir")
-
-    @property
-    def jobs_dir(self):
-        return self._extras.get("jobs_dir")
-
-    @property
-    def whitelists_dir(self):
-        return self._extras.get("whitelists_dir")
-
-    @property
-    def locale_dir(self):
-        return self._extras.get("locale_dir")
-
-    @property
-    def data_dir(self):
-        return self._extras.get("data_dir")
-
-    @property
-    def base_dir(self):
-        return self._extras.get("base_dir")
-
-    @property
-    def units_dir(self):
-        return self._extras.get("units_dir")
-
-    def secure(self):
-        return False
-
-    def get_builtin_whitelists(self):
-        return self._whitelist_list
-
-    def get_builtin_jobs(self):
-        return self._job_list
-
-    def load_all_jobs(self):
-        return self._job_list, []
-
-    def get_all_executables(self):
-        return self._extras.get("get_all_executables", [])
-
-    @property
-    def unit_list(self):
-        """
-        List of loaded units.
-        """
-        return self._job_list
-
-    @property
-    def job_list(self):
-        """
-        List of loaded job definition units.
-        """
-        return self._job_list
-
-    @property
-    def executable_list(self):
-        """
-        List of all the executables
-        """
-        return self.get_all_executables()
-
-    @property
-    def whitelist_list(self):
-        """
-        List of loaded whitelists.
-
-        .. warning::
-            :class:`WhiteList` is currently deprecated. You should never need
-            to access them in any new code.  They are entirely replaced by
-            :class:`TestPlan`. This property is provided for completeness and
-            it will be **removed** once whitelists classes are no longer used.
-        """
-        return self._whitelist_list
-
-    @property
-    def problem_list(self):
-        """
-        list of problems encountered by the loading process
-        """
-        return []
-
-    @property
-    def id_map(self):
-        """
-        A mapping from unit identifier to list of units with that identifier.
-
-        .. note::
-            Typically the list will be one element long but invalid providers
-            may break that guarantee. Code defensively if you can.
-        """
-        return {
-            job.id: [job] for job in self._job_list
-        }
-
-    @property
-    def path_map(self):
-        """
-        A mapping from filename path to a list of units stored in that file.
-
-        .. note::
-            For ``.pxu`` files this will enumerate all units stored there. For
-            other things it will typically be just the FileUnit.
-        """
-        return {}
 
 
 def get_user_PROVIDERPATH_entry():

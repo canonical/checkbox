@@ -1154,23 +1154,6 @@ class Provider1(IProvider1):
         self._ensure_loaded()
         return self._loader.path_map
 
-    def _get_executables(self, dirname):
-        executable_list = []
-        if dirname is None:
-            return executable_list
-        try:
-            items = os.listdir(dirname)
-        except OSError as exc:
-            if exc.errno == errno.ENOENT:
-                items = []
-            else:
-                raise
-        for name in items:
-            filename = os.path.join(dirname, name)
-            if os.access(filename, os.F_OK | os.X_OK):
-                executable_list.append(filename)
-        return executable_list
-
     def get_translated_data(self, msgid):
         """
         Get a localized piece of data

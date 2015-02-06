@@ -69,7 +69,7 @@ class MiscTests(TestCase):
         self.provider1.get_units.return_value = [(self.job_foo, self.job_bar,
                                                   self.job_baz), []]
         self.config = Mock(name='config')
-        self.provider_loader= lambda: [self.provider1]
+        self.provider_loader = lambda: [self.provider1]
         self.obj = CheckBoxInvocationMixIn(self.provider_loader, self.config)
 
     def test_matching_job_list(self):

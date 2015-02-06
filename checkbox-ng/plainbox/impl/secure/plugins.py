@@ -123,7 +123,7 @@ class PlugIn(IPlugIn):
     and some arbitrary external object.
     """
 
-    def __init__(self, name: str, obj: object, load_time: float=0):
+    def __init__(self, name: str, obj: object, load_time: float=0, wrap_time: float=0):
         """
         Initialize the plug-in with the specified name and external object
 
@@ -133,10 +133,13 @@ class PlugIn(IPlugIn):
             The plugged in object itself
         :param load_time:
             Time it took to load the object (in fractional seconds)
+        :param wrap_time:
+            Time it took to wrap the object (in fractional seconds)
         """
         self._name = name
         self._obj = obj
         self._load_time = load_time
+        self._wrap_time = wrap_time
 
     def __repr__(self):
         return "<{!s} plugin_name:{!r}>".format(
@@ -167,10 +170,8 @@ class PlugIn(IPlugIn):
     def plugin_wrap_time(self) -> float:
         """
         time, in fractional seconds, that was needed to wrap the plugin
-
-        For this naive plugin class, this time is always zero.
         """
-        return 0
+        return self._wrap_time
 
 
 class IPlugInCollection(metaclass=abc.ABCMeta):

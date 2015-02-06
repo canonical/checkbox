@@ -1154,27 +1154,6 @@ class Provider1(IProvider1):
         self._ensure_loaded()
         return self._loader.path_map
 
-    def get_builtin_whitelists(self):
-        """
-        Load all the whitelists from :attr:`whitelists_dir` and return them
-
-        This method looks at the whitelist directory and loads all files ending
-        with .whitelist as a WhiteList object.
-
-        :returns:
-            A list of :class:`~plainbox.impl.secure.qualifiers.WhiteList`
-            objects sorted by
-            :attr:`plainbox.impl.secure.qualifiers.WhiteList.name`.
-        :raises IOError, OSError:
-            if there were any problems accessing files or directories.  Note
-            that OSError is silently ignored when the `whitelists_dir`
-            directory is missing.
-        """
-        if self.problem_list:
-            raise self.problem_list[0]
-        else:
-            return sorted(self.whitelist_list, key=lambda wl: wl.name)
-
     def load_all_jobs(self):
         """
         Load and parse all of the job definitions of this provider.

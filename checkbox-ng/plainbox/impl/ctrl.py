@@ -475,7 +475,10 @@ class CheckBoxExecutionController(IExecutionController):
                 # run the command
                 logger.debug(_("job[%s] executing %r with env %r in cwd %r"),
                              job.id, cmd, env, cwd_dir)
-                return extcmd_popen.call(cmd, env=env, cwd=cwd_dir)
+                return_code = extcmd_popen.call(cmd, env=env, cwd=cwd_dir)
+                if 'noreturn' in job.get_flag_set():
+                    self._halt()
+                return return_code
 
     @contextlib.contextmanager
     def configured_filesystem(self, job, config):

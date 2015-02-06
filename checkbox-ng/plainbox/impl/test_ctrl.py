@@ -627,6 +627,26 @@ class CheckBoxExecutionControllerTestsMixIn:
             self.ctrl.get_CHECKBOX_DATA(self.SESSION_DIR),
             "session-dir/CHECKBOX_DATA")
 
+    @mock.patch('json.dumps')
+    @mock.patch('json.loads')
+    @mock.patch('os.fdopen')
+    def test_noreturn_flag_hangs(self, mock_os_fdopen, mock_json_loads,
+                                 mock_json_dumps):
+        """
+        verify that jobs having 'noreturn' flag call _halt after executing
+        command
+        """
+        self.job.get_flag_set.return_value = {'noreturn'}
+        with mock.patch.object(self.ctrl, 'get_execution_command'), \
+                mock.patch.object(self.ctrl, 'get_execution_environment'), \
+                mock.patch.object(self.ctrl, 'configured_filesystem'), \
+                mock.patch.object(self.ctrl, 'temporary_cwd'), \
+                mock.patch.object(self.ctrl, '_halt'):
+            self.ctrl.execute_job(
+                self.job, self.job_state, self.config, self.SESSION_DIR,
+                self.extcmd_popen)
+            self.ctrl._halt.assert_called_once_with()
+
 
 class UserJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
                                       TestCase):

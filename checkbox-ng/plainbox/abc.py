@@ -151,9 +151,10 @@ class IJobDefinition(metaclass=ABCMeta):
         The provider this job definition belongs to
 
         .. note::
-            Technically this still can be None (a provider-less job may exist) but
-            it can only happen in testing. This mode is discouraged and will be eventually
-            forbidden. All job definition units must belong to a provider.
+            Technically this still can be None (a provider-less job may exist)
+            but it can only happen in testing. This mode is discouraged and
+            will be eventually forbidden. All job definition units must belong
+            to a provider.
         """
 
     @abstractproperty

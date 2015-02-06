@@ -590,7 +590,7 @@ class WhiteListPlugInTests(TestCase):
         # are coming from.
         self.assertEqual(
             str(boom.exception),
-            ("Cannot load whitelist '/path/to/some.whitelist': nothing to repeat"))
+            ("Cannot load '/path/to/some.whitelist': nothing to repeat"))
 
 
 class UnitPlugInTests(TestCase):

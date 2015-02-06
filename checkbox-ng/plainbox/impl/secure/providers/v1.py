@@ -21,7 +21,6 @@
 =========================================================================
 """
 import collections
-import abc
 import errno
 import gettext
 import logging
@@ -38,7 +37,6 @@ from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.plugins import FsPlugInCollection
 from plainbox.impl.secure.plugins import LazyFsPlugInCollection
-from plainbox.impl.secure.plugins import IPlugIn
 from plainbox.impl.secure.plugins import PlugIn
 from plainbox.impl.secure.plugins import PlugInError
 from plainbox.impl.secure.plugins import now
@@ -55,305 +53,6 @@ from plainbox.impl.validation import ValidationError
 
 
 logger = logging.getLogger("plainbox.secure.providers.v1")
-
-
-class IVirtualUnitSynthethizer(metaclass=abc.ABCMeta):
-    """
-    Interface for all virtual unit synthetizers
-
-    Classes implementing this interface synthetise virtual units while loading
-    some other objects (possibly units), for maintaining backwards
-    compatibility
-    """
-
-    @abc.abstractmethod
-    def synthetize_virtual_units(self, filename, text, provider):
-        """
-        Synthethise virtual units
-
-        :param filename:
-            Name of the file with unit definitions
-        :param text:
-            Full text of the the file pointed to by ``filename``
-        :param provider:
-            A provider object to which those units belong to
-
-        This method is called automatically by :meth:`__init__()` to create
-        and add additional, virtual units, based on the file that was loaded.
-        """
-
-
-class WhiteListPlugIn(IPlugIn, IVirtualUnitSynthethizer):
-    """
-    A specialized :class:`plainbox.impl.secure.plugins.IPlugIn` that loads
-    :class:`plainbox.impl.secure.qualifiers.WhiteList` instances from a file.
-    """
-
-    def __init__(self, filename, text, load_time, provider=None):
-        """
-        Initialize the plug-in with the specified name text
-
-        :param filename:
-            Name of the file that the plugin was loaded from
-        :param text:
-            Full text of the loaded file
-        :param provider:
-            An (optional) provider object. This parameter is highly
-            recommended. If supplied, it associates the whitelist (as well as
-            the synthetized virtual test plan unit) with the namespace and i18n
-            resources of the specified provider).
-        """
-        self._whitelist = None
-        self._unit_list = []
-        self._load_time = load_time
-        self._wrap_time = 0
-        start_time = now()
-        try:
-            self._whitelist = WhiteList.from_string(
-                text, filename=filename,
-                implicit_namespace=(
-                    provider.namespace
-                    if provider is not None else None))
-        except Exception as exc:
-            raise PlugInError(
-                _("Cannot load whitelist {!r}: {}").format(filename, exc))
-        else:
-            self.synthetize_virtual_units(filename, text, provider)
-        self._wrap_time = now() - start_time
-
-    @property
-    def plugin_name(self):
-        """
-        plugin name, the name of the WhiteList
-        """
-        return self._whitelist.name
-
-    @property
-    def plugin_object(self):
-        """
-        plugin object, the actual WhiteList instance
-        """
-        return self._whitelist
-
-    @property
-    def plugin_load_time(self) -> float:
-        """
-        time, in fractional seconds, that was needed to load the plugin
-        """
-        return self._load_time
-
-    @property
-    def plugin_wrap_time(self) -> float:
-        """
-        time, in fractional seconds, that was needed to wrap the plugin
-
-        .. note::
-            The difference between ``plugin_wrap_time`` and
-            ``plugin_load_time`` depends on context. In practical terms the sum
-            of the two is interesting for analysis but in some cases having
-            access to both may be important.
-        """
-        return self._wrap_time
-
-    @property
-    def unit_list(self):
-        """
-        list of loaded units
-
-        ..note::
-            This property is not a part of the standard API of IPlugIn
-        """
-        return self._unit_list
-
-    def synthetize_virtual_units(self, filename, text, provider):
-        """
-        Synthethise virtual units
-
-        :param filename:
-            Name of the file with unit definitions
-        :param text:
-            Full text of the the file pointed to by ``filename``
-        :param provider:
-            A provider object to which those units belong to
-
-        This method is called automatically by :meth:`__init__()` to create
-        and add additional, virtual units, based on the file that was loaded.
-
-        This implementation instantiates a :class:`FileUnit` with
-        role :attr:`FileRole.legacy_whitelist` and a :class:`TestPlanUnit`
-        corresponding to the whitelist data.
-        """
-        self._unit_list.append(self._make_file_unit(filename, provider))
-        self._unit_list.append(self._make_test_plan_unit(
-            filename, text, provider))
-
-    def _make_file_unit(self, filename, provider):
-        return FileUnit({
-            'unit': FileUnit.Meta.name,
-            'path': filename,
-            'role': FileRole.legacy_whitelist,
-        }, origin=Origin(FileTextSource(filename)), provider=provider,
-        virtual=True)
-
-    def _make_test_plan_unit(self, filename, text, provider):
-        name = os.path.basename(os.path.splitext(filename)[0])
-        origin = Origin(FileTextSource(filename), 1, text.count('\n'))
-        field_offset_map = {'include': 0}
-        return TestPlanUnit({
-            'unit': TestPlanUnit.Meta.name,
-            'id': name,
-            'name': name,
-            'include': text,
-        }, origin=origin, provider=provider, field_offset_map=field_offset_map,
-        virtual=True)
-
-
-class UnitPlugIn(IPlugIn, IVirtualUnitSynthethizer):
-    """
-    A specialized :class:`plainbox.impl.secure.plugins.IPlugIn` that loads a
-    list of :class:`plainbox.impl.unit.Unit` instances from a file.
-    """
-
-    @staticmethod
-    def _get_unit_cls(unit_name):
-        """
-        Get a class that implements the specified unit
-        """
-        all_units.load()
-        return all_units.get_by_name(unit_name).plugin_object
-
-    def __init__(self, filename, text, load_time, provider, *,
-                 validate=True, validation_kwargs=None,
-                 check=False, context=None):
-        """
-        Initialize the plug-in with the specified name text
-
-        :param filename:
-            Name of the file with unit definitions
-        :param text:
-            Full text of the file with unit definitions
-        :param provider:
-            A provider object to which those units belong to
-        :param validate:
-            Enable unit validation. Incorrect unit definitions will not be
-            loaded and will abort the process of loading of the remainder of
-            the jobs.  This is ON by default to prevent broken units from being
-            used. This is a keyword-only argument.
-        :param validation_kwargs:
-            Keyword arguments to pass to the Unit.validate().  Note, this is a
-            single argument. This is a keyword-only argument.
-        :param check:
-            Enable unit checking. Incorrect unit definitions will not be loaded
-            and will abort the process of loading of the remainder of the jobs.
-            This is OFF by default to prevent broken units from being used.
-            This is a keyword-only argument.
-        :param context:
-            If checking, use this validation context.
-        """
-        self._filename = filename
-        self._unit_list = []
-        self._load_time = load_time
-        self._wrap_time = 0
-        start_time = now()
-        if validation_kwargs is None:
-            validation_kwargs = {}
-        logger.debug(_("Loading units from %r..."), filename)
-        try:
-            records = load_rfc822_records(
-                text, source=FileTextSource(filename))
-        except RFC822SyntaxError as exc:
-            raise PlugInError(
-                _("Cannot load job definitions from {!r}: {}").format(
-                    filename, exc))
-        for record in records:
-            unit_name = record.data.get('unit', 'job')
-            try:
-                unit_cls = self._get_unit_cls(unit_name)
-            except KeyError:
-                raise PlugInError(
-                    _("Unknown unit type: {!r}").format(unit_name))
-            try:
-                unit = unit_cls.from_rfc822_record(record, provider)
-            except ValueError as exc:
-                raise PlugInError(
-                    _("Cannot define unit from record {!r}: {}").format(
-                        record, exc))
-            if check:
-                for issue in unit.check(context=context, live=True):
-                    if issue.severity is Severity.error:
-                        raise PlugInError(
-                            _("Problem in unit definition, {}").format(issue))
-            if validate:
-                try:
-                    unit.validate(**validation_kwargs)
-                except ValidationError as exc:
-                    raise PlugInError(
-                        _("Problem in unit definition, field {}: {}").format(
-                            exc.field, exc.problem))
-            self._unit_list.append(unit)
-            logger.debug(_("Loaded %r"), unit)
-        self.synthetize_virtual_units(filename, text, provider)
-        self._wrap_time = now() - start_time
-
-    def synthetize_virtual_units(self, filename, text, provider):
-        """
-        Synthethise virtual units
-
-        :param filename:
-            Name of the file with unit definitions
-        :param text:
-            Full text of the the file pointed to by ``filename``
-        :param provider:
-            A provider object to which those units belong to
-
-        This method is called automatically by :meth:`__init__()` to create
-        and add additional, virtual units, based on the file that was loaded.
-
-        This implementation instantiates only one FileUnit() with
-        role :attr:`FileRole.unit_source`
-        """
-        self._unit_list.append(self._make_file_unit(filename, provider))
-
-    def _make_file_unit(self, filename, provider):
-        return FileUnit({
-            'unit': FileUnit.Meta.name,
-            'path': filename,
-            'role': FileRole.unit_source,
-        }, origin=Origin(FileTextSource(filename)), provider=provider)
-
-    @property
-    def plugin_name(self):
-        """
-        plugin name, name of the file we loaded units from
-        """
-        return self._filename
-
-    @property
-    def plugin_object(self):
-        """
-        plugin object, a list of Unit instances
-        """
-        return self._unit_list
-
-    @property
-    def plugin_load_time(self) -> float:
-        """
-        time, in fractional seconds, that was needed to load the plugin
-        """
-        return self._load_time
-
-    @property
-    def plugin_wrap_time(self) -> float:
-        """
-        time, in fractional seconds, that was needed to wrap the plugin
-
-        .. note::
-            The difference between ``plugin_wrap_time`` and
-            ``plugin_load_time`` depends on context. In practical terms the sum
-            of the two is interesting for analysis but in some cases having
-            access to both may be important.
-        """
-        return self._wrap_time
 
 
 class ProviderContentPlugIn(PlugIn):
@@ -458,7 +157,7 @@ class ProviderContentPlugIn(PlugIn):
             virtual=True)
 
 
-class WhiteListPlugIn2(ProviderContentPlugIn):
+class WhiteListPlugIn(ProviderContentPlugIn):
     """
     A specialized :class:`plainbox.impl.secure.plugins.IPlugIn` that loads
     :class:`plainbox.impl.secure.qualifiers.WhiteList` instances from a file.
@@ -523,7 +222,7 @@ class WhiteListPlugIn2(ProviderContentPlugIn):
         return self.plugin_object.name
 
 
-class UnitPlugIn2(ProviderContentPlugIn):
+class UnitPlugIn(ProviderContentPlugIn):
     """
     A specialized :class:`plainbox.impl.secure.plugins.IPlugIn` that loads a
     list of :class:`plainbox.impl.unit.Unit` instances from a file.
@@ -847,7 +546,7 @@ class ProviderContentClassifier:
             ext = os.path.splitext(filename)[1]
             if ext in (".txt", ".in", ".pxu"):
                 return (FileRole.unit_source, self.provider.jobs_dir,
-                        UnitPlugIn2)
+                        UnitPlugIn)
 
     def _classify_pxu_units(self, filename: str):
         """ classify certain files in units_dir as unit source"""
@@ -856,14 +555,14 @@ class ProviderContentClassifier:
             # TODO: later on just let .pxu files in the units_dir
             if ext in (".txt", ".txt.in", ".pxu"):
                 return (FileRole.unit_source, self.provider.units_dir,
-                        UnitPlugIn2)
+                        UnitPlugIn)
 
     def _classify_whitelist(self, filename: str):
         """ classify .whitelist files in whitelist_dir as whitelist """
         if (filename.startswith(self.provider.whitelists_dir)
                 and filename.endswith(".whitelist")):
             return (FileRole.legacy_whitelist, self.provider.whitelists_dir,
-                    WhiteListPlugIn2)
+                    WhiteListPlugIn)
 
     def _classify_data(self, filename: str):
         """ classify files in data_dir as data """

@@ -28,7 +28,6 @@ from unittest import TestCase
 import warnings
 
 from plainbox.impl.secure.origin import FileTextSource
-from plainbox.impl.secure.origin import JobOutputTextSource
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.rfc822 import RFC822Record
 from plainbox.impl.unit.job import JobDefinition
@@ -163,7 +162,8 @@ class TestJobDefinitionDefinition(TestCase):
         self.assertEqual(job.user, None)
         self.assertEqual(job.shell, 'bash')
         self.assertEqual(job.flags, None)
-        self.assertEqual(job.category_id, '2013.com.canonical.plainbox::uncategorised')
+        self.assertEqual(job.category_id,
+                         '2013.com.canonical.plainbox::uncategorised')
         self.assertEqual(job.qml_file, None)
 
     def test_checksum_smoke(self):
@@ -446,8 +446,8 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             if plugin == 'manual':
                 continue
             message = ("field 'description', all jobs should have a"
-            " description field, or a set of purpose, steps and verification"
-            " fields")
+                       " description field, or a set of purpose, steps and"
+                       " verification fields")
             # TODO: switch to subTest() once we depend on python3.4
             issue_list = self.unit_cls({
                 'plugin': plugin

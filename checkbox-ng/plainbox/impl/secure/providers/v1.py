@@ -1154,28 +1154,6 @@ class Provider1(IProvider1):
         self._ensure_loaded()
         return self._loader.path_map
 
-    def _get_build_bin_executable_list(self):
-        """
-        Discover executables that are a part of the build/bin directory.
-
-        The build/bin directory may contain nothing, standalone executables or
-        a whole mess of build artifacts, only some of which are relevant. This
-        method implements the following algorithm:
-
-        * If the src/EXECUTABLES file exists then it must contain the name
-          of each executable relative to the build/bin directory (typically
-          just the name)
-        * Otherwise all executable files from the build/bin directory are
-          returned
-        """
-        if self.src_dir is not None:
-            hint_file = os.path.join(self.src_dir, 'EXECUTABLES')
-            if os.path.isfile(hint_file):
-                with open(hint_file, "rt", encoding='UTF-8') as stream:
-                    return [os.path.join(self.build_bin_dir, line.strip())
-                            for line in stream if line.strip()]
-        return self._get_executables(self.build_bin_dir)
-
     def _get_executables(self, dirname):
         executable_list = []
         if dirname is None:

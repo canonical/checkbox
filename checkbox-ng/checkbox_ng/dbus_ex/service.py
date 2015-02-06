@@ -27,7 +27,7 @@ import logging
 import threading
 import weakref
 
-from plainbox.impl.signal import Signal
+from plainbox.vendor import morris
 import _dbus_bindings
 import dbus
 import dbus.exceptions
@@ -620,7 +620,7 @@ class Object(Interface, dbus.service.Object):
         """
         return self.__class__._dbus_class_table[self._dct_key]
 
-    @Signal.define
+    @morris.signal
     def _on_managed_objects_changed(self, old_objs, new_objs):
         logger.debug("%r._on_managed_objects_changed(%r, %r)",
                      self, old_objs, new_objs)

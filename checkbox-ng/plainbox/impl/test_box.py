@@ -61,7 +61,7 @@ def mock_whitelist(name, text, filename):
 class MiscTests(TestCase):
 
     def setUp(self):
-        self.provider1 = Mock(IProvider1)
+        self.provider1 = Mock(spec=IProvider1)
         self.job_foo = MockJobDefinition(id='foo', provider=self.provider1)
         self.job_bar = MockJobDefinition(id='bar', provider=self.provider1)
         self.job_baz = MockJobDefinition(id='baz', provider=self.provider1)

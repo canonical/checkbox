@@ -1154,24 +1154,6 @@ class Provider1(IProvider1):
         self._ensure_loaded()
         return self._loader.path_map
 
-    def load_all_jobs(self):
-        """
-        Load and parse all of the job definitions of this provider.
-
-        Unlike :meth:`get_builtin_jobs()` this method does not stop after the
-        first problem encountered and instead collects all of the problems into
-        a list which is returned alongside the job list.
-
-        :returns:
-            Pair (job_list, problem_list) where each job_list is a sorted list
-            of JobDefinition objects and each item from problem_list is an
-            exception.
-        """
-        job_list = [unit for unit in self.unit_list
-                    if unit.Meta.name == 'job']
-        job_list.sort(key=lambda unit: unit.id)
-        return job_list, self.problem_list
-
     def get_units(self):
         """
         Get all units.

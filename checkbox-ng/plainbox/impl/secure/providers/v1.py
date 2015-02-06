@@ -1,13 +1,12 @@
 # This file is part of Checkbox.
 #
-# Copyright 2013 Canonical Ltd.
+# Copyright 2013-2015 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -21,6 +20,7 @@
 :mod:`plainbox.impl.secure.providers.v1` -- Implementation of V1 provider
 =========================================================================
 """
+import collections
 import abc
 import errno
 import gettext
@@ -37,6 +37,7 @@ from plainbox.impl.secure.config import PatternValidator
 from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.plugins import FsPlugInCollection
+from plainbox.impl.secure.plugins import LazyFsPlugInCollection
 from plainbox.impl.secure.plugins import IPlugIn
 from plainbox.impl.secure.plugins import PlugIn
 from plainbox.impl.secure.plugins import PlugInError
@@ -1078,7 +1079,7 @@ class Provider1(IProvider1):
 
         :param base_dir:
             path of the directory with (perhaps) all of jobs_dir,
-            whitelist_dir, data_dir, bin_dir, locale_dir. This may be None.
+            whitelists_dir, data_dir, bin_dir, locale_dir. This may be None.
             This is also the effective value of $CHECKBOX_SHARE
 
         :param validate:
@@ -1105,30 +1106,29 @@ class Provider1(IProvider1):
         self._bin_dir = bin_dir
         self._locale_dir = locale_dir
         self._base_dir = base_dir
-        # Load and setup everything
-        self._load_whitelists()
-        self._load_units(validate, validation_kwargs, check, context)
+        # Create support classes
+        self._enumerator = ProviderContentEnumerator(self)
+        self._classifier = ProviderContentClassifier(self)
+        self._loader = ProviderContentLoader(self)
+        self._load_kwargs = {
+            'validate': validate,
+            'validation_kwargs': validation_kwargs,
+            'check': check,
+            'context': context,
+        }
+        # Setup provider specific i18n
         self._setup_translations()
+        logger.info("Provider initialized %s", self)
+
+    def _ensure_loaded(self):
+        if not self._loader.is_loaded:
+            self._loader.load(self._load_kwargs)
 
     def _load_whitelists(self):
-        if self.whitelists_dir is not None:
-            whitelists_dir_list = [self.whitelists_dir]
-        else:
-            whitelists_dir_list = []
-        self._whitelist_collection = FsPlugInCollection(
-            whitelists_dir_list, ext=".whitelist", wrapper=WhiteListPlugIn,
-            provider=self)
+        self._ensure_loaded()
 
     def _load_units(self, validate, validation_kwargs, check, context):
-        units_dir_list = []
-        if self.jobs_dir is not None:
-            units_dir_list.append(self.jobs_dir)
-        if self.units_dir is not None:
-            units_dir_list.append(self.units_dir)
-        self._unit_collection = FsPlugInCollection(
-            units_dir_list, ext=(".txt", ".txt.in", ".pxu"), recursive=True,
-            wrapper=UnitPlugIn, provider=self, validate=validate,
-            validation_kwargs=validation_kwargs, check=check, context=context)
+        self._ensure_loaded()
 
     def _setup_translations(self):
         if self._gettext_domain and self._locale_dir:
@@ -1177,6 +1177,9 @@ class Provider1(IProvider1):
 
     def __repr__(self):
         return "<{} name:{!r}>".format(self.__class__.__name__, self.name)
+
+    def __str__(self):
+        return "{}, version {}".format(self.name, self.version)
 
     @property
     def name(self):
@@ -1274,10 +1277,20 @@ class Provider1(IProvider1):
     @property
     def base_dir(self):
         """
-        path of the directory with (perhaps) all of jobs_dir, whitelist_dir,
+        path of the directory with (perhaps) all of jobs_dir, whitelists_dir,
         data_dir, bin_dir, locale_dir. This may be None
         """
         return self._base_dir
+
+    @property
+    def build_dir(self):
+        """
+        absolute path of the build directory
+
+        This value may be None. It depends on location/base_dir being set.
+        """
+        if self.base_dir is not None:
+            return os.path.join(self.base_dir, 'build')
 
     @property
     def build_bin_dir(self):
@@ -1290,6 +1303,16 @@ class Provider1(IProvider1):
             return os.path.join(self.base_dir, 'build', 'bin')
 
     @property
+    def build_mo_dir(self):
+        """
+        absolute path of the build/mo directory
+
+        This value may be None. It depends on location/base_dir being set.
+        """
+        if self.base_dir is not None:
+            return os.path.join(self.base_dir, 'build', 'mo')
+
+    @property
     def src_dir(self):
         """
         absolute path of the src/ directory
@@ -1298,6 +1321,16 @@ class Provider1(IProvider1):
         """
         if self.base_dir is not None:
             return os.path.join(self.base_dir, 'src')
+
+    @property
+    def po_dir(self):
+        """
+        absolute path of the po/ directory
+
+        This value may be None. It depends on location/base_dir set.
+        """
+        if self.base_dir is not None:
+            return os.path.join(self.base_dir, 'po')
 
     @property
     def CHECKBOX_SHARE(self):
@@ -1342,6 +1375,87 @@ class Provider1(IProvider1):
         """
         return self._gettext_domain
 
+    @property
+    def unit_list(self):
+        """
+        List of loaded units.
+
+        This list may contain units of various types. You should not assume all
+        of them are :class:`JobDefinition` instances. You may use filtering to
+        obtain units of a given type.
+
+            >>> [unit for unit in provider.unit_list
+            ...  if unit.Meta.name == 'job']
+            [...]
+        """
+        self._ensure_loaded()
+        return self._loader.unit_list
+
+    @property
+    def job_list(self):
+        """
+        A sorted list of loaded job definition units.
+        """
+        return sorted(
+            (unit for unit in self.unit_list if unit.Meta.name == 'job'),
+            key=lambda unit: unit.id)
+
+    @property
+    def executable_list(self):
+        """
+        List of all the executables
+        """
+        return sorted(
+            unit.path for unit in self.unit_list
+            if unit.Meta.name == 'file'
+            and unit.role in (FileRole.script, FileRole.binary))
+
+    @property
+    def whitelist_list(self):
+        """
+        List of loaded whitelists.
+
+        .. warning::
+            :class:`WhiteList` is currently deprecated. You should never need
+            to access them in any new code.  They are entirely replaced by
+            :class:`TestPlan`. This property is provided for completeness and
+            it will be **removed** once whitelists classes are no longer used.
+        """
+        self._ensure_loaded()
+        return self._loader.whitelist_list
+
+    @property
+    def problem_list(self):
+        """
+        list of problems encountered by the loading process
+        """
+        self._ensure_loaded()
+        return self._loader.problem_list
+
+    @property
+    def id_map(self):
+        """
+        A mapping from unit identifier to list of units with that identifier.
+
+        .. note::
+            Typically the list will be one element long but invalid providers
+            may break that guarantee. Code defensively if you can.
+        """
+        self._ensure_loaded()
+        return self._loader.id_map
+
+    @property
+    def path_map(self):
+        """
+        A mapping from filename path to a list of units stored in that file.
+
+        .. note::
+            For ``.pxu`` files this will enumerate all units stored there. For
+            other things it will typically be just the FileUnit.
+        """
+        self._ensure_loaded()
+        return self._loader.path_map
+
     def get_builtin_whitelists(self):
         """
         Load all the whitelists from :attr:`whitelists_dir` and return them
@@ -1358,12 +1472,10 @@ class Provider1(IProvider1):
             that OSError is silently ignored when the `whitelists_dir`
             directory is missing.
         """
-        self._whitelist_collection.load()
-        if self._whitelist_collection.problem_list:
-            raise self._whitelist_collection.problem_list[0]
+        if self.problem_list:
+            raise self.problem_list[0]
         else:
-            return sorted(self._whitelist_collection.get_all_plugin_objects(),
-                          key=lambda whitelist: whitelist.name)
+            return sorted(self.whitelist_list, key=lambda wl: wl.name)
 
     def get_builtin_jobs(self):
         """
@@ -1382,11 +1494,12 @@ class Provider1(IProvider1):
             This method should not be used anymore. Consider transitioning your
             code to :meth:`load_all_jobs()` which is more reliable.
         """
-        job_list, problem_list = self.load_all_jobs()
-        if problem_list:
-            raise problem_list[0]
-        else:
-            return job_list
+        if self.problem_list:
+            raise self.problem_list[0]
+        job_list = [unit for unit in self.unit_list
+                    if unit.Meta.name == 'job']
+        job_list.sort(key=lambda unit: unit.id)
+        return job_list
 
     def load_all_jobs(self):
         """
@@ -1401,11 +1514,10 @@ class Provider1(IProvider1):
             of JobDefinition objects and each item from problem_list is an
             exception.
         """
-        unit_list, problem_list = self.get_units()
-        unit_list = [unit for unit in unit_list
-                     if unit.Meta.name == 'job']
-        unit_list.sort(key=lambda unit: unit.id)
-        return unit_list, problem_list
+        job_list = [unit for unit in self.unit_list
+                    if unit.Meta.name == 'job']
+        job_list.sort(key=lambda unit: unit.id)
+        return job_list, self.problem_list
 
     def get_units(self):
         """
@@ -1416,16 +1528,7 @@ class Provider1(IProvider1):
             of units, as they showed up in subsequent unit definition files and
             each item from problem_list is an exception.
         """
-        self._unit_collection.load()
-        self._whitelist_collection.load()
-        unit_list = []
-        for sublist in self._unit_collection.get_all_plugin_objects():
-            unit_list.extend(sublist)
-        for plugin in self._whitelist_collection.get_all_plugins():
-            unit_list.extend(plugin.unit_list)
-        problem_list = (self._unit_collection.problem_list
-                        + self._whitelist_collection.problem_list)
-        return unit_list, problem_list
+        return self.unit_list, self.problem_list
 
     def get_all_executables(self):
         """
@@ -1438,9 +1541,7 @@ class Provider1(IProvider1):
             that OSError is silently ignored when the `bin_dir` directory is
             missing.
         """
-        return sorted(
-            self._get_executables(self.bin_dir) +
-            self._get_build_bin_executable_list())
+        return self.executable_list
 
     def _get_build_bin_executable_list(self):
         """
@@ -1496,6 +1597,27 @@ class Provider1(IProvider1):
             return gettext.dgettext(self._gettext_domain, msgid)
         else:
             return msgid
+
+    @property
+    def classify(self):
+        """
+        Exposed :meth:`ProviderContentClassifier.classify()`
+        """
+        return self._classifier.classify
+
+    @property
+    def content_collection(self) -> "IPlugInCollection":
+        """
+        Exposed :meth:`ProviderContentEnumerator.content_collection`
+        """
+        return self._enumerator.content_collection
+
+    @property
+    def fake(self):
+        """
+        Bridge to ``.content_collection.fake_plugins`` that's shorter to type.
+        """
+        return self._enumerator.content_collection.fake_plugins
 
 
 class IQNValidator(PatternValidator):
@@ -1903,7 +2025,6 @@ class Provider1PlugIn(PlugIn):
     def __repr__(self):
         return "<{!s} plugin_name:{!r}>".format(
             type(self).__name__, self.plugin_name)
-
 
 
 def get_secure_PROVIDERPATH_list():

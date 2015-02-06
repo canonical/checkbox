@@ -838,6 +838,12 @@ class InfoCommand(ManageCommand):
         print(_("[Test Plans]"))
         self._display_units((
             unit for unit in unit_list if unit.Meta.name == 'test plan'))
+        print(_("[Test Plans] (legacy)"))
+        # TRANSLATORS: {} is the name of the test provider
+        for whitelist in provider.whitelist_list:
+            print("\t" + _("{0} from {1}").format(
+                whitelist.name,
+                whitelist.origin.relative_to(self.definition.location)))
         print(_("[Other Units]"))
         self._display_units((
             unit for unit in unit_list

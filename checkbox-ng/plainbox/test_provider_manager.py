@@ -377,6 +377,8 @@ class ProviderManagerToolTests(TestCase):
             "\tjob 2014.com.example::dummy, from jobs/jobs.txt:1-4\n"
             "[Test Plans]\n"
             "\ttest plan 2014.com.example::test, from whitelists/test.whitelist:1\n"
+            "[Test Plans] (legacy)\n"
+            "\ttest from whitelists/test.whitelist:1\n"
             "[Other Units]\n"
             "\tfile bin/test.sh, role script\n"
             "\tfile data/test.dat, role data\n"

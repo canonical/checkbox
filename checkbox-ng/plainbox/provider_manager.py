@@ -1035,7 +1035,8 @@ class ValidateCommand(ManageCommand):
         provider_list = all_providers.get_all_plugin_objects()
         if all(p.name != provider.name for p in provider_list):
             provider_list.append(provider)
-        # Add the built-in 'categories' provider, unless that's the one we're testing
+        # Add the built-in 'categories' provider,
+        # unless that's the one we're testing
         categories_provider = get_categories()
         if provider.base_dir != categories_provider.base_dir:
             provider_list.append(categories_provider)

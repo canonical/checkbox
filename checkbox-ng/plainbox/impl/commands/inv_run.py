@@ -148,6 +148,9 @@ class SilentUI(IJobRunnerUI):
     def pick_action_cmd(self, action_list, prompt=None):
         pass
 
+    def noreturn_job(self):
+        pass
+
 
 class NormalUI(IJobRunnerUI):
 

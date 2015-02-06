@@ -40,6 +40,7 @@ requires:
  package.name == 'upstart'
  package.name == 'fwts'
 command: pm_test poweroff --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE
+flags: noreturn
 _description:
  PURPOSE:
   This test will check the system's ability to power-off and boot.
@@ -69,6 +70,7 @@ requires:
  package.name == 'upstart'
  package.name == 'fwts'
 command: pm_test reboot --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE
+flags: noreturn
 _description:
  PURPOSE:
   This test will check the system's ability to reboot cleanly.

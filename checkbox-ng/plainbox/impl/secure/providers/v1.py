@@ -1175,30 +1175,6 @@ class Provider1(IProvider1):
         else:
             return sorted(self.whitelist_list, key=lambda wl: wl.name)
 
-    def get_builtin_jobs(self):
-        """
-        Load and parse all of the job definitions of this provider.
-
-        :returns:
-            A sorted list of JobDefinition objects
-        :raises RFC822SyntaxError:
-            if any of the loaded files was not valid RFC822
-        :raises IOError, OSError:
-            if there were any problems accessing files or directories.
-            Note that OSError is silently ignored when the `jobs_dir`
-            directory is missing.
-
-        ..note::
-            This method should not be used anymore. Consider transitioning your
-            code to :meth:`load_all_jobs()` which is more reliable.
-        """
-        if self.problem_list:
-            raise self.problem_list[0]
-        job_list = [unit for unit in self.unit_list
-                    if unit.Meta.name == 'job']
-        job_list.sort(key=lambda unit: unit.id)
-        return job_list
-
     def load_all_jobs(self):
         """
         Load and parse all of the job definitions of this provider.

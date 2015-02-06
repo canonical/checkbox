@@ -575,6 +575,13 @@ class IJobRunnerUI(metaclass=ABCMeta):
             cmd of the selected action or None
         """
 
+    @abstractmethod
+    def noreturn_job(self):
+        """
+        Method called when job that is about to run has 'noreturn' flag
+        (plainbox will suspend operation after running that job).
+        """
+
 
 class IUserInterfaceIO(metaclass=ABCMeta):
     """

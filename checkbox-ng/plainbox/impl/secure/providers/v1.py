@@ -355,6 +355,668 @@ class UnitPlugIn(IPlugIn, IVirtualUnitSynthethizer):
         return self._wrap_time
 
 
+class ProviderContentPlugIn(PlugIn):
+    """
+    PlugIn class for loading provider content.
+
+    Provider content comes in two shapes and sizes:
+        - units (of any kind)
+        - whitelists
+
+    The actual logic on how to load everything is encapsulated in
+    :meth:`wrap()` though its return value is not so useful.
+
+    :attr unit_list:
+        The list of loaded units
+    :attr whitelist_list:
+        The list of loaded whitelists
+    """
+
+    def __init__(self, filename, text, load_time, provider, *,
+                 validate=True, validation_kwargs=None,
+                 check=False, context=None):
+        start_time = now()
+        try:
+            # Inspect the file
+            inspect_result = self.inspect(
+                filename, text, provider,
+                validate, validation_kwargs or {},  # legacy validation
+                check, context  # modern validation
+            )
+        except PlugInError as exc:
+            raise exc
+        except Exception as exc:
+            raise PlugInError(_("Cannot load {!r}: {}").format(filename, exc))
+        wrap_time = now() - start_time
+        super().__init__(filename, inspect_result, load_time, wrap_time)
+        self.unit_list = []
+        self.whitelist_list = []
+        # And load all of the content from that file
+        self.unit_list.extend(self.discover_units(
+            inspect_result, filename, text, provider))
+        self.whitelist_list.extend(self.discover_whitelists(
+            inspect_result, filename, text, provider))
+
+    def inspect(self, filename: str, text: str, provider: "Provider1",
+                validate: bool, validation_kwargs: "Dict[str, Any]", check:
+                bool, context: "???") -> "Any":
+        """
+        Interpret and wrap the content of the filename as whatever is
+        appropriate. The return value of this class becomes the
+        :meth:`plugin_object`
+
+        .. note::
+            This method must *not* access neither :attr:`unit_list` nor
+            :attr:`whitelist_list`. If needed, it can collect its own state in
+            private instance attributes.
+        """
+
+    def discover_units(
+        self, inspect_result: "Any", filename: str, text: str,
+        provider: "Provider1"
+    ) -> "Iterable[Unit]":
+        """
+        Discover all units that were loaded by this plug-in
+
+        :param wrap_result:
+            whatever was returned on the call to :meth:`wrap()`.
+        :returns:
+            an iterable of units.
+
+        .. note::
+            this method is always called *after* :meth:`wrap()`.
+        """
+        yield self.make_file_unit(filename, provider)
+
+    def discover_whitelists(
+        self, inspect_result: "Any", filename: str, text: str,
+        provider: "Provider1"
+    ) -> "Iterable[WhiteList]":
+        """
+        Discover all whitelists that were loaded by this plug-in
+
+        :param wrap_result:
+            whatever was returned on the call to :meth:`wrap()`.
+        :returns:
+            an iterable of whitelists.
+
+        .. note::
+            this method is always called *after* :meth:`wrap()`.
+        """
+        return ()
+
+    def make_file_unit(self, filename, provider, role=None, base=None):
+        if role is None or base is None:
+            role, base, plugin_cls = provider.classify(filename)
+        return FileUnit({
+            'unit': FileUnit.Meta.name,
+            'path': filename,
+            'base': base,
+            'role': role,
+        }, origin=Origin(FileTextSource(filename)), provider=provider,
+            virtual=True)
+
+
+class WhiteListPlugIn2(ProviderContentPlugIn):
+    """
+    A specialized :class:`plainbox.impl.secure.plugins.IPlugIn` that loads
+    :class:`plainbox.impl.secure.qualifiers.WhiteList` instances from a file.
+    """
+
+    def inspect(self, filename: str, text: str, provider: "Provider1",
+                validate: bool, validation_kwargs: "Dict[str, Any]", check:
+                bool, context: "???") -> "WhiteList":
+        if provider is not None:
+            implicit_namespace = provider.namespace
+        else:
+            implicit_namespace = None
+        origin = Origin(FileTextSource(filename), 1, text.count('\n'))
+        return WhiteList.from_string(
+            text, filename=filename, origin=origin,
+            implicit_namespace=implicit_namespace)
+
+    def discover_units(
+        self, inspect_result: "WhiteList", filename: str, text: str,
+        provider: "Provider1"
+    ) -> "Iterable[Unit]":
+        if provider is not None:
+            yield self.make_file_unit(
+                filename, provider,
+                # NOTE: don't guess what this file is for
+                role=FileRole.legacy_whitelist, base=provider.whitelists_dir)
+            yield self.make_test_plan_unit(filename, text, provider)
+
+    def discover_whitelists(
+        self, inspect_result: "WhiteList", filename: str, text: str,
+        provider: "Provider1"
+    ) -> "Iterable[WhiteList]":
+        yield inspect_result
+
+    def make_test_plan_unit(self, filename, text, provider):
+        name = os.path.basename(os.path.splitext(filename)[0])
+        origin = Origin(FileTextSource(filename), 1, text.count('\n'))
+        field_offset_map = {'include': 0}
+        return TestPlanUnit({
+            'unit': TestPlanUnit.Meta.name,
+            'id': name,
+            'name': name,
+            'include': text,
+        }, origin=origin, provider=provider, field_offset_map=field_offset_map,
+            virtual=True)
+
+    # NOTE: This version of __init__() exists solely so that provider can
+    # default to None. This is still used in some places and must be supported.
+    def __init__(self, filename, text, load_time, provider=None, *,
+                 validate=True, validation_kwargs=None,
+                 check=False, context=None):
+        super().__init__(
+            filename, text, load_time, provider, validate=validate,
+            validation_kwargs=validation_kwargs, check=check, context=context)
+
+    # NOTE: this version of plugin_name() is just for legacy code support
+    @property
+    def plugin_name(self):
+        """
+        plugin name, the name of the WhiteList
+        """
+        return self.plugin_object.name
+
+
+class UnitPlugIn2(ProviderContentPlugIn):
+    """
+    A specialized :class:`plainbox.impl.secure.plugins.IPlugIn` that loads a
+    list of :class:`plainbox.impl.unit.Unit` instances from a file.
+    """
+
+    def inspect(
+        self, filename: str, text: str, provider: "Provider1", validate: bool,
+        validation_kwargs: "Dict[str, Any]", check: bool, context: "???"
+    ) -> "Any":
+        """
+        Load all units from their PXU representation.
+
+        :param filename:
+            Name of the file with unit definitions
+        :param text:
+            Full text of the file with unit definitions (lazy)
+        :param provider:
+            A provider object to which those units belong to
+        :param validate:
+            Enable unit validation. Incorrect unit definitions will not be
+            loaded and will abort the process of loading of the remainder of
+            the jobs.  This is ON by default to prevent broken units from being
+            used. This is a keyword-only argument.
+        :param validation_kwargs:
+            Keyword arguments to pass to the Unit.validate().  Note, this is a
+            single argument. This is a keyword-only argument.
+        :param check:
+            Enable unit checking. Incorrect unit definitions will not be loaded
+            and will abort the process of loading of the remainder of the jobs.
+            This is OFF by default to prevent broken units from being used.
+            This is a keyword-only argument.
+        :param context:
+            If checking, use this validation context.
+        """
+        logger.debug(_("Loading units from %r..."), filename)
+        try:
+            records = load_rfc822_records(
+                text, source=FileTextSource(filename))
+        except RFC822SyntaxError as exc:
+            raise PlugInError(
+                _("Cannot load job definitions from {!r}: {}").format(
+                    filename, exc))
+        unit_list = []
+        for record in records:
+            unit_name = record.data.get('unit', 'job')
+            try:
+                unit_cls = self._get_unit_cls(unit_name)
+            except KeyError:
+                raise PlugInError(
+                    _("Unknown unit type: {!r}").format(unit_name))
+            try:
+                unit = unit_cls.from_rfc822_record(record, provider)
+            except ValueError as exc:
+                raise PlugInError(
+                    _("Cannot define unit from record {!r}: {}").format(
+                        record, exc))
+            if check:
+                for issue in unit.check(context=context, live=True):
+                    if issue.severity is Severity.error:
+                        raise PlugInError(
+                            _("Problem in unit definition, {}").format(issue))
+            if validate:
+                try:
+                    unit.validate(**validation_kwargs)
+                except ValidationError as exc:
+                    raise PlugInError(
+                        _("Problem in unit definition, field {}: {}").format(
+                            exc.field, exc.problem))
+            unit_list.append(unit)
+            logger.debug(_("Loaded %r"), unit)
+        return unit_list
+
+    def discover_units(
+        self, inspect_result: "List[Unit]", filename: str, text: str,
+        provider: "Provider1"
+    ) -> "Iterable[Unit]":
+        for unit in inspect_result:
+            yield unit
+        yield self.make_file_unit(filename, provider)
+
+    def discover_whitelists(
+        self, inspect_result: "List[Unit]", filename: str, text: str,
+        provider: "Provider1"
+    ) -> "Iterable[WhiteList]":
+        for unit in (unit for unit in inspect_result
+                     if unit.Meta.name == 'test plan'):
+            yield WhiteList(
+                unit.include, name=unit.partial_id, origin=unit.origin,
+                implicit_namespace=unit.provider.namespace)
+
+    # NOTE: this version of plugin_object() is just for legacy code support
+    @property
+    def plugin_object(self):
+        return self.unit_list
+
+    @staticmethod
+    def _get_unit_cls(unit_name):
+        """
+        Get a class that implements the specified unit
+        """
+        # TODO: transition to lazy plugin collection
+        all_units.load()
+        return all_units.get_by_name(unit_name).plugin_object
+
+
+class ProviderContentEnumerator:
+    """
+    Support class for enumerating provider content.
+
+    The only role of this class is to expose a plug in collection that can
+    enumerate all of the files reachable from a provider. This collection
+    is consumed by other parts of provider loading machinery.
+
+    Since it is a stock plug in collection it can be easily "mocked" to provide
+    alternate content without involving modifications of the real file system.
+
+    .. note::
+        This class is automatically instantiated by :class:`Provider1`. The
+        :meth:`content_collection` property is exposed as
+        :meth:`Provider1.content_collection`.
+    """
+
+    def __init__(self, provider: "Provider1"):
+        """
+        Initialize a new provider content enumerator
+
+        :param provider:
+            The associated provider
+        """
+        # NOTE: This code tries to account for two possible layouts. In one
+        # layout we don't have the base directory and everything is spread
+        # across the filesystem. This is how a packaged provider looks like.
+        # The second layout is the old flat layout that is not being used
+        # anymore. The only modern exception is when working with a provider
+        # from source. To take that into account, the src_dir and build_bin_dir
+        # are optional.
+        if provider.base_dir:
+            dir_list = [provider.base_dir]
+            if provider.src_dir:
+                dir_list.append(provider.src_dir)
+                # NOTE: in source layout we may also see virtual executables
+                # that are not loaded yet. Those are listed by
+                # "$src_dir/EXECUTABLES"
+            if provider.build_bin_dir:
+                dir_list.append(provider.build_bin_dir)
+            if provider.build_mo_dir:
+                dir_list.append(provider.build_mo_dir)
+        else:
+            dir_list = []
+            if provider.units_dir:
+                dir_list.append(provider.units_dir)
+            if provider.jobs_dir:
+                dir_list.append(provider.jobs_dir)
+            if provider.data_dir:
+                dir_list.append(provider.data_dir)
+            if provider.bin_dir:
+                dir_list.append(provider.bin_dir)
+            if provider.locale_dir:
+                dir_list.append(provider.locale_dir)
+            if provider.whitelists_dir:
+                dir_list.append(provider.whitelists_dir)
+        # Find all the files that belong to a provider
+        self._content_collection = LazyFsPlugInCollection(
+            dir_list, ext=None, recursive=True)
+
+    @property
+    def content_collection(self) -> "IPlugInCollection":
+        """
+        An plugin collection that enumerates all of the files in the provider.
+
+        This collections exposes all of the files in a provider. It can also be
+        mocked for easier testing. It is the only part of the provider codebase
+        that tries to discover data in a file system.
+
+        .. note::
+            By default the collection is **not** loaded. Make sure to call
+            ``.load()`` to see the actual data. This is, again, a way to
+            simplify testing and to de-couple it from file-system activity.
+        """
+        return self._content_collection
+
+
+class ProviderContentClassifier:
+    """
+    Support class for classifying content inside a provider.
+
+    The primary role of this class is to come up with the role of each file
+    inside the provider. That includes all files reachable from any of the
+    directories that constitute a provider definition. In addition, each file
+    is associated with a *base directory*. This directory can be used to
+    re-construct the same provider at a different location or in a different
+    layout.
+
+    The secondary role is to provide a hint on what PlugIn to use to load such
+    content (as units). In practice the majority of files are loaded with the
+    :class:`UnitPlugIn` class. Legacy ``.whitelist`` files are loaded with the
+    :class:`WhiteListPlugIn` class instead. All other files are handled by the
+    :class:`ProviderContentPlugIn`.
+
+    .. note::
+        This class is automatically instantiated by :class:`Provider1`. The
+        :meth:`classify` method is exposed as :meth:`Provider1.classify()`.
+    """
+    LEGAL_SET = frozenset(['COPYING', 'COPYING.LESSER', 'LICENSE'])
+    DOC_SET = frozenset(['README', 'README.md', 'README.rst', 'README.txt'])
+
+    def __init__(self, provider: "Provider1"):
+        """
+        Initialize a new provider content classifier
+
+        :param provider:
+            The associated provider
+        """
+        self.provider = provider
+        self._classify_fn_list = None
+        self._EXECUTABLES = None
+
+    def classify(self, filename: str) -> "Tuple[Symbol, str, type]":
+        """
+        Classify a file belonging to the provider
+
+        :param filename:
+            Full pathname of the file to classify
+        :returns:
+            A tuple of information about the file. The first element is the
+            :class:`FileRole` symbol that describes the role of the file. The
+            second element is the base path of the file. It can be subtracted
+            from the actual filename to obtain a relative directory where the
+            file needs to be located in case of provider re-location. The last,
+            third element is the plug-in class that can be used to load units
+            from that file.
+        :raises ValueError:
+            If the file cannot be classified. This can only happen if the file
+            is not in any way related to the provider. All (including random
+            junk) files can be classified correctly, as long as they are inside
+            one of the well-known directories.
+        """
+        for fn in self.classify_fn_list:
+            result = fn(filename)
+            if result is not None:
+                return result
+        else:
+            raise ValueError("Unable to classify: {!r}".format(filename))
+
+    @property
+    def classify_fn_list(
+        self
+    ) -> "List[Callable[[str], Tuple[Symbol, str, type]]]":
+        """
+        List of functions that aid in the classification process.
+        """
+        if self._classify_fn_list is None:
+            self._classify_fn_list = self._get_classify_fn_list()
+        return self._classify_fn_list
+
+    def _get_classify_fn_list(
+        self
+    ) -> "List[Callable[[str], Tuple[Symbol, str, type]]]":
+        """
+        Get a list of function that can classify any file reachable from our
+        provider. The returned function list depends on which directories are
+        present.
+
+        :returns:
+            A list of functions ``fn(filename) -> (Symbol, str, plugin_cls)``
+            where the return value is a tuple (file_role, base_dir, type).
+            The plugin_cls can be used to find all of the units stored in that
+            file.
+        """
+        classify_fn_list = []
+        if self.provider.jobs_dir:
+            classify_fn_list.append(self._classify_pxu_jobs)
+        if self.provider.units_dir:
+            classify_fn_list.append(self._classify_pxu_units)
+        if self.provider.whitelists_dir:
+            classify_fn_list.append(self._classify_whitelist)
+        if self.provider.data_dir:
+            classify_fn_list.append(self._classify_data)
+        if self.provider.bin_dir:
+            classify_fn_list.append(self._classify_exec)
+        if self.provider.build_bin_dir:
+            classify_fn_list.append(self._classify_built_exec)
+        if self.provider.build_mo_dir:
+            classify_fn_list.append(self._classify_built_i18n)
+        if self.provider.build_dir:
+            classify_fn_list.append(self._classify_build)
+        if self.provider.po_dir:
+            classify_fn_list.append(self._classify_po)
+        if self.provider.src_dir:
+            classify_fn_list.append(self._classify_src)
+        if self.provider.base_dir:
+            classify_fn_list.append(self._classify_legal)
+            classify_fn_list.append(self._classify_docs)
+            classify_fn_list.append(self._classify_manage_py)
+            classify_fn_list.append(self._classify_vcs)
+        # NOTE: this one always has to be last
+        classify_fn_list.append(self._classify_unknown)
+        return classify_fn_list
+
+    def _get_EXECUTABLES(self):
+        assert self.provider.src_dir is not None
+        hint_file = os.path.join(self.provider.src_dir, 'EXECUTABLES')
+        if os.path.isfile(hint_file):
+            with open(hint_file, "rt", encoding='UTF-8') as stream:
+                return frozenset(line.strip() for line in stream)
+        else:
+            return frozenset()
+
+    @property
+    def EXECUTABLES(self) -> "Set[str]":
+        """
+        A set of executables that are expected to be built from source.
+        """
+        if self._EXECUTABLES is None:
+            self._EXECUTABLES = self._get_EXECUTABLES()
+        return self._EXECUTABLES
+
+    def _classify_pxu_jobs(self, filename: str):
+        """ classify certain files in jobs_dir as unit source"""
+        if filename.startswith(self.provider.jobs_dir):
+            ext = os.path.splitext(filename)[1]
+            if ext in (".txt", ".in", ".pxu"):
+                return (FileRole.unit_source, self.provider.jobs_dir,
+                        UnitPlugIn2)
+
+    def _classify_pxu_units(self, filename: str):
+        """ classify certain files in units_dir as unit source"""
+        if filename.startswith(self.provider.units_dir):
+            ext = os.path.splitext(filename)[1]
+            # TODO: later on just let .pxu files in the units_dir
+            if ext in (".txt", ".txt.in", ".pxu"):
+                return (FileRole.unit_source, self.provider.units_dir,
+                        UnitPlugIn2)
+
+    def _classify_whitelist(self, filename: str):
+        """ classify .whitelist files in whitelist_dir as whitelist """
+        if (filename.startswith(self.provider.whitelists_dir)
+                and filename.endswith(".whitelist")):
+            return (FileRole.legacy_whitelist, self.provider.whitelists_dir,
+                    WhiteListPlugIn2)
+
+    def _classify_data(self, filename: str):
+        """ classify files in data_dir as data """
+        if filename.startswith(self.provider.data_dir):
+            return (FileRole.data, self.provider.data_dir,
+                    ProviderContentPlugIn)
+
+    def _classify_exec(self, filename: str):
+        """ classify files in bin_dir as scripts/executables """
+        if (filename.startswith(self.provider.bin_dir)
+                and os.access(filename, os.F_OK | os.X_OK)):
+            with open(filename, 'rb') as stream:
+                chunk = stream.read(2)
+            role = FileRole.script if chunk == b'#!' else FileRole.binary
+            return (role, self.provider.bin_dir, ProviderContentPlugIn)
+
+    def _classify_built_exec(self, filename: str):
+        """ classify files in build_bin_dir as scripts/executables """
+        if (filename.startswith(self.provider.build_bin_dir)
+                and os.access(filename, os.F_OK | os.X_OK)
+                and os.path.basename(filename) in self.EXECUTABLES):
+            with open(filename, 'rb') as stream:
+                chunk = stream.read(2)
+            role = FileRole.script if chunk == b'#!' else FileRole.binary
+            return (role, self.provider.build_bin_dir, ProviderContentPlugIn)
+
+    def _classify_built_i18n(self, filename: str):
+        """ classify files in build_mo_dir as i18n """
+        if (filename.startswith(self.provider.build_mo_dir)
+                and os.path.splitext(filename)[1] == '.mo'):
+            return (FileRole.i18n, self.provider.build_bin_dir,
+                    ProviderContentPlugIn)
+
+    def _classify_build(self, filename: str):
+        """ classify anything in build_dir as a build artefact """
+        if filename.startswith(self.provider.build_dir):
+            return (FileRole.build, self.provider.build_dir, None)
+
+    def _classify_legal(self, filename: str):
+        """ classify file as a legal document """
+        if os.path.basename(filename) in self.LEGAL_SET:
+            return (FileRole.legal, self.provider.base_dir,
+                    ProviderContentPlugIn)
+
+    def _classify_docs(self, filename: str):
+        """ classify certain files as documentation """
+        if os.path.basename(filename) in self.DOC_SET:
+            return (FileRole.docs, self.provider.base_dir,
+                    ProviderContentPlugIn)
+
+    def _classify_manage_py(self, filename: str):
+        """ classify the manage.py file """
+        if os.path.join(self.provider.base_dir, 'manage.py') == filename:
+            return (FileRole.manage_py, self.provider.base_dir, None)
+
+    def _classify_po(self, filename: str):
+        if (os.path.dirname(filename) == self.provider.po_dir
+            and (os.path.splitext(filename)[1] in ('.po', '.pot')
+                 or os.path.basename(filename) == 'POTFILES.in')):
+            return (FileRole.src, self.provider.base_dir, None)
+
+    def _classify_src(self, filename: str):
+        if filename.startswith(self.provider.src_dir):
+            return (FileRole.src, self.provider.base_dir, None)
+
+    def _classify_vcs(self, filename: str):
+        if os.path.basename(filename) in ('.gitignore', '.bzrignore'):
+            return (FileRole.vcs, self.provider.base_dir, None)
+        head = filename
+        # NOTE: first condition is for correct cases, the rest are for broken
+        # cases that may be caused if we get passed some garbage argument.
+        while head != self.provider.base_dir and head != '' and head != '/':
+            head, tail = os.path.split(head)
+            if tail in ('.git', '.bzr'):
+                return (FileRole.vcs, self.provider.base_dir, None)
+
+    def _classify_unknown(self, filename: str):
+        """ classify anything as an unknown file """
+        return (FileRole.unknown, self.provider.base_dir, None)
+
+
+class ProviderContentLoader:
+    """
+    Support class for enumerating provider content.
+
+    The only role of this class is to expose a plug in collection that can
+    enumerate all of the files reachable from a provider. This collection
+    is consumed by other parts of provider loading machinery.
+
+    Since it is a stock plug in collection it can be easily "mocked" to provide
+    alternate content without involving modifications of the real file system.
+
+    .. note::
+        This class is automatically instantiated by :class:`Provider1`. All
+        four attributes of this class are directly exposed as properties on the
+        provider object.
+
+    :attr provider:
+        The provider back-reference
+    :attr is_loaded:
+        Flag indicating if the content loader has loaded all of the content
+    :attr unit_list:
+        A list of loaded whitelist objects
+    :attr problem_list:
+        A list of problems experienced while loading any of the content
+    :attr path_map:
+        A dictionary mapping from the path of each file to the list of units
+        stored there.
+    :attr id_map:
+        A dictionary mapping from the identifier of each unit to the list of
+        units that have that identifier.
+    """
+
+    def __init__(self, provider):
+        self.provider = provider
+        self.is_loaded = False
+        self.unit_list = []
+        self.whitelist_list = []
+        self.problem_list = []
+        self.path_map = collections.defaultdict(list)  # path -> list(unit)
+        self.id_map = collections.defaultdict(list)  # id -> list(unit)
+
+    def load(self, plugin_kwargs):
+        logger.info("Loading content for provider %s", self.provider)
+        self.provider.content_collection.load()
+        for file_plugin in self.provider.content_collection.get_all_plugins():
+            filename = file_plugin.plugin_name
+            text = file_plugin.plugin_object
+            self._load_file(filename, text, plugin_kwargs)
+        self.problem_list.extend(self.provider.content_collection.problem_list)
+        self.is_loaded = True
+
+    def _load_file(self, filename, text, plugin_kwargs):
+        # NOTE: text is lazy, call str() or iter() to see the real content This
+        # prevents us from trying to read binary blobs.
+        classification = self.provider.classify(filename)
+        role, base_dir, plugin_cls = classification
+        if plugin_cls is None:
+            return
+        try:
+            plugin = plugin_cls(
+                filename, text, 0, self.provider, **plugin_kwargs)
+        except PlugInError as exc:
+            self.problem_list.append(exc)
+        else:
+            self.unit_list.extend(plugin.unit_list)
+            self.whitelist_list.extend(plugin.whitelist_list)
+            for unit in plugin.unit_list:
+                if hasattr(unit.Meta.fields, 'id'):
+                    self.id_map[unit.id].append(unit)
+                if hasattr(unit.Meta.fields, 'path'):
+                    self.path_map[unit.path].append(unit)
+
+
 class Provider1(IProvider1):
     """
     A v1 provider implementation.

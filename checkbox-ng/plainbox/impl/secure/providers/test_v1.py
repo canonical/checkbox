@@ -801,45 +801,9 @@ class Provider1Tests(TestCase):
         """
         self.assertIsNone(self.provider.extra_PYTHONPATH)
 
-    def test_get_builtin_whitelists__normal(self):
+    def test_fake(self):
         """
-        verify that Provider1.get_builtin_whitelist() loads and returns all of
-        the whitelists
-        """
-        fake_content = [
-            PlugIn(self.WHITELISTS_DIR + "path/to/some.whitelist", "foo")]
-        with self.provider.fake(fake_content):
-            whitelist_list = self.provider.get_builtin_whitelists()
-        self.assertEqual(len(whitelist_list), 1)
-        self.assertEqual(repr(whitelist_list[0]), "<WhiteList name:'some'>")
-
-    def test_get_builtin_whitelists__failing(self):
-        """
-        verify that Provider1.get_builtin_whitelist() raises the first
-        exception that happens during the load process
-        """
-        fake_content = [
-            PlugIn(self.WHITELISTS_DIR + "/path/to/some.whitelist", "foo")]
-        fake_problems = [IOError("first problem"), OSError("second problem")]
-        with self.assertRaises(IOError):
-            with self.provider.fake(fake_content, fake_problems):
-                self.provider.get_builtin_whitelists()
-
-    def test_get_builtin_whitelists__without_whitelists_dir(self):
-        """
-        verify that Provider1.get_builtin_whitelist() returns an empty list if
-        the whitelists_dir is None
-        """
-        provider = Provider1(
-            self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
-            self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR, None,
-            self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR, self.BASE_DIR)
-        self.assertEqual(provider.get_builtin_whitelists(), [])
-
-    def test_get_builtin_jobs__normal(self):
-        """
-        verify that Provider1.get_builtin_jobs() loads and returns all of
-        the job definitions (and that they are in the right order)
+        Verify that fake() redirects the provider to look for fake content.
         """
         # Create unsorted job definitions that define a1, a2, a3 and a4
         fake_content = [
@@ -851,92 +815,16 @@ class Provider1Tests(TestCase):
                 "id: a3\n"
                 "\n"
                 "id: a4\n"))]
-        with self.provider.fake(fake_content):
-            job_list = self.provider.get_builtin_jobs()
-        self.assertEqual(len(job_list), 4)
-        self.assertEqual(job_list[0].partial_id, "a1")
-        self.assertEqual(job_list[1].partial_id, "a2")
-        self.assertEqual(job_list[2].partial_id, "a3")
-        self.assertEqual(job_list[3].partial_id, "a4")
-
-    def test_get_builtin_jobs__failing(self):
-        """
-        verify that Provider1.get_builtin_jobs() raises the first
-        exception that happens during the load process
-        """
-        fake_content = [PlugIn(self.JOBS_DIR + "/path/to/jobs.txt", "")]
         fake_problems = [IOError("first problem"), OSError("second problem")]
-        with self.assertRaises(IOError):
-            with self.provider.fake(fake_content, fake_problems):
-                self.provider.get_builtin_jobs()
-
-    def test_get_builtin_jobs__without_jobs_dir(self):
-        """
-        verify that Provider1.get_builtin_jobs() returns an empty list if there
-        the jobs_dir is None.
-        """
-        provider = Provider1(
-            self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
-            self.GETTEXT_DOMAIN, self.UNITS_DIR, None, self.WHITELISTS_DIR,
-            self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR, self.BASE_DIR)
-        self.assertEqual(provider.get_builtin_jobs(), [])
-
-    def test_load_all_jobs__normal(self):
-        """
-        verify that Provider1.load_all_jobs() loads and returns all of
-        the job definitions (and that they are in the right order)
-        """
-        # Create unsorted job definitions that define a1, a2, a3 and a4
-        fake_plugins = [
-            PlugIn(self.JOBS_DIR + "/path/to/jobs1.txt", (
-                "id: a2\n"
-                "\n"
-                "id: a1\n")),
-            PlugIn(self.JOBS_DIR + "/path/to/jobs2.txt", (
-                "id: a3\n"
-                "\n"
-                "id: a4\n")),
-        ]
-        with self.provider.fake(fake_plugins):
-            job_list, problem_list = self.provider.load_all_jobs()
+        with self.provider.fake(fake_content, fake_problems):
+            job_list = self.provider.job_list
+            problem_list = self.provider.problem_list
         self.assertEqual(len(job_list), 4)
         self.assertEqual(job_list[0].partial_id, "a1")
         self.assertEqual(job_list[1].partial_id, "a2")
         self.assertEqual(job_list[2].partial_id, "a3")
         self.assertEqual(job_list[3].partial_id, "a4")
-        self.assertEqual(len(problem_list), 0)
-
-    def test_load_all_jobs__failing(self):
-        """
-        verify that Provider1.load_all_jobs() returns all of the problems
-        without raising an exception that happens during the load process
-        """
-        fake_plugins = [
-            PlugIn(self.JOBS_DIR + "/path/to/jobs1.txt", "id: working\n"),
-        ]
-        fake_problems = [
-            PlugInError("some problem"),
-        ]
-        with self.provider.fake(fake_plugins, fake_problems):
-            job_list, problem_list = self.provider.load_all_jobs()
-        self.assertEqual(len(job_list), 1)
-        self.assertEqual(job_list[0].partial_id, "working")
         self.assertEqual(problem_list, fake_problems)
-
-    def test_get_all_executables(self):
-        self.skipTest("not implemented")
-
-    def test_get_all_executables__without_bin_dir(self):
-        """
-        verify that Provider1.get_all_executables() returns an empty list if
-        there the bin_dir is None.
-        """
-        provider = Provider1(
-            self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
-            self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR,
-            self.WHITELISTS_DIR, self.DATA_DIR, None, self.LOCALE_DIR,
-            self.BASE_DIR)
-        self.assertEqual(provider.get_all_executables(), [])
 
     @mock.patch("plainbox.impl.secure.providers.v1.gettext")
     def test_get_translated_data__typical(self, mock_gettext):

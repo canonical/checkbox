@@ -1154,19 +1154,6 @@ class Provider1(IProvider1):
         self._ensure_loaded()
         return self._loader.path_map
 
-    def get_all_executables(self):
-        """
-        Discover and return all executables offered by this provider
-
-        :returns:
-            list of executable names (without the full path)
-        :raises IOError, OSError:
-            if there were any problems accessing files or directories. Note
-            that OSError is silently ignored when the `bin_dir` directory is
-            missing.
-        """
-        return self.executable_list
-
     def _get_build_bin_executable_list(self):
         """
         Discover executables that are a part of the build/bin directory.

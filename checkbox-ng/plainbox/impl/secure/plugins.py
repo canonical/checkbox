@@ -615,6 +615,42 @@ class FsPlugInCollection(PlugInCollectionBase):
                 yield info_file
 
 
+class LazyFileContent:
+    """
+    Support class for FsPlugInCollection's subclasses that behaves like a
+    string of text loaded from a file. The actual text is loaded on demand, the
+    first time it is needed.
+
+    The actual methods implemented here are just enough to work for loading a
+    provider. Since __getattr__() is implemented the class should be pretty
+    versatile but your millage may vary.
+    """
+
+    def __init__(self, name):
+        self.name = name
+        self._text = None
+
+    def __repr__(self):
+        return "<{} name:{!r}{}>".format(
+            self.__class__.__name__, self.name,
+            ' (pending)' if self._text is None else ' (loaded)')
+
+    def __str__(self):
+        self._ensure_loaded()
+        return self._text
+
+    def __iter__(self):
+        self._ensure_loaded()
+        return iter(self._text.splitlines(True))
+
+    def __getattr__(self, attr):
+        self._ensure_loaded()
+        return getattr(self._text, attr)
+
+    def _ensure_loaded(self):
+        if self._text is None:
+            with open(self.name, encoding='UTF-8') as stream:
+                self._text = stream.read()
 class LazyPlugInCollection(PlugInCollectionBase):
     """
     Collection of plug-ins based on a mapping of imported objects

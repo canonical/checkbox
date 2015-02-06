@@ -44,6 +44,7 @@ import itertools
 import json
 import logging
 import os
+import signal
 try:
     import posix
 except ImportError:
@@ -733,6 +734,15 @@ class CheckBoxExecutionController(IExecutionController):
         :returns:
             None
         """
+
+    def _halt(self):
+        """
+        Suspend operation until signal is received
+
+        This function is useful when plainbox should stop execution and wait
+        for external process to kill it.
+        """
+        signal.pause()
 
 
 class UserJobExecutionController(CheckBoxExecutionController):

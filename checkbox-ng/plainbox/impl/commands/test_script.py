@@ -22,14 +22,15 @@ plainbox.impl.commands.test_script
 Test definitions for plainbox.impl.script module
 """
 
-import argparse
+from collections import defaultdict
 from inspect import cleandoc
 from unittest import TestCase
+import argparse
 
+from plainbox.abc import IProvider1
 from plainbox.impl.applogic import PlainBoxConfig
 from plainbox.impl.commands.cmd_script import ScriptCommand
 from plainbox.impl.commands.inv_script import ScriptInvocation
-from plainbox.impl.providers.v1 import DummyProvider1
 from plainbox.impl.testing_utils import make_job
 from plainbox.testing_utils.io import TestIO
 from plainbox.vendor import mock
@@ -91,9 +92,24 @@ class ScriptInvocationTests(TestCase):
     JOB_PARTIAL_ID = 'foo'
 
     def setUp(self):
-        self.provider_loader = mock.Mock()
+        self.provider = mock.Mock(spec_set=IProvider1, name='provider')
+        self.provider.namespace = "2013.com.canonical.plainbox"
+        self.provider.job_list = []
+        self.provider.units_dir = None
+        self.provider.jobs_dir = None
+        self.provider.data_dir = None
+        self.provider.executable_list = []
+        self.provider.id_map = defaultdict(list)
+        self.provider.extra_PYTHONPATH = None
+        self.provider.CHECKBOX_SHARE = None
+        self.provider_loader = lambda: [self.provider]
         self.config_loader = lambda: PlainBoxConfig()
         self.job_id = mock.Mock()
+
+    def add_job(self, job):
+        self.provider.job_list.append(job)
+        self.provider.unit_list.append(job)
+        self.provider.id_map[job.id].append(job)
 
     def assertCommandOutput(self, actual, expected):
         self.assertEqual(actual, cleandoc(expected) + '\n')
@@ -106,9 +122,8 @@ class ScriptInvocationTests(TestCase):
         self.assertIs(script_inv.job_id, self.job_id)
 
     def test_run_no_such_job(self):
-        provider_loader = lambda: [DummyProvider1()]
         script_inv = ScriptInvocation(
-            provider_loader, self.config_loader, self.JOB_ID)
+            self.provider_loader, self.config_loader, self.JOB_ID)
         with TestIO() as io:
             retval = script_inv.run()
         self.assertCommandOutput(
@@ -120,9 +135,11 @@ class ScriptInvocationTests(TestCase):
         self.assertEqual(retval, 126)
 
     def test_run_job_without_command(self):
-        provider_loader = lambda: [DummyProvider1([make_job(self.JOB_PARTIAL_ID)])]
+        job = make_job(self.JOB_PARTIAL_ID)
+        job._provider = self.provider
+        self.add_job(job)
         script_inv = ScriptInvocation(
-            provider_loader, self.config_loader, self.JOB_ID)
+            self.provider_loader, self.config_loader, self.JOB_ID)
         with TestIO() as io:
             retval = script_inv.run()
         self.assertCommandOutput(
@@ -134,10 +151,11 @@ class ScriptInvocationTests(TestCase):
 
     @mock.patch('plainbox.impl.ctrl.check_output')
     def test_job_with_command(self, mock_check_output):
-        provider_loader = lambda: [DummyProvider1([
-            make_job(self.JOB_PARTIAL_ID, command='echo ok')])]
+        job = make_job(self.JOB_PARTIAL_ID, command='echo ok')
+        job._provider = self.provider
+        self.add_job(job)
         script_inv = ScriptInvocation(
-            provider_loader, self.config_loader, self.JOB_ID)
+            self.provider_loader, self.config_loader, self.JOB_ID)
         with TestIO() as io:
             retval = script_inv.run()
         self.assertCommandOutput(
@@ -151,10 +169,11 @@ class ScriptInvocationTests(TestCase):
 
     @mock.patch('plainbox.impl.ctrl.check_output')
     def test_job_with_command_making_files(self, mock_check_output):
-        provider_loader = lambda: [DummyProvider1([
-            make_job(self.JOB_PARTIAL_ID, command='echo ok > file')])]
+        job = make_job(self.JOB_PARTIAL_ID, plugin='shell', command='echo ok > file')
+        job._provider = self.provider
+        self.add_job(job)
         script_inv = ScriptInvocation(
-            provider_loader, self.config_loader, self.JOB_ID)
+            self.provider_loader, self.config_loader, self.JOB_ID)
         with TestIO() as io:
             retval = script_inv.run()
         self.maxDiff = None
@@ -170,10 +189,11 @@ class ScriptInvocationTests(TestCase):
 
     @mock.patch('plainbox.impl.ctrl.check_output')
     def test_job_with_command_making_directories(self, mock_check_output):
-        provider_loader = lambda: [DummyProvider1([
-            make_job(self.JOB_PARTIAL_ID, command='mkdir dir')])]
+        job = make_job(self.JOB_PARTIAL_ID, command='mkdir dir')
+        job._provider = self.provider
+        self.add_job(job)
         script_inv = ScriptInvocation(
-            provider_loader, self.config_loader, self.JOB_ID)
+            self.provider_loader, self.config_loader, self.JOB_ID)
         with TestIO() as io:
             retval = script_inv.run()
         self.maxDiff = None

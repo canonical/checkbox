@@ -38,6 +38,7 @@ from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.plugins import FsPlugInCollection
 from plainbox.impl.secure.plugins import IPlugIn
+from plainbox.impl.secure.plugins import PlugIn
 from plainbox.impl.secure.plugins import PlugInError
 from plainbox.impl.secure.plugins import now
 from plainbox.impl.secure.qualifiers import WhiteList
@@ -1205,7 +1206,7 @@ class Provider1Definition(Config):
             return implicit2
 
 
-class Provider1PlugIn(IPlugIn):
+class Provider1PlugIn(PlugIn):
     """
     A specialized IPlugIn that loads Provider1 instances from their definition
     files
@@ -1231,44 +1232,16 @@ class Provider1PlugIn(IPlugIn):
         # Get the secure flag
         secure = os.path.dirname(filename) in get_secure_PROVIDERPATH_list()
         # Initialize the provider object
-        self._provider = Provider1.from_definition(
+        provider = Provider1.from_definition(
             definition, secure, validate=validate,
             validation_kwargs=validation_kwargs, check=check, context=context)
-        self._wrap_time = now() - start
+        wrap_time = now() - start
+        super().__init__(provider.name, provider, load_time, wrap_time)
 
     def __repr__(self):
         return "<{!s} plugin_name:{!r}>".format(
             type(self).__name__, self.plugin_name)
 
-    @property
-    def plugin_name(self):
-        """
-        plugin name, the namespace of the provider
-        """
-        return self._provider.name
-
-    @property
-    def plugin_object(self):
-        """
-        plugin object, the actual Provider1 instance
-        """
-        return self._provider
-
-    @property
-    def plugin_load_time(self) -> float:
-        """
-        time, in fractional seconds, that was needed to load the provider
-        definition file from the file system
-        """
-        return self._load_time
-
-    @property
-    def plugin_wrap_time(self) -> float:
-        """
-        time, in fractional seconds, that was needed to load the provider from
-        the definition text
-        """
-        return self._wrap_time
 
 
 def get_secure_PROVIDERPATH_list():

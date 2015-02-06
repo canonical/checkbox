@@ -134,6 +134,71 @@ class DummyProvider1(IProvider1, IProviderBackend1):
     def get_all_executables(self):
         return self._extras.get("get_all_executables", [])
 
+    @property
+    def unit_list(self):
+        """
+        List of loaded units.
+        """
+        return self._job_list
+
+    @property
+    def job_list(self):
+        """
+        List of loaded job definition units.
+        """
+        return self._job_list
+
+    @property
+    def executable_list(self):
+        """
+        List of all the executables
+        """
+        return self.get_all_executables()
+
+    @property
+    def whitelist_list(self):
+        """
+        List of loaded whitelists.
+
+        .. warning::
+            :class:`WhiteList` is currently deprecated. You should never need
+            to access them in any new code.  They are entirely replaced by
+            :class:`TestPlan`. This property is provided for completeness and
+            it will be **removed** once whitelists classes are no longer used.
+        """
+        return self._whitelist_list
+
+    @property
+    def problem_list(self):
+        """
+        list of problems encountered by the loading process
+        """
+        return []
+
+    @property
+    def id_map(self):
+        """
+        A mapping from unit identifier to list of units with that identifier.
+
+        .. note::
+            Typically the list will be one element long but invalid providers
+            may break that guarantee. Code defensively if you can.
+        """
+        return {
+            job.id: [job] for job in self._job_list
+        }
+
+    @property
+    def path_map(self):
+        """
+        A mapping from filename path to a list of units stored in that file.
+
+        .. note::
+            For ``.pxu`` files this will enumerate all units stored there. For
+            other things it will typically be just the FileUnit.
+        """
+        return {}
+
 
 def get_user_PROVIDERPATH_entry():
     """

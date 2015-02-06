@@ -731,61 +731,6 @@ class IProvider1(IProviderBackend1):
         The value is applicable as argument bindtextdomain()
         """
 
-    @abstractmethod
-    def get_builtin_jobs(self):
-        """
-        Load and parse all of the job definitions of this provider.
-
-        :returns:
-            A sorted list of JobDefinition objects
-        :raises RFC822SyntaxError:
-            if any of the loaded files was not valid RFC822
-        :raises IOError, OSError:
-            if there were any problems accessing files or directories.
-            Note that OSError is silently ignored when the `jobs_dir`
-            directory is missing.
-
-        ..note::
-            This method should not be used anymore. Consider transitioning your
-            code to :meth:`load_all_jobs()` which is more reliable.
-        """
-
-    @abstractmethod
-    def load_all_jobs(self):
-        """
-        Load and parse all of the job definitions of this provider.
-
-        Unlike :meth:`get_builtin_jobs()` this method does not stop after the
-        first problem encountered and instead collects all of the problems into
-        a list which is returned alongside the job list.
-
-        :returns:
-            Pair (job_list, problem_list) where each job_list is a sorted list
-            of JobDefinition objects and each item from problem_list is an
-            exception.
-        """
-
-    @abstractmethod
-    def get_builtin_whitelists(self):
-        """
-        Load all the built-in whitelists and return them
-        """
-
-    def get_all_executables(self):
-        """
-        Discover and return all executables offered by this provider
-        """
-
-    def get_units(self):
-        """
-        Get all units.
-
-        :returns:
-            Pair (unit_list, problem_list) where unit_list is a unsorted list
-            of units, as they showed up in subsequent unit definition files and
-            each item from problem_list is an exception.
-        """
-
     @abstractproperty
     def unit_list(self):
         """

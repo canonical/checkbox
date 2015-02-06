@@ -239,6 +239,10 @@ class NormalUI(IJobRunnerUI):
     def pick_action_cmd(self, action_list, prompt=None):
         return ActionUI(action_list, prompt, self._color).run()
 
+    def noreturn_job(self):
+        print(self.C.RED(_("Waiting for the system to shut down or"
+                           " reboot...")))
+
 
 class ReRunJob(Exception):
     """

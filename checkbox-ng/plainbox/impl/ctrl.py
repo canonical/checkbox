@@ -964,6 +964,8 @@ class QmlJobExecutionController(CheckBoxExecutionController):
                     pipe_in = os.fdopen(plainbox_read)
                     res_object_json_string = pipe_in.read()
                     pipe_in.close()
+                    if 'noreturn' in job.get_flag_set():
+                        self._halt()
                     if ret != 0:
                         return ret
                     try:

@@ -284,7 +284,7 @@ class InstallCommand(ManageCommand):
                 layout, prefix, provider).write(stream))
 
     def _copy_all_executables(self, root, prefix, layout, provider):
-        executable_list = provider.get_all_executables()
+        executable_list = provider.executable_list
         if not executable_list:
             return
         dest_map = self._get_dest_map(layout, prefix)
@@ -352,7 +352,7 @@ class InstallCommand(ManageCommand):
             # For bin_dir do the exception that any executables (also
             # counting those from build/bin) should trigger bin_dir to be
             # listed since we will create/copy files there anyway.
-            if provider.get_all_executables() != []:
+            if provider.executable_list != []:
                 config_obj.set(section, 'bin_dir', dest_map['bin'])
         return config_obj
 
@@ -831,7 +831,7 @@ class InfoCommand(ManageCommand):
         print("\t" + _("version: {}").format(provider.version))
         # TRANSLATORS: {} is the gettext translation domain of the provider
         print("\t" + _("gettext domain: {}").format(provider.gettext_domain))
-        unit_list, problem_list = provider.get_units()
+        unit_list, problem_list = provider.unit_list, provider.problem_list
         print(_("[Job Definitions]"))
         self._display_units((
             unit for unit in unit_list if unit.Meta.name == 'job'))
@@ -847,8 +847,7 @@ class InfoCommand(ManageCommand):
             # TRANSLATORS: please don't translate `manage.py validate`
             print("\t" + _("Please run `manage.py validate` for details"))
         print(_("[Executables]"))
-        executable_list = provider.get_all_executables()
-        for executable in executable_list:
+        for executable in provider.executable_list:
             print("\t{0!a}".format(os.path.basename(executable)))
 
     def _display_units(self, unit_list):
@@ -998,7 +997,7 @@ class ValidateCommand(ManageCommand):
             print(_("The provider seems to be valid"))
 
     def get_unit_list(self, provider):
-        unit_list, problem_list = provider.get_units()
+        unit_list, problem_list = provider.unit_list, provider.problem_list
         if problem_list:
             for exc in problem_list:
                 if isinstance(exc, RFC822SyntaxError):
@@ -1076,8 +1075,7 @@ class ValidateCommand(ManageCommand):
             print(_("The provider seems to be valid"))
 
     def collect_all_units(self, provider):
-        unit_list, exc_list = provider.get_units()
-        return unit_list, exc_list
+        return provider.unit_list, provider.problem_list
 
     def get_early_issues(self, exc_list):
         # NOTE: exc_list is a list of arbitrary exceptions

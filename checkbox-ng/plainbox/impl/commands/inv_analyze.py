@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012-2014 Canonical Ltd.
+# Copyright 2012-2015 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
@@ -48,8 +48,7 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
         super().__init__(provider_loader, config_loader)
         self.ns = ns
         self.unit_list = list(
-            itertools.chain(*[
-                p.get_units()[0] for p in self.provider_list]))
+            itertools.chain(*[p.unit_list for p in self.provider_list]))
         self.session = SessionState(self.unit_list)
         self.desired_job_list = self._get_matching_job_list(
             ns, self.session.job_list)

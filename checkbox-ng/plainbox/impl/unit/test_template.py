@@ -480,7 +480,8 @@ class TemplateUnitFieldValidationTests(UnitFieldValidationTests):
         }, provider=self.provider)
         message = ("field 'template-resource',"
                    " unit 'ns::some-unit' is not available")
-        self.provider.get_units.return_value = ([unit], ())
+        self.provider.unit_list = [unit]
+        self.provider.problem_list = []
         context = UnitValidationContext([self.provider])
         issue_list = unit.check(context=context)
         self.assertIssueFound(
@@ -496,7 +497,8 @@ class TemplateUnitFieldValidationTests(UnitFieldValidationTests):
         }, provider=self.provider)
         message = ("field 'template-resource',"
                    " the referenced unit is not a job")
-        self.provider.get_units.return_value = ([unit, other_unit], ())
+        self.provider.unit_list = [unit, other_unit]
+        self.provider.problem_list = []
         context = UnitValidationContext([self.provider])
         issue_list = unit.check(context=context)
         self.assertIssueFound(

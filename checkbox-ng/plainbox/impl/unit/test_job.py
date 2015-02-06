@@ -562,7 +562,7 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             'depends': 'some-unit'
         }, provider=self.provider)
         message = "field 'depends', unit 'ns::some-unit' is not available"
-        self.provider.get_units.return_value = ([unit], ())
+        self.provider.unit_list = [unit]
         context = UnitValidationContext([self.provider])
         issue_list = unit.check(context=context)
         self.assertIssueFound(
@@ -577,7 +577,7 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             'depends': 'some-unit'
         }, provider=self.provider)
         message = "field 'depends', the referenced unit is not a job"
-        self.provider.get_units.return_value = ([unit, other_unit], ())
+        self.provider.unit_list = [unit, other_unit]
         context = UnitValidationContext([self.provider])
         issue_list = unit.check(context=context)
         self.assertIssueFound(
@@ -597,7 +597,7 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             'requires': 'some_unit.attr == "value"'
         }, provider=self.provider)
         message = "field 'requires', unit 'ns::some_unit' is not available"
-        self.provider.get_units.return_value = ([unit], ())
+        self.provider.unit_list = [unit]
         context = UnitValidationContext([self.provider])
         issue_list = unit.check(context=context)
         self.assertIssueFound(
@@ -612,7 +612,7 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             'requires': 'some_unit.attr == "value"'
         }, provider=self.provider)
         message = "field 'requires', the referenced unit is not a job"
-        self.provider.get_units.return_value = ([unit, other_unit], ())
+        self.provider.unit_list = [unit, other_unit]
         context = UnitValidationContext([self.provider])
         issue_list = unit.check(context=context)
         self.assertIssueFound(
@@ -627,7 +627,7 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             'requires': 'some_unit.attr == "value"'
         }, provider=self.provider)
         message = "field 'requires', the referenced job is not a resource job"
-        self.provider.get_units.return_value = ([unit, other_unit], ())
+        self.provider.unit_list = [unit, other_unit]
         context = UnitValidationContext([self.provider])
         issue_list = unit.check(context=context)
         self.assertIssueFound(
@@ -675,7 +675,7 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             'category_id': 'some-unit'
         }, provider=self.provider)
         message = "field 'category_id', unit 'ns::some-unit' is not available"
-        self.provider.get_units.return_value = ([unit], ())
+        self.provider.unit_list = [unit]
         context = UnitValidationContext([self.provider])
         issue_list = unit.check(context=context)
         self.assertIssueFound(
@@ -690,7 +690,7 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             'category_id': 'some-unit'
         }, provider=self.provider)
         message = "field 'category_id', the referenced unit is not a category"
-        self.provider.get_units.return_value = ([unit, other_unit], ())
+        self.provider.unit_list = [unit, other_unit]
         context = UnitValidationContext([self.provider])
         issue_list = unit.check(context=context)
         self.assertIssueFound(

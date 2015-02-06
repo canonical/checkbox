@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012-2014 Canonical Ltd.
+# Copyright 2012-2015 Canonical Ltd.
 # Written by:
 #   Sylvain Pineau <sylvain.pineau@canonical.com>
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
@@ -62,7 +62,8 @@ class UnitWithIdFieldValidationTests(UnitFieldValidationTests):
         other_unit = self.unit_cls({
             'id': 'id'
         }, provider=self.provider)
-        self.provider.get_units.return_value = ([unit, other_unit], ())
+        self.provider.unit_list = [unit, other_unit]
+        self.provider.problem_list = []
         context = UnitValidationContext([self.provider])
         message_start = (
             "{} 'id', field 'id', clashes with 1 other unit,"

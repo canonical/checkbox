@@ -393,7 +393,7 @@ class SymLinkNest:
         :param provider:
             A Provider1 instance
         """
-        for filename in provider.get_all_executables():
+        for filename in provider.executable_list:
             self.add_executable(filename)
 
     def add_executable(self, filename):

@@ -198,7 +198,7 @@ class Explorer:
                     ('gettext_domain', provider.gettext_domain),
                     ('base_dir', provider.base_dir),
                 )))
-            for unit in provider.get_units()[0]:
+            for unit in provider.unit_list:
                 provider_obj.children.append(self._unit_to_obj(unit))
             service_obj.children.append(provider_obj)
         # Milk each repository for session storage data

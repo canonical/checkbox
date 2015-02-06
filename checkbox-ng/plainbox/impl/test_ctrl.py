@@ -494,13 +494,12 @@ class SymLinkNestTests(TestCase):
         verify that add_provider() adds each executable
         """
         provider = mock.Mock(name='provider', spec=Provider1)
-        provider.get_all_executables.return_value = ['exec1', 'exec2']
+        provider.executable_list = ['exec1', 'exec2']
         with mock.patch.object(self.nest, 'add_executable'):
             self.nest.add_provider(provider)
             self.nest.add_executable.assert_has_calls([
                 (('exec1',), {}),
                 (('exec2',), {})])
-        provider.get_all_executables.assert_called_once()
 
     @mock.patch('os.symlink')
     def test_add_executable(self, mock_symlink):

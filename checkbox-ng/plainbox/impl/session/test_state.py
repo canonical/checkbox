@@ -704,7 +704,8 @@ class SessionDeviceContextTests(TestCase, SignalInterceptorMixIn):
         self.provider = mock.Mock(name='provider', spec_set=Provider1)
         self.unit = mock.Mock(name='unit', spec_set=Unit)
         self.unit.provider = self.provider
-        self.provider.get_units.return_value = ([self.unit], ())
+        self.provider.unit_list = [self.unit]
+        self.provider.problem_list = []
         self.job = mock.Mock(name='job', spec_set=JobDefinition)
         self.job.Meta.name = 'job'
 
@@ -949,10 +950,11 @@ class SessionDeviceContextTests(TestCase, SignalInterceptorMixIn):
         Ensure that the cached list of execution controllers is invalidated
         when a new provider is added to the context
         """
-        # Let's have a fake provider ready. We need to mock the get_units()
-        # method to let us add it to the context.
+        # Let's have a fake provider ready. We need to mock unit/problem lists
+        # to let us add it to the context.
         provider2 = mock.Mock(name='provider2', spec_set=Provider1)
-        provider2.get_units.return_value = ([], [])
+        provider2.unit_list = []
+        provider2.problem_list = []
         with mock.patch.object(self.ctx, '_compute_execution_ctrl_list') as m:
             m.side_effect = lambda: mock.Mock()
             self.assertNotIn(

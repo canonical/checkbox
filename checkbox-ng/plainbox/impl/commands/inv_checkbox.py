@@ -64,8 +64,7 @@ class CheckBoxInvocationMixIn:
         Load and return a list of JobDefinition instances
         """
         return list(
-            itertools.chain(*[
-                p.load_all_jobs()[0] for p in self.provider_list]))
+            itertools.chain(*[p.job_list for p in self.provider_list]))
 
     def get_whitelist_from_file(self, filename, stream=None):
         """
@@ -90,7 +89,7 @@ class CheckBoxInvocationMixIn:
         # Look up a whitelist with the same name in any of the providers
         wanted_realpath = os.path.realpath(filename)
         for provider in self.provider_list:
-            for whitelist in provider.get_builtin_whitelists():
+            for whitelist in provider.whitelist_list:
                 if (whitelist.origin is not None
                         and whitelist.origin.source is not None
                         and isinstance(whitelist.origin.source,
@@ -121,9 +120,8 @@ class CheckBoxInvocationMixIn:
             # know about here. This code needs to be re-factored to use the
             # upcoming provider store class.
             for provider in {job.provider for job in job_list}:
-                for unit in provider.get_units()[0]:
-                    if (unit.Meta.name == 'test plan'
-                            and unit.id == ns.test_plan):
+                for unit in provider.id_map[ns.test_plan]:
+                    if unit.Meta.name == 'test plan':
                         qualifier_list.append(unit.get_qualifier())
                         break
             else:

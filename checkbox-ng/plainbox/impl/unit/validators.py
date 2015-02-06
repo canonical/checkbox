@@ -513,8 +513,7 @@ def compute_value_map(context, field):
     """
     value_map = {}
     all_units = itertools.chain(
-        *(provider.get_units()[0]
-          for provider in context.provider_list))
+        *(provider.unit_list for provider in context.provider_list))
     for unit in all_units:
         try:
             value = getattr(unit, field2prop(field))

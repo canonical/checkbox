@@ -175,8 +175,7 @@ class SessionInvocation:
 
     def _get_all_units(self):
         return list(
-            itertools.chain(*[
-                p.get_units()[0] for p in self.provider_loader()]))
+            itertools.chain(*[p.unit_list for p in self.provider_loader()]))
 
     def _print_output_format_list(self):
         print(_("Available output formats: {}").format(

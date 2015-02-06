@@ -40,11 +40,11 @@ from plainbox.impl.session import SessionState
 from plainbox.impl.session import UndesiredJobReadinessInhibitor
 from plainbox.impl.session.state import SessionDeviceContext
 from plainbox.impl.session.state import SessionMetaData
-from plainbox.impl.signal import SignalTestCase
 from plainbox.impl.testing_utils import make_job
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.unit import Unit
 from plainbox.vendor import mock
+from plainbox.vendor.morris import SignalTestCase
 
 
 class SessionStateSmokeTests(TestCase):

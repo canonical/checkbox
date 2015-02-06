@@ -71,10 +71,10 @@ from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 from plainbox.impl.secure.rfc822 import gen_rfc822_records
 from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.session.jobs import JobReadinessInhibitor
-from plainbox.impl.signal import Signal
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.template import TemplateUnit
 from plainbox.impl.validation import ValidationError
+from plainbox.vendor.morris import signal
 from plainbox.vendor import extcmd
 
 __all__ = [
@@ -557,7 +557,7 @@ class CheckBoxExecutionController(IExecutionController):
                 for filename in filenames)
         return leftovers
 
-    @Signal.define
+    @signal
     def on_leftover_files(self, job, config, cwd_dir, leftovers):
         """
         Handle any files left over by the execution of a job definition.

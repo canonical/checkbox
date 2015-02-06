@@ -33,8 +33,8 @@ from plainbox.impl.session import SessionState
 from plainbox.impl.session import SessionStorage
 from plainbox.impl.session.state import SessionDeviceContext
 from plainbox.impl.session.suspend import SessionSuspendHelper
-from plainbox.impl.signal import SignalTestCase
 from plainbox.vendor import mock
+from plainbox.vendor.morris import SignalTestCase
 
 
 class SessionManagerTests(SignalTestCase):

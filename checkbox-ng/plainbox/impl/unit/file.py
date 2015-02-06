@@ -125,6 +125,7 @@ class FileUnit(Unit):
             """
             path = 'path'
             role = 'role'
+            base = 'base'
 
         field_validators = {
             fields.path: [

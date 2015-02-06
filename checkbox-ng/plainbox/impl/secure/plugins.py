@@ -564,13 +564,16 @@ class FsPlugInCollection(PlugInCollectionBase):
         for filename in filename_list:
             start_time = now()
             try:
-                with open(filename, encoding='UTF-8') as stream:
-                    text = stream.read()
+                text = self._get_file_text(filename)
             except (OSError, IOError) as exc:
                 logger.error(_("Unable to load %r: %s"), filename, str(exc))
                 self._problem_list.append(exc)
             else:
                 self.wrap_and_add_plugin(filename, text, now() - start_time)
+
+    def _get_file_text(self, filename):
+        with open(filename, encoding='UTF-8') as stream:
+            return stream.read()
 
     def _get_plugin_files(self):
         """

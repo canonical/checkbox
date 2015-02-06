@@ -532,16 +532,7 @@ class CheckBoxExecutionControllerTestsMixIn:
             spec=JobDefinition,
             provider=mock.Mock(
                 name='provider',
-                # XXX: create a new type that has both IProvider1 and
-                # IProviderBackend1 API This type will define the API of the
-                # mocked provider object. We need to access IProvider1.name
-                # (for RootViaPTL1ExecutionController) but we also need to
-                # access many of IProviderBackend1 APIs for all the other code
-                # here. Instead of fusing the interfaces we can just pass a
-                # "concrete provider" "interface" just for this set of tests.
-                spec=type(
-                    'IProvider1+IProviderBackend1',
-                    (IProviderBackend1, IProvider1), {}),
+                spec=IProvider1,
                 extra_PYTHONPATH=None,
                 CHECKBOX_SHARE='CHECKBOX_SHARE',
                 data_dir='data_dir', units_dir='units_dir'))

@@ -670,7 +670,7 @@ class IProviderBackend1(metaclass=ABCMeta):
         """
 
 
-class IProvider1(metaclass=ABCMeta):
+class IProvider1(IProviderBackend1):
     """
     Provider for the current type of tests
 

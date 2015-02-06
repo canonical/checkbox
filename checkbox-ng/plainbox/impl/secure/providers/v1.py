@@ -27,7 +27,7 @@ import gettext
 import logging
 import os
 
-from plainbox.abc import IProvider1, IProviderBackend1
+from plainbox.abc import IProvider1
 from plainbox.i18n import gettext as _
 from plainbox.impl.secure.config import Config, Variable
 from plainbox.impl.secure.config import IValidator
@@ -354,7 +354,7 @@ class UnitPlugIn(IPlugIn, IVirtualUnitSynthethizer):
         return self._wrap_time
 
 
-class Provider1(IProvider1, IProviderBackend1):
+class Provider1(IProvider1):
     """
     A v1 provider implementation.
 

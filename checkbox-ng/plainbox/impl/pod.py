@@ -240,7 +240,7 @@ class Field:
         if not hasattr(cls, self.signal_name):
             signal_def = Signal.define(
                 self.on_changed,
-                '{}.{}'.format(cls.__name__, self.signal_name))
+                signal_name='{}.{}'.format(cls.__name__, self.signal_name))
             setattr(cls, self.signal_name, signal_def)
 
     def __get__(self, instance: object, owner: type) -> "Any":

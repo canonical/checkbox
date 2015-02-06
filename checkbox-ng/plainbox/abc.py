@@ -786,6 +786,62 @@ class IProvider1(IProviderBackend1):
             each item from problem_list is an exception.
         """
 
+    @abstractproperty
+    def unit_list(self):
+        """
+        List of loaded units.
+        """
+
+    @abstractproperty
+    def job_list(self):
+        """
+        List of loaded job definition units.
+        """
+
+    @abstractproperty
+    def executable_list(self):
+        """
+        List of all the executables
+        """
+
+    @abstractproperty
+    def whitelist_list(self):
+        """
+        List of loaded whitelists.
+
+        .. warning::
+            :class:`WhiteList` is currently deprecated. You should never need
+            to access them in any new code.  They are entirely replaced by
+            :class:`TestPlan`. This property is provided for completeness and
+            it will be **removed** once whitelists classes are no longer used.
+        """
+
+    @abstractproperty
+    def problem_list(self):
+        """
+        list of problems encountered by the loading process
+        """
+
+    @abstractproperty
+    def id_map(self):
+        """
+        A mapping from unit identifier to list of units with that identifier.
+
+        .. note::
+            Typically the list will be one element long but invalid providers
+            may break that guarantee. Code defensively if you can.
+        """
+
+    @abstractproperty
+    def path_map(self):
+        """
+        A mapping from filename path to a list of units stored in that file.
+
+        .. note::
+            For ``.pxu`` files this will enumerate all units stored there. For
+            other things it will typically be just the FileUnit.
+        """
+
 
 class ISessionStateController(metaclass=ABCMeta):
     """

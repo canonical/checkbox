@@ -145,6 +145,7 @@ Following fields may be used by the job unit:
         passes or fails. The question should be phrased in such a way
         that an answer of **Yes** means the test passed, and an answer of
         **No** means it failed.
+
 .. warning::
     since version 0.17 fields: purpose, steps and verification should be used
     instead of description.
@@ -217,6 +218,30 @@ Following fields may be used by the job unit:
     (optional) This field contains metadata about how long the job is
     expected to run for, as a positive float value indicating
     the estimated job duration in seconds.
+
+``flags``:
+    (optional) This fields contains list of flags separated by spaces or
+    commas that might induce plainbox to run the job in particular way.
+    Currently, following flags are inspected by plainbox:
+
+    ``preserve-locale``:
+        This flag makes plainbox carry locale settings to the job's command. If
+        this flag is not set, plainbox will neuter locale settings.  Attach
+        this flag to all job definitions with commands that use translations .
+
+    ``win32``:
+        This flag makes plainbox run jobs' commands in windows-specific manner.
+        Attach this flag to jobs that are run on Windows OS.
+
+    ``noreturn``:
+        This flag makes plainbox suspend execution after job's command is run.
+        This prevents scenario where plainbox continued to operate (writing
+        session data to disk and so on), while other process kills it (leaving
+        plainbox session in unwanted/undefined state).
+        Attach this flag to jobs that cause killing of plainbox process during
+        their operation. E.g. run shutdown, reboot, etc.
+
+    Additional flags may be present in job definition; they are ignored.
 
 ===========================
 Extension of the job format

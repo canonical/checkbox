@@ -433,12 +433,6 @@ class WhiteListWrapper(PlainBoxObjectWrapper):
         """
         return self.native.name or ""
 
-    @dbus.service.method(
-        dbus_interface=WHITELIST_IFACE, in_signature='o', out_signature='b')
-    @PlainBoxObjectWrapper.translate
-    def Designates(self, job: 'o'):
-        return self.native.designates(job)
-
 
 class JobResultWrapper(PlainBoxObjectWrapper):
     """

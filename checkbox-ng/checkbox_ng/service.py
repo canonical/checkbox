@@ -434,17 +434,6 @@ class WhiteListWrapper(PlainBoxObjectWrapper):
         return self.native.name or ""
 
     @dbus.service.method(
-        dbus_interface=WHITELIST_IFACE, in_signature='', out_signature='as')
-    def GetPatternList(self):
-        """
-        Get a list of regular expression patterns that make up this whitelist
-        """
-        return dbus.Array([
-            qualifier.pattern_text
-            for qualifier in self.native.inclusive_qualifier_list],
-            signature='s')
-
-    @dbus.service.method(
         dbus_interface=WHITELIST_IFACE, in_signature='o', out_signature='b')
     @PlainBoxObjectWrapper.translate
     def Designates(self, job: 'o'):

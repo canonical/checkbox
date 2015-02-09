@@ -408,9 +408,9 @@ class JobDefinitionWrapper(PlainBoxObjectWrapper):
         return self.native.user or ""
 
 
-class WhiteListWrapper(PlainBoxObjectWrapper):
+class TestPlanWrapper(PlainBoxObjectWrapper):
     """
-    Wrapper for exposing WhiteList objects on DBus
+    Wrapper for exposing testplan objects as whitelist on DBus
     """
 
     HIDDEN_INTERFACES = frozenset([
@@ -429,7 +429,7 @@ class WhiteListWrapper(PlainBoxObjectWrapper):
     @dbus.service.property(dbus_interface=WHITELIST_IFACE, signature="s")
     def name(self):
         """
-        name of this whitelist
+        name of this testplan
         """
         return self.native.name or ""
 
@@ -1095,8 +1095,8 @@ class ProviderWrapper(PlainBoxObjectWrapper):
         self._job_wrapper_list = [
             JobDefinitionWrapper(job) for job in self.native.job_list]
         self._whitelist_wrapper_list = [
-            WhiteListWrapper(whitelist)
-            for whitelist in self.native.whitelist_list]
+            TestPlanWrapper(unit)
+            for unit in self.native.unit_list if unit.Meta.name == 'test plan']
 
     def _get_preferred_object_path(self):
         mangled_name = mangle_object_path(self.native.name)
@@ -1315,7 +1315,8 @@ class ServiceWrapper(PlainBoxObjectWrapper):
         else:
             job_list = list(itertools.chain(*[
                 p.job_list for p in self.native.provider_list]))
-        return select_jobs(job_list, whitelist_list)
+        return select_jobs(job_list,
+                           [w.get_qualifier() for w in whitelist_list])
 
 
 class UIOutputPrinter(extcmd.DelegateBase):

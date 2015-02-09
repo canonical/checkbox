@@ -1,13 +1,12 @@
 # This file is part of Checkbox.
 #
-# Copyright 2013 Canonical Ltd.
+# Copyright 2013-2015 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,7 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-
 """
 plainbox.impl.secure.providers.test_v1
 ======================================
@@ -29,6 +27,7 @@ from unittest import TestCase
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.config import ValidationError
+from plainbox.impl.secure.plugins import PlugIn
 from plainbox.impl.secure.plugins import PlugInError
 from plainbox.impl.secure.providers.v1 import AbsolutePathValidator
 from plainbox.impl.secure.providers.v1 import ExistingDirectoryValidator
@@ -591,8 +590,7 @@ class WhiteListPlugInTests(TestCase):
         # are coming from.
         self.assertEqual(
             str(boom.exception),
-            ("Cannot load whitelist '/path/to/some.whitelist': "
-             "nothing to repeat"))
+            ("Cannot load '/path/to/some.whitelist': nothing to repeat"))
 
 
 class UnitPlugInTests(TestCase):
@@ -604,6 +602,8 @@ class UnitPlugInTests(TestCase):
 
     def setUp(self):
         self.provider = mock.Mock(name="provider", spec=Provider1)
+        self.provider.classify.return_value = (
+            mock.Mock("role"), mock.Mock("base"), mock.Mock("plugin_cls"))
         self.provider.namespace = "2013.com.canonical.plainbox"
         self.plugin = UnitPlugIn(
             "/path/to/jobs.txt", (
@@ -692,6 +692,11 @@ class Provider1Tests(TestCase):
             # We are using dummy job definitions so let's not shout about those
             # being invalid in each test
             validate=False)
+        self.fake_context = self.provider.fake([])
+        self.fake_context.__enter__()
+
+    def tearDown(self):
+        self.fake_context.__exit__(None, None, None)
 
     def test_repr(self):
         self.assertEqual(
@@ -796,151 +801,30 @@ class Provider1Tests(TestCase):
         """
         self.assertIsNone(self.provider.extra_PYTHONPATH)
 
-    def test_get_builtin_whitelists__normal(self):
+    def test_fake(self):
         """
-        verify that Provider1.get_builtin_whitelist() loads and returns all of
-        the whitelists
-        """
-        fake_plugins = [
-            WhiteListPlugIn("/path/to/some.whitelist", "foo", self.LOAD_TIME)
-        ]
-        with self.provider._whitelist_collection.fake_plugins(fake_plugins):
-            whitelist_list = self.provider.get_builtin_whitelists()
-        self.assertEqual(len(whitelist_list), 1)
-        self.assertEqual(repr(whitelist_list[0]), "<WhiteList name:'some'>")
-
-    def test_get_builtin_whitelists__failing(self):
-        """
-        verify that Provider1.get_builtin_whitelist() raises the first
-        exception that happens during the load process
-        """
-        fake_plugins = [
-            WhiteListPlugIn("/path/to/some.whitelist", "foo", self.LOAD_TIME)
-        ]
-        fake_problems = [IOError("first problem"), OSError("second problem")]
-        with self.assertRaises(IOError):
-            with self.provider._whitelist_collection.fake_plugins(
-                    fake_plugins, fake_problems):
-                self.provider.get_builtin_whitelists()
-
-    def test_get_builtin_whitelists__without_whitelists_dir(self):
-        """
-        verify that Provider1.get_builtin_whitelist() returns an empty list if
-        the whitelists_dir is None
-        """
-        provider = Provider1(
-            self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
-            self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR, None,
-            self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR, self.BASE_DIR)
-        self.assertEqual(provider.get_builtin_whitelists(), [])
-
-    def test_get_builtin_jobs__normal(self):
-        """
-        verify that Provider1.get_builtin_jobs() loads and returns all of
-        the job definitions (and that they are in the right order)
+        Verify that fake() redirects the provider to look for fake content.
         """
         # Create unsorted job definitions that define a1, a2, a3 and a4
-        fake_plugins = [
-            UnitPlugIn("/path/to/jobs1.txt", (
+        fake_content = [
+            PlugIn(self.JOBS_DIR + "/path/to/jobs1.txt", (
                 "id: a2\n"
                 "\n"
-                "id: a1\n"), self.LOAD_TIME, self.provider, validate=False),
-            UnitPlugIn("/path/to/jobs2.txt", (
+                "id: a1\n")),
+            PlugIn(self.JOBS_DIR + "/path/to/jobs2.txt", (
                 "id: a3\n"
                 "\n"
-                "id: a4\n"), self.LOAD_TIME, self.provider, validate=False)
-        ]
-        with self.provider._unit_collection.fake_plugins(fake_plugins):
-            job_list = self.provider.get_builtin_jobs()
+                "id: a4\n"))]
+        fake_problems = [IOError("first problem"), OSError("second problem")]
+        with self.provider.fake(fake_content, fake_problems):
+            job_list = self.provider.job_list
+            problem_list = self.provider.problem_list
         self.assertEqual(len(job_list), 4)
         self.assertEqual(job_list[0].partial_id, "a1")
         self.assertEqual(job_list[1].partial_id, "a2")
         self.assertEqual(job_list[2].partial_id, "a3")
         self.assertEqual(job_list[3].partial_id, "a4")
-
-    def test_get_builtin_jobs__failing(self):
-        """
-        verify that Provider1.get_builtin_jobs() raises the first
-        exception that happens during the load process
-        """
-        fake_plugins = [UnitPlugIn(
-            "/path/to/jobs.txt", "", self.LOAD_TIME, self.provider)]
-        fake_problems = [IOError("first problem"), OSError("second problem")]
-        with self.assertRaises(IOError):
-            with self.provider._unit_collection.fake_plugins(
-                    fake_plugins, fake_problems):
-                self.provider.get_builtin_jobs()
-
-    def test_get_builtin_jobs__without_jobs_dir(self):
-        """
-        verify that Provider1.get_builtin_jobs() returns an empty list if there
-        the jobs_dir is None.
-        """
-        provider = Provider1(
-            self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
-            self.GETTEXT_DOMAIN, self.UNITS_DIR, None, self.WHITELISTS_DIR,
-            self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR, self.BASE_DIR)
-        self.assertEqual(provider.get_builtin_jobs(), [])
-
-    def test_load_all_jobs__normal(self):
-        """
-        verify that Provider1.load_all_jobs() loads and returns all of
-        the job definitions (and that they are in the right order)
-        """
-        # Create unsorted job definitions that define a1, a2, a3 and a4
-        fake_plugins = [
-            UnitPlugIn("/path/to/jobs1.txt", (
-                "id: a2\n"
-                "\n"
-                "id: a1\n"), self.LOAD_TIME, self.provider, validate=False),
-            UnitPlugIn("/path/to/jobs2.txt", (
-                "id: a3\n"
-                "\n"
-                "id: a4\n"), self.LOAD_TIME, self.provider, validate=False)
-        ]
-        with self.provider._unit_collection.fake_plugins(fake_plugins):
-            job_list, problem_list = self.provider.load_all_jobs()
-        self.assertEqual(len(job_list), 4)
-        self.assertEqual(job_list[0].partial_id, "a1")
-        self.assertEqual(job_list[1].partial_id, "a2")
-        self.assertEqual(job_list[2].partial_id, "a3")
-        self.assertEqual(job_list[3].partial_id, "a4")
-        self.assertEqual(len(problem_list), 0)
-
-    def test_load_all_jobs__failing(self):
-        """
-        verify that Provider1.load_all_jobs() returns all of the problems
-        without raising an exception that happens during the load process
-        """
-        fake_plugins = [
-            UnitPlugIn(
-                "/path/to/jobs1.txt", "id: working\n", self.LOAD_TIME,
-                self.provider, validate=False)
-        ]
-        fake_problems = [
-            PlugInError("some problem"),
-        ]
-        with self.provider._unit_collection.fake_plugins(
-                fake_plugins, fake_problems):
-            job_list, problem_list = self.provider.load_all_jobs()
-        self.assertEqual(len(job_list), 1)
-        self.assertEqual(job_list[0].partial_id, "working")
         self.assertEqual(problem_list, fake_problems)
-
-    def test_get_all_executables(self):
-        self.skipTest("not implemented")
-
-    def test_get_all_executables__without_bin_dir(self):
-        """
-        verify that Provider1.get_all_executables() returns an empty list if
-        there the bin_dir is None.
-        """
-        provider = Provider1(
-            self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
-            self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR,
-            self.WHITELISTS_DIR, self.DATA_DIR, None, self.LOCALE_DIR,
-            self.BASE_DIR)
-        self.assertEqual(provider.get_all_executables(), [])
 
     @mock.patch("plainbox.impl.secure.providers.v1.gettext")
     def test_get_translated_data__typical(self, mock_gettext):

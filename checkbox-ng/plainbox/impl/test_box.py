@@ -1,13 +1,12 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012-2013 Canonical Ltd.
+# Copyright 2012-2015 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,14 +15,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-
 """
 plainbox.impl.test_box
 ======================
 
 Test definitions for plainbox.impl.box module
 """
-
+from collections import defaultdict
 from inspect import cleandoc
 from io import TextIOWrapper
 from unittest import TestCase
@@ -61,15 +59,16 @@ def mock_whitelist(name, text, filename):
 class MiscTests(TestCase):
 
     def setUp(self):
-        self.provider1 = Mock(IProvider1)
+        self.provider1 = Mock(spec=IProvider1)
         self.job_foo = MockJobDefinition(id='foo', provider=self.provider1)
         self.job_bar = MockJobDefinition(id='bar', provider=self.provider1)
         self.job_baz = MockJobDefinition(id='baz', provider=self.provider1)
-        self.provider1.get_builtin_whitelists.return_value = []
-        self.provider1.get_units.return_value = [(self.job_foo, self.job_bar,
-                                                  self.job_baz), []]
+        self.provider1.whitelist_list = []
+        self.provider1.id_map = defaultdict(
+            list, foo=[self.job_foo], bar=[self.job_bar], baz=[self.job_baz])
+        self.provider1.unit_list = [self.job_foo, self.job_bar, self.job_baz]
         self.config = Mock(name='config')
-        self.provider_loader= lambda: [self.provider1]
+        self.provider_loader = lambda: [self.provider1]
         self.obj = CheckBoxInvocationMixIn(self.provider_loader, self.config)
 
     def test_matching_job_list(self):

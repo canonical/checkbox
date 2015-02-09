@@ -56,6 +56,11 @@ class FileRole(SymbolDef):
     manage_py = 'manage.py'  # management script
     legal = 'legal'  # license & copyright
     docs = 'docs'  # documentation
+    unknown = 'unknown'  # unknown / unclassified
+    build = 'build'  # build artefact
+    invalid = 'invalid'  # invalid file that will never be used
+    vcs = 'vcs'  # version control system data
+    src = 'src'  # source
 
 
 class FileUnitValidator(UnitValidator):
@@ -125,6 +130,7 @@ class FileUnit(Unit):
             """
             path = 'path'
             role = 'role'
+            base = 'base'
 
         field_validators = {
             fields.path: [

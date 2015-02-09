@@ -52,7 +52,7 @@ def get_whitelist_by_name(provider_list, desired_whitelist):
     providers
     """
     for provider in provider_list:
-        for whitelist in provider.get_builtin_whitelists():
+        for whitelist in provider.whitelist_list:
             if whitelist.name == desired_whitelist:
                 return whitelist
     else:

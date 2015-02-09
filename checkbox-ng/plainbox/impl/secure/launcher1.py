@@ -130,7 +130,7 @@ class TrustedLauncher:
                     resource = Resource(record.data)
                     resource_list.append(resource)
                 for plugin in all_providers.get_all_plugins():
-                    for u in plugin.plugin_object.get_units()[0]:
+                    for u in plugin.plugin_object.unit_list:
                         if (
                             isinstance(u, TemplateUnit) and
                             u.resource_id == job.id
@@ -264,8 +264,7 @@ def main(argv=None):
     # Siphon all jobs from all secure providers otherwise
     all_providers.load()
     for plugin in all_providers.get_all_plugins():
-        launcher.add_job_list(
-            plugin.plugin_object.get_builtin_jobs())
+        launcher.add_job_list(plugin.plugin_object.job_list)
     # Run the local job and feed the result back to the launcher
     if ns.generator:
         try:

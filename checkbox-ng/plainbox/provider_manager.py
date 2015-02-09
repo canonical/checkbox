@@ -284,7 +284,7 @@ class InstallCommand(ManageCommand):
                 layout, prefix, provider).write(stream))
 
     def _copy_all_executables(self, root, prefix, layout, provider):
-        executable_list = provider.get_all_executables()
+        executable_list = provider.executable_list
         if not executable_list:
             return
         dest_map = self._get_dest_map(layout, prefix)
@@ -352,7 +352,7 @@ class InstallCommand(ManageCommand):
             # For bin_dir do the exception that any executables (also
             # counting those from build/bin) should trigger bin_dir to be
             # listed since we will create/copy files there anyway.
-            if provider.get_all_executables() != []:
+            if provider.executable_list != []:
                 config_obj.set(section, 'bin_dir', dest_map['bin'])
         return config_obj
 
@@ -831,13 +831,19 @@ class InfoCommand(ManageCommand):
         print("\t" + _("version: {}").format(provider.version))
         # TRANSLATORS: {} is the gettext translation domain of the provider
         print("\t" + _("gettext domain: {}").format(provider.gettext_domain))
-        unit_list, problem_list = provider.get_units()
+        unit_list, problem_list = provider.unit_list, provider.problem_list
         print(_("[Job Definitions]"))
         self._display_units((
             unit for unit in unit_list if unit.Meta.name == 'job'))
         print(_("[Test Plans]"))
         self._display_units((
             unit for unit in unit_list if unit.Meta.name == 'test plan'))
+        print(_("[Test Plans] (legacy)"))
+        # TRANSLATORS: {} is the name of the test provider
+        for whitelist in provider.whitelist_list:
+            print("\t" + _("{0} from {1}").format(
+                whitelist.name,
+                whitelist.origin.relative_to(self.definition.location)))
         print(_("[Other Units]"))
         self._display_units((
             unit for unit in unit_list
@@ -847,8 +853,7 @@ class InfoCommand(ManageCommand):
             # TRANSLATORS: please don't translate `manage.py validate`
             print("\t" + _("Please run `manage.py validate` for details"))
         print(_("[Executables]"))
-        executable_list = provider.get_all_executables()
-        for executable in executable_list:
+        for executable in provider.executable_list:
             print("\t{0!a}".format(os.path.basename(executable)))
 
     def _display_units(self, unit_list):
@@ -998,7 +1003,7 @@ class ValidateCommand(ManageCommand):
             print(_("The provider seems to be valid"))
 
     def get_unit_list(self, provider):
-        unit_list, problem_list = provider.get_units()
+        unit_list, problem_list = provider.unit_list, provider.problem_list
         if problem_list:
             for exc in problem_list:
                 if isinstance(exc, RFC822SyntaxError):
@@ -1030,7 +1035,8 @@ class ValidateCommand(ManageCommand):
         provider_list = all_providers.get_all_plugin_objects()
         if all(p.name != provider.name for p in provider_list):
             provider_list.append(provider)
-        # Add the built-in 'categories' provider, unless that's the one we're testing
+        # Add the built-in 'categories' provider,
+        # unless that's the one we're testing
         categories_provider = get_categories()
         if provider.base_dir != categories_provider.base_dir:
             provider_list.append(categories_provider)
@@ -1076,8 +1082,7 @@ class ValidateCommand(ManageCommand):
             print(_("The provider seems to be valid"))
 
     def collect_all_units(self, provider):
-        unit_list, exc_list = provider.get_units()
-        return unit_list, exc_list
+        return provider.unit_list, provider.problem_list
 
     def get_early_issues(self, exc_list):
         # NOTE: exc_list is a list of arbitrary exceptions

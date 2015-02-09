@@ -123,7 +123,7 @@ class PlugIn(IPlugIn):
     and some arbitrary external object.
     """
 
-    def __init__(self, name: str, obj: object, load_time: float=0):
+    def __init__(self, name: str, obj: object, load_time: float=0, wrap_time: float=0):
         """
         Initialize the plug-in with the specified name and external object
 
@@ -133,10 +133,13 @@ class PlugIn(IPlugIn):
             The plugged in object itself
         :param load_time:
             Time it took to load the object (in fractional seconds)
+        :param wrap_time:
+            Time it took to wrap the object (in fractional seconds)
         """
         self._name = name
         self._obj = obj
         self._load_time = load_time
+        self._wrap_time = wrap_time
 
     def __repr__(self):
         return "<{!s} plugin_name:{!r}>".format(
@@ -167,10 +170,8 @@ class PlugIn(IPlugIn):
     def plugin_wrap_time(self) -> float:
         """
         time, in fractional seconds, that was needed to wrap the plugin
-
-        For this naive plugin class, this time is always zero.
         """
-        return 0
+        return self._wrap_time
 
 
 class IPlugInCollection(metaclass=abc.ABCMeta):
@@ -563,13 +564,16 @@ class FsPlugInCollection(PlugInCollectionBase):
         for filename in filename_list:
             start_time = now()
             try:
-                with open(filename, encoding='UTF-8') as stream:
-                    text = stream.read()
+                text = self._get_file_text(filename)
             except (OSError, IOError) as exc:
                 logger.error(_("Unable to load %r: %s"), filename, str(exc))
                 self._problem_list.append(exc)
             else:
                 self.wrap_and_add_plugin(filename, text, now() - start_time)
+
+    def _get_file_text(self, filename):
+        with open(filename, encoding='UTF-8') as stream:
+            return stream.read()
 
     def _get_plugin_files(self):
         """
@@ -609,6 +613,62 @@ class FsPlugInCollection(PlugInCollectionBase):
                 if not os.path.isfile(info_file):
                     continue
                 yield info_file
+
+
+class LazyFileContent:
+    """
+    Support class for FsPlugInCollection's subclasses that behaves like a
+    string of text loaded from a file. The actual text is loaded on demand, the
+    first time it is needed.
+
+    The actual methods implemented here are just enough to work for loading a
+    provider. Since __getattr__() is implemented the class should be pretty
+    versatile but your millage may vary.
+    """
+
+    def __init__(self, name):
+        self.name = name
+        self._text = None
+
+    def __repr__(self):
+        return "<{} name:{!r}{}>".format(
+            self.__class__.__name__, self.name,
+            ' (pending)' if self._text is None else ' (loaded)')
+
+    def __str__(self):
+        self._ensure_loaded()
+        return self._text
+
+    def __iter__(self):
+        self._ensure_loaded()
+        return iter(self._text.splitlines(True))
+
+    def __getattr__(self, attr):
+        self._ensure_loaded()
+        return getattr(self._text, attr)
+
+    def _ensure_loaded(self):
+        if self._text is None:
+            with open(self.name, encoding='UTF-8') as stream:
+                self._text = stream.read()
+
+
+class LazyFsPlugInCollection(FsPlugInCollection):
+    """
+    Collection of plug-ins based on filesystem entries
+
+    Instantiate with :attr:`dir_list` and :attr:`ext`, call :meth:`load()` and
+    then access any of the loaded plug-ins using the API offered. All loaded
+    plugin information files are wrapped by a plug-in container. By default
+    that is :class:`PlugIn` but it may be adjusted if required.
+
+    The name of each plugin is the base name of the plugin file, the object of
+    each plugin is a handle that can be used to optionally load the content of
+    the file.
+    """
+
+    def _get_file_text(self, filename):
+        return LazyFileContent(filename)
 
 
 class LazyPlugInCollection(PlugInCollectionBase):

@@ -494,13 +494,12 @@ class SymLinkNestTests(TestCase):
         verify that add_provider() adds each executable
         """
         provider = mock.Mock(name='provider', spec=Provider1)
-        provider.get_all_executables.return_value = ['exec1', 'exec2']
+        provider.executable_list = ['exec1', 'exec2']
         with mock.patch.object(self.nest, 'add_executable'):
             self.nest.add_provider(provider)
             self.nest.add_executable.assert_has_calls([
                 (('exec1',), {}),
                 (('exec2',), {})])
-        provider.get_all_executables.assert_called_once()
 
     @mock.patch('os.symlink')
     def test_add_executable(self, mock_symlink):
@@ -532,16 +531,7 @@ class CheckBoxExecutionControllerTestsMixIn:
             spec=JobDefinition,
             provider=mock.Mock(
                 name='provider',
-                # XXX: create a new type that has both IProvider1 and
-                # IProviderBackend1 API This type will define the API of the
-                # mocked provider object. We need to access IProvider1.name
-                # (for RootViaPTL1ExecutionController) but we also need to
-                # access many of IProviderBackend1 APIs for all the other code
-                # here. Instead of fusing the interfaces we can just pass a
-                # "concrete provider" "interface" just for this set of tests.
-                spec=type(
-                    'IProvider1+IProviderBackend1',
-                    (IProviderBackend1, IProvider1), {}),
+                spec=IProvider1,
                 extra_PYTHONPATH=None,
                 CHECKBOX_SHARE='CHECKBOX_SHARE',
                 data_dir='data_dir', units_dir='units_dir'))

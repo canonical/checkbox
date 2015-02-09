@@ -151,9 +151,10 @@ class IJobDefinition(metaclass=ABCMeta):
         The provider this job definition belongs to
 
         .. note::
-            Technically this still can be None (a provider-less job may exist) but
-            it can only happen in testing. This mode is discouraged and will be eventually
-            forbidden. All job definition units must belong to a provider.
+            Technically this still can be None (a provider-less job may exist)
+            but it can only happen in testing. This mode is discouraged and
+            will be eventually forbidden. All job definition units must belong
+            to a provider.
         """
 
     @abstractproperty
@@ -677,7 +678,7 @@ class IProviderBackend1(metaclass=ABCMeta):
         """
 
 
-class IProvider1(metaclass=ABCMeta):
+class IProvider1(IProviderBackend1):
     """
     Provider for the current type of tests
 
@@ -738,59 +739,60 @@ class IProvider1(metaclass=ABCMeta):
         The value is applicable as argument bindtextdomain()
         """
 
-    @abstractmethod
-    def get_builtin_jobs(self):
+    @abstractproperty
+    def unit_list(self):
         """
-        Load and parse all of the job definitions of this provider.
-
-        :returns:
-            A sorted list of JobDefinition objects
-        :raises RFC822SyntaxError:
-            if any of the loaded files was not valid RFC822
-        :raises IOError, OSError:
-            if there were any problems accessing files or directories.
-            Note that OSError is silently ignored when the `jobs_dir`
-            directory is missing.
-
-        ..note::
-            This method should not be used anymore. Consider transitioning your
-            code to :meth:`load_all_jobs()` which is more reliable.
+        List of loaded units.
         """
 
-    @abstractmethod
-    def load_all_jobs(self):
+    @abstractproperty
+    def job_list(self):
         """
-        Load and parse all of the job definitions of this provider.
-
-        Unlike :meth:`get_builtin_jobs()` this method does not stop after the
-        first problem encountered and instead collects all of the problems into
-        a list which is returned alongside the job list.
-
-        :returns:
-            Pair (job_list, problem_list) where each job_list is a sorted list
-            of JobDefinition objects and each item from problem_list is an
-            exception.
+        List of loaded job definition units.
         """
 
-    @abstractmethod
-    def get_builtin_whitelists(self):
+    @abstractproperty
+    def executable_list(self):
         """
-        Load all the built-in whitelists and return them
-        """
-
-    def get_all_executables(self):
-        """
-        Discover and return all executables offered by this provider
+        List of all the executables
         """
 
-    def get_units(self):
+    @abstractproperty
+    def whitelist_list(self):
         """
-        Get all units.
+        List of loaded whitelists.
 
-        :returns:
-            Pair (unit_list, problem_list) where unit_list is a unsorted list
-            of units, as they showed up in subsequent unit definition files and
-            each item from problem_list is an exception.
+        .. warning::
+            :class:`WhiteList` is currently deprecated. You should never need
+            to access them in any new code.  They are entirely replaced by
+            :class:`TestPlan`. This property is provided for completeness and
+            it will be **removed** once whitelists classes are no longer used.
+        """
+
+    @abstractproperty
+    def problem_list(self):
+        """
+        list of problems encountered by the loading process
+        """
+
+    @abstractproperty
+    def id_map(self):
+        """
+        A mapping from unit identifier to list of units with that identifier.
+
+        .. note::
+            Typically the list will be one element long but invalid providers
+            may break that guarantee. Code defensively if you can.
+        """
+
+    @abstractproperty
+    def path_map(self):
+        """
+        A mapping from filename path to a list of units stored in that file.
+
+        .. note::
+            For ``.pxu`` files this will enumerate all units stored there. For
+            other things it will typically be just the FileUnit.
         """
 
 

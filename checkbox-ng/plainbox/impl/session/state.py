@@ -330,7 +330,7 @@ class SessionDeviceContext:
         self._provider_list.append(provider)
         self.on_provider_added(provider)
         if add_units:
-            for unit in provider.get_units()[0]:
+            for unit in provider.unit_list:
                 self.add_unit(unit)
 
     def add_unit(self, unit):

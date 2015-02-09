@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012-2014 Canonical Ltd.
+# Copyright 2012-2015 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
@@ -594,8 +594,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
             If the session cannot be resumed for any reason.
         """
         all_units = list(
-            itertools.chain(*[
-                p.get_units()[0] for p in self.provider_list]))
+            itertools.chain(*[p.unit_list for p in self.provider_list]))
         try:
             if storage is not None:
                 self._manager = SessionManager.load_session(all_units, storage)
@@ -661,9 +660,8 @@ class RunInvocation(CheckBoxInvocationMixIn):
         if test_plan_id is None:
             return
         for provider in self.provider_list:
-            for unit in provider.get_units()[0]:
-                if (unit.Meta.name == 'test plan'
-                        and unit.id == test_plan_id):
+            for unit in provider.id_map[test_plan_id]:
+                if unit.Meta.name == 'test plan':
                     return unit
 
     def set_effective_categories(self):

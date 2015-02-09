@@ -33,6 +33,7 @@ from plainbox.i18n import gettext as _
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.secure import config
 from plainbox.impl.secure.qualifiers import select_jobs
+from plainbox.impl.session.jobs import InhibitionCause
 
 
 # Deprecated, use plainbox.impl.secure.qualifiers.select_jobs() instead
@@ -77,7 +78,7 @@ def run_job_if_possible(session, runner, config, job, update=True):
         # that outcome. This makes 'skip' stronger than 'not-supported'
         outcome = IJobResult.OUTCOME_NOT_SUPPORTED
         for inhibitor in job_state.readiness_inhibitor_list:
-            if inhibitor.cause != inhibitor.FAILED_DEP:
+            if inhibitor.cause != InhibitionCause.FAILED_DEP:
                 continue
             related_job_state = session.job_state_map[
                 inhibitor.related_job.id]

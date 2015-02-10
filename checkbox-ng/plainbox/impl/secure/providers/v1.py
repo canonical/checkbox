@@ -199,7 +199,7 @@ class WhiteListPlugIn(ProviderContentPlugIn):
             'unit': TestPlanUnit.Meta.name,
             'id': name,
             'name': name,
-            'include': text,
+            'include': str(text),  # delazify content
         }, origin=origin, provider=provider, field_offset_map=field_offset_map,
             virtual=True)
 

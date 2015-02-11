@@ -60,7 +60,7 @@ from functools import total_ordering
 from logging import getLogger
 
 from plainbox.i18n import gettext as _
-from plainbox.impl.signal import Signal
+from plainbox.vendor.morris import signal
 
 __all__ = ['POD', 'Field', 'MANDATORY', 'UNSET', 'read_only_assign_filter',
            'type_convert_assign_filter', 'type_check_assign_filter',
@@ -238,9 +238,9 @@ class Field:
             return
         assert self.signal_name is not None
         if not hasattr(cls, self.signal_name):
-            signal_def = Signal.define(
+            signal_def = signal(
                 self.on_changed,
-                '{}.{}'.format(cls.__name__, self.signal_name))
+                signal_name='{}.{}'.format(cls.__name__, self.signal_name))
             setattr(cls, self.signal_name, signal_def)
 
     def __get__(self, instance: object, owner: type) -> "Any":

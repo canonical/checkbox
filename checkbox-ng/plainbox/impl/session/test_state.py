@@ -40,11 +40,11 @@ from plainbox.impl.session import SessionState
 from plainbox.impl.session import UndesiredJobReadinessInhibitor
 from plainbox.impl.session.state import SessionDeviceContext
 from plainbox.impl.session.state import SessionMetaData
-from plainbox.impl.signal import SignalInterceptorMixIn
 from plainbox.impl.testing_utils import make_job
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.unit import Unit
 from plainbox.vendor import mock
+from plainbox.vendor.morris import SignalTestCase
 
 
 class SessionStateSmokeTests(TestCase):
@@ -697,7 +697,7 @@ class SessionMetadataTests(TestCase):
             metadata.app_id, 'com.canonical.certification.plainbox')
 
 
-class SessionDeviceContextTests(TestCase, SignalInterceptorMixIn):
+class SessionDeviceContextTests(SignalTestCase):
 
     def setUp(self):
         self.ctx = SessionDeviceContext()

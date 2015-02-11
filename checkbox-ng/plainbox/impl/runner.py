@@ -44,7 +44,7 @@ from plainbox.impl.result import DiskJobResult
 from plainbox.impl.result import IOLogRecord
 from plainbox.impl.result import IOLogRecordWriter
 from plainbox.impl.result import MemoryJobResult
-from plainbox.impl.signal import Signal
+from plainbox.vendor.morris import signal
 
 
 logger = logging.getLogger("plainbox.runner")
@@ -89,7 +89,7 @@ class IOLogRecordGenerator(extcmd.DelegateBase):
         record = IOLogRecord(delay.total_seconds(), stream_name, line)
         self.on_new_record(record)
 
-    @Signal.define
+    @signal
     def on_new_record(self, record):
         """
         Internal signal method of :class:`IOLogRecordGenerator`
@@ -926,7 +926,7 @@ class JobRunner(IJobRunner):
             ctrl.__class__.__name__, score, job.id)
         return ctrl
 
-    @Signal.define
+    @signal
     def on_leftover_files(self, job, config, cwd_dir, leftovers):
         """
         Handle any files left over by the execution of a job definition.

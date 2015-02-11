@@ -54,7 +54,6 @@
 ./plainbox/impl/providers/__init__.py
 ./plainbox/impl/providers/stubbox/manage.py
 ./plainbox/impl/providers/test_v1.py
-./plainbox/impl/signal.py
 ./plainbox/impl/_argparse.py
 ./plainbox/impl/integration_tests.py
 ./plainbox/impl/validation.py

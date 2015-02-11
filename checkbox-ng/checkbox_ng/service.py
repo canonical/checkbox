@@ -40,8 +40,8 @@ from plainbox.impl.job import JobDefinition
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.secure.qualifiers import select_jobs
 from plainbox.impl.session import JobState
-from plainbox.impl.signal import remove_signals_listeners
 from plainbox.vendor import extcmd
+from plainbox.vendor.morris import remove_signals_listeners
 
 from checkbox_ng import dbus_ex as dbus
 from checkbox_ng.dbus_ex import OBJECT_MANAGER_IFACE

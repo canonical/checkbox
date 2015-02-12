@@ -195,7 +195,6 @@
 ./plainbox/impl/commands/script.py
 ./plainbox/impl/commands/checkbox.py
 ./plainbox/impl/commands/startprovider.py
-./plainbox/impl/test_signal.py
 ./plainbox/impl/testing_utils.py
 ./plainbox/impl/runner.py
 ./plainbox/impl/test_clitools.py

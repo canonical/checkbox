@@ -221,6 +221,7 @@ class SessionStateExporterBaseTests(TestCase):
                     ('requires', 'job_b.ready == "yes"'),
                     ('command', 'echo testing && true'),
                     ('io_log', ['dGVzdGluZwo=']),
+                    ('certification_status', 'unspecified'),
                 ]),
                 'job_b': OrderedDict([
                     ('summary', 'This is job B'),
@@ -234,6 +235,7 @@ class SessionStateExporterBaseTests(TestCase):
                     ('plugin', 'resource'),
                     ('command', 'echo ready: yes'),
                     ('io_log', ['cmVhZHk6IHllcwo=']),
+                    ('certification_status', 'unspecified'),
                 ])
             },
             'attachment_map': {

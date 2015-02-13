@@ -151,6 +151,7 @@
             <th>Name</th>
             <th style="width: 15em;">Result</th>
             <th>Comment</th>
+            <th>Certification Status</th>
         </tr>
         <xsl:for-each select="question">
             <tr>
@@ -186,6 +187,7 @@
                         <td><xsl:value-of select="comment" /></td>
                     </xsl:otherwise>
                 </xsl:choose>
+                <td><xsl:value-of select="@certification_status"/></td>
             </tr>
         </xsl:for-each>
     </table>

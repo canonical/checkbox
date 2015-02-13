@@ -156,7 +156,7 @@ class TestRun(TestCase):
         json: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs, with-attachments, with-comments, with-job-via, with-job-hash, with-category-map, with-certification-status, machine-json
         rfc822: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs, with-attachments, with-comments, with-job-via, with-job-hash, with-category-map, with-certification-status
         text: with-io-log, squash-io-log, flatten-io-log, with-run-list, with-job-list, with-resource-map, with-job-defs, with-attachments, with-comments, with-job-via, with-job-hash, with-category-map, with-certification-status
-        xml: client-name
+        xml: client-name, with-certification-status
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")
 

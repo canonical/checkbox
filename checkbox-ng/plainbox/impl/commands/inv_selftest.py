@@ -22,8 +22,7 @@
 import os
 import sys
 from unittest.loader import defaultTestLoader
-import unittest
-import unittest.runner
+from unittest.runner import TextTestRunner
 
 
 class SelfTestInvocation:
@@ -41,8 +40,7 @@ class SelfTestInvocation:
             suite = self.loader()
         # Use standard unittest runner, it has somewhat annoying way of
         # displaying test progress but is well-known and will do for now.
-        runner = unittest.runner.TextTestRunner(
-            verbosity=ns.verbosity, failfast=ns.fail_fast)
+        runner = TextTestRunner(verbosity=ns.verbosity, failfast=ns.fail_fast)
         result = runner.run(suite)
         # Forward the successfulness of the test suite as the exit code
         return 0 if result.wasSuccessful() else 1

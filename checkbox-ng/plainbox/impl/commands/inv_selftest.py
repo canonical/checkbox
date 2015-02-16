@@ -21,6 +21,7 @@
 """
 import os
 import sys
+from unittest.loader import defaultTestLoader
 import unittest
 import unittest.runner
 
@@ -34,7 +35,10 @@ class SelfTestInvocation:
         # If asked to, re-execute without locale
         if ns.reexec and sys.platform != 'win32':
             self._reexec_without_locale()
-        suite = self.loader()
+        if isinstance(self.loader, str):
+            suite = defaultTestLoader.loadTestsFromName(self.loader)
+        else:
+            suite = self.loader()
         # Use standard unittest runner, it has somewhat annoying way of
         # displaying test progress but is well-known and will do for now.
         runner = unittest.runner.TextTestRunner(

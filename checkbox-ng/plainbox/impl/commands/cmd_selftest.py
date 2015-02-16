@@ -93,6 +93,11 @@ class PlainboxSelfTestCommand(SelfTestCommandBase):
             dest='test_suite',
             const='plainbox.tests.load_unit_tests',
             help=_("run unit tests (this only verifies plainbox core)"))
+        group.add_argument(
+            '-s', '--suite', metavar=_("SUITE"),
+            action='store',
+            dest='test_suite',
+            help=_("run custom test suite"))
 
     def invoked(self, ns):
         from plainbox.impl.commands.inv_selftest import SelfTestInvocation

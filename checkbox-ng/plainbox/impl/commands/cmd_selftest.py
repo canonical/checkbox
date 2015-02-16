@@ -85,19 +85,15 @@ class PlainboxSelfTestCommand(SelfTestCommandBase):
             '-i', '--integration-tests',
             action='store_const',
             dest='test_suite',
-            const='integration',
+            const='plainbox.tests.load_integration_tests',
             help=_("run integration test suite (this verifies checkbox jobs)"))
         group.add_argument(
             '-u', '--unit-tests',
             action='store_const',
             dest='test_suite',
-            const='unit',
+            const='plainbox.tests.load_unit_tests',
             help=_("run unit tests (this only verifies plainbox core)"))
 
     def invoked(self, ns):
         from plainbox.impl.commands.inv_selftest import SelfTestInvocation
-        if ns.test_suite == 'integration':
-            from plainbox.tests import load_integration_tests as suite_loader
-        else:
-            from plainbox.tests import load_unit_tests as suite_loader
-        return SelfTestInvocation(suite_loader).run(ns)
+        return SelfTestInvocation(ns.test_suite).run(ns)

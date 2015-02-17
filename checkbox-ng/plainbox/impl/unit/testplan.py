@@ -292,10 +292,10 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
         :param text:
             string of text, including newlines and comments, to parse
         :returns:
-            A list of pairs (lineno_offset, category_id, pattern) where
+            A list of tuples (lineno_offset, category_id, pattern) where
             lineno_offset is the line number offset from the start of the text,
-            category_id is the desired category identifier and pattern
-            is the actual regular expression text (which may be invalid).
+            category_id is the desired category identifier and pattern is the
+            actual regular expression text (which may be invalid).
         :raises ValueError:
             if there are any issues with the override declarations
         """

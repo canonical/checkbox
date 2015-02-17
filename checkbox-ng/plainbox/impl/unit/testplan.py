@@ -24,7 +24,6 @@
 import logging
 import operator
 import re
-import shlex
 import sre_constants
 import sre_parse
 
@@ -38,17 +37,12 @@ from plainbox.impl.unit._legacy import TestPlanUnitLegacyAPI
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import compute_value_map
 from plainbox.impl.unit.validators import CorrectFieldValueValidator
-from plainbox.impl.unit.validators import DeprecatedFieldValidator
 from plainbox.impl.unit.validators import FieldValidatorBase
 from plainbox.impl.unit.validators import PresentFieldValidator
-from plainbox.impl.unit.validators import ReferenceConstraint
-from plainbox.impl.unit.validators import ShellProgramValidator
 from plainbox.impl.unit.validators import TemplateInvariantFieldValidator
 from plainbox.impl.unit.validators import TemplateVariantFieldValidator
 from plainbox.impl.unit.validators import TranslatableFieldValidator
-from plainbox.impl.unit.validators import UnitReferenceValidator
 from plainbox.impl.unit.validators import UntranslatableFieldValidator
-from plainbox.impl.unit.validators import UselessFieldValidator
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
 

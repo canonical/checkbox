@@ -61,8 +61,10 @@ import re
 import sre_constants
 import sre_parse
 
+from plainbox.i18n import gettext as _
 from plainbox.impl import pod
 from plainbox.impl.censoREd import PatternProxy
+from plainbox.impl.xscanners import WordScanner
 
 __all__ = [
     'Comment',
@@ -393,3 +395,120 @@ class WhiteList(Node):
             if comment:
                 entries.append(Comment(lineno, col_offset + cindex, comment))
         return WhiteList(initial_lineno, col_offset, entries)
+
+
+class Error(Node):
+    """ node representing a syntax error """
+    msg = F("message", str)
+
+
+class Text(Node):
+    """ node representing a bit of text """
+    text = F("text", str)
+
+
+class FieldOverride(Node):
+    """ node representing a single override statement """
+
+    value = F("value to apply (override value)", Text)
+    pattern = F("pattern that selects things to override", Re)
+
+    @staticmethod
+    def parse(
+        text: str, lineno: int=1, col_offset: int=0
+    ) -> "Union[FieldOverride, Error]":
+        """
+        Parse a single test plan field override line
+
+        Using correct syntax will result in a FieldOverride node with
+        appropriate data in the ``value`` and ``pattern`` fields. Note that
+        ``pattern`` may be either a :class:`RePattern` or a :class:`ReFixed`.
+
+            >>> FieldOverride.parse("apply new-value to pattern")
+            ... # doctest: +NORMALIZE_WHITESPACE
+            FieldOverride(lineno=1, col_offset=0,
+                          value=Text(lineno=1, col_offset=0, text='new-value'),
+                          pattern=ReFixed(lineno=1, col_offset=0,
+                                          text='pattern'))
+            >>> FieldOverride.parse("apply blocker to .*")
+            ... # doctest: +NORMALIZE_WHITESPACE
+            FieldOverride(lineno=1, col_offset=0,
+                          value=Text(lineno=1, col_offset=0, text='blocker'),
+                          pattern=RePattern(lineno=1, col_offset=0, text='.*',
+                                            re=re.compile('.*')))
+
+        Using incorrect syntax will result in a single Error node being
+        returned. The message (``msg``) field contains useful information on
+        the cause of the problem, as depicted below:
+
+            >>> FieldOverride.parse("")
+            Error(lineno=1, col_offset=0, msg="expected 'apply' near ''")
+            >>> FieldOverride.parse("apply")
+            Error(lineno=1, col_offset=0, msg='expected override value')
+            >>> FieldOverride.parse("apply value")
+            Error(lineno=1, col_offset=0, msg="expected 'to' near ''")
+            >>> FieldOverride.parse("apply value to")
+            Error(lineno=1, col_offset=0, msg='expected override pattern')
+            >>> FieldOverride.parse("apply value to pattern junk")
+            Error(lineno=1, col_offset=0, msg="unexpected garbage: 'junk'")
+
+        Lastly, shell-style comments are supported. They are discarded by the
+        scanner code though.
+
+            >>> FieldOverride.parse("apply value to pattern # comment")
+            ... # doctest: +NORMALIZE_WHITESPACE
+            FieldOverride(lineno=1, col_offset=0,
+                          value=Text(lineno=1, col_offset=0, text='value'),
+                          pattern=ReFixed(lineno=1, col_offset=0,
+                                          text='pattern'))
+
+        """
+        # XXX  Until our home-grown scanner is ready col_offset values below
+        # are all dummy. This is not strictly critical but should be improved
+        # upon later.
+        scanner = WordScanner(text)
+        # 'APPLY' ...
+        token, lexeme = scanner.get_token()
+        if token != scanner.TokenEnum.WORD or lexeme != 'apply':
+            return Error(lineno, col_offset,
+                         _("expected {!a} near {!r}").format('apply', lexeme))
+        # 'APPLY' VALUE ...
+        token, lexeme = scanner.get_token()
+        if token != scanner.TokenEnum.WORD:
+            return Error(lineno, col_offset, _("expected override value"))
+        value = Text(lineno, col_offset, lexeme)
+        # 'APPLY' VALUE 'TO' ...
+        token, lexeme = scanner.get_token()
+        if token != scanner.TokenEnum.WORD or lexeme != 'to':
+            return Error(lineno, col_offset,
+                         _("expected {!a} near {!r}").format('to', lexeme))
+        # 'APPLY' VALUE 'TO' PATTERN...
+        token, lexeme = scanner.get_token()
+        if token != scanner.TokenEnum.WORD:
+            return Error(lineno, col_offset, _("expected override pattern"))
+        pattern = Re.parse(lexeme, lineno, col_offset)
+        # 'APPLY' VALUE 'TO' PATTERN <EOF>
+        token, lexeme = scanner.get_token()
+        if token != scanner.TokenEnum.EOF:
+            return Error(lineno, col_offset,
+                         _("unexpected garbage: {!r}").format(lexeme))
+        return FieldOverride(lineno, col_offset, value, pattern)
+
+
+class OverrideFieldList(Node):
+    """ node representing a whole plainbox field override list"""
+
+    entries = pod.Field("a list of comments and patterns", list,
+                        initial_fn=list, assign_filter_list=[
+                            pod.typed, pod.typed.sequence(Node), pod.const])
+
+    @staticmethod
+    def parse(
+        text: str, lineno: int=1, col_offset: int=0
+    ) -> "OverrideFieldList":
+        entries = []
+        initial_lineno = lineno
+        # NOTE: lineno is consciously shadowed below
+        for lineno, line in enumerate(text.splitlines(), lineno):
+            entries.append(FieldOverride.parse(line, lineno, col_offset))
+        return OverrideFieldList(initial_lineno, col_offset, entries)

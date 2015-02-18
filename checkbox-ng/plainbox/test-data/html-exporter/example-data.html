@@ -10901,8 +10901,7 @@ td
           </div>
         </div>
         <div id="content" class="clearfix">
-          <h2>Tests Performed</h2>
-          <h3 id="questions">Tests</h3>
+          <h2 id="questions">Tests Performed</h2>
           <table style="width: 700px">
             <tr>
               <th/>
@@ -10918,7 +10917,7 @@ td
               <td class="label">camera/detect</td>
               <td style="background-color: #DC3912">FAILED</td>
               <td>webcam is broken on this system</td>
-              <td/>
+              <td>blocker</td>
             </tr>
             <tr>
               <td>
@@ -10940,9 +10939,15 @@ ID 1d6b:0001 Linux Foundation 1.1 root hub
               <td class="label">wireless/wireless_connection_wpa_n</td>
               <td style="background-color: #FF9900">SKIPPED</td>
               <td>job cannot be started: resource expression "environment.ROUTERS == 'multiple'" evaluates to false</td>
-              <td/>
+              <td>non-blocker</td>
             </tr>
           </table>
+        </div>
+        <div id="content" class="clearfix">
+          <h2 id="certification-status">Certification Blockers</h2>
+          <ul>
+            <li>camera/detect</li>
+          </ul>
         </div>
         <div id="content" class="clearfix">
           <h2>Log Files and Environment Information</h2>

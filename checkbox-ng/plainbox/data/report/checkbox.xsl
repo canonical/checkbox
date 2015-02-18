@@ -34,10 +34,7 @@
                     <xsl:apply-templates select=".//software/lsbrelease" />
                     <xsl:apply-templates select=".//software/requirements"/>
                 </div>
-                <div id="content" class="clearfix">
-                    <h2>Tests Performed</h2>
-                    <xsl:apply-templates select=".//questions" />
-                </div>
+                <xsl:apply-templates select=".//questions" />
                 <div id="content" class="clearfix">
                     <h2>Log Files and Environment Information</h2>
                     <xsl:apply-templates select=".//context" />
@@ -144,7 +141,8 @@
 </xsl:template>
 
 <xsl:template match="questions">
-    <h3 id="questions">Tests</h3>
+    <div id="content" class="clearfix">
+    <h2 id="questions">Tests Performed</h2>
         <table style="width: 700px">
         <tr>
             <th> </th>
@@ -191,6 +189,19 @@
             </tr>
         </xsl:for-each>
     </table>
+    </div>
+    <div id="content" class="clearfix">
+        <h2 id="certification-status">Certification Blockers</h2>
+        <ul>
+            <xsl:for-each select="question">
+                <xsl:choose>
+                    <xsl:when test="@certification_status = 'blocker' and not(normalize-space(answer) = 'pass')">
+                        <li><xsl:value-of select="@name"/></li>
+                    </xsl:when>
+                </xsl:choose>
+            </xsl:for-each>
+        </ul>
+    </div>
 </xsl:template>
 
 <xsl:template match="context">

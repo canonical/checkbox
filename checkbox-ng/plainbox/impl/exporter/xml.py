@@ -115,7 +115,10 @@ class XMLSessionStateExporter(SessionStateExporterBase):
     NS = '2013.com.canonical.certification::'
 
     OPTION_CLIENT_NAME = 'client-name'
-    SUPPORTED_OPTION_LIST = (OPTION_CLIENT_NAME, )
+    SUPPORTED_OPTION_LIST = (
+        OPTION_CLIENT_NAME,
+        SessionStateExporterBase.OPTION_WITH_CERTIFICATION_STATUS
+    )
 
     def __init__(self, option_list=None, system_id=None, timestamp=None,
                  client_version=None, client_name='plainbox'):
@@ -354,12 +357,14 @@ class XMLSessionStateExporter(SessionStateExporterBase):
             # hardware section).
             if job_data["plugin"] in ("resource", "local", "attachment"):
                 continue
-            question = ET.SubElement(
-                questions, "question", attrib={
-                    "name": job_id[len(self.NS):]
-                    if job_id.startswith(self.NS) else job_id
-                }
-            )
+            attrib = {
+                "name": (job_id[len(self.NS):]
+                         if job_id.startswith(self.NS) else job_id),
+            }
+            if 'certification_status' in job_data:
+                attrib['certification_status'] = (
+                    job_data['certification_status'])
+            question = ET.SubElement(questions, "question", attrib=attrib)
             answer = ET.SubElement(
                 question, "answer", attrib={"type": "multiple_choice"})
             answer.text = OUTCOME_METADATA_MAP[

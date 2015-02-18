@@ -84,6 +84,7 @@ class SessionStateExporterBase(ISessionStateExporter):
     OPTION_WITH_JOB_VIA = 'with-job-via'
     OPTION_WITH_JOB_HASH = 'with-job-hash'
     OPTION_WITH_CATEGORY_MAP = 'with-category-map'
+    OPTION_WITH_CERTIFICATION_STATUS = 'with-certification-status'
 
     SUPPORTED_OPTION_LIST = (
         OPTION_WITH_IO_LOG,
@@ -98,6 +99,7 @@ class SessionStateExporterBase(ISessionStateExporter):
         OPTION_WITH_JOB_VIA,
         OPTION_WITH_JOB_HASH,
         OPTION_WITH_CATEGORY_MAP,
+        OPTION_WITH_CERTIFICATION_STATUS,
     )
 
     def __init__(self, option_list=None):
@@ -269,6 +271,11 @@ class SessionStateExporterBase(ISessionStateExporter):
                 else:
                     io_log_data = self._io_log(job_state.result.get_io_log())
                 data['result_map'][job_id]['io_log'] = io_log_data
+
+            # Add certification status if requested
+            if self.OPTION_WITH_CERTIFICATION_STATUS in self._option_list:
+                data['result_map'][job_id]['certification_status'] = (
+                    job_state.effective_certification_status)
         return data
 
     def _build_attachment_map(self, data, job_id, job_state):

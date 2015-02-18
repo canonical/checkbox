@@ -96,6 +96,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             SessionStateExporterBase.OPTION_WITH_RESOURCE_MAP,
             SessionStateExporterBase.OPTION_WITH_ATTACHMENTS,
             SessionStateExporterBase.OPTION_WITH_CATEGORY_MAP,
+            SessionStateExporterBase.OPTION_WITH_CERTIFICATION_STATUS,
         )
         self._option_list += tuple(option_list)
         self.total_pass = 0
@@ -189,6 +190,15 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         self.format17 = self.workbook.add_format({
             'align': 'left', 'valign': 'vcenter', 'size': 8,
             'bg_color': '#E6E6E6', 'indent': 1,
+        })
+        # Table rows without borders (center)
+        self.format18 = self.workbook.add_format({
+            'align': 'center', 'valign': 'vcenter', 'size': 8,
+        })
+        # Table rows without borders, grayed out background (center)
+        self.format19 = self.workbook.add_format({
+            'align': 'center', 'valign': 'vcenter', 'size': 8,
+            'bg_color': '#E6E6E6',
         })
 
     def _hw_collection(self, data):
@@ -563,6 +573,14 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                     # behaved. This will be fixed with detailed per-outcome
                     # counters later.
                     self.total_skip += 1
+                certification_status = ''
+                if 'certification_status' in result_map[job]:
+                    cert_status = result_map[job]['certification_status']
+                    if cert_status == 'unspecified':
+                        cert_status = ''
+                self.worksheet3.write(
+                    self._lineno, max_level + 3, cert_status,
+                    self.format18 if self._lineno % 2 else self.format19)
                 io_log = ' '
                 if result_map[job]['io_log']:
                     io_log = standard_b64decode(
@@ -573,13 +591,13 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                                                      "").splitlines())
                 desc_lines -= 1
                 self.worksheet3.write(
-                    self._lineno, max_level + 3, io_log,
+                    self._lineno, max_level + 4, io_log,
                     self.format16 if self._lineno % 2 else self.format17)
                 comments = ' '
                 if result_map[job]['comments']:
                     comments = result_map[job]['comments'].rstrip()
                 self.worksheet3.write(
-                    self._lineno, max_level + 4, comments,
+                    self._lineno, max_level + 5, comments,
                     self.format16 if self._lineno % 2 else self.format17)
                 if self.OPTION_WITH_DESCRIPTION in self._option_list:
                     self.worksheet4.write(
@@ -613,11 +631,13 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         [self.worksheet3.set_column(i, i, 2) for i in range(1, max_level + 1)]
         self.worksheet3.set_column(max_level + 1, max_level + 1, 48)
         self.worksheet3.set_column(max_level + 2, max_level + 2, 12)
-        self.worksheet3.set_column(max_level + 3, max_level + 3, 65)
+        self.worksheet3.set_column(max_level + 3, max_level + 3, 18)
         self.worksheet3.set_column(max_level + 4, max_level + 4, 65)
+        self.worksheet3.set_column(max_level + 5, max_level + 5, 65)
         self.worksheet3.write_row(
             5, max_level + 1,
-            [_('Name'), _('Result'), _('I/O Log'), _('Comments')],
+            [_('Name'), _('Result'), _('Certification Status'), _('I/O Log'),
+             _('Comments')],
             self.format07)
         if self.OPTION_WITH_DESCRIPTION in self._option_list:
             self.worksheet4.write(3, 1, _('Test Descriptions'), self.format03)

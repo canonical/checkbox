@@ -106,7 +106,8 @@ class HTMLExporterTests(TestCase):
 
     def setUp(self):
         data = resource_json(
-            "plainbox", "test-data/xml-exporter/example-data.json",
+            "plainbox",
+            "test-data/xml-exporter/example-data-certification-status.json",
             exact=True)
         exporter = HTMLSessionStateExporter(
             system_id="",

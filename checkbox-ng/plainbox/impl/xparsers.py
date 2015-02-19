@@ -413,7 +413,8 @@ class FieldOverride(Node):
 
         Using correct syntax will result in a FieldOverride node with
         appropriate data in the ``value`` and ``pattern`` fields. Note that
-        ``pattern`` may be either a :class:`RePattern` or a :class:`ReFixed`.
+        ``pattern`` may be either a :class:`RePattern` or a :class:`ReFixed` or
+        :class:`ReErr` which is not a valid pattern and cannot be used.
 
             >>> FieldOverride.parse("apply new-value to pattern")
             ... # doctest: +NORMALIZE_WHITESPACE

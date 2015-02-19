@@ -383,7 +383,7 @@ class CompositeQualifier(IJobQualifier):
         return False
 
     def designates(self, job):
-        return self.get_vote(job) == self.VOTE_INCLUDE
+        return self.get_vote(job) == IJobQualifier.VOTE_INCLUDE
 
     def get_vote(self, job):
         """
@@ -405,7 +405,7 @@ class CompositeQualifier(IJobQualifier):
                 qualifier.get_vote(job)
                 for qualifier in self.qualifier_list])
         else:
-            return self.VOTE_IGNORE
+            return IJobQualifier.VOTE_IGNORE
 
     def get_primitive_qualifiers(self):
         return get_flat_primitive_qualifier_list(self.qualifier_list)

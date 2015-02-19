@@ -365,6 +365,17 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
                     return category_id
         return job.category_id
 
+    def qualify_pattern(self, pattern):
+        """ qualify bare pattern (without ^ and $) """
+        if pattern.startswith('^') and pattern.endswith('$'):
+            return '^{}$'.format(self.qualify_id(pattern[1:-1]))
+        elif pattern.startswith('^'):
+            return '^{}$'.format(self.qualify_id(pattern[1:]))
+        elif pattern.endswith('$'):
+            return '^{}$'.format(self.qualify_id(pattern[:-1]))
+        else:
+            return '^{}$'.format(self.qualify_id(pattern))
+
     class Meta:
 
         name = 'test plan'

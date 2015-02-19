@@ -156,6 +156,10 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
         return self.get_record_value('category-overrides')
 
     @property
+    def certification_status_overrides(self):
+        return self.get_record_value('certification-status-overrides')
+
+    @property
     def estimated_duration(self):
         """
         estimated duration of this test plan in seconds.

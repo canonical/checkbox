@@ -114,6 +114,14 @@ class Node(pod.POD):
         "Column offset (0-based)", int, 0,
         assign_filter_list=[pod.typed, not_negative, pod.const])
 
+    def __repr__(self):
+        return "{}({})".format(
+            self.__class__.__name__,
+            ', '.join([
+                '{}={!r}'.format(field.name, getattr(self, field.name))
+                for field in self.__class__.field_list
+                if field.name not in ('lineno', 'col_offset')]))
+
     def visit(self, visitor: 'Visitor'):
         """
         Visit all of the sub-nodes reachable from this node
@@ -210,16 +218,14 @@ class Re(Node):
         Examples:
 
         >>> Re.parse("text")
-        ReFixed(lineno=0, col_offset=0, text='text')
+        ReFixed(text='text')
 
-        >>> Re.parse("pa[tT]ern") # doctest: +NORMALIZE_WHITESPACE
-        RePattern(lineno=0, col_offset=0, text='pa[tT]ern',
-                  re=re.compile('pa[tT]ern'))
+        >>> Re.parse("pa[tT]ern")
+        RePattern(text='pa[tT]ern', re=re.compile('pa[tT]ern'))
 
         >>> from sre_constants import error
-        >>> Re.parse("+")  # doctest: +NORMALIZE_WHITESPACE
-        ReErr(lineno=0, col_offset=0, text='+',
-              exc=error('nothing to repeat',))
+        >>> Re.parse("+")
+        ReErr(text='+', exc=error('nothing to repeat',))
         """
         try:
             pyre_ast = sre_parse.parse(text)
@@ -307,14 +313,14 @@ class WhiteList(Node):
         Empty string is still a valid (though empty) whitelist
 
         >>> WhiteList.parse("")
-        WhiteList(lineno=1, col_offset=0, entries=[])
+        WhiteList(entries=[])
 
         White space is irrelevant and gets ignored if it's not of any
         semantic value. Since whitespace was never a part of the de-facto
         allowed pattern syntax one cannot create a job with " ".
 
         >>> WhiteList.parse("   ")
-        WhiteList(lineno=1, col_offset=0, entries=[])
+        WhiteList(entries=[])
 
         As soon as there's something interesting though, it starts to have
         meaning. Note that we differentiate the raw text ' a ' from the
@@ -322,31 +328,23 @@ class WhiteList(Node):
         when we parse the text this contextual, semantic information is not
         available and is not a part of the AST.
 
-        >>> WhiteList.parse(" data ") # doctest: +NORMALIZE_WHITESPACE
-        WhiteList(lineno=1, col_offset=0,
-                  entries=[ReFixed(lineno=1, col_offset=0, text=' data ')])
+        >>> WhiteList.parse(" data ")
+        WhiteList(entries=[ReFixed(text=' data ')])
 
         Data gets separated into line-based records.  Any number of lines
         may exist in a single whitelist.
 
-        >>> WhiteList.parse("line") # doctest: +NORMALIZE_WHITESPACE
-        WhiteList(lineno=1, col_offset=0,
-                  entries=[ReFixed(lineno=1, col_offset=0, text='line')])
+        >>> WhiteList.parse("line")
+        WhiteList(entries=[ReFixed(text='line')])
 
         >>> WhiteList.parse("line 1\\nline 2\\n")
-        ... # doctest: +NORMALIZE_WHITESPACE
-        WhiteList(lineno=1, col_offset=0,
-                  entries=[ReFixed(lineno=1, col_offset=0, text='line 1'),
-                           ReFixed(lineno=2, col_offset=0, text='line 2')])
+        WhiteList(entries=[ReFixed(text='line 1'), ReFixed(text='line 2')])
 
         Empty lines are just ignored. You can re-create them by observing lack
         of continuity in the values of the ``lineno`` field.
 
         >>> WhiteList.parse("line 1\\n\\nline 3\\n")
-        ... # doctest: +NORMALIZE_WHITESPACE
-        WhiteList(lineno=1, col_offset=0,
-                  entries=[ReFixed(lineno=1, col_offset=0, text='line 1'),
-                           ReFixed(lineno=3, col_offset=0, text='line 3')])
+        WhiteList(entries=[ReFixed(text='line 1'), ReFixed(text='line 3')])
 
         Data can be mixed with comments. Note that col_offset is finally
         non-zero here as the comments starts on the fourth character into the
@@ -354,27 +352,20 @@ class WhiteList(Node):
 
         >>> WhiteList.parse("foo # pick foo")
         ... # doctest: +NORMALIZE_WHITESPACE
-        WhiteList(lineno=1, col_offset=0,
-                  entries=[ReFixed(lineno=1, col_offset=0, text='foo '),
-                           Comment(lineno=1, col_offset=4,
-                                   comment='# pick foo')])
+        WhiteList(entries=[ReFixed(text='foo '),
+                           Comment(comment='# pick foo')])
 
         Comments can also exist without any data:
 
         >>> WhiteList.parse("# this is a comment")
-        ... # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
-        WhiteList(lineno=1, col_offset=0,
-                  entries=[Comment(lineno=1, col_offset=0,
-                                   comment='# this ...')])
+        WhiteList(entries=[Comment(comment='# this is a comment')])
 
         Lastly, there are no *exceptions* at this stage, broken patterns are
         represented as such but no exceptions are ever raised:
 
         >>> WhiteList.parse("[]")
-        ... # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
-        WhiteList(lineno=1, col_offset=0,
-                  entries=[ReErr(lineno=1, col_offset=0, text='[]',
-                                 exc=error('un...',))])
+        ... # doctest: +ELLIPSIS
+        WhiteList(entries=[ReErr(text='[]', exc=error('un...',))])
         """
         entries = []
         initial_lineno = lineno
@@ -426,41 +417,35 @@ class FieldOverride(Node):
 
             >>> FieldOverride.parse("apply new-value to pattern")
             ... # doctest: +NORMALIZE_WHITESPACE
-            FieldOverride(lineno=1, col_offset=0,
-                          value=Text(lineno=1, col_offset=0, text='new-value'),
-                          pattern=ReFixed(lineno=1, col_offset=0,
-                                          text='pattern'))
+            FieldOverride(value=Text(text='new-value'),
+                          pattern=ReFixed(text='pattern'))
             >>> FieldOverride.parse("apply blocker to .*")
             ... # doctest: +NORMALIZE_WHITESPACE
-            FieldOverride(lineno=1, col_offset=0,
-                          value=Text(lineno=1, col_offset=0, text='blocker'),
-                          pattern=RePattern(lineno=1, col_offset=0, text='.*',
-                                            re=re.compile('.*')))
+            FieldOverride(value=Text(text='blocker'),
+                          pattern=RePattern(text='.*', re=re.compile('.*')))
 
         Using incorrect syntax will result in a single Error node being
         returned. The message (``msg``) field contains useful information on
         the cause of the problem, as depicted below:
 
             >>> FieldOverride.parse("")
-            Error(lineno=1, col_offset=0, msg="expected 'apply' near ''")
+            Error(msg="expected 'apply' near ''")
             >>> FieldOverride.parse("apply")
-            Error(lineno=1, col_offset=0, msg='expected override value')
+            Error(msg='expected override value')
             >>> FieldOverride.parse("apply value")
-            Error(lineno=1, col_offset=0, msg="expected 'to' near ''")
+            Error(msg="expected 'to' near ''")
             >>> FieldOverride.parse("apply value to")
-            Error(lineno=1, col_offset=0, msg='expected override pattern')
+            Error(msg='expected override pattern')
             >>> FieldOverride.parse("apply value to pattern junk")
-            Error(lineno=1, col_offset=0, msg="unexpected garbage: 'junk'")
+            Error(msg="unexpected garbage: 'junk'")
 
         Lastly, shell-style comments are supported. They are discarded by the
         scanner code though.
 
             >>> FieldOverride.parse("apply value to pattern # comment")
             ... # doctest: +NORMALIZE_WHITESPACE
-            FieldOverride(lineno=1, col_offset=0,
-                          value=Text(lineno=1, col_offset=0, text='value'),
-                          pattern=ReFixed(lineno=1, col_offset=0,
-                                          text='pattern'))
+            FieldOverride(value=Text(text='value'),
+                          pattern=ReFixed(text='pattern'))
 
         """
         # XXX  Until our home-grown scanner is ready col_offset values below

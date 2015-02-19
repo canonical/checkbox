@@ -624,3 +624,46 @@ class IncludeStmt(Node):
             else:
                 return Error(lineno, col_offset, _("expected ','"))
         return IncludeStmt(lineno, col_offset, pattern, overrides)
+
+
+class IncludeStmtList(Node):
+    """ node representing a list of include statements"""
+
+    entries = pod.Field("a list of include statements", list,
+                        initial_fn=list, assign_filter_list=[
+                            pod.typed, pod.typed.sequence(Node), pod.const])
+
+    @staticmethod
+    def parse(
+        text: str, lineno: int=1, col_offset: int=0
+    ) -> "IncludeStmtList":
+        """
+        Parse a multi-line ``include`` field.
+
+        This field is a simple list of :class:`IncludeStmt` with the added
+        twist that empty lines (including lines containing just irrelevant
+        white-space or comments) are silently ignored.
+
+
+        Example:
+            >>> IncludeStmtList.parse('''
+            ...                       foo
+            ...                       # comment
+            ...                       bar''')
+            ... # doctest: +NORMALIZE_WHITESPACE
+            IncludeStmtList(entries=[IncludeStmt(pattern=ReFixed(text='foo'),
+                                                 overrides=[]),
+                                     IncludeStmt(pattern=ReFixed(text='bar'),
+                                                 overrides=[])])
+        """
+        entries = []
+        initial_lineno = lineno
+        # NOTE: lineno is consciously shadowed below
+        for lineno, line in enumerate(text.splitlines(), lineno):
+            if WordScanner(line).get_token()[0] == WordScanner.TOKEN_EOF:
+                # XXX: hack to work around the fact that each line is scanned
+                # separately so there is no way to naturally progress to the
+                # next line yet.
+                continue
+            entries.append(IncludeStmt.parse(line, lineno, col_offset))
+        return IncludeStmtList(initial_lineno, col_offset, entries)

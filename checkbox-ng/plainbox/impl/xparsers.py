@@ -57,6 +57,7 @@ expressions with optional comments. The root class is :class:`WhiteList` who's
 :class:`Comment` or a subclass of :class:`Re`.
 """
 import abc
+import itertools
 import re
 import sre_constants
 import sre_parse
@@ -498,3 +499,128 @@ class OverrideFieldList(Node):
         for lineno, line in enumerate(text.splitlines(), lineno):
             entries.append(FieldOverride.parse(line, lineno, col_offset))
         return OverrideFieldList(initial_lineno, col_offset, entries)
+
+
+class OverrideExpression(Node):
+    """ node representing a single override statement """
+
+    field = F("field to override", Text)
+    value = F("value to apply", Text)
+
+
+class IncludeStmt(Node):
+    """ node representing a single include statement """
+
+    pattern = F("the pattern used for selecting jobs", Re)
+    overrides = pod.Field("list of overrides to apply", list, initial_fn=list,
+                          assign_filter_list=[
+                              pod.typed,
+                              pod.typed.sequence(OverrideExpression),
+                              pod.const])
+
+    @staticmethod
+    def parse(
+        text: str, lineno: int=1, col_offset: int=0
+    ) -> "Union[IncludeStmt, Error]":
+        """
+        Parse a single test plan include line
+
+        Using correct syntax will result in a IncludeStmt node with
+        appropriate data in the ``pattern`` and ``overrides`` fields. Note that
+        ``pattern`` may be either a :class:`RePattern` or a :class:`ReFixed` or
+        :class:`ReErr` which is not a valid pattern and cannot be used.
+        Overrides are a list of :class:`OverrideExpression`. The list may
+        contain incorrect, or duplicate values but that's up to higher-level
+        analysis to check for.
+
+        The whole overrides section is optional so a single pattern is a good
+        include statement:
+
+            >>> IncludeStmt.parse("usb.*")
+            ... # doctest: +NORMALIZE_WHITESPACE
+            IncludeStmt(pattern=RePattern(text='usb.*',
+                                          re=re.compile('usb.*')),
+                        overrides=[])
+
+        Any number of key=value override pairs can be used using commas in
+        between each pair:
+
+            >>> IncludeStmt.parse("usb.* f1=o1")
+            ... # doctest: +NORMALIZE_WHITESPACE
+            IncludeStmt(pattern=RePattern(text='usb.*',
+                                          re=re.compile('usb.*')),
+                        overrides=[OverrideExpression(field=Text(text='f1'),
+                                                      value=Text(text='o1'))])
+            >>> IncludeStmt.parse("usb.* f1=o1, f2=o2")
+            ... # doctest: +NORMALIZE_WHITESPACE
+            IncludeStmt(pattern=RePattern(text='usb.*',
+                                          re=re.compile('usb.*')),
+                        overrides=[OverrideExpression(field=Text(text='f1'),
+                                                      value=Text(text='o1')),
+                                   OverrideExpression(field=Text(text='f2'),
+                                                      value=Text(text='o2'))])
+            >>> IncludeStmt.parse("usb.* f1=o1, f2=o2, f3=o3")
+            ... # doctest: +NORMALIZE_WHITESPACE
+            IncludeStmt(pattern=RePattern(text='usb.*',
+                                          re=re.compile('usb.*')),
+                        overrides=[OverrideExpression(field=Text(text='f1'),
+                                                      value=Text(text='o1')),
+                                   OverrideExpression(field=Text(text='f2'),
+                                                      value=Text(text='o2')),
+                                   OverrideExpression(field=Text(text='f3'),
+                                                      value=Text(text='o3'))])
+
+        Obviously some things can fail, the following examples show various
+        error states that are possible. In each state an Error node is returned
+        instead of the whole statement.
+
+            >>> IncludeStmt.parse("")
+            Error(msg='expected pattern')
+            >>> IncludeStmt.parse("pattern field")
+            Error(msg="expected '='")
+            >>> IncludeStmt.parse("pattern field=")
+            Error(msg='expected override value')
+            >>> IncludeStmt.parse("pattern field=override junk")
+            Error(msg="expected ','")
+            >>> IncludeStmt.parse("pattern field=override, ")
+            Error(msg='expected override field')
+        """
+        scanner = WordScanner(text)
+        # PATTERN ...
+        token, lexeme = scanner.get_token()
+        if token != scanner.TokenEnum.WORD:
+            return Error(lineno, col_offset, _("expected pattern"))
+        pattern = Re.parse(lexeme, lineno, col_offset)
+        overrides = []
+        for i in itertools.count():
+            # PATTERN FIELD ...
+            token, lexeme = scanner.get_token()
+            if token == scanner.TokenEnum.EOF and i == 0:
+                # The whole override section is optional so the sequence may
+                # end with EOF on the first iteration of the loop.
+                break
+            elif token != scanner.TokenEnum.WORD:
+                return Error(lineno, col_offset, _("expected override field"))
+            field = Text(lineno, col_offset, lexeme)
+            # PATTERN FIELD = ...
+            token, lexeme = scanner.get_token()
+            if token != scanner.TokenEnum.EQUALS:
+                return Error(lineno, col_offset, _("expected '='"))
+            # PATTERN FIELD = VALUE ...
+            token, lexeme = scanner.get_token()
+            if token != scanner.TokenEnum.WORD:
+                return Error(lineno, col_offset, _("expected override value"))
+            value = Text(lineno, col_offset, lexeme)
+            expr = OverrideExpression(lineno, col_offset, field, value)
+            overrides.append(expr)
+            # is there any more?
+            # PATTERN FIELD = VALUE , ...
+            token, lexeme = scanner.get_token()
+            if token == scanner.TokenEnum.COMMA:
+                # (and again)
+                continue
+            elif token == scanner.TokenEnum.EOF:
+                break
+            else:
+                return Error(lineno, col_offset, _("expected ','"))
+        return IncludeStmt(lineno, col_offset, pattern, overrides)

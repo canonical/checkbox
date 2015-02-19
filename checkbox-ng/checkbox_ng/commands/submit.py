@@ -99,7 +99,11 @@ class SubmitCommand(PlainBoxCommand):
 
     def register_arguments(self, parser):
         parser.set_defaults(command=self)
+        parser.add_argument('submission',
+            help=_("The path to the results xml file"))
+        self.register_optional_arguments(parser)
 
+    def register_optional_arguments(self, parser):
         if self.config.secure_id is not Unset:
             parser.set_defaults(secure_id=self.config.secure_id)
 
@@ -114,9 +118,6 @@ class SubmitCommand(PlainBoxCommand):
             required=self.config.secure_id is Unset,
             type=secureid,
             help=_("associate submission with a machine using this SECURE-ID"))
-
-        parser.add_argument('submission',
-            help=_("The path to the results xml file"))
 
         # Interpret this setting here
         # Please remember the Unset.__bool__() return False

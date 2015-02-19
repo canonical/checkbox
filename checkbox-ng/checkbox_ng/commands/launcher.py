@@ -30,14 +30,16 @@ import os
 
 from checkbox_ng.commands import CheckboxCommand
 from checkbox_ng.commands.newcli import CliInvocation2
+from checkbox_ng.commands.submit import SubmitCommand
 from checkbox_ng.config import CheckBoxConfig
 from checkbox_ng.launcher import LauncherDefinition
 
+from plainbox.impl.commands.cmd_checkbox import CheckBoxCommandMixIn
 
 logger = logging.getLogger("checkbox.ng.commands.launcher")
 
 
-class LauncherCommand(CheckboxCommand):
+class LauncherCommand(CheckboxCommand, CheckBoxCommandMixIn, SubmitCommand):
     """
     run a customized testing session
 
@@ -47,8 +49,11 @@ class LauncherCommand(CheckboxCommand):
     session.
     """
 
+    def __init__(self, provider_loader, config_loader):
+        self._provider_loader = provider_loader
+        self.config = config_loader()
+
     def invoked(self, ns):
-        self.config = self.config_loader()
         try:
             with open(ns.launcher, 'rt', encoding='UTF-8') as stream:
                 first_line = stream.readline()
@@ -79,7 +84,6 @@ class LauncherCommand(CheckboxCommand):
                             '~/.config/{}'.format(launcher.config_filename)))))
             )
         self.config.read(self.config.Meta.filename_list)
-        ns.non_interactive = False
         ns.dry_run = False
         ns.dont_suppress_output = launcher.dont_suppress_output
         return CliInvocation2(
@@ -98,3 +102,12 @@ class LauncherCommand(CheckboxCommand):
             "launcher", metavar=_("LAUNCHER"),
             help=_("launcher definition file to use"))
         parser.set_defaults(command=self)
+        parser.conflict_handler='resolve'
+        # Call enhance_parser from CheckBoxCommandMixIn
+        self.enhance_parser(parser)
+        group = parser.add_argument_group(title=_("user interface options"))
+        group.add_argument(
+            '--non-interactive', action='store_true',
+            help=_("skip tests that require interactivity"))
+        # Call register_optional_arguments from SubmitCommand
+        self.register_optional_arguments(parser)

@@ -24,8 +24,6 @@
 import logging
 import operator
 import re
-import sre_constants
-import sre_parse
 
 from plainbox.i18n import gettext as _
 from plainbox.impl.secure.qualifiers import CompositeQualifier
@@ -234,56 +232,56 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
             expressions. The matcher uses the operator.eq operator (equality)
             and stores the expected job identifier as the right-hand-side value
         """
-        for lineno_offset, line in enumerate(text.splitlines()):
-            # Strip shell-style comments if there are any
-            try:
-                index = line.index("#")
-            except ValueError:
-                pass
-            else:
-                line = line[:index]
-            # Strip whitespace
-            line = line.strip()
-            # Skip empty lines (especially after stripping comments)
-            if line == "":
-                continue
-            # TODO: add a way to define custom fields
-            # with a syntax like: FIELD: PATTERN
-            # eg: category_id: 2013\.com\.canonical\.plainbox::audio
-            field = 'id'
-            value = line
-            try:
-                re_ast = sre_parse.parse(value)
-            except sre_constants.error as exc:
-                error = exc
-                matcher = None
-            else:
-                error = None
-                # check if the AST of this regular expression is composed
-                # of just a flat list of 'literal' nodes. In other words,
-                # check if it is a simple string match in disguise
-                if all(t == 'literal' for t, rest in re_ast):
-                    target_id = self.qualify_id(value)
+        from plainbox.impl.xparsers import Error
+        from plainbox.impl.xparsers import ReErr, ReFixed, RePattern
+        from plainbox.impl.xparsers import IncludeStmt
+        from plainbox.impl.xparsers import IncludeStmtList
+        from plainbox.impl.xparsers import Visitor
+
+        outer_self = self
+
+        class IncludeStmtVisitor(Visitor):
+
+            def __init__(self):
+                self.results = []  # (lineno_offset, field, matcher, error)
+
+            def visit_IncludeStmt_node(self, node: IncludeStmt):
+                if isinstance(node.pattern, ReErr):
+                    matcher = None
+                    error = node.pattern.exc
+                elif isinstance(node.pattern, ReFixed):
+                    target_id = outer_self.qualify_id(node.pattern.text)
                     matcher = OperatorMatcher(operator.eq, target_id)
-                else:
+                    error = None
+                elif isinstance(node.pattern, RePattern):
+                    text = node.pattern.text
                     # Ensure that pattern is surrounded by ^ and $
-                    if value.startswith('^') and value.endswith('$'):
+                    if text.startswith('^') and text.endswith('$'):
                         target_id_pattern = '^{}$'.format(
-                            self.qualify_id(value[1:-1]))
-                    elif value.startswith('^'):
+                            outer_self.qualify_id(text[1:-1]))
+                    elif text.startswith('^'):
                         target_id_pattern = '^{}$'.format(
-                            self.qualify_id(value[1:]))
-                    elif value.endswith('$'):
+                            outer_self.qualify_id(text[1:]))
+                    elif text.endswith('$'):
                         target_id_pattern = '^{}$'.format(
-                            self.qualify_id(value[:-1]))
+                            outer_self.qualify_id(text[:-1]))
                     else:
                         target_id_pattern = '^{}$'.format(
-                            self.qualify_id(value))
-                    # NOTE: this cannot fail as we have parsed the expression
-                    # already and our transformations above should *not* harm
-                    # it in any way.
+                            outer_self.qualify_id(text))
                     matcher = PatternMatcher(target_id_pattern)
-            yield (lineno_offset, field, matcher, error)
+                    error = None
+                result = (node.lineno, 'id', matcher, error)
+                self.results.append(result)
+
+            def visit_Error_node(self, node: Error):
+                # we're just faking an exception object here
+                error = ValueError(node.msg)
+                result = (node.lineno, 'id', None, error)
+                self.results.append(result)
+
+        visitor = IncludeStmtVisitor()
+        visitor.visit(IncludeStmtList.parse(text, 0, 0))
+        return visitor.results
 
     def parse_category_overrides(self, text):
         """

@@ -114,6 +114,8 @@ class WordScannerToken(Enum):
     WORD = 1
     SPACE = 2
     COMMENT = 3
+    COMMA = 4
+    EQUALS = 5
 
     @property
     def is_irrelevant(self):
@@ -133,13 +135,12 @@ class WordScannerState(Enum):
     SPACE = 6  # state when we're seeing spaces
     COMMENT_INNER = 7  # state when we're seeing comments
     COMMENT_END = 8  # state when we've seen \n or ''
+    COMMA = 9  # state where we saw a comma
+    EQUALS = 10  # state where we saw the equals sign
 
     @property
     def is_accepting(self):
-        return self in (
-            WordScannerState.EOF, WordScannerState.BARE_WORD,
-            WordScannerState.QUOTED_WORD_END, WordScannerState.SPACE,
-            WordScannerState.COMMENT_END)
+        return self in WordScannerState._ACCEPTING
 
     def modify_lexeme(self, lexeme):
         """ Get the value of a given lexeme """
@@ -151,13 +152,24 @@ class WordScannerState(Enum):
     @property
     def token(self):
         """ Get the token corresponding to this state """
-        return {
-            WordScannerState.EOF: WordScannerToken.EOF,
-            WordScannerState.BARE_WORD: WordScannerToken.WORD,
-            WordScannerState.QUOTED_WORD_END: WordScannerToken.WORD,
-            WordScannerState.SPACE: WordScannerToken.SPACE,
-            WordScannerState.COMMENT_END: WordScannerToken.COMMENT,
-        }.get(self, WordScannerToken.INVALID)
+        return WordScannerState._TOKEN_MAP.get(self, WordScannerToken.INVALID)
+
+# Inject some helper attributes into WordScannerState
+WordScannerState._ACCEPTING = frozenset([
+    WordScannerState.EOF, WordScannerState.BARE_WORD,
+    WordScannerState.QUOTED_WORD_END, WordScannerState.SPACE,
+    WordScannerState.COMMENT_END, WordScannerState.COMMA,
+    WordScannerState.EQUALS
+])
+WordScannerState._TOKEN_MAP = {
+    WordScannerState.EOF: WordScannerToken.EOF,
+    WordScannerState.BARE_WORD: WordScannerToken.WORD,
+    WordScannerState.QUOTED_WORD_END: WordScannerToken.WORD,
+    WordScannerState.SPACE: WordScannerToken.SPACE,
+    WordScannerState.COMMENT_END: WordScannerToken.COMMENT,
+    WordScannerState.COMMA: WordScannerToken.COMMA,
+    WordScannerState.EQUALS: WordScannerToken.EQUALS,
+}
 
 
 class WordScanner(ScannerBase):
@@ -200,12 +212,35 @@ class WordScanner(ScannerBase):
         >>> scanner = WordScanner('\\n\\t\\v\\rword')
         >>> while True:
         ...     token, lexeme = scanner.get_token(ignore_irrelevant=False)
-        ...     print(token, repr(lexeme))
+        ...     print('{:6} {!a}'.format(token.name, lexeme))
         ...     if token == scanner.TOKEN_EOF:
         ...         break
-        WordScannerToken.SPACE '\\n\\t\\x0b\\r'
-        WordScannerToken.WORD 'word'
-        WordScannerToken.EOF ''
+        SPACE  '\\n\\t\\x0b\\r'
+        WORD   'word'
+        EOF    ''
+
+    The scanner has special provisions for recognizing some punctuation, this
+    includes the comma and the equals sign as shown below:
+
+        >>> for token, lexeme in WordScanner("k1=v1, k2=v2"):
+        ...     print('{:6} {!a}'.format(token.name, lexeme))
+        WORD   'k1'
+        EQUALS '='
+        WORD   'v1'
+        COMMA  ','
+        WORD   'k2'
+        EQUALS '='
+        WORD   'v2'
+
+    Since both can appear in regular expressions, they can be quoted to prevent
+    being recognized for their special meaning:
+
+        >>> for token, lexeme in WordScanner('k1="v1, k2=v2"'):
+        ...     print('{:6} {!a}'.format(token.name, lexeme))
+        WORD   'k1'
+        EQUALS '='
+        WORD   'v1, k2=v2'
+
     """
     STATE_ERROR = WordScannerState.ERROR
     STATE_START = WordScannerState.START
@@ -234,13 +269,17 @@ class WordScanner(ScannerBase):
                 return WordScannerState.COMMENT_INNER
             elif char == '"':
                 return WordScannerState.QUOTED_WORD_INNER
+            elif char == ',':
+                return WordScannerState.COMMA
+            elif char == '=':
+                return WordScannerState.EQUALS
             else:
                 return WordScannerState.BARE_WORD
         elif state is WordScannerState.SPACE:
             if char.isspace():
                 return WordScannerState.SPACE
         elif state is WordScannerState.BARE_WORD:
-            if char.isspace() or char == '\0' or char == '#':
+            if char.isspace() or char in '\0#,=':
                 return WordScannerState.ERROR
             else:
                 return WordScannerState.BARE_WORD
@@ -263,5 +302,9 @@ class WordScanner(ScannerBase):
         elif state is WordScannerState.QUOTED_WORD_END:
             pass
         elif state is WordScannerState.COMMENT_END:
+            pass
+        elif state is WordScannerState.COMMA:
+            pass
+        elif state is WordScannerState.EQUALS:
             pass
         return WordScannerState.ERROR

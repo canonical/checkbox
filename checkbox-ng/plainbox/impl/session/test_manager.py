@@ -25,7 +25,6 @@ Test definitions for plainbox.impl.session.manager module
 """
 
 from unittest import expectedFailure
-from unittest import TestCase
 
 from plainbox.abc import IJobDefinition
 from plainbox.impl.session import SessionManager

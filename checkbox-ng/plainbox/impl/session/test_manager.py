@@ -194,6 +194,7 @@ class SessionManagerTests(SignalTestCase):
         SessionStorageRepository=mock.DEFAULT,
         SessionState=mock.DEFAULT,
         SessionStorage=mock.DEFAULT,
+        SessionDeviceContext=mock.DEFAULT,
         WellKnownDirsHelper=mock.DEFAULT)
     def test_create_with_state(self, **mocks):
         """
@@ -217,8 +218,12 @@ class SessionManagerTests(SignalTestCase):
         mocks['WellKnownDirsHelper'].assert_called_with(storage)
         helper = mocks['WellKnownDirsHelper']()
         helper.populate.assert_called_with()
+        # Ensure that the device context was created with the right state object
+        mocks['SessionDeviceContext'].assert_called_with(self.state)
         # Ensure that the resulting manager has correct data inside
-        self.assertEqual(manager.state, self.state)
+        self.assertEqual(
+            manager.device_context_list, [mocks['SessionDeviceContext']()])
+        # self.assertEqual(manager.state, self.state)
         self.assertEqual(manager.storage, storage)
 
     def test_add_device_context(self):

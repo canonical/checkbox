@@ -550,33 +550,30 @@ command: [ -f ${PLAINBOX_SESSION_SHARE}/screen-capture.png ] && base64 ${PLAINBO
 _description: Attaches the simple screen capture file
 
 
-id: graphics/generator_screen-capture-internal
-_description: Simple screen capture using gnome-screenshot
-_summary: Obtains a simple screen capture
-plugin: local
-requires: package.name == 'gnome-screenshot'
-command: cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: shell
- id: graphics/`echo ${index}`_screen-capture-internal_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- _summary: Obtains a simple screen capture
- estimated_duration: 1.0
- requires: package.name == 'gnome-screenshot'
- command: gnome-screenshot --file ${PLAINBOX_SESSION_SHARE}/screen-capture.png
- _description: Obtains a simple screen capture using gnome-screenshot if present
- EOF
+unit: job
+id: graphics_card_resource
+plugin: resource
+command: graphics_card_resource
 
-id: graphics/generator_screen-capture-internal.png
-_summary: Attaches a simple screen capture
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: attachment
- id: `echo ${index}`_screen-capture-internal_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`.png
- depends: graphics/`echo ${index}`_screen-capture-internal_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- plugin: attachment
- _summary: Attaches a simple screen capture
- estimated_duration: 1.0
- command: [ -f ${PLAINBOX_SESSION_SHARE}/screen-capture.png ] && base64 ${PLAINBOX_SESSION_SHARE}/screen-capture.png
- _description: Attaches the simple screen capture file
- EOF
+unit: template
+template-unit: job
+template-resource: graphics_card_resource
+plugin: shell
+id: graphics/{index}_screen-capture-internal_{product}
+_summary: Obtains a simple screen capture of {product}
+estimated_duration: 1.0
+requires: package.name == 'gnome-screenshot'
+command: gnome-screenshot --file ${PLAINBOX_SESSION_SHARE}/screen-capture-{index}.png
+_description: Obtains a simple screen capture of {product} using gnome-screenshot if present
+
+unit: template
+template-unit: job
+template-resource: graphics_card_resource
+plugin: attachment
+id: graphics/${index}_screen-capture-internal_{product}
+depends: graphics/${index}_screen-capture-internal_{product}
+_summary: Attaches a simple screen capture of {product}
+estimated_duration: 1.0
+command: [ -f ${PLAINBOX_SESSION_SHARE}/screen-capture-{index}.png ] && base64 ${PLAINBOX_SESSION_SHARE}/screen-capture-{index}.png
+_description: Attaches the simple screen capture file of {product}
 

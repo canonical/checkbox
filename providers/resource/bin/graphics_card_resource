@@ -18,6 +18,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import re
 import subprocess
 import shlex
 
@@ -115,6 +116,12 @@ def main():
                 except ValueError:
                     fake_product = "PCI ID unknown"
                 record['product'] = fake_product
+            # replace characters that would make for an invalid job id
+            record['product'] = re.sub(r"[^_a-zA-Z0-9-]",
+                                       "",
+                                       record['product'].replace(
+                                           " ",
+                                           "_"))
             # Finally, print the record
             items = ["{key}: {value}".format(key=k, value=record[k])
                      for k in sorted(record.keys())]

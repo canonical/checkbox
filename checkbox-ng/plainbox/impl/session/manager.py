@@ -113,7 +113,7 @@ class SessionManager(pod.POD):
         A list of session device context objects
 
         .. note::
-            You must not modify the return value.
+            You must not modify this field directly.
 
             This is not enforced but please use the
             :meth:`add_device_context()` or :meth:`remove_device_context()` if

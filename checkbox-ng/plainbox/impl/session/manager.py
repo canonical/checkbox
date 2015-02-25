@@ -43,6 +43,7 @@ from plainbox.impl.session.storage import LockedStorageError
 from plainbox.impl.session.storage import SessionStorage
 from plainbox.impl.session.storage import SessionStorageRepository
 from plainbox.impl.session.suspend import SessionSuspendHelper
+from plainbox.impl.unit.testplan import TestPlanUnit
 from plainbox.vendor.morris import signal
 
 logger = logging.getLogger("plainbox.session.manager")
@@ -131,6 +132,24 @@ class SessionManager(pod.POD):
         type=SessionStorage,
         initial=pod.MANDATORY,
         assign_filter_list=[pod.typed, pod.const])
+
+    test_plans = pod.Field(
+        doc="""
+        Test plans that this session is processing.
+
+        This field contains a tuple of test plans that are active in the
+        session. Any changes here are propagated to each device context
+        participating in the session. This in turn makes all of the overrides
+        defined by those test plans effective.
+
+        .. note::
+            Currently there is no facitly that would allow to use this field to
+            drive test execution. Such facility is likely to be added later.
+        """,
+        type=tuple,
+        initial=(),
+        assign_filter_list=[
+            pod.typed, pod.typed.sequence(TestPlanUnit), pod.unique])
 
     @property
     def default_device_context(self):

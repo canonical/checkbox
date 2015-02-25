@@ -75,7 +75,7 @@ class NonEmptyPatternIntersectionValidator(FieldValidatorBase):
             "field_value_map[id]", compute_value_map, context, 'id')
         # TODO: compute potential_id_map
         advice = _("selector {!a} may not match any known or generated job")
-        error = _("selector {!a} doesn't match any known or generated job")
+        # error = _("selector {!a} doesn't match any known or generated job")
         qual_gen = unit._gen_qualifiers(
             str(field), getattr(unit, str(field)), True)
         for qual in qual_gen:
@@ -98,9 +98,9 @@ class NonEmptyPatternIntersectionValidator(FieldValidatorBase):
                 target_id = qual.matcher.value
                 if target_id not in id_map:
                     assert qual.origin.source is unit.origin.source
-                    yield parent.error(
+                    yield parent.advice(
                         unit, field, Problem.bad_reference,
-                        error.format(target_id),
+                        advice.format(target_id),
                         origin=qual.origin)
             else:
                 # NOTE: unsupported matcher

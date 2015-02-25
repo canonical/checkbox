@@ -35,6 +35,7 @@ import logging
 import os
 
 from plainbox.i18n import gettext as _, ngettext
+from plainbox.impl import pod
 from plainbox.impl.session.resume import SessionResumeHelper
 from plainbox.impl.session.state import SessionDeviceContext
 from plainbox.impl.session.state import SessionState
@@ -47,7 +48,7 @@ from plainbox.vendor.morris import signal
 logger = logging.getLogger("plainbox.session.manager")
 
 
-class WellKnownDirsHelper:
+class WellKnownDirsHelper(pod.POD):
     """
     Helper class that knows about well known directories for SessionStorage.
 
@@ -56,17 +57,11 @@ class WellKnownDirsHelper:
     method :meth:`populate()` to create all of those directories, if needed.
     """
 
-    def __init__(self, storage):
-        # assert isinstance(storage, SessionStorage)
-        self._storage = storage
-
-    @property
-    def storage(self):
-        """
-        :class:`~plainbox.impl.session.storage.SessionStorage` associated with
-        this helper
-        """
-        return self._storage
+    storage = pod.Field(
+        doc="SessionStorage associated with this helper",
+        type=SessionStorage,
+        initial=pod.MANDATORY,
+        assign_filter_list=[pod.const, pod.typed])
 
     def populate(self):
         """

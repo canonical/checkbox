@@ -23,7 +23,8 @@ plainbox.impl.test_session
 
 Test definitions for plainbox.impl.session module
 """
-
+from doctest import DocTestSuite
+from doctest import REPORT_NDIFF
 from unittest import TestCase
 
 from plainbox.abc import IExecutionController
@@ -45,6 +46,12 @@ from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.unit import Unit
 from plainbox.vendor import mock
 from plainbox.vendor.morris import SignalTestCase
+
+
+def load_tests(loader, tests, ignore):
+    tests.addTests(DocTestSuite(
+        'plainbox.impl.session.state', optionflags=REPORT_NDIFF))
+    return tests
 
 
 class SessionStateSmokeTests(TestCase):

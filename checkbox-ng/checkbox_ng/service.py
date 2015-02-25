@@ -1311,7 +1311,8 @@ class ServiceWrapper(PlainBoxObjectWrapper):
             A list of jobs that were selected.
         """
         if len(self.native.session_list) > 0:
-            job_list = self.native.session_list[0].job_list
+            legacy_session = self.native.session_list[0]
+            job_list = legacy_session.job_list
         else:
             job_list = list(itertools.chain(*[
                 p.job_list for p in self.native.provider_list]))

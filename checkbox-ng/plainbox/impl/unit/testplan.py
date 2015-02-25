@@ -623,6 +623,8 @@ class TestPlanUnitSupport:
         overridden value.
         """
         override_list = []
+        if testplan.category_overrides is None:
+            return override_list
 
         class V(Visitor):
 
@@ -647,6 +649,8 @@ class TestPlanUnitSupport:
         is the overridden value.
         """
         override_list = []
+        if testplan.certification_status_overrides is None:
+            return override_list
 
         class V(Visitor):
 
@@ -671,6 +675,8 @@ class TestPlanUnitSupport:
         subsequently packed into a tuple ``(pattern, field_value_list)``.
         """
         override_list = []
+        if testplan.include is None:
+            return override_list
 
         class V(Visitor):
 

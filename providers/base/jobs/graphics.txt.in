@@ -563,7 +563,7 @@ id: graphics/{index}_screen-capture-internal_{product}
 _summary: Obtains a simple screen capture of {product}
 estimated_duration: 1.0
 requires: package.name == 'gnome-screenshot'
-command: gnome-screenshot --file ${PLAINBOX_SESSION_SHARE}/screen-capture-{index}.png
+command: gnome-screenshot --file $PLAINBOX_SESSION_SHARE/screen-capture-{index}.png
 _description: Obtains a simple screen capture of {product} using gnome-screenshot if present
 
 unit: template
@@ -574,6 +574,6 @@ id: graphics/${index}_screen-capture-internal_{product}
 depends: graphics/${index}_screen-capture-internal_{product}
 _summary: Attaches a simple screen capture of {product}
 estimated_duration: 1.0
-command: [ -f ${PLAINBOX_SESSION_SHARE}/screen-capture-{index}.png ] && base64 ${PLAINBOX_SESSION_SHARE}/screen-capture-{index}.png
+command: [ -f $PLAINBOX_SESSION_SHARE/screen-capture-{index}.png ] && base64 $PLAINBOX_SESSION_SHARE/screen-capture-{index}.png
 _description: Attaches the simple screen capture file of {product}
 

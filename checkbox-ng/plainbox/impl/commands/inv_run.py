@@ -781,7 +781,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
                         job, job_state, self.config, ui)
             else:
                 if 'noreturn' in job.get_flag_set():
-                   ui.noreturn_job()
+                    ui.noreturn_job()
                 job_result = self.runner.run_job(
                     job, job_state, self.config, ui)
             if (self.is_interactive and

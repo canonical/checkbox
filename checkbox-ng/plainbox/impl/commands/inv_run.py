@@ -682,6 +682,14 @@ class RunInvocation(CheckBoxInvocationMixIn):
             self.ns, self.state.job_list)
         print(self.C.header(_("Analyzing Jobs")))
         self._update_desired_job_list(desired_job_list)
+        # Search each provider for the desired test plan
+        if self.ns.test_plan is not None:
+            # TODO: add high-level unit lookup functions
+            for provider in self.provider_list:
+                for unit in provider.id_map.get(self.ns.test_plan, ()):
+                    if unit.Meta.name == 'test plan':
+                        self.manager.test_plans = (unit,)
+                        break
 
     def maybe_warm_up_authentication(self):
         """

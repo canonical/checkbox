@@ -714,3 +714,32 @@ class sequence_type_check_assign_filter:
 
 
 typed.sequence = sequence_type_check_assign_filter
+
+
+@modify_field_docstring("unique elements (sequence elements cannot repeat)")
+def unique_elements_assign_filter(
+        instance: POD, field: Field, old: "Any", new: "Any") -> "Any":
+    """
+    An assign filter that ensures a sequence has non-repeating items.
+
+    :param instance:
+        A subclass of :class:`POD` that contains ``field``
+    :param field:
+        The :class:`Field` being assigned to
+    :param old:
+        The current value of the field
+    :param new:
+        The proposed value of the field
+    :returns:
+        ``new``, as-is
+    :raises ValueError:
+        if ``new`` contains any duplicates
+    """
+    seen = set()
+    for item in new:
+        if new in seen:
+            raise ValueError("Duplicate element: {!r}".format(item))
+        seen.add(item)
+    return new
+
+unique = unique_elements_assign_filter

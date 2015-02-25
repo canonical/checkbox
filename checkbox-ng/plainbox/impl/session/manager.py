@@ -154,8 +154,8 @@ class SessionManager:
             present in the session. This is never the case for applications
             using the single-device APIs.
         """
-        return (self._device_context_list[0]
-                if len(self._device_context_list) > 0 else None)
+        return (self.device_context_list[0]
+                if len(self.device_context_list) > 0 else None)
 
     @property
     def state(self):
@@ -383,14 +383,14 @@ class SessionManager:
         This method fires the :meth:`on_device_context_added()` signal
         """
         if any(other_context.device == context.device
-               for other_context in self._device_context_list):
+               for other_context in self.device_context_list):
             raise ValueError(
                 _("attmpting to add a context for device {} which is"
                   " already represented in this session"
                   " manager").format(context.device))
-        if len(self._device_context_list) > 0:
+        if len(self.device_context_list) > 0:
             self._too_many_device_context_objects()
-        self._device_context_list.append(context)
+        self.device_context_list.append(context)
         self.on_device_context_added(context)
 
     def add_local_device_context(self):
@@ -412,11 +412,11 @@ class SessionManager:
 
         This method fires the :meth:`on_device_context_removed()` signal
         """
-        if context not in self._device_context_list:
+        if context not in self.device_context_list:
             raise ValueError(_(
                 "attempting to remove a device context not present in this"
                 " session manager"))
-        self._device_context_list.remove(context)
+        self.device_context_list.remove(context)
         self.on_device_context_removed(context)
 
     @signal

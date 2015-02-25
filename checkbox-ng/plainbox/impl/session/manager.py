@@ -87,7 +87,18 @@ class WellKnownDirsHelper(pod.POD):
         return os.path.join(self.storage.location, "io-logs")
 
 
-class SessionManager:
+def at_most_one_context_filter(
+    instance: pod.POD, field: pod.Field, old: "Any", new: "Any"
+):
+    if len(new) > 1:
+        raise ValueError(_(
+            "session manager currently doesn't support sessions"
+            " involving multiple devices (a.k.a multi-node testing)"
+        ))
+    return new
+
+
+class SessionManager(pod.POD):
     """
     Manager class for coupling SessionStorage with SessionState.
 
@@ -97,32 +108,8 @@ class SessionManager:
     associated with each :class:`SessionManager`.
     """
 
-    def __init__(self, device_context_list, storage):
-        """
-        Initialize a manager with a list of session device context objects and
-        a storage object that will be used for managing storage for all testing
-        related to those objects.
-
-        :param device_context_list:
-            A list of SessionDeviceContext instances. Currently at most one
-            object may exist in that list but this restriction will be lifted
-            later on without changing the interface.
-        :param storage:
-            A SessionStorage instance.
-        """
-        if len(device_context_list) > 1:
-            self._too_many_device_context_objects()
-        self._device_context_list = device_context_list
-        self._storage = storage
-        logger.debug(
-            # TRANSLATORS: please don't translate 'SessionManager'
-            # and 'device_context_list'
-            _("Created SessionManager with device_context_list:%r"
-              " and storage:%r"), device_context_list, storage)
-
-    @property
-    def device_context_list(self):
-        """
+    device_context_list = pod.Field(
+        doc="""
         A list of session device context objects
 
         .. note::
@@ -132,8 +119,18 @@ class SessionManager:
             :meth:`add_device_context()` or :meth:`remove_device_context()` if
             you want to manipulate the list.  Currently you cannot reorder the
             list of context objects.
-        """
-        return self._device_context_list
+        """,
+        type=list,
+        initial=pod.MANDATORY,
+        assign_filter_list=[
+            pod.typed, pod.typed.sequence(SessionDeviceContext),
+            pod.const, at_most_one_context_filter])
+
+    storage = pod.Field(
+        doc="A SesssionStorage instance",
+        type=SessionStorage,
+        initial=pod.MANDATORY,
+        assign_filter_list=[pod.typed, pod.const])
 
     @property
     def default_device_context(self):
@@ -160,14 +157,6 @@ class SessionManager:
         """
         if self.default_device_context is not None:
             return self.default_device_context.state
-
-    @property
-    def storage(self):
-        """
-        :class:`~plainbox.impl.session.storage.SessionStorage` associated with
-        this manager
-        """
-        return self._storage
 
     @classmethod
     def create(cls, repo=None, legacy_mode=False):

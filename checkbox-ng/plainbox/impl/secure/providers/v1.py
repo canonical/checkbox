@@ -20,7 +20,6 @@
 =========================================================================
 """
 import collections
-import errno
 import gettext
 import logging
 import os

@@ -19,7 +19,9 @@
 :mod:`plainbox.impl.session.state` -- session state handling
 ============================================================
 """
+import collections
 import logging
+import re
 
 from plainbox.i18n import gettext as _
 from plainbox.impl import deprecated
@@ -29,6 +31,7 @@ from plainbox.impl.depmgr import DependencySolver
 from plainbox.impl.session.jobs import JobState
 from plainbox.impl.session.jobs import UndesiredJobReadinessInhibitor
 from plainbox.impl.unit.job import JobDefinition
+from plainbox.impl.unit.testplan import TestPlanUnitSupport
 from plainbox.vendor.morris import signal
 
 
@@ -187,6 +190,11 @@ class SessionDeviceContext:
         mutable and can be grown (or shrunk in some cases) when jobs are
         created at runtime.
 
+    :attr _test_plan_list:
+        A list of test plans that this device will be executing. This is stored
+        so that all job changes can automatically apply field overrides to job
+        state.
+
     :attr _device:
         Always None, this is a future extension point
 
@@ -198,6 +206,8 @@ class SessionDeviceContext:
 
     # Cache key that stores the list of execution controllers
     _CACHE_EXECUTION_CTRL_LIST = 'execution_controller_list'
+    # Cache key that stores the map of field overrides
+    _CACHE_OVERRIDE_MAP = 'override_map'
 
     def __init__(self, state=None):
         """
@@ -230,6 +240,7 @@ class SessionDeviceContext:
                 unit.provider for unit in self._unit_list
             })
             self._state = state
+        self._test_plan_list = []
         # Connect SessionState's signals to fire our signals. This
         # way all manipulation done through the SessionState object
         # can be observed through the SessionDeviceContext object
@@ -303,6 +314,41 @@ class SessionDeviceContext:
         """
         return self.compute_shared(
             self._CACHE_EXECUTION_CTRL_LIST, self._compute_execution_ctrl_list)
+
+    @property
+    def override_map(self):
+        """
+        A list of execution controllers applicable in this context.
+
+        :returns:
+            A list of IExecutionController objects
+
+        .. note::
+            The return value is different whenever a provider is added to the
+            context. If you have obtained this value in the past it may be
+            no longer accurate.
+        """
+        return self.compute_shared(
+            self._CACHE_OVERRIDE_MAP, self._compute_override_map)
+
+    def set_test_plan_list(self, test_plan_list: "List[TestPlanUnit]"):
+        """
+        Compute all of the effective job state values.
+
+        :param test_plan_list:
+            The list of test plans to consider
+
+        This method is intended to be called exactly once per session, after
+        the application determines the set of test plans it intends to execute.
+
+        The method will collect all of the override values expoxed by all of
+        the test plans and apply them in sequence. Note that correct
+        applications must also pefrorm micro-updates whenever a new test job is
+        added to the system.
+        """
+        self._test_plan_list = test_plan_list
+        self._invalidate_override_map()
+        self._bulk_override_update()
 
     def add_provider(self, provider, add_units=True):
         """
@@ -416,6 +462,15 @@ class SessionDeviceContext:
         Signal sent whenever a unit is added to the context.
         """
         logger.debug(_("Unit %s added to context %s"), unit, self)
+        if unit.Meta.name == 'job':
+            self.on_job_added(unit)
+
+    @signal
+    def on_job_added(self, job):
+        """
+        Signal sent whenever a new job definition unit is added to the contex
+        """
+        self._override_update(job)
 
     @signal
     def on_unit_removed(self, unit):
@@ -483,6 +538,37 @@ class SessionDeviceContext:
         key that is used to store the list of execution controllers.
         """
         self.invalidate_shared(self._CACHE_EXECUTION_CTRL_LIST)
+
+    def _compute_override_map(self):
+        """
+        Internal method that computes the map of field overrides
+        """
+        override_map = collections.defaultdict(list)
+        for test_plan in self._test_plan_list:
+            support = TestPlanUnitSupport(test_plan)
+            for pattern, override_list in support.override_list:
+                override_map[pattern].extend(override_list)
+        return override_map
+
+    def _invalidate_override_map(self, *args, **kwargs):
+        """
+        Internal method that invalidates the 'override_map' cache
+        key that is used to store the map of field overrides.
+        """
+        self.invalidate_shared(self._CACHE_OVERRIDE_MAP)
+
+    def _bulk_override_update(self):
+        for job_state in self.state.job_state_map.values():
+            job = job_state.job
+            for pattern, override_list in self.override_map.items():
+                if re.match(pattern, job.id):
+                    job_state.apply_overrides(override_list)
+
+    def _override_update(self, job):
+        job_state = self.state.job_state_map[job.id]
+        for pattern, override_list in self.override_map.items():
+            if re.match(pattern, job.id):
+                job_state.apply_overrides(override_list)
 
 
 class SessionState:

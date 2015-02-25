@@ -709,7 +709,13 @@ def select_jobs(job_list, qualifier_list):
             # optimize the super-common case where a qualifier refers to
             # a specific job by using the id_to_index_map to instantly
             # perform the requested operation on a single job
-            j_index = id_to_index_map[qualifier.matcher.value]
+            try:
+                j_index = id_to_index_map[qualifier.matcher.value]
+            except KeyError:
+                # The lookup can fail if the pattern is a constant reference to
+                # a generated job that doens't exist yet. To maintain correctness
+                # we should just ignore it, as it would not match anything yet.
+                continue
             job = job_list[j_index]
             vote = qualifier.get_vote(job)
             if vote == IJobQualifier.VOTE_INCLUDE:

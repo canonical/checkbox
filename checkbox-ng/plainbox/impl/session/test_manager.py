@@ -136,6 +136,8 @@ class SessionManagerTests(SignalTestCase):
         verify that SessionManager.create() correctly sets up
         storage repository and creates session directories
         """
+        mocks['SessionStorage'].create.return_value = mock.MagicMock(
+            spec_set=SessionStorage)
         # Create the new manager
         manager = SessionManager.create()
         # Ensure that a default repository was created
@@ -164,6 +166,8 @@ class SessionManagerTests(SignalTestCase):
         verify that SessionManager.create_with_unit_list() correctly sets up
         storage repository and creates session directories
         """
+        mocks['SessionStorage'].create.return_value = mock.MagicMock(
+            spec_set=SessionStorage)
         # Mock unit list
         unit_list = mock.Mock(name='unit_list')
         # Create the new manager
@@ -197,6 +201,8 @@ class SessionManagerTests(SignalTestCase):
         verify that SessionManager.create_with_state() correctly sets up
         storage repository and creates session directories
         """
+        mocks['SessionStorage'].create.return_value = mock.MagicMock(
+            spec_set=SessionStorage)
         # Mock an empty list of units in teh session state object
         self.state.unit_list = []
         # Create the new manager

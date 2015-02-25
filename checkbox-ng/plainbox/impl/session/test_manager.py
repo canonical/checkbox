@@ -112,7 +112,10 @@ class SessionManagerTests(SignalTestCase):
             resumed_state = mock.Mock(spec_set=SessionState)
             resumed_state.unit_list = unit_list
             helper_cls().resume.return_value = resumed_state
-            manager = SessionManager.load_session(unit_list, self.storage)
+            # NOTE: mock away _propagate_test_plans() so that we don't get
+            # unwanted side effects we're not testing here.
+            with mock.patch.object(SessionManager, '_propagate_test_plans'):
+                manager = SessionManager.load_session(unit_list, self.storage)
         # Ensure that the storage object was used to load the session snapshot
         self.storage.load_checkpoint.assert_called_with()
         # Ensure that the helper was instantiated with the unit list, flags and

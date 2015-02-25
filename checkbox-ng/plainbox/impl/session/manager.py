@@ -133,6 +133,9 @@ class SessionManager(pod.POD):
         initial=pod.MANDATORY,
         assign_filter_list=[pod.typed, pod.const])
 
+    def _on_test_plans_changed(self, old: "Any", new: "Any") -> None:
+        self._propagate_test_plans()
+
     test_plans = pod.Field(
         doc="""
         Test plans that this session is processing.
@@ -148,6 +151,8 @@ class SessionManager(pod.POD):
         """,
         type=tuple,
         initial=(),
+        notify=True,
+        notify_fn=_on_test_plans_changed,
         assign_filter_list=[
             pod.typed, pod.typed.sequence(TestPlanUnit), pod.unique])
 
@@ -430,6 +435,7 @@ class SessionManager(pod.POD):
         logger.debug(
             _("Device context %s added to session manager %s"),
             context, self)
+        self._propagate_test_plans()
 
     @signal
     def on_device_context_removed(self, context):
@@ -439,9 +445,16 @@ class SessionManager(pod.POD):
         logger.debug(
             _("Device context %s removed from session manager %s"),
             context, self)
+        self._propagate_test_plans()
 
     def _too_many_device_context_objects(self):
         raise ValueError(_(
             "session manager currently doesn't support sessions"
             " involving multiple devices (a.k.a multi-node testing)"
         ))
+
+    def _propagate_test_plans(self):
+        logger.debug(_("Propagating test plans to all devices"))
+        test_plans = self.test_plans
+        for context in self.device_context_list:
+            context.set_test_plan_list(test_plans)

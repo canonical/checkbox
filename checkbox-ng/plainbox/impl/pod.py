@@ -58,6 +58,7 @@ from collections import OrderedDict
 from collections import namedtuple
 from functools import total_ordering
 from logging import getLogger
+from textwrap import dedent
 
 from plainbox.i18n import gettext as _
 from plainbox.vendor.morris import signal
@@ -180,7 +181,7 @@ class Field:
 
     def __init__(self, doc=None, type=None, initial=None, initial_fn=None,
                  notify=False, assign_filter_list=None):
-        self.__doc__ = doc
+        self.__doc__ = dedent(doc) if doc is not None else None
         self.type = type
         self.initial = initial
         self.initial_fn = initial_fn

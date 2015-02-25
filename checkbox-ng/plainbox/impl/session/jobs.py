@@ -314,3 +314,52 @@ class JobState(pod.POD):
                            for inhibitor in self.readiness_inhibitor_list)))
         else:
             return _("job can be started")
+
+    def apply_overrides(self, override_list: "List[Tuple[str, Any]]"):
+        """
+        Apply overrides to effective jop values.
+
+        This method is automatically called by :class:`SessionDeviceContext`
+        to implement effective overrides originating from test plan data.
+
+        :param override_list:
+            A list, as exposed by values of
+            :attr:`TestPlanUnitSupport.override_list`, composed of a sequence
+            of pairs ``(field, value)``, where ``field`` is the name of the
+            field to override (without the prefix ``effective_``) and value is
+            any valid value of that field.
+        :raises AttributeError:
+            If any of the ``field``s refer to an unknown field.
+        :raises ValueError:
+            If any of the ``field``s refer to fields that are not designated
+            as overridable.
+        :raises ValueError:
+            If the ``value`` supplied is incorrect for the given field.
+        :raises TypeError:
+            If the type of the ``value`` supplied is incorrect for the given
+            field.
+
+        .. note::
+            Consult field specification for details on what types and values
+            are valid for that field.
+
+        Example:
+
+            >>> from plainbox.vendor.mock import Mock
+            >>> job = Mock(spec=JobDefinition)
+            >>> job_state = JobState(job)
+            >>> job_state.apply_overrides([
+            ...     ('category_id', 'new-category-id'),
+            ...     ('certification_status', 'blocker')])
+            >>> job_state.effective_category_id
+            'new-category-id'
+            >>> job_state.effective_certification_status
+            'blocker'
+        """
+        for field, value in override_list:
+            effective_field = 'effective_{}'.format(field)
+            effective_field_obj = getattr(self.__class__, effective_field)
+            if not isinstance(effective_field_obj, OverridableJobField):
+                raise ValueError(_('{!r} is not overridable').format(field))
+            setattr(self, effective_field, value)
+        logger.debug("Applied overrides %r to job %r", override_list, self.job)

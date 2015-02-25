@@ -21,7 +21,8 @@ plainbox.impl.test_session
 
 Test definitions for plainbox.impl.session module
 """
-
+from doctest import DocTestSuite
+from doctest import REPORT_NDIFF
 from unittest import TestCase, expectedFailure
 
 from plainbox.abc import IJobResult
@@ -30,6 +31,12 @@ from plainbox.impl.session import JobReadinessInhibitor
 from plainbox.impl.session import JobState
 from plainbox.impl.session import UndesiredJobReadinessInhibitor
 from plainbox.impl.testing_utils import make_job, make_job_result
+
+
+def load_tests(loader, tests, ignore):
+    tests.addTests(DocTestSuite(
+        'plainbox.impl.session.jobs', optionflags=REPORT_NDIFF))
+    return tests
 
 
 class JobReadinessInhibitorTests(TestCase):

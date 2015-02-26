@@ -44,7 +44,7 @@ check_md5(){
 generate_iso(){
     # Generate ISO image
     echo "Creating ISO Image ..."
-    genisoimage -r -J -o $ISO_NAME $SAMPLE_FILE
+    genisoimage -input-charset UTF-8 -r -J -o $ISO_NAME $SAMPLE_FILE
     return $?
 }
 

@@ -431,6 +431,13 @@ class TestPlanWrapper(PlainBoxObjectWrapper):
         """
         return self.native.name or ""
 
+    @dbus.service.property(dbus_interface=WHITELIST_IFACE, signature="s")
+    def partial_id(self):
+        """
+        partial_id of this testplan
+        """
+        return self.native.partial_id or ""
+
 
 class JobResultWrapper(PlainBoxObjectWrapper):
     """

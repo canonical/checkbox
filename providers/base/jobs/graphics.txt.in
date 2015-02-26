@@ -571,7 +571,7 @@ template-unit: job
 template-resource: graphics_card_resource
 plugin: attachment
 id: graphics/{index}_screen-capture-internal_{product}
-depends: graphics/{index}_screen-capture-internal_{product}
+depends: "graphics/{index}_screen-capture-internal_{product}"
 _summary: Attaches a simple screen capture of {product}
 estimated_duration: 1.0
 command: [ -f $PLAINBOX_SESSION_SHARE/screen-capture-{index}.png ] && base64 $PLAINBOX_SESSION_SHARE/screen-capture-{index}.png

@@ -49,6 +49,10 @@ from plainbox.impl.unit.validators import UntranslatableFieldValidator
 from plainbox.impl.unit.validators import UselessFieldValidator
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
+from plainbox.impl.xparsers import Error
+from plainbox.impl.xparsers import Text
+from plainbox.impl.xparsers import Visitor
+from plainbox.impl.xparsers import WordList
 
 __all__ = ['JobDefinition', 'propertywithsymbols']
 
@@ -533,13 +537,20 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
         To combat a simple mistake where the jobs are space-delimited any
         mixture of white-space (including newlines) and commas are allowed.
         """
-        if self.depends:
-            return {
-                self.qualify_id(maybe_partial_id)
-                for maybe_partial_id in re.split('[\s,]+', self.depends)
-            }
-        else:
-            return set()
+        deps = set()
+        if self.depends is None:
+            return deps
+
+        class V(Visitor):
+
+            def visit_Text_node(visitor, node: Text):
+                deps.add(self.qualify_id(node.text))
+
+            def visit_Error_node(visitor, node: Error):
+                logger.warning(_("unable to parse depends: %s"), node.msg)
+
+        V().visit(WordList.parse(self.depends))
+        return deps
 
     def get_resource_dependencies(self):
         """

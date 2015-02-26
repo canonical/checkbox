@@ -1035,6 +1035,15 @@ class TestJobDefinition(TestCase):
         observed = job.get_environ_settings()
         self.assertEqual(expected, observed)
 
+    def test_dependency_parsing_quoted_word(self):
+        job = JobDefinition({
+            'id': 'id',
+            'plugin': 'plugin',
+            'depends': '"quoted word"'})
+        expected = set(['quoted word'])
+        observed = job.get_direct_dependencies()
+        self.assertEqual(expected, observed)
+
     def test_environ_parsing_single_word(self):
         job = JobDefinition({
             'id': 'id',

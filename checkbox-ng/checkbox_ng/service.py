@@ -420,9 +420,7 @@ class TestPlanWrapper(PlainBoxObjectWrapper):
     # Some internal helpers
 
     def _get_preferred_object_path(self):
-        # TODO: this clashes with providers, maybe use a random ID instead
-        return "/plainbox/whitelist/{}".format(
-            mangle_object_path(self.native.name))
+        return "/plainbox/whitelist/{}".format(self.native.checksum)
 
     # Value added
 

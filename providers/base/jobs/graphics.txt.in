@@ -559,7 +559,7 @@ unit: template
 template-unit: job
 template-resource: graphics_card_resource
 plugin: shell
-id: graphics/{index}_screen-capture-internal_{product}
+id: "graphics/{index}_screen-capture-internal_{product}"
 _summary: Obtains a simple screen capture of {product}
 estimated_duration: 1.0
 requires: package.name == 'gnome-screenshot'
@@ -570,7 +570,7 @@ unit: template
 template-unit: job
 template-resource: graphics_card_resource
 plugin: attachment
-id: graphics/{index}_screen-capture-internal_{product}
+id: graphics/{index}_screen-capture-internal_{product}.png
 depends: "graphics/{index}_screen-capture-internal_{product}"
 _summary: Attaches a simple screen capture of {product}
 estimated_duration: 1.0

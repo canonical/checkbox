@@ -123,7 +123,7 @@ cleanup(){
     cd $START_DIR
     echo "Now residing in $PWD"
     echo "Cleaning up ..."
-    umount $MOUNT_PT
+    umount "$MOUNT_PT"
     rm -fr $TEMP_DIR
     echo "Ejecting spent media ..."
     eject $OPTICAL_DRIVE

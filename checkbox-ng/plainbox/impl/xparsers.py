@@ -667,3 +667,64 @@ class IncludeStmtList(Node):
                 continue
             entries.append(IncludeStmt.parse(line, lineno, col_offset))
         return IncludeStmtList(initial_lineno, col_offset, entries)
+
+
+class WordList(Node):
+    """ node representing a list of words"""
+
+    entries = pod.Field("a list of words", list, initial_fn=list,
+                        assign_filter_list=[pod.typed,
+                                            pod.typed.sequence(Node),
+                                            pod.const])
+
+    @staticmethod
+    def parse(
+        text: str, lineno: int=1, col_offset: int=0
+    ) -> "WordList":
+        """
+        Parse a list of words.
+
+        Words are naturally separated by whitespace. Words can be quoted using
+        double quotes. Words can be optionally separated with commas although
+        those are discarded and entirely optional.
+
+        Some basic examples:
+
+            >>> WordList.parse("foo, bar")
+            WordList(entries=[Text(text='foo'), Text(text='bar')])
+            >>> WordList.parse("foo,bar")
+            WordList(entries=[Text(text='foo'), Text(text='bar')])
+            >>> WordList.parse("foo,,,,bar")
+            WordList(entries=[Text(text='foo'), Text(text='bar')])
+            >>> WordList.parse("foo,,,,bar,,")
+            WordList(entries=[Text(text='foo'), Text(text='bar')])
+
+        Words can be quoted, this allows us to include all kinds of characters
+        inside:
+
+            >>> WordList.parse('"foo bar"')
+            WordList(entries=[Text(text='foo bar')])
+
+        One word of caution, since we use one (and not a very smart one at
+        that) scanner, the equals sign is recognized and rejected as incorrect
+        input.
+
+            >>> WordList.parse("=")
+            WordList(entries=[Error(msg="Unexpected input: '='")])
+
+        """
+        entries = []
+        scanner = WordScanner(text)
+        while True:
+            token, lexeme = scanner.get_token()
+            if token == scanner.TOKEN_EOF:
+                break
+            elif token == scanner.TokenEnum.COMMA:
+                continue
+            elif token == scanner.TokenEnum.WORD:
+                entries.append(Text(lineno, col_offset, lexeme))
+            else:
+                entries.append(
+                    Error(lineno, col_offset,
+                          "Unexpected input: {!r}".format(lexeme)))
+        return WordList(lineno, col_offset, entries)

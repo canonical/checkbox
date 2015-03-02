@@ -190,23 +190,18 @@ _description:
  VERIFICATION:
      Did the tap open the Dash?
 
-plugin: user-interact
+plugin: shell
 id: touchpad/detected-as-mouse
 requires: dmi.product in ['Notebook','Laptop','Portable']
-estimated_duration: 30.0
+estimated_duration: 1.2
 command:
-    xinput list --name-only | grep "PS/2 Generic Mouse"
-    if [ $? ]; then
-        zenity --info --text "Oops, your touchpad seems to be detected as a mouse"
-        exit 1
+    info=`touchpad_driver_info`
+    if [ $? -eq 0 ]; then
+        echo "touchpad detected with driver: $info"
     else
-        touchpad_driver_info
+        echo "$info"
+        exit 1
     fi 
 _description:
- PURPOSE:
-     This test will test if your touchpad was detected as a mouse
- STEPS:
-     1. Please disconnect any external mouse / pointing device and click on Test
- VERIFICATION:
-     The verification of this test is automated.
+ This test will check if your touchpad was detected as a mouse.
 

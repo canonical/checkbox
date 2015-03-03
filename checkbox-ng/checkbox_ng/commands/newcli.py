@@ -225,11 +225,11 @@ class CliInvocation2(RunInvocation):
 
     def maybe_interactively_select_whitelists(self):
         if self.launcher.skip_whitelist_selection:
-            self._whitelists.extend(self.get_default_whitelists())
+            self._whitelists.extend(self.get_default_testplans())
         elif self.is_interactive and not self._whitelists:
             self._whitelists.extend(self.get_interactively_picked_whitelists())
         elif self.launcher.whitelist_selection:
-            self._whitelists.extend(self.get_default_whitelists())
+            self._whitelists.extend(self.get_default_testplans())
         logger.info(_("Selected whitelists: %r"), self._whitelists)
 
     def get_interactively_picked_whitelists(self):
@@ -258,13 +258,14 @@ class CliInvocation2(RunInvocation):
             self.provider_list, whitelist_name_list[selected_index])
             for selected_index in selected_list]
 
-    def get_default_whitelists(self):
-        whitelist_name_list = []
+    def get_default_testplans(self):
+        testplans = []
         for provider in self.provider_list:
-            whitelist_name_list.extend([
-                w for w in provider.whitelist_list if re.search(
-                    self.launcher.whitelist_selection, w.name)])
-        return whitelist_name_list
+            testplans.extend([
+                unit.get_qualifier() for unit in provider.unit_list if
+                unit.Meta.name == 'test plan' and re.search(
+                    self.launcher.whitelist_selection, unit.partial_id)])
+        return testplans
 
     def create_exporter(self):
         """

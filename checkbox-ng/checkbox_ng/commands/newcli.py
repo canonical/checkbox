@@ -49,6 +49,7 @@ from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.session import SessionMetaData
 from plainbox.impl.transport import get_all_transports
 from plainbox.impl.transport import TransportError
+from plainbox.impl.unit.testplan import TestPlanUnit
 from plainbox.vendor.textland import get_display
 
 from checkbox_ng.misc import SelectableJobTreeNode
@@ -142,6 +143,10 @@ class CliInvocation2(RunInvocation):
             self.show_welcome_screen()
             # Maybe allow the user to do a manual whitelist selection
             self.maybe_interactively_select_whitelists()
+            testplans = [t for t in self._whitelists
+                         if isinstance(t, TestPlanUnit)]
+            if testplans:
+                self.manager.test_plans = tuple(testplans)
             # Store the application-identifying meta-data and checkpoint the
             # session.
             self.store_application_metadata()

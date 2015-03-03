@@ -30,7 +30,6 @@ from gettext import gettext as _
 from logging import getLogger
 from shutil import copyfileobj
 import io
-import json
 import operator
 import os
 import re
@@ -154,8 +153,6 @@ class CliInvocation2(RunInvocation):
                 self.select_local_jobs()
                 self.run_all_selected_jobs()
             self.interactively_pick_jobs_to_run()
-        else:
-            self.load_app_blob()
         # Maybe ask the secure launcher to prompt for the password now. This is
         # imperfect as we are going to run local jobs and we cannot see if they
         # might need root or not. This cannot be fixed before template jobs are
@@ -173,20 +170,7 @@ class CliInvocation2(RunInvocation):
 
     def store_application_metadata(self):
         super().store_application_metadata()
-        self.metadata.app_blob = json.dumps([
-            whitelist.origin.source.filename
-            for whitelist in self._whitelists
-        ]).encode("UTF-8")
-        logger.info("Saved whitelist mask: %r", self._whitelists)
-
-    def load_app_blob(self):
-        whitelist_filename_list = json.loads(
-            self.metadata.app_blob.decode("UTF-8"))
-        whitelist_list = [
-            WhiteList.from_file(filename)
-            for filename in whitelist_filename_list]
-        self._whitelists = whitelist_list
-        logger.info("Loaded whitelist mask: %r", self._whitelists)
+        self.metadata.app_blob = b''
 
     def show_welcome_screen(self):
         text = self.launcher.text

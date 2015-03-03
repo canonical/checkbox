@@ -182,7 +182,8 @@ class CliInvocation2(RunInvocation):
             # Process testplan command line options
             self.select_testplan()
             # Maybe allow the user to do a manual whitelist selection
-            self.maybe_interactively_select_whitelists()
+            if not self._whitelists:
+                self.maybe_interactively_select_whitelists()
             testplans = [t for t in self._whitelists
                          if isinstance(t, TestPlanUnit)]
             if testplans:

@@ -354,7 +354,7 @@ class CliInvocation2(RunInvocation):
             exporter_list.append(XLSXSessionStateExporter)
         # We'd like these options for our reports.
         exp_options = ['with-sys-info', 'with-summary', 'with-job-description',
-                       'with-text-attachments']
+                       'with-text-attachments', 'with-certification-status']
         for exporter_cls in exporter_list:
             # Exporters may support different sets of options, ensure we don't
             # pass an unsupported one (which would cause a crash)

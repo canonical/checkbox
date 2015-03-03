@@ -135,6 +135,17 @@ class CliInvocation2(RunInvocation):
             self._whitelists.append(
                 self.get_whitelist_from_file(self.config.whitelist))
 
+    def select_testplan(self):
+        # Add the test plan
+        if self.ns.test_plan is not None:
+            for provider in self.provider_list:
+                for unit in provider.id_map[self.ns.test_plan]:
+                    if unit.Meta.name == 'test plan':
+                        self._whitelists.append(unit.get_qualifier())
+                        return
+            else:
+                logger.error(_("There is no test plan: %s"), self.ns.test_plan)
+
     def run(self):
         return self.do_normal_sequence()
 
@@ -167,6 +178,8 @@ class CliInvocation2(RunInvocation):
         if not resumed:
             # Show the welcome message
             self.show_welcome_screen()
+            # Process testplan command line options
+            self.select_testplan()
             # Maybe allow the user to do a manual whitelist selection
             self.maybe_interactively_select_whitelists()
             testplans = [t for t in self._whitelists

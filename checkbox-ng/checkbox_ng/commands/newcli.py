@@ -35,7 +35,6 @@ import os
 import re
 import sys
 
-from plainbox.impl.applogic import get_whitelist_by_name
 from plainbox.impl.commands.inv_run import RunInvocation
 from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter import get_all_exporters
@@ -48,7 +47,6 @@ from plainbox.impl.secure.qualifiers import FieldQualifier
 from plainbox.impl.secure.qualifiers import OperatorMatcher
 from plainbox.impl.secure.qualifiers import RegExpJobQualifier
 from plainbox.impl.secure.qualifiers import select_jobs
-from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.session import SessionMetaData
 from plainbox.impl.transport import get_all_transports
 from plainbox.impl.transport import TransportError

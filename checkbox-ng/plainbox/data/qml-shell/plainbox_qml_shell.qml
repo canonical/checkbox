@@ -97,7 +97,7 @@ MainView {
 
     Loader {
         id: loader
-        visible: false
+        anchors.fill: parent
         onLoaded: loader.item.testDone.connect(testDone)
     }
 

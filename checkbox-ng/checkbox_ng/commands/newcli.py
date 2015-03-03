@@ -227,36 +227,38 @@ class CliInvocation2(RunInvocation):
         if self.launcher.skip_whitelist_selection:
             self._whitelists.extend(self.get_default_testplans())
         elif self.is_interactive and not self._whitelists:
-            self._whitelists.extend(self.get_interactively_picked_whitelists())
+            self._whitelists.extend(self.get_interactively_picked_testplans())
         elif self.launcher.whitelist_selection:
             self._whitelists.extend(self.get_default_testplans())
         logger.info(_("Selected whitelists: %r"), self._whitelists)
 
-    def get_interactively_picked_whitelists(self):
+    def get_interactively_picked_testplans(self):
         """
         Show an interactive dialog that allows the user to pick a list of
-        whitelists. The set of whitelists is limited to those offered by the
+        testplans. The set of testplans is limited to those offered by the
         'default_providers' setting.
 
         :returns:
-            A list of selected whitelists
+            A list of selected testplans
         """
-        whitelist_name_list = whitelist_selection = []
+        testplans = []
+        testplan_selection = []
         for provider in self.provider_list:
-            whitelist_name_list.extend([
-                whitelist.name for whitelist in provider.whitelist_list
-                if re.search(self.launcher.whitelist_filter, whitelist.name)])
-        whitelist_selection = [
-            whitelist_name_list.index(w) for w in whitelist_name_list if
-            re.search(self.launcher.whitelist_selection, w)]
+            testplans.extend(
+                [unit for unit in provider.unit_list if
+                 unit.Meta.name == 'test plan' and
+                 re.search(self.launcher.whitelist_filter, unit.partial_id)])
+        testplan_name_list = [testplan.tr_name() for testplan in testplans]
+        testplan_selection = [
+            testplans.index(t) for t in testplans if
+            re.search(self.launcher.whitelist_selection, t.partial_id)]
         selected_list = self.display.run(
-            ShowMenu(_("Suite selection"), whitelist_name_list,
-                     whitelist_selection))
+            ShowMenu(_("Suite selection"), testplan_name_list,
+                     testplan_selection))
         if not selected_list:
-            raise SystemExit(_("No whitelists selected, aborting"))
-        return [get_whitelist_by_name(
-            self.provider_list, whitelist_name_list[selected_index])
-            for selected_index in selected_list]
+            raise SystemExit(_("No testplan selected, aborting"))
+        return [testplans[selected_index].get_qualifier() for selected_index
+                in selected_list]
 
     def get_default_testplans(self):
         testplans = []

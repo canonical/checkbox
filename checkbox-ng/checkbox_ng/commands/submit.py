@@ -101,9 +101,9 @@ class SubmitCommand(PlainBoxCommand):
         parser.set_defaults(command=self)
         parser.add_argument('submission',
             help=_("The path to the results xml file"))
-        self.register_optional_arguments(parser)
+        self.register_optional_arguments(parser, required=True)
 
-    def register_optional_arguments(self, parser):
+    def register_optional_arguments(self, parser, required=False):
         if self.config.secure_id is not Unset:
             parser.set_defaults(secure_id=self.config.secure_id)
 
@@ -113,9 +113,12 @@ class SubmitCommand(PlainBoxCommand):
                     _("must be 15 or 18-character alphanumeric string"))
             return secure_id
 
+        required_check = False
+        if required:
+            required_check = self.config.secure_id is Unset
         parser.add_argument(
             '--secure_id', metavar=_("SECURE-ID"),
-            required=self.config.secure_id is Unset,
+            required=required_check,
             type=secureid,
             help=_("associate submission with a machine using this SECURE-ID"))
 
@@ -141,7 +144,10 @@ class SubmitCommand(PlainBoxCommand):
             # In this case, it is still set as Unset.
             self.config.submit_to_c3 = Unset
 
+        required_check = False
+        if required:
+            required_check = self.config.submit_to_c3 is Unset
         parser.add_argument(
             '--url', metavar=_("URL"),
-            required=self.config.submit_to_c3 is Unset,
+            required=required_check,
             help=_("destination to submit to"))

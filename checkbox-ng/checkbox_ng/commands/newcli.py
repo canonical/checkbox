@@ -42,9 +42,11 @@ from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.exporter.html import HTMLSessionStateExporter
 from plainbox.impl.exporter.xml import XMLSessionStateExporter
 from plainbox.impl.secure.config import Unset, ValidationError
+from plainbox.impl.secure.origin import CommandLineTextSource
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import FieldQualifier
 from plainbox.impl.secure.qualifiers import OperatorMatcher
+from plainbox.impl.secure.qualifiers import RegExpJobQualifier
 from plainbox.impl.secure.qualifiers import WhiteList
 from plainbox.impl.session import SessionMetaData
 from plainbox.impl.transport import get_all_transports
@@ -100,14 +102,38 @@ class CliInvocation2(RunInvocation):
         return self._display
 
     def select_whitelist(self):
+        # Add whitelists
         if 'whitelist' in self.ns and self.ns.whitelist:
-            for whitelist in self.ns.whitelist:
-                self._whitelists.append(WhiteList.from_file(whitelist.name))
-        elif self.config.whitelist is not Unset:
-            self._whitelists.append(WhiteList.from_file(self.config.whitelist))
-        elif ('include_pattern_list' in self.ns and
-              self.ns.include_pattern_list):
-            self._whitelists.append(WhiteList(self.ns.include_pattern_list))
+            for whitelist_file in self.ns.whitelist:
+                qualifier = self.get_whitelist_from_file(
+                    whitelist_file.name, whitelist_file)
+                if qualifier is not None:
+                    self._whitelists.append(qualifier)
+        # Add all the --include jobs
+        for pattern in self.ns.include_pattern_list:
+            origin = Origin(CommandLineTextSource('-i', pattern), None, None)
+            try:
+                qualifier = RegExpJobQualifier(
+                    '^{}$'.format(pattern), origin, inclusive=True)
+            except Exception as exc:
+                logger.warning(
+                    _("Incorrect pattern %r: %s"), pattern, exc)
+            else:
+                self._whitelists.append(qualifier)
+        # Add all the --exclude jobs
+        for pattern in self.ns.exclude_pattern_list:
+            origin = Origin(CommandLineTextSource('-x', pattern), None, None)
+            try:
+                qualifier = RegExpJobQualifier(
+                    '^{}$'.format(pattern), origin, inclusive=False)
+            except Exception as exc:
+                logger.warning(
+                    _("Incorrect pattern %r: %s"), pattern, exc)
+            else:
+                self._whitelists.append(qualifier)
+        if self.config.whitelist is not Unset:
+            self._whitelists.append(
+                self.get_whitelist_from_file(self.config.whitelist))
 
     def run(self):
         return self.do_normal_sequence()

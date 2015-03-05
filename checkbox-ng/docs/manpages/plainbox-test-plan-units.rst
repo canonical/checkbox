@@ -10,9 +10,9 @@ This page documents the Plainbox test plan units syntax and runtime behavior
 Description
 ===========
 
-The template unit is an evolution of the Plainbox whitelist concept, that is,
-a facility that describes a sequence of job definitions that should be
-executed together.
+The test plan unit is an evolution of the Plainbox whitelist concept, that is,
+a facility that describes a sequence of job definitions that should be executed
+together.
 
 As in whitelists, jobs definitions are _selected_ by either listing their
 identifier or a regular expression that matches their identifier. Selected
@@ -34,9 +34,9 @@ Test Plan Fields
 -----------------
 
 The following fields can be used in a test plan. Note that **not all** fields
-need to be used or even should be used. Please remember that Checkbox needs
-to maintain backwards compatibility so some of the test plans it defines may
-non-typical constructs required ensure proper behavior. You don't have to
+need to be used or even should be used. Please remember that Checkbox needs to
+maintain backwards compatibility so some of the test plans it defines may have
+non-typical constructs required to ensure proper behavior. You don't have to
 copy such constructs when working on a new test plan from scratch
 
 ``id``:
@@ -227,7 +227,7 @@ plan rather than having to compute it from all the job definitions it selects.
 Examples
 --------
 
-A simple test plan that selects a several jobs::
+A simple test plan that selects several jobs::
 
     id: foo-bar-and-froz
     _name: Tests Foo, Bar and Froz

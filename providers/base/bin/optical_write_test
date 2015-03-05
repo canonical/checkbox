@@ -44,7 +44,7 @@ check_md5(){
 generate_iso(){
     # Generate ISO image
     echo "Creating ISO Image ..."
-    genisoimage -r -J -o $ISO_NAME $SAMPLE_FILE
+    genisoimage -input-charset UTF-8 -r -J -o $ISO_NAME $SAMPLE_FILE
     return $?
 }
 
@@ -123,7 +123,7 @@ cleanup(){
     cd $START_DIR
     echo "Now residing in $PWD"
     echo "Cleaning up ..."
-    umount $MOUNT_PT
+    umount "$MOUNT_PT"
     rm -fr $TEMP_DIR
     echo "Ejecting spent media ..."
     eject $OPTICAL_DRIVE

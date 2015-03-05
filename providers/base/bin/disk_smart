@@ -234,7 +234,7 @@ def poll_for_status(args, disk, previous_entries):
         if args.timeout is not None:
             if args.timeout <= 0:
                 logging.debug('Polling timed out')
-                return 1
+                return 'Polling timed out', 1
             else:
                 args.timeout -= args.sleep
 

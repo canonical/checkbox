@@ -1,23 +1,22 @@
 Source: checkbox-ng
 Section: utils
 Priority: optional
-Maintainer: Checkbox Developers <checkbox-dev@lists.launchpad.net> 
+Maintainer: Checkbox Developers <checkbox-dev@lists.launchpad.net>
 Uploaders: Sylvain Pineau <sylvain.pineau@canonical.com>,
            Zygmunt Krynicki <zygmunt.krynicki@canonical.com>,
            Debian Python Modules Team <python-modules-team@lists.alioth.debian.org>
-Build-Depends:
- debhelper (>= 9),
- dh-python,
- python3-all,
- python3-checkbox-support (>= 0.2),
- python3-dbus,
- python3-docutils,
- python3-gi,
- python3-plainbox (>= 0.5.3),
- python3-requests (>= 1.0),
- python3-setuptools,
- python3-sphinx,
-Standards-Version: 3.9.5
+Build-Depends: debhelper (>= 9),
+               dh-python,
+               python3-all,
+               python3-checkbox-support (>= 0.18),
+               python3-dbus,
+               python3-docutils,
+               python3-gi,
+               python3-plainbox (>= 0.20),
+               python3-requests (>= 1.0),
+               python3-setuptools,
+               python3-sphinx
+Standards-Version: 3.9.6
 X-Python3-Version: >= 3.2
 Vcs-Svn: svn://anonscm.debian.org/python-modules/packages/checkbox-ng/trunk/
 Vcs-Browser: http://anonscm.debian.org/viewvc/python-modules/packages/checkbox-ng/trunk/
@@ -25,7 +24,9 @@ Homepage: http://launchpad.net/checkbox
 
 Package: checkbox-ng
 Architecture: all
-Depends: python3-checkbox-ng (= ${binary:Version}), ${misc:Depends}, ${python3:Depends}
+Depends: python3-checkbox-ng (= ${binary:Version}),
+         ${misc:Depends},
+         ${python3:Depends}
 Replaces: checkbox (<< 0.17.6-0ubuntu1)
 Breaks: checkbox (<< 0.17.6-0ubuntu1)
 Description: PlainBox based test runner
@@ -37,7 +38,11 @@ Description: PlainBox based test runner
 
 Package: checkbox-ng-service
 Architecture: all
-Depends: checkbox-ng (= ${binary:Version}), python3-dbus, python3-gi, ${misc:Depends}
+Depends: checkbox-ng (= ${binary:Version}),
+         python3,
+         python3-dbus,
+         python3-gi,
+         ${misc:Depends}
 Description: CheckBox D-Bus service
  CheckBoxNG is a hardware testing tool useful for certifying laptops,
  desktops and servers. It is a new version of CheckBox that is built
@@ -47,11 +52,11 @@ Description: CheckBox D-Bus service
 
 Package: python3-checkbox-ng
 Architecture: all
-Depends:
- python3-plainbox (>= 0.5.3),
- python3-requests (>= 1.0),
- ${misc:Depends},
- ${python3:Depends}
+Depends: python3-checkbox-support (>= 0.18),
+         python3-plainbox (>= 0.20),
+         python3-requests (>= 1.0),
+         ${misc:Depends},
+         ${python3:Depends}
 Description: PlainBox based test runner (Python 3 library)
  CheckBoxNG is a hardware testing tool useful for certifying laptops,
  desktops and servers. It is a new version of CheckBox that is built
@@ -63,9 +68,7 @@ Package: python3-checkbox-ng-doc
 Architecture: all
 Section: doc
 Priority: extra
-Depends:
- ${misc:Depends},
- ${sphinxdoc:Depends}
+Depends: ${misc:Depends}, ${sphinxdoc:Depends}
 Description: PlainBox based test runner (documentation)
  CheckBoxNG is a hardware testing tool useful for certifying laptops,
  desktops and servers. It is a new version of CheckBox that is built

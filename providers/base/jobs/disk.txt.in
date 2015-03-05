@@ -12,6 +12,7 @@ template-filter: device.category == 'DISK'
 plugin: shell
 id: staging/disk/stats_{name}
 requires:
+ device.name != ''
  block_device.{name}_state != 'removable'
 user: root
 command: disk_stats_test {name}

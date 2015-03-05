@@ -197,7 +197,7 @@ estimated_duration: 1.2
 command:
     info=`touchpad_driver_info`
     if [ $? -eq 0 ]; then
-        echo "touchpad detected with driver: $info"
+        echo -e "touchpad detected with:\n$info"
     else
         echo "$info"
         exit 1

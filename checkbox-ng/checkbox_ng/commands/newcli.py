@@ -50,7 +50,6 @@ from plainbox.impl.secure.qualifiers import select_jobs
 from plainbox.impl.session import SessionMetaData
 from plainbox.impl.transport import get_all_transports
 from plainbox.impl.transport import TransportError
-from plainbox.impl.unit.testplan import TestPlanUnit
 from plainbox.vendor.textland import get_display
 
 from checkbox_ng.misc import SelectableJobTreeNode
@@ -84,6 +83,7 @@ class CliInvocation2(RunInvocation):
         self._launcher = launcher
         self._display = display
         self._qualifier_list = []
+        self._testplan_list = []
         self.select_qualifier_list()
 
     @property
@@ -141,6 +141,7 @@ class CliInvocation2(RunInvocation):
                 for unit in provider.id_map[self.ns.test_plan]:
                     if unit.Meta.name == 'test plan':
                         self._qualifier_list.append(unit.get_qualifier())
+                        self._testplan_list.append(unit)
                         return
             else:
                 logger.error(_("There is no test plan: %s"), self.ns.test_plan)
@@ -182,10 +183,8 @@ class CliInvocation2(RunInvocation):
             # Maybe allow the user to do a manual whitelist selection
             if not self._qualifier_list:
                 self.maybe_interactively_select_testplans()
-            testplans = [t for t in self._qualifier_list
-                         if isinstance(t, TestPlanUnit)]
-            if testplans:
-                self.manager.test_plans = tuple(testplans)
+            if self._testplan_list:
+                self.manager.test_plans = tuple(self._testplan_list)
             # Store the application-identifying meta-data and checkpoint the
             # session.
             self.store_application_metadata()
@@ -256,6 +255,8 @@ class CliInvocation2(RunInvocation):
                      testplan_selection))
         if not selected_list:
             raise SystemExit(_("No testplan selected, aborting"))
+        self._testplan_list.extend([testplans[selected_index] for
+            selected_index in selected_list])
         return [testplans[selected_index].get_qualifier() for selected_index
                 in selected_list]
 

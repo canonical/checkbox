@@ -190,3 +190,18 @@ _description:
  VERIFICATION:
      Did the tap open the Dash?
 
+plugin: shell
+id: touchpad/detected-as-mouse
+requires: dmi.product in ['Notebook','Laptop','Portable']
+estimated_duration: 1.2
+command:
+    info=`touchpad_driver_info`
+    if [ $? -eq 0 ]; then
+        echo -e "touchpad detected with:\n$info"
+    else
+        echo "$info"
+        exit 1
+    fi 
+_description:
+ This test will check if your touchpad was detected as a mouse.
+

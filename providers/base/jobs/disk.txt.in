@@ -8,11 +8,10 @@ unit: template
 template-unit: job
 template-imports: from 2013.com.canonical.certification import device
 template-resource: device
-template-filter: device.category == 'DISK'
+template-filter: device.category == 'DISK' and device.name != ''
 plugin: shell
 id: staging/disk/stats_{name}
 requires:
- device.name != ''
  block_device.{name}_state != 'removable'
 user: root
 command: disk_stats_test {name}

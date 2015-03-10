@@ -3,6 +3,7 @@ checkbox-support (0.2-3) UNRELEASED; urgency=medium
   * debian/watch: use the new pypi redirector
   * debian/copyright: correct license of xrandr.py (it's actually "or later"
     so it is compatible with the rest of the GPL3 code).
+  * debian/copyright: remove duplicate entry for mock.py 
 
  -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 10 Mar 2015 12:03:13 +0100
 

@@ -36,7 +36,7 @@ Description: collection of Python modules used by PlainBox providers
   * checkbox_support.contrib.xrandr: provides a high level API for the XRandR
     extension of the X.org server.
  .
-  * checkbox_support.dbus.udisks2: module for working with UDisks2 from python
+  * checkbox_support.dbus.udisks2: module for working with UDisks2 from Python
  .
   * checkbox_support.heuristics.udev: heuristics for udev
   * checkbox_support.heuristics.udisks2: heuristics for udisks2

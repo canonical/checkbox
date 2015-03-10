@@ -949,9 +949,12 @@ class QmlJobExecutionController(CheckBoxExecutionController):
                 env = self.get_execution_environment(
                     job, job_state, config, session_dir, nest_dir)
                 with self.temporary_cwd(job, config) as cwd_dir:
-                    job_json = json.dumps(self.gen_job_repr(job))
+                    testing_shell_data = json.dumps({
+                        "job_repr": self.gen_job_repr(job),
+                        "session_dir": self.get_CHECKBOX_DATA(session_dir)
+                    })
                     pipe_out = os.fdopen(plainbox_write, 'wt')
-                    pipe_out.write(job_json)
+                    pipe_out.write(testing_shell_data)
                     pipe_out.close()
                     # run the command
                     logger.debug(_("job[%s] executing %r with"

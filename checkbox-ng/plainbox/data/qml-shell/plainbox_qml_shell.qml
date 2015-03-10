@@ -46,9 +46,11 @@ MainView {
             addImportPath(Qt.resolvedUrl('.'));
             py.importModule('pipe_handler', function() {
                 console.log('pipe_handler.py imported');
-                py.readAndClose(args.values['fd-in'], function(job_repr) {
+                py.readAndClose(args.values['fd-in'], function(testingShellData) {
+                    var new_data = JSON.parse(testingShellData);
+                    for (var attrname in new_data) { testingShell[attrname] = new_data[attrname]; }
                     testingShell.getTest = function() {
-                        return JSON.parse(job_repr);
+                        return testingShell['job_repr'];
                     }
                     loader.setSource(args.values.job,
                                      {'testingShell': testingShell});

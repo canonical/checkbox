@@ -1140,13 +1140,14 @@ class QmlJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
              self.SHELL_OUT_FD, '--fd-in', self.SHELL_IN_FD,
              self.ctrl.QML_SHELL_PATH])
 
+    @mock.patch('json.dumps')
     @mock.patch('os.path.isdir')
     @mock.patch('os.fdopen')
     @mock.patch('os.pipe')
     @mock.patch('os.write')
     @mock.patch('os.close')
     def test_execute_job(self, mock_os_close, mock_os_write, mock_os_pipe,
-                         mock_os_fdopen, mock_os_path_isdir):
+                         mock_os_fdopen, mock_os_path_isdir, mock_json_dumps):
         """
         Test if qml exec. ctrl. correctly runs piping
         """
@@ -1182,6 +1183,12 @@ class QmlJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
         self.assertEqual(mock_os_pipe.call_count, 2)
         self.assertEqual(mock_os_fdopen.call_count, 2)
         self.assertEqual(mock_os_close.call_count, 6)
+        # Ensure that testing_shell_data is properly created
+        mock_json_dumps.assert_called_once_with({
+            "job_repr": {},
+            "session_dir": self.ctrl.get_CHECKBOX_DATA(self.SESSION_DIR)
+        })
+        mock_os_fdopen().write.assert_called_with(mock_json_dumps())
 
     @mock.patch('os.path.isdir')
     @mock.patch('os.fdopen')

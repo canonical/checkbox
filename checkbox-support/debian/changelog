@@ -6,6 +6,8 @@ checkbox-support (0.2-3) UNRELEASED; urgency=medium
   * debian/copyright: remove duplicate entry for mock.py 
   * debian/control: correct capitalization of 'Python' 
   * debian/control: bump Standards-Version to 3.9.6 (no change required) 
+  * debian/patches/ship-package-data: ship package data files so that DEP-8
+    tests can be written
 
  -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 10 Mar 2015 12:03:13 +0100
 

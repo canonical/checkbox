@@ -1,0 +1,17 @@
+Description: ship package data files
+ This patch makes the package ship all the auxiliary data files (.txt files)
+ so that we can run DEP-8 tests later.
+Author: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+Origin: vendor
+Bug-Ubuntu: https://bugs.launchpad.net/checkbox-support/+bug/1430292
+Forwarded: 
+Last-Update: 2015-03-10 
+
+--- checkbox-support-0.2.orig/setup.py
++++ checkbox-support-0.2/setup.py
+@@ -37,4 +37,5 @@ setup(
+     install_requires=[
+         'pyparsing >= 2.0.0',
+     ],
++    include_package_data=True,
+ )

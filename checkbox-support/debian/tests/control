@@ -1,0 +1,2 @@
+Tests: unit-tests-py3
+Depends: @, python3-pkg-resources

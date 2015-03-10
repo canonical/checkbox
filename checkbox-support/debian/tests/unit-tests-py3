@@ -1,0 +1,10 @@
+#!/bin/sh
+# autopkgtest check: run checkbox_support unit tests and ensure everything passes
+# (C) 2015 Canonical Ltd.
+# Author: Zygmunt Krynicki <zygmunt.krynicki@canonical.com> 
+
+set -e
+
+cd $ADTTMP
+python3 -m unittest discover checkbox_support 2>&1
+echo "unit-tests: OK"

@@ -8,6 +8,7 @@ checkbox-support (0.2-3) UNRELEASED; urgency=medium
   * debian/control: bump Standards-Version to 3.9.6 (no change required) 
   * debian/patches/ship-package-data: ship package data files so that DEP-8
     tests can be written
+  * debian/control, debian/tests: add DEP-8 tests 
 
  -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 10 Mar 2015 12:03:13 +0100
 

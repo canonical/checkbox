@@ -1,4 +1,4 @@
-checkbox-support (0.2-3) UNRELEASED; urgency=medium
+checkbox-support (0.18-1) UNRELEASED; urgency=medium
 
   * debian/watch: use the new pypi redirector
   * debian/copyright: correct license of xrandr.py (it's actually "or later"
@@ -9,8 +9,14 @@ checkbox-support (0.2-3) UNRELEASED; urgency=medium
   * debian/patches/ship-package-data: ship package data files so that DEP-8
     tests can be written
   * debian/control, debian/tests: add DEP-8 tests 
+  * New upstream release 
+  * debian/control: build-depend on python-libxml (new dependency)
+  * debian/patches/unvendorize: refresh
+  * debian/patches/ship-package-data, debian/patches/ship-xml-test-data,
+    debian/patches/ship-cpuinfo-test-data: bundle test data that was missing
+    from the last release (MANIFEST.in out of date) so that tests can pass
 
- -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 10 Mar 2015 12:03:13 +0100
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 10 Mar 2015 13:30:17 +0100
 
 checkbox-support (0.2-2) unstable; urgency=medium
 

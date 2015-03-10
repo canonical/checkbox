@@ -11,7 +11,8 @@ Build-Depends:
  python3-all,
  python3-pkg-resources,
  python3-pyparsing,
- python3-setuptools
+ python3-setuptools,
+ python3-lxml (>= 2.3)
 Standards-Version: 3.9.6
 X-Python3-Version: >= 3.2
 XS-Testsuite: autopkgtest

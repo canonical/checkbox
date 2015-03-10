@@ -7,11 +7,13 @@ Bug-Ubuntu: https://bugs.launchpad.net/checkbox-support/+bug/1430292
 Forwarded: 
 Last-Update: 2015-03-10 
 
---- checkbox-support-0.2.orig/setup.py
-+++ checkbox-support-0.2/setup.py
-@@ -37,4 +37,5 @@ setup(
-     install_requires=[
-         'pyparsing >= 2.0.0',
-     ],
+Index: checkbox-support-0.18/setup.py
+===================================================================
+--- checkbox-support-0.18.orig/setup.py
++++ checkbox-support-0.18/setup.py
+@@ -59,4 +59,5 @@ setup(
+             "udevadm=checkbox_support.parsers.udevadm:parse_udevadm_output",
+         ],
+     },
 +    include_package_data=True,
  )

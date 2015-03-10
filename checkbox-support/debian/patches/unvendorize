@@ -6,8 +6,10 @@ Author: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 Upstream: not-needed
 Last-Update: 2014-04-07
 
---- a/checkbox_support/vendor/mock.py
-+++ b/checkbox_support/vendor/mock.py
+Index: checkbox-support-0.18/checkbox_support/vendor/mock.py
+===================================================================
+--- checkbox-support-0.18.orig/checkbox_support/vendor/mock.py
++++ checkbox-support-0.18/checkbox_support/vendor/mock.py
 @@ -1,2367 +1,29 @@
 -# mock.py
 -# Test tools for mocking and patching.

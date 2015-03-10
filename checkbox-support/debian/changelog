@@ -1,3 +1,9 @@
+checkbox-support (0.2-3) UNRELEASED; urgency=medium
+
+  * debian/watch: use the new pypi redirector
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 10 Mar 2015 12:03:13 +0100
+
 checkbox-support (0.2-2) unstable; urgency=medium
 
   * Remove dependency on udisks (Closes: #750512)

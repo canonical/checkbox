@@ -5,6 +5,7 @@ checkbox-support (0.2-3) UNRELEASED; urgency=medium
     so it is compatible with the rest of the GPL3 code).
   * debian/copyright: remove duplicate entry for mock.py 
   * debian/control: correct capitalization of 'Python' 
+  * debian/control: bump Standards-Version to 3.9.6 (no change required) 
 
  -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 10 Mar 2015 12:03:13 +0100
 

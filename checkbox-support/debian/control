@@ -12,7 +12,7 @@ Build-Depends:
  python3-pkg-resources,
  python3-pyparsing,
  python3-setuptools
-Standards-Version: 3.9.5
+Standards-Version: 3.9.6
 X-Python3-Version: >= 3.2
 Vcs-Svn: svn://anonscm.debian.org/python-modules/packages/checkbox-support/trunk/
 Vcs-Browser: http://anonscm.debian.org/viewvc/python-modules/packages/checkbox-support/trunk/

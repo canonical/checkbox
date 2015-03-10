@@ -15,6 +15,7 @@ checkbox-support (0.18-1) UNRELEASED; urgency=medium
   * debian/patches/ship-package-data, debian/patches/ship-xml-test-data,
     debian/patches/ship-cpuinfo-test-data: bundle test data that was missing
     from the last release (MANIFEST.in out of date) so that tests can pass
+  * debian/copyright: refresh dates 
 
  -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 10 Mar 2015 13:30:17 +0100
 

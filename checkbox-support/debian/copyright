@@ -3,7 +3,7 @@ Upstream-Name: checkbox-support
 Source: https://launchpad.net/checkbox
 
 Files: *
-Copyright: Copyright 2007-2013 Canonical Ltd.
+Copyright: Copyright 2007-2015 Canonical Ltd.
 License: GPL-3
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License version 3,

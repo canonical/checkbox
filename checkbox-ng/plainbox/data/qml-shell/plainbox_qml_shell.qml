@@ -100,6 +100,11 @@ MainView {
     Loader {
         id: loader
         anchors.fill: parent
+        onStatusChanged: {
+            if (loader.status === Loader.Error) {
+                testDone({'outcome': 'crash'});
+            }
+        }
         onLoaded: loader.item.testDone.connect(testDone)
     }
 

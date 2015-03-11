@@ -64,7 +64,7 @@ command:
  description:
   This tests the SMART capabilities for $product (Note that this test will not work against hardware RAID)
  user: root
- command: disk_smart -b /dev/`ls /sys$path/block | sed 's|!|/|'` -s 130 -t 270
+ command: disk_smart -b /dev/`ls /sys$path/block | sed 's|!|/|'` -s 130 -t 530
  EOF
 
 plugin: local

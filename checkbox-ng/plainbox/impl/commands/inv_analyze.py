@@ -104,8 +104,9 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
             while again:
                 for job in self.session.run_list:
                     if job.plugin == 'local':
-                        if self.session.job_state_map[job.id].result.outcome is None:
-                            self._run_local_job(manager, runner, job)
+                        job_state = self.session.job_state_map[job.id]
+                        if job_state.result.outcome is None:
+                            self._run_local_job(manager, runner, job, job_state)
                             break
                 else:
                     again = False
@@ -114,11 +115,11 @@ class AnalyzeInvocation(CheckBoxInvocationMixIn):
         finally:
             manager.destroy()
 
-    def _run_local_job(self, manager, runner, job):
+    def _run_local_job(self, manager, runner, job, job_state):
         print("{job}".format(job=job.id))
         manager.state.metadata.running_job_name = job.id
         manager.checkpoint()
-        result = runner.run_job(job, self.config)
+        result = runner.run_job(job, job_state, self.config)
         self.session.update_job_result(job, result)
         new_desired_job_list = self._get_matching_job_list(
             self.ns, self.session.job_list)

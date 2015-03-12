@@ -26,7 +26,7 @@ _description:
  STEPS:
      1. Look at the specifications for your system.
  VERIFICATION:
-     Is the screen supposed to be multitouch?
+     Select PASS if the touchscreen is supposed to be multitouch, skip this test if it's a non-touch screen.
 
 plugin: manual
 id: touchscreen/tap-detect

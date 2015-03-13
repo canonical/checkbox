@@ -22,11 +22,11 @@ depends: touchscreen/nontouch-automated
 estimated_duration: 120.0
 _description:
  PURPOSE:
-     Touchscreen manual detection of multitouch.
+     Touchscreen capability manual detection.
  STEPS:
      1. Look at the specifications for your system.
  VERIFICATION:
-     Select PASS if the touchscreen is supposed to be multitouch, skip this test if it's a non-touch screen.
+     Your screen was detected as a non touch screen. Select PASS if this is correct.
 
 plugin: manual
 id: touchscreen/tap-detect

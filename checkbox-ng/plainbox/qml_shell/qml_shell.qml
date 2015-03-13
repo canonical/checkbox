@@ -59,9 +59,25 @@ MainView {
         id: loader
         anchors.fill: parent
         onLoaded: loader.item.testDone.connect(testDone)
+        onStatusChanged: {
+            if (loader.status === Loader.Error) {
+                testDone({'outcome': 'crash'});
+                grimReaper.start();
+            }
+        }
     }
+
     PageStack {
         id: pageStack
+    }
+
+    Timer {
+        /* because loader is constructed synchronously when the app is started,
+         * Qt.quit() would fire a signal that engine hasn't yet connected to.
+         * By using this timer we deffer calling of Qt.quit() */
+        id: grimReaper
+        interval: 10
+        onTriggered: Qt.quit()
     }
 
     function testDone(res) {

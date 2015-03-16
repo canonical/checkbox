@@ -11,6 +11,19 @@ estimated_duration: 1.2
 _description: Record the current resolution before suspending.
 command: xrandr -q |grep '*'| awk '{print $1}' > $PLAINBOX_SESSION_SHARE/resolution_before_suspend.txt
 
+plugin: local
+id: suspend/generator_resolution_before_suspend
+_description: Record the current resolution before suspending.
+_summary: Record the current resolution before suspending.
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: shell
+ id: suspend/`echo ${index}`_resolution_before_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ estimated_duration: 1.2
+ _description: Record the current resolution before suspending.
+ command: xrandr -q |grep '*'| awk '{print $1}' > $PLAINBOX_SESSION_SHARE/`echo ${index}`_resolution_before_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`.txt
+ EOF
+
 plugin: shell
 id: suspend/audio_before_suspend
 estimated_duration: 1.0
@@ -405,6 +418,19 @@ depends: suspend/suspend_advanced suspend/resolution_before_suspend
 estimated_duration: 1.2
 _description: Test to see that we have the same resolution after resuming as before.
 command: xrandr -q |grep '*'| awk '{print $1}' | diff $PLAINBOX_SESSION_SHARE/resolution_before_suspend.txt -
+
+plugin: local
+id: suspend/generator_resolution_after_suspend
+_description: Test to see that we have the same resolution after resuming as before.
+_summary: Test to see that we have the same resolution after resuming as before.
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: shell
+ id: suspend/`echo ${index}`_resolution_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ estimated_duration: 1.2
+ _description: Test to see that we have the same resolution after resuming as before.
+ command: xrandr -q |grep '*'| awk '{print $1}' | diff $PLAINBOX_SESSION_SHARE/`echo ${index}`_resolution_before_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`.txt -
+ EOF
 
 plugin: shell
 id: suspend/audio_after_suspend
@@ -1350,8 +1376,8 @@ command:
  plugin: attachment
  id: suspend/`echo ${index}`_xrandr_screens_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`.tar.gz
  depends: suspend/`echo ${index}`_cycle_resolutions_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- command: [ -e $PLAINBOX_SESSION_SHARE/xrandr_screens_`echo ${index}`_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`.tgz ] && cat $PLAINBOX_SESSION_SHARE/xrandr_screens_`echo ${index}`_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`.tgz
  _description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
+ command: [ -e $PLAINBOX_SESSION_SHARE/xrandr_screens_`echo ${index}`_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`.tgz ] && cat $PLAINBOX_SESSION_SHARE/xrandr_screens_`echo ${index}`_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`.tgz
  EOF
 
 plugin: shell

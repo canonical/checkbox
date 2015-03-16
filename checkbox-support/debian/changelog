@@ -1,4 +1,4 @@
-checkbox-support (0.18-1) UNRELEASED; urgency=medium
+checkbox-support (0.18-1) unstable; urgency=medium
 
   * debian/watch: use the new pypi redirector
   * debian/copyright: correct license of xrandr.py (it's actually "or later"

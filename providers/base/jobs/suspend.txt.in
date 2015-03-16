@@ -1350,7 +1350,7 @@ command:
  plugin: attachment
  id: suspend/`echo ${index}`_xrandr_screens_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`.tar.gz
  depends: suspend/`echo ${index}`_cycle_resolutions_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- command: [ -e $PLAINBOX_SESSION_SHARE/`echo ${index}`_xrandr_screens_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`.tgz ] && cat $PLAINBOX_SESSION_SHARE/`echo ${index}`_xrandr_screens_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`.tgz
+ command: [ -e $PLAINBOX_SESSION_SHARE/xrandr_screens_`echo ${index}`_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`.tgz ] && cat $PLAINBOX_SESSION_SHARE/xrandr_screens_`echo ${index}`_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`.tgz
  _description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
  EOF
 

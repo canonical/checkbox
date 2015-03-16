@@ -44,7 +44,7 @@ id: graphics/screen-resolution
 requires:
  device.category == 'VIDEO'
  package.name == 'qmlscene'
-command: qmlscene --transparent --fullscreen $PLAINBOX_PROVIDER_DATA/resolution_test.qml
+command: qmlscene -qt5 --transparent --fullscreen $PLAINBOX_PROVIDER_DATA/resolution_test.qml
 estimated_duration: 10.0
 _summary: Test default resolution
 _description:

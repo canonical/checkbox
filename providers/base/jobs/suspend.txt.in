@@ -1341,6 +1341,19 @@ depends: suspend/cycle_resolutions_after_suspend
 command: [ -e $PLAINBOX_SESSION_SHARE/xrandr_screens_after_suspend.tgz ] && cat $PLAINBOX_SESSION_SHARE/xrandr_screens_after_suspend.tgz
 _description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
 
+plugin: local
+id: suspend/generator_xrandr_screens_after_suspend.tar.gz
+_description: Attach screenshots from the suspend/cycle_resolution_after_suspend test to the results submission.
+_summary: Attach screenshots from the suspend/cycle_resolution_after_suspend test to the results submission.
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: attachment
+ id: suspend/`echo ${index}`_xrandr_screens_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`.tar.gz
+ depends: suspend/`echo ${index}`_cycle_resolutions_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ command: [ -e $PLAINBOX_SESSION_SHARE/`echo ${index}`_xrandr_screens_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`.tgz ] && cat $PLAINBOX_SESSION_SHARE/`echo ${index}`_xrandr_screens_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`.tgz
+ _description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
+ EOF
+
 plugin: shell
 id: suspend/record_playback_after_suspend
 estimated_duration: 10.0

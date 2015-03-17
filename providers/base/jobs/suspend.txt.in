@@ -428,6 +428,7 @@ command:
  plugin: shell
  id: suspend/`echo ${index}`_resolution_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  estimated_duration: 1.2
+ depends: suspend/`echo ${index}`_resolution_before_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  _description: Test to see that we have the same resolution after resuming as before.
  command: xrandr -q |grep '*'| awk '{print $1}' | diff $PLAINBOX_SESSION_SHARE/`echo ${index}`_resolution_before_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`.txt -
  EOF

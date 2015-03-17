@@ -284,7 +284,7 @@ command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: user-interact-verify
  id: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- depends: suspend/suspend_advanced
+ depends: graphics/`echo ${index}`_switch_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  user: root
  environ: PLAINBOX_SESSION_SHARE
  command:
@@ -421,8 +421,8 @@ command: xrandr -q |grep '*'| awk '{print $1}' | diff $PLAINBOX_SESSION_SHARE/re
 
 plugin: local
 id: suspend/generator_resolution_after_suspend
-_description: Test to see that we have the same resolution after resuming as before.
-_summary: Test to see that we have the same resolution after resuming as before.
+_description: Resolution consistency check after suspend with the valuse we got before suspend.
+_summary: Resolution consistency check after suspend with the valuse we got before suspend.
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: shell

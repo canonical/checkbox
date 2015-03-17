@@ -31,8 +31,10 @@ from logging import getLogger
 import argparse
 
 from plainbox.impl.commands import PlainBoxCommand
-from plainbox.impl.commands.inv_check_config import CheckConfigInvocation
 from plainbox.impl.commands.cmd_checkbox import CheckBoxCommandMixIn
+from plainbox.impl.commands.inv_check_config import CheckConfigInvocation
+
+from checkbox_ng.commands.newcli import CliInvocation2
 
 
 logger = getLogger("checkbox.ng.commands.cli")
@@ -54,14 +56,9 @@ class CliCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         if ns.check_config:
             retval = CheckConfigInvocation(self.config_loader).run()
             return retval
-        if ns.new_ui:
-            from checkbox_ng.commands.newcli import CliInvocation2
-            return CliInvocation2(self.provider_loader, self.loader_config, ns,
-                                  self.settings).run()
-        else:
-            from checkbox_ng.commands.oldcli import CliInvocation
-            return CliInvocation(self.provider_loader, self.loader_config,
-                                 self.settings, ns).run()
+        return CliInvocation2(
+            self.provider_loader, self.loader_config, ns, self.settings
+        ).run()
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(self.settings['subparser_name'],

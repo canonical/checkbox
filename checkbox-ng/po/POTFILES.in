@@ -4,7 +4,6 @@
 ./checkbox_ng/commands/__init__.py
 ./checkbox_ng/commands/cli.py
 ./checkbox_ng/commands/newcli.py
-./checkbox_ng/commands/oldcli.py
 ./checkbox_ng/commands/service.py
 ./checkbox_ng/commands/sru.py
 ./checkbox_ng/commands/test_sru.py

@@ -930,7 +930,10 @@ class ValidateCommand(ManageCommand):
         the command class with the ``command`` default.
         """
         parser = self.add_subcommand(subparsers)
-        parser.set_defaults(deprecated=self.deprecated, strict=self.strict)
+        parser.set_defaults(
+            new_validation_core=True,
+            deprecated=self.deprecated,
+            strict=self.strict)
         group = parser.add_argument_group(title=_("validation options"))
         group.add_argument(
             '-s', '--strict', action='store_true',
@@ -946,7 +949,7 @@ class ValidateCommand(ManageCommand):
             help=_("Support deprecated syntax and features"))
         group.add_argument(
             '-N', '--new-validation-core', action='store_true',
-            help=_("Use the new validation subsystem"))
+            help=argparse.SUPPRESS)
 
     def invoked(self, ns):
         if ns.new_validation_core:
@@ -1071,7 +1074,7 @@ class ValidateCommand(ManageCommand):
                 hidden
             ).format(hidden))
             print(_(
-                "Run 'manage.py validate -N --strict --deprecated' for details"
+                "Run 'manage.py validate --strict --deprecated' for details"
             ))
         if failed:
             print(_(

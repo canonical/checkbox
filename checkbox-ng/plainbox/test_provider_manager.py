@@ -133,7 +133,7 @@ class ProviderManagerToolTests(TestCase):
         self.assertFileContent(
             self.tmpdir + os.path.join("/foo", "lib", "plainbox-providers-1",
                                        "2014.com.example:test", "jobs",
-                                       "jobs.txt"),
+                                       "jobs.pxu"),
             ("id: dummy\nplugin: shell\ncommand: true\n"
              "estimated_duration: 10\n"))
 
@@ -149,7 +149,7 @@ class ProviderManagerToolTests(TestCase):
         self.assertFalse(
             os.path.exists(self.tmpdir + os.path.join(
                 "/foo", "lib", "plainbox-providers-1", "2014.com.example:test",
-                "jobs", "jobs.txt")))
+                "jobs", "jobs.pxu")))
 
     def assert_common_unix_install(self, prefix="/foo"):
         filename = self.tmpdir + os.path.join(
@@ -169,7 +169,7 @@ class ProviderManagerToolTests(TestCase):
         self.assertFileContent(filename, content)
         self.assertFileContent(
             self.tmpdir + os.path.join(
-                prefix, "share", "2014.com.example:test", "jobs", "jobs.txt"),
+                prefix, "share", "2014.com.example:test", "jobs", "jobs.pxu"),
             "id: dummy\nplugin: shell\ncommand: true\nestimated_duration: 10\n")
         self.assertFileContent(
             self.tmpdir + os.path.join(
@@ -215,7 +215,7 @@ class ProviderManagerToolTests(TestCase):
         tarball = os.path.join(
             self.tmpdir, "dist", "2014.com.example.test-1.0.tar.gz")
         self.assertTarballContent(
-            tarball, "2014.com.example.test-1.0/jobs/jobs.txt",
+            tarball, "2014.com.example.test-1.0/jobs/jobs.pxu",
             "id: dummy\nplugin: shell\ncommand: true\nestimated_duration: 10\n")
         self.assert_common_sdist(tarball)
 
@@ -229,7 +229,7 @@ class ProviderManagerToolTests(TestCase):
         tarball = os.path.join(
             self.tmpdir, "dist", "2014.com.example.test-1.0.tar.gz")
         self.assertNoTarballContent(
-            tarball, "2014.com.example.test-1.0/jobs/jobs.txt")
+            tarball, "2014.com.example.test-1.0/jobs/jobs.pxu")
         self.assert_common_sdist(tarball)
 
     def test_develop(self):
@@ -299,9 +299,8 @@ class ProviderManagerToolTests(TestCase):
             self.tool.main(["validate", "-N"])
         self.assertEqual(test_io.stdout, inline_output(
             """
-            jobs/jobs.txt:1-4: advice: job 'dummy', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
-            jobs/jobs.txt:1-4: advice: job 'dummy', field 'flags', please ensure that the command supports non-C locale then set the preserve-locale flag
-            jobs/jobs.txt: advice: please use .pxu as an extension for all files with plainbox units, see: http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-1
+            jobs/jobs.pxu:1-4: advice: job 'dummy', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
+            jobs/jobs.pxu:1-4: advice: job 'dummy', field 'flags', please ensure that the command supports non-C locale then set the preserve-locale flag
             The provider seems to be valid
             """))
 
@@ -309,7 +308,7 @@ class ProviderManagerToolTests(TestCase):
         """
         verify that ./manage.py validate -N shows information about missing fields
         """
-        filename = os.path.join(self.tmpdir, "jobs", "broken.txt")
+        filename = os.path.join(self.tmpdir, "jobs", "broken.pxu")
         with open(filename, "wt", encoding='UTF-8') as stream:
             print("id: broken", file=stream)
             print("plugin: shell", file=stream)
@@ -317,13 +316,11 @@ class ProviderManagerToolTests(TestCase):
             self.tool.main(["validate", "-N"])
         self.assertEqual(test_io.stdout, inline_output(
             """
-            jobs/broken.txt:1-2: error: job 'broken', field 'command', command is mandatory for non-manual jobs
-            jobs/broken.txt:1-2: advice: job 'broken', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
-            jobs/broken.txt:1-2: advice: job 'broken', field 'estimated_duration', required field missing
-            jobs/broken.txt: advice: please use .pxu as an extension for all files with plainbox units, see: http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-1
-            jobs/jobs.txt:1-4: advice: job 'dummy', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
-            jobs/jobs.txt:1-4: advice: job 'dummy', field 'flags', please ensure that the command supports non-C locale then set the preserve-locale flag
-            jobs/jobs.txt: advice: please use .pxu as an extension for all files with plainbox units, see: http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-1
+            jobs/broken.pxu:1-2: error: job 'broken', field 'command', command is mandatory for non-manual jobs
+            jobs/broken.pxu:1-2: advice: job 'broken', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
+            jobs/broken.pxu:1-2: advice: job 'broken', field 'estimated_duration', required field missing
+            jobs/jobs.pxu:1-4: advice: job 'dummy', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
+            jobs/jobs.pxu:1-4: advice: job 'dummy', field 'flags', please ensure that the command supports non-C locale then set the preserve-locale flag
             Validation of provider 2014.com.example:test has failed
             """))
 
@@ -332,7 +329,7 @@ class ProviderManagerToolTests(TestCase):
         verify that ./manage.py validate -N shows information about incorrect
         field values
         """
-        filename = os.path.join(self.tmpdir, "jobs", "broken.txt")
+        filename = os.path.join(self.tmpdir, "jobs", "broken.pxu")
         with open(filename, "wt", encoding='UTF-8') as stream:
             print("id: broken", file=stream)
             print("plugin: magic", file=stream)
@@ -340,14 +337,12 @@ class ProviderManagerToolTests(TestCase):
             self.tool.main(["validate", "-N"])
         self.assertEqual(test_io.stdout, inline_output(
             """
-            jobs/broken.txt:1-2: error: job 'broken', field 'command', command is mandatory for non-manual jobs
-            jobs/broken.txt:1-2: advice: job 'broken', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
-            jobs/broken.txt:1-2: advice: job 'broken', field 'estimated_duration', required field missing
-            jobs/broken.txt:2: error: job 'broken', field 'plugin', valid values are: attachment, local, manual, qml, resource, shell, user-interact, user-interact-verify, user-verify
-            jobs/broken.txt: advice: please use .pxu as an extension for all files with plainbox units, see: http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-1
-            jobs/jobs.txt:1-4: advice: job 'dummy', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
-            jobs/jobs.txt:1-4: advice: job 'dummy', field 'flags', please ensure that the command supports non-C locale then set the preserve-locale flag
-            jobs/jobs.txt: advice: please use .pxu as an extension for all files with plainbox units, see: http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-1
+            jobs/broken.pxu:1-2: error: job 'broken', field 'command', command is mandatory for non-manual jobs
+            jobs/broken.pxu:1-2: advice: job 'broken', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
+            jobs/broken.pxu:1-2: advice: job 'broken', field 'estimated_duration', required field missing
+            jobs/broken.pxu:2: error: job 'broken', field 'plugin', valid values are: attachment, local, manual, qml, resource, shell, user-interact, user-interact-verify, user-verify
+            jobs/jobs.pxu:1-4: advice: job 'dummy', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
+            jobs/jobs.pxu:1-4: advice: job 'dummy', field 'flags', please ensure that the command supports non-C locale then set the preserve-locale flag
             Validation of provider 2014.com.example:test has failed
             """))
 
@@ -356,7 +351,7 @@ class ProviderManagerToolTests(TestCase):
         verify that ./manage.py validate -N shows information about useless field
         values
         """
-        filename = os.path.join(self.tmpdir, "jobs", "broken.txt")
+        filename = os.path.join(self.tmpdir, "jobs", "broken.pxu")
         with open(filename, "wt", encoding='UTF-8') as stream:
             print("id: broken", file=stream)
             print("plugin: manual", file=stream)
@@ -366,17 +361,15 @@ class ProviderManagerToolTests(TestCase):
             self.tool.main(["validate", "-N"])
         self.assertEqual(test_io.stdout, inline_output(
             """
-            jobs/broken.txt:4: warning: job 'broken', field 'command', command on a manual or qml job makes no sense
-            jobs/broken.txt:3: warning: job 'broken', field 'description', field should be marked as translatable
-            jobs/broken.txt:1-4: advice: job 'broken', field 'estimated_duration', required field missing
-            jobs/broken.txt:1-4: advice: job 'broken', field 'flags', please ensure that the command supports non-C locale then set the preserve-locale flag
-            jobs/broken.txt:1-4: advice: job 'broken', field 'purpose', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
-            jobs/broken.txt:1-4: advice: job 'broken', field 'steps', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
-            jobs/broken.txt:1-4: advice: job 'broken', field 'verification', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
-            jobs/broken.txt: advice: please use .pxu as an extension for all files with plainbox units, see: http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-1
-            jobs/jobs.txt:1-4: advice: job 'dummy', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
-            jobs/jobs.txt:1-4: advice: job 'dummy', field 'flags', please ensure that the command supports non-C locale then set the preserve-locale flag
-            jobs/jobs.txt: advice: please use .pxu as an extension for all files with plainbox units, see: http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-1
+            jobs/broken.pxu:4: warning: job 'broken', field 'command', command on a manual or qml job makes no sense
+            jobs/broken.pxu:3: warning: job 'broken', field 'description', field should be marked as translatable
+            jobs/broken.pxu:1-4: advice: job 'broken', field 'estimated_duration', required field missing
+            jobs/broken.pxu:1-4: advice: job 'broken', field 'flags', please ensure that the command supports non-C locale then set the preserve-locale flag
+            jobs/broken.pxu:1-4: advice: job 'broken', field 'purpose', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
+            jobs/broken.pxu:1-4: advice: job 'broken', field 'steps', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
+            jobs/broken.pxu:1-4: advice: job 'broken', field 'verification', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
+            jobs/jobs.pxu:1-4: advice: job 'dummy', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
+            jobs/jobs.pxu:1-4: advice: job 'dummy', field 'flags', please ensure that the command supports non-C locale then set the preserve-locale flag
             Validation of provider 2014.com.example:test has failed
             """))
 
@@ -384,7 +377,7 @@ class ProviderManagerToolTests(TestCase):
         """
         verify that ./manage.py validate -N shows information about deprecated fields
         """
-        filename = os.path.join(self.tmpdir, "jobs", "broken.txt")
+        filename = os.path.join(self.tmpdir, "jobs", "broken.pxu")
         with open(filename, "wt", encoding='UTF-8') as stream:
             print("name: broken", file=stream)
             print("plugin: manual", file=stream)
@@ -394,18 +387,16 @@ class ProviderManagerToolTests(TestCase):
             self.tool.main(["validate", "-N"])
         self.assertEqual(test_io.stdout, inline_output(
             """
-            jobs/broken.txt:4: warning: job 'broken', field 'command', command on a manual or qml job makes no sense
-            jobs/broken.txt:3: warning: job 'broken', field 'description', field should be marked as translatable
-            jobs/broken.txt:1-4: advice: job 'broken', field 'estimated_duration', required field missing
-            jobs/broken.txt:1-4: advice: job 'broken', field 'flags', please ensure that the command supports non-C locale then set the preserve-locale flag
-            jobs/broken.txt:1: advice: job 'broken', field 'name', use 'id' and 'summary' instead of 'name'
-            jobs/broken.txt:1-4: advice: job 'broken', field 'purpose', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
-            jobs/broken.txt:1-4: advice: job 'broken', field 'steps', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
-            jobs/broken.txt:1-4: advice: job 'broken', field 'verification', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
-            jobs/broken.txt: advice: please use .pxu as an extension for all files with plainbox units, see: http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-1
-            jobs/jobs.txt:1-4: advice: job 'dummy', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
-            jobs/jobs.txt:1-4: advice: job 'dummy', field 'flags', please ensure that the command supports non-C locale then set the preserve-locale flag
-            jobs/jobs.txt: advice: please use .pxu as an extension for all files with plainbox units, see: http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-1
+            jobs/broken.pxu:4: warning: job 'broken', field 'command', command on a manual or qml job makes no sense
+            jobs/broken.pxu:3: warning: job 'broken', field 'description', field should be marked as translatable
+            jobs/broken.pxu:1-4: advice: job 'broken', field 'estimated_duration', required field missing
+            jobs/broken.pxu:1-4: advice: job 'broken', field 'flags', please ensure that the command supports non-C locale then set the preserve-locale flag
+            jobs/broken.pxu:1: advice: job 'broken', field 'name', use 'id' and 'summary' instead of 'name'
+            jobs/broken.pxu:1-4: advice: job 'broken', field 'purpose', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
+            jobs/broken.pxu:1-4: advice: job 'broken', field 'steps', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
+            jobs/broken.pxu:1-4: advice: job 'broken', field 'verification', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
+            jobs/jobs.pxu:1-4: advice: job 'dummy', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
+            jobs/jobs.pxu:1-4: advice: job 'dummy', field 'flags', please ensure that the command supports non-C locale then set the preserve-locale flag
             Validation of provider 2014.com.example:test has failed
             """))
 
@@ -423,7 +414,7 @@ class ProviderManagerToolTests(TestCase):
             "\tversion: 1.0\n"
             "\tgettext domain: domain\n"
             "[Job Definitions]\n"
-            "\tjob 2014.com.example::dummy, from jobs/jobs.txt:1-4\n"
+            "\tjob 2014.com.example::dummy, from jobs/jobs.pxu:1-4\n"
             "[Test Plans]\n"
             "\ttest plan 2014.com.example::test, from whitelists/test.whitelist:1\n"
             "[Test Plans] (legacy)\n"
@@ -431,7 +422,7 @@ class ProviderManagerToolTests(TestCase):
             "[Other Units]\n"
             "\tfile bin/test.sh, role script\n"
             "\tfile data/test.dat, role data\n"
-            "\tfile jobs/jobs.txt, role unit-source\n"
+            "\tfile jobs/jobs.pxu, role unit-source\n"
             "\tfile whitelists/test.whitelist, role legacy-whitelist\n"
             "[Executables]\n"
             "\t'test.sh'\n"))
@@ -443,7 +434,7 @@ class ProviderManagerToolTests(TestCase):
 
     def _create_definition(self, tmpdir):
         os.mkdir(os.path.join(tmpdir, "jobs"))
-        filename = os.path.join(tmpdir, "jobs", "jobs.txt")
+        filename = os.path.join(tmpdir, "jobs", "jobs.pxu")
         with open(filename, "wt", encoding='UTF-8') as stream:
             print("id: dummy", file=stream)
             print("plugin: shell", file=stream)

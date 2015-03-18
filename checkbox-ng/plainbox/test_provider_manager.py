@@ -110,8 +110,14 @@ class ProviderManagerToolTests(TestCase):
         self.assertFileContent(
             self.tmpdir + os.path.join(
                 prefix, "lib", "plainbox-providers-1", "2014.com.example:test",
-                "whitelists", "test.whitelist"),
-            "dummy\n")
+                "units", "testplans.pxu"
+            ), (
+                "unit: test plan\n"
+                "id: test\n"
+                "_name: Dummy Tests\n"
+                "_description: All dummy tests\n"
+                "estimated_duration: 10\n"
+                "include: dummy\n"))
         self.assertFileContent(
             self.tmpdir + os.path.join(
                 prefix, "lib", "plainbox-providers-1", "2014.com.example:test",
@@ -167,8 +173,8 @@ class ProviderManagerToolTests(TestCase):
             "gettext_domain = domain\n"
             "jobs_dir = {prefix}/share/2014.com.example:test/jobs\n"
             "name = 2014.com.example:test\n"
+            "units_dir = {prefix}/share/2014.com.example:test/units\n"
             "version = 1.0\n"
-            "whitelists_dir = {prefix}/share/2014.com.example:test/whitelists\n"
             "\n".format(prefix=prefix))
         self.assertFileContent(filename, content)
         self.assertFileContent(
@@ -182,9 +188,15 @@ class ProviderManagerToolTests(TestCase):
             "_description: This job is dummy\n")
         self.assertFileContent(
             self.tmpdir + os.path.join(
-                prefix, "share",  "2014.com.example:test", "whitelists",
-                "test.whitelist"),
-            "dummy\n")
+                prefix, "share",  "2014.com.example:test", "units",
+                "testplans.pxu"
+            ), (
+                "unit: test plan\n"
+                "id: test\n"
+                "_name: Dummy Tests\n"
+                "_description: All dummy tests\n"
+                "estimated_duration: 10\n"
+                "include: dummy\n"))
         self.assertFileContent(
             self.tmpdir + os.path.join(
                 prefix, "share", "2014.com.example:test", "data", "test.dat"),
@@ -205,8 +217,13 @@ class ProviderManagerToolTests(TestCase):
 
     def assert_common_sdist(self, tarball):
         self.assertTarballContent(
-            tarball, "2014.com.example.test-1.0/whitelists/test.whitelist",
-            "dummy\n")
+            tarball, "2014.com.example.test-1.0/units/testplans.pxu", (
+                "unit: test plan\n"
+                "id: test\n"
+                "_name: Dummy Tests\n"
+                "_description: All dummy tests\n"
+                "estimated_duration: 10\n"
+                "include: dummy\n"))
         self.assertTarballContent(
             tarball, "2014.com.example.test-1.0/data/test.dat", "data\n")
         self.assertTarballContent(
@@ -421,14 +438,14 @@ class ProviderManagerToolTests(TestCase):
             "[Job Definitions]\n"
             "\tjob 2014.com.example::dummy, from jobs/jobs.pxu:1-6\n"
             "[Test Plans]\n"
-            "\ttest plan 2014.com.example::test, from whitelists/test.whitelist:1\n"
+            "\ttest plan 2014.com.example::test, from units/testplans.pxu:1-6\n"
             "[Test Plans] (legacy)\n"
-            "\ttest from whitelists/test.whitelist:1\n"
+            "\ttest from units/testplans.pxu:1-6\n"
             "[Other Units]\n"
             "\tfile bin/test.sh, role script\n"
             "\tfile data/test.dat, role data\n"
             "\tfile jobs/jobs.pxu, role unit-source\n"
-            "\tfile whitelists/test.whitelist, role legacy-whitelist\n"
+            "\tfile units/testplans.pxu, role unit-source\n"
             "[Executables]\n"
             "\t'test.sh'\n"))
 
@@ -449,10 +466,15 @@ class ProviderManagerToolTests(TestCase):
             # NOTE: absence of summary is not reported? Bug?
             # print("_summary: A dummy job", file=stream)
             print("_description: This job is dummy", file=stream)
-        os.mkdir(os.path.join(tmpdir, "whitelists"))
-        filename = os.path.join(tmpdir, "whitelists", "test.whitelist")
+        os.mkdir(os.path.join(tmpdir, "units"))
+        filename = os.path.join(tmpdir, "units", "testplans.pxu")
         with open(filename, "wt", encoding='UTF-8') as stream:
-            print("dummy", file=stream)
+            print("unit: test plan", file=stream)
+            print("id: test", file=stream)
+            print("_name: Dummy Tests", file=stream)
+            print("_description: All dummy tests", file=stream)
+            print("estimated_duration: 10", file=stream)
+            print("include: dummy", file=stream)
         os.mkdir(os.path.join(tmpdir, "data"))
         filename = os.path.join(tmpdir, "data", "test.dat")
         with open(filename, "wt", encoding='UTF-8') as stream:

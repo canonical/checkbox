@@ -134,8 +134,12 @@ class ProviderManagerToolTests(TestCase):
             self.tmpdir + os.path.join("/foo", "lib", "plainbox-providers-1",
                                        "2014.com.example:test", "jobs",
                                        "jobs.pxu"),
-            ("id: dummy\nplugin: shell\ncommand: true\n"
-             "estimated_duration: 10\n"))
+            "id: dummy\n"
+            "plugin: shell\n"
+            "command: true\n"
+            "estimated_duration: 10\n"
+            "flags: preserve-locale\n"
+            "_description: This job is dummy\n")
 
     def test_install__flat_partial(self):
         """
@@ -170,7 +174,12 @@ class ProviderManagerToolTests(TestCase):
         self.assertFileContent(
             self.tmpdir + os.path.join(
                 prefix, "share", "2014.com.example:test", "jobs", "jobs.pxu"),
-            "id: dummy\nplugin: shell\ncommand: true\nestimated_duration: 10\n")
+            "id: dummy\n"
+            "plugin: shell\n"
+            "command: true\n"
+            "estimated_duration: 10\n"
+            "flags: preserve-locale\n"
+            "_description: This job is dummy\n")
         self.assertFileContent(
             self.tmpdir + os.path.join(
                 prefix, "share",  "2014.com.example:test", "whitelists",
@@ -216,7 +225,13 @@ class ProviderManagerToolTests(TestCase):
             self.tmpdir, "dist", "2014.com.example.test-1.0.tar.gz")
         self.assertTarballContent(
             tarball, "2014.com.example.test-1.0/jobs/jobs.pxu",
-            "id: dummy\nplugin: shell\ncommand: true\nestimated_duration: 10\n")
+            "id: dummy\n"
+            "plugin: shell\n"
+            "command: true\n"
+            "estimated_duration: 10\n"
+            "flags: preserve-locale\n"
+            "_description: This job is dummy\n"
+        )
         self.assert_common_sdist(tarball)
 
     def test_sdist__partial(self):
@@ -299,8 +314,6 @@ class ProviderManagerToolTests(TestCase):
             self.tool.main(["validate", "-N"])
         self.assertEqual(test_io.stdout, inline_output(
             """
-            jobs/jobs.pxu:1-4: advice: job 'dummy', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
-            jobs/jobs.pxu:1-4: advice: job 'dummy', field 'flags', please ensure that the command supports non-C locale then set the preserve-locale flag
             The provider seems to be valid
             """))
 
@@ -319,8 +332,6 @@ class ProviderManagerToolTests(TestCase):
             jobs/broken.pxu:1-2: error: job 'broken', field 'command', command is mandatory for non-manual jobs
             jobs/broken.pxu:1-2: advice: job 'broken', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
             jobs/broken.pxu:1-2: advice: job 'broken', field 'estimated_duration', required field missing
-            jobs/jobs.pxu:1-4: advice: job 'dummy', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
-            jobs/jobs.pxu:1-4: advice: job 'dummy', field 'flags', please ensure that the command supports non-C locale then set the preserve-locale flag
             Validation of provider 2014.com.example:test has failed
             """))
 
@@ -341,8 +352,6 @@ class ProviderManagerToolTests(TestCase):
             jobs/broken.pxu:1-2: advice: job 'broken', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
             jobs/broken.pxu:1-2: advice: job 'broken', field 'estimated_duration', required field missing
             jobs/broken.pxu:2: error: job 'broken', field 'plugin', valid values are: attachment, local, manual, qml, resource, shell, user-interact, user-interact-verify, user-verify
-            jobs/jobs.pxu:1-4: advice: job 'dummy', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
-            jobs/jobs.pxu:1-4: advice: job 'dummy', field 'flags', please ensure that the command supports non-C locale then set the preserve-locale flag
             Validation of provider 2014.com.example:test has failed
             """))
 
@@ -368,8 +377,6 @@ class ProviderManagerToolTests(TestCase):
             jobs/broken.pxu:1-4: advice: job 'broken', field 'purpose', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
             jobs/broken.pxu:1-4: advice: job 'broken', field 'steps', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
             jobs/broken.pxu:1-4: advice: job 'broken', field 'verification', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
-            jobs/jobs.pxu:1-4: advice: job 'dummy', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
-            jobs/jobs.pxu:1-4: advice: job 'dummy', field 'flags', please ensure that the command supports non-C locale then set the preserve-locale flag
             Validation of provider 2014.com.example:test has failed
             """))
 
@@ -395,8 +402,6 @@ class ProviderManagerToolTests(TestCase):
             jobs/broken.pxu:1-4: advice: job 'broken', field 'purpose', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
             jobs/broken.pxu:1-4: advice: job 'broken', field 'steps', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
             jobs/broken.pxu:1-4: advice: job 'broken', field 'verification', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
-            jobs/jobs.pxu:1-4: advice: job 'dummy', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
-            jobs/jobs.pxu:1-4: advice: job 'dummy', field 'flags', please ensure that the command supports non-C locale then set the preserve-locale flag
             Validation of provider 2014.com.example:test has failed
             """))
 
@@ -414,7 +419,7 @@ class ProviderManagerToolTests(TestCase):
             "\tversion: 1.0\n"
             "\tgettext domain: domain\n"
             "[Job Definitions]\n"
-            "\tjob 2014.com.example::dummy, from jobs/jobs.pxu:1-4\n"
+            "\tjob 2014.com.example::dummy, from jobs/jobs.pxu:1-6\n"
             "[Test Plans]\n"
             "\ttest plan 2014.com.example::test, from whitelists/test.whitelist:1\n"
             "[Test Plans] (legacy)\n"
@@ -440,6 +445,10 @@ class ProviderManagerToolTests(TestCase):
             print("plugin: shell", file=stream)
             print("command: true", file=stream)
             print("estimated_duration: 10", file=stream)
+            print("flags: preserve-locale", file=stream)
+            # NOTE: absence of summary is not reported? Bug?
+            # print("_summary: A dummy job", file=stream)
+            print("_description: This job is dummy", file=stream)
         os.mkdir(os.path.join(tmpdir, "whitelists"))
         filename = os.path.join(tmpdir, "whitelists", "test.whitelist")
         with open(filename, "wt", encoding='UTF-8') as stream:

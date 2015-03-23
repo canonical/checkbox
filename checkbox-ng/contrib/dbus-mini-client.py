@@ -421,10 +421,10 @@ def export_session():
         error_handler=handle_error
     )
 
-# Start the first call after a short delay
-GObject.timeout_add(5, main)
-loop = GObject.MainLoop()
-loop.run()
-
-# Stop the Plainbox dbus service
-service.Exit()
+if __name__ == '__main__':
+    # Start the first call after a short delay
+    GObject.timeout_add(5, main)
+    loop = GObject.MainLoop()
+    loop.run()
+    # Stop the Plainbox dbus service
+    service.Exit()

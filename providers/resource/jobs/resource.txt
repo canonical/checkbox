@@ -53,8 +53,10 @@ _description: Generates a list of packages
 id: executable
 estimated_duration: 0.78
 plugin: resource
+_summary: Enumerate available system executables
 _description: Generates a resource for all available executables
 command:
+    export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
     find -H $(echo "$PATH" | sed -e 's/:/ /g') -maxdepth 1 -type f -executable -printf "name: %f\n\n"
 
 id: device

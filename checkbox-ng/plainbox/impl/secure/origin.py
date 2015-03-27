@@ -267,7 +267,7 @@ class FileTextSource(ITextSource):
 
     def relative_to(self, base_dir):
         """
-        Compute a FileTextSource with the filename being a realtive path from
+        Compute a FileTextSource with the filename being a relative path from
         the specified base directory.
 
         :param base_dir:

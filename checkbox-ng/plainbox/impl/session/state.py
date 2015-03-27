@@ -196,7 +196,7 @@ class SessionDeviceContext:
         are compatible with the device.
 
     :attr _unit_list:
-        A list of all the units known by this device. Initially it is idenitcal
+        A list of all the units known by this device. Initially it is identical
         to the union of all the units from ``_provider_list`` but it is in fact
         mutable and can be grown (or shrunk in some cases) when jobs are
         created at runtime.

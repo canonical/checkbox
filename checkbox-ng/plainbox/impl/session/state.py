@@ -405,7 +405,7 @@ class SessionDeviceContext:
         if unit in self._unit_list:
             raise ValueError(_("attempting to add the same unit twice"))
         self.state.add_unit(unit)
-        # NOTE: no need to fire the on_unit_added() signal becuse the state
+        # NOTE: no need to fire the on_unit_added() signal because the state
         # object and we've connected it to will fire our version.
 
     def remove_unit(self, unit):

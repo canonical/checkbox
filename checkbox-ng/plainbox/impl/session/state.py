@@ -196,7 +196,7 @@ class SessionDeviceContext:
         are compatible with the device.
 
     :attr _unit_list:
-        A list of all the units known by this device. Initially it is idenitcal
+        A list of all the units known by this device. Initially it is identical
         to the union of all the units from ``_provider_list`` but it is in fact
         mutable and can be grown (or shrunk in some cases) when jobs are
         created at runtime.
@@ -225,7 +225,7 @@ class SessionDeviceContext:
         Initialize a new SessionDeviceContext.
 
         :param state:
-            An (optinal) state to use
+            An (optional) state to use
 
         Note that using an initial state will not cause any of the signals to
         fire for the initial list of units nor the list of providers (derived
@@ -352,9 +352,9 @@ class SessionDeviceContext:
         This method is intended to be called exactly once per session, after
         the application determines the set of test plans it intends to execute.
 
-        The method will collect all of the override values expoxed by all of
+        The method will collect all of the override values exposed by all of
         the test plans and apply them in sequence. Note that correct
-        applications must also pefrorm micro-updates whenever a new test job is
+        applications must also perform micro-updates whenever a new test job is
         added to the system.
         """
         self._test_plan_list = test_plan_list
@@ -405,7 +405,7 @@ class SessionDeviceContext:
         if unit in self._unit_list:
             raise ValueError(_("attempting to add the same unit twice"))
         self.state.add_unit(unit)
-        # NOTE: no need to fire the on_unit_added() signal becuse the state
+        # NOTE: no need to fire the on_unit_added() signal because the state
         # object and we've connected it to will fire our version.
 
     def remove_unit(self, unit):
@@ -421,7 +421,7 @@ class SessionDeviceContext:
             raise ValueError(
                 _("attempting to remove unit not in this context"))
         self.state.remove_unit(unit)
-        # NOTE: no need to fire the on_unit_removed() signal becuse the state
+        # NOTE: no need to fire the on_unit_removed() signal because the state
         # object and we've connected it to will fire our version.
 
     def get_ctrl_for_job(self, job):

@@ -225,7 +225,7 @@ class SessionDeviceContext:
         Initialize a new SessionDeviceContext.
 
         :param state:
-            An (optinal) state to use
+            An (optional) state to use
 
         Note that using an initial state will not cause any of the signals to
         fire for the initial list of units nor the list of providers (derived

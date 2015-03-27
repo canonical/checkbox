@@ -71,7 +71,7 @@ class UnitValidationContext:
 
     This class has two purposes:
 
-    1) to allow a the validated object to see "everything" (other units)
+    1) to allow the validated object to see "everything" (other units)
     2) to allow validators to share temporary data structures
        and to prevent O(N**2) complexity of some checks.
 

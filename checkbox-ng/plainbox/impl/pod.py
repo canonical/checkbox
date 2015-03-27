@@ -170,7 +170,7 @@ class Field:
     default (internal) :meth:`on_changed()` method of the Field class itself.
     If specified it must have the same three-argument signature. It will be
     called whenever the value of the field changes. Note that it will also be
-    called on the initial assignment, when the ``old`` argumement it receives
+    called on the initial assignment, when the ``old`` argument it receives
     will be set to the special ``UNSET`` object.
 
     Lastly a docstring and type hint can be provided for documentation. The

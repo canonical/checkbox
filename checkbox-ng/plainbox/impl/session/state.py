@@ -421,7 +421,7 @@ class SessionDeviceContext:
             raise ValueError(
                 _("attempting to remove unit not in this context"))
         self.state.remove_unit(unit)
-        # NOTE: no need to fire the on_unit_removed() signal becuse the state
+        # NOTE: no need to fire the on_unit_removed() signal because the state
         # object and we've connected it to will fire our version.
 
     def get_ctrl_for_job(self, job):

@@ -352,7 +352,7 @@ class SessionDeviceContext:
         This method is intended to be called exactly once per session, after
         the application determines the set of test plans it intends to execute.
 
-        The method will collect all of the override values expoxed by all of
+        The method will collect all of the override values exposed by all of
         the test plans and apply them in sequence. Note that correct
         applications must also perform micro-updates whenever a new test job is
         added to the system.

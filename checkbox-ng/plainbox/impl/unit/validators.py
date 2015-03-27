@@ -30,6 +30,8 @@ import shlex
 
 from plainbox.i18n import gettext as _
 from plainbox.i18n import ngettext
+from plainbox.impl import pod
+from plainbox.abc import IProvider1
 from plainbox.impl.unit import get_accessed_parameters
 from plainbox.impl.validation import Issue
 from plainbox.impl.validation import Problem
@@ -65,7 +67,7 @@ def field2prop(field):
     return str(field).replace('-', '_')
 
 
-class UnitValidationContext:
+class UnitValidationContext(pod.POD):
     """
     Helper class for validating units in a bigger context
 
@@ -74,24 +76,15 @@ class UnitValidationContext:
     1) to allow a the validated object to see "everything" (other units)
     2) to allow validators to share temporary data structures
        and to prevent O(N**2) complexity of some checks.
-
-    :attr provider_list:
-        A list of Provider1 objects
     """
 
-    def __init__(self, provider_list):
-        """
-        Initialize a new validation context
+    provider_list = pod.Field(
+        "list of all the providers", list, pod.MANDATORY,
+        assign_filter_list=[pod.typed, pod.typed.sequence(IProvider1)])
 
-        :param provider_list:
-            A list of Provider1 objects
-        """
-        self._provider_list = provider_list
-        self._shared_cache = {}
-
-    @property
-    def provider_list(self):
-        return self._provider_list
+    shared_cache = pod.Field(
+        "cached computations", dict, initial_fn=dict,
+        assign_filter_list=[pod.typed])
 
     def compute_shared(self, cache_key, func, *args, **kwargs):
         """
@@ -115,9 +108,9 @@ class UnitValidationContext:
             The caller is responsible for ensuring that ``args`` and ``kwargs``
             match the `cache_key` each time this function is called.
         """
-        if cache_key not in self._shared_cache:
-            self._shared_cache[cache_key] = func(*args, **kwargs)
-        return self._shared_cache[cache_key]
+        if cache_key not in self.shared_cache:
+            self.shared_cache[cache_key] = func(*args, **kwargs)
+        return self.shared_cache[cache_key]
 
 
 class UnitFieldIssue(Issue):

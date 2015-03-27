@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 """
+Session State Handling.
+
 :mod:`plainbox.impl.session.state` -- session state handling
 ============================================================
 """
@@ -39,6 +41,7 @@ logger = logging.getLogger("plainbox.session.state")
 
 
 class SessionMetaData:
+
     """
     Class representing non-critical state of the session.
 
@@ -65,6 +68,7 @@ class SessionMetaData:
 
     def __init__(self, title=None, flags=None, running_job_name=None,
                  app_blob=None, app_id=None):
+        """ Initialize a new session state meta-data object. """
         if flags is None:
             flags = []
         self._title = title
@@ -74,6 +78,7 @@ class SessionMetaData:
         self._app_id = app_id
 
     def __repr__(self):
+        """ Get the representation of the session state meta-data. """
         return "<{} title:{!r} flags:{!r} running_job_name:{!r}>".format(
             self.__class__.__name__, self.title, self.flags,
             self.running_job_name)
@@ -92,6 +97,7 @@ class SessionMetaData:
 
     @title.setter
     def title(self, title):
+        """ set the session title to the given value. """
         self._title = title
 
     @property
@@ -110,12 +116,13 @@ class SessionMetaData:
 
     @flags.setter
     def flags(self, flags):
+        """ set the session flags to the given set. """
         self._flags = flags
 
     @property
     def running_job_name(self):
         """
-        id of the running job
+        id of the running job.
 
         .. note::
             This property has a confusing name. It actually refers to job ID,
@@ -133,6 +140,7 @@ class SessionMetaData:
 
     @running_job_name.setter
     def running_job_name(self, running_job_name):
+        """ set the id of the running job. """
         self._running_job_name = running_job_name
 
     @property
@@ -150,6 +158,7 @@ class SessionMetaData:
 
     @app_blob.setter
     def app_blob(self, value):
+        """ set the application specific binary blob to the given value. """
         if value is not None and not isinstance(value, bytes):
             # TRANSLATORS: please don't translate app_blob, None and bytes
             raise TypeError(_("app_blob must be either None or bytes"))
@@ -158,7 +167,7 @@ class SessionMetaData:
     @property
     def app_id(self):
         """
-        Application identifier
+        Application identifier.
 
         A string identifying the application that stored app_blob. It is
         recommended to use reverse domain names or UUIDs.
@@ -167,6 +176,7 @@ class SessionMetaData:
 
     @app_id.setter
     def app_id(self, value):
+        """ Set the application identifier to the given value. """
         if value is not None and not isinstance(value, str):
             # TRANSLATORS: please don't translate app_blob, None and bytes
             raise TypeError(_("app_id must be either None or str"))
@@ -174,6 +184,7 @@ class SessionMetaData:
 
 
 class SessionDeviceContext:
+
     """
     Session context specific to a given device.
 
@@ -211,7 +222,7 @@ class SessionDeviceContext:
 
     def __init__(self, state=None):
         """
-        Initialize a new SessionDeviceContext
+        Initialize a new SessionDeviceContext.
 
         :param state:
             An (optinal) state to use
@@ -352,7 +363,7 @@ class SessionDeviceContext:
 
     def add_provider(self, provider, add_units=True):
         """
-        Add a provider to the context
+        Add a provider to the context.
 
         :param provider:
             The :class:`Provider1` to add
@@ -379,7 +390,7 @@ class SessionDeviceContext:
 
     def add_unit(self, unit):
         """
-        Add a unit to the context
+        Add a unit to the context.
 
         :param unit:
             The :class:`Unit` to add.
@@ -399,7 +410,7 @@ class SessionDeviceContext:
 
     def remove_unit(self, unit):
         """
-        Remove an unit from the context
+        Remove an unit from the context.
 
         :param unit:
             The :class:`Unit` to remove.
@@ -415,7 +426,7 @@ class SessionDeviceContext:
 
     def get_ctrl_for_job(self, job):
         """
-        Get the execution controller most applicable to run this job
+        Get the execution controller most applicable to run this job.
 
         :param job:
             A job definition to run
@@ -448,9 +459,7 @@ class SessionDeviceContext:
 
     @signal
     def on_provider_added(self, provider):
-        """
-        Signal sent whenever a provider is added to the context.
-        """
+        """ Signal sent whenever a provider is added to the context. """
         logger.info(_("Provider %s added to context %s"), provider, self)
         # Invalidate the list of execution controllers as they depend
         # on the accuracy of provider_list
@@ -458,25 +467,19 @@ class SessionDeviceContext:
 
     @signal
     def on_unit_added(self, unit):
-        """
-        Signal sent whenever a unit is added to the context.
-        """
+        """ Signal sent whenever a unit is added to the context. """
         logger.debug(_("Unit %s added to context %s"), unit, self)
         if unit.Meta.name == 'job':
             self.on_job_added(unit)
 
     @signal
     def on_job_added(self, job):
-        """
-        Signal sent whenever a new job definition unit is added to the contex
-        """
+        """ Signal sent whenever a new job unit is added to the context. """
         self._override_update(job)
 
     @signal
     def on_unit_removed(self, unit):
-        """
-        Signal sent whenever a unit is removed from the context.
-        """
+        """ Signal sent whenever a unit is removed from the context. """
         logger.debug(_("Unit %s removed from context %s"), unit, self)
 
     def compute_shared(self, cache_key, func, *args, **kwargs):
@@ -504,13 +507,12 @@ class SessionDeviceContext:
         return self._shared_cache[cache_key]
 
     def invalidate_shared(self, cache_key):
+        """ Invalidate a cached shared value. """
         if cache_key in self._shared_cache:
             del self._shared_cache[cache_key]
 
     def _compute_execution_ctrl_list(self):
-        """
-        Internal method that computes the list of execution controllers
-        """
+        """ Compute the list of execution controllers. """
         # TODO: tie this with the upcoming device patches
         import sys
         if sys.platform == 'linux':
@@ -533,16 +535,11 @@ class SessionDeviceContext:
             return []
 
     def _invalidate_execution_ctrl_list(self, *args, **kwargs):
-        """
-        Internal method that invalidates the 'execution_controller_list' cache
-        key that is used to store the list of execution controllers.
-        """
+        """ Invalidate the list of execution controllers. """
         self.invalidate_shared(self._CACHE_EXECUTION_CTRL_LIST)
 
     def _compute_override_map(self):
-        """
-        Internal method that computes the map of field overrides
-        """
+        """ Compute the map of field overrides. """
         override_map = collections.defaultdict(list)
         for test_plan in self._test_plan_list:
             support = TestPlanUnitSupport(test_plan)
@@ -551,10 +548,7 @@ class SessionDeviceContext:
         return override_map
 
     def _invalidate_override_map(self, *args, **kwargs):
-        """
-        Internal method that invalidates the 'override_map' cache
-        key that is used to store the map of field overrides.
-        """
+        """ Invalidate the cached field override map. """
         self.invalidate_shared(self._CACHE_OVERRIDE_MAP)
 
     def _bulk_override_update(self):
@@ -576,6 +570,7 @@ class SessionDeviceContext:
 
 
 class SessionState:
+
     """
     Class representing all state needed during a single program session.
 
@@ -673,7 +668,7 @@ class SessionState:
     @signal
     def on_job_result_changed(self, job, result):
         """
-        Signal fired after a job get changed (set)
+        Signal fired after a job get changed (set).
 
         This signal is fired each time a result is presented to the session.
 
@@ -699,15 +694,11 @@ class SessionState:
 
     @signal
     def on_unit_added(self, unit):
-        """
-        Signal sent whenever a unit is added to the session.
-        """
+        """ Signal sent whenever a unit is added to the session. """
 
     @signal
     def on_unit_removed(self, unit):
-        """
-        Signal sent whenever a unit is removed from the session.
-        """
+        """ Signal sent whenever a unit is removed from the session. """
 
     def __init__(self, unit_list):
         """
@@ -828,7 +819,7 @@ class SessionState:
 
     def update_desired_job_list(self, desired_job_list):
         """
-        Update the set of desired jobs (that ought to run)
+        Update the set of desired jobs (that ought to run).
 
         This method can be used by the UI to recompute the dependency graph.
         The argument 'desired_job_list' is a list of jobs that should run.
@@ -873,6 +864,8 @@ class SessionState:
 
     def get_estimated_duration(self, manual_overhead=30.0):
         """
+        Estimate the total duration of the session.
+
         Provide the estimated duration of the jobs that have been selected
         to run in this session (maintained by calling update_desired_job_list).
 
@@ -936,7 +929,7 @@ class SessionState:
     @deprecated('0.9', 'use the add_unit() method instead')
     def add_job(self, new_job, recompute=True):
         """
-        Add a new job to the session
+        Add a new job to the session.
 
         :param new_job:
             The job being added
@@ -969,7 +962,7 @@ class SessionState:
 
     def add_unit(self, new_unit, recompute=True):
         """
-        Add a new unit to the session
+        Add a new unit to the session.
 
         :param new_unit:
             The unit being added
@@ -1041,7 +1034,7 @@ class SessionState:
 
     def remove_unit(self, unit, *, recompute=True):
         """
-        Remove an existing unit from the session
+        Remove an existing unit from the session.
 
         :param unit:
             The unit to remove
@@ -1093,15 +1086,13 @@ class SessionState:
 
     @property
     def unit_list(self):
-        """
-        List of all known units
-        """
+        """ List of all known units. """
         return self._unit_list
 
     @property
     def desired_job_list(self):
         """
-        List of jobs that are on the "desired to run" list
+        List of jobs that are on the "desired to run" list.
 
         This is a list, not a set, because the dependency solver algorithm
         retains as much of the original ordering as possible. Having said that,
@@ -1112,7 +1103,7 @@ class SessionState:
     @property
     def run_list(self):
         """
-        List of jobs that were intended to run, in the proper order
+        List of jobs that were intended to run, in the proper order.
 
         The order is a result of topological sorting of the desired_job_list.
         This value is recomputed when change_desired_run_list() is called. It
@@ -1122,23 +1113,17 @@ class SessionState:
 
     @property
     def job_state_map(self):
-        """
-        Map from job id to JobState that encodes the state of each job.
-        """
+        """ Map from job id to JobState associated with each job. """
         return self._job_state_map
 
     @property
     def resource_map(self):
-        """
-        Map from resource id to a list of resource records
-        """
+        """ Map from resource id to a list of resource records. """
         return self._resource_map
 
     @property
     def metadata(self):
-        """
-        metadata object associated with this session state.
-        """
+        """ meta-data object associated with this session state. """
         return self._metadata
 
     def _recompute_job_readiness(self):

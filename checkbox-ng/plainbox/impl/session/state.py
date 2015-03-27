@@ -354,7 +354,7 @@ class SessionDeviceContext:
 
         The method will collect all of the override values expoxed by all of
         the test plans and apply them in sequence. Note that correct
-        applications must also pefrorm micro-updates whenever a new test job is
+        applications must also perform micro-updates whenever a new test job is
         added to the system.
         """
         self._test_plan_list = test_plan_list

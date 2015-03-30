@@ -221,6 +221,7 @@ class Explorer:
         return service_obj
 
     def _unit_to_obj(self, unit):
+        # Yes, this should be moved to member methods
         if unit.Meta.name == 'test plan':
             return self._test_plan_to_obj(unit)
         elif unit.Meta.name == 'job':
@@ -231,6 +232,8 @@ class Explorer:
             return self._file_to_obj(unit)
         elif unit.Meta.name == 'template':
             return self._template_to_obj(unit)
+        elif unit.Meta.name == 'manifest entry':
+            return self._manifest_entry_to_obj(unit)
         else:
             raise NotImplementedError(unit.Meta.name)
 
@@ -306,6 +309,18 @@ class Explorer:
                 ('template_resource', unit.template_resource),
                 ('template_filter', unit.template_filter),
                 ('template_imports', unit.template_imports),
+                ('origin', str(unit.origin)),
+            )))
+
+    def _manifest_entry_to_obj(self, unit):
+        return PlainBoxObject(
+            unit, group=unit.Meta.name, name=unit.id, attrs=OrderedDict((
+                ('id', unit.id),
+                ('name', unit.name),
+                ('tr_name', unit.tr_name()),
+                ('value_type', unit.value_type),
+                ('value_unit', unit.value_unit),
+                ('resource_key', unit.resource_key),
                 ('origin', str(unit.origin)),
             )))
 

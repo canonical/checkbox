@@ -316,6 +316,8 @@ man_pages = [
      'syntax and semantics of Plainbox test plan unit type', _authors, 7),
     ('manpages/plainbox-job-units', 'plainbox-job-units',
      'syntax and semantics of Plainbox job unit type', _authors, 7),
+    ('manpages/plainbox-manifest-entry-units', 'plainbox-job-units',
+     'syntax and semantics of Plainbox manifest entry unit type', _authors, 7),
     ('manpages/PLAINBOX_SESSION_SHARE', 'PLAINBOX_SESSION_SHARE',
      'per-session runtime shared-state directory', _authors, 7),
     ('manpages/PLAINBOX_PROVIDER_DATA', 'PLAINBOX_PROVIDER_DATA',

@@ -402,7 +402,7 @@ class SourceDistributionCommand(ManageCommand):
     name = "sdist"
 
     _INCLUDED_ITEMS = ['manage.py', 'README.md', 'units', 'jobs', 'whitelists',
-                       'bin', 'src', 'data', 'po']
+                       'COPYING', 'bin', 'src', 'data', 'po']
 
     def register_parser(self, subparsers):
         """

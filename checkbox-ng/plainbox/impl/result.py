@@ -27,11 +27,13 @@ This module has two basic implementation of :class:`IJobResult`:
 
 from collections import namedtuple
 import base64
+import codecs
 import gzip
 import io
 import json
 import logging
 import inspect
+import re
 
 from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _
@@ -39,6 +41,20 @@ from plainbox.i18n import pgettext as C_
 from plainbox.vendor.morris import signal
 
 logger = logging.getLogger("plainbox.result")
+
+
+# Regular expressions that match control characters, EXCEPT for the newline,
+# carriage return, tab and vertical space
+#
+# According to http://unicode.org/glossary/#control_codes
+# control codes are "The 65 characters in the ranges U+0000..U+001F and
+# U+007F..U+009F. Also known as control characters."
+#
+# NOTE: we don't want to match certain control characters (newlines, carriage
+# returns, tabs or vertical tabs as those are allowed by lxml and it would be
+# silly to strip them.
+CONTROL_CODE_RE_STR = re.compile(
+    "(?![\n\r\t\v])[\u0000-\u001F]|[\u007F-\u009F]")
 
 
 # Tuple representing entries in the JobResult.io_log
@@ -363,6 +379,60 @@ class _JobResultBase(IJobResult):
     @property
     def io_log(self):
         return tuple(self.get_io_log())
+
+    @property
+    def io_log_as_flat_text(self):
+        """
+        Convert the I/O log to a text string, replacing non unicode characters
+        with U+FFFD, the REPLACEMENT CHARACTER.
+
+        Both stdout and stderr streams are merged together into a single
+        string. I/O log record are first decoded to UTF-8 and all control
+        characters (EXCEPT for the newline, carriage return, tab and
+        vertical space) are removed:
+
+        >>> result = MemoryJobResult({'io_log': [
+        ...            (0, 'stdout', b'foo\\n'),
+        ...            (1, 'stderr', b'\u001Ebar\\n')]})
+        >>> result.io_log_as_flat_text
+        'foo\\nbar\\n'
+
+        When the input bytes can’t be converted they are replaced by U+FFFD:
+
+        >>> special_char = bytes([255,])
+        >>> result = MemoryJobResult({'io_log': [(0, 'stdout', special_char)]})
+        >>> result.io_log_as_flat_text
+        '�'
+        """
+        return ''.join(
+            CONTROL_CODE_RE_STR.sub('', text_chunk)
+            for text_chunk in codecs.iterdecode(
+                (record.data for record in self.get_io_log()),
+                'UTF-8', 'replace'))
+
+    @property
+    def io_log_as_text_attachment(self):
+        """
+        Convert the I/O log to text attachment, if possible, otherwise return
+        an empty string.
+
+        This method is similar to
+        :meth:`_JobResultBase.io_log_as_flat_text()` but only merge stdout
+        records to recreate the original attachment file.
+
+        :returns:
+            stdout of the given job, converted to text (assuming UTF-8
+            encoding) with Unicode control characters removed, if possible, or
+            an empty string otherwise.
+        """
+        try:
+            return ''.join(
+                CONTROL_CODE_RE_STR.sub('', text_chunk)
+                for text_chunk in codecs.iterdecode(
+                    (record.data for record in self.get_io_log()
+                        if record[1] == 'stdout'), 'UTF-8'))
+        except UnicodeDecodeError:
+            return ''
 
     @property
     def is_hollow(self):

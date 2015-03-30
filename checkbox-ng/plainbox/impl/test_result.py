@@ -25,6 +25,7 @@ Test definitions for plainbox.impl.result module
 """
 from tempfile import TemporaryDirectory
 from unittest import TestCase
+import doctest
 import io
 
 from plainbox.abc import IJobResult
@@ -34,6 +35,13 @@ from plainbox.impl.result import IOLogRecordReader
 from plainbox.impl.result import IOLogRecordWriter
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.testing_utils import make_io_log
+
+
+def load_tests(loader, tests, ignore):
+    tests.addTests(
+        doctest.DocTestSuite('plainbox.impl.result',
+                             optionflags=doctest.REPORT_NDIFF))
+    return tests
 
 
 class CommonTestsMixIn:
@@ -86,8 +94,18 @@ class DiskJobResultTests(TestCase, CommonTestsMixIn):
         self.assertEqual(result.outcome, IJobResult.OUTCOME_PASS)
         self.assertEqual(result.comments, "it said blah")
         self.assertEqual(result.io_log, ((0, 'stdout', b'blah\n'),))
+        self.assertEqual(result.io_log_as_flat_text, 'blah\n')
         self.assertEqual(result.return_code, 0)
         self.assertFalse(result.is_hollow)
+
+    def test_io_log_as_text_attachment(self):
+        result = MemoryJobResult({
+            'outcome': IJobResult.OUTCOME_PASS,
+            'comments': "it said blah",
+            'io_log': [(0, 'stdout', b'\x80\x456')],
+            'return_code': 0
+        })
+        self.assertEqual(result.io_log_as_text_attachment, '')
 
 
 class MemoryJobResultTests(TestCase, CommonTestsMixIn):
@@ -119,9 +137,18 @@ class MemoryJobResultTests(TestCase, CommonTestsMixIn):
         self.assertEqual(result.outcome, IJobResult.OUTCOME_PASS)
         self.assertEqual(result.comments, "it said blah")
         self.assertEqual(result.io_log, ((0, 'stdout', b'blah\n'),))
+        self.assertEqual(result.io_log_as_flat_text, 'blah\n')
         self.assertEqual(result.return_code, 0)
         self.assertFalse(result.is_hollow)
 
+    def test_io_log_as_text_attachment(self):
+        result = MemoryJobResult({
+            'outcome': IJobResult.OUTCOME_PASS,
+            'comments': "it said foo",
+            'io_log': [(0, 'stdout', b'foo')],
+            'return_code': 0
+        })
+        self.assertEqual(result.io_log_as_text_attachment, 'foo')
 
 class IOLogRecordWriterTests(TestCase):
 

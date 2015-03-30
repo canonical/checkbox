@@ -30,6 +30,7 @@ import os
 import shutil
 import tarfile
 import tempfile
+import textwrap
 
 from plainbox.impl.secure.providers.v1 import Provider1Definition
 from plainbox.provider_manager import InstallCommand
@@ -40,14 +41,20 @@ from plainbox.testing_utils.io import TestIO
 from plainbox.vendor import mock
 
 
+def inline_output(text):
+    return textwrap.dedent(text).lstrip('\n')
+
+
 class ProviderManagerToolTests(TestCase):
     """
     Unit tests for the ``./manage.py`` tool
     """
 
+    maxDiff = None
+
     def test_help(self):
         """
-        verify that ``manage.py validate`` says everything is okay when it is
+        verify that ``manage.py --help`` works.
         """
         with TestIO() as test_io:
             with self.assertRaises(SystemExit):
@@ -103,8 +110,14 @@ class ProviderManagerToolTests(TestCase):
         self.assertFileContent(
             self.tmpdir + os.path.join(
                 prefix, "lib", "plainbox-providers-1", "2014.com.example:test",
-                "whitelists", "test.whitelist"),
-            "dummy\n")
+                "units", "testplans.pxu"
+            ), (
+                "unit: test plan\n"
+                "id: test\n"
+                "_name: Dummy Tests\n"
+                "_description: All dummy tests\n"
+                "estimated_duration: 10\n"
+                "include: dummy\n"))
         self.assertFileContent(
             self.tmpdir + os.path.join(
                 prefix, "lib", "plainbox-providers-1", "2014.com.example:test",
@@ -126,9 +139,13 @@ class ProviderManagerToolTests(TestCase):
         self.assertFileContent(
             self.tmpdir + os.path.join("/foo", "lib", "plainbox-providers-1",
                                        "2014.com.example:test", "jobs",
-                                       "jobs.txt"),
-            ("id: dummy\nplugin: shell\ncommand: true\n"
-             "estimated_duration: 10\n"))
+                                       "jobs.pxu"),
+            "id: dummy\n"
+            "plugin: shell\n"
+            "command: true\n"
+            "estimated_duration: 10\n"
+            "flags: preserve-locale\n"
+            "_description: This job is dummy\n")
 
     def test_install__flat_partial(self):
         """
@@ -142,7 +159,7 @@ class ProviderManagerToolTests(TestCase):
         self.assertFalse(
             os.path.exists(self.tmpdir + os.path.join(
                 "/foo", "lib", "plainbox-providers-1", "2014.com.example:test",
-                "jobs", "jobs.txt")))
+                "jobs", "jobs.pxu")))
 
     def assert_common_unix_install(self, prefix="/foo"):
         filename = self.tmpdir + os.path.join(
@@ -156,19 +173,30 @@ class ProviderManagerToolTests(TestCase):
             "gettext_domain = domain\n"
             "jobs_dir = {prefix}/share/2014.com.example:test/jobs\n"
             "name = 2014.com.example:test\n"
+            "units_dir = {prefix}/share/2014.com.example:test/units\n"
             "version = 1.0\n"
-            "whitelists_dir = {prefix}/share/2014.com.example:test/whitelists\n"
             "\n".format(prefix=prefix))
         self.assertFileContent(filename, content)
         self.assertFileContent(
             self.tmpdir + os.path.join(
-                prefix, "share", "2014.com.example:test", "jobs", "jobs.txt"),
-            "id: dummy\nplugin: shell\ncommand: true\nestimated_duration: 10\n")
+                prefix, "share", "2014.com.example:test", "jobs", "jobs.pxu"),
+            "id: dummy\n"
+            "plugin: shell\n"
+            "command: true\n"
+            "estimated_duration: 10\n"
+            "flags: preserve-locale\n"
+            "_description: This job is dummy\n")
         self.assertFileContent(
             self.tmpdir + os.path.join(
-                prefix, "share",  "2014.com.example:test", "whitelists",
-                "test.whitelist"),
-            "dummy\n")
+                prefix, "share",  "2014.com.example:test", "units",
+                "testplans.pxu"
+            ), (
+                "unit: test plan\n"
+                "id: test\n"
+                "_name: Dummy Tests\n"
+                "_description: All dummy tests\n"
+                "estimated_duration: 10\n"
+                "include: dummy\n"))
         self.assertFileContent(
             self.tmpdir + os.path.join(
                 prefix, "share", "2014.com.example:test", "data", "test.dat"),
@@ -189,8 +217,13 @@ class ProviderManagerToolTests(TestCase):
 
     def assert_common_sdist(self, tarball):
         self.assertTarballContent(
-            tarball, "2014.com.example.test-1.0/whitelists/test.whitelist",
-            "dummy\n")
+            tarball, "2014.com.example.test-1.0/units/testplans.pxu", (
+                "unit: test plan\n"
+                "id: test\n"
+                "_name: Dummy Tests\n"
+                "_description: All dummy tests\n"
+                "estimated_duration: 10\n"
+                "include: dummy\n"))
         self.assertTarballContent(
             tarball, "2014.com.example.test-1.0/data/test.dat", "data\n")
         self.assertTarballContent(
@@ -208,8 +241,14 @@ class ProviderManagerToolTests(TestCase):
         tarball = os.path.join(
             self.tmpdir, "dist", "2014.com.example.test-1.0.tar.gz")
         self.assertTarballContent(
-            tarball, "2014.com.example.test-1.0/jobs/jobs.txt",
-            "id: dummy\nplugin: shell\ncommand: true\nestimated_duration: 10\n")
+            tarball, "2014.com.example.test-1.0/jobs/jobs.pxu",
+            "id: dummy\n"
+            "plugin: shell\n"
+            "command: true\n"
+            "estimated_duration: 10\n"
+            "flags: preserve-locale\n"
+            "_description: This job is dummy\n"
+        )
         self.assert_common_sdist(tarball)
 
     def test_sdist__partial(self):
@@ -222,7 +261,7 @@ class ProviderManagerToolTests(TestCase):
         tarball = os.path.join(
             self.tmpdir, "dist", "2014.com.example.test-1.0.tar.gz")
         self.assertNoTarballContent(
-            tarball, "2014.com.example.test-1.0/jobs/jobs.txt")
+            tarball, "2014.com.example.test-1.0/jobs/jobs.pxu")
         self.assert_common_sdist(tarball)
 
     def test_develop(self):
@@ -286,79 +325,102 @@ class ProviderManagerToolTests(TestCase):
 
     def test_validate(self):
         """
-        verify that ``manage.py validate`` says everything is okay when it is
+        verify that ``manage.py validate -N`` says everything is okay when it is
         """
         with TestIO() as test_io:
-            self.tool.main(["validate"])
-        self.assertEqual(test_io.stdout, "The provider seems to be valid\n")
+            self.tool.main(["validate", "-N"])
+        self.assertEqual(test_io.stdout, inline_output(
+            """
+            The provider seems to be valid
+            """))
 
     def test_validate__broken_missing_field(self):
         """
-        verify that ./manage.py validate shows information about missing fields
+        verify that ./manage.py validate -N shows information about missing fields
         """
-        filename = os.path.join(self.tmpdir, "jobs", "broken.txt")
+        filename = os.path.join(self.tmpdir, "jobs", "broken.pxu")
         with open(filename, "wt", encoding='UTF-8') as stream:
             print("id: broken", file=stream)
             print("plugin: shell", file=stream)
         with TestIO() as test_io:
-            self.tool.main(["validate"])
-        self.assertEqual(
-            test_io.stdout, (
-                "jobs/broken.txt:1-2: job '2014.com.example::broken', field 'command': "
-                "missing definition of required field\n"))
+            self.tool.main(["validate", "-N"])
+        self.assertEqual(test_io.stdout, inline_output(
+            """
+            jobs/broken.pxu:1-2: error: job 'broken', field 'command', command is mandatory for non-manual jobs
+            jobs/broken.pxu:1-2: advice: job 'broken', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
+            jobs/broken.pxu:1-2: advice: job 'broken', field 'estimated_duration', required field missing
+            Validation of provider 2014.com.example:test has failed
+            """))
 
     def test_validate__broken_wrong_field(self):
         """
-        verify that ./manage.py validate shows information about incorrect
+        verify that ./manage.py validate -N shows information about incorrect
         field values
         """
-        filename = os.path.join(self.tmpdir, "jobs", "broken.txt")
+        filename = os.path.join(self.tmpdir, "jobs", "broken.pxu")
         with open(filename, "wt", encoding='UTF-8') as stream:
             print("id: broken", file=stream)
             print("plugin: magic", file=stream)
         with TestIO() as test_io:
-            self.tool.main(["validate"])
-        self.assertEqual(
-            test_io.stdout, (
-                "jobs/broken.txt:1-2: job '2014.com.example::broken', field"
-                " 'plugin': allowed values are: attachment, local, manual,"
-                " qml, resource, shell, user-interact, user-interact-verify,"
-                " user-verify\n"))
+            self.tool.main(["validate", "-N"])
+        self.assertEqual(test_io.stdout, inline_output(
+            """
+            jobs/broken.pxu:1-2: error: job 'broken', field 'command', command is mandatory for non-manual jobs
+            jobs/broken.pxu:1-2: advice: job 'broken', field 'description', all jobs should have a description field, or a set of purpose, steps and verification fields
+            jobs/broken.pxu:1-2: advice: job 'broken', field 'estimated_duration', required field missing
+            jobs/broken.pxu:2: error: job 'broken', field 'plugin', valid values are: attachment, local, manual, qml, resource, shell, user-interact, user-interact-verify, user-verify
+            Validation of provider 2014.com.example:test has failed
+            """))
 
     def test_validate__broken_useless_field(self):
         """
-        verify that ./manage.py validate shows information about useless field
+        verify that ./manage.py validate -N shows information about useless field
         values
         """
-        filename = os.path.join(self.tmpdir, "jobs", "broken.txt")
+        filename = os.path.join(self.tmpdir, "jobs", "broken.pxu")
         with open(filename, "wt", encoding='UTF-8') as stream:
             print("id: broken", file=stream)
             print("plugin: manual", file=stream)
             print("description: broken job definition", file=stream)
             print("command: true", file=stream)
         with TestIO() as test_io:
-            self.tool.main(["validate"])
-        self.assertEqual(
-            test_io.stdout, (
-                "jobs/broken.txt:1-4: job '2014.com.example::broken', field 'command': "
-                "useless field in this context\n"))
+            self.tool.main(["validate", "-N"])
+        self.assertEqual(test_io.stdout, inline_output(
+            """
+            jobs/broken.pxu:4: warning: job 'broken', field 'command', command on a manual or qml job makes no sense
+            jobs/broken.pxu:3: warning: job 'broken', field 'description', field should be marked as translatable
+            jobs/broken.pxu:1-4: advice: job 'broken', field 'estimated_duration', required field missing
+            jobs/broken.pxu:1-4: advice: job 'broken', field 'flags', please ensure that the command supports non-C locale then set the preserve-locale flag
+            jobs/broken.pxu:1-4: advice: job 'broken', field 'purpose', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
+            jobs/broken.pxu:1-4: advice: job 'broken', field 'steps', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
+            jobs/broken.pxu:1-4: advice: job 'broken', field 'verification', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
+            Validation of provider 2014.com.example:test has failed
+            """))
 
     def test_validate__broken_deprecated_field(self):
         """
-        verify that ./manage.py validate shows information about deprecated fields
+        verify that ./manage.py validate -N shows information about deprecated fields
         """
-        filename = os.path.join(self.tmpdir, "jobs", "broken.txt")
+        filename = os.path.join(self.tmpdir, "jobs", "broken.pxu")
         with open(filename, "wt", encoding='UTF-8') as stream:
             print("name: broken", file=stream)
             print("plugin: manual", file=stream)
             print("description: broken job definition", file=stream)
             print("command: true", file=stream)
         with TestIO() as test_io:
-            self.tool.main(["validate"])
-        self.assertEqual(
-            test_io.stdout, (
-                "jobs/broken.txt:1-4: job '2014.com.example::broken', field 'name': "
-                "usage of deprecated field\n"))
+            self.tool.main(["validate", "-N"])
+        self.assertEqual(test_io.stdout, inline_output(
+            """
+            jobs/broken.pxu:4: warning: job 'broken', field 'command', command on a manual or qml job makes no sense
+            jobs/broken.pxu:3: warning: job 'broken', field 'description', field should be marked as translatable
+            jobs/broken.pxu:1-4: advice: job 'broken', field 'estimated_duration', required field missing
+            jobs/broken.pxu:1-4: advice: job 'broken', field 'flags', please ensure that the command supports non-C locale then set the preserve-locale flag
+            jobs/broken.pxu:1: advice: job 'broken', field 'name', use 'id' and 'summary' instead of 'name'
+            jobs/broken.pxu:1-4: advice: job 'broken', field 'purpose', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
+            jobs/broken.pxu:1-4: advice: job 'broken', field 'steps', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
+            jobs/broken.pxu:1-4: advice: job 'broken', field 'verification', please use purpose, steps, and verification fields. See http://plainbox.readthedocs.org/en/latest/author/faq.html#faq-2
+            Validation of provider 2014.com.example:test has failed
+            """))
 
     def test_info(self):
         """
@@ -374,16 +436,16 @@ class ProviderManagerToolTests(TestCase):
             "\tversion: 1.0\n"
             "\tgettext domain: domain\n"
             "[Job Definitions]\n"
-            "\tjob 2014.com.example::dummy, from jobs/jobs.txt:1-4\n"
+            "\tjob 2014.com.example::dummy, from jobs/jobs.pxu:1-6\n"
             "[Test Plans]\n"
-            "\ttest plan 2014.com.example::test, from whitelists/test.whitelist:1\n"
+            "\ttest plan 2014.com.example::test, from units/testplans.pxu:1-6\n"
             "[Test Plans] (legacy)\n"
-            "\ttest from whitelists/test.whitelist:1\n"
+            "\ttest from units/testplans.pxu:1-6\n"
             "[Other Units]\n"
             "\tfile bin/test.sh, role script\n"
             "\tfile data/test.dat, role data\n"
-            "\tfile jobs/jobs.txt, role unit-source\n"
-            "\tfile whitelists/test.whitelist, role legacy-whitelist\n"
+            "\tfile jobs/jobs.pxu, role unit-source\n"
+            "\tfile units/testplans.pxu, role unit-source\n"
             "[Executables]\n"
             "\t'test.sh'\n"))
 
@@ -394,16 +456,25 @@ class ProviderManagerToolTests(TestCase):
 
     def _create_definition(self, tmpdir):
         os.mkdir(os.path.join(tmpdir, "jobs"))
-        filename = os.path.join(tmpdir, "jobs", "jobs.txt")
+        filename = os.path.join(tmpdir, "jobs", "jobs.pxu")
         with open(filename, "wt", encoding='UTF-8') as stream:
             print("id: dummy", file=stream)
             print("plugin: shell", file=stream)
             print("command: true", file=stream)
             print("estimated_duration: 10", file=stream)
-        os.mkdir(os.path.join(tmpdir, "whitelists"))
-        filename = os.path.join(tmpdir, "whitelists", "test.whitelist")
+            print("flags: preserve-locale", file=stream)
+            # NOTE: absence of summary is not reported? Bug?
+            # print("_summary: A dummy job", file=stream)
+            print("_description: This job is dummy", file=stream)
+        os.mkdir(os.path.join(tmpdir, "units"))
+        filename = os.path.join(tmpdir, "units", "testplans.pxu")
         with open(filename, "wt", encoding='UTF-8') as stream:
-            print("dummy", file=stream)
+            print("unit: test plan", file=stream)
+            print("id: test", file=stream)
+            print("_name: Dummy Tests", file=stream)
+            print("_description: All dummy tests", file=stream)
+            print("estimated_duration: 10", file=stream)
+            print("include: dummy", file=stream)
         os.mkdir(os.path.join(tmpdir, "data"))
         filename = os.path.join(tmpdir, "data", "test.dat")
         with open(filename, "wt", encoding='UTF-8') as stream:

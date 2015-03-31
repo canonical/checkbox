@@ -808,8 +808,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
     def export_and_send_results(self):
         # Get a stream with exported session data.
         exported_stream = io.BytesIO()
-        data_subset = self.exporter.get_session_data_subset(self.state)
-        self.exporter.dump(data_subset, exported_stream)
+        self.exporter.dump_from_session_manager(self.manager, exported_stream)
         exported_stream.seek(0)  # Need to rewind the file, puagh
         # Write the stream to file if requested
         self._save_results(self.ns.output_file, exported_stream)

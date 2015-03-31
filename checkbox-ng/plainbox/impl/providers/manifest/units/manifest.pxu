@@ -1,0 +1,21 @@
+unit: job
+id: collect-manifest
+_summary: Collect the hardware manifest (interactively)
+_description:
+ This job interactively asks the user about each manifest entry and stores the
+ result. This job can be omitted but the manifest may be incomplete unless it
+ was cached on an earlier run or provided externally.
+plugin: user-interact
+command: plainbox-manifest-collect
+estimated_duration: 30
+flags: preserve-locale
+
+unit: job
+id: manifest
+_summary: Hardware Manifest
+_description:
+ This job loads the hardware manifest and exposes it as a resource.
+plugin: resource
+command: plainbox-manifest-resource 
+estimated_duration: 1
+flags: preserve-locale

@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 # This file is part of Checkbox.
 #
-# Copyright 2012 Canonical Ltd.
+# Copyright 2012-2015 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -102,6 +101,7 @@ setup(
             'template=plainbox.impl.unit.template:TemplateUnit',
             'category=plainbox.impl.unit.category:CategoryUnit',
             'test plan=plainbox.impl.unit.testplan:TestPlanUnit',
+            'manifest entry=plainbox.impl.unit.manifest:ManifestEntryUnit',
         ],
         'plainbox.parsers': [
             'pxu=plainbox.impl.secure.rfc822:load_rfc822_records',

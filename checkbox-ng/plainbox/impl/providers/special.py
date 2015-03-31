@@ -1,13 +1,12 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012, 2013, 2014 Canonical Ltd.
+# Copyright 2012-2015 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -74,3 +73,23 @@ def get_categories_def():
 
 def get_categories():
     return Provider1.from_definition(get_categories_def(), secure=False)
+
+
+def get_manifest_def():
+    """
+    Get a Provider1Definition for the provider that handles the manifest
+    machinery.
+    """
+    manifest_def = Provider1Definition()
+    manifest_def.name = "2013.com.canonical.plainbox:manifest"
+    manifest_def.version = "1.0"
+    manifest_def.description = N_("Hardware Manifest Provider")
+    manifest_def.secure = False
+    manifest_def.gettext_domain = "plainbox-provider-manifest"
+    manifest_def.location = os.path.join(
+        get_plainbox_dir(), "impl/providers/manifest")
+    return manifest_def
+
+
+def get_manifest():
+    return Provider1.from_definition(get_manifest_def(), secure=False)

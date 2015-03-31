@@ -86,7 +86,12 @@ class PlainBoxToolBase(ToolBase):
         # Load all normal providers
         from plainbox.impl.providers.v1 import all_providers
         all_providers.load()
-        return all_providers.get_all_plugin_objects()
+        from plainbox.impl.providers import special
+        return [
+            special.get_manifest(),
+            # NOTE: currently disabled as it was not added implicitly earlier
+            # special.get_categories(),
+        ] + all_providers.get_all_plugin_objects()
 
 
 class PlainBoxCommand(CommandBase):

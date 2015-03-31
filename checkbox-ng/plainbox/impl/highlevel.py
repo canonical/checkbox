@@ -365,8 +365,7 @@ class Service:
                                   stream):
         exporter_cls = get_all_exporters()[output_format]
         exporter = exporter_cls(option_list)
-        data_subset = exporter.get_session_data_subset(session)
-        exporter.dump(data_subset, stream)
+        exporter.dump_from_session_manager(session.manager, stream)
 
     def get_all_transports(self):
         return [transport for transport in get_all_transports()]

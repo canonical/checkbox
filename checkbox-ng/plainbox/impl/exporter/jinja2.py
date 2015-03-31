@@ -3,6 +3,7 @@
 # Copyright 2015 Canonical Ltd.
 # Written by:
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
+#   Sylvain Pineau <sylvain.pineau@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -24,7 +25,8 @@
     THIS MODULE DOES NOT HAVE A STABLE PUBLIC API
 """
 
-from jinja2 import Template
+from jinja2 import Environment, FileSystemLoader, Markup
+from pkg_resources import resource_filename
 
 from plainbox.abc import ISessionStateExporter
 
@@ -33,18 +35,26 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
 
     """Session state exporter that renders output using jinja2 template."""
 
-    def __init__(self, option_list=None, jinja2_template=""):
+    def __init__(self, jinja2_template, option_list=None, extra_paths=()):
         """
         Initialize a new Jinja2SessionStateExporter with given arguments.
 
         :param option_list:
             List of options that template might use to fine-tune rendering.
         :param jinja2_template:
-            String with Jinja2 template that will be used.
+            Filename of a Jinja2 template that will be loaded using the
+            Jinja2 FileSystemLoader.
+        :param extra_paths:
+            List of additional paths to load Jinja2 templates
 
         """
         self.option_list = option_list
-        self.template = Template(jinja2_template)
+        paths = [resource_filename("plainbox", "data/report/")]
+        paths.extend(extra_paths)
+        loader = FileSystemLoader(paths)
+        env = Environment(loader=loader)
+
+        self.template = env.get_template(jinja2_template)
 
     def dump(self, data, stream):
         """
@@ -56,7 +66,7 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
             Byte stream to write to.
 
         """
-        stream.write(self.template.render(data).encode('UTF-8'))
+        self.template.stream(data).dump(stream, encoding='utf-8')
 
     def dump_from_session_manager(self, session_manager, stream):
         """
@@ -71,7 +81,7 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
         """
         data = {
             'manager': session_manager,
-            'options': self.option_list,
+            'options': self.option_list
         }
         self.dump(data, stream)
 

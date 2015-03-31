@@ -24,8 +24,10 @@ Test definitions for plainbox.impl.exporter.jinja2 module
 """
 
 from io import BytesIO
+from tempfile import TemporaryDirectory
 from textwrap import dedent
 from unittest import TestCase
+import os
 
 from plainbox.impl.exporter.jinja2 import Jinja2SessionStateExporter
 from plainbox.impl.result import MemoryJobResult
@@ -50,26 +52,21 @@ class Jinja2SessionStateExporterTests(TestCase):
             })
         )
 
-    def test_plaintext_template(self):
-        tmpl = dedent(
-            "{% for job in manager.state.job_state_map %}"
-            "{{'{:^15}: {}'.format("
-            "manager.state.job_state_map[job].result.tr_outcome(),"
-            "manager.state.job_state_map[job].job.tr_summary()) }}\n"
-            "{% endfor %}")
-
-        exporter = Jinja2SessionStateExporter(jinja2_template=tmpl)
-        stream = BytesIO()
-        exporter.dump_from_session_manager(self.manager_single_job, stream)
-        expected_bytes = '     fail      : job name\n'.encode('UTF-8')
-        self.assertEqual(stream.getvalue(), expected_bytes)
-
-    def test_empty_template(self):
-        """
-        Ensure that exporter doesn't print anything when jinja2 template is
-        explictly empty.
-        """
-        exporter = Jinja2SessionStateExporter(jinja2_template="")
-        stream = BytesIO()
-        exporter.dump_from_session_manager(self.manager_single_job, stream)
-        self.assertEqual(stream.getvalue(), b'')
+    def test_template(self):
+        with TemporaryDirectory() as tmp:
+            pathname = os.path.join(tmp, 'template.html')
+            tmpl = dedent(
+                "{% for job in manager.state.job_state_map %}"
+                "{{'{:^15}: {}'.format("
+                "manager.state.job_state_map[job].result.tr_outcome(),"
+                "manager.state.job_state_map[job].job.tr_summary()) }}\n"
+                "{% endfor %}")
+            with open(pathname, 'w') as f:
+                f.write(tmpl)
+            exporter = Jinja2SessionStateExporter('template.html',
+                                                  extra_paths=[tmp])
+            stream = BytesIO()
+            exporter.dump_from_session_manager(self.manager_single_job, stream)
+            expected_bytes = '     fail      : job name\n'.encode('UTF-8')
+            self.assertEqual(stream.getvalue(), expected_bytes)
+    

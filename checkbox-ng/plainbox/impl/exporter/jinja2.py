@@ -77,7 +77,10 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
 
     def get_session_data_subset(self, session_manager):
         """Compute a subset of session data."""
-        return {'manager': session_manager}
+        return {
+            'manager': session_manager,
+            'options': self.option_list,
+        }
 
     def supported_option_list(cls):
         """ Return list of supported exporter options."""

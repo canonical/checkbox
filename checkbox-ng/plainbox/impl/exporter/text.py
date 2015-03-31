@@ -39,8 +39,8 @@ class TextSessionStateExporter(SessionStateExporterBase):
         super().__init__(option_list)
         self.C = Colorizer(color)
 
-    def get_session_data_subset(self, session):
-        return session
+    def get_session_data_subset(self, session_manager):
+        return session_manager.state
 
     def dump(self, session, stream):
         for job in session.run_list:

@@ -1009,7 +1009,7 @@ class ISessionStateExporter(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def get_session_data_subset(self, session):
+    def get_session_data_subset(self, session_manager):
         """
         Compute a subset of session data.
 

@@ -170,11 +170,10 @@ class SessionStateExporterBase(ISessionStateExporter):
         information from it, and dumps it to a stream.
         """
 
-        self.dump(self.get_session_data_subset(session_manager.state),
-                  stream)
+        self.dump(self.get_session_data_subset(session_manager), stream)
 
     @deprecated('0.21', 'use .dump_from_session_manager instead')
-    def get_session_data_subset(self, session):
+    def get_session_data_subset(self, session_manager):
         """
         Compute a subset of session data.
 
@@ -188,6 +187,7 @@ class SessionStateExporterBase(ISessionStateExporter):
         data = {
             'result_map': {}
         }
+        session = session_manager.state
         if self.OPTION_WITH_JOB_LIST in self._option_list:
             data['job_list'] = [job.id for job in session.job_list]
         if self.OPTION_WITH_RUN_LIST in self._option_list:

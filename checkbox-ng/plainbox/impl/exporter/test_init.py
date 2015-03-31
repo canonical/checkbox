@@ -37,8 +37,10 @@ from plainbox.impl.exporter import classproperty
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.result import MemoryJobResult, IOLogRecord
 from plainbox.impl.session import SessionState
+from plainbox.impl.session.manager import SessionManager
 from plainbox.impl.testing_utils import make_job, make_job_result
 from plainbox.impl.unit.category import CategoryUnit
+from plainbox.vendor import mock
 
 
 class ClassPropertyTests(TestCase):
@@ -129,8 +131,9 @@ class SessionStateExporterBaseTests(TestCase):
     def test_defaults(self):
         # Test all defaults, with all options unset
         exporter = self.TestSessionStateExporter()
-        session = self.make_test_session()
-        data = exporter.get_session_data_subset(session)
+        session_manager = mock.Mock(spec_set=SessionManager,
+                                    state=self.make_test_session())
+        data = exporter.get_session_data_subset(session_manager)
         expected_data = {
             'result_map': {
                 'job_a': OrderedDict([
@@ -193,8 +196,10 @@ class SessionStateExporterBaseTests(TestCase):
         with TemporaryDirectory() as scratch_dir:
             exporter = self.TestSessionStateExporter(
                 self.TestSessionStateExporter.supported_option_list)
-            session = self.make_realistic_test_session(scratch_dir)
-            data = exporter.get_session_data_subset(session)
+            session_manager = mock.Mock(
+                spec_set=SessionManager,
+                state=self.make_realistic_test_session(scratch_dir))
+            data = exporter.get_session_data_subset(session_manager)
         expected_data = {
             'job_list': ['job_a', 'job_b'],
             'run_list': ['job_b', 'job_a'],
@@ -295,7 +300,8 @@ class SessionStateExporterBaseTests(TestCase):
         })
         # Create and export a session with the three units
         state = SessionState([cat_foo, cat_bar, job_froz])
-        data = exporter.get_session_data_subset(state)
+        session_manager = mock.Mock(spec_set=SessionManager, state=state)
+        data = exporter.get_session_data_subset(session_manager)
         # Ensure that only the foo category was used, and the bar category was
         # discarded as nothing was referencing it
         self.assertEqual(data['category_map'], {
@@ -317,7 +323,8 @@ class SessionStateExporterBaseTests(TestCase):
         })
         # Create and export a session with that one job
         state = SessionState([job])
-        data = exporter.get_session_data_subset(state)
+        session_manager = mock.Mock(spec_set=SessionManager, state=state)
+        data = exporter.get_session_data_subset(session_manager)
         # Ensure that the special 'uncategorized' category is used
         self.assertEqual(data['category_map'], {
             '2013.com.canonical.plainbox::uncategorised': 'Uncategorised',

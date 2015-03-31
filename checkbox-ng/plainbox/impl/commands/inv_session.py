@@ -156,8 +156,7 @@ class SessionInvocation:
                 self._get_all_units(), storage, flags=self.ns.flag)
             # Get a stream with exported session data.
             exported_stream = io.BytesIO()
-            data_subset = exporter.get_session_data_subset(manager.state)
-            exporter.dump(data_subset, exported_stream)
+            exporter.dump_from_session_manager(manager, exported_stream)
             exported_stream.seek(0)  # Need to rewind the file, puagh
             # Write the stream to file if requested
             if self.ns.output_file is sys.stdout:

@@ -1009,7 +1009,7 @@ class ISessionStateExporter(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def get_session_data_subset(self, session):
+    def get_session_data_subset(self, session_manager):
         """
         Compute a subset of session data.
 
@@ -1037,6 +1037,15 @@ class ISessionStateExporter(metaclass=ABCMeta):
         Data is a text stream suitable for writing.
         """
         # TODO: Add a way for the stream to be binary as well.
+
+    @abstractmethod
+    def dump_from_session_manager(self, session_manager, stream):
+        """
+        Dump session information pulled from session manager to stream.
+
+        This method takes session manager instance, extracts session
+        information from it, and dumps it to a stream.
+        """
 
 
 class ISessionStateTransport(metaclass=ABCMeta):

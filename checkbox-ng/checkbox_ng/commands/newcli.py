@@ -333,8 +333,7 @@ class CliInvocation2(RunInvocation):
             print(self.C.header(_("Results")))
             exporter = get_all_exporters()['text']()
             exported_stream = io.BytesIO()
-            data_subset = exporter.get_session_data_subset(self.manager.state)
-            exporter.dump(data_subset, exported_stream)
+            exporter.dump_from_session_manager(self.manager, exported_stream)
             exported_stream.seek(0)  # Need to rewind the file, puagh
             # This requires a bit more finesse, as exporters output bytes
             # and stdout needs a string.
@@ -363,7 +362,6 @@ class CliInvocation2(RunInvocation):
             actual_options = [opt for opt in exp_options
                               if opt in exporter_cls.supported_option_list]
             exporter = exporter_cls(actual_options)
-            data_subset = exporter.get_session_data_subset(self.manager.state)
             results_path = results_file
             if exporter_cls is XMLSessionStateExporter:
                 results_path = submission_file
@@ -372,7 +370,7 @@ class CliInvocation2(RunInvocation):
                 if exporter_cls is XLSXSessionStateExporter:
                     results_path = results_path.replace('html', 'xlsx')
             with open(results_path, "wb") as stream:
-                exporter.dump(data_subset, stream)
+                exporter.dump_from_session_manager(self.manager, stream)
         print()
         print(_("Saving submission file to {}").format(submission_file))
         self.submission_file = submission_file

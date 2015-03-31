@@ -116,10 +116,10 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
 
     def _save_results(self):
         print(_("Saving results to {0}").format(self.config.fallback_file))
-        data = self.exporter.get_session_data_subset(self.session)
         with open(self.config.fallback_file, "wt", encoding="UTF-8") as stream:
             translating_stream = ByteStringStreamTranslator(stream, "UTF-8")
-            self.exporter.dump(data, translating_stream)
+            self.exporter.dump_from_session_manager(self.session.manager,
+                                                    translating_stream)
 
     def _submit_results(self):
         print(_("Submitting results to {0} for secure_id {1}").format(
@@ -128,10 +128,10 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
         # Create the transport object
         transport = CertificationTransport(self.config.c3_url, options_string)
         # Prepare the data for submission
-        data = self.exporter.get_session_data_subset(self.session)
         with tempfile.NamedTemporaryFile(mode='w+b') as stream:
             # Dump the data to the temporary file
-            self.exporter.dump(data, stream)
+            self.exporter.dump_from_session_manager(self.session.manager,
+                                                    stream)
             # Flush and rewind
             stream.flush()
             stream.seek(0)

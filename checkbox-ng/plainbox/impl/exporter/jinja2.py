@@ -54,7 +54,13 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
         loader = FileSystemLoader(paths)
         env = Environment(loader=loader)
 
+        def include_file(name):
+            # This helper function insert static files literally into Jinja
+            # templates without parsing them.
+            return Markup(loader.get_source(env, name)[0])
+
         self.template = env.get_template(jinja2_template)
+        env.globals['include_file'] = include_file
 
     def dump(self, data, stream):
         """

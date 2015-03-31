@@ -229,13 +229,6 @@ command:
   shopt -s extglob
   cat $PLAINBOX_PROVIDER_DATA/../jobs/peripheral.txt?(.in)
 
-id: __piglit__
-plugin: local
-_description: Piglit tests
-command:
-  shopt -s extglob
-  cat $PLAINBOX_PROVIDER_DATA/../jobs/piglit.txt?(.in)
-
 id: __power-management__
 plugin: local
 _description: Power Management tests

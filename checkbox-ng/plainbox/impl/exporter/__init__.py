@@ -161,6 +161,17 @@ class SessionStateExporterBase(ISessionStateExporter):
         """
         return cls.SUPPORTED_OPTION_LIST
 
+    def dump_from_session_manager(self, session_manager, stream):
+        """
+        Dump session information pulled from session manager to stream.
+
+        This method takes session manager instance, extracts session
+        information from it, and dumps it to a stream.
+        """
+
+        self.dump(self.get_session_data_subset(session_manager.state),
+                  stream)
+
     def get_session_data_subset(self, session):
         """
         Compute a subset of session data.

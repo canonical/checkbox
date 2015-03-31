@@ -1174,7 +1174,7 @@ class I18NCommand(ManageCommand):
             help=_("don't actually do anything"))
         group = parser.add_argument_group(title=_("actions to perform"))
         group.add_argument(
-            "--dont-update-pot", default=False, action="store_false",
+            "--dont-update-pot", default=False, action="store_true",
             help=_("do not update the translation template"))
         group.add_argument(
             "--dont-merge-po", default=False, action="store_true",

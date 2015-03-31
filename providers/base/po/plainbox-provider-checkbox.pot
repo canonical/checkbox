@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-03 14:39+0100\n"
+"POT-Creation-Date: 2015-03-31 15:25+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -778,7 +778,7 @@ msgstr ""
 
 #. summary
 #: ../jobs/disk.txt.in:18
-msgid "Disk statistics for {attr_DEVNAME}"
+msgid "Disk statistics for /dev/{name}"
 msgstr ""
 
 #. description
@@ -797,37 +797,35 @@ msgstr ""
 #. description
 #: ../jobs/disk.txt.in:19
 msgid ""
-"    product vendor: {attr_ID_VENDOR}\n"
-"    product name: {attr_ID_MODEL}\n"
-"    serial number: {attr_ID_SERIAL_SHORT}\n"
+"    product name: {product}\n"
 "    sysfs path: {path}\n"
-"    device node path: {attr_DEVNAME}"
+"    device node path: /dev/{name}"
 msgstr ""
 
 #. description
-#: ../jobs/disk.txt.in:37
+#: ../jobs/disk.txt.in:35
 msgid "Check stats changes for each disk"
 msgstr ""
 
 #. description
-#: ../jobs/disk.txt.in:58
+#: ../jobs/disk.txt.in:56
 msgid "SMART test"
 msgstr ""
 
 #. description
-#: ../jobs/disk.txt.in:78
+#: ../jobs/disk.txt.in:76
 msgid "Verify system storage performs at or above baseline performance"
 msgstr ""
 
 #. description
-#: ../jobs/disk.txt.in:98
+#: ../jobs/disk.txt.in:96
 msgid ""
 "Verify that storage devices, such as Fibre Channel and RAID can be detected "
 "and perform under stress."
 msgstr ""
 
 #. description
-#: ../jobs/disk.txt.in:120
+#: ../jobs/disk.txt.in:118
 msgid ""
 "Some new hard drives include a feature that parks the drive heads after a "
 "short period of inactivity. This is a power-saving feature, but it can have "
@@ -837,7 +835,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/disk.txt.in:132
+#: ../jobs/disk.txt.in:130
 msgid ""
 "PURPOSE:\n"
 " This test checks that a systems drive protection mechanism works properly.\n"
@@ -1274,6 +1272,28 @@ msgstr ""
 msgid "Attaches the simple screen capture file"
 msgstr ""
 
+#. summary
+#: ../jobs/graphics.txt.in:563
+msgid "Obtains a simple screen capture of {product}"
+msgstr ""
+
+#. description
+#: ../jobs/graphics.txt.in:567
+msgid ""
+"Obtains a simple screen capture of {product} using gnome-screenshot if "
+"present"
+msgstr ""
+
+#. summary
+#: ../jobs/graphics.txt.in:575
+msgid "Attaches a simple screen capture of {product}"
+msgstr ""
+
+#. description
+#: ../jobs/graphics.txt.in:578
+msgid "Attaches the simple screen capture file of {product}"
+msgstr ""
+
 #. description
 #: ../jobs/hibernate.txt.in:17
 msgid ""
@@ -1468,6 +1488,11 @@ msgstr ""
 #. summary
 #: ../jobs/info.txt.in:242
 msgid "Attach /etc/buildstamp"
+msgstr ""
+
+#. description
+#: ../jobs/info.txt.in:248
+msgid "Attaches the debug log from the virtualization run"
 msgstr ""
 
 #. description
@@ -2146,71 +2171,66 @@ msgstr ""
 
 #. description
 #: ../jobs/local.txt.in:234
-msgid "Piglit tests"
-msgstr ""
-
-#. description
-#: ../jobs/local.txt.in:241
 msgid "Power Management tests"
 msgstr ""
 
 #. description
-#: ../jobs/local.txt.in:248
+#: ../jobs/local.txt.in:241
 msgid "Server Services checks"
 msgstr ""
 
 #. description
-#: ../jobs/local.txt.in:255
+#: ../jobs/local.txt.in:248
 msgid "Suspend tests"
 msgstr ""
 
 #. description
-#: ../jobs/local.txt.in:262
+#: ../jobs/local.txt.in:255
 msgid "Touchpad tests"
 msgstr ""
 
 #. description
-#: ../jobs/local.txt.in:269
+#: ../jobs/local.txt.in:262
 msgid "Touchscreen tests"
 msgstr ""
 
 #. description
-#: ../jobs/local.txt.in:276
+#: ../jobs/local.txt.in:269
 msgid "USB tests"
 msgstr ""
 
 #. description
-#: ../jobs/local.txt.in:283
+#: ../jobs/local.txt.in:276
 msgid "User Applications"
 msgstr ""
 
 #. description
-#: ../jobs/local.txt.in:290
+#: ../jobs/local.txt.in:283
 msgid "Virtualization tests"
 msgstr ""
 
 #. description
-#: ../jobs/local.txt.in:297
+#: ../jobs/local.txt.in:290
 msgid "Wireless networking tests"
 msgstr ""
 
 #. description
-#: ../jobs/local.txt.in:304
+#: ../jobs/local.txt.in:297
 msgid "Mobile broadband tests"
 msgstr ""
 
 #. description
-#: ../jobs/local.txt.in:311
+#: ../jobs/local.txt.in:304
 msgid "Stress tests"
 msgstr ""
 
 #. description
-#: ../jobs/local.txt.in:318
+#: ../jobs/local.txt.in:311
 msgid "Smoke tests"
 msgstr ""
 
 #. description
-#: ../jobs/local.txt.in:325
+#: ../jobs/local.txt.in:318
 msgid "Sniff Sniffers"
 msgstr ""
 
@@ -3178,56 +3198,6 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/piglit.txt.in:7
-msgid ""
-"Runs piglit tests for checking support for framebuffer object operations, "
-"depth buffer and stencil buffer"
-msgstr ""
-
-#. description
-#: ../jobs/piglit.txt.in:16
-msgid "Runs piglit tests for checking OpenGL 2.1 support"
-msgstr ""
-
-#. description
-#: ../jobs/piglit.txt.in:25
-msgid ""
-"Runs piglit tests for checking support for vertex buffer object operations"
-msgstr ""
-
-#. description
-#: ../jobs/piglit.txt.in:34
-msgid ""
-"Runs piglit tests for checking support for GLSL fragment shader operations"
-msgstr ""
-
-#. description
-#: ../jobs/piglit.txt.in:43
-msgid ""
-"Runs piglit tests for checking support for GLSL vertex shader operations"
-msgstr ""
-
-#. description
-#: ../jobs/piglit.txt.in:52
-msgid "Runs piglit tests for checking support for texture from pixmap"
-msgstr ""
-
-#. description
-#: ../jobs/piglit.txt.in:61
-msgid "Runs piglit_tests for checking support for stencil buffer operations"
-msgstr ""
-
-#. description
-#: ../jobs/piglit.txt.in:70
-msgid "Runs the piglit results summarizing tool"
-msgstr ""
-
-#. description
-#: ../jobs/piglit.txt.in:79
-msgid "Archives the piglit-summary directory into the piglit-results.tar.gz."
-msgstr ""
-
-#. description
 #: ../jobs/power-management.txt.in:4
 msgid ""
 "PURPOSE:\n"
@@ -3251,7 +3221,7 @@ msgid "Attach log from fwts wakealarm test"
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:43
+#: ../jobs/power-management.txt.in:44
 msgid ""
 "PURPOSE:\n"
 " This test will check the system's ability to power-off and boot.\n"
@@ -3269,14 +3239,14 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:60
+#: ../jobs/power-management.txt.in:61
 msgid ""
 "This will attach any logs from the power-management/poweroff test to the "
 "results."
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:72
+#: ../jobs/power-management.txt.in:74
 msgid ""
 "PURPOSE:\n"
 " This test will check the system's ability to reboot cleanly.\n"
@@ -3292,14 +3262,14 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:87
+#: ../jobs/power-management.txt.in:89
 msgid ""
 "This will attach any logs from the power-management/reboot test to the "
 "results."
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:94
+#: ../jobs/power-management.txt.in:96
 msgid ""
 "PURPOSE:\n"
 "    This test will check your lid sensors.\n"
@@ -3310,7 +3280,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:112
+#: ../jobs/power-management.txt.in:114
 msgid ""
 "PURPOSE:\n"
 "    This test will check your lid sensors\n"
@@ -3322,7 +3292,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:131
+#: ../jobs/power-management.txt.in:133
 msgid ""
 "PURPOSE:\n"
 "    This test will check your lid sensors.\n"
@@ -3336,20 +3306,20 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:151
+#: ../jobs/power-management.txt.in:153
 msgid ""
 "Verify that the Real-time clock (RTC) device functions properly, if present"
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:158
+#: ../jobs/power-management.txt.in:160
 msgid ""
 "Check to see if CONFIG_NO_HZ is set in the kernel (this is just a simple "
 "regression check)"
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:165
+#: ../jobs/power-management.txt.in:167
 msgid ""
 "PURPOSE:\n"
 "    This test will ensure that the AC is unplugged for the battery drain "
@@ -3361,37 +3331,37 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:178
+#: ../jobs/power-management.txt.in:180
 msgid "Checks the battery drain during idle.  Reports time until empty"
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:178
+#: ../jobs/power-management.txt.in:180
 msgid "and capacity as well."
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:189
+#: ../jobs/power-management.txt.in:191
 msgid "Checks the battery drain while watching a movie.  Reports time"
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:189
+#: ../jobs/power-management.txt.in:191
 msgid "until empty and capacity as well.  Requires MOVIE_VAR to be set."
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:202
+#: ../jobs/power-management.txt.in:204
 msgid "Checks the battery drain during suspend.  Reports time until"
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:202
+#: ../jobs/power-management.txt.in:204
 msgid "empty and capacity as well."
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:211
+#: ../jobs/power-management.txt.in:213
 msgid ""
 "PURPOSE:\n"
 "    This test will ensure that the AC is plugged back in after the battery.\n"
@@ -3403,7 +3373,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:225
+#: ../jobs/power-management.txt.in:227
 msgid ""
 "PURPOSE:\n"
 "    This test will verify that your system can successfully reboot.\n"
@@ -3421,7 +3391,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/power-management.txt.in:244
+#: ../jobs/power-management.txt.in:246
 msgid ""
 "PURPOSE:\n"
 "    This test will check your system shutdown/booting cycle\n"
@@ -3635,67 +3605,67 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:158
+#: ../jobs/stress.txt.in:159
 msgid "Stress reboot system (100 cycles)"
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:176
+#: ../jobs/stress.txt.in:178
 msgid "Stress reboot system (30 cycles)"
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:193
+#: ../jobs/stress.txt.in:196
 msgid "Stress poweroff system (100 cycles)"
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:211
+#: ../jobs/stress.txt.in:215
 msgid "Stress poweroff system (30 cycles)"
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:224
+#: ../jobs/stress.txt.in:228
 msgid "Check logs for the stress reboot (30 cycles) test case"
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:238
+#: ../jobs/stress.txt.in:242
 msgid "Check logs for the stress poweroff (30 cycles) test case"
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:252
+#: ../jobs/stress.txt.in:256
 msgid "Check logs for the stress reboot (100 cycles) test case"
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:266
+#: ../jobs/stress.txt.in:270
 msgid "Check logs for the stress poweroff (100 cycles) test case"
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:283
+#: ../jobs/stress.txt.in:287
 msgid "Run the graphics stress test. This test can take a few minutes."
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:292
+#: ../jobs/stress.txt.in:296
 msgid "Attaches the graphics stress results to the submission."
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:299
+#: ../jobs/stress.txt.in:303
 msgid "Runs a test that transfers 100 10MB files 3 times to usb."
 msgstr ""
 
 #. summary
-#: ../jobs/stress.txt.in:304
+#: ../jobs/stress.txt.in:308
 msgid "Stress test for SDHC card"
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:307
+#: ../jobs/stress.txt.in:311
 msgid ""
 "PURPOSE:\n"
 "    This test will transfers 100 10MB files 3 times to a SDHC card, to\n"
@@ -3711,12 +3681,12 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:326
+#: ../jobs/stress.txt.in:330
 msgid "Ping ubuntu.com and restart network interfaces 100 times"
 msgstr ""
 
 #. description
-#: ../jobs/stress.txt.in:338
+#: ../jobs/stress.txt.in:342
 msgid ""
 "PURPOSE:\n"
 "    To make sure that stressing the wifi hotkey does not cause applets to "
@@ -5205,6 +5175,11 @@ msgid ""
 msgstr ""
 
 #. description
+#: ../jobs/touchpad.txt.in:205
+msgid "This test will check if your touchpad was detected as a mouse."
+msgstr ""
+
+#. description
 #: ../jobs/touchscreen.txt.in:7
 msgid ""
 "Determine whether the screen is detected as a non-touch device automatically."
@@ -5221,11 +5196,12 @@ msgstr ""
 #: ../jobs/touchscreen.txt.in:23
 msgid ""
 "PURPOSE:\n"
-"    Touchscreen manual detection of multitouch.\n"
+"    Touchscreen capability manual detection.\n"
 "STEPS:\n"
 "    1. Look at the specifications for your system.\n"
 "VERIFICATION:\n"
-"    Is the screen supposed to be multitouch?"
+"    Your screen was detected as a non touch screen. Select PASS if this is "
+"correct."
 msgstr ""
 
 #. description

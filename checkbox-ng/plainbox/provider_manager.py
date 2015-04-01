@@ -46,6 +46,7 @@ from plainbox.impl.commands import ToolBase, CommandBase
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.logging import setup_logging
 from plainbox.impl.providers.special import get_categories
+from plainbox.impl.providers.special import get_manifest
 from plainbox.impl.providers.v1 import InsecureProvider1PlugInCollection
 from plainbox.impl.providers.v1 import get_user_PROVIDERPATH_entry
 from plainbox.impl.secure.config import Unset
@@ -1043,6 +1044,11 @@ class ValidateCommand(ManageCommand):
         categories_provider = get_categories()
         if provider.base_dir != categories_provider.base_dir:
             provider_list.append(categories_provider)
+        # Add the built-in 'manifest' provider,
+        # unless that's the one we're testing
+        manifest_provider = get_manifest()
+        if provider.base_dir != manifest_provider.base_dir:
+            provider_list.append(manifest_provider)
         _logger.info(_("Validating everything..."))
         unit_list, exc_list = self.collect_all_units(provider)
         early_issue_gen = self.get_early_issues(exc_list)

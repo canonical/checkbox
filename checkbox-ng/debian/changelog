@@ -7,6 +7,12 @@ checkbox-ng (0.18-1) UNRELEASED; urgency=medium
   * debian/upstream/signing-key.asc: add key 7ED72CD1
     of Sylvain Pineau <sylvain.pineau@canonical.com>
   * debian/patches/documentation-theme: patch away the custom theme 
+  * debian/rules: remove stale rules for no-longer-present canonical-*
+    executables
+  * debian/rules: ship checkbox-cli launcher in the checkbox-ng binary package 
+  * debian/control: checkbox-ng-service depends on python3  
+  * debian/checkbox-ng.manpages: remove stale links for no-longer-present
+    canonical-* executables
 
  -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Thu, 05 Mar 2015 14:40:11 +0100
 

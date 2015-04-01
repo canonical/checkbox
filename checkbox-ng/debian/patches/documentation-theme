@@ -1,0 +1,22 @@
+Description: Revert the documentation theme back to default
+ CheckboxNG uses a customized sphinx theme that is not included in the release
+ tarball. The theme is customized for "ubuntu" colors and this is not required
+ in Debian.
+Author: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+Origin: upstream
+Forwarded: not-needed
+Last-Update: 2015-04-01
+
+--- checkbox-ng-0.18.orig/docs/conf.py
++++ checkbox-ng-0.18/docs/conf.py
+@@ -126,9 +126,7 @@ pygments_style = 'sphinx'
+ 
+ # -- Options for HTML output ---------------------------------------------------
+ 
+-html_theme_path = ['_templates']
+-html_theme = 'ubuntu1204'
+-html_theme_options = {}
++html_theme = 'default'
+ 
+ # The theme to use for HTML and HTML Help pages.  See the documentation for
+ # a list of builtin themes.

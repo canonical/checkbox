@@ -6,6 +6,7 @@ checkbox-ng (0.18-1) UNRELEASED; urgency=medium
   * debian/watch: use the new pypi redirector 
   * debian/upstream/signing-key.asc: add key 7ED72CD1
     of Sylvain Pineau <sylvain.pineau@canonical.com>
+  * debian/patches/documentation-theme: patch away the custom theme 
 
  -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Thu, 05 Mar 2015 14:40:11 +0100
 

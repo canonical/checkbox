@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: plainbox-provider-manifest\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-03-30 15:56+0200\n"
-"PO-Revision-Date: 2015-03-30 16:06+0200\n"
+"PO-Revision-Date: 2015-04-01 00:13+0000\n"
 "Last-Translator: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>\n"
 "Language-Team: polski <>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
-"|| n%100>=20) ? 1 : 2;\n"
+"X-Launchpad-Export-Date: 2015-04-01 05:07+0000\n"
+"X-Generator: Launchpad (build 17413)\n"
+"Language: \n"
 
 #. summary
 #: ../units/manifest.pxu:3
@@ -51,7 +51,7 @@ msgstr "Czy ten komputer posiada następujący sprzęt?"
 
 #: ../bin/plainbox-manifest-collect:47
 msgid "(yes/y, no/n) "
-msgstr "(tak/t, nie/n)"
+msgstr "(tak/t, nie/n) "
 
 #: ../bin/plainbox-manifest-collect:55
 msgid "Please enter either y or n"

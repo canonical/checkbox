@@ -3,6 +3,8 @@ checkbox-ng (0.3.1-2) UNRELEASED; urgency=medium
   * debian/rules: prune empty directories in python3-checkbox-ng
   * debian/control: update Standards-Version to 3.9.6 (no change required)
   * debian/watch: use the new pypi redirector 
+  * debian/upstream/signing-key.asc: add key 7ED72CD1
+    of Sylvain Pineau <sylvain.pineau@canonical.com>
 
  -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Thu, 05 Mar 2015 14:40:11 +0100
 

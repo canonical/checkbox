@@ -15,6 +15,7 @@ checkbox-ng (0.18-1) UNRELEASED; urgency=medium
     canonical-* executables
   * debian/checkbox-ng.lintian-overrides: add lintian override for
     checkbox-launcher script interpreter 
+  * debian/control: wrap-and-sort 
 
  -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Thu, 05 Mar 2015 14:40:11 +0100
 

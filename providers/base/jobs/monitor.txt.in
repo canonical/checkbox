@@ -47,6 +47,20 @@ _description:
      Was the desktop displayed correctly on both screens?
 
 plugin: manual
+id: monitor/thunderbolt
+imports: from 2013.com.canonical.plainbox import manifest
+requires: manifest.has_thunderbolt == 'True'
+_summary: Display connected via Thunderbolt
+_description:
+ PURPOSE:
+     This test will check your Thunderbolt port as a monitor interconnect.
+ STEPS:
+     1. Connect a display (if not already connected) to the Thunderbolt port on
+        your system
+ VERIFICATION:
+     Was the desktop displayed correctly on the Thunderbolt-connected screen?
+
+plugin: manual
 id: monitor/svideo
 requires: display.svideo == 'supported'
 _description:

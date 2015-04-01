@@ -13,6 +13,8 @@ checkbox-ng (0.18-1) UNRELEASED; urgency=medium
   * debian/control: checkbox-ng-service depends on python3  
   * debian/checkbox-ng.manpages: remove stale links for no-longer-present
     canonical-* executables
+  * debian/checkbox-ng.lintian-overrides: add lintian override for
+    checkbox-launcher script interpreter 
 
  -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Thu, 05 Mar 2015 14:40:11 +0100
 

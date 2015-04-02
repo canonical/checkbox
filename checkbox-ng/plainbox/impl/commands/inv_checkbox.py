@@ -125,7 +125,7 @@ class CheckBoxInvocationMixIn:
                         qualifier_list.append(unit.get_qualifier())
                         break
             else:
-                logger.error(_("There is no test plan: %s"), ns.test_plan)
+                logger.debug(_("There is no test plan: %s"), ns.test_plan)
         # Add whitelists
         for whitelist_file in ns.whitelist:
             qualifier = self.get_whitelist_from_file(

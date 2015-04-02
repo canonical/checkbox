@@ -290,7 +290,7 @@ class JobRunner(IJobRunner):
         """
         self._session_dir = session_dir
         if execution_ctrl_list is None:
-            logger.warning("execution_ctrl_list not passed to JobRunner")
+            logger.debug("execution_ctrl_list not passed to JobRunner")
             if sys.platform == 'linux' or sys.platform == 'linux2':
                 from plainbox.impl.ctrl import RootViaPkexecExecutionController
                 from plainbox.impl.ctrl import RootViaPTL1ExecutionController

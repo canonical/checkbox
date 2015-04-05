@@ -1,4 +1,4 @@
-checkbox-ng (0.18-1) UNRELEASED; urgency=medium
+checkbox-ng (0.18-1) unstable; urgency=medium
 
   * New upstream release 
   * debian/rules: prune empty directories in python3-checkbox-ng

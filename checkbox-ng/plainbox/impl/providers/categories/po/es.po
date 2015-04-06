@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-12-03 14:32+0100\n"
-"PO-Revision-Date: 2014-08-25 04:18+0000\n"
+"PO-Revision-Date: 2015-04-05 09:59+0000\n"
 "Last-Translator: Adolfo Jayme <fitoschido@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2015-03-27 05:10+0000\n"
+"X-Launchpad-Export-Date: 2015-04-06 05:07+0000\n"
 "X-Generator: Launchpad (build 17413)\n"
 "Language: es\n"
 
@@ -51,7 +51,7 @@ msgstr "Pruebas de CPU"
 #. name
 #: ../units/categories.pxu:27
 msgid "System Daemon tests"
-msgstr ""
+msgstr "Pruebas de demonio de sistema"
 
 #. name
 #: ../units/categories.pxu:31
@@ -71,142 +71,142 @@ msgstr "Pruebas de disco eSATA"
 #. name
 #: ../units/categories.pxu:43
 msgid "Fingerprint reader tests"
-msgstr ""
+msgstr "Pruebas de lector de huella dactilar"
 
 #. name
 #: ../units/categories.pxu:47
 msgid "Firewire disk tests"
-msgstr ""
+msgstr "Pruebas de discos Firewire"
 
 #. name
 #: ../units/categories.pxu:51
 msgid "Firmware tests"
-msgstr ""
+msgstr "Pruebas de «firmware»"
 
 #. name
 #: ../units/categories.pxu:55
 msgid "Floppy disk tests"
-msgstr ""
+msgstr "Pruebas de disquetes"
 
 #. name
 #: ../units/categories.pxu:59
 msgid "Graphics tests"
-msgstr ""
+msgstr "Pruebas de gráficos"
 
 #. name
 #: ../units/categories.pxu:63
 msgid "Hibernation tests"
-msgstr ""
+msgstr "Pruebas de hibernación"
 
 #. name
 #: ../units/categories.pxu:67
 msgid "Informational tests"
-msgstr ""
+msgstr "Pruebas informativas"
 
 #. name
 #: ../units/categories.pxu:71
 msgid "Input Devices tests"
-msgstr ""
+msgstr "Pruebas de dispositivos de entrada"
 
 #. name
 #: ../units/categories.pxu:75
 msgid "Hotkey tests"
-msgstr ""
+msgstr "Pruebas de atajos de teclado"
 
 #. name
 #: ../units/categories.pxu:79
 msgid "LED tests"
-msgstr ""
+msgstr "Pruebas para el LED"
 
 #. name
 #: ../units/categories.pxu:83
 msgid "Media Card tests"
-msgstr ""
+msgstr "Pruebas de tarjetas multimedia"
 
 #. name
 #: ../units/categories.pxu:87
 msgid "Memory tests"
-msgstr ""
+msgstr "Pruebas de memoria"
 
 #. name
 #: ../units/categories.pxu:91
 msgid "MIR tests"
-msgstr ""
+msgstr "Pruebas de MIR"
 
 #. name
 #: ../units/categories.pxu:95
 msgid "Miscellaneous tests"
-msgstr ""
+msgstr "Pruebas varias"
 
 #. name
 #: ../units/categories.pxu:99
 msgid "Monitor tests"
-msgstr ""
+msgstr "Pruebas de monitor"
 
 #. name
 #: ../units/categories.pxu:103
 msgid "Non-device specific networking tests"
-msgstr ""
+msgstr "Pruebas de red no específicas de dispositivos"
 
 #. name
 #: ../units/categories.pxu:107
 msgid "Optical Drive tests"
-msgstr ""
+msgstr "Prueba de discos ópticos"
 
 #. name
 #: ../units/categories.pxu:111
 msgid "ExpressCard tests"
-msgstr ""
+msgstr "Pruebas de ExpressCard"
 
 #. name
 #: ../units/categories.pxu:115
 msgid "Peripheral tests"
-msgstr ""
+msgstr "Pruebas de periféricos"
 
 #. name
 #: ../units/categories.pxu:119
 msgid "Power Management tests"
-msgstr ""
+msgstr "Pruebas de gestión de energía"
 
 #. name
 #: ../units/categories.pxu:123
 msgid "Suspend tests"
-msgstr ""
+msgstr "Pruebas de suspensión"
 
 #. name
 #: ../units/categories.pxu:127
 msgid "Touchpad tests"
-msgstr ""
+msgstr "Pruebas de panel táctil"
 
 #. name
 #: ../units/categories.pxu:131
 msgid "Touchscreen tests"
-msgstr ""
+msgstr "Pruebas de pantalla táctil"
 
 #. name
 #: ../units/categories.pxu:135
 msgid "USB tests"
-msgstr ""
+msgstr "Pruebas de USB"
 
 #. name
 #: ../units/categories.pxu:139
 msgid "User Applications"
-msgstr ""
+msgstr "Aplicaciones de usuario"
 
 #. name
 #: ../units/categories.pxu:143
 msgid "Virtualization tests"
-msgstr ""
+msgstr "Pruebas de virtualización"
 
 #. name
 #: ../units/categories.pxu:147
 msgid "Wireless networking tests"
-msgstr ""
+msgstr "Pruebas de redes inalámbricas"
 
 #. name
 #: ../units/categories.pxu:151
 msgid "Mobile broadband tests"
-msgstr ""
+msgstr "Pruebas de banda ancha móvil"
 
 #. name
 #: ../units/categories.pxu:155
@@ -216,7 +216,7 @@ msgstr ""
 #. name
 #: ../units/categories.pxu:159
 msgid "Uncategorised"
-msgstr ""
+msgstr "Sin categorizar"
 
 #. This is categories_def.description,
 #. we need it here to extract is as a part of this provider
@@ -230,8 +230,8 @@ msgstr ""
 
 #: ../manage.py:56
 msgid "You don't need to develop it explicitly"
-msgstr ""
+msgstr "No necesita desarrollarlo explícitamente"
 
 #: ../manage.py:67
 msgid "You don't need to install it explicitly"
-msgstr ""
+msgstr "No necesita instalarlo explícitamente"

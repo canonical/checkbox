@@ -102,6 +102,7 @@ setup(
             'category=plainbox.impl.unit.category:CategoryUnit',
             'test plan=plainbox.impl.unit.testplan:TestPlanUnit',
             'manifest entry=plainbox.impl.unit.manifest:ManifestEntryUnit',
+            'packaging meta-data=plainbox.impl.unit.packaging:PackagingMetaDataUnit',
         ],
         'plainbox.parsers': [
             'pxu=plainbox.impl.secure.rfc822:load_rfc822_records',

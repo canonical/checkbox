@@ -1,7 +1,0 @@
-id: __resource__
-plugin: local
-_description: Resources to gather system information
-_summary: Resources
-command:
-  shopt -s extglob
-  cat $PLAINBOX_PROVIDER_DATA/../jobs/resource.txt?(.in)

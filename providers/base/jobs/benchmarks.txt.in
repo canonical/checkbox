@@ -96,15 +96,6 @@ estimated_duration: 306.000
 _description: Run GLmark2 benchmark
 
 plugin: shell
-id: benchmarks/graphics/globs
-requires:
- package.name == 'globs'
- cpuinfo.platform in ("i386", "x86_64")
-command: glob_test --min-fps=26 --ignore-problems
-estimated_duration: 53.500
-_description: Run globs benchmark
-
-plugin: shell
 id: benchmarks/graphics/unigine-sanctuary
 requires: package.name == 'phoronix-test-suite'
 command: pts_run unigine-sanctuary

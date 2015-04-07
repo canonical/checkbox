@@ -1,3 +1,66 @@
+# This is for all the Python scripts
+unit: packaging meta-data
+os-id: debian
+Depends: python3 (>= 3.2)
+
+# This is for bin/efi_resource, bin/cpuinfo_resource, bin/gconf_resource,
+# bin/gconf_resource, bin/meminfo_resource, bin/udev_resource
+# and bin/xinput_resource
+unit: packaging meta-data
+os-id: debian
+Depends: python3-checkbox-support (>= 0.2)
+
+# This is for bin/display_resource
+unit: packaging meta-data
+os-id: debian
+# NOTE: This is not a hard dependency so that
+# plainbox-provider-resource-generic has minimalistic dependencies.
+Suggests: x11-server-utils
+
+# This is for bin/dmi_resource
+unit: packaging meta-data
+os-id: debian
+Depends: dmidecode
+
+# This is for bin/dpkg_resource
+unit: packaging meta-data
+os-id: debian
+Depends: dpkg (>= 1.13),
+
+# This is for bin/gconf_resource
+unit: packaging meta-data
+os-id: debian
+# NOTE: This is not a hard dependency so that
+# plainbox-provider-resource-generic has minimalistic dependencies.
+Suggests: gconf2
+
+# This is for bin/lsb_resource
+unit: packaging meta-data
+os-id: debian
+Depends: lsb-release
+
+# This is for bin/mobilebroadband_resource
+unit: packaging meta-data
+os-id: debian
+Depends: network-manager
+
+# This is for bin/optical_resource and bin/udev_resource
+unit: packaging meta-data
+os-id: debian
+Depends: udev
+
+# This is for bin/xinput_resource
+unit: packaging meta-data
+os-id: debian
+# NOTE: This is not a hard dependency so that
+# plainbox-provider-resource-generic has minimalistic dependencies.
+Suggests: xinput
+
+# This is for 'usb'
+unit: packaging meta-data
+os-id: debian
+Depends: usbutils
+
 id: cpuinfo
 estimated_duration: 0.37
 plugin: resource

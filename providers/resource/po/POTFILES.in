@@ -1,5 +1,5 @@
 [encoding: UTF-8]
-[type: gettext/rfc822deb] jobs/resource.txt
+[type: gettext/rfc822deb] jobs/resource.pxu
 bin/block_device_resource
 bin/cdimage_resource
 bin/cpuinfo_resource

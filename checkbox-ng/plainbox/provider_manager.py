@@ -57,6 +57,8 @@ from plainbox.impl.secure.origin import UnknownTextSource
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.providers.v1 import Provider1Definition
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
+from plainbox.impl.unit.packaging import PackagingDriverError
+from plainbox.impl.unit.packaging import get_packaging_driver
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import UnitValidationContext
 from plainbox.impl.validation import Issue
@@ -1260,6 +1262,40 @@ class I18NCommand(ManageCommand):
             return 0
 
 
+@docstring(
+    # TRANSLATORS: please leave various options (both long and short forms),
+    # environment variables and paths in their original form. Also keep the
+    # special @EPILOG@ string. The first line of the translation is special and
+    # is used as the help message. Please keep the pseudo-statement form and
+    # don't finish the sentence with a dot. Pay extra attention to whitespace.
+    # It must be correctly preserved or the result won't work. In particular
+    # the leading whitespace *must* be preserved and *must* have the same
+    # length on each line.
+    N_("""
+    generate packaging meta-data
+
+    This command should not be invoked manually. It is applicable for package
+    maintainers to allow them to extract packaging meta-data applicable for
+    the current operating system from within the provider itself.
+    """))
+class PackagingCommand(ManageCommand):
+
+    def register_parser(self, subparsers):
+        self.add_subcommand(subparsers)
+
+    def invoked(self, ns):
+        driver = get_packaging_driver()
+        try:
+            driver.inspect_packaging()
+        except PackagingDriverError as exc:
+            print(str(exc))
+            return 1
+        else:
+            provider = self.get_provider()
+            driver.inspect_provider(provider)
+            driver.modify_packaging_tree()
+
+
 class ProviderManagerTool(ToolBase):
     """
     Command line tool that is covertly used by each provider's manage.py script
@@ -1310,6 +1346,7 @@ class ProviderManagerTool(ToolBase):
         I18NCommand,
         BuildCommand,
         CleanCommand,
+        PackagingCommand,
     ]
 
     # XXX: keywords=None is for anyone who has copied the example go provider

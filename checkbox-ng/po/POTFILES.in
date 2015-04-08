@@ -80,6 +80,7 @@
 ./plainbox/impl/parsers.py
 ./plainbox/impl/providers/__init__.py
 ./plainbox/impl/providers/categories/manage.py
+./plainbox/impl/providers/manifest/manage.py
 ./plainbox/impl/providers/special.py
 ./plainbox/impl/providers/stubbox/manage.py
 ./plainbox/impl/providers/test_special.py
@@ -144,6 +145,7 @@
 ./plainbox/impl/unit/category.py
 ./plainbox/impl/unit/file.py
 ./plainbox/impl/unit/job.py
+./plainbox/impl/unit/packaging.py
 ./plainbox/impl/unit/template.py
 ./plainbox/impl/unit/test_category.py
 ./plainbox/impl/unit/test_file.py
@@ -159,8 +161,10 @@
 ./plainbox/impl/unit/unit_with_id.py
 ./plainbox/impl/unit/validators.py
 ./plainbox/impl/validation.py
+./plainbox/impl/xparsers.py
 ./plainbox/provider_manager.py
 ./plainbox/public.py
+./plainbox/qml_shell/qml_shell.py
 ./plainbox/test_abc.py
 ./plainbox/test_i18n.py
 ./plainbox/test_provider_manager.py

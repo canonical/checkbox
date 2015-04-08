@@ -678,7 +678,6 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
             ],
             fields.command: [
                 UntranslatableFieldValidator,
-                TemplateVariantFieldValidator,
                 # All jobs except for manual must have a command
                 PresentFieldValidator(
                     message=_("command is mandatory for non-manual jobs"),

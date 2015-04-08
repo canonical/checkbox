@@ -347,13 +347,6 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
         self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.command,
                               Problem.unexpected_i18n, Severity.warning)
 
-    def test_command__template_variant(self):
-        issue_list = self.unit_cls({
-            'command': 'command'
-        }, parameters={}, provider=self.provider).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.command,
-                              Problem.constant, Severity.error)
-
     def test_command__present__on_non_manual(self):
         for plugin in self.unit_cls.plugin.symbols.get_all_symbols():
             if plugin in ('manual', 'qml'):

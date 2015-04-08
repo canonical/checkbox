@@ -79,10 +79,7 @@
 ./plainbox/impl/logging.py
 ./plainbox/impl/parsers.py
 ./plainbox/impl/providers/__init__.py
-./plainbox/impl/providers/categories/manage.py
-./plainbox/impl/providers/manifest/manage.py
 ./plainbox/impl/providers/special.py
-./plainbox/impl/providers/stubbox/manage.py
 ./plainbox/impl/providers/test_special.py
 ./plainbox/impl/providers/test_v1.py
 ./plainbox/impl/providers/v1.py

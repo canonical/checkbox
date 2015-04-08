@@ -3,23 +3,37 @@ global-include *.sh
 global-include COPYING LICENSE
 global-include README*
 global-include Vagrantfile
+
 include plainbox/impl/providers/categories/README.md
 include plainbox/impl/providers/categories/manage.py
 include plainbox/impl/providers/categories/po/*.po
+include plainbox/impl/providers/categories/po/*.pot
 include plainbox/impl/providers/categories/po/POTFILES.in
-include plainbox/impl/providers/stubbox/README.md
+include plainbox/impl/providers/categories/units/*.pxu
+
+include plainbox/impl/providers/manifest/README.md
+include plainbox/impl/providers/manifest/bin/*
+include plainbox/impl/providers/manifest/manage.py
+include plainbox/impl/providers/manifest/po/*.po
+include plainbox/impl/providers/manifest/po/*.pot
+include plainbox/impl/providers/manifest/po/POTFILES.in
+include plainbox/impl/providers/manifest/units/*.pxu
+
 include plainbox/impl/providers/stubbox/bin/*
+include plainbox/impl/providers/stubbox/data/*
 include plainbox/impl/providers/stubbox/manage.py
 include plainbox/impl/providers/stubbox/po/*.po
 include plainbox/impl/providers/stubbox/po/*.pot
 include plainbox/impl/providers/stubbox/po/POTFILES.in
+include plainbox/impl/providers/stubbox/units/jobs/*.pxu
+include plainbox/impl/providers/stubbox/units/testplans/*.pxu
 include plainbox/impl/providers/stubbox/whitelists/*.whitelist
+
 include plainbox/vendor/argparse/py*-argparse.py
+
 recursive-exclude daily-package-testing *
 recursive-exclude plainbox/vendor/textland-project COPYING README.md
 recursive-include contrib *.policy
 recursive-include docs *.rst *.py *.html *.conf
 recursive-include plainbox/data *.rng *.xsl *.png *.css *.js
-recursive-include plainbox/impl/providers/categories/units *.pxu
-recursive-include plainbox/impl/providers/stubbox/units *.pxu
 recursive-include plainbox/test-data *.json *.xml *.html

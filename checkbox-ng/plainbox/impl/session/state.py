@@ -1162,6 +1162,18 @@ class SessionState:
             and job_state.effective_certification_status
             in certification_status_filter}
 
+    def get_outcome_stats(self, plugin_blacklist=("resource",
+                                                  "local",
+                                                  "attachment")):
+        stats = collections.defaultdict(int)
+        for job_id, job_state in self.job_state_map.items():
+            if job_state.job.plugin in plugin_blacklist:
+                continue
+            if not job_state.result.outcome:
+                continue
+            stats[job_state.result.outcome] += 1
+        return stats
+
     @property
     def metadata(self):
         """ meta-data object associated with this session state. """

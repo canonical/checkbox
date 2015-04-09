@@ -683,6 +683,24 @@ class SessionStateReactionToJobResultTests(TestCase):
             {self.job_A.id: self.session.job_state_map[self.job_A.id],
              self.job_Y.id: self.session.job_state_map[self.job_Y.id]})
 
+    def test_get_outcome_stats(self):
+        result_A = MemoryJobResult({'outcome': IJobResult.OUTCOME_PASS})
+        result_L = MemoryJobResult(
+            {'outcome': IJobResult.OUTCOME_NOT_SUPPORTED})
+        result_R = MemoryJobResult({'outcome': IJobResult.OUTCOME_FAIL})
+        result_Y = MemoryJobResult({'outcome': IJobResult.OUTCOME_FAIL})
+        self.session.update_job_result(self.job_A, result_A)
+        self.session.update_job_result(self.job_L, result_L)
+        self.session.update_job_result(self.job_R, result_R)
+        self.session.update_job_result(self.job_Y, result_Y)
+        self.assertEqual(self.session.get_outcome_stats(),
+                         {IJobResult.OUTCOME_PASS: 1,
+                          IJobResult.OUTCOME_FAIL: 1})
+        self.assertEqual(self.session.get_outcome_stats(plugin_blacklist=()),
+                         {IJobResult.OUTCOME_PASS: 1,
+                          IJobResult.OUTCOME_NOT_SUPPORTED: 1,
+                          IJobResult.OUTCOME_FAIL: 2})
+
 
 class SessionMetadataTests(TestCase):
 

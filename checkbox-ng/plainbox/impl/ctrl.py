@@ -44,7 +44,6 @@ import itertools
 import json
 import logging
 import os
-import signal
 try:
     import posix
 except ImportError:
@@ -745,6 +744,7 @@ class CheckBoxExecutionController(IExecutionController):
         This function is useful when plainbox should stop execution and wait
         for external process to kill it.
         """
+        import signal
         signal.pause()
 
 

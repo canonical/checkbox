@@ -1121,6 +1121,24 @@ class SessionState:
         """ Map from resource id to a list of resource records. """
         return self._resource_map
 
+    def get_outcome_stats(self):
+        """
+        Process the JobState map to get stats about the job outcomes.
+
+        :returns:
+            a mapping of "outcome": "total" key/value pairs
+
+        .. note::
+            Only the outcomes seen during this session are reported, not all
+            possible values (such as crash, not implemented, ...).
+        """
+        stats = collections.defaultdict(int)
+        for job_id, job_state in self.job_state_map.items():
+            if not job_state.result.outcome:
+                continue
+            stats[job_state.result.outcome] += 1
+        return stats
+
     @property
     def metadata(self):
         """ meta-data object associated with this session state. """

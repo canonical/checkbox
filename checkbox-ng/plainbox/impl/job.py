@@ -215,6 +215,7 @@ class TreeBuilder:
             the category_job was never seen before (as recorded by the
             category_node_map).
         """
+        logger.debug("get_or_create_category_node(%r)", category_job)
         if category_job is None:
             return self._root_node
         if category_job.id not in self._category_node_map:
@@ -246,6 +247,7 @@ class TreeBuilder:
         :returns:
             A fresh node with appropriate data.
         """
+        logger.debug("create_category_node(%r)", category_job)
         if category_job.summary == category_job.partial_id:
             return self._node_cls(category_job.description)
         else:

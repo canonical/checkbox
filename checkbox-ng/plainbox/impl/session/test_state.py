@@ -658,6 +658,31 @@ class SessionStateReactionToJobResultTests(TestCase):
                           IJobResult.OUTCOME_NOT_SUPPORTED: 1,
                           IJobResult.OUTCOME_FAIL: 2})
 
+    def test_get_certification_status_map(self):
+        result_A = MemoryJobResult({'outcome': IJobResult.OUTCOME_PASS})
+        self.session.update_job_result(self.job_A, result_A)
+        self.session.job_state_map[
+            self.job_A.id].effective_certification_status = 'foo'
+        self.assertEqual(self.session.get_certification_status_map(), {})
+        self.assertEqual(self.session.get_certification_status_map(
+            outcome_filter=(IJobResult.OUTCOME_PASS,),
+            certification_status_filter=('foo',)),
+            {self.job_A.id: self.session.job_state_map[self.job_A.id]})
+        result_Y = MemoryJobResult({'outcome': IJobResult.OUTCOME_FAIL})
+        self.session.job_state_map[
+            self.job_Y.id].effective_certification_status = 'bar'
+        self.assertEqual(self.session.get_certification_status_map(), {})
+        self.assertEqual(self.session.get_certification_status_map(
+            outcome_filter=(IJobResult.OUTCOME_PASS, IJobResult.OUTCOME_FAIL),
+            certification_status_filter=('foo', 'bar')),
+            {self.job_A.id: self.session.job_state_map[self.job_A.id]})
+        self.session.update_job_result(self.job_Y, result_Y)
+        self.assertEqual(self.session.get_certification_status_map(
+            outcome_filter=(IJobResult.OUTCOME_PASS, IJobResult.OUTCOME_FAIL),
+            certification_status_filter=('foo', 'bar')),
+            {self.job_A.id: self.session.job_state_map[self.job_A.id],
+             self.job_Y.id: self.session.job_state_map[self.job_Y.id]})
+
 
 class SessionMetadataTests(TestCase):
 

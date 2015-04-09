@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2013 Canonical Ltd.
+# Copyright 2015 Canonical Ltd.
 # Written by:
 #   Sylvain Pineau <sylvain.pineau@canonical.com>
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
@@ -25,119 +25,263 @@ plainbox.impl.exporter.test_html
 
 Test definitions for plainbox.impl.exporter.html module
 """
-from io import StringIO
-from string import Template
 from unittest import TestCase
 import io
 
-from lxml import etree as ET
-from pkg_resources import resource_filename
-from pkg_resources import resource_string
-
-from plainbox.testing_utils import resource_json
-from plainbox.impl.exporter.html import HTMLResourceInliner
+from plainbox.abc import IJobResult
+from plainbox.testing_utils import resource_string
 from plainbox.impl.exporter.html import HTMLSessionStateExporter
-
-
-class HTMLInlinerTests(TestCase):
-    def setUp(self):
-        template_substitutions = {
-            'PLAINBOX_ASSETS': resource_filename("plainbox", "data/")}
-        test_file_location = "test-data/html-exporter/html-inliner.html"
-        test_file = resource_filename("plainbox",
-                                      test_file_location)
-        with open(test_file) as html_file:
-            html_template = Template(html_file.read())
-        html_content = html_template.substitute(template_substitutions)
-        self.tree = ET.parse(StringIO(html_content), ET.HTMLParser())
-        # Now self.tree contains a tree with adequately-substituted
-        # paths and resources
-        inliner = HTMLResourceInliner()
-        self.inlined_tree = inliner.inline_resources(self.tree)
-
-    def test_script_inlining(self):
-        """Test that a <script> resource gets inlined."""
-        for node in self.inlined_tree.xpath('//script'):
-            self.assertTrue(node.text)
-
-    def test_img_inlining(self):
-        """
-        Test that a <img> gets inlined.
-        It should be replaced by a base64 representation of the
-        referenced image's data as per RFC2397.
-        """
-        for node in self.inlined_tree.xpath('//img'):
-            # Skip image that purposefully points to a remote
-            # resource
-            if node.attrib.get('class') != "remote_resource":
-                self.assertTrue("base64" in node.attrib['src'])
-
-    def test_css_inlining(self):
-        """Test that a <style> resource gets inlined."""
-        for node in self.inlined_tree.xpath('//style'):
-            # Skip a fake remote_resource node that's purposefully
-            # not inlined
-            if 'nonexistent_resource' not in node.attrib['type']:
-                self.assertTrue("body" in node.text)
-
-    def test_remote_resource_inlining(self):
-        """
-        Test that a resource with a non-local (i.e. not file://
-        url) does NOT get inlined (rather it's replaced by an
-        empty string). We use <style> in this test.
-        """
-        for node in self.inlined_tree.xpath('//style'):
-            # The not-inlined remote_resource
-            if 'nonexistent_resource' in node.attrib['type']:
-                self.assertTrue(node.text == "")
-
-    def test_unfindable_file_inlining(self):
-        """
-        Test that a resource whose file does not exist does NOT
-        get inlined, and is instead replaced by empty string.
-        We use <img> in this test.
-        """
-        for node in self.inlined_tree.xpath('//img'):
-            if node.attrib.get('class') == "remote_resource":
-                self.assertEqual("", node.attrib['src'])
+from plainbox.impl.resource import Resource
+from plainbox.impl.result import MemoryJobResult
+from plainbox.impl.unit.job import JobDefinition
+from plainbox.vendor import mock
 
 
 class HTMLExporterTests(TestCase):
 
     def setUp(self):
-        data = resource_json(
-            "plainbox",
-            "test-data/xml-exporter/example-data-certification-status.json",
-            exact=True)
+        self.resource_map = {
+            '2013.com.canonical.certification::lsb': [
+                Resource({'description': 'Ubuntu 14.04 LTS'})],
+            '2013.com.canonical.certification::package': [
+                Resource({'name': 'plainbox', 'version': '1.0'}),
+                Resource({'name': 'fwts', 'version': '0.15.2'})],
+        }
+        self.job1 = JobDefinition({'id': 'job_id1', '_summary': 'job 1'})
+        self.job2 = JobDefinition({'id': 'job_id2', '_summary': 'job 2'})
+        self.job3 = JobDefinition({'id': 'job_id3', '_summary': 'job 3'})
+        self.result_fail = MemoryJobResult({
+            'outcome': IJobResult.OUTCOME_FAIL, 'return_code': 1,
+            'io_log': [(0, 'stderr', b'FATAL ERROR\n')],
+        })
+        self.result_pass = MemoryJobResult({
+            'outcome': IJobResult.OUTCOME_PASS, 'return_code': 0,
+            'io_log': [(0, 'stdout', b'foo\n')],
+            'comments': 'blah blah'
+        })
+        self.result_skip = MemoryJobResult({
+            'outcome': IJobResult.OUTCOME_SKIP,
+            'comments': 'No such device'
+        })
+        self.attachment = JobDefinition({
+            'id': 'dmesg_attachment',
+            'plugin': 'attachment'})
+        self.attachment_result = MemoryJobResult({
+            'outcome': IJobResult.OUTCOME_PASS,
+            'io_log': [(0, 'stdout', b'bar\n')],
+            'return_code': 0
+        })
+
+    def prepare_manager_without_certification_status(self):
+        return mock.Mock(state=mock.Mock(
+            job_state_map={
+                self.job1.id: mock.Mock(
+                    result=self.result_fail,
+                    job=self.job1,
+                    effective_certification_status='unspecified'),
+                self.job2.id: mock.Mock(
+                    result=self.result_pass,
+                    job=self.job2,
+                    effective_certification_status='unspecified'),
+                self.job3.id: mock.Mock(
+                    result=self.result_skip,
+                    job=self.job3,
+                    effective_certification_status='unspecified'),
+                self.attachment.id: mock.Mock(result=self.attachment_result,
+                                              job=self.attachment)
+            },
+            get_certification_status_map=mock.Mock(return_value={}),
+            resource_map=self.resource_map,
+            failed_blockers_map={},
+            failed_non_blockers_map={})
+        )
+
+    def prepare_manager_with_certification_blocker(self):
+        return mock.Mock(state=mock.Mock(
+            job_state_map={
+                self.job1.id: mock.Mock(
+                    result=self.result_fail,
+                    job=self.job1,
+                    effective_certification_status='blocker'),
+                self.job2.id: mock.Mock(
+                    result=self.result_pass,
+                    job=self.job2,
+                    effective_certification_status='unspecified'),
+                self.job3.id: mock.Mock(
+                    result=self.result_skip,
+                    job=self.job3,
+                    effective_certification_status='unspecified'),
+                self.attachment.id: mock.Mock(result=self.attachment_result,
+                                              job=self.attachment)
+            },
+            get_certification_status_map=mock.Mock(return_value={
+                self.job1.id: mock.Mock(
+                    result=self.result_fail,
+                    job=self.job1,
+                    effective_certification_status='blocker')}),
+            resource_map=self.resource_map,
+            failed_blockers_map={
+                self.job1.id: mock.Mock(
+                result=self.result_fail,
+                job=self.job1,
+                effective_certification_status='blocker')
+            },
+            failed_non_blockers_map={})
+        )
+
+    def prepare_manager_with_certification_non_blocker(self):
+        return mock.Mock(state=mock.Mock(
+            job_state_map={
+                self.job1.id: mock.Mock(
+                    result=self.result_fail,
+                    job=self.job1,
+                    effective_certification_status='non-blocker'),
+                self.job2.id: mock.Mock(
+                    result=self.result_pass,
+                    job=self.job2,
+                    effective_certification_status='unspecified'),
+                self.job3.id: mock.Mock(
+                    result=self.result_skip,
+                    job=self.job3,
+                    effective_certification_status='unspecified'),
+                self.attachment.id: mock.Mock(result=self.attachment_result,
+                                              job=self.attachment)
+            },
+            get_certification_status_map=mock.Mock(return_value={
+                self.job1.id: mock.Mock(
+                    result=self.result_fail,
+                    job=self.job1,
+                    effective_certification_status='non-blocker')}),
+            resource_map=self.resource_map,
+            failed_blockers_map={},
+            failed_non_blockers_map={
+                self.job1.id: mock.Mock(
+                result=self.result_fail,
+                job=self.job1,
+                effective_certification_status='non-blocker')
+            })
+        )
+
+    def prepare_manager_with_both_certification_status(self):
+        return mock.Mock(state=mock.Mock(
+            job_state_map={
+                self.job1.id: mock.Mock(
+                    result=self.result_fail,
+                    job=self.job1,
+                    effective_certification_status='blocker'),
+                self.job2.id: mock.Mock(
+                    result=self.result_fail,
+                    job=self.job2,
+                    effective_certification_status='non-blocker'),
+                self.job3.id: mock.Mock(
+                    result=self.result_skip,
+                    job=self.job3,
+                    effective_certification_status='unspecified'),
+                self.attachment.id: mock.Mock(result=self.attachment_result,
+                                              job=self.attachment)
+            },
+            get_certification_status_map=mock.Mock(side_effect=[{
+                self.job1.id: mock.Mock(
+                    result=self.result_fail,
+                    job=self.job1,
+                    effective_certification_status='blocker')},{
+                self.job2.id: mock.Mock(
+                    result=self.result_fail,
+                    job=self.job2,
+                    effective_certification_status='non-blocker')}]),
+            resource_map=self.resource_map,
+            failed_blockers_map={
+                self.job1.id: mock.Mock(
+                result=self.result_fail,
+                job=self.job1,
+                effective_certification_status='blocker')
+            },
+            failed_non_blockers_map={
+                self.job2.id: mock.Mock(
+                result=self.result_fail,
+                job=self.job2,
+                effective_certification_status='non-blocker')
+            })
+        )
+
+    def test_perfect_match_without_certification_status(self):
+        """
+        Test that output from the exporter exactly matches known
+        good HTML output, inlining and everything included.
+        """
         exporter = HTMLSessionStateExporter(
             system_id="",
             timestamp="2012-12-21T12:00:00",
             client_version="1.0")
         stream = io.BytesIO()
-        exporter.dump(data, stream)
-        self.actual_result = stream.getvalue()  # This is bytes
-        self.assertIsInstance(self.actual_result, bytes)
+        exporter.dump_from_session_manager(
+            self.prepare_manager_without_certification_status(), stream)
+        actual_result = stream.getvalue()  # This is bytes
+        self.assertIsInstance(actual_result, bytes)
+        with open('/tmp/bozo.html', 'wb') as f:
+            f.write(actual_result)
+        expected_result = resource_string(
+            "plainbox",
+            "test-data/html-exporter/without_certification_status.html"
+        )  # unintuitively, resource_string returns bytes
+        self.assertEqual(actual_result, expected_result)
 
-    def test_html_output(self):
-        """
-        Test that output from the exporter is HTML (or at least,
-        appears to be).
-        """
-        # A pretty simplistic test since we just validate the output
-        # appears to be HTML. Looking at the exporter's code, it's mostly
-        # boilerplate use of lxml and etree, so let's not fall into testing
-        # an external library.
-        self.assertIn(b"<html>",
-                      self.actual_result)
-        self.assertIn(b"<title>System Testing Report</title>",
-                      self.actual_result)
-
-    def test_perfect_match(self):
+    def test_perfect_match_with_certification_blocker(self):
         """
         Test that output from the exporter exactly matches known
         good HTML output, inlining and everything included.
         """
+        exporter = HTMLSessionStateExporter(
+            system_id="",
+            timestamp="2012-12-21T12:00:00",
+            client_version="1.0")
+        stream = io.BytesIO()
+        exporter.dump_from_session_manager(
+            self.prepare_manager_with_certification_blocker(), stream)
+        actual_result = stream.getvalue()  # This is bytes
+        self.assertIsInstance(actual_result, bytes)
         expected_result = resource_string(
-            "plainbox", "test-data/html-exporter/example-data.html"
+            "plainbox",
+            "test-data/html-exporter/with_certification_blocker.html"
         )  # unintuitively, resource_string returns bytes
-        self.assertEqual(self.actual_result, expected_result)
+        self.assertEqual(actual_result, expected_result)
+
+    def test_perfect_match_with_certification_non_blocker(self):
+        """
+        Test that output from the exporter exactly matches known
+        good HTML output, inlining and everything included.
+        """
+        exporter = HTMLSessionStateExporter(
+            system_id="",
+            timestamp="2012-12-21T12:00:00",
+            client_version="1.0")
+        stream = io.BytesIO()
+        exporter.dump_from_session_manager(
+            self.prepare_manager_with_certification_non_blocker(), stream)
+        actual_result = stream.getvalue()  # This is bytes
+        self.assertIsInstance(actual_result, bytes)
+        expected_result = resource_string(
+            "plainbox",
+            "test-data/html-exporter/with_certification_non_blocker.html"
+        )  # unintuitively, resource_string returns bytes
+        self.assertEqual(actual_result, expected_result)
+
+    def test_perfect_match_with_both_certification_status(self):
+        """
+        Test that output from the exporter exactly matches known
+        good HTML output, inlining and everything included.
+        """
+        exporter = HTMLSessionStateExporter(
+            system_id="",
+            timestamp="2012-12-21T12:00:00",
+            client_version="1.0")
+        stream = io.BytesIO()
+        exporter.dump_from_session_manager(
+            self.prepare_manager_with_both_certification_status(), stream)
+        actual_result = stream.getvalue()  # This is bytes
+        self.assertIsInstance(actual_result, bytes)
+        expected_result = resource_string(
+            "plainbox",
+            "test-data/html-exporter/with_both_certification_status.html"
+        )  # unintuitively, resource_string returns bytes
+        self.assertEqual(actual_result, expected_result)

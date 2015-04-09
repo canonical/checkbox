@@ -1,7 +1,7 @@
 body {
     font-family: "Ubuntu Beta", "Bitstream Vera Sans", DejaVu Sans, Tahoma, sans-serif;
     color: #333;
-    background: white url(report/images/body_bg.png);
+    background: white;
     font-size: 12px;
     line-height: 14px;
     margin: 0px;
@@ -24,7 +24,7 @@ body {
     -webkit-box-shadow: #bbb 0px 0px 5px;
 }
 #header {
-    background: #dd4814 url(report/images/header_bg.png) top left repeat-x;
+    background: #dd4814 top left repeat-x;
     height: 64px;
     margin: 0px;
     padding: 0px;
@@ -42,9 +42,9 @@ body {
 
 #content {
     /*padding: 32px 80px 32px 80px;*/
-    padding: 32px 240px 32px 160px;
+    padding: 32px 240px 32px 60px;
     margin: 0 16px 16px;
-    width: 544px;
+    width: 644px;
     background-color: #fff;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
@@ -182,7 +182,6 @@ div.footer-div:hover a:hover, div#content:hover a:hover {
 
 ul {
     margin-bottom: 16px;
-    list-style-image: url(report/images/bullet.png);
 }
 ul li {
     margin-bottom: 8px;
@@ -235,6 +234,10 @@ Based on How To Clear Floats Without Structural Markup by PiE
     -webkit-box-shadow: #bbb 0px 0px 5px;
     display: inline-block;
 }  /* for IE/Mac */
+th
+{
+    text-align: left;
+}
 td
 {
     margin: 0;
@@ -249,10 +252,10 @@ td
 }
 .disclosureimg
 {
-	height:		.75em;
-	vertical-align:	middle;
+    height:     .75em;
+    vertical-align: middle;
 }
 .data
 {
-	display:	none;
+    display:    none;
 }

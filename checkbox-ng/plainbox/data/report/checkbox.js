@@ -5,10 +5,10 @@ function showHide(what) {
     var newcontents;
 
     if (contents.style.display != "block") {
-        newcontents = headingcontents.replace("closed", "open");
+        newcontents = headingcontents.replace(/[^\x00-\x80]/g, "&#9660;");
         contents.style.display = "block";
     } else {
-        newcontents = headingcontents.replace("open", "closed");
+        newcontents = headingcontents.replace(/[^\x00-\x80]/g, "&#9654;");
         contents.style.display = "none";
     }
 

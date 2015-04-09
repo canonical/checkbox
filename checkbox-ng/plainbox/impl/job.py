@@ -230,7 +230,6 @@ class TreeBuilder:
             else:
                 parent_category_node = self._root_node
             parent_category_node.add_category(category_node)
-            self._category_node_map[category_job.id] = category_node
         else:
             category_node = self._category_node_map[category_job.id]
         return category_node
@@ -249,6 +248,8 @@ class TreeBuilder:
         """
         logger.debug("create_category_node(%r)", category_job)
         if category_job.summary == category_job.partial_id:
-            return self._node_cls(category_job.description)
+            category_node = self._node_cls(category_job.description)
         else:
-            return self._node_cls(category_job.summary)
+            category_node = self._node_cls(category_job.summary)
+        self._category_node_map[category_job.id] = category_node
+        return category_node

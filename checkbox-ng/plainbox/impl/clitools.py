@@ -888,7 +888,7 @@ def find_exec(name_list):
         LookupError if none of the names in name_list are executable
         programs in PATH
     """
-    path_list = os.getenv('PATH', '').split(os.path.pathsep)
+    path_list = os.get_exec_path()
     for name in name_list:
         for path in path_list:
             pathname = os.path.join(path, name)

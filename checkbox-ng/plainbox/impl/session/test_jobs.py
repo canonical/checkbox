@@ -241,3 +241,10 @@ class JobStateTests(TestCase):
         parent = make_job("parent")
         self.job_state.via_job = parent
         self.assertIs(self.job_state.via_job, parent)
+
+    def test_resetting_via_job(self):
+        parent = make_job("parent")
+        self.job_state.via_job = parent
+        self.assertIs(self.job_state.via_job, parent)
+        self.job_state.via_job = None
+        self.assertIs(self.job_state.via_job, None)

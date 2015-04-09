@@ -244,7 +244,8 @@ def job_assign_filter(instance, field, old_value, new_value):
 
 
 def job_via_assign_filter(instance, field, old_value, new_value):
-    if old_value is not pod.UNSET and not isinstance(new_value, JobDefinition):
+    if (old_value is not pod.UNSET and not isinstance(new_value, JobDefinition)
+        and not new_value is None):
         raise TypeError("via_job must be the actual job, not the checksum")
     return new_value
 

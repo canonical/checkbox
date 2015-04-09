@@ -35,6 +35,8 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
 
     """Session state exporter that renders output using jinja2 template."""
 
+    supported_option_list = ()
+
     def __init__(self, jinja2_template, option_list=None, extra_paths=()):
         """
         Initialize a new Jinja2SessionStateExporter with given arguments.
@@ -97,7 +99,3 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
             'manager': session_manager,
             'options': self.option_list,
         }
-
-    def supported_option_list(cls):
-        """ Return list of supported exporter options."""
-        return []

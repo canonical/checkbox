@@ -18,6 +18,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+Job Tree Builder.
+
 :mod:`plainbox.impl.job` -- job definition
 ==========================================
 
@@ -30,30 +32,30 @@ import logging
 
 from plainbox.impl.unit.job import JobDefinition
 
-__all__ = ['JobDefinition', 'JobTreeNode']
+__all__ = ('JobDefinition', 'JobTreeNode')
 
 logger = logging.getLogger("plainbox.job")
 
 
 class JobTreeNode:
+
+    r"""
+    JobTreeNode class is used to store a tree structure.
+
+    A tree consists of a collection of JobTreeNode instances connected in a
+    hierarchical way where nodes are used as categories, jobs belonging to a
+    category are listed in the node leaves.
+
+    Example::
+               / Job A
+         Root-|
+              |                 / Job B
+               \--- Category X |
+                                \ Job C
     """
-    JobTreeNode class is used to store a tree structure. A tree consists of
-    a collection of JobTreeNode instances connected in a hierarchical way
-    where nodes are used as categories, jobs belonging to a category are
-    listed in the node leaves.
 
-    **Example:**
-
-    ::
-
-            / Job A
-      Root-|
-           |                 / Job B
-            \--- Category X |
-                             \ Job C
-
-    """
     def __init__(self, name=None):
+        """ Initialize the job tree node with a given name. """
         self._name = name if name else 'Root'
         self._parent = None
         self._categories = []
@@ -61,50 +63,43 @@ class JobTreeNode:
 
     @property
     def name(self):
-        """
-        node name
-        """
+        """ name of this node. """
         return self._name
 
     @property
     def parent(self):
-        """
-        parent node for this node
-        """
+        """ parent node for this node. """
         return self._parent
 
     @property
     def categories(self):
-        """
-        list of sub categories
-        """
+        """ list of sub categories. """
         return self._categories
 
     @property
     def jobs(self):
-        """
-        job(s) belonging to this node/category
-        """
+        """ job(s) belonging to this node/category. """
         return self._jobs
 
     @property
     def depth(self):
-        """
-        level of depth for this node
-        """
+        """ level of depth for this node. """
         return (self._parent.depth + 1) if self._parent else 0
 
     def __str__(self):
+        """ same as self.name. """
         return self.name
 
     def __repr__(self):
+        """ Get a representation of this node for debugging. """
         return "<JobTreeNode name:{!r}>".format(self.name)
 
     def add_category(self, category):
         """
-        Adds a new category to this node.
+        Add a new category to this node.
 
-        :argument category: the node instance to be added as a category.
+        :param category:
+            The node instance to be added as a category.
         """
         self._categories.append(category)
         # Always keep this list sorted to easily find a given child by index
@@ -113,9 +108,10 @@ class JobTreeNode:
 
     def add_job(self, job):
         """
-        Adds a new job to this node.
+        Add a new job to this node.
 
-        :argument job: the job instance to be added to this node.
+        :param job:
+            The job instance to be added to this node.
         """
         self._jobs.append(job)
         # Always keep this list sorted to easily find a given leaf by index
@@ -124,10 +120,7 @@ class JobTreeNode:
         self._jobs.sort(key=lambda item: item.id)
 
     def get_ancestors(self):
-        """
-        Returns the list of all ancestor nodes from current node to the
-        current tree root.
-        """
+        """ Get the list of ancestors from here to the root of the tree.  """
         ancestors = []
         node = self
         while node.parent is not None:
@@ -136,9 +129,7 @@ class JobTreeNode:
         return ancestors
 
     def get_descendants(self):
-        """
-        Returns a list of all descendant category nodes.
-        """
+        """ Return a list of all descendant category nodes.  """
         descendants = []
         for category in self.categories:
             descendants.append(category)
@@ -148,7 +139,7 @@ class JobTreeNode:
     @classmethod
     def create_tree(cls, session_state, job_list):
         """
-        Build a rooted JobTreeNode from a job list
+        Build a rooted JobTreeNode from a job list.
 
         :argument session_state:
             A session state object
@@ -162,7 +153,11 @@ class JobTreeNode:
 
 
 class TreeBuilder:
+
     """
+    Builder for :class:`JobTreeNode`.
+
+
     Helper class that assists in building a tree of :class:`JobTreeNode`
     objects out of job definitions and their associations, as expressed by
     :attr:`JobState.via_job` associated with each job.
@@ -205,6 +200,8 @@ class TreeBuilder:
 
     def get_or_create_category_node(self, category_job):
         """
+        Get a category node for a given job.
+
         Get or create a :class:`JobTreeNode` that corresponds to the
         category defined (somehow) by the job ``category_job``.
 
@@ -239,6 +236,8 @@ class TreeBuilder:
 
     def create_category_node(self, category_job):
         """
+        Create a category node for a given job.
+
         Create a :class:`JobTreeNode` that corresponds to the category defined
         (somehow) by the job ``category_job``.
 

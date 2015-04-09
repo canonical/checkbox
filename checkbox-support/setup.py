@@ -52,6 +52,7 @@ setup(
         'lxml >= 2.3',
         'pyparsing >= 2.0.0',
     ] + (['configparser'] if sys.version_info.major == 2 else []),
+    include_package_data=True,
     entry_points={
         'plainbox.parsers': [
             "pactl-list=checkbox_support.parsers.pactl:parse_pactl_output",

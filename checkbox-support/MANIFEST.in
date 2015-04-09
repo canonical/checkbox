@@ -2,4 +2,5 @@ global-include COPYING
 global-include README*
 recursive-include checkbox_support/parsers/tests/fixtures *.txt
 recursive-include checkbox_support/parsers/tests/pactl_data *.txt
+recursive-include checkbox_support/parsers/tests/cpuinfo_data *.txt
 recursive-include checkbox_support/parsers/tests/udevadm_data *.txt

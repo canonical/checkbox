@@ -1216,7 +1216,7 @@ msgid "Session Statistics"
 msgstr "Statystyki Sesji"
 
 #: .././plainbox/impl/commands/inv_run.py:918
-#, python-brace-format, python-format
+#, python-brace-format
 msgid "This session is about {0:.2f}% complete"
 msgstr "Ta sesja jest ukończona w około {0:.2f}%"
 

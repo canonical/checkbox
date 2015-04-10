@@ -41,6 +41,7 @@ from plainbox.impl.ctrl import RootViaSudoExecutionController
 from plainbox.impl.ctrl import SymLinkNest
 from plainbox.impl.ctrl import UserJobExecutionController
 from plainbox.impl.ctrl import gen_rfc822_records_from_io_log
+from plainbox.impl.ctrl import get_via_cycle
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.resource import Resource
 from plainbox.impl.resource import ResourceExpression
@@ -384,7 +385,7 @@ class CheckBoxSessionStateControllerTests(TestCase):
 
 class FunctionTests(TestCase):
     """
-    unit tests for gen_rfc822_records_from_io_log()
+    unit tests for gen_rfc822_records_from_io_log() and other functions.
     """
 
     def test_parse_typical(self):
@@ -431,6 +432,43 @@ class FunctionTests(TestCase):
             "local script %s returned invalid RFC822 data: %s",
             job.id, RFC822SyntaxError(
                 None, 3, "Unexpected non-empty line: 'error\\n'"))
+
+    def test_get_via_cycle__no_cycle(self):
+        job_a = mock.Mock(spec_set=JobDefinition, name='job_a')
+        job_a.id = 'a'
+        job_state_a = mock.Mock(spec_set=JobState, name='job_state_a')
+        job_state_a.job = job_a
+        job_state_a.via_job = None
+        job_state_map = {job_a.id: job_state_a}
+        self.assertEqual(get_via_cycle(job_state_map, job_a), ())
+
+    def test_get_via_cycle__trivial(self):
+        job_a = mock.Mock(spec_set=JobDefinition, name='job_a')
+        job_a.id = 'a'
+        job_state_a = mock.Mock(spec_set=JobState, name='job_state_b')
+        job_state_a.job = job_a
+        job_state_a.via_job = job_a
+        job_state_map = {job_a.id: job_state_a}
+        self.assertEqual(get_via_cycle(job_state_map, job_a), [job_a, job_a])
+
+    def test_get_via_cycle__indirect(self):
+        job_a = mock.Mock(spec_set=JobDefinition, name='job_a')
+        job_a.id = 'a'
+        job_b = mock.Mock(spec_set=JobDefinition, name='job_b')
+        job_b.id = 'b'
+        job_state_a = mock.Mock(spec_set=JobState, name='job_state_a')
+        job_state_a.job = job_a
+        job_state_a.via_job = job_b
+        job_state_b = mock.Mock(spec_set=JobState, name='job_state_b')
+        job_state_b.job = job_b
+        job_state_b.via_job = job_a
+        job_state_map = {
+            job_a.id: job_state_a,
+            job_b.id: job_state_b,
+        }
+        self.assertEqual(
+            get_via_cycle(job_state_map, job_a),
+            [job_a, job_b, job_a])
 
 
 class SymLinkNestTests(TestCase):

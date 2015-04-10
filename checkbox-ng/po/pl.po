@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2015-04-09 05:12+0000\n"
+"X-Launchpad-Export-Date: 2015-04-10 04:32+0000\n"
 "X-Generator: Launchpad (build 17413)\n"
 "Language: Polish\n"
 "X-Language: pl_PL\n"
@@ -4368,35 +4368,3 @@ msgid ""
 msgstr ""
 "polecenie do uruchomienia na telefonie/tablecie, bez tego argumentu "
 "uruchamiana jest interaktywna powłoka"
-
-#~ msgid "The Category provider is special"
-#~ msgstr "Dostawca kategorii jest specjalny"
-
-#~ msgid "You don't need to develop it explicitly"
-#~ msgstr "Nie trzeba go specjalnie developować"
-
-#~ msgid "You don't need to install it explicitly"
-#~ msgstr "Nie trzeba go specjalnie instalować"
-
-#~ msgid "The StubBox provider is special"
-#~ msgstr "Dostawca StubBox jest specjalny"
-
-#~ msgid "Created SessionManager with device_context_list:%r and storage:%r"
-#~ msgstr "Stworzono SessionManager z device_context_list:%r i storage:%r"
-
-#~ msgid "selector {!a} doesn't match any known or generated job"
-#~ msgstr "selektor {!a} nie wybiera żadnych znanych lub generowanych zadań"
-
-#~ msgid "line {!r} is broken, expected four tokens"
-#~ msgstr "linia {!r} jest popsuta, oczekiwano czterech elementów"
-
-#~ msgid "line {!r} is broken, expected <apply> ... <to> ..."
-#~ msgstr "linia {!r} jest popsuta, oczekiwano <apply> ... <to> ..."
-
-#~ msgid "Use the new validation subsystem"
-#~ msgstr "Użyj nowego systemu weryfikacji"
-
-#~ msgid "Run 'manage.py validate -N --strict --deprecated' for details"
-#~ msgstr ""
-#~ "Proszę uruchomić `manage.py validate -N --strict --deprecated` aby zobaczyć "
-#~ "szczegóły"

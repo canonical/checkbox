@@ -345,7 +345,64 @@ class CheckBoxSessionStateController(ISessionStateController):
                 # the generator job. This way it can be traced back to the old
                 # __category__-style local jobs or to their corresponding
                 # generator job in general.
-                session_state.job_state_map[added_job.id].via_job = job
+                #
+                # NOTE: this is the only place where we assign via_job so as
+                # long as that holds true, we can detect and break via cycles.
+                #
+                # Via cycles occur whenever a job can reach itself again
+                # through via associations. Note that the chain may be longer
+                # than one link (A->A) and can include other jobs in the list
+                # (A->B->C->A)
+                #
+                # To detect a cycle we must iterate back the via chain (and we
+                # must do it here because we have access to job_state_map that
+                # allows this iteration to happen) and break the cycle if we
+                # see the job being added.
+                job_state_map = session_state.job_state_map
+                job_state_map[added_job.id].via_job = job
+                via_cycle = get_via_cycle(job_state_map, added_job)
+                if via_cycle:
+                    logger.warning(_("Automatically breaking via-cycle: %s"),
+                                    ' -> '.join(str(cycle_job)
+                                                for cycle_job in via_cycle))
+                    job_state_map[added_job.id].via_job = None
+
+
+def get_via_cycle(job_state_map, job):
+    """
+    Find a possible cycle including via_job.
+
+    :param job_state_map:
+        A dictionary mapping job.id to a JobState object.
+    :param via_job:
+        Any job, start of a hypothetical via job cycle.
+    :raises KeyError:
+        If any of the encountered jobs are not present in job_state_map.
+    :return:
+        A list of jobs that represent the cycle or an empty tuple if no cycle
+        is present. The list has the property that item[0] is item[-1]
+
+    A via cycle occurs if *job* is reachable through the *via_job* by
+    recursively following via_job connection until via_job becomes None.
+    """
+    cycle = []
+    seen = set()
+    while job is not None:
+        cycle.append(job)
+        seen.add(job)
+        next_job = job_state_map[job.id].via_job
+        if next_job in seen:
+            break
+        job = next_job
+    else:
+        return ()
+    # Discard all the jobs leading to the cycle.
+    # cycle = cycle[cycle.index(next_job):]
+    # This is just to hold the promise of the return value so
+    # that processing is easier for the caller.
+    cycle.append(next_job)
+    # assert cycle[0] is cycle[-1]
+    return cycle
 
 
 def gen_rfc822_records_from_io_log(job, result):

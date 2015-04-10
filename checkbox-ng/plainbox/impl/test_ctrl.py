@@ -41,10 +41,11 @@ from plainbox.impl.ctrl import RootViaSudoExecutionController
 from plainbox.impl.ctrl import SymLinkNest
 from plainbox.impl.ctrl import UserJobExecutionController
 from plainbox.impl.ctrl import gen_rfc822_records_from_io_log
-from plainbox.impl.depmgr import DependencyDuplicateError
+from plainbox.impl.ctrl import get_via_cycle
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.resource import Resource
 from plainbox.impl.resource import ResourceExpression
+from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.secure.origin import JobOutputTextSource
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.providers.v1 import Provider1
@@ -291,40 +292,25 @@ class CheckBoxSessionStateControllerTests(TestCase):
         verify side effects of using observe_result() that would define a new
         job
         """
-        # Create a session that knows about no jobs yet
-        # and happily adds jobs when add_job() gets called
-        session_state = mock.MagicMock(spec=SessionState)
-
-        def add_job(new_job, recompute):
-            # The only quirk is that our fake session state resets via_job
-            # attribute for each added job as we want to test that below.
-            session_state.job_state_map[new_job.id].via_job = None
-            return new_job
-        session_state.add_job.side_effect = add_job
-        # Create a job of which result we'll be observing
-        job = mock.Mock(spec=JobDefinition, name='job', plugin='local')
-        # Create a result for the job we'll be observing
-        result = mock.Mock(
-            spec=IJobResult, name='result', outcome=IJobResult.OUTCOME_PASS)
-        # Mock what rfc822 parser returns
+        # Job A is any example job
+        job_a = JobDefinition({'id': 'a', 'plugin': 'shell', 'command': ':'})
+        # Job B is a job that prints the definition of job A
+        job_b = JobDefinition({'id': 'b', 'plugin': 'local'})
+        # Result B is a fake result of running job B
+        result_b = MemoryJobResult({'outcome': 'pass'})
+        # Session knows about just B
+        session_state = SessionState([job_b])
+        # Mock gen_rfc822_records_from_io_log to produce one mock record
         mock_gen.return_value = [mock.Mock(spec=RFC822Record, name='record')]
-        # Pretend that we are observing a 'result' of 'job'
-        self.ctrl.observe_result(session_state, job, result)
+        # Mock job B to create job A as a child if asked to
+        with mock.patch.object(job_b, 'create_child_job_from_record') as fn:
+            fn.side_effect = lambda record: job_a
+            # Pretend that we are observing a 'result_b' of 'job_b'
+            self.ctrl.observe_result(session_state, job_b, result_b)
         # Ensure that result got stored
-        self.assertIs(
-            session_state.job_state_map[job.id].result, result)
-        # Ensure that new job was defined
-        session_state.add_job.assert_called_once_with(
-            job.create_child_job_from_record(), recompute=False)
-        # Ensure that we do keep track of via_job of the new job
-        self.assertIs(
-            session_state.job_state_map[
-                job.create_child_job_from_record().id
-            ].via_job, job)
-        # Ensure that signals got fired
-        session_state.on_job_state_map_changed.assert_called_once_with()
-        session_state.on_job_result_changed.assert_called_once_with(
-            job, result)
+        self.assertIs(session_state.job_state_map[job_b.id].result, result_b)
+        # Ensure that job A is now via-connected to job B
+        self.assertIs(session_state.job_state_map[job_a.id].via_job, job_b)
 
     @mock.patch('plainbox.impl.ctrl.gen_rfc822_records_from_io_log')
     @mock.patch('plainbox.impl.ctrl.logger')
@@ -337,46 +323,34 @@ class CheckBoxSessionStateControllerTests(TestCase):
         We basically hope to see the old job being there intact and a warning
         to be logged.
         """
-        # Create a session that already knows about 'existing_job'
-        # and raises a DependencyDuplicateError when add_job() gets called.
-        existing_job = mock.Mock(spec=JobDefinition, name='existing_job')
-        existing_job.id = 'generated'
-        clashing_job = mock.Mock(spec=JobDefinition, name='existing_job')
-        clashing_job.id = 'generated'
-        session_state = mock.MagicMock(spec=SessionState, name='session_state')
-        session_state.add_job.side_effect = DependencyDuplicateError(
-            existing_job, clashing_job)
-        # Create a job of which result we'll be observing
-        job = mock.Mock(spec=JobDefinition, name='job', plugin='local')
-        # Have job return clashing_job when create_child_job_record() is called
-        job.create_child_job_from_record.return_value = clashing_job
-        # Create a result for the job we'll be observing
-        result = mock.Mock(
-            spec=IJobResult, name='result', outcome=IJobResult.OUTCOME_PASS)
-        # Mock what rfc822 parser returns
+        # Jobs A1 and A2 are simple example jobs (different, with same id)
+        job_a1 = JobDefinition(
+            {'id': 'a', 'plugin': 'shell', 'command': 'true'})
+        job_a2 = JobDefinition(
+            {'id': 'a', 'plugin': 'shell', 'command': 'false'})
+        # Job B is a job that prints the definition of job A2
+        job_b = JobDefinition({'id': 'b', 'plugin': 'local'})
+        # Result B is a fake result of running job B
+        result_b = MemoryJobResult({'outcome': 'pass'})
+        # Session knows about A1 and B
+        session_state = SessionState([job_a1, job_b])
+        # Mock gen_rfc822_records_from_io_log to produce one mock record
         mock_gen.return_value = [mock.Mock(spec=RFC822Record, name='record')]
-        # Pretend that we are observing a 'result' of 'job'
-        self.ctrl.observe_result(session_state, job, result)
+        # Mock job B to create job A2 as a child if asked to
+        with mock.patch.object(job_b, 'create_child_job_from_record') as fn:
+            fn.side_effect = lambda record: job_a2
+            # Pretend that we are observing a 'result_b' of 'job_b'
+            self.ctrl.observe_result(session_state, job_b, result_b)
         # Ensure that result got stored
-        self.assertIs(
-            session_state.job_state_map[job.id].result, result)
-        # Ensure that we tried to define a new job by calling add_job() with
-        # the clashing_job as argument
-        session_state.add_job.assert_called_once_with(
-            clashing_job, recompute=False)
-        # Ensure that we didn't change via_job of the original
-        self.assertIsNot(
-            session_state.job_state_map[existing_job.id].via_job, job)
-        # Ensure that signals got fired
-        session_state.on_job_state_map_changed.assert_called_once_with()
-        session_state.on_job_result_changed.assert_called_once_with(
-            job, result)
+        self.assertIs(session_state.job_state_map[job_b.id].result, result_b)
+        # Ensure that we didn't change via_job of the job A1
+        self.assertIsNot(session_state.job_state_map[job_a1.id].via_job, job_b)
         # Ensure that a warning was logged
         mock_logger.warning.assert_called_once_with(
             ("Local job %s produced job %s that collides with"
              " an existing job %s (from %s), the new job was"
              " discarded"),
-            job.id, clashing_job.id, existing_job.id, existing_job.origin)
+            job_b.id, job_a2.id, job_a1.id, job_a1.origin)
 
     @mock.patch('plainbox.impl.ctrl.gen_rfc822_records_from_io_log')
     def test_observe_result__local_perfect_clash(self, mock_gen):
@@ -388,43 +362,30 @@ class CheckBoxSessionStateControllerTests(TestCase):
         should be updated to reflect the new association between 'existing_job'
         and 'job'
         """
-        # Create a session that already knows about 'existing_job'
-        # and returns existing_job when add_job() gets called.
-        existing_job = mock.Mock(spec=JobDefinition, name='existing_job')
-        existing_job.id = 'generated'
-        session_state = mock.MagicMock(spec=SessionState, name='session_state')
-        session_state.add_job.side_effect = (
-            lambda new_job, recompute: existing_job)
-        # Create a job of which result we'll be observing
-        job = mock.Mock(spec=JobDefinition, name='job', plugin='local')
-        # Create a result for the job we'll be observing
-        result = mock.Mock(
-            spec=IJobResult, name='result', outcome=IJobResult.OUTCOME_PASS)
-        # Mock what rfc822 parser returns
+        # Job A is any example job
+        job_a = JobDefinition({'id': 'a', 'plugin': 'shell', 'command': ':'})
+        # Job B is a job that prints the definition of job A
+        job_b = JobDefinition({'id': 'b', 'plugin': 'local'})
+        # Result B is a fake result of running job B
+        result_b = MemoryJobResult({'outcome': 'pass'})
+        # Session knows about A and B
+        session_state = SessionState([job_a, job_b])
+        # Mock gen_rfc822_records_from_io_log to produce one mock record
         mock_gen.return_value = [mock.Mock(spec=RFC822Record, name='record')]
-        # Pretend that we are observing a 'result' of 'job'
-        self.ctrl.observe_result(session_state, job, result)
+        # Mock job B to create job A as a child if asked to
+        with mock.patch.object(job_b, 'create_child_job_from_record') as fn:
+            fn.side_effect = lambda record: job_a
+            # Pretend that we are observing a 'result_b' of 'job_b'
+            self.ctrl.observe_result(session_state, job_b, result_b)
         # Ensure that result got stored
-        self.assertIs(
-            session_state.job_state_map[job.id].result, result)
-        # Ensure that we tried to define a new job using
-        # whatever create_child_job_from_record() returns.
-        session_state.add_job.assert_called_once_with(
-            job.create_child_job_from_record(), recompute=False)
-        # Ensure that we do keep track of via_job of the new job
-        self.assertIs(
-            session_state.job_state_map[
-                job.create_child_job_from_record().id
-            ].via_job, job)
-        # Ensure that signals got fired
-        session_state.on_job_state_map_changed.assert_called_once_with()
-        session_state.on_job_result_changed.assert_called_once_with(
-            job, result)
+        self.assertIs(session_state.job_state_map[job_b.id].result, result_b)
+        # Ensure that job A is now via-connected to job B
+        self.assertIs(session_state.job_state_map[job_a.id].via_job, job_b)
 
 
 class FunctionTests(TestCase):
     """
-    unit tests for gen_rfc822_records_from_io_log()
+    unit tests for gen_rfc822_records_from_io_log() and other functions.
     """
 
     def test_parse_typical(self):
@@ -471,6 +432,43 @@ class FunctionTests(TestCase):
             "local script %s returned invalid RFC822 data: %s",
             job.id, RFC822SyntaxError(
                 None, 3, "Unexpected non-empty line: 'error\\n'"))
+
+    def test_get_via_cycle__no_cycle(self):
+        job_a = mock.Mock(spec_set=JobDefinition, name='job_a')
+        job_a.id = 'a'
+        job_state_a = mock.Mock(spec_set=JobState, name='job_state_a')
+        job_state_a.job = job_a
+        job_state_a.via_job = None
+        job_state_map = {job_a.id: job_state_a}
+        self.assertEqual(get_via_cycle(job_state_map, job_a), ())
+
+    def test_get_via_cycle__trivial(self):
+        job_a = mock.Mock(spec_set=JobDefinition, name='job_a')
+        job_a.id = 'a'
+        job_state_a = mock.Mock(spec_set=JobState, name='job_state_b')
+        job_state_a.job = job_a
+        job_state_a.via_job = job_a
+        job_state_map = {job_a.id: job_state_a}
+        self.assertEqual(get_via_cycle(job_state_map, job_a), [job_a, job_a])
+
+    def test_get_via_cycle__indirect(self):
+        job_a = mock.Mock(spec_set=JobDefinition, name='job_a')
+        job_a.id = 'a'
+        job_b = mock.Mock(spec_set=JobDefinition, name='job_b')
+        job_b.id = 'b'
+        job_state_a = mock.Mock(spec_set=JobState, name='job_state_a')
+        job_state_a.job = job_a
+        job_state_a.via_job = job_b
+        job_state_b = mock.Mock(spec_set=JobState, name='job_state_b')
+        job_state_b.job = job_b
+        job_state_b.via_job = job_a
+        job_state_map = {
+            job_a.id: job_state_a,
+            job_b.id: job_state_b,
+        }
+        self.assertEqual(
+            get_via_cycle(job_state_map, job_a),
+            [job_a, job_b, job_a])
 
 
 class SymLinkNestTests(TestCase):

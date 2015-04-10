@@ -345,7 +345,27 @@ class CheckBoxSessionStateController(ISessionStateController):
                 # the generator job. This way it can be traced back to the old
                 # __category__-style local jobs or to their corresponding
                 # generator job in general.
-                session_state.job_state_map[added_job.id].via_job = job
+                #
+                # NOTE: this is the only place where we assign via_job so as
+                # long as that holds true, we can detect and break via cycles.
+                #
+                # Via cycles occur whenever a job can reach itself again
+                # through via associations. Note that the chain may be longer
+                # than one link (A->A) and can include other jobs in the list
+                # (A->B->C->A)
+                #
+                # To detect a cycle we must iterate back the via chain (and we
+                # must do it here because we have access to job_state_map that
+                # allows this iteration to happen) and break the cycle if we
+                # see the job being added.
+                job_state_map = session_state.job_state_map
+                job_state_map[added_job.id].via_job = job
+                via_cycle = get_via_cycle(job_state_map, added_job)
+                if via_cycle:
+                    logger.warning(_("Automatically breaking via-cycle: %s"),
+                                    ' -> '.join(str(cycle_job)
+                                                for cycle_job in via_cycle))
+                    job_state_map[added_job.id].via_job = None
 
 
 def get_via_cycle(job_state_map, job):
@@ -366,18 +386,22 @@ def get_via_cycle(job_state_map, job):
     recursively following via_job connection until via_job becomes None.
     """
     cycle = []
-    start_job = job
+    seen = set()
     while job is not None:
         cycle.append(job)
-        job = job_state_map[job.id].via_job
-        if job is start_job:
+        seen.add(job)
+        next_job = job_state_map[job.id].via_job
+        if next_job in seen:
             break
+        job = next_job
     else:
         return ()
-    # This is just to hold the promise of the return value so that processing
-    # is easier for the caller.
-    cycle.append(start_job)
-    assert cycle[0] is cycle[-1]
+    # Discard all the jobs leading to the cycle.
+    # cycle = cycle[cycle.index(next_job):]
+    # This is just to hold the promise of the return value so
+    # that processing is easier for the caller.
+    cycle.append(next_job)
+    # assert cycle[0] is cycle[-1]
     return cycle
 
 

@@ -234,6 +234,8 @@ class Explorer:
             return self._template_to_obj(unit)
         elif unit.Meta.name == 'manifest entry':
             return self._manifest_entry_to_obj(unit)
+        elif unit.Meta.name == 'packaging meta-data':
+            return self._packaging_meta_data_to_obj(unit)
         else:
             raise NotImplementedError(unit.Meta.name)
 
@@ -321,6 +323,14 @@ class Explorer:
                 ('value_type', unit.value_type),
                 ('value_unit', unit.value_unit),
                 ('resource_key', unit.resource_key),
+                ('origin', str(unit.origin)),
+            )))
+
+    def _packaging_meta_data_to_obj(self, unit):
+        return PlainBoxObject(
+            unit, group=unit.Meta.name, name=unit.os_id, attrs=OrderedDict((
+                ('os_id', unit.os_id),
+                ('os_version_id', unit.os_version_id),
                 ('origin', str(unit.origin)),
             )))
 

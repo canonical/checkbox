@@ -113,20 +113,6 @@ class TemplateUnitValidator(TestCase):
             boom.exception.field, JobDefinition.fields.description)
         self.assertEqual(boom.exception.problem, Problem.constant)
 
-    def test_checks_if_command_is_constant(self):
-        with self.assertRaises(ValidationError) as boom:
-            TemplateUnit({
-                'template-resource': 'resource',
-                'id': 'variable-{attr}',
-                'plugin': 'constant',
-                'summary': 'variable-{attr}',
-                'description': 'variable-{attr}',
-                'command': 'constant',
-            }).validate()
-        self.assertEqual(
-            boom.exception.field, JobDefinition.fields.command)
-        self.assertEqual(boom.exception.problem, Problem.constant)
-
     def test_checks_if_user_is_variable(self):
         with self.assertRaises(ValidationError) as boom:
             TemplateUnit({

@@ -401,11 +401,6 @@ class JobDefinitionLegacyAPI(UnitWithIdLegacyAPI):
             # very unreliable. There is no current demand for being able to
             # customize it from a resource record.
             'plugin': 'const',
-            # The command field should be variable if it is defined. This may
-            # be too strict but there has to be a channel between the resource
-            # object and the command to make the template job valuable so for
-            # now we will require variability here.
-            'command': 'vary',
             # The description should never be constant as that would be
             # confusing to the test operator. If it is defined in the template
             # it should be customized by at least one resource reference.

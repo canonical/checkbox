@@ -157,12 +157,13 @@ class UdevadmDevice(object):
                 devtype = self._environment["DEVTYPE"]
                 if devtype in ("wlan", "wimax"):
                     return "WIRELESS"
-            # Ralink wireless
+            # Ralink and realtek SDIO wireless
             if "INTERFACE" in self._environment:
                 if (self.driver and
                     self.driver.startswith('rt') and
-                    self._environment["INTERFACE"].startswith('ra')
-                ):
+                    (self._environment["INTERFACE"].startswith('ra') or
+                     self._environment["INTERFACE"].startswith('wlan')
+                     )):
                     return "WIRELESS"
             return "NETWORK"
 

@@ -771,13 +771,9 @@ class MemoryJobResultResumeTests(JobResultResumeMixIn, TestCaseWithParameters):
         ]))
 
 
-class DiskJobResultResumeTests(JobResultResumeMixIn, TestCaseWithParameters):
-    """
-    Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper1`,
-    :class:`~plainbox.impl.session.resume.SessionResumeHelper2' and
-    :class:`~plainbox.impl.session.resume.SessionResumeHelper3' and how they
-    handle recreating DiskJobResult form their representations
-    """
+class DiskJobResultResumeTestsCommon(JobResultResumeMixIn, TestCaseWithParameters):
+
+    """ Tests for common behavior of DiskJobResult resume for all formats.  """
 
     parameter_names = ('resume_cls',)
     parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
@@ -839,15 +835,82 @@ class DiskJobResultResumeTests(JobResultResumeMixIn, TestCaseWithParameters):
             str(boom.exception),
             "Value of key 'io_log_filename' cannot be None")
 
+
+class DiskJobResultResumeTests1to4(TestCaseWithParameters):
+
+    """ Tests for behavior of DiskJobResult resume for formats 1 to 4. """
+
+    parameter_names = ('resume_cls',)
+    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
+                        (SessionResumeHelper3,), (SessionResumeHelper4,))
+    good_repr = {
+        'outcome': "pass",
+        'comments': None,
+        'return_code': None,
+        'execution_duration': None,
+        'io_log_filename': "/file.txt"
+    }
+
     def test_build_JobResult_restores_io_log_filename(self):
-        """
-        verify that _build_JobResult() restores the value of
-        ``io_log_filename`` DiskJobResult representations
-        """
+        """ _build_JobResult() accepts relative paths without location. """
         obj_repr = copy.copy(self.good_repr)
         obj_repr['io_log_filename'] = "some-file.txt"
         obj = self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
         self.assertEqual(obj.io_log_filename, "some-file.txt")
+
+    def test_build_JobResult_restores_relative_io_log_filename(self):
+        """ _build_JobResult() ignores location for relative paths. """
+        obj_repr = copy.copy(self.good_repr)
+        obj_repr['io_log_filename'] = "some-file.txt"
+        obj = self.parameters.resume_cls._build_JobResult(
+            obj_repr, 0, '/path/to')
+        self.assertEqual(obj.io_log_filename, "some-file.txt")
+
+    def test_build_JobResult_restores_absolute_io_log_filename(self):
+        """ _build_JobResult() preserves absolute paths. """
+        obj_repr = copy.copy(self.good_repr)
+        obj_repr['io_log_filename'] = "/some-file.txt"
+        obj = self.parameters.resume_cls._build_JobResult(
+            obj_repr, 0, '/path/to')
+        self.assertEqual(obj.io_log_filename, "/some-file.txt")
+
+
+class DiskJobResultResumeTests5(TestCaseWithParameters):
+
+    """ Tests for behavior of DiskJobResult resume for format 5. """
+
+    parameter_names = ('resume_cls',)
+    parameter_values = ((SessionResumeHelper5,),)
+    good_repr = {
+        'outcome': "pass",
+        'comments': None,
+        'return_code': None,
+        'execution_duration': None,
+        'io_log_filename': "/file.txt"
+    }
+
+    def test_build_JobResult_restores_io_log_filename(self):
+        """ _build_JobResult() rejects relative paths without location. """
+        obj_repr = copy.copy(self.good_repr)
+        obj_repr['io_log_filename'] = "some-file.txt"
+        with self.assertRaisesRegex(ValueError, "Location "):
+            self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
+
+    def test_build_JobResult_restores_relative_io_log_filename(self):
+        """ _build_JobResult() uses location for relative paths. """
+        obj_repr = copy.copy(self.good_repr)
+        obj_repr['io_log_filename'] = "some-file.txt"
+        obj = self.parameters.resume_cls._build_JobResult(
+            obj_repr, 0, '/path/to')
+        self.assertEqual(obj.io_log_filename, "/path/to/some-file.txt")
+
+    def test_build_JobResult_restores_absolute_io_log_filename(self):
+        """ _build_JobResult() preserves absolute paths. """
+        obj_repr = copy.copy(self.good_repr)
+        obj_repr['io_log_filename'] = "/some-file.txt"
+        obj = self.parameters.resume_cls._build_JobResult(
+            obj_repr, 0, '/path/to')
+        self.assertEqual(obj.io_log_filename, "/some-file.txt")
 
 
 class DesiredJobListResumeTests(TestCaseWithParameters):

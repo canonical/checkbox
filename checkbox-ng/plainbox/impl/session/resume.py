@@ -441,10 +441,10 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
     failure modes are possible. Those are documented in :meth:`resume()`
     """
 
-    # Flag controlling reference checks from within the session file to external
-    # files. If enabled such checks are performed and can cause additional
-    # exceptions to be raised. Currently this only affects the representation
-    # of the DiskJobResult instances.
+    # Flag controlling reference checks from within the session file to
+    # external files. If enabled such checks are performed and can cause
+    # additional exceptions to be raised. Currently this only affects the
+    # representation of the DiskJobResult instances.
     FLAG_FILE_REFERENCE_CHECKS_S = 'file-reference-checks'
     FLAG_FILE_REFERENCE_CHECKS_F = 0x01
     # Flag controlling rewriting of log file pathnames. It depends on the

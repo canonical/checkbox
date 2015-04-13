@@ -60,7 +60,7 @@ class BaseJobResultTestsTestsMixIn:
     """
 
     def setUp(self):
-        self.helper = SessionSuspendHelper1()
+        self.helper = self.HELPER_CLS()
         self.empty_result = self.TESTED_CLS({})
         self.typical_result = self.TESTED_CLS({
             "outcome": self.TESTED_CLS.OUTCOME_PASS,
@@ -112,6 +112,7 @@ class SuspendMemoryJobResultTests(BaseJobResultTestsTestsMixIn, TestCase):
     """
 
     TESTED_CLS = MemoryJobResult
+    HELPER_CLS = SessionSuspendHelper1
 
     def setUp(self):
         super(SuspendMemoryJobResultTests, self).setUp()
@@ -148,6 +149,7 @@ class SuspendDiskJobResultTests(BaseJobResultTestsTestsMixIn, TestCase):
     """
 
     TESTED_CLS = DiskJobResult
+    HELPER_CLS = SessionSuspendHelper1
 
     def setUp(self):
         super(SuspendDiskJobResultTests, self).setUp()

@@ -172,6 +172,8 @@ class SessionPeekHelper(EnvelopeUnpackMixIn):
             return SessionPeekHelper3().peek_json(json_repr)
         elif version == 4:
             return SessionPeekHelper4().peek_json(json_repr)
+        elif version == 5:
+            return SessionPeekHelper5().peek_json(json_repr)
         else:
             raise IncompatibleSessionError(
                 _("Unsupported version {}").format(version))
@@ -292,6 +294,9 @@ class SessionResumeHelper(EnvelopeUnpackMixIn):
                 self.job_list, self.flags, self.location)
         elif version == 4:
             helper = SessionResumeHelper4(
+                self.job_list, self.flags, self.location)
+        elif version == 5:
+            helper = SessionResumeHelper5(
                 self.job_list, self.flags, self.location)
         else:
             raise IncompatibleSessionError(

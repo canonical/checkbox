@@ -155,12 +155,22 @@ class SessionResumeHelperTests(TestCase):
         SessionResumeHelper([], None, None).resume(data)
         mocked_helper4.resume_json.assertCalledOnce()
 
-    def test_resume_dispatch_v5(self):
+    @mock.patch('plainbox.impl.session.resume.SessionResumeHelper5')
+    def test_resume_dispatch_v5(self, mocked_helper5):
         data = gzip.compress(
-            b'{"version":5}')
+            b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+            b'{"app_blob":null,"app_id":null,"flags":[],'
+            b'"running_job_name":null,"title":null'
+            b'},"results":{}},"version":5}')
+        SessionResumeHelper([], None, None).resume(data)
+        mocked_helper5.resume_json.assertCalledOnce()
+
+    def test_resume_dispatch_v6(self):
+        data = gzip.compress(
+            b'{"version":6}')
         with self.assertRaises(IncompatibleSessionError) as boom:
             SessionResumeHelper([], None, None).resume(data)
-        self.assertEqual(str(boom.exception), "Unsupported version 5")
+        self.assertEqual(str(boom.exception), "Unsupported version 6")
 
 
 class SessionResumeTests(TestCase):

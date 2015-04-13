@@ -462,6 +462,19 @@ class SessionPeekHelper4(SessionPeekHelper3):
     """
 
 
+class SessionPeekHelper5(SessionPeekHelper4):
+    """
+    Helper class for implementing session peek feature
+
+    This class works with data constructed by
+    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper5` which has
+    been pre-processed by :class:`SessionPeekHelper` (to strip the initial
+    envelope).
+
+    The only goal of this class is to reconstruct session state meta-data.
+    """
+
+
 class SessionResumeHelper1(MetaDataHelper1MixIn):
     """
     Helper class for implementing session resume feature
@@ -909,6 +922,35 @@ class SessionResumeHelper4(SessionResumeHelper3):
     the non-serialized parts of checkbox or other job providers) several
     failure modes are possible. Those are documented in :meth:`resume()`
     """
+
+
+class SessionResumeHelper5(SessionResumeHelper4):
+    """
+    Helper class for implementing session resume feature
+
+    This class works with data constructed by
+    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper5` which has
+    been pre-processed by :class:`SessionResumeHelper` (to strip the initial
+    envelope).
+
+    Due to the constraints of what can be represented in a suspended session,
+    this class cannot work in isolation. It must operate with a list of know
+    jobs.
+
+    Since (most of the) jobs are being provided externally (as they represent
+    the non-serialized parts of checkbox or other job providers) several
+    failure modes are possible. Those are documented in :meth:`resume()`
+    """
+
+    @classmethod
+    def _load_io_log_filename(cls, result_repr, flags, location):
+        io_log_filename = super()._load_io_log_filename(
+            result_repr, flags, location)
+        if os.path.isabs(io_log_filename):
+            return io_log_filename
+        if location is None:
+            raise ValueError("Location must be a directory name")
+        return os.path.join(location, io_log_filename)
 
 
 def _validate(obj, **flags):

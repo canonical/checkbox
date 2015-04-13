@@ -48,6 +48,7 @@ from plainbox.impl.session.resume import SessionResumeHelper1
 from plainbox.impl.session.resume import SessionResumeHelper2
 from plainbox.impl.session.resume import SessionResumeHelper3
 from plainbox.impl.session.resume import SessionResumeHelper4
+from plainbox.impl.session.resume import SessionResumeHelper5
 from plainbox.impl.session.state import SessionState
 from plainbox.impl.testing_utils import make_job
 from plainbox.testing_utils.testcases import TestCaseWithParameters
@@ -337,7 +338,8 @@ class SessionStateResumeTests(TestCaseWithParameters):
 
     parameter_names = ('resume_cls',)
     parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
-                        (SessionResumeHelper3,), (SessionResumeHelper4,))
+                        (SessionResumeHelper3,), (SessionResumeHelper4,),
+                        (SessionResumeHelper5,))
 
     def setUp(self):
         self.session_repr = {}
@@ -411,7 +413,8 @@ class IOLogRecordResumeTests(TestCaseWithParameters):
 
     parameter_names = ('resume_cls',)
     parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
-                        (SessionResumeHelper3,), (SessionResumeHelper4,))
+                        (SessionResumeHelper3,), (SessionResumeHelper4,),
+                        (SessionResumeHelper5,))
 
     def test_build_IOLogRecord_missing_delay(self):
         """
@@ -701,7 +704,8 @@ class MemoryJobResultResumeTests(JobResultResumeMixIn, TestCaseWithParameters):
 
     parameter_names = ('resume_cls',)
     parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
-                        (SessionResumeHelper3,), (SessionResumeHelper4,))
+                        (SessionResumeHelper3,), (SessionResumeHelper4,),
+                        (SessionResumeHelper5,))
     good_repr = {
         'outcome': "pass",
         'comments': None,
@@ -777,7 +781,8 @@ class DiskJobResultResumeTests(JobResultResumeMixIn, TestCaseWithParameters):
 
     parameter_names = ('resume_cls',)
     parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
-                        (SessionResumeHelper3,), (SessionResumeHelper4,))
+                        (SessionResumeHelper3,), (SessionResumeHelper4,),
+                        (SessionResumeHelper5,))
     good_repr = {
         'outcome': "pass",
         'comments': None,
@@ -855,7 +860,8 @@ class DesiredJobListResumeTests(TestCaseWithParameters):
 
     parameter_names = ('resume_cls',)
     parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
-                        (SessionResumeHelper3,), (SessionResumeHelper4,))
+                        (SessionResumeHelper3,), (SessionResumeHelper4,),
+                        (SessionResumeHelper5,))
 
     def setUp(self):
         # All of the tests need a SessionState object and some jobs to work
@@ -1231,7 +1237,8 @@ class ProcessJobTests(TestCaseWithParameters):
 
     parameter_names = ('resume_cls',)
     parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
-                        (SessionResumeHelper3,), (SessionResumeHelper4,))
+                        (SessionResumeHelper3,), (SessionResumeHelper4,),
+                        (SessionResumeHelper5,))
 
     def setUp(self):
         self.job_id = 'job'
@@ -1394,7 +1401,8 @@ class JobPluginSpecificTests(TestCaseWithParameters):
 
     parameter_names = ('resume_cls',)
     parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
-                        (SessionResumeHelper3,), (SessionResumeHelper4,))
+                        (SessionResumeHelper3,), (SessionResumeHelper4,),
+                        (SessionResumeHelper5,))
 
     def test_process_job_restores_resources(self):
         """
@@ -1495,7 +1503,8 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
 
     parameter_names = ('resume_cls',)
     parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
-                        (SessionResumeHelper3,), (SessionResumeHelper4,))
+                        (SessionResumeHelper3,), (SessionResumeHelper4,),
+                        (SessionResumeHelper5,))
 
     def test_empty_session(self):
         """
@@ -1714,7 +1723,8 @@ class SessionJobListResumeTests(TestCaseWithParameters):
 
     parameter_names = ('resume_cls',)
     parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
-                        (SessionResumeHelper3,), (SessionResumeHelper4,))
+                        (SessionResumeHelper3,), (SessionResumeHelper4,),
+                        (SessionResumeHelper5,))
 
     def test_simple_session(self):
         """

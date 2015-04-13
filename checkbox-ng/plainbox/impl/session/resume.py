@@ -186,9 +186,48 @@ class SessionResumeHelper(EnvelopeUnpackMixIn):
     appropriate, format specific, resume class.
     """
 
-    def __init__(self, job_list, flags, location):
+    def __init__(
+        self, job_list: 'List[JobDefinition]',
+        flags: 'Optional[Iterable[str]]', location: 'Optional[str]'
+    ):
         """
-        Initialize the helper with a list of known jobs.
+        Initialize the helper with a list of known jobs and support data.
+
+        :param job_list:
+            List of known jobs
+        :param flags:
+            Any iterable object with string versions of resume support flags.
+            This can be None, if the application doesn't wish to enable any of
+            the feature flags.
+        :param location:
+            Location of the session directory. This is the same as
+            ``session_dir`` in the corresponding suspend API. It is also the
+            same as ``storage.location`` (where ``storage`` is a
+            :class:`plainbox.impl.session.storage.SessionStorage` object.
+
+        Applicable flags are ``FLAG_FILE_REFERENCE_CHECKS_S``,
+        ``FLAG_REWRITE_LOG_PATHNAMES_S`` and ``FLAG_IGNORE_JOB_CHECKSUMS_S``.
+        Their meaning is described below.
+
+        ``FLAG_FILE_REFERENCE_CHECKS_S``:
+            Flag controlling reference checks from within the session file to
+            external files. If enabled such checks are performed and can cause
+            additional exceptions to be raised. Currently this only affects the
+            representation of the DiskJobResult instances.
+
+        ``FLAG_REWRITE_LOG_PATHNAMES_S``:
+            Flag controlling rewriting of log file pathnames. It depends on the
+            location to be non-None and then rewrites pathnames of all them
+            missing log files to be relative to the session storage location.
+            It effectively depends on FLAG_FILE_REFERENCE_CHECKS_F being set at
+            the same time, otherwise it is ignored.
+
+        ``FLAG_IGNORE_JOB_CHECKSUMS_S``:
+            Flag controlling integrity checks between jobs present at resume
+            time and jobs present at suspend time. Since providers cannot be
+            serialized (nor should they) this integrity check prevents anyone
+            from resuming a session if job definitions have changed. Using this
+            flag effectively disables that check.
         """
         self.job_list = job_list
         logger.debug("Session Resume Helper started with jobs: %r", job_list)

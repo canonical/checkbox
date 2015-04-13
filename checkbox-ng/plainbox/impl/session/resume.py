@@ -703,7 +703,7 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
             raise
 
     @classmethod
-    def _build_JobResult(cls, result_repr, flags=0, location=None):
+    def _build_JobResult(cls, result_repr, flags, location):
         """
         Convert the representation of MemoryJobResult or DiskJobResult
         back into an actual instance.

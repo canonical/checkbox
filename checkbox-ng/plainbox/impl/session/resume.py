@@ -781,8 +781,8 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
             value_none=True)
         # Construct either DiskJobResult or MemoryJobResult
         if 'io_log_filename' in result_repr:
-            io_log_filename = _validate(
-                result_repr, key='io_log_filename', value_type=str)
+            io_log_filename = cls._load_io_log_filename(
+                result_repr, flags, location)
             if (flags & cls.FLAG_FILE_REFERENCE_CHECKS_F
                     and not os.path.isfile(io_log_filename)
                     and flags & cls.FLAG_REWRITE_LOG_PATHNAMES_F):
@@ -814,6 +814,10 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
                 'io_log': io_log,
                 'return_code': return_code
             })
+
+    @classmethod
+    def _load_io_log_filename(cls, result_repr, flags, location):
+        return _validate(result_repr, key='io_log_filename', value_type=str)
 
     @classmethod
     def _rewrite_pathname(cls, pathname, location):

@@ -561,4 +561,4 @@ class SessionSuspendHelper5(SessionSuspendHelper4):
 
 
 # Alias for the most recent version
-SessionSuspendHelper = SessionSuspendHelper4
+SessionSuspendHelper = SessionSuspendHelper5

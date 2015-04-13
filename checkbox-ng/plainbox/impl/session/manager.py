@@ -355,7 +355,8 @@ class SessionManager(pod.POD):
         :meth:`SessionManager.load_session()`.
         """
         logger.debug("SessionManager.checkpoint()")
-        data = SessionSuspendHelper().suspend(self.state)
+        data = SessionSuspendHelper().suspend(
+            self.state, self.storage.location)
         logger.debug(
             ngettext(
                 "Saving %d byte of checkpoint data to %r",

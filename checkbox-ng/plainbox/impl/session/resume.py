@@ -186,7 +186,7 @@ class SessionResumeHelper(EnvelopeUnpackMixIn):
     appropriate, format specific, resume class.
     """
 
-    def __init__(self, job_list, flags=None, location=None):
+    def __init__(self, job_list, flags, location):
         """
         Initialize the helper with a list of known jobs.
         """

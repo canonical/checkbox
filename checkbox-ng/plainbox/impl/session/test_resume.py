@@ -122,7 +122,7 @@ class SessionResumeHelperTests(TestCase):
             b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
             b'{"app_blob":null,"flags":[],"running_job_name":null,"title":null'
             b'},"results":{}},"version":1}')
-        SessionResumeHelper([]).resume(data)
+        SessionResumeHelper([], None, None).resume(data)
         mocked_helper1.resume_json.assertCalledOnce()
 
     @mock.patch('plainbox.impl.session.resume.SessionResumeHelper2')
@@ -131,7 +131,7 @@ class SessionResumeHelperTests(TestCase):
             b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
             b'{"app_blob":null,"flags":[],"running_job_name":null,"title":null'
             b'},"results":{}},"version":2}')
-        SessionResumeHelper([]).resume(data)
+        SessionResumeHelper([], None, None).resume(data)
         mocked_helper2.resume_json.assertCalledOnce()
 
     @mock.patch('plainbox.impl.session.resume.SessionResumeHelper3')
@@ -141,7 +141,7 @@ class SessionResumeHelperTests(TestCase):
             b'{"app_blob":null,"app_id":null,"flags":[],'
             b'"running_job_name":null,"title":null'
             b'},"results":{}},"version":3}')
-        SessionResumeHelper([]).resume(data)
+        SessionResumeHelper([], None, None).resume(data)
         mocked_helper3.resume_json.assertCalledOnce()
 
     @mock.patch('plainbox.impl.session.resume.SessionResumeHelper4')
@@ -151,14 +151,14 @@ class SessionResumeHelperTests(TestCase):
             b'{"app_blob":null,"app_id":null,"flags":[],'
             b'"running_job_name":null,"title":null'
             b'},"results":{}},"version":4}')
-        SessionResumeHelper([]).resume(data)
+        SessionResumeHelper([], None, None).resume(data)
         mocked_helper4.resume_json.assertCalledOnce()
 
     def test_resume_dispatch_v5(self):
         data = gzip.compress(
             b'{"version":5}')
         with self.assertRaises(IncompatibleSessionError) as boom:
-            SessionResumeHelper([]).resume(data)
+            SessionResumeHelper([], None, None).resume(data)
         self.assertEqual(str(boom.exception), "Unsupported version 5")
 
 
@@ -177,7 +177,7 @@ class SessionResumeTests(TestCase):
         """
         data = b"foo"
         with self.assertRaises(CorruptedSessionError) as boom:
-            SessionResumeHelper([]).resume(data)
+            SessionResumeHelper([], None, None).resume(data)
         self.assertIsInstance(boom.exception.__context__, IOError)
 
     def test_resume_garbage_unicode(self):
@@ -191,7 +191,7 @@ class SessionResumeTests(TestCase):
             b"\xff".decode('UTF-8')
         data = gzip.compress(b"\xff")
         with self.assertRaises(CorruptedSessionError) as boom:
-            SessionResumeHelper([]).resume(data)
+            SessionResumeHelper([], None, None).resume(data)
         self.assertIsInstance(boom.exception.__context__, UnicodeDecodeError)
 
     def test_resume_garbage_json(self):
@@ -202,7 +202,7 @@ class SessionResumeTests(TestCase):
         """
         data = gzip.compress(b"{")
         with self.assertRaises(CorruptedSessionError) as boom:
-            SessionResumeHelper([]).resume(data)
+            SessionResumeHelper([], None, None).resume(data)
         self.assertIsInstance(boom.exception.__context__, ValueError)
 
 
@@ -322,7 +322,7 @@ class EndToEndTests(TestCaseWithParameters):
         """
         def early_cb(session):
             self.seen_session = session
-        session = SessionResumeHelper(self.job_list).resume(
+        session = SessionResumeHelper(self.job_list, None, None).resume(
             self.suspend_data, early_cb)
         self.assertIs(session, self.seen_session)
 

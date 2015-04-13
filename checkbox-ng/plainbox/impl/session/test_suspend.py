@@ -75,33 +75,34 @@ class BaseJobResultTestsTestsMixIn:
                 (0.1, 'stdout', b'second part\n'),
             ]
         })
+        self.session_dir = None
 
     def test_repr_xxxJobResult_outcome(self):
         """
         verify that DiskJobResult.outcome is serialized correctly
         """
-        data = self.repr_method(self.typical_result)
+        data = self.repr_method(self.typical_result, self.session_dir)
         self.assertEqual(data['outcome'], DiskJobResult.OUTCOME_PASS)
 
     def test_repr_xxxJobResult_execution_duration(self):
         """
         verify that DiskJobResult.execution_duration is serialized correctly
         """
-        data = self.repr_method(self.typical_result)
+        data = self.repr_method(self.typical_result, self.session_dir)
         self.assertAlmostEqual(data['execution_duration'], 42.5)
 
     def test_repr_xxxJobResult_comments(self):
         """
         verify that DiskJobResult.comments is serialized correctly
         """
-        data = self.repr_method(self.typical_result)
+        data = self.repr_method(self.typical_result, self.session_dir)
         self.assertEqual(data['comments'], "the screen was corrupted")
 
     def test_repr_xxxJobResult_return_code(self):
         """
         verify that DiskJobResult.return_code is serialized correctly
         """
-        data = self.repr_method(self.typical_result)
+        data = self.repr_method(self.typical_result, self.session_dir)
         self.assertEqual(data['return_code'], 1)
 
 
@@ -120,7 +121,7 @@ class SuspendMemoryJobResultTests(BaseJobResultTestsTestsMixIn, TestCase):
         """
         verify that the representation of an empty MemoryJobResult is okay
         """
-        data = self.repr_method(self.empty_result)
+        data = self.repr_method(self.empty_result, self.session_dir)
         self.assertEqual(data, {
             "outcome": None,
             "execution_duration": None,
@@ -133,7 +134,8 @@ class SuspendMemoryJobResultTests(BaseJobResultTestsTestsMixIn, TestCase):
         """
         verify that MemoryJobResult.io_log is serialized correctly
         """
-        data = self.helper._repr_MemoryJobResult(self.typical_result)
+        data = self.helper._repr_MemoryJobResult(
+            self.typical_result, self.session_dir)
         self.assertEqual(data['io_log'], [
             [0, 'stdout', 'Zmlyc3QgcGFydAo='],
             [0.1, 'stdout', 'c2Vjb25kIHBhcnQK'],
@@ -155,7 +157,7 @@ class SuspendDiskJobResultTests(BaseJobResultTestsTestsMixIn, TestCase):
         """
         verify that the representation of an empty DiskJobResult is okay
         """
-        data = self.repr_method(self.empty_result)
+        data = self.repr_method(self.empty_result, self.session_dir)
         self.assertEqual(data, {
             "outcome": None,
             "execution_duration": None,
@@ -168,7 +170,8 @@ class SuspendDiskJobResultTests(BaseJobResultTestsTestsMixIn, TestCase):
         """
         verify that DiskJobResult.io_log_filename is serialized correctly
         """
-        data = self.helper._repr_DiskJobResult(self.typical_result)
+        data = self.helper._repr_DiskJobResult(
+            self.typical_result, self.session_dir)
         self.assertEqual(data['io_log_filename'], "/nonexistent.log")
 
 
@@ -179,6 +182,7 @@ class SessionSuspendHelper1Tests(TestCase):
 
     def setUp(self):
         self.helper = SessionSuspendHelper1()
+        self.session_dir = None
 
     def test_repr_IOLogRecord(self):
         """
@@ -195,7 +199,7 @@ class SessionSuspendHelper1Tests(TestCase):
         calls _repr_MemoryJobResult
         """
         result = MemoryJobResult({})
-        self.helper._repr_JobResult(result)
+        self.helper._repr_JobResult(result, self.session_dir)
         mocked_helper._repr_MemoryJobResult.assertCalledOnceWith(result)
 
     @mock.patch('plainbox.impl.session.suspend.SessionSuspendHelper')
@@ -205,7 +209,7 @@ class SessionSuspendHelper1Tests(TestCase):
         calls _repr_DiskJobResult
         """
         result = DiskJobResult({})
-        self.helper._repr_JobResult(result)
+        self.helper._repr_JobResult(result, self.session_dir)
         mocked_helper._repr_DiskJobResult.assertCalledOnceWith(result)
 
     def test_repr_JobResult_with_junk(self):
@@ -221,7 +225,8 @@ class SessionSuspendHelper1Tests(TestCase):
         verify that representation of empty SessionMetaData is okay
         """
         # all defaults with empty values
-        data = self.helper._repr_SessionMetaData(SessionMetaData())
+        data = self.helper._repr_SessionMetaData(
+            SessionMetaData(), self.session_dir)
         self.assertEqual(data, {
             'title': None,
             'flags': [],
@@ -237,7 +242,7 @@ class SessionSuspendHelper1Tests(TestCase):
             title='USB Testing session',
             flags=['incomplete'],
             running_job_name='usb/detect'
-        ))
+        ), self.session_dir)
         self.assertEqual(data, {
             'title': 'USB Testing session',
             'flags': ['incomplete'],
@@ -248,7 +253,8 @@ class SessionSuspendHelper1Tests(TestCase):
         """
         verify that representation of empty SessionState is okay
         """
-        data = self.helper._repr_SessionState(SessionState([]))
+        data = self.helper._repr_SessionState(
+            SessionState([]), self.session_dir)
         self.assertEqual(data, {
             'jobs': {},
             'results': {},
@@ -264,28 +270,28 @@ class SessionSuspendHelper1Tests(TestCase):
         """
         verify that the json representation has the 'version' field
         """
-        data = self.helper._json_repr(SessionState([]))
+        data = self.helper._json_repr(SessionState([]), self.session_dir)
         self.assertIn("version", data)
 
     def test_json_repr_current_version(self):
         """
         verify what the version field is
         """
-        data = self.helper._json_repr(SessionState([]))
+        data = self.helper._json_repr(SessionState([]), self.session_dir)
         self.assertEqual(data['version'], 1)
 
     def test_json_repr_stores_session_state(self):
         """
         verify that the json representation has the 'session' field
         """
-        data = self.helper._json_repr(SessionState([]))
+        data = self.helper._json_repr(SessionState([]), self.session_dir)
         self.assertIn("session", data)
 
     def test_suspend(self):
         """
         verify that the suspend() method returns gzipped JSON representation
         """
-        data = self.helper.suspend(SessionState([]))
+        data = self.helper.suspend(SessionState([]), self.session_dir)
         # XXX: we cannot really test what the compressed data looks like
         # because apparently python3.2 gzip output is non-deterministic.
         # It seems to be an instance of the gzip bug that was fixed a few
@@ -321,6 +327,7 @@ class GeneratedJobSuspendTests(TestCase):
     """
 
     def setUp(self):
+        self.session_dir = None
         # Crete a "__category__" job
         self.category_job = JobDefinition({
             "plugin": "local",
@@ -387,7 +394,8 @@ class GeneratedJobSuspendTests(TestCase):
         # and use the data we've defined so far to create JSON-friendly
         # description of the session state.
         self.helper = SessionSuspendHelper1()
-        self.data = self.helper._repr_SessionState(self.session_state)
+        self.data = self.helper._repr_SessionState(
+            self.session_state, self.session_dir)
 
     def test_state_tracked_for_all_jobs(self):
         """
@@ -524,12 +532,13 @@ class SessionSuspendHelper2Tests(SessionSuspendHelper1Tests):
 
     def setUp(self):
         self.helper = SessionSuspendHelper2()
+        self.session_dir = None
 
     def test_json_repr_current_version(self):
         """
         verify what the version field is
         """
-        data = self.helper._json_repr(SessionState([]))
+        data = self.helper._json_repr(SessionState([]), self.session_dir)
         self.assertEqual(data['version'], 2)
 
     def test_repr_SessionMetaData_empty_metadata(self):
@@ -537,7 +546,8 @@ class SessionSuspendHelper2Tests(SessionSuspendHelper1Tests):
         verify that representation of empty SessionMetaData is okay
         """
         # all defaults with empty values
-        data = self.helper._repr_SessionMetaData(SessionMetaData())
+        data = self.helper._repr_SessionMetaData(
+            SessionMetaData(), self.session_dir)
         self.assertEqual(data, {
             'title': None,
             'flags': [],
@@ -555,7 +565,7 @@ class SessionSuspendHelper2Tests(SessionSuspendHelper1Tests):
             flags=['incomplete'],
             running_job_name='usb/detect',
             app_blob=b'blob',
-        ))
+        ), self.session_dir)
         self.assertEqual(data, {
             'title': 'USB Testing session',
             'flags': ['incomplete'],
@@ -567,7 +577,8 @@ class SessionSuspendHelper2Tests(SessionSuspendHelper1Tests):
         """
         verify that representation of empty SessionState is okay
         """
-        data = self.helper._repr_SessionState(SessionState([]))
+        data = self.helper._repr_SessionState(
+            SessionState([]), self.session_dir)
         self.assertEqual(data, {
             'jobs': {},
             'results': {},
@@ -584,7 +595,8 @@ class SessionSuspendHelper2Tests(SessionSuspendHelper1Tests):
         """
         verify that the suspend() method returns gzipped JSON representation
         """
-        data = self.helper.suspend(SessionState([]))
+        data = self.helper.suspend(
+            SessionState([]), self.session_dir)
         # XXX: we cannot really test what the compressed data looks like
         # because apparently python3.2 gzip output is non-deterministic.
         # It seems to be an instance of the gzip bug that was fixed a few
@@ -609,12 +621,13 @@ class SessionSuspendHelper3Tests(SessionSuspendHelper2Tests):
 
     def setUp(self):
         self.helper = SessionSuspendHelper3()
+        self.session_dir = None
 
     def test_json_repr_current_version(self):
         """
         verify what the version field is
         """
-        data = self.helper._json_repr(SessionState([]))
+        data = self.helper._json_repr(SessionState([]), self.session_dir)
         self.assertEqual(data['version'], 3)
 
     def test_repr_SessionMetaData_empty_metadata(self):
@@ -622,7 +635,8 @@ class SessionSuspendHelper3Tests(SessionSuspendHelper2Tests):
         verify that representation of empty SessionMetaData is okay
         """
         # all defaults with empty values
-        data = self.helper._repr_SessionMetaData(SessionMetaData())
+        data = self.helper._repr_SessionMetaData(
+            SessionMetaData(), self.session_dir)
         self.assertEqual(data, {
             'title': None,
             'flags': [],
@@ -642,7 +656,7 @@ class SessionSuspendHelper3Tests(SessionSuspendHelper2Tests):
             running_job_name='usb/detect',
             app_blob=b'blob',
             app_id='com.canonical.certification.plainbox',
-        ))
+        ), self.session_dir)
         self.assertEqual(data, {
             'title': 'USB Testing session',
             'flags': ['incomplete'],
@@ -655,7 +669,8 @@ class SessionSuspendHelper3Tests(SessionSuspendHelper2Tests):
         """
         verify that representation of empty SessionState is okay
         """
-        data = self.helper._repr_SessionState(SessionState([]))
+        data = self.helper._repr_SessionState(
+            SessionState([]), self.session_dir)
         self.assertEqual(data, {
             'jobs': {},
             'results': {},
@@ -673,7 +688,7 @@ class SessionSuspendHelper3Tests(SessionSuspendHelper2Tests):
         """
         verify that the suspend() method returns gzipped JSON representation
         """
-        data = self.helper.suspend(SessionState([]))
+        data = self.helper.suspend(SessionState([]), self.session_dir)
         # XXX: we cannot really test what the compressed data looks like
         # because apparently python3.2 gzip output is non-deterministic.
         # It seems to be an instance of the gzip bug that was fixed a few
@@ -699,12 +714,13 @@ class SessionSuspendHelper4Tests(SessionSuspendHelper3Tests):
 
     def setUp(self):
         self.helper = SessionSuspendHelper4()
+        self.session_dir = None
 
     def test_json_repr_current_version(self):
         """
         verify what the version field is
         """
-        data = self.helper._json_repr(SessionState([]))
+        data = self.helper._json_repr(SessionState([]), self.session_dir)
         self.assertEqual(data['version'], 4)
 
     def test_repr_SessionState_typical_session(self):
@@ -734,7 +750,7 @@ class SessionSuspendHelper4Tests(SessionSuspendHelper3Tests):
         session_state = SessionState([used_job, unused_job])
         session_state.update_desired_job_list([used_job])
         session_state.update_job_result(used_job, used_result)
-        data = self.helper._repr_SessionState(session_state)
+        data = self.helper._repr_SessionState(session_state, self.session_dir)
         self.assertEqual(data, {
             'jobs': {
                 'used': ('8c393c19fdfde1b6afc5b79d0a1617ecf7531cd832a16450dc'
@@ -763,7 +779,7 @@ class SessionSuspendHelper4Tests(SessionSuspendHelper3Tests):
         """
         verify that the suspend() method returns gzipped JSON representation
         """
-        data = self.helper.suspend(SessionState([]))
+        data = self.helper.suspend(SessionState([]), self.session_dir)
         # XXX: we cannot really test what the compressed data looks like
         # because apparently python3.2 gzip output is non-deterministic.
         # It seems to be an instance of the gzip bug that was fixed a few
@@ -800,10 +816,11 @@ class RegressionTests(TestCase):
         self.assertEqual(state.run_list, [job_a_dep, job_a])
         self.assertEqual(state.desired_job_list, [job_a])
         helper = SessionSuspendHelper4()
+        session_dir = None
         # Mock away the meta-data as we're not testing that
         with mock.patch.object(helper, '_repr_SessionMetaData') as m:
             m.return_value = 'mocked'
-            actual = helper._repr_SessionState(state)
+            actual = helper._repr_SessionState(state, session_dir)
         expected = {
             'jobs': {
                 job_a_dep.id: job_a_dep.checksum,

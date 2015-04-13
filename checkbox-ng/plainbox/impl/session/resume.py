@@ -503,8 +503,7 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
 
     def __init__(
         self, job_list: 'List[JobDefinition]',
-        flags: 'Optional[Iterable[str]]'=None,
-        location: 'Optional[str]'=None
+        flags: 'Optional[Iterable[str]]', location: 'Optional[str]'
     ):
         """
         Initialize the helper with a list of known jobs and support data.

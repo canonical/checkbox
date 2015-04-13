@@ -341,7 +341,7 @@ class SessionStateResumeTests(TestCaseWithParameters):
 
     def setUp(self):
         self.session_repr = {}
-        self.helper = self.parameters.resume_cls([])
+        self.helper = self.parameters.resume_cls([], None, None)
 
     def test_calls_build_SessionState(self):
         """
@@ -1247,7 +1247,7 @@ class ProcessJobTests(TestCaseWithParameters):
                 'io_log': [],
             }]
         }
-        self.helper = self.parameters.resume_cls([self.job])
+        self.helper = self.parameters.resume_cls([self.job], None, None)
         # This object is artificial and would be constructed internally
         # by the helper but having it here makes testing easier as we
         # can reliably test a single method in isolation.
@@ -1423,7 +1423,7 @@ class JobPluginSpecificTests(TestCaseWithParameters):
                 ],
             }]
         }
-        helper = self.parameters.resume_cls([job])
+        helper = self.parameters.resume_cls([job], None, None)
         session = SessionState([job])
         # Ensure that the resource was not there initially
         self.assertNotIn(job_id, session.resource_map)
@@ -1467,7 +1467,7 @@ class JobPluginSpecificTests(TestCaseWithParameters):
                 ],
             }]
         }
-        helper = self.parameters.resume_cls([job])
+        helper = self.parameters.resume_cls([job], None, None)
         session = SessionState([job])
         # Ensure that the 'generated' job was not there initially
         self.assertNotIn('generated', session.job_state_map)
@@ -1507,7 +1507,7 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
             'jobs': {},
             'results': {}
         }
-        helper = self.parameters.resume_cls([])
+        helper = self.parameters.resume_cls([], None, None)
         session = SessionState([])
         helper._restore_SessionState_jobs_and_results(session, session_repr)
         self.assertEqual(session.job_list, [])
@@ -1535,7 +1535,7 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
                 }]
             }
         }
-        helper = self.parameters.resume_cls([])
+        helper = self.parameters.resume_cls([], None, None)
         session = SessionState([job])
         helper._restore_SessionState_jobs_and_results(session, session_repr)
         # Session still has one job in it
@@ -1588,7 +1588,7 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
             }
         }
         # We only pass the parent to the helper! Child will be re-created
-        helper = self.parameters.resume_cls([parent])
+        helper = self.parameters.resume_cls([parent], None, None)
         session = SessionState([parent])
         helper._restore_SessionState_jobs_and_results(session, session_repr)
         # We should now have two jobs, parent and child
@@ -1672,7 +1672,7 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
         }
         # We only pass the parent to the helper!
         # The 'child' and 'grandchild' jobs will be re-created
-        helper = self.parameters.resume_cls([parent])
+        helper = self.parameters.resume_cls([parent], None, None)
         session = SessionState([parent])
         helper._restore_SessionState_jobs_and_results(session, session_repr)
         # We should now have two jobs, parent and child
@@ -1693,7 +1693,7 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
                 'job-id': []
             }
         }
-        helper = self.parameters.resume_cls([])
+        helper = self.parameters.resume_cls([], None, None)
         session = SessionState([])
         with self.assertRaises(CorruptedSessionError) as boom:
             helper._restore_SessionState_jobs_and_results(
@@ -1732,7 +1732,7 @@ class SessionJobListResumeTests(TestCaseWithParameters):
                 job_a.id: [],
             }
         }
-        helper = self.parameters.resume_cls([job_a, job_b])
+        helper = self.parameters.resume_cls([job_a, job_b], None, None)
         session = SessionState([job_a, job_b])
         helper._restore_SessionState_job_list(session, session_repr)
         # Job "a" is still in the list but job "b" got removed
@@ -1761,7 +1761,7 @@ class RegressionTests(TestCase):
                 'results': {},  # nothing ran yet
             },
         }
-        helper = SessionResumeHelper4([job_a, job_a_dep, job_unrelated])
+        helper = SessionResumeHelper4([job_a, job_a_dep, job_unrelated], None, None)
         # Mock away meta-data restore code as we're not testing that
         with mock.patch.object(helper, '_restore_SessionState_metadata'):
             session = helper.resume_json(session_repr)
@@ -1788,7 +1788,7 @@ class RegressionTests(TestCase):
                 'results': {},  # nothing ran yet
             }
         }
-        helper = SessionResumeHelper4([job_a])
+        helper = SessionResumeHelper4([job_a], None, None)
         # Mock away meta-data restore code as we're not testing that
         with mock.patch.object(helper, '_restore_SessionState_metadata'):
             session = helper.resume_json(session_repr)

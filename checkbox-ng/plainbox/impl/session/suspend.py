@@ -7,7 +7,6 @@
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -18,6 +17,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+Implementation of session suspend feature.
+
 :mod:`plainbox.impl.session.suspend` -- session suspend support
 ===============================================================
 
@@ -93,6 +94,7 @@ logger = logging.getLogger("plainbox.session.suspend")
 
 
 class SessionSuspendHelper1:
+
     """
     Helper class for computing binary representation of a session.
 
@@ -107,6 +109,8 @@ class SessionSuspendHelper1:
 
     def suspend(self, session):
         """
+        Compute suspend representation.
+
         Compute the data that is saved by :class:`SessionStorage` as a
         part of :meth:`SessionStorage.save_checkpoint()`.
 
@@ -149,7 +153,7 @@ class SessionSuspendHelper1:
 
     def _repr_SessionState(self, obj):
         """
-        Compute the representation of :class:`SessionState`
+        Compute the representation of SessionState.
 
         :returns:
             JSON-friendly representation
@@ -194,7 +198,7 @@ class SessionSuspendHelper1:
 
     def _repr_SessionMetaData(self, obj):
         """
-        Compute the representation of :class:`SessionMetaData`.
+        Compute the representation of SessionMetaData.
 
         :returns:
             JSON-friendly representation.
@@ -223,9 +227,7 @@ class SessionSuspendHelper1:
         }
 
     def _repr_JobResult(self, obj):
-        """
-        Compute the representation of one of IJobResult subclasses
-        """
+        """ Compute the representation of one of IJobResult subclasses.  """
         if isinstance(obj, DiskJobResult):
             return self._repr_DiskJobResult(obj)
         elif isinstance(obj, MemoryJobResult):
@@ -236,7 +238,7 @@ class SessionSuspendHelper1:
 
     def _repr_JobResultBase(self, obj):
         """
-        Compute the representation of :class:`plainbox.impl.job._JobResultBase`
+        Compute the representation of _JobResultBase.
 
         :returns:
             JSON-friendly representation
@@ -270,8 +272,7 @@ class SessionSuspendHelper1:
 
     def _repr_MemoryJobResult(self, obj):
         """
-        Compute the representation of
-        :class:`plainbox.impl.job.MemoryJobResult`
+        Compute the representation of MemoryJobResult.
 
         :returns:
             JSON-friendly representation
@@ -294,7 +295,7 @@ class SessionSuspendHelper1:
 
     def _repr_DiskJobResult(self, obj):
         """
-        Compute the representation of :class:`plainbox.impl.job.DiskJobResult`
+        Compute the representation of DiskJobResult.
 
         :returns:
             JSON-friendly representation
@@ -316,8 +317,7 @@ class SessionSuspendHelper1:
 
     def _repr_IOLogRecord(self, obj):
         """
-        Compute the representation of
-        :class:`plainbox.impl.result.IOLogRecord`
+        Compute the representation of IOLogRecord.
 
         :returns:
             JSON-friendly representation
@@ -337,6 +337,7 @@ class SessionSuspendHelper1:
 
 
 class SessionSuspendHelper2(SessionSuspendHelper1):
+
     """
     Helper class for computing binary representation of a session.
 
@@ -388,6 +389,7 @@ class SessionSuspendHelper2(SessionSuspendHelper1):
 
 
 class SessionSuspendHelper3(SessionSuspendHelper2):
+
     """
     Helper class for computing binary representation of a session.
 
@@ -438,6 +440,7 @@ class SessionSuspendHelper3(SessionSuspendHelper2):
 
 
 class SessionSuspendHelper4(SessionSuspendHelper3):
+
     """
     Helper class for computing binary representation of a session.
 
@@ -452,7 +455,7 @@ class SessionSuspendHelper4(SessionSuspendHelper3):
 
     def _repr_SessionState(self, obj):
         """
-        Compute the representation of :class:`SessionState`
+        Compute the representation of :class:`SessionState`.
 
         :returns:
             JSON-friendly representation

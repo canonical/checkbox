@@ -501,9 +501,28 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
     FLAG_IGNORE_JOB_CHECKSUMS_S = 'ignore-job-checksums'
     FLAG_IGNORE_JOB_CHECKSUMS_F = 0x04
 
-    def __init__(self, job_list, flags=None, location=None):
+    def __init__(
+        self, job_list: 'List[JobDefinition]',
+        flags: 'Optional[Iterable[str]]'=None,
+        location: 'Optional[str]'=None
+    ):
         """
-        Initialize the helper with a list of known jobs.
+        Initialize the helper with a list of known jobs and support data.
+
+        :param job_list:
+            List of known jobs
+        :param flags:
+            Any iterable object with string versions of resume support flags.
+            This can be None, if the application doesn't wish to enable any of
+            the feature flags.
+        :param location:
+            Location of the session directory. This is the same as
+            ``session_dir`` in the corresponding suspend API. It is also the
+            same as ``storage.location`` (where ``storage`` is a
+            :class:`plainbox.impl.session.storage.SessionStorage` object.
+
+        See :meth:`SessionResumeHelper.__init__()` for description and meaning
+        of each flag.
         """
         self.job_list = job_list
         self.flags = 0

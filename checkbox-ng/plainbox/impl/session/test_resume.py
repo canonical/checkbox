@@ -783,7 +783,8 @@ class DiskJobResultResumeTests(JobResultResumeMixIn, TestCaseWithParameters):
         'comments': None,
         'return_code': None,
         'execution_duration': None,
-        'io_log_filename': "file.txt"
+        # NOTE: path is absolute (realistic data required by most of tests)
+        'io_log_filename': "/file.txt"
     }
 
     def test_build_JobResult_restores_DiskJobResult_representations(self):

@@ -39,6 +39,7 @@ from plainbox.impl.session.suspend import SessionSuspendHelper1
 from plainbox.impl.session.suspend import SessionSuspendHelper2
 from plainbox.impl.session.suspend import SessionSuspendHelper3
 from plainbox.impl.session.suspend import SessionSuspendHelper4
+from plainbox.impl.session.suspend import SessionSuspendHelper5
 from plainbox.impl.testing_utils import make_job
 from plainbox.vendor import mock
 
@@ -175,6 +176,27 @@ class SuspendDiskJobResultTests(BaseJobResultTestsTestsMixIn, TestCase):
         data = self.helper._repr_DiskJobResult(
             self.typical_result, self.session_dir)
         self.assertEqual(data['io_log_filename'], "/path/to/log.txt")
+
+
+class Suspend5DiskJobResultTests(SuspendDiskJobResultTests):
+    """
+    Tests that check how DiskJobResult is represented by SessionSuspendHelper5
+    """
+
+    TESTED_CLS = DiskJobResult
+    HELPER_CLS = SessionSuspendHelper5
+
+    def test_repr_DiskJobResult_io_log_filename__no_session_dir(self):
+        """ io_log_filename is absolute in session_dir is not used.  """
+        data = self.helper._repr_DiskJobResult(
+            self.typical_result, None)
+        self.assertEqual(data['io_log_filename'], "/path/to/log.txt")
+
+    def test_repr_DiskJobResult_io_log_filename__session_dir(self):
+        """ io_log_filename is relative if session_dir is used. """
+        data = self.helper._repr_DiskJobResult(
+            self.typical_result, "/path/to")
+        self.assertEqual(data['io_log_filename'], "log.txt")
 
 
 class SessionSuspendHelper1Tests(TestCase):
@@ -798,6 +820,45 @@ class SessionSuspendHelper4Tests(SessionSuspendHelper3Tests):
             b'{"app_blob":null,"app_id":null,"flags":[],'
             b'"running_job_name":null,"title":null},"results":{}},'
             b'"version":4}'))
+
+
+class SessionSuspendHelper5Tests(SessionSuspendHelper4Tests):
+    """
+    Tests for various methods of SessionSuspendHelper5
+    """
+
+    def setUp(self):
+        self.helper = SessionSuspendHelper5()
+        self.session_dir = None
+
+    def test_json_repr_current_version(self):
+        """
+        verify what the version field is
+        """
+        data = self.helper._json_repr(SessionState([]), self.session_dir)
+        self.assertEqual(data['version'], 5)
+
+    def test_suspend(self):
+        """
+        verify that the suspend() method returns gzipped JSON representation
+        """
+        data = self.helper.suspend(SessionState([]), self.session_dir)
+        # XXX: we cannot really test what the compressed data looks like
+        # because apparently python3.2 gzip output is non-deterministic.
+        # It seems to be an instance of the gzip bug that was fixed a few
+        # years ago.
+        #
+        # I've filed a bug on python3.2 in Ubuntu and Python upstream project
+        # https://bugs.launchpad.net/ubuntu/+source/python3.2/+bug/871083
+        #
+        # In the meantime we can only test that we got bytes out
+        self.assertIsInstance(data, bytes)
+        # And that we can gzip uncompress them and get what we expected
+        self.assertEqual(gzip.decompress(data), (
+            b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+            b'{"app_blob":null,"app_id":null,"flags":[],'
+            b'"running_job_name":null,"title":null},"results":{}},'
+            b'"version":5}'))
 
 
 class RegressionTests(TestCase):

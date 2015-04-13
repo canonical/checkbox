@@ -80,12 +80,15 @@ Serialization format versions
    :attr:`plainbox.impl.session.state.SessionMetaData.app_id`
 4) Same as '3' but hollow results are not saved and jobs that only
    have hollow results are not mentioned in the job -> checksum map.
+5) Same as '4' but DiskJobResult is stored with a relative pathname to the log
+   file if session_dir is provided.
 """
 
+import base64
 import gzip
 import json
 import logging
-import base64
+import os
 
 from plainbox.impl.result import DiskJobResult
 from plainbox.impl.result import MemoryJobResult
@@ -518,6 +521,43 @@ class SessionSuspendHelper4(SessionSuspendHelper3):
             ],
             "metadata": self._repr_SessionMetaData(obj.metadata, session_dir),
         }
+
+
+class SessionSuspendHelper5(SessionSuspendHelper4):
+
+    """
+    Helper class for computing binary representation of a session.
+
+    The helper only creates a bytes object to save. Actual saving should
+    be performed using some other means, preferably using
+    :class:`~plainbox.impl.session.storage.SessionStorage`.
+
+    This class creates version '5' snapshots.
+    """
+
+    VERSION = 5
+
+    def _repr_DiskJobResult(self, obj, session_dir):
+        """
+        Compute the representation of DiskJobResult.
+
+        :returns:
+            JSON-friendly representation
+        :rtype:
+            dict
+
+        The dictionary has the following keys *in addition to* what is
+        produced by :meth:`_repr_JobResultBase()`:
+
+            ``io_log_filename``
+                The path of the file that keeps the serialized IO log relative
+                to the session directory.
+        """
+        result = super()._repr_DiskJobResult(obj, session_dir)
+        if session_dir is not None:
+            result["io_log_filename"] = os.path.relpath(
+                obj.io_log_filename, session_dir)
+        return result
 
 
 # Alias for the most recent version

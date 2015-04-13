@@ -107,12 +107,20 @@ class SessionSuspendHelper1:
 
     VERSION = 1
 
-    def suspend(self, session):
+    def suspend(self, session, session_dir=None):
         """
         Compute suspend representation.
 
         Compute the data that is saved by :class:`SessionStorage` as a
         part of :meth:`SessionStorage.save_checkpoint()`.
+
+        :param session:
+            The SessionState object to represent.
+        :param session_dir:
+            (optional) The base directory of the session. If this argument is
+            used then it can alter the representation of some objects related
+            to filesystem artefacts. It is recommended to always pass the
+            session directory.
 
         :returns bytes: the serialized data
         """

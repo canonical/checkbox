@@ -69,7 +69,7 @@ class BaseJobResultTestsTestsMixIn:
             "return_code": 1,
             # NOTE: those are actually specific to TESTED_CLS but it is
             # a simple hack that gets the job done
-            "io_log_filename": "/nonexistent.log",
+            "io_log_filename": "/path/to/log.txt",
             "io_log": [
                 (0, 'stdout', b'first part\n'),
                 (0.1, 'stdout', b'second part\n'),
@@ -174,7 +174,7 @@ class SuspendDiskJobResultTests(BaseJobResultTestsTestsMixIn, TestCase):
         """
         data = self.helper._repr_DiskJobResult(
             self.typical_result, self.session_dir)
-        self.assertEqual(data['io_log_filename'], "/nonexistent.log")
+        self.assertEqual(data['io_log_filename'], "/path/to/log.txt")
 
 
 class SessionSuspendHelper1Tests(TestCase):

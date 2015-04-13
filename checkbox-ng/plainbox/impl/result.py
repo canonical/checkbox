@@ -73,7 +73,7 @@ IOLogRecord = namedtuple("IOLogRecord", "delay stream_name data".split())
 # Tuple representing meta-data associated with each possible value of "outcome"
 #
 # This tuple replaces various ad-hoc mapping that keyed off the outcome field
-# to compute something. Currently the following fields are suppoted:
+# to compute something. Currently the following fields are supported:
 #
 #   value - the actual constant like IJobResult.OUTCOME_NONE (for completeness)
 #

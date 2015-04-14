@@ -243,6 +243,15 @@ class JobRunnerUIDelegate(extcmd.DelegateBase):
         if self.ui is not None:
             self.ui.got_program_output(stream_name, line)
 
+    def on_chunk(self, stream_name, chunk):
+        """
+        Internal method of extcmd.DelegateBase
+
+        Called for each chunk of output.
+        """
+        if self.ui is not None:
+            self.ui.got_program_output(stream_name, chunk)
+
 
 class JobRunner(IJobRunner):
     """
@@ -862,7 +871,11 @@ class JobRunner(IJobRunner):
         # Create a subprocess.Popen() like object that uses the delegate
         # system to observe all IO as it occurs in real time.
         delegate_cls = self._get_delegate_cls(config)
-        extcmd_popen = delegate_cls(delegate)
+        flags = 0
+        # Use chunked IO for jobs that explicitly request this
+        if 'use-chunked-io' in job.get_flag_set():
+            flags |= extcmd.CHUNKED_IO
+        extcmd_popen = delegate_cls(delegate, flags=flags)
         # Stream all IOLogRecord entries to disk
         record_path = os.path.join(
             self._jobs_io_log_dir, "{}.record.gz".format(

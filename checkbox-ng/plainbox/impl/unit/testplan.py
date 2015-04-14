@@ -86,6 +86,10 @@ class NonEmptyPatternIntersectionValidator(FieldValidatorBase):
             if isinstance(qual.matcher, PatternMatcher):
                 # TODO: check potential_id map
                 for an_id in id_map:
+                    if an_id is None:
+                        # Don't report this twice.
+                        # Each unit-with-id cares about having an id
+                        continue
                     if qual.matcher.match(an_id):
                         break
                 else:

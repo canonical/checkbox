@@ -597,7 +597,7 @@ class ExternalCommandWithDelegate(ExternalCommand):
         while True:
             try:
                 if self._flags & CHUNKED_IO:
-                    data = stream.read(4096)
+                    data = stream.read(1)
                 else:
                     data = stream.readline()
             except (IOError, ValueError):

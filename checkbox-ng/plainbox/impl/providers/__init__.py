@@ -17,6 +17,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+APIs for working with providers.
+
 :mod:`plainbox.impl.providers` -- providers package
 ===================================================
 
@@ -52,6 +54,5 @@ this is also described by :class:`IProvider1`::
 
 
 class ProviderNotFound(LookupError):
-    """
-    Exception used to report that a provider cannot be located
-    """
+
+    """ Exception used to report that a provider cannot be located. """

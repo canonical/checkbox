@@ -26,9 +26,8 @@ import os
 
 from plainbox.impl.clitools import SingleCommandToolMixIn
 from plainbox.impl.clitools import ToolBase
-from plainbox.impl.providers import special
-from plainbox.impl.providers.v1 import all_providers
 from plainbox.impl.commands.cmd_selftest import SelfTestCommand
+from plainbox.public import get_providers
 
 from checkbox_ng import __version__ as version
 from checkbox_ng.config import CheckBoxConfig
@@ -50,13 +49,7 @@ class CheckboxToolBase(ToolBase):
         return self.get_config_cls().get()
 
     def _load_providers(self):
-        # Load all normal providers
-        all_providers.load()
-        return [
-            special.get_manifest(),
-            # NOTE: currently disabled as it was not added implicitly earlier
-            # special.get_categories(),
-        ] + all_providers.get_all_plugin_objects()
+        return get_providers()
 
     @classmethod
     def get_exec_version(cls):

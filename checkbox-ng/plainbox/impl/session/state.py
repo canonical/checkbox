@@ -841,17 +841,30 @@ class SessionState:
         # to remove a problematic job and re-try. The loop provides a stop
         # condition as we will eventually run out of jobs.
         problems = []
+        # Get a copy of all the jobs as we'll be removing elements from this
+        # list to come to a stable set in the loop below.
+        job_list = self._job_list[:]
         while self._desired_job_list:
             # XXX: it might be more efficient to incorporate this 'recovery
             # mode' right into the solver, this way we'd probably save some
             # resources or runtime complexity.
             try:
                 self._run_list = DependencySolver.resolve_dependencies(
-                    self._job_list, self._desired_job_list)
+                    job_list, self._desired_job_list)
             except DependencyError as exc:
                 # When a dependency error is detected remove the affected job
                 # form _desired_job_list and try again.
-                self._desired_job_list.remove(exc.affected_job)
+                if exc.affected_job in self._desired_job_list:
+                    # The job may have been removed by now:
+                    # https://bugs.launchpad.net/plainbox/+bug/1444126
+                    self._desired_job_list.remove(exc.affected_job)
+                if exc.affected_job in job_list:
+                    # If the affected job is in the job list, remove it from
+                    # the job list we're going to consider in the next run.
+                    # This is done so that if a job depends on a broken but
+                    # existing job, it won't constantly re-add the same broken
+                    # job over and over (so that the algorithm can stop).
+                    job_list.remove(exc.affected_job)
                 # Remember each problem, this can be presented by the UI
                 problems.append(exc)
                 continue

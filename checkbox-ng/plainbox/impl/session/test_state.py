@@ -115,6 +115,19 @@ class RegressionTests(TestCase):
             self.assertIs(call.exception.duplicate_job, different_A)
             self.assertIs(call.exception.affected_job, different_A)
 
+    def test_dont_remove_missing_jobs(self):
+        """ http://pad.lv/1444126 """
+        A = make_job("A", depends="B")
+        B = make_job("B", depends="C")
+        state = SessionState([A, B])
+        problems = state.update_desired_job_list([A, B])
+        self.assertEqual(problems, [
+            DependencyMissingError(B, 'C', 'direct'),
+            DependencyMissingError(A, 'B', 'direct'),
+        ])
+        self.assertEqual(state.desired_job_list, [])
+        self.assertEqual(state.run_list, [])
+
 
 class SessionStateAPITests(TestCase):
 

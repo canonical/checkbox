@@ -17,10 +17,10 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-:mod:`plainbox.public` -- public, stable API
-============================================
+Public, stable, high-level API for third party developers.
 
-Public, high-level API for third party developers.
+:mod:`plainbox.public`
+======================
 
 The are actually implemented by the plainbox.impl package. This module is here
 so that the essential API concepts are in a single spot and are easier to
@@ -44,6 +44,4 @@ from plainbox.impl import public
 
 @public('plainbox.impl.box')
 def main(argv=None):
-    """
-    Entry point for the temporary new PlainBox executable
-    """
+    """ Entry point for the temporary new PlainBox executable.  """

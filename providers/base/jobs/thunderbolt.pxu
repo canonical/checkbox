@@ -2,3 +2,71 @@ unit: manifest entry
 id: has_thunderbolt 
 _name: Thunderbolt Support 
 value-type: bool
+
+plugin: user-interact
+id: thunderbolt/insert
+imports: from 2013.com.canonical.plainbox import manifest
+requires: manifest.has_thunderbolt == 'True'
+command: removable_storage_watcher insert --timeout 40 scsi
+_summary: Storage insert detection on Thunderbolt
+_description:
+ PURPOSE:
+     This test will check if the insertion of a Thunderbolt HDD could be detected
+ STEPS:
+     1. Click 'Test' to begin the test. This test will
+        timeout and fail if the insertion has not been detected within 40 seconds.
+     2. Plug a Thunderbolt HDD into an available Thunderbolt port, if it's not
+        mounted automatically, please click the HDD icon to mount it.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the automatically
+     selected result
+
+plugin: shell
+id: thunderbolt/storage-test
+imports: from 2013.com.canonical.plainbox import manifest
+requires: manifest.has_thunderbolt == 'True'
+depends: thunderbolt/insert
+command: removable_storage_test -s 268400000 scsi
+_summary: Storage test on Thunderbolt
+_description:
+ This is an automated test which performs read/write operations on an attached
+ Thunderbolt HDD
+
+plugin: user-interact
+id: thunderbolt/remove
+imports: from 2013.com.canonical.plainbox import manifest
+requires: manifest.has_thunderbolt == 'True'
+depends: thuderbolt/storage-test
+command: removable_storage_watcher remove scsi
+_summary: Storage removal detection on Thunderbolt
+_description:
+ PURPOSE:
+     This test will check the system can detect the removal of a Thunderbolt HDD
+ STEPS:
+     1. Click 'Test' to begin the test. This test will timeout and fail if
+        the removal has not been detected within 20 seconds.
+     2. Remove the previously attached Thunderbolt HDD from the Thunderbolt port.
+ VERIFICATION:
+     The verification of this test is automated. Do not change the automatically
+     selected result
+
+plugin: user-interact-verify
+id: thunderbolt/daisy-chain
+imports: from 2013.com.canonical.plainbox import manifest
+requires: manifest.has_thunderbolt == 'True'
+command: removable_storage_test -s 268400000 scsi
+_summary: Daisy-chain testing for Thunderbolt storage and display device
+_description:
+ PURPOSE:
+     This test will check if your system can support daisy-chaining of a storage
+     and a monitor over Thunderbolt port
+ STEPS:
+     1. Connect your Thunderbolt monitor to your systems
+     2. Connect your Thunderbolt HDD to another Thunderbolt port of the monitor
+        (you can do this with HDD first as well)
+     3. Click 'Test' to perform the storage test on the Thunderbolt HDD
+ VERIFICATION:
+     1. The verification for storage is automated, please select the result combine
+        with the result for the display.
+     2. Was the desktop displayed correctly on the Thunderbolt-connected screen?
+

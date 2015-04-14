@@ -315,6 +315,10 @@ class CheckBoxSessionStateController(ISessionStateController):
         # name, not a new list of jobs)
         new_job_list = []
         for record in gen_rfc822_records_from_io_log(job, result):
+            # Skip non-job units as the code below is wired to work with jobs
+            # Fixes: https://bugs.launchpad.net/plainbox/+bug/1443228
+            if record.data.get('unit', 'job') != 'job':
+                continue
             new_job = job.create_child_job_from_record(record)
             try:
                 new_job.validate()

@@ -144,6 +144,13 @@ class DependencyMissingError(DependencyError):
             self.__class__.__name__,
             self.job, self.missing_job_id, self.dep_type)
 
+    def __eq__(self, other):
+        if not isinstance(other, DependencyMissingError):
+            return NotImplemented
+        return (self.job == other.job
+                and self.missing_job_id == other.missing_job_id
+                and self.dep_type == other.dep_type)
+
 
 class DependencyDuplicateError(DependencyError):
     """

@@ -460,6 +460,8 @@ class ExternalCommandWithDelegate(ExternalCommand):
         Set the delegate helper. Technically it needs to have a 'on_line()'
         method. For actual example code look at :class:`Tee`.
         """
+        _logger.debug("ExternalCommandWithDelegate(%r, killsig=%r, flags=%x)",
+                      delegate, killsig, flags)
         self._queue = Queue()
         self._delegate = SafeDelegate.wrap_if_needed(delegate)
         self._killsig = killsig

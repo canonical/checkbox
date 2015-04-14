@@ -56,3 +56,33 @@ this is also described by :class:`IProvider1`::
 class ProviderNotFound(LookupError):
 
     """ Exception used to report that a provider cannot be located. """
+
+
+def get_providers(*, only_secure: bool=False) -> 'List[Provider1]':
+    """
+    Find and load all providers that are available.
+
+    :param only_secure:
+        (keyword only) Return only providers that are deemed secure.
+    :returns:
+        A list of Provider1 objects, created in no particular order.
+
+    This function can be used to get a list of all available providers. Most
+    applications will just want the default, regular list of providers, without
+    bothering to restrict themselves to the secure subset.
+
+    Those are the providers that can run jobs as root using the
+    ``plainbox-trusted-launcher-1`` mechanism. Depending on the *policykit*
+    Policy, those might start without prompting the user for the password. If
+    you want to load only them, use the `only_secure` option.
+    """
+    if only_secure:
+        from plainbox.impl.secure.providers.v1 import all_providers
+    else:
+        from plainbox.impl.providers.v1 import all_providers
+    from plainbox.impl.providers import special
+    all_providers.load()
+    return [
+        special.get_manifest(),
+        special.get_categories(),
+    ] + all_providers.get_all_plugin_objects()

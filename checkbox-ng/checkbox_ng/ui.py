@@ -246,7 +246,7 @@ class ScrollableTreeNode(IApplication):
         Expand/collapse a node
         """
         node, is_job = self.tree.get_node_by_index(self.top + self.highlight)
-        if not is_job:
+        if node is not None and not is_job:
             node.expanded = not(node.expanded)
 
     def _scroll(self, direction):

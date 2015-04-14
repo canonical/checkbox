@@ -151,6 +151,9 @@ class DependencyMissingError(DependencyError):
                 and self.missing_job_id == other.missing_job_id
                 and self.dep_type == other.dep_type)
 
+    def __hash__(self):
+        return hash((self.job, self.missing_job_id, self.dep_type))
+
 
 class DependencyDuplicateError(DependencyError):
     """

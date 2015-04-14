@@ -39,9 +39,8 @@ understand (by not being mixed with additional source code).
     available.
 """
 
-from plainbox.impl import public
+from plainbox._lazymod import LazyModule, far
 
 
-@public('plainbox.impl.box')
-def main(argv=None):
-    """ Entry point for the temporary new PlainBox executable.  """
+_mod = LazyModule.shadow_normal_module()
+_mod.lazily('main', far, ('plainbox.impl.box:main',))

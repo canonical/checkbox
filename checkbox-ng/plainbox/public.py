@@ -44,3 +44,4 @@ from plainbox._lazymod import LazyModule, far
 
 _mod = LazyModule.shadow_normal_module()
 _mod.lazily('main', far, ('plainbox.impl.box:main',))
+_mod.lazily('get_providers', far, ('plainbox.impl.providers:get_providers',))

@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2013-2014 Canonical Ltd.
+# Copyright 2013-2015 Canonical Ltd.
 # Written by:
 #   Sylvain Pineau <sylvain.pineau@canonical.com>
 #
@@ -269,3 +269,88 @@ class ScrollableTreeNode(IApplication):
                 (self.top + self.highlight + 1) != visible_length and
                 (self.highlight + 1) != (self.image.size.height - 4)):
             self.highlight += 1
+
+
+class ShowRerun(ScrollableTreeNode):
+    """ Display the re-run screen."""
+    def __init__(self, tree, title):
+        super().__init__(tree, title)
+
+    def consume_event(self, event: Event):
+        if event.kind == EVENT_RESIZE:
+            self.image = TextImage(event.data)  # data is the new size
+        elif event.kind == EVENT_KEYBOARD:
+            self.image = TextImage(self.image.size)
+            if event.data.key == "up":
+                self._scroll("up")
+            elif event.data.key == "down":
+                self._scroll("down")
+            elif event.data.key == "space":
+                self._selectNode()
+            elif event.data.key == "enter":
+                self._toggleNode()
+            elif event.data.key in 'sS':
+                self.tree.set_descendants_state(True)
+            elif event.data.key in 'dD':
+                self.tree.set_descendants_state(False)
+            elif event.data.key in 'fF':
+                self.tree.set_descendants_state(False)
+                raise StopIteration
+            elif event.data.key in 'rR':
+                raise StopIteration
+        self.repaint(event)
+        return self.image
+
+    def repaint(self, event: Event):
+        ctx = DrawingContext(self.image)
+        ctx.border(tm=1, bm=1)
+        cols = self.image.size.width
+        extra_cols = 0
+        if cols > 80:
+            extra_cols = cols - 80
+        ctx.attributes.style = REVERSE
+        ctx.print(' ' * cols)
+        ctx.move_to(1, 0)
+        bottom = self.top + self.image.size.height - 4
+        ctx.print(self.title)
+        ctx.move_to(1, self.image.size.height - 1)
+        ctx.attributes.style = REVERSE
+        ctx.print(_("Enter"))
+        ctx.move_to(6, self.image.size.height - 1)
+        ctx.attributes.style = NORMAL
+        ctx.print(_(": Expand/Collapse"))
+        ctx.move_to(27, self.image.size.height - 1)
+        ctx.attributes.style = REVERSE
+        # FIXME: i18n problem
+        ctx.print("S")
+        ctx.move_to(28, self.image.size.height - 1)
+        ctx.attributes.style = NORMAL
+        ctx.print("elect All")
+        ctx.move_to(41, self.image.size.height - 1)
+        ctx.attributes.style = REVERSE
+        # FIXME: i18n problem
+        ctx.print("D")
+        ctx.move_to(42, self.image.size.height - 1)
+        ctx.attributes.style = NORMAL
+        ctx.print("eselect All")
+        ctx.move_to(63 + extra_cols, self.image.size.height - 1)
+        ctx.attributes.style = REVERSE
+        # FIXME: i18n problem
+        ctx.print("F")
+        ctx.move_to(64 + extra_cols, self.image.size.height - 1)
+        ctx.attributes.style = NORMAL
+        ctx.print(_("inish"))
+        ctx.move_to(73 + extra_cols, self.image.size.height - 1)
+        ctx.attributes.style = REVERSE
+        # FIXME: i18n problem
+        ctx.print("R")
+        ctx.move_to(74 + extra_cols, self.image.size.height - 1)
+        ctx.attributes.style = NORMAL
+        ctx.print("e-run")
+        for i, line in enumerate(self.tree.render(cols - 3)[self.top:bottom]):
+            ctx.move_to(2, i + 2)
+            if i != self.highlight:
+                ctx.attributes.style = NORMAL
+            else:  # highlight the current line
+                ctx.attributes.style = REVERSE
+            ctx.print(line)

@@ -61,6 +61,45 @@ class DependencyError(Exception, metaclass=ABCMeta):
         """
 
 
+class DependencyUnknownError(DependencyError):
+
+    """
+    Exception raised when an unknown job is mentioned.
+
+    .. note::
+        This class differs from :class:`DependencyMissingError` in that the
+        unknown job is not a dependency of anything. It can only happen when
+        the job is explicitly mentioned in the list of jobs to visit.
+    """
+
+    def __init__(self, job):
+        """ Initialize a new DependencyUnknownError with a given job. """
+        self.job = job
+
+    @property
+    def affected_job(self):
+        """ Job that is mentioned but unknown to the solver. """
+        return self.job
+
+    @property
+    def affecting_job(self):
+        """ always None. """
+
+    def __str__(self):
+        return _("unknown job referenced: {!a}").format(self.job.id)
+
+    def __repr__(self):
+        return "<{} job:{!r}>".format(self.__class__.__name__, self.job)
+
+    def __eq__(self, other):
+        if not isinstance(other, DependencyUnknownError):
+            return NotImplemented
+        return self.job == other.job
+
+    def __hash__(self):
+        return hash((self.job,))
+
+
 class DependencyCycleError(DependencyError):
     """
     Exception raised when a cyclic dependency is detected
@@ -258,7 +297,10 @@ class DependencySolver:
         resource) and resolve them. Missing jobs cause DependencyMissingError
         to be raised. Calls _visit recursively on all dependencies.
         """
-        color = self._job_color_map[job.id]
+        try:
+            color = self._job_color_map[job.id]
+        except KeyError:
+            raise DependencyUnknownError(job)
         logger.debug(_("Visiting job %s (color %s)"), job.id, color)
         if color == self.COLOR_WHITE:
             # This node has not been visited yet. Let's mark it as GRAY (being

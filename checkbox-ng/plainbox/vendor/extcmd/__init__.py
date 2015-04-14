@@ -291,6 +291,18 @@ class IDelegate(object, metaclass=abc.ABCMeta):
     def on_line(self, stream_name, line):
         """
         Callback invoked for each line of the output
+
+        This method is only called when the ``CHUNKED_IO`` flag is **not**
+        passed to extcmd. Otherwise :meth:`on_chunk()` will be called instead.
+        """
+
+    @abc.abstractmethod
+    def on_chunk(self, stream_name, chunk):
+        """
+        Callback invoked on each chunk of the input
+
+        This method is only called when the ``CHUNKED_IO`` flag is passed to
+        extcmd. Otherwise :meth:`on_line()` will be called instead.
         """
 
     @abc.abstractmethod
@@ -323,6 +335,11 @@ class DelegateBase(IDelegate):
         """
 
     def on_line(self, stream_name, line):
+        """
+        Do nothing
+        """
+
+    def on_chunk(self, stream_name, chunk):
         """
         Do nothing
         """
@@ -379,6 +396,13 @@ class SafeDelegate(IDelegate):
         if hasattr(self._delegate, "on_line"):
             self._delegate.on_line(stream_name, line)
 
+    def on_chunk(self, stream_name, chunk):
+        """
+        Call on_chunk() on the wrapped delegate if supported
+        """
+        if hasattr(self._delegate, "on_chunk"):
+            self._delegate.on_chunk(stream_name, chunk)
+
     def on_end(self, returncode):
         """
         Call on_end() on the wrapped delegate if supported
@@ -411,6 +435,9 @@ class SafeDelegate(IDelegate):
             return cls(delegate)
 
 
+CHUNKED_IO = 1
+
+
 class ExternalCommandWithDelegate(ExternalCommand):
     """
     The actually interesting subclass of ExternalCommand.
@@ -426,10 +453,9 @@ class ExternalCommandWithDelegate(ExternalCommand):
         very heavyweight but (yay) works portably for windows. A unix-specific
         subclass implementing this with _just_ poll could be provided with the
         same interface.
-
     """
 
-    def __init__(self, delegate, killsig=signal.SIGINT):
+    def __init__(self, delegate, killsig=signal.SIGINT, flags=0):
         """
         Set the delegate helper. Technically it needs to have a 'on_line()'
         method. For actual example code look at :class:`Tee`.
@@ -437,6 +463,7 @@ class ExternalCommandWithDelegate(ExternalCommand):
         self._queue = Queue()
         self._delegate = SafeDelegate.wrap_if_needed(delegate)
         self._killsig = killsig
+        self._flags = flags
 
     def call(self, *args, **kwargs):
         """
@@ -567,7 +594,10 @@ class ExternalCommandWithDelegate(ExternalCommand):
         _logger.debug("_read_stream(%r, %r) entering", stream, stream_name)
         while True:
             try:
-                line = stream.readline()
+                if self._flags & CHUNKED_IO:
+                    data = stream.read(4096)
+                else:
+                    data = stream.readline()
             except (IOError, ValueError):
                 # Ignore IOError and ValueError that may be raised if
                 # the stream was closed this can happen if the process exits
@@ -575,9 +605,9 @@ class ExternalCommandWithDelegate(ExternalCommand):
                 # starts to close both of the streams
                 break
             else:
-                if len(line) == 0:
+                if len(data) == 0:
                     break
-                cmd = (stream_name, line)
+                cmd = (stream_name, data)
                 self._queue.put(cmd)
         _logger.debug("_read_stream(%r, %r) exiting", stream, stream_name)
 
@@ -587,7 +617,10 @@ class ExternalCommandWithDelegate(ExternalCommand):
             args = self._queue.get()
             if args is None:
                 break
-            self._delegate.on_line(*args)
+            if self._flags & CHUNKED_IO:
+                self._delegate.on_chunk(*args)
+            else:
+                self._delegate.on_line(*args)
         _logger.debug("_drain_queue() exiting")
 
 
@@ -626,6 +659,13 @@ class Chain(IDelegate):
         """
         for delegate in self.delegate_list:
             delegate.on_line(stream_name, line)
+
+    def on_chunk(self, stream_name, chunk):
+        """
+        Call the on_line() method on each delegate in the list
+        """
+        for delegate in self.delegate_list:
+            delegate.on_chunk(stream_name, chunk)
 
     def on_end(self, returncode):
         """
@@ -677,6 +717,16 @@ class Redirect(DelegateBase):
         else:
             self._stderr.write(line)
 
+    def on_chunk(self, stream_name, chunk):
+        """
+        Write each chunk, verbatim, to the desired stream.
+        """
+        assert stream_name == 'stdout' or stream_name == 'stderr'
+        if stream_name == 'stdout':
+            self._stdout.write(chunk)
+        else:
+            self._stderr.write(chunk)
+
     def on_end(self, returncode):
         """
         Close the output streams if requested
@@ -723,6 +773,14 @@ class Transform(DelegateBase):
         """
         transformed_line = self._callback(stream_name, line)
         self._delegate.on_line(stream_name, transformed_line)
+
+    def on_chunk(self, stream_name, chunk):
+        """
+        Transform each chunk by calling callback(stream_name, chunk) and pass
+        it down to the subsequent delegate.
+        """
+        transformed_chunk = self._callback(stream_name, chunk)
+        self._delegate.on_chunk(stream_name, transformed_chunk)
 
     def on_begin(self, args, kwargs):
         self._delegate.on_begin(args, kwargs)

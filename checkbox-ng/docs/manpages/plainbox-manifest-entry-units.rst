@@ -123,6 +123,7 @@ somewhere early in your test plan:
 Supplying External Manifest
 ---------------------------
 
-The manifest file is stored in ``$HOME/.local/plainbox/machine-manifest.json``.
+The manifest file is stored in
+``$HOME/.local/share/plainbox/machine-manifest.json``.
 If the provisioning method ships a valid manifest file there it can be used for
 fully automatic but manifest-based deployments.

@@ -37,7 +37,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '-m', '--manifest', metavar='PATH',
-        default=os.path.expanduser('~/.local/plainbox/machine-manifest.json'),
+        default=os.path.expanduser(
+            '~/.local/share/plainbox/machine-manifest.json'),
         help=_('Path to alternate machine manifest'))
     args = parser.parse_args()
     if os.path.isfile(args.manifest):

@@ -301,7 +301,7 @@ class CheckBoxSessionStateControllerTests(TestCase):
         # Session knows about just B
         session_state = SessionState([job_b])
         # Mock gen_rfc822_records_from_io_log to produce one mock record
-        mock_gen.return_value = [mock.Mock(spec=RFC822Record, name='record')]
+        mock_gen.return_value = [RFC822Record({})]
         # Mock job B to create job A as a child if asked to
         with mock.patch.object(job_b, 'create_child_job_from_record') as fn:
             fn.side_effect = lambda record: job_a
@@ -335,7 +335,7 @@ class CheckBoxSessionStateControllerTests(TestCase):
         # Session knows about A1 and B
         session_state = SessionState([job_a1, job_b])
         # Mock gen_rfc822_records_from_io_log to produce one mock record
-        mock_gen.return_value = [mock.Mock(spec=RFC822Record, name='record')]
+        mock_gen.return_value = [RFC822Record({})]
         # Mock job B to create job A2 as a child if asked to
         with mock.patch.object(job_b, 'create_child_job_from_record') as fn:
             fn.side_effect = lambda record: job_a2
@@ -371,7 +371,7 @@ class CheckBoxSessionStateControllerTests(TestCase):
         # Session knows about A and B
         session_state = SessionState([job_a, job_b])
         # Mock gen_rfc822_records_from_io_log to produce one mock record
-        mock_gen.return_value = [mock.Mock(spec=RFC822Record, name='record')]
+        mock_gen.return_value = [RFC822Record({})]
         # Mock job B to create job A as a child if asked to
         with mock.patch.object(job_b, 'create_child_job_from_record') as fn:
             fn.side_effect = lambda record: job_a

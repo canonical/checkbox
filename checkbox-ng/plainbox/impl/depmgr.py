@@ -18,8 +18,11 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-:mod:`plainbox.impl.depmgr` -- dependency solver
-================================================
+Job Dependency Solver.
+
+
+:mod:`plainbox.impl.depmgr`
+===========================
 
 .. warning::
 
@@ -37,21 +40,17 @@ logger = getLogger("plainbox.depmgr")
 
 
 class DependencyError(Exception, metaclass=ABCMeta):
-    """
-    Exception raised when a dependency error is detected
-    """
+
+    """ Exception raised when a dependency error is detected. """
 
     @abstractproperty
     def affected_job(self):
-        """
-        JobDefinition instance that is affected by the dependency error.
-        """
+        """ job that is affected by the dependency error. """
 
     @abstractproperty
     def affecting_job(self):
         """
-        JobDefinition instance that is affecting
-        :attr:`affected_job`
+        job that is affecting the :attr:`affected_job`.
 
         This may be None in certain cases (eg, when the job does not exist and
         is merely referred to by id). If this job exists removing it SHOULD
@@ -78,32 +77,43 @@ class DependencyUnknownError(DependencyError):
 
     @property
     def affected_job(self):
-        """ Job that is mentioned but unknown to the solver. """
+        """
+        job that is affected by the dependency error.
+
+        Here it's a job that on the ``visit_list`` but not on the ``job_list``.
+        """
         return self.job
 
     @property
     def affecting_job(self):
-        """ always None. """
+        """
+        job that is affecting the :attr:`affected_job`.
+
+        Here, it is always None.
+        """
 
     def __str__(self):
+        """ Get a printable description of an error. """
         return _("unknown job referenced: {!a}").format(self.job.id)
 
     def __repr__(self):
+        """ Get a debugging representation of an error. """
         return "<{} job:{!r}>".format(self.__class__.__name__, self.job)
 
     def __eq__(self, other):
+        """ Check if one error is equal to another. """
         if not isinstance(other, DependencyUnknownError):
             return NotImplemented
         return self.job == other.job
 
     def __hash__(self):
+        """ Calculate the hash of an error. """
         return hash((self.job,))
 
 
 class DependencyCycleError(DependencyError):
-    """
-    Exception raised when a cyclic dependency is detected
-    """
+
+    """ Exception raised when a cyclic dependency is detected. """
 
     def __init__(self, job_list):
         """
@@ -123,36 +133,41 @@ class DependencyCycleError(DependencyError):
     @property
     def affected_job(self):
         """
-        the job that has a cyclic dependency on itself
+        job that is affected by the dependency error.
+
+        Here it is the job that has a cyclic dependency on itself.
         """
         return self.job_list[0]
 
     @property
     def affecting_job(self):
         """
-        same as :attr:`~DependencyCycleError.affected_job`
-        """
+        job that is affecting the :attr:`affected_job`.
 
+        Here it's always the same as :attr:`~DependencyCycleError.affected_job`
+        """
         return self.affected_job
 
     def __str__(self):
+        """ Get a printable description of an error. """
         return _("dependency cycle detected: {}").format(
             " -> ".join([job.id for job in self.job_list]))
 
     def __repr__(self):
+        """ Get a debugging representation of an error. """
         return "<{} job_list:{!r}>".format(
             self.__class__.__name__, self.job_list)
 
 
 class DependencyMissingError(DependencyError):
-    """
-    Exception raised when a job has an unsatisfied dependency
-    """
+
+    """ Exception raised when a job has an unsatisfied dependency.  """
 
     DEP_TYPE_RESOURCE = "resource"
     DEP_TYPE_DIRECT = "direct"
 
     def __init__(self, job, missing_job_id, dep_type):
+        """ Initialize a new error with given data. """
         self.job = job
         self.missing_job_id = missing_job_id
         self.dep_type = dep_type
@@ -160,30 +175,34 @@ class DependencyMissingError(DependencyError):
     @property
     def affected_job(self):
         """
-        the job that has a missing dependency
+        job that is affected by the dependency error.
+
+        Here it is the job that has a missing dependency.
         """
         return self.job
 
     @property
     def affecting_job(self):
         """
-        the job that is affecting :attr:`~DependencyMissingError.affected_job`
+        job that is affecting the :attr:`affected_job`.
 
-        This is always None as we have not seen this job at all and that's
+        Here it is always None as we have not seen this job at all and that's
         what's causing the problem in the first place.
         """
-        return None
 
     def __str__(self):
+        """ Get a printable description of an error. """
         return _("missing dependency: {!r} ({})").format(
             self.missing_job_id, self.dep_type)
 
     def __repr__(self):
+        """ Get a debugging representation of an error. """
         return "<{} job:{!r} missing_job_id:{!r} dep_type:{!r}>".format(
             self.__class__.__name__,
             self.job, self.missing_job_id, self.dep_type)
 
     def __eq__(self, other):
+        """ Check if one error is equal to another. """
         if not isinstance(other, DependencyMissingError):
             return NotImplemented
         return (self.job == other.job
@@ -191,15 +210,16 @@ class DependencyMissingError(DependencyError):
                 and self.dep_type == other.dep_type)
 
     def __hash__(self):
+        """ Calculate the hash of an error. """
         return hash((self.job, self.missing_job_id, self.dep_type))
 
 
 class DependencyDuplicateError(DependencyError):
-    """
-    Exception raised when two jobs have identical id
-    """
+
+    """ Exception raised when two jobs have the same id.  """
 
     def __init__(self, job, duplicate_job):
+        """ Initialize a new error with given data. """
         assert job.id == duplicate_job.id
         self.job = job
         self.duplicate_job = duplicate_job
@@ -207,28 +227,36 @@ class DependencyDuplicateError(DependencyError):
     @property
     def affected_job(self):
         """
-        the job that already known by the system
+        job that is affected by the dependency error.
+
+        Here it is the job that is already known by the system.
         """
         return self.job
 
     @property
     def affecting_job(self):
         """
-        the job that is clashing with the job already in the system
+        job that is affecting the :attr:`affected_job`.
+
+        Here it is the job that is clashing with another job already present in
+        the system.
         """
         return self.duplicate_job
 
     def __str__(self):
+        """ Get a printable description of an error. """
         return _("duplicate job id: {!r}").format(self.affected_job.id)
 
     def __repr__(self):
+        """ Get a debugging representation of an error. """
         return "<{} job:{!r} duplicate_job:{!r}>".format(
             self.__class__.__name__, self.job, self.duplicate_job)
 
 
 class DependencySolver:
+
     """
-    Dependency solver for Jobs
+    Dependency solver for Jobs.
 
     Uses a simple depth-first search to discover the sequence of jobs that can
     run. Use the resolve_dependencies() class method to get the solution.
@@ -264,7 +292,7 @@ class DependencySolver:
 
     def __init__(self, job_list):
         """
-        Instantiate a new dependency solver with the specified list of jobs
+        Instantiate a new dependency solver with the specified list of jobs.
 
         :raises DependencyDuplicateError:
             if the initial job_list has any duplicate jobs
@@ -300,7 +328,7 @@ class DependencySolver:
 
     def _visit(self, job, trail=None):
         """
-        Internal method of DependencySolver
+        Internal method of DependencySolver.
 
         Called each time a node is visited. Nodes already seen in _visited are
         skipped. Attempts to enumerate all dependencies (both direct and

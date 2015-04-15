@@ -62,8 +62,8 @@ _description:
      and a monitor over Thunderbolt port
  STEPS:
      1. Connect your Thunderbolt monitor to your systems
-     2. Connect your Thunderbolt HDD to another Thunderbolt port of the monitor
-        (you can do this with HDD first as well)
+     2. Connect and mount your Thunderbolt HDD to another Thunderbolt port of the
+        monitor (you can do this with HDD first as well)
      3. Click 'Test' to perform the storage test on the Thunderbolt HDD
  VERIFICATION:
      1. The verification for storage is automated, please select the result combine

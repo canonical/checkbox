@@ -36,7 +36,7 @@ plugin: user-interact
 id: thunderbolt/remove
 imports: from 2013.com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt == 'True'
-depends: thuderbolt/storage-test
+depends: thunderbolt/storage-test
 command: removable_storage_watcher remove scsi
 _summary: Storage removal detection on Thunderbolt
 _description:

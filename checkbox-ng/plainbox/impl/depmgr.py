@@ -34,6 +34,7 @@ from abc import abstractproperty
 from logging import getLogger
 
 from plainbox.i18n import gettext as _
+from plainbox.vendor import enum
 
 
 logger = getLogger("plainbox.depmgr")
@@ -251,6 +252,25 @@ class DependencyDuplicateError(DependencyError):
         """ Get a debugging representation of an error. """
         return "<{} job:{!r} duplicate_job:{!r}>".format(
             self.__class__.__name__, self.job, self.duplicate_job)
+
+
+class Color(enum.Enum):
+
+    """
+    Three classic colors for recursive graph visitor.
+
+    WHITE:
+        For nodes have not been visited yet.
+    GRAY:
+        For nodes that are currently being visited but the visit is not
+        complete.
+    BLACK:
+        For nodes that have been visited and are complete.
+    """
+
+    WHITE = 'white'
+    GRAY = 'gray'
+    BLACK = 'black'
 
 
 class DependencySolver:

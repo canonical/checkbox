@@ -7,7 +7,6 @@
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -335,6 +334,8 @@ class DependencySolver:
         """
         # Visit the visit list
         logger.debug(_("Starting solve"))
+        logger.debug(_("Solver job list: %r"), self._job_list)
+        logger.debug(_("Solver visit list: %r"), visit_list)
         if visit_list is None:
             visit_list = self._job_list
         for job in visit_list:
@@ -355,6 +356,7 @@ class DependencySolver:
         try:
             color = self._job_color_map[job.id]
         except KeyError:
+            logger.debug(_("Visiting job that's not on the job_list: %r"), job)
             raise DependencyUnknownError(job)
         logger.debug(_("Visiting job %s (color %s)"), job.id, color)
         if color == self.COLOR_WHITE:
@@ -371,6 +373,8 @@ class DependencySolver:
                 try:
                     next_job = self._job_map[job_id]
                 except KeyError:
+                    logger.debug(_("Found missing dependency: %r from %r"),
+                                 job_id, job)
                     raise DependencyMissingError(job, job_id, dep_type)
                 else:
                     # For each dependency that we visit let's reuse the trail
@@ -390,7 +394,9 @@ class DependencySolver:
             # so we've found a dependency loop. We need to cut the initial
             # part of the trail so that we only report the part that actually
             # forms a loop
-            raise DependencyCycleError(trail[trail.index(job):])
+            trail = trail[trail.index(job):]
+            logger.debug(_("Found dependency cycle: %r"), trail)
+            raise DependencyCycleError(trail)
         else:
             assert color == self.COLOR_BLACK
             # This node has been visited and is fully traced.

@@ -29,6 +29,7 @@ from plainbox.abc import IExecutionController
 from plainbox.abc import IJobResult
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyMissingError
+from plainbox.impl.depmgr import DependencyUnknownError
 from plainbox.impl.resource import Resource
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.secure.origin import Origin
@@ -79,6 +80,14 @@ class SessionStateSmokeTests(TestCase):
 
 class RegressionTests(TestCase):
     # Tests for bugfixes
+
+    def test_crash_on_missing_job(self):
+        """ http://pad.lv/1334296 """
+        A = make_job("A")
+        state = SessionState([])
+        problems = state.update_desired_job_list([A])
+        self.assertEqual(problems, [DependencyUnknownError(A)])
+        self.assertEqual(state.desired_job_list, [])
 
     def test_crash_in_update_desired_job_list(self):
         # This checks if a DependencyError can cause crash

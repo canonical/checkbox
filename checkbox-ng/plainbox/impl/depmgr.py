@@ -282,12 +282,9 @@ class DependencySolver:
     run. Use the resolve_dependencies() class method to get the solution.
     """
 
-    # Node colors:
-    #
-    # white nodes have not been visited yet
-    # gray nodes are currently being visited and are incomplete
-    # black nodes have been visited and are complete
-    COLOR_WHITE, COLOR_GRAY, COLOR_BLACK = range(3)
+    COLOR_WHITE = Color.WHITE
+    COLOR_GRAY = Color.GRAY
+    COLOR_BLACK = Color.BLACK
 
     @classmethod
     def resolve_dependencies(cls, job_list, visit_list=None):

@@ -1,13 +1,12 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012 Canonical Ltd.
+# Copyright 2012-2015 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -18,10 +17,10 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-:mod:`plainbox.public` -- public, stable API
-============================================
+Public, stable, high-level API for third party developers.
 
-Public, high-level API for third party developers.
+:mod:`plainbox.public`
+======================
 
 The are actually implemented by the plainbox.impl package. This module is here
 so that the essential API concepts are in a single spot and are easier to
@@ -40,11 +39,9 @@ understand (by not being mixed with additional source code).
     available.
 """
 
-from plainbox.impl import public
+from plainbox._lazymod import LazyModule, far
 
 
-@public('plainbox.impl.box')
-def main(argv=None):
-    """
-    Entry point for the temporary new PlainBox executable
-    """
+_mod = LazyModule.shadow_normal_module()
+_mod.lazily('main', far, ('plainbox.impl.box:main',))
+_mod.lazily('get_providers', far, ('plainbox.impl.providers:get_providers',))

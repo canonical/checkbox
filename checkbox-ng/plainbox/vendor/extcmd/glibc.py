@@ -46,6 +46,7 @@ from plainbox.vendor.pyglibc.selectors import EpollSelector
 
 from plainbox.vendor.extcmd import ExternalCommand
 from plainbox.vendor.extcmd import SafeDelegate
+from plainbox.vendor.extcmd import CHUNKED_IO
 
 _logger = logging.getLogger("plainbox.vendor.extcmd")
 _bug_logger = logging.getLogger("plainbox.bug")
@@ -79,9 +80,10 @@ class GlibcExternalCommandWithDelegate(ExternalCommand):
     multi-threaded application.
     """
 
-    def __init__(self, delegate, killsig=signal.SIGINT):
+    def __init__(self, delegate, killsig=signal.SIGINT, flags=0):
         self._delegate = SafeDelegate.wrap_if_needed(delegate)
         self._killsig = killsig
+        self._flags = flags
 
     def call(self, args, bufsize=-1, executable=None,
              stdin=None, stdout=None, stderr=None,
@@ -215,7 +217,18 @@ class GlibcExternalCommandWithDelegate(ExternalCommand):
         _logger.debug("Sending SIGQUIT to process %d", pid)
         os.kill(pid, signal.SIGQUIT)
 
-    def _read_pipe(self, fd, name, buffer_map, force_last):
+    def _read_pipe_chunked(self, fd, name, force_last):
+        assert name in ('stdout', 'stderr')
+        pipe_size = fcntl.fcntl(fd, F_GETPIPE_SZ)
+        _logger.debug("Reading at most %d bytes of data from %s pipe",
+                      pipe_size, name)
+        data = os.read(fd, pipe_size)
+        done_reading = force_last or len(data) == 0
+        _logger.debug("Read %d bytes of data from %s", len(data), name)
+        self._delegate.on_chunk(name, data)
+        return done_reading
+
+    def _read_pipe_lines(self, fd, name, buffer_map, force_last):
         assert name in ('stdout', 'stderr')
         pipe_size = fcntl.fcntl(fd, F_GETPIPE_SZ)
         _logger.debug("Reading at most %d bytes of data from %s pipe",
@@ -291,8 +304,13 @@ class GlibcExternalCommandWithDelegate(ExternalCommand):
                         # could have written and don't wait forever if the pipe
                         # has leaked.
                         force_last = 'proc' not in waiting_for
-                        if self._read_pipe(key.fd, key.data, buffer_map,
-                                           force_last):
+                        if self._flags & CHUNKED_IO:
+                            is_done = self._read_pipe_chunked(
+                                key.fd, key.data, force_last)
+                        else:
+                            is_done = self._read_pipe_lines(
+                                key.fd, key.data, buffer_map, force_last)
+                        if is_done:
                             _logger.debug(
                                 "pipe %s depleted, unregistering and closing",
                                 key.data)

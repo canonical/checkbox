@@ -197,8 +197,8 @@ class NormalUI(IJobRunnerUI):
             'stdout': sys.stdout,
             'stderr': sys.stderr
         }[stream_name]
-        print(self.C.BLACK(line.decode("UTF-8", "ignore").rstrip('\n')),
-              file=stream)
+        print(self.C.BLACK(line.decode("UTF-8", "ignore")),
+              end='', flush=True, file=stream)
 
     def finished_executing_program(self, returncode):
         if self.show_cmd_output:

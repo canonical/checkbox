@@ -13,7 +13,7 @@ plugin: shell
 id: power-management/hibernate_30_cycles
 estimated_duration: 5400.00
 depends:
- power-management/hibernate_advanced
+ power-management/1_hibernate_advanced_.*
 requires:
  sleep.disk == 'supported'
  rtc.state == 'supported'

@@ -1,29 +1,36 @@
-plugin: user-interact-verify
-id: power-management/hibernate_advanced
+id: power-management/generator_hibernate_advanced
 requires:
   sleep.disk == 'supported'
   rtc.state == 'supported'
-environ: PLAINBOX_SESSION_SHARE
-user: root
+_description: Job generator for hibernate test
+_summary: Job generator for hibernate test
+plugin: local
 command:
- if type -P fwts >/dev/null; then
-  echo "Calling fwts"
-  fwts_test -l $PLAINBOX_SESSION_SHARE/hibernate-single -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120
- else
-  echo "Calling sleep_test"
-  sleep_test -s disk -w 120
- fi
-estimated_duration: 300.00
-_description:
- PURPOSE:
-     This test will check to make sure your system can successfully hibernate (if supported)
- STEPS:
-     1. Click on Test
-     2. The system will hibernate and should wake itself within 5 minutes
-     3. If your system does not wake itself after 5 minutes, please press the power button to wake the system manually
-     4. If the system fails to resume from hibernate, please restart System Testing and mark this test as Failed
- VERIFICATION:
-     Did the system successfully hibernate and did it work properly after waking up?
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: user-interact-verify
+ id: power-management/`echo ${index}`_hibernate_advanced_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ user: root
+ environ: PLAINBOX_SESSION_SHARE
+ estimated_duration: 300.00
+ command:
+  if type -P fwts >/dev/null; then
+   echo "Calling fwts"
+   fwts_test -l $PLAINBOX_SESSION_SHARE/`echo ${index}`_hibernate-single -f none -s s4 --s4-device-check --s4-device-check-delay=45 --s4-sleep-delay=120
+  else
+   echo "Calling sleep_test"
+   sleep_test -s disk -w 120
+  fi
+ _description:
+  PURPOSE:
+      This test will check to make sure your system can successfully hibernate (if supported)
+  STEPS:
+      1. Click on Test
+      2. The system will hibernate and should wake itself within 5 minutes
+      3. If your system does not wake itself after 5 minutes, please press the power button to wake the system manually
+      4. If the system fails to resume from hibernate, please restart System Testing and mark this test as Failed
+  VERIFICATION:
+      Did the system successfully hibernate and did it work properly after waking up?
+ EOF
 
 plugin: shell
 id: power-management/hibernate-single-log-check
@@ -31,9 +38,17 @@ command: [ -e $PLAINBOX_SESSION_SHARE/hibernate-single.log ] && sleep_test_log_c
 _description:
  Automated check of the hibernate log for errors discovered by fwts
 
-plugin: attachment
-id: power-management/hibernate-single-log-attach
-command: [ -e $PLAINBOX_SESSION_SHARE/hibernate-single.log ] && cat $PLAINBOX_SESSION_SHARE/hibernate-single.log
-estimated_duration: 0.5
-_description: attaches log from single hibernate/resume test to results
+id: power-management/generator_hibernate-single-log-attach
+_description: Job generator for hibernate log attachment test
+_summary: Job generator for hibernate log attachment test
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: attachment
+ id: power-management/`echo ${index}`_hibernate-single-log-attach_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ depends: power-management/`echo ${index}`_hibernate_advanced_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ estimated_duration: 0.5
+ command: [ -e $PLAINBOX_SESSION_SHARE/`echo ${index}`_hibernate-single.log ] && cat $PLAINBOX_SESSION_SHARE/`echo ${index}`_hibernate-single.log
+ _description: attaches log from single hibernate/resume test to results
+ EOF
 

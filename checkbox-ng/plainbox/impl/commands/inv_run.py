@@ -720,15 +720,22 @@ class RunInvocation(CheckBoxInvocationMixIn):
                 job_state = self.state.job_state_map[job.id]
                 if job_state.result.outcome is None:
                     jobs_to_run.append(job)
-                    estimated_time += job.estimated_duration
+                    if (job.estimated_duration is not None
+                            and estimated_time is not None):
+                        estimated_time += job.estimated_duration
+                    else:
+                        estimated_time = None
             for job_no, job in enumerate(jobs_to_run, start=1):
                 print(self.C.header(
                     _('Running job {} / {}. Estimated time left: {}').format(
                         job_no, len(jobs_to_run),
-                        seconds_to_human_duration(max(0, estimated_time))),
+                        seconds_to_human_duration(max(0, estimated_time))
+                        if estimated_time is not None else _("unknown")),
                     fill='-'))
                 self.run_single_job(job)
-                estimated_time -= job.estimated_duration
+                if (job.estimated_duration is not None
+                        and estimated_time is not None):
+                    estimated_time -= job.estimated_duration
 
     def run_single_job(self, job):
         job_start_time = time.time()

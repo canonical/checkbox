@@ -1153,10 +1153,13 @@ class SessionState:
             stats[job_state.result.outcome] += 1
         return stats
 
-    def get_certification_status_map(self,
-                                     outcome_filter=(IJobResult.OUTCOME_FAIL,),
-                                     certification_status_filter=('blocker',)):
+    def get_certification_status_map(
+            self, outcome_filter=(IJobResult.OUTCOME_FAIL,),
+            certification_status_filter=('blocker',)
+    ):
         """
+        Get a map of jobs that have a specific certification blocker status.
+
         Filter the Job state map to only return items with given outcomes and
         certification statuses.
 

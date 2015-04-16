@@ -260,7 +260,8 @@ class Field:
         assert self.signal_name is not None
         if not hasattr(cls, self.signal_name):
             signal_def = signal(
-                self.notify_fn if self.notify_fn is not None else self.on_changed,
+                self.notify_fn if self.notify_fn is not None
+                else self.on_changed,
                 signal_name='{}.{}'.format(cls.__name__, self.signal_name))
             setattr(cls, self.signal_name, signal_def)
 

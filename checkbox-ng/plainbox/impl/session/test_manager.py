@@ -93,7 +93,8 @@ class SessionManagerTests(SignalTestCase):
             # Ensure that a fresh instance of the suspend helper was used to
             # call the suspend() method and that the session state parameter
             # was passed to it.
-            helper_cls().suspend.assert_called_with(self.context.state)
+            helper_cls().suspend.assert_called_with(
+                self.context.state, self.storage.location)
         # Ensure that save_checkpoint() was called on the storage object with
         # the return value of what the suspend helper produced.
         self.storage.save_checkpoint.assert_called_with(

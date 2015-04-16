@@ -8,7 +8,7 @@ _description:
 plugin: user-interact
 command: plainbox-manifest-collect
 estimated_duration: 30
-flags: preserve-locale
+flags: preserve-locale use-chunked-io
 
 unit: job
 id: manifest

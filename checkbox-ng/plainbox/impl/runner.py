@@ -44,7 +44,7 @@ from plainbox.impl.result import DiskJobResult
 from plainbox.impl.result import IOLogRecord
 from plainbox.impl.result import IOLogRecordWriter
 from plainbox.impl.result import MemoryJobResult
-from plainbox.vendor.morris import signal
+from plainbox.vendor import morris
 
 
 logger = logging.getLogger("plainbox.runner")
@@ -89,7 +89,7 @@ class IOLogRecordGenerator(extcmd.DelegateBase):
         record = IOLogRecord(delay.total_seconds(), stream_name, line)
         self.on_new_record(record)
 
-    @signal
+    @morris.signal
     def on_new_record(self, record):
         """
         Internal signal method of :class:`IOLogRecordGenerator`
@@ -242,6 +242,15 @@ class JobRunnerUIDelegate(extcmd.DelegateBase):
         """
         if self.ui is not None:
             self.ui.got_program_output(stream_name, line)
+
+    def on_chunk(self, stream_name, chunk):
+        """
+        Internal method of extcmd.DelegateBase
+
+        Called for each chunk of output.
+        """
+        if self.ui is not None:
+            self.ui.got_program_output(stream_name, chunk)
 
 
 class JobRunner(IJobRunner):
@@ -862,7 +871,11 @@ class JobRunner(IJobRunner):
         # Create a subprocess.Popen() like object that uses the delegate
         # system to observe all IO as it occurs in real time.
         delegate_cls = self._get_delegate_cls(config)
-        extcmd_popen = delegate_cls(delegate)
+        flags = 0
+        # Use chunked IO for jobs that explicitly request this
+        if 'use-chunked-io' in job.get_flag_set():
+            flags |= extcmd.CHUNKED_IO
+        extcmd_popen = delegate_cls(delegate, flags=flags)
         # Stream all IOLogRecord entries to disk
         record_path = os.path.join(
             self._jobs_io_log_dir, "{}.record.gz".format(
@@ -926,7 +939,7 @@ class JobRunner(IJobRunner):
             ctrl.__class__.__name__, score, job.id)
         return ctrl
 
-    @signal
+    @morris.signal
     def on_leftover_files(self, job, config, cwd_dir, leftovers):
         """
         Handle any files left over by the execution of a job definition.

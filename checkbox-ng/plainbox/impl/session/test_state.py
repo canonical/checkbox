@@ -29,6 +29,7 @@ from plainbox.abc import IExecutionController
 from plainbox.abc import IJobResult
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyMissingError
+from plainbox.impl.depmgr import DependencyUnknownError
 from plainbox.impl.resource import Resource
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.secure.origin import Origin
@@ -80,6 +81,14 @@ class SessionStateSmokeTests(TestCase):
 class RegressionTests(TestCase):
     # Tests for bugfixes
 
+    def test_crash_on_missing_job(self):
+        """ http://pad.lv/1334296 """
+        A = make_job("A")
+        state = SessionState([])
+        problems = state.update_desired_job_list([A])
+        self.assertEqual(problems, [DependencyUnknownError(A)])
+        self.assertEqual(state.desired_job_list, [])
+
     def test_crash_in_update_desired_job_list(self):
         # This checks if a DependencyError can cause crash
         # update_desired_job_list() with a ValueError, in certain conditions.
@@ -114,6 +123,19 @@ class RegressionTests(TestCase):
             self.assertIs(call.exception.job, A)
             self.assertIs(call.exception.duplicate_job, different_A)
             self.assertIs(call.exception.affected_job, different_A)
+
+    def test_dont_remove_missing_jobs(self):
+        """ http://pad.lv/1444126 """
+        A = make_job("A", depends="B")
+        B = make_job("B", depends="C")
+        state = SessionState([A, B])
+        problems = state.update_desired_job_list([A, B])
+        self.assertEqual(problems, [
+            DependencyMissingError(B, 'C', 'direct'),
+            DependencyMissingError(A, 'B', 'direct'),
+        ])
+        self.assertEqual(state.desired_job_list, [])
+        self.assertEqual(state.run_list, [])
 
 
 class SessionStateAPITests(TestCase):

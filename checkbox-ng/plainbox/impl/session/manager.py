@@ -44,7 +44,7 @@ from plainbox.impl.session.storage import SessionStorage
 from plainbox.impl.session.storage import SessionStorageRepository
 from plainbox.impl.session.suspend import SessionSuspendHelper
 from plainbox.impl.unit.testplan import TestPlanUnit
-from plainbox.vendor.morris import signal
+from plainbox.vendor import morris
 
 logger = logging.getLogger("plainbox.session.manager")
 
@@ -355,7 +355,8 @@ class SessionManager(pod.POD):
         :meth:`SessionManager.load_session()`.
         """
         logger.debug("SessionManager.checkpoint()")
-        data = SessionSuspendHelper().suspend(self.state)
+        data = SessionSuspendHelper().suspend(
+            self.state, self.storage.location)
         logger.debug(
             ngettext(
                 "Saving %d byte of checkpoint data to %r",
@@ -427,7 +428,7 @@ class SessionManager(pod.POD):
         self.device_context_list.remove(context)
         self.on_device_context_removed(context)
 
-    @signal
+    @morris.signal
     def on_device_context_added(self, context):
         """
         Signal fired when a session device context object is added
@@ -437,7 +438,7 @@ class SessionManager(pod.POD):
             context, self)
         self._propagate_test_plans()
 
-    @signal
+    @morris.signal
     def on_device_context_removed(self, context):
         """
         Signal fired when a session device context object is removed

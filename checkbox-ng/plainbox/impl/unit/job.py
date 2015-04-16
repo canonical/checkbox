@@ -523,7 +523,7 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
             else:
                 implicit_namespace = None
             if self.imports is not None:
-                imports = self.get_imported_jobs()
+                imports = list(self.get_imported_jobs())
             else:
                 imports = None
             self._resource_program = ResourceProgram(

@@ -73,7 +73,7 @@ from plainbox.impl.session.jobs import JobReadinessInhibitor
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.template import TemplateUnit
 from plainbox.impl.validation import ValidationError
-from plainbox.vendor.morris import signal
+from plainbox.vendor import morris
 from plainbox.vendor import extcmd
 
 __all__ = [
@@ -315,6 +315,10 @@ class CheckBoxSessionStateController(ISessionStateController):
         # name, not a new list of jobs)
         new_job_list = []
         for record in gen_rfc822_records_from_io_log(job, result):
+            # Skip non-job units as the code below is wired to work with jobs
+            # Fixes: https://bugs.launchpad.net/plainbox/+bug/1443228
+            if record.data.get('unit', 'job') != 'job':
+                continue
             new_job = job.create_child_job_from_record(record)
             try:
                 new_job.validate()
@@ -613,7 +617,7 @@ class CheckBoxExecutionController(IExecutionController):
                 for filename in filenames)
         return leftovers
 
-    @signal
+    @morris.signal
     def on_leftover_files(self, job, config, cwd_dir, leftovers):
         """
         Handle any files left over by the execution of a job definition.

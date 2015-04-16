@@ -26,6 +26,7 @@
 
 from shutil import copyfileobj
 import collections
+import datetime
 import io
 import itertools
 import logging
@@ -197,8 +198,8 @@ class NormalUI(IJobRunnerUI):
             'stdout': sys.stdout,
             'stderr': sys.stderr
         }[stream_name]
-        print(self.C.BLACK(line.decode("UTF-8", "ignore").rstrip('\n')),
-              file=stream)
+        print(self.C.BLACK(line.decode("UTF-8", "ignore")),
+              end='', flush=True, file=stream)
 
     def finished_executing_program(self, returncode):
         if self.show_cmd_output:
@@ -710,13 +711,31 @@ class RunInvocation(CheckBoxInvocationMixIn):
         self._backtrack_and_run_missing = True
         while self._backtrack_and_run_missing:
             self._backtrack_and_run_missing = False
+            jobs_to_run = []
+            estimated_time = 0
+            # gather jobs that we want to run and skip the jobs that already
+            # have result, this is only needed when we run over the list of
+            # jobs again, after discovering new jobs via the local job output
             for job in self.state.run_list:
                 job_state = self.state.job_state_map[job.id]
-                # Skip jobs that already have result, this is only needed when
-                # we run over the list of jobs again, after discovering new
-                # jobs via the local job output
                 if job_state.result.outcome is None:
-                    self.run_single_job(job)
+                    jobs_to_run.append(job)
+                    if (job.estimated_duration is not None
+                            and estimated_time is not None):
+                        estimated_time += job.estimated_duration
+                    else:
+                        estimated_time = None
+            for job_no, job in enumerate(jobs_to_run, start=1):
+                print(self.C.header(
+                    _('Running job {} / {}. Estimated time left: {}').format(
+                        job_no, len(jobs_to_run),
+                        seconds_to_human_duration(max(0, estimated_time))
+                        if estimated_time is not None else _("unknown")),
+                    fill='-'))
+                self.run_single_job(job)
+                if (job.estimated_duration is not None
+                        and estimated_time is not None):
+                    estimated_time -= job.estimated_duration
 
     def run_single_job(self, job):
         job_start_time = time.time()
@@ -979,3 +998,9 @@ class RunInvocation(CheckBoxInvocationMixIn):
             job_state.effective_category_id = (
                 self._test_plan.get_effective_category(job))
         self._backtrack_and_run_missing = True
+
+
+def seconds_to_human_duration(seconds: float) -> str:
+    """ Convert ammount of seconds to human readable duration string. """
+    delta = datetime.timedelta(seconds=round(seconds))
+    return str(delta)

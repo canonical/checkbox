@@ -1,9 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # This file is part of Checkbox.
 #
-# Copyright 2014 Canonical Ltd.
+# Copyright 2014-2015 Canonical Ltd.
 # Written by:
 #   Daniel Manrique <roadmr@ubuntu.com>
+#   Sylvain Pineau <sylvain.pineau@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -21,12 +22,7 @@ manage_compiz_plugin
 ====================
 
 This script allows enabling or disabling compiz plugins using
-python-compizconfig as a backend. Changes take effect on the fly.
-
-The script depends on:
-    python-compizconfig
-
-And unfortunately only works on Python 2.x.
+gsettings. Changes take effect on the fly.
 """
 
 from gettext import gettext as _
@@ -34,22 +30,18 @@ import argparse
 import gettext
 import os
 import sys
+import subprocess
 import time
+
+PATH="org.compiz.core:/org/compiz/profiles/unity/plugins/core/"
+KEY="active-plugins"
 
 gettext.textdomain("2013.com.canonical.certification.checkbox")
 gettext.bindtextdomain("2013.com.canonical.certification.checkbox",
                        os.getenv("CHECKBOX_PROVIDER_LOCALE_DIR", None))
 
+plugins = eval(subprocess.check_output(["gsettings", "get", PATH, KEY]))
 
-try:
-    import compizconfig
-except ImportError:
-    raise SystemExit(_("Can't import compizconfig: {}").format(sys.exc_info()[1]))
-
-
-context = compizconfig.Context()
-
-plugins = sorted(context.Plugins.keys())
 parser = argparse.ArgumentParser(description=_("enable/disable compiz plugins"),
                                  epilog=_("Available plugins: {}").format(plugins))
 parser.add_argument("plugin", type=str, help=_('Name of plugin to control'))
@@ -58,17 +50,14 @@ parser.add_argument("action", type=str, choices=['enable', 'disable'],
 
 args = parser.parse_args()
 
-
-if args.plugin not in context.Plugins.keys():
-    raise SystemExit(_("Plugin {} doesn't exist").format(args.plugin))
-
 if args.action == 'enable':
-    state = 1
+    if args.plugin in plugins:
+        raise SystemExit(_("Plugin {} already enabled").format(args.plugin))
+    plugins.append(args.plugin)
 else:
-    state = 0
+    if args.plugin not in plugins:
+        raise SystemExit(_("Plugin {} doesn't exist").format(args.plugin))
+    plugins.remove(args.plugin)
+subprocess.call(["gsettings", "set", PATH, KEY, str(plugins)])
 
-print(_("Setting {plugin} enabled status to {status}").format(plugin=args.plugin,
-                                                           status=state))
-context.Plugins[args.plugin].Enabled = state
 time.sleep(3)
-print(_("New status is {status}").format(status=context.Plugins[args.plugin].Enabled))

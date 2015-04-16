@@ -97,6 +97,32 @@ command:
  EOF
 
 plugin: user-interact-verify
+id: audio/playback_thunderbolt
+estimated_duration: 30.0
+imports: from 2013.com.canonical.plainbox import manifest
+requires:
+ manifest.has_thunderbolt == 'True'
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+command:
+  audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings set --verbose --device=hdmi --volume=50
+  gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+  EXIT_CODE=$?
+  audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  exit $EXIT_CODE
+_description:
+ PURPOSE:
+     Thunderbolt audio interface verification
+ STEPS:
+     1. Plug an external Thunderbolt device with sound (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+     2. Click the Test button
+ VERIFICATION:
+     Did you hear the sound from the Thunderbolt device?
+
+plugin: user-interact-verify
 id: audio/playback_headphones
 estimated_duration: 20.0
 depends: audio/list_devices

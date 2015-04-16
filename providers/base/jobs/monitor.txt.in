@@ -175,3 +175,20 @@ command:
       Was your screen dimmed approximately to half of the maximum brightness?
 EOF
 
+plugin: manual
+id: monitor/thunderbolt
+imports: from 2013.com.canonical.plainbox import manifest
+requires: manifest.has_thunderbolt == 'True'
+_summary: Display connected via Thunderbolt
+_description:
+ PURPOSE:
+     This test will check your Thunderbolt port as a monitor interconnect.
+ STEPS:
+     1. Connect a display (if not already connected) to the Thunderbolt port on
+        your system
+     2. Switch display modes between in your Display Settings, check if it can be
+        set to mirrored, extended, displayed on external or onboard only
+ VERIFICATION:
+     Was the desktop displayed correctly on the Thunderbolt-connected screen in
+     every mode?
+

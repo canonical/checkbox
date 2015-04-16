@@ -22,11 +22,11 @@ depends: touchscreen/nontouch-automated
 estimated_duration: 120.0
 _description:
  PURPOSE:
-     Touchscreen manual detection of multitouch.
+     Touchscreen capability manual detection.
  STEPS:
      1. Look at the specifications for your system.
  VERIFICATION:
-     Is the screen supposed to be multitouch?
+     Your screen was detected as a non touch screen. Select PASS if this is correct.
 
 plugin: manual
 id: touchscreen/tap-detect
@@ -57,7 +57,7 @@ plugin: user-interact-verify
 id: touchscreen/multitouch-zoom
 _summary: Check touchscreen pinch gesture for zoom
 depends: touchscreen/multitouch-automated
-command: qmlscene $PLAINBOX_PROVIDER_DATA/touch_zoom_test.qml 2>&1 |grep -o PASS
+command: qmlscene -qt5 $PLAINBOX_PROVIDER_DATA/touch_zoom_test.qml 2>&1 |grep -o PASS
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -72,7 +72,7 @@ plugin: user-interact-verify
 id: touchscreen/multitouch-rotate
 _summary: Check touchscreen pinch gesture for rotate
 depends: touchscreen/multitouch-automated
-command: qmlscene $PLAINBOX_PROVIDER_DATA/touch_rotate_test.qml 2>&1 |grep -o PASS
+command: qmlscene -qt5 $PLAINBOX_PROVIDER_DATA/touch_rotate_test.qml 2>&1 |grep -o PASS
 estimated_duration: 120.0
 _description:
  PURPOSE:
@@ -122,7 +122,7 @@ _description:
      Did you see the green circles around the three fingers?
 command:
     manage_compiz_plugin unityshell disable
-    qmlscene $PLAINBOX_PROVIDER_DATA/touch_tap_test.qml --touchpoints=3 2>&1 | grep -o PASS
+    qmlscene -qt5 $PLAINBOX_PROVIDER_DATA/touch_tap_test.qml --touchpoints=3 2>&1 | grep -o PASS
     EXIT=$?
     manage_compiz_plugin unityshell enable
     exit $EXIT
@@ -141,7 +141,7 @@ _description:
      Did you see the green circles around the four fingers?
 command:
     manage_compiz_plugin unityshell disable
-    qmlscene $PLAINBOX_PROVIDER_DATA/touch_tap_test.qml --touchpoints=4 2>&1 | grep -o PASS
+    qmlscene -qt5 $PLAINBOX_PROVIDER_DATA/touch_tap_test.qml --touchpoints=4 2>&1 | grep -o PASS
     EXIT=$?
     manage_compiz_plugin unityshell enable
     exit $EXIT

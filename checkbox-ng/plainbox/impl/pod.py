@@ -16,8 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 """
-:mod:`plainbox.impl.pod` -- Plain Old Data
-==========================================
+Plain Old Data.
+
+:mod:`plainbox.impl.pod`
+========================
 
 This module contains the :class:`POD` and :class:`Field` classes that simplify
 creation of declarative struct-like data holding classes. POD classes get a
@@ -72,17 +74,19 @@ _logger = getLogger("plainbox.pod")
 
 
 class _Singleton:
-    """
-    A simple object()-like singleton that has a more useful repr()
-    """
+
+    """ A simple object()-like singleton that has a more useful repr(). """
 
     def __repr__(self):
         return self.__class__.__name__
 
 
 class MANDATORY(_Singleton):
+
     """
-    Singleton that can be used as a value in :attr:`Field.initial`.
+    Class for the special MANDATORY object.
+
+    This object can be used as a value in :attr:`Field.initial`.
 
     Using ``MANDATORY`` on a field like that makes the explicit initialization
     of the field mandatory during POD initialization. Please use this value to
@@ -95,7 +99,10 @@ MANDATORY = MANDATORY()
 
 
 class UNSET(_Singleton):
+
     """
+    Class of the special UNSET object.
+
     Singleton that is implicitly assigned to the values of all fields during
     POD initialization. This way all fields will have a value, even early at
     the time a POD is initialized. This can be important if the POD is somehow
@@ -109,6 +116,7 @@ UNSET = UNSET()
 
 
 class Field:
+
     """
     A field in a plain-old-data class.
 
@@ -192,6 +200,7 @@ class Field:
 
     def __init__(self, doc=None, type=None, initial=None, initial_fn=None,
                  notify=False, notify_fn=None, assign_filter_list=None):
+        """ Initialize (define) a new POD field. """
         self.__doc__ = dedent(doc) if doc is not None else None
         self.type = type
         self.initial = initial
@@ -212,13 +221,12 @@ class Field:
                 + '\n'.join('  - {}'.format(extra) for extra in doc_extra))
 
     def __repr__(self):
+        """ Get a debugging representation of a field. """
         return "<{} name:{!r}>".format(self.__class__.__name__, self.name)
 
     @property
     def is_mandatory(self) -> bool:
-        """
-        Flag indicating if the field needs a mandatory initializer.
-        """
+        """ Flag indicating if the field needs a mandatory initializer. """
         return self.initial is MANDATORY
 
     def gain_name(self, name: str) -> None:
@@ -313,7 +321,10 @@ class Field:
 
 
 class _FieldCollection:
+
     """
+    Support class for constructing POD meta-data information.
+
     Helper class that simplifies :class:`PODMeta` code that harvests
     :class:`Field` instances during class construction. Looking at the
     namespace and a list of base classes come up with a list of Field objects
@@ -332,6 +343,8 @@ class _FieldCollection:
 
     def inspect_base_classes(self, base_cls_list: "List[type]") -> None:
         """
+        Analyze base classes of a POD class.
+
         Analyze a list of base classes and check if they have consistent
         fields.  All analyzed fields are added to the internal data structures.
 
@@ -347,6 +360,8 @@ class _FieldCollection:
 
     def inspect_namespace(self, namespace: dict, cls_name: str) -> None:
         """
+        Analyze namespace of a POD class.
+
         Analyze a namespace of a newly (being formed) class and check if it has
         consistent fields. All analyzed fields are added to the internal data
         structures.
@@ -362,7 +377,7 @@ class _FieldCollection:
 
     def get_namedtuple_cls(self, name: str) -> type:
         """
-        Create a new namedtuple that corresponds to the fields seen so far
+        Create a new namedtuple that corresponds to the fields seen so far.
 
         :parm name:
             Name of the namedtuple class
@@ -393,6 +408,7 @@ class _FieldCollection:
 
 
 class PODMeta(type):
+
     """
     Meta-class for all POD classes.
 
@@ -415,6 +431,8 @@ class PODMeta(type):
     @classmethod
     def __prepare__(mcls, name, bases, **kwargs):
         """
+        Get a namespace for defining new POD classes.
+
         Prepare the namespace for the definition of a class using PODMeta as a
         meta-class. Since we want to observe the order of fields, using an
         OrderedDict makes that task trivial.
@@ -554,6 +572,8 @@ class POD(metaclass=PODMeta):
 
 def modify_field_docstring(field_docstring_ext: str):
     """
+    Decorator for altering field docstrings via assign filter functions.
+
     A decorator for assign filter functions that allows them to declaratively
     modify the docstring of the field they are used on.
 
@@ -581,7 +601,7 @@ def modify_field_docstring(field_docstring_ext: str):
 def read_only_assign_filter(
         instance: POD, field: Field, old: "Any", new: "Any") -> "Any":
     """
-    An assign filter that makes a field read-only
+    An assign filter that makes a field read-only.
 
     The field can be only assigned if the old value is ``UNSET``, that is,
     during the initial construction of a POD object.
@@ -639,7 +659,7 @@ def type_convert_assign_filter(
 def type_check_assign_filter(
         instance: POD, field: Field, old: "Any", new: "Any") -> "Any":
     """
-    An assign filter that type-checks the value according to the field type
+    An assign filter that type-checks the value according to the field type.
 
     The field must have a valid python type object stored in the .type field.
 
@@ -666,7 +686,10 @@ typed = type_check_assign_filter
 
 
 class sequence_type_check_assign_filter:
+
     """
+    Assign filter for typed sequences.
+
     An assign filter for typed sequences (lists or tuples) that must contain an
     object of the given type.
     """
@@ -689,7 +712,7 @@ class sequence_type_check_assign_filter:
             self, instance: POD, field: Field, old: "Any", new: "Any"
     ) -> "Any":
         """
-        An assign filter that type-checks the value of all sequence elements
+        An assign filter that type-checks the value of all sequence elements.
 
         :param instance:
             A subclass of :class:`POD` that contains ``field``

@@ -16,8 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 """
-:mod:`plainbox.impl.pod` -- Plain Old Data
-==========================================
+Plain Old Data.
+
+:mod:`plainbox.impl.pod`
+========================
 
 This module contains the :class:`POD` and :class:`Field` classes that simplify
 creation of declarative struct-like data holding classes. POD classes get a
@@ -63,26 +65,28 @@ from textwrap import dedent
 from plainbox.i18n import gettext as _
 from plainbox.vendor.morris import signal
 
-__all__ = ['POD', 'Field', 'MANDATORY', 'UNSET', 'read_only_assign_filter',
-           'type_convert_assign_filter', 'type_check_assign_filter',
-           'modify_field_docstring']
+__all__ = ('POD', 'PODBase', 'podify', 'Field', 'MANDATORY', 'UNSET',
+           'read_only_assign_filter', 'type_convert_assign_filter',
+           'type_check_assign_filter', 'modify_field_docstring')
 
 
 _logger = getLogger("plainbox.pod")
 
 
 class _Singleton:
-    """
-    A simple object()-like singleton that has a more useful repr()
-    """
+
+    """ A simple object()-like singleton that has a more useful repr(). """
 
     def __repr__(self):
         return self.__class__.__name__
 
 
 class MANDATORY(_Singleton):
+
     """
-    Singleton that can be used as a value in :attr:`Field.initial`.
+    Class for the special MANDATORY object.
+
+    This object can be used as a value in :attr:`Field.initial`.
 
     Using ``MANDATORY`` on a field like that makes the explicit initialization
     of the field mandatory during POD initialization. Please use this value to
@@ -95,7 +99,10 @@ MANDATORY = MANDATORY()
 
 
 class UNSET(_Singleton):
+
     """
+    Class of the special UNSET object.
+
     Singleton that is implicitly assigned to the values of all fields during
     POD initialization. This way all fields will have a value, even early at
     the time a POD is initialized. This can be important if the POD is somehow
@@ -109,6 +116,7 @@ UNSET = UNSET()
 
 
 class Field:
+
     """
     A field in a plain-old-data class.
 
@@ -190,8 +198,11 @@ class Field:
     assigned to the POD.
     """
 
+    _counter = 0
+
     def __init__(self, doc=None, type=None, initial=None, initial_fn=None,
                  notify=False, notify_fn=None, assign_filter_list=None):
+        """ Initialize (define) a new POD field. """
         self.__doc__ = dedent(doc) if doc is not None else None
         self.type = type
         self.initial = initial
@@ -210,15 +221,16 @@ class Field:
             self.__doc__ += (
                 '\n\nSide effects of assign filters:\n'
                 + '\n'.join('  - {}'.format(extra) for extra in doc_extra))
+        self.counter = self.__class__._counter
+        self.__class__._counter += 1
 
     def __repr__(self):
+        """ Get a debugging representation of a field. """
         return "<{} name:{!r}>".format(self.__class__.__name__, self.name)
 
     @property
     def is_mandatory(self) -> bool:
-        """
-        Flag indicating if the field needs a mandatory initializer.
-        """
+        """ Flag indicating if the field needs a mandatory initializer. """
         return self.initial is MANDATORY
 
     def gain_name(self, name: str) -> None:
@@ -252,7 +264,8 @@ class Field:
         assert self.signal_name is not None
         if not hasattr(cls, self.signal_name):
             signal_def = signal(
-                self.notify_fn if self.notify_fn is not None else self.on_changed,
+                self.notify_fn if self.notify_fn is not None
+                else self.on_changed,
                 signal_name='{}.{}'.format(cls.__name__, self.signal_name))
             setattr(cls, self.signal_name, signal_def)
 
@@ -312,142 +325,13 @@ class Field:
                       self.signal_name, old, new)
 
 
-class _FieldCollection:
-    """
-    Helper class that simplifies :class:`PODMeta` code that harvests
-    :class:`Field` instances during class construction. Looking at the
-    namespace and a list of base classes come up with a list of Field objects
-    that belong to the given POD.
-
-    :attr field_list:
-        A list of :class:`Field` instances
-    :attr field_origin_map:
-        A dictionary mapping from field name to the *name* of the class that
-        defines it.
-    """
-
-    def __init__(self):
-        self.field_list = []
-        self.field_origin_map = {}  # field name -> defining class name
-
-    def inspect_base_classes(self, base_cls_list: "List[type]") -> None:
-        """
-        Analyze a list of base classes and check if they have consistent
-        fields.  All analyzed fields are added to the internal data structures.
-
-        :param base_cls_list:
-            A list of classes to inspect. Only subclasses of POD are inspected.
-        """
-        for base_cls in base_cls_list:
-            if not issubclass(base_cls, POD):
-                continue
-            base_cls_name = base_cls.__name__
-            for field in base_cls.field_list:
-                self.add_field(field, base_cls_name)
-
-    def inspect_namespace(self, namespace: dict, cls_name: str) -> None:
-        """
-        Analyze a namespace of a newly (being formed) class and check if it has
-        consistent fields. All analyzed fields are added to the internal data
-        structures.
-
-        .. note::
-            This method calls :meth:`Field.gain_name()` on all fields it finds.
-        """
-        for field_name, field in namespace.items():
-            if not isinstance(field, Field):
-                continue
-            field.gain_name(field_name)
-            self.add_field(field, cls_name)
-
-    def get_namedtuple_cls(self, name: str) -> type:
-        """
-        Create a new namedtuple that corresponds to the fields seen so far
-
-        :parm name:
-            Name of the namedtuple class
-        :returns:
-            A new namedtuple class
-        """
-        return namedtuple(name, [field.name for field in self.field_list])
-
-    def add_field(self, field: Field, base_cls_name: str) -> None:
-        """
-        Add a field to the collection.
-
-        :param field:
-            A :class:`Field` instance
-        :param base_cls_name:
-            The name of the class that defines the field
-        :raises TypeError:
-            If any of the base classes have overlapping fields.
-        """
-        assert field.name is not None
-        field_name = field.name
-        if field_name not in self.field_origin_map:
-            self.field_origin_map[field_name] = base_cls_name
-            self.field_list.append(field)
-        else:
-            raise TypeError("field {1}.{0} clashes with {2}.{0}".format(
-                field_name, base_cls_name, self.field_origin_map[field_name]))
-
-
-class PODMeta(type):
-    """
-    Meta-class for all POD classes.
-
-    This meta-class is responsible for correctly handling field inheritance.
-    This class sets up ``field_list`` and ``namedtuple_cls`` attributes on the
-    newly-created class.
-    """
-
-    def __new__(mcls, name, bases, namespace):
-        fc = _FieldCollection()
-        fc.inspect_base_classes(bases)
-        fc.inspect_namespace(namespace, name)
-        namespace['field_list'] = fc.field_list
-        namespace['namedtuple_cls'] = fc.get_namedtuple_cls(name)
-        cls = super().__new__(mcls, name, bases, namespace)
-        for field in fc.field_list:
-            field.alter_cls(cls)
-        return cls
-
-    @classmethod
-    def __prepare__(mcls, name, bases, **kwargs):
-        """
-        Prepare the namespace for the definition of a class using PODMeta as a
-        meta-class. Since we want to observe the order of fields, using an
-        OrderedDict makes that task trivial.
-        """
-        return OrderedDict()
-
-
 @total_ordering
-class POD(metaclass=PODMeta):
-    """
-    Base class that removes boilerplate from plain-old-data classes.
+class PODBase:
 
-    Use POD as your base class and define :class:`Field` objects inside.  Don't
-    define any __init__() (unless you really, really have to have one) and
-    instead set appropriate attributes on the initializer of a particular field
-    object.
+    """ Base class for POD-like classes. """
 
-    What you get for *free* is, all the properties (for each field),
-    documentation, initializer, comparison methods (PODs have total ordering)
-    and the __repr__() method.
-
-    There are some additional methods, such as :meth:`as_tuple()` and
-    :meth:`as_dict()` that may be of use in some circumstances.
-
-    All fields in a single POD subclass are collected (including all of the
-    fields in the parent classes) and arranged in a list. That list is
-    available as ``POD.field_list``.
-
-    In addition each POD class has an unique named tuple that corresponds to
-    each field stored inside the POD, the named tuple is available as
-    ``POD.namedtuple_cls``. The return value of :meth:`as_tuple()` actually
-    uses that type.
-    """
+    field_list = []
+    namedtuple_cls = namedtuple('PODBase', '')
 
     def __init__(self, *args, **kwargs):
         """
@@ -502,6 +386,7 @@ class POD(metaclass=PODMeta):
             setattr(self, field.name, field_value)
 
     def __repr__(self):
+        """ Get a debugging representation of a POD object. """
         return "{}({})".format(
             self.__class__.__name__,
             ', '.join([
@@ -510,7 +395,7 @@ class POD(metaclass=PODMeta):
 
     def __eq__(self, other: "POD") -> bool:
         """
-        Check that this POD is equal to another POD
+        Check that this POD is equal to another POD.
 
         POD comparison is implemented by converting them to tuples and
         comparing the two tuples.
@@ -543,17 +428,194 @@ class POD(metaclass=PODMeta):
         ])
 
     def as_dict(self) -> dict:
-        """
-        Return the data in this POD as a dictionary
-        """
+        """ Return the data in this POD as a dictionary. """
         return {
             field.name: getattr(self, field.name)
             for field in self.__class__.field_list
         }
 
 
+class _FieldCollection:
+
+    """
+    Support class for constructing POD meta-data information.
+
+    Helper class that simplifies :class:`PODMeta` code that harvests
+    :class:`Field` instances during class construction. Looking at the
+    namespace and a list of base classes come up with a list of Field objects
+    that belong to the given POD.
+
+    :attr field_list:
+        A list of :class:`Field` instances
+    :attr field_origin_map:
+        A dictionary mapping from field name to the *name* of the class that
+        defines it.
+    """
+
+    def __init__(self):
+        self.field_list = []
+        self.field_origin_map = {}  # field name -> defining class name
+
+    def inspect_cls_for_decorator(self, cls: type) -> None:
+        """ Analyze a bare POD class. """
+        self.inspect_base_classes(cls.__bases__)
+        self.inspect_namespace(cls.__dict__, cls.__name__)
+
+    def inspect_base_classes(self, base_cls_list: "List[type]") -> None:
+        """
+        Analyze base classes of a POD class.
+
+        Analyze a list of base classes and check if they have consistent
+        fields.  All analyzed fields are added to the internal data structures.
+
+        :param base_cls_list:
+            A list of classes to inspect. Only subclasses of POD are inspected.
+        """
+        for base_cls in base_cls_list:
+            if not issubclass(base_cls, PODBase):
+                continue
+            base_cls_name = base_cls.__name__
+            for field in base_cls.field_list:
+                self.add_field(field, base_cls_name)
+
+    def inspect_namespace(self, namespace: dict, cls_name: str) -> None:
+        """
+        Analyze namespace of a POD class.
+
+        Analyze a namespace of a newly (being formed) class and check if it has
+        consistent fields. All analyzed fields are added to the internal data
+        structures.
+
+        .. note::
+            This method calls :meth:`Field.gain_name()` on all fields it finds.
+        """
+        fields = []
+        for field_name, field in namespace.items():
+            if not isinstance(field, Field):
+                continue
+            field.gain_name(field_name)
+            fields.append(field)
+        fields.sort(key=lambda field: field.counter)
+        for field in fields:
+            self.add_field(field, cls_name)
+
+    def get_namedtuple_cls(self, name: str) -> type:
+        """
+        Create a new namedtuple that corresponds to the fields seen so far.
+
+        :parm name:
+            Name of the namedtuple class
+        :returns:
+            A new namedtuple class
+        """
+        return namedtuple(name, [field.name for field in self.field_list])
+
+    def add_field(self, field: Field, base_cls_name: str) -> None:
+        """
+        Add a field to the collection.
+
+        :param field:
+            A :class:`Field` instance
+        :param base_cls_name:
+            The name of the class that defines the field
+        :raises TypeError:
+            If any of the base classes have overlapping fields.
+        """
+        assert field.name is not None
+        field_name = field.name
+        if field_name not in self.field_origin_map:
+            self.field_origin_map[field_name] = base_cls_name
+            self.field_list.append(field)
+        else:
+            raise TypeError("field {1}.{0} clashes with {2}.{0}".format(
+                field_name, base_cls_name, self.field_origin_map[field_name]))
+
+
+class PODMeta(type):
+
+    """
+    Meta-class for all POD classes.
+
+    This meta-class is responsible for correctly handling field inheritance.
+    This class sets up ``field_list`` and ``namedtuple_cls`` attributes on the
+    newly-created class.
+    """
+
+    def __new__(mcls, name, bases, namespace):
+        fc = _FieldCollection()
+        fc.inspect_base_classes(bases)
+        fc.inspect_namespace(namespace, name)
+        namespace['field_list'] = fc.field_list
+        namespace['namedtuple_cls'] = fc.get_namedtuple_cls(name)
+        cls = super().__new__(mcls, name, bases, namespace)
+        for field in fc.field_list:
+            field.alter_cls(cls)
+        return cls
+
+    @classmethod
+    def __prepare__(mcls, name, bases, **kwargs):
+        """
+        Get a namespace for defining new POD classes.
+
+        Prepare the namespace for the definition of a class using PODMeta as a
+        meta-class. Since we want to observe the order of fields, using an
+        OrderedDict makes that task trivial.
+        """
+        return OrderedDict()
+
+
+def podify(cls):
+    """
+    Decorator for POD classes.
+
+    The decorator offers an alternative from using the POD class (with the
+    PODMeta meta-class). Instead of using that, one can use the ``@podify``
+    decorator on a PODBase-derived class.
+    """
+    if not isinstance(cls, type) or not issubclass(cls, PODBase):
+        raise TypeError("cls must be a subclass of PODBase")
+    fc = _FieldCollection()
+    fc.inspect_cls_for_decorator(cls)
+    cls.field_list = fc.field_list
+    cls.namedtuple_cls = fc.get_namedtuple_cls(cls.__name__)
+    for field in fc.field_list:
+        field.alter_cls(cls)
+    return cls
+
+
+@total_ordering
+class POD(PODBase, metaclass=PODMeta):
+
+    """
+    Base class that removes boilerplate from plain-old-data classes.
+
+    Use POD as your base class and define :class:`Field` objects inside.  Don't
+    define any __init__() (unless you really, really have to have one) and
+    instead set appropriate attributes on the initializer of a particular field
+    object.
+
+    What you get for *free* is, all the properties (for each field),
+    documentation, initializer, comparison methods (PODs have total ordering)
+    and the __repr__() method.
+
+    There are some additional methods, such as :meth:`as_tuple()` and
+    :meth:`as_dict()` that may be of use in some circumstances.
+
+    All fields in a single POD subclass are collected (including all of the
+    fields in the parent classes) and arranged in a list. That list is
+    available as ``POD.field_list``.
+
+    In addition each POD class has an unique named tuple that corresponds to
+    each field stored inside the POD, the named tuple is available as
+    ``POD.namedtuple_cls``. The return value of :meth:`as_tuple()` actually
+    uses that type.
+    """
+
+
 def modify_field_docstring(field_docstring_ext: str):
     """
+    Decorator for altering field docstrings via assign filter functions.
+
     A decorator for assign filter functions that allows them to declaratively
     modify the docstring of the field they are used on.
 
@@ -581,7 +643,7 @@ def modify_field_docstring(field_docstring_ext: str):
 def read_only_assign_filter(
         instance: POD, field: Field, old: "Any", new: "Any") -> "Any":
     """
-    An assign filter that makes a field read-only
+    An assign filter that makes a field read-only.
 
     The field can be only assigned if the old value is ``UNSET``, that is,
     during the initial construction of a POD object.
@@ -639,7 +701,7 @@ def type_convert_assign_filter(
 def type_check_assign_filter(
         instance: POD, field: Field, old: "Any", new: "Any") -> "Any":
     """
-    An assign filter that type-checks the value according to the field type
+    An assign filter that type-checks the value according to the field type.
 
     The field must have a valid python type object stored in the .type field.
 
@@ -666,7 +728,10 @@ typed = type_check_assign_filter
 
 
 class sequence_type_check_assign_filter:
+
     """
+    Assign filter for typed sequences.
+
     An assign filter for typed sequences (lists or tuples) that must contain an
     object of the given type.
     """
@@ -689,7 +754,7 @@ class sequence_type_check_assign_filter:
             self, instance: POD, field: Field, old: "Any", new: "Any"
     ) -> "Any":
         """
-        An assign filter that type-checks the value of all sequence elements
+        An assign filter that type-checks the value of all sequence elements.
 
         :param instance:
             A subclass of :class:`POD` that contains ``field``

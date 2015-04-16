@@ -26,6 +26,7 @@
 
 from shutil import copyfileobj
 import collections
+import datetime
 import io
 import itertools
 import logging
@@ -979,3 +980,9 @@ class RunInvocation(CheckBoxInvocationMixIn):
             job_state.effective_category_id = (
                 self._test_plan.get_effective_category(job))
         self._backtrack_and_run_missing = True
+
+
+def seconds_to_human_duration(seconds: float) -> str:
+    """ Convert ammount of seconds to human readable duration string. """
+    delta = datetime.timedelta(seconds=round(seconds))
+    return str(delta)

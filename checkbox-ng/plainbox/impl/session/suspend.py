@@ -1,13 +1,12 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012, 2013 Canonical Ltd.
+# Copyright 2012-2015 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -18,6 +17,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+Implementation of session suspend feature.
+
 :mod:`plainbox.impl.session.suspend` -- session suspend support
 ===============================================================
 
@@ -79,12 +80,15 @@ Serialization format versions
    :attr:`plainbox.impl.session.state.SessionMetaData.app_id`
 4) Same as '3' but hollow results are not saved and jobs that only
    have hollow results are not mentioned in the job -> checksum map.
+5) Same as '4' but DiskJobResult is stored with a relative pathname to the log
+   file if session_dir is provided.
 """
 
+import base64
 import gzip
 import json
 import logging
-import base64
+import os
 
 from plainbox.impl.result import DiskJobResult
 from plainbox.impl.result import MemoryJobResult
@@ -93,6 +97,7 @@ logger = logging.getLogger("plainbox.session.suspend")
 
 
 class SessionSuspendHelper1:
+
     """
     Helper class for computing binary representation of a session.
 
@@ -105,14 +110,24 @@ class SessionSuspendHelper1:
 
     VERSION = 1
 
-    def suspend(self, session):
+    def suspend(self, session, session_dir=None):
         """
+        Compute suspend representation.
+
         Compute the data that is saved by :class:`SessionStorage` as a
         part of :meth:`SessionStorage.save_checkpoint()`.
 
+        :param session:
+            The SessionState object to represent.
+        :param session_dir:
+            (optional) The base directory of the session. If this argument is
+            used then it can alter the representation of some objects related
+            to filesystem artefacts. It is recommended to always pass the
+            session directory.
+
         :returns bytes: the serialized data
         """
-        json_repr = self._json_repr(session)
+        json_repr = self._json_repr(session, session_dir)
         data = json.dumps(
             json_repr,
             ensure_ascii=False,
@@ -123,7 +138,7 @@ class SessionSuspendHelper1:
         # NOTE: gzip.compress is not deterministic on python3.2
         return gzip.compress(data)
 
-    def _json_repr(self, session):
+    def _json_repr(self, session, session_dir):
         """
         Compute the representation of all of the data that needs to be saved.
 
@@ -144,12 +159,12 @@ class SessionSuspendHelper1:
         """
         return {
             "version": self.VERSION,
-            "session": self._repr_SessionState(session),
+            "session": self._repr_SessionState(session, session_dir),
         }
 
-    def _repr_SessionState(self, obj):
+    def _repr_SessionState(self, obj, session_dir):
         """
-        Compute the representation of :class:`SessionState`
+        Compute the representation of SessionState.
 
         :returns:
             JSON-friendly representation
@@ -183,18 +198,18 @@ class SessionSuspendHelper1:
             "results": {
                 # Currently we store only one result but we may store
                 # more than that in a later version.
-                state.job.id: [self._repr_JobResult(state.result)]
+                state.job.id: [self._repr_JobResult(state.result, session_dir)]
                 for state in obj.job_state_map.values()
             },
             "desired_job_list": [
                 job.id for job in obj.desired_job_list
             ],
-            "metadata": self._repr_SessionMetaData(obj.metadata),
+            "metadata": self._repr_SessionMetaData(obj.metadata, session_dir),
         }
 
-    def _repr_SessionMetaData(self, obj):
+    def _repr_SessionMetaData(self, obj, session_dir):
         """
-        Compute the representation of :class:`SessionMetaData`.
+        Compute the representation of SessionMetaData.
 
         :returns:
             JSON-friendly representation.
@@ -222,21 +237,19 @@ class SessionSuspendHelper1:
             "running_job_name": obj.running_job_name
         }
 
-    def _repr_JobResult(self, obj):
-        """
-        Compute the representation of one of IJobResult subclasses
-        """
+    def _repr_JobResult(self, obj, session_dir):
+        """ Compute the representation of one of IJobResult subclasses.  """
         if isinstance(obj, DiskJobResult):
-            return self._repr_DiskJobResult(obj)
+            return self._repr_DiskJobResult(obj, session_dir)
         elif isinstance(obj, MemoryJobResult):
-            return self._repr_MemoryJobResult(obj)
+            return self._repr_MemoryJobResult(obj, session_dir)
         else:
             raise TypeError(
                 "_repr_JobResult() supports DiskJobResult or MemoryJobResult")
 
-    def _repr_JobResultBase(self, obj):
+    def _repr_JobResultBase(self, obj, session_dir):
         """
-        Compute the representation of :class:`plainbox.impl.job._JobResultBase`
+        Compute the representation of _JobResultBase.
 
         :returns:
             JSON-friendly representation
@@ -268,10 +281,9 @@ class SessionSuspendHelper1:
             "return_code": obj.return_code,
         }
 
-    def _repr_MemoryJobResult(self, obj):
+    def _repr_MemoryJobResult(self, obj, session_dir):
         """
-        Compute the representation of
-        :class:`plainbox.impl.job.MemoryJobResult`
+        Compute the representation of MemoryJobResult.
 
         :returns:
             JSON-friendly representation
@@ -285,16 +297,16 @@ class SessionSuspendHelper1:
                 Representation of the list of IO Log records
         """
         assert isinstance(obj, MemoryJobResult)
-        result = self._repr_JobResultBase(obj)
+        result = self._repr_JobResultBase(obj, session_dir)
         result.update({
             "io_log": [self._repr_IOLogRecord(record)
                        for record in obj.io_log],
         })
         return result
 
-    def _repr_DiskJobResult(self, obj):
+    def _repr_DiskJobResult(self, obj, session_dir):
         """
-        Compute the representation of :class:`plainbox.impl.job.DiskJobResult`
+        Compute the representation of DiskJobResult.
 
         :returns:
             JSON-friendly representation
@@ -308,7 +320,7 @@ class SessionSuspendHelper1:
                 The name of the file that keeps the serialized IO log
         """
         assert isinstance(obj, DiskJobResult)
-        result = self._repr_JobResultBase(obj)
+        result = self._repr_JobResultBase(obj, session_dir)
         result.update({
             "io_log_filename": obj.io_log_filename,
         })
@@ -316,8 +328,7 @@ class SessionSuspendHelper1:
 
     def _repr_IOLogRecord(self, obj):
         """
-        Compute the representation of
-        :class:`plainbox.impl.result.IOLogRecord`
+        Compute the representation of IOLogRecord.
 
         :returns:
             JSON-friendly representation
@@ -337,6 +348,7 @@ class SessionSuspendHelper1:
 
 
 class SessionSuspendHelper2(SessionSuspendHelper1):
+
     """
     Helper class for computing binary representation of a session.
 
@@ -349,7 +361,7 @@ class SessionSuspendHelper2(SessionSuspendHelper1):
 
     VERSION = 2
 
-    def _repr_SessionMetaData(self, obj):
+    def _repr_SessionMetaData(self, obj, session_dir):
         """
         Compute the representation of :class:`SessionMetaData`.
 
@@ -377,7 +389,8 @@ class SessionSuspendHelper2(SessionSuspendHelper1):
                 Arbitrary application specific binary blob encoded with base64.
                 This field may be null.
         """
-        data = super(SessionSuspendHelper2, self)._repr_SessionMetaData(obj)
+        data = super(SessionSuspendHelper2, self)._repr_SessionMetaData(
+            obj, session_dir)
         if obj.app_blob is None:
             data['app_blob'] = None
         else:
@@ -388,6 +401,7 @@ class SessionSuspendHelper2(SessionSuspendHelper1):
 
 
 class SessionSuspendHelper3(SessionSuspendHelper2):
+
     """
     Helper class for computing binary representation of a session.
 
@@ -400,7 +414,7 @@ class SessionSuspendHelper3(SessionSuspendHelper2):
 
     VERSION = 3
 
-    def _repr_SessionMetaData(self, obj):
+    def _repr_SessionMetaData(self, obj, session_dir):
         """
         Compute the representation of :class:`SessionMetaData`.
 
@@ -432,12 +446,14 @@ class SessionSuspendHelper3(SessionSuspendHelper2):
                 A string identifying the application that stored app_blob.
                 Thirs field may be null.
         """
-        data = super(SessionSuspendHelper3, self)._repr_SessionMetaData(obj)
+        data = super(SessionSuspendHelper3, self)._repr_SessionMetaData(
+            obj, session_dir)
         data['app_id'] = obj.app_id
         return data
 
 
 class SessionSuspendHelper4(SessionSuspendHelper3):
+
     """
     Helper class for computing binary representation of a session.
 
@@ -450,9 +466,9 @@ class SessionSuspendHelper4(SessionSuspendHelper3):
 
     VERSION = 4
 
-    def _repr_SessionState(self, obj):
+    def _repr_SessionState(self, obj, session_dir):
         """
-        Compute the representation of :class:`SessionState`
+        Compute the representation of :class:`SessionState`.
 
         :returns:
             JSON-friendly representation
@@ -496,16 +512,53 @@ class SessionSuspendHelper4(SessionSuspendHelper3):
             "results": {
                 # Currently we store only one result but we may store
                 # more than that in a later version.
-                state.job.id: [self._repr_JobResult(state.result)]
+                state.job.id: [self._repr_JobResult(state.result, session_dir)]
                 for state in obj.job_state_map.values()
                 if not state.result.is_hollow
             },
             "desired_job_list": [
                 job.id for job in obj.desired_job_list
             ],
-            "metadata": self._repr_SessionMetaData(obj.metadata),
+            "metadata": self._repr_SessionMetaData(obj.metadata, session_dir),
         }
 
 
+class SessionSuspendHelper5(SessionSuspendHelper4):
+
+    """
+    Helper class for computing binary representation of a session.
+
+    The helper only creates a bytes object to save. Actual saving should
+    be performed using some other means, preferably using
+    :class:`~plainbox.impl.session.storage.SessionStorage`.
+
+    This class creates version '5' snapshots.
+    """
+
+    VERSION = 5
+
+    def _repr_DiskJobResult(self, obj, session_dir):
+        """
+        Compute the representation of DiskJobResult.
+
+        :returns:
+            JSON-friendly representation
+        :rtype:
+            dict
+
+        The dictionary has the following keys *in addition to* what is
+        produced by :meth:`_repr_JobResultBase()`:
+
+            ``io_log_filename``
+                The path of the file that keeps the serialized IO log relative
+                to the session directory.
+        """
+        result = super()._repr_DiskJobResult(obj, session_dir)
+        if session_dir is not None:
+            result["io_log_filename"] = os.path.relpath(
+                obj.io_log_filename, session_dir)
+        return result
+
+
 # Alias for the most recent version
-SessionSuspendHelper = SessionSuspendHelper4
+SessionSuspendHelper = SessionSuspendHelper5

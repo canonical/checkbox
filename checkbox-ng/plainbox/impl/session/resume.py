@@ -172,6 +172,8 @@ class SessionPeekHelper(EnvelopeUnpackMixIn):
             return SessionPeekHelper3().peek_json(json_repr)
         elif version == 4:
             return SessionPeekHelper4().peek_json(json_repr)
+        elif version == 5:
+            return SessionPeekHelper5().peek_json(json_repr)
         else:
             raise IncompatibleSessionError(
                 _("Unsupported version {}").format(version))
@@ -186,9 +188,48 @@ class SessionResumeHelper(EnvelopeUnpackMixIn):
     appropriate, format specific, resume class.
     """
 
-    def __init__(self, job_list, flags=None, location=None):
+    def __init__(
+        self, job_list: 'List[JobDefinition]',
+        flags: 'Optional[Iterable[str]]', location: 'Optional[str]'
+    ):
         """
-        Initialize the helper with a list of known jobs.
+        Initialize the helper with a list of known jobs and support data.
+
+        :param job_list:
+            List of known jobs
+        :param flags:
+            Any iterable object with string versions of resume support flags.
+            This can be None, if the application doesn't wish to enable any of
+            the feature flags.
+        :param location:
+            Location of the session directory. This is the same as
+            ``session_dir`` in the corresponding suspend API. It is also the
+            same as ``storage.location`` (where ``storage`` is a
+            :class:`plainbox.impl.session.storage.SessionStorage` object.
+
+        Applicable flags are ``FLAG_FILE_REFERENCE_CHECKS_S``,
+        ``FLAG_REWRITE_LOG_PATHNAMES_S`` and ``FLAG_IGNORE_JOB_CHECKSUMS_S``.
+        Their meaning is described below.
+
+        ``FLAG_FILE_REFERENCE_CHECKS_S``:
+            Flag controlling reference checks from within the session file to
+            external files. If enabled such checks are performed and can cause
+            additional exceptions to be raised. Currently this only affects the
+            representation of the DiskJobResult instances.
+
+        ``FLAG_REWRITE_LOG_PATHNAMES_S``:
+            Flag controlling rewriting of log file pathnames. It depends on the
+            location to be non-None and then rewrites pathnames of all them
+            missing log files to be relative to the session storage location.
+            It effectively depends on FLAG_FILE_REFERENCE_CHECKS_F being set at
+            the same time, otherwise it is ignored.
+
+        ``FLAG_IGNORE_JOB_CHECKSUMS_S``:
+            Flag controlling integrity checks between jobs present at resume
+            time and jobs present at suspend time. Since providers cannot be
+            serialized (nor should they) this integrity check prevents anyone
+            from resuming a session if job definitions have changed. Using this
+            flag effectively disables that check.
         """
         self.job_list = job_list
         logger.debug("Session Resume Helper started with jobs: %r", job_list)
@@ -253,6 +294,9 @@ class SessionResumeHelper(EnvelopeUnpackMixIn):
                 self.job_list, self.flags, self.location)
         elif version == 4:
             helper = SessionResumeHelper4(
+                self.job_list, self.flags, self.location)
+        elif version == 5:
+            helper = SessionResumeHelper5(
                 self.job_list, self.flags, self.location)
         else:
             raise IncompatibleSessionError(
@@ -423,6 +467,19 @@ class SessionPeekHelper4(SessionPeekHelper3):
     """
 
 
+class SessionPeekHelper5(SessionPeekHelper4):
+    """
+    Helper class for implementing session peek feature
+
+    This class works with data constructed by
+    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper5` which has
+    been pre-processed by :class:`SessionPeekHelper` (to strip the initial
+    envelope).
+
+    The only goal of this class is to reconstruct session state meta-data.
+    """
+
+
 class SessionResumeHelper1(MetaDataHelper1MixIn):
     """
     Helper class for implementing session resume feature
@@ -441,10 +498,10 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
     failure modes are possible. Those are documented in :meth:`resume()`
     """
 
-    # Flag controling reference checks from within the session file to external
-    # files. If enabled such checks are performed and can cause additional
-    # exceptions to be raised. Currently this only affects the representation
-    # of the DiskJobResult instances.
+    # Flag controlling reference checks from within the session file to
+    # external files. If enabled such checks are performed and can cause
+    # additional exceptions to be raised. Currently this only affects the
+    # representation of the DiskJobResult instances.
     FLAG_FILE_REFERENCE_CHECKS_S = 'file-reference-checks'
     FLAG_FILE_REFERENCE_CHECKS_F = 0x01
     # Flag controlling rewriting of log file pathnames. It depends on the
@@ -462,9 +519,27 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
     FLAG_IGNORE_JOB_CHECKSUMS_S = 'ignore-job-checksums'
     FLAG_IGNORE_JOB_CHECKSUMS_F = 0x04
 
-    def __init__(self, job_list, flags=None, location=None):
+    def __init__(
+        self, job_list: 'List[JobDefinition]',
+        flags: 'Optional[Iterable[str]]', location: 'Optional[str]'
+    ):
         """
-        Initialize the helper with a list of known jobs.
+        Initialize the helper with a list of known jobs and support data.
+
+        :param job_list:
+            List of known jobs
+        :param flags:
+            Any iterable object with string versions of resume support flags.
+            This can be None, if the application doesn't wish to enable any of
+            the feature flags.
+        :param location:
+            Location of the session directory. This is the same as
+            ``session_dir`` in the corresponding suspend API. It is also the
+            same as ``storage.location`` (where ``storage`` is a
+            :class:`plainbox.impl.session.storage.SessionStorage` object.
+
+        See :meth:`SessionResumeHelper.__init__()` for description and meaning
+        of each flag.
         """
         self.job_list = job_list
         self.flags = 0
@@ -703,7 +778,7 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
             raise
 
     @classmethod
-    def _build_JobResult(cls, result_repr, flags=0, location=None):
+    def _build_JobResult(cls, result_repr, flags, location):
         """
         Convert the representation of MemoryJobResult or DiskJobResult
         back into an actual instance.
@@ -724,8 +799,8 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
             value_none=True)
         # Construct either DiskJobResult or MemoryJobResult
         if 'io_log_filename' in result_repr:
-            io_log_filename = _validate(
-                result_repr, key='io_log_filename', value_type=str)
+            io_log_filename = cls._load_io_log_filename(
+                result_repr, flags, location)
             if (flags & cls.FLAG_FILE_REFERENCE_CHECKS_F
                     and not os.path.isfile(io_log_filename)
                     and flags & cls.FLAG_REWRITE_LOG_PATHNAMES_F):
@@ -757,6 +832,10 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
                 'io_log': io_log,
                 'return_code': return_code
             })
+
+    @classmethod
+    def _load_io_log_filename(cls, result_repr, flags, location):
+        return _validate(result_repr, key='io_log_filename', value_type=str)
 
     @classmethod
     def _rewrite_pathname(cls, pathname, location):
@@ -848,6 +927,35 @@ class SessionResumeHelper4(SessionResumeHelper3):
     the non-serialized parts of checkbox or other job providers) several
     failure modes are possible. Those are documented in :meth:`resume()`
     """
+
+
+class SessionResumeHelper5(SessionResumeHelper4):
+    """
+    Helper class for implementing session resume feature
+
+    This class works with data constructed by
+    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper5` which has
+    been pre-processed by :class:`SessionResumeHelper` (to strip the initial
+    envelope).
+
+    Due to the constraints of what can be represented in a suspended session,
+    this class cannot work in isolation. It must operate with a list of know
+    jobs.
+
+    Since (most of the) jobs are being provided externally (as they represent
+    the non-serialized parts of checkbox or other job providers) several
+    failure modes are possible. Those are documented in :meth:`resume()`
+    """
+
+    @classmethod
+    def _load_io_log_filename(cls, result_repr, flags, location):
+        io_log_filename = super()._load_io_log_filename(
+            result_repr, flags, location)
+        if os.path.isabs(io_log_filename):
+            return io_log_filename
+        if location is None:
+            raise ValueError("Location must be a directory name")
+        return os.path.join(location, io_log_filename)
 
 
 def _validate(obj, **flags):

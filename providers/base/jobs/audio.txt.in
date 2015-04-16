@@ -34,53 +34,67 @@ _description:
  VERIFICATION:
      Did you hear a tone?
 
-plugin: user-interact-verify
-id: audio/playback_hdmi
-estimated_duration: 30.0
+id: audio/generator_playback_hdmi
 requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
+_description: Job generator for HDMI audio test
+_summary: Job generator for HDMI audio test
+plugin: local
 command:
- audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
- audio_settings set --verbose --device=hdmi --volume=50
- gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
- EXIT_CODE=$?
- audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
- exit $EXIT_CODE
-_description:
- PURPOSE:
-     HDMI audio interface verification
- STEPS:
-     1. Plug an external HDMI device with sound (Use only one HDMI/DisplayPort interface at a time for this test)
-     2. Click the Test button
- VERIFICATION:
-     Did you hear the sound from the HDMI device?
-
-plugin: user-interact-verify
-id: audio/playback_displayport
-estimated_duration: 30.0
-requires:
- device.category == 'AUDIO'
- package.name == 'alsa-base'
- package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
- package.name == 'pulseaudio-utils'
-command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ id: audio/`echo ${index}`_playback_hdmi_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ plugin: user-interact-verify
+ estimated_duration: 30.0
+ command:
   audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   audio_settings set --verbose --device=hdmi --volume=50
   gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
   EXIT_CODE=$?
   audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   exit $EXIT_CODE
-_description:
- PURPOSE:
-     DisplayPort audio interface verification
- STEPS:
-     1. Plug an external DisplayPort device with sound (Use only one HDMI/DisplayPort interface at a time for this test)
-     2. Click the Test button
- VERIFICATION:
-     Did you hear the sound from the DisplayPort device?
+ _description:
+  PURPOSE:
+      HDMI audio interface verification
+  STEPS:
+      1. Plug an external HDMI device with sound (Use only one HDMI/DisplayPort interface at a time for this test)
+      2. Click the Test button
+  VERIFICATION:
+      Did you hear the sound from the HDMI device?
+ EOF
+
+id: audio/generator_playback_displayport
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+_description: Job generator for HDMI audio test
+_summary: Job generator for HDMI audio test
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ id: audio/`echo ${index}`_playback_displayport_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ plugin: user-interact-verify
+ estimated_duration: 30.0
+ command:
+  audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings set --verbose --device=hdmi --volume=50
+  gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+  EXIT_CODE=$?
+  audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  exit $EXIT_CODE
+ _description:
+  PURPOSE:
+      DisplayPort audio interface verification
+  STEPS:
+      1. Plug an external DisplayPort device with sound (Use only one HDMI/DisplayPort interface at a time for this test)
+      2. Click the Test button
+  VERIFICATION:
+      Did you hear the sound from the DisplayPort device?
+ EOF
 
 plugin: user-interact-verify
 id: audio/playback_headphones

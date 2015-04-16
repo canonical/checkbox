@@ -1,114 +1,177 @@
-plugin: manual
-id: monitor/vga
-requires: display.vga == 'supported'
-_description:
- PURPOSE:
-     This test will check your VGA port.
- STEPS:
-     Skip this test if your system does not have a VGA port.
-     1. Connect a display (if not already connected) to the VGA port on your system
- VERIFICATION:
-     Was the desktop displayed correctly on both screens?
+id: monitor/generator_vga
+_description: Job generator for VGA port test
+_summary: Job generator for VGA port test
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ id: monitor/`echo ${index}`_vga_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: display.vga == 'supported'
+ plugin: manual
+ _description:
+  PURPOSE:
+      This test will check your VGA port.
+  STEPS:
+      Skip this test if your system does not have a VGA port.
+      1. Connect a display (if not already connected) to the VGA port on your system
+  VERIFICATION:
+      Was the desktop displayed correctly on both screens?
+ EOF
 
-plugin: manual
-id: monitor/dvi
-requires: display.dvi == 'supported'
-_description:
- PURPOSE:
-     This test will check your DVI port.
- STEPS:
-     Skip this test if your system does not have a DVI port.
-     1. Connect a display (if not already connected) to the DVI port on your system
- VERIFICATION:
-     Was the desktop displayed correctly on both screens?
+id: monitor/generator_dvi
+_description: Job generator for DVI port test
+_summary: Job generator for DVI port test
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ id: monitor/`echo ${index}`_dvi_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: display.dvi == 'supported'
+ plugin: manual
+ _description:
+  PURPOSE:
+      This test will check your DVI port.
+  STEPS:
+      Skip this test if your system does not have a DVI port.
+      1. Connect a display (if not already connected) to the DVI port on your system
+  VERIFICATION:
+      Was the desktop displayed correctly on both screens?
+ EOF
 
-plugin: manual
-id: monitor/displayport
-requires: display.dp == 'supported'
-_description:
- PURPOSE:
-     This test will check your DisplayPort port.
- STEPS:
-     Skip this test if your system does not have a DisplayPort port.
-     1. Connect a display (if not already connected) to the DisplayPort port on your system
- VERIFICATION:
-     Was the desktop displayed correctly on both screens?
+id: monitor/generator_displayport
+_description: Job generator for Displayport test
+_summary: Job generator for Displayport test
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ id: monitor/`echo ${index}`_displayport_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: display.dp == 'supported'
+ plugin: manual
+ _description:
+  PURPOSE:
+      This test will check your DisplayPort port.
+  STEPS:
+      Skip this test if your system does not have a DisplayPort port.
+      1. Connect a display (if not already connected) to the DisplayPort port on your system
+  VERIFICATION:
+      Was the desktop displayed correctly on both screens?
+ EOF
 
-plugin: manual
-id: monitor/hdmi
-requires: display.hdmi == 'supported'
-_description:
- PURPOSE:
-     This test will check your HDMI port.
- STEPS:
-     Skip this test if your system does not have a HDMI port.
-     1. Connect a display (if not already connected) to the HDMI port on your system
- VERIFICATION:
-     Was the desktop displayed correctly on both screens?
+id: monitor/generator_hdmi
+_description: Job generator for HDMI port test
+_summary: Job generator for HDMI port test
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ id: monitor/`echo ${index}`_hdmi_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: display.hdmi == 'supported'
+ plugin: manual
+ _description:
+  PURPOSE:
+      This test will check your HDMI port.
+  STEPS:
+      Skip this test if your system does not have a HDMI port.
+      1. Connect a display (if not already connected) to the HDMI port on your system
+  VERIFICATION:
+      Was the desktop displayed correctly on both screens?
+ EOF
 
-plugin: manual
-id: monitor/svideo
-requires: display.svideo == 'supported'
-_description:
- PURPOSE:
-     This test will check your S-VIDEO port.
- STEPS:
-     Skip this test if your system does not have a S-VIDEO port.
-     1. Connect a display (if not already connected) to the S-VIDEO port on your system
- VERIFICATION:
-     Was the desktop displayed correctly on both screens?
+id: monitor/generator_svideo
+_description: Job generator for S-VIDEO port test
+_summary: Job generator for S-VIDEO port test
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ id: monitor/`echo ${index}`_svideo_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: display.svideo == 'supported'
+ plugin: manual
+ _description:
+  PURPOSE:
+      This test will check your S-VIDEO port.
+  STEPS:
+      Skip this test if your system does not have a S-VIDEO port.
+      1. Connect a display (if not already connected) to the S-VIDEO port on your system
+  VERIFICATION:
+      Was the desktop displayed correctly on both screens?
+ EOF
 
-plugin: manual
-id: monitor/rca
-requires: display.rca == 'supported'
-_description:
- PURPOSE:
-     This test will check your RCA port.
- STEPS:
-     Skip this test if your system does not have a RCA port.
-     1. Connect a display (if not already connected) to the RCA port on your system
- VERIFICATION:
-     Was the desktop displayed correctly on both screens?
+id: monitor/generator_rca
+_description: Job generator for RCA port test
+_summary: Job generator for RCA port test
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ id: monitor/`echo ${index}`_rca_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: display.rca == 'supported'
+ plugin: manual
+ _description:
+  PURPOSE:
+      This test will check your RCA port.
+  STEPS:
+      Skip this test if your system does not have a RCA port.
+      1. Connect a display (if not already connected) to the RCA port on your system
+  VERIFICATION:
+      Was the desktop displayed correctly on both screens?
+ EOF
 
-plugin: manual
-id: monitor/multi-head
-requires: dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower']
-_description:
- PURPOSE:
-     This test verifies that multi-monitor output works on your desktop system. This is NOT the same test as the external monitor tests you would run on your laptop.  You will need two monitors to perform this test.
- STEPS:
-     Skip this test if your video card does not support multiple monitors.
-     1. If your second monitor is not already connected, connect it now
-     2. Open the "Displays" tool (open the dash and search for "Displays")
-     3. Configure your output to provide one desktop across both monitors
-     4. Open any application and drag it from one monitor to the next.
- VERIFICATION:
-     Was the stretched desktop displayed correctly across both screens?
+id: monitor/generator_multi-head
+_description: Job generator for multi-monitor test
+_summary: Job generator for multi-monitor test
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ id: monitor/`echo ${index}`_multi-head_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower']
+ plugin: manual
+ _description:
+  PURPOSE:
+      This test verifies that multi-monitor output works on your desktop system. This is NOT the same test as the external monitor tests you would run on your laptop.  You will need two monitors to perform this test.
+  STEPS:
+      Skip this test if your video card does not support multiple monitors.
+      1. If your second monitor is not already connected, connect it now
+      2. Open the "Displays" tool (open the dash and search for "Displays")
+      3. Configure your output to provide one desktop across both monitors
+      4. Open any application and drag it from one monitor to the next.
+  VERIFICATION:
+      Was the stretched desktop displayed correctly across both screens?
+ EOF
 
-plugin: user-interact-verify
-id: monitor/powersaving
-command: xset dpms force off
-_description:
- PURPOSE:
-     This test will check your monitor power saving capabilities
- STEPS:
-     1. Click "Test" to try the power saving capabilities of your monitor
-     2. Press any key or move the mouse to recover
- VERIFICATION:
-     Did the monitor go blank and turn on again?
+id: monitor/generator_powersaving
+_description: Job generator for monitor power-saving test
+_summary: Job generator for monitor power-saving test
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ id: monitor/`echo ${index}`_powersaving_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ plugin: user-interact-verify
+ command: xset dpms force off
+ _description:
+  PURPOSE:
+      This test will check your monitor power saving capabilities
+  STEPS:
+      1. Click "Test" to try the power saving capabilities of your monitor
+      2. Press any key or move the mouse to recover
+  VERIFICATION:
+      Did the monitor go blank and turn on again?
+ EOF
 
-plugin: user-interact-verify
-id: monitor/dim_brightness
-requires: dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO']
-user: root
-command: brightness_test
-_description:
- PURPOSE:
-     This test will test changes to screen brightness
- STEPS:
-     1. Click "Test" to try to dim the screen.
-     2. Check if the screen was dimmed approximately to half of the maximum brightness.
-     3. The screen will go back to the original brightness in 2 seconds.
- VERIFICATION:
-     Was your screen dimmed approximately to half of the maximum brightness?
+id: monitor/generator_dim_brightness
+_description: Job generator for screen dimming test
+_summary: Job generator for screen dimming test
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ id: monitor/`echo ${index}`_dim_brightness_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO']
+ plugin: user-interact-verify
+ user: root
+ command: brightness_test
+ _description:
+  PURPOSE:
+      This test will test changes to screen brightness
+  STEPS:
+      1. Click "Test" to try to dim the screen.
+      2. Check if the screen was dimmed approximately to half of the maximum brightness.
+      3. The screen will go back to the original brightness in 2 seconds.
+  VERIFICATION:
+      Was your screen dimmed approximately to half of the maximum brightness?
+EOF
 

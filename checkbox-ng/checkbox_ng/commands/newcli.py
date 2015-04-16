@@ -206,7 +206,8 @@ class CliInvocation2(RunInvocation):
         self.maybe_warm_up_authentication()
         self.print_estimated_duration()
         self.run_all_selected_jobs()
-        self.maybe_rerun_jobs()
+        if self.is_interactive:
+            self.maybe_rerun_jobs()
         self.export_and_send_results()
         if SessionMetaData.FLAG_INCOMPLETE in self.metadata.flags:
             print(self.C.header("Session Complete!", "GREEN"))

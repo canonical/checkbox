@@ -65,9 +65,9 @@ from textwrap import dedent
 from plainbox.i18n import gettext as _
 from plainbox.vendor.morris import signal
 
-__all__ = ['POD', 'Field', 'MANDATORY', 'UNSET', 'read_only_assign_filter',
-           'type_convert_assign_filter', 'type_check_assign_filter',
-           'modify_field_docstring']
+__all__ = ('POD', 'PODBase', 'podify', 'Field', 'MANDATORY', 'UNSET',
+           'read_only_assign_filter', 'type_convert_assign_filter',
+           'type_check_assign_filter', 'modify_field_docstring')
 
 
 _logger = getLogger("plainbox.pod")

@@ -198,6 +198,8 @@ class Field:
     assigned to the POD.
     """
 
+    _counter = 0
+
     def __init__(self, doc=None, type=None, initial=None, initial_fn=None,
                  notify=False, notify_fn=None, assign_filter_list=None):
         """ Initialize (define) a new POD field. """
@@ -219,6 +221,8 @@ class Field:
             self.__doc__ += (
                 '\n\nSide effects of assign filters:\n'
                 + '\n'.join('  - {}'.format(extra) for extra in doc_extra))
+        self.counter = self.__class__._counter
+        self.__class__._counter += 1
 
     def __repr__(self):
         """ Get a debugging representation of a field. """

@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012-2014 Canonical Ltd.
+# Copyright 2012-2015 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
@@ -26,8 +26,8 @@ import os
 
 from plainbox.impl.clitools import SingleCommandToolMixIn
 from plainbox.impl.clitools import ToolBase
-from plainbox.impl.providers.v1 import all_providers
 from plainbox.impl.commands.cmd_selftest import SelfTestCommand
+from plainbox.public import get_providers
 
 from checkbox_ng import __version__ as version
 from checkbox_ng.config import CheckBoxConfig
@@ -49,8 +49,7 @@ class CheckboxToolBase(ToolBase):
         return self.get_config_cls().get()
 
     def _load_providers(self):
-        all_providers.load()
-        return all_providers.get_all_plugin_objects()
+        return get_providers()
 
     @classmethod
     def get_exec_version(cls):

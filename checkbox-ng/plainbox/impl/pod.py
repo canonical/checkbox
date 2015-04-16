@@ -456,6 +456,11 @@ class _FieldCollection:
         self.field_list = []
         self.field_origin_map = {}  # field name -> defining class name
 
+    def inspect_cls_for_decorator(self, cls: type) -> None:
+        """ Analyze a bare POD class. """
+        self.inspect_base_classes(cls.__bases__)
+        self.inspect_namespace(cls.__dict__, cls.__name__)
+
     def inspect_base_classes(self, base_cls_list: "List[type]") -> None:
         """
         Analyze base classes of a POD class.
@@ -557,6 +562,25 @@ class PODMeta(type):
         OrderedDict makes that task trivial.
         """
         return OrderedDict()
+
+
+def podify(cls):
+    """
+    Decorator for POD classes.
+
+    The decorator offers an alternative from using the POD class (with the
+    PODMeta meta-class). Instead of using that, one can use the ``@podify``
+    decorator on a PODBase-derived class.
+    """
+    if not isinstance(cls, type) or not issubclass(cls, PODBase):
+        raise TypeError("cls must be a subclass of PODBase")
+    fc = _FieldCollection()
+    fc.inspect_cls_for_decorator(cls)
+    cls.field_list = fc.field_list
+    cls.namedtuple_cls = fc.get_namedtuple_cls(cls.__name__)
+    for field in fc.field_list:
+        field.alter_cls(cls)
+    return cls
 
 
 @total_ordering

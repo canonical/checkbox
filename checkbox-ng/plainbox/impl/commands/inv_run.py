@@ -726,7 +726,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
                 print(self.C.header(
                     _('Running job {} / {}. Estimated time left: {}').format(
                         job_no, len(jobs_to_run),
-                        seconds_to_human_duration(min(0, estimated_time))),
+                        seconds_to_human_duration(max(0, estimated_time))),
                     fill='-'))
                 self.run_single_job(job)
                 estimated_time -= job.estimated_duration

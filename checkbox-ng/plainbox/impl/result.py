@@ -38,7 +38,7 @@ import re
 from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _
 from plainbox.i18n import pgettext as C_
-from plainbox.vendor.morris import signal
+from plainbox.vendor import morris
 
 logger = logging.getLogger("plainbox.result")
 
@@ -273,7 +273,7 @@ class _JobResultBase(IJobResult):
                 "{}:{!r}".format(key, self._data[key])
                 for key in sorted(self._data.keys())]))
 
-    @signal
+    @morris.signal
     def on_outcome_changed(self, old, new):
         """
         Signal sent when ``outcome`` property value is changed
@@ -363,7 +363,7 @@ class _JobResultBase(IJobResult):
         else:
             self.comments = self.comments + '\n' + comments
 
-    @signal
+    @morris.signal
     def on_comments_changed(self, old, new):
         """
         Signal sent when ``comments`` property value is changed

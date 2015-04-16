@@ -35,7 +35,7 @@ from plainbox.impl.session.jobs import JobState
 from plainbox.impl.session.jobs import UndesiredJobReadinessInhibitor
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.testplan import TestPlanUnitSupport
-from plainbox.vendor.morris import signal
+from plainbox.vendor import morris
 
 
 logger = logging.getLogger("plainbox.session.state")
@@ -458,7 +458,7 @@ class SessionDeviceContext:
             ctrl.__class__.__name__, score, job.id)
         return ctrl
 
-    @signal
+    @morris.signal
     def on_provider_added(self, provider):
         """ Signal sent whenever a provider is added to the context. """
         logger.info(_("Provider %s added to context %s"), provider, self)
@@ -466,19 +466,19 @@ class SessionDeviceContext:
         # on the accuracy of provider_list
         self._invalidate_execution_ctrl_list()
 
-    @signal
+    @morris.signal
     def on_unit_added(self, unit):
         """ Signal sent whenever a unit is added to the context. """
         logger.debug(_("Unit %s added to context %s"), unit, self)
         if unit.Meta.name == 'job':
             self.on_job_added(unit)
 
-    @signal
+    @morris.signal
     def on_job_added(self, job):
         """ Signal sent whenever a new job unit is added to the context. """
         self._override_update(job)
 
-    @signal
+    @morris.signal
     def on_unit_removed(self, unit):
         """ Signal sent whenever a unit is removed from the context. """
         logger.debug(_("Unit %s removed from context %s"), unit, self)
@@ -651,7 +651,7 @@ class SessionState:
     :ivar dict metadata: instance of :class:`SessionMetaData`
     """
 
-    @signal
+    @morris.signal
     def on_job_state_map_changed(self):
         """
         Signal fired after job_state_map is changed in any way.
@@ -666,7 +666,7 @@ class SessionState:
         and can be easily looked at by the application.
         """
 
-    @signal
+    @morris.signal
     def on_job_result_changed(self, job, result):
         """
         Signal fired after a job get changed (set).
@@ -677,7 +677,7 @@ class SessionState:
         """
         logger.info(_("Job %s result changed to %r"), job, result)
 
-    @signal
+    @morris.signal
     def on_job_added(self, job):
         """
         Signal sent whenever a job is added to the session.
@@ -685,7 +685,7 @@ class SessionState:
         This signal is fired **after** :meth:`on_job_state_map_changed()`
         """
 
-    @signal
+    @morris.signal
     def on_job_removed(self, job):
         """
         Signal sent whenever a job is removed from the session.
@@ -693,11 +693,11 @@ class SessionState:
         This signal is fired **after** :meth:`on_job_state_map_changed()`
         """
 
-    @signal
+    @morris.signal
     def on_unit_added(self, unit):
         """ Signal sent whenever a unit is added to the session. """
 
-    @signal
+    @morris.signal
     def on_unit_removed(self, unit):
         """ Signal sent whenever a unit is removed from the session. """
 

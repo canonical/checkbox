@@ -73,7 +73,7 @@ from plainbox.impl.session.jobs import JobReadinessInhibitor
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.template import TemplateUnit
 from plainbox.impl.validation import ValidationError
-from plainbox.vendor.morris import signal
+from plainbox.vendor import morris
 from plainbox.vendor import extcmd
 
 __all__ = [
@@ -617,7 +617,7 @@ class CheckBoxExecutionController(IExecutionController):
                 for filename in filenames)
         return leftovers
 
-    @signal
+    @morris.signal
     def on_leftover_files(self, job, config, cwd_dir, leftovers):
         """
         Handle any files left over by the execution of a job definition.

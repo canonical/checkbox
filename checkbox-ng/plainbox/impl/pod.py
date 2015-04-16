@@ -63,7 +63,7 @@ from logging import getLogger
 from textwrap import dedent
 
 from plainbox.i18n import gettext as _
-from plainbox.vendor.morris import signal
+from plainbox.vendor import morris
 
 __all__ = ('POD', 'PODBase', 'podify', 'Field', 'MANDATORY', 'UNSET',
            'read_only_assign_filter', 'type_convert_assign_filter',
@@ -263,7 +263,7 @@ class Field:
             return
         assert self.signal_name is not None
         if not hasattr(cls, self.signal_name):
-            signal_def = signal(
+            signal_def = morris.signal(
                 self.notify_fn if self.notify_fn is not None
                 else self.on_changed,
                 signal_name='{}.{}'.format(cls.__name__, self.signal_name))

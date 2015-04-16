@@ -325,6 +325,116 @@ class Field:
                       self.signal_name, old, new)
 
 
+@total_ordering
+class PODBase:
+
+    """ Base class for POD-like classes. """
+
+    field_list = []
+    namedtuple_cls = namedtuple('PODBase', '')
+
+    def __init__(self, *args, **kwargs):
+        """
+        Initialize a new POD object.
+
+        Positional arguments bind to fields in declaration order. Keyword
+        arguments bind to fields in any order but fields cannot be initialized
+        twice.
+
+        :raises TypeError:
+            If there are more positional arguments than fields to initialize
+        :raises TypeError:
+            If a keyword argument doesn't correspond to a field name.
+        :raises TypeError:
+            If a field is initialized twice (first with positional arguments,
+            then again with keyword arguments).
+        :raises TypeError:
+            If a ``MANDATORY`` field is not initialized.
+        """
+        field_list = self.__class__.field_list
+        # Set all of the instance attributes to the special UNSET value, this
+        # is useful if something fails and the object is inspected somehow.
+        # Then all the attributes will be still UNSET.
+        for field in field_list:
+            setattr(self, field.instance_attr, UNSET)
+        # Check if the number of positional arguments is correct
+        if len(args) > len(field_list):
+            raise TypeError("too many arguments")
+        # Initialize mandatory fields using positional arguments
+        for field, field_value in zip(field_list, args):
+            setattr(self, field.name, field_value)
+        # Initialize fields using keyword arguments
+        for field_name, field_value in kwargs.items():
+            field = getattr(self.__class__, field_name, None)
+            if not isinstance(field, Field):
+                raise TypeError("no such field: {}".format(field_name))
+            if getattr(self, field.instance_attr) is not UNSET:
+                raise TypeError(
+                    "field initialized twice: {}".format(field_name))
+            setattr(self, field_name, field_value)
+        # Initialize remaining fields using their default initializers
+        for field in field_list:
+            if getattr(self, field.instance_attr) is not UNSET:
+                continue
+            if field.is_mandatory:
+                raise TypeError(
+                    "mandatory argument missing: {}".format(field.name))
+            if field.initial_fn is not None:
+                field_value = field.initial_fn()
+            else:
+                field_value = field.initial
+            setattr(self, field.name, field_value)
+
+    def __repr__(self):
+        """ Get a debugging representation of a POD object. """
+        return "{}({})".format(
+            self.__class__.__name__,
+            ', '.join([
+                '{}={!r}'.format(field.name, getattr(self, field.name))
+                for field in self.__class__.field_list]))
+
+    def __eq__(self, other: "POD") -> bool:
+        """
+        Check that this POD is equal to another POD.
+
+        POD comparison is implemented by converting them to tuples and
+        comparing the two tuples.
+        """
+        if not isinstance(other, POD):
+            return NotImplemented
+        return self.as_tuple() == other.as_tuple()
+
+    def __lt__(self, other: "POD") -> bool:
+        """
+        Check that this POD is "less" than an another POD.
+
+        POD comparison is implemented by converting them to tuples and
+        comparing the two tuples.
+        """
+        if not isinstance(other, POD):
+            return NotImplemented
+        return self.as_tuple() < other.as_tuple()
+
+    def as_tuple(self) -> tuple:
+        """
+        Return the data in this POD as a tuple.
+
+        Order of elements in the tuple corresponds to the order of field
+        declarations.
+        """
+        return self.__class__.namedtuple_cls(*[
+            getattr(self, field.name)
+            for field in self.__class__.field_list
+        ])
+
+    def as_dict(self) -> dict:
+        """ Return the data in this POD as a dictionary. """
+        return {
+            field.name: getattr(self, field.name)
+            for field in self.__class__.field_list
+        }
+
+
 class _FieldCollection:
 
     """
@@ -357,7 +467,7 @@ class _FieldCollection:
             A list of classes to inspect. Only subclasses of POD are inspected.
         """
         for base_cls in base_cls_list:
-            if not issubclass(base_cls, POD):
+            if not issubclass(base_cls, PODBase):
                 continue
             base_cls_name = base_cls.__name__
             for field in base_cls.field_list:
@@ -450,7 +560,8 @@ class PODMeta(type):
 
 
 @total_ordering
-class POD(metaclass=PODMeta):
+class POD(PODBase, metaclass=PODMeta):
+
     """
     Base class that removes boilerplate from plain-old-data classes.
 
@@ -475,108 +586,6 @@ class POD(metaclass=PODMeta):
     ``POD.namedtuple_cls``. The return value of :meth:`as_tuple()` actually
     uses that type.
     """
-
-    def __init__(self, *args, **kwargs):
-        """
-        Initialize a new POD object.
-
-        Positional arguments bind to fields in declaration order. Keyword
-        arguments bind to fields in any order but fields cannot be initialized
-        twice.
-
-        :raises TypeError:
-            If there are more positional arguments than fields to initialize
-        :raises TypeError:
-            If a keyword argument doesn't correspond to a field name.
-        :raises TypeError:
-            If a field is initialized twice (first with positional arguments,
-            then again with keyword arguments).
-        :raises TypeError:
-            If a ``MANDATORY`` field is not initialized.
-        """
-        field_list = self.__class__.field_list
-        # Set all of the instance attributes to the special UNSET value, this
-        # is useful if something fails and the object is inspected somehow.
-        # Then all the attributes will be still UNSET.
-        for field in field_list:
-            setattr(self, field.instance_attr, UNSET)
-        # Check if the number of positional arguments is correct
-        if len(args) > len(field_list):
-            raise TypeError("too many arguments")
-        # Initialize mandatory fields using positional arguments
-        for field, field_value in zip(field_list, args):
-            setattr(self, field.name, field_value)
-        # Initialize fields using keyword arguments
-        for field_name, field_value in kwargs.items():
-            field = getattr(self.__class__, field_name, None)
-            if not isinstance(field, Field):
-                raise TypeError("no such field: {}".format(field_name))
-            if getattr(self, field.instance_attr) is not UNSET:
-                raise TypeError(
-                    "field initialized twice: {}".format(field_name))
-            setattr(self, field_name, field_value)
-        # Initialize remaining fields using their default initializers
-        for field in field_list:
-            if getattr(self, field.instance_attr) is not UNSET:
-                continue
-            if field.is_mandatory:
-                raise TypeError(
-                    "mandatory argument missing: {}".format(field.name))
-            if field.initial_fn is not None:
-                field_value = field.initial_fn()
-            else:
-                field_value = field.initial
-            setattr(self, field.name, field_value)
-
-    def __repr__(self):
-        return "{}({})".format(
-            self.__class__.__name__,
-            ', '.join([
-                '{}={!r}'.format(field.name, getattr(self, field.name))
-                for field in self.__class__.field_list]))
-
-    def __eq__(self, other: "POD") -> bool:
-        """
-        Check that this POD is equal to another POD
-
-        POD comparison is implemented by converting them to tuples and
-        comparing the two tuples.
-        """
-        if not isinstance(other, POD):
-            return NotImplemented
-        return self.as_tuple() == other.as_tuple()
-
-    def __lt__(self, other: "POD") -> bool:
-        """
-        Check that this POD is "less" than an another POD.
-
-        POD comparison is implemented by converting them to tuples and
-        comparing the two tuples.
-        """
-        if not isinstance(other, POD):
-            return NotImplemented
-        return self.as_tuple() < other.as_tuple()
-
-    def as_tuple(self) -> tuple:
-        """
-        Return the data in this POD as a tuple.
-
-        Order of elements in the tuple corresponds to the order of field
-        declarations.
-        """
-        return self.__class__.namedtuple_cls(*[
-            getattr(self, field.name)
-            for field in self.__class__.field_list
-        ])
-
-    def as_dict(self) -> dict:
-        """
-        Return the data in this POD as a dictionary
-        """
-        return {
-            field.name: getattr(self, field.name)
-            for field in self.__class__.field_list
-        }
 
 
 def modify_field_docstring(field_docstring_ext: str):

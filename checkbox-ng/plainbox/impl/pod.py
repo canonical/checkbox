@@ -374,10 +374,14 @@ class _FieldCollection:
         .. note::
             This method calls :meth:`Field.gain_name()` on all fields it finds.
         """
+        fields = []
         for field_name, field in namespace.items():
             if not isinstance(field, Field):
                 continue
             field.gain_name(field_name)
+            fields.append(field)
+        fields.sort(key=lambda field: field.counter)
+        for field in fields:
             self.add_field(field, cls_name)
 
     def get_namedtuple_cls(self, name: str) -> type:

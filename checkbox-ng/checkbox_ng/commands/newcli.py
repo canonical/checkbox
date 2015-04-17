@@ -518,9 +518,8 @@ class CliInvocation2(RunInvocation):
         # bail-out early if no job qualifies for rerunning
         if not rerun_candidates:
             return
-        self._update_desired_job_list(rerun_candidates)
         tree = SelectableJobTreeNode.create_tree(
-            self.manager.state, self.manager.state.run_list)
+            self.manager.state, rerun_candidates)
         # deselect all by default
         tree.set_descendants_state(False)
         self.display.run(ShowRerun(tree, _("Select jobs to re-run")))
@@ -533,5 +532,4 @@ class CliInvocation2(RunInvocation):
         # reset outcome of jobs that are selected for re-running
         for job in wanted_set:
             self.manager.state.job_state_map[job.id].result.outcome = None
-        self._update_desired_job_list(rerun_job_list)
         self.run_all_selected_jobs()

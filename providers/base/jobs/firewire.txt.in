@@ -25,7 +25,7 @@ _description:
 
 plugin: user-interact
 id: firewire/remove
-depends: firewire/storage-test
+depends: firewire/insert
 require: device.category == 'FIREWIRE'
 command: removable_storage_watcher remove firewire
 _description:

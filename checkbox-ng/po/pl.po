@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2015-04-10 04:32+0000\n"
-"X-Generator: Launchpad (build 17413)\n"
+"X-Launchpad-Export-Date: 2015-04-18 05:08+0000\n"
+"X-Generator: Launchpad (build 17430)\n"
 "Language: Polish\n"
 "X-Language: pl_PL\n"
 "X-Source-Language: C\n"
@@ -1216,7 +1216,7 @@ msgid "Session Statistics"
 msgstr "Statystyki Sesji"
 
 #: .././plainbox/impl/commands/inv_run.py:918
-#, python-brace-format
+#, python-brace-format, python-format
 msgid "This session is about {0:.2f}% complete"
 msgstr "Ta sesja jest ukończona w około {0:.2f}%"
 

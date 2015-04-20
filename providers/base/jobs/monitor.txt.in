@@ -1,6 +1,6 @@
 id: monitor/generator_vga
-_description: Job generator for VGA port test
-_summary: Job generator for VGA port test
+_description: VGA port test
+_summary: VGA port test
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
@@ -18,8 +18,8 @@ command:
  EOF
 
 id: monitor/generator_dvi
-_description: Job generator for DVI port test
-_summary: Job generator for DVI port test
+_description: DVI port test
+_summary: DVI port test
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
@@ -37,8 +37,8 @@ command:
  EOF
 
 id: monitor/generator_displayport
-_description: Job generator for Displayport test
-_summary: Job generator for Displayport test
+_description: DisplayPort test
+_summary: DisplayPort test
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
@@ -56,8 +56,8 @@ command:
  EOF
 
 id: monitor/generator_hdmi
-_description: Job generator for HDMI port test
-_summary: Job generator for HDMI port test
+_description: HDMI port test
+_summary: HDMI port test
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
@@ -75,8 +75,8 @@ command:
  EOF
 
 id: monitor/generator_svideo
-_description: Job generator for S-VIDEO port test
-_summary: Job generator for S-VIDEO port test
+_description: S-VIDEO port test
+_summary: S-VIDEO port test
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
@@ -94,8 +94,8 @@ command:
  EOF
 
 id: monitor/generator_rca
-_description: Job generator for RCA port test
-_summary: Job generator for RCA port test
+_description: RCA port test
+_summary: RCA port test
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
@@ -113,8 +113,8 @@ command:
  EOF
 
 id: monitor/generator_multi-head
-_description: Job generator for multi-monitor test
-_summary: Job generator for multi-monitor test
+_description: Multi-monitor test
+_summary: Multi-monitor test
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
@@ -135,8 +135,8 @@ command:
  EOF
 
 id: monitor/generator_powersaving
-_description: Job generator for monitor power-saving test
-_summary: Job generator for monitor power-saving test
+_description: Monitor power-saving test
+_summary: Monitor power-saving test
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
@@ -154,8 +154,8 @@ command:
  EOF
 
 id: monitor/generator_dim_brightness
-_description: Job generator for screen dimming test
-_summary: Job generator for screen dimming test
+_description: Screen dimming test
+_summary: Screen dimming test
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'

@@ -285,6 +285,9 @@ command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: user-interact-verify
  id: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires:
+  sleep.mem == 'supported'
+  rtc.state == 'supported'
  depends: graphics/`echo ${index}`_switch_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  user: root
  environ: PLAINBOX_SESSION_SHARE
@@ -325,8 +328,8 @@ command: set -o pipefail; fwts_test -f none -l $PLAINBOX_SESSION_SHARE/suspend_s
 estimated_duration: 90.000
 
 id: suspend/generator_hybrid_sleep
-_description: Job generator for hybrid sleep test
-_summary: Job generator for hybrid sleep test
+_description: Hybrid sleep test
+_summary: Hybrid sleep test
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
@@ -356,8 +359,8 @@ _description:
  Automated check of the suspend log to look for errors reported by fwts
 
 id: suspend/generator_suspend-single-log-attach
-_description: Job generator for suspend log attach
-_summary: Job generator for suspend log attach
+_description: Suspend log attach
+_summary: Suspend log attach
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
@@ -376,8 +379,8 @@ _description:
  Automated check of the hybrid sleep log to look for errors reported by fwts
 
 id: suspend/generator_hybrid-sleep-single-log-attach
-_description: Job generator for hybrid sleep log attach
-_summary: Job generator for hybrid sleep log attach
+_description: Hybrid sleep log attach
+_summary: Hybrid sleep log attach
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
@@ -389,8 +392,8 @@ command:
  EOF
 
 id: suspend/generator_suspend-time-check
-_description: Job generator for suspend time check test
-_summary: Job generator for suspend time check test
+_description: Suspend time check test
+_summary: Suspend time check test
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'

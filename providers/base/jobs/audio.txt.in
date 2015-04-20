@@ -40,12 +40,13 @@ requires:
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
-_description: Job generator for HDMI audio test
-_summary: Job generator for HDMI audio test
+_description: HDMI audio test
+_summary: HDMI audio test
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  id: audio/`echo ${index}`_playback_hdmi_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: display.hdmi == 'supported'
  plugin: user-interact-verify
  estimated_duration: 30.0
  command:
@@ -71,12 +72,13 @@ requires:
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
-_description: Job generator for Displayport audio test
-_summary: Job generator for Displayport audio test
+_description: DisplayPort audio test
+_summary: DisplayPort audio test
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  id: audio/`echo ${index}`_playback_displayport_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: display.dp == 'supported'
  plugin: user-interact-verify
  estimated_duration: 30.0
  command:
@@ -104,8 +106,8 @@ requires:
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
-_description: Job generator for Thunderbolt audio test
-_summary: Job generator for Thunderbolt audio test
+_description: Thunderbolt audio test
+_summary: Thunderbolt audio test
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'

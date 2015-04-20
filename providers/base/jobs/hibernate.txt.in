@@ -2,8 +2,8 @@ id: power-management/generator_hibernate_advanced
 requires:
   sleep.disk == 'supported'
   rtc.state == 'supported'
-_description: Job generator for hibernate test
-_summary: Job generator for hibernate test
+_description: Hibernate test
+_summary: Hibernate test
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
@@ -39,8 +39,8 @@ _description:
  Automated check of the hibernate log for errors discovered by fwts
 
 id: power-management/generator_hibernate-single-log-attach
-_description: Job generator for hibernate log attachment test
-_summary: Job generator for hibernate log attachment test
+_description: Hibernate log attach
+_summary: Hibernate log attach
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'

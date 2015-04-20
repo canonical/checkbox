@@ -23,6 +23,7 @@ _description:
 
 plugin: shell
 id: thunderbolt/storage-test
+user: root
 imports: from 2013.com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt == 'True'
 depends: thunderbolt/insert

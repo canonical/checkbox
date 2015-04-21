@@ -24,6 +24,9 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include <errno.h>
 #include <stdbool.h>
 
@@ -114,6 +117,28 @@ static int finish_handler(struct nl_msg *msg, void *arg)
 	return NL_SKIP;
 }
 
+/* Search for a specific pattern inside the given file handle.
+ * @arg fp         a FILE pointer
+ * @arg pattern    the search pattern
+ *
+ * @return 0 on success 1 otherwise.
+ */
+static int heuristic_test(FILE *fp, const char *pattern)
+{
+    char *line = NULL;
+    size_t len = 0;
+    ssize_t read;
+    char *p;
+
+    while ((read = getline(&line, &len, fp)) != -1) {
+        if ((p = strstr(line, pattern)) != NULL) {
+            return 0;
+        }
+    }
+    free(line);
+    return 1;
+}
+
 static int print_phy_handler(struct nl_msg *msg, void *arg)
 {
 	struct nlattr *tb_msg[NL80211_ATTR_MAX + 1];
@@ -182,6 +207,7 @@ int main(int argc, char **argv)
 	struct nl80211_state nlstate;
 	struct wireless_capabilities cap;
 	int err;
+	FILE *pci_fp;
 
 	err = nl80211_init(&nlstate);
 	if (err)
@@ -236,6 +262,18 @@ int main(int argc, char **argv)
 
 	nl80211_cleanup(&nlstate);
 
+    /* Try to guess the ac capabilities using heuristics (sometimes required
+       as some drivers don't expose all their wireless properties to libnl */
+    if (!cap.ac_support) {
+        pci_fp = popen("lspci -nnv", "r");
+        if (!pci_fp) {
+            perror("Something is wrong with lspci");
+            exit(1);
+        }
+        if (heuristic_test(pci_fp, "802.11ac") == 0)
+            cap.ac_support = true;
+        pclose(pci_fp);
+    }
     if (cap.ac_support)
         printf("ac: supported\n");
     if (cap.n_support)

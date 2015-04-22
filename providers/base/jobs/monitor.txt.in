@@ -1,6 +1,6 @@
 plugin: manual
 id: monitor/vga
-requires: display.vga == 'supported'
+requires: display.vga == 'supported' or display.dp == 'supported'
 _description:
  PURPOSE:
      This test will check your VGA port.

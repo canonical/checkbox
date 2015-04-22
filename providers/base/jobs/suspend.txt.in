@@ -386,6 +386,7 @@ command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: attachment
  id: suspend/`echo ${index}`_hybrid-sleep-single-log-attach_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ depends: suspend/`echo ${index}`_hybrid_sleep_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  command: [ -e $PLAINBOX_SESSION_SHARE/`echo ${index}`_hybrid_sleep_single.log ] && cat $PLAINBOX_SESSION_SHARE/`echo ${index}`_hybrid_sleep_single.log
  _description:
   Attaches the log from the single hybrid sleep/resume test to the results

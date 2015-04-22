@@ -24,6 +24,7 @@ _description:
 plugin: manual
 id: led/suspend
 estimated_duration: 30.0
+depends: suspend/suspend_advanced
 _description:
  PURPOSE:
      Suspend LED verification.

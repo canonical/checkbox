@@ -294,7 +294,7 @@ command:
  command:
   if type -P fwts >/dev/null; then
    echo "Calling fwts"
-   set -o pipefail; fwts_test -f none -l $PLAINBOX_SESSION_SHARE/`echo ${index}`suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $PLAINBOX_SESSION_SHARE/`echo ${index}`_suspend_single_times.log
+   set -o pipefail; fwts_test -f none -l $PLAINBOX_SESSION_SHARE/`echo ${index}`_suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $PLAINBOX_SESSION_SHARE/`echo ${index}`_suspend_single_times.log
   else
    echo "Calling sleep_test"
    set -o pipefail; sleep_test -p | tee $PLAINBOX_SESSION_SHARE/`echo ${index}`_suspend_single_times.log

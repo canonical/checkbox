@@ -23,6 +23,14 @@ def main():
     xrandr_output = "\n" + ''.join(xrandr_output.splitlines(True)[1:])
     supported_connections = dict()
 
+    supported_connections['vga'] = 'not-supported'
+    supported_connections['dvi'] = 'not-supported'
+    supported_connections['hdmi'] = 'not-supported'
+    supported_connections['dp'] = 'not-supported'
+    supported_connections['svideo'] = 'not-supported'
+    supported_connections['rca'] = 'not-supported'
+    supported_connections['tv'] = 'not-supported'
+
     for m in CONNECTOR_RE.finditer(xrandr_output):
         name = m.group('Name').lower()
         signal_format = connector_type = ''  # RandR 1.3 only
@@ -74,8 +82,8 @@ def main():
                 # (for both signal format and connector type).
                 supported_connections['hdmi'] = 'supported'
 
-    for connector in supported_connections.keys():
-        print("%s: supported" % connector)
+    for connector in supported_connections.items():
+        print("{}: {}".format(connector[0], connector[1]))
 
     return 0
 

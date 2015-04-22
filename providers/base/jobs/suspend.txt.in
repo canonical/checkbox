@@ -258,7 +258,7 @@ environ: PLAINBOX_SESSION_SHARE
 command:
  if type -P fwts >/dev/null; then
   echo "Calling fwts"
-  set -o pipefail; fwts_test -f none -l $PLAINBOX_SESSION_SHARE/2_suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $PLAINBOX_SESSION_SHARE/2_suspend_single_times.log
+  set -o pipefail; fwts_test -f none -l $PLAINBOX_SESSION_SHARE/1_suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $PLAINBOX_SESSION_SHARE/1_suspend_single_times.log
  else
   echo "Calling sleep_test"
   set -o pipefail; sleep_test -p | tee $PLAINBOX_SESSION_SHARE/2_suspend_single_times.log
@@ -358,6 +358,13 @@ command: [ -e $PLAINBOX_SESSION_SHARE/suspend_single.log ] && sleep_test_log_che
 _description:
  Automated check of the suspend log to look for errors reported by fwts
 
+plugin: attachment
+id: suspend/suspend-single-log-attach
+depends: suspend/suspend_advanced
+command: [ -e $PLAINBOX_SESSION_SHARE/1_suspend_single.log ] && cat $PLAINBOX_SESSION_SHARE/1_suspend_single.log
+_description:
+ Attaches the log from the single suspend/resume test to the results
+
 id: suspend/generator_suspend-single-log-attach
 _description: Suspend log attach
 _summary: Suspend log attach
@@ -366,6 +373,7 @@ command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: attachment
  id: suspend/`echo ${index}`_suspend-single-log-attach_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ depends: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  command: [ -e $PLAINBOX_SESSION_SHARE/`echo ${index}`_suspend_single.log ] && cat $PLAINBOX_SESSION_SHARE/`echo ${index}`_suspend_single.log
  _description:
   Attaches the log from the single suspend/resume test to the results
@@ -392,6 +400,13 @@ command:
   Attaches the log from the single hybrid sleep/resume test to the results
  EOF
 
+plugin: shell
+id: suspend/suspend-time-check
+estimated_duration: 1.2
+command: [ -e $PLAINBOX_SESSION_SHARE/1_suspend_single_times.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/1_suspend_single_times.log
+_description:
+ Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
+
 id: suspend/generator_suspend-time-check
 _description: Suspend time check test
 _summary: Suspend time check test
@@ -400,6 +415,7 @@ command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: shell
  id: suspend/`echo ${index}`_suspend-time-check_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ depends: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  estimated_duration: 1.2
  command: [ -e $PLAINBOX_SESSION_SHARE/`echo ${index}`_suspend_single_times.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/`echo ${index}`_suspend_single_times.log
  _description: Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
@@ -460,7 +476,7 @@ command:
  plugin: shell
  id: suspend/`echo ${index}`_resolution_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  estimated_duration: 1.2
- depends: suspend/`echo ${index}`_resolution_before_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ depends: suspend/`echo ${index}`_resolution_before_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'` suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  _description: Test to see that we have the same resolution after resuming as before.
  command: xrandr -q |grep '*'| awk '{print $1}' | diff $PLAINBOX_SESSION_SHARE/`echo ${index}`_resolution_before_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`.txt -
  EOF
@@ -540,7 +556,7 @@ command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: manual
  id: suspend/`echo ${index}`_display_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- depends: suspend/suspend_advanced
+ depends: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  _summary: Test display function after suspend for $product
  _description:
   PURPOSE:
@@ -1371,6 +1387,7 @@ command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: user-interact-verify
  id: suspend/`echo ${index}`_cycle_resolutions_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ depends: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  estimated_duration: 120.0
  requires: package.name == 'xorg'
  depends: suspend/suspend_advanced
@@ -1393,6 +1410,12 @@ _description:
  This test will check to make sure supported video modes work after a suspend and resume.
  This is done automatically by taking screenshots and uploading them as an attachment.
 command: xrandr_cycle --keyword=after_suspend --screenshot-dir $PLAINBOX_SESSION_SHARE
+
+plugin: attachment
+id: suspend/xrandr_screens_after_suspend.tar.gz
+depends: suspend/cycle_resolutions_after_suspend
+command: [ -e $PLAINBOX_SESSION_SHARE/1_xrandr_screens_after_suspend.tgz ] && cat $PLAINBOX_SESSION_SHARE/1_xrandr_screens_after_suspend.tgz
+_description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
 
 plugin: local
 id: suspend/generator_xrandr_screens_after_suspend.tar.gz

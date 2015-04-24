@@ -15,6 +15,7 @@ cpuinfo_attachment
 dmesg_attachment
 dmi_attachment
 dmidecode_attachment
+kernel_cmdline_attachment
 lsmod_attachment
 lspci_attachment
 modprobe_attachment

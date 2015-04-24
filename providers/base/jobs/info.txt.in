@@ -247,3 +247,9 @@ id: info/kvm_output
 estimated_duration: 0.1
 _description: Attaches the debug log from the virtualization run
 command: [ -f $PLAINBOX_SESSION_SHARE/virt_debug ] && cat $PLAINBOX_SESSION_SHARE/virt_debug
+
+id: kernel_cmdline_attachment
+plugin: attachment
+command: cat /proc/cmdline
+estimated_duration: 0.005
+_description: Attaches the kernel commandline used to boot

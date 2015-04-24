@@ -146,8 +146,8 @@ command:
   device.category == 'VIDEO'
   package.name == 'zenity'
  command: 
-    maxi="$(xrandr -q |grep -A 1 "connected\( primary\)* [0-9]" |tail -1 |awk '{print $1}')"
-    now="$(xdpyinfo | grep dimension | awk '{print $2}')"
+    maxi="\$(xrandr -q |grep -A 1 "connected\( primary\)* [0-9]" |tail -1 |awk '{print \$1}')"
+    now="\$(python3 -c 'from gi.repository import Gdk; screen=Gdk.Screen.get_default(); geo = screen.get_monitor_geometry(screen.get_primary_monitor()); print(geo.width, "x", geo.height, sep="")')"
     test "\$maxi" != "\$now" && notify="\nPlease switch to the maximum resolution \nfor every graphic tests"
     zenity --info --text "Maximum resolution: \$maxi\nCurrent resolution: \$now \$notify"
  estimated_duration: 10.0

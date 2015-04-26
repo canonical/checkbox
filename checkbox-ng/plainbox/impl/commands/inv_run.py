@@ -934,8 +934,8 @@ class RunInvocation(CheckBoxInvocationMixIn):
 
     def print_estimated_duration(self):
         print(self.C.header(_("Session Statistics")))
-        print(_("This session is about {0:.2f}% complete").format(
-            self.get_completion_ratio() * 100))
+        print(_("This session is about {0:.2f}{percent} complete").format(
+            self.get_completion_ratio() * 100, percent='%'))
         (estimated_duration_auto,
          estimated_duration_manual) = self.state.get_estimated_duration()
         if estimated_duration_auto:

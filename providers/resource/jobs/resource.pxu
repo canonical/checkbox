@@ -110,7 +110,9 @@ _description: Generates resources info on running kernel modules
 id: package
 estimated_duration: 1.16
 plugin: resource
-command: dpkg-query -W -f='name: ${Package}\nversion: ${Version}\n\n'
+command:
+    dpkg-query -W -f='name: ${Package}\nversion: ${Version}\nmodalias: ${Modaliases}\n\n' |\
+    awk 'BEGIN {RS = ""; FS = "\n"}{print $1; print $2; if ($3 ~ /^modalias: .+$/) {print $3}; print "" }'
 _description: Generates a list of packages
 
 id: executable

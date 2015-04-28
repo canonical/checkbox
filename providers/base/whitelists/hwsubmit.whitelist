@@ -18,6 +18,7 @@ dmidecode_attachment
 kernel_cmdline_attachment
 lsmod_attachment
 lspci_attachment
+lspci_standard_config_attachment
 modprobe_attachment
 modules_attachment
 sysfs_attachment

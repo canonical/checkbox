@@ -57,6 +57,15 @@ command: lspci -vvnnQ | iconv -t 'utf-8' -c
 estimated_duration: 1.322
 _description: Attaches very verbose lspci output (with central database Query).
 
+id: lspci_standard_config_attachment
+_summary: Attach PCI configuration space hex dump
+plugin: attachment
+command: lspci -x
+estimated_duration: 0.1
+_description:
+    Attaches a hex dump of the standard part of the PCI configuration
+    space for all PCI devices.
+
 id: lsusb_attachment
 plugin: attachment
 requires: package.name == 'usbutils'

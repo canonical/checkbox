@@ -307,7 +307,7 @@ command:
  plugin: shell
  id: graphics/`echo ${index}`_compiz_check_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  requires: package.name == 'nux-tools'
- command: ! /usr/lib/nux/unity_support_test -c -p 2&>1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
+ command: ! /usr/lib/nux/unity_support_test -c -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
  estimated_duration: 0.130
  _description: Check that $product hardware is able to run compiz
  _summary: Test Compiz support for $product
@@ -323,7 +323,7 @@ command:
  plugin: shell
  id: graphics/`echo ${index}`_unity_support_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  requires: package.name == 'nux-tools'
- command: ! /usr/lib/nux/unity_support_test -p 2&>1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
+ command: ! /usr/lib/nux/unity_support_test -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
  estimated_duration: 0.131
  _description: Check that $product hardware is able to run Unity 3D
  _summary: Test Unity 3D support for $product

@@ -17,6 +17,7 @@ dmi_attachment
 dmidecode_attachment
 efi_attachment
 lspci_attachment
+lspci_standard_config_attachment
 meminfo_attachment
 modprobe_attachment
 modules_attachment

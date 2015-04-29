@@ -85,6 +85,20 @@ command: find /etc/modprobe.* -name \*.conf | xargs cat
 estimated_duration: 0.015
 _description: Attaches the contents of the various modprobe conf files.
 
+id: modinfo_attachment
+plugin: attachment
+_summary: Attach modinfo information
+command:
+    for mod in $(lsmod | cut -f 1 -d " ")
+    do
+        printf "%-16s%s\n" "name:" "$mod"
+        modinfo $mod
+        echo
+    done
+estimated_duration: 1.5
+_description: Attaches modinfo information for all currently loaded modules
+
+
 id: modules_attachment
 plugin: attachment
 command: cat /etc/modules

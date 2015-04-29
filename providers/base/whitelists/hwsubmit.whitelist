@@ -19,6 +19,7 @@ kernel_cmdline_attachment
 lsmod_attachment
 lspci_attachment
 lspci_standard_config_attachment
+modinfo_attachment
 modprobe_attachment
 modules_attachment
 sysfs_attachment

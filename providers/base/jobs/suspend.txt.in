@@ -360,7 +360,6 @@ _description:
 
 plugin: attachment
 id: suspend/suspend-single-log-attach
-depends: suspend/suspend_advanced
 command: [ -e $PLAINBOX_SESSION_SHARE/suspend_single.log ] && cat $PLAINBOX_SESSION_SHARE/suspend_single.log
 _description:
  Attaches the log from the single suspend/resume test to the results

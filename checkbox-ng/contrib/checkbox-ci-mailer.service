@@ -1,0 +1,21 @@
+[Unit]
+Description=CheckBox SRU mini CI mailer
+
+# CheckBox mini CI mailer.
+#
+# This waits for a "checkbox-sru-finished" event and then
+# uses curl to post one of two possible log files
+# to a configurable CGI URL. The CGI can do whatever it
+# wants, such as emailing the report.
+#
+# An /etc/default/plainbox-ci-mailer config file
+# with the SUBMIT_CGI variable defined is expected.
+
+[Service]
+Type=oneshot
+#Type=simple # It does not work with this
+Environment=CHECKBOX_UPSTART_LOG=/var/log/upstart/checkbox-sru.log
+Environment=CHECKBOX_DESKTOP_LOG=/tmp/checkbox.log
+ExecStartPre=/bin/sh -ec '[ -f /etc/default/plainbox-ci-mailer ] || exit 1'
+ExecStartPre=/bin/sh -ec '[ -x /usr/bin/curl ] || exit 1'
+ExecStart=/usr/bin/checkbox-ci-script.sh mailer

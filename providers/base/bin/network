@@ -43,7 +43,7 @@ from subprocess import (
 import sys
 import time
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 class IPerfPerformanceTest(object):
@@ -57,14 +57,13 @@ class IPerfPerformanceTest(object):
             target,
             fail_threshold,
             protocol="tcp",
-            mbytes="1024M"):
+            data_size="1"):
 
         self.iface = Interface(interface)
         self.target = target
         self.protocol = protocol
         self.fail_threshold = fail_threshold
-
-        self.mbytes = mbytes
+        self.data_size = data_size
 
     def run(self):
         # if max_speed is 0, assume it's wifi and move on
@@ -79,10 +78,20 @@ class IPerfPerformanceTest(object):
             logging.error("Check your device configuration and try again")
             return 1
 
-        cmd = "timeout 180 iperf -c {} -n {} -i 1 -f m".format(
-            self.target, self.mbytes)
+        # Because we can vary the data size, we need to vary the timeout as
+        # well.  It takes an estimated 15 minutes to send 1GB over 10Mb/s.
+        # 802.11b is 11 Mb/s.  So we'll assume 1.2x15 minutes or 18 minutes
+        # or 1080 seconds per Gigabit. This will allow for a long period of 
+        # time without timeout to catch devices that slow down, and also not
+        # prematurely end iperf on low-bandwidth devices.
+    
+        self.timeout = 1080*int(self.data_size)
+
+        cmd = "timeout {} iperf -c {} -n {}G -i 1 -f m".format(
+            self.timeout, self.target, self.data_size)
 
         logging.debug(cmd)
+        print("Starting iperf, this could take some time...")
         try:
             iperf_return = check_output(
                 shlex.split(cmd), universal_newlines=True)
@@ -102,7 +111,6 @@ class IPerfPerformanceTest(object):
                 iperf_return = iperf_exception.output
 
         # 930 Mbits/sec\n'
-        print(iperf_return)
         speeds = list(map(float, re.findall(r"([\w\.]+)\sMbits/sec",
                           iperf_return)))
         invalid_speed = False
@@ -263,7 +271,7 @@ class FTPPerformanceTest(object):
         if connected is False:
             return 3
 
-        filesize, delay = self.send_file()
+        datasize, delay = self.send_file()
 
         # Remove created binary
         try:
@@ -272,12 +280,12 @@ class FTPPerformanceTest(object):
             logging.error("Could not remove previous ftp file")
             logging.error(file_delete_error)
 
-        if connected and filesize > 0:
+        if connected and datasize > 0:
 
-            logging.debug("Bytes sent (%s): %.2f seconds", filesize, delay)
+            logging.debug("Bytes sent (%s): %.2f seconds", datasize, delay)
 
             # Calculate transfer rate and determine pass/fail status
-            mbs_speed = float(filesize / 131072) / float(delay)
+            mbs_speed = float(datasize / 131072) / float(delay)
             percent = (mbs_speed / int(info["Speed"])) * 100
             print("Transfer speed:")
             print("%3.2f%% of" % percent)
@@ -555,13 +563,15 @@ def interface_test(args):
             ftp_benchmark = FTPPerformanceTest(
                 test_target, test_user, test_pass, args.interface)
 
-            if args.filesize:
-                ftp_benchmark.binary_size = int(args.filesize)
+            if args.datasize:
+                ftp_benchmark.binary_size = int(args.datasize)
             result = ftp_benchmark.run()
 
         elif args.test_type.lower() == "iperf":
             iperf_benchmark = IPerfPerformanceTest(args.interface, test_target,
-                                                   args.fail_threshold)
+                                                   args.fail_threshold) 
+            if args.datasize:
+                iperf_benchmark.data_size = args.datasize
             result = iperf_benchmark.run()
 
         elif args.test_type.lower() == "stress":
@@ -622,7 +632,7 @@ network info -i eth0 --max-speed
 For running ftp benchmark test:
 network test -i eth0 -t ftp
 --target 192.168.0.1 --username USERID --password PASSW0RD
---filesize-2
+--datasize-2
 
 For running iperf test:
 network test -i eth0 -t iperf --target 192.168.0.1
@@ -686,8 +696,12 @@ TEST_TARGET_IPERF = iperf-server.example.com
     test_parser.add_argument(
         '--password', type=str, help=("For FTP test only"))
     test_parser.add_argument(
-        '--filesize', type=str,
-        help="Size (GB) of binary file to send **Note** for FTP test only")
+        '--datasize', type=str,
+        default="1",
+        help=("Amount of data to send.  For iperf tests this will direct "
+              "iperf to send DATASIZE GB of data.  For FTP tests, this "
+              "will create a file that is DATASIZE GB large to be transmitted "
+              "to the target."))
     test_parser.add_argument(
         '--config', type=str,
         default="/etc/checkbox.d/network.cfg",

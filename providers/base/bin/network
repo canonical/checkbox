@@ -43,7 +43,6 @@ from subprocess import (
 import sys
 import time
 
-logging.basicConfig(level=logging.INFO)
 
 
 class IPerfPerformanceTest(object):
@@ -111,6 +110,7 @@ class IPerfPerformanceTest(object):
                 iperf_return = iperf_exception.output
 
         # 930 Mbits/sec\n'
+        logging.debug(iperf_return)
         speeds = list(map(float, re.findall(r"([\w\.]+)\sMbits/sec",
                           iperf_return)))
         invalid_speed = False
@@ -712,6 +712,9 @@ TEST_TARGET_IPERF = iperf-server.example.com
         help=("IPERF Test ONLY. Set the failure threshold (Percent of maximum "
               "theoretical bandwidth) as a number like 80.  (Default is "
               "%(default)s)"))
+    test_parser.add_argument(
+        '--debug', default=False, action="store_true",
+        help="Turn on verbose output")
 
     # Sub info options
     info_parser.add_argument(
@@ -735,11 +738,20 @@ TEST_TARGET_IPERF = iperf-server.example.com
     info_parser.add_argument(
         '--status', default=False, action="store_true",
         help=("displays connection status"))
+    info_parser.add_argument(
+        '--debug', default=False, action="store_true",
+        help="Turn on verbose output")
 
     test_parser.set_defaults(func=interface_test)
     info_parser.set_defaults(func=interface_info)
 
     args = parser.parse_args()
+    
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
+    
     if 'func' not in args:
         parser.print_help()
     else:

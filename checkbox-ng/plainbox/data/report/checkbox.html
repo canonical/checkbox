@@ -26,7 +26,7 @@
             </div>
             {% endif %}
 
-            {% if manager.state.failed_blockers_map %}
+            {% if manager.state.get_certification_status_map() %}
             <div id="content" class="clearfix">
             <h2 id="questions">Certification Status - Blockers</h2>
                 <table style="width: 700px">
@@ -48,7 +48,7 @@
             </div>
             {% endif %}
 
-            {% if manager.state.failed_non_blockers_map %}
+            {% if manager.state.get_certification_status_map(certification_status_filter=('non-blocker',)) %}
             <div id="content" class="clearfix">
             <h2 id="questions">Certification Status - Non Blockers</h2>
                 <table style="width: 700px">

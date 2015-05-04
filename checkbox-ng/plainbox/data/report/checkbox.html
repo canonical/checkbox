@@ -26,7 +26,7 @@
             </div>
             {% endif %}
 
-            {% if manager.state.failed_blockers_map %}
+            {% if manager.state.get_certification_status_map() %}
             <div id="content" class="clearfix">
             <h2 id="questions">Certification Status - Blockers</h2>
                 <table style="width: 700px">
@@ -48,7 +48,7 @@
             </div>
             {% endif %}
 
-            {% if manager.state.failed_non_blockers_map %}
+            {% if manager.state.get_certification_status_map(certification_status_filter=('non-blocker',)) %}
             <div id="content" class="clearfix">
             <h2 id="questions">Certification Status - Non Blockers</h2>
                 <table style="width: 700px">
@@ -104,6 +104,16 @@
                 </tbody>
             </table>
             </div>
+            {% if "2013.com.canonical.certification::requirements" in manager.state.resource_map %}
+            <div id="content" class="clearfix">
+                <h2>Requirements documents</h2>
+                <ul>
+                {% for doc in manager.state.resource_map["2013.com.canonical.certification::requirements"] %}
+                    <li><a href="{{ doc["link"] }}">{{ doc["name"] }}</a></li>
+                {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
             <div id="content" class="clearfix">
                 <h2>Log Files and Environment Information</h2>
                 <div id="packages-contents">

@@ -91,9 +91,7 @@ class HTMLExporterTests(TestCase):
                                               job=self.attachment)
             },
             get_certification_status_map=mock.Mock(return_value={}),
-            resource_map=self.resource_map,
-            failed_blockers_map={},
-            failed_non_blockers_map={})
+            resource_map=self.resource_map)
         )
 
     def prepare_manager_with_certification_blocker(self):
@@ -114,19 +112,16 @@ class HTMLExporterTests(TestCase):
                 self.attachment.id: mock.Mock(result=self.attachment_result,
                                               job=self.attachment)
             },
-            get_certification_status_map=mock.Mock(return_value={
+            get_certification_status_map=mock.Mock(side_effect=[{
                 self.job1.id: mock.Mock(
                     result=self.result_fail,
                     job=self.job1,
-                    effective_certification_status='blocker')}),
-            resource_map=self.resource_map,
-            failed_blockers_map={
+                    effective_certification_status='blocker')},{
                 self.job1.id: mock.Mock(
-                result=self.result_fail,
-                job=self.job1,
-                effective_certification_status='blocker')
-            },
-            failed_non_blockers_map={})
+                    result=self.result_fail,
+                    job=self.job1,
+                    effective_certification_status='blocker')}]),
+            resource_map=self.resource_map)
         )
 
     def prepare_manager_with_certification_non_blocker(self):
@@ -147,19 +142,16 @@ class HTMLExporterTests(TestCase):
                 self.attachment.id: mock.Mock(result=self.attachment_result,
                                               job=self.attachment)
             },
-            get_certification_status_map=mock.Mock(return_value={
-                self.job1.id: mock.Mock(
+            get_certification_status_map=mock.Mock(side_effect=[{},{
+                self.job2.id: mock.Mock(
                     result=self.result_fail,
                     job=self.job1,
-                    effective_certification_status='non-blocker')}),
-            resource_map=self.resource_map,
-            failed_blockers_map={},
-            failed_non_blockers_map={
-                self.job1.id: mock.Mock(
-                result=self.result_fail,
-                job=self.job1,
-                effective_certification_status='non-blocker')
-            })
+                    effective_certification_status='non-blocker')},{
+                self.job2.id: mock.Mock(
+                    result=self.result_fail,
+                    job=self.job1,
+                    effective_certification_status='non-blocker')}]),
+            resource_map=self.resource_map)
         )
 
     def prepare_manager_with_both_certification_status(self):
@@ -185,23 +177,19 @@ class HTMLExporterTests(TestCase):
                     result=self.result_fail,
                     job=self.job1,
                     effective_certification_status='blocker')},{
+                self.job1.id: mock.Mock(
+                    result=self.result_fail,
+                    job=self.job1,
+                    effective_certification_status='blocker')},{
+                self.job2.id: mock.Mock(
+                    result=self.result_fail,
+                    job=self.job2,
+                    effective_certification_status='non-blocker')},{
                 self.job2.id: mock.Mock(
                     result=self.result_fail,
                     job=self.job2,
                     effective_certification_status='non-blocker')}]),
-            resource_map=self.resource_map,
-            failed_blockers_map={
-                self.job1.id: mock.Mock(
-                result=self.result_fail,
-                job=self.job1,
-                effective_certification_status='blocker')
-            },
-            failed_non_blockers_map={
-                self.job2.id: mock.Mock(
-                result=self.result_fail,
-                job=self.job2,
-                effective_certification_status='non-blocker')
-            })
+            resource_map=self.resource_map)
         )
 
     def test_perfect_match_without_certification_status(self):
@@ -218,8 +206,6 @@ class HTMLExporterTests(TestCase):
             self.prepare_manager_without_certification_status(), stream)
         actual_result = stream.getvalue()  # This is bytes
         self.assertIsInstance(actual_result, bytes)
-        with open('/tmp/bozo.html', 'wb') as f:
-            f.write(actual_result)
         expected_result = resource_string(
             "plainbox",
             "test-data/html-exporter/without_certification_status.html"

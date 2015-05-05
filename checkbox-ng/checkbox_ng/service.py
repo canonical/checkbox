@@ -1242,6 +1242,9 @@ class ServiceWrapper(PlainBoxObjectWrapper):
         dbus_interface=SERVICE_IFACE, in_signature='ao', out_signature='o')
     @PlainBoxObjectWrapper.translate
     def CreateSession(self, job_list: 'ao'):
+        # remove existing sessions from sessions_list
+        if self.native.session_list:
+            del self.native.session_list[:]
         logger.info("CreateSession(%r)", job_list)
         # Create a session
         session_obj = self.native.create_session(job_list)

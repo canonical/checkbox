@@ -54,6 +54,13 @@ command:
   shopt -s extglob
   cat $PLAINBOX_PROVIDER_DATA/../jobs/disk.txt?(.in)
 
+id: __dock__
+plugin: local
+_description: Docking tests
+command:
+  shopt -s extglob
+  cat $PLAINBOX_PROVIDER_DATA/../jobs/dock.pxu
+
 id: __ethernet__
 plugin: local
 _description: Ethernet Device tests

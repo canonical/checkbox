@@ -589,6 +589,8 @@ class SubmissionResult(object):
             "name": package["name"],
             "version": package["properties"]["version"],
             }
+        if 'modalias' in package["properties"]:
+            package_version['modalias'] = package['properties']['modalias']
         self.dispatcher.publishEvent("package_version", package_version)
 
     def addPackageVersion(self, test_run, package_version):

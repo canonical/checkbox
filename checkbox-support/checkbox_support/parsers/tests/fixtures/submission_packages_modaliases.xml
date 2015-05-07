@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<system version="1.0">
+<software>
+<packages>
+<package id="4" name="accountsservice">
+<property name="description" type="str">amd64</property>
+<property name="desired" type="str">Install</property>
+<property name="status" type="str">Installed</property>
+<property name="version" type="str">0.6.21-6ubuntu2</property>
+</package>
+<package id="5" name="a_package_with_modaliases">
+<property name="description" type="str">amd64</property>
+<property name="desired" type="str">Install</property>
+<property name="status" type="str">Installed</property>
+<property name="version" type="str">1.0-1-ubuntu1~bogus</property>
+<property name="modalias" type="str">nvidia_340(pci:v000010DEd000005E7sv*sd00000595bc03sc*i*)</property>
+</package>
+</packages>
+</software>
+</system>

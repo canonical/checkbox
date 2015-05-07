@@ -184,6 +184,24 @@ class TestSubmissionParser(TestCase):
         self.assertEqual(package_version["name"], "accountsservice")
         self.assertEqual(package_version["version"], "0.6.21-6ubuntu2")
 
+    def test_package_modaliases(self):
+        """
+        Modaliases information is in the packages element if a package
+        contains it.
+        """
+        result = self.getResult("submission_packages_modaliases.xml")
+        self.assertTrue("package_versions" in result)
+        self.assertEqual(len(result["package_versions"]), 2)
+
+        package = result["package_versions"][0]
+        self.assertEqual(package["name"], "accountsservice")
+        self.assertNotIn("modalias", package)
+
+        package = result["package_versions"][1]
+        self.assertEqual(package["name"], "a_package_with_modaliases")
+        self.assertEqual(package["modalias"], "nvidia_340(pci:v000010DEd000005E7sv*sd00000595bc03sc*i*)")
+        self.assertEqual(package["version"], "1.0-1-ubuntu1~bogus")
+
     def test_test_results(self):
         """Test results are in the questions element."""
         result = self.getResult("submission_questions.xml")

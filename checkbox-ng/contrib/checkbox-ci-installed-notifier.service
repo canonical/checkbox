@@ -1,8 +1,9 @@
 [Unit]
 Description=CheckBox SRU mini CI notifier
+After=network-online.target
 # CheckBox mini CI notifier.
 #
-# This waits for a "checkbox-sru-started" event and then
+# This waits for a the "Network is Online" target and then
 # uses curl to post the test starting notification
 # to a configurable CGI URL. The CGI can do whatever it
 # wants, such as checking the test is run or not.
@@ -13,8 +14,11 @@ Description=CheckBox SRU mini CI notifier
 [Service]
 Type=oneshot
 #Type=simple # It does not work with this
-Environment=CHECKBOX_SERVER_CONF=/etc/init/checkbox-sru.conf
+Environment=CHECKBOX_SERVER_CONF=/lib/systemd/system/checkbox-sru.service
 Environment=CHECKBOX_DESKTOP_XDG=/etc/xdg/autostart/checkbox-sru.desktop
 ExecStartPre=/bin/sh -ec '[ -f /etc/default/plainbox-ci-mailer ] || exit 1'
 ExecStartPre=/bin/sh -ec '[ -x /usr/bin/curl ] || exit 1'
 ExecStart=/usr/bin/checkbox-ci-script.sh notification
+
+[Install]
+WantedBy=multi-user.target

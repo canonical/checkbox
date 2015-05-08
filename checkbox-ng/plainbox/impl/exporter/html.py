@@ -41,9 +41,7 @@ class HTMLSessionStateExporter(Jinja2SessionStateExporter):
     """
     Session state exporter creating HTML documents.
 
-    It basically applies an xslt to the XMLSessionStateExporter output,
-    and then inlines some resources to produce a monolithic report in a
-    single file.
+    This exporter uses jinja2 template to create a HTML report.
     """
     def __init__(self, option_list=None, system_id=None, timestamp=None,
                  client_version=None, client_name='plainbox'):

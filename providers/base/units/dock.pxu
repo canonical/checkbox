@@ -1,0 +1,1032 @@
+id: dock/docking
+plugin: manual
+estimated_duration: 30.00
+_summary: Docking test
+_purpose:
+    This test will check the device can be used after docking.
+_steps:
+    1. Dock the device to the docking unit.
+_verification:
+    Is the device working as expected after being docked?
+
+id: dock/monitor-displayport
+depends: dock/docking
+estimated_duration: 120.0
+_summary: DisplayPort test on the dock
+plugin: manual
+_purpose:
+    This test will check the DisplayPort(s) on the dock.
+_steps:
+    Skip this test if the dock does not have a DisplayPort.
+    1. Connect a display (if not already connected) to the DisplayPort on the dock
+    2. Repeat step 1 for each additional DisplayPorts, if any
+_verification:
+    Was the desktop displayed correctly on both screens?
+
+id: dock/monitor-dvi
+depends: dock/docking
+estimated_duration: 120.0
+_summary: DVI port test on the dock
+plugin: manual
+_purpose:
+    This test will check the DVI port(s) on the dock.
+_steps:
+    Skip this test if the dock does not have a DVI port.
+    1. Connect a display (if not already connected) to the DVI port on the dock
+    2. Repeat step 1 for each additional DVI port, if any
+_verification:
+    Was the desktop displayed correctly on both screens?
+
+id: dock/monitor-hdmi
+depends: dock/docking
+estimated_duration: 120.0
+_summary: HDMI port test on the dock
+plugin: manual
+_purpose:
+    This test will check the HDMI port(s) on the dock.
+_steps:
+    Skip this test if the dock does not have a HDMI port.
+    1. Connect a display (if not already connected) to the HDMI port on the dock
+    2. Repeat step 1 for each additional HDMI port, if any
+_verification:
+    Was the desktop displayed correctly on both screens?
+
+id: dock/monitor-vga
+depends: dock/docking
+estimated_duration: 120.0
+_summary: VGA port test on the dock
+plugin: manual
+_purpose:
+    This test will check the VGA port(s) on the dock.
+_steps:
+    Skip this test if the dock does not have a VGA port.
+    1. Connect a display (if not already connected) to the VGA port on the dock
+    2. Repeat step 1 for each additional VGA port, if any
+_verification:
+    Was the desktop displayed correctly on both screens?
+
+id: dock/monitor-multi-head
+depends: dock/docking
+estimated_duration: 120.0
+_summary: Multiple monitors test while docked
+plugin: manual
+_purpose:
+    This test verifies that multi-monitor output works using the dock. You will need at least two external monitors to perform this test.
+_steps:
+    Skip this test if your video card or the dock do not support multiple monitors.
+    1. If your dock provides more than one monitor outputs, connect two monitors
+    2. Open the "Displays" tool (open the dash and search for "Displays")
+    3. Configure your output to provide one desktop across all the monitors
+    4. Open any application and drag its window from one monitor to the next.
+_verification:
+    Was the stretched desktop displayed correctly across all the screens?
+
+id: dock/keys-video-out
+depends: dock/docking
+estimated_duration: 120.0
+_summary: Video Out hotkey test
+plugin: manual
+_purpose:
+    Validate that the External Video hotkey is working as expected
+_steps:
+    1. Plug in an external monitor
+    2. Press the display hotkey to change the monitors configuration
+_verification:
+    Check that the video signal can be mirrored, extended, displayed on external or onboard only.
+
+### Audio Tests ###
+
+plugin: shell
+id: dock/audio-list-devices
+estimated_duration: 1.0
+depends: dock/docking
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+command: cat /proc/asound/cards
+_description: Test to detect audio devices
+
+id: dock/audio-playback-hdmi
+depends: dock/docking
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+_summary: HDMI audio test
+plugin: user-interact-verify
+estimated_duration: 30.0
+command:
+ audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings set --verbose --device=hdmi --volume=50
+ gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ EXIT_CODE=$?
+ audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ exit $EXIT_CODE
+_purpose:
+    Dock HDMI audio interface verification
+_steps:
+    1. Plug an external HDMI device with sound to the dock (use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    2. Go to the Sound settings and make sure the correct Output is selected
+    3. Click the Test button
+_verification:
+    Did you hear the sound from the HDMI device?
+
+id: dock/audio-playback-displayport
+depends: dock/docking
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+_summary: DisplayPort audio test
+plugin: user-interact-verify
+estimated_duration: 30.0
+command:
+ audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings set --verbose --device=hdmi --volume=50
+ gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ EXIT_CODE=$?
+ audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ exit $EXIT_CODE
+_purpose:
+    Dock DisplayPort audio interface verification
+_steps:
+    1. Plug an external DisplayPort device with sound to the dock (use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    2. Go to the Sound settings and make sure the correct Output is selected
+    3. Click the Test button
+_verification:
+    Did you hear the sound from the DisplayPort device?
+
+id: dock/audio-playback-headphones
+plugin: user-interact-verify
+estimated_duration: 30.0
+_summary: Headphones output test
+depends: dock/audio-list-devices
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+command:
+  audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings set --device=pci --volume=50
+  gst_pipeline_test -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+  EXIT_CODE=$?
+  audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  exit $EXIT_CODE
+_purpose:
+    This test will check that headphones connector works correctly.
+    (Skip this test if there is no headphone connector on the dock)
+_steps:
+    1. Connect a pair of headphones to the dock
+    2. Click the Test button to play a sound to your audio device
+_verification:
+    Did you hear a sound through the headphones and did the sound play without any distortion, clicks or other strange noises from your headphones?
+
+plugin: user-interact-verify
+id: dock/audio-alsa-record-playback-external
+estimated_duration: 30.0
+_summary: External microphone plugged to the dock to record sound test
+depends: dock/audio-playback-headphones
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'pulseaudio-utils'
+ package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
+command:
+ audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings set --device=pci --volume=50
+ alsa_record_playback
+ EXIT_CODE=$?
+ audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ exit $EXIT_CODE
+_purpose:
+    This test will check that recording sound using an external microphone works correctly
+    (Skip this test if the dock does not have a microphone connector)
+_steps:
+    1. Connect a microphone to the dock's microphone port
+    2. Click "Test", then speak into the external microphone
+    3. After a few seconds, your speech will be played back to you
+_verification:
+    Did you hear your speech played back?
+
+plugin: shell
+id: dock/audio-alsa-info-collect
+estimated_duration: 2.0
+depends: dock/docking
+command: alsa_info --no-dialog --no-upload --output ${PLAINBOX_SESSION_SHARE}/alsa_info.log
+_description:
+ Collect audio-related system information. This data can be used to
+ simulate this computer's audio subsystem and perform more detailed tests
+ under a controlled environment.
+
+plugin: attachment
+id: dock/audio-alsa-info-attachment
+depends: dock/audio-alsa-info-collect
+estimated_duration: 1.0
+command: [ -e ${PLAINBOX_SESSION_SHARE}/alsa_info.log ] && cat ${PLAINBOX_SESSION_SHARE}/alsa_info.log
+_description:
+ Attaches the audio hardware data collection log to the results.
+
+plugin: manual
+id: dock/audio-external-lineout
+depends: dock/docking
+estimated_duration: 30.0
+_summary: Line-out connection test
+_purpose:
+     Check that external line-out connection works correctly
+     (Skip this test if dock does not have a line out connector)
+_steps:
+     1. Insert cable to speakers (with built-in amplifiers) on the dock's line-out port
+     2. Open system sound preferences, 'Output' tab, select 'Line-out' on the connector list. Click the Test button
+     3. On the system sound preferences, select 'Internal Audio' on the device list and click 'Test Speakers' to check left and right channel
+_verification:
+     1. Do you hear a sound in the speakers? The internal speakers should *not* be muted automatically
+     2. Do you hear the sound coming out on the corresponding channel?
+
+plugin: user-interact-verify
+id: dock/audio-external-linein
+depends: dock/docking
+estimated_duration: 120.0
+_summary: Line-in connection test
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'pulseaudio-utils'
+ package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
+command:
+  audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings set --device=pci --volume=50
+  alsa_record_playback
+  EXIT_CODE=$?
+  audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  exit $EXIT_CODE
+_purpose:
+    Check that external line-in connection works correctly
+    (Skip this test if the dock does not have a line in connector)
+_steps:
+    1. Use a cable to connect the dock's line-in port to an external line-out source.
+    2. Open system sound preferences, 'Input' tab, select 'Line-in' on the connector list. Click the Test button
+    3. After a few seconds, your recording will be played back to you.
+_verification:
+    Did you hear your recording?
+
+id: dock/audio-speaker-headphone-plug-detection
+plugin: user-interact
+depends: dock/docking
+estimated_duration: 60.0
+_summary: Headphones recognized when plugged to the dock test
+requires:
+ device.category == 'AUDIO'
+ package.name == 'pulseaudio-utils'
+command: pulse-active-port-change sinks
+_purpose:
+    Check that system detects speakers or headphones being plugged in
+    (Skip this test if the dock does not have headphones connector)
+_steps:
+    1. Prepare a pair of headphones or speakers with a standard 3.5mm jack
+    2. Locate the speaker / headphone jack on the dock under test
+    3. Run the test (you have 30 seconds from now on)
+    4. Plug headphones or speakers into the appropriate jack
+    5. Unplug the device for subsequent tests.
+_verification:
+    Verification is automatic, no action is required.
+    The test times out after 30 seconds (and fails in that case).
+
+id: dock/audio-microphone-plug-detection
+plugin: user-interact
+depends: dock/docking
+estimated_duration: 60.0
+_summary: Microphone recognized when plugged to the dock test
+requires:
+ device.category == 'AUDIO'
+ package.name == 'pulseaudio-utils'
+command: pulse-active-port-change sources
+_purpose:
+    Check that system detects a microphone being plugged in
+    (Skip this test if the dock does not have a microphone connector)
+_steps:
+    1. Prepare a microphone with a standard 3.5mm jack
+    2. Locate the microphone jack on the dock under test.
+       Keep in mind that it may be shared with the headphone jack.
+    3. Run the test (you have 30 seconds from now on)
+    4. Plug the microphone into the appropriate jack
+    5. Unplug the device for subsequent tests.
+_verification:
+    Verification is automatic, no action is required.
+    The test times out after 30 seconds (and fails in that case).
+
+### Networking Tests ###
+
+id: dock/networking-gateway-ping
+plugin: user-interact-verify
+depends: dock/docking ethernet/detect
+command: gateway_ping_test
+estimated_duration: 10.00
+_summary: Ping test using dock's Ethernet connectivity
+_purpose:
+    Tests whether the system has a working Internet connection.
+_steps:
+    1. Make sure the dock is connected to network using an Ethernet cable
+    2. Make sure the laptop itself is not connected to any Ethernet cable
+    3. Launch the test
+_verification:
+    Was the test able to ping the network using the Ethernet connection?
+
+id: dock/networking-ntp
+plugin: user-interact-verify
+depends: dock/docking
+requires: package.name == 'ntpdate'
+user: root
+command: network_ntp_test
+estimated_duration: 10.00
+_summary: NTP sync test using dock's Ethernet connectivity
+_purpose:
+    Test to see if we can sync local clock to an NTP server
+_steps:
+    1. Make sure the dock is connected to network using an Ethernet cable
+    2. Make sure the laptop itself is not connected to any Ethernet cable
+    3. Launch the test
+_verification:
+    Was the test able to synchronize system time using the Ethernet connection?
+
+### USB Tests ###
+
+plugin: user-interact-verify
+id: dock/usb-HID
+estimated_duration: 20.0
+_summary: USB HID device test
+command: keyboard_test
+_purpose:
+    This test will check that you can use a USB HID device
+_steps:
+    1. Enable either a USB mouse or keyboard
+    2. For mice, perform actions such as moving the pointer, right and left button clicks and double clicks
+    3. For keyboards, click the Test button to lauch a small tool. Type some text and close the tool.
+_verification:
+    Did the device work as expected?
+
+plugin: user-interact
+id: dock/usb-insert
+estimated_duration: 10.0
+_summary: USB drive insertion test
+command: removable_storage_watcher insert usb
+_purpose:
+    This test will check that the system correctly detects the insertion of
+    a USB storage device plugged on the dock
+_steps:
+    1. Click "Test" and insert a USB storage device, preferably a HDD,
+       in one of the dock's port.
+       Although a USB pen drive may be used it might cause performance
+       related tests to fail. (Note: this test will time-out after 20
+       seconds.)
+    2. Do not unplug the device after the test.
+_verification:
+    The verification of this test is automated. Do not change the
+    automatically selected result.
+
+plugin: user-interact
+id: dock/usb3-insert
+estimated_duration: 10.0
+_summary: USB3 drive insertion test
+command: removable_storage_watcher -m 500000000 insert usb
+_purpose:
+    This test will check that the system correctly detects the insertion of
+    a USB 3.0 storage device
+_steps:
+    1. Click "Test" and insert a USB 3.0 storage device, preferably a HDD,
+       in one of the dock's USB 3.0 port. Although a USB 3.0 pen drive may
+       be used it might cause performance related tests to fail.
+       (Note: this test will time-out after 20 seconds.)
+    2. Do not unplug the device after the test.
+_verification:
+    The verification of this test is automated. Do not change the
+    automatically selected result.
+
+plugin: user-interact
+id: dock/usb-remove
+depends: dock/usb-insert
+estimated_duration: 10.0
+_summary: USB drive removal test
+command: removable_storage_watcher remove usb
+_purpose:
+    This test will check that the system correctly detects the removal of
+    a USB storage device
+_steps:
+    1. Click "Test" and remove the USB device from the dock.
+       (Note: this test will time-out after 20 seconds.)
+_verification:
+    The verification of this test is automated. Do not change the
+    automatically selected result.
+
+plugin: user-interact
+id: dock/usb3-remove
+depends: dock/usb3-insert
+estimated_duration: 10.0
+_summary: USB3 drive removal test
+command: removable_storage_watcher -m 500000000 remove usb
+_purpose:
+    This test will check that the system correctly detects the removal of
+    a USB 3.0 storage device
+_steps:
+    1. Click "Test" and remove the USB 3.0 device from the dock.
+       (Note: this test will time-out after 20 seconds.)
+_verification:
+    The verification of this test is automated. Do not change the
+    automatically selected result.
+
+plugin: shell
+id: dock/usb-storage-automated
+depends: dock/usb-insert
+user: root
+estimated_duration: 45.0
+_summary: USB drive storage test
+command: removable_storage_test -s 268400000 usb
+_description:
+ This test is automated and executes after the dock/usb_insert test is run.
+
+plugin: shell
+id: dock/usb3-storage-automated
+depends: dock/usb3-insert
+user: root
+estimated_duration: 45.0
+_summary: USB3 drive storage test
+command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+_description:
+ This test is automated and executes after the dock/usb3_insert test is run.
+
+### ACPI ###
+
+id: dock/battery-charging
+_summary: Battery charging when docked test
+plugin: shell
+depends: dock/docking
+estimated_duration: 1.0
+command:
+ if [ "`upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep "state" | awk '{print $2}'`" = "discharging" ] ; then exit 1 ; fi
+_description:
+ This test will make sure the laptop is being charged while connected to the dock.
+
+plugin: shell
+id: dock/network-before-suspend
+depends: ethernet/detect
+estimated_duration: 1.2
+_summary: Network status before suspend
+_description: Record the current network before suspending.
+command: set -o pipefail; gateway_ping_test | tee $PLAINBOX_SESSION_SHARE/network_before_suspend.txt
+
+plugin: shell
+id: dock/audio-before-suspend
+estimated_duration: 1.0
+_summary: Audio status before suspend
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+_description: Record mixer settings before suspending.
+command: audio_settings store --file=$PLAINBOX_SESSION_SHARE/audio_settings_before_suspend
+
+id: dock/suspend-dock-resume
+plugin: manual
+estimated_duration: 120.00
+_summary: Suspend the device, dock it and resume it
+_purpose:
+    This test will check the device can be suspended, docked and resumed properly
+_steps:
+    1. If the laptop is currently docked, undock it now
+    2. Suspend the laptop (e.g. by closing its lid)
+    3. Dock the laptop
+    4. Resume the laptop (e.g. by pressing the Power button on the dock)
+_verification:
+    Is the device working as expected after being docked and resumed?
+
+id: dock/networking-gateway-ping-after-suspend
+plugin: shell
+depends: dock/suspend-dock-resume ethernet/detect
+command: gateway_ping_test
+estimated_duration: 2.00
+_summary: Network gateway ping after suspend
+_description: Tests whether the system has a working Internet connection.
+
+plugin: user-interact
+id: dock/usb-insert-after-suspend
+depends: dock/suspend-dock-resume
+estimated_duration: 10.0
+_summary: USB drive insertion after resuming
+command: removable_storage_watcher insert usb
+_purpose:
+    This test will check that the system correctly detects the insertion of
+    a USB storage device plugged on the dock after suspend
+_steps:
+    1. Click "Test" and insert a USB storage device, preferably a HDD,
+       in one of the dock's port.
+       Although a USB pen drive may be used it might cause performance
+       related tests to fail. (Note: this test will time-out after 20
+       seconds.)
+    2. Do not unplug the device after the test.
+_verification:
+    The verification of this test is automated. Do not change the
+    automatically selected result.
+
+plugin: user-interact
+id: dock/usb3-insert-after-suspend
+depends: dock/suspend-dock-resume
+estimated_duration: 10.0
+_summary: USB3 drive insertion after resuming
+command: removable_storage_watcher -m 500000000 insert usb
+_purpose:
+    This test will check that the system correctly detects the insertion of
+    a USB 3.0 storage device after suspend
+_steps:
+    1. Click "Test" and insert a USB 3.0 storage device, preferably a HDD,
+       in one of the dock's USB 3.0 port. Although a USB 3.0 pen drive may
+       be used it might cause performance related tests to fail.
+       (Note: this test will time-out after 20 seconds.)
+    2. Do not unplug the device after the test.
+_verification:
+    The verification of this test is automated. Do not change the
+    automatically selected result.
+
+plugin: user-interact
+id: dock/usb-remove-after-suspend
+depends: dock/usb-insert-after-suspend
+estimated_duration: 10.0
+_summary: USB drive removal after resuming
+command: removable_storage_watcher remove usb
+_purpose:
+    This test will check that the system correctly detects the removal of
+    a USB storage device after suspend
+_steps:
+    1. Click "Test" and remove the USB device from the dock.
+       (Note: this test will time-out after 20 seconds.)
+_verification:
+    The verification of this test is automated. Do not change the
+    automatically selected result.
+
+plugin: user-interact
+id: dock/usb3-remove-after-suspend
+depends: dock/usb3-insert-after-suspend
+estimated_duration: 10.0
+_summary: USB3 drive removal after resuming
+command: removable_storage_watcher -m 500000000 remove usb
+_purpose:
+    This test will check that the system correctly detects the removal of
+    a USB 3.0 storage device after suspend
+_steps:
+    1. Click "Test" and remove the USB 3.0 device from the dock.
+       (Note: this test will time-out after 20 seconds.)
+_verification:
+    The verification of this test is automated. Do not change the
+    automatically selected result.
+
+plugin: shell
+id: dock/usb-storage-automated-after-suspend
+depends: dock/usb-insert-after-suspend
+user: root
+estimated_duration: 45.0
+_summary: USB drive storage test after resuming
+command: removable_storage_test -s 268400000 usb
+_description:
+ This test is automated and executes after the dock/usb-insert test is run.
+
+plugin: shell
+id: dock/usb3-storage-automated-after-suspend
+depends: dock/usb3-insert-after-suspend
+user: root
+estimated_duration: 45.0
+_summary: USB3 drive storage test after resuming
+command: removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+_description:
+ This test is automated and executes after the dock/usb3-insert test is run.
+
+plugin: user-interact-verify
+id: dock/usb-HID-after-suspend
+depends: dock/suspend-dock-resume
+estimated_duration: 20.0
+_summary: USB HID device test after resuming
+command: keyboard_test
+_purpose:
+    This test will check that you can use a USB HID device
+_steps:
+    1. Enable either a USB mouse or keyboard
+    2. For mice, perform actions such as moving the pointer, right and left button clicks and double clicks
+    3. For keyboards, click the Test button to lauch a small tool. Type some text and close the tool.
+_verification:
+    Did the device work as expected?
+
+id: dock/monitor-displayport-after-suspend
+depends: dock/suspend-dock-resume
+estimated_duration: 120.0
+_summary: DisplayPort test on the dock after resuming
+plugin: manual
+_purpose:
+    This test will check the DisplayPort(s) on the dock after resuming.
+_steps:
+    Skip this test if the dock does not have a DisplayPort.
+    1. Connect a display (if not already connected) to the DisplayPort on the dock
+    2. Repeat step 1 for each additional DisplayPorts, if any
+_verification:
+    Was the desktop displayed correctly on both screens?
+
+id: dock/monitor-dvi-after-suspend
+depends: dock/suspend-dock-resume
+estimated_duration: 120.0
+_summary: DVI port test on the dock after resuming
+plugin: manual
+_purpose:
+    This test will check the DVI port(s) on the dock after resuming.
+_steps:
+    Skip this test if the dock does not have a DVI port.
+    1. Connect a display (if not already connected) to the DVI port on the dock
+    2. Repeat step 1 for each additional DVI port, if any
+_verification:
+    Was the desktop displayed correctly on both screens?
+
+id: dock/monitor-hdmi-after-suspend
+depends: dock/suspend-dock-resume
+estimated_duration: 120.0
+_summary: HDMI port test on the dock after resuming
+plugin: manual
+_purpose:
+    This test will check the HDMI port(s) on the dock after resuming.
+_steps:
+    Skip this test if the dock does not have a HDMI port.
+    1. Connect a display (if not already connected) to the HDMI port on the dock
+    2. Repeat step 1 for each additional HDMI port, if any
+_verification:
+    Was the desktop displayed correctly on both screens?
+
+id: dock/monitor-vga-after-suspend
+depends: dock/suspend-dock-resume
+estimated_duration: 120.0
+_summary: VGA port test on the dock after resuming
+plugin: manual
+_purpose:
+    This test will check the VGA port(s) on the dock after resuming.
+_steps:
+    Skip this test if the dock does not have a VGA port.
+    1. Connect a display (if not already connected) to the VGA port on the dock
+    2. Repeat step 1 for each additional VGA port, if any
+_verification:
+    Was the desktop displayed correctly on both screens?
+
+id: dock/suspend-undock-resume
+plugin: manual
+estimated_duration: 120.00
+_summary: Suspend the device, undock it and resume it
+_purpose:
+    This test will check the device can be suspended, undocked and resumed properly
+_steps:
+    1. If the laptop is currently undocked, dock it now
+    2. Suspend the laptop (e.g. by closing its lid)
+    3. Undock the laptop
+    4. Resume the laptop (e.g. by pressing its Power button)
+_verification:
+    Is the device working as expected after being undocked and resumed?
+
+plugin: shell
+id: dock/wireless-connection-after-suspend-wpa-bg
+depends: dock/suspend-undock-resume
+estimated_duration: 20.0
+_summary: Wireless connection after suspend (WPA BG)
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'multiple'
+user: root
+environ: WPA_BG_SSID WPA_BG_PSK
+command:
+    trap "nmcli con delete id $WPA_BG_SSID" EXIT
+    if create_connection wifi $WPA_BG_SSID --security=wpa --key=$WPA_BG_PSK; then
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        iw dev $INTERFACE link
+        gateway_ping_test --interface=$INTERFACE
+    else
+        exit 1
+    fi
+_description:
+ Tests that the systems wireless hardware can connect to a router using WPA
+ security and the 802.11b/g protocols after the system has been suspended.
+
+plugin: shell
+id: dock/wireless-connection-after-suspend-open-bg
+depends: dock/suspend-undock-resume
+estimated_duration: 1.2
+_summary: Wireless connection after suspend (Open BG)
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'multiple'
+user: root
+environ: OPEN_BG_SSID
+command:
+    trap "nmcli con delete id $OPEN_BG_SSID" EXIT
+    if create_connection wifi $OPEN_BG_SSID; then
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        iw dev $INTERFACE link
+        gateway_ping_test --interface=$INTERFACE
+    else
+        exit 1
+    fi
+_description:
+ Tests that the systems wireless hardware can connect to a router using no
+ security and the 802.11b/g protocols after the system has been suspended.
+
+plugin: shell
+id: dock/wireless-connection-after-suspend-wpa-n
+depends: dock/suspend-undock-resume
+estimated_duration: 1.2
+_summary: Wireless connection after suspend (WPA N)
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'multiple'
+user: root
+environ: WPA_N_SSID WPA_N_PSK
+command:
+    trap "nmcli con delete id $WPA_N_SSID" EXIT
+    if create_connection wifi $WPA_N_SSID --security=wpa --key=$WPA_N_PSK; then
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        iw dev $INTERFACE link
+        gateway_ping_test --interface=$INTERFACE
+    else
+        exit 1
+    fi
+_description:
+ Tests that the systems wireless hardware can connect to a router using WPA
+ security and the 802.11n protocol after the system has been suspended.
+
+plugin: shell
+id: dock/wireless-connection-after-suspend-open-n
+depends: dock/suspend-undock-resume
+estimated_duration: 1.2
+_summary: Wireless connection after suspend (Open N)
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'multiple'
+user: root
+environ: OPEN_N_SSID
+command:
+    trap "nmcli con delete id $OPEN_N_SSID" EXIT
+    if create_connection wifi $OPEN_N_SSID; then
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        iw dev $INTERFACE link
+        gateway_ping_test --interface=$INTERFACE
+    else
+        exit 1
+    fi
+_description:
+ Tests that the systems wireless hardware can connect to a router using no
+ security and the 802.11n protocol after the system has been suspended.
+
+plugin: shell
+id: dock/wireless-connection-after-suspend-wpa-ac
+depends: dock/suspend-undock-resume
+estimated_duration: 1.2
+_summary: Wireless connection after suspend (WPA AC)
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'multiple'
+ IEEE_80211.ac == 'supported'
+user: root
+environ: WPA_AC_SSID WPA_AC_PSK
+command:
+    trap "nmcli con delete id $WPA_AC_SSID" EXIT
+    if create_connection wifi $WPA_AC_SSID --security=wpa --key=$WPA_AC_PSK; then
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        iw dev $INTERFACE link
+        gateway_ping_test --interface=$INTERFACE
+    else
+        exit 1
+    fi
+_description:
+ Tests that the systems wireless hardware can connect to a router using WPA
+ security and the 802.11ac protocol after the system has been suspended.
+
+plugin: shell
+id: dock/wireless-connection-after-suspend-open-ac
+depends: dock/suspend-undock-resume
+estimated_duration: 1.2
+_summary: Wireless connection after suspend (Open AC)
+requires:
+ device.category == 'WIRELESS'
+ environment.ROUTERS == 'multiple'
+ IEEE_80211.ac == 'supported'
+user: root
+environ: OPEN_AC_SSID
+command:
+    trap "nmcli con delete id $OPEN_AC_SSID" EXIT
+    if create_connection wifi $OPEN_AC_SSID; then
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        iw dev $INTERFACE link
+        gateway_ping_test --interface=$INTERFACE
+    else
+        exit 1
+    fi
+_description:
+ Tests that the systems wireless hardware can connect to a router using no
+ security and the 802.11ac protocol after the system has been suspended.
+
+plugin: shell
+id: dock/audio-after-suspend
+estimated_duration: 1.0
+_summary: Audio after resuming test
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+depends: dock/suspend-undock-resume dock/audio-before-suspend
+_description: Verify that mixer settings after suspend are the same as before suspend.
+command:
+  audio_settings store --file=$PLAINBOX_SESSION_SHARE/audio_settings_after_suspend
+  diff $PLAINBOX_SESSION_SHARE/audio_settings_before_suspend $PLAINBOX_SESSION_SHARE/audio_settings_after_suspend
+
+plugin: shell
+id: dock/record-playback-after-suspend
+estimated_duration: 10.0
+_summary: Record playback after resuming
+depends: dock/suspend-undock-resume
+requires:
+ package.name == 'python3-gi'
+ package.name == 'gir1.2-gstreamer-1.0'
+ package.name == 'libgstreamer1.0-0'
+ package.name == 'gstreamer1.0-plugins-good'
+ package.name == 'gstreamer1.0-pulseaudio'
+ package.name == 'alsa-base'
+ device.category == 'AUDIO'
+command: audio_test
+_description:
+ This will check to make sure that your audio device works properly after a suspend and resume.  This may work fine with speakers and onboard microphone, however, it works best if used with a cable connecting the audio-out jack to the audio-in jack.
+
+plugin: manual
+id: dock/expresscard-verification
+estimated_duration: 10.0
+_summary: ExpressCard slot verification
+depends: dock/docking
+_purpose:
+    This will verify that an ExpressCard slot on the dock can detect inserted devices.
+_steps:
+    Skip this test if you do not have an ExpressCard slot on the dock.
+    1. Plug an ExpressCard device into the ExpressCard slot
+_verification:
+    Was the device correctly detected?
+
+plugin: user-interact
+id: dock/firewire-insert
+estimated_duration: 20.0
+_summary: FireWire HDD insertion test
+depends: dock/docking
+command: removable_storage_watcher insert firewire
+_purpose:
+    This test will check the system can detect the insertion of a FireWire HDD on the dock
+_steps:
+    (Skip this test id there is no FireWire connector on the dock)
+    1. Click 'Test' to begin the test. This test will
+       timeout and fail if the insertion has not been detected within 20 seconds.
+    2. Plug a FireWire HDD into an available FireWire port.
+_verification:
+    The verification of this test is automated. Do not change the automatically
+    selected result
+
+plugin: shell
+id: dock/firewire-storage-test
+estimated_duration: 45.0
+_summary: FireWire HDD storage test
+depends: dock/docking dock/firewire-insert
+user: root
+command: removable_storage_test -s 268400000 firewire
+_description:
+ This is an automated test which performs read/write operations on an attached
+ FireWire HDD
+
+plugin: user-interact
+id: dock/firewire-remove
+estimated_duration: 20.0
+_summary: FireWire HDD removal test
+depends: dock/firewire-insert
+command: removable_storage_watcher remove firewire
+_purpose:
+    This test will check the system can detect the removal of a FireWire HDD
+_steps:
+    1. Click 'Test' to begin the test. This test will timeout and fail if
+       the removal has not been detected within 20 seconds.
+    2. Remove the previously attached FireWire HDD from the FireWire port on
+       the dock.
+_verification:
+    The verification of this test is automated. Do not change the automatically
+    selected result
+
+plugin: user-interact
+id: dock/esata-insert
+estimated_duration: 20.0
+_summary: eSATA HDD insertion test
+depends: dock/docking
+command: removable_storage_watcher insert ata_serial_esata
+_purpose:
+    This test will check the system can detect the insertion of an eSATA HDD on the dock
+_steps:
+    (Skip this test if there are no eSATA connectors on the dock)
+    1. Click 'Test' to begin the test. This test will
+       timeout and fail if the insertion has not been detected within 20 seconds.
+    2. Plug an eSATA HDD into an available eSATA port on the dock.
+_verification:
+    The verification of this test is automated. Do not change the automatically
+    selected result
+
+plugin: shell
+id: dock/esata-storage-test
+estimated_duration: 20.0
+_summary: eSATA HDD storage test
+user: root
+depends: dock/esata-insert
+command: removable_storage_test -s 268400000 ata_serial_esata
+_description:
+ This is an automated test which performs read/write operations on an attached
+ eSATA HDD
+
+plugin: user-interact
+id: dock/esata-remove
+estimated_duration: 20.0
+_summary: eSATA HDD removal test
+depends: dock/esata-insert
+command: removable_storage_watcher remove ata_serial_esata
+_purpose:
+    This test will check the system can detect the removal of an eSATA HDD from the dock
+_steps:
+    1. Click 'Test' to begin the test. This test will timeout and fail if
+       the removal has not been detected within 20 seconds.
+    2. Remove the previously attached eSATA HDD from the eSATA port on the dock.
+_verification:
+    The verification of this test is automated. Do not change the automatically
+    selected result
+
+plugin: manual
+id: dock/optical-read
+depends: dock/docking
+estimated_duration: 180.0
+_summary: Optical media (CD) read test
+_purpose:
+    This test will check the dock's ability to read CD media
+_steps:
+    (Skip this test if the dock does not have an optical reader)
+    1. Insert appropriate non-blank media into your optical drive(s). Movie and Audio Disks may not work. Self-created data disks have the greatest chance of working.
+    2. Try to copy a few files from the optical media to the computer.
+_verification:
+    Are the files properly copied to the computer?    
+
+plugin: manual
+id: dock/optical-write
+depends: dock/optical-read
+estimated_duration: 300.0
+_summary: Optical media (CD-RW, DVD-RW) writing test
+_purpose:
+    This test will check the dock's ability to write CD/DVD media.
+    Depending on what the dock's optical drive support, you will need
+    a blank CD-R, CD-RW, DVD-R and/or DVD-RW.
+_steps:
+    1. Insert a blank CD-R into the dock's drive
+    2. Open Brasero Disc Burner and write some files on the CD-R
+    3. Repeat steps 1-2 for other compatible media (CD-RW, DVD-R, DVD-RW)
+_verification:
+    Are all kinds of discs properly written?
+
+plugin: user-interact
+id: dock/thunderbolt-insert
+estimated_duration: 40.0
+depends: dock/docking
+command: removable_storage_watcher insert --timeout 40 scsi
+_summary: Thunderbolt storage insertion detection
+_purpose:
+    This test will check if the connection of a Thunderbolt HDD to the dock could be detected
+_steps:
+    1. Click 'Test' to begin the test. This test will
+       timeout and fail if the insertion has not been detected within 40 seconds.
+    2. Plug a Thunderbolt HDD into an available Thunderbolt port on the dock;
+       if it's not mounted automatically, please click the HDD icon to mount it.
+_verification:
+    The verification of this test is automated. Do not change the automatically
+    selected result
+
+plugin: shell
+id: dock/thunderbolt-storage-test
+estimated_duration: 45.0
+user: root
+depends: dock/thunderbolt-insert
+command: removable_storage_test -s 268400000 scsi
+_summary: Thunderbolt storage test
+_description:
+ This is an automated test which performs read/write operations on an attached
+ Thunderbolt HDD
+
+plugin: user-interact
+id: dock/thunderbolt-remove
+estimated_duration: 20.0
+depends: dock/thunderbolt-insert
+command: removable_storage_watcher remove scsi
+_summary: Thunderbolt storage removal detection
+_purpose:
+    This test will check the system can detect the removal of a Thunderbolt HDD
+_steps:
+    1. Click 'Test' to begin the test. This test will timeout and fail if
+       the removal has not been detected within 20 seconds.
+    2. Remove the previously attached Thunderbolt HDD from the Thunderbolt port.
+_verification:
+    The verification of this test is automated. Do not change the automatically
+    selected result
+

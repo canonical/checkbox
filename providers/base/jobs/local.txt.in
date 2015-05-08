@@ -59,7 +59,7 @@ plugin: local
 _description: Docking tests
 command:
   shopt -s extglob
-  cat $PLAINBOX_PROVIDER_DATA/../jobs/dock.pxu
+  cat $PLAINBOX_PROVIDER_UNITS/dock.pxu
 
 id: __ethernet__
 plugin: local

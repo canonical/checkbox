@@ -33,7 +33,6 @@ from datetime import datetime
 
 from plainbox import __version__ as version
 from plainbox.impl.exporter.jinja2 import Jinja2SessionStateExporter
-from plainbox.impl.exporter.xml import XMLSessionStateExporter
 from plainbox.impl.result import OUTCOME_METADATA_MAP as OMM
 
 

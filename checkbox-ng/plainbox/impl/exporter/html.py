@@ -33,7 +33,6 @@ from datetime import datetime
 
 from plainbox import __version__ as version
 from plainbox.impl.exporter.jinja2 import Jinja2SessionStateExporter
-from plainbox.impl.exporter.xml import XMLSessionStateExporter
 from plainbox.impl.result import OUTCOME_METADATA_MAP as OMM
 
 
@@ -41,9 +40,7 @@ class HTMLSessionStateExporter(Jinja2SessionStateExporter):
     """
     Session state exporter creating HTML documents.
 
-    It basically applies an xslt to the XMLSessionStateExporter output,
-    and then inlines some resources to produce a monolithic report in a
-    single file.
+    This exporter uses jinja2 template to create a HTML report.
     """
     def __init__(self, option_list=None, system_id=None, timestamp=None,
                  client_version=None, client_name='plainbox'):

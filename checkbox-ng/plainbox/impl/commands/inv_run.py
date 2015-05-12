@@ -214,16 +214,19 @@ class NormalUI(IJobRunnerUI):
 
     def notify_about_purpose(self, job):
         if job.tr_purpose() is not None:
+            print(self.C.CYAN(_("Purpose:")))
             print(self.C.CYAN(job.tr_purpose()))
         else:
             self.notify_about_description(job)
 
     def notify_about_steps(self, job):
         if job.tr_steps() is not None:
+            print(self.C.CYAN(_("Steps:")))
             print(self.C.CYAN(job.tr_steps()))
 
     def notify_about_verification(self, job):
         if job.tr_verification() is not None:
+            print(self.C.CYAN(_("Verification:")))
             print(self.C.CYAN(job.tr_verification()))
 
     def job_cannot_start(self, job, job_state, result):

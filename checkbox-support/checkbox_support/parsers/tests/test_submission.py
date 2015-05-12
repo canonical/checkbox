@@ -22,6 +22,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from collections import defaultdict
 from io import open
 from unittest import TestCase
 import os
@@ -48,6 +49,10 @@ class SubmissionRun(object):
 
     def setProcessorState(self, **processor_state):
         self.result["processor_state"] = processor_state
+
+    def addModprobeInfo(self, module, options):
+        self.result.setdefault('module_options', {})
+        self.result['module_options'][module] = options
 
     def addAttachment(self, **attachment):
         self.result.setdefault("attachments", [])
@@ -167,6 +172,20 @@ class TestSubmissionParser(TestCase):
         result = self.getResult("submission_info_udevadm.xml")
         self.assertTrue("device_states" in result)
         self.assertEqual(len(result["device_states"]), 80)
+
+    def test_modprobe(self):
+        """modprobe_attachment info element can contain options for drivers."""
+        result = self.getResult("submission_info_modprobe.xml")
+        self.assertTrue('module_options' in result)
+        self.assertIn('snd-hda-intel', result['module_options'])
+        # This driver has 3 options which were set in different lines
+        # so we're testing option aggregation and correct collection.
+        self.assertIn("jackpoll_ms=500",
+                      result['module_options']['snd-hda-intel'])
+        self.assertIn("beep_mode=1",
+                      result['module_options']['snd-hda-intel'])
+        self.assertIn("single_cmd=1",
+                      result['module_options']['snd-hda-intel'])
 
     def test_device_dmidecode(self):
         """Device states can be in a dmidecode info element."""

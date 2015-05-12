@@ -43,6 +43,7 @@ from checkbox_support.parsers.dmidecode import DmidecodeParser
 from checkbox_support.parsers.efi import EfiParser
 from checkbox_support.parsers.meminfo import MeminfoParser
 from checkbox_support.parsers.udevadm import UdevadmParser
+from checkbox_support.parsers.modprobe import ModprobeParser
 
 
 logger = logging.getLogger("checkbox_support.parsers.submission")
@@ -81,6 +82,19 @@ class TestRun(object):
             "type": "set-kernel",
             "kernel": kernel})
         logger.debug("Setting Kernel: %s", kernel)
+
+    def addModprobeInfo(self, module, options):
+        if not self.messages or self.messages[-1]["type"] != "add-modprobe-info":
+            self.messages.append({
+                "type": "add-modprobe-info",
+                "modprobe-infos": []})
+
+        message = self.messages[-1]
+        logger.debug("ADDING Module options:")
+        logger.debug("%s %s", module, options)
+        message["modprobe-infos"].append({
+            "module": module,
+            "options": options})
 
     def setDistribution(self, **distribution):
         self.messages.append({
@@ -235,6 +249,7 @@ class ListenerQueue(ListenerList):
         # Once the queue has handler has been called, the queue
         # then behaves like a list using the latest events.
         if self.event_types.issubset(self.kwargs):
+            # This is diabolical: it's reassigning the notify method.
             self.notify = notify = super(ListenerQueue, self).notify
             keys = list(self.kwargs.keys())
             for values in product(*list(self.kwargs.values())):
@@ -476,6 +491,7 @@ class SubmissionResult(object):
         register(("test_run", "distribution",), self.setDistribution)
         register(("test_run", "package_version",), self.addPackageVersion)
         register(("test_run", "test_result",), self.addTestResult)
+        register(("test_run", "modprobe",), self.addModprobeInfo)
 
         # Register handlers to set information once
         register(("architecture",), self.setArchitecture, count=1)
@@ -525,6 +541,7 @@ class SubmissionResult(object):
             r"dmidecode": DmidecodeParser,
             r"udevadm": self.parseUdevadm,
             r"efi(?!rtvariable)": EfiParser,
+            r"modprobe_attachment": self.parseModprobe,
             }
         for context, parser in context_parsers.items():
             if re.search(context, command):
@@ -576,6 +593,14 @@ class SubmissionResult(object):
             product_id=None, vendor_id=None,
             subproduct_id=None, subvendor_id=None,
             driver_name=None, path=dmi_device.path)
+
+    def parseModprobe(self, modprobe):
+        self.dispatcher.publishEvent("modprobe", modprobe)
+        return DeferredParser(self.dispatcher, "modprobe_result")
+
+    def addModprobeInfo(self, test_run, modprobe):
+        parser = ModprobeParser(modprobe)
+        parser.run(test_run)
 
     def addIdentifier(self, identifier):
         try:

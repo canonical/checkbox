@@ -99,6 +99,7 @@ _verification:
 plugin: shell
 id: dock/audio-list-devices
 estimated_duration: 1.0
+_summary: List audio devices
 depends: dock/docking
 requires:
  device.category == 'AUDIO'
@@ -214,6 +215,7 @@ _verification:
 plugin: shell
 id: dock/audio-alsa-info-collect
 estimated_duration: 2.0
+_summary: Collect audio-related system information
 depends: dock/docking
 command: alsa_info --no-dialog --no-upload --output ${PLAINBOX_SESSION_SHARE}/alsa_info.log
 _description:
@@ -225,6 +227,7 @@ plugin: attachment
 id: dock/audio-alsa-info-attachment
 depends: dock/audio-alsa-info-collect
 estimated_duration: 1.0
+_summary: Attach audio hardware data log to results
 command: [ -e ${PLAINBOX_SESSION_SHARE}/alsa_info.log ] && cat ${PLAINBOX_SESSION_SHARE}/alsa_info.log
 _description:
  Attaches the audio hardware data collection log to the results.

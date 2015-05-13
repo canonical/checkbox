@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<system version="1.0">
+    <context>
+        <info command="kernel_cmdline_attachment">BOOT_IMAGE=/boot/vmlinuz-3.13.0-48-generic root=UUID=645553f3-c6b8-49c4-adf5-68ac8134d9e5 ro quiet splash video.use_native_backlight=1 radeon.modeset=0 nouveau.modeset=0
+        </info>
+    </context>
+    <summary>
+        <architecture value="amd64"/>
+    </summary>
+</system>

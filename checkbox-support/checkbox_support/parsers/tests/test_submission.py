@@ -54,6 +54,9 @@ class SubmissionRun(object):
         self.result.setdefault('module_options', {})
         self.result['module_options'][module] = options
 
+    def setKernelCmdline(self, kernel_cmdline):
+        self.result['kernel_cmdline'] = kernel_cmdline
+
     def addAttachment(self, **attachment):
         self.result.setdefault("attachments", [])
         self.result["attachments"].append(attachment)
@@ -186,6 +189,13 @@ class TestSubmissionParser(TestCase):
                       result['module_options']['snd-hda-intel'])
         self.assertIn("single_cmd=1",
                       result['module_options']['snd-hda-intel'])
+
+    def test_kernel_cmdline(self):
+        """a kernel commandline can be in a kernel_cmdline info element."""
+        result = self.getResult("submission_info_kernel_cmdline.xml")
+        self.assertTrue("kernel_cmdline" in result)
+        self.assertIn("ro quiet splash video.use_native_backlight=1",
+                      result["kernel_cmdline"])
 
     def test_device_dmidecode(self):
         """Device states can be in a dmidecode info element."""

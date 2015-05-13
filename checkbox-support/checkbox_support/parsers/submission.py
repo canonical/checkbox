@@ -44,6 +44,7 @@ from checkbox_support.parsers.efi import EfiParser
 from checkbox_support.parsers.meminfo import MeminfoParser
 from checkbox_support.parsers.udevadm import UdevadmParser
 from checkbox_support.parsers.modprobe import ModprobeParser
+from checkbox_support.parsers.kernel_cmdline import KernelCmdlineParser
 
 
 logger = logging.getLogger("checkbox_support.parsers.submission")
@@ -95,6 +96,12 @@ class TestRun(object):
         message["modprobe-infos"].append({
             "module": module,
             "options": options})
+
+    def setKernelCmdline(self, kernel_cmdline):
+        self.messages.append({
+            "type": "set-kernel-cmdline",
+            "kernel_cmdline": kernel_cmdline})
+        logger.debug("Setting Kernel Commandline: %s", kernel_cmdline)
 
     def setDistribution(self, **distribution):
         self.messages.append({
@@ -499,6 +506,9 @@ class SubmissionResult(object):
             ("cpuinfo", "machine", "cpuinfo_result",),
             self.setCpuinfo, count=1)
         register(
+            ("test_run", "kernel_cmdline",),
+            self.setKernelCmdline, count=1)
+        register(
             ("meminfo", "meminfo_result",),
             self.setMeminfo, count=1)
         register(
@@ -542,6 +552,7 @@ class SubmissionResult(object):
             r"udevadm": self.parseUdevadm,
             r"efi(?!rtvariable)": EfiParser,
             r"modprobe_attachment": self.parseModprobe,
+            r"kernel_cmdline": self.parseKernelCmdline,
             }
         for context, parser in context_parsers.items():
             if re.search(context, command):
@@ -656,6 +667,10 @@ class SubmissionResult(object):
         elif name == "kernel-release":
             self.dispatcher.publishEvent("kernel", value)
 
+    def parseKernelCmdline(self, cmdline):
+        self.dispatcher.publishEvent("kernel_cmdline", cmdline)
+        return DeferredParser(self.dispatcher, "kernel_cmdline_result")
+
     def parseCpuinfo(self, cpuinfo):
         self.dispatcher.publishEvent("cpuinfo", cpuinfo)
         return DeferredParser(self.dispatcher, "cpuinfo_result")
@@ -679,6 +694,10 @@ class SubmissionResult(object):
 
     def setKernelState(self, test_run, kernel):
         test_run.setKernelState(kernel)
+
+    def setKernelCmdline(self, test_run, kernel_cmdline):
+        parser = KernelCmdlineParser(kernel_cmdline)
+        parser.run(test_run)
 
     def setCpuinfo(self, cpuinfo, machine, cpuinfo_result):
         parser = CpuinfoParser(cpuinfo, machine)

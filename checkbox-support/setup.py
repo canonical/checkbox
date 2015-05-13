@@ -59,6 +59,7 @@ setup(
             "submission=checkbox_support.parsers.submission:parse_submission_text",
             "udevadm=checkbox_support.parsers.udevadm:parse_udevadm_output",
             "modprobe=checkbox_support.parsers.modprobe:parse_modprobe_d_output",
+            "pci-subsys-id=checkbox_support.parsers.pci_config:parse_pci_subsys_id",
         ],
     },
 )

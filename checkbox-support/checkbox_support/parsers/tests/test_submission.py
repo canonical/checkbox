@@ -44,6 +44,9 @@ class SubmissionRun(object):
     def setDistribution(self, **distribution):
         self.result["distribution"] = distribution
 
+    def setPciSubsystemId(self, pci_subsys_id):
+        self.result["pci_subsystem_id"] = pci_subsys_id
+
     def setMemoryState(self, **memory_state):
         self.result["memory_state"] = memory_state
 
@@ -230,6 +233,15 @@ class TestSubmissionParser(TestCase):
         self.assertEqual(package["name"], "a_package_with_modaliases")
         self.assertEqual(package["modalias"], "nvidia_340(pci:v000010DEd000005E7sv*sd00000595bc03sc*i*)")
         self.assertEqual(package["version"], "1.0-1-ubuntu1~bogus")
+
+    def test_pci_subsystem_id(self):
+        """
+        PCI subsystem ID for the first device can be extracted from
+        an lspci_standard_config attachment
+        """
+        result = self.getResult("submission_info_lspci_standard_config.xml")
+        self.assertTrue("pci_subsystem_id" in result)
+        self.assertEqual(result["pci_subsystem_id"], "060a")
 
     def test_test_results(self):
         """Test results are in the questions element."""

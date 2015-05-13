@@ -45,6 +45,7 @@ from checkbox_support.parsers.meminfo import MeminfoParser
 from checkbox_support.parsers.udevadm import UdevadmParser
 from checkbox_support.parsers.modprobe import ModprobeParser
 from checkbox_support.parsers.kernel_cmdline import KernelCmdlineParser
+from checkbox_support.parsers.pci_config import PciSubsystemIdParser
 
 
 logger = logging.getLogger("checkbox_support.parsers.submission")
@@ -149,6 +150,12 @@ class TestRun(object):
             "type": "set-distribution",
             "distribution": distribution})
         logger.debug("Setting distribution: %s", distribution)
+
+    def setPciSubsystemId(self, subsystem_id):
+        self.messages.append({
+            "type": "set-pci-subsystem-id",
+            "pci_subsystem_id": subsystem_id})
+        logger.debug("Setting PCI subsystem ID: %s", subsystem_id)
 
     def setMemoryState(self, **memory):
         self.messages.append({
@@ -570,6 +577,9 @@ class SubmissionResult(object):
         register(
             ("udevadm", "bits", "udevadm_result",),
             self.setUdevadm, count=1)
+        register(
+            ("test_run", "lspci_data",),
+            self.setPciSubsystemId, count=1)
 
         # Publish events passed as keyword arguments
         if "project" in kwargs:
@@ -594,6 +604,7 @@ class SubmissionResult(object):
             r"efi(?!rtvariable)": EfiParser,
             r"modprobe_attachment": self.parseModprobe,
             r"kernel_cmdline": self.parseKernelCmdline,
+            "lspci_standard_config": self.parsePciSubsystemId,
             }
         for context, parser in context_parsers.items():
             if re.search(context, command):
@@ -649,6 +660,10 @@ class SubmissionResult(object):
     def parseModprobe(self, modprobe):
         self.dispatcher.publishEvent("modprobe", modprobe)
         return DeferredParser(self.dispatcher, "modprobe_result")
+
+    def parsePciSubsystemId(self, lspci_data):
+        self.dispatcher.publishEvent("lspci_data", lspci_data)
+        return DeferredParser(self.dispatcher, "pci_subsystem_id_result")
 
     def addModprobeInfo(self, test_run, modprobe):
         parser = ModprobeParser(modprobe)
@@ -762,6 +777,10 @@ class SubmissionResult(object):
 
     def setMemoryState(self, test_run, memory):
         test_run.setMemoryState(**memory)
+
+    def setPciSubsystemId(self, test_run, lspci_data):
+        parser = PciSubsystemIdParser(lspci_data)
+        parser.run(test_run)
 
     def setProcessor(self, processor):
         self.dispatcher.publishEvent("processor", processor)

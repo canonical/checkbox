@@ -66,6 +66,47 @@ class DeferredParser(object):
 # from apps/uploads/checkbox_parser.py licensed internally by Canonical under
 # the license of the Chcekbox project.
 class TestRun(object):
+    """
+    The TestRun class is responsible for acting upon information from a
+    submission. It decouples the storage and processing of that information
+    from the parsing process. A TestRun class is passed to the SubmissionParser
+    at run time::
+
+        # stream is the file or submission data
+        parser = SubmissionParser(stream)
+        parser.run(TestRun, <other arguments>)
+
+    The parser will create a TestRun instance and, as it finds elements
+    in the submission, will call methods in the TestRun instance passing them
+    the chunks it has parsed. The TestRun instance can do things like print
+    the data, save it into a list or dict for later use, dump it
+    directly to a database, or anything else.
+
+    The interface that TestRun-compliant classes must implement is not really
+    formalized anywhere; perhaps *this* class is the most authoritative
+    reference of which methods/events may be called.
+
+    This particular TestRun implementation uses "messages" as its storage
+    convention, for historical reasons: it's initialized with an empty
+    list and it will populate it with the data stored in dictionaries of
+    the form::
+
+        { type: "set-$something",
+          "foo": "data-1",
+          "baz": "data-2"}
+
+    The only required key is "type": the rest are dependent on which data
+    item is processed.
+
+    There are a few conventions in naming the "callback" methods:
+
+    - Methods that will be called only once to set a single item are
+      named set\* (example setArchitecture).
+    - Methods that can be called many times due to processing of several
+      similar items (packages, devices) are named add\*
+      (example addDeviceState). Look at the existing methods to see how they
+      append to an existing element of the messages list.
+    """
 
     project = "certification"
 
@@ -1021,6 +1062,18 @@ class SubmissionParser(object):
                     "Unsupported tag <%s> in <system>" % child.tag)
 
     def run(self, test_run_factory, **kwargs):
+        """
+        Entry point to start parsing the stream with which the parser
+        was initialized.
+
+        :param test_run_factory: A class from which to instantiate a
+        "test_run" object whose add\*/set\* methods will be called as elements
+        are found in the stream
+
+        :returns: a SubmissionResult instance. This is not really used
+        and seems redundant, as the data will be processed and stored by
+        the TestRun instance (which is, however, also not returned anywhere).
+        """
         parser = etree.XMLParser()
 
         tree = etree.parse(self.file, parser=parser)

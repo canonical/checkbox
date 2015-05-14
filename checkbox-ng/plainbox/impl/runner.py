@@ -742,18 +742,22 @@ class JobRunner(IJobRunner):
                 logger.debug(
                     _("job[%s] starting qml shell: %s"), job.id, job.qml_file)
                 # Run the job command using extcmd
-                return_code = self._run_extcmd(job, job_state, config,
-                                               extcmd_popen, ctrl)
+                ctrl.on_leftover_files.connect(self.on_leftover_files)
+                try:
+                    return_code, result = ctrl.execute_job_with_result(
+                        job, job_state, config, self._session_dir,
+                        extcmd_popen)
+                finally:
+                    ctrl.on_leftover_files.disconnect(self.on_leftover_files)
                 logger.debug(
                     _("job[%s] shell return code: %r"), job.id, return_code)
             finally:
                 io_log_gen.on_new_record.disconnect(writer.write_record)
         execution_duration = time.time() - start_time
-        # Convert the return of the command to the outcome of the job
-        if return_code == 0:
-            outcome = IJobResult.OUTCOME_PASS
-        else:
+        if return_code != 0 or result is None:
             outcome = IJobResult.OUTCOME_FAIL
+        else:
+            outcome = result['outcome']
         # Create a result object and return it
         return DiskJobResult({
             'outcome': outcome,

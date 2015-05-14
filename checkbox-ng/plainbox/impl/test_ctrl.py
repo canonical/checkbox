@@ -1144,8 +1144,9 @@ class QmlJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
     @mock.patch('os.pipe')
     @mock.patch('os.write')
     @mock.patch('os.close')
-    def test_execute_job(self, mock_os_close, mock_os_write, mock_os_pipe,
-                         mock_os_fdopen, mock_os_path_isdir, mock_json_dumps):
+    def test_execute_job_with_result(
+        self, mock_os_close, mock_os_write, mock_os_pipe, mock_os_fdopen,
+            mock_os_path_isdir, mock_json_dumps):
         """
         Test if qml exec. ctrl. correctly runs piping
         """
@@ -1156,7 +1157,7 @@ class QmlJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
                 mock.patch.object(self.ctrl, 'configured_filesystem'), \
                 mock.patch.object(self.ctrl, 'temporary_cwd'), \
                 mock.patch.object(self.ctrl, 'gen_job_repr', return_value={}):
-            retval = self.ctrl.execute_job(
+            retval, result = self.ctrl.execute_job_with_result(
                 self.job, self.job_state, self.config, self.SESSION_DIR,
                 self.extcmd_popen)
             # Ensure that call was invoked with command end environment (passed
@@ -1187,6 +1188,17 @@ class QmlJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
             "session_dir": self.ctrl.get_CHECKBOX_DATA(self.SESSION_DIR)
         })
         mock_os_fdopen().write.assert_called_with(mock_json_dumps())
+
+    def test_execute_job(self):
+        """ Test if execute_job properly forwards return code."""
+        with mock.patch.object(
+            self.ctrl, 'execute_job_with_result', return_value=(
+                mock.Mock(), mock.Mock())):
+            ret_code = self.ctrl.execute_job(
+                self.job, self.job_state, self.config, self.SESSION_DIR,
+                self.extcmd_popen)
+            self.assertEqual(
+                ret_code, self.ctrl.execute_job_with_result.return_value[0])
 
     @mock.patch('os.path.isdir')
     @mock.patch('os.fdopen')

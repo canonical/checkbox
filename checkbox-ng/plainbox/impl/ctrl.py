@@ -951,10 +951,9 @@ class QmlJobExecutionController(CheckBoxExecutionController):
             "description": job.tr_description(),
         }
 
-    def execute_job(self, job, job_state, config, session_dir, extcmd_popen):
-        """
-        Execute the specified job using the specified subprocess-like object,
-        passing fd with opened pipe for qml-shell->plainbox communication.
+    def execute_job_with_result(self, job, job_state, config, session_dir,
+                                extcmd_popen):
+        """ Execute job like in execute_job, but return result object
 
         :param job:
             The JobDefinition to execute
@@ -971,7 +970,9 @@ class QmlJobExecutionController(CheckBoxExecutionController):
         :param extcmd_popen:
             A subprocess.Popen like object
         :returns:
-            The return code of the command, as returned by subprocess.call()
+            A pair - return value of the subprocess and a test result object as
+            returned by the qml test or None if the result object was not
+            returned.
         """
 
         class DuplexPipe:
@@ -1030,17 +1031,38 @@ class QmlJobExecutionController(CheckBoxExecutionController):
                     pipe_in.close()
                     if 'noreturn' in job.get_flag_set():
                         self._halt()
-                    if ret != 0:
-                        return ret
                     try:
-                        result = json.loads(res_object_json_string)
-                        if result['outcome'] == "pass":
-                            return 0
-                        else:
-                            return 1
-                    except ValueError:
+                        return ret, json.loads(res_object_json_string)
+                    except (ValueError, TypeError):
                         # qml-job did not print proper json object
-                        return 1
+                        return ret, None
+
+    def execute_job(self, job, job_state, config, session_dir, extcmd_popen):
+        """
+        Execute the specified job using the specified subprocess-like object,
+        passing fd with opened pipe for qml-shell->plainbox communication.
+
+        :param job:
+            The JobDefinition to execute
+        :param config:
+            A PlainBoxConfig instance which can be used to load missing
+            environment definitions that apply to all jobs. It is used to
+            provide values for missing environment variables that are required
+            by the job (as expressed by the environ key in the job definition
+            file).
+        :param session_dir:
+            Base directory of the session this job will execute in.
+            This directory is used to co-locate some data that is unique to
+            this execution as well as data that is shared by all executions.
+        :param extcmd_popen:
+            A subprocess.Popen like object
+        :returns:
+            The return code of the command, as returned by subprocess.call()
+        """
+
+        ret_code, result = self.execute_job_with_result(
+            job, job_state, config, session_dir, extcmd_popen)
+        return ret_code
 
 
 class CheckBoxDifferentialExecutionController(CheckBoxExecutionController):

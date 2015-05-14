@@ -1221,6 +1221,9 @@ class RootViaPTL1ExecutionController(CheckBoxDifferentialExecutionController):
         # Doesn't work when connected over SSH (LP: #1299201)
         if os.environ.get("SSH_CONNECTION"):
             return -1
+        # Doesn't work for windows jobs
+        if 'win32' in job.get_flag_set():
+            return -1
         # Only makes sense with jobs that need to run as another user
         # Promote this controller only if the trusted launcher is authorized to
         # run jobs as another user
@@ -1313,6 +1316,9 @@ class RootViaPkexecExecutionController(
         :returns:
             one for jobs with a user override, zero otherwise
         """
+        # Doesn't work for windows jobs
+        if 'win32' in job.get_flag_set():
+            return -1
         if job.user is not None:
             return 1
         else:
@@ -1401,6 +1407,9 @@ class RootViaSudoExecutionController(
             -1 if the job does not have a user override or the user cannot use
             sudo and 2 otherwise
         """
+        # Doesn't work for windows jobs
+        if 'win32' in job.get_flag_set():
+            return -1
         # Only makes sense with jobs that need to run as another user
         if job.user is not None and self.user_can_sudo:
             return 2

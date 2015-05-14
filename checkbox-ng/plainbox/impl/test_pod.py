@@ -536,7 +536,7 @@ class AssignFilterTests(TestCase):
             type_convert_assign_filter(instance, field, old, 'hello?')
 
     def test_type_check_assign_filter(self):
-        """The type_convert_assign_filter works as designed."""
+        """The type_check_assign_filter works as designed."""
         instance = mock.Mock(name='instance')
         instance.__class__.__name__ = 'cls'
         old = mock.Mock(name='old')

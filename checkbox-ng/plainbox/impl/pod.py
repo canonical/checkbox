@@ -429,10 +429,16 @@ class PODBase:
         ])
 
     def as_dict(self) -> dict:
-        """ Return the data in this POD as a dictionary. """
+        """
+        Return the data in this POD as a dictionary.
+
+        .. note::
+            UNSET values are not added to the dictionary.
+        """
         return {
             field.name: getattr(self, field.name)
             for field in self.__class__.field_list
+            if getattr(self, field.name) is not UNSET
         }
 
 

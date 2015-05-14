@@ -421,6 +421,15 @@ class PODTests(TestCase):
         self.assertEqual(
             repr(joe), "Employee(name='Joe', age=42, salary=1000)")
 
+    def test_as_dict_filters_out_UNSET(self):
+        """.as_dict() filters out UNSET values."""
+        class P(POD):
+            f = Field()
+
+        p = P()
+        p.f = UNSET
+        self.assertEqual(p.as_dict(), {})
+
     def test_notifications(self):
         """.on_{field}_changed() gets fired by field modification."""
         class T(POD):

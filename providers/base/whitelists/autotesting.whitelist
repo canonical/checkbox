@@ -24,6 +24,8 @@ sysctl_attachment
 sysfs_attachment
 udev_attachment
 lsmod_attachment
+device_package_info_attachment
+dkms_info_attachment
 #Automated Test-verification Jobs
 __audio__
 audio/alsa_record_playback_automated

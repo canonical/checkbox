@@ -43,14 +43,17 @@ class CheckConfigInvocation:
                 print(_(" - {0} (not present)").format(filename))
         print(_("Variables:"))
         for variable in self.config.Meta.variable_list:
+            print("   [{0}]".format(variable.section))
             print("   {0}={1}".format(
                 variable.name,
                 variable.__get__(self.config, self.config.__class__)))
         print(_("Sections:"))
         for section in self.config.Meta.section_list:
-            print("   {0}={1}".format(
-                section.name,
-                section.__get__(self.config, self.config.__class__)))
+            print("   [{0}]".format(section.name))
+            section_value = section.__get__(self.config, self.config.__class__)
+            if section_value:
+                for key, value in sorted(section_value.items()):
+                    print("   {0}={1}".format(key, value))
         if self.config.problem_list:
             print(_("Problems:"))
             for problem in self.config.problem_list:

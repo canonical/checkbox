@@ -152,20 +152,9 @@ command: lsmod_info
 estimated_duration: 0.5
 _description: Attaches a list of the currently running kernel modules.
 
-id: device_package_info_attachment
-plugin: attachment
-command: dkms_info --format onelines
-_description: Attaches a list of package with device matched information.
- included package types:
-  - dkms (Dynamic Kernel Module Support): provides kernel modules
-  - non-dkms: packages that with modaliases header and don't exist in dkms list
-   - hardware modalias: might be unused dkms or config package
-   - oemalias: It is like non-dkms(w/o modalias)
-_summary: Attaches a list of package with device matched information.
-
 id: dkms_info_attachment
 plugin: attachment
-command: dkms_info --dkms --format dumps
+command: dkms_info  --format json
 _description: Attaches json dumps of installed dkms package information.
 _summary: Attaches json dumps of installed dkms package information.
 

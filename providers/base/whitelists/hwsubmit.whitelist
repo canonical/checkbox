@@ -17,6 +17,8 @@ dmi_attachment
 dmidecode_attachment
 kernel_cmdline_attachment
 lsmod_attachment
+device_package_info_attachment
+dkms_info_attachment
 lspci_attachment
 lspci_standard_config_attachment
 modinfo_attachment

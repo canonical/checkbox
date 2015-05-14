@@ -728,6 +728,39 @@ def type_check_assign_filter(
 typed = type_check_assign_filter
 
 
+@modify_field_docstring(
+    "unset or type-checked (value must be of type {field.type.__name__})")
+def unset_or_type_check_assign_filter(
+        instance: POD, field: Field, old: "Any", new: "Any") -> "Any":
+    """
+    An assign filter that type-checks the value according to the field type.
+
+    .. note::
+        This filter allows (passes through) the special ``UNSET`` value as-is.
+
+    The field must have a valid python type object stored in the .type field.
+
+    :param instance:
+        A subclass of :class:`POD` that contains ``field``
+    :param field:
+        The :class:`Field` being assigned to
+    :param old:
+        The current value of the field
+    :param new:
+        The proposed value of the field
+    :returns:
+        ``new``, as-is
+    :raises TypeError:
+        if ``new`` is not an instance of ``field.type``
+    """
+    if new is UNSET:
+        return new
+    return type_check_assign_filter(instance, field, old, new)
+
+
+unset_or_typed = unset_or_type_check_assign_filter
+
+
 class sequence_type_check_assign_filter:
 
     """
@@ -780,6 +813,55 @@ class sequence_type_check_assign_filter:
 
 
 typed.sequence = sequence_type_check_assign_filter
+
+
+class unset_or_sequence_type_check_assign_filter(typed.sequence):
+
+    """
+    Assign filter for typed sequences.
+
+    .. note::
+        This filter allows (passes through) the special ``UNSET`` value as-is.
+
+    An assign filter for typed sequences (lists or tuples) that must contain an
+    object of the given type.
+    """
+
+    @property
+    def field_docstring_ext(self) -> str:
+        return (
+            "unset or type-checked sequence (items must be of type {})"
+        ).format(self.item_type.__name__)
+
+    def __call__(
+            self, instance: POD, field: Field, old: "Any", new: "Any"
+    ) -> "Any":
+        """
+        An assign filter that type-checks the value of all sequence elements.
+
+        .. note::
+            This filter allows (passes through) the special ``UNSET`` value
+            as-is.
+
+        :param instance:
+            A subclass of :class:`POD` that contains ``field``
+        :param field:
+            The :class:`Field` being assigned to
+        :param old:
+            The current value of the field
+        :param new:
+            The proposed value of the field
+        :returns:
+            ``new``, as-is
+        :raises TypeError:
+            if ``new`` is not an instance of ``field.type``
+        """
+        if new is UNSET:
+            return new
+        return super().__call__(instance, field, old, new)
+
+
+unset_or_typed.sequence = unset_or_sequence_type_check_assign_filter
 
 
 @modify_field_docstring("unique elements (sequence elements cannot repeat)")

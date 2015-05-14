@@ -30,6 +30,8 @@ from plainbox.impl.pod import read_only_assign_filter
 from plainbox.impl.pod import sequence_type_check_assign_filter
 from plainbox.impl.pod import type_check_assign_filter
 from plainbox.impl.pod import type_convert_assign_filter
+from plainbox.impl.pod import unset_or_sequence_type_check_assign_filter
+from plainbox.impl.pod import unset_or_type_check_assign_filter
 from plainbox.vendor import mock
 
 
@@ -572,3 +574,50 @@ class AssignFilterTests(TestCase):
             sequence_type_check_assign_filter(int)(
                 instance, field, old, (10, 20,)),
             (10, 20,))
+
+    def test_unset_or_type_check_assign_filter(self):
+        """The unset_or_type_check_assign_filter works as designed."""
+        instance = mock.Mock(name='instance')
+        instance.__class__.__name__ = 'cls'
+        old = mock.Mock(name='old')
+        field = mock.Mock(name='field')
+        field.name = 'field'
+        field.type = int
+        # The filter type-checks values without any conversion
+        msg = "cls.field requires objects of type int"
+        with self.assertRaisesRegex(TypeError, msg):
+            unset_or_type_check_assign_filter(instance, field, old, '10')
+        # The filter passes-through correctly-typed values
+        self.assertEqual(
+            unset_or_type_check_assign_filter(instance, field, old, 10), 10)
+        # The filter also passes UNSET values.
+        self.assertEqual(
+            unset_or_type_check_assign_filter(instance, field, old, UNSET),
+            UNSET)
+
+    def test_unset_or_sequence_type_check_assign_filter(self):
+        """The unset_or_sequence_type_check_assign_filter works as designed."""
+        instance = mock.Mock(name='instance')
+        instance.__class__.__name__ = 'cls'
+        old = mock.Mock(name='old')
+        field = mock.Mock(name='field')
+        field.name = 'field'
+        # The filter type-checks values without any conversion
+        msg = "cls.field requires all sequence elements of type int"
+        with self.assertRaisesRegex(TypeError, msg):
+            sequence_type_check_assign_filter(int)(
+                instance, field, old, ['10'])
+        # The filter passes-through correctly-typed values
+        self.assertEqual(
+            unset_or_sequence_type_check_assign_filter(int)(
+                instance, field, old, [10, 20]),
+            [10, 20])
+        self.assertEqual(
+            unset_or_sequence_type_check_assign_filter(int)(
+                instance, field, old, (10, 20,)),
+            (10, 20,))
+        # The filter also passes UNSET values.
+        self.assertEqual(
+            unset_or_sequence_type_check_assign_filter(int)(
+                instance, field, old, UNSET),
+            UNSET)

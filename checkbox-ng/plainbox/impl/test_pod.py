@@ -15,6 +15,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+
+"""Tests for the plainbox.impl.pod module."""
+
 from doctest import DocTestSuite
 from unittest import TestCase
 
@@ -30,24 +33,36 @@ from plainbox.vendor import mock
 
 
 def load_tests(loader, tests, ignore):
+    """
+    Protocol for loading unit tests.
+
+    This function ensures that doctests are executed as well.
+    """
     tests.addTests(DocTestSuite('plainbox.impl.pod'))
     return tests
 
 
 class SingletonTests(TestCase):
 
+    """Tests for several singleton objects."""
+
     def test_MANDATORY_repr(self):
+        """MANDATORY.repr() returns "MANDATORY"."""
         self.assertEqual(repr(MANDATORY), "MANDATORY")
 
     def test_UNSET_repr(self):
+        """UNSET.repr() returns "UNSET"."""
         self.assertEqual(repr(UNSET), "UNSET")
 
 
 class FieldTests(TestCase):
 
+    """Tests for the Field class."""
+
     FIELD_CLS = Field
 
     def setUp(self):
+        """Common set-up code."""
         self.doc = "doc"  # not a mock because it gets set to __doc__
         self.type = mock.Mock(name='type')
         self.initial = mock.Mock(name='initial')
@@ -58,18 +73,14 @@ class FieldTests(TestCase):
         self.owner = mock.Mock(name='owner')
 
     def test_initializer(self):
-        """
-        Field initializer properly stored all attributes
-        """
+        """.__init__() stored data correctly."""
         self.assertEqual(self.field.__doc__, self.doc)
         self.assertEqual(self.field.type, self.type)
         self.assertEqual(self.field.initial, self.initial)
         self.assertEqual(self.field.initial_fn, self.initial_fn)
 
     def test_gain_name(self):
-        """
-        Using gain_name() sets three extra attributes
-        """
+        """.gain_name() sets three extra attributes."""
         self.assertIsNone(self.field.name)
         self.assertIsNone(self.field.instance_attr)
         self.assertIsNone(self.field.signal_name)
@@ -79,31 +90,23 @@ class FieldTests(TestCase):
         self.assertEqual(self.field.signal_name, "on_abcd_changed")
 
     def test_repr(self):
-        """
-        Field has a working repr() method
-        """
+        """.repr() works as expected."""
         self.field.gain_name("field")
         self.assertEqual(repr(self.field), "<Field name:'field'>")
 
     def test_is_mandatory(self):
-        """
-        Fields with the initial value of MANDATORY are mandatory
-        """
+        """.is_mandatory looks for initial value of MANDATORY."""
         self.field.initial = None
         self.assertFalse(self.field.is_mandatory)
         self.field.initial = MANDATORY
         self.assertTrue(self.field.is_mandatory)
 
     def test_cls_reads(self):
-        """
-        Accessing fields on via the class exposes the field object itself
-        """
+        """.__get__() returns the field if accessed via a class."""
         self.assertIs(self.field.__get__(None, self.owner), self.field)
 
     def test_obj_reads(self):
-        """
-        Accessing fields via an object reads data from the object
-        """
+        """.__get__() reads POD data if accessed via an object."""
         # Reading the field requires the field to know its name
         self.field.gain_name("field")
         self.assertEqual(
@@ -111,18 +114,14 @@ class FieldTests(TestCase):
             self.instance._field)
 
     def test_obj_writes(self):
-        """
-        Writing fields via an object writes data to the object
-        """
+        """.__set__() writes POD data."""
         # Writing the field requires the field to know its name
         self.field.gain_name("field")
         self.field.__set__(self.instance, "data")
         self.assertEqual(self.instance._field, "data")
 
     def test_obj_writes_fires_notification(self):
-        """
-        Writing fields via an object triggers notification, if enabled
-        """
+        """.__set__() fires change notifications."""
         # Let's enable notification and set the name so that the field knows
         # what to do when it gets set. Let's set the instance data to "old" to
         # track the actual change.
@@ -135,9 +134,7 @@ class FieldTests(TestCase):
         self.instance.on_field_changed.assert_called_with("old", "new")
 
     def test_obj_writes_uses_assign_chain(self):
-        """
-        Writing fields via an object uses the assign filter list
-        """
+        """.__set__() uses the assign filter list."""
         # Let's enable the assign filter composed out of two functions
         # and set some data using the field.
         fn1 = mock.Mock()
@@ -153,9 +150,7 @@ class FieldTests(TestCase):
         self.assertEqual(self.instance._field, fn2())
 
     def test_alter_cls_without_notification(self):
-        """
-        Using alter_cls() when notification is disabled does nothing
-        """
+        """.alter_cls() doesn't do anything if notify is False."""
         cls = mock.Mock(name='cls')
         del cls.on_field_changed
         self.field.notify = False
@@ -164,9 +159,7 @@ class FieldTests(TestCase):
         self.assertFalse(hasattr(cls, "on_field_changed"))
 
     def test_alter_cls_with_notification(self):
-        """
-        Using alter_cls() when notification is enabled creates a signal
-        """
+        """.alter_cls() adds a change signal if notify is True."""
         cls = mock.Mock(name='cls')
         del cls.on_field_changed
         cls.__name__ = "Klass"
@@ -180,7 +173,10 @@ class FieldTests(TestCase):
 
 class FieldCollectionTests(TestCase):
 
+    """Tests for the _FieldCollection class."""
+
     def setUp(self):
+        """Common set-up code."""
         self.foo = Field()
         self.bar = Field()
         self.ns = {
@@ -192,13 +188,12 @@ class FieldCollectionTests(TestCase):
         self.fc = _FieldCollection()
 
     def set_field_names(self):
+        """Set names of the foo and bar fields."""
         self.foo.gain_name('foo')
         self.bar.gain_name('bar')
 
     def test_add_field_builds_field_list(self):
-        """
-        .add_field() appends new fields to field_list
-        """
+        """.add_field() appends new fields to field_list."""
         # because we're not calling inspect_namespace() which does that
         self.set_field_names()
         self.fc.add_field(self.foo, 'cls')
@@ -207,9 +202,7 @@ class FieldCollectionTests(TestCase):
         self.assertEqual(self.fc.field_list, [self.foo, self.bar])
 
     def test_add_field_builds_field_origin_map(self):
-        """
-        .add_field() builds and maintains field_origin_map
-        """
+        """.add_field() builds and maintains field_origin_map."""
         # because we're not calling inspect_namespace() which does that
         self.set_field_names()
         self.fc.add_field(self.foo, 'cls')
@@ -219,9 +212,7 @@ class FieldCollectionTests(TestCase):
             self.fc.field_origin_map, {'foo': 'cls', 'bar': 'cls'})
 
     def test_add_field_detects_clashes(self):
-        """
-        .add_Field() detects field clashes and raises TypeError
-        """
+        """.add_Field() detects field clashes and raises TypeError."""
         foo_clash = Field()
         foo_clash.name = 'foo'
         # because we're not calling inspect_namespace() which does that
@@ -232,10 +223,7 @@ class FieldCollectionTests(TestCase):
             self.fc.add_field(foo_clash, 'other_cls')
 
     def test_inspect_base_classes_calls_add_field(self):
-        """
-        .inspect_base_classes() calls add_field() on each Field found
-        """
-
+        """.inspect_base_classes() calls add_field() on each Field found."""
         class Base1(POD):
             foo = Field()
             bar = Field()
@@ -255,18 +243,14 @@ class FieldCollectionTests(TestCase):
             ])
 
     def test_inspect_namespace_calls_add_field(self):
-        """
-        .inspect_namespace() calls add_field() on each Field
-        """
+        """.inspect_namespace() calls add_field() on each Field."""
         with mock.patch.object(self.fc, 'add_field') as mock_add_field:
             self.fc.inspect_namespace(self.ns, 'cls')
         mock_add_field.assert_has_call(self.foo, 'cls')
         mock_add_field.assert_has_call(self.bar, 'cls')
 
     def test_inspect_namespace_sets_field_name(self):
-        """
-        .inspect_namespace() sets the .name attribute of each field.
-        """
+        """.inspect_namespace() sets .name of each field."""
         self.assertIsNone(self.foo.name)
         self.assertIsNone(self.bar.name)
         fc = _FieldCollection()
@@ -275,9 +259,7 @@ class FieldCollectionTests(TestCase):
         self.assertEqual(self.bar.name, 'bar')
 
     def test_inspect_namespace_sets_field_instance_attr(self):
-        """
-        .inspect_namespace() sets the .instance_attr attribute of each field.
-        """
+        """.inspect_namespace() sets .instance_attr of each field."""
         self.assertIsNone(self.foo.instance_attr)
         self.assertIsNone(self.bar.instance_attr)
         fc = _FieldCollection()
@@ -288,10 +270,10 @@ class FieldCollectionTests(TestCase):
 
 class PODTests(TestCase):
 
+    """Tests for the POD class."""
+
     def test_field_list(self):
-        """
-        Test that PODMeta correctly set up the field_list attribute
-        """
+        """.field_list is set by PODMeta."""
         m = mock.Mock()
 
         class T(POD):
@@ -302,9 +284,7 @@ class PODTests(TestCase):
         self.assertEqual(T.field_list, [T.f1, T.f2, T.f3])
 
     def test_namedtuple_cls(self):
-        """
-        Test that PODMeta correctly set up the namedtuple_cls attribute
-        """
+        """Check that .namedtuple_cls is set up by PODMeta."""
         m = mock.Mock()
 
         class T(POD):
@@ -318,9 +298,7 @@ class PODTests(TestCase):
         self.assertIsInstance(T.namedtuple_cls.f3, property)
 
     def test_initializer_positional_arguments(self):
-        """
-        Test initializer operation with positional arguments
-        """
+        """.__init__() works correctly with positional arguments."""
         m = mock.Mock()
 
         class T(POD):
@@ -339,9 +317,7 @@ class PODTests(TestCase):
         self.assertEqual(T(1, 2, 3).f3, 3)
 
     def test_initializer_keyword_arguments(self):
-        """
-        Test initializer operation with positional arguments
-        """
+        """.__init__() works correctly with keyword arguments."""
         m = mock.Mock()
 
         class T(POD):
@@ -363,9 +339,7 @@ class PODTests(TestCase):
         self.assertEqual(T(f1=1, f2=2, f3=3).f3, 3)
 
     def test_initializer_mandatory_arguments(self):
-        """
-        Test initializer's response to mishandling of MANDATORY fields
-        """
+        """.__init__() understands MANDATORY fields."""
         class T(POD):
             m1 = Field(initial=MANDATORY)
             m2 = Field(initial=MANDATORY)
@@ -384,9 +358,7 @@ class PODTests(TestCase):
             T(m1=1)
 
     def test_initializer_default_arguments(self):
-        """
-        Test initializer's response to default values
-        """
+        """.__init__() understands initial (default) field values."""
         class T(POD):
             f = Field(initial=42)
         self.assertEqual(T().f, 42)
@@ -394,9 +366,7 @@ class PODTests(TestCase):
         self.assertEqual(T(f=1).f, 1)
 
     def test_initializer_duplicate_field_value(self):
-        """
-        Test that double initialization is not permitted
-        """
+        """.__init__() prevents double-initialization."""
         class T(POD):
             f = Field()
         with self.assertRaisesRegex(
@@ -404,9 +374,7 @@ class PODTests(TestCase):
             T(1, f=2)
 
     def test_initializer_unknown_field(self):
-        """
-        Test that initializing unknown fields is not permitted
-        """
+        """.__init__() prevents initializing unknown fields."""
         class T(POD):
             pass
         with self.assertRaisesRegex(TypeError, "too many arguments"):
@@ -415,9 +383,7 @@ class PODTests(TestCase):
             T(f=1)
 
     def test_smoke(self):
-        """
-        Test that a simple Person POD can be used to demonstrate basic features
-        """
+        """Check that basic POD behavior works okay."""
         class Person(POD):
             name = Field()
             age = Field()
@@ -453,9 +419,7 @@ class PODTests(TestCase):
             repr(joe), "Employee(name='Joe', age=42, salary=1000)")
 
     def test_notifications(self):
-        """
-        Test that change notifications get sent
-        """
+        """.on_{field}_changed() gets fired by field modification."""
         class T(POD):
             f = Field(notify=True)
 
@@ -471,7 +435,7 @@ class PODTests(TestCase):
         field_callback.assert_called_with(None, 1)
 
     def test_pod_inheritance(self):
-
+        """Check that PODs can be subclassed and new fields can be added."""
         class B(POD):
             f1 = Field(notify=True)
 
@@ -485,14 +449,11 @@ class PODTests(TestCase):
         self.assertEqual(D.field_list, [B.f1, D.f2])
 
     def test_pod_ordering(self):
-        """
-        POD comparison doesn't care about the field names
-        """
-
+        """Check that comparison among single POD class works okay."""
         class A(POD):
             a = Field()
 
-        B = A  # easier to understand subsequent testds
+        B = A  # easier to understand subsequent tests
         self.assertTrue(A(1) == B(1))
         self.assertTrue(A(1) != B(0))
         self.assertTrue(A(0) < B(1))
@@ -501,10 +462,7 @@ class PODTests(TestCase):
         self.assertTrue(A(1) <= B(1))
 
     def test_pod_ordering_tricky1(self):
-        """
-        POD comparison doesn't care about actual classes
-        """
-
+        """Check that comparison among different POD classes works okay."""
         class A(POD):
             f = Field()
 
@@ -519,10 +477,7 @@ class PODTests(TestCase):
         self.assertTrue(A(1) <= B(1))
 
     def test_pod_ordering_tricky2(self):
-        """
-        POD comparison doesn't care about the field names
-        """
-
+        """Check that comparison doesn't care about field names."""
         class A(POD):
             a = Field()
 
@@ -537,10 +492,7 @@ class PODTests(TestCase):
         self.assertTrue(A(1) <= B(1))
 
     def test_pod_ordering_other_types(self):
-        """
-        POD comparison understands other types and is not equal to them
-        """
-
+        """Check that comparison between POD and not-POD types doesn't work."""
         class A(POD):
             f = Field()
 
@@ -551,10 +503,10 @@ class PODTests(TestCase):
 
 class AssignFilterTests(TestCase):
 
+    """Tests for assignment filters."""
+
     def test_read_only_assign_filter(self):
-        """
-        The read_only_assign_filter works as designed
-        """
+        """The read_only_assign_filter works as designed."""
         instance = mock.Mock(name='instance')
         instance.__class__.__name__ = 'cls'
         field = mock.Mock(name='field')
@@ -569,9 +521,7 @@ class AssignFilterTests(TestCase):
             read_only_assign_filter(instance, field, old, new)
 
     def test_type_convert_assign_filter(self):
-        """
-        The type_convert_assign_filter works as designed
-        """
+        """The type_convert_assign_filter works as designed."""
         instance = mock.Mock(name='instance')
         old = mock.Mock(name='old')
         field = mock.Mock(name='field')
@@ -585,9 +535,7 @@ class AssignFilterTests(TestCase):
             type_convert_assign_filter(instance, field, old, 'hello?')
 
     def test_type_check_assign_filter(self):
-        """
-        The type_convert_assign_filter works as designed
-        """
+        """The type_convert_assign_filter works as designed."""
         instance = mock.Mock(name='instance')
         instance.__class__.__name__ = 'cls'
         old = mock.Mock(name='old')

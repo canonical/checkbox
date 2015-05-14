@@ -1,3 +1,4 @@
+# encoding: utf-8
 # This file is part of Checkbox.
 #
 # Copyright 2012-2015 Canonical Ltd.
@@ -75,7 +76,7 @@ _logger = getLogger("plainbox.pod")
 
 class _Singleton:
 
-    """ A simple object()-like singleton that has a more useful repr(). """
+    """A simple object()-like singleton that has a more useful repr()."""
 
     def __repr__(self):
         return self.__class__.__name__
@@ -202,7 +203,7 @@ class Field:
 
     def __init__(self, doc=None, type=None, initial=None, initial_fn=None,
                  notify=False, notify_fn=None, assign_filter_list=None):
-        """ Initialize (define) a new POD field. """
+        """Initialize (define) a new POD field."""
         self.__doc__ = dedent(doc) if doc is not None else None
         self.type = type
         self.initial = initial
@@ -225,12 +226,12 @@ class Field:
         self.__class__._counter += 1
 
     def __repr__(self):
-        """ Get a debugging representation of a field. """
+        """Get a debugging representation of a field."""
         return "<{} name:{!r}>".format(self.__class__.__name__, self.name)
 
     @property
     def is_mandatory(self) -> bool:
-        """ Flag indicating if the field needs a mandatory initializer. """
+        """Flag indicating if the field needs a mandatory initializer."""
         return self.initial is MANDATORY
 
     def gain_name(self, name: str) -> None:
@@ -328,7 +329,7 @@ class Field:
 @total_ordering
 class PODBase:
 
-    """ Base class for POD-like classes. """
+    """Base class for POD-like classes."""
 
     field_list = []
     namedtuple_cls = namedtuple('PODBase', '')
@@ -386,7 +387,7 @@ class PODBase:
             setattr(self, field.name, field_value)
 
     def __repr__(self):
-        """ Get a debugging representation of a POD object. """
+        """Get a debugging representation of a POD object."""
         return "{}({})".format(
             self.__class__.__name__,
             ', '.join([
@@ -457,7 +458,7 @@ class _FieldCollection:
         self.field_origin_map = {}  # field name -> defining class name
 
     def inspect_cls_for_decorator(self, cls: type) -> None:
-        """ Analyze a bare POD class. """
+        """Analyze a bare POD class."""
         self.inspect_base_classes(cls.__bases__)
         self.inspect_namespace(cls.__dict__, cls.__name__)
 

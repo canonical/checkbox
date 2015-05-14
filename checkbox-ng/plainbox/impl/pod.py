@@ -225,6 +225,40 @@ class Field:
         self.counter = self.__class__._counter
         self.__class__._counter += 1
 
+    @property
+    def change_notifier(self):
+        """
+        Decorator for changing the change notification function.
+
+        This decorator can be used to define all the fields in one block and
+        all the notification function in another block. It helps to make the
+        code easier to read.
+
+        Example::
+
+            >>> class Person(POD):
+            ...     name = Field()
+            ...
+            ...     @name.change_notifier
+            ...     def _name_changed(self, old, new):
+            ...         print("changed from {!r} to {!r}".format(old, new))
+            >>> person = Person()
+            changed from UNSET to None
+            >>> person.name = "bob"
+            changed from None to 'bob'
+
+        .. note::
+            Keep in mind that the decorated function is converted to a signal
+            automatically. The name of the function is also irrelevant, the POD
+            core automatically creates signals that have consistent names of
+            ``on_{field}_changed()``.
+        """
+        def decorator(fn):
+            self.notify = True
+            self.notify_fn = fn
+            return fn
+        return decorator
+
     def __repr__(self):
         """Get a debugging representation of a field."""
         return "<{} name:{!r}>".format(self.__class__.__name__, self.name)

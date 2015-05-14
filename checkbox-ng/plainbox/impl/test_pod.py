@@ -270,6 +270,14 @@ class FieldCollectionTests(TestCase):
         self.assertEqual(self.foo.instance_attr, '_foo')
         self.assertEqual(self.bar.instance_attr, '_bar')
 
+    def test_notifier(self):
+        """@field.change_notifier changes the notify function."""
+        @self.foo.change_notifier
+        def on_foo_changed(pod, old, new):
+            pass
+        self.assertTrue(self.foo.notify)
+        self.assertEqual(self.foo.notify_fn, on_foo_changed)
+
 
 class PODTests(TestCase):
 

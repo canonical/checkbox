@@ -775,7 +775,7 @@ class sequence_type_check_assign_filter:
                 raise TypeError(
                     "{}.{} requires all sequence elements of type {}".format(
                         instance.__class__.__name__, field.name,
-                        field.type.__name__))
+                        self.item_type.__name__))
         return new
 
 

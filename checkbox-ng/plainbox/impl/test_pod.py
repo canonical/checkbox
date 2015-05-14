@@ -27,8 +27,9 @@ from plainbox.impl.pod import POD
 from plainbox.impl.pod import UNSET
 from plainbox.impl.pod import _FieldCollection
 from plainbox.impl.pod import read_only_assign_filter
-from plainbox.impl.pod import type_convert_assign_filter
+from plainbox.impl.pod import sequence_type_check_assign_filter
 from plainbox.impl.pod import type_check_assign_filter
+from plainbox.impl.pod import type_convert_assign_filter
 from plainbox.vendor import mock
 
 
@@ -549,3 +550,25 @@ class AssignFilterTests(TestCase):
         # The filter passes-through correctly-typed values
         self.assertEqual(
             type_check_assign_filter(instance, field, old, 10), 10)
+
+    def test_sequence_type_check_assign_filter(self):
+        """The sequence_type_check_assign_filter works as designed."""
+        instance = mock.Mock(name='instance')
+        instance.__class__.__name__ = 'cls'
+        old = mock.Mock(name='old')
+        field = mock.Mock(name='field')
+        field.name = 'field'
+        # The filter type-checks values without any conversion
+        msg = "cls.field requires all sequence elements of type int"
+        with self.assertRaisesRegex(TypeError, msg):
+            sequence_type_check_assign_filter(int)(
+                instance, field, old, ['10'])
+        # The filter passes-through correctly-typed values
+        self.assertEqual(
+            sequence_type_check_assign_filter(int)(
+                instance, field, old, [10, 20]),
+            [10, 20])
+        self.assertEqual(
+            sequence_type_check_assign_filter(int)(
+                instance, field, old, (10, 20,)),
+            (10, 20,))

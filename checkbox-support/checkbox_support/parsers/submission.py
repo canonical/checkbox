@@ -46,6 +46,7 @@ from checkbox_support.parsers.udevadm import UdevadmParser
 from checkbox_support.parsers.modprobe import ModprobeParser
 from checkbox_support.parsers.kernel_cmdline import KernelCmdlineParser
 from checkbox_support.parsers.pci_config import PciSubsystemIdParser
+from checkbox_support.parsers.dkms_info import DkmsInfoParser
 
 
 logger = logging.getLogger("checkbox_support.parsers.submission")
@@ -138,6 +139,19 @@ class TestRun(object):
         message["modprobe-infos"].append({
             "module": module,
             "options": options})
+
+    def addDkmsInfo(self, package, data):
+        if not self.messages or self.messages[-1]["type"] != "add-dkms-info":
+            self.messages.append({
+                "type": "add-dkms-info",
+                "dkms-infos": []})
+
+        message = self.messages[-1]
+        logger.debug("ADDING DKMS package data:")
+        logger.debug("%s %s", package, data)
+        package_dict = {"package": package}
+        package_dict.update(data)
+        message["dkms-infos"].append(package_dict)
 
     def setKernelCmdline(self, kernel_cmdline):
         self.messages.append({
@@ -547,6 +561,7 @@ class SubmissionResult(object):
         register(("test_run", "package_version",), self.addPackageVersion)
         register(("test_run", "test_result",), self.addTestResult)
         register(("test_run", "modprobe",), self.addModprobeInfo)
+        register(("test_run", "dkms_info",), self.addDkmsInfo)
 
         # Register handlers to set information once
         register(("architecture",), self.setArchitecture, count=1)
@@ -605,6 +620,7 @@ class SubmissionResult(object):
             r"modprobe_attachment": self.parseModprobe,
             r"kernel_cmdline": self.parseKernelCmdline,
             "lspci_standard_config": self.parsePciSubsystemId,
+            "dkms_info": self.parseDkmsInfo,
             }
         for context, parser in context_parsers.items():
             if re.search(context, command):
@@ -656,6 +672,14 @@ class SubmissionResult(object):
             product_id=None, vendor_id=None,
             subproduct_id=None, subvendor_id=None,
             driver_name=None, path=dmi_device.path)
+
+    def parseDkmsInfo(self, dkms_info):
+        self.dispatcher.publishEvent("dkms_info", dkms_info)
+        return DeferredParser(self.dispatcher, "dkms_info_result")
+
+    def addDkmsInfo(self, test_run, dkms_info):
+        parser = DkmsInfoParser(dkms_info)
+        parser.run(test_run)
 
     def parseModprobe(self, modprobe):
         self.dispatcher.publishEvent("modprobe", modprobe)

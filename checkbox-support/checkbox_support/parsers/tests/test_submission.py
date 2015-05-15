@@ -60,6 +60,10 @@ class SubmissionRun(object):
     def setKernelCmdline(self, kernel_cmdline):
         self.result['kernel_cmdline'] = kernel_cmdline
 
+    def addDkmsInfo(self, pkg, details):
+        self.result.setdefault('dkms_info', {})
+        self.result['dkms_info'][pkg] = details
+
     def addAttachment(self, **attachment):
         self.result.setdefault("attachments", [])
         self.result["attachments"].append(attachment)
@@ -233,6 +237,82 @@ class TestSubmissionParser(TestCase):
         self.assertEqual(package["name"], "a_package_with_modaliases")
         self.assertEqual(package["modalias"], "nvidia_340(pci:v000010DEd000005E7sv*sd00000595bc03sc*i*)")
         self.assertEqual(package["version"], "1.0-1-ubuntu1~bogus")
+
+    def test_dkms_info(self):
+        """
+        DKMS (and packages with modalias) shown if dkms_info attachment
+        exists.
+        """
+        result = self.getResult("submission_info_dkms.xml")
+        self.assertTrue("dkms_info" in result)
+        self.assertEqual(len(result["dkms_info"]), 8)
+        self.maxDiff = None
+        self.assertDictEqual(
+            result["dkms_info"]['stella-keymaps'],
+            {"dkms-status": "non-dkms",
+             "architecture": "all",
+             "depends": "stella-base-config",
+             "description": "Keymaps on stella project\n This ",
+             "installed-size": "41",
+             "maintainer": "Franz Hsieh (Franz) <franz.hsieh@canonical.com>",
+             "match_patterns": [
+                 "oemalias:*"
+             ],
+             "modaliases": "stella_include(oemalias:*)",
+             "package": "stella-keymaps",
+             "priority": "optional",
+             "section": "misc",
+             "status": "install ok installed",
+             "version": "0.1stella1"})
+        self.assertDictEqual(
+            result['dkms_info']['oem-audio-hda-daily-dkms'],
+            {"arch": "x86_64",
+             "dkms-status": "dkms",
+             "dkms_name": "oem-audio-hda-daily",
+             "dkms_ver": "0.201503121632~ubuntu14.04.1",
+             "install_mods": {
+                 "snd_hda_codec": [],
+                 "snd_hda_codec_generic": [],
+                 "snd_hda_codec_realtek": [],
+                 "snd_hda_controller": [],
+                 "snd_hda_intel": [
+                     "pci:v00008086d*sv*sd*bc04sc03i00*",
+                     "pci:v00008086d00009C20sv*sd*bc*sc*i*"
+                 ]
+             },
+             "kernel_ver": "3.13.0-48-generic",
+             "mods": [
+                 "snd_hda_codec_analog",
+                 "snd_hda_codec_idt",
+                 "snd_hda_codec_cirrus",
+                 "snd_hda_codec_generic",
+                 "snd_hda_codec_via",
+                 "snd_hda_codec_realtek",
+                 "snd_hda_codec_ca0132",
+                 "snd_hda_codec_hdmi",
+                 "snd_hda_codec_ca0110",
+                 "snd_hda_codec_si3054",
+                 "snd_hda_intel",
+                 "snd_hda_codec_conexant",
+                 "snd_hda_codec",
+                 "snd_hda_codec_cmedia",
+                 "snd_hda_controller"
+             ],
+             "pkg": {
+                 "architecture": "all",
+                 "depends": "dkms (>= 1.95)",
+                 "description": "HDA driver in DKMS format.",
+                 "homepage": "https://code.launchpad.net/~ubuntu-audio-dev",
+                 "installed-size": "1512",
+                 "maintainer": "David H <david.h@canonical.com>",
+                 "modaliases": "hwe(pci:v00001022d*sv*sd*bc04sc03i00*)",
+                 "package": "oem-audio-hda-daily-dkms",
+                 "priority": "extra",
+                 "section": "devel",
+                 "status": "install ok installed",
+                 "version": "0.201503121632~ubuntu14.04.1"
+             },
+             "pkg_name": "oem-audio-hda-daily-dkms"})
 
     def test_pci_subsystem_id(self):
         """

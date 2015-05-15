@@ -60,6 +60,7 @@ setup(
             "udevadm=checkbox_support.parsers.udevadm:parse_udevadm_output",
             "modprobe=checkbox_support.parsers.modprobe:parse_modprobe_d_output",
             "pci-subsys-id=checkbox_support.parsers.pci_config:parse_pci_subsys_id",
+            "dkms-info=checkbox_support.parsers.dkms_info:parse_dkms_info",
         ],
     },
 )

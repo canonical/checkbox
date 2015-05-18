@@ -52,8 +52,8 @@ def get_stubbox_def():
     return stubbox_def
 
 
-def get_stubbox():
-    return Provider1.from_definition(get_stubbox_def(), secure=False)
+def get_stubbox(**kwargs):
+    return Provider1.from_definition(get_stubbox_def(), secure=False, **kwargs)
 
 
 def get_categories_def():

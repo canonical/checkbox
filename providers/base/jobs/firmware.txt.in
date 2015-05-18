@@ -55,3 +55,10 @@ command:
 _description: Attaches the FWTS desktop diagnosis results log to the submission
 _summary: Attach FWTS desktop diagnosis log to submission
 
+plugin: shell
+id: firmware/no_ACPI_REV_interface
+_summary: No _REV interface in ACPI [DS]SDT tables
+user: root
+estimated_duration: 0.5
+command: grep -r "_REV" /sys/firmware/acpi/tables/* | grep -v [DS]SDT
+_description: This Automated test checks misuse of the _REV interface in ACPI [DS]SDT tables

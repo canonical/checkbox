@@ -55,6 +55,7 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
         paths.extend(extra_paths)
         loader = FileSystemLoader(paths)
         env = Environment(loader=loader)
+        self.customize_environment(env)
 
         def include_file(name):
             # This helper function insert static files literally into Jinja
@@ -63,6 +64,14 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
 
         self.template = env.get_template(jinja2_template)
         env.globals['include_file'] = include_file
+
+    def customize_environment(self, env):
+        """
+        Customize the jinja2 Environment object.
+
+        By default this method does nothing. Override it in your subclass to
+        define any extra filters, tests or other things that you may require.
+        """
 
     def dump(self, data, stream):
         """

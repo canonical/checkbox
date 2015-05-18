@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """
-Copyright (C) 2012-2014 Canonical Ltd.
+Copyright (C) 2012-2015 Canonical Ltd.
 
 Authors
   Jeff Marcom <jeff.marcom@canonical.com>
   Daniel Manrique <roadmr@ubuntu.com>
+  Jeff Lane <jeff@ubuntu.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3,
@@ -24,8 +25,6 @@ from argparse import (
     RawTextHelpFormatter
 )
 import fcntl
-import ftplib
-from ftplib import FTP
 import logging
 import os
 import re
@@ -150,154 +149,6 @@ class IPerfPerformanceTest(object):
             logging.debug("Passed benchmark")
         else:
             print("Failed iperf benchmark")
-            return 1
-
-
-class FTPPerformanceTest(object):
-    """Provides file transfer rate based information while
-    using the FTP protocol and sending a file (DEFAULT=1GB)
-    over the local or public network using a specified network
-    interface on the host."""
-
-    def __init__(
-            self,
-            target,
-            username,
-            password,
-            interface,
-            binary_size=1,
-            file2send="ftp_performance_test"):
-
-        self.target = target
-        self.username = username
-        self.password = password
-        self.iface = Interface(interface)
-        self.binary_size = binary_size
-        self.file2send = file2send
-
-    def _make_file2send(self):
-        """
-        Makes binary file to send over FTP.
-        Size defaults to 1GB if not supplied.
-        """
-
-        logging.debug("Creating %sGB file", self.binary_size)
-
-        file_size = (1024 * 1024 * 1024) * self.binary_size
-        with open(self.file2send, "wb") as out:
-            out.seek((file_size) - 1)
-            out.write('\0'.encode())
-
-    def send_file(self, filename=None):
-        """
-        Sends file over the network using FTP and returns the
-        amount of bytes sent and delay between send and completed.
-        """
-
-        if filename is None:
-            file = open(self.file2send, 'rb')
-            filename = self.file2send
-
-        send_time = time.time()
-
-        try:
-            logging.debug("Sending file")
-            self.remote.storbinary("STOR " + filename, file, 1024)
-        except (ftplib.all_errors) as send_failure:
-            logging.error("Failed to send file to %s", self.target)
-            logging.error("Reason: %s", send_failure)
-            return 0, 0
-
-        file.close()
-
-        time_lapse = time.time() - send_time
-        bytes_sent = os.stat(filename).st_size
-
-        return bytes_sent, time_lapse
-
-    def close_connection(self):
-        """
-        Close connection to remote FTP target
-        """
-        self.remote.close()
-
-    def connect(self):
-        """
-        Connects to FTP target and set the current directory as /
-        """
-
-        logging.debug("Connecting to %s", self.target)
-        try:
-            self.remote = FTP(self.target)
-            self.remote.set_debuglevel(2)
-            self.remote.set_pasv(True)
-        except socket.error as connect_exception:
-            logging.error("Failed to connect to: %s: %s", self.target,
-                          connect_exception)
-            return False
-
-        logging.debug("Logging in")
-        logging.debug("{USER:%s, PASS:%s}", self.username, self.password)
-
-        try:
-            self.remote.login(self.username, self.password)
-        except ftplib.error_perm as login_exception:
-            logging.error("failed to log into target: %s: %s", self.target,
-                          login_exception)
-            return False
-
-        default_out_dir = ""
-        self.remote.cwd(default_out_dir)
-        return True
-
-    def run(self):
-
-        info = {
-            "Interface": self.iface.interface,
-            "HWAddress": self.iface.macaddress,
-            "Duplex": self.iface.duplex_mode,
-            "Speed": self.iface.max_speed,
-            "Status": self.iface.status
-        }
-
-        logging.debug(info)
-
-        if not os.path.isfile(self.file2send):
-            self._make_file2send()
-
-        # Connect to FTP target and send file
-        connected = self.connect()
-
-        if connected is False:
-            return 3
-
-        datasize, delay = self.send_file()
-
-        # Remove created binary
-        try:
-            os.remove(self.file2send)
-        except (IOError, OSError) as file_delete_error:
-            logging.error("Could not remove previous ftp file")
-            logging.error(file_delete_error)
-
-        if connected and datasize > 0:
-
-            logging.debug("Bytes sent (%s): %.2f seconds", datasize, delay)
-
-            # Calculate transfer rate and determine pass/fail status
-            mbs_speed = float(datasize / 131072) / float(delay)
-            percent = (mbs_speed / int(info["Speed"])) * 100
-            print("Transfer speed:")
-            print("%3.2f%% of" % percent)
-            print("theoretical max %smbs" % int(info["Speed"]))
-
-            if percent < 40:
-                logging.warn("Poor network performance detected")
-                return 30
-
-            logging.debug("Passed benchmark")
-        else:
-            print("Failed sending file via ftp")
             return 1
 
 
@@ -438,10 +289,7 @@ def get_test_parameters(args, environ):
     # - If command-line args were given, they take precedence
     # - Next come environment variables, if set.
 
-    params = {"test_target_ftp": None,
-              "test_user": None,
-              "test_pass": None,
-              "test_target_iperf": None}
+    params = {"test_target_iperf": None}
 
     # See if we have environment variables
     for key in params.keys():
@@ -450,12 +298,7 @@ def get_test_parameters(args, environ):
     # Finally, see if we have the command-line arguments that are the ultimate
     # override.
     if args.target:
-        params["test_target_ftp"] = args.target
         params["test_target_iperf"] = args.target
-    if args.username:
-        params["test_user"] = args.username
-    if args.password:
-        params["test_pass"] = args.password
 
     return params
 
@@ -489,13 +332,9 @@ def interface_test(args):
     # Get the actual test data from one of two possible sources
     test_parameters = get_test_parameters(args, os.environ)
 
-    test_user = test_parameters["test_user"]
-    test_pass = test_parameters["test_pass"]
     if (args.test_type.lower() == "iperf" or
             args.test_type.lower() == "stress"):
         test_target = test_parameters["test_target_iperf"]
-    else:
-        test_target = test_parameters["test_target_ftp"]
 
     # Validate that we got reasonable values
     if not test_target or "example.com" in test_target:
@@ -506,16 +345,6 @@ def interface_test(args):
         logging.info("2- Define the TEST_TARGET_IPERF environment variable")
         logging.info("3- (If running the test via checkbox/plainbox, define the ")
         logging.info("target in /etc/xdg/canonical-certification.conf)")
-        logging.info("Please run this script with -h to see more details on how to configure")
-        sys.exit(1)
-
-    if args.test_type.lower() == 'ftp' and not (test_user and test_pass):
-        logging.error("Target user/password have not been supplied.")
-        logging.info("Target user/password can be configured 3 different ways:")
-        logging.info("1- If calling the script directly, give --user or  --pass option")
-        logging.info("2- Define the TEST_USER or TEST_PASS environment variables")
-        logging.info("3- (If running the test via checkbox/plainbox, define the ")
-        logging.info("settings in /etc/xdg/canonical-certification.conf)")
         logging.info("Please run this script with -h to see more details on how to configure")
         sys.exit(1)
 
@@ -558,16 +387,8 @@ def interface_test(args):
             logging.error("Can't ping test server on %s", args.interface)
             return 1
 
-        # Execute FTP transfer benchmarking test
-        if args.test_type.lower() == "ftp":
-            ftp_benchmark = FTPPerformanceTest(
-                test_target, test_user, test_pass, args.interface)
-
-            if args.datasize:
-                ftp_benchmark.binary_size = int(args.datasize)
-            result = ftp_benchmark.run()
-
-        elif args.test_type.lower() == "iperf":
+        # Execute requested networking test
+        if args.test_type.lower() == "iperf":
             iperf_benchmark = IPerfPerformanceTest(args.interface, test_target,
                                                    args.fail_threshold) 
             if args.datasize:
@@ -629,11 +450,6 @@ interface.
 Example NIC information usage:
 network info -i eth0 --max-speed
 
-For running ftp benchmark test:
-network test -i eth0 -t ftp
---target 192.168.0.1 --username USERID --password PASSW0RD
---datasize-2
-
 For running iperf test:
 network test -i eth0 -t iperf --target 192.168.0.1
 NOTE: The iperf test requires an iperf server running on the same network
@@ -655,17 +471,11 @@ priorities:
 Environment variables
 =====================
 The variables are:
-TEST_TARGET_FTP
-TEST_USER
-TEST_PASS
 TEST_TARGET_IPERF
 
 example config file
 ===================
 [environment]
-TEST_TARGET_FTP = ftp-server.example.com
-TEST_USER = my-name
-TEST_PASS = a-password
 TEST_TARGET_IPERF = iperf-server.example.com
 
 
@@ -688,20 +498,14 @@ TEST_TARGET_IPERF = iperf-server.example.com
         '-i', '--interface', type=str, required=True)
     test_parser.add_argument(
         '-t', '--test_type', type=str,
-        choices=("ftp", "iperf", "stress"), default="ftp",
-        help=("[FTP *Default*]"))
+        choices=("iperf", "stress"), default="iperf",
+        help=("[iperf *Default*]"))
     test_parser.add_argument('--target', type=str)
-    test_parser.add_argument(
-        '--username', type=str, help=("For FTP test only"))
-    test_parser.add_argument(
-        '--password', type=str, help=("For FTP test only"))
     test_parser.add_argument(
         '--datasize', type=str,
         default="1",
         help=("Amount of data to send.  For iperf tests this will direct "
-              "iperf to send DATASIZE GB of data.  For FTP tests, this "
-              "will create a file that is DATASIZE GB large to be transmitted "
-              "to the target."))
+              "iperf to send DATASIZE GB of data to the target."))
     test_parser.add_argument(
         '--config', type=str,
         default="/etc/checkbox.d/network.cfg",

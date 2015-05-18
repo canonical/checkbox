@@ -88,6 +88,10 @@ class Resource:
             data = {}
         object.__setattr__(self, '_data', data)
 
+    def __iter__(self):
+        data = object.__getattribute__(self, '_data')
+        return iter(data)
+
     def __setattr__(self, attr, value):
         if attr.startswith("_"):
             raise AttributeError(attr)

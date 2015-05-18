@@ -1,0 +1,98 @@
+# Definitions of jobs that are useful for testing. Whenever you need a scenario
+# for testing that involves realistic jobs and you don't want to painstakingly
+# define them manually just load stubbox and get all jobs matching the pattern
+# 'representative/plugin/.*'
+
+# NOTE:: all of the jobs below can be simplified to a template once static
+# resources are available.
+
+id: representative/plugin/shell
+_summary: Job with plugin=shell
+_description: Job with plugin=shell
+plugin: shell
+flags: preserve-locale
+command: true;
+estimated_duration: 0.1
+category_id: plugin-representative
+
+id: representative/plugin/resource
+_summary: Job with plugin=resource
+_description: Job with plugin=resource
+plugin: resource
+flags: preserve-locale
+command:
+ echo "key_a: value-a-1"
+ echo "key_b: value-b-1"
+ echo
+ echo "key_a: value-a-2"
+ echo "key_b: value-b-2"
+estimated_duration: 0.1
+category_id: plugin-representative
+
+id: representative/plugin/local
+_summary: Job with plugin=local
+_description: Job with plugin=local
+plugin: local
+flags: preserve-locale
+command: :
+estimated_duration: 0.1
+category_id: plugin-representative
+
+id: representative/plugin/attachment
+_summary: Job with plugin=attachment
+_description: Job with plugin=attachment
+plugin: attachment
+flags: preserve-locale
+command:
+ echo "Line 1"
+ echo "Line 2"
+ echo "Line 3 (last)"
+estimated_duration: 0.1
+category_id: plugin-representative
+
+id: representative/plugin/user-interact
+_summary: Job with plugin=user-interact
+_description: Job with plugin=user-interact
+plugin: user-interact
+flags: preserve-locale
+command:
+ echo "(interaction)"
+estimated_duration: 30
+category_id: plugin-representative
+
+id: representative/plugin/user-verify
+_summary: Job with plugin=user-verify
+_description: Job with plugin=user-verify
+plugin: user-verify
+flags: preserve-locale
+command:
+ echo "(verification)"
+estimated_duration: 30
+category_id: plugin-representative
+
+id: representative/plugin/user-interact-verify
+_summary: Job with plugin=user-interact-verify
+_description: Job with plugin=user-interact-verify
+plugin: user-interact-verify
+flags: preserve-locale
+command:
+ echo "(interaction)"
+ echo "(verification)"
+estimated_duration: 30
+category_id: plugin-representative
+
+id: representative/plugin/manual
+_summary: Job with plugin=manual
+_description: Job with plugin=manual
+plugin: manual
+estimated_duration: 1
+category_id: plugin-representative
+
+id: representative/plugin/qml
+_summary: Job with plugin=qml
+_description: Job with plugin=qml
+plugin: qml
+qml_file: qml-simple.qml
+flags: preserve-locale
+estimated_duration: 10
+category_id: plugin-representative

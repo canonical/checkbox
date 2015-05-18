@@ -70,6 +70,9 @@ setup(
         'Topic :: System :: Benchmark',
         'Topic :: Utilities',
     ],
+    install_requires=[
+        'Jinja2 >= 2.7',
+    ],
     extras_require={
         'XLSX': 'XlsxWriter >= 0.3',
         'XML': 'lxml >= 2.3',
@@ -89,6 +92,7 @@ setup(
             'xlsx=plainbox.impl.exporter.xlsx:XLSXSessionStateExporter [XLSX]',
             'xml=plainbox.impl.exporter.xml:XMLSessionStateExporter [XML]',
             'html=plainbox.impl.exporter.html:HTMLSessionStateExporter [XML]',
+            'hexr=plainbox.impl.exporter.hexr:HEXRExporter',
         ],
         'plainbox.buildsystem': [
             'make=plainbox.impl.buildsystems:MakefileBuildSystem',

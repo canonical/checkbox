@@ -1,0 +1,149 @@
+{%- set ns = '2013.com.canonical.certification::' -%}
+{%- set state = manager.default_device_context.state -%}
+{%- set job_state_map = state.job_state_map -%}
+{%- set hexr_outcome_list = OUTCOME_METADATA_MAP.values()|selectattr('hexr_xml_allowed')|sort(attribute='hexr_xml_order') -%}
+<?xml version="1.0"?>
+<system version="1.0">
+  <context>
+    {%- for job_id in job_state_map|sort %}
+    {%- set job_state = job_state_map[job_id] %}
+    {%- if job_state.job.id|strip_ns not in ("dmi_attachment", "sysfs_attachment", "udev_attachment") and job_state.result.outcome %}
+    <info command="{{ job_state.job.id|strip_ns }}">{{ job_state.result.io_log_as_text_attachment }}</info>
+    {%- endif %}
+    {%- endfor %}
+  </context>
+  <hardware>
+    {%- if ns ~ 'dmi_attachment' in state.job_state_map %}
+    {%- set dmi_attachment = state.job_state_map[ns ~ 'dmi_attachment'].result.io_log_as_text_attachment %}
+    <dmi>{{ dmi_attachment }}</dmi>
+    {%- else %}
+    <!-- the dmi_attachment job is not available, not producing the <dmi> section -->
+    {%- endif %}
+    {%- if ns ~ 'sysfs_attachment' in state.job_state_map %}
+    {%- set sysfs_attachment = state.job_state_map[ns ~ 'sysfs_attachment'].result.io_log_as_text_attachment %}
+    <sysfs-attributes>{{ sysfs_attachment }}</sysfs-attributes>
+    {%- else %}
+    <!-- the sysfs_attachment job is not available, not producing the <sysfs-attributes> tag -->
+    {%- endif %}
+    {%- if ns ~ 'udev_attachment' in state.job_state_map %}
+    {%- set udev_attachment = state.job_state_map[ns ~ 'udev_attachment'].result.io_log_as_text_attachment %}
+    <udev>{{ udev_attachment }}</udev>
+    {%- else %}
+    <!-- the udev_attachment job is not available, not producing the <udev> tag -->
+    {%- endif %}
+    {%- if ns ~ 'cpuinfo' in state.resource_map %}
+    {%- set processor_resource = state.resource_map[ns ~ 'cpuinfo'][0] %}
+    {#- FIXME: The <processors> section is quite broken by design. #}
+    {#- Yes, it does copy the data for the 0th CPU $count times. #}
+    <processors>
+      {%- for dummy_index in range(processor_resource.count|int) %}
+      <processor id="{{ loop.index0 }}" name="{{ loop.index0 }}">
+        {%- for key in processor_resource|sort %}
+        <property name="{{ key }}" type="str">{{ processor_resource[key] }}</property>
+        {%- endfor %}
+      </processor>
+      {%- endfor %}
+    </processors>
+    {%- else %}
+    <!-- cpuinfo resource is not available, not producing the <processors> section -->
+    {%- endif %}
+  </hardware>
+  <questions>
+    {%- for job_id in job_state_map|sort %}
+    {%- set job_state = job_state_map[job_id] %}
+    {%- set job = job_state.job %}
+    {%- set result = job_state.result %}
+    {%- if job.plugin not in ("resource", "local", "attachment") and job_state.result.outcome %}
+    <question{{ {
+        'name': job.id|strip_ns,
+        'certification_status': job_state.certification_status,
+      }|sorted_xmlattr }}>
+      <answer type="multiple_choice">{{ result.outcome_meta().hexr_xml_mapping }}</answer>
+      {#- FIXME: Yes the <answer_choices> section is useless #}
+      <answer_choices>
+      {%- for outcome_info in hexr_outcome_list %}
+        <value type="str">{{ outcome_info.hexr_xml_mapping }}</value>
+      {%- endfor %}
+      </answer_choices>
+      {#- FIXME: yes this does munges comments and I/O log #}
+      <comment>
+        {%- if result.comments -%}
+        {{ result.comments }}
+        {%- else -%}
+        {{ result.io_log_as_flat_text }}
+        {%- endif -%}
+      </comment>
+    </question>
+    {%- endif %}
+    {%- endfor %}
+  </questions>
+  <software>
+    {%- if ns ~ 'lsb' in state.resource_map %}
+    {%- set lsb_resource = state.resource_map[ns ~ 'lsb'][0] %}
+    <lsbrelease>
+      {%- for key in lsb_resource|sort %}
+      <property name="{{ key }}" type="str">{{ lsb_resource[key] }}</property>
+      {%- endfor %}
+    </lsbrelease>
+    {%- else %}
+    <!-- lsb resource is not available, not producing the <lsbrelease> tag -->
+    {%- endif %}
+    {%- if ns ~ 'package' in state.resource_map %}
+    {%- set package_resource_list = state.resource_map[ns ~ 'package'] %}
+    <packages>
+      {%- for package_resource in package_resource_list %}
+      <package id="{{ loop.index0 }}" name="{{ package_resource.name }}">
+        {%- for key in package_resource|reject('is_name')|sort %}
+        <property name="{{ key }}" type="str">{{ package_resource[key] }}</property>
+        {%- endfor %}
+      </package>
+      {%- endfor %}
+    </packages>
+    {%- else %}
+    <!-- package resource is not available, not producing the <packages> tag -->
+    {%- endif %}
+    {%- if ns ~ 'requirements' in state.resource_map %}
+    {%- set requirement_resource_list = state.resource_map[ns ~ 'requirements'] %}
+    <requirements>
+      {%- for requirement_resource in requirement_resource_list %}
+      <requirement id=" {{ loop.index0 }}" name="{{ requirement_resource.name }}">
+        {%- for key in requirement_resource|reject('is_name')|sort %}
+        <property name="{{ key }}" type="str">{{ requirement_resource[key] }}</property>
+        {%- endfor %}
+      </requirement>
+      {%- endfor %}
+    </requirements>
+    {%- else %}
+    <!-- requirements resource is not available, not producing the <requirements> tag -->
+    {%- endif %}
+  </software>
+  <summary>
+    {#- FIXME: with all the <property> tags those should not be custom #}
+    <client name="{{ client_name }}" version="{{ client_version }}"/>
+    <date_created value="{{ timestamp }}"/>
+    {%- if ns ~ 'dpkg' in state.resource_map %}
+    {%- set dpkg_resource = state.resource_map[ns ~ 'dpkg'][0] %}
+    <architecture value="{{ dpkg_resource.architecture }}"/>
+    {%- else %}
+    <!-- dpkg resource is not available, not producing the <architecture> tag -->
+    {%- endif %}
+    {%- if ns ~ 'lsb' in state.resource_map %}
+    {#- NOTE: lsb_resource is computed earlier, if the condition above holds #}
+    <distribution value="{{ lsb_resource.distributor_id }}"/>
+    <distroseries value="{{ lsb_resource.release }}"/>
+    {%- else %}
+    <!-- lsb resource is not available, not producing <distribution> and <distroseries> tags -->
+    {%- endif %}
+    {%- if ns ~ 'uname' in state.resource_map %}
+    {%- set uname_resource = state.resource_map[ns ~ 'uname'][0] %}
+    <kernel-release value="{{ uname_resource.release }}"/>
+    {%- else %}
+    <!-- uname resource is not available, not producing the <kernel-release> tag -->
+    {%- endif %}
+    {#- FIXME: yes, this is just hard-coded non-sense #}
+    <private value="False"/>
+    <contactable value="False"/>
+    <live_cd value="False"/>
+    <system_id value="{{ system_id }}"/>
+  </summary>
+</system>

@@ -221,14 +221,14 @@ command:
  _summary: Test graphic memory info for $product.
  EOF
 
-id: graphics/generator_display
+id: graphics/generator_video
 requires: device.category == 'VIDEO'
-_description: Display test
-_summary: Display test
+_description: Display video test
+_summary: Display video test
 plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- id: graphics/`echo ${index}`_display_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ id: graphics/`echo ${index}`_video_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  plugin: user-interact-verify
  requires:
   package.name == 'xorg'
@@ -237,7 +237,7 @@ command:
  _summary: Test that video can be displayed with ${product}
  _description:
   PURPOSE:
-      This test will test the default display
+      This test will test the default display with a sample video
   STEPS:
       1. Click "Test" to display a video test.
   VERIFICATION:

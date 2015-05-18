@@ -49,7 +49,7 @@ firewire/remove
 __graphics__
 graphics/generator_.*
 graphics/1_compiz_check.*
-graphics/display
+graphics/video
 graphics/1_resolution.*
 graphics/1_minimum_resolution.*
 graphics/1_driver_version.*

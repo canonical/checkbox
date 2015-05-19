@@ -165,7 +165,8 @@
                 <p>{{ resource_map[ns ~ "lsb"][0]["description"] }}</p>
             </div>
             {%- endif %}
-            {%- if manager.state.get_certification_status_map() %}
+            {%- set cert_blockers = manager.state.get_certification_status_map() %}
+            {%- if cert_blockers %}
             <div id="content" class="clearfix">
             <h2 id="questions">Certification Status - Blockers</h2>
                 <table style="width: 700px">
@@ -176,7 +177,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                {% for job_id, job_state in manager.state.get_certification_status_map()|dictsort %}
+                {% for job_id, job_state in cert_blockers|dictsort %}
                     <tr>
                         <td>{{ job_state.job.tr_summary() }}</td>
                         <td style='font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>
@@ -186,7 +187,8 @@
             </table>
             </div>
             {%- endif %}
-            {%- if manager.state.get_certification_status_map(certification_status_filter=('non-blocker',)) %}
+            {%- set cert_non_blockers = manager.state.get_certification_status_map(certification_status_filter=('non-blocker',)) %}
+            {%- if cert_non_blockers %}
             <div id="content" class="clearfix">
             <h2 id="questions">Certification Status - Non Blockers</h2>
                 <table style="width: 700px">
@@ -197,7 +199,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                {%- for job_id, job_state in manager.state.get_certification_status_map(certification_status_filter=('non-blocker',))|dictsort %}
+                {%- for job_id, job_state in cert_non_blockers|dictsort %}
                     <tr>
                         <td>{{ job_state.job.tr_summary() }}</td>
                         <td style='font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>

@@ -2481,3 +2481,137 @@ command:
       Did the cursor move?
  EOF
 
+id: suspend/generator_compiz_check_after_suspend
+requires: device.category == 'VIDEO'
+_description: Compiz support tests after suspend
+_summary: Compiz support tests after suspend
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: shell
+ id: suspend/`echo ${index}`_compiz_check_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ depends: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: package.name == 'nux-tools'
+ command: ! /usr/lib/nux/unity_support_test -c -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
+ estimated_duration: 0.130
+ _description: Check that $product hardware is able to run compiz after suspend
+ _summary: Test Compiz support for $product after suspend
+ EOF
+
+plugin: shell
+id: suspend/compiz_check_after_suspend
+depends: suspend/suspend_advanced
+requires: package.name == 'nux-tools'
+command: ! /usr/lib/nux/unity_support_test -c -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
+estimated_duration: 0.130
+_description: Check that the hardware is able to run compiz after suspend
+_summary: Test Compiz support after suspend
+
+id: suspend/generator_glxgears_after_suspend
+requires: device.category == 'VIDEO'
+_description: glxgears tests after suspend
+_summary: glxgears tests after suspend
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: user-interact-verify
+ id: suspend/`echo ${index}`_glxgears_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ depends: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ requires: package.name == 'mesa-utils'
+ command: glxgears; true
+ _summary: Test that glxgears works for $product after suspend
+ _description:
+  PURPOSE:
+      This test tests the basic 3D capabilities of your $product video card after suspend
+  STEPS:
+      1. Click "Test" to execute an OpenGL demo. Press ESC at any time to close.
+      2. Verify that the animation is not jerky or slow.
+  VERIFICATION:
+      1. Did the 3d animation appear?
+      2. Was the animation free from slowness/jerkiness?
+ EOF
+
+plugin: user-interact-verify
+id: suspend/glxgears_after_suspend
+depends: suspend/suspend_advanced
+requires:
+ package.name == 'mesa-utils'
+ device.category == 'VIDEO'
+command: glxgears; true
+_summary: Test that glxgears works after suspend
+_description:
+ PURPOSE:
+     This test tests the basic 3D capabilities of your $product video card after suspend
+ STEPS:
+     1. Click "Test" to execute an OpenGL demo. Press ESC at any time to close.
+     2. Verify that the animation is not jerky or slow.
+ VERIFICATION:
+     1. Did the 3d animation appear?
+     2. Was the animation free from slowness/jerkiness?
+
+id: suspend/generator_video_after_suspend
+requires: device.category == 'VIDEO'
+_description: Display video test after suspend
+_summary: Display video test after suspend
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ id: suspend/`echo ${index}`_video_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ depends: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ plugin: user-interact-verify
+ requires:
+  package.name == 'xorg'
+  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ command: gst_pipeline_test -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
+ _summary: Test that video can be displayed after suspend with ${product}
+ _description:
+  PURPOSE:
+      This test will test the default display after suspend with a sample video
+  STEPS:
+      1. Click "Test" to display a video test.
+  VERIFICATION:
+      Do you see color bars and static?
+ EOF
+
+id: suspend/video_after_suspend
+plugin: user-interact-verify
+depends: suspend/suspend_advanced
+requires:
+ device.category == 'VIDEO'
+ package.name == 'xorg'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+command: gst_pipeline_test -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
+_summary: Test that video can be displayed after suspend
+_description:
+ PURPOSE:
+     This test will test the default display after suspend with a sample video
+ STEPS:
+     1. Click "Test" to display a video test.
+ VERIFICATION:
+     Do you see color bars and static?
+
+id: suspend/generator_driver_version_after_suspend
+requires: device.category == 'VIDEO'
+_description: Driver version tests after suspend
+_summary: Driver version tests after suspend
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: shell
+ id: suspend/`echo ${index}`_driver_version_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ depends: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ command: graphics_driver
+ estimated_duration: 0.500
+ _description: Parses Xorg.0.Log and discovers the running X driver and version after suspend for the $product graphics card
+ _summary: Test X driver/version after suspend for $product
+ EOF
+
+id: suspend/driver_version_after_suspend
+requires: device.category == 'VIDEO'
+depends: suspend/suspend_advanced
+plugin: shell
+command: graphics_driver
+estimated_duration: 0.500
+_description: Parses Xorg.0.Log and discovers the running X driver and version after suspend
+_summary: Test X driver/version after suspend
+

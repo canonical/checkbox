@@ -12,7 +12,6 @@
 <body>
     <div id="container">
         <div id="container-inner">
-
             <div id="title">
                 <h1>System Testing<span class="grey"> Report</span></h1>
             </div>
@@ -25,7 +24,6 @@
                 <p>{{ manager.state.resource_map["2013.com.canonical.certification::lsb"][0]["description"] }}</p>
             </div>
             {% endif %}
-
             {% if manager.state.get_certification_status_map() %}
             <div id="content" class="clearfix">
             <h2 id="questions">Certification Status - Blockers</h2>
@@ -47,7 +45,6 @@
             </table>
             </div>
             {% endif %}
-
             {% if manager.state.get_certification_status_map(certification_status_filter=('non-blocker',)) %}
             <div id="content" class="clearfix">
             <h2 id="questions">Certification Status - Non Blockers</h2>
@@ -69,7 +66,6 @@
             </table>
             </div>
             {% endif %}
-
             <div id="content" class="clearfix">
             <h2 id="questions">Tests Performed</h2>
                 <table style="width: 824px">

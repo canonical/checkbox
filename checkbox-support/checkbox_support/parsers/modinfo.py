@@ -75,17 +75,23 @@ class ModinfoParser(object):
                 # because there can be multiple lines of output for these.
                 if key in ('alias', 'depend', 'firmware', 'parm',):
                     self._modinfo[key].append(data)
-                # Now handle unknown keys
-                elif key not in self._modinfo.keys():
-                    self._modinfo[key] = (
-                        "WARNING: Unknown Key %s providing data: %s"
-                    ) % (key, data)
-                # And finally known keys
                 else:
                     self._modinfo[key] = data
 
     def get_all(self):
-        return self._modinfo
+        """
+        Return all the module data as a dictionary.
+
+        If there's no module data (i.e. all elements of the dict
+        are empty), return an empty dict instead, which makes it
+        easier for callers to verify emptiness while still returning
+        a consistent data type.
+        """
+
+        if any(self._modinfo.values()):
+            return self._modinfo
+        else:
+            return {}
 
     def get_field(self, field):
         if field not in self._modinfo.keys():

@@ -33,7 +33,6 @@ from datetime import datetime
 
 from plainbox import __version__ as version
 from plainbox.impl.exporter.jinja2 import Jinja2SessionStateExporter
-from plainbox.impl.result import OUTCOME_METADATA_MAP as OMM
 
 
 class HTMLSessionStateExporter(Jinja2SessionStateExporter):
@@ -75,7 +74,6 @@ class HTMLSessionStateExporter(Jinja2SessionStateExporter):
         data = {
             'manager': session_manager,
             'options': self.option_list,
-            'OMM': OMM,
             'timestamp': self._timestamp,
             'client_version': self._client_version,
             'client_name': self._client_name

@@ -40,7 +40,7 @@
                 {% for job_id, job_state in manager.state.get_certification_status_map()|dictsort %}
                     <tr>
                         <td>{{ job_state.job.tr_summary() }}</td>
-                        <td style='font-weight: bold; color: {{ OMM[job_state.result.outcome].color_hex }}'>{{ OMM[job_state.result.outcome].tr_outcome|replace("job ", "") }}</td>
+                        <td style='font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -62,7 +62,7 @@
                 {% for job_id, job_state in manager.state.get_certification_status_map(certification_status_filter=('non-blocker',))|dictsort %}
                     <tr>
                         <td>{{ job_state.job.tr_summary() }}</td>
-                        <td style='font-weight: bold; color: {{ OMM[job_state.result.outcome].color_hex }}'>{{ OMM[job_state.result.outcome].tr_outcome|replace("job ", "") }}</td>
+                        <td style='font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -85,7 +85,7 @@
                 {% for job_id, job_state in manager.state.job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin not in ("resource", "local", "attachment") %}
                     <tr>
                         <td>{{ job_state.job.tr_summary() }}</td>
-                        <td style='font-weight: bold; color: {{ OMM[job_state.result.outcome].color_hex }}'>{{ OMM[job_state.result.outcome].tr_outcome|replace("job ", "") }}</td>
+                        <td style='font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>
                         <td>{{ job_state.effective_certification_status }}</td>
                         {% if job_state.result.comments != None %}
                         <td>{{ job_state.result.comments }}</td>

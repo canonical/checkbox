@@ -57,6 +57,10 @@ class SubmissionRun(object):
         self.result.setdefault('module_options', {})
         self.result['module_options'][module] = options
 
+    def addModuleInfo(self, module, data):
+        self.result.setdefault('modinfo', {})
+        self.result['modinfo'][module] = data
+
     def setKernelCmdline(self, kernel_cmdline):
         self.result['kernel_cmdline'] = kernel_cmdline
 
@@ -322,6 +326,22 @@ class TestSubmissionParser(TestCase):
         result = self.getResult("submission_info_lspci_standard_config.xml")
         self.assertTrue("pci_subsystem_id" in result)
         self.assertEqual(result["pci_subsystem_id"], "060a")
+
+    def test_modinfo(self):
+        """
+        Modinfo information is in the modinfo element if
+        there was an attachment with output from modinfo_attachment job.
+        """
+        result = self.getResult("submission_info_modinfo.xml")
+        self.assertTrue("modinfo" in result)
+        self.assertEqual(len(result['modinfo']), 2)
+
+        self.assertIn("bbswitch", result['modinfo'])
+        self.assertEqual('0.7', result['modinfo']['bbswitch']['version'])
+
+        self.assertIn("ctr", result['modinfo'])
+        self.assertEqual(['crypto-ctr', 'ctr', 'crypto-rfc3686', 'rfc3686'],
+                         result['modinfo']['ctr']['alias'])
 
     def test_test_results(self):
         """Test results are in the questions element."""

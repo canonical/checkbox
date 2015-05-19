@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+<system version="1.0">
+    <context>
+    <info command="modinfo_attachment">name:           Module
+
+name:           bbswitch
+filename:       /lib/modules/3.13.0-48-generic/updates/dkms/bbswitch.ko
+version:        0.7
+author:         Peter Wu &lt;lekensteyn@gmail.com&gt;
+description:    Toggle the discrete graphics card
+license:        GPL
+srcversion:     925FC29A3B8E35350E8E8AE
+depends:        
+vermagic:       3.13.0-48-generic SMP mod_unload modversions 
+parm:           load_state:Initial card state (0 = off, 1 = on, -1 = unchanged) (int)
+parm:           unload_state:Card state on unload (0 = off, 1 = on, -1 = unchanged) (int)
+parm:           skip_optimus_dsm:Skip probe of Optimus discrete DSM (default = false) (bool)
+
+name:           ctr
+filename:       /lib/modules/3.13.0-48-generic/kernel/crypto/ctr.ko
+alias:          crypto-ctr
+alias:          ctr
+alias:          crypto-rfc3686
+alias:          rfc3686
+description:    CTR Counter block mode
+license:        GPL
+srcversion:     B024ED158A556ADF70CA48B
+depends:        
+intree:         Y
+vermagic:       3.13.0-48-generic SMP mod_unload modversions 
+signer:         Magrathea: Glacier signing key
+sig_key:        4E:B2:DE:24:99:17:CB:F3:9C:B8:56:92:E5:4C:EB:AD:E5:94:D6:80
+sig_hashalgo:   sha512
+</info>
+    </context>
+    <summary>
+        <architecture value="amd64"/>
+    </summary>
+</system>

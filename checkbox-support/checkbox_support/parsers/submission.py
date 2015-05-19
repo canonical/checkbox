@@ -47,7 +47,7 @@ from checkbox_support.parsers.modprobe import ModprobeParser
 from checkbox_support.parsers.kernel_cmdline import KernelCmdlineParser
 from checkbox_support.parsers.pci_config import PciSubsystemIdParser
 from checkbox_support.parsers.dkms_info import DkmsInfoParser
-
+from checkbox_support.parsers.modinfo import MultipleModinfoParser
 
 logger = logging.getLogger("checkbox_support.parsers.submission")
 
@@ -152,6 +152,19 @@ class TestRun(object):
         package_dict = {"package": package}
         package_dict.update(data)
         message["dkms-infos"].append(package_dict)
+
+    def addModInfo(self, module, data):
+        if not self.messages or self.messages[-1]["type"] != "add-modinfo":
+            self.messages.append({
+                "type": "add-modinfo",
+                "modinfo": []})
+
+        message = self.messages[-1]
+        logger.debug("ADDING Modinfo data:")
+        logger.debug("%s %s", module, data)
+        message["modinfo"].append({
+            "module": module,
+            "attributes": data})
 
     def setKernelCmdline(self, kernel_cmdline):
         self.messages.append({
@@ -562,6 +575,7 @@ class SubmissionResult(object):
         register(("test_run", "test_result",), self.addTestResult)
         register(("test_run", "modprobe",), self.addModprobeInfo)
         register(("test_run", "dkms_info",), self.addDkmsInfo)
+        register(("test_run", "modinfo",), self.addModuleInfo)
 
         # Register handlers to set information once
         register(("architecture",), self.setArchitecture, count=1)
@@ -621,6 +635,7 @@ class SubmissionResult(object):
             r"kernel_cmdline": self.parseKernelCmdline,
             "lspci_standard_config": self.parsePciSubsystemId,
             "dkms_info": self.parseDkmsInfo,
+            r"modinfo_attachment": self.parseModinfo,
             }
         for context, parser in context_parsers.items():
             if re.search(context, command):
@@ -685,12 +700,20 @@ class SubmissionResult(object):
         self.dispatcher.publishEvent("modprobe", modprobe)
         return DeferredParser(self.dispatcher, "modprobe_result")
 
+    def parseModinfo(self, modinfo):
+        self.dispatcher.publishEvent("modinfo", modinfo)
+        return DeferredParser(self.dispatcher, "modinfo_result")
+
     def parsePciSubsystemId(self, lspci_data):
         self.dispatcher.publishEvent("lspci_data", lspci_data)
         return DeferredParser(self.dispatcher, "pci_subsystem_id_result")
 
     def addModprobeInfo(self, test_run, modprobe):
         parser = ModprobeParser(modprobe)
+        parser.run(test_run)
+
+    def addModuleInfo(self, test_run, modinfo):
+        parser = MultipleModinfoParser(modinfo)
         parser.run(test_run)
 
     def addIdentifier(self, identifier):

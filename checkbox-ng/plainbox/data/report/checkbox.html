@@ -1,3 +1,4 @@
+{%- set ns = '2013.com.canonical.certification::' -%}
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
@@ -18,10 +19,10 @@
             <div id="content" class="clearfix">
                 This report was created using {{ client_name }} {{ client_version }} on {{ timestamp }}
             </div>
-            {% if "2013.com.canonical.certification::lsb" in manager.state.resource_map %}
+            {% if ns ~ "lsb" in manager.state.resource_map %}
             <div id="content" class="clearfix">
                 <h2>Software Information</h2>
-                <p>{{ manager.state.resource_map["2013.com.canonical.certification::lsb"][0]["description"] }}</p>
+                <p>{{ manager.state.resource_map[ns ~ "lsb"][0]["description"] }}</p>
             </div>
             {% endif %}
             {% if manager.state.get_certification_status_map() %}
@@ -100,11 +101,11 @@
                 </tbody>
             </table>
             </div>
-            {% if "2013.com.canonical.certification::requirements" in manager.state.resource_map %}
+            {% if ns ~ "requirements" in manager.state.resource_map %}
             <div id="content" class="clearfix">
                 <h2>Requirements documents</h2>
                 <ul>
-                {% for doc in manager.state.resource_map["2013.com.canonical.certification::requirements"] %}
+                {% for doc in manager.state.resource_map[ns ~ "requirements"] %}
                     <li><a href="{{ doc["link"] }}">{{ doc["name"] }}</a></li>
                 {% endfor %}
                 </ul>
@@ -113,7 +114,7 @@
             <div id="content" class="clearfix">
                 <h2>Log Files and Environment Information</h2>
                 <div id="packages-contents">
-                    {% if "2013.com.canonical.certification::package" in manager.state.resource_map %}
+                    {% if ns ~ "package" in manager.state.resource_map %}
                     <span onClick="showHide('package');"><h3><span id="package" style="color: #dd4814;">&#9654;</span>
                         packages installed</h3></span>
                     <div class="data" id="package-contents" style="overflow: auto;">
@@ -125,7 +126,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            {% for package in manager.state.resource_map["2013.com.canonical.certification::package"] %}
+                            {% for package in manager.state.resource_map[ns ~ "package"] %}
                                 <tr>
                                     <td>{{ package["name"] }}</td>
                                     <td>{{ package["version"] }}</td>

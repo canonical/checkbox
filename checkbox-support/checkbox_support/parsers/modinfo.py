@@ -1,12 +1,10 @@
-#
 # This file is part of Checkbox.
 #
-# Copyright 2011 Canonical Ltd.
+# Copyright 2011-2015 Canonical Ltd.
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,6 +18,99 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
+
+import io
+
+
+class ModinfoResult():
+
+    """
+    A simple class to hold results for the MultipleModinfoParser.
+
+    It has a dict keyed by module name, the data is another dict keyed by field
+    with the contents of that field. Some fields can only appear once and the
+    content will be a string. Some fields can appear multiple times so their
+    key will contain a list of all the arguments they appeared with. So for
+    each module, the value is exactly the dict that ModinfoParser.get_all will
+    return.
+    """
+
+    def __init__(self):
+        self.mod_data = {}
+
+    def addModuleInfo(self, module, data):
+        """Add the data dict as the value under the module's key."""
+        self.mod_data[module] = data
+
+
+class MultipleModinfoParser():
+
+    """
+    Parser for the modinfo_attachment.
+
+    The modinfo_attachment contains records separated by newlines.
+    Each record contains the module's name in the name: field (which
+    should be the first one) and the rest of the record is, verbatim,
+    the output of modinfo $MODULE_NAME.
+
+    The modinfo data for each module can be parsed with ModinfoParser,
+    while this parser takes care of splitting the records, running
+    ModinfoParser with what it expects, and calling the addModuleInfo
+    method for the result instance we were passed at run() time.
+    """
+
+    def __init__(self, stream):
+        self.stream = stream
+
+    def run(self, result):
+        """
+        Parse stream and add information for each module to the result.
+
+        For each module found in the stream, its data will be parsed using
+        ModinfoParser, and the result's addModuleInfo method will be called
+        with the module name and a dict with all the data items parsed from
+        it.
+        """
+        record = []
+        mod_name = None
+        for line in self.stream:
+            # First line, extract module name from this
+            # and don't add to the record
+            if line.startswith("name:"):
+                split_data = line.split(":")
+                if len(split_data) == 2:
+                    mod_name = split_data[1].strip()
+                else:
+                    mod_name = None
+            else:
+                if line.strip() == "" and record:
+                    self._parse_record(record, result, mod_name)
+                    # Reset the record and mod_name
+                    record = []
+                    mod_name = None
+                else:
+                    record.append(line)
+        if record:
+            # Process last record
+            self._parse_record(record, result, mod_name)
+
+    def _parse_record(self, record, result, module):
+        """
+        Parse the record and maybe add it to the result.
+
+        The records parsed from "record" will be added to "result"
+        as the data entry for "module".
+
+        If module is empty or None, it means we couldn't get a module
+        name, so don't really do the parsing as a name is strictly required.
+        """
+        if not module:
+            return
+        not_a_stream = "".join(record)
+        parser = ModinfoParser(not_a_stream)
+        data = parser.get_all()
+        if any(data.values()):
+            result.addModuleInfo(module, data)
 
 
 class ModinfoParser(object):
@@ -98,3 +189,27 @@ class ModinfoParser(object):
             raise Exception("Key not found: %s" % field)
         else:
             return self._modinfo[field]
+
+
+def parse_modinfo_attachment_output(output):
+    r"""
+    Parse modinfo_attachment-style output.
+
+    The modinfo_attachment does this (which can also be used for testing)::
+
+        for mod in $(lsmod | cut -f 1 -d " ")
+        do
+            printf "%-16s%s\n" "name:" "$mod"
+            modinfo $mod
+            echo
+        done
+
+    :returns: a dict with {'module': {'field': 'value', ...}} for each
+    module listed. Note that the value can be either a string or a list of
+    strings.
+    """
+    stream = io.StringIO(output)
+    modparser = MultipleModinfoParser(stream)
+    result = ModinfoResult()
+    modparser.run(result)
+    return result.mod_data

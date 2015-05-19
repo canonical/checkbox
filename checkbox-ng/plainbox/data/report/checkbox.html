@@ -159,13 +159,13 @@
             <div id="content" class="clearfix">
                 This report was created using {{ client_name }} {{ client_version }} on {{ timestamp }}
             </div>
-            {% if ns ~ "lsb" in resource_map %}
+            {%- if ns ~ "lsb" in resource_map %}
             <div id="content" class="clearfix">
                 <h2>Software Information</h2>
                 <p>{{ resource_map[ns ~ "lsb"][0]["description"] }}</p>
             </div>
-            {% endif %}
-            {% if manager.state.get_certification_status_map() %}
+            {%- endif %}
+            {%- if manager.state.get_certification_status_map() %}
             <div id="content" class="clearfix">
             <h2 id="questions">Certification Status - Blockers</h2>
                 <table style="width: 700px">
@@ -185,8 +185,8 @@
                 </tbody>
             </table>
             </div>
-            {% endif %}
-            {% if manager.state.get_certification_status_map(certification_status_filter=('non-blocker',)) %}
+            {%- endif %}
+            {%- if manager.state.get_certification_status_map(certification_status_filter=('non-blocker',)) %}
             <div id="content" class="clearfix">
             <h2 id="questions">Certification Status - Non Blockers</h2>
                 <table style="width: 700px">
@@ -197,16 +197,16 @@
                     </tr>
                 </thead>
                 <tbody>
-                {% for job_id, job_state in manager.state.get_certification_status_map(certification_status_filter=('non-blocker',))|dictsort %}
+                {%- for job_id, job_state in manager.state.get_certification_status_map(certification_status_filter=('non-blocker',))|dictsort %}
                     <tr>
                         <td>{{ job_state.job.tr_summary() }}</td>
                         <td style='font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>
                     </tr>
-                {% endfor %}
+                {%- endfor %}
                 </tbody>
             </table>
             </div>
-            {% endif %}
+            {%- endif %}
             <div id="content" class="clearfix">
             <h2 id="questions">Tests Performed</h2>
                 <table style="width: 824px">
@@ -219,42 +219,42 @@
                     </tr>
                 </thead>
                 <tbody>
-                {% for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin not in ("resource", "local", "attachment") %}
+                {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin not in ("resource", "local", "attachment") %}
                     <tr>
                         <td>{{ job_state.job.tr_summary() }}</td>
                         <td style='font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>
                         <td>{{ job_state.effective_certification_status }}</td>
-                        {% if job_state.result.comments != None %}
+                        {%- if job_state.result.comments != None %}
                         <td>{{ job_state.result.comments }}</td>
-                        {% else %}
-                        {% if job_state.result.io_log_as_flat_text != "" %}
+                        {%- else %}
+                        {%- if job_state.result.io_log_as_flat_text != "" %}
                         <td><div style="vertical-align: middle; width: 420px; overflow: auto;">
                                 <pre>{{ job_state.result.io_log_as_flat_text }}</pre>
                             </div>
                         </td>
-                        {% else %}
+                        {%- else %}
                         <td>&nbsp;</td>
-                        {% endif %}
-                        {% endif %}
+                        {%- endif %}
+                        {%- endif %}
                     </tr>
-                {% endfor %}
+                {%- endfor %}
                 </tbody>
             </table>
             </div>
-            {% if ns ~ "requirements" in manager.state.resource_map %}
+            {%- if ns ~ "requirements" in manager.state.resource_map %}
             <div id="content" class="clearfix">
                 <h2>Requirements documents</h2>
                 <ul>
-                {% for doc in manager.state.resource_map[ns ~ "requirements"] %}
+                {%- for doc in manager.state.resource_map[ns ~ "requirements"] %}
                     <li><a href="{{ doc["link"] }}">{{ doc["name"] }}</a></li>
-                {% endfor %}
+                {%- endfor %}
                 </ul>
             </div>
-            {% endif %}
+            {%- endif %}
             <div id="content" class="clearfix">
                 <h2>Log Files and Environment Information</h2>
                 <div id="packages-contents">
-                    {% if ns ~ "package" in resource_map %}
+                    {%- if ns ~ "package" in resource_map %}
                     <span onClick="showHide('package');"><h3><span id="package" style="color: #dd4814;">&#9654;</span>
                         packages installed</h3></span>
                     <div class="data" id="package-contents" style="overflow: auto;">
@@ -266,23 +266,23 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            {% for package in resource_map[ns ~ "package"] %}
+                            {%- for package in resource_map[ns ~ "package"] %}
                                 <tr>
                                     <td>{{ package["name"] }}</td>
                                     <td>{{ package["version"] }}</td>
                                 </tr>
-                            {% endfor %}
+                            {%- endfor %}
                             </tbody>
                         </table>
                     </div>
-                    {% endif %}
-                    {% for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin == "attachment" %}
+                    {%- endif %}
+                    {%- for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin == "attachment" %}
                     <span onClick="showHide('att{{ loop.index }}');"><h3><span id="att{{ loop.index }}" style="color: #dd4814;">&#9654;</span>
                         {{ job_state.job.partial_id|replace("_attachment", "") }}</h3></span>
                     <div class="data" id="att{{ loop.index }}-contents" style="overflow: auto;">
                         <pre>{{ job_state.result.io_log_as_text_attachment }}</pre>
                     </div>
-                    {% endfor %}
+                    {%- endfor %}
                 </div>
             </div>
         </div>

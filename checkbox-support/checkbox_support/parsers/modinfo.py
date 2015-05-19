@@ -114,8 +114,10 @@ class MultipleModinfoParser():
 
 
 class ModinfoParser(object):
+
     """
     Parser for modinfo information.
+
     This will take the stdout for modinfo output and return a dict populated
     with each field.
 
@@ -135,6 +137,11 @@ class ModinfoParser(object):
     """
 
     def __init__(self, stream):
+        """
+        Initialize the parser with the given stream.
+
+        The stream should be a string.
+        """
         self._modinfo = {'alias': [],
                          'author': '',
                          'depends': [],
@@ -178,13 +185,13 @@ class ModinfoParser(object):
         easier for callers to verify emptiness while still returning
         a consistent data type.
         """
-
         if any(self._modinfo.values()):
             return self._modinfo
         else:
             return {}
 
     def get_field(self, field):
+        """Return a specific field from the module data dictionary."""
         if field not in self._modinfo.keys():
             raise Exception("Key not found: %s" % field)
         else:

@@ -259,7 +259,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/cmd_check_config.py:43
 msgid "check and display plainbox configuration"
-msgstr ""
+msgstr "檢查和顯示 plainbox 組態設定"
 
 #: .././plainbox/impl/commands/cmd_checkbox.py:47
 msgid "test selection options"
@@ -360,7 +360,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/cmd_run.py:49
 msgid "run a test job"
-msgstr ""
+msgstr "執行測試任務"
 
 #: .././plainbox/impl/commands/cmd_run.py:51
 msgid "user interface options"
@@ -464,7 +464,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/cmd_selftest.py:41
 msgid "run unit and integration tests"
-msgstr ""
+msgstr "執行單元和整合測試"
 
 #: .././plainbox/impl/commands/cmd_selftest.py:48
 msgid "abort the test on first failure"
@@ -688,7 +688,7 @@ msgstr ""
 
 #: .././plainbox/impl/commands/dev.py:57
 msgid "development commands"
-msgstr ""
+msgstr "開發用指令"
 
 #: .././plainbox/impl/commands/dev.py:59
 msgid "plainbox dev <subcommand> ..."
@@ -3881,7 +3881,7 @@ msgstr ""
 #: .././plainbox/vendor/argparse/py33-argparse.py:1619
 #: .././plainbox/vendor/argparse/py34-argparse.py:1629
 msgid "positional arguments"
-msgstr ""
+msgstr "位置參數"
 
 #: .././plainbox/vendor/argparse/py32-argparse.py:1604
 #: .././plainbox/vendor/argparse/py33-argparse.py:1620

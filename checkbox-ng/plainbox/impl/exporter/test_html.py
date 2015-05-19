@@ -33,8 +33,8 @@ from plainbox.testing_utils import resource_string
 from plainbox.impl.exporter.html import HTMLSessionStateExporter
 from plainbox.impl.resource import Resource
 from plainbox.impl.result import MemoryJobResult
+from plainbox.impl.session import SessionManager
 from plainbox.impl.unit.job import JobDefinition
-from plainbox.vendor import mock
 
 
 class HTMLExporterTests(TestCase):
@@ -71,126 +71,52 @@ class HTMLExporterTests(TestCase):
             'io_log': [(0, 'stdout', b'bar\n')],
             'return_code': 0
         })
+        self.session_manager = SessionManager.create()
+        self.session_manager.add_local_device_context()
+        self.session_state = self.session_manager.default_device_context.state
+        session_state = self.session_state
+        session_state.add_job(self.job1)
+        session_state.add_job(self.job2)
+        session_state.add_job(self.job3)
+        session_state.add_job(self.attachment)
+        session_state.update_job_result(self.job1, self.result_fail)
+        session_state.update_job_result(self.job2, self.result_pass)
+        session_state.update_job_result(self.job3, self.result_skip)
+        session_state.update_job_result(
+            self.attachment, self.attachment_result)
+        for resource_id, resource_list in self.resource_map.items():
+            session_state.set_resource_list(resource_id, resource_list)
+
+    def tearDown(self):
+        self.session_manager.destroy()
+
+    def _get_session_manager(self, job1_cert_status, job2_cert_status,
+                             job3_cert_status):
+        session_state = self.session_manager.default_device_context.state
+        job1_state = session_state.job_state_map[self.job1.id]
+        job2_state = session_state.job_state_map[self.job2.id]
+        job3_state = session_state.job_state_map[self.job3.id]
+        job1_state.effective_certification_status = job1_cert_status
+        job2_state.effective_certification_status = job2_cert_status
+        job3_state.effective_certification_status = job3_cert_status
+        return self.session_manager
 
     def prepare_manager_without_certification_status(self):
-        return mock.Mock(state=mock.Mock(
-            job_state_map={
-                self.job1.id: mock.Mock(
-                    result=self.result_fail,
-                    job=self.job1,
-                    effective_certification_status='unspecified'),
-                self.job2.id: mock.Mock(
-                    result=self.result_pass,
-                    job=self.job2,
-                    effective_certification_status='unspecified'),
-                self.job3.id: mock.Mock(
-                    result=self.result_skip,
-                    job=self.job3,
-                    effective_certification_status='unspecified'),
-                self.attachment.id: mock.Mock(result=self.attachment_result,
-                                              job=self.attachment)
-            },
-            get_certification_status_map=mock.Mock(return_value={}),
-            resource_map=self.resource_map)
-        )
+        return self._get_session_manager(
+            'unspecified', 'unspecified', 'unspecified')
 
     def prepare_manager_with_certification_blocker(self):
-        return mock.Mock(state=mock.Mock(
-            job_state_map={
-                self.job1.id: mock.Mock(
-                    result=self.result_fail,
-                    job=self.job1,
-                    effective_certification_status='blocker'),
-                self.job2.id: mock.Mock(
-                    result=self.result_pass,
-                    job=self.job2,
-                    effective_certification_status='unspecified'),
-                self.job3.id: mock.Mock(
-                    result=self.result_skip,
-                    job=self.job3,
-                    effective_certification_status='unspecified'),
-                self.attachment.id: mock.Mock(result=self.attachment_result,
-                                              job=self.attachment)
-            },
-            get_certification_status_map=mock.Mock(side_effect=[{
-                self.job1.id: mock.Mock(
-                    result=self.result_fail,
-                    job=self.job1,
-                    effective_certification_status='blocker')},{
-                self.job1.id: mock.Mock(
-                    result=self.result_fail,
-                    job=self.job1,
-                    effective_certification_status='blocker')}]),
-            resource_map=self.resource_map)
-        )
+        return self._get_session_manager(
+            'blocker', 'unspecified', 'unspecified')
 
     def prepare_manager_with_certification_non_blocker(self):
-        return mock.Mock(state=mock.Mock(
-            job_state_map={
-                self.job1.id: mock.Mock(
-                    result=self.result_fail,
-                    job=self.job1,
-                    effective_certification_status='non-blocker'),
-                self.job2.id: mock.Mock(
-                    result=self.result_pass,
-                    job=self.job2,
-                    effective_certification_status='unspecified'),
-                self.job3.id: mock.Mock(
-                    result=self.result_skip,
-                    job=self.job3,
-                    effective_certification_status='unspecified'),
-                self.attachment.id: mock.Mock(result=self.attachment_result,
-                                              job=self.attachment)
-            },
-            get_certification_status_map=mock.Mock(side_effect=[{},{
-                self.job2.id: mock.Mock(
-                    result=self.result_fail,
-                    job=self.job1,
-                    effective_certification_status='non-blocker')},{
-                self.job2.id: mock.Mock(
-                    result=self.result_fail,
-                    job=self.job1,
-                    effective_certification_status='non-blocker')}]),
-            resource_map=self.resource_map)
-        )
+        return self._get_session_manager(
+            'non-blocker', 'unspecified', 'unspecified')
 
     def prepare_manager_with_both_certification_status(self):
-        return mock.Mock(state=mock.Mock(
-            job_state_map={
-                self.job1.id: mock.Mock(
-                    result=self.result_fail,
-                    job=self.job1,
-                    effective_certification_status='blocker'),
-                self.job2.id: mock.Mock(
-                    result=self.result_fail,
-                    job=self.job2,
-                    effective_certification_status='non-blocker'),
-                self.job3.id: mock.Mock(
-                    result=self.result_skip,
-                    job=self.job3,
-                    effective_certification_status='unspecified'),
-                self.attachment.id: mock.Mock(result=self.attachment_result,
-                                              job=self.attachment)
-            },
-            get_certification_status_map=mock.Mock(side_effect=[{
-                self.job1.id: mock.Mock(
-                    result=self.result_fail,
-                    job=self.job1,
-                    effective_certification_status='blocker')},{
-                self.job1.id: mock.Mock(
-                    result=self.result_fail,
-                    job=self.job1,
-                    effective_certification_status='blocker')},{
-                self.job2.id: mock.Mock(
-                    result=self.result_fail,
-                    job=self.job2,
-                    effective_certification_status='non-blocker')},{
-                self.job2.id: mock.Mock(
-                    result=self.result_fail,
-                    job=self.job2,
-                    effective_certification_status='non-blocker')}]),
-            resource_map=self.resource_map)
-        )
+        self.session_state.update_job_result(self.job2, self.result_fail)
+        return self._get_session_manager(
+            'blocker', 'non-blocker', 'unspecified')
 
     def test_perfect_match_without_certification_status(self):
         """

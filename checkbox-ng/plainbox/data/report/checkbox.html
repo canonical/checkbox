@@ -1,6 +1,7 @@
 {%- set ns = '2013.com.canonical.certification::' -%}
 {%- set state = manager.default_device_context.state -%}
 {%- set resource_map = state.resource_map -%}
+{%- set job_state_map = state.job_state_map -%}
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
@@ -81,7 +82,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                {% for job_id, job_state in manager.state.job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin not in ("resource", "local", "attachment") %}
+                {% for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin not in ("resource", "local", "attachment") %}
                     <tr>
                         <td>{{ job_state.job.tr_summary() }}</td>
                         <td style='font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>
@@ -138,7 +139,7 @@
                         </table>
                     </div>
                     {% endif %}
-                    {% for job_id, job_state in manager.state.job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin == "attachment" %}
+                    {% for job_id, job_state in job_state_map|dictsort if job_state.result.outcome != None and job_state.job.plugin == "attachment" %}
                     <span onClick="showHide('att{{ loop.index }}');"><h3><span id="att{{ loop.index }}" style="color: #dd4814;">&#9654;</span>
                         {{ job_state.job.partial_id|replace("_attachment", "") }}</h3></span>
                     <div class="data" id="att{{ loop.index }}-contents" style="overflow: auto;">

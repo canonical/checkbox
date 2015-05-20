@@ -16,6 +16,8 @@ dmesg_attachment
 dmi_attachment
 dmidecode_attachment
 kernel_cmdline_attachment
+recovery_info_attachment
+dell_bto_xml_attachment
 lsmod_attachment
 dkms_info_attachment
 lspci_attachment

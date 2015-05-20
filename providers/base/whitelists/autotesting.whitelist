@@ -25,6 +25,8 @@ modules_attachment
 sysctl_attachment
 sysfs_attachment
 udev_attachment
+recovery_info_attachment
+dell_bto_xml_attachment
 lsmod_attachment
 dkms_info_attachment
 #Automated Test-verification Jobs

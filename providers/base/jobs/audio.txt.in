@@ -99,9 +99,7 @@ command:
  EOF
 
 id: audio/generator_playback_thunderbolt
-imports: from 2013.com.canonical.plainbox import manifest
 requires:
- manifest.has_thunderbolt == 'True'
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
@@ -112,6 +110,8 @@ plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  id: audio/`echo ${index}`_playback_thunderbolt_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ imports: from 2013.com.canonical.plainbox import manifest
+ requires: manifest.has_thunderbolt == 'True'
  plugin: user-interact-verify
  estimated_duration: 30.0
  command:

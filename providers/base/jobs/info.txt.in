@@ -276,6 +276,54 @@ _description: Attaches the buildstamp identifier for the preinstalled OS
 _summary: Attach /etc/buildstamp
 command: [ -s /etc/buildstamp ] && cat /etc/buildstamp
 
+plugin: shell
+id: info/detect_recovery
+requires: package.name == 'dell-recovery' or package.name == 'ubuntu-recovery'
+user: root
+estimated_duration: 0.2
+_summary: Check existence of recovery partition
+_description: Check existence of recovery partition
+command: recovery_info --check-recovery-partition
+
+plugin: shell
+id: info/detect_dell_recovery
+depends: info/detect_recovery
+requires: package.name == 'dell-recovery'
+user: root
+estimated_duration: 0.2
+_summary: Check the recovery type is dell or not
+_description: Check the recovery type is dell or not
+command: recovery_info --check-recovery-type DELL
+
+plugin: attachment
+id: recovery_info_attachment
+depends: info/detect_recovery
+requires: package.name == 'dell-recovery' or package.name == 'ubuntu-recovery'
+user: root
+estimated_duration: 0.2
+_summary: Attach the recovery partition versions
+_description:
+ Attach the recovery partition version
+ image_version is the preinstalled OS image version
+ bto_version is only for dell_recovery
+ Example:
+ image_version: somerville-trusty-amd64-20140620-0
+ bto_version: A00_dell-bto-trusty-houston-15-A11-iso-20141203-0.iso
+command: recovery_info --show-version
+
+plugin: attachment
+id: dell_bto_xml_attachment
+depends: info/detect_dell_recovery
+requires: package.name == 'dell-recovery'
+estimated_duration: 0.5
+_summary: Attach the bto.xml in Dell recovery partition
+_description:
+ bto.xml is basically a Fish manifest
+ The information include:
+  - fish packages
+  - dell recovery stage 2 boot log
+command: recovery_info --readfile bto.xml
+
 plugin: attachment
 id: info/kvm_output
 estimated_duration: 0.1

@@ -1,0 +1,389 @@
+#!/usr/bin/env python3
+# Copyright 2015 Canonical Ltd.
+# Written by:
+#   Shawn Wang <shawn.wang@canonical.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""Show the recovery partition information for the preinstalled OS."""
+
+import os
+import subprocess
+import sys
+import tempfile
+import unittest
+import xml.dom.minidom as minidom
+
+from guacamole import Command
+
+try:
+    from unittest import mock
+except ImportError:
+    from plainbox.vendor import mock
+
+RECOVERY_LABELS = {"HP_TOOLS": "HP",
+                   "PQSERVICE": "UBUNTU",
+                   "BACKUP": "TEST",
+                   "INSTALL": "DELL",
+                   "OS": "DELL",
+                   "RECOVERY": "DELL"}
+
+RECOVERY_PACKAGES = ["dell-recovery", "ubuntu-recovery", "zip"]
+
+
+class MountedPartition(object):
+
+    """
+    Mount Manager to mount partition on tempdir.
+
+    e.g.
+    with MountedPartition("/dev/sda1") as tmp:
+        print("This is the mount point: {}".format(tmp))
+        do_stuff()
+    """
+
+    def __init__(self, part):
+        """
+        Prepare the mntdir point.
+
+        :param part: string of the partition device file, like /dev/sda2
+        """
+        self.part = part
+        self.mntdir = tempfile.mkdtemp()
+
+    def __enter__(self):
+        """
+        __enter__ method for python's with statement.
+
+        Mount the partition device to the mntdir.
+        """
+        cmd = ["mount", self.part, self.mntdir]
+        subprocess.check_output(cmd, universal_newlines=True)
+        return self.mntdir
+
+    def __exit__(self, type, value, traceback):
+        """
+        __exit__ method for python's with statement.
+
+        Unmount and remove the mntdir.
+        """
+        subprocess.check_output(["umount", self.mntdir],
+                                universal_newlines=True)
+        os.rmdir(self.mntdir)
+
+
+class MountedPartitionTests(unittest.TestCase):
+
+    """Unittest of MountedPartition."""
+
+    @mock.patch('subprocess.check_output')
+    def test_with_of_MountedPartition(self, mock_subprocess_check_output):
+        """Test mount point."""
+        test_dir = ""
+        with MountedPartition("/dev/test") as tmp:
+            test_dir = tmp
+            self.assertTrue(os.path.exists(test_dir))
+            mock_subprocess_check_output.assert_has_calls(
+                [mock.call(['mount', '/dev/test', test_dir],
+                           universal_newlines=True)])
+        self.assertFalse(os.path.exists(test_dir))
+        mock_subprocess_check_output.assert_has_calls(
+            [mock.call(['umount', test_dir],
+                       universal_newlines=True)])
+
+
+class RecoveryVersion(Command):
+
+    """
+    subcommand of RecoveryInfo.
+
+    print out the version information.
+
+    image_version: xxx
+    bto_version: REV_xxx.iso (dell only)
+    """
+
+    def invoked(self, ctx):
+        """
+        Guacamole method called when the command is invoked.
+
+        /etc/buildstamp is a image information file,
+        it created by the oem image builder.
+
+        oilpalm Fri, 20 Jun 2014 04:02:07 +0000
+        somerville-trusty-amd64-20140620-0
+
+        If /etc/buildstamp exist, print out the second line (image iso name).
+
+        For Dell-recovery partition, /etc/buildstamp shows base image info.
+        If recovery_partition/bto.xml,
+        print out the bto_version (read from xml file).
+        """
+        if os.path.isfile("/etc/buildstamp"):
+            with open('/etc/buildstamp', 'rt', encoding='UTF-8') as stream:
+                data = stream.readlines()
+                print("image_version: {}".format(data[1].strip()))
+
+        with MountedPartition(ctx.recovery_partition) as mntdir:
+            fname = "{}/bto.xml".format(mntdir)
+            if os.path.isfile(fname):
+                o = minidom.parse("{}/bto.xml".format(mntdir))
+                bto_version = o.getElementsByTagName("iso")[0].firstChild.data
+                print("bto_version: {}".format(bto_version))
+
+
+class RecoveryFile(Command):
+
+    """
+    subcommand of RecoveryInfo.
+
+    print out the file in recovery partition.
+    """
+
+    def register_arguments(self, parser):
+        """
+        Guacamole method used by the argparse ingredient.
+
+        :param parser:
+            Argument parser (from :mod:`argparse`) specific to this command.
+        """
+        parser.add_argument('file', help='File name of print out the content')
+
+    def invoked(self, ctx):
+        """
+        Guacamole method used by the command ingredient.
+
+        :param ctx:
+            The guacamole context object. Context provides access to all
+            features of guacamole. The argparse ingredient adds the ``args``
+            attribute to it. That attribute contains the result of parsing
+            command line arguments.
+        :returns:
+            The return code of the command. Guacamole translates ``None`` to a
+            successful exit status (return code zero).
+        """
+        if ctx.args.file is None:
+            return 1
+        with MountedPartition(ctx.recovery_partition) as mntdir:
+            fname = "{}/{}".format(mntdir, ctx.args.file)
+            try:
+                with open(fname, 'rt', encoding='UTF-8') as f:
+                    print(f.read())
+            except Exception as e:
+                sys.stderr.write(
+                    "File({}) is not found, {}\n".format(ctx.args.file, e.msg))
+                return 1
+
+
+class RecoveryCheckType(Command):
+
+    """
+    subcommand of RecoveryInfo.
+
+    Check the recovery type if not matched return 1
+    """
+
+    def register_arguments(self, parser):
+        """
+        Guacamole method used by the argparse ingredient.
+
+        :param parser:
+            Argument parser (from :mod:`argparse`) specific to this command.
+        """
+        parser.add_argument('type',
+                            help="""\
+Check current recovery type, like DELL.
+If current recovery type is DELL, return value is 0.
+If current recovery type is not DELL, return value is 1.
+""")
+
+    def invoked(self, ctx):
+        """
+        Guacamole method used by the command ingredient.
+
+        :param ctx:
+            The guacamole context object. Context provides access to all
+            features of guacamole. The argparse ingredient adds the ``args``
+            attribute to it. That attribute contains the result of parsing
+            command line arguments.
+        :returns:
+            The return code of the command. Guacamole translates ``None`` to a
+            successful exit status (return code zero).
+        """
+        if ctx.recovery_type != ctx.args.type.upper():
+            sys.stderr.write(
+                "{} and {}".format(ctx.recovery_type,
+                                   ctx.args.type.upper()))
+            sys.stderr.write(ctx.args.type.upper())
+            return 1
+
+
+class RecoveryInfo(Command):
+
+    """
+    RecoveryInfo command.
+
+    If system is not a preinstalled OS, the command return 1.
+    """
+
+    sub_commands = (
+        ('version', RecoveryVersion),
+        ('file', RecoveryFile),
+        ('checktype', RecoveryCheckType),
+    )
+
+    @staticmethod
+    def get_recovery_package():
+        """
+        Test with RECOVERY_PACKAGES.
+
+        to check recovery application is installed or not
+
+        :return:
+            string of package_version or None
+        """
+        for pkg in RECOVERY_PACKAGES:
+            output = subprocess.check_output(["apt-cache", "policy", pkg],
+                                             universal_newlines=True)
+            for line in output.split("\n"):
+                if line.startswith("  Installed:"):
+                    ver = line.split(": ")[1]
+                    return "{}_{}".format(pkg, ver.strip())
+        return None
+
+    @staticmethod
+    def get_recovery_partition():
+        """
+        Look for the recovery partition.
+
+         1. Check recovery package is installed or not.
+         2. Use blkid to get partition tables
+         3. Recovery partition type is ntfs or vfat
+         4. RECOVERY_LABELS to see if any partition match
+
+        :return:
+            (recovery_type, recovery_partition) or None
+        """
+        if RecoveryInfo.get_recovery_package() is None:
+            return None
+
+        output = subprocess.check_output(["blkid"], universal_newlines=True)
+        data = output.strip()
+
+        if data == "":
+            raise OSError("Please run by root. "
+                          "Although blkid can runs without root, "
+                          "it only works after root runs blkid.")
+
+        for section in data.split("\n"):
+            blk = {}
+            blk['dev'], line = section.split(': ')
+            line = line.strip() + " "
+
+            for part in line.split('" '):
+                item = part.split("=\"")
+                if item[0] == 'LABEL':
+                    blk['label'] = item[1].upper()
+                if item[0] == 'TYPE':
+                    blk['fs'] = item[1]
+            if 'label' not in blk:
+                continue
+
+            if not (blk['fs'] == "vfat" or
+                    blk['fs'] == "ntfs"):
+                continue
+            for label in RECOVERY_LABELS:
+                if blk['label'] == label:
+                    return (RECOVERY_LABELS[label], blk['dev'])
+        return None
+
+    def invoked(self, ctx):
+        """
+        Guacamole method used by the command ingredient.
+
+        :param ctx:
+            The guacamole context object. Context provides access to all
+            features of guacamole. The argparse ingredient adds the ``args``
+            attribute to it. That attribute contains the result of parsing
+            command line arguments.
+        :returns:
+            The return code of the command. Guacamole translates ``None`` to a
+            successful exit status (return code zero).
+        """
+        partition = RecoveryInfo.get_recovery_partition()
+
+        if partition is None:
+            sys.stderr.write("Recovery partition not found\n")
+            return 1
+
+        (recovery_type, recovery_partition) = partition
+        ctx.recovery_partition = recovery_partition
+        ctx.recovery_type = recovery_type
+
+
+class RecoveryInfoGuacamoleCommendTests(unittest.TestCase):
+
+    """Unittest of RecoveryInfo."""
+
+    @mock.patch('subprocess.check_output')
+    def testRecoveryInfo_get_recovery_package(self,
+                                              mock_subprocess_check_output):
+        """Unittest of RecoveryInfo.get_recovery_package()."""
+        mock_subprocess_check_output.return_value = """\
+dell-recovery:
+  Installed: 1.11
+  Candidate: 1.11
+  Version table:
+     1.11
+        500 https://archive/cesg-mirror/ test/public amd64 Packages
+"""
+        self.assertEqual(RecoveryInfo.get_recovery_package(),
+                         "dell-recovery_1.11")
+
+    @mock.patch('__main__.RecoveryInfo.get_recovery_package')
+    @mock.patch('subprocess.check_output')
+    def testRecoveryInfo_get_recovery_partition(self,
+                                                mock_subprocess_check_output,
+                                                mock_get_recovery_package):
+        """Unittest of RecoveryInfo.get_recovery_partition()."""
+        mock_get_recovery_package.return_value = "dell-recovery_1.11"
+        mock_subprocess_check_output.return_value = """\
+/dev/sda1: LABEL="Test" UUID="xxxxx" TYPE="vfat" PARTUUID="00070b83-01"
+/dev/sda2: UUID="xxxxx" TYPE="vfat" PARTUUID="00070b83-02"
+/dev/sda3: LABEL="Recovery" UUID="xxxxx" TYPE="vfat" PARTUUID="00070b83-06"
+"""
+        self.assertEqual(RecoveryInfo.get_recovery_partition(),
+                         ("DELL", "/dev/sda3"))
+
+    @mock.patch('__main__.RecoveryInfo.get_recovery_package')
+    @mock.patch('__main__.RecoveryInfo.get_recovery_partition')
+    def testRecoveryInfo_guacamole(self,
+                                   mock_get_recovery_partition,
+                                   mock_get_recovery_package):
+        """Unittest of command with argv."""
+        mock_get_recovery_partition.return_value = ("DELL", "/dev/sda3")
+        mock_get_recovery_package.return_value = "dell-recovery_1.11"
+
+        self.assertEqual(RecoveryInfo().main(argv=None, exit=False), 0)
+        self.assertEqual(
+            RecoveryInfo().main(argv=["checktype", "HP"], exit=False), 1)
+        self.assertEqual(
+            RecoveryInfo().main(argv=["checktype", "DELL"], exit=False), 0)
+
+
+if __name__ == '__main__':
+    if '--test' in sys.argv:
+        sys.argv.remove('--test')
+        unittest.main()
+    else:
+        RecoveryInfo().main()

@@ -62,23 +62,24 @@ depends: bluetooth/detect-output
 estimated_duration: 120.0
 command:
   audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
-  audio_settings set --device=pci --volume=50
+  idx=`pactl list cards short | awk '/bluez/{print $1}'`
+  bt_sink=`pactl list sinks short | awk '/bluez/{print $2}'`
+  pactl set-card-profile $idx a2dp
+  pactl set-default-sink $bt_sink
   gst_pipeline_test -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
   EXIT_CODE=$?
   audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   exit $EXIT_CODE
 _description:
  PURPOSE:
-     This test will check that you can record and hear audio using a bluetooth audio device
+     This test will check the High Fidelity Playback (A2DP) capability of your Bluetooth device,
+     to see if you can hear audio from it.
  STEPS:
-     1. Enable the bluetooth headset
-     2. Click on the sound icon
-     3. Click "Sound Settings"
-     4. Look for the device in the list and select it
-     5. Set Quality to A2DP
-     6. Click "Test" to record for five seconds and reproduce in the bluetooth device
+     1. Enable and pair the bluetooth headset
+     2. Click "Test" to play a brief tone on your Bluetooth device, if it failed to set the Mode to A2DP,
+        please select the device and change it manually in the "Sound Settings"
  VERIFICATION:
-     Did you hear the sound?
+     Did you hear the tone?
 
 plugin: user-interact-verify
 id: bluetooth/audio

@@ -31,6 +31,28 @@ try:
 except ImportError:
     from plainbox.vendor import mock
 
+RECOVERY_PACKAGES = ["dell-recovery", "ubuntu-recovery", "zip"]
+
+
+def get_recovery_package():
+    """
+    Test with RECOVERY_PACKAGES.
+
+    to check recovery application is installed or not
+
+    :return:
+        string of package_version or None
+    """
+    for pkg in RECOVERY_PACKAGES:
+        output = subprocess.check_output(["apt-cache", "policy", pkg],
+                                         universal_newlines=True)
+        for line in output.split("\n"):
+            if line.startswith("  Installed:"):
+                ver = line.split(": ")[1]
+                return "{}_{}".format(pkg, ver.strip())
+    return None
+
+
 RECOVERY_LABELS = {"HP_TOOLS": "HP",
                    "PQSERVICE": "UBUNTU",
                    "BACKUP": "TEST",
@@ -38,7 +60,83 @@ RECOVERY_LABELS = {"HP_TOOLS": "HP",
                    "OS": "DELL",
                    "RECOVERY": "DELL"}
 
-RECOVERY_PACKAGES = ["dell-recovery", "ubuntu-recovery", "zip"]
+
+def get_recovery_partition():
+    """
+    Look for the recovery partition.
+
+     1. Check recovery package is installed or not.
+     2. Use blkid to get partition tables
+     3. Recovery partition type is ntfs or vfat
+     4. RECOVERY_LABELS to see if any partition match
+
+    :return:
+        (recovery_type, recovery_partition) or None
+    """
+    if get_recovery_package() is None:
+        return None
+
+    output = subprocess.check_output(["blkid"], universal_newlines=True)
+    data = output.strip()
+
+    if data == "":
+        raise OSError("Please run by root. "
+                      "Although blkid can runs without root, "
+                      "it only works after root runs blkid.")
+
+    for section in data.split("\n"):
+        blk = {}
+        blk['dev'], line = section.split(': ')
+        line = line.strip() + " "
+
+        for part in line.split('" '):
+            item = part.split("=\"")
+            if item[0] == 'LABEL':
+                blk['label'] = item[1].upper()
+            if item[0] == 'TYPE':
+                blk['fs'] = item[1]
+        if 'label' not in blk:
+            continue
+
+        if not (blk['fs'] == "vfat" or
+                blk['fs'] == "ntfs"):
+            continue
+        for label in RECOVERY_LABELS:
+            if blk['label'] == label:
+                return (RECOVERY_LABELS[label], blk['dev'])
+    return None
+
+
+class FunctionTests(unittest.TestCase):
+
+    """Tests for several functions."""
+
+    @mock.patch('subprocess.check_output')
+    def test_get_recovery_package(self, mock_subprocess_check_output):
+        """Smoke test for get_recovery_package()."""
+        mock_subprocess_check_output.return_value = """\
+dell-recovery:
+  Installed: 1.11
+  Candidate: 1.11
+  Version table:
+     1.11
+        500 https://archive/cesg-mirror/ test/public amd64 Packages
+"""
+        self.assertEqual(get_recovery_package(),
+                         "dell-recovery_1.11")
+
+    @mock.patch('__main__.get_recovery_package')
+    @mock.patch('subprocess.check_output')
+    def test_get_recovery_partition(self, mock_subprocess_check_output,
+                                    mock_get_recovery_package):
+        """Smoke test for get_recovery_partition()."""
+        mock_get_recovery_package.return_value = "dell-recovery_1.11"
+        mock_subprocess_check_output.return_value = """\
+/dev/sda1: LABEL="Test" UUID="xxxxx" TYPE="vfat" PARTUUID="00070b83-01"
+/dev/sda2: UUID="xxxxx" TYPE="vfat" PARTUUID="00070b83-02"
+/dev/sda3: LABEL="Recovery" UUID="xxxxx" TYPE="vfat" PARTUUID="00070b83-06"
+"""
+        self.assertEqual(get_recovery_partition(), ("DELL", "/dev/sda3"))
 
 
 class MountedPartition(object):
@@ -236,71 +334,6 @@ class RecoveryInfo(Command):
         ('checktype', RecoveryCheckType),
     )
 
-    @staticmethod
-    def get_recovery_package():
-        """
-        Test with RECOVERY_PACKAGES.
-
-        to check recovery application is installed or not
-
-        :return:
-            string of package_version or None
-        """
-        for pkg in RECOVERY_PACKAGES:
-            output = subprocess.check_output(["apt-cache", "policy", pkg],
-                                             universal_newlines=True)
-            for line in output.split("\n"):
-                if line.startswith("  Installed:"):
-                    ver = line.split(": ")[1]
-                    return "{}_{}".format(pkg, ver.strip())
-        return None
-
-    @staticmethod
-    def get_recovery_partition():
-        """
-        Look for the recovery partition.
-
-         1. Check recovery package is installed or not.
-         2. Use blkid to get partition tables
-         3. Recovery partition type is ntfs or vfat
-         4. RECOVERY_LABELS to see if any partition match
-
-        :return:
-            (recovery_type, recovery_partition) or None
-        """
-        if RecoveryInfo.get_recovery_package() is None:
-            return None
-
-        output = subprocess.check_output(["blkid"], universal_newlines=True)
-        data = output.strip()
-
-        if data == "":
-            raise OSError("Please run by root. "
-                          "Although blkid can runs without root, "
-                          "it only works after root runs blkid.")
-
-        for section in data.split("\n"):
-            blk = {}
-            blk['dev'], line = section.split(': ')
-            line = line.strip() + " "
-
-            for part in line.split('" '):
-                item = part.split("=\"")
-                if item[0] == 'LABEL':
-                    blk['label'] = item[1].upper()
-                if item[0] == 'TYPE':
-                    blk['fs'] = item[1]
-            if 'label' not in blk:
-                continue
-
-            if not (blk['fs'] == "vfat" or
-                    blk['fs'] == "ntfs"):
-                continue
-            for label in RECOVERY_LABELS:
-                if blk['label'] == label:
-                    return (RECOVERY_LABELS[label], blk['dev'])
-        return None
-
     def invoked(self, ctx):
         """
         Guacamole method used by the command ingredient.
@@ -314,7 +347,7 @@ class RecoveryInfo(Command):
             The return code of the command. Guacamole translates ``None`` to a
             successful exit status (return code zero).
         """
-        partition = RecoveryInfo.get_recovery_partition()
+        partition = get_recovery_partition()
 
         if partition is None:
             print("Recovery partition not found", file=sys.stderr)
@@ -328,36 +361,8 @@ class RecoveryInfoTests(unittest.TestCase):
 
     """Tests for RecoveryInfo."""
 
-    @mock.patch('subprocess.check_output')
-    def test_get_recovery_package(self, mock_subprocess_check_output):
-        """Smoke test for RecoveryInfo.get_recovery_package()."""
-        mock_subprocess_check_output.return_value = """\
-dell-recovery:
-  Installed: 1.11
-  Candidate: 1.11
-  Version table:
-     1.11
-        500 https://archive/cesg-mirror/ test/public amd64 Packages
-"""
-        self.assertEqual(RecoveryInfo.get_recovery_package(),
-                         "dell-recovery_1.11")
-
-    @mock.patch('__main__.RecoveryInfo.get_recovery_package')
-    @mock.patch('subprocess.check_output')
-    def test_get_recovery_partition(self, mock_subprocess_check_output,
-                                    mock_get_recovery_package):
-        """Smoke test for RecoveryInfo.get_recovery_partition()."""
-        mock_get_recovery_package.return_value = "dell-recovery_1.11"
-        mock_subprocess_check_output.return_value = """\
-/dev/sda1: LABEL="Test" UUID="xxxxx" TYPE="vfat" PARTUUID="00070b83-01"
-/dev/sda2: UUID="xxxxx" TYPE="vfat" PARTUUID="00070b83-02"
-/dev/sda3: LABEL="Recovery" UUID="xxxxx" TYPE="vfat" PARTUUID="00070b83-06"
-"""
-        self.assertEqual(RecoveryInfo.get_recovery_partition(),
-                         ("DELL", "/dev/sda3"))
-
-    @mock.patch('__main__.RecoveryInfo.get_recovery_package')
-    @mock.patch('__main__.RecoveryInfo.get_recovery_partition')
+    @mock.patch('__main__.get_recovery_package')
+    @mock.patch('__main__.get_recovery_partition')
     def test_smoke(self, mock_get_recovery_partition,
                    mock_get_recovery_package):
         """Smoke tests for running recovery_info."""

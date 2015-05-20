@@ -317,9 +317,8 @@ class RecoveryInfo(Command):
         partition = RecoveryInfo.get_recovery_partition()
 
         if partition is None:
-            sys.stderr.write("Recovery partition not found\n")
+            print("Recovery partition not found", file=sys.stderr)
             return 1
-
         (recovery_type, recovery_partition) = partition
         ctx.recovery_partition = recovery_partition
         ctx.recovery_type = recovery_type

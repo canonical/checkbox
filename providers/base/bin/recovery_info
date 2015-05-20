@@ -325,14 +325,13 @@ class RecoveryInfo(Command):
         ctx.recovery_type = recovery_type
 
 
-class RecoveryInfoGuacamoleCommendTests(unittest.TestCase):
+class RecoveryInfoTests(unittest.TestCase):
 
-    """Unittest of RecoveryInfo."""
+    """Tests for RecoveryInfo."""
 
     @mock.patch('subprocess.check_output')
-    def testRecoveryInfo_get_recovery_package(self,
-                                              mock_subprocess_check_output):
-        """Unittest of RecoveryInfo.get_recovery_package()."""
+    def test_get_recovery_package(self, mock_subprocess_check_output):
+        """Smoke test for RecoveryInfo.get_recovery_package()."""
         mock_subprocess_check_output.return_value = """\
 dell-recovery:
   Installed: 1.11
@@ -346,10 +345,9 @@ dell-recovery:
 
     @mock.patch('__main__.RecoveryInfo.get_recovery_package')
     @mock.patch('subprocess.check_output')
-    def testRecoveryInfo_get_recovery_partition(self,
-                                                mock_subprocess_check_output,
-                                                mock_get_recovery_package):
-        """Unittest of RecoveryInfo.get_recovery_partition()."""
+    def test_get_recovery_partition(self, mock_subprocess_check_output,
+                                    mock_get_recovery_package):
+        """Smoke test for RecoveryInfo.get_recovery_partition()."""
         mock_get_recovery_package.return_value = "dell-recovery_1.11"
         mock_subprocess_check_output.return_value = """\
 /dev/sda1: LABEL="Test" UUID="xxxxx" TYPE="vfat" PARTUUID="00070b83-01"
@@ -361,13 +359,11 @@ dell-recovery:
 
     @mock.patch('__main__.RecoveryInfo.get_recovery_package')
     @mock.patch('__main__.RecoveryInfo.get_recovery_partition')
-    def testRecoveryInfo_guacamole(self,
-                                   mock_get_recovery_partition,
-                                   mock_get_recovery_package):
-        """Unittest of command with argv."""
+    def test_smoke(self, mock_get_recovery_partition,
+                   mock_get_recovery_package):
+        """Smoke tests for running recovery_info."""
         mock_get_recovery_partition.return_value = ("DELL", "/dev/sda3")
         mock_get_recovery_package.return_value = "dell-recovery_1.11"
-
         self.assertEqual(RecoveryInfo().main(argv=[], exit=False), 0)
         self.assertEqual(
             RecoveryInfo().main(argv=["checktype", "HP"], exit=False), 1)

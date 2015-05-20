@@ -374,7 +374,7 @@ dell-recovery:
         mock_get_recovery_partition.return_value = ("DELL", "/dev/sda3")
         mock_get_recovery_package.return_value = "dell-recovery_1.11"
 
-        self.assertEqual(RecoveryInfo().main(argv=None, exit=False), 0)
+        self.assertEqual(RecoveryInfo().main(argv=[], exit=False), 0)
         self.assertEqual(
             RecoveryInfo().main(argv=["checktype", "HP"], exit=False), 1)
         self.assertEqual(

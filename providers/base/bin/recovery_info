@@ -182,9 +182,15 @@ class RecoveryFile(Command):
 class RecoveryCheckType(Command):
 
     """
-    subcommand of RecoveryInfo.
+    test if the recovery partition is of the given type.
 
-    Check the recovery type if not matched return 1
+    This command can be used for scripted tests, to see if the recovery
+    partition on the current system is of a concrete type or not (e.g.
+    DELL-specific)
+
+    @EPILOG@
+
+    The exit code is 0 if the recovery partition type matches and 1 otherwise.
     """
 
     def register_arguments(self, parser):
@@ -194,12 +200,8 @@ class RecoveryCheckType(Command):
         :param parser:
             Argument parser (from :mod:`argparse`) specific to this command.
         """
-        parser.add_argument('type',
-                            help="""\
-Check current recovery type, like DELL.
-If current recovery type is DELL, return value is 0.
-If current recovery type is not DELL, return value is 1.
-""")
+        parser.add_argument(
+            'type', help="expected type of the recovery partition")
 
     def invoked(self, ctx):
         """
@@ -214,11 +216,7 @@ If current recovery type is not DELL, return value is 1.
             The return code of the command. Guacamole translates ``None`` to a
             successful exit status (return code zero).
         """
-        if ctx.recovery_type != ctx.args.type.upper():
-            sys.stderr.write(
-                "{} and {}".format(ctx.recovery_type,
-                                   ctx.args.type.upper()))
-            sys.stderr.write(ctx.args.type.upper())
+        if ctx.recovery_type != ctx.args.type:
             return 1
 
 

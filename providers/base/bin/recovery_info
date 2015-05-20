@@ -223,9 +223,11 @@ class RecoveryCheckType(Command):
 class RecoveryInfo(Command):
 
     """
-    RecoveryInfo command.
+    Inspect the recovery partition.
 
-    If system is not a preinstalled OS, the command return 1.
+    This command can be used to inspect the recovery partition. It has several
+    sub-commands that do various tasks.  If the system has no recovery
+    partition, the command exits with the error code 1.
     """
 
     sub_commands = (

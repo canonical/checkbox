@@ -174,17 +174,9 @@ class RecoveryFile(Command):
             The return code of the command. Guacamole translates ``None`` to a
             successful exit status (return code zero).
         """
-        if ctx.args.file is None:
-            return 1
-        with MountedPartition(ctx.recovery_partition) as mntdir:
-            fname = "{}/{}".format(mntdir, ctx.args.file)
-            try:
-                with open(fname, 'rt', encoding='UTF-8') as f:
-                    print(f.read())
-            except Exception as e:
-                sys.stderr.write(
-                    "File({}) is not found, {}\n".format(ctx.args.file, e.msg))
-                return 1
+        with MountedPartition(ctx.recovery_partition) as mnt:
+            return subprocess.call([
+                'cat', '--', os.path.join(mnt, ctx.args.file)])
 
 
 class RecoveryCheckType(Command):

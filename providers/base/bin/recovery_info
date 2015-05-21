@@ -18,6 +18,7 @@
 """Show the recovery partition information for the preinstalled OS."""
 
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -61,50 +62,41 @@ RECOVERY_LABELS = {"HP_TOOLS": "HP",
                    "RECOVERY": "DELL"}
 
 
+_escape_pattern = re.compile(r'\\x([0-9a-fA-F][0-9a-fA-F])')
+
+
+def lsblk_unescape(label):
+    """Un-escape text escaping done by lsblk(8)."""
+    return _escape_pattern.sub(
+        lambda match: chr(int(match.group(1), 16)), label)
+
+
 def get_recovery_partition():
     """
-    Look for the recovery partition.
-
-     1. Check recovery package is installed or not.
-     2. Use blkid to get partition tables
-     3. Recovery partition type is ntfs or vfat
-     4. RECOVERY_LABELS to see if any partition match
+    Get the type and location of the recovery partition.
 
     :return:
         (recovery_type, recovery_partition) or None
+
+    Use lsblk(8) to inspect available block devices looking
+    for a partition with FAT or NTFS and a well-known label.
     """
-    if get_recovery_package() is None:
-        return None
-
-    output = subprocess.check_output(["blkid"], universal_newlines=True)
-    data = output.strip()
-
-    if data == "":
-        raise OSError("Please run by root. "
-                      "Although blkid can runs without root, "
-                      "it only works after root runs blkid.")
-
-    for section in data.split("\n"):
-        blk = {}
-        blk['dev'], line = section.split(': ')
-        line = line.strip() + " "
-
-        for part in line.split('" '):
-            item = part.split("=\"")
-            if item[0] == 'LABEL':
-                blk['label'] = item[1].upper()
-            if item[0] == 'TYPE':
-                blk['fs'] = item[1]
-        if 'label' not in blk:
+    cmd = ['lsblk', '-o', 'TYPE,FSTYPE,NAME,LABEL', '--raw']
+    for line in subprocess.check_output(cmd).splitlines()[1:]:
+        type, fstype, name, label = line.split(b' ', 3)
+        # Skip everything but partitions
+        if type != b'part':
             continue
-
-        if not (blk['fs'] == "vfat" or
-                blk['fs'] == "ntfs"):
+        # Skip everything but FAT and NTFS
+        if fstype != b'vfat' and fstype != b'ntfs':
             continue
-        for label in RECOVERY_LABELS:
-            if blk['label'] == label:
-                return (RECOVERY_LABELS[label], blk['dev'])
-    return None
+        label = lsblk_unescape(label.decode('utf-8'))
+        recovery_type = RECOVERY_LABELS.get(label)
+        # Skip unknown labels
+        if recovery_type is None:
+            continue
+        recovery_partition = '/dev/{}'.format(name.decode('utf-8'))
+        return (recovery_type, recovery_partition)
 
 
 class FunctionTests(unittest.TestCase):
@@ -125,18 +117,34 @@ dell-recovery:
         self.assertEqual(get_recovery_package(),
                          "dell-recovery_1.11")
 
-    @mock.patch('__main__.get_recovery_package')
     @mock.patch('subprocess.check_output')
-    def test_get_recovery_partition(self, mock_subprocess_check_output,
-                                    mock_get_recovery_package):
+    def test_get_recovery_partition(self, mock_subprocess_check_output):
         """Smoke test for get_recovery_partition()."""
-        mock_get_recovery_package.return_value = "dell-recovery_1.11"
-        mock_subprocess_check_output.return_value = """\
-/dev/sda1: LABEL="Test" UUID="xxxxx" TYPE="vfat" PARTUUID="00070b83-01"
-/dev/sda2: UUID="xxxxx" TYPE="vfat" PARTUUID="00070b83-02"
-/dev/sda3: LABEL="Recovery" UUID="xxxxx" TYPE="vfat" PARTUUID="00070b83-06"
-"""
+        mock_subprocess_check_output.return_value = (
+            b'TYPE FSTYPE NAME LABEL\n'
+            b'disk linux_raid_member sda fx:2x250GB\n'
+            b'raid1 bcache md127 \n'
+            b'disk ext4 bcache0 Ultra\n'
+            b'disk linux_raid_member sdb fx:2x250GB\n'
+            b'raid1 bcache md127 \n'
+            b'disk ext4 bcache0 Ultra\n'
+            b'disk  sdc \n'
+            b'part btrfs sdc1 vol1\n'
+            b'disk  sdd \n'
+            b'part ntfs sdd1 Windows\x208.1\n'
+            b'part  sdd2 \n'
+            b'part ext4 sdd5 Utopic\n'
+            b'part swap sdd6 \n'
+            b'disk bcache sde \n'
+            b'disk ext4 bcache0 Ultra\n'
+            b'disk  sdf \n'
+            b'part ntfs sda3 RECOVERY\n')
         self.assertEqual(get_recovery_partition(), ("DELL", "/dev/sda3"))
+
+    def test_lsblk_unescape(self):
+        """Smoke tests for lsblk_unescape()."""
+        self.assertEqual(lsblk_unescape('Windows\\x208.1'), 'Windows 8.1')
+        self.assertEqual(lsblk_unescape('Windows XP'), 'Windows XP')
 
 
 class MountedPartition(object):

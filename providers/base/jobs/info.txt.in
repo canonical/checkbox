@@ -283,7 +283,7 @@ user: root
 estimated_duration: 0.2
 _summary: Check existence of recovery partition
 _description: Check existence of recovery partition
-command: recovery_info --check-recovery-partition
+command: recovery_info
 
 plugin: shell
 id: info/detect_dell_recovery
@@ -293,7 +293,7 @@ user: root
 estimated_duration: 0.2
 _summary: Check the recovery type is dell or not
 _description: Check the recovery type is dell or not
-command: recovery_info --check-recovery-type DELL
+command: recovery_info checktype DELL
 
 plugin: attachment
 id: recovery_info_attachment
@@ -309,7 +309,7 @@ _description:
  Example:
  image_version: somerville-trusty-amd64-20140620-0
  bto_version: A00_dell-bto-trusty-houston-15-A11-iso-20141203-0.iso
-command: recovery_info --show-version
+command: recovery_info version
 
 plugin: attachment
 id: dell_bto_xml_attachment
@@ -322,7 +322,7 @@ _description:
  The information include:
   - fish packages
   - dell recovery stage 2 boot log
-command: recovery_info --readfile bto.xml
+command: recovery_info file bto.xml
 
 plugin: attachment
 id: info/kvm_output

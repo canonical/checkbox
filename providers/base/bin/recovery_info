@@ -18,6 +18,7 @@
 """Show the recovery partition information for the preinstalled OS."""
 
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -31,6 +32,28 @@ try:
 except ImportError:
     from plainbox.vendor import mock
 
+RECOVERY_PACKAGES = ["dell-recovery", "ubuntu-recovery"]
+
+
+def get_recovery_package():
+    """
+    Test with RECOVERY_PACKAGES.
+
+    to check recovery application is installed or not
+
+    :return:
+        string of package_version or None
+    """
+    for pkg in RECOVERY_PACKAGES:
+        output = subprocess.check_output(["apt-cache", "policy", pkg],
+                                         universal_newlines=True)
+        for line in output.split("\n"):
+            if line.startswith("  Installed:"):
+                ver = line.split(": ")[1]
+                return "{}_{}".format(pkg, ver.strip())
+    return None
+
+
 RECOVERY_LABELS = {"HP_TOOLS": "HP",
                    "PQSERVICE": "UBUNTU",
                    "BACKUP": "TEST",
@@ -38,7 +61,90 @@ RECOVERY_LABELS = {"HP_TOOLS": "HP",
                    "OS": "DELL",
                    "RECOVERY": "DELL"}
 
-RECOVERY_PACKAGES = ["dell-recovery", "ubuntu-recovery", "zip"]
+
+_escape_pattern = re.compile(r'\\x([0-9a-fA-F][0-9a-fA-F])')
+
+
+def lsblk_unescape(label):
+    """Un-escape text escaping done by lsblk(8)."""
+    return _escape_pattern.sub(
+        lambda match: chr(int(match.group(1), 16)), label)
+
+
+def get_recovery_partition():
+    """
+    Get the type and location of the recovery partition.
+
+    :return:
+        (recovery_type, recovery_partition) or None
+
+    Use lsblk(8) to inspect available block devices looking
+    for a partition with FAT or NTFS and a well-known label.
+    """
+    cmd = ['lsblk', '-o', 'TYPE,FSTYPE,NAME,LABEL', '--raw']
+    for line in subprocess.check_output(cmd).splitlines()[1:]:
+        type, fstype, name, label = line.split(b' ', 3)
+        # Skip everything but partitions
+        if type != b'part':
+            continue
+        # Skip everything but FAT and NTFS
+        if fstype != b'vfat' and fstype != b'ntfs':
+            continue
+        label = lsblk_unescape(label.decode('utf-8'))
+        recovery_type = RECOVERY_LABELS.get(label)
+        # Skip unknown labels
+        if recovery_type is None:
+            continue
+        recovery_partition = '/dev/{}'.format(name.decode('utf-8'))
+        return (recovery_type, recovery_partition)
+
+
+class FunctionTests(unittest.TestCase):
+
+    """Tests for several functions."""
+
+    @mock.patch('subprocess.check_output')
+    def test_get_recovery_package(self, mock_subprocess_check_output):
+        """Smoke test for get_recovery_package()."""
+        mock_subprocess_check_output.return_value = """\
+dell-recovery:
+  Installed: 1.11
+  Candidate: 1.11
+  Version table:
+     1.11
+        500 https://archive/cesg-mirror/ test/public amd64 Packages
+"""
+        self.assertEqual(get_recovery_package(),
+                         "dell-recovery_1.11")
+
+    @mock.patch('subprocess.check_output')
+    def test_get_recovery_partition(self, mock_subprocess_check_output):
+        """Smoke test for get_recovery_partition()."""
+        mock_subprocess_check_output.return_value = (
+            b'TYPE FSTYPE NAME LABEL\n'
+            b'disk linux_raid_member sda fx:2x250GB\n'
+            b'raid1 bcache md127 \n'
+            b'disk ext4 bcache0 Ultra\n'
+            b'disk linux_raid_member sdb fx:2x250GB\n'
+            b'raid1 bcache md127 \n'
+            b'disk ext4 bcache0 Ultra\n'
+            b'disk  sdc \n'
+            b'part btrfs sdc1 vol1\n'
+            b'disk  sdd \n'
+            b'part ntfs sdd1 Windows\x208.1\n'
+            b'part  sdd2 \n'
+            b'part ext4 sdd5 Utopic\n'
+            b'part swap sdd6 \n'
+            b'disk bcache sde \n'
+            b'disk ext4 bcache0 Ultra\n'
+            b'disk  sdf \n'
+            b'part ntfs sda3 RECOVERY\n')
+        self.assertEqual(get_recovery_partition(), ("DELL", "/dev/sda3"))
+
+    def test_lsblk_unescape(self):
+        """Smoke tests for lsblk_unescape()."""
+        self.assertEqual(lsblk_unescape('Windows\\x208.1'), 'Windows 8.1')
+        self.assertEqual(lsblk_unescape('Windows XP'), 'Windows XP')
 
 
 class MountedPartition(object):
@@ -105,9 +211,11 @@ class MountedPartitionTests(unittest.TestCase):
 class RecoveryVersion(Command):
 
     """
-    subcommand of RecoveryInfo.
+    print the version of recovery image.
 
-    print out the version information.
+    @EPILOG@
+
+    This commands prints information such as:
 
     image_version: xxx
     bto_version: REV_xxx.iso (dell only)
@@ -145,9 +253,9 @@ class RecoveryVersion(Command):
 class RecoveryFile(Command):
 
     """
-    subcommand of RecoveryInfo.
+    display a single file from the recovery partition
 
-    print out the file in recovery partition.
+    This command can be used to ``cat`` any file from the recovery partition
     """
 
     def register_arguments(self, parser):
@@ -157,7 +265,7 @@ class RecoveryFile(Command):
         :param parser:
             Argument parser (from :mod:`argparse`) specific to this command.
         """
-        parser.add_argument('file', help='File name of print out the content')
+        parser.add_argument('file', help='name of the file to display')
 
     def invoked(self, ctx):
         """
@@ -172,25 +280,23 @@ class RecoveryFile(Command):
             The return code of the command. Guacamole translates ``None`` to a
             successful exit status (return code zero).
         """
-        if ctx.args.file is None:
-            return 1
-        with MountedPartition(ctx.recovery_partition) as mntdir:
-            fname = "{}/{}".format(mntdir, ctx.args.file)
-            try:
-                with open(fname, 'rt', encoding='UTF-8') as f:
-                    print(f.read())
-            except Exception as e:
-                sys.stderr.write(
-                    "File({}) is not found, {}\n".format(ctx.args.file, e.msg))
-                return 1
+        with MountedPartition(ctx.recovery_partition) as mnt:
+            return subprocess.call([
+                'cat', '--', os.path.join(mnt, ctx.args.file)])
 
 
 class RecoveryCheckType(Command):
 
     """
-    subcommand of RecoveryInfo.
+    test if the recovery partition is of the given type.
 
-    Check the recovery type if not matched return 1
+    This command can be used for scripted tests, to see if the recovery
+    partition on the current system is of a concrete type or not (e.g.
+    DELL-specific)
+
+    @EPILOG@
+
+    The exit code is 0 if the recovery partition type matches and 1 otherwise.
     """
 
     def register_arguments(self, parser):
@@ -200,12 +306,8 @@ class RecoveryCheckType(Command):
         :param parser:
             Argument parser (from :mod:`argparse`) specific to this command.
         """
-        parser.add_argument('type',
-                            help="""\
-Check current recovery type, like DELL.
-If current recovery type is DELL, return value is 0.
-If current recovery type is not DELL, return value is 1.
-""")
+        parser.add_argument(
+            'type', help="expected type of the recovery partition")
 
     def invoked(self, ctx):
         """
@@ -220,20 +322,18 @@ If current recovery type is not DELL, return value is 1.
             The return code of the command. Guacamole translates ``None`` to a
             successful exit status (return code zero).
         """
-        if ctx.recovery_type != ctx.args.type.upper():
-            sys.stderr.write(
-                "{} and {}".format(ctx.recovery_type,
-                                   ctx.args.type.upper()))
-            sys.stderr.write(ctx.args.type.upper())
+        if ctx.recovery_type != ctx.args.type:
             return 1
 
 
 class RecoveryInfo(Command):
 
     """
-    RecoveryInfo command.
+    Inspect the recovery partition.
 
-    If system is not a preinstalled OS, the command return 1.
+    This command can be used to inspect the recovery partition. It has several
+    sub-commands that do various tasks.  If the system has no recovery
+    partition, the command exits with the error code 1.
     """
 
     sub_commands = (
@@ -242,71 +342,6 @@ class RecoveryInfo(Command):
         ('checktype', RecoveryCheckType),
     )
 
-    @staticmethod
-    def get_recovery_package():
-        """
-        Test with RECOVERY_PACKAGES.
-
-        to check recovery application is installed or not
-
-        :return:
-            string of package_version or None
-        """
-        for pkg in RECOVERY_PACKAGES:
-            output = subprocess.check_output(["apt-cache", "policy", pkg],
-                                             universal_newlines=True)
-            for line in output.split("\n"):
-                if line.startswith("  Installed:"):
-                    ver = line.split(": ")[1]
-                    return "{}_{}".format(pkg, ver.strip())
-        return None
-
-    @staticmethod
-    def get_recovery_partition():
-        """
-        Look for the recovery partition.
-
-         1. Check recovery package is installed or not.
-         2. Use blkid to get partition tables
-         3. Recovery partition type is ntfs or vfat
-         4. RECOVERY_LABELS to see if any partition match
-
-        :return:
-            (recovery_type, recovery_partition) or None
-        """
-        if RecoveryInfo.get_recovery_package() is None:
-            return None
-
-        output = subprocess.check_output(["blkid"], universal_newlines=True)
-        data = output.strip()
-
-        if data == "":
-            raise OSError("Please run by root. "
-                          "Although blkid can runs without root, "
-                          "it only works after root runs blkid.")
-
-        for section in data.split("\n"):
-            blk = {}
-            blk['dev'], line = section.split(': ')
-            line = line.strip() + " "
-
-            for part in line.split('" '):
-                item = part.split("=\"")
-                if item[0] == 'LABEL':
-                    blk['label'] = item[1].upper()
-                if item[0] == 'TYPE':
-                    blk['fs'] = item[1]
-            if 'label' not in blk:
-                continue
-
-            if not (blk['fs'] == "vfat" or
-                    blk['fs'] == "ntfs"):
-                continue
-            for label in RECOVERY_LABELS:
-                if blk['label'] == label:
-                    return (RECOVERY_LABELS[label], blk['dev'])
-        return None
-
     def invoked(self, ctx):
         """
         Guacamole method used by the command ingredient.
@@ -320,61 +355,28 @@ class RecoveryInfo(Command):
             The return code of the command. Guacamole translates ``None`` to a
             successful exit status (return code zero).
         """
-        partition = RecoveryInfo.get_recovery_partition()
+        partition = get_recovery_partition()
 
         if partition is None:
-            sys.stderr.write("Recovery partition not found\n")
+            print("Recovery partition not found", file=sys.stderr)
             return 1
-
         (recovery_type, recovery_partition) = partition
         ctx.recovery_partition = recovery_partition
         ctx.recovery_type = recovery_type
 
 
-class RecoveryInfoGuacamoleCommendTests(unittest.TestCase):
+class RecoveryInfoTests(unittest.TestCase):
 
-    """Unittest of RecoveryInfo."""
+    """Tests for RecoveryInfo."""
 
-    @mock.patch('subprocess.check_output')
-    def testRecoveryInfo_get_recovery_package(self,
-                                              mock_subprocess_check_output):
-        """Unittest of RecoveryInfo.get_recovery_package()."""
-        mock_subprocess_check_output.return_value = """\
-dell-recovery:
-  Installed: 1.11
-  Candidate: 1.11
-  Version table:
-     1.11
-        500 https://archive/cesg-mirror/ test/public amd64 Packages
-"""
-        self.assertEqual(RecoveryInfo.get_recovery_package(),
-                         "dell-recovery_1.11")
-
-    @mock.patch('__main__.RecoveryInfo.get_recovery_package')
-    @mock.patch('subprocess.check_output')
-    def testRecoveryInfo_get_recovery_partition(self,
-                                                mock_subprocess_check_output,
-                                                mock_get_recovery_package):
-        """Unittest of RecoveryInfo.get_recovery_partition()."""
-        mock_get_recovery_package.return_value = "dell-recovery_1.11"
-        mock_subprocess_check_output.return_value = """\
-/dev/sda1: LABEL="Test" UUID="xxxxx" TYPE="vfat" PARTUUID="00070b83-01"
-/dev/sda2: UUID="xxxxx" TYPE="vfat" PARTUUID="00070b83-02"
-/dev/sda3: LABEL="Recovery" UUID="xxxxx" TYPE="vfat" PARTUUID="00070b83-06"
-"""
-        self.assertEqual(RecoveryInfo.get_recovery_partition(),
-                         ("DELL", "/dev/sda3"))
-
-    @mock.patch('__main__.RecoveryInfo.get_recovery_package')
-    @mock.patch('__main__.RecoveryInfo.get_recovery_partition')
-    def testRecoveryInfo_guacamole(self,
-                                   mock_get_recovery_partition,
-                                   mock_get_recovery_package):
-        """Unittest of command with argv."""
+    @mock.patch('__main__.get_recovery_package')
+    @mock.patch('__main__.get_recovery_partition')
+    def test_smoke(self, mock_get_recovery_partition,
+                   mock_get_recovery_package):
+        """Smoke tests for running recovery_info."""
         mock_get_recovery_partition.return_value = ("DELL", "/dev/sda3")
         mock_get_recovery_package.return_value = "dell-recovery_1.11"
-
-        self.assertEqual(RecoveryInfo().main(argv=None, exit=False), 0)
+        self.assertEqual(RecoveryInfo().main(argv=[], exit=False), 0)
         self.assertEqual(
             RecoveryInfo().main(argv=["checktype", "HP"], exit=False), 1)
         self.assertEqual(

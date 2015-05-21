@@ -315,6 +315,7 @@ plugin: attachment
 id: dell_bto_xml_attachment
 depends: info/detect_dell_recovery
 requires: package.name == 'dell-recovery'
+user: root
 estimated_duration: 0.5
 _summary: Attach the bto.xml in Dell recovery partition
 _description:

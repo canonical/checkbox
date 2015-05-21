@@ -32,7 +32,7 @@ try:
 except ImportError:
     from plainbox.vendor import mock
 
-RECOVERY_PACKAGES = ["dell-recovery", "ubuntu-recovery", "zip"]
+RECOVERY_PACKAGES = ["dell-recovery", "ubuntu-recovery"]
 
 
 def get_recovery_package():

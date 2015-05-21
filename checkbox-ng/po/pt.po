@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: plainbox\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-04-21 17:27+0200\n"
+"POT-Creation-Date: 2015-05-19 13:10+0800\n"
 "PO-Revision-Date: 2014-03-29 10:06+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2015-05-19 05:08+0000\n"
+"X-Launchpad-Export-Date: 2015-05-21 05:08+0000\n"
 "X-Generator: Launchpad (build 17508)\n"
 "Language: pt\n"
 
@@ -391,9 +391,9 @@ msgstr ""
 #: .././plainbox/impl/commands/cmd_run.py:68
 #: .././plainbox/impl/commands/cmd_run.py:84
 #: .././plainbox/impl/commands/cmd_session.py:115
-#: .././plainbox/impl/commands/inv_run.py:347
 #: .././plainbox/impl/commands/inv_run.py:350
 #: .././plainbox/impl/commands/inv_run.py:353
+#: .././plainbox/impl/commands/inv_run.py:356
 #: .././plainbox/impl/commands/inv_session.py:143
 #: .././plainbox/impl/commands/inv_session.py:146
 msgid "?"
@@ -743,7 +743,7 @@ msgid "interactive"
 msgstr ""
 
 #: .././plainbox/impl/commands/inv_analyze.py:163
-#: .././plainbox/impl/commands/inv_run.py:733
+#: .././plainbox/impl/commands/inv_run.py:736
 msgid "unknown"
 msgstr ""
 
@@ -802,20 +802,20 @@ msgstr ""
 msgid "Variables:"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_check_config.py:49
+#: .././plainbox/impl/commands/inv_check_config.py:50
 msgid "Sections:"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_check_config.py:55
+#: .././plainbox/impl/commands/inv_check_config.py:58
 msgid "Problems:"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_check_config.py:58
+#: .././plainbox/impl/commands/inv_check_config.py:61
 #, python-brace-format
 msgid " - variable {0}: {1}"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_check_config.py:63
+#: .././plainbox/impl/commands/inv_check_config.py:66
 msgid "No validation problems found"
 msgstr ""
 
@@ -871,7 +871,7 @@ msgid "press ENTER to continue"
 msgstr ""
 
 #: .././plainbox/impl/commands/inv_run.py:179
-#: .././plainbox/impl/commands/inv_run.py:869
+#: .././plainbox/impl/commands/inv_run.py:873
 msgid "add a comment"
 msgstr ""
 
@@ -887,283 +887,295 @@ msgstr ""
 msgid "Command output hidden"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:230
+#: .././plainbox/impl/commands/inv_run.py:217
+msgid "Purpose:"
+msgstr ""
+
+#: .././plainbox/impl/commands/inv_run.py:224
+msgid "Steps:"
+msgstr ""
+
+#: .././plainbox/impl/commands/inv_run.py:229
+msgid "Verification:"
+msgstr ""
+
+#: .././plainbox/impl/commands/inv_run.py:233
 msgid "Job cannot be started because:"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:238
+#: .././plainbox/impl/commands/inv_run.py:241
 msgid "Outcome"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:244
+#: .././plainbox/impl/commands/inv_run.py:247
 msgid "Waiting for the system to shut down or reboot..."
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:416
+#: .././plainbox/impl/commands/inv_run.py:419
 msgid "Resume Incomplete Session"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:418
+#: .././plainbox/impl/commands/inv_run.py:421
 #, python-brace-format
 msgid "There is {0} incomplete session that might be resumed"
 msgid_plural "There are {0} incomplete sessions that might be resumed"
 msgstr[0] ""
 msgstr[1] ""
 
-#: .././plainbox/impl/commands/inv_run.py:425
+#: .././plainbox/impl/commands/inv_run.py:428
 msgid "resume this session"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:426
+#: .././plainbox/impl/commands/inv_run.py:429
 msgid "next session"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:427
+#: .././plainbox/impl/commands/inv_run.py:430
 msgid "create new session"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:428
+#: .././plainbox/impl/commands/inv_run.py:431
 msgid "Do you want to resume session {0!a}?"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:442
+#: .././plainbox/impl/commands/inv_run.py:445
 msgid "ignore this problem"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:443
+#: .././plainbox/impl/commands/inv_run.py:446
 msgid "erase this session"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:446
+#: .././plainbox/impl/commands/inv_run.py:449
 #: .././plainbox/impl/commands/inv_session.py:93
 msgid "Session removed"
 msgstr ""
 
 #. TRANSLATORS: This is the exit message
-#: .././plainbox/impl/commands/inv_run.py:458
+#: .././plainbox/impl/commands/inv_run.py:461
 msgid "Session not resumed"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:464
+#: .././plainbox/impl/commands/inv_run.py:467
 #: .././plainbox/impl/commands/inv_session.py:180
 msgid "Available output formats: {}"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:468
+#: .././plainbox/impl/commands/inv_run.py:471
 #: .././plainbox/impl/commands/inv_session.py:184
 msgid "Each format may support a different set of options"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:474
+#: .././plainbox/impl/commands/inv_run.py:477
 msgid "Available transports: {}"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:490
+#: .././plainbox/impl/commands/inv_run.py:493
 #, python-format
 msgid "Corrupted session %s: %s"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:500
+#: .././plainbox/impl/commands/inv_run.py:503
 msgid "yes"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:501
+#: .././plainbox/impl/commands/inv_run.py:504
 msgid "no"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:506
+#: .././plainbox/impl/commands/inv_run.py:509
 msgid "Do you want to start a new session?"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:512
+#: .././plainbox/impl/commands/inv_run.py:515
 msgid "Previous session run tried to execute job: {}"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:515
+#: .././plainbox/impl/commands/inv_run.py:518
 msgid "skip that job"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:516
+#: .././plainbox/impl/commands/inv_run.py:519
 msgid "mark it as passed and continue"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:517
+#: .././plainbox/impl/commands/inv_run.py:520
 msgid "mark it as failed and continue"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:518
+#: .././plainbox/impl/commands/inv_run.py:521
 msgid "run it again"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:519
+#: .././plainbox/impl/commands/inv_run.py:522
 msgid "What do you want to do with that job?"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:523
+#: .././plainbox/impl/commands/inv_run.py:526
 msgid "Skipped after resuming execution"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:528
+#: .././plainbox/impl/commands/inv_run.py:531
 msgid "Passed after resuming execution"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:533
+#: .././plainbox/impl/commands/inv_run.py:536
 msgid "Failed after resuming execution"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:608
+#: .././plainbox/impl/commands/inv_run.py:611
 msgid "The job database you are currently using is broken"
-msgstr ""
-
-#: .././plainbox/impl/commands/inv_run.py:610
-#, python-brace-format
-msgid "At least two jobs contend for the id {0}"
 msgstr ""
 
 #: .././plainbox/impl/commands/inv_run.py:613
 #, python-brace-format
+msgid "At least two jobs contend for the id {0}"
+msgstr ""
+
+#: .././plainbox/impl/commands/inv_run.py:616
+#, python-brace-format
 msgid "First job defined in: {0}"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:615
+#: .././plainbox/impl/commands/inv_run.py:618
 #, python-brace-format
 msgid "Second job defined in: {0}"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:620
+#: .././plainbox/impl/commands/inv_run.py:623
 msgid "This session cannot be resumed"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:684
+#: .././plainbox/impl/commands/inv_run.py:687
 msgid "Analyzing Jobs"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:702
+#: .././plainbox/impl/commands/inv_run.py:705
 msgid "Authentication"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:710
+#: .././plainbox/impl/commands/inv_run.py:713
 msgid "Running Selected Jobs"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:730
+#: .././plainbox/impl/commands/inv_run.py:733
 msgid "Running job {} / {}. Estimated time left: {}"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:791
-#: .././plainbox/impl/commands/inv_run.py:919
+#: .././plainbox/impl/commands/inv_run.py:795
+#: .././plainbox/impl/commands/inv_run.py:923
 msgid "Please enter your comments:"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:798
+#: .././plainbox/impl/commands/inv_run.py:802
 msgid "Explicitly skipped before execution"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:845
+#: .././plainbox/impl/commands/inv_run.py:849
 msgid "Results"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:852
+#: .././plainbox/impl/commands/inv_run.py:856
 #: .././plainbox/impl/commands/inv_session.py:169
 msgid "Saving results to {}"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:863
+#: .././plainbox/impl/commands/inv_run.py:867
 msgid "Select an outcome or an action: "
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:873
-#: .././plainbox/impl/commands/inv_run.py:878
-#: .././plainbox/impl/commands/inv_run.py:883
+#: .././plainbox/impl/commands/inv_run.py:877
+#: .././plainbox/impl/commands/inv_run.py:882
+#: .././plainbox/impl/commands/inv_run.py:887
 #, python-brace-format
 msgid "set outcome to {0}"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:874
+#: .././plainbox/impl/commands/inv_run.py:878
 msgctxt "set outcome to <pass>"
 msgid "pass"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:879
+#: .././plainbox/impl/commands/inv_run.py:883
 msgctxt "set outcome to <fail>"
 msgid "fail"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:884
+#: .././plainbox/impl/commands/inv_run.py:888
 msgctxt "set outcome to <skip>"
 msgid "skip"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:888
+#: .././plainbox/impl/commands/inv_run.py:892
 msgid "re-run this job"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:895
+#: .././plainbox/impl/commands/inv_run.py:899
 #, python-brace-format
 msgid "set suggested outcome [{0}]"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:898
+#: .././plainbox/impl/commands/inv_run.py:902
 msgid "Please decide what to do next:"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:899
+#: .././plainbox/impl/commands/inv_run.py:903
 msgid "outcome"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:901
-#: .././plainbox/impl/commands/inv_run.py:904
+#: .././plainbox/impl/commands/inv_run.py:905
+#: .././plainbox/impl/commands/inv_run.py:908
 msgid "comments"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:902
+#: .././plainbox/impl/commands/inv_run.py:906
 msgctxt "none comment"
 msgid "none"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:929
+#: .././plainbox/impl/commands/inv_run.py:933
 msgid "Warning"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:930
+#: .././plainbox/impl/commands/inv_run.py:934
 msgid "There were some problems with the selected jobs"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:933
+#: .././plainbox/impl/commands/inv_run.py:937
 msgid "Problematic jobs will not be considered"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:936
+#: .././plainbox/impl/commands/inv_run.py:940
 msgid "Session Statistics"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:937
+#: .././plainbox/impl/commands/inv_run.py:941
 #, python-brace-format
 msgid "This session is about {0:.2f}{percent} complete"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:942
+#: .././plainbox/impl/commands/inv_run.py:946
 msgid "Estimated duration is {:.2f} for automated jobs."
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:946
+#: .././plainbox/impl/commands/inv_run.py:950
 msgid "Estimated duration cannot be determined for automated jobs."
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:948
+#: .././plainbox/impl/commands/inv_run.py:952
 msgid "Estimated duration is {:.2f} for manual jobs."
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:952
+#: .././plainbox/impl/commands/inv_run.py:956
 msgid "Estimated duration cannot be determined for manual jobs."
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:953
+#: .././plainbox/impl/commands/inv_run.py:957
 #, python-brace-format
 msgid "Size of the desired job list: {0}"
 msgstr ""
 
-#: .././plainbox/impl/commands/inv_run.py:955
+#: .././plainbox/impl/commands/inv_run.py:959
 #, python-brace-format
 msgid "Size of the effective execution plan: {0}"
 msgstr ""
@@ -1692,53 +1704,53 @@ msgstr ""
 msgid "expression {!r} needs unavailable resource {!r}"
 msgstr ""
 
-#: .././plainbox/impl/resource.py:271
+#: .././plainbox/impl/resource.py:275
 msgid "this kind of python code is not allowed: {}"
 msgstr ""
 
-#: .././plainbox/impl/resource.py:466
+#: .././plainbox/impl/resource.py:470
 msgid "expression did not reference any resources"
 msgstr ""
 
-#: .././plainbox/impl/resource.py:475
+#: .././plainbox/impl/resource.py:479
 msgid "expression referenced multiple resources"
 msgstr ""
 
-#: .././plainbox/impl/resource.py:481
+#: .././plainbox/impl/resource.py:485
 msgid "syntax error in resource expression"
 msgstr ""
 
-#: .././plainbox/impl/resource.py:592
+#: .././plainbox/impl/resource.py:596
 #, python-format
 msgid "Exception in requirement expression %r (with %s=%r): %r"
 msgstr ""
 
-#: .././plainbox/impl/resource.py:647
+#: .././plainbox/impl/resource.py:651
 msgid ""
 "unable to parse imports statement {0!r}: expected exactly four or six tokens"
 msgstr ""
 
-#: .././plainbox/impl/resource.py:651
+#: .././plainbox/impl/resource.py:655
 msgid "unable to parse imports statement {0!r}: expected 'from' keyword"
 msgstr ""
 
-#: .././plainbox/impl/resource.py:656
+#: .././plainbox/impl/resource.py:660
 msgid ""
 "unable to parse imports statement {0!r}: expected a namespace, not fully "
 "qualified job identifier"
 msgstr ""
 
-#: .././plainbox/impl/resource.py:660
+#: .././plainbox/impl/resource.py:664
 msgid "unable to parse imports statement {0!r}: expected 'import' keyword"
 msgstr ""
 
-#: .././plainbox/impl/resource.py:665
+#: .././plainbox/impl/resource.py:669
 msgid ""
 "unable to parse imports statement {0!r}: expected a partial job identifier, "
 "not a fully qualified job identifier"
 msgstr ""
 
-#: .././plainbox/impl/resource.py:671
+#: .././plainbox/impl/resource.py:675
 msgid "unable to parse imports statement {0!r}: expected 'as' keyword"
 msgstr ""
 

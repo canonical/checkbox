@@ -4,7 +4,7 @@ from plainbox.provider_manager import N_
 
 setup(
     name='2013.com.canonical.certification:checkbox',
-    version="0.21",
+    version="0.20.1",
     description=N_("Checkbox provider"),
     gettext_domain='plainbox-provider-checkbox',
     strict=False, deprecated=False,

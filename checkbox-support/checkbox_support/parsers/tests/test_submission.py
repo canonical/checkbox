@@ -94,6 +94,12 @@ class TestSubmissionParser(TestCase):
         parser.run(SubmissionRun, result=result, project=project)
         return result
 
+    def test_non_ascii(self):
+        """non-ascii chars in an info element shouldn't cause a crash."""
+        result = self.getResult("submission_info_non_ascii.xml")
+        self.assertTrue("attachments" in result)
+        self.assertIn("Péeter", result["attachments"][0]['content'])
+
     def test_distribution(self):
         """Distribution information is in the lsbrelease element."""
         result = self.getResult("submission_lsbrelease.xml")

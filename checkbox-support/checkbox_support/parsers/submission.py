@@ -639,7 +639,13 @@ class SubmissionResult(object):
             }
         for context, parser in context_parsers.items():
             if re.search(context, command):
-                if hasattr(text, "decode"):
+                # Under python 2.7 strs have a "decode" method
+                # and need to be decoded into utf-8 for the StringIO.
+                # Note that unicodes *also* have a "decode" method
+                # but should *not* be decoded (gives UnicodeEncodeError).
+                # Under Python 3.x strings don't have a "decode" method
+                # and unicodes don't exist.
+                if hasattr(text, "decode") and not isinstance(text, unicode):
                     text = text.decode("utf-8")
                 stream = StringIO(text)
                 p = parser(stream)

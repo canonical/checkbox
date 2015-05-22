@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<system version="1.0">
+    <context>
+    <info command="modinfo_attachment">name:           Module
+
+name:           bbswitch
+filename:       /lib/modules/3.13.0-48-generic/updates/dkms/bbswitch.ko
+version:        0.7
+author:         Péeter Wu &lt;lekensteyn@gmail.com&gt;
+</info>
+    </context>
+    <summary>
+        <architecture value="amd64"/>
+    </summary>
+</system>

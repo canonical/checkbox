@@ -90,9 +90,8 @@ class TestSubmissionParser(TestCase):
     def getResult(self, name, project="test"):
         result = {}
         fixture = os.path.join(os.path.dirname(__file__), "fixtures", name)
-        with open(fixture) as stream:
-            parser = SubmissionParser(stream)
-            parser.run(SubmissionRun, result=result, project=project)
+        parser = SubmissionParser(fixture)
+        parser.run(SubmissionRun, result=result, project=project)
         return result
 
     def test_distribution(self):

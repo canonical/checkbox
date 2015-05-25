@@ -140,6 +140,19 @@ class TestRun(object):
             "module": module,
             "options": options})
 
+    def addModuleInfo(self, module, data):
+        if not self.messages or self.messages[-1]["type"] != "add-modinfo":
+            self.messages.append({
+                "type": "add-modinfo",
+                "modinfo": []})
+
+        message = self.messages[-1]
+        logger.debug("ADDING Modinfo data:")
+        logger.debug("%s %s", module, data)
+        message["modinfo"].append({
+            "module": module,
+            "attributes": data})
+
     def addDkmsInfo(self, package, data):
         if not self.messages or self.messages[-1]["type"] != "add-dkms-info":
             self.messages.append({

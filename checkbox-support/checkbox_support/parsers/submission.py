@@ -48,7 +48,7 @@ from checkbox_support.parsers.kernel_cmdline import KernelCmdlineParser
 from checkbox_support.parsers.pci_config import PciSubsystemIdParser
 from checkbox_support.parsers.dkms_info import DkmsInfoParser
 from checkbox_support.parsers.modinfo import MultipleModinfoParser
-from checkbox_support.parsers.image_info import BuildstampParser
+from checkbox_support.parsers.image_info import BuildstampParser, RecoveryInfoParser
 
 logger = logging.getLogger("checkbox_support.parsers.submission")
 
@@ -185,6 +185,18 @@ class TestRun(object):
             "type": "set-buildstamp",
             "buildstamp": buildstamp})
         logger.debug("Setting buildstamp: %s", buildstamp)
+
+    def addImageVersionInfo(self, kind, version):
+        my_type = "set-image-version"
+        if not self.messages or self.messages[-1]["type"] != my_type:
+            self.messages.append({
+                "type": my_type,
+                "image-version": {}})
+
+        message = self.messages[-1]
+        logger.debug("ADDING image version:")
+        logger.debug("%s %s", kind, version)
+        message["image-version"][kind] = version
 
     def setKernelCmdline(self, kernel_cmdline):
         self.messages.append({
@@ -597,6 +609,7 @@ class SubmissionResult(object):
         register(("test_run", "dkms_info",), self.addDkmsInfo)
         register(("test_run", "modinfo",), self.addModuleInfo)
         register(("test_run", "buildstamp_info",), self.setBuildstampInfo)
+        register(("test_run", "image_version_info",), self.addImageVersionInfo)
 
         # Register handlers to set information once
         register(("architecture",), self.setArchitecture, count=1)
@@ -657,6 +670,7 @@ class SubmissionResult(object):
             "lspci_standard_config": self.parsePciSubsystemId,
             "dkms_info": self.parseDkmsInfo,
             r"modinfo_attachment": self.parseModinfo,
+            "recovery_info_attachment": self.parseImageVersionInfo,
             "info/buildstamp": self.parseBuildstampInfo,
             }
         for context, parser in context_parsers.items():
@@ -736,6 +750,12 @@ class SubmissionResult(object):
         self.dispatcher.publishEvent("buildstamp_info", buildstamp_info)
         return DeferredParser(self.dispatcher, "buildstamp_info_result")
 
+    def parseImageVersionInfo(self, image_version_info):
+        self.dispatcher.publishEvent("image_version_info",
+                                     image_version_info)
+        return DeferredParser(self.dispatcher,
+                              "image_version_info_result")
+
     def parsePciSubsystemId(self, lspci_data):
         self.dispatcher.publishEvent("lspci_data", lspci_data)
         return DeferredParser(self.dispatcher, "pci_subsystem_id_result")
@@ -750,6 +770,10 @@ class SubmissionResult(object):
 
     def setBuildstampInfo(self, test_run, buildstamp_info):
         parser = BuildstampParser(buildstamp_info)
+        parser.run(test_run)
+
+    def addImageVersionInfo(self, test_run, image_version_info):
+        parser = RecoveryInfoParser(image_version_info)
         parser.run(test_run)
 
     def addIdentifier(self, identifier):

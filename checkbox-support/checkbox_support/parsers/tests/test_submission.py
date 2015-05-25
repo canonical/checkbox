@@ -71,6 +71,9 @@ class SubmissionRun(object):
     def addBuildstampInfo(self, data):
         self.result['buildstamp'] = data
 
+    def addImageVersionInfo(self, key, data):
+        self.result[key] = data
+
     def addAttachment(self, **attachment):
         self.result.setdefault("attachments", [])
         self.result["attachments"].append(attachment)
@@ -362,6 +365,22 @@ class TestSubmissionParser(TestCase):
         self.assertTrue("buildstamp" in result)
         self.assertEqual('somerville-trusty-amd64-osp1-20150512-0',
                          result['buildstamp'])
+
+    def test_image_info(self):
+        """
+        test image_info attachment.
+
+        We should have image versions in the image_info element if there was a
+        recovery_info attachment.
+        """
+        result = self.getResult("submission_info_image_info.xml")
+        self.assertTrue("image_version" in result)
+        self.assertEqual('somerville-trusty-amd64-osp1-20150512-0',
+                         result['image_version'])
+        self.assertTrue("bto_version" in result)
+        self.assertEqual(
+            'A00_dell-bto-trusty-miramar-15-17-X01-iso-20150521-0.iso',
+            result['bto_version'])
 
     def test_test_results(self):
         """Test results are in the questions element."""

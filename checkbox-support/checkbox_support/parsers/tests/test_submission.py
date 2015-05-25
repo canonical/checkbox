@@ -74,6 +74,10 @@ class SubmissionRun(object):
     def addImageVersionInfo(self, key, data):
         self.result[key] = data
 
+    def addBtoInfo(self, key, data):
+        self.result.setdefault('bto_info', {})
+        self.result['bto_info'][key] = data
+
     def addAttachment(self, **attachment):
         self.result.setdefault("attachments", [])
         self.result["attachments"].append(attachment)
@@ -381,6 +385,29 @@ class TestSubmissionParser(TestCase):
         self.assertEqual(
             'A00_dell-bto-trusty-miramar-15-17-X01-iso-20150521-0.iso',
             result['bto_version'])
+
+    def test_bto_info(self):
+        """bto data if there was a bto.xml attachment."""
+        result = self.getResult("submission_info_image_info.xml")
+        self.assertTrue("bto_info" in result)
+        self.assertDictEqual(
+            {'base': 'somerville-trusty-amd64-osp1-iso-20150512-0.iso',
+             'bootstrap': '1.36~somerville3',
+             'driver': ['libcuda1-346_346.59-0ubuntu1somerville1_amd64.deb',
+                        'nvidia-libopencl1-346_346.59-0ubuntu1somerville1_amd64.deb',
+                        'bbswitch-dkms_0.7-2ubuntu1_amd64.deb',
+                        'config-prime-select-intel-all_0.6_all.deb',
+                        'nvidia-prime_0.6.2_amd64.deb',
+                        'screen-resolution-extra_0.17.1_all.deb',
+                        'nvidia-346-uvm_346.59-0ubuntu1somerville1_amd64.deb',
+                        'nvidia-346_346.59-0ubuntu1somerville1_amd64.deb',
+                        'nvidia-settings_346.47-0somerville1_amd64.deb',
+                        'nvidia-opencl-icd-346_346.59-0ubuntu1somerville1_amd64.deb',
+                        'libvdpau1_1.1-0somerville1_amd64.deb'],
+             'generator': '1.24.3~somerville11',
+             'iso': 'A00_dell-bto-trusty-miramar-15-17-X01-iso-20150521-0.iso',
+             'ubiquity': '2.18.8.8kittyhawk1somerville3'},
+            result['bto_info'])
 
     def test_test_results(self):
         """Test results are in the questions element."""

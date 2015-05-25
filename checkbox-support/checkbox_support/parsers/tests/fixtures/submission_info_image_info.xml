@@ -1,0 +1,51 @@
+<?xml version="1.0" ?>
+<system version="1.0">
+    <context>
+        <info command="info/buildstamp">kakaduplum Tue, 12 May 2015 06:46:55 +0000
+            somerville-trusty-amd64-osp1-20150512-0
+        </info>
+        <info command="recovery_info_attachment">image_version: somerville-trusty-amd64-osp1-20150512-0
+            bto_version: A00_dell-bto-trusty-miramar-15-17-X01-iso-20150521-0.iso
+        </info>
+        <info command="dell_bto_xml_attachment">&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;bto&gt;
+            &lt;date&gt;2015-05-21&lt;/date&gt;
+            &lt;versions&gt;
+            &lt;os/&gt;
+            &lt;iso&gt;A00_dell-bto-trusty-miramar-15-17-X01-iso-20150521-0.iso&lt;/iso&gt;
+            &lt;generator&gt;1.24.3~somerville11&lt;/generator&gt;
+            &lt;bootstrap&gt;1.36~somerville3&lt;/bootstrap&gt;
+            &lt;ubiquity&gt;2.18.8.8kittyhawk1somerville3&lt;/ubiquity&gt;
+            &lt;/versions&gt;
+            &lt;base&gt;somerville-trusty-amd64-osp1-iso-20150512-0.iso&lt;/base&gt;
+            &lt;fid&gt;
+            &lt;git_tag/&gt;
+            &lt;deb_archive/&gt;
+            &lt;/fid&gt;
+            &lt;fish&gt;
+            &lt;driver md5="ed884782d541974e2a887d6523778656"&gt;libcuda1-346_346.59-0ubuntu1somerville1_amd64.deb&lt;/driver&gt;
+            &lt;driver md5="f536d125300b29ccd4d17f585fc9a20d"&gt;nvidia-libopencl1-346_346.59-0ubuntu1somerville1_amd64.deb&lt;/driver&gt;
+            &lt;driver md5="d339d194d242043f18ba9df6bc2b2589"&gt;bbswitch-dkms_0.7-2ubuntu1_amd64.deb&lt;/driver&gt;
+            &lt;driver md5="9b00de6e7dbc41e7bc62305655c0b7a1"&gt;config-prime-select-intel-all_0.6_all.deb&lt;/driver&gt;
+            &lt;driver md5="b4354596045ca3ec27e96627d5895e18"&gt;nvidia-prime_0.6.2_amd64.deb&lt;/driver&gt;
+            &lt;driver md5="17fcea6133304d332f27acfb0312594e"&gt;screen-resolution-extra_0.17.1_all.deb&lt;/driver&gt;
+            &lt;driver md5="f047ea4d70eb539f8153080103873345"&gt;nvidia-346-uvm_346.59-0ubuntu1somerville1_amd64.deb&lt;/driver&gt;
+            &lt;driver md5="91bb933c7e246a61d5f52115cf42c58b"&gt;nvidia-346_346.59-0ubuntu1somerville1_amd64.deb&lt;/driver&gt;
+            &lt;driver md5="1d56f62ad2dd5db429db4bfb65416041"&gt;nvidia-settings_346.47-0somerville1_amd64.deb&lt;/driver&gt;
+            &lt;driver md5="be80560b798fba58998f32bfecbd208e"&gt;nvidia-opencl-icd-346_346.59-0ubuntu1somerville1_amd64.deb&lt;/driver&gt;
+            &lt;driver md5="3d1fa1561aa23361c3a270a0fa99a0ba"&gt;libvdpau1_1.1-0somerville1_amd64.deb&lt;/driver&gt;
+            &lt;/fish&gt;
+            &lt;logs&gt;
+            &lt;syslog&gt;May 21 16:29:23 ubuntu rsyslogd: [origin software=&amp;quot;rsyslogd&amp;quot; swVersion=&amp;quot;7.4.4&amp;quot; x-pid=&amp;quot;3119&amp;quot; x-info=&amp;quot;http://www.rsyslog.com&amp;quot;] start
+            May 21 16:30:41 ubuntu ubiquity[4393]: log-output -t ubiquity efibootmgr -c -d /dev/sda -p 1 -l \EFI\ubuntu\shimx64.efi -L ubuntu
+            May 21 16:30:41 ubuntu ubiquity[4393]: log-output -t ubiquity umount /mnt/efi
+            &lt;/syslog&gt;
+            &lt;debug&gt;Ubiquity 2.18.8.8kittyhawk1somerville3
+            May 21 16:30:05 ubiquity: ['log-output', '-t', 'ubiquity', '--pass-stdout', '/usr/share/ubiquity/dell-bootstrap'] exited with code 0
+            &lt;/debug&gt;
+            &lt;/logs&gt;
+            &lt;/bto&gt;</info>
+    </context>
+    <summary>
+        <architecture value="amd64"/>
+    </summary>
+</system>

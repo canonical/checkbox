@@ -62,6 +62,7 @@ setup(
             "pci-subsys-id=checkbox_support.parsers.pci_config:parse_pci_subsys_id",
             "dkms-info=checkbox_support.parsers.dkms_info:parse_dkms_info",
             "modinfo=checkbox_support.parsers.modinfo:parse_modinfo_attachment_output",
+            "buildstamp=checkbox_support.parsers.image_info:parse_buildstamp_attachment_output",
         ],
     },
 )

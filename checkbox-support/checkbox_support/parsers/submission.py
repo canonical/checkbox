@@ -48,6 +48,7 @@ from checkbox_support.parsers.kernel_cmdline import KernelCmdlineParser
 from checkbox_support.parsers.pci_config import PciSubsystemIdParser
 from checkbox_support.parsers.dkms_info import DkmsInfoParser
 from checkbox_support.parsers.modinfo import MultipleModinfoParser
+from checkbox_support.parsers.image_info import BuildstampParser
 
 logger = logging.getLogger("checkbox_support.parsers.submission")
 
@@ -178,6 +179,12 @@ class TestRun(object):
         message["modinfo"].append({
             "module": module,
             "attributes": data})
+
+    def addBuildstampInfo(self, buildstamp):
+        self.messages.append({
+            "type": "set-buildstamp",
+            "buildstamp": buildstamp})
+        logger.debug("Setting buildstamp: %s", buildstamp)
 
     def setKernelCmdline(self, kernel_cmdline):
         self.messages.append({
@@ -589,6 +596,7 @@ class SubmissionResult(object):
         register(("test_run", "modprobe",), self.addModprobeInfo)
         register(("test_run", "dkms_info",), self.addDkmsInfo)
         register(("test_run", "modinfo",), self.addModuleInfo)
+        register(("test_run", "buildstamp_info",), self.setBuildstampInfo)
 
         # Register handlers to set information once
         register(("architecture",), self.setArchitecture, count=1)
@@ -649,6 +657,7 @@ class SubmissionResult(object):
             "lspci_standard_config": self.parsePciSubsystemId,
             "dkms_info": self.parseDkmsInfo,
             r"modinfo_attachment": self.parseModinfo,
+            "info/buildstamp": self.parseBuildstampInfo,
             }
         for context, parser in context_parsers.items():
             if re.search(context, command):
@@ -723,6 +732,10 @@ class SubmissionResult(object):
         self.dispatcher.publishEvent("modinfo", modinfo)
         return DeferredParser(self.dispatcher, "modinfo_result")
 
+    def parseBuildstampInfo(self, buildstamp_info):
+        self.dispatcher.publishEvent("buildstamp_info", buildstamp_info)
+        return DeferredParser(self.dispatcher, "buildstamp_info_result")
+
     def parsePciSubsystemId(self, lspci_data):
         self.dispatcher.publishEvent("lspci_data", lspci_data)
         return DeferredParser(self.dispatcher, "pci_subsystem_id_result")
@@ -733,6 +746,10 @@ class SubmissionResult(object):
 
     def addModuleInfo(self, test_run, modinfo):
         parser = MultipleModinfoParser(modinfo)
+        parser.run(test_run)
+
+    def setBuildstampInfo(self, test_run, buildstamp_info):
+        parser = BuildstampParser(buildstamp_info)
         parser.run(test_run)
 
     def addIdentifier(self, identifier):

@@ -68,6 +68,9 @@ class SubmissionRun(object):
         self.result.setdefault('dkms_info', {})
         self.result['dkms_info'][pkg] = details
 
+    def addBuildstampInfo(self, data):
+        self.result['buildstamp'] = data
+
     def addAttachment(self, **attachment):
         self.result.setdefault("attachments", [])
         self.result["attachments"].append(attachment)
@@ -347,6 +350,18 @@ class TestSubmissionParser(TestCase):
         self.assertIn("ctr", result['modinfo'])
         self.assertEqual(['crypto-ctr', 'ctr', 'crypto-rfc3686', 'rfc3686'],
                          result['modinfo']['ctr']['alias'])
+
+    def test_buildstamp(self):
+        """
+        test buildstamp attachment.
+
+        Buildstamp is in the image_info element if there was a buildstamp
+        attachment.
+        """
+        result = self.getResult("submission_info_image_info.xml")
+        self.assertTrue("buildstamp" in result)
+        self.assertEqual('somerville-trusty-amd64-osp1-20150512-0',
+                         result['buildstamp'])
 
     def test_test_results(self):
         """Test results are in the questions element."""

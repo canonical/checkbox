@@ -51,6 +51,10 @@ class ImageInfoResult():
         """Add the given buildstamp."""
         self.image_info['buildstamp'] = data
 
+    def addImageVersionInfo(self, key, data):
+        """Add image version data under the given key."""
+        self.image_info[key] = data
+
 
 class BuildstampParser():
 
@@ -81,6 +85,33 @@ class BuildstampParser():
             result.addBuildstampInfo(buildstamp.strip())
 
 
+class RecoveryInfoParser():
+
+    """
+    Parser for recovery_info.
+
+    Recovery_info can contain two keys: image_version and bto_version.
+
+    """
+
+    def __init__(self, stream):
+        self.stream = stream
+
+    def run(self, result):
+        """Parse stream and set the version attributes in the result."""
+        for line in self.stream:
+            try:
+                key, value = line.split(":", 1)
+            except (ValueError, AttributeError):
+                # Just skip this line
+                pass
+            else:
+                key = key.strip()
+                value = value.strip()
+                if key in ("image_version", "bto_version") and value:
+                    result.addImageVersionInfo(key, value)
+
+
 def parse_buildstamp_attachment_output(output):
     """Parse info/buildstamp attachment output."""
     stream = io.StringIO(output)
@@ -88,3 +119,15 @@ def parse_buildstamp_attachment_output(output):
     result = ImageInfoResult()
     parser.run(result)
     return result.image_info['buildstamp']
+
+
+def parse_recovery_info_attachment_output(output):
+    """Parse recovery_info attachment output."""
+    stream = io.StringIO(output)
+    parser = RecoveryInfoParser(stream)
+    result = ImageInfoResult()
+    parser.run(result)
+
+    return {k: result.image_info[k]
+            for k in result.image_info.keys()
+            if k in ("bto_version", "image_version")}

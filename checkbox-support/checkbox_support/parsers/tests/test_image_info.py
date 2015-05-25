@@ -26,6 +26,7 @@ from unittest import TestCase
 
 from checkbox_support.parsers.image_info import (
     BuildstampParser,
+    RecoveryInfoParser,
     ImageInfoResult)
 
 
@@ -75,3 +76,70 @@ class TestBuildstampParser(TestCase):
         self.assertIn("buildstamp", result.image_info)
         self.assertEqual("somerville-trusty-amd64-osp1-20150512-0",
                          result.image_info["buildstamp"])
+
+
+class TestRecoveryInfoParser(TestCase):
+
+    """Tests for Recovery Info parser class."""
+
+    def _result_for(self, string):
+        """Helper to run string through the parser and return result."""
+        stream = StringIO(string)
+        self.parser = RecoveryInfoParser(stream)
+        result = ImageInfoResult()
+        self.parser.run(result)
+        return result
+
+    def test_bad_data(self):
+        """A bad attachment is bogus, no result."""
+        result = self._result_for("bogus\nlorem\nreally bad\n")
+        self.assertNotIn("image_version", result.image_info)
+        self.assertNotIn("bto_version", result.image_info)
+
+    def test_tricky_data(self):
+        """A validly-formatted attachment with wrong keys. No result."""
+        result = self._result_for("key: value\nkey2: value2")
+        self.assertNotIn("image_version", result.image_info)
+        self.assertNotIn("bto_version", result.image_info)
+
+    def test_empty_data(self):
+        """Attachment with good keys but no data. No result."""
+        result = self._result_for("image_version: \nbto_version:   \n")
+        self.assertNotIn("image_version", result.image_info)
+        self.assertNotIn("bto_version", result.image_info)
+
+    def test_good_data(self):
+        """A good and complete attachment, check expected value."""
+        result = self._result_for(
+            "image_version: somerville-trusty-amd64-osp1-20150512-0\n"
+            "bto_version: "
+            "A00_dell-bto-trusty-miramar-15-17-X01-iso-20150521-0.iso")
+        self.assertIn("image_version", result.image_info)
+        self.assertEqual("somerville-trusty-amd64-osp1-20150512-0",
+                         result.image_info["image_version"])
+        self.assertIn("bto_version", result.image_info)
+        self.assertEqual(
+            "A00_dell-bto-trusty-miramar-15-17-X01-iso-20150521-0.iso",
+            result.image_info["bto_version"])
+
+    def test_good_partial_data_image(self):
+        """A good attachment with only image_version, check expected value."""
+        result = self._result_for(
+            "image_version: somerville-trusty-amd64-osp1-20150512-0\n"
+            "bogus: chogus.iso")
+        self.assertIn("image_version", result.image_info)
+        self.assertEqual("somerville-trusty-amd64-osp1-20150512-0",
+                         result.image_info["image_version"])
+        self.assertNotIn("bto_version", result.image_info)
+
+    def test_good_partial_data_bto(self):
+        """A good attachment with only bto_version, check expected value."""
+        result = self._result_for(
+            "bogus: bogon\n"
+            "bto_version: "
+            "A00_dell-bto-trusty-miramar-15-17-X01-iso-20150521-0.iso")
+        self.assertNotIn("image_version", result.image_info)
+        self.assertIn("bto_version", result.image_info)
+        self.assertEqual(
+            "A00_dell-bto-trusty-miramar-15-17-X01-iso-20150521-0.iso",
+            result.image_info["bto_version"])

@@ -27,6 +27,8 @@ from unittest import TestCase
 from checkbox_support.parsers.image_info import (
     BuildstampParser,
     RecoveryInfoParser,
+    BtoParser,
+    BtoInfoResult,
     ImageInfoResult)
 
 
@@ -143,3 +145,103 @@ class TestRecoveryInfoParser(TestCase):
         self.assertEqual(
             "A00_dell-bto-trusty-miramar-15-17-X01-iso-20150521-0.iso",
             result.image_info["bto_version"])
+
+
+BTO1 = """\
+<?xml version="1.0" encoding="utf-8"?><bto>
+  <date>2015-05-21</date>
+  <versions>
+    <os/>
+    <iso>A00_dell-bto-trusty-miramar-15-17-X01-iso-20150521-0.iso</iso>
+    <generator>1.24.3~somerville11</generator>
+    <bootstrap>1.36~somerville3</bootstrap>
+    <ubiquity>2.18.8.8kittyhawk1somerville3</ubiquity>
+  </versions>
+  <base>somerville-trusty-amd64-osp1-iso-20150512-0.iso</base>
+  <fid>
+    <git_tag/>
+    <deb_archive/>
+  </fid>
+  <fish>
+    <driver md5="ed884782d541974e2a887d6523778656">libcuda1-346_346.59-0ubuntu1somerville1_amd64.deb</driver>
+    <driver md5="f536d125300b29ccd4d17f585fc9a20d">nvidia-libopencl1-346_346.59-0ubuntu1somerville1_amd64.deb</driver>
+  </fish>
+  <logs>
+    <syslog>blah</syslog>
+  </logs>
+</bto>
+"""
+
+BTO2 = """\
+<?xml version="1.0" encoding="utf-8"?><bto>
+  <date>2015-05-21</date>
+  <versions>
+    <os/>
+  </versions>
+  <foo>
+    <bar>baz</bar>
+  </foo>
+</bto>
+"""
+
+BTO3 = """\
+<?xml version="1.0" encoding="utf-8"?><bto>
+  <date>2015-05-21</date>
+  <versions>
+    <os/>
+    <iso></iso>
+    <generator>1.24.3~somerville11</generator>
+  </versions>
+  <base/>
+  <fish>
+    <driver/>
+    <driver md5="f536d125300b29ccd4d17f585fc9a20d">boo.deb</driver>
+    <driver md5="f536d125300b29ccd4d17f585fc9a20a">choo.deb</driver>
+  </fish>
+</bto>
+"""
+
+
+class TestBtoParser(TestCase):
+
+    """Tests for BTO data parser class."""
+
+    def _result_for(self, string):
+        """Helper to run string through the parser and return result."""
+        stream = StringIO(string)
+        self.parser = BtoParser(stream)
+        result = BtoInfoResult()
+        self.parser.run(result)
+        return result
+
+    def test_bad_data(self):
+        """A bad attachment is bogus, no result."""
+        result = self._result_for("bogus\nlorem\nreally bad\n")
+        self.assertEqual({}, result.bto_info)
+
+    def test_bogus_xml(self):
+        """A xml with values we don't want is bogus, no result."""
+        result = self._result_for(BTO2)
+        self.assertEqual({}, result.bto_info)
+
+    def test_tricky_xml(self):
+        """A xml with mix of keys we want and empty values, partial result."""
+        result = self._result_for(BTO3)
+        self.assertDictEqual(
+            {'generator': '1.24.3~somerville11',
+             'driver': ['boo.deb', 'choo.deb']},
+            result.bto_info)
+
+    def test_good_data(self):
+        """A good and complete xml, check expected value."""
+        result = self._result_for(BTO1)
+        expected_dict = {
+            'base': 'somerville-trusty-amd64-osp1-iso-20150512-0.iso',
+            'bootstrap': '1.36~somerville3',
+            'driver': [
+                'libcuda1-346_346.59-0ubuntu1somerville1_amd64.deb',
+                'nvidia-libopencl1-346_346.59-0ubuntu1somerville1_amd64.deb'],
+            'generator': '1.24.3~somerville11',
+            'iso': 'A00_dell-bto-trusty-miramar-15-17-X01-iso-20150521-0.iso',
+            'ubiquity': '2.18.8.8kittyhawk1somerville3'}
+        self.assertDictEqual(expected_dict, result.bto_info)

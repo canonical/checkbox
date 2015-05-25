@@ -32,6 +32,8 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import io
+from xml.dom import minidom
+from xml.parsers.expat import ExpatError
 
 
 class ImageInfoResult():
@@ -54,6 +56,18 @@ class ImageInfoResult():
     def addImageVersionInfo(self, key, data):
         """Add image version data under the given key."""
         self.image_info[key] = data
+
+
+class BtoInfoResult():
+
+    """A simple class to hold BTO information results."""
+
+    def __init__(self):
+        self.bto_info = {}
+
+    def addBtoInfo(self, key, data):
+        """Add bto data under the given key."""
+        self.bto_info[key] = data
 
 
 class BuildstampParser():
@@ -112,6 +126,44 @@ class RecoveryInfoParser():
                     result.addImageVersionInfo(key, value)
 
 
+class BtoParser():
+
+    """Parser for Dell bto.xml data file."""
+
+    def __init__(self, stream):
+        self.stream = stream
+
+    def run(self, result):
+        """
+        Parse stream and set bto attributes in the result.
+
+        Possible BTO attributes are (the result.addBtoInfo method will be
+        called with each key/value)::
+
+            * iso - a single string with the name of the installed ISO
+            * generator - a single string
+            * bootstrap - a single string
+            * ubiquity - a single string
+            * base - a single string, presumably name of ISO on which this
+              project is based
+            * fish. A list of strings with fish packages (they're .debs)
+        """
+        try:
+            bto_dom = minidom.parse(self.stream)
+        except ExpatError:
+            # Bogus data, give up silently
+            return
+        for key in ['iso', 'generator', 'bootstrap',
+                    'ubiquity', 'base', 'driver']:
+            elems = bto_dom.getElementsByTagName(key)
+            items = [item.firstChild.data for item in elems
+                     if hasattr(item.firstChild, 'data')]
+            if len(items) == 1:
+                result.addBtoInfo(key, items[0])
+            elif len(items) > 1:
+                result.addBtoInfo(key, items)
+
+
 def parse_buildstamp_attachment_output(output):
     """Parse info/buildstamp attachment output."""
     stream = io.StringIO(output)
@@ -119,6 +171,15 @@ def parse_buildstamp_attachment_output(output):
     result = ImageInfoResult()
     parser.run(result)
     return result.image_info['buildstamp']
+
+
+def parse_bto_attachment_output(output):
+    """Parse bto.xml attachment output."""
+    stream = io.StringIO(output)
+    parser = BtoParser(stream)
+    result = BtoInfoResult()
+    parser.run(result)
+    return result.bto_info
 
 
 def parse_recovery_info_attachment_output(output):

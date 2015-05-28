@@ -31,9 +31,8 @@ from plainbox.impl.result import outcome_meta
 
 
 class TextSessionStateExporter(SessionStateExporterBase):
-    """
-    Human-readable session state exporter.
-    """
+
+    """Human-readable session state exporter."""
 
     def __init__(self, option_list=None, color=None):
         super().__init__(option_list)

@@ -127,6 +127,9 @@
         font-size: 10px;
         line-height: 14px;
       }
+      tr.historic-run td:first-child {
+        padding-left: 2em;
+      }
       .data {
         display:    none;
       }
@@ -217,6 +220,7 @@
                         <th>Test ID</th>
                         <th>Result</th>
                         <th>Certification status</th>
+                        <th>Run</th>
                         <th>Comment</th>
                     </tr>
                 </thead>
@@ -226,6 +230,7 @@
                         <td>{{ job_state.job.tr_summary() }}</td>
                         <td style='font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>
                         <td>{{ job_state.effective_certification_status }}</td>
+                        <td>{{ job_state.result_history|length }}</td>
                         {%- if job_state.result.comments != None %}
                         <td>{{ job_state.result.comments }}</td>
                         {%- else %}
@@ -239,6 +244,26 @@
                         {%- endif %}
                         {%- endif %}
                     </tr>
+                    {%- for result in job_state.result_history[:-1] %}
+                    <tr class='historic-run'>
+                        <td>{{ job_state.job.tr_summary() }}</td>
+                        <td style='font-weight: bold; color: {{ result.outcome_meta().color_hex }}'>{{ result.outcome_meta().tr_label }}</td>
+                        <td></td>
+                        <td>{{ loop.index }}</td>
+                        {%- if result.comments != None %}
+                        <td>{{ result.comments }}</td>
+                        {%- else %}
+                        {%- if result.io_log_as_flat_text != "" %}
+                        <td><div style="vertical-align: middle; width: 420px; overflow: auto;">
+                                <pre>{{ result.io_log_as_flat_text }}</pre>
+                            </div>
+                        </td>
+                        {%- else %}
+                        <td>&nbsp;</td>
+                        {%- endif %}
+                        {%- endif %}
+                    </tr>
+                    {%- endfor %}
                 {%- endfor %}
                 </tbody>
             </table>

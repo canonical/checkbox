@@ -123,6 +123,9 @@
         font-size: 10px;
         line-height: 14px;
       }
+      tr.historic-run td:first-child {
+        padding-left: 2em;
+      }
       .data {
         display:    none;
       }
@@ -184,6 +187,7 @@
                         <th>Test ID</th>
                         <th>Result</th>
                         <th>Certification status</th>
+                        <th>Run</th>
                         <th>Comment</th>
                     </tr>
                 </thead>
@@ -192,6 +196,7 @@
                         <td>job 1</td>
                         <td style='font-weight: bold; color: #DC3912'>failed</td>
                         <td>non-blocker</td>
+                        <td>1</td>
                         <td><div style="vertical-align: middle; width: 420px; overflow: auto;">
                                 <pre>FATAL ERROR
 </pre>
@@ -202,12 +207,14 @@
                         <td>job 2</td>
                         <td style='font-weight: bold; color: #6AA84F'>passed</td>
                         <td>unspecified</td>
+                        <td>1</td>
                         <td>blah blah</td>
                     </tr>
                     <tr>
                         <td>job 3</td>
                         <td style='font-weight: bold; color: #FF9900'>skipped</td>
                         <td>unspecified</td>
+                        <td>1</td>
                         <td>No such device</td>
                     </tr>
                 </tbody>

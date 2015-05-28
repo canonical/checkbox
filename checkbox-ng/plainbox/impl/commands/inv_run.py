@@ -44,6 +44,7 @@ from plainbox.impl.commands.inv_checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.exporter import ByteStringStreamTranslator
 from plainbox.impl.exporter import get_all_exporters
+from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.result import tr_outcome
 from plainbox.impl.runner import JobRunner
@@ -741,10 +742,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
                     estimated_time -= job.estimated_duration
 
     def run_single_job(self, job):
-        job_start_time = time.time()
         self.run_single_job_with_ui(job, self.get_ui_for_job(job))
-        job_state = self.state.job_state_map[job.id]
-        job_state.result.execution_duration = time.time() - job_start_time
 
     def get_ui_for_job(self, job):
         if self.ns.dont_suppress_output is False and job.plugin in (
@@ -754,6 +752,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
             return NormalUI(self.C.c, show_cmd_output=True)
 
     def run_single_job_with_ui(self, job, ui):
+        job_start_time = time.time()
         job_state = self.state.job_state_map[job.id]
         ui.considering_job(job, job_state)
         if job_state.can_start():
@@ -761,18 +760,21 @@ class RunInvocation(CheckBoxInvocationMixIn):
             self.metadata.running_job_name = job.id
             self.manager.checkpoint()
             ui.started_running(job, job_state)
-            job_result = self._run_single_job_with_ui_loop(job, job_state, ui)
+            result_builder = self._run_single_job_with_ui_loop(job, job_state, ui)
+            assert result_builder is not None
+            result_builder.execution_duration = time.time() - job_start_time
+            job_result = result_builder.get_result()
             self.metadata.running_job_name = None
             self.manager.checkpoint()
             ui.finished_running(job, job_state, job_result)
         else:
-            job_result = MemoryJobResult({
-                'outcome': IJobResult.OUTCOME_NOT_SUPPORTED,
-                'comments': job_state.get_readiness_description()
-            })
+            result_builder = JobResultBuilder(
+                outcome=IJobResult.OUTCOME_NOT_SUPPORTED,
+                comments=job_state.get_readiness_description(),
+                execution_duration = time.time() - job_start_time)
+            job_result = result_builder.get_result()
             ui.job_cannot_start(job, job_state, job_result)
-        if job_result is not None:
-            self.state.update_job_result(job, job_result)
+        self.state.update_job_result(job, job_result)
         ui.finished(job, job_state, job_result)
 
     def _run_single_job_with_ui_loop(self, job, job_state, ui):
@@ -788,8 +790,9 @@ class RunInvocation(CheckBoxInvocationMixIn):
                     cmd = ui.wait_for_interaction_prompt(job)
                     if cmd == 'run' or cmd is None:
                         ui.notify_about_steps(job)
-                        job_result = self.runner.run_job(
-                            job, job_state, self.config, ui)
+                        result_builder = self.runner.run_job(
+                            job, job_state, self.config, ui
+                        ).get_builder()
                     elif cmd == 'comment':
                         new_comment = input(self.C.BLUE(
                             _('Please enter your comments:') + '\n'))
@@ -797,36 +800,37 @@ class RunInvocation(CheckBoxInvocationMixIn):
                             comments += new_comment + '\n'
                         continue
                     elif cmd == 'skip':
-                        job_result = MemoryJobResult({
-                            'outcome': IJobResult.OUTCOME_SKIP,
-                            'comments': _("Explicitly skipped before"
-                                          " execution")
-                        })
+                        result_builder = JobResultBuilder(
+                            outcome=IJobResult.OUTCOME_SKIP,
+                            comments=_("Explicitly skipped before"
+                                       " execution"))
                         if comments != "":
-                            job_result.comments = comments
+                            result_builder.comments = comments
                         break
                     elif cmd == 'quit':
                         raise SystemExit()
                 else:
-                    job_result = self.runner.run_job(
-                        job, job_state, self.config, ui)
+                    result_builder = self.runner.run_job(
+                        job, job_state, self.config, ui
+                    ).get_builder()
             else:
                 if 'noreturn' in job.get_flag_set():
                     ui.noreturn_job()
-                job_result = self.runner.run_job(
-                    job, job_state, self.config, ui)
+                result_builder = self.runner.run_job(
+                    job, job_state, self.config, ui
+                ).get_builder()
             if (self.is_interactive and
-                    job_result.outcome == IJobResult.OUTCOME_UNDECIDED):
+                    result_builder.outcome == IJobResult.OUTCOME_UNDECIDED):
                 try:
                     if comments != "":
-                        job_result.comments = comments
+                        result_builder.comments = comments
                     ui.notify_about_verification(job)
-                    job_result = self._interaction_callback(
-                        self.runner, job, job_result, self.config)
+                    self._interaction_callback(
+                        self.runner, job, result_builder, self.config)
                 except ReRunJob:
                     continue
             break
-        return job_result
+        return result_builder
 
     def export_and_send_results(self):
         # Get a stream with exported session data.
@@ -861,7 +865,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
     def _pick_action_cmd(self, action_list, prompt=None):
         return ActionUI(action_list, prompt, self._color).run()
 
-    def _interaction_callback(self, runner, job, result, config,
+    def _interaction_callback(self, runner, job, result_builder, config,
                               prompt=None, allowed_outcome=None):
         if prompt is None:
             prompt = _("Select an outcome or an action: ")
@@ -890,42 +894,40 @@ class RunInvocation(CheckBoxInvocationMixIn):
         if job.command is not None:
             allowed_actions.append(
                 Action('r', _('re-run this job'), 're-run'))
-        if result.return_code is not None:
-            if result.return_code == 0:
+        if result_builder.return_code is not None:
+            if result_builder.return_code == 0:
                 suggested_outcome = IJobResult.OUTCOME_PASS
             else:
                 suggested_outcome = IJobResult.OUTCOME_FAIL
             allowed_actions.append(
                 Action('', _('set suggested outcome [{0}]').format(
                     tr_outcome(suggested_outcome)), 'set-suggested'))
-        while result.outcome not in allowed_outcome:
+        while result_builder.outcome not in allowed_outcome:
             print(_("Please decide what to do next:"))
-            print("  " + _("outcome") + ": {0}".format(self.C.result(result)))
-            if result.comments is None:
+            print("  " + _("outcome") + ": {0}".format(
+                self.C.result(result_builder.get_result())))
+            if result_builder.comments is None:
                 print("  " + _("comments") + ": {0}".format(
                     C_("none comment", "none")))
             else:
                 print("  " + _("comments") + ": {0}".format(
-                    self.C.CYAN(result.comments, bright=False)))
+                    self.C.CYAN(result_builder.comments, bright=False)))
             cmd = self._pick_action_cmd(allowed_actions)
             if cmd == 'set-pass':
-                result.outcome = IJobResult.OUTCOME_PASS
+                result_builder.outcome = IJobResult.OUTCOME_PASS
             elif cmd == 'set-fail':
-                result.outcome = IJobResult.OUTCOME_FAIL
+                result_builder.outcome = IJobResult.OUTCOME_FAIL
             elif cmd == 'set-skip' or cmd is None:
-                result.outcome = IJobResult.OUTCOME_SKIP
+                result_builder.outcome = IJobResult.OUTCOME_SKIP
             elif cmd == 'set-suggested':
-                result.outcome = suggested_outcome
+                result_builder.outcome = suggested_outcome
             elif cmd == 'set-comments':
-                if result.comments is None:
-                    result.comments = ""
                 new_comment = input(self.C.BLUE(
                     _('Please enter your comments:') + '\n'))
                 if new_comment:
-                    result.comments += new_comment + '\n'
+                    result_builder.add_comment(new_comment)
             elif cmd == 're-run':
                 raise ReRunJob
-        return result
 
     def _update_desired_job_list(self, desired_job_list):
         problem_list = self.state.update_desired_job_list(desired_job_list)

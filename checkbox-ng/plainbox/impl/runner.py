@@ -1,13 +1,13 @@
+# encoding: utf-8
 # This file is part of Checkbox.
 #
-# Copyright 2012, 2013 Canonical Ltd.
+# Copyright 2012-2015 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -18,6 +18,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+Definition of JobRunner class.
+
 :mod:`plainbox.impl.runner` -- job runner
 =========================================
 
@@ -36,14 +38,13 @@ import string
 import sys
 import time
 
-from plainbox.vendor import extcmd
-
-from plainbox.abc import IJobRunner, IJobResult
+from plainbox.abc import IJobResult, IJobRunner
 from plainbox.i18n import gettext as _
 from plainbox.impl.result import DiskJobResult
 from plainbox.impl.result import IOLogRecord
 from plainbox.impl.result import IOLogRecordWriter
 from plainbox.impl.result import MemoryJobResult
+from plainbox.vendor import extcmd
 from plainbox.vendor import morris
 
 
@@ -51,23 +52,19 @@ logger = logging.getLogger("plainbox.runner")
 
 
 def slugify(_string):
-    """
-    Slugify - like Django does for URL - transform a random string to a valid
-    slug that can be later used in filenames
-    """
+    """Transform any string to onet that can be used in filenames."""
     valid_chars = frozenset(
         "-_.{}{}".format(string.ascii_letters, string.digits))
     return ''.join(c if c in valid_chars else '_' for c in _string)
 
 
 class IOLogRecordGenerator(extcmd.DelegateBase):
-    """
-    Delegate for extcmd that generates io_log entries.
-    """
+
+    """Delegate for extcmd that generates io_log entries."""
 
     def on_begin(self, args, kwargs):
         """
-        Internal method of extcmd.DelegateBase
+        Internal method of extcmd.DelegateBase.
 
         Called when a command is being invoked.
 
@@ -77,7 +74,7 @@ class IOLogRecordGenerator(extcmd.DelegateBase):
 
     def on_line(self, stream_name, line):
         """
-        Internal method of extcmd.DelegateBase
+        Internal method of extcmd.DelegateBase.
 
         Creates a new IOLogRecord and passes it to :meth:`on_new_record()`.
         Maintains a timestamp of the last message so that approximate delay
@@ -92,7 +89,7 @@ class IOLogRecordGenerator(extcmd.DelegateBase):
     @morris.signal
     def on_new_record(self, record):
         """
-        Internal signal method of :class:`IOLogRecordGenerator`
+        Internal signal method of :class:`IOLogRecordGenerator`.
 
         Called when a new record is generated and needs to be processed.
         """
@@ -101,6 +98,7 @@ class IOLogRecordGenerator(extcmd.DelegateBase):
 
 
 class CommandOutputWriter(extcmd.DelegateBase):
+
     """
     Delegate for extcmd that writes output to a file on disk.
 
@@ -120,7 +118,7 @@ class CommandOutputWriter(extcmd.DelegateBase):
 
     def on_begin(self, args, kwargs):
         """
-        Internal method of extcmd.DelegateBase
+        Internal method of extcmd.DelegateBase.
 
         Called when a command is being invoked
         """
@@ -129,7 +127,7 @@ class CommandOutputWriter(extcmd.DelegateBase):
 
     def on_end(self, returncode):
         """
-        Internal method of extcmd.DelegateBase
+        Internal method of extcmd.DelegateBase.
 
         Called when a command finishes running
         """
@@ -138,7 +136,7 @@ class CommandOutputWriter(extcmd.DelegateBase):
 
     def on_abnormal_end(self, signal_num):
         """
-        Internal method of extcmd.DelegateBase
+        Internal method of extcmd.DelegateBase.
 
         Called when a command abnormally finishes running
         """
@@ -147,7 +145,7 @@ class CommandOutputWriter(extcmd.DelegateBase):
 
     def on_line(self, stream_name, line):
         """
-        Internal method of extcmd.DelegateBase
+        Internal method of extcmd.DelegateBase.
 
         Called for each line of output.
         """
@@ -158,6 +156,7 @@ class CommandOutputWriter(extcmd.DelegateBase):
 
 
 class FallbackCommandOutputPrinter(extcmd.DelegateBase):
+
     """
     Delegate for extcmd that prints all output to stdout.
 
@@ -166,11 +165,19 @@ class FallbackCommandOutputPrinter(extcmd.DelegateBase):
     """
 
     def __init__(self, prompt):
+        """Initialize a new fallback command output printer."""
         self._prompt = prompt
         self._lineno = collections.defaultdict(int)
         self._abort = False
 
     def on_line(self, stream_name, line):
+        """
+        Internal method of extcmd.DelegateBase.
+
+        Called for each line of output. Normally each line is just printed
+        (assuming UTF-8 encoding) If decoding fails for any reason that and all
+        subsequent lines are ignored.
+        """
         if self._abort:
             return
         self._lineno[stream_name] += 1
@@ -183,8 +190,9 @@ class FallbackCommandOutputPrinter(extcmd.DelegateBase):
 
 
 class JobRunnerUIDelegate(extcmd.DelegateBase):
+
     """
-    Delegate for extcmd that delegates extcmd events to IJobRunnerUI
+    Delegate for extcmd that delegates extcmd events to IJobRunnerUI.
 
     The file itself is only opened once on_begin() gets called by extcmd. This
     makes it safe to instantiate this without worrying about dangling
@@ -197,7 +205,7 @@ class JobRunnerUIDelegate(extcmd.DelegateBase):
 
     def __init__(self, ui=None):
         """
-        Initialize the JobRunnerUIDelegate
+        Initialize the JobRunnerUIDelegate.
 
         :param ui:
             (optional) an instnace of IJobRunnerUI to delegate events to
@@ -206,7 +214,7 @@ class JobRunnerUIDelegate(extcmd.DelegateBase):
 
     def on_begin(self, args, kwargs):
         """
-        Internal method of extcmd.DelegateBase
+        Internal method of extcmd.DelegateBase.
 
         Called when a command is being invoked
         """
@@ -215,7 +223,7 @@ class JobRunnerUIDelegate(extcmd.DelegateBase):
 
     def on_end(self, returncode):
         """
-        Internal method of extcmd.DelegateBase
+        Internal method of extcmd.DelegateBase.
 
         Called when a command finishes running
         """
@@ -224,7 +232,7 @@ class JobRunnerUIDelegate(extcmd.DelegateBase):
 
     def on_abnormal_end(self, signal_num):
         """
-        Internal method of extcmd.DelegateBase
+        Internal method of extcmd.DelegateBase.
 
         Called when a command abnormally finishes running
 
@@ -236,7 +244,7 @@ class JobRunnerUIDelegate(extcmd.DelegateBase):
 
     def on_line(self, stream_name, line):
         """
-        Internal method of extcmd.DelegateBase
+        Internal method of extcmd.DelegateBase.
 
         Called for each line of output.
         """
@@ -245,7 +253,7 @@ class JobRunnerUIDelegate(extcmd.DelegateBase):
 
     def on_chunk(self, stream_name, chunk):
         """
-        Internal method of extcmd.DelegateBase
+        Internal method of extcmd.DelegateBase.
 
         Called for each chunk of output.
         """
@@ -254,8 +262,9 @@ class JobRunnerUIDelegate(extcmd.DelegateBase):
 
 
 class JobRunner(IJobRunner):
+
     """
-    Runner for jobs - executes jobs and produces results
+    Runner for jobs - executes jobs and produces results.
 
     The runner is somewhat de-coupled from jobs and session. It still carries
     all checkbox-specific logic about the various types of plugins.
@@ -333,7 +342,7 @@ class JobRunner(IJobRunner):
     @property
     def log_leftovers(self):
         """
-        flag controlling if leftover files should be logged
+        flag controlling if leftover files should be logged.
 
         If you wish to connect a custom handler to :meth:`on_leftover_files()`
         then it is advisable to set this property to False so that leftover
@@ -345,6 +354,7 @@ class JobRunner(IJobRunner):
 
     @log_leftovers.setter
     def log_leftovers(self, value):
+        """setter for log_leftovers property."""
         self._log_leftovers = value
 
     def get_warm_up_sequence(self, job_list):
@@ -375,7 +385,7 @@ class JobRunner(IJobRunner):
 
     def run_job(self, job, job_state, config=None, ui=None):
         """
-        Run the specified job an return the result
+        Run the specified job an return the result.
 
         :param job:
             A JobDefinition to run
@@ -428,7 +438,7 @@ class JobRunner(IJobRunner):
 
     def run_shell_job(self, job, job_state, config):
         """
-        Method called to run a job with plugin field equal to 'shell'
+        Method called to run a job with plugin field equal to 'shell'.
 
         The 'shell' job implements the following scenario:
 
@@ -452,7 +462,7 @@ class JobRunner(IJobRunner):
 
     def run_attachment_job(self, job, job_state, config):
         """
-        Method called to run a job with plugin field equal to 'attachment'
+        Method called to run a job with plugin field equal to 'attachment'.
 
         The 'attachment' job implements the following scenario:
 
@@ -477,7 +487,7 @@ class JobRunner(IJobRunner):
 
     def run_resource_job(self, job, job_state, config):
         """
-        Method called to run a job with plugin field equal to 'resource'
+        Method called to run a job with plugin field equal to 'resource'.
 
         The 'resource' job implements the following scenario:
 
@@ -503,7 +513,7 @@ class JobRunner(IJobRunner):
 
     def run_local_job(self, job, job_state, config):
         """
-        Method called to run a job with plugin field equal to 'local'
+        Method called to run a job with plugin field equal to 'local'.
 
         The 'local' job implements the following scenario:
 
@@ -529,7 +539,7 @@ class JobRunner(IJobRunner):
 
     def run_manual_job(self, job, job_state, config):
         """
-        Method called to run a job with plugin field equal to 'manual'
+        Method called to run a job with plugin field equal to 'manual'.
 
         The 'manual' job implements the following scenario:
 
@@ -555,7 +565,7 @@ class JobRunner(IJobRunner):
 
     def run_user_interact_job(self, job, job_state, config):
         """
-        Method called to run a job with plugin field equal to 'user-interact'
+        Method called to run a job with plugin field equal to 'user-interact'.
 
         The 'user-interact' job implements the following scenario:
 
@@ -596,7 +606,7 @@ class JobRunner(IJobRunner):
 
     def run_user_verify_job(self, job, job_state, config):
         """
-        Method called to run a job with plugin field equal to 'user-verify'
+        Method called to run a job with plugin field equal to 'user-verify'.
 
         The 'user-verify' job implements the following scenario:
 
@@ -644,8 +654,7 @@ class JobRunner(IJobRunner):
 
     def run_user_interact_verify_job(self, job, job_state, config):
         """
-        Method called to run a job with plugin field equal to
-        'user-interact-verify'
+        Method for running jobs with plugin equal to 'user-interact-verify'.
 
         The 'user-interact-verify' job implements the following scenario:
 
@@ -693,7 +702,7 @@ class JobRunner(IJobRunner):
 
     def run_qml_job(self, job, job_state, config):
         """
-        Method called to run a job with plugin field equal to 'qml'
+        Method called to run a job with plugin field equal to 'qml'.
 
         The 'qml' job implements the following scenario:
 
@@ -912,7 +921,7 @@ class JobRunner(IJobRunner):
 
     def _get_ctrl_for_job(self, job):
         """
-        Get the execution controller most applicable to run this job
+        Get the execution controller most applicable to run this job.
 
         :param job:
             A job definition to run

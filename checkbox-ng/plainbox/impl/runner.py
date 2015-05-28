@@ -40,10 +40,9 @@ import time
 
 from plainbox.abc import IJobResult, IJobRunner
 from plainbox.i18n import gettext as _
-from plainbox.impl.result import DiskJobResult
 from plainbox.impl.result import IOLogRecord
 from plainbox.impl.result import IOLogRecordWriter
-from plainbox.impl.result import MemoryJobResult
+from plainbox.impl.result import JobResultBuilder
 from plainbox.vendor import extcmd
 from plainbox.vendor import morris
 
@@ -422,10 +421,10 @@ class JobRunner(IJobRunner):
         try:
             runner = getattr(self, func_name)
         except AttributeError:
-            return MemoryJobResult({
-                'outcome': IJobResult.OUTCOME_NOT_IMPLEMENTED,
-                'comment': _('This type of job is not supported'),
-            })
+            return JobResultBuilder(
+                outcome=IJobResult.OUTCOME_NOT_IMPLEMENTED,
+                comments=_('This type of job is not supported')
+            ).get_result()
         else:
             if self._dry_run and job.plugin not in self._DRY_RUN_PLUGINS:
                 return self._get_dry_run_result(job)
@@ -458,7 +457,7 @@ class JobRunner(IJobRunner):
         if job.plugin != "shell":
             # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
-        return self._just_run_command(job, job_state, config)
+        return self._just_run_command(job, job_state, config).get_result()
 
     def run_attachment_job(self, job, job_state, config):
         """
@@ -483,7 +482,7 @@ class JobRunner(IJobRunner):
         if job.plugin != "attachment":
             # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
-        return self._just_run_command(job, job_state, config)
+        return self._just_run_command(job, job_state, config).get_result()
 
     def run_resource_job(self, job, job_state, config):
         """
@@ -509,7 +508,7 @@ class JobRunner(IJobRunner):
         if job.plugin != "resource":
             # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
-        return self._just_run_command(job, job_state, config)
+        return self._just_run_command(job, job_state, config).get_result()
 
     def run_local_job(self, job, job_state, config):
         """
@@ -535,7 +534,7 @@ class JobRunner(IJobRunner):
         if job.plugin != "local":
             # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
-        return self._just_run_command(job, job_state, config)
+        return self._just_run_command(job, job_state, config).get_result()
 
     def run_manual_job(self, job, job_state, config):
         """
@@ -561,7 +560,7 @@ class JobRunner(IJobRunner):
         if job.plugin != "manual":
             # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
-        return MemoryJobResult({'outcome': IJobResult.OUTCOME_UNDECIDED})
+        return JobResultBuilder(outcome=IJobResult.OUTCOME_UNDECIDED).get_result()
 
     def run_user_interact_job(self, job, job_state, config):
         """
@@ -602,7 +601,7 @@ class JobRunner(IJobRunner):
         if job.plugin != "user-interact":
             # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
-        return self._just_run_command(job, job_state, config)
+        return self._just_run_command(job, job_state, config).get_result()
 
     def run_user_verify_job(self, job, job_state, config):
         """
@@ -647,10 +646,10 @@ class JobRunner(IJobRunner):
             # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
         # Run the command
-        result_cmd = self._just_run_command(job, job_state, config)
+        result_builder = self._just_run_command(job, job_state, config)
         # Maybe ask the user
-        result_cmd.outcome = IJobResult.OUTCOME_UNDECIDED
-        return result_cmd
+        result_builder.outcome = IJobResult.OUTCOME_UNDECIDED
+        return result_builder.get_result()
 
     def run_user_interact_verify_job(self, job, job_state, config):
         """
@@ -695,10 +694,10 @@ class JobRunner(IJobRunner):
             # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
         # Run the command
-        result_cmd = self._just_run_command(job, job_state, config)
+        result_builder = self._just_run_command(job, job_state, config)
         # Maybe ask the user
-        result_cmd.outcome = IJobResult.OUTCOME_UNDECIDED
-        return result_cmd
+        result_builder.outcome = IJobResult.OUTCOME_UNDECIDED
+        return result_builder.get_result()
 
     def run_qml_job(self, job, job_state, config):
         """
@@ -722,10 +721,10 @@ class JobRunner(IJobRunner):
         try:
             ctrl = self._get_ctrl_for_job(job)
         except LookupError:
-            return MemoryJobResult({
-                'outcome': IJobResult.OUTCOME_NOT_SUPPORTED,
-                'comment': _('No suitable execution controller is available)'),
-            })
+            return JobResultBuilder(
+                outcome=IJobResult.OUTCOME_NOT_SUPPORTED,
+                comments=_('No suitable execution controller is available)')
+            ).get_result()
         # Run the embedded command
         start_time = time.time()
         delegate, io_log_gen = self._prepare_io_handling(job, config)
@@ -764,12 +763,12 @@ class JobRunner(IJobRunner):
         else:
             outcome = IJobResult.OUTCOME_FAIL
         # Create a result object and return it
-        return DiskJobResult({
-            'outcome': outcome,
-            'return_code': return_code,
-            'io_log_filename': record_path,
-            'execution_duration': execution_duration
-        })
+        return JobResultBuilder(
+            outcome=outcome,
+            return_code=return_code,
+            io_log_filename=record_path,
+            execution_duration=execution_duration
+        ).get_result()
 
     def _get_dry_run_result(self, job):
         """
@@ -778,26 +777,24 @@ class JobRunner(IJobRunner):
         Returns a result that is used when running in dry-run mode (where we
         don't really test anything)
         """
-        return MemoryJobResult({
-            'outcome': IJobResult.OUTCOME_SKIP,
-            'comments': _("Job skipped in dry-run mode")
-        })
+        return JobResultBuilder(
+            outcome=IJobResult.OUTCOME_SKIP,
+            comments=_("Job skipped in dry-run mode")
+        ).get_result()
 
     def _just_run_command(self, job, job_state, config):
         """
         Internal method of JobRunner.
 
-        Runs the command embedded in the job and returns the DiskJobResult that
-        describes the result. If the command cannot be executed it returns
-        a MemoryJobResult instead.
+        Runs the command embedded in the job and returns a JobResultBuilder
+        that describes the result.
         """
         try:
             ctrl = self._get_ctrl_for_job(job)
         except LookupError:
-            return MemoryJobResult({
-                'outcome': IJobResult.OUTCOME_NOT_SUPPORTED,
-                'comment': _('No suitable execution controller is available)'),
-            })
+            return JobResultBuilder(
+                outcome=IJobResult.OUTCOME_NOT_SUPPORTED,
+                comments=_('No suitable execution controller is available)'))
         # Run the embedded command
         start_time = time.time()
         return_code, record_path = self._run_command(
@@ -811,12 +808,11 @@ class JobRunner(IJobRunner):
         else:
             outcome = IJobResult.OUTCOME_FAIL
         # Create a result object and return it
-        return DiskJobResult({
-            'outcome': outcome,
-            'return_code': return_code,
-            'io_log_filename': record_path,
-            'execution_duration': execution_duration
-        })
+        return JobResultBuilder(
+            outcome=outcome,
+            return_code=return_code,
+            io_log_filename=record_path,
+            execution_duration=execution_duration)
 
     def _prepare_io_handling(self, job, config):
         ui_io_delegate = self._command_io_delegate

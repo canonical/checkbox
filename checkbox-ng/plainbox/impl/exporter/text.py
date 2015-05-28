@@ -25,6 +25,7 @@
 
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
+from plainbox.i18n import gettext as _
 from plainbox.impl.commands.inv_run import Colorizer
 from plainbox.impl.exporter import SessionStateExporterBase
 from plainbox.impl.result import outcome_meta
@@ -54,9 +55,23 @@ class TextSessionStateExporter(SessionStateExporterBase):
                             outcome_meta(state.result.outcome).color_ansi
                         ), state.job.tr_summary(),
                     ).encode("UTF-8"))
+                if len(state.result_history) > 1:
+                    stream.write(_("  history: {0}\n").format(
+                        ', '.join(
+                            self.C.custom(
+                                result.outcome_meta().tr_outcome,
+                                result.outcome_meta().color_ansi)
+                            for result in state.result_history)
+                    ).encode("UTF-8"))
             else:
                 stream.write(
                     "{:^15}: {}\n".format(
                         state.result.tr_outcome(),
                         state.job.tr_summary(),
                     ).encode("UTF-8"))
+                if state.result_history:
+                    print(_("History:"), ', '.join(
+                        self.C.custom(
+                            result.outcome_meta().unicode_sigil,
+                            result.outcome_meta().color_ansi)
+                        for result in state.result_history))

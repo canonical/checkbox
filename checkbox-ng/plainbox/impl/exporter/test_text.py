@@ -44,7 +44,7 @@ class TextSessionStateExporterTests(TestCase):
         data = mock.Mock(
             run_list=[job],
             job_state_map={
-                job.id: mock.Mock(result=result, job=job)
+                job.id: mock.Mock(result=result, job=job, result_history=())
             }
         )
         stream = BytesIO()

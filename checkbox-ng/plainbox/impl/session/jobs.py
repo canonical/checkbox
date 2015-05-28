@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 """
+Job State.
+
 :mod:`plainbox.impl.session.jobs` -- jobs state handling
 ========================================================
 
@@ -39,8 +41,9 @@ logger = logging.getLogger("plainbox.session.jobs")
 
 
 class InhibitionCause(IntEnum):
+
     """
-    There are four possible not-ready causes:
+    There are four possible not-ready causes.
 
         UNDESIRED:
             This job was not selected to run in this session
@@ -58,6 +61,7 @@ class InhibitionCause(IntEnum):
         FAILED_RESOURCE:
             This job has a resource requirement that evaluated to a false value
     """
+
     UNDESIRED = 0
     PENDING_DEP = 1
     FAILED_DEP = 2
@@ -68,6 +72,8 @@ class InhibitionCause(IntEnum):
 def cause_convert_assign_filter(
         instance: pod.POD, field: pod.Field, old: "Any", new: "Any") -> "Any":
     """
+    Assign filter for for JobReadinessInhibitor.cause.
+
     Custom assign filter for the JobReadinessInhibitor.cause field that
     produces a very specific error message.
     """
@@ -78,6 +84,7 @@ def cause_convert_assign_filter(
 
 
 class JobReadinessInhibitor(pod.POD):
+
     """
     Class representing the cause of a job not being ready to execute.
 
@@ -122,6 +129,7 @@ class JobReadinessInhibitor(pod.POD):
             Provides additional context for the problem caused by a failing
             resource expression.
     """
+
     # XXX: PENDING_RESOURCE is not strict, there are multiple states that are
     # clumped here which is something I don't like. A resource may be still
     # "pending" as in PENDING_DEP (it has not ran yet) or it could have ran but
@@ -176,11 +184,13 @@ class JobReadinessInhibitor(pod.POD):
             ).format(self.cause.name))
 
     def __repr__(self):
+        """Get a custom debugging representation of an inhibitor."""
         return "<{} cause:{} related_job:{!r} related_expression:{!r}>".format(
             self.__class__.__name__, self.cause.name, self.related_job,
             self.related_expression)
 
     def __str__(self):
+        """Get a human-readable text representation of an inhibitor."""
         if self.cause == InhibitionCause.UNDESIRED:
             # TRANSLATORS: as in undesired job
             return _("undesired")
@@ -211,7 +221,10 @@ JOB_VALUE = object()
 
 
 class OverridableJobField(pod.Field):
+
     """
+    A custom Field for modeling job values that can be overridden.
+
     A readable-writable field that has a special initial value ``JOB_VALUE``
     which is interpreted as "load this value from the corresponding job
     definition".
@@ -222,11 +235,13 @@ class OverridableJobField(pod.Field):
 
     def __init__(self, job_field, doc=None, type=None, notify=False,
                  assign_filter_list=None):
+        """Initialize a new overridable job field."""
         super().__init__(
             doc, type, JOB_VALUE, None, notify, assign_filter_list)
         self.job_field = job_field
 
     def __get__(self, instance, owner):
+        """Get an overriden (if any) value of an overridable job field."""
         value = super().__get__(instance, owner)
         if value is JOB_VALUE:
             return getattr(instance.job, self.job_field)
@@ -235,22 +250,28 @@ class OverridableJobField(pod.Field):
 
 
 def job_assign_filter(instance, field, old_value, new_value):
-    # FIXME: This setter should not exist. job attribute should be
-    # read-only. This is a temporary kludge to get session restoring
-    # over DBus working. Once a solution that doesn't involve setting
-    # a JobState's job attribute is implemented, please remove this
-    # awful method.
+    """
+    A custom setter for the JobState.job.
+
+    .. warning::
+        This setter should not exist. job attribute should be read-only. This
+        is a temporary kludge to get session restoring over DBus working. Once
+        a solution that doesn't involve setting a JobState's job attribute is
+        implemented, please remove this awful method.
+    """
     return new_value
 
 
 def job_via_assign_filter(instance, field, old_value, new_value):
+    """A custom setter for JobState.via_job."""
     if (old_value is not pod.UNSET and not isinstance(new_value, JobDefinition)
-        and not new_value is None):
+            and new_value is not None):
         raise TypeError("via_job must be the actual job, not the checksum")
     return new_value
 
 
 class JobState(pod.POD):
+
     """
     Class representing the state of a job in a session.
 
@@ -300,15 +321,11 @@ class JobState(pod.POD):
         type=str)
 
     def can_start(self):
-        """
-        Quickly check if the associated job can run right now.
-        """
+        """Quickly check if the associated job can run right now."""
         return len(self.readiness_inhibitor_list) == 0
 
     def get_readiness_description(self):
-        """
-        Get a human readable description of the current readiness state
-        """
+        """Get a human readable description of the current readiness state."""
         if self.readiness_inhibitor_list:
             return _("job cannot be started: {}").format(
                 ", ".join((str(inhibitor)

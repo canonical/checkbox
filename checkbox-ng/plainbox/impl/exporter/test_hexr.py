@@ -164,9 +164,7 @@ class HexrExporterTests(TestCase):
             job_state.job._data['id'] = evil_id
             job_state.result = job_state.result.get_builder(
                 comments=evil,
-                # NOTE: this is commented out because the original test was buggy
-                # It gets fixed in the next patch.
-                #io_log=[(0, 'stdout', evil.encode("UTF-8"))],
+                io_log=[(0, 'stdout', evil.encode("UTF-8"))],
             ).get_result()
             new_job_state_map[evil_id] = job_state
         # NOTE: using private API
@@ -398,30 +396,20 @@ _evil_expected = """\
 <?xml version="1.0"?>
 <system version="1.0">
   <context>
-    <info command="2013.com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-10-user-interact-verify">IO-LOG-STDOUT
-</info>
-    <info command="2013.com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-11-user-verify">IO-LOG-STDOUT
-</info>
-    <info command="2013.com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-3-attachment">IO-LOG-STDOUT
-</info>
-    <info command="2013.com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-4-local"></info>
-    <info command="2013.com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-5-manual">IO-LOG-STDOUT
-</info>
-    <info command="2013.com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-6-qml">IO-LOG-STDOUT
-</info>
-    <info command="2013.com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-7-resource"></info>
-    <info command="2013.com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-8-shell">IO-LOG-STDOUT
-</info>
-    <info command="2013.com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-9-user-interact">IO-LOG-STDOUT
-</info>
+    <info command="2013.com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-10-user-interact-verify">&#34;&#39;&lt;&amp;&gt;</info>
+    <info command="2013.com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-11-user-verify">&#34;&#39;&lt;&amp;&gt;</info>
+    <info command="2013.com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-3-attachment">&#34;&#39;&lt;&amp;&gt;</info>
+    <info command="2013.com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-4-local">&#34;&#39;&lt;&amp;&gt;</info>
+    <info command="2013.com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-5-manual">&#34;&#39;&lt;&amp;&gt;</info>
+    <info command="2013.com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-6-qml">&#34;&#39;&lt;&amp;&gt;</info>
+    <info command="2013.com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-7-resource">&#34;&#39;&lt;&amp;&gt;</info>
+    <info command="2013.com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-8-shell">&#34;&#39;&lt;&amp;&gt;</info>
+    <info command="2013.com.canonical.plainbox::&#34;&#39;&lt;&amp;&gt;-9-user-interact">&#34;&#39;&lt;&amp;&gt;</info>
   </context>
   <hardware>
-    <dmi>STDOUT-dmi_attachment
-</dmi>
-    <sysfs-attributes>STDOUT-sysfs_attachment
-</sysfs-attributes>
-    <udev>STDOUT-udev_attachment
-</udev>
+    <dmi>&#34;&#39;&lt;&amp;&gt;</dmi>
+    <sysfs-attributes>&#34;&#39;&lt;&amp;&gt;</sysfs-attributes>
+    <udev>&#34;&#39;&lt;&amp;&gt;</udev>
     <processors>
       <processor id="0" name="0">
         <property name="count" type="str">2</property>

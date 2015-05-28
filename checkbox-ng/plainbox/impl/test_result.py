@@ -203,6 +203,9 @@ class JobResultBuildeTests(TestCase):
             IOLogRecord(delay=0, stream_name='stdout', data=b'ok\n'),))
         self.assertEqual(result.outcome, "pass")
         self.assertEqual(result.return_code, 0)
+        # Sanity check: the builder we can re-create is identical
+        builder2 = result.get_builder()
+        self.assertEqual(builder, builder2)
 
     def test_smoke_disk(self):
         builder = JobResultBuilder()
@@ -217,6 +220,9 @@ class JobResultBuildeTests(TestCase):
         self.assertEqual(result.io_log_filename, 'log')
         self.assertEqual(result.outcome, "pass")
         self.assertEqual(result.return_code, 0)
+        # Sanity check: the builder we can re-create is identical
+        builder2 = result.get_builder()
+        self.assertEqual(builder, builder2)
 
     def test_io_log_clash(self):
         builder = JobResultBuilder()
@@ -231,3 +237,7 @@ class JobResultBuildeTests(TestCase):
         self.assertEqual(builder.comments, 'first comment')
         builder.add_comment('second comment')
         self.assertEqual(builder.comments, 'first comment\nsecond comment')
+
+    def test_get_builder_kwargs(self):
+        result = JobResultBuilder(outcome='pass').get_result()
+        self.assertEqual(result.get_builder(outcome='fail').outcome, 'fail')

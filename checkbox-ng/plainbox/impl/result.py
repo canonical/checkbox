@@ -311,6 +311,13 @@ class _JobResultBase(IJobResult):
             key: value for key, value in data.items()
             if value is not None and value != []}
 
+    def get_builder(self, **kwargs):
+        """Create a new job result builder from the data in this result."""
+        builder = JobResultBuilder(**self._data)
+        for key, value in kwargs.items():
+            setattr(builder, key, value)
+        return builder
+
     def __eq__(self, other):
         if not isinstance(other, _JobResultBase):
             return NotImplemented

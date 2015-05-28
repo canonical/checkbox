@@ -26,7 +26,7 @@ from plainbox.impl.exporter.hexr import CERTIFICATION_NS
 from plainbox.impl.exporter.hexr import HEXRExporter
 from plainbox.impl.providers.special import get_stubbox
 from plainbox.impl.resource import Resource
-from plainbox.impl.result import MemoryJobResult
+from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.session import SessionManager
 from plainbox.impl.unit.job import JobDefinition
 
@@ -61,24 +61,25 @@ class HexrExporterTests(TestCase):
             state.add_unit(job)
             result = self._make_result_for(job)
             state.update_job_result(job, result)
+            last_job = job
+            last_result = result
         # Add a comment to one job (the last one)
-        result.comments = 'COMMENTS'
+        state.update_job_result(
+            last_job, last_result.get_builder(
+                comments='COMMENTS').get_result())
 
     def _make_result_for(self, job):
-        data = {
-            'outcome': 'pass',
-            'comments': None
-        }
+        builder = JobResultBuilder(outcome='pass')
         if job.plugin == 'local':
             pass
         elif job.plugin == 'resource':
             pass
         else:
-            data['io_log'] = (
+            builder.io_log = [
                 (0, 'stdout', b'IO-LOG-STDOUT\n'),
                 (1, 'stderr', b'IO-LOG-STDERR\n')
-            )
-        return MemoryJobResult(data)
+            ]
+        return builder.get_result()
 
     def _make_cert_resources(self):
         # Create some specific resources that this exporter relies on. The
@@ -126,13 +127,12 @@ class HexrExporterTests(TestCase):
                 'id': CERTIFICATION_NS + partial_id,
                 'plugin': 'attachment'
             })
-            result = MemoryJobResult({
-                'io_log': (
-                    (0, 'stdout', 'STDOUT-{}\n'.format(
-                        partial_id).encode('utf-8')),
-                    (1, 'stderr', 'STDERR-{}\n'.format(
-                        partial_id).encode('utf-8'))),
-            })
+            result = JobResultBuilder(io_log=[
+                (0, 'stdout', 'STDOUT-{}\n'.format(
+                    partial_id).encode('utf-8')),
+                (1, 'stderr', 'STDERR-{}\n'.format(
+                    partial_id).encode('utf-8'))]
+            ).get_result()
             state.add_unit(job)
             state.update_job_result(job, result)
 
@@ -162,11 +162,12 @@ class HexrExporterTests(TestCase):
                 evil_id = '{}-{}-{}'.format(evil, index, job_state.job.plugin)
             # NOTE: using private API
             job_state.job._data['id'] = evil_id
-            job_state.result.comments = evil
-            # NOTE: using private API
-            job_state.result._data['_io_log'] = (
-                (0, 'stdout', evil.encode("UTF-8")),
-            )
+            job_state.result = job_state.result.get_builder(
+                comments=evil,
+                # NOTE: this is commented out because the original test was buggy
+                # It gets fixed in the next patch.
+                #io_log=[(0, 'stdout', evil.encode("UTF-8"))],
+            ).get_result()
             new_job_state_map[evil_id] = job_state
         # NOTE: using private API
         state._job_state_map = new_job_state_map

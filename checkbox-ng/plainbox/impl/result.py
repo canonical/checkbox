@@ -42,7 +42,6 @@ from plainbox.i18n import gettext as _
 from plainbox.i18n import pgettext as C_
 from plainbox.impl import pod
 from plainbox.impl.decorators import raises
-from plainbox.vendor import morris
 
 logger = logging.getLogger("plainbox.result")
 
@@ -332,10 +331,6 @@ class _JobResultBase(IJobResult):
                 "{}:{!r}".format(key, self._data[key])
                 for key in sorted(self._data.keys())]))
 
-    @morris.signal
-    def on_outcome_changed(self, old, new):
-        """Signal sent when ``outcome`` property value is changed."""
-
     @property
     def outcome(self):
         """
@@ -346,13 +341,6 @@ class _JobResultBase(IJobResult):
         mean that the job did not run for some particular reason.
         """
         return self._data.get('outcome', self.OUTCOME_NONE)
-
-    @outcome.setter
-    def outcome(self, new):
-        old = self.outcome
-        if old != new:
-            self._data['outcome'] = new
-            self.on_outcome_changed(old, new)
 
     def tr_outcome(self):
         """Get the translated value of the outcome."""
@@ -375,42 +363,10 @@ class _JobResultBase(IJobResult):
         """The amount of time in seconds it took to run this job."""
         return self._data.get('execution_duration')
 
-    @execution_duration.setter
-    def execution_duration(self, elapsed):
-        self._data['execution_duration'] = elapsed
-
     @property
     def comments(self):
         """Get the comments of the test operator."""
         return self._data.get('comments')
-
-    @comments.setter
-    def comments(self, new):
-        old = self.comments
-        if old != new:
-            self._data['comments'] = new
-            self.on_comments_changed(old, new)
-
-    def append_comments(self, comments):
-        """
-        Append new comments to the result.
-
-        :param comments:
-            The comments to append
-
-        This method simplifies appending comments to an existing result.
-        Since initally there are no comments (None is returned) this makes
-        all the code that has to halde updates a little tedious. Using this
-        method, in contrast, is always easy.
-        """
-        if self.comments is None:
-            self.comments = comments
-        else:
-            self.comments = self.comments + '\n' + comments
-
-    @morris.signal
-    def on_comments_changed(self, old, new):
-        """Signal sent when ``comments`` property value is changed."""
 
     @property
     def return_code(self):

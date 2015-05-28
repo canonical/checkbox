@@ -50,10 +50,6 @@ class CommonTestsMixIn:
     def test_append_comments(self):
         result = self.result_cls({})
         self.assertIsNone(result.comments)
-        result.append_comments("first")
-        self.assertEqual(result.comments, "first")
-        result.append_comments("second")
-        self.assertEqual(result.comments, "first\nsecond")
 
 
 class DiskJobResultTests(TestCase, CommonTestsMixIn):

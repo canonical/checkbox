@@ -1,13 +1,13 @@
+# encoding: utf-8
 # This file is part of Checkbox.
 #
-# Copyright 2012 Canonical Ltd.
+# Copyright 2012-2015 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -18,6 +18,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+Implementation of job result (test result) classes.
+
 :mod:`plainbox.impl.result` -- job result
 =========================================
 
@@ -25,15 +27,15 @@ This module has two basic implementation of :class:`IJobResult`:
 :class:`MemoryJobResult` and :class:`DiskJobResult`.
 """
 
-from collections import namedtuple
 import base64
 import codecs
 import gzip
+import inspect
 import io
 import json
 import logging
-import inspect
 import re
+from collections import namedtuple
 
 from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _
@@ -209,34 +211,27 @@ OUTCOME_METADATA_MAP = {
 
 
 def tr_outcome(outcome):
-    """
-    Get the translated value of ``OUTCOME_`` constant
-    """
+    """Get the translated value of ``OUTCOME_`` constant."""
     return OUTCOME_METADATA_MAP[outcome].tr_outcome
 
 
 def outcome_color_hex(outcome):
-    """
-    Get the hexadecimal "#RRGGBB" color that represents this outcome
-    """
+    """Get the hexadecimal "#RRGGBB" color that represents this outcome."""
     return OUTCOME_METADATA_MAP[outcome].color_hex
 
 
 def outcome_color_ansi(outcome):
-    """
-    Get an ANSI escape sequence that represents this outcome
-    """
+    """Get an ANSI escape sequence that represents this outcome."""
     return OUTCOME_METADATA_MAP[outcome].color_ansi
 
 
 def outcome_meta(outcome):
-    """
-    Get the OutcomeMetadata object associated with this outcome.
-    """
+    """Get the OutcomeMetadata object associated with this outcome."""
     return OUTCOME_METADATA_MAP[outcome]
 
 
 class _JobResultBase(IJobResult):
+
     """
     Base class for :`IJobResult` implementations.
 
@@ -245,7 +240,7 @@ class _JobResultBase(IJobResult):
 
     def __init__(self, data):
         """
-        Initialize a new result with the specified data
+        Initialize a new result with the specified data.
 
         Data is a dictionary that can hold arbitrary values. At least some
         values are explicitly used, such as 'outcome', 'comments' and
@@ -275,9 +270,7 @@ class _JobResultBase(IJobResult):
 
     @morris.signal
     def on_outcome_changed(self, old, new):
-        """
-        Signal sent when ``outcome`` property value is changed
-        """
+        """Signal sent when ``outcome`` property value is changed."""
 
     @property
     def outcome(self):
@@ -298,34 +291,24 @@ class _JobResultBase(IJobResult):
             self.on_outcome_changed(old, new)
 
     def tr_outcome(self):
-        """
-        Get the translated value of the outcome
-        """
+        """Get the translated value of the outcome."""
         return tr_outcome(self.outcome)
 
     def outcome_color_hex(self):
-        """
-        Get the hexadecimal "#RRGGBB" color that represents this outcome
-        """
+        """Get the hexadecimal "#RRGGBB" color that represents this outcome."""
         return outcome_color_hex(self.outcome)
 
     def outcome_color_ansi(self):
-        """
-        Get an ANSI escape sequence that represents this outcome
-        """
+        """Get an ANSI escape sequence that represents this outcome."""
         return outcome_color_ansi(self.outcome)
 
     def outcome_meta(self):
-        """
-        Get the OutcomeMetadata object associated with this outcome.
-        """
+        """Get the OutcomeMetadata object associated with this outcome."""
         return outcome_meta(self.outcome)
 
     @property
     def execution_duration(self):
-        """
-        The amount of time in seconds it took to run this job.
-        """
+        """The amount of time in seconds it took to run this job."""
         return self._data.get('execution_duration')
 
     @execution_duration.setter
@@ -334,9 +317,7 @@ class _JobResultBase(IJobResult):
 
     @property
     def comments(self):
-        """
-        comments of the test operator
-        """
+        """Get the comments of the test operator."""
         return self._data.get('comments')
 
     @comments.setter
@@ -348,7 +329,7 @@ class _JobResultBase(IJobResult):
 
     def append_comments(self, comments):
         """
-        Append new comments to the result
+        Append new comments to the result.
 
         :param comments:
             The comments to append
@@ -365,15 +346,11 @@ class _JobResultBase(IJobResult):
 
     @morris.signal
     def on_comments_changed(self, old, new):
-        """
-        Signal sent when ``comments`` property value is changed
-        """
+        """Signal sent when ``comments`` property value is changed."""
 
     @property
     def return_code(self):
-        """
-        return code of the command associated with the job, if any
-        """
+        """return code of the command associated with the job, if any."""
         return self._data.get('return_code')
 
     @property
@@ -383,6 +360,8 @@ class _JobResultBase(IJobResult):
     @property
     def io_log_as_flat_text(self):
         """
+        Perform a lossly conversion from the binary I/O log to text.
+
         Convert the I/O log to a text string, replacing non unicode characters
         with U+FFFD, the REPLACEMENT CHARACTER.
 
@@ -413,6 +392,8 @@ class _JobResultBase(IJobResult):
     @property
     def io_log_as_text_attachment(self):
         """
+        Perform a conversion of the binary I/O log to text, if possible.
+
         Convert the I/O log to text attachment, if possible, otherwise return
         an empty string.
 
@@ -437,7 +418,7 @@ class _JobResultBase(IJobResult):
     @property
     def is_hollow(self):
         """
-        flag that indicates if the result is hollow
+        flag that indicates if the result is hollow.
 
         Hollow results may have been created but hold no data at all.
         Hollow results are also tentatively deprecated, once we have some
@@ -451,6 +432,7 @@ class _JobResultBase(IJobResult):
 
 
 class MemoryJobResult(_JobResultBase):
+
     """
     A :class:`IJobResult` that keeps IO logs in memory.
 
@@ -472,8 +454,9 @@ class MemoryJobResult(_JobResultBase):
 
 
 class GzipFile(gzip.GzipFile):
+
     """
-    Subclass of GzipFile that works around missing read1() on python3.2
+    Subclass of GzipFile that works around missing read1() on python3.2.
 
     See: http://bugs.python.org/issue10791
     """
@@ -483,6 +466,7 @@ class GzipFile(gzip.GzipFile):
 
 
 class DiskJobResult(_JobResultBase):
+
     """
     A :class:`IJobResult` that keeps IO logs on disk.
 
@@ -495,9 +479,7 @@ class DiskJobResult(_JobResultBase):
 
     @property
     def io_log_filename(self):
-        """
-        pathname of the file containing serialized IO log records
-        """
+        """pathname of the file containing serialized IO log records."""
         return self._data.get("io_log_filename")
 
     def get_io_log(self):
@@ -519,9 +501,8 @@ class DiskJobResult(_JobResultBase):
 
 
 class IOLogRecordWriter:
-    """
-    Class for writing :class:`IOLogRecord` instances to a text stream
-    """
+
+    """Class for writing :class:`IOLogRecord` instances to a text stream."""
 
     def __init__(self, stream):
         self.stream = stream
@@ -530,9 +511,7 @@ class IOLogRecordWriter:
         self.stream.close()
 
     def write_record(self, record):
-        """
-        Write an :class:`IOLogRecord` to the stream.
-        """
+        """Write an :class:`IOLogRecord` to the stream."""
         text = json.dumps([
             record[0], record[1],
             base64.standard_b64encode(record[2]).decode("ASCII")],
@@ -545,9 +524,8 @@ class IOLogRecordWriter:
 
 
 class IOLogRecordReader:
-    """
-    Class for streaming :class`IOLogRecord` instances from a text stream
-    """
+
+    """Class for streaming :class`IOLogRecord` instances from a text stream."""
 
     def __init__(self, stream):
         self.stream = stream
@@ -572,8 +550,9 @@ class IOLogRecordReader:
 
     def __iter__(self):
         """
-        Iterate over the entire stream generating subsequent
-        :class:`IOLogRecord` entries.
+        Iterate over the entire stream generating subsequent records.
+
+        This method generates subsequent :class:`IOLogRecord` entries.
         """
         while True:
             record = self.read_record()

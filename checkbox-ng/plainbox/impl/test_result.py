@@ -150,6 +150,7 @@ class MemoryJobResultTests(TestCase, CommonTestsMixIn):
         })
         self.assertEqual(result.io_log_as_text_attachment, 'foo')
 
+
 class IOLogRecordWriterTests(TestCase):
 
     _RECORD = IOLogRecord(0.123, 'stdout', b'some\ndata')

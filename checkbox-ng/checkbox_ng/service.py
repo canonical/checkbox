@@ -37,7 +37,7 @@ except ImportError:
         raise SystemExit(_("DBus parts require 'funcsigs' from pypi."))
 from plainbox.abc import IJobResult
 from plainbox.impl.job import JobDefinition
-from plainbox.impl.result import MemoryJobResult
+from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.secure.qualifiers import select_jobs
 from plainbox.impl.session import JobState
 from plainbox.vendor import extcmd
@@ -1372,6 +1372,7 @@ class PrimedJobWrapper(PlainBoxObjectWrapper):
         # A result object we got from running the command OR the result this
         # job used to have before. It should be always published on the bus.
         self._result = None
+        self._result_builder = None
         # A future for the result each time we're waiting for the command to
         # finish. Gets reset to None after the command is done executing.
         self._result_future = None
@@ -1447,16 +1448,20 @@ class PrimedJobWrapper(PlainBoxObjectWrapper):
                     _("But the job is not manual, it is %s"),
                     self.native.job.plugin)
             # Create a new result object
-            self._result = MemoryJobResult({
-                'outcome': outcome,
-                'comments': comments
-            })
+            self._result_builder = JobResultBuilder()
+            self._result_builder.outcome = outcome
+            self._result_builder.comments = comments
+            self._result = self._result_builder.get_result()
             # Add the new result object to the bus
             self._session_wrapper.add_result(self._result)
         else:
+            assert self._result_builder is not None
             # Set the values as requested
-            self._result.outcome = outcome
-            self._result.comments = comments
+            self._result_builder.outcome = outcome
+            self._result_builder.comments = comments
+            self._result = self._result_builder.get_result()
+            # Add the new result object to the bus
+            self._session_wrapper.add_result(self._result)
         # Notify the application that the result is ready. This has to be
         # done unconditionally each time this method called.
         self.JobResultAvailable(
@@ -1548,6 +1553,7 @@ class PrimedJobWrapper(PlainBoxObjectWrapper):
             self._session_wrapper.remove_result(self._result)
         # Unpack the result from the future
         self._result = result_future.result()
+        self._result_builder = self._result.get_builder()
         # Add the new result object to the session wrapper (and to the bus)
         self._session_wrapper.add_result(self._result)
         # Reset the future so that RunCommand() can run the job again

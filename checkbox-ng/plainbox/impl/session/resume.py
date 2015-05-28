@@ -707,13 +707,10 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
             result = self._build_JobResult(
                 result_repr, self.flags, self.location)
             result_list.append(result)
-        # Show the _LAST_ result to the session. Currently we only store one
-        # result but showing the most recent (last) result should be good
-        # in general.
-        if len(result_list) > 0:
-            logger.debug(
-                _("calling update_job_result(%r, %r)"), job, result_list[-1])
-            session.update_job_result(job, result_list[-1])
+        # Replay each result, one by one
+        for result in result_list:
+            logger.debug(_("calling update_job_result(%r, %r)"), job, result)
+            session.update_job_result(job, result)
 
     @classmethod
     def _restore_SessionState_desired_job_list(cls, session, session_repr):

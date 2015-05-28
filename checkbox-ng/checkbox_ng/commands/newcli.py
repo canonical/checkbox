@@ -536,5 +536,6 @@ class CliInvocation2(RunInvocation):
                           if job in wanted_set]
         # reset outcome of jobs that are selected for re-running
         for job in wanted_set:
-            self.manager.state.job_state_map[job.id].result.outcome = None
+            from plainbox.impl.result import MemoryJobResult
+            self.manager.state.job_state_map[job.id].result = MemoryJobResult({})
         self.run_all_selected_jobs()

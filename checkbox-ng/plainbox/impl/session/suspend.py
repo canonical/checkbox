@@ -238,7 +238,7 @@ class SessionSuspendHelper1:
         }
 
     def _repr_JobResult(self, obj, session_dir):
-        """ Compute the representation of one of IJobResult subclasses.  """
+        """Compute the representation of one of IJobResult subclasses."""
         if isinstance(obj, DiskJobResult):
             return self._repr_DiskJobResult(obj, session_dir)
         elif isinstance(obj, MemoryJobResult):

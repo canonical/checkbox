@@ -528,7 +528,7 @@ class JobResultWrapper(PlainBoxObjectWrapper):
         return self.native.comments or ""
 
     @comments.setter
-    def comments(self, value):
+    def comments(self, new_value):
         """
         set comments to a new value
         """

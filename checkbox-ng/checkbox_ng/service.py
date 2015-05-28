@@ -453,15 +453,6 @@ class JobResultWrapper(PlainBoxObjectWrapper):
         OBJECT_MANAGER_IFACE,
     ])
 
-    def __shared_initialize__(self, **kwargs):
-        self.native.on_outcome_changed.connect(self._outcome_changed)
-        self.native.on_comments_changed.connect(self._comments_changed)
-
-    def __del__(self):
-        super(JobResultWrapper, self).__del__()
-        self.native.on_comments_changed.disconnect(self._comments_changed)
-        self.native.on_outcome_changed.disconnect(self._outcome_changed)
-
     # Value added
 
     @dbus.service.property(dbus_interface=JOB_RESULT_IFACE, signature="s")
@@ -482,7 +473,7 @@ class JobResultWrapper(PlainBoxObjectWrapper):
         # XXX: it would be nice if we could not do this remapping.
         if new_value == "none":
             new_value = None
-        self.native.outcome = new_value
+        self.native = self.native.get_builder(outcome=new_value).get_result()
 
     def _outcome_changed(self, old, new):
         """
@@ -534,7 +525,7 @@ class JobResultWrapper(PlainBoxObjectWrapper):
         """
         set comments to a new value
         """
-        self.native.comments = value
+        self.native = self.native.get_builder(comments=new_value).get_result()
 
     def _comments_changed(self, old, new):
         """
@@ -661,7 +652,13 @@ class JobStateWrapper(PlainBoxObjectWrapper):
             self.__class__.result._dbus_property: result_wrapper
         }, [])
         # Remove the old result object
-        self._session_wrapper.remove_result(old)
+        try:
+            self._session_wrapper.remove_result(old)
+        except KeyError:
+            # NOTE: the result may have been self-removed on earlier
+            # assignment to outcome. In that case this is a non-fatal
+            # problem and we can just carry on.
+            pass
 
     @dbus.service.property(dbus_interface=JOB_STATE_IFACE, signature='a(isss)')
     def readiness_inhibitor_list(self):
@@ -1550,7 +1547,13 @@ class PrimedJobWrapper(PlainBoxObjectWrapper):
         if self._result is not None:
             # NOTE: I'm not sure how this would behave if someone were to
             # already assign the old result to any state objects.
-            self._session_wrapper.remove_result(self._result)
+            try:
+                self._session_wrapper.remove_result(self._result)
+            except KeyError:
+                # NOTE: the result may have been self-removed on earlier
+                # assignment to outcome. In that case this is a non-fatal
+                # problem and we can just carry on.
+                pass
         # Unpack the result from the future
         self._result = result_future.result()
         self._result_builder = self._result.get_builder()

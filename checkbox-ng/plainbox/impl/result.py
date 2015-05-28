@@ -40,6 +40,8 @@ from collections import namedtuple
 from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _
 from plainbox.i18n import pgettext as C_
+from plainbox.impl import pod
+from plainbox.impl.decorators import raises
 from plainbox.vendor import morris
 
 logger = logging.getLogger("plainbox.result")
@@ -228,6 +230,61 @@ def outcome_color_ansi(outcome):
 def outcome_meta(outcome):
     """Get the OutcomeMetadata object associated with this outcome."""
     return OUTCOME_METADATA_MAP[outcome]
+
+
+class JobResultBuilder(pod.POD):
+
+    """A builder for job result objects."""
+
+    outcome = pod.Field(
+        'outcome of a test',
+        str, pod.UNSET, assign_filter_list=[pod.unset_or_typed])
+    execution_duration = pod.Field(
+        'time of test execution',
+        float, pod.UNSET, assign_filter_list=[pod.unset_or_typed])
+    comments = pod.Field(
+        'comments from the test operator',
+        str, pod.UNSET, assign_filter_list=[pod.unset_or_typed])
+    return_code = pod.Field(
+        'return code from the (optional) test process',
+        int, pod.UNSET, assign_filter_list=[pod.unset_or_typed])
+    io_log = pod.Field(
+        'history of the I/O log of the (optional) test process',
+        list, pod.UNSET, assign_filter_list=[
+            pod.unset_or_typed, pod.unset_or_typed.sequence(tuple)])
+    io_log_filename = pod.Field(
+        'path to a structured I/O log file of the (optional) test process',
+        str, pod.UNSET, assign_filter_list=[pod.unset_or_typed])
+
+    def add_comment(self, comment):
+        """
+        Add a new comment.
+
+        The comment is safely combined with any prior comments.
+        """
+        if self.comments is pod.UNSET:
+            self.comments = comment
+        else:
+            self.comments += '\n' + comment
+
+    @raises(ValueError)
+    def get_result(self):
+        """
+        Use the current state of the builder to create a new result.
+
+        :returns:
+            A new MemoryJobResult or DiskJobResult with all the data
+        :raises ValueError:
+            If both io_log and io_log_filename were used.
+        """
+        if not (self.io_log_filename is pod.UNSET or self.io_log is pod.UNSET):
+            raise ValueError(
+                "you can use only io_log or io_log_filename at a time")
+        if self.io_log_filename is not pod.UNSET:
+            cls = DiskJobResult
+        else:
+            cls = MemoryJobResult
+        return cls(self.as_dict())
 
 
 class _JobResultBase(IJobResult):

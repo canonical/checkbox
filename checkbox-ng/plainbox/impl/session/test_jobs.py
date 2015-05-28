@@ -140,6 +140,7 @@ class JobStateTests(TestCase):
     def test_smoke(self):
         self.assertIsNotNone(self.job_state.result)
         self.assertIs(self.job_state.result.outcome, IJobResult.OUTCOME_NONE)
+        self.assertEqual(self.job_state.result_history, ())
         self.assertEqual(self.job_state.readiness_inhibitor_list, [
             UndesiredJobReadinessInhibitor])
         self.assertEqual(self.job_state.effective_category_id,
@@ -163,6 +164,16 @@ class JobStateTests(TestCase):
         result = make_job_result()
         self.job_state.result = result
         self.assertIs(self.job_state.result, result)
+
+    def test_result_history_keeps_track_of_result_changes(self):
+        # XXX: this example will fail if subsequent results are identical
+        self.assertEqual(self.job_state.result_history, ())
+        result1 = make_job_result(outcome='fail')
+        self.job_state.result = result1
+        self.assertEqual(self.job_state.result_history, (result1,))
+        result2 = make_job_result(outcome='pass')
+        self.job_state.result = result2
+        self.assertEqual(self.job_state.result_history, (result1, result2))
 
     def test_setting_result_fires_signal(self):
         """

@@ -305,6 +305,11 @@ class JobState(pod.POD):
         initial_fn=lambda: MemoryJobResult({}),
         notify=True)
 
+    result_history = pod.Field(
+        doc="a tuple of result_history of the associated job",
+        type=tuple, initial=(), notify=True,
+        assign_filter_list=[pod.typed, pod.typed.sequence(IJobResult)])
+
     via_job = pod.Field(
         doc="the parent job definition",
         type=JobDefinition,
@@ -319,6 +324,30 @@ class JobState(pod.POD):
         job_field="certification_status",
         doc="the effective certification status of this job",
         type=str)
+
+    # NOTE: the `result` property just exposes the last result from the
+    # `result_history` tuple above. The API is used everywhere so it should not
+    # be broken in any way but the way forward is the sequence stored in
+    # `result_history`.
+    #
+    # The one particularly annoying part of this implementation is that each
+    # job state always has at least one result. Even if there was no testing
+    # done yet. This OUTCOME_NONE result needs to be filtered out at various
+    # times. I think it would be better if we could not have it in the
+    # sequence-based API anymore. Otherwise each test will have two
+    # result_history (more if you count things like resuming a session).
+
+    @result.change_notifier
+    def _result_changed(self, old, new):
+        # Don't track the initial assignment over UNSET
+        if old is pod.UNSET:
+            return
+        assert new != old
+        assert isinstance(new, IJobResult)
+        if new.is_hollow:
+            return
+        logger.debug("Appending result %r to history: %r", new, self.result_history)
+        self.result_history += (new,)
 
     def can_start(self):
         """Quickly check if the associated job can run right now."""

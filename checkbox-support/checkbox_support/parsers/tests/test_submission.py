@@ -218,6 +218,61 @@ class TestSubmissionParser(TestCase):
         result = self.getResult("submission_info_dmidecode.xml")
         self.assertTrue("device_states" in result)
         self.assertEqual(len(result["device_states"]), 5)
+        # Ensure the most relevant devices actually contain what we expect, and
+        # not empty dictionaries/data with just categories.
+        expected_devices = [{
+            'bus_name': 'dmi',
+            'category_name': 'BIOS',
+            'driver_name': None,
+            'path': '/devices/virtual/dmi/id/bios',
+            'product_id': None,
+            'product_name': 'A05',
+            'subproduct_id': None,
+            'subvendor_id': None,
+            'vendor_id': None,
+            'vendor_name': 'Dell Inc.'},
+            {'bus_name': 'dmi',
+             'category_name': 'SYSTEM',
+             'driver_name': None,
+             'path': '/devices/virtual/dmi/id/system',
+             'product_id': None,
+             'product_name': 'Latitude E4310',
+             'subproduct_id': None,
+             'subvendor_id': None,
+             'vendor_id': None,
+             'vendor_name': 'Dell Inc.'},
+            {'bus_name': 'dmi',
+             'category_name': 'BOARD',
+             'driver_name': None,
+             'path': '/devices/virtual/dmi/id/board',
+             'product_id': None,
+             'product_name': '0101BC',
+             'subproduct_id': None,
+             'subvendor_id': None,
+             'vendor_id': None,
+             'vendor_name': 'Dell Inc.'},
+            {'bus_name': 'dmi',
+             'category_name': 'CHASSIS',
+             'driver_name': None,
+             'path': '/devices/virtual/dmi/id/chassis',
+             'product_id': None,
+             'product_name': 'Laptop',
+             'subproduct_id': None,
+             'subvendor_id': None,
+             'vendor_id': None,
+             'vendor_name': 'Dell Inc.'},
+            {'bus_name': 'dmi',
+             'category_name': 'PROCESSOR',
+             'driver_name': None,
+             'path': '/devices/virtual/dmi/id/processor',
+             'product_id': None,
+             'product_name': 'Intel(R) Core(TM) i5 CPU       M 520  @ 2.40GH',
+             'subproduct_id': None,
+             'subvendor_id': None,
+             'vendor_id': None,
+             'vendor_name': 'Intel'}]
+        for dev in expected_devices:
+            self.assertIn(dev, result["device_states"])
 
     def test_package_versions(self):
         """Package versions are in the packages element."""

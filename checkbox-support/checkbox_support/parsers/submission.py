@@ -246,6 +246,20 @@ class TestRun(object):
             "subvendor_id": device_state["subvendor_id"],
             })
 
+    def addRawDmiDeviceState(self, raw_dmi_device):
+        if (not self.messages or
+                self.messages[-1]["type"] != "add-raw-dmi-device"):
+            self.messages.append({
+                "type": "add-raw-dmi-devices",
+                "raw-dmi-devices": []})
+
+        message = self.messages[-1]
+        logger.debug("ADDING Raw DMI Device State:")
+        logger.debug(raw_dmi_device)
+        raw_dict = raw_dmi_device.raw_attributes
+        raw_dict['category'] = raw_dmi_device.category
+        message["raw-dmi-devices"].append(raw_dict)
+
     def addPackageVersion(self, **package_version):
         if not self.messages or self.messages[-1]["type"] != "set-packages":
             self.messages.append({
@@ -583,6 +597,7 @@ class SubmissionResult(object):
         register(("test_run", "attachment",), self.addAttachment)
         register(("test_run", "device",), self.addDeviceState)
         register(("test_run", "dmi_device",), self.addDmiDeviceState)
+        register(("test_run", "raw_dmi_device",), self.addRawDmiDeviceState)
         register(("test_run", "distribution",), self.setDistribution)
         register(("test_run", "package_version",), self.addPackageVersion)
         register(("test_run", "test_result",), self.addTestResult)
@@ -699,6 +714,9 @@ class SubmissionResult(object):
         if device.category != "DEVICE":
             self.dispatcher.publishEvent("dmi_device", device)
 
+        if device.category in ("SYSTEM", "BIOS"):
+            self.dispatcher.publishEvent("raw_dmi_device", device)
+
     def addDmiDeviceState(self, test_run, dmi_device):
         test_run.addDeviceState(
             bus_name="dmi", category_name=dmi_device.category,
@@ -706,6 +724,9 @@ class SubmissionResult(object):
             product_id=None, vendor_id=None,
             subproduct_id=None, subvendor_id=None,
             driver_name=None, path=dmi_device.path)
+
+    def addRawDmiDeviceState(self, test_run, raw_dmi_device):
+        test_run.addRawDmiDeviceState(raw_dmi_device)
 
     def parseDkmsInfo(self, dkms_info):
         self.dispatcher.publishEvent("dkms_info", dkms_info)

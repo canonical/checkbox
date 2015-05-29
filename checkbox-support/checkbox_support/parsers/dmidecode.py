@@ -21,9 +21,10 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import io
+import re
 from string import hexdigits
 from string import ascii_uppercase
-import re
 
 from checkbox_support.lib.dmi import Dmi
 from checkbox_support.lib.dmi import DmiDevice
@@ -37,6 +38,17 @@ HANDLE_RE = re.compile(
 KEY_VALUE_RE = re.compile(
     r"^\t(?P<key>[%s].+):( (?P<value>.+))?$"
     % ascii_uppercase)
+
+
+class DmiResult():
+
+    """A simple class to store DMI devices."""
+
+    def __init__(self):
+        self.devices = []
+
+    def addDmiDevice(self, device):
+        self.devices.append(device)
 
 
 class DmidecodeParser(object):
@@ -129,3 +141,17 @@ class DmidecodeParser(object):
             result.addDmiDevice(device)
 
         return result
+
+
+def parse_dmidecode_output(output):
+    """
+    Parse dmidecode output.
+
+    :returns: a list of dicts containing DMI device data.
+    The raw attributes are also printed.
+    """
+    stream = io.StringIO(output)
+    modparser = DmidecodeParser(stream)
+    result = DmiResult()
+    modparser.run(result)
+    return result.devices

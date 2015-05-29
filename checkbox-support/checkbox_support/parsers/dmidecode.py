@@ -43,15 +43,15 @@ class DmidecodeParser(object):
     """Parser for the dmidecode command."""
 
     _key_map = {
+        "Form Factor": "form",
         "ID": "serial",
         "Manufacturer": "vendor",
         "Product Name": "name",
         "Serial Number": "serial",
+        "Size": "size",
         "Type": "type",
         "Vendor": "vendor",
         "Version": "version",
-        "Size": "size",
-        "Form Factor": "form",
         }
 
     def __init__(self, stream):
@@ -112,14 +112,18 @@ class DmidecodeParser(object):
                 if not match:
                     continue
 
-                # Skip lines with an unsupported key
+                # If the item has a supported key, use that one
+                # instead of the "raw" DMI key.
                 key = self._parseKey(match.group("key"))
                 if not key:
-                    continue
+                    # If not, then use the "raw" DMI key.
+                    key = match.group("key").lower().replace(
+                        " ", "_").replace("-", "_")
 
                 key = "%s_%s" % (category.lower(), key)
                 value = self._parseValue(match.group("value"))
-                attributes[key] = value
+                if value:
+                    attributes[key] = value
 
             device = DmiDevice(attributes, category)
             result.addDmiDevice(device)

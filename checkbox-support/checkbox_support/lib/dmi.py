@@ -245,3 +245,24 @@ class DmiDevice:
     def form(self):
         attribute = "%s_form" % self.category.lower()
         return self._attributes.get(attribute)
+
+    @property
+    def raw_attributes(self):
+        """
+        Access "raw" non-collapsed DMI data.
+
+        The well-known accessor methods allow direct access
+        to the essential and usually-always-present DMI
+        attributes. But to access other less-known, custom
+        attributes, raw_attribute can be used.
+
+        DMI keys, or field names/identifiers, are converted
+        to lowercase, spaces are replaced with underscores,
+        and they're stored as-is in the _attributes dictionary.
+
+        Returns a dictionary with each data item from self._attributes
+        but with the prefix ("self.category.lower()_") removed.
+        """
+        # Note a dict comprehension is not used out of fear of python 2.x.
+        return dict([(k.replace("%s_" % self.category.lower(), "", 1), v)
+                    for k, v in self._attributes.items()])

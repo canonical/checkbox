@@ -86,6 +86,12 @@ class SubmissionRun(object):
         self.result.setdefault("device_states", [])
         self.result["device_states"].append(device_state)
 
+    def addRawDmiDeviceState(self, raw_dmi_device):
+        self.result.setdefault("raw_dmi_devices", [])
+        raw_dict = raw_dmi_device.raw_attributes
+        raw_dict['category'] = raw_dmi_device.category
+        self.result["raw_dmi_devices"].append(raw_dict)
+
     def addPackageVersion(self, **package_version):
         self.result.setdefault("package_versions", [])
         self.result["package_versions"].append(package_version)
@@ -228,6 +234,93 @@ class TestSubmissionParser(TestCase):
         result = self.getResult("submission_info_dmidecode.xml")
         self.assertTrue("device_states" in result)
         self.assertEqual(len(result["device_states"]), 5)
+        # Ensure the most relevant devices actually contain what we expect, and
+        # not empty dictionaries/data with just categories.
+        expected_devices = [{
+            'bus_name': 'dmi',
+            'category_name': 'BIOS',
+            'driver_name': None,
+            'path': '/devices/virtual/dmi/id/bios',
+            'product_id': None,
+            'product_name': 'A05',
+            'subproduct_id': None,
+            'subvendor_id': None,
+            'vendor_id': None,
+            'vendor_name': 'Dell Inc.'},
+            {'bus_name': 'dmi',
+             'category_name': 'SYSTEM',
+             'driver_name': None,
+             'path': '/devices/virtual/dmi/id/system',
+             'product_id': None,
+             'product_name': 'Latitude E4310',
+             'subproduct_id': None,
+             'subvendor_id': None,
+             'vendor_id': None,
+             'vendor_name': 'Dell Inc.'},
+            {'bus_name': 'dmi',
+             'category_name': 'BOARD',
+             'driver_name': None,
+             'path': '/devices/virtual/dmi/id/board',
+             'product_id': None,
+             'product_name': '0101BC',
+             'subproduct_id': None,
+             'subvendor_id': None,
+             'vendor_id': None,
+             'vendor_name': 'Dell Inc.'},
+            {'bus_name': 'dmi',
+             'category_name': 'CHASSIS',
+             'driver_name': None,
+             'path': '/devices/virtual/dmi/id/chassis',
+             'product_id': None,
+             'product_name': 'Laptop',
+             'subproduct_id': None,
+             'subvendor_id': None,
+             'vendor_id': None,
+             'vendor_name': 'Dell Inc.'},
+            {'bus_name': 'dmi',
+             'category_name': 'PROCESSOR',
+             'driver_name': None,
+             'path': '/devices/virtual/dmi/id/processor',
+             'product_id': None,
+             'product_name': 'Intel(R) Core(TM) i5 CPU       M 520  @ 2.40GH',
+             'subproduct_id': None,
+             'subvendor_id': None,
+             'vendor_id': None,
+             'vendor_name': 'Intel'}]
+        for dev in expected_devices:
+            self.assertIn(dev, result["device_states"])
+
+    def test_device_dmidecode_raw(self):
+        """
+        Device states can be in a dmidecode info element.
+
+        Also test that BIOS and SYSTEM items are exposed/added as "raw"
+        dmi devices for full access to all attributes.
+        """
+        result = self.getResult("submission_info_dmidecode.xml")
+        self.assertTrue("raw_dmi_devices" in result)
+        # There are 5 DMI devices in total but only 2 should be added as
+        # raw devices.
+        self.assertEqual(len(result["raw_dmi_devices"]), 2)
+        self.assertNotEqual(len(result["raw_dmi_devices"][0]), 1)
+        for dev in [{
+            'address': '0xF0000',
+            'bios_revision': '4.6',
+            'category': 'BIOS',
+            'release_date': '11/20/2010',
+            'rom_size': '1024 kB',
+            'runtime_size': '64 kB',
+            'vendor': 'Dell Inc.',
+            'version': 'A05'},
+            {'category': 'SYSTEM',
+             'family': 'Not Specified',
+             'name': 'Latitude E4310',
+             'serial': '7BWHRK1',
+             'uuid': '4C4C4544-0042-5710-8048-B7C04F524B31',
+             'vendor': 'Dell Inc.',
+             'version': '0001',
+             'wake_up_type': 'Power Switch'}]:
+            self.assertIn(dev, result['raw_dmi_devices'])
 
     def test_package_versions(self):
         """Package versions are in the packages element."""

@@ -21,9 +21,10 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import io
+import re
 from string import hexdigits
 from string import ascii_uppercase
-import re
 
 from checkbox_support.lib.dmi import Dmi
 from checkbox_support.lib.dmi import DmiDevice
@@ -39,19 +40,30 @@ KEY_VALUE_RE = re.compile(
     % ascii_uppercase)
 
 
+class DmiResult():
+
+    """A simple class to store DMI devices."""
+
+    def __init__(self):
+        self.devices = []
+
+    def addDmiDevice(self, device):
+        self.devices.append(device)
+
+
 class DmidecodeParser(object):
     """Parser for the dmidecode command."""
 
     _key_map = {
+        "Form Factor": "form",
         "ID": "serial",
         "Manufacturer": "vendor",
         "Product Name": "name",
         "Serial Number": "serial",
+        "Size": "size",
         "Type": "type",
         "Vendor": "vendor",
         "Version": "version",
-        "Size": "size",
-        "Form Factor": "form",
         }
 
     def __init__(self, stream):
@@ -112,16 +124,34 @@ class DmidecodeParser(object):
                 if not match:
                     continue
 
-                # Skip lines with an unsupported key
+                # If the item has a supported key, use that one
+                # instead of the "raw" DMI key.
                 key = self._parseKey(match.group("key"))
                 if not key:
-                    continue
+                    # If not, then use the "raw" DMI key.
+                    key = match.group("key").lower().replace(
+                        " ", "_").replace("-", "_")
 
                 key = "%s_%s" % (category.lower(), key)
                 value = self._parseValue(match.group("value"))
-                attributes[key] = value
+                if value:
+                    attributes[key] = value
 
             device = DmiDevice(attributes, category)
             result.addDmiDevice(device)
 
         return result
+
+
+def parse_dmidecode_output(output):
+    """
+    Parse dmidecode output.
+
+    :returns: a list of dicts containing DMI device data.
+    The raw attributes are also printed.
+    """
+    stream = io.StringIO(output)
+    modparser = DmidecodeParser(stream)
+    result = DmiResult()
+    modparser.run(result)
+    return result.devices

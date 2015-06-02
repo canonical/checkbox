@@ -16,7 +16,7 @@ command:
       `[ -n "${GSM_USERNAME}" ] && echo "--username=$GSM_USERNAME"` \
       `[ -n "${GSM_PASSWORD}" ] && echo "--password=$GSM_PASSWORD"` || exit 1
   fi
-  INTERFACE=`nmcli -t -f GENERAL -m tabular dev list |grep gsm |cut -d ":" -f 13`
+  INTERFACE=`(nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep gsm |cut -d ":" -f 13`
   echo "connected GSM interface seems to be $INTERFACE"
   [ -z $INTERFACE ] && exit 1
   curl http://start.ubuntu.com/connectivity-check.html --interface $INTERFACE
@@ -44,7 +44,7 @@ command:
       `[ -n "${CDMA_USERNAME}" ] && echo "--username=$CDMA_USERNAME"` \
       `[ -n "${CDMA_PASSWORD}" ] && echo "--password=$CDMA_PASSWORD"` || exit 1
   fi
-  INTERFACE=`nmcli -t -f GENERAL -m tabular dev list |grep cdma |cut -d ":" -f 13`
+  INTERFACE=`(nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep cdma |cut -d ":" -f 13`
   echo "connected CDMA interface seems to be $INTERFACE"
   [ -z $INTERFACE ] && exit 1
   curl http://start.ubuntu.com/connectivity-check.html --interface $INTERFACE

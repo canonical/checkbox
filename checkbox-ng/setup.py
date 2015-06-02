@@ -90,7 +90,7 @@ setup(
             'json=plainbox.impl.exporter.json:JSONSessionStateExporter',
             'rfc822=plainbox.impl.exporter.rfc822:RFC822SessionStateExporter',
             'xlsx=plainbox.impl.exporter.xlsx:XLSXSessionStateExporter [XLSX]',
-            'xml=plainbox.impl.exporter.xml:XMLSessionStateExporter [XML]',
+            'xml=plainbox.impl.exporter.hexr:HEXRExporter',
             'html=plainbox.impl.exporter.html:HTMLSessionStateExporter [XML]',
             'hexr=plainbox.impl.exporter.hexr:HEXRExporter',
         ],

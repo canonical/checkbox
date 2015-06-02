@@ -5,6 +5,11 @@ import os
 import time
 
 from subprocess import check_call, check_output, CalledProcessError
+try:
+    from subprocess import DEVNULL # >= python3.3
+except ImportError:
+    import os
+    DEVNULL = open(os.devnull, 'wb')
 
 from uuid import uuid4
 from argparse import ArgumentParser
@@ -127,8 +132,14 @@ baud=115200
 
 def block_until_created(connection, retries, interval):
     while retries > 0:
-        nmcli_con_list = check_output(['nmcli', 'con', 'list'],
-                                      universal_newlines=True)
+        try:
+            nmcli_con_list = check_output(['nmcli', 'con', 'list'],
+                                          stderr=DEVNULL,
+                                          universal_newlines=True)
+        except CalledProcessError:
+            nmcli_con_list = check_output(['nmcli', 'con', 'show'],
+                                          stderr=DEVNULL,
+                                          universal_newlines=True)
 
         if connection in nmcli_con_list:
             print("Connection %s registered" % connection)

@@ -51,7 +51,7 @@ plugin: shell
 id: suspend/wireless_before_suspend
 depends: wireless/wireless_connection
 requires: device.category == 'WIRELESS'
-command: nmcli -t -f UUID con status > $PLAINBOX_SESSION_SHARE/connections && connect_wireless && gateway_ping_test --interface=`nmcli dev list | grep -B 1 wireless | grep GENERAL.DEVICE | awk '{print $2}'` && for con in `cat $PLAINBOX_SESSION_SHARE/connections`; do nmcli con up uuid "$con"; done
+command: nmcli -t -f UUID con status > $PLAINBOX_SESSION_SHARE/connections && connect_wireless && gateway_ping_test --interface=`(nmcli dev list 2>/dev/null || nmcli dev show) | grep -B 1 -e 'wireless' -e 'wifi' | grep GENERAL.DEVICE | awk '{print $2}'` && for con in `cat $PLAINBOX_SESSION_SHARE/connections`; do nmcli con up uuid "$con"; done
 estimated_duration: 20.0
 _description:
  This test disconnects all connections and then connects to the wireless
@@ -102,7 +102,7 @@ estimated_duration: 20.0
 user: root
 environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
 command:   
- INTERFACE=`nmcli -t -f GENERAL -m tabular dev list |grep gsm |cut -d ":" -f 13`
+ INTERFACE=`(nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep gsm |cut -d ":" -f 13`
  [ -z $INTERFACE ] && exit 1
  network test -i $INTERFACE -t iperf
 _description:
@@ -115,7 +115,7 @@ estimated_duration: 20.0
 user: root
 environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
 command:   
- INTERFACE=`nmcli -t -f GENERAL -m tabular dev list |grep cdma |cut -d ":" -f 13`
+ INTERFACE=`(nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep cdma |cut -d ":" -f 13`
  [ -z $INTERFACE ] && exit 1
  network test -i $INTERFACE -t iperf
 _description:
@@ -571,7 +571,7 @@ id: suspend/wireless_after_suspend
 depends: suspend/suspend_advanced suspend/wireless_before_suspend
 requires:
  device.category == 'WIRELESS'
-command: connect_wireless && gateway_ping_test --interface=`nmcli dev list | grep -B 1 wireless | grep GENERAL.DEVICE | awk '{print $2}'` && for con in `cat $PLAINBOX_SESSION_SHARE/connections`; do nmcli con up uuid "$con"; done
+command: connect_wireless && gateway_ping_test --interface=`(nmcli dev list 2>/dev/null || nmcli dev show) | grep -B 1 -e wireless -e wifi | grep GENERAL.DEVICE | awk '{print $2}'` && for con in `cat $PLAINBOX_SESSION_SHARE/connections`; do nmcli con up uuid "$con"; done
 estimated_duration: 20.0
 _description:
  This test checks that the wireless interface is working after suspending the system. It
@@ -590,7 +590,7 @@ environ: WPA_BG_SSID WPA_BG_PSK
 command:
     trap "nmcli con delete id $WPA_BG_SSID" EXIT
     if create_connection wifi $WPA_BG_SSID --security=wpa --key=$WPA_BG_PSK; then
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
     else
@@ -612,7 +612,7 @@ environ: OPEN_BG_SSID
 command:
     trap "nmcli con delete id $OPEN_BG_SSID" EXIT
     if create_connection wifi $OPEN_BG_SSID; then
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
     else
@@ -634,7 +634,7 @@ environ: WPA_N_SSID WPA_N_PSK
 command:
     trap "nmcli con delete id $WPA_N_SSID" EXIT
     if create_connection wifi $WPA_N_SSID --security=wpa --key=$WPA_N_PSK; then
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
     else
@@ -656,7 +656,7 @@ environ: OPEN_N_SSID
 command:
     trap "nmcli con delete id $OPEN_N_SSID" EXIT
     if create_connection wifi $OPEN_N_SSID; then
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
     else
@@ -679,7 +679,7 @@ environ: WPA_AC_SSID WPA_AC_PSK
 command:
     trap "nmcli con delete id $WPA_AC_SSID" EXIT
     if create_connection wifi $WPA_AC_SSID --security=wpa --key=$WPA_AC_PSK; then
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
     else
@@ -702,7 +702,7 @@ environ: OPEN_AC_SSID
 command:
     trap "nmcli con delete id $OPEN_AC_SSID" EXIT
     if create_connection wifi $OPEN_AC_SSID; then
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
     else
@@ -724,7 +724,7 @@ environ: WPA_BG_SSID WPA_BG_PSK
 command:
     trap "nmcli con delete id $WPA_BG_SSID" EXIT
     if create_connection wifi $WPA_BG_SSID --security=wpa --key=$WPA_BG_PSK; then
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
     else
@@ -746,7 +746,7 @@ environ: OPEN_BG_SSID
 command:
     trap "nmcli con delete id $OPEN_BG_SSID" EXIT
     if create_connection wifi $OPEN_BG_SSID; then
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
     else
@@ -768,7 +768,7 @@ environ: WPA_N_SSID WPA_N_PSK
 command:
     trap "nmcli con delete id $WPA_N_SSID" EXIT
     if create_connection wifi $WPA_N_SSID --security=wpa --key=$WPA_N_PSK; then
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
     else
@@ -790,7 +790,7 @@ environ: OPEN_N_SSID
 command:
     trap "nmcli con delete id $OPEN_N_SSID" EXIT
     if create_connection wifi $OPEN_N_SSID; then
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
     else
@@ -812,7 +812,7 @@ environ: WPA_AC_SSID WPA_AC_PSK
 command:
     trap "nmcli con delete id $WPA_AC_SSID" EXIT
     if create_connection wifi $WPA_AC_SSID --security=wpa --key=$WPA_AC_PSK; then
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
     else
@@ -834,7 +834,7 @@ environ: OPEN_AC_SSID
 command:
     trap "nmcli con delete id $OPEN_AC_SSID" EXIT
     if create_connection wifi $OPEN_AC_SSID; then
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
     else
@@ -891,7 +891,7 @@ estimated_duration: 20.0
 user: root
 environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
 command:   
- INTERFACE=`nmcli -t -f GENERAL -m tabular dev list |grep gsm |cut -d ":" -f 13`
+ INTERFACE=`(nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep gsm |cut -d ":" -f 13`
  [ -z $INTERFACE ] && exit 1
  network test -i $INTERFACE -t iperf
 _description:
@@ -904,7 +904,7 @@ estimated_duration: 20.0
 user: root
 environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
 command:   
- INTERFACE=`nmcli -t -f GENERAL -m tabular dev list |grep cdma |cut -d ":" -f 13`
+ INTERFACE=`(nmcli -t -f GENERAL -m tabular dev list 2>/dev/null || nmcli -t -f GENERAL -m tabular dev show) |grep cdma |cut -d ":" -f 13`
  [ -z $INTERFACE ] && exit 1
  network test -i $INTERFACE -t iperf
 _description:
@@ -922,7 +922,7 @@ environ: ROUTER_SSID ROUTER_PSK
 command:
     trap "nmcli con delete id $ROUTER_SSID" EXIT
     if create_connection wifi $ROUTER_SSID --security=wpa --key=$ROUTER_PSK; then
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
     else
@@ -953,7 +953,7 @@ environ: ROUTER_SSID
 command:
     trap "nmcli con delete id $ROUTER_SSID" EXIT
     if create_connection wifi $ROUTER_SSID; then
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
     else
@@ -984,7 +984,7 @@ environ: ROUTER_SSID ROUTER_PSK
 command:
     trap "nmcli con delete id $ROUTER_SSID" EXIT
     if create_connection wifi $ROUTER_SSID --security=wpa --key=$ROUTER_PSK; then
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
     else
@@ -1015,7 +1015,7 @@ environ: ROUTER_SSID
 command:
     trap "nmcli con delete id $ROUTER_SSID" EXIT
     if create_connection wifi $ROUTER_SSID; then
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
     else
@@ -1046,7 +1046,7 @@ environ: ROUTER_SSID ROUTER_PSK
 command:
     trap "nmcli con delete id $ROUTER_SSID" EXIT
     if create_connection wifi $ROUTER_SSID --security=wpa --key=$ROUTER_PSK; then
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
     else
@@ -1077,7 +1077,7 @@ environ: ROUTER_SSID
 command:
     trap "nmcli con delete id $ROUTER_SSID" EXIT
     if create_connection wifi $ROUTER_SSID; then
-        INTERFACE=`nmcli dev status | awk '/802-11-wireless/ {print $1}'`
+        INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
     else

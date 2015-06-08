@@ -137,6 +137,7 @@ def block_until_created(connection, retries, interval):
                                           stderr=DEVNULL,
                                           universal_newlines=True)
         except CalledProcessError:
+            check_call(['nmcli', 'con', 'reload'])
             nmcli_con_list = check_output(['nmcli', 'con', 'show'],
                                           stderr=DEVNULL,
                                           universal_newlines=True)

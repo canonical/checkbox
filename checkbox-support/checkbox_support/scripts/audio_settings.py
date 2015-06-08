@@ -38,7 +38,7 @@ DIRECTIONS = {"source": "input", "sink": "output"}
 default_pattern = "(?<=Default %s: ).*"
 index_regex = re.compile("(?<=index: )[0-9]*")
 muted_regex = re.compile("(?<=Mute: ).*")
-volume_regex = re.compile("(?<=Volume: 0:)\s*[0-9]*")
+volume_regex = re.compile("Volume: (?:0|front-left):\s*([0-9])*")
 name_regex = re.compile("(?<=Name:).*")
 
 entry_pattern = "Name: %s.*?(?=Properties)"
@@ -210,7 +210,7 @@ def store_audio_settings(file):
         sys.exit(1)
 
     for type in TYPES:
-        pactl_status = check_output(["pactl", "stat"],
+        pactl_status = check_output(["pactl", "info"],
                                     universal_newlines=True,
                                     env=unlocalized_env())
         default_regex = re.compile(default_pattern % type.title())
@@ -229,7 +229,7 @@ def store_audio_settings(file):
         print("%s_muted: %s" % (type, muted.group().strip()),
               file=settings_file)
 
-        volume = int(volume_regex.search(entry).group().strip())
+        volume = int(volume_regex.search(entry).group(1).strip())
 
         print("%s_volume: %s%%" % (type, str(volume)),
               file=settings_file)

@@ -203,27 +203,30 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
 
     def _hw_collection(self, data):
         hw_info = defaultdict(lambda: 'NA')
-        if '2013.com.canonical.certification::dmi' in data['resource_map']:
+        resource = '2013.com.canonical.certification::dmi'
+        if resource in data['resource_map']:
             result = [
                 '{} {} ({})'.format(
                     i.get('vendor'), i.get('product'), i.get('version'))
-                for i in data["resource_map"]['2013.com.canonical.certification::dmi']
+                for i in data["resource_map"][resource]
                 if i.get('category') == 'SYSTEM']
             if result:
                 hw_info['platform'] = result.pop()
             result = [
                 '{}'.format(i.get('version'))
-                for i in data["resource_map"]['2013.com.canonical.certification::dmi']
+                for i in data["resource_map"][resource]
                 if i.get('category') == 'BIOS']
             if result:
                 hw_info['bios'] = result.pop()
-        if '2013.com.canonical.certification::cpuinfo' in data['resource_map']:
+        resource = '2013.com.canonical.certification::cpuinfo'
+        if resource in data['resource_map']:
             result = ['{} x {}'.format(i['model'], i['count'])
-                      for i in data["resource_map"]['2013.com.canonical.certification::cpuinfo']]
+                      for i in data["resource_map"][resource]]
             if result:
                 hw_info['processors'] = result.pop()
-        if '2013.com.canonical.certification::lspci_attachment' in data['attachment_map']:
-            lspci = data['attachment_map']['2013.com.canonical.certification::lspci_attachment']
+        resource = '2013.com.canonical.certification::lspci_attachment'
+        if resource in data['attachment_map']:
+            lspci = data['attachment_map'][resource]
             content = standard_b64decode(lspci.encode()).decode("UTF-8")
             match = re.search('ISA bridge.*?:\s(?P<chipset>.*?)\sLPC', content)
             if match:
@@ -253,9 +256,10 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 vram += int(match.group('vram'))
             if vram:
                 hw_info['vram'] = '{} MiB'.format(vram)
-        if '2013.com.canonical.certification::meminfo' in data['resource_map']:
+        resource = '2013.com.canonical.certification::meminfo'
+        if resource in data['resource_map']:
             result = ['{} GiB'.format(format(int(i['total']) / 1073741824,
-                      '.1f')) for i in data["resource_map"]['2013.com.canonical.certification::meminfo']]
+                      '.1f')) for i in data["resource_map"][resource]]
             if result:
                 hw_info['memory'] = result.pop()
         bluetooth = self._get_bluetooth_product_or_path(data)
@@ -341,7 +345,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         self.worksheet1.write(16, 2, hw_info['wireless'], self.format05)
         self.worksheet1.write(17, 1, _('Bluetooth'), self.format04)
         self.worksheet1.write(17, 2, hw_info['bluetooth'], self.format06)
-        if "2013.com.canonical.certification::package" in data["resource_map"]:
+        resource = '2013.com.canonical.certification::package'
+        if resource in data["resource_map"]:
             self.worksheet1.write(
                 19, 1, _('Packages Installed'), self.format03)
             self.worksheet1.write_row(
@@ -350,7 +355,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 self.worksheet1.set_row(
                     i, None, None, {'level': 1, 'hidden': True}
                 )
-            for i, pkg in enumerate(data["resource_map"]["2013.com.canonical.certification::package"]):
+            for i, pkg in enumerate(data["resource_map"][resource]):
                 self.worksheet1.write_row(
                     22 + i, 1,
                     [pkg['name'], pkg['version']],
@@ -360,7 +365,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                     22 + i, None, None, {'level': 1, 'hidden': True}
                 )
             self.worksheet1.set_row(
-                22+len(data["resource_map"]["2013.com.canonical.certification::package"]),
+                22+len(data["resource_map"][resource]),
                 None, None, {'collapsed': True}
             )
 

@@ -725,7 +725,8 @@ class MemoryJobResultResumeTests(JobResultResumeMixIn, TestCaseWithParameters):
     }
 
     def test_build_JobResult_restores_MemoryJobResult_representations(self):
-        obj = self.parameters.resume_cls._build_JobResult(self.good_repr, 0, None)
+        obj = self.parameters.resume_cls._build_JobResult(
+            self.good_repr, 0, None)
         self.assertIsInstance(obj, MemoryJobResult)
 
     def test_build_JobResult_checks_for_missing_io_log(self):
@@ -781,7 +782,8 @@ class MemoryJobResultResumeTests(JobResultResumeMixIn, TestCaseWithParameters):
         ]))
 
 
-class DiskJobResultResumeTestsCommon(JobResultResumeMixIn, TestCaseWithParameters):
+class DiskJobResultResumeTestsCommon(JobResultResumeMixIn,
+                                     TestCaseWithParameters):
 
     """ Tests for common behavior of DiskJobResult resume for all formats.  """
 
@@ -1845,7 +1847,8 @@ class RegressionTests(TestCase):
                 'results': {},  # nothing ran yet
             },
         }
-        helper = SessionResumeHelper4([job_a, job_a_dep, job_unrelated], None, None)
+        helper = SessionResumeHelper4([job_a, job_a_dep, job_unrelated],
+                                      None, None)
         # Mock away meta-data restore code as we're not testing that
         with mock.patch.object(helper, '_restore_SessionState_metadata'):
             session = helper.resume_json(session_repr)

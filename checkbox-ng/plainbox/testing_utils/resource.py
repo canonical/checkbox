@@ -60,9 +60,9 @@ class ResourceCache:
         Initialize a new ResourceCache object
         """
         if weak:
-            # XXX: it would be nice to have something like true cache semantics of
-            # java's SoftReference system. We do the second best thing which is to
-            # use weak references on the values held in the cache.
+            # XXX: it would be nice to have something like true cache semantics
+            # of java's SoftReference system. We do the second best thing
+            # which is to use weak references on the values held in the cache.
             self._cache = weakref.WeakValueDictionary()
         else:
             self._cache = {}

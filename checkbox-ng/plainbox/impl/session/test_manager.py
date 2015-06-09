@@ -222,7 +222,8 @@ class SessionManagerTests(SignalTestCase):
         mocks['WellKnownDirsHelper'].assert_called_with(storage)
         helper = mocks['WellKnownDirsHelper']()
         helper.populate.assert_called_with()
-        # Ensure that the device context was created with the right state object
+        # Ensure that the device context was created with the right state
+        # object
         mocks['SessionDeviceContext'].assert_called_with(self.state)
         # Ensure that the resulting manager has correct data inside
         self.assertEqual(

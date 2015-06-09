@@ -573,7 +573,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                     # behaved. This will be fixed with detailed per-outcome
                     # counters later.
                     self.total_skip += 1
-                certification_status = ''
+                cert_status = ''
                 if 'certification_status' in result_map[job]:
                     cert_status = result_map[job]['certification_status']
                     if cert_status == 'unspecified':

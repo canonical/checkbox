@@ -29,6 +29,7 @@ from glob import glob
 def path_split(path):
     return path.split(os.path.sep)
 
+
 def path_common(l1, l2, common=[]):
     if len(l1) < 1:
         return (common, l1, l2)
@@ -41,6 +42,7 @@ def path_common(l1, l2, common=[]):
 
     return path_common(l1[1:], l2[1:], common + [l1[0]])
 
+
 def path_relative(p1, p2):
     (common, l1, l2) = path_common(path_split(p1), path_split(p2))
     p = []
@@ -48,11 +50,13 @@ def path_relative(p1, p2):
         p = ["..%s" % os.path.sep * len(l1)]
 
     p = p + l2
-    return os.path.join( *p )
+    return os.path.join(*p)
+
 
 def path_expand(path):
     path = os.path.expanduser(path)
     return glob(path)
+
 
 def path_expand_recursive(path):
     paths = []

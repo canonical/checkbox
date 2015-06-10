@@ -102,7 +102,7 @@ class LauncherCommand(CheckboxCommand, CheckBoxCommandMixIn, SubmitCommand):
             "launcher", metavar=_("LAUNCHER"),
             help=_("launcher definition file to use"))
         parser.set_defaults(command=self)
-        parser.conflict_handler='resolve'
+        parser.conflict_handler = 'resolve'
         # Call enhance_parser from CheckBoxCommandMixIn
         self.enhance_parser(parser)
         group = parser.add_argument_group(title=_("user interface options"))

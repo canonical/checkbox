@@ -163,7 +163,8 @@ class PortTests(ParsingTestCase):
     def test_port(self):
         port = self.assertParses(
             pactl.Port.Syntax, (
-                'hdmi-output-1: HDMI / DisplayPort 2 (priority: 5800, available)')
+                'hdmi-output-1: HDMI / DisplayPort 2 (priority: '
+                '5800, available)')
         )['port']
         self.assertEqual(port.name, 'hdmi-output-1')
         self.assertEqual(port.label, 'HDMI / DisplayPort 2')
@@ -173,7 +174,8 @@ class PortTests(ParsingTestCase):
     def test_port_not_available(self):
         port = self.assertParses(
             pactl.Port.Syntax, (
-                'analog-output-headphones: Słuchawki (priority: 9000, not available)')
+                'analog-output-headphones: Słuchawki (priority: 9000, '
+                'not available)')
         )['port']
         self.assertEqual(port.name, 'analog-output-headphones')
         self.assertEqual(port.label, 'Słuchawki')
@@ -193,7 +195,8 @@ class PortTests(ParsingTestCase):
     def test_chinese_label(self):
         port = self.assertParses(
             pactl.Port.Syntax, (
-                'analog-output;output-amplifier-on: 模拟输出 / 均衡器 (priority: 9910)')
+                'analog-output;output-amplifier-on: 模拟输出 / 均衡器 '
+                '(priority: 9910)')
         )['port']
         self.assertEqual(port.name, 'analog-output;output-amplifier-on')
         self.assertEqual(port.label, '模拟输出 / 均衡器')
@@ -205,27 +208,53 @@ class ProfileTests(ParsingTestCase):
 
     def test_smoke(self):
         profiles = (
-            'input:analog-stereo: Wejście Analogowe stereo (sinks: 0, sources: 1, priority. 60)',
+            ('input:analog-stereo: Wejście Analogowe stereo (sinks: 0, '
+             'sources: 1, priority. 60)'),
             'off: Wyłącz (sinks: 0, sources: 0, priority. 0)',
-            'output:analog-stereo+input:analog-stereo: Analogowy dupleks stereo (sinks: 1, sources: 1, priority. 6060)',
-            'output:analog-stereo: Wyjście Analogowe stereo (sinks: 1, sources: 0, priority. 6000)',
-            'output:analog-surround-40+input:analog-stereo: Wyjście Analogowe surround 4.0 + Wejście Analogowe stereo (sinks: 1, sources: 1, priority. 760)',
-            'output:analog-surround-40: Wyjście Analogowe surround 4.0 (sinks: 1, sources: 0, priority. 700)',
-            'output:analog-surround-41+input:analog-stereo: Wyjście Analogowe surround 4.1 + Wejście Analogowe stereo (sinks: 1, sources: 1, priority. 860)',
-            'output:analog-surround-41: Wyjście Analogowe surround 4.1 (sinks: 1, sources: 0, priority. 800)',
-            'output:analog-surround-50+input:analog-stereo: Wyjście Analogowe surround 5.0 + Wejście Analogowe stereo (sinks: 1, sources: 1, priority. 760)',
-            'output:analog-surround-50: Wyjście Analogowe surround 5.0 (sinks: 1, sources: 0, priority. 700)',
-            'output:analog-surround-51+input:analog-stereo: Wyjście Analogowe surround 5.1 + Wejście Analogowe stereo (sinks: 1, sources: 1, priority. 860)',
-            'output:analog-surround-51: Wyjście Analogowe surround 5.1 (sinks: 1, sources: 0, priority. 800)',
-            'output:analog-surround-71+input:analog-stereo: Wyjście Analog Surround 7.1 + Wejście Analogowe stereo (sinks: 1, sources: 1, priority. 760)',
-            'output:analog-surround-71: Wyjście Analog Surround 7.1 (sinks: 1, sources: 0, priority. 700)',
-            'output:hdmi-stereo-extra1: Wyjście Digital Stereo (HDMI) (sinks: 1, sources: 0, priority. 5200)',
-            'output:hdmi-stereo-extra2: Wyjście Digital Stereo (HDMI) (sinks: 1, sources: 0, priority. 5200)',
-            'output:hdmi-stereo: Wyjście Digital Stereo (HDMI) (sinks: 1, sources: 0, priority. 5400)',
-            'output:hdmi-surround-extra2: Wyjście Digital Surround 5.1 (HDMI) (sinks: 1, sources: 0, priority. 100)',
-            'output:hdmi-surround: Wyjście Digital Surround 5.1 (HDMI) (sinks: 1, sources: 0, priority. 300)',
-            'output:iec958-stereo+input:analog-stereo: Wyjście Cyfrowe stereo (IEC958) + Wejście Analogowe stereo (sinks: 1, sources: 1, priority. 5560)',
-            'output:iec958-stereo: Wyjście Cyfrowe stereo (IEC958) (sinks: 1, sources: 0, priority. 5500)',
+            ('output:analog-stereo+input:analog-stereo: Analogowy dupleks '
+             'stereo (sinks: 1, sources: 1, priority. 6060)'),
+            ('output:analog-stereo: Wyjście Analogowe stereo (sinks: 1, '
+             'sources: 0, priority. 6000)'),
+            ('output:analog-surround-40+input:analog-stereo: Wyjście '
+             'Analogowe surround 4.0 + Wejście Analogowe stereo (sinks: 1, '
+             'sources: 1, priority. 760)'),
+            ('output:analog-surround-40: Wyjście Analogowe surround 4.0 '
+             '(sinks: 1, sources: 0, priority. 700)'),
+            ('output:analog-surround-41+input:analog-stereo: Wyjście '
+             'Analogowe surround 4.1 + Wejście Analogowe stereo (sinks: '
+             '1, sources: 1, priority. 860)'),
+            ('output:analog-surround-41: Wyjście Analogowe surround 4.1 '
+             '(sinks: 1, sources: 0, priority. 800)'),
+            ('output:analog-surround-50+input:analog-stereo: Wyjście '
+             'Analogowe surround 5.0 + Wejście Analogowe stereo (sinks: 1, '
+             'sources: 1, priority. 760)'),
+            ('output:analog-surround-50: Wyjście Analogowe surround 5.0 '
+             '(sinks: 1, sources: 0, priority. 700)'),
+            ('output:analog-surround-51+input:analog-stereo: Wyjście '
+             'Analogowe surround 5.1 + Wejście Analogowe stereo (sinks: 1, '
+             'sources: 1, priority. 860)'),
+            ('output:analog-surround-51: Wyjście Analogowe surround 5.1 '
+             '(sinks: 1, sources: 0, priority. 800)'),
+            ('output:analog-surround-71+input:analog-stereo: Wyjście Analog '
+             'Surround 7.1 + Wejście Analogowe stereo (sinks: 1, sources: '
+             '1, priority. 760)'),
+            ('output:analog-surround-71: Wyjście Analog Surround 7.1 (sinks: '
+             '1, sources: 0, priority. 700)'),
+            ('output:hdmi-stereo-extra1: Wyjście Digital Stereo (HDMI) '
+             '(sinks: 1, sources: 0, priority. 5200)'),
+            ('output:hdmi-stereo-extra2: Wyjście Digital Stereo (HDMI) '
+             '(sinks: 1, sources: 0, priority. 5200)'),
+            ('output:hdmi-stereo: Wyjście Digital Stereo (HDMI) (sinks: '
+             '1, sources: 0, priority. 5400)'),
+            ('output:hdmi-surround-extra2: Wyjście Digital Surround 5.1 '
+             '(HDMI) (sinks: 1, sources: 0, priority. 100)'),
+            ('output:hdmi-surround: Wyjście Digital Surround 5.1 (HDMI) '
+             '(sinks: 1, sources: 0, priority. 300)'),
+            ('output:iec958-stereo+input:analog-stereo: Wyjście Cyfrowe '
+             'stereo (IEC958) + Wejście Analogowe stereo (sinks: 1, '
+             'sources: 1, priority. 5560)'),
+            ('output:iec958-stereo: Wyjście Cyfrowe stereo (IEC958) '
+             '(sinks: 1, sources: 0, priority. 5500)'),
         )
         for profile_text in profiles:
             profile = self.assertParses(
@@ -241,7 +270,8 @@ class ProfileTests(ParsingTestCase):
         # '(' before 'sinks'
         profile = self.assertParses(
             pactl.Profile.Syntax,
-            'output:hdmi-stereo-extra1: Wyjście Digital Stereo (HDMI) (sinks: 1, sources: 0, priority. 5200)'
+            'output:hdmi-stereo-extra1: Wyjście Digital Stereo (HDMI) '
+            '(sinks: 1, sources: 0, priority. 5200)'
         )['profile']
         self.assertEqual(profile.name, "output:hdmi-stereo-extra1")
         self.assertEqual(profile.label, "Wyjście Digital Stereo (HDMI)")
@@ -254,7 +284,8 @@ class ProfileTests(ParsingTestCase):
         # '(' before 'sinks'
         profile = self.assertParses(
             pactl.Profile.Syntax,
-            'output:iec958-stereo: Wyjście Cyfrowe stereo (IEC958) (sinks: 1, sources: 0, priority. 5500)'
+            'output:iec958-stereo: Wyjście Cyfrowe stereo (IEC958) '
+            '(sinks: 1, sources: 0, priority. 5500)'
         )['profile']
         self.assertEqual(profile.name, "output:iec958-stereo")
         self.assertEqual(profile.label, "Wyjście Cyfrowe stereo (IEC958)")
@@ -267,7 +298,8 @@ class ProfileTests(ParsingTestCase):
         # This checks that : can be parsed correctly after priority
         profile = self.assertParses(
             pactl.Profile.Syntax,
-            'output:hdmi-stereo-extra1: Wyjście Digital Stereo (HDMI) (sinks: 1, sources: 0, priority: 5800)'
+            'output:hdmi-stereo-extra1: Wyjście Digital Stereo (HDMI) '
+            '(sinks: 1, sources: 0, priority: 5800)'
         )['profile']
         self.assertEqual(profile.priority, 5800)
 
@@ -329,9 +361,9 @@ class AttributeTests(ParsingTestCase):
         # LP: 1350168
         attr = self.assertParses(
             pactl.GenericSimpleAttribute.Syntax, (
-        	'\tVolume: 0:   0% 1:   0%\n'
-	        '\t        0: -inf dB 1: -inf dB\n'
-	        '\t        balance 0.00\n')
+                '\tVolume: 0:   0% 1:   0%\n'
+                '\t        0: -inf dB 1: -inf dB\n'
+                '\t        balance 0.00\n')
         )['attribute']
         self.assertEqual(attr.name, 'Volume')
         self.assertEqual(attr.value, (
@@ -365,7 +397,8 @@ class AttributeTests(ParsingTestCase):
         attr = self.assertParses(
             pactl.GenericListAttribute.Syntax, (
                 'Ports:\n'
-                '\thdmi-output-1: HDMI / DisplayPort 2 (priority: 5800, available)\n')
+                '\thdmi-output-1: HDMI / DisplayPort 2 (priority: 5800, '
+                'available)\n')
         )['attribute']
         self.assertEqual(attr.name, 'Ports')
         self.assertEqual(attr.value[0].name, 'hdmi-output-1')
@@ -378,7 +411,8 @@ class AttributeTests(ParsingTestCase):
             pactl.GenericListAttribute.Syntax, (
                 'Ports:\n'
                 '\tanalog-output: Wyjście analogowe (priority: 9900)\n'
-                '\tanalog-output-headphones: Słuchawki (priority: 9000, not available)\n')
+                '\tanalog-output-headphones: Słuchawki (priority: 9000, '
+                'not available)\n')
         )['attribute']
         self.assertEqual(attr.name, 'Ports')
         self.assertEqual(attr.value[0].name, 'analog-output')
@@ -394,14 +428,19 @@ class AttributeTests(ParsingTestCase):
         attr = self.assertParses(
             pactl.GenericListAttribute.Syntax, (
                 'Ports:\n'
-                '\tanalog-output;output-amplifier-on: 模拟输出 / 均衡器 (priority: 9910)\n'
-                '\tanalog-output;output-amplifier-off: 模拟输出 / 无均衡器 (priority: 9900)\n'
-                '\tanalog-output-mono;output-amplifier-on: 模拟单声道输出 / 均衡器 (priority: 5010)\n'
-                '\tanalog-output-mono;output-amplifier-off: 模拟单声道输出 / 无均衡器 (priority: 5000)\n')
+                '\tanalog-output;output-amplifier-on: 模拟输出 / 均衡器 '
+                '(priority: 9910)\n'
+                '\tanalog-output;output-amplifier-off: 模拟输出 / 无均衡器 '
+                '(priority: 9900)\n'
+                '\tanalog-output-mono;output-amplifier-on: 模拟单声道输出 / 均衡器 '
+                '(priority: 5010)\n'
+                '\tanalog-output-mono;output-amplifier-off: 模拟单声道输出 / 无均衡器 '
+                '(priority: 5000)\n')
         )['attribute']
         self.assertEqual(attr.name, 'Ports')
         self.assertEqual(len(attr.value), 4)
-        self.assertEqual(attr.value[1].name, 'analog-output;output-amplifier-off')
+        self.assertEqual(
+            attr.value[1].name, 'analog-output;output-amplifier-off')
         self.assertEqual(attr.value[1].label, '模拟输出 / 无均衡器')
 
     def test_with_profile_association(self):
@@ -409,21 +448,25 @@ class AttributeTests(ParsingTestCase):
             pactl.GenericListAttribute.Syntax, (
                 'Ports:\n'
                 '\tanalog-output-speaker: Głośniki (priority 10000)\n'
-                '\t\tPart of profile(s): output:analog-stereo, output:analog-stereo+input:analog-stereo\n'
+                '\t\tPart of profile(s): output:analog-stereo, '
+                'output:analog-stereo+input:analog-stereo\n'
             )
         )['attribute']
         self.assertEqual(attr.name, 'Ports')
         self.assertEqual(attr.value[0].name, 'analog-output-speaker')
         self.assertEqual(attr.value[0].label, 'Głośniki')
         self.assertEqual(attr.value[0].priority, 10000)
-        self.assertEqual(attr.value[0].profile_list, [
-            'output:analog-stereo', 'output:analog-stereo+input:analog-stereo'])
+        self.assertEqual(
+            attr.value[0].profile_list,
+            ['output:analog-stereo',
+             'output:analog-stereo+input:analog-stereo'])
 
     def test_with_ports_properties(self):
         attr = self.assertParses(
             pactl.GenericListAttribute.Syntax, (
                 'Ports:\n'
-                '\tanalog-input-microphone-internal: Internal Microphone (priority: 98903, latency offset: 982 usec)\n'
+                '\tanalog-input-microphone-internal: Internal Microphone '
+                '(priority: 98903, latency offset: 982 usec)\n'
                 '\t\tProperties:\n'
                 '\t\t\tdevice.icon_name = "audio-input-microphone"\n'
                 '\t\t\tdevice.display_name = "Microphone"\n'
@@ -433,8 +476,10 @@ class AttributeTests(ParsingTestCase):
         self.assertEqual(attr.name, 'Ports')
         self.assertEqual(attr.value[0].latency_offset, 982)
         self.assertEqual(attr.value[0].properties[0].name, 'device.icon_name')
-        self.assertEqual(attr.value[0].properties[0].value, 'audio-input-microphone')
-        self.assertEqual(attr.value[0].properties[1].name, 'device.display_name')
+        self.assertEqual(
+            attr.value[0].properties[0].value, 'audio-input-microphone')
+        self.assertEqual(
+            attr.value[0].properties[1].name, 'device.display_name')
         self.assertEqual(attr.value[0].properties[1].value, 'Microphone')
 
     def test_SPDIF_in_port_label(self):
@@ -443,7 +488,8 @@ class AttributeTests(ParsingTestCase):
         attr = self.assertParses(
             pactl.GenericListAttribute.Syntax, (
                 'Ports:\n'
-                '\tiec958-stereo-input: Digital Input (S/PDIF) (priority: 0, latency offset: 0 usec)\n'
+                '\tiec958-stereo-input: Digital Input (S/PDIF) (priority: 0, '
+                'latency offset: 0 usec)\n'
                 '\t\tPart of profile(s): input:iec958-stereo\n'
             )
         )['attribute']
@@ -458,13 +504,22 @@ class AttributeTests(ParsingTestCase):
         attr = self.assertParses(
             pactl.GenericListAttribute.Syntax, (
                 'Profiles:\n'
-                '\toutput:analog-stereo: Wyjście Analogowe stereo (sinks: 1, sources: 0, priority. 6000)\n'
-                '\toutput:analog-stereo+input:analog-stereo: Analogowy dupleks stereo (sinks: 1, sources: 1, priority. 6060)\n'
-                '\toutput:hdmi-stereo: Wyjście Digital Stereo (HDMI) (sinks: 1, sources: 0, priority. 5400)\n'
-                '\toutput:hdmi-stereo+input:analog-stereo: Wyjście Digital Stereo (HDMI) + Wejście Analogowe stereo (sinks: 1, sources: 1, priority. 5460)\n'
-                '\toutput:hdmi-surround: Wyjście Digital Surround 5.1 (HDMI) (sinks: 1, sources: 0, priority. 300)\n'
-                '\toutput:hdmi-surround+input:analog-stereo: Wyjście Digital Surround 5.1 (HDMI) + Wejście Analogowe stereo (sinks: 1, sources: 1, priority. 360)\n'
-                '\tinput:analog-stereo: Wejście Analogowe stereo (sinks: 0, sources: 1, priority. 60)\n'
+                '\toutput:analog-stereo: Wyjście Analogowe stereo (sinks: 1, '
+                'sources: 0, priority. 6000)\n'
+                '\toutput:analog-stereo+input:analog-stereo: Analogowy '
+                'dupleks stereo (sinks: 1, sources: 1, priority. 6060)\n'
+                '\toutput:hdmi-stereo: Wyjście Digital Stereo (HDMI) (sinks: '
+                '1, sources: 0, priority. 5400)\n'
+                '\toutput:hdmi-stereo+input:analog-stereo: Wyjście Digital '
+                'Stereo (HDMI) + Wejście Analogowe stereo (sinks: 1, sources: '
+                '1, priority. 5460)\n'
+                '\toutput:hdmi-surround: Wyjście Digital Surround 5.1 (HDMI) '
+                '(sinks: 1, sources: 0, priority. 300)\n'
+                '\toutput:hdmi-surround+input:analog-stereo: Wyjście Digital '
+                'Surround 5.1 (HDMI) + Wejście Analogowe stereo (sinks: 1, '
+                'sources: 1, priority. 360)\n'
+                '\tinput:analog-stereo: Wejście Analogowe stereo (sinks: 0, '
+                'sources: 1, priority. 60)\n'
                 '\toff: Wyłącz (sinks: 0, sources: 0, priority. 0)\n'
             )
         )['attribute']
@@ -472,7 +527,9 @@ class AttributeTests(ParsingTestCase):
         self.assertEqual(attr.value[0].name, 'output:analog-stereo')
         self.assertEqual(attr.value[0].label, 'Wyjście Analogowe stereo')
         self.assertEqual(attr.value[0].priority, 6000)
-        self.assertEqual(attr.value[-3].label, 'Wyjście Digital Surround 5.1 (HDMI) + Wejście Analogowe stereo')
+        self.assertEqual(attr.value[-3].label,
+                         ('Wyjście Digital Surround 5.1 (HDMI) + Wejście '
+                          'Analogowe stereo'))
         self.assertEqual(attr.value[-3].priority, 360)
         self.assertEqual(attr.value[-1].name, 'off')
 
@@ -532,7 +589,8 @@ class DocumentTests(ParsingTestCase, PactlDataMixIn):
         )[0]
         self.assertEqual(len(document.record_list), 24)
         self.assertEqual(document.record_list[0].name, "Module #0")
-        self.assertEqual(document.record_list[0].attribute_map['Argument'].value, "")
+        self.assertEqual(
+            document.record_list[0].attribute_map['Argument'].value, "")
         self.assertEqual(document.record_list[23].name, "Module #23")
 
     def test_pactl_list_sinks(self):

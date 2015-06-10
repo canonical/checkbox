@@ -75,8 +75,8 @@ class CertificationTransport(TransportBase):
         self._submit_to_hexr = False
         try:
             if submit_to_hexr and (submit_to_hexr.lower() in
-                                  ('yes', 'true') or
-                                  int(submit_to_hexr) == 1):
+                                   ('yes', 'true') or
+                                   int(submit_to_hexr) == 1):
                 self._submit_to_hexr = True
         except ValueError:
             # Just leave it at False

@@ -42,6 +42,7 @@ def load_tests(loader, tests, ignore):
                              optionflags=doctest.REPORT_NDIFF))
     return tests
 
+
 class TestTestPlan(TestCase):
 
     def setUp(self):

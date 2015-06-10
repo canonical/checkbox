@@ -31,7 +31,6 @@ import io
 
 from pkg_resources import resource_string
 
-from plainbox.abc import IJobResult
 from plainbox.impl.exporter.xml import CONTROL_CODE_RE_STR
 from plainbox.impl.exporter.xml import XMLSessionStateExporter, XMLValidator
 from plainbox.testing_utils import resource_json

@@ -22,8 +22,6 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from collections import defaultdict
-from io import open
 from unittest import TestCase
 import os
 
@@ -347,7 +345,9 @@ class TestSubmissionParser(TestCase):
 
         package = result["package_versions"][1]
         self.assertEqual(package["name"], "a_package_with_modaliases")
-        self.assertEqual(package["modalias"], "nvidia_340(pci:v000010DEd000005E7sv*sd00000595bc03sc*i*)")
+
+        modalias = "nvidia_340(pci:v000010DEd000005E7sv*sd00000595bc03sc*i*)"
+        self.assertEqual(package["modalias"], modalias)
         self.assertEqual(package["version"], "1.0-1-ubuntu1~bogus")
 
     def test_dkms_info(self):
@@ -487,7 +487,8 @@ class TestSubmissionParser(TestCase):
             {'base': 'somerville-trusty-amd64-osp1-iso-20150512-0.iso',
              'bootstrap': '1.36~somerville3',
              'driver': ['libcuda1-346_346.59-0ubuntu1somerville1_amd64.deb',
-                        'nvidia-libopencl1-346_346.59-0ubuntu1somerville1_amd64.deb',
+                        ('nvidia-libopencl1-346_346.59-0ubuntu1somerville1'
+                         '_amd64.deb'),
                         'bbswitch-dkms_0.7-2ubuntu1_amd64.deb',
                         'config-prime-select-intel-all_0.6_all.deb',
                         'nvidia-prime_0.6.2_amd64.deb',
@@ -495,7 +496,8 @@ class TestSubmissionParser(TestCase):
                         'nvidia-346-uvm_346.59-0ubuntu1somerville1_amd64.deb',
                         'nvidia-346_346.59-0ubuntu1somerville1_amd64.deb',
                         'nvidia-settings_346.47-0somerville1_amd64.deb',
-                        'nvidia-opencl-icd-346_346.59-0ubuntu1somerville1_amd64.deb',
+                        ('nvidia-opencl-icd-346_346.59-0ubuntu1somerville1'
+                         '_amd64.deb'),
                         'libvdpau1_1.1-0somerville1_amd64.deb'],
              'generator': '1.24.3~somerville11',
              'iso': 'A00_dell-bto-trusty-miramar-15-17-X01-iso-20150521-0.iso',

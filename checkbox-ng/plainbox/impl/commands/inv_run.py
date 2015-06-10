@@ -760,7 +760,8 @@ class RunInvocation(CheckBoxInvocationMixIn):
             self.metadata.running_job_name = job.id
             self.manager.checkpoint()
             ui.started_running(job, job_state)
-            result_builder = self._run_single_job_with_ui_loop(job, job_state, ui)
+            result_builder = self._run_single_job_with_ui_loop(
+                job, job_state, ui)
             assert result_builder is not None
             result_builder.execution_duration = time.time() - job_start_time
             job_result = result_builder.get_result()
@@ -771,7 +772,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
             result_builder = JobResultBuilder(
                 outcome=IJobResult.OUTCOME_NOT_SUPPORTED,
                 comments=job_state.get_readiness_description(),
-                execution_duration = time.time() - job_start_time)
+                execution_duration=time.time() - job_start_time)
             job_result = result_builder.get_result()
             ui.job_cannot_start(job, job_state, job_result)
         self.state.update_job_result(job, job_result)

@@ -164,7 +164,8 @@ def method(dbus_interface, in_signature=None, out_signature=None,
         # If the function is decorated and uses @functools.wrapper then use the
         # __wrapped__ attribute to look at the original function signature.
         #
-        # This allows us to see past the generic *args, **kwargs seen on most decorators.
+        # This allows us to see past the generic *args, **kwargs seen on most
+        # decorators.
         if hasattr(func, '__wrapped__'):
             args = inspect.getfullargspec(func.__wrapped__)[0]
         else:
@@ -172,9 +173,13 @@ def method(dbus_interface, in_signature=None, out_signature=None,
         args.pop(0)
         if async_callbacks:
             if type(async_callbacks) != tuple:
-                raise TypeError('async_callbacks must be a tuple of (keyword for return callback, keyword for error callback)')
+                raise TypeError('async_callbacks must be a tuple of (keyword '
+                                'for return callback, keyword for error '
+                                'callback)')
             if len(async_callbacks) != 2:
-                raise ValueError('async_callbacks must be a tuple of (keyword for return callback, keyword for error callback)')
+                raise ValueError('async_callbacks must be a tuple of (keyword '
+                                 'for return callback, keyword for error '
+                                 'callback)')
             args.remove(async_callbacks[0])
             args.remove(async_callbacks[1])
 
@@ -195,9 +200,11 @@ def method(dbus_interface, in_signature=None, out_signature=None,
             in_sig = tuple(Signature(in_signature))
 
             if len(in_sig) > len(args):
-                raise ValueError('input signature is longer than the number of arguments taken')
+                raise ValueError('input signature is longer than the number '
+                                 'of arguments taken')
             elif len(in_sig) < len(args):
-                raise ValueError('input signature is shorter than the number of arguments taken')
+                raise ValueError('input signature is shorter than the number '
+                                 'of arguments taken')
 
         func._dbus_is_method = True
         func._dbus_async_callbacks = async_callbacks
@@ -309,9 +316,10 @@ def signal(dbus_interface, signature=None, path_keyword=None,
                                     'multiple object paths')
                 abs_path = keywords.pop(path_keyword, None)
                 if (abs_path != self.__dbus_object_path__ and
-                    not self.__dbus_object_path__.startswith(abs_path + '/')):
-                    raise ValueError('Path %r is not below %r', abs_path,
-                                     self.__dbus_object_path__)
+                        not self.__dbus_object_path__.startswith(
+                        abs_path + '/')):
+                        raise ValueError('Path %r is not below %r', abs_path,
+                                         self.__dbus_object_path__)
 
             rel_path = None
             if rel_path_keyword is not None:
@@ -330,9 +338,8 @@ def signal(dbus_interface, signature=None, path_keyword=None,
                 else:
                     object_path = abs_path
 
-                message = SignalMessage(object_path,
-                                                       dbus_interface,
-                                                       member_name)
+                message = SignalMessage(object_path, dbus_interface,
+                                        member_name)
                 message.append(signature=signature, *args)
 
                 location[0].send_message(message)
@@ -355,9 +362,11 @@ def signal(dbus_interface, signature=None, path_keyword=None,
             sig = tuple(Signature(signature))
 
             if len(sig) > len(args):
-                raise ValueError('signal signature is longer than the number of arguments provided')
+                raise ValueError('signal signature is longer than the number '
+                                 'of arguments provided')
             elif len(sig) < len(args):
-                raise ValueError('signal signature is shorter than the number of arguments provided')
+                raise ValueError('signal signature is shorter than the number '
+                                 'of arguments provided')
 
         emit_signal.__name__ = func.__name__
         emit_signal.__doc__ = func.__doc__

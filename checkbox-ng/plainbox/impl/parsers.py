@@ -157,7 +157,7 @@ class ParserPlugIn(IParser, PlugIn):
         elif hasattr(obj, "__dict__"):
             return obj.__dict__
         elif hasattr(obj, "__slots__"):
-            return { slot: getattr(obj, slot) for slot in obj.__slots__}
+            return {slot: getattr(obj, slot) for slot in obj.__slots__}
         else:
             raise NotImplementedError(
                 "unable to json-ify {!r}".format(obj.__class__))

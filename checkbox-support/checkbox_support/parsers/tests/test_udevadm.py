@@ -73,12 +73,14 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
     def parse(self, name):
         # Uncomment only for debugging purpose
-        #attributes = ("path", "driver", "bus", "product_id", "vendor_id",
-        #    "product", "vendor", "interface",)
-        #
-        #devices = parse_udevadm_output(self.get_text(name), 64)["device_list"]
-        #for i,j in enumerate(devices):
-            #print(i, j.category, [getattr(j, a) for a in attributes])
+        """
+        attributes = ("path", "driver", "bus", "product_id", "vendor_id",
+            "product", "vendor", "interface",)
+
+        devices = parse_udevadm_output(self.get_text(name), 64)["device_list"]
+        for i,j in enumerate(devices):
+            print(i, j.category, [getattr(j, a) for a in attributes])
+        """
         return parse_udevadm_output(self.get_text(name), 64)["device_list"]
 
     def count(self, devices, category):
@@ -641,7 +643,7 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "NETWORK"), 1)
 
     def test_CALXEDA_HIGHBANK(self):
-        #This is a very bare-bones SoC meant for server use
+        # This is a very bare-bones SoC meant for server use
         devices = self.parse("CALXEDA_HIGHBANK")
         self.assertEqual(len(devices), 3)
         self.assertEqual(self.count(devices, "VIDEO"), 0)

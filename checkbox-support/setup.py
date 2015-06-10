@@ -47,7 +47,7 @@ setup(
     license="GPLv3",
     description="CheckBox support library",
     long_description=long_description,
-    package_data = {"checkbox_support": ["parsers/cputable"]},
+    package_data={"checkbox_support": ["parsers/cputable"]},
     install_requires=[
         'lxml >= 2.3',
         'pyparsing >= 2.0.0',
@@ -56,16 +56,24 @@ setup(
     entry_points={
         'plainbox.parsers': [
             "pactl-list=checkbox_support.parsers.pactl:parse_pactl_output",
-            "submission=checkbox_support.parsers.submission:parse_submission_text",
+            ("submission=checkbox_support.parsers.submission:parse_submission"
+             "_text"),
             "udevadm=checkbox_support.parsers.udevadm:parse_udevadm_output",
-            "modprobe=checkbox_support.parsers.modprobe:parse_modprobe_d_output",
-            "pci-subsys-id=checkbox_support.parsers.pci_config:parse_pci_subsys_id",
+            ("modprobe=checkbox_support.parsers.modprobe:parse_modprobe_d"
+             "_output"),
+            ("pci-subsys-id=checkbox_support.parsers.pci_config:parse_pci"
+             "_subsys_id"),
             "dkms-info=checkbox_support.parsers.dkms_info:parse_dkms_info",
-            "dmidecode=checkbox_support.parsers.dmidecode:parse_dmidecode_output",
-            "modinfo=checkbox_support.parsers.modinfo:parse_modinfo_attachment_output",
-            "buildstamp=checkbox_support.parsers.image_info:parse_buildstamp_attachment_output",
-            "recovery-info=checkbox_support.parsers.image_info:parse_recovery_info_attachment_output",
-            "bto=checkbox_support.parsers.image_info:parse_bto_attachment_output",
+            ("dmidecode=checkbox_support.parsers.dmidecode:parse_dmidecode"
+             "_output"),
+            ("modinfo=checkbox_support.parsers.modinfo:parse_modinfo"
+             "_attachment_output"),
+            ("buildstamp=checkbox_support.parsers.image_info:parse_buildstamp"
+             "_attachment_output"),
+            ("recovery-info=checkbox_support.parsers.image_info:parse_recovery"
+             "_info_attachment_output"),
+            ("bto=checkbox_support.parsers.image_info:parse_bto_attachment"
+             "_output"),
         ],
     },
 )

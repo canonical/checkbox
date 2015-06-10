@@ -94,13 +94,14 @@ class SubmitCommand(PlainBoxCommand):
         return SubmitInvocation(ns).run()
 
     def register_parser(self, subparsers):
-        parser = subparsers.add_parser("submit", help=_("submit test results to the Canonical certification website"))
+        parser = subparsers.add_parser("submit", help=_(
+            "submit test results to the Canonical certification website"))
         self.register_arguments(parser)
 
     def register_arguments(self, parser):
         parser.set_defaults(command=self)
-        parser.add_argument('submission',
-            help=_("The path to the results xml file"))
+        parser.add_argument(
+            'submission', help=_("The path to the results xml file"))
         self.register_optional_arguments(parser, required=True)
 
     def register_optional_arguments(self, parser, required=False):
@@ -127,10 +128,10 @@ class SubmitCommand(PlainBoxCommand):
         # After Interpret the setting,
         # self.config.submit_to_c3 should has value or be Unset.
         try:
-            if self.config.submit_to_c3 and \
-               (self.config.submit_to_c3.lower() in ('yes', 'true') or
-               int(self.config.submit_to_c3) == 1):
-                # self.config.c3_url has a default value written in config.py 
+            if (self.config.submit_to_c3 and
+                (self.config.submit_to_c3.lower() in ('yes', 'true') or
+                    int(self.config.submit_to_c3) == 1)):
+                # self.config.c3_url has a default value written in config.py
                 parser.set_defaults(url=self.config.c3_url)
             else:
                 # if submit_to_c3 is castable to int but not 1

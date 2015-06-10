@@ -242,7 +242,8 @@ class JobStateTests(TestCase):
 
     def test_setting_effective_cert_certification_status(self):
         self.job_state.effective_certification_status = 'value'
-        self.assertEqual(self.job_state.effective_certification_status, 'value')
+        self.assertEqual(self.job_state.effective_certification_status,
+                         'value')
 
     def test_setting_via_job__TypeError(self):
         with self.assertRaises(TypeError):

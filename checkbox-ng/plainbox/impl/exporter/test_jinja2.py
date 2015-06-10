@@ -69,4 +69,3 @@ class Jinja2SessionStateExporterTests(TestCase):
             exporter.dump_from_session_manager(self.manager_single_job, stream)
             expected_bytes = '     fail      : job name\n'.encode('UTF-8')
             self.assertEqual(stream.getvalue(), expected_bytes)
-    

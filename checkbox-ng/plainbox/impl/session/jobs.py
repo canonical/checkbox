@@ -346,7 +346,8 @@ class JobState(pod.POD):
         assert isinstance(new, IJobResult)
         if new.is_hollow:
             return
-        logger.debug("Appending result %r to history: %r", new, self.result_history)
+        logger.debug(
+            "Appending result %r to history: %r", new, self.result_history)
         self.result_history += (new,)
 
     def can_start(self):

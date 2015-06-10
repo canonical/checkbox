@@ -24,8 +24,6 @@ Module with implementation of legacy validation API for all the current units.
 This module can be removed once that API is no longer needed.
 """
 import itertools
-import re
-import sre_constants
 
 from plainbox.i18n import gettext as _
 from plainbox.impl import deprecated

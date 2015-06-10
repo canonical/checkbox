@@ -260,8 +260,8 @@ class CliInvocation2(RunInvocation):
                      testplan_selection))
         if not selected_list:
             raise SystemExit(_("No testplan selected, aborting"))
-        self._testplan_list.extend([testplans[selected_index] for
-            selected_index in selected_list])
+        self._testplan_list.extend(
+            [testplans[selected_index] for selected_index in selected_list])
         return [testplans[selected_index].get_qualifier() for selected_index
                 in selected_list]
 
@@ -532,10 +532,9 @@ class CliInvocation2(RunInvocation):
         if not wanted_set:
             # nothing selected - nothing to run
             return
-        rerun_job_list = [job for job in self.manager.state.run_list
-                          if job in wanted_set]
         # reset outcome of jobs that are selected for re-running
         for job in wanted_set:
             from plainbox.impl.result import MemoryJobResult
-            self.manager.state.job_state_map[job.id].result = MemoryJobResult({})
+            self.manager.state.job_state_map[job.id].result = \
+                MemoryJobResult({})
         self.run_all_selected_jobs()

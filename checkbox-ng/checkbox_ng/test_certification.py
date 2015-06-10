@@ -42,8 +42,8 @@ from checkbox_ng.certification import InvalidSecureIDError
 
 class CertificationTransportTests(TestCase):
 
-    #URL are just here to exemplify, since we mock away all network access,
-    #they're not really used.
+    # URL are just here to exemplify, since we mock away all network access,
+    # they're not really used.
     valid_url = "https://certification.canonical.com/submissions/submit"
     invalid_url = "htz://:3128"
     unreachable_url = "http://i.dont.exist"
@@ -58,7 +58,7 @@ class CertificationTransportTests(TestCase):
         self.mock_requests = self.patcher.start()
 
     def test_parameter_parsing(self):
-        #Makes sense since I'm overriding the base class's constructor.
+        # Makes sense since I'm overriding the base class's constructor.
         transport = CertificationTransport(
             self.valid_url, self.valid_option_string)
         self.assertEqual(self.valid_url, transport.url)
@@ -67,7 +67,7 @@ class CertificationTransportTests(TestCase):
 
     def test_submit_to_hexr_interpretation(self):
         transport = CertificationTransport(
-                self.valid_url, "submit_to_hexr=1")
+            self.valid_url, "submit_to_hexr=1")
         self.assertTrue(transport._submit_to_hexr is True)
 
     def test_invalid_length_secure_id_are_rejected(self):
@@ -140,8 +140,8 @@ class CertificationTransportTests(TestCase):
         requests.post.return_value = MagicMock(name='response')
         requests.post.return_value.status_code = 412
         requests.post.return_value.text = 'Some error'
-        #Oops, raise_for_status doesn't get fooled by my mocking,
-        #so I have to mock *that* method as well..
+        # Oops, raise_for_status doesn't get fooled by my mocking,
+        # so I have to mock *that* method as well..
         requests.post.return_value.raise_for_status = MagicMock(
             side_effect=HTTPError)
         with self.assertRaises(TransportError):

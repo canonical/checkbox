@@ -33,7 +33,7 @@ from plainbox.vendor.textland import Event
 from plainbox.vendor.textland import IApplication
 from plainbox.vendor.textland import Size
 from plainbox.vendor.textland import TextImage
-from plainbox.vendor.textland import NORMAL, REVERSE, UNDERLINE
+from plainbox.vendor.textland import NORMAL, REVERSE
 
 
 logger = getLogger("checkbox.ng.ui")

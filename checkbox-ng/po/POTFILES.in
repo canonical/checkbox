@@ -21,4 +21,3 @@
 ./checkbox_ng/test_misc.py
 ./checkbox_ng/tests.py
 ./checkbox_ng/ui.py
-./contrib/dbus-mini-client.py

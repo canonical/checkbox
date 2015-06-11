@@ -658,6 +658,7 @@ class JobStateWrapper(PlainBoxObjectWrapper):
             # NOTE: the result may have been self-removed on earlier
             # assignment to outcome. In that case this is a non-fatal
             # problem and we can just carry on.
+            logger.warning("(_result_changed) Unable to remove old result: %r", old)
             pass
 
     @dbus.service.property(dbus_interface=JOB_STATE_IFACE, signature='a(isss)')
@@ -1553,6 +1554,7 @@ class PrimedJobWrapper(PlainBoxObjectWrapper):
                 # NOTE: the result may have been self-removed on earlier
                 # assignment to outcome. In that case this is a non-fatal
                 # problem and we can just carry on.
+                logger.warning("(_result_ready) Unable to remove old result: %r", self._result)
                 pass
         # Unpack the result from the future
         self._result = result_future.result()

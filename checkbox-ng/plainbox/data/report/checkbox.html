@@ -249,7 +249,7 @@
                         <td>{{ job_state.job.tr_summary() }}</td>
                         <td style='font-weight: bold; color: {{ result.outcome_meta().color_hex }}'>{{ result.outcome_meta().tr_label }}</td>
                         <td></td>
-                        <td>{{ loop.index }}</td>
+                        <td>{{ loop.revindex }}</td>
                         {%- if result.comments != None %}
                         <td>{{ result.comments }}</td>
                         {%- else %}

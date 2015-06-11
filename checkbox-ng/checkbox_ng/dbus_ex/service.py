@@ -673,9 +673,9 @@ class ObjectWrapper(Object):
 
     @native.setter
     def native(self, new_native):
-        if new_native is self._native:
-            return
         with self._native_id_map_lock:
+            if new_native is self._native:
+                return
             del self._native_id_to_wrapper_map[id(self._native)]
             self._native = new_native
             self._native_id_to_wrapper_map[id(new_native)] = self

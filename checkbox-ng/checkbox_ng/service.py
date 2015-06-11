@@ -453,13 +453,6 @@ class JobResultWrapper(PlainBoxObjectWrapper):
         OBJECT_MANAGER_IFACE,
     ])
 
-    def _get_preferred_object_path(self):
-        """
-        Return the preferred object path of this object on DBus
-        """
-        # NOTE: not self.native!
-        return "/plainbox/result/{}".format(id(self))
-
     # Value added
 
     @dbus.service.property(dbus_interface=JOB_RESULT_IFACE, signature="s")

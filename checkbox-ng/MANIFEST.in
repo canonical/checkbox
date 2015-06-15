@@ -31,6 +31,8 @@ include plainbox/impl/providers/stubbox/whitelists/*.whitelist
 
 include plainbox/vendor/argparse/py*-argparse.py
 
+include plainbox/qml_shell/qml_shell.qml
+
 recursive-exclude daily-package-testing *
 recursive-exclude plainbox/vendor/textland-project COPYING README.md
 recursive-include contrib *.policy

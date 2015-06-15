@@ -93,6 +93,7 @@ command:
       1. Click the left button with your $product.
       2. Click the right button with your $product.
       3. Click the middle button with your $product (if available).
+      4. Double-click the left button with your $product.
   VERIFICATION:
       Did these buttons work as expected?
  EOF

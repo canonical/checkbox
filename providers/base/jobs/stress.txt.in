@@ -287,7 +287,7 @@ command: graphics_stress_test --iterations 20 -b repeat -d -o $PLAINBOX_SESSION_
 _description:
  Run the graphics stress test. This test can take a few minutes.
 
-plugin: shell
+plugin: attachment
 id: stress/graphics-tarball
 estimated_duration: 1.0
 requires:

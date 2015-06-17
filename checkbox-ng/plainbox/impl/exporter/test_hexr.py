@@ -24,11 +24,27 @@ from xml.etree import ElementTree
 
 from plainbox.impl.exporter.hexr import CERTIFICATION_NS
 from plainbox.impl.exporter.hexr import HEXRExporter
+from plainbox.impl.exporter.hexr import do_strip_ns
 from plainbox.impl.providers.special import get_stubbox
 from plainbox.impl.resource import Resource
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.session import SessionManager
 from plainbox.impl.unit.job import JobDefinition
+from plainbox.vendor import mock
+
+
+class FilterTests(TestCase):
+
+    """Tests for additional filters."""
+
+    def test_do_strip_ns(self):
+        env = mock.Mock()
+        self.assertEqual(do_strip_ns(env, "ns::id", "ns::"), "id")
+
+    def test_do_strip_ns__defaults(self):
+        env = mock.Mock()
+        self.assertEqual(
+            do_strip_ns(env, "2013.com.canonical.certification::id"), "id")
 
 
 class HexrExporterTests(TestCase):

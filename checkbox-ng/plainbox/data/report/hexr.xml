@@ -7,7 +7,7 @@
   <context>
     {%- for job_id in job_state_map|sort %}
     {%- set job_state = job_state_map[job_id] %}
-    {%- if job_state.job.id|strip_ns not in ("dmi_attachment", "sysfs_attachment", "udev_attachment") and job_state.result.outcome %}
+    {%- if job_state.job.id|strip_ns not in ("dmi_attachment", "sysfs_attachment", "udev_attachment") and job_state.job.plugin == "attachment" and job_state.result.outcome %}
     <info command="{{ job_state.job.id|strip_ns }}">{{ job_state.result.io_log_as_text_attachment }}</info>
     {%- endif %}
     {%- endfor %}

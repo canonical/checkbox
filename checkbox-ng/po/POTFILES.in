@@ -68,10 +68,8 @@
 ./plainbox/impl/exporter/test_json.py
 ./plainbox/impl/exporter/test_rfc822.py
 ./plainbox/impl/exporter/test_text.py
-./plainbox/impl/exporter/test_xml.py
 ./plainbox/impl/exporter/text.py
 ./plainbox/impl/exporter/xlsx.py
-./plainbox/impl/exporter/xml.py
 ./plainbox/impl/highlevel.py
 ./plainbox/impl/integration_tests.py
 ./plainbox/impl/job.py

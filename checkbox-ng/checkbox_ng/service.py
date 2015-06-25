@@ -1213,12 +1213,13 @@ class ServiceWrapper(PlainBoxObjectWrapper):
         return self.native.export_session(session, output_format, option_list)
 
     @dbus.service.method(
-        dbus_interface=SERVICE_IFACE, in_signature='osass', out_signature='s')
+        dbus_interface=SERVICE_IFACE, in_signature='osasss', out_signature='s')
     @PlainBoxObjectWrapper.translate
     def ExportSessionToFile(self, session: 'o', output_format: 's',
-                            option_list: 'as', output_file: 's'):
+                            option_list: 'as', exporter_unit: 's',
+                            output_file: 's'):
         return self.native.export_session_to_file(
-            session, output_format, option_list, output_file)
+            session, output_format, option_list, exporter_unit, output_file)
 
     @dbus.service.method(
         dbus_interface=SERVICE_IFACE, in_signature='', out_signature='as')

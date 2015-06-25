@@ -462,7 +462,7 @@ class Config(metaclass=ConfigMeta):
         methods.  By using this function one can obtain a ConfigParser-like
         object and work with it directly.
         """
-        parser = PlainBoxConfigParser()
+        parser = PlainBoxConfigParser(allow_no_value=True, delimiters=('='))
         # Write all variables that we know about
         for variable in self.Meta.variable_list:
             if (not parser.has_section(variable.section)
@@ -508,7 +508,7 @@ class Config(metaclass=ConfigMeta):
             This method resets :attr:`_problem_list`
             and :attr:`_filename_list`.
         """
-        parser = PlainBoxConfigParser()
+        parser = PlainBoxConfigParser(allow_no_value=True, delimiters=('='))
         # Reset filename list and problem list
         self._filename_list = []
         self._problem_list = []
@@ -559,7 +559,7 @@ class Config(metaclass=ConfigMeta):
             This method resets :attr:`_problem_list`
             and :attr:`_filename_list`.
         """
-        parser = PlainBoxConfigParser()
+        parser = PlainBoxConfigParser(allow_no_value=True, delimiters=('='))
         # Reset filename list and problem list
         self._filename_list = []
         self._problem_list = []

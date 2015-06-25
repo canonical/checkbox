@@ -222,6 +222,8 @@ after calling read() the application may inspect two instance attributes:
 of exceptions raised while trying to load and use the configuration files and
 the list of files that were actually loaded, respectively.
 
+.. note:: The only supported delimiter is ``=``.
+
 The Config.Meta class
 ^^^^^^^^^^^^^^^^^^^^^
 

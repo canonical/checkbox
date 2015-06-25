@@ -75,7 +75,6 @@ setup(
     ],
     extras_require={
         'XLSX': 'XlsxWriter >= 0.3',
-        'XML': 'lxml >= 2.3',
     },
     entry_points={
         'console_scripts': [

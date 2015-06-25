@@ -24,9 +24,7 @@ From python package index
 -------------------------
 
 Plainbox can be installed from :abbr:`pypi (python package index)`. Keep in
-mind that you will need python3 version of ``pip`` and you will need to have
-``python3-lxml`` installed (package names may differ depending on your
-platform):
+mind that you will need python3 version of ``pip``:
 
 .. code-block:: bash
 

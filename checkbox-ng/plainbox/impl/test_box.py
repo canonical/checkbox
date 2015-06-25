@@ -25,6 +25,7 @@ from collections import defaultdict
 from inspect import cleandoc
 from io import TextIOWrapper
 from unittest import TestCase
+import warnings
 
 from plainbox import __version__ as version
 from plainbox.abc import IProvider1
@@ -35,6 +36,15 @@ from plainbox.impl.commands.checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.testing_utils import MockJobDefinition, suppress_warnings
 from plainbox.testing_utils.io import TestIO
 from plainbox.vendor.mock import Mock
+
+
+def setUpModule():
+    warnings.filterwarnings(
+        'ignore', 'validate is deprecated since version 0.11')
+
+
+def tearDownModule():
+    warnings.resetwarnings()
 
 
 def mock_whitelist(name, text, filename):

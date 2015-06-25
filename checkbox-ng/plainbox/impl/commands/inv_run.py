@@ -43,7 +43,7 @@ from plainbox.impl.color import Colorizer
 from plainbox.impl.commands.inv_checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.exporter import ByteStringStreamTranslator
-from plainbox.impl.exporter import get_all_exporters
+from plainbox.impl.exporter.text import TextSessionStateExporter
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.result import tr_outcome
@@ -348,13 +348,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
 
     def run(self):
         ns = self.ns
-        if ns.output_format == _('?'):
-            self._print_output_format_list(ns)
-            return 0
-        elif ns.output_options == _('?'):
-            self._print_output_option_list(ns)
-            return 0
-        elif ns.transport == _('?'):
+        if ns.transport == _('?'):
             self._print_transport_list(ns)
             return 0
         else:
@@ -364,15 +358,27 @@ class RunInvocation(CheckBoxInvocationMixIn):
         """
         Proceed through normal set of steps that are required to runs jobs
         """
-        # Create exporter and transport early so that we can handle bugs
-        # before starting the session.
-        self.create_exporter()
+        # Create transport early so that we can handle bugs before starting the
+        # session.
         self.create_transport()
         if self.is_interactive:
             resumed = self.maybe_resume_session()
         else:
             self.create_manager(None)
             resumed = False
+        if self.ns.output_options == _('?'):
+            self._print_output_option_list(self.ns)
+            return 0
+        elif self.ns.output_format == _('?'):
+            self._print_output_format_list(self.ns)
+            return 0
+        if self.ns.output_format not in self.manager.exporter_map:
+            print(_("invalid choice: '{}'".format(self.ns.output_format)))
+            self._print_output_format_list(self.ns)
+            return 1
+        # Create exporter after we get a session to query the manager and get
+        # all exporter units
+        self.create_exporter()
         # Create the job runner so that we can do stuff
         self.create_runner()
         # Set the effective category for each job
@@ -465,14 +471,15 @@ class RunInvocation(CheckBoxInvocationMixIn):
         return resumed
 
     def _print_output_format_list(self, ns):
-        print(_("Available output formats: {}").format(
-            ', '.join(get_all_exporters())))
+        print(_("Available output formats:"))
+        for id, exporter in self.manager.exporter_map.items():
+            print("{} - {}".format(id, exporter.summary))
 
     def _print_output_option_list(self, ns):
         print(_("Each format may support a different set of options"))
-        for name, exporter_cls in get_all_exporters().items():
+        for name, exporter in self.manager.exporter_map.items():
             print("{}: {}".format(
-                name, ", ".join(exporter_cls.supported_option_list)))
+                name, ", ".join(exporter.exporter_cls.supported_option_list)))
 
     def _print_transport_list(self, ns):
         print(_("Available transports: {}").format(
@@ -550,17 +557,19 @@ class RunInvocation(CheckBoxInvocationMixIn):
 
         This sets the attr:`_exporter`.
         """
-        exporter_cls = get_all_exporters()[self.ns.output_format]
+        exporter_unit = self.manager.exporter_map[self.ns.output_format]
+        exporter_cls = exporter_unit.exporter_cls
         if self.ns.output_options:
             option_list = self.ns.output_options.split(',')
         else:
             option_list = None
         try:
-            if self.ns.output_format == 'text':
+            if (exporter_cls is TextSessionStateExporter):
                 # Hacky way to pass color flag down to the text exporter
                 self._exporter = exporter_cls(option_list, self.ns.color)
             else:
-                self._exporter = exporter_cls(option_list)
+                self._exporter = exporter_cls(option_list,
+                                              exporter_unit=exporter_unit)
         except ValueError as exc:
             raise SystemExit(str(exc))
 

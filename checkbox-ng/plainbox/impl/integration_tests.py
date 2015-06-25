@@ -170,8 +170,10 @@ def execute_job(job_id):
         # Run the script, having relocated to the scratch directory
         with TestIO() as io, TestCwd(scratch_dir):
             try:
-                stubbox_main(['run', '-i', job_id,
-                      '--output-format=json', '-o', pathname])
+                stubbox_main([
+                    'run', '-i', job_id,
+                    '--output-format=2013.com.canonical.plainbox::json',
+                    '-o', pathname])
             except SystemExit as exc:
                 # Capture SystemExit that is always raised by stubbox_main() so that we
                 # can observe the return code as well.

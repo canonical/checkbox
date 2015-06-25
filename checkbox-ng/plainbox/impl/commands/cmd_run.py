@@ -29,7 +29,6 @@ from argparse import FileType, SUPPRESS
 from plainbox.i18n import gettext as _
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.cmd_checkbox import CheckBoxCommandMixIn
-from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.transport import get_all_transports
 
 
@@ -62,11 +61,10 @@ class RunCommand(PlainBoxCommand, CheckBoxCommandMixIn):
             '--dont-suppress-output', action="store_true", default=False,
             help=_("don't suppress the output of certain job plugin types"))
         group = parser.add_argument_group(_("output options"))
-        assert 'text' in get_all_exporters()
         group.add_argument(
-            '-f', '--output-format', default='text',
-            metavar=_('FORMAT'), choices=[_('?')] + list(
-                get_all_exporters().keys()),
+            '-f', '--output-format',
+            default='2013.com.canonical.plainbox::text',
+            metavar=_('FORMAT'),
             help=_('save test results in the specified FORMAT'
                    ' (pass ? for a list of choices)'))
         group.add_argument(

@@ -61,7 +61,6 @@
 ./plainbox/impl/depmgr.py
 ./plainbox/impl/device.py
 ./plainbox/impl/exporter/__init__.py
-./plainbox/impl/exporter/html.py
 ./plainbox/impl/exporter/json.py
 ./plainbox/impl/exporter/rfc822.py
 ./plainbox/impl/exporter/test_html.py

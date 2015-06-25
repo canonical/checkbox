@@ -72,7 +72,7 @@ To generate a JSON file with all of the internally available data (for storage,
 processing or other automation) you will need to pass three additional
 arguments to ``plainbox run``:
 
-#. ``--output-format=json``
+#. ``--output-format=2013.com.canonical.plainbox::json``
 #. ``--output-options=OPTION1,OPTION2`` where *OPTIONx* are option names.
 #. ``--output-file=NAME`` where *NAME* is a file name.
 
@@ -81,7 +81,7 @@ exporter options can be specified, separated with commas.
 
 .. code-block:: bash
 
-    $ plainbox run --whitelist=/path/to/some/file.whitelist --output-format=json --output-file=results.json
+    $ plainbox run --whitelist=/path/to/some/file.whitelist --output-format=2013.com.canonical.plainbox::json --output-file=results.json
 
 XML Exporter
 ------------
@@ -89,7 +89,7 @@ XML Exporter
 To generate an XML file that can be sent to the :term:`certification website`
 you need to pass two additional arguments to ``plainbox run``:
 
-#. ``--output-format=xml``
+#. ``--output-format=2013.com.canonical.plainbox::hexr``
 #. ``--output-file=NAME`` where *NAME* is a file name
 
 For example, to get the default certification tests ready to be submitted
@@ -97,7 +97,7 @@ run this command:
 
 .. code-block:: bash
 
-    $ plainbox run --whitelist=/path/to/some/file.whitelist --output-format=xml --output-file=submission.xml
+    $ plainbox run --whitelist=/path/to/some/file.whitelist --output-format=2013.com.canonical.plainbox::hexr --output-file=submission.xml
 
 Other Exporters
 ---------------

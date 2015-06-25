@@ -30,6 +30,7 @@ from :class:`~plainbox.impl.session.storage.SessionStorageRepository`,
 and :class:`~plainbox.impl.session.suspend.SessionResumeHelper`.
 """
 
+from collections import OrderedDict
 import errno
 import logging
 import os
@@ -459,3 +460,14 @@ class SessionManager(pod.POD):
         test_plans = self.test_plans
         for context in self.device_context_list:
             context.set_test_plan_list(test_plans)
+
+    @property
+    def exporter_map(self):
+        """ Map from exporter id to the corresponding exporter unit. """
+        exporter_map = OrderedDict()
+        for unit in self.state.unit_list:
+            if unit.Meta.name == 'exporter':
+                support = unit.support
+                if support:
+                    exporter_map[unit.id] = support
+        return exporter_map

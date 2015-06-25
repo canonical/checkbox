@@ -1,4 +1,5 @@
 ./plainbox/impl/providers/categories/manage.py
+./plainbox/impl/providers/exporters/manage.py
 ./plainbox/impl/providers/manifest/manage.py
 ./plainbox/impl/providers/stubbox/manage.py
 build/lib/plainbox/impl/_argparse.py

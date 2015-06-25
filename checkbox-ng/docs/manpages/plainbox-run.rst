@@ -205,8 +205,6 @@ plainbox-run (1)
     It is useful for communicating with other humans and since it is entirely
     standalone and off-line it can be sent by email or archived.
 
-    It depends on the python3-lxml package.
-
     json
     ----
 
@@ -240,8 +238,8 @@ plainbox-run (1)
 
     It depends on python3-xlsxwriter package
 
-    xml
-    ---
+    hexr
+    ----
 
     This exporter creates a rather confusingly named XML document only
     applicable for internal Canonical Hardware Certification Team workflow.
@@ -250,10 +248,6 @@ plainbox-run (1)
     carries quite a few legacy constructs that are only retained for
     compatibility with other internal tools. If you want generic processing
     look for JSON instead.
-
-    Still, it is important as it is the basis for the quite-useful HTML report.
-
-    It depends on the python3-lxml package.
 
     Selecting Exporter Options
     ^^^^^^^^^^^^^^^^^^^^^^^^^^

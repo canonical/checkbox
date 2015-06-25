@@ -1,4 +1,3 @@
 policykit-1
 python3-jinja2
-python3-lxml
 python3-xlsxwriter

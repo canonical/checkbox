@@ -25,7 +25,6 @@ except ImportError as exc:
     raise SystemExit("plainbox has to be importable")
 else:
     modules_to_mock = [
-        'lxml',
         'xlsxwriter',
         'xlsxwriter.workbook',
         'xlsxwriter.utility',

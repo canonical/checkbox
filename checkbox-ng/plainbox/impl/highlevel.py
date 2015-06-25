@@ -374,7 +374,14 @@ class Service:
         # TODO: construct state
         # TODO: construct manager, binding storage and state
         # TODO: if something fails destroy storage
-        session = SessionState(job_list)
+        unit_list = job_list
+        # Add exporters to the list of units in order to get them from the
+        # session manager exporter_map property.
+        for provider in self.provider_list:
+            for unit in provider.unit_list:
+                if unit.Meta.name == 'exporter':
+                    unit_list.append(unit)
+        session = SessionState(unit_list)
         session.open()
         self._session_list.append(session)
         return session
@@ -390,16 +397,16 @@ class Service:
         return temp_stream.getvalue()
 
     def export_session_to_file(self, session, output_format, option_list,
-                               output_file):
+                               exporter_unit, output_file):
         with open(output_file, 'wb') as stream:
             self._export_session_to_stream(
-                session, output_format, option_list, stream)
+                session, output_format, option_list, exporter_unit, stream)
         return output_file
 
     def _export_session_to_stream(self, session, output_format, option_list,
-                                  stream):
-        exporter_cls = get_all_exporters()[output_format]
-        exporter = exporter_cls(option_list)
+                                  exporter_unit, stream):
+        unit = session.manager.exporter_map[exporter_unit]
+        exporter = unit.exporter_cls(option_list, exporter_unit=unit)
         exporter.dump_from_session_manager(session.manager, stream)
 
     def get_all_transports(self):

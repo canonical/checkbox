@@ -1,0 +1,37 @@
+unit: exporter
+id: hexr
+_summary: Generate XML (for certification)
+entry_point: jinja2
+file_extension: xml
+data: {"template": "hexr.xml"}
+
+unit: exporter
+id: html
+_summary: Generate a standalone HTML
+entry_point: jinja2
+file_extension: html
+data: {"template": "checkbox.html"}
+
+unit: exporter
+id: json
+_summary: Generate JSON output
+entry_point: json
+file_extension: json
+
+unit: exporter
+id: rfc822
+_summary: Generate RCF822 output
+entry_point: rfc822
+file_extension: rfc822
+
+unit: exporter
+id: text
+_summary: Generate plain text output
+entry_point: text
+file_extension: txt
+
+unit: exporter
+id: xlsx
+_summary: Generate an Excel 2007+ XLSX document
+entry_point: xlsx
+file_extension: xlsx

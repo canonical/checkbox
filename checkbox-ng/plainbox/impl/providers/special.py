@@ -93,3 +93,22 @@ def get_manifest_def():
 
 def get_manifest():
     return Provider1.from_definition(get_manifest_def(), secure=False)
+
+def get_exporters_def():
+    """
+    Get a Provider1Definition for the provider that handles the exporters
+    machinery.
+    """
+    exporters_def = Provider1Definition()
+    exporters_def.name = "2013.com.canonical.plainbox:exporters"
+    exporters_def.version = "1.0"
+    exporters_def.description = N_("Exporters Provider")
+    exporters_def.secure = False
+    exporters_def.gettext_domain = "plainbox-provider-exporters"
+    exporters_def.location = os.path.join(
+        get_plainbox_dir(), "impl/providers/exporters")
+    return exporters_def
+
+
+def get_exporters():
+    return Provider1.from_definition(get_exporters_def(), secure=False)

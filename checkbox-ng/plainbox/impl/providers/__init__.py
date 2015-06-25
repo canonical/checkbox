@@ -84,5 +84,6 @@ def get_providers(*, only_secure: bool=False) -> 'List[Provider1]':
     all_providers.load()
     return [
         special.get_manifest(),
+        special.get_exporters(),
         special.get_categories(),
     ] + all_providers.get_all_plugin_objects()

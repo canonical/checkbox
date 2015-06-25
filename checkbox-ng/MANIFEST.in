@@ -11,6 +11,14 @@ include plainbox/impl/providers/categories/po/*.pot
 include plainbox/impl/providers/categories/po/POTFILES.in
 include plainbox/impl/providers/categories/units/*.pxu
 
+include plainbox/impl/providers/exporters/README.md
+include plainbox/impl/providers/exporters/manage.py
+include plainbox/impl/providers/exporters/po/*.po
+include plainbox/impl/providers/exporters/po/*.pot
+include plainbox/impl/providers/exporters/po/POTFILES.in
+include plainbox/impl/providers/exporters/units/*.pxu
+include plainbox/impl/providers/exporters/data/*
+
 include plainbox/impl/providers/manifest/README.md
 include plainbox/impl/providers/manifest/bin/*
 include plainbox/impl/providers/manifest/manage.py

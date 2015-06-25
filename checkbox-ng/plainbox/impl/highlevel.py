@@ -236,6 +236,8 @@ class Explorer:
             return self._manifest_entry_to_obj(unit)
         elif unit.Meta.name == 'packaging meta-data':
             return self._packaging_meta_data_to_obj(unit)
+        elif unit.Meta.name == 'exporter':
+            return self._exporter_entry_to_obj(unit)
         else:
             raise NotImplementedError(unit.Meta.name)
 
@@ -332,6 +334,14 @@ class Explorer:
                 ('os_id', unit.os_id),
                 ('os_version_id', unit.os_version_id),
                 ('origin', str(unit.origin)),
+            )))
+
+    def _exporter_entry_to_obj(self, unit):
+        return PlainBoxObject(
+            unit, group=unit.Meta.name, name=unit.id, attrs=OrderedDict((
+                ('id', unit.id),
+                ('summary', unit.summary),
+                ('tr_summary', unit.tr_summary()),
             )))
 
 

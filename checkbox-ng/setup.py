@@ -108,6 +108,7 @@ setup(
             'manifest entry=plainbox.impl.unit.manifest:ManifestEntryUnit',
             ('packaging meta-data='
              'plainbox.impl.unit.packaging:PackagingMetaDataUnit'),
+            'exporter=plainbox.impl.unit.exporter:ExporterUnit',
         ],
         'plainbox.parsers': [
             'pxu=plainbox.impl.secure.rfc822:load_rfc822_records',

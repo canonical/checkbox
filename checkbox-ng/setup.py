@@ -91,9 +91,6 @@ setup(
             'rfc822=plainbox.impl.exporter.rfc822:RFC822SessionStateExporter',
             'xlsx=plainbox.impl.exporter.xlsx:XLSXSessionStateExporter [XLSX]',
             'jinja2=plainbox.impl.exporter.jinja2:Jinja2SessionStateExporter',
-            'xml=plainbox.impl.exporter.hexr:HEXRExporter',
-            'html=plainbox.impl.exporter.html:HTMLSessionStateExporter [XML]',
-            'hexr=plainbox.impl.exporter.hexr:HEXRExporter',
         ],
         'plainbox.buildsystem': [
             'make=plainbox.impl.buildsystems:MakefileBuildSystem',

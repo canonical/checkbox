@@ -115,7 +115,8 @@ class StubBoxTool(PlainBoxTool):
     def _load_providers(self):
         logger.info("Loading stubbox provider...")
         from plainbox.impl.providers.special import get_stubbox
-        return [get_stubbox()]
+        from plainbox.impl.providers.special import get_exporters
+        return [get_stubbox(), get_exporters()]
 
 
 def main(argv=None):

@@ -123,12 +123,12 @@ exporter/xml_export_path
     Location to save the XML submission file, if set to an empty
     string will open a file save dialog. Default:
     ``/tmp/submission.xml``
+    (GUI only)
 
 transport/submit_to
     Transport endpoint. Defaults to ``<none>``.  Supports submission
     to LP (the default, value ``launchpad``), ``certification``, or
     ``local`` (save to disk)
-
 
 transport/submit_url
     URL to submit results to. This allows to upload to different

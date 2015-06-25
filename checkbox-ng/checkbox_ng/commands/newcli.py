@@ -38,10 +38,6 @@ import sys
 from plainbox.abc import IJobResult
 from plainbox.impl.commands.inv_run import RunInvocation
 from plainbox.impl.exporter import ByteStringStreamTranslator
-from plainbox.impl.exporter import get_all_exporters
-from plainbox.impl.exporter.html import HTMLSessionStateExporter
-from plainbox.impl.exporter.json import JSONSessionStateExporter
-from plainbox.impl.exporter.xml import XMLSessionStateExporter
 from plainbox.impl.secure.config import Unset, ValidationError
 from plainbox.impl.secure.origin import CommandLineTextSource
 from plainbox.impl.secure.origin import Origin
@@ -164,9 +160,8 @@ class CliInvocation2(RunInvocation):
 
             For now just look for changes as compared to run.py's version.
         """
-        # Create exporter and transport early so that we can handle bugs
-        # before starting the session.
-        self.create_exporter()
+        # Create transport early so that we can handle bugs before starting the
+        # session.
         self.create_transport()
         if self.is_interactive:
             resumed = self.maybe_resume_session()
@@ -274,15 +269,6 @@ class CliInvocation2(RunInvocation):
                     self.launcher.whitelist_selection, unit.partial_id)])
         return testplans
 
-    def create_exporter(self):
-        """
-        Create the ISessionStateExporter based on the command line options
-
-        This sets the :ivar:`_exporter`.
-        """
-        # TODO:
-        self._exporter = None
-
     def create_transport(self):
         """
         Create the ISessionStateTransport based on the command line options
@@ -336,7 +322,9 @@ class CliInvocation2(RunInvocation):
     def export_and_send_results(self):
         if self.is_interactive:
             print(self.C.header(_("Results")))
-            exporter = get_all_exporters()['text']()
+            exporter_unit = self.manager.exporter_map[
+                '2013.com.canonical.plainbox::text']
+            exporter = exporter_unit.exporter_cls()
             exported_stream = io.BytesIO()
             exporter.dump_from_session_manager(self.manager, exported_stream)
             exported_stream.seek(0)  # Need to rewind the file, puagh
@@ -352,42 +340,35 @@ class CliInvocation2(RunInvocation):
             "plainbox")
         if not os.path.exists(base_dir):
             os.makedirs(base_dir)
-        results_file = os.path.join(base_dir, 'results.html')
-        submission_file = os.path.join(base_dir, 'submission.xml')
-        exporter_list = [XMLSessionStateExporter,
-                         HTMLSessionStateExporter,
-                         JSONSessionStateExporter]
-        if 'xlsx' in get_all_exporters():
-            from plainbox.impl.exporter.xlsx import XLSXSessionStateExporter
-            exporter_list.append(XLSXSessionStateExporter)
-        # We'd like these options for our reports.
         exp_options = ['with-sys-info', 'with-summary', 'with-job-description',
                        'with-text-attachments', 'with-certification-status',
                        'with-job-defs', 'with-io-log', 'with-comments']
-        for exporter_cls in exporter_list:
+        print()
+        if self.launcher.exporter is not Unset:
+            exporters = self.launcher.exporter
+        else:
+            exporters = [
+                '2013.com.canonical.plainbox::hexr',
+                '2013.com.canonical.plainbox::html',
+                '2013.com.canonical.plainbox::xlsx',
+                '2013.com.canonical.plainbox::json',
+            ]
+        for unit_name in exporters:
+            exporter_unit = self.manager.exporter_map[unit_name]
             # Exporters may support different sets of options, ensure we don't
             # pass an unsupported one (which would cause a crash)
-            actual_options = [opt for opt in exp_options
-                              if opt in exporter_cls.supported_option_list]
-            exporter = exporter_cls(actual_options)
-            results_path = results_file
-            if exporter_cls is XMLSessionStateExporter:
-                results_path = submission_file
-            if exporter_cls is JSONSessionStateExporter:
-                    results_path = os.path.join(base_dir, 'results.json')
-            if 'xlsx' in get_all_exporters():
-                if exporter_cls is XLSXSessionStateExporter:
-                    results_path = os.path.join(base_dir, 'results.xlsx')
+            actual_options = [opt for opt in exp_options if opt in
+                              exporter_unit.exporter_cls.supported_option_list]
+            exporter = exporter_unit.exporter_cls(actual_options,
+                                                  exporter_unit=exporter_unit)
+            extension = exporter_unit.file_extension
+            results_path = os.path.join(base_dir, 'submission.{}'.format(
+                extension))
             with open(results_path, "wb") as stream:
                 exporter.dump_from_session_manager(self.manager, stream)
-        print()
-        print(_("Saving submission files to {}").format(base_dir))
-        self.submission_file = submission_file
-        print(_("View results") + " (HTML): file://{}".format(results_file))
-        if 'xlsx' in get_all_exporters():
-            # FIXME: replacing extension is ugly
-            print(_("View results") + " (XLSX): file://{}".format(
-                results_file.replace('html', 'xlsx')))
+            print(_("View results") + " ({}): file://{}".format(extension,
+                                                                results_path))
+        self.submission_file = os.path.join(base_dir, 'submission.xml')
         if self.launcher.submit_to is not Unset:
             if self.launcher.submit_to == 'certification':
                 # If we supplied a submit_url in the launcher, it

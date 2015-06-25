@@ -87,10 +87,6 @@ class LauncherDefinition(config.Config):
         # TODO: default?
         help_text=_("If enabled then test results will be also sent to HEXR"))
 
-    xml_export_path = config.Variable(
-        section="exporter",
-        help_text=_("Filename of the exported XML document"))
-
     submit_to = config.Variable(
         section="transport",
         validator_list=[config.ChoiceValidator(get_all_transports().keys())],
@@ -115,3 +111,6 @@ class LauncherDefinition(config.Config):
     dont_suppress_output = config.Variable(
         section="ui", kind=bool, default=False,
         help_text=_("Don't suppress the output of certain job plugin types."))
+
+    exporter = config.Section(
+        help_text=_("Section with only exported unit ids as keys (no values)"))

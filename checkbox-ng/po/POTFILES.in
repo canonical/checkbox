@@ -137,6 +137,7 @@
 ./plainbox/impl/unit/__init__.py
 ./plainbox/impl/unit/_legacy.py
 ./plainbox/impl/unit/category.py
+./plainbox/impl/unit/exporter.py
 ./plainbox/impl/unit/file.py
 ./plainbox/impl/unit/job.py
 ./plainbox/impl/unit/packaging.py

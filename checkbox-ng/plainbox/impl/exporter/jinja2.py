@@ -25,10 +25,56 @@
     THIS MODULE DOES NOT HAVE A STABLE PUBLIC API
 """
 
-from jinja2 import Environment, FileSystemLoader, Markup
-from pkg_resources import resource_filename
+from datetime import datetime
 
+from jinja2 import Environment
+from jinja2 import FileSystemLoader
+from jinja2 import Markup
+from jinja2 import Undefined
+from jinja2 import environmentfilter
+from jinja2 import escape
+
+from plainbox import __version__ as version
 from plainbox.abc import ISessionStateExporter
+from plainbox.i18n import gettext as _
+from plainbox.impl.result import OUTCOME_METADATA_MAP
+
+
+#: Name-space prefix for Canonical Certification
+CERTIFICATION_NS = '2013.com.canonical.certification::'
+
+
+@environmentfilter
+def do_sorted_xmlattr(_environment, d, autospace=True):
+    """A version of xmlattr filter that sorts attributes."""
+    rv = ' '.join(
+        '%s="%s"' % (escape(key), escape(value))
+        for key, value in sorted(d.items())
+        if value is not None and not isinstance(value, Undefined)
+    )
+    if autospace and rv:
+        rv = ' ' + rv
+    if _environment.autoescape:
+        rv = Markup(rv)
+    return rv
+
+
+@environmentfilter
+def do_strip_ns(_environment, unit_id, ns=CERTIFICATION_NS):
+    """Remove the namespace part of the identifier."""
+    if unit_id.startswith(ns):
+        rv = unit_id[len(ns):]
+    else:
+        rv = unit_id
+    rv = escape(rv)
+    if _environment.autoescape:
+        rv = Markup(rv)
+    return rv
+
+
+def do_is_name(text):
+    """A filter for checking if something is equal to "name"."""
+    return text == 'name'
 
 
 class Jinja2SessionStateExporter(ISessionStateExporter):
@@ -37,22 +83,36 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
 
     supported_option_list = ()
 
-    def __init__(self, jinja2_template, option_list=None, extra_paths=()):
+    def __init__(self, option_list=None, system_id="", timestamp=None,
+                 client_version=None, client_name='plainbox',
+                 exporter_unit=None):
         """
         Initialize a new Jinja2SessionStateExporter with given arguments.
-
-        :param option_list:
-            List of options that template might use to fine-tune rendering.
-        :param jinja2_template:
-            Filename of a Jinja2 template that will be loaded using the
-            Jinja2 FileSystemLoader.
-        :param extra_paths:
-            List of additional paths to load Jinja2 templates
-
         """
-        self.option_list = option_list
-        paths = [resource_filename("plainbox", "data/report/")]
-        paths.extend(extra_paths)
+        self._system_id = system_id
+        # Generate a time-stamp if needed
+        if timestamp is None:
+            timestamp = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
+        self._timestamp = timestamp
+        # Use current version unless told otherwise
+        if client_version is None:
+            client_version = "{}.{}.{}".format(*version[:3])
+        self._client_version = client_version
+        # Remember client name
+        self._client_name = client_name
+        
+        self.option_list = None
+        self.template = None
+        self.data = dict()
+        paths=[]
+        if exporter_unit:
+            self.data = exporter_unit.data
+            # Add PROVIDER_DATA to the list of paths where to look for
+            # templates
+            paths.append(exporter_unit.data_dir)
+        if "extra_paths" in self.data:
+            paths.extend(self.data["extra_paths"])
+        self.option_list = exporter_unit.option_list
         loader = FileSystemLoader(paths)
         env = Environment(loader=loader)
         self.customize_environment(env)
@@ -62,16 +122,15 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
             # templates without parsing them.
             return Markup(loader.get_source(env, name)[0])
 
-        self.template = env.get_template(jinja2_template)
         env.globals['include_file'] = include_file
+        self.template = env.get_template(exporter_unit.template)
 
     def customize_environment(self, env):
-        """
-        Customize the jinja2 Environment object.
-
-        By default this method does nothing. Override it in your subclass to
-        define any extra filters, tests or other things that you may require.
-        """
+        """Register filters and tests custom to the HEXR exporter."""
+        env.autoescape = True
+        env.filters['sorted_xmlattr'] = do_sorted_xmlattr
+        env.filters['strip_ns'] = do_strip_ns
+        env.tests['is_name'] = do_is_name
 
     def dump(self, data, stream):
         """
@@ -97,9 +156,15 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
 
         """
         data = {
+            'OUTCOME_METADATA_MAP': OUTCOME_METADATA_MAP,
+            'client_name': self._client_name,
+            'client_version': self._client_version,
             'manager': session_manager,
-            'options': self.option_list
+            'options': self.option_list,
+            'system_id': self._system_id,
+            'timestamp': self._timestamp,
         }
+        data.update(self.data)
         self.dump(data, stream)
 
     def get_session_data_subset(self, session_manager):

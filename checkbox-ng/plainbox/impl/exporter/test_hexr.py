@@ -22,14 +22,16 @@ from io import BytesIO
 from unittest import TestCase
 from xml.etree import ElementTree
 
-from plainbox.impl.exporter.hexr import CERTIFICATION_NS
-from plainbox.impl.exporter.hexr import HEXRExporter
-from plainbox.impl.exporter.hexr import do_strip_ns
+from plainbox.impl.exporter.jinja2 import CERTIFICATION_NS
+from plainbox.impl.exporter.jinja2 import Jinja2SessionStateExporter
+from plainbox.impl.exporter.jinja2 import do_strip_ns
 from plainbox.impl.providers.special import get_stubbox
 from plainbox.impl.resource import Resource
 from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.session import SessionManager
+from plainbox.impl.unit.exporter import ExporterUnitSupport
 from plainbox.impl.unit.job import JobDefinition
+from plainbox.public import get_providers
 from plainbox.vendor import mock
 
 
@@ -49,17 +51,28 @@ class FilterTests(TestCase):
 
 class HexrExporterTests(TestCase):
 
-    """Tests for HEXRExporter."""
+    """Tests for Jinja2SessionStateExporter using the HEXR template."""
 
     maxDiff = None
 
     def setUp(self):
         """Common initialization."""
-        self.exporter = HEXRExporter(
+        exporter_unit = self._get_all_exporter_units()[
+            '2013.com.canonical.plainbox::hexr']
+        self.exporter = Jinja2SessionStateExporter(
             system_id='SYSTEM_ID', timestamp='TIMESTAMP',
-            client_version='CLIENT_VERSION', client_name='CLIENT_NAME')
+            client_version='CLIENT_VERSION', client_name='CLIENT_NAME',
+            exporter_unit=exporter_unit)
         self.manager = SessionManager.create()
         self.manager.add_local_device_context()
+
+    def _get_all_exporter_units(self):
+        exporter_map = {}
+        for provider in get_providers():
+            for unit in provider.unit_list:
+                if unit.Meta.name == 'exporter':
+                    exporter_map[unit.id] = ExporterUnitSupport(unit)
+        return exporter_map
 
     def _populate_session(self):
         self._make_representative_jobs()

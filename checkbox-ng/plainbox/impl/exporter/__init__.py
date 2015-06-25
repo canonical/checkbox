@@ -103,7 +103,7 @@ class SessionStateExporterBase(ISessionStateExporter):
         OPTION_WITH_CERTIFICATION_STATUS,
     )
 
-    def __init__(self, option_list=None):
+    def __init__(self, option_list=None, exporter_unit=None):
         if option_list is None:
             option_list = []
         self._option_dict = {}
@@ -120,6 +120,20 @@ class SessionStateExporterBase(ISessionStateExporter):
             else:
                 value = True
             self._option_dict[option] = value
+        if exporter_unit:
+            for option_string in exporter_unit.option_list:
+                # An option can look like "foo" or like "foo=bar". In the first
+                # case we assign "True" to that key in the dict, in the second
+                # we assign "bar".
+                key_value = option_string.split("=", 1)
+                option = key_value[0]
+                if option not in self.supported_option_list:
+                    raise ValueError("Unsupported option: {}".format(option))
+                if len(key_value) == 2:
+                    value = key_value[1]
+                else:
+                    value = True
+                self._option_dict[option] = value
 
     @property
     def _option_list(self):
@@ -169,7 +183,6 @@ class SessionStateExporterBase(ISessionStateExporter):
         This method takes session manager instance, extracts session
         information from it, and dumps it to a stream.
         """
-
         self.dump(self.get_session_data_subset(session_manager), stream)
 
     @deprecated('0.21', 'use .dump_from_session_manager instead')

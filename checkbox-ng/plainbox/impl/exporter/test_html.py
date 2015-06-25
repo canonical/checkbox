@@ -30,16 +30,22 @@ import io
 
 from plainbox.abc import IJobResult
 from plainbox.testing_utils import resource_string
-from plainbox.impl.exporter.html import HTMLSessionStateExporter
+from plainbox.impl.exporter.jinja2 import Jinja2SessionStateExporter
 from plainbox.impl.resource import Resource
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.session import SessionManager
+from plainbox.impl.unit.exporter import ExporterUnitSupport
 from plainbox.impl.unit.job import JobDefinition
+from plainbox.public import get_providers
 
 
 class HTMLExporterTests(TestCase):
 
+    """Tests for Jinja2SessionStateExporter using the HTML template."""
+
     def setUp(self):
+        self.exporter_unit = self._get_all_exporter_units()[
+            '2013.com.canonical.plainbox::html']
         self.resource_map = {
             '2013.com.canonical.certification::lsb': [
                 Resource({'description': 'Ubuntu 14.04 LTS'})],
@@ -101,6 +107,14 @@ class HTMLExporterTests(TestCase):
         job3_state.effective_certification_status = job3_cert_status
         return self.session_manager
 
+    def _get_all_exporter_units(self):
+        exporter_map = {}
+        for provider in get_providers():
+            for unit in provider.unit_list:
+                if unit.Meta.name == 'exporter':
+                    exporter_map[unit.id] = ExporterUnitSupport(unit)
+        return exporter_map
+
     def prepare_manager_without_certification_status(self):
         return self._get_session_manager(
             'unspecified', 'unspecified', 'unspecified')
@@ -123,10 +137,11 @@ class HTMLExporterTests(TestCase):
         Test that output from the exporter exactly matches known
         good HTML output, inlining and everything included.
         """
-        exporter = HTMLSessionStateExporter(
+        exporter = Jinja2SessionStateExporter(
             system_id="",
             timestamp="2012-12-21T12:00:00",
-            client_version="1.0")
+            client_version="1.0",
+            exporter_unit=self.exporter_unit)
         stream = io.BytesIO()
         exporter.dump_from_session_manager(
             self.prepare_manager_without_certification_status(), stream)
@@ -143,10 +158,11 @@ class HTMLExporterTests(TestCase):
         Test that output from the exporter exactly matches known
         good HTML output, inlining and everything included.
         """
-        exporter = HTMLSessionStateExporter(
+        exporter = Jinja2SessionStateExporter(
             system_id="",
             timestamp="2012-12-21T12:00:00",
-            client_version="1.0")
+            client_version="1.0",
+            exporter_unit=self.exporter_unit)
         stream = io.BytesIO()
         exporter.dump_from_session_manager(
             self.prepare_manager_with_certification_blocker(), stream)
@@ -163,10 +179,11 @@ class HTMLExporterTests(TestCase):
         Test that output from the exporter exactly matches known
         good HTML output, inlining and everything included.
         """
-        exporter = HTMLSessionStateExporter(
+        exporter = Jinja2SessionStateExporter(
             system_id="",
             timestamp="2012-12-21T12:00:00",
-            client_version="1.0")
+            client_version="1.0",
+            exporter_unit=self.exporter_unit)
         stream = io.BytesIO()
         exporter.dump_from_session_manager(
             self.prepare_manager_with_certification_non_blocker(), stream)
@@ -183,10 +200,11 @@ class HTMLExporterTests(TestCase):
         Test that output from the exporter exactly matches known
         good HTML output, inlining and everything included.
         """
-        exporter = HTMLSessionStateExporter(
+        exporter = Jinja2SessionStateExporter(
             system_id="",
             timestamp="2012-12-21T12:00:00",
-            client_version="1.0")
+            client_version="1.0",
+            exporter_unit=self.exporter_unit)
         stream = io.BytesIO()
         exporter.dump_from_session_manager(
             self.prepare_manager_with_both_certification_status(), stream)

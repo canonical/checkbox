@@ -31,6 +31,7 @@ import os
 
 from plainbox.impl.exporter.jinja2 import Jinja2SessionStateExporter
 from plainbox.impl.result import MemoryJobResult
+from plainbox.impl.unit.exporter import ExporterUnitSupport
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.vendor import mock
 
@@ -54,17 +55,21 @@ class Jinja2SessionStateExporterTests(TestCase):
 
     def test_template(self):
         with TemporaryDirectory() as tmp:
-            pathname = os.path.join(tmp, 'template.html')
+            template_filename = 'template.html'
+            pathname = os.path.join(tmp, template_filename)
             tmpl = dedent(
                 "{% for job in manager.state.job_state_map %}"
                 "{{'{:^15}: {}'.format("
                 "manager.state.job_state_map[job].result.tr_outcome(),"
                 "manager.state.job_state_map[job].job.tr_summary()) }}\n"
                 "{% endfor %}")
+            data = {"template": template_filename, "extra_paths": [tmp]}
+            exporter_unit = mock.Mock(spec_set=ExporterUnitSupport, data=data)
+            exporter_unit.data_dir = tmp
+            exporter_unit.template = template_filename
             with open(pathname, 'w') as f:
                 f.write(tmpl)
-            exporter = Jinja2SessionStateExporter('template.html',
-                                                  extra_paths=[tmp])
+            exporter = Jinja2SessionStateExporter(exporter_unit=exporter_unit)
             stream = BytesIO()
             exporter.dump_from_session_manager(self.manager_single_job, stream)
             expected_bytes = '     fail      : job name\n'.encode('UTF-8')

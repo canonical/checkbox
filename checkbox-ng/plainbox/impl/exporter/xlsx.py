@@ -73,7 +73,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         OPTION_WITH_UNIT_CATEGORIES,
     )
 
-    def __init__(self, option_list=None):
+    def __init__(self, option_list=None, exporter_unit=None):
         """
         Initialize a new XLSXSessionStateExporter.
         """
@@ -86,6 +86,11 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         for option in option_list:
             if option not in self.supported_option_list:
                 raise ValueError(_("Unsupported option: {}").format(option))
+        if exporter_unit:
+            for option in exporter_unit.option_list:
+                if option not in self.supported_option_list:
+                    raise ValueError(
+                        _("Unsupported option: {}").format(option))
         self._option_list = (
             SessionStateExporterBase.OPTION_WITH_IO_LOG,
             SessionStateExporterBase.OPTION_FLATTEN_IO_LOG,
@@ -99,6 +104,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             SessionStateExporterBase.OPTION_WITH_CERTIFICATION_STATUS,
         )
         self._option_list += tuple(option_list)
+        if exporter_unit:
+            self._option_list += tuple(exporter_unit.option_list)
         self.total_pass = 0
         self.total_fail = 0
         self.total_skip = 0

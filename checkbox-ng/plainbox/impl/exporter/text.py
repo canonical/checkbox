@@ -35,8 +35,8 @@ class TextSessionStateExporter(SessionStateExporterBase):
 
     """Human-readable session state exporter."""
 
-    def __init__(self, option_list=None, color=None):
-        super().__init__(option_list)
+    def __init__(self, option_list=None, color=None, exporter_unit=None):
+        super().__init__(option_list, exporter_unit=exporter_unit)
         self.C = Colorizer(color)
 
     def get_session_data_subset(self, session_manager):

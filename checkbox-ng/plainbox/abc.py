@@ -1002,6 +1002,17 @@ class ISessionStateExporter(metaclass=ABCMeta):
     """
 
     @abstractmethod
+    def __init__(self, option_list=None, exporter_unit=None):
+        """
+        Initialize the session exporter object
+
+        :param option_list:
+            a list of option to enable
+        :param exporter_unit:
+            an ExporterUnit object
+        """
+
+    @abstractmethod
     # @classproperty -- this is a class-level property
     def supported_option_list(cls):
         """

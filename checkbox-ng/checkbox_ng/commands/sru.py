@@ -79,7 +79,14 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
         # the selected jobs. Currently we just display each problem
         # Create a session that handles most of the stuff needed to run jobs
         try:
-            self.session = SessionState(self.job_list)
+            unit_list = self.job_list
+            # Add exporters to the list of units in order to get them from the
+            # session manager exporter_map property.
+            for provider in self.provider_list:
+                for unit in provider.unit_list:
+                    if unit.Meta.name == 'exporter':
+                        unit_list.append(unit)
+            self.session = SessionState(unit_list)
         except DependencyDuplicateError as exc:
             # Handle possible DependencyDuplicateError that can happen if
             # someone is using plainbox for job development.

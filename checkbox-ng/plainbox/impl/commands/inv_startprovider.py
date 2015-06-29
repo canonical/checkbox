@@ -221,13 +221,13 @@ class ProviderSkeleton(Skeleton):
              #
              # http://plainbox.rtfd.org/en/latest/author/jobs.html
              unit: category
-             id: Examples/trivial
+             id: examples/trivial
              _name: Examples/trivial
 
 
              unit: job
              id: always-pass
-             category_id: Examples/trivial
+             category_id: examples/trivial
              _summary: A test that always passes
              _description:
                 A test that always passes
@@ -240,7 +240,7 @@ class ProviderSkeleton(Skeleton):
 
              unit: job
              id: always-fail
-             category_id: Examples/trivial
+             category_id: examples/trivial
              _summary: A test that always fails
              _description:
                 A test that always fails
@@ -254,12 +254,12 @@ class ProviderSkeleton(Skeleton):
 
         things.append(File("examples-normal.pxu", parent, full_text="""
             unit: category
-            id: Examples/normal
+            id: examples/normal
             _name: Examples/normal
 
              unit: job
              id: data-access
-             category_id: Examples/normal
+             category_id: examples/normal
              _summary: Example job using provider-specific data
              _description:
                 This test illustrates that custom data can be accessed using
@@ -272,7 +272,7 @@ class ProviderSkeleton(Skeleton):
 
              unit: job
              id: bin-access
-             category_id: Examples/normal
+             category_id: examples/normal
              _summary: Example job using provider-specific executable
              _description:
                 This test illustrates that custom executables can be accessed
@@ -286,7 +286,7 @@ class ProviderSkeleton(Skeleton):
 
              unit: job
              id: info-collection
-             category_id: Examples/normal
+             category_id: examples/normal
              _summary: Example job attaching command output to results
              _description:
                 This test illustrates that output of a job may be collected
@@ -306,12 +306,12 @@ class ProviderSkeleton(Skeleton):
 
         things.append(File("examples-intermediate.pxu", parent, full_text="""
             unit: category
-            id: Examples/intermediate
+            id: examples/intermediate
             _name: Examples/intermediate
 
              unit: job
              id: dependency-target
-             category_id: Examples/intermediate
+             category_id: examples/intermediate
              _summary: Example job that some other job depends on
              _description:
                 This test illustrates how a job can be a dependency of another
@@ -330,7 +330,7 @@ class ProviderSkeleton(Skeleton):
 
              unit: job
              id: dependency-source
-             category_id: Examples/intermediate
+             category_id: examples/intermediate
              _summary: Example job that depends on another job
              _description:
                 This test illustrates how a job can depend on another job.
@@ -355,7 +355,7 @@ class ProviderSkeleton(Skeleton):
              # resource-object: examples.intermediate.detected_device
              unit: job
              id: detected_device
-             category_id: Examples/intermediate
+             category_id: examples/intermediate
              _summary: Example job producing structured resource data
              _description:
                 This job illustrates that not all jobs are designed to be a
@@ -380,7 +380,7 @@ class ProviderSkeleton(Skeleton):
 
              unit: job
              id: test-webcam
-             category_id: Examples/intermediate
+             category_id: examples/intermediate
              _summary: Example job depending on structured resource
              _description:
                 This test illustrates two concepts. It is the first test that

@@ -144,8 +144,8 @@ class ProviderSkeleton(Skeleton):
 
     things = []
 
-    jobs_dir = Directory("jobs")
-    things.append(jobs_dir)
+    units_dir = Directory("units")
+    things.append(units_dir)
 
     whitelists_dir = Directory("whitelists")
     things.append(whitelists_dir)
@@ -209,9 +209,9 @@ class ProviderSkeleton(Skeleton):
          https://bugs.launchpad.net/checkbox/+filebug
          """))
 
-    with jobs_dir as parent:
+    with units_dir as parent:
 
-        things.append(File("examples-trivial.txt", parent, full_text="""
+        things.append(File("examples-trivial.pxu", parent, full_text="""
              # Two example jobs, both using the 'shell' "plugin". See the
              # documentation for examples of other test cases including
              # interactive tests, "resource" tests and a few other types.
@@ -220,7 +220,14 @@ class ProviderSkeleton(Skeleton):
              # to indicate that they can be translated.
              #
              # http://plainbox.rtfd.org/en/latest/author/jobs.html
-             id: examples/trivial/always-pass
+             unit: category
+             id: examples/trivial
+             _name: Examples/trivial
+
+
+             unit: job
+             id: always-pass
+             category_id: examples/trivial
              _summary: A test that always passes
              _description:
                 A test that always passes
@@ -231,7 +238,9 @@ class ProviderSkeleton(Skeleton):
              estimated_duration: 0.01
              command: true
 
-             id: examples/trivial/always-fail
+             unit: job
+             id: always-fail
+             category_id: examples/trivial
              _summary: A test that always fails
              _description:
                 A test that always fails
@@ -243,8 +252,14 @@ class ProviderSkeleton(Skeleton):
              command: false
              """))
 
-        things.append(File("examples-normal.txt", parent, full_text="""
-             id: examples/normal/data-access
+        things.append(File("examples-normal.pxu", parent, full_text="""
+            unit: category
+            id: examples/normal
+            _name: Examples/normal
+
+             unit: job
+             id: data-access
+             category_id: examples/normal
              _summary: Example job using provider-specific data
              _description:
                 This test illustrates that custom data can be accessed using
@@ -255,7 +270,9 @@ class ProviderSkeleton(Skeleton):
              command:
                 test "$(cat $PLAINBOX_PROVIDER_DATA/example.dat)" = "DATA"
 
-             id: examples/normal/bin-access
+             unit: job
+             id: bin-access
+             category_id: examples/normal
              _summary: Example job using provider-specific executable
              _description:
                 This test illustrates that custom executables can be accessed
@@ -267,7 +284,9 @@ class ProviderSkeleton(Skeleton):
              estimated_duration: 0.01
              command: custom-executable
 
-             id: examples/normal/info-collection
+             unit: job
+             id: info-collection
+             category_id: examples/normal
              _summary: Example job attaching command output to results
              _description:
                 This test illustrates that output of a job may be collected
@@ -285,8 +304,14 @@ class ProviderSkeleton(Skeleton):
              command: cat /proc/cpuinfo
              """))
 
-        things.append(File("examples-intermediate.txt", parent, full_text="""
-             id: examples/intermediate/dependency-target
+        things.append(File("examples-intermediate.pxu", parent, full_text="""
+            unit: category
+            id: examples/intermediate
+            _name: Examples/intermediate
+
+             unit: job
+             id: dependency-target
+             category_id: examples/intermediate
              _summary: Example job that some other job depends on
              _description:
                 This test illustrates how a job can be a dependency of another
@@ -303,7 +328,9 @@ class ProviderSkeleton(Skeleton):
              command: true
              estimated_duration: 0.01
 
-             id: examples/intermediate/dependency-source
+             unit: job
+             id: dependency-source
+             category_id: examples/intermediate
              _summary: Example job that depends on another job
              _description:
                 This test illustrates how a job can depend on another job.
@@ -326,7 +353,9 @@ class ProviderSkeleton(Skeleton):
              # TODO: this should be possible:
              # name: examples/intermediate/detected-device
              # resource-object: examples.intermediate.detected_device
+             unit: job
              id: detected_device
+             category_id: examples/intermediate
              _summary: Example job producing structured resource data
              _description:
                 This job illustrates that not all jobs are designed to be a
@@ -349,7 +378,9 @@ class ProviderSkeleton(Skeleton):
                 echo "type: WIFI"
              estimated_duration: 0.03
 
-             id: examples/intermediate/test-webcam
+             unit: job
+             id: test-webcam
+             category_id: examples/intermediate
              _summary: Example job depending on structured resource
              _description:
                 This test illustrates two concepts. It is the first test that

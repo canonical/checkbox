@@ -807,6 +807,7 @@ estimated_duration: 1.2
 requires:
  device.category == 'WIRELESS'
  environment.ROUTERS == 'multiple'
+ IEEE_80211.ac == 'supported'
 user: root
 environ: WPA_AC_SSID WPA_AC_PSK
 command:
@@ -829,6 +830,7 @@ estimated_duration: 1.2
 requires:
  device.category == 'WIRELESS'
  environment.ROUTERS == 'multiple'
+ IEEE_80211.ac == 'supported'
 user: root
 environ: OPEN_AC_SSID
 command:

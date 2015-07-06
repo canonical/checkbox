@@ -41,6 +41,9 @@ include plainbox/vendor/argparse/py*-argparse.py
 
 include plainbox/qml_shell/qml_shell.qml
 
+include plainbox/data/plainbox-qml-module/Plainbox/qmldir
+include plainbox/data/plainbox-qml-module/Plainbox/QmlJob.qml
+
 recursive-exclude daily-package-testing *
 recursive-exclude plainbox/vendor/textland-project COPYING README.md
 recursive-include contrib *.policy

@@ -134,12 +134,12 @@ class TestRun(object):
         if not self.messages or self.messages[-1]["type"] != "add-modprobe-info":
             self.messages.append({
                 "type": "add-modprobe-info",
-                "modprobe-infos": []})
+                "modprobe-info": []})
 
         message = self.messages[-1]
         logger.debug("ADDING Module options:")
         logger.debug("%s %s", module, options)
-        message["modprobe-infos"].append({
+        message["modprobe-info"].append({
             "module": module,
             "options": options})
 
@@ -160,14 +160,14 @@ class TestRun(object):
         if not self.messages or self.messages[-1]["type"] != "add-dkms-info":
             self.messages.append({
                 "type": "add-dkms-info",
-                "dkms-infos": []})
+                "dkms-info": []})
 
         message = self.messages[-1]
         logger.debug("ADDING DKMS package data:")
         logger.debug("%s %s", package, data)
         package_dict = {"package": package}
         package_dict.update(data)
-        message["dkms-infos"].append(package_dict)
+        message["dkms-info"].append(package_dict)
 
     def addModInfo(self, module, data):
         if not self.messages or self.messages[-1]["type"] != "add-modinfo":
@@ -215,7 +215,7 @@ class TestRun(object):
     def setKernelCmdline(self, kernel_cmdline):
         self.messages.append({
             "type": "set-kernel-cmdline",
-            "kernel_cmdline": kernel_cmdline})
+            "kernel-cmdline": kernel_cmdline})
         logger.debug("Setting Kernel Commandline: %s", kernel_cmdline)
 
     def setDistribution(self, **distribution):
@@ -227,7 +227,7 @@ class TestRun(object):
     def setPciSubsystemId(self, subsystem_id):
         self.messages.append({
             "type": "set-pci-subsystem-id",
-            "pci_subsystem_id": subsystem_id})
+            "pci-subsystem-id": subsystem_id})
         logger.debug("Setting PCI subsystem ID: %s", subsystem_id)
 
     def setMemoryState(self, **memory):
@@ -281,17 +281,17 @@ class TestRun(object):
 
     def addRawDmiDeviceState(self, raw_dmi_device):
         if (not self.messages or
-                self.messages[-1]["type"] != "add-raw-dmi-device"):
+                self.messages[-1]["type"] != "add-raw-devices-dmi"):
             self.messages.append({
-                "type": "add-raw-dmi-devices",
-                "raw-dmi-devices": []})
+                "type": "add-raw-devices-dmi",
+                "raw-devices-dmi": []})
 
         message = self.messages[-1]
         logger.debug("ADDING Raw DMI Device State:")
         logger.debug(raw_dmi_device)
         raw_dict = raw_dmi_device.raw_attributes
         raw_dict['category'] = raw_dmi_device.category
-        message["raw-dmi-devices"].append(raw_dict)
+        message["raw-devices-dmi"].append(raw_dict)
 
     def addPackageVersion(self, **package_version):
         if not self.messages or self.messages[-1]["type"] != "set-packages":

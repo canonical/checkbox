@@ -1134,9 +1134,9 @@ class QmlJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
             self.ctrl.get_execution_command(
                 self.job, self.job_state, self.config, self.SESSION_DIR,
                 self.NEST_DIR, self.SHELL_OUT_FD, self.SHELL_IN_FD),
-            ['qmlscene', '--job', self.job.qml_file, '--fd-out',
-             self.SHELL_OUT_FD, '--fd-in', self.SHELL_IN_FD,
-             self.ctrl.QML_SHELL_PATH])
+            ['qmlscene', '-I', self.ctrl.QML_MODULES_PATH, '--job',
+             self.job.qml_file, '--fd-out', self.SHELL_OUT_FD, '--fd-in',
+             self.SHELL_IN_FD, self.ctrl.QML_SHELL_PATH])
 
     @mock.patch('json.dumps')
     @mock.patch('os.path.isdir')

@@ -84,10 +84,12 @@ class QmlShellCommand(PlainBoxCommand):
     def invoked(self, ns):
         QML_SHELL_PATH = os.path.join(get_plainbox_dir(), 'qml_shell',
                                       'qml_shell.qml')
+        QML_MODULES_PATH = os.path.join(get_plainbox_dir(), 'data',
+                                        'plainbox-qml-modules')
 
         test_result_object_prefix = "qml: __test_result_object:"
         test_res = None
-        p = subprocess.Popen(['qmlscene', '--job',
+        p = subprocess.Popen(['qmlscene', '-I', QML_MODULES_PATH, '--job',
                              os.path.abspath(ns.QML_FILE), QML_SHELL_PATH],
                              stderr=subprocess.PIPE)
         for line in iter(p.stderr.readline, ''):

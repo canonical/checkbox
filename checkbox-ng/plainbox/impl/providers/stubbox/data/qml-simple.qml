@@ -2,10 +2,10 @@ import QtQuick 2.0
 import Ubuntu.Components 0.1
 import QtQuick.Layouts 1.1
 
-Item {
+import Plainbox 0.1
+
+QmlJob {
     id: root
-    signal testDone(var test);
-    property var testingShell;
 
     Component.onCompleted: testingShell.pageStack.push(testPage)
 

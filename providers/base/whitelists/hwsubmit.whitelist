@@ -11,6 +11,7 @@ package
 uname
 usb
 __info__
+info/buildstamp
 cpuinfo_attachment
 dmesg_attachment
 dmi_attachment

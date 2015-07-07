@@ -470,4 +470,16 @@ class SessionManager(pod.POD):
                 support = unit.support
                 if support:
                     exporter_map[unit.id] = support
+        # Patch exporter map to expose short names
+        legacy_mapping = {
+            '2013.com.canonical.plainbox::hexr': 'xml',
+            '2013.com.canonical.plainbox::html': 'html',
+            '2013.com.canonical.plainbox::json': 'json',
+            '2013.com.canonical.plainbox::rfc822': 'rfc822',
+            '2013.com.canonical.plainbox::text': 'text',
+            '2013.com.canonical.plainbox::xlsx': 'xlsx'
+        }
+        for new_id, legacy_id in legacy_mapping.items():
+            if new_id in exporter_map:
+                exporter_map[legacy_id] = exporter_map[new_id]
         return exporter_map

@@ -1,3 +1,10 @@
+checkbox-ng (0.18-2) unstable; urgency=medium
+
+  * Add fix-tests-on-python35 patch to use inspect.Signature.from_callable
+    instead of deprecated from_function in Python >= 3.5 (LP: #1473093)
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Thu, 09 Jul 2015 19:58:33 +0200
+
 checkbox-ng (0.18-1) unstable; urgency=medium
 
   * New upstream release 

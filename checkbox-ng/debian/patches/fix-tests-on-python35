@@ -1,0 +1,31 @@
+Description: Fix tests on Python 3.5
+ This patch fixes a simple build failure caused by deprecation warning being
+ printed and affecting tests that observe stdout/stderr.
+Author: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+Origin: vendor
+Bug-Ubuntu: https://bugs.launchpad.net/checkbox-ng/+bug/1473093 
+Forwarded: https://bugs.launchpad.net/checkbox-ng/+bug/1473093
+Last-Update: 2015-07-09
+
+--- checkbox-ng-0.18.orig/checkbox_ng/service.py
++++ checkbox-ng-0.18/checkbox_ng/service.py
+@@ -27,6 +27,7 @@ import collections
+ import functools
+ import itertools
+ import logging
++import sys
+ 
+ try:
+     from inspect import Signature
+@@ -159,7 +160,10 @@ class PlainBoxObjectWrapper(dbus.service
+         very limited). For the moment it cannot infer the argument types from
+         the decorator for dbus.service.method.
+         """
+-        sig = Signature.from_function(func)
++        if sys.version_info[0:2] >= (3, 5):
++            sig = Signature.from_callable(func)
++        else:
++            sig = Signature.from_function(func)
+ 
+         def translate_o(object_path):
+             try:

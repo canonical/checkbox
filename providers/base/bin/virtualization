@@ -105,6 +105,15 @@ QEMU_ARCH_CONFIG = {
             '-machine', 'accel=kvm:tcg',
         ],
     },
+    'ppc64el': {
+        'cloudimg_type': CLOUD_IMAGE_TYPE_DISK,
+        'cloudimg_arch': 'ppc64el',
+        'qemu_bin': 'qemu-system-ppc64',
+        'qemu_disk_type': QEMU_DISK_TYPE_VIRTIO,
+        'qemu_extra_args': [
+            '-machine', 'prep',
+        ],
+    },
 }
 
 class QemuRunner(object):

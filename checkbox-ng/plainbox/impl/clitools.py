@@ -844,7 +844,7 @@ def autopager(pager_list=['sensible-pager', 'less', 'more']):
     pager = os.getenv('PAGER')
     if pager is not None:
         pager_list = [pager] + pager_list
-    # Find the best pager based on user perferences and built-in knowledge
+    # Find the best pager based on user preferences and built-in knowledge
     try:
         pager_name, pager_pathname = find_exec(pager_list)
     except LookupError:

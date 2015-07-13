@@ -27,6 +27,7 @@ import collections
 import functools
 import itertools
 import logging
+import sys
 
 try:
     from inspect import Signature
@@ -159,7 +160,10 @@ class PlainBoxObjectWrapper(dbus.service.ObjectWrapper):
         very limited). For the moment it cannot infer the argument types from
         the decorator for dbus.service.method.
         """
-        sig = Signature.from_function(func)
+        if sys.version_info[0:2] >= (3, 5):
+            sig = Signature.from_callable(func)
+        else:
+            sig = Signature.from_function(func)
 
         def translate_o(object_path):
             try:

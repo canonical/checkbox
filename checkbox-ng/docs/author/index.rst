@@ -10,7 +10,6 @@ core.
    intro.rst
    tutorial.rst
    providers.rst
-   jobs.rst
    whitelists.rst
    rfc822.rst
    faq.rst

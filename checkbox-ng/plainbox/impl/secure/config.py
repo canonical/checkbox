@@ -517,7 +517,11 @@ class Config(metaclass=ConfigMeta):
             parser.read_string(string)
         except configparser.Error as exc:
             self._problem_list.append(exc)
-        self._read_commit(parser)
+        # Try to validate everything
+        try:
+            self._read_commit(parser)
+        except ValidationError as exc:
+            self._problem_list.append(exc)
 
     def write(self, stream):
         """
@@ -569,7 +573,11 @@ class Config(metaclass=ConfigMeta):
             self._filename_list = parser.read(filename_list)
         except configparser.Error as exc:
             self._problem_list.append(exc)
-        self._read_commit(parser)
+        # Try to validate everything
+        try:
+            self._read_commit(parser)
+        except ValidationError as exc:
+            self._problem_list.append(exc)
 
     def _read_commit(self, parser):
         # Pick a reader function appropriate for the kind of variable

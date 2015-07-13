@@ -34,6 +34,7 @@ from plainbox.impl.secure.config import NotEmptyValidator
 from plainbox.impl.secure.config import NotUnsetValidator
 from plainbox.impl.secure.config import PatternValidator
 from plainbox.impl.secure.config import PlainBoxConfigParser, Config
+from plainbox.impl.secure.config import ValidationError
 from plainbox.impl.secure.config import Variable, Section, Unset
 from plainbox.impl.secure.config import understands_Unset
 from plainbox.vendor import mock
@@ -299,6 +300,22 @@ class ConfigTests(TestCase):
             conf.read([])
         mocked_validate.assert_called_once_with()
 
+    def test_read__handles_errors_from_validate_whole(self):
+        """
+        verify that Config.read() collects errors from validate_whole()".
+        """
+        class TestConfig(Config):
+            v = Variable()
+
+            def validate_whole(self):
+                raise ValidationError(TestConfig.v, self.v, "v is evil")
+        conf = TestConfig()
+        conf.read([])
+        self.assertEqual(len(conf.problem_list), 1)
+        self.assertEqual(conf.problem_list[0].variable, TestConfig.v)
+        self.assertEqual(conf.problem_list[0].new_value, Unset)
+        self.assertEqual(conf.problem_list[0].message, "v is evil")
+
     def test_read_string__does_not_ignore_nonmentioned_variables(self):
         class TestConfig(Config):
             v = Variable(validator_list=[NotUnsetValidator()])
@@ -312,6 +329,22 @@ class ConfigTests(TestCase):
         self.assertEqual(conf.problem_list[0].new_value, Unset)
         self.assertEqual(conf.problem_list[0].message,
                          "must be set to something")
+
+    def test_read_string__handles_errors_from_validate_whole(self):
+        """
+        verify that Config.read_strig() collects errors from validate_whole()".
+        """
+        class TestConfig(Config):
+            v = Variable()
+
+            def validate_whole(self):
+                raise ValidationError(TestConfig.v, self.v, "v is evil")
+        conf = TestConfig()
+        conf.read_string("")
+        self.assertEqual(len(conf.problem_list), 1)
+        self.assertEqual(conf.problem_list[0].variable, TestConfig.v)
+        self.assertEqual(conf.problem_list[0].new_value, Unset)
+        self.assertEqual(conf.problem_list[0].message, "v is evil")
 
 
 class ConfigMetaDataTests(TestCase):

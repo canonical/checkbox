@@ -71,6 +71,19 @@ _description:
  This will run some basic connectivity tests against a BMC, verifying that IPMI works.
 
 plugin: shell
+estimated_duration: 0.5
+id: miscellanea/boot_mode
+_summary: EFI-mode boot test
+_description: Succeeds when booted in EFI mode; fails otherwise
+command:
+  if [ -d "/sys/firmware/efi" ] ; then
+    echo "System booted in EFI mode"
+  else
+    echo "System did NOT boot in EFI mode"
+    exit 1
+  fi
+
+plugin: shell
 id: miscellanea/bmc_info
 requires: package.name == 'ipmitool'
 estimated_duration: 0.5

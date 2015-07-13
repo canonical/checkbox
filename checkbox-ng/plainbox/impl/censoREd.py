@@ -17,6 +17,9 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+:mod:`plainbox.impl.censoREd` -- working around frustrating stuff
+=================================================================
+
 This module is the result of an evening of frustration caused by the need to
 support Python 3.2 and a failing doctest that exercises, unintentionally, the
 behavior of the compiled regular expression object's __repr__() method. That

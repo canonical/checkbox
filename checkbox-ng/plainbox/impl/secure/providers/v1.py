@@ -27,6 +27,8 @@ import os
 from plainbox.abc import IProvider1
 from plainbox.i18n import gettext as _
 from plainbox.impl.secure.config import Config, Variable
+from plainbox.impl.secure.config import (
+    ValidationError as ConfigValidationError)
 from plainbox.impl.secure.config import IValidator
 from plainbox.impl.secure.config import NotEmptyValidator
 from plainbox.impl.secure.config import NotUnsetValidator
@@ -727,15 +729,18 @@ class Provider1(IProvider1):
     number of fields involved in basic initialization.
     """
 
-    def __init__(self, name, version, description, secure, gettext_domain,
-                 units_dir, jobs_dir, whitelists_dir, data_dir, bin_dir,
-                 locale_dir, base_dir, *, validate=True,
+    def __init__(self, name, namespace, version, description, secure,
+                 gettext_domain, units_dir, jobs_dir, whitelists_dir, data_dir,
+                 bin_dir, locale_dir, base_dir, *, validate=True,
                  validation_kwargs=None, check=False, context=None):
         """
         Initialize a provider with a set of meta-data and directories.
 
         :param name:
             provider name / ID
+
+        :param namespace:
+            provider namespace
 
         :param version:
             provider version
@@ -790,7 +795,13 @@ class Provider1(IProvider1):
             this is a single argument. This is a keyword-only argument.
         """
         # Meta-data
+        if namespace is None:
+            namespace = name.split(':', 1)[0]
+            self._has_dedicated_namespace = False
+        else:
+            self._has_dedicated_namespace = True
         self._name = name
+        self._namespace = namespace
         self._version = version
         self._description = description
         self._secure = secure
@@ -864,8 +875,9 @@ class Provider1(IProvider1):
         logger.debug("Loading provider from definition %r", definition)
         # Initialize the provider object
         return cls(
-            definition.name, definition.version, definition.description,
-            secure, definition.effective_gettext_domain,
+            definition.name, definition.namespace or None, definition.version,
+            definition.description, secure,
+            definition.effective_gettext_domain,
             definition.effective_units_dir, definition.effective_jobs_dir,
             definition.effective_whitelists_dir, definition.effective_data_dir,
             definition.effective_bin_dir, definition.effective_locale_dir,
@@ -901,7 +913,12 @@ class Provider1(IProvider1):
         year-domain pair and allows to create private namespaces by using
         sub-domains.
         """
-        return self._name.split(':', 1)[0]
+        return self._namespace
+
+    @property
+    def has_dedicated_namespace(self):
+        """Flag set if namespace was defined by a dedicated field."""
+        return self._has_dedicated_namespace
 
     @property
     def version(self):
@@ -1223,6 +1240,35 @@ class IQNValidator(PatternValidator):
             return _("must look like RFC3720 IQN")
 
 
+class ProviderNameValidator(PatternValidator):
+
+    """
+    Validator for the provider name.
+
+    Two forms are allowed:
+
+        - short form (requires a separate namespace definition)
+        - verbose form (based on RFC3720 IQN-like strings)
+
+    The short form is supposed to look like Debian package name.
+    """
+
+    _PATTERN = (
+        "^"
+        "([0-9]{4}\.[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*)+:[a-z][a-z0-9-]*)"
+        "|"
+        "([a-z0-9-]+)"
+        "$"
+    )
+
+    def __init__(self):
+        super().__init__(self._PATTERN)
+
+    def __call__(self, variable, new_value):
+        if super().__call__(variable, new_value):
+            return _("must look like RFC3720 IQN")
+
+
 class VersionValidator(PatternValidator):
     """
     A validator for provider provider version.
@@ -1290,12 +1336,23 @@ class Provider1Definition(Config):
         validator_list=[
             NotUnsetValidator(),
             NotEmptyValidator(),
-            IQNValidator(),
+            ProviderNameValidator(),
+        ])
+
+    namespace = Variable(
+        section='PlainBox Provider',
+        help_text=_("Namespace of the provider"),
+        validator_list=[
+            # NOTE: it *can* be unset, then name must be IQN
+            NotEmptyValidator(),
         ])
 
     @property
     def name_without_colon(self):
-        return self.name.replace(':', '.')
+        if ':' in self.name:
+            return self.name.replace(':', '.')
+        else:
+            return self.name
 
     version = Variable(
         section='PlainBox Provider',
@@ -1559,6 +1616,23 @@ class Provider1Definition(Config):
         implicit2 = self.implicit_build_locale_dir
         if implicit2 is not None and os.path.isdir(implicit2):
             return implicit2
+
+    def validate_whole(self):
+        """
+        Validate the provider definition object.
+
+        :raises ValidationError:
+            If the namespace is not defined and name is using a simplified
+            format that doesn't contain an embedded namespace part.
+        """
+        super().validate_whole()
+        if not self.namespace:
+            variable = self.__class__.name
+            value = self.name
+            validator = IQNValidator()
+            message = validator(variable, value)
+            if message is not None:
+                raise ConfigValidationError(variable, value, message)
 
 
 class Provider1PlugIn(PlugIn):

@@ -667,7 +667,7 @@ class UnitPlugInTests(TestCase):
 
 class Provider1Tests(TestCase):
 
-    NAME = "2013.org.example:name"
+    NAME = "name"
     NAMESPACE = "2013.org.example"
     VERSION = "1.0"
     DESCRIPTION = "description"
@@ -685,7 +685,7 @@ class Provider1Tests(TestCase):
 
     def setUp(self):
         self.provider = Provider1(
-            self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
+            self.NAME, self.NAMESPACE, self.VERSION, self.DESCRIPTION, self.SECURE,
             self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR,
             self.WHITELISTS_DIR, self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR,
             self.BASE_DIR,
@@ -701,7 +701,7 @@ class Provider1Tests(TestCase):
     def test_repr(self):
         self.assertEqual(
             repr(self.provider),
-            "<Provider1 name:'2013.org.example:name'>")
+            "<Provider1 name:'name'>")
 
     def test_name(self):
         """
@@ -878,7 +878,7 @@ class Provider1Tests(TestCase):
         circumstances
         """
         Provider1(
-            self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
+            self.NAME, self.NAMESPACE, self.VERSION, self.DESCRIPTION, self.SECURE,
             self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR,
             self.WHITELISTS_DIR, self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR,
             self.BASE_DIR)
@@ -892,7 +892,7 @@ class Provider1Tests(TestCase):
         circumstances
         """
         Provider1(
-            self.NAME, self.VERSION, self.DESCRIPTION, self.SECURE,
+            self.NAME, self.NAMESPACE, self.VERSION, self.DESCRIPTION, self.SECURE,
             self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR,
             self.WHITELISTS_DIR, self.DATA_DIR, self.BIN_DIR, locale_dir=None,
             base_dir=self.BASE_DIR)

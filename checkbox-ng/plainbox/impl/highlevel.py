@@ -29,7 +29,6 @@ import logging
 
 from plainbox import __version__ as plainbox_version
 from plainbox.impl.applogic import run_job_if_possible
-from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.session import SessionStorageRepository
 from plainbox.impl.session.legacy import SessionStateLegacyAPI as SessionState
@@ -385,10 +384,6 @@ class Service:
         session.open()
         self._session_list.append(session)
         return session
-
-    def get_all_exporters(self):
-        return {name: exporter_cls.supported_option_list for
-                name, exporter_cls in get_all_exporters().items()}
 
     def export_session(self, session, output_format, option_list):
         temp_stream = BytesIO()

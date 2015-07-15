@@ -322,9 +322,8 @@ class CliInvocation2(RunInvocation):
     def export_and_send_results(self):
         if self.is_interactive:
             print(self.C.header(_("Results")))
-            exporter_unit = self.manager.exporter_map[
-                '2013.com.canonical.plainbox::text']
-            exporter = exporter_unit.exporter_cls()
+            exporter = self.manager.create_exporter(
+                '2013.com.canonical.plainbox::text')
             exported_stream = io.BytesIO()
             exporter.dump_from_session_manager(self.manager, exported_stream)
             exported_stream.seek(0)  # Need to rewind the file, puagh

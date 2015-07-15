@@ -178,13 +178,14 @@ class SessionInvocation:
 
     def _print_output_format_list(self):
         print(_("Available output formats: {}").format(
-            ', '.join(get_all_exporters())))
+            ', '.join(get_all_exporter_names())))
 
     def _print_output_option_list(self):
         print(_("Each format may support a different set of options"))
-        for name, exporter_cls in get_all_exporters().items():
-            print("{}: {}".format(
-                name, ", ".join(exporter_cls.supported_option_list)))
+        with SessionManager.get_throwaway_manager() as manager:
+            for name, exporter in manager.exporter_map.items():
+                print("{}: {}".format(
+                    name, ", ".join(exporter.exporter_cls.supported_option_list)))
 
     def _create_exporter(self):
         exporter_cls = get_all_exporters()[self.ns.output_format]

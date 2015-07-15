@@ -483,3 +483,42 @@ class SessionManager(pod.POD):
             if new_id in exporter_map:
                 exporter_map[legacy_id] = exporter_map[new_id]
         return exporter_map
+
+    def create_exporter(self, exporter_id, option_list=(), strict=True):
+        """
+        Create an exporter object with the specified name and options.
+
+        :param exporter_id:
+            Identifier of the exporter unit (which must have been loaded
+            into the session device context of the first device). For
+            backwards compatibility this can also be any of the legacy
+            identifiers ``xml``, ``html``, ``json``, ``rfc822``, ``text`` or
+            ``xlsx``.
+        :param option_list:
+            (optional) A list of options to pass to the exporter. Each option
+            is a string. Some strings may be of form 'key=value' but those are
+            handled by each exporter separately. By default an empty tuple is
+            used so no special options are enabled.
+        :param strict:
+            (optional) Strict mode, in this mode ``option_list`` must not
+            contain any options that are unrecognized by the exporter. Since
+            many options (but not all) are shared among various exporters,
+            using non-strict mode might make it easier to use a single superset
+            of options to all exporters and let them silently ignore those that
+            they don't understand.
+        :raises LookupError:
+            If the exporter identifier cannot be found. Note that this might
+            indicate that appropriate provider has not been loaded yet.
+        :returns:
+            A ISessionStateExporter instance with appropriate configuration.
+        """
+        exporter_support = self.exporter_map[exporter_id]
+        if not strict:
+            # In non-strict mode silently discard unsupported options.
+            supported_options = frozenset(
+                exporter_support.exporter_cls.supported_option_list)
+            option_list = [
+                item for item in option_list if item in supported_options
+            ]
+        return exporter_support.exporter_cls(
+            option_list, exporter_unit=exporter_support)

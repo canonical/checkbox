@@ -381,23 +381,3 @@ class ByteStringStreamTranslator(RawIOBase):
             :param data: the chunk of data to write.
         """
         return self.dest_stream.write(data.decode(self.encoding))
-
-
-def get_all_exporters():
-    """
-    Discover and load all exporter classes.
-
-    Returns a map of exporters (mapping from name to exporter class)
-    """
-    exporter_map = OrderedDict()
-    iterator = pkg_resources.iter_entry_points('plainbox.exporter')
-    for entry_point in sorted(iterator, key=lambda ep: ep.name):
-        try:
-            exporter_cls = entry_point.load()
-        except pkg_resources.DistributionNotFound as exc:
-            logger.info(_("Unable to load %s: %s"), entry_point, exc)
-        except ImportError as exc:
-            logger.exception(_("Unable to import %s: %s"), entry_point, exc)
-        else:
-            exporter_map[entry_point.name] = exporter_cls
-    return exporter_map

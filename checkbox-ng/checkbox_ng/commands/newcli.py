@@ -353,20 +353,15 @@ class CliInvocation2(RunInvocation):
                 '2013.com.canonical.plainbox::json',
             ]
         for unit_name in exporters:
-            exporter_unit = self.manager.exporter_map[unit_name]
-            # Exporters may support different sets of options, ensure we don't
-            # pass an unsupported one (which would cause a crash)
-            actual_options = [opt for opt in exp_options if opt in
-                              exporter_unit.exporter_cls.supported_option_list]
-            exporter = exporter_unit.exporter_cls(actual_options,
-                                                  exporter_unit=exporter_unit)
-            extension = exporter_unit.file_extension
-            results_path = os.path.join(base_dir, 'submission.{}'.format(
-                extension))
+            exporter = self.manager.create_exporter(
+                unit_name, exp_options, strict=False)
+            extension = exporter.unit.file_extension
+            results_path = os.path.join(
+                base_dir, 'submission.{}'.format(extension))
             with open(results_path, "wb") as stream:
                 exporter.dump_from_session_manager(self.manager, stream)
-            print(_("View results") + " ({}): file://{}".format(extension,
-                                                                results_path))
+            print(_("View results") + " ({}): file://{}".format(
+                extension, results_path))
         self.submission_file = os.path.join(base_dir, 'submission.xml')
         if self.launcher.submit_to is not Unset:
             if self.launcher.submit_to == 'certification':

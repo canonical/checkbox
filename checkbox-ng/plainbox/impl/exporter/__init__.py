@@ -107,6 +107,7 @@ class SessionStateExporterBase(ISessionStateExporter):
         if option_list is None:
             option_list = []
         self._option_dict = {}
+        self._unit = exporter_unit
         for option_string in option_list:
             # An option can look like "foo" or like "foo=bar". In the first
             # case we assign "True" to that key in the dict, in the second we
@@ -134,6 +135,16 @@ class SessionStateExporterBase(ISessionStateExporter):
                 else:
                     value = True
                 self._option_dict[option] = value
+
+    @property
+    def unit(self):
+        """
+        Exporter unit this exporter was created with.
+
+        The exporter unit holds additional information that may be of use to
+        applications, such as typical file name extension.
+        """
+        return self._unit
 
     @property
     def _option_list(self):

@@ -89,6 +89,7 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
         """
         Initialize a new Jinja2SessionStateExporter with given arguments.
         """
+        self._unit = exporter_unit
         self._system_id = system_id
         # Generate a time-stamp if needed
         if timestamp is None:
@@ -124,6 +125,16 @@ class Jinja2SessionStateExporter(ISessionStateExporter):
 
         env.globals['include_file'] = include_file
         self.template = env.get_template(exporter_unit.template)
+
+    @property
+    def unit(self):
+        """
+        Exporter unit this exporter was created with.
+
+        The exporter unit holds additional information that may be of use to
+        applications, such as typical file name extension.
+        """
+        return self._unit
 
     def customize_environment(self, env):
         """Register filters and tests custom to the HEXR exporter."""

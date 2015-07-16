@@ -111,7 +111,7 @@ QEMU_ARCH_CONFIG = {
         'qemu_bin': 'qemu-system-ppc64',
         'qemu_disk_type': QEMU_DISK_TYPE_VIRTIO,
         'qemu_extra_args': [
-            '-machine', 'prep',
+            '-machine', 'pseries',
         ],
     },
 }

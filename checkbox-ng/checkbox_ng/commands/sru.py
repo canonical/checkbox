@@ -40,7 +40,6 @@ from plainbox.impl.commands.cmd_checkbox import CheckBoxCommandMixIn
 from plainbox.impl.commands.inv_checkbox import CheckBoxInvocationMixIn
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.exporter import ByteStringStreamTranslator
-from plainbox.impl.exporter.jinja2 import Jinja2SessionStateExporter
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.secure.config import ValidationError, Unset
 from plainbox.impl.session import SessionStateLegacyAPI as SessionState
@@ -102,11 +101,9 @@ class _SRUInvocation(CheckBoxInvocationMixIn):
                 self.session.session_dir, self.provider_list,
                 self.session.jobs_io_log_dir, command_io_delegate=self,
                 dry_run=self.ns.dry_run)
-            exporter_unit = self.session.manager.exporter_map[
-                '2013.com.canonical.plainbox::hexr']
             # XXX: maybe allow specifying system_id from command line?
-            self.exporter = exporter_unit.exporter_cls(
-            system_id=None, exporter_unit=exporter_unit)
+            self.exporter = self.session.manager.create_exporter(
+                '2013.com.canonical.plainbox::hexr')
             self._run_all_jobs()
             if self.config.fallback_file is not Unset:
                 self._save_results()

@@ -393,7 +393,10 @@ def interface_test(args):
                                                    args.fail_threshold) 
             if args.datasize:
                 iperf_benchmark.data_size = args.datasize
-            result = iperf_benchmark.run()
+            run_num = 0
+            while not result and run_num < args.num_runs:
+                result = iperf_benchmark.run()
+                run_num += 1
 
         elif args.test_type.lower() == "stress":
             stress_benchmark = StressPerformanceTest(args.interface,
@@ -516,6 +519,10 @@ TEST_TARGET_IPERF = iperf-server.example.com
         help=("IPERF Test ONLY. Set the failure threshold (Percent of maximum "
               "theoretical bandwidth) as a number like 80.  (Default is "
               "%(default)s)"))
+    test_parser.add_argument(
+        '--num_runs', type=int,
+        default=1,
+        help=("Number of times to run the test. (Default is %(default)s)"))
     test_parser.add_argument(
         '--debug', default=False, action="store_true",
         help="Turn on verbose output")

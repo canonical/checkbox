@@ -24,8 +24,8 @@ from argparse import FileType
 from plainbox.i18n import docstring
 from plainbox.i18n import gettext as _
 from plainbox.i18n import gettext_noop as N_
+from plainbox.impl.applogic import get_all_exporter_names
 from plainbox.impl.commands import PlainBoxCommand
-from plainbox.impl.exporter import get_all_exporters
 
 
 @docstring(
@@ -112,8 +112,7 @@ class SessionCommand(PlainBoxCommand):
         group = export_parser.add_argument_group(_("output options"))
         group.add_argument(
             '-f', '--output-format', default='text',
-            metavar=_('FORMAT'), choices=[_('?')] + list(
-                get_all_exporters().keys()),
+            metavar=_('FORMAT'), choices=[_('?')] + get_all_exporter_names(),
             help=_('save test results in the specified FORMAT'
                    ' (pass ? for a list of choices)'))
         group.add_argument(

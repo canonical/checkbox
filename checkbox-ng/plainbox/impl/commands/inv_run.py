@@ -558,21 +558,12 @@ class RunInvocation(CheckBoxInvocationMixIn):
 
         This sets the attr:`_exporter`.
         """
-        exporter_unit = self.manager.exporter_map[self.ns.output_format]
-        exporter_cls = exporter_unit.exporter_cls
         if self.ns.output_options:
             option_list = self.ns.output_options.split(',')
         else:
             option_list = None
-        try:
-            if (exporter_cls is TextSessionStateExporter):
-                # Hacky way to pass color flag down to the text exporter
-                self._exporter = exporter_cls(option_list, self.ns.color)
-            else:
-                self._exporter = exporter_cls(option_list,
-                                              exporter_unit=exporter_unit)
-        except ValueError as exc:
-            raise SystemExit(str(exc))
+        self._exporter = self.manager.create_exporter(
+            self.ns.output_format, option_list)
 
     def create_transport(self):
         """

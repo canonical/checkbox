@@ -107,6 +107,7 @@ class SessionStateExporterBase(ISessionStateExporter):
         if option_list is None:
             option_list = []
         self._option_dict = {}
+        self._unit = exporter_unit
         for option_string in option_list:
             # An option can look like "foo" or like "foo=bar". In the first
             # case we assign "True" to that key in the dict, in the second we
@@ -134,6 +135,16 @@ class SessionStateExporterBase(ISessionStateExporter):
                 else:
                     value = True
                 self._option_dict[option] = value
+
+    @property
+    def unit(self):
+        """
+        Exporter unit this exporter was created with.
+
+        The exporter unit holds additional information that may be of use to
+        applications, such as typical file name extension.
+        """
+        return self._unit
 
     @property
     def _option_list(self):
@@ -370,23 +381,3 @@ class ByteStringStreamTranslator(RawIOBase):
             :param data: the chunk of data to write.
         """
         return self.dest_stream.write(data.decode(self.encoding))
-
-
-def get_all_exporters():
-    """
-    Discover and load all exporter classes.
-
-    Returns a map of exporters (mapping from name to exporter class)
-    """
-    exporter_map = OrderedDict()
-    iterator = pkg_resources.iter_entry_points('plainbox.exporter')
-    for entry_point in sorted(iterator, key=lambda ep: ep.name):
-        try:
-            exporter_cls = entry_point.load()
-        except pkg_resources.DistributionNotFound as exc:
-            logger.info(_("Unable to load %s: %s"), entry_point, exc)
-        except ImportError as exc:
-            logger.exception(_("Unable to import %s: %s"), entry_point, exc)
-        else:
-            exporter_map[entry_point.name] = exporter_cls
-    return exporter_map

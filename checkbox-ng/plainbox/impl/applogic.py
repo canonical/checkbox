@@ -33,6 +33,7 @@ from plainbox.i18n import gettext as _
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.secure import config
 from plainbox.impl.secure.qualifiers import select_jobs
+from plainbox.impl.session import SessionManager
 from plainbox.impl.session.jobs import InhibitionCause
 
 
@@ -114,3 +115,19 @@ class PlainBoxConfig(config.Config):
         filename_list = [
             '/etc/xdg/plainbox.conf',
             os.path.expanduser('~/.config/plainbox.conf')]
+
+
+def get_all_exporter_names():
+    """
+    Get the identifiers (names) of all the supported session state exporters.
+
+    :returns:
+        A list of session exporter names (identifiers) available from all the
+        providers.
+
+    This function creates a temporary session associated with the local
+    device and adds all of the available providers to it. Finally, it returns
+    the list of exporter names. The session is transparently destroyed.
+    """
+    with SessionManager.get_throwaway_manager() as manager:
+        return list(manager.exporter_map.keys())

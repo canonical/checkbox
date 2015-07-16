@@ -78,7 +78,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         Initialize a new XLSXSessionStateExporter.
         """
         # Super-call with empty option list
-        super(XLSXSessionStateExporter, self).__init__(())
+        super().__init__((), exporter_unit=exporter_unit)
         # All the "options" are simply a required configuration element and are
         # not optional in any way. There is no way to opt-out.
         if option_list is None:

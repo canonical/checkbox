@@ -29,8 +29,8 @@ import os
 import sys
 
 from plainbox.i18n import gettext as _
+from plainbox.impl.applogic import get_all_exporter_names
 from plainbox.impl.exporter import ByteStringStreamTranslator
-from plainbox.impl.exporter import get_all_exporters
 from plainbox.impl.session import SessionManager
 from plainbox.impl.session import SessionPeekHelper
 from plainbox.impl.session import SessionResumeError
@@ -147,13 +147,13 @@ class SessionInvocation:
             self._print_output_option_list()
             return 0
         storage = self._lookup_storage(self.ns.session_id)
-        exporter = self._create_exporter()
         if storage is None:
             print(_("No such session: {0}").format(self.ns.session_id))
         else:
             print(_("Exporting session..."))
             manager = SessionManager.load_session(
                 self._get_all_units(), storage, flags=self.ns.flag)
+            exporter = self._create_exporter(manager)
             # Get a stream with exported session data.
             exported_stream = io.BytesIO()
             exporter.dump_from_session_manager(manager, exported_stream)
@@ -178,24 +178,21 @@ class SessionInvocation:
 
     def _print_output_format_list(self):
         print(_("Available output formats: {}").format(
-            ', '.join(get_all_exporters())))
+            ', '.join(get_all_exporter_names())))
 
     def _print_output_option_list(self):
         print(_("Each format may support a different set of options"))
-        for name, exporter_cls in get_all_exporters().items():
-            print("{}: {}".format(
-                name, ", ".join(exporter_cls.supported_option_list)))
+        with SessionManager.get_throwaway_manager() as manager:
+            for name, exporter in manager.exporter_map.items():
+                print("{}: {}".format(
+                    name, ", ".join(exporter.exporter_cls.supported_option_list)))
 
-    def _create_exporter(self):
-        exporter_cls = get_all_exporters()[self.ns.output_format]
+    def _create_exporter(self, manager):
         if self.ns.output_options:
             option_list = self.ns.output_options.split(',')
         else:
             option_list = None
-        try:
-            return exporter_cls(option_list)
-        except ValueError as exc:
-            raise SystemExit(str(exc))
+        return manager.create_exporter(self.ns.output_format, option_list)
 
     def _lookup_storage(self, session_id):
         repo = SessionStorageRepository()

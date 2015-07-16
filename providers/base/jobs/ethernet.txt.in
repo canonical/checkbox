@@ -47,8 +47,8 @@ command:
   device.path == "$1"
  user: root
  environ: TEST_TARGET_FTP TEST_TARGET_IPERF TEST_USER TEST_PASS
- command: network test -i $2 -t iperf --fail-threshold 80 --datasize 200
- estimated_duration: 1850.0
+ command: network test -i $2 -t iperf --fail-threshold 80 --datasize 200 --num_runs 4
+ estimated_duration: 7400.0
  description:
   Testing for NIC $2
  EOF

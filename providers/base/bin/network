@@ -397,6 +397,7 @@ def interface_test(args):
             while not result and run_num < args.num_runs:
                 result = iperf_benchmark.run()
                 run_num += 1
+                logging.info("")
 
         elif args.test_type.lower() == "stress":
             stress_benchmark = StressPerformanceTest(args.interface,

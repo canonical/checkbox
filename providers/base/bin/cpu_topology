@@ -46,9 +46,8 @@ class sysfs_cpu():
         for i in items:
             try:
                 syscpu_fh = open(os.path.join(self.path, i), 'r')
-            except FileNotFoundError:
-                print("ERROR: %s seems to be missing, unable to continue" %
-                        self.path)
+            except OSError as e:
+                print("ERROR: %s" % e)
                 sys.exit(1)
             else:
                 self.syscpu[i] = syscpu_fh.readline().strip()

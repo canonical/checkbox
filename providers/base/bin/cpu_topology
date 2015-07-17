@@ -44,10 +44,13 @@ class sysfs_cpu():
         self.path = '/sys/devices/system/cpu/' + proc + '/topology'
         items = ['core_id', 'physical_package_id']
         for i in items:
-            syscpu_fh = open(os.path.join(self.path, i), 'r')
             try:
+                syscpu_fh = open(os.path.join(self.path, i), 'r')
+            except FileNotFoundError:
+                print("/sys/devices seems to be missing, unable to continue")
+                sys.exit(1)
+            else:
                 self.syscpu[i] = syscpu_fh.readline().strip()
-            finally:
                 syscpu_fh.close()
 
 

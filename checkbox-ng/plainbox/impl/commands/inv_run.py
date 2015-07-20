@@ -872,6 +872,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
 
     def _interaction_callback(self, runner, job, result_builder, config,
                               prompt=None, allowed_outcome=None):
+        result = result_builder.get_result()
         if prompt is None:
             prompt = _("Select an outcome or an action: ")
         if allowed_outcome is None:
@@ -899,24 +900,24 @@ class RunInvocation(CheckBoxInvocationMixIn):
         if job.command is not None:
             allowed_actions.append(
                 Action('r', _('re-run this job'), 're-run'))
-        if result_builder.return_code is not None:
-            if result_builder.return_code == 0:
+        if result.return_code is not None:
+            if result.return_code == 0:
                 suggested_outcome = IJobResult.OUTCOME_PASS
             else:
                 suggested_outcome = IJobResult.OUTCOME_FAIL
             allowed_actions.append(
                 Action('', _('set suggested outcome [{0}]').format(
                     tr_outcome(suggested_outcome)), 'set-suggested'))
-        while result_builder.outcome not in allowed_outcome:
+        while result.outcome not in allowed_outcome:
             print(_("Please decide what to do next:"))
             print("  " + _("outcome") + ": {0}".format(
-                self.C.result(result_builder.get_result())))
-            if result_builder.comments is None:
+                self.C.result(result)))
+            if result.comments is None:
                 print("  " + _("comments") + ": {0}".format(
                     C_("none comment", "none")))
             else:
                 print("  " + _("comments") + ": {0}".format(
-                    self.C.CYAN(result_builder.comments, bright=False)))
+                    self.C.CYAN(result.comments, bright=False)))
             cmd = self._pick_action_cmd(allowed_actions)
             if cmd == 'set-pass':
                 result_builder.outcome = IJobResult.OUTCOME_PASS
@@ -933,6 +934,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
                     result_builder.add_comment(new_comment)
             elif cmd == 're-run':
                 raise ReRunJob
+            result = result_builder.get_result()
 
     def _update_desired_job_list(self, desired_job_list):
         problem_list = self.state.update_desired_job_list(desired_job_list)

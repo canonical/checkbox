@@ -1,7 +1,7 @@
 Source: checkbox-ng
 Section: utils
 Priority: optional
-Maintainer: Checkbox Developers <checkbox-dev@lists.launchpad.net>
+Maintainer: Checkbox Developers <checkbox-devel@lists.ubuntu.com>
 Uploaders: Sylvain Pineau <sylvain.pineau@canonical.com>,
            Zygmunt Krynicki <zygmunt.krynicki@canonical.com>,
            Debian Python Modules Team <python-modules-team@lists.alioth.debian.org>

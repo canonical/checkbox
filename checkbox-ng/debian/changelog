@@ -1,3 +1,9 @@
+checkbox-ng (0.18-3) UNRELEASED; urgency=medium
+
+  * Use the new email address for the team (checkbox-devel@lists.ubuntu.com). 
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 21 Jul 2015 13:21:12 +0200
+
 checkbox-ng (0.18-2) unstable; urgency=medium
 
   * Add fix-tests-on-python35 patch to use inspect.Signature.from_callable

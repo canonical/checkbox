@@ -1,3 +1,11 @@
+checkbox-support (0.20-1) UNRELEASED; urgency=medium
+
+  * New upstream release
+  * debian/patches/ship-{cpuinfo-test,package,xml-test}-data: drop, applied
+    upstream
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 21 Jul 2015 14:40:23 +0200
+
 checkbox-support (0.18-1) unstable; urgency=medium
 
   * debian/watch: use the new pypi redirector

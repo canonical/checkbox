@@ -3,6 +3,8 @@ checkbox-support (0.20-1) UNRELEASED; urgency=medium
   * New upstream release
   * debian/patches/ship-{cpuinfo-test,package,xml-test}-data: drop, applied
     upstream
+  * debian/control: Use the new email address for the team
+    (checkbox-devel@lists.ubuntu.com). 
 
  -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 21 Jul 2015 14:40:23 +0200
 

@@ -1,6 +1,11 @@
-checkbox-ng (0.18-3) UNRELEASED; urgency=medium
+checkbox-ng (0.20-1) UNRELEASED; urgency=medium
 
-  * Use the new email address for the team (checkbox-devel@lists.ubuntu.com). 
+  * New upstream release 
+  * debian/control: Use the new email address for the team
+    (checkbox-devel@lists.ubuntu.com). 
+  * debian/patches/documentation-theme: refresh
+  * debian/patches/fix-tests-on-python35: drop (applied upstream)
+  * debian/control: require plainbox 0.22 or more recent (new APIs and fixes) 
 
  -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 21 Jul 2015 13:21:12 +0200
 

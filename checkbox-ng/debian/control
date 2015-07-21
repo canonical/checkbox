@@ -12,7 +12,7 @@ Build-Depends: debhelper (>= 9),
                python3-dbus,
                python3-docutils,
                python3-gi,
-               python3-plainbox (>= 0.20),
+               python3-plainbox (>= 0.22),
                python3-requests (>= 1.0),
                python3-setuptools,
                python3-sphinx
@@ -53,7 +53,7 @@ Description: CheckBox D-Bus service
 Package: python3-checkbox-ng
 Architecture: all
 Depends: python3-checkbox-support (>= 0.18),
-         python3-plainbox (>= 0.20),
+         python3-plainbox (>= 0.22),
          python3-requests (>= 1.0),
          ${misc:Depends},
          ${python3:Depends}

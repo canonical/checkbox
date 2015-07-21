@@ -5,13 +5,13 @@ Description: Revert the documentation theme back to default
 Author: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 Origin: upstream
 Forwarded: not-needed
-Last-Update: 2015-04-01
+Last-Update: 2015-07-21
 
 --- checkbox-ng-0.18.orig/docs/conf.py
 +++ checkbox-ng-0.18/docs/conf.py
-@@ -126,9 +126,7 @@ pygments_style = 'sphinx'
+@@ -132,9 +132,7 @@ pygments_style = 'sphinx'
  
- # -- Options for HTML output ---------------------------------------------------
+ # -- Options for HTML output -------------------------------------------------
  
 -html_theme_path = ['_templates']
 -html_theme = 'ubuntu1204'

@@ -282,20 +282,32 @@ class IPackagingDriver(metaclass=abc.ABCMeta):
 def _strategy_id_version(unit, os_release):
     _logger.debug(_("Considering strategy: %s"),
                   _("os-id == ID and os-version-id == VERSION_ID"))
-    return (unit.os_id == os_release['ID']
-            and unit.os_version_id == os_release['VERSION_ID'])
+    return (
+        'ID' in os_release
+        and unit.os_id == os_release['ID']
+        and 'VERSION_ID' in os_release
+        and unit.os_version_id == os_release['VERSION_ID']
+    )
 
 
 def _strategy_id(unit, os_release):
     _logger.debug(_("Considering strategy: %s"),
                   _("os-id == ID and os-version-id == undefined"))
-    return unit.os_id == os_release['ID'] and unit.os_version_id is None
+    return (
+        'ID' in os_release
+        and unit.os_id == os_release['ID']
+        and unit.os_version_id is None
+    )
 
 
 def _strategy_id_like(unit, os_release):
     _logger.debug(_("Considering strategy: %s"),
                   _("os-id == ID_LIKE and os-version-id == undefined"))
-    return unit.os_id == os_release['ID_LIKE'] and unit.os_version_id is None
+    return (
+        'ID_LIKE' in os_release
+        and unit.os_id == os_release['ID_LIKE']
+        and unit.os_version_id is None
+    )
 
 
 class PackagingDriverBase(IPackagingDriver):

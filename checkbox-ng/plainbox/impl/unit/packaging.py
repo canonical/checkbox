@@ -114,6 +114,7 @@ not documented.
 import abc
 import errno
 import logging
+import re
 import sys
 
 from plainbox.i18n import gettext as _
@@ -383,10 +384,14 @@ class DebianPackagingDriver(PackagingDriverBase):
     def collect(self, unit: Unit) -> None:
         def rel_list(field):
             relations = unit.get_record_value(field, '').replace('\n', ' ')
-            return ', '.join([rel.strip() for rel in relations.split(',')])
-        self._depends.append(rel_list('Depends'))
-        self._suggests.append(rel_list('Suggests'))
-        self._recommends.append(rel_list('Recommends'))
+            return (
+                rel.strip()
+                for rel in re.split(', *', relations)
+                if rel.strip()
+            )
+        self._depends.extend(rel_list('Depends'))
+        self._suggests.extend(rel_list('Suggests'))
+        self._recommends.extend(rel_list('Recommends'))
 
     def _write_pkg_substvars(self, pkg):
         fname = 'debian/{}.substvars'.format(pkg)

@@ -1,4 +1,4 @@
-checkbox-ng (0.20-1) UNRELEASED; urgency=medium
+checkbox-ng (0.20-1) unstable; urgency=medium
 
   * New upstream release 
   * debian/control: Use the new email address for the team

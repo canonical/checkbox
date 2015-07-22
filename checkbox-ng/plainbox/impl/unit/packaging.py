@@ -143,12 +143,12 @@ class PackagingMetaDataUnit(Unit):
     @property
     def os_id(self):
         """ Identifier of the operating system.  """
-        return self.get_record_value('os-id')
+        return self.get_record_value(self.Meta.fields.os_id)
 
     @property
     def os_version_id(self):
         """ Version of the operating system.  """
-        return self.get_record_value('os-version')
+        return self.get_record_value(self.Meta.fields.os_version_id)
 
     class Meta:
 

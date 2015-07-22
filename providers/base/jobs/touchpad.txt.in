@@ -205,3 +205,16 @@ command:
 _description:
  This test will check if your touchpad was detected as a mouse.
 
+plugin: user-interact
+id: touchpad/continuous-move
+requires: dmi.product in ['Notebook','Laptop','Portable']
+estimated_duration: 12
+command: qmlscene -qt5 --fullscreen $PLAINBOX_PROVIDER_DATA/touch_continuous_move_test.qml 2>&1 | grep -o PASS
+_description:
+ PURPOSE:
+     Touchpad continuous move verification
+ STEPS:
+     1. Select "Test" when ready and continuously move your cursor within the borders of the displayed test window.
+     You'll need to keep moving your finger on the touchpad for 10 seconds.
+ VERIFICATION:
+     Did the mouse cursor move without interruption?

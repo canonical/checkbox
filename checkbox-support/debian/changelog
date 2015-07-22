@@ -1,4 +1,4 @@
-checkbox-support (0.20-1) UNRELEASED; urgency=medium
+checkbox-support (0.20-1) unstable; urgency=medium
 
   * New upstream release
   * debian/patches/ship-{cpuinfo-test,package,xml-test}-data: drop, applied

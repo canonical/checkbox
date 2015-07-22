@@ -142,12 +142,12 @@ class PackagingMetaDataUnit(Unit):
 
     @property
     def os_id(self):
-        """ Identifier of the operating system.  """
+        """Identifier of the operating system."""
         return self.get_record_value(self.Meta.fields.os_id)
 
     @property
     def os_version_id(self):
-        """ Version of the operating system.  """
+        """Version of the operating system."""
         return self.get_record_value(self.Meta.fields.os_version_id)
 
     class Meta:
@@ -156,7 +156,7 @@ class PackagingMetaDataUnit(Unit):
 
         class fields(SymbolDef):
 
-            """ Symbols for each field of a packaging meta-data unit. """
+            """Symbols for each field of a packaging meta-data unit."""
 
             os_id = 'os-id'
             os_version_id = 'os-version-id'
@@ -174,46 +174,108 @@ class PackagingMetaDataUnit(Unit):
 
 class PackagingDriverError(Exception):
 
-    """ Base for all packaging driver exceptions. """
+    """Base for all packaging driver exceptions."""
 
 
 class NoPackagingDetected(PackagingDriverError):
 
-    """ Exception raised when packaging cannot be found. """
+    """Exception raised when packaging cannot be found."""
 
 
 class NoApplicableBinaryPackages(PackagingDriverError):
 
-    """ Exception raised when no applicable binary packages are found. """
+    """Exception raised when no applicable binary packages are found."""
 
 
 class IPackagingDriver(metaclass=abc.ABCMeta):
 
-    """ Interface for all packaging drivers. """
+    """Interface for all packaging drivers."""
 
     @abc.abstractmethod
     def __init__(self, os_release: 'Dict[str, str]'):
-        pass
+        """
+        Initialize the packaging driver.
+
+        :param os_release:
+            The dictionary that represents the contents of the
+            ``/etc/os-release`` file. Using this file the packaging driver can
+            infer information about the target operating system that the
+            packaging will be built for.
+
+            This assumes that packages are built natively, not through a
+            cross-compiler of some sort where the target distribution is
+            different from the host distribution.
+        """
 
     @abc.abstractmethod
     def inspect_provider(self, provider: 'Provider1') -> None:
-        pass
+        """
+        Inspect a provider looking for packaging meta-data.
+
+        :param provider:
+            A provider object to look at. All of the packaging meta-data units
+            there are inspected, if they are applicable (see
+            :meth:`is_applicable()`. Information from applicable units is
+            collected using the :meth:`collect()` method.
+        """
 
     @abc.abstractmethod
     def is_applicable(self, unit: Unit) -> bool:
-        pass
+        """
+        Check if the given unit is applicable for collecting.
+
+        :param unit:
+            The unit to inspect. This doesn't have to be a packaging meta-data
+            unit. In fact, all units are checked with this method.
+        :returns:
+            True if the unit is applicable for collection.
+
+        Packaging meta-data units that have certain properties are applicable.
+        Refer to the documentation of the module for details.
+        """
 
     @abc.abstractmethod
     def collect(self, unit: Unit) -> None:
-        pass
+        """
+        Collect information from the given applicable unit.
+
+        :param unit:
+            The unit to collect information from. This is usually expressed as
+            additional fields that are specific to the type of native packaging
+            for the system.
+
+        Collected information is recorded and made available for the
+        :meth:`modify_packaging_tree()` method later.
+        """
 
     @abc.abstractmethod
     def inspect_packaging(self) -> None:
-        pass
+        """
+        Inspect the packaging tree for additional information.
+
+        :raises NoPackagingDetected:
+            Exception raised when packaging cannot be found.
+        :raises NoApplicableBinaryPackages:
+            Exception raised when no applicable binary packages are found.
+
+        This method looks at the packaging system located in the current
+        directory. This can be the ``debian/`` directory, a particular
+        ``.spec`` file or anything else. Information obtained from the package
+        is used to infer additional properties that can aid in the packaging
+        process.
+        """
 
     @abc.abstractmethod
     def modify_packaging_tree(self) -> None:
-        pass
+        """
+        Modify the packaging tree with information from the packaging units.
+
+        This method uses all of the available information collected from
+        particular packaging meta-data units and from the native packaging to
+        modify the packaging. Additional dependencies may be injected in
+        appropriate places. Please refer to the documentation specific to your
+        packaging system for details.
+        """
 
 
 def _strategy_id_version(unit, os_release):
@@ -237,7 +299,7 @@ def _strategy_id_like(unit, os_release):
 
 class PackagingDriverBase(IPackagingDriver):
 
-    """ Base implementation of a packaging driver. """
+    """Base implementation of a packaging driver."""
 
     def __init__(self, os_release: 'Dict[str, str]'):
         self.os_release = os_release
@@ -262,7 +324,12 @@ class PackagingDriverBase(IPackagingDriver):
 
 class NullPackagingDriver(PackagingDriverBase):
 
-    """ Null implementation of a packaging driver. """
+    """
+    Null implementation of a packaging driver.
+
+    This driver just does nothing at all. It is used as a fall-back when
+    nothing better is detected.
+    """
 
     def is_applicable(self, unit: Unit) -> bool:
         return False
@@ -357,7 +424,7 @@ class DebianPackagingDriver(PackagingDriverBase):
 
 
 def get_packaging_driver() -> IPackagingDriver:
-    """ Get the packaging driver appropriate for the current platform. """
+    """Get the packaging driver appropriate for the current platform."""
     if sys.platform.startswith("linux"):
         os_release = get_os_release()
         if (os_release.get('ID') == 'debian'

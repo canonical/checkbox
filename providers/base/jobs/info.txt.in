@@ -15,18 +15,21 @@ plugin: attachment
 command: cat /proc/cpuinfo
 estimated_duration: 0.006
 _description: Attaches a report of CPU information
+_summary: Attach a copy of /proc/cpuinfo
 
 id: dmesg_attachment
 plugin: attachment
 command: cat /var/log/dmesg | ansi_parser
 estimated_duration: 0.640
 _description: Attaches a copy of /var/log/dmesg to the test results
+_summary: Attach a copy of /var/log/dmesg
 
 id: dmi_attachment
 plugin: attachment
 command: [ -d /sys/class/dmi/id/ ] && (grep -r . /sys/class/dmi/id/ 2>/dev/null || true) || false
 estimated_duration: 0.044
 _description: Attaches info on DMI
+_summary: Attach a copy of /sys/class/dmi/id/*
 
 id: dmidecode_attachment
 plugin: attachment
@@ -35,6 +38,7 @@ user: root
 command: dmidecode | iconv -t 'utf-8' -c
 estimated_duration: 0.030
 _description: Attaches dmidecode output
+_summary: Attach a copy of of the output of dmidecode
 
 id: lshw_attachment
 plugin: attachment
@@ -55,6 +59,7 @@ plugin: attachment
 command: lspci -vvnn | iconv -t 'utf-8' -c
 estimated_duration: 0.042
 _description: Attaches very verbose lspci output.
+_summary: Attach a list of PCI devices
 
 id: lspci_network_attachment
 plugin: attachment
@@ -89,6 +94,7 @@ plugin: attachment
 command: find /etc/modprobe.* -name \*.conf | xargs cat
 estimated_duration: 0.015
 _description: Attaches the contents of the various modprobe conf files.
+_summary: Attach the contents of modprobe configuration files
 
 id: modinfo_attachment
 plugin: attachment
@@ -109,12 +115,14 @@ plugin: attachment
 command: cat /etc/modules
 estimated_duration: 0.004
 _description: Attaches the contents of the /etc/modules file.
+_summary: Attach the contents of /etc/modules
 
 id: sysctl_attachment
 plugin: attachment
 command: find /etc/sysctl.* -name \*.conf | xargs cat
 estimated_duration: 0.014
 _description: attaches the contents of various sysctl config files.
+_summary: Attach sysctl configuration files.
 
 id: sysfs_attachment
 plugin: attachment
@@ -126,12 +134,14 @@ command:
   echo
  done
 estimated_duration: 6.344
+_summary: Attach detailed sysfs property output from udev
 
 id: udev_attachment
 plugin: attachment
 command: udevadm info --export-db | xml_sanitize
 estimated_duration: 1.465
 _description: Attaches a dump of the udev database showing system hardware information.
+_summary: Attach hardware database (udev)
 
 id: udev_resource_attachment
 plugin: attachment
@@ -151,6 +161,7 @@ plugin: attachment
 command: lsmod_info
 estimated_duration: 0.5
 _description: Attaches a list of the currently running kernel modules.
+_summary: Attach a list of currently running kernel modules
 
 id: dkms_info_attachment
 plugin: attachment
@@ -336,3 +347,4 @@ plugin: attachment
 command: cat /proc/cmdline
 estimated_duration: 0.005
 _description: Attaches the kernel commandline used to boot
+_summary: Attach a copy of /proc/cmdline

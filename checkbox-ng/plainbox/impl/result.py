@@ -350,6 +350,11 @@ class _JobResultBase(IJobResult):
         """Get the hexadecimal "#RRGGBB" color that represents this outcome."""
         return outcome_color_hex(self.outcome)
 
+    def outcome_color_rgb(self):
+        h = outcome_meta(self.outcome).color_hex
+        assert len(h) == 7, "expected format #RRGGBB"
+        return (int(h[1:3], 16), int(h[3:5], 16), int(h[5:7], 16))
+
     def outcome_color_ansi(self):
         """Get an ANSI escape sequence that represents this outcome."""
         return outcome_color_ansi(self.outcome)

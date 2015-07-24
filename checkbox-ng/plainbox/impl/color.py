@@ -212,3 +212,93 @@ class Colorizer:
 
     def WHITE(self, text, bright=True):
         return self(text, "WHITE", bright)
+
+
+class CanonicalColors:
+
+    """
+    Canonical Color Palette.
+
+    Colour is an effective, powerful and instantly recognisable medium for
+    visual communications. To convey the brand personality and brand values,
+    there is a sophisticated colour palette.
+
+    We have introduced a palette which includes both a fresh, lively orange,
+    and a rich, mature aubergine. The use of aubergine indicates commercial
+    involvement, while orange is a signal of community engagement.
+
+    These colours are used widely in the brand communications, to convey the
+    precise, reliable and free personality.
+
+    Ubuntu core colours.
+
+    The Ubuntu colour palette has been created to reflect the spirit of our
+    brand. :attr:`ubuntu_orange` for a community feel. :attr:`white` for a
+    clean, fresh and light feel.
+
+    :attr:`black` is used in some versions of the brandmark for flexibility of
+    application and where print restrictions apply. It can also be used for
+    body copy.
+
+    Supporting colours
+
+    In addition, there is a supporting colour palette for when communications
+    have a consumer or enterprise focus.
+
+     - :attr:`light_aubergine` for a consumer focus
+     - :attr:`dark_aubergine` for an enterprise focus
+     - :attr:`mid_aubergine` for a balance of both
+
+    Neutral colours.
+
+    :attr:`warm_grey`
+
+        For balance. The addition of warm grey softens the combination of
+        orange and aubergine and provides a bridge between the two.
+
+        Warm grey can be used for; backgrounds, graphics, pictograms, dot
+        patterns, charts and diagrams. It can also be used for large size text.
+
+    :attr:`cool_grey`
+        For typography, particularly body copy. Black can be quite harsh in
+        combination with aubergine, but grey delivers more balance while still
+        being legible.
+
+        Cool grey can also be used within charts and diagrams.
+
+    :attr:`text_grey`
+        Text grey is used for small size headings, sub-headings and body
+        copy text only.
+
+    Canonical core colours.
+
+    The Canonical colour palette has been created to reflect the spirit of our
+    brand. Aubergine for a smart, focussed feel. White for a clean, fresh and
+    light feel.
+
+    .. see::
+        http://design.ubuntu.com/brand/colour-palette
+    """
+
+    #: Ubuntu orange color
+    ubuntu_orange = (0xdd, 0x48, 0x14)
+    #: White color
+    white = (0xff, 0xff, 0xff)
+    #: Black color
+    black = (0x00, 0x00, 0x00)
+    #: Light aubergine color
+    light_aubergine = (0x77, 0x21, 0x6f)
+    #: Mid aubergine color
+    mid_aubergine = (0x5e, 0x27, 0x50)
+    #: Dark aubergine color
+    dark_aubergine = (0x2c, 0x00, 0x1e)
+    #: Warm grey color
+    warm_grey = (0xae, 0xa7, 0x9f)
+    #: Cool grey color
+    cool_grey = (0x33, 0x33, 0x33)
+    #: Color for small grey dots
+    small_dot_grey = (0xae, 0xa7, 0x9f)
+    #: Canonical aubergine color
+    canonical_aubergine = (0x77, 0x29, 0x53)
+    #: Text gray color
+    text_grey = (0x33, 0x33, 0x33)

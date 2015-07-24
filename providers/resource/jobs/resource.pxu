@@ -65,6 +65,7 @@ id: cpuinfo
 estimated_duration: 0.37
 plugin: resource
 command: cpuinfo_resource
+_summary: Collect information about the CPU
 _description: Gets CPU resource info from /proc/cpuinfo
 
 id: cdimage
@@ -72,6 +73,7 @@ estimated_duration: 0.61
 plugin: resource
 user: root
 command: cdimage_resource
+_summary: Collect information about installation media (casper)
 _description: Gets installation info from casper.log and media-info
 
 id: dpkg
@@ -79,6 +81,7 @@ estimated_duration: 0.19
 plugin: resource
 command: dpkg_resource
 requires: package.name == "dpkg"
+_summary: Collect information about dpkg version
 _description: Gets info on the version of dpkg installed
 
 id: gconf
@@ -87,6 +90,7 @@ plugin: resource
 command: gconf_resource | filter_templates -w 'name=.*proxy.*'
 requires: package.name == "gconf2"
 _description: Generates resource info from gconf settings
+_summary: Collect information about software configuration (gconf)
 
 id: lsb
 estimated_duration: 1.63
@@ -94,18 +98,21 @@ plugin: resource
 command: lsb_resource
 requires: package.name == "lsb-release"
 _description: Generates release info based on /etc/lsb-release
+_summary: Collect information about installed system (lsb-release)
 
 id: meminfo
 estimated_duration: 0.1
 plugin: resource
 command: meminfo_resource
 _description: Generates resource info based on /proc/meminfo
+_summary: Collect information about system memory (/proc/meminfo)
 
 id: module
 estimated_duration: 0.13
 plugin: resource
 command: module_resource
 _description: Generates resources info on running kernel modules
+_summary: Collect information about kernel modules
 
 id: package
 estimated_duration: 1.16
@@ -114,6 +121,7 @@ command:
     dpkg-query -W -f='name: ${Package}\nversion: ${Version}\nmodalias: ${Modaliases}\n\n' |\
     awk 'BEGIN {RS = ""; FS = "\n"}{print $1; print $2; if ($3 ~ /^modalias: .+$/) {print $3}; print "" }'
 _description: Generates a list of packages
+_summary: Collect information about installed software packages
 
 id: executable
 estimated_duration: 0.78
@@ -130,6 +138,7 @@ plugin: resource
 command: udev_resource
 requires: package.name == "udev"
 _description: Creates resource info from udev
+_summary: Collect information about hardware devices (udev)
 
 id: staging/udev
 estimated_duration: 1.1
@@ -149,6 +158,7 @@ plugin: resource
 user: root
 requires: package.name == "dmidecode"
 command: dmi_resource
+_summary: Collect information about hardware devices (DMI)
 
 id: efi
 estimated_duration: 0.56
@@ -161,6 +171,7 @@ estimated_duration: 0.09
 plugin: resource
 command: uname_resource
 _description: Creates resource info from uname output
+_summary: Collect information about the running kernel
 
 id: sleep
 estimated_duration: 0.03
@@ -199,6 +210,7 @@ id: usb
 estimated_duration: 0.33
 plugin: resource
 _description: Creates resource info for supported USB versions
+_summary: Collect information about supported types of USB
 command: 
  for version in 2 3; do 
      echo -n "usb$version: "

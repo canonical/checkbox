@@ -63,7 +63,7 @@ def get_whitelist_by_name(provider_list, desired_whitelist):
               "named '{}'").format(desired_whitelist))
 
 
-def run_job_if_possible(session, runner, config, job, update=True):
+def run_job_if_possible(session, runner, config, job, update=True, ui=None):
     """
     Coupling point for session, runner, config and job
 
@@ -71,7 +71,7 @@ def run_job_if_possible(session, runner, config, job, update=True):
     """
     job_state = session.job_state_map[job.id]
     if job_state.can_start():
-        job_result = runner.run_job(job, job_state, config)
+        job_result = runner.run_job(job, job_state, config, ui)
     else:
         # Set the outcome of jobs that cannot start to
         # OUTCOME_NOT_SUPPORTED _except_ if any of the inhibitors point to

@@ -404,6 +404,7 @@ class SessionManager(pod.POD):
             self._too_many_device_context_objects()
         self.device_context_list.append(context)
         self.on_device_context_added(context)
+        return context
 
     def add_local_device_context(self):
         """
@@ -413,7 +414,7 @@ class SessionManager(pod.POD):
         may execute jobs or parts of plainbox but they don't need to store or
         run the full plainbox code.
         """
-        self.add_device_context(SessionDeviceContext())
+        return self.add_device_context(SessionDeviceContext())
 
     def remove_device_context(self, context):
         """

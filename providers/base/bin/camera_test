@@ -274,6 +274,8 @@ class CameraTest:
                    % (width, height), filename]
         use_gstreamer = False
         if pixelformat:
+            if 'MJPG' == pixelformat:  # special tweak for fswebcam
+                pixelformat = 'MJPEG'
             command.extend(["-p", pixelformat])
 
         try:

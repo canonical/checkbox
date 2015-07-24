@@ -346,5 +346,5 @@ id: kernel_cmdline_attachment
 plugin: attachment
 command: cat /proc/cmdline
 estimated_duration: 0.005
-_description: Attaches the kernel commandline used to boot
+_description: Attaches the kernel command line used to boot
 _summary: Attach a copy of /proc/cmdline

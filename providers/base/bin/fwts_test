@@ -69,6 +69,13 @@ NON_CERT_TESTS = ['bios_info',
                   ]
 TESTS = sorted(CERT_TESTS + NON_CERT_TESTS)
 
+# The following tests will record logs in a separate file for the HWE team
+HWE_TESTS = ['mtrr',
+             'virt',
+             'apicedge',
+             'klog',
+             'oops',
+             'uefibootpath']
 
 def get_sleep_times(start_marker, end_marker, sleep_time, resume_time):
     logfile = '/var/log/syslog'
@@ -372,10 +379,14 @@ def main():
                     results['sleep'] = 'FAILED_CRITICAL'
     else:
         for test in tests:
+            # ACPI tests can now be run with --acpitests (fwts >= 15.07.00)
+            log = args.log
+            if test in HWE_TESTS:
+                log = log.replace('.log', '_hwe.log')
             if test == 'acpitests':
                 test = '--acpitests'
             command = ('fwts -q --stdout-summary -r %s %s'
-                       % (args.log, test))
+                       % (log, test))
             results[test] = (Popen(command, stdout=PIPE, shell=True)
                              .communicate()[0].strip()).decode()
 

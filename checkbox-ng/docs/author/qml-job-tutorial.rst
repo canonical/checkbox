@@ -68,7 +68,7 @@ Let's build a very basic test that shows pass and fail buttons.  All
 qml-native jobs start as ordinary QtQuick ``Item{}``, with ``testingShell``
 property and testDone signal. I.e. ::
 
-    import QtQuck 2.0
+    import QtQuick 2.0
     Item {
         property var testingShell;
          signal testDone(var test);
@@ -77,7 +77,7 @@ property and testDone signal. I.e. ::
 That's the boilerplate code every qml-native job will have.
 Now let's add two buttons.::
 
-    import QtQuck 2.0
+    import QtQuick 2.0
     import Ubuntu.Components 0.1
     Item {
         property var testingShell;
@@ -326,7 +326,7 @@ directory we can build and install checkbox click package.
 In ``checkbox/checkbox-touch`` run::
 
     ./get-libs
-    ./build-me ../providers/2015.com.canonical.certification\:qml-tests/ \
+    ./build-me --provider ../providers/2015.com.canonical.certification\:qml-tests/ \
     --install
 
 Launch the "Checkbox" app on the device and your test should be live.

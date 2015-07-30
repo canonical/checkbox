@@ -22,6 +22,7 @@
 ============================================================
 """
 
+import os
 from unittest.loader import defaultTestLoader
 
 from plainbox.impl import get_plainbox_dir
@@ -33,7 +34,9 @@ def load_unit_tests():
     """
     # Discover all unit tests. By simple convention those are kept in
     # python modules that start with the word 'test_' .
-    return defaultTestLoader.discover(get_plainbox_dir())
+    start_dir = get_plainbox_dir()
+    top_level_dir = os.path.normpath(os.path.join(start_dir, '..'))
+    return defaultTestLoader.discover(start_dir, top_level_dir=top_level_dir)
 
 
 def load_integration_tests():

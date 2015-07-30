@@ -331,4 +331,39 @@ In ``checkbox/checkbox-touch`` run::
 
 Launch the "Checkbox" app on the device and your test should be live.
 
+Confined Qml jobs
+-----------------
 
+Sometimes there is a need to run a job with a different set of policies.
+Checkbox makes this possible by embedding such jobs into the resulting click
+package as seperate apps. Each of those apps have their own apparmor
+declaration, so each one have its own, seperate entry in the Trust database.
+
+To request Checkbox to run a qml job as confined, add 'confined' flag to its
+definition.
+
+E.g.::
+
+    id: confined-job
+    category_id: confinement-tests
+    plugin: qml
+    _summary: Job that runs as a seperate app
+    _description:
+     Checkbox should run this job with a seperate set of policies.
+    qml_file: simple.qml
+    flags: confined
+    estimated_duration: 5
+
+After the confined jobs are defined, run ``generate-confinement.py`` in the
+root directory of the provider, naming all confined jobs that have been
+declared.
+
+E.g.::
+
+    cd my_provider
+    ~/checkbox/checkbox-touch/confinement/generate-confinement.py confined-job
+
+The tool will print all the hooks declaration you need to add to the
+``manifest.json`` file.
+
+Now, your multi-app click is ready to be built.

@@ -19,38 +19,31 @@ INTERACTIVE_TESTS = ['ac_adapter',
                      'brightness',
                      'lid']
 # These are usually performed on normal certification runs
-CERT_TESTS = ['acpidump',
+CERT_TESTS = ['acpitests',
+              'acpidump',
               'acpitables',
               'apicedge',
               'apicinstance',
               'aspm',
               'bios32',
-              'checksum',
-              'cstates',
-              'dmar',
+              'dmicheck',
               'ebda',
-              'fadt',
-              'hpet_check',
               'klog',
-              'mcfg',
-              'method',
               'mpcheck',
               'msr',
               'mtrr',
               'nx',
               'oops',
+              'uefibootpath',
               'uefirtvariable',
               'version',
-              'virt',
-              'wmi']
+              'virt']
 # These are advanced tests that shouldn't affect certification status
-NON_CERT_TESTS = ['acpiinfo',
-                  'bios_info',
+NON_CERT_TESTS = ['bios_info',
                   'cmosdump',
                   'crs',
                   'crsdump',
                   'csm',
-                  'dmicheck',
                   'ebdadump',
                   'fan',
                   'gpedump',
@@ -62,7 +55,6 @@ NON_CERT_TESTS = ['acpiinfo',
                   'mpdump',
                   'os2gap',
                   'osilinux',
-                  'pcc',
                   'pciirq',
                   'plddump',
                   'pnp',
@@ -380,6 +372,8 @@ def main():
                     results['sleep'] = 'FAILED_CRITICAL'
     else:
         for test in tests:
+            if test == 'acpitests':
+                test = '--acpitests'
             command = ('fwts -q --stdout-summary -r %s %s'
                        % (args.log, test))
             results[test] = (Popen(command, stdout=PIPE, shell=True)

@@ -133,7 +133,7 @@ class LaunchpadTransport(TransportBase):
             ?
         :returns:
             A dictionary with responses from the server if submission was
-            successful.
+            successful and empty dictionary otherwise.
         :raises ValueError:
             If no session state was provided.
         :raises TransportError:
@@ -199,5 +199,6 @@ class LaunchpadTransport(TransportBase):
                     'OK data stored')):
                 status = response.headers['x-launchpad-hwdb-submission']
             return {'status': status}
-        # XXX: can response be None?
+
+        # ISessionStateTransport.send must return dictionary
         return {}

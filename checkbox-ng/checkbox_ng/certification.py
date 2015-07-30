@@ -108,7 +108,7 @@ class CertificationTransport(TransportBase):
             was successful. This should contain an 'id' key, however
             the server response may change, so the only guarantee
             we make is that this will be non-False if the server
-            accepted the data.
+            accepted the data. Returns empty dictionary otherwise.
         :raises requests.exceptions.Timeout:
             If sending timed out.
         :raises requests.exceptions.ConnectionError:
@@ -179,7 +179,8 @@ class CertificationTransport(TransportBase):
                 return response.json()
             except Exception as exc:
                 raise TransportError(str(exc))
-        # XXX: can response be None?
+
+        # ISessionStateTransport.send must return dictionary
         return {}
 
     def _validate_secure_id(self, secure_id):

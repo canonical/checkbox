@@ -34,6 +34,7 @@ from plainbox.impl.depmgr import DependencySolver
 from plainbox.impl.session.jobs import JobState
 from plainbox.impl.session.jobs import UndesiredJobReadinessInhibitor
 from plainbox.impl.unit.job import JobDefinition
+from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.testplan import TestPlanUnitSupport
 from plainbox.vendor import morris
 
@@ -260,6 +261,7 @@ class SessionDeviceContext:
         # the SessionState)
         self._state.on_unit_added.connect(self.on_unit_added)
         self._state.on_unit_removed.connect(self.on_unit_removed)
+        self._unit_id_map = {}
 
     @property
     def device(self):
@@ -425,6 +427,26 @@ class SessionDeviceContext:
         # NOTE: no need to fire the on_unit_removed() signal because the state
         # object and we've connected it to will fire our version.
 
+    def get_unit(self, unit_id, kind_name=None):
+        """
+        Get an unit with a specific identifier.
+
+        :param unit_id:
+            The identifier of the unit to find
+        :param kind_name:
+            (optional) Name of the type of unit.  By default units of any type
+            can be found. Unit kind is the value of the ``unit.Meta.name``
+            attribute.  Using this argument allows the caller to quickly find
+            only units of a particular type without having to do the filtering
+            on their side.
+        :raises KeyError:
+            If the matching unit does not exists.
+        """
+        unit = self._unit_id_map[unit_id]
+        if kind_name is not None and unit.Meta.name != kind_name:
+            raise KeyError(unit_id)
+        return unit
+
     def get_ctrl_for_job(self, job):
         """
         Get the execution controller most applicable to run this job.
@@ -472,6 +494,8 @@ class SessionDeviceContext:
         logger.debug(_("Unit %s added to context %s"), unit, self)
         if unit.Meta.name == 'job':
             self.on_job_added(unit)
+        if isinstance(unit, UnitWithId):
+            self._unit_id_map[unit.id] = unit
 
     @morris.signal
     def on_job_added(self, job):
@@ -482,6 +506,8 @@ class SessionDeviceContext:
     def on_unit_removed(self, unit):
         """ Signal sent whenever a unit is removed from the context. """
         logger.debug(_("Unit %s removed from context %s"), unit, self)
+        if isinstance(unit, UnitWithId):
+            del self._unit_id_map[unit.id]
 
     def compute_shared(self, cache_key, func, *args, **kwargs):
         """

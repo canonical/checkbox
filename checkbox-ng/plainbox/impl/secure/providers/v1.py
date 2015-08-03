@@ -73,8 +73,8 @@ class ProviderContentPlugIn(PlugIn):
     """
 
     def __init__(self, filename, text, load_time, provider, *,
-                 validate=True, validation_kwargs=None,
-                 check=False, context=None):
+                 validate=False, validation_kwargs=None,
+                 check=True, context=None):
         start_time = now()
         try:
             # Inspect the file
@@ -207,8 +207,8 @@ class WhiteListPlugIn(ProviderContentPlugIn):
     # NOTE: This version of __init__() exists solely so that provider can
     # default to None. This is still used in some places and must be supported.
     def __init__(self, filename, text, load_time, provider=None, *,
-                 validate=True, validation_kwargs=None,
-                 check=False, context=None):
+                 validate=False, validation_kwargs=None,
+                 check=True, context=None):
         super().__init__(
             filename, text, load_time, provider, validate=validate,
             validation_kwargs=validation_kwargs, check=check, context=context)
@@ -731,8 +731,8 @@ class Provider1(IProvider1):
 
     def __init__(self, name, namespace, version, description, secure,
                  gettext_domain, units_dir, jobs_dir, whitelists_dir, data_dir,
-                 bin_dir, locale_dir, base_dir, *, validate=True,
-                 validation_kwargs=None, check=False, context=None):
+                 bin_dir, locale_dir, base_dir, *, validate=False,
+                 validation_kwargs=None, check=True, context=None):
         """
         Initialize a provider with a set of meta-data and directories.
 
@@ -844,7 +844,7 @@ class Provider1(IProvider1):
 
     @classmethod
     def from_definition(cls, definition, secure, *,
-                        validate=True, validation_kwargs=None, check=False,
+                        validate=False, validation_kwargs=None, check=True,
                         context=None):
         """
         Initialize a provider from Provider1Definition object

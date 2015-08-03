@@ -809,12 +809,22 @@ class Provider1Tests(TestCase):
         fake_content = [
             PlugIn(self.JOBS_DIR + "/path/to/jobs1.txt", (
                 "id: a2\n"
+                "plugin: shell\n"
+                "command: true\n"
                 "\n"
-                "id: a1\n")),
+                "id: a1\n"
+                "plugin: shell\n"
+                "command: true\n"
+            )),
             PlugIn(self.JOBS_DIR + "/path/to/jobs2.txt", (
                 "id: a3\n"
+                "plugin: shell\n"
+                "command: true\n"
                 "\n"
-                "id: a4\n"))]
+                "id: a4\n"
+                "plugin: shell\n"
+                "command: true\n"
+            ))]
         fake_problems = [IOError("first problem"), OSError("second problem")]
         with self.provider.fake(fake_content, fake_problems):
             job_list = self.provider.job_list

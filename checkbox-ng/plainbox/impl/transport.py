@@ -18,6 +18,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+Shared code for test data transports..
+
 :mod:`plainbox.impl.transport` -- shared code for test data transports
 ======================================================================
 
@@ -28,24 +30,32 @@
 
 from collections import OrderedDict
 from logging import getLogger
-
 import pkg_resources
+import re
 
 from plainbox.abc import ISessionStateTransport
 from plainbox.i18n import gettext as _
+from plainbox.impl.secure.config import Unset
+
+import requests
 
 
 logger = getLogger("plainbox.transport")
 
 
 class TransportError(Exception):
+
     """
-    Base class for problems encountered by the any ISessionStateTransport
-    during execution.
+    Base class for any problems related to transports.
+
+    This class acts the base exception for any and all problems encountered by
+    the any ISessionStateTransport during execution. Typically this is raised
+    from .send() that failed in some way.
     """
 
 
 class TransportBase(ISessionStateTransport):
+
     """
     Base class for transports that send test data somewhere.
 
@@ -62,6 +72,18 @@ class TransportBase(ISessionStateTransport):
     """
 
     def __init__(self, where, option_string):
+        """
+        Initialize the transport base class.
+
+        :param where:
+            A generalized form of "destination". This can be a file name, an
+            URL or anything appropriate for the given transport.
+        :param option_string:
+            Additional options appropriate for the transport, encoded as a
+            comma-separated list of key=value pairs.
+        :raises ValueError:
+            If the option string is malformed.
+        """
         self.url = where
         # parse option string only if there's at least one k=v pair
         self.options = {}

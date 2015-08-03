@@ -207,7 +207,7 @@ class JobRunnerUIDelegate(extcmd.DelegateBase):
         Initialize the JobRunnerUIDelegate.
 
         :param ui:
-            (optional) an instnace of IJobRunnerUI to delegate events to
+            (optional) an instance of IJobRunnerUI to delegate events to
         """
         self.ui = ui
 

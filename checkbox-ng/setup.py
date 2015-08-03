@@ -72,6 +72,7 @@ setup(
     ],
     install_requires=[
         'Jinja2 >= 2.7',
+        'requests >= 1.0',
     ],
     extras_require={
         'XLSX': 'XlsxWriter >= 0.3',

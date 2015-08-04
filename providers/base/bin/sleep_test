@@ -224,7 +224,7 @@ class SuspendTest():
         Write a stamped marker to syslogd (will appear in /var/log/messages).
         This is used to calculate the elapsed time for each iteration.
         '''
-        syslog(syslog.LOG_INFO, '---' + marker + '---')
+        syslog.syslog(syslog.LOG_INFO, '---' + marker + '---')
 
     def CheckAlarm(self, mode):
         '''

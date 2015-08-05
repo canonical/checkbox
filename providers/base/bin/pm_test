@@ -102,7 +102,9 @@ class PowerManagementOperation(object):
         that is, not too short, not too long
         """
         min_pm_time = timedelta(seconds=self.args.min_pm_time)
-        max_pm_time = timedelta(seconds=self.args.max_pm_time)
+        # add time needed for suspend/resume cycles ( < 100s each)
+        max_pm_time = timedelta(seconds=self.args.max_pm_time +
+            self.args.suspends_before_reboot * 100)
         if self.args.pm_timestamp:
             pm_timestamp = datetime.fromtimestamp(self.args.pm_timestamp)
             now = datetime.now()

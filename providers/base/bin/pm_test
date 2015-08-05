@@ -615,7 +615,7 @@ class AutoStartFile(object):
 [Desktop Entry]
 Name={pm_operation} test
 Comment=Verify {pm_operation} works properly
-Exec=sudo /usr/bin/python3 {script} -r {repetitions} -w {wakeup} --hardware-delay {hardware_delay} --pm-delay {pm_delay} --min-pm-time {min_pm_time} --max-pm-time {max_pm_time} --append --total {total} --start {start} --pm-timestamp {pm_timestamp} {silent} --log-level={log_level} --log-dir={log_dir} {pm_operation}
+Exec=sudo /usr/bin/python3 {script} -r {repetitions} -w {wakeup} --hardware-delay {hardware_delay} --pm-delay {pm_delay} --min-pm-time {min_pm_time} --max-pm-time {max_pm_time} --append --total {total} --start {start} --pm-timestamp {pm_timestamp} {silent} --log-level={log_level} --log-dir={log_dir} --suspends-before-reboot={suspend_cycles} {pm_operation}
 Type=Application
 X-GNOME-Autostart-enabled=true
 Hidden=false
@@ -666,6 +666,7 @@ Hidden=false
                             silent='--silent' if self.args.silent else '',
                             log_level=self.args.log_level_str,
                             log_dir=self.args.log_dir,
+                            suspend_cycles=self.args.suspends_before_reboot,
                             pm_operation=self.args.pm_operation))
         logging.debug(contents)
 

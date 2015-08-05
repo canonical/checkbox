@@ -374,7 +374,7 @@ def main():
         logging.info('=' * 20 + ' Test Results ' + '=' * 20)
         logging.info(run_result)
 
-        for k in run_result.iterkeys():
+        for k in run_result.keys():
             sleep_total += run_result[k][1]
             resume_total += run_result[k][2]
         sleep_avg = sleep_total / run_count

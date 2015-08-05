@@ -91,6 +91,7 @@ class PowerManagementOperation(object):
 
         self.check_last_cycle_duration()
         if self.args.repetitions > 0:
+            self.run_suspend_cycles(self.args.suspends_before_reboot)
             self.run_pm_command()
         else:
             self.summary()
@@ -149,6 +150,18 @@ class PowerManagementOperation(object):
         # This addresses LP: #1413134
         subprocess.check_call(command_str, shell=True)
         signal.pause()
+
+    def run_suspend_cycles(self, cycles_count):
+        """Run suspend and resume cycles."""
+        if cycles_count < 1:
+            return
+        sleep_test_path = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)), 'sleep_test')
+        command_str = '{} -s mem -p -i {} -w 10'.format(
+            sleep_test_path, cycles_count)
+        logging.info('Running suspend/resume cycles')
+        logging.debug('Executing: {0!r}...'.format(command_str))
+        subprocess.check_call(command_str, shell=True)
 
     def summary(self):
         """

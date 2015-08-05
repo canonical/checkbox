@@ -782,6 +782,11 @@ class MyArgumentParser(object):
 
         # Total number of iterations initially passed through the command line
         parser.add_argument('--total', type=int, default=0, help=SUPPRESS)
+
+        # suspend cycles before reboot
+        parser.add_argument('--suspends-before-reboot', type=int, default=0,
+                            help=('How many cycles of suspend/resume to run'
+                                 'before each reboot or poweroff'))
         self.parser = parser
 
     def parse(self):

@@ -337,7 +337,7 @@ command:
  id: suspend/`echo ${index}`_hybrid_sleep_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  user: root
  command:
-  set -o pipefail; fwts_test -f none -l $PLAINBOX_SESSION_SHARE/hybrid_sleep_single -s s3 --s3-hybrid --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 --pm-method=pm-utils | tee $PLAINBOX_SESSION_SHARE/hybrid_sleep_single_times.log
+  set -o pipefail; fwts_test -f none -l $PLAINBOX_SESSION_SHARE/`echo ${index}`_hybrid_sleep_single -s s3 --s3-hybrid --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 --pm-method=pm-utils | tee $PLAINBOX_SESSION_SHARE/`echo ${index}`_hybrid_sleep_single_times.log
  estimated_duration: 90.0
  _description:
   PURPOSE:
@@ -378,12 +378,20 @@ command:
   Attaches the log from the single suspend/resume test to the results
  EOF
 
-plugin: shell
-id: suspend/hybrid-sleep-single-log-check
-estimated_duration: 1.2
-command: [ -e $PLAINBOX_SESSION_SHARE/hybrid_sleep_single.log ] && sleep_test_log_check -v s3 $PLAINBOX_SESSION_SHARE/hybrid_sleep_single.log
-_description:
- Automated check of the hybrid sleep log to look for errors reported by fwts
+id: suspend/generator_hybrid-sleep-single-log-check
+_description: Hybrid sleep log check test
+_summary: Hybrid sleep log check test
+plugin: local
+command:
+ cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
+ plugin: shell
+ id: suspend/`echo ${index}`_hybrid-sleep-single-log-check
+ depends: suspend/`echo ${index}`_hybrid_sleep_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
+ estimated_duration: 1.2
+ command: [ -e $PLAINBOX_SESSION_SHARE/`echo ${index}`_hybrid_sleep_single.log ] && sleep_test_log_check -v s3 $PLAINBOX_SESSION_SHARE/`echo ${index}`_hybrid_sleep_single.log
+ _description:
+  Automated check of the hybrid sleep log to look for errors reported by fwts
+ EOF
 
 id: suspend/generator_hybrid-sleep-single-log-attach
 _description: Hybrid sleep log attach

@@ -36,12 +36,12 @@ version: $(VERSION)
 vendor: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 architectures: ["all"]
 source: http://launchpad.net/checkbox/
-security-template: unconfined
 type: app
 binaries:
  - name: plainbox
    exec: plainbox.pex
    description: "The main plainbox executable"
+   security-template: unconfined
 endef
 
 export package_yaml

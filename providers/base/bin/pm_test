@@ -91,6 +91,7 @@ class PowerManagementOperation(object):
 
         self.check_last_cycle_duration()
         if self.args.repetitions > 0:
+            self.run_suspend_cycles(self.args.suspends_before_reboot)
             self.run_pm_command()
         else:
             self.summary()
@@ -101,7 +102,9 @@ class PowerManagementOperation(object):
         that is, not too short, not too long
         """
         min_pm_time = timedelta(seconds=self.args.min_pm_time)
-        max_pm_time = timedelta(seconds=self.args.max_pm_time)
+        # add time needed for suspend/resume cycles ( < 100s each)
+        max_pm_time = timedelta(seconds=self.args.max_pm_time +
+            self.args.suspends_before_reboot * 100)
         if self.args.pm_timestamp:
             pm_timestamp = datetime.fromtimestamp(self.args.pm_timestamp)
             now = datetime.now()
@@ -149,6 +152,18 @@ class PowerManagementOperation(object):
         # This addresses LP: #1413134
         subprocess.check_call(command_str, shell=True)
         signal.pause()
+
+    def run_suspend_cycles(self, cycles_count):
+        """Run suspend and resume cycles."""
+        if cycles_count < 1:
+            return
+        sleep_test_path = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)), 'sleep_test')
+        command_str = '{} -s mem -p -i {} -w 10'.format(
+            sleep_test_path, cycles_count)
+        logging.info('Running suspend/resume cycles')
+        logging.debug('Executing: {0!r}...'.format(command_str))
+        subprocess.check_call(command_str, shell=True)
 
     def summary(self):
         """
@@ -602,7 +617,7 @@ class AutoStartFile(object):
 [Desktop Entry]
 Name={pm_operation} test
 Comment=Verify {pm_operation} works properly
-Exec=sudo /usr/bin/python3 {script} -r {repetitions} -w {wakeup} --hardware-delay {hardware_delay} --pm-delay {pm_delay} --min-pm-time {min_pm_time} --max-pm-time {max_pm_time} --append --total {total} --start {start} --pm-timestamp {pm_timestamp} {silent} --log-level={log_level} --log-dir={log_dir} {pm_operation}
+Exec=sudo /usr/bin/python3 {script} -r {repetitions} -w {wakeup} --hardware-delay {hardware_delay} --pm-delay {pm_delay} --min-pm-time {min_pm_time} --max-pm-time {max_pm_time} --append --total {total} --start {start} --pm-timestamp {pm_timestamp} {silent} --log-level={log_level} --log-dir={log_dir} --suspends-before-reboot={suspend_cycles} {pm_operation}
 Type=Application
 X-GNOME-Autostart-enabled=true
 Hidden=false
@@ -653,6 +668,7 @@ Hidden=false
                             silent='--silent' if self.args.silent else '',
                             log_level=self.args.log_level_str,
                             log_dir=self.args.log_dir,
+                            suspend_cycles=self.args.suspends_before_reboot,
                             pm_operation=self.args.pm_operation))
         logging.debug(contents)
 
@@ -782,6 +798,11 @@ class MyArgumentParser(object):
 
         # Total number of iterations initially passed through the command line
         parser.add_argument('--total', type=int, default=0, help=SUPPRESS)
+
+        # suspend cycles before reboot
+        parser.add_argument('--suspends-before-reboot', type=int, default=0,
+                            help=('How many cycles of suspend/resume to run'
+                                 'before each reboot or poweroff'))
         self.parser = parser
 
     def parse(self):

@@ -46,6 +46,18 @@ _description:
  Attaches the log from the 30 cycle Hibernate/Resume test if it exists
 
 plugin: shell
+id: power-management/suspend_30_cycles_with_reboots
+estimated_duration: 7200
+depends:
+ power-management/rtc
+ suspend/suspend_advanced
+user: root
+command:
+ pm_test reboot --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE --suspends-before-reboot=30 -r 3
+_description:
+ This is an automated stress test that will run a sequence of '30 suspend/resume cycles and one reboot' 3 times.
+
+plugin: shell
 id: power-management/suspend_30_cycles
 estimated_duration: 2400.0
 depends:

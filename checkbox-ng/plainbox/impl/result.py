@@ -385,9 +385,9 @@ class _JobResultBase(IJobResult):
     @property
     def io_log_as_flat_text(self):
         """
-        Perform a lossly conversion from the binary I/O log to text.
+        Perform a lossy conversion from the binary I/O log to text.
 
-        Convert the I/O log to a text string, replacing non unicode characters
+        Convert the I/O log to a text string, replacing non Unicode characters
         with U+FFFD, the REPLACEMENT CHARACTER.
 
         Both stdout and stderr streams are merged together into a single

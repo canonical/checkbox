@@ -223,13 +223,13 @@ command:
 
 plugin: attachment
 id: installer_bootchart.tgz
-command: [ -e /var/log/installer/bootchart.tgz ] && cat /var/log/installer/bootchart.tgz
+command: [ -f /var/log/installer/bootchart.tgz ] && base64 /var/log/installer/bootchart.tgz
 _description: installs the installer bootchart tarball if it exists.
 
 plugin: attachment
 id: installer_debug.gz
 user: root
-command: [ -e /var/log/installer/debug ] && gzip -9 -c /var/log/installer/debug
+command: [ -f /var/log/installer/debug ] && gzip -9 -c /var/log/installer/debug | base64
 estimated_duration: 0.1
 _description: Attaches the installer debug log if it exists.
 

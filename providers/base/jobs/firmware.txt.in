@@ -51,7 +51,7 @@ plugin: attachment
 estimated_duration: 0.5
 id: firmware/fwts_desktop_diagnosis_results.log
 command:
- [ -e $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results.log ] && gzip -c $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results.log
+ [ -f $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results.log ] && gzip -c $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results.log | base64
 _description: Attaches the FWTS desktop diagnosis results log to the submission
 _summary: Attach FWTS desktop diagnosis log to submission
 
@@ -59,7 +59,7 @@ plugin: attachment
 estimated_duration: 0.5
 id: firmware/fwts_desktop_diagnosis_results_hwe.log
 command:
- [ -e $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results_hwe.log ] && gzip -c $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results_hwe.log
+ [ -f $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results_hwe.log ] && gzip -c $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results_hwe.log | base64
 _description: Attaches the FWTS desktop diagnosis results log to the submission (to HWE)
 _summary: Attach FWTS desktop diagnosis log to submission (to HWE)
 

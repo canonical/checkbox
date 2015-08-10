@@ -175,7 +175,9 @@ plugin: attachment
 id: stress/reboot_log
 estimated_duration: 1.0
 depends: stress/reboot
-command: tar cvfz $PLAINBOX_SESSION_SHARE/stress_reboot.tgz $PLAINBOX_SESSION_SHARE/*reboot.100.log && cat $PLAINBOX_SESSION_SHARE/stress_reboot.tgz
+command:
+ set -o pipefail
+ tar cvz $PLAINBOX_SESSION_SHARE/*reboot.100.log | base64
 
 plugin: shell
 id: stress/reboot_30
@@ -193,7 +195,9 @@ _description:
 plugin: attachment
 id: stress/reboot_30_log
 depends: stress/reboot_30
-command: tar cvfz $PLAINBOX_SESSION_SHARE/stress_reboot_30.tgz $PLAINBOX_SESSION_SHARE/*reboot.30.log && cat $PLAINBOX_SESSION_SHARE/stress_reboot_30.tgz
+command:
+ set -o pipefail
+ tar cvz $PLAINBOX_SESSION_SHARE/*reboot.30.log | base64
 
 plugin: shell
 id: stress/poweroff
@@ -212,7 +216,9 @@ plugin: attachment
 id: stress/poweroff_log
 estimated_duration: 1.0
 depends: stress/poweroff
-command: tar cvfz $PLAINBOX_SESSION_SHARE/stress_poweroff.tgz $PLAINBOX_SESSION_SHARE/*poweroff.100.log && cat $PLAINBOX_SESSION_SHARE/stress_poweroff.tgz
+command:
+ set -o pipefail
+ tar cvz $PLAINBOX_SESSION_SHARE/*poweroff.100.log | base64
 
 plugin: shell
 id: stress/poweroff_30
@@ -230,7 +236,9 @@ _description:
 plugin: attachment
 id: stress/poweroff_30_log
 depends: stress/poweroff_30
-command: tar cvfz $PLAINBOX_SESSION_SHARE/stress_poweroff_30.tgz $PLAINBOX_SESSION_SHARE/*poweroff.30.log && cat $PLAINBOX_SESSION_SHARE/stress_poweroff_30.tgz
+command:
+ set -o pipefail
+ tar cvz $PLAINBOX_SESSION_SHARE/*poweroff.30.log | base64
 
 plugin: shell
 id: stress/reboot_30_check
@@ -244,7 +252,8 @@ id: stress/reboot_30_check_log
 estimated_duration: 1.0
 depends: stress/reboot_30_check
 command:
- tar cvfz $PLAINBOX_SESSION_SHARE/stress_reboot_check_30.tgz $PLAINBOX_SESSION_SHARE/pm_log_check_reboot.30.log && cat $PLAINBOX_SESSION_SHARE/stress_reboot_check_30.tgz
+ set -o pipefail
+ tar cvz $PLAINBOX_SESSION_SHARE/pm_log_check_reboot.30.log | base64
 
 plugin: shell
 id: stress/poweroff_30_check
@@ -258,7 +267,8 @@ id: stress/poweroff_30_check_log
 estimated_duration: 1.0
 depends: stress/poweroff_30_check
 command:
- tar cvfz $PLAINBOX_SESSION_SHARE/stress_poweroff_check_30.tgz $PLAINBOX_SESSION_SHARE/pm_log_check_poweroff.30.log && cat $PLAINBOX_SESSION_SHARE/stress_poweroff_check_30.tgz
+ set -o pipefail
+ tar cvz $PLAINBOX_SESSION_SHARE/pm_log_check_poweroff.30.log | base64
 
 plugin: shell
 id: stress/reboot_check
@@ -272,7 +282,8 @@ id: stress/reboot_check_log
 estimated_duration: 1.0
 depends: stress/reboot_check
 command:
- tar cvfz $PLAINBOX_SESSION_SHARE/stress_reboot_check.tgz $PLAINBOX_SESSION_SHARE/pm_log_check_reboot.100.log && cat $PLAINBOX_SESSION_SHARE/stress_reboot_check.tgz
+ set -o pipefail
+ tar cvz $PLAINBOX_SESSION_SHARE/pm_log_check_reboot.100.log | base64
 
 plugin: shell
 id: stress/poweroff_check
@@ -286,7 +297,8 @@ id: stress/poweroff_check_log
 estimated_duration: 1.0
 depends: stress/poweroff_check
 command:
- tar cvfz $PLAINBOX_SESSION_SHARE/stress_poweroff_check.tgz $PLAINBOX_SESSION_SHARE/pm_log_check_poweroff.100.log && cat $PLAINBOX_SESSION_SHARE/stress_poweroff_check.tgz
+ set -o pipefail
+ tar cvz $PLAINBOX_SESSION_SHARE/pm_log_check_poweroff.100.log | base64
 
 plugin: shell
 id: stress/graphics
@@ -304,7 +316,7 @@ id: stress/graphics-tarball
 estimated_duration: 1.0
 requires:
  package.name == 'x11-apps'
-command: [ -e $PLAINBOX_SESSION_SHARE/graphics-stress-results ] && tar cvfz $PLAINBOX_SESSION_SHARE/graphics-stress-results.tar.gz $PLAINBOX_SESSION_SHARE/graphics-stress-results
+command: [ -f $PLAINBOX_SESSION_SHARE/graphics-stress-results ] && tar cvz $PLAINBOX_SESSION_SHARE/graphics-stress-results | base64
 _description: Attaches the graphics stress results to the submission.
 
 plugin: shell

@@ -9,10 +9,12 @@ Build-Depends:
  debhelper (>= 9),
  dh-python,
  python3-all,
+ python3-dbus,
+ python3-gi,
+ python3-lxml (>= 2.3),
  python3-pkg-resources,
  python3-pyparsing,
  python3-setuptools,
- python3-lxml (>= 2.3)
 Standards-Version: 3.9.6
 X-Python3-Version: >= 3.2
 XS-Testsuite: autopkgtest

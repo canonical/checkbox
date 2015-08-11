@@ -1,0 +1,21 @@
+Description: Don't remove keys from dictionary being iterated
+ I'm not quite sure how this worked earlier but it's clearly wrong.  This patch
+ simply makes the outer loop iterate over a copy of all the keys in the
+ self.devices dictionary. This makes the .pop() function a few lines below
+ function as expected.
+Author: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1483410
+Forwarded: no
+Last-Update: 2015-08-11
+
+--- checkbox-support-0.20.orig/checkbox_support/parsers/udevadm.py
++++ checkbox-support-0.20/checkbox_support/parsers/udevadm.py
+@@ -803,7 +803,7 @@ class UdevadmParser(object):
+                     self.devices[device._raw_path] = device
+             stack.append(device)
+ 
+-        for device in self.devices.values():
++        for device in list(self.devices.values()):
+             if device.category in ("NETWORK", "WIRELESS", "OTHER"):
+                 dev_interface = [
+                     d for d in self.devices.values()

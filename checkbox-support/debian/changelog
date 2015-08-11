@@ -1,3 +1,15 @@
+checkbox-support (0.20-2) UNRELEASED; urgency=medium
+
+  * debian/patches/fix-lp1483410-part1: Correct the method of loading unit
+    tests so that package modules are not loaded as top-level modules
+    themselves.  (Closes LP: #1483410)
+  * debian/patches/fix-lp1483410-part2: Iterate over a copy of dictionary keys
+    so that the loop can correctly remove elements without raising exceptions.
+  * debian/control: build-depend on python3-dbus and python3-gi as apparently
+    tests are importing modules that depend on those.
+
+ -- Zygmunt Krynicki <zygmunt.krynicki@canonical.com>  Tue, 11 Aug 2015 11:49:15 +0200
+
 checkbox-support (0.20-1) unstable; urgency=medium
 
   * New upstream release

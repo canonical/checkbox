@@ -1,0 +1,25 @@
+#!/usr/bin/checkbox-gui
+
+[welcome]
+title = "System Certification"
+text = "<p>Welcome to System Certification!</p><p></p><p>This application will
+ gather information from your system. Then you will be asked manual tests to
+ confirm that the system is working properly. Finally, you will be asked for
+ the Secure ID of the computer to submit the information to the certification
+ database.</p><p></p><p> To learn how to create or locate the Secure ID,
+ please see here: <a href=\"https://certification.canonical.com\">certification.canonical.com</a></p><p></p>"
+
+[suite]
+whitelist_filter = "^client-(cert|selftest|hwe-sru).*"
+
+[submission]
+input_type = "regex"
+input_placeholder = "Secure ID (15 or 18 characters)"
+ok_btn_text = "Submit Results"
+submit_to_hexr = "true"
+
+[exporter]
+xml_export_path = "/tmp/submission.xml"
+
+[transport]
+submit_to = "certification"

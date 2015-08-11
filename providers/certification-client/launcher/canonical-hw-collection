@@ -1,0 +1,33 @@
+#!/usr/bin/env checkbox-launcher
+# The purpose of this launcher is to gather information about the hardware
+# and submit it to HEXR (Hardware Enablement Cross Referencer).
+# 1- It will just show a welcome screen and prompt for password at the
+#    beginning.
+# 2- It will run all the jobs in the hwsubmit whitelist. They're all
+#    automated and very short, just to collect system data.
+# 3- It will prompt whether to submit to hexr
+# 4- Upon confirmation it will upload data to hexr and provide a URL
+#    to complete adding the system. No secure_id is needed.
+# 5- Once the URL is provided it will exit.
+
+[welcome]
+title = Gathering hardware information
+text = Gathering hardware information.  You may be prompted for your password.
+       This process will take approximately 30 seconds and you will be provided
+       with a URL through which you can confirm and register your hardware
+       submission.
+
+[suite]
+whitelist_filter = ^hwsubmit$
+whitelist_selection = ^hwsubmit$
+skip_whitelist_selection = True
+skip_test_selection = True
+
+[submission]
+# A bogus secure_id ensures we don't ask it, as hexr doesn't need it.
+# It can always be overridden in the .conf file.
+secure_id = 000000000000000
+
+[transport]
+submit_to = certification
+submit_url = https://hexr.canonical.com/checkbox/submit/

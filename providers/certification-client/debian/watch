@@ -1,0 +1,4 @@
+version=3
+opts=pgpsigurlmangle=s/$/.asc/ \
+    http://launchpad.net/plainbox-provider-canonical-certification/+download/ \
+    https://launchpad\.net/plainbox-provider-canonical-certification/.*/.*/\+download/2013\.com\.canonical\.certification\.certification-client-(0.*).tar.gz

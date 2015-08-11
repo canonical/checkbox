@@ -1,0 +1,71 @@
+id: virtual-machine-full-14.04
+_name: Virtual Machine Full 14.04 (For Hypervisors)
+unit: test plan
+_description:
+    This whitelist is intended to be used for testing Ubuntu Guests on 
+    hypervisors. The tests contained here should work in any test lab 
+    envrionement. Please use this whitelist for the Ubuntu Certification 
+    self-testing programme.
+include:
+    # Meta-job to include required resources, please don't remove
+    miscellanea/submission-resources
+    # Info Attachment
+    __info__
+    cpuinfo_attachment
+    dmesg_attachment
+    dmi_attachment
+    dmidecode_attachment
+    efi_attachment
+    lspci_attachment
+    lshw_attachment
+    lsusb_attachment
+    meminfo_attachment
+    modprobe_attachment
+    modules_attachment
+    sysctl_attachment
+    sysfs_attachment
+    udev_attachment
+    lsmod_attachment
+    info/hdparm
+    info/hdparm_.*.txt
+    info/disk_partitions
+    # Actual test cases
+    __miscellanea__
+    miscellanea/get_make_and_model
+    miscellanea/get_maas_version
+    miscellanea/boot_mode
+    __benchmarks__
+    benchmarks/disk/hdparm-read
+    benchmarks/disk/hdparm-read_.*
+    benchmarks/disk/hdparm-cache-read
+    benchmarks/disk/hdparm-cache-read_.*
+    __cpu__
+    cpu/clocktest
+    cpu/scaling_test
+    cpu/scaling_test-log-attach
+    cpu/maxfreq_test
+    cpu/maxfreq_test-log-attach
+    cpu/offlining_test
+    cpu/topology
+    __disk__
+    disk/detect
+    disk/stats
+    disk/stats_.*
+    disk/read_performance
+    disk/read_performance_.*
+    disk/storage_devices
+    disk/storage_device_.*
+    __ethernet__
+    ethernet/detect
+    ethernet/info_automated
+    ethernet/ethtool_info
+    ethernet/ethertool_check_.*
+    ethernet/multi_nic
+    ethernet/multi_nic_.*
+    __memory__
+    memory/info
+    memory/check
+    __power-management__
+    power-management/rtc
+    __stress__
+    stress/cpu_stress_test

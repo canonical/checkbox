@@ -1,0 +1,40 @@
+id: usb-only
+_name: USB Only Test Plan (Only tests USB ports)
+unit: test plan
+_description:
+    This test plan is intended to be used for retesting of USB devices
+    only.  It does not provide any testing of other hardware and should only be
+    run at the direction of the Cert Team when re-testing of USB devices is
+    requried.
+include:
+    # Meta-job to include required resources, please don't remove
+    miscellanea/submission-resources
+    # Info Attachment
+    __info__
+    cpuinfo_attachment
+    dmesg_attachment
+    dmi_attachment
+    dmidecode_attachment
+    efi_attachment
+    lspci_attachment
+    lshw_attachment
+    lsusb_attachment
+    meminfo_attachment
+    modprobe_attachment
+    modules_attachment
+    sysctl_attachment
+    sysfs_attachment
+    udev_attachment
+    lsmod_attachment
+    info/hdparm
+    info/hdparm_.*.txt
+    info/disk_partitions
+    # Actual test cases
+    __miscellanea__
+    miscellanea/get_make_and_model
+    miscellanea/get_maas_version
+    miscellanea/boot_mode
+    __usb__
+    usb/detect
+    usb/storage-preinserted
+    usb3/storage-preinserted

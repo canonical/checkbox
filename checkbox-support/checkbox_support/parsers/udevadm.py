@@ -803,7 +803,7 @@ class UdevadmParser(object):
                     self.devices[device._raw_path] = device
             stack.append(device)
 
-        for device in self.devices.values():
+        for device in list(self.devices.values()):
             if device.category in ("NETWORK", "WIRELESS", "OTHER"):
                 dev_interface = [
                     d for d in self.devices.values()

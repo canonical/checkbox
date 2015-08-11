@@ -78,7 +78,7 @@ class InstallCommandExt(InstallCommand):
 
 setup(
     name='2013.com.canonical.certification:certification-server',
-    version="1.0",
+    version="0.18",
     description=N_("Server Certification provider"),
     gettext_domain="2013_com_canonical_certification_certification-server",
     strict=False, deprecated=False,

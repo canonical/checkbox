@@ -1,4 +1,4 @@
-checkbox-support (0.20-2) UNRELEASED; urgency=medium
+checkbox-support (0.20-2) unstable; urgency=medium
 
   * debian/patches/fix-lp1483410-part1: Correct the method of loading unit
     tests so that package modules are not loaded as top-level modules

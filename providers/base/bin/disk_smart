@@ -165,7 +165,10 @@ def get_smart_entries(disk, type='selftest'):
             break
 
     # Get lengths from header
-    line = next(stdout_lines)
+    try:
+        line = next(stdout_lines)
+    except StopIteration:
+        logging.info('No entries found in log')
     if not line.startswith('Num'):
         entries.append('No entries found in log yet')
         return entries, returncode

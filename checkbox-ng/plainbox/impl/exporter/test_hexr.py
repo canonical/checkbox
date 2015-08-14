@@ -147,6 +147,18 @@ class HexrExporterTests(TestCase):
             'link': 'requirement.1.LINK',
         })])
 
+    def _make_cert_empty_resources(self):
+        # Create empty resources, as experienced when the tested system
+        # freezes and corrupts the content of the session. (lp:1479719)
+        state = self.manager.default_device_context.state
+        ns = CERTIFICATION_NS
+        state.set_resource_list(ns + 'cpuinfo', [])
+        state.set_resource_list(ns + 'dpkg', [])
+        state.set_resource_list(ns + 'lsb', [])
+        state.set_resource_list(ns + 'uname', [])
+        state.set_resource_list(ns + 'package', [])
+        state.set_resource_list(ns + 'requirements', [])
+
     def _make_cert_attachments(self):
         state = self.manager.default_device_context.state
         partial_id_list = ['dmi_attachment', 'sysfs_attachment',
@@ -226,6 +238,16 @@ class HexrExporterTests(TestCase):
         self.exporter.dump_from_session_manager(self.manager, stream)
         evil_actual = stream.getvalue().decode("utf-8")
         self.assertMultiLineEqual(_evil_expected, evil_actual)
+
+    def test_empty_resources(self):
+        """Empty resources don't break the correctness of the XML document."""
+        self._make_representative_jobs()
+        self._make_cert_empty_resources()
+        self._make_cert_attachments()
+        stream = BytesIO()
+        self.exporter.dump_from_session_manager(self.manager, stream)
+        empty_resources_actual = stream.getvalue().decode("utf-8")
+        self.assertMultiLineEqual(_empty_resources_expected, empty_resources_actual)
 
     def test_xml_parsability(self):
         """Each produced output can be parsed with an XML parser."""
@@ -529,3 +551,111 @@ _evil_expected = """\
     <system_id value="{evil}"/>
   </summary>
 </system>""".format(evil=_escaped_evil_text)
+
+_empty_resources_expected = """\
+<?xml version="1.0"?>
+<system version="1.0">
+  <context>
+    <info command="2013.com.canonical.plainbox::representative/plugin/attachment">IO-LOG-STDOUT
+</info>
+  </context>
+  <hardware>
+    <dmi>STDOUT-dmi_attachment
+</dmi>
+    <sysfs-attributes>STDOUT-sysfs_attachment
+</sysfs-attributes>
+    <udev>STDOUT-udev_attachment
+</udev>
+    <!-- cpuinfo resource is not available, not producing the <processors> section -->
+  </hardware>
+  <questions>
+    <question name="2013.com.canonical.plainbox::representative/plugin/manual">
+      <answer type="multiple_choice">pass</answer>
+      <answer_choices>
+        <value type="str">none</value>
+        <value type="str">pass</value>
+        <value type="str">fail</value>
+        <value type="str">skip</value>
+      </answer_choices>
+      <comment>IO-LOG-STDOUT
+IO-LOG-STDERR
+</comment>
+    </question>
+    <question name="2013.com.canonical.plainbox::representative/plugin/qml">
+      <answer type="multiple_choice">pass</answer>
+      <answer_choices>
+        <value type="str">none</value>
+        <value type="str">pass</value>
+        <value type="str">fail</value>
+        <value type="str">skip</value>
+      </answer_choices>
+      <comment>IO-LOG-STDOUT
+IO-LOG-STDERR
+</comment>
+    </question>
+    <question name="2013.com.canonical.plainbox::representative/plugin/shell">
+      <answer type="multiple_choice">pass</answer>
+      <answer_choices>
+        <value type="str">none</value>
+        <value type="str">pass</value>
+        <value type="str">fail</value>
+        <value type="str">skip</value>
+      </answer_choices>
+      <comment>IO-LOG-STDOUT
+IO-LOG-STDERR
+</comment>
+    </question>
+    <question name="2013.com.canonical.plainbox::representative/plugin/user-interact">
+      <answer type="multiple_choice">pass</answer>
+      <answer_choices>
+        <value type="str">none</value>
+        <value type="str">pass</value>
+        <value type="str">fail</value>
+        <value type="str">skip</value>
+      </answer_choices>
+      <comment>IO-LOG-STDOUT
+IO-LOG-STDERR
+</comment>
+    </question>
+    <question name="2013.com.canonical.plainbox::representative/plugin/user-interact-verify">
+      <answer type="multiple_choice">pass</answer>
+      <answer_choices>
+        <value type="str">none</value>
+        <value type="str">pass</value>
+        <value type="str">fail</value>
+        <value type="str">skip</value>
+      </answer_choices>
+      <comment>IO-LOG-STDOUT
+IO-LOG-STDERR
+</comment>
+    </question>
+    <question name="2013.com.canonical.plainbox::representative/plugin/user-verify">
+      <answer type="multiple_choice">pass</answer>
+      <answer_choices>
+        <value type="str">none</value>
+        <value type="str">pass</value>
+        <value type="str">fail</value>
+        <value type="str">skip</value>
+      </answer_choices>
+      <comment>COMMENTS</comment>
+    </question>
+  </questions>
+  <software>
+    <!-- lsb resource is not available, not producing the <lsbrelease> tag -->
+    <packages>
+    </packages>
+    <requirements>
+    </requirements>
+  </software>
+  <summary>
+    <client name="CLIENT_NAME" version="CLIENT_VERSION"/>
+    <date_created value="TIMESTAMP"/>
+    <!-- dpkg resource is not available, not producing the <architecture> tag -->
+    <!-- lsb resource is not available, not producing <distribution> and <distroseries> tags -->
+    <!-- uname resource is not available, not producing the <kernel-release> tag -->
+    <private value="False"/>
+    <contactable value="False"/>
+    <live_cd value="False"/>
+    <system_id value="SYSTEM_ID"/>
+  </summary>
+</system>"""

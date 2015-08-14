@@ -31,7 +31,7 @@
     {%- else %}
     <!-- the udev_attachment job is not available, not producing the <udev> tag -->
     {%- endif %}
-    {%- if ns ~ 'cpuinfo' in state.resource_map %}
+    {%- if ns ~ 'cpuinfo' in state.resource_map and state.resource_map[ns ~ 'cpuinfo'][0] %}
     {%- set processor_resource = state.resource_map[ns ~ 'cpuinfo'][0] %}
     {#- FIXME: The <processors> section is quite broken by design. #}
     {#- Yes, it does copy the data for the 0th CPU $count times. #}
@@ -78,7 +78,7 @@
     {%- endfor %}
   </questions>
   <software>
-    {%- if ns ~ 'lsb' in state.resource_map %}
+    {%- if ns ~ 'lsb' in state.resource_map and state.resource_map[ns ~ 'lsb'][0] %}
     {%- set lsb_resource = state.resource_map[ns ~ 'lsb'][0] %}
     <lsbrelease>
       {%- for key in lsb_resource|sort %}
@@ -121,20 +121,20 @@
     {#- FIXME: with all the <property> tags those should not be custom #}
     <client name="{{ client_name }}" version="{{ client_version }}"/>
     <date_created value="{{ timestamp }}"/>
-    {%- if ns ~ 'dpkg' in state.resource_map %}
+    {%- if ns ~ 'dpkg' in state.resource_map and state.resource_map[ns ~ 'dpkg'][0] %}
     {%- set dpkg_resource = state.resource_map[ns ~ 'dpkg'][0] %}
     <architecture value="{{ dpkg_resource.architecture }}"/>
     {%- else %}
     <!-- dpkg resource is not available, not producing the <architecture> tag -->
     {%- endif %}
-    {%- if ns ~ 'lsb' in state.resource_map %}
+    {%- if ns ~ 'lsb' in state.resource_map and lsb_resource %}
     {#- NOTE: lsb_resource is computed earlier, if the condition above holds #}
     <distribution value="{{ lsb_resource.distributor_id }}"/>
     <distroseries value="{{ lsb_resource.release }}"/>
     {%- else %}
     <!-- lsb resource is not available, not producing <distribution> and <distroseries> tags -->
     {%- endif %}
-    {%- if ns ~ 'uname' in state.resource_map %}
+    {%- if ns ~ 'uname' in state.resource_map and state.resource_map[ns ~ 'uname'][0] %}
     {%- set uname_resource = state.resource_map[ns ~ 'uname'][0] %}
     <kernel-release value="{{ uname_resource.release }}"/>
     {%- else %}

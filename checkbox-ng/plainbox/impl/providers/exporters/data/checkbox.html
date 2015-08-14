@@ -162,7 +162,7 @@
             <div id="content" class="clearfix">
                 This report was created using {{ client_name }} {{ client_version }} on {{ timestamp }}
             </div>
-            {%- if ns ~ "lsb" in resource_map %}
+            {%- if ns ~ "lsb" in resource_map and resource_map[ns ~ "lsb"][0] %}
             <div id="content" class="clearfix">
                 <h2>Software Information</h2>
                 <p>{{ resource_map[ns ~ "lsb"][0]["description"] }}</p>

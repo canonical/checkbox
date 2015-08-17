@@ -343,6 +343,8 @@ include:
     suspend/usb3_insert_after_suspend                      certification-status=blocker
     suspend/usb3_storage_automated_after_suspend           certification-status=blocker
     suspend/usb3_remove_after_suspend                      certification-status=blocker
+    suspend/oops_after_suspend                             certification-status=blocker
+    suspend/oops_results_after_suspend.log
     suspend/wireless_connection_after_suspend_wpa_bg       certification-status=blocker
     suspend/wireless_connection_after_suspend_open_bg      certification-status=blocker
     suspend/wireless_connection_after_suspend_wpa_n        certification-status=blocker

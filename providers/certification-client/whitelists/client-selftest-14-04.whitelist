@@ -280,6 +280,8 @@ suspend/usb_remove_after_suspend
 suspend/usb3_insert_after_suspend
 suspend/usb3_storage_automated_after_suspend
 suspend/usb3_remove_after_suspend
+suspend/oops_after_suspend
+suspend/oops_results_after_suspend.log
 suspend/wireless_connection_after_suspend_wpa_bg
 suspend/wireless_connection_after_suspend_open_bg
 suspend/wireless_connection_after_suspend_wpa_n

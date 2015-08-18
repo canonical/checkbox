@@ -2625,3 +2625,23 @@ estimated_duration: 0.500
 _description: Parses Xorg.0.Log and discovers the running X driver and version after suspend
 _summary: Test X driver/version after suspend
 
+id: suspend/oops_after_suspend
+depends: suspend/suspend_advanced
+plugin:shell
+estimated_duration: 10.0
+requires:
+  package.name == 'fwts'
+user: root
+_description:
+ Run Firmware Test Suite (fwts) oops tests after suspend.
+environ: PLAINBOX_SESSION_SHARE
+command:
+ fwts_test -l $PLAINBOX_SESSION_SHARE/fwts_oops_results_after_s3.log -t oops
+
+id: suspend/oops_results_after_suspend.log
+plugin: attachment
+estimated_duration: 0.5
+command:
+ [ -e ${PLAINBOX_SESSION_SHARE}/fwts_oops_results_after_s3_hwe.log ] && cat ${PLAINBOX_SESSION_SHARE}/fwts_oops_results_after_s3_hwe.log
+_description: Attaches the FWTS oops results log to the submission after suspend
+

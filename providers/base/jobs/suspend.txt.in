@@ -512,6 +512,100 @@ command:
   audio_settings store --file=$PLAINBOX_SESSION_SHARE/audio_settings_after_suspend
   diff $PLAINBOX_SESSION_SHARE/audio_settings_before_suspend $PLAINBOX_SESSION_SHARE/audio_settings_after_suspend
 
+plugin: user-interact
+id: suspend/speaker-headphone-plug-detection-after-suspend
+depends: suspend/suspend_advanced
+estimated_duration: 60.0
+requires:
+ device.category == 'AUDIO'
+ package.name == 'pulseaudio-utils'
+command: pulse-active-port-change sinks
+_description:
+ PURPOSE:
+     Check that system detects speakers or headphones being plugged in after suspend
+ STEPS:
+     1. Prepare a pair of headphones or speakers with a standard 3.5mm jack
+     2. Locate the speaker / headphone jack on the device under test
+     3. Run the test (you have 30 seconds from now on)
+     4. Plug headphones or speakers into the appropriate jack
+     5. Unplug the device for subsequent tests.
+ VERIFICATION:
+     Verification is automatic, no action is required.
+     The test times out after 30 seconds (and fails in that case).
+
+plugin: user-interact
+id: suspend/microphone-plug-detection-after-suspend
+depends: suspend/suspend_advanced
+estimated_duration: 60.0
+requires:
+ device.category == 'AUDIO'
+ package.name == 'pulseaudio-utils'
+command: pulse-active-port-change sources
+_description:
+ PURPOSE:
+     Check that system detects a microphone being plugged in after suspend
+ STEPS:
+     1. Prepare a microphone with a standard 3.5mm jack
+     2. Locate the microphone jack on the device under test.
+        Keep in mind that it may be shared with the headphone jack.
+     3. Run the test (you have 30 seconds from now on)
+     4. Plug the microphone into the appropriate jack
+     5. Unplug the device for subsequent tests.
+ VERIFICATION:
+     Verification is automatic, no action is required.
+     The test times out after 30 seconds (and fails in that case).
+
+plugin: user-interact-verify
+id: suspend/playback_headphones-after-suspend
+estimated_duration: 20.0
+depends: audio/list_devices suspend/suspend_advanced
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+ package.name == 'pulseaudio-utils'
+command:
+  audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  audio_settings set --device=pci --volume=50
+  gst_pipeline_test -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+  EXIT_CODE=$?
+  audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+  exit $EXIT_CODE
+_description:
+ PURPOSE:
+     This test will check that headphones connector works correctly after suspend
+ STEPS:
+     1. Connect a pair of headphones to your audio device
+     2. Click the Test button to play a sound to your audio device
+ VERIFICATION:
+     Did you hear a sound through the headphones and did the sound play without any distortion, clicks or other strange noises from your headphones?
+
+plugin: user-interact-verify
+id: suspend/alsa_record_playback_external-after-suspend
+estimated_duration: 20.0
+depends: suspend/playback_headphones-after-suspend suspend/suspend_advanced
+requires:
+ device.category == 'AUDIO'
+ package.name == 'alsa-base'
+ package.name == 'pulseaudio-utils'
+ package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
+command:
+ audio_settings store --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings set --device=pci --volume=50
+ alsa_record_playback
+ EXIT_CODE=$?
+ audio_settings restore --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ exit $EXIT_CODE
+_description:
+ PURPOSE:
+     This test will check that recording sound using an external microphone works correctly after suspend
+ STEPS:
+     1. Connect a microphone to your microphone port
+     2. Click "Test", then speak into the external microphone
+     3. After a few seconds, your speech will be played back to you
+ VERIFICATION:
+     Did you hear your speech played back?
+
 plugin: shell
 id: suspend/cpu_after_suspend
 estimated_duration: 1.2

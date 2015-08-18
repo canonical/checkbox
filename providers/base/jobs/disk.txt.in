@@ -6,6 +6,7 @@ Depends: lshw
 plugin: shell
 id: disk/detect
 estimated_duration: 0.25
+user: root
 command: disk_info
 _description: Detects and displays disks attached to the system.
 

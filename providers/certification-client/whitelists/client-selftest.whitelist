@@ -311,6 +311,7 @@ firmware/fwts
 firmware/fwts_logs
 firmware/fwts_desktop_diagnosis
 firmware/fwts_desktop_diagnosis_results.log
+firmware/fwts_desktop_diagnosis_results_hwe.log
 firmware/fwts_wakealarm.*
 firmware/fwts_uefirtvariable.*
 benchmarks/disk/hdparm-read

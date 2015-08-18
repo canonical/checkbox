@@ -35,13 +35,13 @@ include:
     audio/generator_.*
     audio/alsa_info_collect
     audio/alsa_info_attachment
+    audio/list_devices
     audio/speaker-headphone-plug-detection                 certification-status=blocker
     audio/microphone-plug-detection                        certification-status=blocker
-    audio/alsa_record_playback_external                    certification-status=blocker
-    audio/alsa_record_playback_internal                    certification-status=blocker
-    audio/list_devices
-    audio/playback_auto                                    certification-status=blocker
     audio/playback_headphones                              certification-status=blocker
+    audio/alsa_record_playback_external                    certification-status=blocker
+    audio/playback_auto                                    certification-status=blocker
+    audio/alsa_record_playback_internal                    certification-status=blocker
     audio/alsa_record_playback_automated                   certification-status=blocker
     # See Monitor / Graphic test section for hybrid-graphic monitor audio tests
     __benchmarks__
@@ -326,6 +326,10 @@ include:
     suspend/bluetooth_obex_browse_after_suspend            certification-status=blocker
     suspend/bluetooth_obex_get_after_suspend               certification-status=blocker
     suspend/record_playback_after_suspend                  certification-status=blocker
+    suspend/speaker-headphone-plug-detection-after-suspend certification-status=blocker
+    suspend/microphone-plug-detection-after-suspend        certification-status=blocker
+    suspend/playback_headphones-after-suspend              certification-status=blocker
+    suspend/alsa_record_playback_external-after-suspend    certification-status=blocker
     suspend/pointing-after-suspend
     suspend/pointing-after-suspend_.*                      certification-status=blocker
     suspend/mmc-insert-after-suspend                       certification-status=non-blocker

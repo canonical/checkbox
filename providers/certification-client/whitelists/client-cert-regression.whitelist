@@ -30,13 +30,13 @@ xinput
 __audio__
 audio/alsa_info_collect
 audio/alsa_info_attachment
+audio/list_devices
 audio/speaker-headphone-plug-detection
 audio/microphone-plug-detection
-audio/alsa_record_playback_external
-audio/alsa_record_playback_internal
-audio/list_devices
-audio/playback_auto
 audio/playback_headphones
+audio/alsa_record_playback_external
+audio/playback_auto
+audio/alsa_record_playback_internal
 audio/playback_hdmi
 audio/playback_displayport
 audio/alsa_record_playback_automated
@@ -98,6 +98,10 @@ suspend/suspend-time-check
 suspend/suspend-single-log-attach
 suspend/hybrid_sleep
 suspend/audio_after_suspend
+suspend/speaker-headphone-plug-detection-after-suspend
+suspend/microphone-plug-detection-after-suspend
+suspend/playback_headphones-after-suspend
+suspend/alsa_record_playback_external-after-suspend
 suspend/cycle_resolutions_after_suspend
 # Now we ask to switch to the first graphics card. This requires a restart
 # of checkbox. If the system only has one card, the test instructions should

@@ -31,11 +31,9 @@ audio/alsa_info_collect
 audio/alsa_info_attachment
 audio/list_devices
 audio/playback_headphones
-audio/playback_auto
 audio/alsa_record_playback_external
+audio/playback_auto
 audio/alsa_record_playback_internal
-audio/playback_hdmi
-audio/playback_displayport
 audio/alsa_record_playback_automated
 __benchmarks__
 # See Automated Tests section at the end of this file
@@ -128,8 +126,10 @@ __monitor__
 monitor/powersaving
 monitor/dim_brightness
 monitor/displayport
+audio/playback_displayport
 monitor/dvi
 monitor/hdmi
+audio/playback_hdmi
 monitor/rca
 monitor/svideo
 monitor/vga
@@ -222,6 +222,8 @@ suspend/bluetooth_obex_get_after_suspend
 suspend/cycle_resolutions_after_suspend
 suspend/xrandr_screens_after_suspend.tar.gz
 suspend/record_playback_after_suspend
+suspend/playback_headphones-after-suspend
+suspend/alsa_record_playback_external-after-suspend
 suspend/mmc-insert-after-suspend
 suspend/mmc-storage-after-suspend
 suspend/mmc-remove-after-suspend

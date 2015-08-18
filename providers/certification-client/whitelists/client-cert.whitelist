@@ -39,13 +39,13 @@ __audio__
 audio/generator_.*
 audio/alsa_info_collect
 audio/alsa_info_attachment
+audio/list_devices
 audio/speaker-headphone-plug-detection
 audio/microphone-plug-detection
-audio/alsa_record_playback_external
-audio/alsa_record_playback_internal
-audio/list_devices
-audio/playback_auto
 audio/playback_headphones
+audio/alsa_record_playback_external
+audio/playback_auto
+audio/alsa_record_playback_internal
 audio/alsa_record_playback_automated
 # See Monitor / Graphic test section for hybrid-graphic monitor audio tests
 __benchmarks__
@@ -329,6 +329,10 @@ suspend/bluetooth_obex_send_after_suspend
 suspend/bluetooth_obex_browse_after_suspend
 suspend/bluetooth_obex_get_after_suspend
 suspend/record_playback_after_suspend
+suspend/speaker-headphone-plug-detection-after-suspend
+suspend/microphone-plug-detection-after-suspend
+suspend/playback_headphones-after-suspend
+suspend/alsa_record_playback_external-after-suspend
 suspend/pointing-after-suspend
 suspend/pointing-after-suspend_.*
 suspend/mmc-insert-after-suspend

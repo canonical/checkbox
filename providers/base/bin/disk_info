@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 #
-# disk_info
-#
 # This file is part of Checkbox.
 #
-# Copyright 2015 Canonical Ltd.
+# Copyright (C) 2010-2013 by Cloud Computing Center for Mobile Applications
+# Industrial Technology Research Institute
 #
 # Authors:
 #   Nelson Chu <Nelson.Chu@itri.org.tw>
@@ -21,6 +20,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+"""
+disk_info
+
+Uses lshw to gather information about disks seen by the OS.
+Outputs logical name, vendor, description, size and product data
+"""
 
 import sys
 import xml.etree.ElementTree as ET
@@ -29,11 +34,9 @@ from subprocess import check_output
 
 def get_item(disk, attribute):
     try:
-        attribute_name = disk.find(attribute).text
+        return disk.find(attribute).text
     except AttributeError:
-        attribute_name = "Unknown"
-
-    return attribute_name
+        return "Unknown"
 
 
 def main():
@@ -47,7 +50,6 @@ def main():
         print("No disk information discovered.")
         return 10
 
-    result = {}
     for disk in disk_list:
         if disk.get('id') == 'disk':
             print("Name: {}".format(get_item(disk, 'logicalname')))
@@ -60,7 +62,7 @@ def main():
             try:
                 disk_size = ("%dGB" % (
                     int(disk.find('size').text) / (1000**3)))
-            except:
+            except TypeError:
                 disk_size = "Unknown"
             print("\t{k:15}\t{v}".format(k="Size:",
                                          v=disk_size))

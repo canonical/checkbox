@@ -24,7 +24,7 @@
 
 import sys
 import xml.etree.ElementTree as ET
-from subprocess import Popen, PIPE
+from subprocess import check_output
 
 def get_item(disk,attribute):
     try:
@@ -35,9 +35,7 @@ def get_item(disk,attribute):
     return attribute_name
 
 def main():
-    command = 'lshw -xml'
-    hwinfo_xml = Popen(command, stdout=PIPE, stderr=PIPE,
-                       shell=True).communicate()[0]
+    hwinfo_xml = check_output(['lshw', '-c', 'disk', '-xml'])
     root = ET.fromstring(hwinfo_xml)
 
     # Parse lshw XML for gathering disk information.

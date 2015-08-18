@@ -1,3 +1,8 @@
+# This is for bin/disk_info
+unit: packaging meta-data
+os-id: debian
+Depends: lshw
+
 plugin: shell
 id: disk/detect
 estimated_duration: 0.25

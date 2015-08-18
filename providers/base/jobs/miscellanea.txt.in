@@ -74,7 +74,7 @@ plugin: shell
 estimated_duration: 0.5
 id: miscellanea/boot_mode
 requires:
- cpuinfo.platform in ("i386", "x86_64")
+ cpuinfo.platform in ("i386", "x86_64", "aarch64")
 _summary: EFI-mode boot test
 _description: Succeeds when booted in EFI mode; fails otherwise
 command:

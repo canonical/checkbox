@@ -97,7 +97,7 @@ _summary:
  Gather BMC Identification info
 
 plugin: shell
-id: miscellanea/cputest
+id: miscellanea/cpus_are_not_samples
 requires: package.name == 'dmidecode'
 estimated_duration: 0.5
 user: root

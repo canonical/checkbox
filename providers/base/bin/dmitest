@@ -34,8 +34,7 @@
     Include system and base board serial numbers among tests.
 :param --cpu_only:
     Don't perform usual tests, except for CPU test. Note that the
-    desktop/server specification becomes unimportant if this option
-    is used.
+    desktop/server specification is ignored if this option is used.
 :param desktop:
     SUT is a desktop or laptop
 :param server:

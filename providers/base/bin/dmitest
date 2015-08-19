@@ -48,9 +48,6 @@ import sys
 
 from argparse import ArgumentParser
 
-# Command to retrieve DMI information
-COMMAND = "dmidecode"
-
 
 def find_in_section(stream, section, label, strings, find_empty):
     """Search for a set of strings on a line in the output.
@@ -241,6 +238,8 @@ def main():
                         "just the CPU validity test")
     args = parser.parse_args()
 
+    # Command to retrieve DMI information
+    COMMAND = "dmidecode"
     try:
         if args.dmifile:
             print("Reading " + args.dmifile + " as DMI data")

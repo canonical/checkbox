@@ -22,15 +22,25 @@
 # desktop/laptop)
 #
 # By: Rod Smith
-#
-# Parameters:
-#  * --dmifile {filename} -- Input filename; optional. If specified,
-#    file is used instead of dmidecode output.
-#  * --test_versions -- Include chassis, system, and base boad version
-#    numbers among tests.
-#  * --test_serials -- Include system and base board serial numbers among
-#    tests.
-#  * 'desktop' or 'server' -- Type of system being tested.
+
+"""Script to test dmidecode output for sanity.
+
+:param --dmifile:
+    Input filename; optional. If specified, file is used instead of
+    dmidecode output.
+:param --test_versions:
+    Include chassis, system, and base boad version numbers among tests.
+:param --test_serials:
+    Include system and base board serial numbers among tests.
+:param --cpu_only:
+    Don't perform usual tests, except for CPU test. Note that the
+    desktop/server specification becomes unimportant if this option
+    is used.
+:param desktop:
+    SUT is a desktop or laptop
+:param server:
+    SUT is a server
+"""
 
 import re
 import subprocess
@@ -43,8 +53,8 @@ COMMAND = "dmidecode"
 
 
 def find_in_section(stream, section, label, strings, find_empty):
-    """ Search for a set of strings on a labelled line in a section
-        of the output.
+    """Search for a set of strings on a line in the output.
+
     :param stream:
         input text stream (dmidecode output)
     :param section:
@@ -82,31 +92,18 @@ def find_in_section(stream, section, label, strings, find_empty):
     return found
 
 
-def main():
-    parser = ArgumentParser("dmitest")
-    parser.add_argument('system_type',
-                        help="System type ('server' or 'desktop').",
-                        choices=['server', 'desktop'])
-    parser.add_argument('--dmifile',
-                        help="File to use in lieu of dmidecode.")
-    parser.add_argument('--test_versions', action="store_true",
-                        help="Set to check version information")
-    parser.add_argument('--test_serials', action="store_true",
-                        help="Set to check serial number information")
-    args = parser.parse_args()
+def standard_tests(args, stream):
+    """
+    Perform the standard set of tests.
 
-    try:
-        if args.dmifile:
-            print("Reading " + args.dmifile + " as DMI data")
-            stream = subprocess.check_output(['cat', args.dmifile], universal_newlines=True).splitlines()
-        else:
-            stream = subprocess.check_output(COMMAND, universal_newlines=True).splitlines()
-    except subprocess.CalledProcessError as err:
-        print("Error running {}: {}".format(COMMAND, err))
-        return 1
-
+    :param args:
+        Arguments passed to script
+    :param stream:
+        Input stream containing dmidecode output
+    :returns retval:
+        Number of problems found
+    """
     retval = 0
-
     """
     NOTE: System type is encoded in both the "Chassis Information" and "Base
     Board Type" sections. The former is more reliable, so we do a whitelist
@@ -123,103 +120,160 @@ def main():
                                ['server', 'rack mount', 'blade',
                                 'expansion chassis', 'multi-system'], False):
             print("*** Incorrect or unknown server chassis type!")
-            retval = 1
+            retval += 1
         if find_in_section(stream, 'Base Board Information', 'Type:',
                            ['portable', 'notebook', 'space-saving',
                             'all in one'], False):
             print("*** Incorrect server base board type!")
-            retval = 1
+            retval += 1
     else:
         if not find_in_section(stream, 'Chassis Information', 'Type:',
                                ['notebook', 'portable', 'laptop', 'desktop',
                                 'lunch box', 'space-saving', 'tower',
                                 'all in one', 'hand held'], False):
             print("*** Incorrect or unknown desktop chassis type!")
-            retval = 1
+            retval += 1
         if find_in_section(stream, 'Base Board Information', 'Type:',
                            ['rack mount', 'server', 'multi-system',
                             'interconnect board'], False):
             print("*** Incorrect desktop base board type!")
-            retval = 1
-
+            retval += 1
     if find_in_section(stream, 'Chassis Information', 'Manufacturer:',
                        ['empty', 'chassis manufacture', 'null', 'insyde',
                         'to be filled by o\.e\.m\.', 'no enclosure',
                         '\.\.\.\.\.'], True):
         print("*** Invalid chassis manufacturer!")
-        retval = 1
-
+        retval += 1
     if find_in_section(stream, 'System Information', 'Manufacturer:',
                        ['system manufacture', 'insyde', 'standard',
                         'to be filled by o\.e\.m\.', 'no enclosure'], True):
         print("*** Invalid system manufacturer!")
-        retval = 1
-
+        retval += 1
     if find_in_section(stream, 'Base Board Information', 'Manufacturer:',
                        ['to be filled by o\.e\.m\.'], True):
         print("*** Invalid base board manufacturer!")
-        retval = 1
-
+        retval += 1
     if find_in_section(stream, 'System Information', 'Product Name:',
                        ['system product name', 'to be filled by o\.e\.m\.'],
                        False):
         print("*** Invalid system product name!")
-        retval = 1
-
+        retval += 1
     if find_in_section(stream, 'Base Board Information', 'Product Name:',
                        ['base board product name',
                         'to be filled by o\.e\.m\.'], False):
         print("*** Invalid base board product name!")
-        retval = 1
+        retval += 1
+    return retval
 
+
+def version_tests(args, stream):
+    """
+    Perform the version tests.
+
+    :param args:
+        Arguments passed to script
+    :param stream:
+        Input stream containing dmidecode output
+    :returns retval:
+        Number of problems found
+    """
+    retval = 0
+    if find_in_section(stream, 'Chassis Information', 'Version:',
+                       ['to be filled by o\.e\.m\.', 'empty'],
+                       False):
+        print("*** Invalid chassis version!")
+        retval += 1
+    if find_in_section(stream, 'System Information', 'Version:',
+                       ['to be filled by o\.e\.m\.', '\(none\)',
+                        'null', 'system version', 'not applicable',
+                        '\.\.\.\.\.'], False):
+        print("*** Invalid system information version!")
+        retval += 1
+    if find_in_section(stream, 'Base Board Information', 'Version:',
+                       ['base board version',
+                        'empty', 'to be filled by o\.e\.m\.'], False):
+        print("*** Invalid base board version!")
+        retval += 1
+    return retval
+
+
+def serial_tests(args, stream):
+    """
+    Perform the serial number tests.
+
+    :param args:
+        Arguments passed to script
+    :param stream:
+        Input stream containing dmidecode output
+    :returns retval:
+        Number of problems found
+    """
+    retval = 0
+    if find_in_section(stream, 'System Information', 'Serial Number:',
+                       ['to be filled by o\.e\.m\.',
+                        'system serial number', '\.\.\.\.\.'],
+                       False):
+        print("*** Invalid system information serial number!")
+        retval += 1
+    if find_in_section(stream, 'Base Board Information', 'Serial Number:',
+                       ['n/a', 'base board serial number',
+                        'to be filled by o\.e\.m\.', 'empty', '\.\.\.'],
+                       False):
+        print("*** Invalid base board serial number!")
+        retval += 1
+    return retval
+
+
+def main():
+    """Main function."""
+    parser = ArgumentParser("dmitest")
+    parser.add_argument('system_type',
+                        help="System type ('server' or 'desktop').",
+                        choices=['server', 'desktop'])
+    parser.add_argument('--dmifile',
+                        help="File to use in lieu of dmidecode.")
+    parser.add_argument('--test_versions', action="store_true",
+                        help="Set to check version information")
+    parser.add_argument('--test_serials', action="store_true",
+                        help="Set to check serial number information")
+    parser.add_argument('--cpu_only', action="store_true",
+                        help="Set to not perform standard tests, " +
+                        "just the CPU validity test")
+    args = parser.parse_args()
+
+    try:
+        if args.dmifile:
+            print("Reading " + args.dmifile + " as DMI data")
+            stream = subprocess.check_output(['cat', args.dmifile],
+                                             universal_newlines=True).splitlines()
+        else:
+            stream = subprocess.check_output(COMMAND,
+                                             universal_newlines=True).splitlines()
+    except subprocess.CalledProcessError as err:
+        print("Error running {}: {}".format(COMMAND, err))
+        return 1
+
+    retval = 0
+    if not args.cpu_only:
+        retval += standard_tests(args, stream)
     if args.test_versions:
-
-        if find_in_section(stream, 'Chassis Information', 'Version:',
-                           ['to be filled by o\.e\.m\.', 'empty'],
-                           False):
-            print("*** Invalid chassis version!")
-            retval = 1
-
-        if find_in_section(stream, 'System Information', 'Version:',
-                           ['to be filled by o\.e\.m\.', '\(none\)',
-                            'null', 'system version', 'not applicable',
-                            '\.\.\.\.\.'], False):
-            print("*** Invalid system information version!")
-            retval = 1
-
-        if find_in_section(stream, 'Base Board Information', 'Version:',
-                           ['base board version',
-                            'empty', 'to be filled by o\.e\.m\.'], False):
-            print("*** Invalid base board version!")
-            retval = 1
-
+        retval += version_tests(args, stream)
     if args.test_serials:
-
-        if find_in_section(stream, 'System Information', 'Serial Number:',
-                           ['to be filled by o\.e\.m\.',
-                            'system serial number', '\.\.\.\.\.'],
-                           False):
-            print("*** Invalid system information serial number!")
-            retval = 1
-
-        if find_in_section(stream, 'Base Board Information', 'Serial Number:',
-                           ['n/a', 'base board serial number',
-                            'to be filled by o\.e\.m\.', 'empty', '\.\.\.'],
-                           False):
-            print("*** Invalid base board serial number!")
-            retval = 1
-
+        retval += serial_tests(args, stream)
     if find_in_section(stream, 'Processor Information', 'Version:',
                        ['sample'], False):
         print("*** Invalid processor information!")
-        retval = 1
+        retval += 1
 
     # In review of dmidecode data on 10/23/2014, no conspicuous problems
     # found in BIOS Information section's Vendor, Version, or Release Date
     # fields. Therefore, no tests based on these fields have been written.
 
-    if retval:
-        print("\nFailed one or more tests (see above)")
+    if retval > 0:
+        if retval == 1:
+            print("\nFailed 1 test (see above)")
+        else:
+            print("\nFailed {0} tests (see above)".format(retval))
     else:
         print("\nPassed all tests")
 

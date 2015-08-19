@@ -97,6 +97,17 @@ _summary:
  Gather BMC Identification info
 
 plugin: shell
+id: miscellanea/cputest
+requires: package.name == 'dmidecode'
+estimated_duration: 0.5
+user: root
+command: dmitest --cpu_only server
+_description:
+ Sanity check of CPU information; fails if CPU is an engineering sample
+_summary:
+ CPU sanity check
+
+plugin: shell
 id: miscellanea/dmitest_server
 requires: package.name == 'dmidecode'
 estimated_duration: 0.5

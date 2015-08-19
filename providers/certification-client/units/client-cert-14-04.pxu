@@ -319,6 +319,8 @@ include:
     suspend/microphone-plug-detection-after-suspend        certification-status=blocker
     suspend/playback_headphones-after-suspend              certification-status=blocker
     suspend/alsa_record_playback_external-after-suspend    certification-status=blocker
+    camera/display_after_suspend                           certification-status=blocker
+    camera/still_after_suspend                             certification-status=blocker
     suspend/pointing-after-suspend
     suspend/pointing-after-suspend_.*                      certification-status=blocker
     suspend/mmc-insert-after-suspend                       certification-status=non-blocker

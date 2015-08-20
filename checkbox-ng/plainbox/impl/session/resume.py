@@ -174,6 +174,8 @@ class SessionPeekHelper(EnvelopeUnpackMixIn):
             return SessionPeekHelper4().peek_json(json_repr)
         elif version == 5:
             return SessionPeekHelper5().peek_json(json_repr)
+        elif version == 6:
+            return SessionPeekHelper6().peek_json(json_repr)
         else:
             raise IncompatibleSessionError(
                 _("Unsupported version {}").format(version))
@@ -297,6 +299,9 @@ class SessionResumeHelper(EnvelopeUnpackMixIn):
                 self.job_list, self.flags, self.location)
         elif version == 5:
             helper = SessionResumeHelper5(
+                self.job_list, self.flags, self.location)
+        elif version == 6:
+            helper = SessionResumeHelper6(
                 self.job_list, self.flags, self.location)
         else:
             raise IncompatibleSessionError(
@@ -742,6 +747,35 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
                     exc.args[0]))
 
     @classmethod
+    def _restore_SessionState_mandatory_job_list(cls, session, session_repr):
+        """
+        Extract the representation of mandatory_job_list from the session and
+        set it back to the session object. This method should be called after
+        all the jobs are discovered.
+
+        :raises CorruptedSessionError:
+            if mandatory_job_list refers to unknown job
+        """
+        # List of all the _ids_ of the jobs that were selected
+        mandatory_job_list = [
+            _validate(
+                job_id, value_type=str,
+                value_type_msg=_("Each job id must be a string"))
+            for job_id in _validate(
+                session_repr, key='mandatory_job_list', value_type=list)]
+        # Restore job selection
+        logger.debug(
+            _("calling update_mandatory_job_list(%r)"), mandatory_job_list)
+        try:
+            session.update_mandatory_job_list([
+                session.job_state_map[job_id].job
+                for job_id in mandatory_job_list])
+        except KeyError as exc:
+            raise CorruptedSessionError(
+                _("'mandatory_job_list' refers to unknown job {!r}").format(
+                    exc.args[0]))
+
+    @classmethod
     def _restore_SessionState_job_list(cls, session, session_repr):
         """
         Trim job_list so that it has only those jobs that are mentioned by the
@@ -953,6 +987,63 @@ class SessionResumeHelper5(SessionResumeHelper4):
         if location is None:
             raise ValueError("Location must be a directory name")
         return os.path.join(location, io_log_filename)
+
+class SessionResumeHelper6(SessionResumeHelper5):
+    """
+    Helper class for implementing session resume feature
+
+    This class works with data constructed by
+    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper5` which has
+    been pre-processed by :class:`SessionResumeHelper` (to strip the initial
+    envelope).
+
+    Due to the constraints of what can be represented in a suspended session,
+    this class cannot work in isolation. It must operate with a list of know
+    jobs.
+
+    Since (most of the) jobs are being provided externally (as they represent
+    the non-serialized parts of checkbox or other job providers) several
+    failure modes are possible. Those are documented in :meth:`resume()`
+    """
+
+    def _build_SessionState(self, session_repr, early_cb=None):
+        """
+        Reconstruct the session state object.
+
+        This method creates a fresh SessionState instance and restores
+        jobs, results, meta-data and desired job list using helper methods.
+        """
+        # Construct a fresh session object.
+        session = SessionState(self.job_list)
+        logger.debug(_("Constructed new session for resume %r"), session)
+        # Give early_cb a chance to see the session before we start resuming.
+        # This way applications can see, among other things, generated jobs
+        # as they are added to the session, by registering appropriate signal
+        # handlers on the freshly-constructed session instance.
+        if early_cb is not None:
+            logger.debug(_("Invoking early callback %r"), early_cb)
+            new_session = early_cb(session)
+            if new_session is not None:
+                logger.debug(
+                    _("Using different session for resume: %r"), new_session)
+                session = new_session
+        # Restore bits and pieces of state
+        logger.debug(
+            _("Starting to restore jobs and results to %r..."), session)
+        self._restore_SessionState_jobs_and_results(session, session_repr)
+        logger.debug(_("Starting to restore metadata..."))
+        self._restore_SessionState_metadata(session.metadata, session_repr)
+        logger.debug(_("restored metadata %r"), session.metadata)
+        logger.debug(_("Starting to restore mandatory job list..."))
+        self._restore_SessionState_mandatory_job_list(session, session_repr)
+        logger.debug(_("Starting to restore desired job list..."))
+        self._restore_SessionState_desired_job_list(session, session_repr)
+        logger.debug(_("Starting to restore job list..."))
+        self._restore_SessionState_job_list(session, session_repr)
+        # Return whatever we've got
+        logger.debug(_("Resume complete!"))
+        return session
+
 
 
 def _validate(obj, **flags):

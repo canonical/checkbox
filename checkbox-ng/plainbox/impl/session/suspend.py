@@ -187,6 +187,9 @@ class SessionSuspendHelper1:
             ``desired_job_list``:
                 List of (ids) of jobs that are desired (to be executed)
 
+            ``mandatory_job_list``:
+                List of (ids) of jobs that must be executed
+
             ``metadata``:
                 The representation of meta-data associated with the session
                 state object.
@@ -204,6 +207,9 @@ class SessionSuspendHelper1:
             },
             "desired_job_list": [
                 job.id for job in obj.desired_job_list
+            ],
+            "mandatory_job_list": [
+                job.id for job in obj.mandatory_job_list
             ],
             "metadata": self._repr_SessionMetaData(obj.metadata, session_dir),
         }
@@ -499,6 +505,9 @@ class SessionSuspendHelper4(SessionSuspendHelper3):
             ``desired_job_list``:
                 List of (ids) of jobs that are desired (to be executed)
 
+            ``mandatory_job_list``:
+                List of (ids) of jobs that must be executed
+
             ``metadata``:
                 The representation of meta-data associated with the session
                 state object.
@@ -518,6 +527,9 @@ class SessionSuspendHelper4(SessionSuspendHelper3):
             },
             "desired_job_list": [
                 job.id for job in obj.desired_job_list
+            ],
+            "mandatory_job_list": [
+                job.id for job in obj.mandatory_job_list
             ],
             "metadata": self._repr_SessionMetaData(obj.metadata, session_dir),
         }

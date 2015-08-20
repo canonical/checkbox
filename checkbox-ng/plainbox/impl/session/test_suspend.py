@@ -284,6 +284,7 @@ class SessionSuspendHelper1Tests(TestCase):
             'jobs': {},
             'results': {},
             'desired_job_list': [],
+            'mandatory_job_list': [],
             'metadata': {
                 'title': None,
                 'flags': [],
@@ -329,7 +330,8 @@ class SessionSuspendHelper1Tests(TestCase):
         self.assertIsInstance(data, bytes)
         # And that we can gzip uncompress them and get what we expected
         self.assertEqual(gzip.decompress(data), (
-            b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+            b'{"session":{"desired_job_list":[],"jobs":{},'
+            b'"mandatory_job_list":[],"metadata":'
             b'{"flags":[],"running_job_name":null,"title":null},"results":{}'
             b'},"version":1}'))
 
@@ -542,6 +544,7 @@ class GeneratedJobSuspendTests(TestCase):
                 }]
             },
             'desired_job_list': ['__category__', 'generator'],
+            'mandatory_job_list': [],
             'metadata': {
                 'flags': [],
                 'running_job_name': None,
@@ -608,6 +611,7 @@ class SessionSuspendHelper2Tests(SessionSuspendHelper1Tests):
             'jobs': {},
             'results': {},
             'desired_job_list': [],
+            'mandatory_job_list': [],
             'metadata': {
                 'title': None,
                 'flags': [],
@@ -634,7 +638,8 @@ class SessionSuspendHelper2Tests(SessionSuspendHelper1Tests):
         self.assertIsInstance(data, bytes)
         # And that we can gzip uncompress them and get what we expected
         self.assertEqual(gzip.decompress(data), (
-            b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+            b'{"session":{"desired_job_list":[],"jobs":{},'
+            b'"mandatory_job_list":[],"metadata":'
             b'{"app_blob":null,"flags":[],"running_job_name":null,"title":null'
             b'},"results":{}},"version":2}'))
 
@@ -700,6 +705,7 @@ class SessionSuspendHelper3Tests(SessionSuspendHelper2Tests):
             'jobs': {},
             'results': {},
             'desired_job_list': [],
+            'mandatory_job_list': [],
             'metadata': {
                 'title': None,
                 'flags': [],
@@ -726,7 +732,8 @@ class SessionSuspendHelper3Tests(SessionSuspendHelper2Tests):
         self.assertIsInstance(data, bytes)
         # And that we can gzip uncompress them and get what we expected
         self.assertEqual(gzip.decompress(data), (
-            b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+            b'{"session":{"desired_job_list":[],"jobs":{},'
+            b'"mandatory_job_list":[],"metadata":'
             b'{"app_blob":null,"app_id":null,"flags":[],'
             b'"running_job_name":null,"title":null},"results":{}},'
             b'"version":3}'))
@@ -791,6 +798,7 @@ class SessionSuspendHelper4Tests(SessionSuspendHelper3Tests):
                 }]
             },
             'desired_job_list': ['used'],
+            'mandatory_job_list': [],
             'metadata': {
                 'title': None,
                 'flags': [],
@@ -817,7 +825,8 @@ class SessionSuspendHelper4Tests(SessionSuspendHelper3Tests):
         self.assertIsInstance(data, bytes)
         # And that we can gzip uncompress them and get what we expected
         self.assertEqual(gzip.decompress(data), (
-            b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+            b'{"session":{"desired_job_list":[],"jobs":{},'
+            b'"mandatory_job_list":[],"metadata":'
             b'{"app_blob":null,"app_id":null,"flags":[],'
             b'"running_job_name":null,"title":null},"results":{}},'
             b'"version":4}'))
@@ -856,7 +865,8 @@ class SessionSuspendHelper5Tests(SessionSuspendHelper4Tests):
         self.assertIsInstance(data, bytes)
         # And that we can gzip uncompress them and get what we expected
         self.assertEqual(gzip.decompress(data), (
-            b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+            b'{"session":{"desired_job_list":[],"jobs":{},'
+            b'"mandatory_job_list":[],"metadata":'
             b'{"app_blob":null,"app_id":null,"flags":[],'
             b'"running_job_name":null,"title":null},"results":{}},'
             b'"version":5}'))
@@ -1004,6 +1014,7 @@ class RegressionTests(TestCase):
                 job_a.id: job_a.checksum,
             },
             'desired_job_list': [job_a.id],
+            'mandatory_job_list': [],
             'results': {},
             'metadata': 'mocked'
         }

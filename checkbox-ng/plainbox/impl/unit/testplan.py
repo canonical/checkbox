@@ -111,6 +111,72 @@ class NonEmptyPatternIntersectionValidator(FieldValidatorBase):
                 raise NotImplementedError
 
 
+class NoBaseIncludeValidator(FieldValidatorBase):
+    """
+    We want to ensure it does not select jobs already selected by the 'include'
+    field patterns.
+    """
+
+    def check_in_context(self, parent, unit, field, context):
+        for issue in self._check_test_plan_in_context(
+                parent, unit, field, context):
+            yield issue
+
+    def _check_test_plan_in_context(self, parent, unit, field, context):
+        included_job_id = []
+        id_map = context.compute_shared(
+            "field_value_map[id]", compute_value_map, context, 'id')
+        warning = _("selector {!a} will select a job already matched by the "
+                    "'include' field patterns")
+        qual_gen = unit._gen_qualifiers(
+            'include', getattr(unit, 'include'), True)
+        # Build the list of all jobs already included with the normal include
+        # field
+        for qual in qual_gen:
+            assert isinstance(qual, FieldQualifier)
+            if qual.field != 'id':
+                continue
+            if isinstance(qual.matcher, PatternMatcher):
+                for an_id in id_map:
+                    if an_id is None:
+                        continue
+                    if qual.matcher.match(an_id):
+                        included_job_id.append(an_id)
+            elif isinstance(qual.matcher, OperatorMatcher):
+                assert qual.matcher.op is operator.eq
+                target_id = qual.matcher.value
+                if target_id in id_map:
+                    included_job_id.append(target_id)
+            else:
+                raise NotImplementedError
+        # Now check that mandatory field patterns do not select a job already
+        # included with normal include.
+        qual_gen = unit._gen_qualifiers(
+            str(field), getattr(unit, str(field)), True)
+        for qual in qual_gen:
+            assert isinstance(qual, FieldQualifier)
+            if qual.field != 'id':
+                continue
+            if isinstance(qual.matcher, PatternMatcher):
+                for an_id in included_job_id:
+                    if qual.matcher.match(an_id):
+                        yield parent.warning(
+                            unit, field, Problem.bad_reference,
+                            warning.format(qual.matcher.pattern_text),
+                            origin=qual.origin)
+                        break
+            elif isinstance(qual.matcher, OperatorMatcher):
+                assert qual.matcher.op is operator.eq
+                target_id = qual.matcher.value
+                if target_id in included_job_id:
+                    yield parent.warning(
+                        unit, field, Problem.bad_reference,
+                        warning.format(target_id),
+                        origin=qual.origin)
+            else:
+                raise NotImplementedError
+
+
 class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
     """
     Test plan class
@@ -153,6 +219,10 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
     @property
     def include(self):
         return self.get_record_value('include')
+
+    @property
+    def mandatory_include(self):
+        return self.get_record_value('mandatory_include')
 
     @property
     def exclude(self):
@@ -207,6 +277,18 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
         qual_list = []
         qual_list.extend(self._gen_qualifiers('include', self.include, True))
         qual_list.extend(self._gen_qualifiers('exclude', self.exclude, False))
+        return CompositeQualifier(qual_list)
+
+    def get_mandatory_qualifier(self):
+        """
+        Convert this test plan to an equivalent qualifier for job selection
+
+        :returns:
+            A CompositeQualifier corresponding to the contents of both
+            the include and exclude fields.
+        """
+        qual_list = []
+        qual_list.extend(self._gen_qualifiers('include', self.mandatory_include, True))
         return CompositeQualifier(qual_list)
 
     def _gen_qualifiers(self, field_name, field_value, inclusive):
@@ -398,6 +480,7 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
             name = 'name'
             description = 'description'
             include = 'include'
+            mandatory_include = 'mandatory_include'
             exclude = 'exclude'
             estimated_duration = 'estimated_duration'
             icon = 'icon'
@@ -430,6 +513,10 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
             ],
             fields.include: [
                 NonEmptyPatternIntersectionValidator,
+            ],
+            fields.mandatory_include: [
+                NonEmptyPatternIntersectionValidator,
+                NoBaseIncludeValidator,
             ],
             fields.exclude: [
                 NonEmptyPatternIntersectionValidator,

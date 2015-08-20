@@ -116,6 +116,26 @@ copy such constructs when working on a new test plan from scratch
     on how you can refer to jobs from other providers (you simply use their
     fully qualified name for that)
 
+``mandatory_include``:
+    A multi-line list of job identifiers or patterns matching such identifiers
+    that should always be executed.
+
+    This optional field can be used to specify the jobs that should always run.
+    This is particularly useful for specifying jobs that gather vital
+    info about the tested system, as it renders imposible to generate a report
+    with no information about system under test.
+
+    For example, session results meant to be sent to the Ubuntu certification
+    website must include the special job: miscellanea/submission-resources
+
+    Example:
+
+        mandatory_include:
+            miscellanea/submission-resources
+
+    Note that mandatory jobs will always be run first (along with their
+    dependant jobs)
+
 ``exclude``:
     A multi-line list of job identifiers or patterns matching such identifiers
     that should be excluded from execution.

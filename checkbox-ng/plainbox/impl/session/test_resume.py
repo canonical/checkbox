@@ -49,6 +49,7 @@ from plainbox.impl.session.resume import SessionResumeHelper2
 from plainbox.impl.session.resume import SessionResumeHelper3
 from plainbox.impl.session.resume import SessionResumeHelper4
 from plainbox.impl.session.resume import SessionResumeHelper5
+from plainbox.impl.session.resume import SessionResumeHelper6
 from plainbox.impl.session.state import SessionState
 from plainbox.impl.testing_utils import make_job
 from plainbox.testing_utils.testcases import TestCaseWithParameters
@@ -165,12 +166,22 @@ class SessionResumeHelperTests(TestCase):
         SessionResumeHelper([], None, None).resume(data)
         mocked_helper5.resume_json.assertCalledOnce()
 
-    def test_resume_dispatch_v6(self):
+    @mock.patch('plainbox.impl.session.resume.SessionResumeHelper6')
+    def test_resume_dispatch_v6(self, mocked_helper6):
         data = gzip.compress(
-            b'{"version":6}')
+            b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+            b'{"app_blob":null,"app_id":null,"flags":[],'
+            b'"running_job_name":null,"title":null'
+            b'},"results":{}},"version":6}')
+        SessionResumeHelper([], None, None).resume(data)
+        mocked_helper6.resume_json.assertCalledOnce()
+
+    def test_resume_dispatch_v7(self):
+        data = gzip.compress(
+            b'{"version":7}')
         with self.assertRaises(IncompatibleSessionError) as boom:
             SessionResumeHelper([], None, None).resume(data)
-        self.assertEqual(str(boom.exception), "Unsupported version 6")
+        self.assertEqual(str(boom.exception), "Unsupported version 7")
 
 
 class SessionResumeTests(TestCase):
@@ -266,6 +277,7 @@ class EndToEndTests(TestCaseWithParameters):
                 }]
             },
             'desired_job_list': ['__category__', 'generator'],
+            'mandatory_job_list': [],
             'metadata': {
                 'flags': [],
                 'running_job_name': None,
@@ -349,7 +361,7 @@ class SessionStateResumeTests(TestCaseWithParameters):
     parameter_names = ('resume_cls',)
     parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
                         (SessionResumeHelper3,), (SessionResumeHelper4,),
-                        (SessionResumeHelper5,))
+                        (SessionResumeHelper5,), (SessionResumeHelper6,))
 
     def setUp(self):
         self.session_repr = {}
@@ -424,7 +436,7 @@ class IOLogRecordResumeTests(TestCaseWithParameters):
     parameter_names = ('resume_cls',)
     parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
                         (SessionResumeHelper3,), (SessionResumeHelper4,),
-                        (SessionResumeHelper5,))
+                        (SessionResumeHelper5,), (SessionResumeHelper6,))
 
     def test_build_IOLogRecord_missing_delay(self):
         """
@@ -715,7 +727,7 @@ class MemoryJobResultResumeTests(JobResultResumeMixIn, TestCaseWithParameters):
     parameter_names = ('resume_cls',)
     parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
                         (SessionResumeHelper3,), (SessionResumeHelper4,),
-                        (SessionResumeHelper5,))
+                        (SessionResumeHelper5,), (SessionResumeHelper6,))
     good_repr = {
         'outcome': "pass",
         'comments': None,
@@ -790,7 +802,7 @@ class DiskJobResultResumeTestsCommon(JobResultResumeMixIn,
     parameter_names = ('resume_cls',)
     parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
                         (SessionResumeHelper3,), (SessionResumeHelper4,),
-                        (SessionResumeHelper5,))
+                        (SessionResumeHelper5,), (SessionResumeHelper6,))
     good_repr = {
         'outcome': "pass",
         'comments': None,
@@ -892,7 +904,7 @@ class DiskJobResultResumeTests5(TestCaseWithParameters):
     """ Tests for behavior of DiskJobResult resume for format 5. """
 
     parameter_names = ('resume_cls',)
-    parameter_values = ((SessionResumeHelper5,),)
+    parameter_values = ((SessionResumeHelper6,),)
     good_repr = {
         'outcome': "pass",
         'comments': None,
@@ -936,7 +948,7 @@ class DesiredJobListResumeTests(TestCaseWithParameters):
     parameter_names = ('resume_cls',)
     parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
                         (SessionResumeHelper3,), (SessionResumeHelper4,),
-                        (SessionResumeHelper5,))
+                        (SessionResumeHelper5,), (SessionResumeHelper6,))
 
     def setUp(self):
         # All of the tests need a SessionState object and some jobs to work
@@ -1313,7 +1325,7 @@ class ProcessJobTests(TestCaseWithParameters):
     parameter_names = ('resume_cls',)
     parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
                         (SessionResumeHelper3,), (SessionResumeHelper4,),
-                        (SessionResumeHelper5,))
+                        (SessionResumeHelper5,), (SessionResumeHelper6,))
 
     def setUp(self):
         self.job_id = 'job'
@@ -1477,7 +1489,7 @@ class JobPluginSpecificTests(TestCaseWithParameters):
     parameter_names = ('resume_cls',)
     parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
                         (SessionResumeHelper3,), (SessionResumeHelper4,),
-                        (SessionResumeHelper5,))
+                        (SessionResumeHelper5,), (SessionResumeHelper6,))
 
     def test_process_job_restores_resources(self):
         """
@@ -1579,7 +1591,7 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
     parameter_names = ('resume_cls',)
     parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
                         (SessionResumeHelper3,), (SessionResumeHelper4,),
-                        (SessionResumeHelper5,))
+                        (SessionResumeHelper5,), (SessionResumeHelper6,))
 
     def test_empty_session(self):
         """
@@ -1799,7 +1811,7 @@ class SessionJobListResumeTests(TestCaseWithParameters):
     parameter_names = ('resume_cls',)
     parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
                         (SessionResumeHelper3,), (SessionResumeHelper4,),
-                        (SessionResumeHelper5,))
+                        (SessionResumeHelper5,), (SessionResumeHelper6,))
 
     def test_simple_session(self):
         """
@@ -1844,6 +1856,7 @@ class RegressionTests(TestCase):
             'session': {
                 'jobs': {},  # nothing ran yet
                 'desired_job_list': [job_a.id],  # we want a to run
+                'mandatory_job_list': [],
                 'results': {},  # nothing ran yet
             },
         }
@@ -1872,6 +1885,7 @@ class RegressionTests(TestCase):
                     job_a.id: job_a.checksum
                 },
                 'desired_job_list': [job_a.id],  # we want to run a
+                'mandatory_job_list': [],
                 'results': {},  # nothing ran yet
             }
         }

@@ -93,6 +93,17 @@ class TestTestPlan(TestCase):
         }, provider=self.provider)
         self.assertEqual(unit.include, "include")
 
+    def test_mandatory_include__default(self):
+        unit = TestPlanUnit({
+        }, provider=self.provider)
+        self.assertEqual(unit.mandatory_include, None)
+
+    def test_mandatory_include__normal(self):
+        unit = TestPlanUnit({
+            'mandatory_include': 'mandatory_include'
+        }, provider=self.provider)
+        self.assertEqual(unit.mandatory_include, "mandatory_include")
+
     def test_exclude__default(self):
         unit = TestPlanUnit({
         }, provider=self.provider)

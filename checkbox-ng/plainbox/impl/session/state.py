@@ -31,6 +31,7 @@ from plainbox.impl import deprecated
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyError
 from plainbox.impl.depmgr import DependencySolver
+from plainbox.impl.secure.qualifiers import select_jobs
 from plainbox.impl.session.jobs import JobState
 from plainbox.impl.session.jobs import UndesiredJobReadinessInhibitor
 from plainbox.impl.unit.job import JobDefinition
@@ -363,6 +364,8 @@ class SessionDeviceContext:
         self._test_plan_list = test_plan_list
         self._invalidate_override_map()
         self._bulk_override_update()
+        if test_plan_list:
+            self._update_mandatory_job_list()
 
     def add_provider(self, provider, add_units=True):
         """
@@ -595,6 +598,15 @@ class SessionDeviceContext:
             if re.match(pattern, job.id):
                 job_state.apply_overrides(override_list)
 
+    def _update_mandatory_job_list(self):
+        qualifier_list = []
+        for test_plan in self._test_plan_list:
+            qualifier_list.append(test_plan.get_mandatory_qualifier())
+        mandatory_job_list = select_jobs(
+            self.state.job_list, qualifier_list)
+        self.state.update_mandatory_job_list(mandatory_job_list)
+        self.state.update_desired_job_list(self.state.desired_job_list)
+
 
 class SessionState:
 
@@ -772,6 +784,7 @@ class SessionState:
         self._job_state_map = {job.id: JobState(job)
                                for job in self._job_list}
         self._desired_job_list = []
+        self._mandatory_job_list = []
         self._run_list = []
         self._resource_map = {}
         self._metadata = SessionMetaData()
@@ -844,6 +857,9 @@ class SessionState:
                 self.on_job_removed(job)
                 self.on_unit_removed(job)
 
+    def update_mandatory_job_list(self, mandatory_job_list):
+        self._mandatory_job_list = mandatory_job_list
+
     def update_desired_job_list(self, desired_job_list):
         """
         Update the set of desired jobs (that ought to run).
@@ -860,7 +876,8 @@ class SessionState:
         """
         # Remember a copy of original desired job list. We may modify this list
         # so let's not mess up data passed by the caller.
-        self._desired_job_list = list(desired_job_list)
+        self._desired_job_list = list(
+            desired_job_list + self._mandatory_job_list)
         # Reset run list just in case desired_job_list is empty
         self._run_list = []
         # Try to solve the dependency graph. This is done in a loop as may need
@@ -876,7 +893,7 @@ class SessionState:
             # resources or runtime complexity.
             try:
                 self._run_list = DependencySolver.resolve_dependencies(
-                    job_list, self._desired_job_list)
+                    job_list, self.mandatory_job_list + self._desired_job_list)
             except DependencyError as exc:
                 # When a dependency error is detected remove the affected job
                 # form _desired_job_list and try again.
@@ -1123,6 +1140,16 @@ class SessionState:
         list of all jobs re-instantiate this class please.
         """
         return self._job_list
+
+    @property
+    def mandatory_job_list(self):
+        """
+        List of all mandatory jobs that must run.
+
+        Testplan units can specify a list of jobs that have to be run and are
+        not supposed to be deselected by the application user.
+        """
+        return self._mandatory_job_list
 
     @property
     def unit_list(self):

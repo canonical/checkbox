@@ -224,6 +224,8 @@ suspend/xrandr_screens_after_suspend.tar.gz
 suspend/record_playback_after_suspend
 suspend/playback_headphones-after-suspend
 suspend/alsa_record_playback_external-after-suspend
+suspend/pointing-after-suspend
+suspend/pointing-after-suspend_.*
 suspend/mmc-insert-after-suspend
 suspend/mmc-storage-after-suspend
 suspend/mmc-remove-after-suspend

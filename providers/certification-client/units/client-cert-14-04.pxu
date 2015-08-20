@@ -323,6 +323,8 @@ include:
     camera/still_after_suspend                             certification-status=blocker
     suspend/pointing-after-suspend
     suspend/pointing-after-suspend_.*                      certification-status=blocker
+    suspend/clicking-after-suspend
+    suspend/clicking-after-suspend_.*                      certification-status=blocker
     suspend/mmc-insert-after-suspend                       certification-status=non-blocker
     suspend/mmc-storage-after-suspend                      certification-status=non-blocker
     suspend/mmc-remove-after-suspend                       certification-status=non-blocker

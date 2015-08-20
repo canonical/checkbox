@@ -2585,6 +2585,33 @@ command:
       Did the cursor move?
  EOF
 
+plugin: local
+_summary: Create click tests for pointing devices after suspend.
+id: suspend/clicking-after-suspend
+estimated_duration: 1.0
+requires:
+ device.category == 'MOUSE' or device.category == 'TOUCHPAD'
+_description: Click tests for pointing devices after suspend.
+command:
+ cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=MOUSE" -w "category=TOUCHPAD"'
+ plugin: manual
+ estimated_duration: 30.0
+ id: suspend/clicking-after-suspend_`echo "${product}_${category}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`_`basename $path`
+ depends: suspend/suspend_advanced
+ requires: device.path == "$path"
+ _summary: Check post suspend button functionality for $product
+ _description:
+  PURPOSE:
+      This will test the buttons of your $product device after suspend
+  STEPS:
+      1. Click the left button with your $product.
+      2. Click the right button with your $product.
+      3. Click the middle button with your $product (if available).
+      4. Double-click the left button with your $product.
+  VERIFICATION:
+      Did these buttons work as expected?
+ EOF
+
 id: suspend/generator_compiz_check_after_suspend
 requires: device.category == 'VIDEO'
 _description: Compiz support tests after suspend

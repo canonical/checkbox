@@ -1058,7 +1058,6 @@ class SessionResumeHelper6(SessionResumeHelper5):
         return session
 
 
-
 def _validate(obj, **flags):
     """
     Multi-purpose extraction and validation function.

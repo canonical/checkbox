@@ -157,6 +157,14 @@ class ManageCommand(CommandBase):
     -----------
 
     @LAYOUT[flat]@
+
+    Relocatable Layout
+    ------------------
+
+    @LAYOUT[relocatable]@
+
+    This layout is perfect for Click and Snappy environments where /prefix is
+    effectively variable.
     """))
 class InstallCommand(ManageCommand):
 
@@ -207,6 +215,17 @@ class InstallCommand(ManageCommand):
             'provider': os.path.join(
                 '{prefix}', 'share', 'plainbox-providers-1',
                 '{provider.name_without_colon}.provider'),
+        },
+        'relocatable': {
+            'bin': os.path.join('{prefix}', 'bin'),
+            'build/mo': os.path.join('{prefix}', 'locale'),
+            'data': os.path.join('{prefix}', 'data'),
+            'jobs': os.path.join('{prefix}', 'jobs'),
+            'units': os.path.join('{prefix}', 'units'),
+            'po': None,
+            'whitelists': os.path.join('{prefix}', 'whitelists'),
+            'provider': os.path.join(
+                '{prefix}', '{provider.name_without_colon}.provider'),
         },
     }
 
@@ -341,6 +360,12 @@ class InstallCommand(ManageCommand):
             config_obj.set(
                 section, 'location', self._LOCATION_TEMPLATE.format(
                     prefix=prefix, provider=self.definition))
+        elif layout == 'relocatable':
+            # The relocatable layout is also special, it just has the flag set
+            # and everything else is derived from the location of the .provider
+            # file itself.
+            config_obj.set(section, 'relocatable', "True")
+            config_obj.remove_option(section, 'location')
         else:
             # In non-flat layouts don't store location as everything is
             # explicit

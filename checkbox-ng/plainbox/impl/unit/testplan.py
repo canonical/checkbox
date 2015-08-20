@@ -155,6 +155,10 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
         return self.get_record_value('include')
 
     @property
+    def mandatory_include(self):
+        return self.get_record_value('mandatory_include')
+
+    @property
     def exclude(self):
         return self.get_record_value('exclude')
 
@@ -207,6 +211,18 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
         qual_list = []
         qual_list.extend(self._gen_qualifiers('include', self.include, True))
         qual_list.extend(self._gen_qualifiers('exclude', self.exclude, False))
+        return CompositeQualifier(qual_list)
+
+    def get_mandatory_qualifier(self):
+        """
+        Convert this test plan to an equivalent qualifier for job selection
+
+        :returns:
+            A CompositeQualifier corresponding to the contents of both
+            the include and exclude fields.
+        """
+        qual_list = []
+        qual_list.extend(self._gen_qualifiers('include', self.mandatory_include, True))
         return CompositeQualifier(qual_list)
 
     def _gen_qualifiers(self, field_name, field_value, inclusive):
@@ -398,6 +414,7 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
             name = 'name'
             description = 'description'
             include = 'include'
+            mandatory_include = 'mandatory_include'
             exclude = 'exclude'
             estimated_duration = 'estimated_duration'
             icon = 'icon'
@@ -429,6 +446,9 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
                     onlyif=lambda unit: unit.virtual is False),
             ],
             fields.include: [
+                NonEmptyPatternIntersectionValidator,
+            ],
+            fields.mandatory_include: [
                 NonEmptyPatternIntersectionValidator,
             ],
             fields.exclude: [

@@ -102,6 +102,7 @@ suspend/speaker-headphone-plug-detection-after-suspend
 suspend/microphone-plug-detection-after-suspend
 suspend/playback_headphones-after-suspend
 suspend/alsa_record_playback_external-after-suspend
+camera/display_after_suspend
 suspend/cycle_resolutions_after_suspend
 # Now we ask to switch to the first graphics card. This requires a restart
 # of checkbox. If the system only has one card, the test instructions should

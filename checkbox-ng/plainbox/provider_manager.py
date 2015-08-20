@@ -160,11 +160,6 @@ class ManageCommand(CommandBase):
     """))
 class InstallCommand(ManageCommand):
 
-    # Template of the .provider file
-    _PROVIDER_TEMPLATE = os.path.join(
-        '{prefix}', 'share', 'plainbox-providers-1',
-        '{provider.name_without_colon}.provider')
-
     # Template of the location= entry
     _LOCATION_TEMPLATE = os.path.join(
         '{prefix}', 'lib', 'plainbox-providers-1',
@@ -185,6 +180,9 @@ class InstallCommand(ManageCommand):
             'po': None,
             'whitelists': os.path.join(
                 '{prefix}', 'share', '{provider.name}', 'whitelists'),
+            'provider': os.path.join(
+                '{prefix}', 'share', 'plainbox-providers-1',
+                '{provider.name_without_colon}.provider'),
         },
         'flat': {
             'bin': os.path.join(
@@ -206,7 +204,10 @@ class InstallCommand(ManageCommand):
             'whitelists': os.path.join(
                 '{prefix}', 'lib', 'plainbox-providers-1', '{provider.name}',
                 'whitelists'),
-        }
+            'provider': os.path.join(
+                '{prefix}', 'share', 'plainbox-providers-1',
+                '{provider.name_without_colon}.provider'),
+        },
     }
 
     # Mapping from directory name to .provider entry name
@@ -281,7 +282,7 @@ class InstallCommand(ManageCommand):
 
     def _write_provider_file(self, root, prefix, layout, provider):
         self._write_to_file(
-            root, self._PROVIDER_TEMPLATE.format(
+            root, self._INSTALL_LAYOUT[layout]['provider'].format(
                 prefix=prefix, provider=self.definition),
             lambda stream: self._get_provider_config_obj(
                 layout, prefix, provider).write(stream))

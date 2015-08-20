@@ -1320,6 +1320,15 @@ class Provider1Definition(Config):
         can be Unset and their validators only check values other than Unset.
     """
 
+
+    # NOTE: See the implementation note in :class:`Provider1PluginIn` to
+    # understand the effect of this flag.
+    relocatable = Variable(
+        section='PlainBox Provider',
+        help_text=_("Flag indicating if the provider is relocatable"),
+        kind=bool,
+    )
+
     location = Variable(
         section='PlainBox Provider',
         help_text=_("Base directory with provider data"),
@@ -1651,6 +1660,19 @@ class Provider1PlugIn(PlugIn):
         definition = Provider1Definition()
         # Load the provider definition
         definition.read_string(definition_text)
+        # If the relocatable flag is set, set location to the base directory of
+        # the filename and reset all the other directories (to Unset). This is
+        # to allow creation of .provider files that can be moved entirely, and
+        # as long as they follow the implicit source layout, they will work
+        # okay.
+        if definition.relocatable:
+            definition.location = os.path.dirname(filename)
+            definition.units_dir = Unset
+            definition.jobs_dir = Unset
+            definition.whitelists_dir = Unset
+            definition.data_dir = Unset
+            definition.bin_dir = Unset
+            definition.locale_dir = Unset
         # any validation issues prevent plugin from being used
         if definition.problem_list:
             # take the earliest problem and report it

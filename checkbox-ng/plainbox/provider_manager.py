@@ -157,13 +157,16 @@ class ManageCommand(CommandBase):
     -----------
 
     @LAYOUT[flat]@
+
+    Relocatable Layout
+    ------------------
+
+    @LAYOUT[relocatable]@
+
+    This layout is perfect for Click and Snappy environments where /prefix is
+    effectively variable.
     """))
 class InstallCommand(ManageCommand):
-
-    # Template of the .provider file
-    _PROVIDER_TEMPLATE = os.path.join(
-        '{prefix}', 'share', 'plainbox-providers-1',
-        '{provider.name_without_colon}.provider')
 
     # Template of the location= entry
     _LOCATION_TEMPLATE = os.path.join(
@@ -185,6 +188,9 @@ class InstallCommand(ManageCommand):
             'po': None,
             'whitelists': os.path.join(
                 '{prefix}', 'share', '{provider.name}', 'whitelists'),
+            'provider': os.path.join(
+                '{prefix}', 'share', 'plainbox-providers-1',
+                '{provider.name_without_colon}.provider'),
         },
         'flat': {
             'bin': os.path.join(
@@ -206,7 +212,21 @@ class InstallCommand(ManageCommand):
             'whitelists': os.path.join(
                 '{prefix}', 'lib', 'plainbox-providers-1', '{provider.name}',
                 'whitelists'),
-        }
+            'provider': os.path.join(
+                '{prefix}', 'share', 'plainbox-providers-1',
+                '{provider.name_without_colon}.provider'),
+        },
+        'relocatable': {
+            'bin': os.path.join('{prefix}', 'bin'),
+            'build/mo': os.path.join('{prefix}', 'locale'),
+            'data': os.path.join('{prefix}', 'data'),
+            'jobs': os.path.join('{prefix}', 'jobs'),
+            'units': os.path.join('{prefix}', 'units'),
+            'po': None,
+            'whitelists': os.path.join('{prefix}', 'whitelists'),
+            'provider': os.path.join(
+                '{prefix}', '{provider.name_without_colon}.provider'),
+        },
     }
 
     # Mapping from directory name to .provider entry name
@@ -281,7 +301,7 @@ class InstallCommand(ManageCommand):
 
     def _write_provider_file(self, root, prefix, layout, provider):
         self._write_to_file(
-            root, self._PROVIDER_TEMPLATE.format(
+            root, self._INSTALL_LAYOUT[layout]['provider'].format(
                 prefix=prefix, provider=self.definition),
             lambda stream: self._get_provider_config_obj(
                 layout, prefix, provider).write(stream))
@@ -334,12 +354,18 @@ class InstallCommand(ManageCommand):
         config_obj = self.definition.get_parser_obj()
         section = 'PlainBox Provider'
         if layout == 'flat':
-            # Treat the flay layout specially, just as it used to behave before
+            # Treat the flat layout specially, just as it used to behave before
             # additional layouts were added. In this mode only the location
             # field is defined.
             config_obj.set(
                 section, 'location', self._LOCATION_TEMPLATE.format(
                     prefix=prefix, provider=self.definition))
+        elif layout == 'relocatable':
+            # The relocatable layout is also special, it just has the flag set
+            # and everything else is derived from the location of the .provider
+            # file itself.
+            config_obj.set(section, 'relocatable', "True")
+            config_obj.remove_option(section, 'location')
         else:
             # In non-flat layouts don't store location as everything is
             # explicit

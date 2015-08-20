@@ -485,6 +485,19 @@ class SessionPeekHelper5(SessionPeekHelper4):
     """
 
 
+class SessionPeekHelper6(SessionPeekHelper5):
+    """
+    Helper class for implementing session peek feature
+
+    This class works with data constructed by
+    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper6` which has
+    been pre-processed by :class:`SessionPeekHelper` (to strip the initial
+    envelope).
+
+    The only goal of this class is to reconstruct session state meta-data.
+    """
+
+
 class SessionResumeHelper1(MetaDataHelper1MixIn):
     """
     Helper class for implementing session resume feature

@@ -354,7 +354,7 @@ class InstallCommand(ManageCommand):
         config_obj = self.definition.get_parser_obj()
         section = 'PlainBox Provider'
         if layout == 'flat':
-            # Treat the flay layout specially, just as it used to behave before
+            # Treat the flat layout specially, just as it used to behave before
             # additional layouts were added. In this mode only the location
             # field is defined.
             config_obj.set(

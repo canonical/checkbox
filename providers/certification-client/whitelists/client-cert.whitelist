@@ -333,6 +333,8 @@ suspend/speaker-headphone-plug-detection-after-suspend
 suspend/microphone-plug-detection-after-suspend
 suspend/playback_headphones-after-suspend
 suspend/alsa_record_playback_external-after-suspend
+camera/display_after_suspend
+camera/still_after_suspend
 suspend/pointing-after-suspend
 suspend/pointing-after-suspend_.*
 suspend/mmc-insert-after-suspend

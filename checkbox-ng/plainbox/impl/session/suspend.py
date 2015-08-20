@@ -82,6 +82,7 @@ Serialization format versions
    have hollow results are not mentioned in the job -> checksum map.
 5) Same as '4' but DiskJobResult is stored with a relative pathname to the log
    file if session_dir is provided.
+6) Same as '5' plus store the list of mandatory jobs.
 """
 
 import base64
@@ -559,5 +560,80 @@ class SessionSuspendHelper5(SessionSuspendHelper4):
         return result
 
 
+class SessionSuspendHelper6(SessionSuspendHelper5):
+
+    """
+    Helper class for computing binary representation of a session.
+
+    The helper only creates a bytes object to save. Actual saving should
+    be performed using some other means, preferably using
+    :class:`~plainbox.impl.session.storage.SessionStorage`.
+
+    This class creates version '6' snapshots.
+    """
+
+    VERSION = 6
+
+    def _repr_SessionState(self, obj, session_dir):
+        """
+        Compute the representation of :class:`SessionState`.
+
+        :returns:
+            JSON-friendly representation
+        :rtype:
+            dict
+
+        The result is a dictionary with the following items:
+
+            ``jobs``:
+                Dictionary mapping job id to job checksum.
+                The checksum is computed with
+                :attr:`~plainbox.impl.job.JobDefinition.checksum`.
+                Two kinds of jobs are mentioned here:
+                    - jobs that ever ran and have a result
+                    - jobs that may run (are on the run list now)
+                The idea is to capture the "state" of the jobs that are
+                "important" to this session, that should be checked for
+                modifications when the session resumes later.
+
+            ``results``
+                Dictionary mapping job id to a list of results.
+                Each result is represented by data computed by
+                :meth:`_repr_JobResult()`. Only jobs that actually have
+                a result are mentioned here. The automatically generated
+                "None" result that is always present for every job is skipped.
+
+            ``desired_job_list``:
+                List of (ids) of jobs that are desired (to be executed)
+
+            ``mandatory_job_list``:
+                List of (ids) of jobs that must be executed
+
+            ``metadata``:
+                The representation of meta-data associated with the session
+                state object.
+        """
+        id_run_list = frozenset([job.id for job in obj.run_list])
+        return {
+            "jobs": {
+                state.job.id: state.job.checksum
+                for state in obj.job_state_map.values()
+                if not state.result.is_hollow or state.job.id in id_run_list
+            },
+            "results": {
+                state.job.id: [self._repr_JobResult(result, session_dir)
+                               for result in state.result_history]
+                for state in obj.job_state_map.values()
+                if len(state.result_history) > 0
+            },
+            "desired_job_list": [
+                job.id for job in obj.desired_job_list
+            ],
+            "mandatory_job_list": [
+                job.id for job in obj.mandatory_job_list
+            ],
+            "metadata": self._repr_SessionMetaData(obj.metadata, session_dir),
+        }
+
 # Alias for the most recent version
-SessionSuspendHelper = SessionSuspendHelper5
+SessionSuspendHelper = SessionSuspendHelper6

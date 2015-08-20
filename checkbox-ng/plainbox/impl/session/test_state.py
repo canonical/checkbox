@@ -77,6 +77,13 @@ class SessionStateSmokeTests(TestCase):
         observed = self.session_state.run_list
         self.assertEqual(expected, observed)
 
+    def test_update_mandatory_job_list_updates(self):
+        D = make_job('D')
+        self.session_state.update_mandatory_job_list([D])
+        expected = [D]
+        observed = self.session_state.mandatory_job_list
+        self.assertEqual(expected, observed)
+
 
 class RegressionTests(TestCase):
     # Tests for bugfixes
@@ -269,6 +276,21 @@ class SessionStateAPITests(TestCase):
         session = SessionState([four_seconds, no_estimated_duration])
         session.update_desired_job_list([four_seconds, no_estimated_duration])
         self.assertEqual(session.get_estimated_duration(), (4.0, None))
+
+    def test_update_mandatory_job_list_affects_run_list(self):
+        A = make_job('A')
+        session = SessionState([A])
+        session.update_mandatory_job_list([A])
+        session.update_desired_job_list([])
+        self.assertEqual(session.run_list, [A])
+
+    def test_mandatory_jobs_are_first_in_run_list(self):
+        A = make_job('A')
+        B = make_job('B')
+        session = SessionState([A, B])
+        session.update_mandatory_job_list([B])
+        session.update_desired_job_list([A])
+        self.assertEqual(session.run_list, [B, A])
 
 
 class SessionStateTrimTests(TestCase):

@@ -40,6 +40,7 @@ from plainbox.impl.session.suspend import SessionSuspendHelper2
 from plainbox.impl.session.suspend import SessionSuspendHelper3
 from plainbox.impl.session.suspend import SessionSuspendHelper4
 from plainbox.impl.session.suspend import SessionSuspendHelper5
+from plainbox.impl.session.suspend import SessionSuspendHelper6
 from plainbox.impl.testing_utils import make_job
 from plainbox.vendor import mock
 
@@ -859,6 +860,119 @@ class SessionSuspendHelper5Tests(SessionSuspendHelper4Tests):
             b'{"app_blob":null,"app_id":null,"flags":[],'
             b'"running_job_name":null,"title":null},"results":{}},'
             b'"version":5}'))
+
+
+class SessionSuspendHelper6Tests(SessionSuspendHelper5Tests):
+    """
+    Tests for various methods of SessionSuspendHelper6
+    """
+
+    def setUp(self):
+        self.helper = SessionSuspendHelper6()
+        self.session_dir = None
+
+    def test_json_repr_current_version(self):
+        """
+        verify what the version field is
+        """
+        data = self.helper._json_repr(SessionState([]), self.session_dir)
+        self.assertEqual(data['version'], 6)
+
+    def test_suspend(self):
+        """
+        verify that the suspend() method returns gzipped JSON representation
+        """
+        data = self.helper.suspend(SessionState([]), self.session_dir)
+        # XXX: we cannot really test what the compressed data looks like
+        # because apparently python3.2 gzip output is non-deterministic.
+        # It seems to be an instance of the gzip bug that was fixed a few
+        # years ago.
+        #
+        # I've filed a bug on python3.2 in Ubuntu and Python upstream project
+        # https://bugs.launchpad.net/ubuntu/+source/python3.2/+bug/871083
+        #
+        # In the meantime we can only test that we got bytes out
+        self.assertIsInstance(data, bytes)
+        # And that we can gzip uncompress them and get what we expected
+        self.assertEqual(gzip.decompress(data), (
+            b'{"session":{"desired_job_list":[],"jobs":{},'
+            b'"mandatory_job_list":[],"metadata":'
+            b'{"app_blob":null,"app_id":null,"flags":[],'
+            b'"running_job_name":null,"title":null},"results":{}},'
+            b'"version":6}'))
+
+    def test_repr_SessionState_typical_session(self):
+        """
+        verify the representation of a SessionState with some unused jobs
+
+        Unused jobs should just have no representation. Their checksum
+        should not be mentioned. Their results (empty results) should be
+        ignored.
+        """
+        used_job = JobDefinition({
+            "plugin": "shell",
+            "id": "used",
+            "command": "echo 'hello world'",
+        })
+        unused_job = JobDefinition({
+            "plugin": "shell",
+            "id": "unused",
+            "command": "echo 'hello world'",
+        })
+        used_result = MemoryJobResult({
+            "io_log": [
+                (0.0, "stdout", b'hello world\n'),
+            ],
+            'outcome': IJobResult.OUTCOME_PASS
+        })
+        session_state = SessionState([used_job, unused_job])
+        session_state.update_desired_job_list([used_job])
+        session_state.update_job_result(used_job, used_result)
+        data = self.helper._repr_SessionState(session_state, self.session_dir)
+        self.assertEqual(data, {
+            'jobs': {
+                'used': ('8c393c19fdfde1b6afc5b79d0a1617ecf7531cd832a16450dc'
+                         '2f3f50d329d373')
+            },
+            'results': {
+                'used': [{
+                    'comments': None,
+                    'execution_duration': None,
+                    'io_log': [[0.0, 'stdout', 'aGVsbG8gd29ybGQK']],
+                    'outcome': 'pass',
+                    'return_code': None
+                }]
+            },
+            'desired_job_list': ['used'],
+            'mandatory_job_list': [],
+            'metadata': {
+                'title': None,
+                'flags': [],
+                'running_job_name': None,
+                'app_blob': None,
+                'app_id': None,
+            },
+        })
+
+    def test_repr_SessionState_empty_session(self):
+        """
+        verify that representation of empty SessionState is okay
+        """
+        data = self.helper._repr_SessionState(
+            SessionState([]), self.session_dir)
+        self.assertEqual(data, {
+            'jobs': {},
+            'results': {},
+            'desired_job_list': [],
+            'mandatory_job_list': [],
+            'metadata': {
+                'title': None,
+                'flags': [],
+                'running_job_name': None,
+                'app_blob': None,
+                'app_id': None,
+            },
+        })
 
 
 class RegressionTests(TestCase):

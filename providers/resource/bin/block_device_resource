@@ -6,11 +6,14 @@ from glob import glob
 
 rootdir_pattern = re.compile('^.*?/devices')
 
+
 def device_state(name):
     """
-    Follow pmount policy to determine whether a device is removable or internal.
+    Follow pmount policy to determine whether a device is removable
+    or internal.
     """
-    with open('/sys/block/%s/device/block/%s/removable' % (name, name)) as f:
+    with open('/sys/block/%s/device/block/%s/removable' % (name, name),
+              "rt") as f:
         if f.read(1) == '1':
             return 'removable'
 
@@ -40,12 +43,12 @@ def usb_support(name, version):
         hub_port_path = m.group(2)
 
         # Check the highest version of USB the device supports
-        with open('/sys/devices/%s/version' %device_path) as f:
+        with open('/sys/devices/%s/version' % device_path, "rt") as f:
             if float(f.readline()) < version:
                 return 'unsupported'
 
         # Check the highest version of USB the hub supports
-        with open('/sys/devices/%s/version' %hub_port_path) as f:
+        with open('/sys/devices/%s/version' % hub_port_path, "rt") as f:
             if float(f.readline()) < version:
                 return 'unsupported'
 
@@ -53,8 +56,14 @@ def usb_support(name, version):
 
     return 'unsupported'
 
+
 def device_rotation(name):
-    with open('/sys/block/%s/device/block/%s/queue/rotational' % (name, name)) as f:
+    """
+    Check the device queue/rotational parameter to determine if it's a spinning
+    device or a non-spinning device, which indicates it's an SSD
+    """
+    with open('/sys/block/%s/device/block/%s/queue/rotational' % (name, name),
+              "rt") as f:
         if f.read(1) == '1':
             return 'yes'
 

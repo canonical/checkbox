@@ -1,7 +1,7 @@
 plugin: shell
 id: virtualization/kvm_check_vm
 user: root
-environ: http_proxy https_proxy
+environ: KVM_TIMEOUT KVM_IMAGE http_proxy https_proxy
 estimated_duration: 300.0
 requires:
  package.name == 'qemu-system'

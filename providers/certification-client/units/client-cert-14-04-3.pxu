@@ -2,8 +2,6 @@ id: client-cert-14-04-3
 _name: All 14.04.3 Client Certification Tests
 unit: test plan
 include:
-    # Meta-job to include required resources, don't remove.
-    miscellanea/submission-resources
     # Resource Jobs
     __resource__
     2013.com.canonical.plainbox::collect-manifest
@@ -440,3 +438,6 @@ include:
     installer_debug.gz
     info/touchpad_driver
     info/disk_partitions
+mandatory_include:
+    # Meta-job to include required resources, don't remove.
+    miscellanea/submission-resources

@@ -3,9 +3,6 @@ _name: HWE SRU
 unit: test plan
 include:
     ## This test plan is intended to check HWE SRU patches.
-    # A meta-job that includes the resources needed for a valid submission.
-    # Please do not remove without good reason.
-    miscellanea/submission-resources
     # This category will group all resources to keep the display less cluttered
     __resource__
     2013.com.canonical.plainbox::collect-manifest
@@ -112,3 +109,7 @@ include:
     suspend/resolution_after_suspend                       certification-status=blocker
     suspend/display_after_suspend                          certification-status=blocker
     suspend/cycle_resolutions_after_suspend                certification-status=blocker
+mandatory_include:
+    # A meta-job that includes the resources needed for a valid submission.
+    # Please do not remove without good reason.
+    miscellanea/submission-resources

@@ -360,8 +360,6 @@ include:
     # The following tests are purely automated and/or lenghty stress tests.
     # They have been moved to the end of the test run to improve the testing
     # process.
-    firmware/fwts
-    firmware/fwts_logs
     firmware/fwts_desktop_diagnosis
     firmware/fwts_desktop_diagnosis_results.log
     firmware/fwts_desktop_diagnosis_results_hwe.log

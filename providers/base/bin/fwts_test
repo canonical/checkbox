@@ -381,7 +381,8 @@ def main():
         for test in tests:
             # ACPI tests can now be run with --acpitests (fwts >= 15.07.00)
             log = args.log
-            if test in HWE_TESTS:
+            # Split the log file for HWE (only if -t is not used)
+            if not args.test and test in HWE_TESTS:
                 log = log.replace('.log', '_hwe.log')
             if test == 'acpitests':
                 test = '--acpitests'

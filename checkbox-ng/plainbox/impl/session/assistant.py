@@ -781,7 +781,8 @@ class SessionAssistant:
 
     @raises(ValueError, TypeError, UnexpectedMethodCall)
     def run_job(
-        self, job_id: str, ui: 'Union[str, IJobRunnerUI]'
+        self, job_id: str, ui: 'Union[str, IJobRunnerUI]',
+        native: bool
     ) -> 'ResultBuilder':
         """
         Run a job with the specific identifier.
@@ -792,6 +793,9 @@ class SessionAssistant:
             The user interface delegate to use. As a special case it can be a
             well-known name of a stock user interface. Currently only the
             'silent' user interface is available.
+        :param native:
+            Flag indicating that the job will be run natively by the
+            application. Normal runner won't be used to execute the job
         :raises KeyError:
             If no such job exists
         :raises ValueError:
@@ -802,6 +806,8 @@ class SessionAssistant:
             If the call is made at an unexpected time. Do not catch this error.
             It is a bug in your program. The error message will indicate what
             is the likely cause.
+        :returns:
+            JobResultBuilder instance.
 
         This method can be used to run any job available in the session (not
         only those jobs that are selected, or on the todo list). The result is
@@ -834,9 +840,14 @@ class SessionAssistant:
             self._context.state.metadata.running_job_name = job.id
             self._manager.checkpoint()
             ui.started_running(job, job_state)
-            builder = self._runner.run_job(
-                job, job_state, self._config, ui
-            ).get_builder()
+            if not native:
+                builder = self._runner.run_job(
+                    job, job_state, self._config, ui
+                ).get_builder()
+            else:
+                builder = JobResultBuilder(
+                    outcome=IJobResult.OUTCOME_UNDECIDED,
+                )
             builder.execution_duration = time.time() - start_time
             self._context.state.metadata.running_job_name = None
             self._manager.checkpoint()

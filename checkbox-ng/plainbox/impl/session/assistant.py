@@ -159,7 +159,7 @@ class SessionAssistant:
         a bug. Plainbox should integrate with all the platforms correctly out
         of the box.
         """
-        UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        UsageExpectation.of(self).enforce()
         self._repo = SessionStorageRepository(pathname)
         _logger.debug("Using alternate repository: %r", pathname)
         # NOTE: We expect applications to call this at most once.
@@ -183,7 +183,7 @@ class SessionAssistant:
             Please check the source code to understand which values to pass
             here. This method is currently experimental.
         """
-        UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        UsageExpectation.of(self).enforce()
         self._config = config
         # NOTE: We expect applications to call this at most once.
         del UsageExpectation.of(self).allowed_calls[
@@ -213,7 +213,7 @@ class SessionAssistant:
             Please check the source code to understand which values to pass
             here. This method is currently experimental.
         """
-        UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        UsageExpectation.of(self).enforce()
         self._ctrl_list = ctrl_list
         # NOTE: We expect applications to call this at most once.
         del UsageExpectation.of(self).allowed_calls[
@@ -268,7 +268,7 @@ class SessionAssistant:
             Delegate correctness checking to a mediator class that also
             implements some useful, default behavior for this.
         """
-        UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        UsageExpectation.of(self).enforce()
         # NOTE: providers are actually enumerated here, they are only loaded
         # and validated on demand so this is is not going to expose any
         # problems from utterly broken providers we don't care about.
@@ -350,7 +350,7 @@ class SessionAssistant:
         intends to use session resuming functionality it should use other
         methods to see if session should be resumed instead.
         """
-        UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        UsageExpectation.of(self).enforce()
         self._manager = SessionManager.create(self._repo)
         self._context = self._manager.add_local_device_context()
         for provider in self._selected_providers:
@@ -376,7 +376,7 @@ class SessionAssistant:
 
     @raises(KeyError, UnexpectedMethodCall)
     def resume_session(self, session_id: str) -> 'SessionMetaData':
-        UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        UsageExpectation.of(self).enforce()
         all_units = list(itertools.chain(
             *[p.unit_list for p in self._selected_providers]))
         self._manager = SessionManager.load_session(
@@ -417,7 +417,7 @@ class SessionAssistant:
         Applications can use sessions' metadata (and the app_blob contained
         in them) to decide which session is the best one to propose resuming.
         """
-        UsageExpectation.of(self).enforce()  # 2 is due to @raises
+        UsageExpectation.of(self).enforce()
         # let's keep resume_candidates, so we don't have to load data again
         self._resume_candidates = {}
         for storage in self._repo.get_storage_list():
@@ -494,7 +494,7 @@ class SessionAssistant:
         that session without the need to search and analyze all of the sessions
         in the repository.
         """
-        UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        UsageExpectation.of(self).enforce()
         return self._manager.storage.id
 
     @raises(UnexpectedMethodCall)
@@ -517,7 +517,7 @@ class SessionAssistant:
             complete archive (backup) of the directory. This is guaranteed to
             work.
         """
-        UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        UsageExpectation.of(self).enforce()
         return self._manager.storage.location
 
     @raises(UnexpectedMethodCall)
@@ -537,7 +537,7 @@ class SessionAssistant:
         This set does not include bootstrap jobs as they must be executed prior
         to actually allowing the user to know what jobs are available.
         """
-        UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        UsageExpectation.of(self).enforce()
         return [unit.id for unit in self._context.unit_list
                 if unit.Meta.name == 'test plan']
 
@@ -562,7 +562,7 @@ class SessionAssistant:
         Upon making the selection the application can inspect the execution
         plan which is expressed as a list of jobs to execute.
         """
-        UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        UsageExpectation.of(self).enforce()
         test_plan = self._context.get_unit(test_plan_id, 'test plan')
         self._manager.test_plans = (test_plan, )
         if False:
@@ -605,7 +605,7 @@ class SessionAssistant:
             This method will not return until the bootstrap process is
             finished. This can take any amount of time (easily over one minute)
         """
-        UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        UsageExpectation.of(self).enforce()
         # NOTE: there is next-to-none UI here as bootstrap jobs are limited to
         # just resource and local jobs (including their dependencies) so there
         # should be very little UI required.
@@ -652,7 +652,7 @@ class SessionAssistant:
             Calling this method will alter the result of
             :meth:`get_static_todo_list()` and :meth:`get_dynamic_todo_list()`.
         """
-        UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        UsageExpectation.of(self).enforce()
         desired_job_list = [
             self._context.get_unit(job_id, 'job') for job_id in selection]
         self._context.state.update_desired_job_list(desired_job_list)
@@ -701,7 +701,7 @@ class SessionAssistant:
             public api stability promise. Refer to the documentation of the
             JobState class for details.
         """
-        UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        UsageExpectation.of(self).enforce()
         # XXX: job_state_map is a bit low level, can we avoid that?
         return self._context.state.job_state_map[job_id]
 
@@ -724,7 +724,7 @@ class SessionAssistant:
             public api stability promise. Refer to the documentation of the
             JobDefinition class for details.
         """
-        UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        UsageExpectation.of(self).enforce()
         # we may want to decide early about the result of the job, without
         # running it (e.g. when skipping the job)
         allowed_calls = UsageExpectation.of(self).allowed_calls
@@ -750,7 +750,7 @@ class SessionAssistant:
             public api stability promise. Refer to the documentation of the
             TestPlanUnit class for details.
         """
-        UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        UsageExpectation.of(self).enforce()
         return self._context.get_unit(test_plan_id, 'test plan')
 
     @raises(KeyError, UnexpectedMethodCall)
@@ -772,7 +772,7 @@ class SessionAssistant:
             public api stability promise. Refer to the documentation of the
             CategoryUnit class for details.
         """
-        UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        UsageExpectation.of(self).enforce()
         return self._context.get_unit(category_id, 'category')
 
     @raises(UnexpectedMethodCall)
@@ -792,7 +792,7 @@ class SessionAssistant:
         This set does not include boostrap jobs as they must be executed prior
         to actually allowing the user to know what jobs are available.
         """
-        UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        UsageExpectation.of(self).enforce()
         test_plan = self._manager.test_plans[0]
         potential_job_list = select_jobs(
             self._context.state.job_list, [test_plan.get_qualifier()])
@@ -821,7 +821,7 @@ class SessionAssistant:
         explicitly requested by the user. Examples of such mechanisms include
         job dependencies, resource dependencies or mandatory jobs.
         """
-        UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        UsageExpectation.of(self).enforce()
         return [job.id for job in self._context.state.run_list]
 
     @raises(UnexpectedMethodCall)
@@ -857,7 +857,7 @@ class SessionAssistant:
             generating jobs is hidden and handled by the :meth:`boostrap()`
             method.
         """
-        UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        UsageExpectation.of(self).enforce()
         # XXX: job_state_map is a bit low level, can we avoid that?
         jsm = self._context.state.job_state_map
         return [
@@ -905,7 +905,7 @@ class SessionAssistant:
         with interactive jobs and let the application do anything it needs to
         to accomplish that.
         """
-        UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        UsageExpectation.of(self).enforce()
         if isinstance(ui, IJobRunnerUI):
             pass
         elif isinstance(ui, str):
@@ -990,7 +990,7 @@ class SessionAssistant:
         depends on another job will not be able to run if any of its
         dependencies did not complete successfully.
         """
-        UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        UsageExpectation.of(self).enforce()
         job = self._context.get_unit(job_id, 'job')
         self._context.state.update_job_result(job, result)
         # Set up expectations so that run_job() and use_job_result() must be
@@ -1048,7 +1048,7 @@ class SessionAssistant:
             It is a bug in your program. The error message will indicate what
             is the likely cause.
         """
-        UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        UsageExpectation.of(self).enforce()
         exporter = self._manager.create_exporter(exporter_id)
         exported_stream = io.BytesIO()
         exporter.dump_from_session_manager(self._manager, exported_stream)
@@ -1080,7 +1080,7 @@ class SessionAssistant:
         :raises OSError:
             When there is a problem when writing the output.
         """
-        UsageExpectation.of(self).enforce(back=2)
+        UsageExpectation.of(self).enforce()
         exporter = self._manager.create_exporter(exporter_id, option_list)
         timestamp = datetime.datetime.utcnow().isoformat()
         path = os.path.join(dir_path, ''.join(
@@ -1116,7 +1116,7 @@ class SessionAssistant:
         This transport, same as the hexr transport, expects the data created by
         the ``"hexr"`` exporter.
         """
-        UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        UsageExpectation.of(self).enforce()
         if staging:
             url = ('https://certification.staging.canonical.com/'
                    'submissions/submit/')
@@ -1146,7 +1146,7 @@ class SessionAssistant:
         This transport, same as the certification transport, expects the data
         created by the ``"hexr"`` exporter.
         """
-        UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        UsageExpectation.of(self).enforce()
         if staging:
             url = 'https://hexr.staging.canonical.com/checkbox/submit/'
         else:

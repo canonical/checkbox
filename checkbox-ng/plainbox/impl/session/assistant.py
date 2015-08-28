@@ -596,22 +596,8 @@ class SessionAssistant:
         self._context.state.update_desired_job_list(desired_job_list)
         # Set subsequent usage expectations i.e. all of the runtime parts are
         # available now.
-        UsageExpectation.of(self).allowed_calls = {
-            self.get_job_state: "to access the state of any job",
-            self.get_job: "to access the definition of any job",
-            self.get_test_plan: "to access the definition of any test plan",
-            self.get_category: "to access the definition of ant category",
-            self.get_participating_categories: (
-                "to access participating categories"),
-            self.get_static_todo_list: "to see what is meant to be executed",
-            self.get_dynamic_todo_list: "to see what is yet to be executed",
-            self.run_job: "to run a given job",
-            self.use_alternate_selection: "to change the selection",
-            self.use_job_result: "to feed job result back to the session",
-            # XXX: should this be available right off the bat or should we wait
-            # until all of the mandatory jobs have been executed.
-            self.export_to_transport: "to export the results and send them",
-        }
+        UsageExpectation.of(self).allowed_calls = (
+            self._get_allowed_calls_in_normal_state())
         self._metadata.flags = {'incomplete'}
         self._manager.checkpoint()
 

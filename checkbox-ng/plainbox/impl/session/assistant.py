@@ -221,7 +221,7 @@ class SessionAssistant:
 
     @raises(ValueError, UnexpectedMethodCall)
     def select_providers(
-        self, *patterns, additional_providers: 'Iterable[Provider1]' = ()
+        self, *patterns, additional_providers: 'Iterable[Provider1]'=()
     ) -> 'List[Provider1]':
         """
         Load plainbox providers.
@@ -426,18 +426,17 @@ class SessionAssistant:
                 continue
             try:
                 metadata = SessionPeekHelper().peek(data)
-            except SessionResumeError as exc:
+            except SessionResumeError:
                 _logger.info("Exception raised when trying to resume"
                              "session: %s", str(storage.id))
             else:
                 if (metadata.app_id == self._app_id and
-                    SessionMetaData.FLAG_INCOMPLETE in metadata.flags):
+                        SessionMetaData.FLAG_INCOMPLETE in metadata.flags):
                     candidate = ResumeCandidate(storage.id, metadata)
                     self._resume_candidates[storage.id] = (storage, metadata)
                     UsageExpectation.of(self).allowed_calls[
                         self.resume_session] = "resume session"
                     yield candidate
-
 
     def update_app_blob(self, app_blob: bytes) -> None:
         """
@@ -677,10 +676,10 @@ class SessionAssistant:
             Calling this method will alter the result of
             :meth:`get_static_todo_list()` and :meth:`get_dynamic_todo_list()`.
         """
-        selection = [job.id for job in [self.get_job(job_id) for job_id in
-            self.get_static_todo_list()] if job.category_id in categories]
+        selection = [job.id for job in [
+            self.get_job(job_id) for job_id in self.get_static_todo_list()] if
+            job.category_id in categories]
         self.use_alternate_selection(selection)
-
 
     @raises(KeyError, UnexpectedMethodCall)
     def get_job_state(self, job_id: str) -> 'JobState':
@@ -1000,7 +999,6 @@ class SessionAssistant:
         del allowed_calls[self.use_job_result]
         allowed_calls[self.run_job] = "run another job"
 
-
     def get_summary(self) -> 'defaultdict':
         """
         Get a grand total statistic for the jobs that ran.
@@ -1018,7 +1016,6 @@ class SessionAssistant:
             stats[job_state.result.outcome] += 1
 
         return stats
-
 
     @raises(KeyError, TransportError, UnexpectedMethodCall)
     def export_to_transport(
@@ -1084,7 +1081,7 @@ class SessionAssistant:
         exporter = self._manager.create_exporter(exporter_id, option_list)
         timestamp = datetime.datetime.utcnow().isoformat()
         path = os.path.join(dir_path, ''.join(
-            ['submission_', timestamp, '.',exporter.unit.file_extension]))
+            ['submission_', timestamp, '.', exporter.unit.file_extension]))
         with open(path, 'wb') as stream:
             exporter.dump_from_session_manager(self._manager, stream)
         return path

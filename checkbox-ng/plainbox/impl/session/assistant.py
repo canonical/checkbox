@@ -211,7 +211,9 @@ class SessionAssistant:
             self.use_alternate_execution_controllers]
 
     @raises(ValueError, UnexpectedMethodCall)
-    def select_providers(self, *patterns):
+    def select_providers(
+        self, *patterns, additional_providers: 'Iterable[Provider1]' = ()
+    ) -> 'List[Provider1]':
         """
         Load plainbox providers.
 
@@ -228,6 +230,9 @@ class SessionAssistant:
             part, e.g. ``2013.com.canonical.certification::*`` will load all of
             providers made by the Canonical certification team.  To load
             everything just pass ``*``.
+        :param additional_providers:
+            A list of providers that were loaded by other means (usually in
+            some app-custom way).
         :returns:
             The list of loaded providers (including plainbox providers)
         :raises ValueError:
@@ -262,11 +267,11 @@ class SessionAssistant:
         # NOTE: copy the list as we don't want to mutate the object returned by
         # get_providers().  This helps unit tests that actually return a fixed
         # list here.
-        provider_list = provider_list[:]
+        provider_list = provider_list[:] + list(additional_providers)
         # Select all of the plainbox providers in a separate iteration. This
         # way they get loaded unconditionally, regardless of what patterns are
         # passed to the function (including not passing *any* patterns).
-        for provider in provider_list[:]:
+        for provider in provider_list:
             if provider.namespace == "2013.com.canonical.plainbox":
                 provider_list.remove(provider)
                 self._selected_providers.append(provider)

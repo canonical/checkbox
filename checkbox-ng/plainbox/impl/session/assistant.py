@@ -343,7 +343,7 @@ class SessionAssistant:
         methods to see if session should be resumed instead.
         """
         UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
-        self._manager = SessionManager.create()
+        self._manager = SessionManager.create(self._repo)
         self._context = self._manager.add_local_device_context()
         for provider in self._selected_providers:
             self._context.add_provider(provider)

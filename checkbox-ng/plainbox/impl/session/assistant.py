@@ -725,6 +725,10 @@ class SessionAssistant:
             JobDefinition class for details.
         """
         UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        # we may want to decide early about the result of the job, without
+        # running it (e.g. when skipping the job)
+        allowed_calls = UsageExpectation.of(self).allowed_calls
+        allowed_calls[self.use_job_result] = "remember the result of this job"
         return self._context.get_unit(job_id, 'job')
 
     @raises(KeyError, UnexpectedMethodCall)

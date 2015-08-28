@@ -577,6 +577,31 @@ class SessionAssistant:
             self._context.get_unit(job_id, 'job') for job_id in selection]
         self._context.state.update_desired_job_list(desired_job_list)
 
+    @raises(UnexpectedMethodCall)
+    def filter_jobs_by_categories(self, categories: 'Iterable[str]'):
+        """
+        Filter out jobs with categories that don't match given ones.
+
+        :param categories:
+            A sequence of category identifiers of jobs that should stay in the
+            todo list.
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+
+        This method can be called at any time to unselect jobs that belong to
+        a category not present in `categories`.
+
+        .. note::
+            Calling this method will alter the result of
+            :meth:`get_static_todo_list()` and :meth:`get_dynamic_todo_list()`.
+        """
+        selection = [job.id for job in [self.get_job(job_id) for job_id in
+            self.get_static_todo_list()] if job.category_id in categories]
+        self.use_alternate_selection(selection)
+
+
     def get_job_state(self, job_id: str) -> 'JobState':
         """
         Get the mutable state of the job with the given identifier.

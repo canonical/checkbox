@@ -38,8 +38,11 @@ from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.runner import JobRunnerUIDelegate
 from plainbox.impl.secure.qualifiers import select_jobs
+from plainbox.impl.session import SessionPeekHelper
+from plainbox.impl.session import SessionResumeError
 from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.session.manager import SessionManager
+from plainbox.impl.session import SessionMetaData
 from plainbox.impl.session.storage import SessionStorageRepository
 from plainbox.impl.transport import CertificationTransport
 from plainbox.impl.transport import TransportError
@@ -50,6 +53,8 @@ _logger = logging.getLogger("plainbox.session.assistant")
 
 
 __all__ = ('SessionAssistant', )
+
+ResumeCandidate = collections.namedtuple('ResumeCandidate', ['id', 'metadata'])
 
 
 class SessionAssistant:
@@ -365,6 +370,48 @@ class SessionAssistant:
         UsageExpectation.of(self).allowed_calls = {
             self.select_test_plan: "select the test plan to execute"
         }
+
+    @raises(UnexpectedMethodCall)
+    def get_resumable_sessions(self) -> 'Tuple[str, SessionMetaData]':
+        """
+        Check repository for sessions that could be resumed.
+
+        :returns:
+            A generator that yields namedtuples with (id, metadata) of
+            subsequent resumable sessions, starting from the youngest one.
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+
+        This method iterates through incomplete sessions saved in the storage
+        repository and looks for the ones that were created using the same
+        app_id as the one currently used.
+
+        Applications can use sessions' metadata (and the app_blob contained
+        in them) to decide which session is the best one to propose resuming.
+        """
+        UsageExpectation.of(self).enforce()  # 2 is due to @raises
+        # let's keep resume_candidates, so we don't have to load data again
+        self._resume_candidates = {}
+        for storage in self._repo.get_storage_list():
+            data = storage.load_checkpoint()
+            if len(data) == 0:
+                continue
+            try:
+                metadata = SessionPeekHelper().peek(data)
+            except SessionResumeError as exc:
+                _logger.info("Exception raised when trying to resume"
+                             "session: %s", str(storage.id))
+            else:
+                if (metadata.app_id == self._app_id and
+                    SessionMetaData.FLAG_INCOMPLETE in metadata.flags):
+                    candidate = ResumeCandidate(storage.id, metadata)
+                    self._resume_candidates[storage.id] = (storage, metadata)
+                    UsageExpectation.of(self).allowed_calls[
+                        self.resume_session] = "resume session"
+                    yield candidate
+
 
     @morris.signal
     def session_available(self, session_id):

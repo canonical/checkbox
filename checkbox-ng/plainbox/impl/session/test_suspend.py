@@ -217,25 +217,29 @@ class SessionSuspendHelper1Tests(TestCase):
         data = self.helper._repr_IOLogRecord(record)
         self.assertEqual(data, [0.0, "stdout", "YmluYXJ5IGRhdGE="])
 
-    @mock.patch('plainbox.impl.session.suspend.SessionSuspendHelper')
-    def test_repr_JobResult_with_MemoryJobResult(self, mocked_helper):
+    def test_repr_JobResult_with_MemoryJobResult(self):
         """
         verify that _repr_JobResult() called with MemoryJobResult
         calls _repr_MemoryJobResult
         """
-        result = MemoryJobResult({})
-        self.helper._repr_JobResult(result, self.session_dir)
-        mocked_helper._repr_MemoryJobResult.assertCalledOnceWith(result)
+        mpo = mock.patch.object
+        with mpo(self.helper, '_repr_MemoryJobResult'):
+            result = MemoryJobResult({})
+            self.helper._repr_JobResult(result, self.session_dir)
+            self.helper._repr_MemoryJobResult.assert_called_once_with(
+                result, None)
 
-    @mock.patch('plainbox.impl.session.suspend.SessionSuspendHelper')
-    def test_repr_JobResult_with_DiskJobResult(self, mocked_helper):
+    def test_repr_JobResult_with_DiskJobResult(self):
         """
         verify that _repr_JobResult() called with DiskJobResult
         calls _repr_DiskJobResult
         """
-        result = DiskJobResult({})
-        self.helper._repr_JobResult(result, self.session_dir)
-        mocked_helper._repr_DiskJobResult.assertCalledOnceWith(result)
+        mpo = mock.patch.object
+        with mpo(self.helper, '_repr_DiskJobResult'):
+            result = DiskJobResult({})
+            self.helper._repr_JobResult(result, self.session_dir)
+            self.helper._repr_DiskJobResult.assert_called_once_with(
+                result, None)
 
     def test_repr_JobResult_with_junk(self):
         """

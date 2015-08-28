@@ -126,7 +126,7 @@ class SessionResumeHelperTests(TestCase):
             b'{"app_blob":null,"flags":[],"running_job_name":null,"title":null'
             b'},"results":{}},"version":1}')
         SessionResumeHelper([], None, None).resume(data)
-        mocked_helper1.resume_json.assertCalledOnce()
+        mocked_helper1.resume_json.assert_called_once()
 
     @mock.patch('plainbox.impl.session.resume.SessionResumeHelper2')
     def test_resume_dispatch_v2(self, mocked_helper2):
@@ -135,7 +135,7 @@ class SessionResumeHelperTests(TestCase):
             b'{"app_blob":null,"flags":[],"running_job_name":null,"title":null'
             b'},"results":{}},"version":2}')
         SessionResumeHelper([], None, None).resume(data)
-        mocked_helper2.resume_json.assertCalledOnce()
+        mocked_helper2.resume_json.assert_called_once()
 
     @mock.patch('plainbox.impl.session.resume.SessionResumeHelper3')
     def test_resume_dispatch_v3(self, mocked_helper3):
@@ -145,7 +145,7 @@ class SessionResumeHelperTests(TestCase):
             b'"running_job_name":null,"title":null'
             b'},"results":{}},"version":3}')
         SessionResumeHelper([], None, None).resume(data)
-        mocked_helper3.resume_json.assertCalledOnce()
+        mocked_helper3.resume_json.assert_called_once()
 
     @mock.patch('plainbox.impl.session.resume.SessionResumeHelper4')
     def test_resume_dispatch_v4(self, mocked_helper4):
@@ -155,7 +155,7 @@ class SessionResumeHelperTests(TestCase):
             b'"running_job_name":null,"title":null'
             b'},"results":{}},"version":4}')
         SessionResumeHelper([], None, None).resume(data)
-        mocked_helper4.resume_json.assertCalledOnce()
+        mocked_helper4.resume_json.assert_called_once()
 
     @mock.patch('plainbox.impl.session.resume.SessionResumeHelper5')
     def test_resume_dispatch_v5(self, mocked_helper5):
@@ -165,7 +165,7 @@ class SessionResumeHelperTests(TestCase):
             b'"running_job_name":null,"title":null'
             b'},"results":{}},"version":5}')
         SessionResumeHelper([], None, None).resume(data)
-        mocked_helper5.resume_json.assertCalledOnce()
+        mocked_helper5.resume_json.assert_called_once()
 
     @mock.patch('plainbox.impl.session.resume.SessionResumeHelper6')
     def test_resume_dispatch_v6(self, mocked_helper6):
@@ -175,7 +175,7 @@ class SessionResumeHelperTests(TestCase):
             b'"running_job_name":null,"title":null'
             b'},"results":{}},"version":6}')
         SessionResumeHelper([], None, None).resume(data)
-        mocked_helper6.resume_json.assertCalledOnce()
+        mocked_helper6.resume_json.assert_called_once()
 
     def test_resume_dispatch_v7(self):
         data = gzip.compress(
@@ -194,7 +194,7 @@ class SessionPeekHelperTests(TestCase):
             b'{"app_blob":null,"flags":[],"running_job_name":null,"title":null'
             b'},"results":{}},"version":1}')
         SessionPeekHelper().peek(data)
-        mocked_helper1.resume_json.assertCalledOnce()
+        mocked_helper1.resume_json.assert_called_once()
 
     @mock.patch('plainbox.impl.session.resume.SessionPeekHelper2')
     def test_peek_dispatch_v2(self, mocked_helper2):
@@ -203,7 +203,7 @@ class SessionPeekHelperTests(TestCase):
             b'{"app_blob":null,"flags":[],"running_job_name":null,"title":null'
             b'},"results":{}},"version":2}')
         SessionPeekHelper().peek(data)
-        mocked_helper2.resume_json.assertCalledOnce()
+        mocked_helper2.resume_json.assert_called_once()
 
     @mock.patch('plainbox.impl.session.resume.SessionPeekHelper3')
     def test_peek_dispatch_v3(self, mocked_helper3):
@@ -212,7 +212,7 @@ class SessionPeekHelperTests(TestCase):
             b'{"app_blob":null,"flags":[],"running_job_name":null,"title":null'
             b'},"results":{}},"version":3}')
         SessionPeekHelper().peek(data)
-        mocked_helper3.resume_json.assertCalledOnce()
+        mocked_helper3.resume_json.assert_called_once()
 
     @mock.patch('plainbox.impl.session.resume.SessionPeekHelper4')
     def test_peek_dispatch_v4(self, mocked_helper4):
@@ -221,7 +221,7 @@ class SessionPeekHelperTests(TestCase):
             b'{"app_blob":null,"flags":[],"running_job_name":null,"title":null'
             b'},"results":{}},"version":4}')
         SessionPeekHelper().peek(data)
-        mocked_helper4.resume_json.assertCalledOnce()
+        mocked_helper4.resume_json.assert_called_once()
 
     @mock.patch('plainbox.impl.session.resume.SessionPeekHelper5')
     def test_peek_dispatch_v5(self, mocked_helper5):
@@ -230,7 +230,7 @@ class SessionPeekHelperTests(TestCase):
             b'{"app_blob":null,"flags":[],"running_job_name":null,"title":null'
             b'},"results":{}},"version":5}')
         SessionPeekHelper().peek(data)
-        mocked_helper5.resume_json.assertCalledOnce()
+        mocked_helper5.resume_json.assert_called_once()
 
     @mock.patch('plainbox.impl.session.resume.SessionPeekHelper6')
     def test_peek_dispatch_v6(self, mocked_helper6):
@@ -239,7 +239,7 @@ class SessionPeekHelperTests(TestCase):
             b'{"app_blob":null,"flags":[],"running_job_name":null,"title":null'
             b'},"results":{}},"version":6}')
         SessionPeekHelper().peek(data)
-        mocked_helper6.resume_json.assertCalledOnce()
+        mocked_helper6.resume_json.assert_called_once()
 
 class SessionResumeTests(TestCase):
 
@@ -430,8 +430,8 @@ class SessionStateResumeTests(TestCaseWithParameters):
         """
         with mock.patch.object(self.helper, attribute='_build_SessionState'):
             self.helper._build_SessionState(self.session_repr)
-            self.helper._build_SessionState.assertCalledOnceWith(
-                self.session_repr, None)
+            self.helper._build_SessionState.assert_called_once_with(
+                self.session_repr)
 
     def test_calls_restore_SessionState_jobs_and_results(self):
         """
@@ -439,11 +439,14 @@ class SessionStateResumeTests(TestCaseWithParameters):
         _build_SessionState().
         """
         mpo = mock.patch.object
-        with mpo(self.helper, '_build_SessionState'), \
-                mpo(self.helper, '_restore_SessionState_jobs_and_results'):
+        with mpo(self.helper, '_restore_SessionState_jobs_and_results'), \
+                mpo(self.helper, '_restore_SessionState_metadata'), \
+                mpo(self.helper, '_restore_SessionState_job_list'), \
+                mpo(self.helper, '_restore_SessionState_mandatory_job_list'), \
+                mpo(self.helper, '_restore_SessionState_desired_job_list'):
             session = self.helper._build_SessionState(self.session_repr)
             self.helper._restore_SessionState_jobs_and_results. \
-                assertCalledOnceWith(session, self.session_repr)
+                assert_called_once_with(session, self.session_repr)
 
     def test_calls_restore_SessionState_metadata(self):
         """
@@ -451,11 +454,14 @@ class SessionStateResumeTests(TestCaseWithParameters):
         _build_SessionState().
         """
         mpo = mock.patch.object
-        with mpo(self.helper, '_build_SessionState'), \
-                mpo(self.helper, '_restore_SessionState_metadata'):
+        with mpo(self.helper, '_restore_SessionState_jobs_and_results'), \
+                mpo(self.helper, '_restore_SessionState_metadata'), \
+                mpo(self.helper, '_restore_SessionState_job_list'), \
+                mpo(self.helper, '_restore_SessionState_mandatory_job_list'), \
+                mpo(self.helper, '_restore_SessionState_desired_job_list'):
             session = self.helper._build_SessionState(self.session_repr)
             self.helper._restore_SessionState_metadata. \
-                assertCalledOnceWith(session, self.session_repr)
+                assert_called_once_with(session.metadata, self.session_repr)
 
     def test_calls_restore_SessionState_desired_job_list(self):
         """
@@ -463,11 +469,14 @@ class SessionStateResumeTests(TestCaseWithParameters):
         _build_SessionState().
         """
         mpo = mock.patch.object
-        with mpo(self.helper, '_build_SessionState'), \
+        with mpo(self.helper, '_restore_SessionState_jobs_and_results'), \
+                mpo(self.helper, '_restore_SessionState_metadata'), \
+                mpo(self.helper, '_restore_SessionState_job_list'), \
+                mpo(self.helper, '_restore_SessionState_mandatory_job_list'), \
                 mpo(self.helper, '_restore_SessionState_desired_job_list'):
             session = self.helper._build_SessionState(self.session_repr)
             self.helper._restore_SessionState_desired_job_list. \
-                assertCalledOnceWith(session, self.session_repr)
+                assert_called_once_with(session, self.session_repr)
 
     def test_calls_restore_SessionState_job_list(self):
         """
@@ -475,10 +484,13 @@ class SessionStateResumeTests(TestCaseWithParameters):
         _build_SessionState().
         """
         mpo = mock.patch.object
-        with mpo(self.helper, '_build_SessionState'), \
-                mpo(self.helper, '_restore_SessionState_job_list'):
+        with mpo(self.helper, '_restore_SessionState_jobs_and_results'), \
+                mpo(self.helper, '_restore_SessionState_metadata'), \
+                mpo(self.helper, '_restore_SessionState_job_list'), \
+                mpo(self.helper, '_restore_SessionState_mandatory_job_list'), \
+                mpo(self.helper, '_restore_SessionState_desired_job_list'):
             session = self.helper._build_SessionState(self.session_repr)
-            self.helper._restore_SessionState_job_list.assertCalledOnceWith(
+            self.helper._restore_SessionState_job_list.assert_called_once_with(
                 session, self.session_repr)
 
 

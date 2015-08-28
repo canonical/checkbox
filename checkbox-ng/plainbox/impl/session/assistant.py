@@ -783,7 +783,7 @@ class SessionAssistant:
     def run_job(
         self, job_id: str, ui: 'Union[str, IJobRunnerUI]',
         native: bool
-    ) -> 'ResultBuilder':
+    ) -> 'JobResultBuilder':
         """
         Run a job with the specific identifier.
 

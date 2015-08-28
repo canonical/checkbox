@@ -607,6 +607,7 @@ class SessionAssistant:
         self.use_alternate_selection(selection)
 
 
+    @raises(KeyError, UnexpectedMethodCall)
     def get_job_state(self, job_id: str) -> 'JobState':
         """
         Get the mutable state of the job with the given identifier.

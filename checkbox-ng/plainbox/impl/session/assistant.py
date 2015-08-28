@@ -18,6 +18,7 @@
 
 """Session Assistant."""
 
+import collections
 import fnmatch
 import io
 import logging
@@ -920,6 +921,26 @@ class SessionAssistant:
         allowed_calls = UsageExpectation.of(self).allowed_calls
         del allowed_calls[self.use_job_result]
         allowed_calls[self.run_job] = "run another job"
+
+
+    def get_summary(self) -> 'defaultdict':
+        """
+        Get a grand total statistic for the jobs that ran.
+
+        :returns:
+            A defaultdict mapping the number of jobs that have a given outcome
+            to the kind of outcome. E.g. {IJobResult.OUTCOME_PASS: 6, (...)}.
+        """
+        stats = collections.defaultdict(int)
+        for job_state in self._context.state.job_state_map.values():
+            if not job_state.result.outcome:
+                # job not considered for runnning - let's not pollute summary
+                # with data from those jobs
+                continue
+            stats[job_state.result.outcome] += 1
+
+        return stats
+
 
     @raises(KeyError, TransportError, UnexpectedMethodCall)
     def export_to_transport(

@@ -111,11 +111,14 @@ class SessionStorageRepository:
 
         :returns:
             list of :class:`SessionStorage` representing discovered sessions
+            sorted by their age (youngest first)
         """
         logger.debug(_("Enumerating sessions in %s"), self._location)
         try:
             # Try to enumerate the directory
-            item_list = os.listdir(self._location)
+            item_list = sorted(os.listdir(self._location),
+                key=lambda x: os.stat(os.path.join(
+                    self._location, x)).st_mtime, reverse=True)
         except OSError as exc:
             # If the directory does not exist,
             # silently return empty collection

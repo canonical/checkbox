@@ -376,6 +376,25 @@ class SessionAssistant:
 
     @raises(KeyError, UnexpectedMethodCall)
     def resume_session(self, session_id: str) -> 'SessionMetaData':
+        """
+        Resume a session.
+
+        :param session_id:
+            The identifier of the session to resume.
+        :returns:
+            Resumed session metadata.
+        :raises KeyError:
+            If the session with a given session_id cannot be found.
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+
+        This method restores internal state of the plainbox runtime as it was
+        the last time session assistant did a checkpoint, i.e. session
+        assistant's clients commited any information (e.g. saves job result,
+        runs bootstrapping, updates app blob, etc.)
+        """
         UsageExpectation.of(self).enforce()
         all_units = list(itertools.chain(
             *[p.unit_list for p in self._selected_providers]))

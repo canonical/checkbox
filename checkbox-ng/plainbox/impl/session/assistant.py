@@ -19,6 +19,7 @@
 """Session Assistant."""
 
 import collections
+import datetime
 import fnmatch
 import io
 import logging
@@ -976,6 +977,40 @@ class SessionAssistant:
         exporter.dump_from_session_manager(self._manager, exported_stream)
         exported_stream.seek(0)
         return transport.send(exported_stream)
+
+    @raises(KeyError, OSError)
+    def export_to_file(
+        self, exporter_id: str, option_list: 'list[str]', dir_path: str
+    ) -> str:
+        """
+        Export the session to file using given exporter ID.
+
+        :param exporter_id:
+            The identifier of the exporter unit to use. This must have been
+            loaded into the session from an existing provider. Many users will
+            want to load the ``2013.com.canonical.palainbox:exporter`` provider
+            (via :meth:`load_providers()`.
+        :param option_list:
+            List of options customary to the exporter that is being created.
+        :param dir_path:
+            Path to the directory where session file should be written to.
+            Note that the file name is automatically generated, based on
+            creation time and type of exporter.
+        :returns:
+            Path to the written file.
+        :raises KeyError:
+            When the exporter unit cannot be found.
+        :raises OSError:
+            When there is a problem when writing the output.
+        """
+        UsageExpectation.of(self).enforce(back=2)
+        exporter = self._manager.create_exporter(exporter_id, option_list)
+        timestamp = datetime.datetime.utcnow().isoformat()
+        path = os.path.join(dir_path, ''.join(
+            ['submission_', timestamp, '.',exporter.unit.file_extension]))
+        with open(path, 'wb') as stream:
+            exporter.dump_from_session_manager(self._manager, stream)
+        return path
 
     @raises(ValueError, UnexpectedMethodCall)
     def get_canonical_certification_transport(

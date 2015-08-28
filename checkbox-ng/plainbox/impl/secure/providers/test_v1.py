@@ -98,7 +98,7 @@ class ExistingDirectoryValidatorTests(TestCase):
     def test_existing_directories_work(self, mock_isdir):
         mock_isdir.return_value = True
         self.assertEqual(self.validator(self.variable, self._PATH), None)
-        mock_isdir.assertCalledWith(self._PATH)
+        mock_isdir.assert_called_with(self._PATH)
 
     @mock.patch('os.path.isdir')
     def test_missing_directories_dont(self, mock_isdir):
@@ -106,7 +106,7 @@ class ExistingDirectoryValidatorTests(TestCase):
         self.assertEqual(
             self.validator(self.variable, self._PATH),
             "no such directory")
-        mock_isdir.assertCalledWith(self._PATH)
+        mock_isdir.assert_called_with(self._PATH)
 
 
 class AbsolutePathValidatorTests(TestCase):

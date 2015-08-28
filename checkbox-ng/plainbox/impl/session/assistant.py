@@ -601,6 +601,8 @@ class SessionAssistant:
             # until all of the mandatory jobs have been executed.
             self.export_to_transport: "to export the results and send them",
         }
+        self._metadata.flags = {'incomplete'}
+        self._manager.checkpoint()
 
     @raises(KeyError, UnexpectedMethodCall)
     def use_alternate_selection(self, selection: 'Iterable[str]'):

@@ -306,6 +306,8 @@ class SessionAssistant:
         del allowed_calls[self.select_providers]
         allowed_calls[self.start_new_session] = (
             "create a new session from scratch")
+        allowed_calls[self.get_resumable_sessions] = (
+            "get resume candidates")
         return self._selected_providers
 
     @morris.signal

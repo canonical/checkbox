@@ -122,6 +122,10 @@ class SessionAssistant:
                 "use an alternate execution controllers"),
             self.select_providers: (
                 "select the providers to work with"),
+            self.get_canonical_certification_transport: (
+                "create a transport for the C3 system"),
+            self.get_canonical_hexr_transport: (
+                "create a transport for the HEXR system"),
         }
 
     @raises(UnexpectedMethodCall)

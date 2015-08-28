@@ -19,8 +19,17 @@
 """Support code for enforcing usage expectations on public API."""
 
 import inspect
+import logging
+import warnings
 
 __all__ = ('UsageExpectation',)
+
+_logger = logging.getLogger("plainbox.developer")
+
+
+class OffByOneBackWarning(UserWarning):
+
+    """Warning on incorrect use of UsageExpectations(self).enforce(back=2)."""
 
 
 class DeveloperError(Exception):
@@ -149,18 +158,7 @@ class UsageExpectation:
             something goes wrong.
         """
         self.cls = cls
-        self._allowed_calls = {}
-
-    @property
-    def allowed_calls(self):
-        """Get the mapping of possible methods to call."""
-        return self._allowed_calls
-
-    @allowed_calls.setter
-    def allowed_calls(self, value):
-        """Set new mapping of possible methods to call."""
-        self._allowed_calls = value
-        self._allowed_code = frozenset(func.__code__ for func in value)
+        self.allowed_calls = {}
 
     def enforce(self, back=1):
         """
@@ -179,16 +177,50 @@ class UsageExpectation:
         :raises DeveloperError:
             If the expectations are not met.
         """
+        # XXX: Allowed calls is a dictionary that may be freely changed by the
+        # outside caller. We're unable to protect against it. Therefore the
+        # optimized values (for computing what is really allowed) must be
+        # obtained each time we are about to check, in enforce()
+        allowed_code = frozenset(
+            func.__wrapped__.__code__
+            if hasattr(func, '__wrapped__') else func.__code__
+            for func in self.allowed_calls
+        )
         caller_frame = inspect.stack(0)[back][0]
+        if back > 1:
+            alt_caller_frame = inspect.stack(0)[back - 1][0]
+        else:
+            alt_caller_frame = None
+        _logger.debug("Caller code: %r", caller_frame.f_code)
+        _logger.debug("Alternate code: %r",
+                      alt_caller_frame.f_code if alt_caller_frame else None)
+        _logger.debug("Allowed code: %r", allowed_code)
         try:
-            if caller_frame.f_code not in self._allowed_code:
-                fn_name = caller_frame.f_code.co_name
-                allowed_pairs = tuple(
-                    (fn.__code__.co_name, why)
-                    for fn, why in sorted(
-                        self.allowed_calls.items(),
-                        key=lambda fn_why: fn_why[0].__code__.co_name)
-                )
-                raise UnexpectedMethodCall(self.cls, fn_name, allowed_pairs)
+            if caller_frame.f_code in allowed_code:
+                return
+            # This can be removed later, it allows the caller to make an
+            # off-by-one mistake and go away with it.
+            if (alt_caller_frame is not None
+                    and alt_caller_frame.f_code in allowed_code):
+                warnings.warn(
+                    "Please back={}. Properly constructed decorators are"
+                    " automatically handled and do not require the use of the"
+                    " back argument.".format(back - 1), OffByOneBackWarning,
+                    back)
+                return
+            fn_name = caller_frame.f_code.co_name
+            allowed_undecorated_calls = {
+                func.__wrapped__ if hasattr(func, '__wrapped__') else func: msg
+                for func, msg in self.allowed_calls.items()
+            }
+            allowed_pairs = tuple(
+                (fn.__code__.co_name, why)
+                for fn, why in sorted(
+                    allowed_undecorated_calls.items(),
+                    key=lambda fn_why: fn_why[0].__code__.co_name)
+            )
+            raise UnexpectedMethodCall(self.cls, fn_name, allowed_pairs)
         finally:
             del caller_frame
+            if alt_caller_frame is not None:
+                del alt_caller_frame

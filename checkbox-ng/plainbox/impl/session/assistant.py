@@ -23,6 +23,7 @@ import collections
 import datetime
 import fnmatch
 import io
+import itertools
 import logging
 import os
 import time
@@ -370,6 +371,29 @@ class SessionAssistant:
         UsageExpectation.of(self).allowed_calls = {
             self.select_test_plan: "select the test plan to execute"
         }
+
+    @raises(KeyError, UnexpectedMethodCall)
+    def resume_session(self, session_id: str) -> 'SessionMetaData':
+        UsageExpectation.of(self).enforce(back=2)  # 2 is due to @raises
+        all_units = list(itertools.chain(
+            *[p.unit_list for p in self._selected_providers]))
+        self._manager = SessionManager.load_session(
+            all_units, self._resume_candidates[session_id][0])
+        self._context = self._manager.default_device_context
+        self._metadata = self._context.state.metadata
+        self._command_io_delegate = JobRunnerUIDelegate(_SilentUI())
+        self._runner = JobRunner(
+            self._manager.storage.location,
+            self._context.provider_list,
+            jobs_io_log_dir=os.path.join(
+                self._manager.storage.location, 'io-logs'),
+            command_io_delegate=self._command_io_delegate,
+            execution_ctrl_list=self._execution_ctrl_list)
+        self.session_available(self._manager.storage.id)
+        _logger.debug("Session resumed: %s", session_id)
+        UsageExpectation.of(self).allowed_calls = (
+            self._get_allowed_calls_in_normal_state())
+        return self._resume_candidates[session_id][1]
 
     @raises(UnexpectedMethodCall)
     def get_resumable_sessions(self) -> 'Tuple[str, SessionMetaData]':

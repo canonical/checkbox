@@ -244,6 +244,7 @@ class SessionDeviceContext:
             self._unit_list = []
             self._provider_list = []
             self._state = SessionState(self._unit_list)
+            self._unit_id_map = {}
         else:
             if not isinstance(state, SessionState):
                 raise TypeError
@@ -254,6 +255,9 @@ class SessionDeviceContext:
                 unit.provider for unit in self._unit_list
             })
             self._state = state
+            self._unit_id_map = { unit.id: unit for unit in state.unit_list if
+                isinstance(unit, UnitWithId)}
+
         self._test_plan_list = []
         # Connect SessionState's signals to fire our signals. This
         # way all manipulation done through the SessionState object
@@ -262,7 +266,6 @@ class SessionDeviceContext:
         # the SessionState)
         self._state.on_unit_added.connect(self.on_unit_added)
         self._state.on_unit_removed.connect(self.on_unit_removed)
-        self._unit_id_map = {}
 
     @property
     def device(self):

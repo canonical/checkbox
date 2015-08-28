@@ -687,7 +687,7 @@ class SessionAssistant:
         potential_job_list = select_jobs(
             self._context.state.job_list, [test_plan.get_qualifier()])
         return list(set(
-            test_plan.get_effective_category_map(potential_job_list)))
+            test_plan.get_effective_category_map(potential_job_list).values()))
 
     @raises(UnexpectedMethodCall)
     def get_static_todo_list(self) -> 'Iterable[str]':

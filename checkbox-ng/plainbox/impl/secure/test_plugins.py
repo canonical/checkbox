@@ -123,7 +123,7 @@ class PlugInCollectionBaseTests(TestCase):
         passed to the initializer.
         """
         col = DummyPlugInCollection(load=True)
-        col.load.assert_called()
+        col.load.assert_called_once_with()
 
     def test_defaults(self):
         """
@@ -329,7 +329,7 @@ class PkgResourcesPlugInCollectionTests(TestCase):
         # Load plugins
         self.col.load()
         # Ensure that pkg_resources were interrogated
-        mock_iter.assert_calledwith(self._NAMESPACE)
+        mock_iter.assert_called_with(self._NAMESPACE)
         # Ensure that both entry points were loaded
         mock_ep1.load.assert_called_with()
         mock_ep2.load.assert_called_with()
@@ -350,7 +350,7 @@ class PkgResourcesPlugInCollectionTests(TestCase):
         # Load plugins
         self.col.load()
         # Ensure that pkg_resources were interrogated
-        mock_iter.assert_calledwith(self._NAMESPACE)
+        mock_iter.assert_called_with(self._NAMESPACE)
         # Ensure that both entry points were loaded
         mock_ep1.load.assert_called_with()
         mock_ep2.load.assert_called_with()

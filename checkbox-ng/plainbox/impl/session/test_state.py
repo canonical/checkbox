@@ -1016,7 +1016,7 @@ class SessionDeviceContextTests(SignalTestCase):
         with mock.patch.object(self.ctx, '_compute_execution_ctrl_list') as m:
             result = self.ctx.execution_controller_list
         self.assertIs(result, m())
-        m.assert_called_once()
+        m.assert_any_call()
 
     def test_execution_controller_list__cached(self):
         """
@@ -1029,7 +1029,7 @@ class SessionDeviceContextTests(SignalTestCase):
             result1 = self.ctx.execution_controller_list
             result2 = self.ctx.execution_controller_list
         self.assertIs(result1, result2)
-        m.assert_called_once()
+        m.assert_any_call()
         self.assertIn(
             SessionDeviceContext._CACHE_EXECUTION_CTRL_LIST,
             self.ctx._shared_cache)

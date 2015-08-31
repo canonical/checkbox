@@ -226,7 +226,7 @@ class CheckBoxSessionStateControllerTests(TestCase):
         self.assertIs(
             session_state.job_state_map[job.id].result, result)
         # Ensure that signals got fired
-        session_state.on_job_state_map_changed.assert_called_once()
+        session_state.on_job_state_map_changed.assert_called_once_with()
         session_state.on_job_result_changed.assert_called_once_with(
             job, result)
 

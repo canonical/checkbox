@@ -249,8 +249,8 @@ class FieldCollectionTests(TestCase):
         """.inspect_namespace() calls add_field() on each Field."""
         with mock.patch.object(self.fc, 'add_field') as mock_add_field:
             self.fc.inspect_namespace(self.ns, 'cls')
-        mock_add_field.assert_has_call(self.foo, 'cls')
-        mock_add_field.assert_has_call(self.bar, 'cls')
+            calls = [mock.call(self.foo, 'cls'), mock.call(self.bar, 'cls')]
+            mock_add_field.assert_has_calls(calls, any_order=True)
 
     def test_inspect_namespace_sets_field_name(self):
         """.inspect_namespace() sets .name of each field."""

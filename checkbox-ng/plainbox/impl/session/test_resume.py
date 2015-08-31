@@ -43,6 +43,12 @@ from plainbox.impl.session.resume import IncompatibleJobError
 from plainbox.impl.session.resume import IncompatibleSessionError
 from plainbox.impl.session.resume import ResumeDiscardQualifier
 from plainbox.impl.session.resume import SessionPeekHelper
+from plainbox.impl.session.resume import SessionPeekHelper1
+from plainbox.impl.session.resume import SessionPeekHelper2
+from plainbox.impl.session.resume import SessionPeekHelper3
+from plainbox.impl.session.resume import SessionPeekHelper4
+from plainbox.impl.session.resume import SessionPeekHelper5
+from plainbox.impl.session.resume import SessionPeekHelper6
 from plainbox.impl.session.resume import SessionResumeError
 from plainbox.impl.session.resume import SessionResumeHelper
 from plainbox.impl.session.resume import SessionResumeHelper1
@@ -119,63 +125,121 @@ class SessionResumeExceptionTests(TestCase):
 
 class SessionResumeHelperTests(TestCase):
 
-    @mock.patch('plainbox.impl.session.resume.SessionResumeHelper1')
-    def test_resume_dispatch_v1(self, mocked_helper1):
-        data = gzip.compress(
-            b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
-            b'{"app_blob":null,"flags":[],"running_job_name":null,"title":null'
-            b'},"results":{}},"version":1}')
-        SessionResumeHelper([], None, None).resume(data)
-        mocked_helper1.resume_json.assert_called_once()
+    def test_resume_dispatch_v1(self):
+        helper1 = SessionResumeHelper1
+        with mock.patch.object(helper1, 'resume_json'):
+            data = gzip.compress(
+                b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+                b'{"app_blob":null,"flags":[],"running_job_name":null,'
+                b'"title":null},"results":{}},"version":1}')
+            SessionResumeHelper([], None, None).resume(data)
+            helper1.resume_json.assert_called_once_with(
+                {'session': {'jobs': {},
+                             'metadata': {'title': None,
+                                          'running_job_name': None,
+                                          'app_blob': None,
+                                          'flags': []},
+                             'desired_job_list': [],
+                             'results': {}},
+                 'version': 1}, None)
 
-    @mock.patch('plainbox.impl.session.resume.SessionResumeHelper2')
-    def test_resume_dispatch_v2(self, mocked_helper2):
-        data = gzip.compress(
-            b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
-            b'{"app_blob":null,"flags":[],"running_job_name":null,"title":null'
-            b'},"results":{}},"version":2}')
-        SessionResumeHelper([], None, None).resume(data)
-        mocked_helper2.resume_json.assert_called_once()
+    def test_resume_dispatch_v2(self):
+        helper2 = SessionResumeHelper2
+        with mock.patch.object(helper2, 'resume_json'):
+            data = gzip.compress(
+                b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+                b'{"app_blob":null,"flags":[],"running_job_name":null,'
+                b'"title":null},"results":{}},"version":2}')
+            SessionResumeHelper([], None, None).resume(data)
+            helper2.resume_json.assert_called_once_with(
+                {'session': {'jobs': {},
+                             'metadata': {'title': None,
+                                          'running_job_name': None,
+                                          'app_blob': None,
+                                          'flags': []},
+                             'desired_job_list': [],
+                             'results': {}},
+                 'version': 2}, None)
 
-    @mock.patch('plainbox.impl.session.resume.SessionResumeHelper3')
-    def test_resume_dispatch_v3(self, mocked_helper3):
-        data = gzip.compress(
-            b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
-            b'{"app_blob":null,"app_id":null,"flags":[],'
-            b'"running_job_name":null,"title":null'
-            b'},"results":{}},"version":3}')
-        SessionResumeHelper([], None, None).resume(data)
-        mocked_helper3.resume_json.assert_called_once()
+    def test_resume_dispatch_v3(self):
+        helper3 = SessionResumeHelper3
+        with mock.patch.object(helper3, 'resume_json'):
+            data = gzip.compress(
+                b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+                b'{"app_blob":null,"app_id":null,"flags":[],'
+                b'"running_job_name":null,"title":null'
+                b'},"results":{}},"version":3}')
+            SessionResumeHelper([], None, None).resume(data)
+            helper3.resume_json.assert_called_once_with(
+                {'session': {'jobs': {},
+                             'metadata': {'title': None,
+                                          'app_id': None,
+                                          'running_job_name': None,
+                                          'app_blob': None,
+                                          'flags': []},
+                             'desired_job_list': [],
+                             'results': {}},
+                 'version': 3}, None)
 
-    @mock.patch('plainbox.impl.session.resume.SessionResumeHelper4')
-    def test_resume_dispatch_v4(self, mocked_helper4):
-        data = gzip.compress(
-            b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
-            b'{"app_blob":null,"app_id":null,"flags":[],'
-            b'"running_job_name":null,"title":null'
-            b'},"results":{}},"version":4}')
-        SessionResumeHelper([], None, None).resume(data)
-        mocked_helper4.resume_json.assert_called_once()
+    def test_resume_dispatch_v4(self):
+        helper4 = SessionResumeHelper4
+        with mock.patch.object(helper4, 'resume_json'):
+            data = gzip.compress(
+                b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+                b'{"app_blob":null,"app_id":null,"flags":[],'
+                b'"running_job_name":null,"title":null'
+                b'},"results":{}},"version":4}')
+            SessionResumeHelper([], None, None).resume(data)
+            helper4.resume_json.assert_called_once_with(
+                {'session': {'jobs': {},
+                             'metadata': {'title': None,
+                                          'app_id': None,
+                                          'running_job_name': None,
+                                          'app_blob': None,
+                                          'flags': []},
+                             'desired_job_list': [],
+                             'results': {}},
+                 'version': 4}, None)
 
-    @mock.patch('plainbox.impl.session.resume.SessionResumeHelper5')
-    def test_resume_dispatch_v5(self, mocked_helper5):
-        data = gzip.compress(
-            b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
-            b'{"app_blob":null,"app_id":null,"flags":[],'
-            b'"running_job_name":null,"title":null'
-            b'},"results":{}},"version":5}')
-        SessionResumeHelper([], None, None).resume(data)
-        mocked_helper5.resume_json.assert_called_once()
+    def test_resume_dispatch_v5(self):
+        helper5 = SessionResumeHelper5
+        with mock.patch.object(helper5, 'resume_json'):
+            data = gzip.compress(
+                b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+                b'{"app_blob":null,"app_id":null,"flags":[],'
+                b'"running_job_name":null,"title":null'
+                b'},"results":{}},"version":5}')
+            SessionResumeHelper([], None, None).resume(data)
+            helper5.resume_json.assert_called_once_with(
+                {'session': {'jobs': {},
+                             'metadata': {'title': None,
+                                          'app_id': None,
+                                          'running_job_name': None,
+                                          'app_blob': None,
+                                          'flags': []},
+                             'desired_job_list': [],
+                             'results': {}},
+                 'version': 5}, None)
 
-    @mock.patch('plainbox.impl.session.resume.SessionResumeHelper6')
-    def test_resume_dispatch_v6(self, mocked_helper6):
-        data = gzip.compress(
-            b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
-            b'{"app_blob":null,"app_id":null,"flags":[],'
-            b'"running_job_name":null,"title":null'
-            b'},"results":{}},"version":6}')
-        SessionResumeHelper([], None, None).resume(data)
-        mocked_helper6.resume_json.assert_called_once()
+    def test_resume_dispatch_v6(self):
+        helper6 = SessionResumeHelper6
+        with mock.patch.object(helper6, 'resume_json'):
+            data = gzip.compress(
+                b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+                b'{"app_blob":null,"app_id":null,"flags":[],'
+                b'"running_job_name":null,"title":null'
+                b'},"results":{}},"version":6}')
+            SessionResumeHelper([], None, None).resume(data)
+            helper6.resume_json.assert_called_once_with(
+                {'session': {'jobs': {},
+                             'metadata': {'title': None,
+                                          'app_id': None,
+                                          'running_job_name': None,
+                                          'app_blob': None,
+                                          'flags': []},
+                             'desired_job_list': [],
+                             'results': {}},
+                 'version': 6}, None)
 
     def test_resume_dispatch_v7(self):
         data = gzip.compress(
@@ -187,59 +251,114 @@ class SessionResumeHelperTests(TestCase):
 
 class SessionPeekHelperTests(TestCase):
 
-    @mock.patch('plainbox.impl.session.resume.SessionPeekHelper1')
-    def test_peek_dispatch_v1(self, mocked_helper1):
-        data = gzip.compress(
-            b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
-            b'{"app_blob":null,"flags":[],"running_job_name":null,"title":null'
-            b'},"results":{}},"version":1}')
-        SessionPeekHelper().peek(data)
-        mocked_helper1.resume_json.assert_called_once()
+    def test_peek_dispatch_v1(self):
+        helper1 = SessionPeekHelper1
+        with mock.patch.object(helper1, 'peek_json'):
+            data = gzip.compress(
+                b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+                b'{"app_blob":null,"flags":[],"running_job_name":null,'
+                b'"title":null},"results":{}},"version":1}')
+            SessionPeekHelper().peek(data)
+            helper1.peek_json.assert_called_once_with(
+                {'session': {'jobs': {},
+                             'metadata': {'title': None,
+                                          'running_job_name': None,
+                                          'app_blob': None,
+                                          'flags': []},
+                             'desired_job_list': [],
+                             'results': {}},
+                 'version': 1})
 
-    @mock.patch('plainbox.impl.session.resume.SessionPeekHelper2')
-    def test_peek_dispatch_v2(self, mocked_helper2):
-        data = gzip.compress(
-            b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
-            b'{"app_blob":null,"flags":[],"running_job_name":null,"title":null'
-            b'},"results":{}},"version":2}')
-        SessionPeekHelper().peek(data)
-        mocked_helper2.resume_json.assert_called_once()
+    def test_peek_dispatch_v2(self):
+        helper2 = SessionPeekHelper2
+        with mock.patch.object(helper2, 'peek_json'):
+            data = gzip.compress(
+                b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+                b'{"app_blob":null,"flags":[],"running_job_name":null,'
+                b'"title":null},"results":{}},"version":2}')
+            SessionPeekHelper().peek(data)
+            helper2.peek_json.assert_called_once_with(
+                {'session': {'jobs': {},
+                             'metadata': {'title': None,
+                                          'running_job_name': None,
+                                          'app_blob': None,
+                                          'flags': []},
+                             'desired_job_list': [],
+                             'results': {}},
+                 'version': 2})
 
-    @mock.patch('plainbox.impl.session.resume.SessionPeekHelper3')
-    def test_peek_dispatch_v3(self, mocked_helper3):
-        data = gzip.compress(
-            b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
-            b'{"app_blob":null,"flags":[],"running_job_name":null,"title":null'
-            b'},"results":{}},"version":3}')
-        SessionPeekHelper().peek(data)
-        mocked_helper3.resume_json.assert_called_once()
+    def test_peek_dispatch_v3(self):
+        helper3 = SessionPeekHelper3
+        with mock.patch.object(helper3, 'peek_json'):
+            data = gzip.compress(
+                b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+                b'{"app_blob":null,"flags":[],"running_job_name":null,'
+                b'"title":null},"results":{}},"version":3}')
+            SessionPeekHelper().peek(data)
+            helper3.peek_json.assert_called_once_with(
+                {'session': {'jobs': {},
+                             'metadata': {'title': None,
+                                          'running_job_name': None,
+                                          'app_blob': None,
+                                          'flags': []},
+                             'desired_job_list': [],
+                             'results': {}},
+                 'version': 3})
 
-    @mock.patch('plainbox.impl.session.resume.SessionPeekHelper4')
-    def test_peek_dispatch_v4(self, mocked_helper4):
-        data = gzip.compress(
-            b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
-            b'{"app_blob":null,"flags":[],"running_job_name":null,"title":null'
-            b'},"results":{}},"version":4}')
-        SessionPeekHelper().peek(data)
-        mocked_helper4.resume_json.assert_called_once()
+    def test_peek_dispatch_v4(self):
+        helper4 = SessionPeekHelper4
+        with mock.patch.object(helper4, 'peek_json'):
+            data = gzip.compress(
+                b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+                b'{"app_blob":null,"flags":[],"running_job_name":null,'
+                b'"title":null},"results":{}},"version":4}')
+            SessionPeekHelper().peek(data)
+            helper4.peek_json.assert_called_once_with(
+                {'session': {'jobs': {},
+                             'metadata': {'title': None,
+                                          'running_job_name': None,
+                                          'app_blob': None,
+                                          'flags': []},
+                             'desired_job_list': [],
+                             'results': {}},
+                 'version': 4})
 
-    @mock.patch('plainbox.impl.session.resume.SessionPeekHelper5')
-    def test_peek_dispatch_v5(self, mocked_helper5):
-        data = gzip.compress(
-            b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
-            b'{"app_blob":null,"flags":[],"running_job_name":null,"title":null'
-            b'},"results":{}},"version":5}')
-        SessionPeekHelper().peek(data)
-        mocked_helper5.resume_json.assert_called_once()
+    def test_peek_dispatch_v5(self):
+        helper5 = SessionPeekHelper5
+        with mock.patch.object(helper5, 'peek_json'):
+            data = gzip.compress(
+                b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+                b'{"app_blob":null,"flags":[],"running_job_name":null,'
+                b'"title":null},"results":{}},"version":5}')
+            SessionPeekHelper().peek(data)
+            helper5.peek_json.assert_called_once_with(
+                {'session': {'jobs': {},
+                             'metadata': {'title': None,
+                                          'running_job_name': None,
+                                          'app_blob': None,
+                                          'flags': []},
+                             'desired_job_list': [],
+                             'results': {}},
+                 'version': 5})
 
-    @mock.patch('plainbox.impl.session.resume.SessionPeekHelper6')
-    def test_peek_dispatch_v6(self, mocked_helper6):
-        data = gzip.compress(
-            b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
-            b'{"app_blob":null,"flags":[],"running_job_name":null,"title":null'
-            b'},"results":{}},"version":6}')
-        SessionPeekHelper().peek(data)
-        mocked_helper6.resume_json.assert_called_once()
+    def test_peek_dispatch_v6(self):
+        helper6 = SessionPeekHelper6
+        with mock.patch.object(helper6, 'peek_json'):
+            data = gzip.compress(
+                b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
+                b'{"app_blob":null,"flags":[],"running_job_name":null,'
+                b'"title":null},"results":{}},"version":6}')
+            SessionPeekHelper().peek(data)
+            helper6.peek_json.assert_called_once_with(
+                {'session': {'jobs': {},
+                             'metadata': {'title': None,
+                                          'running_job_name': None,
+                                          'app_blob': None,
+                                          'flags': []},
+                             'desired_job_list': [],
+                             'results': {}},
+                 'version': 6})
+
 
 class SessionResumeTests(TestCase):
 

@@ -371,6 +371,8 @@ class SessionAssistant:
         self.session_available(self._manager.storage.id)
         _logger.debug("New session created: %s", title)
         UsageExpectation.of(self).allowed_calls = {
+            self.get_test_plans: "to get the list of available test plans",
+            self.get_test_plan: "to get particular test plan object",
             self.select_test_plan: "select the test plan to execute",
             self.get_session_id: "to get the id of currently running session",
             self.get_session_dir: ("to get the path where current session is"

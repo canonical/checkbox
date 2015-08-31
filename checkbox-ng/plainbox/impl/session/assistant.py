@@ -1042,6 +1042,32 @@ class SessionAssistant:
 
         return stats
 
+    @raises(UnexpectedMethodCall)
+    def finalize_session(self) -> None:
+        """
+        Finish the execution of the current session.
+
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+
+        Mark the session as complete, which prohibits running (or rerunning)
+        any job.
+        """
+        UsageExpectation.of(self).enforce()
+        if SessionMetaData.FLAG_SUBMITTED not in self._metadata.flags:
+            _logger.warning("Finalizing session that hasn't been submitted "
+                            "anywhere: %s", self._manager.storage.id)
+        self._metadata.flags.remove(SessionMetaData.FLAG_INCOMPLETE)
+        self._manager.checkpoint()
+        UsageExpectation.of(self).allowed_calls = {
+            self.export_to_transport: "to export the results and send them",
+            self.export_to_file: "to export the results to a file",
+            self.get_resumable_sessions: "to get resume candidates",
+            self.start_new_session: "to create a new session",
+        }
+
     @raises(KeyError, TransportError, UnexpectedMethodCall)
     def export_to_transport(
         self, exporter_id: str, transport: ISessionStateTransport
@@ -1193,6 +1219,7 @@ class SessionAssistant:
             # until all of the mandatory jobs have been executed.
             self.export_to_transport: "to export the results and send them",
             self.export_to_file: "to export the results to a file",
+            self.finalize_session: "to mark the session as complete",
         }
 
 

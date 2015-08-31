@@ -1189,6 +1189,7 @@ class SessionAssistant:
             # XXX: should this be available right off the bat or should we wait
             # until all of the mandatory jobs have been executed.
             self.export_to_transport: "to export the results and send them",
+            self.export_to_file: "to export the results to a file",
         }
 
 

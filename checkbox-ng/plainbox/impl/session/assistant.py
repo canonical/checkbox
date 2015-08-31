@@ -415,8 +415,9 @@ class SessionAssistant:
             execution_ctrl_list=self._execution_ctrl_list)
         self.session_available(self._manager.storage.id)
         _logger.debug("Session resumed: %s", session_id)
-        UsageExpectation.of(self).allowed_calls = (
-            self._get_allowed_calls_in_normal_state())
+        UsageExpectation.of(self).allowed_calls = {
+            self.select_test_plan: "to save test plan selection",
+        }
         return self._resume_candidates[session_id][1]
 
     @raises(UnexpectedMethodCall)
@@ -559,6 +560,8 @@ class SessionAssistant:
         to actually allowing the user to know what jobs are available.
         """
         UsageExpectation.of(self).enforce()
+        UsageExpectation.of(self).allowed_calls = (
+            self._get_allowed_calls_in_normal_state())
         return [unit.id for unit in self._context.unit_list
                 if unit.Meta.name == 'test plan']
 

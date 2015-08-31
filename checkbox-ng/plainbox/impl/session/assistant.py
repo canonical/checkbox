@@ -371,7 +371,10 @@ class SessionAssistant:
         self.session_available(self._manager.storage.id)
         _logger.debug("New session created: %s", title)
         UsageExpectation.of(self).allowed_calls = {
-            self.select_test_plan: "select the test plan to execute"
+            self.select_test_plan: "select the test plan to execute",
+            self.get_session_id: "to get the id of currently running session",
+            self.get_session_dir: ("to get the path where current session is"
+                                   "stored"),
         }
 
     @raises(KeyError, UnexpectedMethodCall)
@@ -412,8 +415,9 @@ class SessionAssistant:
             execution_ctrl_list=self._execution_ctrl_list)
         self.session_available(self._manager.storage.id)
         _logger.debug("Session resumed: %s", session_id)
-        UsageExpectation.of(self).allowed_calls = (
-            self._get_allowed_calls_in_normal_state())
+        UsageExpectation.of(self).allowed_calls = {
+            self.select_test_plan: "to save test plan selection",
+        }
         return self._resume_candidates[session_id][1]
 
     @raises(UnexpectedMethodCall)
@@ -556,6 +560,8 @@ class SessionAssistant:
         to actually allowing the user to know what jobs are available.
         """
         UsageExpectation.of(self).enforce()
+        UsageExpectation.of(self).allowed_calls = (
+            self._get_allowed_calls_in_normal_state())
         return [unit.id for unit in self._context.unit_list
                 if unit.Meta.name == 'test plan']
 
@@ -1036,6 +1042,32 @@ class SessionAssistant:
 
         return stats
 
+    @raises(UnexpectedMethodCall)
+    def finalize_session(self) -> None:
+        """
+        Finish the execution of the current session.
+
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+
+        Mark the session as complete, which prohibits running (or rerunning)
+        any job.
+        """
+        UsageExpectation.of(self).enforce()
+        if SessionMetaData.FLAG_SUBMITTED not in self._metadata.flags:
+            _logger.warning("Finalizing session that hasn't been submitted "
+                            "anywhere: %s", self._manager.storage.id)
+        self._metadata.flags.remove(SessionMetaData.FLAG_INCOMPLETE)
+        self._manager.checkpoint()
+        UsageExpectation.of(self).allowed_calls = {
+            self.export_to_transport: "to export the results and send them",
+            self.export_to_file: "to export the results to a file",
+            self.get_resumable_sessions: "to get resume candidates",
+            self.start_new_session: "to create a new session",
+        }
+
     @raises(KeyError, TransportError, UnexpectedMethodCall)
     def export_to_transport(
         self, exporter_id: str, transport: ISessionStateTransport
@@ -1186,6 +1218,8 @@ class SessionAssistant:
             # XXX: should this be available right off the bat or should we wait
             # until all of the mandatory jobs have been executed.
             self.export_to_transport: "to export the results and send them",
+            self.export_to_file: "to export the results to a file",
+            self.finalize_session: "to mark the session as complete",
         }
 
 

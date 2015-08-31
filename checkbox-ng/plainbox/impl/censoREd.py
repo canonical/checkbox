@@ -56,8 +56,7 @@ https://twitter.com/zygoon/status/560088469192843264
 The last resort, aka, the proxy approach. Let's use a bit of magic to work
 around the problem. This way we won't have to subclass or override anything.
 """
-from plainbox.impl.proxy import proxy
-from plainbox.impl.proxy import unproxied
+from padme import proxy
 
 
 __all__ = ["PatternProxy"]
@@ -86,6 +85,6 @@ class PatternProxy(proxy):
 
     **Yes** (gets another drink).
     """
-    @unproxied
+    @proxy.direct
     def __repr__(self):
         return "re.compile({!r})".format(self.pattern)

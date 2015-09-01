@@ -32,9 +32,8 @@
     Include chassis, system, and base boad version numbers among tests.
 :param --test_serials:
     Include system and base board serial numbers among tests.
-:param --cpu_only:
-    Don't perform usual tests, except for CPU test. Note that the
-    desktop/server specification is ignored if this option is used.
+:param cpu_check:
+    Don't perform usual tests, except for CPU test.
 :param desktop:
     SUT is a desktop or laptop
 :param server:
@@ -111,7 +110,7 @@ def standard_tests(args, stream):
     shipped in those form factors, so we don't flag that combination as an
     error.
     """
-    if args.system_type == 'server':
+    if args.test_type == 'server':
         if not find_in_section(stream, 'Chassis Information', 'Type:',
                                ['server', 'rack mount', 'blade',
                                 'expansion chassis', 'multi-system'], False):
@@ -223,18 +222,15 @@ def serial_tests(args, stream):
 def main():
     """Main function."""
     parser = ArgumentParser("dmitest")
-    parser.add_argument('system_type',
-                        help="System type ('server' or 'desktop').",
-                        choices=['server', 'desktop'])
+    parser.add_argument('test_type',
+                        help="Test type ('server', 'desktop' or 'cpu-check').",
+                        choices=['server', 'desktop', 'cpu-check'])
     parser.add_argument('--dmifile',
                         help="File to use in lieu of dmidecode.")
     parser.add_argument('--test_versions', action="store_true",
                         help="Set to check version information")
     parser.add_argument('--test_serials', action="store_true",
                         help="Set to check serial number information")
-    parser.add_argument('--cpu_only', action="store_true",
-                        help="Set to not perform standard tests, " +
-                        "just the CPU validity test")
     args = parser.parse_args()
 
     # Command to retrieve DMI information
@@ -252,7 +248,7 @@ def main():
         return 1
 
     retval = 0
-    if not args.cpu_only:
+    if args.test_type == 'server' or args.test_type == 'desktop':
         retval += standard_tests(args, stream)
     if args.test_versions:
         retval += version_tests(args, stream)

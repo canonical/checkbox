@@ -361,6 +361,7 @@ include:
     # They have been moved to the end of the test run to improve the testing
     # process.
     firmware/fwts_desktop_diagnosis
+    firmware/fwts_desktop_diagnosis_hwe
     firmware/fwts_desktop_diagnosis_results.log
     firmware/fwts_desktop_diagnosis_results_hwe.log
     firmware/fwts_wakealarm.*                              certification-status=blocker

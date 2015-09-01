@@ -34,6 +34,7 @@ include:
     miscellanea/get_make_and_model
     miscellanea/get_maas_version
     miscellanea/boot_mode
+    miscellanea/cpus_are_not_samples
     miscellanea/dmitest_server
     miscellanea/ipmi_test
     miscellanea/bmc_info

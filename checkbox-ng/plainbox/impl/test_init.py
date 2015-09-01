@@ -24,6 +24,7 @@ Test definitions for plainbox.impl module
 """
 
 from unittest import TestCase
+import warnings
 
 from plainbox.impl import _get_doc_margin
 from plainbox.impl import deprecated
@@ -48,6 +49,13 @@ class DeprecatedDecoratorTests(TestCase):
     Tests for the @deprecated function decorator
     """
 
+    def assertWarns(self, warning, callable, *args, **kwds):
+        with warnings.catch_warnings(record=True) as warning_list:
+            warnings.simplefilter('always')
+            result = callable(*args, **kwds)
+            self.assertTrue(any(item.category == warning for item in warning_list))
+            return result, warning_list
+
     def test_func_deprecation_warning(self):
         """
         Ensure that @deprecated decorator makes functions emit deprecation
@@ -57,10 +65,13 @@ class DeprecatedDecoratorTests(TestCase):
         def func():
             return "value"
 
-        with self.assertWarns(DeprecationWarning) as oops:
-            self.assertEqual(func(), "value")
+        result, warning_list = self.assertWarns(
+            DeprecationWarning,
+            func,
+        )
+        self.assertEqual(result, "value")
         # NOTE: we need to use str() as warnings API is a bit silly there
-        self.assertEqual(str(oops.warning),
+        self.assertEqual(str(warning_list[0].message),
                          'func is deprecated since version 0.6')
 
     def test_func_docstring(self):

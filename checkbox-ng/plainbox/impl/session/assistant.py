@@ -562,8 +562,6 @@ class SessionAssistant:
         to actually allowing the user to know what jobs are available.
         """
         UsageExpectation.of(self).enforce()
-        UsageExpectation.of(self).allowed_calls = (
-            self._get_allowed_calls_in_normal_state())
         return [unit.id for unit in self._context.unit_list
                 if unit.Meta.name == 'test plan']
 

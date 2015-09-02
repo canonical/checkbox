@@ -1066,6 +1066,10 @@ class SessionAssistant:
             self.export_to_file: "to export the results to a file",
             self.get_resumable_sessions: "to get resume candidates",
             self.start_new_session: "to create a new session",
+            self.get_canonical_certification_transport: (
+                "create a transport for the C3 system"),
+            self.get_canonical_hexr_transport: (
+                "create a transport for the HEXR system"),
         }
 
     @raises(KeyError, TransportError, UnexpectedMethodCall)

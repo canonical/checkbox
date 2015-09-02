@@ -658,6 +658,8 @@ class NonCallableMock(Base):
                 raise AttributeError("Mock object has no attribute %r" % name)
         elif _is_magic(name):
             raise AttributeError(name)
+        if name.startswith(('assert', 'assret')):
+            raise AttributeError(name)
 
         result = self._mock_children.get(name)
         if result is _deleted:

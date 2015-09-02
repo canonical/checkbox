@@ -514,7 +514,7 @@ class FsPlugInCollectionTests(TestCase):
                  {'encoding': 'UTF-8'}),
             ])
         # Ensure that no exception was logged
-        mock_logger.error.assert_not_called()
+        self.assertEqual(mock_logger.error.mock_calls, [])
         # Ensure that everything was okay
         self.assertEqual(col.problem_list, [])
         # Ensure that both files got added

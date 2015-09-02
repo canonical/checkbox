@@ -280,7 +280,7 @@ class SessionAssistant:
         # Select all of the plainbox providers in a separate iteration. This
         # way they get loaded unconditionally, regardless of what patterns are
         # passed to the function (including not passing *any* patterns).
-        for provider in provider_list:
+        for provider in provider_list[:]:
             if provider.namespace == "2013.com.canonical.plainbox":
                 provider_list.remove(provider)
                 self._selected_providers.append(provider)

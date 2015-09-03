@@ -71,7 +71,7 @@ class SessionMetaData:
 
     def __init__(self, title=None, flags=None, running_job_name=None,
                  app_blob=None, app_id=None):
-        """ Initialize a new session state meta-data object. """
+        """Initialize a new session state meta-data object."""
         if flags is None:
             flags = []
         self._title = title
@@ -81,7 +81,7 @@ class SessionMetaData:
         self._app_id = app_id
 
     def __repr__(self):
-        """ Get the representation of the session state meta-data. """
+        """Get the representation of the session state meta-data."""
         return "<{} title:{!r} flags:{!r} running_job_name:{!r}>".format(
             self.__class__.__name__, self.title, self.flags,
             self.running_job_name)
@@ -100,7 +100,7 @@ class SessionMetaData:
 
     @title.setter
     def title(self, title):
-        """ set the session title to the given value. """
+        """set the session title to the given value."""
         self._title = title
 
     @property
@@ -119,7 +119,7 @@ class SessionMetaData:
 
     @flags.setter
     def flags(self, flags):
-        """ set the session flags to the given set. """
+        """set the session flags to the given set."""
         self._flags = flags
 
     @property
@@ -143,7 +143,7 @@ class SessionMetaData:
 
     @running_job_name.setter
     def running_job_name(self, running_job_name):
-        """ set the id of the running job. """
+        """set the id of the running job."""
         self._running_job_name = running_job_name
 
     @property
@@ -161,7 +161,7 @@ class SessionMetaData:
 
     @app_blob.setter
     def app_blob(self, value):
-        """ set the application specific binary blob to the given value. """
+        """set the application specific binary blob to the given value."""
         if value is not None and not isinstance(value, bytes):
             # TRANSLATORS: please don't translate app_blob, None and bytes
             raise TypeError(_("app_blob must be either None or bytes"))
@@ -179,7 +179,7 @@ class SessionMetaData:
 
     @app_id.setter
     def app_id(self, value):
-        """ Set the application identifier to the given value. """
+        """Set the application identifier to the given value."""
         if value is not None and not isinstance(value, str):
             # TRANSLATORS: please don't translate app_blob, None and bytes
             raise TypeError(_("app_id must be either None or str"))
@@ -255,8 +255,8 @@ class SessionDeviceContext:
                 unit.provider for unit in self._unit_list
             })
             self._state = state
-            self._unit_id_map = { unit.id: unit for unit in state.unit_list if
-                isinstance(unit, UnitWithId)}
+            self._unit_id_map = {unit.id: unit for unit in state.unit_list if
+                                 isinstance(unit, UnitWithId)}
 
         self._test_plan_list = []
         # Connect SessionState's signals to fire our signals. This
@@ -488,7 +488,7 @@ class SessionDeviceContext:
 
     @morris.signal
     def on_provider_added(self, provider):
-        """ Signal sent whenever a provider is added to the context. """
+        """Signal sent whenever a provider is added to the context."""
         logger.info(_("Provider %s added to context %s"), provider, self)
         # Invalidate the list of execution controllers as they depend
         # on the accuracy of provider_list
@@ -496,7 +496,7 @@ class SessionDeviceContext:
 
     @morris.signal
     def on_unit_added(self, unit):
-        """ Signal sent whenever a unit is added to the context. """
+        """Signal sent whenever a unit is added to the context."""
         logger.debug(_("Unit %s added to context %s"), unit, self)
         if unit.Meta.name == 'job':
             self.on_job_added(unit)
@@ -505,12 +505,12 @@ class SessionDeviceContext:
 
     @morris.signal
     def on_job_added(self, job):
-        """ Signal sent whenever a new job unit is added to the context. """
+        """Signal sent whenever a new job unit is added to the context."""
         self._override_update(job)
 
     @morris.signal
     def on_unit_removed(self, unit):
-        """ Signal sent whenever a unit is removed from the context. """
+        """Signal sent whenever a unit is removed from the context."""
         logger.debug(_("Unit %s removed from context %s"), unit, self)
         if isinstance(unit, UnitWithId):
             del self._unit_id_map[unit.id]
@@ -540,12 +540,12 @@ class SessionDeviceContext:
         return self._shared_cache[cache_key]
 
     def invalidate_shared(self, cache_key):
-        """ Invalidate a cached shared value. """
+        """Invalidate a cached shared value."""
         if cache_key in self._shared_cache:
             del self._shared_cache[cache_key]
 
     def _compute_execution_ctrl_list(self):
-        """ Compute the list of execution controllers. """
+        """Compute the list of execution controllers."""
         # TODO: tie this with the upcoming device patches
         import sys
         if sys.platform == 'linux':
@@ -568,11 +568,11 @@ class SessionDeviceContext:
             return []
 
     def _invalidate_execution_ctrl_list(self, *args, **kwargs):
-        """ Invalidate the list of execution controllers. """
+        """Invalidate the list of execution controllers."""
         self.invalidate_shared(self._CACHE_EXECUTION_CTRL_LIST)
 
     def _compute_override_map(self):
-        """ Compute the map of field overrides. """
+        """Compute the map of field overrides."""
         override_map = collections.defaultdict(list)
         for test_plan in self._test_plan_list:
             support = TestPlanUnitSupport(test_plan)
@@ -581,7 +581,7 @@ class SessionDeviceContext:
         return override_map
 
     def _invalidate_override_map(self, *args, **kwargs):
-        """ Invalidate the cached field override map. """
+        """Invalidate the cached field override map."""
         self.invalidate_shared(self._CACHE_OVERRIDE_MAP)
 
     def _bulk_override_update(self):
@@ -736,11 +736,11 @@ class SessionState:
 
     @morris.signal
     def on_unit_added(self, unit):
-        """ Signal sent whenever a unit is added to the session. """
+        """Signal sent whenever a unit is added to the session."""
 
     @morris.signal
     def on_unit_removed(self, unit):
-        """ Signal sent whenever a unit is removed from the session. """
+        """Signal sent whenever a unit is removed from the session."""
 
     def __init__(self, unit_list):
         """
@@ -1156,7 +1156,7 @@ class SessionState:
 
     @property
     def unit_list(self):
-        """ List of all known units. """
+        """List of all known units."""
         return self._unit_list
 
     @property
@@ -1183,12 +1183,12 @@ class SessionState:
 
     @property
     def job_state_map(self):
-        """ Map from job id to JobState associated with each job. """
+        """Map from job id to JobState associated with each job."""
         return self._job_state_map
 
     @property
     def resource_map(self):
-        """ Map from resource id to a list of resource records. """
+        """Map from resource id to a list of resource records."""
         return self._resource_map
 
     def get_outcome_stats(self):
@@ -1228,15 +1228,16 @@ class SessionState:
             certification status value.
         """
         return {
-            job_id: job_state for job_id, job_state in
-            self.job_state_map.items()
-            if job_state.result.outcome in outcome_filter
-            and job_state.effective_certification_status
-            in certification_status_filter}
+            job_id: job_state
+            for job_id, job_state in self.job_state_map.items()
+            if (job_state.result.outcome in outcome_filter and
+                job_state.effective_certification_status in
+                certification_status_filter)
+        }
 
     @property
     def metadata(self):
-        """ meta-data object associated with this session state. """
+        """meta-data object associated with this session state."""
         return self._metadata
 
     def _recompute_job_readiness(self):

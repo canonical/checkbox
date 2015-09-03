@@ -61,6 +61,7 @@ import itertools
 import re
 import sre_constants
 import sre_parse
+import sys
 
 from plainbox.i18n import gettext as _
 from plainbox.impl import pod
@@ -241,7 +242,9 @@ class Re(Node):
             # Check if the AST of this regular expression is composed
             # of just a flat list of 'literal' nodes. In other words,
             # check if it is a simple string match in disguise
-            if all(t == 'literal' for t, rest in pyre_ast):
+            if ((sys.version_info[:2] >= (3, 5) and
+                    all(t == sre_constants.LITERAL for t, rest in pyre_ast)) or
+                    all(t == 'literal' for t, rest in pyre_ast)):
                 return ReFixed(lineno, col_offset, text)
             else:
                 # NOTE: we might save time by calling some internal function to

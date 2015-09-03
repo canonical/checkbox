@@ -32,6 +32,7 @@ import logging
 import operator
 import os
 import re
+import sre_constants
 
 from plainbox.abc import IJobQualifier
 from plainbox.i18n import gettext as _
@@ -140,7 +141,15 @@ class RegExpJobQualifier(SimpleQualifier):
         Initialize a new RegExpJobQualifier with the specified pattern.
         """
         super().__init__(origin, inclusive)
-        self._pattern = re.compile(pattern)
+        try:
+            self._pattern = re.compile(pattern)
+        except sre_constants.error as exc:
+            assert len(exc.args) == 1
+            # XXX: This is a bit crazy but this lets us have identical error
+            # messages across python3.2 all the way to 3.5. I really really
+            # wish there was a better way at fixing this.
+            exc.args = (re.sub(" at position \d+", "", exc.args[0]), )
+            raise exc
         self._pattern_text = pattern
 
     def get_simple_match(self, job):

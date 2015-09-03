@@ -231,6 +231,11 @@ class Re(Node):
         try:
             pyre_ast = sre_parse.parse(text)
         except sre_constants.error as exc:
+            assert len(exc.args) == 1
+            # XXX: This is a bit crazy but this lets us have identical error
+            # messages across python3.2 all the way to 3.5. I really really
+            # wish there was a better way at fixing this.
+            exc.args = (re.sub(" at position \d+", "", exc.args[0]), )
             return ReErr(lineno, col_offset, text, exc)
         else:
             # Check if the AST of this regular expression is composed

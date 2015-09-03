@@ -200,8 +200,8 @@ class UsageExpectation:
                 return
             # This can be removed later, it allows the caller to make an
             # off-by-one mistake and go away with it.
-            if (alt_caller_frame is not None
-                    and alt_caller_frame.f_code in allowed_code):
+            if (alt_caller_frame is not None and
+                    alt_caller_frame.f_code in allowed_code):
                 warnings.warn(
                     "Please back={}. Properly constructed decorators are"
                     " automatically handled and do not require the use of the"

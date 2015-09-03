@@ -74,21 +74,6 @@ of each module and class for additional details though.
     knows how to obtain a default location using XDG standards.
 """
 
-__all__ = [
-    'JobReadinessInhibitor',
-    'JobState',
-    'SessionManager',
-    'SessionMetaData',
-    'SessionPeekHelper',
-    'SessionResumeError',
-    'SessionState',
-    'SessionStateLegacyAPI',
-    'SessionStorage',
-    'SessionStorageRepository',
-    'UndesiredJobReadinessInhibitor',
-    'InhibitionCause',
-]
-
 from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.session.jobs import JobReadinessInhibitor
 from plainbox.impl.session.jobs import JobState
@@ -101,3 +86,18 @@ from plainbox.impl.session.state import SessionMetaData
 from plainbox.impl.session.state import SessionState
 from plainbox.impl.session.storage import SessionStorage
 from plainbox.impl.session.storage import SessionStorageRepository
+
+__all__ = (
+    'JobReadinessInhibitor',
+    'JobState',
+    'SessionManager',
+    'SessionMetaData',
+    'SessionPeekHelper',
+    'SessionResumeError',
+    'SessionState',
+    'SessionStateLegacyAPI',
+    'SessionStorage',
+    'SessionStorageRepository',
+    'UndesiredJobReadinessInhibitor',
+    'InhibitionCause',
+)

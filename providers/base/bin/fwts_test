@@ -18,26 +18,20 @@ INTERACTIVE_TESTS = ['ac_adapter',
                      'power_button',
                      'brightness',
                      'lid']
-# These are usually performed on normal certification runs
-CERT_TESTS = ['acpitests',
-              'acpidump',
-              'acpitables',
-              'apicedge',
-              'apicinstance',
-              'aspm',
-              'bios32',
-              'dmicheck',
-              'ebda',
-              'klog',
-              'mpcheck',
-              'msr',
-              'mtrr',
-              'nx',
-              'oops',
-              'uefibootpath',
-              'uefirtvariable',
-              'version',
-              'virt']
+# These are performed on QA certification runs
+QA_TESTS = ['acpitests',
+            'acpidump',
+            'acpitables',
+            'apicinstance',
+            'aspm',
+            'bios32',
+            'dmicheck',
+            'ebda',
+            'mpcheck',
+            'msr',
+            'nx',
+            'uefirtvariable',
+            'version']
 # These are advanced tests that shouldn't affect certification status
 NON_CERT_TESTS = ['bios_info',
                   'cmosdump',
@@ -67,8 +61,6 @@ NON_CERT_TESTS = ['bios_info',
                   'uefirttime',
                   'uefivarinfo'
                   ]
-TESTS = sorted(CERT_TESTS + NON_CERT_TESTS)
-
 # The following tests will record logs in a separate file for the HWE team
 HWE_TESTS = ['mtrr',
              'virt',
@@ -76,6 +68,9 @@ HWE_TESTS = ['mtrr',
              'klog',
              'oops',
              'uefibootpath']
+CERT_TESTS = sorted(QA_TESTS + HWE_TESTS)
+TESTS = sorted(QA_TESTS + NON_CERT_TESTS + HWE_TESTS)
+
 
 def get_sleep_times(start_marker, end_marker, sleep_time, resume_time):
     logfile = '/var/log/syslog'
@@ -166,10 +161,10 @@ def main():
                    '--s3-quirks\n'
                    '--s3-sleep-delay\n'
                    '--s3power-sleep-delay\n\n'
-                   'Example: fwts-test --sleep s3 --s3-min-delay 30 '
+                   'Example: fwts_test --sleep s3 --s3-min-delay 30 '
                    '--s3-multiple 10 --s3-device-check\n\n'
                    'For further help with sleep options:\n'
-                   'fwts-test --fwts-help')
+                   'fwts_test --fwts-help')
     parser = ArgumentParser(description=description_text,
                             epilog=epilog_text,
                             formatter_class=RawTextHelpFormatter)
@@ -226,6 +221,12 @@ def main():
                              'For info on these extra fwts options, please \n'
                              'see the epilog below and \n'
                              'the --fwts-help option.'))
+    group.add_argument('--hwe',
+                       action='store_true',
+                       help='Run HWE concerned tests in fwts')
+    group.add_argument('--qa',
+                       action='store_true',
+                       help='Run QA concerned tests in fwts')
     group.add_argument('--fwts-help',
                        dest='fwts_help',
                        action='store_true',
@@ -239,6 +240,12 @@ def main():
     group.add_argument('--list-advanced',
                        action='store_true',
                        help='List all advanced tests in fwts.')
+    group.add_argument('--list-hwe',
+                       action='store_true',
+                       help='List all HWE concerned tests in fwts')
+    group.add_argument('--list-qa',
+                       action='store_true',
+                       help='List all QA concerned tests in fwts')
     args = parser.parse_args()
 
     tests = []
@@ -279,10 +286,20 @@ def main():
     elif args.list_advanced:
         print('\n'.join(NON_CERT_TESTS))
         return 0
+    elif args.list_hwe:
+        print('\n'.join(HWE_TESTS))
+        return 0
+    elif args.list_qa:
+        print('\n'.join(QA_TESTS))
+        return 0
     elif args.test:
         tests.extend(args.test)
     elif args.all:
         tests.extend(['wakealarm', 'cpufreq', 'maxfreq'] + TESTS)
+    elif args.hwe:
+        tests.extend(HWE_TESTS)
+    elif args.qa:
+        tests.extend(QA_TESTS)
     elif args.sleep:
         args.sleep = fix_sleep_args(args.sleep)
         iterations = 1
@@ -382,8 +399,6 @@ def main():
             # ACPI tests can now be run with --acpitests (fwts >= 15.07.00)
             log = args.log
             # Split the log file for HWE (only if -t is not used)
-            if not args.test and test in HWE_TESTS:
-                log = log.replace('.log', '_hwe.log')
             if test == 'acpitests':
                 test = '--acpitests'
             command = ('fwts -q --stdout-summary -r %s %s'

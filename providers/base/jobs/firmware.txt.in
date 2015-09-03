@@ -41,11 +41,24 @@ requires:
   package.name == 'fwts'
 user: root
 _description:
- Run Firmware Test Suite (fwts) desktop-specific diagnosis tests.
-_summary: Run FWTS desktop-specific diagnosis tests.
+ Run Firmware Test Suite (fwts) QA-concerned desktop-specific diagnosis tests.
+_summary: Run FWTS QA-concerned desktop-specific diagnosis tests.
 environ: PLAINBOX_SESSION_SHARE
 command:
- fwts_test -l $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results.log
+ fwts_test --qa -l $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results.log
+
+plugin:shell
+id: firmware/fwts_desktop_diagnosis_hwe
+estimated_duration: 5.0
+requires:
+  package.name == 'fwts'
+user: root
+_description:
+ Run Firmware Test Suite (fwts) HWE-concerned desktop-specific diagnosis tests.
+_summary: Run FWTS HWE-concerned desktop-specific diagnosis tests.
+environ: PLAINBOX_SESSION_SHARE
+command:
+ fwts_test --hwe -l $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results_hwe.log
 
 plugin: attachment
 estimated_duration: 0.5

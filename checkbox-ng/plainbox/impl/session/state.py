@@ -861,6 +861,14 @@ class SessionState:
                 self.on_unit_removed(job)
 
     def update_mandatory_job_list(self, mandatory_job_list):
+        """
+        Update the set of mandatory jobs (that must run).
+
+        This method simply stores the list of mandatory jobs inside the session
+        state. The next time the set of desired jobs is altered via a call
+        :meth:`update_desired_job_list()` the effective selection will also
+        include mandatory jobs.
+        """
         self._mandatory_job_list = mandatory_job_list
 
     def update_desired_job_list(self, desired_job_list):

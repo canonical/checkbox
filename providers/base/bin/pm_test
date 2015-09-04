@@ -45,7 +45,6 @@ def main():
         operation.setup()
         operation.run()
     except (TestCancelled, TestFailed) as exception:
-        operation.teardown()
         if isinstance(exception, TestFailed):
             logging.error(exception.args[0])
         message = exception.MESSAGE.format(args.pm_operation.capitalize())
@@ -54,6 +53,7 @@ def main():
         else:
             title = '{0} test'.format(args.pm_operation.capitalize())
             MessageDialog(title, message, Gtk.MessageType.ERROR).run()
+        operation.teardown()
 
         return exception.RETURN_CODE
 

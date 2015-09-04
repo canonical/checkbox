@@ -290,8 +290,8 @@ class SessionAssistant:
             # Track useless patterns so that we can report them
             useless = True
             for provider in provider_list[:]:
-                if (provider.name == pat
-                        or fnmatch.fnmatchcase(provider.name, pat)):
+                if (provider.name == pat or
+                        fnmatch.fnmatchcase(provider.name, pat)):
                     # Once a provider is selected, remove it from the list of
                     # candidates. This saves us from checking if we're adding
                     # something twice at each iteration.

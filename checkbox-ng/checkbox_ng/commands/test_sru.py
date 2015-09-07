@@ -41,36 +41,16 @@ class TestSru(TestCase):
             self.assertEqual(call.exception.args, (0,))
         self.maxDiff = None
         expected = """
-        usage: checkbox sru [-h] [--check-config] --secure-id SECURE-ID
-                            [--fallback FILE] [--destination URL] [--staging] [-n]
-                            [-T TEST-PLAN-ID] [-i PATTERN] [-x PATTERN] [-w WHITELIST]
+        usage: checkbox sru [-h] --secure_id SECURE-ID [-T TEST-PLAN-ID] [--staging]
+                            [--check-config]
 
         optional arguments:
           -h, --help            show this help message and exit
-          --check-config        run check-config before starting
-
-        sru-specific options:
-          --secure-id SECURE-ID
-                                associate submission with a machine using this SECURE-
-                                ID (unset)
-          --fallback FILE       if submission fails save the test report as FILE
-                                (unset)
-          --destination URL     POST the test report XML to this URL (https://certific
-                                ation.canonical.com/submissions/submit/)
-          --staging             override --destination to use the staging
-                                certification website
-
-        execution options:
-          -n, --dry-run         don't really run most jobs
-
-        test selection options:
+          --secure_id SECURE-ID
+                                Canonical hardware identifier
           -T TEST-PLAN-ID, --test-plan TEST-PLAN-ID
                                 load the specified test plan
-          -i PATTERN, --include-pattern PATTERN
-                                include jobs matching the given regular expression
-          -x PATTERN, --exclude-pattern PATTERN
-                                exclude jobs matching the given regular expression
-          -w WHITELIST, --whitelist WHITELIST
-                                load whitelist containing run patterns
+          --staging             Send the data to non-production test server
+          --check-config        run check-config before starting
         """
         self.assertEqual(io.combined, cleandoc(expected) + "\n")

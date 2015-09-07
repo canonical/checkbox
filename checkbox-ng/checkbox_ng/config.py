@@ -77,6 +77,16 @@ class CheckBoxConfig(PlainBoxConfig):
         section="sru",
         help_text=_("Optional whitelist with which to run SRU testing"))
 
+    test_plan = config.Variable(
+        section="sru",
+        help_text=_("Optional test plan with which to run SRU testing"))
+
+    staging = config.Variable(
+        section="sru",
+        kind=bool,
+        default=False,
+        help_text=_("Send the data to non-production test server"))
+
     class Meta(PlainBoxConfig.Meta):
         # TODO: properly depend on xdg and use real code that also handles
         # XDG_CONFIG_HOME.

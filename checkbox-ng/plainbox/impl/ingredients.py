@@ -20,7 +20,6 @@
 
 import collections
 import gettext
-import logging
 import sys
 import textwrap
 import traceback
@@ -35,9 +34,6 @@ from guacamole.recipes.cmd import CommandRecipe
 from plainbox.impl.session.assistant import SessionAssistant
 
 _ = gettext.gettext
-
-_logger = logging.getLogger("canonical-hw-collection")
-
 
 box = collections.namedtuple("box", "top right bottom left")
 

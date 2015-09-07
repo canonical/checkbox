@@ -686,7 +686,7 @@ class UserJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
         self.assertEqual(self.ctrl.get_checkbox_score(self.job), 4)
 
     @mock.patch.dict('os.environ', clear=True)
-    def test_get_execution_environment_resets_LANG(self):
+    def test_get_execution_environment_resets_locales(self):
         # Call the tested method
         env = self.ctrl.get_execution_environment(
             self.job, self.job_state, self.config, self.SESSION_DIR,
@@ -694,15 +694,18 @@ class UserJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
         # Ensure that LANG is reset to C.UTF-8
         self.assertEqual(env['LANG'], 'C.UTF-8')
 
-    @mock.patch.dict('os.environ', clear=True, LANG='fake_LANG')
-    def test_get_execution_environment_preserves_LANG_if_requested(self):
+    @mock.patch.dict('os.environ', clear=True, LANG='fake_LANG',
+                    LANGUAGE='fake_LANGUAGE', LC_ALL='fake_LC_ALL')
+    def test_get_execution_environment_preserves_locales_if_requested(self):
         self.job.get_flag_set.return_value = {'preserve-locale'}
         # Call the tested method
         env = self.ctrl.get_execution_environment(
             self.job, self.job_state, self.config, self.SESSION_DIR,
             self.NEST_DIR)
-        # Ensure that LANG is what we mocked it to be
+        # Ensure that locale variables are what we mocked them to be
         self.assertEqual(env['LANG'], 'fake_LANG')
+        self.assertEqual(env['LANGUAGE'], 'fake_LANGUAGE')
+        self.assertEqual(env['LC_ALL'], 'fake_LC_ALL')
 
     @mock.patch.dict('os.environ', clear=True, PYTHONPATH='PYTHONPATH')
     def test_get_execution_environment_keeps_PYTHONPATH(self):
@@ -822,6 +825,8 @@ class RootViaPTL1ExecutionControllerTests(
             '-G', 'CHECKBOX_DATA=session-dir/CHECKBOX_DATA',
             '-G', 'CHECKBOX_SHARE=CHECKBOX_SHARE-generator',
             '-G', 'LANG=C.UTF-8',
+            '-G', 'LANGUAGE=',
+            '-G', 'LC_ALL=C.UTF-8',
             '-G', 'PATH={}'.format(PATH),
             '-G', 'PLAINBOX_PROVIDER_DATA=data_dir-generator',
             '-G', 'PLAINBOX_PROVIDER_UNITS=units_dir-generator',
@@ -830,6 +835,8 @@ class RootViaPTL1ExecutionControllerTests(
             '-T', 'CHECKBOX_DATA=session-dir/CHECKBOX_DATA',
             '-T', 'CHECKBOX_SHARE=CHECKBOX_SHARE',
             '-T', 'LANG=C.UTF-8',
+            '-T', 'LANGUAGE=',
+            '-T', 'LC_ALL=C.UTF-8',
             '-T', 'PATH={}'.format(PATH),
             '-T', 'PLAINBOX_PROVIDER_DATA=data_dir',
             '-T', 'PLAINBOX_PROVIDER_UNITS=units_dir',
@@ -855,6 +862,8 @@ class RootViaPTL1ExecutionControllerTests(
             '-T', 'CHECKBOX_DATA=session-dir/CHECKBOX_DATA',
             '-T', 'CHECKBOX_SHARE=CHECKBOX_SHARE',
             '-T', 'LANG=C.UTF-8',
+            '-T', 'LANGUAGE=',
+            '-T', 'LC_ALL=C.UTF-8',
             '-T', 'PATH={}'.format(PATH),
             '-T', 'PLAINBOX_PROVIDER_DATA=data_dir',
             '-T', 'PLAINBOX_PROVIDER_UNITS=units_dir',
@@ -989,6 +998,8 @@ class RootViaPkexecExecutionControllerTests(
              'CHECKBOX_DATA=session-dir/CHECKBOX_DATA',
              'CHECKBOX_SHARE=CHECKBOX_SHARE',
              'LANG=C.UTF-8',
+             'LANGUAGE=',
+             'LC_ALL=C.UTF-8',
              'PATH={}'.format(
                  os.pathsep.join([self.NEST_DIR, 'vanilla-path'])),
              'PLAINBOX_PROVIDER_DATA=data_dir',
@@ -1031,6 +1042,8 @@ class RootViaSudoExecutionControllerTests(
              'CHECKBOX_DATA=session-dir/CHECKBOX_DATA',
              'CHECKBOX_SHARE=CHECKBOX_SHARE',
              'LANG=C.UTF-8',
+             'LANGUAGE=',
+             'LC_ALL=C.UTF-8',
              'PATH={}'.format(
                  os.pathsep.join([self.NEST_DIR, 'vanilla-path'])),
              'PLAINBOX_PROVIDER_DATA=data_dir',

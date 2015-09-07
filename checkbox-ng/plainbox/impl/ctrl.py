@@ -1092,12 +1092,19 @@ class CheckBoxDifferentialExecutionController(CheckBoxExecutionController):
         base_env = os.environ
         target_env = super().get_execution_environment(
             job, job_state, config, session_dir, nest_dir)
-        return {
+        delta_env = {
             key: value
             for key, value in target_env.items()
             if key not in base_env or base_env[key] != value
             or key in job.get_environ_settings()
         }
+        # Neutral locale in the differential environment unless the
+        # 'preserve-locale' flag is set.
+        if 'preserve-locale' not in job.get_flag_set():
+            delta_env['LANG'] = 'C.UTF-8'
+            delta_env['LANGUAGE'] = ''
+            delta_env['LC_ALL'] = 'C.UTF-8'
+        return delta_env
 
     def get_execution_environment(self, job, job_state, config, session_dir,
                                   nest_dir):

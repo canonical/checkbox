@@ -184,6 +184,7 @@ command:
  id: monitor/`echo ${index}`_thunderbolt_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  imports: from 2013.com.canonical.plainbox import manifest
  requires: manifest.has_thunderbolt == 'True'
+ estimated_duration: 15.0
  plugin: manual
  _summary: Display connected via Thunderbolt for $product
  _description:

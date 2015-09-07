@@ -113,7 +113,7 @@ command:
  imports: from 2013.com.canonical.plainbox import manifest
  requires: manifest.has_thunderbolt == 'True'
  plugin: user-interact-verify
- estimated_duration: 30.0
+ estimated_duration: 5.0
  command:
   audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
   audio_settings set --verbose --device=hdmi --volume=50

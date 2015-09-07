@@ -64,7 +64,7 @@ _description: Attaches the FWTS results log to the submission
 
 plugin: attachment
 estimated_duration: 0.5
-id: miscellanea/fwts_results_hwe.log
+id: miscellanea/fwts_results_hwe.log.gz
 command:
  [ -f $PLAINBOX_SESSION_SHARE/fwts_results_hwe.log ] && gzip -c $PLAINBOX_SESSION_SHARE/fwts_results_hwe.log | base64
 _description: Attaches the FWTS results log to the submission (to HWE)

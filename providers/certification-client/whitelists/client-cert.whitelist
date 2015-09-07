@@ -377,8 +377,8 @@ power-management/reboot-log-attach
 # have been moved to the end of the test run to improve the testing process.
 firmware/fwts_desktop_diagnosis
 firmware/fwts_desktop_diagnosis_hwe
-firmware/fwts_desktop_diagnosis_results.log
-firmware/fwts_desktop_diagnosis_results_hwe.log
+firmware/fwts_desktop_diagnosis_results.log.gz
+firmware/fwts_desktop_diagnosis_results_hwe.log.gz
 firmware/fwts_wakealarm.*
 firmware/fwts_uefirtvariable.*
 miscellanea/dmitest_client

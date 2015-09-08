@@ -203,7 +203,11 @@ class CliInvocation2(RunInvocation):
         self.print_estimated_duration()
         self.run_all_selected_jobs()
         if self.is_interactive:
-            self.maybe_rerun_jobs()
+            while True:
+                if self.maybe_rerun_jobs():
+                    continue
+                else:
+                    break
         self.export_and_send_results()
         if SessionMetaData.FLAG_INCOMPLETE in self.metadata.flags:
             print(self.C.header("Session Complete!", "GREEN"))
@@ -497,7 +501,7 @@ class CliInvocation2(RunInvocation):
                 rerun_candidates.append(job)
         # bail-out early if no job qualifies for rerunning
         if not rerun_candidates:
-            return
+            return False
         tree = SelectableJobTreeNode.create_tree(
             self.manager.state, rerun_candidates)
         # deselect all by default
@@ -506,10 +510,13 @@ class CliInvocation2(RunInvocation):
         wanted_set = frozenset(tree.selection)
         if not wanted_set:
             # nothing selected - nothing to run
-            return
+            return False
+        rerun_job_list = [job for job in self.manager.state.run_list
+                          if job in wanted_set]
         # reset outcome of jobs that are selected for re-running
         for job in wanted_set:
             from plainbox.impl.result import MemoryJobResult
             self.manager.state.job_state_map[job.id].result = \
                 MemoryJobResult({})
         self.run_all_selected_jobs()
+        return True

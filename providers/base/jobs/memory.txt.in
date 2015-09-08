@@ -1,4 +1,5 @@
 plugin: shell
+category_id: 2013.com.canonical.plainbox::memory
 id: memory/info
 estimated_duration: 5.0 
 user: root
@@ -8,6 +9,7 @@ _description:
  the size of the memory modules detected by DMI.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::memory
 id: memory/check
 estimated_duration: 1000.0
 user: root

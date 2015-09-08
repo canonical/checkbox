@@ -4,6 +4,7 @@ _name: Thunderbolt Support
 value-type: bool
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::disk
 id: thunderbolt/insert
 imports: from 2013.com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt == 'True'
@@ -23,6 +24,7 @@ _description:
      selected result
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::disk
 id: thunderbolt/storage-test
 user: root
 imports: from 2013.com.canonical.plainbox import manifest
@@ -36,6 +38,7 @@ _description:
  Thunderbolt HDD
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::disk
 id: thunderbolt/remove
 imports: from 2013.com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt == 'True'
@@ -55,6 +58,7 @@ _description:
      selected result
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::disk
 id: thunderbolt/daisy-chain
 imports: from 2013.com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt == 'True'

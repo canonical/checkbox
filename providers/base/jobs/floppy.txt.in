@@ -6,6 +6,7 @@ _description: Floppy test
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "driver=floppy"'
  plugin: shell
+ category_id: 2013.com.canonical.plainbox::floppy
  id: floppy/check_`ls /sys$path/driver/*/*/*/block`
  requires: device.path == "$path"
  description: Floppy test for $product

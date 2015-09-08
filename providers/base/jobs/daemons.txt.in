@@ -1,58 +1,68 @@
 plugin: shell
+category_id: 2013.com.canonical.plainbox::daemons
 id: daemons/atd
 requires: package.name == 'at'
 command: pgrep -f '/usr/sbin/atd' >/dev/null
 _description: Test if the atd daemon is running when the package is installed.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::daemons
 id: daemons/cron
 requires: package.name == 'cron'
 command: pgrep -f '/usr/sbin/cron' >/dev/null
 _description: Test if the cron daemon is running when the package is installed.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::daemons
 id: daemons/cupsd
 requires: package.name == 'cupsys'
 command: pgrep -f '/usr/sbin/cupsd' >/dev/null
 _description: Test if the cupsd daemon is running when the package is installed.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::daemons
 id: daemons/getty
 requires: package.name == 'util-linux'
 command: pgrep -f '/sbin/getty' >/dev/null
 _description: Test if the getty daemon is running when the package is installed.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::daemons
 id: daemons/init
 requires: package.name == 'upstart'
 command: pgrep -f '/sbin/init' >/dev/null
 _description: Test if the init daemon is running when the package is installed.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::daemons
 id: daemons/klogd
 requires: package.name == 'klogd'
 command: pgrep -f '/sbin/klogd' >/dev/null
 _description: Test if the klogd daemon is running when the package is installed.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::daemons
 id: daemons/nmbd
 requires: package.name == 'samba'
 command: pgrep -f '/usr/sbin/nmbd' >/dev/null
 _description: Test if the nmbd daemon is running when the package is installed.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::daemons
 id: daemons/smbd
 requires: package.name == 'samba'
 command: pgrep -f '/usr/sbin/smbd' >/dev/null
 _description: Test if the smbd daemon is running when the package is installed.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::daemons
 id: daemons/syslogd
 requires: package.name == 'syslogd'
 command: pgrep -f '/sbin/syslogd' >/dev/null
 _description: Test if the syslogd daemon is running when the package is installed.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::daemons
 id: daemons/udevd
 requires:
  package.name == 'udevd'
@@ -60,6 +70,7 @@ command: pgrep -f '/sbin/udevd' >/dev/null
 _description: Test if the udevd daemon is running when the package is installed.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::daemons
 id: daemons/winbindd
 requires: package.name == 'winbind'
 command: pgrep -f '/usr/sbin/winbindd' >/dev/null

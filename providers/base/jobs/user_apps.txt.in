@@ -1,4 +1,5 @@
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/update_manager_finds_updates
 depends: ethernet/detect
 user: root
@@ -16,6 +17,7 @@ _description:
 command: update-manager --check-dist-upgrades
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/nautilus_folder_create
 requires: package.name == 'nautilus'
 command: nautilus
@@ -31,6 +33,7 @@ _description:
   Do you now have a new folder called Test Folder?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/nautilus_folder_copy
 depends: software/nautilus_folder_create
 command: nautilus
@@ -48,6 +51,7 @@ _description:
   Do you now have a folder called Test Data?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/nautilus_folder_move
 depends: software/nautilus_folder_copy
 command: nautilus
@@ -64,6 +68,7 @@ _description:
   Was the folder called Test Data successfully moved into the folder called Test Folder?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/nautilus_file_create
 depends: software/nautilus_folder_create
 command: nautilus $HOME/"Test Folder"
@@ -79,6 +84,7 @@ _description:
   Do you now have a file called Test File 1?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/nautilus_file_copy
 depends: software/nautilus_file_create
 command: nautilus $HOME/"Test Folder"
@@ -96,6 +102,7 @@ _description:
   Do you now have a file called Test File 2?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/nautilus_file_move
 depends: software/nautilus_file_copy
 command: nautilus $HOME/"Test Folder"
@@ -112,6 +119,7 @@ _description:
   Was the file Test File 2 successfully moved into the Test Data folder?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/nautilus_file_delete
 depends: software/nautilus_file_create
 command: nautilus $HOME/"Test Folder"
@@ -127,6 +135,7 @@ _description:
    Is Test File 1 now gone?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/nautilus_folder_delete
 depends: software/nautilus_folder_create
 command: nautilus
@@ -150,6 +159,7 @@ command:
  cat <<'EOF' | run_templates -s "find $PLAINBOX_PROVIDER_DATA/documents -type f"
  id: `basename $0`_test
  plugin: user-interact-verify
+ category_id: 2013.com.canonical.plainbox::user_apps
  description:
   PURPOSE:
    This test will check that common office document types can be opened in the default application.
@@ -171,6 +181,7 @@ command:
  cat <<'EOF' | run_templates -s "find $PLAINBOX_PROVIDER_DATA/audio -type f"
  id: `basename $0`_test
  plugin: user-interact-verify
+ category_id: 2013.com.canonical.plainbox::user_apps
  description:
   PURPOSE:
    This test will check that common audio files can be opened in the default player.
@@ -192,6 +203,7 @@ command:
  cat <<'EOF' | run_templates -s "find $PLAINBOX_PROVIDER_DATA/video -type f"
  id: `basename $0`_test
  plugin: user-interact-verify
+ category_id: 2013.com.canonical.plainbox::user_apps
  description:
   PURPOSE:
    This test will check that common video files can be played in the default player.
@@ -213,6 +225,7 @@ command:
  cat <<'EOF' | run_templates -s "find $PLAINBOX_PROVIDER_DATA/images -type f"
  id: `basename $0`_test
  plugin: user-interact-verify
+ category_id: 2013.com.canonical.plainbox::user_apps
  description:
   PURPOSE:
    This test will check that common image formats can be opened in the default viewer.
@@ -226,6 +239,7 @@ command:
  EOF
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/firefox
 requires: package.name == 'firefox'
 command: firefox $PLAINBOX_PROVIDER_DATA/websites/testindex.html
@@ -238,6 +252,7 @@ _description:
   Did the Ubuntu Test page load correctly?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/firefox-flash
 depends: software/firefox
 requires: package.name == 'firefox'
@@ -252,6 +267,7 @@ _description:
   Did you see the text?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/firefox-flash-video
 depends: software/firefox-flash
 requires: package.name == 'firefox'
@@ -266,6 +282,7 @@ _description:
   Did the video play correctly?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/firefox-totem
 depends: software/firefox
 requires:
@@ -283,6 +300,7 @@ _description:
   Did the video play using a plugin?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/empathy-facebook_chat
 requires: package.name == "empathy"
 command: empathy
@@ -297,6 +315,7 @@ _description:
   Were you able to connect correctly and send/receive messages?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/empathy-google_talk
 requires: package.name == "empathy"
 command: empathy
@@ -311,6 +330,7 @@ _description:
   Were you able to connect correctly and send/receive messages?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/empathy-jabber
 requires: package.name == "empathy"
 command: empathy
@@ -325,6 +345,7 @@ _description:
   Were you able to connect correctly and send/receive messages?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/empathy-aim
 requires: package.name == "empathy"
 command: empathy
@@ -339,6 +360,7 @@ _description:
   Were you able to connect correctly and send/receive messages?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/empathy-msn
 requires: package.name == "empathy"
 command: empathy
@@ -353,6 +375,7 @@ _description:
   Were you able to connect correctly and send/receive messages?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/evolution-pop3
 requires: package.name == "evolution"
 command: evolution
@@ -366,6 +389,7 @@ _description:
   Were you able to receive and read e-mail correctly?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/evolution-imap
 requires: package.name == "evolution"
 command: evolution
@@ -379,6 +403,7 @@ _description:
   Were you able to receive and read e-mail correctly?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/evolution-smtp
 requires: package.name == "evolution"
 command: evolution
@@ -392,6 +417,7 @@ _description:
   Were you able to send e-mail without errors?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/gcalctool
 requires: package.name == "gcalctool"
 command: gcalctool
@@ -404,6 +430,7 @@ _description:
   Did it launch correctly?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/gcalctool-functions
 depends: software/gcalctool
 requires: package.name == "gcalctool"
@@ -421,6 +448,7 @@ _description:
   Did the functions perform as expected?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/gcalctool-memory
 depends: software/gcalctool
 requires: package.name == "gcalctool"
@@ -438,6 +466,7 @@ _description:
   Did the functions perform as expected?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/gcalctool-clipboard
 depends: software/gcalctool
 requires: package.name == "gcalctool"
@@ -454,6 +483,7 @@ _description:
   Did the functions perform as expected?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/gedit
 requires: package.name == "gedit"
 command: gedit
@@ -467,6 +497,7 @@ _description:
   Did this perform as expected?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/gedit-read
 depends: software/gedit
 requires: package.name == "gedit"
@@ -481,6 +512,7 @@ _description:
   Did this perform as expected?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::user_apps
 id: software/gnome-terminal
 requires: package.name == "gnome-terminal"
 command: gnome-terminal

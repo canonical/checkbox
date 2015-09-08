@@ -1,4 +1,5 @@
 plugin: shell
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/cpu_stress_test
 estimated_duration: 7200.0
 requires:
@@ -10,6 +11,7 @@ _description:
      Create jobs that use the CPU as much as possible for two hours. The test is considered passed if the system does not freeze.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::stress
 id: power-management/hibernate_30_cycles
 estimated_duration: 5400.00
 depends:
@@ -32,6 +34,7 @@ _description:
     This is an automated stress test that will force the system to hibernate/resume for 30 cycles
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::stress
 id: power-management/hibernate-30-cycles-log-check
 estimated_duration: 1.0
 command: [ -e $PLAINBOX_SESSION_SHARE/hibernate_30_cycles.log ] && sleep_test_log_check -v s4 $PLAINBOX_SESSION_SHARE/hibernate_30_cycles.log
@@ -39,6 +42,7 @@ _description:
  Automated check of the 30 cycle hibernate log for errors detected by fwts.
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::stress
 id: power-management/hibernate-30-cycle-log-attach
 estimated_duration: 1.0
 command: [ -e $PLAINBOX_SESSION_SHARE/hibernate_30_cycles.log ] && cat $PLAINBOX_SESSION_SHARE/hibernate_30_cycles.log
@@ -46,6 +50,7 @@ _description:
  Attaches the log from the 30 cycle Hibernate/Resume test if it exists
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::stress
 id: power-management/suspend_30_cycles_with_reboots
 estimated_duration: 7200
 depends:
@@ -58,6 +63,7 @@ _description:
  This is an automated stress test that will run a sequence of '30 suspend/resume cycles and one reboot' 3 times.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::stress
 id: power-management/suspend_30_cycles
 estimated_duration: 2400.0
 depends:
@@ -78,6 +84,7 @@ _description:
     This is an automated stress test that will force the system to suspend/resume for 30 cycles.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::stress
 id: power-management/suspend-30-cycles-log-check
 depends: power-management/suspend_30_cycles
 estimated_duration: 1.0
@@ -86,6 +93,7 @@ _description:
  Automated check of the 30 cycle hibernate log for errors detected by fwts.
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::stress
 id: power-management/suspend-30-cycle-log-attach
 estimated_duration: 1.0
 depends: power-management/suspend_30_cycles
@@ -94,6 +102,7 @@ _description:
  Attaches the log from the 30 cycle Suspend/Resume test if it exists
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::stress
 id: power-management/suspend-30-cycles-time-check
 estimated_duration: 1.0
 depends: power-management/suspend_30_cycles
@@ -102,6 +111,7 @@ _description:
  Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/hibernate_250_cycles
 estimated_duration: 43400.0
 depends: power-management/rtc
@@ -120,6 +130,7 @@ _description:
     This is an automated stress test that will force the system to hibernate/resume for 250 cycles
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/hibernate-250-cycle-log-attach
 estimated_duration: 1.0
 command: [ -e $PLAINBOX_SESSION_SHARE/hibernate_250_cycles.log ] && cat $PLAINBOX_SESSION_SHARE/hibernate_250_cycles.log
@@ -127,6 +138,7 @@ _description:
  Attaches the log from the 250 cycle Hibernate/Resume test if it exists
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/suspend_250_cycles
 estimated_duration: 18750.0
 depends: power-management/rtc
@@ -145,6 +157,7 @@ _description:
     This is an automated stress test that will force the system to suspend/resume for 250 cycles.
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/suspend-250-cycle-log-attach
 estimated_duration: 1.0
 command: [ -e $PLAINBOX_SESSION_SHARE/suspend_250_cycles.log ] && cat $PLAINBOX_SESSION_SHARE/suspend_250_cycles.log
@@ -152,6 +165,7 @@ _description:
  Attaches the log from the 250 cycle Suspend/Resume test if it exists
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/suspend-250-cycles-time-check
 estimated_duration: 1.0
 command: [ -e $PLAINBOX_SESSION_SHARE/suspend_250_cycles_times.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/suspend_250_cycles_times.log
@@ -159,6 +173,7 @@ _description:
  Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/reboot
 estimated_duration: 4500.0
 requires:
@@ -172,6 +187,7 @@ _description:
  Stress reboot system (100 cycles)
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/reboot_log
 estimated_duration: 1.0
 depends: stress/reboot
@@ -180,6 +196,7 @@ command:
  tar cvz $PLAINBOX_SESSION_SHARE/*reboot.100.log | base64
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/reboot_30
 requires:
  package.name == 'upstart'
@@ -193,6 +210,7 @@ _description:
  Stress reboot system (30 cycles)
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/reboot_30_log
 depends: stress/reboot_30
 command:
@@ -200,6 +218,7 @@ command:
  tar cvz $PLAINBOX_SESSION_SHARE/*reboot.30.log | base64
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/poweroff
 estimated_duration: 4500.0
 requires:
@@ -213,6 +232,7 @@ _description:
  Stress poweroff system (100 cycles)
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/poweroff_log
 estimated_duration: 1.0
 depends: stress/poweroff
@@ -221,6 +241,7 @@ command:
  tar cvz $PLAINBOX_SESSION_SHARE/*poweroff.100.log | base64
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/poweroff_30
 requires:
  package.name == 'upstart'
@@ -234,6 +255,7 @@ _description:
  Stress poweroff system (30 cycles)
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/poweroff_30_log
 depends: stress/poweroff_30
 command:
@@ -241,6 +263,7 @@ command:
  tar cvz $PLAINBOX_SESSION_SHARE/*poweroff.30.log | base64
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/reboot_30_check
 estimated_duration: 1.0
 depends: stress/reboot_30
@@ -248,6 +271,7 @@ command: pm_log_check --log-level=notset $PLAINBOX_SESSION_SHARE/pm_test.reboot.
 _description: Check logs for the stress reboot (30 cycles) test case
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/reboot_30_check_log
 estimated_duration: 1.0
 depends: stress/reboot_30_check
@@ -256,6 +280,7 @@ command:
  tar cvz $PLAINBOX_SESSION_SHARE/pm_log_check_reboot.30.log | base64
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/poweroff_30_check
 estimated_duration: 1.0
 depends: stress/poweroff_30
@@ -263,6 +288,7 @@ command: pm_log_check --log-level=notset $PLAINBOX_SESSION_SHARE/pm_test.powerof
 _description: Check logs for the stress poweroff (30 cycles) test case
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/poweroff_30_check_log
 estimated_duration: 1.0
 depends: stress/poweroff_30_check
@@ -271,6 +297,7 @@ command:
  tar cvz $PLAINBOX_SESSION_SHARE/pm_log_check_poweroff.30.log | base64
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/reboot_check
 estimated_duration: 1.0
 depends: stress/reboot
@@ -278,6 +305,7 @@ command: pm_log_check --log-level=notset $PLAINBOX_SESSION_SHARE/pm_test.reboot.
 _description: Check logs for the stress reboot (100 cycles) test case
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/reboot_check_log
 estimated_duration: 1.0
 depends: stress/reboot_check
@@ -286,6 +314,7 @@ command:
  tar cvz $PLAINBOX_SESSION_SHARE/pm_log_check_reboot.100.log | base64
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/poweroff_check
 estimated_duration: 1.0
 depends: stress/poweroff
@@ -293,6 +322,7 @@ command: pm_log_check --log-level=notset $PLAINBOX_SESSION_SHARE/pm_test.powerof
 _description: Check logs for the stress poweroff (100 cycles) test case
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/poweroff_check_log
 estimated_duration: 1.0
 depends: stress/poweroff_check
@@ -301,6 +331,7 @@ command:
  tar cvz $PLAINBOX_SESSION_SHARE/pm_log_check_poweroff.100.log | base64
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/graphics
 estimated_duration: 600.0
 requires:
@@ -312,6 +343,7 @@ _description:
  Run the graphics stress test. This test can take a few minutes.
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/graphics-tarball
 estimated_duration: 1.0
 requires:
@@ -320,6 +352,7 @@ command: [ -f $PLAINBOX_SESSION_SHARE/graphics-stress-results ] && tar cvz $PLAI
 _description: Attaches the graphics stress results to the submission.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/usb
 estimated_duration: 710.0
 user: root
@@ -327,6 +360,7 @@ command: removable_storage_test -s 10240000 -c 100 -i 3 usb
 _description: Runs a test that transfers 100 10MB files 3 times to usb.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/sdhc
 user: root
 _summary: Stress test for SDHC card
@@ -346,6 +380,7 @@ _description:
      automatically selected result.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/network_restart
 estimated_duration: 1500.0
 user: root
@@ -354,12 +389,14 @@ command: network_restart -t 100 -o $PLAINBOX_SESSION_SHARE
 _description: Ping ubuntu.com and restart network interfaces 100 times
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/network_restart_log
 estimated_duration: 1.0
 depends: stress/network_restart
 command: file=$PLAINBOX_SESSION_SHARE/network_restart.log; if [ -e "$file" ]; then iconv -t 'ascii' -c "$file"; fi
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::stress
 id: stress/wireless_hotkey
 estimated_duration: 60.0
 requires: dmi.product in ['Notebook','Laptop','Portable']

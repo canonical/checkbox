@@ -1,4 +1,5 @@
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::codecs
 id: codecs/ogg-vorbis
 requires:
  package.name == 'gstreamer0.10-plugins-base' or package.name == 'gstreamer1.0-plugins-base'
@@ -15,6 +16,7 @@ _description:
     Did the sample play correctly?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::codecs
 id: codecs/wav
 requires:
  package.name == 'gstreamer0.10-plugins-good' or package.name == 'gstreamer1.0-plugins-good'

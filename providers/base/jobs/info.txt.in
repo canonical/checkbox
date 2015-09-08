@@ -5,6 +5,7 @@ Depends: python3-debian
 
 id: codecs_attachment
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 requires: device.driver == 'snd_hda_intel'
 command: cat /proc/asound/card*/codec#*
 estimated_duration: 0.023
@@ -12,6 +13,7 @@ _description: Attaches a report of installed codecs for Intel HDA
 
 id: cpuinfo_attachment
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 command: cat /proc/cpuinfo
 estimated_duration: 0.006
 _description: Attaches a report of CPU information
@@ -19,6 +21,7 @@ _summary: Attach a copy of /proc/cpuinfo
 
 id: dmesg_attachment
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 command: cat /var/log/dmesg | ansi_parser
 estimated_duration: 0.640
 _description: Attaches a copy of /var/log/dmesg to the test results
@@ -26,6 +29,7 @@ _summary: Attach a copy of /var/log/dmesg
 
 id: dmi_attachment
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 command: [ -d /sys/class/dmi/id/ ] && (grep -r . /sys/class/dmi/id/ 2>/dev/null || true) || false
 estimated_duration: 0.044
 _description: Attaches info on DMI
@@ -33,6 +37,7 @@ _summary: Attach a copy of /sys/class/dmi/id/*
 
 id: dmidecode_attachment
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 requires: package.name == 'dmidecode'
 user: root
 command: dmidecode | iconv -t 'utf-8' -c
@@ -42,6 +47,7 @@ _summary: Attach a copy of of the output of dmidecode
 
 id: lshw_attachment
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 requires: package.name == 'lshw'
 user: root
 command: lshw | iconv -t 'utf-8' -c
@@ -49,6 +55,7 @@ _description: Attaches lshw output
 
 id: efi_attachment
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 user: root
 command: [ -d /sys/firmware/efi ] && grep -m 1 -o --color=never 'EFI v.*' /var/log/kern.log* || true
 estimated_duration: 0.5
@@ -56,6 +63,7 @@ _description: Attaches the firmware version
 
 id: lspci_attachment
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 command: lspci -vvnn | iconv -t 'utf-8' -c
 estimated_duration: 0.042
 _description: Attaches very verbose lspci output.
@@ -63,6 +71,7 @@ _summary: Attach a list of PCI devices
 
 id: lspci_network_attachment
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 command: lspci -vvnnQ | iconv -t 'utf-8' -c
 estimated_duration: 1.322
 _description: Attaches very verbose lspci output (with central database Query).
@@ -70,6 +79,7 @@ _description: Attaches very verbose lspci output (with central database Query).
 id: lspci_standard_config_attachment
 _summary: Attach PCI configuration space hex dump
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 command: lspci -x
 estimated_duration: 0.1
 _description:
@@ -78,6 +88,7 @@ _description:
 
 id: lsusb_attachment
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 requires: package.name == 'usbutils'
 user: root
 command: lsusb -vv | iconv -t 'utf-8' -c
@@ -86,11 +97,13 @@ _description: List USB devices
 
 id: meminfo_attachment
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 command: cat /proc/meminfo
 estimated_duration: 0.043
 
 id: modprobe_attachment
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 command: find /etc/modprobe.* -name \*.conf | xargs cat
 estimated_duration: 0.015
 _description: Attaches the contents of the various modprobe conf files.
@@ -98,6 +111,7 @@ _summary: Attach the contents of modprobe configuration files
 
 id: modinfo_attachment
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 _summary: Attach modinfo information
 command:
     for mod in $(lsmod | cut -f 1 -d " ")
@@ -112,6 +126,7 @@ _description: Attaches modinfo information for all currently loaded modules
 
 id: modules_attachment
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 command: cat /etc/modules
 estimated_duration: 0.004
 _description: Attaches the contents of the /etc/modules file.
@@ -119,6 +134,7 @@ _summary: Attach the contents of /etc/modules
 
 id: sysctl_attachment
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 command: find /etc/sysctl.* -name \*.conf | xargs cat
 estimated_duration: 0.014
 _description: attaches the contents of various sysctl config files.
@@ -126,6 +142,7 @@ _summary: Attach sysctl configuration files.
 
 id: sysfs_attachment
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 _description: Attaches a report of sysfs attributes.
 command:
  for i in `udevadm info --export-db | sed -n 's/^P: //p'`; do
@@ -138,6 +155,7 @@ _summary: Attach detailed sysfs property output from udev
 
 id: udev_attachment
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 command: udevadm info --export-db | xml_sanitize
 estimated_duration: 1.465
 _description: Attaches a dump of the udev database showing system hardware information.
@@ -145,12 +163,14 @@ _summary: Attach hardware database (udev)
 
 id: udev_resource_attachment
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 command: udev_resource
 estimated_duration: 0.432
 _description: Attaches the output of udev_resource, for debugging purposes
 
 id: gcov_attachment
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 requires: package.name == 'lcov'
 user: root
 command: gcov_tarball
@@ -158,6 +178,7 @@ _description: Attaches a tarball of gcov data if present.
 
 id: lsmod_attachment
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 command: lsmod_info
 estimated_duration: 0.5
 _description: Attaches a list of the currently running kernel modules.
@@ -165,17 +186,20 @@ _summary: Attach a list of currently running kernel modules
 
 id: dkms_info_attachment
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 command: dkms_info  --format json
 _description: Attaches json dumps of installed dkms package information.
 _summary: Attaches json dumps of installed dkms package information.
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 id: acpi_sleep_attachment
 command: [ -e /proc/acpi/sleep ] && cat /proc/acpi/sleep || echo "No /proc/acpi/sleep found"
 estimated_duration: 0.5
 _description: Attaches the contents of /proc/acpi/sleep if it exists.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::info
 id: info/bootchart
 _description: Bootchart information.
 requires: package.name == 'bootchart' or package.name == 'pybootchartgui'
@@ -195,6 +219,7 @@ requires:
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: attachment
+ category_id: 2013.com.canonical.plainbox::info
  id: info/hdparm_`ls /sys$path/block`.txt
  estimated_duration: 1.0
  requires:
@@ -205,6 +230,7 @@ command:
  EOF
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 id: bootchart.png
 depends: info/bootchart
 requires: package.name == 'pybootchartgui'
@@ -214,6 +240,7 @@ command:
  [ -e "$file" ] && cat "$file"
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 id: bootchart.tgz
 depends: info/bootchart
 _description: Attaches the bootchart log for bootchart test runs.
@@ -222,11 +249,13 @@ command:
  [ -e "$file" ] && cat "$file"
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 id: installer_bootchart.tgz
 command: [ -f /var/log/installer/bootchart.tgz ] && base64 /var/log/installer/bootchart.tgz
 _description: installs the installer bootchart tarball if it exists.
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 id: installer_debug.gz
 user: root
 command: [ -f /var/log/installer/debug ] && gzip -9 -c /var/log/installer/debug | base64
@@ -234,6 +263,7 @@ estimated_duration: 0.1
 _description: Attaches the installer debug log if it exists.
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 id: info/touchpad_driver
 requires: device.category == 'TOUCHPAD'
 command: touchpad_driver_info
@@ -243,6 +273,7 @@ _description:
  the system.
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 id: info/audio_device_driver
 requires:
  package.name == 'pulseaudio-utils'
@@ -253,6 +284,7 @@ estimated_duration: 0.177
 _description: Lists the device driver and version for all audio devices.
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 id: info/network_devices
 requires:
  device.category == 'NETWORK' or device.category == 'WIRELESS'
@@ -263,17 +295,20 @@ estimated_duration: 0.550
 _description: Provides information about network devices
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 id: info/mobile_broadband_info
 command: broadband_info
 estimated_duration: 0.5
 _description: Provides information about wwan/mobile broadband devices
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 id: info/xrandr
 command: xrandr -q --verbose
 _description: Provides information about displays attached to the system
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 id: info/disk_partitions
 estimated_duration: 1.0
 user: root
@@ -281,6 +316,7 @@ command: parted -l -s
 _description: Attaches information about disk partitions
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 id: info/buildstamp
 estimated_duration: 0.1
 _description: Attaches the buildstamp identifier for the preinstalled OS
@@ -288,6 +324,7 @@ _summary: Attach /etc/buildstamp
 command: [ -s /etc/buildstamp ] && cat /etc/buildstamp
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::info
 id: info/detect_recovery
 requires: package.name == 'dell-recovery' or package.name == 'ubuntu-recovery'
 user: root
@@ -297,6 +334,7 @@ _description: Check existence of recovery partition
 command: recovery_info
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::info
 id: info/detect_dell_recovery
 depends: info/detect_recovery
 requires: package.name == 'dell-recovery'
@@ -307,6 +345,7 @@ _description: Check the recovery type is dell or not
 command: recovery_info checktype DELL
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 id: recovery_info_attachment
 depends: info/detect_recovery
 requires: package.name == 'dell-recovery' or package.name == 'ubuntu-recovery'
@@ -323,6 +362,7 @@ _description:
 command: recovery_info version
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 id: dell_bto_xml_attachment
 depends: info/detect_dell_recovery
 requires: package.name == 'dell-recovery'
@@ -337,6 +377,7 @@ _description:
 command: recovery_info file bto.xml
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 id: info/kvm_output
 estimated_duration: 0.1
 _description: Attaches the debug log from the virtualization run
@@ -344,6 +385,7 @@ command: [ -f $PLAINBOX_SESSION_SHARE/virt_debug ] && cat $PLAINBOX_SESSION_SHAR
 
 id: kernel_cmdline_attachment
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
 command: cat /proc/cmdline
 estimated_duration: 0.005
 _description: Attaches the kernel command line used to boot

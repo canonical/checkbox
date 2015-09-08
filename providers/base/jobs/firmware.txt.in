@@ -8,6 +8,7 @@ command:
  cat << 'EOF' | run_templates -s 'fwts_test --list'
  estimated_duration: 1.2
  plugin: shell
+ category_id: 2013.com.canonical.plainbox::firmware
  id: firmware/fwts_$1
  requires: package.name == 'fwts'
  user: root
@@ -26,6 +27,7 @@ command:
  cat << 'EOF' | run_templates -s 'fwts_test --list'
  estimated_duration: 1.2
  plugin: attachment
+ category_id: 2013.com.canonical.plainbox::firmware
  id: firmware/fwts_$1.log
  requires: package.name == 'fwts'
  user: root
@@ -61,6 +63,7 @@ command:
  fwts_test --hwe -l $PLAINBOX_SESSION_SHARE/fwts_desktop_diagnosis_results_hwe.log
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::firmware
 estimated_duration: 0.5
 id: firmware/fwts_desktop_diagnosis_results.log.gz
 command:
@@ -69,6 +72,7 @@ _description: Attaches the FWTS desktop diagnosis results log to the submission
 _summary: Attach FWTS desktop diagnosis log to submission
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::firmware
 estimated_duration: 0.5
 id: firmware/fwts_desktop_diagnosis_results_hwe.log.gz
 command:
@@ -77,6 +81,7 @@ _description: Attaches the FWTS desktop diagnosis results log to the submission 
 _summary: Attach FWTS desktop diagnosis log to submission (to HWE)
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::firmware
 id: firmware/no_ACPI_REV_interface
 _summary: No _REV interface in ACPI [DS]SDT tables
 user: root

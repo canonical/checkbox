@@ -1,4 +1,5 @@
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/mmc-insert
 estimated_duration: 30.0
 command: removable_storage_watcher --memorycard insert sdio usb scsi
@@ -16,6 +17,7 @@ _description:
      automatically selected result.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/mmc-storage
 estimated_duration: 30.0
 depends: mediacard/mmc-insert
@@ -26,6 +28,7 @@ _description:
  test is run. It tests reading and writing to the MMC card.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/mmc-remove
 estimated_duration: 30.0
 depends: mediacard/mmc-insert
@@ -42,6 +45,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/sd-insert
 estimated_duration: 30.0
 command: removable_storage_watcher --memorycard insert sdio usb scsi
@@ -59,6 +63,7 @@ _description:
      automatically selected result.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/sd-storage
 estimated_duration: 30.0
 depends: mediacard/sd-insert
@@ -69,6 +74,7 @@ _description:
  test is run. It tests reading and writing to the SD card.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/sd-remove
 estimated_duration: 30.0
 depends: mediacard/sd-insert
@@ -85,6 +91,7 @@ _description:
      automatically selected result.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/sd-preinserted
 estimated_duration: 30.0
 user: root
@@ -96,6 +103,7 @@ _description:
  It is intended for SRU automated testing.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/sdhc-insert
 estimated_duration: 30.0
 command: removable_storage_watcher --memorycard insert sdio usb scsi
@@ -114,6 +122,7 @@ _description:
      automatically selected result.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/sdhc-storage
 estimated_duration: 30.0
 depends: mediacard/sdhc-insert
@@ -124,6 +133,7 @@ _description:
  test is run. It tests reading and writing to the SDHC card.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/sdhc-remove
 estimated_duration: 30.0
 depends: mediacard/sdhc-insert
@@ -140,6 +150,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/cf-insert
 estimated_duration: 30.0
 command: removable_storage_watcher --memorycard insert sdio usb scsi
@@ -157,6 +168,7 @@ _description:
      automatically selected result.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/cf-storage
 estimated_duration: 30.0
 depends: mediacard/cf-insert
@@ -167,6 +179,7 @@ _description:
  test is run. It tests reading and writing to the CF card.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/cf-remove
 depends: mediacard/cf-storage
 estimated_duration: 30.0
@@ -183,6 +196,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/sdxc-insert
 estimated_duration: 30.0
 command: removable_storage_watcher --memorycard insert sdio usb scsi
@@ -200,6 +214,7 @@ _description:
      automatically selected result.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/sdxc-storage
 estimated_duration: 30.0
 depends: mediacard/sdxc-insert
@@ -210,6 +225,7 @@ _description:
  test is run. It tests reading and writing to the SDXC card.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/sdxc-remove
 estimated_duration: 30.0
 depends: mediacard/sdxc-insert
@@ -226,6 +242,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/ms-insert
 estimated_duration: 30.0
 command: removable_storage_watcher --memorycard insert sdio usb scsi
@@ -243,6 +260,7 @@ _description:
      automatically selected result.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/ms-storage
 estimated_duration: 30.0
 depends: mediacard/ms-insert
@@ -253,6 +271,7 @@ _description:
  test is run. It tests reading and writing to the MS card.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/ms-remove
 estimated_duration: 30.0
 depends: mediacard/ms-insert
@@ -269,6 +288,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/msp-insert
 estimated_duration: 30.0
 command: removable_storage_watcher --memorycard insert sdio usb scsi
@@ -286,6 +306,7 @@ _description:
      automatically selected result.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/msp-storage
 estimated_duration: 30.0
 depends: mediacard/msp-insert
@@ -296,6 +317,7 @@ _description:
  test is run. It tests reading and writing to the MSP card.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/msp-remove
 estimated_duration: 30.0
 depends: mediacard/msp-insert
@@ -312,6 +334,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/xd-insert
 estimated_duration: 30.0
 command: removable_storage_watcher --memorycard insert sdio usb scsi
@@ -329,6 +352,7 @@ _description:
      automatically selected result.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/xd-storage
 estimated_duration: 30.0
 depends: mediacard/xd-insert
@@ -339,6 +363,7 @@ _description:
  test is run. It tests reading and writing to the xD card.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/xd-remove
 estimated_duration: 30.0
 depends: mediacard/xd-insert
@@ -355,6 +380,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/sd-performance-manual
 depends: mediacard/sd-insert
 estimated_duration: 120.0
@@ -370,6 +396,7 @@ _description:
      Did the results of the test match the expected performance of the inserted device?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/sdhc-performance-manual
 depends: mediacard/sdhc-insert
 estimated_duration: 120.0
@@ -385,6 +412,7 @@ _description:
      Did the results of the test match the expected performance of the inserted device?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/mmc-performance-manual
 depends: mediacard/mmc-insert
 estimated_duration: 120.0
@@ -400,6 +428,7 @@ _description:
      Did the results of the test match the expected performance of the inserted device?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/cf-performance-manual
 depends: mediacard/cf-insert
 estimated_duration: 120.0
@@ -415,6 +444,7 @@ _description:
      Did the results of the test match the expected performance of the inserted device?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/sdxc-performance-manual
 depends: mediacard/sdxc-insert
 estimated_duration: 120.0
@@ -430,6 +460,7 @@ _description:
      Did the results of the test match the expected performance of the inserted device?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/ms-performance-manual
 depends: mediacard/ms-insert
 estimated_duration: 120.0
@@ -445,6 +476,7 @@ _description:
      Did the results of the test match the expected performance of the inserted device?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/msp-performance-manual
 depends: mediacard/msp-insert
 estimated_duration: 120.0
@@ -460,6 +492,7 @@ _description:
      Did the results of the test match the expected performance of the inserted device?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::mediacard
 id: mediacard/xd-performance-manual
 depends: mediacard/xd-insert
 estimated_duration: 120.0

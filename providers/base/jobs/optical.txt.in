@@ -1,4 +1,5 @@
 plugin: shell
+category_id: 2013.com.canonical.plainbox::optical
 id: optical/detect
 requires: device.category == 'CDROM'
 estimated_duration: 1.2
@@ -18,6 +19,7 @@ _description: Optical read test.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=CDROM"'
  plugin: user-interact-verify
+ category_id: 2013.com.canonical.plainbox::optical
  id: optical/read_`ls /sys$path/block`
  requires: device.path == "$path"
  estimated_duration: 120.0
@@ -44,6 +46,7 @@ _description: Automated optical read test.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=CDROM"'
  plugin: shell
+ category_id: 2013.com.canonical.plainbox::optical
  id: optical/read-automated_`ls /sys$path/block`
  estimated_duration: 120.0
  requires: device.path == "$path"
@@ -63,6 +66,7 @@ _description: CD write test.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=CDROM"'
  plugin: user-interact-verify
+ category_id: 2013.com.canonical.plainbox::optical
  id: optical/cdrom-write_`ls /sys$path/block`
  estimated_duration: 120.0
  requires:
@@ -92,6 +96,7 @@ _description: Automated CD write test
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=CDROM"'
  plugin: shell
+ category_id: 2013.com.canonical.plainbox::optical
  id: optical/cdrom-write-automated_`ls /sys$path/block`
  estimated_duration: 120.0
  requires:
@@ -104,6 +109,7 @@ command:
  EOF
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::optical
 id: optical/cdrom-audio-playback
 depends: optical/read
 estimated_duration: 120.0
@@ -133,6 +139,7 @@ _description: DVD write test.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=CDROM"'
  plugin: user-interact-verify
+ category_id: 2013.com.canonical.plainbox::optical
  id: optical/dvd-write_`ls /sys$path/block`
  requires:
   device.path == "$path"
@@ -162,6 +169,7 @@ _description: Automated DVD write test.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=CDROM"'
  plugin: shell
+ category_id: 2013.com.canonical.plainbox::optical
  id: optical/dvd-write-automated_`ls /sys$path/block`
  estimated_duration: 120.0
  requires:
@@ -174,6 +182,7 @@ command:
  EOF
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::optical
 id: optical/dvd_playback
 command: totem /media/cdrom
 estimated_duration: 120.0
@@ -198,6 +207,7 @@ _description: Automated Blu-Ray read test.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=CDROM"'
  plugin: user-interact
+ category_id: 2013.com.canonical.plainbox::optical
  id: optical/bluray-read_`ls /sys$path/block`
  estimated_duration: 120.0
  requires:
@@ -225,6 +235,7 @@ _description: Automated Blu-Ray write test.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=CDROM"'
  plugin: user-interact
+ category_id: 2013.com.canonical.plainbox::optical
  id: optical/bluray-write_`ls /sys$path/block`
  requires:
   device.path == "$path"

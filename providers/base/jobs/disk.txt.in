@@ -4,6 +4,7 @@ os-id: debian
 Depends: lshw
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::disk
 id: disk/detect
 estimated_duration: 0.25
 user: root
@@ -16,6 +17,7 @@ template-imports: from 2013.com.canonical.certification import device
 template-resource: device
 template-filter: device.category == 'DISK' and device.name != ''
 plugin: shell
+category_id: 2013.com.canonical.plainbox::disk
 id: staging/disk/stats_{name}
 requires:
  block_device.{name}_state != 'removable'
@@ -42,6 +44,7 @@ _description: Check stats changes for each disk
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell
+ category_id: 2013.com.canonical.plainbox::disk
  id: disk/stats_`ls /sys$path/block`
  flags: deprecated
  requires:
@@ -63,6 +66,7 @@ _description: SMART test
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell
+ category_id: 2013.com.canonical.plainbox::disk
  id: disk/smart_`ls /sys$path/block`
  requires:
   device.path == "$path"
@@ -83,6 +87,7 @@ _description: Verify system storage performs at or above baseline performance
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell
+ category_id: 2013.com.canonical.plainbox::disk
  id: disk/read_performance_`ls /sys$path/block`
  estimated_duration: 65.0
  requires:
@@ -103,6 +108,7 @@ _description: Verify that storage devices, such as Fibre Channel and RAID can be
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell
+ category_id: 2013.com.canonical.plainbox::disk
  id: disk/storage_device_`ls /sys$path/block`
  estimated_duration: 375.0
  user: root
@@ -114,6 +120,7 @@ command:
  EOF
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::disk
 id: disk/spindown
 estimated_duration: 875.0
 requires:
@@ -125,6 +132,7 @@ _description:
  Some new hard drives include a feature that parks the drive heads after a short period of inactivity. This is a power-saving feature, but it can have a bad interaction with the operating system that results in the drive constantly parked then activated. This produces excess wear on the drive, potentially leading to early failures.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::disk
 id: disk/hdd-parking
 estimated_duration: 60.0
 requires:

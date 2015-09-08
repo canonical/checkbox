@@ -1,4 +1,5 @@
 plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
 id: rendercheck/tests
 requires:
  package.name == 'x11-apps'
@@ -7,6 +8,7 @@ _description:
  Runs all of the rendercheck test suites. This test can take a few minutes.
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::graphics
 id: rendercheck/tarball
 depends: rendercheck/tests
 command: [ -e $PLAINBOX_SESSION_SHARE/rendercheck-results ] && tar cvfz $PLAINBOX_SESSION_SHARE/rendercheck-results.tar.gz $PLAINBOX_SESSION_SHARE/rendercheck-results && cat $PLAINBOX_SESSION_SHARE/rendercheck-results.tar.gz

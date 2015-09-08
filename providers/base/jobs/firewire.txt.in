@@ -1,4 +1,5 @@
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::firewire
 id: firewire/insert
 require: device.category == 'FIREWIRE'
 command: removable_storage_watcher insert firewire
@@ -14,6 +15,7 @@ _description:
      selected result
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::firewire
 id: firewire/storage-test
 user: root
 require: device.category == 'FIREWIRE'
@@ -24,6 +26,7 @@ _description:
  FireWire HDD
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::firewire
 id: firewire/remove
 depends: firewire/insert
 require: device.category == 'FIREWIRE'

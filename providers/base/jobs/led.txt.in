@@ -1,4 +1,5 @@
 plugin: manual
+category_id: 2013.com.canonical.plainbox::led
 id: led/power
 estimated_duration: 15.0
 _description:
@@ -10,6 +11,7 @@ _description:
      Does the power LED light as expected?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::led
 id: led/power-blink-suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
@@ -22,6 +24,7 @@ _description:
      Did the Power LED blink or change color while the system was suspended for the previous suspend test?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::led
 id: led/suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
@@ -36,6 +39,7 @@ _description:
      Did the Suspend LED blink or change color while the system was suspended?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::led
 id: led/battery-charging
 estimated_duration: 120.0
 _description:
@@ -48,6 +52,7 @@ _description:
      Did the battery indicator LED turn orange?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::led
 id: led/battery-charged
 estimated_duration: 240.0
 _description:
@@ -61,6 +66,7 @@ _description:
      Does the orange battery LED shut off when system is fully charged?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::led
 id: led/battery-low
 estimated_duration: 30.0
 _description:
@@ -73,6 +79,7 @@ _description:
      Does the LED light orange when battery is low?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::led
 id: led/hdd
 estimated_duration: 30.0
 command: led_hdd_test
@@ -86,6 +93,7 @@ _description:
      Did the HDD LED light?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::led
 id: led/numeric-keypad
 estimated_duration: 30.0
 command: keyboard_test
@@ -101,6 +109,7 @@ _description:
      2. Numbers should only be entered in the keyboard verification window when the LED is on
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::led
 id: led/caps-lock
 estimated_duration: 30.0
 _description:
@@ -113,6 +122,7 @@ _description:
      Did the Cap Keys LED light as expected?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::led
 id: led/wlan
 depends: keys/wireless
 estimated_duration: 60.0
@@ -127,6 +137,7 @@ _description:
      Did the WLAN LED turn on or change color as expected?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::led
 id: led/wlan-disabled
 estimated_duration: 30.0
 depends: keys/wireless
@@ -141,6 +152,7 @@ _description:
      Did the WLAN LED turn off or change color as expected?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::led
 id: led/bluetooth
 estimated_duration: 60.0
 depends: bluetooth/detect-output
@@ -156,6 +168,7 @@ _description:
      Did the bluetooth LED turn off and on twice?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::led
 id: led/camera
 estimated_duration: 30.0
 depends: camera/detect
@@ -170,6 +183,7 @@ _description:
      Did the camera LED light?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::led
 id: led/touchpad
 estimated_duration: 30.0
 _description:
@@ -184,6 +198,7 @@ _description:
      3. When the LED is off, the mouse pointer should not move on touchpad usage
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::led
 id: led/wireless
 estimated_duration: 120.0
 _description:
@@ -200,6 +215,7 @@ _description:
      Did the WLAN/Bluetooth LED light as expected?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::led
 id: led/mute
 depends: keys/mute
 estimated_duration: 30.0
@@ -214,6 +230,7 @@ _description:
      Did the Audio LED turn on and off or change color as expected?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::led
 id: led/microphone-mute
 estimated_duration: 30.0
 depends: keys/microphone-mute

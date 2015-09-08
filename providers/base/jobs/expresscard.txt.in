@@ -1,4 +1,5 @@
 plugin: manual
+category_id: 2013.com.canonical.plainbox::expresscard
 id: expresscard/verification
 _description:
  PURPOSE:

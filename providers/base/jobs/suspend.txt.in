@@ -1,4 +1,5 @@
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/network_before_suspend
 depends: ethernet/detect
 estimated_duration: 1.2
@@ -6,6 +7,7 @@ _description: Record the current network before suspending.
 command: set -o pipefail; gateway_ping_test | tee $PLAINBOX_SESSION_SHARE/network_before_suspend.txt
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/resolution_before_suspend
 estimated_duration: 1.2
 _description: Record the current resolution before suspending.
@@ -18,6 +20,7 @@ _summary: Record the current resolution before suspending.
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: shell
+ category_id: 2013.com.canonical.plainbox::suspend
  id: suspend/`echo ${index}`_resolution_before_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  depends: graphics/`echo ${index}`_switch_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  estimated_duration: 1.2
@@ -26,6 +29,7 @@ command:
  EOF
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/audio_before_suspend
 estimated_duration: 1.0
 requires:
@@ -35,12 +39,14 @@ _description: Record mixer settings before suspending.
 command: audio_settings store --file=$PLAINBOX_SESSION_SHARE/audio_settings_before_suspend
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/cpu_before_suspend
 estimated_duration: 1.2
 _description: Verify that all the CPUs are online before suspending
 command: cpuinfo_resource > $PLAINBOX_SESSION_SHARE/cpuinfo_before_suspend
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/memory_before_suspend
 estimated_duration: 1.2
 _description:
@@ -48,6 +54,7 @@ _description:
 command: meminfo_resource > $PLAINBOX_SESSION_SHARE/meminfo_before_suspend
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/wireless_before_suspend
 depends: wireless/wireless_connection
 requires: device.category == 'WIRELESS'
@@ -64,6 +71,7 @@ requires:
 command: 
  cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
  plugin: shell
+ category_id: 2013.com.canonical.plainbox::suspend
  id: suspend/iperf_before_suspend_ether_auto_$2
  depends: ethernet/detect
  estimated_duration: 20.0
@@ -83,6 +91,7 @@ requires:
 command: 
  cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=WIRELESS" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
  plugin: shell
+ category_id: 2013.com.canonical.plainbox::suspend
  id: suspend/iperf_before_suspend_wifi_auto_$2
  depends: wireless/wireless_connection
  estimated_duration: 20.0
@@ -96,6 +105,7 @@ _description:
  This is an automated test to gather some info on the current state of your network devices. If no devices are found, the test will exit with an error.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/iperf_before_suspend_mobilebroadband_gsm_auto
 depends: mobilebroadband/gsm_connection
 estimated_duration: 20.0
@@ -109,6 +119,7 @@ _description:
  This test executes iperf connection performance/stability against the broadband device found on the system before suspend.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/iperf_before_suspend_mobilebroadband_cdma_auto
 depends: mobilebroadband/cdma_connection
 estimated_duration: 20.0
@@ -123,6 +134,7 @@ _description:
 
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_before_suspend
 estimated_duration: 10.0
 requires:
@@ -150,6 +162,7 @@ _description:
  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_send_before_suspend
 estimated_duration: 10.0
 requires:
@@ -177,6 +190,7 @@ _description:
  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_browse_before_suspend
 estimated_duration: 10.0
 requires:
@@ -204,6 +218,7 @@ _description:
  This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR environment variable.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_get_before_suspend
 estimated_duration: 20.0
 requires:
@@ -231,6 +246,7 @@ _description:
  This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR environment variable
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_before_suspend_manual
 estimated_duration: 120.0
 requires:
@@ -249,6 +265,7 @@ _description:
      Was the data correctly transferred?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/suspend_advanced
 requires:
  sleep.mem == 'supported'
@@ -284,6 +301,7 @@ plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: user-interact-verify
+ category_id: 2013.com.canonical.plainbox::suspend
  id: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  requires:
   sleep.mem == 'supported'
@@ -316,6 +334,7 @@ command:
  EOF
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/suspend_advanced_auto
 requires:
     sleep.mem == 'supported'
@@ -334,6 +353,7 @@ plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: user-interact-verify
+ category_id: 2013.com.canonical.plainbox::suspend
  id: suspend/`echo ${index}`_hybrid_sleep_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  user: root
  command:
@@ -352,6 +372,7 @@ command:
  EOF
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/suspend-single-log-check
 estimated_duration: 1.2
 command: [ -e $PLAINBOX_SESSION_SHARE/suspend_single.log ] && sleep_test_log_check -v s3 $PLAINBOX_SESSION_SHARE/suspend_single.log
@@ -359,6 +380,7 @@ _description:
  Automated check of the suspend log to look for errors reported by fwts
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/suspend-single-log-attach
 command: [ -e $PLAINBOX_SESSION_SHARE/suspend_single.log ] && cat $PLAINBOX_SESSION_SHARE/suspend_single.log
 _description:
@@ -371,6 +393,7 @@ plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: attachment
+ category_id: 2013.com.canonical.plainbox::suspend
  id: suspend/`echo ${index}`_suspend-single-log-attach_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  depends: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  command: [ -e $PLAINBOX_SESSION_SHARE/`echo ${index}`_suspend_single.log ] && cat $PLAINBOX_SESSION_SHARE/`echo ${index}`_suspend_single.log
@@ -385,6 +408,7 @@ plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: shell
+ category_id: 2013.com.canonical.plainbox::suspend
  id: suspend/`echo ${index}`_hybrid-sleep-single-log-check
  depends: suspend/`echo ${index}`_hybrid_sleep_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  estimated_duration: 1.2
@@ -400,6 +424,7 @@ plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: attachment
+ category_id: 2013.com.canonical.plainbox::suspend
  id: suspend/`echo ${index}`_hybrid-sleep-single-log-attach_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  depends: suspend/`echo ${index}`_hybrid_sleep_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  command: [ -e $PLAINBOX_SESSION_SHARE/`echo ${index}`_hybrid_sleep_single.log ] && cat $PLAINBOX_SESSION_SHARE/`echo ${index}`_hybrid_sleep_single.log
@@ -408,6 +433,7 @@ command:
  EOF
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/suspend-time-check
 estimated_duration: 1.2
 command: [ -e $PLAINBOX_SESSION_SHARE/suspend_single_times.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/suspend_single_times.log
@@ -421,6 +447,7 @@ plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: shell
+ category_id: 2013.com.canonical.plainbox::suspend
  id: suspend/`echo ${index}`_suspend-time-check_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  depends: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  estimated_duration: 1.2
@@ -429,6 +456,7 @@ command:
  EOF
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 id: power-management/usb_wakeup_keyboard
 user: root
 depends: suspend/suspend_advanced
@@ -445,6 +473,7 @@ _description:
      Did the system wake up from suspend mode when you pressed a keyboard key?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 id: power-management/usb_wakeup_mouse
 user: root
 depends: suspend/suspend_advanced
@@ -461,6 +490,7 @@ _description:
      Did the system wake up from suspend mode when you pressed the mouse button?
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/network_after_suspend
 estimated_duration: 20.0
 depends: suspend/suspend_advanced suspend/network_before_suspend
@@ -468,6 +498,7 @@ _description: Test the network after resuming.
 command: network_wait; gateway_ping_test | diff $PLAINBOX_SESSION_SHARE/network_before_suspend.txt -
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/resolution_after_suspend
 depends: suspend/suspend_advanced suspend/resolution_before_suspend
 estimated_duration: 1.2
@@ -481,6 +512,7 @@ _summary: Resolution consistency check after suspend with the valuse we got befo
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: shell
+ category_id: 2013.com.canonical.plainbox::suspend
  id: suspend/`echo ${index}`_resolution_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  estimated_duration: 1.2
  depends: suspend/`echo ${index}`_resolution_before_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'` suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
@@ -489,6 +521,7 @@ command:
  EOF
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/audio_after_suspend
 estimated_duration: 1.0
 requires:
@@ -501,6 +534,7 @@ command:
   diff $PLAINBOX_SESSION_SHARE/audio_settings_before_suspend $PLAINBOX_SESSION_SHARE/audio_settings_after_suspend
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/audio_after_suspend_auto
 estimated_duration: 1.2
 requires:
@@ -513,6 +547,7 @@ command:
   diff $PLAINBOX_SESSION_SHARE/audio_settings_before_suspend $PLAINBOX_SESSION_SHARE/audio_settings_after_suspend
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/speaker-headphone-plug-detection-after-suspend
 depends: suspend/suspend_advanced
 estimated_duration: 60.0
@@ -534,6 +569,7 @@ _description:
      The test times out after 30 seconds (and fails in that case).
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/microphone-plug-detection-after-suspend
 depends: suspend/suspend_advanced
 estimated_duration: 60.0
@@ -556,6 +592,7 @@ _description:
      The test times out after 30 seconds (and fails in that case).
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/playback_headphones-after-suspend
 estimated_duration: 20.0
 depends: audio/list_devices suspend/suspend_advanced
@@ -581,6 +618,7 @@ _description:
      Did you hear a sound through the headphones and did the sound play without any distortion, clicks or other strange noises from your headphones?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/alsa_record_playback_external-after-suspend
 estimated_duration: 20.0
 depends: suspend/playback_headphones-after-suspend suspend/suspend_advanced
@@ -607,6 +645,7 @@ _description:
      Did you hear your speech played back?
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/cpu_after_suspend
 estimated_duration: 1.2
 depends: suspend/suspend_advanced suspend/cpu_before_suspend
@@ -614,6 +653,7 @@ _description: Verify that all CPUs are online after resuming.
 command: cpuinfo_resource | diff $PLAINBOX_SESSION_SHARE/cpuinfo_before_suspend -
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/cpu_after_suspend_auto
 estimated_duration: 1.2
 depends: suspend/suspend_advanced_auto suspend/cpu_before_suspend
@@ -621,6 +661,7 @@ _description: Verify that all CPUs are online after resuming.
 command: cpuinfo_resource | diff $PLAINBOX_SESSION_SHARE/cpuinfo_before_suspend -
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/memory_after_suspend
 estimated_duration: 1.2
 depends: suspend/suspend_advanced suspend/memory_before_suspend
@@ -629,6 +670,7 @@ _description:
 command: meminfo_resource | diff $PLAINBOX_SESSION_SHARE/meminfo_before_suspend -
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/memory_after_suspend_auto
 estimated_duration: 1.2
 depends: suspend/suspend_advanced_auto suspend/memory_before_suspend
@@ -637,6 +679,7 @@ _description:
 command: meminfo_resource | diff $PLAINBOX_SESSION_SHARE/meminfo_before_suspend -
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/display_after_suspend
 estimated_duration: 120.0
 depends: suspend/suspend_advanced
@@ -656,6 +699,7 @@ plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: manual
+ category_id: 2013.com.canonical.plainbox::suspend
  id: suspend/`echo ${index}`_display_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  depends: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  _summary: Test display function after suspend for $product
@@ -669,6 +713,7 @@ command:
  EOF
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/wireless_after_suspend
 depends: suspend/suspend_advanced suspend/wireless_before_suspend
 requires:
@@ -681,6 +726,7 @@ _description:
  connection is working as expected.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_wpa_bg
 depends: suspend/suspend_advanced
 estimated_duration: 20.0
@@ -703,6 +749,7 @@ _description:
  security and the 802.11b/g protocols after the system has been suspended.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_open_bg
 depends: suspend/suspend_advanced
 estimated_duration: 1.2
@@ -725,6 +772,7 @@ _description:
  security and the 802.11b/g protocols after the system has been suspended.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_wpa_n
 depends: suspend/suspend_advanced
 estimated_duration: 1.2
@@ -747,6 +795,7 @@ _description:
  security and the 802.11n protocol after the system has been suspended.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_open_n
 depends: suspend/suspend_advanced
 estimated_duration: 1.2
@@ -769,6 +818,7 @@ _description:
  security and the 802.11n protocol after the system has been suspended.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_wpa_ac
 depends: suspend/suspend_advanced
 estimated_duration: 1.2
@@ -792,6 +842,7 @@ _description:
  security and the 802.11ac protocol after the system has been suspended.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_open_ac
 depends: suspend/suspend_advanced
 estimated_duration: 1.2
@@ -815,6 +866,7 @@ _description:
  security and the 802.11ac protocol after the system has been suspended.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_wpa_bg_auto
 depends: suspend/suspend_advanced_auto
 estimated_duration: 1.2
@@ -837,6 +889,7 @@ _description:
  security and the 802.11b/g protocols after the system has been suspended.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_open_bg_auto
 depends: suspend/suspend_advanced_auto
 estimated_duration: 1.2
@@ -859,6 +912,7 @@ _description:
  security and the 802.11b/g protocols after the system has been suspended.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_wpa_n_auto
 depends: suspend/suspend_advanced_auto
 estimated_duration: 1.2
@@ -881,6 +935,7 @@ _description:
  security and the 802.11n protocol after the system has been suspended.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_open_n_auto
 depends: suspend/suspend_advanced_auto
 estimated_duration: 1.2
@@ -903,6 +958,7 @@ _description:
  security and the 802.11n protocol after the system has been suspended.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_wpa_ac_auto
 depends: suspend/suspend_advanced_auto
 estimated_duration: 1.2
@@ -926,6 +982,7 @@ _description:
  security and the 802.11ac protocol after the system has been suspended.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_open_ac_auto
 depends: suspend/suspend_advanced_auto
 estimated_duration: 1.2
@@ -956,6 +1013,7 @@ requires:
 command: 
  cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
  plugin: shell
+ category_id: 2013.com.canonical.plainbox::suspend
  id: suspend/iperf_after_suspend_ether_auto_$2
  depends: suspend/suspend_advanced
  requires: device.path == "$1"
@@ -976,6 +1034,7 @@ requires:
 command: 
  cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=WIRELESS" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
  plugin: shell
+ category_id: 2013.com.canonical.plainbox::suspend
  id: suspend/iperf_after_suspend_wifi_auto_$2
  depends: suspend/suspend_advanced
  requires: device.path == "$1"
@@ -989,6 +1048,7 @@ _description:
  This is an automated test to gather some info on the current state of your network devices. If no devices are found, the test will exit with an error.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/iperf_after_suspend_mobilebroadband_gsm_auto
 depends: suspend/suspend_advanced_auto
 estimated_duration: 20.0
@@ -1002,6 +1062,7 @@ _description:
  This test executes iperf connection performance/stability against the broadband device found on the system after suspend.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/iperf_after_suspend_mobilebroadband_cdma_auto
 depends: suspend/suspend_advanced_auto
 estimated_duration: 20.0
@@ -1015,6 +1076,7 @@ _description:
  This test executes iperf connection performance/stability against the broadband device found on the system after suspend.
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_wpa_bg_manual
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -1046,6 +1108,7 @@ _description:
      Verification is automated, do not change the automatically selected result.
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_open_bg_manual
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -1077,6 +1140,7 @@ _description:
      Verification is automated, do not change the automatically selected result.
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_wpa_n_manual
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -1108,6 +1172,7 @@ _description:
      Verification is automated, do not change the automatically selected result.
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_open_n_manual
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -1139,6 +1204,7 @@ _description:
      Verification is automated, do not change the automatically selected result.
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_wpa_ac_manual
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -1170,6 +1236,7 @@ _description:
      Verification is automated, do not change the automatically selected result.
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/wireless_connection_after_suspend_open_ac_manual
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -1201,6 +1268,7 @@ _description:
      Verification is automated, do not change the automatically selected result.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/bluetooth_detect_after_suspend
 depends: suspend/suspend_advanced bluetooth/detect-output
 estimated_duration: 1.2
@@ -1226,6 +1294,7 @@ _description:
  This test grabs the hardware address of the bluetooth adapter after suspend and compares it to the address grabbed before suspend.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_after_suspend
 depends: suspend/suspend_advanced suspend/bluetooth_obex_before_suspend
 estimated_duration: 10.0
@@ -1254,6 +1323,7 @@ _description:
  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_after_suspend_auto
 depends: suspend/suspend_advanced_auto suspend/bluetooth_obex_before_suspend
 estimated_duration: 10.0
@@ -1282,6 +1352,7 @@ _description:
  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_send_after_suspend
 depends: suspend/suspend_advanced
 estimated_duration: 10.0
@@ -1310,6 +1381,7 @@ _description:
  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_send_after_suspend_auto
 depends: suspend/suspend_advanced_auto
 estimated_duration: 10.0
@@ -1338,6 +1410,7 @@ _description:
  This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_browse_after_suspend
 depends: suspend/suspend_advanced
 estimated_duration: 10.0
@@ -1366,6 +1439,7 @@ _description:
  This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR environment variable.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_browse_after_suspend_auto
 depends: suspend/suspend_advanced_auto
 estimated_duration: 20.0
@@ -1394,6 +1468,7 @@ _description:
  This is an automated Bluetooth test. It emulates browsing on a remote device specified by the BTDEVADDR environment variable.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_get_after_suspend
 estimated_duration: 20.0
 depends: suspend/suspend_advanced
@@ -1422,6 +1497,7 @@ _description:
  This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR environment variable
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_get_after_suspend_auto
 depends: suspend/suspend_advanced_auto
 estimated_duration: 20.0
@@ -1450,6 +1526,7 @@ _description:
  This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR environment variable
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_after_suspend_manual
 depends: suspend/suspend_advanced suspend/bluetooth_obex_before_suspend_manual
 estimated_duration: 120.0
@@ -1468,6 +1545,7 @@ _description:
      Was the data correctly transferred?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/cycle_resolutions_after_suspend
 estimated_duration: 120.0
 requires: package.name == 'xorg'
@@ -1489,6 +1567,7 @@ _summary: Cycle resolution after suspend tests
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: user-interact-verify
+ category_id: 2013.com.canonical.plainbox::suspend
  id: suspend/`echo ${index}`_cycle_resolutions_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  requires: package.name == 'xorg'
  depends: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
@@ -1504,6 +1583,7 @@ command:
  EOF
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/cycle_resolutions_after_suspend_auto
 estimated_duration: 1.2
 requires: package.name == 'xorg'
@@ -1514,6 +1594,7 @@ _description:
 command: xrandr_cycle --keyword=after_suspend --screenshot-dir $PLAINBOX_SESSION_SHARE
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/xrandr_screens_after_suspend.tar.gz
 depends: suspend/cycle_resolutions_after_suspend
 command: [ -f $PLAINBOX_SESSION_SHARE/xrandr_screens_after_suspend.tgz ] && base64 $PLAINBOX_SESSION_SHARE/xrandr_screens_after_suspend.tgz
@@ -1526,6 +1607,7 @@ _summary: Attach screenshots from the suspend/cycle_resolution_after_suspend tes
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: attachment
+ category_id: 2013.com.canonical.plainbox::suspend
  id: suspend/`echo ${index}`_xrandr_screens_after_suspend.tar.gz
  depends: suspend/`echo ${index}`_cycle_resolutions_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  command: [ -f $PLAINBOX_SESSION_SHARE/`echo ${index}`_xrandr_screens_after_suspend.tgz ] && base64 $PLAINBOX_SESSION_SHARE/`echo ${index}`_xrandr_screens_after_suspend.tgz
@@ -1533,6 +1615,7 @@ command:
  EOF
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/record_playback_after_suspend
 estimated_duration: 10.0
 depends: suspend/suspend_advanced
@@ -1549,6 +1632,7 @@ _description:
  This will check to make sure that your audio device works properly after a suspend and resume.  This may work fine with speakers and onboard microphone, however, it works best if used with a cable connecting the audio-out jack to the audio-in jack.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/record_playback_after_suspend_auto
 estimated_duration: 10.0
 depends: suspend/suspend_advanced_auto
@@ -1565,12 +1649,14 @@ _description:
  This will check to make sure that your audio device works properly after a suspend and resume.  This may work fine with speakers and onboard microphone, however, it works best if used with a cable connecting the audio-out jack to the audio-in jack.
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/suspend-auto-single-log-attach
 command: [ -e $PLAINBOX_SESSION_SHARE/suspend_auto_single_log ] && cat $PLAINBOX_SESSION_SHARE/suspend_auto_single_log
 _description:
  Attaches the log from the single suspend/resume test to the results
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/screenshot_after_suspend
 estimated_duration: 10.0
 depends: suspend/suspend_advanced_auto
@@ -1585,12 +1671,14 @@ _description:
      Review attachment manually later
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::suspend
 id: screenshot_after_suspend.jpg
 depends: suspend/screenshot_after_suspend
 command: base64 ${PLAINBOX_SESSION_SHARE}/screenshot_after_suspend.jpg
 _description: Attaches the screenshot captured in graphics/screenshot.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/gpu_lockup_after_suspend
 estimated_duration: 10.0
 requires:
@@ -1610,6 +1698,7 @@ _description:
      After a 60s workload, check kern.log for reported GPU errors
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/wifi_resume_time
 depends: suspend/suspend_advanced
 requires:
@@ -1621,6 +1710,7 @@ _description:
  after a suspend/resume cycle.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/wifi_resume_time_auto
 estimated_duration: 1.2
 depends: suspend/suspend_advanced_auto
@@ -1632,6 +1722,7 @@ _description:
  after a suspend/resume cycle.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/network_resume_time
 depends: suspend/suspend_advanced
 estimated_duration: 1.2
@@ -1643,6 +1734,7 @@ _description:
   after a suspend/resume cycle.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/network_resume_time_auto
 depends: suspend/suspend_advanced_auto
 estimated_duration: 1.2
@@ -1654,6 +1746,7 @@ _description:
   after a suspend/resume cycle.
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/power
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -1666,6 +1759,7 @@ _description:
      Does the power LED remain on after resuming from suspend?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/battery-charging
 estimated_duration: 120.0
 depends: suspend/suspend_advanced
@@ -1679,6 +1773,7 @@ _description:
      Did the battery indicator LED still turn orange after resuming from suspend?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/battery-charged
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -1693,6 +1788,7 @@ _description:
      Does the orange battery LED still shut off when system is fully charged after resuming from suspend?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/battery-low
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -1706,6 +1802,7 @@ _description:
      Does the LED light orange when battery is low after resuming from suspend?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/hdd
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -1720,6 +1817,7 @@ _description:
      Did the HDD LED still blink with HDD activity after resuming from suspend?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/numeric-keypad
 estimated_duration: 120.0
 depends: suspend/suspend_advanced
@@ -1736,6 +1834,7 @@ _description:
      2. Numbers should only be entered in the keyboard verification window when the LED is on
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/caps-lock
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -1749,6 +1848,7 @@ _description:
      Did the Cap Keys LED light as expected after resuming from suspend?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/wlan
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -1762,6 +1862,7 @@ _description:
      Did the WLAN LED light as expected after resuming from suspend?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/wlan-disabled
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -1777,6 +1878,7 @@ _description:
      Did the LED turn off then WLAN is disabled after resuming from suspend?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/bluetooth
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -1792,6 +1894,7 @@ _description:
      Did the bluetooth LED turn off and on twice after resuming from suspend?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/camera
 estimated_duration: 120.0
 depends:
@@ -1808,6 +1911,7 @@ _description:
      Did the camera LED still turn on and off after resuming from suspend?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/touchpad
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -1823,6 +1927,7 @@ _description:
      3. When the LED is off, the mouse pointer should not move on touchpad usage
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/wireless
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -1840,6 +1945,7 @@ _description:
      Did the WLAN/Bluetooth LED light as expected after resuming from suspend?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/keys_after_suspend/brightness
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -1853,6 +1959,7 @@ _description:
      Did the brightness change following to your key presses after resuming from suspend?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/keys_after_suspend/volume
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -1871,6 +1978,7 @@ _description:
      Did the volume change following to your key presses?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/keys_after_suspend/mute
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -1888,6 +1996,7 @@ _description:
      Did the volume mute following your key presses?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/keys_after_suspend/sleep
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -1903,6 +2012,7 @@ _description:
      Did the system go to sleep after pressing the sleep key after resuming from suspend?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/keys_after_suspend/battery-info
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -1921,6 +2031,7 @@ _description:
      Did the Battery Info key work as expected after resuming from suspend?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/keys_after_suspend/wireless
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -1935,6 +2046,7 @@ _description:
      Did the wireless go off on the first press and on again on the second after resuming from suspend?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/keys_after_suspend/media-control
 estimated_duration: 120.0
 depends: suspend/suspend_advanced
@@ -1953,6 +2065,7 @@ _description:
      Do the keys work as expected after resuming from suspend?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/keys_after_suspend/super
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -1970,6 +2083,7 @@ _description:
      Does the super key work as expected after resuming from suspend?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/keys_after_suspend/video-out
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -1984,6 +2098,7 @@ _description:
      Check that the video signal can be mirrored, extended, displayed on external or onboard only, after resuming from suspend.
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/keys_after_suspend/touchpad
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
@@ -1999,6 +2114,7 @@ _description:
      Verify the touchpad has been disabled and re-enabled.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/usb_insert_after_suspend
 estimated_duration: 30.0
 depends:
@@ -2017,6 +2133,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/usb3_insert_after_suspend
 estimated_duration: 30.0
 requires:
@@ -2037,6 +2154,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/usb_remove_after_suspend
 estimated_duration: 30.0
 depends:
@@ -2054,6 +2172,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/usb3_remove_after_suspend
 estimated_duration: 30.0
 depends:
@@ -2073,6 +2192,7 @@ _description:
      automatically selected result.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/usb_storage_automated_after_suspend
 estimated_duration: 1.2
 depends: suspend/usb_insert_after_suspend
@@ -2083,6 +2203,7 @@ _description:
  test is run.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/usb3_storage_automated_after_suspend
 estimated_duration: 1.2
 requires:
@@ -2095,6 +2216,7 @@ _description:
  test is run.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/usb_storage_preinserted_after_suspend
 estimated_duration: 1.2
 user: root
@@ -2106,6 +2228,7 @@ _description:
  is intended for servers and SRU automated testing.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/usb3_storage_preinserted_after_suspend
 estimated_duration: 1.2
 user: root
@@ -2119,6 +2242,7 @@ _description:
  is intended for servers and SRU automated testing.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/usb_performance_after_suspend
 depends: suspend/usb_insert_after_suspend
 user: root
@@ -2129,6 +2253,7 @@ _description:
  minimum expected speed.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/usb3_superspeed_performance_after_suspend
 requires:
  usb.usb3 == 'supported'
@@ -2141,6 +2266,7 @@ _description:
  as SuperSpeed USB device using xhci_hcd driver and transfers data correctly.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/mmc-insert-after-suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
@@ -2159,6 +2285,7 @@ _description:
      automatically selected result.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/mmc-storage-after-suspend
 depends: suspend/mmc-insert-after-suspend
 estimated_duration: 10.0
@@ -2169,6 +2296,7 @@ _description:
  is run. It tests reading and writing to the MMC card after the system has been suspended.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/mmc-remove-after-suspend
 depends: suspend/mmc-insert-after-suspend
 estimated_duration: 30.0
@@ -2185,6 +2313,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/sd-insert-after-suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
@@ -2204,6 +2333,7 @@ _description:
      automatically selected result.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/sd-storage-after-suspend
 estimated_duration: 10.0
 depends: suspend/sd-insert-after-suspend
@@ -2214,6 +2344,7 @@ _description:
  is run. It tests reading and writing to the SD card after the system has been suspended.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/sd-remove-after-suspend
 estimated_duration: 30.0
 depends: suspend/sd-insert-after-suspend
@@ -2231,6 +2362,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/sdhc-insert-after-suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
@@ -2250,6 +2382,7 @@ _description:
      automatically selected result.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/sdhc-storage-after-suspend
 estimated_duration: 10.0
 depends: suspend/sdhc-insert-after-suspend
@@ -2260,6 +2393,7 @@ _description:
  is run. It tests reading and writing to the SDHC card after the system has been suspended.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/sdhc-remove-after-suspend
 estimated_duration: 30.0
 depends: suspend/sdhc-insert-after-suspend
@@ -2276,6 +2410,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::suspend
 id: mediacard/cf-insert-after-suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
@@ -2294,6 +2429,7 @@ _description:
      automatically selected result.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: mediacard/cf-storage-after-suspend
 estimated_duration: 10.0
 depends: mediacard/cf-insert-after-suspend
@@ -2304,6 +2440,7 @@ _description:
  is run. It tests reading and writing to the CF card after the system has been suspended.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::suspend
 id: mediacard/cf-remove-after-suspend
 estimated_duration: 30.0
 depends: mediacard/cf-insert-after-suspend
@@ -2320,6 +2457,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::suspend
 id: mediacard/sdxc-insert-after-suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
@@ -2338,6 +2476,7 @@ _description:
      automatically selected result.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: mediacard/sdxc-storage-after-suspend
 estimated_duration: 10.0
 depends: mediacard/sdxc-insert-after-suspend
@@ -2348,6 +2487,7 @@ _description:
  is run. It tests reading and writing to the SDXC card after the system has been suspended.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::suspend
 id: mediacard/sdxc-remove-after-suspend
 depends: mediacard/sdxc-insert-after-suspend
 estimated_duration: 30.0
@@ -2365,6 +2505,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::suspend
 id: mediacard/ms-insert-after-suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
@@ -2383,6 +2524,7 @@ _description:
      automatically selected result.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: mediacard/ms-storage-after-suspend
 estimated_duration: 10.0
 depends: mediacard/ms-insert-after-suspend
@@ -2393,6 +2535,7 @@ _description:
  is run. It tests reading and writing to the MS card after the system has been suspended.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::suspend
 id: mediacard/ms-remove-after-suspend
 estimated_duration: 30.0
 depends: mediacard/ms-insert-after-suspend
@@ -2409,6 +2552,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::suspend
 id: mediacard/msp-insert-after-suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
@@ -2427,6 +2571,7 @@ _description:
      automatically selected result.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: mediacard/msp-storage-after-suspend
 estimated_duration: 10.0
 depends: mediacard/msp-insert-after-suspend
@@ -2437,6 +2582,7 @@ _description:
  is run. It tests reading and writing to the MSP card after the system has been suspended.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::suspend
 id: mediacard/msp-remove-after-suspend
 estimated_duration: 30.0
 depends: mediacard/msp-insert-after-suspend
@@ -2453,6 +2599,7 @@ _description:
      automatically selected result.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::suspend
 id: mediacard/xd-insert-after-suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced
@@ -2471,6 +2618,7 @@ _description:
      automatically selected result.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: mediacard/xd-storage-after-suspend
 estimated_duration: 10.0
 depends: mediacard/xd-insert-after-suspend
@@ -2481,6 +2629,7 @@ _description:
  is run. It tests reading and writing to the xD card after the system has been suspended.
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::suspend
 id: mediacard/xd-remove-after-suspend
 estimated_duration: 30.0
 depends: mediacard/xd-insert-after-suspend
@@ -2497,6 +2646,7 @@ _description:
      automatically selected result.
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: touchpad/touchpad_after_suspend
 depends: suspend/suspend_advanced_auto
 requires:
@@ -2508,6 +2658,7 @@ _description:
  Determine if the touchpad is still functioning after suspend/resume.
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::suspend
 id: touchscreen/touchscreen_after_suspend
 depends: suspend/suspend_advanced_auto
 estimated_duration: 30.0
@@ -2520,6 +2671,7 @@ _description:
      Does tap recognition work?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 id: camera/display_after_suspend
 estimated_duration: 120.0
 depends: suspend/suspend_advanced
@@ -2535,6 +2687,7 @@ _description:
      Did you see the video capture?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 id: camera/still_after_suspend
 estimated_duration: 120.0
 depends: camera/display_after_suspend
@@ -2553,6 +2706,7 @@ _description:
      Did you see the image?
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: camera/multiple_resolution_after_suspend
 estimated_duration: 1.2
 depends: camera/still_after_suspend
@@ -2573,6 +2727,7 @@ _description: Pointing device tests after suspend.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=MOUSE" -w "category=TOUCHPAD" -w "category=TOUCHSCREEN"'
  plugin: manual
+ category_id: 2013.com.canonical.plainbox::suspend
  id: suspend/pointing-after-suspend_`echo "${product}_${category}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`_`basename $path`
  depends: suspend/suspend_advanced
  requires: device.path == "$path"
@@ -2595,6 +2750,7 @@ _description: Click tests for pointing devices after suspend.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=MOUSE" -w "category=TOUCHPAD"'
  plugin: manual
+ category_id: 2013.com.canonical.plainbox::suspend
  estimated_duration: 30.0
  id: suspend/clicking-after-suspend_`echo "${product}_${category}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`_`basename $path`
  depends: suspend/suspend_advanced
@@ -2620,6 +2776,7 @@ plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: shell
+ category_id: 2013.com.canonical.plainbox::suspend
  id: suspend/`echo ${index}`_compiz_check_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  depends: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  requires: package.name == 'nux-tools'
@@ -2630,6 +2787,7 @@ command:
  EOF
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/compiz_check_after_suspend
 depends: suspend/suspend_advanced
 requires: package.name == 'nux-tools'
@@ -2646,6 +2804,7 @@ plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: user-interact-verify
+ category_id: 2013.com.canonical.plainbox::suspend
  id: suspend/`echo ${index}`_glxgears_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  depends: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  requires: package.name == 'mesa-utils'
@@ -2663,6 +2822,7 @@ command:
  EOF
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/glxgears_after_suspend
 depends: suspend/suspend_advanced
 requires:
@@ -2690,6 +2850,7 @@ command:
  id: suspend/`echo ${index}`_video_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  depends: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  plugin: user-interact-verify
+ category_id: 2013.com.canonical.plainbox::suspend
  requires:
   package.name == 'xorg'
   package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
@@ -2706,6 +2867,7 @@ command:
 
 id: suspend/video_after_suspend
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
 depends: suspend/suspend_advanced
 requires:
  device.category == 'VIDEO'
@@ -2729,6 +2891,7 @@ plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: shell
+ category_id: 2013.com.canonical.plainbox::suspend
  id: suspend/`echo ${index}`_driver_version_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  depends: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  command: graphics_driver
@@ -2741,6 +2904,7 @@ id: suspend/driver_version_after_suspend
 requires: device.category == 'VIDEO'
 depends: suspend/suspend_advanced
 plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
 command: graphics_driver
 estimated_duration: 0.500
 _description: Parses Xorg.0.Log and discovers the running X driver and version after suspend
@@ -2761,6 +2925,7 @@ command:
 
 id: suspend/oops_results_after_suspend.log
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::suspend
 estimated_duration: 0.5
 command:
  [ -e ${PLAINBOX_SESSION_SHARE}/fwts_oops_results_after_s3_hwe.log ] && cat ${PLAINBOX_SESSION_SHARE}/fwts_oops_results_after_s3_hwe.log

@@ -1,4 +1,5 @@
 plugin: shell
+category_id: 2013.com.canonical.plainbox::camera
 id: camera/detect
 estimated_duration: 1.2
 requires:
@@ -7,6 +8,7 @@ command: camera_test detect
 _description: This Automated test attempts to detect a camera.
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::camera
 id: camera/display
 estimated_duration: 120.0
 depends: camera/detect
@@ -22,6 +24,7 @@ _description:
      Did you see the video capture?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::camera
 id: camera/still
 estimated_duration: 120.0
 depends: camera/detect
@@ -40,6 +43,7 @@ _description:
      Did you see the image?
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::camera
 id: camera/multiple-resolution-images
 estimated_duration: 1.2
 depends: camera/detect

@@ -1,4 +1,5 @@
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::hibernate
 id: power-management/hibernate_advanced
 requires:
   sleep.disk == 'supported'
@@ -35,6 +36,7 @@ plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: user-interact-verify
+ category_id: 2013.com.canonical.plainbox::hibernate
  id: power-management/`echo ${index}`_hibernate_advanced_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  user: root
  environ: PLAINBOX_SESSION_SHARE
@@ -60,12 +62,14 @@ command:
  EOF
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::hibernate
 id: power-management/hibernate-single-log-check
 command: [ -e $PLAINBOX_SESSION_SHARE/hibernate-single.log ] && sleep_test_log_check -v s4 $PLAINBOX_SESSION_SHARE/hibernate-single.log
 _description:
  Automated check of the hibernate log for errors discovered by fwts
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::hibernate
 id: power-management/hibernate-single-log-attach
 depends: power-management/hibernate_advanced
 command: [ -e $PLAINBOX_SESSION_SHARE/hibernate-single.log ] && cat $PLAINBOX_SESSION_SHARE/hibernate-single.log
@@ -79,6 +83,7 @@ plugin: local
 command:
  cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
  plugin: attachment
+ category_id: 2013.com.canonical.plainbox::hibernate
  id: power-management/`echo ${index}`_hibernate-single-log-attach_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  depends: power-management/`echo ${index}`_hibernate_advanced_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  estimated_duration: 0.5

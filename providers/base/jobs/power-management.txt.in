@@ -1,4 +1,5 @@
 plugin: manual
+category_id: 2013.com.canonical.plainbox::power-management
 id: power-management/shutdown-boot
 estimated_duration: 300.0
 _description:
@@ -12,6 +13,7 @@ _description:
      Did the system shutdown and rebooted correctly?
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::power-management
 id: power-management/fwts_wakealarm
 environ: PLAINBOX_SESSION_SHARE
 estimated_duration: 25.0
@@ -22,6 +24,7 @@ requires:
 command: fwts_test -f aborted -t wakealarm -l $PLAINBOX_SESSION_SHARE/fwts-wakealarm.log
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::power-management
 id: power-management/fwts_wakealarm-log-attach
 depends: power-management/fwts_wakealarm
 estimated_duration: 2.0
@@ -31,6 +34,7 @@ requires:
 command: [ -e ${PLAINBOX_SESSION_SHARE}/fwts-wakealarm.log ] && cat ${PLAINBOX_SESSION_SHARE}/fwts-wakealarm.log
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::power-management
 id: power-management/poweroff
 estimated_duration: 120.0
 depends: power-management/fwts_wakealarm
@@ -55,6 +59,7 @@ _description:
   select 'No'.
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::power-management
 id: power-management/poweroff-log-attach
 estimated_duration: 1.0
 command:
@@ -64,6 +69,7 @@ _description:
  This will attach any logs from the power-management/poweroff test to the results.
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::power-management
 id: power-management/reboot
 estimated_duration: 120.0
 user: root
@@ -85,6 +91,7 @@ _description:
   If the machine successfully reboots, select Yes then select Next.
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::power-management
 id: power-management/reboot-log-attach
 estimated_duration: 1.0
 command:
@@ -94,6 +101,7 @@ _description:
  This will attach any logs from the power-management/reboot test to the results.
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::power-management
 id: power-management/lid
 estimated_duration: 120.0
 requires: dmi.product in ['Notebook','Laptop','Portable']
@@ -106,6 +114,7 @@ _description:
     Does closing your laptop lid cause your system to suspend?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::power-management
 id: power-management/lid_close
 estimated_duration: 60.0
 requires: device.product == 'Lid Switch'
@@ -125,6 +134,7 @@ _description:
      Did the screen turn off while the lid was closed?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::power-management
 id: power-management/lid_open
 estimated_duration: 60.0
 requires: device.product == 'Lid Switch'
@@ -146,6 +156,7 @@ _description:
      Did the system resume when the lid was opened?
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::power-management
 id: power-management/rtc
 requires:
   rtc.state == 'supported'
@@ -158,6 +169,7 @@ _description:
  Verify that the Real-time clock (RTC) device functions properly, if present
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::power-management
 id: power-management/tickless_idle
 estimated_duration: 1.0
 requires: cpuinfo.platform in ('i386', 'x86_64', 'ppc64el', 'pSeries')
@@ -166,6 +178,7 @@ command:
  zgrep 'CONFIG_NO_HZ=y' /boot/config-`uname -r` >/dev/null 2>&1 || ( echo "WARNING: Tickless Idle is NOT set" >&2 && exit 1 )
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::power-management
 id: power-management/unplug_ac
 estimated_duration: 30.0
 _description:
@@ -177,6 +190,7 @@ _description:
      Was the laptop unplugged from AC?
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::power-management
 id: power-management/battery_drain_idle
 estimated_duration: 90.0
 requires: package.name == 'upower'
@@ -187,6 +201,7 @@ command:
  battery_test -t 90 --idle
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::power-management
 id: power-management/battery_drain_movie
 estimated_duration: 90.0
 requires:
@@ -198,6 +213,7 @@ command:
  battery_test -t 90 --movie $MOVIE_VAR
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::power-management
 id: power-management/battery_drain_sleep
 estimated_duration: 140.0
 user: root
@@ -211,6 +227,7 @@ command:
  battery_test -t 120 --sleep
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::power-management
 id: power-management/plug_ac
 estimated_duration: 30.0
 depends: power-management/battery_drain_idle power-management/battery_drain_movie power-management/battery_drain_sleep
@@ -224,6 +241,7 @@ _description:
      Was the laptop plugged into AC?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::power-management
 id: power-management/reboot_manual
 estimated_duration: 120.0
 user:root
@@ -243,6 +261,7 @@ _description:
      Did the system reboot correctly?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::power-management
 id: power-management/shutdown_manual
 estimated_duration: 120.0
 user: root

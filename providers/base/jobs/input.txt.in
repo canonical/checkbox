@@ -8,6 +8,7 @@ _description: Pointing device tests.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=MOUSE" -w "category=TOUCHPAD" -w "category=TOUCHSCREEN"'
  plugin: manual
+ category_id: 2013.com.canonical.plainbox::input
  id: input/pointing_`echo "${product}_${category}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`_`basename $path`
  requires: device.path == "$path"
  description:
@@ -20,6 +21,7 @@ command:
  EOF
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::input
 id: input/mouse
 estimated_duration: 30.0
 _description:
@@ -32,6 +34,7 @@ _description:
      Did the pointing device work as expected?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::input
 id: input/keyboard
 estimated_duration: 30.0
 command: keyboard_test
@@ -46,6 +49,7 @@ _description:
      Is your keyboard working properly?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::input
 id: input/accelerometer_verify
 estimated_duration: 30.0
 _description:
@@ -57,6 +61,7 @@ _description:
      Is this system supposed to have an accelerometer?
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::input
 id: input/accelerometer
 estimated_duration: 60.0
 user: root
@@ -82,6 +87,7 @@ _description: Click tests for pointing devices.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=MOUSE" -w "category=TOUCHPAD"'
  plugin: manual
+ category_id: 2013.com.canonical.plainbox::input
  estimated_duration: 30.0
  id: input/clicking_`echo "${product}_${category}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`_`basename $path`
  requires: device.path == "$path"

@@ -1,4 +1,5 @@
 plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/driver_version
 command: graphics_driver
 estimated_duration: 0.500
@@ -6,6 +7,7 @@ _description: Parses Xorg.0.Log and discovers the running X driver and version
 _summary: Test X driver/version
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/resolution-change
 depends: graphics/xorg-version
 _summary: Test changing resolution
@@ -22,6 +24,7 @@ _description:
      Did the resolution change as expected?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/resolution
 requires:
  device.category == 'VIDEO'
@@ -40,6 +43,7 @@ _description:
      Is this acceptable for your display?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/screen-resolution
 requires:
  device.category == 'VIDEO'
@@ -56,6 +60,7 @@ _description:
      Is this acceptable for your display?
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/minimum_resolution
 requires:
  device.category == 'VIDEO'
@@ -69,6 +74,7 @@ _description:
  https://help.ubuntu.com/community/Installation/SystemRequirements
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/maximum_resolution
 requires:
  device.category == 'VIDEO'
@@ -87,6 +93,7 @@ _description:
 
 id: graphics/modes
 plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
 command: graphics_modes_info
 estimated_duration: 0.250
 _description: Collect info on graphics modes (screen resolution and refresh rate)
@@ -94,6 +101,7 @@ _summary: Collect info on graphics modes
 
 id: graphics/color_depth
 plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
 command: color_depth_info
 estimated_duration: 0.150
 _description: Collect info on color depth and pixel format.
@@ -101,17 +109,20 @@ _summary: Collect info on color depth and pixel format.
 
 id: graphics/fresh_rate
 plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
 command: fresh_rate_info
 _description: Collect info on fresh rate.
 _summary: Collect info on fresh rate.
 
 id: graphics/graphic_memory
 plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
 command: graphic_memory_info
 _description: Collect info on graphic memory.
 _summary: Collect info on graphic memory.
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/cycle_resolution
 requires: package.name == 'xorg'
 depends: graphics/VESA_drivers_not_in_use
@@ -127,6 +138,7 @@ _description:
      Did the screen appear to be working for each mode?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/rotation
 depends: graphics/xorg-version
 command: rotation_test
@@ -142,6 +154,7 @@ _description:
      Did the display rotation take place without without permanent screen corruption?
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/compiz_check
 requires: package.name == 'nux-tools'
 command: ! /usr/lib/nux/unity_support_test -c -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
@@ -150,6 +163,7 @@ _summary: Test Compiz support
 _description: Check that hardware is able to run compiz
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/unity-support
 requires: package.name == 'nux-tools'
 command: ! /usr/lib/nux/unity_support_test -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
@@ -158,6 +172,7 @@ _description: Check that hardware is able to run Unity 3D
 _summary: Test Unity 3D support
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/glxgears
 requires: package.name == 'mesa-utils'
 command: glxgears; true
@@ -173,6 +188,7 @@ _description:
      2. Was the animation free from slowness/jerkiness?
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/3d_window_open_close
 requires: package.name == 'mesa-utils'
 command: window_test -t open-close -i 10
@@ -181,6 +197,7 @@ _summary: Test 3D window open/close
 _description: Open and close a 3D window multiple times
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/3d_window_suspend_resume
 requires: package.name == 'mesa-utils'
 command: window_test -t suspend-resume -i 10
@@ -189,6 +206,7 @@ _description: Open, suspend resume and close a 3D window multiple times
 _summary: Test a 3D window with suspend/resume
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/multi_3d_windows_open_close
 requires: package.name == 'mesa-utils'
 command: window_test -t open-close-multi -i 10 -w 4
@@ -197,6 +215,7 @@ _description: Open and close 4 3D windows multiple times
 _summary: Test Multi 3D window open/close
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/3d_window_move
 requires: package.name == 'mesa-utils'
 command: window_test -t move
@@ -205,6 +224,7 @@ _description: Move a 3D window around the screen
 _summary: Test 3D window movement
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/screenshot
 requires: package.name == 'fswebcam'
 command: set -o pipefail; camera_test still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot.jpg -q 2>&1 | ansi_parser
@@ -218,6 +238,7 @@ _description:
      Review attachment manually later
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::graphics
 id: screenshot.jpg
 depends: graphics/screenshot
 command: base64 ${PLAINBOX_SESSION_SHARE}/screenshot.jpg
@@ -225,6 +246,7 @@ _description: Attaches the screenshot captured in graphics/screenshot.
 _summary: Attach results of screenshot test 
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/screenshot_fullscreen_video
 requires: package.name == 'fswebcam'
 command:
@@ -246,6 +268,7 @@ _description:
      Review attachment manually later
 
 plugin: attachment
+category_id: 2013.com.canonical.plainbox::graphics
 id: screenshot_fullscreen_video.jpg
 depends: graphics/screenshot_fullscreen_video
 command: base64 ${PLAINBOX_SESSION_SHARE}/screenshot_fullscreen_video.jpg

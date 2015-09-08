@@ -1,4 +1,5 @@
 plugin: manual
+category_id: 2013.com.canonical.plainbox::fingerprint
 id: fingerprint/login
 _description:
  PURPOSE:
@@ -14,6 +15,7 @@ _description:
     Did the authentication procedure work correctly?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::fingerprint
 id: fingerprint/unlock
 _description:
  PURPOSE:

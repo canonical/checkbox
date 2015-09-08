@@ -7,6 +7,7 @@ command:
  cat << 'EOF' | run_templates -s "mir_integration_tests --gtest_list_tests | sed -n '/\.$/s/\.$//p'"
  estimated_duration: 0.5
  plugin: shell
+ category_id: 2013.com.canonical.plainbox::mir
  id: mir/integration/$1
  requires: package.name == 'mir-test-tools'
  command: mir_integration_tests --gtest_filter=$1*
@@ -22,6 +23,7 @@ command:
  cat << 'EOF' | run_templates -s "mir_acceptance_tests --gtest_list_tests | sed -n '/\.$/s/\.$//p'"
  estimated_duration: 0.5
  plugin: shell
+ category_id: 2013.com.canonical.plainbox::mir
  id: mir/acceptance/$1
  requires: package.name == 'mir-test-tools'
  command: mir_acceptance_tests --gtest_filter=$1*

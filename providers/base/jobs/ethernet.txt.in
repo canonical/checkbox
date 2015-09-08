@@ -1,4 +1,5 @@
 plugin: shell
+category_id: 2013.com.canonical.plainbox::ethernet
 id: ethernet/detect
 requires:
  device.category == 'NETWORK' or device.category == 'WIRELESS'
@@ -9,6 +10,7 @@ estimated_duration: 1.2
 _description: Test to detect the available network controllers
 
 plugin: shell
+category_id: 2013.com.canonical.plainbox::ethernet
 id: ethernet/info_automated
 requires:
  executable.name == 'ip'
@@ -19,6 +21,7 @@ _description:
  This is an automated test to gather some info on the current state of your network devices. If no devices are found, the test will exit with an error.
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::ethernet
 id: ethernet/wired_connection
 command: network_check
 estimated_duration: 1.2
@@ -40,6 +43,7 @@ _description: Automated test to walk multiple network cards and test each one in
 command:
  cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
  plugin: shell
+ category_id: 2013.com.canonical.plainbox::ethernet
  id: ethernet/multi_nic_$2
  requires:
   package.name == 'ethtool'
@@ -60,6 +64,7 @@ requires:
 command: 
  cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
  plugin: shell
+ category_id: 2013.com.canonical.plainbox::ethernet
  id: ethernet/ethertool_check_$2
  requires: device.path == "$1"
  command: ethtool $2
@@ -79,6 +84,7 @@ requires:
 command:
  cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
  plugin: user-interact-verify
+ category_id: 2013.com.canonical.plainbox::ethernet
  user: root
  id: ethernet/maximum_bandwidth_$2
  requires: device.path == "$1"
@@ -107,6 +113,7 @@ _description: Automated test that tests performance of each wired network device
 command:
  cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
  plugin: shell
+ category_id: 2013.com.canonical.plainbox::ethernet
  id: ethernet/stress_performance_$2
  requires: device.path == "$1"
  user: root

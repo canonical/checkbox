@@ -1,4 +1,5 @@
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::keys
 id: keys/lock-screen
 estimated_duration: 30.0
 requires:
@@ -17,6 +18,7 @@ _description:
      automatically selected result.
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::keys
 id: keys/brightness
 estimated_duration: 30.0
 requires: dmi.product in ['Notebook','Laptop','Portable']
@@ -29,6 +31,7 @@ _description:
      Did the brightness change following to your key presses?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::keys
 id: keys/volume
 estimated_duration: 30.0
 requires:
@@ -46,6 +49,7 @@ _description:
      Do the keys work as expected?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::keys
 id: keys/mute
 estimated_duration: 30.0
 requires:
@@ -62,6 +66,7 @@ _description:
      Does the mute key work as expected?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::keys
 id: keys/sleep
 estimated_duration: 90.0
 requires:
@@ -76,6 +81,7 @@ _description:
      Did the system go to sleep after pressing the sleep key?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::keys
 id: keys/battery-info
 estimated_duration: 30.0
 requires: dmi.product in ['Notebook','Laptop','Portable']
@@ -93,6 +99,7 @@ _description:
      Did the Battery Info key work as expected?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::keys
 id: keys/wireless
 estimated_duration: 90.0
 requires: dmi.product in ['Notebook','Laptop','Portable']
@@ -112,6 +119,7 @@ _description:
      only consider the functionality of the wifi itself here.)
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::keys
 id: keys/media-control
 estimated_duration: 30.0
 requires:
@@ -129,6 +137,7 @@ _description:
      Do the keys work as expected?
 
 plugin: user-interact
+category_id: 2013.com.canonical.plainbox::keys
 id: keys/super
 estimated_duration: 30.0
 requires:
@@ -145,6 +154,7 @@ _description:
      Does the super key work as expected?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::keys
 id: keys/video-out
 estimated_duration: 120.0
 requires: dmi.product in ['Notebook','Laptop','Portable']
@@ -158,6 +168,7 @@ _description:
      Check that the video signal can be mirrored, extended, displayed on external or onboard only.
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::keys
 id: keys/touchpad
 estimated_duration: 30.0
 requires: dmi.product in ['Notebook','Laptop','Portable']
@@ -172,6 +183,7 @@ _description:
      Verify the touchpad has been disabled and re-enabled.
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::keys
 id: keys/keyboard-backlight
 estimated_duration: 30.0
 requires: dmi.product in ['Notebook','Laptop','Portable']
@@ -187,6 +199,7 @@ _description:
      Did the keyboard backlight state change on each press?
 
 plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::keys
 id: keys/microphone-mute
 estimated_duration: 60.0
 requires:
@@ -213,6 +226,7 @@ _description:
      Does the microphone mute key work as expected?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::keys
 id: keys/hibernate
 estimated_duration: 120.0
 requires: dmi.product in ['Notebook','Laptop','Portable']
@@ -227,6 +241,7 @@ _description:
      Did the system go to hibernate after pressing the hibernate key?
 
 plugin: manual
+category_id: 2013.com.canonical.plainbox::keys
 id: keys/keyboard-overhead-light
 estimated_duration: 30.0
 requires: dmi.product in ['Notebook','Laptop','Portable']

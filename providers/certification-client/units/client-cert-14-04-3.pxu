@@ -258,7 +258,6 @@ include:
     usb/remove                                             certification-status=blocker
     usb3/insert                                            certification-status=blocker
     usb3/storage-automated                                 certification-status=blocker
-    usb3/superspeed_performance                            certification-status=blocker
     usb3/remove                                            certification-status=blocker
     __wireless__
     wireless/wireless_scanning                             certification-status=blocker

@@ -181,7 +181,6 @@ usb/storage-automated
 usb/remove
 usb3/insert
 usb3/storage-automated
-usb3/superspeed_performance
 usb3/remove
 __wireless__
 wireless/wireless_scanning

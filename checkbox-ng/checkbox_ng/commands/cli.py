@@ -28,7 +28,6 @@
 from argparse import SUPPRESS
 from gettext import gettext as _
 from logging import getLogger
-import argparse
 
 from plainbox.impl.commands import PlainBoxCommand
 from plainbox.impl.commands.cmd_checkbox import CheckBoxCommandMixIn
@@ -64,12 +63,7 @@ class CliCommand(PlainBoxCommand, CheckBoxCommandMixIn):
         parser = subparsers.add_parser(self.settings['subparser_name'],
                                        help=self.settings['subparser_help'])
         parser.set_defaults(command=self)
-        parser.set_defaults(dry_run=False, new_ui=True)
-        parser.add_argument(
-            '--new-ui', help=argparse.SUPPRESS, action='store_true')
-        parser.add_argument(
-            '--old-ui', dest='new_ui', help=argparse.SUPPRESS,
-            action='store_false')
+        parser.set_defaults(dry_run=False)
         parser.add_argument(
             "--check-config",
             action="store_true",

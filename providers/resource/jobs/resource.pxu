@@ -20,7 +20,7 @@ Suggests: x11-server-utils
 # This is for bin/dmi_resource
 unit: packaging meta-data
 os-id: debian
-Depends: dmidecode
+Depends: dmidecode [!armel !mips !mipsel !powerpc !ppc64el !s390x]
 
 # This is for bin/dpkg_resource
 unit: packaging meta-data

@@ -228,6 +228,10 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
         return self.get_record_value('mandatory_include')
 
     @property
+    def bootstrap_include(self):
+        return self.get_record_value('bootstrap_include')
+
+    @property
     def exclude(self):
         return self.get_record_value('exclude')
 
@@ -298,6 +302,7 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
         qual_list = []
         qual_list.extend(self._gen_qualifiers('include', self.include, True))
         qual_list.extend(self._gen_qualifiers('exclude', self.exclude, False))
+        qual_list.extend([self.get_bootstrap_qualifier()])
         return CompositeQualifier(qual_list)
 
     def get_mandatory_qualifier(self):

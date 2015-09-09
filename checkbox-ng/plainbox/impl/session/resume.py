@@ -18,6 +18,8 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+Session resume handling.
+
 :mod:`plainbox.impl.session.resume` -- session resume handling
 ==============================================================
 
@@ -66,14 +68,20 @@ logger = logging.getLogger("plainbox.session.resume")
 
 
 class SessionResumeError(Exception):
+
     """
+    Base for all session resume exceptions.
+
     Base class for exceptions that can be raised when attempting to
     resume a dormant session.
     """
 
 
 class CorruptedSessionError(SessionResumeError):
+
     """
+    Exception raised when suspended session is corrupted.
+
     Exception raised when :class:`SessionResumeHelper` cannot decode
     the session byte stream. This exception will be raised with additional
     context that captures the actual underlying cause. Having this exception
@@ -82,7 +90,10 @@ class CorruptedSessionError(SessionResumeError):
 
 
 class IncompatibleSessionError(SessionResumeError):
+
     """
+    Exception raised when suspended session is correct but incompatible.
+
     Exception raised when :class:`SessionResumeHelper` comes across malformed
     or unsupported data that was (presumably) produced by
     :class:`SessionSuspendHelper`
@@ -90,14 +101,20 @@ class IncompatibleSessionError(SessionResumeError):
 
 
 class IncompatibleJobError(SessionResumeError):
+
     """
+    Exception raised when suspended session needs a different version of a job.
+
     Exception raised when :class:`SessionResumeHelper` detects that the set of
     jobs it knows about is incompatible with what was saved before.
     """
 
 
 class BrokenReferenceToExternalFile(SessionResumeError):
+
     """
+    Exception raised when suspended session needs an external file that's gone.
+
     Exception raised when :class:`SessionResumeHelper` detects that a file
     needed by the session to resume is not present. This is typically used to
     signal inaccessible log files.
@@ -105,13 +122,18 @@ class BrokenReferenceToExternalFile(SessionResumeError):
 
 
 class EnvelopeUnpackMixIn:
+
     """
-    A mix-in class capable of unpacking the envelope of the session storage
+    A mix-in class capable of unpacking the envelope of the session storage.
+
+    This class assists in unpacking the "envelope" in which the session data is
+    actually stored. The envelope is simply gzip but other kinds of envelope
+    can be added later.
     """
 
     def unpack_envelope(self, data):
         """
-        Unpack the binary envelope and get access to a JSON object
+        Unpack the binary envelope and get access to a JSON object.
 
         :param data:
             Bytes representing the dormant session
@@ -135,6 +157,8 @@ class EnvelopeUnpackMixIn:
 
 
 class SessionPeekHelper(EnvelopeUnpackMixIn):
+
+    """A helper class to peek at session state meta-data quickly."""
 
     def peek(self, data):
         """
@@ -182,6 +206,7 @@ class SessionPeekHelper(EnvelopeUnpackMixIn):
 
 
 class SessionResumeHelper(EnvelopeUnpackMixIn):
+
     """
     Helper class for implementing session resume feature.
 
@@ -310,24 +335,38 @@ class SessionResumeHelper(EnvelopeUnpackMixIn):
 
 
 class ResumeDiscardQualifier(SimpleQualifier):
+
     """
+    Qualifier for jobs that need to be discarded after resume.
+
     A job qualifier that designates jobs that should be removed
     after doing a session resume.
     """
 
     def __init__(self, retain_id_set):
+        """
+        Initialize the qualifier.
+
+        :param retain_id_set:
+            The set of job identifiers that should be retained on resume.
+        """
         super().__init__(Origin.get_caller_origin())
         self._retain_id_set = frozenset(retain_id_set)
 
     def get_simple_match(self, job):
+        """Check if a job should be listed by this qualifier."""
         return job.id not in self._retain_id_set
 
 
 class MetaDataHelper1MixIn:
 
+    """Mix-in class for working with v1 meta-data."""
+
     @classmethod
     def _restore_SessionState_metadata(cls, metadata, session_repr):
         """
+        Reconstruct the session state meta-data.
+
         Extract meta-data information from the representation of the session
         and set it in the given session object
         """
@@ -350,9 +389,13 @@ class MetaDataHelper1MixIn:
 
 class MetaDataHelper2MixIn(MetaDataHelper1MixIn):
 
+    """Mix-in class for working with v2 meta-data."""
+
     @classmethod
     def _restore_SessionState_metadata(cls, metadata, session_repr):
         """
+        Reconstruct the session state meta-data.
+
         Extract meta-data information from the representation of the session
         and set it in the given session object
         """
@@ -379,9 +422,13 @@ class MetaDataHelper2MixIn(MetaDataHelper1MixIn):
 
 class MetaDataHelper3MixIn(MetaDataHelper2MixIn):
 
+    """Mix-in class for working with v3 meta-data."""
+
     @classmethod
     def _restore_SessionState_metadata(cls, metadata, session_repr):
         """
+        Reconstruct the session state meta-data.
+
         Extract meta-data information from the representation of the session
         and set it in the given session object
         """
@@ -395,8 +442,9 @@ class MetaDataHelper3MixIn(MetaDataHelper2MixIn):
 
 
 class SessionPeekHelper1(MetaDataHelper1MixIn):
+
     """
-    Helper class for implementing session peek feature
+    Helper class for implementing session peek feature.
 
     This class works with data constructed by
     :class:`~plainbox.impl.session.suspend.SessionSuspendHelper1` which has
@@ -434,8 +482,9 @@ class SessionPeekHelper1(MetaDataHelper1MixIn):
 
 
 class SessionPeekHelper2(MetaDataHelper2MixIn, SessionPeekHelper1):
+
     """
-    Helper class for implementing session peek feature
+    Helper class for implementing session peek feature.
 
     This class works with data constructed by
     :class:`~plainbox.impl.session.suspend.SessionSuspendHelper1` which has
@@ -447,8 +496,9 @@ class SessionPeekHelper2(MetaDataHelper2MixIn, SessionPeekHelper1):
 
 
 class SessionPeekHelper3(MetaDataHelper3MixIn, SessionPeekHelper2):
+
     """
-    Helper class for implementing session peek feature
+    Helper class for implementing session peek feature.
 
     This class works with data constructed by
     :class:`~plainbox.impl.session.suspend.SessionSuspendHelper1` which has
@@ -460,8 +510,9 @@ class SessionPeekHelper3(MetaDataHelper3MixIn, SessionPeekHelper2):
 
 
 class SessionPeekHelper4(SessionPeekHelper3):
+
     """
-    Helper class for implementing session peek feature
+    Helper class for implementing session peek feature.
 
     This class works with data constructed by
     :class:`~plainbox.impl.session.suspend.SessionSuspendHelper1` which has
@@ -473,8 +524,9 @@ class SessionPeekHelper4(SessionPeekHelper3):
 
 
 class SessionPeekHelper5(SessionPeekHelper4):
+
     """
-    Helper class for implementing session peek feature
+    Helper class for implementing session peek feature.
 
     This class works with data constructed by
     :class:`~plainbox.impl.session.suspend.SessionSuspendHelper5` which has
@@ -499,8 +551,9 @@ class SessionPeekHelper6(SessionPeekHelper5):
 
 
 class SessionResumeHelper1(MetaDataHelper1MixIn):
+
     """
-    Helper class for implementing session resume feature
+    Helper class for implementing session resume feature.
 
     This class works with data constructed by
     :class:`~plainbox.impl.session.suspend.SessionSuspendHelper1` which has
@@ -678,7 +731,7 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
 
     def _process_job(self, session, jobs_repr, results_repr, job_id):
         """
-        Process all representation details associated with a particular job
+        Process all representation details associated with a particular job.
 
         This method takes a session object, representation of all the jobs
         and all the results (and a job id) and tries to reconstruct the
@@ -733,6 +786,8 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
     @classmethod
     def _restore_SessionState_desired_job_list(cls, session, session_repr):
         """
+        Reconstruct the list of desired jobs.
+
         Extract the representation of desired_job_list from the session and
         set it back to the session object. This method should be called after
         all the jobs are discovered.
@@ -791,6 +846,8 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
     @classmethod
     def _restore_SessionState_job_list(cls, session, session_repr):
         """
+        Reconstruct the list of known jobs.
+
         Trim job_list so that it has only those jobs that are mentioned by the
         session representation. This should never fail as anything that might
         go wrong must have gone wrong before.
@@ -824,6 +881,8 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
     @classmethod
     def _build_JobResult(cls, result_repr, flags, location):
         """
+        Reconstruct a single job result.
+
         Convert the representation of MemoryJobResult or DiskJobResult
         back into an actual instance.
         """
@@ -888,9 +947,7 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
 
     @classmethod
     def _build_IOLogRecord(cls, record_repr):
-        """
-        Convert the representation of IOLogRecord back the the object
-        """
+        """Convert the representation of IOLogRecord back the object."""
         _validate(record_repr, value_type=list)
         delay = _validate(record_repr, key=0, value_type=float)
         if delay < 0:
@@ -917,8 +974,9 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
 
 
 class SessionResumeHelper2(MetaDataHelper2MixIn, SessionResumeHelper1):
+
     """
-    Helper class for implementing session resume feature
+    Helper class for implementing session resume feature.
 
     This class works with data constructed by
     :class:`~plainbox.impl.session.suspend.SessionSuspendHelper2` which has
@@ -936,8 +994,9 @@ class SessionResumeHelper2(MetaDataHelper2MixIn, SessionResumeHelper1):
 
 
 class SessionResumeHelper3(MetaDataHelper3MixIn, SessionResumeHelper2):
+
     """
-    Helper class for implementing session resume feature
+    Helper class for implementing session resume feature.
 
     This class works with data constructed by
     :class:`~plainbox.impl.session.suspend.SessionSuspendHelper3` which has
@@ -955,8 +1014,9 @@ class SessionResumeHelper3(MetaDataHelper3MixIn, SessionResumeHelper2):
 
 
 class SessionResumeHelper4(SessionResumeHelper3):
+
     """
-    Helper class for implementing session resume feature
+    Helper class for implementing session resume feature.
 
     This class works with data constructed by
     :class:`~plainbox.impl.session.suspend.SessionSuspendHelper4` which has
@@ -974,8 +1034,9 @@ class SessionResumeHelper4(SessionResumeHelper3):
 
 
 class SessionResumeHelper5(SessionResumeHelper4):
+
     """
-    Helper class for implementing session resume feature
+    Helper class for implementing session resume feature.
 
     This class works with data constructed by
     :class:`~plainbox.impl.session.suspend.SessionSuspendHelper5` which has
@@ -1059,9 +1120,7 @@ class SessionResumeHelper6(SessionResumeHelper5):
 
 
 def _validate(obj, **flags):
-    """
-    Multi-purpose extraction and validation function.
-    """
+    """Multi-purpose extraction and validation function."""
     # Fetch data from the container OR use json_repr directly
     if 'key' in flags:
         key = flags['key']

@@ -43,13 +43,16 @@ from plainbox.impl.unit.validators import UntranslatableFieldValidator
 from plainbox.impl.unit.validators import compute_value_map
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
+from plainbox.impl.xparsers import Error
 from plainbox.impl.xparsers import FieldOverride
 from plainbox.impl.xparsers import IncludeStmt
 from plainbox.impl.xparsers import IncludeStmtList
 from plainbox.impl.xparsers import OverrideFieldList
 from plainbox.impl.xparsers import ReFixed
 from plainbox.impl.xparsers import RePattern
+from plainbox.impl.xparsers import Text
 from plainbox.impl.xparsers import Visitor
+from plainbox.impl.xparsers import WordList
 
 
 logger = logging.getLogger("plainbox.unit.testplan")
@@ -265,6 +268,24 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
         Get the translated version of :meth:`description`
         """
         return self.get_translated_record_value('description')
+
+    def get_bootstrap_job_ids(self):
+        """Compute and return a set of job ids from bootstrap_include field."""
+        job_ids = set()
+        if self.bootstrap_include is None:
+            return job_ids
+
+        class V(Visitor):
+
+            def visit_Text_node(visitor, node: Text):
+                job_ids.add(self.qualify_id(node.text))
+
+            def visit_Error_node(visitor, node: Error):
+                logger.warning(_(
+                    "unable to parse bootstrap_include: %s"), node.msg)
+
+        V().visit(WordList.parse(self.bootstrap_include))
+        return job_ids
 
     def get_qualifier(self):
         """

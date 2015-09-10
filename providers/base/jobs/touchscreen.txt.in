@@ -134,6 +134,7 @@ command:
     manage_compiz_plugin unityshell disable
     qmlscene -qt5 $PLAINBOX_PROVIDER_DATA/touch_tap_test.qml --touchpoints=3 2>&1 | grep -o PASS
     EXIT=$?
+    sleep 5
     manage_compiz_plugin unityshell enable
     exit $EXIT
 
@@ -154,5 +155,6 @@ command:
     manage_compiz_plugin unityshell disable
     qmlscene -qt5 $PLAINBOX_PROVIDER_DATA/touch_tap_test.qml --touchpoints=4 2>&1 | grep -o PASS
     EXIT=$?
+    sleep 5
     manage_compiz_plugin unityshell enable
     exit $EXIT

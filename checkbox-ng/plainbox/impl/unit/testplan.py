@@ -36,9 +36,11 @@ from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import CorrectFieldValueValidator
 from plainbox.impl.unit.validators import FieldValidatorBase
 from plainbox.impl.unit.validators import PresentFieldValidator
+from plainbox.impl.unit.validators import ReferenceConstraint
 from plainbox.impl.unit.validators import TemplateInvariantFieldValidator
 from plainbox.impl.unit.validators import TemplateVariantFieldValidator
 from plainbox.impl.unit.validators import TranslatableFieldValidator
+from plainbox.impl.unit.validators import UnitReferenceValidator
 from plainbox.impl.unit.validators import UntranslatableFieldValidator
 from plainbox.impl.unit.validators import compute_value_map
 from plainbox.impl.validation import Problem
@@ -521,6 +523,7 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
             description = 'description'
             include = 'include'
             mandatory_include = 'mandatory_include'
+            bootstrap_include = 'bootstrap_include'
             exclude = 'exclude'
             estimated_duration = 'estimated_duration'
             icon = 'icon'
@@ -557,6 +560,21 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
             fields.mandatory_include: [
                 NonEmptyPatternIntersectionValidator,
                 NoBaseIncludeValidator,
+            ],
+            fields.bootstrap_include: [
+                UntranslatableFieldValidator,
+                NoBaseIncludeValidator,
+                UnitReferenceValidator(
+                    lambda unit: unit.get_bootstrap_job_ids(),
+                    constraints=[
+                        ReferenceConstraint(
+                            lambda referrer, referee: referee.unit == 'job',
+                            message=_("the referenced unit is not a job")),
+                        ReferenceConstraint(
+                            lambda referrer, referee: (
+                                referee.plugin in ['local', 'resource']),
+                            message=_("only local and resource jobs are "
+                                      "allowed in bootstrapping_include"))])
             ],
             fields.exclude: [
                 NonEmptyPatternIntersectionValidator,

@@ -633,11 +633,16 @@ class SessionAssistant:
         # NOTE: there is next-to-none UI here as bootstrap jobs are limited to
         # just resource and local jobs (including their dependencies) so there
         # should be very little UI required.
-        #
-        # TODO: look at the selected test plan
-        # TODO: do a boostrap include selection
-        # TODO: run all bootstrap jobs
-
+        desired_job_list = select_jobs(
+            self._context.state.job_list,
+            [plan.get_bootstrap_qualifier() for plan in (
+                self._manager.test_plans)])
+        self._context.state.update_desired_job_list(desired_job_list)
+        for job in self._context.state.run_list:
+            UsageExpectation.of(self).allowed_calls[self.run_job] = (
+                "to run bootstrapping job")
+            rb = self.run_job(job.id, 'silent', False)
+            self.use_job_result(job.id, rb.get_result())
         # Perform initial selection -- we want to run everything that is
         # described by the test plan that was selected earlier.
         desired_job_list = select_jobs(

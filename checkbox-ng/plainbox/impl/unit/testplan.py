@@ -36,20 +36,25 @@ from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import CorrectFieldValueValidator
 from plainbox.impl.unit.validators import FieldValidatorBase
 from plainbox.impl.unit.validators import PresentFieldValidator
+from plainbox.impl.unit.validators import ReferenceConstraint
 from plainbox.impl.unit.validators import TemplateInvariantFieldValidator
 from plainbox.impl.unit.validators import TemplateVariantFieldValidator
 from plainbox.impl.unit.validators import TranslatableFieldValidator
+from plainbox.impl.unit.validators import UnitReferenceValidator
 from plainbox.impl.unit.validators import UntranslatableFieldValidator
 from plainbox.impl.unit.validators import compute_value_map
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
+from plainbox.impl.xparsers import Error
 from plainbox.impl.xparsers import FieldOverride
 from plainbox.impl.xparsers import IncludeStmt
 from plainbox.impl.xparsers import IncludeStmtList
 from plainbox.impl.xparsers import OverrideFieldList
 from plainbox.impl.xparsers import ReFixed
 from plainbox.impl.xparsers import RePattern
+from plainbox.impl.xparsers import Text
 from plainbox.impl.xparsers import Visitor
+from plainbox.impl.xparsers import WordList
 
 
 logger = logging.getLogger("plainbox.unit.testplan")
@@ -225,6 +230,10 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
         return self.get_record_value('mandatory_include')
 
     @property
+    def bootstrap_include(self):
+        return self.get_record_value('bootstrap_include')
+
+    @property
     def exclude(self):
         return self.get_record_value('exclude')
 
@@ -266,6 +275,24 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
         """
         return self.get_translated_record_value('description')
 
+    def get_bootstrap_job_ids(self):
+        """Compute and return a set of job ids from bootstrap_include field."""
+        job_ids = set()
+        if self.bootstrap_include is None:
+            return job_ids
+
+        class V(Visitor):
+
+            def visit_Text_node(visitor, node: Text):
+                job_ids.add(self.qualify_id(node.text))
+
+            def visit_Error_node(visitor, node: Error):
+                logger.warning(_(
+                    "unable to parse bootstrap_include: %s"), node.msg)
+
+        V().visit(WordList.parse(self.bootstrap_include))
+        return job_ids
+
     def get_qualifier(self):
         """
         Convert this test plan to an equivalent qualifier for job selection
@@ -277,6 +304,7 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
         qual_list = []
         qual_list.extend(self._gen_qualifiers('include', self.include, True))
         qual_list.extend(self._gen_qualifiers('exclude', self.exclude, False))
+        qual_list.extend([self.get_bootstrap_qualifier(excluding=True)])
         return CompositeQualifier(qual_list)
 
     def get_mandatory_qualifier(self):
@@ -289,6 +317,20 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
         """
         qual_list = []
         qual_list.extend(self._gen_qualifiers('include', self.mandatory_include, True))
+        return CompositeQualifier(qual_list)
+
+    def get_bootstrap_qualifier(self, excluding=False):
+        """
+        Convert this test plan to an equivalent qualifier for job selection
+        """
+        qual_list = []
+        if self.bootstrap_include is None:
+            return CompositeQualifier(qual_list)
+        field_origin = self.origin.just_line().with_offset(
+            self.field_offset_map['bootstrap_include'])
+        qual_list = [FieldQualifier(
+            'id', OperatorMatcher(operator.eq, target_id), field_origin,
+            not excluding) for target_id in self.get_bootstrap_job_ids()]
         return CompositeQualifier(qual_list)
 
     def _gen_qualifiers(self, field_name, field_value, inclusive):
@@ -481,6 +523,7 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
             description = 'description'
             include = 'include'
             mandatory_include = 'mandatory_include'
+            bootstrap_include = 'bootstrap_include'
             exclude = 'exclude'
             estimated_duration = 'estimated_duration'
             icon = 'icon'
@@ -517,6 +560,21 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
             fields.mandatory_include: [
                 NonEmptyPatternIntersectionValidator,
                 NoBaseIncludeValidator,
+            ],
+            fields.bootstrap_include: [
+                UntranslatableFieldValidator,
+                NoBaseIncludeValidator,
+                UnitReferenceValidator(
+                    lambda unit: unit.get_bootstrap_job_ids(),
+                    constraints=[
+                        ReferenceConstraint(
+                            lambda referrer, referee: referee.unit == 'job',
+                            message=_("the referenced unit is not a job")),
+                        ReferenceConstraint(
+                            lambda referrer, referee: (
+                                referee.plugin in ['local', 'resource']),
+                            message=_("only local and resource jobs are "
+                                      "allowed in bootstrapping_include"))])
             ],
             fields.exclude: [
                 NonEmptyPatternIntersectionValidator,

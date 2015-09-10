@@ -136,6 +136,21 @@ copy such constructs when working on a new test plan from scratch
     Note that mandatory jobs will always be run first (along with their
     dependant jobs)
 
+``bootstrap_include``:
+    A multi-line list of job identifiers that should be run first, before the
+    main body of testing begins. The job that should be included in the
+    bootstrapping sections are the ones generating or helping to generate other
+    jobs.
+
+    Example:
+
+        bootstrap_include:
+            graphics/generator_driver_version
+
+    Note that each entry in the bootstrap_include section must be a valid job
+    identifier and cannot be a regular expression pattern.
+    Also note that only local and resource jobs are allowed in this section.
+
 ``exclude``:
     A multi-line list of job identifiers or patterns matching such identifiers
     that should be excluded from execution.
@@ -277,3 +292,60 @@ to some of its own definitions::
         2013.com.canonical.certification:disk/.*
         multipath-io
         degrade-array-recovery
+
+A test plan that generates jobs using bootstrap_include section::
+
+    unit: test plan
+    id: test-plan-with-bootstrapping
+    _name: Tests with a bootstrapping stage
+    _description:
+        This test plan uses bootstrapping_include field to generate additional
+        jobs depending on the output of the generator job.
+    include: .*
+    bootstrap_include:
+        generator
+
+    unit: job
+    id: generator
+    plugin: resource
+    _description: Job that generates Foo and Bar resources
+    command:
+     echo "my_resource: Foo"
+     echo
+     echo "my_resource: Bar"
+
+    unit: template
+    template-unit: job
+    template-resource: generator
+    plugin: shell
+    estimated_duration: 1
+    id: generated_job_{my_resource}
+    command: echo {my_resource}
+    _description: Job instantiated from template that echoes {my_resource}
+
+
+
+A test plan that marks some jobs as mandatory::
+    unit: test plan
+    id: test-plan-with-mandatory-jobs
+    _name: Test plan with mandatory jobs
+    _description:
+        This test plan runs some jobs regardless of user selection.
+    include:
+        Foo
+    mandatory_include:
+        Bar
+
+    unit: job
+    id: Foo
+    _name: Foo job
+    _description: Job that might be deselected by the user
+    plugin: shell
+    command: echo Foo job
+
+    unit: job
+    id: Bar
+    _name: Bar job (mandatory)
+    _description: Job that should *always* run
+    plugin: shell
+    command: echo Bar job

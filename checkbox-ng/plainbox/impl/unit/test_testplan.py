@@ -104,6 +104,17 @@ class TestTestPlan(TestCase):
         }, provider=self.provider)
         self.assertEqual(unit.mandatory_include, "mandatory_include")
 
+    def test_bootstrap_include__default(self):
+        unit = TestPlanUnit({
+        }, provider=self.provider)
+        self.assertEqual(unit.bootstrap_include, None)
+
+    def test_bootstrap_include__normal(self):
+        unit = TestPlanUnit({
+            'bootstrap_include': 'bootstrap_include'
+        }, provider=self.provider)
+        self.assertEqual(unit.bootstrap_include, 'bootstrap_include')
+
     def test_exclude__default(self):
         unit = TestPlanUnit({
         }, provider=self.provider)
@@ -326,3 +337,20 @@ class TestTestPlan(TestCase):
         unit = TestPlanUnit({}, provider=self.provider)
         with self.assertRaisesRegex(ValueError, "expected override value"):
             unit.parse_category_overrides('apply')
+
+    def test_get_bootstrap_job_ids__empty(self):
+        unit = TestPlanUnit({}, provider=None)
+        self.assertEqual(unit.get_bootstrap_job_ids(), set())
+
+    def test_get_bootstrap_job_ids__normal(self):
+        unit = TestPlanUnit({
+            'bootstrap_include': 'Foo\nBar'
+        }, provider=None)
+        self.assertEqual(unit.get_bootstrap_job_ids(), set(['Foo', 'Bar']))
+
+    def test_get_bootstrap_job_ids__qualified_ids(self):
+        unit = TestPlanUnit({
+            'bootstrap_include': 'Foo\nBar'
+        }, provider=self.provider)
+        self.assertEqual(unit.get_bootstrap_job_ids(),
+                         set(['ns::Foo', 'ns::Bar']))

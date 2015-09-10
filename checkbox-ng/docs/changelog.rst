@@ -6,10 +6,26 @@ ChangeLog
     accounting of development history please inspect the source history
     directly.
 
+.. _version_0_23:
+
+Plainbox 0.23 (unreleased)
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Mandatory jobs - jobs may be marked as mandatory - this way they are always
+  executed - useful for jobs that get information about hardware. Use
+  mandatory_include test plan field to mark the jobs you want always to be run.
+
+* Bootstrapping jobs - applications may run jobs that generate other jobs prior
+  to the execution of the 'normal' list of jobs. Use bootstrap_include field of
+  the test plan to list all jobs that generate other jobs.
+
+  Read more about mandatory and bootstrapping jobs in
+  :doc:`plainbox test plan unit <manpages/plainbox-test-plan-units>`
+
 .. _version_0_18:
 
-Plainbox 0.18 (unreleased)
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Plainbox 0.18
+^^^^^^^^^^^^^
 
 .. note::
     This version is under active development. The details in the milestone page

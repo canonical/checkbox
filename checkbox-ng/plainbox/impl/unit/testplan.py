@@ -302,7 +302,7 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
         qual_list = []
         qual_list.extend(self._gen_qualifiers('include', self.include, True))
         qual_list.extend(self._gen_qualifiers('exclude', self.exclude, False))
-        qual_list.extend([self.get_bootstrap_qualifier()])
+        qual_list.extend([self.get_bootstrap_qualifier(excluding=True)])
         return CompositeQualifier(qual_list)
 
     def get_mandatory_qualifier(self):
@@ -315,6 +315,20 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
         """
         qual_list = []
         qual_list.extend(self._gen_qualifiers('include', self.mandatory_include, True))
+        return CompositeQualifier(qual_list)
+
+    def get_bootstrap_qualifier(self, excluding=False):
+        """
+        Convert this test plan to an equivalent qualifier for job selection
+        """
+        qual_list = []
+        if self.bootstrap_include is None:
+            return CompositeQualifier(qual_list)
+        field_origin = self.origin.just_line().with_offset(
+            self.field_offset_map['bootstrap_include'])
+        qual_list = [FieldQualifier(
+            'id', OperatorMatcher(operator.eq, target_id), field_origin,
+            not excluding) for target_id in self.get_bootstrap_job_ids()]
         return CompositeQualifier(qual_list)
 
     def _gen_qualifiers(self, field_name, field_value, inclusive):

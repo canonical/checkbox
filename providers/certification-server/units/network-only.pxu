@@ -41,3 +41,5 @@ include:
     ethernet/ethertool_check_.*
     ethernet/multi_nic
     ethernet/multi_nic_.*
+    ethernet/multi_iperf3_nic
+    ethernet/multi_iperf3_nic_.*

@@ -78,10 +78,6 @@ class IPerfPerformanceTest(object):
                           (self.iface.link_speed, self.iface.max_speed))
             logging.error("Check your device configuration and try again")
             return 1
-        if self.cpu_load_fail_threshold != 100 and not self.iperf3:
-            logging.warn("CPU load failure threshold set without the "
-                         "--iperf3 option!")
-            logging.warn("CPU load testing will not be done!")
 
         # Because we can vary the data size, we need to vary the timeout as
         # well.  It takes an estimated 15 minutes to send 1GB over 10Mb/s.
@@ -558,7 +554,7 @@ TEST_TARGET_IPERF = iperf-server.example.com
               "theoretical bandwidth) as a number like 80.  (Default is "
               "%(default)s)"))
     test_parser.add_argument(
-        '--cpu_load_fail_threshold', type=int,
+        '--cpu-load-fail-threshold', type=int,
         default=100,
         help=("(IPERF Test ONLY and meaningful ONLY with --iperf3. Set the "
               "failure threshold (above which the CPU load must not rise) as "
@@ -601,6 +597,8 @@ TEST_TARGET_IPERF = iperf-server.example.com
     info_parser.set_defaults(func=interface_info)
 
     args = parser.parse_args()
+    if args.cpu_load_fail_threshold != 100 and not args.iperf3:
+        parser.error('--cpu-load-fail-threshold can only be set with --iperf3.')
 
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)

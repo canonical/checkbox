@@ -706,6 +706,7 @@ class SessionAssistant:
             Calling this method will alter the result of
             :meth:`get_static_todo_list()` and :meth:`get_dynamic_todo_list()`.
         """
+        UsageExpectation.of(self).enforce()
         selection = [job.id for job in [
             self.get_job(job_id) for job_id in self.get_static_todo_list()] if
             job.category_id in categories]
@@ -1219,6 +1220,8 @@ class SessionAssistant:
             self.get_category: "to access the definition of ant category",
             self.get_participating_categories: (
                 "to access participating categories"),
+            self.filter_jobs_by_categories: ("to select the jobs that match"
+                "particular category"),
             self.get_static_todo_list: "to see what is meant to be executed",
             self.get_dynamic_todo_list: "to see what is yet to be executed",
             self.run_job: "to run a given job",

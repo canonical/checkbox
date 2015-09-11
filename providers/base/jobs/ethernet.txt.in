@@ -74,7 +74,7 @@ command:
   device.path == "$1"
  user: root
  environ: TEST_TARGET_IPERF
- command: network test -i $2 -t iperf --iperf3 --fail-threshold 80 --cpu_load_fail_threshold 90 --datasize 200 --num_runs 4
+ command: network test -i $2 -t iperf --iperf3 --fail-threshold 80 --cpu-load-fail-threshold 90 --datasize 200 --num_runs 4
  estimated_duration: 7400.0
  description:
   Testing for NIC $2

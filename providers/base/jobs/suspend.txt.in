@@ -132,35 +132,6 @@ command:
 _description:
  This test executes iperf connection performance/stability against the broadband device found on the system before suspend.
 
-
-plugin: shell
-category_id: 2013.com.canonical.plainbox::suspend
-id: suspend/bluetooth_obex_before_suspend
-estimated_duration: 10.0
-requires:
- package.name == 'bluez'
- package.name == 'obexd-client'
- device.category == 'BLUETOOTH'
-command:
-  if [ -z "$BTDEVADDR" ]
-  then
-    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.ini"
-    exit 1
-  fi
-  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
-  then
-    echo "rfkill shows BT is hard blocked"
-  fi
-  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
-  then
-    echo "rfkill shows BT is soft blocked, removing before testing."
-    rfkill unblock bluetooth
-    sleep 3
-  fi
-  obex_send $BTDEVADDR $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg
-_description:
- This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
-
 plugin: shell
 category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_send_before_suspend
@@ -244,25 +215,6 @@ command:
   set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR get 2>&1 | ansi_parser
 _description:
  This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR environment variable
-
-plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::suspend
-id: suspend/bluetooth_obex_before_suspend_manual
-estimated_duration: 120.0
-requires:
- package.name == 'bluez'
- package.name == 'obexd-client'
- device.category == 'BLUETOOTH'
-command: rfkill unblock bluetooth; obex_send `bluetooth_scan` $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg
-_description:
- PURPOSE:
-     This test will send the image 'JPEG_Color_Image_Ubuntu.jpg' to a specified device
- STEPS:
-     1. Make sure Bluetooth is enabled by checking the Bluetooth indicator applet
-     2. Click "Test" and you will be prompted to enter the Bluetooth device name of a device that can accept file transfers (It may take a few moments after entering the name for the file to begin sending)
-     3. Accept any prompts that appear on both devices
- VERIFICATION:
-     Was the data correctly transferred?
 
 plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::suspend
@@ -1295,64 +1247,6 @@ _description:
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::suspend
-id: suspend/bluetooth_obex_after_suspend
-depends: suspend/suspend_advanced suspend/bluetooth_obex_before_suspend
-estimated_duration: 10.0
-requires:
- package.name == 'bluez'
- package.name == 'obexd-client'
- device.category == 'BLUETOOTH'
-command:
-  if [ -z "$BTDEVADDR" ]
-  then
-    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.ini"
-    exit 1
-  fi
-  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
-  then
-    echo "rfkill shows BT is hard blocked"
-  fi
-  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
-  then
-    echo "rfkill shows BT is soft blocked, removing before testing."
-    rfkill unblock bluetooth
-    sleep 3
-  fi
-  obex_send $BTDEVADDR $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg
-_description:
- This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
-
-plugin: shell
-category_id: 2013.com.canonical.plainbox::suspend
-id: suspend/bluetooth_obex_after_suspend_auto
-depends: suspend/suspend_advanced_auto suspend/bluetooth_obex_before_suspend
-estimated_duration: 10.0
-requires:
- package.name == 'bluez'
- package.name == 'obexd-client'
- device.category == 'BLUETOOTH'
-command:
-  if [ -z "$BTDEVADDR" ]
-  then
-    echo "btdevaddr option not set to device address of Bluetooth target in checkbox.ini"
-    exit 1
-  fi
-  if rfkill list bluetooth | grep -q 'Hard blocked: yes'
-  then
-    echo "rfkill shows BT is hard blocked"
-  fi
-  if rfkill list bluetooth | grep -q 'Soft blocked: yes'
-  then
-    echo "rfkill shows BT is soft blocked, removing before testing."
-    rfkill unblock bluetooth
-    sleep 3
-  fi
-  obex_send $BTDEVADDR $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg
-_description:
- This is an automated Bluetooth file transfer test. It sends an image to the device specified by the BTDEVADDR environment variable.
-
-plugin: shell
-category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_send_after_suspend
 depends: suspend/suspend_advanced
 estimated_duration: 10.0
@@ -1524,25 +1418,6 @@ command:
   set -o pipefail; bluetooth_test $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg $BTDEVADDR get 2>&1 | ansi_parser
 _description:
  This is an automated Bluetooth test. It receives the given file from a remote host specified by the BTDEVADDR environment variable
-
-plugin: user-interact-verify
-category_id: 2013.com.canonical.plainbox::suspend
-id: suspend/bluetooth_obex_after_suspend_manual
-depends: suspend/suspend_advanced suspend/bluetooth_obex_before_suspend_manual
-estimated_duration: 120.0
-requires:
- package.name == 'bluez'
- package.name == 'obexd-client'
- device.category == 'BLUETOOTH'
-command: rfkill unblock bluetooth; obex_send `bluetooth_scan` $PLAINBOX_PROVIDER_DATA/images/JPEG_Color_Image_Ubuntu.jpg
-_description:
- PURPOSE:
-     This test will send the image 'JPEG_Color_Image_Ubuntu.jpg' to a specified device
- STEPS:
-     1. Click "Test" and you will be prompted to enter the Bluetooth device name of a device that can accept file transfers (It may take a few moments after entering the name for the file to begin sending)
-     2. Accept any prompts that appear on both devices
- VERIFICATION:
-     Was the data correctly transferred?
 
 plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::suspend

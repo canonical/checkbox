@@ -20,7 +20,7 @@ override_dh_auto_test:
 	python3 manage.py validate
 
 pkg_name=plainbox-provider-certification-client
-verbose_id=2013.com.canonical.certification:certification-client
+verbose_id=certification-client
 terse_id=$(pkg_name)
 
 override_dh_auto_install:

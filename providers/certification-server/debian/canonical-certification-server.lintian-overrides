@@ -1,0 +1,4 @@
+# This is not a package for Debian.
+canonical-certification-server: new-package-should-close-itp-bug
+# Those are the desired (custom) interpreters
+canonical-certification-server: unusual-interpreter usr/bin/canonical-certification-server #!checkbox-launcher

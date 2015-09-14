@@ -1,0 +1,5 @@
+plainbox-provider-certification-server (0.19-1) precise; urgency=medium
+
+  * Initial release from upstream tarball
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Mon, 14 Sep 2015 20:40:12 +0200

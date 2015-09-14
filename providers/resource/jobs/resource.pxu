@@ -61,6 +61,11 @@ unit: packaging meta-data
 os-id: debian
 Depends: usbutils
 
+# This is for 'ethernet/multi_iperf3_nic'
+unit: packaging meta-data
+os-id: debian
+Depends: iperf3
+
 id: cpuinfo
 estimated_duration: 0.37
 plugin: resource

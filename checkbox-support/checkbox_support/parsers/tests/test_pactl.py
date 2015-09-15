@@ -357,6 +357,20 @@ class AttributeTests(ParsingTestCase):
             '0: -13.40 dB 1: -13.40 dB\n'
             'balance 0.00\n'))
 
+    def test_volume_variant1(self):
+        # pactl Volume properties differ with recent PulseAudio versions
+        attr = self.assertParses(
+            pactl.GenericSimpleAttribute.Syntax, (
+                'Volume: front-left: 52428 /  80% / -5.81 dB,   '
+                'front-right: 52428 /  80% / -5.81 dB\n'
+                '         balance 0.00\n')
+        )['attribute']
+        self.assertEqual(attr.name, 'Volume')
+        self.assertEqual(attr.value, (
+            'front-left: 52428 /  80% / -5.81 dB,   '
+            'front-right: 52428 /  80% / -5.81 dB\n'
+            'balance 0.00\n'))
+
     def test_inf_volume(self):
         # LP: 1350168
         attr = self.assertParses(

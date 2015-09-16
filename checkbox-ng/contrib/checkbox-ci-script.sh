@@ -19,6 +19,9 @@ notification() {
 mailer() {
     if [ -f $CHECKBOX_UPSTART_LOG ]; then
         MESSAGE=$CHECKBOX_UPSTART_LOG
+        # workaround for 14.04.1 and 14.04.2 will get tag 14.04.3
+        # because the package base-files update its information
+        RELEASE=$(awk {'print $2'} /var/log/installer/media-info)
         SUBJECT="CheckBox NG CI testing run for $RELEASE server"
     elif [ -f $CHECKBOX_DESKTOP_LOG ]; then
         MESSAGE=$CHECKBOX_DESKTOP_LOG

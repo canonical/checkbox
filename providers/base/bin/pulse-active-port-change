@@ -28,9 +28,9 @@ plugged into the DUT. The script is fully automatic and either times out after
 The script monitors pulse audio events with `pactl subscribe`. Any changes to
 sinks (or sources, depending on the mode) are treated as a possible match. A
 match is verified by running `pactl list sinks` (or `pactl list sources`) and
-constructing a set of pairs (sink-source-name, sink-source-active-port). Any
-change to the computed set, as compared to the initially computed set, is
-considered a match.
+constructing a set of tuples (sink-source-name, sink-source-active-port,
+sink-source-availability). Any change to the computed set, as compared to the
+initially computed set, is considered a match.
 
 Due to the algorithm used, it will also detect things like USB headsets, HDMI
 monitors/speakers, webcams, etc.
@@ -71,9 +71,19 @@ class AudioPlugDetection:
         doc = parse_pactl_output(text)
         cfg = set()
         for record in doc.record_list:
-            for attr in record.attribute_list:
-                if attr.name == "Active Port":
-                    cfg.add((record.name, attr.value))
+             active_port = None
+             # We go through the attribute list once to try to find an active port
+             for attr in record.attribute_list:
+                 if attr.name == "Active Port":
+                     active_port = attr.value
+             # If there is one, we retrieve its availability flag
+             if active_port:
+                 for attr in record.attribute_list:
+                     if attr.name == "Ports":
+                         for port in attr.value:
+                             if port.name == active_port:
+                                 port_availability = port.availability
+                 cfg.add((record.name, active_port, port_availability))
         return cfg
 
     def on_timeout(self, signum, frame):
@@ -99,8 +109,10 @@ class AudioPlugDetection:
         found = False
         if self.mode == 'sinks':
             look_for = "Event 'change' on sink #"
+            look_for2 = "Event 'change' on server #"
         elif self.mode == 'sources':
             look_for = "Event 'change' on source #"
+            look_for2 = "Event 'change' on server #"
         else:
             assert False
         # Get the initial / baseline configuration
@@ -117,7 +129,7 @@ class AudioPlugDetection:
             child_stream = os.fdopen(master_fd, "rt", encoding='UTF-8')
             try:
                 for line in child_stream:
-                    if line.startswith(look_for):
+                    if line.startswith(look_for) or line.startswith(look_for2):
                         new_cfg = self.get_sound_config()
                         print("Now using config: {}".format(new_cfg))
                         if new_cfg != initial_cfg:

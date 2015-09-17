@@ -1824,7 +1824,7 @@ category_id: 2013.com.canonical.plainbox::suspend
 id: suspend/keys_after_suspend/brightness
 depends: suspend/suspend_advanced
 estimated_duration: 120.0
-requires: dmi.product in ['Notebook','Laptop','Portable']
+requires: dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO']
 _description:
  PURPOSE:
      This test will test the brightness key after resuming from suspend

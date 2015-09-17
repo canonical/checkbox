@@ -26,7 +26,6 @@ import logging
 from plainbox.impl.logging import setup_logging
 
 from checkbox_ng.tools import CheckboxLauncherTool
-from checkbox_ng.tools import CheckboxServiceTool
 from checkbox_ng.tools import CheckboxSubmitTool
 from checkbox_ng.tools import CheckboxTool
 
@@ -39,13 +38,6 @@ def main(argv=None):
     checkbox command line utility
     """
     raise SystemExit(CheckboxTool().main(argv))
-
-
-def service(argv=None):
-    """
-    checkbox-service command line utility
-    """
-    raise SystemExit(CheckboxServiceTool().main(argv))
 
 
 def submit(argv=None):

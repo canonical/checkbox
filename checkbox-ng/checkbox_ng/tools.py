@@ -94,7 +94,6 @@ class CheckboxTool(CheckboxToolBase):
 
     def add_subcommands(self, subparsers, early_ns=None):
         from checkbox_ng.commands.launcher import LauncherCommand
-        from checkbox_ng.commands.service import ServiceCommand
         from checkbox_ng.commands.sru import SRUCommand
         from checkbox_ng.commands.submit import SubmitCommand
         from plainbox.impl.commands.cmd_check_config import CheckConfigCommand
@@ -104,9 +103,6 @@ class CheckboxTool(CheckboxToolBase):
         CheckConfigCommand(
             self._load_config
         ).register_parser(subparsers)
-        ServiceCommand(
-            self._load_providers, self._load_config
-        ).register_parser(subparsers)
         SubmitCommand(
             self._load_config
         ).register_parser(subparsers)
@@ -114,24 +110,6 @@ class CheckboxTool(CheckboxToolBase):
             self._load_providers, self._load_config
         ).register_parser(subparsers)
         SelfTestCommand(load_unit_tests).register_parser(subparsers)
-
-
-class CheckboxServiceTool(SingleCommandToolMixIn, CheckboxToolBase):
-    """
-    A tool class that implements checkbox-gui-service.
-
-    This tool implements the DBus service required by the C++/QML checkbox-gui
-    application. It should be moved to checkbox-gui codebase later to
-    facilitate synchronized releases.
-    """
-
-    @classmethod
-    def get_exec_name(cls):
-        return "checkbox-gui-service"
-
-    def get_command(self):
-        from checkbox_ng.commands.service import ServiceCommand
-        return ServiceCommand(self._load_providers, self._load_config)
 
 
 class CheckboxSubmitTool(SingleCommandToolMixIn, CheckboxToolBase):

@@ -52,13 +52,12 @@ class TestMain(TestCase):
         self.maxDiff = None
         expected = """
         usage: checkbox [-h] [--version] [-v] [-D] [-C] [-T LOGGER] [-P] [-I]
-                        {sru,check-config,service,submit,launcher,self-test} ...
+                        {sru,check-config,submit,launcher,self-test} ...
 
         positional arguments:
-          {sru,check-config,service,submit,launcher,self-test}
+          {sru,check-config,submit,launcher,self-test}
             sru                 run automated stable release update tests
             check-config        check and display plainbox configuration
-            service             spawn dbus service
             submit              submit test results to the Canonical certification
                                 website
             launcher            run a customized testing session
@@ -88,7 +87,7 @@ class TestMain(TestCase):
             self.assertEqual(call.exception.args, (2,))
         expected = """
         usage: checkbox [-h] [--version] [-v] [-D] [-C] [-T LOGGER] [-P] [-I]
-                        {sru,check-config,service,submit,launcher,self-test} ...
+                        {sru,check-config,submit,launcher,self-test} ...
         checkbox: error: too few arguments
 
         """

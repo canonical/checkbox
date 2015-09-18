@@ -58,6 +58,29 @@ command:
  EOF
 
 plugin: local
+_summary: Automated test to walk multiple network cards and test each one in sequence.
+id: ethernet/multi_iperf3_nic
+requires: device.category == 'NETWORK'
+_description: Automated test to walk multiple network cards and test each one in sequence.
+command:
+ cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
+ plugin: shell
+ category_id: 2013.com.canonical.plainbox::ethernet
+ id: ethernet/multi_iperf3_nic_$2
+ requires:
+  package.name == 'ethtool'
+  package.name == 'nmap'
+  package.name == 'iperf3'
+  device.path == "$1"
+ user: root
+ environ: TEST_TARGET_IPERF
+ command: network test -i $2 -t iperf --iperf3 --fail-threshold 80 --cpu-load-fail-threshold 90 --datasize 200 --num_runs 4
+ estimated_duration: 7400.0
+ description:
+  Testing for NIC $2
+ EOF
+
+plugin: local
 id: ethernet/ethtool_info
 requires:
  device.category == 'NETWORK'

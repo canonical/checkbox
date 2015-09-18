@@ -43,7 +43,6 @@ import sys
 import time
 
 
-
 class IPerfPerformanceTest(object):
     """Measures performance of interface using iperf client
     and target. Calculated speed is measured against theorectical
@@ -54,6 +53,8 @@ class IPerfPerformanceTest(object):
             interface,
             target,
             fail_threshold,
+            cpu_load_fail_threshold,
+            iperf3,
             protocol="tcp",
             data_size="1"):
 
@@ -61,6 +62,8 @@ class IPerfPerformanceTest(object):
         self.target = target
         self.protocol = protocol
         self.fail_threshold = fail_threshold
+        self.cpu_load_fail_threshold = cpu_load_fail_threshold
+        self.iperf3 = iperf3
         self.data_size = data_size
 
     def run(self):
@@ -79,14 +82,18 @@ class IPerfPerformanceTest(object):
         # Because we can vary the data size, we need to vary the timeout as
         # well.  It takes an estimated 15 minutes to send 1GB over 10Mb/s.
         # 802.11b is 11 Mb/s.  So we'll assume 1.2x15 minutes or 18 minutes
-        # or 1080 seconds per Gigabit. This will allow for a long period of 
+        # or 1080 seconds per Gigabit. This will allow for a long period of
         # time without timeout to catch devices that slow down, and also not
         # prematurely end iperf on low-bandwidth devices.
-    
+
         self.timeout = 1080*int(self.data_size)
 
-        cmd = "timeout {} iperf -c {} -n {}G -i 1 -f m".format(
-            self.timeout, self.target, self.data_size)
+        if (self.iperf3):
+            cmd = "timeout {} iperf3 -c {} -n {}G -i 1 -f m -V".format(
+                self.timeout, self.target, self.data_size)
+        else:
+            cmd = "timeout {} iperf -c {} -n {}G -i 1 -f m".format(
+                self.timeout, self.target, self.data_size)
 
         logging.debug(cmd)
         print("Starting iperf, this could take some time...")
@@ -108,8 +115,12 @@ class IPerfPerformanceTest(object):
                 logging.info("iperf timed out - this should be OK")
                 iperf_return = iperf_exception.output
 
-        # 930 Mbits/sec\n'
         logging.debug(iperf_return)
+        # "CPU Utilization" line present only in iperf3 output
+        cpu = re.findall(r"CPU Utilization.*local/sender\s([\w\.]+)",
+                         iperf_return)
+        # iperf3 provides "sender" and "receiver" summaries; remove them
+        iperf_return = re.sub(r".*(sender|receiver)", "", iperf_return)
         speeds = list(map(float, re.findall(r"([\w\.]+)\sMbits/sec",
                           iperf_return)))
         invalid_speed = False
@@ -124,9 +135,9 @@ class IPerfPerformanceTest(object):
                 percent = 0
                 invalid_speed = True
 
-            logging.info("Min Transfer speed: {} mb/s".format(min(speeds)))
-            logging.info("Max Transfer speed: {} mb/s".format(max(speeds)))
-            logging.info("Avg Transfer speed: {} mb/s".format(throughput))
+            logging.info("Min Transfer speed: {} Mb/s".format(min(speeds)))
+            logging.info("Max Transfer speed: {} Mb/s".format(max(speeds)))
+            logging.info("Avg Transfer speed: {} Mb/s".format(throughput))
             if invalid_speed:
                 # If we have no link_speed (e.g. wireless interfaces don't
                 # report this), then we shouldn't penalize them because
@@ -139,11 +150,24 @@ class IPerfPerformanceTest(object):
             # have exited above if it did.
             logging.info("{:03.2f}% of theoretical max {} Mb/s".format(percent,
                          int(self.iface.max_speed)))
-            if percent < self.fail_threshold:
+            if cpu:
+                logging.info("")
+                logging.info("CPU utilization: {}%".format(cpu[0]))
+                cpu_load = float(cpu[0])
+            else:
+                cpu_load = 0.0
+            if percent < self.fail_threshold or \
+                    cpu_load > self.cpu_load_fail_threshold:
                 logging.warn("Poor network performance detected")
-                logging.warn("  Transfer speed: {} mb/s".format(throughput))
-                logging.warn("  {:03.2f}% of theoretical max {}Mb/s\n".format(
-                             percent, int(self.iface.max_speed)))
+                if percent < self.fail_threshold:
+                    logging.warn("  Transfer speed: {} Mb/s".
+                                 format(throughput))
+                    logging.warn("  {:03.2f}% of theoretical max {} Mb/s\n".
+                                 format(percent, int(self.iface.max_speed)))
+                if cpu_load > self.cpu_load_fail_threshold:
+                    logging.warn("  CPU load: {}%".format(cpu_load))
+                    logging.warn("  CPU load is above {}% maximum\n".
+                                 format(self.cpu_load_fail_threshold))
                 return 30
 
             logging.debug("Passed benchmark")
@@ -154,12 +178,16 @@ class IPerfPerformanceTest(object):
 
 class StressPerformanceTest:
 
-    def __init__(self, interface, target):
+    def __init__(self, interface, target, iperf3):
         self.interface = interface
         self.target = target
+        self.iperf3 = iperf3
 
     def run(self):
-        iperf_cmd = 'timeout 320 iperf -c {} -t 300'.format(self.target)
+        if self.iperf3:
+            iperf_cmd = 'timeout 320 iperf3 -c {} -t 300'.format(self.target)
+        else:
+            iperf_cmd = 'timeout 320 iperf -c {} -t 300'.format(self.target)
         print("Running iperf...")
         iperf = subprocess.Popen(shlex.split(iperf_cmd))
 
@@ -390,7 +418,9 @@ def interface_test(args):
         # Execute requested networking test
         if args.test_type.lower() == "iperf":
             iperf_benchmark = IPerfPerformanceTest(args.interface, test_target,
-                                                   args.fail_threshold) 
+                                                   args.fail_threshold,
+                                                   args.cpu_load_fail_threshold,
+                                                   args.iperf3)
             if args.datasize:
                 iperf_benchmark.data_size = args.datasize
             run_num = 0
@@ -402,7 +432,7 @@ def interface_test(args):
 
         elif args.test_type.lower() == "stress":
             stress_benchmark = StressPerformanceTest(args.interface,
-                                                     test_target)
+                                                     test_target, args.iperf3)
             result = stress_benchmark.run()
 
     for iface in extra_interfaces:
@@ -505,6 +535,8 @@ TEST_TARGET_IPERF = iperf-server.example.com
         '-t', '--test_type', type=str,
         choices=("iperf", "stress"), default="iperf",
         help=("[iperf *Default*]"))
+    test_parser.add_argument(
+        '-3', '--iperf3', default=False, action="store_true")
     test_parser.add_argument('--target', type=str)
     test_parser.add_argument(
         '--datasize', type=str,
@@ -521,6 +553,12 @@ TEST_TARGET_IPERF = iperf-server.example.com
         help=("IPERF Test ONLY. Set the failure threshold (Percent of maximum "
               "theoretical bandwidth) as a number like 80.  (Default is "
               "%(default)s)"))
+    test_parser.add_argument(
+        '--cpu-load-fail-threshold', type=int,
+        default=100,
+        help=("(IPERF Test ONLY and meaningful ONLY with --iperf3. Set the "
+              "failure threshold (above which the CPU load must not rise) as "
+              "a number like 80. (Default is %(default)s)"))
     test_parser.add_argument(
         '--num_runs', type=int,
         default=1,
@@ -559,12 +597,14 @@ TEST_TARGET_IPERF = iperf-server.example.com
     info_parser.set_defaults(func=interface_info)
 
     args = parser.parse_args()
-    
+    if args.cpu_load_fail_threshold != 100 and not args.iperf3:
+        parser.error('--cpu-load-fail-threshold can only be set with --iperf3.')
+
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.INFO)
-    
+
     if 'func' not in args:
         parser.print_help()
     else:

@@ -249,18 +249,18 @@ Following fields may be used by the job unit:
     other namespaces.
     You can use the "as ..." syntax to import jobs that have dashes, slashes or
     other characters that would make them invalid as identifiers and give them
-    a correct identifier name. E.g.:
+    a correct identifier name. E.g.::
 
-      | imports: from 2013.com.canonical.certification import cpuinfo
-      | requires: 'armhf' in cpuinfo.platform
+        imports: from 2013.com.canonical.certification import cpuinfo
+        requires: 'armhf' in cpuinfo.platform
 
-      | imports: from 2013.com.canonical.certification import cpu-01-info as \
-        cpu01
-      | requires: 'avx2' in cpu01.other
+        imports: from 2013.com.canonical.certification import cpu-01-info as cpu01
+        requires: 'avx2' in cpu01.other
 
-    The syntax of each imports line is:
-    IMPORT_STMT :: "from" <NAMESPACE> "import" <PARTIAL_ID>
-                   | "from" <NAMESPACE> "import" <PARTIAL_ID> AS <IDENTIFIER>
+    The syntax of each imports line is::
+
+        IMPORT_STMT :: "from" <NAMESPACE> "import" <PARTIAL_ID>
+                       | "from" <NAMESPACE> "import" <PARTIAL_ID> AS <IDENTIFIER>
 
 ===========================
 Extension of the job format

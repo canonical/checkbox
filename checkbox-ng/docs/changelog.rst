@@ -22,6 +22,11 @@ Plainbox 0.23 (unreleased)
   Read more about mandatory and bootstrapping jobs in
   :doc:`plainbox test plan unit <manpages/plainbox-test-plan-units>`
 
+* Plainbox now supports a new flag :ref:`has-leftovers
+  <job_flag_has_leftovers>`, that governs the behavior of leftover file
+  detection feature. When this flag is added to a job definition files left
+  over by the execution of a command are silently ignored.
+
 .. _version_0_18:
 
 Plainbox 0.18

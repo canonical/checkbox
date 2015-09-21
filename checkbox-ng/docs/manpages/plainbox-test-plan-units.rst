@@ -326,6 +326,7 @@ A test plan that generates jobs using bootstrap_include section::
 
 
 A test plan that marks some jobs as mandatory::
+
     unit: test plan
     id: test-plan-with-mandatory-jobs
     _name: Test plan with mandatory jobs

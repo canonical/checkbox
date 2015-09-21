@@ -101,14 +101,12 @@
 ./plainbox/impl/secure/test_rfc822.py
 ./plainbox/impl/session/__init__.py
 ./plainbox/impl/session/jobs.py
-./plainbox/impl/session/legacy.py
 ./plainbox/impl/session/manager.py
 ./plainbox/impl/session/resume.py
 ./plainbox/impl/session/state.py
 ./plainbox/impl/session/storage.py
 ./plainbox/impl/session/suspend.py
 ./plainbox/impl/session/test_jobs.py
-./plainbox/impl/session/test_legacy.py
 ./plainbox/impl/session/test_manager.py
 ./plainbox/impl/session/test_resume.py
 ./plainbox/impl/session/test_state.py
@@ -124,7 +122,6 @@
 ./plainbox/impl/test_decorators.py
 ./plainbox/impl/test_depmgr.py
 ./plainbox/impl/test_init.py
-./plainbox/impl/test_job.py
 ./plainbox/impl/test_resource.py
 ./plainbox/impl/test_result.py
 ./plainbox/impl/test_runner.py

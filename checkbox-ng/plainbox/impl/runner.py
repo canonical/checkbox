@@ -560,7 +560,8 @@ class JobRunner(IJobRunner):
         if job.plugin != "manual":
             # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
-        return JobResultBuilder(outcome=IJobResult.OUTCOME_UNDECIDED).get_result()
+        return JobResultBuilder(
+            outcome=IJobResult.OUTCOME_UNDECIDED).get_result()
 
     def run_user_interact_job(self, job, job_state, config):
         """

@@ -41,7 +41,7 @@ Plainbox 0.18
     This version is under active development. The details in the milestone page
     may vary before the release is finalized.
 
- This is a periodic release, containing both bug fixes and some minor new
+This is a periodic release, containing both bug fixes and some minor new
 features. Details are available at:
 
 * https://launchpad.net/plainbox/+milestone/0.18

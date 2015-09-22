@@ -51,30 +51,37 @@ Following fields may be used by an exporter unit.
 
 ``options``:
     (optional) - comma/space/semicolon separated list of options for this
-    exporter entry point. Only the following options are currently supported:
-    * text and rfc822:
-      - with-io-log
-      - squash-io-log
-      - flatten-io-log
-      - with-run-list
-      - with-job-list
-      - with-resource-map
-      - with-job-defs
-      - with-attachments
-      - with-comments
-      - with-job-via
-      - with-job-hash
-      - with-category-map
-      - with-certification-status
-    * json: same as text +
-      - machine-json
-    * xlsx:
-      - with-sys-info
-      - with-summary
-      - with-job-description
-      - with-text-attachments
-      - with-unit-categories
-    * jinja2: No options available
+    exporter entry point. Only the following options are currently supported.
+
+    text and rfc822:
+        - with-io-log
+        - squash-io-log
+        - flatten-io-log
+        - with-run-list
+        - with-job-list
+        - with-resource-map
+        - with-job-defs
+        - with-attachments
+        - with-comments
+        - with-job-via
+        - with-job-hash
+        - with-category-map
+        - with-certification-status
+
+    json:
+        Same as for *text* and additionally:
+
+        - machine-json
+
+    xlsx:
+        - with-sys-info
+        - with-summary
+        - with-job-description
+        - with-text-attachments
+        - with-unit-categories
+
+    jinja2:
+        No options available
 
 ``data``:
     (optional) - Extra data sent to the exporter code, to allow all kind of

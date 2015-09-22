@@ -253,7 +253,10 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
 
     @propertywithsymbols(symbols=_PluginValues)
     def plugin(self):
-        return self.get_record_value('plugin')
+        plugin = self.get_record_value('plugin')
+        if plugin is None and 'simple' in self.get_flag_set():
+            plugin = 'shell'
+        return plugin
 
     @property
     def summary(self):
@@ -721,9 +724,12 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
                     severity=Severity.advice,
                     message=_("all jobs should have a description field, or a "
                               "set of purpose, steps and verification fields"),
-                    onlyif=lambda unit: unit.plugin != 'manual'
-                    and (unit.purpose is None and unit.steps is None and
-                         unit.verification is None)),
+                    onlyif=lambda unit: (
+                        'simple' not in unit.get_flag_set() and
+                        unit.plugin != 'manual' and (
+                            unit.purpose is None and
+                            unit.steps is None and
+                            unit.verification is None))),
             ],
             fields.purpose: [
                 TranslatableFieldValidator,
@@ -779,7 +785,10 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
             fields.estimated_duration: [
                 UntranslatableFieldValidator,
                 TemplateInvariantFieldValidator,
-                PresentFieldValidator(severity=Severity.advice),
+                PresentFieldValidator(
+                    severity=Severity.advice,
+                    onlyif=lambda unit: 'simple' not in unit.get_flag_set()
+                ),
                 CorrectFieldValueValidator(
                     lambda duration: float(duration) > 0,
                     message="value must be a positive number",
@@ -867,6 +876,7 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
                 TemplateInvariantFieldValidator,
                 CorrectFieldValueValidator(
                     lambda value, unit: (
+                        'simple' in unit.get_flag_set() or
                         'preserve-locale' in unit.get_flag_set()),
                     Problem.expected_i18n, Severity.advice,
                     message=_(

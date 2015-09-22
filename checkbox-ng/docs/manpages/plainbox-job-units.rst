@@ -250,6 +250,27 @@ Following fields may be used by the job unit:
         directories and just want to rely on the one already created by
         plainbox.
 
+.. _job_flag_simple:
+
+    ``simple``:
+        This flag makes plainbox disable certain validation advice and have
+        some sesible defaults for automated test cases.  This simiplification
+        is meant to cut the boiler plate on jobs that are closer to unit tests
+        than elaborate manual interactions.
+
+        In practice the following changes are in effect when this flag is set:
+
+         - the *plugin* field defaults to *shell*
+         - the *description* field is entirely optional
+         - the *estimated_duration* field is entirely optional
+         - the *preserve-locale* flag is entirely optional
+
+        A minimal job using the simple flag looks as follows::
+
+            id: foo
+            command: echo "Jobs are simple!"
+            flags: simple
+
     Additional flags may be present in job definition; they are ignored.
 
 ``imports``:

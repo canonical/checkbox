@@ -6,9 +6,14 @@ ChangeLog
     accounting of development history please inspect the source history
     directly.
 
+.. _version_0_24:
+
+Plainbox 0.24 (unreleased)
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 .. _version_0_23:
 
-Plainbox 0.23 (unreleased)
+Plainbox 0.23 (QA Testing)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * Mandatory jobs - jobs may be marked as mandatory - this way they are always

@@ -471,8 +471,6 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         res = {}
         tmp_result_map = {}
         for job_name in result_map:
-            if result_map[job_name]['plugin'] in ('resource', 'attachment'):
-                continue
             category = category_map[result_map[job_name]['category_id']]
             if category not in res:
                 tmp_result_map[category] = {}
@@ -505,8 +503,6 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
     def _legacy_tree(self, result_map, via=None, level=0, max_level=0):
         res = {}
         for job_name in [j for j in result_map if result_map[j]['via'] == via]:
-            if result_map[job_name]['plugin'] in ('resource', 'attachment'):
-                continue
             level += 1
             # Find the maximum depth of the test tree
             if level > max_level:
@@ -594,10 +590,11 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                     self._lineno, max_level + 3, cert_status,
                     self.format18 if self._lineno % 2 else self.format19)
                 io_log = ' '
-                if 'io_log' in result_map[job]:
-                    io_log = standard_b64decode(
-                        result_map[job]['io_log'].encode()
-                    ).decode('UTF-8').rstrip()
+                if result_map[job]['plugin'] not in ('resource', 'attachment'):
+                    if result_map[job]['io_log']:
+                        io_log = standard_b64decode(
+                            result_map[job]['io_log'].encode()
+                        ).decode('UTF-8').rstrip()
                 io_lines = len(io_log.splitlines()) - 1
                 desc_lines = len(result_map[job].get('description',
                                                      "").splitlines())
@@ -692,6 +689,35 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             self.worksheet5.set_row(i + j, None, None, {'collapsed': True})
             i += j + 1  # Insert a newline between attachments
 
+    def write_resources(self, data):
+        self.worksheet6.set_column(0, 0, 5)
+        self.worksheet6.set_column(1, 1, 120)
+        i = 4
+        for name in [job_id for job_id in data['result_map'] if data['result_map'][job_id]['plugin'] == 'resource']:
+            io_log = ' '
+            try:
+                if data['result_map'][name]['io_log']:
+                    io_log = standard_b64decode(
+                        data['result_map'][name]['io_log'].encode()
+                    ).decode('UTF-8')
+            except UnicodeDecodeError:
+                # Skip binary output
+                continue
+            self.worksheet6.write(i, 1, name, self.format03)
+            i += 1
+            self.worksheet6.set_row(
+                i, None, None, {'level': 1, 'hidden': True}
+            )
+            j = 1
+            for line in io_log.splitlines():
+                self.worksheet6.write(j + i, 1, line, self.format13)
+                self.worksheet6.set_row(
+                    j + i, None, None, {'level': 1, 'hidden': True}
+                )
+                j += 1
+            self.worksheet6.set_row(i + j, None, None, {'collapsed': True})
+            i += j + 1  # Insert a newline between resources logs
+
     def dump(self, data, stream):
         """
         Public method to dump the XLSX report to a stream
@@ -712,6 +738,8 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         if self.OPTION_WITH_TEXT_ATTACHMENTS in self._option_list:
             self.worksheet5 = self.workbook.add_worksheet(_('Log Files'))
             self.write_attachments(data)
+        self.worksheet6 = self.workbook.add_worksheet(_('Resources Logs'))
+        self.write_resources(data)
         for worksheet in self.workbook.worksheets():
             worksheet.outline_settings(True, False, False, True)
             worksheet.hide_gridlines(2)

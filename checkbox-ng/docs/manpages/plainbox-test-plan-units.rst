@@ -216,6 +216,8 @@ copy such constructs when working on a new test plan from scratch
     The job definition with the partial identifier ``foo`` will be associated
     with the ``cat-2`` category.
 
+.. _testplan_estimated_duration:
+
 ``estimated_duration``:
     An approximate time to execute this test plan, in seconds.
 

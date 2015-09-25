@@ -100,6 +100,8 @@ class SpecialInvocation(CheckBoxInvocationMixIn):
                 print('\t"{}" [color=orange];'.format(job.id))
             for dep_id in job.get_direct_dependencies():
                 print('\t"{}" -> "{}";'.format(job.id, dep_id))
+            for dep_id in job.get_after_dependencies():
+                print('\t"{}" -> "{}" [style=dotted];'.format(job.id, dep_id))
             prog = job.get_resource_program()
             if ns.dot_resources and prog is not None:
                 for expression in prog.expression_list:

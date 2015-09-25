@@ -11,6 +11,12 @@ ChangeLog
 Plainbox 0.24 (unreleased)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Plainbox now supports a new way to express the estimated duration of
+  :ref:`jobs <job_estimated_duration>` and
+  :ref:`test plans <testplan_estimated_duration>` that is much easier for
+  humans to read and write. Instead of having to mentally parse ``3725`` you
+  can just write ``1h 2m 5s`` or ``1h:2m:5s``.
+
 * Plainbox now supports an *after* job ordering constraint. This constraint is
   very similar to the existing *depends* constraint, except that the outcome of
   the referenced job is not important. In practical terms, even if one job runs

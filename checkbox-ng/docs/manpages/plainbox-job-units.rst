@@ -221,6 +221,8 @@ Following fields may be used by the job unit:
     environment, with the downside that useful configuration specified
     in environment variables may be lost in the process.
 
+.. _job_estimated_duration:
+
 ``estimated_duration``:
     (optional) This field contains metadata about how long the job is
     expected to run for, as a positive float value indicating

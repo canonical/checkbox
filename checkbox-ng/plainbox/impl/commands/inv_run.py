@@ -199,8 +199,12 @@ class NormalUI(IJobRunnerUI):
             'stdout': sys.stdout,
             'stderr': sys.stderr
         }[stream_name]
-        print(self.C.BLACK(line.decode("UTF-8", "ignore")),
-              end='', file=stream)
+        if stream_name == 'stdout':
+            print(self.C.GREEN(line.decode("UTF-8", "ignore")),
+                  end='', file=stream)
+        elif stream_name == 'stderr':
+            print(self.C.RED(line.decode("UTF-8", "ignore")),
+                  end='', file=stream)
         stream.flush()
 
     def finished_executing_program(self, returncode):
@@ -216,20 +220,26 @@ class NormalUI(IJobRunnerUI):
 
     def notify_about_purpose(self, job):
         if job.tr_purpose() is not None:
-            print(self.C.CYAN(_("Purpose:")))
+            print(self.C.WHITE(_("Purpose:")))
+            print()
             print(self.C.CYAN(job.tr_purpose()))
+            print()
         else:
             self.notify_about_description(job)
 
     def notify_about_steps(self, job):
         if job.tr_steps() is not None:
-            print(self.C.CYAN(_("Steps:")))
+            print(self.C.WHITE(_("Steps:")))
+            print()
             print(self.C.CYAN(job.tr_steps()))
+            print()
 
     def notify_about_verification(self, job):
         if job.tr_verification() is not None:
-            print(self.C.CYAN(_("Verification:")))
+            print(self.C.WHITE(_("Verification:")))
+            print()
             print(self.C.CYAN(job.tr_verification()))
+            print()
 
     def job_cannot_start(self, job, job_state, result):
         print(_("Job cannot be started because:"))

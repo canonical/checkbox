@@ -820,8 +820,8 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
                     message = ("please use purpose, steps, and verification"
                                " fields. See http://plainbox.readthedocs.org"
                                "/en/latest/author/faq.html#faq-2"),
-                    onlyif=lambda unit:
-                    unit.startup_user_interaction_required),
+                    onlyif=lambda unit: unit.plugin in (
+                        'manual', 'user-verify', 'user-interact-verify')),
             ],
             fields.user: [
                 UntranslatableFieldValidator,

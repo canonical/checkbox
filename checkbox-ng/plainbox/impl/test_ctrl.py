@@ -695,7 +695,7 @@ class UserJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
         self.assertEqual(env['LANG'], 'C.UTF-8')
 
     @mock.patch.dict('os.environ', clear=True, LANG='fake_LANG',
-                    LANGUAGE='fake_LANGUAGE', LC_ALL='fake_LC_ALL')
+                     LANGUAGE='fake_LANGUAGE', LC_ALL='fake_LC_ALL')
     def test_get_execution_environment_preserves_locales_if_requested(self):
         self.job.get_flag_set.return_value = {'preserve-locale'}
         # Call the tested method

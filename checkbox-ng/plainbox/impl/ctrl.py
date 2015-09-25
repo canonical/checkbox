@@ -367,8 +367,8 @@ class CheckBoxSessionStateController(ISessionStateController):
                 via_cycle = get_via_cycle(job_state_map, added_job)
                 if via_cycle:
                     logger.warning(_("Automatically breaking via-cycle: %s"),
-                                    ' -> '.join(str(cycle_job)
-                                                for cycle_job in via_cycle))
+                                   ' -> '.join(str(cycle_job)
+                                               for cycle_job in via_cycle))
                     job_state_map[added_job.id].via_job = None
 
 

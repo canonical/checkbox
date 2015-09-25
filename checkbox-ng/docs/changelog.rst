@@ -11,6 +11,18 @@ ChangeLog
 Plainbox 0.24 (unreleased)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Plainbox now supports an *after* job ordering constraint. This constraint is
+  very similar to the existing *depends* constraint, except that the outcome of
+  the referenced job is not important. In practical terms, even if one job runs
+  and fails, another job that runs *after* it, will run.
+
+  This constraint is immediately useful to all *attachment* jobs that want to
+  collect a log file from some other operation, regardless of the outcome of
+  that operation. In the past those would have to be carefully placed in the
+  test plan, in the right order. By using the *after* constraint, the
+  attachment jobs will automatically pull in their log-generating cousins and
+  will run at the right time no matter what happens.
+
 .. _version_0_23:
 
 Plainbox 0.23 (QA Testing)

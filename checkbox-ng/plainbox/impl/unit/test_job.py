@@ -578,6 +578,41 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             issue_list, self.unit_cls.Meta.fields.depends,
             Problem.bad_reference, Severity.error, message)
 
+    def test_after__untranslatable(self):
+        issue_list = self.unit_cls({
+            '_after': 'after'
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.after,
+            Problem.unexpected_i18n, Severity.warning)
+
+    def test_after__refers_to_other_units(self):
+        unit = self.unit_cls({
+            'after': 'some-unit'
+        }, provider=self.provider)
+        message = "field 'after', unit 'ns::some-unit' is not available"
+        self.provider.unit_list = [unit]
+        context = UnitValidationContext([self.provider])
+        issue_list = unit.check(context=context)
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.after,
+            Problem.bad_reference, Severity.error, message)
+
+    def test_after__refers_to_other_jobs(self):
+        other_unit = UnitWithId({
+            'id': 'some-unit'
+        }, provider=self.provider)
+        unit = self.unit_cls({
+            'after': 'some-unit'
+        }, provider=self.provider)
+        message = "field 'after', the referenced unit is not a job"
+        self.provider.unit_list = [unit, other_unit]
+        context = UnitValidationContext([self.provider])
+        issue_list = unit.check(context=context)
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.after,
+            Problem.bad_reference, Severity.error, message)
+
     def test_requires__untranslatable(self):
         issue_list = self.unit_cls({
             '_requires': 'requires'

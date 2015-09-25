@@ -101,6 +101,13 @@ Following fields may be used by the job unit:
     jobs have run and passed. Multiple job names, separated by spaces,
     can be specified.
 
+``after``:
+    (optional). If specified, the job will only run if all the listed jobs have
+    run (regardless of the outcome). Multiple job names, separated by spaces,
+    can be specified.
+
+    This feature is available since plainbox 0.24.
+
 ``command``:
     (optional). A command can be provided, to be executed under specific
     circumstances. For ``manual``, ``user-interact`` and ``user-verify``

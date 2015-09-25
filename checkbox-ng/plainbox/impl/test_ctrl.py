@@ -83,22 +83,29 @@ class CheckBoxSessionStateControllerTests(TestCase):
         self.assertEqual(
             self.ctrl.get_dependency_set(job_c),
             {('resource', 'j3')})
-        # Job with both direct and resource dependencies
+        # Job with ordering dependencies
         job_d = JobDefinition({
+            'after': 'j1, j2'
+        })
+        self.assertEqual(
+            self.ctrl.get_dependency_set(job_d),
+            {('ordering', 'j1'), ('ordering', 'j2')})
+        # Job with both direct and resource dependencies
+        job_e = JobDefinition({
             'depends': 'j4',
             'requires': 'j5.attr == 1'
         })
         self.assertEqual(
-            self.ctrl.get_dependency_set(job_d),
+            self.ctrl.get_dependency_set(job_e),
             {('direct', 'j4'), ('resource', 'j5')})
         # Job with both direct and resource dependencies
         # on the same job (j6)
-        job_e = JobDefinition({
+        job_f = JobDefinition({
             'depends': 'j6',
             'requires': 'j6.attr == 1'
         })
         self.assertEqual(
-            self.ctrl.get_dependency_set(job_e),
+            self.ctrl.get_dependency_set(job_f),
             {('direct', 'j6'), ('resource', 'j6')})
 
     def test_get_inhibitor_list_PENDING_RESOURCE(self):
@@ -162,23 +169,36 @@ class CheckBoxSessionStateControllerTests(TestCase):
             self.ctrl.get_inhibitor_list(session_state, j1), [])
 
     def test_get_inhibitor_list_PENDING_DEP(self):
-        # verify that jobs that depend on another job that hasn't
-        # been invoked yet produce the PENDING_DEP inhibitor
+        # verify that jobs that depend on another job or wait (via after) for
+        # another  that hasn't been invoked yet produce the PENDING_DEP
+        # inhibitor
         j1 = JobDefinition({
             'id': 'j1',
-            'depends': 'j2'
+            'depends': 'j2',
+            'after': 'j3',
         })
         j2 = JobDefinition({
             'id': 'j2'
         })
+        j3 = JobDefinition({
+            'id': 'j3'
+        })
         session_state = mock.MagicMock(spec=SessionState)
+        session_state.job_state_map = {
+            'j1': mock.Mock(spec_set=JobState),
+            'j2': mock.Mock(spec_set=JobState),
+            'j3': mock.Mock(spec_set=JobState),
+        }
         jsm_j2 = session_state.job_state_map['j2']
         jsm_j2.job = j2
         jsm_j2.result.outcome = IJobResult.OUTCOME_NONE
-        self.assertEqual(
-            self.ctrl.get_inhibitor_list(session_state, j1),
-            [JobReadinessInhibitor(
-                InhibitionCause.PENDING_DEP, j2, None)])
+        jsm_j3 = session_state.job_state_map['j3']
+        jsm_j3.job = j3
+        jsm_j3.result.outcome = IJobResult.OUTCOME_NONE
+        self.assertEqual(self.ctrl.get_inhibitor_list(session_state, j1), [
+            JobReadinessInhibitor(InhibitionCause.PENDING_DEP, j2, None),
+            JobReadinessInhibitor(InhibitionCause.PENDING_DEP, j3, None),
+        ])
 
     def test_get_inhibitor_list_FAILED_DEP(self):
         # verify that jobs that depend on another job that ran but
@@ -186,15 +206,27 @@ class CheckBoxSessionStateControllerTests(TestCase):
         # inhibitor.
         j1 = JobDefinition({
             'id': 'j1',
-            'depends': 'j2'
+            'depends': 'j2',
+            'after': 'j3',
         })
         j2 = JobDefinition({
             'id': 'j2'
         })
+        j3 = JobDefinition({
+            'id': 'j3'
+        })
         session_state = mock.MagicMock(spec=SessionState)
+        session_state.job_state_map = {
+            'j1': mock.Mock(spec_set=JobState),
+            'j2': mock.Mock(spec_set=JobState),
+            'j3': mock.Mock(spec_set=JobState),
+        }
         jsm_j2 = session_state.job_state_map['j2']
         jsm_j2.job = j2
         jsm_j2.result.outcome = IJobResult.OUTCOME_FAIL
+        jsm_j3 = session_state.job_state_map['j3']
+        jsm_j3.job = j3
+        jsm_j3.result.outcome = IJobResult.OUTCOME_FAIL
         self.assertEqual(
             self.ctrl.get_inhibitor_list(session_state, j1),
             [JobReadinessInhibitor(
@@ -205,15 +237,27 @@ class CheckBoxSessionStateControllerTests(TestCase):
         # equal to OUTCOME_PASS don't have any inhibitors
         j1 = JobDefinition({
             'id': 'j1',
-            'depends': 'j2'
+            'depends': 'j2',
+            'after': 'j3'
         })
         j2 = JobDefinition({
             'id': 'j2'
         })
+        j3 = JobDefinition({
+            'id': 'j3'
+        })
         session_state = mock.MagicMock(spec=SessionState)
+        session_state.job_state_map = {
+            'j1': mock.Mock(spec_set=JobState),
+            'j2': mock.Mock(spec_set=JobState),
+            'j3': mock.Mock(spec_set=JobState),
+        }
         jsm_j2 = session_state.job_state_map['j2']
         jsm_j2.job = j2
         jsm_j2.result.outcome = IJobResult.OUTCOME_PASS
+        jsm_j3 = session_state.job_state_map['j3']
+        jsm_j3.job = j3
+        jsm_j3.result.outcome = IJobResult.OUTCOME_PASS
         self.assertEqual(
             self.ctrl.get_inhibitor_list(session_state, j1), [])
 
@@ -695,7 +739,7 @@ class UserJobExecutionControllerTests(CheckBoxExecutionControllerTestsMixIn,
         self.assertEqual(env['LANG'], 'C.UTF-8')
 
     @mock.patch.dict('os.environ', clear=True, LANG='fake_LANG',
-                    LANGUAGE='fake_LANGUAGE', LC_ALL='fake_LC_ALL')
+                     LANGUAGE='fake_LANGUAGE', LC_ALL='fake_LC_ALL')
     def test_get_execution_environment_preserves_locales_if_requested(self):
         self.job.get_flag_set.return_value = {'preserve-locale'}
         # Call the tested method

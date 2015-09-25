@@ -303,6 +303,10 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
         return self.get_record_value('depends')
 
     @property
+    def after(self):
+        return self.get_record_value('after')
+
+    @property
     def command(self):
         return self.get_record_value('command')
 
@@ -581,6 +585,36 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
         V().visit(WordList.parse(self.depends))
         return deps
 
+    def get_after_dependencies(self):
+        """
+        Compute and return a set of after dependencies.
+
+        After dependencies express the desire that given job A runs after a
+        given job B. This is spelled out as::
+
+            id: A
+            after: B
+
+            id: B
+
+        To combat a simple mistake where the jobs are space-delimited any
+        mixture of white-space (including newlines) and commas are allowed.
+        """
+        deps = set()
+        if self.after is None:
+            return deps
+
+        class V(Visitor):
+
+            def visit_Text_node(visitor, node: Text):
+                deps.add(self.qualify_id(node.text))
+
+            def visit_Error_node(visitor, node: Error):
+                logger.warning(_("unable to parse depends: %s"), node.msg)
+
+        V().visit(WordList.parse(self.after))
+        return deps
+
     def get_resource_dependencies(self):
         """
         Compute and return a set of resource dependencies
@@ -649,6 +683,7 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
             environ = 'environ'
             estimated_duration = 'estimated_duration'
             depends = 'depends'
+            after = 'after'
             requires = 'requires'
             shell = 'shell'
             imports = 'imports'
@@ -834,6 +869,18 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
                             message=_("the referenced unit is not a job"))])
                 # TODO: should not refer to deprecated jobs,
                 #       onlyif job itself is not deprecated
+            ],
+            fields.after: [
+                UntranslatableFieldValidator,
+                CorrectFieldValueValidator(
+                    lambda value, unit: (
+                        unit.get_after_dependencies() is not None)),
+                UnitReferenceValidator(
+                    lambda unit: unit.get_after_dependencies(),
+                    constraints=[
+                        ReferenceConstraint(
+                            lambda referrer, referee: referee.unit == 'job',
+                            message=_("the referenced unit is not a job"))])
             ],
             fields.requires: [
                 UntranslatableFieldValidator,

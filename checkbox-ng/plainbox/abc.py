@@ -820,8 +820,8 @@ class ISessionStateController(metaclass=ABCMeta):
 
         Returns a set of pairs (dep_type, job_name) that describe all
         dependencies of the specified job. The first element in the pair,
-        dep_type, is either DEP_TYPE_DIRECT or DEP_TYPE_RESOURCE. The second
-        element is the name of the job.
+        dep_type, is either DEP_TYPE_DIRECT, DEP_TYPE_ORDERING or
+        DEP_TYPE_RESOURCE. The second element is the name of the job.
         """
 
     @abstractmethod

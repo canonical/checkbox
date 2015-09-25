@@ -172,6 +172,22 @@ class PackagingMetaDataUnit(Unit):
             ],
         }
 
+    def __str__(self):
+        parts = [_("Operating System: {}").format(self.os_id)]
+        if self.os_id == 'debian' or self.os_id == 'ubuntu':
+            Depends = self.get_record_value('Depends')
+            Recommends = self.get_record_value('Recommends')
+            Suggests = self.get_record_value('Suggests')
+            if Depends:
+                parts.append(_("Depends: {}").format(Depends))
+            if Recommends:
+                parts.append(_("Recommends: {}").format(Recommends))
+            if Suggests:
+                parts.append(_("Suggests: {}").format(Suggests))
+        else:
+            parts.append("...")
+        return ', '.join(parts)
+
 
 class PackagingDriverError(Exception):
 

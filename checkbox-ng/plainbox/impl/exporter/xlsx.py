@@ -594,7 +594,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                     self._lineno, max_level + 3, cert_status,
                     self.format18 if self._lineno % 2 else self.format19)
                 io_log = ' '
-                if result_map[job]['io_log']:
+                if 'io_log' in result_map[job]:
                     io_log = standard_b64decode(
                         result_map[job]['io_log'].encode()
                     ).decode('UTF-8').rstrip()

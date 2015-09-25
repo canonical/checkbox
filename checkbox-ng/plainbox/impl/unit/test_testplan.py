@@ -161,10 +161,41 @@ class TestTestPlan(TestCase):
         self.assertEqual(unit.estimated_duration, None)
 
     def test_estimated_duration__normal(self):
-        unit = TestPlanUnit({
-            'estimated_duration': '5'
-        }, provider=self.provider)
-        self.assertEqual(unit.estimated_duration, 5)
+        self.assertEqual(TestPlanUnit(
+            {}, provider=self.provider).estimated_duration, None)
+        self.assertEqual(TestPlanUnit(
+            {'estimated_duration': '5'}, provider=self.provider
+        ).estimated_duration, 5)
+        self.assertEqual(TestPlanUnit(
+            {'estimated_duration': '123.5'}, provider=self.provider
+        ).estimated_duration, 123.5)
+        self.assertEqual(TestPlanUnit(
+            {'estimated_duration': '5s'}, provider=self.provider
+        ).estimated_duration, 5)
+        self.assertEqual(TestPlanUnit(
+            {'estimated_duration': '1m 5s'}, provider=self.provider
+        ).estimated_duration, 65)
+        self.assertEqual(TestPlanUnit(
+            {'estimated_duration': '1h 1m 5s'}, provider=self.provider
+        ).estimated_duration, 3665)
+        self.assertEqual(TestPlanUnit(
+            {'estimated_duration': '1h'}, provider=self.provider
+        ).estimated_duration, 3600)
+        self.assertEqual(TestPlanUnit(
+            {'estimated_duration': '2m'}, provider=self.provider
+        ).estimated_duration, 120)
+        self.assertEqual(TestPlanUnit(
+            {'estimated_duration': '1h 1s'}, provider=self.provider
+        ).estimated_duration, 3601)
+        self.assertEqual(TestPlanUnit(
+            {'estimated_duration': '1m:5s'}, provider=self.provider
+        ).estimated_duration, 65)
+        self.assertEqual(TestPlanUnit(
+            {'estimated_duration': '1h:1m:5s'}, provider=self.provider
+        ).estimated_duration, 3665)
+        self.assertEqual(TestPlanUnit(
+            {'estimated_duration': '1h:1s'}, provider=self.provider
+        ).estimated_duration, 3601)
 
     def test_estimated_duration__broken(self):
         unit = TestPlanUnit({

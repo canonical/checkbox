@@ -390,7 +390,33 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
         second.
         """
         value = self.get_record_value('estimated_duration')
-        if value is not None:
+        # NOTE: Some tests do that, I'd rather not change them now
+        if isinstance(value, (int, float)):
+            return value
+        elif value is None:
+            return None
+        match = re.match('^(\d+h)?[ :]*(\d+m)?[ :]*(\d+s)?$', value)
+        if match:
+            g_hours = match.group(1)
+            if g_hours:
+                assert g_hours.endswith('h')
+                hours = int(g_hours[:-1])
+            else:
+                hours = 0
+            g_minutes = match.group(2)
+            if g_minutes:
+                assert g_minutes.endswith('m')
+                minutes = int(g_minutes[:-1])
+            else:
+                minutes = 0
+            g_seconds = match.group(3)
+            if g_seconds:
+                assert g_seconds.endswith('s')
+                seconds = int(g_seconds[:-1])
+            else:
+                seconds = 0
+            return seconds + minutes * 60 + hours * 3600
+        else:
             try:
                 return float(value)
             except ValueError:

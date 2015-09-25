@@ -1105,12 +1105,30 @@ class TestJobDefinition(TestCase):
             "cd21b33e6a2f4d1291977b60d922bbd276775adce73fca8c69b4821c96d7314a")
 
     def test_estimated_duration(self):
-        job1 = JobDefinition({})
-        self.assertEqual(job1.estimated_duration, None)
-        job2 = JobDefinition({'estimated_duration': 'foo'})
-        self.assertEqual(job2.estimated_duration, None)
-        job3 = JobDefinition({'estimated_duration': '123.5'})
-        self.assertEqual(job3.estimated_duration, 123.5)
+        self.assertEqual(JobDefinition({}).estimated_duration, None)
+        self.assertEqual(JobDefinition(
+            {'estimated_duration': 'foo'}).estimated_duration, None)
+        self.assertEqual(JobDefinition(
+            {'estimated_duration': '123.5'}).estimated_duration,
+            123.5)
+        self.assertEqual(JobDefinition(
+            {'estimated_duration': '5s'}).estimated_duration, 5)
+        self.assertEqual(JobDefinition(
+            {'estimated_duration': '1m 5s'}).estimated_duration, 65)
+        self.assertEqual(JobDefinition(
+            {'estimated_duration': '1h 1m 5s'}).estimated_duration, 3665)
+        self.assertEqual(JobDefinition(
+            {'estimated_duration': '1h'}).estimated_duration, 3600)
+        self.assertEqual(JobDefinition(
+            {'estimated_duration': '2m'}).estimated_duration, 120)
+        self.assertEqual(JobDefinition(
+            {'estimated_duration': '1h 1s'}).estimated_duration, 3601)
+        self.assertEqual(JobDefinition(
+            {'estimated_duration': '1m:5s'}).estimated_duration, 65)
+        self.assertEqual(JobDefinition(
+            {'estimated_duration': '1h:1m:5s'}).estimated_duration, 3665)
+        self.assertEqual(JobDefinition(
+            {'estimated_duration': '1h:1s'}).estimated_duration, 3601)
 
     def test_summary(self):
         job1 = JobDefinition({})

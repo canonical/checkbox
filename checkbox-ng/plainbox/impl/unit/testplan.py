@@ -260,8 +260,30 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
         """
         value = self.get_record_value('estimated_duration')
         if value is None:
-            return
-        return float(value)
+            return None
+        match = re.match('^(\d+h)?[ :]*(\d+m)?[ :]*(\d+s)?$', value)
+        if match:
+            g_hours = match.group(1)
+            if g_hours:
+                assert g_hours.endswith('h')
+                hours = int(g_hours[:-1])
+            else:
+                hours = 0
+            g_minutes = match.group(2)
+            if g_minutes:
+                assert g_minutes.endswith('m')
+                minutes = int(g_minutes[:-1])
+            else:
+                minutes = 0
+            g_seconds = match.group(3)
+            if g_seconds:
+                assert g_seconds.endswith('s')
+                seconds = int(g_seconds[:-1])
+            else:
+                seconds = 0
+            return seconds + minutes * 60 + hours * 3600
+        else:
+            return float(value)
 
     def tr_name(self):
         """
@@ -586,8 +608,7 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
                     severity=Severity.advice,
                     onlyif=lambda unit: unit.virtual is False),
                 CorrectFieldValueValidator(
-                    lambda duration, unit: float(
-                        unit.get_record_value('estimated_duration')) > 0,
+                    lambda duration, unit: unit.estimated_duration > 0,
                     message="value must be a positive number",
                     onlyif=lambda unit: (
                         unit.virtual is False

@@ -72,6 +72,7 @@ setup(
     ],
     install_requires=[
         'Jinja2 >= 2.7',
+        'guacamole >= 0.9',
         'padme >= 1.1.1',
         'requests >= 1.0',
     ],

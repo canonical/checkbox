@@ -199,8 +199,12 @@ class NormalUI(IJobRunnerUI):
             'stdout': sys.stdout,
             'stderr': sys.stderr
         }[stream_name]
-        print(self.C.BLACK(line.decode("UTF-8", "ignore")),
-              end='', file=stream)
+        if stream_name == 'stdout':
+            print(self.C.GREEN(line.decode("UTF-8", "ignore")),
+                  end='', file=stream)
+        elif stream_name == 'stderr':
+            print(self.C.RED(line.decode("UTF-8", "ignore")),
+                  end='', file=stream)
         stream.flush()
 
     def finished_executing_program(self, returncode):

@@ -122,19 +122,22 @@ class CheckBoxSessionStateController(ISessionStateController):
 
         Returns a set of pairs (dep_type, job_id) that describe all
         dependencies of the specified job. The first element in the pair,
-        dep_type, is either DEP_TYPE_DIRECT or DEP_TYPE_RESOURCE. The second
-        element is the id of the job.
+        dep_type, is either DEP_TYPE_DIRECT, DEP_TYPE_ORDERING or
+        DEP_TYPE_RESOURCE. The second element is the id of the job.
         """
         direct = DependencyMissingError.DEP_TYPE_DIRECT
+        ordering = DependencyMissingError.DEP_TYPE_ORDERING
         resource = DependencyMissingError.DEP_TYPE_RESOURCE
         direct_deps = job.get_direct_dependencies()
+        after_deps = job.get_after_dependencies()
         try:
             resource_deps = job.get_resource_dependencies()
         except ResourceProgramError:
             resource_deps = ()
         result = set(itertools.chain(
             zip(itertools.repeat(direct), direct_deps),
-            zip(itertools.repeat(resource), resource_deps)))
+            zip(itertools.repeat(resource), resource_deps),
+            zip(itertools.repeat(ordering), after_deps)))
         return result
 
     def get_inhibitor_list(self, session_state, job):
@@ -151,9 +154,9 @@ class CheckBoxSessionStateController(ISessionStateController):
         :returns:
             List of JobReadinessInhibitor
         """
+        inhibitors = []
         # Check if all job resource requirements are met
         prog = job.get_resource_program()
-        inhibitors = []
         if prog is not None:
             try:
                 prog.evaluate_or_raise(session_state.resource_map)
@@ -206,6 +209,16 @@ class CheckBoxSessionStateController(ISessionStateController):
             elif dep_job_state.result.outcome != IJobResult.OUTCOME_PASS:
                 inhibitor = JobReadinessInhibitor(
                     cause=InhibitionCause.FAILED_DEP,
+                    related_job=dep_job_state.job)
+                inhibitors.append(inhibitor)
+        # Check if all "after" dependencies ran yet
+        for dep_id in sorted(job.get_after_dependencies()):
+            dep_job_state = session_state.job_state_map[dep_id]
+            # If the dependency did not have a chance to run yet add the
+            # PENDING_DEP inhibitor.
+            if dep_job_state.result.outcome == IJobResult.OUTCOME_NONE:
+                inhibitor = JobReadinessInhibitor(
+                    cause=InhibitionCause.PENDING_DEP,
                     related_job=dep_job_state.job)
                 inhibitors.append(inhibitor)
         return inhibitors

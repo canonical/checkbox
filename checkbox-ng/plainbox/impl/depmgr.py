@@ -165,6 +165,7 @@ class DependencyMissingError(DependencyError):
 
     DEP_TYPE_RESOURCE = "resource"
     DEP_TYPE_DIRECT = "direct"
+    DEP_TYPE_ORDERING = "ordering"
 
     def __init__(self, job, missing_job_id, dep_type):
         """ Initialize a new error with given data. """

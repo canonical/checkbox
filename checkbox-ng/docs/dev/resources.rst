@@ -69,14 +69,12 @@ everything is disallowed, except as noted below:
 
 Anything else is rejected as an invalid resource expression.
 
-In addition to that, each resource expression must use exactly one variable,
+In addition to that, each resource expression must use at least one variable,
 which must be used like an object with attributes. The name of that variable
-must correspond to the name of the job that generates resources. Attempts to
-use more than one variable or to not use any variables are detected early and
-rejected as invalid resource expressions.
-
-The name of the variable determines which resource group to use. It must match
-the name of the job that generates such resources.
+must correspond to the name of the job that generates resources. You can use
+the ``imports`` field (at a job definition level) to rename a resource job to
+be compatible with the identifier syntax. It can also be used to refer to
+resources from another namespace.
 
 In the examples elsewhere in this page the  ``package`` resources are generated
 by the ``package`` job. Plainbox uses this to know which resources to try but
@@ -112,41 +110,32 @@ The design of resource programs has the following shortcomings. The list is
 non-exhaustive, it only contains issues that we came across found not to work
 in practice.
 
-Exactly one variable per expression
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Joins are not optimized
+^^^^^^^^^^^^^^^^^^^^^^^
 
-Each resource expression must refer to exactly one variable. This is a side
-effect of the way the evaluator works. It basically bind one object (a
-particular resource) to that variable and evaluates the expression.
+Starting with plainbox 0.24, a resource expression can use more than one
+resource object (resource job) at the same time. This allows the use of joins
+as the whole expression is evaluated over the cartesian product of all the
+resource records. This operation is not optimized, you can think of it as a
+JOIN that is performed on a database without any indices.
 
-The expression parser / syntax analyzer identifies expressions with this
-problem early and rejects them with an appropriate error message. Here are
-some examples of hypothetical expressions that exhibit this problem.
+Let's look at a practical example::
 
-"I want to have mplayer and an audio device so that I can play some sounds"::
+    package.name == desired_package.name
 
-    device.category == "AUDIO" and package.name == "mplayer"
+Here, two resource jobs would run. The classic *package* resource (that
+produces, typically, a great number of resource records, one for each package
+installed on the system) and a hypothetical *desired_package* resource (for
+this example let's pretend that it is a simple constant resource that just
+contains one object). Here, this operation is not any worse than before because
+``size(desired_package) * size(package)`` is not any larger. If, however,
+*desired_package* was on the same order as *package* (approximately a thousand
+resource objects). Then the computational cost of evaluating that expression
+would be quadratic.
 
-To work around this, split the expression to two separate expressions. The
-evaluator will put an implicit ``and`` between them and it will do exactly what
-you intended::
-
-    device.category == "AUDIO"
-    package.name == "mplayer"
-
-"I want to always run this test"::
-
-    True
-
-To work around this, simply remove the requirement program entirely!
-
-"I want to never run this test"::
-
-    False
-
-To work around this remove this job from the selection. You may also use a
-special resource that produces one constant value, and check that it is equal
-to something different.
+In general, the cost, assuming all resources have the same order, is
+exponential with the number of distinct resource jobs referenced by the
+expression.
 
 Exactly one resource bound to a variable at once
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

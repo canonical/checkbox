@@ -161,36 +161,41 @@ class CheckBoxSessionStateController(ISessionStateController):
             try:
                 prog.evaluate_or_raise(session_state.resource_map)
             except ExpressionCannotEvaluateError as exc:
-                # Lookup the related job (the job that provides the
-                # resources needed by the expression that cannot be
-                # evaluated)
-                related_job = session_state.job_state_map[
-                    exc.expression.resource_id].job
-                # Add A PENDING_RESOURCE inhibitor as we are unable to
-                # determine if the resource requirement is met or not. This
-                # can happen if the resource job did not ran for any reason
-                # (it can either be prevented from running by normal means
-                # or simply be on the run_list but just was not executed
-                # yet).
-                inhibitor = JobReadinessInhibitor(
-                    cause=InhibitionCause.PENDING_RESOURCE,
-                    related_job=related_job,
-                    related_expression=exc.expression)
-                inhibitors.append(inhibitor)
+                for resource_id in exc.expression.resource_id_list:
+                    if session_state.job_state_map[resource_id].result.outcome == 'pass':
+                        continue
+                    # Lookup the related job (the job that provides the
+                    # resources needed by the expression that cannot be
+                    # evaluated)
+                    related_job = session_state.job_state_map[resource_id].job
+                    # Add A PENDING_RESOURCE inhibitor as we are unable to
+                    # determine if the resource requirement is met or not. This
+                    # can happen if the resource job did not ran for any reason
+                    # (it can either be prevented from running by normal means
+                    # or simply be on the run_list but just was not executed
+                    # yet).
+                    inhibitor = JobReadinessInhibitor(
+                        cause=InhibitionCause.PENDING_RESOURCE,
+                        related_job=related_job,
+                        related_expression=exc.expression)
+                    inhibitors.append(inhibitor)
             except ExpressionFailedError as exc:
-                # Lookup the related job (the job that provides the
-                # resources needed by the expression that failed)
-                related_job = session_state.job_state_map[
-                    exc.expression.resource_id].job
-                # Add a FAILED_RESOURCE inhibitor as we have all the data
-                # to run the requirement program but it simply returns a
-                # non-True value. This typically indicates a missing
-                # software package or necessary hardware.
-                inhibitor = JobReadinessInhibitor(
-                    cause=InhibitionCause.FAILED_RESOURCE,
-                    related_job=related_job,
-                    related_expression=exc.expression)
-                inhibitors.append(inhibitor)
+                # When expressions fail then all the associated resources are
+                # marked as failed since we don't want to get into the analysis
+                # of logic expressions to know any "better".
+                for resource_id in exc.expression.resource_id_list:
+                    # Lookup the related job (the job that provides the
+                    # resources needed by the expression that failed)
+                    related_job = session_state.job_state_map[resource_id].job
+                    # Add a FAILED_RESOURCE inhibitor as we have all the data
+                    # to run the requirement program but it simply returns a
+                    # non-True value. This typically indicates a missing
+                    # software package or necessary hardware.
+                    inhibitor = JobReadinessInhibitor(
+                        cause=InhibitionCause.FAILED_RESOURCE,
+                        related_job=related_job,
+                        related_expression=exc.expression)
+                    inhibitors.append(inhibitor)
         # Check if all job dependencies ran successfully
         for dep_id in sorted(job.get_direct_dependencies()):
             dep_job_state = session_state.job_state_map[dep_id]

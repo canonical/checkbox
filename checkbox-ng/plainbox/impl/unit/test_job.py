@@ -1110,13 +1110,6 @@ class TestJobDefinition(TestCase):
         observed = job.get_resource_dependencies()
         self.assertEqual(expected, observed)
 
-    def test_resource_parsing_broken(self):
-        job = JobDefinition({
-            'id': 'id',
-            'plugin': 'plugin',
-            'requires': "foo.bar == bar"})
-        self.assertRaises(Exception, job.get_resource_dependencies)
-
     def test_checksum_smoke(self):
         job1 = JobDefinition({
             'id': 'id',
@@ -1410,5 +1403,5 @@ class RegressionTests(TestCase):
                 "manifest.has_thunderbolt == 'True'\n"),
         }, provider=provider)
         prog = job.get_resource_program()
-        self.assertEqual(prog.expression_list[-1].resource_id,
-                         '2013.com.canonical.plainbox::manifest')
+        self.assertEqual(prog.expression_list[-1].resource_id_list,
+                         ['2013.com.canonical.plainbox::manifest'])

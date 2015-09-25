@@ -31,7 +31,6 @@ from plainbox.impl.resource import CodeNotAllowed
 from plainbox.impl.resource import ExpressionCannotEvaluateError
 from plainbox.impl.resource import ExpressionFailedError
 from plainbox.impl.resource import FakeResource
-from plainbox.impl.resource import MultipleResourcesReferenced
 from plainbox.impl.resource import NoResourcesReferenced
 from plainbox.impl.resource import Resource
 from plainbox.impl.resource import ResourceExpression
@@ -59,7 +58,7 @@ class ExpressionCannotEvaluateErrorTests(TestCase):
 
     def test_smoke(self):
         expression = ResourceExpression('resource.attr == "value"')
-        exc = ExpressionCannotEvaluateError(expression)
+        exc = ExpressionCannotEvaluateError(expression, 'resource')
         self.assertIs(exc.expression, expression)
         self.assertEqual(str(exc), (
             "expression 'resource.attr == \"value\"' needs unavailable"
@@ -183,11 +182,6 @@ class FakeResourceTests(TestCase):
 
 class ResourceProgramErrorTests(TestCase):
 
-    def test_multiple(self):
-        exc = MultipleResourcesReferenced()
-        self.assertEqual(
-            str(exc), "expression referenced multiple resources")
-
     def test_none(self):
         exc = NoResourcesReferenced()
         self.assertEqual(
@@ -209,13 +203,15 @@ class ResourceNodeVisitorTests(TestCase):
 
     def test_smoke(self):
         visitor = ResourceNodeVisitor()
-        self.assertEqual(visitor.ids_seen, set())
+        self.assertEqual(visitor.ids_seen_set, set())
+        self.assertEqual(visitor.ids_seen_list, [])
 
     def test_ids_seen(self):
         visitor = ResourceNodeVisitor()
         node = ast.parse("package.name == 'fwts' and package.version == '1.2'")
         visitor.visit(node)
-        self.assertEqual(visitor.ids_seen, {'package'})
+        self.assertEqual(visitor.ids_seen_set, {'package'})
+        self.assertEqual(visitor.ids_seen_list, ['package'])
 
     def test_name_assignment_disallowed(self):
         visitor = ResourceNodeVisitor()
@@ -289,45 +285,49 @@ class ResourceExpressionTests(TestCase):
         text = "package.name == 'fwts'"
         expr = ResourceExpression(text)
         self.assertEqual(expr.text, text)
-        self.assertEqual(expr.resource_id, "package")
+        self.assertEqual(expr.resource_id_list, ["package"])
         self.assertEqual(expr.implicit_namespace, None)
 
     def test_namespace_support(self):
         text = "package.name == 'fwts'"
         expr = ResourceExpression(text, "2014.com.canonical")
         self.assertEqual(expr.text, text)
-        self.assertEqual(expr.resource_id, "2014.com.canonical::package")
+        self.assertEqual(expr.resource_id_list,
+                         ["2014.com.canonical::package"])
         self.assertEqual(expr.implicit_namespace, "2014.com.canonical")
 
     def test_imports_support(self):
         text = "package.name == 'fwts'"
         expr1 = ResourceExpression(text, "2014.com.example")
         self.assertEqual(expr1.text, text)
-        self.assertEqual(expr1.resource_id, "2014.com.example::package")
+        self.assertEqual(expr1.resource_id_list, ["2014.com.example::package"])
         self.assertEqual(expr1.implicit_namespace, "2014.com.example")
         expr2 = ResourceExpression(text, "2014.com.example", imports=())
         self.assertEqual(expr2.text, text)
-        self.assertEqual(expr2.resource_id, "2014.com.example::package")
+        self.assertEqual(expr2.resource_id_list, ["2014.com.example::package"])
         self.assertEqual(expr2.implicit_namespace, "2014.com.example")
         expr3 = ResourceExpression(
             text, "2014.com.example", imports=[
                 ('2014.com.canonical::package', 'package')])
         self.assertEqual(expr3.text, text)
-        self.assertEqual(expr3.resource_id, "2014.com.canonical::package")
+        self.assertEqual(expr3.resource_id_list,
+                         ["2014.com.canonical::package"])
         self.assertEqual(expr3.implicit_namespace, "2014.com.example")
 
     def test_smoke_bad(self):
         self.assertRaises(ResourceSyntaxError, ResourceExpression, "barf'")
         self.assertRaises(CodeNotAllowed, ResourceExpression, "a = 5")
         self.assertRaises(NoResourcesReferenced, ResourceExpression, "5 < 10")
-        self.assertRaises(MultipleResourcesReferenced,
-                          ResourceExpression, "a.foo == 1 and b.bar == 2")
+
+    def test_multiple_resources(self):
+        expr = ResourceExpression("a.foo == 1 and b.bar == 2")
+        self.assertEqual(expr.resource_id_list, ["a", "b"])
 
     def test_evaluate_no_namespaces(self):
         self.assertFalse(ResourceExpression("whatever").evaluate([]))
 
     def test_evaluate_normal(self):
-        # NOTE: the actual expr.resource_id is irrelevant for this test
+        # NOTE: the actual expr.resource_id_list is irrelevant for this test
         expr = ResourceExpression("obj.a == 2")
         self.assertTrue(
             expr.evaluate([
@@ -340,7 +340,7 @@ class ResourceExpressionTests(TestCase):
                 Resource({'a': 1}), Resource({'a': 3})]))
 
     def test_evaluate_exception(self):
-        # NOTE: the actual expr.resource_id is irrelevant for this test
+        # NOTE: the actual expr.resource_id_list is irrelevant for this test
         expr = ResourceExpression("obj.a == 2")
         self.assertFalse(expr.evaluate([Resource()]))
 
@@ -362,12 +362,12 @@ class ResourceProgramTests(TestCase):
         self.assertEqual(len(self.prog.expression_list), 2)
         self.assertEqual(self.prog.expression_list[0].text,
                          "package.name == 'fwts'")
-        self.assertEqual(self.prog.expression_list[0].resource_id,
-                         "package")
+        self.assertEqual(self.prog.expression_list[0].resource_id_list,
+                         ["package"])
         self.assertEqual(self.prog.expression_list[1].text,
                          "platform.arch in ('i386', 'amd64')")
-        self.assertEqual(self.prog.expression_list[1].resource_id,
-                         "platform")
+        self.assertEqual(self.prog.expression_list[1].resource_id_list,
+                         ["platform"])
 
     def test_required_resources(self):
         self.assertEqual(self.prog.required_resources,

@@ -29,6 +29,20 @@ Plainbox 0.24 (unreleased)
   attachment jobs will automatically pull in their log-generating cousins and
   will run at the right time no matter what happens.
 
+* Plainbox now allows more than one resource object to be used in a resource
+  expression. This can be used to construct resource expressions that combine
+  facts from multiple sources (e.g. the manifest resource with something else).
+
+  As an **important** implementation limitation please remember that the
+  complexity of such resource programs is proportional to the product of the
+  number of resource objects associated with each resource in an expression.
+  In practice it is not advised to use resource objects with more than a few
+  resource records associated with them. This is just an implementation detail
+  that can be lifted in subsequent versions.
+
+  Examples of the usage of this feature can be found in the TPM (Trusted
+  Platform Module) provider.
+
 .. _version_0_23:
 
 Plainbox 0.23 (QA Testing)

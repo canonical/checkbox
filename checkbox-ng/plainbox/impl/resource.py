@@ -27,6 +27,7 @@
 """
 
 import ast
+import itertools
 import logging
 
 from plainbox.i18n import gettext as _
@@ -67,9 +68,13 @@ class ExpressionCannotEvaluateError(ExpressionFailedError):
     enough data to provide rich and meaningful error messages to the operator.
     """
 
+    def __init__(self, expression, resource_id):
+        self.expression = expression
+        self.resource_id = resource_id
+
     def __str__(self):
         return _("expression {!r} needs unavailable resource {!r}").format(
-            self.expression.text, self.expression.resource_id)
+            self.expression.text, self.resource_id)
 
 
 class Resource:
@@ -220,8 +225,11 @@ class ResourceProgram:
         """
         A set() of resource ids that are needed to evaluate this program
         """
-        return set((expression.resource_id
-                    for expression in self._expression_list))
+        ids = set()
+        for expression in self._expression_list:
+            for resource_id in expression.resource_id_list:
+                ids.add(resource_id)
+        return ids
 
     def evaluate_or_raise(self, resource_map):
         """
@@ -238,12 +246,16 @@ class ResourceProgram:
         """
         # First check if we have all required resources
         for expression in self._expression_list:
-            if expression.resource_id not in resource_map:
-                raise ExpressionCannotEvaluateError(expression)
+            for resource_id in expression.resource_id_list:
+                if resource_id not in resource_map:
+                    raise ExpressionCannotEvaluateError(
+                        expression, resource_id)
         # Then evaluate all expressions
         for expression in self._expression_list:
-            result = expression.evaluate(
-                resource_map[expression.resource_id])
+            result = expression.evaluate(*[
+                resource_map[resource_id]
+                for resource_id in expression.resource_id_list
+            ])
             if not result:
                 raise ExpressionFailedError(expression)
         return True
@@ -378,16 +390,24 @@ class ResourceNodeVisitor(ast.NodeVisitor):
 
     def __init__(self):
         """
-        Initialize a ResourceNodeVisitor with empty set of ids_seen
+        Initialize a ResourceNodeVisitor with empty trace of seen identifiers
         """
-        self._ids_seen = set()
+        self._ids_seen_set = set()
+        self._ids_seen_list = []
 
     @property
-    def ids_seen(self):
+    def ids_seen_set(self):
         """
         set() of ast.Name().id values seen
         """
-        return self._ids_seen
+        return self._ids_seen_set
+
+    @property
+    def ids_seen_list(self):
+        """
+        list() of ast.Name().id values seen
+        """
+        return self._ids_seen_list
 
     def visit_Name(self, node):
         """
@@ -397,7 +417,9 @@ class ResourceNodeVisitor(ast.NodeVisitor):
         ast.Name(). It records the node identifier and calls _check_node()
         """
         self._check_node(node)
-        self._ids_seen.add(node.id)
+        if node.id not in self._ids_seen_set:
+            self._ids_seen_set.add(node.id)
+            self._ids_seen_list.append(node.id)
 
     def visit_Call(self, node):
         """
@@ -470,15 +492,6 @@ class NoResourcesReferenced(ResourceProgramError):
         return _("expression did not reference any resources")
 
 
-class MultipleResourcesReferenced(ResourceProgramError):
-    """
-    Exception raised when an expression references multiple resources.
-    """
-
-    def __str__(self):
-        return _("expression referenced multiple resources")
-
-
 class ResourceSyntaxError(ResourceProgramError):
 
     def __str__(self):
@@ -502,20 +515,22 @@ class ResourceExpression:
         May raise ResourceProgramError
         """
         self._implicit_namespace = implicit_namespace
-        self._resource_alias = self._analyze(text)
+        self._resource_alias_list = self._analyze(text)
+        self._resource_id_list = []
         if imports is None:
             imports = ()
         # Respect any import statements.
         # They always take priority over anything we may know locally
-        for imported_resource_id, imported_alias in imports:
-            if imported_alias == self._resource_alias:
-                self._resource_id = imported_resource_id
-                break
-        else:
-            self._resource_id = self._resource_alias
+        for resource_alias in self._resource_alias_list:
+            for imported_resource_id, imported_alias in imports:
+                if imported_alias == resource_alias:
+                    self._resource_id_list.append(imported_resource_id)
+                    break
+            else:
+                self._resource_id_list.append(resource_alias)
         self._text = text
         self._lambda = eval("lambda {}: {}".format(
-            self._resource_alias, self._text))
+            ', '.join(self._resource_alias_list), self._text))
 
     def __str__(self):
         return self._text
@@ -541,7 +556,7 @@ class ResourceExpression:
         return self._text
 
     @property
-    def resource_id(self):
+    def resource_id_list(self):
         """
         The id of the resource this expression depends on
 
@@ -549,13 +564,15 @@ class ResourceExpression:
         valid python identifier and it is always (ideally) a fully-qualified
         job identifier.
         """
-        if "::" not in self._resource_id and self._implicit_namespace:
-            return "{}::{}".format(self._implicit_namespace, self._resource_id)
-        else:
-            return self._resource_id
+        return [
+            "{}::{}".format(self._implicit_namespace, resource_id)
+            if "::" not in resource_id and self._implicit_namespace
+            else resource_id
+            for resource_id in self._resource_id_list
+        ]
 
     @property
-    def resource_alias(self):
+    def resource_alias_list(self):
         """
         The alias of the resource object this expression operates on
 
@@ -563,7 +580,7 @@ class ResourceExpression:
         python identifier. The alias is either the partial identifier of the
         resource job or an arbitrary identifier, as used by the job definition.
         """
-        return self._resource_alias
+        return self._resource_alias_list
 
     @property
     def implicit_namespace(self):
@@ -572,7 +589,7 @@ class ResourceExpression:
         """
         return self._implicit_namespace
 
-    def evaluate(self, resource_list):
+    def evaluate(self, *resource_list_list):
         """
         Evaluate the expression against a list of resources
 
@@ -580,13 +597,16 @@ class ResourceExpression:
         id in the expression. The return value is True if any of the attempts
         return a true value, otherwise the result is False.
         """
+        for resource_list in resource_list_list:
+            for resource in resource_list:
+                if not isinstance(resource, Resource):
+                    raise TypeError(
+                        "Each resource must be a Resource instance")
         # Try each resource in sequence.
-        for resource in resource_list:
-            if not isinstance(resource, Resource):
-                raise TypeError("Each resource must be a Resource instance")
+        for resource_pack in itertools.product(*resource_list_list):
             # Attempt to evaluate the code with the current resource
             try:
-                result = self._lambda(resource)
+                result = self._lambda(*resource_pack)
             except Exception as exc:
                 # Treat any exception as a non-fatal error
                 #
@@ -594,7 +614,8 @@ class ResourceExpression:
                 # why they happen.  We could do deeper validation this way.
                 logger.debug(
                     _("Exception in requirement expression %r (with %s=%r):"
-                      " %r"), self._text, self._resource_id, resource, exc)
+                      " %r"),
+                    self._text, self._resource_id_list, resource, exc)
                 continue
             # Treat any true result as a success
             if result:
@@ -622,12 +643,10 @@ class ResourceExpression:
         visitor = ResourceNodeVisitor()
         visitor.visit(node)
         # Bail if the expression is not using exactly one resource id
-        if len(visitor.ids_seen) == 0:
+        if len(visitor.ids_seen_list) == 0:
             raise NoResourcesReferenced()
-        elif len(visitor.ids_seen) == 1:
-            return list(visitor.ids_seen)[0]
         else:
-            raise MultipleResourcesReferenced()
+            return list(visitor.ids_seen_list)
 
 
 def parse_imports_stmt(imports):

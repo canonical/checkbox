@@ -241,6 +241,15 @@ Following fields may be used by the job unit:
         Attach this flag to jobs that cause killing of plainbox process during
         their operation. E.g. run shutdown, reboot, etc.
 
+.. _job_flag_has_leftovers:
+
+    ``has-leftovers``:
+        This flag makes plainbox silently ignore (and not log) any files left
+        over by the execution of the command associated with a job. This flag
+        is useful for jobs that don't bother with maintenance of temporary
+        directories and just want to rely on the one already created by
+        plainbox.
+
     Additional flags may be present in job definition; they are ignored.
 
 ``imports``:

@@ -560,7 +560,8 @@ class JobRunner(IJobRunner):
         if job.plugin != "manual":
             # TRANSLATORS: please keep 'plugin' untranslated
             raise ValueError(_("bad job plugin value"))
-        return JobResultBuilder(outcome=IJobResult.OUTCOME_UNDECIDED).get_result()
+        return JobResultBuilder(
+            outcome=IJobResult.OUTCOME_UNDECIDED).get_result()
 
     def run_user_interact_job(self, job, job_state, config):
         """
@@ -965,7 +966,8 @@ class JobRunner(IJobRunner):
             Anyone listening to this signal does not need to remove any of the
             files. They are removed automatically after this method returns.
         """
-        if self._log_leftovers:
+        if (self._log_leftovers and
+                'has-leftovers' not in job.get_flag_set()):
             logger.warning(
                 _("Job {0} created leftover filesystem artefacts"
                   " in its working directory").format(job.id))

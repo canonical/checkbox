@@ -874,6 +874,15 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
                         ' non-C locale then set the preserve-locale flag'
                     ),
                     onlyif=lambda unit: unit.command),
+                # The has-leftovers flag is useless without a command
+                CorrectFieldValueValidator(
+                    lambda value, unit: (
+                        'has-leftovers' not in unit.get_flag_set()),
+                    Problem.useless, Severity.advice,
+                    message=_(
+                        'has-leftovers makes no sense without a command'
+                    ),
+                    onlyif=lambda unit: unit.command is None),
             ],
             fields.qml_file: [
                 UntranslatableFieldValidator,

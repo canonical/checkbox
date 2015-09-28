@@ -1,0 +1,30 @@
+id: smoke
+_name: All Smoke Tests
+unit: test plan
+description:
+    This is an example test plan to start from.
+    To use, copy this file and add the jobs you want to run to the copy. Delete
+    these comments. DO NOT delete the first 9 jobs in tis file.
+    They are resource gathering jobs and are necessary to do any testing at all.
+include:
+    cpuinfo
+    cdimage
+    dmi
+    dpkg
+    efi
+    environment
+    gconf
+    lsb
+    meminfo
+    module
+    package
+    device
+    uname
+    smoke/true
+    smoke/false
+    smoke/dependency/good
+    smoke/dependency/bad
+    smoke/requirement/good
+    smoke/requirement/bad
+    smoke/manual
+    

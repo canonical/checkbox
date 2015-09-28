@@ -1,0 +1,35 @@
+id: hwsubmit
+_name: All HW Submit Tests
+unit: test plan
+include:
+    cdimage
+    cpuinfo
+    device
+    dmi
+    dpkg
+    gconf
+    lsb
+    meminfo
+    module
+    package
+    uname
+    usb
+    info/buildstamp
+    cpuinfo_attachment
+    dmesg_attachment
+    dmi_attachment
+    dmidecode_attachment
+    kernel_cmdline_attachment
+    recovery_info_attachment
+    dell_bto_xml_attachment
+    lsmod_attachment
+    dkms_info_attachment
+    lspci_attachment
+    lspci_standard_config_attachment
+    modinfo_attachment
+    modprobe_attachment
+    modules_attachment
+    sysfs_attachment
+    sysctl_attachment
+    udev_attachment
+    

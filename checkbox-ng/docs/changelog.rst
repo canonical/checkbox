@@ -45,8 +45,8 @@ Plainbox 0.24 (unreleased)
 
 .. _version_0_23:
 
-Plainbox 0.23 (QA Testing)
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Plainbox 0.23
+^^^^^^^^^^^^^
 
 * Mandatory jobs - jobs may be marked as mandatory - this way they are always
   executed - useful for jobs that get information about hardware. Use

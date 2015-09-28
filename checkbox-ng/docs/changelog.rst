@@ -27,6 +27,11 @@ Plainbox 0.23 (unreleased)
   detection feature. When this flag is added to a job definition files left
   over by the execution of a command are silently ignored.
 
+* Plainbox now supports a new flag on job definitions :ref:`simple
+  <job_flag_simple>` that is meant to cut the boiler-plate from fully automated
+  test cases. When this flag is added to a job definition then many otherwise
+  mandatory or recommended features are disabled.
+
 .. _version_0_18:
 
 Plainbox 0.18

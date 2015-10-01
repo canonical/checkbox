@@ -163,7 +163,10 @@ class PowerManagementOperation(object):
             sleep_test_path, cycles_count)
         logging.info('Running suspend/resume cycles')
         logging.debug('Executing: {0!r}...'.format(command_str))
-        subprocess.check_call(command_str, shell=True)
+        # We call sleep_test script and log its output as it contains
+        # average times we need to compute global average times later.
+        logging.info(subprocess.check_output(command_str,
+            universal_newlines=True, shell=True))
 
     def summary(self):
         """

@@ -90,7 +90,16 @@ depends: power-management/suspend_30_cycles
 estimated_duration: 1.0
 command: [ -e $PLAINBOX_SESSION_SHARE/suspend_30_cycles.log ] && sleep_test_log_check -v s3 $PLAINBOX_SESSION_SHARE/suspend_30_cycles.log
 _description:
- Automated check of the 30 cycle hibernate log for errors detected by fwts.
+ Automated check of the 30 cycle suspend log for errors detected by fwts.
+
+plugin: shell
+category_id: 2013.com.canonical.plainbox::stress
+id: power-management/suspend-30-cycles-log-check-with-reboots
+depends: power-management/suspend_30_cycles_with_reboots
+estimated_duration: 1.0
+command: [ -e $PLAINBOX_SESSION_SHARE/pm_test.reboot.3.log ] && sleep_test_log_check -v s3 $PLAINBOX_SESSION_SHARE/pm_test.reboot.3.log
+_description:
+ Automated check of the '30 cycle suspend and 1 reboot times 3' logs for errors detected by fwts.
 
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::stress
@@ -101,12 +110,30 @@ command: [ -e $PLAINBOX_SESSION_SHARE/suspend_30_cycles.log ] && cat $PLAINBOX_S
 _description:
  Attaches the log from the 30 cycle Suspend/Resume test if it exists
 
+plugin: attachment
+category_id: 2013.com.canonical.plainbox::stress
+id: power-management/suspend-30-cycle-log-attach-with-reboots
+estimated_duration: 1.0
+depends: power-management/suspend_30_cycles_with_reboots
+command: [ -e $PLAINBOX_SESSION_SHARE/pm_test.reboot.3.log ] && cat $PLAINBOX_SESSION_SHARE/pm_test.reboot.3.log
+_description:
+ Attaches the log from the '30 cycle Suspend/Resume and one reboot times 3' test if it exists
+
 plugin: shell
 category_id: 2013.com.canonical.plainbox::stress
 id: power-management/suspend-30-cycles-time-check
 estimated_duration: 1.0
 depends: power-management/suspend_30_cycles
 command: [ -e $PLAINBOX_SESSION_SHARE/suspend_30_cycles_times.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/suspend_30_cycles_times.log
+_description:
+ Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
+
+plugin: shell
+category_id: 2013.com.canonical.plainbox::stress
+id: power-management/suspend-30-cycles-time-check-with-reboots
+estimated_duration: 1.0
+depends: power-management/suspend_30_cycles_with_reboots
+command: [ -e $PLAINBOX_SESSION_SHARE/pm_test.reboot.3.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/pm_test.reboot.3.log
 _description:
  Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
 

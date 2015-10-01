@@ -2,6 +2,7 @@
 
 import sys
 import argparse
+from statistics import mean
 
 
 def main():
@@ -35,20 +36,25 @@ def main():
         return False
 
     sleep_time = None
+    sleep_times = []
     resume_time = None
+    resume_times = []
     # find our times
     for line in lines:
         if "Average time to sleep" in line:
             sleep_time = float(line.split(':')[1].strip())
+            sleep_times.append(sleep_time)
         elif "Average time to resume" in line:
             resume_time = float(line.split(':')[1].strip())
+            resume_times.append(resume_time)
 
-    if sleep_time is None or resume_time is None:
+    if (sleep_time is None or resume_time is None) or \
+    (len(sleep_times) != len(resume_times)):
         print("ERROR: One or more times was not reported correctly")
         return False
 
-    print("Average time to enter sleep state: %s seconds" % sleep_time)
-    print("Average time to resume from sleep state: %s seconds" % resume_time)
+    print("Average time to enter sleep state: %.4f seconds" % mean(sleep_times))
+    print("Average time to resume from sleep state: %.4f seconds" % mean(resume_times))
 
     failed = False
     if sleep_time > args.sleep_threshold:

@@ -589,13 +589,6 @@ class SessionAssistant:
         UsageExpectation.of(self).enforce()
         test_plan = self._context.get_unit(test_plan_id, 'test plan')
         self._manager.test_plans = (test_plan, )
-        if False:
-            """
-            desired_job_list = select_jobs(
-                self._context.state.job_list, [unit.get_qualifier()])
-            self._context.state.update_desired_job_list(desired_job_list)
-            self._metadata.flags = {'incomplete'}
-            """
         self._manager.checkpoint()
         UsageExpectation.of(self).allowed_calls = {
             self.bootstrap: "to run the bootstrap process"

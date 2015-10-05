@@ -1253,6 +1253,9 @@ class SessionAssistant:
             self.export_to_transport: "to export the results and send them",
             self.export_to_file: "to export the results to a file",
             self.finalize_session: "to mark the session as complete",
+            self.get_session_id: "to get the id of currently running session",
+            self.get_session_dir: ("to get the path where current session is"
+                                   "stored"),
         }
 
 

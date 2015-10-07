@@ -6,8 +6,6 @@
 ## some of these tests depend on a specific network environment and may not run
 ## properly in your test environment.  To avoid false failures, please use the 
 ## client-selftest.whitelist instead.
-# Meta-job to include required resources, don't remove.
-miscellanea/submission-resources
 # Resource Jobs
 __resource__
 2013.com.canonical.plainbox::collect-manifest
@@ -173,8 +171,8 @@ led/mute
 led/microphone-mute
 led/numeric-keypad
 led/power
-# NOTE: led/power-blink-suspend and led/suspend are used later in the whitelist
-#       just after a number of suspend tests.
+# NOTE: led/power-blink-suspend and led/suspend are used later in the
+#       testplan just after a number of suspend tests.
 # led/power-blink-suspend
 # led/suspend
 # NOTE: led/wireless is redundant given that we have led/wlan and
@@ -233,6 +231,7 @@ power-management/fwts_wakealarm
 power-management/fwts_wakealarm-log-attach
 __touchpad__
 touchpad/detected-as-mouse
+touchpad/continuous-move
 touchpad/horizontal
 touchpad/vertical
 touchpad/singletouch-automated
@@ -296,7 +295,7 @@ suspend/2_display_after_suspend_.*
 suspend/2_glxgears_after_suspend_.*
 suspend/2_video_after_suspend_.*
 suspend/2_cycle_resolutions_after_suspend_.*
-suspend/2_xrandr_screens_after_suspend.tar.gz
+suspend/2_xrandr_screens_after_suspend_.*.tar.gz
 power-management/2_hibernate_advanced_.*
 power-management/2_hibernate-single-log-attach_.*
 # Now we ask to switch to the first graphics card. This requires a restart
@@ -361,8 +360,8 @@ suspend/wireless_connection_after_suspend_wpa_n
 suspend/wireless_connection_after_suspend_open_n
 suspend/wireless_connection_after_suspend_wpa_ac
 suspend/wireless_connection_after_suspend_open_ac
-power-management/hibernate_advanced
-power-management/hibernate-single-log-attach
+power-management/1_hibernate_advanced_.*
+power-management/1_hibernate-single-log-attach_.*
 keys/hibernate
 # The following tests should run BEFORE the automated tests. The reboot and
 # power off tests will also give us a clean system to start the stress run
@@ -372,14 +371,16 @@ power-management/poweroff-log-attach
 power-management/reboot
 power-management/reboot-log-attach
 # Automated Tests
-# The following tests are purely automated and/or lenghty stress tests. They
-# have been moved to the end of the test run to improve the testing process.
+# The following tests are purely automated and/or lenghty stress tests.
+# They have been moved to the end of the test run to improve the testing
+# process.
 firmware/fwts_desktop_diagnosis
 firmware/fwts_desktop_diagnosis_hwe
 firmware/fwts_desktop_diagnosis_results.log.gz
 firmware/fwts_desktop_diagnosis_results_hwe.log.gz
 firmware/fwts_wakealarm.*
 firmware/fwts_uefirtvariable.*
+firmware/no_ACPI_REV_interface
 miscellanea/dmitest_client
 benchmarks/disk/hdparm-read
 benchmarks/disk/hdparm-read_.*
@@ -439,3 +440,6 @@ info/hdparm_.*.txt
 installer_debug.gz
 info/touchpad_driver
 info/disk_partitions
+mandatory_include:
+    # Meta-job to include required resources, don't remove.
+    miscellanea/submission-resources

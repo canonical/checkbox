@@ -357,7 +357,7 @@ include:
     suspend/wireless_connection_after_suspend_wpa_ac       certification-status=blocker
     suspend/wireless_connection_after_suspend_open_ac      certification-status=blocker
     power-management/1_hibernate_advanced_.*               certification-status=non-blocker
-    power-management/1_hibernate-single-log-attach._*
+    power-management/1_hibernate-single-log-attach_.*
     keys/hibernate                                         certification-status=blocker
     # The following tests should run BEFORE the automated tests. The reboot and
     # power off tests will also give us a clean system to start the stress run

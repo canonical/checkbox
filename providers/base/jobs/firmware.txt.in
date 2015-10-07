@@ -1,6 +1,6 @@
 plugin: local
 _summary: Automated tests for firmware using Firmware Test Suite.
-id: firmware/fwts
+id: firmware/generator_fwts
 estimated_duration: 0.5
 requires: package.name == 'fwts'
 _description: Automated tests for firmware using Firmware Test Suite.
@@ -19,7 +19,7 @@ command:
 
 plugin: local
 _summary: Automated tests for firmware using Firmware Test Suite.
-id: firmware/fwts_logs
+id: firmware/generator_fwts_logs
 estimated_duration: 0.5
 requires: package.name == 'fwts'
 _description: Automated tests for firmware using Firmware Test Suite.

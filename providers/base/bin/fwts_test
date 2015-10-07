@@ -30,11 +30,11 @@ QA_TESTS = ['acpitests',
             'mpcheck',
             'msr',
             'nx',
-            'uefirtvariable',
             'version']
 # These are advanced tests that shouldn't affect certification status
 NON_CERT_TESTS = ['bios_info',
                   'cmosdump',
+                  'cpufreq',
                   'crs',
                   'crsdump',
                   'csm',
@@ -59,7 +59,9 @@ NON_CERT_TESTS = ['bios_info',
                   'uefidump',
                   'uefirtmisc',
                   'uefirttime',
-                  'uefivarinfo'
+                  'uefirtvariable',
+                  'uefivarinfo',
+                  'wakealarm'
                   ]
 # The following tests will record logs in a separate file for the HWE team
 HWE_TESTS = ['mtrr',
@@ -295,7 +297,7 @@ def main():
     elif args.test:
         tests.extend(args.test)
     elif args.all:
-        tests.extend(['wakealarm', 'cpufreq', 'maxfreq'] + TESTS)
+        tests.extend(TESTS)
     elif args.hwe:
         tests.extend(HWE_TESTS)
     elif args.qa:

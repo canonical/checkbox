@@ -374,6 +374,7 @@ power-management/reboot-log-attach
 # The following tests are purely automated and/or lenghty stress tests.
 # They have been moved to the end of the test run to improve the testing
 # process.
+firmware/generator_.*
 firmware/fwts_desktop_diagnosis
 firmware/fwts_desktop_diagnosis_hwe
 firmware/fwts_desktop_diagnosis_results.log.gz

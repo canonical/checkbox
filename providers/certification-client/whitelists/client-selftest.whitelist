@@ -367,8 +367,8 @@ suspend/wireless_connection_after_suspend_wpa_n_manual
 suspend/wireless_connection_after_suspend_open_n_manual
 suspend/wireless_connection_after_suspend_wpa_ac_manual
 suspend/wireless_connection_after_suspend_open_ac_manual
-power-management/1_hibernate_advanced_.*
-power-management/1_hibernate-single-log-attach_.*
+power-management/hibernate_advanced
+power-management/hibernate-single-log-attach
 keys/hibernate
 # The following tests should run BEFORE the automated tests. The reboot and
 # power off tests will also give us a clean system to start the stress run

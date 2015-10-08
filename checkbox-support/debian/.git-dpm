@@ -6,3 +6,6 @@ d223b291889800d5af08d5b9cf1afcb5464294e6
 checkbox-support_0.20.orig.tar.gz
 b3672d2ea32386176d406cbf532dcb13186054dd
 623068
+debianTag="debian/%e%v"
+patchedTag="patched/%e%v"
+upstreamTag="upstream/%e%u"

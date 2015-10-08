@@ -6,3 +6,6 @@ d9b886d42df8ace088da9835eb28549f40f7bcc1
 checkbox-ng_0.20.1.orig.tar.gz
 8353701274ee228bedc7ced21239195bbdfd84f9
 81726
+debianTag="debian/%e%v"
+patchedTag="patched/%e%v"
+upstreamTag="upstream/%e%u"

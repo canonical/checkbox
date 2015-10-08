@@ -1,15 +1,25 @@
-Description: Don't remove keys from dictionary being iterated
+From d223b291889800d5af08d5b9cf1afcb5464294e6 Mon Sep 17 00:00:00 2001
+From: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+Date: Thu, 8 Oct 2015 08:38:45 -0700
+Subject: Don't remove keys from dictionary being iterated
+
  I'm not quite sure how this worked earlier but it's clearly wrong.  This patch
  simply makes the outer loop iterate over a copy of all the keys in the
  self.devices dictionary. This makes the .pop() function a few lines below
  function as expected.
-Author: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 Bug-Ubuntu: https://bugs.launchpad.net/bugs/1483410
 Forwarded: no
 Last-Update: 2015-08-11
 
---- checkbox-support-0.20.orig/checkbox_support/parsers/udevadm.py
-+++ checkbox-support-0.20/checkbox_support/parsers/udevadm.py
+Patch-Name: fix-lp1483410-part2
+---
+ checkbox_support/parsers/udevadm.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/checkbox_support/parsers/udevadm.py b/checkbox_support/parsers/udevadm.py
+index e9d126f..cb9e3dd 100644
+--- a/checkbox_support/parsers/udevadm.py
++++ b/checkbox_support/parsers/udevadm.py
 @@ -803,7 +803,7 @@ class UdevadmParser(object):
                      self.devices[device._raw_path] = device
              stack.append(device)

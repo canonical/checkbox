@@ -1,48 +1,29 @@
-Description: Remove vendorized modules
+From 8e7c301a2b65b17e0f0be0eace4bf9874d46e457 Mon Sep 17 00:00:00 2001
+From: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+Date: Thu, 8 Oct 2015 08:38:43 -0700
+Subject: Remove vendorized modules
+
 This patch replaces checkbox_support.vendor.mock with equivalent imports from
 the standard python3.3 library. Upstream will stop shipping those vendorized
 modules when support for python3.2 is no longer required.
-Author: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 Upstream: not-needed
 Last-Update: 2014-04-07
 
-Index: checkbox-support-0.18/checkbox_support/vendor/mock.py
-===================================================================
---- checkbox-support-0.18.orig/checkbox_support/vendor/mock.py
-+++ checkbox-support-0.18/checkbox_support/vendor/mock.py
+Patch-Name: unvendorize
+---
+ checkbox_support/vendor/mock.py | 2396 +--------------------------------------
+ 1 file changed, 29 insertions(+), 2367 deletions(-)
+
+diff --git a/checkbox_support/vendor/mock.py b/checkbox_support/vendor/mock.py
+index c8fc5d1..bd867c5 100644
+--- a/checkbox_support/vendor/mock.py
++++ b/checkbox_support/vendor/mock.py
 @@ -1,2367 +1,29 @@
 -# mock.py
 -# Test tools for mocking and patching.
 -# Copyright (C) 2007-2012 Michael Foord & the mock team
 -# E-mail: fuzzyman AT voidspace DOT org DOT uk
-+# This file is part of Checkbox.
-+#
-+# Copyright 2014 Canonical Ltd.
-+# Written by:
-+#   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
-+#
-+# Checkbox is free software: you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation, either version 3 of the License, or
-+# (at your option) any later version.
-+#
-+# Checkbox is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+#
-+# You should have received a copy of the GNU General Public License
-+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-+
-+"""
-+:mod:`checkbox_support.vendor.mock` -- vendorized mock module
-+=============================================================
-+
-+This file has been patched-away by the Debian package as compared to the
-+upstream version, not to ship a copy of the 'mock' module that is now
-+integrated into the upstream python3.3 release.
-+"""
- 
+-
 -# mock 1.0
 -# http://www.voidspace.org.uk/python/mock/
 -
@@ -2405,4 +2386,32 @@ Index: checkbox-support-0.18/checkbox_support/vendor/mock.py
 -        return self()
 -    def __set__(self, obj, val):
 -        self(val)
++# This file is part of Checkbox.
++#
++# Copyright 2014 Canonical Ltd.
++# Written by:
++#   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
++#
++# Checkbox is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation, either version 3 of the License, or
++# (at your option) any later version.
++#
++# Checkbox is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
++
++"""
++:mod:`checkbox_support.vendor.mock` -- vendorized mock module
++=============================================================
++
++This file has been patched-away by the Debian package as compared to the
++upstream version, not to ship a copy of the 'mock' module that is now
++integrated into the upstream python3.3 release.
++"""
++
 +from unittest.mock import *

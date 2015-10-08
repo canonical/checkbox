@@ -114,7 +114,8 @@ def is_smart_enabled(disk):
     command = 'smartctl -i %s' % disk
     diskinfo_bytes = (Popen(command, stdout=PIPE, shell=True)
                       .communicate()[0])
-    diskinfo = diskinfo_bytes.decode().splitlines()
+    diskinfo = (diskinfo_bytes.decode(encoding='utf-8', errors='ignore')
+                .splitlines())
 
     logging.debug('SMART Info for disk %s', disk)
     logging.debug(diskinfo)

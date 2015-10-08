@@ -1,14 +1,24 @@
-Description: Revert the documentation theme back to default
+From 458deb49a2bd069e5cd4e87b836755aed78ddfc9 Mon Sep 17 00:00:00 2001
+From: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+Date: Thu, 8 Oct 2015 08:38:22 -0700
+Subject: Revert the documentation theme back to default
+
  CheckboxNG uses a customized sphinx theme that is not included in the release
  tarball. The theme is customized for "ubuntu" colors and this is not required
  in Debian.
-Author: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 Origin: upstream
 Forwarded: not-needed
 Last-Update: 2015-07-21
 
---- checkbox-ng-0.18.orig/docs/conf.py
-+++ checkbox-ng-0.18/docs/conf.py
+Patch-Name: documentation-theme
+---
+ docs/conf.py | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/docs/conf.py b/docs/conf.py
+index 6140e70..34e88e1 100644
+--- a/docs/conf.py
++++ b/docs/conf.py
 @@ -132,9 +132,7 @@ pygments_style = 'sphinx'
  
  # -- Options for HTML output -------------------------------------------------

@@ -732,7 +732,6 @@ class SessionAssistant:
             [plan.get_qualifier() for plan in self._manager.test_plans])
         self._context.state.update_desired_job_list(desired_job_list)
 
-
     @raises(KeyError, UnexpectedMethodCall)
     def get_job_state(self, job_id: str) -> 'JobState':
         """
@@ -1241,8 +1240,8 @@ class SessionAssistant:
             self.get_category: "to access the definition of ant category",
             self.get_participating_categories: (
                 "to access participating categories"),
-            self.filter_jobs_by_categories: ("to select the jobs that match"
-                "particular category"),
+            self.filter_jobs_by_categories: (
+                "to select the jobs that match particular category"),
             self.remove_all_filters: "to remove all filters",
             self.get_static_todo_list: "to see what is meant to be executed",
             self.get_dynamic_todo_list: "to see what is yet to be executed",

@@ -676,7 +676,8 @@ class SessionAssistant:
         """
         UsageExpectation.of(self).enforce()
         desired_job_list = [
-            self._context.get_unit(job_id, 'job') for job_id in selection]
+            self._context.get_unit(job_id, 'job') for job_id in
+            self.get_static_todo_list() if job_id in selection]
         self._context.state.update_desired_job_list(desired_job_list)
 
     @raises(UnexpectedMethodCall)

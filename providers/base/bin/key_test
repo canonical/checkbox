@@ -395,7 +395,6 @@ Hint to find codes:
         reporter = reporter_factory(main_loop, keys, options.scancodes)
     except:
         parser.error("Failed to initialize interface: %s" % options.interface)
-    GObject.timeout_add_seconds(EXIT_TIMEOUT, reporter.quit)
 
     try:
         main_loop.run()

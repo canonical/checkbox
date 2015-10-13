@@ -217,9 +217,7 @@ optical/bluray-write_.*
 __power-management__
 # See Automated Tests section at the end of this file
 power-management/generator_.*
-power-management/lid
-power-management/lid_close
-power-management/lid_open
+# Laptop lid tests relocated to the S3-adv section as it will trigger S3 as well
 power-management/rtc
 power-management/tickless_idle
 power-management/fwts_wakealarm
@@ -306,6 +304,9 @@ suspend/resolution_before_suspend
 suspend/suspend_advanced
 suspend/suspend-time-check
 suspend/suspend-single-log-attach
+power-management/lid
+power-management/lid_close
+power-management/lid_open
 suspend/1_hybrid_sleep_.*
 suspend/1_hybrid-sleep-single-log-attach_.*
 suspend/compiz_check_after_suspend

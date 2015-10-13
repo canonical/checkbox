@@ -207,9 +207,7 @@ include:
     __power-management__
     # See Automated Tests section at the end of this file
     power-management/generator_.*
-    power-management/lid                                   certification-status=blocker
-    power-management/lid_close                             certification-status=blocker
-    power-management/lid_open                              certification-status=blocker
+    # Laptop lid tests relocated to the S3-adv section as it will trigger S3 as well
     power-management/rtc                                   certification-status=blocker
     power-management/tickless_idle                         certification-status=blocker
     power-management/fwts_wakealarm                        certification-status=blocker
@@ -290,6 +288,9 @@ include:
     suspend/suspend_advanced                               certification-status=blocker
     suspend/suspend-time-check                             certification-status=non-blocker
     suspend/suspend-single-log-attach
+    power-management/lid                                   certification-status=blocker
+    power-management/lid_close                             certification-status=blocker
+    power-management/lid_open                              certification-status=blocker
     suspend/1_hybrid_sleep_.*                              certification-status=non-blocker
     suspend/1_hybrid-sleep-single-log-attach_.*
     suspend/compiz_check_after_suspend                     certification-status=blocker

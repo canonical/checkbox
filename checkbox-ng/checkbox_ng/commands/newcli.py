@@ -504,6 +504,9 @@ class CliInvocation2(RunInvocation):
             return False
         tree = SelectableJobTreeNode.create_tree(
             self.manager.state, rerun_candidates)
+        # nothing to select - bailing out
+        if not tree.jobs:
+            return False
         # deselect all by default
         tree.set_descendants_state(False)
         self.display.run(ShowRerun(tree, _("Select jobs to re-run")))

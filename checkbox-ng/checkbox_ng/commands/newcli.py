@@ -46,9 +46,9 @@ from plainbox.impl.secure.qualifiers import OperatorMatcher
 from plainbox.impl.secure.qualifiers import RegExpJobQualifier
 from plainbox.impl.secure.qualifiers import select_jobs
 from plainbox.impl.session import SessionMetaData
-from plainbox.impl.transport import get_all_transports
 from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.transport import TransportError
+from plainbox.impl.transport import get_all_transports
 from plainbox.vendor.textland import get_display
 
 from checkbox_ng.misc import SelectableJobTreeNode

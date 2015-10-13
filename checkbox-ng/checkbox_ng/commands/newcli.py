@@ -47,6 +47,7 @@ from plainbox.impl.secure.qualifiers import RegExpJobQualifier
 from plainbox.impl.secure.qualifiers import select_jobs
 from plainbox.impl.session import SessionMetaData
 from plainbox.impl.transport import get_all_transports
+from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.transport import TransportError
 from plainbox.vendor.textland import get_display
 
@@ -491,14 +492,15 @@ class CliInvocation2(RunInvocation):
                 print(str(exc))
 
     def maybe_rerun_jobs(self):
-        def rerun_predicate(job_state):
-            return job_state.result.outcome in (
-                IJobResult.OUTCOME_FAIL, IJobResult.OUTCOME_CRASH)
         # create a list of jobs that qualify for rerunning
         rerun_candidates = []
         for job in self.manager.state.run_list:
-            if rerun_predicate(self.manager.state.job_state_map[job.id]):
+            job_state = self.manager.state.job_state_map[job.id]
+            if job_state.result.outcome in (
+                IJobResult.OUTCOME_FAIL, IJobResult.OUTCOME_CRASH,
+                    IJobResult.OUTCOME_NOT_SUPPORTED):
                 rerun_candidates.append(job)
+
         # bail-out early if no job qualifies for rerunning
         if not rerun_candidates:
             return False
@@ -514,8 +516,15 @@ class CliInvocation2(RunInvocation):
         if not wanted_set:
             # nothing selected - nothing to run
             return False
-        # reset outcome of jobs that are selected for re-running
+        # include resource jobs that selected jobs depend on
+        resources_to_rerun = []
         for job in wanted_set:
+            job_state = self.manager.state.job_state_map[job.id]
+            for inhibitor in job_state.readiness_inhibitor_list:
+                if inhibitor.cause == InhibitionCause.FAILED_DEP:
+                    resources_to_rerun.append(inhibitor.related_job)
+        # reset outcome of jobs that are selected for re-running
+        for job in list(wanted_set) + resources_to_rerun:
             from plainbox.impl.result import MemoryJobResult
             self.manager.state.job_state_map[job.id].result = \
                 MemoryJobResult({})

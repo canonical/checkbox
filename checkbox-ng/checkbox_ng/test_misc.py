@@ -180,4 +180,4 @@ class TestSelectableJobTreeNode(TestCase):
         # Note that in addition to the selected (D) test, we need the
         # tree selection to contain the resource (F), even though the
         # user never saw it in the previous tests for visual presentation.
-        self.assertEqual(self.tree.selection, [self.D, self.F])
+        self.assertEqual(self.tree.selection, [self.D])

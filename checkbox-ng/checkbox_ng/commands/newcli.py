@@ -318,7 +318,7 @@ class CliInvocation2(RunInvocation):
         # NOTE: tree.selection is correct but ordered badly.  To retain
         # the original ordering we should just treat it as a mask and
         # use it to filter jobs from desired_job_list.
-        wanted_set = frozenset(tree.selection)
+        wanted_set = frozenset(tree.selection + tree.resource_jobs)
         job_list = [job for job in self.manager.state.run_list
                     if job in wanted_set]
         self._update_desired_job_list(job_list)

@@ -349,10 +349,12 @@ class SelectableJobTreeNode(JobTreeNode):
         for job in self.job_selection:
             if self.job_selection[job]:
                 self._selection_list.append(job)
-        # Don't forget to append the collected resource jobs to the final
-        # selection
-        self._selection_list.extend(self._resource_jobs)
         return self._selection_list
+
+    @property
+    def resource_jobs(self):
+        """Return all the resource jobs."""
+        return self._resource_jobs
 
     def set_ancestors_state(self, new_state):
         """

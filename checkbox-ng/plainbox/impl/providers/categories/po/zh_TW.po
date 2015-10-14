@@ -1,4 +1,4 @@
-# French translation for checkbox
+# Chinese (Traditional) translation for checkbox
 # Copyright (c) 2015 Rosetta Contributors and Canonical Ltd 2015
 # This file is distributed under the same license as the checkbox package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2015.
@@ -8,9 +8,9 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-12-03 14:32+0100\n"
-"PO-Revision-Date: 2015-10-13 20:47+0000\n"
-"Last-Translator: Jean-Marc <Unknown>\n"
-"Language-Team: French <fr@li.org>\n"
+"PO-Revision-Date: 2015-10-13 09:12+0000\n"
+"Last-Translator: Po-Hsu Lin <po-hsu.lin@canonical.com>\n"
+"Language-Team: Chinese (Traditional) <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -20,32 +20,32 @@ msgstr ""
 #. name
 #: ../units/categories.pxu:3
 msgid "Audio tests"
-msgstr "Tests audio"
+msgstr "音效測試"
 
 #. name
 #: ../units/categories.pxu:7
 msgid "Benchmarks tests"
-msgstr "Tests comparatifs"
+msgstr "效能測試"
 
 #. name
 #: ../units/categories.pxu:11
 msgid "Bluetooth tests"
-msgstr ""
+msgstr "藍牙測試"
 
 #. name
 #: ../units/categories.pxu:15
 msgid "Camera tests"
-msgstr "Tests de l'appareil photo"
+msgstr ""
 
 #. name
 #: ../units/categories.pxu:19
 msgid "Codec tests"
-msgstr "Tests des codecs"
+msgstr ""
 
 #. name
 #: ../units/categories.pxu:23
 msgid "CPU tests"
-msgstr "Tests du processeur"
+msgstr ""
 
 #. name
 #: ../units/categories.pxu:27
@@ -55,7 +55,7 @@ msgstr ""
 #. name
 #: ../units/categories.pxu:31
 msgid "Disk tests"
-msgstr ""
+msgstr "磁碟測試"
 
 #. name
 #: ../units/categories.pxu:35
@@ -65,32 +65,32 @@ msgstr ""
 #. name
 #: ../units/categories.pxu:39
 msgid "eSATA disk tests"
-msgstr ""
+msgstr "eSATA 磁碟測試"
 
 #. name
 #: ../units/categories.pxu:43
 msgid "Fingerprint reader tests"
-msgstr "Tests du lecteur d'empreintes digitales"
+msgstr ""
 
 #. name
 #: ../units/categories.pxu:47
 msgid "Firewire disk tests"
-msgstr ""
+msgstr "Firewire 磁碟測試"
 
 #. name
 #: ../units/categories.pxu:51
 msgid "Firmware tests"
-msgstr ""
+msgstr "韌體測試"
 
 #. name
 #: ../units/categories.pxu:55
 msgid "Floppy disk tests"
-msgstr ""
+msgstr "軟碟測試"
 
 #. name
 #: ../units/categories.pxu:59
 msgid "Graphics tests"
-msgstr "Tests graphiques"
+msgstr ""
 
 #. name
 #: ../units/categories.pxu:63
@@ -100,22 +100,22 @@ msgstr ""
 #. name
 #: ../units/categories.pxu:67
 msgid "Informational tests"
-msgstr "Tests informatifs"
+msgstr ""
 
 #. name
 #: ../units/categories.pxu:71
 msgid "Input Devices tests"
-msgstr "Tests des périphériques d'entrée"
+msgstr ""
 
 #. name
 #: ../units/categories.pxu:75
 msgid "Hotkey tests"
-msgstr "Tests des touches de raccourci"
+msgstr "熱鍵測試"
 
 #. name
 #: ../units/categories.pxu:79
 msgid "LED tests"
-msgstr ""
+msgstr "LED 測試"
 
 #. name
 #: ../units/categories.pxu:83
@@ -125,7 +125,7 @@ msgstr ""
 #. name
 #: ../units/categories.pxu:87
 msgid "Memory tests"
-msgstr "Tests de la mémoire"
+msgstr "記憶體測試"
 
 #. name
 #: ../units/categories.pxu:91
@@ -135,12 +135,12 @@ msgstr ""
 #. name
 #: ../units/categories.pxu:95
 msgid "Miscellaneous tests"
-msgstr "Tests divers"
+msgstr "雜項測試"
 
 #. name
 #: ../units/categories.pxu:99
 msgid "Monitor tests"
-msgstr "Tests de l'écran"
+msgstr "螢幕測試"
 
 #. name
 #: ../units/categories.pxu:103
@@ -150,7 +150,7 @@ msgstr ""
 #. name
 #: ../units/categories.pxu:107
 msgid "Optical Drive tests"
-msgstr "Tests des lecteurs optiques"
+msgstr "光碟機測試"
 
 #. name
 #: ../units/categories.pxu:111
@@ -160,12 +160,12 @@ msgstr ""
 #. name
 #: ../units/categories.pxu:115
 msgid "Peripheral tests"
-msgstr "Tests des périphériques"
+msgstr ""
 
 #. name
 #: ../units/categories.pxu:119
 msgid "Power Management tests"
-msgstr "Tests de la gestion de l'alimentation"
+msgstr "電源管理測試"
 
 #. name
 #: ../units/categories.pxu:123
@@ -175,47 +175,47 @@ msgstr ""
 #. name
 #: ../units/categories.pxu:127
 msgid "Touchpad tests"
-msgstr "Tests du pavé tactile"
+msgstr ""
 
 #. name
 #: ../units/categories.pxu:131
 msgid "Touchscreen tests"
-msgstr "Tests de l'écran tactile"
+msgstr "觸控螢幕測試"
 
 #. name
 #: ../units/categories.pxu:135
 msgid "USB tests"
-msgstr ""
+msgstr "USB 測試"
 
 #. name
 #: ../units/categories.pxu:139
 msgid "User Applications"
-msgstr "Applications de l'utilisateur"
+msgstr ""
 
 #. name
 #: ../units/categories.pxu:143
 msgid "Virtualization tests"
-msgstr "Tests de virtualisation"
+msgstr "虛擬化測試"
 
 #. name
 #: ../units/categories.pxu:147
 msgid "Wireless networking tests"
-msgstr "Tests du réseau sans fil"
+msgstr "無線網路測試"
 
 #. name
 #: ../units/categories.pxu:151
 msgid "Mobile broadband tests"
-msgstr "Tests de haut débit mobile"
+msgstr ""
 
 #. name
 #: ../units/categories.pxu:155
 msgid "Stress tests"
-msgstr ""
+msgstr "壓力測試"
 
 #. name
 #: ../units/categories.pxu:159
 msgid "Uncategorised"
-msgstr ""
+msgstr "未分類"
 
 #. This is categories_def.description,
 #. we need it here to extract is as a part of this provider

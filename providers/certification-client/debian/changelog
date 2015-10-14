@@ -1,5 +1,7 @@
 plainbox-provider-certification-client (0.20-1) precise; urgency=low
 
+  [ Po-Hsu Lin ]
+  * debian/control: added iw into the recommended list of certification-client (LP:1399555)
   * new upstream version
 
  -- Po-Hsu Lin <po-hsu.lin@canonical.com>  Wed, 14 Oct 2015 16:01:50 +0800

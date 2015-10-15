@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-12-03 14:32+0100\n"
-"PO-Revision-Date: 2015-10-13 20:47+0000\n"
-"Last-Translator: Jean-Marc <Unknown>\n"
+"PO-Revision-Date: 2015-10-14 16:31+0000\n"
+"Last-Translator: Anne <anneonyme017@gmail.com>\n"
 "Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2015-10-14 05:11+0000\n"
+"X-Launchpad-Export-Date: 2015-10-15 05:12+0000\n"
 "X-Generator: Launchpad (build 17812)\n"
 
 #. name
@@ -30,7 +30,7 @@ msgstr "Tests comparatifs"
 #. name
 #: ../units/categories.pxu:11
 msgid "Bluetooth tests"
-msgstr ""
+msgstr "Tests du Bluetooth"
 
 #. name
 #: ../units/categories.pxu:15
@@ -50,22 +50,22 @@ msgstr "Tests du processeur"
 #. name
 #: ../units/categories.pxu:27
 msgid "System Daemon tests"
-msgstr ""
+msgstr "Tests des services du système"
 
 #. name
 #: ../units/categories.pxu:31
 msgid "Disk tests"
-msgstr ""
+msgstr "Tests des disques"
 
 #. name
 #: ../units/categories.pxu:35
 msgid "Ethernet Device tests"
-msgstr ""
+msgstr "Tests des périphériques Ethernet"
 
 #. name
 #: ../units/categories.pxu:39
 msgid "eSATA disk tests"
-msgstr ""
+msgstr "Tests des disques eSATA"
 
 #. name
 #: ../units/categories.pxu:43
@@ -75,17 +75,17 @@ msgstr "Tests du lecteur d'empreintes digitales"
 #. name
 #: ../units/categories.pxu:47
 msgid "Firewire disk tests"
-msgstr ""
+msgstr "Tests des disques Firewire"
 
 #. name
 #: ../units/categories.pxu:51
 msgid "Firmware tests"
-msgstr ""
+msgstr "Tests du microprogramme"
 
 #. name
 #: ../units/categories.pxu:55
 msgid "Floppy disk tests"
-msgstr ""
+msgstr "Tests des lecteurs de disquettes"
 
 #. name
 #: ../units/categories.pxu:59
@@ -95,7 +95,7 @@ msgstr "Tests graphiques"
 #. name
 #: ../units/categories.pxu:63
 msgid "Hibernation tests"
-msgstr ""
+msgstr "Tests de mise en hibernation"
 
 #. name
 #: ../units/categories.pxu:67
@@ -115,7 +115,7 @@ msgstr "Tests des touches de raccourci"
 #. name
 #: ../units/categories.pxu:79
 msgid "LED tests"
-msgstr ""
+msgstr "Tests des DEL"
 
 #. name
 #: ../units/categories.pxu:83
@@ -130,7 +130,7 @@ msgstr "Tests de la mémoire"
 #. name
 #: ../units/categories.pxu:91
 msgid "MIR tests"
-msgstr ""
+msgstr "Tests de MIR"
 
 #. name
 #: ../units/categories.pxu:95
@@ -145,7 +145,7 @@ msgstr "Tests de l'écran"
 #. name
 #: ../units/categories.pxu:103
 msgid "Non-device specific networking tests"
-msgstr ""
+msgstr "Tests du réseau non spécifiques à l'appareil"
 
 #. name
 #: ../units/categories.pxu:107
@@ -155,7 +155,7 @@ msgstr "Tests des lecteurs optiques"
 #. name
 #: ../units/categories.pxu:111
 msgid "ExpressCard tests"
-msgstr ""
+msgstr "Tests de l'ExpressCard"
 
 #. name
 #: ../units/categories.pxu:115
@@ -170,7 +170,7 @@ msgstr "Tests de la gestion de l'alimentation"
 #. name
 #: ../units/categories.pxu:123
 msgid "Suspend tests"
-msgstr ""
+msgstr "Tests de mise en veille"
 
 #. name
 #: ../units/categories.pxu:127
@@ -185,7 +185,7 @@ msgstr "Tests de l'écran tactile"
 #. name
 #: ../units/categories.pxu:135
 msgid "USB tests"
-msgstr ""
+msgstr "Tests des ports USB"
 
 #. name
 #: ../units/categories.pxu:139
@@ -215,22 +215,22 @@ msgstr ""
 #. name
 #: ../units/categories.pxu:159
 msgid "Uncategorised"
-msgstr ""
+msgstr "Non catégorisés"
 
 #. This is categories_def.description,
 #. we need it here to extract is as a part of this provider
 #: ../manage.py:45
 msgid "Common test category definitions"
-msgstr ""
+msgstr "Définitions courantes des catégories de test"
 
 #: ../manage.py:55 ../manage.py:66
 msgid "The Category provider is special"
-msgstr ""
+msgstr "Le fournisseur de catégorie est spécial"
 
 #: ../manage.py:56
 msgid "You don't need to develop it explicitly"
-msgstr ""
+msgstr "Vous n'avez pas besoin de le développer explicitement"
 
 #: ../manage.py:67
 msgid "You don't need to install it explicitly"
-msgstr ""
+msgstr "Vous n'avez pas besoin de l'installer explicitement"

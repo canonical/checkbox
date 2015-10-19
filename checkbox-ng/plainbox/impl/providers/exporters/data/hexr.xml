@@ -102,6 +102,18 @@
     {%- else %}
     <!-- package resource is not available, not producing the <packages> tag -->
     {%- endif %}
+    {%- if ns ~ 'snap' in state.resource_map %}
+    {%- set snap_package_resource_list = state.resource_map[ns ~ 'snap'] %}
+    <snap_packages>
+      {%- for snap_package_resource in snap_package_resource_list %}
+      <snap_package id="{{ loop.index0 }}" name="{{ snap_package_resource.name }}">
+        {%- for key in snap_package_resource|reject('is_name')|sort %}
+        <property name="{{ key }}" type="str">{{ snap_package_resource[key] }}</property>
+        {%- endfor %}
+      </snap_package>
+      {%- endfor %}
+    </snap_packages>
+    {%- endif %}
     {%- if ns ~ 'requirements' in state.resource_map %}
     {%- set requirement_resource_list = state.resource_map[ns ~ 'requirements'] %}
     <requirements>

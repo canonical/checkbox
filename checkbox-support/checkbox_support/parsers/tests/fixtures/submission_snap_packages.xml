@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<system version="1.0">
+<software>
+<snap_packages>
+<snap_package id="0" name="ubuntu-core">
+<property name="date" type="str">2015-10-13</property>
+<property name="version" type="str">14</property>
+<property name="developer" type="str">ubuntu</property>
+</snap_package>
+</snap_packages>
+</software>
+</system>

@@ -304,6 +304,18 @@ class TestRun(object):
         logger.debug(package_version)
         message["packages"].append(package_version)
 
+    def addSnapPackageVersion(self, **snap_package_version):
+        if not self.messages or (self.messages[-1]["type"]
+                                != "set-snap-packages"):
+            self.messages.append({
+                "type": "set-snap-packages",
+                "snap-packages": []})
+
+        message = self.messages[-1]
+        logger.debug("ADDING Snap Package Version:")
+        logger.debug(snap_package_version)
+        message["snap-packages"].append(snap_package_version)
+
     def addTestResult(self, **test_result):
         if not self.messages or self.messages[-1]["type"] != "add-results":
             self.messages.append({
@@ -633,6 +645,8 @@ class SubmissionResult(object):
         register(("test_run", "raw_dmi_device",), self.addRawDmiDeviceState)
         register(("test_run", "distribution",), self.setDistribution)
         register(("test_run", "package_version",), self.addPackageVersion)
+        register(("test_run", "snap_package_version",),
+                 self.addSnapPackageVersion)
         register(("test_run", "test_result",), self.addTestResult)
         register(("test_run", "modprobe",), self.addModprobeInfo)
         register(("test_run", "dkms_info",), self.addDkmsInfo)
@@ -839,6 +853,19 @@ class SubmissionResult(object):
 
     def addPackageVersion(self, test_run, package_version):
         test_run.addPackageVersion(**package_version)
+
+    def addSnapPackage(self, snap_package):
+        snap_package_version = {
+            "name": snap_package["name"],
+            "date": snap_package["properties"]["date"],
+            "version": snap_package["properties"]["version"],
+            "developer": snap_package["properties"]["developer"],
+            }
+        self.dispatcher.publishEvent(
+            "snap_package_version", snap_package_version)
+
+    def addSnapPackageVersion(self, test_run, snap_package_version):
+        test_run.addSnapPackageVersion(**snap_package_version)
 
     def addQuestion(self, question):
         answer_to_status = {
@@ -1084,6 +1111,18 @@ class SubmissionParser(object):
                 }
             result.addPackage(package)
 
+    def parseSnapPackages(self, result, node):
+        """Parse the <snap_packages> part of a submission."""
+        for child in node.getchildren():
+            assert child.tag == "snap_package", \
+                "Unexpected tag <%s>, expected <snap_package>" % child.tag
+
+            snap_package = {
+                "name": child.get("name"),
+                "properties": self._getProperties(child),
+                }
+            result.addSnapPackage(snap_package)
+
     def parseProcessors(self, result, node):
         """Parse the <processors> part of a submission."""
         processors = []
@@ -1179,6 +1218,7 @@ class SubmissionParser(object):
         parsers = {
             "lsbrelease": self.parseLSBRelease,
             "packages": self.parsePackages,
+            "snap_packages": self.parseSnapPackages,
             }
 
         for child in node.getchildren():

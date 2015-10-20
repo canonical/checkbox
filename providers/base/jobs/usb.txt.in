@@ -34,7 +34,7 @@ _description:
  STEPS:
      1. Enable either a USB mouse or keyboard
      2. For mice, perform actions such as moving the pointer, right and left button clicks and double clicks
-     3. For keyboards, click the Test button to lauch a small tool. Type some text and close the tool.
+     3. For keyboards, commence the test to lauch a small tool. Type some text and close the tool.
  VERIFICATION:
      Did the device work as expected?
 

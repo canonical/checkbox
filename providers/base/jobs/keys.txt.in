@@ -9,7 +9,7 @@ _description:
  PURPOSE:
      This test will test the screen lock key
  STEPS:
-     1. Press the Test button to begin this test. If there is no such key, please skip this test.
+     1. Commence the test. If there is no such key, please skip this test.
      2. Press the lock screen button on the keyboard in 30 seconds.
      3. If the screen is locked, move the mouse or press any key to activate the prompt.
      4. Input the password to unlock the screen.

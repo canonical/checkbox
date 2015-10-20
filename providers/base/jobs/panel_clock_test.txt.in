@@ -19,7 +19,7 @@ _description:
  PURPOSE:
     This test will verify that the desktop clock synchronizes with the system clock.
  STEPS:
-    1. Click the "Test" button and verify the clock moves ahead by 1 hour.
+    1. Commence the test and verify the clock moves ahead by 1 hour.
     Note: It may take a minute or so for the clock to refresh
     2. Right click on the clock, then click on "Time & Date Settings..."
     3. Ensure that your clock application is set to manual.

@@ -565,7 +565,7 @@ _description:
      This test will check that headphones connector works correctly after suspend
  STEPS:
      1. Connect a pair of headphones to your audio device
-     2. Click the Test button to play a sound to your audio device
+     2. Commence the test to play a sound to your audio device
  VERIFICATION:
      Did you hear a sound through the headphones and did the sound play without any distortion, clicks or other strange noises from your headphones?
 
@@ -1055,7 +1055,7 @@ _description:
      2. Change the settings to only accept connections on the B and G wireless bands
      3. Make sure the SSID is set to ROUTER_SSID
      4. Change the security settings to use WPA2 and ensure the PSK matches that set in ROUTER_PSK
-     5. Click the 'Test' button to create a connection to the router and test the connection
+     5. Commence the test to create a connection to the router and test the connection
  VERIFICATION:
      Verification is automated, do not change the automatically selected result.
 
@@ -1087,7 +1087,7 @@ _description:
      2. Change the settings to only accept connections on the B and G wireless bands
      3. Make sure the SSID is set to ROUTER_SSID
      4. Change the security settings to use no security
-     5. Click the 'Test' button to create a connection to the router and test the connection
+     5. Commence the test to create a connection to the router and test the connection
  VERIFICATION:
      Verification is automated, do not change the automatically selected result.
 
@@ -1119,7 +1119,7 @@ _description:
      2. Change the settings to only accept connections on the N wireless band
      3. Make sure the SSID is set to ROUTER_SSID
      4. Change the security settings to use WPA2 and ensure the PSK matches that set in ROUTER_PSK
-     5. Click the 'Test' button to create a connection to the router and test the connection
+     5. Commence the test to create a connection to the router and test the connection
  VERIFICATION:
      Verification is automated, do not change the automatically selected result.
 
@@ -1151,7 +1151,7 @@ _description:
      2. Change the settings to only accept connections on the N wireless band
      3. Make sure the SSID is set to ROUTER_SSID
      4. Change the security settings to use no security
-     5. Click the 'Test' button to create a connection to the router and test the connection
+     5. Commence the test to create a connection to the router and test the connection
  VERIFICATION:
      Verification is automated, do not change the automatically selected result.
 
@@ -1183,7 +1183,7 @@ _description:
      2. Change the settings to only accept connections on the 802.11ac protocol.
      3. Make sure the SSID is set to ROUTER_SSID
      4. Change the security settings to use WPA2 and ensure the PSK matches that set in ROUTER_PSK
-     5. Click the 'Test' button to create a connection to the router and test the connection
+     5. Commence the test to create a connection to the router and test the connection
  VERIFICATION:
      Verification is automated, do not change the automatically selected result.
 
@@ -1215,7 +1215,7 @@ _description:
      2. Change the settings to only accept connections on the 802.11ac protocol.
      3. Make sure the SSID is set to ROUTER_SSID
      4. Change the security settings to use no security
-     5. Click the 'Test' button to create a connection to the router and test the connection
+     5. Commence the test to create a connection to the router and test the connection
  VERIFICATION:
      Verification is automated, do not change the automatically selected result.
 

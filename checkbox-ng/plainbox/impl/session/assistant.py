@@ -46,6 +46,7 @@ from plainbox.impl.session.manager import SessionManager
 from plainbox.impl.session import SessionMetaData
 from plainbox.impl.session.storage import SessionStorageRepository
 from plainbox.impl.transport import CertificationTransport
+from plainbox.impl.transport import OAuthTransport
 from plainbox.impl.transport import TransportError
 from plainbox.public import get_providers
 from plainbox.vendor import morris
@@ -1224,6 +1225,26 @@ class SessionAssistant:
             url = 'https://hexr.canonical.com/checkbox/submit/'
         options = "submit_to_hexr=1"
         return CertificationTransport(url, options)
+
+    @raises(UnexpectedMethodCall, KeyError)
+    def get_oauth_transport(
+        self, transport_details: dict
+    ) -> "ISessionStateTransport":
+        """
+        Get a transport for OAuth.
+
+        :param transport_details:
+            Dictionary containing necessray transport configuration.
+        :raises KeyError:
+            When transport_details is missing vital information.
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+
+        """
+        url = transport_details["url"]
+        return OAuthTransport(url, '', transport_details)
 
     def _get_allowed_calls_in_normal_state(self) -> dict:
         return {

@@ -1,0 +1,47 @@
+#!/bin/sh
+#
+#  rotation_test_using_dbus
+#
+# This script is used to trigger a main screen rotation directly from DBUS to
+# simulate the way screen rotation is done when using System Settings screen.
+# Indeed, when using xrandr command or Python lib, we sometimes have weird
+# behaviours, specifically when used with NVidia cards with proprietary drivers.
+#
+# This file is part of Checkbox.
+#
+# Copyright 2015 Canonical Ltd.
+#
+# Authors: Pierre Equoy <pierre.equoy@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+
+
+rotate() {
+    dbus-send --session --print-reply --dest=org.gnome.SettingsDaemon /org/gnome/SettingsDaemon/XRANDR org.gnome.SettingsDaemon.XRANDR_2.RotateTo int32:$1 int64:0 > /dev/null 2>&1
+}
+
+# Rotate the screen in the following modes:
+# - left
+# - inverted
+# - right
+# - normal
+for i in 2 4 8 1
+do
+    rotate $i
+    sleep 4
+done
+
+# Rotate one more time to "normal" so next time we logout/login,
+# the screen will be set in normal mode.
+rotate 1
+

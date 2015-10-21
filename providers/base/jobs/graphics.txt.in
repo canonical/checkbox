@@ -301,7 +301,7 @@ command:
  category_id: 2013.com.canonical.plainbox::graphics
  id: graphics/`echo ${index}`_rotation_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
  depends: graphics/xorg-version
- command: rotation_test
+ command: rotation_test_using_dbus
  estimated_duration: 20.000
  _summary: Test rotation for $product
  _description:

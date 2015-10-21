@@ -30,6 +30,7 @@ Shared code for test data transports..
 
 from collections import OrderedDict
 from logging import getLogger
+from oauthlib import oauth1
 import pkg_resources
 import re
 
@@ -254,6 +255,46 @@ class CertificationTransport(TransportBase):
         if not re.match(SECURE_ID_PATTERN, secure_id):
             raise InvalidSecureIDError(
                 _("secure_id must be 15 or 18-character alphanumeric string"))
+
+
+class OAuthTransport(TransportBase):
+    def __init__(self, where, options, transport_details):
+        """Initialize the OAuth Transport."""
+        super().__init__(where, options)
+        self.oauth_creds = transport_details.get('oauth_creds', {})
+        self.uploader_email = transport_details['uploader_email']
+
+    def send(self, data, config=None, session_state=None):
+        headers = {}
+        if self.oauth_creds:
+            client = oauth1.Client(
+                client_key=self.oauth_creds['consumer_key'],
+                client_secret=self.oauth_creds['consumer_secret'],
+                resource_owner_key=self.oauth_creds['token_key'],
+                resource_owner_secret=self.oauth_creds['token_secret'],
+                signature_method=oauth1.SIGNATURE_HMAC,
+                realm='Checkbox',
+            )
+            uri, headers, body = client.sign(self.url, 'POST')
+        form_payload = dict(data=data)
+        form_data = dict(uploader_email=self.uploader_email)
+        try:
+            response = requests.post(
+                self.url, files=form_payload, data=form_data, headers=headers)
+        except requests.exceptions.Timeout as exc:
+            raise TransportError('Request to timed out: {}'.format(exc))
+        except requests.exceptions.InvalidSchema as exc:
+            raise TransportError('Invalid destination URL: {0}'.format(exc))
+        except requests.exceptions.ConnectionError as exc:
+            raise TransportError('Unable to connect: {0}'.format(exc))
+        if response is not None:
+            try:
+                # This will raise HTTPError for status != 20x
+                response.raise_for_status()
+            except requests.exceptions.RequestException as exc:
+                raise TransportError(str(exc))
+
+        return dict(message='Upload successful.', status=response.status_code)
 
 
 def get_all_transports():

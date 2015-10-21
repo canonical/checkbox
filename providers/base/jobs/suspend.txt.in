@@ -2535,6 +2535,8 @@ _description:
 plugin: manual
 category_id: 2013.com.canonical.plainbox::suspend
 id: touchscreen/touchscreen_after_suspend
+imports: from 2013.com.canonical.plainbox import manifest
+requires: manifest.has_touchscreen == 'True'
 depends: suspend/suspend_advanced_auto
 estimated_duration: 30.0
 _description:

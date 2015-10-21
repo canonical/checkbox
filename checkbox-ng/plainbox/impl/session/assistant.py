@@ -1094,7 +1094,10 @@ class SessionAssistant:
 
     @raises(KeyError, TransportError, UnexpectedMethodCall)
     def export_to_transport(
-        self, exporter_id: str, transport: ISessionStateTransport
+            self,
+            exporter_id: str,
+            transport: ISessionStateTransport,
+            options: 'list[str]'=[]
     ) -> dict:
         """
         Export the session using given exporter ID and transport object.
@@ -1109,6 +1112,9 @@ class SessionAssistant:
             that is useful for sending data to the Canonical Certification
             Website and HEXR. This can also be any object conforming to the
             appropriate API.
+        :param options:
+            (optional) List of options customary to the exporter that is being
+            created.
         :returns:
             pass
         :raises KeyError:
@@ -1121,7 +1127,7 @@ class SessionAssistant:
             is the likely cause.
         """
         UsageExpectation.of(self).enforce()
-        exporter = self._manager.create_exporter(exporter_id)
+        exporter = self._manager.create_exporter(exporter_id, options)
         exported_stream = io.BytesIO()
         exporter.dump_from_session_manager(self._manager, exported_stream)
         exported_stream.seek(0)

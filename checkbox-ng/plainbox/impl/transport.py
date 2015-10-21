@@ -275,6 +275,8 @@ class OAuthTransport(TransportBase):
                 signature_method=oauth1.SIGNATURE_HMAC,
                 realm='Checkbox',
             )
+            # this is the uri that would need to be used? Oh or is it unchanged
+            # as we're not using thr uri method of passing those details.
             uri, headers, body = client.sign(self.url, 'POST')
         form_payload = dict(data=data)
         form_data = dict(uploader_email=self.uploader_email)

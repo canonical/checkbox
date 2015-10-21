@@ -228,9 +228,6 @@ include:
     touchpad/multitouch-zoom                               certification-status=non-blocker
     touchpad/multitouch-dash                               certification-status=non-blocker
     __touchscreen__
-    touchscreen/nontouch-automated                         certification-status=blocker
-    touchscreen/multitouch-automated                       certification-status=blocker
-    touchscreen/multitouch-manual                          certification-status=blocker
     touchscreen/drag-n-drop                                certification-status=blocker
     touchscreen/multitouch-zoom                            certification-status=blocker
     touchscreen/multitouch-rotate

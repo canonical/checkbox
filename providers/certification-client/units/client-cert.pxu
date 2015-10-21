@@ -245,9 +245,6 @@ include:
     touchpad/multitouch-zoom
     touchpad/multitouch-dash
     __touchscreen__
-    touchscreen/nontouch-automated
-    touchscreen/multitouch-automated
-    touchscreen/multitouch-manual
     touchscreen/drag-n-drop
     touchscreen/multitouch-zoom
     touchscreen/multitouch-rotate

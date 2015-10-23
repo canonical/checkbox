@@ -30,12 +30,12 @@ rotate() {
     dbus-send --session --print-reply --dest=org.gnome.SettingsDaemon /org/gnome/SettingsDaemon/XRANDR org.gnome.SettingsDaemon.XRANDR_2.RotateTo int32:$1 int64:0 > /dev/null 2>&1
 }
 
-# Rotate the screen in the following modes:
-# - left
-# - inverted
-# - right
-# - normal
-for i in 2 4 8 1
+# Rotate the screen in-between the following modes and the normal mode:
+# 2 - left
+# 4 - inverted
+# 8 - right
+# 1 - normal
+for i in 2 1 4 1 8 1
 do
     rotate $i
     sleep 4

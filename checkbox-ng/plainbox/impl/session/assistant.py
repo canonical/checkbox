@@ -191,13 +191,16 @@ class SessionAssistant:
 
     @raises(UnexpectedMethodCall)
     def use_alternate_execution_controllers(
-        self, ctrl_list: 'List[IExecutionController]'
+        self, ctrl_setup_list:
+            'Iterable[Tuple[IExecutionController, Tuple[Any], Dict[Any]]]'
     ) -> None:
         """
         Use alternate execution controllers.
 
-        :param ctrl_list:
-            The list of execution controllers to use.
+        :param ctrl_setup_list:
+            An iterable with tuples, where each tuple represents a class of
+            controller to instantiate, together with *args and **kwargs to use
+            when calling its __init__.
         :raises UnexpectedMethodCall:
             If the call is made at an unexpected time. Do not catch this error.
             It is a bug in your program. The error message will indicate what
@@ -214,7 +217,7 @@ class SessionAssistant:
             here. This method is currently experimental.
         """
         UsageExpectation.of(self).enforce()
-        self._ctrl_list = ctrl_list
+        self._ctrl_setup_list = ctrl_setup_list
         # NOTE: We expect applications to call this at most once.
         del UsageExpectation.of(self).allowed_calls[
             self.use_alternate_execution_controllers]

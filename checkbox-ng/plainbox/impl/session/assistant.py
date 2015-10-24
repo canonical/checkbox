@@ -364,13 +364,7 @@ class SessionAssistant:
         self._metadata.flags = {'bootstrapping'}
         self._manager.checkpoint()
         self._command_io_delegate = JobRunnerUIDelegate(_SilentUI())
-        self._runner = JobRunner(
-            self._manager.storage.location,
-            self._context.provider_list,
-            jobs_io_log_dir=os.path.join(
-                self._manager.storage.location, 'io-logs'),
-            command_io_delegate=self._command_io_delegate,
-            execution_ctrl_list=self._execution_ctrl_list)
+        self._init_runner()
         self.session_available(self._manager.storage.id)
         _logger.debug("New session created: %s", title)
         UsageExpectation.of(self).allowed_calls = {
@@ -411,13 +405,7 @@ class SessionAssistant:
         self._context = self._manager.default_device_context
         self._metadata = self._context.state.metadata
         self._command_io_delegate = JobRunnerUIDelegate(_SilentUI())
-        self._runner = JobRunner(
-            self._manager.storage.location,
-            self._context.provider_list,
-            jobs_io_log_dir=os.path.join(
-                self._manager.storage.location, 'io-logs'),
-            command_io_delegate=self._command_io_delegate,
-            execution_ctrl_list=self._execution_ctrl_list)
+        self._init_runner()
         self.session_available(self._manager.storage.id)
         _logger.debug("Session resumed: %s", session_id)
         UsageExpectation.of(self).allowed_calls = {
@@ -1253,6 +1241,16 @@ class SessionAssistant:
             self.get_session_dir: ("to get the path where current session is"
                                    "stored"),
         }
+
+    def _init_runner(self):
+        self._runner = JobRunner(
+            self._manager.storage.location,
+            self._context.provider_list,
+            jobs_io_log_dir=os.path.join(
+                self._manager.storage.location, 'io-logs'),
+            command_io_delegate=self._command_io_delegate,
+            execution_ctrl_list=self._execution_ctrl_list)
+        return
 
 
 class _SilentUI(IJobRunnerUI):

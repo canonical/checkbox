@@ -111,6 +111,7 @@ class SessionAssistant:
         self._repo = SessionStorageRepository()
         self._config = PlainBoxConfig().get()
         self._execution_ctrl_list = None  # None is "default"
+        self._ctrl_setup_list = []
         # List of providers that were selected. This is buffered until a
         # session is created or resumed.
         self._selected_providers = []
@@ -1243,13 +1244,17 @@ class SessionAssistant:
         }
 
     def _init_runner(self):
+        self._execution_ctrl_list = []
+        for ctrl_cls, args, kwargs in self._ctrl_setup_list:
+            self._execution_ctrl_list.append(
+                ctrl_cls(self._context.provider_list, *args, **kwargs))
         self._runner = JobRunner(
             self._manager.storage.location,
             self._context.provider_list,
             jobs_io_log_dir=os.path.join(
                 self._manager.storage.location, 'io-logs'),
             command_io_delegate=self._command_io_delegate,
-            execution_ctrl_list=self._execution_ctrl_list)
+            execution_ctrl_list=self._execution_ctrl_list or None)
         return
 
 

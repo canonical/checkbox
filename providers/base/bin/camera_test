@@ -228,7 +228,7 @@ class CameraTest:
         logging.debug("LED test with pipeline %s", pipespec)
         self._pipeline = Gst.parse_launch(pipespec)
         self._pipeline.set_state(Gst.State.PLAYING)
-        time.sleep(10)
+        time.sleep(3)
         self._pipeline.set_state(Gst.State.NULL)
 
     def display(self):

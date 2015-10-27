@@ -170,7 +170,7 @@ _description:
 plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::led
 id: led/camera
-estimated_duration: 30.0
+estimated_duration: 20.0
 depends: camera/detect
 command: camera_test led
 _description:

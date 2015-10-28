@@ -1064,15 +1064,23 @@ class SessionAssistant:
             is the likely cause.
 
         Mark the session as complete, which prohibits running (or rerunning)
-        any job.
+        any job. finalize_session will be ignored if session has already been
+        finalized; this frees applications from keeping state information in
+        them.
         """
         UsageExpectation.of(self).enforce()
+        if SessionMetaData.FLAG_INCOMPLETE not in self._metadata.flags:
+            _logger.info("finalize_session called for already finalized"
+                         " session: %s", self._manager.storage.id)
+            # leave the same usage expectations
+            return
         if SessionMetaData.FLAG_SUBMITTED not in self._metadata.flags:
             _logger.warning("Finalizing session that hasn't been submitted "
                             "anywhere: %s", self._manager.storage.id)
         self._metadata.flags.remove(SessionMetaData.FLAG_INCOMPLETE)
         self._manager.checkpoint()
         UsageExpectation.of(self).allowed_calls = {
+            self.finalize_session: "to finalize session",
             self.export_to_transport: "to export the results and send them",
             self.export_to_file: "to export the results to a file",
             self.get_resumable_sessions: "to get resume candidates",

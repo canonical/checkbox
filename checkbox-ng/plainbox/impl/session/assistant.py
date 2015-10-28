@@ -94,7 +94,8 @@ class SessionAssistant:
 
     # TODO: create a flowchart of possible states
 
-    def __init__(self, app_id):
+    def __init__(self, app_id, app_version=None, api_version='0.99',
+                 api_flags=()):
         """
         Initialize a new session assistant.
 
@@ -102,12 +103,32 @@ class SessionAssistant:
             Identifier of the testing application. The identifier should be
             unique and constant throughout the support cycle of the
             application.
+        :param app_version:
+            Version of the testing application.
+        :param api_version:
+            Expected API of SessionAssistant. Currently only "0.99" API is
+            defined.
+        :param api_flags:
+            Flags that describe optional API features that this application
+            wishes to support. Flags may change the usage expectation of
+            session assistant. Currently no flags are supported.
+        :raises ValueError:
+            When api_version is not recognized.
+        :raises ValueError:
+            When api_flags contains an unrecognized flag.
 
         The application identifier is useful to implement session resume
         functionality where the application can easily filter out sessions from
         other programs.
         """
+        if api_version != '0.99':
+            raise ValueError("Unrecognized API version")
+        for flag in api_flags:
+            raise ValueError("Unrecognized API flag: {!r}".format(flag))
         self._app_id = app_id
+        self._app_version = app_version
+        self._api_version = api_version
+        self._api_flags = api_flags
         self._repo = SessionStorageRepository()
         self._config = PlainBoxConfig().get()
         self._execution_ctrl_list = None  # None is "default"

@@ -690,9 +690,15 @@ environ: WPA_BG_SSID WPA_BG_PSK
 command:
     trap "nmcli con delete id $WPA_BG_SSID" EXIT
     if create_connection wifi $WPA_BG_SSID --security=wpa --key=$WPA_BG_PSK; then
+        connect_wireless # lp:1471663
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        if [[ ! -z $WIRED ]]; then
+            nmcli c up uuid $WIRED
+        fi
     else
         exit 1
     fi
@@ -713,9 +719,15 @@ environ: OPEN_BG_SSID
 command:
     trap "nmcli con delete id $OPEN_BG_SSID" EXIT
     if create_connection wifi $OPEN_BG_SSID; then
+        connect_wireless # lp:1471663
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        if [[ ! -z $WIRED ]]; then
+            nmcli c up uuid $WIRED
+        fi
     else
         exit 1
     fi
@@ -736,9 +748,15 @@ environ: WPA_N_SSID WPA_N_PSK
 command:
     trap "nmcli con delete id $WPA_N_SSID" EXIT
     if create_connection wifi $WPA_N_SSID --security=wpa --key=$WPA_N_PSK; then
+        connect_wireless # lp:1471663
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        if [[ ! -z $WIRED ]]; then
+            nmcli c up uuid $WIRED
+        fi
     else
         exit 1
     fi
@@ -759,9 +777,15 @@ environ: OPEN_N_SSID
 command:
     trap "nmcli con delete id $OPEN_N_SSID" EXIT
     if create_connection wifi $OPEN_N_SSID; then
+        connect_wireless # lp:1471663
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        if [[ ! -z $WIRED ]]; then
+            nmcli c up uuid $WIRED
+        fi
     else
         exit 1
     fi
@@ -783,9 +807,15 @@ environ: WPA_AC_SSID WPA_AC_PSK
 command:
     trap "nmcli con delete id $WPA_AC_SSID" EXIT
     if create_connection wifi $WPA_AC_SSID --security=wpa --key=$WPA_AC_PSK; then
+        connect_wireless # lp:1471663
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        if [[ ! -z $WIRED ]]; then
+            nmcli c up uuid $WIRED
+        fi
     else
         exit 1
     fi
@@ -807,9 +837,15 @@ environ: OPEN_AC_SSID
 command:
     trap "nmcli con delete id $OPEN_AC_SSID" EXIT
     if create_connection wifi $OPEN_AC_SSID; then
+        connect_wireless # lp:1471663
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        if [[ ! -z $WIRED ]]; then
+            nmcli c up uuid $WIRED
+        fi
     else
         exit 1
     fi
@@ -830,9 +866,15 @@ environ: WPA_BG_SSID WPA_BG_PSK
 command:
     trap "nmcli con delete id $WPA_BG_SSID" EXIT
     if create_connection wifi $WPA_BG_SSID --security=wpa --key=$WPA_BG_PSK; then
+        connect_wireless # lp:1471663
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        if [[ ! -z $WIRED ]]; then
+            nmcli c up uuid $WIRED
+        fi
     else
         exit 1
     fi
@@ -853,9 +895,15 @@ environ: OPEN_BG_SSID
 command:
     trap "nmcli con delete id $OPEN_BG_SSID" EXIT
     if create_connection wifi $OPEN_BG_SSID; then
+        connect_wireless # lp:1471663
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        if [[ ! -z $WIRED ]]; then
+            nmcli c up uuid $WIRED
+        fi
     else
         exit 1
     fi
@@ -876,9 +924,15 @@ environ: WPA_N_SSID WPA_N_PSK
 command:
     trap "nmcli con delete id $WPA_N_SSID" EXIT
     if create_connection wifi $WPA_N_SSID --security=wpa --key=$WPA_N_PSK; then
+        connect_wireless # lp:1471663
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        if [[ ! -z $WIRED ]]; then
+            nmcli c up uuid $WIRED
+        fi
     else
         exit 1
     fi
@@ -899,9 +953,15 @@ environ: OPEN_N_SSID
 command:
     trap "nmcli con delete id $OPEN_N_SSID" EXIT
     if create_connection wifi $OPEN_N_SSID; then
+        connect_wireless # lp:1471663
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        if [[ ! -z $WIRED ]]; then
+            nmcli c up uuid $WIRED
+        fi
     else
         exit 1
     fi
@@ -923,9 +983,15 @@ environ: WPA_AC_SSID WPA_AC_PSK
 command:
     trap "nmcli con delete id $WPA_AC_SSID" EXIT
     if create_connection wifi $WPA_AC_SSID --security=wpa --key=$WPA_AC_PSK; then
+        connect_wireless # lp:1471663
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        if [[ ! -z $WIRED ]]; then
+            nmcli c up uuid $WIRED
+        fi
     else
         exit 1
     fi
@@ -947,9 +1013,15 @@ environ: OPEN_AC_SSID
 command:
     trap "nmcli con delete id $OPEN_AC_SSID" EXIT
     if create_connection wifi $OPEN_AC_SSID; then
+        connect_wireless # lp:1471663
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        if [[ ! -z $WIRED ]]; then
+            nmcli c up uuid $WIRED
+        fi
     else
         exit 1
     fi
@@ -1040,9 +1112,15 @@ environ: ROUTER_SSID ROUTER_PSK
 command:
     trap "nmcli con delete id $ROUTER_SSID" EXIT
     if create_connection wifi $ROUTER_SSID --security=wpa --key=$ROUTER_PSK; then
+        connect_wireless # lp:1471663
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        if [[ ! -z $WIRED ]]; then
+            nmcli c up uuid $WIRED
+        fi
     else
         exit 1
     fi
@@ -1072,9 +1150,15 @@ environ: ROUTER_SSID
 command:
     trap "nmcli con delete id $ROUTER_SSID" EXIT
     if create_connection wifi $ROUTER_SSID; then
+        connect_wireless # lp:1471663
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        if [[ ! -z $WIRED ]]; then
+            nmcli c up uuid $WIRED
+        fi
     else
         exit 1
     fi
@@ -1104,9 +1188,15 @@ environ: ROUTER_SSID ROUTER_PSK
 command:
     trap "nmcli con delete id $ROUTER_SSID" EXIT
     if create_connection wifi $ROUTER_SSID --security=wpa --key=$ROUTER_PSK; then
+        connect_wireless # lp:1471663
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        if [[ ! -z $WIRED ]]; then
+            nmcli c up uuid $WIRED
+        fi
     else
         exit 1
     fi
@@ -1136,9 +1226,15 @@ environ: ROUTER_SSID
 command:
     trap "nmcli con delete id $ROUTER_SSID" EXIT
     if create_connection wifi $ROUTER_SSID; then
+        connect_wireless # lp:1471663
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        if [[ ! -z $WIRED ]]; then
+            nmcli c up uuid $WIRED
+        fi
     else
         exit 1
     fi
@@ -1168,9 +1264,15 @@ environ: ROUTER_SSID ROUTER_PSK
 command:
     trap "nmcli con delete id $ROUTER_SSID" EXIT
     if create_connection wifi $ROUTER_SSID --security=wpa --key=$ROUTER_PSK; then
+        connect_wireless # lp:1471663
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        if [[ ! -z $WIRED ]]; then
+            nmcli c up uuid $WIRED
+        fi
     else
         exit 1
     fi
@@ -1200,9 +1302,15 @@ environ: ROUTER_SSID
 command:
     trap "nmcli con delete id $ROUTER_SSID" EXIT
     if create_connection wifi $ROUTER_SSID; then
+        connect_wireless # lp:1471663
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        # We reconnect the Ethernet connection if any (lp:1471663)
+        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        if [[ ! -z $WIRED ]]; then
+            nmcli c up uuid $WIRED
+        fi
     else
         exit 1
     fi

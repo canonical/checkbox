@@ -137,7 +137,12 @@ class SessionAssistantIngredient(Ingredient):
 
     def late_init(self, context):
         """Add a SessionAssistant as ``sa`` to the guacamole context."""
-        context.sa = SessionAssistant(context.cmd_toplevel.get_app_id())
+        context.sa = SessionAssistant(
+            context.cmd_toplevel.get_app_id(),
+            context.cmd_toplevel.get_cmd_version(),
+            context.cmd_toplevel.get_sa_api_version(),
+            context.cmd_toplevel.get_sa_api_flags(),
+        )
 
 
 class CanonicalCrashIngredient(Ingredient):

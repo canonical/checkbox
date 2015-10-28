@@ -421,7 +421,7 @@ class SessionAssistant:
         UsageExpectation.of(self).allowed_calls = {
             self.select_test_plan: "to save test plan selection",
         }
-        return self._resume_candidates[session_id][1]
+        return self._resume_candidates[session_id].metadata
 
     @raises(UnexpectedMethodCall)
     def get_resumable_sessions(self) -> 'Tuple[str, SessionMetaData]':

@@ -198,6 +198,42 @@ class CanonicalCommand(Command):
 
     bug_report_url = "https://bugs.launchpad.net/checkbox/+filebug"
 
+    def get_sa_api_version(self):
+        """
+        Get the SessionAssistant API this command needs to use.
+
+        :returns:
+            ``self.sa_api_version`` if defined
+        :returns:
+            "0.99", otherwise
+
+        This method is used internally by CanonicalCommand to initialize
+        SessionAssistant. Applications can declare the API version they use by
+        defining the ``sa_api_version`` attribute at class level.
+        """
+        try:
+            return self.sa_api_version
+        except AttributeError:
+            return '0.99'
+
+    def get_sa_api_flags(self):
+        """
+        Get the SessionAssistant API flags this command needs to use.
+
+        :returns:
+            ``self.sa_api_flags`` if defined
+        :returns:
+            ``[]``, otherwise
+
+        This method is used internally by CanonicalCommand to initialize
+        SessionAssistant. Applications can declare the API flags they use by
+        defining the ``sa_api_flags`` attribute at class level.
+        """
+        try:
+            return self.sa_api_flags
+        except AttributeError:
+            return []
+
     def main(self, argv=None, exit=True):
         """
         Shortcut for running a command.

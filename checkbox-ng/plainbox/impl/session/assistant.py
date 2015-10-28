@@ -55,7 +55,16 @@ _logger = logging.getLogger("plainbox.session.assistant")
 
 __all__ = ('SessionAssistant', )
 
-ResumeCandidate = collections.namedtuple('ResumeCandidate', ['id', 'metadata'])
+
+# NOTE: There are two tuples related to resume candidates. The internal tuple
+# uses the raw SessionStorage object. Since we don't wish to make that a public
+# API yet it is not exposed in any of the public side of SessionAssistant APIs.
+# The public variant uses the storage identifier (which is just a string) that
+# applications are expected to handle as an opaque blob.
+InternalResumeCandidate = collections.namedtuple(
+    'InternalResumeCandidate', ['storage', 'metadata'])
+ResumeCandidate = collections.namedtuple(
+    'ResumeCandidate', ['id', 'metadata'])
 
 
 class SessionAssistant:
@@ -449,11 +458,11 @@ class SessionAssistant:
             else:
                 if (metadata.app_id == self._app_id and
                         SessionMetaData.FLAG_INCOMPLETE in metadata.flags):
-                    candidate = ResumeCandidate(storage.id, metadata)
-                    self._resume_candidates[storage.id] = (storage, metadata)
+                    self._resume_candidates[storage.id] = (
+                        InternalResumeCandidate(storage, metadata))
                     UsageExpectation.of(self).allowed_calls[
                         self.resume_session] = "resume session"
-                    yield candidate
+                    yield ResumeCandidate(storage.id, metadata)
 
     def update_app_blob(self, app_blob: bytes) -> None:
         """

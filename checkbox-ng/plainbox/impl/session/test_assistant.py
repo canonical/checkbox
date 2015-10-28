@@ -35,10 +35,14 @@ class SessionAssistantTests(morris.SignalTestCase):
     """Tests for the SessionAssitant class."""
 
     APP_ID = 'app-id'
+    APP_VERSION = '1.0'
+    API_VERSION = '0.99'
+    API_FLAGS = []
 
     def setUp(self):
         """Common set-up code."""
-        self.sa = SessionAssistant(self.APP_ID)
+        self.sa = SessionAssistant(
+            self.APP_ID, self.APP_VERSION, self.API_VERSION, self.API_FLAGS)
         # NOTE: setup a custom repository so that all tests are done in
         # isolation from the user account. While we're doing that, let's check
         # that this this function is allowed just after setting up the session.

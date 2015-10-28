@@ -137,7 +137,12 @@ class SessionAssistantIngredient(Ingredient):
 
     def late_init(self, context):
         """Add a SessionAssistant as ``sa`` to the guacamole context."""
-        context.sa = SessionAssistant(context.cmd_toplevel.get_app_id())
+        context.sa = SessionAssistant(
+            context.cmd_toplevel.get_app_id(),
+            context.cmd_toplevel.get_cmd_version(),
+            context.cmd_toplevel.get_sa_api_version(),
+            context.cmd_toplevel.get_sa_api_flags(),
+        )
 
 
 class CanonicalCrashIngredient(Ingredient):
@@ -197,6 +202,42 @@ class CanonicalCommand(Command):
     """
 
     bug_report_url = "https://bugs.launchpad.net/checkbox/+filebug"
+
+    def get_sa_api_version(self):
+        """
+        Get the SessionAssistant API this command needs to use.
+
+        :returns:
+            ``self.sa_api_version`` if defined
+        :returns:
+            "0.99", otherwise
+
+        This method is used internally by CanonicalCommand to initialize
+        SessionAssistant. Applications can declare the API version they use by
+        defining the ``sa_api_version`` attribute at class level.
+        """
+        try:
+            return self.sa_api_version
+        except AttributeError:
+            return '0.99'
+
+    def get_sa_api_flags(self):
+        """
+        Get the SessionAssistant API flags this command needs to use.
+
+        :returns:
+            ``self.sa_api_flags`` if defined
+        :returns:
+            ``[]``, otherwise
+
+        This method is used internally by CanonicalCommand to initialize
+        SessionAssistant. Applications can declare the API flags they use by
+        defining the ``sa_api_flags`` attribute at class level.
+        """
+        try:
+            return self.sa_api_flags
+        except AttributeError:
+            return []
 
     def main(self, argv=None, exit=True):
         """

@@ -506,8 +506,8 @@ class CliInvocation2(RunInvocation):
             return False
         tree = SelectableJobTreeNode.create_tree(
             self.manager.state, rerun_candidates)
-        # nothing to select - bailing out
-        if not tree.jobs:
+        # nothing to select in root node and categories - bailing out
+        if not tree.jobs and not tree._categories:
             return False
         # deselect all by default
         tree.set_descendants_state(False)

@@ -486,6 +486,18 @@ class GzipFile(gzip.GzipFile):
     See: http://bugs.python.org/issue10791
     """
 
+    def _read_gzip_header(self):
+        """
+        Ignore the non-compressed garbage at the end of the file
+
+        See: https://bugs.python.org/issue24301
+        """
+
+        try:
+            return super()._read_gzip_header()
+        except OSError:
+            return False
+
     def read1(self, n):
         return self.read(n)
 

@@ -1097,7 +1097,7 @@ class SessionAssistant:
             self,
             exporter_id: str,
             transport: ISessionStateTransport,
-            options: 'list[str]'=[]
+            options: 'List[str]'=()
     ) -> dict:
         """
         Export the session using given exporter ID and transport object.
@@ -1233,7 +1233,7 @@ class SessionAssistant:
         return CertificationTransport(url, options)
 
     @raises(UnexpectedMethodCall, KeyError)
-    def get_oauth_transport(
+    def get_ubuntu_sso_oauth_transport(
         self, transport_details: dict
     ) -> "ISessionStateTransport":
         """
@@ -1249,6 +1249,7 @@ class SessionAssistant:
             is the likely cause.
 
         """
+        UsageExpectation.of(self).enforce()
         url = transport_details["url"]
         return OAuthTransport(url, '', transport_details)
 

@@ -130,8 +130,8 @@ class Brightness(object):
         Note: this doesn't guarantee that screen brightness
               changed.
         '''
-        if (self.get_actual_brightness(interface) !=
-            self.get_last_set_brightness(interface)):
+        if (abs(self.get_actual_brightness(interface) -
+            self.get_last_set_brightness(interface)) > 1):
             return False
         else:
             return True

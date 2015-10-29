@@ -32,7 +32,7 @@ _description:
      1. Make sure that no external speakers or headphones are connected
         When testing a desktop, you can skip this test if there is no
         internal speaker, we will test the external output later
-     2. Click the Test button to play a brief tone on your audio device
+     2. Commence the test to play a brief tone on your audio device
  VERIFICATION:
      Did you hear a tone?
 
@@ -64,7 +64,7 @@ command:
       HDMI audio interface verification
   STEPS:
       1. Plug an external HDMI device with sound (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
-      2. Click the Test button
+      2. Commence the test
   VERIFICATION:
       Did you hear the sound from the HDMI device?
  EOF
@@ -97,7 +97,7 @@ command:
       DisplayPort audio interface verification
   STEPS:
       1. Plug an external DisplayPort device with sound (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
-      2. Click the Test button
+      2. Commence the test
   VERIFICATION:
       Did you hear the sound from the DisplayPort device?
  EOF
@@ -131,7 +131,7 @@ command:
       Thunderbolt audio interface verification
   STEPS:
       1. Plug an external Thunderbolt device with sound (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
-      2. Click the Test button
+      2. Commence the test
   VERIFICATION:
       Did you hear the sound from the Thunderbolt device?
  EOF
@@ -158,7 +158,7 @@ _description:
      This test will check that headphones connector works correctly
  STEPS:
      1. Connect a pair of headphones to your audio device
-     2. Click the Test button to play a sound to your audio device
+     2. Commence the test to play a sound to your audio device
  VERIFICATION:
      Did you hear a sound through the headphones and did the sound play without any distortion, clicks or other strange noises from your headphones?
 
@@ -287,7 +287,7 @@ _description:
  PURPOSE:
      Check that the various audio channels are working properly
  STEPS:
-     1. Click the Test button
+     1. Commence the test
  VERIFICATION:
      You should clearly hear a voice from the different audio channels
 
@@ -316,7 +316,7 @@ _description:
       Check that external line out connection works correctly
  STEPS:
       1. Insert cable to speakers (with built-in amplifiers) on the line out port
-      2. Open system sound preferences, 'Output' tab, select 'Line-out' on the connector list. Click the Test button
+      2. Open system sound preferences, 'Output' tab, select 'Line-out' on the connector list. Commence the test
       3. On the system sound preferences, select 'Internal Audio' on the device list and click 'Test Speakers' to check left and right channel
  VERIFICATION:
       1. Do you hear a sound in the speakers? The internal speakers should *not* be muted automatically
@@ -343,7 +343,7 @@ _description:
      Check that external line in connection works correctly
  STEPS:
      1. Use a cable to connect the line in port to an external line out source.
-     2. Open system sound preferences, 'Input' tab, select 'Line-in' on the connector list. Click the Test button
+     2. Open system sound preferences, 'Input' tab, select 'Line-in' on the connector list. Commence the test
      3. After a few seconds, your recording will be played back to you.
  VERIFICATION:
      Did you hear your recording?
@@ -413,7 +413,7 @@ _description:
      Check that balance control works correctly on internal speakers
  STEPS:
      1. Check that moving the balance slider from left to right works smoothly
-     2. Click the Test button to play an audio tone for 10 seconds.
+     2. Commence the test to play an audio tone for 10 seconds.
      3. Move the balance slider from left to right and back.
      4. Check that actual speaker audio balance follows your setting.
  VERIFICATION:
@@ -441,7 +441,7 @@ _description:
      Check that balance control works correctly on external headphone
  STEPS:
      1. Check that moving the balance slider from left to right works smoothly
-     2. Click the Test button to play an audio tone for 10 seconds.
+     2. Commence the test to play an audio tone for 10 seconds.
      3. Move the balance slider from left to right and back.
      4. Check that actual headphone audio balance follows your setting.
  VERIFICATION:
@@ -482,7 +482,7 @@ _description:
      1. Make sure that no external speakers or headphones are connected
         When testing a desktop, you can skip this test if there is no
         internal speaker, we will test the external output later
-     2. Click the Test button to play a brief tone on your audio device
+     2. Commence the test to play a brief tone on your audio device
  VERIFICATION:
      Did you hear a tone?
 

@@ -383,7 +383,7 @@ _description:
  PURPOSE:
   This test will check that Evolution works.
  STEPS:
-  1. Click the "Test" button to launch Evolution.
+  1. Commence the test to launch Evolution.
   2. Configure it to connect to a POP3 account.
  VERIFICATION:
   Were you able to receive and read e-mail correctly?
@@ -397,7 +397,7 @@ _description:
  PURPOSE:
   This test will check that Evolution works.
  STEPS:
-  1. Click the "Test" button to launch Evolution.
+  1. Commence the test to launch Evolution.
   2. Configure it to connect to a IMAP account.
  VERIFICATION:
   Were you able to receive and read e-mail correctly?
@@ -411,7 +411,7 @@ _description:
  PURPOSE:
   This test will check that Evolution works.
  STEPS:
-  1. Click the "Test" button to launch Evolution.
+  1. Commence the test to launch Evolution.
   2. Configure it to connect to a SMTP account.
  VERIFICATION:
   Were you able to send e-mail without errors?
@@ -425,7 +425,7 @@ _description:
  PURPOSE:
   This test checks that gcalctool (Calculator) works.
  STEPS:
-  Click the "Test" button to open the calculator.
+  Commence the test to open the calculator.
  VERIFICATION:
   Did it launch correctly?
 
@@ -439,7 +439,7 @@ _description:
  PURPOSE:
   This test checks that gcalctool (Calculator) works.
  STEPS:
-  Click the "Test" button to open the calculator and perform:
+  Commence the test to open the calculator and perform:
   1. Simple math functions (+,-,/,*)
   2. Nested math functions ((,))
   3. Fractional math
@@ -457,7 +457,7 @@ _description:
  PURPOSE:
   This test checks that gcalctool (Calculator) works.
  STEPS:
-  Click the "Test" button to open the calculator and perform:
+  Commence the test to open the calculator and perform:
    1. Memory set
    2. Memory reset
    3. Memory last clear
@@ -475,7 +475,7 @@ _description:
  PURPOSE:
   This test checks that gcalctool (Calculator) works.
  STEPS:
-  Click the "Test" button to open the calculator and perform:
+  Commence the test to open the calculator and perform:
    1. Cut
    2. Copy
    3. Paste
@@ -491,7 +491,7 @@ _description:
  PURPOSE:
   This test checks that gedit works.
  STEPS:
-  1. Click the "Test" button to open gedit.
+  1. Commence the test to open gedit.
   2. Enter some text and save the file (make a note of the file name you use), then close gedit.
  VERIFICATION:
   Did this perform as expected?
@@ -506,7 +506,7 @@ _description:
  PURPOSE:
   This test checks that gedit works.
  STEPS:
-  1. Click the "Test" button to open gedit, and re-open the file you created previously.
+  1. Commence the test to open gedit, and re-open the file you created previously.
   2. Edit then save the file, then close gedit.
  VERIFICATION:
   Did this perform as expected?
@@ -520,7 +520,7 @@ _description:
  PURPOSE:
   This test will check that Gnome Terminal works.
  STEPS:
-  1. Click the "Test" button to open Terminal.
+  1. Commence the test to open Terminal.
   2. Type 'ls' and press enter. You should see a list of files and folder in your home directory.
   3. Close the terminal window.
  VERIFICATION:

@@ -251,7 +251,7 @@ _description:
      2. Change the settings to only accept connections on the B and G wireless bands
      3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
      4. Change the security settings to use WPA2 and ensure the PSK matches what is set in the ROUTER_PSK environment variable
-     5. Click the 'Test' button to create a connection to the router and test the connection
+     5. Commence the test to create a connection to the router and test the connection
  VERIFICATION:
      Verification is automated, do not change the automatically selected result.
 
@@ -288,7 +288,7 @@ _description:
      2. Change the settings to only accept connections on the B and G wireless bands
      3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
      4. Change the security settings to use no security
-     5. Click the 'Test' button to create a connection to the router and test the connection
+     5. Commence the test to create a connection to the router and test the connection
  VERIFICATION:
      Verification is automated, do not change the automatically selected result.
 
@@ -326,7 +326,7 @@ _description:
      2. Change the settings to only accept connections on the N wireless band
      3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
      4. Change the security settings to use WPA2 and ensure the PSK matches what is set in the ROUTER_PSK environment variable
-     5. Click the 'Test' button to create a connection to the router and test the connection
+     5. Commence the test to create a connection to the router and test the connection
  VERIFICATION:
      Verification is automated, do not change the automatically selected result.
 
@@ -364,7 +364,7 @@ _description:
      2. Change the settings to only accept connections on the N wireless band
      3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
      4. Change the security settings to use no security
-     5. Click the 'Test' button to create a connection to the router and test the connection
+     5. Commence the test to create a connection to the router and test the connection
  VERIFICATION:
      Verification is automated, do not change the automatically selected result.
 
@@ -402,7 +402,7 @@ _description:
      2. Change the settings to only accept connections with the 802.11ac protocol.
      3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
      4. Change the security settings to use WPA2 and ensure the PSK matches what is set in the ROUTER_PSK environment variable
-     5. Click the 'Test' button to create a connection to the router and test the connection
+     5. Commence the test to create a connection to the router and test the connection
  VERIFICATION:
      Verification is automated, do not change the automatically selected result.
 
@@ -440,7 +440,7 @@ _description:
      2. Change the settings to only accept connections with the 802.11ac protocol.
      3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
      4. Change the security settings to use no security
-     5. Click the 'Test' button to create a connection to the router and test the connection
+     5. Commence the test to create a connection to the router and test the connection
  VERIFICATION:
      Verification is automated, do not change the automatically selected result.
 

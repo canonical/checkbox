@@ -391,7 +391,7 @@ _description:
      This test will check your Media Card data transfer performance.
  STEPS:
      1. Insert SD card into the reader slot on this computer.
-     2. Click the test button to perform the test.
+     2. Commence the test.
  VERIFICATION:
      Did the results of the test match the expected performance of the inserted device?
 
@@ -407,7 +407,7 @@ _description:
      This test will check your Media Card data transfer performance.
  STEPS:
      1. Insert SDHC card into the reader slot on this computer.
-     2. Click the test button to perform the test.
+     2. Commence the test.
  VERIFICATION:
      Did the results of the test match the expected performance of the inserted device?
 
@@ -423,7 +423,7 @@ _description:
      This test will check your Media Card data transfer performance.
  STEPS:
      1. Insert MMC card into the reader slot on this computer.
-     2. Click the test button to perform the test.
+     2. Commence the test.
  VERIFICATION:
      Did the results of the test match the expected performance of the inserted device?
 
@@ -439,7 +439,7 @@ _description:
      This test will check your Media Card data transfer performance.
  STEPS:
      1. Insert CF card into the reader slot on this computer.
-     2. Click the test button to perform the test.
+     2. Commence the test.
  VERIFICATION:
      Did the results of the test match the expected performance of the inserted device?
 
@@ -455,7 +455,7 @@ _description:
      This test will check your Media Card data transfer performance.
  STEPS:
      1. Insert SDXC card into the reader slot on this computer.
-     2. Click the test button to perform the test.
+     2. Commence the test.
  VERIFICATION:
      Did the results of the test match the expected performance of the inserted device?
 
@@ -471,7 +471,7 @@ _description:
      This test will check your Media Card data transfer performance.
  STEPS:
      1. Insert MS card into the reader slot on this computer.
-     2. Click the test button to perform the test.
+     2. Commence the test.
  VERIFICATION:
      Did the results of the test match the expected performance of the inserted device?
 
@@ -487,7 +487,7 @@ _description:
      This test will check your Media Card data transfer performance.
  STEPS:
      1. Insert MSP card into the reader slot on this computer.
-     2. Click the test button to perform the test.
+     2. Commence the test.
  VERIFICATION:
      Did the results of the test match the expected performance of the inserted device?
 
@@ -503,7 +503,7 @@ _description:
      This test will check your Media Card data transfer performance.
  STEPS:
      1. Insert XD card into the reader slot on this computer.
-     2. Click the test button to perform the test.
+     2. Commence the test.
  VERIFICATION:
      Did the results of the test match the expected performance of the inserted device?
 

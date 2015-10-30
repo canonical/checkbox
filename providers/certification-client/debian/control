@@ -19,6 +19,7 @@ Build-Depends: debhelper (>= 9.2),
 Package: plainbox-provider-certification-client
 Architecture: all
 Depends: checkbox-ng-service (>= 0.20~),
+         module-init-tools,
          plainbox-provider-checkbox (>= 0.21.4~),
          plainbox-provider-resource-generic (>= 0.19~),
          python3-plainbox (>= 0.22~),

@@ -12,7 +12,8 @@ Vcs-Git: git://git.launchpad.net/plainbox-provider-canonical-certification
 
 Package: plainbox-provider-certification-server
 Architecture: all
-Depends: plainbox-provider-checkbox
+Depends: module-init-tools,
+         plainbox-provider-checkbox
 Recommends: apache2,
             bind9,
             bonnie++,

@@ -1,3 +1,7 @@
+unit: packaging meta-data
+os-id: debian
+Depends: module-init-tools
+
 plugin: shell
 category_id: 2013.com.canonical.plainbox::ethernet
 id: ethernet/detect

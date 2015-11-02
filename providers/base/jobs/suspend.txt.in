@@ -2913,6 +2913,6 @@ plugin: attachment
 category_id: 2013.com.canonical.plainbox::suspend
 estimated_duration: 0.5
 command:
- [ -e ${PLAINBOX_SESSION_SHARE}/fwts_oops_results_after_s3_hwe.log ] && cat ${PLAINBOX_SESSION_SHARE}/fwts_oops_results_after_s3_hwe.log
+ [ -e ${PLAINBOX_SESSION_SHARE}/fwts_oops_results_after_s3.log ] && cat ${PLAINBOX_SESSION_SHARE}/fwts_oops_results_after_s3.log
 _description: Attaches the FWTS oops results log to the submission after suspend
 

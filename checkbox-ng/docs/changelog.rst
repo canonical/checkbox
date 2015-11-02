@@ -6,10 +6,42 @@ ChangeLog
     accounting of development history please inspect the source history
     directly.
 
+.. _version_0_25:
+
+Plainbox 0.25 (unreleased)
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 .. _version_0_24:
 
-Plainbox 0.24 (unreleased)
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Plainbox 0.24
+^^^^^^^^^^^^^
+
+* Add a dependency on guacamole.
+
+* Plainbox ignores trailing garbage after EOF while reading IOLog zip.
+  See https://bugs.python.org/issue24301.
+
+* Session assistant now preserves job ordering from test plans.
+
+* Session assistant ignores calls to finalize_session when the session has
+  already been finalized. This lets application call finalization freely
+  without having to keep that state information in them.
+
+* Plainbox expands the SessionAssistant initializer API
+
+  **app_version**: so that we can use this implicitly in some places,
+     e.g. don't resumes sessions created by future versions, etc.
+  **api_version**: so that we can change usage expectations over time
+    but let applications stay compatible by using a fixed API version.
+    This can be changed to a __new__ call that returns a versioned
+    SA class instead of doing if-then-else magic in all the places.
+  **api_flags**: so that we can allow applications to opt-into optional
+    features and so that we can adjust expectations accordingly. This
+    will also allow us to easily compare applications for feature
+    parity.
+
+  For now all new arguments have sane defaults. Once all applications are
+  patched the defaults will go away.
 
 * Plainbox now supports a new way to express the estimated duration of
   :ref:`jobs <job_estimated_duration>` and
@@ -42,6 +74,8 @@ Plainbox 0.24 (unreleased)
 
   Examples of the usage of this feature can be found in the TPM (Trusted
   Platform Module) provider.
+
+* https://launchpad.net/plainbox/+milestone/0.24
 
 .. _version_0_23:
 

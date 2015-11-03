@@ -79,7 +79,7 @@ class InstallCommandExt(InstallCommand):
 setup(
     name='certification-client',
     namespace='2013.com.canonical.certification',
-    version="0.19",
+    version="0.20",
     description=N_("Client Certification provider"),
     gettext_domain="certification-client",
     deprecated=False,

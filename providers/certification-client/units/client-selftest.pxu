@@ -1,6 +1,6 @@
 id: client-selftest
 _name: All Client Self-testing Tests 
-unit test plan
+unit: test plan
 ## The tests contained here should work in any test lab envrionement.
 ## Please use this test plan for the Ubuntu Certification self-testing
 ## programme.

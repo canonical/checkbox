@@ -1,9 +1,9 @@
-plainbox-provider-certification-client (0.20-2) precise; urgency=medium
+plainbox-provider-certification-client (0.20-3) precise; urgency=medium
 
   * new upstream version
   * Fix broken client-selftest.pxu
 
- -- Sylvain Pineau <sylvain.pineau@canonical.com>  Tue, 03 Nov 2015 02:49:32 +0100
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Tue, 03 Nov 2015 03:05:52 +0100
 
 plainbox-provider-certification-client (0.20-1) precise; urgency=medium
 

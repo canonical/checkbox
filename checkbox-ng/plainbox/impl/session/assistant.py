@@ -538,6 +538,19 @@ class SessionAssistant:
         self._metadata = self._context.state.metadata
         self._command_io_delegate = JobRunnerUIDelegate(_SilentUI())
         self._init_runner()
+        if self._metadata.running_job_name:
+            job = self._context.get_unit(
+                self._metadata.running_job_name, 'job')
+            if 'autorestart' in job.get_flag_set():
+                result = JobResultBuilder(
+                    outcome=(
+                        IJobResult.OUTCOME_PASS
+                        if 'noreturn' in job.get_flag_set() else
+                        IJobResult.OUTCOME_FAIL),
+                    return_code=0,
+                    io_log_filename=self._runner.get_record_path_for_job(job),
+                ).get_result()
+                self._context.state.update_job_result(job, result)
         if self._restart_strategy is not None:
             self._restart_strategy.diffuse_application_restart(self._app_id)
         self.session_available(self._manager.storage.id)

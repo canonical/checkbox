@@ -498,13 +498,13 @@ class ProviderSkeleton(Skeleton):
 
 class StartProviderInvocation:
 
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, ns):
+        self.ns = ns
 
     def run(self):
         try:
-            ProviderSkeleton(self.name).instantiate(
-                '.', name=self.name,
-                gettext_domain=re.sub("[.:]", "_", self.name))
+            ProviderSkeleton(self.ns.name).instantiate(
+                '.', name=self.ns.name,
+                gettext_domain=re.sub("[.:]", "_", self.ns.name))
         except SomethingInTheWay as exc:
             raise SystemExit(exc)

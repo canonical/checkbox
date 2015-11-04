@@ -74,7 +74,7 @@ class StartProviderCommand(PlainBoxCommand):
     def invoked(self, ns):
         from plainbox.impl.commands.inv_startprovider \
             import StartProviderInvocation
-        return StartProviderInvocation(ns.name).run()
+        return StartProviderInvocation(ns).run()
 
     def register_parser(self, subparsers):
         parser = self.add_subcommand(subparsers)

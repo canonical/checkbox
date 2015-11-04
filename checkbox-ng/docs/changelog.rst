@@ -16,6 +16,11 @@ Plainbox 0.25 (unreleased)
   option when you know your way around, and you want to quickly start
   developing plainbox jobs without any other jobs polluting your provider.
 
+* Plainbox now supports a new flag :ref:`explicit-fail
+  <job_flag_explicit_fail>`. Using that flag makes manual failing of the job
+  require a comment to be entered. This flag naturally makes sense only for
+  'manual', 'user-interact-verify', 'user-verify' jobs.
+
 .. _version_0_24:
 
 Plainbox 0.24

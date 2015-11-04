@@ -309,9 +309,10 @@ class UnitPlugIn(ProviderContentPlugIn):
     ) -> "Iterable[WhiteList]":
         for unit in (unit for unit in inspect_result
                      if unit.Meta.name == 'test plan'):
-            yield WhiteList(
-                unit.include, name=unit.partial_id, origin=unit.origin,
-                implicit_namespace=unit.provider.namespace)
+            if unit.include is not None:
+                yield WhiteList(
+                    unit.include, name=unit.partial_id, origin=unit.origin,
+                    implicit_namespace=unit.provider.namespace)
 
     # NOTE: this version of plugin_object() is just for legacy code support
     @property

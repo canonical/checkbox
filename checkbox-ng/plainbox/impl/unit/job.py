@@ -957,6 +957,16 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
                         ' non-C locale then set the preserve-locale flag'
                     ),
                     onlyif=lambda unit: unit.command),
+                CorrectFieldValueValidator(
+                    lambda value, unit: (
+                        not ('explicit-fail' in unit.get_flag_set() and
+                             unit.plugin in {
+                                 'shell', 'user-interact', 'attachment',
+                                 'local', 'resource'})),
+                    Problem.useless, Severity.advice,
+                    message=_('explicit-fail makes no sense for job which '
+                              'outcome is automatically determined.')
+                ),
                 # The has-leftovers flag is useless without a command
                 CorrectFieldValueValidator(
                     lambda value, unit: (

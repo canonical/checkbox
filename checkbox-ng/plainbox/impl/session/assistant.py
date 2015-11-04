@@ -1228,6 +1228,7 @@ class SessionAssistant:
             self.finalize_session: "to finalize session",
             self.export_to_transport: "to export the results and send them",
             self.export_to_file: "to export the results to a file",
+            self.export_to_stream: "to export the results to a stream",
             self.get_resumable_sessions: "to get resume candidates",
             self.start_new_session: "to create a new session",
             self.get_canonical_certification_transport: (
@@ -1304,6 +1305,36 @@ class SessionAssistant:
         with open(path, 'wb') as stream:
             exporter.dump_from_session_manager(self._manager, stream)
         return path
+
+    @raises(KeyError, OSError)
+    def export_to_stream(
+        self, exporter_id: str, option_list: 'list[str]', stream
+    ) -> None:
+        """
+        Export the session to file using given exporter ID.
+
+        :param exporter_id:
+            The identifier of the exporter unit to use. This must have been
+            loaded into the session from an existing provider. Many users will
+            want to load the ``2013.com.canonical.palainbox:exporter`` provider
+            (via :meth:`load_providers()`.
+        :param option_list:
+            List of options customary to the exporter that is being created.
+        :param stream:
+            Stream to write the report to.
+        :returns:
+            Path to the written file.
+        :raises KeyError:
+            When the exporter unit cannot be found.
+        :raises OSError:
+            When there is a problem when writing the output.
+        """
+        UsageExpectation.of(self).enforce()
+        exporter = self._manager.create_exporter(exporter_id, option_list)
+        exporter.dump_from_session_manager(self._manager, stream)
+        if SessionMetaData.FLAG_SUBMITTED not in self._metadata.flags:
+            self._metadata.flags.add(SessionMetaData.FLAG_SUBMITTED)
+            self._manager.checkpoint()
 
     @raises(ValueError, UnexpectedMethodCall)
     def get_canonical_certification_transport(
@@ -1390,6 +1421,7 @@ class SessionAssistant:
             # until all of the mandatory jobs have been executed.
             self.export_to_transport: "to export the results and send them",
             self.export_to_file: "to export the results to a file",
+            self.export_to_stream: "to export the results to a stream",
             self.finalize_session: "to mark the session as complete",
             self.get_session_id: "to get the id of currently running session",
             self.get_session_dir: ("to get the path where current session is"

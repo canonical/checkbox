@@ -1043,7 +1043,8 @@ class SessionAssistant:
         jsm = self._context.state.job_state_map
         return [
             job.id for job in self._context.state.run_list
-            if jsm[job.id].result is not jsm[job.id].result.OUTCOME_NONE]
+            if jsm[job.id].result.outcome is None
+        ]
 
     @raises(ValueError, TypeError, UnexpectedMethodCall)
     def run_job(

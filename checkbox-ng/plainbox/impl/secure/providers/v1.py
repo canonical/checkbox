@@ -559,8 +559,8 @@ class ProviderContentClassifier:
 
     def _classify_whitelist(self, filename: str):
         """ classify .whitelist files in whitelist_dir as whitelist """
-        if (filename.startswith(self.provider.whitelists_dir)
-                and filename.endswith(".whitelist")):
+        if (filename.startswith(self.provider.whitelists_dir) and
+                filename.endswith(".whitelist")):
             return (FileRole.legacy_whitelist, self.provider.whitelists_dir,
                     WhiteListPlugIn)
 
@@ -572,8 +572,8 @@ class ProviderContentClassifier:
 
     def _classify_exec(self, filename: str):
         """ classify files in bin_dir as scripts/executables """
-        if (filename.startswith(self.provider.bin_dir)
-                and os.access(filename, os.F_OK | os.X_OK)):
+        if (filename.startswith(self.provider.bin_dir) and
+                os.access(filename, os.F_OK | os.X_OK)):
             with open(filename, 'rb') as stream:
                 chunk = stream.read(2)
             role = FileRole.script if chunk == b'#!' else FileRole.binary
@@ -581,9 +581,9 @@ class ProviderContentClassifier:
 
     def _classify_built_exec(self, filename: str):
         """ classify files in build_bin_dir as scripts/executables """
-        if (filename.startswith(self.provider.build_bin_dir)
-                and os.access(filename, os.F_OK | os.X_OK)
-                and os.path.basename(filename) in self.EXECUTABLES):
+        if (filename.startswith(self.provider.build_bin_dir) and
+                os.access(filename, os.F_OK | os.X_OK) and
+                os.path.basename(filename) in self.EXECUTABLES):
             with open(filename, 'rb') as stream:
                 chunk = stream.read(2)
             role = FileRole.script if chunk == b'#!' else FileRole.binary
@@ -591,8 +591,8 @@ class ProviderContentClassifier:
 
     def _classify_built_i18n(self, filename: str):
         """ classify files in build_mo_dir as i18n """
-        if (filename.startswith(self.provider.build_mo_dir)
-                and os.path.splitext(filename)[1] == '.mo'):
+        if (filename.startswith(self.provider.build_mo_dir) and
+                os.path.splitext(filename)[1] == '.mo'):
             return (FileRole.i18n, self.provider.build_bin_dir,
                     ProviderContentPlugIn)
 
@@ -619,9 +619,9 @@ class ProviderContentClassifier:
             return (FileRole.manage_py, self.provider.base_dir, None)
 
     def _classify_po(self, filename: str):
-        if (os.path.dirname(filename) == self.provider.po_dir
-            and (os.path.splitext(filename)[1] in ('.po', '.pot')
-                 or os.path.basename(filename) == 'POTFILES.in')):
+        if (os.path.dirname(filename) == self.provider.po_dir and
+                (os.path.splitext(filename)[1] in ('.po', '.pot') or
+                 os.path.basename(filename) == 'POTFILES.in')):
             return (FileRole.src, self.provider.base_dir, None)
 
     def _classify_src(self, filename: str):
@@ -1121,8 +1121,8 @@ class Provider1(IProvider1):
         """
         return sorted(
             unit.path for unit in self.unit_list
-            if unit.Meta.name == 'file'
-            and unit.role in (FileRole.script, FileRole.binary))
+            if unit.Meta.name == 'file' and
+            unit.role in (FileRole.script, FileRole.binary))
 
     @property
     def whitelist_list(self):
@@ -1319,7 +1319,6 @@ class Provider1Definition(Config):
         is implemented in :class:`Provider1PlugIn`. Here, all the attributes
         can be Unset and their validators only check values other than Unset.
     """
-
 
     # NOTE: See the implementation note in :class:`Provider1PluginIn` to
     # understand the effect of this flag.

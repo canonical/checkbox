@@ -771,6 +771,10 @@ class JobRunner(IJobRunner):
             execution_duration=execution_duration
         ).get_result()
 
+    def get_record_path_for_job(self, job):
+        return os.path.join(self._jobs_io_log_dir,
+                            "{}.record.gz".format(slugify(job.id)))
+
     def _get_dry_run_result(self, job):
         """
         Internal method of JobRunner.

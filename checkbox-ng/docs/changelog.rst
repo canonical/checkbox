@@ -11,6 +11,11 @@ ChangeLog
 Plainbox 0.25 (unreleased)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* `plainbox startprovider` may now be run with an `--empty` option that
+  generates very basic provider that has only `./manage.py` file. Use this
+  option when you know your way around, and you want to quickly start
+  developing plainbox jobs without any other jobs polluting your provider.
+
 .. _version_0_24:
 
 Plainbox 0.24

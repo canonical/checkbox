@@ -511,7 +511,7 @@ class StartProviderInvocation:
 
     def run(self):
         try:
-            ProviderSkeleton(self.ns.name).instantiate(
+            self.ns.skeleton(self.ns.name).instantiate(
                 '.', name=self.ns.name,
                 gettext_domain=re.sub("[.:]", "_", self.ns.name))
         except SomethingInTheWay as exc:

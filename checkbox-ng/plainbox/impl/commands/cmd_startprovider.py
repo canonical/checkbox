@@ -77,6 +77,8 @@ class StartProviderCommand(PlainBoxCommand):
         return StartProviderInvocation(ns).run()
 
     def register_parser(self, subparsers):
+        from plainbox.impl.commands.inv_startprovider \
+            import EmptyProviderSkeleton, ProviderSkeleton
         parser = self.add_subcommand(subparsers)
         parser.prog = 'plainbox startprovider'
         parser.add_argument(
@@ -88,4 +90,8 @@ class StartProviderCommand(PlainBoxCommand):
             # some-name must be a reasonably-ASCII string (should be safe for a
             # portable directory name)
             help=_("provider name, eg: YYYY.example.org:some-name"))
+        parser.add_argument(
+            '--empty', action='store_const', const=EmptyProviderSkeleton,
+            default=ProviderSkeleton, dest='skeleton',
+            help=_('create an empty provider'))
         parser.set_defaults(command=self)

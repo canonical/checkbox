@@ -26,6 +26,7 @@ import io
 import itertools
 import logging
 import os
+import shlex
 import time
 
 from plainbox.abc import IJobResult
@@ -39,11 +40,13 @@ from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.runner import JobRunnerUIDelegate
 from plainbox.impl.secure.qualifiers import select_jobs
+from plainbox.impl.session import SessionMetaData
 from plainbox.impl.session import SessionPeekHelper
 from plainbox.impl.session import SessionResumeError
 from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.session.manager import SessionManager
-from plainbox.impl.session import SessionMetaData
+from plainbox.impl.session.restart import IRestartStrategy
+from plainbox.impl.session.restart import detect_restart_strategy
 from plainbox.impl.session.storage import SessionStorageRepository
 from plainbox.impl.transport import CertificationTransport
 from plainbox.impl.transport import TransportError
@@ -53,7 +56,7 @@ from plainbox.vendor import morris
 _logger = logging.getLogger("plainbox.session.assistant")
 
 
-__all__ = ('SessionAssistant', )
+__all__ = ('SessionAssistant', 'SA_RESTARTABLE')
 
 
 # NOTE: There are two tuples related to resume candidates. The internal tuple
@@ -65,6 +68,9 @@ InternalResumeCandidate = collections.namedtuple(
     'InternalResumeCandidate', ['storage', 'metadata'])
 ResumeCandidate = collections.namedtuple(
     'ResumeCandidate', ['id', 'metadata'])
+
+
+SA_RESTARTABLE = "restartable"
 
 
 class SessionAssistant:
@@ -132,8 +138,12 @@ class SessionAssistant:
         """
         if api_version != '0.99':
             raise ValueError("Unrecognized API version")
+        self._flags = set()
         for flag in api_flags:
-            raise ValueError("Unrecognized API flag: {!r}".format(flag))
+            if flag == SA_RESTARTABLE:
+                self._flags.add(flag)
+            else:
+                raise ValueError("Unrecognized API flag: {!r}".format(flag))
         self._app_id = app_id
         self._app_version = app_version
         self._api_version = api_version
@@ -167,6 +177,97 @@ class SessionAssistant:
             self.get_canonical_hexr_transport: (
                 "create a transport for the HEXR system"),
         }
+        # Restart support
+        self._restart_cmd_callback = None
+        self._restart_strategy = None  # None implies auto-detection
+        if SA_RESTARTABLE in self._flags:
+            allowed_calls = UsageExpectation.of(self).allowed_calls
+            allowed_calls[self.configure_application_restart] = (
+                "configure automatic restart capability")
+            allowed_calls[self.use_alternate_restart_strategy] = (
+                "configure automatic restart capability")
+
+    @raises(UnexpectedMethodCall, LookupError)
+    def configure_application_restart(
+            self, cmd_callback: 'Callable[[str], List[str]]') -> None:
+        """
+        Configure automatic restart capability.
+
+        :param cmd_callback:
+            A callable (function or lambda) that when called with a single
+            string argument, session_id, returns a list of strings describing
+            how to execute the tool in order to restart a particular session.
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+        :raises LookupError:
+            If no restart strategy was explicitly configured and no strategy
+            was found with the auto-detection process.
+
+        .. note:
+            This method is only available when the application has initialized
+            session assistant with the SA_RESTARTABLE API flag.
+
+        This method configures session assistant for automatic application
+        restart. When a job is expected to reboot or shut down the machine but
+        the intent is to somehow resume testing automatically after that event,
+        test designers can use the 'noreturn' and 'restartable' flags together
+        to indicate that the testing process is should be automatically
+        resumed when the machine is turned on again.
+
+        The means of re-starting the testing process are unique to each
+        operating system environment. Plainbox knows about some restart
+        strategies internally. Applications can create additional strategies
+        using the :meth:`use_alternate_restart_strategy()` method.
+        """
+        UsageExpectation.of(self).enforce()
+        if self._restart_strategy is None:
+            self._restart_strategy = detect_restart_strategy()
+        self._restart_cmd_callback = cmd_callback
+        # Prevent second call to this method and to the
+        # use_alternate_restart_strategy() method.
+        allowed_calls = UsageExpectation.of(self).allowed_calls
+        del allowed_calls[self.configure_application_restart]
+        if self.use_alternate_restart_strategy in allowed_calls:
+            del allowed_calls[self.use_alternate_restart_strategy]
+
+    @raises(UnexpectedMethodCall)
+    def use_alternate_restart_strategy(
+        self, strategy: IRestartStrategy
+    ) -> None:
+        """
+        Setup an alternate restart strategy object.
+
+        :param restart_strategy:
+            An object implementing the restart strategy interface. This object
+            is used to prepare the system for application restart.
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+
+        When this method is called all automatic environment auto-detection is
+        disabled and application restart is solely under the control of the
+        application.
+
+        The restart interface is very simple, it is comprised of a pair of
+        methods, :meth:`IRestartStrategy.prime_application_restart()` and
+        :meth:`IRestartStrategy.diffuse_application_restart(). When the
+        application is in a state where it will soon terminate, plainbox will
+        call the former of the two methods to _prime_ the system so that
+        application will be re-started when the machine is started (or
+        rebooted). When the application successfully starts, the _diffuse_
+        method will undo what prime did so that the application restart is a
+        one-off action.
+
+        The primary use of this method is to let applications support
+        environments that are not automatically handled correctly by plainbox.
+        """
+        UsageExpectation.of(self).enforce()
+        self._restart_strategy = strategy
+        del UsageExpectation.of(self).allowed_calls[
+            self.use_alternate_restart_strategy]
 
     @raises(UnexpectedMethodCall)
     def use_alternate_repository(self, pathname: str) -> None:
@@ -437,6 +538,8 @@ class SessionAssistant:
         self._metadata = self._context.state.metadata
         self._command_io_delegate = JobRunnerUIDelegate(_SilentUI())
         self._init_runner()
+        if self._restart_strategy is not None:
+            self._restart_strategy.diffuse_application_restart(self._app_id)
         self.session_available(self._manager.storage.id)
         _logger.debug("Session resumed: %s", session_id)
         UsageExpectation.of(self).allowed_calls = {
@@ -989,6 +1092,15 @@ class SessionAssistant:
             ui.about_to_start_running(job, job_state)
             self._context.state.metadata.running_job_name = job.id
             self._manager.checkpoint()
+            autorestart = (self._restart_strategy is not None and
+                           'autorestart' in job.get_flag_set())
+            if autorestart:
+                restart_cmd = ' '.join(
+                    shlex.quote(cmd_part)
+                    for cmd_part in self._restart_cmd_callback(
+                        self._manager.storage.id))
+                self._restart_strategy.prime_application_restart(
+                    self._app_id, restart_cmd)
             ui.started_running(job, job_state)
             if not native:
                 builder = self._runner.run_job(
@@ -999,6 +1111,9 @@ class SessionAssistant:
                     outcome=IJobResult.OUTCOME_UNDECIDED,
                 )
             builder.execution_duration = time.time() - start_time
+            if autorestart:
+                self._restart_strategy.diffuse_application_restart(
+                    self._app_id)
             self._context.state.metadata.running_job_name = None
             self._manager.checkpoint()
             ui.finished_running(job, job_state, builder.get_result())

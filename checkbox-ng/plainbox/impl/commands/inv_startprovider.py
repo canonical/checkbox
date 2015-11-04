@@ -137,6 +137,36 @@ class Skeleton(Directory):
                 os.path.join(root, self.name.format(**kwargs)), **kwargs)
 
 
+class EmptyProviderSkeleton(Skeleton):
+    """Empty provider having only the boilerplate manage.py file."""
+
+    things = []
+
+    things.append(File("manage.py", executable=True, full_text="""
+        #!/usr/bin/env python3
+        from plainbox.provider_manager import setup, N_
+
+        # You can inject other stuff here but please don't go overboard.
+        #
+        # In particular, if you need comprehensive compilation support to get
+        # your bin/ populated then please try to discuss that with us in the
+        # upstream project IRC channel #checkbox on irc.freenode.net.
+
+        # NOTE: one thing that you could do here, that makes a lot of sense,
+        # is to compute version somehow. This may vary depending on the
+        # context of your provider. Future version of PlainBox will offer git,
+        # bzr and mercurial integration using the versiontools library
+        # (optional)
+
+        setup(
+            name={name!r},
+            version="1.0",
+            description=N_("The {name} provider"),
+            gettext_domain="{gettext_domain}",
+        )
+        """))
+
+
 class ProviderSkeleton(Skeleton):
     """
     A skeleton with various content created for the startprovider command.

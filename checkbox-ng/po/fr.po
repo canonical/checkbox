@@ -8,22 +8,22 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2015-05-19 13:10+0800\n"
-"PO-Revision-Date: 2015-10-14 16:32+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2015-11-08 10:51+0000\n"
+"Last-Translator: Jean-Marc <Unknown>\n"
 "Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2015-10-15 05:12+0000\n"
-"X-Generator: Launchpad (build 17812)\n"
+"X-Launchpad-Export-Date: 2015-11-09 05:05+0000\n"
+"X-Generator: Launchpad (build 17838)\n"
 
 #: .././plainbox/impl/_argparse.py:139
 #: .././plainbox/vendor/argparse/py32-argparse.py:298
 #: .././plainbox/vendor/argparse/py33-argparse.py:300
 #: .././plainbox/vendor/argparse/py34-argparse.py:300
 msgid "usage: "
-msgstr ""
+msgstr "utilisation : "
 
 #: .././plainbox/impl/applogic.py:61
 msgid "None of the providers had a whitelist named '{}'"
@@ -31,7 +31,7 @@ msgstr ""
 
 #: .././plainbox/impl/applogic.py:103
 msgid "Environment variables for scripts and jobs"
-msgstr ""
+msgstr "Variables d'environnement pour les scripts et les tâches"
 
 #: .././plainbox/impl/applogic.py:108
 msgid "Which implementation of extcmd to use"
@@ -149,7 +149,7 @@ msgstr ""
 #: .././plainbox/impl/clitools.py:554
 #: .././plainbox/vendor/argparse/py32-argparse.py:1956
 msgid "too few arguments"
-msgstr ""
+msgstr "trop peu d'arguments"
 
 #. Don't let SystemExit be caught in the logic below, we really
 #. just want to exit when that gets thrown.

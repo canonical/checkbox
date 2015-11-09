@@ -30,6 +30,7 @@ Shared code for test data transports..
 
 from collections import OrderedDict
 from logging import getLogger
+from oauthlib import oauth1
 import pkg_resources
 import re
 
@@ -38,13 +39,6 @@ from plainbox.i18n import gettext as _
 from plainbox.impl.secure.config import Unset
 
 import requests
-
-# OAuth is not always available on all platforms.
-_oauth_available = True
-try:
-    from oauthlib import oauth1
-except ImportError:
-    _oauth_available = False
 
 
 logger = getLogger("plainbox.transport")
@@ -263,18 +257,7 @@ class CertificationTransport(TransportBase):
                 _("secure_id must be 15 or 18-character alphanumeric string"))
 
 
-def oauth_available():
-    return _oauth_available
-
-
-class NoOauthTransport:
-    def __init__(self, **args):
-        raise NotImplementedError(
-            'This platform does not support the OAuth transport.'
-        )
-
-
-class _OAuthTransport(TransportBase):
+class OAuthTransport(TransportBase):
     def __init__(self, where, options, transport_details):
         """Initialize the OAuth Transport."""
         super().__init__(where, options)
@@ -314,12 +297,6 @@ class _OAuthTransport(TransportBase):
                 raise TransportError(str(exc))
 
         return dict(message='Upload successful.', status=response.status_code)
-
-
-if oauth_available():
-    OAuthTransport = _OAuthTransport
-else:
-    OAuthTransport = NoOauthTransport
 
 
 def get_all_transports():

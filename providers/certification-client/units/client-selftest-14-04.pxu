@@ -439,5 +439,6 @@ include:
     info/touchpad_driver
     info/disk_partitions
 mandatory_include:
+    2013.com.canonical.plainbox::collect-manifest
     # Meta-job to include required resources, don't remove.
     miscellanea/submission-resources

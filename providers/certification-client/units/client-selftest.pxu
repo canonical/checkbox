@@ -7,7 +7,6 @@ unit: test plan
 include:
     # Resource Jobs
     __resource__
-    2013.com.canonical.plainbox::collect-manifest
     IEEE_80211
     block_device
     cdimage
@@ -451,5 +450,6 @@ include:
     info/touchpad_driver
     info/disk_partitions
 mandatory_include:
+    2013.com.canonical.plainbox::collect-manifest
     # Meta-job to include required resources, don't remove.
     miscellanea/submission-resources

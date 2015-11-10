@@ -74,6 +74,7 @@ setup(
         'Jinja2 >= 2.7',
         'padme >= 1.1.1',
         'requests >= 1.0',
+        'requests-oauthlib',
     ],
     extras_require={
         'XLSX': 'XlsxWriter >= 0.3',

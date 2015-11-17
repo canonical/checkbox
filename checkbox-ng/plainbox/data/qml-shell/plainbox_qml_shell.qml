@@ -72,7 +72,8 @@ MainView {
     // information and functionality passed to qml job component
     property var testingShell: {
         "name": "Plainbox qml shell",
-        "pageStack": pageStack
+        "pageStack": pageStack,
+        "python": py
     }
 
     Arguments {

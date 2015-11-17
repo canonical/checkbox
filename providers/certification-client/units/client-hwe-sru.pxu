@@ -51,6 +51,7 @@ include:
     audio/1_playback_displayport_.*                        certification-status=blocker
     monitor/1_hdmi.*                                       certification-status=blocker
     audio/1_playback_hdmi_.*                               certification-status=blocker
+    keys/video-out                                         certification-status=blocker
     monitor/1_thunderbolt.*
     monitor/1_dim_brightness.*                             certification-status=blocker
     # Automated tests
@@ -78,6 +79,7 @@ include:
     audio/2_playback_displayport_.*                        certification-status=blocker
     monitor/2_hdmi.*                                       certification-status=blocker
     audio/2_playback_hdmi_.*                               certification-status=blocker
+    suspend/keys_after_suspend/video-out
     monitor/2_thunderbolt.*
     monitor/2_dim_brightness.*                             certification-status=blocker
     graphics/2_maximum_resolution_.*                       certification-status=blocker

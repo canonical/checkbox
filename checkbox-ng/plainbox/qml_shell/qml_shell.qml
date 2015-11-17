@@ -33,6 +33,7 @@
 */
 import QtQuick 2.0
 import Ubuntu.Components 1.1
+import io.thp.pyotherside 1.4
 
 MainView {
     id: mainView
@@ -53,6 +54,9 @@ MainView {
             required: true
             valueNames: ["PATH"]
         }
+    }
+    Python {
+        id: py
     }
 
     Loader {

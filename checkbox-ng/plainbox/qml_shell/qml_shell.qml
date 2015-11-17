@@ -43,7 +43,8 @@ MainView {
     // information and functionality passed to qml job component
     property var testingShell: {
         "name": "Standalone testing shell",
-        "pageStack": pageStack
+        "pageStack": pageStack,
+        "python": py
     }
 
     Arguments {

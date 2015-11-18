@@ -578,6 +578,7 @@ class TestPlanUnit(UnitWithId, TestPlanUnitLegacyAPI):
             ],
             fields.include: [
                 NonEmptyPatternIntersectionValidator,
+                PresentFieldValidator(),
             ],
             fields.mandatory_include: [
                 NonEmptyPatternIntersectionValidator,

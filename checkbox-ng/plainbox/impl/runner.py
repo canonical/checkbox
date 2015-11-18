@@ -734,9 +734,7 @@ class JobRunner(IJobRunner):
         delegate_cls = self._get_delegate_cls(config)
         extcmd_popen = delegate_cls(delegate)
         # Stream all IOLogRecord entries to disk
-        record_path = os.path.join(
-            self._jobs_io_log_dir, "{}.record.gz".format(
-                slugify(job.id)))
+        record_path = self.get_record_path_for_job(job)
         with gzip.open(record_path, mode='wb') as gzip_stream, \
                 io.TextIOWrapper(
                     gzip_stream, encoding='UTF-8') as record_stream:
@@ -770,6 +768,10 @@ class JobRunner(IJobRunner):
             io_log_filename=record_path,
             execution_duration=execution_duration
         ).get_result()
+
+    def get_record_path_for_job(self, job):
+        return os.path.join(self._jobs_io_log_dir,
+                            "{}.record.gz".format(slugify(job.id)))
 
     def _get_dry_run_result(self, job):
         """

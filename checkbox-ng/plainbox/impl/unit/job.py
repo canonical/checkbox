@@ -455,8 +455,8 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
             for stage in ['purpose', 'steps', 'verification']:
                 stage_value = self.get_translated_record_value(stage)
                 if stage_value is not None:
-                    tr_description += (tr_stages[stage] + ':\n'
-                                       + stage_value + '\n')
+                    tr_description += (tr_stages[stage] + ':\n' +
+                                       stage_value + '\n')
             tr_description = tr_description.strip()
             if not tr_description:
                 # combining new description yielded empty string
@@ -800,8 +800,8 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
                              " fields. See http://plainbox.readthedocs.org"
                              "/en/latest/author/faq.html#faq-2"),
                     onlyif=lambda unit:
-                    unit.startup_user_interaction_required
-                    and unit.get_record_value('summary') is None),
+                    unit.startup_user_interaction_required and
+                    unit.get_record_value('summary') is None),
             ],
             fields.steps: [
                 TranslatableFieldValidator,
@@ -817,9 +817,9 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
                 TranslatableFieldValidator,
                 PresentFieldValidator(
                     severity=Severity.advice,
-                    message = ("please use purpose, steps, and verification"
-                               " fields. See http://plainbox.readthedocs.org"
-                               "/en/latest/author/faq.html#faq-2"),
+                    message=("please use purpose, steps, and verification"
+                             " fields. See http://plainbox.readthedocs.org"
+                             "/en/latest/author/faq.html#faq-2"),
                     onlyif=lambda unit: unit.plugin in (
                         'manual', 'user-verify', 'user-interact-verify')),
             ],
@@ -957,6 +957,16 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
                         ' non-C locale then set the preserve-locale flag'
                     ),
                     onlyif=lambda unit: unit.command),
+                CorrectFieldValueValidator(
+                    lambda value, unit: (
+                        not ('explicit-fail' in unit.get_flag_set() and
+                             unit.plugin in {
+                                 'shell', 'user-interact', 'attachment',
+                                 'local', 'resource'})),
+                    Problem.useless, Severity.advice,
+                    message=_('explicit-fail makes no sense for job which '
+                              'outcome is automatically determined.')
+                ),
                 # The has-leftovers flag is useless without a command
                 CorrectFieldValueValidator(
                     lambda value, unit: (
@@ -976,13 +986,13 @@ class JobDefinition(UnitWithId, JobDefinitionLegacyAPI, IJobDefinition):
                     lambda value: value.endswith('.qml'),
                     Problem.wrong, Severity.advice,
                     message=_('use the .qml extension for all QML files'),
-                    onlyif=lambda unit: (unit.plugin == 'qml'
-                                         and unit.qml_file)),
+                    onlyif=lambda unit: (unit.plugin == 'qml' and
+                                         unit.qml_file)),
                 CorrectFieldValueValidator(
                     lambda value, unit: os.path.isfile(unit.qml_file),
                     message=_('please point to an existing QML file'),
-                    onlyif=lambda unit: (unit.plugin == 'qml'
-                                         and unit.qml_file)),
+                    onlyif=lambda unit: (unit.plugin == 'qml' and
+                                         unit.qml_file)),
             ],
             fields.certification_status: [
                 UntranslatableFieldValidator,

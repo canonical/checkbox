@@ -929,9 +929,17 @@ class RunInvocation(CheckBoxInvocationMixIn):
                 print("  " + _("comments") + ": {0}".format(
                     self.C.CYAN(result.comments, bright=False)))
             cmd = self._pick_action_cmd(allowed_actions)
+            # let's store new_comment early for verification if comment has
+            # already been added in the current UI step
+            new_comment = ''
             if cmd == 'set-pass':
                 result_builder.outcome = IJobResult.OUTCOME_PASS
             elif cmd == 'set-fail':
+                if 'explicit-fail' in job.get_flag_set() and not new_comment:
+                    new_comment = input(self.C.BLUE(
+                        _('Please enter your comments:') + '\n'))
+                    if new_comment:
+                        result_builder.add_comment(new_comment)
                 result_builder.outcome = IJobResult.OUTCOME_FAIL
             elif cmd == 'set-skip' or cmd is None:
                 result_builder.outcome = IJobResult.OUTCOME_SKIP

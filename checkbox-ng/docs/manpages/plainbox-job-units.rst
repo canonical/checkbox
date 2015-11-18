@@ -265,6 +265,12 @@ Following fields may be used by the job unit:
         Attach this flag to jobs that cause killing of plainbox process during
         their operation. E.g. run shutdown, reboot, etc.
 
+.. _job_flag_explicit_fail:
+
+    ``explicit-fail``:
+        Use this flag to make entering comment mandatory, when the user
+        manually fails the job.
+
 .. _job_flag_has_leftovers:
 
     ``has-leftovers``:

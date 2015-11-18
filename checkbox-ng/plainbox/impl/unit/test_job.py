@@ -736,6 +736,17 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
             issue_list, self.unit_cls.Meta.fields.flags,
             Problem.expected_i18n, Severity.advice, message)
 
+    def test_flags__usless_explicit_fail_on_shell_jobs(self):
+        message = ("field 'flags', explicit-fail makes no sense for job which "
+                   "outcome is automatically determined.")
+        issue_list = self.unit_cls({
+            'plugin': 'shell',
+            'flags': 'explicit-fail'
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.flags,
+            Problem.useless, Severity.advice, message)
+
 
 class JobDefinitionValidatorTests(TestCase):
 

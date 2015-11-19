@@ -320,13 +320,17 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
             A list of new Unit (or subclass) objects.
         """
         unit_cls = self.get_target_unit_cls()
-        return [
-            self.instantiate_one(resource, unit_cls_hint=unit_cls)
-            for resource in resource_list
-            if self.should_instantiate(resource)
-        ]
+        resources = []
+        index = 0
+        for resource in resource_list:
+            if self.should_instantiate(resource):
+                index += 1
+                resources.append(self.instantiate_one(resource,
+                                                      unit_cls_hint=unit_cls,
+                                                      index=index))
+        return resources
 
-    def instantiate_one(self, resource, unit_cls_hint=None):
+    def instantiate_one(self, resource, unit_cls_hint=None, index=0):
         """
         Instantiate a single job out of a resource and this template.
 
@@ -363,6 +367,8 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
         # XXX: extract raw dictionary from the resource object, there is no
         # normal API for that due to the way resource objects work.
         parameters = object.__getattribute__(resource, '_data')
+        # Add the special __index__ to the resource namespace variables
+        parameters['__index__'] = index
         # Instantiate the class using the instantiation API
         return unit_cls.instantiate_template(
             data, raw_data, self.origin, self.provider, parameters,

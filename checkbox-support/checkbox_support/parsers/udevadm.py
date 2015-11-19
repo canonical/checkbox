@@ -635,9 +635,11 @@ class UdevadmDevice(object):
     def interface(self):
         if self._interface is not None:
             return self._interface
-        if (self.category in ("NETWORK", "WIRELESS") and
-                "INTERFACE" in self._environment):
-            return self._environment["INTERFACE"]
+        if self.category in ("NETWORK", "WIRELESS"):
+            if "INTERFACE" in self._environment:
+                return self._environment["INTERFACE"]
+            else:
+                return 'UNKNOWN'
         return None
 
     @interface.setter

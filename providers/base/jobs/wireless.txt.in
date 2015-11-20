@@ -63,11 +63,13 @@ command:
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
         if [[ ! -z $WIRED ]]; then
             nmcli c up uuid $WIRED
         fi
+        exit $STATUS
     else
         exit 1
     fi
@@ -91,11 +93,13 @@ command:
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
         if [[ ! -z $WIRED ]]; then
             nmcli c up uuid $WIRED
         fi
+        exit $STATUS
     else
         exit 1
     fi
@@ -119,11 +123,13 @@ command:
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
         if [[ ! -z $WIRED ]]; then
             nmcli c up uuid $WIRED
         fi
+        exit $STATUS
     else
         exit 1
     fi
@@ -147,11 +153,13 @@ command:
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
         if [[ ! -z $WIRED ]]; then
             nmcli c up uuid $WIRED
         fi
+        exit $STATUS
     else
         exit 1
     fi
@@ -176,11 +184,13 @@ command:
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
         if [[ ! -z $WIRED ]]; then
             nmcli c up uuid $WIRED
         fi
+        exit $STATUS
     else
         exit 1
     fi
@@ -205,11 +215,13 @@ command:
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
         if [[ ! -z $WIRED ]]; then
             nmcli c up uuid $WIRED
         fi
+        exit $STATUS
     else
         exit 1
     fi
@@ -233,11 +245,13 @@ command:
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
         if [[ ! -z $WIRED ]]; then
             nmcli c up uuid $WIRED
         fi
+        exit $STATUS
     else
         exit 1
     fi
@@ -270,11 +284,13 @@ command:
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
         if [[ ! -z $WIRED ]]; then
             nmcli c up uuid $WIRED
         fi
+        exit $STATUS
     else
         exit 1
     fi
@@ -308,11 +324,13 @@ command:
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
         if [[ ! -z $WIRED ]]; then
             nmcli c up uuid $WIRED
         fi
+        exit $STATUS
     else
         exit 1
     fi
@@ -346,11 +364,13 @@ command:
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
         if [[ ! -z $WIRED ]]; then
             nmcli c up uuid $WIRED
         fi
+        exit $STATUS
     else
         exit 1
     fi
@@ -384,11 +404,13 @@ command:
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
         if [[ ! -z $WIRED ]]; then
             nmcli c up uuid $WIRED
         fi
+        exit $STATUS
     else
         exit 1
     fi
@@ -422,11 +444,13 @@ command:
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
         if [[ ! -z $WIRED ]]; then
             nmcli c up uuid $WIRED
         fi
+        exit $STATUS
     else
         exit 1
     fi
@@ -459,11 +483,13 @@ command:
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         iperf -c $SERVER_IPERF -t 300 -i 30
+        STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
         if [[ ! -z $WIRED ]]; then
             nmcli c up uuid $WIRED
         fi
+        exit $STATUS
     else
         exit 1
     fi
@@ -486,11 +512,13 @@ command:
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         iperf -c $SERVER_IPERF -t 300 -i 30 -u -b 100m -p 5050
+        STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
         if [[ ! -z $WIRED ]]; then
             nmcli c up uuid $WIRED
         fi
+        exit $STATUS
     else
         exit 1
     fi
@@ -513,11 +541,13 @@ command:
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
         if [[ ! -z $WIRED ]]; then
             nmcli c up uuid $WIRED
         fi
+        exit $STATUS
     else
         exit 1
     fi
@@ -541,11 +571,13 @@ command:
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
         if [[ ! -z $WIRED ]]; then
             nmcli c up uuid $WIRED
         fi
+        exit $STATUS
     else
         exit 1
     fi
@@ -588,11 +620,13 @@ command:
         INTERFACE=`nmcli dev status | awk '/802-11-wireless|wifi/ {print $1}'`
         iw dev $INTERFACE link
         gateway_ping_test --interface=$INTERFACE
+        STATUS=$?
         # We reconnect the Ethernet connection if any (lp:1471663)
-        WIRED=$((nmcli -f CONNECTIONS dev list 2>&1 || nmcli -f CONNECTIONS dev show) | grep -oP "\S+(?= \| Wired)")
+        WIRED=$(nmcli -f UUID,TYPE c | grep -oP ".*(?=\s+.*ethernet)")
         if [[ ! -z $WIRED ]]; then
             nmcli c up uuid $WIRED
         fi
+        exit $STATUS
     else
         exit 1
     fi

@@ -77,6 +77,9 @@ the python formatting language. Within each field the record is exposed as the
 variable named by the ``template_resource`` field. Record data is exposed as
 attributes of that object.
 
+The special parameter ``__index__`` can be used to iterate over the devices
+matching the ``template-filter`` field.
+
 Migrating From Local Jobs
 -------------------------
 

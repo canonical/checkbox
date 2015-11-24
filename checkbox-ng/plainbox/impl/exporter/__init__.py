@@ -31,8 +31,6 @@ from io import RawIOBase
 from logging import getLogger
 import base64
 
-import pkg_resources
-
 from plainbox.i18n import gettext as _
 from plainbox.abc import ISessionStateExporter
 from plainbox.impl import deprecated

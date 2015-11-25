@@ -96,7 +96,8 @@ class IPerfPerformanceTest(object):
                 self.timeout, self.target, self.data_size)
 
         logging.debug(cmd)
-        print("Starting iperf, this could take some time...")
+        logging.info("Starting iperf against {}, this could take a while...".
+                     format(self.target))
         try:
             iperf_return = check_output(
                 shlex.split(cmd), universal_newlines=True)
@@ -148,8 +149,8 @@ class IPerfPerformanceTest(object):
                 return 0
             # Below is guaranteed to not throw an exception because we'll
             # have exited above if it did.
-            logging.info("{:03.2f}% of theoretical max {} Mb/s".format(percent,
-                         int(self.iface.max_speed)))
+            logging.info("{:03.2f}% of theoretical max {} Mb/s".
+                         format(percent, int(self.iface.max_speed)))
             if cpu:
                 logging.info("")
                 logging.info("CPU utilization: {}%".format(cpu[0]))
@@ -158,7 +159,8 @@ class IPerfPerformanceTest(object):
                 cpu_load = 0.0
             if percent < self.fail_threshold or \
                     cpu_load > self.cpu_load_fail_threshold:
-                logging.warn("Poor network performance detected")
+                logging.warn("Poor network performance detected against {}".
+                             format(self.target))
                 if percent < self.fail_threshold:
                     logging.warn("  Transfer speed: {} Mb/s".
                                  format(throughput))
@@ -170,9 +172,10 @@ class IPerfPerformanceTest(object):
                                  format(self.cpu_load_fail_threshold))
                 return 30
 
-            logging.debug("Passed benchmark")
+            logging.debug("Passed benchmark against {}".format(self.target))
         else:
-            print("Failed iperf benchmark")
+            logging.error("Failed iperf benchmark against {}".
+                          format(self.target))
             return 1
 
 
@@ -344,13 +347,47 @@ def can_ping(the_interface, test_target):
                            stdout=DEVNULL, stderr=DEVNULL)
         except CalledProcessError as excp:
             working_interface = False
-            logging.warning("Ping failure on %s (%s)", the_interface, excp)
+            if num_loops == 0:
+                logging.warning("Ping failure on {} ({})".
+                                format(the_interface, excp))
 
         if not working_interface:
             time.sleep(5)
             num_loops += 1
 
     return working_interface
+
+
+def run_test(args, test_target):
+    # Ensure that interface is fully up by waiting until it can
+    # ping the test server
+    if not can_ping(args.interface, test_target):
+        logging.error("Can't ping test server {} on {}".format(test_target,
+                                                               args.interface))
+        return 1
+
+    # Execute requested networking test
+    if args.test_type.lower() == "iperf":
+        error_number = 0
+        iperf_benchmark = IPerfPerformanceTest(args.interface, test_target,
+                                               args.fail_threshold,
+                                               args.cpu_load_fail_threshold,
+                                               args.iperf3)
+        if args.datasize:
+            iperf_benchmark.data_size = args.datasize
+        run_num = 0
+        while not error_number and run_num < args.num_runs:
+            error_number = iperf_benchmark.run()
+            run_num += 1
+            logging.info(" Finished run number %s ".center(60, "-"), run_num)
+    elif args.test_type.lower() == "stress":
+        stress_benchmark = StressPerformanceTest(args.interface,
+                                                 test_target, args.iperf3)
+        error_number = stress_benchmark.run()
+    else:
+        logging.error("Unknown test type {}".format(args.test_type))
+        return 10
+    return error_number
 
 
 def interface_test(args):
@@ -362,10 +399,10 @@ def interface_test(args):
 
     if (args.test_type.lower() == "iperf" or
             args.test_type.lower() == "stress"):
-        test_target = test_parameters["test_target_iperf"]
+        test_targets = test_parameters["test_target_iperf"]
 
     # Validate that we got reasonable values
-    if not test_target or "example.com" in test_target:
+    if not test_targets or "example.com" in test_targets:
         # Default values found in config file
         logging.error("Target server has not been supplied.")
         logging.info("Configuration settings can be configured 3 different ways:")
@@ -393,7 +430,7 @@ def interface_test(args):
     except CalledProcessError as route_error:
         logging.warning("Unable to save routing table: %s", route_error)
 
-    result = 0
+    error_number = 0
     # Stop all other interfaces
     extra_interfaces = \
         [iface for iface in os.listdir("/sys/class/net")
@@ -406,34 +443,17 @@ def interface_test(args):
         except CalledProcessError as interface_failure:
             logging.error("Failed to shut down %s:%s",
                           iface, interface_failure)
-            result = 3
+            error_number = 3
 
-    if result == 0:
-        # Ensure that interface is fully up by waiting until it can
-        # ping the test server
-        if not can_ping(args.interface, test_target):
-            logging.error("Can't ping test server on %s", args.interface)
-            return 1
-
-        # Execute requested networking test
-        if args.test_type.lower() == "iperf":
-            iperf_benchmark = IPerfPerformanceTest(args.interface, test_target,
-                                                   args.fail_threshold,
-                                                   args.cpu_load_fail_threshold,
-                                                   args.iperf3)
-            if args.datasize:
-                iperf_benchmark.data_size = args.datasize
-            run_num = 0
-            while not result and run_num < args.num_runs:
-                result = iperf_benchmark.run()
-                run_num += 1
-                logging.info(" Finished run number %s ".center(60, "-"),
-                             run_num)
-
-        elif args.test_type.lower() == "stress":
-            stress_benchmark = StressPerformanceTest(args.interface,
-                                                     test_target, args.iperf3)
-            result = stress_benchmark.run()
+    if error_number == 0:
+        test_targets_list = test_targets.split(",")
+        test_targets_list.reverse()
+        # Keep testing until a success or we run out of targets
+        while test_targets_list:
+            test_target = test_targets_list.pop().strip()
+            error_number = run_test(args, test_target)
+            if not error_number:
+                break
 
     for iface in extra_interfaces:
         logging.debug("Restoring interface:%s", iface)
@@ -441,7 +461,7 @@ def interface_test(args):
             check_call(["ip", "link", "set", "dev", iface, "up"])
         except CalledProcessError as interface_failure:
             logging.error("Failed to restore %s:%s", iface, interface_failure)
-            result = 3
+            error_number = 3
 
     # Restore routing table to original state
     temp.seek(0)
@@ -454,7 +474,7 @@ def interface_test(args):
         logging.warning("Unable to restore routing table: %s", restore_failure)
     temp.close()
 
-    return result
+    return error_number
 
 
 def interface_info(args):

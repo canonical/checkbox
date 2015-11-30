@@ -6,26 +6,24 @@ command: gateway_ping_test
 estimated_duration: 2.000
 _description: Tests whether the system has a working Internet connection.
 
-plugin: local
-_summary: Network Information
-id: networking/info
-requires: device.category == 'NETWORK'
-_description: Network Information
-command:
- cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
- plugin: user-interact-verify
- category_id: 2013.com.canonical.plainbox::networking
- id: networking/info_$2
- requires: device.path == "$1"
- command: network_info $2 | zenity --text-info --title="$2"
- _description:
-  PURPOSE:
-      This test will check the $2 network interface
-  STEPS:
-      1. Click "Test" to verify the information for $2
-  VERIFICATION:
-      Is this correct?
- EOF
+unit: template
+template-unit: job
+template-resource: device
+template-filter: device.category == 'NETWORK'
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::networking
+id: networking/info_device{__index__}_{interface}
+_summary: Network Information of device {__index__} ({interface})
+estimated_duration: 1.0
+requires: device.path == '{path}'
+command: network_info {interface} | zenity --text-info --title="{interface}"
+_description:
+ PURPOSE:
+     This test will check the network device {__index__} ({interface})
+ STEPS:
+     1. Click "Test" to verify the information for this network device
+ VERIFICATION:
+     Is this correct?
 
 plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::networking

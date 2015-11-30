@@ -198,9 +198,7 @@ include:
     # See before the Automated Tests section at the end of this file
     ethernet/detect                                        certification-status=blocker
     networking/gateway_ping                                certification-status=blocker
-    networking/info                                        certification-status=blocker
-    networking/info_eth\d                                  certification-status=blocker
-    networking/info_wlan\d                                 certification-status=blocker
+    networking/info.*                                      certification-status=blocker
     networking/ntp                                         certification-status=blocker
     __optical__
     optical/detect                                         certification-status=blocker

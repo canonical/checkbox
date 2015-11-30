@@ -204,9 +204,7 @@ include:
     # See before the Automated Tests section at the end of this file
     ethernet/detect
     networking/gateway_ping
-    networking/info
-    networking/info_eth\d
-    networking/info_wlan\d
+    networking/info.*
     networking/ntp
     __optical__
     optical/detect

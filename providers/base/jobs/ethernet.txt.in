@@ -19,7 +19,7 @@ id: ethernet/info_automated
 requires:
  executable.name == 'ip'
  device.category == 'NETWORK'
-command: udev_resource | filter_templates -w "category=NETWORK"| awk "/path: / { print \$2 }"| xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do network_info \$i; done"
+command: udev_resource | filter_templates -w "category=NETWORK" | awk "/interface: / { print \$2 }" | xargs -n 1 network_info
 estimated_duration: 30.0
 _description:
  This is an automated test to gather some info on the current state of your network devices. If no devices are found, the test will exit with an error.
@@ -39,114 +39,96 @@ _description:
  VERIFICATION:
      Did a notification show and was the connection correctly established?
 
-plugin: local
-_summary: Automated test to walk multiple network cards and test each one in sequence.
-id: ethernet/multi_nic
-requires: device.category == 'NETWORK'
-_description: Automated test to walk multiple network cards and test each one in sequence.
-command:
- cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::ethernet
- id: ethernet/multi_nic_$2
- requires:
-  package.name == 'ethtool'
-  package.name == 'nmap'
-  device.path == "$1"
- user: root
- environ: TEST_TARGET_IPERF
- command: network test -i $2 -t iperf --fail-threshold 80 --datasize 200 --num_runs 4
- estimated_duration: 7400.0
- description:
-  Testing for NIC $2
- EOF
-
-plugin: local
-_summary: Automated test to walk multiple network cards and test each one in sequence.
-id: ethernet/multi_iperf3_nic
-requires: device.category == 'NETWORK'
-_description: Automated test to walk multiple network cards and test each one in sequence.
-command:
- cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::ethernet
- id: ethernet/multi_iperf3_nic_$2
- requires:
-  package.name == 'ethtool'
-  package.name == 'nmap'
-  package.name == 'iperf3'
-  device.path == "$1"
- user: root
- environ: TEST_TARGET_IPERF
- command: network test -i $2 -t iperf --iperf3 --fail-threshold 80 --cpu-load-fail-threshold 90 --datasize 200 --num_runs 4
- estimated_duration: 7400.0
- description:
-  Testing for NIC $2
- EOF
-
-plugin: local
-id: ethernet/ethtool_info
+unit: template
+template-unit: job
+template-resource: device
+template-filter: device.category == 'NETWORK'
+plugin: shell
+category_id: 2013.com.canonical.plainbox::ethernet
+id: ethernet/multi_nic_device{__index__}_{interface}
+_summary: Multi-NIC Iperf testing for NIC {interface}
+estimated_duration: 7400.0
 requires:
- device.category == 'NETWORK'
-command: 
- cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::ethernet
- id: ethernet/ethertool_check_$2
- requires: device.path == "$1"
- command: ethtool $2
- estimated_duration: 330.0
- _description:
-  This test executes ethtool requests against all the ethernet devices found on the system.
- EOF
+ device.path == '{path}'
+ package.name == 'iperf'
+ package.name == 'ethtool'
+ package.name == 'nmap'
+user: root
+environ: TEST_TARGET_IPERF
+command: network test -i {interface} -t iperf --fail-threshold 80 --datasize 200 --num_runs 4
+
+unit: template
+template-unit: job
+template-resource: device
+template-filter: device.category == 'NETWORK'
+plugin: shell
+category_id: 2013.com.canonical.plainbox::ethernet
+id: ethernet/multi_iperf3_nic_device{__index__}_{interface}
+_summary: Multi-NIC Iperf3 testing for NIC {interface}
+estimated_duration: 7400.0
+requires:
+ device.path == '{path}'
+ package.name == 'iperf3'
+ package.name == 'ethtool'
+ package.name == 'nmap'
+user: root
+environ: TEST_TARGET_IPERF
+command: network test -i {interface} -t iperf --iperf3 --fail-threshold 80 --cpu-load-fail-threshold 90 --datasize 200 --num_runs 4
+
+unit: template
+template-unit: job
+template-resource: device
+template-filter: device.category == 'NETWORK'
+plugin: shell
+category_id: 2013.com.canonical.plainbox::ethernet
+id: ethernet/ethertool_check_device{__index__}_{interface}
+_summary: ethtool check for NIC {interface}
+estimated_duration: 330.0
+requires:
+ device.path == '{path}'
+ package.name == 'ethtool'
+command: ethtool {interface}
 _description:
- This is an automated test to gather some info on the current state of your network devices. If no devices are found, the test will exit with an error.
+ This test executes ethtool requests against ethernet device {__index__} ({interface}).
 
-plugin: local
-id: ethernet/maximum_bandwidth
+unit: template
+template-unit: job
+template-resource: device
+template-filter: device.category == 'NETWORK'
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::ethernet
+id: ethernet/maximum_bandwidth_device{__index__}_{interface}
+_summary: Maximum bandwidth test of device {__index__} ({interface})
+estimated_duration: 330.0
 requires:
- device.category == 'NETWORK'
+ device.path == '{path}'
  package.name == 'zenity'
  package.name == 'iperf'
-command:
- cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
- plugin: user-interact-verify
- category_id: 2013.com.canonical.plainbox::ethernet
- user: root
- id: ethernet/maximum_bandwidth_$2
- requires: device.path == "$1"
- command: network test -i $2 -t iperf 2>&1 | cat - <(echo; echo "Verify the result and click OK to decide on the outcome") | zenity --text-info --title 'ethernet max bw $2'
- estimated_duration: 330.0
- _description:
-  PURPOSE:
-      User verification of whether the observed transfer throughput is acceptable
-      for the type and maximum speed of each ethernet interface.
-  STEPS:
-      1. Click "Test".
-      2. Read the network test summary and confirm that the throughput is acceptable.
-      3. If needed, click "Test" again to repeat the transfer test.
-  VERIFICATION:
-     Was the reported throughput acceptable for the type and maximum speed of this interface?
- EOF
-_description:
- This test executes a maximum throughput test against all the ethernet devices found on the system.
+user: root
+environ: TEST_TARGET_IPERF
+command: network test -i {interface} -t iperf 2>&1 | cat - <(echo; echo "Verify the result and click OK to decide on the outcome") | zenity --text-info --title 'ethernet max bw {interface}'
+_purpose:
+ User verification of whether the observed transfer throughput is acceptable
+ for the type and maximum speed of each ethernet interface.
+_steps:
+ 1. Click "Test".
+ 2. Read the network test summary and confirm that the throughput is acceptable.
+ 3. If needed, click "Test" again to repeat the transfer test.
+_verification:
+ Was the reported throughput acceptable for the type and maximum speed of this interface?
 
-plugin: local
-_summary: Automated test that tests performance of each wired network device under stress.
-id: ethernet/stress_performance
+unit: template
+template-unit: job
+template-resource: device
+template-filter: device.category == 'NETWORK'
+plugin: shell
+category_id: 2013.com.canonical.plainbox::ethernet
+id: ethernet/stress_performance_device{__index__}_{interface}
+_summary: Stress and performance test of ethernet device {__index__} ({interface})
+estimated_duration: 330.0
 requires:
-  device.category == 'NETWORK'
-_description: Automated test that tests performance of each wired network device under stress.
-command:
- cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::ethernet
- id: ethernet/stress_performance_$2
- requires: device.path == "$1"
- user: root
- command: network test -i $2 -t stress
- estimated_duration: 330.0
- _description:
-  This test executes iperf to generate a load on the network device and then performs a ping test to watch for dropped packets and very large latency periods.
- EOF
-
+ device.path == '{path}'
+ package.name == 'ethtool'
+command: network test -i {interface} -t stress
+_description:
+ Automated test that tests performance of ethernet device {__index__} ({interface}).

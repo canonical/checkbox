@@ -171,48 +171,42 @@ id: miscellanea/sources-list
 command: sources_test $SOURCES_LIST "$REPOSITORIES"
 _description: Checks that a specified sources list file contains the requested repositories
 
-plugin: local
-_summary: Automated job to generate the PXE verification test for each NIC.
-id: miscellanea/pxe_boot
-requires: device.category == 'NETWORK'
-_description: Automated job to generate the PXE verification test for each NIC.
-command:
- cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
- plugin: manual
- category_id: 2013.com.canonical.plainbox::miscellanea
- id: miscellanea/pxe_boot_$2
- description:
-  PURPOSE:
-    This test will verify that you have attempted to PXE boot this machine from
-    the network device $2.
-  STEPS:
-    1. Prior to running this test, you should have attempted to boot this system via PXE on every Network Port available.
-  VERIFICATION:
-    1. Select Yes if you successfully used PXE boot this system using the NIC $2
-    2. Select No if you did not attempt to PXE boot this system using the NIC $2
-    3. Select No if you attempted to PXE boot via $2 and it failed for some reason.
- EOF
+unit: template
+template-unit: job
+template-resource: device
+template-filter: device.category == 'NETWORK'
+plugin: manual
+category_id: 2013.com.canonical.plainbox::miscellanea
+id: miscellanea/pxe_boot_device{__index__}_{interface}
+_summary: PXE verification test of device {__index__} ({interface})
+estimated_duration: 30.0
+_purpose:
+ This test will verify that you have attempted to PXE boot this machine from
+ the network device {__index__} ({interface}).
+_steps:
+ 1. Prior to running this test, you should have attempted to boot this system via PXE on every Network Port available.
+_verification:
+ 1. Select Yes if you successfully used PXE boot this system using the NIC {interface}
+ 2. Select No if you did not attempt to PXE boot this system using the NIC {interface}
+ 3. Select No if you attempted to PXE boot via {interface} and it failed for some reason.
 
-plugin: local
-_summary: Automated job to generate the Remote Shared IPMI verification test for each NIC.
-id: miscellanea/remote_shared_ipmi
-requires: device.category == 'NETWORK'
-_description: Automated job to generate the Remote Shared IPMI verification test for each NIC.
-command:
- cat <<'EOF' | run_templates -s 'udev_resource | filter_templates -w "category=NETWORK" | awk "/path: / { print \$2 }" | xargs -n 1 sh -c "for i in \`ls /sys\$0/net 2>/dev/null\`; do echo \$0 \$i; done"'
- plugin: manual
- category_id: 2013.com.canonical.plainbox::miscellanea
- id: miscellanea/remote_shared_ipmi_$2
- description:
-  PURPOSE:
-    This test will verify that you have attempted IPMI control of this machine from the network device $2.
-  STEPS:
-    1. Prior to running this test, you should have configured and used IPMI to power this machine off and on using every Network Port available.
-  VERIFICATION:
-    1. Select Yes if you successfully used IPMI to remotely power this system off and on using the NIC $2
-    2. Select No if you did not attempt to use IPMI to remotely power this sytem off and on via the NIC $2
-    3. Select No if you attempted to use IPMI to remotely power off/on this system via $2 and it failed for some reason.
- EOF
+unit: template
+template-unit: job
+template-resource: device
+template-filter: device.category == 'NETWORK'
+plugin: manual
+category_id: 2013.com.canonical.plainbox::miscellanea
+id: miscellanea/remote_shared_ipmi_device{__index__}_{interface}
+_summary: Remote Shared IPMI verification test for device {__index__} ({interface})
+estimated_duration: 30.0
+_purpose:
+ This test will verify that you have attempted IPMI control of this machine from the network device {__index__} ({interface}).
+_steps:
+ 1. Prior to running this test, you should have configured and used IPMI to power this machine off and on using every Network Port available.
+_verification:
+ 1. Select Yes if you successfully used IPMI to remotely power this system off and on using the NIC {interface}
+ 2. Select No if you did not attempt to use IPMI to remotely power this sytem off and on via the NIC {interface}
+ 3. Select No if you attempted to use IPMI to remotely power off/on this system via {interface} and it failed for some reason.
 
 plugin: manual
 category_id: 2013.com.canonical.plainbox::miscellanea

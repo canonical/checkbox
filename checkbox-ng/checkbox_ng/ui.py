@@ -77,12 +77,13 @@ class ShowMenu(IApplication):
     """
     Display the appropriate menu and return the selected options
     """
-    def __init__(self, title, menu, selection=[0]):
+    def __init__(self, title, menu, selection=[0], multiple_allowed=True):
         self.image = TextImage(Size(0, 0))
         self.title = title
         self.menu = menu
         self.option_count = len(menu)
         self.position = 0  # Zero-based index of the selected menu option
+        self.multiple_allowed = multiple_allowed
         if self.option_count:
             self.selection = selection
         else:
@@ -110,6 +111,8 @@ class ShowMenu(IApplication):
                     self.selection.remove(self.position)
                 elif self.position < self.option_count:
                     self.selection.append(self.position)
+                    if not self.multiple_allowed:
+                        self.selection = [self.position]
         self.repaint(event)
         return self.image
 

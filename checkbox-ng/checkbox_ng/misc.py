@@ -145,6 +145,28 @@ class JobTreeNode:
             builder.auto_add_job(job)
         return builder.root_node
 
+    @classmethod
+    def create_simple_tree(cls, sa, job_list):
+        """
+        Build a rooted JobTreeNode from a job list.
+
+        :argument sa:
+            A session assistant object
+        :argument job_list:
+            List of jobs to consider for building the tree.
+        """
+        root_node = cls()
+        for job in job_list:
+            cat_name = sa.get_category(job.category_id).tr_name()
+            matches = [n for n in root_node.categories if n.name == cat_name]
+            if not matches:
+                node = cls(cat_name)
+                root_node.add_category(node)
+            else:
+                node = matches[0]
+            node.add_job(job)
+        return root_node
+
 
 class TreeBuilder:
 

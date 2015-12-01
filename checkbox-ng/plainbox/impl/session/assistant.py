@@ -1312,7 +1312,8 @@ class SessionAssistant:
             When there is a problem when writing the output.
         """
         UsageExpectation.of(self).enforce()
-        exporter = self._manager.create_exporter(exporter_id, option_list)
+        exporter = self._manager.create_exporter(exporter_id, option_list,
+                                                 strict=False)
         timestamp = datetime.datetime.utcnow().isoformat()
         path = os.path.join(dir_path, ''.join(
             ['submission_', timestamp, '.', exporter.unit.file_extension]))

@@ -128,7 +128,7 @@ class sru(CanonicalCommand):
 
     def _collect_info(self, rc, sa):
         sa.select_providers('*')
-        sa.start_new_session(_("Hardware Collection Session"))
+        sa.start_new_session(_("SRU Session"))
         sa.select_test_plan(self.config.test_plan)
         sa.bootstrap()
         for job_id in sa.get_static_todo_list():

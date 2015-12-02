@@ -1,3 +1,9 @@
+plainbox-provider-certification-client (0.21-1) precise; urgency=medium
+
+  * new upstream version
+
+ -- Pierre Equoy <pierre.equoy@canonical.com>  Wed, 02 Dec 2015 10:40:23 +0800
+
 plainbox-provider-certification-client (0.20.1-2) precise; urgency=medium
 
   * new upstream version

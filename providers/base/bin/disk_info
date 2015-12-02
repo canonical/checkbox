@@ -63,7 +63,9 @@ def main():
                 disk_size = ("%dGB" % (
                     int(disk.find('size').text) / (1000**3)))
             except TypeError:
-                disk_size = "Unknown"
+                disk_size = "No Reported Size"
+            except AttributeError:
+                disk_size = "No Reported Size"
             print("\t{k:15}\t{v}".format(k="Size:",
                                          v=disk_size))
     return 0

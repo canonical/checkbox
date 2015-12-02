@@ -1189,6 +1189,7 @@ class SessionAssistant:
         UsageExpectation.of(self).enforce()
         job = self._context.get_unit(job_id, 'job')
         self._context.state.update_job_result(job, result)
+        self._manager.checkpoint()
         # Set up expectations so that run_job() and use_job_result() must be
         # called in pairs and applications cannot just forget and call
         # run_job() all the time.

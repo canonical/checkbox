@@ -1287,7 +1287,11 @@ class SessionAssistant:
         exported_stream = io.BytesIO()
         exporter.dump_from_session_manager(self._manager, exported_stream)
         exported_stream.seek(0)
-        return transport.send(exported_stream)
+        result = transport.send(exported_stream)
+        if SessionMetaData.FLAG_SUBMITTED not in self._metadata.flags:
+            self._metadata.flags.add(SessionMetaData.FLAG_SUBMITTED)
+            self._manager.checkpoint()
+        return result
 
     @raises(KeyError, OSError)
     def export_to_file(

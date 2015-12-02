@@ -75,6 +75,7 @@ class XDGRestartStrategy(IRestartStrategy):
             The command callback
         """
         self.config = config = PlainBoxConfigParser()
+        self.app_terminal = app_terminal
         section = 'Desktop Entry'
         config.add_section(section)
         config.set(section, 'Type', 'Application')
@@ -99,6 +100,8 @@ class XDGRestartStrategy(IRestartStrategy):
 
     def prime_application_restart(self, app_id: str, cmd: str) -> None:
         filename = self.get_desktop_filename(app_id)
+        if self.app_terminal:
+            cmd += ';$SHELL'
         self.config.set('Desktop Entry', 'Exec', cmd)
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, 'wt') as stream:

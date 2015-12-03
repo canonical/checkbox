@@ -372,7 +372,7 @@ include:
     firmware/fwts_desktop_diagnosis_results_hwe.log.gz
     firmware/fwts_wakealarm.*                              certification-status=blocker
     firmware/fwts_uefirtvariable.*                         certification-status=blocker
-    firmware/no_ACPI_REV_interface                         certification-status=blocker
+    firmware/no_ACPI_REV_interface
     miscellanea/dmitest_client
     benchmarks/disk/hdparm-read
     benchmarks/disk/hdparm-read_.*

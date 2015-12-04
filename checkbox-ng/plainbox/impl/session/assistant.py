@@ -982,6 +982,24 @@ class SessionAssistant:
             test_plan.get_effective_category_map(potential_job_list).values()))
 
     @raises(UnexpectedMethodCall)
+    def get_mandatory_jobs(self) -> 'Iterable[str]':
+        """
+        Get the list of ids of mandatory jobs.
+
+        :returns:
+            A list of identifiers of mandatory jobs scheduled to run.
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+        """
+        UsageExpectation.of(self).enforce()
+        test_plan = self._manager.test_plans[0]
+        return [job.id for job in select_jobs(
+            self._context.state.job_list,
+            [test_plan.get_mandatory_qualifier()])]
+
+    @raises(UnexpectedMethodCall)
     def get_static_todo_list(self) -> 'Iterable[str]':
         """
         Get the (static) list of jobs to run.
@@ -1424,6 +1442,7 @@ class SessionAssistant:
             self.get_category: "to access the definition of ant category",
             self.get_participating_categories: (
                 "to access participating categories"),
+            self.get_mandatory_jobs: "to get all mandatory job ids",
             self.filter_jobs_by_categories: (
                 "to select the jobs that match particular category"),
             self.remove_all_filters: "to remove all filters",

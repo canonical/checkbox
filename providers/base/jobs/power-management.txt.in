@@ -166,7 +166,7 @@ user: root
 command: hwclock -r
 estimated_duration: 0.02
 _description:
- Verify that the Real-time clock (RTC) device functions properly, if present
+ Verify that the Real-time clock (RTC) device functions properly, if present.
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::power-management

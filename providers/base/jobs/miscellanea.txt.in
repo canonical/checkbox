@@ -15,7 +15,9 @@ depends:
 estimated_duration: 1.0
 command: true
 _description:
-    A meta-job depending on the resources needed for a valid submission.
+ A meta-job that verifies the data necessary for a complete result
+ submission are present. Failure indicates that the results are incomplete
+ and may be rejected.
 
 plugin: manual
 category_id: 2013.com.canonical.plainbox::miscellanea
@@ -65,7 +67,7 @@ category_id: 2013.com.canonical.plainbox::miscellanea
 id: miscellanea/fwts_results.log
 command:
  [[ -e ${PLAINBOX_SESSION_SHARE}/fwts_results.log ]] && cat ${PLAINBOX_SESSION_SHARE}/fwts_results.log
-_description: Attaches the FWTS results log to the submission
+_description: Attaches the miscellanes/fwts_test results log to the submission.
 
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::miscellanea
@@ -83,7 +85,9 @@ requires: package.name == 'ipmitool'
 user: root
 command: ipmi_test
 _description:
- This will run some basic connectivity tests against a BMC, verifying that IPMI works.
+ This will run some basic commands in-band against a BMC, verifying that IPMI
+ works. Use of MAAS to deploy the system implicitly tests out-of-band BMC
+ control.
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::miscellanea
@@ -92,7 +96,8 @@ id: miscellanea/boot_mode
 requires:
  cpuinfo.platform in ("i386", "x86_64", "aarch64")
 _summary: EFI-mode boot test
-_description: Succeeds when booted in EFI mode; fails otherwise
+_description: 
+ Test to verify that the system booted in EFI mode rather than Legacy/BIOS mode.
 command:
   if [ -d "/sys/firmware/efi" ] ; then
     echo "System booted in EFI mode"
@@ -109,7 +114,8 @@ estimated_duration: 0.5
 user: root
 command: bmc_info
 _description:
- This will gather some info about the BMC itself for diagnostic purposes.
+ This will gather some info about the BMC itself for diagnostic purposes. This
+ will not works on non-IPMI systems like AMT and blade/sled type systems.
 _summary:
  Gather BMC Identification info
 

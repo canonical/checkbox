@@ -3,7 +3,7 @@ category_id: 2013.com.canonical.plainbox::optical
 id: optical/detect
 requires: device.category == 'CDROM'
 estimated_duration: 1.2
-_description: Test to detect the optical drives
+_description: Detects optical drives (CD/DVD) attached to the system.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=CDROM"' | sed '/^$/d'
  $vendor $product
@@ -42,7 +42,8 @@ id: optical/read-automated
 estimated_duration: 1.0
 requires:
  device.category == 'CDROM'
-_description: Automated optical read test.
+_description: 
+ Automated test to read a data CD/DVD and ensure the optical drive works properly.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=CDROM"'
  plugin: shell

@@ -7,8 +7,9 @@ requires:
 user: root
 command: num_vm=$(awk '/MemTotal/ {x=$2/262144; print ((x == int(x)) ? x : int(x) +1)}' /proc/meminfo); vm_bytes=$(($(awk '/MemTotal/ {print int($2/1024)}' /proc/meminfo)/$num_vm/4))M; stress --cpu `cpuinfo_resource | awk '/count:/ {print $2}'` --vm $num_vm --vm-bytes $vm_bytes --timeout 7200s
 _description:
- PURPOSE:
-     Create jobs that use the CPU as much as possible for two hours. The test is considered passed if the system does not freeze.
+ Simulate high system load using the 'stress' tool to exercise the CPU for
+ several hours. The test is considered passed if the system does not freeze or
+ abend.
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::stress

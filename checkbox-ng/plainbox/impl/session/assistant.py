@@ -976,7 +976,8 @@ class SessionAssistant:
         UsageExpectation.of(self).enforce()
         test_plan = self._manager.test_plans[0]
         potential_job_list = select_jobs(
-            self._context.state.job_list, [test_plan.get_qualifier()])
+            self._context.state.job_list,
+            [test_plan.get_qualifier(), test_plan.get_mandatory_qualifier()])
         return list(set(
             test_plan.get_effective_category_map(potential_job_list).values()))
 

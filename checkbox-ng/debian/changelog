@@ -1,3 +1,11 @@
+checkbox-ng (0.22-1) unstable; urgency=medium
+
+  * New upstream maintenance release
+  * debian/control: require plainbox 0.24 or more recent (new APIs and fixes)
+    and checkbox-support 0.22
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Mon, 07 Dec 2015 14:17:56 +0100
+
 checkbox-ng (0.20.1-1) unstable; urgency=medium
 
   * New upstream maintenance release 

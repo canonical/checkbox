@@ -25,6 +25,9 @@ Homepage: http://launchpad.net/checkbox
 Package: python3-checkbox-support
 Architecture: all
 Depends: gir1.2-gudev-1.0,
+         python3-dbus,
+         python3-gi,
+         python3-lxml,
          python3-pyparsing,
          udev,
          udisks2,

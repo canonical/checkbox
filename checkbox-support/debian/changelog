@@ -1,3 +1,10 @@
+checkbox-support (0.22-1) unstable; urgency=medium
+
+  * New upstream release
+  * debian/control: Depend on python3-dbus, python3-gi and python3-lxml.
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Mon, 07 Dec 2015 13:46:22 +0100
+
 checkbox-support (0.20-2) unstable; urgency=medium
 
   * debian/patches/fix-lp1483410-part1: Correct the method of loading unit

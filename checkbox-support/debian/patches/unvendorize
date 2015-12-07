@@ -1,4 +1,4 @@
-From 8e7c301a2b65b17e0f0be0eace4bf9874d46e457 Mon Sep 17 00:00:00 2001
+From 2d823fe260f3b0a084a12931aafdf320798f3b93 Mon Sep 17 00:00:00 2001
 From: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 Date: Thu, 8 Oct 2015 08:38:43 -0700
 Subject: Remove vendorized modules
@@ -11,14 +11,14 @@ Last-Update: 2014-04-07
 
 Patch-Name: unvendorize
 ---
- checkbox_support/vendor/mock.py | 2396 +--------------------------------------
- 1 file changed, 29 insertions(+), 2367 deletions(-)
+ checkbox_support/vendor/mock.py | 2398 +--------------------------------------
+ 1 file changed, 29 insertions(+), 2369 deletions(-)
 
 diff --git a/checkbox_support/vendor/mock.py b/checkbox_support/vendor/mock.py
-index c8fc5d1..bd867c5 100644
+index ca77df6..bd867c5 100644
 --- a/checkbox_support/vendor/mock.py
 +++ b/checkbox_support/vendor/mock.py
-@@ -1,2367 +1,29 @@
+@@ -1,2369 +1,29 @@
 -# mock.py
 -# Test tools for mocking and patching.
 -# Copyright (C) 2007-2012 Michael Foord & the mock team
@@ -678,6 +678,8 @@ index c8fc5d1..bd867c5 100644
 -            if name not in self._mock_methods or name in _all_magics:
 -                raise AttributeError("Mock object has no attribute %r" % name)
 -        elif _is_magic(name):
+-            raise AttributeError(name)
+-        if name.startswith(('assert', 'assret')):
 -            raise AttributeError(name)
 -
 -        result = self._mock_children.get(name)

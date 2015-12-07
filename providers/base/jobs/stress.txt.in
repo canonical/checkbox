@@ -52,13 +52,13 @@ _description:
 plugin: shell
 category_id: 2013.com.canonical.plainbox::stress
 id: power-management/suspend_30_cycles_with_reboots
-estimated_duration: 7200
+estimated_duration: 5400.0
 depends:
  power-management/rtc
  suspend/suspend_advanced
 user: root
 command:
- pm_test reboot --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE --suspends-before-reboot=30 -r 3
+ pm_test reboot --fwts --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE --suspends-before-reboot=30 -r 3
 _description:
  This is an automated stress test that will run a sequence of '30 suspend/resume cycles and one reboot' 3 times.
 

@@ -2,10 +2,10 @@
 d223b291889800d5af08d5b9cf1afcb5464294e6
 d223b291889800d5af08d5b9cf1afcb5464294e6
 844f741b298e4776d820913e7b9f350b40ddf7d1
-844f741b298e4776d820913e7b9f350b40ddf7d1
-checkbox-support_0.20.orig.tar.gz
-b3672d2ea32386176d406cbf532dcb13186054dd
-623068
+532f9582ad80620bc1276d6b3908dd4402563504
+checkbox-support-0.22.orig.tar.gz
+51bd8c66b17c6a9efb4ce7bd93b221bf60a628a8
+624352
 debianTag="debian/%e%v"
 patchedTag="patched/%e%v"
 upstreamTag="upstream/%e%u"

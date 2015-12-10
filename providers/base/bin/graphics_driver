@@ -199,12 +199,12 @@ class XorgLog(object):
                 display = {'Output': display_name}
                 continue
 
-            # For 4th Intel on 3.11
+            # For 4th Intel after 3.11
             m = re.search(
                 r'\(II\) (.*)\(\d+\): switch to mode .* using (.*),', line)
             if m:
                 self.displays[display_name] = display
-                self.video_driver = m.group(1)
+                self.video_driver = 'intel'  # 'intel' is what we expect to see
                 display_name = m.group(2)
                 display = {'Output': display_name}
                 continue

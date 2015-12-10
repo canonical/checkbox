@@ -871,7 +871,8 @@ class SessionState:
         """
         self._mandatory_job_list = mandatory_job_list
 
-    def update_desired_job_list(self, desired_job_list):
+    def update_desired_job_list(self, desired_job_list,
+                                include_mandatory=True):
         """
         Update the set of desired jobs (that ought to run).
 
@@ -887,8 +888,10 @@ class SessionState:
         """
         # Remember a copy of original desired job list. We may modify this list
         # so let's not mess up data passed by the caller.
-        self._desired_job_list = list(
-            desired_job_list + self._mandatory_job_list)
+        self._desired_job_list = []
+        if include_mandatory:
+            self._desired_job_list += self._mandatory_job_list
+        self._desired_job_list += list(desired_job_list)
         # Reset run list just in case desired_job_list is empty
         self._run_list = []
         # Try to solve the dependency graph. This is done in a loop as may need

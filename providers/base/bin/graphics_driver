@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#========================================================================
+# ========================================================================
 #
 # based on xlogparse
 #
@@ -33,7 +33,7 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-#========================================================================
+# ========================================================================
 import re
 import sys
 import os
@@ -73,16 +73,65 @@ class XorgLog(object):
         module = None
         for line in in_file.readlines():
 
+            # Errors and Warnings
+            m = re.search(r'\(WW\) (.*)$', line)
+            if m:
+                self.warnings.append(m.group(1))
+                continue
+
+            m = re.search(r'\(EE\) (.*)$', line)
+            if m:
+                self.errors.append(m.group(1))
+                continue
+
+            # General details
+            m = re.search(r'Current Operating System: (.*)$', line)
+            if m:
+                uname = m.group(1)
+                self.kernel_version = uname.split()[2]
+                continue
+
+            m = re.search(r'Kernel command line: (.*)$', line)
+            if m:
+                self.kernel_command_line = m.group(1)
+                continue
+
+            m = re.search(r'Build Date: (.*)$', line)
+            if m:
+                self.kernel_command_line = m.group(1)
+                continue
+
+            m = re.search(r'Log file: "(.*)", Time: (.*)$', line)
+            if m:
+                self.boot_logfile = m.group(1)
+                self.boot_time = m.group(2)
+
+            m = re.search(r'xorg-server ([^ ]+) .*$', line)
+            if m:
+                self.xserver_version = m.group(1)
+                continue
+
+            m = re.search(r'Using a default monitor configuration.', line)
+            if m and self.xorg_conf_path is None:
+                self.xorg_conf_path = 'default'
+                continue
+
+            m = re.search(r'Using config file: "(.*)"', line)
+            if m:
+                self.xorg_conf_path = m.group(1)
+                continue
+
+            # Driver related information
             m = re.search(r'\(..\)', line)
             if m:
                 if gathering_module and module is not None:
                     self.modules.append(module)
                 gathering_module = False
                 module = None
-                m = re.search(
-                    '\(II\) Loading.*modules\/drivers\/(.+)_drv\.so', line)
-                if m:
+                if re.search(
+                   '\(II\) Loading.*modules\/drivers\/(.+)_drv\.so', line):
                     found_ddx = True
+                    continue
                 m = re.search(r'\(II\) Module (\w+):', line)
                 if m:
                     module = {
@@ -131,43 +180,6 @@ class XorgLog(object):
                     module['abi_version'] = m.group(2)
                 continue
 
-            # General details
-            m = re.search(r'Current Operating System: (.*)$', line)
-            if m:
-                uname = m.group(1)
-                self.kernel_version = uname.split()[2]
-                continue
-
-            m = re.search(r'Kernel command line: (.*)$', line)
-            if m:
-                self.kernel_command_line = m.group(1)
-                continue
-
-            m = re.search(r'Build Date: (.*)$', line)
-            if m:
-                self.kernel_command_line = m.group(1)
-                continue
-
-            m = re.search(r'Log file: "(.*)", Time: (.*)$', line)
-            if m:
-                self.boot_logfile = m.group(1)
-                self.boot_time = m.group(2)
-
-            m = re.search(r'xorg-server ([^ ]+) .*$', line)
-            if m:
-                self.xserver_version = m.group(1)
-                continue
-
-            m = re.search(r'Using a default monitor configuration.', line)
-            if m and self.xorg_conf_path is None:
-                self.xorg_conf_path = 'default'
-                continue
-
-            m = re.search(r'Using config file: "(.*)"', line)
-            if m:
-                self.xorg_conf_path = m.group(1)
-                continue
-
             # EDID and Modelines
             # We use this part to determine which driver is in use
             # For Intel / RADEON
@@ -199,16 +211,15 @@ class XorgLog(object):
                 display = {'Output': display_name}
                 continue
 
-            # For 4th Intel on 3.11
+            # For 4th Intel after 3.11
             m = re.search(
                 r'\(II\) (.*)\(\d+\): switch to mode .* using (.*),', line)
             if m:
                 self.displays[display_name] = display
-                self.video_driver = m.group(1)
+                self.video_driver = 'intel'  # 'intel' is what we expect to see
                 display_name = m.group(2)
                 display = {'Output': display_name}
                 continue
-
 
             m = re.search(
                 r'Manufacturer: (.*) *Model: (.*) *Serial#: (.*)', line)
@@ -247,17 +258,6 @@ class XorgLog(object):
             if m:
                 key = "mode %sx%s@%s" % (m.group(1), m.group(2), m.group(3))
                 display[key] = m.group(4)
-                continue
-
-            # Errors and Warnings
-            m = re.search(r'\(WW\) (.*)$', line)
-            if m:
-                self.warnings.append(m.group(1))
-                continue
-
-            m = re.search(r'\(EE\) (.*)$', line)
-            if m:
-                self.errors.append(m.group(1))
                 continue
 
         if display_name not in self.displays.keys():
@@ -300,7 +300,7 @@ def get_driver_info(xlog):
                 return 0
     else:
         print("ERROR: No video driver loaded! Possibly in failsafe mode!",
-                file=sys.stderr)
+              file=sys.stderr)
         return 1
 
 
@@ -344,12 +344,11 @@ def hybrid_graphics_check(xlog):
     for module in xlog.modules:
         if module['ddx'] and module['name'] not in drivers:
             drivers.append(module['name'])
-    print('Loaded DDX Drivers: %s' %
-            ', '.join(drivers))
+    print('Loaded DDX Drivers: %s' % ', '.join(drivers))
 
     has_hybrid_graphics = (len(cards) > 1 and is_laptop()
-        and (cards_dict.get('8086') in formatted_cards
-        or cards_dict.get('1002') in formatted_cards))
+                           and (cards_dict.get('8086') in formatted_cards
+                                or cards_dict.get('1002') in formatted_cards))
 
     print('Hybrid Graphics: %s' % (has_hybrid_graphics
                                    and 'yes' or 'no'))

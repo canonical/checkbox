@@ -768,7 +768,8 @@ class SessionAssistant:
             self._context.state.job_list,
             [plan.get_bootstrap_qualifier() for plan in (
                 self._manager.test_plans)])
-        self._context.state.update_desired_job_list(desired_job_list)
+        self._context.state.update_desired_job_list(
+            desired_job_list, include_mandatory=False)
         for job in self._context.state.run_list:
             UsageExpectation.of(self).allowed_calls[self.run_job] = (
                 "to run bootstrapping job")

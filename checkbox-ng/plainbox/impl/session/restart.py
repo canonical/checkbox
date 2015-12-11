@@ -30,12 +30,15 @@ class IRestartStrategy(metaclass=abc.ABCMeta):
     """Interface for managing application restarts."""
 
     @abc.abstractmethod
-    def prime_application_restart(self, app_id: str, cmd: str,) -> None:
+    def prime_application_restart(self, app_id: str,
+                                  session_id: str, cmd: str,) -> None:
         """
         Configure the system to restart the testing application.
 
         :param app_id:
             Identifier of the testing application.
+        :param session_id:
+            Identifier of the session to resume.
         :param cmd:
             The command to execute to resume the session.
         """
@@ -98,7 +101,8 @@ class XDGRestartStrategy(IRestartStrategy):
         return os.path.expandvars(
             "$HOME/.config/autostart/{}.desktop".format(app_id))
 
-    def prime_application_restart(self, app_id: str, cmd: str) -> None:
+    def prime_application_restart(self, app_id: str,
+                                  session_id: str, cmd: str) -> None:
         filename = self.get_desktop_filename(app_id)
         if self.app_terminal:
             cmd += ';$SHELL'

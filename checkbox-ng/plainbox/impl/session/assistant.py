@@ -1136,7 +1136,7 @@ class SessionAssistant:
                     for cmd_part in self._restart_cmd_callback(
                         self._manager.storage.id))
                 self._restart_strategy.prime_application_restart(
-                    self._app_id, restart_cmd)
+                    self._app_id, self._manager.storage.id, restart_cmd)
             ui.started_running(job, job_state)
             if not native:
                 builder = self._runner.run_job(

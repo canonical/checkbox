@@ -128,8 +128,9 @@ class XorgLog(object):
                     self.modules.append(module)
                 gathering_module = False
                 module = None
-                if re.search(
-                   '\(II\) Loading.*modules\/drivers\/(.+)_drv\.so', line):
+                m = re.search(
+                    '\(II\) Loading.*modules\/drivers\/(.+)_drv\.so', line)
+                if m:
                     found_ddx = True
                     continue
                 m = re.search(r'\(II\) Module (\w+):', line)

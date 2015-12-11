@@ -129,9 +129,10 @@ class SnappyRestartStrategy(IRestartStrategy):
     """
     Restart strategy based on systemd calling snappy wrappers.
     """
-    def __init__(self):
-        self.service_name = "plainbox-autostart.service"
 
+    service_name = "plainbox-autostart.service"
+
+    def __init__(self):
         self.config = config = PlainBoxConfigParser()
 
         section = 'Unit'
@@ -154,13 +155,18 @@ class SnappyRestartStrategy(IRestartStrategy):
             os.path.join(os.sep, "etc", "systemd", "system",
                          self.service_name))
 
-    def prime_application_restart(self, app_id: str, session_id: str) -> None:
+    def prime_application_restart(self, app_id: str, session_id: str,
+                                  cmd: str,) -> None:
+        """
+        In this stategy plainbox will create and enable a systemd unit that
+        will be run when the OS resumes.
+        """
         snap_name = os.getenv('SNAP_NAME')
         # NOTE: This implies that any snap wishing to include a Checkbox
         # application to be autostarted creates snapcraft binary
-        # called "plainbox-autostart"
+        # called "checkbox-autostart"
         self.config.set('Service', 'ExecStart',
-                        '/apps/bin/{}.plainbox-autostart --resume {}'.format(
+                        '/apps/bin/{}.checkbox-autostart --resume {}'.format(
                             snap_name, session_id))
         filename = self.get_autostart_config_filename()
         os.makedirs(os.path.dirname(filename), exist_ok=True)
@@ -169,8 +175,12 @@ class SnappyRestartStrategy(IRestartStrategy):
         subprocess.call(['systemctl', 'enable', self.service_name])
 
     def diffuse_application_restart(self, app_id: str) -> None:
+        """
+        This disables and removes the systemd unit that was created to resume
+        the session after an OS reboot.
+        """
         filename = self.get_autostart_config_filename()
-        subprocess.call(['systemctl', 'enable', self.service_name])
+        subprocess.call(['systemctl', 'disable', self.service_name])
         try:
             os.remove(filename)
         except OSError as exc:
@@ -196,8 +206,9 @@ def detect_restart_strategy() -> IRestartStrategy:
         # NOTE: Assume this is a terminal application
         return XDGRestartStrategy(app_terminal=True)
 
-    snap_app_path = os.getenv("SNAP_APP_PATH")
-    if len(snap_app_path) > 0:
+    # If we are running as a confined Snappy app this variable will have been
+    # set by the launcher script
+    if(os.getenv("SNAP_APP_PATH")):
         return SnappyRestartStrategy()
 
     raise LookupError("Unable to find appropriate strategy.""")

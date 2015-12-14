@@ -24,6 +24,7 @@
 
 import os
 import sys
+import re
 from math import log, copysign
 from subprocess import check_output, PIPE
 
@@ -37,8 +38,13 @@ class LshwJsonResult:
     memory_reported = 0
     banks_reported = 0
 
+    # jlane LP:1525009
+    # Discovered the case can change, my x86 systems used "System Memory"
+    # Failing ARM system used "System memory"
+    desc_regex = re.compile('System Memory', re.IGNORECASE)
+
     def addHardware(self, hardware):
-        if hardware['id'] == 'memory':
+        if self.desc_regex.match(str(hardware.get('description',0))):
             self.memory_reported += int(hardware.get('size', 0))
         elif 'bank' in hardware['id']:
             self.banks_reported += int(hardware.get('size', 0))

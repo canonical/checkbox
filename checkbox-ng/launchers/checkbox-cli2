@@ -540,7 +540,7 @@ class checkbox_cli(CheckboxCommand):
         if resume_candidates:
             if self.ctx.args.session_id:
                 for candidate in resume_candidates:
-                    if candidate.id == self.args.session_id:
+                    if candidate.id == self.ctx.args.session_id:
                         resume_candidates = (candidate, )
                         break
                 else:

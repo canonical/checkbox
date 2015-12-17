@@ -9,7 +9,8 @@ id: disk/detect
 estimated_duration: 0.25
 user: root
 command: disk_info
-_description: Detects and displays disks attached to the system.
+_description: 
+ Displays information about each disk detected on the system under test.
 
 unit: template
 template-unit: job
@@ -40,7 +41,9 @@ _summary: Check stats changes for each disk
 flags: deprecated
 id: disk/stats
 requires: device.category == 'DISK'
-_description: Check stats changes for each disk
+_description: 
+ This test generates some disk activity and checks the stats to ensure drive
+ activity is being recorded properly.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell
@@ -62,7 +65,8 @@ estimated_duration: 0.30
 requires:
  package.name == 'smartmontools'
  device.category == 'DISK'
-_description: SMART test
+_description: 
+ This tests the SMART capabilities of disks detected on the system.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell
@@ -83,7 +87,7 @@ id: disk/read_performance
 estimated_duration: 0.30
 requires:
  device.category == 'DISK'
-_description: Verify system storage performs at or above baseline performance
+_description: Verify system storage performs at or above a baseline speed.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell
@@ -99,12 +103,14 @@ command:
  EOF
 
 plugin: local
-_summary: Verify that storage devices, such as Fibre Channel and RAID can be detected and perform under stress.
+_summary: Verify that storage devices, such as Fibre Channel and RAID, perform under stress.
 id: disk/storage_devices
 estimated_duration: 1.0
 requires:
  device.category == 'DISK'
-_description: Verify that storage devices, such as Fibre Channel and RAID can be detected and perform under stress.
+_description: 
+ Verify that storage devices, such as Fibre Channel and RAID, perform under
+ stress without data loss or corruption.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell

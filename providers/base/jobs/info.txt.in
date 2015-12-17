@@ -93,13 +93,14 @@ requires: package.name == 'usbutils'
 user: root
 command: lsusb -vv | iconv -t 'utf-8' -c
 estimated_duration: 0.700
-_description: List USB devices
+_description: Attaches a list of detected USB devices.
 
 id: meminfo_attachment
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::info
 command: cat /proc/meminfo
 estimated_duration: 0.043
+_description: Attaches info on system memory as seen in /proc/meminfo.
 
 id: modprobe_attachment
 plugin: attachment
@@ -137,7 +138,7 @@ plugin: attachment
 category_id: 2013.com.canonical.plainbox::info
 command: find /etc/sysctl.* -name \*.conf | xargs cat
 estimated_duration: 0.014
-_description: attaches the contents of various sysctl config files.
+_description: Attaches the contents of various sysctl config files.
 _summary: Attach sysctl configuration files.
 
 id: sysfs_attachment
@@ -212,7 +213,7 @@ plugin: local
 _summary: SATA/IDE device information.
 id: info/hdparm
 estimated_duration: 1.0
-_description: SATA/IDE device information.
+_description: Attaches SATA/IDE device information reported by hdparm.
 requires:
  package.name == 'hdparm'
  device.category == 'DISK'
@@ -380,7 +381,9 @@ plugin: attachment
 category_id: 2013.com.canonical.plainbox::info
 id: info/kvm_output
 estimated_duration: 0.1
-_description: Attaches the debug log from the virtualization run
+_description: 
+ Attaches the debug log from the virtualization/kvm_check_vm test
+ to the results submission.
 command: [ -f $PLAINBOX_SESSION_SHARE/virt_debug ] && cat $PLAINBOX_SESSION_SHARE/virt_debug
 
 id: kernel_cmdline_attachment

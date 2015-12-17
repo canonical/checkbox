@@ -10,7 +10,8 @@ requires:
  virtualization.kvm == 'supported'
 command: virtualization kvm --debug --log-file=$PLAINBOX_SESSION_SHARE/virt_debug
 _description:
- Test to check that a cloud image boots and works properly with KVM
+ Verifies that a KVM guest can be created and booted using an Ubuntu Server
+ cloud image.
 _summary:
  Verify KVM VM boots
 

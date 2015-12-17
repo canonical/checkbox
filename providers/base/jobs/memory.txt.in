@@ -17,5 +17,8 @@ requires:
  uname.name == 'Linux'
 command: memory_test
 _description:
- Test and exercise memory.
+ Test to perform some basic stress and exercise of system memory. This test
+ also includes an over-commit function to force swapping to disk, thus SUTs
+ should have suitably large swap files for the amount of RAM they have
+ installed.
 

@@ -3,7 +3,7 @@ _summary: Benchmark for each disk
 id: benchmarks/disk/hdparm-read
 requires: device.category == 'DISK'
 estimated_duration: 1.0
-_description: Benchmark for each disk
+_description: Raw read timing benchmark of each disk using hdparm.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell
@@ -21,7 +21,7 @@ _summary: Benchmark for each disk
 id: benchmarks/disk/hdparm-cache-read
 estimated_duration: 1.0
 requires: device.category == 'DISK'
-_description: Benchmark for each disk
+_description: Cached read timing benchmark of each disk using hdparm.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell

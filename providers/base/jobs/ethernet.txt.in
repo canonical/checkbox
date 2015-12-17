@@ -11,7 +11,9 @@ requires:
  package.name == 'pciutils'
 command: network_device_info
 estimated_duration: 1.2
-_description: Test to detect the available network controllers
+_description: 
+ Test to detect and return information about available network controllers on
+ the system under test.
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::ethernet
@@ -22,7 +24,8 @@ requires:
 command: udev_resource | filter_templates -w "category=NETWORK" | awk "/interface: / { print \$2 }" | xargs -n 1 network_info
 estimated_duration: 30.0
 _description:
- This is an automated test to gather some info on the current state of your network devices. If no devices are found, the test will exit with an error.
+ Gathers some info on the current state of your network devices. If no devices
+ are found, the test will exit with an error.
 
 plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::ethernet
@@ -56,6 +59,9 @@ requires:
 user: root
 environ: TEST_TARGET_IPERF
 command: network test -i {interface} -t iperf --fail-threshold 80 --datasize 200 --num_runs 4
+_description:
+ This test uses iperf to ensure network devices pass data at an acceptable
+ minimum percentage of advertized speed.
 
 unit: template
 template-unit: job
@@ -74,6 +80,9 @@ requires:
 user: root
 environ: TEST_TARGET_IPERF
 command: network test -i {interface} -t iperf --iperf3 --fail-threshold 80 --cpu-load-fail-threshold 90 --datasize 200 --num_runs 4
+_description:
+ This test uses iperf3 to ensure network devices pass data at an acceptable
+ minimum percentage of advertized speed.
 
 unit: template
 template-unit: job

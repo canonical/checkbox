@@ -551,29 +551,6 @@ command:
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::graphics
-id: graphics/screenshot_opencv_validation
-requires: package.name == 'python-opencv'
-environ: EXTERNAL_WEBCAM_DEVICE
-command:
- screenshot_validation \
-    ${PLAINBOX_PROVIDER_DATA}/images/logo_Ubuntu_stacked_black.png \
-    --device=${EXTERNAL_WEBCAM_DEVICE:-/dev/external_webcam} \
-    -o ${PLAINBOX_SESSION_SHARE}/screenshot_opencv_validation.jpg
-_summary: Test that a screenshot is valid, automatically
-_description:
- Take a screengrab of the screen displaying a black and white Ubuntu logo.
- Check that the screenshot matches the original file using OpenCV ORB detection.
-
-plugin: attachment
-category_id: 2013.com.canonical.plainbox::graphics
-id: screenshot_opencv_validation.jpg
-depends: graphics/screenshot_opencv_validation
-command: base64 ${PLAINBOX_SESSION_SHARE}/screenshot_opencv_validation.jpg
-_description: Attaches the screenshot captured in graphics/screenshot_opencv_validation.
-_summary: Attach the screenshot captured for the automatically validated screenshot test
-
-plugin: shell
-category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/screen-capture-internal
 _summary: Obtains a simple screen capture
 estimated_duration: 1.0

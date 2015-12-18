@@ -1,0 +1,161 @@
+#!/usr/bin/env python2.7
+# Copyright 2014 Canonical Ltd.
+# Written by:
+#   Sylvain Pineau <sylvain.pineau@canonical.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+from __future__ import absolute_import, print_function
+
+import argparse
+import imghdr
+import os
+
+import cv2
+
+
+def create_capture(args):
+    try:
+        device_no = int(os.path.realpath(args.device)[-1])
+    except ValueError:
+        raise SystemExit(
+            "ERROR: video source not found: {}".format(args.device))
+    cap = cv2.VideoCapture(device_no)
+    # The camera driver will adjust the capture size
+    cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, args.width)
+    cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, args.height)
+    if cap is None or not cap.isOpened():
+        raise SystemExit(
+            "ERROR: unable to open video source: {}".format(args.device))
+    return cap
+
+parser = argparse.ArgumentParser(
+    description='''
+Automatically validates a screenshot captured with an external camera using
+OpenCV ORB detection and a FLANN Matcher (Fast Approximate Nearest Neighbor
+Search Library)
+
+Put your camera (HD recommended) in front of your monitor.
+A query image (the INPUT positional argument) is displayed on your primary
+device and several captures (see -F) are analyzed to find a positive match.
+
+On success returns 0. Otherwise a non-zero value is returned and a
+diagnostic message is printed on standard error.
+''',
+    formatter_class=argparse.RawDescriptionHelpFormatter
+)
+parser.add_argument('input',
+                    metavar='INPUT',
+                    help='Input file to use as query image')
+parser.add_argument('--min_matches',
+                    type=int,
+                    default=20,
+                    help='Minimum threshold value to validate a \
+                          positive match')
+parser.add_argument('-F', '--frames',
+                    type=int,
+                    default=10,
+                    help='Set the number of frames to capture and analyze \
+                          Minimum: 3')
+parser.add_argument('-d', '--device',
+                    default='/dev/video0',
+                    help='Set the device to use')
+parser.add_argument('--height',
+                    type=int,
+                    default=900,
+                    help='Set the capture height')
+parser.add_argument('--width',
+                    type=int,
+                    default=1600,
+                    help='Set the capture width')
+parser.add_argument('-o', '--output',
+                    default=None,
+                    help='Save the screenshot to the specified filename')
+args = parser.parse_args()
+
+if args.frames < 3:
+    parser.print_help()
+    raise SystemExit(1)
+if not imghdr.what(args.input):
+    raise SystemExit(
+        "ERROR: unable to read the input file: {}".format(args.input))
+queryImage = cv2.imread(args.input, cv2.CV_LOAD_IMAGE_GRAYSCALE)
+
+cv2.namedWindow("test", cv2.WND_PROP_FULLSCREEN)
+cv2.setWindowProperty("test",
+                      cv2.WND_PROP_FULLSCREEN,
+                      cv2.cv.CV_WINDOW_FULLSCREEN)
+cv2.imshow("test", queryImage)
+cv2.waitKey(1000)
+
+# Initiate ORB features detector
+orb = cv2.ORB(nfeatures=100000)
+
+# Find the keypoints and descriptors with ORB
+kp1, des1 = orb.detectAndCompute(queryImage, None)
+
+# Use the FLANN Matcher (Fast Approximate Nearest Neighbor Search Library)
+flann_params = dict(algorithm=6,  # FLANN_INDEX_LSH
+                    table_number=6,
+                    key_size=12,
+                    multi_probe_level=1)
+
+flann = cv2.FlannBasedMatcher(flann_params, {})
+
+source = 0
+cap = create_capture(args)
+results = []
+img = None
+
+for i in range(args.frames):
+
+    ret, img = cap.read()
+    if ret is False:
+        raise SystemExit(
+            "ERROR: unable to capture from video source: {}".format(source))
+    trainImage = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    # Find the keypoints and descriptors with ORB
+    kp2, des2 = orb.detectAndCompute(trainImage, None)
+    if des2 is None:
+        raise SystemExit(
+            "ERROR: Not enough keypoints in video capture, aborting...")
+
+    matches = flann.knnMatch(des1, des2, k=2)
+
+    # store all the good matches as per Lowe's ratio test
+    good_matches = [m[0] for m in matches if len(m) == 2 and
+                    m[0].distance < m[1].distance * 0.7]
+
+    results.append(len(good_matches))
+    cv2.waitKey(1000)
+
+cv2.destroyAllWindows()
+
+if args.output:
+    cv2.imwrite(args.output, img)
+    print('Screenshot saved to: {}'.format(args.output))
+
+# Remove Max and Min values from results
+results.remove(max(results))
+results.remove(min(results))
+
+avg = sum(results) / len(results)
+
+if avg > args.min_matches:
+    print("Match found! ({} > {})".format(avg, args.min_matches))
+else:
+    raise SystemExit(
+        "ERROR: Not enough matches are found - {} < {}".format(
+            avg,
+            args.min_matches))

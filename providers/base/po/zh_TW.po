@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2015-03-31 15:25+0200\n"
-"PO-Revision-Date: 2015-12-22 03:43+0000\n"
+"PO-Revision-Date: 2015-12-22 09:16+0000\n"
 "Last-Translator: Po-Hsu Lin <po-hsu.lin@canonical.com>\n"
 "Language-Team: Chinese (Traditional) <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2015-12-22 04:33+0000\n"
+"X-Launchpad-Export-Date: 2015-12-23 04:33+0000\n"
 "X-Generator: Launchpad (build 17865)\n"
 
 #. description
@@ -685,7 +685,7 @@ msgstr ""
 #. description
 #: ../jobs/cpu.txt.in:42
 msgid "Test for clock jitter."
-msgstr ""
+msgstr "時脈抖動測試。"
 
 #. description
 #: ../jobs/cpu.txt.in:50
@@ -871,7 +871,7 @@ msgstr ""
 msgid ""
 "This is an automated test which performs read/write operations on an "
 "attached eSATA HDD"
-msgstr ""
+msgstr "本自動化測試項目將會對 eSATA 外接硬碟進行讀 / 寫操作"
 
 #. description
 #: ../jobs/esata.txt.in:28
@@ -1049,12 +1049,12 @@ msgstr ""
 #. description
 #: ../jobs/floppy.txt.in:5
 msgid "Floppy test"
-msgstr ""
+msgstr "軟碟測試"
 
 #. summary
 #: ../jobs/graphics.txt.in:4
 msgid "Driver version tests"
-msgstr ""
+msgstr "驅動程式版本測試"
 
 #. description
 #: ../jobs/graphics.txt.in:21
@@ -1064,12 +1064,12 @@ msgstr ""
 #. summary
 #: ../jobs/graphics.txt.in:22
 msgid "Test Xorg version"
-msgstr ""
+msgstr "測試 Xorg 版本"
 
 #. summary
 #: ../jobs/graphics.txt.in:27
 msgid "Resolution change tests"
-msgstr ""
+msgstr "解析度切換測試"
 
 #. summary
 #: ../jobs/graphics.txt.in:57
@@ -1089,17 +1089,17 @@ msgstr ""
 #. summary
 #: ../jobs/graphics.txt.in:95
 msgid "Default resolution tests"
-msgstr ""
+msgstr "預設解析度測試"
 
 #. summary
 #: ../jobs/graphics.txt.in:119
 msgid "Minimum resolution tests"
-msgstr ""
+msgstr "最小解析度測試"
 
 #. summary
 #: ../jobs/graphics.txt.in:139
 msgid "Maximum resolution tests"
-msgstr ""
+msgstr "最大解析度測試"
 
 #. summary
 #: ../jobs/graphics.txt.in:169
@@ -1114,7 +1114,7 @@ msgstr ""
 #. summary
 #: ../jobs/graphics.txt.in:199
 msgid "Refresh rate tests"
-msgstr ""
+msgstr "更新頻率測試"
 
 #. summary
 #: ../jobs/graphics.txt.in:213
@@ -1150,32 +1150,32 @@ msgstr ""
 #. summary
 #: ../jobs/graphics.txt.in:249
 msgid "Resolution cycling tests"
-msgstr ""
+msgstr "解析度循環切換測試"
 
 #. summary
 #: ../jobs/graphics.txt.in:272
 msgid "Rotation tests"
-msgstr ""
+msgstr "旋轉測試"
 
 #. summary
 #: ../jobs/graphics.txt.in:295
 msgid "Compiz support tests"
-msgstr ""
+msgstr "Compiz 支援度測試"
 
 #. summary
 #: ../jobs/graphics.txt.in:311
 msgid "Unity support tests"
-msgstr ""
+msgstr "Unity 支援度測試"
 
 #. summary
 #: ../jobs/graphics.txt.in:327
 msgid "glxgears tests"
-msgstr ""
+msgstr "glxgears 測試"
 
 #. summary
 #: ../jobs/graphics.txt.in:350
 msgid "3D window open/close tests"
-msgstr ""
+msgstr "3D 視窗開啟 / 關閉測試"
 
 #. summary
 #: ../jobs/graphics.txt.in:366
@@ -1200,12 +1200,12 @@ msgstr ""
 #. summary
 #: ../jobs/graphics.txt.in:398
 msgid "3D window movement tests"
-msgstr ""
+msgstr "3D 視窗移動測試"
 
 #. summary
 #: ../jobs/graphics.txt.in:416
 msgid "screenshot tests"
-msgstr ""
+msgstr "螢幕截圖測試"
 
 #. summary
 #: ../jobs/graphics.txt.in:437
@@ -1215,12 +1215,12 @@ msgstr ""
 #. summary
 #: ../jobs/graphics.txt.in:452
 msgid "full screen video screenshot tests"
-msgstr ""
+msgstr "全螢幕影片截圖測試"
 
 #. summary
 #: ../jobs/graphics.txt.in:481
 msgid "GPU switch prompt tests"
-msgstr ""
+msgstr "GPU 切換提示測試"
 
 #. summary
 #: ../jobs/graphics.txt.in:503

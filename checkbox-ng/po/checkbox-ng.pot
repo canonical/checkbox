@@ -171,14 +171,12 @@ msgstr ""
 
 #. TRANSLATORS: Do not translate the {} format marker.
 #: .././checkbox_ng/commands/newcli.py:500
-#: .././checkbox_ng/commands/sru.py:142
 #, python-brace-format
 msgid "Successfully sent, submission status at {0}"
 msgstr ""
 
 #. TRANSLATORS: Do not translate the {} format marker.
 #: .././checkbox_ng/commands/newcli.py:504
-#: .././checkbox_ng/commands/sru.py:145
 #, python-brace-format
 msgid "Successfully sent, server response: {0}"
 msgstr ""
@@ -187,113 +185,8 @@ msgstr ""
 msgid "Select jobs to re-run"
 msgstr ""
 
-#: .././checkbox_ng/commands/service.py:79
-msgid "Setting up DBus objects..."
-msgstr ""
-
-#. TODO: load sessions
-#: .././checkbox_ng/commands/service.py:81
-msgid "Constructing Service object"
-msgstr ""
-
-#: .././checkbox_ng/commands/service.py:83
-msgid "Constructing ServiceWrapper"
-msgstr ""
-
-#: .././checkbox_ng/commands/service.py:85
-msgid "Publishing all objects on DBus"
-msgstr ""
-
-#: .././checkbox_ng/commands/service.py:88
-msgid "Publishing all managed objects (events should fire there)"
-msgstr ""
-
-#: .././checkbox_ng/commands/service.py:90
-#, python-format
-msgid "Attempting to claim bus name: %s"
-msgstr ""
-
-#: .././checkbox_ng/commands/service.py:93
-#, python-format
-msgid "PlainBox DBus service ready, claimed name: %s"
-msgstr ""
-
-#: .././checkbox_ng/commands/service.py:99
-msgid ""
-"Main loop interrupted! It is recommended to call the Exit() method on the "
-"exported service object instead"
-msgstr ""
-
-#: .././checkbox_ng/commands/service.py:103
-#, python-format
-msgid "Releasing %s"
-msgstr ""
-
-#: .././checkbox_ng/commands/service.py:108
-#, python-format
-msgid "Closing %s"
-msgstr ""
-
-#: .././checkbox_ng/commands/service.py:110
-msgid "Main loop terminated, exiting..."
-msgstr ""
-
-#: .././checkbox_ng/commands/service.py:122
-msgid "spawn dbus service"
-msgstr ""
-
-#: .././checkbox_ng/commands/service.py:129
-msgid "use the specified DBus bus name"
-msgstr ""
-
 #. Handle possible DependencyDuplicateError that can happen if
 #. someone is using plainbox for job development.
-#: .././checkbox_ng/commands/sru.py:88
-msgid "The job database you are currently using is broken"
-msgstr ""
-
-#: .././checkbox_ng/commands/sru.py:89
-#, python-brace-format
-msgid "At least two jobs contend for the name {0}"
-msgstr ""
-
-#: .././checkbox_ng/commands/sru.py:91
-#, python-brace-format
-msgid "Second job defined in: {0}"
-msgstr ""
-
-#: .././checkbox_ng/commands/sru.py:112
-msgid "There were some problems with the selected jobs"
-msgstr ""
-
-#: .././checkbox_ng/commands/sru.py:115
-msgid "Problematic jobs will not be considered"
-msgstr ""
-
-#: .././checkbox_ng/commands/sru.py:118
-#, python-brace-format
-msgid "Saving results to {0}"
-msgstr ""
-
-#: .././checkbox_ng/commands/sru.py:125
-#, python-brace-format
-msgid "Submitting results to {0} for secure_id {1}"
-msgstr ""
-
-#: .././checkbox_ng/commands/sru.py:150
-#, python-brace-format
-msgid "Problem reading a file: {0}"
-msgstr ""
-
-#: .././checkbox_ng/commands/sru.py:180
-#, python-brace-format
-msgid "comments: {0}"
-msgstr ""
-
-#: .././checkbox_ng/commands/sru.py:182
-msgid "inhibitors:"
-msgstr ""
-
 #: .././checkbox_ng/commands/sru.py:220
 msgid "Configuration problems prevent running SRU tests"
 msgstr ""
@@ -314,34 +207,6 @@ msgstr ""
 #: .././checkbox_ng/commands/sru.py:254
 #, python-format
 msgid "associate submission with a machine using this SECURE-ID (%(default)s)"
-msgstr ""
-
-#: .././checkbox_ng/commands/sru.py:257
-msgid "FILE"
-msgstr ""
-
-#. TRANSLATORS: Do not translate %(default)s
-#: .././checkbox_ng/commands/sru.py:262
-#, python-format
-msgid "if submission fails save the test report as FILE (%(default)s)"
-msgstr ""
-
-#: .././checkbox_ng/commands/sru.py:265
-msgid "URL"
-msgstr ""
-
-#. TRANSLATORS: Do not translate %(default)s
-#: .././checkbox_ng/commands/sru.py:269
-#, python-format
-msgid "POST the test report XML to this URL (%(default)s)"
-msgstr ""
-
-#: .././checkbox_ng/commands/sru.py:277
-msgid "override --destination to use the staging certification website"
-msgstr ""
-
-#: .././checkbox_ng/commands/sru.py:284
-msgid "don't really run most jobs"
 msgstr ""
 
 #: .././checkbox_ng/config.py:43
@@ -401,164 +266,6 @@ msgstr ""
 
 #: .././checkbox_ng/launchpad.py:197
 msgid "The submission was uploaded to Launchpad successfully"
-msgstr ""
-
-#: .././checkbox_ng/service.py:37
-msgid "DBus parts require 'funcsigs' from pypi."
-msgstr ""
-
-#: .././checkbox_ng/service.py:86
-#, python-format
-msgid "Created DBus wrapper %s for: %r"
-msgstr ""
-
-#: .././checkbox_ng/service.py:90
-#, python-format
-msgid "DBus wrapper %s died"
-msgstr ""
-
-#: .././checkbox_ng/service.py:122
-#, python-format
-msgid "Published DBus wrapper for %r as %s"
-msgstr ""
-
-#: .././checkbox_ng/service.py:169 .././checkbox_ng/service.py:180
-#, python-brace-format
-msgid "object path {0} does not designate an existing object"
-msgstr ""
-
-#: .././checkbox_ng/service.py:188
-#, python-format
-msgid ""
-"Application error: %r should have returned native object but returned "
-"wrapper instead"
-msgstr ""
-
-#: .././checkbox_ng/service.py:195 .././checkbox_ng/service.py:206
-#: .././checkbox_ng/service.py:217
-#, python-brace-format
-msgid "({0}) internal error, unable to lookup object wrapper"
-msgstr ""
-
-#: .././checkbox_ng/service.py:224
-#, python-format
-msgid "wrapped %s called with %s"
-msgstr ""
-
-#: .././checkbox_ng/service.py:240 .././checkbox_ng/service.py:256
-msgid "unsupported translation {!r}"
-msgstr ""
-
-#: .././checkbox_ng/service.py:243
-#, python-format
-msgid "unwrapped %s called with %s"
-msgstr ""
-
-#: .././checkbox_ng/service.py:245
-#, python-format
-msgid "unwrapped %s returned %r"
-msgstr ""
-
-#: .././checkbox_ng/service.py:258
-#, python-format
-msgid "wrapped %s returned  %r"
-msgstr ""
-
-#: .././checkbox_ng/service.py:769
-#, python-format
-msgid "Adding result %r to DBus"
-msgstr ""
-
-#: .././checkbox_ng/service.py:788
-#, python-format
-msgid "Removing result %r from DBus"
-msgstr ""
-
-#: .././checkbox_ng/service.py:811
-#, python-format
-msgid "Adding job %r to DBus"
-msgstr ""
-
-#: .././checkbox_ng/service.py:843
-#, python-format
-msgid "Adding job state %r to DBus"
-msgstr ""
-
-#: .././checkbox_ng/service.py:875
-#, python-brace-format
-msgid "Unable to wrap object of type {0}"
-msgstr ""
-
-#: .././checkbox_ng/service.py:1000
-msgid "Remove() completed"
-msgstr ""
-
-#: .././checkbox_ng/service.py:1075
-#, python-format
-msgid "AskForOutcome(%r) suggested outcome is (%s)"
-msgstr ""
-
-#. NOTE: this should:
-#. 1) attempt to cancel the future in the extremely rare case where it
-#. is not started yet
-#. 2) kill the job otherwise
-#: .././checkbox_ng/service.py:1391
-msgid "Kill() is not implemented"
-msgstr ""
-
-#: .././checkbox_ng/service.py:1411
-msgid "RunCommand() should not be called for automated jobs"
-msgstr ""
-
-#: .././checkbox_ng/service.py:1413
-msgid "RunCommand() is starting to run the job"
-msgstr ""
-
-#: .././checkbox_ng/service.py:1417
-msgid "RunCommand() ignored, waiting for command to finish"
-msgstr ""
-
-#: .././checkbox_ng/service.py:1435
-msgid "SetOutcome() called while the command is still running!"
-msgstr ""
-
-#: .././checkbox_ng/service.py:1442
-msgid "SetOutcome() called before RunCommand()"
-msgstr ""
-
-#. TRANSLATORS: don't translate 'manual' translate it as
-#. 'of type manual' and leave the 'manual' string
-#. intact.
-#: .././checkbox_ng/service.py:1447
-#, python-format
-msgid "But the job is not manual, it is %s"
-msgstr ""
-
-#: .././checkbox_ng/service.py:1480
-msgid "outcome_from_command() called too early!"
-msgstr ""
-
-#: .././checkbox_ng/service.py:1481
-msgid "There is nothing to return yet"
-msgstr ""
-
-#: .././checkbox_ng/service.py:1522
-msgid "Sending ShowInteractiveUI() and not starting the job..."
-msgstr ""
-
-#: .././checkbox_ng/service.py:1526
-#, python-format
-msgid "Running %r right away"
-msgstr ""
-
-#: .././checkbox_ng/service.py:1563
-#, python-format
-msgid "calling JobResultAvailable(%r, %r)"
-msgstr ""
-
-#: .././checkbox_ng/service.py:1570
-msgid ""
-"sending AskForOutcome() after job finished running with OUTCOME_UNDECIDED"
 msgstr ""
 
 #: .././checkbox_ng/ui.py:73

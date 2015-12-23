@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-23 18:45+0800\n"
+"POT-Creation-Date: 2015-12-23 18:53+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -157,7 +157,7 @@ msgstr ""
 
 #. TRANSLATORS: Do not translate the {} format markers.
 #: .././checkbox_ng/commands/newcli.py:439
-msgid "Submitting results to {0} for email_address {1})"
+msgid "Submitting results to {0} for email_address {1}"
 msgstr ""
 
 #. TRANSLATORS: Do not translate the {} format marker.
@@ -171,7 +171,7 @@ msgstr ""
 
 #. TRANSLATORS: Do not translate the {} format markers.
 #: .././checkbox_ng/commands/newcli.py:464
-msgid "Submitting results to {0} for secure_id {1})"
+msgid "Submitting results to {0} for secure_id {1}"
 msgstr ""
 
 #. TRANSLATORS: Do not translate the {} format marker.

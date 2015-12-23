@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-23 18:45+0800\n"
-"PO-Revision-Date: 2015-12-22 02:52+0000\n"
+"POT-Creation-Date: 2015-12-23 18:53+0800\n"
+"PO-Revision-Date: 2015-12-23 03:46+0000\n"
 "Last-Translator: Po-Hsu Lin <po-hsu.lin@canonical.com>\n"
 "Language-Team: Chinese (Traditional) <zh_TW@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2015-12-22 04:33+0000\n"
+"X-Launchpad-Export-Date: 2015-12-23 04:33+0000\n"
 "X-Generator: Launchpad (build 17865)\n"
 
 #: .././checkbox_ng/certification.py:135
@@ -39,7 +39,7 @@ msgstr ""
 
 #: .././checkbox_ng/certification.py:164 .././checkbox_ng/launchpad.py:183
 msgid "Request to {0} timed out: {1}"
-msgstr ""
+msgstr "至 {0} 的要求逾時：{1}"
 
 #: .././checkbox_ng/certification.py:167 .././checkbox_ng/launchpad.py:186
 msgid "Invalid destination URL: {0}"
@@ -102,7 +102,7 @@ msgstr "無此測試計畫：%s"
 #: .././checkbox_ng/commands/newcli.py:236
 #, python-format
 msgid "Selected testplans: %r"
-msgstr ""
+msgstr "已選擇的測試計畫：%r"
 
 #: .././checkbox_ng/commands/newcli.py:259
 msgid "Suite selection"
@@ -162,8 +162,11 @@ msgstr "電子郵件地址： "
 
 #. TRANSLATORS: Do not translate the {} format markers.
 #: .././checkbox_ng/commands/newcli.py:439
-msgid "Submitting results to {0} for email_address {1})"
+#, fuzzy
+msgid "Submitting results to {0} for email_address {1}"
 msgstr ""
+"\n"
+"傳送結果至 {0}？"
 
 #. TRANSLATORS: Do not translate the {} format marker.
 #: .././checkbox_ng/commands/newcli.py:450
@@ -176,8 +179,11 @@ msgstr ""
 
 #. TRANSLATORS: Do not translate the {} format markers.
 #: .././checkbox_ng/commands/newcli.py:464
-msgid "Submitting results to {0} for secure_id {1})"
+#, fuzzy
+msgid "Submitting results to {0} for secure_id {1}"
 msgstr ""
+"\n"
+"傳送結果至 {0}？"
 
 #. TRANSLATORS: Do not translate the {} format marker.
 #: .././checkbox_ng/commands/newcli.py:485
@@ -292,15 +298,15 @@ msgstr ""
 
 #: .././checkbox_ng/config.py:48
 msgid "Whether to send the submission data to c3"
-msgstr ""
+msgstr "是否要將結果傳送至 C3"
 
 #: .././checkbox_ng/config.py:52
 msgid "Whether to also send the submission data to HEXR"
-msgstr ""
+msgstr "是否也要將結果傳送至 HEXR"
 
 #: .././checkbox_ng/config.py:58
 msgid "Email address to log into the Launchpad HWDB"
-msgstr ""
+msgstr "登入 Launchpad 硬體資料庫用的電子郵件地址"
 
 #: .././checkbox_ng/config.py:63
 msgid "URL of the certification website"
@@ -308,7 +314,7 @@ msgstr ""
 
 #: .././checkbox_ng/config.py:69
 msgid "URL of the launchpad hardware database"
-msgstr ""
+msgstr "launchpad 硬體資料庫網址"
 
 #: .././checkbox_ng/config.py:74
 msgid "Location of the fallback file"
@@ -411,7 +417,7 @@ msgstr "成功！伺服器回應 %s"
 
 #: .././checkbox_ng/launchpad.py:197
 msgid "The submission was uploaded to Launchpad successfully"
-msgstr ""
+msgstr "測試報告已成功上傳至 Launchpad"
 
 #: .././checkbox_ng/ui.py:73
 msgid "< Continue >"
@@ -419,7 +425,7 @@ msgstr "< 繼續 >"
 
 #: .././checkbox_ng/ui.py:194 .././checkbox_ng/ui.py:321
 msgid "Enter"
-msgstr ""
+msgstr "Enter 鍵"
 
 #: .././checkbox_ng/ui.py:197 .././checkbox_ng/ui.py:324
 msgid ": Expand/Collapse"
@@ -427,7 +433,7 @@ msgstr "：展開 / 收起"
 
 #: .././checkbox_ng/ui.py:213
 msgid "Start "
-msgstr ""
+msgstr "開始 "
 
 #: .././checkbox_ng/ui.py:345
 msgid "inish"

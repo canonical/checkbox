@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: checkbox-ng 0.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-19 13:10+0800\n"
+"POT-Creation-Date: 2015-12-23 18:53+0800\n"
 "PO-Revision-Date: 2014-04-17 06:45+0000\n"
 "Last-Translator: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>\n"
 "Language-Team: polski <>\n"
+"Language: Polish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2015-12-15 05:08+0000\n"
 "X-Generator: Launchpad (build 17865)\n"
-"Language: Polish\n"
 
 #: .././checkbox_ng/certification.py:135
 msgid "Secure ID not specified"
@@ -38,314 +38,249 @@ msgid "submit_to_hexr set to %s by UI"
 msgstr ""
 
 #: .././checkbox_ng/certification.py:164 .././checkbox_ng/launchpad.py:183
-#, python-brace-format
 msgid "Request to {0} timed out: {1}"
 msgstr "Żądanie do {0} przekroczyło czas oczekiwania: {1}"
 
 #: .././checkbox_ng/certification.py:167 .././checkbox_ng/launchpad.py:186
-#, python-brace-format
 msgid "Invalid destination URL: {0}"
 msgstr "Niewłaściwy docelowy URL: {0}"
 
 #: .././checkbox_ng/certification.py:170 .././checkbox_ng/launchpad.py:189
-#, python-brace-format
 msgid "Unable to connect to {0}: {1}"
 msgstr "Nie można połączyć się z {0}: {1}"
 
-#: .././checkbox_ng/certification.py:188
+#: .././checkbox_ng/certification.py:189
 msgid "secure_id must be 15 or 18-character alphanumeric string"
 msgstr "secure_id musi mieć od 15 do 18 znaków alfanumerycznych"
 
-#: .././checkbox_ng/commands/cli.py:76
+#: .././checkbox_ng/commands/cli.py:70
 msgid "run check-config"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:77
+#: .././checkbox_ng/commands/cli.py:71
+#: .././checkbox_ng/commands/launcher.py:108
 msgid "user interface options"
 msgstr ""
 
-#: .././checkbox_ng/commands/cli.py:83
+#: .././checkbox_ng/commands/cli.py:77
+#: .././checkbox_ng/commands/launcher.py:111
 msgid "skip tests that require interactivity"
 msgstr "pomiń testy wymagające interaktywności"
 
-#: .././checkbox_ng/commands/cli.py:86
+#: .././checkbox_ng/commands/cli.py:80
 msgid "don't suppress the output of certain job plugin types"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:121
-#: .././checkbox_ng/commands/newcli.py:132
+#: .././checkbox_ng/commands/launcher.py:64
+#, python-format
+msgid "Unable to load launcher definition: %s"
+msgstr ""
+
+#: .././checkbox_ng/commands/launcher.py:69
+msgid "Unable to start launcher because of errors:"
+msgstr ""
+
+#: .././checkbox_ng/commands/launcher.py:102
+msgid "LAUNCHER"
+msgstr ""
+
+#: .././checkbox_ng/commands/launcher.py:103
+msgid "launcher definition file to use"
+msgstr ""
+
+#: .././checkbox_ng/commands/newcli.py:119
+#: .././checkbox_ng/commands/newcli.py:130
 #, python-format
 msgid "Incorrect pattern %r: %s"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:149
+#: .././checkbox_ng/commands/newcli.py:147
 #, python-format
 msgid "There is no test plan: %s"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:235
+#: .././checkbox_ng/commands/newcli.py:236
 #, python-format
 msgid "Selected testplans: %r"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:258
+#: .././checkbox_ng/commands/newcli.py:259
 msgid "Suite selection"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:261
+#: .././checkbox_ng/commands/newcli.py:262
 msgid "No testplan selected, aborting"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:299
+#: .././checkbox_ng/commands/newcli.py:291
 msgid "Selecting Job Generators"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:318
+#: .././checkbox_ng/commands/newcli.py:310
 msgid "Selecting Jobs For Execution"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:325
+#: .././checkbox_ng/commands/newcli.py:317
 msgid "Choose tests to run on your system:"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:337
+#: .././checkbox_ng/commands/newcli.py:329
 msgid "Results"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:379
-msgid "Saving submission file to {}"
-msgstr "Zapisywanie pliku zgłoszenia do {}"
-
-#. FIXME: replacing extension is ugly
-#: .././checkbox_ng/commands/newcli.py:381
-#: .././checkbox_ng/commands/newcli.py:384
+#: .././checkbox_ng/commands/newcli.py:368
 msgid "View results"
 msgstr "Zobacz wyniki"
 
-#: .././checkbox_ng/commands/newcli.py:412
-#, python-brace-format
+#: .././checkbox_ng/commands/newcli.py:397
 msgid ""
 "\n"
 "Submit results to {0}?"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:415
+#: .././checkbox_ng/commands/newcli.py:400
 msgid "Secure ID: "
 msgstr "Bezpieczny identyfikator: "
 
-#: .././checkbox_ng/commands/newcli.py:418
+#: .././checkbox_ng/commands/newcli.py:403
 msgid "ERROR: Secure ID must be 15 or 18-character alphanumeric string"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:436
+#: .././checkbox_ng/commands/newcli.py:421
 msgid ""
 "\n"
 "Submit results to launchpad.net/+hwdb?"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:438
+#: .././checkbox_ng/commands/newcli.py:423
 msgid "Email address: "
 msgstr ""
 
 #. TRANSLATORS: Do not translate the {} format markers.
-#: .././checkbox_ng/commands/newcli.py:454
-#, python-brace-format
-msgid "Submitting results to {0} for email_address {1})"
+#: .././checkbox_ng/commands/newcli.py:439
+msgid "Submitting results to {0} for email_address {1}"
 msgstr ""
 
 #. TRANSLATORS: Do not translate the {} format marker.
-#: .././checkbox_ng/commands/newcli.py:465
-#, python-brace-format
+#: .././checkbox_ng/commands/newcli.py:450
 msgid "Submission uploaded to: {0}"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:471
-#, python-brace-format
+#: .././checkbox_ng/commands/newcli.py:456
 msgid "Bad response from {0} transport"
 msgstr ""
 
 #. TRANSLATORS: Do not translate the {} format markers.
-#: .././checkbox_ng/commands/newcli.py:479
-#, python-brace-format
-msgid "Submitting results to {0} for secure_id {1})"
+#: .././checkbox_ng/commands/newcli.py:464
+msgid "Submitting results to {0} for secure_id {1}"
 msgstr ""
 
 #. TRANSLATORS: Do not translate the {} format marker.
-#: .././checkbox_ng/commands/newcli.py:500
-#: .././checkbox_ng/commands/sru.py:142
-#, python-brace-format
+#: .././checkbox_ng/commands/newcli.py:485
+#: .././checkbox_ng/commands/submit.py:64
 msgid "Successfully sent, submission status at {0}"
 msgstr ""
 
 #. TRANSLATORS: Do not translate the {} format marker.
-#: .././checkbox_ng/commands/newcli.py:504
-#: .././checkbox_ng/commands/sru.py:145
-#, python-brace-format
+#: .././checkbox_ng/commands/newcli.py:489
+#: .././checkbox_ng/commands/submit.py:68
 msgid "Successfully sent, server response: {0}"
 msgstr ""
 
-#: .././checkbox_ng/commands/newcli.py:525
+#: .././checkbox_ng/commands/newcli.py:514
 msgid "Select jobs to re-run"
 msgstr ""
 
-#: .././checkbox_ng/commands/service.py:79
-msgid "Setting up DBus objects..."
-msgstr ""
-
-#. TODO: load sessions
-#: .././checkbox_ng/commands/service.py:81
-msgid "Constructing Service object"
-msgstr ""
-
-#: .././checkbox_ng/commands/service.py:83
-msgid "Constructing ServiceWrapper"
-msgstr ""
-
-#: .././checkbox_ng/commands/service.py:85
-msgid "Publishing all objects on DBus"
-msgstr ""
-
-#: .././checkbox_ng/commands/service.py:88
-msgid "Publishing all managed objects (events should fire there)"
-msgstr ""
-
-#: .././checkbox_ng/commands/service.py:90
-#, python-format
-msgid "Attempting to claim bus name: %s"
-msgstr ""
-
-#: .././checkbox_ng/commands/service.py:93
-#, python-format
-msgid "PlainBox DBus service ready, claimed name: %s"
-msgstr ""
-
-#: .././checkbox_ng/commands/service.py:99
-msgid ""
-"Main loop interrupted! It is recommended to call the Exit() method on the "
-"exported service object instead"
-msgstr ""
-
-#: .././checkbox_ng/commands/service.py:103
-#, python-format
-msgid "Releasing %s"
-msgstr ""
-
-#: .././checkbox_ng/commands/service.py:108
-#, python-format
-msgid "Closing %s"
-msgstr ""
-
-#: .././checkbox_ng/commands/service.py:110
-msgid "Main loop terminated, exiting..."
-msgstr ""
-
-#: .././checkbox_ng/commands/service.py:122
-msgid "spawn dbus service"
-msgstr ""
-
-#: .././checkbox_ng/commands/service.py:129
-msgid "use the specified DBus bus name"
-msgstr ""
-
-#. Handle possible DependencyDuplicateError that can happen if
-#. someone is using plainbox for job development.
-#: .././checkbox_ng/commands/sru.py:88
-msgid "The job database you are currently using is broken"
-msgstr ""
-"Baza danych zawierająca zadania testowe której teraz używasz jest popsuta"
-
-#: .././checkbox_ng/commands/sru.py:89
-#, python-brace-format
-msgid "At least two jobs contend for the name {0}"
-msgstr ""
-
-#: .././checkbox_ng/commands/sru.py:91
-#, python-brace-format
-msgid "Second job defined in: {0}"
-msgstr "Drugie zadanie zdefiniowano w: {0}"
-
-#: .././checkbox_ng/commands/sru.py:112
-msgid "There were some problems with the selected jobs"
-msgstr "Wystąpiły problemy z wybranymi zadaniami"
-
-#: .././checkbox_ng/commands/sru.py:115
-msgid "Problematic jobs will not be considered"
-msgstr "Problematyczne zadania nie zostaną wzięte pod uwagę"
-
-#: .././checkbox_ng/commands/sru.py:118
-#, python-brace-format
-msgid "Saving results to {0}"
-msgstr ""
-
-#: .././checkbox_ng/commands/sru.py:125
-#, python-brace-format
-msgid "Submitting results to {0} for secure_id {1}"
-msgstr ""
-
-#: .././checkbox_ng/commands/sru.py:150
-#, python-brace-format
-msgid "Problem reading a file: {0}"
-msgstr ""
-
-#: .././checkbox_ng/commands/sru.py:180
-#, python-brace-format
-msgid "comments: {0}"
-msgstr "komentarze: {0}"
-
-#: .././checkbox_ng/commands/sru.py:182
-msgid "inhibitors:"
-msgstr "ograniczniki:"
-
-#: .././checkbox_ng/commands/sru.py:220
-msgid "Configuration problems prevent running SRU tests"
-msgstr ""
-
-#: .././checkbox_ng/commands/sru.py:236
-msgid "run automated stable release update tests"
-msgstr "uruchom automatyczne testy aktualizacji wydania stabilnego"
-
-#: .././checkbox_ng/commands/sru.py:241
-msgid "run check-config before starting"
-msgstr ""
-
-#: .././checkbox_ng/commands/sru.py:249
+#: .././checkbox_ng/commands/sru.py:58 .././checkbox_ng/commands/submit.py:121
 msgid "SECURE-ID"
 msgstr "BEZPIECZNE-ID"
 
-#. TRANSLATORS: Do not translate %(default)
-#: .././checkbox_ng/commands/sru.py:254
-#, python-format
+#: .././checkbox_ng/commands/sru.py:61
+msgid "Canonical hardware identifier"
+msgstr ""
+
+#: .././checkbox_ng/commands/sru.py:65
+msgid "TEST-PLAN-ID"
+msgstr ""
+
+#. TRANSLATORS: this is in imperative form
+#: .././checkbox_ng/commands/sru.py:68
+msgid "load the specified test plan"
+msgstr ""
+
+#: .././checkbox_ng/commands/sru.py:71 .././checkbox_ng/config.py:88
+msgid "Send the data to non-production test server"
+msgstr ""
+
+#: .././checkbox_ng/commands/sru.py:75
+msgid "run check-config before starting"
+msgstr ""
+
+#: .././checkbox_ng/commands/sru.py:88
+msgid "Configuration problems prevent running SRU tests"
+msgstr ""
+
+#: .././checkbox_ng/commands/sru.py:113
+msgid "Results saved to {0}"
+msgstr ""
+
+#: .././checkbox_ng/commands/sru.py:118
+msgid "Sending hardware report to Canonical Certification"
+msgstr ""
+
+#: .././checkbox_ng/commands/sru.py:119
+msgid "Server URL is: {0}"
+msgstr ""
+
+#: .././checkbox_ng/commands/sru.py:131
+msgid "SRU Session"
+msgstr ""
+
+#: .././checkbox_ng/commands/sru.py:172
+msgid "run automated stable release update tests"
+msgstr "uruchom automatyczne testy aktualizacji wydania stabilnego"
+
+#. TRANSLATORS: please leave various options (both long and short forms),
+#. environment variables and paths in their original form. Also keep the
+#. special @EPILOG@ string. The first line of the translation is special and
+#. is used as the help message. Please keep the pseudo-statement form and
+#. don't finish the sentence with a dot. Pay extra attention to whitespace.
+#. It must be correctly preserved or the result won't work. In particular
+#. the leading whitespace *must* be preserved and *must* have the same
+#. length on each line.
+#: .././checkbox_ng/commands/submit.py:81
 msgid ""
-"associate submission with a machine using this SECURE-ID (%(default)s)"
+"\n"
+"    submit test results to the Canonical certification website\n"
+"\n"
+"    This command sends the XML results file to the Certification website.\n"
+"    "
 msgstr ""
 
-#: .././checkbox_ng/commands/sru.py:257
-msgid "FILE"
-msgstr "PLIK"
-
-#. TRANSLATORS: Do not translate %(default)s
-#: .././checkbox_ng/commands/sru.py:262
-#, python-format
-msgid "if submission fails save the test report as FILE (%(default)s)"
+#: .././checkbox_ng/commands/submit.py:98
+msgid "submit test results to the Canonical certification website"
 msgstr ""
 
-#: .././checkbox_ng/commands/sru.py:265
+#: .././checkbox_ng/commands/submit.py:104
+msgid "The path to the results xml file"
+msgstr ""
+
+#: .././checkbox_ng/commands/submit.py:114
+#, fuzzy
+msgid "must be 15 or 18-character alphanumeric string"
+msgstr "secure_id musi mieć od 15 do 18 znaków alfanumerycznych"
+
+#: .././checkbox_ng/commands/submit.py:124
+msgid "associate submission with a machine using this SECURE-ID"
+msgstr ""
+
+#: .././checkbox_ng/commands/submit.py:152
 msgid "URL"
 msgstr "URL"
 
-#. TRANSLATORS: Do not translate %(default)s
-#: .././checkbox_ng/commands/sru.py:269
-#, python-format
-msgid "POST the test report XML to this URL (%(default)s)"
+#: .././checkbox_ng/commands/submit.py:154
+msgid "destination to submit to"
 msgstr ""
-
-#: .././checkbox_ng/commands/sru.py:277
-msgid "override --destination to use the staging certification website"
-msgstr ""
-
-#: .././checkbox_ng/commands/sru.py:284
-msgid "don't really run most jobs"
-msgstr "tak na prawdę nie uruchamiaj większości zadań"
 
 #: .././checkbox_ng/config.py:43
 msgid "Secure ID of the system"
@@ -379,13 +314,81 @@ msgstr ""
 msgid "Optional whitelist with which to run SRU testing"
 msgstr ""
 
+#: .././checkbox_ng/config.py:82
+msgid "Optional test plan with which to run SRU testing"
+msgstr ""
+
+#: .././checkbox_ng/launcher.py:47
+msgid "Application Title"
+msgstr ""
+
+#: .././checkbox_ng/launcher.py:51
+msgid "Welcome Message"
+msgstr ""
+
+#. TODO: valid regexp text validator
+#: .././checkbox_ng/launcher.py:56
+msgid "Pattern that whitelists need to match to be displayed"
+msgstr ""
+
+#. TODO: valid regexp text validator
+#: .././checkbox_ng/launcher.py:61
+msgid "Pattern that whitelists need to match to be selected"
+msgstr ""
+
+#: .././checkbox_ng/launcher.py:67
+msgid "If enabled then suite selection screen is not displayed"
+msgstr ""
+
+#: .././checkbox_ng/launcher.py:73
+msgid "If enabled then test selection screen is not displayed"
+msgstr ""
+
+#. TODO: probably a choice validator
+#: .././checkbox_ng/launcher.py:78
+msgid "Type of the input field?"
+msgstr ""
+
+#: .././checkbox_ng/launcher.py:82
+msgid "Label on the 'send' button"
+msgstr ""
+
+#. TODO: default?
+#: .././checkbox_ng/launcher.py:88
+msgid "If enabled then test results will be also sent to HEXR"
+msgstr ""
+
+#: .././checkbox_ng/launcher.py:93
+msgid "Where to submit the test results to"
+msgstr ""
+
+#: .././checkbox_ng/launcher.py:98
+msgid ""
+"HTTP endpoint to submit data to, using the transport specified with "
+"submit_to."
+msgstr ""
+
+#: .././checkbox_ng/launcher.py:104
+msgid "Secure ID to identify the system this submission belongs to."
+msgstr ""
+
+#: .././checkbox_ng/launcher.py:109
+msgid "Name of custom configuration file"
+msgstr ""
+
+#: .././checkbox_ng/launcher.py:113
+msgid "Don't suppress the output of certain job plugin types."
+msgstr ""
+
+#: .././checkbox_ng/launcher.py:116
+msgid "Section with only exported unit ids as keys (no values)"
+msgstr ""
+
 #: .././checkbox_ng/launchpad.py:66
-#, python-brace-format
 msgid "Cannot get {0} resource job"
 msgstr "Nie można uzyskać zadania zasobu {0}"
 
 #: .././checkbox_ng/launchpad.py:70
-#, python-brace-format
 msgid "{0} has no attribute {1}"
 msgstr "{0} nie ma atrybutu {1}"
 
@@ -406,180 +409,71 @@ msgstr "Sukces! Serwer powiedział %s"
 msgid "The submission was uploaded to Launchpad successfully"
 msgstr ""
 
-#: .././checkbox_ng/service.py:37
-msgid "DBus parts require 'funcsigs' from pypi."
-msgstr ""
-
-#: .././checkbox_ng/service.py:86
-#, python-format
-msgid "Created DBus wrapper %s for: %r"
-msgstr ""
-
-#: .././checkbox_ng/service.py:90
-#, python-format
-msgid "DBus wrapper %s died"
-msgstr ""
-
-#: .././checkbox_ng/service.py:122
-#, python-format
-msgid "Published DBus wrapper for %r as %s"
-msgstr ""
-
-#: .././checkbox_ng/service.py:169 .././checkbox_ng/service.py:180
-#, python-brace-format
-msgid "object path {0} does not designate an existing object"
-msgstr ""
-
-#: .././checkbox_ng/service.py:188
-#, python-format
-msgid ""
-"Application error: %r should have returned native object but returned "
-"wrapper instead"
-msgstr ""
-
-#: .././checkbox_ng/service.py:195 .././checkbox_ng/service.py:206
-#: .././checkbox_ng/service.py:217
-#, python-brace-format
-msgid "({0}) internal error, unable to lookup object wrapper"
-msgstr ""
-
-#: .././checkbox_ng/service.py:224
-#, python-format
-msgid "wrapped %s called with %s"
-msgstr ""
-
-#: .././checkbox_ng/service.py:240 .././checkbox_ng/service.py:256
-msgid "unsupported translation {!r}"
-msgstr ""
-
-#: .././checkbox_ng/service.py:243
-#, python-format
-msgid "unwrapped %s called with %s"
-msgstr ""
-
-#: .././checkbox_ng/service.py:245
-#, python-format
-msgid "unwrapped %s returned %r"
-msgstr ""
-
-#: .././checkbox_ng/service.py:258
-#, python-format
-msgid "wrapped %s returned  %r"
-msgstr ""
-
-#: .././checkbox_ng/service.py:769
-#, python-format
-msgid "Adding result %r to DBus"
-msgstr ""
-
-#: .././checkbox_ng/service.py:788
-#, python-format
-msgid "Removing result %r from DBus"
-msgstr ""
-
-#: .././checkbox_ng/service.py:811
-#, python-format
-msgid "Adding job %r to DBus"
-msgstr ""
-
-#: .././checkbox_ng/service.py:843
-#, python-format
-msgid "Adding job state %r to DBus"
-msgstr ""
-
-#: .././checkbox_ng/service.py:875
-#, python-brace-format
-msgid "Unable to wrap object of type {0}"
-msgstr ""
-
-#: .././checkbox_ng/service.py:1000
-msgid "Remove() completed"
-msgstr ""
-
-#: .././checkbox_ng/service.py:1075
-#, python-format
-msgid "AskForOutcome(%r) suggested outcome is (%s)"
-msgstr ""
-
-#. NOTE: this should:
-#. 1) attempt to cancel the future in the extremely rare case where it
-#. is not started yet
-#. 2) kill the job otherwise
-#: .././checkbox_ng/service.py:1391
-msgid "Kill() is not implemented"
-msgstr ""
-
-#: .././checkbox_ng/service.py:1411
-msgid "RunCommand() should not be called for automated jobs"
-msgstr ""
-
-#: .././checkbox_ng/service.py:1413
-msgid "RunCommand() is starting to run the job"
-msgstr ""
-
-#: .././checkbox_ng/service.py:1417
-msgid "RunCommand() ignored, waiting for command to finish"
-msgstr ""
-
-#: .././checkbox_ng/service.py:1435
-msgid "SetOutcome() called while the command is still running!"
-msgstr ""
-
-#: .././checkbox_ng/service.py:1442
-msgid "SetOutcome() called before RunCommand()"
-msgstr "funkcja SetOutcome() wywołana przed RunCommand()"
-
-#. TRANSLATORS: don't translate 'manual' translate it as
-#. 'of type manual' and leave the 'manual' string
-#. intact.
-#: .././checkbox_ng/service.py:1447
-#, python-format
-msgid "But the job is not manual, it is %s"
-msgstr "Lecz zadanie nie jest typu manual, jest typu %s"
-
-#: .././checkbox_ng/service.py:1480
-msgid "outcome_from_command() called too early!"
-msgstr "funkcja outcome_from_command() została wywołana zbyt wcześnie"
-
-#: .././checkbox_ng/service.py:1481
-msgid "There is nothing to return yet"
-msgstr "Nie ma jeszcze nic do zwrócenia"
-
-#: .././checkbox_ng/service.py:1522
-msgid "Sending ShowInteractiveUI() and not starting the job..."
-msgstr "Wysyłanie ShowInteractiveUI() i nie uruchamianie zadania..."
-
-#: .././checkbox_ng/service.py:1526
-#, python-format
-msgid "Running %r right away"
-msgstr "Uruchamianie %r od razu"
-
-#: .././checkbox_ng/service.py:1563
-#, python-format
-msgid "calling JobResultAvailable(%r, %r)"
-msgstr "wywoływanie JobResourceAvailalbe(%r, %r)"
-
-#: .././checkbox_ng/service.py:1570
-msgid ""
-"sending AskForOutcome() after job finished running with OUTCOME_UNDECIDED"
-msgstr ""
-
 #: .././checkbox_ng/ui.py:73
 msgid "< Continue >"
 msgstr ""
 
-#: .././checkbox_ng/ui.py:191 .././checkbox_ng/ui.py:318
+#: .././checkbox_ng/ui.py:194 .././checkbox_ng/ui.py:321
 msgid "Enter"
 msgstr ""
 
-#: .././checkbox_ng/ui.py:194 .././checkbox_ng/ui.py:321
+#: .././checkbox_ng/ui.py:197 .././checkbox_ng/ui.py:324
 msgid ": Expand/Collapse"
 msgstr ""
 
-#: .././checkbox_ng/ui.py:210
+#: .././checkbox_ng/ui.py:213
 msgid "Start "
 msgstr ""
 
-#: .././checkbox_ng/ui.py:342
+#: .././checkbox_ng/ui.py:345
 msgid "inish"
 msgstr ""
+
+#~ msgid "Saving submission file to {}"
+#~ msgstr "Zapisywanie pliku zgłoszenia do {}"
+
+#~ msgid "The job database you are currently using is broken"
+#~ msgstr ""
+#~ "Baza danych zawierająca zadania testowe której teraz używasz jest popsuta"
+
+#~ msgid "Second job defined in: {0}"
+#~ msgstr "Drugie zadanie zdefiniowano w: {0}"
+
+#~ msgid "There were some problems with the selected jobs"
+#~ msgstr "Wystąpiły problemy z wybranymi zadaniami"
+
+#~ msgid "Problematic jobs will not be considered"
+#~ msgstr "Problematyczne zadania nie zostaną wzięte pod uwagę"
+
+#~ msgid "comments: {0}"
+#~ msgstr "komentarze: {0}"
+
+#~ msgid "inhibitors:"
+#~ msgstr "ograniczniki:"
+
+#~ msgid "FILE"
+#~ msgstr "PLIK"
+
+#~ msgid "don't really run most jobs"
+#~ msgstr "tak na prawdę nie uruchamiaj większości zadań"
+
+#~ msgid "SetOutcome() called before RunCommand()"
+#~ msgstr "funkcja SetOutcome() wywołana przed RunCommand()"
+
+#~ msgid "But the job is not manual, it is %s"
+#~ msgstr "Lecz zadanie nie jest typu manual, jest typu %s"
+
+#~ msgid "outcome_from_command() called too early!"
+#~ msgstr "funkcja outcome_from_command() została wywołana zbyt wcześnie"
+
+#~ msgid "There is nothing to return yet"
+#~ msgstr "Nie ma jeszcze nic do zwrócenia"
+
+#~ msgid "Sending ShowInteractiveUI() and not starting the job..."
+#~ msgstr "Wysyłanie ShowInteractiveUI() i nie uruchamianie zadania..."
+
+#~ msgid "Running %r right away"
+#~ msgstr "Uruchamianie %r od razu"
+
+#~ msgid "calling JobResultAvailable(%r, %r)"
+#~ msgstr "wywoływanie JobResourceAvailalbe(%r, %r)"

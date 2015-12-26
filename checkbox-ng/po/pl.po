@@ -11,14 +11,14 @@ msgstr ""
 "PO-Revision-Date: 2015-04-22 01:48+0000\n"
 "Last-Translator: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>\n"
 "Language-Team: polski <>\n"
-"Language: Polish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2015-12-15 05:08+0000\n"
+"X-Launchpad-Export-Date: 2015-12-26 05:07+0000\n"
 "X-Generator: Launchpad (build 17865)\n"
+"Language: Polish\n"
 "X-Language: pl_PL\n"
 "X-Source-Language: C\n"
 
@@ -461,7 +461,8 @@ msgid "?"
 msgstr "?"
 
 #: .././plainbox/impl/commands/cmd_run.py:84
-msgid "use TRANSPORT to send results somewhere (pass ? for a list of choices)"
+msgid ""
+"use TRANSPORT to send results somewhere (pass ? for a list of choices)"
 msgstr ""
 "użyj TRANSPORTU do wysłania wyników w jakieś miejsce (? wyświetla "
 "listę możliwości)"
@@ -515,7 +516,8 @@ msgstr "uruchom testy głośno, wypisując nazwę każdego testu"
 
 #: .././plainbox/impl/commands/cmd_selftest.py:89
 msgid "run integration test suite (this verifies checkbox jobs)"
-msgstr "uruchom testy integracji (to weryfikuje definicje zadań z checkbox'a)"
+msgstr ""
+"uruchom testy integracji (to weryfikuje definicje zadań z checkbox'a)"
 
 #: .././plainbox/impl/commands/cmd_selftest.py:95
 msgid "run unit tests (this only verifies plainbox core)"
@@ -693,8 +695,8 @@ msgid ""
 "\n"
 "    @EPILOG@\n"
 "\n"
-"    The name of the provider must follow the pattern ``YYYY.example.org:"
-"name``\n"
+"    The name of the provider must follow the pattern "
+"``YYYY.example.org:name``\n"
 "    where ``YYYY`` is a four-digit year when the author of the provider "
 "owned\n"
 "    the domain (here, ``example.org``) and ``name`` is arbitrary identifier\n"
@@ -748,9 +750,8 @@ msgid "provider name, eg: YYYY.example.org:some-name"
 msgstr "nazwa dostawcy, np: RRRR.example.org:jakaś-nazwa"
 
 #: .././plainbox/impl/commands/cmd_startprovider.py:96
-#, fuzzy
 msgid "create an empty provider"
-msgstr "Nazwa dostawcy"
+msgstr ""
 
 #: .././plainbox/impl/commands/crash.py:43
 msgid "crashing as requested"
@@ -1039,9 +1040,8 @@ msgid "Session not resumed"
 msgstr "Nie wznowiono sesji"
 
 #: .././plainbox/impl/commands/inv_run.py:485
-#, fuzzy
 msgid "Available output formats:"
-msgstr "Dostępne formaty wyjściowe: {}"
+msgstr ""
 
 #: .././plainbox/impl/commands/inv_run.py:490
 #: .././plainbox/impl/commands/inv_session.py:184
@@ -1482,7 +1482,8 @@ msgstr ""
 #: .././plainbox/impl/ctrl.py:1178
 #, python-format
 msgid "Cannot check if plainbox-trusted-launcher-1 is available: %s"
-msgstr "Nie można sprawdzić czy plainbox-trusted-launcher-1 jest dostępny: %s"
+msgstr ""
+"Nie można sprawdzić czy plainbox-trusted-launcher-1 jest dostępny: %s"
 
 #: .././plainbox/impl/depmgr.py:97
 msgid "unknown job referenced: {!a}"
@@ -1570,9 +1571,8 @@ msgid ""
 msgstr ""
 
 #: .././plainbox/impl/exporter/text.py:59
-#, fuzzy
 msgid "  history: {0}\n"
-msgstr "Kategoria: {0}"
+msgstr ""
 
 #: .././plainbox/impl/exporter/text.py:73
 msgid "History:"
@@ -2019,7 +2019,8 @@ msgid "Selected execution controller %s (score %d) for job %r"
 msgstr "Wybrano kontroler wykonania %s (punkty %d) dla zadania %r"
 
 #: .././plainbox/impl/runner.py:974
-msgid "Job {0} created leftover filesystem artefacts in its working directory"
+msgid ""
+"Job {0} created leftover filesystem artefacts in its working directory"
 msgstr "Zadanie {0} pozostawiło po sobie pliki/katalogi w katalogu roboczym"
 
 #: .././plainbox/impl/runner.py:977
@@ -2262,9 +2263,8 @@ msgid "Name of the provider"
 msgstr "Nazwa dostawcy"
 
 #: .././plainbox/impl/secure/providers/v1.py:1353
-#, fuzzy
 msgid "Namespace of the provider"
-msgstr "Nazwa dostawcy"
+msgstr ""
 
 #: .././plainbox/impl/secure/providers/v1.py:1368
 msgid "Version of the provider"
@@ -2563,14 +2563,13 @@ msgid "'desired_job_list' refers to unknown job {!r}"
 msgstr "'desired_job_list' odnosi się do nieznanego zadania {!r}"
 
 #: .././plainbox/impl/session/resume.py:836
-#, fuzzy, python-format
+#, python-format
 msgid "calling update_mandatory_job_list(%r)"
-msgstr "wołanie update_desired_job_list(%r)"
+msgstr ""
 
 #: .././plainbox/impl/session/resume.py:843
-#, fuzzy
 msgid "'mandatory_job_list' refers to unknown job {!r}"
-msgstr "'desired_job_list' odnosi się do nieznanego zadania {!r}"
+msgstr ""
 
 #: .././plainbox/impl/session/resume.py:912
 #, python-format
@@ -2595,9 +2594,8 @@ msgid "record data {!r} is not correct base64"
 msgstr "dane rekordu {!r} nie są poprawnym base64"
 
 #: .././plainbox/impl/session/resume.py:1111
-#, fuzzy
 msgid "Starting to restore mandatory job list..."
-msgstr "Rozpoczynanie wznawiania listy zadań..."
+msgstr ""
 
 #: .././plainbox/impl/session/resume.py:1127
 msgid "key {!r}"
@@ -2702,7 +2700,8 @@ msgstr "Stworzono nowe miejsce do zapisu w %r"
 #: .././plainbox/impl/session/storage.py:307
 #, python-format
 msgid "%r is not a symlink, repository %r must be corrupted"
-msgstr "%r nie jest dowiązaniem symbolicznym, repozytorium %r musi być popsute"
+msgstr ""
+"%r nie jest dowiązaniem symbolicznym, repozytorium %r musi być popsute"
 
 #: .././plainbox/impl/session/storage.py:311
 #, python-format
@@ -2844,7 +2843,7 @@ msgstr "Usuwanie %r: %r"
 
 #. TRANSLATORS: please don't translate fsync()
 #. Flush kernel buffers on the directory.
-#.
+#. 
 #. This should ensure the rename operation is really on disk by now.
 #. As noted above, this is essential for being able to survive
 #. system crash immediately after exiting this method.
@@ -2959,9 +2958,8 @@ msgid "Invalid destination URL: {0}"
 msgstr ""
 
 #: .././plainbox/impl/transport.py:238
-#, fuzzy
 msgid "Unable to connect to {0}: {1}"
-msgstr "Nie można zaimportować {}: {}"
+msgstr ""
 
 #: .././plainbox/impl/transport.py:256
 msgid "secure_id must be 15 or 18-character alphanumeric string"
@@ -3155,14 +3153,12 @@ msgid "Depends: {}"
 msgstr ""
 
 #: .././plainbox/impl/unit/packaging.py:184
-#, fuzzy
 msgid "Recommends: {}"
-msgstr "komentarze"
+msgstr ""
 
 #: .././plainbox/impl/unit/packaging.py:186
-#, fuzzy
 msgid "Suggests: {}"
-msgstr "testy ręczne: {}"
+msgstr ""
 
 #: .././plainbox/impl/unit/packaging.py:299
 #: .././plainbox/impl/unit/packaging.py:310
@@ -3245,7 +3241,8 @@ msgstr "można użyć tylko jednego polecenia importu"
 #. TODO: compute potential_id_map
 #: .././plainbox/impl/unit/testplan.py:82
 msgid "selector {!a} may not match any known or generated job"
-msgstr "selektor {!a} może nie wybierać żadnych znanych lub generowanych zadań"
+msgstr ""
+"selektor {!a} może nie wybierać żadnych znanych lub generowanych zadań"
 
 #: .././plainbox/impl/unit/testplan.py:134
 msgid ""
@@ -3254,9 +3251,9 @@ msgid ""
 msgstr ""
 
 #: .././plainbox/impl/unit/testplan.py:313
-#, fuzzy, python-format
+#, python-format
 msgid "unable to parse bootstrap_include: %s"
-msgstr "Nie można przygotować wtyczki %s: %s"
+msgstr ""
 
 #: .././plainbox/impl/unit/testplan.py:599
 msgid "only local and resource jobs are allowed in bootstrapping_include"
@@ -3426,7 +3423,6 @@ msgstr ""
 #. result won't work. In particular the leading whitespace *must* be
 #. preserved and *must* have the same length on each line.
 #: .././plainbox/provider_manager.py:119
-#, fuzzy
 msgid ""
 "\n"
 "    install this provider in the system\n"
@@ -3482,49 +3478,6 @@ msgid ""
 "    effectively variable.\n"
 "    "
 msgstr ""
-"\n"
-"    instaluj tego dostawce w systemie\n"
-"\n"
-"    To polecenie instaluje dostawce do podanego przedrostku.\n"
-"\n"
-"    @EPILOG@\n"
-"\n"
-"    Układy instalacji\n"
-"    =================\n"
-"\n"
-"    Istnieją dwa możliwe układy instalacji: płaski (flat), doskonały\n"
-"    do przechowywania wszystkich danych w jednym katalogu oraz unix\n"
-"    który jest przystosowany do paczkowania i respektuje hierarchię\n"
-"    systemu plików.\n"
-"\n"
-"    W obu przypadkach generowany jest plik w sztywnej lokalizacji:\n"
-"\n"
-"        {prefix}/share/plainbox-providers-1/{provider.name}.provider\n"
-"\n"
-"    Ten plik jest kluczowy do tego aby plainbox mógł wykryć dostawcę.\n"
-"    Zawiera on meta-dane zebrane z wywołania setup() z pliku manage.py.\n"
-"\n"
-"    Paczkowanie\n"
-"    -----------\n"
-"\n"
-"    Instalacje dla całego systemu powinny używać `--prefix=/usr` wraz z\n"
-"    `--layout=unix`. Dla paczkowania wygodnie też użyć argumentu\n"
-"    `--root=` tak aby umieścić wszystkie wygenerowane pliki w katalogu\n"
-"    tymczasowym systemu paczkowania. Ten argument nie wpływa na\n"
-"    wygenerowaną treść, która podlega tylko argumentowi `--prefix`.\n"
-"\n"
-"    Układ UNIXowy\n"
-"    -------------\n"
-"\n"
-"    W układzie uniksowym stosowane są następujące transformacje:\n"
-"\n"
-"    @LAYOUT[unix]@\n"
-"\n"
-"    Płaski układ\n"
-"    ------------\n"
-"\n"
-"    @LAYOUT[flat]@\n"
-"    "
 
 #. TRANSLATORS: not installed as in 'will not be installed'
 #: .././plainbox/provider_manager.py:246
@@ -3543,7 +3496,8 @@ msgstr "układ katalogów instalacji (domyślnie %(default)s)"
 
 #: .././plainbox/provider_manager.py:279
 msgid "install everything relative to this alternate root directory"
-msgstr "instaluje wszystko względnie podanego alternatywnego katalogu głównego"
+msgstr ""
+"instaluje wszystko względnie podanego alternatywnego katalogu głównego"
 
 #: .././plainbox/provider_manager.py:338
 #, python-format
@@ -3723,8 +3677,8 @@ msgid ""
 "    hopefully, in most cases, you don't need to do anything. If your src/\n"
 "    directory has a Makefile or .go source files you should be good to go.\n"
 "\n"
-"    If the automatic defaults are somehow unsuitable you need to edit manage."
-"py\n"
+"    If the automatic defaults are somehow unsuitable you need to edit "
+"manage.py\n"
 "    so that it specifies the build command.\n"
 "\n"
 "    IMPORTANT: It is expected that the build command will create binary "
@@ -3867,9 +3821,8 @@ msgstr "nazwa: {}"
 
 #. TRANSLATORS: {} is the namespace of the test provider
 #: .././plainbox/provider_manager.py:856
-#, fuzzy
 msgid "namespace: {}"
-msgstr "nazwa: {}"
+msgstr ""
 
 #. TRANSLATORS: {} is the namespace of the test provider
 #: .././plainbox/provider_manager.py:859
@@ -4516,21 +4469,3 @@ msgid ""
 msgstr ""
 "polecenie do uruchomienia na telefonie/tablecie, bez tego argumentu "
 "uruchamiana jest interaktywna powłoka"
-
-#~ msgid "Unable to load %s: %s"
-#~ msgstr "Nie można wczytać %s: %s"
-
-#~ msgid "Unable to import %s: %s"
-#~ msgstr "Nie można zaimportować %s: %s"
-
-#~ msgid "expression referenced multiple resources"
-#~ msgstr "wyrażenie odniosło się do wielu zasobów"
-
-#~ msgid ".manager accessed"
-#~ msgstr "dostęp do .manager"
-
-#~ msgid "Session not ready, did you call open()?"
-#~ msgstr "Sesja nie jest gotowa, czy wywołałeś funkcję open()?"
-
-#~ msgid "_commit_resume() finished"
-#~ msgstr "zakończono _commit_resume()"

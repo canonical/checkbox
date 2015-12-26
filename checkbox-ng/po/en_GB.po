@@ -11,13 +11,13 @@ msgstr ""
 "PO-Revision-Date: 2015-04-22 01:48+0000\n"
 "Last-Translator: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2015-12-15 05:08+0000\n"
+"X-Launchpad-Export-Date: 2015-12-26 05:07+0000\n"
 "X-Generator: Launchpad (build 17865)\n"
+"Language: \n"
 
 #: .././plainbox/impl/_argparse.py:139
 #: .././plainbox/vendor/argparse/py32-argparse.py:298
@@ -445,8 +445,10 @@ msgid "?"
 msgstr "?"
 
 #: .././plainbox/impl/commands/cmd_run.py:84
-msgid "use TRANSPORT to send results somewhere (pass ? for a list of choices)"
-msgstr "use TRANSPORT to send results somewhere (pass ? for a list of choices)"
+msgid ""
+"use TRANSPORT to send results somewhere (pass ? for a list of choices)"
+msgstr ""
+"use TRANSPORT to send results somewhere (pass ? for a list of choices)"
 
 #: .././plainbox/impl/commands/cmd_run.py:88
 msgid "WHERE"
@@ -651,8 +653,8 @@ msgid ""
 "\n"
 "    @EPILOG@\n"
 "\n"
-"    The name of the provider must follow the pattern ``YYYY.example.org:"
-"name``\n"
+"    The name of the provider must follow the pattern "
+"``YYYY.example.org:name``\n"
 "    where ``YYYY`` is a four-digit year when the author of the provider "
 "owned\n"
 "    the domain (here, ``example.org``) and ``name`` is arbitrary identifier\n"
@@ -676,8 +678,8 @@ msgstr ""
 "\n"
 "    @EPILOG@\n"
 "\n"
-"    The name of the provider must follow the pattern ``YYYY.example.org:"
-"name``\n"
+"    The name of the provider must follow the pattern "
+"``YYYY.example.org:name``\n"
 "    where ``YYYY`` is a four-digit year when the author of the provider "
 "owned\n"
 "    the domain (here, ``example.org``) and ``name`` is arbitrary identifier\n"
@@ -707,9 +709,8 @@ msgid "provider name, eg: YYYY.example.org:some-name"
 msgstr "provider name, eg: YYYY.example.org:some-name"
 
 #: .././plainbox/impl/commands/cmd_startprovider.py:96
-#, fuzzy
 msgid "create an empty provider"
-msgstr "Name of the provider"
+msgstr ""
 
 #: .././plainbox/impl/commands/crash.py:43
 msgid "crashing as requested"
@@ -997,9 +998,8 @@ msgid "Session not resumed"
 msgstr ""
 
 #: .././plainbox/impl/commands/inv_run.py:485
-#, fuzzy
 msgid "Available output formats:"
-msgstr "Available output formats: {}"
+msgstr ""
 
 #: .././plainbox/impl/commands/inv_run.py:490
 #: .././plainbox/impl/commands/inv_session.py:184
@@ -1958,7 +1958,8 @@ msgid "Selected execution controller %s (score %d) for job %r"
 msgstr "Selected execution controller %s (score %d) for job %r"
 
 #: .././plainbox/impl/runner.py:974
-msgid "Job {0} created leftover filesystem artefacts in its working directory"
+msgid ""
+"Job {0} created leftover filesystem artefacts in its working directory"
 msgstr ""
 
 #: .././plainbox/impl/runner.py:977
@@ -2196,9 +2197,8 @@ msgid "Name of the provider"
 msgstr "Name of the provider"
 
 #: .././plainbox/impl/secure/providers/v1.py:1353
-#, fuzzy
 msgid "Namespace of the provider"
-msgstr "Name of the provider"
+msgstr ""
 
 #: .././plainbox/impl/secure/providers/v1.py:1368
 msgid "Version of the provider"
@@ -2490,14 +2490,13 @@ msgid "'desired_job_list' refers to unknown job {!r}"
 msgstr "'desired_job_list' refers to unknown job {!r}"
 
 #: .././plainbox/impl/session/resume.py:836
-#, fuzzy, python-format
+#, python-format
 msgid "calling update_mandatory_job_list(%r)"
-msgstr "calling update_desired_job_list(%r)"
+msgstr ""
 
 #: .././plainbox/impl/session/resume.py:843
-#, fuzzy
 msgid "'mandatory_job_list' refers to unknown job {!r}"
-msgstr "'desired_job_list' refers to unknown job {!r}"
+msgstr ""
 
 #: .././plainbox/impl/session/resume.py:912
 #, python-format
@@ -2522,9 +2521,8 @@ msgid "record data {!r} is not correct base64"
 msgstr "record data {!r} is not correct base64"
 
 #: .././plainbox/impl/session/resume.py:1111
-#, fuzzy
 msgid "Starting to restore mandatory job list..."
-msgstr "Starting to restore job list..."
+msgstr ""
 
 #: .././plainbox/impl/session/resume.py:1127
 msgid "key {!r}"
@@ -2767,7 +2765,7 @@ msgstr ""
 
 #. TRANSLATORS: please don't translate fsync()
 #. Flush kernel buffers on the directory.
-#.
+#. 
 #. This should ensure the rename operation is really on disk by now.
 #. As noted above, this is essential for being able to survive
 #. system crash immediately after exiting this method.
@@ -2882,9 +2880,8 @@ msgid "Invalid destination URL: {0}"
 msgstr ""
 
 #: .././plainbox/impl/transport.py:238
-#, fuzzy
 msgid "Unable to connect to {0}: {1}"
-msgstr "Unable to import {}: {}"
+msgstr ""
 
 #: .././plainbox/impl/transport.py:256
 msgid "secure_id must be 15 or 18-character alphanumeric string"
@@ -3068,14 +3065,12 @@ msgid "Depends: {}"
 msgstr ""
 
 #: .././plainbox/impl/unit/packaging.py:184
-#, fuzzy
 msgid "Recommends: {}"
-msgstr "comments"
+msgstr ""
 
 #: .././plainbox/impl/unit/packaging.py:186
-#, fuzzy
 msgid "Suggests: {}"
-msgstr "manual tests: {}"
+msgstr ""
 
 #: .././plainbox/impl/unit/packaging.py:299
 #: .././plainbox/impl/unit/packaging.py:310
@@ -3167,9 +3162,9 @@ msgid ""
 msgstr ""
 
 #: .././plainbox/impl/unit/testplan.py:313
-#, fuzzy, python-format
+#, python-format
 msgid "unable to parse bootstrap_include: %s"
-msgstr "Unable to prepare plugin %s: %s"
+msgstr ""
 
 #: .././plainbox/impl/unit/testplan.py:599
 msgid "only local and resource jobs are allowed in bootstrapping_include"
@@ -3338,7 +3333,6 @@ msgstr ""
 #. result won't work. In particular the leading whitespace *must* be
 #. preserved and *must* have the same length on each line.
 #: .././plainbox/provider_manager.py:119
-#, fuzzy
 msgid ""
 "\n"
 "    install this provider in the system\n"
@@ -3394,50 +3388,6 @@ msgid ""
 "    effectively variable.\n"
 "    "
 msgstr ""
-"\n"
-"    install this provider in the system\n"
-"\n"
-"    This command installs the provider to the specified prefix.\n"
-"\n"
-"    @EPILOG@\n"
-"\n"
-"    Installation Layouts\n"
-"    ====================\n"
-"\n"
-"    There are two possible installation layouts: flat, perfect for keeping "
-"the\n"
-"    whole provider in one directory, and unix, which is optimised for\n"
-"    packaging and respecting the filesystem hierarchy.\n"
-"\n"
-"    In both cases, a generated file is created at a fixed location:\n"
-"\n"
-"        {prefix}/share/plainbox-providers-1/{provider.name}.provider\n"
-"\n"
-"    This file is essential for plainbox to discover providers. It contains\n"
-"    meta-data collected from the manage.py setup() call.\n"
-"\n"
-"    For Packaging\n"
-"    -------------\n"
-"\n"
-"    System-wide installations should typically use `--prefix=/usr` coupled\n"
-"    with `--layout=unix`. For packaging you will want to use the `--root=`\n"
-"    argument to place all of the copied and generated files into your "
-"packaging\n"
-"    system staging area. This will not affect generated content, which only\n"
-"    respects the prefix argument.\n"
-"\n"
-"    UNIX Layout\n"
-"    -----------\n"
-"\n"
-"    In the unix layout, following transformation is applied:\n"
-"\n"
-"    @LAYOUT[unix]@\n"
-"\n"
-"    Flat Layout\n"
-"    -----------\n"
-"\n"
-"    @LAYOUT[flat]@\n"
-"    "
 
 #. TRANSLATORS: not installed as in 'will not be installed'
 #: .././plainbox/provider_manager.py:246
@@ -3636,8 +3586,8 @@ msgid ""
 "    hopefully, in most cases, you don't need to do anything. If your src/\n"
 "    directory has a Makefile or .go source files you should be good to go.\n"
 "\n"
-"    If the automatic defaults are somehow unsuitable you need to edit manage."
-"py\n"
+"    If the automatic defaults are somehow unsuitable you need to edit "
+"manage.py\n"
 "    so that it specifies the build command.\n"
 "\n"
 "    IMPORTANT: It is expected that the build command will create binary "
@@ -3664,8 +3614,8 @@ msgstr ""
 "    hopefully, in most cases, you don't need to do anything. If your src/\n"
 "    directory has a Makefile or .go source files you should be good to go.\n"
 "\n"
-"    If the automatic defaults are somehow unsuitable you need to edit manage."
-"py\n"
+"    If the automatic defaults are somehow unsuitable you need to edit "
+"manage.py\n"
 "    so that it specifies the build command.\n"
 "\n"
 "    IMPORTANT: It is expected that the build command will create binary "
@@ -3785,9 +3735,8 @@ msgstr "name: {}"
 
 #. TRANSLATORS: {} is the namespace of the test provider
 #: .././plainbox/provider_manager.py:856
-#, fuzzy
 msgid "namespace: {}"
-msgstr "name: {}"
+msgstr ""
 
 #. TRANSLATORS: {} is the namespace of the test provider
 #: .././plainbox/provider_manager.py:859
@@ -4409,21 +4358,3 @@ msgstr ""
 msgid ""
 "command to run on the phablet,  if left out an interactive shell is started"
 msgstr ""
-
-#~ msgid "Unable to load %s: %s"
-#~ msgstr "Unable to load %s: %s"
-
-#~ msgid "Unable to import %s: %s"
-#~ msgstr "Unable to import %s: %s"
-
-#~ msgid "expression referenced multiple resources"
-#~ msgstr "expression referenced multiple resources"
-
-#~ msgid ".manager accessed"
-#~ msgstr ".manager accessed"
-
-#~ msgid "Session not ready, did you call open()?"
-#~ msgstr "Session not ready, did you call open()?"
-
-#~ msgid "_commit_resume() finished"
-#~ msgstr "_commit_resume() finished"

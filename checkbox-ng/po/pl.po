@@ -11,12 +11,12 @@ msgstr ""
 "PO-Revision-Date: 2014-04-17 06:45+0000\n"
 "Last-Translator: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>\n"
 "Language-Team: polski <>\n"
-"Language: Polish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2015-12-15 05:08+0000\n"
+"X-Launchpad-Export-Date: 2015-12-26 05:07+0000\n"
 "X-Generator: Launchpad (build 17865)\n"
+"Language: Polish\n"
 
 #: .././checkbox_ng/certification.py:135
 msgid "Secure ID not specified"
@@ -266,9 +266,8 @@ msgid "The path to the results xml file"
 msgstr ""
 
 #: .././checkbox_ng/commands/submit.py:114
-#, fuzzy
 msgid "must be 15 or 18-character alphanumeric string"
-msgstr "secure_id musi mieć od 15 do 18 znaków alfanumerycznych"
+msgstr ""
 
 #: .././checkbox_ng/commands/submit.py:124
 msgid "associate submission with a machine using this SECURE-ID"
@@ -428,52 +427,3 @@ msgstr ""
 #: .././checkbox_ng/ui.py:345
 msgid "inish"
 msgstr ""
-
-#~ msgid "Saving submission file to {}"
-#~ msgstr "Zapisywanie pliku zgłoszenia do {}"
-
-#~ msgid "The job database you are currently using is broken"
-#~ msgstr ""
-#~ "Baza danych zawierająca zadania testowe której teraz używasz jest popsuta"
-
-#~ msgid "Second job defined in: {0}"
-#~ msgstr "Drugie zadanie zdefiniowano w: {0}"
-
-#~ msgid "There were some problems with the selected jobs"
-#~ msgstr "Wystąpiły problemy z wybranymi zadaniami"
-
-#~ msgid "Problematic jobs will not be considered"
-#~ msgstr "Problematyczne zadania nie zostaną wzięte pod uwagę"
-
-#~ msgid "comments: {0}"
-#~ msgstr "komentarze: {0}"
-
-#~ msgid "inhibitors:"
-#~ msgstr "ograniczniki:"
-
-#~ msgid "FILE"
-#~ msgstr "PLIK"
-
-#~ msgid "don't really run most jobs"
-#~ msgstr "tak na prawdę nie uruchamiaj większości zadań"
-
-#~ msgid "SetOutcome() called before RunCommand()"
-#~ msgstr "funkcja SetOutcome() wywołana przed RunCommand()"
-
-#~ msgid "But the job is not manual, it is %s"
-#~ msgstr "Lecz zadanie nie jest typu manual, jest typu %s"
-
-#~ msgid "outcome_from_command() called too early!"
-#~ msgstr "funkcja outcome_from_command() została wywołana zbyt wcześnie"
-
-#~ msgid "There is nothing to return yet"
-#~ msgstr "Nie ma jeszcze nic do zwrócenia"
-
-#~ msgid "Sending ShowInteractiveUI() and not starting the job..."
-#~ msgstr "Wysyłanie ShowInteractiveUI() i nie uruchamianie zadania..."
-
-#~ msgid "Running %r right away"
-#~ msgstr "Uruchamianie %r od razu"
-
-#~ msgid "calling JobResultAvailable(%r, %r)"
-#~ msgstr "wywoływanie JobResourceAvailalbe(%r, %r)"

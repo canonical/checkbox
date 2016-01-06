@@ -176,6 +176,10 @@ class SessionAssistant:
                 "create a transport for the C3 system"),
             self.get_canonical_hexr_transport: (
                 "create a transport for the HEXR system"),
+            self.get_old_sessions: (
+                "get previously created sessions"),
+            self.delete_sessions: (
+                "delete previously created sessions"),
         }
         # Restart support
         self._restart_cmd_callback = None
@@ -1329,6 +1333,10 @@ class SessionAssistant:
                 "create a transport for the C3 system"),
             self.get_canonical_hexr_transport: (
                 "create a transport for the HEXR system"),
+            self.get_old_sessions: (
+                "get previously created sessions"),
+            self.delete_sessions: (
+                "delete previously created sessions"),
         }
 
     @raises(KeyError, TransportError, UnexpectedMethodCall)

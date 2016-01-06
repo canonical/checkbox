@@ -2,10 +2,10 @@
 0b0c6ced8ba44046dc7a682e90f6190bf7dbcd9f
 0b0c6ced8ba44046dc7a682e90f6190bf7dbcd9f
 5600bed911f559e611fdf68c3f082c2394190936
-5600bed911f559e611fdf68c3f082c2394190936
-checkbox-ng_0.22.orig.tar.gz
-7ed715c474d04e7a11f7572e0df416d536eca36c
-57877
+06b6d539687fce97abdcf04ab67d2a512bd54d3c
+checkbox-ng_0.23.orig.tar.gz
+fc478bd2b365fb94453db3805f28b2c14da61d97
+57900
 debianTag="debian/%e%v"
 patchedTag="patched/%e%v"
 upstreamTag="upstream/%e%u"

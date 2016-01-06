@@ -72,7 +72,6 @@ QEMU_ARCH_CONFIG = {
         'qemu_extra_args': [
             '-cpu', 'host',
             '-enable-kvm',
-            #'-serial', 'stdio',
         ],
     },
     'armhf': {
@@ -116,6 +115,7 @@ QEMU_ARCH_CONFIG = {
     },
 }
 
+
 class QemuRunner(object):
     def __init__(self, arch):
         self.arch = arch
@@ -134,7 +134,8 @@ class QemuRunner(object):
         # type
         if self.arch == 'arm64':
             if glob("/sys/firmware/devicetree/base/interrupt-controller@*/compatible"):
-                self.config['qemu_extra_args'].extend(['-machine', 'virt,gic_version=3'])
+                self.config['qemu_extra_args'].extend(
+                    ['-machine', 'virt,gic_version=3'])
             else:
                 self.config['qemu_extra_args'].extend(['-machine', 'virt'])
         # Add any architecture-specific parameters
@@ -167,10 +168,10 @@ class QemuRunner(object):
         elif self.config['qemu_disk_type'] == QEMU_DISK_TYPE_VIRTIO:
             drive = drive + ["file=%s,if=virtio" % (cloudimg)]
         elif self.config['qemu_disk_type'] == QEMU_DISK_TYPE_VIRTIO_BLK:
-            drive = drive + [ "file=%s,if=none,id=disk.%d"
-                              % (cloudimg, self.drive_id) ]
-            drive = drive + [ "-device", "virtio-blk-device,drive=disk.%d"
-                              % (self.drive_id) ]
+            drive = drive + ["file=%s,if=none,id=disk.%d"
+                             % (cloudimg, self.drive_id)]
+            drive = drive + ["-device", "virtio-blk-device,drive=disk.%d"
+                             % (self.drive_id)]
         self.params = self.params + drive
         self.drive_id = self.drive_id + 1
 
@@ -179,14 +180,16 @@ class QemuRunner(object):
         if self.append:
             params = params + ['-append', '"%s"' % (" ".join(self.append))]
         return params
-        
+
+
 class KVMTest(object):
 
     def __init__(self, image=None, timeout=500, debug_file=None):
         self.image = image
         self.timeout = timeout
         self.debug_file = debug_file
-        self.arch = check_output(['dpkg', '--print-architecture'], universal_newlines=True).strip()
+        self.arch = check_output(['dpkg', '--print-architecture'],
+                                 universal_newlines=True).strip()
         self.qemu_config = QEMU_ARCH_CONFIG[self.arch]
 
     def download_image(self):
@@ -201,9 +204,11 @@ class KVMTest(object):
         cloud_url = "http://cloud-images.ubuntu.com"
 
         if self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE_TAR:
-            cloud_iso = "%s-server-cloudimg-%s.tar.gz" % (release, self.qemu_config['cloudimg_arch'])
+            cloud_iso = "%s-server-cloudimg-%s.tar.gz" %
+            (release, self.qemu_config['cloudimg_arch'])
         elif self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE_DISK:
-            cloud_iso = "%s-server-cloudimg-%s-disk1.img" % (release, self.qemu_config['cloudimg_arch'])
+            cloud_iso = "%s-server-cloudimg-%s-disk1.img" %
+            (release, self.qemu_config['cloudimg_arch'])
         else:
             logging.error("Unknown cloud image type")
             return False
@@ -219,7 +224,8 @@ class KVMTest(object):
                 OSError,
                 urllib.error.HTTPError,
                 urllib.error.URLError) as exception:
-            logging.error("Failed download of image from %s: %s", image_url, exception)
+            logging.error("Failed download of image from %s: %s",
+                          image_url, exception)
             return False
 
         # Unpack img file from tar
@@ -358,17 +364,20 @@ final_message: CERTIFICATION BOOT COMPLETE
                                   "initalized VM)", file=sys.stderr)
                         status = 0
                     else:
-                        print("E: KVM instance failed to boot", file=sys.stderr)
+                        print("E: KVM instance failed to boot",
+                              file=sys.stderr)
                         print("Console output".center(72, "="),
                               file=sys.stderr)
                         with open(self.debug_file, 'r') as console_log:
                             print(console_log.read(), file=sys.stderr)
-                        print("E: KVM instance failed to boot", file=sys.stderr)
+                        print("E: KVM instance failed to boot",
+                              file=sys.stderr)
                 self.process.terminate()
             elif not self.image:
                 print("Could not find downloaded image")
             else:
-                print("Could not find: {}".format(self.image), file=sys.stderr)
+                print("Could not find: {}".format(self.image),
+                      file=sys.stderr)
 
         return status
 
@@ -435,9 +444,6 @@ def main():
     # Main cli options
     kvm_test_parser = subparsers.add_parser(
         'kvm', help=("Run kvm virtualization test"))
-
-    #xen_test_parser = subparsers.add_parser('xen',
-    #    help=("Run xen virtualization test"))
 
     # Sub test options
     kvm_test_parser.add_argument(

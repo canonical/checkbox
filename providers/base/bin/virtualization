@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from argparse import ArgumentParser
 import configparser
+from glob import glob
 import os
 import re
 import logging
@@ -69,10 +70,9 @@ QEMU_ARCH_CONFIG = {
         'qemu_bin': 'qemu-system-aarch64',
         'qemu_disk_type': QEMU_DISK_TYPE_VIRTIO_BLK,
         'qemu_extra_args': [
-            '-machine', 'virt',
             '-cpu', 'host',
             '-enable-kvm',
-            '-serial', 'stdio',
+            #'-serial', 'stdio',
         ],
     },
     'armhf': {
@@ -130,6 +130,13 @@ class QemuRunner(object):
             "-net", "nic",
             "-net", "user,net=10.0.0.0/8,host=10.0.0.1,hostfwd=tcp::2222-:22",
         ]
+        # If arch is arm64, add the machine type for gicv3, or default to old
+        # type
+        if self.arch == 'arm64':
+            if glob("/sys/firmware/devicetree/base/interrupt-controller@*/compatible"):
+                self.config['qemu_extra_args'].extend(['-machine', 'virt,gic_version=3'])
+            else:
+                self.config['qemu_extra_args'].extend(['-machine', 'virt'])
         # Add any architecture-specific parameters
         if 'qemu_extra_args' in self.config:
             self.params = self.params + self.config['qemu_extra_args']

@@ -9,9 +9,7 @@ Build-Depends: debhelper (>= 9),
                dh-python,
                python3-all,
                python3-checkbox-support (>= 0.22),
-               python3-dbus,
                python3-docutils,
-               python3-gi,
                python3-plainbox (>= 0.24),
                python3-requests (>= 1.0),
                python3-setuptools,
@@ -35,20 +33,6 @@ Description: PlainBox based test runner
  directly on top of PlainBox. CheckBoxNG replaces CheckBox, where applicable.
  .
  This package contains the CheckBox command line tool
-
-Package: checkbox-ng-service
-Architecture: all
-Depends: checkbox-ng (= ${binary:Version}),
-         python3,
-         python3-dbus,
-         python3-gi,
-         ${misc:Depends}
-Description: CheckBox D-Bus service
- CheckBoxNG is a hardware testing tool useful for certifying laptops,
- desktops and servers. It is a new version of CheckBox that is built
- directly on top of PlainBox. CheckBoxNG replaces CheckBox, where applicable.
- .
- File(s) needed for auto-starting CheckBox D-Bus service on demand.
 
 Package: python3-checkbox-ng
 Architecture: all

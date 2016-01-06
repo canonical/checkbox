@@ -463,6 +463,42 @@ class SessionAssistant:
         _logger.debug("Provider selected: %r", provider)
 
     @raises(UnexpectedMethodCall)
+    def get_old_sessions(self, flags: 'Set[str]'={
+        SessionMetaData.FLAG_SUBMITTED, SessionMetaData.FLAG_BOOTSTRAPPING},
+            allow_not_flagged: bool=True) -> 'List[Tuple[str, Set[str]]]':
+        """
+        Get the list of previously run sessions.
+
+        :param flags:
+            Set of flags from which at least one flag must be present in the
+            metadata of the processed session storage in order for that storage
+            to be returned.
+        :param allow_not_flagged:
+            Also return sessions that have no flags attached.
+        :returns:
+            A list of tuples containing session id and flags that were attached
+            to that session.
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+        """
+        UsageExpectation.of(self).enforce()
+        for storage in self._repo.get_storage_list():
+            data = storage.load_checkpoint()
+            if len(data) == 0:
+                continue
+            try:
+                metadata = SessionPeekHelper().peek(data)
+                if (metadata.app_id == self._app_id):
+                    if ((allow_not_flagged and not metadata.flags) or
+                            (metadata.flags & flags)):
+                        yield storage.id, metadata.flags
+            except SessionResumeError as exc:
+                _logger.info("Exception raised when trying to peek session"
+                             "data: %s", str(exc))
+
+    @raises(UnexpectedMethodCall)
     def start_new_session(self, title: str):
         """
         Create a new testing session.

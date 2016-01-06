@@ -204,11 +204,11 @@ class KVMTest(object):
         cloud_url = "http://cloud-images.ubuntu.com"
 
         if self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE_TAR:
-            cloud_iso = "%s-server-cloudimg-%s.tar.gz" %
-            (release, self.qemu_config['cloudimg_arch'])
+            cloud_iso = "%s-server-cloudimg-%s.tar.gz" % (
+                        release, self.qemu_config['cloudimg_arch'])
         elif self.qemu_config['cloudimg_type'] == CLOUD_IMAGE_TYPE_DISK:
-            cloud_iso = "%s-server-cloudimg-%s-disk1.img" %
-            (release, self.qemu_config['cloudimg_arch'])
+            cloud_iso = "%s-server-cloudimg-%s-disk1.img" % (
+                        release, self.qemu_config['cloudimg_arch'])
         else:
             logging.error("Unknown cloud image type")
             return False

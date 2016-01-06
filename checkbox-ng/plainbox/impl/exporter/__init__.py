@@ -31,8 +31,6 @@ from io import RawIOBase
 from logging import getLogger
 import base64
 
-import pkg_resources
-
 from plainbox.i18n import gettext as _
 from plainbox.abc import ISessionStateExporter
 from plainbox.impl import deprecated
@@ -380,4 +378,14 @@ class ByteStringStreamTranslator(RawIOBase):
             object's specified encoding prior to writing.
             :param data: the chunk of data to write.
         """
+        if (self.dest_stream.encoding and
+                self.dest_stream.encoding.lower() != self.encoding.lower()):
+            logger.warning(
+                _("Incorrect stream encoding. Got %s, expected %s. "
+                  " some characters won't be printed"),
+                self.dest_stream.encoding, self.encoding)
+            # fall back to ASCII encoding
+            return self.dest_stream.write(data.decode(
+                'ascii', errors='ignore'))
+
         return self.dest_stream.write(data.decode(self.encoding))

@@ -24,4 +24,5 @@ import Ubuntu.Components 1.1
 Item {
     signal testDone(var testResult)
     property var testingShell;
+    property var clearedPermissions: [];
 }

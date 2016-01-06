@@ -1,4 +1,4 @@
-# Chinese (Traditional) translation for checkbox
+# Uyghur translation for checkbox
 # Copyright (c) 2015 Rosetta Contributors and Canonical Ltd 2015
 # This file is distributed under the same license as the checkbox package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2015.
@@ -8,9 +8,9 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-12-03 14:32+0100\n"
-"PO-Revision-Date: 2015-10-30 07:52+0000\n"
-"Last-Translator: Po-Hsu Lin <po-hsu.lin@canonical.com>\n"
-"Language-Team: Chinese (Traditional) <zh_TW@li.org>\n"
+"PO-Revision-Date: 2015-10-28 14:14+0000\n"
+"Last-Translator: Eltikin <eltikinuyghur@hotmail.com>\n"
+"Language-Team: Uyghur <ug@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -20,127 +20,127 @@ msgstr ""
 #. name
 #: ../units/categories.pxu:3
 msgid "Audio tests"
-msgstr "音效測試"
+msgstr "ئۈن سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:7
 msgid "Benchmarks tests"
-msgstr "效能測試"
+msgstr "ئاساسىي كۆرسەتكۈچ سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:11
 msgid "Bluetooth tests"
-msgstr "藍牙測試"
+msgstr "كۆكچىش سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:15
 msgid "Camera tests"
-msgstr "網路攝影機測試"
+msgstr "كامېرا سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:19
 msgid "Codec tests"
-msgstr "編碼測試"
+msgstr "كودلىغۇچ-كودسىزلىغۇچ سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:23
 msgid "CPU tests"
-msgstr "CPU 測試"
+msgstr "CPU سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:27
 msgid "System Daemon tests"
-msgstr "系統常駐程式測試"
+msgstr "سىستېما مۇئەككەل سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:31
 msgid "Disk tests"
-msgstr "磁碟測試"
+msgstr "دىسكا سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:35
 msgid "Ethernet Device tests"
-msgstr "乙太網路測試"
+msgstr ""
 
 #. name
 #: ../units/categories.pxu:39
 msgid "eSATA disk tests"
-msgstr "eSATA 磁碟測試"
+msgstr "eSATA دىسكا سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:43
 msgid "Fingerprint reader tests"
-msgstr "指紋辨識器測試"
+msgstr "بارماق ئىزى ئوقۇغۇچ سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:47
 msgid "Firewire disk tests"
-msgstr "Firewire 磁碟測試"
+msgstr "Firewire دىسكا سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:51
 msgid "Firmware tests"
-msgstr "韌體測試"
+msgstr ""
 
 #. name
 #: ../units/categories.pxu:55
 msgid "Floppy disk tests"
-msgstr "軟碟測試"
+msgstr "يۇمشاق دىسكا سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:59
 msgid "Graphics tests"
-msgstr "圖形測試"
+msgstr "گرافىك سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:63
 msgid "Hibernation tests"
-msgstr "休眠測試"
+msgstr "ئۈچەك سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:67
 msgid "Informational tests"
-msgstr ""
+msgstr "ئۇچۇر سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:71
 msgid "Input Devices tests"
-msgstr "輸入裝置測試"
+msgstr "كىرگۈزۈش ئۈسكۈنىلىرى سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:75
 msgid "Hotkey tests"
-msgstr "熱鍵測試"
+msgstr "قىزىق كۇنۇپكىلار سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:79
 msgid "LED tests"
-msgstr "LED 測試"
+msgstr "LED  سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:83
 msgid "Media Card tests"
-msgstr "記憶卡讀卡機測試"
+msgstr "ۋاسىتە كارتىلىرى سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:87
 msgid "Memory tests"
-msgstr "記憶體測試"
+msgstr "ئەسلەك سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:91
 msgid "MIR tests"
-msgstr "MIR 測試"
+msgstr ""
 
 #. name
 #: ../units/categories.pxu:95
 msgid "Miscellaneous tests"
-msgstr "雜項測試"
+msgstr "باشقا سىناقلار"
 
 #. name
 #: ../units/categories.pxu:99
 msgid "Monitor tests"
-msgstr "螢幕測試"
+msgstr "ئېكران سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:103
@@ -150,72 +150,72 @@ msgstr ""
 #. name
 #: ../units/categories.pxu:107
 msgid "Optical Drive tests"
-msgstr "光碟機測試"
+msgstr "نۇر قوزغاتقۇچ سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:111
 msgid "ExpressCard tests"
-msgstr "ExpressCard 測試"
+msgstr ""
 
 #. name
 #: ../units/categories.pxu:115
 msgid "Peripheral tests"
-msgstr "周邊裝置測試"
+msgstr "يانداش ئۈسكۈنە سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:119
 msgid "Power Management tests"
-msgstr "電源管理測試"
+msgstr "مەنبە باشقۇرۇش سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:123
 msgid "Suspend tests"
-msgstr "暫停測試"
+msgstr "توڭلىتىش سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:127
 msgid "Touchpad tests"
-msgstr "觸控板測試"
+msgstr "سەزگۈر تاختا سىنىقى"
 
 #. name
 #: ../units/categories.pxu:131
 msgid "Touchscreen tests"
-msgstr "觸控螢幕測試"
+msgstr "سەزگۈر ئېكران(Touchscreen)  سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:135
 msgid "USB tests"
-msgstr "USB 測試"
+msgstr "USB سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:139
 msgid "User Applications"
-msgstr "使用者應用程式測試"
+msgstr "ئىشلەتكۈچى پروگراممىلىرى"
 
 #. name
 #: ../units/categories.pxu:143
 msgid "Virtualization tests"
-msgstr "虛擬化測試"
+msgstr ""
 
 #. name
 #: ../units/categories.pxu:147
 msgid "Wireless networking tests"
-msgstr "無線網路測試"
+msgstr "سىمسىز تور سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:151
 msgid "Mobile broadband tests"
-msgstr "行動寬頻測試"
+msgstr ""
 
 #. name
 #: ../units/categories.pxu:155
 msgid "Stress tests"
-msgstr "壓力測試"
+msgstr "چارچىتىش سىناقلىرى"
 
 #. name
 #: ../units/categories.pxu:159
 msgid "Uncategorised"
-msgstr "未分類"
+msgstr ""
 
 #. This is categories_def.description,
 #. we need it here to extract is as a part of this provider
@@ -233,4 +233,4 @@ msgstr ""
 
 #: ../manage.py:67
 msgid "You don't need to install it explicitly"
-msgstr "您不需要額外安裝它"
+msgstr ""

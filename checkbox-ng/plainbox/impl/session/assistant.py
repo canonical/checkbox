@@ -26,6 +26,7 @@ import io
 import itertools
 import logging
 import os
+import shlex
 import time
 
 from plainbox.abc import IJobResult
@@ -39,11 +40,13 @@ from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.runner import JobRunner
 from plainbox.impl.runner import JobRunnerUIDelegate
 from plainbox.impl.secure.qualifiers import select_jobs
+from plainbox.impl.session import SessionMetaData
 from plainbox.impl.session import SessionPeekHelper
 from plainbox.impl.session import SessionResumeError
 from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.session.manager import SessionManager
-from plainbox.impl.session import SessionMetaData
+from plainbox.impl.session.restart import IRestartStrategy
+from plainbox.impl.session.restart import detect_restart_strategy
 from plainbox.impl.session.storage import SessionStorageRepository
 from plainbox.impl.transport import CertificationTransport
 from plainbox.impl.transport import OAuthTransport
@@ -54,9 +57,21 @@ from plainbox.vendor import morris
 _logger = logging.getLogger("plainbox.session.assistant")
 
 
-__all__ = ('SessionAssistant', )
+__all__ = ('SessionAssistant', 'SA_RESTARTABLE')
 
-ResumeCandidate = collections.namedtuple('ResumeCandidate', ['id', 'metadata'])
+
+# NOTE: There are two tuples related to resume candidates. The internal tuple
+# uses the raw SessionStorage object. Since we don't wish to make that a public
+# API yet it is not exposed in any of the public side of SessionAssistant APIs.
+# The public variant uses the storage identifier (which is just a string) that
+# applications are expected to handle as an opaque blob.
+InternalResumeCandidate = collections.namedtuple(
+    'InternalResumeCandidate', ['storage', 'metadata'])
+ResumeCandidate = collections.namedtuple(
+    'ResumeCandidate', ['id', 'metadata'])
+
+
+SA_RESTARTABLE = "restartable"
 
 
 class SessionAssistant:
@@ -95,7 +110,8 @@ class SessionAssistant:
 
     # TODO: create a flowchart of possible states
 
-    def __init__(self, app_id):
+    def __init__(self, app_id, app_version=None, api_version='0.99',
+                 api_flags=()):
         """
         Initialize a new session assistant.
 
@@ -103,15 +119,40 @@ class SessionAssistant:
             Identifier of the testing application. The identifier should be
             unique and constant throughout the support cycle of the
             application.
+        :param app_version:
+            Version of the testing application.
+        :param api_version:
+            Expected API of SessionAssistant. Currently only "0.99" API is
+            defined.
+        :param api_flags:
+            Flags that describe optional API features that this application
+            wishes to support. Flags may change the usage expectation of
+            session assistant. Currently no flags are supported.
+        :raises ValueError:
+            When api_version is not recognized.
+        :raises ValueError:
+            When api_flags contains an unrecognized flag.
 
         The application identifier is useful to implement session resume
         functionality where the application can easily filter out sessions from
         other programs.
         """
+        if api_version != '0.99':
+            raise ValueError("Unrecognized API version")
+        self._flags = set()
+        for flag in api_flags:
+            if flag == SA_RESTARTABLE:
+                self._flags.add(flag)
+            else:
+                raise ValueError("Unrecognized API flag: {!r}".format(flag))
         self._app_id = app_id
+        self._app_version = app_version
+        self._api_version = api_version
+        self._api_flags = api_flags
         self._repo = SessionStorageRepository()
         self._config = PlainBoxConfig().get()
         self._execution_ctrl_list = None  # None is "default"
+        self._ctrl_setup_list = []
         # List of providers that were selected. This is buffered until a
         # session is created or resumed.
         self._selected_providers = []
@@ -137,6 +178,97 @@ class SessionAssistant:
             self.get_canonical_hexr_transport: (
                 "create a transport for the HEXR system"),
         }
+        # Restart support
+        self._restart_cmd_callback = None
+        self._restart_strategy = None  # None implies auto-detection
+        if SA_RESTARTABLE in self._flags:
+            allowed_calls = UsageExpectation.of(self).allowed_calls
+            allowed_calls[self.configure_application_restart] = (
+                "configure automatic restart capability")
+            allowed_calls[self.use_alternate_restart_strategy] = (
+                "configure automatic restart capability")
+
+    @raises(UnexpectedMethodCall, LookupError)
+    def configure_application_restart(
+            self, cmd_callback: 'Callable[[str], List[str]]') -> None:
+        """
+        Configure automatic restart capability.
+
+        :param cmd_callback:
+            A callable (function or lambda) that when called with a single
+            string argument, session_id, returns a list of strings describing
+            how to execute the tool in order to restart a particular session.
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+        :raises LookupError:
+            If no restart strategy was explicitly configured and no strategy
+            was found with the auto-detection process.
+
+        .. note:
+            This method is only available when the application has initialized
+            session assistant with the SA_RESTARTABLE API flag.
+
+        This method configures session assistant for automatic application
+        restart. When a job is expected to reboot or shut down the machine but
+        the intent is to somehow resume testing automatically after that event,
+        test designers can use the 'noreturn' and 'restartable' flags together
+        to indicate that the testing process is should be automatically
+        resumed when the machine is turned on again.
+
+        The means of re-starting the testing process are unique to each
+        operating system environment. Plainbox knows about some restart
+        strategies internally. Applications can create additional strategies
+        using the :meth:`use_alternate_restart_strategy()` method.
+        """
+        UsageExpectation.of(self).enforce()
+        if self._restart_strategy is None:
+            self._restart_strategy = detect_restart_strategy()
+        self._restart_cmd_callback = cmd_callback
+        # Prevent second call to this method and to the
+        # use_alternate_restart_strategy() method.
+        allowed_calls = UsageExpectation.of(self).allowed_calls
+        del allowed_calls[self.configure_application_restart]
+        if self.use_alternate_restart_strategy in allowed_calls:
+            del allowed_calls[self.use_alternate_restart_strategy]
+
+    @raises(UnexpectedMethodCall)
+    def use_alternate_restart_strategy(
+        self, strategy: IRestartStrategy
+    ) -> None:
+        """
+        Setup an alternate restart strategy object.
+
+        :param restart_strategy:
+            An object implementing the restart strategy interface. This object
+            is used to prepare the system for application restart.
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+
+        When this method is called all automatic environment auto-detection is
+        disabled and application restart is solely under the control of the
+        application.
+
+        The restart interface is very simple, it is comprised of a pair of
+        methods, :meth:`IRestartStrategy.prime_application_restart()` and
+        :meth:`IRestartStrategy.diffuse_application_restart(). When the
+        application is in a state where it will soon terminate, plainbox will
+        call the former of the two methods to _prime_ the system so that
+        application will be re-started when the machine is started (or
+        rebooted). When the application successfully starts, the _diffuse_
+        method will undo what prime did so that the application restart is a
+        one-off action.
+
+        The primary use of this method is to let applications support
+        environments that are not automatically handled correctly by plainbox.
+        """
+        UsageExpectation.of(self).enforce()
+        self._restart_strategy = strategy
+        del UsageExpectation.of(self).allowed_calls[
+            self.use_alternate_restart_strategy]
 
     @raises(UnexpectedMethodCall)
     def use_alternate_repository(self, pathname: str) -> None:
@@ -192,13 +324,16 @@ class SessionAssistant:
 
     @raises(UnexpectedMethodCall)
     def use_alternate_execution_controllers(
-        self, ctrl_list: 'List[IExecutionController]'
+        self, ctrl_setup_list:
+            'Iterable[Tuple[IExecutionController, Tuple[Any], Dict[Any]]]'
     ) -> None:
         """
         Use alternate execution controllers.
 
-        :param ctrl_list:
-            The list of execution controllers to use.
+        :param ctrl_setup_list:
+            An iterable with tuples, where each tuple represents a class of
+            controller to instantiate, together with *args and **kwargs to use
+            when calling its __init__.
         :raises UnexpectedMethodCall:
             If the call is made at an unexpected time. Do not catch this error.
             It is a bug in your program. The error message will indicate what
@@ -215,7 +350,7 @@ class SessionAssistant:
             here. This method is currently experimental.
         """
         UsageExpectation.of(self).enforce()
-        self._ctrl_list = ctrl_list
+        self._ctrl_setup_list = ctrl_setup_list
         # NOTE: We expect applications to call this at most once.
         del UsageExpectation.of(self).allowed_calls[
             self.use_alternate_execution_controllers]
@@ -362,13 +497,7 @@ class SessionAssistant:
         self._metadata.flags = {'bootstrapping'}
         self._manager.checkpoint()
         self._command_io_delegate = JobRunnerUIDelegate(_SilentUI())
-        self._runner = JobRunner(
-            self._manager.storage.location,
-            self._context.provider_list,
-            jobs_io_log_dir=os.path.join(
-                self._manager.storage.location, 'io-logs'),
-            command_io_delegate=self._command_io_delegate,
-            execution_ctrl_list=self._execution_ctrl_list)
+        self._init_runner()
         self.session_available(self._manager.storage.id)
         _logger.debug("New session created: %s", title)
         UsageExpectation.of(self).allowed_calls = {
@@ -409,19 +538,30 @@ class SessionAssistant:
         self._context = self._manager.default_device_context
         self._metadata = self._context.state.metadata
         self._command_io_delegate = JobRunnerUIDelegate(_SilentUI())
-        self._runner = JobRunner(
-            self._manager.storage.location,
-            self._context.provider_list,
-            jobs_io_log_dir=os.path.join(
-                self._manager.storage.location, 'io-logs'),
-            command_io_delegate=self._command_io_delegate,
-            execution_ctrl_list=self._execution_ctrl_list)
+        self._init_runner()
+        if self._metadata.running_job_name:
+            job = self._context.get_unit(
+                self._metadata.running_job_name, 'job')
+            if 'autorestart' in job.get_flag_set():
+                result = JobResultBuilder(
+                    outcome=(
+                        IJobResult.OUTCOME_PASS
+                        if 'noreturn' in job.get_flag_set() else
+                        IJobResult.OUTCOME_FAIL),
+                    return_code=0,
+                    io_log_filename=self._runner.get_record_path_for_job(job),
+                ).get_result()
+                self._context.state.update_job_result(job, result)
+                self._metadata.running_job_name = None
+                self._manager.checkpoint()
+        if self._restart_strategy is not None:
+            self._restart_strategy.diffuse_application_restart(self._app_id)
         self.session_available(self._manager.storage.id)
         _logger.debug("Session resumed: %s", session_id)
         UsageExpectation.of(self).allowed_calls = {
             self.select_test_plan: "to save test plan selection",
         }
-        return self._resume_candidates[session_id][1]
+        return self._metadata
 
     @raises(UnexpectedMethodCall)
     def get_resumable_sessions(self) -> 'Tuple[str, SessionMetaData]':
@@ -458,11 +598,11 @@ class SessionAssistant:
             else:
                 if (metadata.app_id == self._app_id and
                         SessionMetaData.FLAG_INCOMPLETE in metadata.flags):
-                    candidate = ResumeCandidate(storage.id, metadata)
-                    self._resume_candidates[storage.id] = (storage, metadata)
+                    self._resume_candidates[storage.id] = (
+                        InternalResumeCandidate(storage, metadata))
                     UsageExpectation.of(self).allowed_calls[
                         self.resume_session] = "resume session"
-                    yield candidate
+                    yield ResumeCandidate(storage.id, metadata)
 
     def update_app_blob(self, app_blob: bytes) -> None:
         """
@@ -631,7 +771,8 @@ class SessionAssistant:
             self._context.state.job_list,
             [plan.get_bootstrap_qualifier() for plan in (
                 self._manager.test_plans)])
-        self._context.state.update_desired_job_list(desired_job_list)
+        self._context.state.update_desired_job_list(
+            desired_job_list, include_mandatory=False)
         for job in self._context.state.run_list:
             UsageExpectation.of(self).allowed_calls[self.run_job] = (
                 "to run bootstrapping job")
@@ -839,9 +980,28 @@ class SessionAssistant:
         UsageExpectation.of(self).enforce()
         test_plan = self._manager.test_plans[0]
         potential_job_list = select_jobs(
-            self._context.state.job_list, [test_plan.get_qualifier()])
+            self._context.state.job_list,
+            [test_plan.get_qualifier(), test_plan.get_mandatory_qualifier()])
         return list(set(
             test_plan.get_effective_category_map(potential_job_list).values()))
+
+    @raises(UnexpectedMethodCall)
+    def get_mandatory_jobs(self) -> 'Iterable[str]':
+        """
+        Get the list of ids of mandatory jobs.
+
+        :returns:
+            A list of identifiers of mandatory jobs scheduled to run.
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+        """
+        UsageExpectation.of(self).enforce()
+        test_plan = self._manager.test_plans[0]
+        return [job.id for job in select_jobs(
+            self._context.state.job_list,
+            [test_plan.get_mandatory_qualifier()])]
 
     @raises(UnexpectedMethodCall)
     def get_static_todo_list(self) -> 'Iterable[str]':
@@ -906,7 +1066,8 @@ class SessionAssistant:
         jsm = self._context.state.job_state_map
         return [
             job.id for job in self._context.state.run_list
-            if jsm[job.id].result is not jsm[job.id].result.OUTCOME_NONE]
+            if jsm[job.id].result.outcome is None
+        ]
 
     @raises(ValueError, TypeError, UnexpectedMethodCall)
     def run_job(
@@ -968,6 +1129,15 @@ class SessionAssistant:
             ui.about_to_start_running(job, job_state)
             self._context.state.metadata.running_job_name = job.id
             self._manager.checkpoint()
+            autorestart = (self._restart_strategy is not None and
+                           'autorestart' in job.get_flag_set())
+            if autorestart:
+                restart_cmd = ' '.join(
+                    shlex.quote(cmd_part)
+                    for cmd_part in self._restart_cmd_callback(
+                        self._manager.storage.id))
+                self._restart_strategy.prime_application_restart(
+                    self._app_id, self._manager.storage.id, restart_cmd)
             ui.started_running(job, job_state)
             if not native:
                 builder = self._runner.run_job(
@@ -978,6 +1148,9 @@ class SessionAssistant:
                     outcome=IJobResult.OUTCOME_UNDECIDED,
                 )
             builder.execution_duration = time.time() - start_time
+            if autorestart:
+                self._restart_strategy.diffuse_application_restart(
+                    self._app_id)
             self._context.state.metadata.running_job_name = None
             self._manager.checkpoint()
             ui.finished_running(job, job_state, builder.get_result())
@@ -1037,6 +1210,7 @@ class SessionAssistant:
         UsageExpectation.of(self).enforce()
         job = self._context.get_unit(job_id, 'job')
         self._context.state.update_job_result(job, result)
+        self._manager.checkpoint()
         # Set up expectations so that run_job() and use_job_result() must be
         # called in pairs and applications cannot just forget and call
         # run_job() all the time.
@@ -1073,17 +1247,26 @@ class SessionAssistant:
             is the likely cause.
 
         Mark the session as complete, which prohibits running (or rerunning)
-        any job.
+        any job. finalize_session will be ignored if session has already been
+        finalized; this frees applications from keeping state information in
+        them.
         """
         UsageExpectation.of(self).enforce()
+        if SessionMetaData.FLAG_INCOMPLETE not in self._metadata.flags:
+            _logger.info("finalize_session called for already finalized"
+                         " session: %s", self._manager.storage.id)
+            # leave the same usage expectations
+            return
         if SessionMetaData.FLAG_SUBMITTED not in self._metadata.flags:
             _logger.warning("Finalizing session that hasn't been submitted "
                             "anywhere: %s", self._manager.storage.id)
         self._metadata.flags.remove(SessionMetaData.FLAG_INCOMPLETE)
         self._manager.checkpoint()
         UsageExpectation.of(self).allowed_calls = {
+            self.finalize_session: "to finalize session",
             self.export_to_transport: "to export the results and send them",
             self.export_to_file: "to export the results to a file",
+            self.export_to_stream: "to export the results to a stream",
             self.get_resumable_sessions: "to get resume candidates",
             self.start_new_session: "to create a new session",
             self.get_canonical_certification_transport: (
@@ -1131,7 +1314,11 @@ class SessionAssistant:
         exported_stream = io.BytesIO()
         exporter.dump_from_session_manager(self._manager, exported_stream)
         exported_stream.seek(0)
-        return transport.send(exported_stream)
+        result = transport.send(exported_stream)
+        if SessionMetaData.FLAG_SUBMITTED not in self._metadata.flags:
+            self._metadata.flags.add(SessionMetaData.FLAG_SUBMITTED)
+            self._manager.checkpoint()
+        return result
 
     @raises(KeyError, OSError)
     def export_to_file(
@@ -1159,13 +1346,44 @@ class SessionAssistant:
             When there is a problem when writing the output.
         """
         UsageExpectation.of(self).enforce()
-        exporter = self._manager.create_exporter(exporter_id, option_list)
+        exporter = self._manager.create_exporter(exporter_id, option_list,
+                                                 strict=False)
         timestamp = datetime.datetime.utcnow().isoformat()
         path = os.path.join(dir_path, ''.join(
             ['submission_', timestamp, '.', exporter.unit.file_extension]))
         with open(path, 'wb') as stream:
             exporter.dump_from_session_manager(self._manager, stream)
         return path
+
+    @raises(KeyError, OSError)
+    def export_to_stream(
+        self, exporter_id: str, option_list: 'list[str]', stream
+    ) -> None:
+        """
+        Export the session to file using given exporter ID.
+
+        :param exporter_id:
+            The identifier of the exporter unit to use. This must have been
+            loaded into the session from an existing provider. Many users will
+            want to load the ``2013.com.canonical.palainbox:exporter`` provider
+            (via :meth:`load_providers()`.
+        :param option_list:
+            List of options customary to the exporter that is being created.
+        :param stream:
+            Stream to write the report to.
+        :returns:
+            Path to the written file.
+        :raises KeyError:
+            When the exporter unit cannot be found.
+        :raises OSError:
+            When there is a problem when writing the output.
+        """
+        UsageExpectation.of(self).enforce()
+        exporter = self._manager.create_exporter(exporter_id, option_list)
+        exporter.dump_from_session_manager(self._manager, stream)
+        if SessionMetaData.FLAG_SUBMITTED not in self._metadata.flags:
+            self._metadata.flags.add(SessionMetaData.FLAG_SUBMITTED)
+            self._manager.checkpoint()
 
     @raises(ValueError, UnexpectedMethodCall)
     def get_canonical_certification_transport(
@@ -1261,6 +1479,7 @@ class SessionAssistant:
             self.get_category: "to access the definition of ant category",
             self.get_participating_categories: (
                 "to access participating categories"),
+            self.get_mandatory_jobs: "to get all mandatory job ids",
             self.filter_jobs_by_categories: (
                 "to select the jobs that match particular category"),
             self.remove_all_filters: "to remove all filters",
@@ -1273,11 +1492,26 @@ class SessionAssistant:
             # until all of the mandatory jobs have been executed.
             self.export_to_transport: "to export the results and send them",
             self.export_to_file: "to export the results to a file",
+            self.export_to_stream: "to export the results to a stream",
             self.finalize_session: "to mark the session as complete",
             self.get_session_id: "to get the id of currently running session",
             self.get_session_dir: ("to get the path where current session is"
                                    "stored"),
         }
+
+    def _init_runner(self):
+        self._execution_ctrl_list = []
+        for ctrl_cls, args, kwargs in self._ctrl_setup_list:
+            self._execution_ctrl_list.append(
+                ctrl_cls(self._context.provider_list, *args, **kwargs))
+        self._runner = JobRunner(
+            self._manager.storage.location,
+            self._context.provider_list,
+            jobs_io_log_dir=os.path.join(
+                self._manager.storage.location, 'io-logs'),
+            command_io_delegate=self._command_io_delegate,
+            execution_ctrl_list=self._execution_ctrl_list or None)
+        return
 
 
 class _SilentUI(IJobRunnerUI):

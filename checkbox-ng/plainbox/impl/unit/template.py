@@ -52,9 +52,8 @@ logger = logging.getLogger("plainbox.unit.template")
 
 
 class TemplateUnitValidator(UnitValidator, TemplateUnitValidatorLegacyAPI):
-    """
-    Validator for template unit
-    """
+
+    """Validator for template unit."""
 
     def check(self, unit):
         for issue in super().check(unit):
@@ -80,6 +79,7 @@ class TemplateUnitValidator(UnitValidator, TemplateUnitValidatorLegacyAPI):
 
 
 class TemplateUnit(Unit, TemplateUnitLegacyAPI):
+
     """
     Template that can instantiate zero or more additional units.
 
@@ -161,12 +161,13 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
                    field_offset_map)
 
     def __str__(self):
+        """String representation of Template unit objects."""
         return "{} <~ {}".format(self.id, self.resource_id)
 
     @property
     def partial_id(self):
         """
-        Identifier of this job, without the provider name
+        Identifier of this job, without the provider name.
 
         This field should not be used anymore, except for display
         """
@@ -174,6 +175,7 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
 
     @property
     def id(self):
+        """Identifier of this template unit."""
         if self.provider:
             return "{}::{}".format(self.provider.namespace, self.partial_id)
         else:
@@ -181,9 +183,7 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
 
     @property
     def resource_partial_id(self):
-        """
-        name of the referenced resource object
-        """
+        """name of the referenced resource object."""
         text = self.template_resource
         if text is not None and "::" in text:
             return text.split("::", 1)[1]
@@ -191,9 +191,7 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
 
     @property
     def resource_namespace(self):
-        """
-        namespace of the referenced resource object
-        """
+        """namespace of the referenced resource object."""
         text = self.template_resource
         if text is not None and "::" in text:
             return text.split("::", 1)[0]
@@ -202,9 +200,7 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
 
     @property
     def resource_id(self):
-        """
-        fully qualified identifier of the resource object
-        """
+        """fully qualified identifier of the resource object."""
         resource_partial_id = self.resource_partial_id
         if resource_partial_id is None:
             return None
@@ -221,15 +217,13 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
 
     @property
     def template_resource(self):
-        """
-        value of the 'template-resource' field
-        """
+        """value of the 'template-resource' field."""
         return self.get_record_value('template-resource')
 
     @property
     def template_filter(self):
         """
-        value of the 'template-filter' field
+        value of the 'template-filter' field.
 
         This attribute stores the text of a resource program (optional) that
         select a subset of available resource objects.  If you wish to access
@@ -241,7 +235,7 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
     @property
     def template_imports(self):
         """
-        value of the 'template-imports' field
+        value of the 'template-imports' field.
 
         This attribute stores the text of a resource import that is specific
         to the template itself. In other words, it allows the template
@@ -252,7 +246,7 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
     @property
     def template_unit(self):
         """
-        value of the 'template-unit' field
+        value of the 'template-unit' field.
 
         This attribute stores the type of the unit that this template intends
         to instantiate. It defaults to 'job' for backwards compatibility and
@@ -278,7 +272,7 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
 
     def get_filter_program(self):
         """
-        Get filter program compiled from the template-filter field
+        Get filter program compiled from the template-filter field.
 
         :returns:
             ResourceProgram created out of the text of the template-filter
@@ -292,7 +286,7 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
 
     def get_target_unit_cls(self):
         """
-        Get the Unit subclass that implements the instantiated unit
+        Get the Unit subclass that implements the instantiated unit.
 
         :returns:
             A subclass of Unit the template will try to instantiate. If there
@@ -310,8 +304,9 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
 
     def instantiate_all(self, resource_list):
         """
-        Instantiate a list of job definitions by creating one from each
-        non-filtered out resource records.
+        Instantiate a list of job definitions.
+
+        By creating one from each non-filtered out resource records.
 
         :param resource_list:
             A list of resource objects with the correct name
@@ -320,18 +315,26 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
             A list of new Unit (or subclass) objects.
         """
         unit_cls = self.get_target_unit_cls()
-        return [
-            self.instantiate_one(resource, unit_cls_hint=unit_cls)
-            for resource in resource_list
-            if self.should_instantiate(resource)
-        ]
+        resources = []
+        index = 0
+        for resource in resource_list:
+            if self.should_instantiate(resource):
+                index += 1
+                resources.append(self.instantiate_one(resource,
+                                                      unit_cls_hint=unit_cls,
+                                                      index=index))
+        return resources
 
-    def instantiate_one(self, resource, unit_cls_hint=None):
+    def instantiate_one(self, resource, unit_cls_hint=None, index=0):
         """
         Instantiate a single job out of a resource and this template.
 
         :param resource:
             A Resource object to provide template data
+        :param unit_cls_hint:
+            A unit class to instantiate
+        :param index:
+            An integer parameter representing the current loop index
         :returns:
             A new JobDefinition created out of the template and resource data.
         :raises AttributeError:
@@ -363,6 +366,8 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
         # XXX: extract raw dictionary from the resource object, there is no
         # normal API for that due to the way resource objects work.
         parameters = object.__getattribute__(resource, '_data')
+        # Add the special __index__ to the resource namespace variables
+        parameters['__index__'] = index
         # Instantiate the class using the instantiation API
         return unit_cls.instantiate_template(
             data, raw_data, self.origin, self.provider, parameters,
@@ -401,9 +406,9 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
         name = N_('template')
 
         class fields(SymbolDef):
-            """
-            Symbols for each field that a TemplateUnit can have
-            """
+
+            """Symbols for each field that a TemplateUnit can have."""
+
             template_unit = 'template-unit'
             template_resource = 'template-resource'
             template_filter = 'template-filter'

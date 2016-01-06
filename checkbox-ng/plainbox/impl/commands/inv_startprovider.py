@@ -137,12 +137,44 @@ class Skeleton(Directory):
                 os.path.join(root, self.name.format(**kwargs)), **kwargs)
 
 
-class ProviderSkeleton(Skeleton):
+class EmptyProviderSkeleton(Skeleton):
+    """Empty provider having only the boilerplate manage.py file."""
+
+    things = []
+
+    things.append(File("manage.py", executable=True, full_text="""
+        #!/usr/bin/env python3
+        from plainbox.provider_manager import setup, N_
+
+        # You can inject other stuff here but please don't go overboard.
+        #
+        # In particular, if you need comprehensive compilation support to get
+        # your bin/ populated then please try to discuss that with us in the
+        # upstream project IRC channel #checkbox on irc.freenode.net.
+
+        # NOTE: one thing that you could do here, that makes a lot of sense,
+        # is to compute version somehow. This may vary depending on the
+        # context of your provider. Future version of PlainBox will offer git,
+        # bzr and mercurial integration using the versiontools library
+        # (optional)
+
+        setup(
+            name={name!r},
+            version="1.0",
+            description=N_("The {name} provider"),
+            gettext_domain="{gettext_domain}",
+        )
+        """))
+
+
+class ProviderSkeleton(EmptyProviderSkeleton):
     """
     A skeleton with various content created for the startprovider command.
     """
 
-    things = []
+    # we're using a copy of empty skeleton's things, so we don't modify
+    # the original one (in EmptyProviderSkeleton)
+    things = EmptyProviderSkeleton.things[:]
 
     units_dir = Directory("units")
     things.append(units_dir)
@@ -467,30 +499,6 @@ class ProviderSkeleton(Skeleton):
              echo "Custom script executed"
              """))
 
-    things.append(File("manage.py", executable=True, full_text="""
-        #!/usr/bin/env python3
-        from plainbox.provider_manager import setup, N_
-
-        # You can inject other stuff here but please don't go overboard.
-        #
-        # In particular, if you need comprehensive compilation support to get
-        # your bin/ populated then please try to discuss that with us in the
-        # upstream project IRC channel #checkbox on irc.freenode.net.
-
-        # NOTE: one thing that you could do here, that makes a lot of sense,
-        # is to compute version somehow. This may vary depending on the
-        # context of your provider. Future version of PlainBox will offer git,
-        # bzr and mercurial integration using the versiontools library
-        # (optional)
-
-        setup(
-            name={name!r},
-            version="1.0",
-            description=N_("The {name} provider"),
-            gettext_domain="{gettext_domain}",
-        )
-        """))
-
     things.append(File(".gitignore", full_text="dist/*.tar.gz\nbuild/mo/*\n"))
 
     things.append(File(".bzrignore", full_text="dist/*.tar.gz\nbuild/mo/*\n"))
@@ -498,13 +506,13 @@ class ProviderSkeleton(Skeleton):
 
 class StartProviderInvocation:
 
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, ns):
+        self.ns = ns
 
     def run(self):
         try:
-            ProviderSkeleton(self.name).instantiate(
-                '.', name=self.name,
-                gettext_domain=re.sub("[.:]", "_", self.name))
+            self.ns.skeleton(self.ns.name).instantiate(
+                '.', name=self.ns.name,
+                gettext_domain=re.sub("[.:]", "_", self.ns.name))
         except SomethingInTheWay as exc:
             raise SystemExit(exc)

@@ -33,6 +33,7 @@
 */
 import QtQuick 2.0
 import Ubuntu.Components 1.1
+import io.thp.pyotherside 1.4
 
 MainView {
     id: mainView
@@ -42,7 +43,8 @@ MainView {
     // information and functionality passed to qml job component
     property var testingShell: {
         "name": "Standalone testing shell",
-        "pageStack": pageStack
+        "pageStack": pageStack,
+        "python": py
     }
 
     Arguments {
@@ -53,6 +55,9 @@ MainView {
             required: true
             valueNames: ["PATH"]
         }
+    }
+    Python {
+        id: py
     }
 
     Loader {

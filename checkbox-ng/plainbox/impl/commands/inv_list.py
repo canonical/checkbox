@@ -45,7 +45,7 @@ class ListInvocation:
             # It would be cool if this would draw an ASCI-art tree
             if self.show_attrs:
                 for key, value in obj.attrs.items():
-                    print("{}{}: {!r}".format(indent, key, value))
+                    print("{}{:15}: {!r}".format(indent, key, value))
         if obj.children:
             if self.group is None:
                 print("{}{}".format(indent, _("children")))

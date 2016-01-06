@@ -39,7 +39,7 @@ on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
 setup(
     name="plainbox",
-    version="0.24.dev0",
+    version="0.26.dev0",
     url="https://launchpad.net/plainbox/",
     packages=find_packages(),
     author="Zygmunt Krynicki",
@@ -72,6 +72,7 @@ setup(
     ],
     install_requires=[
         'Jinja2 >= 2.7',
+        'guacamole >= 0.9',
         'padme >= 1.1.1',
         'requests >= 1.0',
         'requests-oauthlib',

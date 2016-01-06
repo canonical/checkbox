@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2015-03-31 15:25+0200\n"
-"PO-Revision-Date: 2016-01-05 03:30+0000\n"
+"PO-Revision-Date: 2016-01-06 04:18+0000\n"
 "Last-Translator: Po-Hsu Lin <po-hsu.lin@canonical.com>\n"
 "Language-Team: Chinese (Traditional) <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-01-05 05:07+0000\n"
+"X-Launchpad-Export-Date: 2016-01-06 05:11+0000\n"
 "X-Generator: Launchpad (build 17876)\n"
 
 #. description
@@ -5910,42 +5910,42 @@ msgstr ""
 msgid ""
 "Tests that the systems wireless hardware can connect to a router using WPA "
 "security and the 802.11b/g protocols."
-msgstr ""
+msgstr "測試本系統的無線網路裝置是否能夠採用 802.11b/g 通訊協定以 WPA 加密之設定連上路由器。"
 
 #. description
 #: ../jobs/wireless.txt.in:86
 msgid ""
 "Tests that the systems wireless hardware can connect to a router using no "
 "security and the 802.11b/g protocols."
-msgstr ""
+msgstr "測試本系統的無線網路裝置是否能夠採用 802.11b/g 通訊協定以無加密之設定連上路由器。"
 
 #. description
 #: ../jobs/wireless.txt.in:107
 msgid ""
 "Tests that the systems wireless hardware can connect to a router using WPA "
 "security and the 802.11n protocol."
-msgstr ""
+msgstr "測試本系統的無線網路裝置是否能夠採用 802.11n 通訊協定以 WPA 加密之設定連上路由器。"
 
 #. description
 #: ../jobs/wireless.txt.in:128
 msgid ""
 "Tests that the systems wireless hardware can connect to a router using no "
 "security and the 802.11n protocol."
-msgstr ""
+msgstr "測試本系統的無線網路裝置是否能夠採用 802.11n 通訊協定以無加密之設定連上路由器。"
 
 #. description
 #: ../jobs/wireless.txt.in:150
 msgid ""
 "Tests that the systems wireless hardware can connect to a router using WPA "
 "security and the 802.11ac protocol."
-msgstr ""
+msgstr "測試本系統的無線網路裝置是否能夠採用 802.11ac 通訊協定以 WPA 加密之設定連上路由器。"
 
 #. description
 #: ../jobs/wireless.txt.in:172
 msgid ""
 "Tests that the systems wireless hardware can connect to a router using no "
 "security and the 802.11ac protocol."
-msgstr ""
+msgstr "測試本系統的無線網路裝置是否能夠採用 802.11ac 通訊協定以無加密之設定連上路由器。"
 
 #. description
 #: ../jobs/wireless.txt.in:193
@@ -6078,14 +6078,14 @@ msgstr ""
 msgid ""
 "Tests the performance of a system's wireless connection through the iperf "
 "tool."
-msgstr ""
+msgstr "利用 iperf 工具來檢測系統的無線網路連線能力。"
 
 #. description
 #: ../jobs/wireless.txt.in:397
 msgid ""
 "Tests the performance of a system's wireless connection through the iperf "
 "tool, using UDP packets."
-msgstr ""
+msgstr "利用 iperf 工具以 UDP 封包來檢測系統的無線網路連線能力。"
 
 #. description
 #: ../jobs/wireless.txt.in:417
@@ -6153,15 +6153,15 @@ msgstr ""
 
 #: ../bin/gateway_ping_test:56
 msgid "Reading default gateway information from /proc"
-msgstr ""
+msgstr "由 /proc 讀取預設閘道資訊中"
 
 #: ../bin/gateway_ping_test:61
 msgid "Failed to read def gateway from /proc"
-msgstr ""
+msgstr "無法由 /proc 中讀取預設閘道資訊"
 
 #: ../bin/gateway_ping_test:73 ../bin/gateway_ping_test:76
 msgid "Could not find def gateway info in /proc"
-msgstr ""
+msgstr "無法於 /proc 中找到預設閘道資訊"
 
 #: ../bin/gateway_ping_test:86
 msgid "Reading default gateway information from route binary"

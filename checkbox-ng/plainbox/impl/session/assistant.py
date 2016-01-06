@@ -499,6 +499,27 @@ class SessionAssistant:
                              "data: %s", str(exc))
 
     @raises(UnexpectedMethodCall)
+    def delete_sessions(self, session_ids: 'List[str]') -> None:
+        """
+        Delete session storages.
+
+        :param session_ids:
+            A list of session ids which storages should be removed.
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+
+        .. note::
+            If the session is not found in the currently selected session
+            repository, it is silently ignored.
+        """
+        UsageExpectation.of(self).enforce()
+        for storage in self._repo.get_storage_list():
+            if storage.id in session_ids:
+                storage.remove()
+
+    @raises(UnexpectedMethodCall)
     def start_new_session(self, title: str):
         """
         Create a new testing session.

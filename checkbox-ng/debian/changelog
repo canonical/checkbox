@@ -1,3 +1,12 @@
+checkbox-ng (0.23-1) unstable; urgency=medium
+
+  * New upstream release. Closes: #740215.
+  * Remove the checkbox-ng-service binary package.
+  * debian/control: require plainbox 0.24 or more recent (new APIs and fixes)
+  * debian/rules: Ensure scripts in /usr/bin are well provided by checkbox-ng
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Wed, 06 Jan 2016 11:36:34 +0100
+
 checkbox-ng (0.22-1) unstable; urgency=medium
 
   * New upstream maintenance release

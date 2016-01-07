@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2015-03-31 15:25+0200\n"
-"PO-Revision-Date: 2016-01-06 04:18+0000\n"
+"PO-Revision-Date: 2016-01-07 04:22+0000\n"
 "Last-Translator: Po-Hsu Lin <po-hsu.lin@canonical.com>\n"
 "Language-Team: Chinese (Traditional) <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-01-06 05:11+0000\n"
+"X-Launchpad-Export-Date: 2016-01-07 05:08+0000\n"
 "X-Generator: Launchpad (build 17876)\n"
 
 #. description
@@ -35,6 +35,15 @@ msgid ""
 "VERIFICATION:\n"
 "    Did you hear a tone?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查內建喇叭是否運作正常\n"
+"步驟：\n"
+"    1. 確定沒有連接任何外接喇叭或耳機，\n"
+"       若您是使用沒有內建喇叭的桌上型電腦，您可以略過本項測試。\n"
+"       我們之後將會測試外接音效裝置。\n"
+"    2. 點擊「測試」按鈕來讓您的裝置播放一小段音效\n"
+"檢查：\n"
+"    您有聽到測試音嗎？"
 
 #. description
 #: ../jobs/audio.txt.in:52
@@ -48,6 +57,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Did you hear the sound from the HDMI device?"
 msgstr ""
+"目的：\n"
+"    HDMI 音效輸出測試\n"
+"步驟：\n"
+"    1. 請連接一個能夠播放聲音的 HDMI 裝置 (針對本測試，請一次只使用一個 HDMI/DisplayPort 介面)\n"
+"    2. 點擊 「測試」按鈕\n"
+"檢查：\n"
+"    您是否有聽到由該 HDMI 音訊裝置中播出的音效？"
 
 #. description
 #: ../jobs/audio.txt.in:76
@@ -61,6 +77,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Did you hear the sound from the DisplayPort device?"
 msgstr ""
+"目的：\n"
+"    DisplayPort 音效輸出測試\n"
+"步驟：\n"
+"    1. 請連接一個能夠播放聲音的 DisplayPort 裝置 (針對本測試，請一次只使用一個 HDMI/DisplayPort 介面)\n"
+"    2. 點擊 「測試」按鈕\n"
+"檢查：\n"
+"    您是否有聽到由該 DisplayPort 音訊裝置中播出的音效？"
 
 #. description
 #: ../jobs/audio.txt.in:101
@@ -74,6 +97,13 @@ msgid ""
 "    Did you hear a sound through the headphones and did the sound play "
 "without any distortion, clicks or other strange noises from your headphones?"
 msgstr ""
+"目的：\n"
+"    這個測試會測試耳機連接端子是否正常運作\n"
+"步驟：\n"
+"    1. 將外接耳機接上電腦\n"
+"    2. 點擊「測試」按鈕將會播放一段音效\n"
+"檢查：\n"
+"    您是否有從外接耳機聽到一段清楚不失真、沒有喀噠聲或是其他奇怪噪音的音效？"
 
 #. description
 #: ../jobs/audio.txt.in:126
@@ -88,6 +118,14 @@ msgid ""
 "VERIFICATION:\n"
 "    Did you hear your speech played back?"
 msgstr ""
+"目的：\n"
+"    這個測試將會檢查內建的麥克風是否正常運作 (將用內建的麥克風錄下一段聲音)\n"
+"步驟：\n"
+"    1. 如果您已經接上的外接的麥克風，請先移除\n"
+"    2. 點擊「測試」按鈕，然後對著內建的麥克風講一段話\n"
+"    3. 您剛剛講的話將透過喇叭播放出來\n"
+"檢查：\n"
+"    您是否有聽到自己剛剛被錄下來的話"
 
 #. description
 #: ../jobs/audio.txt.in:152
@@ -102,6 +140,14 @@ msgid ""
 "VERIFICATION:\n"
 "    Did you hear your speech played back?"
 msgstr ""
+"目的：\n"
+"    這個測試將會檢查外接的麥克風是否正常運作 (將用外接的麥克風錄下一段聲音)\n"
+"步驟：\n"
+"    1. 將外接的麥克風連接到電腦\n"
+"    2. 點擊「測試」按鈕，然後對著外接的麥克風講一段話\n"
+"    3. 您剛剛講的話將透過喇叭播放出來\n"
+"檢查：\n"
+"    您是否有聽到自己剛剛被錄下來的話"
 
 #. description
 #: ../jobs/audio.txt.in:177
@@ -115,13 +161,21 @@ msgid ""
 "VERIFICATION:\n"
 "    Did you hear your speech played back through the USB headphones?"
 msgstr ""
+"目的：\n"
+"    這個測試將會檢查 USB 音效裝置是否正常運作\n"
+"步驟：\n"
+"    1. 將 USB 音效裝置連接到電腦\n"
+"    2. 點擊「測試」按鈕，然後對著 USB 音效裝置的麥克風講一段話\n"
+"    3. 您剛剛講的話將透過喇叭播放出來\n"
+"檢查：\n"
+"    您是否有聽到自己剛剛被錄下來的話"
 
 #. description
 #: ../jobs/audio.txt.in:199
 msgid ""
 "Play back a sound on the default output and listen for it on the default "
 "input."
-msgstr ""
+msgstr "在預設音效輸出裝置上播放一段音效，並由預設音效輸入裝置接收它"
 
 #. description
 #: ../jobs/audio.txt.in:207
@@ -129,7 +183,7 @@ msgid ""
 "Collect audio-related system information. This data can be used to simulate "
 "this computer's audio subsystem and perform more detailed tests under a "
 "controlled environment."
-msgstr ""
+msgstr "收集音效相關的系統資訊。這些資料可以用來模擬這台電腦的音效子系統並在受控環境下進行更詳細的檢查。"
 
 #. description
 #: ../jobs/audio.txt.in:217
@@ -146,6 +200,12 @@ msgid ""
 "VERIFICATION:\n"
 "    You should clearly hear a voice from the different audio channels"
 msgstr ""
+"目的：\n"
+"    檢查不同的聲道是否有正常運作\n"
+"步驟：\n"
+"    1. 按下「測試」按鈕\n"
+"檢查：\n"
+"    你應該會聽到音效由不同的聲道中播出"
 
 #. description
 #: ../jobs/audio.txt.in:250
@@ -164,6 +224,15 @@ msgid ""
 "*not* be muted automatically\n"
 "     2. Do you hear the sound coming out on the corresponding channel?"
 msgstr ""
+"目的：\n"
+"     檢查輸出至其他裝置 (Line-Out) 音源連接埠是否有正常運作\n"
+"步驟：\n"
+"     1. 將音源線從有內建放大器的喇叭接到電腦上輸出至其他裝置 (Line-Out) 的音源連接埠\n"
+"     2. 打開系統音效設定，於「輸出」頁籤的裝置列表中選擇「輸出至其他裝置 (Line-Out)」，然後按下「測試」按鈕\n"
+"     3. 同樣於此頁籤中，選擇「內建音效」裝置並按下「測試聲音」來檢查左右聲道\n"
+"檢查：\n"
+"     1. 您有聽到來自外接喇叭的聲音嗎？內建喇叭應該*不會*自動被靜音\n"
+"     2. 您有聽到聲音從相對應的聲道中播出嗎？"
 
 #. description
 #: ../jobs/audio.txt.in:276
@@ -179,6 +248,14 @@ msgid ""
 "VERIFICATION:\n"
 "    Did you hear your recording?"
 msgstr ""
+"目的：\n"
+"    檢查自其他裝置輸入 (Line-In) 音源連接埠是否有正常運作\n"
+"步驟：\n"
+"    1. 連接外部音源與電腦上的自其他裝置輸入 (Line-In) 音源連接埠\n"
+"    2. 打開系統音效設定，於「輸入」頁籤的裝置列表中選擇「自其他裝置輸入 (Line-In) 」並按下「測試」按鈕\n"
+"    3. 幾秒鐘後，電腦將會播放自外部音源錄下的聲音\n"
+"檢查：\n"
+"    您有聽到自外部音源錄下的聲音嗎？"
 
 #. description
 #: ../jobs/audio.txt.in:293
@@ -195,6 +272,17 @@ msgid ""
 "    Verification is automatic, no action is required.\n"
 "    The test times out after 30 seconds (and fails in that case)."
 msgstr ""
+"目的：\n"
+"    檢查系統能否正確偵測到外接喇叭或耳機的連接\n"
+"STEPS:\n"
+"    1. 準備一組帶有 3.5mm 標準接頭的耳機或喇叭\n"
+"    2. 找到電腦上供外接喇叭 / 耳機接頭用的連接埠\n"
+"    3. 執行測試 (您會有 30 秒的時間來執行以下操作)\n"
+"    4. 將耳機或喇叭連接端子接至電腦上對應的連接埠\n"
+"    5. 為了接下來的測試，請將連接端子自電腦上拔除\n"
+"檢查：\n"
+"    這是一個自動化的測試，您不需要進行其他操作\n"
+"    本測試將在 30 秒後逾時 (若逾時，本測試將會被紀錄為測試失敗)"
 
 #. description
 #: ../jobs/audio.txt.in:313
@@ -212,6 +300,18 @@ msgid ""
 "    Verification is automatic, no action is required.\n"
 "    The test times out after 30 seconds (and fails in that case)."
 msgstr ""
+"目的：\n"
+"    檢查系統能否正確偵測到外接麥克風的連接\n"
+"STEPS:\n"
+"    1. 準備一組帶有 3.5mm 標準接頭的麥克風\n"
+"    2. 找到電腦上供外接麥克風接頭用的連接埠\n"
+"       外接麥克風有可能會跟外接耳機共用同一個連接埠\n"
+"    3. 執行測試 (您會有 30 秒的時間來執行以下操作)\n"
+"    4. 將麥克風連接端子接至電腦上對應的連接埠\n"
+"    5. 為了接下來的測試，請將連接端子自電腦上拔除\n"
+"檢查：\n"
+"    這是一個自動化的測試，您不需要進行其他操作\n"
+"    本測試將在 30 秒後逾時 (若逾時，本測試將會被紀錄為測試失敗)"
 
 #. description
 #: ../jobs/audio.txt.in:343
@@ -228,6 +328,15 @@ msgid ""
 "    Does the slider move smoothly, as well as being followed by the setting "
 "by the actual audio output?"
 msgstr ""
+"目的：\n"
+"    檢查音效輸出平衡控制是否能在內建喇叭上正常運作\n"
+"步驟：\n"
+"    1. 檢查是否能由左到右順利的拖動音效輸出平衡設定條\n"
+"    2. 按下「測試」按鈕來播放一段約 10 秒鐘的音效\n"
+"    3. 將音效輸出平衡設定條由左移到右再移回來\n"
+"    4. 檢查喇叭是否有正確反應出該音效輸出平衡設定\n"
+"檢查：\n"
+"    音效輸出平衡設定條是否能夠順利的被拖動，喇叭是否有正確反應出實際的音效平衡設定？"
 
 #. description
 #: ../jobs/audio.txt.in:370
@@ -244,6 +353,15 @@ msgid ""
 "    Does the slider move smoothly, as well as being followed by the setting "
 "by the actual audio output?"
 msgstr ""
+"目的：\n"
+"    檢查音效輸出平衡控制是否能在外接耳機上正常運作\n"
+"步驟：\n"
+"    1. 檢查是否能由左到右順利的拖動音效輸出平衡設定條\n"
+"    2. 按下「測試」按鈕來播放一段約 10 秒鐘的音效\n"
+"    3. 將音效輸出平衡設定條由左移到右再移回來\n"
+"    4. 檢查耳機是否有正確反應出該音效輸出平衡設定\n"
+"檢查：\n"
+"    音效輸出平衡設定條是否能夠順利的被拖動，耳機是否有正確反應出實際的音效平衡設定？"
 
 #. description
 #: ../jobs/audio.txt.in:389
@@ -264,13 +382,22 @@ msgid ""
 "VERIFICATION:\n"
 "    Did you hear a tone?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查內建喇叭是否在暫停 30 次後仍能夠正常運作\n"
+"步驟\n"
+"    1. 確認確定沒有連接任何外接喇叭或耳機，\n"
+"       若您是使用沒有內建喇叭的桌上型電腦，您可以略過本項測試。\n"
+"       我們之後將會測試外接音效裝置。\n"
+"    2. 點擊「測試」按鈕來讓您的裝置播放一小段音效\n"
+"檢查：\n"
+"    您有聽到測試音嗎？"
 
 #. description
 #: ../jobs/audio.txt.in:431
 msgid ""
 "Play back a sound on the default output and listen for it on the default "
 "input, after suspending 30 times."
-msgstr ""
+msgstr "在暫停 30 次後，於預設音效輸出裝置上播放一段音效，並由預設音效輸入裝置接收它"
 
 #. description
 #: ../jobs/audio.txt.in:443
@@ -282,6 +409,8 @@ msgid ""
 "the active source and sink are not muted.  You should not manually adjust "
 "the volume or mute before running this test."
 msgstr ""
+"本測試將會檢查您的音量是被設定在可接受的範圍內。 本測試將會檢查所有的音效輸入、輸出音量是否大於或等於 PulseAudio 所偵測到的 minvol "
+"值，以及音量是否小於等於 maxvol 值。它也會檢查使用中的音效輸出、輸入是否不是處於靜音的狀態。在開始測試前請不要手動調整音量大小。"
 
 #. description
 #: ../jobs/audio.txt.in:458
@@ -296,7 +425,7 @@ msgstr "針對各個磁碟進行效能測試"
 #. description
 #: ../jobs/benchmarks.txt.in:41
 msgid "Run gtkperf to make sure that GTK based test cases work"
-msgstr ""
+msgstr "執行 gtkperf 以確認基於 GTK 的測試項目能夠運作"
 
 #. description
 #: ../jobs/benchmarks.txt.in:49
@@ -306,7 +435,7 @@ msgstr "執行 Render-Bench XRender/Imlib2 效能測試"
 #. description
 #: ../jobs/benchmarks.txt.in:56
 msgid "Run Qgears2 XRender Extension gearsfancy benchmark"
-msgstr ""
+msgstr "執行 Qgears2 XRender 延伸套件 gearsfancy 效能測試"
 
 #. description
 #: ../jobs/benchmarks.txt.in:63
@@ -316,12 +445,12 @@ msgstr "執行 Qgears2 XRender Extension 影像縮放效能測試"
 #. description
 #: ../jobs/benchmarks.txt.in:70
 msgid "Run Qgears2 OpenGL gearsfancy benchmark"
-msgstr ""
+msgstr "執行 Qgears2 OpenGL gearsfancy 效能測試"
 
 #. description
 #: ../jobs/benchmarks.txt.in:77
 msgid "Run Qgears2 OpenGL image scaling benchmark"
-msgstr ""
+msgstr "執行 Qgears2 OpenGL 影像縮放效能測試"
 
 #. description
 #: ../jobs/benchmarks.txt.in:86

@@ -1,0 +1,71 @@
+Source: plainbox-provider-checkbox
+Section: utils
+Priority: optional
+Maintainer: Checkbox Developers <checkbox-devel@lists.ubuntu.com>
+Uploaders: Sylvain Pineau <sylvain.pineau@canonical.com>,
+           Zygmunt Krynicki <zygmunt.krynicki@canonical.com>,
+           Python Applications Packaging Team <python-apps-team@lists.alioth.debian.org>
+Build-Depends: debhelper (>= 9),
+               dh-python,
+               intltool,
+               plainbox-provider-resource-generic (>= 0.17),
+               python (>= 2.7),
+               python3,
+               python3-checkbox-support (>= 0.22),
+               python3-debian,
+               python3-plainbox (>= 0.24)
+Standards-Version: 3.9.6
+Vcs-Svn: svn://anonscm.debian.org/python-apps/packages/plainbox-provider-checkbox/trunk/
+Vcs-Browser: http://anonscm.debian.org/viewvc/python-apps/packages/plainbox-provider-checkbox/trunk/
+Homepage: http://launchpad.net/checkbox
+
+Package: plainbox-provider-checkbox
+Architecture: any
+Depends: plainbox-provider-resource-generic (>= 0.17),
+         python (>= 2.7),
+         python2.7,
+         python3,
+         python3-checkbox-support (>= 0.22),
+         ${misc:Depends},
+         ${plainbox:Depends},
+         ${shlibs:Depends}
+Recommends: gir1.2-gst-plugins-base-1.0,
+            gir1.2-gstreamer-1.0,
+            gstreamer1.0-plugins-good,
+            gstreamer1.0-pulseaudio,
+            libgstreamer1.0-0,
+            pm-utils,
+            python3-apt,
+            python3-dbus,
+            python3-gi,
+            ${plainbox:Recommends}
+Suggests: bonnie++,
+          bootchart,
+          curl,
+          ethtool,
+          fwts,
+          git-core,
+          glmark2,
+          glmark2-es2,
+          hdparm,
+          lshw,
+          mesa-utils,
+          nmap,
+          obexd-client,
+          obexftp,
+          render-bench,
+          smartmontools,
+          sox,
+          stress,
+          sysstat,
+          wmctrl,
+          ${plainbox:Suggests}
+X-Plainbox-Provider: yes
+Description: CheckBox provider for PlainBox
+ This package provides the CheckBox jobs collection, i.e the hardware test
+ definitions and scripts originally included with CheckBox.
+ It is used together alongside with PlainBox.
+ .
+ Jobs are smallest units of testing that can be performed by PlainBox.
+ All jobs have an unique name. There are many types of jobs, some are fully
+ automated others are fully manual.

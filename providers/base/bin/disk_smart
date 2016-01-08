@@ -2,7 +2,7 @@
 """
 Script to automate disk SMART testing.
 
-Copyright (C) 2010 Canonical Ltd.
+Copyright (C) 2010-2016 Canonical Ltd.
 
 Authors
   Jeff Lane <jeffrey.lane@canonical.com>

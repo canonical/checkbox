@@ -79,7 +79,7 @@ def enable_smart(name):
     :returns:
         True if enabling SMART was successful, False otherwise
     """
-    command = 'sudo smartctl -s on /dev/%s' % name
+    command = 'smartctl -s on /dev/%s' % name
     try:
         child = Popen(command, stdout=PIPE, shell=True)
         child.communicate()[0]
@@ -101,7 +101,7 @@ def smart_support(name):
     """
     supported = 'False'
     # Check with smartctl to see if SMART is available and enabled on the disk
-    command = 'sudo smartctl -i /dev/%s' % name
+    command = 'smartctl -i /dev/%s' % name
     diskinfo_bytes = (Popen(command, stdout=PIPE, shell=True)
                       .communicate()[0])
     diskinfo = (diskinfo_bytes.decode(encoding='utf-8', errors='ignore')

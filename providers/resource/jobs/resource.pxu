@@ -196,6 +196,7 @@ command:
 id: block_device
 estimated_duration: 0.08
 plugin: resource
+user: root
 command: block_device_resource
 _description: Create resource info for removable block devices
 

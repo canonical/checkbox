@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2015-03-31 15:25+0200\n"
-"PO-Revision-Date: 2016-01-07 04:22+0000\n"
+"PO-Revision-Date: 2016-01-08 04:37+0000\n"
 "Last-Translator: Po-Hsu Lin <po-hsu.lin@canonical.com>\n"
 "Language-Team: Chinese (Traditional) <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-01-07 05:08+0000\n"
-"X-Generator: Launchpad (build 17876)\n"
+"X-Launchpad-Export-Date: 2016-01-08 05:09+0000\n"
+"X-Generator: Launchpad (build 17881)\n"
 
 #. description
 #: ../jobs/audio.txt.in:8
@@ -525,7 +525,7 @@ msgstr "執行 Stream Triad 效能測試"
 #. description
 #: ../jobs/benchmarks.txt.in:185
 msgid "Run Network Loopback benchmark"
-msgstr ""
+msgstr "執行網路 Loopback 效能測試"
 
 #. description
 #: ../jobs/benchmarks.txt.in:191
@@ -570,60 +570,60 @@ msgstr "執行 Himeno 效能測試"
 #. description
 #: ../jobs/benchmarks.txt.in:246
 msgid "CPU utilization on an idle system."
-msgstr ""
+msgstr "檢查在系統閒置時的 CPU 閒置率"
 
 #. description
 #: ../jobs/benchmarks.txt.in:253
 msgid "Disk utilization on an idle system."
-msgstr ""
+msgstr "檢查在系統閒置時的磁碟使用率"
 
 #. description
 #: ../jobs/benchmarks.txt.in:262
 msgid ""
 "Run a stress test based on FurMark (OpenGL 2.1 or 3.2) Fullscreen 1920x1080 "
 "no antialiasing"
-msgstr ""
+msgstr "採用 FurMark (OpenGL 2.1 or 3.2) 無抗鋸齒 1920x1080 全螢幕模式進行壓力測試"
 
 #. description
 #: ../jobs/benchmarks.txt.in:273
 msgid ""
 "Run a stress test based on FurMark (OpenGL 2.1 or 3.2) Windowed 1024x640 no "
 "antialiasing"
-msgstr ""
+msgstr "採用 FurMark (OpenGL 2.1 or 3.2) 無抗鋸齒 1024x640 視窗模式進行壓力測試"
 
 #. description
 #: ../jobs/benchmarks.txt.in:284
 msgid ""
 "Run GiMark, a geometry instancing test (OpenGL 3.3) Fullscreen 1920x1080 no "
 "antialiasing"
-msgstr ""
+msgstr "執行 GiMark (OpenGL 3.3) 幾何示例測試，以無抗鋸齒 1920x1080 全螢幕模式進行"
 
 #. description
 #: ../jobs/benchmarks.txt.in:295
 msgid ""
 "Run GiMark, a geometry instancing test (OpenGL 3.3) Windowed 1024x640 no "
 "antialiasing"
-msgstr ""
+msgstr "執行 GiMark (OpenGL 3.3) 幾何示例測試，以無抗鋸齒 1024x640 視窗模式進行"
 
 #. description
 #: ../jobs/benchmarks.txt.in:306
 msgid ""
 "Run a tessellation test based on TessMark (OpenGL 4.0) Fullscreen 1920x1080 "
 "no antialiasing"
-msgstr ""
+msgstr "執行 TessMark (OpenGL 4.0) 曲面細分測試，以無抗鋸齒 1920x1080 全螢幕模式進行"
 
 #. description
 #: ../jobs/benchmarks.txt.in:316
 msgid ""
 "Run a tessellation test based on TessMark (OpenGL 4.0) Windowed 1024x640 no "
 "antialiasing"
-msgstr ""
+msgstr "執行 TessMark (OpenGL 4.0) 曲面細分測試，以無抗鋸齒 1024x640 視窗模式進行"
 
 #. description
 #: ../jobs/bluetooth.txt.in:22
 msgid ""
 "Automated test to store bluetooth device information in checkbox report"
-msgstr ""
+msgstr "此測試會把藍芽裝置資訊儲存到 Checkbox 的報告中"
 
 #. description
 #: ../jobs/bluetooth.txt.in:29
@@ -643,6 +643,20 @@ msgid ""
 "VERIFICATION:\n"
 "    Did all the steps work?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查藍牙連線是否正常運作\n"
+"步驟：\n"
+"    1. 啟動任何行動裝置 (PDA、智慧型手機等) 上的藍芽功能\n"
+"    2. 點擊系統選單的藍牙圖示\n"
+"    3. 選擇「設定新裝置」\n"
+"    4. 在列表中找到該裝置並與其配對\n"
+"    5. 在該裝置中輸入設定精靈所給定的 PIN 碼\n"
+"    6. 該裝置應該會與電腦成功配對\n"
+"    7. 在藍牙圖示上按右鍵，選擇瀏覽檔案\n"
+"    8. 若有需要，請在該裝置上授權讓本電腦能夠瀏覽該裝置上的檔案needed\n"
+"    9. 您現在應該可以瀏覽裝置上的檔案了\n"
+"檢查：\n"
+"    是否所有的步驟都能正確進行？"
 
 #. description
 #: ../jobs/bluetooth.txt.in:49
@@ -657,6 +671,14 @@ msgid ""
 "VERIFICATION:\n"
 "    Were all files copied correctly?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查是否能透過藍牙連線傳送檔案\n"
+"步驟：\n"
+"    1. 確定您可以透過藍牙連線瀏覽行動裝置上的檔案\n"
+"    2. 將一個檔案從電腦上複製到行動裝置上\n"
+"    3. 將一個檔案從行動裝置上複製到電腦上\n"
+"檢查：\n"
+"    檔案有被正確的複製嗎？"
 
 #. description
 #: ../jobs/bluetooth.txt.in:70
@@ -675,6 +697,17 @@ msgid ""
 "VERIFICATION:\n"
 "    Did you hear the sound?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查是否能在藍牙音效裝置上錄製與播放音效\n"
+"步驟：\n"
+"    1. 啟動藍牙耳機麥克風\n"
+"    2. 點擊音效圖示\n"
+"    3. 選擇「音效設定」\n"
+"    4. 在裝置列表中點選該藍牙音效裝置\n"
+"    5. 將品質設定為 A2DP\n"
+"    6. 點擊「測試」按鈕來錄製一段約五秒鐘的聲音，並隨後於藍牙裝置中播出\n"
+"檢查：\n"
+"    您有聽到被錄下來的聲音嗎？"
 
 #. description
 #: ../jobs/bluetooth.txt.in:88
@@ -698,6 +731,19 @@ msgid ""
 "    Did you hear the sound you recorded in the bluetooth with a slight "
 "intended delay?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查藍牙音效裝置的電話全雙工能力來判斷它是否能同時進行錄音與播放\n"
+"步驟：\n"
+"    1. 啟動藍牙耳機麥克風\n"
+"    2. 點擊系統選單的藍牙圖示\n"
+"    3. 選擇「設定新裝置」\n"
+"    4. 在裝置列表中找到該藍牙音效裝置並與其配對\n"
+"    5. 點擊音效圖示\n"
+"    6. 選擇「音效設定」\n"
+"    7. 點選該藍牙音效裝置並確認模式設定為「電話全雙工 (HSP/HFP)」\n"
+"    8. 點擊「測試」按鈕來用藍牙耳機麥克風錄製一段約五秒鐘的聲音\n"
+"檢查：\n"
+"    您有聽到您自己的聲音嗎 (帶有一點點刻意的延遲)？"
 
 #. description
 #: ../jobs/bluetooth.txt.in:109
@@ -716,6 +762,17 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the device work as expected?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您是否可以使用藍牙人機介面裝置\n"
+"步驟：\n"
+"    1. 啟動藍牙鍵盤或滑鼠\n"
+"    2. 點擊系統選單的藍牙圖示\n"
+"    3. 選擇「設定新裝置」\n"
+"    4. 在裝置列表中找到該藍牙裝置並與其配對\n"
+"    5. 若是測試滑鼠，請測試左右鍵點擊，雙擊以及移動游標\n"
+"    6. 若是測試鍵盤，請點擊「測試」按鈕來打開測試用小工具，在該工具裡輸入一些文字後將其關閉\n"
+"檢查：\n"
+"    這些裝置的運作是否一如預期？"
 
 #. description
 #: ../jobs/bluetooth.txt.in:146
@@ -725,6 +782,8 @@ msgid ""
 "it again using Bluetooth and verifies the checksum to ensure the transfer "
 "didn't corrupt the file."
 msgstr ""
+"這是一個全自動的藍牙檔案傳輸測試，它將會傳送一個較大的檔案到環境設定中由 BTDEVADDR "
+"變數所指定的裝置上，接著再透過藍牙將它下載回來，並對總和檢查碼進行驗證以確認檔案在傳輸過程中沒有損壞。"
 
 #. description
 #: ../jobs/camera.txt.in:7
@@ -742,6 +801,12 @@ msgid ""
 "VERIFICATION:\n"
 "    Did you see the video capture?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查內建攝影機是否有正常運作\n"
+"步驟：\n"
+"    1. 點擊「測試」按鈕來播放 10 秒鐘由內建攝影機所拍攝的影片\n"
+"檢查：\n"
+"    您有看到攝影機所拍到的影片嗎？"
 
 #. description
 #: ../jobs/camera.txt.in:34
@@ -754,6 +819,12 @@ msgid ""
 "VERIFICATION:\n"
 "    Did you see the image?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查內建攝影機是否有正常運作\n"
+"步驟：\n"
+"    1. 點擊「測試」按鈕來播放 10 秒鐘由內建攝影機所拍攝的照片\n"
+"檢查：\n"
+"    您有看到攝影機所拍到照片嗎？"
 
 #. description
 #: ../jobs/camera.txt.in:50
@@ -761,7 +832,7 @@ msgid ""
 " Takes multiple pictures based on the resolutions supported by the camera "
 "and\n"
 " validates their size and that they are of a valid format."
-msgstr ""
+msgstr " 根據攝影機所支援的解析度來拍攝多張相片，並檢查它們的檔案大小及確認其為有效的格式。"
 
 #. description
 #: ../jobs/codecs.txt.in:8
@@ -775,6 +846,13 @@ msgid ""
 "VERIFICATION:\n"
 "   Did the sample play correctly?"
 msgstr ""
+"目的：\n"
+"   本測試將會檢查您的系統是否能夠播放 Ogg Vorbis 格式音效檔\n"
+"步驟：\n"
+"   1. 點擊「測試」來播放 Ogg Vorbis 格式檔案 (.ogg)\n"
+"   2. 請選擇播放器來繼續\n"
+"檢查：\n"
+"   是否能正常播放該測試檔案？"
 
 #. description
 #: ../jobs/codecs.txt.in:24
@@ -787,12 +865,19 @@ msgid ""
 "VERIFICATION:\n"
 "   Did the sample play correctly?"
 msgstr ""
+"目的：\n"
+"   本測試將會檢查您的系統是否能夠播放 Wave 格式音效檔\n"
+"步驟：\n"
+"   1. 點擊「測試」來播放 Wave 格式檔案 (.wav)\n"
+"   2. 請選擇播放器來繼續\n"
+"檢查：\n"
+"   是否能正常播放該測試檔案？"
 
 #. description
 #: ../jobs/cpu.txt.in:9
 msgid ""
 "Test the CPU scaling capabilities using Firmware Test Suite (fwts cpufreq)."
-msgstr ""
+msgstr "利用 Firmware Test Suite 測試 CPU 的頻率調整功能 (指令：fwts cpufreq)"
 
 #. description
 #: ../jobs/cpu.txt.in:17
@@ -804,12 +889,12 @@ msgstr "將 cpu/scaling_test 產生的紀錄附加至測試結果中"
 msgid ""
 "Test that the CPU can run at its max frequency using Firmware Test Suite "
 "(fwts cpufreq)."
-msgstr ""
+msgstr "利用 Firmware Test Suite 測試 CPU 能夠到達其最大頻率 (指令：fwts cpufreq)"
 
 #. description
 #: ../jobs/cpu.txt.in:35
 msgid "Attaches the log generated by cpu/maxfreq_test to the results"
-msgstr ""
+msgstr "將 cpu/maxfreq_test 產生的紀錄附加至測試結果中"
 
 #. description
 #: ../jobs/cpu.txt.in:42
@@ -819,12 +904,12 @@ msgstr "時脈抖動測試。"
 #. description
 #: ../jobs/cpu.txt.in:50
 msgid "Test offlining CPUs in a multicore system."
-msgstr "測試多核心系統的脫機 CPU。"
+msgstr "測試多核心系統的 CPU 離線功能。"
 
 #. description
 #: ../jobs/cpu.txt.in:58
 msgid "This test checks cpu topology for accuracy"
-msgstr ""
+msgstr "本測試將會檢查 CPU 的拓撲結構以確認其精準度"
 
 #. description
 #: ../jobs/cpu.txt.in:66
@@ -834,17 +919,17 @@ msgstr ""
 #. description
 #: ../jobs/cpu.txt.in:74
 msgid "Validate that the Vector Floating Point Unit is running on ARM device"
-msgstr ""
+msgstr "確認 Vector Floating Point Unit 有在 ARM 裝置上執行"
 
 #. description
 #: ../jobs/cpu.txt.in:83
 msgid "Run Firmware Test Suite (fwts) cstates tests."
-msgstr ""
+msgstr "執行 Firmware Test Suite (fwts) cstates 測試。"
 
 #. description
 #: ../jobs/cpu.txt.in:94 ../jobs/firmware.txt.in:55
 msgid "Attaches the FWTS desktop diagnosis results log to the submission"
-msgstr ""
+msgstr "將 FWTS desktop 診斷結果附加在測試報告中"
 
 #. description
 #: ../jobs/daemons.txt.in:5
@@ -904,7 +989,7 @@ msgstr "當套件安裝後，測試 winbindd 系統服務是否已在執行中�
 #. description
 #: ../jobs/disk.txt.in:5
 msgid "Detects and displays disks attached to the system."
-msgstr ""
+msgstr "偵測並顯示系統中已掛載的磁碟"
 
 #. summary
 #: ../jobs/disk.txt.in:18
@@ -917,7 +1002,7 @@ msgid ""
 "This test checks disk stats, generates some activity and rechecks stats to "
 "verify they've changed. It also verifies that disks appear in the various "
 "files they're supposed to."
-msgstr ""
+msgstr "本測試將會比對在進行一些操作前後的磁碟狀況，來確認其狀態會改變。它同時也會檢查磁碟是否有出現在應該出現的檔案裡。"
 
 #. description
 #: ../jobs/disk.txt.in:19
@@ -931,11 +1016,14 @@ msgid ""
 "    sysfs path: {path}\n"
 "    device node path: /dev/{name}"
 msgstr ""
+"    產品名稱：{product}\n"
+"    sysfs 路徑：{path}\n"
+"    裝置節點路徑：/dev/{name}"
 
 #. description
 #: ../jobs/disk.txt.in:35
 msgid "Check stats changes for each disk"
-msgstr ""
+msgstr "檢查每個磁碟的狀態改變"
 
 #. description
 #: ../jobs/disk.txt.in:56
@@ -945,14 +1033,14 @@ msgstr "SMART 測試"
 #. description
 #: ../jobs/disk.txt.in:76
 msgid "Verify system storage performs at or above baseline performance"
-msgstr ""
+msgstr "確認系統的儲存裝置效能有達到或超過一般的水準"
 
 #. description
 #: ../jobs/disk.txt.in:96
 msgid ""
 "Verify that storage devices, such as Fibre Channel and RAID can be detected "
 "and perform under stress."
-msgstr ""
+msgstr "確認儲存裝置，如光纖通道和容錯式磁碟陣列能被偵測到且能在壓力測試下運作。"
 
 #. description
 #: ../jobs/disk.txt.in:118
@@ -963,6 +1051,8 @@ msgid ""
 "constantly parked then activated. This produces excess wear on the drive, "
 "potentially leading to early failures."
 msgstr ""
+"有些新的硬碟會有自動休眠的功能，在閒置一段時間後會將硬碟讀寫頭歸位。具有此省電功能的硬碟使用在作業系統上可能會因為過於頻繁的讀寫頭歸位而造成不必要的磨損，"
+"進而導致硬體壽命縮短。"
 
 #. description
 #: ../jobs/disk.txt.in:130
@@ -977,6 +1067,13 @@ msgid ""
 " The verification of this test is automated. Do not change the\n"
 " automatically selected result."
 msgstr ""
+"目的：\n"
+" 本測試將會檢查系統的硬碟保護機制是否能正常運作\n"
+"步驟：\n"
+" 1. 點擊「測試」按鈕\n"
+" 2. 稍微移動您的電腦，確保它有被拉高、降低到某種程度\n"
+"檢查：\n"
+" 本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/esata.txt.in:4
@@ -994,6 +1091,13 @@ msgid ""
 "automatically\n"
 "    selected result"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統能夠自動偵測到 eSATA 外接硬碟的連接\n"
+"步驟：\n"
+"    1. 點擊「測試」按鈕來開始。若一直無法偵測到 eSATA 外接硬碟的連接，本測試將於 20 秒後逾時並自動判斷為失敗\n"
+"    2. 將 eSATA 外接硬碟連接至電腦上的 eSATA 連接埠\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/esata.txt.in:20
@@ -1016,6 +1120,13 @@ msgid ""
 "automatically\n"
 "    selected result"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統能夠自動偵測到 eSATA 外接硬碟的移除\n"
+"步驟：\n"
+"    1. 點擊「測試」按鈕來開始。若一直無法偵測到 eSATA 外接硬碟的移除，本測試將於 20 秒後逾時並自動判斷為失敗\n"
+"    2. 將 eSATA 外接硬碟連從電腦上的 eSATA 連接埠上拔除\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/ethernet.txt.in:9
@@ -1035,12 +1146,20 @@ msgid ""
 "VERIFICATION:\n"
 "    Did a notification show and was the connection correctly established?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的有線網路連線\n"
+"步驟：\n"
+"    1. 於上方狀態列點擊網路圖示\n"
+"    2. 選擇「有線網路」下的網路連線\n"
+"    3. 點擊「測試」來檢查是否能夠建立 HTTP 連線\n"
+"檢查：\n"
+"    是否有通知出現，而且連線是否有正確建立？"
 
 #. description
 #: ../jobs/ethernet.txt.in:39
 msgid ""
 "Automated test to walk multiple network cards and test each one in sequence."
-msgstr ""
+msgstr "本自動化測試將會檢查每一張網路卡並依序對其進行測試。"
 
 #. description
 #: ../jobs/ethernet.txt.in:70 ../jobs/suspend.txt.in:810
@@ -1048,21 +1167,21 @@ msgstr ""
 msgid ""
 "This is an automated test to gather some info on the current state of your "
 "network devices. If no devices are found, the test will exit with an error."
-msgstr ""
+msgstr "本自動化的測試將會收集您網路裝置的資訊，若沒有到任何裝置，本測試將會回報錯誤。"
 
 #. description
 #: ../jobs/ethernet.txt.in:98
 msgid ""
 "This test executes a maximum throughput test against all the ethernet "
 "devices found on the system."
-msgstr ""
+msgstr "本測試將在系統上偵測到的所有乙太網路裝置上進行最大吞吐量測試。"
 
 #. description
 #: ../jobs/ethernet.txt.in:106
 msgid ""
 "Automated test that tests performance of each wired network device under "
 "stress."
-msgstr ""
+msgstr "本自動化測試將對所有有線網路裝置進行壓力測試。"
 
 #. description
 #: ../jobs/expresscard.txt.in:3
@@ -1075,6 +1194,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Was the device correctly detected?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查 ExpressCard 插槽是否能夠偵測到外接的裝置\n"
+"步驟：\n"
+"    若您的電腦上沒有 ExpressCard 插槽的話請略過本測試\n"
+"    1. 將 ExpressCard 裝置插入 ExpressCard 插槽中\n"
+"檢查：\n"
+"    該裝置是否有被正確偵測到？"
 
 #. description
 #: ../jobs/fingerprint.txt.in:3
@@ -1095,6 +1221,17 @@ msgid ""
 "VERIFICATION:\n"
 "   Did the authentication procedure work correctly?"
 msgstr ""
+"目的：\n"
+"   本測試將會檢查指紋讀取器是否能讓使用者登入作業系統。本測試項目假設系統上有一個測試指紋讀取器用的使用者帳戶\n"
+"步驟：\n"
+"   1. 點選上方狀態列的使用者圖示 (您會看到您的使用者名稱)\n"
+"   2. 選擇「切換使用者帳戶」\n"
+"   3. 在登入畫面中選擇測試指紋讀取器用的使用者帳戶\n"
+"   4. 使用指紋讀取器來登入\n"
+"   5. 測試結束後請再次選擇「切換使用者帳戶」\n"
+"   6. 切換回當前的使用者帳戶來繼續進行測試\n"
+"檢查：\n"
+"   認證是否有成功？"
 
 #. description
 #: ../jobs/fingerprint.txt.in:18
@@ -1114,6 +1251,17 @@ msgid ""
 "VERIFICATION:\n"
 "   Did the authentication procedure work correctly?"
 msgstr ""
+"目的：\n"
+"   本測試將會檢查指紋讀取器是否能讓使用者解鎖處於鎖定狀態的作業系統\n"
+"步驟：\n"
+"   1. 點選上方狀態列的齒輪圖示\n"
+"   2. 選擇「鎖定螢幕」\n"
+"   3. 按任意鍵或移動一下滑鼠\n"
+"   4. 此時應該會有一個能讓您輸入密碼或使用指紋驗證來解除螢幕鎖定的視窗\n"
+"   5. 使用指紋讀取器來解鎖\n"
+"   6. 您應該可以成功解鎖螢幕\n"
+"檢查：\n"
+"   認證是否有成功？"
 
 #. description
 #: ../jobs/firewire.txt.in:5
@@ -1131,13 +1279,20 @@ msgid ""
 "automatically\n"
 "    selected result"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統能夠自動偵測到 FireWire 外接硬碟的連接\n"
+"步驟：\n"
+"    1. 點擊「測試」按鈕來開始。若一直無法偵測到 FireWire 外接硬碟的連接，本測試將於 20 秒後逾時並自動判斷為失敗\n"
+"    2. 將 FireWire 外接硬碟連接至電腦上的 FireWire 連接埠\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/firewire.txt.in:22
 msgid ""
 "This is an automated test which performs read/write operations on an "
 "attached FireWire HDD"
-msgstr ""
+msgstr "本自動化測試項目將會對 FireWire 外接硬碟進行讀 / 寫操作"
 
 #. description
 #: ../jobs/firewire.txt.in:31
@@ -1154,26 +1309,33 @@ msgid ""
 "automatically\n"
 "    selected result"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統能夠自動偵測到 FireWire 外接硬碟的移除\n"
+"步驟：\n"
+"    1. 點擊「測試」按鈕來開始。若一直無法偵測到 FireWire 外接硬碟的移除，本測試將於 20 秒後逾時並自動判斷為失敗\n"
+"    2. 將 FireWire 外接硬碟連從電腦上的 FireWire 連接埠上拔除\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/firmware.txt.in:24
 msgid "Automated tests for firmware using Firmware Test Suite."
-msgstr ""
+msgstr "採用 Firmware Test Suite 對韌體進行自動化測試。"
 
 #. description
 #: ../jobs/firmware.txt.in:43
 msgid "Run Firmware Test Suite (fwts) desktop-specific diagnosis tests."
-msgstr ""
+msgstr "執行 Firmware Test Suite (fwts) desktop-specific 的診斷測試。"
 
 #. summary
 #: ../jobs/firmware.txt.in:45
 msgid "Run FWTS desktop-specific diagnosis tests."
-msgstr ""
+msgstr "執行 FWTS desktop-specific 的診斷測試"
 
 #. summary
 #: ../jobs/firmware.txt.in:56
 msgid "Attach FWTS desktop diagnosis log to submission"
-msgstr ""
+msgstr "將 FWTS desktop 診斷結果附加在測試報告中"
 
 #. description
 #: ../jobs/floppy.txt.in:5
@@ -1188,7 +1350,7 @@ msgstr "驅動程式版本測試"
 #. description
 #: ../jobs/graphics.txt.in:21
 msgid "Test to output the Xorg version"
-msgstr ""
+msgstr "輸出 Xorg 版本的測試"
 
 #. summary
 #: ../jobs/graphics.txt.in:22
@@ -1203,17 +1365,17 @@ msgstr "解析度切換測試"
 #. summary
 #: ../jobs/graphics.txt.in:57
 msgid "Test that the X process is running."
-msgstr ""
+msgstr "測試 X 程序正在執行中。"
 
 #. description
 #: ../jobs/graphics.txt.in:64
 msgid "Test that the X is not running in failsafe mode."
-msgstr ""
+msgstr "測試在失敗安全模式下 X 程序並未執行。"
 
 #. summary
 #: ../jobs/graphics.txt.in:65
 msgid "Test that X is not in failsafe mode."
-msgstr ""
+msgstr "測試 X 並不處於失敗安全模式中。"
 
 #. summary
 #: ../jobs/graphics.txt.in:95
@@ -1233,12 +1395,12 @@ msgstr "最大解析度測試"
 #. summary
 #: ../jobs/graphics.txt.in:169
 msgid "Mode tests"
-msgstr ""
+msgstr "模式測試"
 
 #. summary
 #: ../jobs/graphics.txt.in:184
 msgid "Color depth tests"
-msgstr ""
+msgstr "色彩深度測試"
 
 #. summary
 #: ../jobs/graphics.txt.in:199
@@ -1248,12 +1410,12 @@ msgstr "更新頻率測試"
 #. summary
 #: ../jobs/graphics.txt.in:213
 msgid "Graphic memory tests"
-msgstr ""
+msgstr "圖形介面卡記憶體測試"
 
 #. summary
 #: ../jobs/graphics.txt.in:230
 msgid "Test that video can be displayed"
-msgstr ""
+msgstr "測試系統能夠播放影片"
 
 #. description
 #: ../jobs/graphics.txt.in:231
@@ -1265,16 +1427,22 @@ msgid ""
 "VERIFICATION:\n"
 "    Do you see color bars and static?"
 msgstr ""
+"目的：\n"
+"    本測試將會對預設螢幕進行測試\n"
+"步驟：\n"
+"    1. 點擊「測試」來進行影片播放測試\n"
+"檢查：\n"
+"    您有看到色條與雜訊嗎？"
 
 #. description
 #: ../jobs/graphics.txt.in:243
 msgid "Check that VESA drivers are not in use"
-msgstr ""
+msgstr "確定目前沒有使用 VESA 驅動程式"
 
 #. summary
 #: ../jobs/graphics.txt.in:244
 msgid "Test that VESA drivers are not in use"
-msgstr ""
+msgstr "檢查 VESA 驅動程式為非使用中狀態"
 
 #. summary
 #: ../jobs/graphics.txt.in:249
@@ -1309,22 +1477,22 @@ msgstr "3D 視窗開啟 / 關閉測試"
 #. summary
 #: ../jobs/graphics.txt.in:366
 msgid "3D window with suspend/resume tests"
-msgstr ""
+msgstr "3D 視窗與系統暫停 / 恢復測試"
 
 #. description
 #: ../jobs/graphics.txt.in:381
 msgid "Multiple 3D window open/close"
-msgstr ""
+msgstr "開啟 / 關閉多個 3D 視窗"
 
 #. summary
 #: ../jobs/graphics.txt.in:382
 msgid "Multiple 3D window open/close tests"
-msgstr ""
+msgstr "多個 3D 視窗開啟 / 關閉測試"
 
 #. description
 #: ../jobs/graphics.txt.in:397
 msgid "3D window movement"
-msgstr ""
+msgstr "3D 視窗移動"
 
 #. summary
 #: ../jobs/graphics.txt.in:398
@@ -1339,7 +1507,7 @@ msgstr "螢幕截圖測試"
 #. summary
 #: ../jobs/graphics.txt.in:437
 msgid "screenshot attachment tests"
-msgstr ""
+msgstr "將螢幕截圖附加至測試報告"
 
 #. summary
 #: ../jobs/graphics.txt.in:452
@@ -1354,12 +1522,12 @@ msgstr "GPU 切換提示測試"
 #. summary
 #: ../jobs/graphics.txt.in:503
 msgid "full screen video attachment tests"
-msgstr ""
+msgstr "將全螢幕影片截圖附加至測試報告"
 
 #. summary
 #: ../jobs/graphics.txt.in:524
 msgid "Test that a screenshot is valid, automatically"
-msgstr ""
+msgstr "自動檢查螢幕截圖是否有效"
 
 #. description
 #: ../jobs/graphics.txt.in:525
@@ -1367,13 +1535,13 @@ msgid ""
 "Take a screengrab of the screen displaying a black and white Ubuntu logo. "
 "Check that the screenshot matches the original file using OpenCV ORB "
 "detection."
-msgstr ""
+msgstr "對螢幕上播放的黑白 Ubuntu 標誌拍照，並利用 OpenCV ORB 偵測來判斷該照片是否與原圖相符。"
 
 #. description
 #: ../jobs/graphics.txt.in:533
 msgid ""
 "Attaches the screenshot captured in graphics/screenshot_opencv_validation."
-msgstr ""
+msgstr "將 graphics/screenshot_opencv_validation 測試項中所拍到的畫面附加至測試報告中。"
 
 #. summary
 #: ../jobs/graphics.txt.in:534
@@ -1385,44 +1553,44 @@ msgstr ""
 #. summary
 #: ../jobs/graphics.txt.in:538
 msgid "Obtains a simple screen capture"
-msgstr ""
+msgstr "取得一張簡單的螢幕快照"
 
 #. description
 #: ../jobs/graphics.txt.in:542
 msgid "Obtains a simple screen capture using gnome-screenshot if present"
-msgstr ""
+msgstr "利用 gnome-screenshot (若可用) 來進行簡單的螢幕快照"
 
 #. summary
 #: ../jobs/graphics.txt.in:546
 msgid "Attaches a simple screen capture"
-msgstr ""
+msgstr "附加簡單的螢幕快照"
 
 #. description
 #: ../jobs/graphics.txt.in:550
 msgid "Attaches the simple screen capture file"
-msgstr ""
+msgstr "將簡單的螢幕快照檔案附加至測試報告"
 
 #. summary
 #: ../jobs/graphics.txt.in:563
 msgid "Obtains a simple screen capture of {product}"
-msgstr ""
+msgstr "對 {product} 取得簡單的螢幕快照"
 
 #. description
 #: ../jobs/graphics.txt.in:567
 msgid ""
 "Obtains a simple screen capture of {product} using gnome-screenshot if "
 "present"
-msgstr ""
+msgstr "利用 gnome-screenshot (若可用) 來對 {product} 進行簡單的螢幕快照"
 
 #. summary
 #: ../jobs/graphics.txt.in:575
 msgid "Attaches a simple screen capture of {product}"
-msgstr ""
+msgstr "附加將對 {product} 取得的簡單的螢幕快照"
 
 #. description
 #: ../jobs/graphics.txt.in:578
 msgid "Attaches the simple screen capture file of {product}"
-msgstr ""
+msgstr "將對 {product} 取得的簡單的螢幕快照檔案附加至測試報告"
 
 #. description
 #: ../jobs/hibernate.txt.in:17
@@ -1441,86 +1609,95 @@ msgid ""
 "    Did the system successfully hibernate and did it work properly after "
 "waking up?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您電腦的休眠功能是否正常 (若有支援的話)\n"
+"步驟：\n"
+"    1. 按下「測試」按鈕\n"
+"    2. 您的電腦將會進入休眠模式，並在大約五分鐘後自動醒來\n"
+"    3. 若您的電腦在五分鐘後並沒有自己醒來，請手動按下電源鈕來喚醒它\n"
+"    4. 若您的電腦無法正常自休眠模式中被喚醒，請重新啟動本系統測試工具並將此測項標記為測試失敗\n"
+"驗證：\n"
+"    您的電腦是否正常的進入休眠模式，並在被喚醒後正常運作？"
 
 #. description
 #: ../jobs/hibernate.txt.in:31
 msgid "Automated check of the hibernate log for errors discovered by fwts"
-msgstr ""
+msgstr "自動檢查休眠紀錄中由 fwts 所偵測到的錯誤"
 
 #. description
 #: ../jobs/hibernate.txt.in:38
 msgid "attaches log from single hibernate/resume test to results"
-msgstr ""
+msgstr "將單次休眠 / 喚醒測試的紀錄檔附加至測試報告中"
 
 #. description
 #: ../jobs/info.txt.in:6
 msgid "Attaches a report of installed codecs for Intel HDA"
-msgstr ""
+msgstr "將對 Intel HDA 所安裝的解碼器列表附加至測試報告中"
 
 #. description
 #: ../jobs/info.txt.in:12
 msgid "Attaches a report of CPU information"
-msgstr ""
+msgstr "將 CPU 資訊附加至測試報告中"
 
 #. description
 #: ../jobs/info.txt.in:18
 msgid "Attaches a copy of /var/log/dmesg to the test results"
-msgstr ""
+msgstr "將 /var/log/dmesg 的複本附加至測試結果中"
 
 #. description
 #: ../jobs/info.txt.in:24
 msgid "Attaches info on DMI"
-msgstr ""
+msgstr "將 DMI 資訊附加至測試報告中"
 
 #. description
 #: ../jobs/info.txt.in:32
 msgid "Attaches dmidecode output"
-msgstr ""
+msgstr "將 dmidecoe 資訊附加至測試報告中"
 
 #. description
 #: ../jobs/info.txt.in:39
 msgid "Attaches lshw output"
-msgstr ""
+msgstr "將 lshw 資訊附加至測試報告中"
 
 #. description
 #: ../jobs/info.txt.in:46
 msgid "Attaches the firmware version"
-msgstr ""
+msgstr "將韌體版本資訊附加至測試報告中"
 
 #. description
 #: ../jobs/info.txt.in:52
 msgid "Attaches very verbose lspci output."
-msgstr ""
+msgstr "將詳盡的 lspci 輸出結果附加至測試報告中。"
 
 #. description
 #: ../jobs/info.txt.in:58
 msgid "Attaches very verbose lspci output (with central database Query)."
-msgstr ""
+msgstr "將詳盡的 lspci 輸出結果附加至測試報告中 (向中央資料庫進行查詢)。"
 
 #. description
 #: ../jobs/info.txt.in:66
 msgid "List USB devices"
-msgstr ""
+msgstr "列出所有 USB 裝置"
 
 #. description
 #: ../jobs/info.txt.in:77
 msgid "Attaches the contents of the various modprobe conf files."
-msgstr ""
+msgstr "將各個 modprobe 的設定檔內容附加至測試報告中。"
 
 #. description
 #: ../jobs/info.txt.in:83
 msgid "Attaches the contents of the /etc/modules file."
-msgstr ""
+msgstr "將 /etc/modules 檔案的內容附加至測試報告中。"
 
 #. description
 #: ../jobs/info.txt.in:89
 msgid "attaches the contents of various sysctl config files."
-msgstr ""
+msgstr "將各種 sysctl 設定檔的內容附加至測試報告中。"
 
 #. description
 #: ../jobs/info.txt.in:93
 msgid "Attaches a report of sysfs attributes."
-msgstr ""
+msgstr "將 sysfs 屬性報告附加至測試報告中。"
 
 #. description
 #: ../jobs/info.txt.in:106
@@ -1531,32 +1708,32 @@ msgstr ""
 #. description
 #: ../jobs/info.txt.in:112
 msgid "Attaches the output of udev_resource, for debugging purposes"
-msgstr ""
+msgstr "為了除錯需要，將 udev_resource 的輸出附加至測試報告中"
 
 #. description
 #: ../jobs/info.txt.in:119
 msgid "Attaches a tarball of gcov data if present."
-msgstr ""
+msgstr "將 gvoc 資料 (若存在) 打包附加至測試報告中。"
 
 #. description
 #: ../jobs/info.txt.in:125
 msgid "Attaches a list of the currently running kernel modules."
-msgstr ""
+msgstr "將目前執行中的內核模組列表附加至測試報告中。"
 
 #. description
 #: ../jobs/info.txt.in:131
 msgid "Attaches the contents of /proc/acpi/sleep if it exists."
-msgstr ""
+msgstr "若 /proc/acpi/sleep 存在，將其內容附加至測試報告中"
 
 #. description
 #: ../jobs/info.txt.in:135
 msgid "Bootchart information."
-msgstr ""
+msgstr "Bootchart 資訊。"
 
 #. description
 #: ../jobs/info.txt.in:146
 msgid "SATA/IDE device information."
-msgstr ""
+msgstr "SATA/IDE 裝置資訊。"
 
 #. description
 #: ../jobs/info.txt.in:166
@@ -1576,59 +1753,59 @@ msgstr ""
 #. description
 #: ../jobs/info.txt.in:189
 msgid "Attaches the installer debug log if it exists."
-msgstr ""
+msgstr "將安裝程式的除錯紀錄 (若存在) 附加至測試報告中。"
 
 #. description
 #: ../jobs/info.txt.in:196
 msgid ""
 "Returns the name, driver name and driver version of any touchpad discovered "
 "on the system."
-msgstr ""
+msgstr "回傳系統上偵測到的觸控板名稱、驅動程式名稱以及驅動程式版本。"
 
 #. description
 #: ../jobs/info.txt.in:208
 msgid "Lists the device driver and version for all audio devices."
-msgstr ""
+msgstr "列出有音效裝置的驅動程式與版本資訊。"
 
 #. description
 #: ../jobs/info.txt.in:218
 msgid "Provides information about network devices"
-msgstr ""
+msgstr "提供關於網際網路裝置的資訊"
 
 #. description
 #: ../jobs/info.txt.in:224
 msgid "Provides information about wwan/mobile broadband devices"
-msgstr ""
+msgstr "提供關於 WWAN / 行動網路裝置的資訊"
 
 #. description
 #: ../jobs/info.txt.in:229
 msgid "Provides information about displays attached to the system"
-msgstr ""
+msgstr "提供關於連接至本機的螢幕資訊"
 
 #. description
 #: ../jobs/info.txt.in:236
 msgid "Attaches information about disk partitions"
-msgstr ""
+msgstr "將磁碟分割資訊附加至測試報告中"
 
 #. description
 #: ../jobs/info.txt.in:241
 msgid "Attaches the buildstamp identifier for the preinstalled OS"
-msgstr ""
+msgstr "附加預載作業系統的 buildstamp 識別至測試報告中"
 
 #. summary
 #: ../jobs/info.txt.in:242
 msgid "Attach /etc/buildstamp"
-msgstr ""
+msgstr "將 /etc/buildstamp 資訊附加至測試報告中"
 
 #. description
 #: ../jobs/info.txt.in:248
 msgid "Attaches the debug log from the virtualization run"
-msgstr ""
+msgstr "將虛擬化測試的偵錯紀錄附加至測試報告中"
 
 #. description
 #: ../jobs/input.txt.in:7
 msgid "Pointing device tests."
-msgstr ""
+msgstr "指向裝置測試。"
 
 #. description
 #: ../jobs/input.txt.in:25
@@ -1641,6 +1818,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the pointing device work as expected?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的指向裝置\n"
+"步驟：\n"
+"    1. 用該指向裝置或觸碰螢幕來移動游標\n"
+"    2. 進行一些單擊 / 雙擊 / 右鍵操作\n"
+"檢查：\n"
+"    該指向裝置的運作是否一如預期？"
 
 #. description
 #: ../jobs/input.txt.in:39
@@ -1653,6 +1837,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Is your keyboard working properly?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的鍵盤\n"
+"步驟：\n"
+"    1. 點擊「測試」按鈕\n"
+"    2. 在文字輸入區域用您的鍵盤輸入一些文字\n"
+"檢查：\n"
+"    您的鍵盤是否有正常運作？"
 
 #. description
 #: ../jobs/input.txt.in:51
@@ -1664,6 +1855,12 @@ msgid ""
 "VERIFICATION:\n"
 "    Is this system supposed to have an accelerometer?"
 msgstr ""
+"目的：\n"
+"    經由人工檢測確認加速度感應器的存在\n"
+"步驟\n"
+"    1. 請查閱您系統的規格書\n"
+"檢查：\n"
+"    這台電腦有加速度感應器嗎？"
 
 #. description
 #: ../jobs/input.txt.in:65
@@ -1678,16 +1875,23 @@ msgid ""
 "VERIFICATION:\n"
 "    Is your accelerometer properly detected? Can you use the device?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的加速度感應器是否有被偵測到，並被視為搖桿裝置運作\n"
+"步驟：\n"
+"    1. 點擊「測試」按鈕\n"
+"    2. 根據螢幕上所顯示的方向傾斜您的電腦，直到其符合該軸的門檻值\n"
+"檢查：\n"
+"    您的加速度感應器有被正確偵測到嗎？您能夠使用該裝置嗎？"
 
 #. summary
 #: ../jobs/input.txt.in:80
 msgid "Create click tests for pointing devices."
-msgstr ""
+msgstr "為指向裝置產生點擊測試項目"
 
 #. description
 #: ../jobs/input.txt.in:81
 msgid "Click tests for pointing devices."
-msgstr ""
+msgstr "指向裝置的點擊測試"
 
 #. description
 #: ../jobs/install.txt.in:6
@@ -1695,7 +1899,7 @@ msgid ""
 "Tests to see that apt can access repositories and get updates (does not "
 "install updates). This is done to confirm that you could recover from an "
 "incomplete or broken update."
-msgstr ""
+msgstr "檢查 apt 是否能夠存取軟體庫並取得更新 (此測試並不會安裝更新)。這是為了確認您能夠從不完整或有問題的更新中恢復。"
 
 #. description
 #: ../jobs/keys.txt.in:7
@@ -1713,6 +1917,15 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的\n"
+"    本測試將會檢查螢幕鎖定鍵\n"
+"步驟\n"
+"    1. 按下「測試」按鈕來開始本測試，若沒有此按鍵，請略過本測試\n"
+"    2. 在 30 秒內按下螢幕鎖定鍵\n"
+"    3. 如果螢幕被成功鎖定，請移動滑鼠或按任意鍵來啟動解鎖提示畫面\n"
+"    4. 輸入密碼來解鎖螢幕\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/keys.txt.in:23
@@ -1724,6 +1937,12 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the brightness change following to your key presses?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查亮度調整鍵\n"
+"步驟\n"
+"    1. 按下鍵盤上的亮度調整鍵\n"
+"檢查：\n"
+"    螢幕亮度是否有隨著您按下的亮度調整鍵而改變？"
 
 #. description
 #: ../jobs/keys.txt.in:38
@@ -1737,6 +1956,14 @@ msgid ""
 "VERIFICATION:\n"
 "    Do the keys work as expected?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您鍵盤上的音量調整鍵\n"
+"步驟\n"
+"    若您的電腦上沒有音量調整鍵請略過本測試\n"
+"    1. 按下「測試」按鈕來開啟測試音量鍵的視窗\n"
+"    2. 如果所有按鍵都能正常運作，本測試將會被設定為通過\n"
+"檢查：\n"
+"    這些按鍵運作是否正常？"
 
 #. description
 #: ../jobs/keys.txt.in:55
@@ -1749,6 +1976,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Does the mute key work as expected?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您鍵盤上的音量靜音鍵\n"
+"步驟\n"
+"    1. 按下「測試」按鈕來開啟測試音量靜音鍵的視窗\n"
+"    2. 如果該按鍵能正常運作，本測試將會被設定為通過且該視窗會自動關閉\n"
+"檢查：\n"
+"    此音量靜音鍵是否運作正常？"
 
 #. description
 #: ../jobs/keys.txt.in:69
@@ -1761,6 +1995,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the system go to sleep after pressing the sleep key?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查睡眠鍵\n"
+"步驟：\n"
+"    1. 按下鍵盤上的睡眠鍵\n"
+"    2. 按下電源鍵來喚醒您的電腦\n"
+"檢查：\n"
+"    按下睡眠鍵後有讓您的系統進入睡眠狀態嗎？"
 
 #. description
 #: ../jobs/keys.txt.in:84
@@ -1775,6 +2016,15 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the Battery Info key work as expected?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查電池資訊鍵\n"
+"步驟：\n"
+"    若您的電腦上沒有電池資訊鍵請略過本測試\n"
+"    1. 按下「測試」按鈕來開始\n"
+"    2. 按下電池資訊鍵 (或是 Fn+F3 的組合)\n"
+"    3: 若電力統計工具有被打開的話請關閉它\n"
+"檢查：\n"
+"    電池資訊鍵是否運作正常？"
 
 #. description
 #: ../jobs/keys.txt.in:99
@@ -1795,6 +2045,18 @@ msgid ""
 "Please\n"
 "    only consider the functionality of the wifi itself here.)"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查無線網路鍵\n"
+"步驟：\n"
+"    1. 按下鍵盤上的無線網路鍵\n"
+"    2. 檢查無線網路 LED 是否有熄滅或變色\n"
+"    3. 檢查無線網路是否有被停用\n"
+"    4. 再按一次該無線網路鍵\n"
+"    5. 撿查無線網路 LED 是否有亮起或變色\n"
+"    6. 檢查無線網路是否有被啟用\n"
+"檢查：\n"
+"    無線網路是否有在第一次按下該按鍵時被關閉，並在第二次按下該按鍵時啟用？\n"
+"    (註：我們將會在後面的測試中檢測 LED 的運作狀況，在本測試中請著重在無線網路鍵的功能上)"
 
 #. description
 #: ../jobs/keys.txt.in:121
@@ -1808,6 +2070,14 @@ msgid ""
 "VERIFICATION:\n"
 "    Do the keys work as expected?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您鍵盤上的多媒體控制鍵\n"
+"步驟：\n"
+"    若您的電腦上沒有多媒體控制鍵請略過本測試\n"
+"    1. 按下「測試」按鈕來開啟測試多媒體控制鍵的視窗\n"
+"    2. 如果所有按鍵都能正常運作，本測試將會被設定為通過\n"
+"檢查：\n"
+"    這些按鍵運作是否正常？"
 
 #. description
 #: ../jobs/keys.txt.in:138
@@ -1820,6 +2090,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Does the super key work as expected?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您鍵盤上的 super 鍵\n"
+"步驟：\n"
+"    1. 按下「測試」按鈕來開啟測試 super 鍵的視窗\n"
+"    2. 如果該按鍵能正常運作，本測試將會被設定為通過且該視窗會自動關閉\n"
+"檢查：\n"
+"    此 super 鍵是否運作正常？"
 
 #. description
 #: ../jobs/keys.txt.in:151
@@ -1833,6 +2110,13 @@ msgid ""
 "    Check that the video signal can be mirrored, extended, displayed on "
 "external or onboard only."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查顯示切換熱鍵是否運作正常\n"
+"步驟：\n"
+"    1. 接上一個外接螢幕\n"
+"    2. 按下顯示切換熱鍵來切換螢幕顯示設定\n"
+"檢查：\n"
+"    檢查螢幕顯示模式可以在鏡像、延伸、只顯示在外接螢幕上與只顯示在內建螢幕上切換"
 
 #. description
 #: ../jobs/keys.txt.in:164
@@ -1846,6 +2130,14 @@ msgid ""
 "VERIFICATION:\n"
 "    Verify the touchpad has been disabled and re-enabled."
 msgstr ""
+"目的：\n"
+"    檢查觸控板熱鍵能夠啟動、關閉觸控板功能\n"
+"步驟：\n"
+"    1. 檢查觸控板運作是否正常\n"
+"    2. 按下觸控板熱鍵\n"
+"    3. 再次按下觸控板熱鍵\n"
+"檢查：\n"
+"    請確認觸控板是否有被停用、重新啟用"
 
 #. description
 #: ../jobs/keys.txt.in:178
@@ -1862,6 +2154,15 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the keyboard backlight state change on each press?"
 msgstr ""
+"目的：\n"
+"    檢查鍵盤背光熱鍵運作是否正常\n"
+"步驟：\n"
+"    1. 按下鍵盤背光熱鍵\n"
+"    2. 確認鍵盤背光有隨著按鍵被切換\n"
+"    3. 再次按下鍵盤背光熱鍵\n"
+"    4. 確認鍵盤背光有隨著按鍵被切換\n"
+"檢查：\n"
+"    鍵盤背光狀態有隨著每次按下此熱鍵而改變嗎？"
 
 #. description
 #: ../jobs/keys.txt.in:205
@@ -1878,6 +2179,14 @@ msgid ""
 "VERIFICATION:\n"
 "    Does the microphone mute key work as expected?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查麥克風靜音鍵\n"
+"步驟：\n"
+"    1. 按下「測試」鍵並對著麥克風說出「想像力比知識重要」(或其他句子)\n"
+"    2. 當您在唸出這句子時，請在中途按下麥克風靜音鍵將麥克風靜音，並在一小段時間後再按第二次來解除靜音\n"
+"    3. 幾秒鐘後，您剛剛唸出的句子將會被重新播放出來。若此麥克風靜音鍵運作正常，您剛剛唸的句子應該會有一小段的中斷\n"
+"檢查：\n"
+"    麥克風靜音鍵運作是否一如預期？"
 
 #. description
 #: ../jobs/keys.txt.in:219
@@ -1891,6 +2200,14 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the system go to hibernate after pressing the hibernate key?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查休眠鍵功能\n"
+"步驟：\n"
+"    1. 按下鍵盤上的休眠鍵\n"
+"    2. 檢查系統是否有正確進入休眠狀態\n"
+"    3. 按下電源鍵來喚醒您的電腦\n"
+"檢查：\n"
+"    在您按下休眠鍵後，系統是否有進入休眠狀態？"
 
 #. description
 #: ../jobs/keys.txt.in:233
@@ -1904,6 +2221,14 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the keyboard overhead light key or switch turns on and off the light?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查鍵盤照明燈鍵\n"
+"步驟：\n"
+"    1. 按下鍵盤照明燈鍵來啟動照亮鍵盤用的照明燈\n"
+"    2. 檢查該照明燈是否有被打開\n"
+"    3. 再按一次鍵盤照明燈鍵來把它關掉\n"
+"檢查：\n"
+"    鍵盤照明燈鍵是否能控制該照明燈？"
 
 #. description
 #: ../jobs/led.txt.in:4
@@ -1915,6 +2240,12 @@ msgid ""
 "VERIFICATION:\n"
 "    Does the power LED light as expected?"
 msgstr ""
+"目的：\n"
+"    電源 LED 顯示燈運作測試\n"
+"步驟：\n"
+"    1. 電源 LED 顯示燈應該在電腦啟動時亮著\n"
+"檢查：\n"
+"    電源 LED 顯示燈有一如預期的亮著嗎？"
 
 #. description
 #: ../jobs/led.txt.in:16
@@ -1928,6 +2259,12 @@ msgid ""
 "    Did the Power LED blink or change color while the system was suspended "
 "for the previous suspend test?"
 msgstr ""
+"目的：\n"
+"    電源 LED 顯示燈運作測試\n"
+"步驟：\n"
+"    1. 您電腦的電源 LED 顯示燈應該會在電腦暫停時閃爍或變色\n"
+"檢查：\n"
+"    您電腦的電源 LED 顯示燈在先前的暫停測試中有閃爍或變色嗎？"
 
 #. description
 #: ../jobs/led.txt.in:27
@@ -1941,6 +2278,13 @@ msgid ""
 "VERIFICATION\n"
 "    Did the Suspend LED blink or change color while the system was suspended?"
 msgstr ""
+"目的：\n"
+"    暫停狀態 LED 顯示燈運作測試\n"
+"步驟：\n"
+"    若您的電腦上沒有專門的暫停狀態 LED 顯示燈的話請略過本測試\n"
+"    1. 暫停狀態 LED 顯示燈應該會在系統暫停時閃爍或是變色\n"
+"檢查：\n"
+"    暫停狀態 LED 顯示燈有在系統暫停時閃爍或是變色嗎？"
 
 #. description
 #: ../jobs/led.txt.in:40
@@ -1953,6 +2297,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the battery indicator LED turn orange?"
 msgstr ""
+"目的：\n"
+"    電池狀態 LED 指示燈充電狀態檢測\n"
+"步驟：\n"
+"    1. 讓您的電腦以電池運作一小段時間\n"
+"    2. 接上 AC 電源\n"
+"檢查：\n"
+"    電池狀態 LED 指示燈有變成橘色嗎？"
 
 #. description
 #: ../jobs/led.txt.in:52
@@ -1966,6 +2317,14 @@ msgid ""
 "VERIFICATION:\n"
 "    Does the orange battery LED shut off when system is fully charged?"
 msgstr ""
+"目的：\n"
+"    電池狀態 LED 指示燈充電完成狀態檢測\n"
+"步驟：\n"
+"    1. 讓您的電腦以電池運作一小段時間\n"
+"    2. 接上 AC 電源\n"
+"    3. 讓您的電腦以 AC 電源運作\n"
+"檢查：\n"
+"    橘色的電池狀態 LED 指示燈有在充電完成後熄滅嗎？"
 
 #. description
 #: ../jobs/led.txt.in:65
@@ -1978,6 +2337,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Does the LED light orange when battery is low?"
 msgstr ""
+"目的：\n"
+"    電池狀態 LED 指示燈低電量狀態檢測\n"
+"步驟：\n"
+"    1. 讓您的電腦以電池運作幾個小時\n"
+"    2. 觀察電池狀態 LED 指示燈\n"
+"檢查：\n"
+"    電池狀態 LED 指示燈在電力不足時有變成橘色嗎？"
 
 #. description
 #: ../jobs/led.txt.in:78
@@ -1990,6 +2356,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the HDD LED light?"
 msgstr ""
+"目的：\n"
+"    硬碟 LED 指示燈檢測\n"
+"步驟\n"
+"    1. 按下「測試」來進行幾秒鐘的暫存檔讀 / 寫操作\n"
+"    2. 硬碟 LED 指示燈在對硬碟進行讀 / 寫操作時應該會亮起\n"
+"檢查：\n"
+"    硬碟 LED 指示燈有亮起嗎？"
 
 #. description
 #: ../jobs/led.txt.in:91
@@ -2006,6 +2379,15 @@ msgid ""
 "    2. Numbers should only be entered in the keyboard verification window "
 "when the LED is on"
 msgstr ""
+"目的：\n"
+"    數字鍵盤 LED 指示燈檢測\n"
+"步驟：\n"
+"    1. 按下「NumLock」鍵來啟動數字鍵盤 LED 指示燈\n"
+"    2. 按下「測試」按鈕打開測試視窗來測試輸入\n"
+"    3. 在數字鍵盤 LED 指示燈亮起與熄滅的狀態下用數字鍵盤打字\n"
+"檢查：\n"
+"    1. 按下「NumLock」鍵應該能夠切換數字鍵盤 LED 指示燈狀態\n"
+"    2. 僅在數字鍵盤 LED 指示燈亮起時，才能從數字鍵盤上輸入數字"
 
 #. description
 #: ../jobs/led.txt.in:105
@@ -2018,6 +2400,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the Cap Keys LED light as expected?"
 msgstr ""
+"目的：\n"
+"    大寫 LED 指示燈檢測\n"
+"步驟：\n"
+"    1. 按下「CapLocks」鍵來啟動 / 關閉大寫鎖定\n"
+"    2. 在按下該按鍵時應該能夠切換大寫 LED 指示燈狀態\n"
+"檢查：\n"
+"    大寫 LED 指示燈有一如預期的亮起嗎？"
 
 #. description
 #: ../jobs/led.txt.in:118
@@ -2031,6 +2420,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the WLAN LED turn on or change color as expected?"
 msgstr ""
+"目的：\n"
+"    無線網路 LED 指示燈檢測\n"
+"步驟：\n"
+"    1. 在 keys/wireless 測試時您應該有觀察到無線網路 LED 指示燈在啟用無線網路後的變化\n"
+"    2. 無線網路 LED 指示燈應該在無線網路啟用時亮起或變色\n"
+"檢查：\n"
+"    無線網路 LED 指示燈有亮起或變色嗎？"
 
 #. description
 #: ../jobs/led.txt.in:132
@@ -2044,6 +2440,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the WLAN LED turn off or change color as expected?"
 msgstr ""
+"目的：\n"
+"    停用無線網路時的無線網路 LED 指示燈檢測\n"
+"步驟：\n"
+"    1. 在 keys/wireless 測試時您應該有觀察到無線網路 LED 指示燈在停用無線網路後的變化\n"
+"    2. 無線網路 LED 指示燈應該在無線網路停用時熄滅或變色\n"
+"檢查：\n"
+"    無線網路 LED 指示燈有熄滅或變色嗎？"
 
 #. description
 #: ../jobs/led.txt.in:146
@@ -2059,6 +2462,15 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the bluetooth LED turn off and on twice?"
 msgstr ""
+"目的：\n"
+"    在藍牙功能啟用 / 停用狀態下的藍牙 LED 指示燈測試\n"
+"步驟：\n"
+"    1. 若有藍牙控制鍵的話，請用它將藍牙功能關閉\n"
+"    2. 將藍牙重新打開\n"
+"    3. 從藍牙圖示關閉藍牙功能\n"
+"    4. 將藍牙重新打開\n"
+"檢查：\n"
+"    藍牙 LED 指示燈是否有亮起、熄滅兩次？"
 
 #. description
 #: ../jobs/led.txt.in:162
@@ -2071,6 +2483,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the camera LED light?"
 msgstr ""
+"目的：:\n"
+"    網路攝影機 LED 指示燈檢測\n"
+"步驟：\n"
+"    1. 按下「測試」按鈕來啟動網路攝影機\n"
+"    2. 網路攝影機 LED 指示燈應該會亮起幾秒鐘\n"
+"檢查：\n"
+"    網路攝影機 LED 指示燈有亮起嗎？"
 
 #. description
 #: ../jobs/led.txt.in:174
@@ -2088,6 +2507,15 @@ msgid ""
 "    3. When the LED is off, the mouse pointer should not move on touchpad "
 "usage"
 msgstr ""
+"目的：\n"
+"    觸控板 LED 顯示燈運作測試\n"
+"步驟：\n"
+"    1. 按下觸控板熱鍵或按鍵組合來啟動 / 停用觸控板\n"
+"    2. 將您的手指滑過觸控板\n"
+"檢查：\n"
+"    1. 按下觸控板熱鍵或按鍵組合時應該要能夠切換觸控板 LED 顯示燈狀態\n"
+"    2. 當觸控板 LED 顯示燈亮起時，游標應該要隨著手指在觸控板上的操作而移動\n"
+"    3. 當觸控板 LED 顯示燈熄滅時，游標應該不會隨著手指在觸控板上的操作而移動"
 
 #. description
 #: ../jobs/led.txt.in:188
@@ -2104,6 +2532,17 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the WLAN/Bluetooth LED light as expected?"
 msgstr ""
+"目的：\n"
+"    無線裝置 (無線網路 + 藍牙) LED 顯示燈運作測試\n"
+"步驟：\n"
+"    1. 確定無線網路處於已連線狀態且藍牙為啟動狀態\n"
+"    2. 無線網路 / 藍牙 LED 顯示燈應該要亮著\n"
+"    3. 若有無線網路與藍牙控制鍵的話，請用它將無線網路與藍牙關閉\n"
+"    4. 將它重新打開\n"
+"    5. 從系統狀態列的網路圖示與藍牙圖示關閉無線網路與藍牙功能\n"
+"    6. 將它重新打開\n"
+"檢查：\n"
+"    無線裝置 (無線網路 + 藍牙) LED 顯示燈運作是否一如預期？"
 
 #. description
 #: ../jobs/led.txt.in:205
@@ -2118,6 +2557,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the Audio LED turn on and off or change color as expected?"
 msgstr ""
+"目的：\n"
+"    音效靜音 LED 顯示燈運作測試\n"
+"步驟：\n"
+"    若您的電腦上沒有專門的音效靜音 LED 顯示燈的話請略過本測試\n"
+"    1. 按下音效靜音熱鍵兩次，並觀察音效靜音 LED 顯示燈是否有熄滅、亮起或變色\n"
+"檢查：\n"
+"    音效靜音 LED 顯示燈是否有一如預期的熄滅、亮起或變色？"
 
 #. description
 #: ../jobs/led.txt.in:219
@@ -2133,26 +2579,33 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the Microphone Mute LED turn on and off or change color as expected?"
 msgstr ""
+"目的：\n"
+"    麥克風靜音 LED 顯示燈運作測試\n"
+"步驟：\n"
+"    若您的電腦上沒有專門的麥克風靜音 LED 顯示燈的話請略過本測試\n"
+"    1. 按下麥克風靜音熱鍵兩次，並觀察麥克風靜音 LED 顯示燈是否有熄滅、亮起或變色\n"
+"檢查：\n"
+"    麥克風靜音 LED 顯示燈是否有一如預期的熄滅、亮起或變色？"
 
 #. description
 #: ../jobs/local.txt.in:3
 msgid "Audio tests"
-msgstr ""
+msgstr "音效測試"
 
 #. description
 #: ../jobs/local.txt.in:10
 msgid "Benchmarks tests"
-msgstr ""
+msgstr "效能測試"
 
 #. description
 #: ../jobs/local.txt.in:17
 msgid "Bluetooth tests"
-msgstr ""
+msgstr "藍牙測試"
 
 #. description
 #: ../jobs/local.txt.in:24
 msgid "Camera tests"
-msgstr ""
+msgstr "網路攝影機測試"
 
 #. description
 #: ../jobs/local.txt.in:31
@@ -2162,57 +2615,57 @@ msgstr ""
 #. description
 #: ../jobs/local.txt.in:38
 msgid "CPU tests"
-msgstr ""
+msgstr "CPU 測試"
 
 #. description
 #: ../jobs/local.txt.in:45
 msgid "System Daemon tests"
-msgstr ""
+msgstr "系統常駐程式測試"
 
 #. description
 #: ../jobs/local.txt.in:52
 msgid "Disk tests"
-msgstr ""
+msgstr "磁碟測試"
 
 #. description
 #: ../jobs/local.txt.in:59
 msgid "Ethernet Device tests"
-msgstr ""
+msgstr "乙太網路測試"
 
 #. description
 #: ../jobs/local.txt.in:66
 msgid "eSATA disk tests"
-msgstr ""
+msgstr "eSATA 磁碟測試"
 
 #. description
 #: ../jobs/local.txt.in:73
 msgid "Fingerprint reader tests"
-msgstr ""
+msgstr "指紋讀取器測試"
 
 #. description
 #: ../jobs/local.txt.in:80
 msgid "Firewire disk tests"
-msgstr ""
+msgstr "Firewire 磁碟測試"
 
 #. description
 #: ../jobs/local.txt.in:87
 msgid "Firmware tests"
-msgstr ""
+msgstr "韌體測試"
 
 #. description
 #: ../jobs/local.txt.in:94
 msgid "Floppy disk tests"
-msgstr ""
+msgstr "軟碟測試"
 
 #. description
 #: ../jobs/local.txt.in:101
 msgid "Graphics tests"
-msgstr ""
+msgstr "圖形測試"
 
 #. description
 #: ../jobs/local.txt.in:108
 msgid "Hibernation tests"
-msgstr ""
+msgstr "休眠測試"
 
 #. description
 #: ../jobs/local.txt.in:115
@@ -2222,52 +2675,52 @@ msgstr ""
 #. description
 #: ../jobs/local.txt.in:122
 msgid "Input Devices tests"
-msgstr ""
+msgstr "輸入裝置測試"
 
 #. description
 #: ../jobs/local.txt.in:129
 msgid "Software Installation tests"
-msgstr ""
+msgstr "軟體安裝測試"
 
 #. description
 #: ../jobs/local.txt.in:136
 msgid "Hotkey tests"
-msgstr ""
+msgstr "熱鍵測試"
 
 #. description
 #: ../jobs/local.txt.in:143
 msgid "LED tests"
-msgstr ""
+msgstr "LED 測試"
 
 #. description
 #: ../jobs/local.txt.in:150
 msgid "Media Card tests"
-msgstr ""
+msgstr "記憶卡讀卡機測試"
 
 #. description
 #: ../jobs/local.txt.in:157
 msgid "Memory tests"
-msgstr ""
+msgstr "記憶體測試"
 
 #. description
 #: ../jobs/local.txt.in:164
 msgid "Rendercheck tests"
-msgstr ""
+msgstr "Rendercheck 測試"
 
 #. description
 #: ../jobs/local.txt.in:171
 msgid "MIR tests"
-msgstr ""
+msgstr "MIR 測試"
 
 #. description
 #: ../jobs/local.txt.in:178
 msgid "Miscellaneous tests"
-msgstr ""
+msgstr "雜項測試"
 
 #. description
 #: ../jobs/local.txt.in:185
 msgid "Monitor tests"
-msgstr ""
+msgstr "螢幕測試"
 
 #. description
 #: ../jobs/local.txt.in:192
@@ -2277,87 +2730,87 @@ msgstr ""
 #. description
 #: ../jobs/local.txt.in:199
 msgid "Optical Drive tests"
-msgstr ""
+msgstr "光碟機測試"
 
 #. description
 #: ../jobs/local.txt.in:206
 msgid "Panel Clock Verification tests"
-msgstr ""
+msgstr "狀態列時鐘測試"
 
 #. description
 #: ../jobs/local.txt.in:213
 msgid "Panel Reboot Verification tests"
-msgstr ""
+msgstr "狀態列重新開機測試"
 
 #. description
 #: ../jobs/local.txt.in:220
 msgid "ExpressCard tests"
-msgstr ""
+msgstr "ExpressCard 測試"
 
 #. description
 #: ../jobs/local.txt.in:227
 msgid "Peripheral tests"
-msgstr ""
+msgstr "周邊裝置測試"
 
 #. description
 #: ../jobs/local.txt.in:234
 msgid "Power Management tests"
-msgstr ""
+msgstr "電源管理測試"
 
 #. description
 #: ../jobs/local.txt.in:241
 msgid "Server Services checks"
-msgstr ""
+msgstr "伺服器服務檢查測試"
 
 #. description
 #: ../jobs/local.txt.in:248
 msgid "Suspend tests"
-msgstr ""
+msgstr "暫停測試"
 
 #. description
 #: ../jobs/local.txt.in:255
 msgid "Touchpad tests"
-msgstr ""
+msgstr "觸控板測試"
 
 #. description
 #: ../jobs/local.txt.in:262
 msgid "Touchscreen tests"
-msgstr ""
+msgstr "觸控螢幕測試"
 
 #. description
 #: ../jobs/local.txt.in:269
 msgid "USB tests"
-msgstr ""
+msgstr "USB 測試"
 
 #. description
 #: ../jobs/local.txt.in:276
 msgid "User Applications"
-msgstr ""
+msgstr "使用者應用程式測試"
 
 #. description
 #: ../jobs/local.txt.in:283
 msgid "Virtualization tests"
-msgstr ""
+msgstr "虛擬化測試"
 
 #. description
 #: ../jobs/local.txt.in:290
 msgid "Wireless networking tests"
-msgstr ""
+msgstr "無線網路測試"
 
 #. description
 #: ../jobs/local.txt.in:297
 msgid "Mobile broadband tests"
-msgstr ""
+msgstr "行動寬頻網路測試"
 
 #. description
 #: ../jobs/local.txt.in:304
 msgid "Stress tests"
-msgstr ""
+msgstr "壓力測試"
 
 #. description
 #: ../jobs/local.txt.in:311
 msgid "Smoke tests"
-msgstr ""
+msgstr "煙霧測試"
 
 #. description
 #: ../jobs/local.txt.in:318
@@ -2379,13 +2832,22 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能偵測到多媒體記憶卡 (MMC) 的插入\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並插入一張 MMC 記憶卡到讀卡機中\n"
+"       如果檔案瀏覽視窗跳了出來，您可以放心關閉它\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"    2. 在此測試結束後請不要移除該記憶卡\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/mediacard.txt.in:24
 msgid ""
 "This test is automated and executes after the mediacard/mmc-insert test is "
 "run. It tests reading and writing to the MMC card."
-msgstr ""
+msgstr "本自動化測試將在 mediacard/mmc-insert 測試成功結束後進行。它將會對 MMC 卡進行讀寫測試。"
 
 #. description
 #: ../jobs/mediacard.txt.in:33
@@ -2400,6 +2862,13 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能偵測到 MMC 卡的移除\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並將 MMC 記憶卡從讀卡機中移除\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/mediacard.txt.in:48
@@ -2416,13 +2885,22 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能偵測到處於解鎖狀態的安全數位卡 (SD) 的插入\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並插入一張處於解鎖狀態的 SD 記憶卡到讀卡機中\n"
+"       如果檔案瀏覽視窗跳了出來，您可以放心關閉它\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"    2. 在此測試結束後請不要移除該記憶卡\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/mediacard.txt.in:67
 msgid ""
 "This test is automated and executes after the mediacard/sd-insert test is "
 "run. It tests reading and writing to the SD card."
-msgstr ""
+msgstr "本自動化測試將在 mediacard/sd-insert 測試成功結束後進行。它將會對 SD 卡進行讀寫測試。"
 
 #. description
 #: ../jobs/mediacard.txt.in:76
@@ -2437,6 +2915,13 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能偵測到 SD 卡的移除\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並將 SD 記憶卡從讀卡機中移除\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/mediacard.txt.in:93
@@ -2463,13 +2948,22 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能偵測到處於解鎖狀態的高容量安全數位卡 (SDHC) 的插入\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並插入一張處於解鎖狀態的 SDHC 記憶卡到讀卡機中\n"
+"       如果檔案瀏覽視窗跳了出來，您可以放心關閉它\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"    2. 在此測試結束後請不要移除該記憶卡\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/mediacard.txt.in:122
 msgid ""
 "This test is automated and executes after the mediacard/sdhc-insert test is "
 "run. It tests reading and writing to the SDHC card."
-msgstr ""
+msgstr "本自動化測試將在 mediacard/sdhc-insert 測試成功結束後進行。它將會對 SDHC 卡進行讀寫測試。"
 
 #. description
 #: ../jobs/mediacard.txt.in:131
@@ -2484,6 +2978,13 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能偵測到 SDHC 卡的移除\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並將 SDHC 記憶卡從讀卡機中移除\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/mediacard.txt.in:146
@@ -2500,13 +3001,22 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能偵測到Compact Flash (CF) 卡的插入\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並插入一張 CF 記憶卡到讀卡機中\n"
+"       如果檔案瀏覽視窗跳了出來，您可以放心關閉它\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"    2. 在此測試結束後請不要移除該記憶卡\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/mediacard.txt.in:165
 msgid ""
 "This test is automated and executes after the mediacard/cf-insert test is "
 "run. It tests reading and writing to the CF card."
-msgstr ""
+msgstr "本自動化測試將在 mediacard/cf-insert 測試成功結束後進行。它將會對 CF 卡進行讀寫測試。"
 
 #. description
 #: ../jobs/mediacard.txt.in:174
@@ -2521,6 +3031,13 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能偵測到 CF 卡的移除\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並將 CF 記憶卡從讀卡機中移除\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/mediacard.txt.in:189
@@ -2539,13 +3056,22 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能偵測到處於解鎖狀態的超高容量安全數位卡 (SDXC) 的插入\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並插入一張處於解鎖狀態的 SDXC 記憶卡到讀卡機中\n"
+"       如果檔案瀏覽視窗跳了出來，您可以放心關閉它\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"    2. 在此測試結束後請不要移除該記憶卡\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/mediacard.txt.in:208
 msgid ""
 "This test is automated and executes after the mediacard/sdxc-insert test is "
 "run. It tests reading and writing to the SDXC card."
-msgstr ""
+msgstr "本自動化測試將在 mediacard/sdxc-insert 測試成功結束後進行。它將會對 SDXC 卡進行讀寫測試。"
 
 #. description
 #: ../jobs/mediacard.txt.in:217
@@ -2560,6 +3086,13 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能偵測到 SDXC 卡的移除\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並將 SDXC 記憶卡從讀卡機中移除\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/mediacard.txt.in:232
@@ -2576,13 +3109,22 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能偵測到Memory Stick (MS) 卡的插入\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並插入一張 MS 記憶卡到讀卡機中\n"
+"       如果檔案瀏覽視窗跳了出來，您可以放心關閉它\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"    2. 在此測試結束後請不要移除該記憶卡\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/mediacard.txt.in:251
 msgid ""
 "This test is automated and executes after the mediacard/ms-insert test is "
 "run. It tests reading and writing to the MS card."
-msgstr ""
+msgstr "本自動化測試將在 mediacard/ms-insert 測試成功結束後進行。它將會對 MS 卡進行讀寫測試。"
 
 #. description
 #: ../jobs/mediacard.txt.in:260
@@ -2597,6 +3139,13 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能偵測到 MS 卡的移除\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並將 MS 記憶卡從讀卡機中移除\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/mediacard.txt.in:275
@@ -2613,13 +3162,22 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能偵測到Memory Stick Pro (MSP) 卡的插入\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並插入一張 MSP 記憶卡到讀卡機中\n"
+"       如果檔案瀏覽視窗跳了出來，您可以放心關閉它\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"    2. 在此測試結束後請不要移除該記憶卡\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/mediacard.txt.in:294
 msgid ""
 "This test is automated and executes after the mediacard/msp-insert test is "
 "run. It tests reading and writing to the MSP card."
-msgstr ""
+msgstr "本自動化測試將在 mediacard/msp-insert 測試成功結束後進行。它將會對 MSP 卡進行讀寫測試。"
 
 #. description
 #: ../jobs/mediacard.txt.in:303
@@ -2634,6 +3192,13 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能偵測到 MSP 卡的移除\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並將 MSP 記憶卡從讀卡機中移除\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/mediacard.txt.in:318
@@ -2650,13 +3215,22 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能偵測到Extreme Digital (xD) 卡的插入\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並插入一張 xD 記憶卡到讀卡機中\n"
+"       如果檔案瀏覽視窗跳了出來，您可以放心關閉它\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"    2. 在此測試結束後請不要移除該記憶卡\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/mediacard.txt.in:337
 msgid ""
 "This test is automated and executes after the mediacard/xd-insert test is "
 "run. It tests reading and writing to the xD card."
-msgstr ""
+msgstr "本自動化測試將在 mediacard/xd-insert 測試成功結束後進行。它將會對 xD 卡進行讀寫測試。"
 
 #. description
 #: ../jobs/mediacard.txt.in:346
@@ -2671,6 +3245,13 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能偵測到 xD 卡的移除\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並將 xD 記憶卡從讀卡機中移除\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/mediacard.txt.in:363
@@ -4656,6 +5237,14 @@ msgid ""
 "VERIFICATION:\n"
 "    Verify the touchpad has been disabled and re-enabled."
 msgstr ""
+"目的：\n"
+"    檢查觸控板熱鍵能夠在系統自暫停狀態恢復後啟動、關閉觸控板功能\n"
+"步驟：\n"
+"    1. 檢查觸控板運作是否正常\n"
+"    2. 按下觸控板熱鍵\n"
+"    3. 再次按下觸控板熱鍵\n"
+"檢查：\n"
+"    請確認觸控板是否有被停用、重新啟用"
 
 #. description
 #: ../jobs/suspend.txt.in:1794
@@ -4775,6 +5364,15 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能在系統由暫停狀態恢復後偵測到多媒體記憶卡 (MMC) 的插入\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並插入一張 MMC 記憶卡到讀卡機中\n"
+"       如果檔案瀏覽視窗跳了出來，您可以放心關閉它\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"    2. 在此測試結束後請不要移除該記憶卡\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:1954
@@ -4783,6 +5381,8 @@ msgid ""
 "suspend test is run. It tests reading and writing to the MMC card after the "
 "system has been suspended."
 msgstr ""
+"本自動化測試將在 mediacard/mmc-insert-after-suspend 測試成功結束後進行。它將會在系統由暫停狀態恢復後對 MMC "
+"卡進行讀寫測試。"
 
 #. description
 #: ../jobs/suspend.txt.in:1963
@@ -4815,6 +5415,15 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能在系統由暫停狀態恢復後偵測到處於解鎖狀態的安全數位卡 (SD) 的插入\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並插入一張處於解鎖狀態的 SD 記憶卡到讀卡機中\n"
+"       如果檔案瀏覽視窗跳了出來，您可以放心關閉它\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"    2. 在此測試結束後請不要移除該記憶卡\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:1999
@@ -4823,6 +5432,8 @@ msgid ""
 "suspend test is run. It tests reading and writing to the SD card after the "
 "system has been suspended."
 msgstr ""
+"本自動化測試將在 mediacard/sd-insert-after-suspend 測試成功結束後進行。它將會在系統由暫停狀態恢復後對 SD "
+"卡進行讀寫測試。"
 
 #. description
 #: ../jobs/suspend.txt.in:2008
@@ -4838,6 +5449,13 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能在系統由暫停狀態恢復後偵測到 SD 卡的移除\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並將 SD 記憶卡從讀卡機中移除\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:2025
@@ -4855,6 +5473,15 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能在系統由暫停狀態恢復後偵測到處於解鎖狀態的高容量安全數位卡 (SDHC) 的插入\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並插入一張處於解鎖狀態的 SDHC 記憶卡到讀卡機中\n"
+"       如果檔案瀏覽視窗跳了出來，您可以放心關閉它\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"    2. 在此測試結束後請不要移除該記憶卡\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:2045
@@ -4863,6 +5490,8 @@ msgid ""
 "suspend test is run. It tests reading and writing to the SDHC card after the "
 "system has been suspended."
 msgstr ""
+"本自動化測試將在 mediacard/sdhc-insert-after-suspend 測試成功結束後進行。它將會在系統由暫停狀態恢復後對 SDHC "
+"卡進行讀寫測試。"
 
 #. description
 #: ../jobs/suspend.txt.in:2054
@@ -4894,6 +5523,15 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能在系統由暫停狀態恢復後偵測到Compact Flash (CF) 卡的插入\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並插入一張 CF 記憶卡到讀卡機中\n"
+"       如果檔案瀏覽視窗跳了出來，您可以放心關閉它\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"    2. 在此測試結束後請不要移除該記憶卡\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:2089
@@ -4902,6 +5540,8 @@ msgid ""
 "suspend test is run. It tests reading and writing to the CF card after the "
 "system has been suspended."
 msgstr ""
+"本自動化測試將在 mediacard/cf-insert-after-suspend 測試成功結束後進行。它將會在系統由暫停狀態恢復後對 CF "
+"卡進行讀寫測試。"
 
 #. description
 #: ../jobs/suspend.txt.in:2098
@@ -4933,6 +5573,15 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能在系統由暫停狀態恢復後偵測到處於解鎖狀態的超高容量安全數位卡 (SDXC) 的插入\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並插入一張處於解鎖狀態的 SDXC 記憶卡到讀卡機中\n"
+"       如果檔案瀏覽視窗跳了出來，您可以放心關閉它\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"    2. 在此測試結束後請不要移除該記憶卡\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:2133
@@ -4941,6 +5590,8 @@ msgid ""
 "suspend test is run. It tests reading and writing to the SDXC card after the "
 "system has been suspended."
 msgstr ""
+"本自動化測試將在 mediacard/sdxc-insert-after-suspend 測試成功結束後進行。它將會在系統由暫停狀態恢復後對 SDXC "
+"卡進行讀寫測試。"
 
 #. description
 #: ../jobs/suspend.txt.in:2142
@@ -4973,6 +5624,15 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能在系統由暫停狀態恢復後偵測到Memory Stick (MS) 卡的插入\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並插入一張 MS 記憶卡到讀卡機中\n"
+"       如果檔案瀏覽視窗跳了出來，您可以放心關閉它\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"    2. 在此測試結束後請不要移除該記憶卡\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:2178
@@ -4981,6 +5641,8 @@ msgid ""
 "suspend test is run. It tests reading and writing to the MS card after the "
 "system has been suspended."
 msgstr ""
+"本自動化測試將在 mediacard/ms-insert-after-suspend 測試成功結束後進行。它將會在系統由暫停狀態恢復後對 MS "
+"卡進行讀寫測試。"
 
 #. description
 #: ../jobs/suspend.txt.in:2187
@@ -5012,6 +5674,15 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能在系統由暫停狀態恢復後偵測到Memory Stick Pro (MSP) 卡的插入\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並插入一張 MSP 記憶卡到讀卡機中\n"
+"       如果檔案瀏覽視窗跳了出來，您可以放心關閉它\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"    2. 在此測試結束後請不要移除該記憶卡\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:2222
@@ -5020,6 +5691,8 @@ msgid ""
 "suspend test is run. It tests reading and writing to the MSP card after the "
 "system has been suspended."
 msgstr ""
+"本自動化測試將在 mediacard/msp-insert-after-suspend 測試成功結束後進行。它將會在系統由暫停狀態恢復後對 MSP "
+"卡進行讀寫測試。"
 
 #. description
 #: ../jobs/suspend.txt.in:2231
@@ -5051,6 +5724,15 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能在系統由暫停狀態恢復後偵測到Extreme Digital (xD) 卡的插入\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並插入一張 xD 記憶卡到讀卡機中\n"
+"       如果檔案瀏覽視窗跳了出來，您可以放心關閉它\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"    2. 在此測試結束後請不要移除該記憶卡\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:2266
@@ -5059,6 +5741,8 @@ msgid ""
 "suspend test is run. It tests reading and writing to the xD card after the "
 "system has been suspended."
 msgstr ""
+"本自動化測試將在 mediacard/xd-insert-after-suspend 測試成功結束後進行。它將會在系統由暫停狀態恢復後對 xD "
+"卡進行讀寫測試。"
 
 #. description
 #: ../jobs/suspend.txt.in:2275
@@ -5078,7 +5762,7 @@ msgstr ""
 #. description
 #: ../jobs/suspend.txt.in:2294
 msgid "Determine if the touchpad is still functioning after suspend/resume."
-msgstr ""
+msgstr "確認觸控板在系統暫停/恢復後是否仍正常運作。"
 
 #. description
 #: ../jobs/suspend.txt.in:2301 ../jobs/touchscreen.txt.in:35
@@ -6371,4 +7055,4 @@ msgstr "PASS: 封包遺失率為 {0}% 低於 {1}% 的門檻值"
 
 #: ../bin/gateway_ping_test:281
 msgid "Internet connection fully established"
-msgstr ""
+msgstr "網際網路連線已完全建立"

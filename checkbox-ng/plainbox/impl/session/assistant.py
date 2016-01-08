@@ -1280,7 +1280,7 @@ class SessionAssistant:
             self,
             exporter_id: str,
             transport: ISessionStateTransport,
-            options: 'List[str]'=()
+            options: 'Sequence[str]'=()
     ) -> dict:
         """
         Export the session using given exporter ID and transport object.
@@ -1465,7 +1465,6 @@ class SessionAssistant:
             If the call is made at an unexpected time. Do not catch this error.
             It is a bug in your program. The error message will indicate what
             is the likely cause.
-
         """
         UsageExpectation.of(self).enforce()
         url = transport_details["url"]

@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2015-03-31 15:25+0200\n"
-"PO-Revision-Date: 2016-01-08 04:37+0000\n"
+"PO-Revision-Date: 2016-01-08 10:12+0000\n"
 "Last-Translator: Po-Hsu Lin <po-hsu.lin@canonical.com>\n"
 "Language-Team: Chinese (Traditional) <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-01-08 05:09+0000\n"
+"X-Launchpad-Export-Date: 2016-01-09 05:07+0000\n"
 "X-Generator: Launchpad (build 17881)\n"
 
 #. description
@@ -3265,6 +3265,13 @@ msgid ""
 "    Did the results of the test match the expected performance of the "
 "inserted device?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的多媒體記憶卡資料傳輸效能\n"
+"步驟：\n"
+"    1. 插入 SD 卡至本系統上的讀卡機\n"
+"    2. 按下「測試」按鈕開始測試\n"
+"檢查：\n"
+"    測試結果有符合此記憶卡所預期的效能嗎？"
 
 #. description
 #: ../jobs/mediacard.txt.in:378
@@ -3278,6 +3285,13 @@ msgid ""
 "    Did the results of the test match the expected performance of the "
 "inserted device?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的多媒體記憶卡資料傳輸效能\n"
+"步驟：\n"
+"    1. 插入 SDHC 卡至本系統上的讀卡機\n"
+"    2. 按下「測試」按鈕開始測試\n"
+"檢查：\n"
+"    測試結果有符合此記憶卡所預期的效能嗎？"
 
 #. description
 #: ../jobs/mediacard.txt.in:393
@@ -3291,6 +3305,13 @@ msgid ""
 "    Did the results of the test match the expected performance of the "
 "inserted device?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的多媒體記憶卡資料傳輸效能\n"
+"步驟：\n"
+"    1. 插入 MMC 卡至本系統上的讀卡機\n"
+"    2. 按下「測試」按鈕開始測試\n"
+"檢查：\n"
+"    測試結果有符合此記憶卡所預期的效能嗎？"
 
 #. description
 #: ../jobs/mediacard.txt.in:408
@@ -3304,6 +3325,13 @@ msgid ""
 "    Did the results of the test match the expected performance of the "
 "inserted device?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的多媒體記憶卡資料傳輸效能\n"
+"步驟：\n"
+"    1. 插入 CF 卡至本系統上的讀卡機\n"
+"    2. 按下「測試」按鈕開始測試\n"
+"檢查：\n"
+"    測試結果有符合此記憶卡所預期的效能嗎？"
 
 #. description
 #: ../jobs/mediacard.txt.in:423
@@ -3317,6 +3345,13 @@ msgid ""
 "    Did the results of the test match the expected performance of the "
 "inserted device?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的多媒體記憶卡資料傳輸效能\n"
+"步驟：\n"
+"    1. 插入 SDXC 卡至本系統上的讀卡機\n"
+"    2. 按下「測試」按鈕開始測試\n"
+"檢查：\n"
+"    測試結果有符合此記憶卡所預期的效能嗎？"
 
 #. description
 #: ../jobs/mediacard.txt.in:438
@@ -3330,6 +3365,13 @@ msgid ""
 "    Did the results of the test match the expected performance of the "
 "inserted device?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的多媒體記憶卡資料傳輸效能\n"
+"步驟：\n"
+"    1. 插入 MS 卡至本系統上的讀卡機\n"
+"    2. 按下「測試」按鈕開始測試\n"
+"檢查：\n"
+"    測試結果有符合此記憶卡所預期的效能嗎？"
 
 #. description
 #: ../jobs/mediacard.txt.in:453
@@ -3343,6 +3385,13 @@ msgid ""
 "    Did the results of the test match the expected performance of the "
 "inserted device?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的多媒體記憶卡資料傳輸效能\n"
+"步驟：\n"
+"    1. 插入 MSP 卡至本系統上的讀卡機\n"
+"    2. 按下「測試」按鈕開始測試\n"
+"檢查：\n"
+"    測試結果有符合此記憶卡所預期的效能嗎？"
 
 #. description
 #: ../jobs/mediacard.txt.in:468
@@ -3356,28 +3405,35 @@ msgid ""
 "    Did the results of the test match the expected performance of the "
 "inserted device?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的多媒體記憶卡資料傳輸效能\n"
+"步驟：\n"
+"    1. 插入 xD 卡至本系統上的讀卡機\n"
+"    2. 按下「測試」按鈕開始測試\n"
+"檢查：\n"
+"    測試結果有符合此記憶卡所預期的效能嗎？"
 
 #. description
 #: ../jobs/memory.txt.in:6
 msgid ""
 "This test checks the amount of memory which is reporting in meminfo against "
 "the size of the memory modules detected by DMI."
-msgstr ""
+msgstr "本測試將會比對由 meminfo 所回報的記憶體總量與經由 DMI 所偵測到的記憶體模組總量"
 
 #. description
 #: ../jobs/memory.txt.in:17
 msgid "Test and exercise memory."
-msgstr ""
+msgstr "測試並操作記憶體。"
 
 #. description
 #: ../jobs/mir.txt.in:5
 msgid "MIR Integration tests"
-msgstr ""
+msgstr "MIR 整合測試"
 
 #. description
 #: ../jobs/mir.txt.in:20
 msgid "MIR Acceptance tests"
-msgstr ""
+msgstr "MIR Acceptance 測試"
 
 #. description
 #: ../jobs/miscellanea.txt.in:16
@@ -3399,6 +3455,16 @@ msgid ""
 "VERIFICATION:\n"
 "    Nothing to verify for this test"
 msgstr ""
+"目的：\n"
+"    在測試報告中附上測試者資訊\n"
+"步驟：\n"
+"    1. 測試者資訊\n"
+"    2. 請將下列資訊輸入在備註欄中：\n"
+"       a. 姓名\n"
+"       b. 電子郵件信箱\n"
+"       c. 進行本測試的原因\n"
+"檢查：\n"
+"    本測試不需要特別檢查什麼"
 
 #. description
 #: ../jobs/miscellanea.txt.in:39
@@ -3417,51 +3483,51 @@ msgstr ""
 #. description
 #: ../jobs/miscellanea.txt.in:53
 msgid "Run Firmware Test Suite (fwts) automated tests."
-msgstr ""
+msgstr "執行 Firmware Test Suite (fwts) 自動化測試項目。"
 
 #. description
 #: ../jobs/miscellanea.txt.in:63
 msgid "Attaches the FWTS results log to the submission"
-msgstr ""
+msgstr "將 FWTS 測試結果附加至測試報告中"
 
 #. description
 #: ../jobs/miscellanea.txt.in:70
 msgid ""
 "This will run some basic connectivity tests against a BMC, verifying that "
 "IPMI works."
-msgstr ""
+msgstr "這將針對 BMC 執行一些基本連通性測試，驗證 IPMI 是否可以運作。"
 
 #. description
 #: ../jobs/miscellanea.txt.in:79
 msgid ""
 "This will gather some info about the BMC itself for diagnostic purposes."
-msgstr ""
+msgstr "為了診斷需要，這將會收集一些關於 BMC 本身的資訊。"
 
 #. summary
 #: ../jobs/miscellanea.txt.in:81
 msgid "Gather BMC Identification info"
-msgstr ""
+msgstr "收集 BMC 識別資訊"
 
 #. description
 #: ../jobs/miscellanea.txt.in:90
 msgid "Sanity check of DMI system identification data (for servers)"
-msgstr ""
+msgstr "DMI 系統識別資料完整性檢查 (對伺服器)"
 
 #. summary
 #: ../jobs/miscellanea.txt.in:92
 msgid "DMI ID sanity check (servers)"
-msgstr ""
+msgstr "DMI ID 完整性檢查 (伺服器)"
 
 #. description
 #: ../jobs/miscellanea.txt.in:101
 msgid ""
 "Sanity check of DMI system identification data (for desktops & laptops)"
-msgstr ""
+msgstr "DMI 系統識別資料完整性檢查 (對桌機與筆電)"
 
 #. summary
 #: ../jobs/miscellanea.txt.in:103
 msgid "DMI ID sanity check (desktops/laptops)"
-msgstr ""
+msgstr "DMI ID 完整性檢查 (桌機/筆電)"
 
 #. description
 #: ../jobs/miscellanea.txt.in:109
@@ -3482,19 +3548,19 @@ msgstr ""
 #: ../jobs/miscellanea.txt.in:123
 msgid ""
 "Checks that a specified sources list file contains the requested repositories"
-msgstr ""
+msgstr "檢查指定的軟體來源列表檔案中是否有包含所需的軟體庫"
 
 #. description
 #: ../jobs/miscellanea.txt.in:129
 msgid "Automated job to generate the PXE verification test for each NIC."
-msgstr ""
+msgstr "本自動化測試將會為各個網路介面卡建立 PXE 驗證測試。"
 
 #. description
 #: ../jobs/miscellanea.txt.in:150
 msgid ""
 "Automated job to generate the Remote Shared IPMI verification test for each "
 "NIC."
-msgstr ""
+msgstr "本自動化測試將會為各個網路介面卡建立遠端共享 IPMI 驗證測試。"
 
 #. description
 #: ../jobs/miscellanea.txt.in:168
@@ -3518,12 +3584,12 @@ msgstr ""
 #. description
 #: ../jobs/miscellanea.txt.in:184
 msgid "Run Firmware Test Suite (fwts) oops tests."
-msgstr ""
+msgstr "執行 Firmware Test Suite (fwts) oops 測試。"
 
 #. description
 #: ../jobs/miscellanea.txt.in:195
 msgid "Attaches the FWTS oops results log to the submission"
-msgstr ""
+msgstr "將 FWTS oops 測試結果附加到測試報告中"
 
 #. description
 #: ../jobs/miscellanea.txt.in:207
@@ -3531,11 +3597,12 @@ msgid ""
 "If system was installed via MAAS from a cert server, the MAAS version used "
 "should be contained in /etc/installed-by-maas"
 msgstr ""
+"如果系統是透過 cert 伺服器以 MAAS 安裝的，其所使用的 MAAS 版本資訊將會在 /etc/installed-by-maas 檔案中"
 
 #. summary
 #: ../jobs/miscellanea.txt.in:208
 msgid "Gets the version of MAAS used to deploy the SUT"
-msgstr ""
+msgstr "取得佈署此待測機器用的 MAAS 版本資訊"
 
 #. description
 #: ../jobs/miscellanea.txt.in:215
@@ -3547,7 +3614,7 @@ msgstr ""
 #. summary
 #: ../jobs/miscellanea.txt.in:216
 msgid "Retrieve the computer's make and model"
-msgstr ""
+msgstr "取得本電腦的製造商與型號名稱"
 
 #. description
 #: ../jobs/mobilebroadband.txt.in:28
@@ -3568,7 +3635,7 @@ msgstr ""
 msgid ""
 "This test executes a maximum throughput test against all the devices found "
 "on the system."
-msgstr ""
+msgstr "本測試將對於本系統上找到的所有裝置進行最大吞吐量測試。"
 
 #. description
 #: ../jobs/monitor.txt.in:4
@@ -3582,6 +3649,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Was the desktop displayed correctly on both screens?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的 VGA 視訊輸出埠\n"
+"步驟：\n"
+"    若您的電腦上沒有 VGA 視訊輸出埠的話請略過本測試\n"
+"    1. 若您尚未將外接螢幕接至您電腦上的 VGA 視訊輸出埠，請將它接上\n"
+"檢查：\n"
+"    桌面有正常顯示在兩個螢幕上嗎？"
 
 #. description
 #: ../jobs/monitor.txt.in:16
@@ -3595,6 +3669,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Was the desktop displayed correctly on both screens?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的 DVI 視訊輸出埠\n"
+"步驟：\n"
+"    若您的電腦上沒有 DVI 視訊輸出埠的話請略過本測試\n"
+"    1. 若您尚未將外接螢幕接至您電腦上的 DVI 視訊輸出埠，請將它接上\n"
+"檢查：\n"
+"    桌面有正常顯示在兩個螢幕上嗎？"
 
 #. description
 #: ../jobs/monitor.txt.in:28
@@ -3608,6 +3689,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Was the desktop displayed correctly on both screens?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的 DisplayPort 視訊輸出埠\n"
+"步驟：\n"
+"    若您的電腦上沒有 DisplayPort 視訊輸出埠的話請略過本測試\n"
+"    1. 若您尚未將外接螢幕接至您電腦上的 DisplayPort 視訊輸出埠，請將它接上\n"
+"檢查：\n"
+"    桌面有正常顯示在兩個螢幕上嗎？"
 
 #. description
 #: ../jobs/monitor.txt.in:40
@@ -3621,6 +3709,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Was the desktop displayed correctly on both screens?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的 HDMI 視訊輸出埠\n"
+"步驟：\n"
+"    若您的電腦上沒有 HDMI 視訊輸出埠的話請略過本測試\n"
+"    1. 若您尚未將外接螢幕接至您電腦上的 HDMI 視訊輸出埠，請將它接上\n"
+"檢查：\n"
+"    桌面有正常顯示在兩個螢幕上嗎？"
 
 #. description
 #: ../jobs/monitor.txt.in:52
@@ -3634,6 +3729,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Was the desktop displayed correctly on both screens?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的 S-VIDEO 視訊輸出埠\n"
+"步驟：\n"
+"    若您的電腦上沒有 S-VIDEO 視訊輸出埠的話請略過本測試\n"
+"    1. 若您尚未將外接螢幕接至您電腦上的 S-VIDEO 視訊輸出埠，請將它接上\n"
+"檢查：\n"
+"    桌面有正常顯示在兩個螢幕上嗎？"
 
 #. description
 #: ../jobs/monitor.txt.in:64
@@ -3647,6 +3749,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Was the desktop displayed correctly on both screens?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的 RCA 視訊輸出埠\n"
+"步驟：\n"
+"    若您的電腦上沒有 RCA 視訊輸出埠的話請略過本測試\n"
+"    1. 若您尚未將外接螢幕接至您電腦上的 RCA 視訊輸出埠，請將它接上\n"
+"檢查：\n"
+"    桌面有正常顯示在兩個螢幕上嗎？"
 
 #. description
 #: ../jobs/monitor.txt.in:76
@@ -3700,7 +3809,7 @@ msgstr ""
 #. description
 #: ../jobs/networking.txt.in:12
 msgid "Network Information"
-msgstr ""
+msgstr "網路資訊"
 
 #. description
 #: ../jobs/networking.txt.in:31

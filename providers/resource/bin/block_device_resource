@@ -3,7 +3,7 @@
 import os
 import re
 from glob import glob
-from subprocess import Popen, PIPE, CalledProcessError
+from subprocess import Popen, PIPE, CalledProcessError, check_output
 
 rootdir_pattern = re.compile('^.*?/devices')
 
@@ -81,12 +81,8 @@ def enable_smart(name):
     """
     command = 'smartctl -s on /dev/%s' % name
     try:
-        child = Popen(command, stdout=PIPE, shell=True)
-        child.communicate()[0]
-        if child.returncode == 0:
-            return True
-        else:
-            return False
+        check_output(command, shell=True)
+        return True
     except CalledProcessError:
         return False
 

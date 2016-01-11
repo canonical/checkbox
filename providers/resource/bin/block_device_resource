@@ -3,7 +3,7 @@
 import os
 import re
 from glob import glob
-from subprocess import Popen, PIPE, CalledProcessError, check_output
+from subprocess import Popen, PIPE
 
 rootdir_pattern = re.compile('^.*?/devices')
 
@@ -32,9 +32,7 @@ def device_state(name):
 
 
 def usb_support(name, version):
-    """
-    Check the USB specification number for both hub port and device.
-    """
+    """Check the USB specification number for both hub port and device."""
     path = rootdir_pattern.sub('', os.readlink('/sys/block/%s' % name))
 
     # Remove the usb config.interface part of the path
@@ -71,25 +69,10 @@ def device_rotation(name):
     return 'no'
 
 
-def enable_smart(name):
-    """Enable SMART on the specified disk.
-
-    :param name:
-        disk device filename within /dev (e.g., sda)
-    :returns:
-        True if enabling SMART was successful, False otherwise
-    """
-    command = 'smartctl -s on /dev/%s' % name
-    try:
-        check_output(command, shell=True)
-        return True
-    except CalledProcessError:
-        return False
-
-
 def smart_support(name):
     """Check for availability of SMART support in the device.
 
+    See also enable_smart() in disk_smart script.
     :param name:
         disk device filename within /dev (e.g., sda)
     :returns:
@@ -109,11 +92,7 @@ def smart_support(name):
     if len(diskinfo) > 2:
         if any("SMART support is" in s and "Available" in s
                for s in diskinfo):
-            if any("SMART support is" in s and "Enabled" in s
-                   for s in diskinfo):
-                supported = 'True'
-            elif enable_smart(name):
-                supported = 'True'
+            supported = 'True'
     return supported
 
 for path in glob('/sys/block/*/device'):

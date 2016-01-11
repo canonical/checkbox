@@ -195,8 +195,7 @@ id: power-management/battery_drain_idle
 estimated_duration: 90.0
 requires: package.name == 'upower'
 depends: power-management/unplug_ac
-_description: Checks the battery drain during idle.  Reports time until empty
- and capacity as well.
+_description: Checks the battery drain during idle. Reports time and capacity until empty and capacity.
 command:
  battery_test -t 90 --idle
 
@@ -207,8 +206,7 @@ estimated_duration: 90.0
 requires:
  package.name == 'upower'
 depends: power-management/unplug_ac
-_description: Checks the battery drain while watching a movie.  Reports time
- until empty and capacity as well.  Requires MOVIE_VAR to be set.
+_description: Checks the battery drain while watching a movie. Reports time and capacity until empty. Requires MOVIE_VAR to be set.
 command:
  battery_test -t 90 --movie $MOVIE_VAR
 
@@ -221,8 +219,7 @@ requires:
  package.name == 'upower'
  package.name == 'fwts'
 depends: power-management/unplug_ac
-_description: Checks the battery drain during suspend.  Reports time until
- empty and capacity as well.
+_description: Checks the battery drain during suspend. Reports time and capacity until empty.
 command:
  battery_test -t 120 --sleep
 

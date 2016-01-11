@@ -86,9 +86,8 @@ def smart_support(name):
     diskinfo = (diskinfo_bytes.decode(encoding='utf-8', errors='ignore')
                 .splitlines())
 
-    # Return True if the output (diskinfo) includes BOTH
-    # "SMART support is.*Available" AND "SMART support is.*Enabled".
-    # If SMART is available but not enabled, try to enable it.
+    # Return True if the output (diskinfo) includes
+    # "SMART support is.*Available"
     if len(diskinfo) > 2:
         if any("SMART support is" in s and "Available" in s
                for s in diskinfo):

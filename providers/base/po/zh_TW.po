@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2015-03-31 15:25+0200\n"
-"PO-Revision-Date: 2016-01-08 10:12+0000\n"
+"PO-Revision-Date: 2016-01-11 04:23+0000\n"
 "Last-Translator: Po-Hsu Lin <po-hsu.lin@canonical.com>\n"
 "Language-Team: Chinese (Traditional) <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-01-09 05:07+0000\n"
+"X-Launchpad-Export-Date: 2016-01-11 04:32+0000\n"
 "X-Generator: Launchpad (build 17881)\n"
 
 #. description
@@ -3774,6 +3774,16 @@ msgid ""
 "VERIFICATION:\n"
 "    Was the stretched desktop displayed correctly across both screens?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的桌上型電腦多螢幕輸出功能，本測試與筆電上的外接螢幕測試不同，您將會需要兩個外接螢幕來完成此測試\n"
+"步驟：\n"
+"    若您的顯示卡不支援多螢幕輸出的話請略過本測試\n"
+"    1. 若您尚未將第二個外接螢幕接上電腦的話，請現在將它接上去\n"
+"    2. 打開「顯示」工具 (打開 dash  並搜尋「顯示」)\n"
+"    3. 將您的輸出設定為一個桌面橫跨兩個螢幕\n"
+"    4. 打開任何應用程式，並將它從一個螢幕上拖曳到另一個螢幕上\n"
+"檢查：\n"
+"    延伸的桌面有正確的顯示在兩個螢幕上嗎？"
 
 #. description
 #: ../jobs/monitor.txt.in:91
@@ -3786,6 +3796,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the monitor go blank and turn on again?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您螢幕的省電功能\n"
+"步驟：\n"
+"    1. 按下「測試」按鈕來測試您電腦螢幕的省電功能\n"
+"    2. 請按下任意鍵或移動滑鼠來恢復\n"
+"檢查：\n"
+"    您的螢幕有變黑然後再亮起嗎？"
 
 #. description
 #: ../jobs/monitor.txt.in:105
@@ -3800,11 +3817,19 @@ msgid ""
 "VERIFICATION:\n"
 "    Was your screen dimmed approximately to half of the maximum brightness?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查是否能改變螢幕亮度\n"
+"步驟：\n"
+"    1. 按下「測試」按鈕來將螢幕亮度調暗\n"
+"    2. 檢查螢幕亮度是否有降到約最大值的一半\n"
+"    3. 螢幕將會在 2 秒後回到原本的亮度\n"
+"檢查：\n"
+"    您的螢幕亮度有降至最大值的一半嗎？"
 
 #. description
 #: ../jobs/networking.txt.in:6
 msgid "Tests whether the system has a working Internet connection."
-msgstr ""
+msgstr "測試系統網路連線是否運作正常。"
 
 #. description
 #: ../jobs/networking.txt.in:12
@@ -3828,62 +3853,74 @@ msgid ""
 "VERIFICATION:\n"
 "   Did a notification show and was the connection correctly established?"
 msgstr ""
+"目的：\n"
+"   本測試將會檢查 DSL 數據機能被設定並建立連線\n"
+"步驟：\n"
+"   1. 將電話線連接至電腦\n"
+"   2. 在上方狀態列中點擊網路圖示\n"
+"   3. 選擇「編輯連線」\n"
+"   4. 選擇「DSL」頁籤\n"
+"   5. 點擊「新增」按鈕\n"
+"   6. 將連線參數設定好\n"
+"   7. 點擊「測試」按鈕來檢查是否能夠建立 HTTP 連線\n"
+"檢查：\n"
+"   是否有通知出現，連線是否已成功建立？"
 
 #. description
 #: ../jobs/networking.txt.in:48
 msgid ""
 "Automated test case to verify availability of some system on the network "
 "using ICMP ECHO packets."
-msgstr ""
+msgstr "驗證某些系統在網路上能否使用 ICMP 回應封包的自動化測試。"
 
 #. description
 #: ../jobs/networking.txt.in:54 ../jobs/peripheral.txt.in:37
 msgid ""
 "Automated test case to make sure that it's possible to download files "
 "through HTTP"
-msgstr ""
+msgstr "驗證是否能透過 HTTP 下載檔案的自動化測試。"
 
 #. description
 #: ../jobs/networking.txt.in:62
 msgid "Test to see if we can sync local clock to an NTP server"
-msgstr ""
+msgstr "測試能否讓本機的時間與 NTP 伺服器同步。"
 
 #. description
 #: ../jobs/networking.txt.in:68
 msgid ""
 "Verify that an installation of checkbox-server on the network can be reached "
 "over SSH."
-msgstr ""
+msgstr "驗證一個在網路上已安裝好的 checkbox-server 可以透過 SSH 連接。"
 
 #. description
 #: ../jobs/networking.txt.in:74
 msgid "Try to enable a remote printer on the network and print a test page."
-msgstr ""
+msgstr "嘗試啓動網路遠端印表機並且印出測試頁。"
 
 #. description
 #: ../jobs/optical.txt.in:5
 msgid "Test to detect the optical drives"
-msgstr ""
+msgstr "測試是否能偵測到光碟機"
 
 #. description
 #: ../jobs/optical.txt.in:17
 msgid "Optical read test."
-msgstr ""
+msgstr "光碟讀取測試。"
 
 #. description
 #: ../jobs/optical.txt.in:43
 msgid "Automated optical read test."
-msgstr ""
+msgstr "自動化的光碟讀取測試。"
 
 #. description
 #: ../jobs/optical.txt.in:62
 msgid "CD write test."
-msgstr ""
+msgstr "CD 寫入測試。"
 
 #. description
 #: ../jobs/optical.txt.in:91
 msgid "Automated CD write test"
-msgstr ""
+msgstr "自動化的 CD 寫入測試"
 
 #. description
 #: ../jobs/optical.txt.in:110
@@ -3907,12 +3944,12 @@ msgstr ""
 #. description
 #: ../jobs/optical.txt.in:132
 msgid "DVD write test."
-msgstr ""
+msgstr "DVD 寫入測試。"
 
 #. description
 #: ../jobs/optical.txt.in:161
 msgid "Automated DVD write test."
-msgstr ""
+msgstr "自動化的 DVD 寫入測試。"
 
 #. description
 #: ../jobs/optical.txt.in:183

@@ -122,7 +122,7 @@ _description:
      3. Select 'Setup new device'
      4. Look for the device in the list and select it
      5. For mice, perform actions such as moving the pointer, right and left button clicks and double clicks
-     6. For keyboards, commence the test to lauch a small tool. Enter some text into the tool and close it.
+     6. For keyboards, commence the test to launch a small tool. Enter some text into the tool and close it.
  VERIFICATION:
      Did the device work as expected?
 

@@ -2507,7 +2507,6 @@ _description:
      of a SDXC card from the systems card reader after the system has been suspended.
  STEPS:
      1. Click "Test" and remove the SDXC card from the reader.
-        If a file browser opens up, you can safely close it.
         (Note: this test will time-out after 20 seconds.)
  VERIFICATION:
      The verification of this test is automated. Do not change the

@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2015-03-31 15:25+0200\n"
-"PO-Revision-Date: 2016-01-11 04:23+0000\n"
+"PO-Revision-Date: 2016-01-12 03:54+0000\n"
 "Last-Translator: Po-Hsu Lin <po-hsu.lin@canonical.com>\n"
 "Language-Team: Chinese (Traditional) <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-01-11 04:32+0000\n"
+"X-Launchpad-Export-Date: 2016-01-12 05:08+0000\n"
 "X-Generator: Launchpad (build 17881)\n"
 
 #. description
@@ -3940,6 +3940,20 @@ msgid ""
 "VERIFICATION:\n"
 "    Did all the steps work?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的音樂 CD 播放功能\n"
+"步驟：\n"
+"    1. 插入一張音樂 CD 到您的光碟機中\n"
+"    2. 當提示出現時，啟動音樂撥放器\n"
+"    3. 在音樂播放器中找到該 CD\n"
+"    4. 在音樂播放器中選擇該 CD\n"
+"    5. 按下播放鈕來從該 CD 播放音樂\n"
+"    6. 於一小段時間後停止播放\n"
+"    7. 在 CD 圖示上按右鍵並選擇「退出光碟」\n"
+"    8. CD 應該會被退出來\n"
+"    9. 關閉音樂撥放器\n"
+"檢查：\n"
+"    各個步驟是否都正常運作？"
 
 #. description
 #: ../jobs/optical.txt.in:132
@@ -3962,16 +3976,23 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the file play?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的 DVD 播放功能\n"
+"步驟：\n"
+"    1. 插入裝有任何電影的 DVD 到您的光碟機中\n"
+"    2. 按下「測試」按鈕來在 Totem 中播放該 DVD\n"
+"檢查：\n"
+"    該電影檔有被播放出來嗎？"
 
 #. description
 #: ../jobs/optical.txt.in:197
 msgid "Automated Blu-Ray read test."
-msgstr ""
+msgstr "自動化的藍光光碟讀取測試。"
 
 #. description
 #: ../jobs/optical.txt.in:224
 msgid "Automated Blu-Ray write test."
-msgstr ""
+msgstr "自動化的藍光光碟寫入測試。"
 
 #. description
 #: ../jobs/panel_clock_test.txt.in:4
@@ -3984,6 +4005,12 @@ msgid ""
 "VERIFICATION:\n"
 "   Is the clock displaying the correct date and time for your timezone?"
 msgstr ""
+"目的：\n"
+"   本測試將會檢查桌面時鐘是否有顯示正確的日期與時間\n"
+"步驟：\n"
+"   1. 檢查您桌面右上角的時鐘\n"
+"檢查：\n"
+"   時鐘有正確顯示您目前時區的日期與時間嗎？"
 
 #. description
 #: ../jobs/panel_clock_test.txt.in:18
@@ -4002,6 +4029,17 @@ msgid ""
 "   Is your system clock displaying the correct date and time for your "
 "timezone?"
 msgstr ""
+"目的：\n"
+"   本測試將會檢查桌面時鐘是否有與系統時鐘同步\n"
+"步驟：\n"
+"   1. 按下「測試」按鈕來將桌面時鐘快轉一小時\n"
+"   註：這可能需要一分鐘以上來讓時鐘更新\n"
+"   2. 在時鐘上按右鍵，並選擇「時間與日期設定」\n"
+"   3. 確定您的時鐘是處於手動設定模式\n"
+"   4. 將時間往回調整一小時\n"
+"   5. 關閉視窗並重新開機\n"
+"檢查：\n"
+"   您的系統時鐘有正確顯示您目前時區的日期與時間嗎？"
 
 #. description
 #: ../jobs/panel_reboot.txt.in:3
@@ -4018,6 +4056,14 @@ msgid ""
 "VERIFICATION:\n"
 "   Did your system restart and bring up the GUI login cleanly?"
 msgstr ""
+"目的：\n"
+"   本測試將會檢查您是否能從桌面選單中重新啟動您的系統\n"
+"步驟：\n"
+"   1. 點選桌面右上角的齒輪圖示，並選擇「關機」\n"
+"   2. 在關機對話框中點選左側的「重新啟動」按鈕\n"
+"   3. 登入後，請重新啟動本系統測試工具，它應該會從這裡繼續測試\n"
+"檢查：\n"
+"   您的系統是否有重新啟動，並正常出現圖形介面的登入畫面嗎？"
 
 #. description
 #: ../jobs/peripheral.txt.in:3
@@ -4035,6 +4081,16 @@ msgid ""
 "VERIFICATION:\n"
 "   Were you able to print a test page to the network printer?"
 msgstr ""
+"目的：\n"
+"   本測試將會檢查網路印表機是否可用\n"
+"步驟：\n"
+"   1. 確定在您的網路上有可用的印表機\n"
+"   2. 點選桌面右上角的齒輪圖示，並選擇印表機\n"
+"   3. 如果該印表機不在列表中，請點選「新增」\n"
+"   4. 該印表機應該要可以被偵測到，並顯示正確的設定值\n"
+"   5. 列印測試頁面\n"
+"檢查：\n"
+"   您可以透過網路印表機列印測試頁嗎？"
 
 #. description
 #: ../jobs/peripheral.txt.in:18
@@ -4055,6 +4111,19 @@ msgid ""
 "VERIFICATION:\n"
 "   Was the connection correctly established?"
 msgstr ""
+"目的：\n"
+"   本測試將會檢查 USB DSL 或行動寬頻網路數據機是否正常運作\n"
+"步驟：\n"
+"   1. 將 USB 線連接至電腦\n"
+"   2. 在上方狀態列中右鍵點選網路圖示\n"
+"   3. 選擇「編輯連線」\n"
+"   4. 選擇 「DSL」(ADSL 數據機) 或「行動寬頻網路」(3G 網路數據機) 頁籤\n"
+"   5. 點選「新增」按鈕\n"
+"   6. 適當的設定連線參數\n"
+"   7. 提示視窗應該會告訴您已建立連線\n"
+"   8. 點選「測試」來檢查是否能夠建立 HTTP 連線\n"
+"檢查：\n"
+"   連線是否有正確建立？"
 
 #. description
 #: ../jobs/power-management.txt.in:4
@@ -4068,16 +4137,24 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the system shutdown and rebooted correctly?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的系統關機 / 開機循環\n"
+"步驟：\n"
+"    1. 關掉您的電腦\n"
+"    2. 啟動您的電腦\n"
+"    3. 重複步驟 1 與 2 至少五次\n"
+"檢查：\n"
+"    系統有正確的關機與啟動嗎？"
 
 #. description
 #: ../jobs/power-management.txt.in:19
 msgid "Test ACPI Wakealarm (fwts wakealarm)"
-msgstr ""
+msgstr "測試 ACPI 喚醒鬧鐘 (fwts wakealarm)"
 
 #. description
 #: ../jobs/power-management.txt.in:28
 msgid "Attach log from fwts wakealarm test"
-msgstr ""
+msgstr "將 fwts wakealarm 測試的結果附加至測試報告中"
 
 #. description
 #: ../jobs/power-management.txt.in:44
@@ -4096,13 +4173,23 @@ msgid ""
 " If the machine successfully shuts down and boots, select 'Yes', otherwise,\n"
 " select 'No'."
 msgstr ""
+"目的：\n"
+" 本測試將會檢查系統是否能關機並開機\n"
+"步驟：\n"
+" 1. 點選「開始」按鈕來進行本測試\n"
+" 2. 此機器將會關機\n"
+" 3. 請手動啟動此機器\n"
+" 4. 重新開機後，請等候提示告訴您測試已完成\n"
+" 5. 當測試完成後，請重新啟動 Checkbox 並選擇「Re-run」\n"
+"檢查：\n"
+" 如果此機器成功關機並開機，請選擇「Yes」，反之請選擇「No」"
 
 #. description
 #: ../jobs/power-management.txt.in:61
 msgid ""
 "This will attach any logs from the power-management/poweroff test to the "
 "results."
-msgstr ""
+msgstr "這將會把 power-management/poweroff 測試所產生的所有紀錄檔附加至測試報告中。"
 
 #. description
 #: ../jobs/power-management.txt.in:74
@@ -4119,13 +4206,22 @@ msgid ""
 "VERIFICATION:\n"
 " If the machine successfully reboots, select Yes then select Next."
 msgstr ""
+"目的：\n"
+" 本測試將會檢查系統是否能正常的重新啟動\n"
+"步驟：\n"
+" 1. 點選「開始」按鈕來進行本測試\n"
+" 2. 此機器將會重新啟動\n"
+" 3. 重新開機後，請等候提示告訴您測試已完成\n"
+" 4. 當測試完成後，請重新啟動 Checkbox 並選擇「Re-run」\n"
+"檢查：\n"
+" 如果此機器成功重新啟動，請選擇「Yes」，反之請選擇「No」"
 
 #. description
 #: ../jobs/power-management.txt.in:89
 msgid ""
 "This will attach any logs from the power-management/reboot test to the "
 "results."
-msgstr ""
+msgstr "這將會把 power-management/reboot 測試所產生的所有紀錄檔附加至測試報告中。"
 
 #. description
 #: ../jobs/power-management.txt.in:96
@@ -4137,6 +4233,12 @@ msgid ""
 "VERIFICATION:\n"
 "   Does closing your laptop lid cause your system to suspend?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的螢幕上蓋偵測器\n"
+"步驟：\n"
+"    1. 將您的筆電螢幕上蓋關起來\n"
+"檢查：\n"
+"   關起您的筆電螢幕上蓋會讓您的系統進入暫停狀態嗎？"
 
 #. description
 #: ../jobs/power-management.txt.in:114
@@ -4149,6 +4251,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the screen turn off while the lid was closed?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的螢幕上蓋偵測器\n"
+"步驟：\n"
+"    1. 點擊「測試」按鈕\n"
+"    2. 將您的筆電螢幕上蓋關起來再打開\n"
+"檢查：\n"
+"    在您關上筆電螢幕上蓋時，螢幕有被關閉嗎？"
 
 #. description
 #: ../jobs/power-management.txt.in:133
@@ -4163,19 +4272,28 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the system resume when the lid was opened?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的筆電螢幕上蓋偵測器\n"
+"步驟：\n"
+"    1. 點擊「測試」按鈕\n"
+"    2. 關上筆電螢幕上蓋\n"
+"    3. 等五秒\n"
+"    4. 打開筆電螢幕上蓋\n"
+"檢查：\n"
+"    在打開筆電螢幕上蓋後，系統有從暫停狀態中恢復嗎？"
 
 #. description
 #: ../jobs/power-management.txt.in:153
 msgid ""
 "Verify that the Real-time clock (RTC) device functions properly, if present"
-msgstr ""
+msgstr "檢查實時時鐘 (RTC) 裝置 (若有的話)是否正常運作"
 
 #. description
 #: ../jobs/power-management.txt.in:160
 msgid ""
 "Check to see if CONFIG_NO_HZ is set in the kernel (this is just a simple "
 "regression check)"
-msgstr ""
+msgstr "檢查 CONFIG_NO_HZ 是否有被設定在內核中 (這只是一個簡單的退化檢查)"
 
 #. description
 #: ../jobs/power-management.txt.in:167
@@ -4188,6 +4306,12 @@ msgid ""
 "VERIFICATION:\n"
 "    Was the laptop unplugged from AC?"
 msgstr ""
+"目的：\n"
+"    本測試將會確保為了能夠進行電池耗電測試，電源供應器已被移除\n"
+"步驟：\n"
+"    1. 將電源供應器從筆電上移除\n"
+"檢查：\n"
+"    電源供應器有從筆電上移除嗎？"
 
 #. description
 #: ../jobs/power-management.txt.in:180
@@ -4230,6 +4354,12 @@ msgid ""
 "VERIFICATION:\n"
 "    Was the laptop plugged into AC?"
 msgstr ""
+"目的：\n"
+"    本測試將會確保在電池測試後電源供應器有被接回筆電\n"
+"步驟：\n"
+"    1. 將電源供應器接上筆電\n"
+"檢查：\n"
+"    電源供應器有接上筆電嗎？"
 
 #. description
 #: ../jobs/power-management.txt.in:227
@@ -4248,6 +4378,16 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the system reboot correctly?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統是否能正常的重新啟動\n"
+"步驟：\n"
+"    1. 選擇「測試」來進行系統重新啟動\n"
+"    2. 當 grub 開機選單出現時，請開進 Ubuntu (或讓系統自己自動開進去)\n"
+"    3. 當系統重新啟動後，請登入並重新啟動 checkbox-certification-server\n"
+"    4. 選擇「Re-Run」以回到本測試\n"
+"    5. 若系統成功重新啟動，請選擇「Yes」來表示測試通過。反之請選擇「No」來表示有問題\n"
+"檢查：\n"
+"    系統有正確的重新啟動嗎？"
 
 #. description
 #: ../jobs/power-management.txt.in:246
@@ -4267,47 +4407,58 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the system shutdown and boot correctly?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的系統關機 / 開機循環\n"
+"步驟：\n"
+"    1. 選擇「測試」來進行系統關機\n"
+"    2. 啟動您的電腦\n"
+"    3. 當 grub 開機選單出現時，請開進 Xen Hypervisor\n"
+"    4. 當系統重新啟動後，請登入並重新啟動 checkbox-certification-server\n"
+"    5. 選擇「Re-Run」以回到本測試\n"
+"    6. 若系統成功關機，請選擇「Yes」來表示測試通過。反之請選擇「No」來表示有問題\n"
+"檢查：\n"
+"    系統有正確的關機與啟動嗎？"
 
 #. description
 #: ../jobs/rendercheck.txt.in:6
 msgid ""
 "Runs all of the rendercheck test suites. This test can take a few minutes."
-msgstr ""
+msgstr "執行所有 rendercheck 測試套件，本測試將會需要幾分鐘的時間。"
 
 #. description
 #: ../jobs/rendercheck.txt.in:13
 msgid "Attach log from rendercheck tests"
-msgstr ""
+msgstr "將 rendercheck 測試紀錄附加至測試報告中"
 
 #. description
 #: ../jobs/server-services.txt.in:5
 msgid "Verifies that sshd is running."
-msgstr ""
+msgstr "確認 sshd 正在執行中。"
 
 #. description
 #: ../jobs/server-services.txt.in:11
 msgid "Verifies that Print/CUPs server is running."
-msgstr ""
+msgstr "確認列印 / CUPs 伺服器正在執行中。"
 
 #. description
 #: ../jobs/server-services.txt.in:20
 msgid "Verifies that DNS server is running and working."
-msgstr ""
+msgstr "確認 DNS 伺服器是否正常運作中。"
 
 #. description
 #: ../jobs/server-services.txt.in:29
 msgid "Verifies that Samba server is running."
-msgstr ""
+msgstr "確認 Samba 伺服器正在執行中。"
 
 #. description
 #: ../jobs/server-services.txt.in:40
 msgid "Verifies that the LAMP stack is running (Apache, MySQL and PHP)."
-msgstr ""
+msgstr "確認 LAMP stack 正在執行中 (Apache、MySQL 與 PHP)。"
 
 #. description
 #: ../jobs/server-services.txt.in:47
 msgid "Verifies that Tomcat server is running and working."
-msgstr ""
+msgstr "確認 Tomcat 伺服器是否正常運作中。"
 
 #. description
 #: ../jobs/smoke.txt.in:4
@@ -4322,24 +4473,24 @@ msgstr ""
 #. description
 #: ../jobs/smoke.txt.in:17
 msgid "Check job is executed when dependency succeeds"
-msgstr ""
+msgstr "檢查當有滿足相依性時，測試工作否有被執行"
 
 #. description
 #: ../jobs/smoke.txt.in:24
 msgid "Check job result is set to uninitiated when dependency fails"
-msgstr ""
+msgstr "檢查當相依性無法被滿足時，測試工作結果是否有被設定為未開始"
 
 #. description
 #: ../jobs/smoke.txt.in:31
 msgid "Check job is executed when requirements are met"
-msgstr ""
+msgstr "檢查當要求有被滿足時，測試工作否有被執行"
 
 #. description
 #: ../jobs/smoke.txt.in:38
 msgid ""
 "Check job result is set to \"not required on this system\" when requirements "
 "are not met"
-msgstr ""
+msgstr "檢查當要求不被滿足時，測試工作結果是否有被設定為「不需要在此系統上執行」"
 
 #. description
 #: ../jobs/smoke.txt.in:43
@@ -4405,11 +4556,13 @@ msgid ""
 "   This is an automated stress test that will force the system to "
 "hibernate/resume for 30 cycles"
 msgstr ""
+"目的：\n"
+"   本自動化壓力測試將會強迫系統進行 30 次的休眠 / 喚醒循環"
 
 #. description
 #: ../jobs/stress.txt.in:45
 msgid "Attaches the log from the 30 cycle Hibernate/Resume test if it exists"
-msgstr ""
+msgstr "若 30 次休眠 / 喚醒循環的測試紀錄存在，則將其附加到測試報告中"
 
 #. description
 #: ../jobs/stress.txt.in:64
@@ -4418,17 +4571,19 @@ msgid ""
 "   This is an automated stress test that will force the system to "
 "suspend/resume for 30 cycles."
 msgstr ""
+"目的：\n"
+"   本自動化壓力測試將會強迫系統進行 30 次的暫停 / 恢復循環。"
 
 #. description
 #: ../jobs/stress.txt.in:73
 msgid ""
 "Automated check of the 30 cycle hibernate log for errors detected by fwts."
-msgstr ""
+msgstr "自動檢查 30 次休眠紀錄中由 fwts 所偵測到的錯誤。"
 
 #. description
 #: ../jobs/stress.txt.in:81
 msgid "Attaches the log from the 30 cycle Suspend/Resume test if it exists"
-msgstr ""
+msgstr "若 30 次暫停 / 恢復循環的測試紀錄存在，則將其附加到測試報告中"
 
 #. description
 #: ../jobs/stress.txt.in:106
@@ -4437,12 +4592,14 @@ msgid ""
 "   This is an automated stress test that will force the system to "
 "hibernate/resume for 250 cycles"
 msgstr ""
+"目的：\n"
+"   本自動化壓力測試將會強迫系統進行 250 次的休眠 / 喚醒循環。"
 
 #. description
 #: ../jobs/stress.txt.in:114
 msgid ""
 "Attaches the log from the 250 cycle Hibernate/Resume test if it exists"
-msgstr ""
+msgstr "若 250 次休眠 / 喚醒循環的測試紀錄存在，則將其附加到測試報告中"
 
 #. description
 #: ../jobs/stress.txt.in:131
@@ -4451,78 +4608,80 @@ msgid ""
 "   This is an automated stress test that will force the system to "
 "suspend/resume for 250 cycles."
 msgstr ""
+"目的：\n"
+"   本自動化壓力測試將會強迫系統進行 250 次的暫停 / 恢復循環。"
 
 #. description
 #: ../jobs/stress.txt.in:139
 msgid "Attaches the log from the 250 cycle Suspend/Resume test if it exists"
-msgstr ""
+msgstr "若 250 次暫停 / 恢復循環的測試紀錄存在，則將其附加到測試報告中"
 
 #. description
 #: ../jobs/stress.txt.in:146 ../jobs/suspend.txt.in:360
 msgid ""
 "Checks the sleep times to ensure that a machine suspends and resumes within "
 "a given threshold"
-msgstr ""
+msgstr "檢查系統進入暫停狀態以及由暫停狀態恢復的所需時間是否符合給定的門檻值"
 
 #. description
 #: ../jobs/stress.txt.in:159
 msgid "Stress reboot system (100 cycles)"
-msgstr ""
+msgstr "重開機壓力測試 (100次)"
 
 #. description
 #: ../jobs/stress.txt.in:178
 msgid "Stress reboot system (30 cycles)"
-msgstr ""
+msgstr "重開機壓力測試 (30次)"
 
 #. description
 #: ../jobs/stress.txt.in:196
 msgid "Stress poweroff system (100 cycles)"
-msgstr ""
+msgstr "關機壓力測試 (100次)"
 
 #. description
 #: ../jobs/stress.txt.in:215
 msgid "Stress poweroff system (30 cycles)"
-msgstr ""
+msgstr "關機壓力測試 (30次)"
 
 #. description
 #: ../jobs/stress.txt.in:228
 msgid "Check logs for the stress reboot (30 cycles) test case"
-msgstr ""
+msgstr "檢查重開機壓力測試 (30次) 的紀錄"
 
 #. description
 #: ../jobs/stress.txt.in:242
 msgid "Check logs for the stress poweroff (30 cycles) test case"
-msgstr ""
+msgstr "檢查關機壓力測試 (30次) 的紀錄"
 
 #. description
 #: ../jobs/stress.txt.in:256
 msgid "Check logs for the stress reboot (100 cycles) test case"
-msgstr ""
+msgstr "檢查重開機壓力測試 (100次) 的紀錄"
 
 #. description
 #: ../jobs/stress.txt.in:270
 msgid "Check logs for the stress poweroff (100 cycles) test case"
-msgstr ""
+msgstr "檢查關機壓力測試 (100次) 的紀錄"
 
 #. description
 #: ../jobs/stress.txt.in:287
 msgid "Run the graphics stress test. This test can take a few minutes."
-msgstr ""
+msgstr "執行圖形壓力測試，本測試將會需要幾分鐘的時間。"
 
 #. description
 #: ../jobs/stress.txt.in:296
 msgid "Attaches the graphics stress results to the submission."
-msgstr ""
+msgstr "將圖形壓力測試的結果附加至測試報告中。"
 
 #. description
 #: ../jobs/stress.txt.in:303
 msgid "Runs a test that transfers 100 10MB files 3 times to usb."
-msgstr ""
+msgstr "執行三次傳送 100 個 10MB 的檔案至 USB 的測試。"
 
 #. summary
 #: ../jobs/stress.txt.in:308
 msgid "Stress test for SDHC card"
-msgstr ""
+msgstr "對 SDHC 記憶卡的壓力測試"
 
 #. description
 #: ../jobs/stress.txt.in:311
@@ -4539,11 +4698,19 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會進行三次，傳送 100 個大小為 10MB 的檔案至 SDHC 記憶卡，來確定系統上的記憶卡讀卡機能夠傳輸大量的資料\n"
+"步驟：\n"
+"    1. 插入一張 SDHC 記憶卡到讀卡機中後按下「測試」鈕\n"
+"       如果檔案瀏覽視窗跳了出來，您可以放心關閉它\n"
+"    2. 在測試進行中請勿移除裝置\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/stress.txt.in:330
 msgid "Ping ubuntu.com and restart network interfaces 100 times"
-msgstr ""
+msgstr "Ping ubuntu.com 並重新啟動網路介面 100 次"
 
 #. description
 #: ../jobs/stress.txt.in:342
@@ -4559,46 +4726,53 @@ msgid ""
 "    Verify the system is not frozen and the wifi and bluetooth applets are "
 "still visible and functional"
 msgstr ""
+"目的：\n"
+"    確定對無線網路熱鍵進行壓力測試不會導致網路工具從狀態列消失或系統死當\n"
+"步驟：\n"
+"    1. 登入桌面環境\n"
+"    2. 以一秒一次的頻率按下無線網路熱鍵，並慢慢的加快按的速度直到您按下熱鍵到達您能按的最快速度\n"
+"檢查：\n"
+"    檢查系統沒有死當，而網路與藍牙小工具還在上方狀態列中並且仍然能夠運作"
 
 #. description
 #: ../jobs/suspend.txt.in:5
 msgid "Record the current network before suspending."
-msgstr ""
+msgstr "在暫停前紀錄當前網路設定。"
 
 #. description
 #: ../jobs/suspend.txt.in:11
 msgid "Record the current resolution before suspending."
-msgstr ""
+msgstr "在暫停之前紀錄目前的解析度。"
 
 #. description
 #: ../jobs/suspend.txt.in:20
 msgid "Record mixer settings before suspending."
-msgstr ""
+msgstr "在暫停前紀錄混音器設定。"
 
 #. description
 #: ../jobs/suspend.txt.in:26
 msgid "Verify that all the CPUs are online before suspending"
-msgstr ""
+msgstr "在暫停前確認 CPU 都在線上狀態"
 
 #. description
 #: ../jobs/suspend.txt.in:32
 msgid ""
 "Dumps memory info to a file for comparison after suspend test has been run"
-msgstr ""
+msgstr "將記憶體資訊存入檔案以便在暫停測試後進行比較。"
 
 #. description
 #: ../jobs/suspend.txt.in:42
 msgid ""
 "This test disconnects all connections and then connects to the wireless "
 "interface. It then checks the connection to confirm it's working as expected."
-msgstr ""
+msgstr "本測試將會先切斷所有網路連線後再連到無線網路，然後檢查連線以確認其運作一如預期。"
 
 #. description
 #: ../jobs/suspend.txt.in:107
 msgid ""
 "This test executes iperf connection performance/stability against the "
 "broadband device found on the system before suspend."
-msgstr ""
+msgstr "本測試將會在暫停前對系統上所有找到的寬頻裝置執行 iperf 連線表現 / 穩定度測試。"
 
 #. description
 #: ../jobs/suspend.txt.in:227
@@ -4637,16 +4811,26 @@ msgid ""
 "and resumed. Power/Suspend LED verification will occur after this test is "
 "completed.)"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統的暫停及恢復功能\n"
+"步驟：\n"
+"    1. 按下「測試」按鈕後，您的電腦將會進入暫停狀態約 30 到 60 秒\n"
+"    2. 觀察電源 LED 指示燈於暫停模式下是否會閃爍或變色\n"
+"    3. 若您的電腦在 60 秒後沒有自動從暫停模式中恢復，請手動按下電源鈕來喚醒它\n"
+"    4. 若您的電腦完全無法從暫停模式中恢復並需要重新開機，請在重新開機後重新啟動本系統測試工具並將此測項標記為「Failed」\n"
+"驗證：\n"
+"    您的電腦是否有正常的進入暫停狀態並恢復？\n"
+"    (註：請依據電腦是否正常的暫停並恢復來選擇測試結果，關於電源 LED 指示燈的驗證將於本測試結束後進行。)"
 
 #. summary
 #: ../jobs/suspend.txt.in:268
 msgid "Suspend after graphics card switch tests"
-msgstr ""
+msgstr "在圖形卡切換測試後進行暫停測試"
 
 #. description
 #: ../jobs/suspend.txt.in:306
 msgid "This is the automated version of suspend/suspend_advanced."
-msgstr ""
+msgstr "本測試為 suspend/suspend_advanced 的全自動版本。"
 
 #. description
 #: ../jobs/suspend.txt.in:319
@@ -4665,24 +4849,33 @@ msgid ""
 "VERIFICATION:\n"
 "    Did your system enter hybrid sleep and then resume correctly?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統的混合式睡眠及恢復功能\n"
+"步驟：\n"
+"    1. 按下「測試」按鈕後，您的電腦將會進入混合式睡眠狀態約 30 到 60 秒\n"
+"    2. 觀察電源 LED 指示燈於暫停模式下是否會閃爍或變色\n"
+"    3. 若您的電腦在 60 秒後沒有自動從混合式睡眠模式中恢復，請手動按下電源鈕來喚醒它\n"
+"    4. 若您的電腦完全無法從混合式睡眠模式中恢復並需要重新開機，請在重新開機後重新啟動本系統測試工具並將此測項標記為「Failed」\n"
+"驗證：\n"
+"    您的電腦是否有正常的進入混合式睡眠並恢復？"
 
 #. description
 #: ../jobs/suspend.txt.in:334
 msgid ""
 "Automated check of the suspend log to look for errors reported by fwts"
-msgstr ""
+msgstr "自動檢查暫停紀錄中由 fwts 所偵測到的錯誤"
 
 #. description
 #: ../jobs/suspend.txt.in:347
 msgid ""
 "Automated check of the hybrid sleep log to look for errors reported by fwts"
-msgstr ""
+msgstr "自動檢查混合式睡眠紀錄中由 fwts 所偵測到的錯誤"
 
 #. description
 #: ../jobs/suspend.txt.in:353
 msgid ""
 "Attaches the log from the single hybrid sleep/resume test to the results"
-msgstr ""
+msgstr "將單次混合式睡眠 / 恢復的測試紀錄附加到測試報告中"
 
 #. description
 #: ../jobs/suspend.txt.in:369
@@ -4696,6 +4889,14 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the system wake up from suspend mode when you pressed a keyboard key?"
 msgstr ""
+"目的：\n"
+"    透過 USB 鍵盤喚醒系統\n"
+"步驟：\n"
+"    1. 在 BIOS 中啟動「透過 USB 鍵盤 / 滑鼠喚醒」選項\n"
+"    2. 按下「測試」來進入暫停狀態 (S3)\n"
+"    3. 按下 USB 鍵盤的任意鍵來喚醒系統\n"
+"檢查：\n"
+"    當您按下鍵盤上的按鍵時，系統有從暫停狀態中恢復嗎？"
 
 #. description
 #: ../jobs/suspend.txt.in:385
@@ -4710,33 +4911,41 @@ msgid ""
 "    Did the system wake up from suspend mode when you pressed the mouse "
 "button?"
 msgstr ""
+"目的：\n"
+"    透過 USB 滑鼠喚醒系統\n"
+"步驟：\n"
+"    1. 在 BIOS 中啟動「透過 USB 鍵盤 / 滑鼠喚醒」選項\n"
+"    2. 按下「測試」來進入暫停狀態 (S3)\n"
+"    3. 按下 USB 滑鼠上的任意鍵來喚醒系統\n"
+"檢查：\n"
+"    當您按下滑鼠上的按鍵時，系統有從暫停狀態中恢復嗎？"
 
 #. description
 #: ../jobs/suspend.txt.in:399
 msgid "Test the network after resuming."
-msgstr ""
+msgstr "從暫停恢復之後測試網路。"
 
 #. description
 #: ../jobs/suspend.txt.in:406
 msgid ""
 "Test to see that we have the same resolution after resuming as before."
-msgstr ""
+msgstr "測試看看從暫停恢復之後我們是否能擁有與之前相同的解析度。"
 
 #. description
 #: ../jobs/suspend.txt.in:428
 msgid ""
 "Verify that mixer settings after suspend are the same as before suspend."
-msgstr ""
+msgstr "從暫停狀態恢復後檢查混音器設定是否與暫停前相同。"
 
 #. description
 #: ../jobs/suspend.txt.in:444
 msgid "Verify that all CPUs are online after resuming."
-msgstr ""
+msgstr "從暫停恢復之後確認所有 CPU 都在線上狀態。"
 
 #. description
 #: ../jobs/suspend.txt.in:459
 msgid "Verify that all memory is available after resuming from suspend."
-msgstr ""
+msgstr "檢查從暫停狀態恢復後是否所有記憶體皆可用。"
 
 #. description
 #: ../jobs/suspend.txt.in:467
@@ -4750,11 +4959,17 @@ msgid ""
 "VERIFICATION:\n"
 "    Does the display work normally after resuming from suspend?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查顯示器從暫停狀態恢復後是否正常運作\n"
+"步驟：\n"
+"    1. 從暫停狀態恢復後檢查您的顯示器沒有出現多餘的產物\n"
+"檢查：\n"
+"    顯示器從暫停狀態恢復後是否正常運作？"
 
 #. summary
 #: ../jobs/suspend.txt.in:478
 msgid "Display after suspend tests"
-msgstr ""
+msgstr "暫停後的顯示器測試"
 
 #. description
 #: ../jobs/suspend.txt.in:502
@@ -4763,55 +4978,56 @@ msgid ""
 "system. It disconnects all interfaces and then connects to the wireless "
 "interface and checks that the connection is working as expected."
 msgstr ""
+"本測試將會檢查無線網路介面在系統從暫停狀態恢復後是否運作正常。它將會先切斷所有網路連線後再連到無線網路，然後檢查連線以確認其運作一如預期。"
 
 #. description
 #: ../jobs/suspend.txt.in:659
 msgid ""
 "Tests that the systems wireless hardware can connect to a router using WPA "
 "security and the 802.11b/g protocols after the system has been suspended."
-msgstr ""
+msgstr "測試本系統的無線網路裝置是否能在系統從暫停狀態恢復後採用 802.11b/g 通訊協定以 WPA 加密之設定連上路由器。"
 
 #. description
 #: ../jobs/suspend.txt.in:681
 msgid ""
 "Tests that the systems wireless hardware can connect to a router using no "
 "security and the 802.11b/g protocols after the system has been suspended."
-msgstr ""
+msgstr "測試本系統的無線網路裝置是否能在系統從暫停狀態恢復後採用 802.11b/g 通訊協定以無加密之設定連上路由器。"
 
 #. description
 #: ../jobs/suspend.txt.in:703
 msgid ""
 "Tests that the systems wireless hardware can connect to a router using WPA "
 "security and the 802.11n protocol after the system has been suspended."
-msgstr ""
+msgstr "測試本系統的無線網路裝置是否能在系統從暫停狀態恢復後採用 802.11n 通訊協定以 WPA 加密之設定連上路由器。"
 
 #. description
 #: ../jobs/suspend.txt.in:725
 msgid ""
 "Tests that the systems wireless hardware can connect to a router using no "
 "security and the 802.11n protocol after the system has been suspended."
-msgstr ""
+msgstr "測試本系統的無線網路裝置是否能在系統從暫停狀態恢復後採用 802.11n 通訊協定以無加密之設定連上路由器。"
 
 #. description
 #: ../jobs/suspend.txt.in:747
 msgid ""
 "Tests that the systems wireless hardware can connect to a router using WPA "
 "security and the 802.11ac protocol after the system has been suspended."
-msgstr ""
+msgstr "測試本系統的無線網路裝置是否能在系統從暫停狀態恢復後採用 802.11ac 通訊協定以 WPA 加密之設定連上路由器。"
 
 #. description
 #: ../jobs/suspend.txt.in:769
 msgid ""
 "Tests that the systems wireless hardware can connect to a router using no "
 "security and the 802.11ac protocol after the system has been suspended."
-msgstr ""
+msgstr "測試本系統的無線網路裝置是否能在系統從暫停狀態恢復後採用 802.11ac 通訊協定以無加密之設定連上路由器。"
 
 #. description
 #: ../jobs/suspend.txt.in:836
 msgid ""
 "This test executes iperf connection performance/stability against the "
 "broadband device found on the system after suspend."
-msgstr ""
+msgstr "測試將會在系統從暫停狀態恢復後對所有找到的寬頻裝置執行 iperf 連線表現 / 穩定度測試。"
 
 #. description
 #: ../jobs/suspend.txt.in:857
@@ -5014,7 +5230,7 @@ msgstr ""
 #. description
 #: ../jobs/suspend.txt.in:1357
 msgid "Attaches the log from the single suspend/resume test to the results"
-msgstr ""
+msgstr "將單次暫停 / 恢復的測試紀錄附加到測試報告中"
 
 #. description
 #: ../jobs/suspend.txt.in:1366

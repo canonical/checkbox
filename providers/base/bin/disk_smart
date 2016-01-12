@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-'''
-Script to automate disk SMART testing
+"""
+Script to automate disk SMART testing.
 
-Copyright (C) 2010 Canonical Ltd.
+Copyright (C) 2010-2016 Canonical Ltd.
 
 Authors
   Jeff Lane <jeffrey.lane@canonical.com>
@@ -26,12 +26,18 @@ check for SMART capability and then do a little bit of interaction to make sure
 we can at least do some limited interaction with the hard disk's SMART
 functions.
 
-In this case, we probe to see if SMART is available and enabled, then we run
-the short self test.  Return 0 if it's all good, return 1 if it fails.
+We assume that SMART is available. The test will fail if this is not the case.
+The block_device_resource script includes a test of SMART availability.
+Checkbox tests for SMART availability as part of the disk/smart provider
+definition, which uses block_device_resource as part of its requires: test.
+
+This script runs the SMART short self test. It returns 0 if it's all good,
+and 1 if it fails.
 
 NOTE: This may not work correctly on systems where the onboard storage is
 controlled by a hardware RAID controller, on external RAID systems, SAN, and
-USB/eSATA/eSAS attached storage devices.
+USB/eSATA/eSAS attached storage devices. Such systems should be filtered
+out by the SMART availability test in block_device_resource.
 
 Changelog:
 
@@ -59,7 +65,7 @@ V0.1: Fixed some minor bugs and added the SmartEnabled() function
 
 V0: First draft
 
-'''
+"""
 
 import os
 import sys
@@ -92,47 +98,32 @@ class ListHandler(logging.StreamHandler):
 
 
 def enable_smart(disk):
-    """ Enable SMART on the specified disk
+    """Log data and, if necessary, enable SMART on the specified disk.
+
+    See also smart_support() in block_device_resource script.
     :param disk:
         disk device filename (e.g., /dev/sda)
     :returns:
         True if enabling smart was successful, False otherwise
     """
-    logging.debug('SMART disabled; attempting to enable it.')
-    command = 'smartctl -s on %s' % disk
-    try:
-        check_call(shlex.split(command))
-        return True
-    except CalledProcessError:
-        return False
-
-
-# Returns True if SMART is enabled. If not enabled, attempt to
-# enable it and return result of that attempt.
-def is_smart_enabled(disk):
-    # Check with smartctl to see if SMART is available and enabled on the disk
+    # Check with smartctl to record basic SMART data on the disk
     command = 'smartctl -i %s' % disk
     diskinfo_bytes = (Popen(command, stdout=PIPE, shell=True)
                       .communicate()[0])
     diskinfo = (diskinfo_bytes.decode(encoding='utf-8', errors='ignore')
                 .splitlines())
-
     logging.debug('SMART Info for disk %s', disk)
     logging.debug(diskinfo)
-
-    # Return True if the output (diskinfo) includes BOTH
-    # "SMART support is.*Available" AND "SMART support is.*Enabled".
-    # If SMART is available but not enabled, try to enable it.
-    if len(diskinfo) > 2:
-        if any("SMART support is" in s and "Available" in s
-               for s in diskinfo):
-            if any("SMART support is" in s and "Enabled" in s
-                   for s in diskinfo):
-                return True
-            else:
-                return enable_smart(disk)
-    else:
-        return False
+    if len(diskinfo) > 2 and not any("SMART support is" in s and "Enabled"
+                                     in s for s in diskinfo):
+        logging.debug('SMART disabled; attempting to enable it.')
+        command = 'smartctl -s on %s' % disk
+        try:
+            check_call(shlex.split(command))
+            return True
+        except CalledProcessError:
+            return False
+    return True
 
 
 def run_smart_test(disk, type='short'):
@@ -286,12 +277,10 @@ def main():
     if not os.geteuid() == 0:
         parser.error("You must be root to run this program")
 
-    # If SMART is available and enabled, we proceed.  Otherwise, we exit as the
-    # test is pointless in this case.
     disk = args.block_dev
-    if not is_smart_enabled(disk):
-        logging.warning('SMART not available on %s' % disk)
-        return 0
+    if not enable_smart(disk):
+        logging.warning('SMART could not be enabled on %s' % disk)
+        return 1
 
     # Initiate a self test and start polling until the test is done
     previous_entries, returncode = get_smart_entries(disk)

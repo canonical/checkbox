@@ -75,6 +75,7 @@ command:
  requires:
   device.path == "$path"
   block_device.`ls /sys$path/block`_state != 'removable'
+  block_device.`ls /sys$path/block`_smart == 'True'
  description:
   This tests the SMART capabilities for $product (Note that this test will not work against hardware RAID)
  user: root

@@ -497,12 +497,12 @@ id: mediacard/xd-performance-manual
 depends: mediacard/xd-insert
 estimated_duration: 120.0
 user: root
-command: removable_storage_test -s 268400000 --memorycard sdio usb | cat <(echo "Working...") - <(echo; echo "Verify the result and click OK to decide on the outcome") | zenity --text-info --title 'XD Card Performance'
+command: removable_storage_test -s 268400000 --memorycard sdio usb | cat <(echo "Working...") - <(echo; echo "Verify the result and click OK to decide on the outcome") | zenity --text-info --title 'xD Card Performance'
 _description:
  PURPOSE:
      This test will check your Media Card data transfer performance.
  STEPS:
-     1. Insert XD card into the reader slot on this computer.
+     1. Insert xD card into the reader slot on this computer.
      2. Commence the test.
  VERIFICATION:
      Did the results of the test match the expected performance of the inserted device?

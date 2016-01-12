@@ -326,11 +326,3 @@ _description: Smoke tests
 command:
   shopt -s extglob
   cat $PLAINBOX_PROVIDER_DATA/../jobs/smoke.txt?(.in)
-
-id: __sniff__
-plugin: local
-_description: Sniff Sniffers
-command:
- shopt -s extglob
- cat $PLAINBOX_PROVIDER_DATA/../jobs/sniff.txt?(.in)
-

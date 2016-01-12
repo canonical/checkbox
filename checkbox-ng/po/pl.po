@@ -11,14 +11,14 @@ msgstr ""
 "PO-Revision-Date: 2015-04-22 01:48+0000\n"
 "Last-Translator: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>\n"
 "Language-Team: polski <>\n"
-"Language: Polish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2015-12-26 05:07+0000\n"
-"X-Generator: Launchpad (build 17865)\n"
+"X-Launchpad-Export-Date: 2016-01-12 05:08+0000\n"
+"X-Generator: Launchpad (build 17881)\n"
+"Language: Polish\n"
 "X-Language: pl_PL\n"
 "X-Source-Language: C\n"
 
@@ -461,7 +461,8 @@ msgid "?"
 msgstr "?"
 
 #: .././plainbox/impl/commands/cmd_run.py:84
-msgid "use TRANSPORT to send results somewhere (pass ? for a list of choices)"
+msgid ""
+"use TRANSPORT to send results somewhere (pass ? for a list of choices)"
 msgstr ""
 "użyj TRANSPORTU do wysłania wyników w jakieś miejsce (? wyświetla "
 "listę możliwości)"
@@ -515,7 +516,8 @@ msgstr "uruchom testy głośno, wypisując nazwę każdego testu"
 
 #: .././plainbox/impl/commands/cmd_selftest.py:89
 msgid "run integration test suite (this verifies checkbox jobs)"
-msgstr "uruchom testy integracji (to weryfikuje definicje zadań z checkbox'a)"
+msgstr ""
+"uruchom testy integracji (to weryfikuje definicje zadań z checkbox'a)"
 
 #: .././plainbox/impl/commands/cmd_selftest.py:95
 msgid "run unit tests (this only verifies plainbox core)"
@@ -693,8 +695,8 @@ msgid ""
 "\n"
 "    @EPILOG@\n"
 "\n"
-"    The name of the provider must follow the pattern ``YYYY.example.org:"
-"name``\n"
+"    The name of the provider must follow the pattern "
+"``YYYY.example.org:name``\n"
 "    where ``YYYY`` is a four-digit year when the author of the provider "
 "owned\n"
 "    the domain (here, ``example.org``) and ``name`` is arbitrary identifier\n"
@@ -1480,7 +1482,8 @@ msgstr ""
 #: .././plainbox/impl/ctrl.py:1178
 #, python-format
 msgid "Cannot check if plainbox-trusted-launcher-1 is available: %s"
-msgstr "Nie można sprawdzić czy plainbox-trusted-launcher-1 jest dostępny: %s"
+msgstr ""
+"Nie można sprawdzić czy plainbox-trusted-launcher-1 jest dostępny: %s"
 
 #: .././plainbox/impl/depmgr.py:97
 msgid "unknown job referenced: {!a}"
@@ -2016,7 +2019,8 @@ msgid "Selected execution controller %s (score %d) for job %r"
 msgstr "Wybrano kontroler wykonania %s (punkty %d) dla zadania %r"
 
 #: .././plainbox/impl/runner.py:974
-msgid "Job {0} created leftover filesystem artefacts in its working directory"
+msgid ""
+"Job {0} created leftover filesystem artefacts in its working directory"
 msgstr "Zadanie {0} pozostawiło po sobie pliki/katalogi w katalogu roboczym"
 
 #: .././plainbox/impl/runner.py:977
@@ -2696,7 +2700,8 @@ msgstr "Stworzono nowe miejsce do zapisu w %r"
 #: .././plainbox/impl/session/storage.py:307
 #, python-format
 msgid "%r is not a symlink, repository %r must be corrupted"
-msgstr "%r nie jest dowiązaniem symbolicznym, repozytorium %r musi być popsute"
+msgstr ""
+"%r nie jest dowiązaniem symbolicznym, repozytorium %r musi być popsute"
 
 #: .././plainbox/impl/session/storage.py:311
 #, python-format
@@ -2838,7 +2843,7 @@ msgstr "Usuwanie %r: %r"
 
 #. TRANSLATORS: please don't translate fsync()
 #. Flush kernel buffers on the directory.
-#.
+#. 
 #. This should ensure the rename operation is really on disk by now.
 #. As noted above, this is essential for being able to survive
 #. system crash immediately after exiting this method.
@@ -3236,7 +3241,8 @@ msgstr "można użyć tylko jednego polecenia importu"
 #. TODO: compute potential_id_map
 #: .././plainbox/impl/unit/testplan.py:82
 msgid "selector {!a} may not match any known or generated job"
-msgstr "selektor {!a} może nie wybierać żadnych znanych lub generowanych zadań"
+msgstr ""
+"selektor {!a} może nie wybierać żadnych znanych lub generowanych zadań"
 
 #: .././plainbox/impl/unit/testplan.py:134
 msgid ""
@@ -3490,7 +3496,8 @@ msgstr "układ katalogów instalacji (domyślnie %(default)s)"
 
 #: .././plainbox/provider_manager.py:279
 msgid "install everything relative to this alternate root directory"
-msgstr "instaluje wszystko względnie podanego alternatywnego katalogu głównego"
+msgstr ""
+"instaluje wszystko względnie podanego alternatywnego katalogu głównego"
 
 #: .././plainbox/provider_manager.py:338
 #, python-format
@@ -3670,8 +3677,8 @@ msgid ""
 "    hopefully, in most cases, you don't need to do anything. If your src/\n"
 "    directory has a Makefile or .go source files you should be good to go.\n"
 "\n"
-"    If the automatic defaults are somehow unsuitable you need to edit manage."
-"py\n"
+"    If the automatic defaults are somehow unsuitable you need to edit "
+"manage.py\n"
 "    so that it specifies the build command.\n"
 "\n"
 "    IMPORTANT: It is expected that the build command will create binary "

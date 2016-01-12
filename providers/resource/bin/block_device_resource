@@ -3,6 +3,7 @@
 import os
 import re
 from glob import glob
+from subprocess import Popen, PIPE
 
 rootdir_pattern = re.compile('^.*?/devices')
 
@@ -31,9 +32,7 @@ def device_state(name):
 
 
 def usb_support(name, version):
-    """
-    Check the USB specification number for both hub port and device
-    """
+    """Check the USB specification number for both hub port and device."""
     path = rootdir_pattern.sub('', os.readlink('/sys/block/%s' % name))
 
     # Remove the usb config.interface part of the path
@@ -60,7 +59,7 @@ def usb_support(name, version):
 def device_rotation(name):
     """
     Check the device queue/rotational parameter to determine if it's a spinning
-    device or a non-spinning device, which indicates it's an SSD
+    device or a non-spinning device, which indicates it's an SSD.
     """
     with open('/sys/block/%s/device/block/%s/queue/rotational' % (name, name),
               "rt") as f:
@@ -69,12 +68,39 @@ def device_rotation(name):
 
     return 'no'
 
+
+def smart_support(name):
+    """Check for availability of SMART support in the device.
+
+    See also enable_smart() in disk_smart script.
+    :param name:
+        disk device filename within /dev (e.g., sda)
+    :returns:
+        'True' or 'False' as string (for return to Checkbox)
+    """
+    supported = 'False'
+    # Check with smartctl to see if SMART is available and enabled on the disk
+    command = 'smartctl -i /dev/%s' % name
+    diskinfo_bytes = (Popen(command, stdout=PIPE, shell=True)
+                      .communicate()[0])
+    diskinfo = (diskinfo_bytes.decode(encoding='utf-8', errors='ignore')
+                .splitlines())
+
+    # Return True if the output (diskinfo) includes
+    # "SMART support is.*Available"
+    if len(diskinfo) > 2:
+        if any("SMART support is" in s and "Available" in s
+               for s in diskinfo):
+            supported = 'True'
+    return supported
+
 for path in glob('/sys/block/*/device'):
     name = re.sub('.*/(.*?)/device', '\g<1>', path)
     state = device_state(name)
     usb2 = usb_support(name, 2.00)
     usb3 = usb_support(name, 3.00)
     rotation = device_rotation(name)
+    smart = smart_support(name)
     # FIXME: Remove leading block device name when the requirements
     # checking code in Checkbox allows it
     print("""\
@@ -82,8 +108,10 @@ for path in glob('/sys/block/*/device'):
 %(name)s_usb2: %(usb2)s
 %(name)s_usb3: %(usb3)s
 %(name)s_rotation: %(rotation)s
+%(name)s_smart: %(smart)s
 """ % {"name": name,
        "state": state,
        "usb2": usb2,
        "usb3": usb3,
-       "rotation": rotation})
+       "rotation": rotation,
+       "smart": smart})

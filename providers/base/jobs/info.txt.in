@@ -3,6 +3,11 @@ unit: packaging meta-data
 os-id: debian
 Depends: python3-debian
 
+# The dkms_info script requires python3-guacamole package
+unit: packaging meta-data
+os-id: debian
+Depends: python3-guacamole (>= 0.9)
+
 id: codecs_attachment
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::info

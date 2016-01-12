@@ -25,7 +25,7 @@ Depends: dmidecode [!armel !mips !mipsel !powerpc !ppc64el !s390x]
 # This is for bin/dpkg_resource
 unit: packaging meta-data
 os-id: debian
-Depends: dpkg (>= 1.13),
+Depends: dpkg (>= 1.13)
 
 # This is for bin/gconf_resource
 unit: packaging meta-data

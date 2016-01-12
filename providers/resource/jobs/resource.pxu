@@ -8,7 +8,7 @@ Depends: python3 (>= 3.2)
 # and bin/xinput_resource
 unit: packaging meta-data
 os-id: debian
-Depends: python3-checkbox-support (>= 0.2)
+Depends: python3-checkbox-support (>= 0.22)
 
 # This is for bin/display_resource
 unit: packaging meta-data

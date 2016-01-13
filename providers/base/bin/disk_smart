@@ -77,6 +77,9 @@ from subprocess import Popen, PIPE, check_call, check_output
 from subprocess import CalledProcessError
 from argparse import ArgumentParser
 
+# NOTE: If raid_types changes, also change it in block_device_resource script!
+raid_types = ["megaraid", "cciss", "3ware", "areca"]
+
 
 class ListHandler(logging.StreamHandler):
 
@@ -97,38 +100,100 @@ class ListHandler(logging.StreamHandler):
             logging.StreamHandler.emit(self, record)
 
 
-def enable_smart(disk):
+def enable_smart(disk, raid_element, raid_type):
     """Log data and, if necessary, enable SMART on the specified disk.
 
     See also smart_support() in block_device_resource script.
     :param disk:
         disk device filename (e.g., /dev/sda)
+    :param raid_element:
+        element number to enable in RAID array; undefined if not a RAID device
+    :param raid_type:
+        type of raid device (none, megaraid, etc.)
     :returns:
         True if enabling smart was successful, False otherwise
     """
     # Check with smartctl to record basic SMART data on the disk
-    command = 'smartctl -i %s' % disk
+    if raid_type == 'none':
+        command = 'smartctl -i {}'.format(disk)
+        logging.debug('SMART Info for disk {}'.format(disk))
+    else:
+        command = 'smartctl -i {} -d {},{}'.format(disk, raid_type,
+                                                   raid_element)
+        logging.debug('SMART Info for disk {}, element {}'.
+                      format(disk, raid_element))
     diskinfo_bytes = (Popen(command, stdout=PIPE, shell=True)
                       .communicate()[0])
     diskinfo = (diskinfo_bytes.decode(encoding='utf-8', errors='ignore')
                 .splitlines())
-    logging.debug('SMART Info for disk %s', disk)
     logging.debug(diskinfo)
     if len(diskinfo) > 2 and not any("SMART support is" in s and "Enabled"
                                      in s for s in diskinfo):
         logging.debug('SMART disabled; attempting to enable it.')
-        command = 'smartctl -s on %s' % disk
+        if raid_type == 'none':
+            command = 'smartctl -s on {}'.format(disk)
+        else:
+            command = ('smartctl -s on {} -d {},{}'.
+                       format(disk, raid_type, raid_element))
         try:
             check_call(shlex.split(command))
             return True
         except CalledProcessError:
+            if raid_type == 'none':
+                logging.warning('SMART could not be enabled on {}'.
+                                format(disk))
+            else:
+                logging.warning('SMART could not be enabled on {}, element '
+                                '{}'.format(disk, raid_element))
             return False
     return True
 
 
-def run_smart_test(disk, type='short'):
-    ctl_command = 'smartctl -t %s %s' % (type, disk)
-    logging.debug('Beginning test with %s', ctl_command)
+def count_raid_disks(disk):
+    """Count the disks in a RAID array.
+
+    :param disk:
+        Disk device filename (e.g., /dev/sda)
+    :returns:
+        Number of disks in array (0 for non-RAID disk)
+        Type of RAID (none, megaraid, 3ware, areca, or cciss; note that only
+                      none and megaraid are tested, as of Jan. 2016)
+    """
+    raid_element = 0
+    raid_type = 'none'
+    command = 'smartctl -i {}'.format(disk)
+    diskinfo_bytes = (Popen(command, stdout=PIPE, shell=True)
+                      .communicate()[0])
+    diskinfo = (diskinfo_bytes.decode(encoding='utf-8', errors='ignore')
+                .splitlines())
+    for type in raid_types:
+        if any("-d {},N".format(type) in s for s in diskinfo):
+            logging.info('Found RAID controller of type {}'.format(type))
+            raid_type = type
+            break
+    if raid_type != 'none':
+        # This is a hardware RAID controller, so count individual disks....
+        disk_exists = True
+        while disk_exists:
+            command = ('smartctl -i {} -d {},{}'.
+                       format(disk, raid_type, raid_element))
+            try:
+                check_output(shlex.split(command))
+                raid_element += 1
+            except CalledProcessError:
+                disk_exists = False
+        logging.info("Counted {} RAID disks on {}\n".
+                     format(raid_element, disk))
+    return raid_element, raid_type
+
+
+def initiate_smart_test(disk, raid_element, raid_type, type='short'):
+    if raid_type == 'none':
+        ctl_command = 'smartctl -t {} {}'.format(type, disk)
+    else:
+        ctl_command = ('smartctl -t {} {} -d {},{}'.
+                       format(type, disk, raid_type, raid_element))
+    logging.debug('Beginning test with {}'.format(ctl_command))
 
     smart_proc = Popen(ctl_command, stderr=PIPE, stdout=PIPE,
                        universal_newlines=True, shell=True)
@@ -139,11 +204,17 @@ def run_smart_test(disk, type='short'):
     return smart_proc.returncode
 
 
-def get_smart_entries(disk, type='selftest'):
+def get_smart_entries(disk, raid_element, raid_type, type='selftest'):
     entries = []
     try:
-        stdout = check_output(['smartctl', '-l', type, disk],
-                              universal_newlines=True)
+        if raid_type == 'none':
+            stdout = check_output(['smartctl', '-l', type, disk],
+                                  universal_newlines=True)
+        else:
+            stdout = check_output(['smartctl', '-l', type, disk,
+                                   '-d', '{},{}'.
+                                   format(raid_type, raid_element)],
+                                  universal_newlines=True)
         returncode = 0
     except CalledProcessError as err:
         stdout = err.output
@@ -185,10 +256,14 @@ def get_smart_entries(disk, type='selftest'):
     return entries, returncode
 
 
-# Returns True if an "in-progress" message is found in the smartctl
-# output, False if such a message is not found. In the former case,
-# the in-progress message entries are logged.
 def in_progress(current_entries):
+    """Check to see if the test is in progress.
+
+    :param current_entries:
+        Output of smartctl command to be checked for status indicator.
+    :returns:
+        True if an "in-progress" message is found, False otherwise
+    """
     statuses = [entry for entry in current_entries
                 if isinstance(entry, dict)
                 and 'status' in entry
@@ -205,13 +280,28 @@ def in_progress(current_entries):
         return False
 
 
-# Wait for SMART test to complete; return status and return code.
-# Note that different disks return different types of values.
-# Some return no status reports while a test is ongoing; others
-# show a status line at the START of the list of tests, and
-# others show a status line at the END of the list of tests
-# (and then move it to the top once the tests are done).
-def poll_for_status(args, disk, previous_entries):
+def poll_for_status(args, disk, raid_element, raid_type, previous_entries):
+    """Poll a disk for its SMART status.
+
+    Wait for SMART test to complete; return status and return code.
+    Note that different disks return different types of values.
+    Some return no status reports while a test is ongoing; others
+    show a status line at the START of the list of tests, and
+    others show a status line at the END of the list of tests
+    (and then move it to the top once the tests are done).
+    :param args:
+        Script's command-line arguments
+    :param disk:
+        Disk device (e.g., /dev/sda)
+    :param raid_element:
+        RAID disk number (undefined for non-RAID disk)
+    :param raid_type:
+        Type of RAID device (megaraid, etc.)
+    :param previous_entries:
+        Previous SMART output; used to spot a change
+    :returns:
+        Current output and return code
+    """
     # Priming read... this is here in case our test is finished or fails
     # immediate after it beginsAccording to.
     logging.debug('Polling selftest.log for status')
@@ -221,7 +311,8 @@ def poll_for_status(args, disk, previous_entries):
         # Poll every sleep seconds until test is complete$
         time.sleep(args.sleep)
 
-        current_entries, returncode = get_smart_entries(disk)
+        current_entries, returncode = get_smart_entries(disk, raid_element,
+                                                        raid_type)
         if current_entries != previous_entries:
             if not in_progress(current_entries):
                 keep_going = False
@@ -239,8 +330,69 @@ def poll_for_status(args, disk, previous_entries):
         return current_entries[0]['status'], returncode
 
 
+def run_smart_test(args, disk, raid_element, raid_type):
+    """Run a test on a single disk device (possibly multiple RAID elements).
+
+    :param args:
+        Command-line arguments passed to script
+    :param disk:
+        Disk device filename (e.g., /dev/sda)
+    :param raid_element:
+        Number of RAID array element or undefined for non-RAID disk
+    :param raid_type:
+        Type of RAID device (e.g., megaraid)
+    :returns:
+        True for success, False for failure
+    """
+    previous_entries, returncode = get_smart_entries(disk, raid_element,
+                                                     raid_type)
+    if raid_type == 'none':
+        logging.info("Starting SMART self-test on {}".format(disk))
+    else:
+        logging.info("Starting SMART self-test on {}, element {}".
+                     format(disk, raid_element))
+    if initiate_smart_test(disk, raid_element, raid_type) != 0:
+        logging.error("Error reported during smartctl test")
+        return False
+
+    if len(previous_entries) > 20:
+        # Abort the previous instance
+        # so that polling can identify the difference
+        initiate_smart_test(disk, raid_element, raid_type)
+        previous_entries, returncode = get_smart_entries(disk, raid_element,
+                                                         raid_type)
+
+    status, returncode = poll_for_status(args, disk, raid_element, raid_type,
+                                         previous_entries)
+
+    if returncode != 0:
+        log, returncode = get_smart_entries(disk, raid_element, raid_type)
+        if raid_type == 'none':
+            logging.error("FAIL: SMART Self-Test appears to have failed "
+                          "for some reason. Run 'sudo smartctl -l selftest "
+                          "{}' to see the SMART log".format(disk))
+        else:
+            logging.error("FAIL: SMART Self-Test appears to have failed "
+                          "for some reason. Run 'sudo smartctl -l selftest "
+                          "{} -d {},{}' to see the SMART log".
+                          format(disk, raid_type, raid_element))
+        logging.debug("Last smartctl return code: %d", returncode)
+        logging.debug("Last smartctl run status: %s", status)
+        return False
+    else:
+        if raid_type == 'none':
+            logging.info("PASS: SMART Self-Test on {} completed without error".
+                         format(disk))
+        else:
+            logging.info("PASS: SMART Self-Test on {}, element {} completed "
+                         "without error\n".format(disk, raid_element))
+        return True
+
+
 def main():
-    description = 'Tests that SMART capabilities on disks that support SMART function.'
+    """Test SMART capabilities on disks that support SMART functions."""
+    description = ('Tests SMART capabilities on disks that support '
+                   'SMART functions.')
     parser = ArgumentParser(description=description)
     parser.add_argument('-b', '--block-dev',
                         metavar='DISK',
@@ -278,35 +430,21 @@ def main():
         parser.error("You must be root to run this program")
 
     disk = args.block_dev
-    if not enable_smart(disk):
-        logging.warning('SMART could not be enabled on %s' % disk)
-        return 1
-
-    # Initiate a self test and start polling until the test is done
-    previous_entries, returncode = get_smart_entries(disk)
-    logging.info("Starting SMART self-test on %s", disk)
-    if run_smart_test(disk) != 0:
-        logging.error("Error reported during smartctl test")
-        return 1
-
-    if len(previous_entries) > 20:
-        # Abort the previous instance
-        # so that polling can identify the difference
-        run_smart_test(disk)
-        previous_entries, returncode = get_smart_entries(disk)
-
-    status, returncode = poll_for_status(args, disk, previous_entries)
-
-    if returncode != 0:
-        log, returncode = get_smart_entries(disk)
-        logging.error("FAIL: SMART Self-Test appears to have failed for some reason. "
-                      "Run 'sudo smartctl -l selftest %s' to see the SMART log",
-                      disk)
-        logging.debug("Last smartctl return code: %d", returncode)
-        logging.debug("Last smartctl run status: %s", status)
+    num_disks, raid_type = count_raid_disks(disk)
+    if num_disks == 0:
+        success = enable_smart(disk, -1, raid_type)
+        success = success and run_smart_test(args, disk, -1, raid_type)
+    else:
+        success = True
+        for raid_element in range(0, num_disks):
+            if enable_smart(disk, raid_element, raid_type):
+                success = (run_smart_test(args, disk, raid_element, raid_type)
+                           and success)
+            else:
+                success = False
+    if success is False:
         return 1
     else:
-        logging.info("PASS: SMART Self-Test completed without error")
         return 0
 
 

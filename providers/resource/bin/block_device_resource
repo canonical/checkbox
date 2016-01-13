@@ -2,17 +2,18 @@
 
 import os
 import re
+import shlex
 from glob import glob
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, check_output, CalledProcessError
 
 rootdir_pattern = re.compile('^.*?/devices')
 
+# NOTE: If raid_types changes, also change it in disk_smart script!
+raid_types = ["megaraid", "cciss", "3ware", "areca"]
+
 
 def device_state(name):
-    """
-    Follow pmount policy to determine whether a device is removable
-    or internal.
-    """
+    """Follow pmount policy to find if a device is removable or internal."""
     with open('/sys/block/%s/device/block/%s/removable' % (name, name),
               "rt") as f:
         if f.read(1) == '1':
@@ -69,10 +70,49 @@ def device_rotation(name):
     return 'no'
 
 
+def smart_support_raid(name, raid_type):
+    """Check for availability of SMART support in a RAID device.
+
+    See also count_raid_disks() in disk_smart script.
+    :param name:
+        disk device filename within /dev (e.g., sda)
+    :param raid_type:
+        type of raid device (e.g., megaraid, 3ware, etc. -- codes used
+                             by smartctl)
+    :returns:
+        'True' or 'False' as string (for return to Checkbox)
+    """
+    supported = 'False'
+    disk_num = 0
+    disk_exists = True
+    # Loop through all disks in array to verify that SMART is available on
+    # at least one of them. Note that if there's a mix of supported and
+    # unsupported, this test returns 'True', which will result in a failure
+    # of disk_smart. This is by design, since such a mix is likely an assembly
+    # error by the manufacturer.
+    while disk_exists:
+        command = 'smartctl -i /dev/{} -d {},{}'.format(name, raid_type,
+                                                        disk_num)
+        # Return 'True' if the output (diskinfo) includes
+        # "SMART support is.*Available", and terminate check when a failure
+        # is found or when number of disks rises above level supported by
+        # smartctl (which likely indicates a bug).
+        try:
+            diskinfo = (check_output(shlex.split(command)).decode('utf-8').
+                        splitlines())
+            if any("SMART support is" in s and "Available" in s for
+                   s in diskinfo):
+                supported = 'True'
+                disk_num += 1
+        except CalledProcessError:
+            disk_exists = False
+    return supported
+
+
 def smart_support(name):
     """Check for availability of SMART support in the device.
 
-    See also enable_smart() in disk_smart script.
+    See also count_raid_disks() in disk_smart script.
     :param name:
         disk device filename within /dev (e.g., sda)
     :returns:
@@ -92,6 +132,11 @@ def smart_support(name):
         if any("SMART support is" in s and "Available" in s
                for s in diskinfo):
             supported = 'True'
+        else:
+            for type in raid_types:
+                if any("-d {},N".format(type) in s for s in diskinfo):
+                    supported = smart_support_raid(name, type)
+                    break
     return supported
 
 for path in glob('/sys/block/*/device'):

@@ -49,6 +49,7 @@ from plainbox.impl.session.restart import IRestartStrategy
 from plainbox.impl.session.restart import detect_restart_strategy
 from plainbox.impl.session.storage import SessionStorageRepository
 from plainbox.impl.transport import CertificationTransport
+from plainbox.impl.transport import OAuthTransport
 from plainbox.impl.transport import TransportError
 from plainbox.public import get_providers
 from plainbox.vendor import morris
@@ -1276,7 +1277,10 @@ class SessionAssistant:
 
     @raises(KeyError, TransportError, UnexpectedMethodCall)
     def export_to_transport(
-        self, exporter_id: str, transport: ISessionStateTransport
+            self,
+            exporter_id: str,
+            transport: ISessionStateTransport,
+            options: 'Sequence[str]'=()
     ) -> dict:
         """
         Export the session using given exporter ID and transport object.
@@ -1291,6 +1295,9 @@ class SessionAssistant:
             that is useful for sending data to the Canonical Certification
             Website and HEXR. This can also be any object conforming to the
             appropriate API.
+        :param options:
+            (optional) List of options customary to the exporter that is being
+            created.
         :returns:
             pass
         :raises KeyError:
@@ -1303,7 +1310,7 @@ class SessionAssistant:
             is the likely cause.
         """
         UsageExpectation.of(self).enforce()
-        exporter = self._manager.create_exporter(exporter_id)
+        exporter = self._manager.create_exporter(exporter_id, options)
         exported_stream = io.BytesIO()
         exporter.dump_from_session_manager(self._manager, exported_stream)
         exported_stream.seek(0)
@@ -1442,6 +1449,26 @@ class SessionAssistant:
             url = 'https://hexr.canonical.com/checkbox/submit/'
         options = "submit_to_hexr=1"
         return CertificationTransport(url, options)
+
+    @raises(UnexpectedMethodCall, KeyError)
+    def get_ubuntu_sso_oauth_transport(
+        self, transport_details: dict
+    ) -> "ISessionStateTransport":
+        """
+        Get a transport for OAuth.
+
+        :param transport_details:
+            Dictionary containing necessray transport configuration.
+        :raises KeyError:
+            When transport_details is missing vital information.
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+        """
+        UsageExpectation.of(self).enforce()
+        url = transport_details["url"]
+        return OAuthTransport(url, '', transport_details)
 
     def _get_allowed_calls_in_normal_state(self) -> dict:
         return {

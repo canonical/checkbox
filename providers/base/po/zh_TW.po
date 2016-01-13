@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2015-03-31 15:25+0200\n"
-"PO-Revision-Date: 2016-01-12 03:54+0000\n"
+"PO-Revision-Date: 2016-01-12 10:55+0000\n"
 "Last-Translator: Po-Hsu Lin <po-hsu.lin@canonical.com>\n"
 "Language-Team: Chinese (Traditional) <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-01-12 05:08+0000\n"
-"X-Generator: Launchpad (build 17881)\n"
+"X-Launchpad-Export-Date: 2016-01-13 05:09+0000\n"
+"X-Generator: Launchpad (build 17886)\n"
 
 #. description
 #: ../jobs/audio.txt.in:8
@@ -1939,7 +1939,7 @@ msgid ""
 msgstr ""
 "目的：\n"
 "    本測試將會檢查亮度調整鍵\n"
-"步驟\n"
+"步驟：\n"
 "    1. 按下鍵盤上的亮度調整鍵\n"
 "檢查：\n"
 "    螢幕亮度是否有隨著您按下的亮度調整鍵而改變？"
@@ -1958,7 +1958,7 @@ msgid ""
 msgstr ""
 "目的：\n"
 "    本測試將會檢查您鍵盤上的音量調整鍵\n"
-"步驟\n"
+"步驟：\n"
 "    若您的電腦上沒有音量調整鍵請略過本測試\n"
 "    1. 按下「測試」按鈕來開啟測試音量鍵的視窗\n"
 "    2. 如果所有按鍵都能正常運作，本測試將會被設定為通過\n"
@@ -2049,14 +2049,14 @@ msgstr ""
 "    本測試將會檢查無線網路鍵\n"
 "步驟：\n"
 "    1. 按下鍵盤上的無線網路鍵\n"
-"    2. 檢查無線網路 LED 是否有熄滅或變色\n"
+"    2. 檢查無線網路狀態 LED 指示燈是否有熄滅或變色\n"
 "    3. 檢查無線網路是否有被停用\n"
 "    4. 再按一次該無線網路鍵\n"
-"    5. 撿查無線網路 LED 是否有亮起或變色\n"
+"    5. 撿查無線網路狀態 LED 指示燈是否有亮起或變色\n"
 "    6. 檢查無線網路是否有被啟用\n"
 "檢查：\n"
 "    無線網路是否有在第一次按下該按鍵時被關閉，並在第二次按下該按鍵時啟用？\n"
-"    (註：我們將會在後面的測試中檢測 LED 的運作狀況，在本測試中請著重在無線網路鍵的功能上)"
+"    (註：我們將會在後面的測試中檢測 LED 指示燈的運作狀況，在本測試中請著重在無線網路鍵的功能上)"
 
 #. description
 #: ../jobs/keys.txt.in:121
@@ -2241,11 +2241,11 @@ msgid ""
 "    Does the power LED light as expected?"
 msgstr ""
 "目的：\n"
-"    電源 LED 顯示燈運作測試\n"
+"    電源狀態 LED 指示燈運作測試\n"
 "步驟：\n"
-"    1. 電源 LED 顯示燈應該在電腦啟動時亮著\n"
+"    1. 電源狀態 LED 指示燈應該在電腦啟動時亮著\n"
 "檢查：\n"
-"    電源 LED 顯示燈有一如預期的亮著嗎？"
+"    電源狀態 LED 指示燈有一如預期的亮著嗎？"
 
 #. description
 #: ../jobs/led.txt.in:16
@@ -2260,11 +2260,11 @@ msgid ""
 "for the previous suspend test?"
 msgstr ""
 "目的：\n"
-"    電源 LED 顯示燈運作測試\n"
+"    電源狀態 LED 指示燈運作測試\n"
 "步驟：\n"
-"    1. 您電腦的電源 LED 顯示燈應該會在電腦暫停時閃爍或變色\n"
+"    1. 您電腦的電源狀態 LED 指示燈應該會在電腦暫停時閃爍或變色\n"
 "檢查：\n"
-"    您電腦的電源 LED 顯示燈在先前的暫停測試中有閃爍或變色嗎？"
+"    您電腦的電源狀態 LED 指示燈在先前的暫停測試中有閃爍或變色嗎？"
 
 #. description
 #: ../jobs/led.txt.in:27
@@ -2279,12 +2279,12 @@ msgid ""
 "    Did the Suspend LED blink or change color while the system was suspended?"
 msgstr ""
 "目的：\n"
-"    暫停狀態 LED 顯示燈運作測試\n"
+"    暫停狀態 LED 指示燈運作測試\n"
 "步驟：\n"
-"    若您的電腦上沒有專門的暫停狀態 LED 顯示燈的話請略過本測試\n"
-"    1. 暫停狀態 LED 顯示燈應該會在系統暫停時閃爍或是變色\n"
+"    若您的電腦上沒有專門的暫停狀態 LED 指示燈的話請略過本測試\n"
+"    1. 暫停狀態 LED 指示燈應該會在系統暫停時閃爍或是變色\n"
 "檢查：\n"
-"    暫停狀態 LED 顯示燈有在系統暫停時閃爍或是變色嗎？"
+"    暫停狀態 LED 指示燈有在系統暫停時閃爍或是變色嗎？"
 
 #. description
 #: ../jobs/led.txt.in:40
@@ -2301,7 +2301,7 @@ msgstr ""
 "    電池狀態 LED 指示燈充電狀態檢測\n"
 "步驟：\n"
 "    1. 讓您的電腦以電池運作一小段時間\n"
-"    2. 接上 AC 電源\n"
+"    2. 將電源供應器接上筆電\n"
 "檢查：\n"
 "    電池狀態 LED 指示燈有變成橘色嗎？"
 
@@ -2321,8 +2321,8 @@ msgstr ""
 "    電池狀態 LED 指示燈充電完成狀態檢測\n"
 "步驟：\n"
 "    1. 讓您的電腦以電池運作一小段時間\n"
-"    2. 接上 AC 電源\n"
-"    3. 讓您的電腦以 AC 電源運作\n"
+"    2. 將電源供應器接上筆電\n"
+"    3. 讓您的電腦以電源供應器運作\n"
 "檢查：\n"
 "    橘色的電池狀態 LED 指示燈有在充電完成後熄滅嗎？"
 
@@ -2357,12 +2357,12 @@ msgid ""
 "    Did the HDD LED light?"
 msgstr ""
 "目的：\n"
-"    硬碟 LED 指示燈檢測\n"
+"    硬碟狀態 LED 指示燈檢測\n"
 "步驟\n"
 "    1. 按下「測試」來進行幾秒鐘的暫存檔讀 / 寫操作\n"
-"    2. 硬碟 LED 指示燈在對硬碟進行讀 / 寫操作時應該會亮起\n"
+"    2. 硬碟狀態 LED 指示燈在對硬碟進行讀 / 寫操作時應該會亮起\n"
 "檢查：\n"
-"    硬碟 LED 指示燈有亮起嗎？"
+"    硬碟狀態 LED 指示燈有亮起嗎？"
 
 #. description
 #: ../jobs/led.txt.in:91
@@ -2401,12 +2401,12 @@ msgid ""
 "    Did the Cap Keys LED light as expected?"
 msgstr ""
 "目的：\n"
-"    大寫 LED 指示燈檢測\n"
+"    大寫鎖定狀態 LED 指示燈檢測\n"
 "步驟：\n"
 "    1. 按下「CapLocks」鍵來啟動 / 關閉大寫鎖定\n"
-"    2. 在按下該按鍵時應該能夠切換大寫 LED 指示燈狀態\n"
+"    2. 在按下該按鍵時應該能夠切換大寫鎖定狀態 LED 指示燈狀態\n"
 "檢查：\n"
-"    大寫 LED 指示燈有一如預期的亮起嗎？"
+"    大寫鎖定狀態 LED 指示燈有一如預期的亮起嗎？"
 
 #. description
 #: ../jobs/led.txt.in:118
@@ -2421,12 +2421,12 @@ msgid ""
 "    Did the WLAN LED turn on or change color as expected?"
 msgstr ""
 "目的：\n"
-"    無線網路 LED 指示燈檢測\n"
+"    無線網路狀態 LED 指示燈檢測\n"
 "步驟：\n"
-"    1. 在 keys/wireless 測試時您應該有觀察到無線網路 LED 指示燈在啟用無線網路後的變化\n"
-"    2. 無線網路 LED 指示燈應該在無線網路啟用時亮起或變色\n"
+"    1. 在 keys/wireless 測試時您應該有觀察到無線網路狀態 LED 指示燈在啟用無線網路後的變化\n"
+"    2. 無線網路狀態 LED 指示燈應該在無線網路啟用時亮起或變色\n"
 "檢查：\n"
-"    無線網路 LED 指示燈有亮起或變色嗎？"
+"    無線網路狀態 LED 指示燈有亮起或變色嗎？"
 
 #. description
 #: ../jobs/led.txt.in:132
@@ -2441,12 +2441,12 @@ msgid ""
 "    Did the WLAN LED turn off or change color as expected?"
 msgstr ""
 "目的：\n"
-"    停用無線網路時的無線網路 LED 指示燈檢測\n"
+"    停用無線網路時的無線網路狀態 LED 指示燈檢測\n"
 "步驟：\n"
-"    1. 在 keys/wireless 測試時您應該有觀察到無線網路 LED 指示燈在停用無線網路後的變化\n"
-"    2. 無線網路 LED 指示燈應該在無線網路停用時熄滅或變色\n"
+"    1. 在 keys/wireless 測試時您應該有觀察到無線網路狀態 LED 指示燈在停用無線網路後的變化\n"
+"    2. 無線網路狀態 LED 指示燈應該在無線網路停用時熄滅或變色\n"
 "檢查：\n"
-"    無線網路 LED 指示燈有熄滅或變色嗎？"
+"    無線網路狀態 LED 指示燈有熄滅或變色嗎？"
 
 #. description
 #: ../jobs/led.txt.in:146
@@ -2463,14 +2463,14 @@ msgid ""
 "    Did the bluetooth LED turn off and on twice?"
 msgstr ""
 "目的：\n"
-"    在藍牙功能啟用 / 停用狀態下的藍牙 LED 指示燈測試\n"
+"    在藍牙功能啟用 / 停用狀態下的藍牙狀態 LED 指示燈測試\n"
 "步驟：\n"
 "    1. 若有藍牙控制鍵的話，請用它將藍牙功能關閉\n"
 "    2. 將藍牙重新打開\n"
 "    3. 從藍牙圖示關閉藍牙功能\n"
 "    4. 將藍牙重新打開\n"
 "檢查：\n"
-"    藍牙 LED 指示燈是否有亮起、熄滅兩次？"
+"    藍牙狀態 LED 指示燈是否有亮起、熄滅兩次？"
 
 #. description
 #: ../jobs/led.txt.in:162
@@ -2484,12 +2484,12 @@ msgid ""
 "    Did the camera LED light?"
 msgstr ""
 "目的：:\n"
-"    網路攝影機 LED 指示燈檢測\n"
+"    網路攝影機狀態 LED 指示燈檢測\n"
 "步驟：\n"
 "    1. 按下「測試」按鈕來啟動網路攝影機\n"
-"    2. 網路攝影機 LED 指示燈應該會亮起幾秒鐘\n"
+"    2. 網路攝影機狀態 LED 指示燈應該會亮起幾秒鐘\n"
 "檢查：\n"
-"    網路攝影機 LED 指示燈有亮起嗎？"
+"    網路攝影機狀態 LED 指示燈有亮起嗎？"
 
 #. description
 #: ../jobs/led.txt.in:174
@@ -2508,14 +2508,14 @@ msgid ""
 "usage"
 msgstr ""
 "目的：\n"
-"    觸控板 LED 顯示燈運作測試\n"
+"    觸控板狀態 LED 指示燈運作測試\n"
 "步驟：\n"
 "    1. 按下觸控板熱鍵或按鍵組合來啟動 / 停用觸控板\n"
 "    2. 將您的手指滑過觸控板\n"
 "檢查：\n"
-"    1. 按下觸控板熱鍵或按鍵組合時應該要能夠切換觸控板 LED 顯示燈狀態\n"
-"    2. 當觸控板 LED 顯示燈亮起時，游標應該要隨著手指在觸控板上的操作而移動\n"
-"    3. 當觸控板 LED 顯示燈熄滅時，游標應該不會隨著手指在觸控板上的操作而移動"
+"    1. 按下觸控板熱鍵或按鍵組合時應該要能夠切換觸控板狀態 LED 指示燈狀態\n"
+"    2. 當觸控板狀態 LED 指示燈亮起時，游標應該要隨著手指在觸控板上的操作而移動\n"
+"    3. 當觸控板狀態 LED 指示燈熄滅時，游標應該不會隨著手指在觸控板上的操作而移動"
 
 #. description
 #: ../jobs/led.txt.in:188
@@ -2533,16 +2533,16 @@ msgid ""
 "    Did the WLAN/Bluetooth LED light as expected?"
 msgstr ""
 "目的：\n"
-"    無線裝置 (無線網路 + 藍牙) LED 顯示燈運作測試\n"
+"    無線裝置 (無線網路 + 藍牙) 狀態 LED 指示燈運作測試\n"
 "步驟：\n"
 "    1. 確定無線網路處於已連線狀態且藍牙為啟動狀態\n"
-"    2. 無線網路 / 藍牙 LED 顯示燈應該要亮著\n"
+"    2. 無線網路 / 藍牙狀態 LED 指示燈應該要亮著\n"
 "    3. 若有無線網路與藍牙控制鍵的話，請用它將無線網路與藍牙關閉\n"
 "    4. 將它重新打開\n"
 "    5. 從系統狀態列的網路圖示與藍牙圖示關閉無線網路與藍牙功能\n"
 "    6. 將它重新打開\n"
 "檢查：\n"
-"    無線裝置 (無線網路 + 藍牙) LED 顯示燈運作是否一如預期？"
+"    無線裝置 (無線網路 + 藍牙) 狀態 LED 指示燈運作是否一如預期？"
 
 #. description
 #: ../jobs/led.txt.in:205
@@ -2558,12 +2558,12 @@ msgid ""
 "    Did the Audio LED turn on and off or change color as expected?"
 msgstr ""
 "目的：\n"
-"    音效靜音 LED 顯示燈運作測試\n"
+"    音效靜音狀態 LED 指示燈運作測試\n"
 "步驟：\n"
-"    若您的電腦上沒有專門的音效靜音 LED 顯示燈的話請略過本測試\n"
-"    1. 按下音效靜音熱鍵兩次，並觀察音效靜音 LED 顯示燈是否有熄滅、亮起或變色\n"
+"    若您的電腦上沒有專門的音效靜音狀態 LED 指示燈的話請略過本測試\n"
+"    1. 按下音效靜音熱鍵兩次，並觀察音效靜音狀態 LED 指示燈是否有熄滅、亮起或變色\n"
 "檢查：\n"
-"    音效靜音 LED 顯示燈是否有一如預期的熄滅、亮起或變色？"
+"    音效靜音狀態 LED 指示燈是否有一如預期的熄滅、亮起或變色？"
 
 #. description
 #: ../jobs/led.txt.in:219
@@ -2580,12 +2580,12 @@ msgid ""
 "    Did the Microphone Mute LED turn on and off or change color as expected?"
 msgstr ""
 "目的：\n"
-"    麥克風靜音 LED 顯示燈運作測試\n"
+"    麥克風靜音狀態 LED 指示燈運作測試\n"
 "步驟：\n"
-"    若您的電腦上沒有專門的麥克風靜音 LED 顯示燈的話請略過本測試\n"
-"    1. 按下麥克風靜音熱鍵兩次，並觀察麥克風靜音 LED 顯示燈是否有熄滅、亮起或變色\n"
+"    若您的電腦上沒有專門的麥克風靜音狀態 LED 指示燈的話請略過本測試\n"
+"    1. 按下麥克風靜音熱鍵兩次，並觀察麥克風靜音狀態 LED 指示燈是否有熄滅、亮起或變色\n"
 "檢查：\n"
-"    麥克風靜音 LED 顯示燈是否有一如預期的熄滅、亮起或變色？"
+"    麥克風靜音狀態 LED 指示燈是否有一如預期的熄滅、亮起或變色？"
 
 #. description
 #: ../jobs/local.txt.in:3
@@ -4853,7 +4853,7 @@ msgstr ""
 "    本測試將會檢查系統的混合式睡眠及恢復功能\n"
 "步驟：\n"
 "    1. 按下「測試」按鈕後，您的電腦將會進入混合式睡眠狀態約 30 到 60 秒\n"
-"    2. 觀察電源 LED 指示燈於暫停模式下是否會閃爍或變色\n"
+"    2. 觀察電源狀態 LED 指示燈於暫停模式下是否會閃爍或變色\n"
 "    3. 若您的電腦在 60 秒後沒有自動從混合式睡眠模式中恢復，請手動按下電源鈕來喚醒它\n"
 "    4. 若您的電腦完全無法從混合式睡眠模式中恢復並需要重新開機，請在重新開機後重新啟動本系統測試工具並將此測項標記為「Failed」\n"
 "驗證：\n"
@@ -5049,6 +5049,16 @@ msgid ""
 "    Verification is automated, do not change the automatically selected "
 "result."
 msgstr ""
+"目的：\n"
+"    測試本系統的無線網路裝置是否能夠採用 802.11b/g 通訊協定以 WPA 加密之設定連上路由器。\n"
+"步驟：\n"
+"    1. 打開您的路由器設定工具\n"
+"    2. 將設定改為僅接受 B 與 G 無線通訊協定的連線\n"
+"    3. 確定 SSID 已設定為 ROUTER_SSID\n"
+"    4. 將安全性設定為 WPA2 並確定密碼與先前設定的 ROUTER_PSK 變數相符\n"
+"    5. 按下「測試」按鈕來建立並測試到路由器的連線\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:888
@@ -5068,6 +5078,16 @@ msgid ""
 "    Verification is automated, do not change the automatically selected "
 "result."
 msgstr ""
+"目的：\n"
+"    測試本系統的無線網路裝置是否能夠採用 802.11b/g 通訊協定以無加密之設定連上路由器。\n"
+"步驟：\n"
+"    1. 打開您的路由器設定工具\n"
+"    2. 將設定改為僅接受 B 與 G 無線通訊協定的連線\n"
+"    3. 確定 SSID 已設定為 ROUTER_SSID\n"
+"    4. 將安全性設定為無安全保護之設定\n"
+"    5. 按下「測試」按鈕來建立並測試到路由器的連線\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:919
@@ -5089,6 +5109,16 @@ msgid ""
 "    Verification is automated, do not change the automatically selected "
 "result."
 msgstr ""
+"目的：\n"
+"    測試本系統的無線網路裝置是否能夠採用 802.11n 通訊協定以 WPA 加密之設定連上路由器。\n"
+"步驟：\n"
+"    1. 打開您的路由器設定工具\n"
+"    2. 將設定改為僅接受 N 無線通訊協定的連線\n"
+"    3. 確定 SSID 已設定為 ROUTER_SSID\n"
+"    4. 將安全性設定為 WPA2 並確定密碼與先前設定的 ROUTER_PSK 變數相符\n"
+"    5. 按下「測試」按鈕來建立並測試到路由器的連線\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:950
@@ -5108,6 +5138,16 @@ msgid ""
 "    Verification is automated, do not change the automatically selected "
 "result."
 msgstr ""
+"目的：\n"
+"    測試本系統的無線網路裝置是否能夠採用 802.11n 通訊協定以無加密之設定連上路由器。\n"
+"步驟：\n"
+"    1. 打開您的路由器設定工具\n"
+"    2. 將設定改為僅接受 N 無線通訊協定的連線\n"
+"    3. 確定 SSID 已設定為 ROUTER_SSID\n"
+"    4. 將安全性設定為無安全保護之設定\n"
+"    5. 按下「測試」按鈕來建立並測試到路由器的連線\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:981
@@ -5129,6 +5169,16 @@ msgid ""
 "    Verification is automated, do not change the automatically selected "
 "result."
 msgstr ""
+"目的：\n"
+"    測試本系統的無線網路裝置是否能夠採用 802.11ac 通訊協定以 WPA 加密之設定連上路由器。\n"
+"步驟：\n"
+"    1. 打開您的路由器設定工具\n"
+"    2. 將設定改為僅接受 802.11ac 無線通訊協定的連線\n"
+"    3. 確定 SSID 已設定為 ROUTER_SSID\n"
+"    4. 將安全性設定為 WPA2 並確定密碼與先前設定的 ROUTER_PSK 變數相符\n"
+"    5. 按下「測試」按鈕來建立並測試到路由器的連線\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:1012
@@ -5148,34 +5198,44 @@ msgid ""
 "    Verification is automated, do not change the automatically selected "
 "result."
 msgstr ""
+"目的：\n"
+"    測試本系統的無線網路裝置是否能夠採用 802.11ac 通訊協定以無加密之設定連上路由器。\n"
+"步驟：\n"
+"    1. 打開您的路由器設定工具\n"
+"    2. 將設定改為僅接受 802.11ac 無線通訊協定的連線\n"
+"    3. 確定 SSID 已設定為 ROUTER_SSID\n"
+"    4. 將安全性設定為無安全保護之設定\n"
+"    5. 按下「測試」按鈕來建立並測試到路由器的連線\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:1047
 msgid ""
 "This test grabs the hardware address of the bluetooth adapter after suspend "
 "and compares it to the address grabbed before suspend."
-msgstr ""
+msgstr "本測試會在系統從暫停狀態恢復後將偵測到的藍牙硬體位置與暫停前取得的位置作比較。"
 
 #. description
 #: ../jobs/suspend.txt.in:1159
 msgid ""
 "This is an automated Bluetooth file transfer test. It sends an image to the "
 "device specified by the BTDEVADDR environment variable."
-msgstr ""
+msgstr "這是一個全自動的藍牙檔案傳輸測試，它將會傳送一個影像檔到環境設定中由 BTDEVADDR 變數所指定的裝置上。"
 
 #. description
 #: ../jobs/suspend.txt.in:1215
 msgid ""
 "This is an automated Bluetooth test. It emulates browsing on a remote device "
 "specified by the BTDEVADDR environment variable."
-msgstr ""
+msgstr "這是一個全自動的藍牙測試，它將會模擬瀏覽環境設定中由 BTDEVADDR 變數所指定的裝置。"
 
 #. description
 #: ../jobs/suspend.txt.in:1271
 msgid ""
 "This is an automated Bluetooth test. It receives the given file from a "
 "remote host specified by the BTDEVADDR environment variable"
-msgstr ""
+msgstr "這是一個全自動的藍牙測試，它將會從環境設定中由 BTDEVADDR 變數所指定的裝置上接收一個檔案。"
 
 #. description
 #: ../jobs/suspend.txt.in:1283
@@ -5202,6 +5262,12 @@ msgid ""
 "VERIFICATION:\n"
 "    Did your display look fine in the detected mode?"
 msgstr ""
+"目的：\n"
+"    本測試將會依序測試所有偵測到的螢幕解析度\n"
+"步驟：\n"
+"    1. 按下「測試」後您的螢幕將會依序切換至各個解析度設定\n"
+"檢查：\n"
+"    您的螢幕在各個解析度下運作正常嗎？"
 
 #. description
 #: ../jobs/suspend.txt.in:1311
@@ -5209,14 +5275,14 @@ msgid ""
 "This test will check to make sure supported video modes work after a suspend "
 "and resume. This is done automatically by taking screenshots and uploading "
 "them as an attachment."
-msgstr ""
+msgstr "本測試將會檢查系統自暫停狀態恢復後所有支援的螢幕解析度是否仍能正常運作。此自動測試將會擷取螢幕畫面並以附加檔之形式上傳。"
 
 #. description
 #: ../jobs/suspend.txt.in:1320
 msgid ""
 "This attaches screenshots from the suspend/cycle_resolutions_after_suspend "
 "test to the results submission."
-msgstr ""
+msgstr "這將會把 suspend/cycle_resolutions_after_suspend 測試中所擷取的螢幕畫面附加至測試報告中。"
 
 #. description
 #: ../jobs/suspend.txt.in:1351
@@ -5226,6 +5292,8 @@ msgid ""
 "microphone, however, it works best if used with a cable connecting the audio-"
 "out jack to the audio-in jack."
 msgstr ""
+"本測試將會檢查系統自暫停狀態恢復後您的音效裝置是否仍能正常運作。用內建麥克風與喇叭即可進行本測試，但如果用一條音訊線連接音源輸出孔連與音訊輸入孔的話效果會"
+"更好。"
 
 #. description
 #: ../jobs/suspend.txt.in:1357
@@ -5243,11 +5311,17 @@ msgid ""
 "VERIFICATION:\n"
 "    Review attachment manually later"
 msgstr ""
+"目的：\n"
+"    拍攝系統從暫停狀態恢復後的螢幕畫面 (登入 Unity 桌面)\n"
+"步驟：\n"
+"    1. 用 USB 網路攝影機拍攝畫面\n"
+"檢查：\n"
+"    稍候請以人工檢視附加檔案"
 
 #. description
 #: ../jobs/suspend.txt.in:1378
 msgid "Attaches the screenshot captured in graphics/screenshot."
-msgstr ""
+msgstr "將 graphics/screenshot 測試項中所拍到的畫面附加至測試報告中。"
 
 #. description
 #: ../jobs/suspend.txt.in:1389
@@ -5261,13 +5335,21 @@ msgid ""
 "VERIFICATION:\n"
 "    After a 60s workload, check kern.log for reported GPU errors"
 msgstr ""
+"目的：\n"
+"    檢查 GPU 在一些高負載的操作後是否有鎖死的現象\n"
+"步驟：\n"
+"    1. 開啟兩個 glxgears 視窗並快速移動它們\n"
+"    2. 用 wmctrl 切換工作區域\n"
+"    3. 啟動 Firefox 用 HTML5 播放影片\n"
+"檢查\n"
+"    在 60 秒的負載後，檢查 kern.log 是否有回報 GPU 錯誤"
 
 #. description
 #: ../jobs/suspend.txt.in:1417
 msgid ""
 "Checks the length of time it takes to reconnect an existing wifi connection "
 "after a suspend/resume cycle."
-msgstr ""
+msgstr "檢查在暫停 / 恢復循環後重新連上現存的無線網路需要多久的時間。"
 
 #. description
 #: ../jobs/suspend.txt.in:1439
@@ -5275,7 +5357,7 @@ msgid ""
 "Checks the length of time it takes to reconnect an existing wired "
 "connection\n"
 " after a suspend/resume cycle."
-msgstr ""
+msgstr "檢查在暫停 / 恢復循環後重新連上現存的有線網路需要多久的時間。"
 
 #. description
 #: ../jobs/suspend.txt.in:1447
@@ -5288,6 +5370,12 @@ msgid ""
 "VERIFICATION:\n"
 "    Does the power LED remain on after resuming from suspend?"
 msgstr ""
+"目的：\n"
+"    在系統由暫停狀態恢復後的電源狀態 LED 指示燈運作測試\n"
+"步驟：\n"
+"    1. 電源狀態 LED 指示燈在系統啟動後應該會亮起\n"
+"檢查：\n"
+"    在系統由暫停狀態恢復後，電源狀態 LED 指示燈是否有亮起？"
 
 #. description
 #: ../jobs/suspend.txt.in:1459
@@ -5302,6 +5390,13 @@ msgid ""
 "    Did the battery indicator LED still turn orange after resuming from "
 "suspend?"
 msgstr ""
+"目的：\n"
+"    在系統由暫停狀態恢復後的電池狀態 LED 指示燈充電狀態檢測\n"
+"步驟：\n"
+"    1. 讓您的電腦以電池運作一小段時間\n"
+"    2. 將電源供應器接上筆電\n"
+"檢查：\n"
+"    在系統由暫停狀態恢復後，充電時電池狀態 LED 指示燈有變成橘色嗎？"
 
 #. description
 #: ../jobs/suspend.txt.in:1472
@@ -5317,6 +5412,14 @@ msgid ""
 "    Does the orange battery LED still shut off when system is fully charged "
 "after resuming from suspend?"
 msgstr ""
+"目的：\n"
+"    在系統由暫停狀態恢復後的電池狀態 LED 指示燈充電完成狀態檢測\n"
+"步驟：\n"
+"    1. 讓您的電腦以電池運作一小段時間\n"
+"    2. 將電源供應器接上筆電\n"
+"    3. 讓您的電腦以電源供應器運作\n"
+"檢查：\n"
+"    在系統由暫停狀態恢復後，充電完成時橘色的電池狀態 LED 指示燈有熄滅嗎？"
 
 #. description
 #: ../jobs/suspend.txt.in:1486
@@ -5331,6 +5434,13 @@ msgid ""
 "    Does the LED light orange when battery is low after resuming from "
 "suspend?"
 msgstr ""
+"目的：\n"
+"    在系統由暫停狀態恢復後的電池狀態 LED 指示燈低電量狀態檢測\n"
+"步驟：\n"
+"    1. 讓您的電腦以電池運作幾個小時\n"
+"    2. 觀察電池狀態 LED 指示燈\n"
+"檢查：\n"
+"    在系統由暫停狀態恢復後，電池狀態 LED 指示燈在電力不足時有變成橘色嗎？"
 
 #. description
 #: ../jobs/suspend.txt.in:1500
@@ -5345,6 +5455,13 @@ msgid ""
 "    Did the HDD LED still blink with HDD activity after resuming from "
 "suspend?"
 msgstr ""
+"目的：\n"
+"    在系統由暫停狀態恢復後的硬碟狀態 LED 指示燈檢測\n"
+"步驟l\n"
+"    1.按下「測試」來進行幾秒鐘的暫存檔讀 / 寫操作\n"
+"    2. 硬碟狀態 LED 指示燈在對硬碟進行讀 / 寫操作時應該會亮起\n"
+"檢查：\n"
+"   在系統由暫停狀態恢復後，進行本測試時硬碟狀態 LED 指示燈有亮起嗎？"
 
 #. description
 #: ../jobs/suspend.txt.in:1514
@@ -5362,6 +5479,15 @@ msgid ""
 "    2. Numbers should only be entered in the keyboard verification window "
 "when the LED is on"
 msgstr ""
+"目的：\n"
+"    在系統由暫停狀態恢復後的數字鍵盤 LED 指示燈檢測\n"
+"步驟：\n"
+"    1. 按下「NumLock」鍵來啟動數字鍵盤 LED 指示燈\n"
+"    2. 按下「測試」按鈕打開測試視窗來測試輸入\n"
+"    3. 在數字鍵盤 LED 指示燈亮起與熄滅的狀態下用數字鍵盤打字\n"
+"檢查：\n"
+"    1. 按下「NumLock」鍵應該能夠切換數字鍵盤 LED 指示燈狀態\n"
+"    2. 僅在數字鍵盤 LED 指示燈亮起時，才能從數字鍵盤上輸入數字"
 
 #. description
 #: ../jobs/suspend.txt.in:1529
@@ -5375,6 +5501,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the Cap Keys LED light as expected after resuming from suspend?"
 msgstr ""
+"目的：\n"
+"    在系統由暫停狀態恢復後的大寫鎖定狀態 LED 指示燈檢測\n"
+"步驟：\n"
+"    1. 按下「CapLocks」鍵來啟動 / 關閉大寫鎖定\n"
+"    2. 在按下該按鍵時應該能夠切換大寫鎖定狀態 LED 指示燈狀態\n"
+"檢查：\n"
+"    在系統由暫停狀態恢復後，大寫鎖定狀態 LED 指示燈能夠一如預期的亮起嗎？"
 
 #. description
 #: ../jobs/suspend.txt.in:1542
@@ -5387,6 +5520,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the WLAN LED light as expected after resuming from suspend?"
 msgstr ""
+"目的：:\n"
+"    在系統由暫停狀態恢復後的無線網路狀態 LED 指示燈檢測\n"
+"步驟：\n"
+"    1. 確定已建立無線網路連線\n"
+"    2. 無線網路狀態 LED 指示燈應該要亮起\n"
+"檢查：\n"
+"    在系統由暫停狀態恢復後，無線網路狀態 LED 指示燈是否有一如預期的亮起？"
 
 #. description
 #: ../jobs/suspend.txt.in:1555
@@ -5402,6 +5542,15 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the LED turn off then WLAN is disabled after resuming from suspend?"
 msgstr ""
+"目的：\n"
+"    在系統由暫停狀態恢復後，停用無線網路時的無線網路狀態 LED 指示燈檢測\n"
+"步驟：\n"
+"    1. 連線至無線網路\n"
+"    2. 用無線網路熱鍵來關閉無線網路\n"
+"    3. 重新啟動無線網路\n"
+"    4. 用網路管理員來關閉無線網路\n"
+"檢查：\n"
+"    在系統由暫停狀態恢復後，當您停用無線網路時無線網路狀態 LED 指示燈有熄滅嗎？"
 
 #. description
 #: ../jobs/suspend.txt.in:1570
@@ -5417,6 +5566,15 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the bluetooth LED turn off and on twice after resuming from suspend?"
 msgstr ""
+"目的：\n"
+"    在系統由暫停狀態恢復後，藍牙功能啟用 / 停用狀態下的藍牙狀態 LED 指示燈測試\n"
+"步驟：\n"
+"    1. 若有藍牙控制鍵的話，請用它將藍牙功能關閉\n"
+"    2. 將藍牙重新打開\n"
+"    3. 從藍牙圖示關閉藍牙功能\n"
+"    4. 將藍牙重新打開\n"
+"檢查：\n"
+"    在系統由暫停狀態恢復後，在這些步驟後藍牙狀態 LED 指示燈是否有亮起、熄滅兩次？"
 
 #. description
 #: ../jobs/suspend.txt.in:1588
@@ -5430,6 +5588,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the camera LED still turn on and off after resuming from suspend?"
 msgstr ""
+"目的：:\n"
+"    在系統由暫停狀態恢復後的網路攝影機狀態 LED 指示燈檢測\n"
+"步驟：\n"
+"    1. 按下「測試」按鈕來啟動網路攝影機\n"
+"    2. 網路攝影機狀態 LED 指示燈應該會亮起幾秒鐘\n"
+"檢查：\n"
+"    在系統由暫停狀態恢復後，網路攝影機狀態 LED 指示燈能正常亮起嗎？"
 
 #. description
 #: ../jobs/suspend.txt.in:1601
@@ -5447,6 +5612,15 @@ msgid ""
 "    3. When the LED is off, the mouse pointer should not move on touchpad "
 "usage"
 msgstr ""
+"目的：\n"
+"    在系統由暫停狀態恢復後的觸控板狀態 LED 指示燈運作測試\n"
+"步驟：\n"
+"    1. 按下觸控板熱鍵或按鍵組合來啟動 / 停用觸控板\n"
+"    2. 將您的手指滑過觸控板\n"
+"檢查：\n"
+"    1. 按下觸控板熱鍵或按鍵組合時應該要能夠切換觸控板狀態 LED 指示燈狀態\n"
+"    2. 當觸控板狀態 LED 指示燈亮起時，游標應該要隨著手指在觸控板上的操作而移動\n"
+"    3. 當觸控板狀態 LED 指示燈熄滅時，游標應該不會隨著手指在觸控板上的操作而移動"
 
 #. description
 #: ../jobs/suspend.txt.in:1616
@@ -5464,6 +5638,17 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the WLAN/Bluetooth LED light as expected after resuming from suspend?"
 msgstr ""
+"目的：\n"
+"    在系統由暫停狀態恢復後的無線裝置 (無線網路 + 藍牙) 狀態 LED 指示燈運作測試\n"
+"步驟：\n"
+"    1. 確定無線網路處於已連線狀態且藍牙為啟動狀態\n"
+"    2. 無線網路 / 藍牙狀態 LED 指示燈應該要亮著\n"
+"    3. 若有無線網路與藍牙控制鍵的話，請用它將無線網路與藍牙關閉\n"
+"    4. 將它重新打開\n"
+"    5. 從系統狀態列的網路圖示與藍牙圖示關閉無線網路與藍牙功能\n"
+"    6. 將它重新打開\n"
+"檢查：\n"
+"    在系統由暫停狀態恢復後，無線裝置 (無線網路 + 藍牙) 狀態 LED 指示燈的運作是否一如預期？"
 
 #. description
 #: ../jobs/suspend.txt.in:1634
@@ -5476,6 +5661,12 @@ msgid ""
 "    Did the brightness change following to your key presses after resuming "
 "from suspend?"
 msgstr ""
+"目的：\n"
+"    在系統由暫停狀態恢復後的亮度調整鍵測試\n"
+"步驟：\n"
+"    1. 按下鍵盤上的亮度調整鍵\n"
+"檢查：\n"
+"    在系統由暫停狀態恢復後，螢幕亮度是否有隨著您按下的亮度調整鍵而改變？"
 
 #. description
 #: ../jobs/suspend.txt.in:1650
@@ -5490,6 +5681,14 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the volume change following to your key presses?"
 msgstr ""
+"目的：\n"
+"    系統由暫停狀態恢復後，鍵盤上的音量調整鍵測試\n"
+"步驟：\n"
+"    若您的電腦上沒有音量調整鍵請略過本測試\n"
+"    1. 按下「測試」按鈕來開啟測試音量鍵的視窗\n"
+"    2. 如果所有按鍵都能正常運作，本測試將會被設定為通過\n"
+"檢查：\n"
+"    這些按鍵運作是否正常？"
 
 #. description
 #: ../jobs/suspend.txt.in:1668
@@ -5503,6 +5702,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the volume mute following your key presses?"
 msgstr ""
+"目的：\n"
+"    系統由暫停狀態恢復後，鍵盤上的音量靜音鍵測試\n"
+"步驟：\n"
+"    1. 按下「測試」按鈕來開啟測試音量靜音鍵的視窗\n"
+"    2. 如果該按鍵能正常運作，本測試將會被設定為通過且該視窗會自動關閉\n"
+"檢查：\n"
+"    此音量靜音鍵是否運作正常？"
 
 #. description
 #: ../jobs/suspend.txt.in:1683
@@ -5516,6 +5722,13 @@ msgid ""
 "    Did the system go to sleep after pressing the sleep key after resuming "
 "from suspend?"
 msgstr ""
+"目的：\n"
+"    系統由暫停狀態恢復後的睡眠鍵測試\n"
+"步驟：\n"
+"    1. 按下鍵盤上的睡眠鍵\n"
+"    2. 按下電源鍵來喚醒您的電腦\n"
+"檢查：\n"
+"    在系統由暫停狀態恢復後，按下睡眠鍵後有讓您的系統進入睡眠狀態嗎？"
 
 #. description
 #: ../jobs/suspend.txt.in:1699
@@ -5531,6 +5744,15 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the Battery Info key work as expected after resuming from suspend?"
 msgstr ""
+"目的：\n"
+"    系統由暫停狀態恢復後的電池資訊鍵測試\n"
+"步驟：\n"
+"    若您的電腦上沒有電池資訊鍵請略過本測試\n"
+"    1. 按下「測試」按鈕來開始\n"
+"    2. 按下電池資訊鍵 (或是 Fn+F3 的組合)\n"
+"    3: 若電力統計工具有被打開的話請關閉它\n"
+"檢查：\n"
+"    在系統由暫停狀態恢復後，電池資訊鍵是否運作正常？"
 
 #. description
 #: ../jobs/suspend.txt.in:1715
@@ -5544,6 +5766,13 @@ msgid ""
 "    Did the wireless go off on the first press and on again on the second "
 "after resuming from suspend?"
 msgstr ""
+"目的：\n"
+"    在系統由暫停狀態恢復後的無線網路鍵測試\n"
+"步驟：\n"
+"    1. 按下鍵盤上的無線網路鍵\n"
+"    2. 再按一次該無線網路鍵\n"
+"檢查：\n"
+"    在系統由暫停狀態恢復後，無線網路是否有在第一次按下該按鍵時被關閉，並在第二次按下該按鍵時啟用？"
 
 #. description
 #: ../jobs/suspend.txt.in:1732
@@ -5558,6 +5787,14 @@ msgid ""
 "VERIFICATION:\n"
 "    Do the keys work as expected after resuming from suspend?"
 msgstr ""
+"目的：\n"
+"    在系統由暫停狀態恢復後，鍵盤上的多媒體控制鍵測試\n"
+"步驟：\n"
+"    若您的電腦上沒有多媒體控制鍵請略過本測試\n"
+"    1. 按下「測試」按鈕來開啟測試多媒體控制鍵的視窗\n"
+"    2. 如果所有按鍵都能正常運作，本測試將會被設定為通過\n"
+"檢查：\n"
+"    在系統由暫停狀態恢復後，這些按鍵運作是否正常？"
 
 #. description
 #: ../jobs/suspend.txt.in:1750
@@ -5571,6 +5808,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Does the super key work as expected after resuming from suspend?"
 msgstr ""
+"目的：\n"
+"    在系統由暫停狀態恢復後，鍵盤上的 super 鍵測試\n"
+"步驟：\n"
+"    1. 按下「測試」按鈕來開啟測試 super 鍵的視窗\n"
+"    2. 如果該按鍵能正常運作，本測試將會被設定為通過且該視窗會自動關閉\n"
+"檢查：\n"
+"    在系統由暫停狀態恢復後，此 super 鍵是否運作正常？"
 
 #. description
 #: ../jobs/suspend.txt.in:1764
@@ -5585,6 +5829,13 @@ msgid ""
 "    Check that the video signal can be mirrored, extended, displayed on "
 "external or onboard only, after resuming from suspend."
 msgstr ""
+"目的：\n"
+"    在系統由暫停狀態恢復後的顯示切換熱鍵測試\n"
+"步驟：\n"
+"    1. 接上一個外接螢幕\n"
+"    2. 按下顯示切換熱鍵來切換螢幕顯示設定\n"
+"檢查：\n"
+"    在系統由暫停狀態恢復後，檢查螢幕顯示模式可以在鏡像、延伸、只顯示在外接螢幕上與只顯示在內建螢幕上切換"
 
 #. description
 #: ../jobs/suspend.txt.in:1778
@@ -5622,6 +5873,14 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統在由暫停狀態恢復後是否能偵測到 USB 儲存裝置的插入\n"
+"步驟：\n"
+"    1. 按下「測試」鈕將一個 USB 儲存裝置 (隨身碟 / 硬碟) 插到 USB 埠上\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"    2. 在此測試結束後請不要移除該裝置\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:1814
@@ -5638,6 +5897,14 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統在由暫停狀態恢復後是否能偵測到 USB 3.0 儲存裝置的插入\n"
+"步驟：\n"
+"    1. 按下「測試」鈕將一個 USB 3.0 儲存裝置 (隨身碟 / 硬碟) 插到 USB 3.0 埠上\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"    2. 在此測試結束後請不要移除該裝置\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:1832
@@ -5652,6 +5919,13 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統在由暫停狀態恢復後是否能偵測到 USB 儲存裝置的移除\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並將 USB 儲存裝置移除\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:1851
@@ -5666,20 +5940,27 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統在由暫停狀態恢復後是否能偵測到 USB 3.0 儲存裝置的移除\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並將 USB 3.0 儲存裝置移除\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:1868
 msgid ""
 "This test is automated and executes after the "
 "suspend/usb_insert_after_suspend test is run."
-msgstr ""
+msgstr "本自動化測試將在 suspend/usb_insert_after_suspend 測試成功結束後進行。"
 
 #. description
 #: ../jobs/suspend.txt.in:1880
 msgid ""
 "This test is automated and executes after the "
 "suspend/usb3_insert_after_suspend test is run."
-msgstr ""
+msgstr "本自動化測試將在 suspend/usb3_insert_after_suspend 測試成功結束後進行。"
 
 #. description
 #: ../jobs/suspend.txt.in:1890 ../jobs/usb.txt.in:172
@@ -5688,6 +5969,8 @@ msgid ""
 "server has usb storage devices plugged in prior to checkbox execution. It is "
 "intended for servers and SRU automated testing."
 msgstr ""
+"本測試為 usb/storage-automated 的全自動版本，假設在 Checkbox 啟動前伺服器上已經有外接 USB "
+"儲存裝置了。這是針對伺服器與 SRU 自動化測試的項目。"
 
 #. description
 #: ../jobs/suspend.txt.in:1903 ../jobs/usb.txt.in:184
@@ -5696,13 +5979,15 @@ msgid ""
 "server has usb 3.0 storage devices plugged in prior to checkbox execution. "
 "It is intended for servers and SRU automated testing."
 msgstr ""
+"本測試為 usb3/storage-automated 的全自動版本，假設在 Checkbox 啟動前伺服器上已經有外接 USB 3.0 "
+"儲存裝置了。這是針對伺服器與 SRU 自動化測試的項目。"
 
 #. description
 #: ../jobs/suspend.txt.in:1914 ../jobs/usb.txt.in:209
 msgid ""
 "This test will check that your USB 2.0 port transfers data at a minimum "
 "expected speed."
-msgstr ""
+msgstr "本測試將會檢查您的 USB 2.0 埠是否能夠至少以最低的期望速度進行資料傳輸。"
 
 #. description
 #: ../jobs/suspend.txt.in:1926 ../jobs/usb.txt.in:221
@@ -5710,6 +5995,7 @@ msgid ""
 "This test will check that your USB 3.0 port could be recognized as "
 "SuperSpeed USB device using xhci_hcd driver and transfers data correctly."
 msgstr ""
+"本測試將會檢查您的 USB 3.0 埠是否能被偵測為 SuperSpeed USB 裝置並使用 xhci_hcd 驅動程式，且能正確的進行資料傳輸。"
 
 #. description
 #: ../jobs/suspend.txt.in:1935
@@ -5760,6 +6046,13 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能在系統由暫停狀態恢復後偵測到 MMC 卡的移除\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並將 MMC 記憶卡從讀卡機中移除\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:1979
@@ -5869,6 +6162,13 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能在系統由暫停狀態恢復後偵測到 SDHC 卡的移除\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並將 SDHC 記憶卡從讀卡機中移除\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:2070
@@ -5919,6 +6219,13 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能在系統由暫停狀態恢復後偵測到 CF 卡的移除\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並將 CF 記憶卡從讀卡機中移除\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:2114
@@ -5970,6 +6277,13 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能在系統由暫停狀態恢復後偵測到 SDXC 卡的移除\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並將 SDXC 記憶卡從讀卡機中移除\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:2159
@@ -6020,6 +6334,13 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能在系統由暫停狀態恢復後偵測到 MS 卡的移除\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並將 MS 記憶卡從讀卡機中移除\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:2203
@@ -6070,6 +6391,13 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能在系統由暫停狀態恢復後偵測到 MSP 卡的移除\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並將 MSP 記憶卡從讀卡機中移除\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:2247
@@ -6120,11 +6448,18 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統上的記憶卡讀卡機是否能在系統由暫停狀態恢復後偵測到 xD 卡的移除\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並將 xD 記憶卡從讀卡機中移除\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:2294
 msgid "Determine if the touchpad is still functioning after suspend/resume."
-msgstr "確認觸控板在系統暫停/恢復後是否仍正常運作。"
+msgstr "確認觸控板在系統暫停 / 恢復後是否仍正常運作。"
 
 #. description
 #: ../jobs/suspend.txt.in:2301 ../jobs/touchscreen.txt.in:35
@@ -6137,6 +6472,12 @@ msgid ""
 "VERIFICATION:\n"
 "    Does tap recognition work?"
 msgstr ""
+"目的：\n"
+"    檢查觸控螢幕點擊偵測功能\n"
+"步驟：\n"
+"    1. 用手指在螢幕上點擊任一個物件，游標應該會跳到該處而且該物件應該會被選擇\n"
+"檢查：\n"
+"    點擊偵測有正常運作嗎？"
 
 #. description
 #: ../jobs/suspend.txt.in:2316
@@ -6149,6 +6490,12 @@ msgid ""
 "VERIFICATION:\n"
 "    Did you see the video capture?"
 msgstr ""
+"目的：\n"
+"    本測試將會在系統從暫停恢復後檢查內建攝影機是否有正常運作\n"
+"步驟：\n"
+"    1. 點擊「測試」按鈕來播放 10 秒鐘由內建攝影機所拍攝的影片\n"
+"檢查：\n"
+"    您有看到攝影機所拍到的影片嗎？"
 
 #. description
 #: ../jobs/suspend.txt.in:2334
@@ -6161,6 +6508,12 @@ msgid ""
 "VERIFICATION:\n"
 "    Did you see the image?"
 msgstr ""
+"目的：\n"
+"    本測試將會在系統從暫停恢復後檢查內建攝影機是否有正常運作\n"
+"步驟：\n"
+"    1. 點擊「測試」按鈕來播放 10 秒鐘由內建攝影機所拍攝的照片\n"
+"檢查：\n"
+"    您有看到攝影機所拍到照片嗎？"
 
 #. description
 #: ../jobs/suspend.txt.in:2350
@@ -6173,7 +6526,7 @@ msgstr ""
 #. description
 #: ../jobs/suspend.txt.in:2359
 msgid "Pointing device tests after suspend."
-msgstr ""
+msgstr "在系統從暫停恢復後的指向裝置測試。"
 
 #. description
 #: ../jobs/touchpad.txt.in:5
@@ -6220,14 +6573,14 @@ msgstr ""
 msgid ""
 "Determine whether the touchpad is detected as a singletouch device "
 "automatically."
-msgstr ""
+msgstr "判斷觸控板是否有自動被偵測為單點觸控裝置。"
 
 #. description
 #: ../jobs/touchpad.txt.in:63
 msgid ""
 "Determine whether the touchpad is detected as a multitouch device "
 "automatically."
-msgstr ""
+msgstr "判斷觸控板是否有自動被偵測為多點觸控裝置。"
 
 #. description
 #: ../jobs/touchpad.txt.in:71
@@ -6611,13 +6964,13 @@ msgstr ""
 #. description
 #: ../jobs/usb.txt.in:153
 msgid "This test is automated and executes after the usb/insert test is run."
-msgstr ""
+msgstr "本自動化測試將在 usb/insert 測試成功結束後進行。"
 
 #. description
 #: ../jobs/usb.txt.in:164
 msgid ""
 "This test is automated and executes after the usb3/insert test is run."
-msgstr ""
+msgstr "本自動化測試將在 usb3/insert 測試成功結束後進行。"
 
 #. description
 #: ../jobs/usb.txt.in:191

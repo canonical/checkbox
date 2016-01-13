@@ -93,9 +93,9 @@ _description:
  STEPS:
      1. Launch a browser.
      2. Go to a website, and hover the cursor over a link.
-     3. Tap the upper right corner if the touchpad.
+     3. Tap the upper right corner on the touchpad.
  VERIFICATION:
-     Did the tap trigger a new tab to be opended?
+     Did the tap trigger a new tab to be opened?
 
 plugin: manual
 category_id: 2013.com.canonical.plainbox::touchpad

@@ -17,8 +17,6 @@ _description:
  STEPS:
      1. Plug in one or more USB keys or hard drives.
      2. Click on "Test".
- INFO:
-     $output
  VERIFICATION:
      Were the drives detected?
 
@@ -49,10 +47,8 @@ _description:
      This test will check that the system correctly detects the insertion of
      a USB storage device
  STEPS:
-     1. Click "Test" and insert a USB storage device, preferably a HDD.
-        Although a USB pen drive may be used it might cause performance
-        related tests to fail. (Note: this test will time-out after 20
-        seconds.)
+     1. Click "Test" and insert a USB storage device
+        (Note: this test will time-out after 20 seconds.)
      2. Do not unplug the device after the test.
  VERIFICATION:
      The verification of this test is automated. Do not change the
@@ -70,10 +66,8 @@ _description:
      This test will check that the system correctly detects the insertion of
      a USB 3.0 storage device
  STEPS:
-     1. Click "Test" and insert a USB 3.0 storage device, preferably a HDD,
-        in a USB 3.0 port. Although a USB 3.0 pen drive may be used it might
-        cause performance related tests to fail. (Note: this test will
-        time-out after 20 seconds.)
+     1. Click "Test" and insert a USB 3.0 storage device in a USB 3.0 port.
+        (Note: this test will time-out after 20 seconds.)
      2. Do not unplug the device after the test.
  VERIFICATION:
      The verification of this test is automated. Do not change the

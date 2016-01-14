@@ -13,7 +13,6 @@ from plainbox.provider_manager import setup
 class SourceDistributionCommandExt(SourceDistributionCommand):
     # Overridden version of SourceDistributionCommand that handles autotools
     __doc__ = SourceDistributionCommand.__doc__
-    _INCLUDED_ITEMS = SourceDistributionCommand._INCLUDED_ITEMS + ['COPYING']
     _GENERATED_ITEMS = [
         'INSTALL',
         'Makefile.in',

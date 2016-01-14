@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2015-03-31 15:25+0200\n"
-"PO-Revision-Date: 2016-01-12 10:55+0000\n"
+"PO-Revision-Date: 2016-01-14 04:32+0000\n"
 "Last-Translator: Po-Hsu Lin <po-hsu.lin@canonical.com>\n"
 "Language-Team: Chinese (Traditional) <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-01-13 05:09+0000\n"
+"X-Launchpad-Export-Date: 2016-01-14 05:08+0000\n"
 "X-Generator: Launchpad (build 17886)\n"
 
 #. description
@@ -1738,12 +1738,12 @@ msgstr "SATA/IDE 裝置資訊。"
 #. description
 #: ../jobs/info.txt.in:166
 msgid "Attaches the bootchart png file for bootchart runs"
-msgstr ""
+msgstr "將執行 bootchart 產生的 bootchart png 檔案附加至測試報告中"
 
 #. description
 #: ../jobs/info.txt.in:174
 msgid "Attaches the bootchart log for bootchart test runs."
-msgstr ""
+msgstr "將執行 bootchart 產生的 bootchart 紀錄檔附加至測試報告中"
 
 #. description
 #: ../jobs/info.txt.in:182
@@ -2610,7 +2610,7 @@ msgstr "網路攝影機測試"
 #. description
 #: ../jobs/local.txt.in:31
 msgid "Codec tests"
-msgstr ""
+msgstr "編解碼器測試"
 
 #. description
 #: ../jobs/local.txt.in:38
@@ -2930,6 +2930,8 @@ msgid ""
 "the system under test has a memory card device plugged in prior to checkbox "
 "execution. It is intended for SRU automated testing."
 msgstr ""
+"本測試為 mediacard/sd-automated 的全自動版本，假設在 Checkbox 啟動前待測系統上已經有插上記憶卡了。這是針對 SRU "
+"自動化測試的項目。"
 
 #. description
 #: ../jobs/mediacard.txt.in:102
@@ -3479,6 +3481,12 @@ msgid ""
 "    Did your screen change temporarily to a text console and then switch "
 "back to your current session?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統能否切換到虛擬終端再切回 X\n"
+"步驟：\n"
+"    1. 按下「測試」按鈕來切換至另一個虛擬終端然後在切回 X\n"
+"檢查：\n"
+"    您的螢幕有暫時切到文字模式然後再切回您目前的作業環境嗎？"
 
 #. description
 #: ../jobs/miscellanea.txt.in:53
@@ -3534,7 +3542,7 @@ msgstr "DMI ID 完整性檢查 (桌機/筆電)"
 msgid ""
 "   Determine if we need to run tests specific to portable computers that may "
 "not apply to desktops."
-msgstr ""
+msgstr "   檢查我們是否需要執行針對筆記型電腦的測試，那些測試可能不適用於桌上型電腦。"
 
 #. description
 #: ../jobs/miscellanea.txt.in:117
@@ -3542,7 +3550,7 @@ msgid ""
 "Test that the /var/crash directory doesn't contain anything. Lists the files "
 "contained within if it does, or echoes the status of the directory (doesn't "
 "exist/is empty)"
-msgstr ""
+msgstr "確定 /var/crash 資料夾中沒有任何東西，若有檔案存在則將其列出，或是回傳資料夾狀態 (不存在 / 空的)"
 
 #. description
 #: ../jobs/miscellanea.txt.in:123
@@ -3609,7 +3617,7 @@ msgstr "取得佈署此待測機器用的 MAAS 版本資訊"
 msgid ""
 "Retrieve the computer's make and model for easier access than digging "
 "through the dmidecode output."
-msgstr ""
+msgstr "取得電腦的製造商與型號，如此一來取得此資料會比之後在 dmidecode 輸出中挖掘來得容易"
 
 #. summary
 #: ../jobs/miscellanea.txt.in:216
@@ -3621,14 +3629,14 @@ msgstr "取得本電腦的製造商與型號名稱"
 msgid ""
 "Creates a mobile broadband connection for a GSM based modem and checks the "
 "connection to ensure it's working. "
-msgstr ""
+msgstr "為 GSM 數據機建立行動寬頻網路連線並檢查連線以確定它運作正常 "
 
 #. description
 #: ../jobs/mobilebroadband.txt.in:56
 msgid ""
 "Creates a mobile broadband connection for a CDMA based modem and checks the "
 "connection to ensure it's working."
-msgstr ""
+msgstr "為 CDMA 數據機建立行動寬頻網路連線並檢查連線以確定它運作正常"
 
 #. description
 #: ../jobs/mobilebroadband.txt.in:115
@@ -4463,12 +4471,12 @@ msgstr "確認 Tomcat 伺服器是否正常運作中。"
 #. description
 #: ../jobs/smoke.txt.in:4
 msgid "Check success result from shell test case"
-msgstr ""
+msgstr "自 shell 測試項目檢查測試成功的結果"
 
 #. description
 #: ../jobs/smoke.txt.in:10
 msgid "Check failed result from shell test case"
-msgstr ""
+msgstr "自 shell 測試項目檢查測試失敗的結果"
 
 #. description
 #: ../jobs/smoke.txt.in:17
@@ -4790,6 +4798,14 @@ msgid ""
 "VERIFICATION:\n"
 "    Was the data correctly transferred?"
 msgstr ""
+"目的：\n"
+"    本測試將會傳送「JPEG_Color_Image_Ubuntu.jpg」影像檔到特定的裝置上\n"
+"步驟：\n"
+"    1. 請檢查藍牙狀態工具來確定藍牙裝置有啟動\n"
+"    2. 按下「測試」後，將會提示您輸入能夠接收檔案的藍牙裝置名稱 (在輸入名字後會需要一點時間來進行資料傳輸)\n"
+"    3. 在您的筆電以及該藍牙裝置所出現的的提示對話框上按下「Accept」\n"
+"檢查：\n"
+"    資料是否有被正確傳送？"
 
 #. description
 #: ../jobs/suspend.txt.in:253
@@ -6473,11 +6489,11 @@ msgid ""
 "    Does tap recognition work?"
 msgstr ""
 "目的：\n"
-"    檢查觸控螢幕點擊偵測功能\n"
+"    檢查觸控螢幕點擊偵測\n"
 "步驟：\n"
-"    1. 用手指在螢幕上點擊任一個物件，游標應該會跳到該處而且該物件應該會被選擇\n"
+"    1. 用手指點擊螢幕上的任一物件，游標應該會跳到該處且該物件會被選取\n"
 "檢查：\n"
-"    點擊偵測有正常運作嗎？"
+"    觸控螢幕點擊偵測運作正常嗎？"
 
 #. description
 #: ../jobs/suspend.txt.in:2316
@@ -6521,7 +6537,7 @@ msgid ""
 " Takes multiple pictures based on the resolutions supported by the camera "
 "and\n"
 " validates their size and that they are of a valid format after suspend"
-msgstr ""
+msgstr " 在系統從暫停狀態恢復後，根據攝影機所支援的解析度來拍攝多張相片，並檢查它們的檔案大小及確認其為有效的格式。"
 
 #. description
 #: ../jobs/suspend.txt.in:2359
@@ -6539,6 +6555,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the cursor move?"
 msgstr ""
+"目的：\n"
+"    觸控板人工檢查\n"
+"步驟：\n"
+"    1. 確認觸控板已啟用\n"
+"    2. 透過觸控板移動您的游標\n"
+"檢查：\n"
+"    游標有移動嗎？"
 
 #. description
 #: ../jobs/touchpad.txt.in:21
@@ -6553,6 +6576,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Could you scroll right and left?"
 msgstr ""
+"目的：\n"
+"    觸控板水平捲動檢查\n"
+"步驟：\n"
+"    1. 當準備好後請按下「測試」按鈕，並將游標移動到出現的測試視窗內\n"
+"    2. 將手指在觸控板下緣向左及向右滑動來檢查您是否可以移動水平捲動軸\n"
+"檢查：\n"
+"    您能夠向右與向左捲動嗎？"
 
 #. description
 #: ../jobs/touchpad.txt.in:37
@@ -6567,6 +6597,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Could you scroll up and down?"
 msgstr ""
+"目的：\n"
+"    觸控板垂直捲動檢查\n"
+"步驟：\n"
+"    1. 當準備好後請按下「測試」按鈕，並將游標移動到出現的測試視窗內\n"
+"    2. 將手指在觸控板右側向上及向下滑動來檢查您是否可以移動垂直捲動軸\n"
+"檢查：\n"
+"    您能夠向上與向下捲動嗎？"
 
 #. description
 #: ../jobs/touchpad.txt.in:53
@@ -6592,6 +6629,12 @@ msgid ""
 "VERIFICATION:\n"
 "    Is the touchpad supposed to be multitouch?"
 msgstr ""
+"目的：\n"
+"    觸控板多點觸控人工檢查\n"
+"步驟：\n"
+"    1. 檢查您系統的規格表\n"
+"檢查：\n"
+"    觸控板是多點觸控的嗎？"
 
 #. description
 #: ../jobs/touchpad.txt.in:83
@@ -6605,6 +6648,14 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the tap trigger a new tab to be opended?"
 msgstr ""
+"目的：\n"
+"    檢查觸發角功能的運作是否正常\n"
+"步驟：\n"
+"    1. 啟動瀏覽器\n"
+"    2. 到任何一個網站，將游標移動到一個超連結上\n"
+"    3. 點擊觸控板的右上角\n"
+"檢查\n"
+"    點擊後該連結有在新頁籤中開啟嗎？"
 
 #. description
 #: ../jobs/touchpad.txt.in:97
@@ -6617,6 +6668,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Did a selection window open and were several files selected?"
 msgstr ""
+"目的：\n"
+"    檢查視窗圈選功能的運作是否正常\n"
+"步驟：\n"
+"    1. 打開一個檔案資料夾\n"
+"    2. 雙擊後將游標拖過多個檔案\n"
+"檢查：\n"
+"    圈選視窗有出現而且有多個檔案被選擇嗎？"
 
 #. description
 #: ../jobs/touchpad.txt.in:111
@@ -6630,6 +6688,14 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the right click pop up menu appear?"
 msgstr ""
+"目的：\n"
+"    檢查右鍵點擊功能的運作是否正常\n"
+"步驟：\n"
+"    1. 打開一個檔案資料夾\n"
+"    2. 將游標移動到任一檔案上\n"
+"    3. 兩指點擊\n"
+"檢查：\n"
+"    右鍵選單有出現嗎？"
 
 #. description
 #: ../jobs/touchpad.txt.in:126
@@ -6644,6 +6710,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Could you scroll right and left?"
 msgstr ""
+"目的：\n"
+"    觸控板兩指水平捲動檢查\n"
+"步驟：\n"
+"    1. 當準備好後請按下「測試」按鈕，並將游標移動到出現的測試視窗內\n"
+"    2. 將兩隻手指在觸控板上向右及向左滑動來檢查您是否可以移動水平捲動軸\n"
+"檢查：\n"
+"    您能夠向右與向左捲動嗎？"
 
 #. description
 #: ../jobs/touchpad.txt.in:140
@@ -6658,6 +6731,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Could you scroll up and down?"
 msgstr ""
+"目的：\n"
+"    觸控板兩指垂直捲動檢查\n"
+"步驟：\n"
+"    1. 當準備好後請按下「測試」按鈕，並將游標移動到出現的測試視窗內\n"
+"    2. 將兩隻手指在觸控板上向上及向下滑動來檢查您是否可以移動垂直捲動軸\n"
+"檢查：\n"
+"    您能夠向上與向下捲動嗎？"
 
 #. description
 #: ../jobs/touchpad.txt.in:153
@@ -6673,11 +6753,19 @@ msgid ""
 "VERIFICATION:\n"
 "    Did a selected folder move to the desktop?"
 msgstr ""
+"目的：\n"
+"    檢查拖放功能的運作是否正常\n"
+"步驟：\n"
+"    1. 從目前的使用者資料夾中打開 examples 資料夾\n"
+"    2. 在「Ubuntu_Free_Culture_Showcase」資料夾上點兩下並按住\n"
+"    2. 將此資料夾拖曳至桌面上後將手指從觸控板上移開\n"
+"檢查：\n"
+"    被選取的資料夾能夠有移到桌面上嗎？"
 
 #. summary
 #: ../jobs/touchpad.txt.in:168
 msgid "Check touchpad pinch-to-zoom gesture"
-msgstr ""
+msgstr "檢查觸控板縮放手勢"
 
 #. description
 #: ../jobs/touchpad.txt.in:169
@@ -6691,11 +6779,19 @@ msgid ""
 "VERIFICATION:\n"
 "    Does the image zoom in and out?"
 msgstr ""
+"目的：\n"
+"    檢查觸控板縮放手勢\n"
+"步驟：\n"
+"    1. 打開將影像檔用「gallery-app」打開\n"
+"    2. 將兩隻手指在觸控板上捏合在一起\n"
+"    3. 將兩隻手指在觸控板上伸展開來\n"
+"檢查\n"
+"    影像有被縮放嗎？"
 
 #. summary
 #: ../jobs/touchpad.txt.in:184
 msgid "Check 4-finger tap gesture"
-msgstr ""
+msgstr "檢查四指點擊手勢"
 
 #. description
 #: ../jobs/touchpad.txt.in:185
@@ -6707,24 +6803,30 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the tap open the Dash?"
 msgstr ""
+"目的：\n"
+"    檢查四指點擊功能的運作是否正常\n"
+"步驟：\n"
+"    1. 四指點擊 (用四隻手指同時點擊) 觸控板的任何地方\n"
+"檢查：\n"
+"    點擊後 Dash 有被打開嗎？"
 
 #. description
 #: ../jobs/touchpad.txt.in:205
 msgid "This test will check if your touchpad was detected as a mouse."
-msgstr ""
+msgstr "本測試將會檢查您的觸控板是否有被偵測為滑鼠。"
 
 #. description
 #: ../jobs/touchscreen.txt.in:7
 msgid ""
 "Determine whether the screen is detected as a non-touch device automatically."
-msgstr ""
+msgstr "自動檢查螢幕是否有被偵測成非觸控裝置。"
 
 #. description
 #: ../jobs/touchscreen.txt.in:16
 msgid ""
 "Determine whether the screen is detected as a multitouch device "
 "automatically."
-msgstr ""
+msgstr "自動檢查螢幕是否有被偵測成多點觸控裝置。"
 
 #. description
 #: ../jobs/touchscreen.txt.in:23
@@ -6737,6 +6839,12 @@ msgid ""
 "    Your screen was detected as a non touch screen. Select PASS if this is "
 "correct."
 msgstr ""
+"目的：\n"
+"    觸控螢幕功能人工檢查\n"
+"步驟：\n"
+"    1. 檢查您系統的規格表\n"
+"檢查：\n"
+"    您的螢幕被偵測為非觸控螢幕，若正確請選擇 PASS"
 
 #. description
 #: ../jobs/touchscreen.txt.in:47
@@ -6749,11 +6857,18 @@ msgid ""
 "VERIFICATION:\n"
 "    Does drag and drop work?"
 msgstr ""
+"目的：\n"
+"    檢查觸控螢幕的拖放功能\n"
+"步驟：\n"
+"    1. 在桌面上點擊並按住一個物件\n"
+"    2. 將該物件拖曳並放到不同的位置\n"
+"檢查：\n"
+"    拖放功能的運作是否正常？"
 
 #. summary
 #: ../jobs/touchscreen.txt.in:58
 msgid "Check touchscreen pinch gesture for zoom"
-msgstr ""
+msgstr "檢查觸控螢幕縮放手勢"
 
 #. description
 #: ../jobs/touchscreen.txt.in:62
@@ -6767,11 +6882,18 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the blue square change size following the gesture?"
 msgstr ""
+"目的：\n"
+"    檢查觸控螢幕縮放手勢\n"
+"步驟：\n"
+"    1. 按下「測試」按鈕\n"
+"    2. 用兩隻手指縮放畫面中的藍色方框，在它變成綠色之後放開\n"
+"檢查：\n"
+"    藍色方框有根據您的手勢改變大小嗎？"
 
 #. summary
 #: ../jobs/touchscreen.txt.in:73
 msgid "Check touchscreen pinch gesture for rotate"
-msgstr ""
+msgstr "檢查觸控螢幕旋轉手勢"
 
 #. description
 #: ../jobs/touchscreen.txt.in:77
@@ -6785,6 +6907,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the blue square rotate following the gesture?"
 msgstr ""
+"目的：\n"
+"    檢查觸控螢幕旋轉手勢\n"
+"步驟：\n"
+"    1. 按下「測試」按鈕\n"
+"    2. 用兩隻手指旋轉畫面中的藍色方框，在它變成綠色之後放開\n"
+"檢查：\n"
+"    藍色方框有根據您的手勢旋轉嗎？"
 
 #. description
 #: ../jobs/touchscreen.txt.in:90
@@ -6797,6 +6926,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the window move along with the drag?"
 msgstr ""
+"目的：\n"
+"    檢查三指拖曳功能的運作是否正常\n"
+"步驟：\n"
+"    1. 打開一個視窗並將其帶到前景\n"
+"    2. 用三指點擊該視窗並拖曳\n"
+"檢查：\n"
+"    視窗有隨著拖曳手勢而移動嗎？"
 
 #. description
 #: ../jobs/touchscreen.txt.in:103
@@ -6808,6 +6944,12 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the tap open the Dash?"
 msgstr ""
+"目的：\n"
+"    檢查四指點擊功能的運作是否正常\n"
+"步驟：\n"
+"    1. 四指點擊觸控螢幕的任何地方\n"
+"檢查：\n"
+"    點擊後 Dash 有被打開嗎？"
 
 #. description
 #: ../jobs/touchscreen.txt.in:115
@@ -6821,6 +6963,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Did you see the green circles around the three fingers?"
 msgstr ""
+"目的：\n"
+"    檢查三指點擊功能的運作是否正常\n"
+"步驟：\n"
+"    1. 同時用三指點擊螢幕\n"
+"    2. 當三隻手指在螢幕上時，您應該會看到指示器告訴您它們有被辨認到\n"
+"檢查：\n"
+"    您有看到綠色圓圈出現在三隻手指周圍嗎？"
 
 #. description
 #: ../jobs/touchscreen.txt.in:134
@@ -6834,11 +6983,18 @@ msgid ""
 "VERIFICATION:\n"
 "    Did you see the green circles around the four fingers?"
 msgstr ""
+"目的：\n"
+"    檢查四指點擊功能的運作是否正常\n"
+"步驟：\n"
+"    1. 同時用四指點擊螢幕\n"
+"    2. 當四隻手指在螢幕上時，您應該會看到指示器告訴您它們有被辨認到\n"
+"檢查：\n"
+"    您有看到綠色圓圈出現在四隻手指周圍嗎？"
 
 #. description
 #: ../jobs/usb.txt.in:5
 msgid "Detects and shows USB devices attached to this system."
-msgstr ""
+msgstr "偵測並秀出連接到本系統的 USB 裝置。"
 
 #. description
 #: ../jobs/usb.txt.in:12
@@ -6853,6 +7009,15 @@ msgid ""
 "VERIFICATION:\n"
 "    Were the drives detected?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的系統能否偵測到 USB 儲存裝置\n"
+"步驟\n"
+"    1. 將一個或多個 USB 隨身碟或硬碟接上電腦\n"
+"    2. 點擊「測試」\n"
+"資訊：\n"
+"    $output\n"
+"檢查：\n"
+"    外接硬碟有被偵測到嗎？"
 
 #. description
 #: ../jobs/usb.txt.in:28
@@ -6868,6 +7033,14 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the device work as expected?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您是否可以使用 USB 人機介面裝置\n"
+"步驟：\n"
+"    1. 啟動 USB 鍵盤或滑鼠\n"
+"    2. 若是測試滑鼠，請測試左右鍵點擊，雙擊以及移動游標\n"
+"    3. 若是測試鍵盤，請點擊「測試」按鈕來打開測試用小工具，在該工具裡輸入一些文字後將其關閉\n"
+"檢查：\n"
+"    這些裝置的運作是否一如預期？"
 
 #. description
 #: ../jobs/usb.txt.in:43
@@ -6917,6 +7090,13 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測是將會檢查系統是否能正確偵測到 USB 儲存裝置的移除\n"
+"步驟：\n"
+"    1. 點擊「測試」鈕並移除 USB 裝置\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/usb.txt.in:100
@@ -6931,6 +7111,13 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測是將會檢查系統是否能正確偵測到 USB 3.0 儲存裝置的移除\n"
+"步驟：\n"
+"    1. 點擊「測試」鈕並移除 USB 3.0 裝置\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/usb.txt.in:117
@@ -6945,6 +7132,14 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的 USB 連線\n"
+"步驟：\n"
+"    1. 插入 USB 硬碟或隨身碟到您的電腦\n"
+"    2. 啟動器上應該會出現一個圖示\n"
+"    3. 點擊「測試」來進行測試\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/usb.txt.in:136
@@ -6960,6 +7155,14 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的 USB 3.0 連線\n"
+"步驟：\n"
+"    1. 插入 USB 3.0 硬碟或隨身碟到您電腦上的 USB 3.0 埠\n"
+"    2. 啟動器上應該會出現一個圖示\n"
+"    3. 點擊「測試」來進行測試\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/usb.txt.in:153
@@ -6987,6 +7190,16 @@ msgid ""
 "VERIFICATION:\n"
 "    Do all USB slots work with the device?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的 USB 連線\n"
+"步驟：\n"
+"    1. 將 USB 儲存裝置接到本電腦上的 USB 連接埠上\n"
+"    2. 啟動器上應該會出現一個圖示\n"
+"    3. 確認圖是有出現\n"
+"    4. 將該裝置退出\n"
+"    5. 重複對每個 USB 連接埠進行測試\n"
+"檢查：\n"
+"    剛裝置是否能在所有的 USB 連接埠上運作？"
 
 #. description
 #: ../jobs/user_apps.txt.in:6
@@ -7002,6 +7215,14 @@ msgid ""
 " Did Update manager find and install updates (Pass if no updates are found,\n"
 " but Fail if updates are found but not installed)"
 msgstr ""
+"目的：\n"
+" 本測試將會檢查更新管理員是否能找到更新檔\n"
+"步驟：\n"
+" 1. 按下「測試」來啟動更新管理員\n"
+" 2. 依照提示操作，如果有找到更新請進行安裝\n"
+" 3. 當安裝管理員完成工作後請將其關閉\n"
+"檢查：\n"
+" 安裝管理員有找到並安裝更新嗎？(如果沒有找到更新檔請選擇 Pass，若有找到更新但無法安裝請選擇 Fail)"
 
 #. description
 #: ../jobs/user_apps.txt.in:22
@@ -7017,6 +7238,15 @@ msgid ""
 "VERIFICATION:\n"
 " Do you now have a new folder called Test Folder?"
 msgstr ""
+"目的：\n"
+" 本測試將會檢查檔案瀏覽器能夠建立新資料夾\n"
+"步驟：\n"
+" 1. 按下「測試」來開啟檔案瀏覽器\n"
+" 2. 在選單列點擊「檔案」->「建立資料夾」\n"
+" 3. 在新資料夾的名稱欄中輸入「Test Folder」後按下 Enter 鍵\n"
+" 4. 關閉檔案瀏覽器\n"
+"檢查：\n"
+" 您是否有個名為 Test Folder 的新資料夾？"
 
 #. description
 #: ../jobs/user_apps.txt.in:37
@@ -7033,6 +7263,17 @@ msgid ""
 "VERIFICATION:\n"
 " Do you now have a folder called Test Data?"
 msgstr ""
+"目的：\n"
+" 本測試將會檢查檔案瀏覽器能夠複製新資料夾\n"
+"步驟：\n"
+" 1. 按下「測試」來開啟檔案瀏覽器\n"
+" 2. 在名為 Test Folder 的資料夾上按右鍵並點選「複製」\n"
+" 3. 在視窗中的任何一個空白區域按右鍵並點選「貼上」\n"
+" 4. 在名為 Test Folder(copy) 的資料夾上按右鍵並點選「重新命名」\n"
+" 5. 在名稱欄中輸入「Test Data」後按下 Enter 鍵\n"
+" 6. 關閉檔案瀏覽器\n"
+"檢查：\n"
+" 您是否有個名為 Test Data 的新資料夾？"
 
 #. description
 #: ../jobs/user_apps.txt.in:54
@@ -7130,7 +7371,7 @@ msgstr ""
 #. description
 #: ../jobs/user_apps.txt.in:211
 msgid "Common Document Types Test"
-msgstr ""
+msgstr "常見文件類型測試"
 
 #. description
 #: ../jobs/user_apps.txt.in:232
@@ -7380,44 +7621,44 @@ msgstr ""
 #. description
 #: ../jobs/virtualization.txt.in:11
 msgid "Test to check that a cloud image boots and works properly with KVM"
-msgstr ""
+msgstr "檢查雲端映像檔是否能開機並在 KVM 中正常運作"
 
 #. summary
 #: ../jobs/virtualization.txt.in:13
 msgid "Verify KVM VM boots"
-msgstr ""
+msgstr "檢查 KVM 虛擬機是否能開機"
 
 #. description
 #: ../jobs/virtualization.txt.in:22
 msgid "Test to verify that the Xen Hypervisor is running."
-msgstr ""
+msgstr "檢查 Xen Hypervisor 是否在運作中的測試。"
 
 #. summary
 #: ../jobs/virtualization.txt.in:24
 msgid "Verify Xen is running"
-msgstr ""
+msgstr "檢查 Xen 是否在運作中"
 
 #. description
 #: ../jobs/virtualization.txt.in:33
 msgid "Test to check that a Xen domU image can boot and run on Xen on Ubuntu"
-msgstr ""
+msgstr "檢查 Xen domU 映像檔可以開機並且能在 Ubuntu 上執行 Xen"
 
 #. summary
 #: ../jobs/virtualization.txt.in:35
 msgid "Verify Xen domU can boot"
-msgstr ""
+msgstr "檢查 Xen domU 是否可以開機"
 
 #. description
 #: ../jobs/wireless.txt.in:21
 msgid "Wireless scanning test. It scans and reports on discovered APs."
-msgstr ""
+msgstr "無線網路掃描測試，它將會進行掃描並回報找到的 AP"
 
 #. description
 #: ../jobs/wireless.txt.in:30
 msgid ""
 "This is an automated test to gather some info on the current state of your "
 "wireless devices. If no devices are found, the test will exit with an error."
-msgstr ""
+msgstr "本自動化的測試將會收集您無線網路裝置的資訊，若沒有到任何裝置，本測試將會回報錯誤。"
 
 #. description
 #: ../jobs/wireless.txt.in:38
@@ -7432,6 +7673,14 @@ msgid ""
 "VERIFICATION:\n"
 "    Did a notification show and was the connection correctly established?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的無線網路連線\n"
+"步驟：\n"
+"    1. 於上方狀態列點擊網路圖示\n"
+"    2. 選擇「無線網路」下的網路連線\n"
+"    3. 點擊「測試」來檢查是否能夠建立 HTTP 連線\n"
+"檢查：\n"
+"    是否有通知出現，而且連線是否有正確建立？"
 
 #. description
 #: ../jobs/wireless.txt.in:65
@@ -7496,6 +7745,16 @@ msgid ""
 "    Verification is automated, do not change the automatically selected "
 "result."
 msgstr ""
+"目的：\n"
+"    測試本系統的無線網路裝置是否能夠採用 802.11b/g 通訊協定以 WPA 加密之設定連上路由器。\n"
+"步驟：\n"
+"    1. 打開您的路由器設定工具\n"
+"    2. 將設定改為僅接受 B 與 G 無線通訊協定的連線\n"
+"    3. 確定 SSID 已設定為 ROUTER_SSID 環境變數中所設定的值\n"
+"    4. 將安全性設定為 WPA2 並確定密碼與先前設定的 ROUTER_PSK 環境變數相符\n"
+"    5. 按下「測試」按鈕來建立並測試到路由器的連線\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/wireless.txt.in:223
@@ -7516,6 +7775,16 @@ msgid ""
 "    Verification is automated, do not change the automatically selected "
 "result."
 msgstr ""
+"目的：\n"
+"    測試本系統的無線網路裝置是否能夠採用 802.11b/g 通訊協定以無加密之設定連上路由器。\n"
+"步驟：\n"
+"    1. 打開您的路由器設定工具\n"
+"    2. 將設定改為僅接受 B 與 G 無線通訊協定的連線\n"
+"    3. 確定 SSID 已設定為 ROUTER_SSID 環境變數中所設定的值\n"
+"    4. 將安全性設定為無安全保護之設定\n"
+"    5. 按下「測試」按鈕來建立並測試到路由器的連線\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/wireless.txt.in:254
@@ -7538,6 +7807,16 @@ msgid ""
 "    Verification is automated, do not change the automatically selected "
 "result."
 msgstr ""
+"目的：\n"
+"    測試本系統的無線網路裝置是否能夠採用 802.11n 通訊協定以 WPA 加密之設定連上路由器。\n"
+"步驟：\n"
+"    1. 打開您的路由器設定工具\n"
+"    2. 將設定改為僅接受 N 無線通訊協定的連線\n"
+"    3. 確定 SSID 已設定為 ROUTER_SSID 環境變數中所設定的值\n"
+"    4. 將安全性設定為 WPA2 並確定密碼與先前設定的 ROUTER_PSK 環境變數相符\n"
+"    5. 按下「測試」按鈕來建立並測試到路由器的連線\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/wireless.txt.in:285
@@ -7558,6 +7837,16 @@ msgid ""
 "    Verification is automated, do not change the automatically selected "
 "result."
 msgstr ""
+"目的：\n"
+"    測試本系統的無線網路裝置是否能夠採用 802.11n 通訊協定以無加密之設定連上路由器。\n"
+"步驟：\n"
+"    1. 打開您的路由器設定工具\n"
+"    2. 將設定改為僅接受 N 無線通訊協定的連線\n"
+"    3. 確定 SSID 已設定為 ROUTER_SSID 環境變數中所設定的值\n"
+"    4. 將安全性設定為無安全保護之設定\n"
+"    5. 按下「測試」按鈕來建立並測試到路由器的連線\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/wireless.txt.in:316
@@ -7580,6 +7869,16 @@ msgid ""
 "    Verification is automated, do not change the automatically selected "
 "result."
 msgstr ""
+"目的：\n"
+"    測試本系統的無線網路裝置是否能夠採用 802.11ac 通訊協定以 WPA 加密之設定連上路由器。\n"
+"步驟：\n"
+"    1. 打開您的路由器設定工具\n"
+"    2. 將設定改為僅接受 802.11ac 無線通訊協定的連線\n"
+"    3. 確定 SSID 已設定為 ROUTER_SSID 環境變數中所設定的值\n"
+"    4. 將安全性設定為 WPA2 並確定密碼與先前設定的 ROUTER_PSK 環境變數相符\n"
+"    5. 按下「測試」按鈕來建立並測試到路由器的連線\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/wireless.txt.in:347
@@ -7600,6 +7899,16 @@ msgid ""
 "    Verification is automated, do not change the automatically selected "
 "result."
 msgstr ""
+"目的：\n"
+"    測試本系統的無線網路裝置是否能夠採用 802.11ac 通訊協定以無加密之設定連上路由器。\n"
+"步驟：\n"
+"    1. 打開您的路由器設定工具\n"
+"    2. 將設定改為僅接受 802.11ac 無線通訊協定的連線\n"
+"    3. 確定 SSID 已設定為 ROUTER_SSID 環境變數中所設定的值\n"
+"    4. 將安全性設定為無安全保護之設定\n"
+"    5. 按下「測試」按鈕來建立並測試到路由器的連線\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/wireless.txt.in:377
@@ -7623,6 +7932,8 @@ msgid ""
 "only\n"
 " respond to requests on the 802.11a protocol."
 msgstr ""
+" 測試系統的無線裝置能夠採用 802.11a 通訊協定連上路由器。\n"
+" 這需要您事先將路由器設定為僅接受使用 802.11a 無線通訊協定的連線。"
 
 #. description
 #: ../jobs/wireless.txt.in:438
@@ -7632,13 +7943,15 @@ msgid ""
 "only\n"
 " respond to requests on the 802.11b protocol."
 msgstr ""
+" 測試系統的無線裝置能夠採用 802.11b 通訊協定連上路由器。\n"
+" 這需要您事先將路由器設定為僅接受使用 802.11b 無線通訊協定的連線。"
 
 #. description
 #: ../jobs/wireless.txt.in:448
 msgid ""
 "Automated test that tests performance of each wireless network device under "
 "stress."
-msgstr ""
+msgstr "本自動化測試將對所有無線網路裝置進行壓力測試。"
 
 #. description
 #: ../jobs/wireless.txt.in:477
@@ -7648,13 +7961,15 @@ msgid ""
 "only\n"
 " respond to requests on the 802.11g protocol."
 msgstr ""
+" 測試系統的無線裝置能夠採用 802.11g 通訊協定連上路由器。\n"
+" 這需要您事先將路由器設定為僅接受使用 802.11g 無線通訊協定的連線。"
 
 #. description
 #: ../jobs/wireless.txt.in:487
 msgid ""
 "Test that the MAC80211 modules are loaded and wireless extensions are "
 "working."
-msgstr ""
+msgstr "檢查是否已載入 MAC80211 模組且無線網路介面是否正常運作中。"
 
 #. description
 #: ../jobs/wireless.txt.in:512
@@ -7671,13 +7986,21 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the hard or soft blocks show on in the dialog?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的驅動程式是否對 rfkill 指令有反應\n"
+"步驟：\n"
+"    1. 用位在您裝置側邊的無線網路控制鍵來關閉無線網路功能\n"
+"    2. 如果您沒有無線網路控制鍵，請用上方狀態列的網路管理員圖示來停用無線網路\n"
+"    3. 按下「測試」檢查 hard 或 soft blocks 是否有出現\n"
+"檢查：\n"
+"    對話框中有出現 hard 或 soft blocks 嗎？"
 
 #. description
 #: ../jobs/wireless.txt.in:547
 msgid ""
 "This test executes a maximum throughput test against all the wireless "
 "devices found on the system."
-msgstr ""
+msgstr "本測試將在系統上偵測到的所有無線網路裝置上進行最大吞吐量測試。"
 
 #: ../bin/gateway_ping_test:56
 msgid "Reading default gateway information from /proc"
@@ -7693,11 +8016,11 @@ msgstr "無法於 /proc 中找到預設閘道資訊"
 
 #: ../bin/gateway_ping_test:86
 msgid "Reading default gateway information from route binary"
-msgstr ""
+msgstr "從 route 二進位執行檔中讀取預設閘道資訊"
 
 #: ../bin/gateway_ping_test:96
 msgid "Could not find default gateway by running route"
-msgstr ""
+msgstr "無法透過執行 route 來找到預設閘道資訊"
 
 #: ../bin/gateway_ping_test:152
 msgid "Desired ip address {0} is reachable, using it"
@@ -7705,15 +8028,15 @@ msgstr ""
 
 #: ../bin/gateway_ping_test:159
 msgid "Desired ip address {0} is not reachable from {1}, using {2} instead"
-msgstr ""
+msgstr "無法由 {1} 與目標 ip 位置 {0} 取得連線，改用 {2}"
 
 #: ../bin/gateway_ping_test:188
 msgid "ERROR: ping result: {0}"
-msgstr ""
+msgstr "ERROR: ping 結果：{0}"
 
 #: ../bin/gateway_ping_test:212
 msgid "host to ping"
-msgstr ""
+msgstr "欲 ping 的主機"
 
 #: ../bin/gateway_ping_test:215
 msgid "number of packets to send"
@@ -7721,11 +8044,11 @@ msgstr "欲傳送的封包數量"
 
 #: ../bin/gateway_ping_test:218
 msgid "timeout in seconds"
-msgstr ""
+msgstr "幾秒後逾時"
 
 #: ../bin/gateway_ping_test:221
 msgid "allowed packet loss percentage (default: %(default)s)"
-msgstr ""
+msgstr "允許的封包遺失率 (預設：%(default)s)"
 
 #: ../bin/gateway_ping_test:223
 msgid "be verbose"
@@ -7737,7 +8060,7 @@ msgstr "使用指定的介面來傳送封包"
 
 #: ../bin/gateway_ping_test:234
 msgid "ERROR: not enough time for {0} pings in {1} seconds"
-msgstr ""
+msgstr "ERROR: 無法在 {1} 秒內完成 {0} 次 ping"
 
 #: ../bin/gateway_ping_test:245
 msgid "Adjusting ping count to {0} to fit in {1}-second deadline"

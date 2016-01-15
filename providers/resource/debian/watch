@@ -1,0 +1,4 @@
+version=3
+opts=pgpsigurlmangle=s/$/.asc/ \
+    http://launchpad.net/plainbox-provider-resource/+download/ \
+    https://launchpad\.net/plainbox-provider-resource/.*/.*/\+download/plainbox-provider-resource-generic-(.*).tar.gz

@@ -1,0 +1,26 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_clean:
+	-python3 manage.py clean
+
+override_dh_auto_configure:
+	cd src && autoreconf -i
+
+override_dh_auto_build:
+	python3 manage.py build
+	python3 manage.py i18n --dont-update-pot --dont-merge-po
+
+override_dh_auto_test:
+	python3 manage.py validate 
+
+override_dh_auto_install:
+	python3 manage.py install \
+		--prefix=/usr --layout=unix \
+		--root=$(CURDIR)/debian/plainbox-provider-resource-generic/
+
+override_dh_gencontrol:
+	python3 manage.py packaging
+	dh_gencontrol

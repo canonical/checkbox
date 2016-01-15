@@ -179,19 +179,14 @@ plugin: resource
 command: for state in `cat /sys/power/state`; do echo "$state: supported"; done
 _description: Create resource info for supported sleep states
 
-plugin: local
-id: optical_drive
-estimated_duration: 0.39
-requires: device.category == 'CDROM'
-_description: Create resource info for supported optical actions
-command:
- cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=CDROM"'
- id: optical_drive_`ls /sys$path/block`
- plugin: resource
- command: optical_resource /dev/`ls /sys/$path/block`
- estimated_duration: 0.5
- _description: Create resource info for supported optical actions
- EOF
+unit: template
+template-resource: device
+template-filter: device.category == 'CDROM'
+id: optical_drive_{name}
+plugin: resource
+command: optical_resource /dev/{name}
+estimated_duration: 0.5
+_description: Create resource info for supported optical actions ({name})
 
 id: block_device
 estimated_duration: 0.08
@@ -320,3 +315,20 @@ _summary: Resources
 command:
   shopt -s extglob
   cat $PLAINBOX_PROVIDER_DATA/../jobs/resource.pxu
+
+id: fwts
+estimated_duration: 0.5
+plugin: resource
+requires: package.name == "fwts"
+_description: Generate an entry for each FWTS test available
+command:
+ for test in `fwts_test --list`; do echo "name: $test"; echo ""; done
+
+id: mir
+estimated_duration: 0.5
+plugin: resource
+requires: package.name == "mir-test-tools"
+_description: Generate an entry for each MIR integration tests
+command:
+ for test in `mir_integration_tests --gtest_list_tests | sed -n '/\.$/s/\.$//p'`; do echo "category: integration"; echo "name: $test"; echo ""; done
+ for test in `mir_acceptance_tests --gtest_list_tests | sed -n '/\.$/s/\.$//p'`; do echo "category: acceptance"; echo "name: $test"; echo ""; done

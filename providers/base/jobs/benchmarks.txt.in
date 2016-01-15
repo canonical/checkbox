@@ -1,38 +1,28 @@
-plugin: local
-_summary: Benchmark for each disk
-id: benchmarks/disk/hdparm-read
-requires: device.category == 'DISK'
-estimated_duration: 1.0
-_description: Raw read timing benchmark of each disk using hdparm.
-command:
- cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::benchmarks
- id: benchmarks/disk/hdparm-read_`ls /sys$path/block`
- estimated_duration: 15.0
- requires: device.path == "$path"
- user: root
- command: hdparm -t /dev/`ls /sys$path/block | sed 's|!|/|'` | sed -e :a -e '$!N;s/\n/ /;ta' | sed 's/.*= *//'
- description: This test runs hdparm timing of device reads as a benchmark for $path
- EOF
+unit: template
+template-resource: device
+template-filter: device.category == 'DISK'
+plugin: shell
+category_id: 2013.com.canonical.plainbox::benchmarks
+id: benchmarks/disk/hdparm-read_{name}
+estimated_duration: 15.0
+requires: device.path == '{path}'
+user: root
+command: hdparm -t /dev/{name}
+_summary: Raw read timing benchmark of {name} using hdparm
+_description: This test runs hdparm timing of device reads as a benchmark for {name}
 
-plugin: local
-_summary: Benchmark for each disk
-id: benchmarks/disk/hdparm-cache-read
-estimated_duration: 1.0
-requires: device.category == 'DISK'
-_description: Cached read timing benchmark of each disk using hdparm.
-command:
- cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::benchmarks
- id: benchmarks/disk/hdparm-cache-read_`ls /sys$path/block`
- estimated_duration: 10.0
- requires: device.path == "$path"
- user: root
- command: hdparm -T /dev/`ls /sys$path/block | sed 's|!|/|'` | sed -e :a -e '$!N;s/\n/ /;ta' | sed 's/.*= *//'
- description: This test runs hdparm timing of cache reads as a benchmark for $path
- EOF
+unit: template
+template-resource: device
+template-filter: device.category == 'DISK'
+plugin: shell
+category_id: 2013.com.canonical.plainbox::benchmarks
+id: benchmarks/disk/hdparm-cache-read_{name}
+estimated_duration: 10.0
+requires: device.path == '{path}'
+user: root
+command: hdparm -T /dev/{name}
+_summary: Cached read timing benchmark of {name} using hdparm.
+_description: This test runs hdparm timing of cache reads as a benchmark for {name}
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::benchmarks

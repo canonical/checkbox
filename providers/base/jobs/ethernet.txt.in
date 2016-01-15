@@ -43,7 +43,6 @@ _description:
      Did a notification show and was the connection correctly established?
 
 unit: template
-template-unit: job
 template-resource: device
 template-filter: device.category == 'NETWORK'
 plugin: shell
@@ -64,7 +63,6 @@ _description:
  minimum percentage of advertized speed.
 
 unit: template
-template-unit: job
 template-resource: device
 template-filter: device.category == 'NETWORK'
 plugin: shell
@@ -85,7 +83,6 @@ _description:
  minimum percentage of advertized speed.
 
 unit: template
-template-unit: job
 template-resource: device
 template-filter: device.category == 'NETWORK'
 plugin: shell
@@ -101,7 +98,6 @@ _description:
  This test executes ethtool requests against ethernet device {__index__} ({interface}).
 
 unit: template
-template-unit: job
 template-resource: device
 template-filter: device.category == 'NETWORK'
 plugin: user-interact-verify
@@ -127,7 +123,6 @@ _verification:
  Was the reported throughput acceptable for the type and maximum speed of this interface?
 
 unit: template
-template-unit: job
 template-resource: device
 template-filter: device.category == 'NETWORK'
 plugin: shell

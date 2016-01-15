@@ -588,7 +588,6 @@ _description:
   respond to requests on the 802.11b protocol.
 
 unit: template
-template-unit: job
 template-resource: device
 template-filter:
  device.category == 'WIRELESS'
@@ -645,7 +644,6 @@ _description:
  Test that the MAC80211 modules are loaded and wireless extensions are working.
 
 unit: template
-template-unit: job
 template-resource: device
 template-filter: device.category == 'WIRELESS'
 plugin: shell
@@ -674,7 +672,6 @@ _description:
      Did the hard or soft blocks show on in the dialog?
 
 unit: template
-template-unit: job
 template-resource: device
 template-filter: device.category == 'WIRELESS'
 plugin: user-interact-verify

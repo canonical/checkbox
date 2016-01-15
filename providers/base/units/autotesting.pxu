@@ -40,7 +40,6 @@ include:
     cpu/scaling_test-log-attach
     cpu/offlining_test
     cpu/topology
-    disk/read_performance
     disk/read_performance_.*
     graphics/xorg-version
     graphics/1_compiz_check_.*
@@ -103,11 +102,5 @@ include:
     suspend/screenshot_after_suspend
     screenshot_after_suspend.jpg
 bootstrap_include:
-    disk/read_performance
-    graphics/generator_compiz_check
-    graphics/generator_screenshot
-    graphics/generator_screenshot.jpg
-    graphics/generator_screenshot_fullscreen_video
-    graphics/generator_screenshot_fullscreen_video.jpg
-    graphics/generator_screenshot_fullscreen_video
-    graphics/generator_screenshot_fullscreen_video.jpg
+    device
+    graphics_card

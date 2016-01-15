@@ -36,105 +36,87 @@ _description:
  VERIFICATION:
      Did you hear a tone?
 
-id: audio/generator_playback_hdmi
+unit: template
+template-resource: graphics_card
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::audio
+id: audio/{index}_playback_hdmi_{product_slug}
+estimated_duration: 30.0
 requires:
+ display.hdmi == 'supported'
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
-_description: HDMI audio test
-_summary: HDMI audio test
-plugin: local
 command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- id: audio/`echo ${index}`_playback_hdmi_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- requires: display.hdmi == 'supported'
- plugin: user-interact-verify
- category_id: 2013.com.canonical.plainbox::audio
- estimated_duration: 30.0
- command:
-  audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
-  audio_settings set --verbose --device=hdmi --volume=50
-  gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
-  EXIT_CODE=$?
-  audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
-  exit $EXIT_CODE
- _description:
-  PURPOSE:
-      HDMI audio interface verification
-  STEPS:
-      1. Plug an external HDMI device with sound (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
-      2. Commence the test
-  VERIFICATION:
-      Did you hear the sound from the HDMI device?
- EOF
+ audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings set --verbose --device=hdmi --volume=50
+ gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ EXIT_CODE=$?
+ audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ exit $EXIT_CODE
+_purpose:
+    HDMI audio interface verification
+_steps:
+    1. Plug an external HDMI device with sound (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    2. Commence the test
+_verification:
+    Did you hear the sound from the HDMI device?
 
-id: audio/generator_playback_displayport
+unit: template
+template-resource: graphics_card
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::audio
+id: audio/{index}_playback_displayport_{product_slug}
+estimated_duration: 30.0
 requires:
+ display.dp == 'supported'
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
-_description: DisplayPort audio test
-_summary: DisplayPort audio test
-plugin: local
 command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- id: audio/`echo ${index}`_playback_displayport_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- requires: display.dp == 'supported'
- plugin: user-interact-verify
- category_id: 2013.com.canonical.plainbox::audio
- estimated_duration: 30.0
- command:
-  audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
-  audio_settings set --verbose --device=hdmi --volume=50
-  gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
-  EXIT_CODE=$?
-  audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
-  exit $EXIT_CODE
- _description:
-  PURPOSE:
-      DisplayPort audio interface verification
-  STEPS:
-      1. Plug an external DisplayPort device with sound (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
-      2. Commence the test
-  VERIFICATION:
-      Did you hear the sound from the DisplayPort device?
- EOF
+ audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings set --verbose --device=hdmi --volume=50
+ gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ EXIT_CODE=$?
+ audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ exit $EXIT_CODE
+_purpose:
+    DisplayPort audio interface verification
+_steps:
+    1. Plug an external DisplayPort device with sound (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    2. Commence the test
+_verification:
+    Did you hear the sound from the DisplayPort device?
 
-id: audio/generator_playback_thunderbolt
+unit: template
+template-resource: graphics_card
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::audio
+id: audio/{index}_playback_thunderbolt_{product_slug}
+imports: from 2013.com.canonical.plainbox import manifest
+estimated_duration: 30.0
 requires:
+ manifest.has_thunderbolt == 'True'
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
-_description: Thunderbolt audio test
-_summary: Thunderbolt audio test
-plugin: local
 command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- id: audio/`echo ${index}`_playback_thunderbolt_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- imports: from 2013.com.canonical.plainbox import manifest
- requires: manifest.has_thunderbolt == 'True'
- plugin: user-interact-verify
- category_id: 2013.com.canonical.plainbox::audio
- estimated_duration: 5.0
- command:
-  audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
-  audio_settings set --verbose --device=hdmi --volume=50
-  gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
-  EXIT_CODE=$?
-  audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
-  exit $EXIT_CODE
- _description:
-  PURPOSE:
-      Thunderbolt audio interface verification
-  STEPS:
-      1. Plug an external Thunderbolt device with sound (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
-      2. Commence the test
-  VERIFICATION:
-      Did you hear the sound from the Thunderbolt device?
- EOF
+ audio_settings store --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ audio_settings set --verbose --device=hdmi --volume=50
+ gst_pipeline_test -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+ EXIT_CODE=$?
+ audio_settings restore --verbose --file=$PLAINBOX_SESSION_SHARE/pulseaudio_settings
+ exit $EXIT_CODE
+_purpose:
+    Thunderbolt audio interface verification
+_steps:
+    1. Plug an external Thunderbolt device with sound (Use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    2. Commence the test
+_verification:
+    Did you hear the sound from the Thunderbolt device?
 
 plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::audio

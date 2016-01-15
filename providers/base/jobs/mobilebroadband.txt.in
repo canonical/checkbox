@@ -58,7 +58,6 @@ command:
 _description: Creates a mobile broadband connection for a CDMA based modem and checks the connection to ensure it's working.
 
 unit: template
-template-unit: job
 template-resource: device
 template-filter: device.category == 'NETWORK'
 plugin: user-interact-verify
@@ -84,7 +83,6 @@ _verification:
  Was the reported throughput acceptable for the type and maximum speed of this interface?
 
 unit: template
-template-unit: job
 template-resource: device
 template-filter: device.category == 'NETWORK'
 plugin: user-interact-verify

@@ -1,16 +1,10 @@
-plugin: local
-_summary: Floppy test
-id: floppy/check
-requires: device.driver == 'floppy'
-_description: Floppy test
-command:
- cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "driver=floppy"'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::floppy
- id: floppy/check_`ls /sys$path/driver/*/*/*/block`
- requires: device.path == "$path"
- description: Floppy test for $product
- user: root
- command: floppy_test /dev/`ls /sys$path/driver/*/*/*/block`
- EOF
-
+unit: template
+template-resource: device
+template-filter: device.driver == 'floppy'
+plugin: shell
+category_id: 2013.com.canonical.plainbox::floppy
+id: floppy/check_{name}
+requires: device.path == '{path}'
+_description: Floppy test for {product}
+user: root
+command: floppy_test /dev/{name}

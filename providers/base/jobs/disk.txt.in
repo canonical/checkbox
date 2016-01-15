@@ -13,7 +13,6 @@ _description:
  Displays information about each disk detected on the system under test.
 
 unit: template
-template-unit: job
 template-imports: from 2013.com.canonical.certification import device
 template-resource: device
 template-filter: device.category == 'DISK' and device.name != ''
@@ -36,95 +35,64 @@ _description:
      sysfs path: {path}
      device node path: /dev/{name}
 
-plugin: local
-_summary: Check stats changes for each disk
+unit: template
+template-resource: device
+template-filter: device.category == 'DISK'
+plugin: shell
+category_id: 2013.com.canonical.plainbox::disk
+id: disk/stats_{name}
 flags: deprecated
-id: disk/stats
-requires: device.category == 'DISK'
-_description: 
- This test generates some disk activity and checks the stats to ensure drive
- activity is being recorded properly.
-command:
- cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::disk
- id: disk/stats_`ls /sys$path/block`
- flags: deprecated
- requires:
-  device.path == "$path"
-  block_device.`ls /sys$path/block`_state != 'removable'
- user: root
- command: disk_stats_test `ls /sys$path/block | sed 's|!|/|'`
- description: This test checks disk stats, generates some activity and rechecks stats to verify they've changed. It also verifies that disks appear in the various files they're supposed to.
- EOF
+requires:
+ device.path == "{path}"
+ block_device.{name}_state != 'removable'
+user: root
+command: disk_stats_test {name}
+_description: This test checks {name} disk stats, generates some activity and rechecks stats to verify they've changed. It also verifies that disks appear in the various files they're supposed to.
 
-plugin: local
-_summary: SMART test
-id: disk/smart
-estimated_duration: 0.30
+unit: template
+template-resource: device
+template-filter: device.category == 'DISK'
+plugin: shell
+category_id: 2013.com.canonical.plainbox::disk
+id: disk/smart_{name}
+estimated_duration: 180.0
 requires:
  package.name == 'smartmontools'
- device.category == 'DISK'
-_description: 
- This tests the SMART capabilities of disks detected on the system.
-command:
- cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::disk
- id: disk/smart_`ls /sys$path/block`
- requires:
-  device.path == "$path"
-  block_device.`ls /sys$path/block`_state != 'removable'
-  block_device.`ls /sys$path/block`_smart == 'True'
- description:
-  This tests the SMART capabilities for $product (Note that this test will not work against hardware RAID)
- user: root
- command: disk_smart -b /dev/`ls /sys$path/block | sed 's|!|/|'` -s 130 -t 530
- EOF
+ device.path == "{path}"
+ block_device.{name}_state != 'removable'
+ block_device.{name}_smart != 'True'
+_description:
+ This tests the SMART capabilities for {product} (Note that this test will not work against hardware RAID)
+user: root
+command: disk_smart -b /dev/{name} -s 130 -t 530
 
-plugin: local
-_summary: Verify system storage performs at or above baseline performance
-id: disk/read_performance
-estimated_duration: 0.30
+unit: template
+template-resource: device
+template-filter: device.category == 'DISK'
+plugin: shell
+category_id: 2013.com.canonical.plainbox::disk
+id: disk/read_performance_{name}
+estimated_duration: 65.0
 requires:
- device.category == 'DISK'
-_description: Verify system storage performs at or above a baseline speed.
-command:
- cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::disk
- id: disk/read_performance_`ls /sys$path/block`
- estimated_duration: 65.0
- requires:
-  device.path == "$path"
-  block_device.`ls /sys$path/block`_state != 'removable'
- description: Disk performance test for $product
- user: root
- command: disk_read_performance_test `ls /sys$path/block | sed 's|!|/|'`
- EOF
+ device.path == "{path}"
+ block_device.{name}_state != 'removable'
+description: Disk performance test for {product}
+user: root
+command: disk_read_performance_test {name}
 
-plugin: local
-_summary: Verify that storage devices, such as Fibre Channel and RAID, perform under stress.
-id: disk/storage_devices
-estimated_duration: 1.0
+unit: template
+template-resource: device
+template-filter: device.category == 'DISK'
+plugin: shell
+category_id: 2013.com.canonical.plainbox::disk
+id: disk/storage_device_{name}
+estimated_duration: 375.0
+user: root
 requires:
- device.category == 'DISK'
-_description: 
- Verify that storage devices, such as Fibre Channel and RAID, perform under
- stress without data loss or corruption.
-command:
- cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::disk
- id: disk/storage_device_`ls /sys$path/block`
- estimated_duration: 375.0
- user: root
- requires:
-  device.path == "$path"
-  block_device.`ls /sys$path/block`_state != 'removable'
- description: Disk I/O stress test for $product
- command: storage_test `ls /sys$path/block | sed 's|!|/|'`
- EOF
+ device.path == "{path}"
+ block_device.{name}_state != 'removable'
+_description: Disk I/O stress test for {product}
+command: storage_test {name}
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::disk

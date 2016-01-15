@@ -7,7 +7,6 @@ estimated_duration: 2.000
 _description: Tests whether the system has a working Internet connection.
 
 unit: template
-template-unit: job
 template-resource: device
 template-filter: device.category == 'NETWORK'
 plugin: user-interact-verify

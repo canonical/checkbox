@@ -214,26 +214,19 @@ command:
  process_wait -u root bootchart collector ureadahead; \
  [ `ls /var/log/bootchart/*.tgz 2>/dev/null | wc -l` -lt 2 ] && reboot && sleep 100
 
-plugin: local
-_summary: SATA/IDE device information.
-id: info/hdparm
+unit: template
+template-resource: device
+template-filter: device.category == 'DISK'
+plugin: attachment
+category_id: 2013.com.canonical.plainbox::info
+id: info/hdparm_{name}.txt
 estimated_duration: 1.0
-_description: Attaches SATA/IDE device information reported by hdparm.
 requires:
  package.name == 'hdparm'
- device.category == 'DISK'
-command:
- cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
- plugin: attachment
- category_id: 2013.com.canonical.plainbox::info
- id: info/hdparm_`ls /sys$path/block`.txt
- estimated_duration: 1.0
- requires:
-  device.path == "$path"
-  block_device.`ls /sys$path/block`_state != 'removable'
- user: root
- command: hdparm -I /dev/`ls /sys$path/block`
- EOF
+ device.path == '{path}'
+ block_device.{name}_state != 'removable'
+user: root
+command: hdparm -I /dev/{name}
 
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::info

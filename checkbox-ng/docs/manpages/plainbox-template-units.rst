@@ -107,8 +107,16 @@ some additional computation. For example many storage tests compute the path
 name of some ``sysfs`` file. This has to be converted to a readily-available
 path that is provided by the resource job.
 
+Another thing to remember is that Plainbox templates use Python syntax for
+their fields. That means that some characters have to be escaped. For instance,
+``${PLAINBOX_SESSION_SHARE}/test-file`` has to be escaped to
+``${{PLAINBOX_SESSION_SHARE}}/test-file``.
+
 Examples
 ========
+
+Basic example
+-------------
 
 The following example contains a simplified template that instantiates to a
 simple storage test. The test is only instantiated for devices that are
@@ -146,3 +154,49 @@ there was no inserted media at the time::
    id: test-storage-{path}
    plugin: shell
    command: perform-testing-on --device {path}
+
+Real life example
+-----------------
+
+Here is a real life example from a provider. We have the following local job
+that generates a job for each hard drive available on the system::
+
+   plugin: local
+   _summary: Check stats changes for each disk
+   id: disk/stats
+   requires: device.category == 'DISK'
+   _description: 
+    This test generates some disk activity and checks the stats to ensure drive
+    activity is being recorded properly.
+   command:
+    cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
+    plugin: shell
+    category_id: 2013.com.canonical.plainbox::disk
+    id: disk/stats_`ls /sys$path/block`
+    flags: deprecated
+    requires:
+     device.path == "$path"
+     block_device.`ls /sys$path/block`_state != 'removable'
+    user: root
+    command: disk_stats_test `ls /sys$path/block | sed 's|!|/|'`
+    description: This test checks disk stats, generates some activity and rechecks stats to verify they've changed. It also verifies that disks appear in the various files they're supposed to.
+    EOF
+
+After migration to a template unit job, it looks like this::
+
+   unit: template
+   template-resource: device
+   template-filter: device.category == 'DISK'
+   plugin: shell
+   category_id: 2013.com.canonical.plainbox::disk
+   id: disk/stats_{name}
+   requires:
+    device.path == "{path}"
+    block_device.{name}_state != 'removable'
+   user: root
+   command: disk_stats_test {name}
+   _description: This test checks {name} disk stats, generates some activity and rechecks stats to verify they've changed. It also verifies that disks appear in the various files they're supposed to.
+
+The ``template-resource`` used here (``device``) refers to a resource job using the ``udev_resource`` script to get information about the system. The ``udev_resource`` script returns a list of items with attributes such as ``path`` and ``name``, so we can use these directly in our template.
+
+We end up with a shorter (from 19 lines to 11!) and more readable template.

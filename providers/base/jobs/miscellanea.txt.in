@@ -97,14 +97,8 @@ requires:
  cpuinfo.platform in ("i386", "x86_64", "aarch64")
 _summary: EFI-mode boot test
 _description: 
- Test to verify that the system booted in EFI mode rather than Legacy/BIOS mode.
-command:
-  if [ -d "/sys/firmware/efi" ] ; then
-    echo "System booted in EFI mode"
-  else
-    echo "System did NOT boot in EFI mode"
-    exit 1
-  fi
+ Test to verify that the system booted in EFI mode with Secure Boot active.
+command: boot_mode_test
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::miscellanea

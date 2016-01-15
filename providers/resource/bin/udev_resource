@@ -2,7 +2,7 @@
 #
 # This file is part of Checkbox.
 #
-# Copyright 2011 Canonical Ltd.
+# Copyright 2011-2016 Canonical Ltd.
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -29,7 +29,7 @@ class UdevResult:
 
     attributes = ("path", "name", "bus", "category", "driver", "product_id",
                   "vendor_id", "subproduct_id", "subvendor_id", "product",
-                  "vendor", "interface",)
+                  "vendor", "interface", "product_slug", "vendor_slug")
 
     def addDevice(self, device):
         for attribute in self.attributes:

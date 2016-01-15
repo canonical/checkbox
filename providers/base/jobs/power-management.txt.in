@@ -195,7 +195,7 @@ id: power-management/battery_drain_idle
 estimated_duration: 90.0
 requires: package.name == 'upower'
 depends: power-management/unplug_ac
-_description: Checks the battery drain during idle. Reports time and capacity until empty and capacity.
+_description: Checks the battery drain during idle. Reports time and capacity until empty.
 command:
  battery_test -t 90 --idle
 

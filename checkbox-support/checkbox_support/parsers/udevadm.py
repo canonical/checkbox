@@ -1,7 +1,7 @@
 #
 # This file is part of Checkbox.
 #
-# Copyright 2011-2013 Canonical Ltd.
+# Copyright 2011-2016 Canonical Ltd.
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -87,6 +87,12 @@ FLASH_RE = re.compile(r"Flash", re.I)
 FLASH_DISK_RE = re.compile(r"Mass|Storage|Disk", re.I)
 
 
+def slugify(_string):
+    """Transform any string to one that can be used in job IDs."""
+    valid_chars = frozenset(
+        "-_.{}{}".format(string.ascii_letters, string.digits))
+    return ''.join(c if c in valid_chars else '_' for c in _string)
+
 class UdevadmDevice(object):
     __slots__ = (
         "_environment",
@@ -97,8 +103,10 @@ class UdevadmDevice(object):
         "_interface",
         "_product",
         "_product_id",
+        "_product_slug",
         "_vendor",
-        "_vendor_id",)
+        "_vendor_id",
+        "_vendor_slug",)
 
     def __init__(self, environment, name, bits=None, stack=[]):
         self._environment = environment
@@ -109,8 +117,10 @@ class UdevadmDevice(object):
         self._interface = None
         self._product = None
         self._product_id = None
+        self._product_slug = None
         self._vendor = None
         self._vendor_id = None
+        self._vendor_slug = None
 
     def __repr__(self):
         vid = int(self.vendor_id) if self.vendor_id else 0
@@ -514,6 +524,26 @@ class UdevadmDevice(object):
         return None
 
     @property
+    def product_slug(self):
+        """Returns a version of the product name trimmed from any weird characters."""
+        if self._product_slug is not None:
+            return self._product_slug
+        if self.product is not None:
+            return slugify(self.product)
+
+        return None        
+
+    @property
+    def vendor_slug(self):
+        """Returns a version of the vendor name trimmed from any weird characters."""
+        if self._vendor_slug is not None:
+            return self._vendor_slug
+        if self.vendor is not None:
+            return slugify(self.vendor)
+
+        return None        
+
+    @property
     def product(self):
         if self._product is not None:
             return self._product
@@ -649,7 +679,7 @@ class UdevadmDevice(object):
     def as_json(self):
         attributes = ("path", "bus", "category", "driver", "product_id",
                       "vendor_id", "subproduct_id", "subvendor_id", "product",
-                      "vendor", "interface", "name")
+                      "vendor", "interface", "name", "product_slug", "vendor_slug")
 
         return {a: getattr(self, a) for a in attributes if getattr(self, a)}
 

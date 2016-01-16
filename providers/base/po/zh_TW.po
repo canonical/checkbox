@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2016-01-14 14:48+0800\n"
-"PO-Revision-Date: 2016-01-15 03:37+0000\n"
+"POT-Creation-Date: 2016-01-15 14:43+0800\n"
+"PO-Revision-Date: 2016-01-15 11:20+0000\n"
 "Last-Translator: Po-Hsu Lin <po-hsu.lin@canonical.com>\n"
 "Language-Team: Chinese (Traditional) <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-01-15 05:08+0000\n"
+"X-Launchpad-Export-Date: 2016-01-16 05:08+0000\n"
 "X-Generator: Launchpad (build 17886)\n"
 
 #. description
@@ -116,7 +116,7 @@ msgid ""
 "    Did you hear your speech played back?"
 msgstr ""
 "目的：\n"
-"    這個測試將會檢查外接的麥克風是否正常運作 (將用外接的麥克風錄下一段聲音)\n"
+"    這個測試將會檢查外接的麥克風是否可以正常錄音\n"
 "步驟：\n"
 "    1. 將外接的麥克風連接到電腦\n"
 "    2. 點擊「測試」按鈕，然後對著外接的麥克風講一段話\n"
@@ -249,7 +249,7 @@ msgid ""
 msgstr ""
 "目的：\n"
 "    檢查系統能否正確偵測到外接喇叭或耳機的連接\n"
-"STEPS:\n"
+"步驟：\n"
 "    1. 準備一組帶有 3.5mm 標準接頭的耳機或喇叭\n"
 "    2. 找到電腦上供外接喇叭 / 耳機接頭用的連接埠\n"
 "    3. 執行測試 (您會有 30 秒的時間來執行以下操作)\n"
@@ -277,7 +277,7 @@ msgid ""
 msgstr ""
 "目的：\n"
 "    檢查系統能否正確偵測到外接麥克風的連接\n"
-"STEPS:\n"
+"步驟：\n"
 "    1. 準備一組帶有 3.5mm 標準接頭的麥克風\n"
 "    2. 找到電腦上供外接麥克風接頭用的連接埠\n"
 "       外接麥克風有可能會跟外接耳機共用同一個連接埠\n"
@@ -395,7 +395,7 @@ msgstr "在暫停30次後紀錄混音器設定"
 #. description
 #: ../jobs/benchmarks.txt.in:6
 msgid "Raw read timing benchmark of each disk using hdparm."
-msgstr ""
+msgstr "採用 hdparm 對每個磁碟進行數據讀取計時效能測試。"
 
 #. summary
 #: ../jobs/benchmarks.txt.in:20
@@ -405,7 +405,7 @@ msgstr "針對各個磁碟進行效能測試"
 #. description
 #: ../jobs/benchmarks.txt.in:24
 msgid "Cached read timing benchmark of each disk using hdparm."
-msgstr ""
+msgstr "採用 hdparm 對每個磁碟進行快取讀取計時效能測試。"
 
 #. description
 #: ../jobs/benchmarks.txt.in:44
@@ -892,7 +892,7 @@ msgstr "本測試將會比對 proc 與 sysfs 下的 CPU 的資訊以確認其正
 #. description
 #: ../jobs/cpu.txt.in:74
 msgid "This test checks that CPU frequency governors are obeyed when set."
-msgstr ""
+msgstr "本測試會檢查當有設定 CPU 頻率控制器時，其設定值是否有被遵循。"
 
 #. description
 #: ../jobs/cpu.txt.in:83
@@ -968,7 +968,7 @@ msgstr "當套件安裝後，測試 winbindd 系統服務是否已在執行中�
 #: ../jobs/disk.txt.in:12
 msgid ""
 "Displays information about each disk detected on the system under test."
-msgstr ""
+msgstr "顯示待測系統上所偵測到的每個硬碟的資訊。"
 
 #. summary
 #: ../jobs/disk.txt.in:27
@@ -1222,7 +1222,7 @@ msgid ""
 "1. Click \"Test\". 2. Read the network test summary and confirm that the "
 "throughput is acceptable. 3. If needed, click \"Test\" again to repeat the "
 "transfer test."
-msgstr ""
+msgstr "1. 按下「測試」。 2. 檢查網路測試摘要，並確認吞吐量的值可以接受。3. 若有需要，請再次按下「測試」來重複傳輸測試。"
 
 #. verification
 #: ../jobs/ethernet.txt.in:126 ../jobs/mobilebroadband.txt.in:109
@@ -1388,24 +1388,24 @@ msgstr "採用 Firmware Test Suite 對韌體進行自動化測試。"
 #: ../jobs/firmware.txt.in:45
 msgid ""
 "Run Firmware Test Suite (fwts) QA-concerned desktop-specific diagnosis tests."
-msgstr ""
+msgstr "執行 Firmware Test Suite (fwts) 中針對桌面系統與 QA 相關的診斷測試。"
 
 #. summary
 #: ../jobs/firmware.txt.in:47
 msgid "Run FWTS QA-concerned desktop-specific diagnosis tests."
-msgstr ""
+msgstr "執行 FWTS 中針對桌面系統與 QA 相關的診斷測試。"
 
 #. description
 #: ../jobs/firmware.txt.in:58
 msgid ""
 "Run Firmware Test Suite (fwts) HWE-concerned desktop-specific diagnosis "
 "tests."
-msgstr ""
+msgstr "執行 Firmware Test Suite (fwts) 中針對桌面系統與 HWE 相關的診斷測試。"
 
 #. summary
 #: ../jobs/firmware.txt.in:60
 msgid "Run FWTS HWE-concerned desktop-specific diagnosis tests."
-msgstr ""
+msgstr "執行 FWTS 中針對桌面系統與 HWE 相關的診斷測試。"
 
 #. summary
 #: ../jobs/firmware.txt.in:72
@@ -1433,7 +1433,7 @@ msgstr "在 ACPI [DS]SDT 表格中沒有 _REV 介面"
 msgid ""
 "This Automated test checks misuse of the _REV interface in ACPI DSDT and "
 "SSDT tables"
-msgstr ""
+msgstr "本自動測試將會檢查 _REV 介面在 ACPI DSDT 與 SSDT 表格中的誤用"
 
 #. description
 #: ../jobs/floppy.txt.in:5
@@ -1513,7 +1513,7 @@ msgstr "圖形介面卡記憶體測試"
 #. summary
 #: ../jobs/graphics.txt.in:240
 msgid "Display video test"
-msgstr ""
+msgstr "影片播放測試"
 
 #. description
 #: ../jobs/graphics.txt.in:266
@@ -1784,7 +1784,7 @@ msgstr "附加偵測到的 USB 裝置列表"
 #. description
 #: ../jobs/info.txt.in:108
 msgid "Attaches info on system memory as seen in /proc/meminfo."
-msgstr ""
+msgstr "將自 /proc/meminfo 中所取得的系統記憶體資訊附加至測試報告中。"
 
 #. description
 #: ../jobs/info.txt.in:115
@@ -1804,7 +1804,7 @@ msgstr "附加 modinfo 資訊"
 #. description
 #: ../jobs/info.txt.in:130
 msgid "Attaches modinfo information for all currently loaded modules"
-msgstr ""
+msgstr "將目前所有載入的模組的 modinfo 資訊附加至測試報告中"
 
 #. description
 #: ../jobs/info.txt.in:138
@@ -1834,7 +1834,7 @@ msgstr "將 sysfs 屬性報告附加至測試報告中。"
 #. summary
 #: ../jobs/info.txt.in:160
 msgid "Attach detailed sysfs property output from udev"
-msgstr ""
+msgstr "將由 udev 取得的詳細 sysfs 屬性資料附加至測試報告中"
 
 #. description
 #: ../jobs/info.txt.in:167
@@ -1870,7 +1870,7 @@ msgstr "將目前執行中的內核模組列表附加至測試報告中"
 #. summary
 #: ../jobs/info.txt.in:198
 msgid "Attaches json dumps of installed dkms package information."
-msgstr ""
+msgstr "將已安裝的 dkms 套件資訊以 json 格式輸出並附加至測試報告中"
 
 #. description
 #: ../jobs/info.txt.in:205
@@ -1996,7 +1996,7 @@ msgstr ""
 msgid ""
 "Attaches the debug log from the virtualization/kvm_check_vm test to the "
 "results submission."
-msgstr ""
+msgstr "將 virtualization/kvm_check_vm 測試的除錯紀錄附加至測試報告中。"
 
 #. description
 #: ../jobs/info.txt.in:399
@@ -2935,7 +2935,7 @@ msgstr "螢幕測試"
 #. description
 #: ../jobs/local.txt.in:199
 msgid "Non-device specific networking tests"
-msgstr ""
+msgstr "非與特定裝置相關的網路測試"
 
 #. description
 #: ../jobs/local.txt.in:206
@@ -3836,6 +3836,9 @@ msgid ""
 "using the NIC {interface} 3. Select No if you attempted to PXE boot via "
 "{interface} and it failed for some reason."
 msgstr ""
+"1. 若您在本系統上成功透過 {interface} 網路介面卡用 PXE 開機請選擇「Yes」2. 若您並沒有在在本系統上嘗試透過 "
+"{interface} 網路介面卡用 PXE 開機請選擇「No」3. 若您嘗試透過 {interface} 網路介面卡用 PXE "
+"開機但因為某些原因失敗，請選擇「No」"
 
 #. summary
 #: ../jobs/miscellanea.txt.in:206
@@ -4100,7 +4103,7 @@ msgstr "自動化的光碟讀取測試。"
 msgid ""
 "Automated test to read a data CD/DVD and ensure the optical drive works "
 "properly."
-msgstr ""
+msgstr "讀取 CD/DVD 資料碟以確保光碟機正常運作的自動化測試。"
 
 #. description
 #: ../jobs/optical.txt.in:66
@@ -4219,6 +4222,17 @@ msgid ""
 "   Is your system clock displaying the correct date and time for your "
 "timezone?"
 msgstr ""
+"目的：\n"
+"   本測試將會檢查桌面時鐘是否有與系統時鐘同步\n"
+"步驟：\n"
+"   1. 進行測試來將桌面時鐘快轉一小時\n"
+"   註：這可能需要一分鐘以上來讓時鐘更新\n"
+"   2. 在時鐘上按右鍵，並選擇「時間與日期設定」\n"
+"   3. 確定您的時鐘是處於手動設定模式\n"
+"   4. 將時間往回調整一小時\n"
+"   5. 關閉視窗並重新開機\n"
+"檢查：\n"
+"   您的系統時鐘有正確顯示您目前時區的日期與時間嗎？"
 
 #. description
 #: ../jobs/panel_reboot.txt.in:3
@@ -4495,23 +4509,22 @@ msgstr ""
 #. description
 #: ../jobs/power-management.txt.in:198
 msgid ""
-"Checks the battery drain during idle. Reports time and capacity until empty "
-"and capacity."
-msgstr ""
+"Checks the battery drain during idle. Reports time and capacity until empty."
+msgstr "檢查閒置時的電池消耗情形。持續回報時間與存量直到電力耗盡。"
 
 #. description
 #: ../jobs/power-management.txt.in:209
 msgid ""
 "Checks the battery drain while watching a movie. Reports time and capacity "
 "until empty. Requires MOVIE_VAR to be set."
-msgstr ""
+msgstr "檢查觀看影片時的電池消耗情形。持續回報時間與存量直到電力耗盡。需要事先設定 MOVIE_VAR 變數。"
 
 #. description
 #: ../jobs/power-management.txt.in:222
 msgid ""
 "Checks the battery drain during suspend. Reports time and capacity until "
 "empty."
-msgstr ""
+msgstr "檢查暫停時的電池消耗情形。持續回報時間與存量直到電力耗盡。"
 
 #. description
 #: ../jobs/power-management.txt.in:231
@@ -4674,6 +4687,13 @@ msgid ""
 "    Check that in the report the result is passed and the comment is "
 "displayed"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查手動測試項目運作正常\n"
+"步驟：\n"
+"    1. 新增備註\n"
+"    2. 將結果設定為測試成功\n"
+"檢查：\n"
+"    確定在測試報告中此項測試成功並且能看到新增的備註"
 
 #. description
 #: ../jobs/stress.txt.in:9
@@ -4709,7 +4729,7 @@ msgstr "若 30 次休眠 / 喚醒循環的測試紀錄存在，則將其附加�
 msgid ""
 "This is an automated stress test that will run a sequence of '30 "
 "suspend/resume cycles and one reboot' 3 times."
-msgstr ""
+msgstr "本自動化測試將會進行三回「30 次暫停 / 恢復循環並重新開機一次」之壓力測試。"
 
 #. description
 #: ../jobs/stress.txt.in:83
@@ -4725,14 +4745,14 @@ msgstr ""
 #: ../jobs/stress.txt.in:93
 msgid ""
 "Automated check of the 30 cycle suspend log for errors detected by fwts."
-msgstr ""
+msgstr "自動檢查 30 次暫停紀錄中由 fwts 所偵測到的錯誤。"
 
 #. description
 #: ../jobs/stress.txt.in:102
 msgid ""
 "Automated check of the '30 cycle suspend and 1 reboot times 3' logs for "
 "errors detected by fwts."
-msgstr ""
+msgstr "自動檢查三回「30 次暫停 / 恢復循環並重新開機一次」紀錄中由 fwts 所偵測到的錯誤。"
 
 #. description
 #: ../jobs/stress.txt.in:111
@@ -4933,7 +4953,7 @@ msgstr "本測試將會先切斷所有網路連線後再連到無線網路，然
 msgid ""
 "This test executes iperf connection performance/stability against device "
 "{__index__} ({interface}) before suspend."
-msgstr ""
+msgstr "本測試將會在暫停前對 {__index__} ({interface}) 裝置執行 iperf 連線表現 / 穩定度測試。"
 
 #. description
 #: ../jobs/suspend.txt.in:128
@@ -4986,7 +5006,7 @@ msgstr "本測試為 suspend/suspend_advanced 的全自動版本。"
 #. summary
 #: ../jobs/suspend.txt.in:299
 msgid "Hybrid sleep test"
-msgstr ""
+msgstr "混合式睡眠測試"
 
 #. description
 #: ../jobs/suspend.txt.in:327
@@ -4997,22 +5017,22 @@ msgstr "自動檢查暫停紀錄中由 fwts 所偵測到的錯誤"
 #. summary
 #: ../jobs/suspend.txt.in:339
 msgid "Suspend log attach"
-msgstr ""
+msgstr "將暫停紀錄附加至測試報告中"
 
 #. summary
 #: ../jobs/suspend.txt.in:354
 msgid "Hybrid sleep log check test"
-msgstr ""
+msgstr "混合式睡眠紀錄檢查測試"
 
 #. summary
 #: ../jobs/suspend.txt.in:370
 msgid "Hybrid sleep log attach"
-msgstr ""
+msgstr "將混合式睡眠紀錄附加至測試報告中"
 
 #. summary
 #: ../jobs/suspend.txt.in:393
 msgid "Suspend time check test"
-msgstr ""
+msgstr "暫停時間檢查測試"
 
 #. description
 #: ../jobs/suspend.txt.in:413
@@ -5097,6 +5117,17 @@ msgid ""
 "    Verification is automatic, no action is required.\n"
 "    The test times out after 30 seconds (and fails in that case)."
 msgstr ""
+"目的：\n"
+"    檢查系統從暫停狀態恢復後能否正確偵測到外接喇叭或耳機的連接\n"
+"步驟：\n"
+"    1. 準備一組帶有 3.5mm 標準接頭的耳機或喇叭\n"
+"    2. 找到電腦上供外接喇叭 / 耳機接頭用的連接埠\n"
+"    3. 執行測試 (您會有 30 秒的時間來執行以下操作)\n"
+"    4. 將耳機或喇叭連接端子接至電腦上對應的連接埠\n"
+"    5. 為了接下來的測試，請將連接端子自電腦上拔除\n"
+"檢查：\n"
+"    這是一個自動化的測試，您不需要進行其他操作\n"
+"    本測試將在 30 秒後逾時 (若逾時，本測試將會被紀錄為測試失敗)"
 
 #. description
 #: ../jobs/suspend.txt.in:528
@@ -5114,6 +5145,18 @@ msgid ""
 "    Verification is automatic, no action is required.\n"
 "    The test times out after 30 seconds (and fails in that case)."
 msgstr ""
+"目的：\n"
+"    檢查系統從暫停狀態恢復能否正確偵測到外接麥克風的連接\n"
+"步驟：\n"
+"    1. 準備一組帶有 3.5mm 標準接頭的麥克風\n"
+"    2. 找到電腦上供外接麥克風接頭用的連接埠\n"
+"       外接麥克風有可能會跟外接耳機共用同一個連接埠\n"
+"    3. 執行測試 (您會有 30 秒的時間來執行以下操作)\n"
+"    4. 將麥克風連接端子接至電腦上對應的連接埠\n"
+"    5. 為了接下來的測試，請將連接端子自電腦上拔除\n"
+"檢查：\n"
+"    這是一個自動化的測試，您不需要進行其他操作\n"
+"    本測試將在 30 秒後逾時 (若逾時，本測試將會被紀錄為測試失敗)"
 
 #. description
 #: ../jobs/suspend.txt.in:559
@@ -5128,6 +5171,13 @@ msgid ""
 "    Did you hear a sound through the headphones and did the sound play "
 "without any distortion, clicks or other strange noises from your headphones?"
 msgstr ""
+"目的：\n"
+"    這個測試會測試在系統從暫停狀態恢復後耳機連接端子是否正常運作\n"
+"步驟：\n"
+"    1. 將外接耳機接上電腦\n"
+"    2. 進行測試來讓您的裝置播放一小段音效\n"
+"檢查：\n"
+"    您是否有從外接耳機聽到一段清楚不失真、沒有喀噠聲或是其他奇怪噪音的音效？"
 
 #. description
 #: ../jobs/suspend.txt.in:585
@@ -5142,6 +5192,14 @@ msgid ""
 "VERIFICATION:\n"
 "    Did you hear your speech played back?"
 msgstr ""
+"目的：\n"
+"    這個測試將會檢查在系統從暫停狀態恢復後外接的麥克風是否可以正常錄音\n"
+"步驟：\n"
+"    1. 將外接的麥克風連接到電腦\n"
+"    2. 進行然後對著外接的麥克風講一段話\n"
+"    3. 您剛剛講的話將透過喇叭播放出來\n"
+"檢查：\n"
+"    您是否有聽到自己剛剛被錄下來的話"
 
 #. description
 #: ../jobs/suspend.txt.in:608
@@ -5233,7 +5291,7 @@ msgstr "測試本系統的無線網路裝置是否能在系統從暫停狀態恢
 msgid ""
 "This test executes iperf connection performance/stability against device "
 "{__index__} ({interface}) after suspend."
-msgstr ""
+msgstr "本測試將會在系統從暫停狀態恢復後對 {__index__} ({interface}) 裝置執行 iperf 連線表現 / 穩定度測試。"
 
 #. description
 #: ../jobs/suspend.txt.in:1113
@@ -5262,6 +5320,16 @@ msgid ""
 "    Verification is automated, do not change the automatically selected "
 "result."
 msgstr ""
+"目的：\n"
+"    測試本系統的無線網路裝置是否能夠採用 802.11b/g 通訊協定以 WPA 加密之設定連上路由器。\n"
+"步驟：\n"
+"    1. 打開您的路由器設定工具\n"
+"    2. 將設定改為僅接受 B 與 G 無線通訊協定的連線\n"
+"    3. 確定 SSID 已設定為 ROUTER_SSID\n"
+"    4. 將安全性設定為 WPA2 並確定密碼與先前設定的 ROUTER_PSK 變數相符\n"
+"    5. 進行測試來建立並測試到路由器的連線\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:1183
@@ -5281,6 +5349,16 @@ msgid ""
 "    Verification is automated, do not change the automatically selected "
 "result."
 msgstr ""
+"目的：\n"
+"    測試本系統的無線網路裝置是否能夠採用 802.11b/g 通訊協定以無加密之設定連上路由器。\n"
+"步驟：\n"
+"    1. 打開您的路由器設定工具\n"
+"    2. 將設定改為僅接受 B 與 G 無線通訊協定的連線\n"
+"    3. 確定 SSID 已設定為 ROUTER_SSID\n"
+"    4. 將安全性設定為無安全保護之設定\n"
+"    5. 進行測試來建立並測試到路由器的連線\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:1223
@@ -5302,6 +5380,16 @@ msgid ""
 "    Verification is automated, do not change the automatically selected "
 "result."
 msgstr ""
+"目的：\n"
+"    測試本系統的無線網路裝置是否能夠採用 802.11n 通訊協定以 WPA 加密之設定連上路由器。\n"
+"步驟：\n"
+"    1. 打開您的路由器設定工具\n"
+"    2. 將設定改為僅接受 N 無線通訊協定的連線\n"
+"    3. 確定 SSID 已設定為 ROUTER_SSID\n"
+"    4. 將安全性設定為 WPA2 並確定密碼與先前設定的 ROUTER_PSK 變數相符\n"
+"    5. 進行測試來建立並測試到路由器的連線\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:1263
@@ -5321,6 +5409,16 @@ msgid ""
 "    Verification is automated, do not change the automatically selected "
 "result."
 msgstr ""
+"目的：\n"
+"    測試本系統的無線網路裝置是否能夠採用 802.11n 通訊協定以無加密之設定連上路由器。\n"
+"步驟：\n"
+"    1. 打開您的路由器設定工具\n"
+"    2. 將設定改為僅接受 N 無線通訊協定的連線\n"
+"    3. 確定 SSID 已設定為 ROUTER_SSID\n"
+"    4. 將安全性設定為無安全保護之設定\n"
+"    5. 進行測試來建立並測試到路由器的連線\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:1303
@@ -5342,6 +5440,16 @@ msgid ""
 "    Verification is automated, do not change the automatically selected "
 "result."
 msgstr ""
+"目的：\n"
+"    測試本系統的無線網路裝置是否能夠採用 802.11ac 通訊協定以 WPA 加密之設定連上路由器。\n"
+"步驟：\n"
+"    1. 打開您的路由器設定工具\n"
+"    2. 將設定改為僅接受 802.11ac 無線通訊協定的連線\n"
+"    3. 確定 SSID 已設定為 ROUTER_SSID\n"
+"    4. 將安全性設定為 WPA2 並確定密碼與先前設定的 ROUTER_PSK 變數相符\n"
+"    5. 進行測試來建立並測試到路由器的連線\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:1343
@@ -5361,6 +5469,16 @@ msgid ""
 "    Verification is automated, do not change the automatically selected "
 "result."
 msgstr ""
+"目的：\n"
+"    測試本系統的無線網路裝置是否能夠採用 802.11ac 通訊協定以無加密之設定連上路由器。\n"
+"步驟：\n"
+"    1. 打開您的路由器設定工具\n"
+"    2. 將設定改為僅接受 802.11ac 無線通訊協定的連線\n"
+"    3. 確定 SSID 已設定為 ROUTER_SSID\n"
+"    4. 將安全性設定為無安全保護之設定\n"
+"    5. 進行測試來建立並測試到路由器的連線\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/suspend.txt.in:1379
@@ -5410,7 +5528,7 @@ msgstr ""
 #. summary
 #: ../jobs/suspend.txt.in:1575
 msgid "Cycle resolution after suspend tests"
-msgstr ""
+msgstr "在系統從暫停狀態恢復後循環切換解析度測試"
 
 #. description
 #: ../jobs/suspend.txt.in:1600
@@ -5432,7 +5550,7 @@ msgstr "這將會把 suspend/cycle_resolutions_after_suspend 測試中所擷取�
 msgid ""
 "Attach screenshots from the suspend/cycle_resolution_after_suspend test to "
 "the results submission."
-msgstr ""
+msgstr "將 suspend/cycle_resolutions_after_suspend 測試中所擷取的螢幕畫面附加至測試報告中。"
 
 #. description
 #: ../jobs/suspend.txt.in:1657
@@ -6426,6 +6544,13 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"\"    本測試將會檢查系統上的記憶卡讀卡機是否能在系統由暫停狀態恢復後偵測到 SDXC 卡的移除\n"
+"步驟：\n"
+"    1. 按下「測試」鈕並將 SDXC 記憶卡從讀卡機中移除\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果"
 
 #. description
 #: ../jobs/suspend.txt.in:2521
@@ -6673,37 +6798,37 @@ msgstr "在系統從暫停恢復後的指向裝置測試。"
 #. summary
 #: ../jobs/suspend.txt.in:2754
 msgid "Create click tests for pointing devices after suspend."
-msgstr ""
+msgstr "在系統從暫停狀態恢復後為指向裝置產生點擊測試項目。"
 
 #. description
 #: ../jobs/suspend.txt.in:2759
 msgid "Click tests for pointing devices after suspend."
-msgstr ""
+msgstr "在系統從暫停狀態恢復後指向裝置的點擊測試。"
 
 #. summary
 #: ../jobs/suspend.txt.in:2784
 msgid "Compiz support tests after suspend"
-msgstr ""
+msgstr "在系統從暫停狀態恢復後的 Compiz 支援度測試"
 
 #. description
 #: ../jobs/suspend.txt.in:2806
 msgid "Check that the hardware is able to run compiz after suspend"
-msgstr ""
+msgstr "檢查系統從暫停狀態恢復後能夠執行 Compiz"
 
 #. summary
 #: ../jobs/suspend.txt.in:2807
 msgid "Test Compiz support after suspend"
-msgstr ""
+msgstr "在系統從暫停狀態恢復後測試 Compiz 支援度"
 
 #. summary
 #: ../jobs/suspend.txt.in:2812
 msgid "glxgears tests after suspend"
-msgstr ""
+msgstr "在系統從暫停狀態恢復後的 glxgear 測試"
 
 #. summary
 #: ../jobs/suspend.txt.in:2842
 msgid "Test that glxgears works after suspend"
-msgstr ""
+msgstr "在系統從暫停狀態恢復後測試 glxgear"
 
 #. description
 #: ../jobs/suspend.txt.in:2843
@@ -6723,7 +6848,7 @@ msgstr ""
 #. summary
 #: ../jobs/suspend.txt.in:2856
 msgid "Display video test after suspend"
-msgstr ""
+msgstr "在系統從暫停狀態恢復後的影片播放測試"
 
 #. summary
 #: ../jobs/suspend.txt.in:2887
@@ -6745,29 +6870,29 @@ msgstr ""
 #. summary
 #: ../jobs/suspend.txt.in:2899
 msgid "Driver version tests after suspend"
-msgstr ""
+msgstr "在系統從暫停狀態恢復後的驅動程式版本測試"
 
 #. description
 #: ../jobs/suspend.txt.in:2920
 msgid ""
 "Parses Xorg.0.Log and discovers the running X driver and version after "
 "suspend"
-msgstr ""
+msgstr "在系統從暫停狀態恢復後分析 Xorg.0.Log 來取得 X 驅動程式與版本資訊"
 
 #. summary
 #: ../jobs/suspend.txt.in:2921
 msgid "Test X driver/version after suspend"
-msgstr ""
+msgstr "在系統從暫停狀態恢復後測試 X 驅動程式 / 版本"
 
 #. description
 #: ../jobs/suspend.txt.in:2930
 msgid "Run Firmware Test Suite (fwts) oops tests after suspend."
-msgstr ""
+msgstr "在系統從暫停狀態恢復後執行 Firmware Test Suite (fwts) oops 測試。"
 
 #. description
 #: ../jobs/suspend.txt.in:2942
 msgid "Attaches the FWTS oops results log to the submission after suspend"
-msgstr ""
+msgstr "在系統從暫停狀態恢復後將 FWTS oops 測試結果附加到測試報告中"
 
 #. description
 #: ../jobs/touchpad.txt.in:6
@@ -7048,7 +7173,7 @@ msgstr ""
 #. name
 #: ../jobs/touchscreen.txt.in:3
 msgid "Touchscreen"
-msgstr ""
+msgstr "觸控螢幕"
 
 #. description
 #: ../jobs/touchscreen.txt.in:13
@@ -7117,6 +7242,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the blue square change size following the gesture?"
 msgstr ""
+"目的：\n"
+"    檢查觸控螢幕縮放手勢\n"
+"步驟：\n"
+"    1. 進行測試\n"
+"    2. 用兩隻手指縮放畫面中的藍色方框，在它變成綠色之後放開\n"
+"檢查：\n"
+"    藍色方框有根據您的手勢改變大小嗎？"
 
 #. summary
 #: ../jobs/touchscreen.txt.in:88
@@ -7135,6 +7267,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the blue square rotate following the gesture?"
 msgstr ""
+"目的：\n"
+"    檢查觸控螢幕旋轉手勢\n"
+"步驟：\n"
+"    1. 進行測試\n"
+"    2. 用兩隻手指旋轉畫面中的藍色方框，在它變成綠色之後放開\n"
+"檢查：\n"
+"    藍色方框有根據您的手勢旋轉嗎？"
 
 #. description
 #: ../jobs/touchscreen.txt.in:108
@@ -7185,6 +7324,14 @@ msgid ""
 "VERIFICATION:\n"
 "    Did you see the green circles around the three fingers?"
 msgstr ""
+"目的：\n"
+"    檢查三指點擊功能的運作是否正常\n"
+"步驟：\n"
+"    1. 進行測試\n"
+"    2. 同時用三指點擊螢幕\n"
+"    3. 當三隻手指在螢幕上時，您應該會看到指示器告訴您它們有被辨認到\n"
+"檢查：\n"
+"    您有看到綠色圓圈出現在三隻手指周圍嗎？"
 
 #. description
 #: ../jobs/touchscreen.txt.in:160
@@ -7199,6 +7346,14 @@ msgid ""
 "VERIFICATION:\n"
 "    Did you see the green circles around the four fingers?"
 msgstr ""
+"目的：\n"
+"    檢查四指點擊功能的運作是否正常\n"
+"步驟：\n"
+"    1. 進行測試\n"
+"    2. 同時用四指點擊螢幕\n"
+"    3. 當四隻手指在螢幕上時，您應該會看到指示器告訴您它們有被辨認到\n"
+"檢查：\n"
+"    您有看到綠色圓圈出現在四隻手指周圍嗎？"
 
 #. description
 #: ../jobs/usb.txt.in:6
@@ -7216,6 +7371,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Were the drives detected?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您的系統能否偵測到 USB 儲存裝置\n"
+"步驟\n"
+"    1. 將一個或多個 USB 隨身碟或硬碟接上電腦\n"
+"    2. 點擊「測試」\n"
+"檢查：\n"
+"    外接硬碟有被偵測到嗎？"
 
 #. description
 #: ../jobs/usb.txt.in:29
@@ -7231,6 +7393,14 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the device work as expected?"
 msgstr ""
+"目的：\n"
+"    本測試將會檢查您是否可以使用 USB 人機介面裝置\n"
+"步驟：\n"
+"    1. 啟動 USB 鍵盤或滑鼠\n"
+"    2. 若是測試滑鼠，請測試左右鍵點擊，雙擊以及移動游標\n"
+"    3. 若是測試鍵盤，請進行測試來打開測試用小工具，在該工具裡輸入一些文字後將其關閉\n"
+"檢查：\n"
+"    這些裝置的運作是否一如預期？"
 
 #. description
 #: ../jobs/usb.txt.in:45
@@ -7950,6 +8120,16 @@ msgid ""
 "    Verification is automated, do not change the automatically selected "
 "result."
 msgstr ""
+"目的：\n"
+"    測試本系統的無線網路裝置是否能夠採用 802.11b/g 通訊協定以 WPA 加密之設定連上路由器。\n"
+"步驟：\n"
+"    1. 打開您的路由器設定工具\n"
+"    2. 將設定改為僅接受 B 與 G 無線通訊協定的連線\n"
+"    3. 確定 SSID 已設定為 ROUTER_SSID\n"
+"    4. 將安全性設定為 WPA2 並確定密碼與先前設定的 ROUTER_PSK 變數相符\n"
+"    5. 進行測試來建立並測試到路由器的連線\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/wireless.txt.in:298
@@ -7970,6 +8150,16 @@ msgid ""
 "    Verification is automated, do not change the automatically selected "
 "result."
 msgstr ""
+"目的：\n"
+"    測試本系統的無線網路裝置是否能夠採用 802.11b/g 通訊協定以無加密之設定連上路由器。\n"
+"步驟：\n"
+"    1. 打開您的路由器設定工具\n"
+"    2. 將設定改為僅接受 B 與 G 無線通訊協定的連線\n"
+"    3. 確定 SSID 已設定為 ROUTER_SSID\n"
+"    4. 將安全性設定為無安全保護之設定\n"
+"    5. 進行測試來建立並測試到路由器的連線\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/wireless.txt.in:338
@@ -7992,6 +8182,16 @@ msgid ""
 "    Verification is automated, do not change the automatically selected "
 "result."
 msgstr ""
+"目的：\n"
+"    測試本系統的無線網路裝置是否能夠採用 802.11n 通訊協定以 WPA 加密之設定連上路由器。\n"
+"步驟：\n"
+"    1. 打開您的路由器設定工具\n"
+"    2. 將設定改為僅接受 N 無線通訊協定的連線\n"
+"    3. 確定 SSID 已設定為 ROUTER_SSID\n"
+"    4. 將安全性設定為 WPA2 並確定密碼與先前設定的 ROUTER_PSK 變數相符\n"
+"    5. 進行測試來建立並測試到路由器的連線\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/wireless.txt.in:378
@@ -8012,6 +8212,16 @@ msgid ""
 "    Verification is automated, do not change the automatically selected "
 "result."
 msgstr ""
+"目的：\n"
+"    測試本系統的無線網路裝置是否能夠採用 802.11n 通訊協定以無加密之設定連上路由器。\n"
+"步驟：\n"
+"    1. 打開您的路由器設定工具\n"
+"    2. 將設定改為僅接受 N 無線通訊協定的連線\n"
+"    3. 確定 SSID 已設定為 ROUTER_SSID\n"
+"    4. 將安全性設定為無安全保護之設定\n"
+"    5. 進行測試來建立並測試到路由器的連線\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/wireless.txt.in:418
@@ -8034,6 +8244,16 @@ msgid ""
 "    Verification is automated, do not change the automatically selected "
 "result."
 msgstr ""
+"目的：\n"
+"    測試本系統的無線網路裝置是否能夠採用 802.11ac 通訊協定以 WPA 加密之設定連上路由器。\n"
+"步驟：\n"
+"    1. 打開您的路由器設定工具\n"
+"    2. 將設定改為僅接受 802.11ac 無線通訊協定的連線\n"
+"    3. 確定 SSID 已設定為 ROUTER_SSID\n"
+"    4. 將安全性設定為 WPA2 並確定密碼與先前設定的 ROUTER_PSK 變數相符\n"
+"    5. 進行測試來建立並測試到路由器的連線\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/wireless.txt.in:458
@@ -8054,6 +8274,16 @@ msgid ""
 "    Verification is automated, do not change the automatically selected "
 "result."
 msgstr ""
+"目的：\n"
+"    測試本系統的無線網路裝置是否能夠採用 802.11ac 通訊協定以無加密之設定連上路由器。\n"
+"步驟：\n"
+"    1. 打開您的路由器設定工具\n"
+"    2. 將設定改為僅接受 802.11ac 無線通訊協定的連線\n"
+"    3. 確定 SSID 已設定為 ROUTER_SSID\n"
+"    4. 將安全性設定為無安全保護之設定\n"
+"    5. 進行測試來建立並測試到路由器的連線\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/wireless.txt.in:497

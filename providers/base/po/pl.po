@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: plainbox-provider-checkbox 0.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-14 14:48+0800\n"
+"POT-Creation-Date: 2016-01-15 14:43+0800\n"
 "PO-Revision-Date: 2014-06-12 07:54+0000\n"
 "Last-Translator: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>\n"
 "Language-Team: polski <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-01-15 05:08+0000\n"
+"X-Launchpad-Export-Date: 2016-01-16 05:08+0000\n"
 "X-Generator: Launchpad (build 17886)\n"
 "Language: Polish\n"
 
@@ -3603,8 +3603,7 @@ msgstr ""
 #. description
 #: ../jobs/power-management.txt.in:198
 msgid ""
-"Checks the battery drain during idle. Reports time and capacity until empty "
-"and capacity."
+"Checks the battery drain during idle. Reports time and capacity until empty."
 msgstr ""
 
 #. description

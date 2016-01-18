@@ -3,9 +3,6 @@ _name: Default Tests
 unit: test plan
 include:
     optical_drive
-    benchmarks/disk/hdparm-read.*
-    benchmarks/disk/hdparm-cache-read.*
-    optical/read_.*
     miscellanea/submission-resources
     miscellanea/is_laptop
     codecs_attachment

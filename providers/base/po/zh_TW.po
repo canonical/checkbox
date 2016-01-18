@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2016-01-15 14:43+0800\n"
-"PO-Revision-Date: 2016-01-15 11:20+0000\n"
+"PO-Revision-Date: 2016-01-18 04:34+0000\n"
 "Last-Translator: Po-Hsu Lin <po-hsu.lin@canonical.com>\n"
 "Language-Team: Chinese (Traditional) <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-01-16 05:08+0000\n"
+"X-Launchpad-Export-Date: 2016-01-18 05:11+0000\n"
 "X-Generator: Launchpad (build 17886)\n"
 
 #. description
@@ -1230,7 +1230,7 @@ msgstr "1. 按下「測試」。 2. 檢查網路測試摘要，並確認吞吐�
 msgid ""
 "Was the reported throughput acceptable for the type and maximum speed of "
 "this interface?"
-msgstr ""
+msgstr "回報的傳輸速度對於此介面的類別以及理論最大速度來說是否可以接受？"
 
 #. summary
 #: ../jobs/ethernet.txt.in:136
@@ -1767,7 +1767,7 @@ msgstr "將詳盡的 lspci 輸出結果附加至測試報告中 (向中央資料
 #. summary
 #: ../jobs/info.txt.in:85
 msgid "Attach PCI configuration space hex dump"
-msgstr ""
+msgstr "將 PCI 設定的十六進位數據附加至測試報告中"
 
 #. description
 #: ../jobs/info.txt.in:90
@@ -1967,7 +1967,7 @@ msgstr "檢查還原類別是否為 Dell"
 #. summary
 #: ../jobs/info.txt.in:360
 msgid "Attach the recovery partition versions"
-msgstr "附加還原資區版本資訊"
+msgstr "附加還原磁區版本資訊"
 
 #. description
 #: ../jobs/info.txt.in:361
@@ -1977,6 +1977,9 @@ msgid ""
 "somerville-trusty-amd64-20140620-0 bto_version: A00_dell-bto-trusty-houston-"
 "15-A11-iso-20141203-0.iso"
 msgstr ""
+"將還原磁區版本附加至測試報告中，image_version 為預載作業系統映像檔的版本，bto_version 僅存在出現於 dell_recovery "
+"中，例：image_version: somerville-trusty-amd64-20140620-0 bto_version: A00_dell-"
+"bto-trusty-houston-15-A11-iso-20141203-0.iso"
 
 #. summary
 #: ../jobs/info.txt.in:377
@@ -4086,7 +4089,7 @@ msgstr "嘗試啓動網路遠端印表機並且印出測試頁。"
 #. description
 #: ../jobs/optical.txt.in:6
 msgid "Detects optical drives (CD/DVD) attached to the system."
-msgstr ""
+msgstr "偵測安裝於本系統上的光碟機 (CD/DVD)。"
 
 #. description
 #: ../jobs/optical.txt.in:18
@@ -7996,7 +7999,7 @@ msgstr ""
 msgid ""
 "Verifies that a KVM guest can be created and booted using an Ubuntu Server "
 "cloud image."
-msgstr ""
+msgstr "檢查是否能用 Ubuntu 雲端伺服器映像檔建立 KVM 虛擬機器並成功開機。"
 
 #. summary
 #: ../jobs/virtualization.txt.in:15

@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2016-01-15 14:43+0800\n"
-"PO-Revision-Date: 2016-01-18 04:34+0000\n"
+"POT-Creation-Date: 2016-01-19 12:03+0800\n"
+"PO-Revision-Date: 2016-01-19 03:55+0000\n"
 "Last-Translator: Po-Hsu Lin <po-hsu.lin@canonical.com>\n"
 "Language-Team: Chinese (Traditional) <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-01-18 05:11+0000\n"
+"X-Launchpad-Export-Date: 2016-01-19 05:08+0000\n"
 "X-Generator: Launchpad (build 17886)\n"
 
 #. description
@@ -1009,7 +1009,7 @@ msgstr "檢查每個磁碟的狀態改變"
 msgid ""
 "This test generates some disk activity and checks the stats to ensure drive "
 "activity is being recorded properly."
-msgstr ""
+msgstr "本測試會產生一些磁碟活動，並檢查狀態以確定這些活動都有被正確的記錄下來。"
 
 #. summary
 #: ../jobs/disk.txt.in:62
@@ -1177,7 +1177,7 @@ msgstr "對 {interface} 網路介面卡的多網卡 Iperf 測試"
 msgid ""
 "This test uses iperf to ensure network devices pass data at an acceptable "
 "minimum percentage of advertized speed."
-msgstr ""
+msgstr "本測試使用 iperf 來確定網路裝置的資料傳輸速度有達到標示速度的最小可接受百分比。"
 
 #. summary
 #: ../jobs/ethernet.txt.in:73
@@ -1189,7 +1189,7 @@ msgstr "對 {interface} 網路介面卡的多網卡 Iperf3 測試"
 msgid ""
 "This test uses iperf3 to ensure network devices pass data at an acceptable "
 "minimum percentage of advertized speed."
-msgstr ""
+msgstr "本測試使用 iperf3 來確定網路裝置的資料傳輸速度有達到標示速度的最小可接受百分比。"
 
 #. summary
 #: ../jobs/ethernet.txt.in:94
@@ -1213,7 +1213,7 @@ msgstr "對 {__index__} ({interface}) 裝置的最大頻寬測試"
 msgid ""
 "User verification of whether the observed transfer throughput is acceptable "
 "for the type and maximum speed of each ethernet interface."
-msgstr ""
+msgstr "使用者確認在每個乙太網路介面上觀察到的傳輸速度對於此介面的類別以及理論最大速度來說是否可以接受。"
 
 #. steps
 #: ../jobs/ethernet.txt.in:122 ../jobs/mobilebroadband.txt.in:105
@@ -1767,14 +1767,14 @@ msgstr "將詳盡的 lspci 輸出結果附加至測試報告中 (向中央資料
 #. summary
 #: ../jobs/info.txt.in:85
 msgid "Attach PCI configuration space hex dump"
-msgstr "將 PCI 設定的十六進位數據附加至測試報告中"
+msgstr "將 PCI 組態空間的十六進位數據附加至測試報告中"
 
 #. description
 #: ../jobs/info.txt.in:90
 msgid ""
 "   Attaches a hex dump of the standard part of the PCI configuration\n"
 "   space for all PCI devices."
-msgstr ""
+msgstr "   將所有 PCI 裝置的組態空間十六進位數據標準部份附加至測試報告中。"
 
 #. description
 #: ../jobs/info.txt.in:101
@@ -1840,7 +1840,7 @@ msgstr "將由 udev 取得的詳細 sysfs 屬性資料附加至測試報告中"
 #: ../jobs/info.txt.in:167
 msgid ""
 "Attaches a dump of the udev database showing system hardware information."
-msgstr ""
+msgstr "將 udev 硬體資料庫資訊附加至測試報告中。"
 
 #. summary
 #: ../jobs/info.txt.in:168
@@ -1904,7 +1904,7 @@ msgstr "將執行 bootchart 產生的 bootchart 紀錄檔附加至測試報告�
 
 #. description
 #: ../jobs/info.txt.in:261
-msgid "installs the installer bootchart tarball if it exists."
+msgid "Attach the installer bootchart tarball if it exists."
 msgstr ""
 
 #. description
@@ -1993,6 +1993,9 @@ msgid ""
 " - fish packages\n"
 " - dell recovery stage 2 boot log"
 msgstr ""
+"bto.xml 為工廠軟體安裝處理流程表 (FISH)，裡面的資訊包含：\n"
+" - 工廠軟體安裝套件表\n"
+" - Dell 還原第二階段開機紀錄"
 
 #. description
 #: ../jobs/info.txt.in:389
@@ -2883,7 +2886,7 @@ msgstr "休眠測試"
 #. description
 #: ../jobs/local.txt.in:122
 msgid "Informational tests"
-msgstr ""
+msgstr "資訊測試"
 
 #. description
 #: ../jobs/local.txt.in:129
@@ -3643,6 +3646,8 @@ msgid ""
 "should have suitably large swap files for the amount of RAM they have "
 "installed."
 msgstr ""
+"本測試將會對系統記憶體進行基本的壓力測試。其中包含了過量使用的功能來強迫系統使用磁碟上的 swap "
+"空間，因此該待測系統應該要有對應於目前已安裝的記憶體來說夠大的 swap 空間。"
 
 #. description
 #: ../jobs/mir.txt.in:5
@@ -3660,7 +3665,7 @@ msgid ""
 "A meta-job that verifies the data necessary for a complete result submission "
 "are present. Failure indicates that the results are incomplete and may be "
 "rejected."
-msgstr ""
+msgstr "本後設工作是用來驗證一份完整的測試報告中其必要的資料是否存在，失敗的話表示測試報告不完整並可能被退回。"
 
 #. description
 #: ../jobs/miscellanea.txt.in:25
@@ -3734,6 +3739,7 @@ msgid ""
 "works. Use of MAAS to deploy the system implicitly tests out-of-band BMC "
 "control."
 msgstr ""
+"本測試將會對 BMC 執行一些頻內的基本指令來檢查 IPMI 是否運作正常。使用 MAAS 來佈署系統，並以此來測試頻外的 BMC 控制。"
 
 #. summary
 #: ../jobs/miscellanea.txt.in:98
@@ -3743,63 +3749,62 @@ msgstr "EFI 模式開機測試"
 #. description
 #: ../jobs/miscellanea.txt.in:99
 msgid ""
-"Test to verify that the system booted in EFI mode rather than Legacy/BIOS "
-"mode."
-msgstr "檢查系統是否是以 EFI 模式開機而不是 Legacy/BIOS 模式。"
+"Test to verify that the system booted in EFI mode with Secure Boot active."
+msgstr ""
 
 #. description
-#: ../jobs/miscellanea.txt.in:116
+#: ../jobs/miscellanea.txt.in:110
 msgid ""
 "This will gather some info about the BMC itself for diagnostic purposes. "
 "This will not works on non-IPMI systems like AMT and blade/sled type systems."
 msgstr "為了診斷需要，這將會收集一些關於 BMC 本身的資訊。這在非 IPMI 的系統上將無法運作，如 AMT 與刀鋒式 / 微伺服器。"
 
 #. summary
-#: ../jobs/miscellanea.txt.in:119
+#: ../jobs/miscellanea.txt.in:113
 msgid "Gather BMC Identification info"
 msgstr "收集 BMC 識別資訊"
 
 #. description
-#: ../jobs/miscellanea.txt.in:129
+#: ../jobs/miscellanea.txt.in:123
 msgid ""
 "Sanity check of CPU information; fails if CPU is an engineering sample"
 msgstr "CPU 資訊完整性檢查，若 CPU 為工程樣本測試將會失敗"
 
 #. summary
-#: ../jobs/miscellanea.txt.in:131
+#: ../jobs/miscellanea.txt.in:125
 msgid "CPU sanity check"
 msgstr "CPU 資訊完整性檢查"
 
 #. description
-#: ../jobs/miscellanea.txt.in:141
+#: ../jobs/miscellanea.txt.in:135
 msgid "Sanity check of DMI system identification data (for servers)"
 msgstr "DMI 系統識別資料完整性檢查 (對伺服器)"
 
 #. summary
-#: ../jobs/miscellanea.txt.in:143
+#: ../jobs/miscellanea.txt.in:137
 msgid "DMI ID sanity check (servers)"
 msgstr "DMI ID 完整性檢查 (伺服器)"
 
 #. description
-#: ../jobs/miscellanea.txt.in:153
+#: ../jobs/miscellanea.txt.in:147
 msgid ""
 "Sanity check of DMI system identification data (for desktops & laptops)"
 msgstr "DMI 系統識別資料完整性檢查 (對桌機與筆電)"
 
 #. summary
-#: ../jobs/miscellanea.txt.in:155
+#: ../jobs/miscellanea.txt.in:149
 msgid "DMI ID sanity check (desktops/laptops)"
 msgstr "DMI ID 完整性檢查 (桌機/筆電)"
 
 #. description
-#: ../jobs/miscellanea.txt.in:162
+#: ../jobs/miscellanea.txt.in:156
 msgid ""
 "   Determine if we need to run tests specific to portable computers that may "
 "not apply to desktops."
 msgstr "   檢查我們是否需要執行針對筆記型電腦的測試，那些測試可能不適用於桌上型電腦。"
 
 #. description
-#: ../jobs/miscellanea.txt.in:171
+#: ../jobs/miscellanea.txt.in:165
 msgid ""
 "Test that the /var/crash directory doesn't contain anything. Lists the files "
 "contained within if it does, or echoes the status of the directory (doesn't "
@@ -3807,32 +3812,32 @@ msgid ""
 msgstr "確定 /var/crash 資料夾中沒有任何東西，若有檔案存在則將其列出，或是回傳資料夾狀態 (不存在 / 空的)"
 
 #. description
-#: ../jobs/miscellanea.txt.in:178
+#: ../jobs/miscellanea.txt.in:172
 msgid ""
 "Checks that a specified sources list file contains the requested repositories"
 msgstr "檢查指定的軟體來源列表檔案中是否有包含所需的軟體庫"
 
 #. summary
-#: ../jobs/miscellanea.txt.in:187
+#: ../jobs/miscellanea.txt.in:181
 msgid "PXE verification test of device {__index__} ({interface})"
 msgstr "對 {__index__} ({interface}) 裝置的 PXE 驗證測試"
 
 #. purpose
-#: ../jobs/miscellanea.txt.in:189
+#: ../jobs/miscellanea.txt.in:183
 msgid ""
 "This test will verify that you have attempted to PXE boot this machine from "
 "the network device {__index__} ({interface})."
 msgstr "本測試將會檢查您是否有透過 {__index__} ({interface}) 網路裝置嘗試對本機器進行 PXE 開機。"
 
 #. steps
-#: ../jobs/miscellanea.txt.in:192
+#: ../jobs/miscellanea.txt.in:186
 msgid ""
 "1. Prior to running this test, you should have attempted to boot this system "
 "via PXE on every Network Port available."
 msgstr "1. 在進行本測試前，您應該有嘗試在本機器上透過所有可用的乙太網路孔上進行 PXE 開機。"
 
 #. verification
-#: ../jobs/miscellanea.txt.in:194
+#: ../jobs/miscellanea.txt.in:188
 msgid ""
 "1. Select Yes if you successfully used PXE boot this system using the NIC "
 "{interface} 2. Select No if you did not attempt to PXE boot this system "
@@ -3844,27 +3849,27 @@ msgstr ""
 "開機但因為某些原因失敗，請選擇「No」"
 
 #. summary
-#: ../jobs/miscellanea.txt.in:206
+#: ../jobs/miscellanea.txt.in:200
 msgid ""
 "Remote Shared IPMI verification test for device {__index__} ({interface})"
 msgstr "對 {__index__} ({interface}) 裝置的遠端共享 IPMI 驗證測試"
 
 #. purpose
-#: ../jobs/miscellanea.txt.in:208
+#: ../jobs/miscellanea.txt.in:202
 msgid ""
 "This test will verify that you have attempted IPMI control of this machine "
 "from the network device {__index__} ({interface})."
-msgstr ""
+msgstr "本測試將會檢查您是否有嘗試使用 IPMI 透過 {__index__} ({interface}) 網路裝置控制本系統。"
 
 #. steps
-#: ../jobs/miscellanea.txt.in:210
+#: ../jobs/miscellanea.txt.in:204
 msgid ""
 "1. Prior to running this test, you should have configured and used IPMI to "
 "power this machine off and on using every Network Port available."
-msgstr ""
+msgstr "1. 在開始本測試前，您應該先進行設定並用 IPMI 來將此機器關閉再透過各個可用的網路埠開機。"
 
 #. verification
-#: ../jobs/miscellanea.txt.in:212
+#: ../jobs/miscellanea.txt.in:206
 msgid ""
 "1. Select Yes if you successfully used IPMI to remotely power this system "
 "off and on using the NIC {interface} 2. Select No if you did not attempt to "
@@ -3872,9 +3877,12 @@ msgid ""
 "Select No if you attempted to use IPMI to remotely power off/on this system "
 "via {interface} and it failed for some reason."
 msgstr ""
+"1. 若您成功的透過 IPMI 在 {interface} 網路控制器上遠端關閉並開啟此系統的話請選擇「Yes」2. 如果您沒有嘗試透過 IPMI 在 "
+"{interface} 網路控制器上遠端關閉並開啟此系統的話請選擇「No」3. 若您嘗試透過 IPMI 在 {interface} "
+"網路控制器上遠端關閉並開啟此系統但因為某些原因失敗，請選擇「No」。"
 
 #. description
-#: ../jobs/miscellanea.txt.in:220
+#: ../jobs/miscellanea.txt.in:214
 msgid ""
 "PURPOSE:\n"
 " Some systems do not share IPMI over all NICs but instead have a dedicated "
@@ -3891,19 +3899,28 @@ msgid ""
 " 2. Select No if you attempted to use the dedicated management port to "
 "remotely power this system off/on and it failed for some reason."
 msgstr ""
+"目的：\n"
+" 有些系統並沒有在所有的網路介面卡上共享 IPMI，而是有一個專門的管理用連接埠直接連接至基板管理控制器 "
+"(BMC)。本測試將會檢查您是否有使用該連接埠來進行遠端 IPMI 連線與操作。\n"
+"步驟：\n"
+" 1. 在開始本測試前，您應該將專用的連接埠設定好並使用它來遠端關閉 / 啟動本系統\n"
+"檢查：\n"
+" 略過本測試如果本系統僅使用共享的管理 / 乙太網路埠或是本系統沒有 BMC (管理主控台)\n"
+" 1. 如果您成功的透過專用的管理連接埠將此機器遠端關機並重啟，請選擇「Yes」\n"
+" 2. 如果您嘗試透過專用的管理連接埠將此機器遠端關機並重啟，而它卻因某種原因失敗，請選擇「No」"
 
 #. description
-#: ../jobs/miscellanea.txt.in:236
+#: ../jobs/miscellanea.txt.in:230
 msgid "Run Firmware Test Suite (fwts) oops tests."
 msgstr "執行 Firmware Test Suite (fwts) oops 測試。"
 
 #. description
-#: ../jobs/miscellanea.txt.in:248
+#: ../jobs/miscellanea.txt.in:242
 msgid "Attaches the FWTS oops results log to the submission"
 msgstr "將 FWTS oops 測試結果附加到測試報告中"
 
 #. description
-#: ../jobs/miscellanea.txt.in:261
+#: ../jobs/miscellanea.txt.in:255
 msgid ""
 "If system was installed via MAAS from a cert server, the MAAS version used "
 "should be contained in /etc/installed-by-maas"
@@ -3911,19 +3928,19 @@ msgstr ""
 "如果系統是透過 cert 伺服器以 MAAS 安裝的，其所使用的 MAAS 版本資訊將會在 /etc/installed-by-maas 檔案中"
 
 #. summary
-#: ../jobs/miscellanea.txt.in:262
+#: ../jobs/miscellanea.txt.in:256
 msgid "Gets the version of MAAS used to deploy the SUT"
 msgstr "取得佈署此待測機器用的 MAAS 版本資訊"
 
 #. description
-#: ../jobs/miscellanea.txt.in:270
+#: ../jobs/miscellanea.txt.in:264
 msgid ""
 "Retrieve the computer's make and model for easier access than digging "
 "through the dmidecode output."
 msgstr "取得電腦的製造商與型號，如此一來取得此資料會比之後在 dmidecode 輸出中挖掘來得容易"
 
 #. summary
-#: ../jobs/miscellanea.txt.in:271
+#: ../jobs/miscellanea.txt.in:265
 msgid "Retrieve the computer's make and model"
 msgstr "取得本電腦的製造商與型號名稱"
 
@@ -3947,6 +3964,7 @@ msgid ""
 "User verification of whether the observed transfer throughput is acceptable "
 "for the type and maximum speed of device {__index__} ({interface})."
 msgstr ""
+"使用者確認在 {__index__} ({interface}) 裝置上觀察到的傳輸速度對於此介面的類別以及理論最大速度來說是否可以接受。"
 
 #. summary
 #: ../jobs/monitor.txt.in:3
@@ -4079,7 +4097,7 @@ msgstr "測試能否讓本機的時間與 NTP 伺服器同步。"
 msgid ""
 "Verify that an installation of checkbox-server on the network can be reached "
 "over SSH."
-msgstr "驗證一個在網路上已安裝好的 checkbox-server 可以透過 SSH 連接。"
+msgstr "驗證是否可以透過 SSH 連接一個在網路上已安裝好的 checkbox-server。"
 
 #. description
 #: ../jobs/networking.txt.in:80
@@ -4704,7 +4722,7 @@ msgid ""
 "Simulate high system load using the 'stress' tool to exercise the CPU for "
 "several hours. The test is considered passed if the system does not freeze "
 "or abend."
-msgstr ""
+msgstr "透過 stress 工具對 CPU 進行數小時的高負載狀態模擬。若系統沒有死當或異常則此測試通過。"
 
 #. description
 #: ../jobs/stress.txt.in:33
@@ -4767,7 +4785,7 @@ msgstr "若 30 次暫停 / 恢復循環的測試紀錄存在，則將其附加�
 msgid ""
 "Attaches the log from the '30 cycle Suspend/Resume and one reboot times 3' "
 "test if it exists"
-msgstr ""
+msgstr "若三回「30 次暫停 / 恢復循環並重新開機一次」的測試紀錄存在，則將其附加到測試報告中"
 
 #. description
 #: ../jobs/stress.txt.in:156
@@ -5096,7 +5114,7 @@ msgstr "測試看看從暫停恢復之後我們是否能擁有與之前相同的
 msgid ""
 "Resolution consistency check after suspend with the valuse we got before "
 "suspend."
-msgstr ""
+msgstr "在系統從暫停狀態恢復後，將螢幕解析度與暫停前所紀錄的解析度進行一致性比對。"
 
 #. description
 #: ../jobs/suspend.txt.in:492
@@ -6847,6 +6865,14 @@ msgid ""
 "    1. Did the 3d animation appear?\n"
 "    2. Was the animation free from slowness/jerkiness?"
 msgstr ""
+"目的：\n"
+"    本測試將會在系統從暫停狀態恢復後檢查您的 $product 視訊控制卡的基本 3D 功能\n"
+"步驟：\n"
+"    1. 按下「測試」來播放 OpenGL 樣本，隨時可以按下 ESC 鍵關閉它\n"
+"    2. 檢查動畫是否沒有出現遲鈍或跳動的異常情形\n"
+"檢查：\n"
+"    1. 3D 動畫有出現嗎？\n"
+"    2. 動畫是否沒有出現遲鈍或跳動的異常情形"
 
 #. summary
 #: ../jobs/suspend.txt.in:2856
@@ -6856,7 +6882,7 @@ msgstr "在系統從暫停狀態恢復後的影片播放測試"
 #. summary
 #: ../jobs/suspend.txt.in:2887
 msgid "Test that video can be displayed after suspend"
-msgstr ""
+msgstr "檢查在系統從暫停狀態恢復後是否能正常播放影片"
 
 #. description
 #: ../jobs/suspend.txt.in:2888
@@ -6869,6 +6895,12 @@ msgid ""
 "VERIFICATION:\n"
 "    Do you see color bars and static?"
 msgstr ""
+"目的：\n"
+"    本測試將會在系統從暫停狀態恢復後用一樣本影片對預設螢幕進行測試\n"
+"步驟：\n"
+"    1. 點擊「測試」來進行影片播放測試\n"
+"檢查：\n"
+"    您有看到色條與雜訊嗎？"
 
 #. summary
 #: ../jobs/suspend.txt.in:2899
@@ -7001,6 +7033,14 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the tap trigger a new tab to be opened?"
 msgstr ""
+"目的：\n"
+"    檢查觸發角功能的運作是否正常\n"
+"步驟：\n"
+"    1. 啟動瀏覽器\n"
+"    2. 到任何一個網站，將游標移動到一個超連結上\n"
+"    3. 點擊觸控板的右上角\n"
+"檢查\n"
+"    點擊後該連結有在新頁籤中開啟嗎？"
 
 #. description
 #: ../jobs/touchpad.txt.in:105
@@ -7172,6 +7212,13 @@ msgid ""
 "VERIFICATION:\n"
 "    Did the mouse cursor move without interruption?"
 msgstr ""
+"目的：\n"
+"    觸控板連續移動檢查\n"
+"步驟：\n"
+"    1. 當準備好時請按下「測試」，並在螢幕上顯示的測試視窗內持續的移動您的游標\n"
+"    您會需要將您的手指放在觸控板上連續移動十秒鐘\n"
+"檢查：\n"
+"    游標移動的情形是否正常不中斷？"
 
 #. name
 #: ../jobs/touchscreen.txt.in:3
@@ -7419,6 +7466,14 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統是否能偵測到 USB 儲存裝置的插入\n"
+"步驟：\n"
+"    1. 按下「測試」鈕將一個 USB 儲存裝置插到 USB 埠上\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"    2. 在此測試結束後請不要移除該裝置\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/usb.txt.in:64
@@ -7435,6 +7490,14 @@ msgid ""
 "    The verification of this test is automated. Do not change the\n"
 "    automatically selected result."
 msgstr ""
+"目的：\n"
+"    本測試將會檢查系統是否能偵測到 USB 3.0 儲存裝置的插入\n"
+"步驟：\n"
+"    1. 按下「測試」鈕將一個 USB 3.0 儲存裝置插到 USB 3.0 埠上\n"
+"       (註：本測試將在 20 秒後逾時)\n"
+"    2. 在此測試結束後請不要移除該裝置\n"
+"檢查：\n"
+"    本測試將會進行自動檢查，請不要修改自動判斷的測試結果。"
 
 #. description
 #: ../jobs/usb.txt.in:82
@@ -7450,7 +7513,7 @@ msgid ""
 "    automatically selected result."
 msgstr ""
 "目的：\n"
-"    本測是將會檢查系統是否能正確偵測到 USB 儲存裝置的移除\n"
+"    本測試將會檢查系統是否能正確偵測到 USB 儲存裝置的移除\n"
 "步驟：\n"
 "    1. 點擊「測試」鈕並移除 USB 裝置\n"
 "       (註：本測試將在 20 秒後逾時)\n"
@@ -7471,7 +7534,7 @@ msgid ""
 "    automatically selected result."
 msgstr ""
 "目的：\n"
-"    本測是將會檢查系統是否能正確偵測到 USB 3.0 儲存裝置的移除\n"
+"    本測試將會檢查系統是否能正確偵測到 USB 3.0 儲存裝置的移除\n"
 "步驟：\n"
 "    1. 點擊「測試」鈕並移除 USB 3.0 裝置\n"
 "       (註：本測試將在 20 秒後逾時)\n"
@@ -7541,6 +7604,8 @@ msgid ""
 "randomly created data.  It requires that a USB stick is plugged into an "
 "available USB port before running the certification suite."
 msgstr ""
+"透過對隨機產生的資料進行寫入 / 讀取 / 比對來測試系統上的 USB 2.0 或 1.1 埠，這會需要在啟動本認證測試套件前將一支 USB "
+"隨身碟接上可用的 USB 埠。"
 
 #. description
 #: ../jobs/usb.txt.in:191
@@ -7550,6 +7615,8 @@ msgid ""
 "available USB port before running the certification suite. Additionally, it "
 "will only work with USB sticks and ports rated for USB 3.0 speeds or faster."
 msgstr ""
+"透過對隨機產生的資料進行寫入 / 讀取 / 比對來測試系統上的 USB 3.0 埠，這會需要在啟動本認證測試套件前將一支 USB 隨身碟接上可用的 "
+"USB 埠。另外，這只有在 USB 隨身碟與連接埠都是 3.0 或更快的規格時才會成功。"
 
 #. description
 #: ../jobs/usb.txt.in:200
@@ -8331,6 +8398,8 @@ msgid ""
 "{__index__} ({interface}) and then performs a ping test to watch for dropped "
 "packets and very large latency periods."
 msgstr ""
+"本測試透過執行 iperf 在 {__index__} ({interface}) 網路裝置上產生負載，接著再進行 ping "
+"測試並觀察封包遺失率以及延遲情形。"
 
 #. description
 #: ../jobs/wireless.txt.in:633
@@ -8387,3 +8456,9 @@ msgid ""
 "User verification of whether the observed transfer throughput is acceptable "
 "for the type and maximum speed of wireless device {__index__} ({interface})."
 msgstr ""
+"使用者確認在 {__index__} ({interface}) 無線裝置上觀察到的傳輸速度對於此介面的類別以及理論最大速度來說是否可以接受。"
+
+#~ msgid ""
+#~ "Test to verify that the system booted in EFI mode rather than Legacy/BIOS "
+#~ "mode."
+#~ msgstr "檢查系統是否是以 EFI 模式開機而不是 Legacy/BIOS 模式。"

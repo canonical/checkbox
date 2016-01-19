@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: plainbox-provider-checkbox 0.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-15 14:43+0800\n"
+"POT-Creation-Date: 2016-01-19 12:03+0800\n"
 "PO-Revision-Date: 2014-06-12 07:54+0000\n"
 "Last-Translator: Zygmunt Krynicki <zygmunt.krynicki@canonical.com>\n"
 "Language-Team: polski <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-01-16 05:08+0000\n"
+"X-Launchpad-Export-Date: 2016-01-19 05:08+0000\n"
 "X-Generator: Launchpad (build 17886)\n"
 "Language: Polish\n"
 
@@ -1622,7 +1622,7 @@ msgstr ""
 
 #. description
 #: ../jobs/info.txt.in:261
-msgid "installs the installer bootchart tarball if it exists."
+msgid "Attach the installer bootchart tarball if it exists."
 msgstr ""
 
 #. description
@@ -2980,63 +2980,62 @@ msgstr ""
 #. description
 #: ../jobs/miscellanea.txt.in:99
 msgid ""
-"Test to verify that the system booted in EFI mode rather than Legacy/BIOS "
-"mode."
+"Test to verify that the system booted in EFI mode with Secure Boot active."
 msgstr ""
 
 #. description
-#: ../jobs/miscellanea.txt.in:116
+#: ../jobs/miscellanea.txt.in:110
 msgid ""
 "This will gather some info about the BMC itself for diagnostic purposes. "
 "This will not works on non-IPMI systems like AMT and blade/sled type systems."
 msgstr ""
 
 #. summary
-#: ../jobs/miscellanea.txt.in:119
+#: ../jobs/miscellanea.txt.in:113
 msgid "Gather BMC Identification info"
 msgstr ""
 
 #. description
-#: ../jobs/miscellanea.txt.in:129
+#: ../jobs/miscellanea.txt.in:123
 msgid ""
 "Sanity check of CPU information; fails if CPU is an engineering sample"
 msgstr ""
 
 #. summary
-#: ../jobs/miscellanea.txt.in:131
+#: ../jobs/miscellanea.txt.in:125
 msgid "CPU sanity check"
 msgstr ""
 
 #. description
-#: ../jobs/miscellanea.txt.in:141
+#: ../jobs/miscellanea.txt.in:135
 msgid "Sanity check of DMI system identification data (for servers)"
 msgstr ""
 
 #. summary
-#: ../jobs/miscellanea.txt.in:143
+#: ../jobs/miscellanea.txt.in:137
 msgid "DMI ID sanity check (servers)"
 msgstr ""
 
 #. description
-#: ../jobs/miscellanea.txt.in:153
+#: ../jobs/miscellanea.txt.in:147
 msgid ""
 "Sanity check of DMI system identification data (for desktops & laptops)"
 msgstr ""
 
 #. summary
-#: ../jobs/miscellanea.txt.in:155
+#: ../jobs/miscellanea.txt.in:149
 msgid "DMI ID sanity check (desktops/laptops)"
 msgstr ""
 
 #. description
-#: ../jobs/miscellanea.txt.in:162
+#: ../jobs/miscellanea.txt.in:156
 msgid ""
 "   Determine if we need to run tests specific to portable computers that may "
 "not apply to desktops."
 msgstr ""
 
 #. description
-#: ../jobs/miscellanea.txt.in:171
+#: ../jobs/miscellanea.txt.in:165
 msgid ""
 "Test that the /var/crash directory doesn't contain anything. Lists the files "
 "contained within if it does, or echoes the status of the directory (doesn't "
@@ -3044,32 +3043,32 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/miscellanea.txt.in:178
+#: ../jobs/miscellanea.txt.in:172
 msgid ""
 "Checks that a specified sources list file contains the requested repositories"
 msgstr ""
 
 #. summary
-#: ../jobs/miscellanea.txt.in:187
+#: ../jobs/miscellanea.txt.in:181
 msgid "PXE verification test of device {__index__} ({interface})"
 msgstr ""
 
 #. purpose
-#: ../jobs/miscellanea.txt.in:189
+#: ../jobs/miscellanea.txt.in:183
 msgid ""
 "This test will verify that you have attempted to PXE boot this machine from "
 "the network device {__index__} ({interface})."
 msgstr ""
 
 #. steps
-#: ../jobs/miscellanea.txt.in:192
+#: ../jobs/miscellanea.txt.in:186
 msgid ""
 "1. Prior to running this test, you should have attempted to boot this system "
 "via PXE on every Network Port available."
 msgstr ""
 
 #. verification
-#: ../jobs/miscellanea.txt.in:194
+#: ../jobs/miscellanea.txt.in:188
 msgid ""
 "1. Select Yes if you successfully used PXE boot this system using the NIC "
 "{interface} 2. Select No if you did not attempt to PXE boot this system "
@@ -3078,27 +3077,27 @@ msgid ""
 msgstr ""
 
 #. summary
-#: ../jobs/miscellanea.txt.in:206
+#: ../jobs/miscellanea.txt.in:200
 msgid ""
 "Remote Shared IPMI verification test for device {__index__} ({interface})"
 msgstr ""
 
 #. purpose
-#: ../jobs/miscellanea.txt.in:208
+#: ../jobs/miscellanea.txt.in:202
 msgid ""
 "This test will verify that you have attempted IPMI control of this machine "
 "from the network device {__index__} ({interface})."
 msgstr ""
 
 #. steps
-#: ../jobs/miscellanea.txt.in:210
+#: ../jobs/miscellanea.txt.in:204
 msgid ""
 "1. Prior to running this test, you should have configured and used IPMI to "
 "power this machine off and on using every Network Port available."
 msgstr ""
 
 #. verification
-#: ../jobs/miscellanea.txt.in:212
+#: ../jobs/miscellanea.txt.in:206
 msgid ""
 "1. Select Yes if you successfully used IPMI to remotely power this system "
 "off and on using the NIC {interface} 2. Select No if you did not attempt to "
@@ -3108,7 +3107,7 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/miscellanea.txt.in:220
+#: ../jobs/miscellanea.txt.in:214
 msgid ""
 "PURPOSE:\n"
 " Some systems do not share IPMI over all NICs but instead have a dedicated "
@@ -3127,36 +3126,36 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/miscellanea.txt.in:236
+#: ../jobs/miscellanea.txt.in:230
 msgid "Run Firmware Test Suite (fwts) oops tests."
 msgstr ""
 
 #. description
-#: ../jobs/miscellanea.txt.in:248
+#: ../jobs/miscellanea.txt.in:242
 msgid "Attaches the FWTS oops results log to the submission"
 msgstr ""
 
 #. description
-#: ../jobs/miscellanea.txt.in:261
+#: ../jobs/miscellanea.txt.in:255
 msgid ""
 "If system was installed via MAAS from a cert server, the MAAS version used "
 "should be contained in /etc/installed-by-maas"
 msgstr ""
 
 #. summary
-#: ../jobs/miscellanea.txt.in:262
+#: ../jobs/miscellanea.txt.in:256
 msgid "Gets the version of MAAS used to deploy the SUT"
 msgstr ""
 
 #. description
-#: ../jobs/miscellanea.txt.in:270
+#: ../jobs/miscellanea.txt.in:264
 msgid ""
 "Retrieve the computer's make and model for easier access than digging "
 "through the dmidecode output."
 msgstr ""
 
 #. summary
-#: ../jobs/miscellanea.txt.in:271
+#: ../jobs/miscellanea.txt.in:265
 msgid "Retrieve the computer's make and model"
 msgstr ""
 

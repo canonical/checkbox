@@ -258,7 +258,7 @@ plugin: attachment
 category_id: 2013.com.canonical.plainbox::info
 id: installer_bootchart.tgz
 command: [ -f /var/log/installer/bootchart.tgz ] && base64 /var/log/installer/bootchart.tgz
-_description: installs the installer bootchart tarball if it exists.
+_description: Attach the installer bootchart tarball if it exists.
 
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::info

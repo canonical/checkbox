@@ -35,6 +35,7 @@ import contextlib
 import errno
 import logging
 import os
+import tempfile
 
 from plainbox.i18n import gettext as _, ngettext
 from plainbox.impl import pod
@@ -544,14 +545,16 @@ class SessionManager(pod.POD):
         not really meant for running jobs but can be useful to access exporters
         and other objects stored in providers.
         """
-        if provider_list is None:
-            provider_list = get_providers()
-            manager = cls.create()
-        try:
-            manager.add_local_device_context()
-            device_context = manager.default_device_context
-            for provider in provider_list:
-                device_context.add_provider(provider)
-            yield manager
-        finally:
-            manager.destroy()
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = SessionStorageRepository(tmp)
+            if provider_list is None:
+                provider_list = get_providers()
+                manager = cls.create(repo=repo)
+            try:
+                manager.add_local_device_context()
+                device_context = manager.default_device_context
+                for provider in provider_list:
+                    device_context.add_provider(provider)
+                yield manager
+            finally:
+                manager.destroy()

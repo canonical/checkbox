@@ -42,7 +42,6 @@
 [type: gettext/rfc822deb] jobs/touchpad.txt.in
 [type: gettext/rfc822deb] jobs/touchscreen.txt.in
 [type: gettext/rfc822deb] jobs/usb.txt.in
-[type: gettext/rfc822deb] jobs/user_apps.txt.in
 [type: gettext/rfc822deb] jobs/virtualization.txt.in
 [type: gettext/rfc822deb] jobs/wireless.txt.in
 [type: gettext/python] bin/accelerometer_test

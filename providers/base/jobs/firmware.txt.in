@@ -1,40 +1,26 @@
-plugin: local
-_summary: Automated tests for firmware using Firmware Test Suite.
-id: firmware/generator_fwts
-estimated_duration: 0.5
+unit: template
+template-resource: fwts
+plugin: shell
+category_id: 2013.com.canonical.plainbox::firmware
+id: firmware/fwts_{name}
+estimated_duration: 1.2
 requires: package.name == 'fwts'
-_description: Automated tests for firmware using Firmware Test Suite.
-command:
- cat << 'EOF' | run_templates -s 'fwts_test --list'
- estimated_duration: 1.2
- plugin: shell
- category_id: 2013.com.canonical.plainbox::firmware
- id: firmware/fwts_$1
- requires: package.name == 'fwts'
- user: root
- command: fwts_test -t $1 -l $PLAINBOX_SESSION_SHARE/fwts_$1.log
- _description: Run $1 test from Firmware Test Suite.
- _summary: Run $1 test from Firmware Test Suite.
- EOF
+user: root
+command: fwts_test -t {name} -l $PLAINBOX_SESSION_SHARE/fwts_{name}.log
+_description: Run {name} test from Firmware Test Suite.
+_summary: Run {name} test from Firmware Test Suite.
 
-plugin: local
-_summary: Automated tests for firmware using Firmware Test Suite.
-id: firmware/generator_fwts_logs
-estimated_duration: 0.5
+unit: template
+template-resource: fwts
+plugin: attachment
+category_id: 2013.com.canonical.plainbox::firmware
+id: firmware/fwts_{name}.log
+estimated_duration: 1.2
 requires: package.name == 'fwts'
-_description: Automated tests for firmware using Firmware Test Suite.
-command:
- cat << 'EOF' | run_templates -s 'fwts_test --list'
- estimated_duration: 1.2
- plugin: attachment
- category_id: 2013.com.canonical.plainbox::firmware
- id: firmware/fwts_$1.log
- requires: package.name == 'fwts'
- user: root
- command: [[ -e ${PLAINBOX_SESSION_SHARE}/fwts_$1.log ]] && cat ${PLAINBOX_SESSION_SHARE}/fwts_$1.log
- _description: Attach log for FWTS $1 test.
- _summary: Attach log for FWTS $1 test.
- EOF
+user: root
+command: [[ -e $PLAINBOX_SESSION_SHARE/fwts_{name}.log ]] && cat $PLAINBOX_SESSION_SHARE/fwts_{name}.log
+_description: Attach log for FWTS {name} test.
+_summary: Attach log for FWTS {name} test.
 
 plugin:shell
 id: firmware/fwts_desktop_diagnosis

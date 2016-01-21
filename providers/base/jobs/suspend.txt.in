@@ -13,20 +13,15 @@ estimated_duration: 1.2
 _description: Record the current resolution before suspending.
 command: xrandr -q |grep '*'| awk '{print $1}' > $PLAINBOX_SESSION_SHARE/resolution_before_suspend.txt
 
-plugin: local
-id: suspend/generator_resolution_before_suspend
+unit: template
+template-resource: graphics_card
+plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/{index}_resolution_before_suspend_{product_slug}
+depends: graphics/{index}_switch_card_{product_slug}
+estimated_duration: 1.2
 _description: Record the current resolution before suspending.
-_summary: Record the current resolution before suspending.
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::suspend
- id: suspend/`echo ${index}`_resolution_before_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- depends: graphics/`echo ${index}`_switch_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- estimated_duration: 1.2
- _description: Record the current resolution before suspending.
- command: xrandr -q |grep '*'| awk '{print $1}' > $PLAINBOX_SESSION_SHARE/`echo ${index}`_resolution_before_suspend.txt
- EOF
+command: xrandr -q |grep '*'| awk '{{print $1}}' > $PLAINBOX_SESSION_SHARE/{index}_resolution_before_suspend.txt
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::suspend
@@ -65,7 +60,6 @@ _description:
  interface. It then checks the connection to confirm it's working as expected.
 
 unit: template
-template-unit: job
 template-resource: device
 template-filter: device.category == 'NETWORK'
 plugin: shell
@@ -83,7 +77,6 @@ _description:
  This test executes iperf connection performance/stability against device {__index__} ({interface}) before suspend.
 
 unit: template
-template-unit: job
 template-resource: device
 template-filter: device.category == 'WIRELESS'
 plugin: shell
@@ -241,45 +234,39 @@ _description:
      Did your system suspend and resume correctly?
      (NOTE: Please only consider whether the system successfully suspended and resumed. Power/Suspend LED verification will occur after this test is completed.)
 
-id: suspend/generator_suspend_after_switch_to_card
-requires: device.category == 'VIDEO'
-_description: Suspend after graphics card switch tests
-_summary: Suspend after graphics card switch tests
-plugin: local
+unit: template
+template-resource: graphics_card
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/{index}_suspend_after_switch_to_card_{product_slug}
+requires:
+ sleep.mem == 'supported'
+ rtc.state == 'supported'
+depends: graphics/{index}_switch_card_{product_slug}
+user: root
+environ: PLAINBOX_SESSION_SHARE
 command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: user-interact-verify
- category_id: 2013.com.canonical.plainbox::suspend
- id: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- requires:
-  sleep.mem == 'supported'
-  rtc.state == 'supported'
- depends: graphics/`echo ${index}`_switch_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- user: root
- environ: PLAINBOX_SESSION_SHARE
- command:
-  if type -P fwts >/dev/null; then
-   echo "Calling fwts"
-   set -o pipefail; fwts_test -f none -l $PLAINBOX_SESSION_SHARE/`echo ${index}`_suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $PLAINBOX_SESSION_SHARE/`echo ${index}`_suspend_single_times.log
-  else
-   echo "Calling sleep_test"
-   set -o pipefail; sleep_test -p | tee $PLAINBOX_SESSION_SHARE/`echo ${index}`_suspend_single_times.log
-  fi
- estimated_duration: 90.0
- _summary: Test suspend/resume after switching to $product
- _description:
-  PURPOSE:
-      This test will check suspend and resume after switching to $product graphics card.
-  STEPS:
-      1. Ensure you have switched to $product graphics card.
-      2. Click "Test" and your system will suspend for about 30 - 60 seconds
-      3. Observe the Power LED to see if it blinks or changes color during suspend
-      4. If your system does not wake itself up after 60 seconds, please press the power button momentarily to wake the system manually
-      5. If your system fails to wake at all and must be rebooted, restart System Testing after reboot and mark this test as Failed
-  VERIFICATION:
-      Did your system suspend and resume correctly after switching to $product graphics card?
-      (NOTE: Please only consider whether the system successfully suspended and resumed. Power/Suspend LED verification will occur after this test is completed.)
- EOF
+ if type -P fwts >/dev/null; then
+  echo "Calling fwts"
+  set -o pipefail; fwts_test -f none -l $PLAINBOX_SESSION_SHARE/{index}_suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log
+ else
+  echo "Calling sleep_test"
+  set -o pipefail; sleep_test -p | tee $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log
+ fi
+estimated_duration: 90.0
+_summary: Test suspend/resume after switching to {vendor} {product}
+_description:
+ PURPOSE:
+     This test will check suspend and resume after switching to {vendor} {product} graphics card.
+ STEPS:
+     1. Ensure you have switched to {vendor} {product} graphics card.
+     2. Click "Test" and your system will suspend for about 30 - 60 seconds
+     3. Observe the Power LED to see if it blinks or changes color during suspend
+     4. If your system does not wake itself up after 60 seconds, please press the power button momentarily to wake the system manually
+     5. If your system fails to wake at all and must be rebooted, restart System Testing after reboot and mark this test as Failed
+ VERIFICATION:
+     Did your system suspend and resume correctly after switching to $product graphics card?
+     (NOTE: Please only consider whether the system successfully suspended and resumed. Power/Suspend LED verification will occur after this test is completed.)
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::suspend
@@ -294,30 +281,25 @@ environ: PLAINBOX_SESSION_SHARE
 command: set -o pipefail; fwts_test -f none -l $PLAINBOX_SESSION_SHARE/suspend_single -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee $PLAINBOX_SESSION_SHARE/suspend_single_times.log
 estimated_duration: 90.000
 
-id: suspend/generator_hybrid_sleep
-_description: Hybrid sleep test
-_summary: Hybrid sleep test
-plugin: local
+unit: template
+template-resource: graphics_card
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/{index}_hybrid_sleep_{product_slug}
+user: root
 command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: user-interact-verify
- category_id: 2013.com.canonical.plainbox::suspend
- id: suspend/`echo ${index}`_hybrid_sleep_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- user: root
- command:
-  set -o pipefail; fwts_test -f none -l $PLAINBOX_SESSION_SHARE/`echo ${index}`_hybrid_sleep_single -s s3 --s3-hybrid --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 --pm-method=pm-utils | tee $PLAINBOX_SESSION_SHARE/`echo ${index}`_hybrid_sleep_single_times.log
- estimated_duration: 90.0
- _description:
-  PURPOSE:
-      This test will check hybrid sleep and resume
-  STEPS:
-      1. Click "Test" and your system will go into hybrid sleep mode for about 30 - 60 seconds
-      2. Observe the Power LED to see if it blinks or changes color during suspend
-      3. If your system does not wake itself up after 60 seconds, please press the power button momentarily to wake the system manually
-      4. If your system fails to wake at all and must be rebooted, restart System Testing after reboot and mark this test as Failed
-  VERIFICATION:
-      Did your system enter hybrid sleep and then resume correctly?
- EOF
+ set -o pipefail; fwts_test -f none -l $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single -s s3 --s3-hybrid --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 --pm-method=pm-utils | tee $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single_times.log
+estimated_duration: 90.0
+_description:
+ PURPOSE:
+     This test will check hybrid sleep and resume
+ STEPS:
+     1. Click "Test" and your system will go into hybrid sleep mode for about 30 - 60 seconds
+     2. Observe the Power LED to see if it blinks or changes color during suspend
+     3. If your system does not wake itself up after 60 seconds, please press the power button momentarily to wake the system manually
+     4. If your system fails to wake at all and must be rebooted, restart System Testing after reboot and mark this test as Failed
+ VERIFICATION:
+     Did your system enter hybrid sleep and then resume correctly?
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::suspend
@@ -334,51 +316,36 @@ command: [ -e $PLAINBOX_SESSION_SHARE/suspend_single.log ] && cat $PLAINBOX_SESS
 _description:
  Attaches the log from the single suspend/resume test to the results
 
-id: suspend/generator_suspend-single-log-attach
-_description: Suspend log attach
-_summary: Suspend log attach
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: attachment
- category_id: 2013.com.canonical.plainbox::suspend
- id: suspend/`echo ${index}`_suspend-single-log-attach_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- depends: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- command: [ -e $PLAINBOX_SESSION_SHARE/`echo ${index}`_suspend_single.log ] && cat $PLAINBOX_SESSION_SHARE/`echo ${index}`_suspend_single.log
- _description:
-  Attaches the log from the single suspend/resume test to the results
- EOF
+unit: template
+template-resource: graphics_card
+plugin: attachment
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/{index}_suspend-single-log-attach_{product_slug}
+depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
+command: [ -e $PLAINBOX_SESSION_SHARE/{index}_suspend_single.log ] && cat $PLAINBOX_SESSION_SHARE/{index}_suspend_single.log
+_description:
+ Attaches the log from the single suspend/resume test to the results
 
-id: suspend/generator_hybrid-sleep-single-log-check
-_description: Hybrid sleep log check test
-_summary: Hybrid sleep log check test
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::suspend
- id: suspend/`echo ${index}`_hybrid-sleep-single-log-check
- depends: suspend/`echo ${index}`_hybrid_sleep_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- estimated_duration: 1.2
- command: [ -e $PLAINBOX_SESSION_SHARE/`echo ${index}`_hybrid_sleep_single.log ] && sleep_test_log_check -v s3 $PLAINBOX_SESSION_SHARE/`echo ${index}`_hybrid_sleep_single.log
- _description:
-  Automated check of the hybrid sleep log to look for errors reported by fwts
- EOF
+unit: template
+template-resource: graphics_card
+plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/{index}_hybrid-sleep-single-log-check
+depends: suspend/{index}_hybrid_sleep_{product_slug}
+estimated_duration: 1.2
+command: [ -e $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single.log ] && sleep_test_log_check -v s3 $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single.log
+_description:
+ Automated check of the hybrid sleep log to look for errors reported by fwts
 
-id: suspend/generator_hybrid-sleep-single-log-attach
-_description: Hybrid sleep log attach
-_summary: Hybrid sleep log attach
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: attachment
- category_id: 2013.com.canonical.plainbox::suspend
- id: suspend/`echo ${index}`_hybrid-sleep-single-log-attach_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- depends: suspend/`echo ${index}`_hybrid_sleep_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- command: [ -e $PLAINBOX_SESSION_SHARE/`echo ${index}`_hybrid_sleep_single.log ] && cat $PLAINBOX_SESSION_SHARE/`echo ${index}`_hybrid_sleep_single.log
- _description:
-  Attaches the log from the single hybrid sleep/resume test to the results
- EOF
+unit: template
+template-resource: graphics_card
+plugin: attachment
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/{index}_hybrid-sleep-single-log-attach_{product_slug}
+depends: suspend/{index}_hybrid_sleep_{product_slug}
+command: [ -e $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single.log ] && cat $PLAINBOX_SESSION_SHARE/{index}_hybrid_sleep_single.log
+_description:
+ Attaches the log from the single hybrid sleep/resume test to the results
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::suspend
@@ -388,20 +355,15 @@ command: [ -e $PLAINBOX_SESSION_SHARE/suspend_single_times.log ] && sleep_time_c
 _description:
  Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
 
-id: suspend/generator_suspend-time-check
-_description: Suspend time check test
-_summary: Suspend time check test
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::suspend
- id: suspend/`echo ${index}`_suspend-time-check_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- depends: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- estimated_duration: 1.2
- command: [ -e $PLAINBOX_SESSION_SHARE/`echo ${index}`_suspend_single_times.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/`echo ${index}`_suspend_single_times.log
- _description: Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
- EOF
+unit: template
+template-resource: graphics_card
+plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/{index}_suspend-time-check_{product_slug}
+depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
+estimated_duration: 1.2
+command: [ -e $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log ] && sleep_time_check $PLAINBOX_SESSION_SHARE/{index}_suspend_single_times.log
+_description: Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
 
 plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::suspend
@@ -453,20 +415,15 @@ estimated_duration: 1.2
 _description: Test to see that we have the same resolution after resuming as before.
 command: xrandr -q |grep '*'| awk '{print $1}' | diff $PLAINBOX_SESSION_SHARE/resolution_before_suspend.txt -
 
-plugin: local
-id: suspend/generator_resolution_after_suspend
-_description: Resolution consistency check after suspend with the valuse we got before suspend.
-_summary: Resolution consistency check after suspend with the valuse we got before suspend.
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::suspend
- id: suspend/`echo ${index}`_resolution_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- estimated_duration: 1.2
- depends: suspend/`echo ${index}`_resolution_before_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'` suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- _description: Test to see that we have the same resolution after resuming as before.
- command: xrandr -q |grep '*'| awk '{print $1}' | diff $PLAINBOX_SESSION_SHARE/`echo ${index}`_resolution_before_suspend.txt -
- EOF
+unit: template
+template-resource: graphics_card
+plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/{index}_resolution_after_suspend_{product_slug}
+estimated_duration: 1.2
+depends: suspend/{index}_resolution_before_suspend_{product_slug}
+_description: Test to see that we have the same resolution after resuming as before.
+command: xrandr -q |grep '*'| awk '{{print $1}}' | diff $PLAINBOX_SESSION_SHARE/{index}_resolution_before_suspend.txt -
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::suspend
@@ -639,26 +596,20 @@ _description:
  VERIFICATION:
      Does the display work normally after resuming from suspend?
 
-id: suspend/generator_display_after_suspend
-requires: device.category == 'VIDEO'
-_description: Display after suspend tests
-_summary: Display after suspend tests
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: manual
- category_id: 2013.com.canonical.plainbox::suspend
- id: suspend/`echo ${index}`_display_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- depends: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- _summary: Test display function after suspend for $product
- _description:
-  PURPOSE:
-      This test will check that the display is correct after suspend and resume on the $product graphics card.
-  STEPS:
-      1. Check that your display does not show up visual artifacts after resuming.
-  VERIFICATION:
-      Does the display work normally after resuming from suspend using the $product graphics card?
- EOF
+unit: template
+template-resource: graphics_card
+plugin: manual
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/{index}_display_after_suspend_{product_slug}
+depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
+_summary: Test display function after suspend for {vendor} {product}
+_description:
+ PURPOSE:
+     This test will check that the display is correct after suspend and resume on the {vendor} {product} graphics card.
+ STEPS:
+     1. Check that your display does not show up visual artifacts after resuming.
+ VERIFICATION:
+     Does the display work normally after resuming from suspend using the {vendor} {product} graphics card?
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::suspend
@@ -1050,7 +1001,6 @@ _description:
  security and the 802.11ac protocol after the system has been suspended.
 
 unit: template
-template-unit: job
 template-resource: device
 template-filter: device.category == 'NETWORK'
 plugin: shell
@@ -1068,7 +1018,6 @@ _description:
  This test executes iperf connection performance/stability against device {__index__} ({interface}) after suspend.
 
 unit: template
-template-unit: job
 template-resource: device
 template-filter: device.category == 'WIRELESS'
 plugin: shell
@@ -1568,28 +1517,22 @@ _description:
  VERIFICATION:
      Did your display look fine in the detected mode?
 
-plugin: local
-id: suspend/generator_cycle_resolutions_after_suspend
-requires: device.category == 'VIDEO'
-_description: Cycle resolution after suspend tests
-_summary: Cycle resolution after suspend tests
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: user-interact-verify
- category_id: 2013.com.canonical.plainbox::suspend
- id: suspend/`echo ${index}`_cycle_resolutions_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- requires: package.name == 'xorg'
- depends: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- estimated_duration: 120.0
- command: xrandr_cycle --keyword=`echo ${index}`_after_suspend --screenshot-dir $PLAINBOX_SESSION_SHARE
- _description:
-  PURPOSE:
-      This test will cycle through the detected display modes
-  STEPS:
-      1. Click "Test" and the display will cycle trough the display modes
-  VERIFICATION:
-      Did your display look fine in the detected mode?
- EOF
+unit: template
+template-resource: graphics_card
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}
+requires: package.name == 'xorg'
+depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
+estimated_duration: 120.0
+command: xrandr_cycle --keyword={index}_after_suspend --screenshot-dir $PLAINBOX_SESSION_SHARE
+_description:
+ PURPOSE:
+     This test will cycle through the detected display modes
+ STEPS:
+     1. Click "Test" and the display will cycle trough the display modes
+ VERIFICATION:
+     Did your display look fine in the detected mode?
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::suspend
@@ -1609,19 +1552,14 @@ depends: suspend/cycle_resolutions_after_suspend
 command: [ -f $PLAINBOX_SESSION_SHARE/xrandr_screens_after_suspend.tgz ] && base64 $PLAINBOX_SESSION_SHARE/xrandr_screens_after_suspend.tgz
 _description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
 
-plugin: local
-id: suspend/generator_xrandr_screens_after_suspend.tar.gz
-_description: Attach screenshots from the suspend/cycle_resolution_after_suspend test to the results submission.
-_summary: Attach screenshots from the suspend/cycle_resolution_after_suspend test to the results submission.
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: attachment
- category_id: 2013.com.canonical.plainbox::suspend
- id: suspend/`echo ${index}`_xrandr_screens_after_suspend.tar.gz
- depends: suspend/`echo ${index}`_cycle_resolutions_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- command: [ -f $PLAINBOX_SESSION_SHARE/`echo ${index}`_xrandr_screens_after_suspend.tgz ] && base64 $PLAINBOX_SESSION_SHARE/`echo ${index}`_xrandr_screens_after_suspend.tgz
- _description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
- EOF
+unit: template
+template-resource: graphics_card
+plugin: attachment
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/{index}_xrandr_screens_after_suspend.tar.gz
+depends: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}
+command: [ -f $PLAINBOX_SESSION_SHARE/{index}_xrandr_screens_after_suspend.tgz ] && base64 $PLAINBOX_SESSION_SHARE/{index}_xrandr_screens_after_suspend.tgz
+_description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::suspend
@@ -2728,73 +2666,54 @@ _description:
   Takes multiple pictures based on the resolutions supported by the camera and
   validates their size and that they are of a valid format after suspend
 
-plugin: local
-_summary: Pointing device tests after suspend.
-id: suspend/pointing-after-suspend
-requires:
- device.category == 'MOUSE' or device.category == 'TOUCHPAD' or device.category == 'TOUCHSCREEN'
-_description: Pointing device tests after suspend.
-command:
- cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=MOUSE" -w "category=TOUCHPAD" -w "category=TOUCHSCREEN"'
- plugin: manual
- category_id: 2013.com.canonical.plainbox::suspend
- id: suspend/pointing-after-suspend_`echo "${product}_${category}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`_`basename $path`
- depends: suspend/suspend_advanced
- requires: device.path == "$path"
- description:
-  PURPOSE:
-      This will test your $product device after suspend.
-  STEPS:
-      1. Move the cursor with your $product.
-  VERIFICATION:
-      Did the cursor move?
- EOF
+unit: template
+template-resource: device
+template-filter: device.category == 'MOUSE' or device.category == 'TOUCHPAD' or device.category == 'TOUCHSCREEN'
+plugin: manual
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/pointing-after-suspend_{product_slug}_{category}
+depends: suspend/suspend_advanced
+requires: device.path == "{path}"
+_description:
+ PURPOSE:
+     This will test your $product device after suspend.
+ STEPS:
+     1. Move the cursor with your {product}.
+ VERIFICATION:
+     Did the cursor move?
 
-plugin: local
-_summary: Create click tests for pointing devices after suspend.
-id: suspend/clicking-after-suspend
-estimated_duration: 1.0
-requires:
- device.category == 'MOUSE' or device.category == 'TOUCHPAD'
-_description: Click tests for pointing devices after suspend.
-command:
- cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=MOUSE" -w "category=TOUCHPAD"'
- plugin: manual
- category_id: 2013.com.canonical.plainbox::suspend
- estimated_duration: 30.0
- id: suspend/clicking-after-suspend_`echo "${product}_${category}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`_`basename $path`
- depends: suspend/suspend_advanced
- requires: device.path == "$path"
- _summary: Check post suspend button functionality for $product
- _description:
-  PURPOSE:
-      This will test the buttons of your $product device after suspend
-  STEPS:
-      1. Click the left button with your $product.
-      2. Click the right button with your $product.
-      3. Click the middle button with your $product (if available).
-      4. Double-click the left button with your $product.
-  VERIFICATION:
-      Did these buttons work as expected?
- EOF
+unit: template
+template-resource: device
+template-filter: device.category == 'MOUSE' or device.category == 'TOUCHPAD'
+plugin: manual
+category_id: 2013.com.canonical.plainbox::suspend
+estimated_duration: 30.0
+id: suspend/clicking-after-suspend_{product_slug}_{category}
+depends: suspend/suspend_advanced
+requires: device.path == "{path}"
+_summary: Check post suspend button functionality for {product}
+_description:
+ PURPOSE:
+     This will test the buttons of your {product} device after suspend
+ STEPS:
+     1. Click the left button with your {product}.
+     2. Click the right button with your {product}.
+     3. Click the middle button with your {product} (if available).
+     4. Double-click the left button with your {product}.
+ VERIFICATION:
+     Did these buttons work as expected?
 
-id: suspend/generator_compiz_check_after_suspend
-requires: device.category == 'VIDEO'
-_description: Compiz support tests after suspend
-_summary: Compiz support tests after suspend
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::suspend
- id: suspend/`echo ${index}`_compiz_check_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- depends: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- requires: package.name == 'nux-tools'
- command: ! /usr/lib/nux/unity_support_test -c -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
- estimated_duration: 0.130
- _description: Check that $product hardware is able to run compiz after suspend
- _summary: Test Compiz support for $product after suspend
- EOF
+unit: template
+template-resource: graphics_card
+plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/{index}_compiz_check_after_suspend_{product_slug}
+depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
+requires: package.name == 'nux-tools'
+command: ! /usr/lib/nux/unity_support_test -c -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
+estimated_duration: 0.130
+_description: Check that {product} hardware is able to run compiz after suspend
+_summary: Test Compiz support for {product} after suspend
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::suspend
@@ -2806,30 +2725,24 @@ estimated_duration: 0.130
 _description: Check that the hardware is able to run compiz after suspend
 _summary: Test Compiz support after suspend
 
-id: suspend/generator_glxgears_after_suspend
-requires: device.category == 'VIDEO'
-_description: glxgears tests after suspend
-_summary: glxgears tests after suspend
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: user-interact-verify
- category_id: 2013.com.canonical.plainbox::suspend
- id: suspend/`echo ${index}`_glxgears_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- depends: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- requires: package.name == 'mesa-utils'
- command: glxgears; true
- _summary: Test that glxgears works for $product after suspend
- _description:
-  PURPOSE:
-      This test tests the basic 3D capabilities of your $product video card after suspend
-  STEPS:
-      1. Click "Test" to execute an OpenGL demo. Press ESC at any time to close.
-      2. Verify that the animation is not jerky or slow.
-  VERIFICATION:
-      1. Did the 3d animation appear?
-      2. Was the animation free from slowness/jerkiness?
- EOF
+unit: template
+template-resource: graphics_card
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/{index}_glxgears_after_suspend_{product_slug}
+depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
+requires: package.name == 'mesa-utils'
+command: glxgears; true
+_summary: Test that glxgears works for {vendor} {product} after suspend
+_description:
+ PURPOSE:
+     This test tests the basic 3D capabilities of your {vendor} {product} video card after suspend
+ STEPS:
+     1. Click "Test" to execute an OpenGL demo. Press ESC at any time to close.
+     2. Verify that the animation is not jerky or slow.
+ VERIFICATION:
+     1. Did the 3d animation appear?
+     2. Was the animation free from slowness/jerkiness?
 
 plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::suspend
@@ -2850,30 +2763,24 @@ _description:
      1. Did the 3d animation appear?
      2. Was the animation free from slowness/jerkiness?
 
-id: suspend/generator_video_after_suspend
-requires: device.category == 'VIDEO'
-_description: Display video test after suspend
-_summary: Display video test after suspend
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- id: suspend/`echo ${index}`_video_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- depends: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- plugin: user-interact-verify
- category_id: 2013.com.canonical.plainbox::suspend
- requires:
-  package.name == 'xorg'
-  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
- command: gst_pipeline_test -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
- _summary: Test that video can be displayed after suspend with ${product}
- _description:
-  PURPOSE:
-      This test will test the default display after suspend with a sample video
-  STEPS:
-      1. Click "Test" to display a video test.
-  VERIFICATION:
-      Do you see color bars and static?
- EOF
+unit: template
+template-resource: graphics_card
+id: suspend/{index}_video_after_suspend_{product_slug}
+depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::suspend
+requires:
+ package.name == 'xorg'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+command: gst_pipeline_test -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
+_summary: Test that video can be displayed after suspend with {vendor} {product}
+_description:
+ PURPOSE:
+     This test will test the default display after suspend with a sample video
+ STEPS:
+     1. Click "Test" to display a video test.
+ VERIFICATION:
+     Do you see color bars and static?
 
 id: suspend/video_after_suspend
 plugin: user-interact-verify
@@ -2893,22 +2800,16 @@ _description:
  VERIFICATION:
      Do you see color bars and static?
 
-id: suspend/generator_driver_version_after_suspend
-requires: device.category == 'VIDEO'
-_description: Driver version tests after suspend
-_summary: Driver version tests after suspend
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::suspend
- id: suspend/`echo ${index}`_driver_version_after_suspend_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- depends: suspend/`echo ${index}`_suspend_after_switch_to_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- command: graphics_driver
- estimated_duration: 0.500
- _description: Parses Xorg.0.Log and discovers the running X driver and version after suspend for the $product graphics card
- _summary: Test X driver/version after suspend for $product
- EOF
+unit: template
+template-resource: graphics_card
+plugin: shell
+category_id: 2013.com.canonical.plainbox::suspend
+id: suspend/{index}_driver_version_after_suspend_{product_slug}
+depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
+command: graphics_driver
+estimated_duration: 0.500
+_description: Parses Xorg.0.Log and discovers the running X driver and version after suspend for the {vendor} {product} graphics card
+_summary: Test X driver/version after suspend for {vendor} {product}
 
 id: suspend/driver_version_after_suspend
 requires: device.category == 'VIDEO'

@@ -1,18 +1,12 @@
-id: graphics/generator_driver_version
-requires: device.category == 'VIDEO'
-_description: Driver version tests
-_summary: Driver version tests
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::graphics
- id: graphics/`echo ${index}`_driver_version_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- command: graphics_driver
- estimated_duration: 0.500
- _description: Parses Xorg.0.Log and discovers the running X driver and version for the $product graphics card
- _summary: Test X driver/version for $product
- EOF
+unit: template
+template-resource: graphics_card
+plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
+id: graphics/{index}_driver_version_{product_slug}
+command: graphics_driver
+estimated_duration: 0.5
+_description: Parses Xorg.0.Log and discovers the running X driver and version for the {vendor} {product} graphics card
+_summary: Test X driver/version for {vendor} {product}
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::graphics
@@ -23,31 +17,25 @@ estimated_duration: 0.018
 _description: Test to output the Xorg version
 _summary: Test Xorg version
 
-id: graphics/generator_resolution-change
-requires: device.category == 'VIDEO'
-_description: Resolution change tests
-_summary: Resolution change tests
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: manual
- category_id: 2013.com.canonical.plainbox::graphics
- id: graphics/`echo ${index}`_resolution-change_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- depends: graphics/xorg-version
- _summary: Test changing resolution for $product
- _description:
-  PURPOSE:
-      This test will verify that the GUI is usable after manually changing resolution on the $product graphics card.
-  STEPS:
-      1. Select the $product graphics card (a reboot may be necessary)
-      2. Open the Displays application
-      3. Select a new resolution from the dropdown list
-      4. Click on Apply
-      5. Select the original resolution from the dropdown list
-      6. Click on Apply
-  VERIFICATION:
-      Did the resolution on the $product graphics card change as expected?
- EOF
+unit: template
+template-resource: graphics_card
+plugin: manual
+category_id: 2013.com.canonical.plainbox::graphics
+id: graphics/{index}_resolution-change_{product_slug}
+depends: graphics/xorg-version
+_summary: Test changing resolution for {vendor} {product}
+_description:
+ PURPOSE:
+     This test will verify that the GUI is usable after manually changing resolution on the {vendor} {product} graphics card.
+ STEPS:
+     1. Select the {vendor} {product} graphics card (a reboot may be necessary)
+     2. Open the Displays application
+     3. Select a new resolution from the dropdown list
+     4. Click on Apply
+     5. Select the original resolution from the dropdown list
+     6. Click on Apply
+ VERIFICATION:
+     Did the resolution on the {vendor} {product} graphics card change as expected?
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::graphics
@@ -69,194 +57,140 @@ estimated_duration: 0.030
 _description: Test that the X is not running in failsafe mode.
 _summary: Test that X is not in failsafe mode.
 
-id: graphics/generator_resolution
-requires: device.category == 'VIDEO'
-_description: Default resolution tests
-_summary: Default resolution tests
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: user-interact-verify
- category_id: 2013.com.canonical.plainbox::graphics
- id: graphics/`echo ${index}`_resolution_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- requires:
-  device.category == 'VIDEO'
-  package.name == 'zenity'
- command: resolution_test | zenity --text-info
- estimated_duration: 10.00
- _summary: Test default resolution for $product
- _description:
-  PURPOSE:
-      This test will verify the default display resolution on the $product graphics card.
-  STEPS:
-      1. Click "Test".
-      2. Confirm that the resolution shown in the text window is acceptable for your display.
-  VERIFICATION:
-      Is the resolution shown acceptable for your display on $product graphics card?
- EOF
+unit: template
+template-resource: graphics_card
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::graphics
+id: graphics/{index}_resolution_{product_slug}
+requires:
+ device.category == 'VIDEO'
+ package.name == 'zenity'
+command: resolution_test | zenity --text-info
+estimated_duration: 10.00
+_summary: Test default resolution for {vendor} {product}
+_description:
+ PURPOSE:
+     This test will verify the default display resolution on the {vendor} {product} graphics card.
+ STEPS:
+     1. Click "Test".
+     2. Confirm that the resolution shown in the text window is acceptable for your display.
+ VERIFICATION:
+     Is the resolution shown acceptable for your display on {vendor} {product} graphics card?
 
-id: graphics/generator_screen_resolution
-requires: device.category == 'VIDEO'
-_description: Default resolution tests
-_summary: Default resolution tests
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: user-interact-verify
- category_id: 2013.com.canonical.plainbox::graphics
- id: graphics/`echo ${index}`_screen_resolution_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- requires:
-  device.category == 'VIDEO'
-  package.name == 'qmlscene'
- command: qmlscene -qt5 --transparent --fullscreen $PLAINBOX_PROVIDER_DATA/resolution_test.qml
- estimated_duration: 10.0
- _summary: Test default resolution for $product
- _description:
-  PURPOSE:
-      This test will verify the default display resolution on the $product graphics card
-  STEPS:
-      1. Click on Test to display the screen resolution overlay for 5 seconds.
-  VERIFICATION:
-      Is this acceptable for your display on the $product graphics card?
- EOF
+unit: template
+template-resource: graphics_card
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::graphics
+id: graphics/{index}_screen_resolution_{product_slug}
+requires:
+ device.category == 'VIDEO'
+ package.name == 'qmlscene'
+command: qmlscene -qt5 --transparent --fullscreen $PLAINBOX_PROVIDER_DATA/resolution_test.qml
+estimated_duration: 10.0
+_summary: Test default resolution for {vendor} {product}
+_description:
+ PURPOSE:
+     This test will verify the default display resolution on the {vendor} {product} graphics card
+ STEPS:
+     1. Click on Test to display the screen resolution overlay for 5 seconds.
+ VERIFICATION:
+     Is this acceptable for your display on the {vendor} {product} graphics card?
 
-id: graphics/generator_minimum_resolution
-requires: device.category == 'VIDEO'
-_description: Minimum resolution tests
-_summary: Minimum resolution tests
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::graphics
- id: graphics/`echo ${index}`_minimum_resolution_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- requires:
-  device.category == 'VIDEO'
- command: resolution_test --horizontal 800 --vertical 600
- estimated_duration: 0.331
- _summary: Test that $product meets minimum resolution requirement
- _description:
-  Ensure the current resolution meets or exceeds the recommended minimum
-  resolution (800x600) on the $product graphics card. See here for details:
-  https://help.ubuntu.com/community/Installation/SystemRequirements
- EOF
+unit: template
+template-resource: graphics_card
+plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
+id: graphics/{index}_minimum_resolution_{product_slug}
+requires:
+ device.category == 'VIDEO'
+command: resolution_test --horizontal 800 --vertical 600
+estimated_duration: 0.331
+_summary: Test that {vendor} {product} meets minimum resolution requirement
+_description:
+ Ensure the current resolution meets or exceeds the recommended minimum
+ resolution (800x600) on the {vendor} {product} graphics card. See here for details:
+ https://help.ubuntu.com/community/Installation/SystemRequirements
 
-id: graphics/generator_maximum_resolution
-requires: device.category == 'VIDEO'
-_description: Maximum resolution tests
-_summary: Maximum resolution tests
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- id: graphics/`echo ${index}`_maximum_resolution_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- plugin: user-interact-verify
- category_id: 2013.com.canonical.plainbox::graphics
- requires:
-  device.category == 'VIDEO'
-  package.name == 'zenity'
- command: 
-    maxi="\$(xrandr -q |grep -A 1 "connected\( primary\)* [0-9]" |tail -1 |awk '{print \$1}')"
-    now="\$(python3 -c 'from gi.repository import Gdk; screen=Gdk.Screen.get_default(); geo = screen.get_monitor_geometry(screen.get_primary_monitor()); print(geo.width, "x", geo.height, sep="")')"
-    test "\$maxi" != "\$now" && notify="\nPlease switch to the maximum resolution \nfor every graphic tests"
-    zenity --info --text "Maximum resolution: \$maxi\nCurrent resolution: \$now \$notify"
- estimated_duration: 10.0
- _summary: Test maximum supported resolution for $product
- _description:
-  PURPOSE:
-    This test will verify the maximum supported resolution on the $product graphics card.
-  STEPS:
-    1. Select the $product graphics card (a reboot may be necessary)
-    2. Consult the system's specifications and locate the screen's maximum supported resolution.
-    3. Click on Test to display the maximum resolution that can be used by Ubuntu on the current display.
-  VERIFICATION:
-    Is this the maximum resolution for the display connected to the $product graphics card?
- EOF
+unit: template
+template-resource: graphics_card
+id: graphics/{index}_maximum_resolution_{product_slug}
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::graphics
+requires:
+ device.category == 'VIDEO'
+ package.name == 'zenity'
+command: 
+   maxi="$(xrandr -q |grep -A 1 "connected\( primary\)* [0-9]" |tail -1 |awk '{{print $1}}')"
+   now="$(python3 -c 'from gi.repository import Gdk; screen=Gdk.Screen.get_default(); geo = screen.get_monitor_geometry(screen.get_primary_monitor()); print(geo.width, "x", geo.height, sep="")')"
+   test "$maxi" != "$now" && notify="\nPlease switch to the maximum resolution \nfor every graphic tests"
+   zenity --info --text "Maximum resolution: $maxi\nCurrent resolution: $now $notify"
+estimated_duration: 10.0
+_summary: Test maximum supported resolution for {vendor} {product}
+_description:
+ PURPOSE:
+   This test will verify the maximum supported resolution on the {vendor} {product} graphics card.
+ STEPS:
+   1. Select the {vendor} {product} graphics card (a reboot may be necessary)
+   2. Consult the system's specifications and locate the screen's maximum supported resolution.
+   3. Click on Test to display the maximum resolution that can be used by Ubuntu on the current display.
+ VERIFICATION:
+   Is this the maximum resolution for the display connected to the {vendor} {product} graphics card?
 
-id: graphics/generator_modes
-requires: device.category == 'VIDEO'
-_description: Mode tests
-_summary: Mode tests
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- id: graphics/`echo ${index}`_modes_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- plugin: shell
- category_id: 2013.com.canonical.plainbox::graphics
- command: graphics_modes_info
- estimated_duration: 0.250
- _description: Collect info on graphics modes (screen resolution and refresh rate) for $product
- _summary: Test graphic modes info for $product
- EOF
+unit: template
+template-resource: graphics_card
+id: graphics/{index}_modes_{product_slug}
+plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
+command: graphics_modes_info
+estimated_duration: 0.250
+_description: Collect info on graphics modes (screen resolution and refresh rate) for {vendor} {product}
+_summary: Test graphic modes info for {vendor} {product}
 
-id: graphics/generator_color_depth
-requires: device.category == 'VIDEO'
-_description: Color depth tests
-_summary: Color depth tests
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- id: graphics/`echo ${index}`_color_depth_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- plugin: shell
- category_id: 2013.com.canonical.plainbox::graphics
- command: color_depth_info
- estimated_duration: 0.150
- _description: Collect info on color depth and pixel format for $product
- _summary: Test color depth info for $product
- EOF
+unit: template
+template-resource: graphics_card
+id: graphics/{index}_color_depth_{product_slug}
+plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
+command: color_depth_info
+estimated_duration: 0.150
+_description: Collect info on color depth and pixel format for {vendor} {product}
+_summary: Test color depth info for {vendor} {product}
 
-id: graphics/generator_fresh_rate
-requires: device.category == 'VIDEO'
-_description: Refresh rate tests
-_summary: Refresh rate tests
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- id: graphics/`echo ${index}`_fresh_rate_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- plugin: shell
- category_id: 2013.com.canonical.plainbox::graphics
- command: fresh_rate_info
- _description: Collect info on fresh rate for $product.
- _summary: Test refresh rate for $product
- EOF
+unit: template
+template-resource: graphics_card
+id: graphics/{index}_fresh_rate_{product_slug}
+plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
+command: fresh_rate_info
+_description: Collect info on fresh rate for {vendor} {product}.
+_summary: Test refresh rate for {vendor} {product}
 
-id: graphics/generator_graphic_memory
-requires: device.category == 'VIDEO'
-_description: Graphic memory tests
-_summary: Graphic memory tests
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- id: graphics/`echo ${index}`_graphic_memory_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- plugin: shell
- category_id: 2013.com.canonical.plainbox::graphics
- command: graphic_memory_info
- _description: Collect info on graphic memory for $product.
- _summary: Test graphic memory info for $product.
- EOF
+unit: template
+template-resource: graphics_card
+id: graphics/{index}_graphic_memory_{product_slug}
+plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
+command: graphic_memory_info
+_description: Collect info on graphic memory for {vendor} {product}.
+_summary: Test graphic memory info for {vendor} {product}.
 
-id: graphics/generator_video
-requires: device.category == 'VIDEO'
-_description: Display video test
-_summary: Display video test
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- id: graphics/`echo ${index}`_video_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- plugin: user-interact-verify
- category_id: 2013.com.canonical.plainbox::graphics
- requires:
-  package.name == 'xorg'
-  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
- command: gst_pipeline_test -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
- _summary: Test that video can be displayed with ${product}
- _description:
-  PURPOSE:
-      This test will test the default display with a sample video
-  STEPS:
-      1. Click "Test" to display a video test.
-  VERIFICATION:
-      Do you see color bars and static?
- EOF
+unit: template
+template-resource: graphics_card
+id: graphics/{index}_video_{product_slug}
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::graphics
+requires:
+ package.name == 'xorg'
+ package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
+command: gst_pipeline_test -t 2 'videotestsrc ! videoconvert ! autovideosink' || gst_pipeline_test -t 2 'videotestsrc ! ffmpegcolorspace ! autovideosink'
+_summary: Test that video can be displayed with {vendor} {product}
+_description:
+ PURPOSE:
+     This test will test the default display with a sample video
+ STEPS:
+     1. Click "Test" to display a video test.
+ VERIFICATION:
+     Do you see color bars and static?
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::graphics
@@ -266,288 +200,204 @@ estimated_duration: 0.011
 _description: Check that VESA drivers are not in use
 _summary: Test that VESA drivers are not in use
 
-id: graphics/generator_cycle_resolution
-requires: device.category == 'VIDEO'
-_description: Resolution cycling tests
-_summary: Resolution cycling tests
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: user-interact-verify
- category_id: 2013.com.canonical.plainbox::graphics
- id: graphics/`echo ${index}`_cycle_resolution_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- requires: package.name == 'xorg'
- depends: graphics/VESA_drivers_not_in_use
- command: xrandr_cycle --screenshot-dir $PLAINBOX_SESSION_SHARE
- estimated_duration: 250.000
- _summary: Test resolution cycling for $product
- _description:
-  PURPOSE:
-      This test cycles through the detected video modes for the $product graphics card
-  STEPS:
-      1. Click "Test" to start cycling through the video modes
-  VERIFICATION:
-      Did the screen appear to be working for each mode?
- EOF
+unit: template
+template-resource: graphics_card
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::graphics
+id: graphics/{index}_cycle_resolution_{product_slug}
+requires: package.name == 'xorg'
+depends: graphics/VESA_drivers_not_in_use
+command: xrandr_cycle --screenshot-dir $PLAINBOX_SESSION_SHARE
+estimated_duration: 250.000
+_summary: Test resolution cycling for {vendor} {product}
+_description:
+ PURPOSE:
+     This test cycles through the detected video modes for the {vendor} {product} graphics card
+ STEPS:
+     1. Click "Test" to start cycling through the video modes
+ VERIFICATION:
+     Did the screen appear to be working for each mode?
 
-id: graphics/generator_rotation
-requires: device.category == 'VIDEO'
-_description: Rotation tests
-_summary: Rotation tests
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: user-interact-verify
- category_id: 2013.com.canonical.plainbox::graphics
- id: graphics/`echo ${index}`_rotation_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- depends: graphics/xorg-version
- command: rotation_test_using_dbus
- estimated_duration: 20.000
- _summary: Test rotation for $product
- _description:
-  PURPOSE:
-      This test will test display rotation on the $product graphics card
-  STEPS:
-      1. Click "Test" to test display rotation. The display will be rotated every 4 seconds.
-      2. Check if all rotations (normal right inverted left) took place without permanent screen corruption
-  VERIFICATION:
-      Did the display rotation take place without without permanent screen corruption?
- EOF
+unit: template
+template-resource: graphics_card
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::graphics
+id: graphics/{index}_rotation_{product_slug}
+depends: graphics/xorg-version
+command: rotation_test_using_dbus
+estimated_duration: 20.000
+_summary: Test rotation for {vendor} {product}
+_description:
+ PURPOSE:
+     This test will test display rotation on the {vendor} {product} graphics card
+ STEPS:
+     1. Click "Test" to test display rotation. The display will be rotated every 4 seconds.
+     2. Check if all rotations (normal right inverted left) took place without permanent screen corruption
+ VERIFICATION:
+     Did the display rotation take place without without permanent screen corruption?
 
-id: graphics/generator_compiz_check
-requires: device.category == 'VIDEO'
-_description: Compiz support tests
-_summary: Compiz support tests
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::graphics
- id: graphics/`echo ${index}`_compiz_check_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- requires: package.name == 'nux-tools'
- command: ! /usr/lib/nux/unity_support_test -c -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
- estimated_duration: 0.130
- _description: Check that $product hardware is able to run compiz
- _summary: Test Compiz support for $product
- EOF
+unit: template
+template-resource: graphics_card
+plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
+id: graphics/{index}_compiz_check_{product_slug}
+requires: package.name == 'nux-tools'
+command: ! /usr/lib/nux/unity_support_test -c -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
+estimated_duration: 0.130
+_description: Check that {vendor} {product} hardware is able to run compiz
+_summary: Test Compiz support for {vendor} {product}
 
-id: graphics/generator_unity_support
-requires: device.category == 'VIDEO'
-_description: Unity support tests
-_summary: Unity support tests
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::graphics
- id: graphics/`echo ${index}`_unity_support_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- requires: package.name == 'nux-tools'
- command: ! /usr/lib/nux/unity_support_test -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
- estimated_duration: 0.131
- _description: Check that $product hardware is able to run Unity 3D
- _summary: Test Unity 3D support for $product
- EOF
+unit: template
+template-resource: graphics_card
+plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
+id: graphics/{index}_unity_support_{product_slug}
+requires: package.name == 'nux-tools'
+command: ! /usr/lib/nux/unity_support_test -p 2>&1 | ansi_parser | grep -e ":\(\s\+\)no$" -ie "error"
+estimated_duration: 0.131
+_description: Check that {vendor} {product} hardware is able to run Unity 3D
+_summary: Test Unity 3D support for {vendor} {product}
 
-id: graphics/generator_glxgears
-requires: device.category == 'VIDEO'
-_description: glxgears tests
-_summary: glxgears tests
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: user-interact-verify
- category_id: 2013.com.canonical.plainbox::graphics
- id: graphics/`echo ${index}`_glxgears_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- requires: package.name == 'mesa-utils'
- command: glxgears; true
- _summary: Test that glxgears works for $product
- _description:
-  PURPOSE:
-      This test tests the basic 3D capabilities of your $product video card
-  STEPS:
-      1. Click "Test" to execute an OpenGL demo. Press ESC at any time to close.
-      2. Verify that the animation is not jerky or slow.
-  VERIFICATION:
-      1. Did the 3d animation appear?
-      2. Was the animation free from slowness/jerkiness?
- EOF
+unit: template
+template-resource: graphics_card
+plugin: user-interact-verify
+category_id: 2013.com.canonical.plainbox::graphics
+id: graphics/{index}_glxgears_{product_slug}
+requires: package.name == 'mesa-utils'
+command: glxgears; true
+_summary: Test that glxgears works for {vendor} {product}
+_description:
+ PURPOSE:
+     This test tests the basic 3D capabilities of your {vendor} {product} video card
+ STEPS:
+     1. Click "Test" to execute an OpenGL demo. Press ESC at any time to close.
+     2. Verify that the animation is not jerky or slow.
+ VERIFICATION:
+     1. Did the 3d animation appear?
+     2. Was the animation free from slowness/jerkiness?
 
-id: graphics/generator_3d_window_open_close
-requires: device.category == 'VIDEO'
-_description: 3D window open/close tests
-_summary: 3D window open/close tests
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::graphics
- id: graphics/`echo ${index}`_3d_window_open_close_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- requires: package.name == 'mesa-utils'
- command: window_test -t open-close -i 10
- estimated_duration: 60.525
- _description: Open and close a 3D window multiple times on the $product video card
- _summary: Test 3D window open/close for $product
- EOF
+unit: template
+template-resource: graphics_card
+plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
+id: graphics/{index}_3d_window_open_close_{product_slug}
+requires: package.name == 'mesa-utils'
+command: window_test -t open-close -i 10
+estimated_duration: 60.525
+_description: Open and close a 3D window multiple times on the {vendor} {product} video card
+_summary: Test 3D window open/close for {vendor} {product}
 
-id: graphics/generator_3d_window_suspend_resume
-requires: device.category == 'VIDEO'
-_description: 3D window with suspend/resume tests
-_summary: 3D window with suspend/resume tests
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::graphics
- id: graphics/`echo ${index}`_3d_window_suspend_resume_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- requires: package.name == 'mesa-utils'
- command: window_test -t suspend-resume -i 10
- estimated_duration: 121.00
- _description: Open, suspend resume and close a 3D window multiple times on the $product video card
- _summary: Test a 3D window with suspend/resume for $product
- EOF
+unit: template
+template-resource: graphics_card
+plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
+id: graphics/{index}_3d_window_suspend_resume_{product_slug}
+requires: package.name == 'mesa-utils'
+command: window_test -t suspend-resume -i 10
+estimated_duration: 121.00
+_description: Open, suspend resume and close a 3D window multiple times on the {vendor} {product} video card
+_summary: Test a 3D window with suspend/resume for {vendor} {product}
 
-id: graphics/generator_multi_3d_windows_open_close
-requires: device.category == 'VIDEO'
-_description: Multiple 3D window open/close
-_summary: Multiple 3D window open/close tests
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::graphics
- id: graphics/`echo ${index}`_multi_3d_windows_open_close_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- requires: package.name == 'mesa-utils'
- command: window_test -t open-close-multi -i 10 -w 4
- estimated_duration: 60.000
- _description: Open and close 4 3D windows multiple times on the $product video card
- _summary: Test Multi 3D window open/close for $product
- EOF
+unit: template
+template-resource: graphics_card
+plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
+id: graphics/{index}_multi_3d_windows_open_close_{product_slug}
+requires: package.name == 'mesa-utils'
+command: window_test -t open-close-multi -i 10 -w 4
+estimated_duration: 60.000
+_description: Open and close 4 3D windows multiple times on the {vendor} {product} video card
+_summary: Test Multi 3D window open/close for {vendor} {product}
 
-id: graphics/generator_3d_window_move
-requires: device.category == 'VIDEO'
-_description: 3D window movement
-_summary: 3D window movement tests
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::graphics
- id: graphics/`echo ${index}`_3d_window_move_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- requires:
-  package.name == 'mesa-utils'
-  package.name == 'wmctrl'
- command: window_test -t move
- estimated_duration: 50.000
- _description: Move a 3D window around the screen on the $product video card
- _summary: Test 3D window movement for $product
- EOF
+unit: template
+template-resource: graphics_card
+plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
+id: graphics/{index}_3d_window_move_{product_slug}
+requires:
+ package.name == 'mesa-utils'
+ package.name == 'wmctrl'
+command: window_test -t move
+estimated_duration: 50.000
+_description: Move a 3D window around the screen on the {vendor} {product} video card
+_summary: Test 3D window movement for {vendor} {product}
 
-id: graphics/generator_screenshot
-requires: device.category == 'VIDEO'
-_description: screenshot tests
-_summary: screenshot tests
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::graphics
- id: graphics/`echo ${index}`_screenshot_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- requires: package.name == 'fswebcam'
- command: set -o pipefail; camera_test still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot_${index}.jpg -q 2>&1 | ansi_parser
- _summary: Test grabbing a screenshot for $product
- _description:
-  PURPOSE:
-      Take a screengrab of the current screen (logged on Unity desktop) as produced by the $product graphics card
-  STEPS:
-      1. Take picture using USB webcam
-  VERIFICATION:
-      Review attachment manually later
- EOF
+unit: template
+template-resource: graphics_card
+plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
+id: graphics/{index}_screenshot_{product_slug}
+requires: package.name == 'fswebcam'
+command: set -o pipefail; camera_test still --device=/dev/external_webcam -f $PLAINBOX_SESSION_SHARE/screenshot_{index}.jpg -q 2>&1 | ansi_parser
+_summary: Test grabbing a screenshot for {vendor} {product}
+_description:
+ PURPOSE:
+     Take a screengrab of the current screen (logged on Unity desktop) as produced by the {vendor} {product} graphics card
+ STEPS:
+     1. Take picture using USB webcam
+ VERIFICATION:
+     Review attachment manually later
 
-id: graphics/generator_screenshot.jpg
-requires: device.category == 'VIDEO'
-_description: screenshot attachment tests
-_summary: screenshot attachment tests
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: attachment
- category_id: 2013.com.canonical.plainbox::graphics
- id: `echo ${index}`_screenshot_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`.jpg
- depends: graphics/`echo ${index}`_screenshot_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- command: base64 ${PLAINBOX_SESSION_SHARE}/screenshot_${index}.jpg
- _description: Attaches the screenshot captured in graphics/screenshot for the $product graphics card.
- _summary: Attach results of screenshot test for $product
- EOF
+unit: template
+template-resource: graphics_card
+plugin: attachment
+category_id: 2013.com.canonical.plainbox::graphics
+id: graphics/{index}_screenshot_{product_slug}.jpg
+depends: graphics/{index}_screenshot_{product_slug}
+command: base64 $PLAINBOX_SESSION_SHARE/screenshot_{index}.jpg
+_description: Attaches the screenshot captured in graphics/screenshot for the {vendor} {product} graphics card.
+_summary: Attach results of screenshot test for {vendor} {product}
 
-id: graphics/generator_screenshot_fullscreen_video
-requires: device.category == 'VIDEO'
-_description: full screen video screenshot tests
-_summary: full screen video screenshot tests
-plugin: local
+unit: template
+template-resource: graphics_card
+plugin: shell
+category_id: 2013.com.canonical.plainbox::graphics
+id: graphics/{index}_screenshot_fullscreen_video_{product_slug}
+requires: package.name == 'fswebcam'
 command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: shell
- category_id: 2013.com.canonical.plainbox::graphics
- id: graphics/`echo ${index}`_screenshot_fullscreen_video_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- requires: package.name == 'fswebcam'
- command:
-  [ -f ${PLAINBOX_PROVIDER_DATA}/video/Ogg_Theora_Video.ogv ] || { echo "Video file not found"; exit 1; }
-  gsettings set org.gnome.totem repeat true
-  totem --fullscreen ${PLAINBOX_PROVIDER_DATA}/video/Ogg_Theora_Video.ogv 2>/dev/null &
-  set -o pipefail
-  sleep 15 && camera_test still --device=/dev/external_webcam -f ${PLAINBOX_SESSION_SHARE}/screenshot_fullscreen_video_${index}.jpg -q 2>&1 | ansi_parser
-  sleep 5 && totem --quit 2>/dev/null
-  gsettings set org.gnome.totem repeat false
- _summary: Test FSV screenshot for $product
- _description:
-  PURPOSE:
-      Take a screengrab of the current screen during fullscreen video playback using the $product graphics card
-  STEPS:
-      1. Start a fullscreen video playback
-      2. Take picture using USB webcam after a few seconds
-  VERIFICATION:
-      Review attachment manually later
- EOF
+ [ -f $PLAINBOX_PROVIDER_DATA/video/Ogg_Theora_Video.ogv ] || {{ echo "Video file not found"; exit 1; }}
+ gsettings set org.gnome.totem repeat true
+ totem --fullscreen $PLAINBOX_PROVIDER_DATA/video/Ogg_Theora_Video.ogv 2>/dev/null &
+ set -o pipefail
+ sleep 15 && camera_test still --device=/dev/external_webcam -f $PLAINBOX_SESSION_SHARE/screenshot_fullscreen_video_{index}.jpg -q 2>&1 | ansi_parser
+ sleep 5 && totem --quit 2>/dev/null
+ gsettings set org.gnome.totem repeat false
+_summary: Test FSV screenshot for {vendor} {product}
+_description:
+ PURPOSE:
+     Take a screengrab of the current screen during fullscreen video playback using the {vendor} {product} graphics card
+ STEPS:
+     1. Start a fullscreen video playback
+     2. Take picture using USB webcam after a few seconds
+ VERIFICATION:
+     Review attachment manually later
 
-id: graphics/generator_switch_card
-requires: device.category == 'VIDEO'
-_description: GPU switch prompt tests
-_summary: GPU switch prompt tests
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: manual
- category_id: 2013.com.canonical.plainbox::graphics
- id: graphics/`echo ${index}`_switch_card_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- _summary: Test GPU switching for $product
- _description:
-  PURPOSE:
-      Manually switch to the $product card.
-  STEPS:
-      1. If your system is already running with the $product card, then please mark this test as "passed" and proceed.
-      2. Using the appropriate tool (either NVidia settings or AMD Control Center), switch your system to use the $product graphics card. This will require restarting your session.
-      3. Once the session restarts, please restart this testing program and select "continue" when prompted for a resume action.
-      4. Don't answer the verification question until the system has restarted with the $product card enabled.
-  VERIFICATION:
-      Is the system using the $product card now?
- EOF
+unit: template
+template-resource: graphics_card
+plugin: manual
+category_id: 2013.com.canonical.plainbox::graphics
+id: graphics/{index}_switch_card_{product_slug}
+_summary: Test GPU switching for {vendor} {product}
+_description:
+ PURPOSE:
+     Manually switch to the {vendor} {product} card.
+ STEPS:
+     1. If your system is already running with the {vendor} {product} card, then please mark this test as "passed" and proceed.
+     2. Using the appropriate tool (either NVidia settings or AMD Control Center), switch your system to use the {vendor} {product} graphics card. This will require restarting your session.
+     3. Once the session restarts, please restart this testing program and select "continue" when prompted for a resume action.
+     4. Don't answer the verification question until the system has restarted with the {vendor} {product} card enabled.
+ VERIFICATION:
+     Is the system using the {vendor} {product} card now?
 
-id: graphics/generator_screenshot_fullscreen_video.jpg
-requires: device.category == 'VIDEO'
-_description: full screen video attachment tests
-_summary: full screen video attachment tests
-plugin: local
-command:
- cat <<'EOF' | run_templates -t -s 'graphics_card_resource'
- plugin: attachment
- category_id: 2013.com.canonical.plainbox::graphics
- id: `echo ${index}`_screenshot_fullscreen_video_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`.jpg
- depends: graphics/`echo ${index}`_screenshot_fullscreen_video_`echo "${product}" | sed 's/ /_/g;s/[^_a-zA-Z0-9-]//g'`
- command: base64 ${PLAINBOX_SESSION_SHARE}/screenshot_fullscreen_video_${index}.jpg
- _summary: Attach results of FSV screenshot test for $product
- _description: Attaches the screenshot captured in graphics/screenshot_fullscreen_video for the $product graphics card
- EOF
+unit: template
+template-resource: graphics_card
+plugin: attachment
+category_id: 2013.com.canonical.plainbox::graphics
+id: graphics/{index}_screenshot_fullscreen_video_{product_slug}.jpg
+depends: graphics/{index}_screenshot_fullscreen_video_{product_slug}
+command: base64 $PLAINBOX_SESSION_SHARE/screenshot_fullscreen_video_{index}.jpg
+_summary: Attach results of FSV screenshot test for {vendor} {product}
+_description: Attaches the screenshot captured in graphics/screenshot_fullscreen_video for the {vendor} {product} graphics card
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::graphics
@@ -567,34 +417,25 @@ depends: graphics/screen-capture-internal
 command: [ -f ${PLAINBOX_SESSION_SHARE}/screen-capture.png ] && base64 ${PLAINBOX_SESSION_SHARE}/screen-capture.png
 _description: Attaches the simple screen capture file
 
-
-unit: job
-id: graphics_card_resource
-plugin: resource
-category_id: 2013.com.canonical.plainbox::graphics
-command: graphics_card_resource
-
 unit: template
-template-unit: job
-template-resource: graphics_card_resource
+template-resource: graphics_card
 plugin: shell
 category_id: 2013.com.canonical.plainbox::graphics
-id: "graphics/{index}_screen-capture-internal_{product}"
-_summary: Obtains a simple screen capture of {product}
+id: graphics/{index}_screen-capture-internal_{product_slug}
+_summary: Obtains a simple screen capture of {vendor} {product}
 estimated_duration: 1.0
 requires: package.name == 'gnome-screenshot'
 command: gnome-screenshot --file $PLAINBOX_SESSION_SHARE/screen-capture-{index}.png
-_description: Obtains a simple screen capture of {product} using gnome-screenshot if present
+_description: Obtains a simple screen capture of {vendor} {product} using gnome-screenshot if present
 
 unit: template
-template-unit: job
-template-resource: graphics_card_resource
+template-resource: graphics_card
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::graphics
-id: graphics/{index}_screen-capture-internal_{product}.png
-depends: "graphics/{index}_screen-capture-internal_{product}"
-_summary: Attaches a simple screen capture of {product}
+id: graphics/{index}_screen-capture-internal_{product_slug}.png
+depends: graphics/{index}_screen-capture-internal_{product_slug}
+_summary: Attaches a simple screen capture of {vendor} {product}
 estimated_duration: 1.0
 command: [ -f $PLAINBOX_SESSION_SHARE/screen-capture-{index}.png ] && base64 $PLAINBOX_SESSION_SHARE/screen-capture-{index}.png
-_description: Attaches the simple screen capture file of {product}
+_description: Attaches the simple screen capture file of {vendor} {product}
 

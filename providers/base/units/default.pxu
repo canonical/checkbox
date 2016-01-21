@@ -105,10 +105,5 @@ include:
     usb/storage-automated
     usb/remove
 bootstrap_include:
-    benchmarks/disk/hdparm-read
-    benchmarks/disk/hdparm-cache-read
-    optical/read
-    graphics/generator_compiz_check
-    graphics/generator_resolution
-    graphics/generator_minimum_resolution
-    graphics/generator_driver_version
+    device
+    graphics_card

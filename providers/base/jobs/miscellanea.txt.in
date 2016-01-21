@@ -172,7 +172,6 @@ command: sources_test $SOURCES_LIST "$REPOSITORIES"
 _description: Checks that a specified sources list file contains the requested repositories
 
 unit: template
-template-unit: job
 template-resource: device
 template-filter: device.category == 'NETWORK'
 plugin: manual
@@ -191,7 +190,6 @@ _verification:
  3. Select No if you attempted to PXE boot via {interface} and it failed for some reason.
 
 unit: template
-template-unit: job
 template-resource: device
 template-filter: device.category == 'NETWORK'
 plugin: manual

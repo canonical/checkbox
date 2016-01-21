@@ -20,7 +20,14 @@
 import argparse
 import subprocess
 import shlex
+import string
 
+
+def slugify(_string):
+    """Transform any string to one that can be used in job IDs."""
+    valid_chars = frozenset(
+        "-_.{}{}".format(string.ascii_letters, string.digits))
+    return ''.join(c if c in valid_chars else '_' for c in _string)
 
 def subprocess_lines_generator(command):
     """
@@ -115,6 +122,7 @@ def main():
                 except ValueError:
                     fake_product = "PCI ID unknown"
                 record['product'] = fake_product
+                record['product_slug'] = slugify(fake_product)
             # Finally, print the record
             items = ["{key}: {value}".format(key=k, value=record[k])
                      for k in sorted(record.keys())]

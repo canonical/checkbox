@@ -46,9 +46,7 @@ include:
     graphics/xorg-failsafe
     graphics/xorg-process
     graphics/1_screenshot_.*
-    1_screenshot_.*.jpg
     graphics/1_screenshot_fullscreen_video_.*
-    1_screenshot_fullscreen_video_.*.jpg
     install/apt-get-gets-updates
     mediacard/sd-preinserted
     memory/info

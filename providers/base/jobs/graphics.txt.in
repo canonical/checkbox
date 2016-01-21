@@ -342,7 +342,7 @@ unit: template
 template-resource: graphics_card
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::graphics
-id: {index}_screenshot_{product_slug}.jpg
+id: graphics/{index}_screenshot_{product_slug}.jpg
 depends: graphics/{index}_screenshot_{product_slug}
 command: base64 $PLAINBOX_SESSION_SHARE/screenshot_{index}.jpg
 _description: Attaches the screenshot captured in graphics/screenshot for the {vendor} {product} graphics card.
@@ -393,7 +393,7 @@ unit: template
 template-resource: graphics_card
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::graphics
-id: {index}_screenshot_fullscreen_video_{product_slug}.jpg
+id: graphics/{index}_screenshot_fullscreen_video_{product_slug}.jpg
 depends: graphics/{index}_screenshot_fullscreen_video_{product_slug}
 command: base64 $PLAINBOX_SESSION_SHARE/screenshot_fullscreen_video_{index}.jpg
 _summary: Attach results of FSV screenshot test for {vendor} {product}

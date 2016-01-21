@@ -8,34 +8,34 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-01-11 16:06+0800\n"
-"PO-Revision-Date: 2015-12-23 03:46+0000\n"
+"PO-Revision-Date: 2016-01-19 09:26+0000\n"
 "Last-Translator: Po-Hsu Lin <po-hsu.lin@canonical.com>\n"
 "Language-Team: Chinese (Traditional) <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-01-12 05:08+0000\n"
-"X-Generator: Launchpad (build 17881)\n"
+"X-Launchpad-Export-Date: 2016-01-21 05:11+0000\n"
+"X-Generator: Launchpad (build 17886)\n"
 "Language: \n"
 
 #: .././checkbox_ng/certification.py:135
 msgid "Secure ID not specified"
-msgstr ""
+msgstr "未指定 Secure ID"
 
 #: .././checkbox_ng/certification.py:138
 #, python-format
 msgid "Sending to %s, hardware id is %s"
-msgstr ""
+msgstr "傳送至 %s，hardware id 為 %s"
 
 #: .././checkbox_ng/certification.py:144
 #, python-format
 msgid "submit_to_hexr set to %s by config"
-msgstr ""
+msgstr "submit_to_hexr 在設定中被設定為 %s"
 
 #: .././checkbox_ng/certification.py:148
 #, python-format
 msgid "submit_to_hexr set to %s by UI"
-msgstr ""
+msgstr "submit_to_hexr 在使用者介面中被設定為 %s"
 
 #: .././checkbox_ng/certification.py:164 .././checkbox_ng/launchpad.py:183
 msgid "Request to {0} timed out: {1}"
@@ -51,7 +51,7 @@ msgstr "無法連線至 {0}: {1}"
 
 #: .././checkbox_ng/certification.py:189
 msgid "secure_id must be 15 or 18-character alphanumeric string"
-msgstr ""
+msgstr "secure_id 必須是由 15 或 18 個字母與數字組成的字串"
 
 #: .././checkbox_ng/commands/cli.py:70
 msgid "run check-config"
@@ -65,34 +65,34 @@ msgstr "使用者介面選項"
 #: .././checkbox_ng/commands/cli.py:77
 #: .././checkbox_ng/commands/launcher.py:111
 msgid "skip tests that require interactivity"
-msgstr ""
+msgstr "略過需要互動的測試項目"
 
 #: .././checkbox_ng/commands/cli.py:80
 msgid "don't suppress the output of certain job plugin types"
-msgstr ""
+msgstr "不要抑制特定工作類型的輸出"
 
 #: .././checkbox_ng/commands/launcher.py:64
 #, python-format
 msgid "Unable to load launcher definition: %s"
-msgstr ""
+msgstr "無法載入 launcher 定義檔：%s"
 
 #: .././checkbox_ng/commands/launcher.py:69
 msgid "Unable to start launcher because of errors:"
-msgstr ""
+msgstr "無法啟動 launcher 因為此錯誤："
 
 #: .././checkbox_ng/commands/launcher.py:102
 msgid "LAUNCHER"
-msgstr ""
+msgstr "LAUNCHER"
 
 #: .././checkbox_ng/commands/launcher.py:103
 msgid "launcher definition file to use"
-msgstr ""
+msgstr "預使用的 launcher 定義檔"
 
 #: .././checkbox_ng/commands/newcli.py:119
 #: .././checkbox_ng/commands/newcli.py:130
 #, python-format
 msgid "Incorrect pattern %r: %s"
-msgstr ""
+msgstr "錯誤的樣式 %r：%s"
 
 #: .././checkbox_ng/commands/newcli.py:147
 #, python-format
@@ -106,7 +106,7 @@ msgstr "已選擇的測試計畫：%r"
 
 #: .././checkbox_ng/commands/newcli.py:259
 msgid "Suite selection"
-msgstr ""
+msgstr "套件選擇"
 
 #: .././checkbox_ng/commands/newcli.py:262
 msgid "No testplan selected, aborting"
@@ -114,11 +114,11 @@ msgstr "沒有選擇任何測試計畫，程式中止"
 
 #: .././checkbox_ng/commands/newcli.py:291
 msgid "Selecting Job Generators"
-msgstr ""
+msgstr "選擇工作產生器中"
 
 #: .././checkbox_ng/commands/newcli.py:310
 msgid "Selecting Jobs For Execution"
-msgstr ""
+msgstr "選擇要執行的工作中"
 
 #: .././checkbox_ng/commands/newcli.py:317
 msgid "Choose tests to run on your system:"
@@ -142,11 +142,11 @@ msgstr ""
 
 #: .././checkbox_ng/commands/newcli.py:400
 msgid "Secure ID: "
-msgstr ""
+msgstr "Secure ID: "
 
 #: .././checkbox_ng/commands/newcli.py:403
 msgid "ERROR: Secure ID must be 15 or 18-character alphanumeric string"
-msgstr ""
+msgstr "錯誤：Secure ID 必須是由 15 或 18 個字母與數字組成的字串"
 
 #: .././checkbox_ng/commands/newcli.py:421
 msgid ""
@@ -163,27 +163,27 @@ msgstr "電子郵件地址： "
 #. TRANSLATORS: Do not translate the {} format markers.
 #: .././checkbox_ng/commands/newcli.py:439
 msgid "Submitting results to {0} for email_address {1}"
-msgstr ""
+msgstr "用 email_address {1} 傳送報告至 {0} 中"
 
 #. TRANSLATORS: Do not translate the {} format marker.
 #: .././checkbox_ng/commands/newcli.py:450
 msgid "Submission uploaded to: {0}"
-msgstr ""
+msgstr "報告上傳至：{0}"
 
 #: .././checkbox_ng/commands/newcli.py:456
 msgid "Bad response from {0} transport"
-msgstr ""
+msgstr "來自 {0} 傳輸的錯誤回應"
 
 #. TRANSLATORS: Do not translate the {} format markers.
 #: .././checkbox_ng/commands/newcli.py:464
 msgid "Submitting results to {0} for secure_id {1}"
-msgstr ""
+msgstr "為 secure_id {1} 傳送結果至 {0}"
 
 #. TRANSLATORS: Do not translate the {} format marker.
 #: .././checkbox_ng/commands/newcli.py:485
 #: .././checkbox_ng/commands/submit.py:64
 msgid "Successfully sent, submission status at {0}"
-msgstr ""
+msgstr "傳送成功，可至 {0} 查詢傳送狀態"
 
 #. TRANSLATORS: Do not translate the {} format marker.
 #: .././checkbox_ng/commands/newcli.py:489
@@ -193,28 +193,28 @@ msgstr "傳送成功，伺服器回應：{0}"
 
 #: .././checkbox_ng/commands/newcli.py:514
 msgid "Select jobs to re-run"
-msgstr ""
+msgstr "選擇需要重跑的工作項目"
 
 #: .././checkbox_ng/commands/sru.py:58 .././checkbox_ng/commands/submit.py:121
 msgid "SECURE-ID"
-msgstr ""
+msgstr "SECURE-ID"
 
 #: .././checkbox_ng/commands/sru.py:61
 msgid "Canonical hardware identifier"
-msgstr ""
+msgstr "Canonical 硬體識別"
 
 #: .././checkbox_ng/commands/sru.py:65
 msgid "TEST-PLAN-ID"
-msgstr ""
+msgstr "TEST-PLAN-ID"
 
 #. TRANSLATORS: this is in imperative form
 #: .././checkbox_ng/commands/sru.py:68
 msgid "load the specified test plan"
-msgstr ""
+msgstr "載入特定的測試計畫"
 
 #: .././checkbox_ng/commands/sru.py:71 .././checkbox_ng/config.py:88
 msgid "Send the data to non-production test server"
-msgstr ""
+msgstr "將資料傳送至測試用伺服器"
 
 #: .././checkbox_ng/commands/sru.py:75
 msgid "run check-config before starting"
@@ -226,19 +226,19 @@ msgstr "設定問題導致無法進行 SRU 測試"
 
 #: .././checkbox_ng/commands/sru.py:113
 msgid "Results saved to {0}"
-msgstr ""
+msgstr "結果儲存至 {0}"
 
 #: .././checkbox_ng/commands/sru.py:118
 msgid "Sending hardware report to Canonical Certification"
-msgstr ""
+msgstr "將硬體報告傳送至 Canonical Certification 中"
 
 #: .././checkbox_ng/commands/sru.py:119
 msgid "Server URL is: {0}"
-msgstr ""
+msgstr "伺服器網址為：{0}"
 
 #: .././checkbox_ng/commands/sru.py:131
 msgid "SRU Session"
-msgstr ""
+msgstr "SRU 工作階段"
 
 #: .././checkbox_ng/commands/sru.py:172
 msgid "run automated stable release update tests"
@@ -260,22 +260,27 @@ msgid ""
 "    This command sends the XML results file to the Certification website.\n"
 "    "
 msgstr ""
+"\n"
+"    傳送測試結果至 Canonical 認證網站\n"
+"\n"
+"    此命令將會傳送 XML 格式的測試報告檔案至認證網站\n"
+"    "
 
 #: .././checkbox_ng/commands/submit.py:98
 msgid "submit test results to the Canonical certification website"
-msgstr ""
+msgstr "傳送測試結果至 Canonical 認證網站"
 
 #: .././checkbox_ng/commands/submit.py:104
 msgid "The path to the results xml file"
-msgstr ""
+msgstr "測試報告 xml 檔案的位置"
 
 #: .././checkbox_ng/commands/submit.py:114
 msgid "must be 15 or 18-character alphanumeric string"
-msgstr ""
+msgstr "必須是由 15 或 18 個字母與數字組成的字串"
 
 #: .././checkbox_ng/commands/submit.py:124
 msgid "associate submission with a machine using this SECURE-ID"
-msgstr ""
+msgstr "將測試報告與用此 SECURE-ID 的機器連結"
 
 #: .././checkbox_ng/commands/submit.py:152
 msgid "URL"
@@ -283,11 +288,11 @@ msgstr "網址"
 
 #: .././checkbox_ng/commands/submit.py:154
 msgid "destination to submit to"
-msgstr ""
+msgstr "要傳送至的目的地"
 
 #: .././checkbox_ng/config.py:43
 msgid "Secure ID of the system"
-msgstr ""
+msgstr "系統的 Secure ID"
 
 #: .././checkbox_ng/config.py:48
 msgid "Whether to send the submission data to c3"
@@ -303,7 +308,7 @@ msgstr "登入 Launchpad 硬體資料庫用的電子郵件地址"
 
 #: .././checkbox_ng/config.py:63
 msgid "URL of the certification website"
-msgstr ""
+msgstr "認證網站的網址"
 
 #: .././checkbox_ng/config.py:69
 msgid "URL of the launchpad hardware database"
@@ -311,41 +316,41 @@ msgstr "launchpad 硬體資料庫網址"
 
 #: .././checkbox_ng/config.py:74
 msgid "Location of the fallback file"
-msgstr ""
+msgstr "備用檔案的位置"
 
 #: .././checkbox_ng/config.py:78
 msgid "Optional whitelist with which to run SRU testing"
-msgstr ""
+msgstr "執行 SRU 測試時的選擇性測試白名單"
 
 #: .././checkbox_ng/config.py:82
 msgid "Optional test plan with which to run SRU testing"
-msgstr ""
+msgstr "執行 SRU 測試時的選擇性測試計畫"
 
 #: .././checkbox_ng/launcher.py:47
 msgid "Application Title"
-msgstr ""
+msgstr "應用程式標題"
 
 #: .././checkbox_ng/launcher.py:51
 msgid "Welcome Message"
-msgstr ""
+msgstr "歡迎訊息"
 
 #. TODO: valid regexp text validator
 #: .././checkbox_ng/launcher.py:56
 msgid "Pattern that whitelists need to match to be displayed"
-msgstr ""
+msgstr "顯示符合此正規表表示式的測試白名單"
 
 #. TODO: valid regexp text validator
 #: .././checkbox_ng/launcher.py:61
 msgid "Pattern that whitelists need to match to be selected"
-msgstr ""
+msgstr "選擇符合此正規表表示式的測試白名單"
 
 #: .././checkbox_ng/launcher.py:67
 msgid "If enabled then suite selection screen is not displayed"
-msgstr ""
+msgstr "若啟用則將不會顯示套件選擇頁面"
 
 #: .././checkbox_ng/launcher.py:73
 msgid "If enabled then test selection screen is not displayed"
-msgstr ""
+msgstr "若啟用則將不會顯示測試選擇頁面"
 
 #. TODO: probably a choice validator
 #: .././checkbox_ng/launcher.py:78
@@ -354,34 +359,34 @@ msgstr ""
 
 #: .././checkbox_ng/launcher.py:82
 msgid "Label on the 'send' button"
-msgstr ""
+msgstr "「傳送」按鈕上的標籤"
 
 #. TODO: default?
 #: .././checkbox_ng/launcher.py:88
 msgid "If enabled then test results will be also sent to HEXR"
-msgstr ""
+msgstr "若啟用，則測試結果也將會被傳送至 HEXR"
 
 #: .././checkbox_ng/launcher.py:93
 msgid "Where to submit the test results to"
-msgstr ""
+msgstr "要傳送測試結果到哪裡"
 
 #: .././checkbox_ng/launcher.py:98
 msgid ""
 "HTTP endpoint to submit data to, using the transport specified with "
 "submit_to."
-msgstr ""
+msgstr "欲傳送報告的目標 HTTP 位置，用 submit_to 標明的"
 
 #: .././checkbox_ng/launcher.py:104
 msgid "Secure ID to identify the system this submission belongs to."
-msgstr ""
+msgstr "用以識別此報告屬於哪一台系統的 Secure ID。"
 
 #: .././checkbox_ng/launcher.py:109
 msgid "Name of custom configuration file"
-msgstr ""
+msgstr "自訂設定檔的名稱"
 
 #: .././checkbox_ng/launcher.py:113
 msgid "Don't suppress the output of certain job plugin types."
-msgstr ""
+msgstr "不要抑制特定工作類型的輸出"
 
 #: .././checkbox_ng/launcher.py:116
 msgid "Section with only exported unit ids as keys (no values)"
@@ -389,7 +394,7 @@ msgstr ""
 
 #: .././checkbox_ng/launchpad.py:66
 msgid "Cannot get {0} resource job"
-msgstr ""
+msgstr "無法取得 {0} 資源工作"
 
 #: .././checkbox_ng/launchpad.py:70
 msgid "{0} has no attribute {1}"
@@ -401,7 +406,7 @@ msgstr "找不到 DMI 資源"
 
 #: .././checkbox_ng/launchpad.py:110
 msgid "System ID not found"
-msgstr ""
+msgstr "找不到 System ID"
 
 #: .././checkbox_ng/launchpad.py:196
 #, python-format

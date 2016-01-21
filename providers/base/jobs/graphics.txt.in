@@ -417,15 +417,8 @@ depends: graphics/screen-capture-internal
 command: [ -f ${PLAINBOX_SESSION_SHARE}/screen-capture.png ] && base64 ${PLAINBOX_SESSION_SHARE}/screen-capture.png
 _description: Attaches the simple screen capture file
 
-
-unit: job
-id: graphics_card_resource
-plugin: resource
-category_id: 2013.com.canonical.plainbox::graphics
-command: graphics_card_resource
-
 unit: template
-template-resource: graphics_card_resource
+template-resource: graphics_card
 plugin: shell
 category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/{index}_screen-capture-internal_{product_slug}
@@ -436,7 +429,7 @@ command: gnome-screenshot --file $PLAINBOX_SESSION_SHARE/screen-capture-{index}.
 _description: Obtains a simple screen capture of {vendor} {product} using gnome-screenshot if present
 
 unit: template
-template-resource: graphics_card_resource
+template-resource: graphics_card
 plugin: attachment
 category_id: 2013.com.canonical.plainbox::graphics
 id: graphics/{index}_screen-capture-internal_{product_slug}.png

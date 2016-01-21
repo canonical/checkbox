@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2016-01-19 12:03+0800\n"
-"PO-Revision-Date: 2015-11-18 11:05+0000\n"
-"Last-Translator: Pierre Slamich <pierre.slamich@gmail.com>\n"
+"PO-Revision-Date: 2016-01-20 19:51+0000\n"
+"Last-Translator: Bibi <powerstreamy@gmail.com>\n"
 "Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-01-19 05:08+0000\n"
+"X-Launchpad-Export-Date: 2016-01-21 05:11+0000\n"
 "X-Generator: Launchpad (build 17886)\n"
 
 #. description
@@ -35,21 +35,35 @@ msgid ""
 "VERIFICATION:\n"
 "    Did you hear a tone?"
 msgstr ""
+"Objectif :\n"
+"    Ce test va vérifier si vos hauts-parleurs internes fonctionnent "
+"correctement\n"
+"Étapes :\n"
+"    1-Assurez vous qu'aucun haut-parleur externe ou écouteurs sont "
+"connectés\n"
+"       Si vous effectuez ce test sur un pc fixe, vous pouvez passer ce test "
+"si votre pc ne contient pas de \n"
+"       haut parleur interne, nous vérifierons la sortie audio externe plus "
+"tard.\n"
+"    2-Commencer le test pour jouer une brève tonalité sur vos hauts-"
+"parleurs\n"
+"Vérification :\n"
+"    Avez vous entendu une tonalité ?"
 
 #. summary
 #: ../jobs/audio.txt.in:46
 msgid "HDMI audio test"
-msgstr ""
+msgstr "Test audio via HDMI"
 
 #. summary
 #: ../jobs/audio.txt.in:79
 msgid "DisplayPort audio test"
-msgstr ""
+msgstr "Test audio via DisplayPort"
 
 #. summary
 #: ../jobs/audio.txt.in:112
 msgid "Thunderbolt audio test"
-msgstr ""
+msgstr "Test audio via Thunderbolt"
 
 #. description
 #: ../jobs/audio.txt.in:156

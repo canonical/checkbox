@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2016-01-19 12:03+0800\n"
-"PO-Revision-Date: 2016-01-19 03:55+0000\n"
+"PO-Revision-Date: 2016-01-19 06:41+0000\n"
 "Last-Translator: Po-Hsu Lin <po-hsu.lin@canonical.com>\n"
 "Language-Team: Chinese (Traditional) <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-01-19 05:08+0000\n"
+"X-Launchpad-Export-Date: 2016-01-21 05:12+0000\n"
 "X-Generator: Launchpad (build 17886)\n"
 
 #. description
@@ -1855,7 +1855,7 @@ msgstr "為了除錯需要，將 udev_resource 的輸出附加至測試報告中
 #. description
 #: ../jobs/info.txt.in:183
 msgid "Attaches a tarball of gcov data if present."
-msgstr "將 gvoc 資料 (若存在) 打包附加至測試報告中。"
+msgstr "若將 gvoc 資料存在則將其打包附加至測試報告中。"
 
 #. description
 #: ../jobs/info.txt.in:190
@@ -1905,12 +1905,12 @@ msgstr "將執行 bootchart 產生的 bootchart 紀錄檔附加至測試報告�
 #. description
 #: ../jobs/info.txt.in:261
 msgid "Attach the installer bootchart tarball if it exists."
-msgstr ""
+msgstr "若安裝程式的 bootchart 壓縮檔存在則將其附加至測試報告中。"
 
 #. description
 #: ../jobs/info.txt.in:269
 msgid "Attaches the installer debug log if it exists."
-msgstr "將安裝程式的除錯紀錄 (若存在) 附加至測試報告中。"
+msgstr "若安裝程式的除錯紀錄存在則附加至測試報告中。"
 
 #. description
 #: ../jobs/info.txt.in:277
@@ -3750,7 +3750,7 @@ msgstr "EFI 模式開機測試"
 #: ../jobs/miscellanea.txt.in:99
 msgid ""
 "Test to verify that the system booted in EFI mode with Secure Boot active."
-msgstr ""
+msgstr "檢查系統是否是以 EFI 模式開機而且 Secure Boot 是處於啟動的狀態。"
 
 #. description
 #: ../jobs/miscellanea.txt.in:110
@@ -8457,8 +8457,3 @@ msgid ""
 "for the type and maximum speed of wireless device {__index__} ({interface})."
 msgstr ""
 "使用者確認在 {__index__} ({interface}) 無線裝置上觀察到的傳輸速度對於此介面的類別以及理論最大速度來說是否可以接受。"
-
-#~ msgid ""
-#~ "Test to verify that the system booted in EFI mode rather than Legacy/BIOS "
-#~ "mode."
-#~ msgstr "檢查系統是否是以 EFI 模式開機而不是 Legacy/BIOS 模式。"

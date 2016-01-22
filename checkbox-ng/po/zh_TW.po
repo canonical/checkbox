@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-01-11 16:06+0800\n"
-"PO-Revision-Date: 2015-05-21 02:45+0000\n"
+"PO-Revision-Date: 2016-01-22 03:05+0000\n"
 "Last-Translator: Po-Hsu Lin <po-hsu.lin@canonical.com>\n"
 "Language-Team: Chinese (Traditional) <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2016-01-12 05:08+0000\n"
-"X-Generator: Launchpad (build 17881)\n"
+"X-Launchpad-Export-Date: 2016-01-22 05:08+0000\n"
+"X-Generator: Launchpad (build 17902)\n"
 "Language: \n"
 
 #: .././plainbox/impl/_argparse.py:139
@@ -133,12 +133,12 @@ msgstr ""
 #: .././plainbox/impl/clitools.py:521
 msgid ""
 "enable DEBUG messages on the specified logger (can be used multiple times)"
-msgstr ""
+msgstr "於指定的記錄器中啟用 DEBUG 訊息（可被使用多次）"
 
 #. TRANSLATORS: please keep pdb untranslated
 #: .././plainbox/impl/clitools.py:529
 msgid "jump into pdb (python debugger) when a command crashes"
-msgstr ""
+msgstr "當指令執行失敗時啟動pdb（python 除錯工具）"
 
 #. TRANSLATORS: please keep SIGINT/KeyboardInterrupt and --pdb
 #. untranslated

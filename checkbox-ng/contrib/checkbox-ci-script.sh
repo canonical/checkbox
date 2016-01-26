@@ -35,6 +35,11 @@ mailer() {
     SUBJECT="$SUBJECT - $HOST $IP"
     if [ -f "$MESSAGE" ] ; then
         dpkg --list "checkbox*" "plainbox*" >> $MESSAGE
+        if run_chc >> $MESSAGE ; then
+            SUBJECT="$SUBJECT and canonical-hw-collection(Tested); "
+        else
+            SUBJECT="$SUBJECT and canonical-hw-collection(Failed); "  
+        fi
         curl -F subject="$SUBJECT" -F plainbox_output=@$MESSAGE $SUBMIT_CGI
     else
         curl -F subject="$SUBJECT" -F plainbox_output="$MESSAGE" $SUBMIT_CGI
@@ -43,12 +48,29 @@ mailer() {
     shutdown -h now
 }
 
+run_chc() {
+# run canonical-hw-collection tests
+
+if which canonical-hw-collection ; then
+
+    canonical-hw-collection --staging "$(checkbox check-config|grep secure_id|cut -d= -f2 )"
+
+else
+    
+    echo "canonical-hw-collection may not install correctly"
+
+fi
+}
+
 case "$1" in
    notification)
       notification
    ;;
    mailer)
       mailer
+   ;;
+   run_chc)
+      run_chc
    ;;
    *)
       echo "Usage: $0 {notification|mailer}"

@@ -33,7 +33,6 @@ include:
     block_device
     cdimage
     cpuinfo
-    device
     dmi
     dpkg
     efi

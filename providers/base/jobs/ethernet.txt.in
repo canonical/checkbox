@@ -1,13 +1,13 @@
 unit: packaging meta-data
 os-id: debian
-Depends: module-init-tools
+Depends: kmod
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::ethernet
 id: ethernet/detect
 requires:
  device.category == 'NETWORK' or device.category == 'WIRELESS'
- package.name == 'module-init-tools'
+ package.name == 'kmod'
  package.name == 'pciutils'
 command: network_device_info
 estimated_duration: 1.2

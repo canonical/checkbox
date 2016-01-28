@@ -729,6 +729,12 @@ class UdevadmParser(object):
                 and device.subvendor_id is None)):
             return True
 
+        # Ignore Floppy device without a DEVNAME (See pad.lv/1539041)
+        if (
+            device.category == 'FLOPPY' and
+            "DEVNAME" not in device._environment):
+            return True
+
         # Ignore ACPI devices
         if device.bus == "acpi":
             return True

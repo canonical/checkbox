@@ -348,14 +348,14 @@ E: UDEV_LOG=3
 
     def test_HOME_MADE(self):
         devices = self.parse("HOME_MADE")
-        self.assertEqual(len(devices), 72)
+        self.assertEqual(len(devices), 71)
         self.assertEqual(self.count(devices, "VIDEO"), 1)
         self.assertEqual(self.count(devices, "AUDIO"), 4)
         self.assertEqual(self.count(devices, "KEYBOARD"), 2)
         self.assertEqual(self.count(devices, "TOUCHPAD"), 0)
         self.assertEqual(self.count(devices, "CARDREADER"), 1)
         self.assertEqual(self.count(devices, "CDROM"), 2)
-        self.assertEqual(self.count(devices, "FLOPPY"), 2)
+        self.assertEqual(self.count(devices, "FLOPPY"), 1)
         self.assertEqual(self.count(devices, "FIREWIRE"), 1)
         self.assertEqual(self.count(devices, "MOUSE"), 1)
         self.assertEqual(self.count(devices, "ACCELEROMETER"), 0)
@@ -710,6 +710,13 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "RAID"), 0)
         self.assertEqual(self.count(devices, "DISK"), 1)
         self.assertEqual(self.count(devices, "SCSI"), 1)
+
+    def test_VM_WITH_FLOPPY(self):
+        # A virtual machine, with a floppy drive enabled.
+        # We're interested mainly in the floppy device (http://pad.lv/1539041)
+        devices = self.parse("VM_WITH_FLOPPY")
+        self.assertEqual(len(devices), 83)
+        self.assertEqual(self.count(devices, "FLOPPY"), 1)
 
     def test_DELL_VOSTRO_270(self):
         # Interesting because while its Intel video card has the same PCI

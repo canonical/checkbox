@@ -139,7 +139,7 @@ class PowerManagementOperation(object):
             return
         if fwts:
             script_name = 'fwts_test'
-            command_tpl = '{} -s s3 --s3-sleep-delay=30 --s3-multiple={}'
+            command_tpl = '{} -s s3 --s3-device-check --s3-sleep-delay=30 --s3-multiple={}'
         else:
             script_name = 'sleep_test'
             command_tpl = '{} -s mem -p -i {} -w 10'
@@ -148,10 +148,14 @@ class PowerManagementOperation(object):
         command_str = command_tpl.format(script_path, cycles_count)
         logging.info('Running suspend/resume cycles')
         logging.debug('Executing: {0!r}...'.format(command_str))
-        # We call sleep_test script and log its output as it contains
-        # average times we need to compute global average times later.
-        logging.info(subprocess.check_output(command_str,
-            universal_newlines=True, shell=True))
+        try:
+            # We call sleep_test or fwts_test script and log its output as it
+            # contains average times we need to compute global average times later.
+            logging.info(subprocess.check_output(command_str,
+                universal_newlines=True, shell=True))
+        except subprocess.CalledProcessError as e:
+            logging.error('Error while running {0}:'.format(e.cmd))
+            logging.error(e.output)
 
     def summary(self):
         """

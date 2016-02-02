@@ -306,15 +306,15 @@ class DiskTest():
                         parent_vendor = parent_props.Get(udisks, "DriveVendor")
                         parent_media = parent_props.Get(udisks, "DriveMedia")
                     if self.memorycard:
-                        if (dev_bus != 'sdio'
-                                and not FLASH_RE.search(parent_media)
-                                and not CARD_READER_RE.search(parent_model)
-                                and not GENERIC_RE.search(parent_vendor)):
+                        if (dev_bus != 'sdio' and not
+                                FLASH_RE.search(parent_media) and not
+                                CARD_READER_RE.search(parent_model) and not
+                                GENERIC_RE.search(parent_vendor)):
                             continue
                     else:
-                        if (FLASH_RE.search(parent_media)
-                                or CARD_READER_RE.search(parent_model)
-                                or GENERIC_RE.search(parent_vendor)):
+                        if (FLASH_RE.search(parent_media) or
+                                CARD_READER_RE.search(parent_model) or
+                                GENERIC_RE.search(parent_vendor)):
                             continue
                     dev_file = str(device_props.Get(udisks, "DeviceFile"))
                     dev_speed = str(device_props.Get(udisks,
@@ -402,9 +402,11 @@ class DiskTest():
         # then compare this pci slot name to the other
         dl = devpath.split('/')
         s = set([x for x in dl if dl.count(x) > 1])
-        if ((pci_slot_name in dl)
-             and (dl.index(pci_slot_name) < dl.index('block'))
-             and (not(pci_slot_name in s))):
+        if (
+            (pci_slot_name in dl) and
+            (dl.index(pci_slot_name) < dl.index('block')) and
+            (not(pci_slot_name in s))
+        ):
             # 1. there is such pci_slot_name
             # 2. sysfs topology looks like
             #    DEVPATH = ....../pci_slot_name/....../block/......
@@ -535,8 +537,8 @@ def main():
                           % errors_mount)
                     errors += errors_mount
 
-                disks_all = dict(list(test.rem_disks.items())
-                                 + list(test.rem_disks_nm.items()))
+                disks_all = dict(list(test.rem_disks.items()) +
+                                 list(test.rem_disks_nm.items()))
 
             if len(disks_all) > 0:
                 print("Found the following mounted %s partitions:"
@@ -558,8 +560,8 @@ def main():
 
                 disks_eligible = {disk: disks_all[disk] for disk in disks_all
                                   if not args.min_speed or
-                                  int(test.rem_disks_speed[disk])
-                                  >= int(args.min_speed)}
+                                  int(test.rem_disks_speed[disk]) >=
+                                  int(args.min_speed)}
                 if len(disks_eligible) == 0:
                     logging.error(
                         "No %s disks with speed higher than %s bits/s",
@@ -644,8 +646,8 @@ def main():
                             # avg_write_time = total_write_time / args.count
                             try:
                                 avg_write_speed = ((
-                                    total_write_size / total_write_time)
-                                    / 1024 / 1024)
+                                    total_write_size / total_write_time) /
+                                    1024 / 1024)
                             except ZeroDivisionError:
                                 avg_write_speed = 0.00
                             finally:

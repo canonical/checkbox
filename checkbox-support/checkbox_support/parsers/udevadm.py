@@ -363,14 +363,14 @@ class UdevadmDevice(object):
                 # will be given the category attribute 'DISK' by udev_resource
                 if any(FLASH_RE.search(k) for k in self._environment.keys()):
                     return "CARDREADER"
-                if any(d.bus == 'usb' for d in self._stack):
-                    if (self.product is not None and
-                            CARD_READER_RE.search(self.product)):
-                        return "CARDREADER"
-                    if (self.vendor is not None and
-                            GENERIC_RE.search(self.vendor) and
-                            not FLASH_DISK_RE.search(self.product)):
-                        return "CARDREADER"
+            if any(d.bus == 'usb' for d in self._stack):
+                if (self.product is not None and
+                        CARD_READER_RE.search(self.product)):
+                    return "CARDREADER"
+                if (self.vendor is not None and
+                        GENERIC_RE.search(self.vendor) and
+                        not FLASH_DISK_RE.search(self.product)):
+                    return "CARDREADER"
             # A rare gem, this driver reported by udev is actually an ID_MODEL:
             # E: DRIVER=Realtek PCIe card reader
             if re.search(r'card.*reader', self.driver, re.I):
@@ -789,9 +789,9 @@ class UdevadmParser(object):
                 and device.subvendor_id is None)):
             return True
 
-        # Ignore Floppy device without a DEVNAME (See pad.lv/1539041)
+        # Ignore FLOPPY and DISK devices without a DEVNAME (See pad.lv/1539041)
         if (
-            device.category == 'FLOPPY' and
+            (device.category in ('FLOPPY', 'DISK')) and
             "DEVNAME" not in device._environment):
             return True
 

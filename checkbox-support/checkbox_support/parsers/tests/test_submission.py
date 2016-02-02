@@ -193,13 +193,13 @@ class TestSubmissionParser(TestCase):
         """Device states can be in the udev element."""
         result = self.getResult("submission_udev.xml")
         self.assertTrue("device_states" in result)
-        self.assertEqual(len(result["device_states"]), 80)
+        self.assertEqual(len(result["device_states"]), 79)
 
     def test_device_udev_without_lsblk(self):
         """Device states can be in the udev element (without lsblk)"""
         result = self.getResult("submission_udev_without_lsblk.xml")
         self.assertTrue("device_states" in result)
-        self.assertEqual(len(result["device_states"]), 80)
+        self.assertEqual(len(result["device_states"]), 79)
 
     def test_device_udev_armhf(self):
         """ Ensure that device states from udev are also obtained
@@ -208,13 +208,13 @@ class TestSubmissionParser(TestCase):
         """
         result = self.getResult("submission_udev_armhf.xml")
         self.assertTrue("device_states" in result)
-        self.assertEqual(len(result["device_states"]), 15)
+        self.assertEqual(len(result["device_states"]), 14)
 
     def test_device_udevadm(self):
         """Device states can be in a udevadm info element."""
         result = self.getResult("submission_info_udevadm.xml")
         self.assertTrue("device_states" in result)
-        self.assertEqual(len(result["device_states"]), 80)
+        self.assertEqual(len(result["device_states"]), 79)
 
     def test_modprobe(self):
         """modprobe_attachment info element can contain options for drivers."""

@@ -10,6 +10,7 @@ depends:
  requirements
  uname
  dmi_attachment
+ lsblk_attachment
  sysfs_attachment
  udev_attachment
 estimated_duration: 1.0

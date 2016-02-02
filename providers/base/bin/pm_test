@@ -155,7 +155,7 @@ class PowerManagementOperation(object):
                 universal_newlines=True, shell=True))
         except subprocess.CalledProcessError as e:
             logging.error('Error while running {0}:'.format(e.cmd))
-            logging.error(e.output)
+            logging.exception(e.output)
 
     def summary(self):
         """

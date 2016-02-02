@@ -93,10 +93,24 @@ def slugify(_string):
         "-_.{}{}".format(string.ascii_letters, string.digits))
     return ''.join(c if c in valid_chars else '_' for c in _string)
 
+
+def find_pkname_is_root_mountpoint(devname, lsblk=None):
+    """Check for partition mounted as root for a DISK device."""
+    if lsblk:
+        for line in lsblk.splitlines():
+            if (
+                line.endswith('MOUNTPOINT="/"') and
+                line.startswith('KNAME="{}'.format(devname))
+            ):
+                return True
+    return False
+
+
 class UdevadmDevice(object):
     __slots__ = (
         "_environment",
         "_name",
+        "_lsblk",
         "_bits",
         "_stack",
         "_bus",
@@ -108,9 +122,10 @@ class UdevadmDevice(object):
         "_vendor_id",
         "_vendor_slug",)
 
-    def __init__(self, environment, name, bits=None, stack=[]):
+    def __init__(self, environment, name, lsblk=None, bits=None, stack=[]):
         self._environment = environment
         self._name = name
+        self._lsblk = lsblk
         self._bits = bits
         self._stack = stack
         self._bus = None
@@ -311,8 +326,21 @@ class UdevadmDevice(object):
         if self.driver:
             if self.driver.startswith("sdhci"):
                 return "CARDREADER"
+            # Only consider eMMC internal drives as DISK.
+            # As it's not possible to distinguish them from simple MMC
+            # removable storage, only those with a partition mounted as /
+            # will be considered.
+            # To avoid categorizing SD cards as main storage and run heavy
+            # tests on them (e.g on a pandaboard) only devices with the udev
+            # property MMC_TYPE == MMC are accepted.
             if self.driver.startswith("mmc"):
-                return "CARDREADER"
+                if (
+                    self._mmc_type == 'MMC' and
+                    find_pkname_is_root_mountpoint(self.name, self._lsblk)
+                ):
+                    return "DISK"
+                else:
+                    return "CARDREADER"
             if self.driver == "rts_pstor":
                 return "CARDREADER"
             # See http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=702145
@@ -451,6 +479,22 @@ class UdevadmDevice(object):
         return self._environment.get("DEVPATH")
 
     @property
+    def _mmc_type(self):
+        """
+        Return the MMC type available in the stack.
+
+        This is used internally by UdevadmParser only
+        """
+        if "MMC_TYPE" in self._environment:
+            return self._environment["MMC_TYPE"]
+        # Check parent device for driver
+        if self._stack:
+            parent = self._stack[-1]
+            if "MMC_TYPE" in parent._environment:
+                return parent._environment["MMC_TYPE"]
+        return None
+
+    @property
     def product_id(self):
         if self._product_id is not None:
             return self._product_id
@@ -531,7 +575,7 @@ class UdevadmDevice(object):
         if self.product is not None:
             return slugify(self.product)
 
-        return None        
+        return None
 
     @property
     def vendor_slug(self):
@@ -541,7 +585,7 @@ class UdevadmDevice(object):
         if self.vendor is not None:
             return slugify(self.vendor)
 
-        return None        
+        return None
 
     @property
     def product(self):
@@ -596,6 +640,13 @@ class UdevadmDevice(object):
         if "IFINDEX" in self._environment and "INTERFACE" in self._environment:
             if "ID_MODEL_ENC" in self._environment:
                 return decode_id(self._environment["ID_MODEL_ENC"])
+
+        if self.driver == 'mmcblk':
+            # Check parent device for MMC name
+            if self._stack:
+                parent = self._stack[-1]
+                if "MMC_NAME" in parent._environment:
+                    return parent._environment["MMC_NAME"]
 
         for element in ("NAME", "POWER_SUPPLY_MODEL_NAME"):
             if element in self._environment:
@@ -689,8 +740,9 @@ class UdevadmParser(object):
 
     device_factory = UdevadmDevice
 
-    def __init__(self, stream_or_string, bits=None):
+    def __init__(self, stream_or_string, lsblk=None, bits=None):
         self.stream_or_string = stream_or_string
+        self.lsblk = lsblk
         self.bits = bits
         self.devices = OrderedDict()
 
@@ -709,7 +761,11 @@ class UdevadmParser(object):
         # device will have no category, though it's not ignored per se.
         if device.bus == 'pci' and device.driver == 'nvme':
             return False
-
+        # Do not ignore eMMC drives (pad.lv/1522768)
+        if ("ID_PART_TABLE_TYPE" in device._environment and
+           device.driver == 'mmcblk' and
+           device._mmc_type == 'MMC'):
+            return False
         # Do not ignore QEMU/KVM virtio disks
         if ("ID_PART_TABLE_TYPE" in device._environment and
            device.bus == "virtio" and
@@ -799,7 +855,7 @@ class UdevadmParser(object):
             environment.setdefault("DEVPATH", path)
 
             device = self.device_factory(
-                environment, name, self.bits, list(stack))
+                environment, name, self.lsblk, self.bits, list(stack))
             if not self._ignoreDevice(device):
                 if device._raw_path in self.devices:
                     if self.devices[device._raw_path].category == 'CARDREADER':
@@ -894,14 +950,14 @@ class UdevResult(object):
         self.devices["device_list"].append(device)
 
 
-def parse_udevadm_output(output, bits=None):
+def parse_udevadm_output(output, lsblk=None, bits=None):
     """
     Parse output of `LANG=C udevadm info --export-db`
 
     :returns: :class:`UdevadmParser` object that corresponds to the
     parsed input
     """
-    udev = UdevadmParser(output, bits)
+    udev = UdevadmParser(output, lsblk, bits)
     result = UdevResult()
     udev.run(result)
     return result.devices

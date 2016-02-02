@@ -58,6 +58,14 @@ class UdevadmDataMixIn(object):
         with open(filename, 'rt', encoding='UTF-8') as stream:
             return stream.read()
 
+    def get_lsblk(self, name):
+        resource = 'parsers/tests/udevadm_data/{}.lsblk'.format(name)
+        filename = resource_filename('checkbox_support', resource)
+        try:
+            with open(filename, 'rt', encoding='UTF-8') as stream:
+                return stream.read()
+        except (IOError, OSError):
+            return None
 
 class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
@@ -71,7 +79,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         parser.run(result)
         return result
 
-    def parse(self, name):
+    def parse(self, name, with_lsblk=True):
         # Uncomment only for debugging purpose
         """
         attributes = ("path", "driver", "bus", "product_id", "vendor_id",
@@ -81,7 +89,11 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         for i,j in enumerate(devices):
             print(i, j.category, [getattr(j, a) for a in attributes])
         """
-        return parse_udevadm_output(self.get_text(name), 64)["device_list"]
+        lsblk=None
+        if with_lsblk:
+            lsblk = self.get_lsblk(name)
+        return parse_udevadm_output(
+            self.get_text(name), lsblk, 64)["device_list"]
 
     def count(self, devices, category):
         return len([d for d in devices if d.category == category])
@@ -346,6 +358,24 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "DISK"), 3)
         self.verify_devices(devices, expected_devices)
 
+    def test_REALTEK_CARD_READER_AND_NVME(self):
+        devices = self.parse("REALTEK_CARD_READER_AND_NVME")
+        self.assertEqual(len(devices), 126)
+        self.assertEqual(self.count(devices, "VIDEO"), 1)
+        self.assertEqual(self.count(devices, "AUDIO"), 4)
+        self.assertEqual(self.count(devices, "KEYBOARD"), 1)
+        self.assertEqual(self.count(devices, "TOUCHPAD"), 1)
+        # Check that the "Realtek PCIe card reader" is well reported as a
+        # card reader even if "Realtek PCIe card reader" is actually reported
+        # by udev as the driver name of this device O_o !
+        self.assertEqual(self.count(devices, "CARDREADER"), 1)
+        self.assertEqual(self.count(devices, "MOUSE"), 1)
+        self.assertEqual(self.count(devices, "CAPTURE"), 1)
+        self.assertEqual(self.count(devices, "BLUETOOTH"), 1)
+        self.assertEqual(self.count(devices, "WIRELESS"), 1)
+        self.assertEqual(self.count(devices, "DISK"), 2)
+        self.assertEqual(self.count(devices, "NETWORK"), 1)
+
     def test_HOME_MADE(self):
         devices = self.parse("HOME_MADE")
         self.assertEqual(len(devices), 71)
@@ -555,15 +585,15 @@ E: UDEV_LOG=3
 
     def test_PANDABOARD(self):
         devices = self.parse("PANDABOARD")
-        self.assertEqual(len(devices), 14)
+        self.assertEqual(len(devices), 15)
         # Check that the wireless product name is extracted from the platform
         # modalias
-        self.assertEqual(devices[2].product, "wl12xx")
+        self.assertEqual(devices[3].product, "wl12xx")
         self.assertEqual(self.count(devices, "VIDEO"), 0)
         self.assertEqual(self.count(devices, "AUDIO"), 0)
         self.assertEqual(self.count(devices, "KEYBOARD"), 1)
         self.assertEqual(self.count(devices, "TOUCHPAD"), 0)
-        self.assertEqual(self.count(devices, "CARDREADER"), 0)
+        self.assertEqual(self.count(devices, "CARDREADER"), 1)
         self.assertEqual(self.count(devices, "CDROM"), 0)
         self.assertEqual(self.count(devices, "FIREWIRE"), 0)
         self.assertEqual(self.count(devices, "MOUSE"), 0)
@@ -575,6 +605,32 @@ E: UDEV_LOG=3
         self.assertEqual(self.count(devices, "CAPTURE"), 0)
         self.assertEqual(self.count(devices, "RAID"), 0)
         self.assertEqual(self.count(devices, "DISK"), 2)
+
+    def test_EMMC_AS_MAIN_DRIVE(self):
+        devices = self.parse("EMMC_AS_MAIN_DRIVE")
+        self.assertEqual(len(devices), 66)
+        # Check that the eMMC drive is reported as a DISK
+        self.assertEqual(self.count(devices, "VIDEO"), 1)
+        self.assertEqual(self.count(devices, "AUDIO"), 2)
+        self.assertEqual(self.count(devices, "KEYBOARD"), 1)
+        self.assertEqual(self.count(devices, "TOUCHPAD"), 1)
+        self.assertEqual(self.count(devices, "CARDREADER"), 0)
+        self.assertEqual(self.count(devices, "CDROM"), 0)
+        self.assertEqual(self.count(devices, "MOUSE"), 0)
+        self.assertEqual(self.count(devices, "ACCELEROMETER"), 0)
+        self.assertEqual(self.count(devices, "TOUCHSCREEN"), 0)
+        self.assertEqual(self.count(devices, "WIRELESS"), 1)
+        self.assertEqual(self.count(devices, "NETWORK"), 0)
+        self.assertEqual(self.count(devices, "BLUETOOTH"), 1)
+        self.assertEqual(self.count(devices, "CAPTURE"), 1)
+        self.assertEqual(self.count(devices, "DISK"), 1)
+
+    def test_EMMC_NOT_AS_MAIN_DRIVE(self):
+        devices = self.parse("EMMC_AS_MAIN_DRIVE", with_lsblk=False)
+        self.assertEqual(len(devices), 66)
+        # Check that the eMMC drive is not reported as a DISK without lsblk
+        # data
+        self.assertEqual(self.count(devices, "DISK"), 0)
 
     def test_SAMSUNG_N310(self):
         devices = self.parse("SAMSUNG_N310")

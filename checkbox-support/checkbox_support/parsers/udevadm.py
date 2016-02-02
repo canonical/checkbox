@@ -371,6 +371,10 @@ class UdevadmDevice(object):
                             GENERIC_RE.search(self.vendor) and
                             not FLASH_DISK_RE.search(self.product)):
                         return "CARDREADER"
+            # A rare gem, this driver reported by udev is actually an ID_MODEL:
+            # E: DRIVER=Realtek PCIe card reader
+            if re.search(r'card.*reader', self.driver, re.I):
+                return "CARDREADER"
 
         if "ID_TYPE" in self._environment:
             id_type = self._environment["ID_TYPE"]

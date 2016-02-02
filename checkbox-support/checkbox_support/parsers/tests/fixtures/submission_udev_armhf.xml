@@ -1,5 +1,12 @@
 <?xml version="1.0" ?>
 <system version="1.0">
+<context>
+    <info command="lsblk_attachment">
+KNAME="mmcblk0" TYPE="disk" MOUNTPOINT=""
+KNAME="mmcblk0p1" TYPE="part" MOUNTPOINT=""
+KNAME="mmcblk0p2" TYPE="part" MOUNTPOINT="/"
+</info>
+</context>
 <hardware>
 <udev>P: /devices/breakpoint
 E: DEVPATH=/devices/breakpoint

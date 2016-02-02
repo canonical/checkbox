@@ -202,7 +202,7 @@ class TestSubmissionParser(TestCase):
         """
         result = self.getResult("submission_udev_armhf.xml")
         self.assertTrue("device_states" in result)
-        self.assertEqual(len(result["device_states"]), 14)
+        self.assertEqual(len(result["device_states"]), 15)
 
     def test_device_udevadm(self):
         """Device states can be in a udevadm info element."""

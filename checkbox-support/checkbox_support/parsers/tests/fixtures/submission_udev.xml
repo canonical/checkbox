@@ -1,5 +1,16 @@
 <?xml version="1.0" ?>
 <system version="1.0">
+<context>
+    <info command="lsblk_attachment">
+KNAME="sda" TYPE="disk" MOUNTPOINT=""
+KNAME="sda1" TYPE="part" MOUNTPOINT="/"
+KNAME="sda2" TYPE="part" MOUNTPOINT=""
+KNAME="sda5" TYPE="part" MOUNTPOINT="[SWAP]"
+KNAME="sdb" TYPE="disk" MOUNTPOINT=""
+KNAME="sdb1" TYPE="part" MOUNTPOINT=""
+KNAME="sr0" TYPE="rom" MOUNTPOINT=""
+</info>
+</context>
 <hardware>
 <udev>P: /devices/LNXSYSTM:00
 E: DEVPATH=/devices/LNXSYSTM:00

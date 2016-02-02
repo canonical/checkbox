@@ -682,7 +682,7 @@ class SubmissionResult(object):
             ("test_run", "processor",),
             self.setProcessorState, count=1)
         register(
-            ("udevadm", "bits", "udevadm_result",),
+            ("udevadm", "lsblk", "bits", "udevadm_result",),
             self.setUdevadm, count=1)
         register(
             ("test_run", "lspci_data",),
@@ -708,6 +708,7 @@ class SubmissionResult(object):
             r"meminfo": self.parseMeminfo,
             r"dmidecode": DmidecodeParser,
             r"udevadm": self.parseUdevadm,
+            r"lsblk_attachment": self.parseLsblk,
             r"efi(?!rtvariable)": EfiParser,
             r"modprobe_attachment": self.parseModprobe,
             r"kernel_cmdline": self.parseKernelCmdline,
@@ -918,6 +919,10 @@ class SubmissionResult(object):
         self.dispatcher.publishEvent("udevadm", udevadm)
         return DeferredParser(self.dispatcher, "udevadm_result")
 
+    def parseLsblk(self, lsblk):
+        self.dispatcher.publishEvent("lsblk", lsblk)
+        return DeferredParser(self.dispatcher, "lsblk_result")
+
     def setArchitecture(self, architecture):
         string = resource_string(parsers.__name__, "cputable")
         stream = StringIO(string.decode("utf-8"))
@@ -980,8 +985,8 @@ class SubmissionResult(object):
             **self.test_run_kwargs)
         self.dispatcher.publishEvent("test_run", test_run)
 
-    def setUdevadm(self, udevadm, bits, udevadm_result):
-        parser = UdevadmParser(udevadm, bits)
+    def setUdevadm(self, udevadm, lsblk, bits, udevadm_result):
+        parser = UdevadmParser(udevadm, lsblk, bits)
         parser.run(udevadm_result)
 
 

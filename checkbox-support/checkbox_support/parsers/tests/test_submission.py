@@ -187,11 +187,17 @@ class TestSubmissionParser(TestCase):
         """Attachments are in info elements."""
         result = self.getResult("submission_attachment.xml")
         self.assertTrue("attachments" in result)
-        self.assertEqual(len(result["attachments"]), 1)
+        self.assertEqual(len(result["attachments"]), 2)
 
     def test_device_udev(self):
         """Device states can be in the udev element."""
         result = self.getResult("submission_udev.xml")
+        self.assertTrue("device_states" in result)
+        self.assertEqual(len(result["device_states"]), 80)
+
+    def test_device_udev_without_lsblk(self):
+        """Device states can be in the udev element (without lsblk)"""
+        result = self.getResult("submission_udev_without_lsblk.xml")
         self.assertTrue("device_states" in result)
         self.assertEqual(len(result["device_states"]), 80)
 

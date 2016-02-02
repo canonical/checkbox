@@ -1061,6 +1061,7 @@ class SubmissionParser(object):
     def parseContext(self, result, node):
         """Parse the <context> part of a submission."""
         duplicates = set()
+        lsblk_tag = False
         for child in node.getchildren():
             assert child.tag == "info", \
                 "Unexpected tag <%s>, expected <info>" % child.tag
@@ -1071,9 +1072,13 @@ class SubmissionParser(object):
                 if text is None:
                     text = ""
                 result.addContext(text, command)
+                if command == "lsblk_attachment":
+                    lsblk_tag = True
             else:
                 self.logger.debug(
                     "Duplicate command found in tag <info>: %s" % command)
+        if not lsblk_tag:
+            result.addContext("", "lsblk_attachment")
 
     def parseHardware(self, result, node):
         """Parse the <hardware> section of a submission."""
@@ -1267,15 +1272,20 @@ class SubmissionParser(object):
             "software": self.parseSoftware,
             "summary": self.parseSummary,
             }
+        context_tag = False
 
         # Iterate over the root children, "summary" first
         for child in node.getchildren():
             parser = parsers.get(child.tag)
+            if child.tag == "context":
+                context_tag = True
             if parser:
                 parser(result, child)
             else:
                 self.logger.debug(
                     "Unsupported tag <%s> in <system>" % child.tag)
+        if not context_tag:
+            result.addContext("", "lsblk_attachment")
 
     def run(self, test_run_factory, **kwargs):
         """

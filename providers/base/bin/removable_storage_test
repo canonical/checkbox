@@ -6,6 +6,8 @@ import dbus
 import hashlib
 import logging
 import os
+import re
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -26,6 +28,7 @@ from checkbox_support.helpers.human_readable_bytes import HumanReadableBytes
 from checkbox_support.parsers.udevadm import CARD_READER_RE
 from checkbox_support.parsers.udevadm import GENERIC_RE
 from checkbox_support.parsers.udevadm import FLASH_RE
+from checkbox_support.parsers.udevadm import find_pkname_is_root_mountpoint
 from checkbox_support.udev import get_interconnect_speed
 from checkbox_support.udev import get_udev_block_devices
 from checkbox_support.udev import get_udev_xhci_devices
@@ -97,7 +100,7 @@ def md5_hash_file(path):
 class DiskTest():
     ''' Class to contain various methods for testing removable disks '''
 
-    def __init__(self, device, memorycard):
+    def __init__(self, device, memorycard, lsblkcommand):
         self.rem_disks = {}     # mounted before the script running
         self.rem_disks_nm = {}  # not mounted before the script running
         self.rem_disks_memory_cards = {}
@@ -106,8 +109,10 @@ class DiskTest():
         # LP: #1313581, TODO: extend to be rem_disks_driver
         self.rem_disks_xhci = {}
         self.data = ''
+        self.lsblk = ''
         self.device = device
         self.memorycard = memorycard
+        self._run_lsblk(lsblkcommand)
         self._probe_disks()
 
     def read_file(self, source):
@@ -144,6 +149,24 @@ class DiskTest():
         except OSError as exc:
             logging.error("Unable to remove tempfile %s", target)
             logging.error("  %s", exc)
+
+    def _find_parent(self, device):
+        if self.lsblk:
+            pattern = re.compile('KNAME="(?P<KNAME>.*)" '
+                                 'TYPE="(?P<TYPE>.*)" '
+                                 'MOUNTPOINT="(?P<MOUNTPOINT>.*)"')
+            for line in self.lsblk.splitlines():
+                m = pattern.match(line)
+                if m and device.startswith(m.group('KNAME')):
+                    return m.group('KNAME')
+        return False
+
+    def _run_lsblk(self, lsblkcommand):
+        try:
+            self.lsblk = subprocess.check_output(shlex.split(lsblkcommand),
+                                                 universal_newlines=True)
+        except subprocess.CalledProcessError as exc:
+            raise SystemExit(exc)
 
     def _probe_disks(self):
         """
@@ -223,6 +246,9 @@ class DiskTest():
             # Get the block device pathname,
             # to avoid the confusion, this is something like /dev/sdbX
             dev_file = udev_device.get_device_file()
+            parent = self._find_parent(dev_file.replace('/dev/', ''))
+            if parent and find_pkname_is_root_mountpoint(parent, self.lsblk):
+                continue
             # Get the list of mount points of this block device
             mount_points = (
                 udisks2_object[UDISKS2_FILESYSTEM_INTERFACE]['MountPoints'])
@@ -451,10 +477,14 @@ def main():
                         choices=['xhci_hcd'],
                         help=("Detect the driver of the host controller."
                               "Only xhci_hcd for usb3 is supported so far."))
+    parser.add_argument("--lsblkcommand", action='store', type=str,
+                        default="lsblk -i -n -P -o KNAME,TYPE,MOUNTPOINT",
+                        help=("Command to execute to get lsblk information. "
+                              "Only change it if you know what you're doing."))
 
     args = parser.parse_args()
 
-    test = DiskTest(args.device, args.memorycard)
+    test = DiskTest(args.device, args.memorycard, args.lsblkcommand)
 
     errors = 0
     # If we do have removable drives attached and mounted

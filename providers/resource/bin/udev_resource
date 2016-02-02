@@ -46,15 +46,21 @@ def main():
                         default="udevadm info --export-db",
                         help="""Command to execute to get udevadm information.
                               Only change it if you know what you're doing.""")
+    parser.add_argument("-d", "--lsblkcommand", action='store', type=str,
+                        default="lsblk -i -n -P -o KNAME,TYPE,MOUNTPOINT",
+                        help="""Command to execute to get lsblk information.
+                              Only change it if you know what you're doing.""")
     args = parser.parse_args()
     try:
         output = check_output(shlex.split(args.command))
+        lsblk = check_output(shlex.split(args.lsblkcommand))
     except CalledProcessError as exc:
         raise SystemExit(exc)
     # Set the error policy to 'ignore' in order to let tests depending on this
     # resource to properly match udev properties
     output = output.decode("UTF-8", errors='ignore')
-    udev = UdevadmParser(output)
+    lsblk = lsblk.decode("UTF-8", errors='ignore')
+    udev = UdevadmParser(output, lsblk=lsblk)
     result = UdevResult()
     udev.run(result)
 

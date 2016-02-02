@@ -572,21 +572,24 @@ def main():
                     stat = os.statvfs(path)
                     disks_freespace[disk] = stat.f_bfree * stat.f_bsize
                 smallest_freespace = min(disks_freespace.values())
+                smallest_partition = [d for d, v in disks_freespace.items() if
+                                      v == smallest_freespace][0]
                 desired_size = args.size
                 if desired_size > smallest_freespace:
                     if args.auto_reduce_size:
                         min_space = HumanReadableBytes("1MiB")
                         if smallest_freespace < min_space:
-                            raise IOError("Not enough space. {} is required"
-                                          .format(min_space))
-                        new_size = HumanReadableBytes(int(0.8 * smallest_freespace))
+                            sys.exit("Not enough space. {} is required on {}"
+                                     .format(min_space, smallest_partition))
+                        new_size = HumanReadableBytes(
+                            int(0.8 * smallest_freespace))
                         logging.warning("Automatically reducing test data size"
                                         ". {} requested. Reducing to {}."
                                         .format(desired_size, new_size))
                         desired_size = new_size
                     else:
-                        raise IOError("Not enough space. {} is required"
-                                      .format(desired_size))
+                        sys.exit("Not enough space. {} is required on {}"
+                                 .format(desired_size, smallest_partition))
                 # Generate our data file(s)
                 for count in range(args.count):
                     test_files[count] = RandomData(desired_size)

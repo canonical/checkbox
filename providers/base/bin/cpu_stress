@@ -1,0 +1,70 @@
+#!/bin/sh
+
+# Script to perform CPU stress tests
+#
+# Copyright (c) 2016 Canonical Ltd.
+#
+# Authors
+#   Rod Smith <rod.smith@canonical.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# The purpose of this script is to run CPU stress tests using the
+# stress-ng program.
+#
+# Usage:
+#   cpu_stress [ --runtime <time-in-seconds> ]
+#
+# If --runtime is not specified, it defaults to 7200 (2 hours).
+
+runtime=7200
+if [ "$#" = "2" ] && [ "$1" = "--runtime" ] && [ "$2" -eq "$2" ] ; then
+    runtime=$2
+elif [ "$#" != "0" ] ; then
+    echo "Usage:"
+    echo " $0 [ --runtime <time-in-seconds> ]"
+    exit 1
+fi
+echo "Setting run time to $runtime seconds"
+# Add 10% to runtime; will forcefully terminate if stress-ng
+# fails to return in that time.
+end_time=$((runtime*11/10))
+
+# NOTE:
+# Options --af-alg 0 through --wcs 0 specify CPU stressors. As of stress-ng
+# version 0.05.12, this is equivalent to --class cpu --all 0 --exclude numa,cpu_online.
+# This script specifies stressors individually because the list of stressors keeps
+# increasing, and we want consistency -- if the stress-ng version bumps up, we
+# don't want new stressors being run. We're omitting numa because it's most
+# useful on systems with massive numbers of CPUs, and cpu_online because it's
+# failed on 4 of 8 test systems, so it seems too strict.
+# Use "timeout" command to launch stress-ng, to catch it should it go into la-la land
+timeout -s 9 $end_time stress-ng --aggressive --verify --timeout $runtime \
+                                 --metrics-brief --tz --times \
+                                 --af-alg 0 --bsearch 0 --context 0 --cpu 0 \
+                                 --crypt 0 --hsearch 0 --longjmp 0 --lsearch 0 \
+                                 --matrix 0 --qsort 0 --str 0 --stream 0 \
+                                 --tsearch 0 --vecmath 0 --wcs 0
+result="$?"
+
+echo "**********************************************************"
+if [ $result = "0" ] ; then
+    echo "* stress-ng CPU test passed!"
+else
+    if [ $result = "137" ] ; then
+        echo "* stress-ng CPU test timed out and was forcefully terminated!"
+    fi
+    echo "* stress-ng CPU test failed with result $result"
+fi
+echo "**********************************************************"
+exit $result

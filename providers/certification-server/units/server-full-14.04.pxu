@@ -84,6 +84,7 @@ include:
     power-management/rtc
     __stress__
     stress/cpu_stress_test
+    stress/cpu_stress_ng_test
     __usb__
     usb/detect
     usb/storage-preinserted

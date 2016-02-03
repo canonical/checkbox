@@ -4,10 +4,12 @@
 #
 # Copyright (C) 2010-2013 by Cloud Computing Center for Mobile Applications
 # Industrial Technology Research Institute
+# Copyright 2016 Canonical Ltd.
 #
 # Authors:
 #   Nelson Chu <Nelson.Chu@itri.org.tw>
 #   Jeff Lane <jeff@ubuntu.com>
+#   Sylvain Pineau <sylvain.pineau@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -20,55 +22,60 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-"""
-disk_info
+"""disk_info utility."""
 
-Uses lshw to gather information about disks seen by the OS.
-Outputs logical name, vendor, description, size and product data
-"""
-
+import re
 import sys
-import xml.etree.ElementTree as ET
-from subprocess import check_output
+from subprocess import check_output, CalledProcessError
 
-
-def get_item(disk, attribute):
-    try:
-        return disk.find(attribute).text
-    except AttributeError:
-        return "Unknown"
+from checkbox_support.parsers.udevadm import find_pkname_is_root_mountpoint
 
 
 def main():
-    hwinfo_xml = check_output(['lshw', '-c', 'disk', '-xml'])
-    root = ET.fromstring(hwinfo_xml)
+    """
+    disk_info.
 
-    # Parse lshw XML for gathering disk information.
-    disk_list = root.findall(".//node[@class='disk']")
+    Uses lsblk to gather information about disks seen by the OS.
+    Outputs kernel name, model and size data
+    """
+    pattern = re.compile('KNAME="(?P<KNAME>.*)" '
+                         'TYPE="(?P<TYPE>.*)" '
+                         'SIZE="(?P<SIZE>.*)" '
+                         'MODEL="(?P<MODEL>.*)" '
+                         'MOUNTPOINT="(?P<MOUNTPOINT>.*)"')
+    try:
+        lsblk = check_output(["lsblk", "-i", "-n", "-P", "-o",
+                              "KNAME,TYPE,SIZE,MODEL,MOUNTPOINT"],
+                             universal_newlines=True)
+    except CalledProcessError as e:
+        sys.exit(e)
 
-    if not disk_list:
+    disks = 0
+    for line in lsblk.splitlines():
+        m = pattern.match(line)
+        if not m or m.group('TYPE') != 'disk':
+            continue
+        # Only consider MMC block devices if one of their mounted partitions is
+        # root (/)
+        if (
+            m.group('KNAME').startswith('mmcblk') and not
+            find_pkname_is_root_mountpoint(m.group('KNAME'), lsblk)
+        ):
+            continue
+        disks += 1
+        model = m.group('MODEL')
+        if not model:
+            model = 'Unknown'
+        print("Name: /dev/{}".format(m.group('KNAME')))
+        print("\t{:7}\t{}".format('Model:', model))
+        print("\t{:7}\t{}".format('Size:', m.group('SIZE')))
+
+    if not disks:
         print("No disk information discovered.")
         return 10
 
-    for disk in disk_list:
-        if disk.get('id') == 'disk':
-            print("Name: {}".format(get_item(disk, 'logicalname')))
-            print("\t{k:15}\t{v}".format(k="Description:",
-                                         v=get_item(disk, 'description')))
-            print("\t{k:15}\t{v}".format(k="Vendor:",
-                                         v=get_item(disk, 'vendor')))
-            print("\t{k:15}\t{v}".format(k="Product:",
-                                         v=get_item(disk, 'product')))
-            try:
-                disk_size = ("%dGB" % (
-                    int(disk.find('size').text) / (1000**3)))
-            except TypeError:
-                disk_size = "No Reported Size"
-            except AttributeError:
-                disk_size = "No Reported Size"
-            print("\t{k:15}\t{v}".format(k="Size:",
-                                         v=disk_size))
     return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())

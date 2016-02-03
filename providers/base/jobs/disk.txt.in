@@ -1,13 +1,8 @@
-# This is for bin/disk_info
-unit: packaging meta-data
-os-id: debian
-Depends: lshw
-
 plugin: shell
 category_id: 2013.com.canonical.plainbox::disk
 id: disk/detect
+requires: package.name == 'util-linux'
 estimated_duration: 0.25
-user: root
 command: disk_info
 _description: 
  Displays information about each disk detected on the system under test.

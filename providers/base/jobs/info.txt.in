@@ -8,7 +8,7 @@ unit: packaging meta-data
 os-id: debian
 Depends: python3-guacamole (>= 0.9)
 
-# This is for lsblk
+# This is for lsblk attachment and disk/detect
 unit: packaging meta-data
 os-id: debian
 Depends: util-linux

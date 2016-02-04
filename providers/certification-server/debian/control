@@ -14,30 +14,20 @@ Package: plainbox-provider-certification-server
 Architecture: all
 Depends: module-init-tools,
          plainbox-provider-checkbox
-Recommends: apache2,
-            bind9,
-            bonnie++,
+Recommends: bonnie++,
             canonical-certification-submit,
             cpu-checker,
-            cups,
-            dnsutils,
             fwts (>=13.09.00-0ubuntu1),
             iperf,
             iperf3,
             ipmitool,
-            libapache2-mod-php5,
-            mysql-server,
             nmap,
-            php5-mysql,
             plainbox-insecure-policy,
             qemu-system,
             qemu-utils,
-            samba,
             ssh,
             stress,
-            stress-ng,
-            tomcat6,
-            winbind
+            stress-ng
 Description: Server Certification provider for Plainbox
  This package provides a test set of test plans that are used by Canonical
  for the testing and certification of "server" devices.

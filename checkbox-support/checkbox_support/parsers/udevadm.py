@@ -789,9 +789,10 @@ class UdevadmParser(object):
                 and device.subvendor_id is None)):
             return True
 
-        # Ignore FLOPPY and DISK devices without a DEVNAME (See pad.lv/1539041)
+        # Ignore FLOPPY, DISK and CDROM devices without a DEVNAME
+        # (See pad.lv/1539041)
         if (
-            (device.category in ('FLOPPY', 'DISK')) and
+            (device.category in ('CDROM', 'DISK', 'FLOPPY')) and
             "DEVNAME" not in device._environment):
             return True
 

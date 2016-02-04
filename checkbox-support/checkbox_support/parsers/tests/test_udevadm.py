@@ -800,6 +800,13 @@ E: UDEV_LOG=3
         self.assertEqual(len(devices), 83)
         self.assertEqual(self.count(devices, "FLOPPY"), 1)
 
+    def test_ONE_CDROM_ONLY(self):
+        # A system with only one BD drive but previously seen as two devices.
+        # (http://pad.lv/1328481)
+        devices = self.parse("ONE_CDROM_ONLY")
+        self.assertEqual(len(devices), 88)
+        self.assertEqual(self.count(devices, "CDROM"), 1)
+
     def test_DELL_VOSTRO_270(self):
         # Interesting because while its Intel video card has the same PCI
         # vendor/product ID as others (8086:0152) the subvendor_id and

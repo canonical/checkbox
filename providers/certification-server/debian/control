@@ -35,6 +35,7 @@ Recommends: apache2,
             samba,
             ssh,
             stress,
+            stress-ng,
             tomcat6,
             winbind
 Description: Server Certification provider for Plainbox

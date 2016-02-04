@@ -11,6 +11,11 @@ _description:
  several hours. The test is considered passed if the system does not freeze or
  abend.
 
+# The stress/cpu_stress_ng_test job requires stress-ng package
+unit: packaging meta-data
+os-id: debian
+Depends: stress-ng (>= 0.04)
+
 plugin: shell
 category_id: 2013.com.canonical.plainbox::stress
 id: stress/cpu_stress_ng_test

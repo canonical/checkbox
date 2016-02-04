@@ -72,6 +72,7 @@ class AudioPlugDetection:
         cfg = set()
         for record in doc.record_list:
              active_port = None
+             port_availability = None
              # We go through the attribute list once to try to find an active port
              for attr in record.attribute_list:
                  if attr.name == "Active Port":

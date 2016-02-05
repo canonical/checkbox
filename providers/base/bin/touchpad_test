@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 
 import sys
-
 import gettext
+
 from gettext import gettext as _
-
 from gi.repository import Gio, Gtk, Gdk
-
 from optparse import OptionParser
 
 
@@ -25,12 +23,18 @@ class Direction(object):
 
 class GtkScroller(object):
 
-    touchpad_key = "org.gnome.settings-daemon.peripherals.touchpad"
     exit_code = EXIT_WITH_FAILURE
 
     def __init__(self, directions, edge_scroll=False):
         self.directions = directions
         self.edge_scroll = edge_scroll
+        self.touchpad_key = "org.gnome.settings-daemon.peripherals.touchpad"
+        self.horiz_scroll_key = True
+        source = Gio.SettingsSchemaSource.get_default()
+        if not source.lookup(self.touchpad_key, True):
+            self.touchpad_key = "org.gnome.desktop.peripherals.touchpad"
+            self.horiz_scroll_key = False
+        self.touchpad_settings = Gio.Settings.new(self.touchpad_key)
 
         # Initialize GTK constants
         self.ICON_SIZE = Gtk.IconSize.BUTTON
@@ -74,7 +78,7 @@ class GtkScroller(object):
 
         self.show_text(
             _("Please move the mouse cursor to this window.") +
-            "\n" + 
+            "\n" +
             _("Then scroll in each direction on your touchpad."))
 
     def _add_button(self, context, stock):
@@ -116,25 +120,27 @@ class GtkScroller(object):
 
     def run(self):
         # Save touchpad settings.
-        touchpad_settings = Gio.Settings.new(self.touchpad_key)
-        self.saved_horiz_scroll_enabled = touchpad_settings.get_boolean(
-            "horiz-scroll-enabled")
-        self.saved_scroll_method = touchpad_settings.get_string(
+        if self.horiz_scroll_key:
+            self.saved_horiz_scroll_enabled = \
+                self.touchpad_settings.get_boolean("horiz-scroll-enabled")
+        self.saved_scroll_method = self.touchpad_settings.get_string(
             "scroll-method")
 
         # Set touchpad settings.
-        touchpad_settings.set_boolean("horiz-scroll-enabled", True)
+        if self.horiz_scroll_key:
+            self.touchpad_settings.set_boolean("horiz-scroll-enabled", True)
         if self.edge_scroll:
-            touchpad_settings.set_string("scroll-method", "edge-scrolling")
+            self.touchpad_settings.set_string(
+                "scroll-method", "edge-scrolling")
 
         Gtk.main()
 
     def quit(self):
         # Reset touchpad settings.
-        touchpad_settings = Gio.Settings.new(self.touchpad_key)
-        touchpad_settings.set_boolean(
-            "horiz-scroll-enabled", self.saved_horiz_scroll_enabled)
-        touchpad_settings.set_string(
+        if self.horiz_scroll_key:
+            self.touchpad_settings.set_boolean(
+                "horiz-scroll-enabled", self.saved_horiz_scroll_enabled)
+        self.touchpad_settings.set_string(
             "scroll-method", self.saved_scroll_method)
 
         Gtk.main_quit()
@@ -190,7 +196,7 @@ def main(args):
     try:
         scroller.run()
     except KeyboardInterrupt:
-        scroller.show_text(_("Test interrupted"), self.status)
+        scroller.show_text(_("Test interrupted"), scroller.status)
         scroller.quit()
 
     return scroller.exit_code

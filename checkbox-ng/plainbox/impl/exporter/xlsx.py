@@ -365,7 +365,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             for i, pkg in enumerate(data["resource_map"][resource]):
                 self.worksheet1.write_row(
                     22 + i, 1,
-                    [pkg['name'], pkg['version']],
+                    [pkg.get("name", ""), pkg.get("version", "")],
                     self.format08 if i % 2 else self.format09
                 )
                 self.worksheet1.set_row(

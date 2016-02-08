@@ -807,7 +807,7 @@ class RunInvocation(CheckBoxInvocationMixIn):
                     if cmd == 'run' or cmd is None:
                         result_builder = self.runner.run_job(
                             job, job_state, self.config, ui
-                        ).get_builder()
+                        ).get_builder(comments=comments)
                     elif cmd == 'comment':
                         new_comment = input(self.C.BLUE(
                             _('Please enter your comments:') + '\n'))

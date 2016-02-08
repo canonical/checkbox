@@ -775,7 +775,8 @@ E: UDEV_LOG=3
     def test_QEMU_KVM(self):
         # A virtual machine, QEMU-KVM-based. Some of its devices are those
         # of the host system, we're interested mainly in network and disk
-        # devices (http://pad.lv/1355282)
+        # devices.
+        # See https://bugs.launchpad.net/bugs/1355282
         devices = self.parse("QEMU_KVM")
         self.assertEqual(len(devices), 23)
         self.assertEqual(self.count(devices, "VIDEO"), 1)
@@ -795,17 +796,27 @@ E: UDEV_LOG=3
 
     def test_VM_WITH_FLOPPY(self):
         # A virtual machine, with a floppy drive enabled.
-        # We're interested mainly in the floppy device (http://pad.lv/1539041)
+        # We're interested mainly in the floppy device.
+        # See https://bugs.launchpad.net/bugs/1539041
         devices = self.parse("VM_WITH_FLOPPY")
         self.assertEqual(len(devices), 83)
         self.assertEqual(self.count(devices, "FLOPPY"), 1)
 
     def test_ONE_CDROM_ONLY(self):
         # A system with only one BD drive but previously seen as two devices.
-        # (http://pad.lv/1328481)
+        # See https://bugs.launchpad.net/bugs/1328481
         devices = self.parse("ONE_CDROM_ONLY")
         self.assertEqual(len(devices), 88)
         self.assertEqual(self.count(devices, "CDROM"), 1)
+
+    def test_DELL_IDRAC(self):
+        # Ignore virtual devices created by Dell iDRAC manager
+        # See https://bugs.launchpad.net/bugs/1308702
+        devices = self.parse("DELL_IDRAC")
+        self.assertEqual(len(devices), 243)
+        self.assertEqual(self.count(devices, "CDROM"), 1)
+        self.assertEqual(self.count(devices, "DISK"), 2)
+        self.assertEqual(self.count(devices, "FLOPPY"), 0)
 
     def test_DELL_VOSTRO_270(self):
         # Interesting because while its Intel video card has the same PCI

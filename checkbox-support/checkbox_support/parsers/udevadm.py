@@ -800,6 +800,11 @@ class UdevadmParser(object):
         if device.bus == "acpi":
             return True
 
+        # Ignore virtual devices created by Dell iDRAC manager
+        # See pad.lv/1308702
+        if device.vendor == "iDRAC":
+            return True
+
         return False
 
     def getAttributes(self, path):

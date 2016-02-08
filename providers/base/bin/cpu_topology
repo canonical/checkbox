@@ -5,6 +5,7 @@ Written by Jeffrey Lane <jeffrey.lane@canonical.com>
 '''
 import sys
 import os
+import re
 
 
 class proc_cpuinfo():
@@ -20,10 +21,18 @@ class proc_cpuinfo():
         finally:
             cpu_fh.close()
 
+        r_s390 = re.compile("processor [0-9]")
+        r_x86 = re.compile("processor\s+:")
         for i in temp:
-            if i.startswith('processor'):
+            # Handle s390 first
+            if r_s390.match(i):
+                cpu_num = i.split(':')[0].split()[1].strip()
+                key = 'cpu' + cpu_num
+                self.cpuinfo[key] = {'core_id': cpu_num,
+                                     'physical_package_id': cpu_num}
+            if r_x86.match(i):
                 key = 'cpu' + (i.split(':')[1].strip())
-                self.cpuinfo[key] = {'core_id':'', 'physical_package_id':''}
+                self.cpuinfo[key] = {'core_id': '', 'physical_package_id': ''}
             elif i.startswith('core id'):
                 self.cpuinfo[key].update({'core_id': i.split(':')[1].strip()})
             elif i.startswith('physical id'):
@@ -84,12 +93,12 @@ def main():
         print("FAIL: CPU Topology is incorrect", file=sys.stderr)
         print("-" * 52, file=sys.stderr)
         print("{0}{1}".format("/proc/cpuinfo".center(30), "sysfs".center(25)),
-                file=sys.stderr)
+              file=sys.stderr)
         print("{0}{1}{2}{3}{1}{2}".format(
-                "CPU".center(6),
-                "Physical ID".center(13),
-                "Core ID".center(9),
-                "|".center(3)), file=sys.stderr)
+              "CPU".center(6),
+              "Physical ID".center(13),
+              "Core ID".center(9),
+              "|".center(3)), file=sys.stderr)
         for key in sorted(sys_cpu.keys()):
             print("{0}{1}{2}{3}{4}{5}".format(
                   key.center(6),
@@ -100,6 +109,7 @@ def main():
                   sys_cpu[key]['core_id'].center(9)), file=sys.stderr)
         return 1
     else:
+        instrument("What do you know? It works")
         return 0
 
 if __name__ == '__main__':

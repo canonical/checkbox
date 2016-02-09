@@ -30,7 +30,7 @@ class proc_cpuinfo():
                 key = 'cpu' + cpu_num
                 self.cpuinfo[key] = {'core_id': cpu_num,
                                      'physical_package_id': cpu_num}
-            if r_x86.match(i):
+            elif r_x86.match(i):
                 key = 'cpu' + (i.split(':')[1].strip())
                 self.cpuinfo[key] = {'core_id': '', 'physical_package_id': ''}
             elif i.startswith('core id'):
@@ -109,7 +109,6 @@ def main():
                   sys_cpu[key]['core_id'].center(9)), file=sys.stderr)
         return 1
     else:
-        instrument("What do you know? It works")
         return 0
 
 if __name__ == '__main__':

@@ -2,3 +2,8 @@
 unit: packaging meta-data
 os-id: debian
 Depends: iperf3
+
+# This is for 'virtualization/kvm_check_vm'
+unit: packaging meta-data
+os-id: debian
+Depends: genisoimage

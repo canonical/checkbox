@@ -476,7 +476,7 @@ class CliInvocation2(RunInvocation):
         except InvalidSecureIDError as exc:
             print(exc)
             return False
-        with open(self.submission_file) as stream:
+        with open(self.submission_file, "r", encoding='utf-8') as stream:
             try:
                 # Send the data, reading from the fallback file
                 result = transport.send(stream, self.config)

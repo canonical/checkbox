@@ -1021,26 +1021,28 @@ class SubmissionParser(object):
     def _getValueAsType(self, node):
         """Return value of a node as the type attribute."""
         type_ = node.get("type")
-        if type_ in ("bool",):
-            value = node.text.strip()
-            assert value in ("True", "False",), \
-                "Unexpected boolean value '%s' in <%s>" % (value, node.tag)
-            return value == "True"
-        elif type_ in ("str",):
-            return str(node.text.strip())
-        elif type_ in ("int", "long",):
-            return int(node.text.strip())
-        elif type_ in ("float",):
-            return float(node.text.strip())
-        elif type_ in ("list",):
-            return [self._getValueAsType(child)
-                    for child in node.getchildren()]
-        elif type_ in ("dict",):
-            return {child.get("name"): self._getValueAsType(child)
-                    for child in node.getchildren()}
-        else:
-            raise AssertionError(
-                "Unexpected type '%s' in <%s>" % (type_, node.tag))
+        try:
+            if type_ in ("bool",):
+                value = node.text.strip()
+                assert value in ("True", "False",), \
+                    "Unexpected boolean value '%s' in <%s>" % (value, node.tag)
+                return value == "True"
+            elif type_ in ("str",):
+                return str(node.text.strip())
+            elif type_ in ("int", "long",):
+                return int(node.text.strip())
+            elif type_ in ("float",):
+                return float(node.text.strip())
+            elif type_ in ("list",):
+                return [self._getValueAsType(child)
+                        for child in node.getchildren()]
+            elif type_ in ("dict",):
+                return {child.get("name"): self._getValueAsType(child)
+                        for child in node.getchildren()}
+        except (TypeError, AttributeError):
+            return ''
+        raise AssertionError(
+                    "Unexpected type '%s' in <%s>" % (type_, node.tag))
 
     def _getValueAsBoolean(self, node):
         """Return the value of the attribute "value" as a boolean."""

@@ -56,7 +56,11 @@ then
     # Disconnect, pause for a short time
     for iface in `(nmcli -f GENERAL dev list 2>/dev/null || nmcli -f GENERAL dev show) | grep 'GENERAL.DEVICE' | awk '{print $2}'`
     do
-        nmcli dev disconnect iface $iface
+        if [ $NMCLI_GTE_0_9_10 -eq 0 ]; then
+            nmcli dev disconnect iface $iface
+        else
+            nmcli dev disconnect $iface
+        fi
     done
     sleep 2
 fi

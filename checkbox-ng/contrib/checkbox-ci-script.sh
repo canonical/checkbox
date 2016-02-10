@@ -34,7 +34,7 @@ mailer() {
     HOST=$(hostname)
     SUBJECT="$SUBJECT - $HOST $IP"
     if [ -f "$MESSAGE" ] ; then
-        dpkg --list "checkbox*" "plainbox*" >> $MESSAGE
+        dpkg --list "*checkbox*" "*plainbox*" >> $MESSAGE
         if run_chc >> $MESSAGE ; then
             SUBJECT="$SUBJECT and canonical-hw-collection(Tested); "
         else

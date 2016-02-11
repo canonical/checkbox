@@ -653,3 +653,29 @@ class DocumentTests(ParsingTestCase, PactlDataMixIn):
         self.assertEqual(document.record_list[41].name, "Sample #1")
         self.assertEqual(document.record_list[42].name, "Card #0")
         self.assertEqual(len(document.record_list), 43)
+
+    def test_pactl_list_bt_volume_trusty(self):
+        document = self.assertParses(
+            pactl.Document.Syntax, self.get_text("desktop-trusty-bt-headset")
+        )[0]
+        for i in range(26):
+            self.assertEqual(
+                document.record_list[i].name,
+                "Module #{}".format(i))
+        self.assertEqual(document.record_list[26].name, "Sink #1")
+        self.assertEqual(document.record_list[27].name, "Sink #2")
+        self.assertEqual(document.record_list[28].name, "Sink #3")
+        self.assertEqual(document.record_list[29].name, "Source #1")
+        self.assertEqual(document.record_list[30].name, "Source #2")
+        self.assertEqual(document.record_list[31].name, "Source #3")
+        self.assertEqual(document.record_list[32].name, "Source #4")
+        self.assertEqual(document.record_list[33].name, "Source #5")
+        self.assertEqual(document.record_list[34].name, "Client #0")
+        self.assertEqual(document.record_list[35].name, "Client #1")
+        self.assertEqual(document.record_list[36].name, "Client #2")
+        self.assertEqual(document.record_list[37].name, "Client #7")
+        self.assertEqual(document.record_list[38].name, "Client #143")
+        self.assertEqual(document.record_list[39].name, "Card #0")
+        self.assertEqual(document.record_list[40].name, "Card #1")
+        self.assertEqual(document.record_list[41].name, "Card #2")
+        self.assertEqual(len(document.record_list), 42)

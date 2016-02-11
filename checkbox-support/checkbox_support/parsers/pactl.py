@@ -354,6 +354,10 @@ VolumeAttributeValue = (
             p.Or([
                 p.Literal("(invalid)"),
                 p.Regex("([0-9]+: +[0-9]+% ?)+")
+            ]),
+            p.Or([
+                p.Literal("(invalid)"),
+                p.Regex("([0-9]+: +[0-9]+% ?)+")
             ])
             + p.LineEnd()
             + p.Optional(p.White('\t').suppress())

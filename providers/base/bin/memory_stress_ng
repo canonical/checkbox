@@ -24,7 +24,7 @@
 # that's a side effect of the memory stressors, not their purpose.
 #
 # Usage:
-#   memory_test_ng [ --base-time <time> ] [ --time-per-gig <time> ]
+#   memory_stress_ng [ --base-time <time> ] [ --time-per-gig <time> ]
 #
 # Parameters:
 #   --base-time is the time in seconds to run each stressor. (The default
@@ -113,6 +113,16 @@ echo "Variable run time is $variable_time seconds per stressor"
 
 had_error=0
 
+# NOTE: Specify stressors in two arrays rather than rely on stress-ng's
+# --class memory,vm option for two reasons:
+#  1. We want to run some stressors (those that exhaust all memory)
+#     for longer than others, so we need to specify different run
+#     times for different stressors.
+#  2. stress-ng is constantly being updated with new tests. We don't
+#     want to run one set of tests on SUT 1 and a larger set of tests
+#     on SUT 2 if we happen to have updated stress-ng for some unrelated
+#     reason (like a bug fix); thus, we specify tests individually.
+
 # Constant-run-time stressors -- run them for the same length of time on all
 # systems....
 crt_stressors=("bsearch" "context" "hsearch" "lockbus" "lsearch" "matrix" \
@@ -127,6 +137,7 @@ vrt_runtime=$((${#vrt_stressors[@]}*$variable_time))
 
 total_runtime=$((($crt_runtime + $vrt_runtime) / 60))
 echo "Estimated total run time is $total_runtime minutes"
+echo ""
 
 for stressor in ${crt_stressors[@]}; do
     run_stressor $stressor $base_time

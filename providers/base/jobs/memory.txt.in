@@ -24,12 +24,12 @@ _description:
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::memory
-id: memory/test_ng
-estimated_duration: 1000.0
+id: memory/memory_stress_ng
+estimated_duration: 11000.0
 user: root
 requires:
  package.name == 'stress-ng'
-command: memory_test_ng
+command: memory_stress_ng
 _description:
  Test to perform some basic stress and exercise of system memory via the
  stress_ng tool. This test also includes an over-commit function to force

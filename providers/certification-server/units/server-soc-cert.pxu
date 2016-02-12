@@ -70,6 +70,7 @@ include:
     __memory__
     memory/info
     memory/check
+    memory/test_ng
     __power-management__
     power-management/rtc
     __stress__

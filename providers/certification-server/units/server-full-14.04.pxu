@@ -76,6 +76,7 @@ include:
     __memory__
     memory/info
     memory/check
+    memory/test_ng
     __optical__
     optical/detect
     optical/read-automated

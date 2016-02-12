@@ -190,9 +190,9 @@ _purpose:
 _steps:
  1. Prior to running this test, you should have attempted to boot this system via PXE on every Network Port available.
 _verification:
- 1. Select Yes if you successfully used PXE boot this system using the NIC {interface}
- 2. Select No if you did not attempt to PXE boot this system using the NIC {interface}
- 3. Select No if you attempted to PXE boot via {interface} and it failed for some reason.
+ 1. Select Yes if you successfully used PXE to boot this system using the NIC {interface}
+ 2. Select No if you attempted to PXE boot via {interface} and it failed for some reason.
+ 3. Select Skip if you did not attempt to PXE boot this system using the NIC {interface}
 
 unit: template
 template-resource: device

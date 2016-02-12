@@ -220,7 +220,7 @@ _description:
  STEPS:
   1. Prior to running the test, you should have configured and used the Dedicated Management Port to remotely power off/on this sytem.
  VERIFICATION:
-  Skip this test if this system ONLY uses shared management/ethernet ports OR if this system does not have a BMC (Management Console)
+  Skip this test if this system ONLY uses shared management/ethernet ports OR if this system does not have a Management Controller.
   1. Select Yes if you successfully used IPMI to remotely power this system off and on using the dedicated management port.
   2. Select No if you attempted to use the dedicated management port to remotely power this system off/on and it failed for some reason.
 

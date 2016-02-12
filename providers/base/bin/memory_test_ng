@@ -1,0 +1,146 @@
+#!/bin/bash
+
+# Script to perform memory stress tests
+#
+# Copyright (c) 2016 Canonical Ltd.
+#
+# Authors
+#   Rod Smith <rod.smith@canonical.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# The purpose of this script is to run memory stress tests using the
+# stress-ng program. It also happens to impose a heavy CPU load, but
+# that's a side effect of the memory stressors, not their purpose.
+#
+# Usage:
+#   memory_test_ng [ --base-time <time> ] [ --time-per-gig <time> ]
+#
+# Parameters:
+#   --base-time is the time in seconds to run each stressor. (The default
+#     is 300 seconds, or five minutes.)
+#   --time-per-gig is extra time given to SOME stressors, measured in a
+#     seconds per GiB way. (The default is 10 seconds per GiB.)
+#
+# There are a total of 23 constant-run-time stressors and 6 variable-
+# run-time stressors. Given the defaults, this works out to a total
+# expected default run time of 8700 seconds (145 minutes) plus 60 seconds
+# per GiB of RAM -- so a system with 16 GiB should take 161 minutes; one
+# with 32 GiB should take 177 minutes, and so on, using the default
+# values.
+
+
+get_params() {
+    base_time=300
+    time_per_gig=10
+    while [ $# -gt 0 ] ; do
+        case $1 in
+            --base-time) base_time="$2"
+                shift
+                ;;
+            --time-per-gig) time_per_gig="$2"
+                shift
+                ;;
+            *) echo "Usage: $0 [ --base-time <time> ] [ --time-per-gig <time> ]"
+                exit 1
+                ;;
+        esac
+        shift
+    done
+    local extra_time=$(($time_per_gig * $total_mem_in_GiB))
+    variable_time=$(($base_time + $extra_time ))
+} # get_params()
+
+
+# Run an individual stressor
+# Input:
+#   $1 = stressor name (e.g., malloc, brk)
+#   $2 = run time
+# Output:
+#   had_error -- sets to "1" if an error occurred
+run_stressor() {
+    local runtime="$2"
+    # Add 50% to runtime; will forcefully terminate if stress-ng
+    # fails to return in that time.
+    end_time=$((runtime*15/10))
+    echo "Running stress-ng $1 stressor for $2 seconds...."
+    # Use "timeout" command to launch stress-ng, to catch it should it go into la-la land
+    timeout -s 9 $end_time stress-ng --aggressive --verify --timeout $runtime --$1 0
+    return_code="$?"
+    echo "return_code is $return_code"
+    if [ "$return_code" != "0" ] ; then
+        had_error=1
+        echo "*****************************************************************"
+        if [ $return_code = "137" ] ; then
+            echo "** stress-ng memory test timed out and was forcefully terminated!"
+        else
+            echo "** Error $return_code reported on stressor $stressor!)"
+        fi
+        echo "*****************************************************************"
+        had_error=1
+    fi
+} # run_stressor()
+
+
+#
+# Main program body....
+#
+
+swap_space=`cat /proc/meminfo | grep -i SwapTotal | tr -s " " | cut -f 2 -d " "`
+if [ -z $swap_space ] || [ $swap_space = "0" ] ; then
+    echo "Swap space unavailable! Please activate swap space and re-run this test!"
+    exit 1
+fi
+
+# Total memory in KiB....
+total_mem_in_KiB=`cat /proc/meminfo | grep MemTotal | tr -s " " | cut -f 2 -d " "`
+total_mem_in_GiB=$((($total_mem_in_KiB/1048576)+1))
+echo "Total memory is $total_mem_in_GiB GiB"
+
+get_params "$@"
+echo "Constant run time is $base_time seconds per stressor"
+echo "Variable run time is $variable_time seconds per stressor"
+
+had_error=0
+
+# Constant-run-time stressors -- run them for the same length of time on all
+# systems....
+crt_stressors=("bsearch" "context" "hsearch" "lockbus" "lsearch" "matrix" \
+               "memcpy" "null" "pipe" "qsort" "stack" "str" "stream" \
+               "tsearch" "vm-rw" "wcs" "zero" "mlock" "mmapfork" "mmapmany" \
+               "mremap" "shm-sysv" "vm-splice")
+crt_runtime=$((${#crt_stressors[@]}*$base_time))
+
+# Variable-run-time stressors -- run them longer on systems with more RAM....
+vrt_stressors=("malloc" "mincore" "vm" "bigheap" "brk" "mmap")
+vrt_runtime=$((${#vrt_stressors[@]}*$variable_time))
+
+total_runtime=$((($crt_runtime + $vrt_runtime) / 60))
+echo "Estimated total run time is $total_runtime minutes"
+
+for stressor in ${crt_stressors[@]}; do
+    run_stressor $stressor $base_time
+done
+
+for stressor in ${vrt_stressors[@]}; do
+    run_stressor $stressor $variable_time
+done
+
+echo "*******************************************************************"
+if [ $had_error = "0" ] ; then
+    echo "** stress-ng memory test passed!"
+else
+    echo "** stress-ng memory test failed; most recent error was $return_code"
+fi
+echo "*******************************************************************"
+exit $result

@@ -22,3 +22,17 @@ _description:
  should have suitably large swap files for the amount of RAM they have
  installed.
 
+plugin: shell
+category_id: 2013.com.canonical.plainbox::memory
+id: memory/test_ng
+estimated_duration: 1000.0
+user: root
+requires:
+ package.name == 'stress-ng'
+command: memory_test_ng
+_description:
+ Test to perform some basic stress and exercise of system memory via the
+ stress_ng tool. This test also includes an over-commit function to force
+ swapping to disk, thus SUTs should have suitably large swap files for the
+ amount of RAM they have installed.
+

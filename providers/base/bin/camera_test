@@ -303,10 +303,18 @@ class CameraTest:
             self._pipeline.set_state(Gst.State.NULL)
 
         if not quiet:
-            try:
-                check_call(["timeout", "-k", "11", "10", "eog", filename])
-            except CalledProcessError:
-                pass
+            import imghdr
+            image_type = imghdr.what(filename)
+            pipespec = ("filesrc location=%(filename)s ! "
+                        "%(type)sdec ! "
+                        "videoscale ! "
+                        "imagefreeze ! autovideosink"
+                        % {'filename': filename,
+                           'type': image_type})
+            self._pipeline = Gst.parse_launch(pipespec)
+            self._pipeline.set_state(Gst.State.PLAYING)
+            time.sleep(10)
+            self._pipeline.set_state(Gst.State.NULL)
 
     def _supported_resolutions_to_string(self, supported_resolutions):
         """

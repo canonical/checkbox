@@ -117,9 +117,11 @@ class UdevadmDevice(object):
         "_interface",
         "_product",
         "_product_id",
+        "_subproduct_id",
         "_product_slug",
         "_vendor",
         "_vendor_id",
+        "_subvendor_id",
         "_vendor_slug",)
 
     def __init__(self, environment, name, lsblk=None, bits=None, stack=[]):
@@ -132,9 +134,11 @@ class UdevadmDevice(object):
         self._interface = None
         self._product = None
         self._product_id = None
+        self._subproduct_id = None
         self._product_slug = None
         self._vendor = None
         self._vendor_id = None
+        self._subvendor_id = None
         self._vendor_slug = None
 
     def __repr__(self):
@@ -557,19 +561,31 @@ class UdevadmDevice(object):
 
     @property
     def subproduct_id(self):
+        if self._subproduct_id is not None:
+            return self._subproduct_id
         if "PCI_SUBSYS_ID" in self._environment:
             pci_subsys_id = self._environment["PCI_SUBSYS_ID"]
             subvendor_id, subproduct_id = pci_subsys_id.split(":")
             return int(subproduct_id, 16)
         return None
 
+    @subproduct_id.setter
+    def subproduct_id(self, value):
+        self._subproduct_id = value
+
     @property
     def subvendor_id(self):
+        if self._subvendor_id is not None:
+            return self._subvendor_id
         if "PCI_SUBSYS_ID" in self._environment:
             pci_subsys_id = self._environment["PCI_SUBSYS_ID"]
             subvendor_id, subproduct_id = pci_subsys_id.split(":")
             return int(subvendor_id, 16)
         return None
+
+    @subvendor_id.setter
+    def subvendor_id(self, value):
+        self._subvendor_id = value
 
     @property
     def product_slug(self):
@@ -920,6 +936,8 @@ class UdevadmParser(object):
                     dev_interface.bus = device.bus
                     dev_interface.product_id = device.product_id
                     dev_interface.vendor_id = device.vendor_id
+                    dev_interface.subproduct_id = device.subproduct_id
+                    dev_interface.subvendor_id = device.subvendor_id
                     self.devices.pop(device._raw_path, None)
 
         [result.addDevice(device) for device in self.devices.values()]

@@ -199,10 +199,7 @@ def detect_restart_strategy() -> IRestartStrategy:
     :raises LookupError:
         When no such object can be found.
     """
-    desktop = os.getenv("XDG_CURRENT_DESKTOP")
-    # TODO: add support for other desktops after testing them
-    supported_desktops = {'Unity'}
-    if desktop in supported_desktops:
+    if os.path.isdir('/etc/xdg/autostart'):
         # NOTE: Assume this is a terminal application
         return XDGRestartStrategy(app_terminal=True)
 

@@ -208,7 +208,7 @@ class CertificationTransport(TransportBase):
         if secure_id is not None:
             self._validate_secure_id(secure_id)
             logger.debug(
-                _("Sending to %s, hardware id is %s"), self.url, secure_id)
+                _("Sending to %s, Secure ID is %s"), self.url, secure_id)
             headers = {"X_HARDWARE_ID": secure_id}
         else:
             headers = {}

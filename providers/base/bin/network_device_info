@@ -236,7 +236,14 @@ def main(args):
                               value, network_dev._driver_ver))
                     else:
                         print("%s: %s" % (attribute.capitalize(), value))
-
+            vendor_id = getattr(device, 'vendor_id')
+            product_id = getattr(device, 'product_id')
+            subvendor_id = getattr(device, 'subvendor_id')
+            subproduct_id = getattr(device, 'subproduct_id')
+            if vendor_id and product_id:
+                print("ID:           [{0:04x}:{1:04x}]".format(vendor_id, product_id))
+            if subvendor_id and subproduct_id:
+                print("Subsystem ID: [{0:04x}:{1:04x}]".format(subvendor_id, subproduct_id))
             print()
 
     try:

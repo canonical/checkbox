@@ -525,6 +525,10 @@ class UdevadmDevice(object):
         match = INPUT_RE.match(self._environment.get("MODALIAS", ""))
         if match:
             return int(match.group("product_id"), 16)
+        # disk
+        if self.driver == "nvme" and self.bus == 'pci' and self._stack:
+            parent = self._stack[-1]
+            return parent.product_id
         return None
 
     @product_id.setter
@@ -553,6 +557,10 @@ class UdevadmDevice(object):
             if vendor_id and vendor_id < 9:
                 vendor_id = 9
             return vendor_id
+        # disk
+        if self.driver == "nvme" and self.bus == 'pci' and self._stack:
+            parent = self._stack[-1]
+            return parent.vendor_id
         return None
 
     @vendor_id.setter
@@ -567,6 +575,9 @@ class UdevadmDevice(object):
             pci_subsys_id = self._environment["PCI_SUBSYS_ID"]
             subvendor_id, subproduct_id = pci_subsys_id.split(":")
             return int(subproduct_id, 16)
+        if self.driver == "nvme" and self.bus == 'pci' and self._stack:
+            parent = self._stack[-1]
+            return parent.subproduct_id
         return None
 
     @subproduct_id.setter
@@ -581,6 +592,9 @@ class UdevadmDevice(object):
             pci_subsys_id = self._environment["PCI_SUBSYS_ID"]
             subvendor_id, subproduct_id = pci_subsys_id.split(":")
             return int(subvendor_id, 16)
+        if self.driver == "nvme" and self.bus == 'pci' and self._stack:
+            parent = self._stack[-1]
+            return parent.subvendor_id
         return None
 
     @subvendor_id.setter
@@ -619,6 +633,12 @@ class UdevadmDevice(object):
         elif (self._environment.get("DEVTYPE") == "disk" and
                 "ID_MODEL_ENC" in self._environment):
             return decode_id(self._environment["ID_MODEL_ENC"])
+        if self.driver == "nvme" and self.bus == 'pci' and self._stack:
+            parent = self._stack[-1]
+            if parent.product:
+                return parent.product
+            else:
+                return self.name
 
         # floppy
         if self.driver == "floppy":
@@ -704,6 +724,9 @@ class UdevadmDevice(object):
 
         if "ID_VENDOR_FROM_DATABASE" in self._environment:
             return self._environment["ID_VENDOR_FROM_DATABASE"]
+        if self.driver == "nvme" and self.bus == 'pci' and self._stack:
+            parent = self._stack[-1]
+            return parent.vendor
 
         # bluetooth (if USB base class is vendor specific)
         if self.bus == 'bluetooth':

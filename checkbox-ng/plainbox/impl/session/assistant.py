@@ -177,6 +177,10 @@ class SessionAssistant:
                 "create a transport for the C3 system"),
             self.get_canonical_hexr_transport: (
                 "create a transport for the HEXR system"),
+            self.get_old_sessions: (
+                "get previously created sessions"),
+            self.delete_sessions: (
+                "delete previously created sessions"),
         }
         # Restart support
         self._restart_cmd_callback = None
@@ -462,6 +466,63 @@ class SessionAssistant:
         to show some UI element.
         """
         _logger.debug("Provider selected: %r", provider)
+
+    @raises(UnexpectedMethodCall)
+    def get_old_sessions(self, flags: 'Set[str]'={
+        SessionMetaData.FLAG_SUBMITTED, SessionMetaData.FLAG_BOOTSTRAPPING},
+            allow_not_flagged: bool=True) -> 'List[Tuple[str, Set[str]]]':
+        """
+        Get the list of previously run sessions.
+
+        :param flags:
+            Set of flags from which at least one flag must be present in the
+            metadata of the processed session storage in order for that storage
+            to be returned.
+        :param allow_not_flagged:
+            Also return sessions that have no flags attached.
+        :returns:
+            A list of tuples containing session id and flags that were attached
+            to that session.
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+        """
+        UsageExpectation.of(self).enforce()
+        for storage in self._repo.get_storage_list():
+            data = storage.load_checkpoint()
+            if len(data) == 0:
+                continue
+            try:
+                metadata = SessionPeekHelper().peek(data)
+                if (metadata.app_id == self._app_id):
+                    if ((allow_not_flagged and not metadata.flags) or
+                            (metadata.flags & flags)):
+                        yield storage.id, metadata.flags
+            except SessionResumeError as exc:
+                _logger.info("Exception raised when trying to peek session"
+                             "data: %s", str(exc))
+
+    @raises(UnexpectedMethodCall)
+    def delete_sessions(self, session_ids: 'List[str]') -> None:
+        """
+        Delete session storages.
+
+        :param session_ids:
+            A list of session ids which storages should be removed.
+        :raises UnexpectedMethodCall:
+            If the call is made at an unexpected time. Do not catch this error.
+            It is a bug in your program. The error message will indicate what
+            is the likely cause.
+
+        .. note::
+            If the session is not found in the currently selected session
+            repository, it is silently ignored.
+        """
+        UsageExpectation.of(self).enforce()
+        for storage in self._repo.get_storage_list():
+            if storage.id in session_ids:
+                storage.remove()
 
     @raises(UnexpectedMethodCall)
     def start_new_session(self, title: str):
@@ -1273,6 +1334,10 @@ class SessionAssistant:
                 "create a transport for the C3 system"),
             self.get_canonical_hexr_transport: (
                 "create a transport for the HEXR system"),
+            self.get_old_sessions: (
+                "get previously created sessions"),
+            self.delete_sessions: (
+                "delete previously created sessions"),
         }
 
     @raises(KeyError, TransportError, UnexpectedMethodCall)

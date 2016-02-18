@@ -96,8 +96,8 @@ def main():
     It does two things in addition to what filtering the resources by
     category=VIDEO would achieve:
     1- It enumerates them and adds an index attribute
-    2- If the device has no product attribute, "fake" it with the PCI ID
-       (so we can visually distinguish them even if they have no name
+    2- If the device has no product/vendor attributes, "fake" them with the
+       PCI ID (so we can visually distinguish them even if they have no name
        because they are too new or not on the pci.ids database)
     """
 
@@ -123,6 +123,15 @@ def main():
                     fake_product = "PCI ID unknown"
                 record['product'] = fake_product
                 record['product_slug'] = slugify(fake_product)
+            if 'vendor' not in record:
+                # Fake a vendor name with the vendor_id
+                try:
+                    vendor_id = int(record.get('vendor_id', 0))
+                    fake_vendor = "PCI ID 0x{:x}".format(vendor_id)
+                except ValueError:
+                    fake_vendor = "PCI ID unknown"
+                record['vendor'] = fake_vendor
+                record['vendor_slug'] = slugify(fake_vendor)
             # Finally, print the record
             items = ["{key}: {value}".format(key=k, value=record[k])
                      for k in sorted(record.keys())]

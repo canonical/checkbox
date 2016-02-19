@@ -8,54 +8,54 @@ msgstr ""
 "Project-Id-Version: plainbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-12-03 14:33+0100\n"
-"PO-Revision-Date: 2014-04-10 10:02+0000\n"
+"PO-Revision-Date: 2016-02-18 06:26+0000\n"
 "Last-Translator: Andi Chandler <Unknown>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2015-12-15 05:08+0000\n"
-"X-Generator: Launchpad (build 17865)\n"
+"X-Launchpad-Export-Date: 2016-02-19 05:10+0000\n"
+"X-Generator: Launchpad (build 17925)\n"
 
 #. name
 #: ../units/jobs/categories.pxu:3
 msgid "Representative Jobs (per \"plugin\" value)"
-msgstr ""
+msgstr "Representative Jobs (per \"plugin\" value)"
 
 #. name
 #: ../units/jobs/categories.pxu:7
 msgid "Representative Jobs with description fields split"
-msgstr ""
+msgstr "Representative Jobs with description fields split"
 
 #. name
 #: ../units/jobs/categories.pxu:11
 msgid "Dependency Chaining"
-msgstr ""
+msgstr "Dependency Chaining"
 
 #. name
 #: ../units/jobs/categories.pxu:15
 msgid "Long Jobs"
-msgstr ""
+msgstr "Long Jobs"
 
 #. name
 #: ../units/jobs/categories.pxu:19
 msgid "Miscellaneous Tests"
-msgstr ""
+msgstr "Miscellaneous Tests"
 
 #. name
 #: ../units/jobs/categories.pxu:23
 msgid "Generated Tests"
-msgstr ""
+msgstr "Generated Tests"
 
 #. name
 #: ../units/jobs/categories.pxu:27
 msgid "Elevated Privilege Tests"
-msgstr ""
+msgstr "Elevated Privilege Tests"
 
 #. name
 #: ../units/jobs/categories.pxu:31
 msgid "Overridden Category"
-msgstr ""
+msgstr "Overridden Category"
 
 #. summary
 #: ../units/jobs/local.pxu:2
@@ -122,7 +122,7 @@ msgstr "Check job result is set to uninitiated when dependency fails"
 #. summary
 #: ../units/jobs/stub.pxu:44
 msgid "Job sleeping for sixty seconds"
-msgstr ""
+msgstr "Job sleeping for sixty seconds"
 
 #. description
 #: ../units/jobs/stub.pxu:45
@@ -142,7 +142,7 @@ msgstr "Kill $PPID if $KILLER is set to yes"
 #. summary
 #: ../units/jobs/stub.pxu:65
 msgid "Job determining a fake list of packages (1)"
-msgstr ""
+msgstr "Job determining a fake list of packages (1)"
 
 #. summary
 #: ../units/jobs/stub.pxu:78

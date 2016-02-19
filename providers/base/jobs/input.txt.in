@@ -3,7 +3,7 @@ template-resource: device
 template-filter: device.category == 'MOUSE' or device.category == 'TOUCHPAD' or device.category == 'TOUCHSCREEN'
 plugin: manual
 category_id: 2013.com.canonical.plainbox::input
-id: input/pointing_{product}_{category}_{__index__}
+id: input/pointing_{product_slug}_{category}_{__index__}
 estimated_duration: 30.0
 requires: device.path == '{path}'
 _summary: Check pointing functionality for {product}
@@ -76,7 +76,7 @@ template-resource: device
 template-filter: device.category == 'MOUSE' or device.category == 'TOUCHPAD'
 plugin: manual
 category_id: 2013.com.canonical.plainbox::input
-id: input/clicking_{product}_{category}_{__index__}
+id: input/clicking_{product_slug}_{category}_{__index__}
 estimated_duration: 30.0
 requires: device.path == '{path}'
 _summary: Check button functionality for {product}

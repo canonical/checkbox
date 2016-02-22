@@ -349,6 +349,34 @@ class StreamTransport(TransportBase):
         copyfileobj(data, translating_stream)
 
 
+class FileTransport(TransportBase):
+    def __init__(self, where, options=None):
+        super().__init__(where, options)
+        self._path = where
+
+    def send(self, data, config=None, session_state=None):
+        """
+        Write data to the specified file.
+
+        :param data:
+            Data to be written to the stream.This can be either bytes or a
+            file-like object (BytesIO works fine too).  If this is a file-like
+            object, it will be read and streamed "on the fly".
+        :param config:
+             Optional PlainBoxConfig object.
+        :param session_state:
+            The session for which this transport is associated with
+            the data being sent (optional)
+        :returns:
+            None
+        :raises OSError:
+            When there was IO related error.
+        """
+        with open(self._path, 'wt') as f:
+            translating_stream = ByteStringStreamTranslator(f, 'utf-8')
+            copyfileobj(data, translating_stream)
+
+
 if oauth_available():
     OAuthTransport = _OAuthTransport
 else:

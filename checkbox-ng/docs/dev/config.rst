@@ -204,6 +204,31 @@ setting the level accordingly.
     Accessing Section objects returns a dictionary of the key-value pairs that
     were defined in that section.
 
+Using Parametric Section objects
+--------------------------------
+
+Parametric section is a special section that is automatically grouped with
+other sections beginning with the same prefix.
+The group name and the param name is seperated by ':' (colon) character.
+Example::
+
+    class AppConfig(Config):
+        reports = ParametricSection(name='report')
+
+Now, if the config file contains sections beginning with ``report:`` they are
+grouped together and assigned to the ``reports`` variable. E.g. for a config
+file containing::
+
+    [report:bar]
+        somevar = someval
+    [report:baz]
+        othervar = otherval
+
+Will make ``report`` field of the class AppConfig contain following
+dictionary::
+
+    {'bar': {'somevar': someval}, 'baz': {'othervar': 'otherval'}}
+
 Loading configuration from file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

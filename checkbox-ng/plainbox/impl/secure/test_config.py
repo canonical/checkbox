@@ -99,8 +99,10 @@ class VariableTests(TestCase):
         self.assertIs(v4.kind, str)
         v5 = Variable()
         self.assertIs(v5.kind, str)
+        v6 = Variable(kind=list)
+        self.assertIs(v6.kind, list)
         with self.assertRaises(ValueError):
-            Variable(kind=list)
+            Variable(kind=dict)
 
     def test_validator_list__default(self):
         """
@@ -191,6 +193,7 @@ class ConfigTests(TestCase):
             v_bool = Variable(section="type_section", kind=bool)
             v_int = Variable(section="type_section", kind=int)
             v_float = Variable(section="type_section", kind=float)
+            v_list = Variable(section="type_section", kind=list)
             v_str = Variable(section="type_section", kind=str)
             s = Section()
             ps = ParametricSection()
@@ -203,6 +206,7 @@ class ConfigTests(TestCase):
         conf.v_int = -7
         conf.v_float = 1.5
         conf.v_str = "hi"
+        conf.v_list = ['foo', 'bar']
         # assign value to the section
         conf.s = {"a": 1, "b": 2}
         conf.ps = {"foo": {"c": 3, "d": 4}}
@@ -257,6 +261,7 @@ class ConfigTests(TestCase):
                 "v_bool = True\n"
                 "v_float = 1.5\n"
                 "v_int = -7\n"
+                "v_list = foo, bar\n"
                 "v_str = hi\n"
                 "\n"
                 "[s]\n"
@@ -290,6 +295,30 @@ class ConfigTests(TestCase):
             "[DEFAULT]\n"
             "v = 1")
         self.assertEqual(conf.v, "1")
+        self.assertEqual(len(conf.problem_list), 0)
+
+    def test_read_list_with_spaces(self):
+        class TestConfig(Config):
+            l = Variable(kind=list)
+        conf = TestConfig()
+        conf.read_string('[DEFAULT]\nl = foo bar')
+        self.assertEqual(conf.l, ['foo', 'bar'])
+        self.assertEqual(len(conf.problem_list), 0)
+
+    def test_read_list_with_commas(self):
+        class TestConfig(Config):
+            l = Variable(kind=list)
+        conf = TestConfig()
+        conf.read_string('[DEFAULT]\nl = foo,bar')
+        self.assertEqual(conf.l, ['foo', 'bar'])
+        self.assertEqual(len(conf.problem_list), 0)
+
+    def test_read_list_quoted_strings(self):
+        class TestConfig(Config):
+            l = Variable(kind=list)
+        conf = TestConfig()
+        conf.read_string('[DEFAULT]\nl = foo "bar baz"')
+        self.assertEqual(conf.l, ['foo', 'bar baz'])
         self.assertEqual(len(conf.problem_list), 0)
 
     def test_read_string_calls_validate_whole(self):

@@ -126,6 +126,10 @@ setup(
             'regex=plainbox.impl.xparsers:Re.parse',
             'whitelist=plainbox.impl.xparsers:WhiteList.parse',
             'pxu-override=plainbox.impl.xparsers:FieldOverride.parse',
-        ]
+        ],
+        'plainbox.transport': [
+            'file=plainbox.impl.transport:FileTransport',
+            'stream=plainbox.impl.transport:StreamTransport',
+        ],
     },
     include_package_data=True)

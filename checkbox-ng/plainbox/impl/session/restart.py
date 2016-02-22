@@ -209,3 +209,19 @@ def detect_restart_strategy() -> IRestartStrategy:
         return SnappyRestartStrategy()
 
     raise LookupError("Unable to find appropriate strategy.""")
+
+def get_strategy_by_name(name: str) -> type:
+    """
+    Get restart strategy class identified by a string.
+
+    :param name:
+        Name of the strategy.
+    :returns:
+        Class conforming to IRestartStrategy.
+    :raises KeyError:
+        When there's no strategy associated with that name.
+    """
+    return {
+        'XDG': XDGRestartStrategy,
+        'Snappy': SnappyRestartStrategy,
+    }[name]

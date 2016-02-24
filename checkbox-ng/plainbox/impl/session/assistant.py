@@ -17,7 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Session Assistant."""
+"""
+Session Assistant.
+
+:mod:`plainbox.impl.session.assistant` -- session assistant
+===========================================================
+"""
 
 import collections
 import datetime
@@ -258,7 +263,7 @@ class SessionAssistant:
 
         The restart interface is very simple, it is comprised of a pair of
         methods, :meth:`IRestartStrategy.prime_application_restart()` and
-        :meth:`IRestartStrategy.diffuse_application_restart(). When the
+        :meth:`IRestartStrategy.diffuse_application_restart()`. When the
         application is in a state where it will soon terminate, plainbox will
         call the former of the two methods to _prime_ the system so that
         application will be re-started when the machine is started (or
@@ -336,7 +341,7 @@ class SessionAssistant:
 
         :param ctrl_setup_list:
             An iterable with tuples, where each tuple represents a class of
-            controller to instantiate, together with *args and **kwargs to use
+            controller to instantiate, together with \*args and \*\*kwargs to use
             when calling its __init__.
         :raises UnexpectedMethodCall:
             If the call is made at an unexpected time. Do not catch this error.
@@ -346,7 +351,7 @@ class SessionAssistant:
         This method can be used to use any custom execution controllers to
         execute jobs. Normally those should be offered by the
         ``SessionDeviceContext`` (which is a part of the implementation) and
-        they should be _good_ for any use but as we learned some applications
+        they should be *good* for any use but as we learned some applications
         needed to offer alternate controllers.
 
         .. note::
@@ -1251,7 +1256,7 @@ class SessionAssistant:
         :param result:
             The result object that contains all the information about running
             that job. You can obtain one from a result builder by calling the
-            ``builder.get_result()` method.
+            `builder.get_result()` method.
         :raises UnexpectedMethodCall:
             If the call is made at an unexpected time. Do not catch this error.
             It is a bug in your program. The error message will indicate what
@@ -1458,7 +1463,7 @@ class SessionAssistant:
         Get a transport for the Canonical Certification website.
 
         :param secure_id:
-            The _secure identifier_ of the machine. This is an identifier
+            The *secure identifier* of the machine. This is an identifier
             issued by Canonical. It is only applicable to machines that are
             tested by the Hardware Certification team.
         :param staging:

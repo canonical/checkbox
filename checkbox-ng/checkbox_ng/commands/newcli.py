@@ -33,7 +33,10 @@ import io
 import operator
 import os
 import re
+import shlex
 import sys
+
+from subprocess import Popen
 
 from plainbox.abc import IJobResult
 from plainbox.impl.commands.inv_run import RunInvocation
@@ -85,6 +88,10 @@ class CliInvocation2(RunInvocation):
         self._qualifier_list = []
         self._testplan_list = []
         self.select_qualifier_list()
+        # MAAS-deployed server images need "tput reset" to keep ugliness
+        # from happening....
+        command = "tput reset"
+        Popen(shlex.split(command)).communicate()[0]
 
     @property
     def launcher(self):

@@ -265,7 +265,7 @@ _description:
      4. If your system does not wake itself up after 60 seconds, please press the power button momentarily to wake the system manually
      5. If your system fails to wake at all and must be rebooted, restart System Testing after reboot and mark this test as Failed
  VERIFICATION:
-     Did your system suspend and resume correctly after switching to $product graphics card?
+     Did your system suspend and resume correctly after switching to {vendor} {product} graphics card?
      (NOTE: Please only consider whether the system successfully suspended and resumed. Power/Suspend LED verification will occur after this test is completed.)
 
 plugin: shell
@@ -2676,7 +2676,7 @@ depends: suspend/suspend_advanced
 requires: device.path == "{path}"
 _description:
  PURPOSE:
-     This will test your $product device after suspend.
+     This will test your {product} device after suspend.
  STEPS:
      1. Move the cursor with your {product}.
  VERIFICATION:

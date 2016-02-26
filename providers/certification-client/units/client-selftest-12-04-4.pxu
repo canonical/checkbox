@@ -1,16 +1,14 @@
 id: client-selftest-12-04-4
 _name: All 12.04.4 Client Self-testing Tests 
 unit: test plan
-## The tests contained here should work in any test lab envrionement.
-## Please use this test plan for the Ubuntu Certification self-testing
-## programme.
+_description:
+ The tests contained here should work in any test lab environment.
+ Please use this test plan for the Ubuntu Certification self-testing program.
 include:
-    # Resource Jobs
-    __resource__
+    # Resource Jobs (Not used by templates jobs)
     block_device
     cdimage
     cpuinfo
-    device
     display
     dmi
     dpkg
@@ -27,8 +25,7 @@ include:
     uname
     usb
     xinput
-    # Tests grouped by categories. Categories start with '__'
-    __audio__
+    # END Resource Jobs
     audio/alsa_info_collect
     audio/alsa_info_attachment
     audio/list_devices
@@ -37,40 +34,25 @@ include:
     audio/playback_auto
     audio/alsa_record_playback_internal
     audio/alsa_record_playback_automated
-    __benchmarks__
-    # See Automated Tests section at the end of this file
-    __bluetooth__
     bluetooth/detect-output
     bluetooth/audio
     bluetooth/browse-files
     bluetooth/file-transfer
     bluetooth/HID
-    __camera__
     camera/detect
     camera/still
     camera/display
     camera/multiple-resolution-images
-    __cpu__
-    # See Automated Tests section at the end of this file
-    __disk__
-    # See Automated Tests section at the end of this file
     disk/detect
-    __esata__
     esata/insert
     esata/storage-test
     esata/remove
-    __ethernet__
     ethernet/detect
-    __expresscard__
     expresscard/verification
-    __firewire__
     firewire/insert
     firewire/storage-test
     firewire/remove
-    __floppy__
-    floppy/check
-    floppy/check_fd\d
-    __graphics__
+    floppy/check.*
     graphics/maximum_resolution
     graphics/glxgears
     graphics/xorg-version
@@ -83,16 +65,11 @@ include:
     graphics/xorg-process
     graphics/VESA_drivers_not_in_use
     graphics/cycle_resolution
-    __hibernate__
-    #See below, power-management/hibernate_advanced
-    __input__
     input/accelerometer_verify
     input/accelerometer
-    input/pointing
     input/pointing_.*
     input/keyboard
     disk/hdd-parking
-    __keys__
     keys/lock-screen
     keys/super
     keys/battery-info
@@ -104,13 +81,10 @@ include:
     keys/wireless
     keys/keyboard-backlight
     keys/keyboard-overhead-light
-    # Sleep and hibernate keys tests can be found after suspend tests
-    __led__
     led/wlan-disabled
     led/wlan
     led/power
     led/mute
-    __mediacard__
     mediacard/mmc-insert
     mediacard/mmc-storage
     mediacard/mmc-remove
@@ -120,11 +94,6 @@ include:
     mediacard/sdhc-insert
     mediacard/sdhc-storage
     mediacard/sdhc-remove
-    __memory__
-    # See Automated Tests section at the end of this file
-    __miscellanea__
-    # See Automated Tests section at the end of this file
-    __monitor__
     monitor/powersaving
     monitor/dim_brightness
     monitor/displayport
@@ -136,26 +105,14 @@ include:
     monitor/svideo
     monitor/vga
     monitor/multi-head
-    __networking__
-    networking/info
-    networking/info_eth\d
-    networking/info_wlan\d
+    networking/info.*
     networking/ntp
-    __optical__
     optical/detect
-    optical/read
     optical/read_.*
-    optical/cdrom-write
     optical/cdrom-write_.*
-    optical/dvd-write
     optical/dvd-write_.*
-    optical/bluray-read
     optical/bluray-read_.*
-    optical/bluray-write
     optical/bluray-write_.*
-    __power-management__
-    # See Automated Tests section at the end of this file
-    # Laptop lid tests relocated to the S3-adv section as it will trigger S3 as well
     power-management/rtc
     power-management/tickless_idle
     power-management/fwts_wakealarm
@@ -163,17 +120,14 @@ include:
     power-management/hibernate_advanced
     power-management/hibernate-single-log-check
     power-management/hibernate-single-log-attach
-    __touchpad__
     touchpad/horizontal
     touchpad/vertical
     touchpad/singletouch-automated
     touchpad/multitouch-automated
     touchpad/multitouch-manual
-    __touchscreen__
     touchscreen/nontouch-automated
     touchscreen/multitouch-automated
     touchscreen/multitouch-manual
-    __usb__
     usb/detect
     usb/HID
     usb/insert
@@ -182,7 +136,6 @@ include:
     usb3/insert
     usb3/storage-automated
     usb3/remove
-    __wireless__
     wireless/wireless_scanning
     wireless/wireless_connection_wpa_bg
     wireless/wireless_connection_open_bg
@@ -192,7 +145,6 @@ include:
     wireless/wireless_connection_open_bg_manual
     wireless/wireless_connection_wpa_n_manual
     wireless/wireless_connection_open_n_manual
-    __suspend__
     suspend/network_before_suspend
     suspend/resolution_before_suspend
     suspend/audio_before_suspend
@@ -228,7 +180,6 @@ include:
     suspend/alsa_record_playback_external-after-suspend
     camera/display_after_suspend
     camera/still_after_suspend
-    suspend/pointing-after-suspend
     suspend/pointing-after-suspend_.*
     suspend/mmc-insert-after-suspend
     suspend/mmc-storage-after-suspend
@@ -263,9 +214,7 @@ include:
     # Automated Tests
     # The following tests are purely automated and/or lenghty stress tests. They
     # have been moved to the end of the test run to improve the testing process.
-    benchmarks/disk/hdparm-read
     benchmarks/disk/hdparm-read_.*
-    benchmarks/disk/hdparm-cache-read
     benchmarks/disk/hdparm-cache-read_.*
     benchmarks/graphics/gtkperf
     cpu/scaling_test
@@ -274,13 +223,9 @@ include:
     cpu/topology
     cpu/frequency_governors
     cpu/clocktest
-    disk/stats
     disk/stats_.*
-    disk/read_performance
     disk/read_performance_.*
-    disk/smart
     disk/smart_.*
-    disk/storage_devices
     disk/storage_device_.*
     memory/info
     memory/check
@@ -293,10 +238,8 @@ include:
     power-management/hibernate_30_cycles
     power-management/hibernate-30-cycles-log-check
     power-management/hibernate-30-cycle-log-attach
-    __stress__
     stress/cpu_stress_test
     #Info attachment jobs
-    __info__
     codecs_attachment
     cpuinfo_attachment
     dmesg_attachment
@@ -312,11 +255,14 @@ include:
     udev_attachment
     lsmod_attachment
     acpi_sleep_attachment
-    info/hdparm
     info/hdparm_.*.txt
     installer_debug.gz
     info/touchpad_driver
     info/disk_partitions
+bootstrap_include:
+    device
+    fwts
+    graphics_card
 mandatory_include:
     # Meta-job to include required resources, don't remove.
     miscellanea/submission-resources

@@ -1,17 +1,15 @@
 id: client-selftest-14-04
 _name: All 14.04 Client Self-testing Tests
 unit: test plan
-## The tests contained here should work in any test lab envrionement.
-## Please use this test plan for the Ubuntu Certification self-testing
-## programme.
+_description:
+ The tests contained here should work in any test lab environment.
+ Please use this test plan for the Ubuntu Certification self-testing program.
 include:
-    # Resource Jobs
-    __resource__
+    # Resource Jobs (Not used by templates jobs)
     IEEE_80211
     block_device
     cdimage
     cpuinfo
-    device
     display
     dmi
     dpkg
@@ -22,7 +20,6 @@ include:
     meminfo
     mobilebroadband
     module
-    optical_drive
     optical_drive_.*
     package
     rtc
@@ -30,9 +27,7 @@ include:
     uname
     usb
     xinput
-    # Tests grouped by categories. Categories start with '__'
-    __audio__
-    audio/generator_.*
+    # END Resource Jobs
     audio/alsa_info_collect
     audio/alsa_info_attachment
     audio/list_devices
@@ -43,44 +38,26 @@ include:
     audio/playback_auto
     audio/alsa_record_playback_internal
     audio/alsa_record_playback_automated
-    # See Monitor / Graphic test section for hybrid-graphic monitor audio tests
-    __benchmarks__
-    # See Automated Tests section at the end of this file
-    __bluetooth__
     bluetooth/detect-output
     bluetooth/audio-a2dp
     bluetooth/audio
     bluetooth/browse-files
     bluetooth/file-transfer
     bluetooth/HID
-    __camera__
     camera/detect
     camera/still
     camera/display
     camera/multiple-resolution-images
-    __cpu__
-    # See Automated Tests section at the end of this file
     cpu/cstates
     cpu/cstates_results.log
-    __disk__
-    # See Automated Tests section at the end of this file
     disk/detect
-    __ethernet__
-    # See Networking section below
-    __esata__
     esata/insert
     esata/storage-test
     esata/remove
-    __expresscard__
     expresscard/verification
-    __firewire__
     firewire/insert
     firewire/storage-test
     firewire/remove
-    __firmware__
-    # See Automated Tests section at the end of this file
-    __monitor__
-    monitor/generator_.*
     monitor/1_powersaving_.*
     monitor/1_dim_brightness_.*
     monitor/1_displayport_.*
@@ -93,8 +70,6 @@ include:
     monitor/1_vga_.*
     monitor/1_multi-head_.*
     # See Graphic Tests section for monitor test on second graphic card
-    __graphics__
-    graphics/generator_.*
     graphics/xorg-version
     graphics/xorg-failsafe
     graphics/xorg-process
@@ -127,18 +102,12 @@ include:
     monitor/2_svideo_.*
     monitor/2_vga_.*
     monitor/2_multi-head_.*
-    __hibernate__
-    #See below, power-management/hibernate_advanced
-    __input__
     input/accelerometer_verify
     input/accelerometer
-    input/pointing
     input/pointing_.*
-    input/clicking
     input/clicking_.*
     input/keyboard
     disk/hdd-parking
-    __keys__
     keys/lock-screen
     keys/super
     keys/battery-info
@@ -151,7 +120,6 @@ include:
     keys/keyboard-backlight
     keys/keyboard-overhead-light
     keys/microphone-mute
-    __led__
     led/bluetooth
     led/camera
     led/caps-lock
@@ -168,7 +136,6 @@ include:
     # led/wireless
     led/wlan
     led/wlan-disabled
-    __mediacard__
     mediacard/mmc-insert
     mediacard/mmc-storage
     mediacard/mmc-remove
@@ -178,44 +145,24 @@ include:
     mediacard/sdhc-insert
     mediacard/sdhc-storage
     mediacard/sdhc-remove
-    __memory__
-    # See Automated Tests section at the end of this file
-    __miscellanea__
     miscellanea/oops
     miscellanea/oops_results.log
-    # See Automated Tests section at the end of this file
-    __mobilebroadband__
     mobilebroadband/gsm_connection
     mobilebroadband/cdma_connection
-    __networking__
-    # See before the Automated Tests section at the end of this file
     ethernet/detect
     networking/gateway_ping
-    networking/info
-    networking/info_eth\d
-    networking/info_wlan\d
+    networking/info.*
     networking/ntp
-    __optical__
     optical/detect
-    optical/read
     optical/read_.*
-    optical/cdrom-write
     optical/cdrom-write_.*
-    optical/dvd-write
     optical/dvd-write_.*
-    optical/bluray-read
     optical/bluray-read_.*
-    optical/bluray-write
     optical/bluray-write_.*
-    __power-management__
-    # See Automated Tests section at the end of this file
-    power-management/generator_.*
-    # Laptop lid tests relocated to the S3-adv section as it will trigger S3 as well
     power-management/rtc
     power-management/tickless_idle
     power-management/fwts_wakealarm
     power-management/fwts_wakealarm-log-attach
-    __touchpad__
     touchpad/detected-as-mouse
     touchpad/continuous-move
     touchpad/horizontal
@@ -230,14 +177,12 @@ include:
     touchpad/multitouch-vertical
     touchpad/multitouch-zoom
     touchpad/multitouch-dash
-    __touchscreen__
     touchscreen/drag-n-drop
     touchscreen/multitouch-zoom
     touchscreen/multitouch-rotate
     touchscreen/3-touch-tap
     touchscreen/4-touch-tap
     touchscreen/multitouch-dash
-    __usb__
     usb/detect
     usb/HID
     usb/insert
@@ -246,7 +191,6 @@ include:
     usb3/insert
     usb3/storage-automated
     usb3/remove
-    __wireless__
     wireless/wireless_scanning
     wireless/wireless_connection_wpa_bg
     wireless/wireless_connection_open_bg
@@ -260,8 +204,6 @@ include:
     wireless/wireless_connection_open_n_manual
     wireless/wireless_connection_wpa_ac_manual
     wireless/wireless_connection_open_ac_manual
-    __suspend__
-    suspend/generator_.*
     suspend/network_before_suspend
     suspend/audio_before_suspend
     suspend/cpu_before_suspend
@@ -325,9 +267,7 @@ include:
     suspend/alsa_record_playback_external-after-suspend
     camera/display_after_suspend
     camera/still_after_suspend
-    suspend/pointing-after-suspend
     suspend/pointing-after-suspend_.*
-    suspend/clicking-after-suspend
     suspend/clicking-after-suspend_.*
     suspend/mmc-insert-after-suspend
     suspend/mmc-storage-after-suspend
@@ -372,7 +312,6 @@ include:
     # The following tests are purely automated and/or lenghty stress tests.
     # They have been moved to the end of the test run to improve the testing
     # process.
-    firmware/generator_.*
     firmware/fwts_desktop_diagnosis
     firmware/fwts_desktop_diagnosis_hwe
     firmware/fwts_desktop_diagnosis_results.log.gz
@@ -380,9 +319,7 @@ include:
     firmware/fwts_wakealarm.*
     firmware/fwts_uefirtvariable.*
     miscellanea/dmitest_client
-    benchmarks/disk/hdparm-read
     benchmarks/disk/hdparm-read_.*
-    benchmarks/disk/hdparm-cache-read
     benchmarks/disk/hdparm-cache-read_.*
     benchmarks/graphics/gtkperf
     cpu/scaling_test
@@ -392,13 +329,9 @@ include:
     cpu/offlining_test
     cpu/topology
     cpu/clocktest
-    disk/stats
     disk/stats_.*
-    disk/read_performance
     disk/read_performance_.*
-    disk/smart
     disk/smart_.*
-    disk/storage_devices
     disk/storage_device_.*
     memory/info
     memory/check
@@ -407,10 +340,8 @@ include:
     power-management/suspend-30-cycles-time-check
     power-management/hibernate_30_cycles
     power-management/hibernate-30-cycle-log-attach
-    __stress__
     stress/cpu_stress_test
     #Info attachment jobs
-    __info__
     codecs_attachment
     cpuinfo_attachment
     dmesg_attachment
@@ -433,11 +364,14 @@ include:
     lsmod_attachment
     dkms_info_attachment
     acpi_sleep_attachment
-    info/hdparm
     info/hdparm_.*.txt
     installer_debug.gz
     info/touchpad_driver
     info/disk_partitions
+bootstrap_include:
+    device
+    fwts
+    graphics_card
 mandatory_include:
     2013.com.canonical.plainbox::collect-manifest
     # Meta-job to include required resources, don't remove.

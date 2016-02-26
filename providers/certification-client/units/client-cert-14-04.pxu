@@ -1,14 +1,19 @@
 id: client-cert-14-04
 _name: All 14.04 Client Certification Tests
+_description:
+ This test plan is intended for use inside Canonical's test labs. The tests
+ contained in this list are the same as those contained in the
+ client-selftest test plan that OEMs may use. The difference here is that
+ some of these tests depend on a specific network environment and may not run
+ properly in your test environment. To avoid false failures, please use the
+ client-selftest test plan instead.
 unit: test plan
 include:
-    # Resource Jobs
-    __resource__
+    # Resource Jobs (Not used by templates jobs)
     IEEE_80211
     block_device
     cdimage
     cpuinfo
-    device
     display
     dmi
     dpkg
@@ -19,7 +24,6 @@ include:
     meminfo
     mobilebroadband
     module
-    optical_drive
     optical_drive_.*                                       certification-status=blocker
     package
     rtc
@@ -27,9 +31,7 @@ include:
     uname
     usb
     xinput
-    # Tests grouped by categories. Categories start with '__'
-    __audio__
-    audio/generator_.*
+    # END Resource Jobs
     audio/alsa_info_collect
     audio/alsa_info_attachment
     audio/list_devices
@@ -40,44 +42,26 @@ include:
     audio/playback_auto                                    certification-status=blocker
     audio/alsa_record_playback_internal                    certification-status=blocker
     audio/alsa_record_playback_automated                   certification-status=blocker
-    # See Monitor / Graphic test section for hybrid-graphic monitor audio tests
-    __benchmarks__
-    # See Automated Tests section at the end of this file
-    __bluetooth__
     bluetooth/detect-output                                certification-status=blocker
     bluetooth/audio-a2dp                                   certification-status=blocker
     bluetooth/audio                                        certification-status=blocker
     bluetooth/browse-files                                 certification-status=blocker
     bluetooth/file-transfer                                certification-status=blocker
     bluetooth/HID
-    __camera__
     camera/detect                                          certification-status=blocker
     camera/still                                           certification-status=blocker
     camera/display                                         certification-status=blocker
     camera/multiple-resolution-images                      certification-status=blocker
-    __cpu__
-    # See Automated Tests section at the end of this file
     cpu/cstates                                            certification-status=blocker
     cpu/cstates_results.log
-    __disk__
-    # See Automated Tests section at the end of this file
     disk/detect                                            certification-status=blocker
-    __ethernet__
-    # See Networking section below
-    __esata__
     esata/insert                                           certification-status=blocker
     esata/storage-test                                     certification-status=blocker
     esata/remove                                           certification-status=blocker
-    __expresscard__
     expresscard/verification                               certification-status=blocker
-    __firewire__
     firewire/insert                                        certification-status=blocker
     firewire/storage-test                                  certification-status=blocker
     firewire/remove                                        certification-status=blocker
-    __firmware__
-    # See Automated Tests section at the end of this file
-    __monitor__
-    monitor/generator_.*
     monitor/1_powersaving_.*                               certification-status=blocker
     monitor/1_dim_brightness_.*                            certification-status=blocker
     monitor/1_displayport_.*                               certification-status=blocker
@@ -89,9 +73,6 @@ include:
     monitor/1_svideo_.*                                    certification-status=blocker
     monitor/1_vga_.*                                       certification-status=blocker
     monitor/1_multi-head_.*                                certification-status=blocker
-    # See Graphic Tests section for monitor test on second graphic card
-    __graphics__
-    graphics/generator_.*
     graphics/xorg-version                                  certification-status=blocker
     graphics/xorg-failsafe                                 certification-status=blocker
     graphics/xorg-process                                  certification-status=blocker
@@ -124,18 +105,12 @@ include:
     monitor/2_svideo_.*                                    certification-status=blocker
     monitor/2_vga_.*                                       certification-status=blocker
     monitor/2_multi-head_.*                                certification-status=blocker
-    __hibernate__
-    #See below, power-management/hibernate_advanced
-    __input__
     input/accelerometer_verify                             certification-status=non-blocker
     input/accelerometer                                    certification-status=non-blocker
-    input/pointing
     input/pointing_.*                                      certification-status=blocker
-    input/clicking
     input/clicking_.*                                      certification-status=blocker
     input/keyboard                                         certification-status=blocker
     disk/hdd-parking                                       certification-status=non-blocker
-    __keys__
     keys/lock-screen                                       certification-status=blocker
     keys/super                                             certification-status=blocker
     keys/battery-info                                      certification-status=blocker
@@ -148,7 +123,6 @@ include:
     keys/keyboard-backlight                                certification-status=blocker
     keys/keyboard-overhead-light                           certification-status=blocker
     keys/microphone-mute                                   certification-status=blocker
-    __led__
     led/bluetooth                                          certification-status=non-blocker
     led/camera                                             certification-status=blocker
     led/caps-lock                                          certification-status=blocker
@@ -165,7 +139,6 @@ include:
     # led/wireless
     led/wlan                                               certification-status=non-blocker
     led/wlan-disabled
-    __mediacard__
     mediacard/mmc-insert                                   certification-status=non-blocker
     mediacard/mmc-storage                                  certification-status=non-blocker
     mediacard/mmc-remove                                   certification-status=non-blocker
@@ -175,44 +148,24 @@ include:
     mediacard/sdhc-insert                                  certification-status=blocker
     mediacard/sdhc-storage                                 certification-status=blocker
     mediacard/sdhc-remove                                  certification-status=blocker
-    __memory__
-    # See Automated Tests section at the end of this file
-    __miscellanea__
     miscellanea/oops                                       certification-status=blocker
     miscellanea/oops_results.log
-    # See Automated Tests section at the end of this file
-    __mobilebroadband__
     mobilebroadband/gsm_connection                         certification-status=non-blocker
     mobilebroadband/cdma_connection                        certification-status=non-blocker
-    __networking__
-    # See before the Automated Tests section at the end of this file
     ethernet/detect                                        certification-status=blocker
     networking/gateway_ping                                certification-status=blocker
-    networking/info                                        certification-status=blocker
-    networking/info_eth\d                                  certification-status=blocker
-    networking/info_wlan\d                                 certification-status=blocker
+    networking/info.*                                      certification-status=blocker
     networking/ntp                                         certification-status=blocker
-    __optical__
     optical/detect                                         certification-status=blocker
-    optical/read                                           certification-status=blocker
     optical/read_.*                                        certification-status=blocker
-    optical/cdrom-write                                    certification-status=blocker
     optical/cdrom-write_.*                                 certification-status=blocker
-    optical/dvd-write                                      certification-status=blocker
     optical/dvd-write_.*                                   certification-status=blocker
-    optical/bluray-read                                    certification-status=blocker
     optical/bluray-read_.*                                 certification-status=blocker
-    optical/bluray-write                                   certification-status=blocker
     optical/bluray-write_.*                                certification-status=blocker
-    __power-management__
-    # See Automated Tests section at the end of this file
-    power-management/generator_.*
-    # Laptop lid tests relocated to the S3-adv section as it will trigger S3 as well
     power-management/rtc                                   certification-status=blocker
     power-management/tickless_idle                         certification-status=blocker
     power-management/fwts_wakealarm                        certification-status=blocker
     power-management/fwts_wakealarm-log-attach
-    __touchpad__
     touchpad/detected-as-mouse                             certification-status=blocker
     touchpad/continuous-move                               certification-status=blocker
     touchpad/horizontal                                    certification-status=blocker
@@ -227,14 +180,12 @@ include:
     touchpad/multitouch-vertical                           certification-status=blocker
     touchpad/multitouch-zoom                               certification-status=non-blocker
     touchpad/multitouch-dash                               certification-status=non-blocker
-    __touchscreen__
     touchscreen/drag-n-drop                                certification-status=blocker
     touchscreen/multitouch-zoom                            certification-status=blocker
     touchscreen/multitouch-rotate
     touchscreen/3-touch-tap                                certification-status=blocker
     touchscreen/4-touch-tap                                certification-status=blocker
     touchscreen/multitouch-dash                            certification-status=non-blocker
-    __usb__
     usb/detect                                             certification-status=blocker
     usb/HID                                                certification-status=blocker
     usb/insert                                             certification-status=blocker
@@ -243,7 +194,6 @@ include:
     usb3/insert                                            certification-status=blocker
     usb3/storage-automated                                 certification-status=blocker
     usb3/remove                                            certification-status=blocker
-    __wireless__
     wireless/wireless_scanning                             certification-status=blocker
     wireless/wireless_connection_wpa_bg                    certification-status=blocker
     wireless/wireless_connection_open_bg                   certification-status=blocker
@@ -251,8 +201,6 @@ include:
     wireless/wireless_connection_open_n                    certification-status=blocker
     wireless/wireless_connection_wpa_ac                    certification-status=blocker
     wireless/wireless_connection_open_ac                   certification-status=blocker
-    __suspend__
-    suspend/generator_.*
     suspend/network_before_suspend                         certification-status=blocker
     suspend/audio_before_suspend                           certification-status=blocker
     suspend/cpu_before_suspend                             certification-status=blocker
@@ -316,9 +264,7 @@ include:
     suspend/alsa_record_playback_external-after-suspend    certification-status=blocker
     camera/display_after_suspend                           certification-status=blocker
     camera/still_after_suspend                             certification-status=blocker
-    suspend/pointing-after-suspend
     suspend/pointing-after-suspend_.*                      certification-status=blocker
-    suspend/clicking-after-suspend
     suspend/clicking-after-suspend_.*                      certification-status=blocker
     suspend/mmc-insert-after-suspend                       certification-status=non-blocker
     suspend/mmc-storage-after-suspend                      certification-status=non-blocker
@@ -357,7 +303,6 @@ include:
     # The following tests are purely automated and/or lenghty stress tests.
     # They have been moved to the end of the test run to improve the testing
     # process.
-    firmware/generator_.*
     firmware/fwts_desktop_diagnosis
     firmware/fwts_desktop_diagnosis_hwe
     firmware/fwts_desktop_diagnosis_results.log.gz
@@ -365,9 +310,7 @@ include:
     firmware/fwts_wakealarm.*                              certification-status=blocker
     firmware/fwts_uefirtvariable.*                         certification-status=blocker
     miscellanea/dmitest_client
-    benchmarks/disk/hdparm-read
     benchmarks/disk/hdparm-read_.*
-    benchmarks/disk/hdparm-cache-read
     benchmarks/disk/hdparm-cache-read_.*
     benchmarks/graphics/gtkperf
     cpu/scaling_test                                       certification-status=blocker
@@ -377,13 +320,9 @@ include:
     cpu/offlining_test                                     certification-status=blocker
     cpu/topology                                           certification-status=blocker
     cpu/clocktest
-    disk/stats
     disk/stats_.*
-    disk/read_performance                                  certification-status=blocker
     disk/read_performance_.*                               certification-status=blocker
-    disk/smart                                             certification-status=blocker
     disk/smart_.*                                          certification-status=blocker
-    disk/storage_devices
     disk/storage_device_.*                                 certification-status=blocker
     memory/info                                            certification-status=blocker
     memory/check                                           certification-status=blocker
@@ -392,10 +331,8 @@ include:
     power-management/suspend-30-cycles-time-check          certification-status=non-blocker
     power-management/hibernate_30_cycles                   certification-status=non-blocker
     power-management/hibernate-30-cycle-log-attach
-    __stress__
     stress/cpu_stress_test                                 certification-status=blocker
     #Info attachment jobs
-    __info__
     codecs_attachment
     cpuinfo_attachment
     dmesg_attachment
@@ -414,11 +351,14 @@ include:
     dell_bto_xml_attachment
     lsmod_attachment
     acpi_sleep_attachment
-    info/hdparm
     info/hdparm_.*.txt
     installer_debug.gz
     info/touchpad_driver
     info/disk_partitions
+bootstrap_include:
+    device
+    fwts
+    graphics_card
 mandatory_include:
     2013.com.canonical.plainbox::collect-manifest
     # Meta-job to include required resources, don't remove.

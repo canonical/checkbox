@@ -1,0 +1,107 @@
+#!/usr/bin/env python3
+# This file is part of Checkbox.
+#
+# Copyright 2016 Canonical Ltd.
+# Written by:
+#   Maciej Kisielewski <maciej.kisielewski@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+Checkbox Launcher Interpreter Application
+"""
+
+import gettext
+import logging
+
+from guacamole import Command
+from guacamole.core import Ingredient
+from guacamole.ingredients import ansi
+from guacamole.ingredients import argparse
+from guacamole.ingredients import cmdtree
+from guacamole.recipes.cmd import CommandRecipe
+
+from plainbox.impl.ingredients import CanonicalCrashIngredient
+from plainbox.impl.ingredients import RenderingContextIngredient
+from plainbox.impl.ingredients import SessionAssistantIngredient
+from plainbox.vendor.textland import get_display
+
+
+_ = gettext.gettext
+
+_logger = logging.getLogger("checkbox-launcher")
+
+
+class DisplayIngredient(Ingredient):
+
+    """Ingredient that adds a Textland display to guacamole."""
+
+    def late_init(self, context):
+        """Add a DisplayIngredient as ``display`` to the guacamole context."""
+        context.display = get_display()
+
+
+class CheckboxCommandRecipe(CommandRecipe):
+
+    """A recipe for using Checkbox-enhanced commands."""
+
+    def get_ingredients(self):
+        """Get a list of ingredients for guacamole."""
+        return [
+            cmdtree.CommandTreeBuilder(self.command),
+            cmdtree.CommandTreeDispatcher(),
+            argparse.ParserIngredient(),
+            CanonicalCrashIngredient(),
+            ansi.ANSIIngredient(),
+            SessionAssistantIngredient(),
+            RenderingContextIngredient(),
+            DisplayIngredient(),
+        ]
+
+
+class CheckboxCommand(Command):
+
+    """
+    A command with Checkbox-enhanced ingredients.
+
+    This command has additional items in the guacamole execution context:
+    :class:`DisplayIngredient` object ``display``
+    :class:`SessionAssistantIngredient` object ``sa``
+    """
+
+    bug_report_url = "https://bugs.launchpad.net/checkbox-ng/+filebug"
+
+    def main(self, argv=None, exit=True):
+        """
+        Shortcut for running a command.
+
+        See :meth:`guacamole.recipes.Recipe.main()` for details.
+        """
+        return CheckboxCommandRecipe(self).main(argv, exit)
+
+
+class CheckboxLauncher(CheckboxCommand):
+    app_id = 'checkbox-launcher'
+
+    def get_sa_api_version(self):
+        return '0.99'
+
+    def get_sa_api_flags(self):
+        return ''
+
+    def invoked(self, ctx):
+        pass
+
+
+if __name__ == '__main__':
+    CheckboxLauncher().main()

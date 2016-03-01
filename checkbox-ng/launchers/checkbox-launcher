@@ -609,7 +609,20 @@ class CheckboxLauncher(CheckboxCommand):
                 self.transports[transport] = cls(url, options)
 
     def _export_results(self):
-        pass
+        for name, params in self.launcher.reports.items():
+            if self.is_interactive and not params.get('forced', False):
+                message = _("Do you want to submit '{}' report?").format(name)
+                cmd = self._pick_action_cmd([
+                    Action('y', _("yes"), 'y'),
+                    Action('n', _("no"), 'n')
+                ], message)
+            else:
+                cmd = 'y'
+            if cmd == 'n':
+                continue
+            exporter_id = self.launcher.exporters[params['exporter']]['unit']
+            transport = self.transports[params['transport']]
+            self.ctx.sa.export_to_transport(exporter_id, transport)
 
     def register_arguments(self, parser):
         parser.add_argument(

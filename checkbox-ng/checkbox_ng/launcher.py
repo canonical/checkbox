@@ -249,3 +249,6 @@ class LauncherDefinition1(LauncherDefinition):
     transports = config.ParametricSection(
         name='transport',
         help_text=_('Transport declaration'))
+
+
+DefaultLauncherDefinition = LauncherDefinition1

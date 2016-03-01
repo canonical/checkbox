@@ -129,10 +129,10 @@ class CheckboxLauncher(CheckboxCommand):
     app_id = 'checkbox-launcher'
 
     def get_sa_api_version(self):
-        return '0.99'
+        return self.launcher.api_version
 
     def get_sa_api_flags(self):
-        return ''
+        return self.launcher.api_flags
 
     def invoked(self, ctx):
         self._configure_restart(ctx)

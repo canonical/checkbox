@@ -57,7 +57,7 @@ from plainbox.vendor import morris
 _logger = logging.getLogger("plainbox.session.assistant")
 
 
-__all__ = ('SessionAssistant', 'SA_RESTARTABLE')
+__all__ = ('SessionAssistant', 'SA_RESTARTABLE', 'get_all_sa_flags')
 
 
 # NOTE: There are two tuples related to resume candidates. The internal tuple
@@ -72,6 +72,10 @@ ResumeCandidate = collections.namedtuple(
 
 
 SA_RESTARTABLE = "restartable"
+
+
+def get_all_sa_flags():
+    return [SA_RESTARTABLE]
 
 
 class SessionAssistant:

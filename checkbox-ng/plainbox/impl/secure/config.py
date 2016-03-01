@@ -810,7 +810,8 @@ class ChoiceValidator(IValidator):
 
     def __call__(self, variable, new_value):
         if new_value not in self.choice_list:
-            return _("must be one of {}").format(", ".join(self.choice_list))
+            return _("{} must be one of {}. Got '{}'").format(
+                variable.name, ", ".join(self.choice_list), new_value)
 
     def __eq__(self, other):
         if isinstance(other, ChoiceValidator):
@@ -827,7 +828,8 @@ class SubsetValidator(IValidator):
 
     def __call__(self, variable, subset):
         if not set(subset).issubset(self.superset):
-            return _("must be a subset of {}").format(self.superset)
+            return _("{} must be a subset of {}. Got {}").format(
+                variable.name, self.superset, set(subset))
 
     def __eq__(self, other):
         if isinstance(other, SubsetValidator):

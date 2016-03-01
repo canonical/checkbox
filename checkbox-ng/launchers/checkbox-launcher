@@ -203,6 +203,7 @@ class CheckboxLauncher(CheckboxCommand):
                     break
         self._export_results()
         ctx.sa.finalize_session()
+        return 0 if ctx.sa.get_summary()['fail'] == 0 else 1
 
     @property
     def is_interactive(self):

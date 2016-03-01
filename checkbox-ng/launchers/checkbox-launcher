@@ -37,6 +37,7 @@ from guacamole.ingredients import argparse
 from guacamole.ingredients import cmdtree
 from guacamole.recipes.cmd import CommandRecipe
 
+from checkbox_ng.launcher import DefaultLauncherDefinition
 from checkbox_ng.launcher import LauncherDefinition
 from plainbox.abc import IJobResult
 from plainbox.i18n import ngettext
@@ -83,6 +84,10 @@ class DisplayIngredient(Ingredient):
 class LauncherIngredient(Ingredient):
     """Ingredient that adds Checkbox Launcher suppotrt to guacamole.:"""
     def late_init(self, context):
+        if not context.args.launcher:
+            # launcher not supplied from cli - using the default one
+            context.cmd_toplevel.launcher = DefaultLauncherDefinition()
+            return
         try:
             with open(context.args.launcher,
                       'rt', encoding='UTF-8') as stream:
@@ -654,7 +659,7 @@ class CheckboxLauncher(CheckboxCommand):
 
     def register_arguments(self, parser):
         parser.add_argument(
-            'launcher', metavar=_('LAUNCHER'),
+            'launcher', metavar=_('LAUNCHER'), nargs='?',
             help=_('launcher definition file to use'))
         parser.add_argument(
             '--resume', dest='session_id', metavar='SESSION_ID',

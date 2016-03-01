@@ -24,6 +24,7 @@ Checkbox Launcher Interpreter Application
 from argparse import SUPPRESS
 import copy
 import gettext
+import json
 import logging
 import os
 
@@ -35,6 +36,10 @@ from guacamole.ingredients import cmdtree
 from guacamole.recipes.cmd import CommandRecipe
 
 from checkbox_ng.launcher import LauncherDefinition
+from plainbox.i18n import ngettext
+from plainbox.impl.commands.inv_run import Action
+from plainbox.impl.commands.inv_run import ActionUI
+from plainbox.impl.color import Colorizer
 from plainbox.impl.ingredients import CanonicalCrashIngredient
 from plainbox.impl.ingredients import RenderingContextIngredient
 from plainbox.impl.ingredients import SessionAssistantIngredient
@@ -135,7 +140,21 @@ class CheckboxLauncher(CheckboxCommand):
         return self.launcher.api_flags
 
     def invoked(self, ctx):
+        self.C = Colorizer()
+        self.ctx = ctx
         self._configure_restart(ctx)
+        ctx.sa.select_providers(*self.launcher.providers)
+        self._maybe_resume_session() or self._start_new_session()
+        self._run_jobs(self.ctx.sa.get_dynamic_todo_list())
+
+    @property
+    def is_interactive(self):
+        """
+        Flag indicating that this is an interactive invocation.
+
+        We can then interact with the user when we encounter OUTCOME_UNDECIDED.
+        """
+        return self.launcher.ui_type == 'interactive'
 
     def _configure_restart(self, ctx):
         if SA_RESTARTABLE not in self.get_sa_api_flags():
@@ -172,6 +191,70 @@ class CheckboxLauncher(CheckboxCommand):
                         os.path.abspath(ctx.args.launcher),
                         "--resume", session_id])
                 ])
+
+    def _maybe_resume_session(self):
+        resume_candidates = list(self.ctx.sa.get_resumable_sessions())
+        if self.ctx.args.session_id:
+            requested_sessions = [s for s in resume_candidates if (
+                s.id == self.ctx.args.session_id)]
+            if requested_sessions:
+                # session_ids are unique, so there should be only 1
+                self._resume_session(requested_sessions[0])
+                return True
+            else:
+                raise RuntimeError("Requested session is not resumable!")
+        elif self.is_interactive:
+            print(self.C.header(_("Resume Incomplete Session")))
+            print(ngettext(
+                "There is {0} incomplete session that might be resumed",
+                "There are {0} incomplete sessions that might be resumed",
+                len(resume_candidates)
+            ).format(len(resume_candidates)))
+            return self._run_resume_ui_loop(resume_candidates)
+        else:
+            return False
+
+    def _run_resume_ui_loop(self, resume_candidates):
+        for candidate in resume_candidates:
+            cmd = self._pick_action_cmd([
+                Action('r', _("resume this session"), 'resume'),
+                Action('n', _("next session"), 'next'),
+                Action('c', _("create new session"), 'create')
+            ], _("Do you want to resume session {0!a}?").format(candidate.id))
+            if cmd == 'next':
+                continue
+            elif cmd == 'create' or cmd is None:
+                return False
+            elif cmd == 'resume':
+                self._resume_session(candidate)
+                return True
+
+    def _pick_action_cmd(self, action_list, prompt=None):
+        return ActionUI(action_list, prompt).run()
+
+    def _resume_session(self, session):
+        metadata = self.ctx.sa.resume_session(session.id)
+        app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
+        test_plan_id = app_blob['testplan_id']
+        # FIXME selecting again the testplan on resume resets both # the static
+        # and dynamic todo lists.  # We're then saving the selection from the
+        # saved run_list # by accessing the session private context object.
+        selected_id_list = [job.id for job in
+                            self.ctx.sa._context.state.run_list]
+        self.ctx.sa.select_test_plan(test_plan_id)
+        self.ctx.sa.bootstrap()
+        self.ctx.sa.use_alternate_selection(selected_id_list)
+        # If we resumed maybe not rerun the same, probably broken job
+        self._handle_last_job_after_resume(metadata)
+
+    def _start_new_session(self):
+        pass
+
+    def _run_jobs(self, jobs):
+        pass
+
+    def _handle_last_job_after_resume(self, metadata):
+        pass
 
     def register_arguments(self, parser):
         parser.add_argument(

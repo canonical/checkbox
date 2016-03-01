@@ -31,6 +31,7 @@ from guacamole.ingredients import argparse
 from guacamole.ingredients import cmdtree
 from guacamole.recipes.cmd import CommandRecipe
 
+from checkbox_ng.launcher import LauncherDefinition
 from plainbox.impl.ingredients import CanonicalCrashIngredient
 from plainbox.impl.ingredients import RenderingContextIngredient
 from plainbox.impl.ingredients import SessionAssistantIngredient
@@ -51,6 +52,32 @@ class DisplayIngredient(Ingredient):
         context.display = get_display()
 
 
+class LauncherIngredient(Ingredient):
+    """Ingredient that adds Checkbox Launcher suppotrt to guacamole.:"""
+    def late_init(self, context):
+        try:
+            with open(context.args.launcher,
+                      'rt', encoding='UTF-8') as stream:
+                first_line = stream.readline()
+                if not first_line.startswith("#!"):
+                    stream.seek(0)
+                text = stream.read()
+        except IOError as exc:
+            _logger.error(_("Unable to load launcher definition: %s"), exc)
+            raise SystemExit(1)
+
+        generic_launcher = LauncherDefinition()
+        generic_launcher.read_string(text)
+        launcher = generic_launcher.get_concrete_launcher()
+        launcher.read_string(text)
+        if launcher.problem_list:
+            _logger.error(_("Unable to start launcher because of errors:"))
+            for problem in launcher.problem_list:
+                _logger.error("%s", str(problem))
+            raise SystemExit(1)
+        context.cmd_toplevel.launcher = launcher
+
+
 class CheckboxCommandRecipe(CommandRecipe):
 
     """A recipe for using Checkbox-enhanced commands."""
@@ -63,6 +90,7 @@ class CheckboxCommandRecipe(CommandRecipe):
             argparse.ParserIngredient(),
             CanonicalCrashIngredient(),
             ansi.ANSIIngredient(),
+            LauncherIngredient(),
             SessionAssistantIngredient(),
             RenderingContextIngredient(),
             DisplayIngredient(),
@@ -77,6 +105,7 @@ class CheckboxCommand(Command):
     This command has additional items in the guacamole execution context:
     :class:`DisplayIngredient` object ``display``
     :class:`SessionAssistantIngredient` object ``sa``
+    :class:`LauncherIngredient` object ``launcher``
     """
 
     bug_report_url = "https://bugs.launchpad.net/checkbox-ng/+filebug"

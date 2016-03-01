@@ -235,6 +235,9 @@ class LauncherDefinition1(LauncherDefinition):
         name='strategy',
         help_text=_('Use alternative restart strategy'))
 
+    restart = config.Section(
+        help_text=_('Restart strategy parameters'))
+
     reports = config.ParametricSection(
         name='report',
         help_text=_('Report declaration'))

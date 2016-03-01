@@ -22,8 +22,10 @@ Checkbox Launcher Interpreter Application
 """
 
 from argparse import SUPPRESS
+import copy
 import gettext
 import logging
+import os
 
 from guacamole import Command
 from guacamole.core import Ingredient
@@ -37,6 +39,9 @@ from plainbox.impl.ingredients import CanonicalCrashIngredient
 from plainbox.impl.ingredients import RenderingContextIngredient
 from plainbox.impl.ingredients import SessionAssistantIngredient
 from plainbox.vendor.textland import get_display
+from plainbox.impl.session.assistant import SA_RESTARTABLE
+from plainbox.impl.session.restart import get_strategy_by_name
+from plainbox.impl.session.restart import detect_restart_strategy
 
 
 _ = gettext.gettext
@@ -130,7 +135,43 @@ class CheckboxLauncher(CheckboxCommand):
         return ''
 
     def invoked(self, ctx):
-        pass
+        self._configure_restart(ctx)
+
+    def _configure_restart(self, ctx):
+        if SA_RESTARTABLE not in self.get_sa_api_flags():
+            return
+        if self.launcher.restart_strategy:
+            try:
+                cls = get_strategy_by_name(
+                    self.launcher.restart_strategy)
+                kwargs = copy.deepcopy(self.launcher.restart)
+                # [restart] section has the kwargs for the strategy initializer
+                # and the 'alternative_strategy' which is not one, let's pop it
+                kwargs.pop('alternative_strategy')
+                strategy = cls(**kwargs)
+                ctx.sa.use_alternate_restart_strategy(strategy)
+
+            except KeyError:
+                _logger.warning(_('Unknown restart strategy: %s', (
+                    self.launcher.restart_strategy)))
+                _logger.warning(_(
+                    'Using automatically detected restart strategy'))
+                try:
+                    strategy = detect_restart_strategy()
+                except LookupError as exc:
+                    _logger.warning(exc)
+                    _logger.warning(_('Automatic restart disabled!'))
+                    strategy = None
+        else:
+            strategy = detect_restart_strategy()
+        if strategy:
+            ctx.sa.configure_application_restart(
+                lambda session_id: [
+                    ' '.join([
+                        os.path.abspath(__file__),
+                        os.path.abspath(ctx.args.launcher),
+                        "--resume", session_id])
+                ])
 
     def register_arguments(self, parser):
         parser.add_argument(

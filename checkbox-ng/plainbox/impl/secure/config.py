@@ -819,6 +819,23 @@ class ChoiceValidator(IValidator):
             return False
 
 
+class SubsetValidator(IValidator):
+    """A validator ensuring that value is a subset of a given set."""
+
+    def __init__(self, superset):
+        self.superset = set(superset)
+
+    def __call__(self, variable, subset):
+        if not set(subset).issubset(self.superset):
+            return _("must be a subset of {}").format(self.superset)
+
+    def __eq__(self, other):
+        if isinstance(other, SubsetValidator):
+            return self.superset == other.superset
+        else:
+            return False
+
+
 @understands_Unset
 class NotUnsetValidator(IValidator):
     """

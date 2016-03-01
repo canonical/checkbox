@@ -27,6 +27,8 @@ import logging
 
 from checkbox_ng.config import SECURE_ID_PATTERN
 from plainbox.impl.secure import config
+from plainbox.impl.session.assistant import get_all_sa_flags
+from plainbox.impl.session.assistant import get_known_sa_api_versions
 from plainbox.impl.transport import get_all_transports
 
 
@@ -183,11 +185,14 @@ class LauncherDefinition1(LauncherDefinition):
         section='launcher',
         kind=list,
         default=[],
+        validator_list=[config.SubsetValidator(get_all_sa_flags())],
         help_text=_('List of feature-flags the application requires'))
 
     api_version = config.Variable(
         section='launcher',
         default='0.99',
+        validator_list=[config.ChoiceValidator(
+            get_known_sa_api_versions())],
         help_text=_('Version of API the launcher uses'))
 
     providers = config.Variable(
@@ -228,6 +233,7 @@ class LauncherDefinition1(LauncherDefinition):
         section='ui',
         name='type',
         default='interactive',
+        validator_list=[config.ChoiceValidator(['interactive', 'silent'])],
         help_text=_('Type of stock user interface to use.'))
 
     restart_strategy = config.Variable(

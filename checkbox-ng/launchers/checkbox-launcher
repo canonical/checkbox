@@ -21,6 +21,7 @@
 Checkbox Launcher Interpreter Application
 """
 
+from argparse import SUPPRESS
 import gettext
 import logging
 
@@ -130,6 +131,17 @@ class CheckboxLauncher(CheckboxCommand):
 
     def invoked(self, ctx):
         pass
+
+    def register_arguments(self, parser):
+        parser.add_argument(
+            'launcher', metavar=_('LAUNCHER'),
+            help=_('launcher definition file to use'))
+        parser.add_argument(
+            '--resume', dest='session_id', metavar='SESSION_ID',
+            help=SUPPRESS)
+        parser.add_argument(
+            '--verify', action='store_true',
+            help=_('only validate the launcher'))
 
 
 if __name__ == '__main__':

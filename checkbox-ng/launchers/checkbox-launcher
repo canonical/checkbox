@@ -171,6 +171,7 @@ class CheckboxLauncher(CheckboxCommand):
         self.C = Colorizer()
         self.ctx = ctx
         self._configure_restart(ctx)
+        self._maybe_use_default_reports()
         self._prepare_transports()
         ctx.sa.select_providers(*self.launcher.providers)
         self._maybe_resume_session() or self._start_new_session()
@@ -583,6 +584,22 @@ class CheckboxLauncher(CheckboxCommand):
             elif cmd == 're-run':
                 raise ReRunJob
             result = result_builder.get_result()
+
+    def _maybe_use_default_reports(self):
+        if (not self.launcher.transports and
+                not self.launcher.exporters and
+                not self.launcher.reports):
+            # no output specified, let's fall back to printing text results
+            # to stdout
+            self.launcher.transports = {
+                'output': {
+                    'type': 'stream',
+                    'stream': 'stdout'}}
+            self.launcher.exporters = {'text': {
+                'unit': '2013.com.canonical.plainbox::text'}}
+            self.launcher.reports = {'output': {
+                'transport': 'output',
+                'exporter': 'text'}}
 
     def _prepare_transports(self):
         available_transports = get_all_transports()

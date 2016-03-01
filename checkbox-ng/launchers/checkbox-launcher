@@ -23,6 +23,7 @@ Checkbox Launcher Interpreter Application
 
 from argparse import SUPPRESS
 import copy
+import fnmatch
 import gettext
 import json
 import logging
@@ -47,6 +48,8 @@ from plainbox.vendor.textland import get_display
 from plainbox.impl.session.assistant import SA_RESTARTABLE
 from plainbox.impl.session.restart import get_strategy_by_name
 from plainbox.impl.session.restart import detect_restart_strategy
+
+from checkbox_ng.ui import ShowMenu
 
 
 _ = gettext.gettext
@@ -248,7 +251,53 @@ class CheckboxLauncher(CheckboxCommand):
         self._handle_last_job_after_resume(metadata)
 
     def _start_new_session(self):
-        pass
+        print(_("Preparing..."))
+        title = self.launcher.app_id
+        if self.launcher.app_version:
+            title += ' {}'.format(self.launcher.app_version)
+        self.ctx.sa.start_new_session(title)
+        if self.launcher.test_plan_forced:
+            tp_id = self.launcher.test_plan_default_selection
+        elif not self.is_interactive:
+            # XXX: this maybe somewhat redundant with validation
+            _logger.error(_(
+                'Non-interactive session without test plan specified in the '
+                'launcher!'))
+            raise SystemExit(1)
+        else:
+            tp_id = self._interactively_pick_test_plan()
+            if tp_id is None:
+                raise SystemExit(_("No test plan selected."))
+        self.ctx.sa.select_test_plan(tp_id)
+        self.ctx.sa.update_app_blob(json.dumps(
+            {'testplan_id': tp_id, }).encode("UTF-8"))
+        self.ctx.sa.bootstrap()
+
+    def _interactively_pick_test_plan(self):
+        test_plan_ids = self.ctx.sa.get_test_plans()
+        filtered_tp_ids = set()
+        for filter in self.launcher.test_plan_filters:
+            filtered_tp_ids.update(fnmatch.filter(test_plan_ids, filter))
+        filtered_tp_ids = list(filtered_tp_ids)
+        test_plan_names = sorted(
+            [self.ctx.sa.get_test_plan(tp_id).name for tp_id in
+                filtered_tp_ids])
+        try:
+            preselected_indecies = [test_plan_names.index(
+                self.ctx.sa.get_test_plan(
+                    self.launcher.test_plan_default_selection).name)]
+        except KeyError:
+            _logger.warning(_('%s test plan not found'),
+                            self.launcher.test_plan_default_selection)
+            preselected_indecies = []
+        try:
+            selected_index = self.ctx.display.run(
+                ShowMenu(_("Select test plan"),
+                         test_plan_names, preselected_indecies,
+                         multiple_allowed=False))[0]
+        except IndexError:
+            return None
+        return test_plan_ids[selected_index]
 
     def _run_jobs(self, jobs):
         pass

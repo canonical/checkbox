@@ -78,6 +78,10 @@ def get_all_sa_flags():
     return [SA_RESTARTABLE]
 
 
+def get_known_sa_api_versions():
+    return ['0.99']
+
+
 class SessionAssistant:
 
     """
@@ -141,7 +145,7 @@ class SessionAssistant:
         functionality where the application can easily filter out sessions from
         other programs.
         """
-        if api_version != '0.99':
+        if api_version not in get_known_sa_api_versions():
             raise ValueError("Unrecognized API version")
         self._flags = set()
         for flag in api_flags:

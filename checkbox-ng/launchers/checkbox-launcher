@@ -163,6 +163,11 @@ class CheckboxLauncher(CheckboxCommand):
         return self.launcher.api_flags
 
     def invoked(self, ctx):
+        if ctx.args.verify:
+            # validation is always run, so if there were any errors the program
+            # exited by now, so validation passed
+            print(_("Launcher seems valid."))
+            return
         if not self.launcher.launcher_version:
             # it's a legacy launcher, use legacy way of running commands
             from checkbox_ng.tools import CheckboxLauncherTool

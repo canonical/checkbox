@@ -28,6 +28,7 @@ import gettext
 import json
 import logging
 import os
+import sys
 
 from guacamole import Command
 from guacamole.core import Ingredient
@@ -162,6 +163,11 @@ class CheckboxLauncher(CheckboxCommand):
         return self.launcher.api_flags
 
     def invoked(self, ctx):
+        if not self.launcher.launcher_version:
+            # it's a legacy launcher, use legacy way of running commands
+            from checkbox_ng.tools import CheckboxLauncherTool
+            raise SystemExit(CheckboxLauncherTool().main(sys.argv[1:]))
+
         self.C = Colorizer()
         self.ctx = ctx
         self._configure_restart(ctx)

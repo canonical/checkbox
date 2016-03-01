@@ -158,7 +158,7 @@ class Variable(INameTracking):
         :param value:
             The proposed value
         :raises ValidationError:
-            Tf the value was not valid in any way
+            If the value was not valid in any way
         """
         for validator in self.validator_list:
             # Most validators don't want to deal with the unset type so let's

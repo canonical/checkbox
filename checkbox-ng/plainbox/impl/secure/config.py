@@ -500,8 +500,8 @@ class Config(metaclass=ConfigMeta):
         parser = PlainBoxConfigParser(allow_no_value=True, delimiters=('='))
         # Write all variables that we know about
         for variable in self.Meta.variable_list:
-            if (not parser.has_section(variable.section)
-                    and variable.section != "DEFAULT"):
+            if (not parser.has_section(variable.section) and
+                    variable.section != "DEFAULT"):
                 parser.add_section(variable.section)
             value = variable.__get__(self, self.__class__)
             # Except Unset, we don't want that to convert to 'unset'

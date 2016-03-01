@@ -33,6 +33,7 @@ from plainbox.impl.secure.config import KindValidator
 from plainbox.impl.secure.config import NotEmptyValidator
 from plainbox.impl.secure.config import NotUnsetValidator
 from plainbox.impl.secure.config import PatternValidator
+from plainbox.impl.secure.config import ParametricSection
 from plainbox.impl.secure.config import PlainBoxConfigParser, Config
 from plainbox.impl.secure.config import ValidationError
 from plainbox.impl.secure.config import Variable, Section, Unset
@@ -192,6 +193,7 @@ class ConfigTests(TestCase):
             v_float = Variable(section="type_section", kind=float)
             v_str = Variable(section="type_section", kind=str)
             s = Section()
+            ps = ParametricSection()
         conf = TestConfig()
         # assign value to each variable, except v3_unset
         conf.v1 = "v1 value"
@@ -203,6 +205,7 @@ class ConfigTests(TestCase):
         conf.v_str = "hi"
         # assign value to the section
         conf.s = {"a": 1, "b": 2}
+        conf.ps = {"foo": {"c": 3, "d": 4}}
         return conf
 
     def test_get_parser_obj(self):
@@ -231,6 +234,9 @@ class ConfigTests(TestCase):
         # verify that section work okay
         self.assertEqual(parser.get("s", "a"), "1")
         self.assertEqual(parser.get("s", "b"), "2")
+        # verify that parametric section works okay
+        self.assertEqual(parser.get("ps:foo", "c"), "3")
+        self.assertEqual(parser.get("ps:foo", "d"), "4")
 
     def test_write(self):
         """
@@ -256,6 +262,10 @@ class ConfigTests(TestCase):
                 "[s]\n"
                 "a = 1\n"
                 "b = 2\n"
+                "\n"
+                "[ps:foo]\n"
+                "c = 3\n"
+                "d = 4\n"
                 "\n"))
 
     def test_section_smoke(self):
@@ -358,6 +368,9 @@ class ConfigMetaDataTests(TestCase):
     def test_section_list(self):
         self.assertEqual(ConfigMetaData.section_list, [])
 
+    def test_parametric_section_list(self):
+        self.assertEqual(ConfigMetaData.parametric_section_list, [])
+
 
 class PlainBoxConfigParserTest(TestCase):
 
@@ -371,6 +384,16 @@ class PlainBoxConfigParserTest(TestCase):
         self.assertTrue('lower' in all_keys)
         self.assertTrue('UPPER' in all_keys)
         self.assertFalse('upper' in all_keys)
+
+    def test_parametric_sections_parsing(self):
+        class TestConfig(Config):
+            ps = ParametricSection()
+        conf_str = "[ps:foo]\nval = baz\n[ps:bar]\nvar = biz"
+        config = TestConfig()
+        config.read_string(conf_str)
+        self.assertEqual(
+            config.ps,
+            {'foo': {'val': 'baz'}, 'bar': {'var': 'biz'}})
 
 
 class KindValidatorTests(TestCase):

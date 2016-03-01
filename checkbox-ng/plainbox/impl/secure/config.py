@@ -75,6 +75,7 @@ class ConfigMetaData:
     """
     variable_list = []
     section_list = []
+    parametric_section_list = []
     filename_list = []
 
 
@@ -303,6 +304,33 @@ class Section(INameTracking):
         instance._del_section(self.name)
 
 
+class ParametricSection(Section):
+    """
+    A parametrized section of a configuration file.
+
+    This is similar to :class:`Section`, but instead looks for an arbitrary
+    number of sections beginning with ``name:``. E.g.:
+
+    .. code-block:: none
+
+        [foo:bar]
+            somevar = someval
+        [foo:baz]
+            othervar = otherval
+
+    yields a following list of dictionaries:
+
+    .. code-block:: python
+
+        [
+            {'bar': {'somevar': 'someval'}},
+            {'baz': {'othervar': 'otherval'}}
+        ]
+    """
+    def __init__(self, name=None, *, help_text=None):
+        super().__init__(name, help_text=help_text)
+
+
 class ConfigMeta(type):
     """
     Meta class for all configuration classes.
@@ -318,11 +346,15 @@ class ConfigMeta(type):
         # Keep track of variables and sections from base class
         variable_list = []
         section_list = []
+        parametric_section_list = []
         if 'Meta' in namespace:
             if hasattr(namespace['Meta'], 'variable_list'):
                 variable_list = namespace['Meta'].variable_list[:]
             if hasattr(namespace['Meta'], 'section_list'):
                 section_list = namespace['Meta'].section_list[:]
+            if hasattr(namespace['Meta'], 'parametric_section_list'):
+                parametric_section_list = (
+                    namespace['Meta'].parametric_section_list[:])
         # Discover all Variable and Section instances
         # defined in the class namespace
         for attr_name, attr_value in namespace.items():
@@ -330,6 +362,8 @@ class ConfigMeta(type):
                 attr_value._set_tracked_name(attr_name)
             if isinstance(attr_value, Variable):
                 variable_list.append(attr_value)
+            elif isinstance(attr_value, ParametricSection):
+                parametric_section_list.append(attr_value)
             elif isinstance(attr_value, Section):
                 section_list.append(attr_value)
         # Get or create the class of the 'Meta' object.
@@ -340,7 +374,8 @@ class ConfigMeta(type):
         Meta_bases = (ConfigMetaData,)
         Meta_ns = {
             'variable_list': variable_list,
-            'section_list': section_list
+            'section_list': section_list,
+            'parametric_section_list': parametric_section_list
         }
         if 'Meta' in namespace:
             user_Meta_cls = namespace['Meta']
@@ -478,6 +513,13 @@ class Config(metaclass=ConfigMeta):
                 parser.add_section(section.name)
             for name, value in section.__get__(self, self.__class__).items():
                 parser.set(section.name, name, str(value))
+        for psection in self.Meta.parametric_section_list:
+            for name, sec in psection.__get__(self, self.__class__).items():
+                section_name = '{}:{}'.format(psection.name, name)
+                if not parser.has_section(section_name):
+                    parser.add_section(section_name)
+                for k, v in sec.items():
+                    parser.set(section_name, k, str(v))
         return parser
 
     def read_string(self, string):
@@ -609,6 +651,16 @@ class Config(metaclass=ConfigMeta):
                 continue
             # Assign it
             section.__set__(self, value)
+        # Load all parametric sections
+        for parametric_section in self.Meta.parametric_section_list:
+            matching_keys = [k for k in parser.keys() if k.startswith(
+                parametric_section.name + ':')]
+            value = dict()
+            for key in matching_keys:
+                param = key[len(parametric_section.name) + 1:]
+                value[param] = dict(parser.items(key))
+            parametric_section.__set__(self, value)
+
         # Validate the whole configuration object
         self.validate_whole()
 

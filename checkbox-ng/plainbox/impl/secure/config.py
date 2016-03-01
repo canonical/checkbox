@@ -189,6 +189,14 @@ class Variable(INameTracking):
         return self._name
 
     @property
+    def mangled_name(self):
+        """
+        name prefixed by the name of the section name and '__' to resolve
+        conflicts between same name  variables living in different sections
+        """
+        return "{}__{}".format(self._section, self._name)
+
+    @property
     def section(self):
         """
         name of the section this variable belongs to (in a configuration file)
@@ -236,7 +244,7 @@ class Variable(INameTracking):
         if instance is None:
             return self
         try:
-            return instance._get_variable(self._name)
+            return instance._get_variable(self.mangled_name)
         except KeyError:
             return self.default
 
@@ -249,13 +257,13 @@ class Variable(INameTracking):
         # Check it against all validators
         self.validate(new_value)
         # Assign it to the backing store of the instance
-        instance._set_variable(self.name, new_value)
+        instance._set_variable(self.mangled_name, new_value)
 
     def __delete__(self, instance):
         # NOTE: this is quite confusing, this method is a companion to __get__
         # and __set__ but __del__ is entirely unrelated (object garbage
         # collected, do final cleanup) so don't think this is a mistake
-        instance._del_variable(self._name)
+        instance._del_variable(self.mangled_name)
 
 
 class Section(INameTracking):

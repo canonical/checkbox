@@ -83,7 +83,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'CheckboxNG'
-copyright = '2013-2014, Zygmunt Krynicki'
+copyright = '2013-2016, Zygmunt Krynicki'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

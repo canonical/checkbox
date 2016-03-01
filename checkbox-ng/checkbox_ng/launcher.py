@@ -40,7 +40,54 @@ class LauncherDefinition(config.Config):
     Launchers are small executables using one of the available user interfaces
     as the interpreter. This class contains all the available options that can
     be set inside the launcher, that will affect the user interface at runtime.
+    This generic launcher definition class helps to pick concrete version of
+    the launcher definition.
     """
+    launcher_version = config.Variable(
+        section="launcher",
+        help_text=_("Version of launcher to use"))
+
+    config_filename = config.Variable(
+        section="config",
+        help_text=_("Name of custom configuration file"))
+
+    dont_suppress_output = config.Variable(
+        section="ui", kind=bool, default=False,
+        help_text=_("Don't suppress the output of certain job plugin types."))
+
+    def get_concrete_launcher(self):
+        """Create appropriate LauncherDefinition instance.
+
+        Depending on the value of launcher_version variable appropriate
+        LauncherDefinition class is chosen and its instance returned.
+
+        :returns: LauncherDefinition instance
+        :raises KeyError: for unknown launcher_version values
+        """
+        return {
+            '1': LauncherDefinition1,
+            config.Unset: LauncherDefinitionLegacy
+        }[self.launcher_version]()
+
+
+class LauncherDefinitionLegacy(LauncherDefinition):
+    """
+    Launcher definition class for 'unversioned' launchers.
+
+    This definition is used for launchers that do not specify
+    'launcher_version' in their [launcher] section.
+    """
+
+    api_flags = config.Variable(
+        section='launcher',
+        kind=list,
+        default=[],
+        help_text=_('List of feature-flags the application requires'))
+
+    api_version = config.Variable(
+        section='launcher',
+        default='0.99',
+        help_text=_('Version of API the launcher uses'))
 
     title = config.Variable(
         section="welcome",
@@ -104,13 +151,9 @@ class LauncherDefinition(config.Config):
         help_text=_("Secure ID to identify the system this"
                     " submission belongs to."))
 
-    config_filename = config.Variable(
-        section="config",
-        help_text=_("Name of custom configuration file"))
-
-    dont_suppress_output = config.Variable(
-        section="ui", kind=bool, default=False,
-        help_text=_("Don't suppress the output of certain job plugin types."))
-
     exporter = config.Section(
         help_text=_("Section with only exported unit ids as keys (no values)"))
+
+
+class LauncherDefinition1(LauncherDefinition):
+    pass

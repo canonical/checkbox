@@ -63,7 +63,9 @@ class LauncherCommand(CheckboxCommand, CheckBoxCommandMixIn, SubmitCommand):
         except IOError as exc:
             logger.error(_("Unable to load launcher definition: %s"), exc)
             return 1
-        launcher = LauncherDefinition()
+        generic_launcher = LauncherDefinition()
+        generic_launcher.read_string(text)
+        launcher = generic_launcher.get_concrete_launcher()
         launcher.read_string(text)
         if launcher.problem_list:
             logger.error(_("Unable to start launcher because of errors:"))

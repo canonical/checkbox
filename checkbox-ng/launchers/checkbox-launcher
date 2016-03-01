@@ -57,6 +57,7 @@ from plainbox.impl.session.assistant import SA_RESTARTABLE
 from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.session.restart import get_strategy_by_name
 from plainbox.impl.session.restart import detect_restart_strategy
+from plainbox.impl.transport import get_all_transports
 
 from checkbox_ng.misc import SelectableJobTreeNode
 from checkbox_ng.ui import ScrollableTreeNode
@@ -164,6 +165,7 @@ class CheckboxLauncher(CheckboxCommand):
         self.C = Colorizer()
         self.ctx = ctx
         self._configure_restart(ctx)
+        self._prepare_transports()
         ctx.sa.select_providers(*self.launcher.providers)
         self._maybe_resume_session() or self._start_new_session()
         self._pick_jobs_to_run()
@@ -575,6 +577,36 @@ class CheckboxLauncher(CheckboxCommand):
             elif cmd == 're-run':
                 raise ReRunJob
             result = result_builder.get_result()
+
+    def _prepare_transports(self):
+        available_transports = get_all_transports()
+        self.transports = dict()
+        # depending on the type of transport we need to pick variable that
+        # serves as the 'where' param for the transport. In case of
+        # certification site the URL is supplied here
+        for transport in self.launcher.transports:
+            tr_type = self.launcher.transports[transport]['type']
+            if tr_type not in available_transports:
+                _logger.error(_("Unrecognized type '%s' of transport '%s'"),
+                              tr_type, transport)
+                raise SystemExit(1)
+            cls = available_transports[tr_type]
+            if tr_type == 'file':
+                self.transports[transport] = cls(
+                    self.launcher.transports[transport]['path'])
+            elif tr_type == 'stream':
+                self.transports[transport] = cls(
+                    self.launcher.transports[transport]['stream'])
+            elif tr_type == 'certification':
+                if self.launcher.transports[transport]['staging']:
+                    url = ('https://certification.staging.canonical.com/'
+                           'submissions/submit/')
+                else:
+                    url = ('https://certification.canonical.com/'
+                           'submissions/submit/')
+                options = "secure_id={}".format(
+                    self.launcher.transports[transport]['secure_id'])
+                self.transports[transport] = cls(url, options)
 
     def _export_results(self):
         pass

@@ -62,7 +62,7 @@ from plainbox.vendor import morris
 _logger = logging.getLogger("plainbox.session.assistant")
 
 
-__all__ = ('SessionAssistant', 'SA_RESTARTABLE')
+__all__ = ('SessionAssistant', 'SA_RESTARTABLE', 'get_all_sa_flags')
 
 
 # NOTE: There are two tuples related to resume candidates. The internal tuple
@@ -77,6 +77,14 @@ ResumeCandidate = collections.namedtuple(
 
 
 SA_RESTARTABLE = "restartable"
+
+
+def get_all_sa_flags():
+    return [SA_RESTARTABLE]
+
+
+def get_known_sa_api_versions():
+    return ['0.99']
 
 
 class SessionAssistant:
@@ -142,7 +150,7 @@ class SessionAssistant:
         functionality where the application can easily filter out sessions from
         other programs.
         """
-        if api_version != '0.99':
+        if api_version not in get_known_sa_api_versions():
             raise ValueError("Unrecognized API version")
         self._flags = set()
         for flag in api_flags:

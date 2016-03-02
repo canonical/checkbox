@@ -485,7 +485,8 @@ class ChoiceValidatorTests(TestCase):
         validator = ChoiceValidator(["foo", "bar"])
         self.assertEqual(validator(self._Config.var, "foo"), None)
         self.assertEqual(
-            validator(self._Config.var, "omg"), "must be one of foo, bar")
+            validator(self._Config.var, "omg"),
+            "var must be one of foo, bar. Got 'omg'")
 
     def test_comparison_works(self):
         self.assertTrue(ChoiceValidator(["a"]) == ChoiceValidator(["a"]))

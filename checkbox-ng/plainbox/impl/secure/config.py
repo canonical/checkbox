@@ -158,7 +158,7 @@ class Variable(INameTracking):
         :param value:
             The proposed value
         :raises ValidationError:
-            Tf the value was not valid in any way
+            If the value was not valid in any way
         """
         for validator in self.validator_list:
             # Most validators don't want to deal with the unset type so let's
@@ -810,11 +810,30 @@ class ChoiceValidator(IValidator):
 
     def __call__(self, variable, new_value):
         if new_value not in self.choice_list:
-            return _("must be one of {}").format(", ".join(self.choice_list))
+            return _("{} must be one of {}. Got '{}'").format(
+                variable.name, ", ".join(self.choice_list), new_value)
 
     def __eq__(self, other):
         if isinstance(other, ChoiceValidator):
             return self.choice_list == other.choice_list
+        else:
+            return False
+
+
+class SubsetValidator(IValidator):
+    """A validator ensuring that value is a subset of a given set."""
+
+    def __init__(self, superset):
+        self.superset = set(superset)
+
+    def __call__(self, variable, subset):
+        if not set(subset).issubset(self.superset):
+            return _("{} must be a subset of {}. Got {}").format(
+                variable.name, self.superset, set(subset))
+
+    def __eq__(self, other):
+        if isinstance(other, SubsetValidator):
+            return self.superset == other.superset
         else:
             return False
 

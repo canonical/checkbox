@@ -169,7 +169,7 @@ class CheckboxUI(NormalUI):
 
 
 class CheckboxLauncher(CheckboxCommand):
-    app_id = 'checkbox-launcher'
+    app_id = '2016.com.canonical:checkbox-cli'
 
     def get_sa_api_version(self):
         return self.launcher.api_version

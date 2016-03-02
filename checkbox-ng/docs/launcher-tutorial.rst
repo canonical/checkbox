@@ -27,8 +27,9 @@ Beginning of the launcher meta-information section.
 
 This fields helps to differentiate between checkbox front-ends. This way
 sessions started with launcher with one ``app_id`` won't interfere with
-sessions started with a different launcher (provider it has ``app_id`` set to
-other value). Default value: ``checkbox-cli``
+sessions started with a different launcher (provided it has ``app_id`` set to
+other value).  The app_id should be in a IQN form. Default value:
+``2016.com.canonical:checkbox-cli``
 
 ``app_version``
 
@@ -55,7 +56,7 @@ Launcher section example:
 ::
 
     [launcher]
-    app_id = System testing
+    app_id = 2016.com.foobar:system-testing
     launcher_version = 1
 
 Providers section
@@ -283,7 +284,7 @@ report to standard output.
 
     [launcher]
     launcher_version = 1
-    app_id = Smoke tester
+    app_id = 2016.com.canonical.certification:smoke-test
 
     [test plan]
     unit = 2013.com.canonical.certification::smoke
@@ -315,7 +316,7 @@ staging version of certification site and saved to /tmp/submission.xml
 
     [launcher]
     launcher_version = 1
-    app_id = FooBar testing
+    app_id = 2016.com.foobar:system-testing
 
     [providers]
     use = 2016.com.megacorp.foo::bar*

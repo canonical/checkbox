@@ -81,7 +81,7 @@ class IPerfPerformanceTest(object):
             logging.error("Check your device configuration and try again")
             return 1
 
-        # Set the correct binary to run 
+        # Set the correct binary to run
         if (self.iperf3):
             self.executable = "iperf3 -V"
         else:
@@ -92,12 +92,12 @@ class IPerfPerformanceTest(object):
             cmd = "{} -c {} -t {} -i 1 -f m".format(
                 self.executable, self.target, self.run_time)
         else:
-        # Because we can vary the data size, we need to vary the timeout as
-        # well.  It takes an estimated 15 minutes to send 1GB over 10Mb/s.
-        # 802.11b is 11 Mb/s.  So we'll assume 1.2x15 minutes or 18 minutes
-        # or 1080 seconds per Gigabit. This will allow for a long period of
-        # time without timeout to catch devices that slow down, and also not
-        # prematurely end iperf on low-bandwidth devices.
+            # Because we can vary the data size, we need to vary the timeout as
+            # well.  It takes an estimated 15 minutes to send 1GB over 10Mb/s.
+            # 802.11b is 11 Mb/s.  So we'll assume 1.2x15 minutes or 18 minutes
+            # or 1080 seconds per Gigabit. This will allow for a long period of
+            # time without timeout to catch devices that slow down, and also
+            # not prematurely end iperf on low-bandwidth devices.
             self.timeout = 1080*int(self.data_size)
             cmd = "timeout {} {} -c {} -n {}G -i 1 -f -m".format(
                 self.timeout, self.executable, self.target, self.data_size)
@@ -414,12 +414,16 @@ def interface_test(args):
     if not test_targets or "example.com" in test_targets:
         # Default values found in config file
         logging.error("Target server has not been supplied.")
-        logging.info("Configuration settings can be configured 3 different ways:")
-        logging.info("1- If calling the script directly, pass the --target option")
+        logging.info("Configuration settings can be configured 3 different "
+                     "ways:")
+        logging.info("1- If calling the script directly, pass the --target "
+                     "option")
         logging.info("2- Define the TEST_TARGET_IPERF environment variable")
-        logging.info("3- (If running the test via checkbox/plainbox, define the ")
+        logging.info("3- (If running the test via checkbox/plainbox, define "
+                     "the ")
         logging.info("target in /etc/xdg/canonical-certification.conf)")
-        logging.info("Please run this script with -h to see more details on how to configure")
+        logging.info("Please run this script with -h to see more details on "
+                     "how to configure")
         sys.exit(1)
 
     # Testing begins here!
@@ -578,7 +582,7 @@ TEST_TARGET_IPERF = iperf-server.example.com
     action.add_argument(
         '--runtime', type=int,
         default=60,
-        help=("CANNOT BE USED WITH --datasize. Send data for *runtime* " 
+        help=("CANNOT BE USED WITH --datasize. Send data for *runtime* "
               "seconds.  For iperf tests, this will send data for the amount "
               "of time indicated, rather than until a certain file size is "
               "reached."))
@@ -637,7 +641,8 @@ TEST_TARGET_IPERF = iperf-server.example.com
 
     args = parser.parse_args()
     if args.cpu_load_fail_threshold != 100 and not args.iperf3:
-        parser.error('--cpu-load-fail-threshold can only be set with --iperf3.')
+        parser.error('--cpu-load-fail-threshold can only be set with '
+                     '--iperf3.')
 
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)

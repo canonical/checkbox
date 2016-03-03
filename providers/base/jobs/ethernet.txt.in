@@ -57,7 +57,7 @@ requires:
  package.name == 'nmap'
 user: root
 environ: TEST_TARGET_IPERF
-command: network test -i {interface} -t iperf --fail-threshold 80 --datasize 200 --num_runs 4
+command: network test -i {interface} -t iperf --fail-threshold 80 --runtime 900 --num_runs 4
 _description:
  This test uses iperf to ensure network devices pass data at an acceptable
  minimum percentage of advertized speed.
@@ -77,7 +77,7 @@ requires:
  package.name == 'nmap'
 user: root
 environ: TEST_TARGET_IPERF
-command: network test -i {interface} -t iperf --iperf3 --fail-threshold 80 --cpu-load-fail-threshold 90 --datasize 200 --num_runs 4
+command: network test -i {interface} -t iperf --iperf3 --fail-threshold 80 --cpu-load-fail-threshold 90 --runtime 900 --num_runs 4
 _description:
  This test uses iperf3 to ensure network devices pass data at an acceptable
  minimum percentage of advertized speed.

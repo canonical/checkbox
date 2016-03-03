@@ -372,10 +372,8 @@ class FileTransport(TransportBase):
         :raises OSError:
             When there was IO related error.
         """
-        with open(self._path, 'wt') as f:
-            translating_stream = ByteStringStreamTranslator(f, 'utf-8')
-            copyfileobj(data, translating_stream)
-
+        with open(self._path, 'wb') as f:
+            copyfileobj(data, f)
 
 if oauth_available():
     OAuthTransport = _OAuthTransport

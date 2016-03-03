@@ -365,7 +365,7 @@ class TemplateUnit(Unit, TemplateUnitLegacyAPI):
         data['unit'] = raw_data['unit'] = self.template_unit
         # XXX: extract raw dictionary from the resource object, there is no
         # normal API for that due to the way resource objects work.
-        parameters = object.__getattribute__(resource, '_data')
+        parameters = dict(object.__getattribute__(resource, '_data'))
         # Add the special __index__ to the resource namespace variables
         parameters['__index__'] = index
         # Instantiate the class using the instantiation API

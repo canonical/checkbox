@@ -410,17 +410,17 @@ def main():
 
     # parse the summaries
     for test in results.keys():
-        if results[test] == 'FAILED_CRITICAL':
+        if 'FAILED_CRITICAL' in results[test]:
             critical_fails.append(test)
-        elif results[test] == 'FAILED_HIGH':
+        if 'FAILED_HIGH' in results[test]:
             high_fails.append(test)
-        elif results[test] == 'FAILED_MEDIUM':
+        if 'FAILED_MEDIUM' in results[test]:
             medium_fails.append(test)
-        elif results[test] == 'FAILED_LOW':
+        if 'FAILED_LOW' in results[test]:
             low_fails.append(test)
-        elif results[test] == 'PASSED':
+        if 'PASSED' in results[test]:
             passed.append(test)
-        elif results[test] == 'ABORTED':
+        if 'ABORTED' in results[test]:
             aborted.append(test)
         else:
             continue

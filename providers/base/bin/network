@@ -640,7 +640,9 @@ TEST_TARGET_IPERF = iperf-server.example.com
     info_parser.set_defaults(func=interface_info)
 
     args = parser.parse_args()
-    if args.cpu_load_fail_threshold != 100 and not args.iperf3:
+    if (args.func.__name__ is interface_test and
+       not args.cpu_load_fail_threshold != 100 and
+       not args.iperf3):
         parser.error('--cpu-load-fail-threshold can only be set with '
                      '--iperf3.')
 

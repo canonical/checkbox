@@ -133,11 +133,8 @@ class QemuRunner(object):
         # If arch is arm64, add the machine type for gicv3, or default to old
         # type
         if self.arch == 'arm64':
-            if glob("/sys/firmware/devicetree/base/interrupt-controller@*/compatible"):
-                self.config['qemu_extra_args'].extend(
-                    ['-machine', 'virt,gic_version=3'])
-            else:
-                self.config['qemu_extra_args'].extend(['-machine', 'virt'])
+            (self.config['qemu_extra_args'].
+             extend(['-machine', 'virt,gic_version=host']))
         # Add any architecture-specific parameters
         if 'qemu_extra_args' in self.config:
             self.params = self.params + self.config['qemu_extra_args']
@@ -324,6 +321,22 @@ final_message: CERTIFICATION BOOT COMPLETE
             logging.exception("Cloud data disk creation failed")
 
     def start(self):
+        if self.arch == 'arm64':
+            # lp:1548539 - For arm64, we need to make sure we're using qemu
+            # later than 2.0.0 to enable gic_version functionality
+            logging.debug('Checking QEMU version for arm64 arch')
+            cmd = 'apt-cache policy qemu-system-arm | grep Installed'
+            installed_version = (check_output(['/bin/bash', '-c', cmd]).
+                                 decode().split(':', 1)[1].strip())
+
+            cmd = ('dpkg --compare-versions \"2.0.0\" \"lt\" \"{}\"'
+                   .format(installed_version))
+            retcode = call(['/bin/bash', '-c', cmd])
+            if retcode != 0:
+                logging.error('arm64 needs qemu-system version later than '
+                              '2.0.0')
+                return 1
+
         logging.debug('Starting KVM Test')
         status = 1
         # Create temp directory:

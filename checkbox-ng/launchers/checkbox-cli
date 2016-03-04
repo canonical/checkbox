@@ -23,6 +23,7 @@ Checkbox Launcher Interpreter Application
 
 from argparse import SUPPRESS
 import copy
+import datetime
 import fnmatch
 import gettext
 import json
@@ -610,17 +611,43 @@ class CheckboxLauncher(CheckboxCommand):
         if (not self.launcher.transports and
                 not self.launcher.exporters and
                 not self.launcher.reports):
-            # no output specified, let's fall back to printing text results
-            # to stdout
-            self.launcher.transports = {
-                'output': {
-                    'type': 'stream',
-                    'stream': 'stdout'}}
-            self.launcher.exporters = {'text': {
-                'unit': '2013.com.canonical.plainbox::text'}}
-            self.launcher.reports = {'output': {
-                'transport': 'output',
-                'exporter': 'text'}}
+
+            self.launcher.transports = dict()
+            self.launcher.exporters = dict()
+            self.launcher.reports = dict()
+            timestamp = datetime.datetime.utcnow().isoformat()
+            base_dir = os.path.join(
+                os.getenv(
+                    'XDG_DATA_HOME', os.path.expanduser("~/.local/share/")),
+                "checkbox-ng")
+            if not os.path.exists(base_dir):
+                os.makedirs(base_dir)
+            # let's create report objects (and their respective transports and
+            # exporters) that will be saved to files
+            for exporter, file_ext in [('hexr', '.xml'), ('html', '.html'),
+                                       ('xlsx', '.xlsx'), ('json', '.json')]:
+                path = os.path.join(base_dir, ''.join(
+                    ['submission_', timestamp, file_ext]))
+                self.launcher.transports['{}_file'.format(exporter)] = {
+                    'type': 'file',
+                    'path': path}
+                self.launcher.exporters[exporter] = {
+                    'unit': '2013.com.canonical.plainbox::{}'.format(exporter)}
+                self.launcher.reports['{}_file'.format(exporter)] = {
+                    'transport': '{}_file'.format(exporter),
+                    'exporter': '{}'.format(exporter),
+                    'forced': 'yes'
+                }
+            self.launcher.exporters['text'] = {
+                'unit': '2013.com.canonical.plainbox::text'}
+            self.launcher.transports['stdout'] = {
+                'type': 'stream', 'stream': 'stdout'}
+            self.launcher.reports['text_to_screen'] = {
+                'transport': 'stdout', 'exporter': 'text', 'forced': 'yes'}
+            self.launcher.transports['c3'] = {
+                'type': 'certification'}
+            self.launcher.reports['upload to certification'] = {
+                'transport': 'c3', 'exporter': 'hexr'}
 
     def _prepare_transports(self):
         available_transports = get_all_transports()

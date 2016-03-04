@@ -1,7 +1,7 @@
 id: autotesting
 _name: Automated Tests
 unit: test plan
-description:
+_description:
     This test plan is used for automated testing of the test cases themselves.
     The resources jobs are needed for a valid submission, so they are included
     explicitly, even if they are usually run implicitly by jobs requiring them.

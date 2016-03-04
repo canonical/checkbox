@@ -1,5 +1,5 @@
 id: hwsubmit
-_name: All HW Submit Tests
+_name: All HW Information Submit Tests
 unit: test plan
 include:
     cdimage

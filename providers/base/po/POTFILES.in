@@ -39,14 +39,18 @@
 [type: gettext/rfc822deb] jobs/smoke.txt.in
 [type: gettext/rfc822deb] jobs/stress.txt.in
 [type: gettext/rfc822deb] jobs/suspend.txt.in
+[type: gettext/rfc822deb] jobs/thunderbolt.pxu
 [type: gettext/rfc822deb] jobs/touchpad.txt.in
 [type: gettext/rfc822deb] jobs/touchscreen.txt.in
 [type: gettext/rfc822deb] jobs/usb.txt.in
 [type: gettext/rfc822deb] jobs/virtualization.txt.in
 [type: gettext/rfc822deb] jobs/wireless.txt.in
+[type: gettext/rfc822deb] units/autotesting.pxu
+[type: gettext/rfc822deb] units/default.pxu
+[type: gettext/rfc822deb] units/dock.pxu
+[type: gettext/rfc822deb] units/hwsubmit.pxu
+[type: gettext/rfc822deb] units/smoke.pxu
 [type: gettext/python] bin/accelerometer_test
-bin/alsa_info
-bin/alsa_record_playback
 [type: gettext/python] bin/ansi_parser
 [type: gettext/python] bin/audio_driver_info
 [type: gettext/python] bin/audio_settings
@@ -56,7 +60,6 @@ bin/bluetooth_scan
 [type: gettext/python] bin/bluetooth_test
 [type: gettext/python] bin/brightness_test
 [type: gettext/python] bin/camera_test
-bin/check_is_laptop
 [type: gettext/python] bin/cking_suite
 [type: gettext/python] bin/color_depth_info
 bin/connect_wireless

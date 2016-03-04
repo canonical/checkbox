@@ -1,7 +1,7 @@
 id: smoke
 _name: All Smoke Tests
 unit: test plan
-description:
+_description:
     This is an example test plan to start from.
     To use, copy this file and add the jobs you want to run to the copy. Delete
     these comments. DO NOT delete the first 9 jobs in tis file.

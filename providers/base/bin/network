@@ -56,7 +56,8 @@ class IPerfPerformanceTest(object):
             cpu_load_fail_threshold,
             iperf3,
             protocol="tcp",
-            data_size="1"):
+            data_size="1",
+            run_time=None):
 
         self.iface = Interface(interface)
         self.target = target
@@ -65,6 +66,7 @@ class IPerfPerformanceTest(object):
         self.cpu_load_fail_threshold = cpu_load_fail_threshold
         self.iperf3 = iperf3
         self.data_size = data_size
+        self.run_time = run_time
 
     def run(self):
         # if max_speed is 0, assume it's wifi and move on
@@ -79,23 +81,28 @@ class IPerfPerformanceTest(object):
             logging.error("Check your device configuration and try again")
             return 1
 
-        # Because we can vary the data size, we need to vary the timeout as
-        # well.  It takes an estimated 15 minutes to send 1GB over 10Mb/s.
-        # 802.11b is 11 Mb/s.  So we'll assume 1.2x15 minutes or 18 minutes
-        # or 1080 seconds per Gigabit. This will allow for a long period of
-        # time without timeout to catch devices that slow down, and also not
-        # prematurely end iperf on low-bandwidth devices.
-
-        self.timeout = 1080*int(self.data_size)
-
+        # Set the correct binary to run
         if (self.iperf3):
-            cmd = "timeout {} iperf3 -c {} -n {}G -i 1 -f m -V".format(
-                self.timeout, self.target, self.data_size)
+            self.executable = "iperf3 -V"
         else:
-            cmd = "timeout {} iperf -c {} -n {}G -i 1 -f m".format(
-                self.timeout, self.target, self.data_size)
+            self.executable = "iperf"
 
-        logging.debug(cmd)
+        # If we set run_time, use that instead to build the command.
+        if self.run_time is not None:
+            cmd = "{} -c {} -t {} -i 1 -f m".format(
+                self.executable, self.target, self.run_time)
+        else:
+            # Because we can vary the data size, we need to vary the timeout as
+            # well.  It takes an estimated 15 minutes to send 1GB over 10Mb/s.
+            # 802.11b is 11 Mb/s.  So we'll assume 1.2x15 minutes or 18 minutes
+            # or 1080 seconds per Gigabit. This will allow for a long period of
+            # time without timeout to catch devices that slow down, and also
+            # not prematurely end iperf on low-bandwidth devices.
+            self.timeout = 1080*int(self.data_size)
+            cmd = "timeout {} {} -c {} -n {}G -i 1 -f -m".format(
+                self.timeout, self.executable, self.target, self.data_size)
+
+        logging.debug("Executing command {}".format(cmd))
         logging.info("Starting iperf against {}, this could take a while...".
                      format(self.target))
         try:
@@ -375,6 +382,8 @@ def run_test(args, test_target):
                                                args.iperf3)
         if args.datasize:
             iperf_benchmark.data_size = args.datasize
+        if args.runtime:
+            iperf_benchmark.run_time = args.runtime
         run_num = 0
         while not error_number and run_num < args.num_runs:
             error_number = iperf_benchmark.run()
@@ -405,12 +414,16 @@ def interface_test(args):
     if not test_targets or "example.com" in test_targets:
         # Default values found in config file
         logging.error("Target server has not been supplied.")
-        logging.info("Configuration settings can be configured 3 different ways:")
-        logging.info("1- If calling the script directly, pass the --target option")
+        logging.info("Configuration settings can be configured 3 different "
+                     "ways:")
+        logging.info("1- If calling the script directly, pass the --target "
+                     "option")
         logging.info("2- Define the TEST_TARGET_IPERF environment variable")
-        logging.info("3- (If running the test via checkbox/plainbox, define the ")
+        logging.info("3- (If running the test via checkbox/plainbox, define "
+                     "the ")
         logging.info("target in /etc/xdg/canonical-certification.conf)")
-        logging.info("Please run this script with -h to see more details on how to configure")
+        logging.info("Please run this script with -h to see more details on "
+                     "how to configure")
         sys.exit(1)
 
     # Testing begins here!
@@ -549,6 +562,8 @@ TEST_TARGET_IPERF = iperf-server.example.com
         'info', help=("Gather network info"))
 
     # Sub test options
+    action = test_parser.add_mutually_exclusive_group()
+
     test_parser.add_argument(
         '-i', '--interface', type=str, required=True)
     test_parser.add_argument(
@@ -558,11 +573,19 @@ TEST_TARGET_IPERF = iperf-server.example.com
     test_parser.add_argument(
         '-3', '--iperf3', default=False, action="store_true")
     test_parser.add_argument('--target', type=str)
-    test_parser.add_argument(
+    action.add_argument(
         '--datasize', type=str,
         default="1",
-        help=("Amount of data to send.  For iperf tests this will direct "
-              "iperf to send DATASIZE GB of data to the target."))
+        help=("CANNOT BE USED WITH --runtime. Amount of data to send.  For "
+              "iperf tests this will direct iperf to send DATASIZE GB of "
+              "data to the target."))
+    action.add_argument(
+        '--runtime', type=int,
+        default=60,
+        help=("CANNOT BE USED WITH --datasize. Send data for *runtime* "
+              "seconds.  For iperf tests, this will send data for the amount "
+              "of time indicated, rather than until a certain file size is "
+              "reached."))
     test_parser.add_argument(
         '--config', type=str,
         default="/etc/checkbox.d/network.cfg",
@@ -617,8 +640,11 @@ TEST_TARGET_IPERF = iperf-server.example.com
     info_parser.set_defaults(func=interface_info)
 
     args = parser.parse_args()
-    if args.cpu_load_fail_threshold != 100 and not args.iperf3:
-        parser.error('--cpu-load-fail-threshold can only be set with --iperf3.')
+    if (args.func.__name__ is interface_test and
+       not args.cpu_load_fail_threshold != 100 and
+       not args.iperf3):
+        parser.error('--cpu-load-fail-threshold can only be set with '
+                     '--iperf3.')
 
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)

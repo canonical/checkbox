@@ -623,34 +623,41 @@ class CheckboxLauncher(CheckboxCommand):
                 'exporter': 'text'}}
 
     def _prepare_transports(self):
-        available_transports = get_all_transports()
+        self._available_transports = get_all_transports()
         self.transports = dict()
+
+    def _create_transport(self, transport):
+        if transport in self.transports:
+            return
         # depending on the type of transport we need to pick variable that
         # serves as the 'where' param for the transport. In case of
         # certification site the URL is supplied here
-        for transport in self.launcher.transports:
-            tr_type = self.launcher.transports[transport]['type']
-            if tr_type not in available_transports:
-                _logger.error(_("Unrecognized type '%s' of transport '%s'"),
-                              tr_type, transport)
-                raise SystemExit(1)
-            cls = available_transports[tr_type]
-            if tr_type == 'file':
-                self.transports[transport] = cls(
-                    self.launcher.transports[transport]['path'])
-            elif tr_type == 'stream':
-                self.transports[transport] = cls(
-                    self.launcher.transports[transport]['stream'])
-            elif tr_type == 'certification':
-                if self.launcher.transports[transport]['staging']:
-                    url = ('https://certification.staging.canonical.com/'
-                           'submissions/submit/')
-                else:
-                    url = ('https://certification.canonical.com/'
-                           'submissions/submit/')
-                options = "secure_id={}".format(
-                    self.launcher.transports[transport]['secure_id'])
-                self.transports[transport] = cls(url, options)
+        tr_type = self.launcher.transports[transport]['type']
+        if tr_type not in self._available_transports:
+            _logger.error(_("Unrecognized type '%s' of transport '%s'"),
+                          tr_type, transport)
+            raise SystemExit(1)
+        cls = self._available_transports[tr_type]
+        if tr_type == 'file':
+            self.transports[transport] = cls(
+                self.launcher.transports[transport]['path'])
+        elif tr_type == 'stream':
+            self.transports[transport] = cls(
+                self.launcher.transports[transport]['stream'])
+        elif tr_type == 'certification':
+            if self.launcher.transports[transport].get('staging', False):
+                url = ('https://certification.staging.canonical.com/'
+                       'submissions/submit/')
+            else:
+                url = ('https://certification.canonical.com/'
+                       'submissions/submit/')
+            if 'secure_id' in self.launcher.transports[transport]:
+                secure_id = self.launcher.transports[transport]['secure_id']
+            else:
+                secure_id = input(self.C.BLUE(_('Enter secure-id:')))
+
+            options = "secure_id={}".format(secure_id)
+            self.transports[transport] = cls(url, options)
 
     def _export_results(self):
         for name, params in self.launcher.reports.items():
@@ -665,6 +672,7 @@ class CheckboxLauncher(CheckboxCommand):
             if cmd == 'n':
                 continue
             exporter_id = self.launcher.exporters[params['exporter']]['unit']
+            self._create_transport(params['transport'])
             transport = self.transports[params['transport']]
             self.ctx.sa.export_to_transport(exporter_id, transport)
 

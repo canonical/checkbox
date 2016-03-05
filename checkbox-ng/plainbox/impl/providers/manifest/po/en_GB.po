@@ -1,0 +1,110 @@
+# English (United Kingdom) translation for checkbox
+# Copyright (c) 2016 Rosetta Contributors and Canonical Ltd 2016
+# This file is distributed under the same license as the checkbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: checkbox\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2015-03-30 15:56+0200\n"
+"PO-Revision-Date: 2016-03-05 01:27+0000\n"
+"Last-Translator: Andi Chandler <Unknown>\n"
+"Language-Team: English (United Kingdom) <en_GB@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2016-03-05 05:17+0000\n"
+"X-Generator: Launchpad (build 17936)\n"
+
+#. summary
+#: ../units/manifest.pxu:3
+msgid "Collect the hardware manifest (interactively)"
+msgstr "Collect the hardware manifest (interactively)"
+
+#. description
+#: ../units/manifest.pxu:4
+msgid ""
+"This job interactively asks the user about each manifest entry and stores "
+"the result. This job can be omitted but the manifest may be incomplete "
+"unless it was cached on an earlier run or provided externally."
+msgstr ""
+"This job interactively asks the user about each manifest entry and stores "
+"the result. This job can be omitted but the manifest may be incomplete "
+"unless it was cached on an earlier run or provided externally."
+
+#. summary
+#: ../units/manifest.pxu:15
+msgid "Hardware Manifest"
+msgstr "Hardware Manifest"
+
+#. description
+#: ../units/manifest.pxu:16
+msgid "This job loads the hardware manifest and exposes it as a resource."
+msgstr "This job loads the hardware manifest and exposes it as a resource."
+
+#: ../bin/plainbox-manifest-collect:45 ../bin/plainbox-manifest-collect:91
+msgid "Does this machine have this piece of hardware?"
+msgstr "Does this machine have this piece of hardware?"
+
+#: ../bin/plainbox-manifest-collect:47
+msgid "(yes/y, no/n) "
+msgstr "(yes/y, no/n) "
+
+#: ../bin/plainbox-manifest-collect:55
+msgid "Please enter either y or n"
+msgstr "Please enter either y or n"
+
+#: ../bin/plainbox-manifest-collect:58 ../bin/plainbox-manifest-collect:107
+msgid "Please enter the requested data"
+msgstr "Please enter the requested data"
+
+#: ../bin/plainbox-manifest-collect:60
+msgid "(natural number) "
+msgstr "(natural number) "
+
+#: ../bin/plainbox-manifest-collect:64
+msgid "Please input a number"
+msgstr "Please input a number"
+
+#: ../bin/plainbox-manifest-collect:67
+msgid "Please input a natural number"
+msgstr "Please input a natural number"
+
+#: ../bin/plainbox-manifest-collect:71 ../bin/plainbox-manifest-collect:120
+msgid "Unsupported value-type:"
+msgstr "Unsupported value-type:"
+
+#: ../bin/plainbox-manifest-collect:89 ../bin/plainbox-manifest-collect:105
+msgid "Plainbox Hardware Manifest"
+msgstr "Plainbox Hardware Manifest"
+
+#: ../bin/plainbox-manifest-collect:138
+msgid "Loading existing manifest from {}"
+msgstr "Loading existing manifest from {}"
+
+#: ../bin/plainbox-manifest-collect:150
+msgid "Saving manifest to {}"
+msgstr "Saving manifest to {}"
+
+#: ../bin/plainbox-manifest-collect:155
+msgid "No changes to the manifest are required"
+msgstr "No changes to the manifest are required"
+
+#. This is manifest_def.description,
+#. we need it here to extract is as a part of this provider
+#: ../manage.py:45
+msgid "Hardware Manifest Provider"
+msgstr "Hardware Manifest Provider"
+
+#: ../manage.py:55 ../manage.py:66
+msgid "The Manifest provider is special"
+msgstr "The Manifest provider is special"
+
+#: ../manage.py:56
+msgid "You don't need to develop it explicitly"
+msgstr "You don't need to develop it explicitly"
+
+#: ../manage.py:67
+msgid "You don't need to install it explicitly"
+msgstr "You don't need to install it explicitly"

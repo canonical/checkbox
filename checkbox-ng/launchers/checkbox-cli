@@ -649,6 +649,59 @@ class CheckboxLauncher(CheckboxCommand):
             self.launcher.reports['upload to certification'] = {
                 'transport': 'c3', 'exporter': 'hexr'}
 
+    def _prepare_stock_report(self, report):
+        # this is purposefully not using pythonic dict-keying for better
+        # readability
+        if not self.launcher.transports:
+            self.launcher.transports = dict()
+        if not self.launcher.exporters:
+            self.launcher.exporters = dict()
+        if not self.launcher.reports:
+            self.launcher.reports = dict()
+        if report == 'text':
+            self.launcher.exporters['text'] = {
+                'unit': '2013.com.canonical.plainbox::text'}
+            self.launcher.transports['stdout'] = {
+                'type': 'stream', 'stream': 'stdout'}
+            self.launcher.reports['text_to_screen'] = {
+                'transport': 'stdout', 'exporter': 'text', 'forced': 'yes'}
+        elif report == 'certification':
+            self.launcher.exporters['hexr'] = {
+                'unit': '2013.com.canonical.plainbox::hexr'}
+            self.launcher.transports['c3'] = {
+                'type': 'certification'}
+            self.launcher.reports['upload to certification'] = {
+                'transport': 'c3', 'exporter': 'hexr'}
+        elif report == 'certification-staging':
+            self.launcher.exporters['hexr'] = {
+                'unit': '2013.com.canonical.plainbox::hexr'}
+            self.launcher.transports['c3-staging'] = {
+                'type': 'certification', 'staging': 'yes'}
+            self.launcher.reports['upload to certification-staging'] = {
+                'transport': 'c3-staging', 'exporter': 'hexr'}
+        elif report == 'submission_files':
+            timestamp = datetime.datetime.utcnow().isoformat()
+            base_dir = os.path.join(
+                os.getenv(
+                    'XDG_DATA_HOME', os.path.expanduser("~/.local/share/")),
+                "checkbox-ng")
+            if not os.path.exists(base_dir):
+                os.makedirs(base_dir)
+            for exporter, file_ext in [('hexr', '.xml'), ('html', '.html'),
+                                       ('xlsx', '.xlsx'), ('json', '.json')]:
+                path = os.path.join(base_dir, ''.join(
+                    ['submission_', timestamp, file_ext]))
+                self.launcher.transports['{}_file'.format(exporter)] = {
+                    'type': 'file',
+                    'path': path}
+                self.launcher.exporters[exporter] = {
+                    'unit': '2013.com.canonical.plainbox::{}'.format(exporter)}
+                self.launcher.reports['{}_file'.format(exporter)] = {
+                    'transport': '{}_file'.format(exporter),
+                    'exporter': '{}'.format(exporter),
+                    'forced': 'yes'
+                }
+
     def _prepare_transports(self):
         self._available_transports = get_all_transports()
         self.transports = dict()

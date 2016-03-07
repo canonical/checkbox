@@ -193,7 +193,6 @@ class CheckboxLauncher(CheckboxCommand):
         self.C = Colorizer()
         self.ctx = ctx
         self._configure_restart(ctx)
-        self._maybe_use_default_reports()
         self._prepare_transports()
         ctx.sa.select_providers(*self.launcher.providers)
         self._maybe_resume_session() or self._start_new_session()
@@ -608,14 +607,37 @@ class CheckboxLauncher(CheckboxCommand):
                 raise ReRunJob
             result = result_builder.get_result()
 
-    def _maybe_use_default_reports(self):
-        if (not self.launcher.transports and
-                not self.launcher.exporters and
-                not self.launcher.reports):
-
+    def _prepare_stock_report(self, report):
+        # this is purposefully not using pythonic dict-keying for better
+        # readability
+        if not self.launcher.transports:
             self.launcher.transports = dict()
+        if not self.launcher.exporters:
             self.launcher.exporters = dict()
+        if not self.launcher.reports:
             self.launcher.reports = dict()
+        if report == 'text':
+            self.launcher.exporters['text'] = {
+                'unit': '2013.com.canonical.plainbox::text'}
+            self.launcher.transports['stdout'] = {
+                'type': 'stream', 'stream': 'stdout'}
+            self.launcher.reports['text_to_screen'] = {
+                'transport': 'stdout', 'exporter': 'text', 'forced': 'yes'}
+        elif report == 'certification':
+            self.launcher.exporters['hexr'] = {
+                'unit': '2013.com.canonical.plainbox::hexr'}
+            self.launcher.transports['c3'] = {
+                'type': 'certification'}
+            self.launcher.reports['upload to certification'] = {
+                'transport': 'c3', 'exporter': 'hexr'}
+        elif report == 'certification-staging':
+            self.launcher.exporters['hexr'] = {
+                'unit': '2013.com.canonical.plainbox::hexr'}
+            self.launcher.transports['c3-staging'] = {
+                'type': 'certification', 'staging': 'yes'}
+            self.launcher.reports['upload to certification-staging'] = {
+                'transport': 'c3-staging', 'exporter': 'hexr'}
+        elif report == 'submission_files':
             timestamp = datetime.datetime.utcnow().isoformat()
             base_dir = os.path.join(
                 os.getenv(
@@ -623,8 +645,6 @@ class CheckboxLauncher(CheckboxCommand):
                 "checkbox-ng")
             if not os.path.exists(base_dir):
                 os.makedirs(base_dir)
-            # let's create report objects (and their respective transports and
-            # exporters) that will be saved to files
             for exporter, file_ext in [('hexr', '.xml'), ('html', '.html'),
                                        ('xlsx', '.xlsx'), ('json', '.json')]:
                 path = os.path.join(base_dir, ''.join(
@@ -639,16 +659,6 @@ class CheckboxLauncher(CheckboxCommand):
                     'exporter': '{}'.format(exporter),
                     'forced': 'yes'
                 }
-            self.launcher.exporters['text'] = {
-                'unit': '2013.com.canonical.plainbox::text'}
-            self.launcher.transports['stdout'] = {
-                'type': 'stream', 'stream': 'stdout'}
-            self.launcher.reports['text_to_screen'] = {
-                'transport': 'stdout', 'exporter': 'text', 'forced': 'yes'}
-            self.launcher.transports['c3'] = {
-                'type': 'certification'}
-            self.launcher.reports['upload to certification'] = {
-                'transport': 'c3', 'exporter': 'hexr'}
 
     def _prepare_transports(self):
         self._available_transports = get_all_transports()
@@ -688,6 +698,8 @@ class CheckboxLauncher(CheckboxCommand):
             self.transports[transport] = cls(url, options)
 
     def _export_results(self):
+        for report in self.launcher.stock_reports:
+            self._prepare_stock_report(report)
         for name, params in self.launcher.reports.items():
             if self.is_interactive and not params.get('forced', False):
                 message = _("Do you want to submit '{}' report?").format(name)

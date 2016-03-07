@@ -195,6 +195,15 @@ class LauncherDefinition1(LauncherDefinition):
             get_known_sa_api_versions())],
         help_text=_('Version of API the launcher uses'))
 
+    stock_reports = config.Variable(
+        section='launcher',
+        kind=list,
+        validator_list=[config.SubsetValidator({
+            'text', 'certification', 'certification-staging',
+            'submission_files'})],
+        default=['text', 'certification', 'submission_files'],
+        help_text=_('List of stock reports to use'))
+
     providers = config.Variable(
         section='providers',
         name='use',

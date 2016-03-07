@@ -362,6 +362,7 @@ class CheckboxLauncher(CheckboxCommand):
         job_list = [self.ctx.sa.get_job(job_id) for job_id in
                     self.ctx.sa.get_static_todo_list()]
         tree = SelectableJobTreeNode.create_simple_tree(self.ctx.sa, job_list)
+        tree.expanded = True
         title = _('Choose tests to run on your system:')
         self.ctx.display.run(ScrollableTreeNode(tree, title))
         # NOTE: tree.selection is correct but ordered badly. To retain

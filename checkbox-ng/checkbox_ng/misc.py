@@ -279,7 +279,7 @@ class SelectableJobTreeNode(JobTreeNode):
         super().__init__(job)
         self.selected = True
         self.job_selection = {}
-        self.expanded = True
+        self.expanded = False
         self.current_index = 0
         self._resource_jobs = []
 

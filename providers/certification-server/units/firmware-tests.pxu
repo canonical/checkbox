@@ -1,0 +1,38 @@
+id: firmware-tests
+_name: Firmware Tests
+unit: test plan
+_description:
+    This whitelist is intended to be used for firmware testing on certain
+    hardware.  It will run several checks of firmware and DMI data.  This
+    whitelist is meant to provide the hardware vendor with information on
+    their system firmware.
+mandatory_include:
+    # Meta-job to include required resources, please don't remove
+    miscellanea/submission-resources
+    cpuinfo_attachment
+    dmesg_attachment
+    dmi_attachment
+    dmidecode_attachment
+    efi_attachment
+    lspci_attachment
+    lshw_attachment
+    lsusb_attachment
+    meminfo_attachment
+    modprobe_attachment
+    modules_attachment
+    sysctl_attachment
+    sysfs_attachment
+    udev_attachment
+    lsmod_attachment
+    miscellanea/get_make_and_model
+    miscellanea/get_maas_version
+    miscellanea/boot_mode
+    miscellanea/cpus_are_not_samples
+    miscellanea/dmitest_server
+    info/disk_partitions
+include:
+    miscellanea/ipmi_test
+    miscellanea/bmc_info
+    miscellanea/fwts_test
+    miscellanea/fwts_results.log
+    memory/info

@@ -1,19 +1,18 @@
 [encoding: UTF-8]
 [type: gettext/rfc822deb] jobs/resource.pxu
-bin/block_device_resource
-bin/cdimage_resource
-bin/cpuinfo_resource
-bin/display_resource
-bin/dmi_resource
-bin/dpkg_resource
-bin/efi_resource
-bin/gconf_resource
-bin/hal_resource
-bin/lsb_resource
-bin/meminfo_resource
-bin/module_resource
-bin/udev_resource
-bin/uname_resource
-bin/xinput_resource
+[type: gettext/python] bin/block_device_resource
+[type: gettext/python] bin/cdimage_resource
+[type: gettext/python] bin/cpuinfo_resource
+[type: gettext/python] bin/display_resource
+[type: gettext/python] bin/dmi_resource
+[type: gettext/python] bin/dpkg_resource
+[type: gettext/python] bin/efi_resource
+[type: gettext/python] bin/gconf_resource
+[type: gettext/python] bin/lsb_resource
+[type: gettext/python] bin/meminfo_resource
+[type: gettext/python] bin/module_resource
+[type: gettext/python] bin/udev_resource
+[type: gettext/python] bin/uname_resource
+[type: gettext/python] bin/xinput_resource
 manage.py
 src/80211_resource.c

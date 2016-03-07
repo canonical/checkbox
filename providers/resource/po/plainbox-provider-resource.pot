@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-03 14:45+0100\n"
+"POT-Creation-Date: 2016-03-07 15:06+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,168 +17,233 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#. summary
+#: ../jobs/resource.pxu:68
+msgid "Collect information about the CPU"
+msgstr ""
+
 #. description
-#: ../jobs/resource.txt:5
+#: ../jobs/resource.pxu:69
 msgid "Gets CPU resource info from /proc/cpuinfo"
 msgstr ""
 
-#. description
-#: ../jobs/resource.txt:12
-msgid "Gets installation info from casper.log and media-info"
+#. summary
+#: ../jobs/resource.pxu:76
+msgid "Collect information about installation media (casper)"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:19
+#: ../jobs/resource.pxu:77
+msgid "Gets installation info from casper.log and media-info"
+msgstr ""
+
+#. summary
+#: ../jobs/resource.pxu:84
+msgid "Collect information about dpkg version"
+msgstr ""
+
+#. description
+#: ../jobs/resource.pxu:85
 msgid "Gets info on the version of dpkg installed"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:26
+#: ../jobs/resource.pxu:92
 msgid "Generates resource info from gconf settings"
 msgstr ""
 
+#. summary
+#: ../jobs/resource.pxu:93
+msgid "Collect information about software configuration (gconf)"
+msgstr ""
+
 #. description
-#: ../jobs/resource.txt:33
+#: ../jobs/resource.pxu:100
 msgid "Generates release info based on /etc/lsb-release"
 msgstr ""
 
+#. summary
+#: ../jobs/resource.pxu:101
+msgid "Collect information about installed system (lsb-release)"
+msgstr ""
+
 #. description
-#: ../jobs/resource.txt:39
+#: ../jobs/resource.pxu:107
 msgid "Generates resource info based on /proc/meminfo"
 msgstr ""
 
+#. summary
+#: ../jobs/resource.pxu:108
+msgid "Collect information about system memory (/proc/meminfo)"
+msgstr ""
+
 #. description
-#: ../jobs/resource.txt:45
+#: ../jobs/resource.pxu:114
 msgid "Generates resources info on running kernel modules"
 msgstr ""
 
-#. description
-#: ../jobs/resource.txt:51
-msgid "Generates a list of packages"
+#. summary
+#: ../jobs/resource.pxu:115
+msgid "Collect information about kernel modules"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:56
+#: ../jobs/resource.pxu:123
+msgid "Generates a list of packages"
+msgstr ""
+
+#. summary
+#: ../jobs/resource.pxu:124
+msgid "Collect information about installed software packages"
+msgstr ""
+
+#. summary
+#: ../jobs/resource.pxu:129
+msgid "Enumerate available system executables"
+msgstr ""
+
+#. description
+#: ../jobs/resource.pxu:130
 msgid "Generates a resource for all available executables"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:65
+#: ../jobs/resource.pxu:140
 msgid "Creates resource info from udev"
 msgstr ""
 
 #. summary
-#: ../jobs/resource.txt:73
+#: ../jobs/resource.pxu:141
+msgid "Collect information about hardware devices (udev)"
+msgstr ""
+
+#. summary
+#: ../jobs/resource.pxu:149
 msgid "Collect unfiltered udev data"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:74
+#: ../jobs/resource.pxu:150
 msgid ""
 "This job collects the udev database in mostly raw format. The only "
 "transformations applied are basic changes to make the format compatible with "
 "RFC822 syntax required by PlainBox."
 msgstr ""
 
-#. description
-#: ../jobs/resource.txt:96
-msgid "Creates resource info from uname output"
+#. summary
+#: ../jobs/resource.pxu:161
+msgid "Collect information about hardware devices (DMI)"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:102
+#: ../jobs/resource.pxu:173
+msgid "Creates resource info from uname output"
+msgstr ""
+
+#. summary
+#: ../jobs/resource.pxu:174
+msgid "Collect information about the running kernel"
+msgstr ""
+
+#. description
+#: ../jobs/resource.pxu:180
 msgid "Create resource info for supported sleep states"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:108
-msgid "Create resource info for supported optical actions"
+#: ../jobs/resource.pxu:189
+msgid "Create resource info for supported optical actions ({name})"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:122
+#: ../jobs/resource.pxu:196
 msgid "Create resource info for removable block devices"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:129
+#: ../jobs/resource.pxu:203
 msgid "Creates display resource info from xrandr output"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:134
+#: ../jobs/resource.pxu:208
 msgid "Creates resource info for supported USB versions"
 msgstr ""
 
+#. summary
+#: ../jobs/resource.pxu:209
+msgid "Collect information about supported types of USB"
+msgstr ""
+
 #. description
-#: ../jobs/resource.txt:146
+#: ../jobs/resource.pxu:221
 msgid "Creates resource info from xinput output."
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:151
+#: ../jobs/resource.pxu:226
 msgid "Create resource info for environment variables"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:161
+#: ../jobs/resource.pxu:236
 msgid "Create resource for mobile broadband devices"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:168
+#: ../jobs/resource.pxu:243
 msgid "Resource for hardware virtualization"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:181
+#: ../jobs/resource.pxu:256
 msgid "Creates resource info for wifi supported protocols/interfaces"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:193
+#: ../jobs/resource.pxu:268
 msgid "Creates resource info for RTC"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:204
+#: ../jobs/resource.pxu:279
 msgid "Provide links to requirements documents."
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:204
+#: ../jobs/resource.pxu:279
 msgid "The requirement document should contain sets of name/link pairs."
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:204
+#: ../jobs/resource.pxu:279
 msgid ""
 "Each requirement should have two keys with their respective values: name: "
 "(to be used as the anchor text) link: (the actual URL)"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:204
+#: ../jobs/resource.pxu:279
 msgid "Each set should be separated from the previous one by a new line."
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:204
+#: ../jobs/resource.pxu:279
 msgid "Example:"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:204
+#: ../jobs/resource.pxu:279
 msgid "name: Requirement 1 link: http://example.com/requirement1"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:204
+#: ../jobs/resource.pxu:279
 msgid "name: requirement 2 link: http://example.com/requirement2"
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:204
+#: ../jobs/resource.pxu:279
 msgid ""
 "Providers wishing to use this feature need to: 1- Write a job that places a "
 "suitably-formatted file in $PLAINBOX_SESSION_SHARE 2- Update their "
@@ -187,8 +252,28 @@ msgid ""
 msgstr ""
 
 #. description
-#: ../jobs/resource.txt:232
+#: ../jobs/resource.pxu:307
 msgid "Generate an entry for each graphics card present in the system."
+msgstr ""
+
+#. description
+#: ../jobs/resource.pxu:313
+msgid "Resources to gather system information"
+msgstr ""
+
+#. summary
+#: ../jobs/resource.pxu:314
+msgid "Resources"
+msgstr ""
+
+#. description
+#: ../jobs/resource.pxu:323
+msgid "Generate an entry for each FWTS test available"
+msgstr ""
+
+#. description
+#: ../jobs/resource.pxu:331
+msgid "Generate an entry for each MIR integration tests"
 msgstr ""
 
 #: ../manage.py:48

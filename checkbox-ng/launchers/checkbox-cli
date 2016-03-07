@@ -338,17 +338,20 @@ class CheckboxLauncher(CheckboxCommand):
         for filter in self.launcher.test_plan_filters:
             filtered_tp_ids.update(fnmatch.filter(test_plan_ids, filter))
         filtered_tp_ids = list(filtered_tp_ids)
-        test_plan_names = sorted(
-            [self.ctx.sa.get_test_plan(tp_id).name for tp_id in
-                filtered_tp_ids])
-        try:
-            preselected_indecies = [test_plan_names.index(
-                self.ctx.sa.get_test_plan(
-                    self.launcher.test_plan_default_selection).name)]
-        except KeyError:
-            _logger.warning(_('%s test plan not found'),
-                            self.launcher.test_plan_default_selection)
-            preselected_indecies = []
+        filtered_tp_ids.sort(
+            key=lambda tp_id: self.ctx.sa.get_test_plan(tp_id).name)
+        test_plan_names = [self.ctx.sa.get_test_plan(tp_id).name for tp_id in
+            filtered_tp_ids]
+        preselected_indecies = []
+        if self.launcher.test_plan_default_selection:
+            try:
+                preselected_indecies = [test_plan_names.index(
+                    self.ctx.sa.get_test_plan(
+                        self.launcher.test_plan_default_selection).name)]
+            except KeyError:
+                _logger.warning(_('%s test plan not found'),
+                                self.launcher.test_plan_default_selection)
+                preselected_indecies = []
         try:
             selected_index = self.ctx.display.run(
                 ShowMenu(_("Select test plan"),

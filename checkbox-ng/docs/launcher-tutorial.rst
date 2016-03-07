@@ -51,6 +51,24 @@ API version determines the behaviour of the launcher. Each checkbox feature  is
 added at a specific API version. Default behaviours don't change silently;
 explicit launcher change is required. Default value: ``0.99``
 
+``stock_reports``
+
+Stock reports are shortcuts in creating common reports. Instead of having to
+specify exporter, transport and a report section in a launcher, you can use any
+number of the stock ones. In launchers version 1 there are 4 stock reports you
+may use:
+
+    * ``text`` - print results as text on standard output
+    * ``submission_files`` - write ``html``, ``xlsx``, ``json`` and ``xml``
+      files to ``$XDG_DATA_HOME`` directory (or to ``~/.local/share/`` if
+      ``$XDG_DATA_HOME`` is not defined.
+    * ``certification`` - send results to certification site
+    * ``certification-staging`` - send results to staging version of
+      certification site
+
+This field is a list; use commas or spaces to seperate stock reports. The
+default value: ``text, certification, submission_files``.
+
 Launcher section example:
 
 ::
@@ -58,6 +76,7 @@ Launcher section example:
     [launcher]
     app_id = 2016.com.foobar:system-testing
     launcher_version = 1
+    stock_reports = text
 
 Providers section
 =================
@@ -285,6 +304,7 @@ report to standard output.
     [launcher]
     launcher_version = 1
     app_id = 2016.com.canonical.certification:smoke-test
+    stock_reports = text
 
     [test plan]
     unit = 2013.com.canonical.certification::smoke

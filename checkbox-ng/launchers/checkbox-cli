@@ -62,6 +62,7 @@ from plainbox.impl.session.jobs import InhibitionCause
 from plainbox.impl.session.restart import get_strategy_by_name
 from plainbox.impl.session.restart import detect_restart_strategy
 from plainbox.impl.transport import get_all_transports
+from plainbox.impl.transport import TransportError
 
 from checkbox_ng.misc import SelectableJobTreeNode
 from checkbox_ng.ui import ScrollableTreeNode
@@ -699,9 +700,30 @@ class CheckboxLauncher(CheckboxCommand):
             if cmd == 'n':
                 continue
             exporter_id = self.launcher.exporters[params['exporter']]['unit']
-            self._create_transport(params['transport'])
-            transport = self.transports[params['transport']]
-            self.ctx.sa.export_to_transport(exporter_id, transport)
+            done_sending = False
+            while not done_sending:
+                self._create_transport(params['transport'])
+                transport = self.transports[params['transport']]
+                try:
+                    self.ctx.sa.export_to_transport(exporter_id, transport)
+                except TransportError as exc:
+                    _logger.warning(
+                        _("Problem occured when submitting %s report: %s"),
+                        name, exc)
+                    if self.is_interactive:
+                        message = _("Do you want to retry?")
+                        cmd = self._pick_action_cmd([
+                            Action('y', _("yes"), 'y'),
+                            Action('n', _("no"), 'n')
+                        ], message)
+                        if cmd == 'y':
+                            # let's remove current transport, so in next
+                            # iteration it will be "rebuilt", so if some parts
+                            # were user-provided, checkbox will ask for them
+                            # again
+                            self.transports.pop(params['transport'])
+                            continue
+                done_sending = True
 
     def register_arguments(self, parser):
         parser.add_argument(

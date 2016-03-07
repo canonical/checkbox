@@ -190,21 +190,24 @@ class CheckboxLauncher(CheckboxCommand):
             from checkbox_ng.tools import CheckboxLauncherTool
             raise SystemExit(CheckboxLauncherTool().main(sys.argv[1:]))
 
-        self.C = Colorizer()
-        self.ctx = ctx
-        self._configure_restart(ctx)
-        self._prepare_transports()
-        ctx.sa.select_providers(*self.launcher.providers)
-        self._maybe_resume_session() or self._start_new_session()
-        self._pick_jobs_to_run()
-        self._run_jobs(self.ctx.sa.get_dynamic_todo_list())
-        if self.is_interactive:
-            while True:
-                if not self._maybe_rerun_jobs():
-                    break
-        self._export_results()
-        ctx.sa.finalize_session()
-        return 0 if ctx.sa.get_summary()['fail'] == 0 else 1
+        try:
+            self.C = Colorizer()
+            self.ctx = ctx
+            self._configure_restart(ctx)
+            self._prepare_transports()
+            ctx.sa.select_providers(*self.launcher.providers)
+            self._maybe_resume_session() or self._start_new_session()
+            self._pick_jobs_to_run()
+            self._run_jobs(self.ctx.sa.get_dynamic_todo_list())
+            if self.is_interactive:
+                while True:
+                    if not self._maybe_rerun_jobs():
+                        break
+            self._export_results()
+            ctx.sa.finalize_session()
+            return 0 if ctx.sa.get_summary()['fail'] == 0 else 1
+        except KeyboardInterrupt:
+            return 1
 
     @property
     def is_interactive(self):

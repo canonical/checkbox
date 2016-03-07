@@ -6,7 +6,7 @@ _description:
     The tests contained here should work in any test lab environment.
     This test plan runs all server certification tests except for the really
     demanding or lengthy ones.
-include:
+mandatory_include:
     # Meta-job to include required resources, please don't remove
     miscellanea/submission-resources
     # Info Attachment

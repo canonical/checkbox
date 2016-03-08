@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2016-01-11 16:06+0800\n"
-"PO-Revision-Date: 2016-03-05 11:40+0000\n"
+"PO-Revision-Date: 2016-03-07 15:07+0000\n"
 "Last-Translator: Andi Chandler <Unknown>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-03-06 05:16+0000\n"
+"X-Launchpad-Export-Date: 2016-03-08 05:21+0000\n"
 "X-Generator: Launchpad (build 17936)\n"
 
 #: .././checkbox_ng/certification.py:135
@@ -109,15 +109,15 @@ msgstr "Suite selection"
 
 #: .././checkbox_ng/commands/newcli.py:262
 msgid "No testplan selected, aborting"
-msgstr ""
+msgstr "No testplan selected, aborting"
 
 #: .././checkbox_ng/commands/newcli.py:291
 msgid "Selecting Job Generators"
-msgstr ""
+msgstr "Selecting Job Generators"
 
 #: .././checkbox_ng/commands/newcli.py:310
 msgid "Selecting Jobs For Execution"
-msgstr ""
+msgstr "Selecting Jobs For Execution"
 
 #: .././checkbox_ng/commands/newcli.py:317
 msgid "Choose tests to run on your system:"
@@ -125,17 +125,19 @@ msgstr ""
 
 #: .././checkbox_ng/commands/newcli.py:329
 msgid "Results"
-msgstr ""
+msgstr "Results"
 
 #: .././checkbox_ng/commands/newcli.py:368
 msgid "View results"
-msgstr ""
+msgstr "View results"
 
 #: .././checkbox_ng/commands/newcli.py:397
 msgid ""
 "\n"
 "Submit results to {0}?"
 msgstr ""
+"\n"
+"Submit results to {0}?"
 
 #: .././checkbox_ng/commands/newcli.py:400
 msgid "Secure ID: "
@@ -143,60 +145,62 @@ msgstr ""
 
 #: .././checkbox_ng/commands/newcli.py:403
 msgid "ERROR: Secure ID must be 15 or 18-character alphanumeric string"
-msgstr ""
+msgstr "ERROR: Secure ID must be 15 or 18-character alphanumeric string"
 
 #: .././checkbox_ng/commands/newcli.py:421
 msgid ""
 "\n"
 "Submit results to launchpad.net/+hwdb?"
 msgstr ""
+"\n"
+"Submit results to launchpad.net/+hwdb?"
 
 #: .././checkbox_ng/commands/newcli.py:423
 msgid "Email address: "
-msgstr ""
+msgstr "Email address: "
 
 #. TRANSLATORS: Do not translate the {} format markers.
 #: .././checkbox_ng/commands/newcli.py:439
 msgid "Submitting results to {0} for email_address {1}"
-msgstr ""
+msgstr "Submitting results to {0} for email_address {1}"
 
 #. TRANSLATORS: Do not translate the {} format marker.
 #: .././checkbox_ng/commands/newcli.py:450
 msgid "Submission uploaded to: {0}"
-msgstr ""
+msgstr "Submission uploaded to: {0}"
 
 #: .././checkbox_ng/commands/newcli.py:456
 msgid "Bad response from {0} transport"
-msgstr ""
+msgstr "Bad response from {0} transport"
 
 #. TRANSLATORS: Do not translate the {} format markers.
 #: .././checkbox_ng/commands/newcli.py:464
 msgid "Submitting results to {0} for secure_id {1}"
-msgstr ""
+msgstr "Submitting results to {0} for secure_id {1}"
 
 #. TRANSLATORS: Do not translate the {} format marker.
 #: .././checkbox_ng/commands/newcli.py:485
 #: .././checkbox_ng/commands/submit.py:64
 msgid "Successfully sent, submission status at {0}"
-msgstr ""
+msgstr "Successfully sent, submission status at {0}"
 
 #. TRANSLATORS: Do not translate the {} format marker.
 #: .././checkbox_ng/commands/newcli.py:489
 #: .././checkbox_ng/commands/submit.py:68
 msgid "Successfully sent, server response: {0}"
-msgstr ""
+msgstr "Successfully sent, server response: {0}"
 
 #: .././checkbox_ng/commands/newcli.py:514
 msgid "Select jobs to re-run"
-msgstr ""
+msgstr "Select jobs to re-run"
 
 #: .././checkbox_ng/commands/sru.py:58 .././checkbox_ng/commands/submit.py:121
 msgid "SECURE-ID"
-msgstr ""
+msgstr "SECURE-ID"
 
 #: .././checkbox_ng/commands/sru.py:61
 msgid "Canonical hardware identifier"
-msgstr ""
+msgstr "Canonical hardware identifier"
 
 #: .././checkbox_ng/commands/sru.py:65
 msgid "TEST-PLAN-ID"

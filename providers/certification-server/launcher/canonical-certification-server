@@ -10,9 +10,9 @@ text = Welcome to System Certification!
 
 [suite]
 # Whitelist(s) displayed in the suite selection screen
-whitelist_filter = ^((network|storage|usb|virtualization)-only)|(server-(full|functional)-14.04)$
+whitelist_filter = ^((storage|usb|virtualization)-only)|(firmware-tests)|((14|16).04-(server|network|virtual-machine)-(full|functional|only|soc-cert))$
 # Whitelist(s) pre-selected in the suite selection screen, default whitelist(s)
-whitelist_selection = ^server-full-14.04$
+whitelist_selection = ^14.04-server-full$
 
 [transport]
 submit_to = certification

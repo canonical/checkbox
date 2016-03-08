@@ -342,11 +342,12 @@ class StreamTransport(TransportBase):
             The session for which this transport is associated with
             the data being sent (optional)
         :returns:
-            None
+            Empty dictionary
         """
         translating_stream = ByteStringStreamTranslator(
             self._stream, self._stream.encoding)
         copyfileobj(data, translating_stream)
+        return {}
 
 
 class FileTransport(TransportBase):

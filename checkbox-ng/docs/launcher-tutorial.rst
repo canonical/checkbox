@@ -155,6 +155,11 @@ Default value: ``interactive``.
 Note: using ``silent`` UI type requires forcing test selection and test plan
 selection.
 
+``dont_suppress_output``
+
+Setting this field to ``yes`` disables hiding of command output for jobs of
+type ``local``, ``resource`` and ``attachment``. Default value: ``no``.
+
 Restart section
 ===============
 

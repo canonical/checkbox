@@ -724,7 +724,10 @@ class CheckboxLauncher(CheckboxCommand):
                 self._create_transport(params['transport'])
                 transport = self.transports[params['transport']]
                 try:
-                    self.ctx.sa.export_to_transport(exporter_id, transport)
+                    result = self.ctx.sa.export_to_transport(
+                        exporter_id, transport)
+                    if result and 'url' in result:
+                        print(result['url'])
                 except TransportError as exc:
                     _logger.warning(
                         _("Problem occured when submitting %s report: %s"),

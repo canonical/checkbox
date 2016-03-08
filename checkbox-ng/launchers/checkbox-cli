@@ -405,7 +405,7 @@ class CheckboxLauncher(CheckboxCommand):
                 estimated_time -= job.estimated_duration
 
     def _get_ui_for_job(self, job):
-        if self.launcher.ui_type == 'silent' and job.plugin in (
+        if not self.launcher.dont_suppress_output and job.plugin in (
                 'local', 'resource', 'attachment'):
             return CheckboxUI(self.C.c, show_cmd_output=False)
         else:

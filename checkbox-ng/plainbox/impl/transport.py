@@ -369,12 +369,13 @@ class FileTransport(TransportBase):
             The session for which this transport is associated with
             the data being sent (optional)
         :returns:
-            None
+            A dictionary with url pointing to the file.
         :raises OSError:
             When there was IO related error.
         """
         with open(self._path, 'wb') as f:
             copyfileobj(data, f)
+        return {'url': 'file://{}'.format(self._path)}
 
 if oauth_available():
     OAuthTransport = _OAuthTransport

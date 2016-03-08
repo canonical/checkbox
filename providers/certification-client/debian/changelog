@@ -1,3 +1,9 @@
+plainbox-provider-certification-client (0.22-1) precise; urgency=medium
+
+  * new upstream version
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Tue, 08 Mar 2016 12:59:45 +0100
+
 plainbox-provider-certification-client (0.21-1) precise; urgency=medium
 
   * new upstream version

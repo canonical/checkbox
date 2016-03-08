@@ -53,10 +53,6 @@ class LauncherDefinition(config.Config):
         section="config",
         help_text=_("Name of custom configuration file"))
 
-    dont_suppress_output = config.Variable(
-        section="ui", kind=bool, default=False,
-        help_text=_("Don't suppress the output of certain job plugin types."))
-
     def get_concrete_launcher(self):
         """Create appropriate LauncherDefinition instance.
 
@@ -98,6 +94,10 @@ class LauncherDefinitionLegacy(LauncherDefinition):
     text = config.Variable(
         section="welcome",
         help_text=_("Welcome Message"))
+
+    dont_suppress_output = config.Variable(
+        section="ui", kind=bool, default=False,
+        help_text=_("Don't suppress the output of certain job plugin types."))
 
     whitelist_filter = config.Variable(
         section="suite",

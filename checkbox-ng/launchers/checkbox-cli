@@ -513,6 +513,7 @@ class CheckboxLauncher(CheckboxCommand):
             return False
         # deselect all by default
         tree.set_descendants_state(False)
+        tree.expanded = True
         self.ctx.display.run(ShowRerun(tree, _("Select jobs to re-run")))
         wanted_set = frozenset(tree.selection)
         if not wanted_set:

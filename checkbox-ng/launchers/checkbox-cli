@@ -628,7 +628,9 @@ class CheckboxLauncher(CheckboxCommand):
                 'unit': '2013.com.canonical.plainbox::text'}
             self.launcher.transports['stdout'] = {
                 'type': 'stream', 'stream': 'stdout'}
-            self.launcher.reports['text_to_screen'] = {
+            # '1_' prefix ensures ordering amongst other stock reports. This
+            # report name does not appear anywhere (because of forced: yes)
+            self.launcher.reports['1_text_to_screen'] = {
                 'transport': 'stdout', 'exporter': 'text', 'forced': 'yes'}
         elif report == 'certification':
             self.launcher.exporters['hexr'] = {
@@ -661,7 +663,7 @@ class CheckboxLauncher(CheckboxCommand):
                     'path': path}
                 self.launcher.exporters[exporter] = {
                     'unit': '2013.com.canonical.plainbox::{}'.format(exporter)}
-                self.launcher.reports['{}_file'.format(exporter)] = {
+                self.launcher.reports['2_{}_file'.format(exporter)] = {
                     'transport': '{}_file'.format(exporter),
                     'exporter': '{}'.format(exporter),
                     'forced': 'yes'

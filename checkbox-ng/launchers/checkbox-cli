@@ -629,7 +629,9 @@ class CheckboxLauncher(CheckboxCommand):
                 'unit': '2013.com.canonical.plainbox::text'}
             self.launcher.transports['stdout'] = {
                 'type': 'stream', 'stream': 'stdout'}
-            self.launcher.reports['text_to_screen'] = {
+            # '1_' prefix ensures ordering amongst other stock reports. This
+            # report name does not appear anywhere (because of forced: yes)
+            self.launcher.reports['1_text_to_screen'] = {
                 'transport': 'stdout', 'exporter': 'text', 'forced': 'yes'}
         elif report == 'certification':
             self.launcher.exporters['hexr'] = {
@@ -662,7 +664,7 @@ class CheckboxLauncher(CheckboxCommand):
                     'path': path}
                 self.launcher.exporters[exporter] = {
                     'unit': '2013.com.canonical.plainbox::{}'.format(exporter)}
-                self.launcher.reports['{}_file'.format(exporter)] = {
+                self.launcher.reports['2_{}_file'.format(exporter)] = {
                     'transport': '{}_file'.format(exporter),
                     'exporter': '{}'.format(exporter),
                     'forced': 'yes'
@@ -708,7 +710,10 @@ class CheckboxLauncher(CheckboxCommand):
     def _export_results(self):
         for report in self.launcher.stock_reports:
             self._prepare_stock_report(report)
-        for name, params in self.launcher.reports.items():
+        # reports are stored in an ordinary dict(), so sorting them ensures
+        # the same order of submitting them between runs, and if they
+        # share common prefix, they are next to each other
+        for name, params in sorted(self.launcher.reports.items()):
             if self.is_interactive and not params.get('forced', False):
                 message = _("Do you want to submit '{}' report?").format(name)
                 cmd = self._pick_action_cmd([

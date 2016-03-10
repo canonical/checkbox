@@ -64,3 +64,6 @@ include:
     usb3/storage-preinserted
     virtualization/kvm_check_vm
     info/kvm_output
+bootstrap_include:
+    device
+    fwts

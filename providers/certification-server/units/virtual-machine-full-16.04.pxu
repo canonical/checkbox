@@ -51,5 +51,7 @@ include:
     memory/info
     memory/memory_stress_ng
     power-management/rtc
-    __stress__
     stress/cpu_stress_ng_test
+bootstrap_include:
+    device
+    fwts

@@ -34,3 +34,6 @@ include:
     ethernet/ethtool_info
     ethernet/ethertool_check_.*
     ethernet/multi_iperf3_nic_.*
+bootstrap_include:
+    device
+    fwts

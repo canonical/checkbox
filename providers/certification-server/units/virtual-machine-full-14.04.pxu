@@ -54,3 +54,6 @@ include:
     power-management/rtc
     stress/cpu_stress_test
     stress/cpu_stress_ng_test
+bootstrap_include:
+    device
+    fwts

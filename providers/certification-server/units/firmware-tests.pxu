@@ -36,3 +36,6 @@ include:
     miscellanea/fwts_test
     miscellanea/fwts_results.log
     memory/info
+bootstrap_include:
+    device
+    fwts

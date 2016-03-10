@@ -32,3 +32,6 @@ include:
     info/hdparm_.*.txt
     virtualization/kvm_check_vm
     info/kvm_output
+bootstrap_include:
+    device
+    fwts

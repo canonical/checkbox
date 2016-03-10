@@ -33,3 +33,6 @@ include:
     usb/detect
     usb/storage-preinserted
     usb3/storage-preinserted
+bootstrap_include:
+    device
+    fwts

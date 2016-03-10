@@ -37,3 +37,6 @@ include:
     disk/read_performance_.*
     disk/smart_.*
     disk/storage_device_.*
+bootstrap_include:
+    device
+    fwts

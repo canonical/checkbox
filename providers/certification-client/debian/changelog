@@ -1,3 +1,11 @@
+plainbox-provider-certification-client (0.22-2) precise; urgency=medium
+
+  * Remove the module-init-tools dependency (the checkbox provider already
+    depends on kmod)
+  * Remove the checkbox-ng-service dependency (obsolete)
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Thu, 10 Mar 2016 12:44:23 +0100
+
 plainbox-provider-certification-client (0.22-1) precise; urgency=medium
 
   * new upstream version

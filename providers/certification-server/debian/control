@@ -6,6 +6,7 @@ Standards-Version: 3.9.3
 Build-Depends: debhelper (>= 9.2),
                intltool,
                plainbox (>= 0.5.2),
+               plainbox-provider-resource-generic (>= 0.19~),
                python3-all (>= 3.2),
                python3-setuptools
 Vcs-Git: git://git.launchpad.net/plainbox-provider-canonical-certification

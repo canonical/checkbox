@@ -1,21 +1,12 @@
-#!/usr/bin/env checkbox-launcher
-[welcome]
-text = Welcome to System Certification!
-    This application will gather information from your system. Then you will be
-    asked manual tests to confirm that the system is working properly. Finally,
-    you will be asked for the Secure ID of the computer to submit the
-    information to the certification.canonical.com database.
-    To learn how to create or locate the Secure ID, please see here:
-    https://certification.canonical.com/
+#!/usr/bin/env checkbox-cli
+[launcher]
+app_id = 2013.com.canonical.certification:certification-server
+launcher_version = 1
+stock_reports = text, certification
 
-[suite]
-# Whitelist(s) displayed in the suite selection screen
-whitelist_filter = ^((storage|usb|virtualization)-only)|(firmware-tests)|((14|16).04-(server|network|virtual-machine)-(full|functional|only|soc-cert))$
-# Whitelist(s) pre-selected in the suite selection screen, default whitelist(s)
-whitelist_selection = ^14.04-server-full$
-
-[transport]
-submit_to = certification
+[test plan]
+unit = 2013.com.canonical.certification::14.04-server-full
+filter = *-server-*, *-only, *virtual*, *firmware-tests
 
 [config]
 config_filename = canonical-certification.conf

@@ -368,7 +368,8 @@ class CheckboxLauncher(CheckboxCommand):
         job_list = [self.ctx.sa.get_job(job_id) for job_id in
                     self.ctx.sa.get_static_todo_list()]
         tree = SelectableJobTreeNode.create_simple_tree(self.ctx.sa, job_list)
-        tree.expanded = True
+        for category in tree.get_descendants():
+            category.expanded = False
         title = _('Choose tests to run on your system:')
         self.ctx.display.run(ScrollableTreeNode(tree, title))
         # NOTE: tree.selection is correct but ordered badly. To retain
@@ -513,7 +514,6 @@ class CheckboxLauncher(CheckboxCommand):
             return False
         # deselect all by default
         tree.set_descendants_state(False)
-        tree.expanded = True
         self.ctx.display.run(ShowRerun(tree, _("Select jobs to re-run")))
         wanted_set = frozenset(tree.selection)
         if not wanted_set:

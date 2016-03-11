@@ -7,6 +7,3 @@ stock_reports = text, certification
 [test plan]
 unit = 2013.com.canonical.certification::client-cert-14-04
 filter = *
-
-[connfig]
- config_filename = canonical-certification.conf

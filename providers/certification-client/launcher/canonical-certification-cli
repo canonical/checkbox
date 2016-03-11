@@ -1,20 +1,12 @@
-#!/usr/bin/env checkbox-launcher
-[welcome]
-text = Welcome to Canonical System Testing!
-    This application will gather information from your system. Then you will be
-    asked manual tests to confirm that the system is working properly. Finally,
-    you will be asked for the Secure ID of the computer to submit the
-    information to the certification.canonical.com database.
-    To learn how to create or locate the Secure ID, please see here:
-    https://certification.canonical.com/
+#!/usr/bin/env checkbox-cli
+[launcher]
+app_id = 2013.com.canonical.certification:ertification-client
+launcher_version = 1
+stock_reports = text, certification
 
-[suite]
-# Whitelist(s) displayed in the suite selection screen
-whitelist_filter = ^.*$
-# Whitelist(s) pre-selected in the suite selection screen, default whitelist(s)
-# "bogus" means no whitelist will be preselected.
-whitelist_selection = ^bogus$
+[test plan]
+unit = 2013.com.canonical.certification::client-cert-14-04
+filter = *
 
-[transport]
-submit_to = certification
-
+[connfig]
+ config_filename = canonical-certification.conf

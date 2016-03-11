@@ -308,7 +308,7 @@ class SelectableJobTreeNode(JobTreeNode):
                     tree.current_index += 1
         return (None, None)
 
-    def render(self, cols=80):
+    def render(self, cols=80, as_summary=True):
         """
         Return the tree as a simple list of categories and jobs suitable for
         display. Jobs are properly indented to respect the tree hierarchy
@@ -317,6 +317,11 @@ class SelectableJobTreeNode(JobTreeNode):
 
         The node titles should not exceed the width of a the terminal and
         thus are cut to fit inside.
+
+        :param cols:
+            The number of columns to render.
+        :param as_summary:
+            Whether we display the job summaries or their partial IDs.
         """
         self._flat_list = []
         if self.expanded:
@@ -337,12 +342,15 @@ class SelectableJobTreeNode(JobTreeNode):
                     col_max = cols - 4  # includes len('...') + a space
                     line = line[:col_max] + '...'
                 self._flat_list.append(line)
-                self._flat_list.extend(category.render(cols))
+                self._flat_list.extend(category.render(cols, as_summary))
             for job in self.jobs:
                 prefix = '[ ]'
                 if self.job_selection[job]:
                     prefix = '[X]'
-                title = job.tr_summary()
+                if as_summary:
+                    title = job.tr_summary()
+                else:
+                    title = job.partial_id
                 line = prefix + self.depth * '   ' + '   ' + title
                 if len(line) > cols:
                     col_max = cols - 4  # includes len('...') + a space

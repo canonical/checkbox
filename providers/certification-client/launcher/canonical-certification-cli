@@ -1,6 +1,6 @@
 #!/usr/bin/env checkbox-cli
 [launcher]
-app_id = 2013.com.canonical.certification:ertification-client
+app_id = 2013.com.canonical.certification:certification-client
 launcher_version = 1
 stock_reports = text, certification
 

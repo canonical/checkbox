@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: checkbox\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-12-03 14:32+0100\n"
-"PO-Revision-Date: 2016-03-09 13:18+0000\n"
+"PO-Revision-Date: 2016-03-12 14:05+0000\n"
 "Last-Translator: Denis Graipel <Unknown>\n"
 "Language-Team: German <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-03-10 05:21+0000\n"
-"X-Generator: Launchpad (build 17936)\n"
+"X-Launchpad-Export-Date: 2016-03-13 05:16+0000\n"
+"X-Generator: Launchpad (build 17939)\n"
 
 #. name
 #: ../units/categories.pxu:3
@@ -60,7 +60,7 @@ msgstr "Festplattentests"
 #. name
 #: ../units/categories.pxu:35
 msgid "Ethernet Device tests"
-msgstr ""
+msgstr "Ethernet-Gerätetests"
 
 #. name
 #: ../units/categories.pxu:39
@@ -80,7 +80,7 @@ msgstr "Firewire-Festplattentests"
 #. name
 #: ../units/categories.pxu:51
 msgid "Firmware tests"
-msgstr ""
+msgstr "Firmwaretests"
 
 #. name
 #: ../units/categories.pxu:55

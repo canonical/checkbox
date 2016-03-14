@@ -227,8 +227,8 @@ class CheckboxLauncher(CheckboxCommand):
                     self.launcher.restart_strategy)
                 kwargs = copy.deepcopy(self.launcher.restart)
                 # [restart] section has the kwargs for the strategy initializer
-                # and the 'alternative_strategy' which is not one, let's pop it
-                kwargs.pop('alternative_strategy')
+                # and the 'strategy' which is not one, let's pop it
+                kwargs.pop('strategy')
                 strategy = cls(**kwargs)
                 ctx.sa.use_alternate_restart_strategy(strategy)
 

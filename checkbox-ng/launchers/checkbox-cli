@@ -430,7 +430,14 @@ class CheckboxLauncher(CheckboxCommand):
                     if job.plugin == 'manual':
                         cmd = 'run'
                     else:
-                        cmd = ui.wait_for_interaction_prompt(job)
+                        # FIXME: get rid of pulling sa's internals
+                        jsm = self.ctx.sa._context._state._job_state_map
+                        if jsm[job.id].can_start():
+                            cmd = ui.wait_for_interaction_prompt(job)
+                        else:
+                            # 'running' the job will make it marked as skipped
+                            # because of the failed dependency
+                            cmd = 'run'
                     if cmd == 'run' or cmd is None:
                         result_builder = self.ctx.sa.run_job(job.id, ui, False)
                     elif cmd == 'comment':

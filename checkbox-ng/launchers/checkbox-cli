@@ -114,7 +114,12 @@ class LauncherIngredient(Ingredient):
         generic_launcher = LauncherDefinition()
         generic_launcher.read_string(text)
         launcher = generic_launcher.get_concrete_launcher()
-        launcher.read_string(text)
+        configs = [
+            '/etc/xdg/{}'.format(launcher.config_filename),
+            os.path.expanduser('~/.config/{}'.format(
+                launcher.config_filename)),
+            context.args.launcher]
+        launcher.read(configs)
         if launcher.problem_list:
             _logger.error(_("Unable to start launcher because of errors:"))
             for problem in launcher.problem_list:

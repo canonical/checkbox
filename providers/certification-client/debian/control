@@ -54,7 +54,7 @@ Description: Client Certification provider for Plainbox
 
 Package: canonical-certification-client
 Architecture: all
-Depends: checkbox-gui (>= 0.34~),
+Depends: checkbox-converged (>= 1.2),
          checkbox-ng (>= 0.20~),
          plainbox-provider-certification-client (= ${source:Version}),
          ${misc:Depends}

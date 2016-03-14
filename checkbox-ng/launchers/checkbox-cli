@@ -341,7 +341,7 @@ class CheckboxLauncher(CheckboxCommand):
         filtered_tp_ids.sort(
             key=lambda tp_id: self.ctx.sa.get_test_plan(tp_id).name)
         test_plan_names = [self.ctx.sa.get_test_plan(tp_id).name for tp_id in
-            filtered_tp_ids]
+                           filtered_tp_ids]
         preselected_indecies = []
         if self.launcher.test_plan_default_selection:
             try:

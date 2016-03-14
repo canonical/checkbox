@@ -39,6 +39,7 @@ from guacamole.ingredients import argparse
 from guacamole.ingredients import cmdtree
 from guacamole.recipes.cmd import CommandRecipe
 
+from checkbox_ng.certification import InvalidSecureIDError
 from checkbox_ng.launcher import DefaultLauncherDefinition
 from checkbox_ng.launcher import LauncherDefinition
 from plainbox.abc import IJobResult
@@ -732,9 +733,9 @@ class CheckboxLauncher(CheckboxCommand):
             exporter_id = self.launcher.exporters[params['exporter']]['unit']
             done_sending = False
             while not done_sending:
-                self._create_transport(params['transport'])
-                transport = self.transports[params['transport']]
                 try:
+                    self._create_transport(params['transport'])
+                    transport = self.transports[params['transport']]
                     result = self.ctx.sa.export_to_transport(
                         exporter_id, transport)
                     if result and 'url' in result:
@@ -743,20 +744,29 @@ class CheckboxLauncher(CheckboxCommand):
                     _logger.warning(
                         _("Problem occured when submitting %s report: %s"),
                         name, exc)
-                    if self.is_interactive:
-                        message = _("Do you want to retry?")
-                        cmd = self._pick_action_cmd([
-                            Action('y', _("yes"), 'y'),
-                            Action('n', _("no"), 'n')
-                        ], message)
-                        if cmd == 'y':
-                            # let's remove current transport, so in next
-                            # iteration it will be "rebuilt", so if some parts
-                            # were user-provided, checkbox will ask for them
-                            # again
-                            self.transports.pop(params['transport'])
-                            continue
+                    if self._retry_dialog():
+                        # let's remove current transport, so in next
+                        # iteration it will be "rebuilt", so if some parts
+                        # were user-provided, checkbox will ask for them
+                        # again
+                        self.transports.pop(params['transport'])
+                        continue
+                except InvalidSecureIDError:
+                    _logger.warning(_("Invalid secure_id"))
+                    if self._retry_dialog():
+                        continue
                 done_sending = True
+
+    def _retry_dialog(self):
+        if self.is_interactive:
+            message = _("Do you want to retry?")
+            cmd = self._pick_action_cmd([
+                Action('y', _("yes"), 'y'),
+                Action('n', _("no"), 'n')
+            ], message)
+            if cmd == 'y':
+                return True
+        return False
 
     def register_arguments(self, parser):
         parser.add_argument(

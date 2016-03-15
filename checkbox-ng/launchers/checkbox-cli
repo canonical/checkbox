@@ -99,27 +99,27 @@ class LauncherIngredient(Ingredient):
     def late_init(self, context):
         if not context.args.launcher:
             # launcher not supplied from cli - using the default one
-            context.cmd_toplevel.launcher = DefaultLauncherDefinition()
-            return
-        try:
-            with open(context.args.launcher,
-                      'rt', encoding='UTF-8') as stream:
-                first_line = stream.readline()
-                if not first_line.startswith("#!"):
-                    stream.seek(0)
-                text = stream.read()
-        except IOError as exc:
-            _logger.error(_("Unable to load launcher definition: %s"), exc)
-            raise SystemExit(1)
-
-        generic_launcher = LauncherDefinition()
-        generic_launcher.read_string(text)
-        launcher = generic_launcher.get_concrete_launcher()
+            launcher = DefaultLauncherDefinition()
+        else:
+            try:
+                with open(context.args.launcher,
+                          'rt', encoding='UTF-8') as stream:
+                    first_line = stream.readline()
+                    if not first_line.startswith("#!"):
+                        stream.seek(0)
+                    text = stream.read()
+            except IOError as exc:
+                _logger.error(_("Unable to load launcher definition: %s"), exc)
+                raise SystemExit(1)
+            generic_launcher = LauncherDefinition()
+            generic_launcher.read_string(text)
+            launcher = generic_launcher.get_concrete_launcher()
         configs = [
             '/etc/xdg/{}'.format(launcher.config_filename),
             os.path.expanduser('~/.config/{}'.format(
-                launcher.config_filename)),
-            context.args.launcher]
+                launcher.config_filename))]
+        if context.args.launcher:
+            configs.append(context.args.launcher)
         launcher.read(configs)
         if launcher.problem_list:
             _logger.error(_("Unable to start launcher because of errors:"))
@@ -643,7 +643,9 @@ class CheckboxLauncher(CheckboxCommand):
             self.launcher.exporters['hexr'] = {
                 'unit': '2013.com.canonical.plainbox::hexr'}
             self.launcher.transports['c3'] = {
-                'type': 'certification'}
+                'type': 'certification',
+                'secure_id': self.launcher.transports.get('c3', {}).get(
+                    'secure_id', None)}
             self.launcher.reports['upload to certification'] = {
                 'transport': 'c3', 'exporter': 'hexr'}
         elif report == 'certification-staging':
@@ -705,11 +707,10 @@ class CheckboxLauncher(CheckboxCommand):
             else:
                 url = ('https://certification.canonical.com/'
                        'submissions/submit/')
-            if 'secure_id' in self.launcher.transports[transport]:
-                secure_id = self.launcher.transports[transport]['secure_id']
-            else:
+            secure_id = self.launcher.transports[transport].get(
+                'secure_id', None)
+            if not secure_id:
                 secure_id = input(self.C.BLUE(_('Enter secure-id:')))
-
             options = "secure_id={}".format(secure_id)
             self.transports[transport] = cls(url, options)
 
@@ -754,6 +755,7 @@ class CheckboxLauncher(CheckboxCommand):
                 except InvalidSecureIDError:
                     _logger.warning(_("Invalid secure_id"))
                     if self._retry_dialog():
+                        self.launcher.transports['c3'].pop('secure_id')
                         continue
                 done_sending = True
 

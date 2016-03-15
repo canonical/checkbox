@@ -100,6 +100,7 @@ class LauncherIngredient(Ingredient):
         if not context.args.launcher:
             # launcher not supplied from cli - using the default one
             launcher = DefaultLauncherDefinition()
+            config_filename = launcher.config_filename
         else:
             try:
                 with open(context.args.launcher,
@@ -113,11 +114,11 @@ class LauncherIngredient(Ingredient):
                 raise SystemExit(1)
             generic_launcher = LauncherDefinition()
             generic_launcher.read_string(text)
+            config_filename = generic_launcher.config_filename
             launcher = generic_launcher.get_concrete_launcher()
         configs = [
-            '/etc/xdg/{}'.format(launcher.config_filename),
-            os.path.expanduser('~/.config/{}'.format(
-                launcher.config_filename))]
+            '/etc/xdg/{}'.format(config_filename),
+            os.path.expanduser('~/.config/{}'.format(config_filename))]
         if context.args.launcher:
             configs.append(context.args.launcher)
         launcher.read(configs)

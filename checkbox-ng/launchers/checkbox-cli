@@ -39,6 +39,7 @@ from guacamole.ingredients import argparse
 from guacamole.ingredients import cmdtree
 from guacamole.recipes.cmd import CommandRecipe
 
+from checkbox_ng.certification import InvalidSecureIDError
 from checkbox_ng.launcher import DefaultLauncherDefinition
 from checkbox_ng.launcher import LauncherDefinition
 from plainbox.abc import IJobResult
@@ -98,23 +99,29 @@ class LauncherIngredient(Ingredient):
     def late_init(self, context):
         if not context.args.launcher:
             # launcher not supplied from cli - using the default one
-            context.cmd_toplevel.launcher = DefaultLauncherDefinition()
-            return
-        try:
-            with open(context.args.launcher,
-                      'rt', encoding='UTF-8') as stream:
-                first_line = stream.readline()
-                if not first_line.startswith("#!"):
-                    stream.seek(0)
-                text = stream.read()
-        except IOError as exc:
-            _logger.error(_("Unable to load launcher definition: %s"), exc)
-            raise SystemExit(1)
-
-        generic_launcher = LauncherDefinition()
-        generic_launcher.read_string(text)
-        launcher = generic_launcher.get_concrete_launcher()
-        launcher.read_string(text)
+            launcher = DefaultLauncherDefinition()
+            config_filename = launcher.config_filename
+        else:
+            try:
+                with open(context.args.launcher,
+                          'rt', encoding='UTF-8') as stream:
+                    first_line = stream.readline()
+                    if not first_line.startswith("#!"):
+                        stream.seek(0)
+                    text = stream.read()
+            except IOError as exc:
+                _logger.error(_("Unable to load launcher definition: %s"), exc)
+                raise SystemExit(1)
+            generic_launcher = LauncherDefinition()
+            generic_launcher.read_string(text)
+            config_filename = generic_launcher.config_filename
+            launcher = generic_launcher.get_concrete_launcher()
+        configs = [
+            '/etc/xdg/{}'.format(config_filename),
+            os.path.expanduser('~/.config/{}'.format(config_filename))]
+        if context.args.launcher:
+            configs.append(context.args.launcher)
+        launcher.read(configs)
         if launcher.problem_list:
             _logger.error(_("Unable to start launcher because of errors:"))
             for problem in launcher.problem_list:
@@ -227,8 +234,8 @@ class CheckboxLauncher(CheckboxCommand):
                     self.launcher.restart_strategy)
                 kwargs = copy.deepcopy(self.launcher.restart)
                 # [restart] section has the kwargs for the strategy initializer
-                # and the 'alternative_strategy' which is not one, let's pop it
-                kwargs.pop('alternative_strategy')
+                # and the 'strategy' which is not one, let's pop it
+                kwargs.pop('strategy')
                 strategy = cls(**kwargs)
                 ctx.sa.use_alternate_restart_strategy(strategy)
 
@@ -644,7 +651,9 @@ class CheckboxLauncher(CheckboxCommand):
             self.launcher.exporters['hexr'] = {
                 'unit': '2013.com.canonical.plainbox::hexr'}
             self.launcher.transports['c3'] = {
-                'type': 'certification'}
+                'type': 'certification',
+                'secure_id': self.launcher.transports.get('c3', {}).get(
+                    'secure_id', None)}
             self.launcher.reports['upload to certification'] = {
                 'transport': 'c3', 'exporter': 'hexr'}
         elif report == 'certification-staging':
@@ -706,11 +715,10 @@ class CheckboxLauncher(CheckboxCommand):
             else:
                 url = ('https://certification.canonical.com/'
                        'submissions/submit/')
-            if 'secure_id' in self.launcher.transports[transport]:
-                secure_id = self.launcher.transports[transport]['secure_id']
-            else:
+            secure_id = self.launcher.transports[transport].get(
+                'secure_id', None)
+            if not secure_id:
                 secure_id = input(self.C.BLUE(_('Enter secure-id:')))
-
             options = "secure_id={}".format(secure_id)
             self.transports[transport] = cls(url, options)
 
@@ -734,9 +742,9 @@ class CheckboxLauncher(CheckboxCommand):
             exporter_id = self.launcher.exporters[params['exporter']]['unit']
             done_sending = False
             while not done_sending:
-                self._create_transport(params['transport'])
-                transport = self.transports[params['transport']]
                 try:
+                    self._create_transport(params['transport'])
+                    transport = self.transports[params['transport']]
                     result = self.ctx.sa.export_to_transport(
                         exporter_id, transport)
                     if result and 'url' in result:
@@ -745,20 +753,30 @@ class CheckboxLauncher(CheckboxCommand):
                     _logger.warning(
                         _("Problem occured when submitting %s report: %s"),
                         name, exc)
-                    if self.is_interactive:
-                        message = _("Do you want to retry?")
-                        cmd = self._pick_action_cmd([
-                            Action('y', _("yes"), 'y'),
-                            Action('n', _("no"), 'n')
-                        ], message)
-                        if cmd == 'y':
-                            # let's remove current transport, so in next
-                            # iteration it will be "rebuilt", so if some parts
-                            # were user-provided, checkbox will ask for them
-                            # again
-                            self.transports.pop(params['transport'])
-                            continue
+                    if self._retry_dialog():
+                        # let's remove current transport, so in next
+                        # iteration it will be "rebuilt", so if some parts
+                        # were user-provided, checkbox will ask for them
+                        # again
+                        self.transports.pop(params['transport'])
+                        continue
+                except InvalidSecureIDError:
+                    _logger.warning(_("Invalid secure_id"))
+                    if self._retry_dialog():
+                        self.launcher.transports['c3'].pop('secure_id')
+                        continue
                 done_sending = True
+
+    def _retry_dialog(self):
+        if self.is_interactive:
+            message = _("Do you want to retry?")
+            cmd = self._pick_action_cmd([
+                Action('y', _("yes"), 'y'),
+                Action('n', _("no"), 'n')
+            ], message)
+            if cmd == 'y':
+                return True
+        return False
 
     def register_arguments(self, parser):
         parser.add_argument(

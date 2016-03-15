@@ -29,6 +29,7 @@ Shared code for test data transports..
 """
 
 from collections import OrderedDict
+from io import TextIOWrapper
 from logging import getLogger
 import pkg_resources
 import re
@@ -320,11 +321,15 @@ class _OAuthTransport(TransportBase):
 
 
 class StreamTransport(TransportBase):
+
     """Transport for printing data to a stream (stdout or stderr)."""
+
     def __init__(self, stream, options=None):
         url, self._stream = {
-            'stdout': ('python://stdout', sys.stdout),
-            'stderr': ('python://stderr', sys.stderr)
+            'stdout': ('python://stdout',
+                       TextIOWrapper(sys.stdout.buffer, encoding='utf-8')),
+            'stderr': ('python://stderr',
+                       TextIOWrapper(sys.stderr.buffer, encoding='utf-8'))
         }[stream]
         super().__init__(url, options)
 
@@ -347,6 +352,7 @@ class StreamTransport(TransportBase):
         translating_stream = ByteStringStreamTranslator(
             self._stream, self._stream.encoding)
         copyfileobj(data, translating_stream)
+        self._stream.flush()
         return {}
 
 

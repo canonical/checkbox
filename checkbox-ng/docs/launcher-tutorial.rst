@@ -69,6 +69,10 @@ may use:
 This field is a list; use commas or spaces to seperate stock reports. The
 default value: ``text, certification, submission_files``.
 
+When using ``certification`` stock report, ``secure_id`` might be overriden by
+the launcher. To do this define ``secure_id`` in a ``transport:c3`` section
+(this is the transport that's used by the ``certification`` stock reports).
+
 Launcher section example:
 
 ::
@@ -77,6 +81,13 @@ Launcher section example:
     app_id = 2016.com.foobar:system-testing
     launcher_version = 1
     stock_reports = text
+
+Launcher using all defaults with overriden secure_id:
+
+::
+
+    [transport:c3]
+    secure_id = 001122334455667788
 
 Providers section
 =================

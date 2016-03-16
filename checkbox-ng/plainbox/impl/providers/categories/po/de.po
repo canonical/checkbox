@@ -1,0 +1,236 @@
+# German translation for checkbox
+# Copyright (c) 2016 Rosetta Contributors and Canonical Ltd 2016
+# This file is distributed under the same license as the checkbox package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: checkbox\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2014-12-03 14:32+0100\n"
+"PO-Revision-Date: 2016-03-12 14:05+0000\n"
+"Last-Translator: Denis Graipel <Unknown>\n"
+"Language-Team: German <de@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2016-03-13 05:16+0000\n"
+"X-Generator: Launchpad (build 17939)\n"
+
+#. name
+#: ../units/categories.pxu:3
+msgid "Audio tests"
+msgstr "Audiotests"
+
+#. name
+#: ../units/categories.pxu:7
+msgid "Benchmarks tests"
+msgstr "Leistungsüberprüfungen"
+
+#. name
+#: ../units/categories.pxu:11
+msgid "Bluetooth tests"
+msgstr "Bluetooth-Tests"
+
+#. name
+#: ../units/categories.pxu:15
+msgid "Camera tests"
+msgstr "Kameratests"
+
+#. name
+#: ../units/categories.pxu:19
+msgid "Codec tests"
+msgstr "Codec-Tests"
+
+#. name
+#: ../units/categories.pxu:23
+msgid "CPU tests"
+msgstr "CPU-Tests"
+
+#. name
+#: ../units/categories.pxu:27
+msgid "System Daemon tests"
+msgstr ""
+
+#. name
+#: ../units/categories.pxu:31
+msgid "Disk tests"
+msgstr "Festplattentests"
+
+#. name
+#: ../units/categories.pxu:35
+msgid "Ethernet Device tests"
+msgstr "Ethernet-Gerätetests"
+
+#. name
+#: ../units/categories.pxu:39
+msgid "eSATA disk tests"
+msgstr "eSATA-Festplatten-Überprüfungen"
+
+#. name
+#: ../units/categories.pxu:43
+msgid "Fingerprint reader tests"
+msgstr "Fingerabdruckleser-Tests"
+
+#. name
+#: ../units/categories.pxu:47
+msgid "Firewire disk tests"
+msgstr "Firewire-Festplattentests"
+
+#. name
+#: ../units/categories.pxu:51
+msgid "Firmware tests"
+msgstr "Firmwaretests"
+
+#. name
+#: ../units/categories.pxu:55
+msgid "Floppy disk tests"
+msgstr "Disketten Tests"
+
+#. name
+#: ../units/categories.pxu:59
+msgid "Graphics tests"
+msgstr "Grafiktests"
+
+#. name
+#: ../units/categories.pxu:63
+msgid "Hibernation tests"
+msgstr ""
+
+#. name
+#: ../units/categories.pxu:67
+msgid "Informational tests"
+msgstr ""
+
+#. name
+#: ../units/categories.pxu:71
+msgid "Input Devices tests"
+msgstr "Eingabegerätetests"
+
+#. name
+#: ../units/categories.pxu:75
+msgid "Hotkey tests"
+msgstr "Kurztastentests"
+
+#. name
+#: ../units/categories.pxu:79
+msgid "LED tests"
+msgstr "LED-Überprüfungen"
+
+#. name
+#: ../units/categories.pxu:83
+msgid "Media Card tests"
+msgstr ""
+
+#. name
+#: ../units/categories.pxu:87
+msgid "Memory tests"
+msgstr ""
+
+#. name
+#: ../units/categories.pxu:91
+msgid "MIR tests"
+msgstr ""
+
+#. name
+#: ../units/categories.pxu:95
+msgid "Miscellaneous tests"
+msgstr ""
+
+#. name
+#: ../units/categories.pxu:99
+msgid "Monitor tests"
+msgstr ""
+
+#. name
+#: ../units/categories.pxu:103
+msgid "Non-device specific networking tests"
+msgstr ""
+
+#. name
+#: ../units/categories.pxu:107
+msgid "Optical Drive tests"
+msgstr ""
+
+#. name
+#: ../units/categories.pxu:111
+msgid "ExpressCard tests"
+msgstr ""
+
+#. name
+#: ../units/categories.pxu:115
+msgid "Peripheral tests"
+msgstr ""
+
+#. name
+#: ../units/categories.pxu:119
+msgid "Power Management tests"
+msgstr ""
+
+#. name
+#: ../units/categories.pxu:123
+msgid "Suspend tests"
+msgstr ""
+
+#. name
+#: ../units/categories.pxu:127
+msgid "Touchpad tests"
+msgstr ""
+
+#. name
+#: ../units/categories.pxu:131
+msgid "Touchscreen tests"
+msgstr ""
+
+#. name
+#: ../units/categories.pxu:135
+msgid "USB tests"
+msgstr ""
+
+#. name
+#: ../units/categories.pxu:139
+msgid "User Applications"
+msgstr ""
+
+#. name
+#: ../units/categories.pxu:143
+msgid "Virtualization tests"
+msgstr ""
+
+#. name
+#: ../units/categories.pxu:147
+msgid "Wireless networking tests"
+msgstr ""
+
+#. name
+#: ../units/categories.pxu:151
+msgid "Mobile broadband tests"
+msgstr ""
+
+#. name
+#: ../units/categories.pxu:155
+msgid "Stress tests"
+msgstr ""
+
+#. name
+#: ../units/categories.pxu:159
+msgid "Uncategorised"
+msgstr ""
+
+#. This is categories_def.description,
+#. we need it here to extract is as a part of this provider
+#: ../manage.py:45
+msgid "Common test category definitions"
+msgstr ""
+
+#: ../manage.py:55 ../manage.py:66
+msgid "The Category provider is special"
+msgstr ""
+
+#: ../manage.py:56
+msgid "You don't need to develop it explicitly"
+msgstr ""
+
+#: ../manage.py:67
+msgid "You don't need to install it explicitly"
+msgstr ""

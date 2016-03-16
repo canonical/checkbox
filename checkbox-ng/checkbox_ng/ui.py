@@ -154,6 +154,7 @@ class ScrollableTreeNode(IApplication):
         self.title = title
         self.top = 0  # Top line number
         self.highlight = 0  # Highlighted line number
+        self.summary = True
 
     def consume_event(self, event: Event):
         if event.kind == EVENT_RESIZE:
@@ -172,6 +173,8 @@ class ScrollableTreeNode(IApplication):
                 self.tree.set_descendants_state(True)
             elif event.data.key in 'dD':
                 self.tree.set_descendants_state(False)
+            elif event.data.key in 'iI':
+                self.summary = not self.summary
             elif event.data.key in 'tT':
                 raise StopIteration
         self.repaint(event)
@@ -218,7 +221,8 @@ class ScrollableTreeNode(IApplication):
         ctx.move_to(73 + extra_cols, self.image.size.height - 1)
         ctx.attributes.style = NORMAL
         ctx.print("esting")
-        for i, line in enumerate(self.tree.render(cols - 3)[self.top:bottom]):
+        for i, line in enumerate(self.tree.render(cols - 3,
+                                    as_summary=self.summary)[self.top:bottom]):
             ctx.move_to(2, i + 2)
             if i != self.highlight:
                 ctx.attributes.style = NORMAL
@@ -253,7 +257,7 @@ class ScrollableTreeNode(IApplication):
             node.expanded = not(node.expanded)
 
     def _scroll(self, direction):
-        visible_length = len(self.tree.render())
+        visible_length = len(self.tree.render(as_summary=self.summary))
         # Scroll the tree view
         if (direction == "up" and
                 self.highlight == 0 and self.top != 0):

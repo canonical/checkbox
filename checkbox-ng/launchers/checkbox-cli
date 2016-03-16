@@ -39,6 +39,7 @@ from guacamole.ingredients import argparse
 from guacamole.ingredients import cmdtree
 from guacamole.recipes.cmd import CommandRecipe
 
+from checkbox_ng.certification import InvalidSecureIDError
 from checkbox_ng.launcher import DefaultLauncherDefinition
 from checkbox_ng.launcher import LauncherDefinition
 from plainbox.abc import IJobResult
@@ -98,23 +99,29 @@ class LauncherIngredient(Ingredient):
     def late_init(self, context):
         if not context.args.launcher:
             # launcher not supplied from cli - using the default one
-            context.cmd_toplevel.launcher = DefaultLauncherDefinition()
-            return
-        try:
-            with open(context.args.launcher,
-                      'rt', encoding='UTF-8') as stream:
-                first_line = stream.readline()
-                if not first_line.startswith("#!"):
-                    stream.seek(0)
-                text = stream.read()
-        except IOError as exc:
-            _logger.error(_("Unable to load launcher definition: %s"), exc)
-            raise SystemExit(1)
-
-        generic_launcher = LauncherDefinition()
-        generic_launcher.read_string(text)
-        launcher = generic_launcher.get_concrete_launcher()
-        launcher.read_string(text)
+            launcher = DefaultLauncherDefinition()
+            config_filename = launcher.config_filename
+        else:
+            try:
+                with open(context.args.launcher,
+                          'rt', encoding='UTF-8') as stream:
+                    first_line = stream.readline()
+                    if not first_line.startswith("#!"):
+                        stream.seek(0)
+                    text = stream.read()
+            except IOError as exc:
+                _logger.error(_("Unable to load launcher definition: %s"), exc)
+                raise SystemExit(1)
+            generic_launcher = LauncherDefinition()
+            generic_launcher.read_string(text)
+            config_filename = generic_launcher.config_filename
+            launcher = generic_launcher.get_concrete_launcher()
+        configs = [
+            '/etc/xdg/{}'.format(config_filename),
+            os.path.expanduser('~/.config/{}'.format(config_filename))]
+        if context.args.launcher:
+            configs.append(context.args.launcher)
+        launcher.read(configs)
         if launcher.problem_list:
             _logger.error(_("Unable to start launcher because of errors:"))
             for problem in launcher.problem_list:
@@ -227,8 +234,8 @@ class CheckboxLauncher(CheckboxCommand):
                     self.launcher.restart_strategy)
                 kwargs = copy.deepcopy(self.launcher.restart)
                 # [restart] section has the kwargs for the strategy initializer
-                # and the 'alternative_strategy' which is not one, let's pop it
-                kwargs.pop('alternative_strategy')
+                # and the 'strategy' which is not one, let's pop it
+                kwargs.pop('strategy')
                 strategy = cls(**kwargs)
                 ctx.sa.use_alternate_restart_strategy(strategy)
 
@@ -341,7 +348,7 @@ class CheckboxLauncher(CheckboxCommand):
         filtered_tp_ids.sort(
             key=lambda tp_id: self.ctx.sa.get_test_plan(tp_id).name)
         test_plan_names = [self.ctx.sa.get_test_plan(tp_id).name for tp_id in
-            filtered_tp_ids]
+                           filtered_tp_ids]
         preselected_indecies = []
         if self.launcher.test_plan_default_selection:
             try:
@@ -368,7 +375,8 @@ class CheckboxLauncher(CheckboxCommand):
         job_list = [self.ctx.sa.get_job(job_id) for job_id in
                     self.ctx.sa.get_static_todo_list()]
         tree = SelectableJobTreeNode.create_simple_tree(self.ctx.sa, job_list)
-        tree.expanded = True
+        for category in tree.get_descendants():
+            category.expanded = False
         title = _('Choose tests to run on your system:')
         self.ctx.display.run(ScrollableTreeNode(tree, title))
         # NOTE: tree.selection is correct but ordered badly. To retain
@@ -405,7 +413,7 @@ class CheckboxLauncher(CheckboxCommand):
                 estimated_time -= job.estimated_duration
 
     def _get_ui_for_job(self, job):
-        if self.launcher.ui_type == 'silent' and job.plugin in (
+        if not self.launcher.dont_suppress_output and job.plugin in (
                 'local', 'resource', 'attachment'):
             return CheckboxUI(self.C.c, show_cmd_output=False)
         else:
@@ -429,7 +437,14 @@ class CheckboxLauncher(CheckboxCommand):
                     if job.plugin == 'manual':
                         cmd = 'run'
                     else:
-                        cmd = ui.wait_for_interaction_prompt(job)
+                        # FIXME: get rid of pulling sa's internals
+                        jsm = self.ctx.sa._context._state._job_state_map
+                        if jsm[job.id].can_start():
+                            cmd = ui.wait_for_interaction_prompt(job)
+                        else:
+                            # 'running' the job will make it marked as skipped
+                            # because of the failed dependency
+                            cmd = 'run'
                     if cmd == 'run' or cmd is None:
                         result_builder = self.ctx.sa.run_job(job.id, ui, False)
                     elif cmd == 'comment':
@@ -628,13 +643,17 @@ class CheckboxLauncher(CheckboxCommand):
                 'unit': '2013.com.canonical.plainbox::text'}
             self.launcher.transports['stdout'] = {
                 'type': 'stream', 'stream': 'stdout'}
-            self.launcher.reports['text_to_screen'] = {
+            # '1_' prefix ensures ordering amongst other stock reports. This
+            # report name does not appear anywhere (because of forced: yes)
+            self.launcher.reports['1_text_to_screen'] = {
                 'transport': 'stdout', 'exporter': 'text', 'forced': 'yes'}
         elif report == 'certification':
             self.launcher.exporters['hexr'] = {
                 'unit': '2013.com.canonical.plainbox::hexr'}
             self.launcher.transports['c3'] = {
-                'type': 'certification'}
+                'type': 'certification',
+                'secure_id': self.launcher.transports.get('c3', {}).get(
+                    'secure_id', None)}
             self.launcher.reports['upload to certification'] = {
                 'transport': 'c3', 'exporter': 'hexr'}
         elif report == 'certification-staging':
@@ -661,7 +680,7 @@ class CheckboxLauncher(CheckboxCommand):
                     'path': path}
                 self.launcher.exporters[exporter] = {
                     'unit': '2013.com.canonical.plainbox::{}'.format(exporter)}
-                self.launcher.reports['{}_file'.format(exporter)] = {
+                self.launcher.reports['2_{}_file'.format(exporter)] = {
                     'transport': '{}_file'.format(exporter),
                     'exporter': '{}'.format(exporter),
                     'forced': 'yes'
@@ -696,18 +715,20 @@ class CheckboxLauncher(CheckboxCommand):
             else:
                 url = ('https://certification.canonical.com/'
                        'submissions/submit/')
-            if 'secure_id' in self.launcher.transports[transport]:
-                secure_id = self.launcher.transports[transport]['secure_id']
-            else:
+            secure_id = self.launcher.transports[transport].get(
+                'secure_id', None)
+            if not secure_id:
                 secure_id = input(self.C.BLUE(_('Enter secure-id:')))
-
             options = "secure_id={}".format(secure_id)
             self.transports[transport] = cls(url, options)
 
     def _export_results(self):
         for report in self.launcher.stock_reports:
             self._prepare_stock_report(report)
-        for name, params in self.launcher.reports.items():
+        # reports are stored in an ordinary dict(), so sorting them ensures
+        # the same order of submitting them between runs, and if they
+        # share common prefix, they are next to each other
+        for name, params in sorted(self.launcher.reports.items()):
             if self.is_interactive and not params.get('forced', False):
                 message = _("Do you want to submit '{}' report?").format(name)
                 cmd = self._pick_action_cmd([
@@ -721,28 +742,41 @@ class CheckboxLauncher(CheckboxCommand):
             exporter_id = self.launcher.exporters[params['exporter']]['unit']
             done_sending = False
             while not done_sending:
-                self._create_transport(params['transport'])
-                transport = self.transports[params['transport']]
                 try:
-                    self.ctx.sa.export_to_transport(exporter_id, transport)
+                    self._create_transport(params['transport'])
+                    transport = self.transports[params['transport']]
+                    result = self.ctx.sa.export_to_transport(
+                        exporter_id, transport)
+                    if result and 'url' in result:
+                        print(result['url'])
                 except TransportError as exc:
                     _logger.warning(
                         _("Problem occured when submitting %s report: %s"),
                         name, exc)
-                    if self.is_interactive:
-                        message = _("Do you want to retry?")
-                        cmd = self._pick_action_cmd([
-                            Action('y', _("yes"), 'y'),
-                            Action('n', _("no"), 'n')
-                        ], message)
-                        if cmd == 'y':
-                            # let's remove current transport, so in next
-                            # iteration it will be "rebuilt", so if some parts
-                            # were user-provided, checkbox will ask for them
-                            # again
-                            self.transports.pop(params['transport'])
-                            continue
+                    if self._retry_dialog():
+                        # let's remove current transport, so in next
+                        # iteration it will be "rebuilt", so if some parts
+                        # were user-provided, checkbox will ask for them
+                        # again
+                        self.transports.pop(params['transport'])
+                        continue
+                except InvalidSecureIDError:
+                    _logger.warning(_("Invalid secure_id"))
+                    if self._retry_dialog():
+                        self.launcher.transports['c3'].pop('secure_id')
+                        continue
                 done_sending = True
+
+    def _retry_dialog(self):
+        if self.is_interactive:
+            message = _("Do you want to retry?")
+            cmd = self._pick_action_cmd([
+                Action('y', _("yes"), 'y'),
+                Action('n', _("no"), 'n')
+            ], message)
+            if cmd == 'y':
+                return True
+        return False
 
     def register_arguments(self, parser):
         parser.add_argument(

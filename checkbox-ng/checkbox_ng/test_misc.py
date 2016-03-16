@@ -92,9 +92,6 @@ class TestSelectableJobTreeNode(TestCase):
             self.E,
             self.F
         ])
-        self.tree.expanded = True
-        for c in self.tree.get_descendants():
-            c.expanded = True
 
     def test_create_tree(self):
         self.assertIsInstance(self.tree, SelectableJobTreeNode)

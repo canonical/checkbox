@@ -51,11 +51,8 @@ class LauncherDefinition(config.Config):
 
     config_filename = config.Variable(
         section="config",
+        default="canonical-certification.conf",
         help_text=_("Name of custom configuration file"))
-
-    dont_suppress_output = config.Variable(
-        section="ui", kind=bool, default=False,
-        help_text=_("Don't suppress the output of certain job plugin types."))
 
     def get_concrete_launcher(self):
         """Create appropriate LauncherDefinition instance.
@@ -98,6 +95,10 @@ class LauncherDefinitionLegacy(LauncherDefinition):
     text = config.Variable(
         section="welcome",
         help_text=_("Welcome Message"))
+
+    dont_suppress_output = config.Variable(
+        section="ui", kind=bool, default=False,
+        help_text=_("Don't suppress the output of certain job plugin types."))
 
     whitelist_filter = config.Variable(
         section="suite",
@@ -244,6 +245,10 @@ class LauncherDefinition1(LauncherDefinition):
         default='interactive',
         validator_list=[config.ChoiceValidator(['interactive', 'silent'])],
         help_text=_('Type of stock user interface to use.'))
+
+    dont_suppress_output = config.Variable(
+        section="ui", kind=bool, default=False,
+        help_text=_("Don't suppress the output of certain job plugin types."))
 
     restart_strategy = config.Variable(
         section='restart',

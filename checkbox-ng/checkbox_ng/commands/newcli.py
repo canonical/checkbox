@@ -33,6 +33,7 @@ import io
 import operator
 import os
 import re
+import subprocess
 import sys
 
 from plainbox.abc import IJobResult
@@ -85,6 +86,9 @@ class CliInvocation2(RunInvocation):
         self._qualifier_list = []
         self._testplan_list = []
         self.select_qualifier_list()
+        # MAAS-deployed server images need "tput reset" to keep ugliness
+        # from happening....
+        subprocess.check_call(['tput', 'reset'])
 
     @property
     def launcher(self):

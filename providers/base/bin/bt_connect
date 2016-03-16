@@ -1,0 +1,188 @@
+#!/usr/bin/env python
+# possibility to lockup, if it times out
+# TODO: 1. python -> python3
+#       2. asychronous with GLib (gobject not supported with python3)
+#       3. mouse/kb class code
+#       4. scan feature
+#       5. better exception handling (wrong PIN, authentication rejected)
+#       6. different PIN selection
+import gobject
+
+import time
+import pdb
+import dbus
+import dbus.service
+import dbus.mainloop.glib
+#from gi.repository import GLib
+from argparse import ArgumentParser
+
+PIN = '0000'
+mainloop = gobject.MainLoop()
+#mainloop = GLib.MainLoop()
+
+class Rejected(dbus.DBusException):
+    _dbus_error_name = "org.bluez.Error.Rejected"
+
+
+class Agent(dbus.service.Object):
+    exit_on_release = True
+
+    def set_exit_on_release(self, exit_on_release):
+        self.exit_on_release = exit_on_release
+
+    @dbus.service.method("org.bluez.Agent",
+                         in_signature="", out_signature="")
+    def Release(self):
+        if self.exit_on_release:
+            mainloop.quit()
+
+    @dbus.service.method("org.bluez.Agent",
+                         in_signature="os", out_signature="")
+    def Authorize(self, device, uuid):
+        print("Authorize {}, {}".format(device, uuid))
+        authorize = raw_input("Authorize connection (yes/no): ")
+        if (authorize == "yes"):
+            return
+        raise Rejected("Connection rejected by user")
+
+    @dbus.service.method("org.bluez.Agent",
+                         in_signature="o", out_signature="s")
+    def RequestPinCode(self, device):
+        print("RequestPinCode {}".format(device))
+        print("Sending {}".format(PIN))
+        # need to figure out how to send 0000 / 1111 / 1234
+        return PIN
+        # return raw_input("Enter PIN Code: ")
+
+    @dbus.service.method("org.bluez.Agent",
+                         in_signature="o", out_signature="u")
+    def RequestPasskey(self, device):
+        print("RequestPasskey {}".format(device))
+        passkey = raw_input("Enter passkey: ")
+        return dbus.UInt32(passkey)
+
+    @dbus.service.method("org.bluez.Agent",
+                         in_signature="ou", out_signature="")
+    def DisplayPasskey(self, device, passkey):
+        print("DisplayPasskey {}, {}".format(device, passkey))
+
+    @dbus.service.method("org.bluez.Agent",
+                         in_signature="ou", out_signature="")
+    def RequestConfirmation(self, device, passkey):
+        print("RequestConfirmation {}, {})".format(device, passkey))
+        confirm = raw_input("Confirm passkey (yes/no): ")
+        if (confirm == "yes"):
+            return
+        raise Rejected("Passkey doesn't match")
+
+    @dbus.service.method("org.bluez.Agent",
+                         in_signature="s", out_signature="")
+    def ConfirmModeChange(self, mode):
+        print("ConfirmModeChange {}".format(mode))
+        authorize = raw_input("Authorize mode change (yes/no): ")
+        if (authorize == "yes"):
+            return
+        raise Rejected("Mode change by user")
+
+    @dbus.service.method("org.bluez.Agent",
+                         in_signature="", out_signature="")
+    def Cancel(self):
+        print("Cancel")
+
+
+def create_device_reply(device):
+    print("New device {}".format(device))
+    mainloop.quit()
+
+
+def create_device_error(error):
+    print("Creating device failed: {}".format(error))
+    mainloop.quit()
+
+
+def property_changed(name, value):
+    if (name == "Discovering" and not value):
+        mainloop.quit()
+
+
+def device_found(address, properties):
+    print("Name: {}".format(properties['Name']))
+    print("MAC: {}\tClass: {}".format(properties['Address'], hex(properties['Class'])))
+
+def main():
+    """Add argument parser here and do most of the job."""
+    parser = ArgumentParser(description="Bluetooth auto paring and connect. You must select one option.")
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--mac", type=str,
+                       help="Connect to an assigned MAC, not using auto scan result")
+    group.add_argument("--mouse", action="store_true",
+                       help="Pair with any mouse found from scan result")
+    group.add_argument("--keyboard", action="store_true",
+                       help="Pair with any keyboard found from scan result")
+
+    parser.add_argument("-i", "--interface", type=str,
+                        help="Device interface, e.g. hci0")
+    # from the original code
+    parser.add_argument("-c", "--capability", type=str, default="DisplayYesNo")
+    args = parser.parse_args()
+
+    dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+    bus = dbus.SystemBus()
+    manager = dbus.Interface(bus.get_object("org.bluez", "/"),
+                             "org.bluez.Manager")
+
+    if args.interface:
+        path = manager.FindAdapter(args.interface)
+    else:
+        path = manager.DefaultAdapter()
+
+    adapter = dbus.Interface(bus.get_object("org.bluez", path),
+                             "org.bluez.Adapter")
+
+    path = "/test/agent"
+    agent = Agent(bus, path)
+    if not args.mac:
+        # Activate scan and auto pairing
+        bus.add_signal_receiver(device_found,
+                                dbus_interface = "org.bluez.Adapter",
+                                signal_name = "DeviceFound")
+        bus.add_signal_receiver(property_changed,
+                                dbus_interface = "org.bluez.Adapter",
+                                signal_name = "PropertyChanged")
+    else:
+        device_mac = args.mac
+
+    # Try to remove the Device entry if exist
+    try:
+        device = adapter.FindDevice(args.mac)
+        print("Device already exist, remove it first")
+        adapter.RemoveDevice(device)
+    except dbus.exceptions.DBusException:
+        print("Creating device entry")
+#        for item in adapter.ListDevices():
+#            if args[1].replace(':','_') in item:
+#                print("Device Already Exist, remove it first")
+#                device = adapter.FindDevice(args[1])
+#                adapter.RemoveDevice(device)
+    agent.set_exit_on_release(False)
+    print("Paring device")
+    adapter.CreatePairedDevice(args.mac, path, args.capability,
+                               reply_handler=create_device_reply,
+                               error_handler=create_device_error)
+#    else:
+#        adapter.RegisterAgent(path, args.capability)
+#        print("Agent registered")
+
+    mainloop.run()
+
+    time.sleep(3)
+    print("Connecting device...")
+    device = adapter.FindDevice(args.mac)
+    hid = dbus.Interface(bus.get_object("org.bluez", device),
+                         "org.bluez.Input")
+    hid.Connect()
+#    adapter.UnregisterAgent(path)
+#    print("Agent unregistered")
+
+if __name__ == "__main__":
+    main()

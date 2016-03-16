@@ -1,24 +1,29 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # possibility to lockup, if it times out
-# TODO: 1. python -> python3
-#       2. asychronous with GLib (gobject not supported with python3)
+# TODO: 1. OK - python -> python3 
+#       2. OK - asychronous run with GLib (gobject not supported with python3)
 #       3. mouse/kb class code
-#       4. scan feature
+#       4. INPROGRESS - scan feature
 #       5. better exception handling (wrong PIN, authentication rejected)
 #       6. different PIN selection
-import gobject
+#       7. MAC address validator
+try:
+    from gi.repository import GObject
+except ImportError:
+    import gobject as GObject
 
 import time
 import pdb
 import dbus
 import dbus.service
-import dbus.mainloop.glib
+from dbus.mainloop.glib import DBusGMainLoop
 #from gi.repository import GLib
 from argparse import ArgumentParser
 
 PIN = '0000'
-mainloop = gobject.MainLoop()
+mainloop = GObject.MainLoop()
 #mainloop = GLib.MainLoop()
+
 
 class Rejected(dbus.DBusException):
     _dbus_error_name = "org.bluez.Error.Rejected"
@@ -101,13 +106,18 @@ def create_device_error(error):
 
 
 def property_changed(name, value):
+    '''handler function for "PropertyChanged" signal'''
     if (name == "Discovering" and not value):
         mainloop.quit()
 
 
 def device_found(address, properties):
-    print("Name: {}".format(properties['Name']))
+    '''handler function for "DeviceFound" signal'''
+#    print("Name: {}".format(properties['Name']))
     print("MAC: {}\tClass: {}".format(properties['Address'], hex(properties['Class'])))
+
+#def device_found(sender=None):
+#    print("got signal from {}".format(sender))
 
 def main():
     """Add argument parser here and do most of the job."""
@@ -126,7 +136,7 @@ def main():
     parser.add_argument("-c", "--capability", type=str, default="DisplayYesNo")
     args = parser.parse_args()
 
-    dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+    DBusGMainLoop(set_as_default=True)
     bus = dbus.SystemBus()
     manager = dbus.Interface(bus.get_object("org.bluez", "/"),
                              "org.bluez.Manager")
@@ -144,17 +154,20 @@ def main():
     if not args.mac:
         # Activate scan and auto pairing
         bus.add_signal_receiver(device_found,
-                                dbus_interface = "org.bluez.Adapter",
-                                signal_name = "DeviceFound")
+                                signal_name="DeviceFound",
+                                dbus_interface="org.bluez.Adapter")
         bus.add_signal_receiver(property_changed,
-                                dbus_interface = "org.bluez.Adapter",
-                                signal_name = "PropertyChanged")
+                                signal_name = "PropertyChanged",
+                                dbus_interface= "org.bluez.Adapter")
+        adapter.StartDiscovery()
+        mainloop.run()
+#        device_mac =
     else:
         device_mac = args.mac
 
     # Try to remove the Device entry if exist
     try:
-        device = adapter.FindDevice(args.mac)
+        device = adapter.FindDevice(device_mac)
         print("Device already exist, remove it first")
         adapter.RemoveDevice(device)
     except dbus.exceptions.DBusException:
@@ -166,18 +179,15 @@ def main():
 #                adapter.RemoveDevice(device)
     agent.set_exit_on_release(False)
     print("Paring device")
-    adapter.CreatePairedDevice(args.mac, path, args.capability,
+    adapter.CreatePairedDevice(device_mac, path, args.capability,
                                reply_handler=create_device_reply,
                                error_handler=create_device_error)
-#    else:
-#        adapter.RegisterAgent(path, args.capability)
-#        print("Agent registered")
 
     mainloop.run()
 
     time.sleep(3)
     print("Connecting device...")
-    device = adapter.FindDevice(args.mac)
+    device = adapter.FindDevice(device_mac)
     hid = dbus.Interface(bus.get_object("org.bluez", device),
                          "org.bluez.Input")
     hid.Connect()

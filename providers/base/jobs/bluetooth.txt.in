@@ -1,6 +1,6 @@
 unit: manifest entry
-id: has_bt_4_x
-_name: Bluetooth 4.x Support
+id: has_bt_smart
+_name: Bluetooth Smart (4.0 or later) Support
 requires:
  device.category == 'BLUETOOTH'
 value-type: bool
@@ -168,7 +168,7 @@ plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::bluetooth
 id: bluetooth4/HOGP-mouse
 depends: bluetooth/detect-output
-requires: manifest.has_bt_4_x == 'True'
+requires: manifest.has_bt_smart == 'True'
 estimated_duration: 30.0
 command: bt_connect --mac `zenity --entry`
 _description:
@@ -186,7 +186,7 @@ plugin: user-interact-verify
 category_id: 2013.com.canonical.plainbox::bluetooth
 id: bluetooth4/HOGP-keyboard
 depends: bluetooth/detect-output
-requires: manifest.has_bt_4_x == 'True'
+requires: manifest.has_bt_smart == 'True'
 estimated_duration: 30.0
 command: keyboard_test
 _description:

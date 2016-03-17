@@ -1,28 +1,46 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# This file is part of Checkbox.
+#
+# Copyright 2016 Canonical Ltd.
+#
+# Authors:
+#    Po-Hsu Lin <po-hsu.lin@canonical.com>
+#    Yung Shen <yung.shen@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+
 # possibility to lockup, if it times out
-# TODO: 1. OK - python -> python3 
-#       2. OK - asychronous run with GLib (gobject not supported with python3)
-#       3. mouse/kb class code
-#       4. INPROGRESS - scan feature
-#       5. better exception handling (wrong PIN, authentication rejected)
+# TODO: 5. better exception handling (wrong PIN, authentication rejected)
 #       6. different PIN selection
 #       7. MAC address validator
+#       8. Use logging for information
+#       9. PEP8
 try:
     from gi.repository import GObject
 except ImportError:
     import gobject as GObject
 
 import time
-import pdb
 import dbus
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
-#from gi.repository import GLib
 from argparse import ArgumentParser
 
 PIN = '0000'
+CLASS_CODE = {'mouse': [0x580, 0x2580], 'keyboard': [0x540, 0x2540]}
 mainloop = GObject.MainLoop()
-#mainloop = GLib.MainLoop()
 
 
 class Rejected(dbus.DBusException):
@@ -53,8 +71,9 @@ class Agent(dbus.service.Object):
     @dbus.service.method("org.bluez.Agent",
                          in_signature="o", out_signature="s")
     def RequestPinCode(self, device):
-        print("RequestPinCode {}".format(device))
-        print("Sending {}".format(PIN))
+        print("Sending PIN: {} to your device.".format(PIN))
+        if TARGET is not 'mouse':
+            print("For keyboard, please type this PIN on it and hit Enter.")
         # need to figure out how to send 0000 / 1111 / 1234
         return PIN
         # return raw_input("Enter PIN Code: ")
@@ -69,7 +88,7 @@ class Agent(dbus.service.Object):
     @dbus.service.method("org.bluez.Agent",
                          in_signature="ou", out_signature="")
     def DisplayPasskey(self, device, passkey):
-        print("DisplayPasskey {}, {}".format(device, passkey))
+        print("Please enter the passkey: {} on your device".format(passkey))
 
     @dbus.service.method("org.bluez.Agent",
                          in_signature="ou", out_signature="")
@@ -101,38 +120,45 @@ def create_device_reply(device):
 
 
 def create_device_error(error):
-    print("Creating device failed: {}".format(error))
+    if error._dbus_error_name == 'org.bluez.Error.AuthenticationFailed':
+        print("ERROR: Passcode Authentication Failed, wrong passcode?")
+    else:
+        print("Creating device failed: {}".format(error))
     mainloop.quit()
 
 
 def property_changed(name, value):
-    '''handler function for "PropertyChanged" signal'''
+    """handler function for "PropertyChanged" signal."""
     if (name == "Discovering" and not value):
         mainloop.quit()
 
 
 def device_found(address, properties):
-    '''handler function for "DeviceFound" signal'''
-#    print("Name: {}".format(properties['Name']))
-    print("MAC: {}\tClass: {}".format(properties['Address'], hex(properties['Class'])))
+    global DEVICE_MAC
+    """handler function for "DeviceFound" signal."""
+    if properties['Class'] in CLASS_CODE[TARGET]:
+        print("Device found: {}".format(properties['Name']))
+        print("MAC address: {}".format(properties['Address']))
+        DEVICE_MAC = properties['Address']
 
-#def device_found(sender=None):
-#    print("got signal from {}".format(sender))
 
 def main():
     """Add argument parser here and do most of the job."""
-    parser = ArgumentParser(description="Bluetooth auto paring and connect. You must select one option.")
+    global TARGET
+    global DEVICE_MAC
+    DEVICE_MAC = None
+    parser = ArgumentParser(description="Bluetooth auto paring and connect. Please select one option.")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--mac", type=str,
-                       help="Connect to an assigned MAC, not using auto scan result")
-    group.add_argument("--mouse", action="store_true",
-                       help="Pair with any mouse found from scan result")
-    group.add_argument("--keyboard", action="store_true",
-                       help="Pair with any keyboard found from scan result")
-
+                       help="Pair with a given MAC, not using scan result,")
+    group.add_argument("--mouse", action="store_const",
+                       const="mouse", dest='target',
+                       help="Pair with the last mouse found from scan result.")
+    group.add_argument("--keyboard", action="store_const",
+                       const="keyboard", dest='target',
+                       help="Pair with the last keyboard found from scan result.")
     parser.add_argument("-i", "--interface", type=str,
                         help="Device interface, e.g. hci0")
-    # from the original code
     parser.add_argument("-c", "--capability", type=str, default="DisplayYesNo")
     args = parser.parse_args()
 
@@ -140,7 +166,6 @@ def main():
     bus = dbus.SystemBus()
     manager = dbus.Interface(bus.get_object("org.bluez", "/"),
                              "org.bluez.Manager")
-
     if args.interface:
         path = manager.FindAdapter(args.interface)
     else:
@@ -153,33 +178,33 @@ def main():
     agent = Agent(bus, path)
     if not args.mac:
         # Activate scan and auto pairing
+        TARGET = args.target
+        print("Trying to scan and pair with a {}.".format(TARGET))
         bus.add_signal_receiver(device_found,
                                 signal_name="DeviceFound",
                                 dbus_interface="org.bluez.Adapter")
         bus.add_signal_receiver(property_changed,
-                                signal_name = "PropertyChanged",
-                                dbus_interface= "org.bluez.Adapter")
+                                signal_name="PropertyChanged",
+                                dbus_interface="org.bluez.Adapter")
         adapter.StartDiscovery()
         mainloop.run()
-#        device_mac =
+        adapter.StopDiscovery()
+        if not DEVICE_MAC:
+            print("ERROR: No pairable device found, terminating")
+            return 1
     else:
-        device_mac = args.mac
+        DEVICE_MAC = args.mac
 
     # Try to remove the Device entry if exist
     try:
-        device = adapter.FindDevice(device_mac)
+        device = adapter.FindDevice(DEVICE_MAC)
         print("Device already exist, remove it first")
         adapter.RemoveDevice(device)
     except dbus.exceptions.DBusException:
         print("Creating device entry")
-#        for item in adapter.ListDevices():
-#            if args[1].replace(':','_') in item:
-#                print("Device Already Exist, remove it first")
-#                device = adapter.FindDevice(args[1])
-#                adapter.RemoveDevice(device)
     agent.set_exit_on_release(False)
     print("Paring device")
-    adapter.CreatePairedDevice(device_mac, path, args.capability,
+    adapter.CreatePairedDevice(DEVICE_MAC, path, args.capability,
                                reply_handler=create_device_reply,
                                error_handler=create_device_error)
 
@@ -187,12 +212,10 @@ def main():
 
     time.sleep(3)
     print("Connecting device...")
-    device = adapter.FindDevice(device_mac)
+    device = adapter.FindDevice(DEVICE_MAC)
     hid = dbus.Interface(bus.get_object("org.bluez", device),
                          "org.bluez.Input")
     hid.Connect()
-#    adapter.UnregisterAgent(path)
-#    print("Agent unregistered")
 
 if __name__ == "__main__":
     main()

@@ -1,3 +1,9 @@
+plainbox-provider-certification-client (0.23-1) precise; urgency=medium
+
+  * new upstream version
+
+ -- Sylvain Pineau <sylvain.pineau@canonical.com>  Thu, 17 Mar 2016 23:36:18 +0100
+
 plainbox-provider-certification-client (0.22-2) precise; urgency=medium
 
   * Remove the module-init-tools dependency (the checkbox provider already

@@ -60,7 +60,7 @@ plugin: shell
 category_id: 2013.com.canonical.plainbox::cpu
 id: cpu/topology
 estimated_duration: 1.0
-requires: int(cpuinfo.count) > 1 and (cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64')
+requires: int(cpuinfo.count) > 1 and (cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64' or cpuinfo.platform == 's390x')
 command: cpu_topology
 _description:
  This test checks cpu topology for accuracy between proc and sysfs.

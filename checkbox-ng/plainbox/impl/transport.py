@@ -325,11 +325,11 @@ class StreamTransport(TransportBase):
     """Transport for printing data to a stream (stdout or stderr)."""
 
     def __init__(self, stream, options=None):
+        self._stdout = TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+        self._stderr = TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
         url, self._stream = {
-            'stdout': ('python://stdout',
-                       TextIOWrapper(sys.stdout.buffer, encoding='utf-8')),
-            'stderr': ('python://stderr',
-                       TextIOWrapper(sys.stderr.buffer, encoding='utf-8'))
+            'stdout': ('python://stdout', self._stdout),
+            'stderr': ('python://stderr', self._stderr)
         }[stream]
         super().__init__(url, options)
 

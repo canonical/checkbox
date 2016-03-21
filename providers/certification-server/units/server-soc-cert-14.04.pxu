@@ -9,13 +9,16 @@ mandatory_include:
     # Meta-job to include required resources, please don't remove
     miscellanea/submission-resources
     cpuinfo_attachment
+    dkms_info_attachment
     dmesg_attachment
     efi_attachment
     lspci_attachment
     lshw_attachment
     lsusb_attachment
+    lsblk_attachment
     meminfo_attachment
     modprobe_attachment
+    modinfo_attachment
     modules_attachment
     sysctl_attachment
     sysfs_attachment
@@ -27,6 +30,8 @@ mandatory_include:
     miscellanea/cpus_are_not_samples
     miscellanea/dmitest_server
     info/disk_partitions
+    info/network_devices
+    kernel_cmdline_attachment
 include:
     info/hdparm_.*.txt
     miscellanea/fwts_test

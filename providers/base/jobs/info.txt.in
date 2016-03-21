@@ -399,8 +399,6 @@ id: info/kvm_output
 estimated_duration: 0.1
 _summary:
  Attaches console log from the kvm_check_vm test
- _summary:
-  Attaches console log from the kvm_check_vm test
 _description: 
  Attaches the debug log from the virtualization/kvm_check_vm test
  to the results submission.

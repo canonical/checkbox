@@ -16,7 +16,7 @@ from plainbox.provider_manager import setup, N_
 setup(
     name='sru',
     namespace='2013.com.canonical.certification',
-    version="1.1",
+    version="1.2",
     description=N_("The 2013.com.canonical.certification:sru provider"),
     gettext_domain="2013_com_canonical_certification_sru",
 )

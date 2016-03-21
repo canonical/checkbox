@@ -4,6 +4,8 @@ id: disk/detect
 requires: package.name == 'util-linux'
 estimated_duration: 0.25
 command: disk_info
+_summary:
+ Display info about each detected disk device
 _description: 
  Displays information about each disk detected on the system under test.
 
@@ -56,6 +58,8 @@ requires:
  device.path == "{path}"
  block_device.{name}_state != 'removable'
  block_device.{name}_smart != 'True'
+_summary:
+ Test SMART capabilities for {product}
 _description:
  This tests the SMART capabilities for {product} (Note that this test will not work against hardware RAID)
 user: root
@@ -71,7 +75,8 @@ estimated_duration: 65.0
 requires:
  device.path == "{path}"
  block_device.{name}_state != 'removable'
-description: Disk performance test for {product}
+_summary: Disk performance test for {product}
+_description: Disk performance test for {product}
 user: root
 command: disk_read_performance_test {name}
 
@@ -86,6 +91,7 @@ user: root
 requires:
  device.path == "{path}"
  block_device.{name}_state != 'removable'
+_summary: Disk I/O stress test for {product}
 _description: Disk I/O stress test for {product}
 command: storage_test {name}
 

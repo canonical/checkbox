@@ -21,7 +21,7 @@ estimated_duration: 10.0
 requires: device.path == '{path}'
 user: root
 command: hdparm -T /dev/{name}
-_summary: Cached read timing benchmark of {name} using hdparm.
+_summary: Cached read timing benchmark of {name} using hdparm
 _description: This test runs hdparm timing of cache reads as a benchmark for {name}
 
 plugin: shell

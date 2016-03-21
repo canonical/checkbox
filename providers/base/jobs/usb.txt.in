@@ -3,6 +3,7 @@ category_id: 2013.com.canonical.plainbox::usb
 id: usb/detect
 estimated_duration: 1.0
 command: set -o pipefail; lsusb 2>/dev/null | sed 's/.*\(ID .*\)/\1/' | head -n 4 || echo "No USB devices were detected" >&2
+_summary: Display USB devices attached to SUT
 _description: Detects and shows USB devices attached to this system.
 
 plugin: user-interact-verify
@@ -175,6 +176,8 @@ id: usb/storage-preinserted
 user: root
 estimated_duration: 45.0
 command: removable_storage_test -l usb && removable_storage_test -s 268400000 usb
+_summary:
+ Test USB 2.0 or 1.1 ports
 _description:
  Tests USB 2.0 or 1.1 ports on a system by doing write/read/compare tests on
  randomly created data.  It requires that a USB stick is plugged into an
@@ -188,6 +191,8 @@ requires:
  usb.usb3 == 'supported'
 estimated_duration: 45.0
 command: removable_storage_test -l usb && removable_storage_test -s 268400000 -m 500000000 usb --driver xhci_hcd
+_summary: 
+ Test USB 3.0 or 3.1 ports
 _description:
  Tests USB 3.0 ports on a system by doing write/read/compare tests on
  randomly created data. It requires that a USB stick is plugged into an

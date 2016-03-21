@@ -24,6 +24,8 @@ requires:
  package.name == 'stress-ng'
 user: root
 command: cpu_stress --runtime 7200
+_summary:
+ Stress of CPUs (very long runtime)
 _description:
  Impose a high system load using the 'stress_ng' tool to exercise the CPU for
  several hours. The test is considered passed if the system does not freeze and

@@ -15,6 +15,8 @@ depends:
  udev_attachment
 estimated_duration: 1.0
 command: true
+_summary:
+ Check that data for a complete result are present
 _description:
  A meta-job that verifies the data necessary for a complete result
  submission are present. Failure indicates that the results are incomplete
@@ -89,6 +91,8 @@ id: miscellanea/ipmi_test
 requires: package.name == 'ipmitool'
 user: root
 command: ipmi_test
+_summary:
+ Test IPMI in-band communications
 _description:
  This will run some basic commands in-band against a BMC, verifying that IPMI
  works. Use of MAAS to deploy the system implicitly tests out-of-band BMC
@@ -100,7 +104,7 @@ estimated_duration: 0.5
 id: miscellanea/boot_mode
 requires:
  cpuinfo.platform in ("i386", "x86_64", "aarch64")
-_summary: EFI-mode boot test
+_summary: Test that system booted in EFI mode
 _description: 
  Test to verify that the system booted in EFI mode with Secure Boot active.
 command: boot_mode_test
@@ -116,7 +120,7 @@ _description:
  This will gather some info about the BMC itself for diagnostic purposes. This
  will not works on non-IPMI systems like AMT and blade/sled type systems.
 _summary:
- Gather BMC Identification info
+ Gather BMC identification info
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::miscellanea
@@ -128,7 +132,7 @@ command: dmitest cpu-check
 _description:
  Sanity check of CPU information; fails if CPU is an engineering sample
 _summary:
- CPU sanity check
+ Test DMI data for CPUs
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::miscellanea
@@ -140,7 +144,7 @@ command: dmitest --test_versions --test_serials server
 _description:
  Sanity check of DMI system identification data (for servers)
 _summary:
- DMI ID sanity check (servers)
+ Test DMI identification data (servers)
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::miscellanea
@@ -256,7 +260,7 @@ command:
    false
  fi
 _description: If system was installed via MAAS from a cert server, the MAAS version used should be contained in /etc/installed-by-maas
-_summary: Gets the version of MAAS used to deploy the SUT
+_summary: Attach MAAS version used to deploy the SUT
 
 plugin: shell
 category_id: 2013.com.canonical.plainbox::miscellanea
@@ -265,4 +269,4 @@ id: miscellanea/get_make_and_model
 user: root
 command: get_make_and_model
 _description: Retrieve the computer's make and model for easier access than digging through the dmidecode output.
-_summary: Retrieve the computer's make and model
+_summary: Gather info on the SUT's make and model

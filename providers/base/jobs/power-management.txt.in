@@ -165,6 +165,7 @@ requires:
 user: root
 command: hwclock -r
 estimated_duration: 0.02
+_summary: Test that RTC functions properly (if present)
 _description:
  Verify that the Real-time clock (RTC) device functions properly, if present.
 

@@ -4,6 +4,8 @@ id: memory/info
 estimated_duration: 5.0 
 user: root
 command: memory_compare
+_summary:
+ Test that meminfo matches DMI memory information
 _description:
  This test checks the amount of memory which is reporting in meminfo against
  the size of the memory modules detected by DMI.
@@ -30,6 +32,7 @@ user: root
 requires:
  package.name == 'stress-ng'
 command: memory_stress_ng
+_summary: Stress test of system memory
 _description:
  Test to perform some basic stress and exercise of system memory via the
  stress_ng tool. This test also includes an over-commit function to force

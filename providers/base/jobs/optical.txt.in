@@ -3,6 +3,7 @@ category_id: 2013.com.canonical.plainbox::optical
 id: optical/detect
 requires: device.category == 'CDROM'
 estimated_duration: 1.2
+_summary: Displays discovered optical drives
 _description: Detects optical drives (CD/DVD) attached to the system.
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=CDROM"' | sed '/^$/d'
@@ -39,6 +40,8 @@ estimated_duration: 120.0
 requires: device.path == "{path}"
 user: root
 command: optical_read_test /dev/{name}
+_summary:
+ Tests read functionality of optical drive {name}
 _description:
  This is an automated version of optical/read. It assumes you have already inserted a data CD into your optical drive prior to running Checkbox.
 

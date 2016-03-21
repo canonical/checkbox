@@ -11,6 +11,8 @@ requires:
  package.name == 'pciutils'
 command: network_device_info
 estimated_duration: 1.2
+_summary:
+ Report info about available network devices
 _description: 
  Test to detect and return information about available network controllers on
  the system under test.
@@ -23,6 +25,8 @@ requires:
  device.category == 'NETWORK'
 command: udev_resource | filter_templates -w "category=NETWORK" | awk "/interface: / { print \$2 }" | xargs -n 1 network_info
 estimated_duration: 30.0
+_summary:
+ Gather info on current state of network devices
 _description:
  Gathers some info on the current state of your network devices. If no devices
  are found, the test will exit with an error.
@@ -48,7 +52,7 @@ template-filter: device.category == 'NETWORK'
 plugin: shell
 category_id: 2013.com.canonical.plainbox::ethernet
 id: ethernet/multi_nic_device{__index__}_{interface}
-_summary: Multi-NIC Iperf testing for NIC {interface}
+_summary: Multi-NIC Iperf stress testing for NIC {interface}
 estimated_duration: 7400.0
 requires:
  device.path == '{path}'
@@ -68,7 +72,7 @@ template-filter: device.category == 'NETWORK'
 plugin: shell
 category_id: 2013.com.canonical.plainbox::ethernet
 id: ethernet/multi_iperf3_nic_device{__index__}_{interface}
-_summary: Multi-NIC Iperf3 testing for NIC {interface}
+_summary: Multi-NIC Iperf3 stress testing for NIC {interface}
 estimated_duration: 7400.0
 requires:
  device.path == '{path}'

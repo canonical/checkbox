@@ -55,9 +55,9 @@ requires:
  package.name == 'smartmontools'
  device.path == "{path}"
  block_device.{name}_state != 'removable'
- block_device.{name}_smart != 'True'
+ block_device.{name}_smart == 'True'
 _description:
- This tests the SMART capabilities for {product} (Note that this test will not work against hardware RAID)
+ This tests the SMART capabilities for {product} (Note that this test may not work against hardware RAID)
 user: root
 command: disk_smart -b /dev/{name} -s 130 -t 530
 

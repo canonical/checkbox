@@ -26,6 +26,7 @@ from gettext import gettext as _
 import logging
 
 from checkbox_ng.config import SECURE_ID_PATTERN
+from plainbox.impl.applogic import PlainBoxConfig
 from plainbox.impl.secure import config
 from plainbox.impl.session.assistant import get_all_sa_flags
 from plainbox.impl.session.assistant import get_known_sa_api_versions
@@ -35,7 +36,7 @@ from plainbox.impl.transport import get_all_transports
 logger = logging.getLogger("checkbox.ng.launcher")
 
 
-class LauncherDefinition(config.Config):
+class LauncherDefinition(PlainBoxConfig):
     """
     Launcher definition.
 
@@ -269,6 +270,9 @@ class LauncherDefinition1(LauncherDefinition):
     transports = config.ParametricSection(
         name='transport',
         help_text=_('Transport declaration'))
+
+    environment = config.Section(
+        help_text=_('Environment variables to use'))
 
 
 DefaultLauncherDefinition = LauncherDefinition1

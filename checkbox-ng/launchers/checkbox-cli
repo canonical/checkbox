@@ -202,6 +202,7 @@ class CheckboxLauncher(CheckboxCommand):
             self.ctx = ctx
             self._configure_restart(ctx)
             self._prepare_transports()
+            ctx.sa.use_alternate_configuration(self.launcher)
             ctx.sa.select_providers(*self.launcher.providers)
             self._maybe_resume_session() or self._start_new_session()
             self._pick_jobs_to_run()

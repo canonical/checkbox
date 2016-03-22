@@ -186,6 +186,23 @@ Override the restart strategy that should be used. Currently supported
 strategies are ``XDG`` and ``Snappy``. By default the best strategy is
 determined in runtime.
 
+Environment section
+===================
+
+``[environment]``
+
+Beginning of the environment section
+
+Each variable present in the ``environment`` section will be present as
+environment variable for all jobs run.
+
+Example:
+
+::
+
+    [environment]
+    TESTING_HOST = 192.168.0.100
+
 
 Generating reports
 ==================
